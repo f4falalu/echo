@@ -1,8 +1,8 @@
-import { validateSqlPermissions, createPermissionErrorMessage } from './permission-validator';
 import type { RuntimeContext } from '@mastra/core/runtime-context';
 import type { AnalystRuntimeContext } from '../../workflows/analyst-workflow';
+import { createPermissionErrorMessage, validateSqlPermissions } from './permission-validator';
 
-export interface ExecuteWithPermissionResult<T = any> {
+export interface ExecuteWithPermissionResult<T = unknown> {
   success: boolean;
   data?: T;
   error?: string;
@@ -18,35 +18,35 @@ export async function executeWithPermissionCheck<T>(
   executeFn: () => Promise<T>
 ): Promise<ExecuteWithPermissionResult<T>> {
   const userId = runtimeContext.get('userId');
-  
+
   if (!userId) {
     return {
       success: false,
-      error: 'User authentication required for SQL execution'
+      error: 'User authentication required for SQL execution',
     };
   }
-  
+
   // Validate permissions
   const permissionResult = await validateSqlPermissions(sql, userId);
-  
+
   if (!permissionResult.isAuthorized) {
     return {
       success: false,
-      error: createPermissionErrorMessage(permissionResult.unauthorizedTables)
+      error: createPermissionErrorMessage(permissionResult.unauthorizedTables),
     };
   }
-  
+
   // Execute if authorized
   try {
     const result = await executeFn();
     return {
       success: true,
-      data: result
+      data: result,
     };
   } catch (error) {
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'SQL execution failed'
+      error: error instanceof Error ? error.message : 'SQL execution failed',
     };
   }
 }

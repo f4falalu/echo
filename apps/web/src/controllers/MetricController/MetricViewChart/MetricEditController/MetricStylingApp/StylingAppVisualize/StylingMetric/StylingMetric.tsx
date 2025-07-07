@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
-import type { ColumnMetaData, BusterMetricChartConfig } from '@/api/asset_interfaces';
-import type { DerivedMetricTitle } from '@/api/asset_interfaces/metric/charts';
+import type { ColumnMetaData, ChartConfigProps } from '@buster/server-shared/metrics';
+import type { DerivedMetricTitle } from '@buster/server-shared/metrics';
 import { Separator } from '@/components/ui/seperator';
 import { useUpdateMetricChart } from '@/context/Metrics';
 import { useMemoizedFn } from '@/hooks';
@@ -12,12 +12,12 @@ import { createColumnFieldOptions } from './helpers';
 
 export const StylingMetric: React.FC<{
   className?: string;
-  columnLabelFormats: BusterMetricChartConfig['columnLabelFormats'];
-  metricHeader: BusterMetricChartConfig['metricHeader'];
-  metricSubHeader: BusterMetricChartConfig['metricSubHeader'];
+  columnLabelFormats: ChartConfigProps['columnLabelFormats'];
+  metricHeader: ChartConfigProps['metricHeader'];
+  metricSubHeader: ChartConfigProps['metricSubHeader'];
   rowCount: number;
-  metricValueAggregate: BusterMetricChartConfig['metricValueAggregate'];
-  metricColumnId: BusterMetricChartConfig['metricColumnId'];
+  metricValueAggregate: ChartConfigProps['metricValueAggregate'];
+  metricColumnId: ChartConfigProps['metricColumnId'];
   columnMetadata: ColumnMetaData[];
 }> = ({
   className,
@@ -31,7 +31,7 @@ export const StylingMetric: React.FC<{
 }) => {
   const { onUpdateMetricChartConfig } = useUpdateMetricChart();
 
-  const onUpdateChartConfig = useMemoizedFn((chartConfig: Partial<BusterMetricChartConfig>) => {
+  const onUpdateChartConfig = useMemoizedFn((chartConfig: Partial<ChartConfigProps>) => {
     onUpdateMetricChartConfig({ chartConfig });
   });
 
@@ -82,12 +82,12 @@ export const StylingMetric: React.FC<{
 };
 
 const PrimaryMetricStyling: React.FC<{
-  metricColumnId: BusterMetricChartConfig['metricColumnId'];
-  metricValueAggregate: BusterMetricChartConfig['metricValueAggregate'];
+  metricColumnId: ChartConfigProps['metricColumnId'];
+  metricValueAggregate: ChartConfigProps['metricValueAggregate'];
   columnFieldOptions: ReturnType<typeof createColumnFieldOptions>;
-  columnLabelFormats: BusterMetricChartConfig['columnLabelFormats'];
+  columnLabelFormats: ChartConfigProps['columnLabelFormats'];
   rowCount: number;
-  onUpdateChartConfig: (chartConfig: Partial<BusterMetricChartConfig>) => void;
+  onUpdateChartConfig: (chartConfig: Partial<ChartConfigProps>) => void;
 }> = ({
   metricColumnId,
   columnLabelFormats,
@@ -104,7 +104,7 @@ const PrimaryMetricStyling: React.FC<{
       metricColumnId: string;
       metricValueAggregate?: DerivedMetricTitle['aggregate'];
     }) => {
-      const newConfig: Partial<BusterMetricChartConfig> = {
+      const newConfig: Partial<ChartConfigProps> = {
         metricColumnId
       };
       if (metricValueAggregate) {
@@ -115,11 +115,9 @@ const PrimaryMetricStyling: React.FC<{
     }
   );
 
-  const onUpdateAggregate = useMemoizedFn(
-    (aggregate: BusterMetricChartConfig['metricValueAggregate']) => {
-      onUpdateChartConfig({ metricValueAggregate: aggregate });
-    }
-  );
+  const onUpdateAggregate = useMemoizedFn((aggregate: ChartConfigProps['metricValueAggregate']) => {
+    onUpdateChartConfig({ metricValueAggregate: aggregate });
+  });
 
   return (
     <div className="flex flex-col space-y-2">
@@ -142,12 +140,12 @@ const PrimaryMetricStyling: React.FC<{
 };
 
 const HeaderMetricStyling: React.FC<{
-  header: BusterMetricChartConfig['metricHeader'] | BusterMetricChartConfig['metricSubHeader'];
+  header: ChartConfigProps['metricHeader'] | ChartConfigProps['metricSubHeader'];
   columnFieldOptions: ReturnType<typeof createColumnFieldOptions>;
   rowCount: number;
-  columnLabelFormats: BusterMetricChartConfig['columnLabelFormats'];
+  columnLabelFormats: ChartConfigProps['columnLabelFormats'];
   type: 'header' | 'subHeader';
-  onUpdateChartConfig: (chartConfig: Partial<BusterMetricChartConfig>) => void;
+  onUpdateChartConfig: (chartConfig: Partial<ChartConfigProps>) => void;
 }> = ({ header, type, columnFieldOptions, rowCount, columnLabelFormats, onUpdateChartConfig }) => {
   const isStringHeader = typeof header === 'string';
   const isObjectHeader = typeof header === 'object';
@@ -186,20 +184,18 @@ const HeaderMetricStyling: React.FC<{
     }
   );
 
-  const onUpdateAggregate = useMemoizedFn(
-    (aggregate: BusterMetricChartConfig['metricValueAggregate']) => {
-      const key = type === 'header' ? 'metricHeader' : 'metricSubHeader';
-      const newConfig: DerivedMetricTitle = {
-        columnId: (header as DerivedMetricTitle)?.columnId,
-        useValue: true,
-        aggregate: 'sum'
-      };
-      if (aggregate) {
-        newConfig.aggregate = aggregate;
-      }
-      onUpdateChartConfig({ [key]: newConfig });
+  const onUpdateAggregate = useMemoizedFn((aggregate: ChartConfigProps['metricValueAggregate']) => {
+    const key = type === 'header' ? 'metricHeader' : 'metricSubHeader';
+    const newConfig: DerivedMetricTitle = {
+      columnId: (header as DerivedMetricTitle)?.columnId,
+      useValue: true,
+      aggregate: 'sum'
+    };
+    if (aggregate) {
+      newConfig.aggregate = aggregate;
     }
-  );
+    onUpdateChartConfig({ [key]: newConfig });
+  });
 
   const ComponentsLoop: {
     key: string;

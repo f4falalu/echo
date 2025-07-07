@@ -1,7 +1,6 @@
 'use client';
 
 import React, { memo, useMemo, useRef, useState } from 'react';
-import { ShareAssetType } from '@/api/asset_interfaces';
 import type { ChatListItem } from '@buster/server-shared/chats';
 import { FavoriteStar } from '@/components/features/list';
 import { getShareStatus } from '@/components/features/metrics/StatusBadgeIndicator';
@@ -172,7 +171,7 @@ const TitleCell = React.memo<{ name: string; chatId: string }>(({ name, chatId }
       <div className="mr-2 flex items-center" onClick={onFavoriteDivClick}>
         <FavoriteStar
           id={chatId}
-          type={ShareAssetType.CHAT}
+          type={'chat'}
           iconStyle="tertiary"
           title={name}
           className="opacity-0 group-hover:opacity-100"

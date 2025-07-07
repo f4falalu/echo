@@ -1,6 +1,6 @@
 import React from 'react';
 import type { TeamRole } from '@/api/asset_interfaces';
-import { useUpdateUserTeams } from '@/api/buster_rest';
+import { useUpdateUserTeams } from '@/api/buster_rest/users/permissions';
 import { PermissionAssignTeamRoleButton } from '@/components/features/PermissionComponents';
 import { BusterListSelectedOptionPopupContainer } from '@/components/ui/list';
 import { useMemoizedFn } from '@/hooks';

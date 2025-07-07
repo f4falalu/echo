@@ -1,7 +1,8 @@
 import { z } from 'zod/v4';
 import { ShareConfigSchema, VerificationStatusSchema } from '../share';
 import { ChartConfigPropsSchema } from './charts';
-import { DEFAULT_CHART_CONFIG } from './charts/chatConfig.defaults';
+import { DEFAULT_CHART_CONFIG } from './charts/chartConfigProps';
+import { getDefaults } from './defaultHelpers';
 import { DataMetadataSchema } from './metadata.type';
 
 export const MetricSchema = z.object({
@@ -50,3 +51,5 @@ export const MetricSchema = z.object({
 });
 
 export type Metric = z.infer<typeof MetricSchema>;
+
+export const DEFAULT_METRIC: Required<Metric> = getDefaults(MetricSchema);

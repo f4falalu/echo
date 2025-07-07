@@ -1,11 +1,15 @@
 import { AnimatePresence, motion, type MotionProps } from 'framer-motion';
 import React, { useMemo } from 'react';
-import { DEFAULT_CHART_CONFIG, DEFAULT_COLUMN_LABEL_FORMAT } from '@/api/asset_interfaces/metric';
-import type { ColumnLabelFormat, MetricChartProps } from '@/api/asset_interfaces/metric/charts';
 import { Title } from '@/components/ui/typography';
 import { useMount } from '@/hooks';
 import { formatLabel, JsonDataFrameOperationsSingle, timeout } from '@/lib';
 import type { BusterMetricChartProps } from './interfaces';
+import {
+  DEFAULT_CHART_CONFIG,
+  DEFAULT_COLUMN_LABEL_FORMAT,
+  type ChartConfigProps,
+  type ColumnLabelFormat
+} from '@buster/server-shared/metrics';
 
 export const BusterMetricChart: React.FC<BusterMetricChartProps> = React.memo(
   ({
@@ -23,7 +27,7 @@ export const BusterMetricChart: React.FC<BusterMetricChartProps> = React.memo(
   }) => {
     const firstRow = data?.[0];
     const firstRowValue = firstRow?.[metricColumnId];
-    const yLabelFormat = columnLabelFormats[metricColumnId];
+    const yLabelFormat = columnLabelFormats[metricColumnId] || DEFAULT_COLUMN_LABEL_FORMAT;
 
     const headerColumnLabelFormat: ColumnLabelFormat = useMemo(() => {
       const isDerivedTitle = typeof metricHeader === 'object' && metricHeader?.columnId;
@@ -218,9 +222,9 @@ const AnimatedTitleWrapper = ({ title, type }: { title: string; type: 'header' |
 
 const fallbackAggregate = (
   columnId: string,
-  aggregate: MetricChartProps['metricValueAggregate'],
+  aggregate: ChartConfigProps['metricValueAggregate'],
   columnLabelFormats: BusterMetricChartProps['columnLabelFormats']
-): NonNullable<MetricChartProps['metricValueAggregate']> => {
+): NonNullable<ChartConfigProps['metricValueAggregate']> => {
   const columnLabelFormat = columnLabelFormats[columnId] || DEFAULT_COLUMN_LABEL_FORMAT;
   const isNumber =
     columnLabelFormat.style === 'number' && columnLabelFormat.columnType === 'number';

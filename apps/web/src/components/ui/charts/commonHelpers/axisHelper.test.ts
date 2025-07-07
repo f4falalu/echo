@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import type { SimplifiedColumnType } from '@/api/asset_interfaces/metric';
+import type { ColumnLabelFormat, SimplifiedColumnType } from '@buster/server-shared/metrics';
 import { formatLabel } from '@/lib/columnFormatter';
 import { formatYAxisLabel, yAxisSimilar } from './axisHelper';
 
@@ -22,13 +22,13 @@ describe('formatYAxisLabel', () => {
       growth: {
         columnType: 'number' as SimplifiedColumnType,
         style: 'number' as const
-      },
+      } as ColumnLabelFormat,
       revenue: {
         columnType: 'number' as SimplifiedColumnType,
         style: 'currency' as const,
         currency: 'USD'
-      }
-    };
+      } as ColumnLabelFormat
+    } as Record<string, ColumnLabelFormat>;
     const usePercentageModeAxis = true;
 
     // Execute
@@ -58,13 +58,13 @@ describe('formatYAxisLabel', () => {
         columnType: 'number' as SimplifiedColumnType,
         style: 'currency' as const,
         currency: 'USD'
-      },
+      } as ColumnLabelFormat,
       cost: {
         columnType: 'number' as SimplifiedColumnType,
         style: 'currency' as const,
         currency: 'EUR'
-      }
-    };
+      } as ColumnLabelFormat
+    } as Record<string, ColumnLabelFormat>;
     const usePercentageModeAxis = false;
     const compactNumbers = true;
 
@@ -101,12 +101,12 @@ describe('formatYAxisLabel', () => {
         columnType: 'number' as SimplifiedColumnType,
         style: 'currency' as const,
         currency: 'USD'
-      },
+      } as ColumnLabelFormat,
       growth: {
         columnType: 'number' as SimplifiedColumnType,
         style: 'percent' as const
-      }
-    };
+      } as ColumnLabelFormat
+    } as Record<string, ColumnLabelFormat>;
     const usePercentageModeAxis = false;
     const compactNumbers = true;
 
@@ -141,8 +141,8 @@ describe('formatYAxisLabel', () => {
       count: {
         columnType: 'number' as SimplifiedColumnType,
         style: 'number' as const
-      }
-    };
+      } as ColumnLabelFormat
+    } as Record<string, ColumnLabelFormat>;
     const usePercentageModeAxis = false;
     const compactNumbers = false;
 
@@ -177,8 +177,8 @@ describe('formatYAxisLabel', () => {
       count: {
         columnType: 'number' as SimplifiedColumnType,
         style: 'number' as const
-      }
-    };
+      } as ColumnLabelFormat
+    } as Record<string, ColumnLabelFormat>;
     const usePercentageModeAxis = false;
     // No compactNumbers parameter provided
 
@@ -217,13 +217,13 @@ describe('yAxisSimilar', () => {
         columnType: 'number' as SimplifiedColumnType,
         style: 'currency' as const,
         currency: 'USD'
-      },
+      } as ColumnLabelFormat,
       sales: {
         columnType: 'number' as SimplifiedColumnType,
         style: 'currency' as const,
         currency: 'USD'
-      }
-    };
+      } as ColumnLabelFormat
+    } as Record<string, ColumnLabelFormat>;
 
     // Execute
     const result = yAxisSimilar(yAxis, columnLabelFormats);
@@ -240,12 +240,12 @@ describe('yAxisSimilar', () => {
         columnType: 'number' as SimplifiedColumnType,
         style: 'currency' as const,
         currency: 'USD'
-      },
+      } as ColumnLabelFormat,
       percentage: {
         columnType: 'number' as SimplifiedColumnType,
         style: 'percent' as const
-      }
-    };
+      } as ColumnLabelFormat
+    } as Record<string, ColumnLabelFormat>;
 
     // Execute
     const result = yAxisSimilar(yAxis, columnLabelFormats);
@@ -262,13 +262,13 @@ describe('yAxisSimilar', () => {
         columnType: 'number' as SimplifiedColumnType,
         style: 'currency' as const,
         currency: 'USD'
-      },
+      } as ColumnLabelFormat,
       eur_revenue: {
         columnType: 'number' as SimplifiedColumnType,
         style: 'currency' as const,
         currency: 'EUR'
-      }
-    };
+      } as ColumnLabelFormat
+    } as Record<string, ColumnLabelFormat>;
 
     // Execute
     const result = yAxisSimilar(yAxis, columnLabelFormats);
@@ -285,8 +285,8 @@ describe('yAxisSimilar', () => {
         columnType: 'number' as SimplifiedColumnType,
         style: 'currency' as const,
         currency: 'USD'
-      }
-    };
+      } as ColumnLabelFormat
+    } as Record<string, ColumnLabelFormat>;
 
     // Execute
     const result = yAxisSimilar(yAxis, columnLabelFormats);
@@ -302,12 +302,12 @@ describe('yAxisSimilar', () => {
       value1: {
         columnType: 'number' as SimplifiedColumnType,
         style: 'number' as const
-      },
+      } as ColumnLabelFormat,
       value2: {
         columnType: 'number' as SimplifiedColumnType,
         style: 'number' as const
-      }
-    };
+      } as ColumnLabelFormat
+    } as Record<string, ColumnLabelFormat>;
 
     // Execute
     const result = yAxisSimilar(yAxis, columnLabelFormats);

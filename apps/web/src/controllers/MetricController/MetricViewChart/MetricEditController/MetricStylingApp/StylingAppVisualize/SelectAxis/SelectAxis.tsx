@@ -1,13 +1,13 @@
 import isEmpty from 'lodash/isEmpty';
 import React, { useMemo } from 'react';
-import type { BusterMetricChartConfig } from '@/api/asset_interfaces';
+import type { ChartConfigProps } from '@buster/server-shared/metrics';
 import type {
   CategoryAxisStyleConfig,
   ChartEncodes,
   XAxisConfig,
   Y2AxisConfig,
   YAxisConfig
-} from '@/api/asset_interfaces/metric/charts';
+} from '@buster/server-shared/metrics';
 import { ErrorBoundary } from '@/components/ui/error';
 import { useUpdateMetricChart } from '@/context/Metrics';
 import { useMemoizedFn } from '@/hooks';
@@ -46,7 +46,7 @@ export const SelectAxis: React.FC<
       return Object.assign(acc, { [axis]: zone.items });
     }, {} as ChartEncodes);
 
-    const newChartConfig: Partial<BusterMetricChartConfig> = {
+    const newChartConfig: Partial<ChartConfigProps> = {
       [selectedAxisToEdit]: newChartEncodes
     };
 

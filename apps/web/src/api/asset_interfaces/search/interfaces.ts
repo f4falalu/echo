@@ -1,4 +1,4 @@
-import type { ShareAssetType } from '../share';
+import type { ShareAssetType } from '@buster/server-shared/share';
 
 export interface BusterSearchResult {
   id: string;

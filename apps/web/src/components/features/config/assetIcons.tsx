@@ -1,4 +1,4 @@
-import { ShareAssetType } from '@/api/asset_interfaces/share';
+import { ShareAssetType } from '@buster/server-shared/share';
 import { Folder5, FolderPlus, Grid, GridPlus, Messages, SquareChart } from '@/components/ui/icons';
 import { BusterRoutes, createBusterRoute } from '@/routes/busterRoutes';
 
@@ -13,13 +13,13 @@ export const ASSET_ICONS = {
 
 export const assetTypeToIcon = (assetType: ShareAssetType) => {
   switch (assetType) {
-    case ShareAssetType.METRIC:
+    case 'metric':
       return ASSET_ICONS.metrics;
-    case ShareAssetType.DASHBOARD:
+    case 'dashboard':
       return ASSET_ICONS.dashboards;
-    case ShareAssetType.COLLECTION:
+    case 'collection':
       return ASSET_ICONS.collections;
-    case ShareAssetType.CHAT:
+    case 'chat':
       return ASSET_ICONS.chats;
     default: {
       const _result: never = assetType;
@@ -30,13 +30,13 @@ export const assetTypeToIcon = (assetType: ShareAssetType) => {
 
 export const assetTypeToRoute = (assetType: ShareAssetType, assetId: string) => {
   switch (assetType) {
-    case ShareAssetType.METRIC:
+    case 'metric':
       return createBusterRoute({ route: BusterRoutes.APP_METRIC_ID_CHART, metricId: assetId });
-    case ShareAssetType.DASHBOARD:
+    case 'dashboard':
       return createBusterRoute({ route: BusterRoutes.APP_DASHBOARD_ID, dashboardId: assetId });
-    case ShareAssetType.COLLECTION:
+    case 'collection':
       return createBusterRoute({ route: BusterRoutes.APP_COLLECTIONS_ID, collectionId: assetId });
-    case ShareAssetType.CHAT:
+    case 'chat':
       return createBusterRoute({ route: BusterRoutes.APP_CHAT_ID, chatId: assetId });
     default:
       console.warn('Asset type to route not found', assetType, assetId);

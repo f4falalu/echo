@@ -1,13 +1,6 @@
 import type { ChartType as ChartJSChartType } from 'chart.js';
 import { useMemo } from 'react';
-import type {
-  BusterChartConfigProps,
-  BusterChartProps,
-  ChartEncodes,
-  ChartType,
-  ScatterAxis
-} from '@/api/asset_interfaces/metric/charts';
-import type { ColumnMetaData } from '@/api/asset_interfaces/metric/interfaces';
+import type { BusterChartProps } from '@/api/asset_interfaces/metric/charts';
 import { isNumericColumnType } from '@/lib';
 import type { DatasetOptionsWithTicks } from '../../../chartHooks';
 import type { ChartProps } from '../../core';
@@ -17,6 +10,13 @@ import type { SeriesBuilderProps } from './interfaces';
 import { lineSeriesBuilder, lineSeriesBuilder_labels } from './lineSeriesBuilder';
 import { pieSeriesBuilder_data, pieSeriesBuilder_labels } from './pieSeriesBuilder';
 import { scatterSeriesBuilder_data, scatterSeriesBuilder_labels } from './scatterSeriesBuilder';
+import type {
+  ChartConfigProps,
+  ChartEncodes,
+  ChartType,
+  ColumnMetaData,
+  ScatterAxis
+} from '@buster/server-shared/metrics';
 
 export interface UseSeriesOptionsProps {
   selectedChartType: ChartType;
@@ -24,8 +24,8 @@ export interface UseSeriesOptionsProps {
   yAxisKeys: string[];
   xAxisKeys: string[];
   sizeKey: ScatterAxis['size'];
-  columnSettings: NonNullable<BusterChartConfigProps['columnSettings']>;
-  columnLabelFormats: NonNullable<BusterChartConfigProps['columnLabelFormats']>;
+  columnSettings: NonNullable<ChartConfigProps['columnSettings']>;
+  columnLabelFormats: NonNullable<ChartConfigProps['columnLabelFormats']>;
   colors: string[];
   datasetOptions: DatasetOptionsWithTicks;
   scatterDotSize: BusterChartProps['scatterDotSize'];

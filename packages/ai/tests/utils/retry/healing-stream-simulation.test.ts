@@ -157,14 +157,16 @@ describe('Healing During Streaming - Real Scenario Simulation', () => {
 
     // Log the full execution flow
     console.log('\n🎬 STREAMING EXECUTION FLOW:');
-    streamEvents.forEach((event) => console.log(`   ${event}`));
+    for (const event of streamEvents) {
+      console.log(`   ${event}`);
+    }
 
     console.log('\n📊 EXECUTION SUMMARY:');
     console.log(`   - Healing attempts: ${executionLog.healingAttempts}`);
     console.log(`   - Chunks processed: ${executionLog.chunksProcessed}`);
     console.log(`   - Tool calls seen: ${executionLog.toolCallsSeen.join(', ')}`);
-    console.log(`   - Error healed: YES`);
-    console.log(`   - Stream completed: YES`);
+    console.log('   - Error healed: YES');
+    console.log('   - Stream completed: YES');
 
     console.log('\n✅ STREAMING HEALING SIMULATION SUCCESSFUL!');
   });

@@ -3,8 +3,8 @@
 import isEmpty from 'lodash/isEmpty';
 import type React from 'react';
 import { useMemo, useRef, useState } from 'react';
-import type { IDataResult } from '@/api/asset_interfaces';
-import { useRunSQL } from '@/api/buster_rest';
+import type { DataResult } from '@buster/server-shared/metrics';
+import { useRunSQL } from '@/api/buster_rest/sql';
 import { AppVerticalCodeSplitter } from '@/components/features/layouts/AppVerticalCodeSplitter';
 import type { AppSplitterRef } from '@/components/ui/layouts/AppSplitter';
 import { useMemoizedFn, useRequest } from '@/hooks';
@@ -27,7 +27,7 @@ export const EditorContent: React.FC<{
   const setYmlFile = useDatasetPageContextSelector((state) => state.setYmlFile);
   const { mutateAsync: runSQLMutation, error: runSQLError } = useRunSQL();
 
-  const [tempData, setTempData] = useState<IDataResult>(datasetData.data || []);
+  const [tempData, setTempData] = useState<DataResult>(datasetData.data || []);
 
   const shownData = useMemo(() => {
     return isEmpty(tempData) ? datasetData.data || [] : tempData;

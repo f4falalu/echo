@@ -1,9 +1,9 @@
-import type { BusterMetricChartConfig } from '@/api/asset_interfaces/metric';
-import type { BusterChartProps, ShowLegendHeadline } from '@/api/asset_interfaces/metric/charts';
+import type { BusterChartProps } from '@/api/asset_interfaces/metric/charts';
 import { formatLabel } from '@/lib/columnFormatter';
 import { ArrayOperations } from '@/lib/math';
 import type { DatasetOptionsWithTicks } from '../chartHooks';
 import type { BusterChartLegendItem } from './interfaces';
+import type { ShowLegendHeadline, ChartConfigProps } from '@buster/server-shared/metrics';
 
 export const addLegendHeadlines = (
   legendItems: BusterChartLegendItem[],
@@ -11,29 +11,12 @@ export const addLegendHeadlines = (
   showLegendHeadline: ShowLegendHeadline,
   columnMetadata: NonNullable<BusterChartProps['columnMetadata']>,
   columnLabelFormats: NonNullable<BusterChartProps['columnLabelFormats']>,
-  selectedChartType: BusterMetricChartConfig['selectedChartType'],
+  selectedChartType: ChartConfigProps['selectedChartType'],
   xAxisKeys: string[]
 ) => {
   const isScatterChart = selectedChartType === 'scatter';
 
   if (!showLegendHeadline || isScatterChart) return legendItems;
-
-  // const hasMultipleXAxisDimensions = xAxisKeys.length > 1;
-  // const firstXAxisDimensionName = xAxisKeys[0];
-  // const xIsDate = isDateColumnType(columnLabelFormats[firstXAxisDimensionName]?.columnType);
-  //  const canUseRange = !hasMultipleXAxisDimensions && xIsDate;
-  // let range: string;
-  // if (canUseRange) {
-  //   const firstXAxisDimensionMetadata = columnMetadata.find(
-  //     (metadata) => metadata.name === firstXAxisDimensionName
-  //   );
-  //   const { min_value, max_value } = firstXAxisDimensionMetadata || {};
-  //   const minDate = createDayjsDate((min_value as string) || new Date());
-  //   const maxDate = createDayjsDate((max_value as string) || new Date());
-
-  //   const dateFormat = getBestDateFormat(minDate, maxDate);
-  //   range = `${minDate.format(dateFormat)} - ${maxDate.format(dateFormat)}`;
-  // }
 
   const isPieChart = selectedChartType === 'pie';
 

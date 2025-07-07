@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { useDatasetUpdatePermissionGroups } from '@/api/buster_rest';
+import { useDatasetUpdatePermissionGroups } from '@/api/buster_rest/datasets';
 import { PERMISSION_OPTIONS_ASSIGNED } from '@/components/features/PermissionComponents';
 import { Button } from '@/components/ui/buttons';
 import { Dropdown, type DropdownItem } from '@/components/ui/dropdown';

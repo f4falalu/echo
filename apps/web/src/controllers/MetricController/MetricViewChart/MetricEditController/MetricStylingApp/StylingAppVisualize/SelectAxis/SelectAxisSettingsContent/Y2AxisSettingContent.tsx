@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
-import type { BusterMetricChartConfig } from '@/api/asset_interfaces';
-import type { ColumnLabelFormat, ComboChartAxis } from '@/api/asset_interfaces/metric/charts';
+import type { ChartConfigProps } from '@buster/server-shared/metrics';
+import type { ColumnLabelFormat, ComboChartAxis } from '@buster/server-shared/metrics';
 import { AXIS_TITLE_SEPARATOR } from '@/components/ui/charts/commonHelpers/axisHelper';
 import { useUpdateMetricChart } from '@/context/Metrics';
 import { useMemoizedFn } from '@/hooks';
@@ -52,7 +52,7 @@ export const Y2AxisSettingContent: React.FC = React.memo(() => {
   });
 
   const onChangeAxisScale = useMemoizedFn(
-    (y2AxisScaleType: BusterMetricChartConfig['y2AxisScaleType']) => {
+    (y2AxisScaleType: ChartConfigProps['y2AxisScaleType']) => {
       onUpdateMetricChartConfig({
         chartConfig: {
           y2AxisScaleType

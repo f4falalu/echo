@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { ShareAssetType } from '@/api/asset_interfaces/share';
+import { ShareAssetType } from '@buster/server-shared/share';
 import { useDeleteChat, useDuplicateChat, useGetChat } from '@/api/buster_rest/chats';
 import { useFavoriteStar } from '@/components/features/list';
 import { Dropdown, type DropdownItems } from '@/components/ui/dropdown';
@@ -30,7 +30,7 @@ export const ChatContainerHeaderDropdown: React.FC<{
 
   const { isFavorited, onFavoriteClick } = useFavoriteStar({
     id: chatId || '',
-    type: ShareAssetType.CHAT,
+    type: 'chat',
     name: chatTitle || ''
   });
 

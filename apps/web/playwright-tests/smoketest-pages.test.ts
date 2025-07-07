@@ -48,15 +48,6 @@ test.describe('Asset Route Redirects', () => {
       route: BusterRoutes.APP_METRIC_ID_RESULTS,
       metricId: 'test-metric-id'
     }),
-    metricFile: createBusterRoute({
-      route: BusterRoutes.APP_METRIC_ID_FILE__HIDDEN,
-      metricId: 'test-metric-id'
-    }),
-    metricVersion: createBusterRoute({
-      route: BusterRoutes.APP_METRIC_ID_VERSION_NUMBER,
-      metricId: 'test-metric-id',
-      versionNumber: 1
-    }),
     dashboard: createBusterRoute({
       route: BusterRoutes.APP_DASHBOARD_ID,
       dashboardId: 'test-dashboard-id'
@@ -64,11 +55,6 @@ test.describe('Asset Route Redirects', () => {
     dashboardFile: createBusterRoute({
       route: BusterRoutes.APP_DASHBOARD_ID_FILE,
       dashboardId: 'test-dashboard-id'
-    }),
-    dashboardVersion: createBusterRoute({
-      route: BusterRoutes.APP_DASHBOARD_ID_VERSION_NUMBER,
-      dashboardId: 'test-dashboard-id',
-      versionNumber: 1
     }),
     chat: createBusterRoute({
       route: BusterRoutes.APP_CHAT
@@ -92,17 +78,7 @@ test.describe('Asset Route Redirects', () => {
       chatId: 'test-chat-id',
       metricId: 'test-metric-id'
     }),
-    chatMetricFile: createBusterRoute({
-      route: BusterRoutes.APP_CHAT_ID_METRIC_ID_FILE,
-      chatId: 'test-chat-id',
-      metricId: 'test-metric-id'
-    }),
-    chatMetricVersion: createBusterRoute({
-      route: BusterRoutes.APP_CHAT_ID_METRIC_ID_VERSION_NUMBER,
-      chatId: 'test-chat-id',
-      metricId: 'test-metric-id',
-      versionNumber: 1
-    }),
+
     chatDashboard: createBusterRoute({
       route: BusterRoutes.APP_CHAT_ID_DASHBOARD_ID,
       chatId: 'test-chat-id',
@@ -112,12 +88,6 @@ test.describe('Asset Route Redirects', () => {
       route: BusterRoutes.APP_CHAT_ID_DASHBOARD_ID_FILE,
       chatId: 'test-chat-id',
       dashboardId: 'test-dashboard-id'
-    }),
-    chatDashboardVersion: createBusterRoute({
-      route: BusterRoutes.APP_CHAT_ID_DASHBOARD_ID_VERSION_NUMBER,
-      chatId: 'test-chat-id',
-      dashboardId: 'test-dashboard-id',
-      versionNumber: 1
     })
   };
 
@@ -210,12 +180,6 @@ test.describe('Authenticated Page', () => {
       route: BusterRoutes.APP_CHAT_ID_DASHBOARD_ID,
       chatId: 'test-chat-id',
       dashboardId: 'test-dashboard-id'
-    }),
-    chatIdDashboardIdVersionNumber: createBusterRoute({
-      route: BusterRoutes.APP_CHAT_ID_DASHBOARD_ID_VERSION_NUMBER,
-      chatId: 'test-chat-id',
-      dashboardId: 'test-dashboard-id',
-      versionNumber: 1
     }),
     settings: createBusterRoute({
       route: BusterRoutes.SETTINGS_PROFILE

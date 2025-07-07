@@ -2,10 +2,11 @@ import type { BusterAppRoutes } from './busterAppRoutes';
 import { BusterRoutes, type BusterRoutesWithArgsRoute } from './busterRoutes';
 
 export const createBusterRoute = ({ route, ...args }: BusterRoutesWithArgsRoute) => {
+  if (!route) return '';
   if (!args) return route;
 
   // Split the route into base path and query template if it exists
-  const [basePath, queryTemplate] = route.split('?');
+  const [basePath, queryTemplate] = (route as string).split('?');
 
   // Replace path parameters
   const resultPath = Object.entries(args).reduce<string>((acc, [key, value]) => {

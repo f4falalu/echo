@@ -1,6 +1,6 @@
 import type { BusterOrganization, BusterOrganizationRole } from '../organizations';
 import type { BusterPermissionUser } from '../permission';
-import type { ShareAssetType } from '../share';
+import type { ShareAssetType } from '@buster/server-shared/share';
 
 export interface BusterUserPalette {
   id: string;

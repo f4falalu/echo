@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import type { ColumnSettings } from '@/api/asset_interfaces/metric/charts';
+import type { ColumnSettings } from '@buster/server-shared/metrics';
 import { SliderWithInputNumber } from '@/components/ui/slider';
 import { useMemoizedFn } from '@/hooks';
 import { LabelAndInput } from '../../../Common/LabelAndInput';

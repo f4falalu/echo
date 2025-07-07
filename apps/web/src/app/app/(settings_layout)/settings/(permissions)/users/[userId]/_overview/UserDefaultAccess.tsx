@@ -5,7 +5,7 @@ import {
   type BusterUser,
   type OrganizationUser
 } from '@/api/asset_interfaces';
-import { useUpdateUser } from '@/api/buster_rest';
+import { useUpdateUser } from '@/api/buster_rest/users';
 import {
   Card,
   CardContent,

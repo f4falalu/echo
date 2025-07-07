@@ -139,7 +139,11 @@ describe('MetricContainerHeaderSegment', () => {
 
     const options = JSON.parse(segmented.getAttribute('data-options') || '[]');
     expect(options).toHaveLength(3);
-    expect(options[0].link).toContain('app/chats/chat-456/metrics/metric-123/chart');
-    expect(options[1].link).toContain('app/chats/chat-456/metrics/metric-123/results');
+    expect(options[0].link).toContain(
+      'app/chats/chat-456/dashboards/metric-123/metrics/metric-123/chart'
+    );
+    expect(options[1].link).toContain(
+      '/app/chats/chat-456/dashboards/metric-123/metrics/metric-123/results'
+    );
   });
 });

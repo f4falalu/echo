@@ -1,13 +1,10 @@
 import type {
   ColumnMetaData,
-  BusterMetric,
-  BusterMetricChartConfig
-} from '@/api/asset_interfaces/metric';
-import type {
-  BusterChartConfigProps,
-  IColumnLabelFormat
-} from '@/api/asset_interfaces/metric/charts';
+  ChartConfigProps,
+  ColumnLabelFormat
+} from '@buster/server-shared/metrics';
 import { createDefaultChartConfig } from '@/lib/metrics/messageAutoChartHandler';
+import type { BusterMetric } from '@/api/asset_interfaces/metric';
 
 export const didColumnDataChange = (
   oldColumnData: ColumnMetaData[] | undefined,
@@ -57,16 +54,16 @@ export const didColumnDataChange = (
  * @returns A new chart configuration suitable for the changed SQL data
  */
 export const simplifyChatConfigForSQLChange = (
-  chartConfig: BusterMetricChartConfig,
+  chartConfig: ChartConfigProps,
   data_metadata: BusterMetric['data_metadata']
-): BusterMetricChartConfig => {
+): ChartConfigProps => {
   // Create a new mapping of column name to format settings
   // This preserves existing format settings only when the column type hasn't changed
   const columnLabelFormats = data_metadata?.column_metadata?.reduce<
-    NonNullable<BusterChartConfigProps['columnLabelFormats']>
+    NonNullable<ChartConfigProps['columnLabelFormats']>
   >((acc, x) => {
     // Get the existing format for this column (if any)
-    const oldFormat: undefined | Required<IColumnLabelFormat> =
+    const oldFormat: undefined | Required<ColumnLabelFormat> =
       chartConfig.columnLabelFormats?.[x.name];
 
     // Check if the column type has changed
@@ -76,7 +73,7 @@ export const simplifyChatConfigForSQLChange = (
     const value = didTypeChange ? undefined : oldFormat;
 
     // Add this column's format to our accumulated result
-    acc[x.name] = value;
+    acc[x.name] = value as ColumnLabelFormat;
     return acc;
   }, {});
 
@@ -85,7 +82,7 @@ export const simplifyChatConfigForSQLChange = (
   const result = createDefaultChartConfig({
     chart_config: {
       columnLabelFormats
-    } as BusterChartConfigProps,
+    } as ChartConfigProps,
     data_metadata
   });
 

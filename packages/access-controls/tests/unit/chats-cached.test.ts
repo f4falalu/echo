@@ -1,12 +1,12 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   canUserAccessChatCached,
-  getCacheStats,
-  resetCacheStats,
   clearCache,
+  getCacheStats,
   invalidateAccess,
-  invalidateUserAccess,
   invalidateChatAccess,
+  invalidateUserAccess,
+  resetCacheStats,
 } from '../../src/chats-cached';
 
 // Mock the original canUserAccessChat function
@@ -21,7 +21,7 @@ describe('canUserAccessChatCached', () => {
     vi.clearAllMocks();
     clearCache();
     resetCacheStats();
-    
+
     // Get the mocked function
     const chatsModule = await import('../../src/chats');
     mockCanUserAccessChat = vi.mocked(chatsModule.canUserAccessChat);
@@ -73,10 +73,10 @@ describe('canUserAccessChatCached', () => {
 
     // Setup different responses
     mockCanUserAccessChat
-      .mockResolvedValueOnce(true)   // user1:chat1
-      .mockResolvedValueOnce(false)  // user1:chat2
-      .mockResolvedValueOnce(false)  // user2:chat1
-      .mockResolvedValueOnce(true);  // user2:chat2
+      .mockResolvedValueOnce(true) // user1:chat1
+      .mockResolvedValueOnce(false) // user1:chat2
+      .mockResolvedValueOnce(false) // user2:chat1
+      .mockResolvedValueOnce(true); // user2:chat2
 
     // Make calls
     expect(await canUserAccessChatCached({ userId: user1, chatId: chat1 })).toBe(true);

@@ -1,10 +1,10 @@
 import { renderHook } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import type { SimplifiedColumnType } from '@/api/asset_interfaces/metric';
-import type { IColumnLabelFormat } from '@/api/asset_interfaces/metric/charts';
+import type { BusterChartProps } from '@/api/asset_interfaces/metric/charts';
 import { formatLabel } from '@/lib/columnFormatter';
 import { truncateWithEllipsis } from '../../../../commonHelpers/titleHelpers';
 import { useY2AxisTitle } from './useY2AxisTitle';
+import type { ColumnLabelFormat, SimplifiedColumnType } from '@buster/server-shared/metrics';
 
 // Mock the dependencies
 vi.mock('@/lib/columnFormatter', () => ({
@@ -23,17 +23,17 @@ describe('useY2AxisTitle', () => {
         columnType: 'number' as SimplifiedColumnType,
         style: 'currency' as const,
         currency: 'USD'
-      },
+      } as ColumnLabelFormat,
       profit: {
         columnType: 'number' as SimplifiedColumnType,
         style: 'currency' as const,
         currency: 'USD'
-      },
+      } as ColumnLabelFormat,
       count: {
         columnType: 'number' as SimplifiedColumnType,
         style: 'number' as const
-      }
-    } as Record<string, IColumnLabelFormat>,
+      } as ColumnLabelFormat
+    } as Record<string, ColumnLabelFormat>,
     isSupportedChartForAxisTitles: true,
     y2AxisShowAxisTitle: true,
     y2AxisAxisTitle: ''

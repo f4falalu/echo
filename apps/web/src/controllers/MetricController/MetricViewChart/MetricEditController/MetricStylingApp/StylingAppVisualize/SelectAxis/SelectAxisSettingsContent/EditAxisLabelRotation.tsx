@@ -1,10 +1,10 @@
 import React, { useMemo } from 'react';
-import type { BusterMetricChartConfig } from '@/api/asset_interfaces';
+import type { ChartConfigProps } from '@buster/server-shared/metrics';
 import { AppSegmented, type SegmentedItem } from '@/components/ui/segmented';
 import { useMemoizedFn } from '@/hooks';
 import { LabelAndInput } from '../../../Common/LabelAndInput';
 
-const options: SegmentedItem<BusterMetricChartConfig['xAxisLabelRotation']>[] = [
+const options: SegmentedItem<ChartConfigProps['xAxisLabelRotation']>[] = [
   { label: 'Auto', value: 'auto' },
   { label: '0°', value: 0 },
   { label: '45°', value: 45 },
@@ -12,17 +12,17 @@ const options: SegmentedItem<BusterMetricChartConfig['xAxisLabelRotation']>[] = 
 ];
 
 export const EditAxisLabelRotation: React.FC<{
-  xAxisLabelRotation: BusterMetricChartConfig['xAxisLabelRotation'];
-  onChangeLabelRotation: (value: BusterMetricChartConfig['xAxisLabelRotation']) => void;
+  xAxisLabelRotation: ChartConfigProps['xAxisLabelRotation'];
+  onChangeLabelRotation: (value: ChartConfigProps['xAxisLabelRotation']) => void;
 }> = React.memo(({ xAxisLabelRotation, onChangeLabelRotation }) => {
-  const selectedOption: BusterMetricChartConfig['xAxisLabelRotation'] = useMemo(() => {
+  const selectedOption: ChartConfigProps['xAxisLabelRotation'] = useMemo(() => {
     return (
       options.find((option) => option.value === xAxisLabelRotation)?.value ?? options[0]?.value
     );
   }, [xAxisLabelRotation]);
 
   const onChange = useMemoizedFn((value: SegmentedItem<string>) => {
-    onChangeLabelRotation(value.value as BusterMetricChartConfig['xAxisLabelRotation']);
+    onChangeLabelRotation(value.value as ChartConfigProps['xAxisLabelRotation']);
   });
 
   return (

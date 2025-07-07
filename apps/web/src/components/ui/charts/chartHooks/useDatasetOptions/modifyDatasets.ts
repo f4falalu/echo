@@ -1,12 +1,8 @@
 import { sum as lodashSum } from 'lodash';
 import cloneDeep from 'lodash/cloneDeep';
-import {
-  type BarSortBy,
-  type BusterChartProps,
-  ChartType,
-  type PieSortBy
-} from '@/api/asset_interfaces/metric';
+import type { BarSortBy, ChartType, PieSortBy } from '@buster/server-shared/metrics';
 import type { DatasetOption, DatasetOptionsWithTicks, KV } from './interfaces';
+import type { BusterChartProps } from '@/api/asset_interfaces/metric';
 
 // Helper: ensure pie slices meet minimum percentage
 function handlePieThreshold(datasets: DatasetOption[], minPercent: number): DatasetOption[] {

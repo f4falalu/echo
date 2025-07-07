@@ -28,7 +28,8 @@ export function parseStreamingArgs(
     // First try to parse as complete JSON
     const parsed = JSON.parse(accumulatedText);
     return {
-      clarifying_question: parsed.clarifying_question !== undefined ? parsed.clarifying_question : undefined,
+      clarifying_question:
+        parsed.clarifying_question !== undefined ? parsed.clarifying_question : undefined,
     };
   } catch (error) {
     // Only catch JSON parse errors - let other errors bubble up

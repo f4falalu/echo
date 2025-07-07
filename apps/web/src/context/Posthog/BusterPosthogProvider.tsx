@@ -30,8 +30,12 @@ const options: Partial<PostHogConfig> = {
 
   loaded: () => {
     console.log(
-      '%c🚀 Powered by Buster',
+      '%c🚀 Welcome to Buster',
       'background: linear-gradient(to right, #a21caf, #8b1cb1, #6b21a8); color: white; font-size: 16px; font-weight: bold; padding: 10px; border-radius: 5px;'
+    );
+    console.log(
+      '%cBuster is your open-source data analytics platform. Found a bug? The code is open-source! Report it at https://github.com/buster-so/buster. Better yet, fix it yourself and send a PR.',
+      'background: #6b21a8; color: white; font-size: 10px; font-weight: normal; padding: 8px; border-radius: 4px;'
     );
   }
 };

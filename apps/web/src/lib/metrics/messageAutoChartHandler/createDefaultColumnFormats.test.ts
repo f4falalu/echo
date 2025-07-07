@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import type { ColumnMetaData, IColumnLabelFormat } from '@/api/asset_interfaces/metric';
+import {
+  type ColumnMetaData,
+  type ColumnLabelFormat,
+  DEFAULT_COLUMN_LABEL_FORMAT
+} from '@buster/server-shared/metrics';
 import { createDefaultColumnLabelFormats } from './createDefaultColumnFormats';
 
 describe('createDefaultColumnFormats', () => {
@@ -72,8 +76,9 @@ describe('createDefaultColumnFormats', () => {
       }
     ];
 
-    const existingLabelFormats: Record<string, IColumnLabelFormat> = {
+    const existingLabelFormats: Record<string, ColumnLabelFormat> = {
       number_column: {
+        ...DEFAULT_COLUMN_LABEL_FORMAT,
         style: 'currency',
         suffix: '%',
         maximumFractionDigits: 1,
@@ -145,8 +150,9 @@ describe('createDefaultColumnFormats', () => {
       }
     ];
 
-    const existingLabelFormats: Record<string, IColumnLabelFormat> = {
+    const existingLabelFormats: Record<string, ColumnLabelFormat> = {
       existing_column: {
+        ...DEFAULT_COLUMN_LABEL_FORMAT,
         style: 'percent',
         columnType: 'number',
         suffix: '%'

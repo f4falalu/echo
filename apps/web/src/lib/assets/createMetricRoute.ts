@@ -3,23 +3,60 @@ import type { MetricFileViewSecondary } from '../../layouts/ChatLayout/ChatLayou
 
 export type MetricRouteParams = {
   assetId: string;
+  dashboardId?: string;
   chatId?: string;
   secondaryView?: MetricFileViewSecondary;
-  versionNumber?: number;
+  metricVersionNumber?: number;
+  dashboardVersionNumber?: number;
   type: 'metric';
   page?: 'chart' | 'results' | 'sql' | undefined;
+  versionNumber?: number; //will first try and use metricVersionNumber assuming it is a metric, then dashboardVersionNumber assuming it is a dashboard, then versionNumber
 };
 
 export const createMetricRoute = ({
   assetId: metricId,
   chatId,
   secondaryView,
-  versionNumber: metricVersionNumber,
+  dashboardId,
+  metricVersionNumber: _metricVersionNumber,
+  dashboardVersionNumber,
+  versionNumber,
   page = 'chart'
 }: Omit<MetricRouteParams, 'type'>) => {
-  const baseParams = { metricVersionNumber, metricId, secondaryView };
+  const metricVersionNumber = _metricVersionNumber || versionNumber;
+  const baseParams = { metricVersionNumber, dashboardVersionNumber, metricId, secondaryView };
 
   if (page === 'chart') {
+    // Check for dashboardId first (requires chatId as well)
+    if (dashboardId && chatId) {
+      switch (secondaryView) {
+        case 'chart-edit':
+          return createBusterRoute({
+            route: BusterRoutes.APP_CHAT_ID_DASHBOARD_ID_METRIC_ID_CHART,
+            chatId,
+            dashboardId,
+            ...baseParams
+          });
+        case 'version-history':
+          return createBusterRoute({
+            route: BusterRoutes.APP_CHAT_ID_DASHBOARD_ID_METRIC_ID_CHART,
+            chatId,
+            dashboardId,
+            ...baseParams
+          });
+        default: {
+          const test: never | undefined = secondaryView;
+
+          return createBusterRoute({
+            route: BusterRoutes.APP_CHAT_ID_DASHBOARD_ID_METRIC_ID_CHART,
+            chatId,
+            dashboardId,
+            ...baseParams
+          });
+        }
+      }
+    }
+
     if (chatId) {
       switch (secondaryView) {
         case 'chart-edit':
@@ -63,6 +100,16 @@ export const createMetricRoute = ({
   }
 
   if (page === 'results') {
+    // Check for dashboardId first (requires chatId as well)
+    if (dashboardId && chatId) {
+      return createBusterRoute({
+        route: BusterRoutes.APP_CHAT_ID_DASHBOARD_ID_METRIC_ID_RESULTS,
+        chatId,
+        dashboardId,
+        ...baseParams
+      });
+    }
+
     if (chatId) {
       return createBusterRoute({
         route: BusterRoutes.APP_CHAT_ID_METRIC_ID_RESULTS,
@@ -80,6 +127,16 @@ export const createMetricRoute = ({
   }
 
   if (page === 'sql') {
+    // Check for dashboardId first (requires chatId as well)
+    if (dashboardId && chatId) {
+      return createBusterRoute({
+        route: BusterRoutes.APP_CHAT_ID_DASHBOARD_ID_METRIC_ID_SQL,
+        chatId,
+        dashboardId,
+        ...baseParams
+      });
+    }
+
     if (chatId) {
       return createBusterRoute({
         route: BusterRoutes.APP_CHAT_ID_METRIC_ID_SQL,

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useMemo, useState } from 'react';
-import { type BusterCollectionListItem, ShareAssetType } from '@/api/asset_interfaces';
+import { type BusterCollectionListItem } from '@/api/asset_interfaces';
 import { FavoriteStar } from '@/components/features/list';
 import { NewCollectionModal } from '@/components/features/modal/NewCollectionModal';
 import { Avatar } from '@/components/ui/avatar';
@@ -62,7 +62,7 @@ const columns: BusterListColumn[] = [
           <Text truncate>{v}</Text>
           <FavoriteStar
             id={id}
-            type={ShareAssetType.COLLECTION}
+            type={'collection'}
             iconStyle="tertiary"
             title={v}
             className="opacity-0 group-hover:opacity-100"

@@ -27,7 +27,13 @@ vi.mock('../../../middleware/auth', () => ({
 const mockChannels = [
   { id: 'C1234567890', name: 'general', is_private: false, is_archived: false, is_member: true },
   { id: 'C0987654321', name: 'random', is_private: false, is_archived: false, is_member: true },
-  { id: 'C1111111111', name: 'engineering', is_private: false, is_archived: false, is_member: false },
+  {
+    id: 'C1111111111',
+    name: 'engineering',
+    is_private: false,
+    is_archived: false,
+    is_member: false,
+  },
 ];
 
 // Conditionally mock SlackChannelService based on environment
@@ -49,7 +55,9 @@ describe.skipIf(skipIfNoEnv)('Slack Channels Integration Tests', () => {
 
   beforeAll(async () => {
     if (skipIfNoEnv) {
-      console.log('Skipping Slack channels integration tests - required environment variables not set');
+      console.log(
+        'Skipping Slack channels integration tests - required environment variables not set'
+      );
       return;
     }
 
@@ -116,7 +124,7 @@ describe.skipIf(skipIfNoEnv)('Slack Channels Integration Tests', () => {
     it('should return channels for active integration', async () => {
       // Create an active integration with a token
       const tokenVaultKey = `test-token-${testRunId}-${Date.now()}`;
-      
+
       // If we have a real token, store it in the vault
       if (process.env.SLACK_TEST_ACCESS_TOKEN) {
         const { createSecret } = await import('@buster/database');
@@ -153,7 +161,7 @@ describe.skipIf(skipIfNoEnv)('Slack Channels Integration Tests', () => {
       const data = await response.json();
       expect(data.channels).toBeDefined();
       expect(Array.isArray(data.channels)).toBe(true);
-      
+
       // Each channel should have id and name
       if (data.channels.length > 0) {
         expect(data.channels[0]).toHaveProperty('id');
@@ -175,7 +183,7 @@ describe.skipIf(skipIfNoEnv)('Slack Channels Integration Tests', () => {
     it('should update last used timestamp when fetching channels', async () => {
       // Create an active integration
       const tokenVaultKey = `test-token-lastused-${testRunId}-${Date.now()}`;
-      
+
       const [integration] = await db
         .insert(slackIntegrations)
         .values({

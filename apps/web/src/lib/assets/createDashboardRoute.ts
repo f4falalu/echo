@@ -4,8 +4,10 @@ import type { DashboardFileViewSecondary } from '../../layouts/ChatLayout/ChatLa
 export type DashboardRouteParams = {
   assetId: string;
   chatId?: string;
-  secondaryView?: DashboardFileViewSecondary;
   versionNumber?: number;
+  secondaryView?: DashboardFileViewSecondary;
+  dashboardVersionNumber?: number;
+  metricVersionNumber?: number;
   type: 'dashboard';
   page?: 'file' | 'dashboard' | undefined;
 };
@@ -14,10 +16,13 @@ export const createDashboardRoute = ({
   assetId: dashboardId,
   chatId,
   secondaryView,
-  versionNumber: dashboardVersionNumber,
+  dashboardVersionNumber: _dashboardVersionNumber,
+  metricVersionNumber,
+  versionNumber,
   page = 'dashboard'
 }: Omit<DashboardRouteParams, 'type'>) => {
-  const baseParams = { dashboardVersionNumber, dashboardId, secondaryView };
+  const dashboardVersionNumber = _dashboardVersionNumber || versionNumber;
+  const baseParams = { dashboardVersionNumber, dashboardId, secondaryView, metricVersionNumber };
 
   if (page === 'dashboard') {
     if (chatId) {

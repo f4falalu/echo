@@ -9,7 +9,8 @@ import { Input } from '@/components/ui/inputs';
 import { Text, Title } from '@/components/ui/typography';
 import { useBusterNotifications } from '@/context/BusterNotifications';
 import { useMemoizedFn } from '@/hooks';
-import { isValidEmail, timeout } from '@/lib';
+import { isValidEmail } from '@/lib/email';
+import { timeout } from '@/lib/timeout';
 import { cn } from '@/lib/classMerge';
 import { BusterRoutes, createBusterRoute } from '@/routes';
 

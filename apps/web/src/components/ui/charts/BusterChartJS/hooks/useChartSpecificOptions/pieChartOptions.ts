@@ -5,11 +5,12 @@ import type { ChartType as ChartJSChartType, PluginChartOptions } from 'chart.js
 import type { AnnotationPluginOptions } from 'chartjs-plugin-annotation';
 import type { Context } from 'chartjs-plugin-datalabels';
 import type { DeepPartial } from 'utility-types';
-import type {
-  BusterChartConfigProps,
-  BusterChartProps,
-  ColumnLabelFormat
-} from '@/api/asset_interfaces/metric/charts';
+import type { BusterChartProps } from '@/api/asset_interfaces/metric/charts';
+import {
+  DEFAULT_COLUMN_LABEL_FORMAT,
+  type ChartConfigProps,
+  type ColumnLabelFormat
+} from '@buster/server-shared/metrics';
 import { determineFontColorContrast } from '@/lib/colors';
 import { formatLabel } from '@/lib/columnFormatter';
 import { ArrayOperations } from '@/lib/math';
@@ -131,7 +132,7 @@ export const piePluginsHandler = ({
 const getInnerLabelValue = (
   chart: ChartJSOrUndefined,
   firstDatasetData: number[],
-  pieInnerLabelAggregate: BusterChartConfigProps['pieInnerLabelAggregate'],
+  pieInnerLabelAggregate: ChartConfigProps['pieInnerLabelAggregate'],
   selectedAxis: ChartSpecificOptionsProps['selectedAxis'],
   columnLabelFormats: NonNullable<BusterChartProps['columnLabelFormats']>
 ): string => {
@@ -150,7 +151,7 @@ const getInnerLabelValue = (
     }
 
     const yColumn = selectedAxis.y[0] || 'defaultYColumn';
-    const yColumnLabel = columnLabelFormats[yColumn];
+    const yColumnLabel = columnLabelFormats[yColumn] || DEFAULT_COLUMN_LABEL_FORMAT;
 
     const formattedLabel = formatLabel(result, {
       ...yColumnLabel,
@@ -163,6 +164,7 @@ const getInnerLabelValue = (
 };
 
 const percentStyle: ColumnLabelFormat = {
+  ...DEFAULT_COLUMN_LABEL_FORMAT,
   columnType: 'number',
   style: 'percent'
 };

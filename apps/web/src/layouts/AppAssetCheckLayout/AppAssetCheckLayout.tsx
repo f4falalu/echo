@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useMemo } from 'react';
-import type { ShareAssetType } from '@/api/asset_interfaces';
+import type { ShareAssetType } from '@buster/server-shared/share';
 import { FileIndeterminateLoader } from '@/components/features/FileIndeterminateLoader';
 import { AppNoPageAccess } from '@/controllers/AppNoPageAccess';
 import { AppPasswordAccess } from '@/controllers/AppPasswordAccess';

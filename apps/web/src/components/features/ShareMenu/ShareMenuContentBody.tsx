@@ -1,6 +1,6 @@
-import { validate } from 'email-validator';
 import React from 'react';
-import { type BusterShare, ShareAssetType, ShareRole } from '@/api/asset_interfaces';
+import type { ShareAssetType, ShareConfig, ShareRole } from '@buster/server-shared/share';
+import { isValidEmail } from '@/lib/email';
 import {
   useShareCollection,
   useUnshareCollection,
@@ -27,7 +27,7 @@ import type { ShareMenuTopBarOptions } from './ShareMenuTopBar';
 export const ShareMenuContentBody: React.FC<{
   selectedOptions: ShareMenuTopBarOptions;
   onCopyLink: () => void;
-  shareAssetConfig: BusterShare;
+  shareAssetConfig: ShareConfig;
   assetId: string;
   assetType: ShareAssetType;
   canEditPermissions: boolean;
@@ -82,15 +82,14 @@ const ShareMenuContentShare: React.FC<ShareMenuContentBodyProps> = React.memo(
     const isInviting = isInvitingMetric || isInvitingDashboard || isInvitingCollection;
 
     const [inputValue, setInputValue] = React.useState<string>('');
-    const [defaultPermissionLevel, setDefaultPermissionLevel] = React.useState<ShareRole>(
-      ShareRole.CAN_VIEW
-    );
-    const disableSubmit = !inputHasText(inputValue) || !validate(inputValue);
+    const [defaultPermissionLevel, setDefaultPermissionLevel] =
+      React.useState<ShareRole>('canView');
+    const disableSubmit = !inputHasText(inputValue) || !isValidEmail(inputValue);
     const hasIndividualPermissions = !!individual_permissions?.length;
 
     const onSubmitNewEmail = useMemoizedFn(async () => {
-      const isValidEmail = validate(inputValue);
-      if (!isValidEmail) {
+      const emailIsValid = isValidEmail(inputValue);
+      if (!emailIsValid) {
         openErrorMessage('Invalid email address');
         return;
       }
@@ -114,11 +113,11 @@ const ShareMenuContentShare: React.FC<ShareMenuContentBodyProps> = React.memo(
         ]
       };
 
-      if (assetType === ShareAssetType.METRIC) {
+      if (assetType === 'metric') {
         await onShareMetric(payload);
-      } else if (assetType === ShareAssetType.DASHBOARD) {
+      } else if (assetType === 'dashboard') {
         await onShareDashboard(payload);
-      } else if (assetType === ShareAssetType.COLLECTION) {
+      } else if (assetType === 'collection') {
         await onShareCollection(payload);
       }
 
@@ -138,11 +137,11 @@ const ShareMenuContentShare: React.FC<ShareMenuContentBodyProps> = React.memo(
             ]
           }
         };
-        if (assetType === ShareAssetType.METRIC) {
+        if (assetType === 'metric') {
           await onUpdateMetricShare(payload);
-        } else if (assetType === ShareAssetType.DASHBOARD) {
+        } else if (assetType === 'dashboard') {
           await onUpdateDashboardShare(payload);
-        } else if (assetType === ShareAssetType.COLLECTION) {
+        } else if (assetType === 'collection') {
           await onUpdateCollectionShare(payload);
         }
       } else {
@@ -150,11 +149,11 @@ const ShareMenuContentShare: React.FC<ShareMenuContentBodyProps> = React.memo(
           id: assetId,
           data: [email]
         };
-        if (assetType === ShareAssetType.METRIC) {
+        if (assetType === 'metric') {
           await onUnshareMetric(payload);
-        } else if (assetType === ShareAssetType.DASHBOARD) {
+        } else if (assetType === 'dashboard') {
           await onUnshareDashboard(payload);
-        } else if (assetType === ShareAssetType.COLLECTION) {
+        } else if (assetType === 'collection') {
           await onUnshareCollection(payload);
         }
       }
@@ -211,7 +210,7 @@ const ShareMenuContentShare: React.FC<ShareMenuContentBodyProps> = React.memo(
                 {...permission}
                 onUpdateShareRole={onUpdateShareRole}
                 assetType={assetType}
-                disabled={!canEditPermissions || permission.role === ShareRole.OWNER}
+                disabled={!canEditPermissions || permission.role === 'owner'}
               />
             ))}
           </div>
@@ -224,7 +223,7 @@ ShareMenuContentShare.displayName = 'ShareMenuContentShare';
 
 export interface ShareMenuContentBodyProps {
   onCopyLink: () => void;
-  individual_permissions: BusterShare['individual_permissions'];
+  individual_permissions: ShareConfig['individual_permissions'];
   publicly_accessible: boolean;
   publicExpirationDate: string | null | undefined;
   password: string | null | undefined;

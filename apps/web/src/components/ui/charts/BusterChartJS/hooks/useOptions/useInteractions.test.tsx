@@ -1,6 +1,6 @@
 import { renderHook } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
-import type { BusterChartConfigProps, ChartType } from '@/api/asset_interfaces/metric/charts';
+import { type ChartConfigProps, type ChartType } from '@buster/server-shared/metrics';
 import { useInteractions } from './useInteractions';
 
 describe('useInteractions', () => {
@@ -8,7 +8,7 @@ describe('useInteractions', () => {
     const { result } = renderHook(() =>
       useInteractions({
         selectedChartType: 'scatter' as ChartType,
-        barLayout: 'vertical' as BusterChartConfigProps['barLayout']
+        barLayout: 'vertical' as ChartConfigProps['barLayout']
       })
     );
 
@@ -23,7 +23,7 @@ describe('useInteractions', () => {
     const { result } = renderHook(() =>
       useInteractions({
         selectedChartType: 'bar' as ChartType,
-        barLayout: 'vertical' as BusterChartConfigProps['barLayout']
+        barLayout: 'vertical' as ChartConfigProps['barLayout']
       })
     );
 
@@ -38,7 +38,7 @@ describe('useInteractions', () => {
     const { result } = renderHook(() =>
       useInteractions({
         selectedChartType: 'bar' as ChartType,
-        barLayout: 'horizontal' as BusterChartConfigProps['barLayout']
+        barLayout: 'horizontal' as ChartConfigProps['barLayout']
       })
     );
 
@@ -53,7 +53,7 @@ describe('useInteractions', () => {
     const { result } = renderHook(() =>
       useInteractions({
         selectedChartType: 'line' as ChartType,
-        barLayout: 'vertical' as BusterChartConfigProps['barLayout']
+        barLayout: 'vertical' as ChartConfigProps['barLayout']
       })
     );
 
@@ -68,7 +68,7 @@ describe('useInteractions', () => {
     const { result } = renderHook(() =>
       useInteractions({
         selectedChartType: 'combo' as ChartType,
-        barLayout: 'vertical' as BusterChartConfigProps['barLayout']
+        barLayout: 'vertical' as ChartConfigProps['barLayout']
       })
     );
 
@@ -83,7 +83,7 @@ describe('useInteractions', () => {
     const { result } = renderHook(() =>
       useInteractions({
         selectedChartType: 'pie' as ChartType,
-        barLayout: 'vertical' as BusterChartConfigProps['barLayout']
+        barLayout: 'vertical' as ChartConfigProps['barLayout']
       })
     );
 
@@ -92,7 +92,7 @@ describe('useInteractions', () => {
   it('should memoize the result and not recalculate on rerenders with same props', () => {
     const props = {
       selectedChartType: 'bar' as ChartType,
-      barLayout: 'vertical' as BusterChartConfigProps['barLayout']
+      barLayout: 'vertical' as ChartConfigProps['barLayout']
     };
 
     const { result, rerender } = renderHook(() => useInteractions(props));
@@ -108,7 +108,7 @@ describe('useInteractions', () => {
     const { result, rerender } = renderHook((props) => useInteractions(props), {
       initialProps: {
         selectedChartType: 'bar' as ChartType,
-        barLayout: 'vertical' as BusterChartConfigProps['barLayout']
+        barLayout: 'vertical' as ChartConfigProps['barLayout']
       }
     });
 
@@ -117,7 +117,7 @@ describe('useInteractions', () => {
     // Rerender with different props
     rerender({
       selectedChartType: 'scatter' as ChartType,
-      barLayout: 'vertical' as BusterChartConfigProps['barLayout']
+      barLayout: 'vertical' as ChartConfigProps['barLayout']
     });
 
     // Result should be a different object

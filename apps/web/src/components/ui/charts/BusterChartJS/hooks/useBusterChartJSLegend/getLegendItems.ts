@@ -1,9 +1,10 @@
 import type { ChartDataset } from 'chart.js';
 import type React from 'react';
-import { type BusterChartProps, ChartType } from '@/api/asset_interfaces/metric/charts';
+import { type BusterChartProps } from '@/api/asset_interfaces/metric/charts';
 import type { BusterChartLegendItem } from '../../../BusterChartLegend';
 import { formatLabelForPieLegend } from '../../../commonHelpers';
 import type { ChartJSOrUndefined } from '../../core/types';
+import type { ChartType } from '@buster/server-shared/metrics';
 
 export const getLegendItems = ({
   chartRef,

@@ -23,7 +23,7 @@
     "test:e2e:debug": "playwright test --debug"
   },
   "engines": {
-    "node": ">=22.9.0"
+    "node": ">=24.0.0"
   },
   "dependencies": {
     "@buster/server-shared": "workspace:*",
@@ -33,7 +33,7 @@
     "@dnd-kit/sortable": "^10.0.0",
     "@dnd-kit/utilities": "^3.2.2",
     "@electric-sql/client": "^1.0.6",
-    "@electric-sql/react": "^1.0.5",
+    "@electric-sql/react": "^1.0.6",
     "@faker-js/faker": "^9.9.0",
     "@llm-ui/code": "^0.13.3",
     "@llm-ui/markdown": "^0.13.3",
@@ -126,16 +126,16 @@
     "utility-types": "^3.11.0",
     "uuid": "catalog:",
     "virtua": "^0.41.5",
-    "vite": "^6.3.5",
-    "vite-tsconfig-paths": "^5.1.4",
+    "vite": "catalog:",
+    "vite-tsconfig-paths": "catalog:",
     "zod": "catalog:",
     "zustand": "^5.0.6"
   },
   "devDependencies": {
-    "@chromatic-com/storybook": "^3.2.7",
+    "@chromatic-com/storybook": "^3.2.6",
     "@next/bundle-analyzer": "^15.3.5",
-    "@playwright/test": "^1.53.2",
-    "@storybook/addon-controls": "^8.6.14",
+    "@playwright/test": "1.53.1",
+    "@storybook/addon-controls": "^8.6.12",
     "@storybook/addon-essentials": "^8.6.14",
     "@storybook/addon-interactions": "^8.6.14",
     "@storybook/blocks": "^8.6.14",
@@ -148,7 +148,7 @@
     "@types/js-cookie": "^3.0.6",
     "@types/js-yaml": "^4.0.9",
     "@types/lodash": "^4.17.20",
-    "@types/node": "^20.19.4",
+    "@types/node": "^24",
     "@types/papaparse": "^5.3.16",
     "@types/pluralize": "^0.0.33",
     "@types/react": "^18.3.23",

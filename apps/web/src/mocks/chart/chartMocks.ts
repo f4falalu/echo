@@ -1,5 +1,5 @@
 import dayjs from 'dayjs';
-import type { IDataResult } from '@/api/asset_interfaces/metric/interfaces';
+import type { DataResult } from '@buster/server-shared/metrics';
 
 // Helper to generate dates for time series
 const generateDates = (count: number) => {
@@ -21,7 +21,7 @@ export const addNoise = (value: number, variabilityPercent = 10): number => {
 };
 
 // Line chart mock data with predictable growth patterns and controlled variability
-export const generateLineChartData = (pointCount = 10): IDataResult => {
+export const generateLineChartData = (pointCount = 10): DataResult => {
   const dates = generateDates(pointCount);
   return dates.map((date, index) => {
     const baseRevenue = 1000 + index * 500;
@@ -39,7 +39,7 @@ export const generateLineChartData = (pointCount = 10): IDataResult => {
 };
 
 // Bar chart mock data with consistent categories
-export const generateBarChartData = (categoryCount = 6): IDataResult => {
+export const generateBarChartData = (categoryCount = 6): DataResult => {
   const categories = ['Electronics', 'Clothing', 'Food', 'Books', 'Sports', 'Home', 'Beauty'];
   return Array.from({ length: categoryCount }, (_, index) => ({
     category: categories[index % categories.length],
@@ -50,7 +50,7 @@ export const generateBarChartData = (categoryCount = 6): IDataResult => {
 };
 
 // Pie chart mock data with fixed segments
-export const generatePieChartData = (segmentCount = 5): IDataResult => {
+export const generatePieChartData = (segmentCount = 5): DataResult => {
   const segments = ['Product A', 'Product B', 'Product C', 'Product D', 'Product E'];
   return Array.from({ length: segmentCount }, (_, index) => ({
     segment: segments[index % segments.length],
@@ -59,7 +59,7 @@ export const generatePieChartData = (segmentCount = 5): IDataResult => {
 };
 
 // Scatter chart mock data with organic distribution
-export const generateScatterChartData = (pointCount = 30): IDataResult => {
+export const generateScatterChartData = (pointCount = 30): DataResult => {
   const categories = ['Electronics', 'Clothing', 'Home Goods'];
   return Array.from({ length: pointCount }, (_, index) => {
     // Create a smooth curve using sine and cosine functions

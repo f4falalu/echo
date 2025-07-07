@@ -2,7 +2,7 @@
 
 import { headers } from 'next/headers';
 import type React from 'react';
-import { prefetchGetMyUserInfo } from '@/api/buster_rest';
+import { prefetchGetMyUserInfo } from '@/api/buster_rest/users/queryRequests';
 import { queryKeys } from '@/api/query_keys';
 import { AppProviders } from '@/context/AppProviders';
 import { getSupabaseUserContext } from '@/lib/supabase';

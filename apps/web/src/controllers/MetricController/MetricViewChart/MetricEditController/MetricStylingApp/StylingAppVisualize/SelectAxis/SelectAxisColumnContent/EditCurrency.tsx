@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import type { IColumnLabelFormat } from '@/api/asset_interfaces/metric/charts/columnLabelInterfaces';
+import type { ColumnLabelFormat } from '@buster/server-shared/metrics';
 import { useGetCurrencies } from '@/api/buster_rest/currency';
 import { Select, type SelectItem } from '@/components/ui/select';
 import { Text } from '@/components/ui/typography';
@@ -7,8 +7,8 @@ import { useMemoizedFn } from '@/hooks';
 import { LabelAndInput } from '../../../Common/LabelAndInput';
 
 export const EditCurrency: React.FC<{
-  currency: IColumnLabelFormat['currency'];
-  onUpdateColumnConfig: (columnLabelFormat: Partial<IColumnLabelFormat>) => void;
+  currency: ColumnLabelFormat['currency'];
+  onUpdateColumnConfig: (columnLabelFormat: Partial<ColumnLabelFormat>) => void;
 }> = React.memo(({ currency, onUpdateColumnConfig }) => {
   const { data: currencies, isFetched } = useGetCurrencies();
 

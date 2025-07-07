@@ -1,5 +1,4 @@
 import React from 'react';
-import { ShareAssetType } from '@/api/asset_interfaces';
 import { useGetMetric } from '@/api/buster_rest/metrics';
 import { ShareMenu } from '../ShareMenu';
 import { getShareAssetConfig } from '../ShareMenu/helpers';
@@ -12,10 +11,7 @@ export const ShareMetricButton = React.memo(({ metricId }: { metricId: string })
   );
 
   return (
-    <ShareMenu
-      shareAssetConfig={shareAssetConfig || null}
-      assetId={metricId}
-      assetType={ShareAssetType.METRIC}>
+    <ShareMenu shareAssetConfig={shareAssetConfig || null} assetId={metricId} assetType={'metric'}>
       <ShareButton />
     </ShareMenu>
   );

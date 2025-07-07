@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import React, { useMemo } from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
-import { ShareAssetType } from '@/api/asset_interfaces/share';
+import { ShareAssetType } from '@buster/server-shared/share';
 import { BusterLogoWithText } from '@/assets/svg/BusterLogoWithText';
 import { Button } from '@/components/ui/buttons';
 import { Flag, Gear, House4, Plus, Table, UnorderedList2 } from '@/components/ui/icons';
@@ -46,16 +46,16 @@ const topItems = (
       {
         label: 'Home',
         icon: <House4 />,
-        route: BusterRoutes.APP_HOME,
+        route: createBusterRoute({ route: BusterRoutes.APP_HOME }),
         id: BusterRoutes.APP_HOME,
         active: currentParentRoute === BusterRoutes.APP_HOME
       },
       {
         label: 'Chat history',
         icon: <ASSET_ICONS.chats />,
-        route: BusterRoutes.APP_CHAT,
+        route: createBusterRoute({ route: BusterRoutes.APP_CHAT }),
         id: BusterRoutes.APP_CHAT,
-        active: isActiveCheck(ShareAssetType.CHAT, BusterRoutes.APP_CHAT)
+        active: isActiveCheck('chat', BusterRoutes.APP_CHAT)
       }
     ]
   };
@@ -75,23 +75,23 @@ const yourStuff = (
       {
         label: 'Metrics',
         icon: <ASSET_ICONS.metrics />,
-        route: BusterRoutes.APP_METRIC,
+        route: createBusterRoute({ route: BusterRoutes.APP_METRIC }),
         id: BusterRoutes.APP_METRIC,
-        active: isActiveCheck(ShareAssetType.METRIC, BusterRoutes.APP_METRIC)
+        active: isActiveCheck('metric', BusterRoutes.APP_METRIC)
       },
       {
         label: 'Dashboards',
         icon: <ASSET_ICONS.dashboards />,
-        route: BusterRoutes.APP_DASHBOARDS,
+        route: createBusterRoute({ route: BusterRoutes.APP_DASHBOARDS }),
         id: BusterRoutes.APP_DASHBOARDS,
-        active: isActiveCheck(ShareAssetType.DASHBOARD, BusterRoutes.APP_DASHBOARDS)
+        active: isActiveCheck('dashboard', BusterRoutes.APP_DASHBOARDS)
       },
       {
         label: 'Collections',
         icon: <ASSET_ICONS.collections />,
-        route: BusterRoutes.APP_COLLECTIONS,
+        route: createBusterRoute({ route: BusterRoutes.APP_COLLECTIONS }),
         id: BusterRoutes.APP_COLLECTIONS,
-        active: isActiveCheck(ShareAssetType.COLLECTION, BusterRoutes.APP_COLLECTIONS)
+        active: isActiveCheck('collection', BusterRoutes.APP_COLLECTIONS)
       }
     ]
   };
@@ -104,7 +104,7 @@ const adminTools = (currentParentRoute: BusterRoutes): ISidebarGroup => ({
     {
       label: 'Logs',
       icon: <UnorderedList2 />,
-      route: BusterRoutes.APP_LOGS,
+      route: createBusterRoute({ route: BusterRoutes.APP_LOGS }),
       id: BusterRoutes.APP_LOGS,
       collapsedTooltip: 'Logs'
     },
@@ -117,7 +117,7 @@ const adminTools = (currentParentRoute: BusterRoutes): ISidebarGroup => ({
     {
       label: 'Datasets',
       icon: <Table />,
-      route: BusterRoutes.APP_DATASETS,
+      route: createBusterRoute({ route: BusterRoutes.APP_DATASETS }),
       id: BusterRoutes.APP_DATASETS,
       collapsedTooltip: 'Datasets'
     }

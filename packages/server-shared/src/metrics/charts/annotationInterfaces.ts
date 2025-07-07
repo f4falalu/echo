@@ -1,4 +1,5 @@
 import { z } from 'zod/v4';
+import { getDefaults } from '../defaultHelpers';
 
 // Goal line is a line that is drawn on the chart to represent a goal.
 export const GoalLineSchema = z.object({
@@ -11,7 +12,7 @@ export const GoalLineSchema = z.object({
   // OPTIONAL: if showGoalLineLabel is true, this will be the label. default is "Goal".
   goalLineLabel: z.nullable(z.string()).default('Goal'),
   // OPTIONAL: default is #000000
-  goalLineColor: z.nullable(z.string()).default('#000000')
+  goalLineColor: z.nullable(z.string()).default('#000000'),
 });
 
 export const TrendlineSchema = z.object({
@@ -31,7 +32,7 @@ export const TrendlineSchema = z.object({
       'polynomial_regression',
       'min',
       'max',
-      'median'
+      'median',
     ])
     .default('linear_regression'),
   // OPTIONAL: default is #000000, inherit will inherit the color from the line/bar
@@ -47,8 +48,10 @@ export const TrendlineSchema = z.object({
   polynomialOrder: z.number().default(2),
   // OPTIONAL: default is true. if true, the trendline will be calculated for all categories. if false, the trendline will be calculated for the category specified in the columnId.
   aggregateAllCategories: z.boolean().default(true),
-  id: z.string()
+  id: z.string(),
 });
+
+export const DEFAULT_TRENDLINE_CONFIG: Required<Trendline> = getDefaults(TrendlineSchema);
 
 // Export inferred types
 export type GoalLine = z.infer<typeof GoalLineSchema>;

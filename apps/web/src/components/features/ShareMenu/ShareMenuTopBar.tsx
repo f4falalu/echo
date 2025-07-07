@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { ShareAssetType } from '@/api/asset_interfaces';
+import { ShareAssetType } from '@buster/server-shared/share';
 import type { SegmentedItem } from '@/components/ui/segmented';
 import { AppSegmented } from '@/components/ui/segmented';
 import { useMemoizedFn } from '@/hooks';
@@ -29,12 +29,12 @@ export const ShareMenuTopBar: React.FC<{
         {
           value: ShareMenuTopBarOptions.Publish,
           label: 'Publish',
-          show: assetType !== ShareAssetType.COLLECTION && canEditPermissions
+          show: assetType !== 'collection' && canEditPermissions
         },
         {
           value: ShareMenuTopBarOptions.Embed,
           label: 'Embed',
-          show: assetType !== ShareAssetType.COLLECTION && canEditPermissions
+          show: assetType !== 'collection' && canEditPermissions
         }
       ]
         .filter((o) => o.show)

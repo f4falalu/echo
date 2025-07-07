@@ -1,7 +1,10 @@
 'use client';
 
 import React from 'react';
-import { useGetPermissionGroup, useUpdatePermissionGroup } from '@/api/buster_rest';
+import {
+  useGetPermissionGroup,
+  useUpdatePermissionGroup
+} from '@/api/buster_rest/permission_groups';
 import { EditableTitle } from '@/components/ui/typography/EditableTitle';
 import { useMemoizedFn } from '@/hooks';
 

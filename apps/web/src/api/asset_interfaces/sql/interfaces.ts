@@ -1,5 +1,5 @@
-import type { DataMetadata, IDataResult } from '../metric';
+import type { DataMetadata, DataResult } from '@buster/server-shared/metrics';
 export interface RunSQLResponse {
-  data: IDataResult;
+  data: DataResult;
   data_metadata: DataMetadata;
 }

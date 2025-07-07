@@ -1,18 +1,18 @@
 import React from 'react';
-import type { BusterMetricChartConfig } from '@/api/asset_interfaces';
-import type { ChartEncodes, IColumnLabelFormat } from '@/api/asset_interfaces/metric/charts';
+import type { ChartConfigProps } from '@buster/server-shared/metrics';
+import type { ChartEncodes, ColumnLabelFormat } from '@buster/server-shared/metrics';
 import { Popover } from '@/components/ui/popover/Popover';
 import type { SelectAxisContainerId } from './config';
 import { SelectAxisDropdownContent } from './SelectAxisColumnContent';
 
 export interface SelectAxisColumnPopoverProps {
-  columnLabelFormat: IColumnLabelFormat;
-  columnSetting: BusterMetricChartConfig['columnSettings'][string];
+  columnLabelFormat: ColumnLabelFormat;
+  columnSetting: ChartConfigProps['columnSettings'][string];
   children: React.ReactNode;
   id: string;
-  selectedChartType: BusterMetricChartConfig['selectedChartType'];
-  barGroupType: BusterMetricChartConfig['barGroupType'];
-  lineGroupType: BusterMetricChartConfig['lineGroupType'];
+  selectedChartType: ChartConfigProps['selectedChartType'];
+  barGroupType: ChartConfigProps['barGroupType'];
+  lineGroupType: ChartConfigProps['lineGroupType'];
   zoneId: SelectAxisContainerId;
   selectedAxis: ChartEncodes | null;
   rowCount: number;

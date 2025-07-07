@@ -2,7 +2,7 @@
 
 import React, { useMemo } from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
-import { useIndividualDataset } from '@/api/buster_rest';
+import { useIndividualDataset } from '@/api/buster_rest/datasets';
 import { Breadcrumb, type BreadcrumbItemType } from '@/components/ui/breadcrumb';
 import { AppSegmented, type SegmentedItem } from '@/components/ui/segmented';
 import { useUserConfigContextSelector } from '@/context/Users';

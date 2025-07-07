@@ -1,12 +1,12 @@
 import type { Context } from 'chartjs-plugin-datalabels';
-import type { ColumnLabelFormat } from '@/api/asset_interfaces/metric';
 import { formatLabel } from '@/lib/columnFormatter';
+import type { ColumnLabelFormat } from '@buster/server-shared/metrics';
 
 export const formatBarAndLineDataLabel = (
   value: number,
   context: Context,
   percentageMode: false | 'stacked' | 'data-label',
-  columnLabelFormat: ColumnLabelFormat
+  columnLabelFormat: Partial<ColumnLabelFormat>
 ) => {
   if (!percentageMode) {
     return formatLabel(value, columnLabelFormat);

@@ -2,7 +2,7 @@
 
 import type React from 'react';
 import { useMemo } from 'react';
-import { useGetPermissionGroupUsers } from '@/api/buster_rest';
+import { useGetPermissionGroupUsers } from '@/api/buster_rest/permission_groups';
 import { PermissionSearchAndListWrapper } from '@/components/features/PermissionComponents';
 import { Button } from '@/components/ui/buttons';
 import { Plus } from '@/components/ui/icons';

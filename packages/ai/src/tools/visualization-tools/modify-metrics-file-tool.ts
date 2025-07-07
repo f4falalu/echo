@@ -8,15 +8,15 @@ import { eq, inArray } from 'drizzle-orm';
 import * as yaml from 'yaml';
 import { z } from 'zod';
 import { getWorkflowDataSourceManager } from '../../utils/data-source-manager';
+import { createPermissionErrorMessage, validateSqlPermissions } from '../../utils/sql-permissions';
 import type { AnalystRuntimeContext } from '../../workflows/analyst-workflow';
+import { trackFileAssociations } from './file-tracking-helper';
 import {
   addMetricVersionToHistory,
   getLatestVersionNumber,
   validateMetricYml,
 } from './version-history-helpers';
 import type { MetricYml, VersionHistory } from './version-history-types';
-import { trackFileAssociations } from './file-tracking-helper';
-import { validateSqlPermissions, createPermissionErrorMessage } from '../../utils/sql-permissions';
 
 // TypeScript types matching Rust DataMetadata structure
 enum SimpleType {
@@ -285,7 +285,7 @@ async function validateSql(
     if (!permissionResult.isAuthorized) {
       return {
         success: false,
-        error: createPermissionErrorMessage(permissionResult.unauthorizedTables)
+        error: createPermissionErrorMessage(permissionResult.unauthorizedTables),
       };
     }
 
@@ -490,7 +490,13 @@ async function processMetricFileUpdate(
     }
 
     // Validate SQL if it has changed or if metadata is missing
-    const sqlValidation = await validateSql(newMetricYml.sql, dataSourceId, workflowId, userId, dataSourceSyntax);
+    const sqlValidation = await validateSql(
+      newMetricYml.sql,
+      dataSourceId,
+      workflowId,
+      userId,
+      dataSourceSyntax
+    );
     if (!sqlValidation.success) {
       const error = `SQL validation failed: ${sqlValidation.error}`;
       modificationResults.push({
@@ -781,7 +787,7 @@ Please attempt to modify the metric again. This error could be due to:
     if (messageId && files.length > 0) {
       await trackFileAssociations({
         messageId,
-        files: files.map(file => ({
+        files: files.map((file) => ({
           id: file.id,
           version: file.version_number,
         })),

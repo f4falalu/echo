@@ -4,7 +4,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import type React from 'react';
 import { useCallback, useState } from 'react';
 import { createContext, useContextSelector } from 'use-context-selector';
-import type { ShareAssetType } from '@/api/asset_interfaces/share';
+import type { ShareAssetType } from '@buster/server-shared/share';
 import { queryKeys } from '@/api/query_keys';
 import { useMemoizedFn } from '@/hooks';
 import { timeout } from '@/lib';

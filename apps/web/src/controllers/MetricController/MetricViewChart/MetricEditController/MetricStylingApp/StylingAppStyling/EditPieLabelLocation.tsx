@@ -1,11 +1,11 @@
 import React, { useMemo } from 'react';
-import type { BusterMetricChartConfig } from '@/api/asset_interfaces';
+import type { ChartConfigProps } from '@buster/server-shared/metrics';
 import { Select, type SelectItem } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { useMemoizedFn } from '@/hooks';
 import { LabelAndInput } from '../Common';
 
-const options: SelectItem<NonNullable<BusterMetricChartConfig['pieLabelPosition']>>[] = [
+const options: SelectItem<NonNullable<ChartConfigProps['pieLabelPosition']>>[] = [
   { label: 'Outside', value: 'outside' },
   { label: 'Inside', value: 'inside' }
 ];
@@ -15,15 +15,15 @@ export const EditPieLabelLocation = React.memo(
     pieLabelPosition,
     onUpdateChartConfig
   }: {
-    pieLabelPosition: BusterMetricChartConfig['pieLabelPosition'];
-    onUpdateChartConfig: (config: Partial<BusterMetricChartConfig>) => void;
+    pieLabelPosition: ChartConfigProps['pieLabelPosition'];
+    onUpdateChartConfig: (config: Partial<ChartConfigProps>) => void;
   }) => {
     const selectedLabelPosition = useMemo(() => {
       return options.find((option) => option.value === pieLabelPosition)?.value || 'outside';
     }, [pieLabelPosition]);
     const hideLabel = pieLabelPosition === 'none' || !pieLabelPosition;
 
-    const onChangeSelect = useMemoizedFn((value: BusterMetricChartConfig['pieLabelPosition']) => {
+    const onChangeSelect = useMemoizedFn((value: ChartConfigProps['pieLabelPosition']) => {
       onUpdateChartConfig({ pieLabelPosition: value });
     });
 

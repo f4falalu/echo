@@ -1,12 +1,12 @@
 import React, { useMemo } from 'react';
-import type { BusterMetricChartConfig } from '@/api/asset_interfaces';
+import type { ChartConfigProps } from '@buster/server-shared/metrics';
 import { Switch } from '@/components/ui/switch';
 import { useMemoizedFn } from '@/hooks';
 import { LabelAndInput } from '../Common';
 
 export const EditSmoothLinesGlobal: React.FC<{
-  columnSettings: BusterMetricChartConfig['columnSettings'];
-  onUpdateChartConfig: (config: Partial<BusterMetricChartConfig>) => void;
+  columnSettings: ChartConfigProps['columnSettings'];
+  onUpdateChartConfig: (config: Partial<ChartConfigProps>) => void;
 }> = React.memo(({ columnSettings, onUpdateChartConfig }) => {
   const allSmooth = useMemo(() => {
     return Object.values(columnSettings).every((column) => column.lineType === 'smooth');
@@ -14,7 +14,7 @@ export const EditSmoothLinesGlobal: React.FC<{
 
   const onChangeAllSmooth = useMemoizedFn((value: boolean) => {
     onUpdateChartConfig({
-      columnSettings: Object.keys(columnSettings).reduce<BusterMetricChartConfig['columnSettings']>(
+      columnSettings: Object.keys(columnSettings).reduce<ChartConfigProps['columnSettings']>(
         (acc, curr) => {
           acc[curr] = { ...columnSettings[curr], lineType: value ? 'smooth' : 'normal' };
           return acc;

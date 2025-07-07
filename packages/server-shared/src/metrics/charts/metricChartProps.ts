@@ -6,7 +6,7 @@ export const DerivedMetricTitleSchema = z.object({
   // whether to display to use the key or the value in the chart
   useValue: z.boolean(),
   // OPTIONAL: default is sum
-  aggregate: z.enum(['sum', 'average', 'median', 'max', 'min', 'count', 'first']).default('sum')
+  aggregate: z.enum(['sum', 'average', 'median', 'max', 'min', 'count', 'first']).default('sum'),
 });
 
 export const MetricChartPropsSchema = z.object({
@@ -21,7 +21,7 @@ export const MetricChartPropsSchema = z.object({
   // OPTIONAL: default is ''
   metricSubHeader: z.nullable(z.union([z.string(), DerivedMetricTitleSchema])).default(null),
   // OPTIONAL: default is null. If null then the metricColumnId will be used in conjunction with the metricValueAggregate. If not null, then the metricValueLabel will be used.
-  metricValueLabel: z.nullable(z.string()).default(null)
+  metricValueLabel: z.nullable(z.string()).default(null),
 });
 
 export type DerivedMetricTitle = z.infer<typeof DerivedMetricTitleSchema>;

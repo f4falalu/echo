@@ -32,15 +32,11 @@ export async function initializeChat(
         .from(messages)
         .where(eq(messages.id, redoFromMessageId))
         .limit(1);
-      
+
       if (!messageDetails.length || !messageDetails[0]) {
-        throw new ChatError(
-          ChatErrorCode.INVALID_REQUEST,
-          'Message not found',
-          404
-        );
+        throw new ChatError(ChatErrorCode.INVALID_REQUEST, 'Message not found', 404);
       }
-      
+
       chatId = messageDetails[0].chatId;
     }
 

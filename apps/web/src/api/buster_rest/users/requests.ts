@@ -1,11 +1,11 @@
-import type { ShareAssetType } from '@/api/asset_interfaces/share';
+import type { ShareAssetType } from '@buster/server-shared/share';
 import type {
   BusterUserFavorite,
   BusterUserListItem,
   BusterUserResponse,
   OrganizationUser
 } from '@/api/asset_interfaces/users';
-import { BASE_URL } from '@/api/buster_rest/config';
+import { BASE_URL } from '../config';
 import { serverFetch } from '../../createServerInstance';
 import { mainApi } from '../instances';
 

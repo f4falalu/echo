@@ -4,9 +4,9 @@ import { createTool } from '@mastra/core/tools';
 import { wrapTraced } from 'braintrust';
 import { z } from 'zod';
 import { getWorkflowDataSourceManager } from '../../utils/data-source-manager';
+import { createPermissionErrorMessage, validateSqlPermissions } from '../../utils/sql-permissions';
 import type { AnalystRuntimeContext } from '../../workflows/analyst-workflow';
 import { ensureSqlLimit } from './sql-limit-helper';
-import { validateSqlPermissions, createPermissionErrorMessage } from '../../utils/sql-permissions';
 
 const executeSqlStatementInputSchema = z.object({
   statements: z.array(z.string()).describe(
@@ -377,7 +377,7 @@ async function executeSingleStatement(
   if (!permissionResult.isAuthorized) {
     return {
       success: false,
-      error: createPermissionErrorMessage(permissionResult.unauthorizedTables)
+      error: createPermissionErrorMessage(permissionResult.unauthorizedTables),
     };
   }
 

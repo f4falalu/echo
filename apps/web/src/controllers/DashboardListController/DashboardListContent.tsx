@@ -2,7 +2,6 @@
 
 import React, { useMemo, useState } from 'react';
 import type { BusterDashboardListItem } from '@/api/asset_interfaces';
-import { ShareAssetType } from '@/api/asset_interfaces';
 import { FavoriteStar } from '@/components/features/list';
 import { getShareStatus } from '@/components/features/metrics/StatusBadgeIndicator/helpers';
 import { NewDashboardModal } from '@/components/features/modal/NewDashboardModal';
@@ -30,7 +29,7 @@ const columns: BusterListColumn[] = [
           <Text truncate>{name}</Text>
           <FavoriteStar
             id={id}
-            type={ShareAssetType.DASHBOARD}
+            type={'dashboard'}
             iconStyle="tertiary"
             title={name}
             className="opacity-0 group-hover:opacity-100"

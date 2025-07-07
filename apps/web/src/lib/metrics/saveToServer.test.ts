@@ -1,18 +1,17 @@
 import { describe, expect, it } from 'vitest';
-import type { IBusterMetric } from '@/api/asset_interfaces/metric';
-import { ChartType } from '@/api/asset_interfaces/metric/charts';
-import { VerificationStatus } from '@/api/asset_interfaces/share/verificationInterfaces';
+import type { BusterMetric } from '@/api/asset_interfaces/metric';
+import type { ChartType } from '@buster/server-shared/metrics';
 import {
   getChangedTopLevelMessageValues,
   getChangesFromDefaultChartConfig
 } from './saveToServerHelpers';
 
 // Mock minimal metric objects for testing
-const createMockMetric = (overrides?: Partial<IBusterMetric>): IBusterMetric =>
+const createMockMetric = (overrides?: Partial<BusterMetric>): BusterMetric =>
   ({
     id: '123',
     name: 'Test Metric',
-    status: VerificationStatus.NOT_REQUESTED,
+    status: 'notRequested',
     sql: 'SELECT * FROM test',
     file: 'test.yaml',
     // Add other required properties with default values
@@ -38,7 +37,7 @@ const createMockMetric = (overrides?: Partial<IBusterMetric>): IBusterMetric =>
     collections: [],
     versions: [],
     ...overrides
-  }) as IBusterMetric;
+  }) as BusterMetric;
 
 describe('getChangedTopLevelMessageValues', () => {
   it('should return empty object when no values have changed', () => {
@@ -61,11 +60,11 @@ describe('getChangedTopLevelMessageValues', () => {
 
   it('should detect changes in status property', () => {
     const oldMetric = createMockMetric();
-    const newMetric = createMockMetric({ status: VerificationStatus.VERIFIED });
+    const newMetric = createMockMetric({ status: 'verified' });
 
     const result = getChangedTopLevelMessageValues(newMetric, oldMetric);
 
-    expect(result).toEqual({ status: VerificationStatus.VERIFIED });
+    expect(result).toEqual({ status: 'verified' });
   });
 
   it('should detect changes in sql property', () => {
@@ -90,7 +89,7 @@ describe('getChangedTopLevelMessageValues', () => {
     const oldMetric = createMockMetric();
     const newMetric = createMockMetric({
       name: 'Updated Name',
-      status: VerificationStatus.VERIFIED,
+      status: 'verified',
       sql: 'SELECT count(*) FROM orders'
     });
 
@@ -98,7 +97,7 @@ describe('getChangedTopLevelMessageValues', () => {
 
     expect(result).toEqual({
       name: 'Updated Name',
-      status: VerificationStatus.VERIFIED,
+      status: 'verified',
       sql: 'SELECT count(*) FROM orders'
     });
   });

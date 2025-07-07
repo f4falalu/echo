@@ -1,6 +1,6 @@
 import isEmpty from 'lodash/isEmpty';
 import { create } from 'mutative';
-import { type BusterMetric, type BusterMetricChartConfig } from '@/api/asset_interfaces/metric';
+import { type BusterMetric } from '@/api/asset_interfaces/metric';
 import {
   DEFAULT_CHART_CONFIG,
   DEFAULT_CHART_CONFIG_ENTRIES,
@@ -17,27 +17,27 @@ import { createDefaultColumnSettings } from './createDefaultColumnSettings';
 
 const keySpecificHandlers: Partial<
   Record<
-    keyof BusterMetricChartConfig,
+    keyof ChartConfigProps,
     (
       value: unknown,
       dataMetadata: DataMetadata | undefined,
-      pieChartAxis: BusterMetricChartConfig['pieChartAxis'] | undefined
+      pieChartAxis: ChartConfigProps['pieChartAxis'] | undefined
     ) => unknown
   >
 > = {
   colors: (value: unknown) => {
-    const colors = value as BusterMetricChartConfig['colors'];
+    const colors = value as ChartConfigProps['colors'];
     if (isEmpty(colors)) return DEFAULT_CHART_CONFIG.colors;
     if (colors.length >= 3) return colors; //we need at least 3 colors for the chart icons
     return Array.from({ length: 3 }, (_, index) => colors[index % colors.length]);
   },
   scatterDotSize: (value: unknown) => {
-    const scatterDotSize = value as BusterMetricChartConfig['scatterDotSize'];
+    const scatterDotSize = value as ChartConfigProps['scatterDotSize'];
     if (isEmpty(scatterDotSize)) return DEFAULT_CHART_CONFIG.scatterDotSize;
     return scatterDotSize;
   },
   barAndLineAxis: (value: unknown, dataMetadata) => {
-    const barAndLineAxis = value as BusterMetricChartConfig['barAndLineAxis'];
+    const barAndLineAxis = value as ChartConfigProps['barAndLineAxis'];
     if (isEmpty(barAndLineAxis)) {
       return createDefaultBarAndLineAxis(dataMetadata?.column_metadata);
     }
@@ -49,7 +49,7 @@ const keySpecificHandlers: Partial<
     };
   },
   pieChartAxis: (value: unknown, dataMetadata) => {
-    const pieChartAxis = value as BusterMetricChartConfig['pieChartAxis'];
+    const pieChartAxis = value as ChartConfigProps['pieChartAxis'];
     if (isEmpty(pieChartAxis)) return createDefaultPieAxis(dataMetadata?.column_metadata);
     return {
       x: pieChartAxis.x || DEFAULT_CHART_CONFIG.pieChartAxis.x,
@@ -58,7 +58,7 @@ const keySpecificHandlers: Partial<
     };
   },
   scatterAxis: (value: unknown, dataMetadata) => {
-    const scatterAxis = value as BusterMetricChartConfig['scatterAxis'];
+    const scatterAxis = value as ChartConfigProps['scatterAxis'];
     if (isEmpty(scatterAxis)) return createDefaultScatterAxis(dataMetadata?.column_metadata);
     return {
       x: scatterAxis.x || DEFAULT_CHART_CONFIG.scatterAxis.x,
@@ -69,7 +69,7 @@ const keySpecificHandlers: Partial<
     };
   },
   comboChartAxis: (value: unknown, dataMetadata) => {
-    const comboChartAxis = value as BusterMetricChartConfig['comboChartAxis'];
+    const comboChartAxis = value as ChartConfigProps['comboChartAxis'];
     if (isEmpty(comboChartAxis)) return createDefaultBarAndLineAxis(dataMetadata?.column_metadata);
     return {
       x: comboChartAxis.x || DEFAULT_CHART_CONFIG.comboChartAxis.x,
@@ -80,7 +80,7 @@ const keySpecificHandlers: Partial<
     };
   },
   metricColumnId: (value: unknown, dataMetadata) => {
-    const metricColumnId = value as BusterMetricChartConfig['metricColumnId'];
+    const metricColumnId = value as ChartConfigProps['metricColumnId'];
     if (isEmpty(metricColumnId)) {
       const firstNumberColumn = dataMetadata?.column_metadata?.find(
         (m) => m.simple_type === 'number'
@@ -90,25 +90,25 @@ const keySpecificHandlers: Partial<
     return metricColumnId;
   },
   metricHeader: (value: unknown) => {
-    const metricHeader = value as BusterMetricChartConfig['metricHeader'];
+    const metricHeader = value as ChartConfigProps['metricHeader'];
     if (isEmpty(metricHeader)) return DEFAULT_CHART_CONFIG.metricHeader;
     return metricHeader;
   },
   metricSubHeader: (value: unknown) => {
-    const metricSubHeader = value as BusterMetricChartConfig['metricSubHeader'];
+    const metricSubHeader = value as ChartConfigProps['metricSubHeader'];
     if (isEmpty(metricSubHeader)) return DEFAULT_CHART_CONFIG.metricSubHeader;
     return metricSubHeader;
   },
   columnLabelFormats: (value: unknown, dataMetadata) => {
-    const columnLabelFormats = value as BusterMetricChartConfig['columnLabelFormats'];
+    const columnLabelFormats = value as ChartConfigProps['columnLabelFormats'];
     return createDefaultColumnLabelFormats(columnLabelFormats, dataMetadata?.column_metadata);
   },
   columnSettings: (value: unknown, dataMetadata) => {
-    const columnSettings = value as BusterMetricChartConfig['columnSettings'];
+    const columnSettings = value as ChartConfigProps['columnSettings'];
     return createDefaultColumnSettings(columnSettings, dataMetadata?.column_metadata);
   },
   pieLabelPosition: (value: unknown, dataMetadata, pieChartAxis) => {
-    const pieLabelPosition = value as BusterMetricChartConfig['pieLabelPosition'];
+    const pieLabelPosition = value as ChartConfigProps['pieLabelPosition'];
     // if (isEmpty(pieLabelPosition)) {
     //   const firstPieColumn = pieChartAxis?.x?.[0];
     //   const firstPieColumnMetaData = dataMetadata?.column_metadata?.find(
@@ -123,14 +123,14 @@ const keySpecificHandlers: Partial<
 
 export const createDefaultChartConfig = (
   message: Pick<BusterMetric, 'chart_config' | 'data_metadata'>
-): BusterMetricChartConfig => {
+): ChartConfigProps => {
   const chartConfig: ChartConfigProps | undefined = message.chart_config;
   const dataMetadata = message.data_metadata;
   const pieChartAxis = chartConfig?.pieChartAxis;
 
   const newChartConfig = create(DEFAULT_CHART_CONFIG, (draft) => {
     for (const [_key, defaultValue] of DEFAULT_CHART_CONFIG_ENTRIES) {
-      const key = _key as keyof BusterMetricChartConfig;
+      const key = _key as keyof ChartConfigProps;
       const chartConfigValue = chartConfig?.[key];
 
       const handler = keySpecificHandlers[key];

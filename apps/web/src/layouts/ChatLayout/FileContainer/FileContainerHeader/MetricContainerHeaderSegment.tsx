@@ -4,10 +4,10 @@ import type { SegmentedItem } from '@/components/ui/segmented';
 import { AppSegmented } from '@/components/ui/segmented';
 import { Text } from '@/components/ui/typography';
 import { useIsMetricReadOnly } from '@/context/Metrics/useIsMetricReadOnly';
-import { BusterRoutes, createBusterRoute } from '@/routes';
 import { useChatLayoutContextSelector } from '../../ChatLayoutContext';
 import type { FileView } from '../../ChatLayoutContext/useLayoutConfig';
 import type { FileContainerSegmentProps } from './interfaces';
+import { assetParamsToRoute } from '@/lib/assets';
 
 export const MetricContainerHeaderSegment: React.FC<FileContainerSegmentProps> = React.memo(
   (props) => {
@@ -31,59 +31,48 @@ MetricContainerHeaderSegment.displayName = 'MetricContainerHeaderSegment';
 const MetricSegments: React.FC<FileContainerSegmentProps> = React.memo(
   ({ selectedFileView, chatId }) => {
     const metricId = useChatLayoutContextSelector((x) => x.metricId) || '';
+    const dashboardId = useChatLayoutContextSelector((x) => x.dashboardId) || '';
+    const metricVersionNumber = useChatLayoutContextSelector((x) => x.metricVersionNumber);
+    const dashboardVersionNumber = useChatLayoutContextSelector((x) => x.dashboardVersionNumber);
     const { error } = useGetMetric({ id: metricId });
 
     const segmentOptions: SegmentedItem<FileView>[] = React.useMemo(() => {
-      if (chatId) {
-        return [
-          {
-            label: 'Chart',
-            value: 'chart',
-            link: createBusterRoute({
-              route: BusterRoutes.APP_CHAT_ID_METRIC_ID_CHART,
-              chatId,
-              metricId
-            })
-          },
-          {
-            label: 'Results',
-            value: 'results',
-            link: createBusterRoute({
-              route: BusterRoutes.APP_CHAT_ID_METRIC_ID_RESULTS,
-              chatId,
-              metricId
-            })
-          },
-          {
-            label: 'SQL',
-            value: 'sql',
-            link: createBusterRoute({
-              route: BusterRoutes.APP_CHAT_ID_METRIC_ID_SQL,
-              chatId,
-              metricId
-            })
-          }
-        ];
-      }
-
       return [
         {
           label: 'Chart',
           value: 'chart',
-          link: createBusterRoute({ route: BusterRoutes.APP_METRIC_ID_CHART, metricId })
+          link: assetParamsToRoute({
+            page: 'chart',
+            chatId,
+            dashboardId,
+            assetId: metricId,
+            type: 'metric'
+          })
         },
         {
           label: 'Results',
           value: 'results',
-          link: createBusterRoute({ route: BusterRoutes.APP_METRIC_ID_RESULTS, metricId })
+          link: assetParamsToRoute({
+            page: 'results',
+            chatId,
+            dashboardId,
+            assetId: metricId,
+            type: 'metric'
+          })
         },
         {
           label: 'SQL',
           value: 'sql',
-          link: createBusterRoute({ route: BusterRoutes.APP_METRIC_ID_SQL, metricId })
+          link: assetParamsToRoute({
+            page: 'sql',
+            chatId,
+            dashboardId,
+            assetId: metricId,
+            type: 'metric'
+          })
         }
       ];
-    }, [chatId, error, metricId]);
+    }, [chatId, error, metricId, dashboardId, metricVersionNumber, dashboardVersionNumber]);
 
     return <AppSegmented type="button" options={segmentOptions} value={selectedFileView} />;
   }

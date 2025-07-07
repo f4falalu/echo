@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useLayoutEffect, useState } from 'react';
-import { useGetUser } from '@/api/buster_rest';
+import { useGetUser } from '@/api/buster_rest/users';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 import { useUserConfigContextSelector } from '@/context/Users';
 import { UserHeader } from './UserHeader';

@@ -336,6 +336,14 @@ export {};
     JSON.stringify(biomeJson, null, 2) + "\n"
   );
 
+  // Create vitest.config.ts
+  const vitestConfig = `import { baseConfig } from '@buster/vitest-config';
+
+export default baseConfig;
+`;
+
+  await writeFile(join(directory, "vitest.config.ts"), vitestConfig);
+
   // Create basic index.ts file
   const indexTs = `export * from './lib/index';
 `;
@@ -397,6 +405,7 @@ console.info('✅ All required environment variables are present');
   console.log("📄 Created env.d.ts");
   console.log("📄 Created tsconfig.json");
   console.log("📄 Created biome.json");
+  console.log("📄 Created vitest.config.ts");
   console.log("📄 Created src/index.ts");
   console.log("📄 Created src/lib/index.ts");
   console.log("📄 Created scripts/validate-env.js");

@@ -1,5 +1,3 @@
-import { ChartType } from '@/api/asset_interfaces';
-
 export const scatterDataProblematic1 = {
   metric_id: '7bbe91e5-7133-50f4-a9b2-5a4663f4848a',
   data: [

@@ -14,21 +14,21 @@ export interface FileTrackingInput {
  */
 export async function trackFileAssociations(input: FileTrackingInput): Promise<void> {
   const { messageId, files } = input;
-  
+
   // Skip if no messageId or files
   if (!messageId || !files || files.length === 0) {
     return;
   }
 
   try {
-    const fileRecords = files.map(file => ({
+    const fileRecords = files.map((file) => ({
       id: crypto.randomUUID(),
       messageId,
       fileId: file.id,
       versionNumber: file.version || 1,
       isDuplicate: false,
     }));
-    
+
     await db.insert(messagesToFiles).values(fileRecords);
     console.info(`Tracked ${fileRecords.length} file(s) for message ${messageId}`);
   } catch (error) {

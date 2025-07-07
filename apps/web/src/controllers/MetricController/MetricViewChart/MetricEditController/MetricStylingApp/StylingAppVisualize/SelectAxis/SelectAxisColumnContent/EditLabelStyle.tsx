@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import type { IColumnLabelFormat } from '@/api/asset_interfaces/metric/charts/columnLabelInterfaces';
+import type { ColumnLabelFormat } from '@buster/server-shared/metrics';
 import { AppSegmented, type SegmentedItem } from '@/components/ui/segmented';
 import { useMemoizedFn } from '@/hooks';
 import { isDateColumnType, isNumericColumnType } from '@/lib';
@@ -7,18 +7,18 @@ import { LabelAndInput } from '../../../Common/LabelAndInput';
 import { ColumnTypeIcon } from '../config';
 
 export const EditLabelStyle: React.FC<{
-  onUpdateColumnConfig: (columnLabelFormat: Partial<IColumnLabelFormat>) => void;
-  style: IColumnLabelFormat['style'];
-  columnType: IColumnLabelFormat['columnType'];
-  convertNumberTo: IColumnLabelFormat['convertNumberTo'];
+  onUpdateColumnConfig: (columnLabelFormat: Partial<ColumnLabelFormat>) => void;
+  style: ColumnLabelFormat['style'];
+  columnType: ColumnLabelFormat['columnType'];
+  convertNumberTo: ColumnLabelFormat['convertNumberTo'];
 }> = React.memo(({ onUpdateColumnConfig, style, convertNumberTo, columnType }) => {
-  const enabledOptions: IColumnLabelFormat['style'][] = useMemo(() => {
+  const enabledOptions: ColumnLabelFormat['style'][] = useMemo(() => {
     if (isNumericColumnType(columnType))
       return ['number', 'percent', 'currency', convertNumberTo ? 'date' : undefined].filter(
         Boolean
-      ) as IColumnLabelFormat['style'][];
+      ) as ColumnLabelFormat['style'][];
     if (isDateColumnType(columnType)) return ['date'];
-    return [] as IColumnLabelFormat['style'][];
+    return [] as ColumnLabelFormat['style'][];
   }, [columnType]);
 
   const options = useMemo(() => {
@@ -32,7 +32,7 @@ export const EditLabelStyle: React.FC<{
 
   const onChange = useMemoizedFn((value: SegmentedItem<string>) => {
     onUpdateColumnConfig({
-      style: value.value as IColumnLabelFormat['style']
+      style: value.value as ColumnLabelFormat['style']
     });
   });
 

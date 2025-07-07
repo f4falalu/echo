@@ -3,7 +3,7 @@
 import type React from 'react';
 import { useMemo, useState } from 'react';
 import type { ListDatasetGroupsResponse } from '@/api/asset_interfaces';
-import { useDatasetUpdateDatasetGroups } from '@/api/buster_rest';
+import { useDatasetUpdateDatasetGroups } from '@/api/buster_rest/datasets';
 import { PermissionAssignedCell } from '@/components/features/PermissionComponents';
 import {
   type BusterListColumn,

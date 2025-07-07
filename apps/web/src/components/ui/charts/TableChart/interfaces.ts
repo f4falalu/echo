@@ -1,11 +1,11 @@
-import type { BusterChartConfigProps, ChartType } from '@/api/asset_interfaces/metric/charts';
+import type { ChartConfigProps } from '@buster/server-shared/metrics';
 
 export type BusterTableChartConfig = {
   type: 'table';
-  tableColumnOrder?: BusterChartConfigProps['tableColumnOrder'];
-  tableColumnWidths?: BusterChartConfigProps['tableColumnWidths'];
+  tableColumnOrder?: ChartConfigProps['tableColumnOrder'];
+  tableColumnWidths?: ChartConfigProps['tableColumnWidths'];
   tableHeaderBackgroundColor?: string | null;
   tableHeaderFontColor?: string | null;
   tableColumnFontColor?: string | null;
-  columnLabelFormats?: NonNullable<BusterChartConfigProps['columnLabelFormats']>;
+  columnLabelFormats?: NonNullable<ChartConfigProps['columnLabelFormats']>;
 };

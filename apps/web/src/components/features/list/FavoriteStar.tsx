@@ -1,6 +1,6 @@
 import { cva } from 'class-variance-authority';
 import React, { useMemo } from 'react';
-import type { ShareAssetType } from '@/api/asset_interfaces';
+import type { ShareAssetType } from '@buster/server-shared/share';
 import {
   useAddUserFavorite,
   useDeleteUserFavorite,

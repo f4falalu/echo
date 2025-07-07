@@ -22,7 +22,6 @@ import {
 
 export const assetPermissionRoleEnum = pgEnum('asset_permission_role_enum', [
   'owner',
-  'editor',
   'viewer',
   'full_access',
   'can_edit',

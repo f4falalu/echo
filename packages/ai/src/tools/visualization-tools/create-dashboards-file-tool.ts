@@ -13,9 +13,9 @@ import { inArray } from 'drizzle-orm';
 import * as yaml from 'yaml';
 import { z } from 'zod';
 import type { AnalystRuntimeContext } from '../../workflows/analyst-workflow';
+import { trackFileAssociations } from './file-tracking-helper';
 import { createInitialDashboardVersionHistory } from './version-history-helpers';
 import type { DashboardYml } from './version-history-types';
-import { trackFileAssociations } from './file-tracking-helper';
 
 // Core interfaces matching Rust structs exactly
 interface DashboardFileParams {
@@ -472,7 +472,7 @@ const createDashboardFiles = wrapTraced(
     if (messageId && files.length > 0) {
       await trackFileAssociations({
         messageId,
-        files: files.map(file => ({
+        files: files.map((file) => ({
           id: file.id,
           version: file.version_number,
         })),

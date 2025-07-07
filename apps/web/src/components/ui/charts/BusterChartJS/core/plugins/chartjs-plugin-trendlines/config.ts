@@ -1,4 +1,4 @@
-import type { Trendline } from '@/api/asset_interfaces/metric/charts';
+import type { Trendline } from '@buster/server-shared/metrics';
 
 type TrendlineType = Trendline['type'];
 

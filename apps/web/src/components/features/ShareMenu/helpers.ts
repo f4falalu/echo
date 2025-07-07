@@ -1,13 +1,13 @@
 import type {
   BusterCollection,
   BusterDashboardResponse,
-  BusterShare,
   BusterMetric
 } from '@/api/asset_interfaces';
+import type { ShareConfig } from '@buster/server-shared/share';
 
 export const getShareAssetConfig = (
   message: BusterMetric | BusterDashboardResponse | BusterCollection | null
-): BusterShare | null => {
+): ShareConfig | null => {
   if (!message) return null;
 
   const {

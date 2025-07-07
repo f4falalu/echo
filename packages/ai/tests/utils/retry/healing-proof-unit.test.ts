@@ -11,7 +11,7 @@ describe('Healing Mechanism Unit Test - Definitive Proof', () => {
   it('PROOF: onError callback receives tool errors and returns healing response', async () => {
     // Create a mock agent that will capture the onError callback
     let capturedOnError: ((error: unknown) => unknown) | undefined;
-    let simulatedToolError: NoSuchToolError | undefined;
+    let simulatedToolError: NoSuchToolError | undefined = undefined;
 
     const mockAgent: MastraAgent = {
       name: 'test-agent',

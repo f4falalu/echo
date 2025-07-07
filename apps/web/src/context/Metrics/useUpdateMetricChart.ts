@@ -2,17 +2,18 @@
 
 import { useParams } from 'next/navigation';
 import { useState } from 'react';
-import {
-  type ColumnSettings,
-  DEFAULT_CHART_CONFIG,
-  type BusterMetricChartConfig,
-  type IColumnLabelFormat
-} from '@/api/asset_interfaces/metric';
 import { useUpdateMetric } from '@/api/buster_rest/metrics';
 import { useMemoizedFn } from '@/hooks';
 import { timeout } from '@/lib/timeout';
 import { useGetMetricMemoized } from './useGetMetricMemoized';
 import { useOriginalMetricStore } from './useOriginalMetricStore';
+import {
+  DEFAULT_CHART_CONFIG,
+  DEFAULT_COLUMN_LABEL_FORMAT,
+  type ChartConfigProps,
+  type ColumnLabelFormat,
+  type ColumnSettings
+} from '@buster/server-shared/metrics';
 
 export const useUpdateMetricChart = (props?: { metricId?: string; chatId?: string }) => {
   const params = useParams<{ metricId?: string; chatId?: string }>();
@@ -39,7 +40,7 @@ export const useUpdateMetricChart = (props?: { metricId?: string; chatId?: strin
       chartConfig,
       ignoreUndoRedo
     }: {
-      chartConfig: Partial<BusterMetricChartConfig>;
+      chartConfig: Partial<ChartConfigProps>;
       ignoreUndoRedo?: boolean;
     }) => {
       const currentMetric = getMetricMemoized(metricId);
@@ -52,7 +53,7 @@ export const useUpdateMetricChart = (props?: { metricId?: string; chatId?: strin
         // });
       }
 
-      const newChartConfig: BusterMetricChartConfig = {
+      const newChartConfig: ChartConfigProps = {
         ...DEFAULT_CHART_CONFIG,
         ...currentMetric.chart_config,
         ...chartConfig
@@ -71,16 +72,18 @@ export const useUpdateMetricChart = (props?: { metricId?: string; chatId?: strin
       columnLabelFormat
     }: {
       columnId: string;
-      columnLabelFormat: Partial<IColumnLabelFormat>;
+      columnLabelFormat: Partial<ColumnLabelFormat>;
     }) => {
       const currentMetric = getMetricMemoized(metricId);
-      const existingColumnLabelFormats = currentMetric.chart_config.columnLabelFormats;
+      const existingColumnLabelFormats: Record<string, ColumnLabelFormat> =
+        currentMetric.chart_config.columnLabelFormats;
       const existingColumnLabelFormat = existingColumnLabelFormats[columnId];
-      const newColumnLabelFormat = {
+      const newColumnLabelFormat: ColumnLabelFormat = {
+        ...DEFAULT_COLUMN_LABEL_FORMAT,
         ...existingColumnLabelFormat,
         ...columnLabelFormat
       };
-      const columnLabelFormats = {
+      const columnLabelFormats: Record<string, ColumnLabelFormat> = {
         ...existingColumnLabelFormats,
         [columnId]: newColumnLabelFormat
       };
@@ -95,7 +98,9 @@ export const useUpdateMetricChart = (props?: { metricId?: string; chatId?: strin
   const onUpdateColumnSetting = useMemoizedFn(
     ({ columnId, columnSetting }: { columnId: string; columnSetting: Partial<ColumnSettings> }) => {
       const currentMetric = getMetricMemoized(metricId);
-      const existingColumnSettings = currentMetric.chart_config.columnSettings;
+      const existingColumnSettings: Record<string, ColumnSettings> =
+        currentMetric.chart_config.columnSettings;
+
       const existingColumnSetting = currentMetric.chart_config.columnSettings[columnId];
       const newColumnSetting: Required<ColumnSettings> = {
         ...existingColumnSetting,
@@ -129,10 +134,10 @@ export const useUpdateMetricChart = (props?: { metricId?: string; chatId?: strin
   });
 
   const onInitializeTableColumnWidths = useMemoizedFn(
-    (tableColumnWidths: BusterMetricChartConfig['tableColumnWidths']) => {
+    (tableColumnWidths: ChartConfigProps['tableColumnWidths']) => {
       const originalMetric = getOriginalMetric(metricId);
       if (originalMetric) {
-        const newChartConfig: BusterMetricChartConfig = {
+        const newChartConfig: ChartConfigProps = {
           ...DEFAULT_CHART_CONFIG,
           ...originalMetric.chart_config,
           tableColumnWidths

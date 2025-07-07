@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ShareAssetType } from '@/api/asset_interfaces/share';
+import { ShareAssetType } from '@buster/server-shared/share';
 import {
   useAddDashboardToCollection,
   useDeleteDashboards,
@@ -115,7 +115,7 @@ const ThreeDotButton: React.FC<{
 }> = ({ selectedRowKeys, onSelectChange }) => {
   const dropdownOptions = useThreeDotFavoritesOptions({
     itemIds: selectedRowKeys,
-    assetType: ShareAssetType.DASHBOARD,
+    assetType: 'dashboard',
     onFinish: () => onSelectChange([])
   });
 

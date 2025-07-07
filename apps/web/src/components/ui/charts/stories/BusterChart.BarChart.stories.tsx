@@ -1,10 +1,10 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import {
+  DEFAULT_COLUMN_LABEL_FORMAT,
   DEFAULT_COLUMN_SETTINGS,
-  type BarAndLineAxis,
-  type Trendline
-} from '@/api/asset_interfaces/metric';
-import type { IColumnLabelFormat } from '../../../../api/asset_interfaces/metric/charts/columnLabelInterfaces';
+  type BarAndLineAxis
+} from '@buster/server-shared/metrics';
+import type { ColumnLabelFormat, Trendline } from '@buster/server-shared/metrics';
 import { generateBarChartData } from '../../../../mocks/chart/chartMocks';
 import { BusterChart } from '../BusterChart';
 import { sharedMeta } from './BusterChartShared';
@@ -65,27 +65,31 @@ export const Default: Story = {
       tooltip: null
     },
     columnLabelFormats: {
-      category: {
-        columnType: 'text',
-        style: 'string'
-      } satisfies IColumnLabelFormat,
       sales: {
+        ...DEFAULT_COLUMN_LABEL_FORMAT,
         columnType: 'number',
         style: 'currency',
         currency: 'USD',
         displayName: 'SALES'
-      } satisfies IColumnLabelFormat,
+      } as ColumnLabelFormat,
       units: {
+        ...DEFAULT_COLUMN_LABEL_FORMAT,
         columnType: 'number',
         style: 'number',
         numberSeparatorStyle: ','
-      } satisfies IColumnLabelFormat,
+      } as ColumnLabelFormat,
       returns: {
+        ...DEFAULT_COLUMN_LABEL_FORMAT,
         columnType: 'number',
         style: 'number',
         numberSeparatorStyle: ','
-      } satisfies IColumnLabelFormat
-    } satisfies Record<keyof BarChartData, IColumnLabelFormat>
+      } as ColumnLabelFormat,
+      category: {
+        ...DEFAULT_COLUMN_LABEL_FORMAT,
+        columnType: 'text',
+        style: 'string'
+      } as ColumnLabelFormat as any
+    } as any
   },
   render: (args) => {
     return (
@@ -110,23 +114,23 @@ export const MultipleYAxis: Story = {
       category: {
         columnType: 'text',
         style: 'string'
-      } satisfies IColumnLabelFormat,
+      } as ColumnLabelFormat,
       sales: {
         columnType: 'number',
         style: 'currency',
         currency: 'USD'
-      } satisfies IColumnLabelFormat,
+      } as ColumnLabelFormat,
       units: {
         columnType: 'number',
         style: 'number',
         numberSeparatorStyle: ','
-      } satisfies IColumnLabelFormat,
+      } as ColumnLabelFormat,
       returns: {
         columnType: 'number',
         style: 'number',
         numberSeparatorStyle: ','
-      } satisfies IColumnLabelFormat
-    } satisfies Record<keyof BarChartData, IColumnLabelFormat>,
+      } as ColumnLabelFormat
+    } as any,
     y2AxisShowAxisLabel: true,
     y2AxisShowAxisTitle: true,
     y2AxisAxisTitle: 'Returns'
@@ -174,21 +178,21 @@ export const WithCategory: Story = {
       region: {
         columnType: 'text',
         style: 'string'
-      } satisfies IColumnLabelFormat,
+      } as ColumnLabelFormat,
       product: {
         columnType: 'text',
         style: 'string'
-      } satisfies IColumnLabelFormat,
+      } as ColumnLabelFormat,
       sales: {
         columnType: 'number',
         style: 'currency',
         currency: 'USD'
-      } satisfies IColumnLabelFormat,
+      } as ColumnLabelFormat,
       units: {
         columnType: 'number',
         style: 'number',
         numberSeparatorStyle: ','
-      } satisfies IColumnLabelFormat
+      } as ColumnLabelFormat
     }
   },
   render: (args) => {
@@ -218,21 +222,21 @@ export const WithCategoryAndMultipleYAxis: Story = {
       region: {
         columnType: 'text',
         style: 'string'
-      } satisfies IColumnLabelFormat,
+      } as ColumnLabelFormat,
       product: {
         columnType: 'text',
         style: 'string'
-      } satisfies IColumnLabelFormat,
+      } as ColumnLabelFormat,
       sales: {
         columnType: 'number',
         style: 'currency',
         currency: 'USD'
-      } satisfies IColumnLabelFormat,
+      } as ColumnLabelFormat,
       units: {
         columnType: 'number',
         style: 'number',
         numberSeparatorStyle: ','
-      } satisfies IColumnLabelFormat
+      } as ColumnLabelFormat
     }
   },
   render: (args) => {
@@ -266,17 +270,17 @@ export const DateXAxis: Story = {
         columnType: 'date',
         style: 'date',
         dateFormat: 'LL'
-      } satisfies IColumnLabelFormat,
+      } as ColumnLabelFormat,
       sales: {
         columnType: 'number',
         style: 'currency',
         currency: 'USD'
-      } satisfies IColumnLabelFormat,
+      } as ColumnLabelFormat,
       units: {
         columnType: 'number',
         style: 'number',
         numberSeparatorStyle: ','
-      } satisfies IColumnLabelFormat
+      } as ColumnLabelFormat
     },
     xAxisTimeInterval: 'day'
   },
@@ -300,25 +304,26 @@ export const HorizontalBar: Story = {
     },
     columnLabelFormats: {
       category: {
+        ...DEFAULT_COLUMN_LABEL_FORMAT,
         columnType: 'text',
         style: 'string'
-      } satisfies IColumnLabelFormat,
+      } as ColumnLabelFormat,
       sales: {
         columnType: 'number',
         style: 'currency',
         currency: 'USD'
-      } satisfies IColumnLabelFormat,
+      } as ColumnLabelFormat,
       units: {
         columnType: 'number',
         style: 'number',
         numberSeparatorStyle: ','
-      } satisfies IColumnLabelFormat,
+      } as ColumnLabelFormat,
       returns: {
         columnType: 'number',
         style: 'number',
         numberSeparatorStyle: ','
-      } satisfies IColumnLabelFormat
-    } satisfies Record<keyof BarChartData, IColumnLabelFormat>,
+      } as ColumnLabelFormat
+    },
     barLayout: 'horizontal'
   },
   render: (args) => {
@@ -355,23 +360,23 @@ export const WithDataLabels: Story = {
       category: {
         columnType: 'text',
         style: 'string'
-      } satisfies IColumnLabelFormat,
+      } as ColumnLabelFormat,
       sales: {
         columnType: 'number',
         style: 'currency',
         currency: 'USD'
-      } satisfies IColumnLabelFormat,
+      } as ColumnLabelFormat,
       units: {
         columnType: 'number',
         style: 'number',
         numberSeparatorStyle: ','
-      } satisfies IColumnLabelFormat,
+      } as ColumnLabelFormat,
       returns: {
         columnType: 'number',
         style: 'number',
         numberSeparatorStyle: ','
-      } satisfies IColumnLabelFormat
-    } satisfies Record<keyof BarChartData, IColumnLabelFormat>
+      } as ColumnLabelFormat
+    }
   },
   render: (args) => {
     return (
@@ -409,23 +414,23 @@ export const WithDataLabelsAndStackTotal: Story = {
       category: {
         columnType: 'text',
         style: 'string'
-      } satisfies IColumnLabelFormat,
+      } as ColumnLabelFormat,
       sales: {
         columnType: 'number',
         style: 'currency',
         currency: 'USD'
-      } satisfies IColumnLabelFormat,
+      } as ColumnLabelFormat,
       units: {
         columnType: 'number',
         style: 'number',
         numberSeparatorStyle: ','
-      } satisfies IColumnLabelFormat,
+      } as ColumnLabelFormat,
       returns: {
         columnType: 'number',
         style: 'number',
         numberSeparatorStyle: ','
-      } satisfies IColumnLabelFormat
-    } satisfies Record<keyof BarChartData, IColumnLabelFormat>
+      } as ColumnLabelFormat
+    }
   },
   render: (args) => {
     return (
@@ -496,22 +501,22 @@ export const LargeDataset: Story = {
       category: {
         columnType: 'text',
         style: 'string'
-      } satisfies IColumnLabelFormat,
+      } as ColumnLabelFormat,
       sales: {
         columnType: 'number',
         style: 'currency',
         currency: 'USD'
-      } satisfies IColumnLabelFormat,
+      } as ColumnLabelFormat,
       units: {
         columnType: 'number',
         style: 'number',
         numberSeparatorStyle: ','
-      } satisfies IColumnLabelFormat,
+      } as ColumnLabelFormat,
       returns: {
         columnType: 'number',
         style: 'number',
         numberSeparatorStyle: ','
-      } satisfies IColumnLabelFormat
+      } as ColumnLabelFormat
     }
   }
 };
@@ -535,22 +540,22 @@ export const LargeDatasetWithDualYAxis: Story = {
       category: {
         columnType: 'text',
         style: 'string'
-      } satisfies IColumnLabelFormat,
+      } as ColumnLabelFormat,
       sales: {
         columnType: 'number',
         style: 'currency',
         currency: 'USD'
-      } satisfies IColumnLabelFormat,
+      } as ColumnLabelFormat,
       units: {
         columnType: 'number',
         style: 'number',
         numberSeparatorStyle: ','
-      } satisfies IColumnLabelFormat,
+      } as ColumnLabelFormat,
       returns: {
         columnType: 'number',
         style: 'number',
         numberSeparatorStyle: ','
-      } satisfies IColumnLabelFormat
+      } as ColumnLabelFormat
     }
   },
   render: (args) => {
@@ -591,12 +596,12 @@ export const WithDatesInXAxis: Story = {
         columnType: 'date',
         style: 'date',
         dateFormat: 'LL'
-      } satisfies IColumnLabelFormat,
+      } as ColumnLabelFormat,
       sales: {
         columnType: 'number',
         style: 'currency',
         currency: 'USD'
-      } satisfies IColumnLabelFormat
+      } as ColumnLabelFormat
     }
   }
 };
@@ -619,12 +624,12 @@ export const WithDatesInXAxisAndSorting: Story = {
         columnType: 'date',
         style: 'date',
         dateFormat: 'LL'
-      } satisfies IColumnLabelFormat,
+      } as ColumnLabelFormat,
       sales: {
         columnType: 'number',
         style: 'currency',
         currency: 'USD'
-      } satisfies IColumnLabelFormat
+      } as ColumnLabelFormat
     }
   }
 };
@@ -646,23 +651,23 @@ export const HorizontalBarWithGoalLine: Story = {
       category: {
         columnType: 'text',
         style: 'string'
-      } satisfies IColumnLabelFormat,
+      } as ColumnLabelFormat,
       sales: {
         columnType: 'number',
         style: 'currency',
         currency: 'USD'
-      } satisfies IColumnLabelFormat,
+      } as ColumnLabelFormat,
       units: {
         columnType: 'number',
         style: 'number',
         numberSeparatorStyle: ','
-      } satisfies IColumnLabelFormat,
+      } as ColumnLabelFormat,
       returns: {
         columnType: 'number',
         style: 'number',
         numberSeparatorStyle: ','
-      } satisfies IColumnLabelFormat
-    } satisfies Record<keyof BarChartData, IColumnLabelFormat>,
+      } as ColumnLabelFormat
+    },
     barLayout: 'horizontal',
     goalLines: [
       {
@@ -712,26 +717,26 @@ export const GroupedBar: Story = {
       region: {
         columnType: 'text',
         style: 'string'
-      } satisfies IColumnLabelFormat,
+      } as ColumnLabelFormat,
       product: {
         columnType: 'text',
         style: 'string'
-      } satisfies IColumnLabelFormat,
+      } as ColumnLabelFormat,
       sales: {
         columnType: 'number',
         style: 'currency',
         currency: 'USD'
-      } satisfies IColumnLabelFormat,
+      } as ColumnLabelFormat,
       units: {
         columnType: 'number',
         style: 'number',
         numberSeparatorStyle: ','
-      } satisfies IColumnLabelFormat,
+      } as ColumnLabelFormat,
       returns: {
         columnType: 'number',
         style: 'number',
         numberSeparatorStyle: ','
-      } satisfies IColumnLabelFormat
+      } as ColumnLabelFormat
     }
   },
   render: (args) => {
@@ -786,22 +791,22 @@ export const PercentageStackedBar: Story = {
       category: {
         columnType: 'text',
         style: 'string'
-      } satisfies IColumnLabelFormat,
+      } as ColumnLabelFormat,
       sales: {
         columnType: 'number',
         style: 'currency',
         currency: 'USD'
-      } satisfies IColumnLabelFormat,
+      } as ColumnLabelFormat,
       units: {
         columnType: 'number',
         style: 'number',
         numberSeparatorStyle: ','
-      } satisfies IColumnLabelFormat,
+      } as ColumnLabelFormat,
       returns: {
         columnType: 'number',
         style: 'number',
         numberSeparatorStyle: ','
-      } satisfies IColumnLabelFormat
+      } as ColumnLabelFormat
     }
   },
   render: (args) => {
@@ -831,17 +836,17 @@ export const ExtraLargeDataset: Story = {
       category: {
         columnType: 'text',
         style: 'string'
-      } satisfies IColumnLabelFormat,
+      } as ColumnLabelFormat,
       sales: {
         columnType: 'number',
         style: 'currency',
         currency: 'USD'
-      } satisfies IColumnLabelFormat,
+      } as ColumnLabelFormat,
       units: {
         columnType: 'number',
         style: 'number',
         numberSeparatorStyle: ','
-      } satisfies IColumnLabelFormat
+      } as ColumnLabelFormat
     }
   },
   render: (args) => {
@@ -872,21 +877,21 @@ export const ExtraLargeDatasetWithCategory: Story = {
       category: {
         columnType: 'text',
         style: 'string'
-      } satisfies IColumnLabelFormat,
+      } as ColumnLabelFormat,
       sales: {
         columnType: 'number',
         style: 'currency',
         currency: 'USD'
-      } satisfies IColumnLabelFormat,
+      } as ColumnLabelFormat,
       product: {
         columnType: 'text',
         style: 'string'
-      } satisfies IColumnLabelFormat,
+      } as ColumnLabelFormat,
       units: {
         columnType: 'number',
         style: 'number',
         numberSeparatorStyle: ','
-      } satisfies IColumnLabelFormat
+      } as ColumnLabelFormat
     }
   },
   render: (args) => {
@@ -942,31 +947,31 @@ export const ManyUnPlottedTooltipItems: Story = {
       category: {
         columnType: 'text',
         style: 'string'
-      } satisfies IColumnLabelFormat,
+      } as ColumnLabelFormat,
       sales: {
         columnType: 'number',
         style: 'currency',
         currency: 'USD',
         numberSeparatorStyle: ','
-      } satisfies IColumnLabelFormat,
+      } as ColumnLabelFormat,
       customerRating: {
         columnType: 'number',
         style: 'number',
         numberSeparatorStyle: ',',
         suffix: ' ★'
-      } satisfies IColumnLabelFormat,
+      } as ColumnLabelFormat,
       stockLevel: {
         columnType: 'number',
         style: 'number',
         numberSeparatorStyle: ',',
         suffix: ' units'
-      } satisfies IColumnLabelFormat,
+      } as ColumnLabelFormat,
       returnRate: {
         columnType: 'number',
         style: 'number',
         numberSeparatorStyle: ',',
         suffix: '%'
-      } satisfies IColumnLabelFormat
+      } as ColumnLabelFormat
     },
     yAxisAxisTitle: 'Sales Revenue',
     y2AxisAxisTitle: 'Multiple Metrics',
@@ -1136,12 +1141,14 @@ export const ProblematicBarChart: Story = {
     },
     columnLabelFormats: {
       customer_name: {
+        ...DEFAULT_COLUMN_LABEL_FORMAT,
         columnType: 'text',
         style: 'string',
         numberSeparatorStyle: null,
         replaceMissingDataWith: null
       },
       metric_clv_all_time: {
+        ...DEFAULT_COLUMN_LABEL_FORMAT,
         columnType: 'number',
         style: 'currency',
         numberSeparatorStyle: ',',

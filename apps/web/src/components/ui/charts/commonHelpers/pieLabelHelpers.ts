@@ -13,7 +13,7 @@ export const InnerLabelTitleRecord: Record<
 };
 
 export const getPieInnerLabelTitle = (
-  pieInnerLabelTitle: ChartConfigProps['pieInnerLabelTitle'],
+  pieInnerLabelTitle: ChartConfigProps['pieInnerLabelTitle'] | undefined,
   pieInnerLabelAggregate: ChartConfigProps['pieInnerLabelAggregate'] = 'sum'
 ) => {
   return pieInnerLabelTitle ?? InnerLabelTitleRecord[pieInnerLabelAggregate];

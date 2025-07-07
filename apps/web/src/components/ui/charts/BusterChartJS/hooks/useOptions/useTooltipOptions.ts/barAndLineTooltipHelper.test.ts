@@ -5,7 +5,7 @@ import type {
   TooltipItem
 } from 'chart.js';
 import { describe, expect, it } from 'vitest';
-import type { IColumnLabelFormat } from '@/api/asset_interfaces/metric/charts/columnLabelInterfaces';
+import type { ColumnLabelFormat } from '@buster/server-shared/metrics';
 import { barAndLineTooltipHelper } from './barAndLineTooltipHelper';
 
 type MockDataset = Partial<
@@ -54,19 +54,19 @@ describe('barAndLineTooltipHelper', () => {
     }
   } as unknown as Chart;
 
-  const mockColumnLabelFormats: Record<string, IColumnLabelFormat> = {
+  const mockColumnLabelFormats: Record<string, ColumnLabelFormat> = {
     value: {
       columnType: 'number',
       style: 'number'
-    },
+    } as ColumnLabelFormat,
     percentage: {
       columnType: 'number',
       style: 'percent'
-    },
+    } as ColumnLabelFormat,
     label: {
       columnType: 'text',
       style: 'string'
-    }
+    } as ColumnLabelFormat
   };
 
   const createMockDataset = (overrides = {}): MockDataset => ({

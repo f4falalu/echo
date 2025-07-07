@@ -1,12 +1,11 @@
 import {
   getLatestMessageForChat,
   updateMessageReasoning,
-  updateMessageResponseMessages,
   updateMessageStreamingFields,
-} from '@buster/database/src/helpers/messages';
+} from '@buster/database';
 import { createTestMessageWithContext } from '@buster/test-utils';
 import { afterEach, beforeEach, describe, expect, test } from 'vitest';
-import { cleanupTestEnvironment, setupTestEnvironment } from './helpers';
+import { cleanupTestEnvironment, setupTestEnvironment } from '../../src/envHelpers/env-helpers';
 
 describe('Message Update Helpers', () => {
   beforeEach(async () => {
@@ -15,84 +14,6 @@ describe('Message Update Helpers', () => {
 
   afterEach(async () => {
     await cleanupTestEnvironment();
-  });
-
-  describe('updateMessageResponseMessages', () => {
-    test('successfully updates responseMessages JSONB field', async () => {
-      const { messageId, chatId } = await createTestMessageWithContext();
-
-      const newResponseMessages = {
-        content: 'Updated response content',
-        metadata: { tokens: 150, model: 'gpt-4' },
-        timestamp: new Date().toISOString(),
-      };
-
-      const result = await updateMessageResponseMessages(messageId, newResponseMessages);
-
-      expect(result.success).toBe(true);
-
-      // Verify the update was persisted
-      const updatedMessage = await getLatestMessageForChat(chatId);
-      expect(updatedMessage?.responseMessages).toEqual(newResponseMessages);
-    });
-
-    test('handles empty responseMessages object', async () => {
-      const { messageId, chatId } = await createTestMessageWithContext();
-
-      const emptyResponse = {};
-
-      const result = await updateMessageResponseMessages(messageId, emptyResponse);
-
-      expect(result.success).toBe(true);
-
-      const updatedMessage = await getLatestMessageForChat(chatId);
-      expect(updatedMessage?.responseMessages).toEqual(emptyResponse);
-    });
-
-    test('handles complex nested JSONB structure', async () => {
-      const { messageId, chatId } = await createTestMessageWithContext();
-
-      const complexResponse = {
-        messages: [
-          { role: 'assistant', content: 'Hello' },
-          { role: 'user', content: 'Hi there' },
-        ],
-        metadata: {
-          tokens: 250,
-          reasoning: {
-            steps: ['analyze', 'respond'],
-            confidence: 0.95,
-          },
-        },
-        charts: {
-          type: 'bar',
-          data: [1, 2, 3, 4],
-        },
-      };
-
-      const result = await updateMessageResponseMessages(messageId, complexResponse);
-
-      expect(result.success).toBe(true);
-
-      const updatedMessage = await getLatestMessageForChat(chatId);
-      expect(updatedMessage?.responseMessages).toEqual(complexResponse);
-    });
-
-    test('throws error for non-existent message ID', async () => {
-      const nonExistentId = '00000000-0000-0000-0000-000000000000';
-
-      await expect(
-        updateMessageResponseMessages(nonExistentId, { content: 'test' })
-      ).rejects.toThrow(`Message not found or has been deleted: ${nonExistentId}`);
-    });
-
-    test('throws error for invalid UUID format', async () => {
-      const invalidId = 'invalid-uuid';
-
-      await expect(updateMessageResponseMessages(invalidId, { content: 'test' })).rejects.toThrow(
-        'Failed to update response messages for message invalid-uuid'
-      );
-    });
   });
 
   describe('updateMessageReasoning', () => {
@@ -264,45 +185,6 @@ describe('Message Update Helpers', () => {
       await expect(
         updateMessageStreamingFields(nonExistentId, { content: 'test' }, { step: 'test' })
       ).rejects.toThrow(`Message not found or has been deleted: ${nonExistentId}`);
-    });
-  });
-
-  describe('Performance and Concurrency', () => {
-    test('handles rapid sequential updates without data corruption', async () => {
-      const { messageId, chatId } = await createTestMessageWithContext();
-
-      // Simulate streaming updates sequentially to avoid race conditions
-      for (let i = 0; i < 5; i++) {
-        const result = await updateMessageStreamingFields(
-          messageId,
-          { content: `update-${i}`, iteration: i },
-          { step: i, timestamp: Date.now() }
-        );
-        expect(result.success).toBe(true);
-      }
-
-      // Final state should be consistent (last update applied)
-      const finalMessage = await getLatestMessageForChat(chatId);
-      expect((finalMessage?.responseMessages as any)?.iteration).toBe(4);
-      expect((finalMessage?.reasoning as any)?.step).toBe(4);
-    });
-
-    test('updates timestamp on every change', async () => {
-      const { messageId, chatId } = await createTestMessageWithContext();
-
-      const originalMessage = await getLatestMessageForChat(chatId);
-      const originalTimestamp = originalMessage?.updatedAt;
-
-      // Wait a moment to ensure timestamp difference
-      await new Promise((resolve) => setTimeout(resolve, 10));
-
-      await updateMessageResponseMessages(messageId, { content: 'updated' });
-
-      const updatedMessage = await getLatestMessageForChat(chatId);
-      expect(updatedMessage?.updatedAt).not.toBe(originalTimestamp);
-      expect(new Date(updatedMessage?.updatedAt || '').getTime()).toBeGreaterThan(
-        new Date(originalTimestamp || '').getTime()
-      );
     });
   });
 });

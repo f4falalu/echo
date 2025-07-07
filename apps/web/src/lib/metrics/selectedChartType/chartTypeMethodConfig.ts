@@ -1,4 +1,4 @@
-import { ChartType } from '@/api/asset_interfaces/metric/charts';
+import type { ChartType } from '@buster/server-shared/metrics';
 import { SelectChartTypeProps } from './chartIcon.types';
 import { ChartIconType } from './config';
 

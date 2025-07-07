@@ -1,8 +1,10 @@
-import { validate } from 'email-validator';
+'use client';
+
 import type React from 'react';
 import { useEffect, useMemo } from 'react';
 import { CircleCheck, CircleXmark } from '@/components/ui/icons';
 import { Text } from '@/components/ui/typography';
+import { isValidEmail } from '@/lib/email';
 
 const PasswordCheckItem: React.FC<{
   passwordGood: boolean;
@@ -53,7 +55,7 @@ export const PolicyCheck: React.FC<{
     const items = [
       {
         text: 'Email is valid',
-        check: validate(email)
+        check: isValidEmail(email)
       },
       {
         text: 'Contains a number',

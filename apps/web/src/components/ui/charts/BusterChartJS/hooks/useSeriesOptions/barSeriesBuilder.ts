@@ -1,11 +1,8 @@
 import type { BarElement } from 'chart.js';
 import type { Context } from 'chartjs-plugin-datalabels';
 import type { Options } from 'chartjs-plugin-datalabels/types/options';
-import {
-  type BusterChartProps,
-  DEFAULT_COLUMN_LABEL_FORMAT,
-  type IColumnLabelFormat
-} from '@/api/asset_interfaces/metric';
+import type { BusterChartProps } from '@/api/asset_interfaces/metric/charts';
+import { DEFAULT_COLUMN_LABEL_FORMAT, type ColumnLabelFormat } from '@buster/server-shared/metrics';
 import { formatLabel } from '@/lib';
 import type { DatasetOption } from '../../../chartHooks';
 import {
@@ -339,7 +336,7 @@ const getFormattedValueAndSetBarDataLabels = (
     columnLabelFormat
   }: {
     percentageMode: false | 'stacked' | 'data-label';
-    columnLabelFormat: IColumnLabelFormat;
+    columnLabelFormat: ColumnLabelFormat;
   }
 ) => {
   const rawValue = context.dataset.data[context.dataIndex] as number;

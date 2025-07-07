@@ -1,5 +1,5 @@
 import React from 'react';
-import type { BusterMetricChartConfig } from '@/api/asset_interfaces';
+import type { ChartConfigProps } from '@buster/server-shared/metrics';
 import { Switch } from '@/components/ui/switch';
 import { LabelAndInput } from '../Common';
 
@@ -8,8 +8,8 @@ export const EditPieShowInnerLabel = React.memo(
     pieShowInnerLabel,
     onUpdateChartConfig
   }: {
-    pieShowInnerLabel: BusterMetricChartConfig['pieShowInnerLabel'];
-    onUpdateChartConfig: (config: Partial<BusterMetricChartConfig>) => void;
+    pieShowInnerLabel: ChartConfigProps['pieShowInnerLabel'];
+    onUpdateChartConfig: (config: Partial<ChartConfigProps>) => void;
   }) => {
     return (
       <LabelAndInput label="Show inner label">

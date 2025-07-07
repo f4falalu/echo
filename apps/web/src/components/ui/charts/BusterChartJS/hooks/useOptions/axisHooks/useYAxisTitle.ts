@@ -1,15 +1,16 @@
 import { useMemo } from 'react';
-import type { BusterChartConfigProps, ChartEncodes } from '@/api/asset_interfaces/metric/charts';
+import type { BusterChartProps } from '@/api/asset_interfaces/metric/charts';
 import { formatLabel } from '@/lib/columnFormatter';
 import { AXIS_TITLE_SEPARATOR } from '../../../../commonHelpers/axisHelper';
 import { truncateWithEllipsis } from '../../../../commonHelpers/titleHelpers';
+import type { ChartEncodes } from '@buster/server-shared/metrics';
 
 interface UseYAxisTitleProps {
   yAxis: string[];
-  columnLabelFormats: NonNullable<BusterChartConfigProps['columnLabelFormats']>;
+  columnLabelFormats: NonNullable<BusterChartProps['columnLabelFormats']>;
   isSupportedChartForAxisTitles: boolean;
-  yAxisAxisTitle: BusterChartConfigProps['yAxisAxisTitle'];
-  yAxisShowAxisTitle: BusterChartConfigProps['yAxisShowAxisTitle'];
+  yAxisAxisTitle: BusterChartProps['yAxisAxisTitle'];
+  yAxisShowAxisTitle: BusterChartProps['yAxisShowAxisTitle'];
   selectedAxis: ChartEncodes;
 }
 

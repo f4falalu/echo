@@ -1,8 +1,7 @@
 import type { Chart } from 'chart.js';
 import { describe, expect, it } from 'vitest';
-import type { ColumnSettings } from '@/api/asset_interfaces/metric/charts/columnInterfaces';
-import type { IColumnLabelFormat } from '@/api/asset_interfaces/metric/charts/columnLabelInterfaces';
-import type { SimplifiedColumnType } from '@/api/asset_interfaces/metric/charts/enum';
+import type { ColumnSettings } from '@buster/server-shared/metrics';
+import type { ColumnLabelFormat, SimplifiedColumnType } from '@buster/server-shared/metrics';
 import { getLegendItems } from './getLegendItems';
 
 describe('getLegendItems', () => {
@@ -11,15 +10,15 @@ describe('getLegendItems', () => {
     value: { columnVisualization: 'bar' },
     value2: { columnVisualization: 'line' }
   };
-  const defaultColumnLabelFormats: Record<string, IColumnLabelFormat> = {
+  const defaultColumnLabelFormats: Record<string, ColumnLabelFormat> = {
     value: {
       columnType: 'number' as SimplifiedColumnType,
       style: 'number'
-    },
+    } as ColumnLabelFormat,
     value2: {
       columnType: 'number' as SimplifiedColumnType,
       style: 'number'
-    }
+    } as ColumnLabelFormat
   };
 
   it('should return empty array when chart data is not available', () => {

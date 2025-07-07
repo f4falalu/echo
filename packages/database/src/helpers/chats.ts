@@ -199,22 +199,16 @@ export async function updateChat(
       throw new Error(`Chat not found or has been deleted: ${chatId}`);
     }
 
-    // Build update object with only provided fields
-    const updateData: Partial<UpdateableChatFields> & { updatedAt: string } = {
+    // Build update object with only provided fields, filtering out protected fields
+    const updateData = {
       updatedAt: new Date().toISOString(),
+      ...Object.fromEntries(
+        Object.entries(fields).filter(
+          ([key, value]) =>
+            value !== undefined && key !== 'id' && key !== 'createdAt' && key !== 'deletedAt'
+        )
+      ),
     };
-
-    // Only add fields that are actually provided (not undefined)
-    for (const [key, value] of Object.entries(fields)) {
-      if (value !== undefined && key !== 'id' && key !== 'createdAt' && key !== 'deletedAt') {
-        (updateData as Record<string, unknown>)[key] = value;
-      }
-    }
-
-    // If updatedAt was explicitly provided, use that instead
-    if ('updatedAt' in fields && fields.updatedAt !== undefined) {
-      updateData.updatedAt = fields.updatedAt;
-    }
 
     await db
       .update(chats)

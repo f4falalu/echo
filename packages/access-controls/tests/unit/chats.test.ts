@@ -40,7 +40,7 @@ describe('canUserAccessChat', () => {
 
   beforeEach(async () => {
     vi.clearAllMocks();
-    
+
     // Get the mocked module
     const dbModule = await import('@buster/database');
     getDb = vi.mocked(dbModule.getDb);
@@ -57,9 +57,9 @@ describe('canUserAccessChat', () => {
     mockLimit.mockResolvedValue([]);
     mockWhere.mockReturnValue({ limit: mockLimit });
     mockInnerJoin.mockReturnValue({ where: mockWhere });
-    mockFrom.mockReturnValue({ 
+    mockFrom.mockReturnValue({
       where: mockWhere,
-      innerJoin: mockInnerJoin 
+      innerJoin: mockInnerJoin,
     });
     mockSelect.mockReturnValue({ from: mockFrom });
     mockSelectDistinct.mockReturnValue({ from: mockFrom });
@@ -79,7 +79,7 @@ describe('canUserAccessChat', () => {
   it('should return false if chat does not exist', async () => {
     // All queries return empty arrays
     mockDb._mockLimit.mockResolvedValue([]);
-    
+
     const result = await canUserAccessChat({
       userId: '123e4567-e89b-12d3-a456-426614174000',
       chatId: '223e4567-e89b-12d3-a456-426614174000',
@@ -96,12 +96,15 @@ describe('canUserAccessChat', () => {
       if (callCount === 1) {
         // Direct permission check - has permission
         return Promise.resolve([{ id: 'chat-id' }]);
-      } else if (callCount === 3) {
+      }
+      if (callCount === 3) {
         // Chat info
-        return Promise.resolve([{
-          createdBy: 'other-user',
-          organizationId: 'org-id',
-        }]);
+        return Promise.resolve([
+          {
+            createdBy: 'other-user',
+            organizationId: 'org-id',
+          },
+        ]);
       }
       return Promise.resolve([]);
     });
@@ -129,12 +132,15 @@ describe('canUserAccessChat', () => {
       if (callCount === 2) {
         // Collection permission check - has permission
         return Promise.resolve([{ collectionId: 'collection-id' }]);
-      } else if (callCount === 3) {
+      }
+      if (callCount === 3) {
         // Chat info
-        return Promise.resolve([{
-          createdBy: 'other-user',
-          organizationId: 'org-id',
-        }]);
+        return Promise.resolve([
+          {
+            createdBy: 'other-user',
+            organizationId: 'org-id',
+          },
+        ]);
       }
       return Promise.resolve([]);
     });
@@ -157,16 +163,18 @@ describe('canUserAccessChat', () => {
 
   it('should return true if user is the creator', async () => {
     const userId = '123e4567-e89b-12d3-a456-426614174000';
-    
+
     let callCount = 0;
     mockDb._mockLimit.mockImplementation(() => {
       callCount++;
       if (callCount === 3) {
         // Chat info - user is creator
-        return Promise.resolve([{
-          createdBy: userId,
-          organizationId: 'org-id',
-        }]);
+        return Promise.resolve([
+          {
+            createdBy: userId,
+            organizationId: 'org-id',
+          },
+        ]);
       }
       return Promise.resolve([]);
     });
@@ -189,16 +197,18 @@ describe('canUserAccessChat', () => {
 
   it('should return true if user is workspace_admin', async () => {
     const orgId = 'org-123';
-    
+
     let callCount = 0;
     mockDb._mockLimit.mockImplementation(() => {
       callCount++;
       if (callCount === 3) {
         // Chat info
-        return Promise.resolve([{
-          createdBy: 'other-user',
-          organizationId: orgId,
-        }]);
+        return Promise.resolve([
+          {
+            createdBy: 'other-user',
+            organizationId: orgId,
+          },
+        ]);
       }
       return Promise.resolve([]);
     });
@@ -206,10 +216,12 @@ describe('canUserAccessChat', () => {
     mockDb._mockWhere.mockImplementation(() => {
       // For user organizations query (doesn't use limit)
       if (mockDb._mockWhere.mock.calls.length === 4) {
-        return Promise.resolve([{
-          organizationId: orgId,
-          role: 'workspace_admin',
-        }]);
+        return Promise.resolve([
+          {
+            organizationId: orgId,
+            role: 'workspace_admin',
+          },
+        ]);
       }
       return { limit: mockDb._mockLimit };
     });
@@ -224,16 +236,18 @@ describe('canUserAccessChat', () => {
 
   it('should return true if user is data_admin', async () => {
     const orgId = 'org-123';
-    
+
     let callCount = 0;
     mockDb._mockLimit.mockImplementation(() => {
       callCount++;
       if (callCount === 3) {
         // Chat info
-        return Promise.resolve([{
-          createdBy: 'other-user',
-          organizationId: orgId,
-        }]);
+        return Promise.resolve([
+          {
+            createdBy: 'other-user',
+            organizationId: orgId,
+          },
+        ]);
       }
       return Promise.resolve([]);
     });
@@ -241,10 +255,12 @@ describe('canUserAccessChat', () => {
     mockDb._mockWhere.mockImplementation(() => {
       // For user organizations query (doesn't use limit)
       if (mockDb._mockWhere.mock.calls.length === 4) {
-        return Promise.resolve([{
-          organizationId: orgId,
-          role: 'data_admin',
-        }]);
+        return Promise.resolve([
+          {
+            organizationId: orgId,
+            role: 'data_admin',
+          },
+        ]);
       }
       return { limit: mockDb._mockLimit };
     });
@@ -259,16 +275,18 @@ describe('canUserAccessChat', () => {
 
   it('should return false if user has no access', async () => {
     const orgId = 'org-123';
-    
+
     let callCount = 0;
     mockDb._mockLimit.mockImplementation(() => {
       callCount++;
       if (callCount === 3) {
         // Chat info exists
-        return Promise.resolve([{
-          createdBy: 'other-user',
-          organizationId: orgId,
-        }]);
+        return Promise.resolve([
+          {
+            createdBy: 'other-user',
+            organizationId: orgId,
+          },
+        ]);
       }
       return Promise.resolve([]);
     });
@@ -276,10 +294,12 @@ describe('canUserAccessChat', () => {
     mockDb._mockWhere.mockImplementation(() => {
       // For user organizations query (doesn't use limit)
       if (mockDb._mockWhere.mock.calls.length === 4) {
-        return Promise.resolve([{
-          organizationId: orgId,
-          role: 'viewer', // Not an admin role
-        }]);
+        return Promise.resolve([
+          {
+            organizationId: orgId,
+            role: 'viewer', // Not an admin role
+          },
+        ]);
       }
       return { limit: mockDb._mockLimit };
     });

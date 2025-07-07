@@ -1,9 +1,10 @@
 import React from 'react';
-import { type BusterMetricListItem, VerificationStatus } from '@/api/asset_interfaces';
+import { type BusterMetricListItem } from '@/api/asset_interfaces';
 import { Button } from '@/components/ui/buttons';
 import { useMemoizedFn } from '@/hooks';
 import { StatusBadgeIndicator } from './StatusBadgeIndicator';
 import { StatusDropdownContent } from './StatusDropdownContent';
+import type { VerificationStatus } from '@buster/server-shared/share';
 
 export const StatusBadgeButton: React.FC<{
   status: BusterMetricListItem['status'];
@@ -13,17 +14,9 @@ export const StatusBadgeButton: React.FC<{
   variant?: 'default' | 'ghost';
   onVerify: (d: { id: string; status: VerificationStatus }[]) => Promise<void>;
 }> = React.memo(
-  ({
-    isAdmin = false,
-    variant = 'default',
-    id,
-    status = VerificationStatus.NOT_REQUESTED,
-    onVerify,
-    disabled
-  }) => {
+  ({ isAdmin = false, variant = 'default', id, status = 'notRequested', onVerify, disabled }) => {
     const buttonText = Array.isArray(id) ? 'Status' : '';
-    const disabledButton =
-      disabled || ((!id || status === VerificationStatus.VERIFIED) && !isAdmin);
+    const disabledButton = disabled || ((!id || status === 'verified') && !isAdmin);
 
     const onChangeStatus = useMemoizedFn(async (newStatus: VerificationStatus) => {
       const ids = Array.isArray(id) ? id : [id];

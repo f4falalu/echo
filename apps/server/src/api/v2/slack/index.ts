@@ -16,7 +16,7 @@ const app = new Hono()
   // Error handling
   .onError((e, c) => {
     if (e instanceof SlackError) {
-      return c.json(e.toResponse(), e.statusCode);
+      return c.json(e.toResponse(), e.status_code);
     }
     if (e instanceof HTTPException) {
       return e.getResponse();

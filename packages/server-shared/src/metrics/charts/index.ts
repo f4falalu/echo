@@ -1,6 +1,5 @@
 export * from './annotationInterfaces';
 export * from './axisInterfaces';
-export * from './chartBaseInterfaces';
 export * from './chartConfigProps';
 export * from './columnInterfaces';
 export * from './columnLabelInterfaces';
@@ -8,3 +7,4 @@ export * from './enum';
 export * from './etcInterfaces';
 export * from './tickInterfaces';
 export * from './chatConfig.defaults';
+export * from './configColors';

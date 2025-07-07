@@ -1,5 +1,4 @@
 import React from 'react';
-import { ShareAssetType } from '@/api/asset_interfaces';
 import { useGetDashboard } from '@/api/buster_rest/dashboards';
 import { ShareMenu } from '../ShareMenu';
 import { getShareAssetConfig } from '../ShareMenu/helpers';
@@ -15,7 +14,7 @@ export const ShareDashboardButton = React.memo(({ dashboardId }: { dashboardId: 
     <ShareMenu
       shareAssetConfig={dashboardResponse || null}
       assetId={dashboardId}
-      assetType={ShareAssetType.DASHBOARD}>
+      assetType={'dashboard'}>
       <ShareButton />
     </ShareMenu>
   );

@@ -1,22 +1,18 @@
 import { useMemo } from 'react';
-import { VerificationStatus } from '@/api/asset_interfaces';
+import type { VerificationStatus } from '@buster/server-shared/share';
 import type { DropdownItem, DropdownProps } from '@/components/ui/dropdown';
 import { getTooltipText } from './helpers';
 import { StatusBadgeIndicator } from './StatusBadgeIndicator';
 
-const statuses = [
-  VerificationStatus.NOT_REQUESTED,
-  VerificationStatus.REQUESTED,
-  VerificationStatus.IN_REVIEW,
-  VerificationStatus.VERIFIED,
-  VerificationStatus.BACKLOGGED
+const statuses: VerificationStatus[] = [
+  'notRequested',
+  'requested',
+  'inReview',
+  'verified',
+  'backlogged'
 ];
 
-const requiresAdminItems = [
-  VerificationStatus.IN_REVIEW,
-  VerificationStatus.VERIFIED,
-  VerificationStatus.BACKLOGGED
-];
+const requiresAdminItems = ['inReview', 'verified', 'backlogged'];
 
 export const useStatusDropdownContent = ({
   isAdmin,

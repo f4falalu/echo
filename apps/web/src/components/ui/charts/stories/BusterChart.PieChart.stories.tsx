@@ -1,11 +1,14 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import React from 'react';
-import type { IColumnLabelFormat } from '../../../../api/asset_interfaces/metric/charts/columnLabelInterfaces';
-import { ChartType } from '../../../../api/asset_interfaces/metric/charts/enum';
 import { generatePieChartData } from '../../../../mocks/chart/chartMocks';
 import { BusterChart } from '../BusterChart';
 import { sharedMeta } from './BusterChartShared';
-import type { ColumnSettings } from '@/api/asset_interfaces';
+import {
+  DEFAULT_COLUMN_LABEL_FORMAT,
+  DEFAULT_COLUMN_SETTINGS,
+  type ColumnLabelFormat,
+  type ColumnSettings
+} from '@buster/server-shared/metrics';
 
 type PieChartData = ReturnType<typeof generatePieChartData>;
 
@@ -28,15 +31,16 @@ export const Default: Story = {
     },
     columnLabelFormats: {
       segment: {
+        ...DEFAULT_COLUMN_LABEL_FORMAT,
         columnType: 'text',
         style: 'string'
-      } satisfies IColumnLabelFormat,
+      } as ColumnLabelFormat,
       value: {
         columnType: 'number',
         style: 'number',
         numberSeparatorStyle: ','
-      } satisfies IColumnLabelFormat
-    } satisfies Record<keyof PieChartData, IColumnLabelFormat>,
+      } as ColumnLabelFormat
+    },
     pieDisplayLabelAs: 'percent',
     pieDonutWidth: 0,
     className: 'w-[500px] h-[500px]'
@@ -60,17 +64,17 @@ export const MultipleValues: Story = {
       segment: {
         columnType: 'text',
         style: 'string'
-      } satisfies IColumnLabelFormat,
+      } as ColumnLabelFormat,
       value1: {
         columnType: 'number',
         style: 'number',
         numberSeparatorStyle: ','
-      } satisfies IColumnLabelFormat,
+      } as ColumnLabelFormat,
       value2: {
         columnType: 'number',
         style: 'number',
         numberSeparatorStyle: ','
-      } satisfies IColumnLabelFormat
+      } as ColumnLabelFormat
     },
     pieDisplayLabelAs: 'number',
     pieDonutWidth: 20,
@@ -91,13 +95,13 @@ export const Donut: Story = {
       segment: {
         columnType: 'text',
         style: 'string'
-      } satisfies IColumnLabelFormat,
+      } as ColumnLabelFormat,
       value: {
         columnType: 'number',
         style: 'number',
         numberSeparatorStyle: ','
-      } satisfies IColumnLabelFormat
-    } satisfies Record<keyof PieChartData, IColumnLabelFormat>,
+      } as ColumnLabelFormat
+    },
     pieDisplayLabelAs: 'percent',
     pieDonutWidth: 20,
     className: 'w-[500px] h-[500px]'
@@ -121,17 +125,17 @@ export const DonutMultipleValues: Story = {
       segment: {
         columnType: 'text',
         style: 'string'
-      } satisfies IColumnLabelFormat,
+      } as ColumnLabelFormat,
       value1: {
         columnType: 'number',
         style: 'number',
         numberSeparatorStyle: ','
-      } satisfies IColumnLabelFormat,
+      } as ColumnLabelFormat,
       value2: {
         columnType: 'number',
         style: 'number',
         numberSeparatorStyle: ','
-      } satisfies IColumnLabelFormat
+      } as ColumnLabelFormat
     },
     pieDisplayLabelAs: 'percent',
     pieDonutWidth: 10,
@@ -157,13 +161,13 @@ export const ResizableContainer: Story = {
       segment: {
         columnType: 'text',
         style: 'string'
-      } satisfies IColumnLabelFormat,
+      } as ColumnLabelFormat,
       value: {
         columnType: 'number',
         style: 'number',
         numberSeparatorStyle: ','
-      } satisfies IColumnLabelFormat
-    } satisfies Record<keyof PieChartData, IColumnLabelFormat>,
+      } as ColumnLabelFormat
+    },
     pieDisplayLabelAs: 'number',
     pieDonutWidth: 10,
     pieInnerLabelTitle: 'Total',
@@ -246,7 +250,7 @@ export const WithSortingByKeyWithDates: Story = {
       date: {
         columnType: 'date',
         style: 'date'
-      } satisfies IColumnLabelFormat
+      } as ColumnLabelFormat
     },
     columnMetadata: [
       {
@@ -299,19 +303,19 @@ export const ShowLabelAsPercent: Story = {
       segment: {
         columnType: 'text',
         style: 'string'
-      } satisfies IColumnLabelFormat,
+      } as ColumnLabelFormat,
       value: {
         columnType: 'number',
         style: 'number',
 
         numberSeparatorStyle: ','
-      } satisfies IColumnLabelFormat,
+      } as ColumnLabelFormat,
       value2: {
         columnType: 'number',
         style: 'number',
         numberSeparatorStyle: ','
-      } satisfies IColumnLabelFormat
-    } satisfies Record<keyof PieChartData, IColumnLabelFormat>,
+      } as ColumnLabelFormat
+    },
     pieDisplayLabelAs: 'percent',
     pieDonutWidth: 5,
     pieInnerLabelTitle: 'Total',
@@ -326,6 +330,7 @@ export const ManyValuesWithDataLabels: Story = {
     selectedChartType: 'pie',
     columnSettings: {
       value: {
+        ...DEFAULT_COLUMN_SETTINGS,
         showDataLabels: true
       } as ColumnSettings
     },
@@ -334,7 +339,7 @@ export const ManyValuesWithDataLabels: Story = {
         columnType: 'number',
         style: 'number',
         numberSeparatorStyle: ','
-      } satisfies IColumnLabelFormat
+      } as ColumnLabelFormat
     },
     data: Array.from({ length: 50 }, (_, index) => ({
       segment: names[index],
@@ -365,21 +370,22 @@ export const DataLabelsOutside: Story = {
     },
     columnLabelFormats: {
       segment: {
+        ...DEFAULT_COLUMN_LABEL_FORMAT,
         columnType: 'text',
         style: 'string'
-      } satisfies IColumnLabelFormat,
+      } as ColumnLabelFormat,
       value: {
         columnType: 'number',
         style: 'number',
 
         numberSeparatorStyle: ','
-      } satisfies IColumnLabelFormat,
+      } as ColumnLabelFormat,
       value2: {
         columnType: 'number',
         style: 'number',
         numberSeparatorStyle: ','
-      } satisfies IColumnLabelFormat
-    } satisfies Record<keyof PieChartData, IColumnLabelFormat>,
+      } as ColumnLabelFormat
+    },
     pieLabelPosition: 'outside'
   }
 };
@@ -406,14 +412,14 @@ export const MinimumSlicePercentage: Story = {
         columnType: 'text',
         style: 'string',
         prefix: 'PREFIX TEST: '
-      } satisfies IColumnLabelFormat,
+      } as ColumnLabelFormat,
       sales: {
         columnType: 'number',
         style: 'currency',
         currency: 'USD',
         displayName: 'HUH?',
         prefix: 'PREFIX TEST2: '
-      } satisfies IColumnLabelFormat
+      } as ColumnLabelFormat
     },
     pieDisplayLabelAs: 'percent',
     pieMinimumSlicePercentage: 25,

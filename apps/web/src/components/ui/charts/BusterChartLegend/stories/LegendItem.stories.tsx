@@ -1,6 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { fn } from '@storybook/test';
-import { ChartType } from '../../../../../api/asset_interfaces/metric/charts';
 import { LegendItem } from '../LegendItem';
 
 const meta = {

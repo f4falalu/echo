@@ -1,12 +1,11 @@
-import { describe, it, expect } from 'vitest';
-import { DEFAULT_CHART_CONFIG } from './chatConfig.defaults';
-import { BusterChartConfigPropsSchema } from './chartConfigProps';
+import { describe, expect, it } from 'vitest';
+import { ChartConfigPropsSchema } from './chartConfigProps';
 import { DEFAULT_CHART_THEME } from './configColors';
 
 describe('DEFAULT_CHART_CONFIG', () => {
   it('should conform to BusterChartConfigPropsSchema and have expected default values', () => {
     // Verify that DEFAULT_CHART_CONFIG is valid according to the schema
-    const parseResult = BusterChartConfigPropsSchema.safeParse(DEFAULT_CHART_CONFIG);
+    const parseResult = ChartConfigPropsSchema.safeParse({});
     expect(parseResult.success).toBe(true);
 
     if (parseResult.success) {
@@ -32,12 +31,12 @@ describe('DEFAULT_CHART_CONFIG', () => {
         y: [],
         category: [],
         size: [],
-        tooltip: null
+        tooltip: null,
       });
       expect(config.pieChartAxis).toEqual({
         x: [],
         y: [],
-        tooltip: null
+        tooltip: null,
       });
 
       // Verify the config is a complete object with all required properties

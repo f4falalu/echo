@@ -8,5 +8,5 @@ export const DEFAULT_CHART_THEME = [
   '#F3864F',
   '#C82184',
   '#31FCB4',
-  '#E83562'
+  '#E83562',
 ];

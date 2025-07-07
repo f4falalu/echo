@@ -3,7 +3,7 @@
 import pluralize from 'pluralize';
 import React, { useMemo, useState } from 'react';
 import type { BusterUserDatasetGroup } from '@/api/asset_interfaces';
-import { useUpdateUserDatasetGroups } from '@/api/buster_rest';
+import { useUpdateUserDatasetGroups } from '@/api/buster_rest/users/permissions';
 import { PermissionAssignedCell } from '@/components/features/PermissionComponents';
 import {
   type BusterListColumn,

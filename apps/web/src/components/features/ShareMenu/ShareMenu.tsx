@@ -1,7 +1,7 @@
 'use client';
 
 import React, { type PropsWithChildren, useState } from 'react';
-import type { BusterShare, ShareAssetType } from '@/api/asset_interfaces';
+import type { ShareAssetType, ShareConfig } from '@buster/server-shared/share';
 import { Popover } from '@/components/ui/popover/Popover';
 import { AppTooltip } from '@/components/ui/tooltip';
 import { useMemoizedFn } from '@/hooks';
@@ -10,7 +10,7 @@ import { ShareMenuContent } from './ShareMenuContent';
 
 export const ShareMenu: React.FC<
   PropsWithChildren<{
-    shareAssetConfig: BusterShare | null;
+    shareAssetConfig: ShareConfig | null;
     assetId: string;
     assetType: ShareAssetType;
   }>

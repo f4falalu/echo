@@ -4,11 +4,11 @@ export enum BusterAppRoutes {
   APP_HOME = '/app/home',
   APP_COLLECTIONS = '/app/collections',
   APP_COLLECTIONS_ID = '/app/collections/:collectionId',
-  APP_METRIC = '/app/metrics?metric_version_number=:metricVersionNumber',
+  APP_METRIC = '/app/metrics',
   APP_METRIC_ID_CHART = '/app/metrics/:metricId/chart?secondary_view=:secondaryView&metric_version_number=:metricVersionNumber',
   APP_METRIC_ID_RESULTS = '/app/metrics/:metricId/results?secondary_view=:secondaryView&metric_version_number=:metricVersionNumber',
   APP_METRIC_ID_SQL = '/app/metrics/:metricId/sql?metric_version_number=:metricVersionNumber',
-  APP_DASHBOARDS = '/app/dashboards?dashboard_version_number=:dashboardVersionNumber',
+  APP_DASHBOARDS = '/app/dashboards',
   APP_DASHBOARD_ID = '/app/dashboards/:dashboardId?secondary_view=:secondaryView&dashboard_version_number=:dashboardVersionNumber',
   APP_DASHBOARD_ID_FILE = '/app/dashboards/:dashboardId/file?dashboard_version_number=:dashboardVersionNumber&secondary_view=:secondaryView',
   APP_LOGS = '/app/logs',
@@ -54,7 +54,6 @@ export type BusterAppRoutesWithArgs = {
   };
   [BusterAppRoutes.APP_METRIC]: {
     route: BusterAppRoutes.APP_METRIC;
-    metricVersionNumber?: number;
   };
   [BusterAppRoutes.APP_METRIC_ID_CHART]: {
     route: BusterAppRoutes.APP_METRIC_ID_CHART;
@@ -75,7 +74,6 @@ export type BusterAppRoutesWithArgs = {
   };
   [BusterAppRoutes.APP_DASHBOARDS]: {
     route: BusterAppRoutes.APP_DASHBOARDS;
-    dashboardVersionNumber?: number;
   };
   [BusterAppRoutes.APP_DASHBOARD_ID]: {
     route: BusterAppRoutes.APP_DASHBOARD_ID;

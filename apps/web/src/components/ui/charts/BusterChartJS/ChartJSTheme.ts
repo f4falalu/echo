@@ -26,7 +26,7 @@ import {
 import ChartJsAnnotationPlugin from 'chartjs-plugin-annotation';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 import ChartDeferred from 'chartjs-plugin-deferred';
-import { DEFAULT_CHART_THEME } from '@/api/asset_interfaces/metric/charts/configColors';
+import { DEFAULT_CHART_THEME } from '@buster/server-shared/metrics';
 import { truncateText } from '@/lib/text';
 import { ChartMountedPlugin } from './core/plugins';
 import ChartTrendlinePlugin from './core/plugins/chartjs-plugin-trendlines';

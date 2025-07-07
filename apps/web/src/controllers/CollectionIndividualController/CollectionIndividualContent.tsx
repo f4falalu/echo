@@ -6,7 +6,7 @@ import type {
   BusterCollectionItemAsset,
   BusterCollectionListItem
 } from '@/api/asset_interfaces';
-import { ShareAssetType } from '@/api/asset_interfaces';
+import { ShareAssetType } from '@buster/server-shared/share';
 import { ASSET_ICONS } from '@/components/features/config/assetIcons';
 import { AddToCollectionModal } from '@/components/features/modal/AddToCollectionModal';
 import { Avatar } from '@/components/ui/avatar';
@@ -166,7 +166,7 @@ const CollectionIconRecord: Record<string, React.ReactNode> = {
 };
 
 const createAssetLink = (asset: BusterCollectionItemAsset, collectionId: string) => {
-  if (asset.asset_type === ShareAssetType.METRIC) {
+  if (asset.asset_type === 'metric') {
     return createBusterRoute({
       route: BusterRoutes.APP_METRIC_ID_CHART,
       metricId: asset.id

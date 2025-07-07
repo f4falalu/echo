@@ -3,6 +3,7 @@ import type { BusterChartProps } from '@/api/asset_interfaces/metric/charts';
 import { formatLabel } from '@/lib';
 import type { DatasetOption } from '../chartHooks';
 import { formatLabelForDataset, formatLabelForPieLegend, JOIN_CHARACTER } from './labelHelpers';
+import type { ColumnLabelFormat } from '@buster/server-shared/metrics';
 
 // Mock the formatLabel function
 vi.mock('@/lib', () => ({
@@ -31,8 +32,8 @@ describe('labelHelpers', () => {
       };
 
       const columnLabelFormats: NonNullable<BusterChartProps['columnLabelFormats']> = {
-        key1: { columnType: 'text', style: 'string' },
-        key2: { columnType: 'text', style: 'string' }
+        key1: { columnType: 'text', style: 'string' } as ColumnLabelFormat,
+        key2: { columnType: 'text', style: 'string' } as ColumnLabelFormat
       };
 
       const result = formatLabelForDataset(dataset, columnLabelFormats);
@@ -55,8 +56,8 @@ describe('labelHelpers', () => {
       };
 
       const columnLabelFormats: NonNullable<BusterChartProps['columnLabelFormats']> = {
-        key1: { columnType: 'text', style: 'string' },
-        key2: { columnType: 'text', style: 'string' }
+        key1: { columnType: 'text', style: 'string' } as ColumnLabelFormat,
+        key2: { columnType: 'text', style: 'string' } as ColumnLabelFormat
       };
 
       const result = formatLabelForDataset(dataset, columnLabelFormats);

@@ -1,14 +1,14 @@
 import first from 'lodash/first';
 import last from 'lodash/last';
 import React, { useMemo } from 'react';
-import { DEFAULT_DAY_OF_WEEK_FORMAT } from '@/api/asset_interfaces';
-import type { IColumnLabelFormat } from '@/api/asset_interfaces/metric/charts';
+import { DEFAULT_DAY_OF_WEEK_FORMAT } from '@buster/server-shared/metrics';
+import type { ColumnLabelFormat } from '@buster/server-shared/metrics';
 import { Select, type SelectItem } from '@/components/ui/select';
 import { useMemoizedFn } from '@/hooks';
 import { LabelAndInput } from '../../../Common/LabelAndInput';
 import { getDefaultQuarterOptions } from './dateConfig';
 
-const options: SelectItem<NonNullable<IColumnLabelFormat['convertNumberTo']>>[] = [
+const options: SelectItem<NonNullable<ColumnLabelFormat['convertNumberTo']>>[] = [
   { label: 'Day of Week', value: 'day_of_week' },
   { label: 'Month of Year', value: 'month_of_year' },
   { label: 'Quarter', value: 'quarter' },
@@ -16,36 +16,36 @@ const options: SelectItem<NonNullable<IColumnLabelFormat['convertNumberTo']>>[] 
 ];
 
 export const EditDateType: React.FC<{
-  convertNumberTo: IColumnLabelFormat['convertNumberTo'];
-  onUpdateColumnConfig: (columnLabelFormat: Partial<IColumnLabelFormat>) => void;
+  convertNumberTo: ColumnLabelFormat['convertNumberTo'];
+  onUpdateColumnConfig: (columnLabelFormat: Partial<ColumnLabelFormat>) => void;
 }> = React.memo(({ convertNumberTo, onUpdateColumnConfig }) => {
   const selectedOption = useMemo(() => {
     return options.find((option) => option.value === convertNumberTo) || last(options);
   }, [convertNumberTo]);
 
-  const onChange = useMemoizedFn((value: IColumnLabelFormat['convertNumberTo']) => {
+  const onChange = useMemoizedFn((value: ColumnLabelFormat['convertNumberTo']) => {
     if (value === 'day_of_week') {
       return onUpdateColumnConfig({
         dateFormat: DEFAULT_DAY_OF_WEEK_FORMAT,
-        convertNumberTo: value as IColumnLabelFormat['convertNumberTo']
+        convertNumberTo: value as ColumnLabelFormat['convertNumberTo']
       });
     }
     if (value === 'month_of_year') {
       return onUpdateColumnConfig({
         dateFormat: 'MMMM',
-        convertNumberTo: value as IColumnLabelFormat['convertNumberTo']
+        convertNumberTo: value as ColumnLabelFormat['convertNumberTo']
       });
     }
     if (value === 'quarter') {
       const defaultOptions = getDefaultQuarterOptions(new Date());
       return onUpdateColumnConfig({
-        convertNumberTo: value as IColumnLabelFormat['convertNumberTo'],
+        convertNumberTo: value as ColumnLabelFormat['convertNumberTo'],
         dateFormat: first(defaultOptions)?.value
       });
     }
 
     onUpdateColumnConfig({
-      convertNumberTo: value as IColumnLabelFormat['convertNumberTo'],
+      convertNumberTo: value as ColumnLabelFormat['convertNumberTo'],
       dateFormat: 'LLL'
     });
   });

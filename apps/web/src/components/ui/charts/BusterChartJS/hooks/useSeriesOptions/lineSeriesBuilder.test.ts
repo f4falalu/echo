@@ -1,16 +1,14 @@
 import type { ChartDataset, ScriptableContext } from 'chart.js';
 import { describe, expect, it, vi } from 'vitest';
-import type {
-  BusterChartProps,
-  ChartEncodes,
-  ColumnSettings,
-  IColumnLabelFormat,
-  ScatterAxis
-} from '@/api/asset_interfaces/metric';
+import type { BusterChartProps } from '@/api/asset_interfaces/metric/charts';
 import {
   DEFAULT_COLUMN_LABEL_FORMAT,
-  DEFAULT_COLUMN_SETTINGS
-} from '@/api/asset_interfaces/metric/defaults';
+  DEFAULT_COLUMN_SETTINGS,
+  type ChartEncodes,
+  type ColumnLabelFormat,
+  type ColumnSettings,
+  type ScatterAxis
+} from '@buster/server-shared/metrics';
 import { createDayjsDate, formatLabel } from '@/lib';
 import type { DatasetOption, DatasetOptionsWithTicks, KV } from '../../../chartHooks';
 import { formatBarAndLineDataLabel } from '../../helpers';
@@ -105,18 +103,18 @@ describe('lineSeriesBuilder', () => {
           ...DEFAULT_COLUMN_LABEL_FORMAT,
           columnType: 'number',
           style: 'number'
-        } as IColumnLabelFormat,
+        } as ColumnLabelFormat,
         metric2: {
           ...DEFAULT_COLUMN_LABEL_FORMAT,
           columnType: 'number',
           style: 'currency',
           currency: 'USD'
-        } as IColumnLabelFormat,
+        } as ColumnLabelFormat,
         metric3: {
           ...DEFAULT_COLUMN_LABEL_FORMAT,
           columnType: 'number',
           style: 'percent'
-        } as IColumnLabelFormat
+        } as ColumnLabelFormat
       } as ColumnLabelFormatMap,
       xAxisKeys: ['category'] as ChartEncodes['x'],
       lineGroupType: null,
@@ -284,12 +282,12 @@ describe('lineSeriesBuilder', () => {
           ...DEFAULT_COLUMN_LABEL_FORMAT,
           columnType: 'date',
           style: 'date'
-        } as IColumnLabelFormat,
+        } as ColumnLabelFormat,
         category: {
           ...DEFAULT_COLUMN_LABEL_FORMAT,
           columnType: 'text',
           style: 'string'
-        } as IColumnLabelFormat
+        } as ColumnLabelFormat
       } as ColumnLabelFormatMap,
       columnSettings: {} as ColumnSettingsMap,
       sizeKey: [] as ScatterAxis['size'],

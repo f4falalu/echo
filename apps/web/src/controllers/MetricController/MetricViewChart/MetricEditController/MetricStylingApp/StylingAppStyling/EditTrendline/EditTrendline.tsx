@@ -2,9 +2,13 @@ import { AnimatePresence, motion, type MotionProps } from 'framer-motion';
 import isEqual from 'lodash/isEqual';
 import React, { useEffect, useMemo, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-import type { ColumnMetaData } from '@/api/asset_interfaces';
-import { DEFAULT_TRENDLINE_CONFIG, type BusterMetricChartConfig } from '@/api/asset_interfaces';
-import type { ChartEncodes, ScatterAxis, Trendline } from '@/api/asset_interfaces/metric/charts';
+import { DEFAULT_TRENDLINE_CONFIG, type ChartConfigProps } from '@buster/server-shared/metrics';
+import type {
+  ChartEncodes,
+  ScatterAxis,
+  Trendline,
+  ColumnMetaData
+} from '@buster/server-shared/metrics';
 import { Button } from '@/components/ui/buttons';
 import { JOIN_CHARACTER } from '@/components/ui/charts/commonHelpers';
 import { Plus } from '@/components/ui/icons';
@@ -30,13 +34,13 @@ export interface LoopTrendline extends Trendline {
 }
 
 export const EditTrendline: React.FC<{
-  trendlines: BusterMetricChartConfig['trendlines'];
+  trendlines: ChartConfigProps['trendlines'];
   colors: string[];
-  onUpdateChartConfig: (chartConfig: Partial<BusterMetricChartConfig>) => void;
+  onUpdateChartConfig: (chartConfig: Partial<ChartConfigProps>) => void;
   selectedAxis: ChartEncodes;
   columnMetadata: ColumnMetaData[];
-  columnLabelFormats: BusterMetricChartConfig['columnLabelFormats'];
-  selectedChartType: BusterMetricChartConfig['selectedChartType'];
+  columnLabelFormats: ChartConfigProps['columnLabelFormats'];
+  selectedChartType: ChartConfigProps['selectedChartType'];
 }> = React.memo(
   ({
     trendlines,
@@ -189,12 +193,12 @@ const EditTrendlineItem: React.FC<{
   trend: LoopTrendline;
   isNewTrend: boolean;
   columnMetadata: ColumnMetaData[];
-  columnLabelFormats: BusterMetricChartConfig['columnLabelFormats'];
+  columnLabelFormats: ChartConfigProps['columnLabelFormats'];
   yAxisEncodes: string[];
   xAxisEncodes: string[];
   categoryEncodes: string[] | null | undefined;
   colors: string[];
-  selectedChartType: BusterMetricChartConfig['selectedChartType'];
+  selectedChartType: ChartConfigProps['selectedChartType'];
   onUpdateExistingTrendline: (trend: LoopTrendline) => void;
   onDeleteTrendline: (id: string) => void;
 }> = React.memo(
@@ -254,8 +258,8 @@ const TrendlineItemContent: React.FC<{
   xAxisEncodes: string[];
   colors: string[];
   categoryEncodes: string[] | null | undefined;
-  columnLabelFormats: BusterMetricChartConfig['columnLabelFormats'];
-  selectedChartType: BusterMetricChartConfig['selectedChartType'];
+  columnLabelFormats: ChartConfigProps['columnLabelFormats'];
+  selectedChartType: ChartConfigProps['selectedChartType'];
   onUpdateExistingTrendline: (trend: LoopTrendline) => void;
 }> = React.memo(
   ({

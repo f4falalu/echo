@@ -1,15 +1,15 @@
 import isEmpty from 'lodash/isEmpty';
 import React from 'react';
-import type { BusterMetricChartConfig } from '@/api/asset_interfaces';
-import type { ChartEncodes, ScatterAxis } from '@/api/asset_interfaces/metric/charts';
+import type { ChartConfigProps } from '@buster/server-shared/metrics';
+import type { ChartEncodes, ScatterAxis } from '@buster/server-shared/metrics';
 import { Slider } from '@/components/ui/slider';
 import { useMemoizedFn } from '@/hooks';
 import { LabelAndInput } from '../Common';
 
 export const EditScatterDotSize: React.FC<{
-  scatterDotSize: BusterMetricChartConfig['scatterDotSize'];
+  scatterDotSize: ChartConfigProps['scatterDotSize'];
   selectedAxis: ChartEncodes;
-  onUpdateChartConfig: (config: Partial<BusterMetricChartConfig>) => void;
+  onUpdateChartConfig: (config: Partial<ChartConfigProps>) => void;
 }> = React.memo(({ scatterDotSize, selectedAxis, onUpdateChartConfig }) => {
   const hasSize = !isEmpty((selectedAxis as ScatterAxis).size);
   const defaultValue = hasSize ? scatterDotSize : scatterDotSize[0];

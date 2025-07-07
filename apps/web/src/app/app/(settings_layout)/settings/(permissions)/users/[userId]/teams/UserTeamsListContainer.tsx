@@ -3,7 +3,7 @@
 import pluralize from 'pluralize';
 import React, { useMemo, useState } from 'react';
 import type { BusterUserTeamListItem, TeamRole } from '@/api/asset_interfaces';
-import { useUpdateUserTeams } from '@/api/buster_rest';
+import { useUpdateUserTeams } from '@/api/buster_rest/users/permissions';
 import { PermissionAssignTeamRole } from '@/components/features/PermissionComponents';
 import {
   type BusterListColumn,

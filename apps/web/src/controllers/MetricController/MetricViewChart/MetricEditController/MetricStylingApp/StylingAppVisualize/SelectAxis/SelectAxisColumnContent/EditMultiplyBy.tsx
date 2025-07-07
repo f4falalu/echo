@@ -1,11 +1,11 @@
 import React from 'react';
-import type { IColumnLabelFormat } from '@/api/asset_interfaces/metric/charts/columnLabelInterfaces';
+import type { ColumnLabelFormat } from '@buster/server-shared/metrics';
 import { InputNumber } from '@/components/ui/inputs';
 import { LabelAndInput } from '../../../Common/LabelAndInput';
 
 export const EditMultiplyBy: React.FC<{
-  multiplier: IColumnLabelFormat['multiplier'];
-  onUpdateColumnConfig: (columnLabelFormat: Partial<IColumnLabelFormat>) => void;
+  multiplier: ColumnLabelFormat['multiplier'];
+  onUpdateColumnConfig: (columnLabelFormat: Partial<ColumnLabelFormat>) => void;
 }> = React.memo(({ multiplier, onUpdateColumnConfig }) => {
   return (
     <LabelAndInput label="Multiply By" dataTestId="edit-multiply-by-input">

@@ -9,7 +9,7 @@ export type SlackIntegration = InferSelectModel<typeof slackIntegrations>;
  * Get active Slack integration for an organization
  */
 export async function getActiveIntegration(
-  organizationId: string,
+  organizationId: string
 ): Promise<SlackIntegration | null> {
   try {
     const [integration] = await db
@@ -19,8 +19,8 @@ export async function getActiveIntegration(
         and(
           eq(slackIntegrations.organizationId, organizationId),
           eq(slackIntegrations.status, 'active'),
-          isNull(slackIntegrations.deletedAt),
-        ),
+          isNull(slackIntegrations.deletedAt)
+        )
       )
       .limit(1);
 
@@ -30,7 +30,7 @@ export async function getActiveIntegration(
     throw new Error(
       `Failed to get active Slack integration: ${
         error instanceof Error ? error.message : 'Unknown error'
-      }`,
+      }`
     );
   }
 }
@@ -39,7 +39,7 @@ export async function getActiveIntegration(
  * Get pending integration by OAuth state
  */
 export async function getPendingIntegrationByState(
-  state: string,
+  state: string
 ): Promise<SlackIntegration | null> {
   try {
     const [integration] = await db
@@ -49,8 +49,8 @@ export async function getPendingIntegrationByState(
         and(
           eq(slackIntegrations.oauthState, state),
           eq(slackIntegrations.status, 'pending'),
-          gt(slackIntegrations.oauthExpiresAt, new Date().toISOString()),
-        ),
+          gt(slackIntegrations.oauthExpiresAt, new Date().toISOString())
+        )
       )
       .limit(1);
 
@@ -60,7 +60,7 @@ export async function getPendingIntegrationByState(
     throw new Error(
       `Failed to get pending integration: ${
         error instanceof Error ? error.message : 'Unknown error'
-      }`,
+      }`
     );
   }
 }
@@ -124,7 +124,7 @@ export async function createPendingIntegration(params: {
     throw new Error(
       `Failed to create pending integration: ${
         error instanceof Error ? error.message : 'Unknown error'
-      }`,
+      }`
     );
   }
 }
@@ -143,7 +143,7 @@ export async function updateIntegrationAfterOAuth(
     scope: string;
     tokenVaultKey: string;
     installedBySlackUserId?: string;
-  },
+  }
 ): Promise<void> {
   try {
     await db
@@ -161,7 +161,7 @@ export async function updateIntegrationAfterOAuth(
   } catch (error) {
     console.error('Failed to update integration after OAuth:', error);
     throw new Error(
-      `Failed to activate integration: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      `Failed to activate integration: ${error instanceof Error ? error.message : 'Unknown error'}`
     );
   }
 }
@@ -171,7 +171,7 @@ export async function updateIntegrationAfterOAuth(
  */
 export async function markIntegrationAsFailed(
   integrationId: string,
-  _error?: string,
+  _error?: string
 ): Promise<void> {
   try {
     // Due to database constraint, we cannot mark a pending integration as failed
@@ -214,7 +214,7 @@ export async function markIntegrationAsFailed(
     throw new Error(
       `Failed to mark integration as failed: ${
         error instanceof Error ? error.message : 'Unknown error'
-      }`,
+      }`
     );
   }
 }
@@ -237,7 +237,7 @@ export async function softDeleteIntegration(integrationId: string): Promise<void
     throw new Error(
       `Failed to soft delete integration: ${
         error instanceof Error ? error.message : 'Unknown error'
-      }`,
+      }`
     );
   }
 }
@@ -259,7 +259,7 @@ export async function updateLastUsedAt(integrationId: string): Promise<void> {
     throw new Error(
       `Failed to update last used timestamp: ${
         error instanceof Error ? error.message : 'Unknown error'
-      }`,
+      }`
     );
   }
 }
@@ -279,9 +279,7 @@ export async function getIntegrationById(integrationId: string): Promise<SlackIn
   } catch (error) {
     console.error('Failed to get integration by ID:', error);
     throw new Error(
-      `Failed to get integration by ID: ${
-        error instanceof Error ? error.message : 'Unknown error'
-      }`,
+      `Failed to get integration by ID: ${error instanceof Error ? error.message : 'Unknown error'}`
     );
   }
 }
@@ -298,7 +296,7 @@ export async function hasActiveIntegration(organizationId: string): Promise<bool
     throw new Error(
       `Failed to check active integration: ${
         error instanceof Error ? error.message : 'Unknown error'
-      }`,
+      }`
     );
   }
 }
@@ -307,7 +305,7 @@ export async function hasActiveIntegration(organizationId: string): Promise<bool
  * Get any existing integration for an organization (active, revoked, or failed)
  */
 export async function getExistingIntegration(
-  organizationId: string,
+  organizationId: string
 ): Promise<SlackIntegration | null> {
   try {
     // Get the most recent non-deleted integration for this organization
@@ -324,7 +322,7 @@ export async function getExistingIntegration(
     throw new Error(
       `Failed to get existing Slack integration: ${
         error instanceof Error ? error.message : 'Unknown error'
-      }`,
+      }`
     );
   }
 }
@@ -334,7 +332,7 @@ export async function getExistingIntegration(
  */
 export async function updateDefaultChannel(
   integrationId: string,
-  defaultChannel: { name: string; id: string },
+  defaultChannel: { name: string; id: string }
 ): Promise<void> {
   try {
     await db
@@ -349,7 +347,7 @@ export async function updateDefaultChannel(
     throw new Error(
       `Failed to update default channel: ${
         error instanceof Error ? error.message : 'Unknown error'
-      }`,
+      }`
     );
   }
 }
@@ -366,8 +364,8 @@ export async function cleanupExpiredPendingIntegrations(): Promise<number> {
       .where(
         and(
           eq(slackIntegrations.status, 'pending'),
-          lt(slackIntegrations.oauthExpiresAt, new Date().toISOString()),
-        ),
+          lt(slackIntegrations.oauthExpiresAt, new Date().toISOString())
+        )
       );
 
     // Clean up vault tokens for each expired integration
@@ -388,8 +386,8 @@ export async function cleanupExpiredPendingIntegrations(): Promise<number> {
       .where(
         and(
           eq(slackIntegrations.status, 'pending'),
-          lt(slackIntegrations.oauthExpiresAt, new Date().toISOString()),
-        ),
+          lt(slackIntegrations.oauthExpiresAt, new Date().toISOString())
+        )
       )
       .returning({ id: slackIntegrations.id });
 
@@ -399,7 +397,7 @@ export async function cleanupExpiredPendingIntegrations(): Promise<number> {
     throw new Error(
       `Failed to cleanup expired integrations: ${
         error instanceof Error ? error.message : 'Unknown error'
-      }`,
+      }`
     );
   }
 }

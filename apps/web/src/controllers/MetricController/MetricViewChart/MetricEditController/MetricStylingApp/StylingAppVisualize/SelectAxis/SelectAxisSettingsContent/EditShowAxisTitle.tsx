@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
-import type { BusterMetricChartConfig } from '@/api/asset_interfaces';
+import type { ChartConfigProps } from '@buster/server-shared/metrics';
 import { Input } from '@/components/ui/inputs';
 import { Switch } from '@/components/ui/switch';
 import { useMemoizedFn } from '@/hooks';
 import { LabelAndInput } from '../../../Common/LabelAndInput';
 
 export const EditShowAxisTitle: React.FC<{
-  axisTitle: BusterMetricChartConfig['xAxisAxisTitle'] | BusterMetricChartConfig['yAxisAxisTitle'];
+  axisTitle: ChartConfigProps['xAxisAxisTitle'] | ChartConfigProps['yAxisAxisTitle'];
   showAxisTitle: boolean;
   formattedColumnTitle: string;
   onChangeAxisTitle: (value: string | null) => void;
@@ -62,9 +62,9 @@ const EditToggleAxisTitle: React.FC<{
 export const EditAxisTitle: React.FC<{
   label?: string;
   axisTitle:
-    | BusterMetricChartConfig['xAxisAxisTitle']
-    | BusterMetricChartConfig['yAxisAxisTitle']
-    | BusterMetricChartConfig['categoryAxisTitle'];
+    | ChartConfigProps['xAxisAxisTitle']
+    | ChartConfigProps['yAxisAxisTitle']
+    | ChartConfigProps['categoryAxisTitle'];
   onChangeTitle: (v: string | null) => void;
   formattedColumnTitle: string;
 }> = ({ axisTitle, onChangeTitle, formattedColumnTitle, label = 'Axis title' }) => {

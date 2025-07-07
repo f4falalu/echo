@@ -6,16 +6,7 @@ import { BusterRoutes } from '@/routes/busterRoutes';
 vi.mock('@/routes/busterRoutes', async () => {
   const actual = await vi.importActual('@/routes/busterRoutes');
   return {
-    ...actual,
-    createBusterRoute: vi.fn((params) => {
-      // Simple mock implementation that returns a string representation
-      const { route, ...args } = params;
-      const queryParams = Object.entries(args)
-        .filter(([_, value]) => value !== undefined)
-        .map(([key, value]) => `${key}=${value}`)
-        .join('&');
-      return queryParams ? `${route}?${queryParams}` : route;
-    })
+    ...actual
   };
 });
 
@@ -30,29 +21,26 @@ describe('createDashboardRoute', () => {
         assetId: 'dashboard-123',
         chatId: 'chat-456',
         secondaryView: 'version-history',
-        versionNumber: 5,
+        dashboardVersionNumber: 5,
         page: 'dashboard'
       });
 
-      expect(result).toContain(BusterRoutes.APP_CHAT_ID_DASHBOARD_ID);
-      expect(result).toContain('chatId=chat-456');
-      expect(result).toContain('dashboardId=dashboard-123');
-      expect(result).toContain('dashboardVersionNumber=5');
-      expect(result).toContain('secondaryView=version-history');
+      expect(result).toBe(
+        '/app/chats/chat-456/dashboards/dashboard-123?secondary_view=version-history&dashboard_version_number=5'
+      );
     });
 
     it('should create chat dashboard route with version number only', () => {
       const result = createDashboardRoute({
         assetId: 'dashboard-123',
         chatId: 'chat-456',
-        versionNumber: 3,
+        dashboardVersionNumber: 3,
         page: 'dashboard'
       });
 
-      expect(result).toContain(BusterRoutes.APP_CHAT_ID_DASHBOARD_ID);
-      expect(result).toContain('chatId=chat-456');
-      expect(result).toContain('dashboardId=dashboard-123');
-      expect(result).toContain('dashboardVersionNumber=3');
+      expect(result).toBe(
+        '/app/chats/chat-456/dashboards/dashboard-123?dashboard_version_number=3'
+      );
     });
 
     it('should create chat dashboard route with version-history secondary view', () => {
@@ -63,10 +51,9 @@ describe('createDashboardRoute', () => {
         page: 'dashboard'
       });
 
-      expect(result).toContain(BusterRoutes.APP_CHAT_ID_DASHBOARD_ID);
-      expect(result).toContain('chatId=chat-456');
-      expect(result).toContain('dashboardId=dashboard-123');
-      expect(result).toContain('secondaryView=version-history');
+      expect(result).toBe(
+        '/app/chats/chat-456/dashboards/dashboard-123?secondary_view=version-history'
+      );
     });
 
     it('should create chat dashboard route with minimal parameters', () => {
@@ -76,21 +63,17 @@ describe('createDashboardRoute', () => {
         page: 'dashboard'
       });
 
-      expect(result).toContain(BusterRoutes.APP_CHAT_ID_DASHBOARD_ID);
-      expect(result).toContain('chatId=chat-456');
-      expect(result).toContain('dashboardId=dashboard-123');
+      expect(result).toBe('/app/chats/chat-456/dashboards/dashboard-123');
     });
 
     it('should create non-chat dashboard route with version number', () => {
       const result = createDashboardRoute({
         assetId: 'dashboard-123',
-        versionNumber: 7,
+        dashboardVersionNumber: 7,
         page: 'dashboard'
       });
 
-      expect(result).toContain(BusterRoutes.APP_DASHBOARD_ID);
-      expect(result).toContain('dashboardId=dashboard-123');
-      expect(result).toContain('dashboardVersionNumber=7');
+      expect(result).toBe('/app/dashboards/dashboard-123?dashboard_version_number=7');
     });
 
     it('should create non-chat dashboard route with version-history secondary view', () => {
@@ -100,9 +83,7 @@ describe('createDashboardRoute', () => {
         page: 'dashboard'
       });
 
-      expect(result).toContain(BusterRoutes.APP_DASHBOARD_ID);
-      expect(result).toContain('dashboardId=dashboard-123');
-      expect(result).toContain('secondaryView=version-history');
+      expect(result).toBe('/app/dashboards/dashboard-123?secondary_view=version-history');
     });
 
     it('should create non-chat dashboard route with minimal parameters', () => {
@@ -111,8 +92,7 @@ describe('createDashboardRoute', () => {
         page: 'dashboard'
       });
 
-      expect(result).toContain(BusterRoutes.APP_DASHBOARD_ID);
-      expect(result).toContain('dashboardId=dashboard-123');
+      expect(result).toBe('/app/dashboards/dashboard-123');
     });
   });
 
@@ -121,14 +101,13 @@ describe('createDashboardRoute', () => {
       const result = createDashboardRoute({
         assetId: 'dashboard-123',
         chatId: 'chat-456',
-        versionNumber: 2,
+        dashboardVersionNumber: 2,
         page: 'file'
       });
 
-      expect(result).toContain(BusterRoutes.APP_CHAT_ID_DASHBOARD_ID);
-      expect(result).toContain('chatId=chat-456');
-      expect(result).toContain('dashboardId=dashboard-123');
-      expect(result).toContain('dashboardVersionNumber=2');
+      expect(result).toBe(
+        '/app/chats/chat-456/dashboards/dashboard-123?dashboard_version_number=2'
+      );
     });
 
     it('should create chat dashboard file route with version-history secondary view', () => {
@@ -139,10 +118,9 @@ describe('createDashboardRoute', () => {
         page: 'file'
       });
 
-      expect(result).toContain(BusterRoutes.APP_CHAT_ID_DASHBOARD_ID);
-      expect(result).toContain('chatId=chat-456');
-      expect(result).toContain('dashboardId=dashboard-123');
-      expect(result).toContain('secondaryView=version-history');
+      expect(result).toBe(
+        '/app/chats/chat-456/dashboards/dashboard-123?secondary_view=version-history'
+      );
     });
 
     it('should create chat dashboard file route without version number', () => {
@@ -152,21 +130,17 @@ describe('createDashboardRoute', () => {
         page: 'file'
       });
 
-      expect(result).toContain(BusterRoutes.APP_CHAT_ID_DASHBOARD_ID);
-      expect(result).toContain('chatId=chat-456');
-      expect(result).toContain('dashboardId=dashboard-123');
+      expect(result).toBe('/app/chats/chat-456/dashboards/dashboard-123');
     });
 
     it('should create non-chat dashboard file route with version number', () => {
       const result = createDashboardRoute({
         assetId: 'dashboard-123',
-        versionNumber: 8,
+        dashboardVersionNumber: 8,
         page: 'file'
       });
 
-      expect(result).toContain(BusterRoutes.APP_DASHBOARD_ID);
-      expect(result).toContain('dashboardId=dashboard-123');
-      expect(result).toContain('dashboardVersionNumber=8');
+      expect(result).toBe('/app/dashboards/dashboard-123?dashboard_version_number=8');
     });
 
     it('should create non-chat dashboard file route without version number', () => {
@@ -175,8 +149,7 @@ describe('createDashboardRoute', () => {
         page: 'file'
       });
 
-      expect(result).toContain(BusterRoutes.APP_DASHBOARD_ID);
-      expect(result).toContain('dashboardId=dashboard-123');
+      expect(result).toBe('/app/dashboards/dashboard-123');
     });
   });
 
@@ -188,9 +161,7 @@ describe('createDashboardRoute', () => {
         page: undefined
       });
 
-      expect(result).toContain(BusterRoutes.APP_CHAT_ID_DASHBOARD_ID);
-      expect(result).toContain('chatId=chat-456');
-      expect(result).toContain('dashboardId=dashboard-123');
+      expect(result).toBe('/app/chats/chat-456/dashboards/dashboard-123');
     });
 
     it('should handle undefined secondary view in chat context', () => {
@@ -201,9 +172,7 @@ describe('createDashboardRoute', () => {
         page: 'dashboard'
       });
 
-      expect(result).toContain(BusterRoutes.APP_CHAT_ID_DASHBOARD_ID);
-      expect(result).toContain('chatId=chat-456');
-      expect(result).toContain('dashboardId=dashboard-123');
+      expect(result).toBe('/app/chats/chat-456/dashboards/dashboard-123');
     });
 
     it('should handle undefined secondary view in non-chat context', () => {
@@ -213,8 +182,7 @@ describe('createDashboardRoute', () => {
         page: 'dashboard'
       });
 
-      expect(result).toContain(BusterRoutes.APP_DASHBOARD_ID);
-      expect(result).toContain('dashboardId=dashboard-123');
+      expect(result).toBe('/app/dashboards/dashboard-123');
     });
 
     it('should handle undefined page value', () => {
@@ -224,9 +192,7 @@ describe('createDashboardRoute', () => {
         page: undefined
       });
 
-      expect(result).toContain(BusterRoutes.APP_CHAT_ID_DASHBOARD_ID);
-      expect(result).toContain('chatId=chat-456');
-      expect(result).toContain('dashboardId=dashboard-123');
+      expect(result).toBe('/app/chats/chat-456/dashboards/dashboard-123');
     });
   });
 
@@ -238,52 +204,46 @@ describe('createDashboardRoute', () => {
         secondaryView: undefined,
         versionNumber: undefined,
         page: 'dashboard'
-      });
+      } as any);
 
-      expect(result).toContain(BusterRoutes.APP_DASHBOARD_ID);
-      expect(result).toContain('dashboardId=dashboard-123');
+      expect(result).toBe('/app/dashboards/dashboard-123');
     });
 
     it('should handle version number 1', () => {
       const result = createDashboardRoute({
         assetId: 'dashboard-123',
         chatId: 'chat-456',
-        versionNumber: 1,
+        dashboardVersionNumber: 1,
         page: 'dashboard'
       });
 
-      expect(result).toContain(BusterRoutes.APP_CHAT_ID_DASHBOARD_ID);
-      expect(result).toContain('chatId=chat-456');
-      expect(result).toContain('dashboardId=dashboard-123');
-      expect(result).toContain('dashboardVersionNumber=1');
+      expect(result).toBe(
+        '/app/chats/chat-456/dashboards/dashboard-123?dashboard_version_number=1'
+      );
     });
 
     it('should handle zero version number', () => {
       const result = createDashboardRoute({
         assetId: 'dashboard-123',
         chatId: 'chat-456',
-        versionNumber: 0,
+        dashboardVersionNumber: 0,
         page: 'dashboard'
       });
 
-      expect(result).toContain(BusterRoutes.APP_CHAT_ID_DASHBOARD_ID);
-      expect(result).toContain('chatId=chat-456');
-      expect(result).toContain('dashboardId=dashboard-123');
-      expect(result).toContain('dashboardVersionNumber=0');
+      expect(result).toBe('/app/chats/chat-456/dashboards/dashboard-123');
     });
 
     it('should handle large version numbers', () => {
       const result = createDashboardRoute({
         assetId: 'dashboard-123',
         chatId: 'chat-456',
-        versionNumber: 999999,
+        dashboardVersionNumber: 999999,
         page: 'dashboard'
       });
 
-      expect(result).toContain(BusterRoutes.APP_CHAT_ID_DASHBOARD_ID);
-      expect(result).toContain('chatId=chat-456');
-      expect(result).toContain('dashboardId=dashboard-123');
-      expect(result).toContain('dashboardVersionNumber=999999');
+      expect(result).toBe(
+        '/app/chats/chat-456/dashboards/dashboard-123?dashboard_version_number=999999'
+      );
     });
 
     it('should handle complex dashboard IDs', () => {
@@ -293,9 +253,9 @@ describe('createDashboardRoute', () => {
         page: 'dashboard'
       });
 
-      expect(result).toContain(BusterRoutes.APP_CHAT_ID_DASHBOARD_ID);
-      expect(result).toContain('chatId=chat-456');
-      expect(result).toContain('dashboardId=dashboard-with-special-chars-123_456-789');
+      expect(result).toBe(
+        '/app/chats/chat-456/dashboards/dashboard-with-special-chars-123_456-789'
+      );
     });
 
     it('should handle complex chat IDs', () => {
@@ -305,9 +265,9 @@ describe('createDashboardRoute', () => {
         page: 'dashboard'
       });
 
-      expect(result).toContain(BusterRoutes.APP_CHAT_ID_DASHBOARD_ID);
-      expect(result).toContain('chatId=chat-with-special-chars-456_789-012');
-      expect(result).toContain('dashboardId=dashboard-123');
+      expect(result).toBe(
+        '/app/chats/chat-with-special-chars-456_789-012/dashboards/dashboard-123'
+      );
     });
   });
 });

@@ -1,5 +1,5 @@
 import type { BusterMetric } from '../metric';
-import type { BusterShare, ShareRole, VerificationStatus } from '../share';
+import type { ShareConfig, ShareRole, VerificationStatus } from '@buster/server-shared/share';
 import type { DashboardConfig } from './dashboardConfigInterfaces';
 
 export interface BusterDashboardListItem {
@@ -35,7 +35,7 @@ export type BusterDashboardResponse = {
     version_number: number;
     updated_at: string;
   }[];
-} & BusterShare;
+} & ShareConfig;
 
 export interface BusterDashboard {
   config: DashboardConfig;

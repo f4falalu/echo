@@ -1,12 +1,12 @@
 import type React from 'react';
-import { ChartType, type IColumnLabelFormat } from '@/api/asset_interfaces/metric/charts';
+import type { ChartType, ColumnLabelFormat } from '@buster/server-shared/metrics';
 import { Calendar, CurrencyDollar, Numbers, Percentage, Typography } from '@/components/ui/icons';
 
 export const ColumnTypeIcon: Record<
-  IColumnLabelFormat['style'],
+  ColumnLabelFormat['style'],
   {
     icon: React.ReactNode;
-    value: IColumnLabelFormat['style'];
+    value: ColumnLabelFormat['style'];
     tooltip: string;
   }
 > = {

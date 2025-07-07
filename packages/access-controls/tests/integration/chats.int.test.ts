@@ -1,22 +1,22 @@
-import { afterAll, beforeAll, describe, expect, test } from 'vitest';
 import { randomUUID } from 'node:crypto';
 import {
+  and,
   assetPermissions,
   chats,
-  collectionsToAssets,
-  getDb,
-  usersToOrganizations,
-  users,
-  organizations,
   collections,
+  collectionsToAssets,
   eq,
-  and,
+  getDb,
+  organizations,
+  users,
+  usersToOrganizations,
 } from '@buster/database';
+import { afterAll, beforeAll, describe, expect, test } from 'vitest';
 import { canUserAccessChat } from '../../src/chats';
 
 describe('canUserAccessChat Integration Tests', () => {
   const db = getDb();
-  
+
   // Test data IDs
   const testOrgId = randomUUID();
   const systemUserId = randomUUID(); // System user for created_by/updated_by fields
@@ -193,39 +193,42 @@ describe('canUserAccessChat Integration Tests', () => {
 
   afterAll(async () => {
     // Clean up test data in reverse order of creation
-    
+
     // Delete collections_to_assets
-    await db.delete(collectionsToAssets).where(eq(collectionsToAssets.collectionId, testCollectionId));
-    
+    await db
+      .delete(collectionsToAssets)
+      .where(eq(collectionsToAssets.collectionId, testCollectionId));
+
     // Delete asset_permissions
-    await db.delete(assetPermissions).where(
-      and(
-        eq(assetPermissions.assetId, testChatId),
-        eq(assetPermissions.identityId, testUserId)
-      )
-    );
-    await db.delete(assetPermissions).where(
-      and(
-        eq(assetPermissions.assetId, testCollectionId),
-        eq(assetPermissions.identityId, testUserId)
-      )
-    );
-    
+    await db
+      .delete(assetPermissions)
+      .where(
+        and(eq(assetPermissions.assetId, testChatId), eq(assetPermissions.identityId, testUserId))
+      );
+    await db
+      .delete(assetPermissions)
+      .where(
+        and(
+          eq(assetPermissions.assetId, testCollectionId),
+          eq(assetPermissions.identityId, testUserId)
+        )
+      );
+
     // Delete collections
     await db.delete(collections).where(eq(collections.id, testCollectionId));
-    
+
     // Delete chats
     await db.delete(chats).where(eq(chats.organizationId, testOrgId));
-    
+
     // Delete users_to_organizations
     await db.delete(usersToOrganizations).where(eq(usersToOrganizations.organizationId, testOrgId));
-    
+
     // Delete users
     await db.delete(users).where(eq(users.id, testUserId));
     await db.delete(users).where(eq(users.id, testAdminUserId));
     await db.delete(users).where(eq(users.id, testUserNoAccessId));
     await db.delete(users).where(eq(users.id, systemUserId));
-    
+
     // Delete organization
     await db.delete(organizations).where(eq(organizations.id, testOrgId));
   });
