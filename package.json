@@ -19,7 +19,6 @@
     "db:stop": "pnpm --filter @buster/database run db:stop",
     "db:studio": "pnpm --filter @buster/database run db:studio",
     "dev": "turbo dev",
-    "dev:all": "turbo dev --filter \"@buster-app/web\" --filter \"@buster-app/server\" --filter \"@buster-app/api\" --filter \"@buster-app/trigger\" --filter \"@buster-app/electric-server\" --filter \"@buster/database\"",
     "dev:no-web": "turbo dev --filter \"!@buster-app/web\"",
     "dev:server": "turbo run dev --filter \"@buster-app/server\"",
     "dev:server:reset": "pnpm run dev:db-init && turbo run dev --filter \"@buster-app/server\"",
@@ -40,7 +39,6 @@
     "trigger:dev": "dotenv -e .env -- pnpm --filter @buster/trigger run dev",
     "trigger:test": "pnpm --filter @buster/trigger run test",
     "trigger:test:integration": "pnpm --filter @buster/trigger run test:integration",
-    "TurboDev": "pnpm run dev:all",
     "typecheck": "turbo typecheck",
     "typescript": "^5.8.3"
   },
