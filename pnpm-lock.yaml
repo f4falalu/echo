@@ -170,8 +170,8 @@ importers:
         specifier: 'catalog:'
         version: 4.3.16(react@18.3.1)(zod@3.25.67)
       braintrust:
-        specifier: ^0.0.206
-        version: 0.0.206(@aws-sdk/credential-provider-web-identity@3.840.0)(react@18.3.1)(sswr@2.2.0(svelte@5.34.9))(svelte@5.34.9)(vue@3.5.17(typescript@5.8.3))(zod@3.25.67)
+        specifier: ^0.0.209
+        version: 0.0.209(@aws-sdk/credential-provider-web-identity@3.840.0)(react@18.3.1)(sswr@2.2.0(svelte@5.34.9))(svelte@5.34.9)(vue@3.5.17(typescript@5.8.3))(zod@3.25.67)
       vitest:
         specifier: 'catalog:'
         version: 3.2.4(@edge-runtime/vm@3.2.0)(@types/debug@4.1.12)(@types/node@24.0.10)(@vitest/ui@3.2.4)(jiti@2.4.2)(jsdom@26.1.0)(lightningcss@1.30.1)(msw@2.10.3(@types/node@24.0.10)(typescript@5.8.3))(sass@1.89.2)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.0)
@@ -1879,6 +1879,9 @@ packages:
 
   '@braintrust/core@0.0.88':
     resolution: {integrity: sha512-asVr//nyiXvnagf2Av+k3Ggv2UFiygwvlzreI8rS87+9DYRlw0ofy13gSxr7a0ycd0yfRomdVSEpDRlEzpQm5w==}
+
+  '@braintrust/core@0.0.89':
+    resolution: {integrity: sha512-BBLVfFxM6/d4B+i4LUTDW/FvZa4C0HN1/Cqo1W1vOflxnCJ8QVXFSqEUl+MhIU9+cJV9vwjTUVukmyscMT24hA==}
 
   '@bugsnag/cuid@3.2.1':
     resolution: {integrity: sha512-zpvN8xQ5rdRWakMd/BcVkdn2F8HKlDSbM3l7duueK590WmI1T0ObTLc1V/1e55r14WNjPd5AJTYX4yPEAFVi+Q==}
@@ -5952,6 +5955,12 @@ packages:
     peerDependencies:
       zod: ^3.0.0
 
+  braintrust@0.0.209:
+    resolution: {integrity: sha512-acsjb06ttD/gllfb59idiq1lDAdvsoHcHSJPkmddSIRPORy3vIYt3kfKXiW+WlhwZs2pl3lN8X8pTVuLyj5NNw==}
+    hasBin: true
+    peerDependencies:
+      zod: ^3.0.0
+
   brorand@1.1.0:
     resolution: {integrity: sha512-cKV8tMCEpQs4hK/ik71d6LrPOnpkpGBR0wzxqr68g2m/LB2GxVYQroAjMJZRVM1Y4BCjCKc3vAamxSzOY2RP+w==}
 
@@ -6004,7 +6013,6 @@ packages:
 
   bun@1.2.18:
     resolution: {integrity: sha512-OR+EpNckoJN4tHMVZPaTPxDj2RgpJgJwLruTIFYbO3bQMguLd0YrmkWKYqsiihcLgm2ehIjF/H1RLfZiRa7+qQ==}
-    cpu: [arm64, x64, aarch64]
     os: [darwin, linux, win32]
     hasBin: true
 
@@ -11821,6 +11829,11 @@ snapshots:
       openapi3-ts: 4.5.0
       zod: 3.25.67
 
+  '@asteasolutions/zod-to-openapi@6.4.0(zod@3.25.75)':
+    dependencies:
+      openapi3-ts: 4.5.0
+      zod: 3.25.75
+
   '@aws-crypto/crc32@3.0.0':
     dependencies:
       '@aws-crypto/util': 3.0.0
@@ -13406,6 +13419,12 @@ snapshots:
       '@asteasolutions/zod-to-openapi': 6.4.0(zod@3.25.67)
       uuid: 9.0.1
       zod: 3.25.67
+
+  '@braintrust/core@0.0.89':
+    dependencies:
+      '@asteasolutions/zod-to-openapi': 6.4.0(zod@3.25.75)
+      uuid: 9.0.1
+      zod: 3.25.75
 
   '@bugsnag/cuid@3.2.1': {}
 
@@ -18172,6 +18191,42 @@ snapshots:
     dependencies:
       '@ai-sdk/provider': 1.1.3
       '@braintrust/core': 0.0.88
+      '@next/env': 14.2.30
+      '@vercel/functions': 1.6.0(@aws-sdk/credential-provider-web-identity@3.840.0)
+      ai: 3.4.33(react@18.3.1)(sswr@2.2.0(svelte@5.34.9))(svelte@5.34.9)(vue@3.5.17(typescript@5.8.3))(zod@3.25.67)
+      argparse: 2.0.1
+      chalk: 4.1.2
+      cli-progress: 3.12.0
+      cors: 2.8.5
+      dotenv: 16.6.1
+      esbuild: 0.25.5
+      eventsource-parser: 1.1.2
+      express: 4.21.2
+      graceful-fs: 4.2.11
+      http-errors: 2.0.0
+      minimatch: 9.0.5
+      mustache: 4.2.0
+      pluralize: 8.0.0
+      simple-git: 3.28.0
+      slugify: 1.6.6
+      source-map: 0.7.4
+      uuid: 9.0.1
+      zod: 3.25.67
+      zod-to-json-schema: 3.24.6(zod@3.25.67)
+    transitivePeerDependencies:
+      - '@aws-sdk/credential-provider-web-identity'
+      - openai
+      - react
+      - solid-js
+      - sswr
+      - supports-color
+      - svelte
+      - vue
+
+  braintrust@0.0.209(@aws-sdk/credential-provider-web-identity@3.840.0)(react@18.3.1)(sswr@2.2.0(svelte@5.34.9))(svelte@5.34.9)(vue@3.5.17(typescript@5.8.3))(zod@3.25.67):
+    dependencies:
+      '@ai-sdk/provider': 1.1.3
+      '@braintrust/core': 0.0.89
       '@next/env': 14.2.30
       '@vercel/functions': 1.6.0(@aws-sdk/credential-provider-web-identity@3.840.0)
       ai: 3.4.33(react@18.3.1)(sswr@2.2.0(svelte@5.34.9))(svelte@5.34.9)(vue@3.5.17(typescript@5.8.3))(zod@3.25.67)
