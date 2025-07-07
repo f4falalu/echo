@@ -43,4 +43,4 @@ jobs:
           TRIGGER_ACCESS_TOKEN: ${{ secrets.TRIGGER_ACCESS_TOKEN }}
         run: |
           cd apps/trigger
-          pnpm dlx trigger.dev@v4-beta.22 deploy --env ${{ github.ref_name == 'main' && 'production' || 'staging' }} 
+          pnpm dlx trigger.dev@v4-beta deploy --env ${{ github.ref_name == 'main' && 'production' || 'staging' }} 

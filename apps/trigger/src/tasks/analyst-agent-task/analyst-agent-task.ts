@@ -1,5 +1,5 @@
-import { logger, schemaTask } from '@trigger.dev/sdk';
-import { initLogger, wrapTraced, currentSpan } from 'braintrust';
+import { logger, schemaTask, tasks } from '@trigger.dev/sdk';
+import { currentSpan, initLogger, wrapTraced } from 'braintrust';
 import { AnalystAgentTaskInputSchema, type AnalystAgentTaskOutput } from './types';
 
 // Task 2 & 4: Database helpers (IMPLEMENTED)
@@ -340,13 +340,14 @@ export const analystAgentTask: ReturnType<
       const braintrustMetadataPromise = getBraintrustMetadata({ messageId: payload.message_id });
 
       // Wait for all operations to complete
-      const [messageContext, conversationHistory, dataSource, dashboardFiles, braintrustMetadata] = await Promise.all([
-        messageContextPromise,
-        conversationHistoryPromise,
-        dataSourcePromise,
-        dashboardFilesPromise,
-        braintrustMetadataPromise,
-      ]);
+      const [messageContext, conversationHistory, dataSource, dashboardFiles, braintrustMetadata] =
+        await Promise.all([
+          messageContextPromise,
+          conversationHistoryPromise,
+          dataSourcePromise,
+          dashboardFilesPromise,
+          braintrustMetadataPromise,
+        ]);
 
       const dataLoadEnd = Date.now();
       const dataLoadTime = dataLoadEnd - dataLoadStart;
@@ -444,7 +445,7 @@ export const analystAgentTask: ReturnType<
             inputData: workflowInput,
             runtimeContext,
           });
-          
+
           // Log the metadata as part of the span
           currentSpan().log({
             metadata: {
@@ -456,7 +457,7 @@ export const analystAgentTask: ReturnType<
               chatId: braintrustMetadata.chatId,
             },
           });
-          
+
           return result;
         },
         {

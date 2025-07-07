@@ -20,8 +20,8 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
--- Create trigger on public.users before insert
-CREATE TRIGGER set_avatar_url_and_name_trigger
+-- Create trigger on public.users before insert (if not exists)
+CREATE OR REPLACE TRIGGER set_avatar_url_and_name_trigger
 BEFORE INSERT ON public.users
 FOR EACH ROW
 EXECUTE FUNCTION set_avatar_url_and_name_from_auth();
@@ -40,7 +40,7 @@ END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- Create trigger on auth.users after insert
-CREATE TRIGGER update_avatar_url_and_name_on_auth_insert
+CREATE OR REPLACE TRIGGER update_avatar_url_and_name_on_auth_insert
 AFTER INSERT ON auth.users
 FOR EACH ROW
 EXECUTE FUNCTION update_public_users_avatar_url_and_name();

@@ -8,6 +8,7 @@ import {
   isNotNull,
   isNull,
   lt,
+  lte,
   messages,
   users,
 } from '@buster/database';
@@ -117,7 +118,7 @@ export async function fetchPreviousPostProcessingMessages(
           eq(messages.chatId, chatId),
           isNotNull(messages.postProcessingMessage),
           isNull(messages.deletedAt),
-          lt(messages.createdAt, beforeTimestamp.toISOString())
+          lte(messages.createdAt, beforeTimestamp.toISOString())
         )
       )
       .orderBy(messages.createdAt);
