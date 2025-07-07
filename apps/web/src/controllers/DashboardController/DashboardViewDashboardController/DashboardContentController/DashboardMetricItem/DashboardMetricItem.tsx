@@ -62,10 +62,9 @@ const DashboardMetricItemBase: React.FC<{
       assetId: metricId,
       chatId,
       dashboardId,
-      page: 'chart',
-      metricVersionNumber
+      page: 'chart'
     });
-  }, [metricId, chatId, dashboardId, metricVersionNumber]);
+  }, [metricId, chatId, dashboardId]);
 
   const onInitialAnimationEndPreflight = useMemoizedFn(() => {
     setInitialAnimationEnded(metricId);

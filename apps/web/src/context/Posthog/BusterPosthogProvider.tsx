@@ -10,7 +10,7 @@ import { isDev } from '@/config';
 import { useUserConfigContextSelector } from '../Users';
 
 const POSTHOG_KEY = process.env.NEXT_PUBLIC_POSTHOG_KEY;
-const DEBUG_POSTHOG = true;
+const DEBUG_POSTHOG = false;
 
 export const BusterPosthogProvider: React.FC<PropsWithChildren> = React.memo(({ children }) => {
   if ((isDev && !DEBUG_POSTHOG) || !POSTHOG_KEY) {
