@@ -446,18 +446,6 @@ export const analystAgentTask: ReturnType<
             runtimeContext,
           });
 
-          // Log the metadata as part of the span
-          currentSpan().log({
-            metadata: {
-              userName: braintrustMetadata.userName || 'Unknown',
-              userId: braintrustMetadata.userId,
-              organizationName: braintrustMetadata.organizationName || 'Unknown',
-              organizationId: braintrustMetadata.organizationId,
-              messageId: braintrustMetadata.messageId,
-              chatId: braintrustMetadata.chatId,
-            },
-          });
-
           return result;
         },
         {

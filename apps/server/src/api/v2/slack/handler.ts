@@ -133,25 +133,42 @@ export class SlackHandler {
 
       // Parse query parameters
       const query = c.req.query();
+      console.info('OAuth callback received', {
+        hasCode: !!query.code,
+        hasState: !!query.state,
+        hasError: !!query.error,
+        paramCount: Object.keys(query).length
+      });
       const parsed = OAuthCallbackSchema.safeParse(query);
 
       if (!parsed.success) {
         // Handle user denial
         if (query.error === 'access_denied') {
+          console.info('OAuth flow cancelled by user');
           return c.redirect('/settings/integrations?status=cancelled');
         }
 
-        console.error('Invalid OAuth callback parameters:', parsed.error);
+        console.error('Invalid OAuth callback parameters:', {
+          errors: parsed.error.errors,
+          providedKeys: Object.keys(query),
+          expectedKeys: ['code', 'state']
+        });
         return c.redirect('/settings/integrations?status=error&error=invalid_parameters');
       }
 
       // Handle OAuth callback
+      console.info('Processing OAuth callback with service');
       const result = await slackOAuthService.handleOAuthCallback({
         code: parsed.data.code,
         state: parsed.data.state,
       });
 
       if (!result.success) {
+        console.error('OAuth callback failed:', {
+          error: result.error,
+          hasError: !!result.error,
+          resultKeys: Object.keys(result)
+        });
         const errorParam = encodeURIComponent(result.error || 'unknown_error');
         return c.redirect(`/settings/integrations?status=error&error=${errorParam}`);
       }
@@ -164,7 +181,12 @@ export class SlackHandler {
 
       return c.redirect(`${returnUrl}?status=success${workspaceParam}`);
     } catch (error) {
-      console.error('OAuth callback error:', error);
+      console.error('OAuth callback error:', {
+        errorType: error?.constructor?.name || 'Unknown',
+        message: error instanceof Error ? error.message : 'Unknown error',
+        isSlackError: error instanceof SlackError,
+        hasStack: !!(error instanceof Error && error.stack)
+      });
       const errorMessage = error instanceof Error ? error.message : 'callback_failed';
       return c.redirect(
         `/settings/integrations?status=error&error=${encodeURIComponent(errorMessage)}`
