@@ -9,7 +9,7 @@ export const BarAndLineAxisSchema = z
     // the column ids to use for the category axis. If multiple column ids are provided, they will be grouped together. THE LLM SHOULD NEVER SET MULTIPLE CATEGORY COLUMNS. ONLY THE USER CAN SET THIS.
     category: z.array(z.string()).default([]),
     // if null the y axis will automatically be used, the y axis will be used for the tooltip.
-    tooltip: z.nullable(z.array(z.string())).default(null).optional(),
+    tooltip: z.nullable(z.array(z.string())).default(null),
   })
   .default({
     x: [],
@@ -50,7 +50,7 @@ export const ComboChartAxisSchema = z
     // the column ids to use for the category axis. If multiple column ids are provided, they will be grouped together. THE LLM SHOULD NEVER SET MULTIPLE CATEGORY COLUMNS. ONLY THE USER CAN SET THIS.
     category: z.array(z.string()).default([]),
     // if null the y axis will automatically be used, the y axis will be used for the tooltip.
-    tooltip: z.nullable(z.array(z.string())).default(null).optional(),
+    tooltip: z.nullable(z.array(z.string())).default(null),
   })
   .default({
     x: [],

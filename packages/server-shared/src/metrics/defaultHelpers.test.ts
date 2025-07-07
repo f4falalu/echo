@@ -280,14 +280,7 @@ describe('getDefaultsPartial', () => {
     const partialDefaults = getDefaultsPartial(ComplexSchema);
 
     // Since there's a required field without default, returns empty object
-    expect(partialDefaults).toEqual({
-      metadata: {},
-      settings: {
-        display: {
-          theme: 'auto',
-        },
-      },
-    });
+    expect(partialDefaults).toEqual({});
   });
 });
 
