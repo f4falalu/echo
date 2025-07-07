@@ -2,9 +2,10 @@ import { defineConfig, type ViteUserConfig } from 'vitest/config';
 
 export default defineConfig(async () => {
   const { default: tsconfigPaths } = await import('vite-tsconfig-paths');
+  const tsconfigPathsPlugin = tsconfigPaths() as any;
 
   return {
-    plugins: [tsconfigPaths()],
+    plugins: [tsconfigPathsPlugin],
     esbuild: {
       jsx: 'automatic'
     },

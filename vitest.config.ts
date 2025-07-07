@@ -3,9 +3,6 @@ import { defineConfig } from 'vitest/config';
 export default defineConfig({
   test: {
     projects: [
-      'apps/server',
-      'apps/trigger',
-      'apps/web',
       'packages/server-shared',
       'packages/ai',
       'packages/access-controls',
@@ -17,6 +14,9 @@ export default defineConfig({
       'packages/supabase',
       'packages/test-utils',
       'packages/web-tools',
+      'apps/server',
+      'apps/trigger',
+      'apps/web',
     ],
   },
 });

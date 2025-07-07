@@ -126,8 +126,8 @@
     "utility-types": "^3.11.0",
     "uuid": "catalog:",
     "virtua": "^0.41.5",
-    "vite": "^6.3.5",
-    "vite-tsconfig-paths": "^5.1.4",
+    "vite": "catalog:",
+    "vite-tsconfig-paths": "catalog:",
     "zod": "catalog:",
     "zustand": "^5.0.6"
   },
