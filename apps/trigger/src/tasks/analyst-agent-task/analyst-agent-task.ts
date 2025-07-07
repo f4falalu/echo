@@ -1,5 +1,5 @@
 import { logger, schemaTask, tasks } from '@trigger.dev/sdk';
-import { currentSpan, initLogger, wrapTraced } from 'braintrust';
+import { initLogger, wrapTraced } from 'braintrust';
 import { AnalystAgentTaskInputSchema, type AnalystAgentTaskOutput } from './types';
 
 // Task 2 & 4: Database helpers (IMPLEMENTED)
@@ -441,12 +441,10 @@ export const analystAgentTask: ReturnType<
       const workflowStartMethodStart = Date.now();
       const tracedWorkflow = wrapTraced(
         async () => {
-          const result = await run.start({
+          return await run.start({
             inputData: workflowInput,
             runtimeContext,
           });
-
-          return result;
         },
         {
           name: 'Analyst Agent Task Workflow',
