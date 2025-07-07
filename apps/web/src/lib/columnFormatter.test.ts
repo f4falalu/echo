@@ -243,7 +243,7 @@ describe('formatLabel', () => {
           style: 'string',
           replaceMissingDataWith: 0
         })
-      ).toBe('0');
+      ).toBe('null');
     });
 
     it('should handle replaceMissingDataWith for undefined values with string', () => {
@@ -350,6 +350,12 @@ describe('formatLabel', () => {
       expect(
         formatLabel(null, { columnType: 'date', style: 'date', replaceMissingDataWith: 'N/A' })
       ).toBe('N/A');
+    });
+
+    it('should not allow replaceMissingDataWith to be a number when columnType is text', () => {
+      expect(
+        formatLabel(null, { columnType: 'text', style: 'string', replaceMissingDataWith: 0 })
+      ).toBe('null');
     });
   });
 });

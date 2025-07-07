@@ -57,9 +57,17 @@ export const formatLabel = (
           replaceMissingDataWith ?? DEFAULT_COLUMN_LABEL_FORMAT.replaceMissingDataWith
         );
       }
-    } else if (replaceMissingDataWith !== undefined) {
-      formattedText = String(replaceMissingDataWith);
-    } else formattedText = String('null');
+    }
+    // I removed this because it was causing issues with null values and strings...
+    else if (replaceMissingDataWith !== undefined) {
+      if (columnType === 'text' && typeof replaceMissingDataWith !== 'number') {
+        formattedText = String(replaceMissingDataWith);
+      } else if (columnType !== 'text') {
+        formattedText = String(replaceMissingDataWith);
+      }
+    } else {
+      formattedText = String('null');
+    }
   } else if (style === 'date' && !useKeyFormatter) {
     formattedText = formatLabelDate(text as string | number | Date, {
       dateFormat,

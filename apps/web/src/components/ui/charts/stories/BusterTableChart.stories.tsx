@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { BusterTableChart } from '../TableChart/BusterTableChart';
-import type { ColumnLabelFormat } from '@buster/server-shared/metrics';
+import { DEFAULT_COLUMN_LABEL_FORMAT, type ColumnLabelFormat } from '@buster/server-shared/metrics';
 
 // Helper functions for generating sample data
 const generateProductName = (index: number) => `Product ${index + 1}`;
@@ -279,5 +279,21 @@ export const CustomClassname: Story = {
         <BusterTableChart {...args} />
       </div>
     );
+  }
+};
+
+export const WithNullStringValues: Story = {
+  args: {
+    data: generateTableData().map((item, index) => ({
+      ...item,
+      product: index % 2 === 0 ? null : item.product
+    })),
+    columnLabelFormats: {
+      product: {
+        ...DEFAULT_COLUMN_LABEL_FORMAT,
+        columnType: 'text',
+        style: 'string'
+      } as ColumnLabelFormat
+    }
   }
 };
