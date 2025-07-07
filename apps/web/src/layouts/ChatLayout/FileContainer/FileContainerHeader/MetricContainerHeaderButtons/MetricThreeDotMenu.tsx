@@ -87,8 +87,6 @@ export const ThreeDotMenuButton = React.memo(
     const renameMetricMenu = useRenameMetricSelectMenu({ metricId });
     const shareMenu = useShareMenuSelectMenu({ metricId });
 
-    console.log(permission);
-
     const isEditor = canEdit(permission);
     const isOwnerEffective = getIsEffectiveOwner(permission);
     const isOwner = getIsOwner(permission);

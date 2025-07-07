@@ -25,8 +25,6 @@ describe('createDashboardRoute', () => {
         page: 'dashboard'
       });
 
-      console.log('result', result);
-
       expect(result).toBe(
         '/app/chats/chat-456/dashboards/dashboard-123?secondary_view=version-history&dashboard_version_number=5'
       );

@@ -395,7 +395,6 @@ describe('createMetricRoute', () => {
       expect(result).toContain(BusterRoutes.APP_CHAT_ID_METRIC_ID_CHART);
       expect(result).toContain('chatId=chat-456');
       expect(result).toContain('metricId=metric-123');
-      console.log('result', result);
       expect(result).toContain('metricVersionNumber=1');
     });
   });

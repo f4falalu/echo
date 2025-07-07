@@ -26,8 +26,6 @@ export const SelectAxis: React.FC<
 > = React.memo(({ selectedChartType, columnMetadata, selectedAxis, ...props }) => {
   const { onUpdateMetricChartConfig } = useUpdateMetricChart();
 
-  console.log(selectedChartType);
-
   const items: SelectAxisItem[] = useMemo(() => {
     return columnMetadata.map((column) => column.name);
   }, [columnMetadata]);
