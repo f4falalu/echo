@@ -168,9 +168,21 @@ Once all TODO list items are addressed and submitted for review, the system will
 </aggregation_best_practices>
 
 <bar_chart_best_practices>
-- **Chart orientation selection**: Use vertical bar charts (default) for general category comparisons and time series data. Use horizontal bar charts (barLayout: horizontal) for rankings, "top N" lists, or when category names are long and would be hard to read on the x-axis.
-- When building horizontal bar charts, configure the axes as you would for a regular vertical bar chart - put categories (labels) on the x-axis and values (quantities) on the y-axis in chartConfig. The frontend will automatically handle the horizontal orientation transformation (e.g. if you want to show revenue by product name horizontally, use barAndLineAxis: x: [product_name] y: [revenue] - Chart.js will automatically display product names along the left side and revenue extending rightward)
-- When building bar charts, always assign the category/label to the x-axis and the value/quantity to the y-axis. If you are building a horizontal bar chart, just use barLayout: horizontal and allow the chart builder to handle the axis changes. Always explain your reasoning for axis configuration in your thoughts. Evaluate that your explanation adheres
+- **CRITICAL AXIS CONFIGURATION RULE**: ALWAYS configure bar chart axes the same way regardless of orientation:
+  - X-axis: Categories/labels (e.g., product names, customer names, time periods)
+  - Y-axis: Values/quantities (e.g., revenue, counts, percentages)
+  - This applies to BOTH vertical AND horizontal bar charts
+  - For horizontal charts, simply add the barLayout horizontal flag - the chart builder automatically handles the visual transformation
+  - **Always put categories on the X-axis, regardless of barLayout**
+  - **Always put values on the Y-axis, regardless of barLayout**
+- **Chart orientation selection**: Use vertical bar charts (default) for general category comparisons and time series data. Use horizontal bar charts (with barLayout horizontal) for rankings, "top N" lists, or when category names are long and would be hard to read on the x-axis.
+- **Configuration examples**:
+  - Vertical chart showing top products by sales: X-axis: [product_name], Y-axis: [total_sales]
+  - Horizontal chart showing top products by sales: X-axis: [product_name], Y-axis: [total_sales], with barLayout horizontal
+  - The horizontal chart will automatically display product names on the left and sales bars extending rightward
+- **In your sequential thinking**: When describing horizontal bar charts, always state "X-axis: [categories], Y-axis: [values]" even though you know it will display with categories vertically. Do NOT describe it as "X-axis: values, Y-axis: categories" as this causes configuration errors.
+- Always explain your reasoning for axis configuration in your thoughts and verify that you're following the critical axis configuration rule above.
+
 </bar_chart_best_practices>
 
 <sequential_thinking_rules>
@@ -193,7 +205,7 @@ Once all TODO list items are addressed and submitted for review, the system will
 - Adhere to the <filtering_best_practices> when constructing filters or selecting data for analysis. Apply these practices to ensure filters are precise, direct, and aligned with the query's intent, validating filter accuracy with executeSql as needed.
 - Apply the <aggregation_best_practices> when selecting aggregation functions, ensuring the chosen function (e.g., SUM, COUNT) matches the query's intent and data structure, validated with executeSql.
 - After evaluating precomputed metrics, ensure your approach still adheres to <filtering_best_practices> and <aggregation_best_practices>.
-- When building bar charts, Adhere to the <bar_chart_best_practices> when building bar charts. Explain how you adhere to each guideline from the best practices in your thoughts.
+- When building bar charts, Adhere to the <bar_chart_best_practices> when building bar charts. **CRITICAL**: Always configure axes as X-axis: categories, Y-axis: values for BOTH vertical and horizontal charts. Never swap axes for horizontal charts in your thinking - the chart builder handles the visual transformation automatically. Explain how you adhere to each guideline from the best practices in your thoughts.
 </sequential_thinking_rules>
 
 <execute_sql_rules>
@@ -480,7 +492,7 @@ ${params.sqlDialectGuidance}
   - Display names instead of IDs when available (e.g., "Customer A" not "Cust123").
   - For comparisons, use a single chart (e.g., bar chart for categories, line chart for time series).
   - For "top N" requests (e.g., "top products"), limit to top 10 unless specified otherwise.
-  - When building bar charts, Adhere to the <bar_chart_best_practices> when building bar charts. Explain how you adhere to each guideline from the best practices in your thoughts.
+  - When building bar charts, Adhere to the <bar_chart_best_practices> when building bar charts. **CRITICAL**: Always configure axes as X-axis: categories, Y-axis: values for BOTH vertical and horizontal charts. Never swap axes for horizontal charts in your thinking - the chart builder handles the visual transformation automatically. Explain how you adhere to each guideline from the best practices in your thoughts.
 - Planning and Description Guidelines
   - For grouped/stacked bar charts, specify the grouping/stacking field (e.g., "grouped by \`[field_name]\`").
   - For bar charts with time units (e.g., days of the week, months, quarters, years) on the x-axis, sort the bars in chronological order rather than in ascending or descending order based on the y-axis measure.
