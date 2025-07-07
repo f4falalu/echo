@@ -26,12 +26,12 @@
     "test:integration": "vitest run src/**/*.int.test.ts"
   },
   "dependencies": {
-    "@slack/web-api": "^6.10.0",
+    "@slack/web-api": "^6.13.0",
     "zod": "catalog:"
   },
   "devDependencies": {
     "@buster/typescript-config": "workspace:*",
     "@buster/vitest-config": "workspace:*",
-    "tsx": "^4.0.0"
+    "tsx": "^4.20.3"
   }
 }

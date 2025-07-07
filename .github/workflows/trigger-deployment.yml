@@ -1,14 +1,13 @@
-name: Deploy Trigger.dev Tasks - Staging
+name: Deploy Trigger.dev Tasks
 
 on:
   push:
-    branches:
-      - staging
+    branches: [main, staging]
 
 jobs:
-  deploy-staging:
+  deploy:
     runs-on: blacksmith-8vcpu-ubuntu-2204
-    environment: staging
+    environment: ${{ github.ref_name }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -39,9 +38,9 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
         
-      - name: 🚀 Deploy to Staging
+      - name: 🚀 Deploy to ${{ github.ref_name == 'main' && 'Production' || 'Staging' }}
         env:
           TRIGGER_ACCESS_TOKEN: ${{ secrets.TRIGGER_ACCESS_TOKEN }}
         run: |
           cd apps/trigger
-          pnpm dlx trigger.dev@v4-beta deploy --env staging
+          pnpm dlx trigger.dev@v4-beta.22 deploy --env ${{ github.ref_name == 'main' && 'production' || 'staging' }} 

@@ -8,7 +8,8 @@
     },
     "dev": {
       "cache": false,
-      "persistent": true
+      "persistent": true,
+      "dependsOn": ["@buster/database#dev"]
     },
     "lint": {
       "dependsOn": ["^build", "^lint"]
@@ -19,7 +20,21 @@
     "test": {
       "dependsOn": ["^build"]
     },
+    "test:unit": {
+      "dependsOn": ["^build"]
+    },
+    "test:integration": {
+      "dependsOn": ["^build"]
+    },
     "test:watch": {
+      "cache": false,
+      "persistent": true
+    },
+    "test:unit:watch": {
+      "cache": false,
+      "persistent": true
+    },
+    "test:integration:watch": {
       "cache": false,
       "persistent": true
     },

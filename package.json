@@ -28,6 +28,10 @@
     "lint": "turbo lint",
     "new:package": "bun run scripts/new-package.ts",
     "test": "dotenv -e .env -- turbo test",
+    "test:unit": "dotenv -e .env -- turbo run test:unit",
+    "test:integration": "dotenv -e .env -- turbo run test:integration",
+    "test:unit:watch": "dotenv -e .env -- turbo run test:unit:watch",
+    "test:integration:watch": "dotenv -e .env -- turbo run test:integration:watch",
     "test:coverage": "turbo test:coverage",
     "test:ui": "vitest --ui",
     "test:watch": "turbo test:watch",
@@ -39,12 +43,12 @@
     "typescript": "^5.8.3"
   },
   "dependencies": {
-    "dotenv": "^16.5.0",
+    "dotenv": "^16.6.1",
     "dotenv-cli": "^8.0.0"
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
-    "@types/node": "^20.17.57",
+    "@types/node": "^20.19.4",
     "turbo": "^2.5.4",
     "vitest": "catalog:"
   },
