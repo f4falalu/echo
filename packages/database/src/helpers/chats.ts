@@ -210,7 +210,6 @@ export async function updateChat(
       ),
     };
 
-
     await db
       .update(chats)
       .set(updateData)
