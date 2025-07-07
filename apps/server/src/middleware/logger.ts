@@ -32,25 +32,40 @@ const baseLogger = createBaseLogger();
 
 // Simple console capture - only override if LOG_LEVEL is set
 if (process.env.LOG_LEVEL) {
-  console.info = (obj, ...args) => {
-    if (typeof obj === 'string') {
-      baseLogger.info(obj, ...args);
+  console.info = (first, ...args) => {
+    if (typeof first === 'string' && args.length > 0 && typeof args[0] === 'object') {
+      // Handle pattern: console.info('message', { data })
+      baseLogger.info(args[0], first);
+    } else if (typeof first === 'string') {
+      // Handle pattern: console.info('message')
+      baseLogger.info(first);
     } else {
-      baseLogger.info({ data: obj }, ...args);
+      // Handle pattern: console.info({ data })
+      baseLogger.info({ data: first }, ...args);
     }
   };
-  console.warn = (obj, ...args) => {
-    if (typeof obj === 'string') {
-      baseLogger.warn(obj, ...args);
+  console.warn = (first, ...args) => {
+    if (typeof first === 'string' && args.length > 0 && typeof args[0] === 'object') {
+      // Handle pattern: console.warn('message', { data })
+      baseLogger.warn(args[0], first);
+    } else if (typeof first === 'string') {
+      // Handle pattern: console.warn('message')
+      baseLogger.warn(first);
     } else {
-      baseLogger.warn({ data: obj }, ...args);
+      // Handle pattern: console.warn({ data })
+      baseLogger.warn({ data: first }, ...args);
     }
   };
-  console.error = (obj, ...args) => {
-    if (typeof obj === 'string') {
-      baseLogger.error(obj, ...args);
+  console.error = (first, ...args) => {
+    if (typeof first === 'string' && args.length > 0 && typeof args[0] === 'object') {
+      // Handle pattern: console.error('message', { data })
+      baseLogger.error(args[0], first);
+    } else if (typeof first === 'string') {
+      // Handle pattern: console.error('message')
+      baseLogger.error(first);
     } else {
-      baseLogger.error({ data: obj }, ...args);
+      // Handle pattern: console.error({ data })
+      baseLogger.error({ data: first }, ...args);
     }
   };
 
