@@ -2,7 +2,7 @@
   "$schema": "https://turbo.build/schema.json",
   "extends": ["//"],
   "tasks": {
-    "start": {
+    "dev": {
       "dependsOn": ["@buster/database#dev"],
       "outputs": []
     }

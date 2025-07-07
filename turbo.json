@@ -8,7 +8,8 @@
     },
     "dev": {
       "cache": false,
-      "persistent": true
+      "persistent": true,
+      "dependsOn": ["@buster/database#dev"]
     },
     "lint": {
       "dependsOn": ["^build", "^lint"]
