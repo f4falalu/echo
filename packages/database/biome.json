@@ -13,7 +13,7 @@
             "useImportType": "off"
           },
           "suspicious": {
-            "noExplicitAny": "off"
+            "noExplicitAny": "error"
           }
         }
       }
