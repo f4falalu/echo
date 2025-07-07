@@ -172,7 +172,8 @@ export const WithCategory: Story = {
     barAndLineAxis: {
       x: ['region'],
       y: ['sales'],
-      category: ['product']
+      category: ['product'],
+      tooltip: null
     },
     columnLabelFormats: {
       region: {
@@ -216,7 +217,8 @@ export const WithCategoryAndMultipleYAxis: Story = {
     barAndLineAxis: {
       x: ['region'],
       y: ['sales', 'units'],
-      category: ['product']
+      category: ['product'],
+      tooltip: null
     },
     columnLabelFormats: {
       region: {
@@ -263,7 +265,8 @@ export const DateXAxis: Story = {
     barAndLineAxis: {
       x: ['date'],
       y: ['sales', 'units'],
-      category: []
+      category: [],
+      tooltip: null
     },
     columnLabelFormats: {
       date: {
@@ -300,7 +303,8 @@ export const HorizontalBar: Story = {
     barAndLineAxis: {
       x: ['category'],
       y: ['sales'],
-      category: []
+      category: [],
+      tooltip: null
     },
     columnLabelFormats: {
       category: {
@@ -342,7 +346,8 @@ export const WithDataLabels: Story = {
     barAndLineAxis: {
       x: ['category'],
       y: ['sales', 'units'],
-      category: []
+      category: [],
+      tooltip: null
     },
     columnSettings: {
       sales: {
@@ -394,7 +399,8 @@ export const WithDataLabelsAndStackTotal: Story = {
     barAndLineAxis: {
       x: ['category'],
       y: ['units', 'sales'],
-      category: []
+      category: [],
+      tooltip: null
     },
     barGroupType: 'stack',
     barShowTotalAtTop: true,
@@ -495,7 +501,8 @@ export const LargeDataset: Story = {
     barAndLineAxis: {
       x: ['category'],
       y: ['sales', 'units', 'returns'],
-      category: []
+      category: [],
+      tooltip: null
     },
     columnLabelFormats: {
       category: {
@@ -534,7 +541,8 @@ export const LargeDatasetWithDualYAxis: Story = {
       x: ['category'],
       y: ['sales', 'returns'],
       y2: ['units'],
-      category: []
+      category: [],
+      tooltip: null
     },
     columnLabelFormats: {
       category: {
@@ -573,7 +581,8 @@ export const WithSorting: Story = {
     barAndLineAxis: {
       x: ['category'],
       y: ['sales'],
-      category: []
+      category: [],
+      tooltip: null
     },
     barSortBy: ['asc']
   }
@@ -589,7 +598,8 @@ export const WithDatesInXAxis: Story = {
     barAndLineAxis: {
       x: ['date'],
       y: ['sales'],
-      category: []
+      category: [],
+      tooltip: null
     },
     columnLabelFormats: {
       date: {
@@ -616,7 +626,8 @@ export const WithDatesInXAxisAndSorting: Story = {
     barAndLineAxis: {
       x: ['date'],
       y: ['sales'],
-      category: []
+      category: [],
+      tooltip: null
     },
     barSortBy: ['asc'],
     columnLabelFormats: {
@@ -645,7 +656,8 @@ export const HorizontalBarWithGoalLine: Story = {
     barAndLineAxis: {
       x: ['category'],
       y: ['sales'],
-      category: []
+      category: [],
+      tooltip: null
     },
     columnLabelFormats: {
       category: {
@@ -710,7 +722,8 @@ export const GroupedBar: Story = {
     barAndLineAxis: {
       x: ['region'],
       y: ['sales'],
-      category: ['product']
+      category: ['product'],
+      tooltip: null
     },
     barGroupType: 'group',
     columnLabelFormats: {
@@ -770,7 +783,8 @@ export const PercentageStackedBar: Story = {
     barAndLineAxis: {
       x: ['region'],
       y: ['sales'],
-      category: ['product']
+      category: ['product'],
+      tooltip: null
     },
     barGroupType: 'percentage-stack',
     columnSettings: {
@@ -830,7 +844,8 @@ export const ExtraLargeDataset: Story = {
     barAndLineAxis: {
       x: ['category'],
       y: ['sales'],
-      category: []
+      category: [],
+      tooltip: null
     },
     columnLabelFormats: {
       category: {
@@ -871,7 +886,8 @@ export const ExtraLargeDatasetWithCategory: Story = {
     barAndLineAxis: {
       x: ['product'],
       y: ['sales'],
-      category: []
+      category: [],
+      tooltip: null
     },
     columnLabelFormats: {
       category: {
@@ -1035,7 +1051,8 @@ export const WithMultipleXAxis: Story = {
     barAndLineAxis: {
       x: ['month', 'year'],
       y: ['sales'],
-      category: []
+      category: [],
+      tooltip: null
     } satisfies BarAndLineAxis
   }
 };
@@ -1137,7 +1154,8 @@ export const ProblematicBarChart: Story = {
     barAndLineAxis: {
       x: ['metric_clv_all_time'],
       y: ['customer_name'],
-      category: []
+      category: [],
+      tooltip: null
     },
     columnLabelFormats: {
       customer_name: {

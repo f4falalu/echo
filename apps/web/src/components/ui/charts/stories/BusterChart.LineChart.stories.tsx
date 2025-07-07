@@ -27,7 +27,8 @@ export const Default: Story = {
     barAndLineAxis: {
       x: ['date'],
       y: ['revenue', 'profit', 'customers'],
-      category: []
+      category: [],
+      tooltip: null
     },
     className: 'resize overflow-auto min-w-[250px] h-[400px]',
     columnLabelFormats: {
@@ -68,7 +69,8 @@ export const AutoDateFormat_TimeIntervalTest_MonthWithForcedUnit_ManyMonths: Sto
     barAndLineAxis: {
       x: ['date'],
       y: ['sales'],
-      category: []
+      category: [],
+      tooltip: null
     },
     columnLabelFormats: {
       date: {
@@ -124,7 +126,8 @@ export const AutoDateFormat_TimeIntervalTest_MonthWithForcedUnit: Story = {
     barAndLineAxis: {
       x: ['date'],
       y: ['sales'],
-      category: []
+      category: [],
+      tooltip: null
     },
     columnLabelFormats: {
       date: {
@@ -180,7 +183,8 @@ export const AutoDateFormat_TimeIntervalTest_Days_WithForcedUnit: Story = {
     barAndLineAxis: {
       x: ['date'],
       y: ['sales'],
-      category: []
+      category: [],
+      tooltip: null
     },
     columnLabelFormats: {
       date: {
@@ -434,7 +438,8 @@ export const NumericXY: Story = {
     barAndLineAxis: {
       x: ['score'],
       y: ['value'],
-      category: []
+      category: [],
+      tooltip: null
     },
     className: 'w-[800px] h-[400px]',
     columnLabelFormats: {
@@ -460,7 +465,8 @@ export const NumericXYThatCorrespondToAMonth: Story = {
     barAndLineAxis: {
       x: ['month'],
       y: ['sales'],
-      category: []
+      category: [],
+      tooltip: null
     },
     xAxisTimeInterval: 'month',
     className: 'w-[800px] h-[400px]',
@@ -489,7 +495,8 @@ export const CategoricalXNumericY: Story = {
     barAndLineAxis: {
       x: ['category'],
       y: ['value'],
-      category: []
+      category: [],
+      tooltip: null
     },
     className: 'w-[800px] h-[400px]',
     columnLabelFormats: {
@@ -519,7 +526,8 @@ export const MultiYearDate: Story = {
     barAndLineAxis: {
       x: ['date'],
       y: ['value'],
-      category: []
+      category: [],
+      tooltip: null
     },
     className: 'w-[800px] h-[400px] resize overflow-auto',
     columnLabelFormats: {
@@ -563,7 +571,8 @@ export const MultipleYAxes: Story = {
     barAndLineAxis: {
       x: ['date'],
       y: ['revenue', 'units', 'satisfaction'],
-      category: []
+      category: [],
+      tooltip: null
     },
     className: 'w-[800px] h-[400px]',
     columnLabelFormats: {
@@ -612,7 +621,8 @@ export const UnevenlySpacedDates: Story = {
     barAndLineAxis: {
       x: ['date'],
       y: ['value'],
-      category: []
+      category: [],
+      tooltip: null
     },
     className: 'w-[800px]  h-[400px]',
 
@@ -651,7 +661,8 @@ export const CloselySpacedDates: Story = {
     barAndLineAxis: {
       x: ['date'],
       y: ['value'],
-      category: []
+      category: [],
+      tooltip: null
     },
     className: 'w-[800px] h-[400px] resize overflow-auto',
     columnSettings: {
@@ -696,7 +707,8 @@ export const WithCategory: Story = {
     barAndLineAxis: {
       x: ['month'],
       y: ['sales'],
-      category: ['region']
+      category: ['region'],
+      tooltip: null
     },
     className: 'w-[800px] h-[400px]',
     columnLabelFormats: {
@@ -781,7 +793,8 @@ export const MultipleYAxesWithCategory: Story = {
     barAndLineAxis: {
       x: ['date'],
       y: ['revenue', 'satisfaction'],
-      category: ['product']
+      category: ['product'],
+      tooltip: null
     },
     className: 'w-[800px] h-[400px]',
     columnLabelFormats: {
@@ -830,7 +843,8 @@ export const NumericMonthX: Story = {
     barAndLineAxis: {
       x: ['month'],
       y: ['sales', 'customers'],
-      category: []
+      category: [],
+      tooltip: null
     },
     className: 'w-[800px] h-[400px]',
 
@@ -864,7 +878,8 @@ export const PercentageStackedLineSingle: Story = {
     barAndLineAxis: {
       x: ['date'],
       y: ['revenue'],
-      category: []
+      category: [],
+      tooltip: null
     },
     className: 'w-[800px] h-[400px]',
     columnLabelFormats: {
@@ -897,7 +912,8 @@ export const PercentageStackedLineMultiple: Story = {
     barAndLineAxis: {
       x: ['date'],
       y: ['revenue', 'profit', 'customers'],
-      category: []
+      category: [],
+      tooltip: null
     },
     className: 'w-[800px] h-[400px]',
     columnLabelFormats: {
@@ -930,7 +946,8 @@ export const PercentageStackedLineSingleWithDataLabels: Story = {
     barAndLineAxis: {
       x: ['date'],
       y: ['revenue'],
-      category: []
+      category: [],
+      tooltip: null
     },
     className: 'w-[800px] h-[400px]',
     columnSettings: {
@@ -968,7 +985,8 @@ export const StackedAreaLineMultipleWithDataLabels: Story = {
     barAndLineAxis: {
       x: ['date'],
       y: ['revenue', 'profit', 'customers'],
-      category: []
+      category: [],
+      tooltip: null
     },
     className: 'w-[800px] h-[400px]',
     columnSettings: {
@@ -1017,7 +1035,8 @@ export const StackedAreaLineSingleWithDataLabels: Story = {
     barAndLineAxis: {
       x: ['date'],
       y: ['revenue'],
-      category: []
+      category: [],
+      tooltip: null
     },
     className: 'w-[800px] h-[400px]',
     columnSettings: {
@@ -1055,7 +1074,8 @@ export const PercentageStackedLineMultipleWithDataLabels: Story = {
     barAndLineAxis: {
       x: ['date'],
       y: ['revenue', 'profit', 'customers'],
-      category: []
+      category: [],
+      tooltip: null
     },
     className: 'w-[800px] h-[400px]',
     columnSettings: {
@@ -1106,7 +1126,8 @@ export const HasMixedNullAndNumberValuesSingleLineWithMissingDataZero: Story = {
     barAndLineAxis: {
       x: ['date'],
       y: ['revenue'],
-      category: []
+      category: [],
+      tooltip: null
     },
     className: 'w-[800px] h-[400px]',
     columnSettings: {
@@ -1142,7 +1163,8 @@ export const HasMixedNullAndNumberValuesSingleLineWithMissingDataNull: Story = {
     barAndLineAxis: {
       x: ['date'],
       y: ['revenue'],
-      category: []
+      category: [],
+      tooltip: null
     },
     className: 'w-[800px] h-[400px]',
     columnSettings: {
@@ -1179,7 +1201,8 @@ export const HasMixedNullAndNumberValuesSingleMultiLine: Story = {
     barAndLineAxis: {
       x: ['date'],
       y: ['revenue', 'profit'],
-      category: []
+      category: [],
+      tooltip: null
     },
 
     className: 'w-[800px] h-[400px]',
@@ -1228,7 +1251,8 @@ export const HasNullValuesWithCategoryMultiLine: Story = {
     barAndLineAxis: {
       x: ['date'],
       y: ['revenue'],
-      category: ['category']
+      category: ['category'],
+      tooltip: null
     },
     columnSettings: {
       revenue: {
@@ -1265,7 +1289,8 @@ export const WithTrendline_MaxMinAverageMedian: Story = {
     barAndLineAxis: {
       x: ['date'],
       y: ['revenue'],
-      category: []
+      category: [],
+      tooltip: null
     },
     className: 'w-[800px] h-[400px]',
     trendlines: [
@@ -1327,7 +1352,8 @@ export const WithTrendline_DateXAxisLinearRegression: Story = {
     barAndLineAxis: {
       x: ['date'],
       y: ['revenue'],
-      category: []
+      category: [],
+      tooltip: null
     },
     className: 'w-[800px] h-[400px]',
     trendlines: [
@@ -1365,7 +1391,8 @@ export const WithTrendline_NumericalXAxisLinearRegression: Story = {
     barAndLineAxis: {
       x: ['index'],
       y: ['revenue'],
-      category: []
+      category: [],
+      tooltip: null
     },
     className: 'w-[800px] h-[400px]',
     trendlines: [
@@ -1404,7 +1431,8 @@ export const WithTrendline_StringXAxisLinearRegression: Story = {
     barAndLineAxis: {
       x: ['index'],
       y: ['revenue'],
-      category: []
+      category: [],
+      tooltip: null
     },
     className: 'w-[800px] h-[400px]',
     trendlines: [
@@ -1454,7 +1482,8 @@ export const WithTrendline_DateXAxisExponentialRegression: Story = {
     barAndLineAxis: {
       x: ['date'],
       y: ['revenue'],
-      category: []
+      category: [],
+      tooltip: null
     },
     className: 'w-[800px] h-[400px]',
     trendlines: [
@@ -1505,7 +1534,8 @@ export const WithTrendline_NumericalXAxisExponentialRegression: Story = {
     barAndLineAxis: {
       x: ['index'],
       y: ['revenue'],
-      category: []
+      category: [],
+      tooltip: null
     },
     className: 'w-[800px] h-[400px]',
     trendlines: [
@@ -1555,7 +1585,8 @@ export const WithTrendline_StringXAxisExponentialRegression: Story = {
     barAndLineAxis: {
       x: ['index'],
       y: ['revenue'],
-      category: []
+      category: [],
+      tooltip: null
     },
     className: 'w-[800px] h-[400px]',
     trendlines: [
@@ -1605,7 +1636,8 @@ export const WithTrendline_DateXAxisLogarithmicRegression: Story = {
     barAndLineAxis: {
       x: ['date'],
       y: ['revenue'],
-      category: []
+      category: [],
+      tooltip: null
     },
     className: 'w-[800px] h-[400px]',
     trendlines: [
@@ -1656,7 +1688,8 @@ export const WithTrendline_NumericalXAxisLogarithmicRegression: Story = {
     barAndLineAxis: {
       x: ['index'],
       y: ['revenue'],
-      category: []
+      category: [],
+      tooltip: null
     },
     className: 'w-[800px] h-[400px]',
     trendlines: [
@@ -1706,7 +1739,8 @@ export const WithTrendline_StringXAxisLogarithmicRegression: Story = {
     barAndLineAxis: {
       x: ['index'],
       y: ['revenue'],
-      category: []
+      category: [],
+      tooltip: null
     },
     className: 'w-[800px] h-[400px]',
     trendlines: [
@@ -1753,7 +1787,8 @@ export const ExponentialDecreaseWithTrendline: Story = {
     barAndLineAxis: {
       x: ['date'],
       y: ['value'],
-      category: []
+      category: [],
+      tooltip: null
     },
     className: 'w-[800px] h-[400px]',
     columnLabelFormats: {
@@ -1803,7 +1838,8 @@ export const WithTrendline_DateXAxisPolynomialRegression: Story = {
     barAndLineAxis: {
       x: ['date'],
       y: ['revenue'],
-      category: []
+      category: [],
+      tooltip: null
     },
     className: 'w-[800px] h-[400px]',
     trendlines: [
@@ -1854,7 +1890,8 @@ export const WithTrendline_NumericalXAxisPolynomialRegression: Story = {
     barAndLineAxis: {
       x: ['index'],
       y: ['revenue'],
-      category: []
+      category: [],
+      tooltip: null
     },
     className: 'w-[800px] h-[400px]',
     trendlines: [
@@ -1904,7 +1941,8 @@ export const WithTrendline_StringXAxisPolynomialRegression: Story = {
     barAndLineAxis: {
       x: ['index'],
       y: ['revenue'],
-      category: []
+      category: [],
+      tooltip: null
     },
     className: 'w-[800px] h-[400px]',
     trendlines: [
@@ -1940,7 +1978,8 @@ export const With2ThousandPoints: Story = {
     barAndLineAxis: {
       x: ['date'],
       y: ['revenue'],
-      category: ['category']
+      category: ['category'],
+      tooltip: null
     },
     columnLabelFormats: {
       date: {
@@ -1960,7 +1999,8 @@ export const With5ThousandPoints: Story = {
     barAndLineAxis: {
       x: ['date'],
       y: ['revenue'],
-      category: ['category']
+      category: ['category'],
+      tooltip: null
     },
     columnLabelFormats: {
       date: {

@@ -66,7 +66,8 @@ const createMockChartConfig = (id: string): ChartConfigProps => {
     barAndLineAxis: {
       x: ['date'],
       y: ['sales'],
-      category: []
+      category: [],
+      tooltip: null
     },
     pieChartAxis: {
       x: ['product'],
