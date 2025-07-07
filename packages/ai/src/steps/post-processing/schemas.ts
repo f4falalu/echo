@@ -80,8 +80,8 @@ export const postProcessingWorkflowOutputSchema = z.object({
   // Fields from format message steps
   formattedMessage: z
     .string()
-    .nullable()
-    .optional()
+    .nullish()
+    .describe('The formatted message content for Slack notifications'),
     .describe('The formatted message content for Slack notifications'),
   message: z.string().optional().describe('The update message content from follow-up messages'),
 });
