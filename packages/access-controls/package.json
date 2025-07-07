@@ -17,6 +17,7 @@
     "build": "tsc",
     "build:commonjs": "tsc --module commonjs --moduleResolution node",
     "build:commonjs:watch": "npm run build:commonjs && tsc --module commonjs --moduleResolution node --watch",
+    "dev": "tsc --watch",
     "lint": "biome check",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
