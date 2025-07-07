@@ -27,20 +27,20 @@ export const canUserAccessChat = async ({
 }): Promise<boolean> => {
   // Validate inputs
   const input = CanUserAccessChatSchema.parse({ userId, chatId });
-  
+
   const db = getDb();
 
   // Run all permission checks concurrently for optimal performance
   const [directPermission, collectionPermission, chatInfo, userOrgs] = await Promise.all([
     // Check 1: Direct user permission on chat
     checkDirectChatPermission(db, input.userId, input.chatId),
-    
+
     // Check 2: User permission through collections
     checkCollectionChatPermission(db, input.userId, input.chatId),
-    
+
     // Check 3: Get chat info (creator & organization)
     getChatInfo(db, input.chatId),
-    
+
     // Check 4: Get user's organizations and roles
     getUserOrganizations(db, input.userId),
   ]);
@@ -157,12 +157,7 @@ async function getUserOrganizations(
       role: usersToOrganizations.role,
     })
     .from(usersToOrganizations)
-    .where(
-      and(
-        eq(usersToOrganizations.userId, userId),
-        isNull(usersToOrganizations.deletedAt)
-      )
-    );
+    .where(and(eq(usersToOrganizations.userId, userId), isNull(usersToOrganizations.deletedAt)));
 
   return result;
 }
