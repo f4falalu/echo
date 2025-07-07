@@ -23,7 +23,9 @@
     "test": "vitest run",
     "test:watch": "vitest watch",
     "test:coverage": "vitest run --coverage",
-    "eval:metrics": "npx braintrust eval evals/agents/analyst-agent/metrics"
+    "eval:metrics": "npx braintrust eval evals/agents/analyst-agent/metrics",
+    "braintrust:push": "npx braintrust push evals/agents/analyst-agent/metrics/test_scorers.ts",
+    "braintrust:push:staged": "npx braintrust push evals/agents/analyst-agent/metrics/staged_scorers.ts"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^1.2.12",
