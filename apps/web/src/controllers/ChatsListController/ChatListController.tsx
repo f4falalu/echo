@@ -27,7 +27,6 @@ const ChatsContainer: React.FC<Record<string, never>> = () => {
   const [filters, setFilters] = useState<Partial<Parameters<typeof getListChats>[0]>>({});
 
   const { data: list, isFetched } = useGetListChats(filters);
-  console.log('list', list);
 
   return <ChatItemsContainer chats={list} loading={!isFetched} type={'chats'} />;
 };

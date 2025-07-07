@@ -1,6 +1,6 @@
-import { z } from "zod/v4";
-import type { UserFavorite } from "./favorites.types";
-import type { UserOrganizationRole } from "./roles.types";
+import { z } from 'zod/v4';
+import type { UserFavorite } from './favorites.types';
+import type { UserOrganizationRole } from './roles.types';
 
 export const UserSchema = z.object({
   attributes: z.object({

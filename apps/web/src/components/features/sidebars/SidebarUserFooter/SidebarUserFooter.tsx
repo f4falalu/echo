@@ -30,7 +30,6 @@ export const SidebarUserFooter: React.FC = () => {
   const handleSignOut = useSignOut();
   if (!user) return null;
 
-  console.log(user);
   const { name, email, avatar_url } = user;
 
   if (!name || !email) return null;

@@ -1,19 +1,14 @@
-import { z } from "zod/v4";
+import { z } from 'zod/v4';
 
 export const ShareRoleSchema = z.enum([
-  "owner", //owner of the asset
-  "fullAccess", //same as owner, can share with others
-  "canEdit", //can edit, cannot share
-  "canFilter", //can filter dashboard
-  "canView", //can view asset
+  'owner', //owner of the asset
+  'fullAccess', //same as owner, can share with others
+  'canEdit', //can edit, cannot share
+  'canFilter', //can filter dashboard
+  'canView', //can view asset
 ]);
 
-export const ShareAssetTypeSchema = z.enum([
-  "metric",
-  "dashboard",
-  "collection",
-  "chat",
-]);
+export const ShareAssetTypeSchema = z.enum(['metric', 'dashboard', 'collection', 'chat']);
 
 export const ShareIndividualSchema = z.object({
   email: z.string(),
