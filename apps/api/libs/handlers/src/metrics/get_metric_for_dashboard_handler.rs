@@ -1,20 +1,22 @@
 use anyhow::{anyhow, Result};
 use chrono::Utc;
-use database::models::MetricFile;
 use diesel::prelude::Queryable;
-use diesel::{ExpressionMethods, JoinOnDsl, QueryDsl};
+use diesel::{BoolExpressionMethods, ExpressionMethods, JoinOnDsl, QueryDsl};
 use diesel_async::{AsyncPgConnection, RunQueryDsl};
 use futures::future::join;
+use middleware::AuthenticatedUser;
 use serde_yaml;
 use uuid::Uuid;
 
-use crate::metrics::types::{AssociatedCollection, AssociatedDashboard, BusterMetric, Dataset};
-use database::enums::AssetPermissionRole; // Keep for hardcoding permission
+use crate::metrics::types::{AssociatedCollection, AssociatedDashboard, BusterMetric, BusterShareIndividual, Dataset};
+use database::enums::{AssetPermissionRole, AssetType, IdentityType};
+use database::helpers::metric_files::fetch_metric_file_with_permissions;
 use database::pool::get_pg_pool;
 use database::schema::{
-    collections, collections_to_assets, dashboard_files, datasets, metric_files,
-    metric_files_to_dashboard_files, metric_files_to_datasets,
+    asset_permissions, collections, collections_to_assets, dashboard_files, datasets, metric_files,
+    metric_files_to_dashboard_files, metric_files_to_datasets, users,
 };
+use sharing::check_permission_access;
 
 use super::Version;
 
@@ -25,22 +27,37 @@ struct DatasetInfo {
     data_source_id: Uuid,
 }
 
-/// Fetch ALL dashboards associated with the given metric id (no user filtering)
-async fn fetch_associated_dashboards_unfiltered(
+#[derive(Queryable)]
+struct AssetPermissionInfo {
+    role: AssetPermissionRole,
+    email: String,
+    name: Option<String>,
+}
+
+/// Fetch the dashboards associated with the given metric id, filtered by user permissions
+async fn fetch_associated_dashboards_for_metric(
     metric_id: Uuid,
-    conn: &mut AsyncPgConnection,
+    user_id: &Uuid,
 ) -> Result<Vec<AssociatedDashboard>> {
+    let mut conn = get_pg_pool().get().await?;
     let associated_dashboards = metric_files_to_dashboard_files::table
         .inner_join(
             dashboard_files::table
                 .on(dashboard_files::id.eq(metric_files_to_dashboard_files::dashboard_file_id)),
         )
+        .inner_join(
+            asset_permissions::table.on(asset_permissions::asset_id
+                .eq(dashboard_files::id)
+                .and(asset_permissions::asset_type.eq(AssetType::DashboardFile))),
+        )
         .filter(metric_files_to_dashboard_files::metric_file_id.eq(metric_id))
         .filter(dashboard_files::deleted_at.is_null())
         .filter(metric_files_to_dashboard_files::deleted_at.is_null())
-        // REMOVED: User permission join/filters
+        .filter(asset_permissions::identity_id.eq(user_id))
+        .filter(asset_permissions::identity_type.eq(IdentityType::User))
+        .filter(asset_permissions::deleted_at.is_null())
         .select((dashboard_files::id, dashboard_files::name))
-        .load::<(Uuid, String)>(conn)
+        .load::<(Uuid, String)>(&mut conn)
         .await?
         .into_iter()
         .map(|(id, name)| AssociatedDashboard { id, name })
@@ -48,20 +65,28 @@ async fn fetch_associated_dashboards_unfiltered(
     Ok(associated_dashboards)
 }
 
-/// Fetch ALL collections associated with the given metric id (no user filtering)
-async fn fetch_associated_collections_unfiltered(
+/// Fetch the collections associated with the given metric id, filtered by user permissions
+async fn fetch_associated_collections_for_metric(
     metric_id: Uuid,
-    conn: &mut AsyncPgConnection,
+    user_id: &Uuid,
 ) -> Result<Vec<AssociatedCollection>> {
+    let mut conn = get_pg_pool().get().await?;
     let associated_collections = collections_to_assets::table
         .inner_join(collections::table.on(collections::id.eq(collections_to_assets::collection_id)))
-        // REMOVED: User permission join/filters
+        .inner_join(
+            asset_permissions::table.on(asset_permissions::asset_id
+                .eq(collections::id)
+                .and(asset_permissions::asset_type.eq(AssetType::Collection))),
+        )
         .filter(collections_to_assets::asset_id.eq(metric_id))
-        .filter(collections_to_assets::asset_type.eq(database::enums::AssetType::MetricFile)) // Keep asset type filter
+        .filter(collections_to_assets::asset_type.eq(AssetType::MetricFile))
         .filter(collections::deleted_at.is_null())
         .filter(collections_to_assets::deleted_at.is_null())
+        .filter(asset_permissions::identity_id.eq(user_id))
+        .filter(asset_permissions::identity_type.eq(IdentityType::User))
+        .filter(asset_permissions::deleted_at.is_null())
         .select((collections::id, collections::name))
-        .load::<(Uuid, String)>(conn)
+        .load::<(Uuid, String)>(&mut conn)
         .await?
         .into_iter()
         .map(|(id, name)| AssociatedCollection { id, name })
@@ -69,28 +94,113 @@ async fn fetch_associated_collections_unfiltered(
     Ok(associated_collections)
 }
 
-/// Handler to retrieve a metric by ID for display within a dashboard.
-/// Assumes authentication/permission checks were done at the dashboard level.
-/// Skips all metric-specific permission checks.
+/// Handler to retrieve a metric by ID with optional version number, including full permission handling
+///
+/// If version_number is provided, returns that specific version of the metric.
+/// If version_number is None, returns the latest version of the metric.
 pub async fn get_metric_for_dashboard_handler(
     metric_id: &Uuid,
+    user: &AuthenticatedUser,
     version_number: Option<i32>,
+    password: Option<String>,
 ) -> Result<BusterMetric> {
-    let mut conn = get_pg_pool().get().await?;
+    // 1. Fetch metric file with permission
+    let metric_file_with_permission_option =
+        fetch_metric_file_with_permissions(metric_id, &user.id)
+            .await
+            .map_err(|e| anyhow!("Failed to fetch metric file with permissions: {}", e))?;
 
-    // 1. Fetch metric file directly by ID - NO PERMISSION CHECK
-    let metric_file = metric_files::table
-        .find(metric_id)
-        .filter(metric_files::deleted_at.is_null())
-        .first::<MetricFile>(&mut conn)
-        .await
-        .map_err(|e| {
-            tracing::warn!(metric_id = %metric_id, "Metric file not found or DB error during direct fetch: {}", e);
-            anyhow!("Metric file not found") // Keep error generic
-        })?;
+    let metric_file_with_permission = if let Some(mf) = metric_file_with_permission_option {
+        mf
+    } else {
+        tracing::warn!(metric_id = %metric_id, "Metric file not found during fetch");
+        return Err(anyhow!("Metric file not found"));
+    };
 
-    // --- Permission is implicitly CanView because access is via dashboard ---
-    let permission = AssetPermissionRole::CanView;
+    let metric_file = metric_file_with_permission.metric_file;
+    let direct_permission_level = metric_file_with_permission.permission;
+
+    // 2. Determine the user's access level and enforce access rules
+    let permission: AssetPermissionRole;
+    tracing::debug!(metric_id = %metric_id, user_id = %user.id, "Checking permissions for metric in dashboard context");
+
+    // Check for direct/admin permission first
+    tracing::debug!(metric_id = %metric_id, "Checking direct/admin permissions first.");
+    let has_sufficient_direct_permission = check_permission_access(
+        direct_permission_level,
+        &[
+            AssetPermissionRole::FullAccess,
+            AssetPermissionRole::Owner,
+            AssetPermissionRole::CanEdit,
+            AssetPermissionRole::CanView,
+        ],
+        metric_file.organization_id,
+        &user.organizations,
+    );
+    tracing::debug!(metric_id = %metric_id, ?direct_permission_level, has_sufficient_direct_permission, "Direct permission check result");
+
+    if has_sufficient_direct_permission {
+        // Check if user is WorkspaceAdmin or DataAdmin for this organization
+        let is_admin = user.organizations.iter().any(|org| {
+            org.id == metric_file.organization_id
+                && (org.role == database::enums::UserOrganizationRole::WorkspaceAdmin
+                    || org.role == database::enums::UserOrganizationRole::DataAdmin)
+        });
+
+        if is_admin {
+            // Admin users get Owner permissions
+            permission = AssetPermissionRole::Owner;
+            tracing::debug!(metric_id = %metric_id, user_id = %user.id, ?permission, "Granting Owner access to admin user.");
+        } else {
+            // User has direct permission, use that role
+            permission = direct_permission_level.unwrap_or(AssetPermissionRole::CanView); // Default just in case
+            tracing::debug!(metric_id = %metric_id, user_id = %user.id, ?permission, "Granting access via direct permission.");
+        }
+    } else {
+        // No sufficient direct/admin permission, check public access rules
+        tracing::debug!(metric_id = %metric_id, "Insufficient direct/admin permission. Checking public access rules.");
+        if !metric_file.publicly_accessible {
+            tracing::warn!(metric_id = %metric_id, user_id = %user.id, "Permission denied (not public, insufficient direct permission).");
+            return Err(anyhow!("You don't have permission to view this metric"));
+        }
+        tracing::debug!(metric_id = %metric_id, "Metric is publicly accessible.");
+
+        // Check if the public access has expired
+        if let Some(expiry_date) = metric_file.public_expiry_date {
+            tracing::debug!(metric_id = %metric_id, ?expiry_date, "Checking expiry date");
+            if expiry_date < chrono::Utc::now() {
+                tracing::warn!(metric_id = %metric_id, "Public access expired");
+                return Err(anyhow!("Public access to this metric has expired"));
+            }
+        }
+
+        // Check if a password is required
+        tracing::debug!(metric_id = %metric_id, has_password = metric_file.public_password.is_some(), "Checking password requirement");
+        if let Some(required_password) = &metric_file.public_password {
+            tracing::debug!(metric_id = %metric_id, "Password required. Checking provided password.");
+            match password {
+                Some(provided_password) => {
+                    if provided_password != *required_password {
+                        // Incorrect password provided
+                        tracing::warn!(metric_id = %metric_id, user_id = %user.id, "Incorrect public password provided");
+                        return Err(anyhow!("Incorrect password for public access"));
+                    }
+                    // Correct password provided, grant CanView via public access
+                    tracing::debug!(metric_id = %metric_id, user_id = %user.id, "Correct public password provided. Granting CanView.");
+                    permission = AssetPermissionRole::CanView;
+                }
+                None => {
+                    // Password required but none provided
+                    tracing::warn!(metric_id = %metric_id, user_id = %user.id, "Public password required but none provided");
+                    return Err(anyhow!("public_password required for this metric"));
+                }
+            }
+        } else {
+            // Publicly accessible, not expired, and no password required
+            tracing::debug!(metric_id = %metric_id, "Public access granted (no password required).");
+            permission = AssetPermissionRole::CanView;
+        }
+    }
 
     // Declare variables to hold potentially versioned data
     let resolved_name: String;
@@ -151,6 +261,9 @@ pub async fn get_metric_for_dashboard_handler(
         tracing::debug!(metric_id = %metric_id, latest_version = resolved_version_num, "Determined latest version number for dashboard");
     }
 
+    // Get a connection for queries
+    let mut conn = get_pg_pool().get().await?;
+
     // Query dataset IDs from the join table based on the resolved version
     let resolved_dataset_ids = match metric_files_to_datasets::table
         .filter(metric_files_to_datasets::metric_file_id.eq(metric_id))
@@ -189,7 +302,6 @@ pub async fn get_metric_for_dashboard_handler(
         }
     }
 
-
     let mut versions: Vec<Version> = metric_file
         .version_history
         .0
@@ -203,19 +315,36 @@ pub async fn get_metric_for_dashboard_handler(
     // Sort versions by version_number in ascending order
     versions.sort_by(|a, b| a.version_number.cmp(&b.version_number));
 
-    // Concurrently fetch associated dashboards and collections (unfiltered versions)
+    // Query individual permissions for this metric
+    let individual_permissions_query = asset_permissions::table
+        .inner_join(users::table.on(users::id.eq(asset_permissions::identity_id)))
+        .filter(asset_permissions::asset_id.eq(metric_id))
+        .filter(asset_permissions::asset_type.eq(AssetType::MetricFile))
+        .filter(asset_permissions::identity_type.eq(IdentityType::User))
+        .filter(asset_permissions::deleted_at.is_null())
+        .select((asset_permissions::role, users::email, users::name))
+        .load::<AssetPermissionInfo>(&mut conn)
+        .await;
+
+    // Get the user info for publicly_enabled_by if it exists
+    let public_enabled_by_user = if let Some(enabled_by_id) = metric_file.publicly_enabled_by {
+        users::table
+            .filter(users::id.eq(enabled_by_id))
+            .select(users::email)
+            .first::<String>(&mut conn)
+            .await
+            .ok()
+    } else {
+        None
+    };
+
+    // Concurrently fetch associated dashboards and collections
     let metrics_id_clone = *metric_id;
+    let user_id_clone = user.id; // Clone user ID for use in async blocks
+    let dashboards_future = fetch_associated_dashboards_for_metric(metrics_id_clone, &user_id_clone);
+    let collections_future = fetch_associated_collections_for_metric(metrics_id_clone, &user_id_clone);
 
-    // Await both futures concurrently - NOTE: Need to handle connection borrowing carefully.
-    // It's safer to get the connection again or pass it differently if needed.
-    // For now, let's assume the initial `conn` can be reused or handle potential errors.
-    // A better approach might involve passing the pool and getting connections inside helpers.
-    // Re-getting connection for safety:
-    let mut conn_dash = get_pg_pool().get().await?;
-    let mut conn_coll = get_pg_pool().get().await?;
-    let dashboards_future = fetch_associated_dashboards_unfiltered(metrics_id_clone, &mut conn_dash);
-    let collections_future = fetch_associated_collections_unfiltered(metrics_id_clone, &mut conn_coll);
-
+    // Await both futures concurrently
     let (dashboards_result, collections_result) = join(dashboards_future, collections_future).await;
 
 
@@ -224,7 +353,7 @@ pub async fn get_metric_for_dashboard_handler(
         Ok(dashboards) => dashboards,
         Err(e) => {
             tracing::error!(
-                "Failed to fetch associated dashboards (unfiltered) for metric {}: {}",
+                "Failed to fetch associated dashboards for metric {}: {}",
                 metric_id,
                 e
             );
@@ -236,12 +365,33 @@ pub async fn get_metric_for_dashboard_handler(
         Ok(collections) => collections,
         Err(e) => {
             tracing::error!(
-                "Failed to fetch associated collections (unfiltered) for metric {}: {}",
+                "Failed to fetch associated collections for metric {}: {}",
                 metric_id,
                 e
             );
             vec![]
         }
+    };
+
+    // Convert AssetPermissionInfo to BusterShareIndividual
+    let individual_permissions = match individual_permissions_query {
+        Ok(permissions) => {
+            if permissions.is_empty() {
+                None
+            } else {
+                Some(
+                    permissions
+                        .into_iter()
+                        .map(|p| BusterShareIndividual {
+                            email: p.email,
+                            role: p.role,
+                            name: p.name,
+                        })
+                        .collect::<Vec<BusterShareIndividual>>(),
+                )
+            }
+        }
+        Err(_) => None,
     };
 
     // Convert the selected content to pretty YAML for the 'file' field
@@ -274,30 +424,29 @@ pub async fn get_metric_for_dashboard_handler(
         file_name: metric_file.file_name,
         time_frame: resolved_time_frame,
         datasets,
-        data_source_id: metric_file.data_source_id, // Use canonical Uuid from main record
-        error: None, // Assume ok
+        data_source_id: metric_file.data_source_id,
+        error: None,
         chart_config: Some(resolved_chart_config),
         data_metadata,
         status: metric_file.verification,
         evaluation_score,
         evaluation_summary: metric_file.evaluation_summary.unwrap_or_default(),
-        file, // YAML based on resolved content
+        file,
         created_at: metric_file.created_at,
         updated_at: resolved_updated_at,
         sent_by_id: metric_file.created_by,
-        sent_by_name: "".to_string(), // Placeholder - user info not needed/fetched
-        sent_by_avatar_url: None,    // Placeholder - user info not needed/fetched
+        sent_by_name: "".to_string(), // Placeholder
+        sent_by_avatar_url: None, // Placeholder
         code: None, // Placeholder
-        dashboards, // Unfiltered associations
-        collections, // Unfiltered associations
-        versions, // Full version history list
-        permission, // Hardcoded to CanView
+        dashboards,
+        collections,
+        versions,
+        permission, // Calculated access level
         sql: resolved_sql,
-        // Sharing fields are irrelevant/defaulted in this context
-        individual_permissions: None,
-        publicly_accessible: false, // Default value
-        public_expiry_date: None,   // Default value
-        public_enabled_by: None,    // Default value
-        public_password: None,      // Default value
+        individual_permissions, // User permissions
+        publicly_accessible: metric_file.publicly_accessible,
+        public_expiry_date: metric_file.public_expiry_date,
+        public_enabled_by: public_enabled_by_user,
+        public_password: metric_file.public_password,
     })
 } 
