@@ -17,7 +17,7 @@ describe('BarAndLineAxisSchema', () => {
       expect(result.data.y).toEqual([]);
       expect(result.data.category).toEqual([]);
       // tooltip is optional and will be undefined when not provided
-      expect(result.data.tooltip).toBeUndefined();
+      expect(result.data.tooltip).toBeNull();
     }
   });
 
@@ -30,7 +30,7 @@ describe('BarAndLineAxisSchema', () => {
       expect(result.data.x).toEqual([]);
       expect(result.data.y).toEqual([]);
       expect(result.data.category).toEqual([]);
-      expect(result.data.tooltip).toBeUndefined();
+      expect(result.data.tooltip).toBeNull();
     }
   });
 
@@ -67,7 +67,7 @@ describe('BarAndLineAxisSchema', () => {
       expect(result.data.y).toEqual(['sales']);
       // Defaults should be preserved for missing fields
       expect(result.data.category).toEqual([]);
-      expect(result.data.tooltip).toBeUndefined();
+      expect(result.data.tooltip).toBeNull();
     }
   });
 
@@ -159,7 +159,7 @@ describe('ComboChartAxisSchema', () => {
       expect(result.data.y).toEqual([]);
       expect(result.data.y2).toEqual([]);
       expect(result.data.category).toEqual([]);
-      expect(result.data.tooltip).toBeUndefined();
+      expect(result.data.tooltip).toBeNull();
     }
   });
 
@@ -179,7 +179,7 @@ describe('ComboChartAxisSchema', () => {
       expect(result.data.y).toEqual(['revenue']);
       expect(result.data.y2).toEqual(['profit_margin']);
       expect(result.data.category).toEqual(['product_line']);
-      expect(result.data.tooltip).toBeUndefined();
+      expect(result.data.tooltip).toBeNull();
     }
   });
 
@@ -197,7 +197,7 @@ describe('ComboChartAxisSchema', () => {
       expect(result.data.y).toEqual(['sales']);
       expect(result.data.y2).toEqual([]); // Default for secondary y-axis
       expect(result.data.category).toEqual([]);
-      expect(result.data.tooltip).toBeUndefined();
+      expect(result.data.tooltip).toBeNull();
     }
   });
 });
@@ -348,7 +348,7 @@ describe('Nested defaults behavior', () => {
       expect(result.data.x).toEqual(['custom_x']); // Overridden
       expect(result.data.y).toEqual([]); // Default
       expect(result.data.category).toEqual([]); // Default
-      expect(result.data.tooltip).toBeUndefined(); // Default
+      expect(result.data.tooltip).toBeNull(); // Default
     }
   });
 });

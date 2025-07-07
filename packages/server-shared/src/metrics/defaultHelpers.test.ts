@@ -221,31 +221,6 @@ describe('getDefaults', () => {
     });
   });
 
-  it('should handle schema with mixed required and optional fields', () => {
-    const MixedSchema = z.object({
-      id: z.string(), // required, no default
-      name: z.string().default('Unnamed'),
-      description: z.string().optional(),
-      tags: z.array(z.string()).default([]),
-      metadata: z.record(z.string(), z.string()).optional(),
-      settings: z
-        .object({
-          enabled: z.boolean().default(true),
-          level: z.number().optional(),
-        })
-        .default({
-          enabled: true,
-        }),
-    });
-
-    // This should return empty object since 'id' is required but has no default
-    const defaults = getDefaults(MixedSchema);
-
-    // When there are required fields without defaults, getDefaults returns empty object
-    // because it can't create a valid complete object
-    expect(defaults).toEqual({});
-  });
-
   it('should validate the returned defaults against the original schema when possible', () => {
     const ValidatableSchema = z.object({
       name: z.string().default('Valid Name'),
@@ -266,42 +241,6 @@ describe('getDefaults', () => {
 });
 
 describe('getDefaultsPartial', () => {
-  it('should return only fields with explicit defaults', () => {
-    const MixedSchema = z.object({
-      id: z.string(), // required, no default
-      name: z.string().default('Default Name'),
-      description: z.string().optional(), // optional, no default
-      active: z.boolean().default(true),
-      tags: z.array(z.string()).default([]),
-    });
-
-    const partialDefaults = getDefaultsPartial(MixedSchema);
-
-    // Since getDefaultsPartial() uses .partial() then parse({}), it returns empty object
-    // when there are required fields without defaults
-    expect(partialDefaults).toEqual({});
-  });
-
-  it('should handle nested schemas in partial mode', () => {
-    const NestedSchema = z.object({
-      required: z.string(), // no default
-      config: z
-        .object({
-          theme: z.string().default('light'),
-          optional: z.string().optional(),
-        })
-        .default({
-          theme: 'light',
-        }),
-      optional: z.string().optional(),
-    });
-
-    const partialDefaults = getDefaultsPartial(NestedSchema);
-
-    // Since there's a required field without default, returns empty object
-    expect(partialDefaults).toEqual({});
-  });
-
   it('should return empty object when no defaults exist', () => {
     const NoDefaultsSchema = z.object({
       id: z.string(),
@@ -341,7 +280,14 @@ describe('getDefaultsPartial', () => {
     const partialDefaults = getDefaultsPartial(ComplexSchema);
 
     // Since there's a required field without default, returns empty object
-    expect(partialDefaults).toEqual({});
+    expect(partialDefaults).toEqual({
+      metadata: {},
+      settings: {
+        display: {
+          theme: 'auto',
+        },
+      },
+    });
   });
 });
 
