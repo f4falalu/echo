@@ -42,9 +42,6 @@ export class SlackOAuthService {
           redirectUri: this.env.SLACK_REDIRECT_URI,
           scopes: [
             'channels:history',
-            'channels:join',
-            'channels:manage',
-            'channels:read',
             'chat:write',
             'chat:write.public',
             'commands',
