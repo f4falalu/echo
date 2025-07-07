@@ -1,15 +1,17 @@
-import { logger, schemaTask, tasks } from '@trigger.dev/sdk/v3';
-import { initLogger, wrapTraced } from 'braintrust';
+import { logger, schemaTask } from '@trigger.dev/sdk';
+import { initLogger, wrapTraced, currentSpan } from 'braintrust';
 import { AnalystAgentTaskInputSchema, type AnalystAgentTaskOutput } from './types';
 
 // Task 2 & 4: Database helpers (IMPLEMENTED)
 import {
+  getBraintrustMetadata,
   getChatConversationHistory,
   getChatDashboardFiles,
   getMessageContext,
   getOrganizationDataSource,
 } from '@buster/database';
 
+// AI package imports
 import { type AnalystRuntimeContext, analystWorkflow } from '@buster/ai';
 
 // Mastra workflow integration
@@ -334,12 +336,16 @@ export const analystAgentTask: ReturnType<
         getChatDashboardFiles({ chatId: context.chatId })
       );
 
-      // Wait for all four operations to complete
-      const [messageContext, conversationHistory, dataSource, dashboardFiles] = await Promise.all([
+      // Fetch Braintrust metadata in parallel
+      const braintrustMetadataPromise = getBraintrustMetadata({ messageId: payload.message_id });
+
+      // Wait for all operations to complete
+      const [messageContext, conversationHistory, dataSource, dashboardFiles, braintrustMetadata] = await Promise.all([
         messageContextPromise,
         conversationHistoryPromise,
         dataSourcePromise,
         dashboardFilesPromise,
+        braintrustMetadataPromise,
       ]);
 
       const dataLoadEnd = Date.now();
@@ -361,6 +367,7 @@ export const analystAgentTask: ReturnType<
           metricIds: d.metricIds,
         })),
         dataLoadTimeMs: dataLoadTime,
+        braintrustMetadata, // Log the metadata to verify it's working
       });
 
       // Log performance after data loading
@@ -433,10 +440,24 @@ export const analystAgentTask: ReturnType<
       const workflowStartMethodStart = Date.now();
       const tracedWorkflow = wrapTraced(
         async () => {
-          return await run.start({
+          const result = await run.start({
             inputData: workflowInput,
             runtimeContext,
           });
+          
+          // Log the metadata as part of the span
+          currentSpan().log({
+            metadata: {
+              userName: braintrustMetadata.userName || 'Unknown',
+              userId: braintrustMetadata.userId,
+              organizationName: braintrustMetadata.organizationName || 'Unknown',
+              organizationId: braintrustMetadata.organizationId,
+              messageId: braintrustMetadata.messageId,
+              chatId: braintrustMetadata.chatId,
+            },
+          });
+          
+          return result;
         },
         {
           name: 'Analyst Agent Task Workflow',
