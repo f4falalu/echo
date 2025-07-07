@@ -140,6 +140,16 @@
           }
         }
       }
+    },
+    {
+      "include": ["**/*.js"],
+      "linter": {
+        "rules": {
+          "suspicious": {
+            "noConsoleLog": "off"
+          }
+        }
+      }
     }
   ]
 }

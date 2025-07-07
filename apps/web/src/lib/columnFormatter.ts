@@ -122,7 +122,7 @@ const formatLabelDate = (
   const {
     dateFormat: dateFormatProp = DEFAULT_DATE_FORMAT,
     useRelativeTime = false,
-    isUTC = true,
+    isUTC = false,
     convertNumberTo
   } = props;
 
