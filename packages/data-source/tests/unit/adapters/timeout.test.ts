@@ -81,7 +81,7 @@ describe('Adapter Timeout Tests', () => {
           () =>
             new Promise((resolve) => {
               // Never resolve to simulate timeout
-              setTimeout(() => resolve({ rows: [], fields: [] }), 60000);
+              setTimeout(() => resolve({ rows: [], fields: [] }), 5000);
             })
         ),
         end: vi.fn().mockResolvedValue(undefined),
@@ -161,7 +161,7 @@ describe('Adapter Timeout Tests', () => {
           () =>
             new Promise((resolve) => {
               // Never resolve to simulate timeout
-              setTimeout(() => resolve([[], []]), 60000);
+              setTimeout(() => resolve([[], []]), 5000);
             })
         ),
         end: vi.fn().mockResolvedValue(undefined),
@@ -238,7 +238,7 @@ describe('Adapter Timeout Tests', () => {
           () =>
             new Promise((resolve) => {
               // Never resolve to simulate timeout
-              setTimeout(() => resolve({ recordset: [] }), 60000);
+              setTimeout(() => resolve({ recordset: [] }), 5000);
             })
         ),
         input: vi.fn(),
@@ -282,7 +282,7 @@ describe('Adapter Timeout Tests', () => {
           () =>
             new Promise((resolve) => {
               // Never resolve to simulate timeout
-              setTimeout(() => resolve([[], []]), 60000);
+              setTimeout(() => resolve([[], []]), 5000);
             })
         ),
         end: vi.fn().mockResolvedValue(undefined),
