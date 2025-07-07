@@ -5,6 +5,10 @@
     "start": {
       "dependsOn": ["@buster/database#dev"],
       "outputs": []
+    },
+    "dev": {
+      "dependsOn": ["@buster/database#dev"],
+      "outputs": []
     }
   }
 }
