@@ -23,7 +23,7 @@
     "test:e2e:debug": "playwright test --debug"
   },
   "engines": {
-    "node": ">=22.9.0"
+    "node": ">=24.0.0"
   },
   "dependencies": {
     "@buster/server-shared": "workspace:*",
@@ -148,7 +148,7 @@
     "@types/js-cookie": "^3.0.6",
     "@types/js-yaml": "^4.0.9",
     "@types/lodash": "^4.17.20",
-    "@types/node": "^20",
+    "@types/node": "^24",
     "@types/papaparse": "^5.3.16",
     "@types/pluralize": "^0.0.33",
     "@types/react": "^18.3.23",
