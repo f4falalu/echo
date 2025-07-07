@@ -1,15 +1,17 @@
 import { logger, schemaTask } from '@trigger.dev/sdk';
-import { initLogger, wrapTraced } from 'braintrust';
+import { initLogger, wrapTraced, currentSpan } from 'braintrust';
 import { AnalystAgentTaskInputSchema, type AnalystAgentTaskOutput } from './types';
 
 // Task 2 & 4: Database helpers (IMPLEMENTED)
 import {
+  getBraintrustMetadata,
   getChatConversationHistory,
   getChatDashboardFiles,
   getMessageContext,
   getOrganizationDataSource,
 } from '@buster/database';
 
+// AI package imports
 import { type AnalystRuntimeContext, analystWorkflow } from '@buster/ai';
 
 // Mastra workflow integration
@@ -18,6 +20,8 @@ import { RuntimeContext } from '@mastra/core/runtime-context';
 // Task 3: Runtime Context Setup Function
 // Database helper output types
 import type { MessageContextOutput, OrganizationDataSourceOutput } from '@buster/database';
+
+import type { messagePostProcessingTask } from '../message-post-processing/message-post-processing';
 
 /**
  * Task 3: Setup runtime context from Task 2 database helper outputs
@@ -332,12 +336,16 @@ export const analystAgentTask: ReturnType<
         getChatDashboardFiles({ chatId: context.chatId })
       );
 
-      // Wait for all four operations to complete
-      const [messageContext, conversationHistory, dataSource, dashboardFiles] = await Promise.all([
+      // Fetch Braintrust metadata in parallel
+      const braintrustMetadataPromise = getBraintrustMetadata({ messageId: payload.message_id });
+
+      // Wait for all operations to complete
+      const [messageContext, conversationHistory, dataSource, dashboardFiles, braintrustMetadata] = await Promise.all([
         messageContextPromise,
         conversationHistoryPromise,
         dataSourcePromise,
         dashboardFilesPromise,
+        braintrustMetadataPromise,
       ]);
 
       const dataLoadEnd = Date.now();
@@ -359,6 +367,7 @@ export const analystAgentTask: ReturnType<
           metricIds: d.metricIds,
         })),
         dataLoadTimeMs: dataLoadTime,
+        braintrustMetadata, // Log the metadata to verify it's working
       });
 
       // Log performance after data loading
@@ -431,10 +440,24 @@ export const analystAgentTask: ReturnType<
       const workflowStartMethodStart = Date.now();
       const tracedWorkflow = wrapTraced(
         async () => {
-          return await run.start({
+          const result = await run.start({
             inputData: workflowInput,
             runtimeContext,
           });
+          
+          // Log the metadata as part of the span
+          currentSpan().log({
+            metadata: {
+              userName: braintrustMetadata.userName || 'Unknown',
+              userId: braintrustMetadata.userId,
+              organizationName: braintrustMetadata.organizationName || 'Unknown',
+              organizationId: braintrustMetadata.organizationId,
+              messageId: braintrustMetadata.messageId,
+              chatId: braintrustMetadata.chatId,
+            },
+          });
+          
+          return result;
         },
         {
           name: 'Analyst Agent Task Workflow',
@@ -475,6 +498,19 @@ export const analystAgentTask: ReturnType<
           totalWorkflowTimeMs: totalWorkflowTime,
         },
       });
+
+      // Fire off message post-processing task (fire-and-forget)
+      tasks
+        .trigger<typeof messagePostProcessingTask>('message-post-processing', {
+          messageId: payload.message_id,
+        })
+        .catch((error) => {
+          // Log error but don't fail the current task
+          logger.error('Failed to trigger message post-processing task', {
+            messageId: payload.message_id,
+            error: error instanceof Error ? error.message : 'Unknown error',
+          });
+        });
 
       // Allow Braintrust a brief moment to clean up its trace, but don't block unnecessarily
       // Use a much shorter timeout with a race condition to avoid excessive delays

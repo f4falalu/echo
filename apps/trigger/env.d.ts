@@ -6,6 +6,7 @@ declare global {
       TRIGGER_SECRET_KEY: string;
       ENVIRONMENT: string;
       NODE_ENV?: 'development' | 'production' | 'test';
+      BUSTER_URL: string;
     }
   }
 }

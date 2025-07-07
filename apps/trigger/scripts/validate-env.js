@@ -6,7 +6,7 @@ config();
 
 // Build-time environment validation
 
-console.log('🔍 Validating environment variables...');
+console.info('🔍 Validating environment variables...');
 
 const env = {
   DATABASE_URL: process.env.DATABASE_URL,
@@ -23,7 +23,7 @@ for (const [envKey, value] of Object.entries(env)) {
     console.error(`❌ Missing required environment variable: ${envKey}`);
     hasErrors = true;
   } else {
-    console.log(`✅ ${envKey} is set`);
+    console.info(`✅ ${envKey} is set`);
   }
 }
 
@@ -34,4 +34,4 @@ if (hasErrors) {
   process.exit(1);
 }
 
-console.log('✅ All required environment variables are present');
+console.info('✅ All required environment variables are present');

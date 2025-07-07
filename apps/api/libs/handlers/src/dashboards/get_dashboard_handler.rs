@@ -259,14 +259,14 @@ pub async fn get_dashboard_handler(
         })
         .collect();
 
-    // Fetch metrics concurrently using get_metric_handler
+    // Fetch metrics concurrently using get_metric_for_dashboard_handler with user context
     let mut metric_fetch_handles = Vec::new();
     for metric_id in metric_ids {
-        // Spawn a task for each metric fetch using the dashboard-specific handler.
-        // Pass only the metric_id and None for version_number.
+        // Clone user for each spawned task
+        let user_clone = user.clone();
         let handle = tokio::spawn(async move {
-            // Call the new handler, no user or password needed
-            get_metric_for_dashboard_handler(&metric_id, None).await
+            // Pass user context and None for version_number and password
+            get_metric_for_dashboard_handler(&metric_id, &user_clone, None, None).await
         });
         metric_fetch_handles.push((metric_id, handle));
     }

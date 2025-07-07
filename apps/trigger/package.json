@@ -18,6 +18,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@buster/access-controls": "workspace:*",
     "@buster/ai": "workspace:*",
     "@buster/database": "workspace:*",
     "@buster/test-utils": "workspace:*",

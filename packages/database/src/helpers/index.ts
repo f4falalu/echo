@@ -67,3 +67,12 @@ export {
   type GetUserOrganizationInput,
   type UserToOrganization,
 } from './organizations';
+
+// Braintrust metadata helper
+export {
+  getBraintrustMetadata,
+  BraintrustMetadataInputSchema,
+  BraintrustMetadataOutputSchema,
+  type BraintrustMetadataInput,
+  type BraintrustMetadataOutput,
+} from './braintrustMetadata';
