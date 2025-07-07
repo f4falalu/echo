@@ -4,6 +4,7 @@ import { logger } from '@trigger.dev/sdk/v3';
 export interface SlackNotificationParams {
   organizationId: string;
   userName: string | null;
+  chatId: string;
   summaryTitle?: string | undefined;
   summaryMessage?: string | undefined;
   formattedMessage?: string | null | undefined;
@@ -153,6 +154,7 @@ function shouldSendSlackNotification(params: SlackNotificationParams): boolean {
  */
 function formatSlackMessage(params: SlackNotificationParams): SlackMessage {
   const userName = params.userName || 'Unknown User';
+  const chatUrl = `${process.env.BUSTER_URL}/app/chats/${params.chatId}`;
 
   // Case 1: Formatted message from workflow (highest priority)
   if (params.formattedMessage) {
@@ -162,7 +164,7 @@ function formatSlackMessage(params: SlackNotificationParams): SlackMessage {
           type: 'section',
           text: {
             type: 'mrkdwn',
-            text: `Buster flagged a chat for review:\n*<fakeLink.toEmployeeProfile.com|${userName}>*`,
+            text: `Buster flagged a chat for review:\n*<${chatUrl}|${userName}>*`,
           },
         },
         {
@@ -185,7 +187,7 @@ function formatSlackMessage(params: SlackNotificationParams): SlackMessage {
           type: 'section',
           text: {
             type: 'mrkdwn',
-            text: `Buster flagged a chat for review:\n*<fakeLink.toEmployeeProfile.com|${userName} - ${params.summaryTitle}>*`,
+            text: `Buster flagged a chat for review:\n*<${chatUrl}|${userName} - ${params.summaryTitle}>*`,
           },
         },
         {
@@ -208,7 +210,7 @@ function formatSlackMessage(params: SlackNotificationParams): SlackMessage {
           type: 'section',
           text: {
             type: 'mrkdwn',
-            text: `Buster flagged a chat for review:\n*<fakeLink.toEmployeeProfile.com|${userName} - Flagged Chat>*`,
+            text: `Buster flagged a chat for review:\n*<${chatUrl}|${userName} - Flagged Chat>*`,
           },
         },
         {

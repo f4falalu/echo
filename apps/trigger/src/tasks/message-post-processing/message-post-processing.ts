@@ -272,6 +272,7 @@ export const messagePostProcessingTask: ReturnType<
         const slackResult = await sendSlackNotification({
           organizationId: messageContext.organizationId,
           userName: messageContext.userName,
+          chatId: messageContext.chatId,
           summaryTitle: dbData.summaryTitle,
           summaryMessage: dbData.summaryMessage,
           formattedMessage: dbData.formattedMessage,
