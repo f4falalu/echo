@@ -33,7 +33,8 @@ describe('pieOptionsHandler', () => {
       selectedAxis: {
         y: ['value'],
         x: ['category'],
-        category: []
+        category: [],
+        tooltip: null
       } as ChartSpecificOptionsProps['selectedAxis'],
       columnLabelFormats: {},
       barShowTotalAtTop: false,
@@ -60,7 +61,8 @@ describe('piePluginsHandler', () => {
       selectedAxis: {
         y: ['value'],
         x: ['category'],
-        category: []
+        category: [],
+        tooltip: null
       } as ChartSpecificOptionsProps['selectedAxis'],
       columnLabelFormats: {
         value: { columnType: 'number', style: 'number' } as any
@@ -94,7 +96,8 @@ describe('piePluginsHandler', () => {
       selectedAxis: {
         y: ['value'],
         x: ['category'],
-        category: []
+        category: [],
+        tooltip: null
       } as ChartSpecificOptionsProps['selectedAxis'],
       columnLabelFormats: {
         value: { columnType: 'number', style: 'number' } as ColumnLabelFormat
