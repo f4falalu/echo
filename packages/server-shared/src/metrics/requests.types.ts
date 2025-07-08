@@ -1,6 +1,6 @@
-import { z } from "zod/v4";
-import { ShareRoleSchema, VerificationStatusSchema } from "../share";
-import { ChartConfigPropsSchema } from "./charts";
+import { z } from 'zod/v4';
+import { ShareRoleSchema, VerificationStatusSchema } from '../share';
+import { ChartConfigPropsSchema } from './charts';
 
 export const GetMetricRequestSchema = z.object({
   id: z.string(),
@@ -81,9 +81,7 @@ export type GetMetricRequest = z.infer<typeof GetMetricRequestSchema>;
 export type GetMetricListRequest = z.infer<typeof GetMetricListRequestSchema>;
 export type UpdateMetricRequest = z.infer<typeof UpdateMetricRequestSchema>;
 export type DeleteMetricRequest = z.infer<typeof DeleteMetricRequestSchema>;
-export type DuplicateMetricRequest = z.infer<
-  typeof DuplicateMetricRequestSchema
->;
+export type DuplicateMetricRequest = z.infer<typeof DuplicateMetricRequestSchema>;
 export type BulkUpdateMetricVerificationStatusRequest = z.infer<
   typeof BulkUpdateMetricVerificationStatusRequestSchema
 >;
