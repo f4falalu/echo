@@ -15,7 +15,7 @@ import React from 'react';
 import { ScrollArea } from '../scroll-area';
 
 interface SheetProps extends React.ComponentProps<typeof SheetBase> {
-  trigger: React.ReactNode;
+  trigger?: React.ReactNode;
   children: React.ReactNode;
   closeStyle?: 'collapse' | 'close' | 'none';
   closeClassName?: string;
