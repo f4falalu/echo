@@ -847,10 +847,10 @@ pub async fn post_chat_handler(
     let final_message = ChatMessage::new_with_messages(
         message_id,
         Some(ChatUserMessage {
-            request: request.prompt.clone(),
-            sender_id: user.id,
-            sender_name: user.name.clone().unwrap_or_default(),
-            sender_avatar: None,
+                    request: request.prompt.clone(),
+        sender_id: user.id,
+        sender_name: user.name.clone().unwrap_or_default(),
+        sender_avatar: user.avatar_url.clone(),
         }),
         final_response_messages.clone(), // Use the reordered list
         reasoning_messages.clone(),
@@ -2895,7 +2895,7 @@ async fn initialize_chat(
                 request: Some(prompt_text),
                 sender_id: user.id,
                 sender_name: user.name.clone().unwrap_or_default(),
-                sender_avatar: None,
+                sender_avatar: user.avatar_url.clone(),
             }),
             Vec::new(),
             Vec::new(),
@@ -2938,7 +2938,7 @@ async fn initialize_chat(
                 request: Some(prompt_text),
                 sender_id: user.id,
                 sender_name: user.name.clone().unwrap_or_default(),
-                sender_avatar: None,
+                sender_avatar: user.avatar_url.clone(),
             }),
             Vec::new(),
             Vec::new(),
