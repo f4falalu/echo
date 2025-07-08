@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import type { OrganizationUserDataset } from '@/api/asset_interfaces';
+import type { OrganizationUserDataset } from '@buster/server-shared/organization';
 import { PermissionLineageBreadcrumb } from '@/components/features/PermissionComponents';
 import {
   type BusterListColumn,
@@ -102,7 +102,12 @@ export const UserDatasetListContainer = React.memo(
           rows={rows}
           showHeader={false}
           showSelectAll={false}
-          emptyState={useMemo(() => <EmptyStateList text="No datasets found" />, [])}
+          emptyState={useMemo(
+            () => (
+              <EmptyStateList text="No datasets found" />
+            ),
+            []
+          )}
         />
       </InfiniteListContainer>
     );

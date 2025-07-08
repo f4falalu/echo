@@ -1,5 +1,5 @@
 import React from 'react';
-import type { OrganizationUser } from '@/api/asset_interfaces/users';
+import type { OrganizationUser } from '@buster/server-shared/organization';
 import { HeaderExplanation } from '@/components/features/PermissionComponents';
 
 export const UserLineageHeader = React.memo(

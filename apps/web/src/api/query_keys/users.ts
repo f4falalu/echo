@@ -4,9 +4,9 @@ import type {
   BusterUserDataset,
   BusterUserDatasetGroup,
   BusterUserPermissionGroup,
-  BusterUserTeamListItem,
-  OrganizationUser
+  BusterUserTeamListItem
 } from '@/api/asset_interfaces/users';
+import type { OrganizationUser } from '@buster/server-shared/organization';
 import type {
   UserFavoriteResponse,
   UserResponse,

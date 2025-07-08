@@ -1,5 +1,5 @@
 import { queryOptions } from '@tanstack/react-query';
-import type { OrganizationUser } from '@/api/asset_interfaces/users';
+import type { OrganizationUser } from '@buster/server-shared/organization';
 
 const organizationUsers = (organizationId: string) =>
   queryOptions<OrganizationUser[]>({
