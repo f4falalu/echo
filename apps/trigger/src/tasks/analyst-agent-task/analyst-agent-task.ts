@@ -1,5 +1,5 @@
 import { logger, schemaTask, tasks } from '@trigger.dev/sdk';
-import { initLogger, wrapTraced } from 'braintrust';
+import { currentSpan, initLogger, wrapTraced } from 'braintrust';
 import { AnalystAgentTaskInputSchema, type AnalystAgentTaskOutput } from './types';
 
 // Task 2 & 4: Database helpers (IMPLEMENTED)
@@ -441,6 +441,17 @@ export const analystAgentTask: ReturnType<
       const workflowStartMethodStart = Date.now();
       const tracedWorkflow = wrapTraced(
         async () => {
+          currentSpan().log({
+            metadata: {
+              userName: braintrustMetadata.userName || 'Unknown',
+              userId: braintrustMetadata.userId,
+              organizationName: braintrustMetadata.organizationName || 'Unknown',
+              organizationId: braintrustMetadata.organizationId,
+              messageId: braintrustMetadata.messageId,
+              chatId: braintrustMetadata.chatId,
+            },
+          });
+
           return await run.start({
             inputData: workflowInput,
             runtimeContext,
