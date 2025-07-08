@@ -93,6 +93,12 @@ pnpm run test:watch
 - **No implicit returns** - All code paths must return
 - **Consistent file casing** - Enforced by TypeScript
 
+### Type Safety and Zod Best Practices
+- We care deeply about type safety and we use Zod schemas and then export them as types
+- We prefer using type abstractions over `.parse()` method calls
+- Always export Zod schemas as TypeScript types to leverage static type checking
+- Avoid runtime type checking when compile-time type checks are sufficient
+
 ### Biome Rules (Key Enforcements)
 - **`useImportType: "warn"`** - Use type-only imports when possible
 - **`noExplicitAny: "error"`** - Never use `any` type
