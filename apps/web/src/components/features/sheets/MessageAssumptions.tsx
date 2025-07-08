@@ -12,7 +12,7 @@ import {
   assumptionLabelTranslations
 } from '@/lib/messages/confidence-translations';
 import { ArrowUpRight } from '@/components/ui/icons';
-import { CircleCheck, CircleWarning, OctagonWarning } from '@/components/ui/icons/NucleoIconFilled';
+import { CircleCheck, OctagonWarning } from '@/components/ui/icons/NucleoIconFilled';
 import { Pill } from '@/components/ui/pills/Pill';
 import { cn } from '@/lib/classMerge';
 
@@ -162,7 +162,9 @@ const AssumptionSummary = ({
           {summary_title}
         </Title>
       </div>
-      <Paragraph className="mt-2">{summary_message}</Paragraph>
+      <Paragraph className="mt-2" variant={'secondary'}>
+        {summary_message}
+      </Paragraph>
 
       <Button
         onClick={onClickAskDataTeam}
@@ -178,7 +180,7 @@ const AssumptionSummary = ({
 const ConfidenceIndicator = ({ confidence_score }: { confidence_score: ConfidenceScore }) => {
   const variant: ButtonProps['variant'] = confidence_score === 'high' ? 'success' : 'danger';
   const label = confidenceTranslations[confidence_score];
-  const icon = confidence_score === 'high' ? <CircleCheck /> : <CircleWarning />;
+  const icon = confidence_score === 'high' ? <CircleCheck /> : <OctagonWarning />;
 
   return (
     <div className="flex flex-col gap-y-0.5">
@@ -243,10 +245,12 @@ const AssumptionList = React.memo(
     return (
       <div className="flex flex-col gap-y-4">
         <div className="flex flex-col gap-y-0.5">
-          <Text variant="secondary" size={'sm'}>
+          <Title as={'h4'} className="text-lg">
             {title}
-          </Text>
-          <Paragraph className="mt-2">{description}</Paragraph>
+          </Title>
+          <Paragraph className="mt-2" variant={'secondary'}>
+            {description}
+          </Paragraph>
         </div>
 
         <div className="flex flex-col gap-y-3">
@@ -278,6 +282,7 @@ const AssumptionCard = ({
   const explanation = assumption.explanation;
   const classification = assumptionClassificationTranslations[assumption.classification];
   const label = assumptionLabelTranslations[assumption.label];
+  const isMajor = assumption.label === 'major';
 
   return (
     <div className="flex flex-col rounded border shadow">
@@ -285,12 +290,14 @@ const AssumptionCard = ({
         <Title as={'h4'} className="text-base">
           {title}
         </Title>
-        <Paragraph size={'sm'}>{explanation}</Paragraph>
+        <Paragraph size={'sm'} variant={'secondary'}>
+          {explanation}
+        </Paragraph>
       </div>
 
       <div className="flex items-center justify-between border-t px-3.5 py-2">
         <Text variant="secondary">{classification}</Text>
-        <Pill>{label}</Pill>
+        <Pill variant={isMajor ? 'danger' : 'gray'}>{label}</Pill>
       </div>
     </div>
   );
