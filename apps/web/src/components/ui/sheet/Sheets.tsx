@@ -75,7 +75,7 @@ const SheetClose: React.FC<
   if (closeStyle === 'none') return null;
   if (closeStyle === 'collapse') {
     return (
-      <div className={cn('flex min-h-[38px] items-center gap-x-2 px-3', className)}>
+      <div className={cn('flex min-h-[38px] items-center gap-x-2 border-b px-3', className)}>
         <SheetCloseBase className={className} {...props}>
           <Button variant="ghost" size={'tall'} iconButton prefix={<DoubleChevronRight />} />
         </SheetCloseBase>
