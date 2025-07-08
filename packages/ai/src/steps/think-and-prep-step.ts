@@ -8,15 +8,10 @@ import { thinkAndPrepAgent } from '../agents/think-and-prep-agent/think-and-prep
 import type { thinkAndPrepWorkflowInputSchema } from '../schemas/workflow-schemas';
 import { ChunkProcessor } from '../utils/database/chunk-processor';
 import {
-  RetryWithHealingError,
-  detectRetryableError,
   isRetryWithHealingError,
   createRetryOnErrorHandler,
-  findHealingMessageInsertionIndex,
-  calculateBackoffDelay,
   createUserFriendlyErrorMessage,
-  logRetryInfo,
-  logMessagesAfterHealing,
+  handleRetryWithHealing,
 } from '../utils/retry';
 import type { RetryableError, WorkflowContext } from '../utils/retry/types';
 import { appendToConversation, standardizeMessages } from '../utils/standardizeMessages';
@@ -299,55 +294,32 @@ const thinkAndPrepExecution = async ({
         if (isRetryWithHealingError(error)) {
           const retryableError = error.retryableError;
 
-          // Get the current messages from chunk processor to find the failed tool call
+          // Get the current messages from chunk processor
           const currentMessages = chunkProcessor.getAccumulatedMessages();
-          const { insertionIndex, updatedHealingMessage } = findHealingMessageInsertionIndex(
-            retryableError,
-            currentMessages
-          );
-
-          // Apply exponential backoff for all retries
-          const backoffDelay = calculateBackoffDelay(retryCount);
-          logRetryInfo(
-            'Think and Prep',
-            retryableError,
-            retryCount,
-            insertionIndex,
-            currentMessages.length,
-            backoffDelay,
-            updatedHealingMessage
-          );
-
+          
+          // Handle the retry with healing
+          const { healedMessages, shouldContinueWithoutHealing, backoffDelay } = 
+            await handleRetryWithHealing(
+              retryableError,
+              currentMessages,
+              retryCount,
+              { currentStep: 'think-and-prep' }
+            );
+          
           // Wait before retrying
           await new Promise((resolve) => setTimeout(resolve, backoffDelay));
-
-          // Create new messages array with healing message inserted at the correct position
-          const updatedMessages = [
-            ...currentMessages.slice(0, insertionIndex),
-            updatedHealingMessage,
-            ...currentMessages.slice(insertionIndex),
-          ];
-
-          logMessagesAfterHealing(
-            'Think and Prep',
-            currentMessages.length,
-            updatedMessages,
-            insertionIndex,
-            updatedHealingMessage
-          );
+          
+          // If it's a network error, just increment and continue
+          if (shouldContinueWithoutHealing) {
+            retryCount++;
+            continue;
+          }
 
           // Update messages for the retry
-          messages = updatedMessages;
+          messages = healedMessages;
 
-          // Instead of resetting, append just the healing message at the correct position
-          if (insertionIndex === currentMessages.length) {
-            // Healing message goes at the end - simple append
-            chunkProcessor.appendMessages([updatedHealingMessage]);
-          } else {
-            // Healing message needs to be inserted in the middle
-            // We need to reset and rebuild to maintain order
-            chunkProcessor.setInitialMessages(updatedMessages);
-          }
+          // Update chunk processor with the healed messages
+          chunkProcessor.setInitialMessages(healedMessages);
 
           // Force save to persist the healing message immediately
           await chunkProcessor.saveToDatabase();

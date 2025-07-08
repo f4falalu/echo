@@ -9,4 +9,13 @@ export {
   createUserFriendlyErrorMessage,
   logRetryInfo,
   logMessagesAfterHealing,
+  handleRetryWithHealing,
 } from './retry-helpers';
+export {
+  determineHealingStrategy,
+  removeLastAssistantMessage,
+  applyHealingStrategy,
+  shouldRetryWithoutHealing,
+  getErrorExplanationForUser,
+} from './healing-strategies';
+export type { HealingStrategy } from './healing-strategies';
