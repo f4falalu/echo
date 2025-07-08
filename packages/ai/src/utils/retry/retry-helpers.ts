@@ -25,7 +25,7 @@ export function createRetryOnErrorHandler({
     console.error(`${workflowContext.currentStep} stream error caught in onError:`, error);
 
     // Check if max retries reached
-    if (retryCount >= maxRetries) {
+    if (retryCount + 1 > maxRetries) {
       console.error(`${workflowContext.currentStep} onError: Max retries reached`, {
         retryCount,
         maxRetries,
@@ -213,8 +213,9 @@ export function findHealingMessageInsertionIndex(
                   atIndex: i,
                 });
 
-                // Update the healing message with the correct toolCallId
-                firstContent.toolCallId = toolCall.toolCallId;
+                // Update the healing message with the correct toolCallId (immutable)
+                const updatedFirstContent = { ...firstContent, toolCallId: toolCall.toolCallId };
+                healingMessage.content[0] = updatedFirstContent;
 
                 // Insert position is right after this assistant message
                 insertionIndex = i + 1;

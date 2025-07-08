@@ -1,6 +1,7 @@
 import {
   APICallError,
   EmptyResponseBodyError,
+  InvalidToolArgumentsError,
   JSONParseError,
   NoContentGeneratedError,
   NoSuchToolError,
@@ -19,9 +20,19 @@ function createWorkflowAwareHealingMessage(toolName: string, context?: WorkflowC
     return `${baseMessage} Please use one of the available tools instead.`;
   }
 
-  const { currentStep } = context;
+  const { currentStep, availableTools } = context;
 
-  // Static message that always provides full pipeline context
+  // Use actual available tools if provided
+  if (availableTools && availableTools.size > 0) {
+    const toolList = Array.from(availableTools).sort().join(', ');
+    return `${baseMessage}
+
+You are currently in ${currentStep} mode. The available tools are: ${toolList}.
+
+Please use one of these tools to continue with your task. Make sure to use the exact tool name as listed above.`;
+  }
+
+  // Fallback to static message if tools not provided
   const pipelineContext = `
 
 This workflow has two steps:
@@ -100,7 +111,7 @@ export function detectRetryableError(
   }
 
   // Handle InvalidToolArgumentsError - AI SDK throws this for bad arguments
-  if (error instanceof Error && error.name === 'AI_InvalidToolArgumentsError') {
+  if (InvalidToolArgumentsError.isInstance(error)) {
     // Extract detailed error information
     let errorDetails = 'Invalid arguments provided';
 

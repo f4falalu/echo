@@ -21,4 +21,5 @@ export interface RetryableError {
  */
 export interface WorkflowContext {
   currentStep: 'think-and-prep' | 'analyst';
+  availableTools?: Set<string>;
 }

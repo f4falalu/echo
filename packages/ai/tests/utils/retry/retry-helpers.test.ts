@@ -499,7 +499,7 @@ describe('retry-helpers', () => {
       expect(result.shouldContinueWithoutHealing).toBe(false);
       expect(result.healedMessages).toHaveLength(2);
       expect(result.healedMessages[0]?.content).toBe('Tell me about revenue');
-      expect(result.healedMessages[1]?.content).toBe('Please continue with your analysis.');
+      expect(result.healedMessages[1]?.content).toBe('Please continue with your preparation.');
       expect(result.backoffDelay).toBe(2000); // 2^1 * 1000
 
       consoleInfoSpy.mockRestore();

@@ -374,7 +374,10 @@ const analystExecution = async ({
             onError: createRetryOnErrorHandler({
               retryCount,
               maxRetries,
-              workflowContext: { currentStep: 'analyst' },
+              workflowContext: { 
+                currentStep: 'analyst',
+                availableTools 
+              },
             }),
           });
 
@@ -429,7 +432,10 @@ const analystExecution = async ({
             retryableError,
             currentMessages,
             retryCount,
-            { currentStep: 'analyst' }
+            { 
+              currentStep: 'analyst',
+              availableTools 
+            }
           );
         
         // Wait before retrying
@@ -448,7 +454,16 @@ const analystExecution = async ({
         chunkProcessor.setInitialMessages(healedMessages);
 
         // Force save to persist the healing message immediately
-        await chunkProcessor.saveToDatabase();
+        try {
+          await chunkProcessor.saveToDatabase();
+        } catch (dbError) {
+          console.error('Analyst: Failed to save healing message to database', {
+            error: dbError,
+            retryCount,
+            willContinueAnyway: true
+          });
+          // Continue with retry even if save fails
+        }
 
         retryCount++;
 

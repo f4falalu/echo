@@ -253,7 +253,10 @@ const thinkAndPrepExecution = async ({
               onError: createRetryOnErrorHandler({
                 retryCount,
                 maxRetries,
-                workflowContext: { currentStep: 'think-and-prep' },
+                workflowContext: { 
+                  currentStep: 'think-and-prep',
+                  availableTools 
+                },
               }),
             });
 
@@ -303,7 +306,10 @@ const thinkAndPrepExecution = async ({
               retryableError,
               currentMessages,
               retryCount,
-              { currentStep: 'think-and-prep' }
+              { 
+                currentStep: 'think-and-prep',
+                availableTools 
+              }
             );
           
           // Wait before retrying
@@ -322,7 +328,16 @@ const thinkAndPrepExecution = async ({
           chunkProcessor.setInitialMessages(healedMessages);
 
           // Force save to persist the healing message immediately
-          await chunkProcessor.saveToDatabase();
+          try {
+            await chunkProcessor.saveToDatabase();
+          } catch (dbError) {
+            console.error('Think and Prep: Failed to save healing message to database', {
+              error: dbError,
+              retryCount,
+              willContinueAnyway: true
+            });
+            // Continue with retry even if save fails
+          }
 
           retryCount++;
 

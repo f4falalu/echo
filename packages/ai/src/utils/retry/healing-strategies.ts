@@ -1,6 +1,9 @@
 import type { CoreMessage } from 'ai';
 import type { RetryableError, WorkflowContext } from './types';
 
+// Network error types that should trigger immediate retry without healing
+const NETWORK_ERROR_TYPES = ['network-timeout', 'server-error', 'rate-limit'] as const;
+
 export interface HealingStrategy {
   shouldRemoveLastAssistantMessage: boolean;
   healingMessage: CoreMessage | null;
@@ -27,11 +30,15 @@ export function determineHealingStrategy(
     // Empty/malformed responses - remove the bad message and continue
     case 'empty-response':
     case 'json-parse-error':
+      const stepSpecificMessage = context?.currentStep 
+        ? `Please continue with your ${context.currentStep === 'analyst' ? 'analysis' : 'preparation'}.`
+        : 'Please continue with your analysis.';
+      
       return {
         shouldRemoveLastAssistantMessage: true,
         healingMessage: {
           role: 'user',
-          content: 'Please continue with your analysis.',
+          content: stepSpecificMessage,
         },
       };
 
@@ -54,6 +61,21 @@ export function determineHealingStrategy(
 
     // Unknown errors - generic healing
     default:
+      // If the healing message contains tool error information and we have context, enhance it
+      if (retryableError.healingMessage && context?.availableTools && context.availableTools.size > 0) {
+        const toolsInfo = `\n\nAvailable tools in ${context.currentStep}: ${Array.from(context.availableTools).sort().join(', ')}`;
+        
+        // Check if this is a tool-related error that would benefit from tool list
+        const content = retryableError.healingMessage.content;
+        if (Array.isArray(content) && content[0]?.type === 'tool-result') {
+          // It's a tool error, enhance the message
+          const firstContent = content[0] as any;
+          if (firstContent.result?.error && typeof firstContent.result.error === 'string') {
+            firstContent.result.error += toolsInfo;
+          }
+        }
+      }
+      
       return {
         shouldRemoveLastAssistantMessage: false,
         healingMessage: retryableError.healingMessage,
@@ -126,7 +148,7 @@ export function applyHealingStrategy(
  * These are typically transient network/server errors
  */
 export function shouldRetryWithoutHealing(errorType: string): boolean {
-  return ['network-timeout', 'server-error', 'rate-limit'].includes(errorType);
+  return NETWORK_ERROR_TYPES.includes(errorType as any);
 }
 
 /**
