@@ -108,4 +108,11 @@ pnpm run test:watch
   - `console.warn` for warning messages
   - `console.error` for error messages
 
-[... rest of the existing content remains the same ...]
+## Error Handling and Logging Philosophy
+- We care deeply about error handling and logging
+- Key principles for error management:
+  - Catch errors effectively and thoughtfully
+  - Consider the state errors put the system into
+  - Implement comprehensive unit tests for error scenarios
+  - Log errors strategically for effective debugging
+  - Avoid over-logging while ensuring sufficient context for troubleshooting
