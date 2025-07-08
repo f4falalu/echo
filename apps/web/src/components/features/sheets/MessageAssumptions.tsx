@@ -12,14 +12,16 @@ import {
   assumptionLabelTranslations
 } from '@/lib/messages/confidence-translations';
 import { ArrowUpRight } from '@/components/ui/icons';
-import { CircleCheck, CircleWarning } from '@/components/ui/icons/NucleoIconFilled';
+import { CircleCheck, CircleWarning, OctagonWarning } from '@/components/ui/icons/NucleoIconFilled';
 import { Pill } from '@/components/ui/pills/Pill';
+import { cn } from '@/lib/classMerge';
 
 type MessageAssumptionsProps = Pick<
   PostProcessingMessage,
   'summary_message' | 'summary_title' | 'assumptions' | 'confidence_score'
 > & {
   onClickAskDataTeam: () => void;
+  useTrigger?: boolean;
 };
 
 export interface MessageAssumptionsRef {
@@ -30,7 +32,14 @@ export interface MessageAssumptionsRef {
 export const MessageAssumptions = React.memo(
   forwardRef<MessageAssumptionsRef, MessageAssumptionsProps>(
     (
-      { summary_message, onClickAskDataTeam, summary_title, assumptions = [], confidence_score },
+      {
+        summary_message,
+        useTrigger = true,
+        onClickAskDataTeam,
+        summary_title,
+        assumptions = [],
+        confidence_score
+      },
       ref
     ) => {
       const [open, setOpen] = useState(false);
@@ -46,6 +55,11 @@ export const MessageAssumptions = React.memo(
           contentClassName="w-[465px]"
           open={open}
           onOpenChange={setOpen}
+          trigger={
+            useTrigger ? (
+              <Trigger onClick={() => setOpen(true)} confidence_score={confidence_score} />
+            ) : null
+          }
           header={
             <AssumptionHeader
               selected={selectedPanel}
@@ -253,6 +267,7 @@ const AssumptionList = React.memo(
 );
 
 MessageAssumptions.displayName = 'MessageAssumptions';
+AssumptionList.displayName = 'AssumptionList';
 
 const AssumptionCard = ({
   assumption
@@ -277,6 +292,28 @@ const AssumptionCard = ({
         <Text variant="secondary">{classification}</Text>
         <Pill>{label}</Pill>
       </div>
+    </div>
+  );
+};
+
+const Trigger: React.FC<{
+  onClick: () => void;
+  confidence_score: ConfidenceScore;
+}> = ({ onClick, confidence_score }) => {
+  const isLow = confidence_score === 'low' || !confidence_score;
+  const icon = isLow ? <OctagonWarning /> : <CircleCheck />;
+
+  return (
+    <div
+      className={cn(
+        'flex cursor-pointer items-center rounded-sm p-[3px] text-lg transition-colors',
+        {
+          'bg-success-foreground bg-success-background hover:bg-success-background-hover': !isLow,
+          'hover:bg-danger-background-hover text-danger-foreground': isLow
+        }
+      )}
+      onClick={onClick}>
+      {icon}
     </div>
   );
 };

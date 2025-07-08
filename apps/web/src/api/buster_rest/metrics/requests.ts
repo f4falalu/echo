@@ -23,10 +23,10 @@ import type {
 import { serverFetch } from '@/api/createServerInstance';
 import { mainApi } from '../instances';
 
-export const getMetric = async ({ id, password, version_number }: GetMetricRequest) => {
+export const getMetric = async (params: GetMetricRequest) => {
   return mainApi
-    .get<GetMetricResponse>(`/metrics/${id}`, {
-      params: { password, version_number }
+    .get<GetMetricResponse>(`/metrics/${params.id}`, {
+      params
     })
     .then((res) => res.data);
 };

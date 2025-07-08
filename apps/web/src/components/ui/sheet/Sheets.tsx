@@ -43,7 +43,6 @@ export const Sheet = ({
   return (
     <SheetBase {...rest}>
       <SheetTrigger>{trigger}</SheetTrigger>
-
       <SheetContent side={side} className={contentClassName}>
         <SheetClose closeStyle={closeStyle} className={closeClassName}>
           {header}
