@@ -4,7 +4,7 @@ import postProcessingWorkflow, {
 import { eq, getDb, messages } from '@buster/database';
 import { logger, schemaTask } from '@trigger.dev/sdk/v3';
 import { initLogger, wrapTraced } from 'braintrust';
-import { z } from 'zod';
+import { z } from 'zod/v4';
 import {
   buildWorkflowInput,
   fetchConversationHistory,
@@ -13,23 +13,18 @@ import {
   fetchUserDatasets,
   sendSlackNotification,
 } from './helpers';
-import {
-  DataFetchError,
-  MessageNotFoundError,
-  TaskInputSchema,
-  type TaskOutputSchema,
-} from './types';
+import { DataFetchError, MessageNotFoundError, TaskInputSchema } from './types';
 import type { TaskInput, TaskOutput } from './types';
 
 // Schema for the subset of fields we want to save to the database
 const PostProcessingDbDataSchema = z.object({
-  summaryMessage: z.string().optional(),
-  summaryTitle: z.string().optional(),
-  formattedMessage: z.string().nullable().optional(),
+  confidence_score: z.enum(['low', 'high']),
+  summary_message: z.string(),
+  summary_title: z.string(),
   assumptions: z
     .array(
       z.object({
-        descriptiveTitle: z.string(),
+        descriptive_title: z.string(),
         classification: z.enum([
           'fieldMapping',
           'tableRelationship',
@@ -59,9 +54,8 @@ const PostProcessingDbDataSchema = z.object({
       })
     )
     .optional(),
-  message: z.string().optional(),
-  toolCalled: z.string(),
-  userName: z.string().nullable().optional(),
+  tool_called: z.string(),
+  user_name: z.string().nullable().optional(),
 });
 
 type PostProcessingDbData = z.infer<typeof PostProcessingDbDataSchema>;
@@ -73,18 +67,53 @@ function extractDbFields(
   workflowOutput: PostProcessingWorkflowOutput,
   userName: string | null
 ): PostProcessingDbData {
-  const extracted = {
-    summaryMessage: workflowOutput.summaryMessage,
-    summaryTitle: workflowOutput.summaryTitle,
-    formattedMessage: workflowOutput.formattedMessage,
-    assumptions: workflowOutput.assumptions,
-    message: workflowOutput.message,
-    toolCalled: workflowOutput.toolCalled || 'unknown', // Provide default if missing
-    userName,
+  logger.log('Extracting database fields from workflow output', {
+    workflowOutput,
+  });
+
+  // Check if there are any major assumptions
+  const hasMajorAssumptions =
+    workflowOutput.assumptions?.some((assumption) => assumption.label === 'major') ?? false;
+
+  // Determine confidence score based on rules:
+  // - Low if toolCalled is 'flagChat'
+  // - Low if there are any major assumptions
+  // - High otherwise
+  let confidence_score: 'low' | 'high' = 'high';
+  if (workflowOutput.toolCalled === 'flagChat' || hasMajorAssumptions) {
+    confidence_score = 'low';
+  }
+
+  // Determine summary message and title
+  let summaryMessage: string;
+  let summaryTitle: string;
+
+  if (!hasMajorAssumptions && workflowOutput.flagChatMessage) {
+    // If no major assumptions, use flagChatMessage as summaryMessage
+    summaryMessage = workflowOutput.flagChatMessage;
+    summaryTitle = 'No Major Assumptions Identified';
+  } else {
+    // Otherwise use the provided summary fields or defaults
+    summaryMessage = workflowOutput.summaryMessage || 'No summary available';
+    summaryTitle = workflowOutput.summaryTitle || 'Summary';
+  }
+
+  const extracted: PostProcessingDbData = {
+    summary_message: summaryMessage,
+    summary_title: summaryTitle,
+    confidence_score,
+    assumptions: workflowOutput.assumptions?.map((assumption) => ({
+      descriptive_title: assumption.descriptiveTitle,
+      classification: assumption.classification,
+      explanation: assumption.explanation,
+      label: assumption.label,
+    })),
+    tool_called: workflowOutput.toolCalled || 'unknown', // Provide default if missing
+    user_name: userName,
   };
 
   // Validate the extracted data matches our schema
-  return PostProcessingDbDataSchema.parse(extracted);
+  return extracted;
 }
 
 /**
@@ -263,21 +292,18 @@ export const messagePostProcessingTask: ReturnType<
         logger.log('Checking Slack notification conditions', {
           messageId: payload.messageId,
           organizationId: messageContext.organizationId,
-          summaryTitle: dbData.summaryTitle,
-          summaryMessage: dbData.summaryMessage,
-          formattedMessage: dbData.formattedMessage,
-          toolCalled: dbData.toolCalled,
+          summaryTitle: dbData.summary_title,
+          summaryMessage: dbData.summary_message,
+          toolCalled: dbData.tool_called,
         });
 
         const slackResult = await sendSlackNotification({
           organizationId: messageContext.organizationId,
           userName: messageContext.userName,
           chatId: messageContext.chatId,
-          summaryTitle: dbData.summaryTitle,
-          summaryMessage: dbData.summaryMessage,
-          formattedMessage: dbData.formattedMessage,
-          toolCalled: dbData.toolCalled,
-          message: dbData.message,
+          summaryTitle: dbData.summary_title,
+          summaryMessage: dbData.summary_message,
+          toolCalled: dbData.tool_called,
         });
 
         if (slackResult.sent) {

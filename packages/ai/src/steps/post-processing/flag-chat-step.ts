@@ -224,13 +224,25 @@ No conversation history available for analysis.`);
       throw new Error('No tool was called by the flag chat agent');
     }
 
+    // Handle different tool responses
+    let flagChatMessage: string | undefined;
+    let flagChatTitle: string | undefined;
+
+    if (toolCall.toolName === 'noIssuesFound') {
+      flagChatMessage = toolCall.args.message;
+      flagChatTitle = 'No Issues Found';
+    } else if (toolCall.toolName === 'flagChat') {
+      flagChatMessage = toolCall.args.summary_message;
+      flagChatTitle = toolCall.args.summary_title;
+    }
+
     return {
       // Pass through all input fields
       ...inputData,
       // Add new fields from this step
       toolCalled: toolCall.toolName,
-      flagChatMessage: toolCall.args.summary_message,
-      flagChatTitle: toolCall.args.summary_title,
+      flagChatMessage,
+      flagChatTitle,
     };
   } catch (error) {
     console.error('Failed to analyze chat for flagging:', error);
