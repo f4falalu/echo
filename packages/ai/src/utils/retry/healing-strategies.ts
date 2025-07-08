@@ -29,11 +29,11 @@ export function determineHealingStrategy(
 
     // Empty/malformed responses - remove the bad message and continue
     case 'empty-response':
-    case 'json-parse-error':
-      const stepSpecificMessage = context?.currentStep 
+    case 'json-parse-error': {
+      const stepSpecificMessage = context?.currentStep
         ? `Please continue with your ${context.currentStep === 'analyst' ? 'analysis' : 'preparation'}.`
         : 'Please continue with your analysis.';
-      
+
       return {
         shouldRemoveLastAssistantMessage: true,
         healingMessage: {
@@ -41,6 +41,7 @@ export function determineHealingStrategy(
           content: stepSpecificMessage,
         },
       };
+    }
 
     // Network/server errors - just retry with backoff
     case 'network-timeout':
@@ -62,20 +63,31 @@ export function determineHealingStrategy(
     // Unknown errors - generic healing
     default:
       // If the healing message contains tool error information and we have context, enhance it
-      if (retryableError.healingMessage && context?.availableTools && context.availableTools.size > 0) {
+      if (
+        retryableError.healingMessage &&
+        context?.availableTools &&
+        context.availableTools.size > 0
+      ) {
         const toolsInfo = `\n\nAvailable tools in ${context.currentStep}: ${Array.from(context.availableTools).sort().join(', ')}`;
-        
+
         // Check if this is a tool-related error that would benefit from tool list
         const content = retryableError.healingMessage.content;
         if (Array.isArray(content) && content[0]?.type === 'tool-result') {
           // It's a tool error, enhance the message
-          const firstContent = content[0] as any;
+          type ToolResultWithError = {
+            type: 'tool-result';
+            toolCallId: string;
+            toolName: string;
+            result: { error?: string; [key: string]: unknown };
+          };
+
+          const firstContent = content[0] as ToolResultWithError;
           if (firstContent.result?.error && typeof firstContent.result.error === 'string') {
             firstContent.result.error += toolsInfo;
           }
         }
       }
-      
+
       return {
         shouldRemoveLastAssistantMessage: false,
         healingMessage: retryableError.healingMessage,
@@ -114,10 +126,10 @@ export function removeLastAssistantMessage(messages: CoreMessage[]): CoreMessage
   if (hasToolResult) {
     // If there's a tool result, we need to remove both the assistant message and any subsequent tool results
     return messages.slice(0, lastAssistantIndex);
-  } else {
-    // Just remove the assistant message
-    return [...messages.slice(0, lastAssistantIndex), ...messages.slice(lastAssistantIndex + 1)];
   }
+
+  // Just remove the assistant message
+  return [...messages.slice(0, lastAssistantIndex), ...messages.slice(lastAssistantIndex + 1)];
 }
 
 /**
@@ -148,7 +160,7 @@ export function applyHealingStrategy(
  * These are typically transient network/server errors
  */
 export function shouldRetryWithoutHealing(errorType: string): boolean {
-  return NETWORK_ERROR_TYPES.includes(errorType as any);
+  return NETWORK_ERROR_TYPES.includes(errorType as (typeof NETWORK_ERROR_TYPES)[number]);
 }
 
 /**
@@ -157,17 +169,17 @@ export function shouldRetryWithoutHealing(errorType: string): boolean {
 export function getErrorExplanationForUser(retryableError: RetryableError): string | null {
   switch (retryableError.type) {
     case 'empty-response':
-      return 'The assistant\'s response was incomplete. Retrying...';
-    
+      return "The assistant's response was incomplete. Retrying...";
+
     case 'json-parse-error':
       return 'There was a formatting issue with the response. Retrying...';
-    
+
     case 'invalid-tool-arguments':
       return 'The tool call had invalid parameters. The assistant will try again with correct parameters.';
-    
+
     case 'no-such-tool':
-      return 'The assistant tried to use a tool that\'s not available in the current mode.';
-    
+      return "The assistant tried to use a tool that's not available in the current mode.";
+
     default:
       return null;
   }
