@@ -160,6 +160,9 @@ importers:
       '@buster/database':
         specifier: workspace:*
         version: link:../../packages/database
+      '@buster/server-shared':
+        specifier: workspace:*
+        version: link:../../packages/server-shared
       '@buster/test-utils':
         specifier: workspace:*
         version: link:../../packages/test-utils

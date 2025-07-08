@@ -2,6 +2,13 @@ import postProcessingWorkflow, {
   type PostProcessingWorkflowOutput,
 } from '@buster/ai/workflows/post-processing-workflow';
 import { eq, getDb, messages } from '@buster/database';
+import type {
+  Assumption,
+  AssumptionClassification,
+  AssumptionLabel,
+  ConfidenceScore,
+  PostProcessingMessage,
+} from '@buster/server-shared/message';
 import { logger, schemaTask } from '@trigger.dev/sdk/v3';
 import { initLogger, wrapTraced } from 'braintrust';
 import { z } from 'zod/v4';
@@ -16,57 +23,13 @@ import {
 import { DataFetchError, MessageNotFoundError, TaskInputSchema } from './types';
 import type { TaskInput, TaskOutput } from './types';
 
-// Schema for the subset of fields we want to save to the database
-const PostProcessingDbDataSchema = z.object({
-  confidence_score: z.enum(['low', 'high']),
-  summary_message: z.string(),
-  summary_title: z.string(),
-  assumptions: z
-    .array(
-      z.object({
-        descriptive_title: z.string(),
-        classification: z.enum([
-          'fieldMapping',
-          'tableRelationship',
-          'dataQuality',
-          'dataFormat',
-          'dataAvailability',
-          'timePeriodInterpretation',
-          'timePeriodGranularity',
-          'metricInterpretation',
-          'segmentInterpretation',
-          'quantityInterpretation',
-          'requestScope',
-          'metricDefinition',
-          'segmentDefinition',
-          'businessLogic',
-          'policyInterpretation',
-          'optimization',
-          'aggregation',
-          'filtering',
-          'sorting',
-          'grouping',
-          'calculationMethod',
-          'dataRelevance',
-        ]),
-        explanation: z.string(),
-        label: z.enum(['timeRelated', 'vagueRequest', 'major', 'minor']),
-      })
-    )
-    .optional(),
-  tool_called: z.string(),
-  user_name: z.string().nullable().optional(),
-});
-
-type PostProcessingDbData = z.infer<typeof PostProcessingDbDataSchema>;
-
 /**
  * Extract only the specific fields we want to save to the database
  */
 function extractDbFields(
   workflowOutput: PostProcessingWorkflowOutput,
-  userName: string | null
-): PostProcessingDbData {
+  userName: string
+): PostProcessingMessage {
   logger.log('Extracting database fields from workflow output', {
     workflowOutput,
   });
@@ -79,7 +42,7 @@ function extractDbFields(
   // - Low if toolCalled is 'flagChat'
   // - Low if there are any major assumptions
   // - High otherwise
-  let confidence_score: 'low' | 'high' = 'high';
+  let confidence_score: ConfidenceScore = 'high';
   if (workflowOutput.toolCalled === 'flagChat' || hasMajorAssumptions) {
     confidence_score = 'low';
   }
@@ -98,15 +61,15 @@ function extractDbFields(
     summaryTitle = workflowOutput.summaryTitle || 'Summary';
   }
 
-  const extracted: PostProcessingDbData = {
+  const extracted: PostProcessingMessage = {
     summary_message: summaryMessage,
     summary_title: summaryTitle,
     confidence_score,
     assumptions: workflowOutput.assumptions?.map((assumption) => ({
       descriptive_title: assumption.descriptiveTitle,
-      classification: assumption.classification,
+      classification: assumption.classification as AssumptionClassification,
       explanation: assumption.explanation,
-      label: assumption.label,
+      label: assumption.label as AssumptionLabel,
     })),
     tool_called: workflowOutput.toolCalled || 'unknown', // Provide default if missing
     user_name: userName,
