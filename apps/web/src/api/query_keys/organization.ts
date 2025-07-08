@@ -8,5 +8,5 @@ const organizationUsers = (organizationId: string) =>
   });
 
 export const organizationQueryKeys = {
-  '/organizations/users:getOrganizationUsers': organizationUsers
+  organizationUsers
 };
