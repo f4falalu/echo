@@ -1,16 +1,15 @@
 import postProcessingWorkflow, {
   type PostProcessingWorkflowOutput,
 } from '@buster/ai/workflows/post-processing-workflow';
-import { eq, getDb, messages } from '@buster/database';
+import { eq, getBraintrustMetadata, getDb, messages } from '@buster/database';
 import type {
-  Assumption,
   AssumptionClassification,
   AssumptionLabel,
   ConfidenceScore,
   PostProcessingMessage,
 } from '@buster/server-shared/message';
 import { logger, schemaTask } from '@trigger.dev/sdk/v3';
-import { initLogger, wrapTraced } from 'braintrust';
+import { currentSpan, initLogger, wrapTraced } from 'braintrust';
 import { z } from 'zod/v4';
 import {
   buildWorkflowInput,
@@ -98,8 +97,8 @@ export const messagePostProcessingTask: ReturnType<
       throw new Error('BRAINTRUST_KEY is not set');
     }
 
-    // Initialize Braintrust logging for observability
-    initLogger({
+    // Initialize Braintrust logger
+    const braintrustLogger = initLogger({
       apiKey: process.env.BRAINTRUST_KEY,
       projectName: process.env.ENVIRONMENT || 'development',
     });
@@ -118,17 +117,20 @@ export const messagePostProcessingTask: ReturnType<
       });
 
       // Step 2: Fetch all required data concurrently
-      const [conversationMessages, previousPostProcessingResults, datasets] = await Promise.all([
-        fetchConversationHistory(messageContext.chatId),
-        fetchPreviousPostProcessingMessages(messageContext.chatId, messageContext.createdAt),
-        fetchUserDatasets(messageContext.createdBy),
-      ]);
+      const [conversationMessages, previousPostProcessingResults, datasets, braintrustMetadata] =
+        await Promise.all([
+          fetchConversationHistory(messageContext.chatId),
+          fetchPreviousPostProcessingMessages(messageContext.chatId, messageContext.createdAt),
+          fetchUserDatasets(messageContext.createdBy),
+          getBraintrustMetadata({ messageId: payload.messageId }),
+        ]);
 
       logger.log('Fetched required data', {
         messageId: payload.messageId,
         conversationMessagesCount: conversationMessages.length,
         previousPostProcessingCount: previousPostProcessingResults.length,
         datasetsCount: datasets.length,
+        braintrustMetadata, // Log the metadata to verify it's working
       });
 
       // Step 3: Build workflow input
@@ -154,6 +156,17 @@ export const messagePostProcessingTask: ReturnType<
 
       const tracedWorkflow = wrapTraced(
         async () => {
+          currentSpan().log({
+            metadata: {
+              userName: braintrustMetadata.userName || 'Unknown',
+              userId: braintrustMetadata.userId,
+              organizationName: braintrustMetadata.organizationName || 'Unknown',
+              organizationId: braintrustMetadata.organizationId,
+              messageId: braintrustMetadata.messageId,
+              chatId: braintrustMetadata.chatId,
+            },
+          });
+
           const run = postProcessingWorkflow.createRun();
           return await run.start({
             inputData: workflowInput,
@@ -251,6 +264,12 @@ export const messagePostProcessingTask: ReturnType<
       // Step 6: Send Slack notification if conditions are met
       let slackNotificationSent = false;
 
+      // Skip Slack notification if tool_called is "noIssuesFound" and there are no major assumptions
+      const hasMajorAssumptions =
+        dbData.assumptions?.some((assumption) => assumption.label === 'major') ?? false;
+      const shouldSkipSlackNotification =
+        dbData.tool_called === 'noIssuesFound' && !hasMajorAssumptions;
+
       try {
         logger.log('Checking Slack notification conditions', {
           messageId: payload.messageId,
@@ -258,29 +277,38 @@ export const messagePostProcessingTask: ReturnType<
           summaryTitle: dbData.summary_title,
           summaryMessage: dbData.summary_message,
           toolCalled: dbData.tool_called,
+          hasMajorAssumptions,
+          shouldSkipSlackNotification,
         });
 
-        const slackResult = await sendSlackNotification({
-          organizationId: messageContext.organizationId,
-          userName: messageContext.userName,
-          chatId: messageContext.chatId,
-          summaryTitle: dbData.summary_title,
-          summaryMessage: dbData.summary_message,
-          toolCalled: dbData.tool_called,
-        });
-
-        if (slackResult.sent) {
-          slackNotificationSent = true;
-          logger.log('Slack notification sent successfully', {
+        if (shouldSkipSlackNotification) {
+          logger.log('Skipping Slack notification: noIssuesFound with no major assumptions', {
             messageId: payload.messageId,
             organizationId: messageContext.organizationId,
           });
         } else {
-          logger.log('Slack notification not sent', {
-            messageId: payload.messageId,
+          const slackResult = await sendSlackNotification({
             organizationId: messageContext.organizationId,
-            reason: slackResult.error,
+            userName: messageContext.userName,
+            chatId: messageContext.chatId,
+            summaryTitle: dbData.summary_title,
+            summaryMessage: dbData.summary_message,
+            toolCalled: dbData.tool_called,
           });
+
+          if (slackResult.sent) {
+            slackNotificationSent = true;
+            logger.log('Slack notification sent successfully', {
+              messageId: payload.messageId,
+              organizationId: messageContext.organizationId,
+            });
+          } else {
+            logger.log('Slack notification not sent', {
+              messageId: payload.messageId,
+              organizationId: messageContext.organizationId,
+              reason: slackResult.error,
+            });
+          }
         }
       } catch (slackError) {
         const errorMessage =
@@ -305,8 +333,8 @@ export const messagePostProcessingTask: ReturnType<
         slackNotificationSent,
       });
 
-      // Wait 500ms to allow Braintrust to clean up its trace before completing
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      // Need to flush the Braintrust logger to ensure all traces are sent
+      await braintrustLogger.flush();
 
       return {
         success: true,
@@ -333,6 +361,9 @@ export const messagePostProcessingTask: ReturnType<
         stack: error instanceof Error ? error.stack : undefined,
         executionTimeMs: Date.now() - startTime,
       });
+
+      // Need to flush the Braintrust logger to ensure all traces are sent
+      await braintrustLogger.flush();
 
       return {
         success: false,
