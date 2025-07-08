@@ -135,8 +135,8 @@ export const messagePostProcessingTask: ReturnType<
       throw new Error('BRAINTRUST_KEY is not set');
     }
 
-    // Initialize Braintrust logging for observability
-    initLogger({
+    // Initialize Braintrust logger
+    const braintrustLogger = initLogger({
       apiKey: process.env.BRAINTRUST_KEY,
       projectName: process.env.ENVIRONMENT || 'development',
     });
@@ -302,6 +302,12 @@ export const messagePostProcessingTask: ReturnType<
       // Step 6: Send Slack notification if conditions are met
       let slackNotificationSent = false;
 
+      // Skip Slack notification if tool_called is "noIssuesFound" and there are no major assumptions
+      const hasMajorAssumptions =
+        dbData.assumptions?.some((assumption) => assumption.label === 'major') ?? false;
+      const shouldSkipSlackNotification =
+        dbData.tool_called === 'noIssuesFound' && !hasMajorAssumptions;
+
       try {
         logger.log('Checking Slack notification conditions', {
           messageId: payload.messageId,
@@ -309,29 +315,38 @@ export const messagePostProcessingTask: ReturnType<
           summaryTitle: dbData.summary_title,
           summaryMessage: dbData.summary_message,
           toolCalled: dbData.tool_called,
+          hasMajorAssumptions,
+          shouldSkipSlackNotification,
         });
 
-        const slackResult = await sendSlackNotification({
-          organizationId: messageContext.organizationId,
-          userName: messageContext.userName,
-          chatId: messageContext.chatId,
-          summaryTitle: dbData.summary_title,
-          summaryMessage: dbData.summary_message,
-          toolCalled: dbData.tool_called,
-        });
-
-        if (slackResult.sent) {
-          slackNotificationSent = true;
-          logger.log('Slack notification sent successfully', {
+        if (shouldSkipSlackNotification) {
+          logger.log('Skipping Slack notification: noIssuesFound with no major assumptions', {
             messageId: payload.messageId,
             organizationId: messageContext.organizationId,
           });
         } else {
-          logger.log('Slack notification not sent', {
-            messageId: payload.messageId,
+          const slackResult = await sendSlackNotification({
             organizationId: messageContext.organizationId,
-            reason: slackResult.error,
+            userName: messageContext.userName,
+            chatId: messageContext.chatId,
+            summaryTitle: dbData.summary_title,
+            summaryMessage: dbData.summary_message,
+            toolCalled: dbData.tool_called,
           });
+
+          if (slackResult.sent) {
+            slackNotificationSent = true;
+            logger.log('Slack notification sent successfully', {
+              messageId: payload.messageId,
+              organizationId: messageContext.organizationId,
+            });
+          } else {
+            logger.log('Slack notification not sent', {
+              messageId: payload.messageId,
+              organizationId: messageContext.organizationId,
+              reason: slackResult.error,
+            });
+          }
         }
       } catch (slackError) {
         const errorMessage =
@@ -384,6 +399,9 @@ export const messagePostProcessingTask: ReturnType<
         stack: error instanceof Error ? error.stack : undefined,
         executionTimeMs: Date.now() - startTime,
       });
+
+      // Need to flush the Braintrust logger to ensure all traces are sent
+      await braintrustLogger.flush();
 
       return {
         success: false,

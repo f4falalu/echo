@@ -290,26 +290,10 @@ export const analystAgentTask: ReturnType<
       throw new Error('BRAINTRUST_KEY is not set');
     }
 
-    // Start Braintrust initialization immediately but don't block the critical path
-    const braintrustInitStart = Date.now();
-    const braintrustInitPromise = Promise.resolve().then(async () => {
-      try {
-        initLogger({
-          apiKey: process.env.BRAINTRUST_KEY,
-          projectName: process.env.ENVIRONMENT || 'development',
-        });
-        logger.log('Braintrust initialization completed', {
-          messageId: payload.message_id,
-          braintrustInitTimeMs: Date.now() - braintrustInitStart,
-        });
-      } catch (error) {
-        logger.error('Braintrust initialization failed', {
-          messageId: payload.message_id,
-          error: error instanceof Error ? error.message : 'Unknown error',
-          braintrustInitTimeMs: Date.now() - braintrustInitStart,
-        });
-        // Don't throw - allow workflow to continue without Braintrust
-      }
+    // Initialize Braintrust logger
+    const braintrustLogger = initLogger({
+      apiKey: process.env.BRAINTRUST_KEY,
+      projectName: process.env.ENVIRONMENT || 'development',
     });
 
     try {
@@ -424,19 +408,6 @@ export const analystAgentTask: ReturnType<
       // Log performance after workflow run creation
       logPerformanceMetrics('post-createrun', payload.message_id, taskStartTime, resourceTracker);
 
-      // Wait for Braintrust initialization if it's not ready yet
-      const braintrustWaitStart = Date.now();
-      await braintrustInitPromise;
-      const braintrustWaitTime = Date.now() - braintrustWaitStart;
-
-      if (braintrustWaitTime > 10) {
-        // Only log if we actually had to wait
-        logger.log('Waited for Braintrust initialization', {
-          messageId: payload.message_id,
-          braintrustWaitTimeMs: braintrustWaitTime,
-        });
-      }
-
       // Execute workflow with tracing
       const workflowStartMethodStart = Date.now();
       const tracedWorkflow = wrapTraced(
@@ -472,7 +443,6 @@ export const analystAgentTask: ReturnType<
         workflowStartMethodTimeMs: workflowStartMethodTime,
         totalWorkflowTimeMs: totalWorkflowTime,
         createRunTimeMs: createRunTime,
-        braintrustWaitTimeMs: braintrustWaitTime,
       });
 
       // Log final performance metrics
@@ -491,7 +461,6 @@ export const analystAgentTask: ReturnType<
           dataLoadTimeMs: dataLoadTime,
           contextSetupTimeMs: contextSetupTime,
           createRunTimeMs: createRunTime,
-          braintrustWaitTimeMs: braintrustWaitTime,
           workflowStartMethodTimeMs: workflowStartMethodTime,
           totalWorkflowTimeMs: totalWorkflowTime,
         },
@@ -548,6 +517,9 @@ export const analystAgentTask: ReturnType<
         error: errorMessage,
         executionTimeMs: totalExecutionTime,
       });
+
+      // Need to flush the Braintrust logger to ensure all traces are sent
+      await braintrustLogger.flush();
 
       return {
         success: false,
