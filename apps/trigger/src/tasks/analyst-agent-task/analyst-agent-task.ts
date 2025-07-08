@@ -494,6 +494,8 @@ export const analystAgentTask: ReturnType<
       logPerformanceMetrics('task-complete', payload.message_id, taskStartTime, resourceTracker);
       resourceTracker.generateReport(payload.message_id);
 
+      await braintrustLogger.flush();
+
       return {
         success: true,
         messageId: payload.message_id,

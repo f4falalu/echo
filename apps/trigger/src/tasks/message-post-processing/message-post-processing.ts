@@ -371,8 +371,8 @@ export const messagePostProcessingTask: ReturnType<
         slackNotificationSent,
       });
 
-      // Wait 500ms to allow Braintrust to clean up its trace before completing
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      // Need to flush the Braintrust logger to ensure all traces are sent
+      await braintrustLogger.flush();
 
       return {
         success: true,
