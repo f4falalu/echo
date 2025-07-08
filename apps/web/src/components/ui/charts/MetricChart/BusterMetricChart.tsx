@@ -208,7 +208,7 @@ const AnimatedTitleWrapper = ({ title, type }: { title: string; type: 'header' |
   return (
     <AnimatePresence mode="wait" initial={false}>
       {title && (
-        <motion.div className="overflow-visible" {...memoizedAnimation}>
+        <motion.div className="w-full overflow-visible text-center" {...memoizedAnimation}>
           <motion.div className="origin-center">
             <Title truncate as="h4">
               {title}

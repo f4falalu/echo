@@ -190,3 +190,25 @@ export const CustomValueLabel: Story = {
     </div>
   )
 };
+
+export const WithLongTextValue: Story = {
+  args: {
+    data: [{ value: 'This is a long text value that should be wrapped' }],
+    metricColumnId: 'value',
+    columnLabelFormats: {
+      value: {
+        ...DEFAULT_COLUMN_LABEL_FORMAT,
+        columnType: 'text',
+        style: 'string'
+      } as ColumnLabelFormat
+    },
+    metricHeader: 'Long Text Value that is like really long',
+    metricSubHeader: 'This is a long text value that should be wrapped',
+    animate: true
+  },
+  render: (args) => (
+    <div className="w-80vw h-[200px] rounded-md border border-red-500 p-4">
+      <BusterMetricChart {...args} />
+    </div>
+  )
+};

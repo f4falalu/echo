@@ -22,7 +22,7 @@ interface FileCardProps {
   headerWrapper?: React.ComponentType<{ children: React.ReactNode }>;
 }
 
-const MIN_COLLAPSIBLE_HEIGHT = 225;
+const MIN_COLLAPSIBLE_HEIGHT = 275;
 
 export const FileCard = React.memo(
   ({

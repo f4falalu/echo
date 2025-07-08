@@ -1,10 +1,6 @@
-import type { DataMetadata, DataResult } from '@buster/server-shared/metrics';
+import type { DataMetadata, DataResult, MetricDataResponse } from '@buster/server-shared/metrics';
 
-export type BusterMetricData = {
-  data: DataResult | null;
-  data_metadata: DataMetadata;
-  metricId: string;
-};
+export type BusterMetricData = MetricDataResponse;
 
 export type BusterMetricDataExtended = {
   data: DataResult | null;

@@ -1,4 +1,5 @@
 import { z } from 'zod/v4';
+import { PostProcessingMessageSchema } from '../message';
 
 // Message role for chat messages
 const MessageRoleSchema = z.enum(['user', 'assistant']);
@@ -141,6 +142,7 @@ export const ChatMessageSchema = z.object({
   final_reasoning_message: z.string().nullable(),
   feedback: z.enum(['negative']).nullable(),
   is_completed: z.boolean(),
+  post_processing_message: PostProcessingMessageSchema.optional(),
 });
 
 export type MessageRole = z.infer<typeof MessageRoleSchema>;

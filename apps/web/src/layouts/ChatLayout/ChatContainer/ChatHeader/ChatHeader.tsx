@@ -10,8 +10,6 @@ export const ChatHeader: React.FC = React.memo(() => {
   const chatTitle = useChatIndividualContextSelector((state) => state.chatTitle);
   const isCompletedStream = useChatIndividualContextSelector((state) => state.isStreamingMessage);
 
-  if (!chatTitle) return null;
-
   return (
     <>
       <ChatHeaderTitle

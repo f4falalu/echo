@@ -19,6 +19,7 @@
   },
   "dependencies": {
     "@buster/access-controls": "workspace:*",
+    "@buster/server-shared": "workspace:*",
     "@buster/ai": "workspace:*",
     "@buster/database": "workspace:*",
     "@buster/test-utils": "workspace:*",
