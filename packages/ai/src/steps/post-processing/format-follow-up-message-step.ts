@@ -127,12 +127,13 @@ Generate a concise update message for the data team.`;
     }
 
     const updateMessage = toolCall.args.update_message;
+    const title = toolCall.args.title;
 
     // Return all input data plus the formatted message
     return {
       ...inputData,
       summaryMessage: updateMessage,
-      summaryTitle: 'Follow-up Update', // Default title for follow-up messages
+      summaryTitle: title,
       message: updateMessage, // Store the update message in the message field as well
     };
   } catch (error) {
