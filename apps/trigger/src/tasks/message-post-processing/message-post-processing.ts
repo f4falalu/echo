@@ -1,9 +1,9 @@
 import postProcessingWorkflow, {
   type PostProcessingWorkflowOutput,
 } from '@buster/ai/workflows/post-processing-workflow';
-import { eq, getDb, messages } from '@buster/database';
+import { eq, getBraintrustMetadata, getDb, messages } from '@buster/database';
 import { logger, schemaTask } from '@trigger.dev/sdk/v3';
-import { initLogger, wrapTraced } from 'braintrust';
+import { currentSpan, initLogger, wrapTraced } from 'braintrust';
 import { z } from 'zod/v4';
 import {
   buildWorkflowInput,
@@ -155,17 +155,20 @@ export const messagePostProcessingTask: ReturnType<
       });
 
       // Step 2: Fetch all required data concurrently
-      const [conversationMessages, previousPostProcessingResults, datasets] = await Promise.all([
-        fetchConversationHistory(messageContext.chatId),
-        fetchPreviousPostProcessingMessages(messageContext.chatId, messageContext.createdAt),
-        fetchUserDatasets(messageContext.createdBy),
-      ]);
+      const [conversationMessages, previousPostProcessingResults, datasets, braintrustMetadata] =
+        await Promise.all([
+          fetchConversationHistory(messageContext.chatId),
+          fetchPreviousPostProcessingMessages(messageContext.chatId, messageContext.createdAt),
+          fetchUserDatasets(messageContext.createdBy),
+          getBraintrustMetadata({ messageId: payload.messageId }),
+        ]);
 
       logger.log('Fetched required data', {
         messageId: payload.messageId,
         conversationMessagesCount: conversationMessages.length,
         previousPostProcessingCount: previousPostProcessingResults.length,
         datasetsCount: datasets.length,
+        braintrustMetadata, // Log the metadata to verify it's working
       });
 
       // Step 3: Build workflow input
@@ -191,6 +194,17 @@ export const messagePostProcessingTask: ReturnType<
 
       const tracedWorkflow = wrapTraced(
         async () => {
+          currentSpan().log({
+            metadata: {
+              userName: braintrustMetadata.userName || 'Unknown',
+              userId: braintrustMetadata.userId,
+              organizationName: braintrustMetadata.organizationName || 'Unknown',
+              organizationId: braintrustMetadata.organizationId,
+              messageId: braintrustMetadata.messageId,
+              chatId: braintrustMetadata.chatId,
+            },
+          });
+
           const run = postProcessingWorkflow.createRun();
           return await run.start({
             inputData: workflowInput,
