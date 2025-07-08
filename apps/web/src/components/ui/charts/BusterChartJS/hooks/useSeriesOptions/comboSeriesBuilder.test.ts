@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { DEFAULT_COLUMN_SETTINGS } from '@/api/asset_interfaces/metric';
 import { comboSeriesBuilder_data } from './comboSeriesBuilder';
+import { DEFAULT_COLUMN_SETTINGS } from '@buster/server-shared/metrics';
 
 describe('comboSeriesBuilder_data', () => {
   const mockColors = ['#000000', '#111111'];

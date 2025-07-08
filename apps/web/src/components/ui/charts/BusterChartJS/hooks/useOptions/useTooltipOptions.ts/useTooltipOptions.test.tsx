@@ -1,11 +1,11 @@
 import { renderHook } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { DEFAULT_COLUMN_LABEL_FORMAT } from '@/api/asset_interfaces/metric';
-import type {
-  BusterChartProps,
-  ChartEncodes,
-  ChartType
-} from '@/api/asset_interfaces/metric/charts';
+import type { BusterChartProps } from '@/api/asset_interfaces/metric/charts';
+import {
+  DEFAULT_COLUMN_LABEL_FORMAT,
+  type ChartEncodes,
+  type ChartType
+} from '@buster/server-shared/metrics';
 import { useTooltipOptions } from './useTooltipOptions';
 
 // Mock necessary hooks and dependencies
@@ -31,7 +31,8 @@ describe('useTooltipOptions', () => {
     selectedAxis: {
       x: [],
       y: ['test'],
-      category: ['category']
+      category: ['category'],
+      tooltip: null
     } as ChartEncodes,
     hasMismatchedTooltipsAndMeasures: false,
     disableTooltip: false,

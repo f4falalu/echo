@@ -3,9 +3,9 @@ import type {
   BusterUserDataset,
   BusterUserDatasetGroup,
   BusterUserPermissionGroup,
-  BusterUserTeamListItem,
-  TeamRole
+  BusterUserTeamListItem
 } from '@/api/asset_interfaces/users';
+import type { TeamRole } from '@buster/server-shared/teams';
 import { serverFetch } from '../../../createServerInstance';
 import { mainApi } from '../../instances';
 

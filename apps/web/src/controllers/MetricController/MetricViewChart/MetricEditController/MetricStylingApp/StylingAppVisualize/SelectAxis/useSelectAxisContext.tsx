@@ -1,14 +1,14 @@
 import type React from 'react';
 import type { PropsWithChildren } from 'react';
 import { createContext, useContextSelector } from 'use-context-selector';
-import type { ColumnMetaData, IBusterMetricChartConfig } from '@/api/asset_interfaces';
+import type { ColumnMetaData, ChartConfigProps } from '@buster/server-shared/metrics';
 import type {
   CategoryAxisStyleConfig,
   ChartEncodes,
   XAxisConfig,
   Y2AxisConfig,
   YAxisConfig
-} from '@/api/asset_interfaces/metric/charts';
+} from '@buster/server-shared/metrics';
 
 export interface ISelectAxisContext
   extends Required<YAxisConfig>,
@@ -16,19 +16,19 @@ export interface ISelectAxisContext
     Required<Omit<XAxisConfig, 'xAxisTimeInterval'>>,
     Required<CategoryAxisStyleConfig> {
   selectedAxis: ChartEncodes | null;
-  columnLabelFormats: IBusterMetricChartConfig['columnLabelFormats'];
+  columnLabelFormats: ChartConfigProps['columnLabelFormats'];
   columnMetadata: ColumnMetaData[];
-  columnSettings: IBusterMetricChartConfig['columnSettings'];
-  selectedChartType: IBusterMetricChartConfig['selectedChartType'];
-  lineGroupType: IBusterMetricChartConfig['lineGroupType'];
-  barGroupType: IBusterMetricChartConfig['barGroupType'];
-  showLegend: IBusterMetricChartConfig['showLegend'];
-  showLegendHeadline: IBusterMetricChartConfig['showLegendHeadline'];
-  gridLines: IBusterMetricChartConfig['gridLines'];
-  goalLines: IBusterMetricChartConfig['goalLines'];
-  trendlines: IBusterMetricChartConfig['trendlines'];
-  barShowTotalAtTop: IBusterMetricChartConfig['barShowTotalAtTop'];
-  disableTooltip: IBusterMetricChartConfig['disableTooltip'];
+  columnSettings: ChartConfigProps['columnSettings'];
+  selectedChartType: ChartConfigProps['selectedChartType'];
+  lineGroupType: ChartConfigProps['lineGroupType'];
+  barGroupType: ChartConfigProps['barGroupType'];
+  showLegend: ChartConfigProps['showLegend'];
+  showLegendHeadline: ChartConfigProps['showLegendHeadline'];
+  gridLines: ChartConfigProps['gridLines'];
+  goalLines: ChartConfigProps['goalLines'];
+  trendlines: ChartConfigProps['trendlines'];
+  barShowTotalAtTop: ChartConfigProps['barShowTotalAtTop'];
+  disableTooltip: ChartConfigProps['disableTooltip'];
   rowCount: number;
 }
 

@@ -1,10 +1,10 @@
+import type { ColumnLabelFormat } from '@buster/server-shared/metrics';
 import {
-  type ColumnLabelFormat,
   DEFAULT_COLUMN_LABEL_FORMAT,
   DEFAULT_DATE_FORMAT_DAY_OF_WEEK,
   DEFAULT_DATE_FORMAT_MONTH_OF_YEAR,
   DEFAULT_DATE_FORMAT_QUARTER
-} from '@/api/asset_interfaces/metric';
+} from '@buster/server-shared/metrics';
 import { formatDate } from './date';
 import { formatNumber, roundNumber } from './numbers';
 import { makeHumanReadble } from './text';
@@ -13,7 +13,7 @@ const DEFAULT_DATE_FORMAT = 'll';
 
 export const formatLabel = (
   textProp: string | number | Date | null | undefined | boolean,
-  props: ColumnLabelFormat = DEFAULT_COLUMN_LABEL_FORMAT,
+  props: Partial<ColumnLabelFormat> = DEFAULT_COLUMN_LABEL_FORMAT,
   useKeyFormatter = false
 ): string => {
   const {
@@ -57,9 +57,17 @@ export const formatLabel = (
           replaceMissingDataWith ?? DEFAULT_COLUMN_LABEL_FORMAT.replaceMissingDataWith
         );
       }
-    } else if (replaceMissingDataWith !== undefined) {
-      formattedText = String(replaceMissingDataWith);
-    } else formattedText = String('null');
+    }
+    // I removed this because it was causing issues with null values and strings...
+    else if (replaceMissingDataWith !== undefined) {
+      if (columnType === 'text' && typeof replaceMissingDataWith !== 'number') {
+        formattedText = String(replaceMissingDataWith);
+      } else if (columnType !== 'text') {
+        formattedText = String(replaceMissingDataWith);
+      }
+    } else {
+      formattedText = String('null');
+    }
   } else if (style === 'date' && !useKeyFormatter) {
     formattedText = formatLabelDate(text as string | number | Date, {
       dateFormat,
@@ -105,7 +113,7 @@ export const formatLabel = (
   );
 };
 
-const autoFormats = (convertNumberTo: ColumnLabelFormat['convertNumberTo']) => {
+const autoFormats = (convertNumberTo: Partial<ColumnLabelFormat>['convertNumberTo']) => {
   if (!convertNumberTo) return DEFAULT_DATE_FORMAT;
   if (convertNumberTo === 'day_of_week') return DEFAULT_DATE_FORMAT_DAY_OF_WEEK;
   if (convertNumberTo === 'month_of_year') return DEFAULT_DATE_FORMAT_MONTH_OF_YEAR;
@@ -115,12 +123,14 @@ const autoFormats = (convertNumberTo: ColumnLabelFormat['convertNumberTo']) => {
 
 const formatLabelDate = (
   text: string | number | Date,
-  props: Pick<ColumnLabelFormat, 'dateFormat' | 'useRelativeTime' | 'isUTC' | 'convertNumberTo'>
+  props: Partial<
+    Pick<ColumnLabelFormat, 'dateFormat' | 'useRelativeTime' | 'isUTC' | 'convertNumberTo'>
+  >
 ): string => {
   const {
     dateFormat: dateFormatProp = DEFAULT_DATE_FORMAT,
     useRelativeTime = false,
-    isUTC = true,
+    isUTC = false,
     convertNumberTo
   } = props;
 

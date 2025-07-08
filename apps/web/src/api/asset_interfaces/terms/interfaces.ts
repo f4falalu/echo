@@ -2,6 +2,7 @@ export interface BusterTerm {
   created_by: {
     id: string;
     name: string;
+    avatar_url: string | null;
   };
   created_at: string;
   datasets: {

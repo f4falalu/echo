@@ -2,7 +2,7 @@
 
 import type React from 'react';
 import { useMemo, useState } from 'react';
-import { useGetUserAttributes } from '@/api/buster_rest';
+import { useGetUserAttributes } from '@/api/buster_rest/users/permissions';
 import {
   NewPermissionGroupModal,
   PermissionSearchAndListWrapper

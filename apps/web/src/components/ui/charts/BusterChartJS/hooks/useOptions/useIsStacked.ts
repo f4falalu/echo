@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
-import { type BusterChartProps, ChartType } from '@/api/asset_interfaces/metric/charts';
+import { type BusterChartProps } from '@/api/asset_interfaces/metric/charts';
+import type { ChartType } from '@buster/server-shared/metrics';
 
 export const useIsStacked = ({
   selectedChartType,

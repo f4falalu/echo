@@ -1,6 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import React from 'react';
-import { ShareAssetType } from '../../../api/asset_interfaces/share';
 import { BusterRoutes, createBusterRoute } from '../../../routes';
 import { SidebarPrimary } from './SidebarPrimary';
 
@@ -26,7 +25,7 @@ const mockFavorites = [
   {
     id: '123',
     name: 'Favorite Dashboard',
-    ype: ShareAssetType.DASHBOARD,
+    ype: 'dashboard',
     asset_id: '123',
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
@@ -36,7 +35,7 @@ const mockFavorites = [
     id: '456',
     name: 'Important Metrics',
     route: createBusterRoute({ route: BusterRoutes.APP_METRIC_ID_CHART, metricId: '456' }),
-    ype: ShareAssetType.METRIC,
+    ype: 'metric',
     asset_id: '456',
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString()
@@ -45,7 +44,7 @@ const mockFavorites = [
     id: '789',
     name: 'Favorite Metric 3',
     route: createBusterRoute({ route: BusterRoutes.APP_METRIC_ID_CHART, metricId: '789' }),
-    ype: ShareAssetType.METRIC,
+    ype: 'metric',
     asset_id: '789',
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString()

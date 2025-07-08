@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useListDatasetGroups } from '@/api/buster_rest';
+import { useListDatasetGroups } from '@/api/buster_rest/dataset_groups';
 import { NewDatasetGroupModal, PermissionSearch } from '@/components/features/PermissionComponents';
 import { Button } from '@/components/ui/buttons';
 import { Plus } from '@/components/ui/icons';

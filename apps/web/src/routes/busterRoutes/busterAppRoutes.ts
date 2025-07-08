@@ -5,15 +5,12 @@ export enum BusterAppRoutes {
   APP_COLLECTIONS = '/app/collections',
   APP_COLLECTIONS_ID = '/app/collections/:collectionId',
   APP_METRIC = '/app/metrics',
-  APP_METRIC_ID_CHART = '/app/metrics/:metricId/chart?secondary_view=:secondaryView',
-  APP_METRIC_ID_VERSION_NUMBER = '/app/metrics/:metricId/chart?metric_version_number=:versionNumber&secondary_view=:secondaryView',
-  APP_METRIC_ID_FILE__HIDDEN = '/app/metrics/:metricId/file',
-  APP_METRIC_ID_RESULTS = '/app/metrics/:metricId/results?secondary_view=:secondaryView&metric_version_number=:versionNumber',
-  APP_METRIC_ID_SQL = '/app/metrics/:metricId/sql',
+  APP_METRIC_ID_CHART = '/app/metrics/:metricId/chart?secondary_view=:secondaryView&metric_version_number=:metricVersionNumber',
+  APP_METRIC_ID_RESULTS = '/app/metrics/:metricId/results?secondary_view=:secondaryView&metric_version_number=:metricVersionNumber',
+  APP_METRIC_ID_SQL = '/app/metrics/:metricId/sql?metric_version_number=:metricVersionNumber',
   APP_DASHBOARDS = '/app/dashboards',
-  APP_DASHBOARD_ID = '/app/dashboards/:dashboardId?secondary_view=:secondaryView',
-  APP_DASHBOARD_ID_VERSION_NUMBER = '/app/dashboards/:dashboardId?dashboard_version_number=:versionNumber&secondary_view=:secondaryView',
-  APP_DASHBOARD_ID_FILE = '/app/dashboards/:dashboardId/file',
+  APP_DASHBOARD_ID = '/app/dashboards/:dashboardId?secondary_view=:secondaryView&dashboard_version_number=:dashboardVersionNumber',
+  APP_DASHBOARD_ID_FILE = '/app/dashboards/:dashboardId/file?dashboard_version_number=:dashboardVersionNumber&secondary_view=:secondaryView',
   APP_LOGS = '/app/logs',
   APP_DATASETS = '/app/datasets',
   APP_DATASETS_ID = '/app/datasets/:datasetId',
@@ -30,16 +27,17 @@ export enum BusterAppRoutes {
   APP_CHAT = '/app/chats',
   APP_CHAT_ID = '/app/chats/:chatId',
   APP_CHAT_ID_REASONING_ID = '/app/chats/:chatId/reasoning/:messageId',
-  APP_CHAT_ID_METRIC_ID = '/app/chats/:chatId/metrics/:metricId',
-  APP_CHAT_ID_METRIC_ID_CHART = '/app/chats/:chatId/metrics/:metricId/chart?secondary_view=:secondaryView',
-  APP_CHAT_ID_METRIC_ID_VERSION_NUMBER = '/app/chats/:chatId/metrics/:metricId/chart?metric_version_number=:versionNumber&secondary_view=:secondaryView',
-  APP_CHAT_ID_METRIC_ID_FILE = '/app/chats/:chatId/metrics/:metricId/file',
-  APP_CHAT_ID_METRIC_ID_SQL = '/app/chats/:chatId/metrics/:metricId/sql',
-  APP_CHAT_ID_METRIC_ID_RESULTS = '/app/chats/:chatId/metrics/:metricId/results',
+  APP_CHAT_ID_METRIC_ID = '/app/chats/:chatId/metrics/:metricId?metric_version_number=:metricVersionNumber',
+  APP_CHAT_ID_METRIC_ID_CHART = '/app/chats/:chatId/metrics/:metricId/chart?secondary_view=:secondaryView&metric_version_number=:metricVersionNumber',
+  APP_CHAT_ID_METRIC_ID_SQL = '/app/chats/:chatId/metrics/:metricId/sql?metric_version_number=:metricVersionNumber',
+  APP_CHAT_ID_METRIC_ID_RESULTS = '/app/chats/:chatId/metrics/:metricId/results?metric_version_number=:metricVersionNumber',
   APP_CHAT_ID_COLLECTION_ID = '/app/chats/:chatId/collections/:collectionId',
-  APP_CHAT_ID_DASHBOARD_ID = '/app/chats/:chatId/dashboards/:dashboardId?secondary_view=:secondaryView&dashboard_version_number=:versionNumber',
-  APP_CHAT_ID_DASHBOARD_ID_VERSION_NUMBER = '/app/chats/:chatId/dashboards/:dashboardId?dashboard_version_number=:versionNumber&secondary_view=:secondaryView',
-  APP_CHAT_ID_DASHBOARD_ID_FILE = '/app/chats/:chatId/dashboards/:dashboardId/file',
+  APP_CHAT_ID_DASHBOARD_ID = '/app/chats/:chatId/dashboards/:dashboardId?secondary_view=:secondaryView&dashboard_version_number=:dashboardVersionNumber',
+  APP_CHAT_ID_DASHBOARD_ID_FILE = '/app/chats/:chatId/dashboards/:dashboardId/file?dashboard_version_number=:dashboardVersionNumber',
+  APP_CHAT_ID_DASHBOARD_ID_METRIC_ID = '/app/chats/:chatId/dashboards/:dashboardId/metrics/:metricId?metric_version_number=:metricVersionNumber&dashboard_version_number=:dashboardVersionNumber',
+  APP_CHAT_ID_DASHBOARD_ID_METRIC_ID_CHART = '/app/chats/:chatId/dashboards/:dashboardId/metrics/:metricId/chart?secondary_view=:secondaryView&metric_version_number=:metricVersionNumber&dashboard_version_number=:dashboardVersionNumber',
+  APP_CHAT_ID_DASHBOARD_ID_METRIC_ID_SQL = '/app/chats/:chatId/dashboards/:dashboardId/metrics/:metricId/sql?metric_version_number=:metricVersionNumber&dashboard_version_number=:dashboardVersionNumber',
+  APP_CHAT_ID_DASHBOARD_ID_METRIC_ID_RESULTS = '/app/chats/:chatId/dashboards/:dashboardId/metrics/:metricId/results?metric_version_number=:metricVersionNumber&dashboard_version_number=:dashboardVersionNumber',
   APP_CHAT_ID_DATASET_ID = '/app/chats/:chatId/datasets/:datasetId',
   APP_CHAT_ID_TERM_ID = '/app/chats/:chatId/term/:termId',
   APP_CHAT_ID_VALUE_ID = '/app/chats/:chatId/value/:valueId',
@@ -54,41 +52,39 @@ export type BusterAppRoutesWithArgs = {
     route: BusterAppRoutes.APP_COLLECTIONS_ID;
     collectionId: string;
   };
-  [BusterAppRoutes.APP_METRIC]: { route: BusterAppRoutes.APP_METRIC };
+  [BusterAppRoutes.APP_METRIC]: {
+    route: BusterAppRoutes.APP_METRIC;
+  };
   [BusterAppRoutes.APP_METRIC_ID_CHART]: {
     route: BusterAppRoutes.APP_METRIC_ID_CHART;
     metricId: string;
+    metricVersionNumber?: number;
     secondaryView?: MetricFileViewSecondary;
-  };
-  [BusterAppRoutes.APP_METRIC_ID_VERSION_NUMBER]: {
-    route: BusterAppRoutes.APP_METRIC_ID_VERSION_NUMBER;
-    metricId: string;
-    versionNumber?: number;
-    secondaryView?: MetricFileViewSecondary;
-  };
-  [BusterAppRoutes.APP_METRIC_ID_FILE__HIDDEN]: {
-    route: BusterAppRoutes.APP_METRIC_ID_FILE__HIDDEN;
-    metricId: string;
   };
   [BusterAppRoutes.APP_METRIC_ID_SQL]: {
     route: BusterAppRoutes.APP_METRIC_ID_SQL;
     metricId: string;
+    metricVersionNumber?: number;
   };
   [BusterAppRoutes.APP_METRIC_ID_RESULTS]: {
     route: BusterAppRoutes.APP_METRIC_ID_RESULTS;
     metricId: string;
-    versionNumber?: number;
+    metricVersionNumber?: number;
     secondaryView?: MetricFileViewSecondary | null;
   };
-  [BusterAppRoutes.APP_DASHBOARDS]: { route: BusterAppRoutes.APP_DASHBOARDS };
+  [BusterAppRoutes.APP_DASHBOARDS]: {
+    route: BusterAppRoutes.APP_DASHBOARDS;
+  };
   [BusterAppRoutes.APP_DASHBOARD_ID]: {
     route: BusterAppRoutes.APP_DASHBOARD_ID;
     dashboardId: string;
+    dashboardVersionNumber?: number;
     secondaryView?: DashboardFileViewSecondary;
   };
   [BusterAppRoutes.APP_DASHBOARD_ID_FILE]: {
     route: BusterAppRoutes.APP_DASHBOARD_ID_FILE;
     dashboardId: string;
+    dashboardVersionNumber?: number;
   };
   [BusterAppRoutes.APP_DATASETS]: { route: BusterAppRoutes.APP_DATASETS };
   [BusterAppRoutes.APP_TERMS]: { route: BusterAppRoutes.APP_TERMS };
@@ -131,36 +127,26 @@ export type BusterAppRoutesWithArgs = {
     route: BusterAppRoutes.APP_CHAT_ID_METRIC_ID;
     chatId: string;
     metricId: string;
+    metricVersionNumber?: number;
   };
   [BusterAppRoutes.APP_CHAT_ID_METRIC_ID_SQL]: {
     route: BusterAppRoutes.APP_CHAT_ID_METRIC_ID_SQL;
     chatId: string;
     metricId: string;
+    metricVersionNumber?: number;
   };
   [BusterAppRoutes.APP_CHAT_ID_METRIC_ID_CHART]: {
     route: BusterAppRoutes.APP_CHAT_ID_METRIC_ID_CHART;
     chatId: string;
     metricId: string;
-    versionNumber?: number;
+    metricVersionNumber?: number;
     secondaryView?: MetricFileViewSecondary;
-  };
-  [BusterAppRoutes.APP_CHAT_ID_METRIC_ID_VERSION_NUMBER]: {
-    route: BusterAppRoutes.APP_CHAT_ID_METRIC_ID_VERSION_NUMBER;
-    chatId: string;
-    metricId: string;
-    versionNumber: number;
-    secondaryView?: MetricFileViewSecondary;
-  };
-  [BusterAppRoutes.APP_CHAT_ID_METRIC_ID_FILE]: {
-    route: BusterAppRoutes.APP_CHAT_ID_METRIC_ID_FILE;
-    chatId: string;
-    metricId: string;
   };
   [BusterAppRoutes.APP_CHAT_ID_METRIC_ID_RESULTS]: {
     route: BusterAppRoutes.APP_CHAT_ID_METRIC_ID_RESULTS;
     chatId: string;
     metricId: string;
-    versionNumber?: number;
+    metricVersionNumber?: number;
   };
   [BusterAppRoutes.APP_CHAT_ID_COLLECTION_ID]: {
     route: BusterAppRoutes.APP_CHAT_ID_COLLECTION_ID;
@@ -171,25 +157,47 @@ export type BusterAppRoutesWithArgs = {
     route: BusterAppRoutes.APP_CHAT_ID_DASHBOARD_ID;
     chatId: string;
     dashboardId: string;
-    secondaryView?: DashboardFileViewSecondary;
-  };
-  [BusterAppRoutes.APP_DASHBOARD_ID_VERSION_NUMBER]: {
-    route: BusterAppRoutes.APP_DASHBOARD_ID_VERSION_NUMBER;
-    dashboardId: string;
-    versionNumber: number;
-    secondaryView?: DashboardFileViewSecondary;
-  };
-  [BusterAppRoutes.APP_CHAT_ID_DASHBOARD_ID_VERSION_NUMBER]: {
-    route: BusterAppRoutes.APP_CHAT_ID_DASHBOARD_ID_VERSION_NUMBER;
-    chatId: string;
-    dashboardId: string;
-    versionNumber: number;
+    dashboardVersionNumber?: number;
     secondaryView?: DashboardFileViewSecondary;
   };
   [BusterAppRoutes.APP_CHAT_ID_DASHBOARD_ID_FILE]: {
     route: BusterAppRoutes.APP_CHAT_ID_DASHBOARD_ID_FILE;
     chatId: string;
     dashboardId: string;
+    dashboardVersionNumber?: number;
+  };
+  [BusterAppRoutes.APP_CHAT_ID_DASHBOARD_ID_METRIC_ID]: {
+    route: BusterAppRoutes.APP_CHAT_ID_DASHBOARD_ID_METRIC_ID;
+    chatId: string;
+    dashboardId: string;
+    metricId: string;
+    metricVersionNumber?: number;
+    dashboardVersionNumber?: number;
+  };
+  [BusterAppRoutes.APP_CHAT_ID_DASHBOARD_ID_METRIC_ID_CHART]: {
+    route: BusterAppRoutes.APP_CHAT_ID_DASHBOARD_ID_METRIC_ID_CHART;
+    chatId: string;
+    dashboardId: string;
+    metricId: string;
+    metricVersionNumber?: number;
+    dashboardVersionNumber?: number;
+    secondaryView?: MetricFileViewSecondary;
+  };
+  [BusterAppRoutes.APP_CHAT_ID_DASHBOARD_ID_METRIC_ID_SQL]: {
+    route: BusterAppRoutes.APP_CHAT_ID_DASHBOARD_ID_METRIC_ID_SQL;
+    chatId: string;
+    dashboardId: string;
+    metricId: string;
+    metricVersionNumber?: number;
+    dashboardVersionNumber?: number;
+  };
+  [BusterAppRoutes.APP_CHAT_ID_DASHBOARD_ID_METRIC_ID_RESULTS]: {
+    route: BusterAppRoutes.APP_CHAT_ID_DASHBOARD_ID_METRIC_ID_RESULTS;
+    chatId: string;
+    dashboardId: string;
+    metricId: string;
+    metricVersionNumber?: number;
+    dashboardVersionNumber?: number;
   };
   [BusterAppRoutes.APP_CHAT_ID_DATASET_ID]: {
     route: BusterAppRoutes.APP_CHAT_ID_DATASET_ID;

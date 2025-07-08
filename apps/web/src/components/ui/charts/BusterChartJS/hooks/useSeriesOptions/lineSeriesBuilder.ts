@@ -1,9 +1,4 @@
 import { Chart, Filler, type ScriptableContext } from 'chart.js';
-import type { ColumnSettings } from '@/api/asset_interfaces/metric/charts';
-import {
-  DEFAULT_COLUMN_LABEL_FORMAT,
-  DEFAULT_COLUMN_SETTINGS
-} from '@/api/asset_interfaces/metric/defaults';
 import { addOpacityToColor, createDayjsDate, formatLabel } from '@/lib';
 import type { DatasetOption } from '../../../chartHooks';
 import { formatLabelForDataset, JOIN_CHARACTER } from '../../../commonHelpers';
@@ -13,6 +8,11 @@ import { defaultLabelOptionConfig } from '../useChartSpecificOptions/labelOption
 import { createTrendlineOnSeries } from './createTrendlines';
 import type { SeriesBuilderProps } from './interfaces';
 import type { LabelBuilderProps } from './useSeriesOptions';
+import {
+  DEFAULT_COLUMN_LABEL_FORMAT,
+  DEFAULT_COLUMN_SETTINGS,
+  type ColumnSettings
+} from '@buster/server-shared/metrics';
 
 Chart.register(Filler);
 

@@ -1,13 +1,13 @@
 import isEmpty from 'lodash/isEmpty';
 import React from 'react';
-import type { IDataResult } from '@/api/asset_interfaces/metric';
+import type { DataResult } from '@buster/server-shared/metrics';
 import { IndeterminateLinearLoader } from '@/components/ui/loaders/IndeterminateLinearLoader';
 import { AppDataGrid } from '@/components/ui/table/AppDataGrid';
 import { cn } from '@/lib/classMerge';
 import type { TanStackDataGridProps } from '@/components/ui/table/AppDataGrid/TanStackDataGrid';
 
 export const DataContainer: React.FC<{
-  data: IDataResult;
+  data: DataResult | null;
   fetchingData: boolean;
   className?: string;
   columnWidths?: TanStackDataGridProps['columnWidths'];

@@ -2,6 +2,7 @@ import type { Chart } from 'chart.js';
 import { describe, expect, it } from 'vitest';
 import type { BusterChartProps } from '@/api/asset_interfaces/metric/charts';
 import { getPercentage, percentageFormatter } from './helpers';
+import type { ColumnLabelFormat } from '@buster/server-shared/metrics';
 
 describe('getPercentage', () => {
   const mockChart = {
@@ -24,7 +25,7 @@ describe('getPercentage', () => {
     'test.field': {
       style: 'percent',
       columnType: 'number'
-    }
+    } as ColumnLabelFormat
   };
 
   it('should calculate series percentage when hasMultipleShownDatasets is false', () => {
@@ -79,7 +80,7 @@ describe('percentageFormatter', () => {
       'test.field': {
         style: 'percent',
         columnType: 'number'
-      }
+      } as ColumnLabelFormat
     };
 
     const result = percentageFormatter(
@@ -96,7 +97,7 @@ describe('percentageFormatter', () => {
       'test.field': {
         style: 'number',
         columnType: 'number'
-      }
+      } as ColumnLabelFormat
     };
 
     const result = percentageFormatter(33.333, 'test.field', columnLabelFormats);
@@ -109,7 +110,7 @@ describe('percentageFormatter', () => {
       field: {
         style: 'percent',
         columnType: 'number'
-      }
+      } as ColumnLabelFormat
     };
 
     const result = percentageFormatter(50, 'nested.field', columnLabelFormats);

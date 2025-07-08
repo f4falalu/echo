@@ -19,13 +19,20 @@ vi.mock('./services/chat-helpers', () => ({
 
 vi.mock('@buster/database', () => ({
   getUserOrganizationId: vi.fn(),
-  checkChatPermission: vi.fn(),
-  createMessage: vi.fn(),
-  db: {
-    transaction: vi.fn((callback: any) => callback({ insert: vi.fn() })),
-  },
+  createChat: vi.fn(),
   getChatWithDetails: vi.fn(),
+  createMessage: vi.fn(),
+  generateAssetMessages: vi.fn(),
   getMessagesForChat: vi.fn(),
+  db: {
+    transaction: vi.fn().mockImplementation((callback: any) =>
+      callback({
+        insert: vi.fn().mockReturnThis(),
+        values: vi.fn().mockReturnThis(),
+        returning: vi.fn().mockResolvedValue([{ id: 'chat-123' }]),
+      })
+    ),
+  },
   chats: {},
   messages: {},
 }));

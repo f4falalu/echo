@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
-import type { IBusterMetricChartConfig } from '@/api/asset_interfaces';
-import type { BarSortBy } from '@/api/asset_interfaces/metric/charts';
+import type { ChartConfigProps } from '@buster/server-shared/metrics';
+import type { BarSortBy } from '@buster/server-shared/metrics';
 import { BarChartSortNoneIcon } from '@/components/ui/icons/customIcons/BarChart_NoSort';
 import { BarChartSortAscIcon } from '@/components/ui/icons/customIcons/BarChartSortAscIcon';
 import { BarChartSortDescIcon } from '@/components/ui/icons/customIcons/BarChartSortDescIcon';
@@ -27,8 +27,8 @@ const options: SegmentedItem<BarSortBy[0]>[] = [
 ];
 
 export const EditBarSorting: React.FC<{
-  barSortBy: IBusterMetricChartConfig['barSortBy'];
-  onUpdateChartConfig: (v: Partial<IBusterMetricChartConfig>) => void;
+  barSortBy: ChartConfigProps['barSortBy'];
+  onUpdateChartConfig: (v: Partial<ChartConfigProps>) => void;
 }> = React.memo(({ barSortBy, onUpdateChartConfig }) => {
   const selectedOption = useMemo(() => {
     return (

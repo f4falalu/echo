@@ -1,14 +1,14 @@
 import type { BusterDatasetListItem } from '../datasets';
-import type { BusterOrganizationRole } from '../organizations';
+import type { OrganizationRole } from '@buster/server-shared/organization';
 
 export interface BusterPermissionListUser {
   id: string;
   email: string;
   name: string;
-  role: BusterOrganizationRole;
+  role: OrganizationRole;
   belongs_to: boolean;
   //only shows up with no filters. To lazy to type this out better
-  team_role?: BusterOrganizationRole;
+  team_role?: OrganizationRole;
   //???
   team_count: number;
   permission_group_count: number;
@@ -18,7 +18,7 @@ export interface BusterPermissionUser {
   id: string;
   email: string;
   name: string;
-  role: BusterOrganizationRole;
+  role: OrganizationRole;
   created_at: string;
   permission_group_count: number;
   permission_groups: {
@@ -33,7 +33,7 @@ export interface BusterPermissionUser {
     id: string;
     member_count: number;
     name: string;
-    team_role: BusterOrganizationRole;
+    team_role: OrganizationRole;
   }[];
   updated_at: string;
   edit_sql: boolean;
@@ -49,7 +49,7 @@ export interface BusterPermissionListTeam {
   name: string;
   member_count: number;
   permission_group_count: number;
-  team_role: BusterOrganizationRole;
+  team_role: OrganizationRole;
   belongs_to: boolean;
 }
 
@@ -69,7 +69,7 @@ export interface BusterPermissionTeam {
     email: string;
     id: string;
     name: string;
-    role: BusterOrganizationRole;
+    role: OrganizationRole;
   }[];
   permission_groups: {
     dataset_count: number;
@@ -113,7 +113,7 @@ export interface BusterPermissionGroup {
     id: string;
     member_count: number;
     name: string;
-    team_role: BusterOrganizationRole;
+    team_role: OrganizationRole;
   }[];
   updated_by: string;
   user_count: number;
@@ -124,10 +124,10 @@ export interface BusterPermissionListUser {
   id: string;
   email: string;
   name: string;
-  role: BusterOrganizationRole;
+  role: OrganizationRole;
   belongs_to: boolean;
   //only shows up with no filters. To lazy to type this out better
-  team_role?: BusterOrganizationRole;
+  team_role?: OrganizationRole;
   //???
   team_count: number;
   permission_group_count: number;
@@ -137,7 +137,7 @@ export interface BusterPermissionUser {
   id: string;
   email: string;
   name: string;
-  role: BusterOrganizationRole;
+  role: OrganizationRole;
   created_at: string;
   permission_group_count: number;
   permission_groups: {
@@ -152,7 +152,7 @@ export interface BusterPermissionUser {
     id: string;
     member_count: number;
     name: string;
-    team_role: BusterOrganizationRole;
+    team_role: OrganizationRole;
   }[];
   updated_at: string;
   edit_sql: boolean;
@@ -168,7 +168,7 @@ export interface BusterPermissionListTeam {
   name: string;
   member_count: number;
   permission_group_count: number;
-  team_role: BusterOrganizationRole;
+  team_role: OrganizationRole;
   belongs_to: boolean;
 }
 
@@ -188,7 +188,7 @@ export interface BusterPermissionTeam {
     email: string;
     id: string;
     name: string;
-    role: BusterOrganizationRole;
+    role: OrganizationRole;
   }[];
   permission_groups: {
     dataset_count: number;
@@ -232,7 +232,7 @@ export interface BusterPermissionGroup {
     id: string;
     member_count: number;
     name: string;
-    team_role: BusterOrganizationRole;
+    team_role: OrganizationRole;
   }[];
   updated_by: string;
   user_count: number;

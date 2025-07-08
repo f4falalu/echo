@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { useGetUser } from '@/api/buster_rest';
+import { useGetUser } from '@/api/buster_rest/users';
 import { useUserConfigContextSelector } from '@/context/Users';
 import { UserDatasetSearch } from './UserDatasetSearch';
 import { UserDefaultAccess } from './UserDefaultAccess';

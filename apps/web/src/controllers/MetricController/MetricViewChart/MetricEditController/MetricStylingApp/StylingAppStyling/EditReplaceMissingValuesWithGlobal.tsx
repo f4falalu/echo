@@ -1,12 +1,12 @@
 import React, { useMemo } from 'react';
-import type { IBusterMetricChartConfig } from '@/api/asset_interfaces';
-import type { IColumnLabelFormat } from '@/api/asset_interfaces/metric/charts';
+import type { ChartConfigProps } from '@buster/server-shared/metrics';
+import type { ColumnLabelFormat } from '@buster/server-shared/metrics';
 import { useMemoizedFn } from '@/hooks';
 import { EditReplaceMissingData } from '../StylingAppVisualize/SelectAxis/SelectAxisColumnContent/EditReplaceMissingData';
 
 export const EditReplaceMissingValuesWithGlobal: React.FC<{
-  columnLabelFormats: IBusterMetricChartConfig['columnLabelFormats'];
-  onUpdateChartConfig: (config: Partial<IBusterMetricChartConfig>) => void;
+  columnLabelFormats: ChartConfigProps['columnLabelFormats'];
+  onUpdateChartConfig: (config: Partial<ChartConfigProps>) => void;
 }> = React.memo(({ columnLabelFormats, onUpdateChartConfig }) => {
   const mostPermissiveMissingWith = useMemo(() => {
     return Object.values(columnLabelFormats).some(
@@ -16,10 +16,10 @@ export const EditReplaceMissingValuesWithGlobal: React.FC<{
       : (0 as const);
   }, [columnLabelFormats]);
 
-  const onUpdateColumnLabel = useMemoizedFn((config: Partial<IColumnLabelFormat>) => {
-    const newColumnLabelFormats: IBusterMetricChartConfig['columnLabelFormats'] = Object.entries(
+  const onUpdateColumnLabel = useMemoizedFn((config: Partial<ColumnLabelFormat>) => {
+    const newColumnLabelFormats: ChartConfigProps['columnLabelFormats'] = Object.entries(
       columnLabelFormats
-    ).reduce<IBusterMetricChartConfig['columnLabelFormats']>((acc, [key, value]) => {
+    ).reduce<ChartConfigProps['columnLabelFormats']>((acc, [key, value]) => {
       acc[key] = { ...value, ...config };
       return acc;
     }, {});
@@ -37,8 +37,8 @@ export const EditReplaceMissingValuesWithGlobal: React.FC<{
 EditReplaceMissingValuesWithGlobal.displayName = 'EditReplaceMissingValuesWithGlobal';
 
 const EditReplaceMissingValuesWithColumn: React.FC<{
-  replaceMissingDataWith: Required<IColumnLabelFormat>['replaceMissingDataWith'];
-  onUpdateColumnLabel: (config: Partial<IColumnLabelFormat>) => void;
+  replaceMissingDataWith: Required<ColumnLabelFormat>['replaceMissingDataWith'];
+  onUpdateColumnLabel: (config: Partial<ColumnLabelFormat>) => void;
 }> = React.memo(({ replaceMissingDataWith, onUpdateColumnLabel }) => {
   return (
     <EditReplaceMissingData

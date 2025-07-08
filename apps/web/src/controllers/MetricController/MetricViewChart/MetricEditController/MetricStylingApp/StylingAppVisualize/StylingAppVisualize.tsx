@@ -1,13 +1,12 @@
 import type React from 'react';
-import type { IBusterMetricChartConfig } from '@/api/asset_interfaces';
+import type { ChartConfigProps } from '@buster/server-shared/metrics';
 import {
   type CategoryAxisStyleConfig,
   type ChartEncodes,
-  ChartType,
   type MetricChartProps,
   type Y2AxisConfig,
   type YAxisConfig
-} from '@/api/asset_interfaces/metric/charts';
+} from '@buster/server-shared/metrics';
 import { cn } from '@/lib/classMerge';
 import { StylingLabel } from '../Common';
 import { SelectAxis } from './SelectAxis';
@@ -17,11 +16,11 @@ import { StylingMetric } from './StylingMetric';
 
 export const StylingAppVisualize: React.FC<
   {
-    barLayout: IBusterMetricChartConfig['barLayout'];
+    barLayout: ChartConfigProps['barLayout'];
     selectedAxis: ChartEncodes;
     className?: string;
     colors: string[];
-    disableTooltip: IBusterMetricChartConfig['disableTooltip'];
+    disableTooltip: ChartConfigProps['disableTooltip'];
   } & Required<YAxisConfig> &
     Required<CategoryAxisStyleConfig> &
     Required<Y2AxisConfig> &

@@ -1,18 +1,19 @@
 import type { Scale, ScaleChartOptions } from 'chart.js';
 import { useMemo } from 'react';
 import type { DeepPartial } from 'utility-types';
-import { DEFAULT_CHART_CONFIG, DEFAULT_COLUMN_LABEL_FORMAT } from '@/api/asset_interfaces/metric';
-import {
-  type BusterChartConfigProps,
-  type BusterChartProps,
-  type ChartEncodes,
-  ChartType,
-  type ComboChartAxis,
-  type IColumnLabelFormat
-} from '@/api/asset_interfaces/metric/charts';
 import { useMemoizedFn } from '@/hooks';
 import { formatYAxisLabel, yAxisSimilar } from '../../../commonHelpers';
 import { useY2AxisTitle } from './axisHooks/useY2AxisTitle';
+import {
+  DEFAULT_CHART_CONFIG,
+  DEFAULT_COLUMN_LABEL_FORMAT,
+  type ChartConfigProps,
+  type ChartEncodes,
+  type ChartType,
+  type ColumnLabelFormat,
+  type ComboChartAxis
+} from '@buster/server-shared/metrics';
+import type { BusterChartProps } from '@/api/asset_interfaces';
 
 export const useY2Axis = ({
   columnLabelFormats,
@@ -24,7 +25,7 @@ export const useY2Axis = ({
   y2AxisStartAxisAtZero,
   y2AxisScaleType
 }: {
-  columnLabelFormats: NonNullable<BusterChartConfigProps['columnLabelFormats']>;
+  columnLabelFormats: NonNullable<ChartConfigProps['columnLabelFormats']>;
   selectedAxis: ChartEncodes;
   selectedChartType: ChartType;
   y2AxisAxisTitle: BusterChartProps['y2AxisAxisTitle'];
@@ -64,10 +65,10 @@ export const useY2Axis = ({
     return y2AxisScaleType === 'log' ? 'logarithmic' : 'linear';
   }, [y2AxisScaleType, isSupportedType]);
 
-  const y2AxisColumnFormats: Record<string, IColumnLabelFormat> = useMemo(() => {
+  const y2AxisColumnFormats: Record<string, ColumnLabelFormat> = useMemo(() => {
     if (!isSupportedType) return {};
 
-    return y2AxisKeys.reduce<Record<string, IColumnLabelFormat>>((acc, y) => {
+    return y2AxisKeys.reduce<Record<string, ColumnLabelFormat>>((acc, y) => {
       acc[y] = columnLabelFormats[y] || DEFAULT_COLUMN_LABEL_FORMAT;
       return acc;
     }, {});

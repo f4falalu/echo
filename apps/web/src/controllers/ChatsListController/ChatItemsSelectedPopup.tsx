@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { ShareAssetType } from '@/api/asset_interfaces/share';
+import { ShareAssetType } from '@buster/server-shared/share';
 import {
   useDeleteChat,
   useRemoveChatFromCollections,
@@ -115,7 +115,7 @@ const ThreeDotButton: React.FC<{
 }> = React.memo(({ selectedRowKeys, onSelectChange }) => {
   const dropdownOptions = useThreeDotFavoritesOptions({
     itemIds: selectedRowKeys,
-    assetType: ShareAssetType.CHAT,
+    assetType: 'chat',
     onFinish: () => onSelectChange([])
   });
 

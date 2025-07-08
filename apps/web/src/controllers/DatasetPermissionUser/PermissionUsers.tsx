@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { useDatasetListPermissionUsers } from '@/api/buster_rest';
+import { useDatasetListPermissionUsers } from '@/api/buster_rest/datasets';
 import { PermissionSearchAndListWrapper } from '@/components/features/PermissionComponents';
 import { Button } from '@/components/ui/buttons';
 import { Plus } from '@/components/ui/icons';

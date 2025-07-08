@@ -1,7 +1,7 @@
-import type { ColumnLabelFormat } from '@/api/asset_interfaces/metric';
+import type { ColumnLabelFormat } from '@buster/server-shared/metrics';
 import type { DatasetOption, DatasetOptionsWithTicks, KV } from './interfaces';
 
-type ColumnLabelFormatBase = Pick<ColumnLabelFormat, 'replaceMissingDataWith'>;
+type ColumnLabelFormatBase = Pick<Partial<ColumnLabelFormat>, 'replaceMissingDataWith'>;
 
 export function aggregateAndCreateDatasets<
   T extends Record<string, string | number | null | Date | undefined>

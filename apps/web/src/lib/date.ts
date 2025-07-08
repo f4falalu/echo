@@ -10,12 +10,12 @@ import isDate from 'lodash/isDate';
 import isNumber from 'lodash/isNumber';
 import isString from 'lodash/isString';
 import {
-  type ColumnLabelFormat,
   DEFAULT_DATE_FORMAT_MONTH_OF_YEAR,
   DEFAULT_DATE_FORMAT_QUARTER,
-  DEFAULT_DAY_OF_WEEK_FORMAT
-} from '@/api/asset_interfaces/metric';
-import { SupportedLanguages } from '../config/languages';
+  DEFAULT_DAY_OF_WEEK_FORMAT,
+  type ColumnLabelFormat
+} from '@buster/server-shared/metrics';
+import { SupportedLanguages } from '@/config/languages';
 import { getBrowserLanguage } from './language';
 import { isNumeric } from './numbers';
 
@@ -307,10 +307,6 @@ export const keysWithDate = (
 
 export const formatTime = (date: string | Date, format: string, isUTC: boolean) => {
   return isUTC ? dayjs.utc(date).format(format) : dayjs(date).format(format || 'h:mm A');
-};
-
-export const millisecondsFromUnixTimestamp = (timestamp = 0) => {
-  return (timestamp - dayjs().unix()) * 1000;
 };
 
 export enum DEFAULT_TIME_ENCODE_FORMATS {

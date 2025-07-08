@@ -32,8 +32,8 @@
     "glob": "^11.0.3",
     "jsdom": "^26.1.0",
     "nyc": "^17.1.0",
-    "vite": "^6.3.5",
-    "vite-tsconfig-paths": "^5.1.4",
+    "vite": "catalog:",
+    "vite-tsconfig-paths": "catalog:",
     "vitest": "catalog:"
   }
 }

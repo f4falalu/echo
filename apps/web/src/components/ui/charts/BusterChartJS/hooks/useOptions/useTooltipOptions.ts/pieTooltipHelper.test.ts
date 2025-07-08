@@ -1,6 +1,6 @@
 import type { Chart, TooltipItem } from 'chart.js';
 import { describe, expect, it } from 'vitest';
-import type { IColumnLabelFormat } from '@/api/asset_interfaces/metric/charts/columnLabelInterfaces';
+import { DEFAULT_COLUMN_LABEL_FORMAT, type ColumnLabelFormat } from '@buster/server-shared/metrics';
 import { pieTooltipHelper } from './pieTooltipHelper';
 
 describe('pieTooltipHelper', () => {
@@ -31,16 +31,19 @@ describe('pieTooltipHelper', () => {
     }
   } as unknown as Chart;
 
-  const mockColumnLabelFormats: Record<string, IColumnLabelFormat> = {
+  const mockColumnLabelFormats: Record<string, ColumnLabelFormat> = {
     value: {
+      ...DEFAULT_COLUMN_LABEL_FORMAT,
       columnType: 'number',
       style: 'number'
     },
     percentage: {
+      ...DEFAULT_COLUMN_LABEL_FORMAT,
       columnType: 'number',
       style: 'percent'
     },
     label: {
+      ...DEFAULT_COLUMN_LABEL_FORMAT,
       columnType: 'text',
       style: 'string'
     }

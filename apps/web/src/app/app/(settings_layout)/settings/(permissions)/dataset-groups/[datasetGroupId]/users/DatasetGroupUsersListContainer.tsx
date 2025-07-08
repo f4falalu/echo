@@ -5,7 +5,7 @@ import type {
   GetDatasetGroupUsersResponse,
   GetPermissionGroupUsersResponse
 } from '@/api/asset_interfaces';
-import { useUpdateDatasetGroupUsers } from '@/api/buster_rest';
+import { useUpdateDatasetGroupUsers } from '@/api/buster_rest/dataset_groups';
 import { ListUserItem } from '@/components/features/list/ListUserItem';
 import { PermissionAssignedCell } from '@/components/features/PermissionComponents';
 import {
@@ -39,7 +39,9 @@ export const DatasetGroupUsersListContainer: React.FC<{
         title: 'Name',
         dataIndex: 'name',
         render: (name, user: GetPermissionGroupUsersResponse) => {
-          return <ListUserItem name={name as string} email={user.email} />;
+          return (
+            <ListUserItem name={name as string} email={user.email} avatarURL={user.avatar_url} />
+          );
         }
       },
       {
@@ -138,7 +140,12 @@ export const DatasetGroupUsersListContainer: React.FC<{
         useRowClickSelectChange={false}
         selectedRowKeys={selectedRowKeys}
         onSelectChange={setSelectedRowKeys}
-        emptyState={useMemo(() => <EmptyStateList text="No dataset groups found" />, [])}
+        emptyState={useMemo(
+          () => (
+            <EmptyStateList text="No dataset groups found" />
+          ),
+          []
+        )}
       />
     </InfiniteListContainer>
   );

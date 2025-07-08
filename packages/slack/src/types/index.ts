@@ -41,6 +41,7 @@ export const SlackOAuthResponseSchema = z.object({
       id: z.string(),
       name: z.string(),
     })
+    .nullable()
     .optional(),
   authed_user: z.object({
     id: z.string(),

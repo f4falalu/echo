@@ -3,25 +3,23 @@ import { Chart as ChartJS } from 'chart.js';
 import isDate from 'lodash/isDate';
 import { useMemo } from 'react';
 import type { DeepPartial } from 'utility-types';
-import {
-  DEFAULT_COLUMN_LABEL_FORMAT,
-  DEFAULT_COLUMN_SETTINGS
-} from '@/api/asset_interfaces/metric';
-import {
-  type BusterChartConfigProps,
-  type BusterChartProps,
-  type ChartEncodes,
-  ChartType,
-  type ColumnSettings,
-  type ComboChartAxis,
-  type IColumnLabelFormat,
-  type XAxisConfig
-} from '@/api/asset_interfaces/metric/charts';
+import type { BusterChartProps } from '@/api/asset_interfaces/metric/charts';
 import { useMemoizedFn } from '@/hooks';
 import { formatLabel, isNumericColumnType, truncateText } from '@/lib';
 import { useXAxisTitle } from '../axisHooks/useXAxisTitle';
 import { useIsStacked } from '../useIsStacked';
 import { AUTO_DATE_FORMATS } from './config';
+import {
+  DEFAULT_COLUMN_LABEL_FORMAT,
+  DEFAULT_COLUMN_SETTINGS,
+  type ChartConfigProps,
+  type ChartEncodes,
+  type ChartType,
+  type ColumnLabelFormat,
+  type ColumnSettings,
+  type ComboChartAxis,
+  type XAxisConfig
+} from '@buster/server-shared/metrics';
 
 const DEFAULT_X_AXIS_TICK_CALLBACK = ChartJS.defaults.scales.category?.ticks?.callback;
 
@@ -39,7 +37,7 @@ export const useXAxis = ({
   barGroupType,
   xAxisTimeInterval
 }: {
-  columnLabelFormats: NonNullable<BusterChartConfigProps['columnLabelFormats']>;
+  columnLabelFormats: NonNullable<ChartConfigProps['columnLabelFormats']>;
   selectedAxis: ChartEncodes;
   selectedChartType: ChartType;
   xAxisLabelRotation: NonNullable<BusterChartProps['xAxisLabelRotation']>;
@@ -62,10 +60,10 @@ export const useXAxis = ({
     return !isPieChart;
   }, [isPieChart]);
 
-  const xAxisColumnFormats: Record<string, IColumnLabelFormat> = useMemo(() => {
+  const xAxisColumnFormats: Record<string, ColumnLabelFormat> = useMemo(() => {
     if (!isSupportedType) return {};
 
-    return selectedAxis.x.reduce<Record<string, IColumnLabelFormat>>((acc, x) => {
+    return selectedAxis.x.reduce<Record<string, ColumnLabelFormat>>((acc, x) => {
       acc[x] = columnLabelFormats[x] || DEFAULT_COLUMN_LABEL_FORMAT;
       return acc;
     }, {});

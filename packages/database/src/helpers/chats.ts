@@ -165,25 +165,6 @@ export async function createMessage(input: CreateMessageInput): Promise<Message>
 }
 
 /**
- * Check if a user has permission to access a chat
- */
-export async function checkChatPermission(chatId: string, userId: string): Promise<boolean> {
-  const chat = await db
-    .select()
-    .from(chats)
-    .where(and(eq(chats.id, chatId), isNull(chats.deletedAt)))
-    .limit(1);
-
-  if (!chat.length) {
-    return false;
-  }
-
-  // For now, only check if user is the creator
-  // TODO: Add more sophisticated permission checking with asset_permissions table
-  return chat[0]?.createdBy === userId;
-}
-
-/**
  * Get all messages for a chat
  */
 export async function getMessagesForChat(chatId: string): Promise<Message[]> {
@@ -218,22 +199,16 @@ export async function updateChat(
       throw new Error(`Chat not found or has been deleted: ${chatId}`);
     }
 
-    // Build update object with only provided fields
-    const updateData: any = {
+    // Build update object with only provided fields, filtering out protected fields
+    const updateData = {
       updatedAt: new Date().toISOString(),
+      ...Object.fromEntries(
+        Object.entries(fields).filter(
+          ([key, value]) =>
+            value !== undefined && key !== 'id' && key !== 'createdAt' && key !== 'deletedAt'
+        )
+      ),
     };
-
-    // Only add fields that are actually provided (not undefined)
-    for (const [key, value] of Object.entries(fields)) {
-      if (value !== undefined && key !== 'id' && key !== 'createdAt' && key !== 'deletedAt') {
-        updateData[key] = value;
-      }
-    }
-
-    // If updatedAt was explicitly provided, use that instead
-    if ('updatedAt' in fields && fields.updatedAt !== undefined) {
-      updateData.updatedAt = fields.updatedAt;
-    }
 
     await db
       .update(chats)

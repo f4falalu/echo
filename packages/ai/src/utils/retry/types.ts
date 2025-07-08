@@ -19,7 +19,8 @@ export interface RetryableError {
     | 'network-timeout'
     | 'stream-interruption'
     | 'json-parse-error'
-    | 'content-policy';
+    | 'content-policy'
+    | 'unknown-error';
   originalError?: Error | unknown;
   healingMessage: CoreMessage;
 }

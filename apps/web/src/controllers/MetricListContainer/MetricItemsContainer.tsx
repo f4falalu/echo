@@ -1,10 +1,7 @@
 import React, { memo, useMemo, useRef, useState } from 'react';
-import {
-  type BusterMetricListItem,
-  ShareAssetType,
-  type VerificationStatus
-} from '@/api/asset_interfaces';
+import { type BusterMetricListItem } from '@/api/asset_interfaces';
 import { FavoriteStar } from '@/components/features/list';
+import { VerificationStatus } from '@buster/server-shared/share';
 import {
   getShareStatus,
   StatusBadgeIndicator
@@ -119,7 +116,12 @@ export const MetricItemsContainer: React.FC<{
         columns={columns}
         onSelectChange={onSelectChange}
         selectedRowKeys={selectedRowKeys}
-        emptyState={useMemo(() => <EmptyState loading={loading} />, [loading])}
+        emptyState={useMemo(
+          () => (
+            <EmptyState loading={loading} />
+          ),
+          [loading]
+        )}
       />
 
       <MetricSelectedOptionPopup
@@ -159,7 +161,7 @@ const TitleCell = React.memo<{ name: string; status: VerificationStatus; metricI
         <Text truncate>{name}</Text>
         <FavoriteStar
           id={metricId}
-          type={ShareAssetType.METRIC}
+          type={'metric'}
           iconStyle="tertiary"
           title={name}
           className="opacity-0 group-hover:opacity-100"

@@ -10,7 +10,7 @@ import { ASSET_ICONS } from '@/components/features/config/assetIcons';
 import { AppTooltip } from '@/components/ui/tooltip';
 import { useMount } from '@/hooks';
 import { useChatLayoutContextSelector } from '@/layouts/ChatLayout/ChatLayoutContext';
-import { ChartType, DEFAULT_CHART_CONFIG } from '@/api/asset_interfaces/metric';
+import { ChartType, DEFAULT_CHART_CONFIG } from '@buster/server-shared/metrics';
 import { useGetMetricMemoized } from '@/context/Metrics';
 import { BusterRoutes, createBusterRoute } from '@/routes';
 import { getSelectedChartTypeConfig } from '@/lib/metrics/selectedChartType';
@@ -30,6 +30,7 @@ export const ChatResponseMessage_DashboardFile: React.FC<{
 }> = React.memo(({ isCompletedStream, responseMessage, isSelectedFile, chatId, href }) => {
   const { version_number, id, file_name } = responseMessage;
   const metricId = useChatLayoutContextSelector((x) => x.metricId);
+  const dashboardId = useChatLayoutContextSelector((x) => x.dashboardId);
   const prefetchGetDashboard = usePrefetchGetDashboardClient();
   const {
     data: dashboardResponse,
@@ -96,6 +97,7 @@ export const ChatResponseMessage_DashboardFile: React.FC<{
               dashboardResponse={dashboardResponse}
               isFetched={isFetched}
               metricId={metricId}
+              dashboardId={dashboardId}
               chatId={chatId}
             />
           ) : (
@@ -134,8 +136,9 @@ const Content: React.FC<{
   dashboardResponse: Pick<BusterDashboardResponse, 'dashboard' | 'metrics'>;
   isFetched: boolean;
   metricId: string | undefined;
+  dashboardId: string | undefined;
   chatId: string;
-}> = React.memo(({ dashboardResponse, chatId, metricId, isFetched }) => {
+}> = React.memo(({ dashboardResponse, chatId, metricId, isFetched, dashboardId }) => {
   const getMetricMemoized = useGetMetricMemoized();
   type RowItem = {
     id: string;
@@ -172,12 +175,14 @@ const Content: React.FC<{
             name: metric.file_name || 'Untitled',
             chartType,
             link: createBusterRoute({
-              route: BusterRoutes.APP_CHAT_ID_METRIC_ID_CHART,
+              route: BusterRoutes.APP_CHAT_ID_DASHBOARD_ID_METRIC_ID_CHART,
               chatId,
-              metricId: metric.id,
-              versionNumber: metric.version_number
+              dashboardId: dashboardResponse.dashboard.id,
+              dashboardVersionNumber: dashboardResponse.dashboard.version_number,
+              metricId: metric.id
             }),
-            isSelectedMetric: metric.id === metricId,
+            isSelectedMetric:
+              metric.id === metricId && dashboardResponse.dashboard.id === dashboardId,
             icon: selectedChartIconConfig?.icon ? <selectedChartIconConfig.icon /> : null,
             iconTooltip: selectedChartIconConfig?.tooltipText || ''
           };
@@ -238,10 +243,10 @@ const SelectDashboardButtonAndText: React.FC<{
       </Text>
       <Link
         href={createBusterRoute({
-          route: BusterRoutes.APP_CHAT_ID_DASHBOARD_ID_VERSION_NUMBER,
+          route: BusterRoutes.APP_CHAT_ID_DASHBOARD_ID,
           chatId,
           dashboardId,
-          versionNumber
+          dashboardVersionNumber: versionNumber
         })}>
         <Button size={'small'} variant={'default'} className="min-w-fit">
           View dashboard

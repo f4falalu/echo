@@ -1,13 +1,13 @@
 import { queryOptions } from '@tanstack/react-query';
 import type {
   BusterMetricListItem,
-  IBusterMetric,
-  IBusterMetricData
+  BusterMetric,
+  BusterMetricDataExtended
 } from '@/api/asset_interfaces/metric';
 import type { listMetrics } from '../buster_rest/metrics';
 
 export const metricsGetMetric = (metricId: string, version_number: number | null) => {
-  return queryOptions<IBusterMetric>({
+  return queryOptions<BusterMetric>({
     queryKey: ['metrics', 'get', metricId, version_number || 'INITIAL'] as const,
     staleTime: 60 * 1000
   });
@@ -27,7 +27,7 @@ export const metricsGetList = (
   });
 
 export const metricsGetData = (id: string, version_number: number) =>
-  queryOptions<IBusterMetricData>({
+  queryOptions<BusterMetricDataExtended>({
     queryKey: ['metrics', 'data', id, version_number || 'INITIAL'] as const,
     staleTime: 3 * 60 * 60 * 1000 // 3 hours,
   });

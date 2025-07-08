@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { ShareAssetType, VerificationStatus } from '@/api/asset_interfaces/share';
+import { VerificationStatus } from '@buster/server-shared/share';
 import {
   useAddMetricsToDashboard,
   useRemoveMetricsFromDashboard
@@ -58,6 +58,7 @@ import { timeout } from '@/lib';
 import { downloadElementToImage, exportJSONToCSV } from '@/lib/exportUtils';
 import { canEdit, getIsEffectiveOwner, getIsOwner } from '@/lib/share';
 import { BusterRoutes, createBusterRoute } from '@/routes';
+import { assetParamsToRoute } from '@/lib/assets';
 
 export const ThreeDotMenuButton = React.memo(
   ({
@@ -70,10 +71,8 @@ export const ThreeDotMenuButton = React.memo(
     versionNumber: number | undefined;
   }) => {
     const chatId = useChatIndividualContextSelector((x) => x.chatId);
-    const { openSuccessMessage } = useBusterNotifications();
     const { data: permission } = useGetMetric({ id: metricId }, { select: (x) => x.permission });
     const openFullScreenMetric = useOpenFullScreenMetric({ metricId, versionNumber });
-    const onSetSelectedFile = useChatLayoutContextSelector((x) => x.onSetSelectedFile);
     const dashboardSelectMenu = useDashboardSelectMenu({ metricId });
     const versionHistoryItems = useVersionHistorySelectMenu({ metricId });
     const collectionSelectMenu = useCollectionSelectMenu({ metricId });
@@ -303,7 +302,7 @@ const useStatusSelectMenu = ({ metricId }: { metricId: string }) => {
 
   const dropdownProps = useStatusDropdownContent({
     isAdmin,
-    selectedStatus: metricStatus || VerificationStatus.NOT_REQUESTED,
+    selectedStatus: metricStatus || 'notRequested',
     onChangeStatus
   });
 
@@ -315,7 +314,7 @@ const useStatusSelectMenu = ({ metricId }: { metricId: string }) => {
     () => ({
       label: 'Status',
       value: 'status',
-      icon: <StatusBadgeIndicator status={metricStatus || VerificationStatus.NOT_REQUESTED} />,
+      icon: <StatusBadgeIndicator status={metricStatus || 'notRequested'} />,
       items: [<React.Fragment key="status-sub-menu">{statusSubMenu}</React.Fragment>]
     }),
     [statusSubMenu, metricStatus]
@@ -328,7 +327,7 @@ const useFavoriteMetricSelectMenu = ({ metricId }: { metricId: string }) => {
   const { data: name } = useGetMetric({ id: metricId }, { select: (x) => x.name });
   const { isFavorited, onFavoriteClick } = useFavoriteStar({
     id: metricId,
-    type: ShareAssetType.METRIC,
+    type: 'metric',
     name: name || ''
   });
 
@@ -370,17 +369,11 @@ const useResultsViewSelectMenu = ({
   metricId: string;
 }) => {
   const link = useMemo(() => {
-    if (!chatId) {
-      return createBusterRoute({
-        route: BusterRoutes.APP_METRIC_ID_RESULTS,
-        metricId: metricId
-      });
-    }
-
-    return createBusterRoute({
-      route: BusterRoutes.APP_CHAT_ID_METRIC_ID_RESULTS,
-      chatId: chatId,
-      metricId: metricId
+    return assetParamsToRoute({
+      type: 'metric',
+      chatId,
+      assetId: metricId,
+      page: 'results'
     });
   }, [chatId, metricId]);
 
@@ -403,17 +396,11 @@ const useSQLEditorSelectMenu = ({
   metricId: string;
 }) => {
   const link = useMemo(() => {
-    if (!chatId) {
-      return createBusterRoute({
-        route: BusterRoutes.APP_METRIC_ID_SQL,
-        metricId: metricId
-      });
-    }
-
-    return createBusterRoute({
-      route: BusterRoutes.APP_CHAT_ID_METRIC_ID_SQL,
-      chatId: chatId,
-      metricId: metricId
+    return assetParamsToRoute({
+      type: 'metric',
+      chatId,
+      assetId: metricId,
+      page: 'sql'
     });
   }, [chatId, metricId]);
 
@@ -544,7 +531,7 @@ export const useShareMenuSelectMenu = ({ metricId }: { metricId: string }) => {
                 key={metricId}
                 shareAssetConfig={shareAssetConfig}
                 assetId={metricId}
-                assetType={ShareAssetType.METRIC}
+                assetType={'metric'}
               />
             ]
           : undefined
@@ -565,16 +552,12 @@ const useOpenFullScreenMetric = ({
       label: 'Open in metric page',
       value: 'open-in-full-screen',
       icon: <ArrowUpRight />,
-      link: versionNumber
-        ? createBusterRoute({
-            route: BusterRoutes.APP_METRIC_ID_VERSION_NUMBER,
-            metricId,
-            versionNumber
-          })
-        : createBusterRoute({
-            route: BusterRoutes.APP_METRIC_ID_CHART,
-            metricId
-          })
+      link: assetParamsToRoute({
+        type: 'metric',
+        assetId: metricId,
+        page: 'chart',
+        versionNumber
+      })
     }),
     [metricId, versionNumber]
   );

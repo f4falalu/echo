@@ -1,6 +1,6 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
-import { ChartType } from '@/api/asset_interfaces/metric/charts';
+import type { ChartType } from '@buster/server-shared/metrics';
 import type { BusterChartLegendItem } from './interfaces';
 import { LegendItem } from './LegendItem';
 

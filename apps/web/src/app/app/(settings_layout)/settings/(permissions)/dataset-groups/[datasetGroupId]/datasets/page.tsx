@@ -1,5 +1,5 @@
 import { dehydrate, HydrationBoundary } from '@tanstack/react-query';
-import { prefetchDatasetGroupDatasets } from '@/api/buster_rest';
+import { prefetchDatasetGroupDatasets } from '@/api/buster_rest/dataset_groups';
 import { DatasetGroupDatasetsController } from './DatasetGroupDatasetsController';
 
 export default async function Page(props: { params: Promise<{ datasetGroupId: string }> }) {

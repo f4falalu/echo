@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from 'zod/v4';
 import { ChatMessageSchema } from './chat-message.types';
 
 const AssetType = z.enum(['metric_file', 'dashboard_file']);
@@ -15,7 +15,7 @@ export const BusterShareIndividualSchema = z.object({
 
 // Main ChatWithMessages schema
 export const ChatWithMessagesSchema = z.object({
-  id: z.string().uuid(),
+  id: z.string(),
   title: z.string(),
   is_favorited: z.boolean(),
   message_ids: z.array(z.string()),
@@ -38,13 +38,13 @@ export const ChatWithMessagesSchema = z.object({
 export const ChatCreateRequestSchema = z
   .object({
     prompt: z.string().optional(),
-    chat_id: z.string().uuid().optional(),
-    message_id: z.string().uuid().optional(),
-    asset_id: z.string().uuid().optional(),
+    chat_id: z.string().optional(),
+    message_id: z.string().optional(),
+    asset_id: z.string().optional(),
     asset_type: AssetType.optional(),
     // Legacy fields for backward compatibility
-    metric_id: z.string().uuid().optional(),
-    dashboard_id: z.string().uuid().optional(),
+    metric_id: z.string().optional(),
+    dashboard_id: z.string().optional(),
   })
   .refine((data) => !data.asset_id || data.asset_type, {
     message: 'asset_type must be provided when asset_id is specified',
@@ -54,9 +54,9 @@ export const ChatCreateRequestSchema = z
 // Handler request schema (internal - without legacy fields)
 export const ChatCreateHandlerRequestSchema = z.object({
   prompt: z.string().optional(),
-  chat_id: z.string().uuid().optional(),
-  message_id: z.string().uuid().optional(),
-  asset_id: z.string().uuid().optional(),
+  chat_id: z.string().optional(),
+  message_id: z.string().optional(),
+  asset_id: z.string().optional(),
   asset_type: AssetType.optional(),
 });
 

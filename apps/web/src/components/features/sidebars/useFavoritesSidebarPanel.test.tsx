@@ -1,7 +1,7 @@
 import { act, renderHook } from '@testing-library/react';
 import { useParams } from 'next/navigation';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { ShareAssetType } from '@/api/asset_interfaces/share';
+import { ShareAssetType } from '@buster/server-shared/share';
 import {
   useDeleteUserFavorite,
   useGetUserFavorites,
@@ -24,10 +24,10 @@ vi.mock('next/navigation', () => ({
 
 describe('useFavoriteSidebarPanel', () => {
   const mockFavorites = [
-    { id: 'metric1', name: 'Metric 1', asset_type: ShareAssetType.METRIC },
-    { id: 'dashboard1', name: 'Dashboard 1', asset_type: ShareAssetType.DASHBOARD },
-    { id: 'chat1', name: 'Chat 1', asset_type: ShareAssetType.CHAT },
-    { id: 'collection1', name: 'Collection 1', asset_type: ShareAssetType.COLLECTION }
+    { id: 'metric1', name: 'Metric 1', asset_type: 'metric' },
+    { id: 'dashboard1', name: 'Dashboard 1', asset_type: 'dashboard' },
+    { id: 'chat1', name: 'Chat 1', asset_type: 'chat' },
+    { id: 'collection1', name: 'Collection 1', asset_type: 'collection' }
   ];
 
   const mockUpdateFavorites = vi.fn();
@@ -107,7 +107,7 @@ describe('useFavoriteSidebarPanel', () => {
 
     const { result } = renderHook(() => useFavoriteSidebarPanel());
 
-    expect(result.current.favoritedPageType).toBe(ShareAssetType.METRIC);
+    expect(result.current.favoritedPageType).toBe('metric');
   });
   it('should set favoritedPageType to null when page is not favorited', () => {
     (useParams as any).mockReturnValue({

@@ -1,4 +1,4 @@
-import type { ShareAssetType } from '@/api/asset_interfaces';
+import type { ShareAssetType } from '@buster/server-shared/share';
 import type { BusterCollection, BusterCollectionListItem } from '@/api/asset_interfaces/collection';
 import type {
   ShareDeleteRequest,

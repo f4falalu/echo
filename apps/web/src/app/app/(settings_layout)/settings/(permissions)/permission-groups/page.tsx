@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useListAllPermissionGroups } from '@/api/buster_rest';
+import { useListAllPermissionGroups } from '@/api/buster_rest/permission_groups';
 import {
   NewPermissionGroupModal,
   PermissionSearch

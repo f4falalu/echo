@@ -1,10 +1,6 @@
 import type { Active } from '@dnd-kit/core';
 import { useState } from 'react';
-import type {
-  ChartEncodes,
-  ChartType,
-  IColumnLabelFormat
-} from '@/api/asset_interfaces/metric/charts';
+import type { ChartEncodes, ChartType, ColumnLabelFormat } from '@buster/server-shared/metrics';
 import { useMemoizedFn } from '@/hooks';
 import { isNumericColumnStyle, isNumericColumnType } from '@/lib';
 import { SelectAxisContainerId } from '../config';
@@ -68,7 +64,7 @@ const zoneErrorRecord: Record<
   (
     targetZone: DropZoneInternal,
     sourceZone: DropZoneInternal,
-    columnLabelFormat: Required<IColumnLabelFormat>,
+    columnLabelFormat: Required<ColumnLabelFormat>,
     selectedChartType: ChartType,
     axis: Parameters<typeof checkForError>[5],
     activeItemOriginalId: string
@@ -185,7 +181,7 @@ const checkForError = (
   targetZone: DropZoneInternal,
   sourceZone: DropZoneInternal,
   activeItemOriginalId: string,
-  columnLabelFormat: Required<IColumnLabelFormat>,
+  columnLabelFormat: Required<ColumnLabelFormat>,
   selectedChartType: ChartType,
   axis: ChartEncodes | null
 ): ZoneError | null => {

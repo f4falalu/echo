@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import type { IColumnLabelFormat } from '@/api/asset_interfaces/metric/charts/columnLabelInterfaces';
 import { BusterTableChart } from '../TableChart/BusterTableChart';
+import { DEFAULT_COLUMN_LABEL_FORMAT, type ColumnLabelFormat } from '@buster/server-shared/metrics';
 
 // Helper functions for generating sample data
 const generateProductName = (index: number) => `Product ${index + 1}`;
@@ -44,28 +44,28 @@ export const Default: Story = {
       product: {
         columnType: 'text',
         style: 'string'
-      } satisfies IColumnLabelFormat,
+      } as ColumnLabelFormat,
       sales: {
         columnType: 'number',
         style: 'currency',
         currency: 'USD',
         displayName: 'SALES'
-      } satisfies IColumnLabelFormat,
+      } as ColumnLabelFormat,
       units: {
         columnType: 'number',
         style: 'number',
         numberSeparatorStyle: ','
-      } satisfies IColumnLabelFormat,
+      } as ColumnLabelFormat,
       profit: {
         columnType: 'number',
         style: 'currency',
         currency: 'USD'
-      } satisfies IColumnLabelFormat,
+      } as ColumnLabelFormat,
       date: {
         columnType: 'date',
         style: 'date',
         dateFormat: 'LL'
-      } satisfies IColumnLabelFormat
+      } as ColumnLabelFormat
     }
   },
   render: (args) => {
@@ -85,27 +85,27 @@ export const WithTableColumnOrder: Story = {
       product: {
         columnType: 'text',
         style: 'string'
-      } satisfies IColumnLabelFormat,
+      } as ColumnLabelFormat,
       sales: {
         columnType: 'number',
         style: 'currency',
         currency: 'USD'
-      } satisfies IColumnLabelFormat,
+      } as ColumnLabelFormat,
       units: {
         columnType: 'number',
         style: 'number',
         numberSeparatorStyle: ','
-      } satisfies IColumnLabelFormat,
+      } as ColumnLabelFormat,
       profit: {
         columnType: 'number',
         style: 'currency',
         currency: 'USD'
-      } satisfies IColumnLabelFormat,
+      } as ColumnLabelFormat,
       date: {
         columnType: 'date',
         style: 'date',
         dateFormat: 'LL'
-      } satisfies IColumnLabelFormat
+      } as ColumnLabelFormat
     }
   },
   render: (args) => {
@@ -131,27 +131,27 @@ export const WithTableColumnWidths: Story = {
       product: {
         columnType: 'text',
         style: 'string'
-      } satisfies IColumnLabelFormat,
+      } as ColumnLabelFormat,
       sales: {
         columnType: 'number',
         style: 'currency',
         currency: 'USD'
-      } satisfies IColumnLabelFormat,
+      } as ColumnLabelFormat,
       units: {
         columnType: 'number',
         style: 'number',
         numberSeparatorStyle: ','
-      } satisfies IColumnLabelFormat,
+      } as ColumnLabelFormat,
       profit: {
         columnType: 'number',
         style: 'currency',
         currency: 'USD'
-      } satisfies IColumnLabelFormat,
+      } as ColumnLabelFormat,
       date: {
         columnType: 'date',
         style: 'date',
         dateFormat: 'LL'
-      } satisfies IColumnLabelFormat
+      } as ColumnLabelFormat
     }
   },
   render: (args) => {
@@ -171,27 +171,27 @@ export const ReadOnly: Story = {
       product: {
         columnType: 'text',
         style: 'string'
-      } satisfies IColumnLabelFormat,
+      } as ColumnLabelFormat,
       sales: {
         columnType: 'number',
         style: 'currency',
         currency: 'USD'
-      } satisfies IColumnLabelFormat,
+      } as ColumnLabelFormat,
       units: {
         columnType: 'number',
         style: 'number',
         numberSeparatorStyle: ','
-      } satisfies IColumnLabelFormat,
+      } as ColumnLabelFormat,
       profit: {
         columnType: 'number',
         style: 'currency',
         currency: 'USD'
-      } satisfies IColumnLabelFormat,
+      } as ColumnLabelFormat,
       date: {
         columnType: 'date',
         style: 'date',
         dateFormat: 'LL'
-      } satisfies IColumnLabelFormat
+      } as ColumnLabelFormat
     }
   },
   render: (args) => {
@@ -210,27 +210,27 @@ export const LargeDataset: Story = {
       product: {
         columnType: 'text',
         style: 'string'
-      } satisfies IColumnLabelFormat,
+      } as ColumnLabelFormat,
       sales: {
         columnType: 'number',
         style: 'currency',
         currency: 'USD'
-      } satisfies IColumnLabelFormat,
+      } as ColumnLabelFormat,
       units: {
         columnType: 'number',
         style: 'number',
         numberSeparatorStyle: ','
-      } satisfies IColumnLabelFormat,
+      } as ColumnLabelFormat,
       profit: {
         columnType: 'number',
         style: 'currency',
         currency: 'USD'
-      } satisfies IColumnLabelFormat,
+      } as ColumnLabelFormat,
       date: {
         columnType: 'date',
         style: 'date',
         dateFormat: 'LL'
-      } satisfies IColumnLabelFormat
+      } as ColumnLabelFormat
     }
   },
   render: (args) => {
@@ -250,27 +250,27 @@ export const CustomClassname: Story = {
       product: {
         columnType: 'text',
         style: 'string'
-      } satisfies IColumnLabelFormat,
+      } as ColumnLabelFormat,
       sales: {
         columnType: 'number',
         style: 'currency',
         currency: 'USD'
-      } satisfies IColumnLabelFormat,
+      } as ColumnLabelFormat,
       units: {
         columnType: 'number',
         style: 'number',
         numberSeparatorStyle: ','
-      } satisfies IColumnLabelFormat,
+      } as ColumnLabelFormat,
       profit: {
         columnType: 'number',
         style: 'currency',
         currency: 'USD'
-      } satisfies IColumnLabelFormat,
+      } as ColumnLabelFormat,
       date: {
         columnType: 'date',
         style: 'date',
         dateFormat: 'LL'
-      } satisfies IColumnLabelFormat
+      } as ColumnLabelFormat
     }
   },
   render: (args) => {
@@ -279,5 +279,21 @@ export const CustomClassname: Story = {
         <BusterTableChart {...args} />
       </div>
     );
+  }
+};
+
+export const WithNullStringValues: Story = {
+  args: {
+    data: generateTableData().map((item, index) => ({
+      ...item,
+      product: index % 2 === 0 ? null : item.product
+    })),
+    columnLabelFormats: {
+      product: {
+        ...DEFAULT_COLUMN_LABEL_FORMAT,
+        columnType: 'text',
+        style: 'string'
+      } as ColumnLabelFormat
+    }
   }
 };

@@ -21,7 +21,7 @@ export const generateChatTitleOutputSchema = z.object({
         name: z.string(),
         versionNumber: z.number(),
         metricIds: z.array(z.string()),
-      }),
+      })
     )
     .optional(),
 });
@@ -72,7 +72,7 @@ const generateChatTitleExecution = async ({
         },
         {
           name: 'Generate Chat Title',
-        },
+        }
       );
 
       title = await tracedChatTitle();
@@ -97,7 +97,7 @@ const generateChatTitleExecution = async ({
       updatePromises.push(
         updateChat(chatId, {
           title: title.title,
-        }),
+        })
       );
     }
 
@@ -105,7 +105,7 @@ const generateChatTitleExecution = async ({
       updatePromises.push(
         updateMessage(messageId, {
           title: title.title,
-        }),
+        })
       );
     }
 

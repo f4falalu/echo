@@ -32,9 +32,42 @@ const baseLogger = createBaseLogger();
 
 // Simple console capture - only override if LOG_LEVEL is set
 if (process.env.LOG_LEVEL) {
-  console.info = (...args) => baseLogger.info(...args);
-  console.warn = (...args) => baseLogger.warn(...args);
-  console.error = (...args) => baseLogger.error(...args);
+  console.info = (first, ...args) => {
+    if (typeof first === 'string' && args.length > 0 && typeof args[0] === 'object') {
+      // Handle pattern: console.info('message', { data })
+      baseLogger.info(args[0], first);
+    } else if (typeof first === 'string') {
+      // Handle pattern: console.info('message')
+      baseLogger.info(first);
+    } else {
+      // Handle pattern: console.info({ data })
+      baseLogger.info({ data: first }, ...args);
+    }
+  };
+  console.warn = (first, ...args) => {
+    if (typeof first === 'string' && args.length > 0 && typeof args[0] === 'object') {
+      // Handle pattern: console.warn('message', { data })
+      baseLogger.warn(args[0], first);
+    } else if (typeof first === 'string') {
+      // Handle pattern: console.warn('message')
+      baseLogger.warn(first);
+    } else {
+      // Handle pattern: console.warn({ data })
+      baseLogger.warn({ data: first }, ...args);
+    }
+  };
+  console.error = (first, ...args) => {
+    if (typeof first === 'string' && args.length > 0 && typeof args[0] === 'object') {
+      // Handle pattern: console.error('message', { data })
+      baseLogger.error(args[0], first);
+    } else if (typeof first === 'string') {
+      // Handle pattern: console.error('message')
+      baseLogger.error(first);
+    } else {
+      // Handle pattern: console.error({ data })
+      baseLogger.error({ data: first }, ...args);
+    }
+  };
 
   // Suppress debug logs when LOG_LEVEL is info or higher
   if (logLevel !== 'debug' && logLevel !== 'trace') {
@@ -45,4 +78,5 @@ if (process.env.LOG_LEVEL) {
 // Create logger middleware
 export const loggerMiddleware = pinoLogger({
   pino: baseLogger,
+  http: false, // Disable automatic HTTP request logging
 });

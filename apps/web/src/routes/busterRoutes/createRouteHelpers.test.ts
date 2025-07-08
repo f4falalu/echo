@@ -96,27 +96,27 @@ describe('createBusterRoute', () => {
 
   it('createBusterRoute should handle version history secondary view', () => {
     const input = {
-      route: BusterAppRoutes.APP_CHAT_ID_DASHBOARD_ID_VERSION_NUMBER,
+      route: BusterAppRoutes.APP_CHAT_ID_DASHBOARD_ID,
       chatId: 'chat123',
       dashboardId: 'dashboard456',
-      versionNumber: 1,
+      dashboardVersionNumber: 1,
       secondaryView: 'version-history' as DashboardFileViewSecondary
     } as const;
     const result = createBusterRoute(input);
     expect(result).toBe(
-      '/app/chats/chat123/dashboards/dashboard456?dashboard_version_number=1&secondary_view=version-history'
+      '/app/chats/chat123/dashboards/dashboard456?secondary_view=version-history&dashboard_version_number=1'
     );
 
     const input2 = {
-      route: BusterRoutes.APP_CHAT_ID_DASHBOARD_ID_VERSION_NUMBER,
+      route: BusterRoutes.APP_CHAT_ID_DASHBOARD_ID,
       dashboardId: 'dashboard456',
-      versionNumber: 1,
+      dashboardVersionNumber: 1,
       chatId: 'chat123',
       secondaryView: 'version-history'
     } as const;
     const result2 = createBusterRoute(input2);
     expect(result2).toBe(
-      '/app/chats/chat123/dashboards/dashboard456?dashboard_version_number=1&secondary_view=version-history'
+      '/app/chats/chat123/dashboards/dashboard456?secondary_view=version-history&dashboard_version_number=1'
     );
   });
 });
@@ -196,7 +196,7 @@ describe('extractPathParamsFromRoute', () => {
       chatId: 'chat123',
       dashboardId: 'dash456',
       secondaryView: 'version-history',
-      versionNumber: '1'
+      dashboardVersionNumber: '1'
     });
   });
   it('should return empty object for non-matching routes', () => {

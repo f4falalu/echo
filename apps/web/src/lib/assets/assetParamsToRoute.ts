@@ -2,56 +2,80 @@ import type { FileType, ReasoningFileType } from '@/api/asset_interfaces/chat';
 import { BusterRoutes, createBusterRoute } from '@/routes/busterRoutes';
 import type {
   DashboardFileViewSecondary,
-  FileViewSecondary,
   MetricFileViewSecondary
 } from '../../layouts/ChatLayout/ChatLayoutContext/useLayoutConfig';
 import type { ReasoingMessage_ThoughtFileType } from '@buster/server-shared/chats';
+import { createMetricRoute, type MetricRouteParams } from './createMetricRoute';
+import { createDashboardRoute, type DashboardRouteParams } from './createDashboardRoute';
+import { createReasoningRoute } from './createReasoningRoute';
+import { createDatasetRoute } from './createDatasetRoute';
 
 type UnionOfFileTypes = FileType | ReasoningFileType | ReasoingMessage_ThoughtFileType;
 
-type BaseParams = {
+type OtherRouteParams = {
   chatId: string | undefined;
-  assetId: string;
-  type: UnionOfFileTypes;
-  secondaryView?: FileViewSecondary;
-  versionNumber?: number;
+  assetId: string | undefined; //will first try and use metricId assuming it is a metric, then dashboardId assuming it is a dashboard, then assetId
+  metricId?: string; //if this is provided, it will be used instead of assetId
+  dashboardId?: string; //if this is provided, it will be used instead of assetId
+  versionNumber?: number; //will first try and use metricVersionNumber assuming it is a metric, then dashboardVersionNumber assuming it is a dashboard, then versionNumber
+  metricVersionNumber?: number; //if this is provided, it will be used instead of versionNumber
+  dashboardVersionNumber?: number; //if this is provided, it will be used instead of versionNumber
+  page?: undefined;
+  secondaryView?: undefined | null | string;
+  type: Exclude<UnionOfFileTypes, 'metric' | 'dashboard'>;
 };
 
-type MetricRouteParams = {
-  metricId: string;
-  chatId?: string;
-  secondaryView?: MetricFileViewSecondary;
-  versionNumber?: number;
-};
+type BaseParams = MetricRouteParams | DashboardRouteParams | OtherRouteParams;
 
 export const assetParamsToRoute = ({
   chatId,
   assetId,
   type,
-  versionNumber,
-  secondaryView
+  page,
+  secondaryView,
+  ...rest
 }: BaseParams): string => {
+  const { versionNumber } = rest as OtherRouteParams;
+  const { metricVersionNumber, dashboardVersionNumber } = rest as MetricRouteParams;
+  const { metricId, dashboardId } = rest as OtherRouteParams;
+
+  if (!assetId && chatId) {
+    return createBusterRoute({
+      route: BusterRoutes.APP_CHAT_ID,
+      chatId
+    });
+  }
+
+  if (!assetId) {
+    return '';
+  }
+
   if (type === 'metric') {
     return createMetricRoute({
-      metricId: assetId,
+      assetId: metricId || assetId,
+      metricVersionNumber: metricVersionNumber || versionNumber,
       chatId,
       secondaryView: secondaryView as MetricFileViewSecondary,
-      versionNumber
+      dashboardVersionNumber,
+      dashboardId,
+      page: page as MetricRouteParams['page']
     });
   }
 
   if (type === 'dashboard') {
     return createDashboardRoute({
-      dashboardId: assetId,
+      assetId: dashboardId || assetId,
+      dashboardVersionNumber: dashboardVersionNumber || versionNumber,
+      metricVersionNumber,
       chatId,
-      versionNumber,
+      page,
       secondaryView: secondaryView as DashboardFileViewSecondary
     });
   }
 
   if (type === 'reasoning') {
     return createReasoningRoute({
-      messageId: assetId,
+      assetId,
       chatId
     });
   }
@@ -101,146 +125,4 @@ export const assetParamsToRoute = ({
 
   console.warn('Asset params to route has not been implemented for this file type', type);
   return '';
-};
-
-const createMetricRoute = ({
-  metricId,
-  chatId,
-  secondaryView,
-  versionNumber
-}: MetricRouteParams) => {
-  const baseParams = { versionNumber, metricId, secondaryView };
-
-  if (chatId) {
-    if (versionNumber) {
-      return createBusterRoute({
-        route: BusterRoutes.APP_CHAT_ID_METRIC_ID_VERSION_NUMBER,
-        chatId,
-        ...baseParams,
-        versionNumber
-      });
-    }
-
-    switch (secondaryView) {
-      case 'chart-edit':
-        return createBusterRoute({
-          route: BusterRoutes.APP_CHAT_ID_METRIC_ID_CHART,
-          chatId,
-          ...baseParams
-        });
-      case 'version-history':
-        return createBusterRoute({
-          route: BusterRoutes.APP_CHAT_ID_METRIC_ID_CHART,
-          chatId,
-          ...baseParams
-        });
-      default: {
-        const test: never | undefined = secondaryView;
-        return createBusterRoute({
-          route: BusterRoutes.APP_CHAT_ID_METRIC_ID_CHART,
-          chatId,
-          metricId
-        });
-      }
-    }
-  }
-
-  // Non-chat metric routes
-
-  if (versionNumber) {
-    return createBusterRoute({
-      route: BusterRoutes.APP_METRIC_ID_VERSION_NUMBER,
-      ...baseParams
-    });
-  }
-
-  switch (secondaryView) {
-    case 'chart-edit':
-      return createBusterRoute({
-        route: BusterRoutes.APP_METRIC_ID_CHART,
-        ...baseParams
-      });
-    default:
-      return createBusterRoute({
-        route: BusterRoutes.APP_METRIC_ID_CHART,
-        metricId
-      });
-  }
-};
-
-const createDashboardRoute = ({
-  dashboardId,
-  chatId,
-  secondaryView,
-  versionNumber
-}: {
-  dashboardId: string;
-  chatId?: string;
-  secondaryView?: DashboardFileViewSecondary;
-  versionNumber?: number;
-}) => {
-  if (chatId) {
-    if (versionNumber) {
-      return createBusterRoute({
-        route: BusterRoutes.APP_CHAT_ID_DASHBOARD_ID_VERSION_NUMBER,
-        chatId,
-        dashboardId,
-        versionNumber,
-        secondaryView
-      });
-    }
-
-    return createBusterRoute({
-      route: BusterRoutes.APP_CHAT_ID_DASHBOARD_ID,
-      chatId,
-      dashboardId,
-      secondaryView
-    });
-  }
-
-  if (versionNumber) {
-    return createBusterRoute({
-      route: BusterRoutes.APP_DASHBOARD_ID_VERSION_NUMBER,
-      dashboardId,
-      versionNumber,
-      secondaryView
-    });
-  }
-
-  return createBusterRoute({
-    route: BusterRoutes.APP_DASHBOARD_ID,
-    dashboardId,
-    secondaryView
-  });
-};
-
-const createReasoningRoute = ({
-  messageId,
-  chatId
-}: {
-  messageId: string;
-  chatId: string | undefined;
-}) => {
-  if (!chatId) {
-    return '';
-  }
-
-  return createBusterRoute({
-    route: BusterRoutes.APP_CHAT_ID_REASONING_ID,
-    chatId,
-    messageId
-  });
-};
-
-const createDatasetRoute = ({
-  datasetId,
-  chatId
-}: {
-  datasetId: string;
-  chatId: string | undefined;
-}) => {
-  return createBusterRoute({
-    route: BusterRoutes.APP_DATASETS_ID,
-    datasetId
-  });
 };

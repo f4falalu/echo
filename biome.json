@@ -132,11 +132,11 @@
       }
     },
     {
-      "include": ["packages/database/**/*.ts"],
+      "include": ["**/*.js"],
       "linter": {
         "rules": {
           "suspicious": {
-            "noExplicitAny": "off"
+            "noConsoleLog": "off"
           }
         }
       }

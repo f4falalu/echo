@@ -1,10 +1,13 @@
 import { renderHook } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import type { SimplifiedColumnType } from '@/api/asset_interfaces/metric';
-import type { ChartEncodes, IColumnLabelFormat } from '@/api/asset_interfaces/metric/charts';
 import { formatLabel } from '@/lib/columnFormatter';
 import { truncateWithEllipsis } from '../../../../commonHelpers/titleHelpers';
 import { useYAxisTitle } from './useYAxisTitle';
+import type {
+  ChartEncodes,
+  ColumnLabelFormat,
+  SimplifiedColumnType
+} from '@buster/server-shared/metrics';
 
 // Mock the dependencies
 vi.mock('@/lib/columnFormatter', () => ({
@@ -22,20 +25,20 @@ describe('useYAxisTitle', () => {
       date: {
         columnType: 'date' as SimplifiedColumnType,
         style: 'date' as const
-      },
+      } as ColumnLabelFormat,
       category: {
         columnType: 'string' as SimplifiedColumnType,
         style: 'string' as const
-      },
+      } as ColumnLabelFormat,
       value: {
         columnType: 'number' as SimplifiedColumnType,
         style: 'number' as const
-      },
+      } as ColumnLabelFormat,
       count: {
         columnType: 'number' as SimplifiedColumnType,
         style: 'number' as const
-      }
-    } as Record<string, IColumnLabelFormat>,
+      } as ColumnLabelFormat
+    } as Record<string, ColumnLabelFormat>,
     isSupportedChartForAxisTitles: true,
     yAxisShowAxisTitle: true,
     yAxisAxisTitle: '',

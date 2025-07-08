@@ -3,23 +3,24 @@ import type {
   BusterUserAttribute,
   BusterUserDataset,
   BusterUserDatasetGroup,
-  BusterUserFavorite,
-  BusterUserListItem,
   BusterUserPermissionGroup,
-  BusterUserResponse,
   BusterUserTeamListItem,
   OrganizationUser
 } from '@/api/asset_interfaces/users';
-import type { getUserList } from '../buster_rest/users/requests';
+import type {
+  UserFavoriteResponse,
+  UserResponse,
+  UserListResponse
+} from '@buster/server-shared/user';
 
-const favoritesGetList = queryOptions<BusterUserFavorite[]>({
+const favoritesGetList = queryOptions<UserFavoriteResponse>({
   queryKey: ['myself', 'list', 'favorites'] as const,
   staleTime: 1000 * 60 * 60, // 1 hour,
   initialData: [],
   initialDataUpdatedAt: 0
 });
 
-const userGetUserMyself = queryOptions<BusterUserResponse | null>({
+const userGetUserMyself = queryOptions<UserResponse | null>({
   queryKey: ['myself'] as const,
   staleTime: 1000 * 60 * 60 // 1 hour
 });
@@ -54,8 +55,8 @@ const userGetUserDatasetGroups = (userId: string) =>
     queryKey: ['users', userId, 'datasetGroups'] as const
   });
 
-const userGetUserList = (params: Parameters<typeof getUserList>[0]) =>
-  queryOptions<BusterUserListItem[]>({
+const userGetUserList = (params: { team_id: string; page?: number; page_size?: number }) =>
+  queryOptions<UserListResponse>({
     queryKey: ['users', 'list', params] as const
   });
 

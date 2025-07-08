@@ -1,4 +1,3 @@
-import { validate } from 'email-validator';
 import uniq from 'lodash/uniq';
 import React, { useMemo } from 'react';
 import { useInviteUser } from '@/api/buster_rest/users';
@@ -7,6 +6,7 @@ import { AppModal } from '@/components/ui/modal';
 import { useBusterNotifications } from '@/context/BusterNotifications';
 import { useMemoizedFn } from '@/hooks';
 import { timeout } from '@/lib';
+import { isValidEmail } from '@/lib/email';
 
 export const InvitePeopleModal: React.FC<{
   open: boolean;
@@ -18,7 +18,9 @@ export const InvitePeopleModal: React.FC<{
   const { openErrorMessage, openSuccessMessage } = useBusterNotifications();
 
   const handleInvite = useMemoizedFn(async () => {
-    const allEmails = uniq([...emails, inputText].filter((email) => !!email && validate(email)));
+    const allEmails = uniq(
+      [...emails, inputText].filter((email) => !!email && isValidEmail(email))
+    );
     try {
       await inviteUsers({ emails: allEmails });
       onClose();
@@ -40,7 +42,7 @@ export const InvitePeopleModal: React.FC<{
   }, []);
 
   const isInputTextValidEmail = useMemo(() => {
-    return validate(inputText);
+    return isValidEmail(inputText);
   }, [inputText]);
 
   const memoizedFooter = useMemo(() => {
@@ -64,7 +66,7 @@ export const InvitePeopleModal: React.FC<{
           onTagAdd={(v) => {
             const arrayedTags = Array.isArray(v) ? v : [v];
             const hadMultipleTags = arrayedTags.length > 1;
-            const validTags = arrayedTags.filter((tag) => validate(tag));
+            const validTags = arrayedTags.filter((tag) => isValidEmail(tag));
 
             setEmails([...emails, ...validTags]);
 

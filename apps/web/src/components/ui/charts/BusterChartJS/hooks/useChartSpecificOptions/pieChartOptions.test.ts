@@ -3,6 +3,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { determineFontColorContrast } from '@/lib/colors';
 import type { ChartSpecificOptionsProps } from './interfaces';
 import { pieOptionsHandler, piePluginsHandler } from './pieChartOptions';
+import type { ColumnLabelFormat } from '@buster/server-shared/metrics';
 
 vi.mock('@/lib/colors');
 
@@ -32,7 +33,8 @@ describe('pieOptionsHandler', () => {
       selectedAxis: {
         y: ['value'],
         x: ['category'],
-        category: []
+        category: [],
+        tooltip: null
       } as ChartSpecificOptionsProps['selectedAxis'],
       columnLabelFormats: {},
       barShowTotalAtTop: false,
@@ -59,10 +61,11 @@ describe('piePluginsHandler', () => {
       selectedAxis: {
         y: ['value'],
         x: ['category'],
-        category: []
+        category: [],
+        tooltip: null
       } as ChartSpecificOptionsProps['selectedAxis'],
       columnLabelFormats: {
-        value: { columnType: 'number', style: 'number' }
+        value: { columnType: 'number', style: 'number' } as any
       },
       barShowTotalAtTop: false,
       columnSettings: {},
@@ -93,10 +96,11 @@ describe('piePluginsHandler', () => {
       selectedAxis: {
         y: ['value'],
         x: ['category'],
-        category: []
+        category: [],
+        tooltip: null
       } as ChartSpecificOptionsProps['selectedAxis'],
       columnLabelFormats: {
-        value: { columnType: 'number', style: 'number' }
+        value: { columnType: 'number', style: 'number' } as ColumnLabelFormat
       },
       barShowTotalAtTop: false,
       columnSettings: {},

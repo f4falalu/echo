@@ -1,5 +1,5 @@
 import React from 'react';
-import { useUpdateDataset } from '@/api/buster_rest';
+import { useUpdateDataset } from '@/api/buster_rest/datasets';
 import { Text } from '@/components/ui/typography';
 import { EditableTitle } from '@/components/ui/typography/EditableTitle';
 import { useMemoizedFn } from '@/hooks';

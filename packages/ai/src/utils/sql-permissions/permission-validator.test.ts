@@ -238,7 +238,10 @@ describe('Permission Validator', () => {
         },
       ] as any);
 
-      const result = await validateSqlPermissions('INSERT INTO public.users (name) VALUES ("test")', 'user123');
+      const result = await validateSqlPermissions(
+        'INSERT INTO public.users (name) VALUES ("test")',
+        'user123'
+      );
 
       expect(result.isAuthorized).toBe(false);
       expect(result.error).toContain("Query type 'insert' is not allowed");
@@ -256,7 +259,10 @@ describe('Permission Validator', () => {
         },
       ] as any);
 
-      const result = await validateSqlPermissions('UPDATE public.users SET name = "updated" WHERE id = 1', 'user123');
+      const result = await validateSqlPermissions(
+        'UPDATE public.users SET name = "updated" WHERE id = 1',
+        'user123'
+      );
 
       expect(result.isAuthorized).toBe(false);
       expect(result.error).toContain("Query type 'update' is not allowed");
@@ -273,7 +279,10 @@ describe('Permission Validator', () => {
         },
       ] as any);
 
-      const result = await validateSqlPermissions('DELETE FROM public.users WHERE id = 1', 'user123');
+      const result = await validateSqlPermissions(
+        'DELETE FROM public.users WHERE id = 1',
+        'user123'
+      );
 
       expect(result.isAuthorized).toBe(false);
       expect(result.error).toContain("Query type 'delete' is not allowed");

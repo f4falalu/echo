@@ -229,7 +229,7 @@ export class ChunkProcessor<T extends ToolSet = GenericToolSet> {
 
   private async handleToolCall(chunk: TextStreamPart<T>) {
     if (chunk.type !== 'tool-call') return;
-    
+
     console.log('[ChunkProcessor] handleToolCall:', {
       toolName: chunk.toolName,
       toolCallId: chunk.toolCallId,
@@ -393,7 +393,7 @@ export class ChunkProcessor<T extends ToolSet = GenericToolSet> {
       'submitThoughts',
       'messageUserClarifyingQuestion',
     ];
-    
+
     if (finishingTools.includes(chunk.toolName)) {
       this.state.hasFinishingTool = true;
       this.state.finishedToolName = chunk.toolName;
@@ -401,7 +401,7 @@ export class ChunkProcessor<T extends ToolSet = GenericToolSet> {
       // Tools that complete the ENTIRE workflow (not just a step)
       const workflowCompletingTools = [
         'doneTool',
-        'respondWithoutAnalysis', 
+        'respondWithoutAnalysis',
         'messageUserClarifyingQuestion',
       ];
 
@@ -434,7 +434,7 @@ export class ChunkProcessor<T extends ToolSet = GenericToolSet> {
             messageId: this.messageId,
             finalReasoningMessage: this.state.finalReasoningMessage,
           });
-          
+
           try {
             await updateMessageFields(this.messageId, {
               finalReasoningMessage: this.state.finalReasoningMessage,
@@ -448,10 +448,13 @@ export class ChunkProcessor<T extends ToolSet = GenericToolSet> {
           }
         }
       } else {
-        console.log('[ChunkProcessor] Step-finishing tool detected (not updating finalReasoningMessage):', {
-          toolName: chunk.toolName,
-          messageId: this.messageId,
-        });
+        console.log(
+          '[ChunkProcessor] Step-finishing tool detected (not updating finalReasoningMessage):',
+          {
+            toolName: chunk.toolName,
+            messageId: this.messageId,
+          }
+        );
       }
     }
 
@@ -463,7 +466,7 @@ export class ChunkProcessor<T extends ToolSet = GenericToolSet> {
 
   private handleToolCallStart(chunk: TextStreamPart<T>) {
     if (chunk.type !== 'tool-call-streaming-start') return;
-    
+
     console.log('[ChunkProcessor] handleToolCallStart:', {
       toolName: chunk.toolName,
       toolCallId: chunk.toolCallId,
@@ -593,14 +596,14 @@ export class ChunkProcessor<T extends ToolSet = GenericToolSet> {
     // We do this here for streaming tools since they might not send a complete tool-call event
     const workflowCompletingTools = [
       'doneTool',
-      'respondWithoutAnalysis', 
+      'respondWithoutAnalysis',
       'messageUserClarifyingQuestion',
     ];
 
     if (workflowCompletingTools.includes(chunk.toolName)) {
       // DON'T mark as finishing tool here - that happens in handleToolCall
       // We only want to update the finalReasoningMessage, not control the stream
-      
+
       // Calculate the final reasoning message
       const durationMs = Date.now() - this.workflowStartTime;
       const seconds = Math.round(durationMs / 1000);
@@ -624,27 +627,35 @@ export class ChunkProcessor<T extends ToolSet = GenericToolSet> {
 
       // Update the database immediately for workflow-completing tools
       if (this.messageId && this.state.finalReasoningMessage) {
-        console.log('[ChunkProcessor] Updating finalReasoningMessage in database from streaming start:', {
-          messageId: this.messageId,
-          finalReasoningMessage: this.state.finalReasoningMessage,
-        });
-        
+        console.log(
+          '[ChunkProcessor] Updating finalReasoningMessage in database from streaming start:',
+          {
+            messageId: this.messageId,
+            finalReasoningMessage: this.state.finalReasoningMessage,
+          }
+        );
+
         // Don't await here to avoid blocking the stream
         updateMessageFields(this.messageId, {
           finalReasoningMessage: this.state.finalReasoningMessage,
         })
           .then(() => {
-            console.log('[ChunkProcessor] Successfully updated finalReasoningMessage in database from streaming start');
+            console.log(
+              '[ChunkProcessor] Successfully updated finalReasoningMessage in database from streaming start'
+            );
           })
           .catch((error) => {
-            console.error('Error updating finalReasoningMessage in database from streaming start:', {
-              messageId: this.messageId,
-              error: error instanceof Error ? error.message : 'Unknown error',
-            });
+            console.error(
+              'Error updating finalReasoningMessage in database from streaming start:',
+              {
+                messageId: this.messageId,
+                error: error instanceof Error ? error.message : 'Unknown error',
+              }
+            );
           });
       }
     }
-    
+
     // Don't handle submitThoughts here - let it be handled normally in handleToolCall
     // The stream control logic should remain unchanged
   }

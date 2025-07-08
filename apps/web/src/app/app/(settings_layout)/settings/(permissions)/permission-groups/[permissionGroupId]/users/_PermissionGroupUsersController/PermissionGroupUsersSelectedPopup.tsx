@@ -1,5 +1,5 @@
 import React from 'react';
-import { useUpdatePermissionGroupUsers } from '@/api/buster_rest';
+import { useUpdatePermissionGroupUsers } from '@/api/buster_rest/permission_groups';
 import { PermissionAssignedButton } from '@/components/features/PermissionComponents';
 import { BusterListSelectedOptionPopupContainer } from '@/components/ui/list';
 

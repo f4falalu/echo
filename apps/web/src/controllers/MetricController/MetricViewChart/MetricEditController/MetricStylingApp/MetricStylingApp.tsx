@@ -2,12 +2,12 @@
 
 import type React from 'react';
 import { useState } from 'react';
-import {
-  type BarAndLineAxis,
-  type ChartEncodes,
+import type {
+  BarAndLineAxis,
+  ChartEncodes,
   ChartType,
-  type ScatterAxis
-} from '@/api/asset_interfaces/metric/charts';
+  ScatterAxis
+} from '@buster/server-shared/metrics';
 import { useGetMetric, useGetMetricData } from '@/api/buster_rest/metrics';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { MetricStylingAppSegments } from './config';

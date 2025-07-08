@@ -6,9 +6,9 @@ import {
 } from '@tanstack/react-query';
 import last from 'lodash/last';
 import type {
+  BusterMetric,
   BusterMetricData,
-  IBusterMetric,
-  IBusterMetricData
+  BusterMetricDataExtended
 } from '@/api/asset_interfaces/metric';
 import { metricsQueryKeys } from '@/api/query_keys/metric';
 import { useBusterAssetsContextSelector } from '@/context/Assets/BusterAssetsProvider';
@@ -19,7 +19,7 @@ import type { RustApiError } from '../errors';
 import { useGetMetricVersionNumber, useMetricQueryStore } from './metricQueryStore';
 import { getMetric, getMetricData } from './requests';
 
-export const useGetMetric = <TData = IBusterMetric>(
+export const useGetMetric = <TData = BusterMetric>(
   {
     id,
     versionNumber: versionNumberProp
@@ -27,7 +27,7 @@ export const useGetMetric = <TData = IBusterMetric>(
     id: string | undefined;
     versionNumber?: number | null; //if null it will not use a params from the query params
   },
-  params?: Omit<UseQueryOptions<IBusterMetric, RustApiError, TData>, 'queryKey' | 'queryFn'>
+  params?: Omit<UseQueryOptions<BusterMetric, RustApiError, TData>, 'queryKey' | 'queryFn'>
 ) => {
   const queryClient = useQueryClient();
   const setOriginalMetric = useOriginalMetricStore((x) => x.setOriginalMetric);
@@ -108,7 +108,7 @@ export const usePrefetchGetMetricClient = () => {
   );
 };
 
-export const useGetMetricData = <TData = IBusterMetricData>(
+export const useGetMetricData = <TData = BusterMetricDataExtended>(
   {
     id,
     versionNumber: versionNumberProp

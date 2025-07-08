@@ -37,7 +37,7 @@
     "zod": "catalog:"
   },
   "devDependencies": {
-    "@vercel/node": "^5.3.0",
+    "@vercel/node": "^5.3.3",
     "tsup": "^8.5.0"
   }
 }

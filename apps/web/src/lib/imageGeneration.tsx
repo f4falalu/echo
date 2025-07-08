@@ -1,12 +1,12 @@
 import type React from 'react';
 import { useEffect, useRef } from 'react';
 import { createRoot } from 'react-dom/client';
-import type { BusterMetricData, IBusterMetric } from '@/api/asset_interfaces/metric';
+import type { BusterMetricData, BusterMetric } from '@/api/asset_interfaces/metric';
 import { downloadImageData, exportElementToImage } from './exportUtils';
 import { timeout } from './timeout';
 
 export const generateChartDownloadImage = async (
-  message: IBusterMetric,
+  message: BusterMetric,
   messageData: NonNullable<BusterMetricData['data']>,
   isDark = false
 ) => {
@@ -61,7 +61,7 @@ export const generateChartDownloadImage = async (
 
 export const generateChartPreviewImage = async (
   message: {
-    chart_config: IBusterMetric['chart_config'];
+    chart_config: BusterMetric['chart_config'];
   } | null,
   messageData: BusterMetricData,
   isDark = true
@@ -77,7 +77,7 @@ export const generateChartPreviewImage = async (
 
   const container = (
     <PreviewImageReactComponent
-      message={message as IBusterMetric}
+      message={message as BusterMetric}
       messageData={messageData}
       isDark={isDark}
     />
@@ -149,7 +149,7 @@ const ChartPreviewImage = ({
   message,
   messageData
 }: {
-  message: IBusterMetric;
+  message: BusterMetric;
   messageData: BusterMetricData;
 }) => {
   const data = messageData?.data || [];
@@ -174,7 +174,7 @@ const ChartPreviewImage = ({
 
 export const PreviewImageReactComponent: React.FC<{
   message: {
-    chart_config: IBusterMetric['chart_config'];
+    chart_config: BusterMetric['chart_config'];
   } | null;
   messageData: BusterMetricData;
   isDark: boolean;
@@ -210,7 +210,7 @@ export const PreviewImageReactComponent: React.FC<{
           }`}>
           {BusterLogo}
           {hasData && message?.chart_config ? (
-            <ChartPreviewImage message={message as IBusterMetric} messageData={messageData} />
+            <ChartPreviewImage message={message as BusterMetric} messageData={messageData} />
           ) : (
             <div
               className={`${isDark ? 'text-stone-400' : 'text-stone-700'}`}

@@ -2,7 +2,7 @@
 
 import React, { useMemo, useState } from 'react';
 import type { GetPermissionGroupUsersResponse } from '@/api/asset_interfaces';
-import { useUpdatePermissionGroupUsers } from '@/api/buster_rest';
+import { useUpdatePermissionGroupUsers } from '@/api/buster_rest/permission_groups';
 import { ListUserItem } from '@/components/features/list';
 import { PermissionAssignedCell } from '@/components/features/PermissionComponents';
 import {
@@ -34,7 +34,7 @@ export const PermissionGroupUsersListContainer: React.FC<{
         title: 'Name',
         dataIndex: 'name',
         render: (name: string, user: GetPermissionGroupUsersResponse) => {
-          return <ListUserItem name={name} email={user.email} />;
+          return <ListUserItem name={name} email={user.email} avatarURL={user.avatar_url} />;
         }
       },
       {
@@ -133,7 +133,12 @@ export const PermissionGroupUsersListContainer: React.FC<{
         useRowClickSelectChange={false}
         selectedRowKeys={selectedRowKeys}
         onSelectChange={setSelectedRowKeys}
-        emptyState={useMemo(() => <EmptyStateList text="No dataset groups found" />, [])}
+        emptyState={useMemo(
+          () => (
+            <EmptyStateList text="No dataset groups found" />
+          ),
+          []
+        )}
       />
     </InfiniteListContainer>
   );

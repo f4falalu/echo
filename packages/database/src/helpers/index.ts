@@ -34,7 +34,6 @@ export {
   updateChat,
   getChatWithDetails,
   createMessage,
-  checkChatPermission,
   getMessagesForChat,
   CreateChatInputSchema,
   GetChatInputSchema,
@@ -68,3 +67,12 @@ export {
   type GetUserOrganizationInput,
   type UserToOrganization,
 } from './organizations';
+
+// Braintrust metadata helper
+export {
+  getBraintrustMetadata,
+  BraintrustMetadataInputSchema,
+  BraintrustMetadataOutputSchema,
+  type BraintrustMetadataInput,
+  type BraintrustMetadataOutput,
+} from './braintrustMetadata';

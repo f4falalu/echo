@@ -104,7 +104,9 @@ pub async fn get_metric_data_handler(
                     tracing::info!("Found associated public dashboard. Fetching metric definition without direct permissions.");
                     match get_metric_for_dashboard_handler(
                         &request.metric_id,
+                        &user,
                         request.version_number,
+                        request.password.clone(),
                     )
                     .await
                     {

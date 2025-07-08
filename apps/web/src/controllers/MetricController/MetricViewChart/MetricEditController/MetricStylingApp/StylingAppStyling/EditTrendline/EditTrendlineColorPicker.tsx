@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { DEFAULT_TRENDLINE_CONFIG } from '@/api/asset_interfaces';
+import { DEFAULT_TRENDLINE_CONFIG } from '@buster/server-shared/metrics';
 import { ColorPicker } from '@/components/ui/color-picker';
 import { Switch } from '@/components/ui/switch';
 import { useMemoizedFn } from '@/hooks';

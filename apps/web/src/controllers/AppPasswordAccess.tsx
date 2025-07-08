@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useRef } from 'react';
-import type { ShareAssetType } from '@/api/asset_interfaces';
+import type { ShareAssetType } from '@buster/server-shared/share';
 import { BusterLogo } from '@/assets/svg/BusterLogo';
 import { Button } from '@/components/ui/buttons';
 import { Input } from '@/components/ui/inputs';

@@ -6,7 +6,6 @@ vi.mock('@buster/database/connection', () => ({
   getPool: vi.fn(),
 }));
 vi.mock('@buster/database', () => ({
-  checkChatPermission: vi.fn(),
   createMessage: vi.fn(),
   db: {
     transaction: vi.fn((callback: any) => callback({ insert: vi.fn() })),
@@ -17,6 +16,12 @@ vi.mock('@buster/database', () => ({
   messages: {},
 }));
 
+// Mock the access-controls package
+vi.mock('@buster/access-controls', () => ({
+  canUserAccessChatCached: vi.fn(),
+}));
+
+import { canUserAccessChatCached } from '@buster/access-controls';
 import * as database from '@buster/database';
 import type { Chat, Message } from '@buster/database';
 import { ChatError, ChatErrorCode } from '@buster/server-shared/chats';
@@ -161,7 +166,7 @@ describe('handleExistingChat', () => {
       isFavorited: false,
     });
 
-    vi.mocked(database.checkChatPermission).mockResolvedValue(true);
+    vi.mocked(canUserAccessChatCached).mockResolvedValue(true);
     vi.mocked(database.createMessage).mockResolvedValue(mockMessage);
     vi.mocked(database.getMessagesForChat).mockResolvedValue([mockMessage]);
 
@@ -186,7 +191,7 @@ describe('handleExistingChat', () => {
       user: null,
       isFavorited: false,
     });
-    vi.mocked(database.checkChatPermission).mockResolvedValue(false);
+    vi.mocked(canUserAccessChatCached).mockResolvedValue(false);
 
     await expect(
       handleExistingChat('chat-1', 'message-1', 'Test message', mockUser)

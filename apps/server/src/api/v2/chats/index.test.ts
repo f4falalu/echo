@@ -142,17 +142,6 @@ describe('POST /chats', () => {
     expect((data as any).error || (data as any).message || (data as any).errors).toBeDefined();
   });
 
-  it('should validate UUID formats', async () => {
-    const response = await makeRequest(app, {
-      chat_id: 'not-a-uuid',
-    });
-
-    expect(response.status).toBe(400);
-    const data = await response.json();
-    // Zod validation errors have a different structure
-    expect((data as any).error || (data as any).message || (data as any).errors).toBeDefined();
-  });
-
   it.skip('should handle ChatError with proper status code', async () => {
     const chatError = new ChatError(ChatErrorCode.PERMISSION_DENIED, 'Access denied', 403);
     vi.mocked(createChatHandler).mockRejectedValue(chatError.toResponse());

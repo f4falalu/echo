@@ -2,7 +2,7 @@
 
 import type React from 'react';
 import { useMemo, useState } from 'react';
-import { useGetUserDatasets } from '@/api/buster_rest';
+import { useGetUserDatasets } from '@/api/buster_rest/users/permissions';
 import { NewDatasetModal } from '@/components/features/modal/NewDatasetModal';
 import { PermissionSearchAndListWrapper } from '@/components/features/PermissionComponents';
 import { Button } from '@/components/ui/buttons';

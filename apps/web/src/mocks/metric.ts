@@ -1,12 +1,6 @@
-import {
-  type BusterMetricListItem,
-  ChartType,
-  type DataMetadata,
-  DEFAULT_CHART_CONFIG,
-  type IBusterMetric,
-  type IBusterMetricChartConfig
-} from '@/api/asset_interfaces/metric';
-import { ShareRole, VerificationStatus } from '@/api/asset_interfaces/share';
+import type { BusterMetricListItem, BusterMetric } from '@/api/asset_interfaces/metric';
+import { ChartType, DEFAULT_CHART_CONFIG } from '@buster/server-shared/metrics';
+import type { ChartConfigProps, DataMetadata } from '@buster/server-shared/metrics';
 
 // Utility functions for predictable mock data generation
 const CHART_TYPES: ChartType[] = ['bar', 'table', 'line', 'pie', 'scatter', 'metric'];
@@ -62,7 +56,7 @@ const generatePredictableEmail = (id: string): string => {
   return `${name}.${hash % 100}@${domain}`;
 };
 
-const createMockChartConfig = (id: string): IBusterMetricChartConfig => {
+const createMockChartConfig = (id: string): ChartConfigProps => {
   const hash = Array.from(id).reduce((acc, char) => acc + char.charCodeAt(0), 0);
   const chartType: ChartType = CHART_TYPES[hash % CHART_TYPES.length];
 
@@ -72,7 +66,8 @@ const createMockChartConfig = (id: string): IBusterMetricChartConfig => {
     barAndLineAxis: {
       x: ['date'],
       y: ['sales'],
-      category: []
+      category: [],
+      tooltip: null
     },
     pieChartAxis: {
       x: ['product'],
@@ -126,7 +121,7 @@ const dataMetadata: DataMetadata = {
   row_count: 10
 };
 
-export const createMockMetric = (id: string): IBusterMetric => {
+export const createMockMetric = (id: string): BusterMetric => {
   const chart_config = createMockChartConfig(id);
 
   return {
@@ -145,7 +140,7 @@ export const createMockMetric = (id: string): IBusterMetric => {
     dataset_name: 'Mock Dataset',
     error: null,
     data_metadata: dataMetadata,
-    status: VerificationStatus.NOT_REQUESTED,
+    status: 'notRequested',
     evaluation_score: 'Moderate',
     versions: [],
     evaluation_summary: `Predictable evaluation summary for ${id} showing consistent performance metrics and data quality indicators.`,
@@ -216,7 +211,7 @@ export const createMockMetric = (id: string): IBusterMetric => {
     public_enabled_by: '',
     publicly_accessible: false,
     public_password: '',
-    permission: ShareRole.OWNER,
+    permission: 'owner',
     id
   };
 };
@@ -264,6 +259,6 @@ export const createMockListMetric = (id: string): BusterMetricListItem => ({
   created_by_name: `User ${id}`,
   created_by_email: generatePredictableEmail(id),
   created_by_avatar: `https://avatar.example.com/${id}`,
-  status: VerificationStatus.VERIFIED,
+  status: 'verified',
   is_shared: true
 });

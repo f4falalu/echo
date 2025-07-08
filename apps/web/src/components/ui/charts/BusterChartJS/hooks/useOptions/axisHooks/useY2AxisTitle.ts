@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import type { BusterChartConfigProps } from '@/api/asset_interfaces/metric/charts';
+import type { ChartConfigProps } from '@buster/server-shared/metrics';
 import { formatLabel } from '@/lib/columnFormatter';
 import { AXIS_TITLE_SEPARATOR } from '../../../../commonHelpers/axisHelper';
 import { truncateWithEllipsis } from '../../../../commonHelpers/titleHelpers';
@@ -12,10 +12,10 @@ export const useY2AxisTitle = ({
   y2AxisShowAxisTitle
 }: {
   y2Axis: string[];
-  columnLabelFormats: NonNullable<BusterChartConfigProps['columnLabelFormats']>;
+  columnLabelFormats: NonNullable<ChartConfigProps['columnLabelFormats']>;
   isSupportedChartForAxisTitles: boolean;
-  y2AxisAxisTitle: BusterChartConfigProps['y2AxisAxisTitle'];
-  y2AxisShowAxisTitle: BusterChartConfigProps['y2AxisShowAxisTitle'];
+  y2AxisAxisTitle: ChartConfigProps['y2AxisAxisTitle'];
+  y2AxisShowAxisTitle: ChartConfigProps['y2AxisShowAxisTitle'];
 }) => {
   const y2AxisColumnLabelFormats = useMemo(() => {
     return y2Axis.map((y) => columnLabelFormats[y]);

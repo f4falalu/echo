@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
-import type { IColumnLabelFormat } from '@/api/asset_interfaces/metric/charts/columnLabelInterfaces';
+import type { ColumnLabelFormat } from '@buster/server-shared/metrics';
 import { InputNumber } from '@/components/ui/inputs';
 import { LabelAndInput } from '../../../Common/LabelAndInput';
 
 export const EditDecimals: React.FC<{
-  minimumFractionDigits: IColumnLabelFormat['minimumFractionDigits'];
-  maximumFractionDigits: IColumnLabelFormat['maximumFractionDigits'];
-  onUpdateColumnConfig: (columnLabelFormat: Partial<IColumnLabelFormat>) => void;
+  minimumFractionDigits: ColumnLabelFormat['minimumFractionDigits'];
+  maximumFractionDigits: ColumnLabelFormat['maximumFractionDigits'];
+  onUpdateColumnConfig: (columnLabelFormat: Partial<ColumnLabelFormat>) => void;
 }> = React.memo(({ minimumFractionDigits, maximumFractionDigits, onUpdateColumnConfig }) => {
   const [min, setMin] = useState(minimumFractionDigits);
   const [max, setMax] = useState(maximumFractionDigits);

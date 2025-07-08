@@ -2,7 +2,7 @@
 
 import React, { type PropsWithChildren } from 'react';
 import { createContext, useContextSelector } from 'use-context-selector';
-import { useGetMyUserInfo } from '@/api/buster_rest/users';
+import { useGetMyUserInfo } from '@/api/buster_rest/users/queryRequests';
 import { checkIfUserIsAdmin } from '@/lib/user';
 import { useSupabaseContext } from '../Supabase';
 

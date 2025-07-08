@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { type ChartEncodes, ChartType } from '@/api/asset_interfaces/metric/charts';
 import { doesChartHaveValidAxis } from './helpers';
+import type { ChartEncodes } from '@buster/server-shared/metrics';
 
 describe('doesChartHaveValidAxis', () => {
   it('should return true when isTable is true regardless of other parameters', () => {
@@ -114,7 +114,8 @@ describe('doesChartHaveValidAxis', () => {
     const validAxis: ChartEncodes = {
       x: ['date'],
       y: ['value1', 'value2'],
-      category: []
+      category: [],
+      tooltip: null
     } as ChartEncodes;
     expect(
       doesChartHaveValidAxis({

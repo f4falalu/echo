@@ -1,0 +1,1 @@
+ALTER TABLE "slack_integrations" ADD COLUMN "default_channel" jsonb DEFAULT 'null'::jsonb;

@@ -5,7 +5,6 @@ import { initializeChat } from './chat-service';
 
 // Import mocked functions
 import {
-  checkChatPermission,
   createChat,
   createMessage,
   generateAssetMessages,
@@ -64,16 +63,26 @@ vi.mock('@buster/database', () => ({
         returning: vi.fn().mockResolvedValue([mockChat]),
       });
     }),
+    select: vi.fn().mockReturnThis(),
+    from: vi.fn().mockReturnThis(),
+    where: vi.fn().mockReturnThis(),
+    limit: vi.fn().mockResolvedValue([{ chatId: 'chat-123' }]),
   },
   chats: {},
   messages: {},
   createChat: vi.fn(),
   getChatWithDetails: vi.fn(),
   createMessage: vi.fn(),
-  checkChatPermission: vi.fn(),
   generateAssetMessages: vi.fn(),
   getMessagesForChat: vi.fn(),
 }));
+
+// Mock access-controls
+vi.mock('@buster/access-controls', () => ({
+  canUserAccessChatCached: vi.fn(),
+}));
+
+import { canUserAccessChatCached } from '@buster/access-controls';
 
 describe('chat-service', () => {
   beforeEach(() => {
@@ -93,7 +102,7 @@ describe('chat-service', () => {
     });
 
     it('should add message to existing chat when chat_id is provided', async () => {
-      vi.mocked(checkChatPermission).mockResolvedValue(true);
+      vi.mocked(canUserAccessChatCached).mockResolvedValue(true);
       vi.mocked(getChatWithDetails).mockResolvedValue({
         chat: mockChat,
         user: { id: 'user-123', name: 'Test User', avatarUrl: null } as any,
@@ -112,7 +121,10 @@ describe('chat-service', () => {
         'org-123'
       );
 
-      expect(checkChatPermission).toHaveBeenCalledWith('chat-123', mockUser.id);
+      expect(canUserAccessChatCached).toHaveBeenCalledWith({
+        userId: mockUser.id,
+        chatId: 'chat-123',
+      });
       expect(createMessage).toHaveBeenCalledWith({
         chatId: 'chat-123',
         content: 'Follow up',
@@ -123,7 +135,12 @@ describe('chat-service', () => {
     });
 
     it('should throw PERMISSION_DENIED error when user lacks permission', async () => {
-      vi.mocked(checkChatPermission).mockResolvedValue(false);
+      vi.mocked(canUserAccessChatCached).mockResolvedValue(false);
+      vi.mocked(getChatWithDetails).mockResolvedValue({
+        chat: mockChat,
+        user: { id: 'user-123', name: 'Test User', avatarUrl: null } as any,
+        isFavorited: false,
+      });
 
       await expect(
         initializeChat({ chat_id: 'chat-123', prompt: 'Hello' }, mockUser, 'org-123')
@@ -138,7 +155,6 @@ describe('chat-service', () => {
     });
 
     it('should throw CHAT_NOT_FOUND error when chat does not exist', async () => {
-      vi.mocked(checkChatPermission).mockResolvedValue(true);
       vi.mocked(getChatWithDetails).mockResolvedValue(null);
 
       await expect(

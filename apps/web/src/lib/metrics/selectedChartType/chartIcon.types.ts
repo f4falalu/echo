@@ -2,16 +2,16 @@ import {
   ChartEncodes,
   ChartType,
   ColumnMetaData,
-  IBusterMetricChartConfig
-} from '@/api/asset_interfaces/metric';
+  ChartConfigProps
+} from '@buster/server-shared/metrics';
 
 export interface SelectChartTypeProps {
   selectedChartType: ChartType;
-  lineGroupType: IBusterMetricChartConfig['lineGroupType'];
-  barGroupType: IBusterMetricChartConfig['barGroupType'];
-  barLayout: IBusterMetricChartConfig['barLayout'];
+  lineGroupType: ChartConfigProps['lineGroupType'];
+  barGroupType: ChartConfigProps['barGroupType'];
+  barLayout: ChartConfigProps['barLayout'];
   colors: string[];
   columnMetadata: ColumnMetaData[];
-  columnSettings: IBusterMetricChartConfig['columnSettings'];
+  columnSettings: ChartConfigProps['columnSettings'];
   selectedAxis: ChartEncodes;
 }

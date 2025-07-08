@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
-import type { IBusterMetricChartConfig } from '@/api/asset_interfaces';
-import { DEFAULT_COLUMN_SETTINGS } from '@/api/asset_interfaces';
-import { ChartType, type DerivedMetricTitle } from '@/api/asset_interfaces/metric/charts';
+import type { ChartConfigProps } from '@buster/server-shared/metrics';
+import { DEFAULT_COLUMN_SETTINGS } from '@buster/server-shared/metrics';
+import type { DerivedMetricTitle } from '@buster/server-shared/metrics';
 import { Button } from '@/components/ui/buttons';
 import { Dots } from '@/components/ui/icons';
 import { Popover } from '@/components/ui/popover/Popover';
@@ -15,15 +15,15 @@ import type { createColumnFieldOptions } from './helpers';
 
 export const EditMetricField: React.FC<{
   label?: string;
-  columnId: IBusterMetricChartConfig['metricColumnId'];
-  columnLabelFormats: IBusterMetricChartConfig['columnLabelFormats'];
+  columnId: ChartConfigProps['metricColumnId'];
+  columnLabelFormats: ChartConfigProps['columnLabelFormats'];
   columnFieldOptions: ReturnType<typeof createColumnFieldOptions>;
   rowCount: number;
   onUpdateMetricField: (config: {
     metricColumnId: string;
     metricValueAggregate?: DerivedMetricTitle['aggregate'];
   }) => void;
-  onUpdateChartConfig: (chartConfig: Partial<IBusterMetricChartConfig>) => void;
+  onUpdateChartConfig: (chartConfig: Partial<ChartConfigProps>) => void;
 }> = React.memo(
   ({
     columnId,
@@ -82,9 +82,9 @@ export const EditMetricField: React.FC<{
 EditMetricField.displayName = 'EditMetricField';
 
 const StylingPopover: React.FC<{
-  metricColumnId: IBusterMetricChartConfig['metricColumnId'];
-  columnLabelFormat: IBusterMetricChartConfig['columnLabelFormats'][string];
-  onUpdateChartConfig: (chartConfig: Partial<IBusterMetricChartConfig>) => void;
+  metricColumnId: ChartConfigProps['metricColumnId'];
+  columnLabelFormat: ChartConfigProps['columnLabelFormats'][string];
+  onUpdateChartConfig: (chartConfig: Partial<ChartConfigProps>) => void;
   rowCount: number;
 }> = React.memo(({ metricColumnId, columnLabelFormat, rowCount }) => {
   return (

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { barOptionsHandler, barPluginsHandler } from './barChartOptions';
 import type { ChartSpecificOptionsProps } from './interfaces';
-import type { ColumnSettings } from '@/api/asset_interfaces';
+import type { ColumnSettings } from '@buster/server-shared/metrics';
 
 type BarGroupType = 'stack' | 'group' | 'percentage-stack' | null;
 
@@ -13,7 +13,7 @@ const baseMockProps: ChartSpecificOptionsProps = {
   pieLabelPosition: 'outside',
   pieDisplayLabelAs: 'number',
   columnLabelFormats: {},
-  selectedAxis: { x: [], y: [], y2: [], category: [] },
+  selectedAxis: { x: [], y: [], y2: [], category: [], tooltip: null },
   barShowTotalAtTop: false,
   columnSettings: {},
   barGroupType: null,

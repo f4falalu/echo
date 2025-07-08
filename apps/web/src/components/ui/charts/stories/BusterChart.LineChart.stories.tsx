@@ -1,11 +1,14 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import dayjs from 'dayjs';
-import type { IColumnLabelFormat } from '../../../../api/asset_interfaces/metric/charts/columnLabelInterfaces';
-import { ChartType } from '../../../../api/asset_interfaces/metric/charts/enum';
+import {
+  DEFAULT_COLUMN_LABEL_FORMAT,
+  type ColumnLabelFormat,
+  type ColumnSettings,
+  type Trendline
+} from '@buster/server-shared/metrics';
 import { addNoise, generateLineChartData } from '../../../../mocks/chart/chartMocks';
 import type { BusterChart } from '../BusterChart';
 import { sharedMeta } from './BusterChartShared';
-import type { ColumnSettings, Trendline } from '@/api/asset_interfaces';
 
 type LineChartData = ReturnType<typeof generateLineChartData>;
 
@@ -24,31 +27,33 @@ export const Default: Story = {
     barAndLineAxis: {
       x: ['date'],
       y: ['revenue', 'profit', 'customers'],
-      category: []
+      category: [],
+      tooltip: null
     },
     className: 'resize overflow-auto min-w-[250px] h-[400px]',
     columnLabelFormats: {
       date: {
+        ...DEFAULT_COLUMN_LABEL_FORMAT,
         columnType: 'date',
         style: 'date',
         dateFormat: 'MMM DD'
-      } satisfies IColumnLabelFormat,
+      } as ColumnLabelFormat,
       revenue: {
         columnType: 'number',
         style: 'currency',
         currency: 'USD'
-      } satisfies IColumnLabelFormat,
+      } as ColumnLabelFormat,
       profit: {
         columnType: 'number',
         style: 'currency',
         currency: 'USD'
-      } satisfies IColumnLabelFormat,
+      } as ColumnLabelFormat,
       customers: {
         columnType: 'number',
         style: 'number',
         numberSeparatorStyle: ','
-      } satisfies IColumnLabelFormat
-    } satisfies Record<keyof LineChartData, IColumnLabelFormat>
+      } as ColumnLabelFormat
+    }
   }
 };
 
@@ -64,19 +69,20 @@ export const AutoDateFormat_TimeIntervalTest_MonthWithForcedUnit_ManyMonths: Sto
     barAndLineAxis: {
       x: ['date'],
       y: ['sales'],
-      category: []
+      category: [],
+      tooltip: null
     },
     columnLabelFormats: {
       date: {
         columnType: 'date',
         style: 'date',
         dateFormat: 'auto'
-      } satisfies IColumnLabelFormat,
+      } as ColumnLabelFormat,
       sales: {
         columnType: 'number',
         style: 'currency',
         currency: 'USD'
-      } satisfies IColumnLabelFormat
+      } as ColumnLabelFormat
     }
   }
 };
@@ -120,19 +126,20 @@ export const AutoDateFormat_TimeIntervalTest_MonthWithForcedUnit: Story = {
     barAndLineAxis: {
       x: ['date'],
       y: ['sales'],
-      category: []
+      category: [],
+      tooltip: null
     },
     columnLabelFormats: {
       date: {
         columnType: 'date',
         style: 'date',
         dateFormat: 'auto'
-      } satisfies IColumnLabelFormat,
+      } as ColumnLabelFormat,
       sales: {
         columnType: 'number',
         style: 'currency',
         currency: 'USD'
-      } satisfies IColumnLabelFormat
+      } as ColumnLabelFormat
     }
   }
 };
@@ -176,19 +183,20 @@ export const AutoDateFormat_TimeIntervalTest_Days_WithForcedUnit: Story = {
     barAndLineAxis: {
       x: ['date'],
       y: ['sales'],
-      category: []
+      category: [],
+      tooltip: null
     },
     columnLabelFormats: {
       date: {
         columnType: 'date',
         style: 'date',
         dateFormat: 'auto'
-      } satisfies IColumnLabelFormat,
+      } as ColumnLabelFormat,
       sales: {
         columnType: 'number',
         style: 'currency',
         currency: 'USD'
-      } satisfies IColumnLabelFormat
+      } as ColumnLabelFormat
     }
   }
 };
@@ -239,7 +247,7 @@ export const FixedDateFormat_TimeIntervalTest_MonthWithForcedUnit_ManyMonths: St
         columnType: 'date',
         style: 'date',
         dateFormat: 'MMM'
-      } satisfies IColumnLabelFormat
+      } as ColumnLabelFormat
     }
   }
 };
@@ -253,7 +261,7 @@ export const FixedDateFormat_TimeIntervalTest_MonthWithAutoUnit_ManyMonths: Stor
         columnType: 'date',
         style: 'date',
         dateFormat: 'MMM'
-      } satisfies IColumnLabelFormat
+      } as ColumnLabelFormat
     }
   }
 };
@@ -268,7 +276,7 @@ export const FixedDateFormat_TimeIntervalTest_UnevenMonthsForcedUnit_ManyMonths:
         columnType: 'date',
         style: 'date',
         dateFormat: 'MMM'
-      } satisfies IColumnLabelFormat
+      } as ColumnLabelFormat
     }
   }
 };
@@ -282,7 +290,7 @@ export const FixedDateFormat_TimeIntervalTest_UnevenMonthsAutoUnit_ManyMonths: S
         columnType: 'date',
         style: 'date',
         dateFormat: 'MMM'
-      } satisfies IColumnLabelFormat
+      } as ColumnLabelFormat
     }
   }
 };
@@ -296,7 +304,7 @@ export const FixedDateFormat_TimeIntervalTest_MonthWithAutoUnit_BUSTED: Story = 
         columnType: 'date',
         style: 'date',
         dateFormat: 'MMM'
-      } satisfies IColumnLabelFormat
+      } as ColumnLabelFormat
     }
   }
 };
@@ -311,7 +319,7 @@ export const FixedDateFormat_TimeIntervalTest_UnevenMonthsForcedUnit: Story = {
         columnType: 'date',
         style: 'date',
         dateFormat: 'MMM'
-      } satisfies IColumnLabelFormat
+      } as ColumnLabelFormat
     }
   }
 };
@@ -325,7 +333,7 @@ export const FixedDateFormat_TimeIntervalTest_UnevenMonthsAutoUnit_BUSTED: Story
         columnType: 'date',
         style: 'date',
         dateFormat: 'MMM'
-      } satisfies IColumnLabelFormat
+      } as ColumnLabelFormat
     }
   }
 };
@@ -344,7 +352,7 @@ export const FixedDateFormat_TimeIntervalTest_Days_WithForcedUnit: Story = {
         columnType: 'date',
         style: 'date',
         dateFormat: 'MMM DD, YYYY'
-      } satisfies IColumnLabelFormat
+      } as ColumnLabelFormat
     }
   }
 };
@@ -359,7 +367,7 @@ export const FixedDateFormat_TimeIntervalTest_Days_WithForcedUnit_UnevenDays: St
         columnType: 'date',
         style: 'date',
         dateFormat: 'MMM DD'
-      } satisfies IColumnLabelFormat
+      } as ColumnLabelFormat
     }
   }
 };
@@ -373,7 +381,7 @@ export const FixedDateFormat_TimeIntervalTest_Days_WithAutoUnit_UnevenDays: Stor
         columnType: 'date',
         style: 'date',
         dateFormat: 'MMM DD'
-      } satisfies IColumnLabelFormat
+      } as ColumnLabelFormat
     }
   }
 };
@@ -392,7 +400,7 @@ export const XAxisTimeIntervalWithMismatchingData_Days: Story = {
         columnType: 'date',
         style: 'date',
         dateFormat: 'MMM DD'
-      } satisfies IColumnLabelFormat
+      } as ColumnLabelFormat
     }
   }
 };
@@ -411,7 +419,7 @@ export const XAxisTimeIntervalWithMismatchingData_Months: Story = {
         columnType: 'date',
         style: 'date',
         dateFormat: 'MMM DD'
-      } satisfies IColumnLabelFormat
+      } as ColumnLabelFormat
     }
   }
 };
@@ -430,18 +438,19 @@ export const NumericXY: Story = {
     barAndLineAxis: {
       x: ['score'],
       y: ['value'],
-      category: []
+      category: [],
+      tooltip: null
     },
     className: 'w-[800px] h-[400px]',
     columnLabelFormats: {
       score: {
         columnType: 'number',
         style: 'number'
-      } satisfies IColumnLabelFormat,
+      } as ColumnLabelFormat,
       value: {
         columnType: 'number',
         style: 'number'
-      } satisfies IColumnLabelFormat
+      } as ColumnLabelFormat
     }
   }
 };
@@ -456,7 +465,8 @@ export const NumericXYThatCorrespondToAMonth: Story = {
     barAndLineAxis: {
       x: ['month'],
       y: ['sales'],
-      category: []
+      category: [],
+      tooltip: null
     },
     xAxisTimeInterval: 'month',
     className: 'w-[800px] h-[400px]',
@@ -466,7 +476,7 @@ export const NumericXYThatCorrespondToAMonth: Story = {
         style: 'date',
         dateFormat: 'MMM',
         convertNumberTo: 'month_of_year'
-      } satisfies IColumnLabelFormat
+      } as ColumnLabelFormat
     }
   }
 };
@@ -485,18 +495,19 @@ export const CategoricalXNumericY: Story = {
     barAndLineAxis: {
       x: ['category'],
       y: ['value'],
-      category: []
+      category: [],
+      tooltip: null
     },
     className: 'w-[800px] h-[400px]',
     columnLabelFormats: {
       category: {
         columnType: 'text',
         style: 'string'
-      } satisfies IColumnLabelFormat,
+      } as ColumnLabelFormat,
       value: {
         columnType: 'number',
         style: 'number'
-      } satisfies IColumnLabelFormat
+      } as ColumnLabelFormat
     }
   }
 };
@@ -515,7 +526,8 @@ export const MultiYearDate: Story = {
     barAndLineAxis: {
       x: ['date'],
       y: ['value'],
-      category: []
+      category: [],
+      tooltip: null
     },
     className: 'w-[800px] h-[400px] resize overflow-auto',
     columnLabelFormats: {
@@ -523,11 +535,11 @@ export const MultiYearDate: Story = {
         columnType: 'date',
         style: 'date',
         dateFormat: 'auto' // Show only year for multi-year view
-      } satisfies IColumnLabelFormat,
+      } as ColumnLabelFormat,
       value: {
         columnType: 'number',
         style: 'number'
-      } satisfies IColumnLabelFormat
+      } as ColumnLabelFormat
     }
   }
 };
@@ -559,7 +571,8 @@ export const MultipleYAxes: Story = {
     barAndLineAxis: {
       x: ['date'],
       y: ['revenue', 'units', 'satisfaction'],
-      category: []
+      category: [],
+      tooltip: null
     },
     className: 'w-[800px] h-[400px]',
     columnLabelFormats: {
@@ -567,22 +580,22 @@ export const MultipleYAxes: Story = {
         columnType: 'date',
         style: 'date',
         dateFormat: 'auto'
-      } satisfies IColumnLabelFormat,
+      } as ColumnLabelFormat,
       revenue: {
         columnType: 'number',
         style: 'currency',
         currency: 'USD'
-      } satisfies IColumnLabelFormat,
+      } as ColumnLabelFormat,
       units: {
         columnType: 'number',
         style: 'number'
-      } satisfies IColumnLabelFormat,
+      } as ColumnLabelFormat,
       satisfaction: {
         columnType: 'number',
         style: 'number',
         minimumFractionDigits: 1,
         maximumFractionDigits: 1
-      } satisfies IColumnLabelFormat
+      } as ColumnLabelFormat
     }
   }
 };
@@ -608,7 +621,8 @@ export const UnevenlySpacedDates: Story = {
     barAndLineAxis: {
       x: ['date'],
       y: ['value'],
-      category: []
+      category: [],
+      tooltip: null
     },
     className: 'w-[800px]  h-[400px]',
 
@@ -622,13 +636,13 @@ export const UnevenlySpacedDates: Story = {
         columnType: 'date',
         style: 'date',
         dateFormat: 'auto' // Full date format to show uneven spacing clearly
-      } satisfies IColumnLabelFormat,
+      } as ColumnLabelFormat,
       value: {
         columnType: 'number',
         style: 'number',
         minimumFractionDigits: 0,
         maximumFractionDigits: 0
-      } satisfies IColumnLabelFormat
+      } as ColumnLabelFormat
     }
   }
 };
@@ -647,7 +661,8 @@ export const CloselySpacedDates: Story = {
     barAndLineAxis: {
       x: ['date'],
       y: ['value'],
-      category: []
+      category: [],
+      tooltip: null
     },
     className: 'w-[800px] h-[400px] resize overflow-auto',
     columnSettings: {
@@ -660,13 +675,13 @@ export const CloselySpacedDates: Story = {
         columnType: 'date',
         style: 'date',
         dateFormat: 'auto' // Full date format to show spacing clearly
-      } satisfies IColumnLabelFormat,
+      } as ColumnLabelFormat,
       value: {
         columnType: 'number',
         style: 'number',
         minimumFractionDigits: 0,
         maximumFractionDigits: 0
-      } satisfies IColumnLabelFormat
+      } as ColumnLabelFormat
     }
   }
 };
@@ -692,7 +707,8 @@ export const WithCategory: Story = {
     barAndLineAxis: {
       x: ['month'],
       y: ['sales'],
-      category: ['region']
+      category: ['region'],
+      tooltip: null
     },
     className: 'w-[800px] h-[400px]',
     columnLabelFormats: {
@@ -700,16 +716,16 @@ export const WithCategory: Story = {
         columnType: 'date',
         style: 'date',
         dateFormat: 'auto'
-      } satisfies IColumnLabelFormat,
+      } as ColumnLabelFormat,
       sales: {
         columnType: 'number',
         style: 'currency',
         currency: 'USD'
-      } satisfies IColumnLabelFormat,
+      } as ColumnLabelFormat,
       region: {
         columnType: 'text',
         style: 'string'
-      } satisfies IColumnLabelFormat
+      } as ColumnLabelFormat
     }
   }
 };
@@ -777,7 +793,8 @@ export const MultipleYAxesWithCategory: Story = {
     barAndLineAxis: {
       x: ['date'],
       y: ['revenue', 'satisfaction'],
-      category: ['product']
+      category: ['product'],
+      tooltip: null
     },
     className: 'w-[800px] h-[400px]',
     columnLabelFormats: {
@@ -785,22 +802,22 @@ export const MultipleYAxesWithCategory: Story = {
         columnType: 'date',
         style: 'date',
         dateFormat: 'auto'
-      } satisfies IColumnLabelFormat,
+      } as ColumnLabelFormat,
       revenue: {
         columnType: 'number',
         style: 'currency',
         currency: 'USD'
-      } satisfies IColumnLabelFormat,
+      } as ColumnLabelFormat,
       satisfaction: {
         columnType: 'number',
         style: 'number',
         minimumFractionDigits: 1,
         maximumFractionDigits: 1
-      } satisfies IColumnLabelFormat,
+      } as ColumnLabelFormat,
       product: {
         columnType: 'text',
         style: 'string'
-      } satisfies IColumnLabelFormat
+      } as ColumnLabelFormat
     }
   }
 };
@@ -826,7 +843,8 @@ export const NumericMonthX: Story = {
     barAndLineAxis: {
       x: ['month'],
       y: ['sales', 'customers'],
-      category: []
+      category: [],
+      tooltip: null
     },
     className: 'w-[800px] h-[400px]',
 
@@ -837,17 +855,17 @@ export const NumericMonthX: Story = {
         dateFormat: 'auto',
         minimumFractionDigits: 0,
         maximumFractionDigits: 0
-      } satisfies IColumnLabelFormat,
+      } as ColumnLabelFormat,
       sales: {
         columnType: 'number',
         style: 'currency',
         currency: 'USD'
-      } satisfies IColumnLabelFormat,
+      } as ColumnLabelFormat,
       customers: {
         columnType: 'number',
         style: 'number',
         numberSeparatorStyle: ','
-      } satisfies IColumnLabelFormat
+      } as ColumnLabelFormat
     }
   }
 };
@@ -860,7 +878,8 @@ export const PercentageStackedLineSingle: Story = {
     barAndLineAxis: {
       x: ['date'],
       y: ['revenue'],
-      category: []
+      category: [],
+      tooltip: null
     },
     className: 'w-[800px] h-[400px]',
     columnLabelFormats: {
@@ -870,17 +889,17 @@ export const PercentageStackedLineSingle: Story = {
         dateFormat: 'auto',
         minimumFractionDigits: 0,
         maximumFractionDigits: 0
-      } satisfies IColumnLabelFormat,
+      } as ColumnLabelFormat,
       sales: {
         columnType: 'number',
         style: 'currency',
         currency: 'USD'
-      } satisfies IColumnLabelFormat,
+      } as ColumnLabelFormat,
       customers: {
         columnType: 'number',
         style: 'number',
         numberSeparatorStyle: ','
-      } satisfies IColumnLabelFormat
+      } as ColumnLabelFormat
     }
   }
 };
@@ -893,7 +912,8 @@ export const PercentageStackedLineMultiple: Story = {
     barAndLineAxis: {
       x: ['date'],
       y: ['revenue', 'profit', 'customers'],
-      category: []
+      category: [],
+      tooltip: null
     },
     className: 'w-[800px] h-[400px]',
     columnLabelFormats: {
@@ -903,17 +923,17 @@ export const PercentageStackedLineMultiple: Story = {
         dateFormat: 'lll',
         minimumFractionDigits: 0,
         maximumFractionDigits: 0
-      } satisfies IColumnLabelFormat,
+      } as ColumnLabelFormat,
       sales: {
         columnType: 'number',
         style: 'currency',
         currency: 'USD'
-      } satisfies IColumnLabelFormat,
+      } as ColumnLabelFormat,
       customers: {
         columnType: 'number',
         style: 'number',
         numberSeparatorStyle: ','
-      } satisfies IColumnLabelFormat
+      } as ColumnLabelFormat
     }
   }
 };
@@ -926,7 +946,8 @@ export const PercentageStackedLineSingleWithDataLabels: Story = {
     barAndLineAxis: {
       x: ['date'],
       y: ['revenue'],
-      category: []
+      category: [],
+      tooltip: null
     },
     className: 'w-[800px] h-[400px]',
     columnSettings: {
@@ -941,17 +962,17 @@ export const PercentageStackedLineSingleWithDataLabels: Story = {
         dateFormat: 'auto',
         minimumFractionDigits: 0,
         maximumFractionDigits: 0
-      } satisfies IColumnLabelFormat,
+      } as ColumnLabelFormat,
       revenue: {
         columnType: 'number',
         style: 'currency',
         currency: 'EUR'
-      } satisfies IColumnLabelFormat,
+      } as ColumnLabelFormat,
       customers: {
         columnType: 'number',
         style: 'number',
         numberSeparatorStyle: ','
-      } satisfies IColumnLabelFormat
+      } as ColumnLabelFormat
     }
   }
 };
@@ -964,7 +985,8 @@ export const StackedAreaLineMultipleWithDataLabels: Story = {
     barAndLineAxis: {
       x: ['date'],
       y: ['revenue', 'profit', 'customers'],
-      category: []
+      category: [],
+      tooltip: null
     },
     className: 'w-[800px] h-[400px]',
     columnSettings: {
@@ -985,22 +1007,22 @@ export const StackedAreaLineMultipleWithDataLabels: Story = {
         dateFormat: 'auto',
         minimumFractionDigits: 0,
         maximumFractionDigits: 0
-      } satisfies IColumnLabelFormat,
+      } as ColumnLabelFormat,
       sales: {
         columnType: 'number',
         style: 'currency',
         currency: 'USD'
-      } satisfies IColumnLabelFormat,
+      } as ColumnLabelFormat,
       profit: {
         columnType: 'number',
         style: 'currency',
         currency: 'USD'
-      } satisfies IColumnLabelFormat,
+      } as ColumnLabelFormat,
       customers: {
         columnType: 'number',
         style: 'number',
         numberSeparatorStyle: ','
-      } satisfies IColumnLabelFormat
+      } as ColumnLabelFormat
     }
   }
 };
@@ -1013,7 +1035,8 @@ export const StackedAreaLineSingleWithDataLabels: Story = {
     barAndLineAxis: {
       x: ['date'],
       y: ['revenue'],
-      category: []
+      category: [],
+      tooltip: null
     },
     className: 'w-[800px] h-[400px]',
     columnSettings: {
@@ -1028,17 +1051,17 @@ export const StackedAreaLineSingleWithDataLabels: Story = {
         dateFormat: 'auto',
         minimumFractionDigits: 0,
         maximumFractionDigits: 0
-      } satisfies IColumnLabelFormat,
+      } as ColumnLabelFormat,
       revenue: {
         columnType: 'number',
         style: 'currency',
         currency: 'EUR'
-      } satisfies IColumnLabelFormat,
+      } as ColumnLabelFormat,
       customers: {
         columnType: 'number',
         style: 'number',
         numberSeparatorStyle: ','
-      } satisfies IColumnLabelFormat
+      } as ColumnLabelFormat
     }
   }
 };
@@ -1051,7 +1074,8 @@ export const PercentageStackedLineMultipleWithDataLabels: Story = {
     barAndLineAxis: {
       x: ['date'],
       y: ['revenue', 'profit', 'customers'],
-      category: []
+      category: [],
+      tooltip: null
     },
     className: 'w-[800px] h-[400px]',
     columnSettings: {
@@ -1072,22 +1096,22 @@ export const PercentageStackedLineMultipleWithDataLabels: Story = {
         dateFormat: 'auto',
         minimumFractionDigits: 0,
         maximumFractionDigits: 0
-      } satisfies IColumnLabelFormat,
+      } as ColumnLabelFormat,
       sales: {
         columnType: 'number',
         style: 'currency',
         currency: 'USD'
-      } satisfies IColumnLabelFormat,
+      } as ColumnLabelFormat,
       profit: {
         columnType: 'number',
         style: 'currency',
         currency: 'USD'
-      } satisfies IColumnLabelFormat,
+      } as ColumnLabelFormat,
       customers: {
         columnType: 'number',
         style: 'number',
         numberSeparatorStyle: ','
-      } satisfies IColumnLabelFormat
+      } as ColumnLabelFormat
     }
   }
 };
@@ -1102,7 +1126,8 @@ export const HasMixedNullAndNumberValuesSingleLineWithMissingDataZero: Story = {
     barAndLineAxis: {
       x: ['date'],
       y: ['revenue'],
-      category: []
+      category: [],
+      tooltip: null
     },
     className: 'w-[800px] h-[400px]',
     columnSettings: {
@@ -1117,13 +1142,13 @@ export const HasMixedNullAndNumberValuesSingleLineWithMissingDataZero: Story = {
         dateFormat: 'auto',
         minimumFractionDigits: 0,
         maximumFractionDigits: 0
-      } satisfies IColumnLabelFormat,
+      } as ColumnLabelFormat,
       revenue: {
         columnType: 'number',
         style: 'currency',
         currency: 'USD',
         replaceMissingDataWith: 0
-      } satisfies IColumnLabelFormat
+      } as ColumnLabelFormat
     }
   }
 };
@@ -1138,7 +1163,8 @@ export const HasMixedNullAndNumberValuesSingleLineWithMissingDataNull: Story = {
     barAndLineAxis: {
       x: ['date'],
       y: ['revenue'],
-      category: []
+      category: [],
+      tooltip: null
     },
     className: 'w-[800px] h-[400px]',
     columnSettings: {
@@ -1153,13 +1179,13 @@ export const HasMixedNullAndNumberValuesSingleLineWithMissingDataNull: Story = {
         dateFormat: 'auto',
         minimumFractionDigits: 0,
         maximumFractionDigits: 0
-      } satisfies IColumnLabelFormat,
+      } as ColumnLabelFormat,
       revenue: {
         columnType: 'number',
         style: 'currency',
         currency: 'USD',
         replaceMissingDataWith: null
-      } satisfies IColumnLabelFormat
+      } as ColumnLabelFormat
     }
   }
 };
@@ -1175,7 +1201,8 @@ export const HasMixedNullAndNumberValuesSingleMultiLine: Story = {
     barAndLineAxis: {
       x: ['date'],
       y: ['revenue', 'profit'],
-      category: []
+      category: [],
+      tooltip: null
     },
 
     className: 'w-[800px] h-[400px]',
@@ -1194,17 +1221,17 @@ export const HasMixedNullAndNumberValuesSingleMultiLine: Story = {
         dateFormat: 'auto',
         minimumFractionDigits: 0,
         maximumFractionDigits: 0
-      } satisfies IColumnLabelFormat,
+      } as ColumnLabelFormat,
       revenue: {
         columnType: 'number',
         style: 'currency',
         currency: 'USD'
-      } satisfies IColumnLabelFormat,
+      } as ColumnLabelFormat,
       profit: {
         columnType: 'number',
         style: 'currency',
         currency: 'USD'
-      } satisfies IColumnLabelFormat
+      } as ColumnLabelFormat
     }
   }
 };
@@ -1224,7 +1251,8 @@ export const HasNullValuesWithCategoryMultiLine: Story = {
     barAndLineAxis: {
       x: ['date'],
       y: ['revenue'],
-      category: ['category']
+      category: ['category'],
+      tooltip: null
     },
     columnSettings: {
       revenue: {
@@ -1247,7 +1275,7 @@ export const HasNullValuesWithCategoryMultiLine: Story = {
         currency: 'USD',
         replaceMissingDataWith: 0
       }
-    }
+    } as any
   }
 };
 
@@ -1261,7 +1289,8 @@ export const WithTrendline_MaxMinAverageMedian: Story = {
     barAndLineAxis: {
       x: ['date'],
       y: ['revenue'],
-      category: []
+      category: [],
+      tooltip: null
     },
     className: 'w-[800px] h-[400px]',
     trendlines: [
@@ -1309,7 +1338,7 @@ export const WithTrendline_MaxMinAverageMedian: Story = {
         style: 'currency',
         currency: 'USD'
       }
-    }
+    } as any
   }
 };
 
@@ -1323,7 +1352,8 @@ export const WithTrendline_DateXAxisLinearRegression: Story = {
     barAndLineAxis: {
       x: ['date'],
       y: ['revenue'],
-      category: []
+      category: [],
+      tooltip: null
     },
     className: 'w-[800px] h-[400px]',
     trendlines: [
@@ -1347,7 +1377,7 @@ export const WithTrendline_DateXAxisLinearRegression: Story = {
         style: 'currency',
         currency: 'USD'
       }
-    }
+    } as any
   }
 };
 
@@ -1361,7 +1391,8 @@ export const WithTrendline_NumericalXAxisLinearRegression: Story = {
     barAndLineAxis: {
       x: ['index'],
       y: ['revenue'],
-      category: []
+      category: [],
+      tooltip: null
     },
     className: 'w-[800px] h-[400px]',
     trendlines: [
@@ -1376,10 +1407,12 @@ export const WithTrendline_NumericalXAxisLinearRegression: Story = {
     ] as Trendline[],
     columnLabelFormats: {
       index: {
+        ...DEFAULT_COLUMN_LABEL_FORMAT,
         columnType: 'number',
         style: 'number'
       },
       revenue: {
+        ...DEFAULT_COLUMN_LABEL_FORMAT,
         columnType: 'number',
         style: 'currency',
         currency: 'USD'
@@ -1398,7 +1431,8 @@ export const WithTrendline_StringXAxisLinearRegression: Story = {
     barAndLineAxis: {
       x: ['index'],
       y: ['revenue'],
-      category: []
+      category: [],
+      tooltip: null
     },
     className: 'w-[800px] h-[400px]',
     trendlines: [
@@ -1413,10 +1447,12 @@ export const WithTrendline_StringXAxisLinearRegression: Story = {
     ],
     columnLabelFormats: {
       index: {
+        ...DEFAULT_COLUMN_LABEL_FORMAT,
         columnType: 'text',
         style: 'string'
       },
       revenue: {
+        ...DEFAULT_COLUMN_LABEL_FORMAT,
         columnType: 'number',
         style: 'currency',
         currency: 'USD'
@@ -1446,7 +1482,8 @@ export const WithTrendline_DateXAxisExponentialRegression: Story = {
     barAndLineAxis: {
       x: ['date'],
       y: ['revenue'],
-      category: []
+      category: [],
+      tooltip: null
     },
     className: 'w-[800px] h-[400px]',
     trendlines: [
@@ -1461,11 +1498,13 @@ export const WithTrendline_DateXAxisExponentialRegression: Story = {
     ] as Trendline[],
     columnLabelFormats: {
       date: {
+        ...DEFAULT_COLUMN_LABEL_FORMAT,
         columnType: 'date',
         style: 'date',
         dateFormat: 'auto'
       },
       revenue: {
+        ...DEFAULT_COLUMN_LABEL_FORMAT,
         columnType: 'number',
         style: 'currency',
         currency: 'USD'
@@ -1495,7 +1534,8 @@ export const WithTrendline_NumericalXAxisExponentialRegression: Story = {
     barAndLineAxis: {
       x: ['index'],
       y: ['revenue'],
-      category: []
+      category: [],
+      tooltip: null
     },
     className: 'w-[800px] h-[400px]',
     trendlines: [
@@ -1510,10 +1550,12 @@ export const WithTrendline_NumericalXAxisExponentialRegression: Story = {
     ] as Trendline[],
     columnLabelFormats: {
       index: {
+        ...DEFAULT_COLUMN_LABEL_FORMAT,
         columnType: 'number',
         style: 'number'
       },
       revenue: {
+        ...DEFAULT_COLUMN_LABEL_FORMAT,
         columnType: 'number',
         style: 'currency',
         currency: 'USD'
@@ -1543,7 +1585,8 @@ export const WithTrendline_StringXAxisExponentialRegression: Story = {
     barAndLineAxis: {
       x: ['index'],
       y: ['revenue'],
-      category: []
+      category: [],
+      tooltip: null
     },
     className: 'w-[800px] h-[400px]',
     trendlines: [
@@ -1558,10 +1601,12 @@ export const WithTrendline_StringXAxisExponentialRegression: Story = {
     ] as Trendline[],
     columnLabelFormats: {
       index: {
+        ...DEFAULT_COLUMN_LABEL_FORMAT,
         columnType: 'text',
         style: 'string'
       },
       revenue: {
+        ...DEFAULT_COLUMN_LABEL_FORMAT,
         columnType: 'number',
         style: 'currency',
         currency: 'USD'
@@ -1591,7 +1636,8 @@ export const WithTrendline_DateXAxisLogarithmicRegression: Story = {
     barAndLineAxis: {
       x: ['date'],
       y: ['revenue'],
-      category: []
+      category: [],
+      tooltip: null
     },
     className: 'w-[800px] h-[400px]',
     trendlines: [
@@ -1606,11 +1652,13 @@ export const WithTrendline_DateXAxisLogarithmicRegression: Story = {
     ] as Trendline[],
     columnLabelFormats: {
       date: {
+        ...DEFAULT_COLUMN_LABEL_FORMAT,
         columnType: 'date',
         style: 'date',
         dateFormat: 'auto'
       },
       revenue: {
+        ...DEFAULT_COLUMN_LABEL_FORMAT,
         columnType: 'number',
         style: 'currency',
         currency: 'USD'
@@ -1640,7 +1688,8 @@ export const WithTrendline_NumericalXAxisLogarithmicRegression: Story = {
     barAndLineAxis: {
       x: ['index'],
       y: ['revenue'],
-      category: []
+      category: [],
+      tooltip: null
     },
     className: 'w-[800px] h-[400px]',
     trendlines: [
@@ -1655,10 +1704,12 @@ export const WithTrendline_NumericalXAxisLogarithmicRegression: Story = {
     ] as Trendline[],
     columnLabelFormats: {
       index: {
+        ...DEFAULT_COLUMN_LABEL_FORMAT,
         columnType: 'number',
         style: 'number'
       },
       revenue: {
+        ...DEFAULT_COLUMN_LABEL_FORMAT,
         columnType: 'number',
         style: 'currency',
         currency: 'USD'
@@ -1688,7 +1739,8 @@ export const WithTrendline_StringXAxisLogarithmicRegression: Story = {
     barAndLineAxis: {
       x: ['index'],
       y: ['revenue'],
-      category: []
+      category: [],
+      tooltip: null
     },
     className: 'w-[800px] h-[400px]',
     trendlines: [
@@ -1703,10 +1755,12 @@ export const WithTrendline_StringXAxisLogarithmicRegression: Story = {
     ] as Trendline[],
     columnLabelFormats: {
       index: {
+        ...DEFAULT_COLUMN_LABEL_FORMAT,
         columnType: 'text',
         style: 'string'
       },
       revenue: {
+        ...DEFAULT_COLUMN_LABEL_FORMAT,
         columnType: 'number',
         style: 'currency',
         currency: 'USD'
@@ -1733,7 +1787,8 @@ export const ExponentialDecreaseWithTrendline: Story = {
     barAndLineAxis: {
       x: ['date'],
       y: ['value'],
-      category: []
+      category: [],
+      tooltip: null
     },
     className: 'w-[800px] h-[400px]',
     columnLabelFormats: {
@@ -1741,14 +1796,14 @@ export const ExponentialDecreaseWithTrendline: Story = {
         columnType: 'date',
         style: 'date',
         dateFormat: 'MMM DD'
-      } satisfies IColumnLabelFormat,
+      } as ColumnLabelFormat,
       value: {
         columnType: 'number',
         style: 'number',
         numberSeparatorStyle: ',',
         minimumFractionDigits: 0,
         maximumFractionDigits: 0
-      } satisfies IColumnLabelFormat
+      } as ColumnLabelFormat
     },
     trendlines: [
       {
@@ -1783,7 +1838,8 @@ export const WithTrendline_DateXAxisPolynomialRegression: Story = {
     barAndLineAxis: {
       x: ['date'],
       y: ['revenue'],
-      category: []
+      category: [],
+      tooltip: null
     },
     className: 'w-[800px] h-[400px]',
     trendlines: [
@@ -1798,11 +1854,13 @@ export const WithTrendline_DateXAxisPolynomialRegression: Story = {
     ] as Trendline[],
     columnLabelFormats: {
       date: {
+        ...DEFAULT_COLUMN_LABEL_FORMAT,
         columnType: 'date',
         style: 'date',
         dateFormat: 'auto'
       },
       revenue: {
+        ...DEFAULT_COLUMN_LABEL_FORMAT,
         columnType: 'number',
         style: 'currency',
         currency: 'USD'
@@ -1832,7 +1890,8 @@ export const WithTrendline_NumericalXAxisPolynomialRegression: Story = {
     barAndLineAxis: {
       x: ['index'],
       y: ['revenue'],
-      category: []
+      category: [],
+      tooltip: null
     },
     className: 'w-[800px] h-[400px]',
     trendlines: [
@@ -1847,10 +1906,12 @@ export const WithTrendline_NumericalXAxisPolynomialRegression: Story = {
     ],
     columnLabelFormats: {
       index: {
+        ...DEFAULT_COLUMN_LABEL_FORMAT,
         columnType: 'number',
         style: 'number'
       },
       revenue: {
+        ...DEFAULT_COLUMN_LABEL_FORMAT,
         columnType: 'number',
         style: 'currency',
         currency: 'USD'
@@ -1880,7 +1941,8 @@ export const WithTrendline_StringXAxisPolynomialRegression: Story = {
     barAndLineAxis: {
       x: ['index'],
       y: ['revenue'],
-      category: []
+      category: [],
+      tooltip: null
     },
     className: 'w-[800px] h-[400px]',
     trendlines: [
@@ -1895,10 +1957,12 @@ export const WithTrendline_StringXAxisPolynomialRegression: Story = {
     ] as Trendline[],
     columnLabelFormats: {
       index: {
+        ...DEFAULT_COLUMN_LABEL_FORMAT,
         columnType: 'text',
         style: 'string'
       },
       revenue: {
+        ...DEFAULT_COLUMN_LABEL_FORMAT,
         columnType: 'number',
         style: 'currency',
         currency: 'USD'
@@ -1914,10 +1978,12 @@ export const With2ThousandPoints: Story = {
     barAndLineAxis: {
       x: ['date'],
       y: ['revenue'],
-      category: ['category']
+      category: ['category'],
+      tooltip: null
     },
     columnLabelFormats: {
       date: {
+        ...DEFAULT_COLUMN_LABEL_FORMAT,
         columnType: 'date',
         style: 'date',
         dateFormat: 'auto'
@@ -1933,10 +1999,12 @@ export const With5ThousandPoints: Story = {
     barAndLineAxis: {
       x: ['date'],
       y: ['revenue'],
-      category: ['category']
+      category: ['category'],
+      tooltip: null
     },
     columnLabelFormats: {
       date: {
+        ...DEFAULT_COLUMN_LABEL_FORMAT,
         columnType: 'date',
         style: 'date',
         dateFormat: 'auto'

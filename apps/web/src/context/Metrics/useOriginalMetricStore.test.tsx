@@ -1,10 +1,8 @@
 import { act, renderHook } from '@testing-library/react';
 import { beforeEach, describe, expect, it } from 'vitest';
-import type { IBusterMetric } from '@/api/asset_interfaces/metric';
-import { DEFAULT_CHART_CONFIG } from '@/api/asset_interfaces/metric/defaults';
-import { VerificationStatus } from '@/api/asset_interfaces/share';
-import { ShareRole } from '@/api/asset_interfaces/share/shareInterfaces';
+import type { BusterMetric } from '@/api/asset_interfaces/metric';
 import { useOriginalMetricStore } from './useOriginalMetricStore';
+import { DEFAULT_CHART_CONFIG } from '@buster/server-shared/metrics';
 
 describe('useOriginalMetricStore', () => {
   beforeEach(() => {
@@ -13,7 +11,7 @@ describe('useOriginalMetricStore', () => {
   });
 
   it('should correctly set and get a metric', () => {
-    const mockMetric: IBusterMetric = {
+    const mockMetric: BusterMetric = {
       id: 'test-metric-1',
       type: 'metric' as const,
       name: 'Test Metric',
@@ -25,7 +23,7 @@ describe('useOriginalMetricStore', () => {
       dataset_name: null,
       error: null,
       data_metadata: null,
-      status: VerificationStatus.NOT_REQUESTED,
+      status: 'notRequested',
       evaluation_score: 'Moderate',
       evaluation_summary: '',
       file_name: 'test.yaml',
@@ -35,7 +33,7 @@ describe('useOriginalMetricStore', () => {
       updated_at: '2024-01-01T00:00:00Z',
       sent_by_id: 'user-1',
       sent_by_name: 'Test User',
-      permission: ShareRole.CAN_VIEW,
+      permission: 'canView',
       sent_by_avatar_url: null,
       dashboards: [],
       collections: [],

@@ -1,5 +1,5 @@
-import { DEFAULT_COLUMN_LABEL_FORMAT } from '@/api/asset_interfaces/metric';
-import type { BusterChartProps, Trendline } from '@/api/asset_interfaces/metric/charts';
+import type { BusterChartProps } from '@/api/asset_interfaces/metric/charts';
+import { DEFAULT_COLUMN_LABEL_FORMAT, type Trendline } from '@buster/server-shared/metrics';
 import { isNumericColumnType } from '@/lib/messages';
 
 export const canSupportTrendlineRecord: Record<

@@ -1,4 +1,3 @@
-import { DEFAULT_CHART_THEME } from '@/api/asset_interfaces/metric/charts/configColors';
 import {
   BLUE_THEME,
   BLUE_TO_ORANGE_GRADIENT,
@@ -26,6 +25,7 @@ import {
   VIBRANT_RAINBOW_THEME
 } from '@/components/ui/charts/config/configColors';
 import type { IColorTheme } from '../Common/interfaces';
+import { DEFAULT_CHART_THEME } from '@buster/server-shared/metrics';
 
 export enum ColorAppSegments {
   Colorful = 'Colorful',

@@ -45,6 +45,7 @@ export const VersionHistoryPanel = React.memo(
 
     return (
       <AppPageLayout
+        className="min-w-[245px]"
         header={useMemo(
           () => (
             <PanelHeader />

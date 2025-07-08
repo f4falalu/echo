@@ -22,7 +22,6 @@ import {
 
 export const assetPermissionRoleEnum = pgEnum('asset_permission_role_enum', [
   'owner',
-  'editor',
   'viewer',
   'full_access',
   'can_edit',
@@ -828,6 +827,7 @@ export const messages = pgTable(
     createdBy: uuid('created_by').notNull(),
     feedback: text(),
     isCompleted: boolean('is_completed').default(false).notNull(),
+    postProcessingMessage: jsonb('post_processing_message'),
   },
   (table) => [
     index('messages_chat_id_idx').using('btree', table.chatId.asc().nullsLast().op('uuid_ops')),
@@ -1810,6 +1810,11 @@ export const slackIntegrations = pgTable(
     installedAt: timestamp('installed_at', { withTimezone: true, mode: 'string' }),
     lastUsedAt: timestamp('last_used_at', { withTimezone: true, mode: 'string' }),
     status: slackIntegrationStatusEnum().default('pending').notNull(),
+
+    // Default channel configuration
+    defaultChannel: jsonb('default_channel')
+      .$type<{ id: string; name: string } | Record<string, never>>()
+      .default({}),
 
     // Timestamps
     createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' })

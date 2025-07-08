@@ -1,6 +1,6 @@
 import { useVirtualizer } from '@tanstack/react-virtual';
 import React from 'react';
-import { ChartType } from '@/api/asset_interfaces/metric/charts';
+import type { ChartType } from '@buster/server-shared/metrics';
 import { Popover } from '@/components/ui/popover/Popover';
 import { cn } from '@/lib/classMerge';
 import type { BusterChartLegendItem, BusterChartLegendProps } from './interfaces';

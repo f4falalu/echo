@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import type { IBusterMetricChartConfig } from '@/api/asset_interfaces';
+import type { ChartConfigProps } from '@buster/server-shared/metrics';
 import { SliderWithInputNumber } from '@/components/ui/slider';
 import { useMemoizedFn } from '@/hooks';
 import { LabelAndInput } from '../Common';
@@ -9,8 +9,8 @@ export const EditPieMinimumSlicePercentage = React.memo(
     pieMinimumSlicePercentage: initialValue,
     onUpdateChartConfig
   }: {
-    pieMinimumSlicePercentage: IBusterMetricChartConfig['pieMinimumSlicePercentage'];
-    onUpdateChartConfig: (config: Partial<IBusterMetricChartConfig>) => void;
+    pieMinimumSlicePercentage: ChartConfigProps['pieMinimumSlicePercentage'];
+    onUpdateChartConfig: (config: Partial<ChartConfigProps>) => void;
   }) => {
     const [pieMinimumSlicePercentage, setIntermediateValue] = useState(initialValue);
 

@@ -1,7 +1,11 @@
 import { renderHook } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import type { SimplifiedColumnType } from '@/api/asset_interfaces/metric';
-import type { ChartEncodes, IColumnLabelFormat } from '@/api/asset_interfaces/metric/charts';
+import type { BusterChartProps } from '@/api/asset_interfaces/metric/charts';
+import {
+  type ChartEncodes,
+  type ColumnLabelFormat,
+  type SimplifiedColumnType
+} from '@buster/server-shared/metrics';
 import { formatLabel } from '@/lib/columnFormatter';
 import { truncateWithEllipsis } from '../../../../commonHelpers/titleHelpers';
 import { useXAxisTitle } from './useXAxisTitle';
@@ -22,16 +26,16 @@ describe('useXAxisTitle', () => {
       date: {
         columnType: 'date' as SimplifiedColumnType,
         style: 'date' as const
-      },
+      } as ColumnLabelFormat,
       category: {
         columnType: 'string' as SimplifiedColumnType,
         style: 'string' as const
-      },
+      } as ColumnLabelFormat,
       value: {
         columnType: 'number' as SimplifiedColumnType,
         style: 'number' as const
-      }
-    } as Record<string, IColumnLabelFormat>,
+      } as ColumnLabelFormat
+    } as Record<string, ColumnLabelFormat>,
     isSupportedChartForAxisTitles: true,
     xAxisShowAxisTitle: true,
     xAxisAxisTitle: '',

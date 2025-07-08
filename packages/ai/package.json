@@ -19,11 +19,13 @@
     "typecheck": "tsc --noEmit",
     "dev": "tsc --watch",
     "dev:mastra": "mastra dev --dir src",
-    "lintx": "biome check",
+    "lint": "biome check",
     "test": "vitest run",
     "test:watch": "vitest watch",
     "test:coverage": "vitest run --coverage",
-    "eval:metrics": "npx braintrust eval evals/agents/analyst-agent/metrics"
+    "eval:metrics": "npx braintrust eval evals/agents/analyst-agent/metrics",
+    "braintrust:push": "npx braintrust push evals/agents/analyst-agent/metrics/test_scorers.ts",
+    "braintrust:push:staged": "npx braintrust push evals/agents/analyst-agent/metrics/staged_scorers.ts"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^1.2.12",
@@ -37,7 +39,7 @@
     "@buster/typescript-config": "workspace:*",
     "@buster/vitest-config": "workspace:*",
     "@mastra/core": "catalog:",
-    "@mastra/loggers": "^0.10.2",
+    "@mastra/loggers": "^0.10.3",
     "ai": "catalog:",
     "braintrust": "^0.0.206",
     "drizzle-orm": "catalog:",

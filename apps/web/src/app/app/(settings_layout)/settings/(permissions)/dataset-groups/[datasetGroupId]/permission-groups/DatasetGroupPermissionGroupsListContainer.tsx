@@ -5,7 +5,7 @@ import type {
   GetDatasetGroupPermissionGroupsResponse,
   GetPermissionGroupDatasetGroupsResponse
 } from '@/api/asset_interfaces';
-import { useUpdateDatasetGroupPermissionGroups } from '@/api/buster_rest';
+import { useUpdateDatasetGroupPermissionGroups } from '@/api/buster_rest/dataset_groups';
 import { PermissionAssignedCell } from '@/components/features/PermissionComponents';
 import {
   type BusterListColumn,

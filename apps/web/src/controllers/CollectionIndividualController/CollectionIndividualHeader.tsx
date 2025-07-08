@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useMemo, useState } from 'react';
-import { type BusterCollection, ShareAssetType } from '@/api/asset_interfaces';
+import { type BusterCollection } from '@/api/asset_interfaces';
 import { useDeleteCollection, useUpdateCollection } from '@/api/buster_rest/collections';
 import { ShareCollectionButton } from '@/components/features/buttons/ShareMenuCollectionButton';
 import { FavoriteStar, useFavoriteStar } from '@/components/features/list/FavoriteStar';
@@ -48,7 +48,7 @@ export const CollectionsIndividualHeader: React.FC<{
             />
             <FavoriteStar
               id={collection.id}
-              type={ShareAssetType.COLLECTION}
+              type={'collection'}
               title={collectionTitle}
               className="opacity-0 group-hover:opacity-100"
             />
@@ -96,7 +96,7 @@ const ThreeDotDropdown: React.FC<{
   const { mutateAsync: deleteCollection, isPending: isDeletingCollection } = useDeleteCollection();
   const { isFavorited, onFavoriteClick } = useFavoriteStar({
     id,
-    type: ShareAssetType.COLLECTION,
+    type: 'collection',
     name: name || ''
   });
   const isEditor = canEdit(permission);

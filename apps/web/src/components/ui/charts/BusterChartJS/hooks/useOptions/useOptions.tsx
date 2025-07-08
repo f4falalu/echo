@@ -2,11 +2,7 @@ import type { ChartType as ChartJSChartType, PluginChartOptions } from 'chart.js
 import type { AnnotationPluginOptions } from 'chartjs-plugin-annotation';
 import { useMemo } from 'react';
 import type { DeepPartial } from 'utility-types';
-import type {
-  BusterChartConfigProps,
-  BusterChartProps,
-  ChartEncodes
-} from '@/api/asset_interfaces/metric/charts';
+import type { BusterChartProps } from '@/api/asset_interfaces/metric/charts';
 import type { DatasetOptionsWithTicks } from '../../../chartHooks';
 import {
   LINE_DECIMATION_SAMPLES,
@@ -22,11 +18,12 @@ import { useTooltipOptions } from './useTooltipOptions.ts/useTooltipOptions';
 import { useXAxis } from './useXAxis';
 import { useY2Axis } from './useY2Axis';
 import { useYAxis } from './useYAxis';
+import type { ChartConfigProps, ChartEncodes } from '@buster/server-shared/metrics';
 
 interface UseOptionsProps {
   colors: string[];
-  selectedChartType: BusterChartConfigProps['selectedChartType'];
-  columnLabelFormats: NonNullable<BusterChartConfigProps['columnLabelFormats']>;
+  selectedChartType: ChartConfigProps['selectedChartType'];
+  columnLabelFormats: NonNullable<ChartConfigProps['columnLabelFormats']>;
   selectedAxis: ChartEncodes;
   columnMetadata: NonNullable<BusterChartProps['columnMetadata']>;
   barLayout: BusterChartProps['barLayout'];

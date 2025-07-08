@@ -7,11 +7,11 @@ import { wrapTraced } from 'braintrust';
 import * as yaml from 'yaml';
 import { z } from 'zod';
 import { getWorkflowDataSourceManager } from '../../utils/data-source-manager';
+import { createPermissionErrorMessage, validateSqlPermissions } from '../../utils/sql-permissions';
 import type { AnalystRuntimeContext } from '../../workflows/analyst-workflow';
+import { trackFileAssociations } from './file-tracking-helper';
 import { createInitialMetricVersionHistory, validateMetricYml } from './version-history-helpers';
 import type { MetricYml } from './version-history-types';
-import { trackFileAssociations } from './file-tracking-helper';
-import { validateSqlPermissions, createPermissionErrorMessage } from '../../utils/sql-permissions';
 
 // TypeScript types matching Rust DataMetadata structure
 enum SimpleType {
@@ -93,9 +93,11 @@ function createDataMetadata(results: Record<string, unknown>[]): DataMetadata {
         if (!Number.isNaN(Number(firstValue))) {
           columnType = Number.isInteger(Number(firstValue)) ? ColumnType.Int4 : ColumnType.Float8;
           simpleType = SimpleType.Number;
-        } else if (!Number.isNaN(Date.parse(firstValue)) && 
-                   // Additional check to avoid parsing simple numbers as dates
-                   (firstValue.includes('-') || firstValue.includes('/') || firstValue.includes(':'))) {
+        } else if (
+          !Number.isNaN(Date.parse(firstValue)) &&
+          // Additional check to avoid parsing simple numbers as dates
+          (firstValue.includes('-') || firstValue.includes('/') || firstValue.includes(':'))
+        ) {
           columnType = ColumnType.Timestamp;
           simpleType = SimpleType.Date;
         } else {
@@ -1147,7 +1149,7 @@ const createMetricFiles = wrapTraced(
     if (messageId && createdFiles.length > 0) {
       await trackFileAssociations({
         messageId,
-        files: createdFiles.map(file => ({
+        files: createdFiles.map((file) => ({
           id: file.id,
           version: file.version_number,
         })),
@@ -1185,7 +1187,13 @@ async function processMetricFile(
     const metricId = randomUUID();
 
     // Validate SQL by running it
-    const sqlValidationResult = await validateSql(metricYml.sql, dataSourceId, workflowId, userId, dataSourceDialect);
+    const sqlValidationResult = await validateSql(
+      metricYml.sql,
+      dataSourceId,
+      workflowId,
+      userId,
+      dataSourceDialect
+    );
 
     if (!sqlValidationResult.success) {
       return {
@@ -1267,7 +1275,7 @@ async function validateSql(
     if (!permissionResult.isAuthorized) {
       return {
         success: false,
-        error: createPermissionErrorMessage(permissionResult.unauthorizedTables)
+        error: createPermissionErrorMessage(permissionResult.unauthorizedTables),
       };
     }
 
@@ -1286,7 +1294,7 @@ async function validateSql(
 
     // Retry configuration for SQL validation
     const MAX_RETRIES = 3;
-    const TIMEOUT_MS = 30000; // 30 seconds per attempt
+    const TIMEOUT_MS = 120000; // 120 seconds (2 minutes) per attempt
     const RETRY_DELAYS = [1000, 3000, 6000]; // 1s, 3s, 6s
 
     // Attempt execution with retries

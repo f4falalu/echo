@@ -1,14 +1,14 @@
 import last from 'lodash/last';
 import React, { useMemo } from 'react';
-import type { IBusterMetricChartConfig } from '@/api/asset_interfaces';
-import type { ColumnLabelFormat } from '@/api/asset_interfaces/metric/charts';
+import type { ChartConfigProps } from '@buster/server-shared/metrics';
+import type { ColumnLabelFormat } from '@buster/server-shared/metrics';
 import type { SelectItem } from '@/components/ui/select';
 import { Select } from '@/components/ui/select';
 import { useMemoizedFn } from '@/hooks';
 import { isNumericColumnStyle, isNumericColumnType } from '@/lib';
 import { LabelAndInput } from '../../Common';
 
-export const AGGREGATE_OPTIONS: SelectItem<IBusterMetricChartConfig['metricValueAggregate']>[] = [
+export const AGGREGATE_OPTIONS: SelectItem<ChartConfigProps['metricValueAggregate']>[] = [
   { label: 'Sum', value: 'sum' },
   { label: 'Average', value: 'average' },
   { label: 'Median', value: 'median' },
@@ -19,9 +19,9 @@ export const AGGREGATE_OPTIONS: SelectItem<IBusterMetricChartConfig['metricValue
 ];
 
 export const EditMetricAggregate: React.FC<{
-  aggregate: IBusterMetricChartConfig['metricValueAggregate'];
+  aggregate: ChartConfigProps['metricValueAggregate'];
   columnId?: string;
-  onUpdateAggregate: (aggregate: IBusterMetricChartConfig['metricValueAggregate']) => void;
+  onUpdateAggregate: (aggregate: ChartConfigProps['metricValueAggregate']) => void;
   columnLabelFormat: ColumnLabelFormat | undefined;
 }> = React.memo(({ aggregate, onUpdateAggregate, columnId, columnLabelFormat }) => {
   const isNumberColumn = columnLabelFormat?.columnType
@@ -38,7 +38,7 @@ export const EditMetricAggregate: React.FC<{
   }, [aggregate, disableOptions]);
 
   const onUpdateMetricValueAggregate = useMemoizedFn((value: string) => {
-    onUpdateAggregate(value as IBusterMetricChartConfig['metricValueAggregate']);
+    onUpdateAggregate(value as ChartConfigProps['metricValueAggregate']);
   });
 
   return (

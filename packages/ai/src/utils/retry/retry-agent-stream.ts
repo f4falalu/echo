@@ -52,10 +52,35 @@ You should proceed with the proper tool calls in the context of the current step
   return baseMessage + pipelineContext;
 }
 
+/**
+ * Checks if an error should never be retried (configuration/programming errors)
+ */
+function isNonRetryableError(error: unknown): boolean {
+  const nonRetryableErrorNames = [
+    'AI_LoadAPIKeyError',
+    'AI_LoadSettingError',
+    'AI_NoSuchModelError',
+    'AI_NoSuchProviderError',
+    'AI_UnsupportedFunctionalityError',
+    'AI_TooManyEmbeddingValuesForCallError',
+    'AI_NoOutputSpecifiedError',
+  ];
+
+  if (error instanceof Error) {
+    return nonRetryableErrorNames.includes(error.name);
+  }
+  return false;
+}
+
 export function detectRetryableError(
   error: unknown,
   context?: WorkflowContext
 ): RetryableError | null {
+  // First check if it's explicitly non-retryable
+  if (isNonRetryableError(error)) {
+    return null;
+  }
+
   // Handle NoSuchToolError
   if (NoSuchToolError.isInstance(error)) {
     const toolName = 'toolName' in error ? String(error.toolName) : 'unknown';
@@ -236,7 +261,16 @@ export function detectRetryableError(
     };
   }
 
-  return null;
+  // Catch-all: Any error not explicitly handled above is retryable
+  // (unless it was already filtered out as non-retryable)
+  return {
+    type: 'unknown-error',
+    originalError: error,
+    healingMessage: {
+      role: 'user',
+      content: `An error occurred: ${error instanceof Error ? error.message : 'Unknown error'}. Please try again.`,
+    },
+  };
 }
 
 /**

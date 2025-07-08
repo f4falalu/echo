@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from 'zod/v4';
 
 // Message role for chat messages
 const MessageRoleSchema = z.enum(['user', 'assistant']);
@@ -130,7 +130,7 @@ export const ReasoningMessageSchema = z
 
 // Chat message schema
 export const ChatMessageSchema = z.object({
-  id: z.string().uuid(),
+  id: z.string(),
   request_message: ChatUserMessageSchema,
   response_messages: z.record(z.string(), ResponseMessageSchema),
   response_message_ids: z.array(z.string()),

@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
-import type { IBusterMetricChartConfig } from '@/api/asset_interfaces';
-import type { ColumnLabelFormat } from '@/api/asset_interfaces/metric/charts';
+import type { ChartConfigProps } from '@buster/server-shared/metrics';
+import type { ColumnLabelFormat } from '@buster/server-shared/metrics';
 import { AXIS_TITLE_SEPARATOR } from '@/components/ui/charts/commonHelpers/axisHelper';
 import { useUpdateMetricChart } from '@/context/Metrics';
 import { useMemoizedFn } from '@/hooks';
@@ -51,15 +51,13 @@ export const YAxisSettingContent: React.FC = React.memo(() => {
     });
   });
 
-  const onChangeAxisScale = useMemoizedFn(
-    (yAxisScaleType: IBusterMetricChartConfig['yAxisScaleType']) => {
-      onUpdateMetricChartConfig({
-        chartConfig: {
-          yAxisScaleType
-        }
-      });
-    }
-  );
+  const onChangeAxisScale = useMemoizedFn((yAxisScaleType: ChartConfigProps['yAxisScaleType']) => {
+    onUpdateMetricChartConfig({
+      chartConfig: {
+        yAxisScaleType
+      }
+    });
+  });
 
   const onChangeShowAxisTitle = useMemoizedFn((value: boolean) => {
     onUpdateMetricChartConfig({

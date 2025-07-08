@@ -16,6 +16,7 @@ export interface GetPermissionGroupUsersResponse {
   assigned: boolean;
   email: string;
   name: string;
+  avatar_url: string | null;
 }
 
 export interface GetPermissionGroupDatasetsResponse {

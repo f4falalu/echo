@@ -1,6 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import type { IColumnLabelFormat } from '@/api/asset_interfaces/metric';
-import { DEFAULT_COLUMN_LABEL_FORMAT } from '@/api/asset_interfaces/metric';
+import { DEFAULT_COLUMN_LABEL_FORMAT, type ColumnLabelFormat } from '@buster/server-shared/metrics';
 import { createDayjsDate } from '@/lib/date';
 import type { DatasetOptionsWithTicks } from '../../../chartHooks/useDatasetOptions/interfaces';
 import type { SeriesBuilderProps } from './interfaces';
@@ -38,7 +37,7 @@ describe('scatterSeriesBuilder_data', () => {
     ticksKey: [{ key: 'timestamp', value: 'Timestamp' }]
   };
 
-  const baseColumnLabelFormats: Record<string, IColumnLabelFormat> = {
+  const baseColumnLabelFormats: Record<string, Partial<ColumnLabelFormat>> = {
     timestamp: {
       columnType: 'date',
       style: 'date'
@@ -52,7 +51,7 @@ describe('scatterSeriesBuilder_data', () => {
   const baseProps: SeriesBuilderProps = {
     colors: mockColors,
     scatterDotSize: mockScatterDotSize,
-    columnLabelFormats: baseColumnLabelFormats,
+    columnLabelFormats: baseColumnLabelFormats as Record<string, ColumnLabelFormat>,
     xAxisKeys: mockXAxisKeys,
     sizeOptions: null,
     datasetOptions: baseDatasetOptions,

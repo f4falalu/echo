@@ -1,6 +1,5 @@
 import type { Meta } from '@storybook/react';
-import { ChartType, ChartTypeSchema } from '../../../../api/asset_interfaces/metric/charts/enum';
-import { DEFAULT_CHART_CONFIG } from '../../../../api/asset_interfaces/metric/defaults';
+import { DEFAULT_CHART_CONFIG } from '@buster/server-shared/metrics';
 import { BusterChart } from '../BusterChart';
 
 export const sharedMeta: Partial<Meta<typeof BusterChart>> = {

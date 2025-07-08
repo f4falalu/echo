@@ -1,9 +1,10 @@
 import { renderHook } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
-import type {
-  ChartType,
-  IColumnLabelFormat
-} from '../../../../../api/asset_interfaces/metric/charts';
+import {
+  DEFAULT_COLUMN_LABEL_FORMAT,
+  type ChartType,
+  type ColumnLabelFormat
+} from '@buster/server-shared/metrics';
 import { useDatasetOptions } from './useDatasetOptions';
 
 describe('useDatasetOptions', () => {
@@ -13,10 +14,10 @@ describe('useDatasetOptions', () => {
     { month: 'Mar', sales: 300, profit: 150 }
   ];
 
-  const mockColumnLabelFormats: Record<string, IColumnLabelFormat> = {
-    sales: { columnType: 'number', style: 'number' },
-    profit: { columnType: 'number', style: 'number' },
-    month: { columnType: 'text', style: 'string' }
+  const mockColumnLabelFormats: Record<string, ColumnLabelFormat> = {
+    sales: { ...DEFAULT_COLUMN_LABEL_FORMAT, columnType: 'number', style: 'number' },
+    profit: { ...DEFAULT_COLUMN_LABEL_FORMAT, columnType: 'number', style: 'number' },
+    month: { ...DEFAULT_COLUMN_LABEL_FORMAT, columnType: 'text', style: 'string' }
   };
   it('should return the correct axis keys for bar chart', () => {
     const { result } = renderHook(() =>

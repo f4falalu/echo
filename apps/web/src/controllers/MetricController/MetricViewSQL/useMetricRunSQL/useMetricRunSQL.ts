@@ -1,8 +1,9 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { useRef } from 'react';
-import type { BusterMetricData, IBusterMetricChartConfig } from '@/api/asset_interfaces/metric';
+import type { ChartConfigProps } from '@buster/server-shared/metrics';
+import type { BusterMetricData } from '@/api/asset_interfaces/metric';
 import type { RunSQLResponse } from '@/api/asset_interfaces/sql';
-import { useRunSQL as useRunSQLQuery } from '@/api/buster_rest';
+import { useRunSQL as useRunSQLQuery } from '@/api/buster_rest/sql';
 import { useGetLatestMetricVersionMemoized, useUpdateMetric } from '@/api/buster_rest/metrics';
 import { queryKeys } from '@/api/query_keys';
 import { useBusterNotifications } from '@/context/BusterNotifications';
@@ -38,7 +39,7 @@ export const useMetricRunSQL = () => {
   const getLatestMetricVersion = useGetLatestMetricVersionMemoized();
 
   const originalConfigs = useRef<{
-    chartConfig: IBusterMetricChartConfig;
+    chartConfig: ChartConfigProps;
     sql: string;
     data: BusterMetricData['data'];
     dataMetadata: BusterMetricData['data_metadata'];
@@ -88,7 +89,7 @@ export const useMetricRunSQL = () => {
         const newColumnData = data_metadata?.column_metadata;
 
         const didDataMetadataChange = didColumnDataChange(oldColumnData, newColumnData);
-        const totallyDefaultChartConfig: IBusterMetricChartConfig = didDataMetadataChange
+        const totallyDefaultChartConfig: ChartConfigProps = didDataMetadataChange
           ? simplifyChatConfigForSQLChange(metricMessage.chart_config, data_metadata)
           : metricMessage.chart_config;
 

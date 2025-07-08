@@ -1,5 +1,6 @@
 import React from 'react';
-import { type BusterMetricListItem, VerificationStatus } from '@/api/asset_interfaces';
+import { type BusterMetricListItem } from '@/api/asset_interfaces';
+import type { VerificationStatus } from '@buster/server-shared/share';
 import { StatusNotRequestedIcon } from '@/components/ui/icons/customIcons/Status_NotRequested';
 import { CircleCheck, CircleXmark } from '@/components/ui/icons/NucleoIconFilled';
 import { AppTooltip } from '@/components/ui/tooltip';
@@ -13,42 +14,34 @@ export const StatusBadgeIndicator: React.FC<{
   size?: number;
   className?: string;
   showTooltip?: boolean;
-}> = React.memo(
-  ({
-    showTooltip = true,
-    status = VerificationStatus.NOT_REQUESTED,
-    size = 16,
-    className = ''
-  }) => {
-    const Icon = getIcon(status);
-    const colorClasses = getColorClasses(status);
-    const tooltipText = getTooltipText(status);
-    const isNotVerified =
-      status === VerificationStatus.NOT_VERIFIED || VerificationStatus.NOT_REQUESTED;
-    const sharedClass = cn('flex items-center justify-center rounded-full', colorClasses);
-    return (
-      <AppTooltip title={showTooltip ? tooltipText : ''}>
-        <div
-          className={`rounded-full ${className} ${sharedClass} ${isNotVerified ? '' : ''}`}
-          style={{
-            width: size,
-            height: size
-          }}>
-          <Icon size={size} />
-        </div>
-      </AppTooltip>
-    );
-  }
-);
+}> = React.memo(({ showTooltip = true, status = 'notRequested', size = 16, className = '' }) => {
+  const Icon = getIcon(status);
+  const colorClasses = getColorClasses(status);
+  const tooltipText = getTooltipText(status);
+  const isNotVerified = status === 'notVerified' || 'notRequested';
+  const sharedClass = cn('flex items-center justify-center rounded-full', colorClasses);
+  return (
+    <AppTooltip title={showTooltip ? tooltipText : ''}>
+      <div
+        className={`rounded-full ${className} ${sharedClass} ${isNotVerified ? '' : ''}`}
+        style={{
+          width: size,
+          height: size
+        }}>
+        <Icon size={size} />
+      </div>
+    </AppTooltip>
+  );
+});
 StatusBadgeIndicator.displayName = 'StatusBadgeIndicator';
 
 const statusRecordIcon: Record<VerificationStatus, React.FC<{ size?: number }>> = {
-  [VerificationStatus.VERIFIED]: () => <CircleCheck />,
-  [VerificationStatus.REQUESTED]: () => <HalfIcon />,
-  [VerificationStatus.IN_REVIEW]: () => <ThreeFourthIcon />,
-  [VerificationStatus.BACKLOGGED]: () => <CircleXmark />,
-  [VerificationStatus.NOT_VERIFIED]: () => <StatusNotRequestedIcon />,
-  [VerificationStatus.NOT_REQUESTED]: () => <StatusNotRequestedIcon />
+  ['verified']: () => <CircleCheck />,
+  ['requested']: () => <HalfIcon />,
+  ['inReview']: () => <ThreeFourthIcon />,
+  ['backlogged']: () => <CircleXmark />,
+  ['notVerified']: () => <StatusNotRequestedIcon />,
+  ['notRequested']: () => <StatusNotRequestedIcon />
 };
 
 const getIcon = (status: BusterMetricListItem['status']) => {
@@ -56,14 +49,14 @@ const getIcon = (status: BusterMetricListItem['status']) => {
 };
 
 const statusRecordColors: Record<VerificationStatus, string> = {
-  [VerificationStatus.VERIFIED]: 'text-[#34A32D]!',
-  [VerificationStatus.REQUESTED]: 'text-[#F2BE01]!',
-  [VerificationStatus.IN_REVIEW]: 'text-[#7C3AED]!',
-  [VerificationStatus.BACKLOGGED]: 'text-icon-color',
-  [VerificationStatus.NOT_VERIFIED]: 'text-icon-color',
-  [VerificationStatus.NOT_REQUESTED]: 'text-icon-color'
+  ['verified']: 'text-[#34A32D]!',
+  ['requested']: 'text-[#F2BE01]!',
+  ['inReview']: 'text-[#7C3AED]!',
+  ['backlogged']: 'text-icon-color',
+  ['notVerified']: 'text-icon-color',
+  ['notRequested']: 'text-icon-color'
 };
 
 const getColorClasses = (status: BusterMetricListItem['status']) => {
-  return statusRecordColors[status] || statusRecordColors[VerificationStatus.NOT_REQUESTED];
+  return statusRecordColors[status] || statusRecordColors['notRequested'];
 };

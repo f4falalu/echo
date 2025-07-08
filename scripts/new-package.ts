@@ -336,6 +336,14 @@ export {};
     JSON.stringify(biomeJson, null, 2) + "\n"
   );
 
+  // Create vitest.config.ts
+  const vitestConfig = `import { baseConfig } from '@buster/vitest-config';
+
+export default baseConfig;
+`;
+
+  await writeFile(join(directory, "vitest.config.ts"), vitestConfig);
+
   // Create basic index.ts file
   const indexTs = `export * from './lib/index';
 `;
@@ -361,7 +369,7 @@ config();
 
 // Build-time environment validation
 
-console.log('🔍 Validating environment variables...');
+console.info('🔍 Validating environment variables...');
 
 const env = {
   NODE_ENV: process.env.NODE_ENV || 'development',
@@ -377,7 +385,7 @@ for (const [envKey, value] of Object.entries(env)) {
     console.error(\`❌ Missing required environment variable: \${envKey}\`);
     hasErrors = true;
   } else {
-    console.log(\`✅ \${envKey} is set\`);
+    console.info(\`✅ \${envKey} is set\`);
   }
 }
 
@@ -388,7 +396,7 @@ if (hasErrors) {
   process.exit(1);
 }
 
-console.log('✅ All required environment variables are present');
+console.info('✅ All required environment variables are present');
 `;
 
   await writeFile(join(directory, "scripts", "validate-env.js"), validateEnv);
@@ -397,6 +405,7 @@ console.log('✅ All required environment variables are present');
   console.log("📄 Created env.d.ts");
   console.log("📄 Created tsconfig.json");
   console.log("📄 Created biome.json");
+  console.log("📄 Created vitest.config.ts");
   console.log("📄 Created src/index.ts");
   console.log("📄 Created src/lib/index.ts");
   console.log("📄 Created scripts/validate-env.js");

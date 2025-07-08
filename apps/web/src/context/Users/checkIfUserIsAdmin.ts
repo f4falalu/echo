@@ -1,4 +1,4 @@
-import { useGetMyUserInfo } from '@/api/buster_rest';
+import { useGetMyUserInfo } from '@/api/buster_rest/users';
 import { getMyUserInfo_server } from '@/api/buster_rest/users/requests';
 import { getSupabaseUserContext } from '@/lib/supabase';
 import { checkIfUserIsAdmin } from '@/lib/user';

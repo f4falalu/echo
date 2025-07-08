@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import type { IBusterMetric } from '@/api/asset_interfaces/metric';
+import type { BusterMetric } from '@/api/asset_interfaces/metric';
 import { Button, type ButtonProps } from '@/components/ui/buttons';
 import {
   CircleCheck,
@@ -9,7 +9,7 @@ import {
 import { Popover } from '@/components/ui/popover/Popover';
 
 export const MetricChartEvaluation: React.FC<{
-  evaluationScore: IBusterMetric['evaluation_score'] | undefined;
+  evaluationScore: BusterMetric['evaluation_score'] | undefined;
   evaluationSummary: string | undefined;
 }> = React.memo(({ evaluationScore, evaluationSummary }) => {
   const text = useMemo(() => {

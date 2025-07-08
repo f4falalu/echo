@@ -45,7 +45,7 @@ export const TermIndividualContentSider: React.FC<{ termId: string }> = ({ termI
         </Text>
 
         <div className="flex items-center space-x-1.5">
-          <Avatar size={24} name={term?.created_by.name} />
+          <Avatar size={24} name={term?.created_by.name} image={term?.created_by.avatar_url} />
           <Text>{term?.created_by.name}</Text>
           <Text variant="secondary">
             (

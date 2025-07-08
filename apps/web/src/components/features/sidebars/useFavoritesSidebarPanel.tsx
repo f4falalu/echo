@@ -1,7 +1,7 @@
 import { useParams } from 'next/navigation';
 import { useMemo } from 'react';
-import { ShareAssetType } from '@/api/asset_interfaces/share';
-import type { BusterUserFavorite } from '@/api/asset_interfaces/users';
+import { ShareAssetType } from '@buster/server-shared/share';
+import type { UserFavorite } from '@buster/server-shared/user';
 import {
   useDeleteUserFavorite,
   useGetUserFavorites,
@@ -27,18 +27,18 @@ export const useFavoriteSidebarPanel = () => {
     updateUserFavorites(itemIds);
   });
 
-  const isAssetActive = useMemoizedFn((favorite: BusterUserFavorite) => {
+  const isAssetActive = useMemoizedFn((favorite: UserFavorite) => {
     const assetType = favorite.asset_type;
     const id = favorite.id;
 
     switch (assetType) {
-      case ShareAssetType.CHAT:
+      case 'chat':
         return id === chatId;
-      case ShareAssetType.METRIC:
+      case 'metric':
         return id === metricId;
-      case ShareAssetType.DASHBOARD:
+      case 'dashboard':
         return id === dashboardId;
-      case ShareAssetType.COLLECTION:
+      case 'collection':
         return id === collectionId;
       default: {
         const _exhaustiveCheck: never = assetType;
@@ -53,19 +53,19 @@ export const useFavoriteSidebarPanel = () => {
     }
 
     if (chatId && favorites.some((f) => f.id === chatId)) {
-      return ShareAssetType.CHAT;
+      return 'chat';
     }
 
     if (metricId && favorites.some((f) => f.id === metricId)) {
-      return ShareAssetType.METRIC;
+      return 'metric';
     }
 
     if (dashboardId && favorites.some((f) => f.id === dashboardId)) {
-      return ShareAssetType.DASHBOARD;
+      return 'dashboard';
     }
 
     if (collectionId && favorites.some((f) => f.id === collectionId)) {
-      return ShareAssetType.COLLECTION;
+      return 'collection';
     }
 
     return null;

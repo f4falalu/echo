@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { VerificationStatus } from '@/api/asset_interfaces';
+import { VerificationStatusSchema, type ShareAssetType } from '@buster/server-shared/share';
 import { StatusBadgeIndicator } from './StatusBadgeIndicator';
 
 const meta = {
@@ -10,14 +10,14 @@ const meta = {
   },
   tags: ['autodocs'],
   args: {
-    status: VerificationStatus.NOT_REQUESTED,
+    status: 'notRequested',
     size: 16,
     showTooltip: true
   },
   argTypes: {
     status: {
       control: 'select',
-      options: Object.values(VerificationStatus),
+      options: Object.values(VerificationStatusSchema.enum),
       description: 'The verification status of the badge'
     },
     size: {
@@ -43,51 +43,51 @@ type Story = StoryObj<typeof meta>;
 // Basic StatusBadgeIndicator examples for each status
 export const NotRequested: Story = {
   args: {
-    status: VerificationStatus.NOT_REQUESTED
+    status: 'notRequested'
   }
 };
 
 export const Requested: Story = {
   args: {
-    status: VerificationStatus.REQUESTED
+    status: 'requested'
   }
 };
 
 export const InReview: Story = {
   args: {
-    status: VerificationStatus.IN_REVIEW
+    status: 'inReview'
   }
 };
 
 export const Verified: Story = {
   args: {
-    status: VerificationStatus.VERIFIED
+    status: 'verified'
   }
 };
 
 export const Backlogged: Story = {
   args: {
-    status: VerificationStatus.BACKLOGGED
+    status: 'backlogged'
   }
 };
 
 export const NotVerified: Story = {
   args: {
-    status: VerificationStatus.NOT_VERIFIED
+    status: 'notVerified'
   }
 };
 
 // Size variations
 export const LargeSize: Story = {
   args: {
-    status: VerificationStatus.VERIFIED,
+    status: 'verified',
     size: 24
   }
 };
 
 export const SmallSize: Story = {
   args: {
-    status: VerificationStatus.VERIFIED,
+    status: 'verified',
     size: 12
   }
 };
@@ -95,7 +95,7 @@ export const SmallSize: Story = {
 // Without tooltip
 export const WithoutTooltip: Story = {
   args: {
-    status: VerificationStatus.VERIFIED,
+    status: 'verified',
     showTooltip: false
   }
 };

@@ -9,6 +9,7 @@ export interface ListPermissionUsersResponse {
   name: string;
   email: string;
   assigned: boolean;
+  avatar_url: string | null;
 }
 
 export interface DatasetPermissionOverviewUser {
@@ -16,6 +17,7 @@ export interface DatasetPermissionOverviewUser {
   name: string;
   email: string;
   can_query: boolean;
+  avatar_url: string | null;
   lineage: {
     name: string;
     id: string;

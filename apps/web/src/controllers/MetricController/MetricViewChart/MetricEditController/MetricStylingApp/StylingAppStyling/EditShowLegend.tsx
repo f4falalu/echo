@@ -1,15 +1,15 @@
 import React from 'react';
-import type { IBusterMetricChartConfig } from '@/api/asset_interfaces';
-import type { ChartEncodes, ScatterAxis } from '@/api/asset_interfaces/metric/charts';
+import type { ChartConfigProps } from '@buster/server-shared/metrics';
+import type { ChartEncodes, ScatterAxis } from '@buster/server-shared/metrics';
 import { useLegendAutoShow } from '@/components/ui/charts/BusterChartLegend';
 import { Switch } from '@/components/ui/switch';
 import { LabelAndInput } from '../Common';
 
 export const EditShowLegend: React.FC<{
-  showLegend: IBusterMetricChartConfig['showLegend'];
-  selectedChartType: IBusterMetricChartConfig['selectedChartType'];
+  showLegend: ChartConfigProps['showLegend'];
+  selectedChartType: ChartConfigProps['selectedChartType'];
   selectedAxis: ChartEncodes;
-  onUpdateChartConfig: (chartConfig: Partial<IBusterMetricChartConfig>) => void;
+  onUpdateChartConfig: (chartConfig: Partial<ChartConfigProps>) => void;
 }> = React.memo(
   ({ showLegend: showLegendProp, selectedAxis, selectedChartType, onUpdateChartConfig }) => {
     const categoryAxisColumnNames = (selectedAxis as ScatterAxis)?.category;

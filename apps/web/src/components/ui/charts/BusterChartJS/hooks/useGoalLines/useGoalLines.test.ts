@@ -1,12 +1,12 @@
 import { renderHook } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
-import { DEFAULT_COLUMN_LABEL_FORMAT } from '@/api/asset_interfaces/metric';
-import type {
-  BusterChartConfigProps,
-  ChartType,
-  GoalLine
-} from '@/api/asset_interfaces/metric/charts';
 import { useGoalLines } from './useGoalLines';
+import {
+  DEFAULT_COLUMN_LABEL_FORMAT,
+  type ChartConfigProps,
+  type ChartType,
+  type GoalLine
+} from '@buster/server-shared/metrics';
 
 describe('useGoalLines', () => {
   const defaultParams = {
@@ -15,9 +15,9 @@ describe('useGoalLines', () => {
     columnLabelFormats: {},
     yAxisKeys: ['metric1'],
     y2AxisKeys: undefined,
-    lineGroupType: null as BusterChartConfigProps['lineGroupType'],
-    barLayout: 'vertical' as BusterChartConfigProps['barLayout'],
-    barGroupType: 'group' as BusterChartConfigProps['barGroupType']
+    lineGroupType: null as ChartConfigProps['lineGroupType'],
+    barLayout: 'vertical' as ChartConfigProps['barLayout'],
+    barGroupType: 'group' as ChartConfigProps['barGroupType']
   };
 
   const mockGoalLine: GoalLine = {
@@ -37,7 +37,7 @@ describe('useGoalLines', () => {
     const params = {
       ...defaultParams,
       goalLines: [mockGoalLine],
-      barGroupType: 'percentage-stack' as BusterChartConfigProps['barGroupType']
+      barGroupType: 'percentage-stack' as ChartConfigProps['barGroupType']
     };
     const { result } = renderHook(() => useGoalLines(params));
     expect(result.current).toEqual([]);
@@ -73,7 +73,7 @@ describe('useGoalLines', () => {
   it('should generate correct annotation for a horizontal bar chart', () => {
     const params = {
       ...defaultParams,
-      barLayout: 'horizontal' as BusterChartConfigProps['barLayout'],
+      barLayout: 'horizontal' as ChartConfigProps['barLayout'],
       goalLines: [mockGoalLine],
       columnLabelFormats: {
         metric1: DEFAULT_COLUMN_LABEL_FORMAT

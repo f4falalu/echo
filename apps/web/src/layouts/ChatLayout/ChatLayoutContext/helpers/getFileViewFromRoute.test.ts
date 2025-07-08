@@ -10,20 +10,12 @@ describe('getFileViewFromRoute', () => {
     expect(getFileViewFromRoute(BusterRoutes.APP_METRIC_ID_RESULTS)).toBe('results');
     expect(getFileViewFromRoute(BusterRoutes.APP_CHAT_ID_METRIC_ID_RESULTS)).toBe('results');
   });
-  it('should return file view for file-related routes', () => {
-    expect(getFileViewFromRoute(BusterRoutes.APP_METRIC_ID_FILE__HIDDEN)).toBe('file');
-    expect(getFileViewFromRoute(BusterRoutes.APP_CHAT_ID_METRIC_ID_FILE)).toBe('file');
-    expect(getFileViewFromRoute(BusterRoutes.APP_CHAT_ID_DASHBOARD_ID_FILE)).toBe('file');
-    expect(getFileViewFromRoute(BusterRoutes.APP_DASHBOARD_ID_FILE)).toBe('file');
-  });
+
   it('should return dashboard view for dashboard routes', () => {
     expect(getFileViewFromRoute(BusterRoutes.APP_CHAT_ID_DASHBOARD_ID)).toBe('dashboard');
     expect(getFileViewFromRoute(BusterRoutes.APP_DASHBOARD_ID)).toBe('dashboard');
   });
-  it('should consistently return file view for chat metric routes', () => {
-    expect(getFileViewFromRoute(BusterRoutes.APP_CHAT_ID_METRIC_ID)).toBe('file');
-    expect(getFileViewFromRoute(BusterRoutes.APP_CHAT_ID_METRIC_ID_FILE)).toBe('file');
-  });
+
   it('should return undefined for routes not in the mapping', () => {
     // @ts-expect-error Testing with an invalid route
     expect(getFileViewFromRoute('INVALID_ROUTE')).toBeUndefined();

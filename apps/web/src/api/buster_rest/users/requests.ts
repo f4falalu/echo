@@ -1,26 +1,26 @@
-import type { ShareAssetType } from '@/api/asset_interfaces/share';
-import type {
-  BusterUserFavorite,
-  BusterUserListItem,
-  BusterUserResponse,
-  OrganizationUser
-} from '@/api/asset_interfaces/users';
-import { BASE_URL } from '@/api/buster_rest/config';
+import type { ShareAssetType } from '@buster/server-shared/share';
+import type { OrganizationUser } from '@/api/asset_interfaces/users';
+import { BASE_URL } from '../config';
 import { serverFetch } from '../../createServerInstance';
 import { mainApi } from '../instances';
+import type {
+  UserResponse,
+  UserFavoriteResponse,
+  UserListResponse
+} from '@buster/server-shared/user';
 
-export const getMyUserInfo = async (): Promise<BusterUserResponse> => {
-  return mainApi.get<BusterUserResponse>('/users').then((response) => response.data);
+export const getMyUserInfo = async () => {
+  return mainApi.get<UserResponse>('/users').then((response) => response.data);
 };
 
 export const getMyUserInfo_server = async ({
   jwtToken
 }: {
   jwtToken: string | undefined;
-}): Promise<BusterUserResponse | null> => {
+}): Promise<UserResponse | null> => {
   if (!jwtToken) {
     //If Anonymous user, it will fail, so we catch the error and return undefined
-    return await serverFetch<BusterUserResponse>('/users', {
+    return await serverFetch<UserResponse>('/users', {
       method: 'GET'
     });
   }
@@ -41,7 +41,7 @@ export const getMyUserInfo_server = async ({
         ...errorData
       };
     }
-    return response.json();
+    return (await response.json()) as UserResponse;
   });
 };
 
@@ -82,11 +82,11 @@ export const inviteUser = async ({
 //USER FAVORITES
 
 export const getUserFavorites = async () => {
-  return mainApi.get<BusterUserFavorite[]>('/users/favorites').then((response) => response.data);
+  return mainApi.get<UserFavoriteResponse>('/users/favorites').then((response) => response.data);
 };
 
 export const getUserFavorites_server = async () => {
-  return serverFetch<BusterUserFavorite[]>('/users/favorites');
+  return serverFetch<UserFavoriteResponse>('/users/favorites');
 };
 
 export const createUserFavorite = async (
@@ -98,19 +98,19 @@ export const createUserFavorite = async (
   }[]
 ) => {
   return mainApi
-    .post<BusterUserFavorite[]>('/users/favorites', payload)
+    .post<UserFavoriteResponse>('/users/favorites', payload)
     .then((response) => response.data);
 };
 
 export const deleteUserFavorite = async (data: string[]) => {
   return mainApi
-    .delete<BusterUserFavorite[]>('/users/favorites', { data })
+    .delete<UserFavoriteResponse>('/users/favorites', { data })
     .then((response) => response.data);
 };
 
 export const updateUserFavorites = async (payload: string[]) => {
   return mainApi
-    .put<BusterUserFavorite[]>('/users/favorites', payload)
+    .put<UserFavoriteResponse>('/users/favorites', payload)
     .then((response) => response.data);
 };
 
@@ -122,10 +122,10 @@ export const getUserList = async (payload: {
   page_size?: number;
 }) => {
   return mainApi
-    .get<BusterUserListItem[]>('/users', { params: payload })
+    .get<UserListResponse>('/users', { params: payload })
     .then((response) => response.data);
 };
 
 export const getUserList_server = async (payload: Parameters<typeof getUserList>[0]) => {
-  return serverFetch<BusterUserListItem[]>('/users', { params: payload });
+  return serverFetch<UserListResponse>('/users', { params: payload });
 };

@@ -45,6 +45,7 @@ export const useListVersionDropdownItems = ({
       secondaryLabel: timeFromNow(updated_at, false),
       value: version_number.toString(),
       selected: version_number === selectedVersion,
+      //we do not put link here because next route will handle it better
       onClick: () => onClickLink(version_number)
     }));
   }, [versions, selectedVersion]);

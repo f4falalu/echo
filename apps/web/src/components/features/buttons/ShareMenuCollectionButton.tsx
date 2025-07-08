@@ -1,5 +1,4 @@
 import React from 'react';
-import { ShareAssetType } from '@/api/asset_interfaces';
 import { useGetCollection } from '@/api/buster_rest/collections';
 import { ShareMenu } from '../ShareMenu';
 import { getShareAssetConfig } from '../ShareMenu/helpers';
@@ -14,7 +13,7 @@ export const ShareCollectionButton = React.memo(({ collectionId }: { collectionI
     <ShareMenu
       shareAssetConfig={collectionResponse || null}
       assetId={collectionId}
-      assetType={ShareAssetType.COLLECTION}>
+      assetType={'collection'}>
       <ShareButton />
     </ShareMenu>
   );

@@ -2,13 +2,14 @@ import '../../../ChartJSTheme';
 
 import { renderHook } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
-import type { ColumnSettings, SimplifiedColumnType } from '@/api/asset_interfaces/metric';
+import { useXAxis } from './useXAxis';
 import {
   DEFAULT_COLUMN_LABEL_FORMAT,
-  DEFAULT_COLUMN_SETTINGS
-} from '@/api/asset_interfaces/metric';
-import type { ChartEncodes } from '@/api/asset_interfaces/metric/charts';
-import { useXAxis } from './useXAxis';
+  DEFAULT_COLUMN_SETTINGS,
+  type ChartEncodes,
+  type ColumnSettings,
+  type SimplifiedColumnType
+} from '@buster/server-shared/metrics';
 
 describe('useXAxis', () => {
   const defaultProps = {

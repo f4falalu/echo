@@ -1,16 +1,13 @@
 import isEmpty from 'lodash/isEmpty';
 import React, { useCallback } from 'react';
-import {
-  type BusterChartPropsBase,
-  DEFAULT_CHART_CONFIG,
-  type IBusterMetricChartConfig
-} from '@/api/asset_interfaces/metric';
+import { DEFAULT_CHART_CONFIG, type ChartConfigProps } from '@buster/server-shared/metrics';
 import { AppDataGrid } from '@/components/ui/table/AppDataGrid';
 import { useUpdateMetricChart } from '@/context/Metrics';
 import { useMemoizedFn } from '@/hooks';
 import { cn } from '@/lib/classMerge';
 import { formatLabel } from '@/lib/columnFormatter';
 import type { BusterTableChartConfig } from './interfaces';
+import type { BusterChartPropsBase } from '@/api/asset_interfaces/metric';
 
 export interface BusterTableChartProps extends BusterTableChartConfig, BusterChartPropsBase {}
 
@@ -30,7 +27,7 @@ const BusterTableChartBase: React.FC<BusterTableChartProps> = ({
 }) => {
   const { onUpdateMetricChartConfig, onInitializeTableColumnWidths } = useUpdateMetricChart();
 
-  const onChangeConfig = useMemoizedFn((config: Partial<IBusterMetricChartConfig>) => {
+  const onChangeConfig = useMemoizedFn((config: Partial<ChartConfigProps>) => {
     if (readOnly) return;
     onUpdateMetricChartConfig({ chartConfig: config });
     if (
@@ -42,7 +39,7 @@ const BusterTableChartBase: React.FC<BusterTableChartProps> = ({
   });
 
   const onUpdateTableColumnOrder = useMemoizedFn((columns: string[]) => {
-    const config: Partial<IBusterMetricChartConfig> = {
+    const config: Partial<ChartConfigProps> = {
       tableColumnOrder: columns
     };
 
@@ -51,7 +48,7 @@ const BusterTableChartBase: React.FC<BusterTableChartProps> = ({
 
   const onUpdateTableColumnSize = useMemoizedFn((columns: { key: string; size: number }[]) => {
     if (readOnly) return;
-    const config: Partial<IBusterMetricChartConfig> = {
+    const config: Partial<ChartConfigProps> = {
       tableColumnWidths: columns.reduce<Record<string, number>>((acc, { key, size }) => {
         acc[key] = Number(size.toFixed(1));
         return acc;

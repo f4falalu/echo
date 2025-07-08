@@ -4,7 +4,7 @@ import { useSelectedLayoutSegment } from 'next/navigation';
 import type React from 'react';
 import { type PropsWithChildren, useEffect, useMemo, useState } from 'react';
 import { createContext, useContextSelector } from 'use-context-selector';
-import { useDeployDataset, useIndividualDataset } from '@/api/buster_rest';
+import { useDeployDataset, useIndividualDataset } from '@/api/buster_rest/datasets';
 import { useDebounce, useMemoizedFn, useDocumentTitle } from '@/hooks';
 import { DataSetAppText, type DatasetApps } from './config';
 

@@ -1,7 +1,7 @@
 'use client';
 
-import type { ColumnMetaData, SimplifiedColumnType } from '@/api/asset_interfaces/metric';
 import type { BusterChartProps } from '@/api/asset_interfaces/metric/charts';
+import type { ColumnMetaData, SimplifiedColumnType } from '@buster/server-shared/metrics';
 import { createDayjsDate } from '@/lib/date';
 
 export const sortLineBarData = (

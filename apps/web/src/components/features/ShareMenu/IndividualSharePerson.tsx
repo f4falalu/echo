@@ -1,18 +1,19 @@
 import React from 'react';
-import type { ShareAssetType, ShareRole } from '@/api/asset_interfaces';
 import { Avatar } from '@/components/ui/avatar';
 import { Text } from '@/components/ui/typography';
 import { useMemoizedFn } from '@/hooks';
 import { AccessDropdown } from './AccessDropdown';
+import type { ShareAssetType, ShareRole } from '@buster/server-shared/share';
 
 export const IndividualSharePerson: React.FC<{
   name?: string;
   email: string;
   role: ShareRole;
+  avatar_url: string | null;
   onUpdateShareRole: (email: string, role: ShareRole | null) => void;
   assetType: ShareAssetType;
   disabled: boolean;
-}> = React.memo(({ name, onUpdateShareRole, email, role, assetType, disabled }) => {
+}> = React.memo(({ name, onUpdateShareRole, email, avatar_url, role, assetType, disabled }) => {
   const isSameEmailName = name === email;
 
   const onChangeShareLevel = useMemoizedFn((v: ShareRole | null) => {
@@ -25,7 +26,7 @@ export const IndividualSharePerson: React.FC<{
       data-testid={`share-person-${email}`}>
       <div className="flex h-full items-center space-x-1.5 overflow-hidden">
         <div className="flex h-full flex-col items-center justify-center">
-          <Avatar className="h-[24px] w-[24px]" name={name || email} />
+          <Avatar className="h-[24px] w-[24px]" name={name || email} image={avatar_url} />
         </div>
         <div className="flex flex-col space-y-0 overflow-hidden">
           <Text truncate className="leading-1.3">

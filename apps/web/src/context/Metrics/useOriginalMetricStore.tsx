@@ -1,27 +1,27 @@
 'use client';
 
 import { create } from 'zustand';
-import type { IBusterMetric } from '@/api/asset_interfaces/metric';
+import type { BusterMetric } from '@/api/asset_interfaces/metric';
 import { useMount } from '@/hooks';
 
 type OriginalMetricStore = {
-  originalMetrics: Record<string, IBusterMetric>;
-  bulkAddOriginalMetrics: (metrics: Record<string, IBusterMetric>) => void;
-  setOriginalMetric: (metric: IBusterMetric) => void;
-  getOriginalMetric: (metricId: string | undefined) => IBusterMetric | undefined;
+  originalMetrics: Record<string, BusterMetric>;
+  bulkAddOriginalMetrics: (metrics: Record<string, BusterMetric>) => void;
+  setOriginalMetric: (metric: BusterMetric) => void;
+  getOriginalMetric: (metricId: string | undefined) => BusterMetric | undefined;
   removeOriginalMetric: (metricId: string) => void;
 };
 
 export const useOriginalMetricStore = create<OriginalMetricStore>((set, get) => ({
   originalMetrics: {},
-  bulkAddOriginalMetrics: (metrics: Record<string, IBusterMetric>) =>
+  bulkAddOriginalMetrics: (metrics: Record<string, BusterMetric>) =>
     set((prev) => ({
       originalMetrics: {
         ...prev.originalMetrics,
         ...metrics
       }
     })),
-  setOriginalMetric: (metric: IBusterMetric) =>
+  setOriginalMetric: (metric: BusterMetric) =>
     set((state) => ({
       originalMetrics: {
         ...state.originalMetrics,

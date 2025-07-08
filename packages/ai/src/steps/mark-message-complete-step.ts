@@ -1,4 +1,4 @@
-import { updateMessage, updateChat } from '@buster/database';
+import { updateChat, updateMessage } from '@buster/database';
 import { createStep } from '@mastra/core';
 import type { RuntimeContext } from '@mastra/core/runtime-context';
 import { z } from 'zod';
@@ -9,7 +9,6 @@ import {
   StepFinishDataSchema,
 } from '../utils/memory/types';
 import type { AnalystRuntimeContext } from '../workflows/analyst-workflow';
-
 
 // Analyst-specific metadata schema
 const AnalystMetadataSchema = z.object({
@@ -29,11 +28,13 @@ const inputSchema = z.object({
   reasoningHistory: ReasoningHistorySchema,
   responseHistory: ResponseHistorySchema,
   metadata: AnalystMetadataSchema.optional(),
-  selectedFile: z.object({
-    fileId: z.string().uuid().optional(),
-    fileType: z.string().optional(),
-    versionNumber: z.number().optional(),
-  }).optional(),
+  selectedFile: z
+    .object({
+      fileId: z.string().uuid().optional(),
+      fileType: z.string().optional(),
+      versionNumber: z.number().optional(),
+    })
+    .optional(),
   finalReasoningMessage: z.string().optional(),
 });
 
@@ -46,11 +47,13 @@ const outputSchema = z.object({
   reasoningHistory: ReasoningHistorySchema,
   responseHistory: ResponseHistorySchema,
   metadata: AnalystMetadataSchema.optional(),
-  selectedFile: z.object({
-    fileId: z.string().uuid().optional(),
-    fileType: z.string().optional(),
-    versionNumber: z.number().optional(),
-  }).optional(),
+  selectedFile: z
+    .object({
+      fileId: z.string().uuid().optional(),
+      fileType: z.string().optional(),
+      versionNumber: z.number().optional(),
+    })
+    .optional(),
   // Completion metadata
   messageId: z.string().describe('The message ID that was marked complete'),
   completedAt: z.string().describe('ISO timestamp when the message was marked complete'),

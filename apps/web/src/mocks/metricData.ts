@@ -1,4 +1,5 @@
-import type { BusterMetricData, DataMetadata } from '@/api/asset_interfaces/metric';
+import type { BusterMetricData } from '@/api/asset_interfaces/metric';
+import type { DataMetadata } from '@buster/server-shared/metrics';
 
 const PRODUCTS = [
   'Laptop',

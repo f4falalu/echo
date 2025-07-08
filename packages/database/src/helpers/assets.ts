@@ -25,7 +25,8 @@ export type GenerateAssetMessagesInput = z.infer<typeof GenerateAssetMessagesInp
 interface AssetDetails {
   id: string;
   name: string;
-  content?: any;
+  //TODO: Dallin let's make a type for this. It should not just be a jsonb object.
+  content?: unknown;
   createdBy: string;
 }
 

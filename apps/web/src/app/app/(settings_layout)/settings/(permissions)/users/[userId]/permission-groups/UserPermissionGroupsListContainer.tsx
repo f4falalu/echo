@@ -3,7 +3,7 @@
 import pluralize from 'pluralize';
 import React, { useMemo, useState } from 'react';
 import type { BusterUserPermissionGroup } from '@/api/asset_interfaces';
-import { useUpdateUserPermissionGroups } from '@/api/buster_rest';
+import { useUpdateUserPermissionGroups } from '@/api/buster_rest/users/permissions';
 import { PermissionAssignedCell } from '@/components/features/PermissionComponents';
 import {
   type BusterListColumn,
@@ -140,7 +140,12 @@ export const UserPermissionGroupsListContainer: React.FC<{
         useRowClickSelectChange={false}
         selectedRowKeys={selectedRowKeys}
         onSelectChange={setSelectedRowKeys}
-        emptyState={useMemo(() => <EmptyStateList text="No permission groups found" />, [])}
+        emptyState={useMemo(
+          () => (
+            <EmptyStateList text="No permission groups found" />
+          ),
+          []
+        )}
       />
     </InfiniteListContainer>
   );

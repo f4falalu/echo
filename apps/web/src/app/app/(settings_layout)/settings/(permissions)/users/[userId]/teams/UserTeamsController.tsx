@@ -2,7 +2,7 @@
 
 import type React from 'react';
 import { useMemo, useState } from 'react';
-import { useGetUserTeams } from '@/api/buster_rest';
+import { useGetUserTeams } from '@/api/buster_rest/users/permissions';
 import { NewTeamModal } from '@/components/features/modal/NewTeamModal';
 import { PermissionSearchAndListWrapper } from '@/components/features/PermissionComponents';
 import { Button } from '@/components/ui/buttons';

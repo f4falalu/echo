@@ -1,5 +1,5 @@
 import type { Chart, ChartTypeRegistry, TooltipItem } from 'chart.js';
-import type { BusterChartConfigProps } from '@/api/asset_interfaces/metric/charts';
+import type { ChartConfigProps } from '@buster/server-shared/metrics';
 import { formatLabel } from '@/lib';
 import type { ITooltipItem } from '../../../../BusterChartTooltip/interfaces';
 import { getPercentage } from './helpers';
@@ -7,7 +7,7 @@ import { getPercentage } from './helpers';
 export const barAndLineTooltipHelper = (
   dataPoints: TooltipItem<keyof ChartTypeRegistry>[],
   chart: Chart,
-  columnLabelFormats: NonNullable<BusterChartConfigProps['columnLabelFormats']>,
+  columnLabelFormats: NonNullable<ChartConfigProps['columnLabelFormats']>,
   keyToUsePercentage: string[],
   hasMultipleShownDatasets: boolean,
   percentageMode: undefined | 'stacked'

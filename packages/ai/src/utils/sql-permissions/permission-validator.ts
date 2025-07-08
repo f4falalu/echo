@@ -1,5 +1,11 @@
 import { getPermissionedDatasets } from '@buster/access-controls';
-import { extractPhysicalTables, extractTablesFromYml, tablesMatch, checkQueryIsReadOnly, type ParsedTable } from './sql-parser-helpers';
+import {
+  type ParsedTable,
+  checkQueryIsReadOnly,
+  extractPhysicalTables,
+  extractTablesFromYml,
+  tablesMatch,
+} from './sql-parser-helpers';
 
 export interface PermissionValidationResult {
   isAuthorized: boolean;
@@ -23,37 +29,37 @@ export async function validateSqlPermissions(
       return {
         isAuthorized: false,
         unauthorizedTables: [],
-        error: readOnlyCheck.error || 'Only read-only queries are allowed'
+        error: readOnlyCheck.error || 'Only read-only queries are allowed',
       };
     }
-    
+
     // Extract physical tables from SQL
     const tablesInQuery = extractPhysicalTables(sql, dataSourceSyntax);
-    
+
     if (tablesInQuery.length === 0) {
       // No tables referenced (might be a function call or constant select)
       return { isAuthorized: true, unauthorizedTables: [] };
     }
-    
+
     // Get user's permissioned datasets
     const permissionedDatasets = await getPermissionedDatasets(userId, 0, 1000);
-    
+
     // Extract all allowed tables from datasets
     const allowedTables: ParsedTable[] = [];
-    
+
     for (const dataset of permissionedDatasets) {
       if (dataset.ymlFile) {
         const tables = extractTablesFromYml(dataset.ymlFile);
         allowedTables.push(...tables);
       }
     }
-    
+
     // Check each table in query against permissions
     const unauthorizedTables: string[] = [];
-    
+
     for (const queryTable of tablesInQuery) {
       let isAuthorized = false;
-      
+
       // Check if query table matches any allowed table
       for (const allowedTable of allowedTables) {
         const matches = tablesMatch(queryTable, allowedTable);
@@ -62,25 +68,24 @@ export async function validateSqlPermissions(
           break;
         }
       }
-      
+
       if (!isAuthorized) {
         console.error('[validateSqlPermissions] Unauthorized table access:', queryTable.fullName);
         unauthorizedTables.push(queryTable.fullName);
       }
     }
-    
+
     const result = {
       isAuthorized: unauthorizedTables.length === 0,
-      unauthorizedTables
+      unauthorizedTables,
     };
-    
+
     return result;
-    
   } catch (error) {
     return {
       isAuthorized: false,
       unauthorizedTables: [],
-      error: `Permission validation failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+      error: `Permission validation failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
     };
   }
 }
@@ -92,12 +97,12 @@ export function createPermissionErrorMessage(unauthorizedTables: string[]): stri
   if (unauthorizedTables.length === 0) {
     return '';
   }
-  
+
   const tableList = unauthorizedTables.join(', ');
-  
+
   if (unauthorizedTables.length === 1) {
     return `Insufficient permissions: You do not have access to table: ${tableList}`;
   }
-  
+
   return `Insufficient permissions: You do not have access to the following tables: ${tableList}`;
 }

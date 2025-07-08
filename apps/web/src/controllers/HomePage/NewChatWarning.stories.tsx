@@ -1,7 +1,16 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { fn } from '@storybook/test';
-import { BusterOrganizationRole } from '@/api/asset_interfaces/organizations';
 import { NewChatWarning } from './NewChatWarning';
+import { z } from 'zod/v4';
+import type { OrganizationRole } from '@buster/server-shared/organization';
+
+const OrganizationRoleSchema: Record<OrganizationRole, string> = {
+  data_admin: 'data_admin',
+  workspace_admin: 'workspace_admin',
+  querier: 'querier',
+  restricted_querier: 'restricted_querier',
+  viewer: 'viewer',
+  none: 'none'
+};
 
 const meta: Meta<typeof NewChatWarning> = {
   title: 'Controllers/HomePage/NewChatWarning',
@@ -30,7 +39,7 @@ const meta: Meta<typeof NewChatWarning> = {
     },
     userRole: {
       control: 'select',
-      options: Object.values(BusterOrganizationRole),
+      options: Object.values(OrganizationRoleSchema),
       description: "The user's role in the organization"
     }
   }
@@ -45,7 +54,7 @@ export const NewUser: Story = {
     hasDatasets: false,
     hasDatasources: false,
     isAdmin: true,
-    userRole: BusterOrganizationRole.DATA_ADMIN
+    userRole: OrganizationRoleSchema.data_admin
   }
 };
 
@@ -55,7 +64,7 @@ export const CompleteSetup: Story = {
     hasDatasets: true,
     hasDatasources: true,
     isAdmin: true,
-    userRole: BusterOrganizationRole.DATA_ADMIN
+    userRole: OrganizationRoleSchema.data_admin
   }
 };
 
@@ -65,7 +74,7 @@ export const WorkspaceAdminCompleteSetup: Story = {
     hasDatasets: true,
     hasDatasources: true,
     isAdmin: true,
-    userRole: BusterOrganizationRole.WORKSPACE_ADMIN
+    userRole: OrganizationRoleSchema.workspace_admin
   }
 };
 
@@ -75,7 +84,7 @@ export const ViewerRole: Story = {
     hasDatasets: false,
     hasDatasources: false,
     isAdmin: false,
-    userRole: BusterOrganizationRole.VIEWER
+    userRole: OrganizationRoleSchema.viewer
   }
 };
 
@@ -84,7 +93,7 @@ export const QuerierRole: Story = {
     hasDatasets: false,
     hasDatasources: false,
     isAdmin: false,
-    userRole: BusterOrganizationRole.QUERIER
+    userRole: OrganizationRoleSchema.querier
   }
 };
 
@@ -93,6 +102,6 @@ export const RestrictedQuerierRole: Story = {
     hasDatasets: false,
     hasDatasources: false,
     isAdmin: false,
-    userRole: BusterOrganizationRole.RESTRICTED_QUERIER
+    userRole: OrganizationRoleSchema.restricted_querier
   }
 };

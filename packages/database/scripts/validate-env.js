@@ -5,7 +5,6 @@ import { config } from 'dotenv';
 config();
 
 // Build-time environment validation
-
 console.log('🔍 Validating environment variables...');
 
 // Skip validation during Docker builds (environment variables are only available at runtime)

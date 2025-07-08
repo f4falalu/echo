@@ -5,7 +5,7 @@ import type {
   GetDatasetGroupDatasetsResponse,
   GetPermissionGroupUsersResponse
 } from '@/api/asset_interfaces';
-import { useUpdateDatasetGroupDatasets } from '@/api/buster_rest';
+import { useUpdateDatasetGroupDatasets } from '@/api/buster_rest/dataset_groups';
 import { PermissionAssignedCell } from '@/components/features/PermissionComponents';
 import {
   type BusterListColumn,
@@ -134,7 +134,12 @@ export const DatasetGroupDatasetsListContainer: React.FC<{
         useRowClickSelectChange={false}
         selectedRowKeys={selectedRowKeys}
         onSelectChange={setSelectedRowKeys}
-        emptyState={useMemo(() => <EmptyStateList text="No dataset groups found" />, [])}
+        emptyState={useMemo(
+          () => (
+            <EmptyStateList text="No dataset groups found" />
+          ),
+          []
+        )}
       />
     </InfiniteListContainer>
   );
