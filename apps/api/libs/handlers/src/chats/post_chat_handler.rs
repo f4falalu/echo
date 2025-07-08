@@ -306,6 +306,7 @@ pub async fn post_chat_handler(
                 message.updated_at,
                 None,
                 true,
+                None,
             );
 
             chat_with_messages.add_message(chat_message);
@@ -858,6 +859,7 @@ pub async fn post_chat_handler(
         Utc::now(),
         None,
         true,
+        None,
     );
 
     chat_with_messages.update_message(final_message);
@@ -878,6 +880,7 @@ pub async fn post_chat_handler(
         raw_llm_messages: serde_json::to_value(&convert_messages_to_core_format(&raw_llm_messages)?)?,
         feedback: None,
         is_completed: true,
+        post_processing_message: None,
     };
 
     let mut conn = get_pg_pool().get().await?;
@@ -2901,6 +2904,7 @@ async fn initialize_chat(
             Utc::now(),
             None,
             true,
+            None,
         );
 
         // Add message to existing chat
@@ -2943,6 +2947,7 @@ async fn initialize_chat(
             Utc::now(),
             None,
             true,
+            None,
         );
 
         let mut chat_with_messages = ChatWithMessages::new(

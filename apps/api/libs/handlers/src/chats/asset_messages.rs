@@ -224,6 +224,7 @@ pub async fn generate_asset_messages(
         raw_llm_messages, // Add the agent context messages
         feedback: None,
         is_completed: true,
+        post_processing_message: None,
     };
 
     Ok(vec![message])
