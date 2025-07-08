@@ -1,5 +1,5 @@
 import React from 'react';
-import type { OrganizationUser } from '@/api/asset_interfaces';
+import type { OrganizationUser } from '@buster/server-shared/organization';
 import { PermissionSearchAndListWrapper } from '@/components/features/PermissionComponents';
 import { useDebounceSearch } from '@/hooks';
 import { UserDatasetListContainer } from './UserDatasetListContainer';

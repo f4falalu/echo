@@ -1,7 +1,6 @@
-import type { OrganizationUser } from '@/api/asset_interfaces/users';
 import { serverFetch } from '../../createServerInstance';
 import { mainApi } from '../instances';
-import type { Organization } from '@buster/server-shared/organization';
+import type { Organization, OrganizationUser } from '@buster/server-shared/organization';
 
 export const getOrganizationUsers = async ({
   organizationId

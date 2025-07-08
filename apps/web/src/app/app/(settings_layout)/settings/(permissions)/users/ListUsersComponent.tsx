@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useMemo } from 'react';
-import type { OrganizationUser } from '@/api/asset_interfaces/users';
+import type { OrganizationUser } from '@buster/server-shared/organization';
 import { ListUserItem } from '@/components/features/list/ListUserItem';
 import {
   type BusterListColumn,
