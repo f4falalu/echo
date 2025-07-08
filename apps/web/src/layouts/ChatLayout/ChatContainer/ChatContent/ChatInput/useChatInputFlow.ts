@@ -1,5 +1,5 @@
 import type React from 'react';
-import { useMemo } from 'react';
+import { useMemo, useRef } from 'react';
 import { useBusterNotifications } from '@/context/BusterNotifications';
 import { useBusterNewChatContextSelector } from '@/context/Chats';
 import { useMemoizedFn } from '@/hooks';
@@ -27,12 +27,15 @@ export const useChatInputFlow = ({
   const selectedFileId = useChatIndividualContextSelector((x) => x.selectedFileId);
   const onStartNewChat = useBusterNewChatContextSelector((state) => state.onStartNewChat);
   const onFollowUpChat = useBusterNewChatContextSelector((state) => state.onFollowUpChat);
+  const isSubmittingChat = useBusterNewChatContextSelector((state) => state.isSubmittingChat);
   const onStartChatFromFile = useBusterNewChatContextSelector((state) => state.onStartChatFromFile);
   const onStopChatContext = useBusterNewChatContextSelector((state) => state.onStopChat);
   const currentMessageId = useChatIndividualContextSelector((x) => x.currentMessageId);
   const isFileChanged = useChatIndividualContextSelector((x) => x.isFileChanged);
   const onResetToOriginal = useChatIndividualContextSelector((x) => x.onResetToOriginal);
   const { openConfirmModal } = useBusterNotifications();
+
+  const submittingCooldown = useRef(isSubmittingChat);
 
   const flow: FlowType = useMemo(() => {
     if (hasChat) return 'followup-chat';
@@ -42,7 +45,14 @@ export const useChatInputFlow = ({
   }, [hasChat, selectedFileType, selectedFileId]);
 
   const onSubmitPreflight = useMemoizedFn(async () => {
-    if (disableSubmit || !chatId || !currentMessageId) return;
+    if (
+      disableSubmit ||
+      !chatId ||
+      !currentMessageId ||
+      submittingCooldown.current ||
+      isSubmittingChat
+    )
+      return;
 
     if (loading) {
       onStopChat();
@@ -52,6 +62,7 @@ export const useChatInputFlow = ({
     const trimmedInputValue = inputValue.trim();
 
     const method = async () => {
+      submittingCooldown.current = true;
       switch (flow) {
         case 'followup-chat':
           await onFollowUpChat({ prompt: trimmedInputValue, chatId });
@@ -89,6 +100,10 @@ export const useChatInputFlow = ({
       setTimeout(() => {
         textAreaRef.current?.focus();
       }, 50);
+
+      setTimeout(() => {
+        submittingCooldown.current = false;
+      }, 350);
     };
 
     if (!isFileChanged) {
