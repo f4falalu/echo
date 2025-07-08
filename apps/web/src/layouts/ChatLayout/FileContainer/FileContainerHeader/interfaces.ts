@@ -5,7 +5,7 @@ export type FileContainerSegmentProps = {
   selectedFileId: string | undefined;
   chatId: string | undefined;
   overrideOldVersionMessage?: boolean;
-  isVersionHistoryMode: boolean;
+  isVersionHistoryMode?: boolean;
 };
 
 export type FileContainerButtonsProps = {

@@ -1,17 +1,22 @@
-import React, { useState } from 'react';
+'use client';
+
+import React from 'react';
 import { SecurityCards } from './SecurityCards';
 import { Switch } from '@/components/ui/switch';
 import { Input } from '@/components/ui/inputs';
 import { Button } from '@/components/ui/buttons';
 import { Text } from '@/components/ui/typography';
-import { cn } from '@/lib/classMerge';
 import { Copy2, Refresh } from '@/components/ui/icons';
 import { useBusterNotifications } from '@/context/BusterNotifications';
 import { AppTooltip } from '@/components/ui/tooltip';
+import { useGetInviteLink, useUpdateInviteLinks } from '@/api/buster_rest/security/queryRequests';
 
-export const InviteLinks = () => {
-  const [enabled, setEnabled] = useState(false);
-  const [link, setLink] = useState('');
+export const InviteLinks = React.memo(() => {
+  const { data: inviteLink } = useGetInviteLink();
+  const { mutateAsync: updateInviteLink } = useUpdateInviteLinks();
+  const enabled = inviteLink?.enabled ?? false;
+  const link = inviteLink?.link ?? '';
+
   const { openInfoMessage } = useBusterNotifications();
 
   const onClickCopy = () => {
@@ -19,9 +24,13 @@ export const InviteLinks = () => {
     openInfoMessage('Invite link copied to clipboard');
   };
 
-  const onClickRefresh = () => {
-    setLink(Math.random().toString(36).substring(2, 15));
+  const onClickRefresh = async () => {
+    await updateInviteLink({ refresh_link: true });
     openInfoMessage('Invite link refreshed');
+  };
+
+  const onToggleEnabled = (enabled: boolean) => {
+    updateInviteLink({ enabled });
   };
 
   return (
@@ -33,7 +42,7 @@ export const InviteLinks = () => {
           sections: [
             <div key="title" className="flex items-center justify-between">
               <Text>Enable invite links</Text>
-              <Switch checked={enabled} onCheckedChange={setEnabled} />
+              <Switch checked={enabled} onCheckedChange={onToggleEnabled} />
             </div>,
             enabled && (
               <div key="link" className="flex items-center justify-between space-x-2">
@@ -65,4 +74,6 @@ export const InviteLinks = () => {
       ]}
     />
   );
-};
+});
+
+InviteLinks.displayName = 'InviteLinks';
