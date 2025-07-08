@@ -161,6 +161,7 @@ pub async fn duplicate_chat_handler(
             created_by: user.id,
             feedback: source_message.feedback.clone(),
             is_completed: true,
+            post_processing_message: source_message.post_processing_message.clone(),
         };
 
         // Insert the new message record

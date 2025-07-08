@@ -45,6 +45,7 @@ pub struct MessageWithUser {
     pub user_attributes: Value,
     pub feedback: Option<String>,
     pub is_completed: bool,
+    pub post_processing_message: Option<Value>,
 }
 
 #[derive(Queryable)]
@@ -129,6 +130,7 @@ pub async fn get_chat_handler(
                     users::attributes,
                     messages::feedback.nullable(),
                     messages::is_completed,
+                    messages::post_processing_message.nullable(),
                 ))
                 .load::<MessageWithUser>(&mut conn)
                 .await
@@ -285,6 +287,7 @@ pub async fn get_chat_handler(
                 msg.updated_at,
                 msg.feedback,
                 msg.is_completed,
+                msg.post_processing_message
             )
         })
         .collect();

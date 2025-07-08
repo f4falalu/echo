@@ -58,6 +58,7 @@ pub struct Message {
     pub created_by: Uuid,
     pub feedback: Option<String>,
     pub is_completed: bool,
+    pub post_processing_message: Option<Value>,
 }
 
 #[derive(Queryable, Insertable, Debug, Clone)]

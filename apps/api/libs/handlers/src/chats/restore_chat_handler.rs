@@ -248,6 +248,7 @@ pub async fn restore_chat_handler(
         created_by: user.id,
         feedback: None,
         is_completed: false,
+        post_processing_message: None,
     };
 
     // Create MessageToFile object - requires MessageToFile to be Clone if used in multiple tasks
