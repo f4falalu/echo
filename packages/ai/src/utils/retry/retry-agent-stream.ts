@@ -84,7 +84,18 @@ export function detectRetryableError(
   // Handle NoSuchToolError
   if (NoSuchToolError.isInstance(error)) {
     const toolName = 'toolName' in error ? String(error.toolName) : 'unknown';
-    const errorMessage = createWorkflowAwareHealingMessage(toolName, context);
+    const availableTools =
+      'availableTools' in error && Array.isArray(error.availableTools)
+        ? (error.availableTools as string[])
+        : [];
+
+    // Create a more specific error message based on context
+    let errorMessage = createWorkflowAwareHealingMessage(toolName, context);
+
+    // If we have available tools, make the message even more specific
+    if (availableTools.length > 0) {
+      errorMessage = `Tool "${toolName}" is not available. You must use one of these tools: ${availableTools.join(', ')}. ${context ? `You are currently in ${context.currentStep} mode.` : ''}`;
+    }
 
     return {
       type: 'no-such-tool',
@@ -95,7 +106,7 @@ export function detectRetryableError(
           {
             type: 'tool-result',
             toolCallId: 'toolCallId' in error ? String(error.toolCallId) : 'unknown',
-            toolName: 'toolName' in error ? String(error.toolName) : 'unknown',
+            toolName: toolName,
             result: {
               error: errorMessage,
             },
@@ -107,6 +118,37 @@ export function detectRetryableError(
 
   // Handle InvalidToolArgumentsError - AI SDK throws this for bad arguments
   if (error instanceof Error && error.name === 'AI_InvalidToolArgumentsError') {
+    // Extract detailed error information
+    let errorDetails = 'Invalid arguments provided';
+
+    // Extract Zod validation errors if available
+    if (
+      'cause' in error &&
+      error.cause &&
+      typeof error.cause === 'object' &&
+      'errors' in error.cause
+    ) {
+      const zodError = error.cause as {
+        errors: Array<{ path: Array<string | number>; message: string }>;
+      };
+      errorDetails = zodError.errors
+        .map((e) => `${e.path.length > 0 ? `${e.path.join('.')}: ` : ''}${e.message}`)
+        .join('; ');
+    }
+
+    // Add tool name if available
+    const toolName = 'toolName' in error ? String(error.toolName) : 'unknown tool';
+
+    // Add the actual arguments that were provided if available
+    let providedArgs = '';
+    if ('args' in error && error.args) {
+      try {
+        providedArgs = ` You provided: ${JSON.stringify(error.args, null, 2)}`;
+      } catch {
+        // If args can't be stringified, skip
+      }
+    }
+
     return {
       type: 'invalid-tool-arguments',
       originalError: error,
@@ -116,10 +158,9 @@ export function detectRetryableError(
           {
             type: 'tool-result',
             toolCallId: 'toolCallId' in error ? String(error.toolCallId) : 'unknown',
-            toolName: 'toolName' in error ? String(error.toolName) : 'unknown',
+            toolName: toolName,
             result: {
-              error:
-                'Invalid tool arguments provided. Please check the required parameters and try again.',
+              error: `Invalid arguments for ${toolName}. ${errorDetails}.${providedArgs} Please check the required parameters and try again.`,
             },
           },
         ],
@@ -129,14 +170,38 @@ export function detectRetryableError(
 
   // Handle API call errors (network, rate limits, server errors)
   if (APICallError.isInstance(error)) {
+    // Extract response details if available
+    let responseDetails = '';
+    if ('responseBody' in error && error.responseBody) {
+      const body =
+        typeof error.responseBody === 'string'
+          ? error.responseBody
+          : JSON.stringify(error.responseBody);
+      responseDetails = ` Details: ${body.substring(0, 200)}`;
+    }
+
     // Rate limit errors
     if (error.statusCode === 429) {
+      // Check for retry-after header
+      let retryAfter = '';
+      if (
+        'responseHeaders' in error &&
+        error.responseHeaders &&
+        typeof error.responseHeaders === 'object'
+      ) {
+        const headers = error.responseHeaders as Record<string, string | string[]>;
+        const retryAfterHeader = headers['retry-after'] || headers['Retry-After'];
+        if (retryAfterHeader) {
+          retryAfter = ` Please wait ${retryAfterHeader} seconds before retrying.`;
+        }
+      }
+
       return {
         type: 'rate-limit',
         originalError: error,
         healingMessage: {
           role: 'user',
-          content: 'Rate limit reached, please wait and try again.',
+          content: `Rate limit reached.${retryAfter}${responseDetails} I'll retry automatically after a delay.`,
         },
       };
     }
@@ -148,19 +213,20 @@ export function detectRetryableError(
         originalError: error,
         healingMessage: {
           role: 'user',
-          content: 'Server temporarily unavailable, retrying...',
+          content: `Server error (${error.statusCode}): The service is temporarily unavailable.${responseDetails} Retrying...`,
         },
       };
     }
 
     // Network timeout (often no status code)
     if (!error.statusCode || error.cause) {
+      const timeoutInfo = error.cause instanceof Error ? ` (${error.cause.message})` : '';
       return {
         type: 'network-timeout',
         originalError: error,
         healingMessage: {
           role: 'user',
-          content: 'Connection timeout, please retry.',
+          content: `Network connection error${timeoutInfo}. Please retry. If this persists, check your internet connection.`,
         },
       };
     }
@@ -263,12 +329,33 @@ export function detectRetryableError(
 
   // Catch-all: Any error not explicitly handled above is retryable
   // (unless it was already filtered out as non-retryable)
+  let detailedMessage = 'An error occurred';
+
+  if (error instanceof Error) {
+    detailedMessage = error.message;
+
+    // Add error name if different from message
+    if (error.name && error.name !== 'Error' && !error.message.includes(error.name)) {
+      detailedMessage = `${error.name}: ${detailedMessage}`;
+    }
+
+    // Add stack trace first line for debugging (if available)
+    if (error.stack && context) {
+      const firstStackLine = error.stack.split('\n')[1]?.trim();
+      if (firstStackLine) {
+        detailedMessage = `${detailedMessage} (at ${firstStackLine.substring(0, 100)})`;
+      }
+    }
+  } else {
+    detailedMessage = String(error);
+  }
+
   return {
     type: 'unknown-error',
     originalError: error,
     healingMessage: {
       role: 'user',
-      content: `An error occurred: ${error instanceof Error ? error.message : 'Unknown error'}. Please try again.`,
+      content: `${detailedMessage}. Please try again, working around this issue if possible.`,
     },
   };
 }

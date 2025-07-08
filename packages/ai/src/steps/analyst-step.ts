@@ -329,6 +329,33 @@ const analystExecution = async ({
   // Main execution loop with retry logic
   while (retryCount <= maxRetries) {
     try {
+      console.info('Analyst: Starting stream attempt', {
+        retryCount,
+        messagesCount: messages.length,
+        messageRoles: messages.map((m) => m.role),
+        hasHealingMessage: messages.some(
+          (m) =>
+            m.role === 'user' &&
+            typeof m.content === 'string' &&
+            m.content.includes('I encountered an error')
+        ),
+        hasToolResultHealing: messages.some(
+          (m) =>
+            m.role === 'tool' &&
+            Array.isArray(m.content) &&
+            m.content.some(
+              (c) =>
+                typeof c === 'object' &&
+                'type' in c &&
+                c.type === 'tool-result' &&
+                'result' in c &&
+                c.result !== null &&
+                typeof c.result === 'object' &&
+                'error' in c.result
+            )
+        ),
+      });
+
       const wrappedStream = wrapTraced(
         async () => {
           // Create stream directly without retryableAgentStreamWithHealing
@@ -347,31 +374,104 @@ const analystExecution = async ({
               const error = event.error;
               console.error('Analyst stream error caught in onError:', error);
 
-              // Check if this is a retryable error
+              // Check if max retries reached
+              if (retryCount >= maxRetries) {
+                console.error('Analyst onError: Max retries reached', {
+                  retryCount,
+                  maxRetries,
+                });
+                return; // Let the error propagate normally
+              }
+
+              // Check if this error has a specific healing strategy
               const workflowContext: WorkflowContext = {
                 currentStep: 'analyst',
               };
               const retryableError = detectRetryableError(error, workflowContext);
-              if (!retryableError || retryCount >= maxRetries) {
-                console.error('Analyst onError: Not retryable or max retries reached', {
-                  isRetryable: !!retryableError,
-                  retryCount,
+
+              if (retryableError?.healingMessage) {
+                console.info('Analyst onError: Setting up retry with specific healing', {
+                  retryCount: retryCount + 1,
                   maxRetries,
-                  errorType: retryableError?.type || 'unknown',
+                  errorType: retryableError.type,
+                  healingMessage: retryableError.healingMessage,
                 });
-                // Not retryable or max retries reached - let it fail
-                return; // Let the error propagate normally
+
+                // Throw a special error with the healing info
+                throw new RetryWithHealingError(retryableError);
               }
 
-              console.info('Analyst onError: Setting up retry', {
+              // For all other errors, create a generic healing message
+              console.info('Analyst onError: Setting up retry with generic healing message', {
                 retryCount: retryCount + 1,
                 maxRetries,
-                errorType: retryableError.type,
-                healingMessage: retryableError.healingMessage,
+                errorMessage: error instanceof Error ? error.message : String(error),
               });
 
-              // Throw a special error with the healing info to trigger retry
-              throw new RetryWithHealingError(retryableError);
+              // Extract detailed error information
+              let detailedErrorMessage = '';
+
+              if (error instanceof Error) {
+                detailedErrorMessage = error.message;
+
+                // Check for Zod validation errors in the cause
+                if (
+                  'cause' in error &&
+                  error.cause &&
+                  typeof error.cause === 'object' &&
+                  'errors' in error.cause
+                ) {
+                  const zodError = error.cause as {
+                    errors: Array<{ path: Array<string | number>; message: string }>;
+                  };
+                  const validationDetails = zodError.errors
+                    .map((e) => `${e.path.join('.')}: ${e.message}`)
+                    .join('; ');
+                  detailedErrorMessage = `${error.message} - Validation errors: ${validationDetails}`;
+                }
+
+                // Check for status code (API errors)
+                if ('statusCode' in error && error.statusCode) {
+                  detailedErrorMessage = `${detailedErrorMessage} (Status: ${error.statusCode})`;
+                }
+
+                // Check for response body (API errors)
+                if ('responseBody' in error && error.responseBody) {
+                  const body =
+                    typeof error.responseBody === 'string'
+                      ? error.responseBody
+                      : JSON.stringify(error.responseBody);
+                  detailedErrorMessage = `${detailedErrorMessage} - Response: ${body.substring(0, 200)}`;
+                }
+
+                // Check for tool-specific information
+                if ('toolName' in error && error.toolName) {
+                  detailedErrorMessage = `${detailedErrorMessage} (Tool: ${error.toolName})`;
+                }
+
+                // Check for available tools (NoSuchToolError that wasn't caught)
+                if ('availableTools' in error && Array.isArray(error.availableTools)) {
+                  detailedErrorMessage = `${detailedErrorMessage} - Available tools: ${error.availableTools.join(', ')}`;
+                }
+              } else {
+                detailedErrorMessage = String(error);
+              }
+
+              // Create a generic user message with the detailed error information
+              const genericHealingMessage: CoreMessage = {
+                role: 'user',
+                content: `I encountered an error while processing your request: "${detailedErrorMessage}". Please continue with the analysis, working around this issue if possible. If this is a tool-related error, please use only the available tools for the current step.`,
+              };
+
+              // Create a generic retryable error with the healing message
+              const genericRetryableError: RetryableError = {
+                type: 'unknown-error',
+                healingMessage: genericHealingMessage,
+                originalError: error,
+              };
+
+              // Throw with healing info
+              throw new RetryWithHealingError(genericRetryableError);
             },
           });
 
@@ -407,7 +507,13 @@ const analystExecution = async ({
     } catch (error) {
       console.error('Analyst: Error in stream processing', error);
 
-      // Handle our special retry error
+      // Handle normal AbortError (from doneTool)
+      if (error instanceof Error && error.name === 'AbortError') {
+        console.info('Analyst: Stream aborted successfully (normal completion)');
+        break; // Normal abort, exit retry loop
+      }
+
+      // Handle our retry error with healing (all errors now have healing)
       if (isRetryWithHealingError(error)) {
         const retryableError = error.retryableError;
 
@@ -500,12 +606,20 @@ const analystExecution = async ({
           }
         }
 
-        console.info('Analyst: Retrying with healing message', {
+        // Apply exponential backoff for all retries
+        const backoffDelay = Math.min(1000 * 2 ** retryCount, 10000); // Max 10 seconds
+        console.info('Analyst: Retrying with healing message after backoff', {
           retryCount,
           errorType: retryableError.type,
           insertionIndex,
           totalMessages: currentMessages.length,
+          backoffDelay,
+          healingMessageRole: healingMessage.role,
+          healingMessageContent: healingMessage.content,
         });
+
+        // Wait before retrying
+        await new Promise((resolve) => setTimeout(resolve, backoffDelay));
 
         // Create new messages array with healing message inserted at the correct position
         const updatedMessages = [
@@ -514,11 +628,34 @@ const analystExecution = async ({
           ...currentMessages.slice(insertionIndex),
         ];
 
+        console.info('Analyst: Messages after healing insertion', {
+          originalCount: currentMessages.length,
+          updatedCount: updatedMessages.length,
+          insertionIndex,
+          healingMessageIndex: updatedMessages.findIndex((m) => m === healingMessage),
+          lastThreeMessages: updatedMessages.slice(-3).map((m) => ({
+            role: m.role,
+            content:
+              typeof m.content === 'string'
+                ? m.content.substring(0, 100)
+                : Array.isArray(m.content)
+                  ? m.content[0]
+                  : m.content,
+          })),
+        });
+
         // Update messages for the retry
         messages = updatedMessages;
 
-        // Reset chunk processor with the properly ordered messages
-        chunkProcessor.setInitialMessages(messages);
+        // Instead of resetting, append just the healing message at the correct position
+        if (insertionIndex === currentMessages.length) {
+          // Healing message goes at the end - simple append
+          chunkProcessor.appendMessages([healingMessage]);
+        } else {
+          // Healing message needs to be inserted in the middle
+          // We need to reset and rebuild to maintain order
+          chunkProcessor.setInitialMessages(updatedMessages);
+        }
 
         // Force save to persist the healing message immediately
         await chunkProcessor.saveToDatabase();
@@ -529,17 +666,15 @@ const analystExecution = async ({
         continue;
       }
 
-      // Handle normal AbortError (from doneTool)
-      if (error instanceof Error && error.name === 'AbortError') {
-        console.info('Analyst: Stream aborted successfully (normal completion)');
-        break; // Normal abort, exit retry loop
+      // If we've exhausted retries or it's an unexpected error at this point
+      if (retryCount >= maxRetries) {
+        console.error('Analyst: Max retries exhausted', {
+          retryCount,
+          maxRetries,
+          errorName: error instanceof Error ? error.name : 'unknown',
+          errorMessage: error instanceof Error ? error.message : String(error),
+        });
       }
-
-      // Any other error at this point is fatal
-      console.error('Analyst: Fatal error - not retryable', {
-        errorName: error instanceof Error ? error.name : 'unknown',
-        errorMessage: error instanceof Error ? error.message : String(error),
-      });
 
       // Check if it's a database connection error
       if (error instanceof Error && error.message.includes('DATABASE_URL')) {

@@ -1807,6 +1807,21 @@ export class ChunkProcessor<T extends ToolSet = GenericToolSet> {
   }
 
   /**
+   * Append messages to the accumulated messages without resetting state
+   * Used for adding healing messages during retry flows
+   */
+  appendMessages(messages: CoreMessage[]): void {
+    // Add new messages to accumulated messages
+    this.state.accumulatedMessages.push(...messages);
+    // Don't update lastProcessedMessageIndex - these are new messages to process
+    console.info('[ChunkProcessor] Appended messages:', {
+      newMessageCount: messages.length,
+      totalMessages: this.state.accumulatedMessages.length,
+      messageTypes: messages.map((m) => m.role),
+    });
+  }
+
+  /**
    * Get the current state for inspection
    */
   getState(): ChunkProcessorState {
