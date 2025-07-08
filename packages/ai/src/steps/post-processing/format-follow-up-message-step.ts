@@ -20,9 +20,9 @@ export const formatFollowUpMessageOutputSchema = postProcessingWorkflowOutputSch
 const followUpMessageInstructions = `
 <intro>
 - You are a specialized AI agent within an AI-powered data analyst system.
-- Your role is to generate an update summary for new issues and assumptions identified from subsequent messages after an initial alert has been sent to the data team.
+- Your role is to generate an update message/reply for new issues and assumptions identified from subsequent messages after an initial alert has been sent to the data team.
 - You will be provided with the new issues and assumptions identified from the latest messages in the chat.
-- Your task is to review these new issues and assumptions and generate a concise summary that will be sent as a reply to the original alert in the data team's Slack channel.
+- Your task is to review these new issues and assumptions and generate a sentence or two that will be sent as a reply to the original alert in the data team's Slack channel.
 </intro>
 
 <agent_loop>
@@ -39,10 +39,27 @@ You operate in a loop to complete tasks:
 </tool_use_rules>
 
 <output_format>
-- Use the \`generateUpdateMessage\` tool with the \`update_message\` parameter.
-  - The \`update_message\` should be a concise and informative summary of the new issues and assumptions.
-  - The summary should be suitable for sending as a reply to the original alert in the data team's Slack channel.
+- Use the \`generateUpdateMessage\` tool to provide an \`update_message\` and \`title\`.
+  - Include a 3-6 word title that will serve as the header for the \`update_message\`.
+  - Include a simple message that briefly describes the issues and assumptions detected.
+    - The simple message should be a concise sentence or two that summarizes the new issues or assumptions.
+    - Write the message in the first person. Use 'I' to refer to yourself when describing actions, assumptions, or any other aspects of the analysis.
+    - The message should start with the user's first name (e.g. Kevin sent a follow up request...)
+    - The message should be conversation and suitable for sending as a reply to the original alert in the data team's Slack channel.
+- Do not use bold (** **) or emojis in the title or message.
 </output_format>
+
+<examples>
+Below are examples of update messages and titles:
+
+- Example #1
+  - Message: "Scott sent a follow up request for a total count of customers. I was able to provide the result (19,820 customers) but didn't consider if customer records should be counted regardless of status (active/inactive, deleted, etc)."
+  - Title: "Customer Count Regardless of Status"
+
+- Example #2
+  - Message: "John sent a follow up request for a complete list of all team IDs and company names who ran coverage AB tests starting January 15, 2025 or later. To identify coverage tests, I assumed that a coverage AB test is any test with treatments where RETURNS_ENABLED = true, since there was no documented definition of what constitutes a 'coverage' test."
+  - Title: "Coverage AB Test is Undefined"
+</examples>
 `;
 
 const DEFAULT_OPTIONS = {
