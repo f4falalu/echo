@@ -135,8 +135,8 @@ export const messagePostProcessingTask: ReturnType<
       throw new Error('BRAINTRUST_KEY is not set');
     }
 
-    // Initialize Braintrust logging for observability
-    initLogger({
+    // Initialize Braintrust logger
+    const braintrustLogger = initLogger({
       apiKey: process.env.BRAINTRUST_KEY,
       projectName: process.env.ENVIRONMENT || 'development',
     });
@@ -399,6 +399,9 @@ export const messagePostProcessingTask: ReturnType<
         stack: error instanceof Error ? error.stack : undefined,
         executionTimeMs: Date.now() - startTime,
       });
+
+      // Need to flush the Braintrust logger to ensure all traces are sent
+      await braintrustLogger.flush();
 
       return {
         success: false,
