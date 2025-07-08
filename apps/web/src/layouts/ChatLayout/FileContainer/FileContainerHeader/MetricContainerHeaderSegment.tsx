@@ -5,20 +5,20 @@ import { AppSegmented } from '@/components/ui/segmented';
 import { Text } from '@/components/ui/typography';
 import { useIsMetricReadOnly } from '@/context/Metrics/useIsMetricReadOnly';
 import { useChatLayoutContextSelector } from '../../ChatLayoutContext';
-import type { FileView } from '../../ChatLayoutContext/useLayoutConfig';
+import type { FileView, MetricFileViewSecondary } from '../../ChatLayoutContext/useLayoutConfig';
 import type { FileContainerSegmentProps } from './interfaces';
 import { assetParamsToRoute } from '@/lib/assets';
 
 export const MetricContainerHeaderSegment: React.FC<FileContainerSegmentProps> = React.memo(
   (props) => {
-    const { selectedFileId } = props;
+    const { selectedFileId, overrideOldVersionMessage } = props;
     const { isViewingOldVersion, isFetched, isError } = useIsMetricReadOnly({
       metricId: selectedFileId || ''
     });
 
     if (!isFetched || isError) return null;
 
-    if (isViewingOldVersion) {
+    if (isViewingOldVersion && !overrideOldVersionMessage) {
       return <MetricOldVersion />;
     }
 
@@ -29,7 +29,7 @@ export const MetricContainerHeaderSegment: React.FC<FileContainerSegmentProps> =
 MetricContainerHeaderSegment.displayName = 'MetricContainerHeaderSegment';
 
 const MetricSegments: React.FC<FileContainerSegmentProps> = React.memo(
-  ({ selectedFileView, chatId }) => {
+  ({ selectedFileView, chatId, isVersionHistoryMode }) => {
     const metricId = useChatLayoutContextSelector((x) => x.metricId) || '';
     const dashboardId = useChatLayoutContextSelector((x) => x.dashboardId) || '';
     const metricVersionNumber = useChatLayoutContextSelector((x) => x.metricVersionNumber);
@@ -37,6 +37,10 @@ const MetricSegments: React.FC<FileContainerSegmentProps> = React.memo(
     const { error } = useGetMetric({ id: metricId });
 
     const segmentOptions: SegmentedItem<FileView>[] = React.useMemo(() => {
+      const secondaryView: MetricFileViewSecondary | undefined = isVersionHistoryMode
+        ? 'version-history'
+        : undefined;
+
       return [
         {
           label: 'Chart',
@@ -46,7 +50,9 @@ const MetricSegments: React.FC<FileContainerSegmentProps> = React.memo(
             chatId,
             dashboardId,
             assetId: metricId,
-            type: 'metric'
+            type: 'metric',
+            metricVersionNumber,
+            secondaryView
           })
         },
         {
@@ -57,7 +63,9 @@ const MetricSegments: React.FC<FileContainerSegmentProps> = React.memo(
             chatId,
             dashboardId,
             assetId: metricId,
-            type: 'metric'
+            type: 'metric',
+            metricVersionNumber,
+            secondaryView
           })
         },
         {
@@ -68,11 +76,21 @@ const MetricSegments: React.FC<FileContainerSegmentProps> = React.memo(
             chatId,
             dashboardId,
             assetId: metricId,
-            type: 'metric'
+            type: 'metric',
+            metricVersionNumber,
+            secondaryView
           })
         }
       ];
-    }, [chatId, error, metricId, dashboardId, metricVersionNumber, dashboardVersionNumber]);
+    }, [
+      chatId,
+      error,
+      metricId,
+      dashboardId,
+      metricVersionNumber,
+      dashboardVersionNumber,
+      isVersionHistoryMode
+    ]);
 
     return <AppSegmented type="button" options={segmentOptions} value={selectedFileView} />;
   }

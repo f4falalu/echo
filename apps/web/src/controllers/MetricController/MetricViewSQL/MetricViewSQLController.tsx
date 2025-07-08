@@ -8,6 +8,7 @@ import type { AppSplitterRef } from '@/components/ui/layouts/AppSplitter';
 import { useMemoizedFn } from '@/hooks';
 import { useMetricResultsLayout } from './useMetricResultsLayout';
 import { useMetricRunSQL } from './useMetricRunSQL';
+import { useChatLayoutContextSelector } from '@/layouts/ChatLayout';
 
 export const MetricViewSQLController: React.FC<{
   metricId: string;
@@ -16,6 +17,8 @@ export const MetricViewSQLController: React.FC<{
   const containerRef = React.useRef<HTMLDivElement>(null);
 
   const autoSaveId = `metric-view-sql-${metricId}`;
+
+  const isVersionHistoryMode = useChatLayoutContextSelector((x) => x.isVersionHistoryMode);
 
   const {
     runSQL,
@@ -103,6 +106,7 @@ export const MetricViewSQLController: React.FC<{
         onRunQuery={onRunQuery}
         onSaveSQL={onSaveSQL}
         data={data || []}
+        readOnly={isVersionHistoryMode}
         disabledSave={disableSave}
         fetchingData={isRunningSQL || isSavingMetric || !isFetchedInitialData}
         defaultLayout={defaultLayout}
