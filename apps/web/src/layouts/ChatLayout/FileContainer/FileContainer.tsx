@@ -10,6 +10,7 @@ import { useChatLayoutContextSelector } from '../ChatLayoutContext';
 import { FileContainerHeader } from './FileContainerHeader';
 import { FileContainerSecondary } from './FileContainerSecondary';
 import { AppPageLayout } from '@/components/ui/layouts/AppPageLayout';
+import { FileContainerVersionHistorySecondary } from './FileContainerHeader/FileContainerHeaderVersionHistory/FileContainerVersionHistorySecondary';
 
 interface FileContainerProps {
   children: React.ReactNode;
@@ -22,6 +23,7 @@ const autoSaveId = 'file-container-splitter';
 export const FileContainer: React.FC<FileContainerProps> = ({ children }) => {
   const appSplitterRef = useRef<AppSplitterRef>(null);
   const selectedFile = useChatLayoutContextSelector((x) => x.selectedFile);
+  const isVersionHistoryMode = useChatLayoutContextSelector((x) => x.isVersionHistoryMode);
   const selectedFileViewSecondary = useChatLayoutContextSelector(
     (x) => x.selectedFileViewSecondary
   );
@@ -93,9 +95,13 @@ export const FileContainer: React.FC<FileContainerProps> = ({ children }) => {
       className="flex h-full min-w-[380px] flex-col"
       header={useMemo(
         () => (
-          <FileContainerHeader />
+          <FileContainerHeader isVersionHistoryMode={isVersionHistoryMode} />
         ),
-        []
+        [isVersionHistoryMode]
+      )}
+      secondaryHeader={useMemo(
+        () => isVersionHistoryMode && <FileContainerVersionHistorySecondary />,
+        [isVersionHistoryMode]
       )}>
       <AppSplitter
         ref={appSplitterRef}

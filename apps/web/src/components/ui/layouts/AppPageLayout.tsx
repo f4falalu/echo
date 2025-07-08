@@ -14,6 +14,7 @@ import { AppPageLayoutHeader } from './AppPageLayoutHeader';
 export const AppPageLayout: React.FC<
   React.PropsWithChildren<{
     header?: React.ReactNode;
+    secondaryHeader?: React.ReactNode;
     scrollable?: boolean;
     className?: string;
     headerSizeVariant?: 'default' | 'list';
@@ -25,6 +26,7 @@ export const AppPageLayout: React.FC<
 > = ({
   children,
   header,
+  secondaryHeader,
   scrollable = false,
   className = '',
   headerSizeVariant = 'default',
@@ -46,6 +48,15 @@ export const AppPageLayout: React.FC<
           sizeVariant={headerSizeVariant}
           borderVariant={headerBorderVariant}>
           {header}
+        </AppPageLayoutHeader>
+      )}
+
+      {secondaryHeader && (
+        <AppPageLayoutHeader
+          className={cn(headerBorderVariant === 'ghost' && '-mt-[0.5px]', headerClassName)}
+          sizeVariant={headerSizeVariant}
+          borderVariant={headerBorderVariant}>
+          {secondaryHeader}
         </AppPageLayoutHeader>
       )}
 
