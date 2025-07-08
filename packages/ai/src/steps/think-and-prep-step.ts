@@ -11,6 +11,12 @@ import {
   RetryWithHealingError,
   detectRetryableError,
   isRetryWithHealingError,
+  createRetryOnErrorHandler,
+  findHealingMessageInsertionIndex,
+  calculateBackoffDelay,
+  createUserFriendlyErrorMessage,
+  logRetryInfo,
+  logMessagesAfterHealing,
 } from '../utils/retry';
 import type { RetryableError, WorkflowContext } from '../utils/retry/types';
 import { appendToConversation, standardizeMessages } from '../utils/standardizeMessages';
@@ -249,112 +255,11 @@ const thinkAndPrepExecution = async ({
                   }
                 },
               }),
-              onError: async (event: { error: unknown }) => {
-                const error = event.error;
-                console.error('Think and Prep stream error caught in onError:', error);
-
-                // Check if max retries reached
-                if (retryCount >= maxRetries) {
-                  console.error('Think and Prep onError: Max retries reached', {
-                    retryCount,
-                    maxRetries,
-                  });
-                  return; // Let the error propagate normally
-                }
-
-                // Check if this error has a specific healing strategy
-                const workflowContext: WorkflowContext = {
-                  currentStep: 'think-and-prep',
-                };
-                const retryableError = detectRetryableError(error, workflowContext);
-
-                if (retryableError?.healingMessage) {
-                  console.info('Think and Prep onError: Setting up retry with specific healing', {
-                    retryCount: retryCount + 1,
-                    maxRetries,
-                    errorType: retryableError.type,
-                    healingMessage: retryableError.healingMessage,
-                  });
-
-                  // Throw a special error with the healing info
-                  throw new RetryWithHealingError(retryableError);
-                }
-
-                // For all other errors, create a generic healing message
-                console.info(
-                  'Think and Prep onError: Setting up retry with generic healing message',
-                  {
-                    retryCount: retryCount + 1,
-                    maxRetries,
-                    errorMessage: error instanceof Error ? error.message : String(error),
-                  }
-                );
-
-                // Extract detailed error information
-                let detailedErrorMessage = '';
-
-                if (error instanceof Error) {
-                  detailedErrorMessage = error.message;
-
-                  // Check for Zod validation errors in the cause
-                  if (
-                    'cause' in error &&
-                    error.cause &&
-                    typeof error.cause === 'object' &&
-                    'errors' in error.cause
-                  ) {
-                    const zodError = error.cause as {
-                      errors: Array<{ path: Array<string | number>; message: string }>;
-                    };
-                    const validationDetails = zodError.errors
-                      .map((e) => `${e.path.join('.')}: ${e.message}`)
-                      .join('; ');
-                    detailedErrorMessage = `${error.message} - Validation errors: ${validationDetails}`;
-                  }
-
-                  // Check for status code (API errors)
-                  if ('statusCode' in error && error.statusCode) {
-                    detailedErrorMessage = `${detailedErrorMessage} (Status: ${error.statusCode})`;
-                  }
-
-                  // Check for response body (API errors)
-                  if ('responseBody' in error && error.responseBody) {
-                    const body =
-                      typeof error.responseBody === 'string'
-                        ? error.responseBody
-                        : JSON.stringify(error.responseBody);
-                    detailedErrorMessage = `${detailedErrorMessage} - Response: ${body.substring(0, 200)}`;
-                  }
-
-                  // Check for tool-specific information
-                  if ('toolName' in error && error.toolName) {
-                    detailedErrorMessage = `${detailedErrorMessage} (Tool: ${error.toolName})`;
-                  }
-
-                  // Check for available tools (NoSuchToolError that wasn't caught)
-                  if ('availableTools' in error && Array.isArray(error.availableTools)) {
-                    detailedErrorMessage = `${detailedErrorMessage} - Available tools: ${error.availableTools.join(', ')}`;
-                  }
-                } else {
-                  detailedErrorMessage = String(error);
-                }
-
-                // Create a generic user message with the detailed error information
-                const genericHealingMessage: CoreMessage = {
-                  role: 'user',
-                  content: `I encountered an error while processing your request: "${detailedErrorMessage}". Please continue with the analysis, working around this issue if possible. If this is a tool-related error, please use only the available tools for the current step.`,
-                };
-
-                // Create a generic retryable error with the healing message
-                const genericRetryableError: RetryableError = {
-                  type: 'unknown-error',
-                  healingMessage: genericHealingMessage,
-                  originalError: error,
-                };
-
-                // Throw with healing info
-                throw new RetryWithHealingError(genericRetryableError);
-              },
+              onError: createRetryOnErrorHandler({
+                retryCount,
+                maxRetries,
+                workflowContext: { currentStep: 'think-and-prep' },
+              }),
             });
 
             return stream;
@@ -396,107 +301,22 @@ const thinkAndPrepExecution = async ({
 
           // Get the current messages from chunk processor to find the failed tool call
           const currentMessages = chunkProcessor.getAccumulatedMessages();
-          const healingMessage = retryableError.healingMessage;
-          let insertionIndex = currentMessages.length; // Default to end
-
-          // If this is a NoSuchToolError, find the correct position to insert the healing message
-          if (retryableError.type === 'no-such-tool' && Array.isArray(healingMessage.content)) {
-            const firstContent = healingMessage.content[0];
-            if (
-              firstContent &&
-              typeof firstContent === 'object' &&
-              'type' in firstContent &&
-              firstContent.type === 'tool-result' &&
-              'toolCallId' in firstContent &&
-              'toolName' in firstContent
-            ) {
-              // Find the assistant message with the failed tool call
-              for (let i = currentMessages.length - 1; i >= 0; i--) {
-                const msg = currentMessages[i];
-                if (msg && msg.role === 'assistant' && Array.isArray(msg.content)) {
-                  // Find tool calls in this message
-                  const toolCalls = msg.content.filter(
-                    (
-                      c
-                    ): c is {
-                      type: 'tool-call';
-                      toolCallId: string;
-                      toolName: string;
-                      args: unknown;
-                    } =>
-                      typeof c === 'object' &&
-                      c !== null &&
-                      'type' in c &&
-                      c.type === 'tool-call' &&
-                      'toolCallId' in c &&
-                      'toolName' in c &&
-                      'args' in c
-                  );
-
-                  // Check each tool call to see if it matches and has no result
-                  for (const toolCall of toolCalls) {
-                    // Check if this tool call matches the failed tool name
-                    if (toolCall.toolName === firstContent.toolName) {
-                      // Look ahead for tool results
-                      let hasResult = false;
-                      for (let j = i + 1; j < currentMessages.length; j++) {
-                        const nextMsg = currentMessages[j];
-                        if (nextMsg && nextMsg.role === 'tool' && Array.isArray(nextMsg.content)) {
-                          const hasMatchingResult = nextMsg.content.some(
-                            (c) =>
-                              typeof c === 'object' &&
-                              c !== null &&
-                              'type' in c &&
-                              c.type === 'tool-result' &&
-                              'toolCallId' in c &&
-                              c.toolCallId === toolCall.toolCallId
-                          );
-                          if (hasMatchingResult) {
-                            hasResult = true;
-                            break;
-                          }
-                        }
-                      }
-
-                      // If this tool call has no result, this is our failed call
-                      if (!hasResult) {
-                        console.info(
-                          'Think and Prep: Found orphaned tool call, using its ID for healing',
-                          {
-                            toolCallId: toolCall.toolCallId,
-                            toolName: toolCall.toolName,
-                            atIndex: i,
-                          }
-                        );
-
-                        // Update the healing message with the correct toolCallId
-                        firstContent.toolCallId = toolCall.toolCallId;
-
-                        // Insert position is right after this assistant message
-                        insertionIndex = i + 1;
-                        break;
-                      }
-                    }
-                  }
-
-                  // If we found the position, stop searching
-                  if (insertionIndex !== currentMessages.length) break;
-                }
-              }
-            }
-          }
+          const { insertionIndex, updatedHealingMessage } = findHealingMessageInsertionIndex(
+            retryableError,
+            currentMessages
+          );
 
           // Apply exponential backoff for all retries
-          const backoffDelay = Math.min(1000 * 2 ** retryCount, 10000); // Max 10 seconds
-          console.info('Think and Prep: Retrying with healing message after backoff', {
+          const backoffDelay = calculateBackoffDelay(retryCount);
+          logRetryInfo(
+            'Think and Prep',
+            retryableError,
             retryCount,
-            errorType: retryableError.type,
             insertionIndex,
-            totalMessages: currentMessages.length,
+            currentMessages.length,
             backoffDelay,
-            healingMessageRole: healingMessage.role,
-            healingMessageContent: healingMessage.content,
-          });
+            updatedHealingMessage
+          );
 
           // Wait before retrying
           await new Promise((resolve) => setTimeout(resolve, backoffDelay));
@@ -504,25 +324,17 @@ const thinkAndPrepExecution = async ({
           // Create new messages array with healing message inserted at the correct position
           const updatedMessages = [
             ...currentMessages.slice(0, insertionIndex),
-            healingMessage,
+            updatedHealingMessage,
             ...currentMessages.slice(insertionIndex),
           ];
 
-          console.info('Think and Prep: Messages after healing insertion', {
-            originalCount: currentMessages.length,
-            updatedCount: updatedMessages.length,
+          logMessagesAfterHealing(
+            'Think and Prep',
+            currentMessages.length,
+            updatedMessages,
             insertionIndex,
-            healingMessageIndex: updatedMessages.findIndex((m) => m === healingMessage),
-            lastThreeMessages: updatedMessages.slice(-3).map((m) => ({
-              role: m.role,
-              content:
-                typeof m.content === 'string'
-                  ? m.content.substring(0, 100)
-                  : Array.isArray(m.content)
-                    ? m.content[0]
-                    : m.content,
-            })),
-          });
+            updatedHealingMessage
+          );
 
           // Update messages for the retry
           messages = updatedMessages;
@@ -530,7 +342,7 @@ const thinkAndPrepExecution = async ({
           // Instead of resetting, append just the healing message at the correct position
           if (insertionIndex === currentMessages.length) {
             // Healing message goes at the end - simple append
-            chunkProcessor.appendMessages([healingMessage]);
+            chunkProcessor.appendMessages([updatedHealingMessage]);
           } else {
             // Healing message needs to be inserted in the middle
             // We need to reset and rebuild to maintain order
@@ -556,25 +368,8 @@ const thinkAndPrepExecution = async ({
           });
         }
 
-        // Check if it's a database connection error
-        if (error instanceof Error && error.message.includes('DATABASE_URL')) {
-          throw new Error('Unable to connect to the analysis service. Please try again later.');
-        }
-
-        // Check if it's an API/model error
-        if (
-          error instanceof Error &&
-          (error.message.includes('API') || error.message.includes('model'))
-        ) {
-          throw new Error(
-            'The analysis service is temporarily unavailable. Please try again in a few moments.'
-          );
-        }
-
-        // For unexpected errors, provide a generic friendly message
-        throw new Error(
-          'Something went wrong during the analysis. Please try again or contact support if the issue persists.'
-        );
+        // Throw user-friendly error message
+        throw new Error(createUserFriendlyErrorMessage(error));
       }
     }
 
