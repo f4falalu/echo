@@ -14,6 +14,7 @@ import { useMemoizedFn } from '@/hooks';
 import { formatDate, timeout } from '@/lib';
 import { BusterRoutes } from '@/routes';
 import { Text } from '@/components/ui/typography';
+import { MessageAssumptions } from '@/components/features/sheets/MessageAssumptions';
 
 export const ChatMessageOptions: React.FC<{
   messageId: string;
@@ -29,6 +30,10 @@ export const ChatMessageOptions: React.FC<{
   const { data: updatedAt } = useGetChatMessage(messageId, {
     select: ({ updated_at }) => updated_at
   });
+  const { data: postProcessingMessage } = useGetChatMessage(messageId, {
+    select: ({ post_processing_message }) => post_processing_message
+  });
+  console.log('postProcessingMessage', postProcessingMessage);
 
   const updatedAtFormatted = useMemo(() => {
     if (!updatedAt) return '';
@@ -57,6 +62,10 @@ export const ChatMessageOptions: React.FC<{
     });
   });
 
+  const handleAskDataTeam = useMemoizedFn(() => {
+    console.log('ask data team');
+  });
+
   return (
     <div className="flex items-center gap-1">
       <AppTooltip title="Duplicate chat from this message">
@@ -79,6 +88,12 @@ export const ChatMessageOptions: React.FC<{
           }
         />
       </AppTooltip>
+
+      {postProcessingMessage && (
+        <AppTooltip title="View assumptions">
+          <MessageAssumptions {...postProcessingMessage} onClickAskDataTeam={handleAskDataTeam} />
+        </AppTooltip>
+      )}
 
       <Text
         className="ml-auto opacity-0 transition-opacity duration-200 group-hover:opacity-100"

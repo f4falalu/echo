@@ -43,7 +43,7 @@ export const MessageContextSchema = z.object({
   chatId: z.string(),
   createdBy: z.string(),
   createdAt: z.date(),
-  userName: z.string().nullable(),
+  userName: z.string(),
   organizationId: z.string(),
 });
 

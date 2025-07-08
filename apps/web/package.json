@@ -23,7 +23,7 @@
     "test:e2e:debug": "playwright test --debug"
   },
   "engines": {
-    "node": ">=24.0.0"
+    "node": ">=22.0.0"
   },
   "dependencies": {
     "@buster/server-shared": "workspace:*",

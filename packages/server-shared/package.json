@@ -45,6 +45,10 @@
       "types": "./dist/user/index.d.ts",
       "default": "./dist/user/index.js"
     },
+    "./message": {
+      "types": "./dist/message/index.d.ts",
+      "default": "./dist/message/index.js"
+    },
     "./organization": {
       "types": "./dist/organization/index.d.ts",
       "default": "./dist/organization/index.js"
