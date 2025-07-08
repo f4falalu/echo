@@ -10,6 +10,7 @@ import { permissionGroupQueryKeys } from './permission_groups';
 import { searchQueryKeys } from './search';
 import { termsQueryKeys } from './terms';
 import { userQueryKeys } from './users';
+import { securityQueryKeys } from './security';
 
 export const queryKeys = {
   ...datasetQueryKeys,
@@ -23,5 +24,6 @@ export const queryKeys = {
   ...datasourceQueryKeys,
   ...datasetGroupQueryKeys,
   ...permissionGroupQueryKeys,
-  ...currencyQueryKeys
+  ...currencyQueryKeys,
+  ...securityQueryKeys
 };
