@@ -48,7 +48,9 @@ export const WithHeader: Story = {
     ),
     children: (
       <div className="py-4">
-        <p>Sheet content with a structured header above.</p>
+        {Array.from({ length: 100 }).map((_, index) => (
+          <p key={index}>Sheet content with a structured header above {index}</p>
+        ))}
       </div>
     )
   }

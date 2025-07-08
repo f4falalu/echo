@@ -12,6 +12,7 @@ import {
   SheetClose as SheetCloseBase
 } from './SheetBase';
 import React from 'react';
+import { ScrollArea } from '../scroll-area';
 
 interface SheetProps extends React.ComponentProps<typeof SheetBase> {
   trigger: React.ReactNode;
@@ -47,6 +48,7 @@ export const Sheet = ({
         <SheetClose closeStyle={closeStyle} className={closeClassName}>
           {header}
         </SheetClose>
+        <ScrollArea className="flex-1">{children}</ScrollArea>
         <SheetFooter footer={footer} className={footerClassName} />
       </SheetContent>
     </SheetBase>
