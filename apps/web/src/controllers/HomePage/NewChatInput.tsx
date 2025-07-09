@@ -22,7 +22,7 @@ export const NewChatInput: React.FC<Record<string, never>> = () => {
   }, [inputValue]);
 
   const onSubmit = useMemoizedFn(async (value: string) => {
-    if (disabledSubmit) return;
+    if (disabledSubmit || loading) return;
     try {
       setLoading(true);
       const trimmedValue = value.trim();
@@ -30,12 +30,6 @@ export const NewChatInput: React.FC<Record<string, never>> = () => {
     } catch (error) {
       setLoading(false);
     }
-  });
-
-  const onStop = useMemoizedFn(() => {
-    setLoading(false);
-    textAreaRef.current?.focus();
-    textAreaRef.current?.select();
   });
 
   const onChange = useMemoizedFn((e: ChangeEvent<HTMLTextAreaElement>) => {
@@ -56,7 +50,6 @@ export const NewChatInput: React.FC<Record<string, never>> = () => {
         autoResize={autoResizeConfig}
         onSubmit={onSubmit}
         onChange={onChange}
-        onStop={onStop}
         loading={loading}
         disabled={false}
         disabledSubmit={disabledSubmit}

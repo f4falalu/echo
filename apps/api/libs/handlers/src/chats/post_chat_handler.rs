@@ -306,6 +306,7 @@ pub async fn post_chat_handler(
                 message.updated_at,
                 None,
                 true,
+                None,
             );
 
             chat_with_messages.add_message(chat_message);
@@ -846,10 +847,10 @@ pub async fn post_chat_handler(
     let final_message = ChatMessage::new_with_messages(
         message_id,
         Some(ChatUserMessage {
-            request: request.prompt.clone(),
-            sender_id: user.id,
-            sender_name: user.name.clone().unwrap_or_default(),
-            sender_avatar: None,
+                    request: request.prompt.clone(),
+        sender_id: user.id,
+        sender_name: user.name.clone().unwrap_or_default(),
+        sender_avatar: user.avatar_url.clone(),
         }),
         final_response_messages.clone(), // Use the reordered list
         reasoning_messages.clone(),
@@ -858,6 +859,7 @@ pub async fn post_chat_handler(
         Utc::now(),
         None,
         true,
+        None,
     );
 
     chat_with_messages.update_message(final_message);
@@ -878,6 +880,7 @@ pub async fn post_chat_handler(
         raw_llm_messages: serde_json::to_value(&convert_messages_to_core_format(&raw_llm_messages)?)?,
         feedback: None,
         is_completed: true,
+        post_processing_message: None,
     };
 
     let mut conn = get_pg_pool().get().await?;
@@ -2892,7 +2895,7 @@ async fn initialize_chat(
                 request: Some(prompt_text),
                 sender_id: user.id,
                 sender_name: user.name.clone().unwrap_or_default(),
-                sender_avatar: None,
+                sender_avatar: user.avatar_url.clone(),
             }),
             Vec::new(),
             Vec::new(),
@@ -2901,6 +2904,7 @@ async fn initialize_chat(
             Utc::now(),
             None,
             true,
+            None,
         );
 
         // Add message to existing chat
@@ -2934,7 +2938,7 @@ async fn initialize_chat(
                 request: Some(prompt_text),
                 sender_id: user.id,
                 sender_name: user.name.clone().unwrap_or_default(),
-                sender_avatar: None,
+                sender_avatar: user.avatar_url.clone(),
             }),
             Vec::new(),
             Vec::new(),
@@ -2943,6 +2947,7 @@ async fn initialize_chat(
             Utc::now(),
             None,
             true,
+            None,
         );
 
         let mut chat_with_messages = ChatWithMessages::new(

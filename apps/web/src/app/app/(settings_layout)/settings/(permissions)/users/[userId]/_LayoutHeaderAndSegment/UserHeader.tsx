@@ -1,5 +1,5 @@
 import React from 'react';
-import type { OrganizationUser } from '@/api/asset_interfaces';
+import type { OrganizationUser } from '@buster/server-shared/organization';
 import { Avatar } from '@/components/ui/avatar';
 import { Text, Title } from '@/components/ui/typography';
 

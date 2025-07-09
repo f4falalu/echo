@@ -1,31 +1,15 @@
-import type { ToolSet } from 'ai';
 import {
   APICallError,
   EmptyResponseBodyError,
+  InvalidToolArgumentsError,
   JSONParseError,
   NoContentGeneratedError,
   NoSuchToolError,
   RetryError,
   ToolExecutionError,
 } from 'ai';
-import { compressConversationHistory, shouldCompressHistory } from './context-compression';
-import type {
-  RetryConfig,
-  RetryResult,
-  RetryableAgentStreamParams,
-  RetryableError,
-  WorkflowContext,
-} from './types';
+import type { RetryableError, WorkflowContext } from './types';
 
-const DEFAULT_RETRY_CONFIG: RetryConfig = {
-  maxRetries: 3,
-  exponentialBackoff: true,
-  maxBackoffMs: 8000, // Max 8 second delay
-};
-
-/**
- * Detects if an error is retryable using AI SDK error types
- */
 /**
  * Creates a workflow-aware healing message for NoSuchToolError
  */
@@ -36,9 +20,19 @@ function createWorkflowAwareHealingMessage(toolName: string, context?: WorkflowC
     return `${baseMessage} Please use one of the available tools instead.`;
   }
 
-  const { currentStep } = context;
+  const { currentStep, availableTools } = context;
 
-  // Static message that always provides full pipeline context
+  // Use actual available tools if provided
+  if (availableTools && availableTools.size > 0) {
+    const toolList = Array.from(availableTools).sort().join(', ');
+    return `${baseMessage}
+
+You are currently in ${currentStep} mode. The available tools are: ${toolList}.
+
+Please use one of these tools to continue with your task. Make sure to use the exact tool name as listed above.`;
+  }
+
+  // Fallback to static message if tools not provided
   const pipelineContext = `
 
 This workflow has two steps:
@@ -84,7 +78,18 @@ export function detectRetryableError(
   // Handle NoSuchToolError
   if (NoSuchToolError.isInstance(error)) {
     const toolName = 'toolName' in error ? String(error.toolName) : 'unknown';
-    const errorMessage = createWorkflowAwareHealingMessage(toolName, context);
+    const availableTools =
+      'availableTools' in error && Array.isArray(error.availableTools)
+        ? (error.availableTools as string[])
+        : [];
+
+    // Create a more specific error message based on context
+    let errorMessage = createWorkflowAwareHealingMessage(toolName, context);
+
+    // If we have available tools, make the message even more specific
+    if (availableTools.length > 0) {
+      errorMessage = `Tool "${toolName}" is not available. You must use one of these tools: ${availableTools.join(', ')}. ${context ? `You are currently in ${context.currentStep} mode.` : ''}`;
+    }
 
     return {
       type: 'no-such-tool',
@@ -95,7 +100,7 @@ export function detectRetryableError(
           {
             type: 'tool-result',
             toolCallId: 'toolCallId' in error ? String(error.toolCallId) : 'unknown',
-            toolName: 'toolName' in error ? String(error.toolName) : 'unknown',
+            toolName: toolName,
             result: {
               error: errorMessage,
             },
@@ -106,7 +111,38 @@ export function detectRetryableError(
   }
 
   // Handle InvalidToolArgumentsError - AI SDK throws this for bad arguments
-  if (error instanceof Error && error.name === 'AI_InvalidToolArgumentsError') {
+  if (InvalidToolArgumentsError.isInstance(error)) {
+    // Extract detailed error information
+    let errorDetails = 'Invalid arguments provided';
+
+    // Extract Zod validation errors if available
+    if (
+      'cause' in error &&
+      error.cause &&
+      typeof error.cause === 'object' &&
+      'errors' in error.cause
+    ) {
+      const zodError = error.cause as {
+        errors: Array<{ path: Array<string | number>; message: string }>;
+      };
+      errorDetails = zodError.errors
+        .map((e) => `${e.path.length > 0 ? `${e.path.join('.')}: ` : ''}${e.message}`)
+        .join('; ');
+    }
+
+    // Add tool name if available
+    const toolName = 'toolName' in error ? String(error.toolName) : 'unknown tool';
+
+    // Add the actual arguments that were provided if available
+    let providedArgs = '';
+    if ('args' in error && error.args) {
+      try {
+        providedArgs = ` You provided: ${JSON.stringify(error.args, null, 2)}`;
+      } catch {
+        // If args can't be stringified, skip
+      }
+    }
+
     return {
       type: 'invalid-tool-arguments',
       originalError: error,
@@ -116,10 +152,9 @@ export function detectRetryableError(
           {
             type: 'tool-result',
             toolCallId: 'toolCallId' in error ? String(error.toolCallId) : 'unknown',
-            toolName: 'toolName' in error ? String(error.toolName) : 'unknown',
+            toolName: toolName,
             result: {
-              error:
-                'Invalid tool arguments provided. Please check the required parameters and try again.',
+              error: `Invalid arguments for ${toolName}. ${errorDetails}.${providedArgs} Please check the required parameters and try again.`,
             },
           },
         ],
@@ -129,14 +164,38 @@ export function detectRetryableError(
 
   // Handle API call errors (network, rate limits, server errors)
   if (APICallError.isInstance(error)) {
+    // Extract response details if available
+    let responseDetails = '';
+    if ('responseBody' in error && error.responseBody) {
+      const body =
+        typeof error.responseBody === 'string'
+          ? error.responseBody
+          : JSON.stringify(error.responseBody);
+      responseDetails = ` Details: ${body.substring(0, 200)}`;
+    }
+
     // Rate limit errors
     if (error.statusCode === 429) {
+      // Check for retry-after header
+      let retryAfter = '';
+      if (
+        'responseHeaders' in error &&
+        error.responseHeaders &&
+        typeof error.responseHeaders === 'object'
+      ) {
+        const headers = error.responseHeaders as Record<string, string | string[]>;
+        const retryAfterHeader = headers['retry-after'] || headers['Retry-After'];
+        if (retryAfterHeader) {
+          retryAfter = ` Please wait ${retryAfterHeader} seconds before retrying.`;
+        }
+      }
+
       return {
         type: 'rate-limit',
         originalError: error,
         healingMessage: {
           role: 'user',
-          content: 'Rate limit reached, please wait and try again.',
+          content: `Rate limit reached.${retryAfter}${responseDetails} I'll retry automatically after a delay.`,
         },
       };
     }
@@ -148,19 +207,20 @@ export function detectRetryableError(
         originalError: error,
         healingMessage: {
           role: 'user',
-          content: 'Server temporarily unavailable, retrying...',
+          content: `Server error (${error.statusCode}): The service is temporarily unavailable.${responseDetails} Retrying...`,
         },
       };
     }
 
     // Network timeout (often no status code)
     if (!error.statusCode || error.cause) {
+      const timeoutInfo = error.cause instanceof Error ? ` (${error.cause.message})` : '';
       return {
         type: 'network-timeout',
         originalError: error,
         healingMessage: {
           role: 'user',
-          content: 'Connection timeout, please retry.',
+          content: `Network connection error${timeoutInfo}. Please retry. If this persists, check your internet connection.`,
         },
       };
     }
@@ -263,260 +323,33 @@ export function detectRetryableError(
 
   // Catch-all: Any error not explicitly handled above is retryable
   // (unless it was already filtered out as non-retryable)
+  let detailedMessage = 'An error occurred';
+
+  if (error instanceof Error) {
+    detailedMessage = error.message;
+
+    // Add error name if different from message
+    if (error.name && error.name !== 'Error' && !error.message.includes(error.name)) {
+      detailedMessage = `${error.name}: ${detailedMessage}`;
+    }
+
+    // Add stack trace first line for debugging (if available)
+    if (error.stack && context) {
+      const firstStackLine = error.stack.split('\n')[1]?.trim();
+      if (firstStackLine) {
+        detailedMessage = `${detailedMessage} (at ${firstStackLine.substring(0, 100)})`;
+      }
+    }
+  } else {
+    detailedMessage = String(error);
+  }
+
   return {
     type: 'unknown-error',
     originalError: error,
     healingMessage: {
       role: 'user',
-      content: `An error occurred: ${error instanceof Error ? error.message : 'Unknown error'}. Please try again.`,
+      content: `${detailedMessage}. Please try again, working around this issue if possible.`,
     },
   };
-}
-
-/**
- * Executes agent stream with retry logic for recoverable errors
- */
-export async function retryableAgentStream<T extends ToolSet>({
-  agent,
-  messages,
-  options,
-  retryConfig = DEFAULT_RETRY_CONFIG,
-}: RetryableAgentStreamParams<T>): Promise<RetryResult<T>> {
-  let conversationHistory = [...messages];
-  let lastError: unknown;
-  let retryCount = 0;
-
-  while (retryCount <= retryConfig.maxRetries) {
-    try {
-      // Check for context compression before retry
-      if (shouldCompressHistory(conversationHistory)) {
-        conversationHistory = compressConversationHistory(conversationHistory);
-        // Compressed conversation history due to length
-      }
-
-      const stream = await agent.stream(conversationHistory, options);
-
-      // Return successful result
-      return {
-        stream,
-        conversationHistory,
-        retryCount,
-      };
-    } catch (error) {
-      lastError = error;
-
-      // Check if error is retryable
-      const retryableError = detectRetryableError(error);
-      if (!retryableError || retryCount >= retryConfig.maxRetries) {
-        // Not retryable or max retries reached
-        throw error;
-      }
-
-      // Call retry callback if provided
-      if (retryConfig.onRetry) {
-        retryConfig.onRetry(retryableError, retryCount + 1);
-      }
-
-      // Add healing message to conversation history
-      conversationHistory = [...conversationHistory, retryableError.healingMessage];
-
-      // Increment retry count
-      retryCount++;
-
-      // No backoff for healable errors - retry immediately
-    }
-  }
-
-  // This should never be reached, but TypeScript needs it
-  throw lastError || new Error('Retry loop exited unexpectedly');
-}
-
-/**
- * Enhanced version of retryableAgentStream that includes in-place tool healing support
- * Uses the AI SDK's onError callback to heal tool errors without restarting
- */
-export async function retryableAgentStreamWithHealing<T extends ToolSet>({
-  agent,
-  messages,
-  options,
-  retryConfig = DEFAULT_RETRY_CONFIG,
-}: RetryableAgentStreamParams<T>): Promise<RetryResult<T>> {
-  let conversationHistory = [...messages];
-  let healingAttempts = 0;
-  let streamCreationRetries = 0;
-
-  // Check for context compression
-  if (shouldCompressHistory(conversationHistory)) {
-    conversationHistory = compressConversationHistory(conversationHistory);
-  }
-
-  // Retry loop for stream creation errors (network issues, etc.)
-  while (streamCreationRetries <= retryConfig.maxRetries) {
-    try {
-      // Create enhanced options with healing onError callback
-      const enhancedOptions = {
-        ...options,
-        onError: (error: unknown) => {
-          // Check for NoSuchToolError
-          if (NoSuchToolError.isInstance(error) && healingAttempts < retryConfig.maxRetries) {
-            healingAttempts++;
-
-            // Log the healing attempt
-            if (retryConfig.onRetry) {
-              retryConfig.onRetry(
-                {
-                  type: 'no-such-tool',
-                  originalError: error,
-                  healingMessage: {
-                    role: 'tool',
-                    content: [
-                      {
-                        type: 'tool-result',
-                        toolCallId: 'toolCallId' in error ? String(error.toolCallId) : 'unknown',
-                        toolName: 'toolName' in error ? String(error.toolName) : 'unknown',
-                        result: {
-                          error: `Tool "${error.toolName}" is not available. Available tools: ${error.availableTools?.join(', ') || 'none'}. Please use one of the available tools instead.`,
-                        },
-                      },
-                    ],
-                  },
-                },
-                healingAttempts
-              );
-            }
-
-            // Return error object that will be injected as tool result
-            return {
-              error: `Tool "${error.toolName}" is not available. Available tools: ${error.availableTools?.join(', ') || 'none'}. Please use one of the available tools instead.`,
-            };
-          }
-
-          // Check for InvalidToolArgumentsError
-          if (
-            error instanceof Error &&
-            error.name === 'AI_InvalidToolArgumentsError' &&
-            healingAttempts < retryConfig.maxRetries
-          ) {
-            healingAttempts++;
-
-            // Extract Zod error details if available
-            let errorDetails = 'Invalid arguments provided';
-            if (
-              'cause' in error &&
-              error.cause &&
-              typeof error.cause === 'object' &&
-              'errors' in error.cause
-            ) {
-              const zodError = error.cause as {
-                errors: Array<{ path: Array<string | number>; message: string }>;
-              };
-              errorDetails = zodError.errors
-                .map((e) => `${e.path.join('.')}: ${e.message}`)
-                .join(', ');
-            }
-
-            // Log the healing attempt
-            if (retryConfig.onRetry) {
-              retryConfig.onRetry(
-                {
-                  type: 'invalid-tool-arguments',
-                  originalError: error,
-                  healingMessage: {
-                    role: 'tool',
-                    content: [
-                      {
-                        type: 'tool-result',
-                        toolCallId: 'toolCallId' in error ? String(error.toolCallId) : 'unknown',
-                        toolName: 'toolName' in error ? String(error.toolName) : 'unknown',
-                        result: {
-                          error: `Invalid tool arguments: ${errorDetails}. Please check the required parameters and try again.`,
-                        },
-                      },
-                    ],
-                  },
-                },
-                healingAttempts
-              );
-            }
-
-            // Return error object that will be injected as tool result
-            return {
-              error: `Invalid tool arguments: ${errorDetails}. Please check the required parameters and try again.`,
-            };
-          }
-
-          // Check for ToolExecutionError
-          if (ToolExecutionError.isInstance(error) && healingAttempts < retryConfig.maxRetries) {
-            healingAttempts++;
-
-            // Log the healing attempt
-            if (retryConfig.onRetry) {
-              retryConfig.onRetry(
-                {
-                  type: 'invalid-tool-arguments',
-                  originalError: error,
-                  healingMessage: {
-                    role: 'tool',
-                    content: [
-                      {
-                        type: 'tool-result',
-                        toolCallId: 'toolCallId' in error ? String(error.toolCallId) : 'unknown',
-                        toolName: 'toolName' in error ? String(error.toolName) : 'unknown',
-                        result: {
-                          error:
-                            'Tool execution failed. Please check your parameters and try again.',
-                        },
-                      },
-                    ],
-                  },
-                },
-                healingAttempts
-              );
-            }
-
-            // Return error object that will be injected as tool result
-            return {
-              error: 'Tool execution failed. Please check your parameters and try again.',
-            };
-          }
-
-          // For non-healable errors, return undefined to let them propagate
-          return undefined;
-        },
-      };
-
-      const stream = await agent.stream(conversationHistory, enhancedOptions as typeof options);
-
-      // Return successful result
-      return {
-        stream,
-        conversationHistory,
-        retryCount: streamCreationRetries, // Return stream creation retries, not healing attempts
-      };
-    } catch (error) {
-      // This catch block handles stream creation errors (not tool execution errors)
-      const retryableError = detectRetryableError(error);
-
-      if (!retryableError || streamCreationRetries >= retryConfig.maxRetries) {
-        // Not retryable or max retries reached
-        throw error;
-      }
-
-      // Call retry callback if provided
-      if (retryConfig.onRetry) {
-        retryConfig.onRetry(retryableError, streamCreationRetries + 1);
-      }
-
-      // Add healing message to conversation history for stream creation errors
-      conversationHistory = [...conversationHistory, retryableError.healingMessage];
-
-      // Increment retry count
-      streamCreationRetries++;
-
-      // No backoff for healable errors - retry immediately
-    }
-  }
-
-  // This should never be reached, but TypeScript needs it
-  throw new Error('Max stream creation retries reached');
 }

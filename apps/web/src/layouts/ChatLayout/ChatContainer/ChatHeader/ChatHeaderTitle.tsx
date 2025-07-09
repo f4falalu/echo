@@ -25,7 +25,7 @@ export const ChatHeaderTitle: React.FC<{
     <AnimatePresence mode="wait" initial={!isCompletedStream}>
       <motion.div
         {...(!isCompletedStream ? animation : {})}
-        key={chatTitle}
+        key={chatTitle || 'initial'}
         className="flex w-full items-center overflow-hidden">
         <EditableTitle
           className="w-full"

@@ -121,7 +121,7 @@ export const createMetricRoute = ({
     // Non-chat metric routes
 
     return createBusterRoute({
-      route: BusterRoutes.APP_METRIC_ID_CHART,
+      route: BusterRoutes.APP_METRIC_ID_RESULTS,
       ...baseParams
     });
   }

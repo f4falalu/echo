@@ -28,14 +28,19 @@ pub async fn initialize_chat(
         // Create new message
         let message = ChatMessage::new_with_messages(
             message_id,
-            ChatUserMessage {
-                request: prompt.clone(),
-                sender_id: user.id.clone(),
+            Some(ChatUserMessage {
+                request: Some(prompt.clone()),
+                sender_id: user.id,
                 sender_name: user.name.clone().unwrap_or_default(),
-                sender_avatar: None,
-            },
+                sender_avatar: user.avatar_url.clone(),
+            }),
             Vec::new(),
             Vec::new(),
+            None,
+            Utc::now(),
+            Utc::now(),
+            None,
+            true,
             None,
         );
 
@@ -63,14 +68,19 @@ pub async fn initialize_chat(
         // Create initial message
         let message = ChatMessage::new_with_messages(
             message_id,
-            ChatUserMessage {
-                request: prompt.clone(),
-                sender_id: user.id.clone(),
+            Some(ChatUserMessage {
+                request: Some(prompt.clone()),
+                sender_id: user.id,
                 sender_name: user.name.clone().unwrap_or_default(),
-                sender_avatar: None,
-            },
+                sender_avatar: user.avatar_url.clone(),
+            }),
             Vec::new(),
             Vec::new(),
+            None,
+            Utc::now(),
+            Utc::now(),
+            None,
+            true,
             None,
         );
 

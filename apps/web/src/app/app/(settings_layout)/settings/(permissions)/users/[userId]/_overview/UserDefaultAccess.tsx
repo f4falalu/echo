@@ -1,5 +1,5 @@
 import React from 'react';
-import { BusterOrganizationRoleLabels, type OrganizationUser } from '@/api/asset_interfaces';
+import { BusterOrganizationRoleLabels } from '@/api/asset_interfaces';
 import { useUpdateUser } from '@/api/buster_rest/users';
 import {
   Card,
@@ -13,6 +13,7 @@ import { AppTooltip } from '@/components/ui/tooltip';
 import { Text } from '@/components/ui/typography';
 import { useMemoizedFn } from '@/hooks';
 import { User } from '@buster/server-shared/user';
+import type { OrganizationUser } from '@buster/server-shared/organization';
 
 export const UserDefaultAccess: React.FC<{
   user: OrganizationUser;

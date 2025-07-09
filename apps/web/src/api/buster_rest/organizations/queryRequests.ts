@@ -1,19 +1,14 @@
 import { QueryClient, useMutation, useQuery } from '@tanstack/react-query';
 import { organizationQueryKeys } from '@/api/query_keys/organization';
-import { useMemoizedFn } from '@/hooks';
 import { createOrganization, getOrganizationUsers, getOrganizationUsers_server } from './requests';
 
 export const useGetOrganizationUsers = (organizationId: string) => {
-  const queryFn = useMemoizedFn(() => {
+  const queryFn = () => {
     return getOrganizationUsers({ organizationId });
-  });
-
-  const { queryKey } =
-    organizationQueryKeys['/organizations/users:getOrganizationUsers'](organizationId);
+  };
 
   return useQuery({
-    queryKey,
-    staleTime: 10 * 1000,
+    ...organizationQueryKeys.organizationUsers(organizationId),
     queryFn,
     enabled: !!organizationId
   });
@@ -24,8 +19,7 @@ export const prefetchGetOrganizationUsers = async (
   queryClientProp?: QueryClient
 ) => {
   const queryClient = queryClientProp || new QueryClient();
-  const queryOptions =
-    organizationQueryKeys['/organizations/users:getOrganizationUsers'](organizationId);
+  const queryOptions = organizationQueryKeys.organizationUsers(organizationId);
 
   await queryClient.prefetchQuery({
     ...queryOptions,

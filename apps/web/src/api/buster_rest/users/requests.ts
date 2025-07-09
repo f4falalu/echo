@@ -1,5 +1,5 @@
 import type { ShareAssetType } from '@buster/server-shared/share';
-import type { OrganizationUser } from '@/api/asset_interfaces/users';
+import type { OrganizationUser } from '@buster/server-shared/organization';
 import { BASE_URL } from '../config';
 import { serverFetch } from '../../createServerInstance';
 import { mainApi } from '../instances';

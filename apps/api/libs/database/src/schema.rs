@@ -341,6 +341,7 @@ diesel::table! {
         created_by -> Uuid,
         feedback -> Nullable<Text>,
         is_completed -> Bool,
+        post_processing_message -> Nullable<Jsonb>,
     }
 }
 

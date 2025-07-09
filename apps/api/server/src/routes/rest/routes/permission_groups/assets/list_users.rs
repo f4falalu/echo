@@ -21,6 +21,7 @@ pub struct UserInfo {
     pub id: Uuid,
     pub name: String,
     pub email: String,
+    pub avatar_url: Option<String>,
     pub assigned: bool,
 }
 
@@ -76,20 +77,22 @@ async fn list_users_handler(user: AuthenticatedUser, permission_group_id: Uuid) 
             users::id,
             users::name.nullable(),
             users::email,
+            users::avatar_url.nullable(),
             diesel::dsl::sql::<diesel::sql_types::Bool>(
                 "permission_groups_to_identities.identity_id IS NOT NULL",
             ),
         ))
         .order_by(users::created_at.desc())
-        .load::<(Uuid, Option<String>, String, bool)>(&mut *conn)
+        .load::<(Uuid, Option<String>, String, Option<String>, bool)>(&mut *conn)
         .await?;
 
     Ok(users
         .into_iter()
-        .map(|(id, name, email, assigned)| UserInfo {
+        .map(|(id, name, email, avatar_url, assigned)| UserInfo {
             id,
-            name: name.unwrap_or("".to_string()),
+            name: name.unwrap_or_else(|| email.clone()),
             email,
+            avatar_url,
             assigned,
         })
         .collect())

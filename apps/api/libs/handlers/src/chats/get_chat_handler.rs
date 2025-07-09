@@ -28,7 +28,7 @@ pub struct ChatWithUser {
     pub user_id: Uuid,
     pub user_name: Option<String>,
     pub user_email: String,
-    pub user_attributes: Value,
+    pub user_avatar_url: Option<String>,
 }
 
 #[derive(Queryable)]
@@ -42,9 +42,10 @@ pub struct MessageWithUser {
     pub updated_at: DateTime<Utc>,
     pub user_id: Uuid,
     pub user_name: Option<String>,
-    pub user_attributes: Value,
+    pub user_avatar_url: Option<String>,
     pub feedback: Option<String>,
     pub is_completed: bool,
+    pub post_processing_message: Option<Value>,
 }
 
 #[derive(Queryable)]
@@ -126,9 +127,10 @@ pub async fn get_chat_handler(
                     messages::updated_at,
                     users::id,
                     users::name.nullable(),
-                    users::attributes,
+                    users::avatar_url.nullable(),
                     messages::feedback.nullable(),
                     messages::is_completed,
+                    messages::post_processing_message.nullable(),
                 ))
                 .load::<MessageWithUser>(&mut conn)
                 .await
@@ -181,7 +183,7 @@ pub async fn get_chat_handler(
         user_id: chat_with_permission.chat.created_by,
         user_name: None,              // We'll need to fetch this
         user_email: String::new(),    // We'll need to fetch this
-        user_attributes: Value::Null, // We'll need to fetch this
+        user_avatar_url: None,        // We'll need to fetch this
     };
 
     // Fetch the creator's information
@@ -196,8 +198,8 @@ pub async fn get_chat_handler(
         tokio::spawn(async move {
             users::table
                 .filter(users::id.eq(creator_id))
-                .select((users::name.nullable(), users::email, users::attributes))
-                .first::<(Option<String>, String, Value)>(&mut conn)
+                .select((users::name.nullable(), users::email, users::avatar_url.nullable()))
+                .first::<(Option<String>, String, Option<String>)>(&mut conn)
                 .await
         })
     };
@@ -227,7 +229,7 @@ pub async fn get_chat_handler(
     let (permissions_result, public_info_result) = permissions_and_public_info;
 
     // Unpack creator info
-    let (creator_name, creator_email, creator_attributes) = creator_info;
+    let (creator_name, creator_email, creator_avatar_url) = creator_info;
 
     // Complete the thread with creator info
     let thread = ChatWithUser {
@@ -238,19 +240,13 @@ pub async fn get_chat_handler(
         user_id: thread.user_id,
         user_name: creator_name,
         user_email: creator_email,
-        user_attributes: creator_attributes,
+        user_avatar_url: creator_avatar_url,
     };
 
     // Transform messages into ThreadMessage format
     let thread_messages: Vec<ChatMessage> = messages
         .into_iter()
         .map(|msg| {
-            let sender_avatar = msg
-                .user_attributes
-                .get("avatar")
-                .and_then(|v| v.as_str())
-                .map(String::from);
-
             // Convert response_messages and reasoning to Vec<Value>
             let response_messages = msg
                 .response_messages
@@ -269,7 +265,7 @@ pub async fn get_chat_handler(
                     request: Some(request_message),
                     sender_id: msg.user_id,
                     sender_name: msg.user_name.unwrap_or_else(|| "Unknown".to_string()),
-                    sender_avatar,
+                    sender_avatar: msg.user_avatar_url,
                 })
             } else {
                 None
@@ -285,16 +281,13 @@ pub async fn get_chat_handler(
                 msg.updated_at,
                 msg.feedback,
                 msg.is_completed,
+                msg.post_processing_message
             )
         })
         .collect();
 
     // Get avatar from creator attributes
-    let created_by_avatar = thread
-        .user_attributes
-        .get("avatar")
-        .and_then(|v| v.as_str())
-        .map(String::from);
+    let created_by_avatar = thread.user_avatar_url;
 
     // Process permissions data
     let individual_permissions = match permissions_result {

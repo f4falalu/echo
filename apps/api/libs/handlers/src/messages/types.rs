@@ -22,6 +22,7 @@ pub struct ChatMessage {
     pub final_reasoning_message: Option<String>,
     pub feedback: Option<String>,
     pub is_completed: bool,
+    pub post_processing_message: Option<Value>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -57,6 +58,7 @@ impl ChatMessage {
             final_reasoning_message: None,
             feedback: None,
             is_completed: false,
+            post_processing_message: None,
         }
     }
 
@@ -70,6 +72,7 @@ impl ChatMessage {
         updated_at: chrono::DateTime<chrono::Utc>,
         feedback: Option<String>,
         is_completed: bool,
+        post_processing_message: Option<Value>,
     ) -> Self {
         let response_message_ids: Vec<String> = response_messages
             .iter()
@@ -109,6 +112,7 @@ impl ChatMessage {
             final_reasoning_message,
             feedback,
             is_completed,
+            post_processing_message,
         }
     }
 }

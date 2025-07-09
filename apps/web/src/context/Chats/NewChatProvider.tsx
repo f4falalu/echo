@@ -16,7 +16,7 @@ import { useAppLayoutContextSelector } from '../BusterAppLayout';
 import { BusterRoutes } from '@/routes/busterRoutes';
 
 export const useBusterNewChat = () => {
-  const { mutateAsync: startNewChat } = useStartNewChat();
+  const { mutateAsync: startNewChat, isPending: isSubmittingChat } = useStartNewChat();
   const onChangePage = useAppLayoutContextSelector((x) => x.onChangePage);
   const getChatMessageMemoized = useGetChatMessageMemoized();
   const getChatMemoized = useGetChatMemoized();
@@ -56,7 +56,6 @@ export const useBusterNewChat = () => {
         dashboard_id: dashboardId,
         message_id: messageId
       });
-
 
       initializeNewChat(res);
     }
@@ -149,7 +148,8 @@ export const useBusterNewChat = () => {
     onFollowUpChat,
     onStartChatFromFile,
     onReplaceMessageInChat,
-    onStopChat
+    onStopChat,
+    isSubmittingChat
   };
 };
 

@@ -37,12 +37,17 @@ pub enum MessageFeedback {
     diesel::FromSqlRow,
 )]
 #[diesel(sql_type = sql_types::UserOrganizationRoleEnum)]
-#[serde(rename_all = "camelCase")]
+#[serde(rename_all = "snake_case")]
 pub enum UserOrganizationRole {
+    #[serde(alias = "workspaceAdmin")]
     WorkspaceAdmin,
+    #[serde(alias = "dataAdmin")]
     DataAdmin,
+    #[serde(alias = "querier")]
     Querier,
+    #[serde(alias = "restrictedQuerier")]
     RestrictedQuerier,
+    #[serde(alias = "viewer")]
     Viewer,
 }
 
