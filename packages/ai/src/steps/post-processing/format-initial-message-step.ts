@@ -152,15 +152,17 @@ export const formatInitialMessageStepExecution = async ({
 
 User: ${inputData.userName}
 
-Issues Flagged: ${issuesAndAssumptions.flagged_issues}
+Issues Flagged: 
+${issuesAndAssumptions.flagged_issues}
 
-Major Assumptions Identified: ${
-      issuesAndAssumptions.major_assumptions.length > 0
-        ? issuesAndAssumptions.major_assumptions
-            .map((a) => `- ${a.descriptiveTitle}: ${a.explanation}`)
-            .join('\n')
-        : 'No major assumptions identified'
-    }
+Major Assumptions Identified:
+${
+  issuesAndAssumptions.major_assumptions.length > 0
+    ? issuesAndAssumptions.major_assumptions
+        .map((a) => `- ${a.descriptiveTitle}: ${a.explanation}`)
+        .join('\n\n')
+    : 'No major assumptions identified'
+}
 
 Generate a cohesive summary with title for the data team.`;
 
