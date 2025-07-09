@@ -126,6 +126,15 @@ ${
     : 'No major assumptions identified'
 }
 
+${
+  inputData.conversationHistory && inputData.conversationHistory.length > 0
+    ? `\nChat History:
+\`\`\`
+${JSON.stringify(inputData.conversationHistory, null, 2)}
+\`\`\``
+    : ''
+}
+
 Generate a concise update message for the data team.`;
 
     const messages: CoreMessage[] = standardizeMessages(contextMessage);
