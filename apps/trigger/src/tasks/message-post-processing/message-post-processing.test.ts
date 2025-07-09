@@ -17,12 +17,21 @@ vi.mock('./helpers', () => ({
   buildWorkflowInput: vi.fn(),
   validateMessageId: vi.fn((id) => id),
   validateWorkflowOutput: vi.fn((output) => output),
+  getExistingSlackMessageForChat: vi.fn(),
 }));
 
 vi.mock('@buster/database', () => ({
   getDb: vi.fn(),
   eq: vi.fn((a, b) => ({ type: 'eq', a, b })),
   messages: { id: 'messages.id' },
+  getBraintrustMetadata: vi.fn(() => Promise.resolve({
+    userName: 'John Doe',
+    userId: 'user-123',
+    organizationName: 'Test Org',
+    organizationId: 'org-123',
+    messageId: 'msg-12345',
+    chatId: 'chat-123',
+  })),
 }));
 
 vi.mock('@buster/ai/workflows/post-processing-workflow', () => ({
@@ -94,6 +103,7 @@ describe('messagePostProcessingTask', () => {
     vi.mocked(helpers.fetchConversationHistory).mockResolvedValue(conversationMessages);
     vi.mocked(helpers.fetchPreviousPostProcessingMessages).mockResolvedValue([]);
     vi.mocked(helpers.fetchUserDatasets).mockResolvedValue([]);
+    vi.mocked(helpers.getExistingSlackMessageForChat).mockResolvedValue({ exists: false });
     vi.mocked(helpers.buildWorkflowInput).mockReturnValue({
       conversationHistory: [{ role: 'user', content: 'Hello' }],
       userName: 'John Doe',
@@ -101,6 +111,7 @@ describe('messagePostProcessingTask', () => {
       userId: 'user-123',
       chatId: 'chat-123',
       isFollowUp: false,
+      isSlackFollowUp: false,
       previousMessages: [],
       datasets: '',
     });
@@ -167,6 +178,7 @@ describe('messagePostProcessingTask', () => {
     vi.mocked(helpers.fetchConversationHistory).mockResolvedValue([]);
     vi.mocked(helpers.fetchPreviousPostProcessingMessages).mockResolvedValue(previousResults);
     vi.mocked(helpers.fetchUserDatasets).mockResolvedValue([]);
+    vi.mocked(helpers.getExistingSlackMessageForChat).mockResolvedValue({ exists: true });
     vi.mocked(helpers.buildWorkflowInput).mockReturnValue({
       conversationHistory: undefined,
       userName: 'John Doe',
@@ -174,6 +186,7 @@ describe('messagePostProcessingTask', () => {
       userId: 'user-123',
       chatId: 'chat-123',
       isFollowUp: true,
+      isSlackFollowUp: true,
       previousMessages: ['{"assumptions":["Previous assumption"]}'],
       datasets: '',
     });
@@ -216,6 +229,7 @@ describe('messagePostProcessingTask', () => {
     vi.mocked(helpers.fetchConversationHistory).mockResolvedValue([]);
     vi.mocked(helpers.fetchPreviousPostProcessingMessages).mockResolvedValue([]);
     vi.mocked(helpers.fetchUserDatasets).mockResolvedValue([]);
+    vi.mocked(helpers.getExistingSlackMessageForChat).mockResolvedValue({ exists: false });
     vi.mocked(helpers.buildWorkflowInput).mockReturnValue({
       conversationHistory: undefined,
       userName: 'John Doe',
@@ -223,6 +237,7 @@ describe('messagePostProcessingTask', () => {
       userId: 'user-123',
       chatId: 'chat-123',
       isFollowUp: false,
+      isSlackFollowUp: false,
       previousMessages: [],
       datasets: '',
     });
@@ -284,6 +299,7 @@ describe('messagePostProcessingTask', () => {
     vi.mocked(helpers.fetchConversationHistory).mockResolvedValue([]);
     vi.mocked(helpers.fetchPreviousPostProcessingMessages).mockResolvedValue([]);
     vi.mocked(helpers.fetchUserDatasets).mockResolvedValue([]);
+    vi.mocked(helpers.getExistingSlackMessageForChat).mockResolvedValue({ exists: false });
     vi.mocked(helpers.buildWorkflowInput).mockReturnValue({
       conversationHistory: undefined,
       userName: 'John Doe',
@@ -291,6 +307,7 @@ describe('messagePostProcessingTask', () => {
       userId: 'user-123',
       chatId: 'chat-123',
       isFollowUp: false,
+      isSlackFollowUp: false,
       previousMessages: [],
       datasets: '',
     });

@@ -120,13 +120,19 @@ export const messagePostProcessingTask: ReturnType<
       });
 
       // Step 2: Fetch all required data concurrently
-      const [conversationMessages, previousPostProcessingResults, datasets, braintrustMetadata] =
-        await Promise.all([
-          fetchConversationHistory(messageContext.chatId),
-          fetchPreviousPostProcessingMessages(messageContext.chatId, messageContext.createdAt),
-          fetchUserDatasets(messageContext.createdBy),
-          getBraintrustMetadata({ messageId: payload.messageId }),
-        ]);
+      const [
+        conversationMessages,
+        previousPostProcessingResults,
+        datasets,
+        braintrustMetadata,
+        existingSlackMessage,
+      ] = await Promise.all([
+        fetchConversationHistory(messageContext.chatId),
+        fetchPreviousPostProcessingMessages(messageContext.chatId, messageContext.createdAt),
+        fetchUserDatasets(messageContext.createdBy),
+        getBraintrustMetadata({ messageId: payload.messageId }),
+        getExistingSlackMessageForChat(messageContext.chatId),
+      ]);
 
       logger.log('Fetched required data', {
         messageId: payload.messageId,
@@ -134,6 +140,7 @@ export const messagePostProcessingTask: ReturnType<
         previousPostProcessingCount: previousPostProcessingResults.length,
         datasetsCount: datasets.length,
         braintrustMetadata, // Log the metadata to verify it's working
+        slackMessageExists: existingSlackMessage?.exists || false,
       });
 
       // Step 3: Build workflow input
@@ -141,12 +148,14 @@ export const messagePostProcessingTask: ReturnType<
         messageContext,
         conversationMessages,
         previousPostProcessingResults,
-        datasets
+        datasets,
+        existingSlackMessage?.exists || false
       );
 
       logger.log('Built workflow input', {
         messageId: payload.messageId,
         isFollowUp: workflowInput.isFollowUp,
+        isSlackFollowUp: workflowInput.isSlackFollowUp,
         previousMessagesCount: workflowInput.previousMessages.length,
         hasConversationHistory: !!workflowInput.conversationHistory,
         datasetsLength: workflowInput.datasets.length,
