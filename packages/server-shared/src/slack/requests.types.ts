@@ -1,15 +1,17 @@
 import { z } from 'zod/v4';
 
 // POST /api/v2/slack/auth/init
-export const InitiateOAuthSchema = z.object({
-  metadata: z
-    .object({
-      return_url: z.string().optional(),
-      source: z.string().optional(),
-      project_id: z.string().uuid().optional(),
-    })
-    .optional(),
-});
+export const InitiateOAuthSchema = z
+  .object({
+    metadata: z
+      .object({
+        return_url: z.string().optional(),
+        source: z.string().optional(),
+        project_id: z.string().uuid().optional(),
+      })
+      .optional(),
+  })
+  .optional();
 
 export type InitiateOAuthRequest = z.infer<typeof InitiateOAuthSchema>;
 

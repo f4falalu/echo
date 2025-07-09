@@ -118,12 +118,12 @@ ${issuesAndAssumptions.flagged_issues}
 
 Major Assumptions Identified: 
 ${
-      issuesAndAssumptions.major_assumptions.length > 0
-        ? issuesAndAssumptions.major_assumptions
-            .map((a) => `- ${a.descriptiveTitle}: ${a.explanation}`)
-            .join('\n\n')
-        : 'No major assumptions identified'
-    }
+  issuesAndAssumptions.major_assumptions.length > 0
+    ? issuesAndAssumptions.major_assumptions
+        .map((a) => `- ${a.descriptiveTitle}: ${a.explanation}`)
+        .join('\n\n')
+    : 'No major assumptions identified'
+}
 
 Generate a concise update message for the data team.`;
 

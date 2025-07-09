@@ -10,7 +10,7 @@ import type {
 } from '@buster/server-shared/slack';
 
 // POST /api/v2/slack/auth/init
-export const initiateSlackOAuth = async (data: InitiateOAuthRequest) => {
+export const initiateSlackOAuth = async (data?: InitiateOAuthRequest) => {
   return mainApiV2.post<InitiateOAuthResponse>('/slack/auth/init', data).then((res) => res.data);
 };
 
@@ -26,7 +26,9 @@ export const removeSlackIntegration = async () => {
 
 // PUT /api/v2/slack/integration
 export const updateSlackIntegration = async (data: UpdateIntegrationRequest) => {
-  return mainApiV2.put<UpdateIntegrationResponse>('/slack/integration', data).then((res) => res.data);
+  return mainApiV2
+    .put<UpdateIntegrationResponse>('/slack/integration', data)
+    .then((res) => res.data);
 };
 
 // GET /api/v2/slack/channels
