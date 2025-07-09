@@ -13,7 +13,7 @@ vi.mock('@buster/slack', () => ({
 // Mock environment variables before importing
 vi.stubEnv('SLACK_CLIENT_ID', 'test-client-id');
 vi.stubEnv('SLACK_CLIENT_SECRET', 'test-client-secret');
-vi.stubEnv('SLACK_REDIRECT_URI', 'https://test.com/callback');
+vi.stubEnv('SERVER_URL', 'https://test.com');
 vi.stubEnv('SLACK_INTEGRATION_ENABLED', 'true');
 
 // Import after mocking env vars
@@ -27,7 +27,7 @@ describe('SlackOAuthService', () => {
     // Reset env vars to defaults
     vi.stubEnv('SLACK_CLIENT_ID', 'test-client-id');
     vi.stubEnv('SLACK_CLIENT_SECRET', 'test-client-secret');
-    vi.stubEnv('SLACK_REDIRECT_URI', 'https://test.com/callback');
+    vi.stubEnv('SERVER_URL', 'https://test.com');
     vi.stubEnv('SLACK_INTEGRATION_ENABLED', 'true');
     service = new SlackOAuthService();
   });

@@ -2,7 +2,7 @@ import React from 'react';
 import { Title, Paragraph } from '@/components/ui/typography';
 import { cn } from '@/lib/classMerge';
 
-interface SecurityCardsProps {
+interface SettingsCardsProps {
   title: string;
   description: string;
   cards: {
@@ -10,7 +10,7 @@ interface SecurityCardsProps {
   }[];
 }
 
-export const SecurityCards: React.FC<SecurityCardsProps> = ({ title, description, cards }) => {
+export const SettingsCards: React.FC<SettingsCardsProps> = ({ title, description, cards }) => {
   return (
     <div className="flex flex-col space-y-3.5">
       <div className="flex flex-col space-y-1.5">
@@ -20,17 +20,17 @@ export const SecurityCards: React.FC<SecurityCardsProps> = ({ title, description
         <Paragraph variant="secondary">{description}</Paragraph>
       </div>
       {cards.map((card, index) => (
-        <SecurityCard key={index} sections={card.sections} />
+        <SettingsCard key={index} sections={card.sections} />
       ))}
     </div>
   );
 };
 
-const SecurityCard = ({ sections }: { sections: React.ReactNode[] }) => {
+const SettingsCard = ({ sections }: { sections: React.ReactNode[] }) => {
   return (
     <div className="flex flex-col rounded border">
       {sections.map((section, index) => (
-        <div key={index} className={cn(index !== sections.length - 1 && 'border-b', 'px-4 py-2.5')}>
+        <div key={index} className={cn(index !== sections.length - 1 && 'border-b', 'px-4 py-3.5')}>
           {section}
         </div>
       ))}

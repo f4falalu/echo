@@ -1,9 +1,14 @@
 import { getUserOrganizationId } from '@buster/database';
 import {
+  type GetChannelsResponse,
+  type GetIntegrationResponse,
+  type InitiateOAuthResponse,
   InitiateOAuthSchema,
   OAuthCallbackSchema,
+  type RemoveIntegrationResponse,
   SlackError,
-  SlackErrorCodes,
+  type SlackErrorResponse,
+  type UpdateIntegrationResponse,
   UpdateIntegrationSchema,
 } from '@buster/server-shared/slack';
 import { SlackChannelService } from '@buster/slack';
@@ -34,14 +39,14 @@ export class SlackHandler {
    * POST /api/v2/slack/auth/init
    * Initiate OAuth flow
    */
-  async initiateOAuth(c: Context) {
+  async initiateOAuth(c: Context): Promise<Response> {
     try {
       // Get service instance (lazy initialization)
       const slackOAuthService = this.getSlackOAuthService();
 
       // Check if service is available
       if (!slackOAuthService) {
-        return c.json(
+        return c.json<SlackErrorResponse>(
           {
             error: 'Slack integration is not configured',
             code: 'INTEGRATION_NOT_CONFIGURED',
@@ -52,7 +57,7 @@ export class SlackHandler {
 
       // Check if integration is enabled
       if (!slackOAuthService.isEnabled()) {
-        return c.json(
+        return c.json<SlackErrorResponse>(
           {
             error: 'Slack integration is not enabled',
             code: 'INTEGRATION_DISABLED',
@@ -75,10 +80,10 @@ export class SlackHandler {
       }
 
       // Parse request body
-      const body = await c.req.json().catch(() => ({}));
+      const body: unknown = await c.req.json().catch(() => ({}));
       const parsed = InitiateOAuthSchema.safeParse(body);
 
-      const metadata = parsed.success ? parsed.data.metadata : undefined;
+      const metadata = parsed.success ? parsed.data?.metadata : undefined;
 
       // Add IP address to metadata
       const enrichedMetadata = {
@@ -93,7 +98,10 @@ export class SlackHandler {
         metadata: enrichedMetadata,
       });
 
-      return c.json(result);
+      return c.json<InitiateOAuthResponse>({
+        auth_url: result.authUrl,
+        state: result.state,
+      });
     } catch (error) {
       console.error('Failed to initiate OAuth:', error);
 
@@ -121,18 +129,21 @@ export class SlackHandler {
    * GET /api/v2/slack/auth/callback
    * Handle OAuth callback from Slack
    */
-  async handleOAuthCallback(c: Context) {
+  async handleOAuthCallback(c: Context): Promise<Response> {
     try {
+      // Get base URL from environment
+      const baseUrl = process.env.BUSTER_URL || '';
+
       // Get service instance (lazy initialization)
       const slackOAuthService = this.getSlackOAuthService();
 
       // Check if service is available
       if (!slackOAuthService) {
-        return c.redirect('/settings/integrations?status=error&error=not_configured');
+        return c.redirect(`${baseUrl}/app/settings/integrations?status=error&error=not_configured`);
       }
 
       // Parse query parameters
-      const query = c.req.query();
+      const query = c.req.query() as Record<string, string>;
       console.info('OAuth callback received', {
         hasCode: !!query.code,
         hasState: !!query.state,
@@ -145,15 +156,17 @@ export class SlackHandler {
         // Handle user denial
         if (query.error === 'access_denied') {
           console.info('OAuth flow cancelled by user');
-          return c.redirect('/settings/integrations?status=cancelled');
+          return c.redirect(`${baseUrl}/app/settings/integrations?status=cancelled`);
         }
 
         console.error('Invalid OAuth callback parameters:', {
-          errors: parsed.error.errors,
+          errors: parsed.error.issues,
           providedKeys: Object.keys(query),
           expectedKeys: ['code', 'state'],
         });
-        return c.redirect('/settings/integrations?status=error&error=invalid_parameters');
+        return c.redirect(
+          `${baseUrl}/app/settings/integrations?status=error&error=invalid_parameters`
+        );
       }
 
       // Handle OAuth callback
@@ -170,16 +183,16 @@ export class SlackHandler {
           resultKeys: Object.keys(result),
         });
         const errorParam = encodeURIComponent(result.error || 'unknown_error');
-        return c.redirect(`/settings/integrations?status=error&error=${errorParam}`);
+        return c.redirect(`${baseUrl}/app/settings/integrations?status=error&error=${errorParam}`);
       }
 
       // Use metadata to determine return URL
-      const returnUrl = result.metadata?.returnUrl || '/settings/integrations';
+      const returnUrl = result.metadata?.returnUrl || '/app/settings/integrations';
       const workspaceParam = result.teamName
         ? `&workspace=${encodeURIComponent(result.teamName)}`
         : '';
 
-      return c.redirect(`${returnUrl}?status=success${workspaceParam}`);
+      return c.redirect(`${baseUrl}${returnUrl}?status=success${workspaceParam}`);
     } catch (error) {
       console.error('OAuth callback error:', {
         errorType: error?.constructor?.name || 'Unknown',
@@ -189,7 +202,7 @@ export class SlackHandler {
       });
       const errorMessage = error instanceof Error ? error.message : 'callback_failed';
       return c.redirect(
-        `/settings/integrations?status=error&error=${encodeURIComponent(errorMessage)}`
+        `${baseUrl}/app/settings/integrations?status=error&error=${encodeURIComponent(errorMessage)}`
       );
     }
   }
@@ -198,14 +211,14 @@ export class SlackHandler {
    * GET /api/v2/slack/integration
    * Get current integration status
    */
-  async getIntegration(c: Context) {
+  async getIntegration(c: Context): Promise<Response> {
     try {
       // Get service instance (lazy initialization)
       const slackOAuthService = this.getSlackOAuthService();
 
       // Check if service is available
       if (!slackOAuthService) {
-        return c.json(
+        return c.json<SlackErrorResponse>(
           {
             error: 'Slack integration is not configured',
             code: 'INTEGRATION_NOT_CONFIGURED',
@@ -228,7 +241,19 @@ export class SlackHandler {
 
       const status = await slackOAuthService.getIntegrationStatus(organizationGrant.organizationId);
 
-      return c.json(status);
+      return c.json<GetIntegrationResponse>({
+        connected: status.connected,
+        integration: status.integration
+          ? {
+              id: status.integration.id,
+              team_name: status.integration.teamName,
+              installed_at: status.integration.installedAt,
+              team_domain: status.integration.teamDomain,
+              last_used_at: status.integration.lastUsedAt,
+              default_channel: status.integration.defaultChannel,
+            }
+          : undefined,
+      });
     } catch (error) {
       console.error('Failed to get integration status:', error);
 
@@ -248,14 +273,14 @@ export class SlackHandler {
    * DELETE /api/v2/slack/integration
    * Remove Slack integration
    */
-  async removeIntegration(c: Context) {
+  async removeIntegration(c: Context): Promise<Response> {
     try {
       // Get service instance (lazy initialization)
       const slackOAuthService = this.getSlackOAuthService();
 
       // Check if service is available
       if (!slackOAuthService) {
-        return c.json(
+        return c.json<SlackErrorResponse>(
           {
             error: 'Slack integration is not configured',
             code: 'INTEGRATION_NOT_CONFIGURED',
@@ -289,7 +314,7 @@ export class SlackHandler {
         );
       }
 
-      return c.json({
+      return c.json<RemoveIntegrationResponse>({
         message: 'Slack integration removed successfully',
       });
     } catch (error) {
@@ -311,14 +336,14 @@ export class SlackHandler {
    * PUT /api/v2/slack/integration
    * Update Slack integration settings
    */
-  async updateIntegration(c: Context) {
+  async updateIntegration(c: Context): Promise<Response> {
     try {
       // Get service instance (lazy initialization)
       const slackOAuthService = this.getSlackOAuthService();
 
       // Check if service is available
       if (!slackOAuthService) {
-        return c.json(
+        return c.json<SlackErrorResponse>(
           {
             error: 'Slack integration is not configured',
             code: 'INTEGRATION_NOT_CONFIGURED',
@@ -340,12 +365,12 @@ export class SlackHandler {
       }
 
       // Parse request body
-      const body = await c.req.json().catch(() => ({}));
+      const body: unknown = await c.req.json().catch(() => ({}));
       const parsed = UpdateIntegrationSchema.safeParse(body);
 
       if (!parsed.success) {
         throw new SlackError(
-          `Invalid request body: ${parsed.error.errors.map((e) => e.message).join(', ')}`,
+          `Invalid request body: ${parsed.error.issues.map((e) => e.message).join(', ')}`,
           400,
           'INVALID_REQUEST_BODY'
         );
@@ -363,7 +388,7 @@ export class SlackHandler {
         await updateDefaultChannel(integration.id, parsed.data.default_channel);
       }
 
-      return c.json({
+      return c.json<UpdateIntegrationResponse>({
         message: 'Integration updated successfully',
         ...parsed.data,
       });
@@ -386,14 +411,14 @@ export class SlackHandler {
    * GET /api/v2/slack/channels
    * Get public channels for the current integration
    */
-  async getChannels(c: Context) {
+  async getChannels(c: Context): Promise<Response> {
     try {
       // Get service instance (lazy initialization)
       const slackOAuthService = this.getSlackOAuthService();
 
       // Check if service is available
       if (!slackOAuthService) {
-        return c.json(
+        return c.json<SlackErrorResponse>(
           {
             error: 'Slack integration is not configured',
             code: 'INTEGRATION_NOT_CONFIGURED',
@@ -418,7 +443,7 @@ export class SlackHandler {
       const integration = await slackHelpers.getActiveIntegration(organizationGrant.organizationId);
 
       if (!integration) {
-        return c.json(
+        return c.json<SlackErrorResponse>(
           {
             error: 'No active Slack integration found',
             code: 'INTEGRATION_NOT_FOUND',
@@ -446,7 +471,7 @@ export class SlackHandler {
       await slackHelpers.updateLastUsedAt(integration.id);
 
       // Return only id and name as requested
-      return c.json({
+      return c.json<GetChannelsResponse>({
         channels: channels.map((channel) => ({
           id: channel.id,
           name: channel.name,

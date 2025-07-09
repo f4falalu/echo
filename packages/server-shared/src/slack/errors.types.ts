@@ -18,7 +18,7 @@ export class SlackError extends Error {
 }
 
 // Common error codes
-export const SlackErrorCodes = {
+export const SlackErrorCodes = Object.freeze({
   INTEGRATION_NOT_CONFIGURED: 'INTEGRATION_NOT_CONFIGURED',
   INTEGRATION_DISABLED: 'INTEGRATION_DISABLED',
   INTEGRATION_EXISTS: 'INTEGRATION_EXISTS',
@@ -32,6 +32,6 @@ export const SlackErrorCodes = {
   INVALID_TOKEN: 'INVALID_TOKEN',
   RATE_LIMITED: 'RATE_LIMITED',
   GET_CHANNELS_ERROR: 'GET_CHANNELS_ERROR',
-} as const;
+});
 
 export type SlackErrorCode = (typeof SlackErrorCodes)[keyof typeof SlackErrorCodes];

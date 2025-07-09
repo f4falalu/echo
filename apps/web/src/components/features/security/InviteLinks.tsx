@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { SecurityCards } from './SecurityCards';
+import { SettingsCards } from '../settings/SettingsCard';
 import { Switch } from '@/components/ui/switch';
 import { Input } from '@/components/ui/inputs';
 import { Button } from '@/components/ui/buttons';
@@ -34,7 +34,7 @@ export const InviteLinks = React.memo(() => {
   };
 
   return (
-    <SecurityCards
+    <SettingsCards
       title="Invite links"
       description="A uniquely generated invite link allows anyone with the link to join your workspace"
       cards={[

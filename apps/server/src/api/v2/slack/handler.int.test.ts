@@ -12,7 +12,6 @@ const skipIfNoEnv =
   !process.env.DATABASE_URL ||
   !process.env.SLACK_CLIENT_ID ||
   !process.env.SLACK_CLIENT_SECRET ||
-  !process.env.SLACK_REDIRECT_URI ||
   !process.env.SUPABASE_URL ||
   !process.env.SUPABASE_SERVICE_ROLE_KEY;
 
@@ -80,7 +79,6 @@ describe.skipIf(skipIfNoEnv)('SlackHandler Integration Tests', () => {
     // Ensure all required env vars are set for the service
     process.env.SLACK_CLIENT_ID = process.env.SLACK_CLIENT_ID || 'test-client-id';
     process.env.SLACK_CLIENT_SECRET = process.env.SLACK_CLIENT_SECRET || 'test-client-secret';
-    process.env.SLACK_REDIRECT_URI = process.env.SLACK_REDIRECT_URI || 'https://test.com/callback';
 
     // Create unique test organization and user
     const { organizationId, userId } = await createTestOrgAndUser();
@@ -287,7 +285,7 @@ describe.skipIf(skipIfNoEnv)('SlackHandler Integration Tests', () => {
       });
 
       expect(response.status).toBe(302);
-      expect(response.headers.get('Location')).toBe('/settings/integrations?status=cancelled');
+      expect(response.headers.get('Location')).toBe('/app/settings/integrations?status=cancelled');
     });
 
     it('should redirect on invalid parameters', async () => {
@@ -297,7 +295,7 @@ describe.skipIf(skipIfNoEnv)('SlackHandler Integration Tests', () => {
 
       expect(response.status).toBe(302);
       expect(response.headers.get('Location')).toBe(
-        '/settings/integrations?status=error&error=invalid_parameters'
+        '/app/settings/integrations?status=error&error=invalid_parameters'
       );
     });
 
@@ -355,7 +353,7 @@ describe.skipIf(skipIfNoEnv)('SlackHandler Integration Tests', () => {
 
       expect(response.status).toBe(302);
       expect(response.headers.get('Location')).toBe(
-        '/settings/integrations?status=error&error=Invalid%20or%20expired%20OAuth%20state'
+        '/app/settings/integrations?status=error&error=Invalid%20or%20expired%20OAuth%20state'
       );
     });
   });

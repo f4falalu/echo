@@ -1,4 +1,4 @@
-import { SettingsPageHeader } from '../../../_components/SettingsPageHeader';
+import { SettingsPageHeader } from '@/components/features/settings';
 import { DatasourceList } from './_DatasourceList';
 
 export default function Page() {

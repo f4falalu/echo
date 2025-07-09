@@ -47,6 +47,16 @@ interface SlackBlock {
     text: string;
     verbatim?: boolean;
   };
+  elements?: Array<{
+    type: string;
+    text?: {
+      type: string;
+      text: string;
+      emoji?: boolean;
+    };
+    url?: string;
+    action_id?: string;
+  }>;
 }
 
 interface SlackMessage {
@@ -127,7 +137,7 @@ export async function getExistingSlackMessageForChat(chatId: string): Promise<{
  * Send a Slack notification based on post-processing results
  */
 export async function sendSlackNotification(
-  params: SlackNotificationParams,
+  params: SlackNotificationParams
 ): Promise<SlackNotificationResult> {
   try {
     // Step 1: Check if organization has active Slack integration
@@ -139,8 +149,8 @@ export async function sendSlackNotification(
         and(
           eq(slackIntegrations.organizationId, params.organizationId),
           eq(slackIntegrations.status, 'active'),
-          isNull(slackIntegrations.deletedAt),
-        ),
+          isNull(slackIntegrations.deletedAt)
+        )
       )
       .limit(1);
 
@@ -189,7 +199,7 @@ export async function sendSlackNotification(
     const result = await sendSlackMessage(
       tokenSecret.secret,
       integration.defaultChannel.id,
-      slackMessage,
+      slackMessage
     );
 
     if (result.success) {
@@ -229,7 +239,7 @@ export async function sendSlackNotification(
  * Send a Slack reply notification to an existing thread
  */
 export async function sendSlackReplyNotification(
-  params: SlackReplyNotificationParams,
+  params: SlackReplyNotificationParams
 ): Promise<SlackNotificationResult> {
   try {
     // Step 1: Check if we should send a notification
@@ -257,7 +267,7 @@ export async function sendSlackReplyNotification(
       tokenSecret.secret,
       params.channelId,
       slackMessage,
-      params.threadTs,
+      params.threadTs
     );
 
     if (result.success) {
@@ -372,7 +382,7 @@ function formatSlackReplyMessage(params: SlackReplyNotificationParams): SlackMes
 
   throw new Error(
     'Invalid reply notification parameters: Missing required fields. ' +
-      'Requires either formattedMessage, summaryTitle with summaryMessage, or toolCalled="flagChat" with message',
+      'Requires either formattedMessage, summaryTitle with summaryMessage, or toolCalled="flagChat" with message'
   );
 }
 
@@ -391,7 +401,7 @@ function formatSlackMessage(params: SlackNotificationParams): SlackMessage {
           type: 'section',
           text: {
             type: 'mrkdwn',
-            text: `Buster flagged a chat for review:\n*<${chatUrl}|${userName}>*`,
+            text: `Flagged a chat for review:\n*<${chatUrl}|${userName}>*`,
           },
         },
         {
@@ -401,6 +411,21 @@ function formatSlackMessage(params: SlackNotificationParams): SlackMessage {
             text: params.formattedMessage,
             verbatim: false,
           },
+        },
+        {
+          type: 'actions',
+          elements: [
+            {
+              type: 'button',
+              text: {
+                type: 'plain_text',
+                text: 'Open in Buster',
+                emoji: false,
+              },
+              url: chatUrl,
+              action_id: 'actionId-0',
+            },
+          ],
         },
       ],
     };
@@ -414,7 +439,7 @@ function formatSlackMessage(params: SlackNotificationParams): SlackMessage {
           type: 'section',
           text: {
             type: 'mrkdwn',
-            text: `Buster flagged a chat for review:\n*<${chatUrl}|${userName} - ${params.summaryTitle}>*`,
+            text: `Flagged a chat for review:\n*<${chatUrl}|${userName} - ${params.summaryTitle}>*`,
           },
         },
         {
@@ -424,6 +449,21 @@ function formatSlackMessage(params: SlackNotificationParams): SlackMessage {
             text: params.summaryMessage,
             verbatim: false,
           },
+        },
+        {
+          type: 'actions',
+          elements: [
+            {
+              type: 'button',
+              text: {
+                type: 'plain_text',
+                text: 'Open in Buster',
+                emoji: false,
+              },
+              url: chatUrl,
+              action_id: 'actionId-0',
+            },
+          ],
         },
       ],
     };
@@ -437,7 +477,7 @@ function formatSlackMessage(params: SlackNotificationParams): SlackMessage {
           type: 'section',
           text: {
             type: 'mrkdwn',
-            text: `Buster flagged a chat for review:\n*<${chatUrl}|${userName} - Flagged Chat>*`,
+            text: `Flagged a chat for review:\n*<${chatUrl}|${userName} - Flagged Chat>*`,
           },
         },
         {
@@ -448,6 +488,21 @@ function formatSlackMessage(params: SlackNotificationParams): SlackMessage {
             verbatim: false,
           },
         },
+        {
+          type: 'actions',
+          elements: [
+            {
+              type: 'button',
+              text: {
+                type: 'plain_text',
+                text: 'Open in Buster',
+                emoji: false,
+              },
+              url: chatUrl,
+              action_id: 'actionId-0',
+            },
+          ],
+        },
       ],
     };
   }
@@ -456,7 +511,7 @@ function formatSlackMessage(params: SlackNotificationParams): SlackMessage {
   throw new Error(
     `Invalid notification parameters: Missing required fields. Requires either formattedMessage, summaryTitle with summaryMessage, or toolCalled="flagChat" with message. Received: formattedMessage=${!!params.formattedMessage}, summaryTitle=${!!params.summaryTitle}, summaryMessage=${!!params.summaryMessage}, toolCalled="${
       params.toolCalled
-    }", message=${!!params.message}`,
+    }", message=${!!params.message}`
   );
 }
 
@@ -467,7 +522,7 @@ async function sendSlackMessage(
   accessToken: string,
   channelId: string,
   message: SlackMessage,
-  threadTs?: string,
+  threadTs?: string
 ): Promise<{ success: boolean; messageTs?: string; error?: string }> {
   try {
     const response = await fetch('https://slack.com/api/chat.postMessage', {
@@ -540,8 +595,8 @@ export async function trackSlackNotification(params: {
           content: params.slackBlocks
             ? JSON.stringify({ blocks: params.slackBlocks })
             : params.summaryTitle && params.summaryMessage
-            ? `${params.summaryTitle}\n\n${params.summaryMessage}`
-            : 'Notification sent',
+              ? `${params.summaryTitle}\n\n${params.summaryMessage}`
+              : 'Notification sent',
           senderInfo: {
             sentBy: 'buster-post-processing',
             userName: params.userName,
