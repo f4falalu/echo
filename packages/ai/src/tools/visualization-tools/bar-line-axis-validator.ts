@@ -26,8 +26,15 @@ export function validateAndAdjustBarLineAxes(metricYml: MetricYml): AxisValidati
     return { isValid: true, shouldSwapAxes: false };
   }
 
-  const xColumns = barAndLineAxis.x || [];
-  const yColumns = barAndLineAxis.y || [];
+  if (!barAndLineAxis.x?.length || !barAndLineAxis.y?.length) {
+    return {
+      isValid: false,
+      shouldSwapAxes: false,
+      error: `Bar and line charts require at least one column for each axis. Please specify both X and Y axis columns.`
+    };
+  }
+  const xColumns = barAndLineAxis.x;
+  const yColumns = barAndLineAxis.y;
 
   // Check if all Y-axis columns are numeric
   const yAxisNumericStatus = yColumns.map((col: string) => {
