@@ -89,8 +89,14 @@ const AddDomainInput = React.memo(
     const [newDomain, setNewDomain] = useState('');
 
     const handleAddDomain = useMemoizedFn(async () => {
-      if (!newDomain.trim()) return;
-
+      const domain = newDomain.trim();
+      if (!domain) return;
+      
+      const domainRegex = /^[a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9]\.[a-zA-Z]{2,}$/;
+      if (!domainRegex.test(domain)) {
+        openErrorMessage('Please enter a valid domain name');
+        return;
+      }
       try {
         await addDomain({ domains: [newDomain.trim()] });
         setNewDomain('');
