@@ -33,15 +33,30 @@ const createCspHeader = (isEmbed = false) => {
     // Frame sources
     "frame-src 'self' https://vercel.live",
     // Connect sources for API calls
-    `connect-src 'self' ${localDomains} https://*.vercel.app https://*.supabase.co wss://*.supabase.co https://*.posthog.com ${apiUrl} ${api2Url} ${profilePictureURL}`
-      .replace(/\s+/g, ' ')
-      .trim(),
+    (() => {
+      const connectSources = [
+        "'self'",
+        localDomains,
+        'https://*.vercel.app',
+        'https://*.supabase.co',
+        'wss://*.supabase.co',
+        'https://*.posthog.com',
+        'https://*.slack.com',
+        apiUrl,
+        api2Url,
+        profilePictureURL
+      ]
+        .map((source) => source.replace(/\s+/g, ' ').trim())
+        .filter(Boolean);
+
+      return `connect-src ${connectSources.join(' ')}`;
+    })(),
     // Media
     "media-src 'self'",
     // Object
     "object-src 'none'",
     // Form actions
-    "form-action 'self'",
+    "form-action 'self' https://*.slack.com",
     // Base URI
     "base-uri 'self'",
     // Manifest

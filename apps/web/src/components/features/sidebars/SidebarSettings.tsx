@@ -39,6 +39,11 @@ const workspaceItems = (currentParentRoute: BusterRoutes): ISidebarGroup => ({
       label: 'Data Sources',
       route: createBusterRoute({ route: BusterRoutes.SETTINGS_DATASOURCES }),
       id: BusterRoutes.SETTINGS_DATASOURCES
+    },
+    {
+      label: 'Integrations',
+      route: createBusterRoute({ route: BusterRoutes.SETTINGS_INTEGRATIONS }),
+      id: createBusterRoute({ route: BusterRoutes.SETTINGS_INTEGRATIONS })
     }
   ].map((item) => ({
     ...item,

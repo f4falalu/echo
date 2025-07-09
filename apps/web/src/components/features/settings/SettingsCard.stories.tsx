@@ -1,12 +1,12 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { SecurityCards } from './SecurityCards';
+import { SettingsCards } from './SettingsCard';
 import { Button } from '@/components/ui/buttons';
 import { Pill } from '@/components/ui/pills/Pill';
 import { Text } from '@/components/ui/typography';
 
-const meta: Meta<typeof SecurityCards> = {
-  title: 'Features/SecurityCards',
-  component: SecurityCards,
+const meta: Meta<typeof SettingsCards> = {
+  title: 'Features/SettingsCards',
+  component: SettingsCards,
   parameters: {
     layout: 'padded',
     docs: {
@@ -20,7 +20,7 @@ const meta: Meta<typeof SecurityCards> = {
 };
 
 export default meta;
-type Story = StoryObj<typeof SecurityCards>;
+type Story = StoryObj<typeof SettingsCards>;
 
 // Mock data for different use cases
 const basicSections = [

@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/buttons';
 import { Plus } from '@/components/ui/icons';
 import { useMemoizedFn } from '@/hooks';
 import { useDebounceSearch } from '@/hooks/useDebounceSearch';
-import { SettingsPageHeader } from '../../_components/SettingsPageHeader';
+import { SettingsPageHeader } from '@/components/features/settings';
 import { ListPermissionGroupsComponent } from './ListPermissionGroupsComponent';
 
 export default function Page() {

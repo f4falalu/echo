@@ -9,6 +9,8 @@ import {
   SelectTrigger,
   SelectValue
 } from './SelectBase';
+import { CircleSpinnerLoader } from '../loaders';
+import { cn } from '@/lib/classMerge';
 
 interface SelectItemGroup<T = string> {
   label: string;
@@ -36,6 +38,7 @@ export interface SelectProps<T> {
   className?: string;
   defaultValue?: string;
   dataTestId?: string;
+  loading?: boolean;
 }
 
 export const Select = <T extends string>({
@@ -47,6 +50,7 @@ export const Select = <T extends string>({
   value,
   onOpenChange,
   open,
+  loading = false,
   className = '',
   defaultValue,
   dataTestId
@@ -62,7 +66,7 @@ export const Select = <T extends string>({
       defaultValue={defaultValue}
       value={value}
       onValueChange={onValueChange}>
-      <SelectTrigger className={className} data-testid={dataTestId}>
+      <SelectTrigger className={className} data-testid={dataTestId} loading={loading}>
         <SelectValue placeholder={placeholder} defaultValue={value || defaultValue} />
       </SelectTrigger>
       <SelectContent>

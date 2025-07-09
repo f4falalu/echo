@@ -5,6 +5,7 @@ import { cva, type VariantProps } from 'class-variance-authority';
 import * as React from 'react';
 import { cn } from '@/lib/classMerge';
 import { Check3 as Check, ChevronDown, ChevronUp } from '../icons/NucleoIconOutlined';
+import CircleSpinnerLoader from '../loaders/CircleSpinnerLoader';
 
 const Select = SelectPrimitive.Root;
 
@@ -36,18 +37,28 @@ export const selectVariants = cva(
 const SelectTrigger = React.forwardRef<
   React.ElementRef<typeof SelectPrimitive.Trigger>,
   React.ComponentPropsWithoutRef<typeof SelectPrimitive.Trigger> &
-    VariantProps<typeof selectVariants>
->(({ className, variant = 'default', size = 'default', children, ...props }, ref) => (
+    VariantProps<typeof selectVariants> & {
+      loading?: boolean;
+    }
+>(({ className, variant = 'default', size = 'default', children, loading, ...props }, ref) => (
   <SelectPrimitive.Trigger
     ref={ref}
-    className={cn(selectVariants({ variant, size }), className)}
+    className={cn('relative', selectVariants({ variant, size }), className)}
     {...props}>
     {children}
-    <SelectPrimitive.Icon asChild>
-      <div className="flex items-center justify-center opacity-50">
-        <ChevronDown />
+    {!loading && (
+      <SelectPrimitive.Icon asChild>
+        <div className="flex items-center justify-center opacity-50">
+          <ChevronDown />
+        </div>
+      </SelectPrimitive.Icon>
+    )}
+
+    {loading && (
+      <div className="absolute top-1/2 right-2 flex -translate-y-1/2 items-center justify-center">
+        <CircleSpinnerLoader size={12} />
       </div>
-    </SelectPrimitive.Icon>
+    )}
   </SelectPrimitive.Trigger>
 ));
 SelectTrigger.displayName = SelectPrimitive.Trigger.displayName;

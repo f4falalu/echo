@@ -4,7 +4,7 @@ import { Avatar } from '@/components/ui/avatar';
 import { Text, Title } from '@/components/ui/typography';
 import { useUserConfigContextSelector } from '@/context/Users/BusterUserConfigProvider';
 import { formatDate } from '@/lib/date';
-import { SettingsPageHeader } from '../../_components/SettingsPageHeader';
+import { SettingsPageHeader } from '@/components/features/settings';
 
 export default function ProfilePage() {
   const user = useUserConfigContextSelector((state) => state.user);
