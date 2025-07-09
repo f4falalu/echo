@@ -21,10 +21,14 @@ const postProcessingWorkflow = createWorkflow({
   .parallel([flagChatStep, identifyAssumptionsStep])
   .then(combineParallelResultsStep)
   .branch([
-    // Branch for follow-up messages
-    [async ({ inputData }) => inputData?.isFollowUp === true, formatFollowUpMessageStep],
-    // Branch for initial messages
-    [async ({ inputData }) => inputData?.isFollowUp === false, formatInitialMessageStep],
+    // Branch for follow-up messages (only if it's both a follow-up AND Slack message exists)
+    [
+      async ({ inputData }) =>
+        inputData?.isFollowUp === true && inputData?.isSlackFollowUp === true,
+      formatFollowUpMessageStep,
+    ],
+    // Otherwise use initial message format
+    [async () => true, formatInitialMessageStep],
   ])
   .commit();
 

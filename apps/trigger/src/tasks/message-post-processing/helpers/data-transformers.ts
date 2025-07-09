@@ -82,13 +82,17 @@ export function buildWorkflowInput(
   messageContext: MessageContext,
   conversationMessages: ConversationMessage[],
   previousPostProcessingResults: PostProcessingResult[],
-  datasets: PermissionedDataset[]
+  datasets: PermissionedDataset[],
+  slackMessageExists: boolean
 ): PostProcessingWorkflowInput {
   // Build conversation history from all messages
   const conversationHistory = buildConversationHistory(conversationMessages);
 
   // Determine if this is a follow-up
   const isFollowUp = previousPostProcessingResults.length > 0;
+
+  // Determine if this is a Slack follow-up (both follow-up AND Slack message exists)
+  const isSlackFollowUp = isFollowUp && slackMessageExists;
 
   // Format previous messages
   const previousMessages = formatPreviousMessages(previousPostProcessingResults);
@@ -103,6 +107,7 @@ export function buildWorkflowInput(
     userId: messageContext.createdBy,
     chatId: messageContext.chatId,
     isFollowUp,
+    isSlackFollowUp,
     previousMessages,
     datasets: datasetsYaml,
   };
