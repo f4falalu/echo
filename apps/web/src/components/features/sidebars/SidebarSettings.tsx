@@ -53,6 +53,11 @@ const permissionAndSecurityItems = (currentParentRoute: BusterRoutes): ISidebarG
   icon: <LockCircle />,
   items: [
     {
+      label: 'Security',
+      route: createBusterRoute({ route: BusterRoutes.SETTINGS_SECURITY }),
+      id: createBusterRoute({ route: BusterRoutes.SETTINGS_SECURITY })
+    },
+    {
       label: 'Users',
       route: createBusterRoute({ route: BusterRoutes.SETTINGS_USERS }),
       id: createBusterRoute({ route: BusterRoutes.SETTINGS_USERS })
@@ -89,8 +94,18 @@ export const SidebarSettings: React.FC = React.memo(() => {
   return (
     <Sidebar
       content={content}
-      header={useMemo(() => <SidebarSettingsHeader />, [])}
-      footer={useMemo(() => <SidebarUserFooter />, [])}
+      header={useMemo(
+        () => (
+          <SidebarSettingsHeader />
+        ),
+        []
+      )}
+      footer={useMemo(
+        () => (
+          <SidebarUserFooter />
+        ),
+        []
+      )}
     />
   );
 });
