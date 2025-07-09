@@ -147,6 +147,7 @@ allow_columns_to_appear_in_same_group_by_clause!(
     users::id,
     users::name,
     users::email,
+    users::avatar_url,
     users_to_organizations::role,
     datasets::id,
     datasets::name,
