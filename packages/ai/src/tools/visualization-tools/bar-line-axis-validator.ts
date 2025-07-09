@@ -30,7 +30,7 @@ export function validateAndAdjustBarLineAxes(metricYml: MetricYml): AxisValidati
     return {
       isValid: false,
       shouldSwapAxes: false,
-      error: `Bar and line charts require at least one column for each axis. Please specify both X and Y axis columns.`
+      error: 'Bar and line charts require at least one column for each axis. Please specify both X and Y axis columns.',
     };
   }
   const xColumns = barAndLineAxis.x;

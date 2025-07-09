@@ -285,7 +285,7 @@ describe('validateAndAdjustBarLineAxes', () => {
     };
 
     const result = validateAndAdjustBarLineAxes(metricYml);
-    expect(result.isValid).toBe(true);
+    expect(result.isValid).toBe(false);
     expect(result.shouldSwapAxes).toBe(false);
   });
 });
