@@ -1,12 +1,12 @@
 import type { CoreMessage } from 'ai';
+import {
+  applyHealingStrategy,
+  determineHealingStrategy,
+  shouldRetryWithoutHealing,
+} from './healing-strategies';
 import { detectRetryableError } from './retry-agent-stream';
 import { RetryWithHealingError } from './retry-error';
 import type { RetryableError, WorkflowContext } from './types';
-import { 
-  determineHealingStrategy, 
-  applyHealingStrategy, 
-  shouldRetryWithoutHealing 
-} from './healing-strategies';
 
 /**
  * Creates an onError handler for agent streaming with retry logic
@@ -327,36 +327,37 @@ export async function handleRetryWithHealing(
 }> {
   // Determine the healing strategy
   const healingStrategy = determineHealingStrategy(retryableError, context);
-  
+
   // For network/server errors, just retry without healing
   if (shouldRetryWithoutHealing(retryableError.type)) {
-    const backoffDelay = calculateBackoffDelay(retryCount, 10000) * (healingStrategy.backoffMultiplier || 1);
+    const backoffDelay =
+      calculateBackoffDelay(retryCount, 10000) * (healingStrategy.backoffMultiplier || 1);
     console.info(`${context.currentStep}: Retrying after network/server error`, {
       retryCount,
       errorType: retryableError.type,
       backoffDelay,
     });
-    
+
     return {
       healedMessages: currentMessages,
       shouldContinueWithoutHealing: true,
       backoffDelay,
     };
   }
-  
+
   // Apply healing strategy to get updated messages
   let healedMessages = applyHealingStrategy(currentMessages, healingStrategy);
-  
+
   // For tool errors, we still need to find the correct insertion point
   if (retryableError.type === 'no-such-tool' && healingStrategy.healingMessage) {
     const { insertionIndex, updatedHealingMessage } = findHealingMessageInsertionIndex(
       retryableError,
       currentMessages
     );
-    
+
     // Remove the healing message that was added by applyHealingStrategy
     const messagesWithoutHealing = healedMessages.slice(0, -1);
-    
+
     // Insert at the correct position
     healedMessages = [
       ...messagesWithoutHealing.slice(0, insertionIndex),
@@ -364,10 +365,10 @@ export async function handleRetryWithHealing(
       ...messagesWithoutHealing.slice(insertionIndex),
     ];
   }
-  
+
   // Calculate backoff delay
   const backoffDelay = calculateBackoffDelay(retryCount) * (healingStrategy.backoffMultiplier || 1);
-  
+
   console.info(`${context.currentStep}: Applying healing strategy`, {
     retryCount,
     errorType: retryableError.type,
@@ -375,7 +376,7 @@ export async function handleRetryWithHealing(
     hasHealingMessage: !!healingStrategy.healingMessage,
     backoffDelay,
   });
-  
+
   return {
     healedMessages,
     shouldContinueWithoutHealing: false,

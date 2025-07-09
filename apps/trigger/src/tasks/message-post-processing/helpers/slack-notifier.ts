@@ -1,4 +1,13 @@
-import { and, eq, getDb, getSecretByName, isNull, slackIntegrations } from '@buster/database';
+import {
+  and,
+  eq,
+  getDb,
+  getSecretByName,
+  isNull,
+  messagesToSlackMessages,
+  slackIntegrations,
+  slackMessageTracking,
+} from '@buster/database';
 import { logger } from '@trigger.dev/sdk/v3';
 
 export interface SlackNotificationParams {
@@ -15,6 +24,9 @@ export interface SlackNotificationParams {
 export interface SlackNotificationResult {
   sent: boolean;
   error?: string;
+  messageTs?: string;
+  integrationId?: string;
+  channelId?: string;
 }
 
 interface SlackBlock {
@@ -106,7 +118,12 @@ export async function sendSlackNotification(
         channelId: integration.defaultChannel.id,
         messageTs: result.messageTs,
       });
-      return { sent: true };
+      return {
+        sent: true,
+        ...(result.messageTs && { messageTs: result.messageTs }),
+        integrationId: integration.id,
+        channelId: integration.defaultChannel.id,
+      };
     }
 
     logger.error('Failed to send Slack notification', {
@@ -272,5 +289,67 @@ async function sendSlackMessage(
       success: false,
       error: error instanceof Error ? error.message : 'Failed to send message',
     };
+  }
+}
+
+/**
+ * Track a sent Slack notification in the database
+ */
+export async function trackSlackNotification(params: {
+  messageId: string;
+  integrationId: string;
+  channelId: string;
+  messageTs: string;
+  userName: string | null;
+  chatId: string;
+  summaryTitle?: string;
+  summaryMessage?: string;
+}): Promise<void> {
+  const db = getDb();
+
+  try {
+    await db.transaction(async (tx) => {
+      // Insert into slack_message_tracking
+      const [slackMessage] = await tx
+        .insert(slackMessageTracking)
+        .values({
+          integrationId: params.integrationId,
+          internalMessageId: params.messageId,
+          slackChannelId: params.channelId,
+          slackMessageTs: params.messageTs,
+          slackThreadTs: null,
+          messageType: 'message',
+          content:
+            params.summaryTitle && params.summaryMessage
+              ? `${params.summaryTitle}\n\n${params.summaryMessage}`
+              : 'Notification sent',
+          senderInfo: {
+            sentBy: 'buster-post-processing',
+            userName: params.userName,
+            chatId: params.chatId,
+          },
+          sentAt: new Date().toISOString(),
+        })
+        .returning();
+
+      // Create association in messages_to_slack_messages
+      if (slackMessage) {
+        await tx.insert(messagesToSlackMessages).values({
+          messageId: params.messageId,
+          slackMessageId: slackMessage.id,
+        });
+      }
+    });
+
+    logger.log('Successfully tracked Slack notification', {
+      messageId: params.messageId,
+      integrationId: params.integrationId,
+    });
+  } catch (error) {
+    // Log but don't throw - tracking failure shouldn't break the flow
+    logger.error('Failed to track Slack notification', {
+      messageId: params.messageId,
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
   }
 }

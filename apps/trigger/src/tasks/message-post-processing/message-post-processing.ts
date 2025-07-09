@@ -18,6 +18,7 @@ import {
   fetchPreviousPostProcessingMessages,
   fetchUserDatasets,
   sendSlackNotification,
+  trackSlackNotification,
 } from './helpers';
 import { DataFetchError, MessageNotFoundError, TaskInputSchema } from './types';
 import type { TaskInput, TaskOutput } from './types';
@@ -302,6 +303,20 @@ export const messagePostProcessingTask: ReturnType<
               messageId: payload.messageId,
               organizationId: messageContext.organizationId,
             });
+
+            // Track the sent notification
+            if (slackResult.messageTs && slackResult.integrationId && slackResult.channelId) {
+              await trackSlackNotification({
+                messageId: payload.messageId,
+                integrationId: slackResult.integrationId,
+                channelId: slackResult.channelId,
+                messageTs: slackResult.messageTs,
+                userName: messageContext.userName,
+                chatId: messageContext.chatId,
+                summaryTitle: dbData.summary_title,
+                summaryMessage: dbData.summary_message,
+              });
+            }
           } else {
             logger.log('Slack notification not sent', {
               messageId: payload.messageId,

@@ -108,13 +108,17 @@ describe('healing-strategies', () => {
     it('should remove assistant message and subsequent tool results', () => {
       const messages: CoreMessage[] = [
         { role: 'user', content: 'Hello' },
-        { role: 'assistant', content: [
-          { type: 'text', text: 'Let me help' },
-          { type: 'tool-call', toolCallId: '123', toolName: 'test', args: {} },
-        ]},
-        { role: 'tool', content: [
-          { type: 'tool-result', toolCallId: '123', toolName: 'test', result: {} },
-        ]},
+        {
+          role: 'assistant',
+          content: [
+            { type: 'text', text: 'Let me help' },
+            { type: 'tool-call', toolCallId: '123', toolName: 'test', args: {} },
+          ],
+        },
+        {
+          role: 'tool',
+          content: [{ type: 'tool-result', toolCallId: '123', toolName: 'test', result: {} }],
+        },
       ];
 
       const result = removeLastAssistantMessage(messages);
@@ -158,7 +162,10 @@ describe('healing-strategies', () => {
 
       const strategy = {
         shouldRemoveLastAssistantMessage: true,
-        healingMessage: { role: 'user', content: 'Please continue with your analysis.' } as CoreMessage,
+        healingMessage: {
+          role: 'user',
+          content: 'Please continue with your analysis.',
+        } as CoreMessage,
       };
 
       const result = applyHealingStrategy(messages, strategy);
@@ -171,9 +178,10 @@ describe('healing-strategies', () => {
     it('should add healing without removing for tool errors', () => {
       const messages: CoreMessage[] = [
         { role: 'user', content: 'Analyze data' },
-        { role: 'assistant', content: [
-          { type: 'tool-call', toolCallId: '123', toolName: 'wrongTool', args: {} },
-        ]},
+        {
+          role: 'assistant',
+          content: [{ type: 'tool-call', toolCallId: '123', toolName: 'wrongTool', args: {} }],
+        },
       ];
 
       const strategy = {
@@ -237,7 +245,7 @@ describe('healing-strategies', () => {
         healingMessage: { role: 'user', content: '' },
       };
       expect(getErrorExplanationForUser(emptyError)).toBe(
-        'The assistant\'s response was incomplete. Retrying...'
+        "The assistant's response was incomplete. Retrying..."
       );
 
       const jsonError: RetryableError = {
@@ -255,7 +263,7 @@ describe('healing-strategies', () => {
         healingMessage: { role: 'user', content: '' },
       };
       expect(getErrorExplanationForUser(toolError)).toBe(
-        'The assistant tried to use a tool that\'s not available in the current mode.'
+        "The assistant tried to use a tool that's not available in the current mode."
       );
     });
 

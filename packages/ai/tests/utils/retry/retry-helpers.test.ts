@@ -1,16 +1,16 @@
 import { NoSuchToolError } from 'ai';
 import { describe, expect, it, vi } from 'vitest';
+import { RetryWithHealingError } from '../../../src/utils/retry/retry-error';
 import {
   calculateBackoffDelay,
   createRetryOnErrorHandler,
   createUserFriendlyErrorMessage,
   extractDetailedErrorMessage,
   findHealingMessageInsertionIndex,
+  handleRetryWithHealing,
   logMessagesAfterHealing,
   logRetryInfo,
-  handleRetryWithHealing,
 } from '../../../src/utils/retry/retry-helpers';
-import { RetryWithHealingError } from '../../../src/utils/retry/retry-error';
 import type { CoreMessage, RetryableError } from '../../../src/utils/retry/types';
 
 // Mock the detectRetryableError function
@@ -133,7 +133,9 @@ describe('retry-helpers', () => {
       };
 
       const result = extractDetailedErrorMessage(error);
-      expect(result).toBe('Validation failed - Validation errors: field.nested: Required; other: Invalid');
+      expect(result).toBe(
+        'Validation failed - Validation errors: field.nested: Required; other: Invalid'
+      );
     });
 
     it('should include status code for API errors', () => {
@@ -183,7 +185,9 @@ describe('retry-helpers', () => {
       (error as any).responseBody = 'Server error details';
 
       const result = extractDetailedErrorMessage(error);
-      expect(result).toBe('Complex error (Status: 500) - Response: Server error details (Tool: complexTool)');
+      expect(result).toBe(
+        'Complex error (Status: 500) - Response: Server error details (Tool: complexTool)'
+      );
     });
   });
 
@@ -461,12 +465,9 @@ describe('retry-helpers', () => {
         { role: 'assistant', content: 'Processing...' },
       ];
 
-      const result = await handleRetryWithHealing(
-        retryableError,
-        messages,
-        2,
-        { currentStep: 'analyst' }
-      );
+      const result = await handleRetryWithHealing(retryableError, messages, 2, {
+        currentStep: 'analyst',
+      });
 
       expect(result.shouldContinueWithoutHealing).toBe(true);
       expect(result.healedMessages).toEqual(messages); // Messages unchanged
@@ -489,12 +490,9 @@ describe('retry-helpers', () => {
         { role: 'assistant', content: '' }, // Empty response
       ];
 
-      const result = await handleRetryWithHealing(
-        retryableError,
-        messages,
-        1,
-        { currentStep: 'think-and-prep' }
-      );
+      const result = await handleRetryWithHealing(retryableError, messages, 1, {
+        currentStep: 'think-and-prep',
+      });
 
       expect(result.shouldContinueWithoutHealing).toBe(false);
       expect(result.healedMessages).toHaveLength(2);
@@ -542,12 +540,9 @@ describe('retry-helpers', () => {
         },
       ];
 
-      const result = await handleRetryWithHealing(
-        retryableError,
-        messages,
-        0,
-        { currentStep: 'analyst' }
-      );
+      const result = await handleRetryWithHealing(retryableError, messages, 0, {
+        currentStep: 'analyst',
+      });
 
       expect(result.shouldContinueWithoutHealing).toBe(false);
       expect(result.healedMessages).toHaveLength(3);
@@ -567,16 +562,11 @@ describe('retry-helpers', () => {
         originalError: new Error('429 Too Many Requests'),
       };
 
-      const messages: CoreMessage[] = [
-        { role: 'user', content: 'Query' },
-      ];
+      const messages: CoreMessage[] = [{ role: 'user', content: 'Query' }];
 
-      const result = await handleRetryWithHealing(
-        retryableError,
-        messages,
-        3,
-        { currentStep: 'analyst' }
-      );
+      const result = await handleRetryWithHealing(retryableError, messages, 3, {
+        currentStep: 'analyst',
+      });
 
       expect(result.shouldContinueWithoutHealing).toBe(true);
       expect(result.backoffDelay).toBe(24000); // 2^3 * 1000 * 3 (rate limit multiplier)

@@ -3,8 +3,8 @@ import { RuntimeContext } from '@mastra/core/runtime-context';
 import type { CoreMessage, StreamTextResult, TextStreamPart } from 'ai';
 import { APICallError, NoSuchToolError } from 'ai';
 import { describe, expect, it, vi } from 'vitest';
-import { createRetryOnErrorHandler } from '../../../src/utils/retry/retry-helpers';
 import { RetryWithHealingError } from '../../../src/utils/retry/retry-error';
+import { createRetryOnErrorHandler } from '../../../src/utils/retry/retry-helpers';
 import type { WorkflowContext } from '../../../src/utils/retry/types';
 
 describe('Streaming Error Scenarios - Real-World Tests', () => {
@@ -35,9 +35,7 @@ describe('Streaming Error Scenarios - Real-World Tests', () => {
 
   describe('Stream Error During Tool Call', () => {
     it('should handle error thrown during tool call streaming', async () => {
-      const messages: CoreMessage[] = [
-        { role: 'user', content: 'Analyze my data' },
-      ];
+      const messages: CoreMessage[] = [{ role: 'user', content: 'Analyze my data' }];
 
       let onChunkCalled = 0;
       let onErrorHandler: ((event: { error: unknown }) => Promise<void>) | undefined;
@@ -77,12 +75,12 @@ describe('Streaming Error Scenarios - Real-World Tests', () => {
       // Capture the onError handler when stream is called
       mockAgent.stream.mockImplementation(async (_messages, options) => {
         onErrorHandler = options?.onError;
-        
+
         const streamBehavior = () => ({
           async *[Symbol.asyncIterator]() {
             yield { type: 'text-delta', textDelta: 'Let me analyze' } as TextStreamPart<any>;
             onChunkCalled++;
-            
+
             // Simulate the error and let onError handle it
             const error = new APICallError({
               message: 'Connection reset',
@@ -94,11 +92,11 @@ describe('Streaming Error Scenarios - Real-World Tests', () => {
               cause: new Error('ECONNRESET'),
               isRetryable: true,
             });
-            
+
             if (onErrorHandler) {
               await onErrorHandler({ error });
             }
-            
+
             // Continue streaming after healing
             yield { type: 'text-delta', textDelta: ' your data...' } as TextStreamPart<any>;
           },
@@ -253,14 +251,15 @@ describe('Streaming Error Scenarios - Real-World Tests', () => {
 
   describe('Complex Streaming Scenarios', () => {
     it('should handle partial tool call followed by error', async () => {
-      const messages: CoreMessage[] = [
-        { role: 'user', content: 'Create a metric for revenue' },
-      ];
+      const messages: CoreMessage[] = [{ role: 'user', content: 'Create a metric for revenue' }];
 
       async function* streamGenerator() {
         // Start with text
-        yield { type: 'text-delta', textDelta: 'I\'ll create a revenue metric' } as TextStreamPart<any>;
-        
+        yield {
+          type: 'text-delta',
+          textDelta: "I'll create a revenue metric",
+        } as TextStreamPart<any>;
+
         // Start tool call
         yield {
           type: 'tool-call-delta',
@@ -269,13 +268,13 @@ describe('Streaming Error Scenarios - Real-World Tests', () => {
           toolName: 'createMetrics',
           argsTextDelta: '{"name": "revenue", "expression": ',
         } as TextStreamPart<any>;
-        
+
         // Simulate JSON parse error in the middle of tool args
         throw new Error('Unexpected end of JSON input');
       }
 
       const mockAgent = createMockAgent(streamGenerator);
-      
+
       const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
       const consoleInfoSpy = vi.spyOn(console, 'info').mockImplementation(() => {});
 
@@ -288,7 +287,7 @@ describe('Streaming Error Scenarios - Real-World Tests', () => {
 
       // Test the onError handler directly with the expected error
       const streamError = new Error('Unexpected end of JSON input');
-      
+
       let errorThrown: any;
       try {
         await onErrorHandler({ error: streamError });
@@ -298,7 +297,9 @@ describe('Streaming Error Scenarios - Real-World Tests', () => {
 
       expect(errorThrown).toBeInstanceOf(RetryWithHealingError);
       expect(errorThrown.retryableError.type).toBe('unknown-error');
-      expect(errorThrown.retryableError.healingMessage.content).toContain('Unexpected end of JSON input');
+      expect(errorThrown.retryableError.healingMessage.content).toContain(
+        'Unexpected end of JSON input'
+      );
 
       consoleErrorSpy.mockRestore();
       consoleInfoSpy.mockRestore();
@@ -311,7 +312,7 @@ describe('Streaming Error Scenarios - Real-World Tests', () => {
 
       // Simulate that chunks were emitted before error
       const chunksEmitted = 4; // Simulating 4 chunks were emitted
-      
+
       const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
       const consoleInfoSpy = vi.spyOn(console, 'info').mockImplementation(() => {});
 
@@ -374,11 +375,11 @@ describe('Streaming Error Scenarios - Real-World Tests', () => {
       }
 
       expect(thrownError).toBeInstanceOf(RetryWithHealingError);
-      
+
       const healingMessage = thrownError.retryableError.healingMessage;
       expect(healingMessage.role).toBe('tool');
       expect(Array.isArray(healingMessage.content)).toBe(true);
-      
+
       const toolResult = healingMessage.content[0];
       expect(toolResult.type).toBe('tool-result');
       expect(toolResult.toolCallId).toBeDefined();
