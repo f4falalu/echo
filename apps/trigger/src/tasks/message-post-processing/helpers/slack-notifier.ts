@@ -9,6 +9,7 @@ import {
   slackIntegrations,
   slackMessageTracking,
 } from '@buster/database';
+import { SlackMessageType } from '@buster/slack';
 import { logger } from '@trigger.dev/sdk/v3';
 
 export interface SlackNotificationParams {
@@ -369,7 +370,10 @@ function formatSlackReplyMessage(params: SlackReplyNotificationParams): SlackMes
     };
   }
 
-  throw new Error('Invalid reply notification parameters');
+  throw new Error(
+    'Invalid reply notification parameters: Missing required fields. ' +
+      'Requires either formattedMessage, summaryTitle with summaryMessage, or toolCalled="flagChat" with message'
+  );
 }
 
 /**
@@ -449,7 +453,9 @@ function formatSlackMessage(params: SlackNotificationParams): SlackMessage {
   }
 
   // This shouldn't happen if shouldSendSlackNotification is working correctly
-  throw new Error('Invalid notification parameters');
+  throw new Error(
+    `Invalid notification parameters: Missing required fields. Requires either formattedMessage, summaryTitle with summaryMessage, or toolCalled="flagChat" with message. Received: formattedMessage=${!!params.formattedMessage}, summaryTitle=${!!params.summaryTitle}, summaryMessage=${!!params.summaryMessage}, toolCalled="${params.toolCalled}", message=${!!params.message}`
+  );
 }
 
 /**
@@ -528,7 +534,7 @@ export async function trackSlackNotification(params: {
           slackChannelId: params.channelId,
           slackMessageTs: params.messageTs,
           slackThreadTs: params.threadTs || null,
-          messageType: params.threadTs ? 'reply' : 'message',
+          messageType: params.threadTs ? SlackMessageType.REPLY : SlackMessageType.MESSAGE,
           content: params.slackBlocks
             ? JSON.stringify({ blocks: params.slackBlocks })
             : params.summaryTitle && params.summaryMessage

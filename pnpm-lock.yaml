@@ -163,6 +163,9 @@ importers:
       '@buster/server-shared':
         specifier: workspace:*
         version: link:../../packages/server-shared
+      '@buster/slack':
+        specifier: workspace:*
+        version: link:../../packages/slack
       '@buster/test-utils':
         specifier: workspace:*
         version: link:../../packages/test-utils
