@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { SettingsCards } from '../settings/SettingsCard';
 import { SlackIcon } from '@/components/ui/icons/customIcons/SlackIcon';
 import { Text } from '@/components/ui/typography';
@@ -15,25 +15,34 @@ import {
 import { Dropdown, type DropdownItems } from '@/components/ui/dropdown';
 import { LinkSlash, Refresh2 } from '@/components/ui/icons';
 import { Select } from '@/components/ui/select';
+import { StatusCard } from '@/components/ui/card/StatusCard';
+import { useMemoizedFn } from '@/hooks';
 
 export const SlackIntegrations = React.memo(() => {
-  const { data: slackIntegration } = useGetSlackIntegration();
+  const {
+    data: slackIntegration,
+    isFetched: isFetchedSlackIntegration,
+    error: slackIntegrationError
+  } = useGetSlackIntegration();
   const isConnected = slackIntegration?.connected ?? false;
 
-  return (
-    <SettingsCards
-      title="Slack"
-      description="Connect Buster with Slack"
-      cards={[
-        {
-          sections: [
-            <ConnectSlackCard key="connect-slack-card" />,
-            isConnected && <ConnectedSlackChannels key="connected-slack-channels" />
-          ].filter(Boolean)
-        }
-      ]}
-    />
-  );
+  const cards = useMemo(() => {
+    const sections = [
+      <ConnectSlackCard key="connect-slack-card" />,
+      isConnected && <ConnectedSlackChannels key="connected-slack-channels" />
+    ].filter(Boolean);
+    return [{ sections }];
+  }, [isConnected]);
+
+  if (slackIntegrationError) {
+    return <StatusCard message="Error fetching slack integration." variant={'danger'} />;
+  }
+
+  if (!isFetchedSlackIntegration) {
+    return <div className="bg-gray-light/50 h-24 w-full animate-pulse rounded"></div>;
+  }
+
+  return <SettingsCards title="Slack" description="Connect Buster with Slack" cards={cards} />;
 });
 
 SlackIntegrations.displayName = 'SlackIntegrations';
@@ -112,6 +121,21 @@ const ConnectedSlackChannels = React.memo(() => {
   const channels = slackChannelsData?.channels || [];
   const selectedChannelId = slackIntegration?.integration?.default_channel?.id;
 
+  const items = useMemo(() => {
+    return channels.map((channel) => ({
+      label: channel.name,
+      value: channel.id
+    }));
+  }, [channels]);
+
+  const onChange = useMemoizedFn((channelId: string) => {
+    const channel = channels.find((channel) => channel.id === channelId);
+    if (!channel) return;
+    updateSlackIntegration({
+      default_channel: channel
+    });
+  });
+
   return (
     <div className="flex items-center justify-between space-x-4">
       <div className="flex flex-col space-y-0.5">
@@ -125,7 +149,7 @@ const ConnectedSlackChannels = React.memo(() => {
           <>
             {isFetchedSlackChannels && (
               <Button
-                size={'small'}
+                size={'tall'}
                 variant="ghost"
                 suffix={<Refresh2 />}
                 onClick={() => refetchSlackChannels()}>
@@ -135,19 +159,10 @@ const ConnectedSlackChannels = React.memo(() => {
 
             <Select
               className="w-fit min-w-40"
-              items={channels.map((channel) => ({
-                label: channel.name,
-                value: channel.id
-              }))}
+              items={items}
               placeholder="Select a channel"
               value={selectedChannelId}
-              onChange={(channelId) => {
-                const channel = channels.find((channel) => channel.id === channelId);
-                if (!channel) return;
-                updateSlackIntegration({
-                  default_channel: channel
-                });
-              }}
+              onChange={onChange}
               loading={isLoadingSlackChannels || isLoadingSlackIntegration}
             />
           </>
