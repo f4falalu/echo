@@ -1,20 +1,20 @@
 import type { CoreMessage } from 'ai';
-import { 
-  APICallError, 
-  EmptyResponseBodyError, 
-  InvalidToolArgumentsError, 
-  JSONParseError, 
-  NoSuchToolError 
+import {
+  APICallError,
+  EmptyResponseBodyError,
+  InvalidToolArgumentsError,
+  JSONParseError,
+  NoSuchToolError,
 } from 'ai';
 import { describe, expect, it, vi } from 'vitest';
-import { createRetryOnErrorHandler } from '../../../src/utils/retry/retry-helpers';
-import { detectRetryableError } from '../../../src/utils/retry/retry-agent-stream';
-import { RetryWithHealingError } from '../../../src/utils/retry/retry-error';
 import {
   applyHealingStrategy,
   determineHealingStrategy,
   shouldRetryWithoutHealing,
 } from '../../../src/utils/retry/healing-strategies';
+import { detectRetryableError } from '../../../src/utils/retry/retry-agent-stream';
+import { RetryWithHealingError } from '../../../src/utils/retry/retry-error';
+import { createRetryOnErrorHandler } from '../../../src/utils/retry/retry-helpers';
 import type { WorkflowContext } from '../../../src/utils/retry/types';
 
 describe('Healing Behavior - Different Error Types', () => {
@@ -41,9 +41,11 @@ describe('Healing Behavior - Different Error Types', () => {
       expect(healedMessages).toHaveLength(2);
       expect(healedMessages[0]?.content).toBe('Analyze my revenue data');
       expect(healedMessages[1]?.content).toBe('Please continue with your analysis.');
-      
+
       // The empty assistant message should be gone
-      expect(healedMessages.find(m => m.role === 'assistant' && m.content === '')).toBeUndefined();
+      expect(
+        healedMessages.find((m) => m.role === 'assistant' && m.content === '')
+      ).toBeUndefined();
     });
   });
 
@@ -51,17 +53,17 @@ describe('Healing Behavior - Different Error Types', () => {
     it('should remove malformed JSON response and retry', () => {
       const messages: CoreMessage[] = [
         { role: 'user', content: 'Create a metric' },
-        { 
-          role: 'assistant', 
+        {
+          role: 'assistant',
           content: [
             { type: 'text', text: 'Creating metric...' },
-            { 
-              type: 'tool-call', 
-              toolCallId: '123', 
+            {
+              type: 'tool-call',
+              toolCallId: '123',
               toolName: 'createMetrics',
-              args: '{"name": "revenue", "expression": ' // Incomplete JSON
-            }
-          ]
+              args: '{"name": "revenue", "expression": ', // Incomplete JSON
+            },
+          ],
         },
       ];
 
@@ -80,9 +82,9 @@ describe('Healing Behavior - Different Error Types', () => {
       const healedMessages = applyHealingStrategy(messages, strategy);
       expect(healedMessages).toHaveLength(2);
       expect(healedMessages[1]?.content).toBe('Please continue with your analysis.');
-      
+
       // The malformed assistant message should be removed
-      expect(healedMessages.find(m => m.role === 'assistant')).toBeUndefined();
+      expect(healedMessages.find((m) => m.role === 'assistant')).toBeUndefined();
     });
   });
 
@@ -90,16 +92,16 @@ describe('Healing Behavior - Different Error Types', () => {
     it('should keep the tool attempt and add healing message', () => {
       const messages: CoreMessage[] = [
         { role: 'user', content: 'Create a dashboard' },
-        { 
-          role: 'assistant', 
+        {
+          role: 'assistant',
           content: [
-            { 
-              type: 'tool-call', 
-              toolCallId: 'call_123', 
+            {
+              type: 'tool-call',
+              toolCallId: 'call_123',
               toolName: 'createDashboards',
-              args: { name: 'Revenue Dashboard' }
-            }
-          ]
+              args: { name: 'Revenue Dashboard' },
+            },
+          ],
         },
       ];
 
@@ -118,15 +120,17 @@ describe('Healing Behavior - Different Error Types', () => {
 
       const healedMessages = applyHealingStrategy(messages, strategy);
       expect(healedMessages).toHaveLength(3);
-      
+
       // Original messages should still be there
       expect(healedMessages[0]?.content).toBe('Create a dashboard');
       expect(healedMessages[1]?.role).toBe('assistant');
-      
+
       // Healing message should be added
       expect(healedMessages[2]?.role).toBe('tool');
       expect(healedMessages[2]?.content[0].type).toBe('tool-result');
-      expect(healedMessages[2]?.content[0].result.error).toContain('Tool "createDashboards" is not available');
+      expect(healedMessages[2]?.content[0].result.error).toContain(
+        'Tool "createDashboards" is not available'
+      );
     });
   });
 
@@ -134,16 +138,16 @@ describe('Healing Behavior - Different Error Types', () => {
     it('should keep the tool call and add error result', () => {
       const messages: CoreMessage[] = [
         { role: 'user', content: 'Query the database' },
-        { 
-          role: 'assistant', 
+        {
+          role: 'assistant',
           content: [
-            { 
-              type: 'tool-call', 
-              toolCallId: 'call_456', 
+            {
+              type: 'tool-call',
+              toolCallId: 'call_456',
               toolName: 'executeSql',
-              args: { query: 123 } // Wrong type
-            }
-          ]
+              args: { query: 123 }, // Wrong type
+            },
+          ],
         },
       ];
 
@@ -152,9 +156,7 @@ describe('Healing Behavior - Different Error Types', () => {
         toolCallId: 'call_456',
         args: { query: 123 },
         cause: {
-          errors: [
-            { path: ['query'], message: 'Expected string, received number' }
-          ],
+          errors: [{ path: ['query'], message: 'Expected string, received number' }],
         },
       });
       (error as any).name = 'AI_InvalidToolArgumentsError';
@@ -168,11 +170,13 @@ describe('Healing Behavior - Different Error Types', () => {
 
       const healedMessages = applyHealingStrategy(messages, strategy);
       expect(healedMessages).toHaveLength(3);
-      
+
       // Tool error result should be added
       const toolResult = healedMessages[2];
       expect(toolResult?.role).toBe('tool');
-      expect(toolResult?.content[0].result.error).toContain('query: Expected string, received number');
+      expect(toolResult?.content[0].result.error).toContain(
+        'query: Expected string, received number'
+      );
     });
   });
 
@@ -254,7 +258,7 @@ describe('Healing Behavior - Different Error Types', () => {
 
       expect(thrownError).toBeInstanceOf(RetryWithHealingError);
       expect(thrownError.retryableError.type).toBe('empty-response');
-      
+
       // The healing message should be a simple "continue" message
       expect(thrownError.retryableError.healingMessage.role).toBe('user');
       expect(thrownError.retryableError.healingMessage.content).toBe('Please continue.');

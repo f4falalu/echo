@@ -8,10 +8,10 @@ import { thinkAndPrepAgent } from '../agents/think-and-prep-agent/think-and-prep
 import type { thinkAndPrepWorkflowInputSchema } from '../schemas/workflow-schemas';
 import { ChunkProcessor } from '../utils/database/chunk-processor';
 import {
-  isRetryWithHealingError,
   createRetryOnErrorHandler,
   createUserFriendlyErrorMessage,
   handleRetryWithHealing,
+  isRetryWithHealingError,
 } from '../utils/retry';
 import type { RetryableError, WorkflowContext } from '../utils/retry/types';
 import { appendToConversation, standardizeMessages } from '../utils/standardizeMessages';
@@ -253,9 +253,9 @@ const thinkAndPrepExecution = async ({
               onError: createRetryOnErrorHandler({
                 retryCount,
                 maxRetries,
-                workflowContext: { 
+                workflowContext: {
                   currentStep: 'think-and-prep',
-                  availableTools 
+                  availableTools,
                 },
               }),
             });
@@ -299,22 +299,17 @@ const thinkAndPrepExecution = async ({
 
           // Get the current messages from chunk processor
           const currentMessages = chunkProcessor.getAccumulatedMessages();
-          
+
           // Handle the retry with healing
-          const { healedMessages, shouldContinueWithoutHealing, backoffDelay } = 
-            await handleRetryWithHealing(
-              retryableError,
-              currentMessages,
-              retryCount,
-              { 
-                currentStep: 'think-and-prep',
-                availableTools 
-              }
-            );
-          
+          const { healedMessages, shouldContinueWithoutHealing, backoffDelay } =
+            await handleRetryWithHealing(retryableError, currentMessages, retryCount, {
+              currentStep: 'think-and-prep',
+              availableTools,
+            });
+
           // Wait before retrying
           await new Promise((resolve) => setTimeout(resolve, backoffDelay));
-          
+
           // If it's a network error, just increment and continue
           if (shouldContinueWithoutHealing) {
             retryCount++;
@@ -334,7 +329,7 @@ const thinkAndPrepExecution = async ({
             console.error('Think and Prep: Failed to save healing message to database', {
               error: dbError,
               retryCount,
-              willContinueAnyway: true
+              willContinueAnyway: true,
             });
             // Continue with retry even if save fails
           }

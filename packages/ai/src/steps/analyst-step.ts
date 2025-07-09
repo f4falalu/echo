@@ -18,10 +18,10 @@ import {
   ThinkAndPrepOutputSchema,
 } from '../utils/memory/types';
 import {
-  isRetryWithHealingError,
   createRetryOnErrorHandler,
   createUserFriendlyErrorMessage,
   handleRetryWithHealing,
+  isRetryWithHealingError,
 } from '../utils/retry';
 import type { RetryableError, WorkflowContext } from '../utils/retry/types';
 import { createOnChunkHandler, handleStreamingError } from '../utils/streaming';
@@ -374,9 +374,9 @@ const analystExecution = async ({
             onError: createRetryOnErrorHandler({
               retryCount,
               maxRetries,
-              workflowContext: { 
+              workflowContext: {
                 currentStep: 'analyst',
-                availableTools 
+                availableTools,
               },
             }),
           });
@@ -425,22 +425,17 @@ const analystExecution = async ({
 
         // Get the current messages from chunk processor
         const currentMessages = chunkProcessor.getAccumulatedMessages();
-        
+
         // Handle the retry with healing
-        const { healedMessages, shouldContinueWithoutHealing, backoffDelay } = 
-          await handleRetryWithHealing(
-            retryableError,
-            currentMessages,
-            retryCount,
-            { 
-              currentStep: 'analyst',
-              availableTools 
-            }
-          );
-        
+        const { healedMessages, shouldContinueWithoutHealing, backoffDelay } =
+          await handleRetryWithHealing(retryableError, currentMessages, retryCount, {
+            currentStep: 'analyst',
+            availableTools,
+          });
+
         // Wait before retrying
         await new Promise((resolve) => setTimeout(resolve, backoffDelay));
-        
+
         // If it's a network error, just increment and continue
         if (shouldContinueWithoutHealing) {
           retryCount++;
@@ -460,7 +455,7 @@ const analystExecution = async ({
           console.error('Analyst: Failed to save healing message to database', {
             error: dbError,
             retryCount,
-            willContinueAnyway: true
+            willContinueAnyway: true,
           });
           // Continue with retry even if save fails
         }

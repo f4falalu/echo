@@ -1,7 +1,7 @@
 import postProcessingWorkflow, {
   type PostProcessingWorkflowOutput,
 } from '@buster/ai/workflows/post-processing-workflow';
-import { eq, getBraintrustMetadata, getDb, messages } from '@buster/database';
+import { eq, getBraintrustMetadata, getDb, messages, slackIntegrations } from '@buster/database';
 import type {
   AssumptionClassification,
   AssumptionLabel,
@@ -17,7 +17,10 @@ import {
   fetchMessageWithContext,
   fetchPreviousPostProcessingMessages,
   fetchUserDatasets,
+  getExistingSlackMessageForChat,
   sendSlackNotification,
+  sendSlackReplyNotification,
+  trackSlackNotification,
 } from './helpers';
 import { DataFetchError, MessageNotFoundError, TaskInputSchema } from './types';
 import type { TaskInput, TaskOutput } from './types';
@@ -287,21 +290,89 @@ export const messagePostProcessingTask: ReturnType<
             organizationId: messageContext.organizationId,
           });
         } else {
-          const slackResult = await sendSlackNotification({
-            organizationId: messageContext.organizationId,
-            userName: messageContext.userName,
-            chatId: messageContext.chatId,
-            summaryTitle: dbData.summary_title,
-            summaryMessage: dbData.summary_message,
-            toolCalled: dbData.tool_called,
-          });
+          // Check if any messages from this chat have been sent to Slack
+          const existingSlackMessage = await getExistingSlackMessageForChat(messageContext.chatId);
+
+          let slackResult: Awaited<ReturnType<typeof sendSlackNotification>>;
+
+          if (
+            existingSlackMessage?.exists &&
+            existingSlackMessage.slackThreadTs &&
+            existingSlackMessage.channelId &&
+            existingSlackMessage.integrationId
+          ) {
+            logger.log('Found existing Slack thread for chat, sending as reply', {
+              messageId: payload.messageId,
+              chatId: messageContext.chatId,
+              threadTs: existingSlackMessage.slackThreadTs,
+            });
+
+            // Need to get integration details to get the token vault key
+            const db = getDb();
+            const [integration] = await db
+              .select({ tokenVaultKey: slackIntegrations.tokenVaultKey })
+              .from(slackIntegrations)
+              .where(eq(slackIntegrations.id, existingSlackMessage.integrationId))
+              .limit(1);
+
+            if (!integration?.tokenVaultKey) {
+              logger.error('Could not find integration token for reply', {
+                integrationId: existingSlackMessage.integrationId,
+              });
+              slackResult = { sent: false, error: 'Integration not found' };
+            } else {
+              slackResult = await sendSlackReplyNotification({
+                organizationId: messageContext.organizationId,
+                userName: messageContext.userName,
+                chatId: messageContext.chatId,
+                summaryTitle: dbData.summary_title,
+                summaryMessage: dbData.summary_message,
+                toolCalled: dbData.tool_called,
+                threadTs: existingSlackMessage.slackThreadTs,
+                channelId: existingSlackMessage.channelId,
+                integrationId: existingSlackMessage.integrationId,
+                tokenVaultKey: integration.tokenVaultKey,
+              });
+            }
+          } else {
+            logger.log('No existing Slack thread found, sending as new message', {
+              messageId: payload.messageId,
+              chatId: messageContext.chatId,
+            });
+
+            slackResult = await sendSlackNotification({
+              organizationId: messageContext.organizationId,
+              userName: messageContext.userName,
+              chatId: messageContext.chatId,
+              summaryTitle: dbData.summary_title,
+              summaryMessage: dbData.summary_message,
+              toolCalled: dbData.tool_called,
+            });
+          }
 
           if (slackResult.sent) {
             slackNotificationSent = true;
             logger.log('Slack notification sent successfully', {
               messageId: payload.messageId,
               organizationId: messageContext.organizationId,
+              isReply: !!existingSlackMessage?.exists,
             });
+
+            // Track the sent notification
+            if (slackResult.messageTs && slackResult.integrationId && slackResult.channelId) {
+              await trackSlackNotification({
+                messageId: payload.messageId,
+                integrationId: slackResult.integrationId,
+                channelId: slackResult.channelId,
+                messageTs: slackResult.messageTs,
+                ...(slackResult.threadTs && { threadTs: slackResult.threadTs }),
+                userName: messageContext.userName,
+                chatId: messageContext.chatId,
+                summaryTitle: dbData.summary_title,
+                summaryMessage: dbData.summary_message,
+                ...(slackResult.slackBlocks && { slackBlocks: slackResult.slackBlocks }),
+              });
+            }
           } else {
             logger.log('Slack notification not sent', {
               messageId: payload.messageId,

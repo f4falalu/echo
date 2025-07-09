@@ -22,7 +22,29 @@ import {
   ReasoningMessageSchema,
   ResponseMessageSchema,
 } from '@buster/server-shared/chats';
+import { PostProcessingMessageSchema } from '@buster/server-shared/message';
 import { and, eq, gte, isNull } from 'drizzle-orm';
+import type { z } from 'zod/v4';
+
+/**
+ * Validates a nullable JSONB field against a Zod schema
+ * Returns undefined for null, empty objects, or invalid data
+ * Returns the validated typed object for valid data
+ */
+function validateNullableJsonb<T extends z.ZodTypeAny>(
+  data: unknown,
+  schema: T
+): z.infer<T> | undefined {
+  // Handle null/undefined
+  if (data == null) return undefined;
+
+  // Handle empty objects
+  if (typeof data === 'object' && Object.keys(data).length === 0) return undefined;
+
+  // Validate with schema
+  const result = schema.safeParse(data);
+  return result.success ? result.data : undefined;
+}
 
 // Optimized: Generic function to handle both response and reasoning messages
 function buildMessages<T extends { id: string }>(
@@ -133,6 +155,10 @@ export function buildChatWithMessages(
       final_reasoning_message: msg.finalReasoningMessage || null,
       feedback: msg.feedback ? (msg.feedback as 'negative') : null,
       is_completed: msg.isCompleted || false,
+      post_processing_message: validateNullableJsonb(
+        msg.postProcessingMessage,
+        PostProcessingMessageSchema
+      ),
     };
 
     messageIds[i] = msg.id;
@@ -383,6 +409,10 @@ export async function handleAssetChat(
         final_reasoning_message: null,
         feedback: null,
         is_completed: false,
+        post_processing_message: validateNullableJsonb(
+          msg.postProcessingMessage,
+          PostProcessingMessageSchema
+        ),
       };
 
       // Only add message ID if it doesn't already exist

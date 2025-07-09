@@ -19,13 +19,13 @@ import {
   UnsupportedFunctionalityError,
 } from 'ai';
 import { describe, expect, it, vi } from 'vitest';
+import { detectRetryableError } from '../../../src/utils/retry/retry-agent-stream';
+import { RetryWithHealingError } from '../../../src/utils/retry/retry-error';
 import {
   createRetryOnErrorHandler,
   createUserFriendlyErrorMessage,
   extractDetailedErrorMessage,
 } from '../../../src/utils/retry/retry-helpers';
-import { detectRetryableError } from '../../../src/utils/retry/retry-agent-stream';
-import { RetryWithHealingError } from '../../../src/utils/retry/retry-error';
 import type { WorkflowContext } from '../../../src/utils/retry/types';
 
 describe('AI SDK Error Mocks - Comprehensive Error Handling', () => {
@@ -150,15 +150,13 @@ describe('AI SDK Error Mocks - Comprehensive Error Handling', () => {
         toolCallId: 'call_123',
         args: { query: 123 }, // Wrong type
         cause: {
-          errors: [
-            { path: ['query'], message: 'Expected string, received number' },
-          ],
+          errors: [{ path: ['query'], message: 'Expected string, received number' }],
         },
       });
 
       // Cast to Error with name property for detection
       (error as any).name = 'AI_InvalidToolArgumentsError';
-      (error as any).toolCallId = 'call_123';  // Ensure toolCallId is accessible
+      (error as any).toolCallId = 'call_123'; // Ensure toolCallId is accessible
 
       const retryableError = detectRetryableError(error);
 
@@ -439,19 +437,25 @@ describe('AI SDK Error Mocks - Comprehensive Error Handling', () => {
     it('should create user-friendly message for API errors', () => {
       const error = new Error('API request failed');
       const message = createUserFriendlyErrorMessage(error);
-      expect(message).toBe('The analysis service is temporarily unavailable. Please try again in a few moments.');
+      expect(message).toBe(
+        'The analysis service is temporarily unavailable. Please try again in a few moments.'
+      );
     });
 
     it('should create user-friendly message for model errors', () => {
       const error = new Error('model not found');
       const message = createUserFriendlyErrorMessage(error);
-      expect(message).toBe('The analysis service is temporarily unavailable. Please try again in a few moments.');
+      expect(message).toBe(
+        'The analysis service is temporarily unavailable. Please try again in a few moments.'
+      );
     });
 
     it('should create generic message for unknown errors', () => {
       const error = new Error('Something went wrong');
       const message = createUserFriendlyErrorMessage(error);
-      expect(message).toBe('Something went wrong during the analysis. Please try again or contact support if the issue persists.');
+      expect(message).toBe(
+        'Something went wrong during the analysis. Please try again or contact support if the issue persists.'
+      );
     });
   });
 

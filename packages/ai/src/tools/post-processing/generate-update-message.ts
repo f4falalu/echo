@@ -9,6 +9,7 @@ interface GenerateUpdateMessageOutput {
 
 // Zod schema for generate update message input validation
 export const generateUpdateMessageSchema = z.object({
+  title: z.string().describe('The title of the update message.'),
   update_message: z
     .string()
     .min(1)
