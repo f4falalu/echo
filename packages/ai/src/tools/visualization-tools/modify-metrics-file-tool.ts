@@ -10,6 +10,7 @@ import { z } from 'zod';
 import { getWorkflowDataSourceManager } from '../../utils/data-source-manager';
 import { createPermissionErrorMessage, validateSqlPermissions } from '../../utils/sql-permissions';
 import type { AnalystRuntimeContext } from '../../workflows/analyst-workflow';
+import { validateAndAdjustBarLineAxes } from './bar-line-axis-validator';
 import { trackFileAssociations } from './file-tracking-helper';
 import {
   addMetricVersionToHistory,
@@ -455,7 +456,34 @@ async function processMetricFileUpdate(
     const parsedYml = yaml.parse(fixedYmlContent);
     const metricYml = validateMetricYml(parsedYml);
 
-    const newMetricYml = metricYml;
+    // Validate and adjust bar/line chart axes
+    const axisValidation = validateAndAdjustBarLineAxes(metricYml);
+    if (!axisValidation.isValid) {
+      const error = axisValidation.error || 'Invalid bar/line chart axis configuration';
+      modificationResults.push({
+        file_id: existingFile.id,
+        file_name: existingFile.name,
+        success: false,
+        error,
+        modification_type: 'axis_validation',
+        timestamp,
+        duration,
+      });
+      return {
+        success: false,
+        modificationResults,
+        validationMessage: '',
+        validationResults: [],
+        validatedDatasetIds: [],
+        error,
+      };
+    }
+
+    // Use adjusted YAML if axes were swapped
+    const newMetricYml =
+      axisValidation.shouldSwapAxes && axisValidation.adjustedYml
+        ? axisValidation.adjustedYml
+        : metricYml;
 
     // Check if SQL has changed to avoid unnecessary validation
     const existingContent = existingFile.content as MetricYml | null;
