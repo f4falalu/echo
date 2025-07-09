@@ -34,6 +34,7 @@ pub struct UserOverviewItem {
     pub id: Uuid,
     pub name: String,
     pub email: String,
+    pub avatar_url: Option<String>,
     pub can_query: bool,
     pub lineage: Vec<Vec<UserPermissionLineage>>,
 }
@@ -86,15 +87,16 @@ pub async fn get_dataset_overview(
             users::email,
             users_to_organizations::role,
             users::name.nullable(),
+            users::avatar_url.nullable(),
         ))
-        .load::<(Uuid, String, UserOrganizationRole, Option<String>)>(&mut conn)
+        .load::<(Uuid, String, UserOrganizationRole, Option<String>, Option<String>)>(&mut conn)
         .await
         .map_err(|e| {
             tracing::error!("Error getting users: {:?}", e);
             (StatusCode::INTERNAL_SERVER_ERROR, "Database error")
         })?;
 
-    let user_ids = users.iter().map(|(id, _, _, _)| *id).collect::<Vec<_>>();
+    let user_ids = users.iter().map(|(id, _, _, _, _)| *id).collect::<Vec<_>>();
 
     // Direct dataset access
     let datasets_query: Vec<(Uuid, String, Uuid)> = dataset_permissions::table
@@ -207,7 +209,7 @@ pub async fn get_dataset_overview(
 
     let users = users
         .into_iter()
-        .map(|(id, email, role, name)| {
+        .map(|(id, email, role, name, avatar_url)| {
             let can_query = match role {
                 UserOrganizationRole::WorkspaceAdmin | UserOrganizationRole::DataAdmin | UserOrganizationRole::Querier => true,
                 UserOrganizationRole::RestrictedQuerier => {
@@ -375,6 +377,7 @@ pub async fn get_dataset_overview(
                 id,
                 name: name.unwrap_or(email.clone()),
                 email,
+                avatar_url,
                 can_query,
                 lineage,
             }
