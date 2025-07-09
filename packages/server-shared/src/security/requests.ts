@@ -27,7 +27,7 @@ export type RemoveApprovedDomainRequest = z.infer<
 >;
 
 export const UpdateWorkspaceSettingsRequestSchema = z.object({
-  enabled: z.boolean().optional(),
+  restrict_new_user_invitations: z.boolean().optional(),
   default_role: OrganizationRoleSchema.optional(),
   // this can either be a uuid or "all"
   default_datasets_ids: z

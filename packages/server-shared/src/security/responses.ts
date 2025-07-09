@@ -22,7 +22,7 @@ export const RemoveApprovedDomainsResponseSchema =
   GetApprovedDomainsResponseSchema;
 
 export const GetWorkspaceSettingsResponseSchema = z.object({
-  enabled: z.boolean(),
+  restrict_new_user_invitations: z.boolean(),
   default_role: OrganizationRoleSchema,
   default_datasets: z.array(
     z.object({

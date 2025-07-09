@@ -5,7 +5,7 @@ import { SecurityCards } from './SecurityCards';
 import { Input } from '@/components/ui/inputs';
 import { Button } from '@/components/ui/buttons';
 import { Text } from '@/components/ui/typography';
-import { Plus, Dots } from '@/components/ui/icons';
+import { Plus, Dots, Trash } from '@/components/ui/icons';
 import { useBusterNotifications } from '@/context/BusterNotifications';
 import { Dropdown } from '@/components/ui/dropdown';
 import {
@@ -15,6 +15,7 @@ import {
 } from '@/api/buster_rest/security/queryRequests';
 import pluralize from 'pluralize';
 import { useMemoizedFn } from '@/hooks';
+import { formatDate } from '@/lib/date';
 
 interface ApprovedDomain {
   domain: string;
@@ -24,12 +25,12 @@ interface ApprovedDomain {
 export const ApprovedEmailDomains = React.memo(() => {
   const { data: approvedDomains = [] } = useGetApprovedDomains();
   const { mutateAsync: removeDomain } = useRemoveApprovedDomain();
+  const domainCount = approvedDomains.length;
 
-  const [isAddingDomain, setIsAddingDomain] = useState(false);
+  const [isEnabledAddDomain, setIsEnabledAddDomain] = useState(false);
 
   const { openInfoMessage, openErrorMessage } = useBusterNotifications();
 
-  const domainCount = approvedDomains.length;
   const countText = pluralize('approved email domain', domainCount, true);
 
   const handleRemoveDomain = useMemoizedFn(async (domain: string) => {
@@ -47,13 +48,15 @@ export const ApprovedEmailDomains = React.memo(() => {
         // Header section with count and add button
         <div key="header" className="flex items-center justify-between">
           <Text>{countText}</Text>
-          <Button onClick={() => setIsAddingDomain(true)} suffix={<Plus />}>
+          <Button onClick={() => setIsEnabledAddDomain(true)} suffix={<Plus />}>
             Add domain
           </Button>
         </div>,
 
         // Add domain input section (when adding)
-        isAddingDomain && <AddDomainInput key="add-domain" setIsAddingDomain={setIsAddingDomain} />,
+        isEnabledAddDomain && (
+          <AddDomainInput key="add-domain" setIsEnabledAddDomain={setIsEnabledAddDomain} />
+        ),
 
         // Domain list sections
         ...approvedDomains.map((domainData) => (
@@ -64,7 +67,7 @@ export const ApprovedEmailDomains = React.memo(() => {
           />
         ))
       ].filter(Boolean),
-    [countText, isAddingDomain, approvedDomains, handleRemoveDomain]
+    [countText, isEnabledAddDomain, approvedDomains, handleRemoveDomain]
   );
 
   return (
@@ -79,7 +82,7 @@ export const ApprovedEmailDomains = React.memo(() => {
 ApprovedEmailDomains.displayName = 'ApprovedEmailDomains';
 
 const AddDomainInput = React.memo(
-  ({ setIsAddingDomain }: { setIsAddingDomain: (isAddingDomain: boolean) => void }) => {
+  ({ setIsEnabledAddDomain }: { setIsEnabledAddDomain: (isEnabledAddDomain: boolean) => void }) => {
     const { mutateAsync: addDomain } = useAddApprovedDomain();
     const { openInfoMessage, openErrorMessage } = useBusterNotifications();
 
@@ -91,7 +94,7 @@ const AddDomainInput = React.memo(
       try {
         await addDomain({ domains: [newDomain.trim()] });
         setNewDomain('');
-        setIsAddingDomain(false);
+        setIsEnabledAddDomain(false);
         openInfoMessage('Domain added successfully');
       } catch (error) {
         openErrorMessage('Failed to add domain');
@@ -109,7 +112,7 @@ const AddDomainInput = React.memo(
             if (e.key === 'Enter') {
               handleAddDomain();
             } else if (e.key === 'Escape') {
-              setIsAddingDomain(false);
+              setIsEnabledAddDomain(false);
               setNewDomain('');
             }
           }}
@@ -122,7 +125,7 @@ const AddDomainInput = React.memo(
           size="tall"
           variant={'ghost'}
           onClick={() => {
-            setIsAddingDomain(false);
+            setIsEnabledAddDomain(false);
             setNewDomain('');
           }}>
           Cancel
@@ -134,37 +137,34 @@ const AddDomainInput = React.memo(
 
 AddDomainInput.displayName = 'AddDomainInput';
 
-interface DomainListItemProps {
+const DomainListItem = React.memo<{
   domainData: ApprovedDomain;
   onRemove: (domain: string) => Promise<void>;
-}
-
-const DomainListItem = React.memo<DomainListItemProps>(({ domainData, onRemove }) => {
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric'
-    });
-  };
+}>(({ domainData, onRemove }) => {
+  const items = useMemo(
+    () => [
+      {
+        label: 'Remove domain',
+        value: 'remove',
+        icon: <Trash />,
+        onClick: () => onRemove(domainData.domain)
+      }
+    ],
+    [domainData.domain, onRemove]
+  );
 
   return (
     <div className="flex items-center justify-between">
-      <div>
-        <Text className="font-medium">{domainData.domain}</Text>
+      <div className="mr-2 flex min-w-0 flex-1 flex-col space-y-0.5">
+        <Text className="font-medium" truncate>
+          {domainData.domain}
+        </Text>
         <Text variant="secondary" size="sm">
-          Added {formatDate(domainData.created_at)}
+          Added {formatDate({ date: domainData.created_at, format: 'LL' })}
         </Text>
       </div>
-      <Dropdown
-        items={[
-          {
-            label: 'Remove domain',
-            value: 'remove',
-            onClick: () => onRemove(domainData.domain)
-          }
-        ]}>
-        <Button variant="ghost" size="small" prefix={<Dots />} />
+      <Dropdown side="left" align="center" items={items}>
+        <Button variant="ghost" prefix={<Dots />} />
       </Dropdown>
     </div>
   );

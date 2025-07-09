@@ -10,12 +10,20 @@ import {
   addApprovedDomain,
   removeApprovedDomain
 } from './requests';
-import type { GetApprovedDomainsResponse } from '@buster/server-shared/security';
+import type {
+  GetApprovedDomainsResponse,
+  GetWorkspaceSettingsResponse
+} from '@buster/server-shared/security';
 
 export const useGetWorkspaceSettings = () => {
   return useQuery({
     ...securityQueryKeys.securityGetWorkspaceSettings,
-    queryFn: getWorkspaceSettings
+    queryFn: getWorkspaceSettings,
+    initialData: {
+      restrict_new_user_invitations: false,
+      default_role: 'viewer',
+      default_datasets: []
+    } satisfies GetWorkspaceSettingsResponse
   });
 };
 
@@ -29,7 +37,8 @@ export const useGetInviteLink = () => {
 export const useGetApprovedDomains = () => {
   return useQuery({
     ...securityQueryKeys.securityApprovedDomains,
-    queryFn: getApprovedDomains
+    queryFn: getApprovedDomains,
+    initialData: []
   });
 };
 
