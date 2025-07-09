@@ -47,11 +47,7 @@ const MessageAssumptionsDemo = ({
       <Button variant="outlined" onClick={handleClose}>
         Close Message Assumptions
       </Button>
-      <MessageAssumptions
-        ref={messageAssumptionsRef}
-        {...mockMessage}
-        onClickAskDataTeam={() => {}}
-      />
+      <MessageAssumptions ref={messageAssumptionsRef} {...mockMessage} />
     </div>
   );
 };

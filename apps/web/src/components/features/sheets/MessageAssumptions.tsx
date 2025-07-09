@@ -11,16 +11,13 @@ import {
   confidenceTranslations,
   assumptionLabelTranslations
 } from '@/lib/messages/confidence-translations';
-import { ArrowUpRight } from '@/components/ui/icons';
-import { CircleCheck, OctagonWarning } from '@/components/ui/icons/NucleoIconFilled';
+import { CircleCheck, OctagonWarning } from '@/components/ui/icons';
 import { Pill } from '@/components/ui/pills/Pill';
-import { cn } from '@/lib/classMerge';
 
 type MessageAssumptionsProps = Pick<
   PostProcessingMessage,
   'summary_message' | 'summary_title' | 'assumptions' | 'confidence_score'
 > & {
-  onClickAskDataTeam: () => void;
   useTrigger?: boolean;
 };
 
@@ -32,14 +29,7 @@ export interface MessageAssumptionsRef {
 export const MessageAssumptions = React.memo(
   forwardRef<MessageAssumptionsRef, MessageAssumptionsProps>(
     (
-      {
-        summary_message,
-        useTrigger = true,
-        onClickAskDataTeam,
-        summary_title,
-        assumptions = [],
-        confidence_score
-      },
+      { summary_message, useTrigger = true, summary_title, assumptions = [], confidence_score },
       ref
     ) => {
       const [open, setOpen] = useState(false);
@@ -52,7 +42,7 @@ export const MessageAssumptions = React.memo(
 
       return (
         <Sheet
-          contentClassName="w-[465px]"
+          contentClassName="w-[525px]"
           open={open}
           onOpenChange={setOpen}
           trigger={
@@ -80,7 +70,6 @@ export const MessageAssumptions = React.memo(
                     summary_message={summary_message}
                     summary_title={summary_title}
                     confidence_score={confidence_score}
-                    onClickAskDataTeam={onClickAskDataTeam}
                   />
                 ) : (
                   <AssumptionList assumptions={assumptions} selectedPanel={selectedPanel} />
@@ -144,13 +133,11 @@ const AssumptionHeader = ({
 const AssumptionSummary = ({
   summary_message,
   summary_title,
-  confidence_score,
-  onClickAskDataTeam
+  confidence_score
 }: {
   summary_message: string;
   summary_title: string;
   confidence_score: ConfidenceScore;
-  onClickAskDataTeam: () => void;
 }) => {
   return (
     <div className="">
@@ -165,14 +152,6 @@ const AssumptionSummary = ({
       <Paragraph className="mt-2" variant={'secondary'}>
         {summary_message}
       </Paragraph>
-
-      <Button
-        onClick={onClickAskDataTeam}
-        className="mt-6"
-        variant={'black'}
-        suffix={<ArrowUpRight />}>
-        Ask data team to review your chat
-      </Button>
     </div>
   );
 };
@@ -306,21 +285,19 @@ const AssumptionCard = ({
 const Trigger: React.FC<{
   onClick: () => void;
   confidence_score: ConfidenceScore;
-}> = ({ onClick, confidence_score }) => {
+}> = React.memo(({ onClick, confidence_score }) => {
   const isLow = confidence_score === 'low' || !confidence_score;
   const icon = isLow ? <OctagonWarning /> : <CircleCheck />;
 
   return (
     <div
-      className={cn(
-        'flex cursor-pointer items-center rounded-sm p-[3px] text-lg transition-colors',
-        {
-          'bg-success-foreground bg-success-background hover:bg-success-background-hover': !isLow,
-          'hover:bg-danger-background-hover text-danger-foreground': isLow
-        }
-      )}
+      className={
+        'text-icon-color flex cursor-pointer items-center rounded-sm p-[3px] text-lg transition-colors'
+      }
       onClick={onClick}>
       {icon}
     </div>
   );
-};
+});
+
+Trigger.displayName = 'Trigger';
