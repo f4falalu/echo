@@ -1,9 +1,8 @@
 'use client';
 
 import React, { useMemo, type ReactNode } from 'react';
-import { SecurityCards } from './SecurityCards';
+import { SettingsCards } from '../settings/SettingsCard';
 import { Text } from '@/components/ui/typography';
-import { Button } from '@/components/ui/buttons';
 import { Switch } from '@/components/ui/switch';
 import {
   useGetWorkspaceSettings,
@@ -45,7 +44,7 @@ export const WorkspaceRestrictions = React.memo(() => {
   );
 
   return (
-    <SecurityCards
+    <SettingsCards
       title="Workspace restrictions"
       description="Restrict the workspace to only allow users with an email address at these domains"
       cards={[{ sections }]}

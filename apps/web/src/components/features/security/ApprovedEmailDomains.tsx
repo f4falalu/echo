@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useMemo, useState } from 'react';
-import { SecurityCards } from './SecurityCards';
+import { SettingsCards } from '../settings/SettingsCard';
 import { Input } from '@/components/ui/inputs';
 import { Button } from '@/components/ui/buttons';
 import { Text } from '@/components/ui/typography';
@@ -71,7 +71,7 @@ export const ApprovedEmailDomains = React.memo(() => {
   );
 
   return (
-    <SecurityCards
+    <SettingsCards
       title="Approved email domains"
       description="Anyone with an email address at these domains is allowed to sign up for this workspace"
       cards={[{ sections }]}
@@ -91,7 +91,7 @@ const AddDomainInput = React.memo(
     const handleAddDomain = useMemoizedFn(async () => {
       const domain = newDomain.trim();
       if (!domain) return;
-      
+
       const domainRegex = /^[a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9]\.[a-zA-Z]{2,}$/;
       if (!domainRegex.test(domain)) {
         openErrorMessage('Please enter a valid domain name');
