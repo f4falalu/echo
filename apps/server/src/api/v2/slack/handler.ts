@@ -131,12 +131,15 @@ export class SlackHandler {
    */
   async handleOAuthCallback(c: Context): Promise<Response> {
     try {
+      // Get base URL from environment
+      const baseUrl = process.env.BUSTER_URL || '';
+
       // Get service instance (lazy initialization)
       const slackOAuthService = this.getSlackOAuthService();
 
       // Check if service is available
       if (!slackOAuthService) {
-        return c.redirect('/app/settings/integrations?status=error&error=not_configured');
+        return c.redirect(`${baseUrl}/app/settings/integrations?status=error&error=not_configured`);
       }
 
       // Parse query parameters
@@ -153,7 +156,7 @@ export class SlackHandler {
         // Handle user denial
         if (query.error === 'access_denied') {
           console.info('OAuth flow cancelled by user');
-          return c.redirect('/app/settings/integrations?status=cancelled');
+          return c.redirect(`${baseUrl}/app/settings/integrations?status=cancelled`);
         }
 
         console.error('Invalid OAuth callback parameters:', {
@@ -161,7 +164,9 @@ export class SlackHandler {
           providedKeys: Object.keys(query),
           expectedKeys: ['code', 'state'],
         });
-        return c.redirect('/app/settings/integrations?status=error&error=invalid_parameters');
+        return c.redirect(
+          `${baseUrl}/app/settings/integrations?status=error&error=invalid_parameters`
+        );
       }
 
       // Handle OAuth callback
@@ -178,7 +183,7 @@ export class SlackHandler {
           resultKeys: Object.keys(result),
         });
         const errorParam = encodeURIComponent(result.error || 'unknown_error');
-        return c.redirect(`/app/settings/integrations?status=error&error=${errorParam}`);
+        return c.redirect(`${baseUrl}/app/settings/integrations?status=error&error=${errorParam}`);
       }
 
       // Use metadata to determine return URL
@@ -187,7 +192,7 @@ export class SlackHandler {
         ? `&workspace=${encodeURIComponent(result.teamName)}`
         : '';
 
-      return c.redirect(`${returnUrl}?status=success${workspaceParam}`);
+      return c.redirect(`${baseUrl}${returnUrl}?status=success${workspaceParam}`);
     } catch (error) {
       console.error('OAuth callback error:', {
         errorType: error?.constructor?.name || 'Unknown',
@@ -197,7 +202,7 @@ export class SlackHandler {
       });
       const errorMessage = error instanceof Error ? error.message : 'callback_failed';
       return c.redirect(
-        `/app/settings/integrations?status=error&error=${encodeURIComponent(errorMessage)}`
+        `${baseUrl}/app/settings/integrations?status=error&error=${encodeURIComponent(errorMessage)}`
       );
     }
   }
