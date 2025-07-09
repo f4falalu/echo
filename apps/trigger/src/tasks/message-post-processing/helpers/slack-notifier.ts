@@ -36,6 +36,7 @@ export interface SlackNotificationResult {
   threadTs?: string;
   integrationId?: string;
   channelId?: string;
+  slackBlocks?: SlackBlock[];
 }
 
 interface SlackBlock {
@@ -201,6 +202,7 @@ export async function sendSlackNotification(
         ...(result.messageTs && { messageTs: result.messageTs }),
         integrationId: integration.id,
         channelId: integration.defaultChannel.id,
+        ...(slackMessage.blocks && { slackBlocks: slackMessage.blocks }),
       };
     }
 
@@ -270,6 +272,7 @@ export async function sendSlackReplyNotification(
         threadTs: params.threadTs,
         integrationId: params.integrationId,
         channelId: params.channelId,
+        ...(slackMessage.blocks && { slackBlocks: slackMessage.blocks }),
       };
     }
 
@@ -510,6 +513,7 @@ export async function trackSlackNotification(params: {
   chatId: string;
   summaryTitle?: string;
   summaryMessage?: string;
+  slackBlocks?: SlackBlock[];
 }): Promise<void> {
   const db = getDb();
 
@@ -525,8 +529,9 @@ export async function trackSlackNotification(params: {
           slackMessageTs: params.messageTs,
           slackThreadTs: params.threadTs || null,
           messageType: params.threadTs ? 'reply' : 'message',
-          content:
-            params.summaryTitle && params.summaryMessage
+          content: params.slackBlocks
+            ? JSON.stringify({ blocks: params.slackBlocks })
+            : params.summaryTitle && params.summaryMessage
               ? `${params.summaryTitle}\n\n${params.summaryMessage}`
               : 'Notification sent',
           senderInfo: {

@@ -295,7 +295,12 @@ export const messagePostProcessingTask: ReturnType<
 
           let slackResult: Awaited<ReturnType<typeof sendSlackNotification>>;
 
-          if (existingSlackMessage?.exists && existingSlackMessage.slackThreadTs && existingSlackMessage.channelId && existingSlackMessage.integrationId) {
+          if (
+            existingSlackMessage?.exists &&
+            existingSlackMessage.slackThreadTs &&
+            existingSlackMessage.channelId &&
+            existingSlackMessage.integrationId
+          ) {
             logger.log('Found existing Slack thread for chat, sending as reply', {
               messageId: payload.messageId,
               chatId: messageContext.chatId,
@@ -365,6 +370,7 @@ export const messagePostProcessingTask: ReturnType<
                 chatId: messageContext.chatId,
                 summaryTitle: dbData.summary_title,
                 summaryMessage: dbData.summary_message,
+                ...(slackResult.slackBlocks && { slackBlocks: slackResult.slackBlocks }),
               });
             }
           } else {
