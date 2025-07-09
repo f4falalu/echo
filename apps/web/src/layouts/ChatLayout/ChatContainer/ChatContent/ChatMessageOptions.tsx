@@ -62,10 +62,6 @@ export const ChatMessageOptions: React.FC<{
     });
   });
 
-  const handleAskDataTeam = useMemoizedFn(() => {
-    console.log('ask data team');
-  });
-
   return (
     <div className="flex items-center gap-1">
       <AppTooltip title="Duplicate chat from this message">
@@ -91,7 +87,7 @@ export const ChatMessageOptions: React.FC<{
 
       {postProcessingMessage && (
         <AppTooltip title="View assumptions">
-          <MessageAssumptions {...postProcessingMessage} onClickAskDataTeam={handleAskDataTeam} />
+          <MessageAssumptions {...postProcessingMessage} />
         </AppTooltip>
       )}
 

@@ -1,6 +1,5 @@
 import { SlackIntegrations } from '@/components/features/integrations/SlackIntegrations';
 import { SettingsPageHeader } from '@/components/features/settings';
-import { SettingsCards } from '@/components/features/settings';
 
 export default function IntegrationsPage() {
   return (

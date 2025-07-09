@@ -3,10 +3,11 @@ import pino from 'pino';
 
 const isDev = process.env.NODE_ENV !== 'production';
 const logLevel = process.env.LOG_LEVEL || 'info';
+let isPinoPrettyAvailable = true;
 
 // Create base pino instance
 const createBaseLogger = () => {
-  if (isDev) {
+  if (isDev && isPinoPrettyAvailable) {
     try {
       // Only use pino-pretty transport in development
       return pino({
@@ -19,6 +20,7 @@ const createBaseLogger = () => {
     } catch (error) {
       console.warn('pino-pretty not available, falling back to JSON logging');
       console.error(error);
+      isPinoPrettyAvailable = false;
     }
   }
 

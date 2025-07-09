@@ -37,6 +37,6 @@ export const assumptionClassificationTranslations: Record<AssumptionClassificati
 export const assumptionLabelTranslations: Record<AssumptionLabel, string> = {
   major: 'Major',
   minor: 'Minor',
-  timeRelated: 'Time Related',
-  vagueRequest: 'Vague Request'
+  timeRelated: 'Time related',
+  vagueRequest: 'Vague request'
 };
