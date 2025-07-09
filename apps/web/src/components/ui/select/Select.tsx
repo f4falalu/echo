@@ -1,16 +1,15 @@
-import type React from 'react';
-import { useMemoizedFn } from '@/hooks';
+import React from 'react';
 import {
-  Select as SelectBase,
-  SelectContent,
-  SelectGroup,
-  SelectItem as SelectItemComponent,
-  SelectLabel,
-  SelectTrigger,
-  SelectValue
-} from './SelectBase';
-import { CircleSpinnerLoader } from '../loaders';
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandItem,
+  CommandList,
+  CommandInput
+} from '@/components/ui/command';
+import { PopoverRoot, PopoverContent, PopoverTrigger } from '@/components/ui/popover/PopoverBase';
 import { cn } from '@/lib/classMerge';
+import { Check, ChevronDown, Xmark } from '@/components/ui/icons';
 
 interface SelectItemGroup<T = string> {
   label: string;
@@ -26,10 +25,12 @@ export interface SelectItem<T = string> {
   disabled?: boolean;
 }
 
+type SearchFunction<T> = (item: SelectItem<T>, searchTerm: string) => boolean;
+
 export interface SelectProps<T> {
-  items: SelectItem<T>[] | SelectItemGroup[];
+  items: SelectItem<T>[] | SelectItemGroup<T>[];
   disabled?: boolean;
-  onChange: (value: T) => void;
+  onChange: (value: T | null) => void;
   placeholder?: string;
   value?: string | undefined;
   onOpenChange?: (open: boolean) => void;
@@ -39,91 +40,342 @@ export interface SelectProps<T> {
   defaultValue?: string;
   dataTestId?: string;
   loading?: boolean;
+  search?: boolean | SearchFunction<T>;
+  clearable?: boolean;
+  emptyMessage?: string;
 }
 
-export const Select = <T extends string>({
-  items,
-  showIndex,
-  disabled,
-  onChange,
-  placeholder,
-  value,
-  onOpenChange,
-  open,
-  loading = false,
-  className = '',
-  defaultValue,
-  dataTestId
-}: SelectProps<T>) => {
-  const onValueChange = useMemoizedFn((value: string) => {
-    onChange(value as T);
-  });
-  return (
-    <SelectBase
-      disabled={disabled}
-      onOpenChange={onOpenChange}
-      open={open}
-      defaultValue={defaultValue}
-      value={value}
-      onValueChange={onValueChange}>
-      <SelectTrigger className={className} data-testid={dataTestId} loading={loading}>
-        <SelectValue placeholder={placeholder} defaultValue={value || defaultValue} />
-      </SelectTrigger>
-      <SelectContent>
-        {items.map((item, index) => (
-          <SelectItemSelector
-            key={index.toString()}
-            item={item}
-            index={index}
-            showIndex={showIndex}
-          />
-        ))}
-      </SelectContent>
-    </SelectBase>
-  );
-};
-Select.displayName = 'Select';
+function isGroupedItems<T>(
+  items: SelectItem<T>[] | SelectItemGroup<T>[]
+): items is SelectItemGroup<T>[] {
+  return items.length > 0 && 'items' in items[0];
+}
 
-const SelectItemSelector = <T,>({
-  item,
-  index,
-  showIndex
-}: {
-  item: SelectItem<T> | SelectItemGroup;
-  index: number;
-  showIndex?: boolean;
-}) => {
-  const isGroup = typeof item === 'object' && 'items' in item;
+function defaultSearchFunction<T>(item: SelectItem<T>, searchTerm: string): boolean {
+  const term = searchTerm.toLowerCase();
+  const labelText = typeof item.label === 'string' ? item.label : '';
+  const searchText = item.searchLabel || labelText;
+  const valueText = String(item.value);
 
-  if (isGroup) {
-    const _item = item as SelectItemGroup;
+  return searchText.toLowerCase().includes(term) || valueText.toLowerCase().includes(term);
+}
+
+// Memoized SelectItem component to avoid re-renders
+const SelectItemComponent = React.memo(
+  <T,>({
+    item,
+    index,
+    value,
+    showIndex,
+    onSelect
+  }: {
+    item: SelectItem<T>;
+    index: number;
+    value: string | undefined;
+    showIndex: boolean;
+    onSelect: (value: string) => void;
+  }) => {
+    const isSelected = String(item.value) === String(value);
+
     return (
-      <SelectGroup>
-        <SelectLabel>{_item.label}</SelectLabel>
-        {_item.items?.map((item) => (
-          <SelectItemSelector key={item.value} item={item} index={index} showIndex={showIndex} />
-        ))}
-      </SelectGroup>
+      <CommandItem
+        value={String(item.value)}
+        onSelect={onSelect}
+        disabled={item.disabled}
+        className={cn(
+          'flex h-7 items-center gap-2 px-2',
+          item.disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer',
+          isSelected && 'bg-item-select'
+        )}>
+        {item.icon}
+        <span className="flex-1">
+          {showIndex && `${index + 1}. `}
+          {item.label}
+          {item.secondaryLabel && (
+            <span className="text-text-secondary ml-2 text-sm">{item.secondaryLabel}</span>
+          )}
+        </span>
+        {isSelected && (
+          <div className="text-icon-color flex h-4 w-4 items-center">
+            <Check />
+          </div>
+        )}
+      </CommandItem>
     );
   }
+);
 
-  const { value, label, icon, secondaryLabel, disabled, ...rest } = item as SelectItem;
+SelectItemComponent.displayName = 'SelectItemComponent';
+
+function SelectComponent<T = string>({
+  items,
+  disabled = false,
+  onChange,
+  placeholder = 'Select an option',
+  emptyMessage = 'No options found.',
+  value,
+  onOpenChange,
+  open: controlledOpen,
+  showIndex = false,
+  className,
+  defaultValue,
+  dataTestId,
+  loading = false,
+  search = false,
+  clearable = false
+}: SelectProps<T>) {
+  const [internalOpen, setInternalOpen] = React.useState(false);
+  const [searchValue, setSearchValue] = React.useState('');
+  const [isFocused, setIsFocused] = React.useState(false);
+  const inputRef = React.useRef<HTMLInputElement>(null);
+  const commandRef = React.useRef<HTMLDivElement>(null);
+
+  const open = controlledOpen !== undefined ? controlledOpen : internalOpen;
+
+  const handleOpenChange = React.useCallback(
+    (newOpen: boolean) => {
+      if (!disabled) {
+        setInternalOpen(newOpen);
+        onOpenChange?.(newOpen);
+        if (!newOpen) {
+          setSearchValue('');
+          setIsFocused(false);
+        }
+      }
+    },
+    [disabled, onOpenChange]
+  );
+
+  // Get all items in a flat array for easier processing
+  const flatItems = React.useMemo(() => {
+    if (isGroupedItems(items)) {
+      return items.flatMap((group) => group.items);
+    }
+    return items;
+  }, [items]);
+
+  // Find the selected item
+  const selectedItem = React.useMemo(
+    () => flatItems.find((item) => String(item.value) === String(value)),
+    [flatItems, value]
+  );
+
+  // Filter items based on search
+  const filterItem = React.useCallback(
+    (item: SelectItem<T>): boolean => {
+      if (!search || !searchValue) return true;
+
+      if (typeof search === 'function') {
+        return search(item, searchValue);
+      }
+
+      return defaultSearchFunction(item, searchValue);
+    },
+    [search, searchValue]
+  );
+
+  const handleSelect = React.useCallback(
+    (itemValue: string) => {
+      const item = flatItems.find((i) => String(i.value) === itemValue);
+      if (item) {
+        onChange(item.value);
+        handleOpenChange(false);
+        setSearchValue('');
+        inputRef.current?.blur();
+      }
+    },
+    [flatItems, onChange, handleOpenChange]
+  );
+
+  const handleClear = React.useCallback(
+    (e: React.MouseEvent) => {
+      e.stopPropagation();
+      e.preventDefault();
+      onChange(null);
+      setSearchValue('');
+      handleOpenChange(false);
+    },
+    [onChange, handleOpenChange]
+  );
+
+  const handleInputChange = React.useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const newValue = e.target.value;
+      setSearchValue(newValue);
+
+      if (search !== false && newValue && !open) {
+        handleOpenChange(true);
+      }
+    },
+    [search, open, handleOpenChange]
+  );
+
+  const handleInputFocus = React.useCallback(() => {
+    setIsFocused(true);
+    if (!open) {
+      handleOpenChange(true);
+    }
+  }, [open, handleOpenChange]);
+
+  const handleInputKeyDown = React.useCallback(
+    (e: React.KeyboardEvent<HTMLInputElement>) => {
+      if (['ArrowDown', 'ArrowUp', 'Enter', 'Home', 'End'].includes(e.key)) {
+        if (!open && (e.key === 'ArrowDown' || e.key === 'ArrowUp')) {
+          e.preventDefault();
+          handleOpenChange(true);
+          return;
+        }
+
+        // Forward the event to the command component
+        if (open && commandRef.current) {
+          const commandInput = commandRef.current.querySelector('[cmdk-input]');
+          if (commandInput) {
+            const newEvent = new KeyboardEvent('keydown', {
+              key: e.key,
+              code: e.code,
+              keyCode: e.keyCode,
+              which: e.which,
+              shiftKey: e.shiftKey,
+              ctrlKey: e.ctrlKey,
+              altKey: e.altKey,
+              metaKey: e.metaKey,
+              bubbles: true,
+              cancelable: true
+            });
+            commandInput.dispatchEvent(newEvent);
+            e.preventDefault();
+          }
+        }
+      } else if (e.key === 'Escape') {
+        handleOpenChange(false);
+        inputRef.current?.blur();
+      }
+    },
+    [open, handleOpenChange]
+  );
+
+  // Render items with memoization to prevent unnecessary re-renders
+  const renderedItems = React.useMemo(() => {
+    if (isGroupedItems(items)) {
+      return items.map((group, groupIndex) => {
+        const filteredItems = group.items.filter(filterItem);
+        if (filteredItems.length === 0 && searchValue) return null;
+
+        return (
+          <CommandGroup key={`${group.label}-${groupIndex}`} heading={group.label}>
+            {filteredItems.map((item, index) => (
+              <SelectItemComponent
+                key={String(item.value)}
+                item={item}
+                index={index}
+                value={value}
+                showIndex={showIndex}
+                onSelect={handleSelect}
+              />
+            ))}
+          </CommandGroup>
+        );
+      });
+    }
+
+    const filteredItems = flatItems.filter(filterItem);
+    return filteredItems.map((item, index) => (
+      <SelectItemComponent
+        key={String(item.value)}
+        item={item}
+        index={index}
+        value={value}
+        showIndex={showIndex}
+        onSelect={handleSelect}
+      />
+    ));
+  }, [items, flatItems, filterItem, searchValue, value, showIndex, handleSelect]);
+
+  // Display value in input when not focused/searching
+  const inputDisplayValue = React.useMemo(() => {
+    if (isFocused || searchValue) {
+      return searchValue;
+    }
+    if (selectedItem) {
+      return typeof selectedItem.label === 'string' ? selectedItem.label : '';
+    }
+    return '';
+  }, [isFocused, searchValue, selectedItem]);
+
+  // Compute placeholder once
+  const computedPlaceholder = React.useMemo(() => {
+    return typeof selectedItem?.label === 'string' ? selectedItem.label : placeholder;
+  }, [selectedItem, placeholder]);
 
   return (
-    <SelectItemComponent
-      disabled={disabled}
-      value={value}
-      icon={icon}
-      index={showIndex ? index : undefined}
-      secondaryChildren={
-        secondaryLabel && <SelectItemSecondaryText>{secondaryLabel}</SelectItemSecondaryText>
-      }>
-      {label}
-    </SelectItemComponent>
+    <PopoverRoot open={open} onOpenChange={handleOpenChange}>
+      <PopoverTrigger asChild>
+        <div className={cn('relative w-full', className)}>
+          <input
+            ref={inputRef}
+            type="text"
+            role="combobox"
+            aria-expanded={open}
+            aria-label={placeholder}
+            disabled={disabled || loading}
+            value={inputDisplayValue}
+            onChange={handleInputChange}
+            onFocus={handleInputFocus}
+            onKeyDown={handleInputKeyDown}
+            placeholder={computedPlaceholder}
+            data-testid={dataTestId}
+            readOnly={search === false}
+            className={cn(
+              'flex h-7 w-full items-center justify-between rounded border px-2.5 text-base',
+              'bg-background cursor-pointer transition-all duration-300',
+              'focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50',
+              disabled ? 'bg-disabled text-gray-light' : '',
+              !selectedItem && !searchValue && 'text-text-secondary'
+            )}
+          />
+          <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
+            {clearable && selectedItem && !isFocused && (
+              <button
+                type="button"
+                onClick={handleClear}
+                className="hover:text-foreground text-icon-color pointer-events-auto mr-1 flex h-4 w-4 cursor-pointer items-center justify-center rounded"
+                aria-label="Clear selection">
+                <Xmark />
+              </button>
+            )}
+            {!open && (
+              <div className="flex h-4 w-4 shrink-0 items-center opacity-50">
+                <ChevronDown />
+              </div>
+            )}
+          </div>
+        </div>
+      </PopoverTrigger>
+      <PopoverContent
+        className="min-w-[var(--radix-popover-trigger-width)] p-0"
+        align="start"
+        onOpenAutoFocus={(e) => {
+          e.preventDefault();
+          inputRef.current?.focus();
+        }}>
+        <Command ref={commandRef} shouldFilter={false}>
+          {/* Hidden input that Command uses for keyboard navigation */}
+          <CommandInput
+            value={searchValue}
+            onValueChange={setSearchValue}
+            parentClassName="sr-only hidden h-0 border-0 p-0"
+            aria-hidden="true"
+          />
+          <div className="scrollbar-hide max-h-[300px] overflow-y-auto">
+            <CommandList className="p-1">
+              <CommandEmpty>{emptyMessage}</CommandEmpty>
+              {renderedItems}
+            </CommandList>
+          </div>
+        </Command>
+      </PopoverContent>
+    </PopoverRoot>
   );
-};
+}
 
-SelectItemSelector.displayName = 'SelectItemSelector';
-const SelectItemSecondaryText: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  return <span className="text-gray-light text2xs">{children}</span>;
-};
+export const Select = React.memo(SelectComponent) as typeof SelectComponent;

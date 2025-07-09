@@ -6,7 +6,7 @@ import { useMemoizedFn } from '@/hooks';
 import { cn } from '@/lib/classMerge';
 import { Dropdown, type DropdownItem, type DropdownProps } from '../dropdown/Dropdown';
 import { InputTag } from '../inputs/InputTag';
-import type { SelectItem } from './Select';
+import type { SelectItem } from './SelectOld';
 import { selectVariants } from './SelectBase';
 import { CircleSpinnerLoader } from '../loaders';
 
