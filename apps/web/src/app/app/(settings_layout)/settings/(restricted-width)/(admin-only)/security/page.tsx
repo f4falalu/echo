@@ -12,7 +12,7 @@ export default function Page() {
       />
 
       <div className="flex flex-col space-y-6">
-        <InviteLinks />
+        {/* <InviteLinks /> */}
         <ApprovedEmailDomains />
         <WorkspaceRestrictions />
       </div>
