@@ -107,7 +107,7 @@ const SelectItemComponent = React.memo(
 
 SelectItemComponent.displayName = 'SelectItemComponent';
 
-export function Select<T = string>({
+function SelectComponent<T = string>({
   items,
   disabled = false,
   onChange,
@@ -121,7 +121,7 @@ export function Select<T = string>({
   defaultValue,
   dataTestId,
   loading = false,
-  search = true,
+  search = false,
   clearable = false
 }: SelectProps<T>) {
   const [internalOpen, setInternalOpen] = React.useState(false);
@@ -363,11 +363,11 @@ export function Select<T = string>({
           <CommandInput
             value={searchValue}
             onValueChange={setSearchValue}
-            parentClassName="swag sr-only hidden h-0 border-0 p-0"
+            parentClassName="sr-only hidden h-0 border-0 p-0"
             aria-hidden="true"
           />
           <div className="scrollbar-hide max-h-[300px] overflow-y-auto">
-            <CommandList>
+            <CommandList className="p-1">
               <CommandEmpty>{emptyMessage}</CommandEmpty>
               {renderedItems}
             </CommandList>
@@ -377,3 +377,5 @@ export function Select<T = string>({
     </PopoverRoot>
   );
 }
+
+export const Select = React.memo(SelectComponent) as typeof SelectComponent;
