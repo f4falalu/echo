@@ -100,13 +100,6 @@ export const SendMessageResultSchema = z.object({
 
 export type SendMessageResult = z.infer<typeof SendMessageResultSchema>;
 
-// Message Type enum for tracking
-export enum SlackMessageType {
-  MESSAGE = 'message',
-  REPLY = 'reply',
-  UPDATE = 'update',
-}
-
 // Message Source enum - indicates where the message originated from
 export enum SlackMessageSource {
   ANALYST_MESSAGE_POST_PROCESSING = 'analyst_message_post_processing',
