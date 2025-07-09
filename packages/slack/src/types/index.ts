@@ -106,3 +106,9 @@ export enum SlackMessageType {
   REPLY = 'reply',
   UPDATE = 'update',
 }
+
+// Message Source enum - indicates where the message originated from
+export enum SlackMessageSource {
+  ANALYST_MESSAGE_POST_PROCESSING = 'analyst_message_post_processing',
+  // Add more sources here as needed in the future
+}

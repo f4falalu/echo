@@ -118,7 +118,7 @@ export const apiKeys = pgTable(
       name: 'api_keys_owner_id_fkey',
     }).onUpdate('cascade'),
     unique('api_keys_key_key').on(table.key),
-  ]
+  ],
 );
 
 export const teams = pgTable(
@@ -153,7 +153,7 @@ export const teams = pgTable(
       name: 'teams_created_by_fkey',
     }).onUpdate('cascade'),
     unique('teams_name_key').on(table.name),
-  ]
+  ],
 );
 
 export const permissionGroups = pgTable(
@@ -188,7 +188,7 @@ export const permissionGroups = pgTable(
       foreignColumns: [users.id],
       name: 'permission_groups_updated_by_fkey',
     }).onUpdate('cascade'),
-  ]
+  ],
 );
 
 export const terms = pgTable(
@@ -225,7 +225,7 @@ export const terms = pgTable(
       foreignColumns: [users.id],
       name: 'terms_updated_by_fkey',
     }).onUpdate('cascade'),
-  ]
+  ],
 );
 
 export const collections = pgTable(
@@ -261,7 +261,7 @@ export const collections = pgTable(
       foreignColumns: [users.id],
       name: 'collections_updated_by_fkey',
     }).onUpdate('cascade'),
-  ]
+  ],
 );
 
 export const dashboards = pgTable(
@@ -310,7 +310,7 @@ export const dashboards = pgTable(
       foreignColumns: [users.id],
       name: 'dashboards_updated_by_fkey',
     }).onUpdate('cascade'),
-  ]
+  ],
 );
 
 export const dashboardVersions = pgTable(
@@ -333,7 +333,7 @@ export const dashboardVersions = pgTable(
       foreignColumns: [dashboards.id],
       name: 'dashboard_versions_dashboard_id_fkey',
     }).onDelete('cascade'),
-  ]
+  ],
 );
 
 export const dataSources = pgTable(
@@ -378,9 +378,9 @@ export const dataSources = pgTable(
     unique('data_sources_name_organization_id_env_key').on(
       table.name,
       table.organizationId,
-      table.env
+      table.env,
     ),
-  ]
+  ],
 );
 
 export const datasetColumns = pgTable(
@@ -413,7 +413,7 @@ export const datasetColumns = pgTable(
     dimType: text('dim_type'),
     expr: text(),
   },
-  (table) => [unique('unique_dataset_column_name').on(table.datasetId, table.name)]
+  (table) => [unique('unique_dataset_column_name').on(table.datasetId, table.name)],
 );
 
 export const sqlEvaluations = pgTable('sql_evaluations', {
@@ -446,13 +446,13 @@ export const assetSearch = pgTable(
     uniqueIndex('asset_search_asset_id_asset_type_idx').using(
       'btree',
       table.assetId.asc().nullsLast().op('text_ops'),
-      table.assetType.asc().nullsLast().op('text_ops')
+      table.assetType.asc().nullsLast().op('text_ops'),
     ),
     index('pgroonga_content_index').using(
       'pgroonga',
-      table.content.asc().nullsLast().op('pgroonga_text_full_text_search_ops_v2')
+      table.content.asc().nullsLast().op('pgroonga_text_full_text_search_ops_v2'),
     ),
-  ]
+  ],
 );
 
 export const datasetGroups = pgTable(
@@ -472,11 +472,11 @@ export const datasetGroups = pgTable(
   (table) => [
     index('dataset_groups_deleted_at_idx').using(
       'btree',
-      table.deletedAt.asc().nullsLast().op('timestamptz_ops')
+      table.deletedAt.asc().nullsLast().op('timestamptz_ops'),
     ),
     index('dataset_groups_organization_id_idx').using(
       'btree',
-      table.organizationId.asc().nullsLast().op('uuid_ops')
+      table.organizationId.asc().nullsLast().op('uuid_ops'),
     ),
     foreignKey({
       columns: [table.organizationId],
@@ -489,7 +489,7 @@ export const datasetGroups = pgTable(
       to: ['authenticated'],
       using: sql`true`,
     }),
-  ]
+  ],
 );
 
 export const datasetPermissions = pgTable(
@@ -511,20 +511,20 @@ export const datasetPermissions = pgTable(
   (table) => [
     index('dataset_permissions_dataset_id_idx').using(
       'btree',
-      table.datasetId.asc().nullsLast().op('uuid_ops')
+      table.datasetId.asc().nullsLast().op('uuid_ops'),
     ),
     index('dataset_permissions_deleted_at_idx').using(
       'btree',
-      table.deletedAt.asc().nullsLast().op('timestamptz_ops')
+      table.deletedAt.asc().nullsLast().op('timestamptz_ops'),
     ),
     index('dataset_permissions_organization_id_idx').using(
       'btree',
-      table.organizationId.asc().nullsLast().op('uuid_ops')
+      table.organizationId.asc().nullsLast().op('uuid_ops'),
     ),
     index('dataset_permissions_permission_lookup_idx').using(
       'btree',
       table.permissionId.asc().nullsLast().op('uuid_ops'),
-      table.permissionType.asc().nullsLast().op('text_ops')
+      table.permissionType.asc().nullsLast().op('text_ops'),
     ),
     foreignKey({
       columns: [table.organizationId],
@@ -539,7 +539,7 @@ export const datasetPermissions = pgTable(
     unique('dataset_permissions_dataset_id_permission_id_permission_typ_key').on(
       table.datasetId,
       table.permissionId,
-      table.permissionType
+      table.permissionType,
     ),
     pgPolicy('dataset_permissions_policy', {
       as: 'permissive',
@@ -549,9 +549,9 @@ export const datasetPermissions = pgTable(
     }),
     check(
       'dataset_permissions_permission_type_check',
-      sql`(permission_type)::text = ANY ((ARRAY['user'::character varying, 'dataset_group'::character varying, 'permission_group'::character varying])::text[])`
+      sql`(permission_type)::text = ANY ((ARRAY['user'::character varying, 'dataset_group'::character varying, 'permission_group'::character varying])::text[])`,
     ),
-  ]
+  ],
 );
 
 export const dieselSchemaMigrations = pgTable(
@@ -567,7 +567,7 @@ export const dieselSchemaMigrations = pgTable(
       to: ['authenticated'],
       using: sql`true`,
     }),
-  ]
+  ],
 );
 
 export const datasetGroupsPermissions = pgTable(
@@ -589,15 +589,15 @@ export const datasetGroupsPermissions = pgTable(
   (table) => [
     index('dataset_groups_permissions_dataset_group_id_idx').using(
       'btree',
-      table.datasetGroupId.asc().nullsLast().op('uuid_ops')
+      table.datasetGroupId.asc().nullsLast().op('uuid_ops'),
     ),
     index('dataset_groups_permissions_organization_id_idx').using(
       'btree',
-      table.organizationId.asc().nullsLast().op('uuid_ops')
+      table.organizationId.asc().nullsLast().op('uuid_ops'),
     ),
     index('dataset_groups_permissions_permission_id_idx').using(
       'btree',
-      table.permissionId.asc().nullsLast().op('uuid_ops')
+      table.permissionId.asc().nullsLast().op('uuid_ops'),
     ),
     foreignKey({
       columns: [table.datasetGroupId],
@@ -612,9 +612,9 @@ export const datasetGroupsPermissions = pgTable(
     unique('unique_dataset_group_permission').on(
       table.datasetGroupId,
       table.permissionId,
-      table.permissionType
+      table.permissionType,
     ),
-  ]
+  ],
 );
 
 export const threadsDeprecated = pgTable(
@@ -682,7 +682,7 @@ export const threadsDeprecated = pgTable(
       foreignColumns: [users.id],
       name: 'threads_deprecated_publicly_enabled_by_fkey',
     }).onUpdate('cascade'),
-  ]
+  ],
 );
 
 export const messagesDeprecated = pgTable(
@@ -731,7 +731,7 @@ export const messagesDeprecated = pgTable(
       foreignColumns: [users.id],
       name: 'messages_deprecated_sent_by_fkey',
     }).onUpdate('cascade'),
-  ]
+  ],
 );
 
 export const datasets = pgTable(
@@ -784,7 +784,7 @@ export const datasets = pgTable(
       name: 'datasets_updated_by_fkey',
     }).onUpdate('cascade'),
     unique('datasets_database_name_data_source_id_key').on(table.databaseName, table.dataSourceId),
-  ]
+  ],
 );
 
 export const users = pgTable(
@@ -803,7 +803,7 @@ export const users = pgTable(
     attributes: jsonb().default({}).notNull(),
     avatarUrl: text('avatar_url'),
   },
-  (table) => [unique('users_email_key').on(table.email)]
+  (table) => [unique('users_email_key').on(table.email)],
 );
 
 export const messages = pgTable(
@@ -833,11 +833,11 @@ export const messages = pgTable(
     index('messages_chat_id_idx').using('btree', table.chatId.asc().nullsLast().op('uuid_ops')),
     index('messages_created_at_idx').using(
       'btree',
-      table.createdAt.asc().nullsLast().op('timestamptz_ops')
+      table.createdAt.asc().nullsLast().op('timestamptz_ops'),
     ),
     index('messages_created_by_idx').using(
       'btree',
-      table.createdBy.asc().nullsLast().op('uuid_ops')
+      table.createdBy.asc().nullsLast().op('uuid_ops'),
     ),
     foreignKey({
       columns: [table.chatId],
@@ -849,7 +849,7 @@ export const messages = pgTable(
       foreignColumns: [users.id],
       name: 'messages_created_by_fkey',
     }).onUpdate('cascade'),
-  ]
+  ],
 );
 
 export const messagesToFiles = pgTable(
@@ -871,11 +871,11 @@ export const messagesToFiles = pgTable(
   (table) => [
     index('messages_files_file_id_idx').using(
       'btree',
-      table.fileId.asc().nullsLast().op('uuid_ops')
+      table.fileId.asc().nullsLast().op('uuid_ops'),
     ),
     index('messages_files_message_id_idx').using(
       'btree',
-      table.messageId.asc().nullsLast().op('uuid_ops')
+      table.messageId.asc().nullsLast().op('uuid_ops'),
     ),
     foreignKey({
       columns: [table.messageId],
@@ -883,7 +883,7 @@ export const messagesToFiles = pgTable(
       name: 'messages_to_files_message_id_fkey',
     }),
     unique('messages_to_files_message_id_file_id_key').on(table.messageId, table.fileId),
-  ]
+  ],
 );
 
 export const dashboardFiles = pgTable(
@@ -915,15 +915,15 @@ export const dashboardFiles = pgTable(
   (table) => [
     index('dashboard_files_created_by_idx').using(
       'btree',
-      table.createdBy.asc().nullsLast().op('uuid_ops')
+      table.createdBy.asc().nullsLast().op('uuid_ops'),
     ),
     index('dashboard_files_deleted_at_idx').using(
       'btree',
-      table.deletedAt.asc().nullsLast().op('timestamptz_ops')
+      table.deletedAt.asc().nullsLast().op('timestamptz_ops'),
     ),
     index('dashboard_files_organization_id_idx').using(
       'btree',
-      table.organizationId.asc().nullsLast().op('uuid_ops')
+      table.organizationId.asc().nullsLast().op('uuid_ops'),
     ),
     foreignKey({
       columns: [table.createdBy],
@@ -935,7 +935,7 @@ export const dashboardFiles = pgTable(
       foreignColumns: [users.id],
       name: 'dashboard_files_publicly_enabled_by_fkey',
     }).onUpdate('cascade'),
-  ]
+  ],
 );
 
 export const chats = pgTable(
@@ -966,20 +966,20 @@ export const chats = pgTable(
   (table) => [
     index('chats_created_at_idx').using(
       'btree',
-      table.createdAt.asc().nullsLast().op('timestamptz_ops')
+      table.createdAt.asc().nullsLast().op('timestamptz_ops'),
     ),
     index('chats_created_by_idx').using('btree', table.createdBy.asc().nullsLast().op('uuid_ops')),
     index('chats_organization_id_idx').using(
       'btree',
-      table.organizationId.asc().nullsLast().op('uuid_ops')
+      table.organizationId.asc().nullsLast().op('uuid_ops'),
     ),
     index('idx_chats_most_recent_file_id').using(
       'btree',
-      table.mostRecentFileId.asc().nullsLast().op('uuid_ops')
+      table.mostRecentFileId.asc().nullsLast().op('uuid_ops'),
     ),
     index('idx_chats_most_recent_file_type').using(
       'btree',
-      table.mostRecentFileType.asc().nullsLast().op('text_ops')
+      table.mostRecentFileType.asc().nullsLast().op('text_ops'),
     ),
     foreignKey({
       columns: [table.organizationId],
@@ -1001,7 +1001,7 @@ export const chats = pgTable(
       foreignColumns: [users.id],
       name: 'chats_publicly_enabled_by_fkey',
     }).onUpdate('cascade'),
-  ]
+  ],
 );
 
 export const organizations = pgTable(
@@ -1019,7 +1019,7 @@ export const organizations = pgTable(
     deletedAt: timestamp('deleted_at', { withTimezone: true, mode: 'string' }),
     paymentRequired: boolean('payment_required').default(false).notNull(),
   },
-  (table) => [unique('organizations_name_key').on(table.name)]
+  (table) => [unique('organizations_name_key').on(table.name)],
 );
 
 export const storedValuesSyncJobs = pgTable(
@@ -1044,25 +1044,25 @@ export const storedValuesSyncJobs = pgTable(
   (table) => [
     index('idx_stored_values_sync_jobs_data_source_id').using(
       'btree',
-      table.dataSourceId.asc().nullsLast().op('uuid_ops')
+      table.dataSourceId.asc().nullsLast().op('uuid_ops'),
     ),
     index('idx_stored_values_sync_jobs_db_schema_table_column').using(
       'btree',
       table.databaseName.asc().nullsLast().op('text_ops'),
       table.schemaName.asc().nullsLast().op('text_ops'),
       table.tableName.asc().nullsLast().op('text_ops'),
-      table.columnName.asc().nullsLast().op('text_ops')
+      table.columnName.asc().nullsLast().op('text_ops'),
     ),
     index('idx_stored_values_sync_jobs_status').using(
       'btree',
-      table.status.asc().nullsLast().op('text_ops')
+      table.status.asc().nullsLast().op('text_ops'),
     ),
     foreignKey({
       columns: [table.dataSourceId],
       foreignColumns: [dataSources.id],
       name: 'stored_values_sync_jobs_data_source_id_fkey',
     }).onDelete('cascade'),
-  ]
+  ],
 );
 
 export const metricFiles = pgTable(
@@ -1099,19 +1099,19 @@ export const metricFiles = pgTable(
   (table) => [
     index('metric_files_created_by_idx').using(
       'btree',
-      table.createdBy.asc().nullsLast().op('uuid_ops')
+      table.createdBy.asc().nullsLast().op('uuid_ops'),
     ),
     index('metric_files_data_metadata_idx').using(
       'gin',
-      table.dataMetadata.asc().nullsLast().op('jsonb_ops')
+      table.dataMetadata.asc().nullsLast().op('jsonb_ops'),
     ),
     index('metric_files_deleted_at_idx').using(
       'btree',
-      table.deletedAt.asc().nullsLast().op('timestamptz_ops')
+      table.deletedAt.asc().nullsLast().op('timestamptz_ops'),
     ),
     index('metric_files_organization_id_idx').using(
       'btree',
-      table.organizationId.asc().nullsLast().op('uuid_ops')
+      table.organizationId.asc().nullsLast().op('uuid_ops'),
     ),
     foreignKey({
       columns: [table.createdBy],
@@ -1128,7 +1128,7 @@ export const metricFiles = pgTable(
       foreignColumns: [dataSources.id],
       name: 'fk_data_source',
     }),
-  ]
+  ],
 );
 
 export const permissionGroupsToUsers = pgTable(
@@ -1143,7 +1143,7 @@ export const permissionGroupsToUsers = pgTable(
   (table) => [
     index('permission_groups_to_users_user_id_idx').using(
       'btree',
-      table.userId.asc().nullsLast().op('uuid_ops')
+      table.userId.asc().nullsLast().op('uuid_ops'),
     ),
     foreignKey({
       columns: [table.permissionGroupId],
@@ -1165,7 +1165,7 @@ export const permissionGroupsToUsers = pgTable(
       to: ['authenticated'],
       using: sql`true`,
     }),
-  ]
+  ],
 );
 
 export const entityRelationship = pgTable(
@@ -1183,7 +1183,7 @@ export const entityRelationship = pgTable(
       columns: [table.primaryDatasetId, table.foreignDatasetId],
       name: 'entity_relationship_pkey',
     }),
-  ]
+  ],
 );
 
 export const metricFilesToDatasets = pgTable(
@@ -1211,7 +1211,7 @@ export const metricFilesToDatasets = pgTable(
       columns: [table.metricFileId, table.datasetId, table.metricVersionNumber],
       name: 'metric_files_to_datasets_pkey',
     }),
-  ]
+  ],
 );
 
 export const termsToDatasets = pgTable(
@@ -1242,7 +1242,7 @@ export const termsToDatasets = pgTable(
       columns: [table.termId, table.datasetId],
       name: 'terms_to_datasets_pkey',
     }),
-  ]
+  ],
 );
 
 export const datasetsToPermissionGroups = pgTable(
@@ -1279,7 +1279,7 @@ export const datasetsToPermissionGroups = pgTable(
       to: ['authenticated'],
       using: sql`true`,
     }),
-  ]
+  ],
 );
 
 export const datasetsToDatasetGroups = pgTable(
@@ -1298,7 +1298,7 @@ export const datasetsToDatasetGroups = pgTable(
   (table) => [
     index('datasets_to_dataset_groups_dataset_group_id_idx').using(
       'btree',
-      table.datasetGroupId.asc().nullsLast().op('uuid_ops')
+      table.datasetGroupId.asc().nullsLast().op('uuid_ops'),
     ),
     foreignKey({
       columns: [table.datasetId],
@@ -1320,7 +1320,7 @@ export const datasetsToDatasetGroups = pgTable(
       to: ['authenticated'],
       using: sql`true`,
     }),
-  ]
+  ],
 );
 
 export const threadsToDashboards = pgTable(
@@ -1357,7 +1357,7 @@ export const threadsToDashboards = pgTable(
       columns: [table.threadId, table.dashboardId],
       name: 'threads_to_dashboards_pkey',
     }),
-  ]
+  ],
 );
 
 export const userFavorites = pgTable(
@@ -1382,7 +1382,7 @@ export const userFavorites = pgTable(
       columns: [table.userId, table.assetId, table.assetType],
       name: 'user_favorites_pkey',
     }),
-  ]
+  ],
 );
 
 export const teamsToUsers = pgTable(
@@ -1414,7 +1414,7 @@ export const teamsToUsers = pgTable(
       columns: [table.teamId, table.userId],
       name: 'teams_to_users_pkey',
     }),
-  ]
+  ],
 );
 
 export const metricFilesToDashboardFiles = pgTable(
@@ -1434,15 +1434,15 @@ export const metricFilesToDashboardFiles = pgTable(
   (table) => [
     index('metric_files_to_dashboard_files_dashboard_id_idx').using(
       'btree',
-      table.dashboardFileId.asc().nullsLast().op('uuid_ops')
+      table.dashboardFileId.asc().nullsLast().op('uuid_ops'),
     ),
     index('metric_files_to_dashboard_files_deleted_at_idx').using(
       'btree',
-      table.deletedAt.asc().nullsLast().op('timestamptz_ops')
+      table.deletedAt.asc().nullsLast().op('timestamptz_ops'),
     ),
     index('metric_files_to_dashboard_files_metric_id_idx').using(
       'btree',
-      table.metricFileId.asc().nullsLast().op('uuid_ops')
+      table.metricFileId.asc().nullsLast().op('uuid_ops'),
     ),
     foreignKey({
       columns: [table.metricFileId],
@@ -1463,7 +1463,7 @@ export const metricFilesToDashboardFiles = pgTable(
       columns: [table.metricFileId, table.dashboardFileId],
       name: 'metric_files_to_dashboard_files_pkey',
     }),
-  ]
+  ],
 );
 
 export const collectionsToAssets = pgTable(
@@ -1497,7 +1497,7 @@ export const collectionsToAssets = pgTable(
       columns: [table.collectionId, table.assetId, table.assetType],
       name: 'collections_to_assets_pkey',
     }),
-  ]
+  ],
 );
 
 export const permissionGroupsToIdentities = pgTable(
@@ -1531,7 +1531,7 @@ export const permissionGroupsToIdentities = pgTable(
       columns: [table.permissionGroupId, table.identityId, table.identityType],
       name: 'permission_groups_to_identities_pkey',
     }),
-  ]
+  ],
 );
 
 export const assetPermissions = pgTable(
@@ -1567,7 +1567,7 @@ export const assetPermissions = pgTable(
       columns: [table.identityId, table.identityType, table.assetId, table.assetType],
       name: 'asset_permissions_pkey',
     }),
-  ]
+  ],
 );
 
 export const usersToOrganizations = pgTable(
@@ -1623,7 +1623,7 @@ export const usersToOrganizations = pgTable(
       columns: [table.userId, table.organizationId],
       name: 'users_to_organizations_pkey',
     }),
-  ]
+  ],
 );
 
 export const databaseMetadata = pgTable(
@@ -1657,9 +1657,9 @@ export const databaseMetadata = pgTable(
     unique('database_metadata_data_source_id_name_key').on(table.dataSourceId, table.name),
     index('database_metadata_data_source_id_idx').using(
       'btree',
-      table.dataSourceId.asc().nullsLast().op('uuid_ops')
+      table.dataSourceId.asc().nullsLast().op('uuid_ops'),
     ),
-  ]
+  ],
 );
 
 export const schemaMetadata = pgTable(
@@ -1700,17 +1700,17 @@ export const schemaMetadata = pgTable(
     unique('schema_metadata_data_source_id_database_id_name_key').on(
       table.dataSourceId,
       table.databaseId,
-      table.name
+      table.name,
     ),
     index('schema_metadata_data_source_id_idx').using(
       'btree',
-      table.dataSourceId.asc().nullsLast().op('uuid_ops')
+      table.dataSourceId.asc().nullsLast().op('uuid_ops'),
     ),
     index('schema_metadata_database_id_idx').using(
       'btree',
-      table.databaseId.asc().nullsLast().op('uuid_ops')
+      table.databaseId.asc().nullsLast().op('uuid_ops'),
     ),
-  ]
+  ],
 );
 
 export const tableMetadata = pgTable(
@@ -1762,21 +1762,21 @@ export const tableMetadata = pgTable(
     unique('table_metadata_data_source_id_schema_id_name_key').on(
       table.dataSourceId,
       table.schemaId,
-      table.name
+      table.name,
     ),
     index('table_metadata_data_source_id_idx').using(
       'btree',
-      table.dataSourceId.asc().nullsLast().op('uuid_ops')
+      table.dataSourceId.asc().nullsLast().op('uuid_ops'),
     ),
     index('table_metadata_database_id_idx').using(
       'btree',
-      table.databaseId.asc().nullsLast().op('uuid_ops')
+      table.databaseId.asc().nullsLast().op('uuid_ops'),
     ),
     index('table_metadata_schema_id_idx').using(
       'btree',
-      table.schemaId.asc().nullsLast().op('uuid_ops')
+      table.schemaId.asc().nullsLast().op('uuid_ops'),
     ),
-  ]
+  ],
 );
 
 // Slack integrations table
@@ -1839,25 +1839,25 @@ export const slackIntegrations = pgTable(
     unique('slack_integrations_org_team_key').on(table.organizationId, table.teamId),
     index('idx_slack_integrations_org_id').using(
       'btree',
-      table.organizationId.asc().nullsLast().op('uuid_ops')
+      table.organizationId.asc().nullsLast().op('uuid_ops'),
     ),
     index('idx_slack_integrations_team_id').using(
       'btree',
-      table.teamId.asc().nullsLast().op('text_ops')
+      table.teamId.asc().nullsLast().op('text_ops'),
     ),
     index('idx_slack_integrations_oauth_state').using(
       'btree',
-      table.oauthState.asc().nullsLast().op('text_ops')
+      table.oauthState.asc().nullsLast().op('text_ops'),
     ),
     index('idx_slack_integrations_oauth_expires').using(
       'btree',
-      table.oauthExpiresAt.asc().nullsLast().op('timestamptz_ops')
+      table.oauthExpiresAt.asc().nullsLast().op('timestamptz_ops'),
     ),
     check(
       'slack_integrations_status_check',
-      sql`(status = 'pending' AND oauth_state IS NOT NULL) OR (status != 'pending' AND team_id IS NOT NULL)`
+      sql`(status = 'pending' AND oauth_state IS NOT NULL) OR (status != 'pending' AND team_id IS NOT NULL)`,
     ),
-  ]
+  ],
 );
 
 // Slack message tracking table (optional)
@@ -1876,7 +1876,7 @@ export const slackMessageTracking = pgTable(
     slackThreadTs: varchar('slack_thread_ts', { length: 255 }),
 
     // Metadata
-    messageType: varchar('message_type', { length: 50 }).notNull(), // 'message', 'reply', 'update'
+    messageType: varchar('message_type', { length: 50 }).notNull(), // Source of the message (e.g., 'analyst_message_post_processing')
     content: text(),
     senderInfo: jsonb('sender_info'),
 
@@ -1894,17 +1894,17 @@ export const slackMessageTracking = pgTable(
     }).onDelete('cascade'),
     index('idx_message_tracking_integration').using(
       'btree',
-      table.integrationId.asc().nullsLast().op('uuid_ops')
+      table.integrationId.asc().nullsLast().op('uuid_ops'),
     ),
     index('idx_message_tracking_channel').using(
       'btree',
-      table.slackChannelId.asc().nullsLast().op('text_ops')
+      table.slackChannelId.asc().nullsLast().op('text_ops'),
     ),
     index('idx_message_tracking_thread').using(
       'btree',
-      table.slackThreadTs.asc().nullsLast().op('text_ops')
+      table.slackThreadTs.asc().nullsLast().op('text_ops'),
     ),
-  ]
+  ],
 );
 
 // Join table between messages and slack messages
@@ -1941,11 +1941,11 @@ export const messagesToSlackMessages = pgTable(
     // Indexes for query performance
     index('messages_to_slack_messages_message_id_idx').using(
       'btree',
-      table.messageId.asc().nullsLast().op('uuid_ops')
+      table.messageId.asc().nullsLast().op('uuid_ops'),
     ),
     index('messages_to_slack_messages_slack_message_id_idx').using(
       'btree',
-      table.slackMessageId.asc().nullsLast().op('uuid_ops')
+      table.slackMessageId.asc().nullsLast().op('uuid_ops'),
     ),
-  ]
+  ],
 );
