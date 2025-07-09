@@ -182,10 +182,8 @@ const AssumptionList = React.memo(
       if (selectedPanel === AssumptionType.MAJOR) {
         return assumptions?.filter((a) => a.label === 'major') ?? [];
       }
-      if (selectedPanel === AssumptionType.MINOR) {
-        return assumptions?.filter((a) => a.label === 'minor') ?? [];
-      }
-      return [];
+
+      return assumptions?.filter((a) => a.label !== 'major') ?? [];
     }, [assumptions, selectedPanel]);
 
     const title = useMemo(() => {
