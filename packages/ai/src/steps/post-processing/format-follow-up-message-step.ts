@@ -90,24 +90,38 @@ export const formatFollowUpMessageStepExecution = async ({
   inputData: z.infer<typeof inputSchema>;
 }): Promise<z.infer<typeof formatFollowUpMessageOutputSchema>> => {
   try {
+    // Check if there are any major assumptions
+    const majorAssumptions = inputData.assumptions?.filter((a) => a.label === 'major') || [];
+
+    // If no major assumptions, return null for formatted_message
+    if (majorAssumptions.length === 0) {
+      return {
+        ...inputData,
+      };
+    }
+
     // Prepare context about issues and assumptions for the agent
     const issuesAndAssumptions = {
       flagged_issues: inputData.flagChatMessage || 'No issues flagged',
-      assumptions: inputData.assumptions || [],
+      major_assumptions: majorAssumptions,
     };
 
     const contextMessage = `New issues and assumptions identified from the latest chat messages:
 
 User: ${inputData.userName}
 
-Issues Flagged: ${issuesAndAssumptions.flagged_issues}
 
-Assumptions Identified: ${
-      issuesAndAssumptions.assumptions.length > 0
-        ? issuesAndAssumptions.assumptions
+Issues Flagged: 
+${issuesAndAssumptions.flagged_issues}
+
+
+Major Assumptions Identified: 
+${
+      issuesAndAssumptions.major_assumptions.length > 0
+        ? issuesAndAssumptions.major_assumptions
             .map((a) => `- ${a.descriptiveTitle}: ${a.explanation}`)
-            .join('\n')
-        : 'No new assumptions identified'
+            .join('\n\n')
+        : 'No major assumptions identified'
     }
 
 Generate a concise update message for the data team.`;
