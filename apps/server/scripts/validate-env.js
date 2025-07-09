@@ -26,9 +26,9 @@ const env = {
 const slackEnv = {
   SLACK_CLIENT_ID: process.env.SLACK_CLIENT_ID,
   SLACK_CLIENT_SECRET: process.env.SLACK_CLIENT_SECRET,
-  SLACK_REDIRECT_URI: process.env.SLACK_REDIRECT_URI,
   SLACK_INTEGRATION_ENABLED: process.env.SLACK_INTEGRATION_ENABLED || 'false',
   SLACK_APP_SUPPORT_URL: process.env.SLACK_APP_SUPPORT_URL,
+  SERVER_URL: process.env.SERVER_URL,
 };
 
 let hasErrors = false;
@@ -50,8 +50,8 @@ if (slackEnv.SLACK_INTEGRATION_ENABLED === 'true') {
   const requiredSlackVars = [
     'SLACK_CLIENT_ID',
     'SLACK_CLIENT_SECRET',
-    'SLACK_REDIRECT_URI',
     'SLACK_APP_SUPPORT_URL',
+    'SERVER_URL',
   ];
 
   for (const envKey of requiredSlackVars) {

@@ -11,7 +11,6 @@ const skipIfNoEnv =
   !process.env.DATABASE_URL ||
   !process.env.SLACK_CLIENT_ID ||
   !process.env.SLACK_CLIENT_SECRET ||
-  !process.env.SLACK_REDIRECT_URI ||
   !process.env.SUPABASE_URL ||
   !process.env.SUPABASE_SERVICE_ROLE_KEY ||
   !process.env.SLACK_TEST_ACCESS_TOKEN; // Additional env var for testing channels
