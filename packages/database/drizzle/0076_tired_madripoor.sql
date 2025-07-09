@@ -5,4 +5,4 @@ ALTER TABLE "asset_permissions" ALTER COLUMN "role" SET DATA TYPE "public"."asse
 ALTER TABLE "messages" ADD COLUMN "post_processing_message" jsonb;--> statement-breakpoint
 ALTER TABLE "organizations" ADD COLUMN "domains" text[];--> statement-breakpoint
 ALTER TABLE "organizations" ADD COLUMN "restrict_new_user_invitations" boolean DEFAULT false NOT NULL;--> statement-breakpoint
-ALTER TABLE "organizations" ADD COLUMN "defaultRole" "user_organization_role_enum" DEFAULT 'restricted_querier' NOT NULL;
+ALTER TABLE "organizations" ADD COLUMN "default_role" "user_organization_role_enum" DEFAULT 'restricted_querier' NOT NULL;

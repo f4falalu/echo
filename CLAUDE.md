@@ -122,3 +122,42 @@ pnpm run test:watch
   - Implement comprehensive unit tests for error scenarios
   - Log errors strategically for effective debugging
   - Avoid over-logging while ensuring sufficient context for troubleshooting
+
+## Hono API Development Guidelines
+
+### API Structure and Organization
+- **Version-based organization** - APIs are organized under `/api/v2/` directory
+- **Feature-based folders** - Each feature gets its own folder (e.g., `chats/`, `security/`)
+- **Separate handler files** - Each endpoint handler must be in its own file
+- **Functional handlers** - All handlers should be pure functions that accept request data and return response data
+
+### Request/Response Type Safety
+- **Use shared types** - All request and response types must be defined in `@buster/server-shared`
+- **Zod schemas** - Define schemas in server-shared and export both the schema and inferred types
+- **zValidator middleware** - Always use `zValidator` from `@hono/zod-validator` for request validation
+- **Type imports** - Import types from server-shared packages for consistency
+
+### Handler Pattern
+```typescript
+// Handler file (e.g., get-workspace-settings.ts)
+import type { GetWorkspaceSettingsResponse } from '@buster/server-shared/security';
+import type { User } from '@buster/database';
+
+export async function getWorkspaceSettingsHandler(
+  user: User
+): Promise<GetWorkspaceSettingsResponse> {
+  // Implementation
+}
+
+// Route definition (index.ts)
+.get('/workspace-settings', async (c) => {
+  const user = c.get('busterUser');
+  const response = await getWorkspaceSettingsHandler(user);
+  return c.json(response);
+})
+```
+
+### Authentication and User Context
+- **Use requireAuth middleware** - Apply to all protected routes
+- **Extract user context** - Use `c.get('busterUser')` to get the authenticated user
+- **Type as User** - Import `User` type from `@buster/database` for handler parameters
