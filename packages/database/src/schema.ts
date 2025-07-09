@@ -1876,7 +1876,7 @@ export const slackMessageTracking = pgTable(
     slackThreadTs: varchar('slack_thread_ts', { length: 255 }),
 
     // Metadata
-    messageType: varchar('message_type', { length: 50 }).notNull(), // 'message', 'reply', 'update'
+    messageType: varchar('message_type', { length: 50 }).notNull(), // Source of the message (e.g., 'analyst_message_post_processing')
     content: text(),
     senderInfo: jsonb('sender_info'),
 
