@@ -1,4 +1,4 @@
-import type { teamRoleEnum } from '@buster/database';
+import type { teamRoleEnum } from '@buster/database'; //we import as type to avoid postgres dependency in the frontend ☹️
 import { z } from 'zod/v4';
 import { SharingSettingSchema } from '../user/sharing-setting.types';
 

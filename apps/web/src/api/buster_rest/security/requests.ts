@@ -46,7 +46,7 @@ export const addApprovedDomain = async (request: AddApprovedDomainRequest) => {
 export const removeApprovedDomain = async (request: RemoveApprovedDomainRequest) => {
   return await mainApiV2
     .delete<GetApprovedDomainsResponse>('/security/approved-domains', {
-      data: request
+      params: request
     })
     .then((res) => res.data);
 };

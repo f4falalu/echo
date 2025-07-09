@@ -88,13 +88,13 @@ export const useAddApprovedDomain = () => {
     onMutate: (variables) => {
       queryClient.setQueryData(securityQueryKeys.securityApprovedDomains.queryKey, (prev) => {
         if (!prev) return prev;
-        return {
+        return [
           ...prev,
           ...variables.domains.map((domain) => ({
             domain,
             created_at: new Date().toISOString()
-          }))
-        } satisfies GetApprovedDomainsResponse;
+          })) satisfies GetApprovedDomainsResponse
+         ] satisfies GetApprovedDomainsResponse;
       });
     },
     onSuccess: (data) => {

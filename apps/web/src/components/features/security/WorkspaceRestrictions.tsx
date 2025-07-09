@@ -41,7 +41,7 @@ export const WorkspaceRestrictions = React.memo(() => {
         updateWorkspaceSettings={updateWorkspaceSettings}
       />
     ],
-    [workspaceSettings?.restrict_new_user_invitations]
+    [workspaceSettings]
   );
 
   return (
