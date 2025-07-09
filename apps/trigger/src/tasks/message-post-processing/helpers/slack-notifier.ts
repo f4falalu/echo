@@ -391,7 +391,7 @@ function formatSlackMessage(params: SlackNotificationParams): SlackMessage {
           type: 'section',
           text: {
             type: 'mrkdwn',
-            text: `Buster flagged a chat for review:\n*<${chatUrl}|${userName}>*`,
+            text: `Flagged a chat for review:\n*<${chatUrl}|${userName}>*`,
           },
         },
         {
@@ -414,7 +414,7 @@ function formatSlackMessage(params: SlackNotificationParams): SlackMessage {
           type: 'section',
           text: {
             type: 'mrkdwn',
-            text: `Buster flagged a chat for review:\n*<${chatUrl}|${userName} - ${params.summaryTitle}>*`,
+            text: `Flagged a chat for review:\n*<${chatUrl}|${userName} - ${params.summaryTitle}>*`,
           },
         },
         {
@@ -437,7 +437,7 @@ function formatSlackMessage(params: SlackNotificationParams): SlackMessage {
           type: 'section',
           text: {
             type: 'mrkdwn',
-            text: `Buster flagged a chat for review:\n*<${chatUrl}|${userName} - Flagged Chat>*`,
+            text: `Flagged a chat for review:\n*<${chatUrl}|${userName} - Flagged Chat>*`,
           },
         },
         {
