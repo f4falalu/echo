@@ -47,6 +47,16 @@ interface SlackBlock {
     text: string;
     verbatim?: boolean;
   };
+  elements?: Array<{
+    type: string;
+    text?: {
+      type: string;
+      text: string;
+      emoji?: boolean;
+    };
+    url?: string;
+    action_id?: string;
+  }>;
 }
 
 interface SlackMessage {
@@ -402,6 +412,21 @@ function formatSlackMessage(params: SlackNotificationParams): SlackMessage {
             verbatim: false,
           },
         },
+        {
+          type: 'actions',
+          elements: [
+            {
+              type: 'button',
+              text: {
+                type: 'plain_text',
+                text: 'Open in Buster',
+                emoji: false,
+              },
+              url: chatUrl,
+              action_id: 'actionId-0',
+            },
+          ],
+        },
       ],
     };
   }
@@ -425,6 +450,21 @@ function formatSlackMessage(params: SlackNotificationParams): SlackMessage {
             verbatim: false,
           },
         },
+        {
+          type: 'actions',
+          elements: [
+            {
+              type: 'button',
+              text: {
+                type: 'plain_text',
+                text: 'Open in Buster',
+                emoji: false,
+              },
+              url: chatUrl,
+              action_id: 'actionId-0',
+            },
+          ],
+        },
       ],
     };
   }
@@ -447,6 +487,21 @@ function formatSlackMessage(params: SlackNotificationParams): SlackMessage {
             text: params.message,
             verbatim: false,
           },
+        },
+        {
+          type: 'actions',
+          elements: [
+            {
+              type: 'button',
+              text: {
+                type: 'plain_text',
+                text: 'Open in Buster',
+                emoji: false,
+              },
+              url: chatUrl,
+              action_id: 'actionId-0',
+            },
+          ],
         },
       ],
     };
