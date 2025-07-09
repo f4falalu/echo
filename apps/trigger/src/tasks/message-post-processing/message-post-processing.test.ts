@@ -24,14 +24,16 @@ vi.mock('@buster/database', () => ({
   getDb: vi.fn(),
   eq: vi.fn((a, b) => ({ type: 'eq', a, b })),
   messages: { id: 'messages.id' },
-  getBraintrustMetadata: vi.fn(() => Promise.resolve({
-    userName: 'John Doe',
-    userId: 'user-123',
-    organizationName: 'Test Org',
-    organizationId: 'org-123',
-    messageId: 'msg-12345',
-    chatId: 'chat-123',
-  })),
+  getBraintrustMetadata: vi.fn(() =>
+    Promise.resolve({
+      userName: 'John Doe',
+      userId: 'user-123',
+      organizationName: 'Test Org',
+      organizationId: 'org-123',
+      messageId: 'msg-12345',
+      chatId: 'chat-123',
+    })
+  ),
 }));
 
 vi.mock('@buster/ai/workflows/post-processing-workflow', () => ({

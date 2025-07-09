@@ -320,7 +320,13 @@ describe('data-transformers', () => {
     });
 
     it('should handle empty conversation history', () => {
-      const result = buildWorkflowInput(baseMessageContext, [], basePreviousResults, baseDatasets, false);
+      const result = buildWorkflowInput(
+        baseMessageContext,
+        [],
+        basePreviousResults,
+        baseDatasets,
+        false
+      );
       expect(result.conversationHistory).toBeUndefined();
     });
   });

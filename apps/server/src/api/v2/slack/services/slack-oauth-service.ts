@@ -40,7 +40,13 @@ export class SlackOAuthService {
           clientId: this.env.SLACK_CLIENT_ID,
           clientSecret: this.env.SLACK_CLIENT_SECRET,
           redirectUri: this.env.SLACK_REDIRECT_URI,
-          scopes: ['channels:history', 'chat:write', 'chat:write.public', 'commands'],
+          scopes: [
+            'channels:history',
+            'channels:read',
+            'chat:write',
+            'chat:write.public',
+            'commands',
+          ],
         },
         tokenStorage,
         oauthStateStorage
