@@ -1,5 +1,5 @@
-import { z } from "zod/v4";
-import { OrganizationRoleSchema } from "../organization";
+import { z } from 'zod/v4';
+import { OrganizationRoleSchema } from '../organization';
 
 export const GetInviteLinkResponseSchema = z.object({
   link: z.string(),
@@ -14,12 +14,9 @@ export const GetApprovedDomainsResponseSchema = z.array(
     created_at: z.string(),
   })
 );
-export const AddApprovedDomainsResponseSchema =
-  GetApprovedDomainsResponseSchema;
-export const UpdateApprovedDomainsResponseSchema =
-  GetApprovedDomainsResponseSchema;
-export const RemoveApprovedDomainsResponseSchema =
-  GetApprovedDomainsResponseSchema;
+export const AddApprovedDomainsResponseSchema = GetApprovedDomainsResponseSchema;
+export const UpdateApprovedDomainsResponseSchema = GetApprovedDomainsResponseSchema;
+export const RemoveApprovedDomainsResponseSchema = GetApprovedDomainsResponseSchema;
 
 export const GetWorkspaceSettingsResponseSchema = z.object({
   restrict_new_user_invitations: z.boolean(),
@@ -31,31 +28,14 @@ export const GetWorkspaceSettingsResponseSchema = z.object({
     })
   ),
 });
-export const UpdateWorkspaceSettingsResponseSchema =
-  GetWorkspaceSettingsResponseSchema;
+export const UpdateWorkspaceSettingsResponseSchema = GetWorkspaceSettingsResponseSchema;
 
-export type RefreshInviteLinkResponse = z.infer<
-  typeof RefreshInviteLinkResponseSchema
->;
-export type UpdateInviteLinkResponse = z.infer<
-  typeof UpdateInviteLinkResponseSchema
->;
+export type RefreshInviteLinkResponse = z.infer<typeof RefreshInviteLinkResponseSchema>;
+export type UpdateInviteLinkResponse = z.infer<typeof UpdateInviteLinkResponseSchema>;
 export type GetInviteLinkResponse = z.infer<typeof GetInviteLinkResponseSchema>;
-export type GetApprovedDomainsResponse = z.infer<
-  typeof GetApprovedDomainsResponseSchema
->;
-export type AddApprovedDomainsResponse = z.infer<
-  typeof AddApprovedDomainsResponseSchema
->;
-export type UpdateApprovedDomainsResponse = z.infer<
-  typeof UpdateApprovedDomainsResponseSchema
->;
-export type RemoveApprovedDomainsResponse = z.infer<
-  typeof RemoveApprovedDomainsResponseSchema
->;
-export type GetWorkspaceSettingsResponse = z.infer<
-  typeof GetWorkspaceSettingsResponseSchema
->;
-export type UpdateWorkspaceSettingsResponse = z.infer<
-  typeof UpdateWorkspaceSettingsResponseSchema
->;
+export type GetApprovedDomainsResponse = z.infer<typeof GetApprovedDomainsResponseSchema>;
+export type AddApprovedDomainsResponse = z.infer<typeof AddApprovedDomainsResponseSchema>;
+export type UpdateApprovedDomainsResponse = z.infer<typeof UpdateApprovedDomainsResponseSchema>;
+export type RemoveApprovedDomainsResponse = z.infer<typeof RemoveApprovedDomainsResponseSchema>;
+export type GetWorkspaceSettingsResponse = z.infer<typeof GetWorkspaceSettingsResponseSchema>;
+export type UpdateWorkspaceSettingsResponse = z.infer<typeof UpdateWorkspaceSettingsResponseSchema>;

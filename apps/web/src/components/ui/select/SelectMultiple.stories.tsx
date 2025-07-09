@@ -43,6 +43,7 @@ const SelectMultipleWithHooks = () => {
         onChange={handleSelect}
         placeholder="Select multiple options..."
         value={value}
+        loading={true}
       />
     </div>
   );

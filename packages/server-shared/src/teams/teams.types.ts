@@ -1,8 +1,14 @@
-import { teamRoleEnum } from '@buster/database';
+import type { teamRoleEnum } from '@buster/database';
 import { z } from 'zod/v4';
 import { SharingSettingSchema } from '../user/sharing-setting.types';
 
-export const TeamRoleSchema = z.enum([...teamRoleEnum.enumValues, 'none']);
+type TeamRoleBase = (typeof teamRoleEnum.enumValues)[number] | 'none';
+const TeamRoleEnums: Record<TeamRoleBase, TeamRoleBase> = Object.freeze({
+  none: 'none',
+  manager: 'manager',
+  member: 'member',
+});
+export const TeamRoleSchema = z.enum(Object.values(TeamRoleEnums));
 
 export type TeamRole = z.infer<typeof TeamRoleSchema>;
 
