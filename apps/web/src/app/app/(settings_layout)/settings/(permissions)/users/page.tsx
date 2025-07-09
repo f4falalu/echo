@@ -9,7 +9,7 @@ import { useInviteModalStore } from '@/context/BusterAppLayout';
 import { useUserConfigContextSelector } from '@/context/Users';
 import { useMemoizedFn } from '@/hooks';
 import { useDebounceSearch } from '@/hooks/useDebounceSearch';
-import { SettingsPageHeader } from '../../_components/SettingsPageHeader';
+import { SettingsPageHeader } from '@/components/features/settings';
 import { ListUsersComponent } from './ListUsersComponent';
 
 export default function Page() {
