@@ -181,6 +181,7 @@ async fn get_org_datasets(
             users::id,
             users::name.nullable(),
             users::email,
+            users::avatar_url.nullable(),
             data_sources::id,
             data_sources::name,
         ))
@@ -194,6 +195,7 @@ async fn get_org_datasets(
             users::id,
             users::name,
             users::email,
+            users::avatar_url,
             data_sources::id,
             data_sources::name,
         ))
@@ -228,6 +230,7 @@ async fn get_org_datasets(
             Uuid,
             Option<String>,
             String,
+            Option<String>,
             Uuid,
             String,
         )>(&mut conn)
@@ -250,6 +253,7 @@ async fn get_org_datasets(
                 user_id,
                 user_name,
                 user_email,
+                user_avatar_url,
                 data_source_id,
                 data_source_name,
             )| {
@@ -268,7 +272,7 @@ async fn get_org_datasets(
                     owner: Some(ListDatasetOwner {
                         id: user_id,
                         name: user_name.unwrap_or(user_email),
-                        avatar_url: None,
+                        avatar_url: user_avatar_url,
                     }),
                     belongs_to: None,
                 }

@@ -19,6 +19,7 @@ pub struct UserResponse {
     pub id: Uuid,
     pub name: Option<String>,
     pub email: String,
+    pub avatar_url: Option<String>,
     pub role: UserOrganizationRole,
     pub status: UserOrganizationStatus,
 }
@@ -50,6 +51,7 @@ async fn list_organization_users_handler(organization_id: Uuid) -> Result<Vec<Us
             users::id,
             users::email,
             users::name.nullable(),
+            users::avatar_url.nullable(),
             users_to_organizations::role,
             users_to_organizations::status,
         ))
@@ -59,6 +61,7 @@ async fn list_organization_users_handler(organization_id: Uuid) -> Result<Vec<Us
             Uuid,
             String,
             Option<String>,
+            Option<String>,
             UserOrganizationRole,
             UserOrganizationStatus,
         )>(&mut conn)
@@ -66,10 +69,11 @@ async fn list_organization_users_handler(organization_id: Uuid) -> Result<Vec<Us
 
     Ok(users
         .into_iter()
-        .map(|(id, email, name, role, status)| UserResponse {
+        .map(|(id, email, name, avatar_url, role, status)| UserResponse {
             id,
             name,
             email,
+            avatar_url,
             role,
             status,
         })

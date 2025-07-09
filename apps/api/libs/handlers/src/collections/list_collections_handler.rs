@@ -82,6 +82,7 @@ async fn get_permissioned_collections(
             users::id,
             users::name.nullable(),
             users::email,
+            users::avatar_url.nullable(),
             collections::organization_id,
         ))
         .filter(collections::deleted_at.is_null())
@@ -124,6 +125,7 @@ async fn get_permissioned_collections(
             Uuid,
             Option<String>,
             String,
+            Option<String>,
             Uuid,
         )>(&mut conn)
         .await
@@ -136,7 +138,7 @@ async fn get_permissioned_collections(
 
     // Filter collections based on user permissions
     // We'll include collections where the user has at least CanView permission
-    for (id, name, updated_at, created_at, role, creator_id, creator_name, email, org_id) in collection_results {
+    for (id, name, updated_at, created_at, role, creator_id, creator_name, email, creator_avatar_url, org_id) in collection_results {
         // Check if user has at least CanView permission
         let has_permission = check_permission_access(
             Some(role),
@@ -157,7 +159,7 @@ async fn get_permissioned_collections(
         let owner = ListCollectionsUser {
             id: creator_id,
             name: creator_name.unwrap_or(email),
-            avatar_url: None,
+            avatar_url: creator_avatar_url,
         };
 
         let collection = ListCollectionsCollection {

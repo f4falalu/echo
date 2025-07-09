@@ -64,6 +64,7 @@ pub async fn list_dashboard_handler(
             dashboard_files::updated_at,
             asset_permissions::role,
             users::name.nullable(),
+            users::avatar_url.nullable(),
             dashboard_files::organization_id,
         ))
         .filter(dashboard_files::deleted_at.is_null())
@@ -106,6 +107,7 @@ pub async fn list_dashboard_handler(
             DateTime<Utc>,
             AssetPermissionRole,
             Option<String>,
+            Option<String>,
             Uuid,
         )>(&mut conn)
         .await
@@ -118,7 +120,7 @@ pub async fn list_dashboard_handler(
     // We'll include dashboards where the user has at least CanView permission
     let mut dashboards = Vec::new();
 
-    for (id, name, created_by, created_at, updated_at, role, creator_name, org_id) in
+    for (id, name, created_by, created_at, updated_at, role, creator_name, creator_avatar_url, org_id) in
         dashboard_results
     {
         // Check if user has at least CanView permission
@@ -141,7 +143,7 @@ pub async fn list_dashboard_handler(
         let owner = DashboardMember {
             id: created_by,
             name: creator_name.unwrap_or_else(|| "Unknown".to_string()),
-            avatar_url: None,
+            avatar_url: creator_avatar_url,
         };
 
         let dashboard_item = BusterDashboardListItem {
