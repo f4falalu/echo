@@ -10,27 +10,30 @@ import { CollapseFileButton } from './CollapseFileButton';
 import { SelectedFileButtonsRecord, SelectedFileSegmentRecord } from './config';
 import { FileContainerHeaderVersionHistory } from './FileContainerHeaderVersionHistory';
 
-export const FileContainerHeader: React.FC = React.memo(() => {
-  const selectedFileType = useChatLayoutContextSelector((x) => x.selectedFile?.type);
-  const selectedFileId = useChatLayoutContextSelector((x) => x.selectedFile?.id);
-  const isVersionHistoryMode = useChatLayoutContextSelector((x) => x.isVersionHistoryMode);
+export const FileContainerHeader: React.FC<{ isVersionHistoryMode: boolean }> = React.memo(
+  ({ isVersionHistoryMode }) => {
+    const selectedFileType = useChatLayoutContextSelector((x) => x.selectedFile?.type);
+    const selectedFileId = useChatLayoutContextSelector((x) => x.selectedFile?.id);
 
-  if (isVersionHistoryMode) return <FileContainerHeaderVersionHistory />;
+    if (isVersionHistoryMode) return <FileContainerHeaderVersionHistory />;
 
-  return (
-    <FileContainerHeaderStandard
-      selectedFileId={selectedFileId}
-      selectedFileType={selectedFileType}
-    />
-  );
-});
+    return (
+      <FileContainerHeaderStandard
+        selectedFileId={selectedFileId}
+        selectedFileType={selectedFileType}
+        isVersionHistoryMode={isVersionHistoryMode}
+      />
+    );
+  }
+);
 
 FileContainerHeader.displayName = 'FileContainerHeader';
 
 const FileContainerHeaderStandard: React.FC<{
   selectedFileId: string | undefined;
   selectedFileType: FileType | undefined;
-}> = ({ selectedFileId, selectedFileType }) => {
+  isVersionHistoryMode: boolean;
+}> = ({ selectedFileId, selectedFileType, isVersionHistoryMode }) => {
   const router = useRouter();
   const chatId = useChatLayoutContextSelector((x) => x.chatId);
   const selectedFileView = useChatLayoutContextSelector((x) => x.selectedFileView);
@@ -77,6 +80,7 @@ const FileContainerHeaderStandard: React.FC<{
             selectedFileView={selectedFileView}
             selectedFileId={selectedFileId}
             chatId={chatId}
+            isVersionHistoryMode={isVersionHistoryMode}
           />
         )}
       </div>

@@ -12,6 +12,7 @@ import {
   inviteUser,
   updateOrganizationUser
 } from './requests';
+import { organizationQueryKeys } from '@/api/query_keys/organization';
 
 export const useGetMyUserInfo = () => {
   return useQuery({
@@ -98,10 +99,17 @@ export const useInviteUser = () => {
     mutationFn: inviteUser,
     onSuccess: () => {
       const user = queryClient.getQueryData(userQueryKeys.userGetUserMyself.queryKey);
-      const teamId = user?.organizations?.[0]?.id;
-      if (teamId) {
+
+      for (const organization of user?.organizations || []) {
         queryClient.invalidateQueries({
-          queryKey: [userQueryKeys.userGetUserList({ team_id: teamId }).queryKey],
+          queryKey: [organizationQueryKeys.organizationUsers(organization.id).queryKey],
+          refetchType: 'all'
+        });
+      }
+
+      for (const team of user?.teams || []) {
+        queryClient.invalidateQueries({
+          queryKey: [userQueryKeys.userGetUserList({ team_id: team.id }).queryKey],
           refetchType: 'all'
         });
       }

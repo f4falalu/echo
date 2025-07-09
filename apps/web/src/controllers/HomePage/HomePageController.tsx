@@ -8,6 +8,13 @@ import { NewChatInput } from './NewChatInput';
 import { NewChatWarning } from './NewChatWarning';
 import { useNewChatWarning } from './useNewChatWarning';
 
+enum TimeOfDay {
+  MORNING = 'morning',
+  AFTERNOON = 'afternoon',
+  EVENING = 'evening',
+  NIGHT = 'night'
+}
+
 export const HomePageController: React.FC<Record<string, never>> = () => {
   const newChatWarningProps = useNewChatWarning();
   const { showWarning } = newChatWarningProps;
@@ -15,18 +22,35 @@ export const HomePageController: React.FC<Record<string, never>> = () => {
   const user = useUserConfigContextSelector((state) => state.user);
   const userName = user?.name;
 
-  const isMorning = useMemo(() => {
+  const timeOfDay = useMemo(() => {
     const now = new Date();
     const hours = now.getHours();
-    return hours < 12;
+
+    if (hours >= 5 && hours < 12) {
+      return TimeOfDay.MORNING;
+    } else if (hours >= 12 && hours < 17) {
+      return TimeOfDay.AFTERNOON;
+    } else if (hours >= 17 && hours < 21) {
+      return TimeOfDay.EVENING;
+    } else {
+      return TimeOfDay.NIGHT;
+    }
   }, []);
 
   const greeting = useMemo(() => {
-    if (isMorning) {
-      return `Good morning, ${userName}`;
+    switch (timeOfDay) {
+      case TimeOfDay.MORNING:
+        return `Good morning, ${userName}`;
+      case TimeOfDay.AFTERNOON:
+        return `Good afternoon, ${userName}`;
+      case TimeOfDay.EVENING:
+        return `Good evening, ${userName}`;
+      case TimeOfDay.NIGHT:
+        return `Good night, ${userName}`;
+      default:
+        return `Hello, ${userName}`;
     }
-    return `Good afternoon, ${userName}`;
-  }, [userName]);
+  }, [timeOfDay, userName]);
 
   return (
     <div className="flex flex-col items-center justify-center p-4.5">

@@ -1,4 +1,4 @@
-import type { OrganizationUser } from '@/api/asset_interfaces';
+import type { OrganizationUser } from '@buster/server-shared/organization';
 
 export const OrganizationUserStatusText: Record<OrganizationUser['status'], string> = {
   active: 'Active',

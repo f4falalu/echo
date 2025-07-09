@@ -9,7 +9,9 @@ import { VersionHistoryHeaderButtons } from './VersionHistoryHeaderButtons';
 
 export const FileContainerHeaderVersionHistory = React.memo(() => {
   return (
-    <div className="flex w-full items-center justify-between gap-x-1.5">
+    <div
+      className="flex min-h-[38px] w-full items-center justify-between gap-x-1.5"
+      data-testid="version-history-header">
       <ExitVersionHistoryButton />
       <VersionHistoryHeaderButtons />
     </div>

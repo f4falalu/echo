@@ -69,7 +69,7 @@ export const SQLContainer: React.FC<{
           <Button onClick={onCopySQL}>Copy SQL</Button>
 
           <div className="flex items-center gap-2">
-            {onSaveSQL && (
+            {onSaveSQL && !readOnly && (
               <Button
                 disabled={disabledSave || !sql || isRunning}
                 variant="black"

@@ -1,9 +1,15 @@
 import postProcessingWorkflow, {
   type PostProcessingWorkflowOutput,
 } from '@buster/ai/workflows/post-processing-workflow';
-import { eq, getDb, messages } from '@buster/database';
+import { eq, getBraintrustMetadata, getDb, messages, slackIntegrations } from '@buster/database';
+import type {
+  AssumptionClassification,
+  AssumptionLabel,
+  ConfidenceScore,
+  PostProcessingMessage,
+} from '@buster/server-shared/message';
 import { logger, schemaTask } from '@trigger.dev/sdk/v3';
-import { initLogger, wrapTraced } from 'braintrust';
+import { currentSpan, initLogger, wrapTraced } from 'braintrust';
 import { z } from 'zod/v4';
 import {
   buildWorkflowInput,
@@ -11,62 +17,21 @@ import {
   fetchMessageWithContext,
   fetchPreviousPostProcessingMessages,
   fetchUserDatasets,
+  getExistingSlackMessageForChat,
   sendSlackNotification,
+  sendSlackReplyNotification,
+  trackSlackNotification,
 } from './helpers';
 import { DataFetchError, MessageNotFoundError, TaskInputSchema } from './types';
 import type { TaskInput, TaskOutput } from './types';
-
-// Schema for the subset of fields we want to save to the database
-const PostProcessingDbDataSchema = z.object({
-  confidence_score: z.enum(['low', 'high']),
-  summary_message: z.string(),
-  summary_title: z.string(),
-  assumptions: z
-    .array(
-      z.object({
-        descriptive_title: z.string(),
-        classification: z.enum([
-          'fieldMapping',
-          'tableRelationship',
-          'dataQuality',
-          'dataFormat',
-          'dataAvailability',
-          'timePeriodInterpretation',
-          'timePeriodGranularity',
-          'metricInterpretation',
-          'segmentInterpretation',
-          'quantityInterpretation',
-          'requestScope',
-          'metricDefinition',
-          'segmentDefinition',
-          'businessLogic',
-          'policyInterpretation',
-          'optimization',
-          'aggregation',
-          'filtering',
-          'sorting',
-          'grouping',
-          'calculationMethod',
-          'dataRelevance',
-        ]),
-        explanation: z.string(),
-        label: z.enum(['timeRelated', 'vagueRequest', 'major', 'minor']),
-      })
-    )
-    .optional(),
-  tool_called: z.string(),
-  user_name: z.string().nullable().optional(),
-});
-
-type PostProcessingDbData = z.infer<typeof PostProcessingDbDataSchema>;
 
 /**
  * Extract only the specific fields we want to save to the database
  */
 function extractDbFields(
   workflowOutput: PostProcessingWorkflowOutput,
-  userName: string | null
-): PostProcessingDbData {
+  userName: string
+): PostProcessingMessage {
   logger.log('Extracting database fields from workflow output', {
     workflowOutput,
   });
@@ -79,7 +44,7 @@ function extractDbFields(
   // - Low if toolCalled is 'flagChat'
   // - Low if there are any major assumptions
   // - High otherwise
-  let confidence_score: 'low' | 'high' = 'high';
+  let confidence_score: ConfidenceScore = 'high';
   if (workflowOutput.toolCalled === 'flagChat' || hasMajorAssumptions) {
     confidence_score = 'low';
   }
@@ -98,15 +63,15 @@ function extractDbFields(
     summaryTitle = workflowOutput.summaryTitle || 'Summary';
   }
 
-  const extracted: PostProcessingDbData = {
+  const extracted: PostProcessingMessage = {
     summary_message: summaryMessage,
     summary_title: summaryTitle,
     confidence_score,
     assumptions: workflowOutput.assumptions?.map((assumption) => ({
       descriptive_title: assumption.descriptiveTitle,
-      classification: assumption.classification,
+      classification: assumption.classification as AssumptionClassification,
       explanation: assumption.explanation,
-      label: assumption.label,
+      label: assumption.label as AssumptionLabel,
     })),
     tool_called: workflowOutput.toolCalled || 'unknown', // Provide default if missing
     user_name: userName,
@@ -135,8 +100,8 @@ export const messagePostProcessingTask: ReturnType<
       throw new Error('BRAINTRUST_KEY is not set');
     }
 
-    // Initialize Braintrust logging for observability
-    initLogger({
+    // Initialize Braintrust logger
+    const braintrustLogger = initLogger({
       apiKey: process.env.BRAINTRUST_KEY,
       projectName: process.env.ENVIRONMENT || 'development',
     });
@@ -155,17 +120,20 @@ export const messagePostProcessingTask: ReturnType<
       });
 
       // Step 2: Fetch all required data concurrently
-      const [conversationMessages, previousPostProcessingResults, datasets] = await Promise.all([
-        fetchConversationHistory(messageContext.chatId),
-        fetchPreviousPostProcessingMessages(messageContext.chatId, messageContext.createdAt),
-        fetchUserDatasets(messageContext.createdBy),
-      ]);
+      const [conversationMessages, previousPostProcessingResults, datasets, braintrustMetadata] =
+        await Promise.all([
+          fetchConversationHistory(messageContext.chatId),
+          fetchPreviousPostProcessingMessages(messageContext.chatId, messageContext.createdAt),
+          fetchUserDatasets(messageContext.createdBy),
+          getBraintrustMetadata({ messageId: payload.messageId }),
+        ]);
 
       logger.log('Fetched required data', {
         messageId: payload.messageId,
         conversationMessagesCount: conversationMessages.length,
         previousPostProcessingCount: previousPostProcessingResults.length,
         datasetsCount: datasets.length,
+        braintrustMetadata, // Log the metadata to verify it's working
       });
 
       // Step 3: Build workflow input
@@ -191,6 +159,17 @@ export const messagePostProcessingTask: ReturnType<
 
       const tracedWorkflow = wrapTraced(
         async () => {
+          currentSpan().log({
+            metadata: {
+              userName: braintrustMetadata.userName || 'Unknown',
+              userId: braintrustMetadata.userId,
+              organizationName: braintrustMetadata.organizationName || 'Unknown',
+              organizationId: braintrustMetadata.organizationId,
+              messageId: braintrustMetadata.messageId,
+              chatId: braintrustMetadata.chatId,
+            },
+          });
+
           const run = postProcessingWorkflow.createRun();
           return await run.start({
             inputData: workflowInput,
@@ -288,6 +267,12 @@ export const messagePostProcessingTask: ReturnType<
       // Step 6: Send Slack notification if conditions are met
       let slackNotificationSent = false;
 
+      // Skip Slack notification if tool_called is "noIssuesFound" and there are no major assumptions
+      const hasMajorAssumptions =
+        dbData.assumptions?.some((assumption) => assumption.label === 'major') ?? false;
+      const shouldSkipSlackNotification =
+        dbData.tool_called === 'noIssuesFound' && !hasMajorAssumptions;
+
       try {
         logger.log('Checking Slack notification conditions', {
           messageId: payload.messageId,
@@ -295,29 +280,106 @@ export const messagePostProcessingTask: ReturnType<
           summaryTitle: dbData.summary_title,
           summaryMessage: dbData.summary_message,
           toolCalled: dbData.tool_called,
+          hasMajorAssumptions,
+          shouldSkipSlackNotification,
         });
 
-        const slackResult = await sendSlackNotification({
-          organizationId: messageContext.organizationId,
-          userName: messageContext.userName,
-          chatId: messageContext.chatId,
-          summaryTitle: dbData.summary_title,
-          summaryMessage: dbData.summary_message,
-          toolCalled: dbData.tool_called,
-        });
-
-        if (slackResult.sent) {
-          slackNotificationSent = true;
-          logger.log('Slack notification sent successfully', {
+        if (shouldSkipSlackNotification) {
+          logger.log('Skipping Slack notification: noIssuesFound with no major assumptions', {
             messageId: payload.messageId,
             organizationId: messageContext.organizationId,
           });
         } else {
-          logger.log('Slack notification not sent', {
-            messageId: payload.messageId,
-            organizationId: messageContext.organizationId,
-            reason: slackResult.error,
-          });
+          // Check if any messages from this chat have been sent to Slack
+          const existingSlackMessage = await getExistingSlackMessageForChat(messageContext.chatId);
+
+          let slackResult: Awaited<ReturnType<typeof sendSlackNotification>>;
+
+          if (
+            existingSlackMessage?.exists &&
+            existingSlackMessage.slackThreadTs &&
+            existingSlackMessage.channelId &&
+            existingSlackMessage.integrationId
+          ) {
+            logger.log('Found existing Slack thread for chat, sending as reply', {
+              messageId: payload.messageId,
+              chatId: messageContext.chatId,
+              threadTs: existingSlackMessage.slackThreadTs,
+            });
+
+            // Need to get integration details to get the token vault key
+            const db = getDb();
+            const [integration] = await db
+              .select({ tokenVaultKey: slackIntegrations.tokenVaultKey })
+              .from(slackIntegrations)
+              .where(eq(slackIntegrations.id, existingSlackMessage.integrationId))
+              .limit(1);
+
+            if (!integration?.tokenVaultKey) {
+              logger.error('Could not find integration token for reply', {
+                integrationId: existingSlackMessage.integrationId,
+              });
+              slackResult = { sent: false, error: 'Integration not found' };
+            } else {
+              slackResult = await sendSlackReplyNotification({
+                organizationId: messageContext.organizationId,
+                userName: messageContext.userName,
+                chatId: messageContext.chatId,
+                summaryTitle: dbData.summary_title,
+                summaryMessage: dbData.summary_message,
+                toolCalled: dbData.tool_called,
+                threadTs: existingSlackMessage.slackThreadTs,
+                channelId: existingSlackMessage.channelId,
+                integrationId: existingSlackMessage.integrationId,
+                tokenVaultKey: integration.tokenVaultKey,
+              });
+            }
+          } else {
+            logger.log('No existing Slack thread found, sending as new message', {
+              messageId: payload.messageId,
+              chatId: messageContext.chatId,
+            });
+
+            slackResult = await sendSlackNotification({
+              organizationId: messageContext.organizationId,
+              userName: messageContext.userName,
+              chatId: messageContext.chatId,
+              summaryTitle: dbData.summary_title,
+              summaryMessage: dbData.summary_message,
+              toolCalled: dbData.tool_called,
+            });
+          }
+
+          if (slackResult.sent) {
+            slackNotificationSent = true;
+            logger.log('Slack notification sent successfully', {
+              messageId: payload.messageId,
+              organizationId: messageContext.organizationId,
+              isReply: !!existingSlackMessage?.exists,
+            });
+
+            // Track the sent notification
+            if (slackResult.messageTs && slackResult.integrationId && slackResult.channelId) {
+              await trackSlackNotification({
+                messageId: payload.messageId,
+                integrationId: slackResult.integrationId,
+                channelId: slackResult.channelId,
+                messageTs: slackResult.messageTs,
+                ...(slackResult.threadTs && { threadTs: slackResult.threadTs }),
+                userName: messageContext.userName,
+                chatId: messageContext.chatId,
+                summaryTitle: dbData.summary_title,
+                summaryMessage: dbData.summary_message,
+                ...(slackResult.slackBlocks && { slackBlocks: slackResult.slackBlocks }),
+              });
+            }
+          } else {
+            logger.log('Slack notification not sent', {
+              messageId: payload.messageId,
+              organizationId: messageContext.organizationId,
+              reason: slackResult.error,
+            });
+          }
         }
       } catch (slackError) {
         const errorMessage =
@@ -342,8 +404,8 @@ export const messagePostProcessingTask: ReturnType<
         slackNotificationSent,
       });
 
-      // Wait 500ms to allow Braintrust to clean up its trace before completing
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      // Need to flush the Braintrust logger to ensure all traces are sent
+      await braintrustLogger.flush();
 
       return {
         success: true,
@@ -370,6 +432,9 @@ export const messagePostProcessingTask: ReturnType<
         stack: error instanceof Error ? error.stack : undefined,
         executionTimeMs: Date.now() - startTime,
       });
+
+      // Need to flush the Braintrust logger to ensure all traces are sent
+      await braintrustLogger.flush();
 
       return {
         success: false,

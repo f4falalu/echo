@@ -153,7 +153,7 @@ function createDataMetadata(results: Record<string, unknown>[]): DataMetadata {
     const uniqueValues = new Set(values).size;
 
     columnMetadata.push({
-      name: columnName,
+      name: columnName.toLowerCase(),
       min_value: minValue,
       max_value: maxValue,
       unique_values: uniqueValues,

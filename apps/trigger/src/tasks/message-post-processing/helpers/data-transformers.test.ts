@@ -302,7 +302,7 @@ describe('data-transformers', () => {
     it('should handle null userName', () => {
       const messageContextWithNullUser = {
         ...baseMessageContext,
-        userName: null,
+        userName: 'Unknown User',
       };
 
       const result = buildWorkflowInput(

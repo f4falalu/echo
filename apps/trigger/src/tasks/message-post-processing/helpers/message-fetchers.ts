@@ -53,7 +53,7 @@ export async function fetchMessageWithContext(messageId: string): Promise<Messag
       chatId: messageData.chatId,
       createdBy: messageData.createdBy,
       createdAt: new Date(messageData.createdAt),
-      userName: messageData.userName,
+      userName: messageData.userName ?? 'Unknown',
       organizationId: messageData.organizationId,
     };
   } catch (error) {

@@ -6,16 +6,7 @@ import { BusterRoutes } from '@/routes/busterRoutes';
 vi.mock('@/routes/busterRoutes', async () => {
   const actual = await vi.importActual('@/routes/busterRoutes');
   return {
-    ...actual,
-    createBusterRoute: vi.fn((params) => {
-      // Simple mock implementation that returns a string representation
-      const { route, ...args } = params;
-      const queryParams = Object.entries(args)
-        .filter(([_, value]) => value !== undefined)
-        .map(([key, value]) => `${key}=${value}`)
-        .join('&');
-      return queryParams ? `${route}?${queryParams}` : route;
-    })
+    ...actual
   };
 });
 
@@ -34,11 +25,9 @@ describe('createMetricRoute', () => {
         page: 'chart'
       });
 
-      expect(result).toContain(BusterRoutes.APP_CHAT_ID_METRIC_ID_CHART);
-      expect(result).toContain('chatId=chat-456');
-      expect(result).toContain('metricId=metric-123');
-      expect(result).toContain('metricVersionNumber=5');
-      expect(result).toContain('secondaryView=chart-edit');
+      expect(result).toContain(
+        '/app/chats/chat-456/metrics/metric-123/chart?secondary_view=chart-edit&metric_version_number=5'
+      );
     });
 
     it('should create chat metric chart route with version number only', () => {
@@ -49,10 +38,9 @@ describe('createMetricRoute', () => {
         page: 'chart'
       });
 
-      expect(result).toContain(BusterRoutes.APP_CHAT_ID_METRIC_ID_CHART);
-      expect(result).toContain('chatId=chat-456');
-      expect(result).toContain('metricId=metric-123');
-      expect(result).toContain('metricVersionNumber=3');
+      expect(result).toContain(
+        '/app/chats/chat-456/metrics/metric-123/chart?metric_version_number=3'
+      );
     });
 
     it('should create chat metric chart route with version history secondary view', () => {
@@ -63,10 +51,9 @@ describe('createMetricRoute', () => {
         page: 'chart'
       });
 
-      expect(result).toContain(BusterRoutes.APP_CHAT_ID_METRIC_ID_CHART);
-      expect(result).toContain('chatId=chat-456');
-      expect(result).toContain('metricId=metric-123');
-      expect(result).toContain('secondaryView=version-history');
+      expect(result).toContain(
+        '/app/chats/chat-456/metrics/metric-123/chart?secondary_view=version-history'
+      );
     });
 
     it('should create chat metric chart route with minimal parameters', () => {
@@ -76,9 +63,7 @@ describe('createMetricRoute', () => {
         page: 'chart'
       });
 
-      expect(result).toContain(BusterRoutes.APP_CHAT_ID_METRIC_ID_CHART);
-      expect(result).toContain('chatId=chat-456');
-      expect(result).toContain('metricId=metric-123');
+      expect(result).toContain('/app/chats/chat-456/metrics/metric-123/chart');
     });
 
     it('should create non-chat metric chart route with version number', () => {
@@ -88,9 +73,7 @@ describe('createMetricRoute', () => {
         page: 'chart'
       });
 
-      expect(result).toContain(BusterRoutes.APP_METRIC_ID_CHART);
-      expect(result).toContain('metricId=metric-123');
-      expect(result).toContain('metricVersionNumber=7');
+      expect(result).toContain('/app/metrics/metric-123/chart?metric_version_number=7');
     });
 
     it('should create non-chat metric chart route with chart-edit secondary view', () => {
@@ -100,9 +83,7 @@ describe('createMetricRoute', () => {
         page: 'chart'
       });
 
-      expect(result).toContain(BusterRoutes.APP_METRIC_ID_CHART);
-      expect(result).toContain('metricId=metric-123');
-      expect(result).toContain('secondaryView=chart-edit');
+      expect(result).toContain('/app/metrics/metric-123/chart?secondary_view=chart-edit');
     });
 
     it('should create non-chat metric chart route with minimal parameters', () => {
@@ -111,8 +92,7 @@ describe('createMetricRoute', () => {
         page: 'chart'
       });
 
-      expect(result).toContain(BusterRoutes.APP_METRIC_ID_CHART);
-      expect(result).toContain('metricId=metric-123');
+      expect(result).toContain('/app/metrics/metric-123/chart');
     });
   });
 
@@ -125,10 +105,9 @@ describe('createMetricRoute', () => {
         page: 'results'
       });
 
-      expect(result).toContain(BusterRoutes.APP_CHAT_ID_METRIC_ID_RESULTS);
-      expect(result).toContain('chatId=chat-456');
-      expect(result).toContain('metricId=metric-123');
-      expect(result).toContain('metricVersionNumber=2');
+      expect(result).toContain(
+        '/app/chats/chat-456/metrics/metric-123/results?metric_version_number=2'
+      );
     });
 
     it('should create non-chat metric results route with version number', () => {
@@ -138,9 +117,7 @@ describe('createMetricRoute', () => {
         page: 'results'
       });
 
-      expect(result).toContain(BusterRoutes.APP_METRIC_ID_CHART);
-      expect(result).toContain('metricId=metric-123');
-      expect(result).toContain('metricVersionNumber=4');
+      expect(result).toContain('/app/metrics/metric-123/results?metric_version_number=4');
     });
   });
 
@@ -153,10 +130,9 @@ describe('createMetricRoute', () => {
         page: 'sql'
       });
 
-      expect(result).toContain(BusterRoutes.APP_CHAT_ID_METRIC_ID_SQL);
-      expect(result).toContain('chatId=chat-456');
-      expect(result).toContain('metricId=metric-123');
-      expect(result).toContain('metricVersionNumber=6');
+      expect(result).toContain(
+        '/app/chats/chat-456/metrics/metric-123/sql?metric_version_number=6'
+      );
     });
 
     it('should create chat metric SQL route without version number', () => {
@@ -166,9 +142,7 @@ describe('createMetricRoute', () => {
         page: 'sql'
       });
 
-      expect(result).toContain(BusterRoutes.APP_CHAT_ID_METRIC_ID_SQL);
-      expect(result).toContain('chatId=chat-456');
-      expect(result).toContain('metricId=metric-123');
+      expect(result).toContain('/app/chats/chat-456/metrics/metric-123/sql');
     });
 
     it('should create non-chat metric SQL route with version number', () => {
@@ -178,9 +152,7 @@ describe('createMetricRoute', () => {
         page: 'sql'
       });
 
-      expect(result).toContain(BusterRoutes.APP_METRIC_ID_SQL);
-      expect(result).toContain('metricId=metric-123');
-      expect(result).toContain('metricVersionNumber=8');
+      expect(result).toContain('/app/metrics/metric-123/sql?metric_version_number=8');
     });
 
     it('should create non-chat metric SQL route without version number', () => {
@@ -189,8 +161,7 @@ describe('createMetricRoute', () => {
         page: 'sql'
       });
 
-      expect(result).toContain(BusterRoutes.APP_METRIC_ID_SQL);
-      expect(result).toContain('metricId=metric-123');
+      expect(result).toContain('/app/metrics/metric-123/sql');
     });
   });
 
@@ -202,9 +173,7 @@ describe('createMetricRoute', () => {
         page: 'chart'
       });
 
-      expect(result).toContain(BusterRoutes.APP_CHAT_ID_METRIC_ID_CHART);
-      expect(result).toContain('chatId=chat-456');
-      expect(result).toContain('metricId=metric-123');
+      expect(result).toContain('/app/chats/chat-456/metrics/metric-123/chart');
     });
 
     it('should handle undefined secondary view in chat context', () => {
@@ -215,9 +184,7 @@ describe('createMetricRoute', () => {
         page: 'chart'
       });
 
-      expect(result).toContain(BusterRoutes.APP_CHAT_ID_METRIC_ID_CHART);
-      expect(result).toContain('chatId=chat-456');
-      expect(result).toContain('metricId=metric-123');
+      expect(result).toContain('/app/chats/chat-456/metrics/metric-123/chart');
     });
 
     it('should handle undefined secondary view in non-chat context', () => {
@@ -227,8 +194,7 @@ describe('createMetricRoute', () => {
         page: 'chart'
       });
 
-      expect(result).toContain(BusterRoutes.APP_METRIC_ID_CHART);
-      expect(result).toContain('metricId=metric-123');
+      expect(result).toContain('/app/metrics/metric-123/chart');
     });
   });
 
@@ -244,12 +210,9 @@ describe('createMetricRoute', () => {
           page: 'chart'
         });
 
-        expect(result).toContain(BusterRoutes.APP_CHAT_ID_DASHBOARD_ID_METRIC_ID_CHART);
-        expect(result).toContain('chatId=chat-456');
-        expect(result).toContain('dashboardId=dashboard-789');
-        expect(result).toContain('metricId=metric-123');
-        expect(result).toContain('metricVersionNumber=5');
-        expect(result).toContain('secondaryView=chart-edit');
+        expect(result).toContain(
+          '/app/chats/chat-456/dashboards/dashboard-789/metrics/metric-123/chart?secondary_view=chart-edit&metric_version_number=5'
+        );
       });
 
       it('should create dashboard metric chart route with version history view', () => {
@@ -261,11 +224,9 @@ describe('createMetricRoute', () => {
           page: 'chart'
         });
 
-        expect(result).toContain(BusterRoutes.APP_CHAT_ID_DASHBOARD_ID_METRIC_ID_CHART);
-        expect(result).toContain('chatId=chat-456');
-        expect(result).toContain('dashboardId=dashboard-789');
-        expect(result).toContain('metricId=metric-123');
-        expect(result).toContain('secondaryView=version-history');
+        expect(result).toContain(
+          '/app/chats/chat-456/dashboards/dashboard-789/metrics/metric-123/chart?secondary_view=version-history'
+        );
       });
 
       it('should prioritize dashboard route over regular chat route', () => {
@@ -276,8 +237,10 @@ describe('createMetricRoute', () => {
           page: 'chart'
         });
 
-        expect(result).toContain(BusterRoutes.APP_CHAT_ID_DASHBOARD_ID_METRIC_ID_CHART);
-        expect(result).not.toContain(BusterRoutes.APP_CHAT_ID_METRIC_ID_CHART);
+        expect(result).toContain(
+          '/app/chats/chat-456/dashboards/dashboard-789/metrics/metric-123/chart'
+        );
+        expect(result).not.toContain('/app/chats/chat-456/metrics/metric-123/chart');
       });
     });
 
@@ -291,11 +254,9 @@ describe('createMetricRoute', () => {
           page: 'results'
         });
 
-        expect(result).toContain(BusterRoutes.APP_CHAT_ID_DASHBOARD_ID_METRIC_ID_RESULTS);
-        expect(result).toContain('chatId=chat-456');
-        expect(result).toContain('dashboardId=dashboard-789');
-        expect(result).toContain('metricId=metric-123');
-        expect(result).toContain('metricVersionNumber=3');
+        expect(result).toContain(
+          '/app/chats/chat-456/dashboards/dashboard-789/metrics/metric-123/results?metric_version_number=3'
+        );
       });
 
       it('should require both chatId and dashboardId for dashboard results route', () => {
@@ -306,7 +267,7 @@ describe('createMetricRoute', () => {
         });
 
         // Should fall back to non-chat route when chatId is missing
-        expect(result).toContain(BusterRoutes.APP_METRIC_ID_CHART);
+        expect(result).toContain('/app/metrics/metric-123/results');
         expect(result).not.toContain('dashboardId');
       });
     });
@@ -321,11 +282,9 @@ describe('createMetricRoute', () => {
           page: 'sql'
         });
 
-        expect(result).toContain(BusterRoutes.APP_CHAT_ID_DASHBOARD_ID_METRIC_ID_SQL);
-        expect(result).toContain('chatId=chat-456');
-        expect(result).toContain('dashboardId=dashboard-789');
-        expect(result).toContain('metricId=metric-123');
-        expect(result).toContain('metricVersionNumber=7');
+        expect(result).toContain(
+          '/app/chats/chat-456/dashboards/dashboard-789/metrics/metric-123/sql?metric_version_number=7'
+        );
       });
 
       it('should create dashboard metric SQL route without version number', () => {
@@ -336,10 +295,9 @@ describe('createMetricRoute', () => {
           page: 'sql'
         });
 
-        expect(result).toContain(BusterRoutes.APP_CHAT_ID_DASHBOARD_ID_METRIC_ID_SQL);
-        expect(result).toContain('chatId=chat-456');
-        expect(result).toContain('dashboardId=dashboard-789');
-        expect(result).toContain('metricId=metric-123');
+        expect(result).toContain(
+          '/app/chats/chat-456/dashboards/dashboard-789/metrics/metric-123/sql'
+        );
       });
     });
 
@@ -352,7 +310,7 @@ describe('createMetricRoute', () => {
         });
 
         // Should fall back to non-chat route
-        expect(result).toContain(BusterRoutes.APP_METRIC_ID_CHART);
+        expect(result).toContain('/app/metrics/metric-123/chart');
         expect(result).not.toContain('dashboardId');
       });
 
@@ -364,7 +322,7 @@ describe('createMetricRoute', () => {
         });
 
         // Should fall back to non-chat route
-        expect(result).toContain(BusterRoutes.APP_METRIC_ID_SQL);
+        expect(result).toContain('/app/metrics/metric-123/sql');
         expect(result).not.toContain('dashboardId');
       });
     });
@@ -380,8 +338,7 @@ describe('createMetricRoute', () => {
         page: 'chart'
       });
 
-      expect(result).toContain(BusterRoutes.APP_METRIC_ID_CHART);
-      expect(result).toContain('metricId=metric-123');
+      expect(result).toContain('/app/metrics/metric-123/chart');
     });
 
     it('should handle 1 version number', () => {
@@ -392,10 +349,22 @@ describe('createMetricRoute', () => {
         page: 'chart'
       });
 
-      expect(result).toContain(BusterRoutes.APP_CHAT_ID_METRIC_ID_CHART);
-      expect(result).toContain('chatId=chat-456');
-      expect(result).toContain('metricId=metric-123');
-      expect(result).toContain('metricVersionNumber=1');
+      expect(result).toContain(
+        '/app/chats/chat-456/metrics/metric-123/chart?metric_version_number=1'
+      );
+    });
+
+    it('should handle secondary with sql', () => {
+      const result = createMetricRoute({
+        assetId: 'metric-123',
+        chatId: 'chat-456',
+        secondaryView: 'version-history',
+        page: 'sql'
+      });
+
+      expect(result).toContain(
+        '/app/chats/chat-456/metrics/metric-123/sql?secondary_view=version-history'
+      );
     });
   });
 });
