@@ -19,7 +19,7 @@ interface Options<T> {
   serializer?: (value: T) => string;
   deserializer?: (value: string) => T;
   onError?: (error: unknown) => void;
-  bustStorageOnInit?: boolean;
+  bustStorageOnInit?: boolean | ((layout: T) => boolean);
   expirationTime?: number;
 }
 
@@ -38,15 +38,20 @@ export function useLocalStorageState<T>(
 
   // Get initial value from localStorage or use default
   const getInitialValue = useMemoizedFn((): T | undefined => {
-    // If bustStorageOnInit is true, ignore localStorage and use default value
-    if (bustStorageOnInit) {
+    const letsBusterTheStorageBaby = () => {
+      window.localStorage.removeItem(key);
       return typeof defaultValue === 'function' ? (defaultValue as () => T)() : defaultValue;
+    };
+
+    // If bustStorageOnInit is true, ignore localStorage and use default value
+    if (bustStorageOnInit === true) {
+      return letsBusterTheStorageBaby();
     }
 
     try {
       const item = window.localStorage.getItem(key);
       if (item === null) {
-        return typeof defaultValue === 'function' ? (defaultValue as () => T)() : defaultValue;
+        return letsBusterTheStorageBaby();
       }
 
       // Parse the stored data which includes value and timestamp
@@ -60,8 +65,7 @@ export function useLocalStorageState<T>(
         !('timestamp' in storageData)
       ) {
         // If the data doesn't have the expected structure (legacy data), treat as expired
-        window.localStorage.removeItem(key);
-        return typeof defaultValue === 'function' ? (defaultValue as () => T)() : defaultValue;
+        return letsBusterTheStorageBaby();
       }
 
       // Check if the data has expired
@@ -70,21 +74,20 @@ export function useLocalStorageState<T>(
 
       if (timeDifference > expirationTime) {
         // Data has expired, remove it and return default value
-        window.localStorage.removeItem(key);
-        return typeof defaultValue === 'function' ? (defaultValue as () => T)() : defaultValue;
+        return letsBusterTheStorageBaby();
       }
 
       // Data is still valid, deserialize and return the value
-      return deserializer(JSON.stringify(storageData.value));
+      const deserializedValue = deserializer(JSON.stringify(storageData.value));
+
+      if (typeof bustStorageOnInit === 'function' && bustStorageOnInit(deserializedValue)) {
+        return letsBusterTheStorageBaby();
+      }
+
+      return deserializedValue;
     } catch (error) {
       onError?.(error);
-      // If there's an error, clean up the invalid data and return default
-      try {
-        window.localStorage.removeItem(key);
-      } catch (cleanupError) {
-        onError?.(cleanupError);
-      }
-      return typeof defaultValue === 'function' ? (defaultValue as () => T)() : defaultValue;
+      return letsBusterTheStorageBaby();
     }
   });
 

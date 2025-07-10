@@ -1,7 +1,4 @@
-import type {
-  GetIntegrationResponse,
-  GetChannelsResponse
-} from '@buster/server-shared/slack';
+import type { GetIntegrationResponse, GetChannelsResponse } from '@buster/server-shared/slack';
 import { queryOptions } from '@tanstack/react-query';
 
 export const slackGetIntegration = queryOptions<GetIntegrationResponse>({
@@ -9,10 +6,10 @@ export const slackGetIntegration = queryOptions<GetIntegrationResponse>({
 });
 
 export const slackGetChannels = queryOptions<GetChannelsResponse>({
-  queryKey: ['slack', 'channels']
+  queryKey: ['slack', 'channels', 'list']
 });
 
 export const slackQueryKeys = {
   slackGetIntegration,
   slackGetChannels
-}; 
+};
