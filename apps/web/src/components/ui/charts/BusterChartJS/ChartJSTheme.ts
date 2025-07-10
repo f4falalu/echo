@@ -44,8 +44,6 @@ const chartJSThemebackgroundColor = isServer
   ? '#ffffff'
   : getComputedStyle(document.documentElement).getPropertyValue('--color-background');
 
-console.log('chartJSThemebackgroundColor', chartJSThemebackgroundColor);
-
 ChartJS.register(
   LineController,
   BarController,
@@ -121,7 +119,6 @@ ChartJS.defaults.font = {
     return truncateText(this.getLabelForValue(value as number), 18);
   };
 });
-console.log(ChartJS.defaults);
 for (const scale of [
   ChartJS.defaults.scales.category,
   ChartJS.defaults.scales.linear,

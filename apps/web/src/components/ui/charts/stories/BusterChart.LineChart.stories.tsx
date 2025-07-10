@@ -2146,8 +2146,6 @@ const data = [
 ];
 const columnMetadata: BusterChartProps['columnMetadata'] = dataMetadata.column_metadata;
 
-console.log(test);
-
 export const ProblematicChartWithBlackLabels: Story = {
   args: {
     ...test,
