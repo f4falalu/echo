@@ -4,10 +4,11 @@ import type { VariantProps } from 'class-variance-authority';
 import React, { useMemo } from 'react';
 import { useMemoizedFn } from '@/hooks';
 import { cn } from '@/lib/classMerge';
-import { Dropdown, type DropdownItem } from '../dropdown/Dropdown';
+import { Dropdown, type DropdownItem, type DropdownProps } from '../dropdown/Dropdown';
 import { InputTag } from '../inputs/InputTag';
-import type { SelectItem } from './Select';
+import type { SelectItem } from './SelectOld';
 import { selectVariants } from './SelectBase';
+import { CircleSpinnerLoader } from '../loaders';
 
 interface SelectMultipleProps extends VariantProps<typeof selectVariants> {
   items: SelectItem[];
@@ -17,6 +18,9 @@ interface SelectMultipleProps extends VariantProps<typeof selectVariants> {
   value: string[];
   disabled?: boolean;
   useSearch?: boolean;
+  loading?: boolean;
+  align?: DropdownProps['align'];
+  side?: DropdownProps['side'];
 }
 
 export const SelectMultiple: React.FC<SelectMultipleProps> = React.memo(
@@ -29,6 +33,9 @@ export const SelectMultiple: React.FC<SelectMultipleProps> = React.memo(
     variant = 'default',
     value,
     disabled,
+    align = 'start',
+    side = 'bottom',
+    loading = false,
     useSearch = true
   }) => {
     const selectedRecord = useMemo(() => {
@@ -76,7 +83,8 @@ export const SelectMultiple: React.FC<SelectMultipleProps> = React.memo(
         onSelect={handleSelect}
         menuHeader={useSearch ? 'Search...' : undefined}
         selectType="multiple"
-        align="start"
+        align={align}
+        side={side}
         modal={false}
         className="w-[var(--radix-dropdown-menu-trigger-width)] max-w-full!">
         <div
@@ -103,6 +111,13 @@ export const SelectMultiple: React.FC<SelectMultipleProps> = React.memo(
           </div>
           {selectedItems.length > 0 && (
             <div className="from-background via-background/80 pointer-events-none absolute top-0 right-0 z-10 h-full w-8 bg-gradient-to-l to-transparent" />
+          )}
+          {loading && (
+            <div
+              className="absolute top-0 right-0 flex h-full w-8 items-center justify-center"
+              data-loading="true">
+              <CircleSpinnerLoader size={16} />
+            </div>
           )}
         </div>
       </Dropdown>

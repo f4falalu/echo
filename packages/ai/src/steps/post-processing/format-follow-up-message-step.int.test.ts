@@ -56,6 +56,7 @@ describe('format-follow-up-message-step integration', () => {
       userId: 'user_67890',
       chatId: 'chat_abcde',
       isFollowUp: true,
+      isSlackFollowUp: true,
       previousMessages: [
         'Mountain-500 Series Analysis: Found assumptions about stock bike interpretation and geographic boundaries that require data team review.',
       ],

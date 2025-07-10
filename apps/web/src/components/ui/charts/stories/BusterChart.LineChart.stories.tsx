@@ -2,13 +2,18 @@ import type { Meta, StoryObj } from '@storybook/react';
 import dayjs from 'dayjs';
 import {
   DEFAULT_COLUMN_LABEL_FORMAT,
+  type BarAndLineAxis,
+  type ChartConfigProps,
   type ColumnLabelFormat,
   type ColumnSettings,
+  type DataMetadata,
   type Trendline
 } from '@buster/server-shared/metrics';
 import { addNoise, generateLineChartData } from '../../../../mocks/chart/chartMocks';
 import type { BusterChart } from '../BusterChart';
 import { sharedMeta } from './BusterChartShared';
+import { createDefaultChartConfig } from '@/lib/metrics/messageAutoChartHandler';
+import type { BusterChartProps } from '@/api/asset_interfaces';
 
 type LineChartData = ReturnType<typeof generateLineChartData>;
 
@@ -2034,5 +2039,117 @@ export const CategoryWithLegendHeaderAverage: Story = {
     ...CategoricalXNumericY.args,
     showLegend: true,
     showLegendHeadline: 'average'
+  }
+};
+
+const dataMetadata: DataMetadata = {
+  column_count: 2,
+  row_count: 13,
+  column_metadata: [
+    {
+      name: 'order_month',
+      min_value: '2024-03-01T00:00:00.000Z',
+      max_value: '2025-03-01T00:00:00.000Z',
+      unique_values: 13,
+      simple_type: 'date',
+      type: 'timestamp'
+    },
+    {
+      name: 'order_count',
+      min_value: 375,
+      max_value: 2326,
+      unique_values: 13,
+      simple_type: 'number',
+      type: 'int4'
+    }
+  ]
+} as const;
+
+const test = createDefaultChartConfig({
+  data_metadata: dataMetadata,
+  chart_config: {
+    columnLabelFormats: {
+      order_count: {
+        columnType: 'number',
+        style: 'number',
+        numberSeparatorStyle: ',',
+        replaceMissingDataWith: 0
+      } as ColumnLabelFormat,
+      order_month: {
+        columnType: 'date',
+        style: 'date',
+        numberSeparatorStyle: null,
+        replaceMissingDataWith: null,
+        dateFormat: 'MMM YYYY'
+      } as ColumnLabelFormat
+    } as ChartConfigProps['columnLabelFormats'],
+    barAndLineAxis: {
+      x: ['order_month'],
+      y: ['order_count']
+    } as BarAndLineAxis,
+    selectedChartType: 'line'
+  } as ChartConfigProps
+});
+const data = [
+  {
+    order_month: '2024-03-01T00:00:00',
+    order_count: 375
+  },
+  {
+    order_month: '2024-04-01T00:00:00',
+    order_count: 1707
+  },
+  {
+    order_month: '2024-05-01T00:00:00',
+    order_count: 1783
+  },
+  {
+    order_month: '2024-06-01T00:00:00',
+    order_count: 1815
+  },
+  {
+    order_month: '2024-07-01T00:00:00',
+    order_count: 1973
+  },
+  {
+    order_month: '2024-08-01T00:00:00',
+    order_count: 2139
+  },
+  {
+    order_month: '2024-09-01T00:00:00',
+    order_count: 2015
+  },
+  {
+    order_month: '2024-10-01T00:00:00',
+    order_count: 2130
+  },
+  {
+    order_month: '2024-11-01T00:00:00',
+    order_count: 2018
+  },
+  {
+    order_month: '2024-12-01T00:00:00',
+    order_count: 2300
+  },
+  {
+    order_month: '2025-01-01T00:00:00',
+    order_count: 2326
+  },
+  {
+    order_month: '2025-02-01T00:00:00',
+    order_count: 1982
+  },
+  {
+    order_month: '2025-03-01T00:00:00',
+    order_count: 871
+  }
+];
+const columnMetadata: BusterChartProps['columnMetadata'] = dataMetadata.column_metadata;
+
+export const ProblematicChartWithBlackLabels: Story = {
+  args: {
+    ...test,
+    data,
+    columnMetadata: columnMetadata
   }
 };

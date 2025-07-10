@@ -1018,6 +1018,9 @@ export const organizations = pgTable(
       .notNull(),
     deletedAt: timestamp('deleted_at', { withTimezone: true, mode: 'string' }),
     paymentRequired: boolean('payment_required').default(false).notNull(),
+    domains: text('domains').array(),
+    restrictNewUserInvitations: boolean('restrict_new_user_invitations').default(false).notNull(),
+    defaultRole: userOrganizationRoleEnum('default_role').default('restricted_querier').notNull(),
   },
   (table) => [unique('organizations_name_key').on(table.name)]
 );
@@ -1876,7 +1879,7 @@ export const slackMessageTracking = pgTable(
     slackThreadTs: varchar('slack_thread_ts', { length: 255 }),
 
     // Metadata
-    messageType: varchar('message_type', { length: 50 }).notNull(), // 'message', 'reply', 'update'
+    messageType: varchar('message_type', { length: 50 }).notNull(), // Source of the message (e.g., 'analyst_message_post_processing')
     content: text(),
     senderInfo: jsonb('sender_info'),
 

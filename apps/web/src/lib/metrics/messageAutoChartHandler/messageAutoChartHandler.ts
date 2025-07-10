@@ -101,7 +101,11 @@ const keySpecificHandlers: Partial<
   },
   columnLabelFormats: (value: unknown, dataMetadata) => {
     const columnLabelFormats = value as ChartConfigProps['columnLabelFormats'];
-    return createDefaultColumnLabelFormats(columnLabelFormats, dataMetadata?.column_metadata);
+    const result = createDefaultColumnLabelFormats(
+      columnLabelFormats,
+      dataMetadata?.column_metadata
+    );
+    return result;
   },
   columnSettings: (value: unknown, dataMetadata) => {
     const columnSettings = value as ChartConfigProps['columnSettings'];

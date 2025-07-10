@@ -160,6 +160,65 @@ async function fetchTeamGroupDatasetIds(userId: string): Promise<string[]> {
   return results.map((r: { datasetId: string }) => r.datasetId);
 }
 
+// Path 5: User -> Organization -> Default Permission Group -> Dataset
+async function fetchOrgDefaultDatasetIds(userId: string): Promise<string[]> {
+  const db = getDb();
+
+  // Get all the user's organizations
+  const userOrgs = await db
+    .select({ organizationId: usersToOrganizations.organizationId })
+    .from(usersToOrganizations)
+    .where(and(eq(usersToOrganizations.userId, userId), isNull(usersToOrganizations.deletedAt)));
+
+  if (userOrgs.length === 0) {
+    return []; // User not in any organization
+  }
+
+  // Get datasets from all default permission groups across all user's organizations
+  const allDatasetIds: string[] = [];
+  
+  for (const userOrg of userOrgs) {
+    const { organizationId } = userOrg;
+    const defaultGroupName = `default:${organizationId}`;
+
+    // Find the default permission group for this organization
+    const defaultGroup = await db
+      .select({ id: permissionGroups.id })
+      .from(permissionGroups)
+      .where(
+        and(
+          eq(permissionGroups.name, defaultGroupName),
+          eq(permissionGroups.organizationId, organizationId),
+          isNull(permissionGroups.deletedAt)
+        )
+      )
+      .limit(1);
+
+    const [firstGroup] = defaultGroup;
+    if (!firstGroup) {
+      continue; // No default permission group exists for this org
+    }
+
+    const defaultGroupId = firstGroup.id;
+
+    // Get all datasets in the default permission group
+    const results = await db
+      .select({ datasetId: datasetsToPermissionGroups.datasetId })
+      .from(datasetsToPermissionGroups)
+      .where(
+        and(
+          eq(datasetsToPermissionGroups.permissionGroupId, defaultGroupId),
+          isNull(datasetsToPermissionGroups.deletedAt)
+        )
+      );
+
+    allDatasetIds.push(...results.map((r: { datasetId: string }) => r.datasetId));
+  }
+
+  // Return unique dataset IDs
+  return [...new Set(allDatasetIds)];
+}
+
 // --- Main Functions ---
 
 export async function getPermissionedDatasets(
@@ -172,8 +231,8 @@ export async function getPermissionedDatasets(
 
   const db = getDb();
 
-  // Fetch user's organization and role
-  const userOrgInfo = await db
+  // Fetch all user's organizations and roles
+  const userOrgs = await db
     .select({
       organizationId: usersToOrganizations.organizationId,
       role: usersToOrganizations.role,
@@ -181,20 +240,23 @@ export async function getPermissionedDatasets(
     .from(usersToOrganizations)
     .where(
       and(eq(usersToOrganizations.userId, input.userId), isNull(usersToOrganizations.deletedAt))
-    )
-    .limit(1);
+    );
 
-  const userOrg = userOrgInfo[0];
-
-  if (!userOrg) {
+  if (userOrgs.length === 0) {
     // User not in any organization
     return [];
   }
 
-  const { organizationId, role } = userOrg;
-
   // --- Admin/Querier Path ---
-  if (['workspace_admin', 'data_admin', 'querier'].includes(role)) {
+  // Check if user has admin/querier role in any organization
+  const adminOrgs = userOrgs.filter(org => 
+    ['workspace_admin', 'data_admin', 'querier'].includes(org.role)
+  );
+  
+  if (adminOrgs.length > 0) {
+    // Get datasets from ALL organizations where user has admin/querier access
+    const organizationIds = adminOrgs.map(org => org.organizationId);
+    
     const results = await db
       .select({
         id: datasets.id,
@@ -206,7 +268,7 @@ export async function getPermissionedDatasets(
         dataSourceId: datasets.dataSourceId,
       })
       .from(datasets)
-      .where(and(eq(datasets.organizationId, organizationId), isNull(datasets.deletedAt)))
+      .where(and(inArray(datasets.organizationId, organizationIds), isNull(datasets.deletedAt)))
       .orderBy(datasets.name)
       .limit(input.pageSize)
       .offset(input.page * input.pageSize);
@@ -216,12 +278,14 @@ export async function getPermissionedDatasets(
 
   // --- Non-Admin Path ---
   // Fetch all potential dataset IDs concurrently
-  const [directUserIds, teamDirectIds, userGroupIds, teamGroupIds] = await Promise.all([
-    fetchDirectUserDatasetIds(input.userId),
-    fetchTeamDirectDatasetIds(input.userId),
-    fetchUserGroupDatasetIds(input.userId),
-    fetchTeamGroupDatasetIds(input.userId),
-  ]);
+  const [directUserIds, teamDirectIds, userGroupIds, teamGroupIds, orgDefaultIds] =
+    await Promise.all([
+      fetchDirectUserDatasetIds(input.userId),
+      fetchTeamDirectDatasetIds(input.userId),
+      fetchUserGroupDatasetIds(input.userId),
+      fetchTeamGroupDatasetIds(input.userId),
+      fetchOrgDefaultDatasetIds(input.userId),
+    ]);
 
   // Combine and deduplicate IDs
   const allAccessibleIds = new Set([
@@ -229,13 +293,18 @@ export async function getPermissionedDatasets(
     ...teamDirectIds,
     ...userGroupIds,
     ...teamGroupIds,
+    ...orgDefaultIds,
   ]);
 
   if (allAccessibleIds.size === 0) {
     return []; // No datasets accessible
   }
 
+  // Get all organization IDs for the user
+  const organizationIds = userOrgs.map(org => org.organizationId);
+
   // Fetch the actual dataset info for the combined IDs with pagination
+  // IMPORTANT: Filter by organization to prevent cross-org data access
   const results = await db
     .select({
       id: datasets.id,
@@ -247,7 +316,13 @@ export async function getPermissionedDatasets(
       dataSourceId: datasets.dataSourceId,
     })
     .from(datasets)
-    .where(and(inArray(datasets.id, Array.from(allAccessibleIds)), isNull(datasets.deletedAt)))
+    .where(
+      and(
+        inArray(datasets.id, Array.from(allAccessibleIds)),
+        inArray(datasets.organizationId, organizationIds),
+        isNull(datasets.deletedAt)
+      )
+    )
     .orderBy(datasets.name)
     .limit(input.pageSize)
     .offset(input.page * input.pageSize);
@@ -317,6 +392,8 @@ export async function hasDatasetAccess(userId: string, datasetId: string): Promi
     checkUserGroupPermission(input.userId, input.datasetId),
     // Path 4: User -> Team -> Group -> Dataset
     checkTeamGroupPermission(input.userId, input.datasetId),
+    // Path 5: User -> Organization -> Default Permission Group -> Dataset
+    checkOrgDefaultPermission(input.userId, input.datasetId),
   ]);
 
   // Return true if any permission check succeeds
@@ -537,6 +614,53 @@ async function checkTeamGroupPermission(userId: string, datasetId: string): Prom
   return permissionCount > 0;
 }
 
+async function checkOrgDefaultPermission(userId: string, datasetId: string): Promise<boolean> {
+  const db = getDb();
+
+  // Get all the user's organizations
+  const userOrgs = await db
+    .select({ organizationId: usersToOrganizations.organizationId })
+    .from(usersToOrganizations)
+    .where(and(eq(usersToOrganizations.userId, userId), isNull(usersToOrganizations.deletedAt)));
+
+  if (userOrgs.length === 0) {
+    return false; // User not in any organization
+  }
+
+  // Check if the dataset is in any organization's default permission group
+  for (const userOrg of userOrgs) {
+    const { organizationId } = userOrg;
+    const defaultGroupName = `default:${organizationId}`;
+
+    const result = await db
+      .select({ count: count() })
+      .from(datasetsToPermissionGroups)
+      .innerJoin(
+        permissionGroups,
+        and(
+          eq(datasetsToPermissionGroups.permissionGroupId, permissionGroups.id),
+          eq(permissionGroups.name, defaultGroupName),
+          eq(permissionGroups.organizationId, organizationId),
+          isNull(permissionGroups.deletedAt)
+        )
+      )
+      .where(
+        and(
+          eq(datasetsToPermissionGroups.datasetId, datasetId),
+          isNull(datasetsToPermissionGroups.deletedAt)
+        )
+      );
+
+    const permissionCount: number = result[0]?.count ?? 0;
+    
+    if (permissionCount > 0) {
+      return true; // Found access in this org's default group
+    }
+  }
+
+  return false; // No access found in any org's default group
+}
+
 async function checkSpecificDatasetPermissions(
   userId: string,
   datasetId: string
@@ -547,6 +671,7 @@ async function checkSpecificDatasetPermissions(
     checkTeamDirectPermission(userId, datasetId),
     checkUserGroupPermission(userId, datasetId),
     checkTeamGroupPermission(userId, datasetId),
+    checkOrgDefaultPermission(userId, datasetId),
   ]);
 
   // Return true if any permission check succeeds

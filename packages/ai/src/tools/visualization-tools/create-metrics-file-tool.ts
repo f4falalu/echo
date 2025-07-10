@@ -9,6 +9,7 @@ import { z } from 'zod';
 import { getWorkflowDataSourceManager } from '../../utils/data-source-manager';
 import { createPermissionErrorMessage, validateSqlPermissions } from '../../utils/sql-permissions';
 import type { AnalystRuntimeContext } from '../../workflows/analyst-workflow';
+import { validateAndAdjustBarLineAxes } from './bar-line-axis-validator';
 import { trackFileAssociations } from './file-tracking-helper';
 import { createInitialMetricVersionHistory, validateMetricYml } from './version-history-helpers';
 import type { MetricYml } from './version-history-types';
@@ -1183,12 +1184,27 @@ async function processMetricFile(
     const parsedYml = yaml.parse(fixedYmlContent);
     const metricYml = validateMetricYml(parsedYml);
 
+    // Validate and adjust bar/line chart axes
+    const axisValidation = validateAndAdjustBarLineAxes(metricYml);
+    if (!axisValidation.isValid) {
+      return {
+        success: false,
+        error: axisValidation.error || 'Invalid bar/line chart axis configuration',
+      };
+    }
+
+    // Use adjusted YAML if axes were swapped
+    const finalMetricYml =
+      axisValidation.shouldSwapAxes && axisValidation.adjustedYml
+        ? axisValidation.adjustedYml
+        : metricYml;
+
     // Generate deterministic UUID (simplified version)
     const metricId = randomUUID();
 
     // Validate SQL by running it
     const sqlValidationResult = await validateSql(
-      metricYml.sql,
+      finalMetricYml.sql,
       dataSourceId,
       workflowId,
       userId,
@@ -1206,7 +1222,7 @@ async function processMetricFile(
     const now = new Date().toISOString();
     const metricFile: FileWithId = {
       id: metricId,
-      name: metricYml.name,
+      name: finalMetricYml.name,
       file_type: 'metric',
       result_message: sqlValidationResult.message || '',
       results: sqlValidationResult.results || [],
@@ -1218,7 +1234,7 @@ async function processMetricFile(
     return {
       success: true,
       metricFile,
-      metricYml,
+      metricYml: finalMetricYml,
       message: sqlValidationResult.message || '',
       results: sqlValidationResult.results || [],
     };

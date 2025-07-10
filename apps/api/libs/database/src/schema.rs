@@ -438,6 +438,9 @@ diesel::table! {
 }
 
 diesel::table! {
+    use diesel::sql_types::*;
+    use super::sql_types::UserOrganizationRoleEnum;
+
     organizations (id) {
         id -> Uuid,
         name -> Text,
@@ -446,6 +449,9 @@ diesel::table! {
         updated_at -> Timestamptz,
         deleted_at -> Nullable<Timestamptz>,
         payment_required -> Bool,
+        domains -> Nullable<Array<Text>>,
+        restrict_new_user_invitations -> Bool,
+        default_role -> UserOrganizationRoleEnum,
     }
 }
 

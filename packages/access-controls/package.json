@@ -29,6 +29,7 @@
     "@buster/typescript-config": "workspace:*",
     "@buster/vitest-config": "workspace:*",
     "lru-cache": "^11.1.0",
-    "zod": "catalog:"
+    "zod": "catalog:",
+    "uuid": "catalog:"
   }
 }

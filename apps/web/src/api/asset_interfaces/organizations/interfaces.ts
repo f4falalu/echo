@@ -6,5 +6,4 @@ export const BusterOrganizationRoleLabels: Record<OrganizationRole, string> = {
   querier: 'Querier',
   restricted_querier: 'Restricted Querier',
   viewer: 'Viewer',
-  none: 'None'
 };

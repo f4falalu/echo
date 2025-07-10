@@ -12,7 +12,7 @@ import {
 import { BusterInfiniteList } from '@/components/ui/list/BusterInfiniteList';
 import { Text } from '@/components/ui/typography';
 import { BusterRoutes, createBusterRoute } from '@/routes';
-import { OrganizationUserRoleText } from './config';
+import { OrganizationUserRoleText } from '@/lib/organization/translations';
 
 export const ListUsersComponent: React.FC<{
   users: OrganizationUser[];

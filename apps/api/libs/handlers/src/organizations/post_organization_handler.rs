@@ -34,6 +34,9 @@ pub async fn post_organization_handler(name: String, user: AuthenticatedUser) ->
         updated_at: now,
         deleted_at: None,
         payment_required: true,
+        domains: None,
+        restrict_new_user_invitations: false,
+        default_role: UserOrganizationRole::RestrictedQuerier,
     };
 
     insert_into(organizations::table)

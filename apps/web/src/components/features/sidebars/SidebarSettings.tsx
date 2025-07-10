@@ -39,6 +39,11 @@ const workspaceItems = (currentParentRoute: BusterRoutes): ISidebarGroup => ({
       label: 'Data Sources',
       route: createBusterRoute({ route: BusterRoutes.SETTINGS_DATASOURCES }),
       id: BusterRoutes.SETTINGS_DATASOURCES
+    },
+    {
+      label: 'Integrations',
+      route: createBusterRoute({ route: BusterRoutes.SETTINGS_INTEGRATIONS }),
+      id: createBusterRoute({ route: BusterRoutes.SETTINGS_INTEGRATIONS })
     }
   ].map((item) => ({
     ...item,
@@ -52,6 +57,11 @@ const permissionAndSecurityItems = (currentParentRoute: BusterRoutes): ISidebarG
   id: 'permission-and-security',
   icon: <LockCircle />,
   items: [
+    {
+      label: 'Security',
+      route: createBusterRoute({ route: BusterRoutes.SETTINGS_SECURITY }),
+      id: createBusterRoute({ route: BusterRoutes.SETTINGS_SECURITY })
+    },
     {
       label: 'Users',
       route: createBusterRoute({ route: BusterRoutes.SETTINGS_USERS }),
@@ -89,8 +99,18 @@ export const SidebarSettings: React.FC = React.memo(() => {
   return (
     <Sidebar
       content={content}
-      header={useMemo(() => <SidebarSettingsHeader />, [])}
-      footer={useMemo(() => <SidebarUserFooter />, [])}
+      header={useMemo(
+        () => (
+          <SidebarSettingsHeader />
+        ),
+        []
+      )}
+      footer={useMemo(
+        () => (
+          <SidebarUserFooter />
+        ),
+        []
+      )}
     />
   );
 });

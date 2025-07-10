@@ -4,7 +4,7 @@ import { faker } from '@faker-js/faker';
 import type { Meta, StoryObj } from '@storybook/react';
 import { fn } from '@storybook/test';
 import { useMemo, useState } from 'react';
-import type { SelectItem } from './Select';
+import type { SelectItem } from './SelectOld';
 import { SelectMultiple } from './SelectMultiple';
 
 const meta = {
@@ -43,6 +43,7 @@ const SelectMultipleWithHooks = () => {
         onChange={handleSelect}
         placeholder="Select multiple options..."
         value={value}
+        loading={true}
       />
     </div>
   );

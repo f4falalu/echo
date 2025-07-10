@@ -56,6 +56,10 @@
     "./teams": {
       "types": "./dist/teams/index.d.ts",
       "default": "./dist/teams/index.js"
+    },
+    "./security": {
+      "types": "./dist/security/index.d.ts",
+      "default": "./dist/security/index.js"
     }
   },
   "dependencies": {

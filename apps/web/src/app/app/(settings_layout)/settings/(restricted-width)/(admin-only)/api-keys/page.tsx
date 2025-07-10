@@ -1,4 +1,4 @@
-import { SettingsPageHeader } from '../../../_components/SettingsPageHeader';
+import { SettingsPageHeader } from '@/components/features/settings';
 import { ApiKeysController } from './ApiKeysController';
 import type { Metadata } from 'next';
 

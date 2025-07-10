@@ -148,6 +148,62 @@ async fn fetch_team_group_dataset_ids(
         .context("Failed to fetch team group dataset IDs")
 }
 
+// Path 5: User -> Organization -> Default Permission Group -> Dataset
+async fn fetch_org_default_dataset_ids(
+    user_id: &Uuid
+) -> Result<Vec<Uuid>> {
+    let mut conn = get_pg_pool().get().await.context("DB Error")?;
+    
+    // Get all the user's organizations
+    let user_orgs = users_to_organizations::table
+        .filter(users_to_organizations::user_id.eq(user_id))
+        .filter(users_to_organizations::deleted_at.is_null())
+        .select(users_to_organizations::organization_id)
+        .load::<Uuid>(&mut conn)
+        .await
+        .context("Failed to fetch user organizations")?;
+    
+    if user_orgs.is_empty() {
+        return Ok(Vec::new()); // User not in any organization
+    }
+    
+    // Get datasets from all default permission groups across all user's organizations
+    let mut all_dataset_ids = HashSet::new();
+    
+    for organization_id in user_orgs {
+        let default_group_name = format!("default:{}", organization_id);
+        
+        // Find the default permission group for this organization
+        let default_group = permission_groups::table
+            .filter(permission_groups::name.eq(&default_group_name))
+            .filter(permission_groups::organization_id.eq(organization_id))
+            .filter(permission_groups::deleted_at.is_null())
+            .select(permission_groups::id)
+            .first::<Uuid>(&mut conn)
+            .await
+            .optional()
+            .context("Failed to fetch default permission group")?;
+        
+        let Some(default_group_id) = default_group else {
+            continue; // No default permission group exists for this org
+        };
+        
+        // Get all datasets in the default permission group
+        let dataset_ids = datasets_to_permission_groups::table
+            .filter(datasets_to_permission_groups::permission_group_id.eq(default_group_id))
+            .filter(datasets_to_permission_groups::deleted_at.is_null())
+            .select(datasets_to_permission_groups::dataset_id)
+            .load::<Uuid>(&mut conn)
+            .await
+            .context("Failed to fetch org default dataset IDs")?;
+        
+        all_dataset_ids.extend(dataset_ids);
+    }
+    
+    // Return unique dataset IDs as a Vec
+    Ok(all_dataset_ids.into_iter().collect())
+}
+
 // --- Main Function ---
 
 pub async fn get_permissioned_datasets(
@@ -157,89 +213,100 @@ pub async fn get_permissioned_datasets(
 ) -> Result<Vec<PermissionedDataset>> {
     let mut conn = get_pg_pool().get().await.context("DB Error")?; // Get initial connection
 
-    // Fetch user's organization and role
-    let user_org_info = users_to_organizations::table
+    // Fetch all user's organizations and roles
+    let user_orgs = users_to_organizations::table
         .filter(users_to_organizations::user_id.eq(user_id))
         .filter(users_to_organizations::deleted_at.is_null())
         .select((
             users_to_organizations::organization_id,
             users_to_organizations::role,
         ))
-        .first::<(Uuid, UserOrganizationRole)>(&mut conn)
-        .await;
+        .load::<(Uuid, UserOrganizationRole)>(&mut conn)
+        .await
+        .context("Failed to fetch user organizations")?;
 
-    match user_org_info {
-        // --- Admin/Querier Path ---
-        Ok((organization_id, role))
-            if matches!(
+    if user_orgs.is_empty() {
+        return Ok(Vec::new()); // User not in any organization
+    }
+
+    // --- Admin/Querier Path ---
+    // Check if user has admin/querier role in any organization
+    let admin_org_ids: Vec<Uuid> = user_orgs
+        .iter()
+        .filter(|(_, role)| {
+            matches!(
                 role,
                 UserOrganizationRole::WorkspaceAdmin
                     | UserOrganizationRole::DataAdmin
                     | UserOrganizationRole::Querier
-            ) =>
-        {
-            // Use the same connection for the admin query
-            datasets::table
-                .filter(datasets::organization_id.eq(organization_id))
-                .filter(datasets::deleted_at.is_null())
-                .select(PermissionedDataset::as_select())
-                .order(datasets::name.asc()) 
-                .limit(page_size)
-                .offset(page * page_size)
-                .load::<PermissionedDataset>(&mut conn)
-                .await
-                .context("Failed to load datasets for admin/querier")
-        }
+            )
+        })
+        .map(|(org_id, _)| *org_id)
+        .collect();
 
-        // --- Non-Admin Path ---
-        Ok(_) => {
-            // Drop the initial connection before concurrent fetches
-            drop(conn);
-            // Fetch all potential dataset IDs concurrently
-            let (
-                direct_user_ids,
-                team_direct_ids, 
-                user_group_ids,  
-                team_group_ids,  
-            ) = try_join!(
-                // Call helpers directly, they get their own connections
-                fetch_direct_user_dataset_ids(user_id),
-                fetch_team_direct_dataset_ids(user_id),
-                fetch_user_group_dataset_ids(user_id),
-                fetch_team_group_dataset_ids(user_id)
-            )?;
-
-            // Combine and deduplicate IDs
-            let mut all_accessible_ids = HashSet::new();
-            all_accessible_ids.extend(direct_user_ids);
-            all_accessible_ids.extend(team_direct_ids);
-            all_accessible_ids.extend(user_group_ids);
-            all_accessible_ids.extend(team_group_ids);
-
-            if all_accessible_ids.is_empty() {
-                return Ok(Vec::new()); // No datasets accessible
-            }
-
-            // Fetch the actual dataset info for the combined IDs with pagination
-            let mut conn = get_pg_pool().get().await.context("DB Error")?; // Get final connection
-            datasets::table
-                .filter(datasets::id.eq_any(all_accessible_ids))
-                .filter(datasets::deleted_at.is_null()) 
-                .select(PermissionedDataset::as_select())
-                .order(datasets::name.asc()) 
-                .limit(page_size)
-                .offset(page * page_size)
-                .load::<PermissionedDataset>(&mut conn)
-                .await
-                .context("Failed to load datasets for non-admin user")
-        }
-
-        // --- User Not In Organization ---
-        Err(diesel::NotFound) => Ok(Vec::new()),
-
-        // --- Other Error ---
-        Err(e) => Err(e).context("Error fetching user organization role"),
+    if !admin_org_ids.is_empty() {
+        // Get datasets from ALL organizations where user has admin/querier access
+        return datasets::table
+            .filter(datasets::organization_id.eq_any(admin_org_ids))
+            .filter(datasets::deleted_at.is_null())
+            .select(PermissionedDataset::as_select())
+            .order(datasets::name.asc())
+            .limit(page_size)
+            .offset(page * page_size)
+            .load::<PermissionedDataset>(&mut conn)
+            .await
+            .context("Failed to load datasets for admin/querier");
     }
+
+    // --- Non-Admin Path ---
+    // Drop the initial connection before concurrent fetches
+    drop(conn);
+    
+    // Fetch all potential dataset IDs concurrently
+    let (
+        direct_user_ids,
+        team_direct_ids, 
+        user_group_ids,  
+        team_group_ids,
+        org_default_ids,
+    ) = try_join!(
+        // Call helpers directly, they get their own connections
+        fetch_direct_user_dataset_ids(user_id),
+        fetch_team_direct_dataset_ids(user_id),
+        fetch_user_group_dataset_ids(user_id),
+        fetch_team_group_dataset_ids(user_id),
+        fetch_org_default_dataset_ids(user_id)
+    )?;
+
+    // Combine and deduplicate IDs
+    let mut all_accessible_ids = HashSet::new();
+    all_accessible_ids.extend(direct_user_ids);
+    all_accessible_ids.extend(team_direct_ids);
+    all_accessible_ids.extend(user_group_ids);
+    all_accessible_ids.extend(team_group_ids);
+    all_accessible_ids.extend(org_default_ids);
+
+    if all_accessible_ids.is_empty() {
+        return Ok(Vec::new()); // No datasets accessible
+    }
+
+    // Get all organization IDs for the user  
+    let org_ids: Vec<Uuid> = user_orgs.into_iter().map(|(org_id, _)| org_id).collect();
+
+    // Fetch the actual dataset info for the combined IDs with pagination
+    // IMPORTANT: Filter by organization to prevent cross-org data access
+    let mut conn = get_pg_pool().get().await.context("DB Error")?; // Get final connection
+    datasets::table
+        .filter(datasets::id.eq_any(all_accessible_ids))
+        .filter(datasets::organization_id.eq_any(org_ids))
+        .filter(datasets::deleted_at.is_null()) 
+        .select(PermissionedDataset::as_select())
+        .order(datasets::name.asc()) 
+        .limit(page_size)
+        .offset(page * page_size)
+        .load::<PermissionedDataset>(&mut conn)
+        .await
+        .context("Failed to load datasets for non-admin user")
 }
 
 // Simplified check function
@@ -403,8 +470,50 @@ pub async fn has_dataset_access(user_id: &Uuid, dataset_id: &Uuid) -> Result<boo
         Ok(count > 0)
     });
 
+    // Path 5: User -> Organization -> Default Permission Group -> Dataset
+    let task5: JoinHandle<Result<bool>> = tokio::spawn(async move {
+        let mut conn = get_pg_pool().get().await.context("DB Error")?;
+        
+        // Get all the user's organizations
+        let user_orgs = users_to_organizations::table
+            .filter(users_to_organizations::user_id.eq(user_id))
+            .filter(users_to_organizations::deleted_at.is_null())
+            .select(users_to_organizations::organization_id)
+            .load::<Uuid>(&mut conn)
+            .await?;
+        
+        if user_orgs.is_empty() {
+            return Ok(false); // User not in any organization
+        }
+        
+        // Check if the dataset is in any organization's default permission group
+        for organization_id in user_orgs {
+            let default_group_name = format!("default:{}", organization_id);
+            
+            let count = datasets_to_permission_groups::table
+                .inner_join(
+                    permission_groups::table.on(datasets_to_permission_groups::permission_group_id
+                        .eq(permission_groups::id)
+                        .and(permission_groups::name.eq(&default_group_name))
+                        .and(permission_groups::organization_id.eq(organization_id))
+                        .and(permission_groups::deleted_at.is_null())),
+                )
+                .filter(datasets_to_permission_groups::dataset_id.eq(dataset_id))
+                .filter(datasets_to_permission_groups::deleted_at.is_null())
+                .select(diesel::dsl::count_star())
+                .get_result::<i64>(&mut conn)
+                .await?;
+            
+            if count > 0 {
+                return Ok(true); // Found access in this org's default group
+            }
+        }
+        
+        Ok(false) // No access found in any org's default group
+    });
+
     // Await tasks and check results
-    let results = vec![task1, task2, task3, task4];
+    let results = vec![task1, task2, task3, task4, task5];
     for handle in results {
         match handle.await {
             Ok(Ok(true)) => return Ok(true), // Access granted by this path
@@ -622,8 +731,50 @@ async fn check_specific_dataset_permissions(user_id: &Uuid, dataset_id: &Uuid) -
         Ok(count > 0)
     });
 
+    // Path 5: User -> Organization -> Default Permission Group -> Dataset
+    let task5: JoinHandle<Result<bool>> = tokio::spawn(async move {
+        let mut conn = get_pg_pool().get().await.context("DB Error")?;
+        
+        // Get all the user's organizations
+        let user_orgs = users_to_organizations::table
+            .filter(users_to_organizations::user_id.eq(user_id))
+            .filter(users_to_organizations::deleted_at.is_null())
+            .select(users_to_organizations::organization_id)
+            .load::<Uuid>(&mut conn)
+            .await?;
+        
+        if user_orgs.is_empty() {
+            return Ok(false); // User not in any organization
+        }
+        
+        // Check if the dataset is in any organization's default permission group
+        for organization_id in user_orgs {
+            let default_group_name = format!("default:{}", organization_id);
+            
+            let count = datasets_to_permission_groups::table
+                .inner_join(
+                    permission_groups::table.on(datasets_to_permission_groups::permission_group_id
+                        .eq(permission_groups::id)
+                        .and(permission_groups::name.eq(&default_group_name))
+                        .and(permission_groups::organization_id.eq(organization_id))
+                        .and(permission_groups::deleted_at.is_null())),
+                )
+                .filter(datasets_to_permission_groups::dataset_id.eq(dataset_id))
+                .filter(datasets_to_permission_groups::deleted_at.is_null())
+                .select(diesel::dsl::count_star())
+                .get_result::<i64>(&mut conn)
+                .await?;
+            
+            if count > 0 {
+                return Ok(true); // Found access in this org's default group
+            }
+        }
+        
+        Ok(false) // No access found in any org's default group
+    });
+
      // Await tasks and check results
-    let results = vec![task1, task2, task3, task4];
+    let results = vec![task1, task2, task3, task4, task5];
     for handle in results {
         match handle.await {
             Ok(Ok(true)) => return Ok(true), // Access granted by this path

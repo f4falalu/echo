@@ -37,7 +37,7 @@ interface IAppSplitterProps {
   hideSplitter?: boolean;
   leftPanelClassName?: string;
   rightPanelClassName?: string;
-  bustStorageOnInit?: boolean;
+  bustStorageOnInit?: boolean | ((preservedSideValue: number | null) => boolean);
   renderLeftPanel?: boolean;
   renderRightPanel?: boolean;
 }

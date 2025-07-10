@@ -51,6 +51,35 @@ pub async fn invite_user_handler(
         .context("Failed to find organization")?;
     let organization_name = organization.name;
 
+    // Check if the organization has restricted new user invitations
+    if organization.restrict_new_user_invitations {
+        // Get the inviting user's role in the organization
+        let inviter_org_membership = inviting_user
+            .organizations
+            .iter()
+            .find(|org| org.id == organization_id)
+            .context("Inviting user is not a member of the organization")?;
+
+        // Check if the user has admin permissions
+        match inviter_org_membership.role {
+            UserOrganizationRole::WorkspaceAdmin | UserOrganizationRole::DataAdmin => {
+                // User has permission to invite, continue
+                tracing::info!(
+                    user_id = %inviting_user.id,
+                    organization_id = %organization_id,
+                    role = ?inviter_org_membership.role,
+                    "Admin user bypassing invitation restriction"
+                );
+            }
+            _ => {
+                // User does not have permission to invite
+                return Err(anyhow::anyhow!(
+                    "New user invitations have been restricted by the organization administrators. Only workspace admins and data admins can send invites."
+                ));
+            }
+        }
+    }
+
     let inviter_id = inviting_user.id;
     let now = Utc::now();
     let mut successful_emails: Vec<String> = Vec::new();

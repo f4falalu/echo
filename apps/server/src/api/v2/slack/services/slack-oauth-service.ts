@@ -7,7 +7,7 @@ import { oauthStateStorage, tokenStorage } from './token-storage';
 const SlackEnvSchema = z.object({
   SLACK_CLIENT_ID: z.string().min(1),
   SLACK_CLIENT_SECRET: z.string().min(1),
-  SLACK_REDIRECT_URI: z.string().url(),
+  SERVER_URL: z.string().url(),
   SLACK_INTEGRATION_ENABLED: z
     .string()
     .transform((val) => val === 'true')
@@ -39,8 +39,15 @@ export class SlackOAuthService {
         {
           clientId: this.env.SLACK_CLIENT_ID,
           clientSecret: this.env.SLACK_CLIENT_SECRET,
-          redirectUri: this.env.SLACK_REDIRECT_URI,
-          scopes: ['channels:history', 'chat:write', 'chat:write.public', 'commands'],
+          redirectUri: `${this.env.SERVER_URL}/api/v2/slack/auth/callback`,
+          scopes: [
+            'channels:history',
+            'channels:read',
+            'chat:write',
+            'chat:write.public',
+            'users:read',
+            'commands',
+          ],
         },
         tokenStorage,
         oauthStateStorage
@@ -54,7 +61,7 @@ export class SlackOAuthService {
         environment: {
           hasClientId: !!process.env.SLACK_CLIENT_ID,
           hasClientSecret: !!process.env.SLACK_CLIENT_SECRET,
-          hasRedirectUri: !!process.env.SLACK_REDIRECT_URI,
+          hasServerUrl: !!process.env.SERVER_URL,
           integrationEnabled: process.env.SLACK_INTEGRATION_ENABLED,
         },
       });

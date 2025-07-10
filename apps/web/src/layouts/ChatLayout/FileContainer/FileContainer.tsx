@@ -89,6 +89,13 @@ export const FileContainer: React.FC<FileContainerProps> = ({ children }) => {
     }, 20);
   }, [isOpenSecondary]);
 
+  const bustStorageOnInit = useMemoizedFn((layout: number | null) => {
+    if (selectedFileViewRenderSecondary && !layout) {
+      return true;
+    }
+    return !debouncedSelectedFileViewSecondary;
+  });
+
   return (
     <AppPageLayout
       headerSizeVariant="default"
@@ -114,7 +121,7 @@ export const FileContainer: React.FC<FileContainerProps> = ({ children }) => {
         preserveSide={'right'}
         rightPanelMinSize={250}
         rightPanelMaxSize={385}
-        bustStorageOnInit={!debouncedSelectedFileViewSecondary}
+        bustStorageOnInit={bustStorageOnInit}
       />
     </AppPageLayout>
   );

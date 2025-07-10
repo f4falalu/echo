@@ -264,7 +264,8 @@ describe('data-transformers', () => {
         baseMessageContext,
         baseConversationMessages,
         basePreviousResults,
-        baseDatasets
+        baseDatasets,
+        false
       );
 
       expect(result).toEqual({
@@ -274,6 +275,7 @@ describe('data-transformers', () => {
         userId: 'user-123',
         chatId: 'chat-123',
         isFollowUp: false,
+        isSlackFollowUp: false,
         previousMessages: [],
         datasets: 'yaml content',
       });
@@ -291,10 +293,12 @@ describe('data-transformers', () => {
         baseMessageContext,
         baseConversationMessages,
         previousResults,
-        baseDatasets
+        baseDatasets,
+        true
       );
 
       expect(result.isFollowUp).toBe(true);
+      expect(result.isSlackFollowUp).toBe(true);
       expect(result.previousMessages).toHaveLength(1);
       expect(result.previousMessages[0]).toContain('Previous assumption');
     });
@@ -309,13 +313,20 @@ describe('data-transformers', () => {
         messageContextWithNullUser,
         baseConversationMessages,
         basePreviousResults,
-        baseDatasets
+        baseDatasets,
+        false
       );
       expect(result.userName).toBe('Unknown User');
     });
 
     it('should handle empty conversation history', () => {
-      const result = buildWorkflowInput(baseMessageContext, [], basePreviousResults, baseDatasets);
+      const result = buildWorkflowInput(
+        baseMessageContext,
+        [],
+        basePreviousResults,
+        baseDatasets,
+        false
+      );
       expect(result.conversationHistory).toBeUndefined();
     });
   });

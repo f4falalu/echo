@@ -19,6 +19,9 @@ export const combineParallelResultsOutputSchema = z.object({
   userId: z.string().describe('User ID for the current operation'),
   chatId: z.string().describe('Chat ID for the current operation'),
   isFollowUp: z.boolean().describe('Whether this is a follow-up message'),
+  isSlackFollowUp: z
+    .boolean()
+    .describe('Whether this is a follow-up message for an existing Slack thread'),
   previousMessages: z.array(z.string()).describe('Array of previous messages for context'),
   datasets: z.string().describe('Assembled YAML content of all available datasets for context'),
 
@@ -87,6 +90,7 @@ export const combineParallelResultsStepExecution = async ({
     userId: flagChatResult.userId,
     chatId: flagChatResult.chatId,
     isFollowUp: flagChatResult.isFollowUp,
+    isSlackFollowUp: flagChatResult.isSlackFollowUp,
     previousMessages: flagChatResult.previousMessages,
     datasets: flagChatResult.datasets,
 
