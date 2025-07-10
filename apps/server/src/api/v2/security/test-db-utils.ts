@@ -21,11 +21,14 @@ export async function createTestUserInDb(userData: Partial<User> = {}): Promise<
 
   try {
     await db.insert(users).values(user);
-  } catch (error: any) {
+  } catch (error: unknown) {
     // If the insert fails due to the auto_add_user_to_organizations trigger,
     // it means there's a missing organization. In tests, we can ignore this
     // and clean up any partial data
-    if (error.message?.includes('users_to_organizations_organization_id_fkey')) {
+    if (
+      error instanceof Error &&
+      error.message?.includes('users_to_organizations_organization_id_fkey')
+    ) {
       // Try to clean up any partial user data
       await db.delete(usersToOrganizations).where(eq(usersToOrganizations.userId, id));
       // Re-throw to let the test handle it
@@ -107,8 +110,8 @@ export async function createTestOrgMemberInDb(
     throw new Error('Failed to create test organization membership');
   }
 
-  if (verification[0].role !== role) {
-    throw new Error(`Role mismatch: expected ${role}, got ${verification[0].role}`);
+  if (verification[0]?.role !== role) {
+    throw new Error(`Role mismatch: expected ${role}, got ${verification[0]?.role}`);
   }
 }
 

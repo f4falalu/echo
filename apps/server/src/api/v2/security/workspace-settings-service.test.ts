@@ -56,14 +56,14 @@ describe('WorkspaceSettingsService', () => {
         'none',
       ];
 
-      roles.forEach((role) => {
+      for (const role of roles) {
         const settings = {
           restrictNewUserInvitations: false,
           defaultRole: role,
         };
         const result = service.formatWorkspaceSettingsResponse(settings);
         expect(result.default_role).toBe(role);
-      });
+      }
     });
   });
 

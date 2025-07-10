@@ -71,7 +71,7 @@ describe('getApprovedDomainsHandler (integration)', () => {
       const roles = ['querier', 'data_admin', 'workspace_admin'];
 
       for (const role of roles) {
-        let roleUser;
+        let roleUser: User | undefined;
         try {
           roleUser = await createTestUserInDb();
           await createTestOrgMemberInDb(roleUser.id, testOrg.id, role);
@@ -92,7 +92,7 @@ describe('getApprovedDomainsHandler (integration)', () => {
 
   describe('Error Cases', () => {
     it('should return 403 for user without organization', async () => {
-      let userWithoutOrg;
+      let userWithoutOrg: User | undefined;
       try {
         userWithoutOrg = await createUserWithoutOrganization();
 
@@ -163,7 +163,7 @@ describe('getApprovedDomainsHandler (integration)', () => {
 
       const result = await getApprovedDomainsHandler(testUser);
 
-      result.forEach((domainEntry) => {
+      for (const domainEntry of result) {
         expect(domainEntry).toHaveProperty('domain');
         expect(domainEntry).toHaveProperty('created_at');
         expect(typeof domainEntry.domain).toBe('string');
@@ -171,7 +171,7 @@ describe('getApprovedDomainsHandler (integration)', () => {
         // Verify it's a valid ISO string
         expect(() => new Date(domainEntry.created_at)).not.toThrow();
         expect(domainEntry.created_at).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/);
-      });
+      }
     });
   });
 });
