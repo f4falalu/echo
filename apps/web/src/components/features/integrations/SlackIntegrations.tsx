@@ -15,8 +15,8 @@ import {
 import { Dropdown, type DropdownItems } from '@/components/ui/dropdown';
 import { LinkSlash, Refresh2 } from '@/components/ui/icons';
 import { Select } from '@/components/ui/select';
-import { StatusCard } from '@/components/ui/card/StatusCard';
 import { useMemoizedFn } from '@/hooks';
+import { StatusCard } from '@/components/ui/card/StatusCard';
 
 export const SlackIntegrations = React.memo(() => {
   const {
@@ -112,6 +112,7 @@ const ConnectedSlackChannels = React.memo(() => {
   const {
     data: slackChannelsData,
     isLoading: isLoadingSlackChannels,
+    isRefetching: isRefetchingSlackChannels,
     refetch: refetchSlackChannels,
     isFetched: isFetchedSlackChannels,
     error: slackChannelsError
@@ -136,10 +137,13 @@ const ConnectedSlackChannels = React.memo(() => {
     });
   });
 
+  const showLoadingButton =
+    isLoadingSlackChannels || isLoadingSlackIntegration || isRefetchingSlackChannels;
+
   return (
     <div className="flex items-center justify-between space-x-4">
       <div className="flex flex-col space-y-0.5">
-        <Text>Alerts channels</Text>
+        <Text>Alerts channel</Text>
         <Text variant="secondary" size={'xs'}>
           Select which slack channel Buster should send alerts to
         </Text>
@@ -151,7 +155,14 @@ const ConnectedSlackChannels = React.memo(() => {
               <Button
                 size={'tall'}
                 variant="ghost"
-                suffix={<Refresh2 />}
+                loading={showLoadingButton}
+                suffix={
+                  !showLoadingButton && (
+                    <span className="flex items-center justify-center text-base">
+                      <Refresh2 />
+                    </span>
+                  )
+                }
                 onClick={() => refetchSlackChannels()}>
                 Refresh
               </Button>
@@ -163,6 +174,7 @@ const ConnectedSlackChannels = React.memo(() => {
               placeholder="Select a channel"
               value={selectedChannelId}
               onChange={onChange}
+              search={true}
               loading={isLoadingSlackChannels || isLoadingSlackIntegration}
             />
           </>

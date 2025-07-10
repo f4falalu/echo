@@ -1,4 +1,4 @@
-import { z } from 'zod/v4';
+import { z } from 'zod';
 
 export const TableChartPropsSchema = z.object({
   tableColumnOrder: z.nullable(z.array(z.string())).default(null),

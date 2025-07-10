@@ -1,4 +1,4 @@
-import { z } from 'zod/v4';
+import { z } from 'zod';
 import { getDefaults } from '../defaultHelpers';
 
 // Goal line is a line that is drawn on the chart to represent a goal.

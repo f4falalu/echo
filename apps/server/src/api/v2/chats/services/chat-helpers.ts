@@ -16,15 +16,10 @@ import type {
   ChatMessageResponseMessage,
   ChatWithMessages,
 } from '@buster/server-shared/chats';
-import {
-  ChatError,
-  ChatErrorCode,
-  ReasoningMessageSchema,
-  ResponseMessageSchema,
-} from '@buster/server-shared/chats';
+import { ChatError, ChatErrorCode } from '@buster/server-shared/chats';
 import { PostProcessingMessageSchema } from '@buster/server-shared/message';
 import { and, eq, gte, isNull } from 'drizzle-orm';
-import type { z } from 'zod/v4';
+import type { z } from 'zod';
 
 /**
  * Validates a nullable JSONB field against a Zod schema

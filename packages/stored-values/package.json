@@ -35,6 +35,6 @@
     "@buster/typescript-config": "workspace:*",
     "@buster/vitest-config": "workspace:*",
     "ai": "catalog:",
-    "zod": "catalog:"
+    "zod": "^3.0.0"
   }
 }

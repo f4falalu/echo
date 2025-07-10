@@ -1,4 +1,4 @@
-import { z } from 'zod/v4';
+import { z } from 'zod';
 import { ScatterAxisSchema } from './axisInterfaces';
 
 export const ScatterChartPropsSchema = z.object({

@@ -27,6 +27,7 @@ const AvatarImage = React.forwardRef<
       data-testid="avatar-image"
       data-slot="avatar-image"
       className={cn('aspect-square h-full w-full', className)}
+      {...props}
     />
   );
 });

@@ -1,4 +1,4 @@
-import { z } from 'zod/v4';
+import { z } from 'zod';
 import { getDefaults } from '../defaultHelpers';
 import { GoalLineSchema, TrendlineSchema } from './annotationInterfaces';
 import { BarChartPropsSchema } from './barChartProps';

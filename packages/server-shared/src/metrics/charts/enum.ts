@@ -1,4 +1,4 @@
-import { z } from 'zod/v4';
+import { z } from 'zod';
 
 export const ChartTypeSchema = z
   .enum(['line', 'bar', 'scatter', 'pie', 'metric', 'table', 'combo'])

@@ -1,4 +1,4 @@
-import { z } from 'zod/v4';
+import { z } from 'zod';
 import { DataMetadataSchema, DataResultSchema } from './metadata.type';
 import { MetricSchema } from './metric.types';
 import { MetricListItemSchema } from './metrics-list.types';

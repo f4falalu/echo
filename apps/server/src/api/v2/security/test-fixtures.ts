@@ -1,4 +1,7 @@
-import type { Organization, User } from '@buster/database';
+import type { User, organizations } from '@buster/database';
+import type { InferSelectModel } from 'drizzle-orm';
+
+type Organization = InferSelectModel<typeof organizations>;
 
 export function createTestUser(overrides?: Partial<User>): User {
   const id = `test-user-${Math.random().toString(36).substring(7)}`;

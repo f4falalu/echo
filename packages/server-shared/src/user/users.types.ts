@@ -1,4 +1,4 @@
-import { z } from 'zod/v4';
+import { z } from 'zod';
 import type { UserFavorite } from './favorites.types';
 import type { UserOrganizationRole } from './roles.types';
 
