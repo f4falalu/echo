@@ -194,12 +194,6 @@ export const BusterChartJSComponent = React.memo(
         return 'default';
       });
 
-      console.log('updateMode', updateMode);
-      console.log('data', data);
-      console.log('previousData', previousData);
-      console.log('options', options);
-      console.log('type', type);
-
       return (
         <ChartMountedWrapper>
           <Chart
