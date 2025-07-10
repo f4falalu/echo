@@ -95,7 +95,7 @@ describe('getApprovedDomainsHandler (integration)', () => {
       let userWithoutOrg;
       try {
         userWithoutOrg = await createUserWithoutOrganization();
-        
+
         await expect(getApprovedDomainsHandler(userWithoutOrg)).rejects.toThrow(HTTPException);
         await expect(getApprovedDomainsHandler(userWithoutOrg)).rejects.toMatchObject({
           status: 403,

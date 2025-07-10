@@ -29,11 +29,13 @@ export async function createTestUserInDb(userData: Partial<User> = {}): Promise<
       // Try to clean up any partial user data
       await db.delete(usersToOrganizations).where(eq(usersToOrganizations.userId, id));
       // Re-throw to let the test handle it
-      throw new Error(`Failed to create test user: Database trigger tried to add user to non-existent organization. ${error.message}`);
+      throw new Error(
+        `Failed to create test user: Database trigger tried to add user to non-existent organization. ${error.message}`
+      );
     }
     throw error;
   }
-  
+
   return user as User;
 }
 
@@ -68,13 +70,8 @@ export async function createTestOrgMemberInDb(
   const existing = await db
     .select()
     .from(usersToOrganizations)
-    .where(
-      and(
-        eq(usersToOrganizations.userId, userId),
-        isNull(usersToOrganizations.deletedAt)
-      )
-    );
-    
+    .where(and(eq(usersToOrganizations.userId, userId), isNull(usersToOrganizations.deletedAt)));
+
   if (existing.length > 0) {
     // Delete existing memberships silently
     await db.delete(usersToOrganizations).where(eq(usersToOrganizations.userId, userId));
@@ -92,7 +89,7 @@ export async function createTestOrgMemberInDb(
   };
 
   await db.insert(usersToOrganizations).values(member);
-  
+
   // Verify the membership was created
   const verification = await db
     .select()
@@ -105,11 +102,11 @@ export async function createTestOrgMemberInDb(
       )
     )
     .limit(1);
-    
+
   if (!verification.length) {
     throw new Error('Failed to create test organization membership');
   }
-  
+
   if (verification[0].role !== role) {
     throw new Error(`Role mismatch: expected ${role}, got ${verification[0].role}`);
   }
@@ -126,7 +123,7 @@ export async function cleanupTestUser(userId: string): Promise<void> {
 export async function cleanupTestOrganization(orgId: string): Promise<void> {
   // Import the necessary tables for cleanup
   const { permissionGroups, datasetsToPermissionGroups } = await import('@buster/database');
-  
+
   // Delete dataset associations for default permission group
   const defaultPermissionGroupName = `default:${orgId}`;
   const pgResult = await db
@@ -134,15 +131,16 @@ export async function cleanupTestOrganization(orgId: string): Promise<void> {
     .from(permissionGroups)
     .where(eq(permissionGroups.name, defaultPermissionGroupName))
     .limit(1);
-    
+
   if (pgResult[0]) {
-    await db.delete(datasetsToPermissionGroups)
+    await db
+      .delete(datasetsToPermissionGroups)
       .where(eq(datasetsToPermissionGroups.permissionGroupId, pgResult[0].id));
   }
-  
+
   // Delete permission groups
   await db.delete(permissionGroups).where(eq(permissionGroups.organizationId, orgId));
-  
+
   // Delete organization memberships
   await db.delete(usersToOrganizations).where(eq(usersToOrganizations.organizationId, orgId));
 
@@ -161,7 +159,10 @@ export async function getOrganizationFromDb(orgId: string): Promise<Organization
 }
 
 // Helper to verify user organization membership
-export async function verifyUserOrgMembership(userId: string, organizationId: string): Promise<{
+export async function verifyUserOrgMembership(
+  userId: string,
+  organizationId: string
+): Promise<{
   organizationId: string;
   role: string;
 } | null> {
@@ -186,9 +187,9 @@ export async function verifyUserOrgMembership(userId: string, organizationId: st
 // Helper to create a user without any organization
 export async function createUserWithoutOrganization(): Promise<User> {
   const user = await createTestUserInDb();
-  
+
   // Remove any auto-created organization memberships
   await db.delete(usersToOrganizations).where(eq(usersToOrganizations.userId, user.id));
-  
+
   return user;
 }

@@ -111,12 +111,12 @@ describe('getWorkspaceSettingsHandler (integration)', () => {
   describe('Error Cases', () => {
     it('should return 403 for user without organization', async () => {
       const userWithoutOrg = await createUserWithoutOrganization();
-      
+
       await expect(getWorkspaceSettingsHandler(userWithoutOrg)).rejects.toMatchObject({
         status: 403,
         message: 'User is not associated with an organization',
       });
-      
+
       await cleanupTestUser(userWithoutOrg.id);
     });
 

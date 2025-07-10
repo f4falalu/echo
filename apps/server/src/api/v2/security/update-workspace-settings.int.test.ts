@@ -37,7 +37,7 @@ describe('updateWorkspaceSettingsHandler (integration)', () => {
   describe('Happy Path', () => {
     it('should update all settings fields', async () => {
       await createTestOrgMemberInDb(testUser.id, testOrg.id, 'workspace_admin');
-      
+
       // Verify membership was created properly
       const membership = await verifyUserOrgMembership(testUser.id, testOrg.id);
       expect(membership).toBeTruthy();
@@ -130,7 +130,7 @@ describe('updateWorkspaceSettingsHandler (integration)', () => {
           restrictNewUserInvitations: false,
           defaultRole: 'querier',
         });
-        
+
         const roleUser = await createTestUserInDb();
         await createTestOrgMemberInDb(roleUser.id, roleTestOrg.id, role);
 
@@ -171,7 +171,7 @@ describe('updateWorkspaceSettingsHandler (integration)', () => {
 
     it('should return 403 for user without organization', async () => {
       const isolatedUser = await createUserWithoutOrganization();
-      
+
       const request = { restrict_new_user_invitations: true };
 
       await expect(updateWorkspaceSettingsHandler(request, isolatedUser)).rejects.toThrow(
@@ -181,7 +181,7 @@ describe('updateWorkspaceSettingsHandler (integration)', () => {
         status: 403,
         message: 'User is not associated with an organization',
       });
-      
+
       // Clean up
       await cleanupTestUser(isolatedUser.id);
     });
