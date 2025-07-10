@@ -114,7 +114,7 @@ describe('updateWorkspaceSettingsHandler', () => {
   });
 
   it('should update database with new settings', async () => {
-    const request = { default_role: 'data_admin' };
+    const request = { default_role: 'data_admin' as OrganizationRole };
     const mockDbChain = {
       update: vi.fn().mockReturnThis(),
       set: vi.fn().mockReturnThis(),
