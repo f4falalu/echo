@@ -34,17 +34,17 @@ import './core/plugins/chartjs-plugin-dayjs';
 import './core/plugins/chartjs-scale-tick-duplicate';
 import './core/plugins/chartjs-plugin-trendlines';
 
-const fontFamily = isServer
+const chartJSThemefontFamily = isServer
   ? 'Roobert_Pro'
   : getComputedStyle(document.documentElement).getPropertyValue('--font-sans');
-const color = isServer
+const chartJSThemecolor = isServer
   ? '#575859'
   : getComputedStyle(document.documentElement).getPropertyValue('--color-text-secondary');
-const backgroundColor = isServer
+const chartJSThemebackgroundColor = isServer
   ? '#ffffff'
   : getComputedStyle(document.documentElement).getPropertyValue('--color-background');
 
-console.log('backgroundColor', backgroundColor);
+console.log('chartJSThemebackgroundColor', chartJSThemebackgroundColor);
 
 ChartJS.register(
   LineController,
@@ -81,11 +81,11 @@ ChartJS.defaults.responsive = true;
 ChartJS.defaults.clip = false;
 ChartJS.defaults.resizeDelay = 7;
 ChartJS.defaults.maintainAspectRatio = false;
-ChartJS.defaults.color = color;
+ChartJS.defaults.color = chartJSThemecolor;
 ChartJS.defaults.backgroundColor = DEFAULT_CHART_THEME;
 ChartJS.defaults.font = {
   ...ChartJS.defaults.font,
-  family: fontFamily,
+  family: chartJSThemefontFamily,
   size: 11,
   weight: 'normal'
 };
@@ -114,7 +114,7 @@ ChartJS.defaults.font = {
   scale.ticks.showLabelBackdrop = true;
   scale.ticks.z = 10;
   scale.ticks.includeBounds = true;
-  scale.ticks.backdropColor = backgroundColor;
+  scale.ticks.backdropColor = chartJSThemebackgroundColor;
   scale.ticks.autoSkipPadding = 4;
   scale.ticks.align = 'center';
   scale.ticks.callback = function (value, index, values) {
@@ -128,7 +128,7 @@ for (const scale of [
   ChartJS.defaults.scales.logarithmic
 ]) {
   scale.ticks.z = 0; //this used to be a 100, but I changed it for datalabels sake
-  scale.ticks.backdropColor = backgroundColor;
+  scale.ticks.backdropColor = chartJSThemebackgroundColor;
   scale.ticks.showLabelBackdrop = true;
   scale.ticks.autoSkipPadding = 2;
 }
@@ -162,7 +162,7 @@ ChartJS.defaults.plugins = {
     font: {
       weight: 'normal',
       size: 10,
-      family: fontFamily
+      family: chartJSThemefontFamily
     }
   },
   tooltipHoverBar: {
