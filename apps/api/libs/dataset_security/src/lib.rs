@@ -290,10 +290,15 @@ pub async fn get_permissioned_datasets(
         return Ok(Vec::new()); // No datasets accessible
     }
 
+    // Get all organization IDs for the user  
+    let org_ids: Vec<Uuid> = user_orgs.into_iter().map(|(org_id, _)| org_id).collect();
+
     // Fetch the actual dataset info for the combined IDs with pagination
+    // IMPORTANT: Filter by organization to prevent cross-org data access
     let mut conn = get_pg_pool().get().await.context("DB Error")?; // Get final connection
     datasets::table
         .filter(datasets::id.eq_any(all_accessible_ids))
+        .filter(datasets::organization_id.eq_any(org_ids))
         .filter(datasets::deleted_at.is_null()) 
         .select(PermissionedDataset::as_select())
         .order(datasets::name.asc()) 

@@ -300,7 +300,11 @@ export async function getPermissionedDatasets(
     return []; // No datasets accessible
   }
 
+  // Get all organization IDs for the user
+  const organizationIds = userOrgs.map(org => org.organizationId);
+
   // Fetch the actual dataset info for the combined IDs with pagination
+  // IMPORTANT: Filter by organization to prevent cross-org data access
   const results = await db
     .select({
       id: datasets.id,
@@ -312,7 +316,13 @@ export async function getPermissionedDatasets(
       dataSourceId: datasets.dataSourceId,
     })
     .from(datasets)
-    .where(and(inArray(datasets.id, Array.from(allAccessibleIds)), isNull(datasets.deletedAt)))
+    .where(
+      and(
+        inArray(datasets.id, Array.from(allAccessibleIds)),
+        inArray(datasets.organizationId, organizationIds),
+        isNull(datasets.deletedAt)
+      )
+    )
     .orderBy(datasets.name)
     .limit(input.pageSize)
     .offset(input.page * input.pageSize);
