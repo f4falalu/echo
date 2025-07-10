@@ -1,5 +1,4 @@
 import React from 'react';
-import { BusterOrganizationRoleLabels } from '@/api/asset_interfaces';
 import { useUpdateUser } from '@/api/buster_rest/users';
 import {
   Card,
@@ -14,6 +13,8 @@ import { Text } from '@/components/ui/typography';
 import { useMemoizedFn } from '@/hooks';
 import { User } from '@buster/server-shared/user';
 import type { OrganizationUser } from '@buster/server-shared/organization';
+import { OrganizationUserRoleText } from '@/lib/organization/translations';
+import { AccessRoleSelect } from '@/components/features/security/AccessRoleSelect';
 
 export const UserDefaultAccess: React.FC<{
   user: OrganizationUser;
@@ -40,20 +41,6 @@ export const UserDefaultAccess: React.FC<{
     />
   );
 };
-
-const accessOptions: SelectItem<OrganizationUser['role']>[] = [
-  { label: BusterOrganizationRoleLabels.data_admin, value: 'data_admin' },
-  {
-    label: BusterOrganizationRoleLabels.workspace_admin,
-    value: 'workspace_admin'
-  },
-  { label: BusterOrganizationRoleLabels.querier, value: 'querier' },
-  {
-    label: BusterOrganizationRoleLabels.restricted_querier,
-    value: 'restricted_querier'
-  },
-  { label: BusterOrganizationRoleLabels.viewer, value: 'viewer' }
-];
 
 const DefaultAccessCard = React.memo(
   ({
@@ -91,12 +78,7 @@ const DefaultAccessCard = React.memo(
                       : 'Only admins can change access'
                     : undefined
                 }>
-                <Select
-                  items={accessOptions}
-                  value={role}
-                  onChange={onChange}
-                  disabled={isDisabled}
-                />
+                <AccessRoleSelect role={role} onChange={onChange} />
               </AppTooltip>
             </div>
           </div>

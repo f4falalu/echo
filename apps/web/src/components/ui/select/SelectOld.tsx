@@ -36,6 +36,7 @@ export interface SelectProps<T> {
   open?: boolean;
   showIndex?: boolean;
   className?: string;
+  contentClassName?: string;
   defaultValue?: string;
   dataTestId?: string;
   loading?: boolean;
@@ -50,6 +51,7 @@ export const Select = <T extends string>({
   value,
   onOpenChange,
   open,
+  contentClassName,
   loading = false,
   className = '',
   defaultValue,
@@ -69,7 +71,7 @@ export const Select = <T extends string>({
       <SelectTrigger className={className} data-testid={dataTestId} loading={loading}>
         <SelectValue placeholder={placeholder} defaultValue={value || defaultValue} />
       </SelectTrigger>
-      <SelectContent>
+      <SelectContent className={contentClassName}>
         {items.map((item, index) => (
           <SelectItemSelector
             key={index.toString()}

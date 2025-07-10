@@ -1,1 +1,1 @@
-export * from './SelectOld';
+export * from './Select';

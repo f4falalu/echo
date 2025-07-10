@@ -6,7 +6,6 @@ export * from './dataset_groups';
 export * from './datasets';
 export * from './datasources';
 export * from './metric';
-export * from './organizations';
 export * from './permission';
 export * from './permission_groups';
 export * from './search';
