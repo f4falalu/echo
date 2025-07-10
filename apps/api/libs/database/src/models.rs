@@ -343,6 +343,9 @@ pub struct Organization {
     pub updated_at: DateTime<Utc>,
     pub deleted_at: Option<DateTime<Utc>>,
     pub payment_required: bool,
+    pub domains: Option<Vec<String>>,
+    pub restrict_new_user_invitations: bool,
+    pub default_role: UserOrganizationRole,
 }
 
 #[derive(
