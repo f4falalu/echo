@@ -29,7 +29,4 @@ export default defineConfig({
     // Additional esbuild options for bun compatibility
     options.keepNames = true; // Preserve function names for better debugging
   },
-  onSuccess: async () => {
-    console.log('Build completed successfully!');
-  },
 });
