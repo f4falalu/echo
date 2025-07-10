@@ -22,11 +22,11 @@ export default function ProfilePage() {
             className="h-12 w-12"
             fallbackClassName="text-2xl"
           />
-          <div className="flex flex-col justify-center gap-1">
+          <div className="flex flex-col justify-center gap-0">
             <Title as="h3" className="text-foreground">
               {name}
             </Title>
-            <Text className="text-gray-light mt-1">{email}</Text>
+            <Text className="text-gray-light mt-0.5">{email}</Text>
           </div>
         </div>
         {/* Info Section */}

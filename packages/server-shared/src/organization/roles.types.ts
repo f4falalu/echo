@@ -1,5 +1,5 @@
 import type { userOrganizationRoleEnum } from '@buster/database'; //we import as type to avoid postgres dependency in the frontend ☹️
-import { z } from 'zod/v4';
+import { z } from 'zod';
 
 type OrganizationRoleBase = (typeof userOrganizationRoleEnum.enumValues)[number];
 
@@ -14,6 +14,8 @@ export const OrganizationRoleEnum: Record<OrganizationRoleBase, OrganizationRole
     restricted_querier: 'restricted_querier',
   });
 
-export const OrganizationRoleSchema = z.enum(Object.values(OrganizationRoleEnum));
+export const OrganizationRoleSchema = z.enum(
+  Object.values(OrganizationRoleEnum) as [OrganizationRoleBase, ...OrganizationRoleBase[]]
+);
 
 export type OrganizationRole = z.infer<typeof OrganizationRoleSchema>;

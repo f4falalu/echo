@@ -41,7 +41,7 @@
     "@mastra/core": "catalog:",
     "@mastra/loggers": "^0.10.3",
     "ai": "catalog:",
-    "braintrust": "^0.0.206",
+    "braintrust": "catalog:",
     "drizzle-orm": "catalog:",
     "glob": "^11.0.3",
     "minimatch": "^10.0.3",

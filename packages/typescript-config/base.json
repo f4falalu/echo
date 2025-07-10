@@ -2,21 +2,22 @@
   "$schema": "https://json.schemastore.org/tsconfig",
   "compilerOptions": {
     "allowImportingTsExtensions": false,
+    "allowSyntheticDefaultImports": true,
     "composite": true,
     "declaration": true,
     "declarationMap": true,
     "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
     "incremental": true,
     "inlineSources": false,
     "isolatedModules": true,
+    "lib": ["ESNext"],
     "module": "ESNext",
     "moduleResolution": "bundler",
     "noEmit": false,
     "preserveWatchOutput": true,
     "skipLibCheck": true,
-    "target": "ES2022",
-    "lib": ["ESNext"]
+    "strict": true,
+    "target": "ES2022"
   },
   "exclude": ["node_modules"],
   "extends": "./type-checking.json"

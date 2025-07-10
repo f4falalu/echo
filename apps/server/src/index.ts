@@ -32,7 +32,13 @@ app.onError((err, c) => {
   }
 
   if (err instanceof z.ZodError) {
-    return c.text(err.errors.map((e) => e.message).join(', '), 400);
+    return c.json(
+      {
+        error: 'Validation Error',
+        message: err.issues.map((issue) => issue.message).join(', '),
+      },
+      400
+    );
   }
 
   return c.json(

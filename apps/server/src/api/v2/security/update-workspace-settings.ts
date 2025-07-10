@@ -111,8 +111,8 @@ async function updateOrganizationSettings(
         restrictNewUserInvitations: updateData.restrictNewUserInvitations,
       }),
       ...(updateData.defaultRole !== undefined &&
-        updateData.defaultRole !== 'none' && {
-          defaultRole: updateData.defaultRole as Exclude<OrganizationRole, 'none'>,
+        updateData.defaultRole && {
+          defaultRole: updateData.defaultRole,
         }),
     };
 

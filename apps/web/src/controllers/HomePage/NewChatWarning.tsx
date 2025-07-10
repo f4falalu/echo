@@ -5,11 +5,11 @@ import { ArrowUpRight, CircleCheck, AlertWarning } from '@/components/ui/icons';
 import { Paragraph, Text } from '@/components/ui/typography';
 import { cn } from '@/lib/classMerge';
 import type { useNewChatWarning } from './useNewChatWarning';
-import { BusterOrganizationRoleLabels } from '@/api/asset_interfaces/organizations';
 import type { OrganizationRole } from '@buster/server-shared/organization';
+import { OrganizationUserRoleText } from '@/lib/organization/translations';
 
-const translateRole = (role: OrganizationRole) => {
-  return BusterOrganizationRoleLabels[role];
+const translateRole = (role: OrganizationRole): string => {
+  return OrganizationUserRoleText[role].title;
 };
 
 export const NewChatWarning = React.memo(

@@ -501,6 +501,20 @@ const analystExecution = async ({
       }
     : undefined;
 
+  // Get error summary and log if there were any issues
+  const errorSummary = chunkProcessor.getErrorSummary();
+  if (errorSummary.totalErrors > 0) {
+    console.warn('[Analyst Step] Errors accumulated during execution:', {
+      totalErrors: errorSummary.totalErrors,
+      silentFailures: errorSummary.silentFailures,
+      criticalErrors: errorSummary.criticalErrors,
+      retryErrors: errorSummary.retryErrors,
+    });
+
+    // Send telemetry for monitoring
+    await chunkProcessor.getErrorAccumulator().sendTelemetry();
+  }
+
   return {
     conversationHistory: completeConversationHistory,
     finished: true,

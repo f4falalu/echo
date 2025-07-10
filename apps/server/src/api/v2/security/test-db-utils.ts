@@ -1,6 +1,10 @@
 import { randomUUID } from 'node:crypto';
 import { db, organizations, users, usersToOrganizations } from '@buster/database';
-import type { Organization, User } from '@buster/database';
+import type { User } from '@buster/database';
+import type { UserOrganizationRole } from '@buster/server-shared/user';
+import type { InferInsertModel, InferSelectModel } from 'drizzle-orm';
+
+type Organization = InferSelectModel<typeof organizations>;
 import { and, eq, isNull } from 'drizzle-orm';
 
 export async function createTestUserInDb(userData: Partial<User> = {}): Promise<User> {
@@ -48,26 +52,28 @@ export async function createTestOrganizationInDb(
   const id = randomUUID();
   // Use a unique domain for each organization to avoid conflicts with the trigger
   const uniqueDomain = `test-${id.substring(0, 8)}.com`;
-  const org = {
+  const org: Organization = {
     id,
     name: `Test Organization ${id}`,
     domains: orgData.domains !== undefined ? orgData.domains : [uniqueDomain],
     restrictNewUserInvitations: false,
-    defaultRole: 'restricted_querier',
+    defaultRole: 'restricted_querier' as const,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
     deletedAt: null,
+    domain: null,
+    paymentRequired: true,
     ...orgData,
   };
 
   await db.insert(organizations).values(org);
-  return org as Organization;
+  return org;
 }
 
 export async function createTestOrgMemberInDb(
   userId: string,
   organizationId: string,
-  role = 'querier'
+  role: UserOrganizationRole = 'querier'
 ): Promise<void> {
   // First check if there's already a membership
   const existing = await db
@@ -80,7 +86,7 @@ export async function createTestOrgMemberInDb(
     await db.delete(usersToOrganizations).where(eq(usersToOrganizations.userId, userId));
   }
 
-  const member = {
+  const member: InferInsertModel<typeof usersToOrganizations> = {
     userId,
     organizationId,
     role,
