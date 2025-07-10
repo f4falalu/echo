@@ -2,90 +2,52 @@ import type {
   AddApprovedDomainRequest,
   AddApprovedDomainsResponse,
 } from '@buster/server-shared/security';
+import { type User, db, organizations, eq, and, isNull } from '@buster/database';
 import { 
-  type User, 
-  db, 
-  getUserOrganizationId, 
-  organizations, 
-  eq, 
-  and, 
-  isNull,
-  sql
-} from '@buster/database';
-import { HTTPException } from 'hono/http-exception';
+  validateUserOrganization, 
+  fetchOrganization, 
+  checkAdminPermissions 
+} from './security-utils';
+import { DomainService } from './domain-service';
+
+const domainService = new DomainService();
 
 export async function addApprovedDomainsHandler(
   request: AddApprovedDomainRequest,
   user: User
 ): Promise<AddApprovedDomainsResponse> {
-  // Get user's organization
-  const userOrg = await getUserOrganizationId(user.id);
+  // Validate user organization and permissions
+  const userOrg = await validateUserOrganization(user.id);
+  checkAdminPermissions(userOrg.role);
+
+  // Fetch current organization
+  const org = await fetchOrganization(userOrg.organizationId);
+  const currentDomains = org.domains || [];
   
-  if (!userOrg) {
-    throw new HTTPException(403, {
-      message: 'User is not associated with an organization',
-    });
-  }
-
-  // Check if user has admin role
-  if (userOrg.role !== 'workspace_admin' && userOrg.role !== 'data_admin') {
-    throw new HTTPException(403, {
-      message: 'Insufficient permissions to manage approved domains',
-    });
-  }
-
-  // Fetch current organization domains
-  const org = await db
-    .select({
-      domains: organizations.domains,
-      createdAt: organizations.createdAt,
-    })
-    .from(organizations)
-    .where(
-      and(
-        eq(organizations.id, userOrg.organizationId),
-        isNull(organizations.deletedAt)
-      )
-    )
-    .limit(1);
-
-  if (!org.length || !org[0]) {
-    throw new HTTPException(404, {
-      message: 'Organization not found',
-    });
-  }
-
-  const currentDomains = org[0].domains || [];
-  
-  // Normalize domains (lowercase, trim)
-  const normalizedNewDomains = request.domains.map(d => d.toLowerCase().trim());
-  const normalizedCurrentDomains = currentDomains.map(d => d.toLowerCase().trim());
-  
-  // Filter out duplicates
-  const uniqueNewDomains = normalizedNewDomains.filter(
-    domain => !normalizedCurrentDomains.includes(domain)
-  );
-
-  // Combine current and new unique domains
-  const updatedDomains = [...currentDomains, ...uniqueNewDomains];
+  // Merge domains using domain service
+  const updatedDomains = domainService.mergeDomains(currentDomains, request.domains);
 
   // Update organization with new domains
+  await updateOrganizationDomains(userOrg.organizationId, updatedDomains);
+
+  // Return formatted response
+  return domainService.formatDomainsResponse(updatedDomains, org.createdAt);
+}
+
+async function updateOrganizationDomains(
+  organizationId: string,
+  domains: string[]
+): Promise<void> {
   await db
     .update(organizations)
     .set({
-      domains: updatedDomains,
+      domains,
       updatedAt: new Date().toISOString(),
     })
     .where(
       and(
-        eq(organizations.id, userOrg.organizationId),
+        eq(organizations.id, organizationId),
         isNull(organizations.deletedAt)
       )
     );
-
-  // Return all domains in the response format
-  return updatedDomains.map((domain) => ({
-    domain,
-    created_at: org[0].createdAt,
-  }));
 }
