@@ -21,10 +21,11 @@ export const useGetSlackIntegration = (enabled = true) => {
 
 // GET /api/v2/slack/channels
 export const useGetSlackChannels = (enabled = true) => {
+  const { data: slackIntegration } = useGetSlackIntegration();
   return useQuery({
     ...slackQueryKeys.slackGetChannels,
     queryFn: getSlackChannels,
-    enabled
+    enabled: enabled && slackIntegration?.connected
   });
 };
 
@@ -100,10 +101,7 @@ export const useRemoveSlackIntegration = () => {
         queryKey: slackQueryKeys.slackGetIntegration.queryKey,
         refetchType: 'all'
       });
-      queryClient.invalidateQueries({
-        queryKey: slackQueryKeys.slackGetChannels.queryKey,
-        refetchType: 'all'
-      });
+      queryClient.setQueryData(slackQueryKeys.slackGetChannels.queryKey, { channels: [] });
     }
   });
 };
