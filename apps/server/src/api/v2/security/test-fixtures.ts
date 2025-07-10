@@ -1,4 +1,4 @@
-import type { Organization, OrganizationMember, User } from '@buster/database';
+import type { Organization, User } from '@buster/database';
 
 export function createTestUser(overrides?: Partial<User>): User {
   const id = `test-user-${Math.random().toString(36).substring(7)}`;
@@ -37,37 +37,5 @@ export function createTestOrgMember(
   return {
     organizationId,
     role,
-  };
-}
-
-export function createMockGetUserOrganizationId() {
-  return vi.fn();
-}
-
-export function createMockDb() {
-  const mockSelect = vi.fn().mockReturnThis();
-  const mockFrom = vi.fn().mockReturnThis();
-  const mockWhere = vi.fn().mockReturnThis();
-  const mockLimit = vi.fn().mockReturnThis();
-  const mockUpdate = vi.fn().mockReturnThis();
-  const mockSet = vi.fn().mockReturnThis();
-  const mockReturning = vi.fn();
-
-  return {
-    select: mockSelect,
-    from: mockFrom,
-    where: mockWhere,
-    limit: mockLimit,
-    update: mockUpdate,
-    set: mockSet,
-    returning: mockReturning,
-    // For chaining
-    mockSelect,
-    mockFrom,
-    mockWhere,
-    mockLimit,
-    mockUpdate,
-    mockSet,
-    mockReturning,
   };
 }

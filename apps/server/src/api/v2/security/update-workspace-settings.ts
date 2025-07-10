@@ -1,4 +1,5 @@
 import { type User, and, db, eq, isNull, organizations } from '@buster/database';
+import type { OrganizationRole } from '@buster/server-shared/organization';
 import type {
   UpdateWorkspaceSettingsRequest,
   UpdateWorkspaceSettingsResponse,
@@ -96,13 +97,28 @@ async function updateOrganizationSettings(
   updateData: {
     updatedAt: string;
     restrictNewUserInvitations?: boolean;
-    defaultRole?: string;
+    defaultRole?: OrganizationRole;
   }
 ): Promise<void> {
   try {
+    const dbUpdateData: {
+      updatedAt: string;
+      restrictNewUserInvitations?: boolean;
+      defaultRole?: Exclude<OrganizationRole, 'none'>;
+    } = {
+      updatedAt: updateData.updatedAt,
+      ...(updateData.restrictNewUserInvitations !== undefined && {
+        restrictNewUserInvitations: updateData.restrictNewUserInvitations,
+      }),
+      ...(updateData.defaultRole !== undefined &&
+        updateData.defaultRole !== 'none' && {
+          defaultRole: updateData.defaultRole as Exclude<OrganizationRole, 'none'>,
+        }),
+    };
+
     await db
       .update(organizations)
-      .set(updateData)
+      .set(dbUpdateData)
       .where(and(eq(organizations.id, organizationId), isNull(organizations.deletedAt)));
 
     console.info('Updated organization settings:', {

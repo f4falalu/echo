@@ -1,3 +1,4 @@
+import type { OrganizationRole } from '@buster/server-shared/organization';
 import type {
   GetWorkspaceSettingsResponse,
   UpdateWorkspaceSettingsRequest,
@@ -6,13 +7,7 @@ import type {
 export class WorkspaceSettingsService {
   formatWorkspaceSettingsResponse(settings: {
     restrictNewUserInvitations: boolean;
-    defaultRole:
-      | 'workspace_admin'
-      | 'data_admin'
-      | 'querier'
-      | 'restricted_querier'
-      | 'viewer'
-      | 'none';
+    defaultRole: OrganizationRole;
     defaultDatasets?: Array<{ id: string; name: string }>;
   }): GetWorkspaceSettingsResponse {
     return {
@@ -25,12 +20,12 @@ export class WorkspaceSettingsService {
   buildUpdateData(request: UpdateWorkspaceSettingsRequest): {
     updatedAt: string;
     restrictNewUserInvitations?: boolean;
-    defaultRole?: string;
+    defaultRole?: OrganizationRole;
   } {
     const updateData: {
       updatedAt: string;
       restrictNewUserInvitations?: boolean;
-      defaultRole?: string;
+      defaultRole?: OrganizationRole;
     } = {
       updatedAt: new Date().toISOString(),
     };
