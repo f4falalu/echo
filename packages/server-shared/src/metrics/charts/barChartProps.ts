@@ -1,4 +1,4 @@
-import { z } from 'zod/v4';
+import { z } from 'zod';
 import { BarAndLineAxisSchema } from './axisInterfaces';
 import { BarSortBySchema } from './etcInterfaces';
 

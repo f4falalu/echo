@@ -1,5 +1,5 @@
 import type { sharingSettingEnum } from '@buster/database'; //we import as type to avoid postgres dependency in the frontend ☹️
-import { z } from 'zod/v4';
+import { z } from 'zod';
 
 type SharingSettingBase = (typeof sharingSettingEnum.enumValues)[number] | 'none';
 
@@ -9,6 +9,9 @@ const SharingSettingEnums: Record<SharingSettingBase, SharingSettingBase> = Obje
   team: 'team',
   organization: 'organization',
 });
-export const SharingSettingSchema = z.enum(Object.values(SharingSettingEnums));
+
+const test = Object.values(SharingSettingEnums) as [SharingSettingBase, ...SharingSettingBase[]];
+
+export const SharingSettingSchema = z.enum(test);
 
 export type SharingSetting = z.infer<typeof SharingSettingSchema>;

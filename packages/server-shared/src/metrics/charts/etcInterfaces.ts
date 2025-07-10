@@ -1,4 +1,4 @@
-import { z } from 'zod/v4';
+import { z } from 'zod';
 
 // OPTIONAL: default is no sorting (none). The first item in the array will be the primary sort. The second item will be the secondary sort. This will only apply if the X axis type is not a date.
 export const BarSortBySchema = z.array(z.enum(['asc', 'desc', 'none'])).default([]);

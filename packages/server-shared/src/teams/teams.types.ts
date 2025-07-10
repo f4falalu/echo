@@ -1,5 +1,5 @@
 import type { teamRoleEnum } from '@buster/database'; //we import as type to avoid postgres dependency in the frontend ☹️
-import { z } from 'zod/v4';
+import { z } from 'zod';
 import { SharingSettingSchema } from '../user/sharing-setting.types';
 
 type TeamRoleBase = (typeof teamRoleEnum.enumValues)[number] | 'none';
@@ -8,7 +8,9 @@ const TeamRoleEnums: Record<TeamRoleBase, TeamRoleBase> = Object.freeze({
   manager: 'manager',
   member: 'member',
 });
-export const TeamRoleSchema = z.enum(Object.values(TeamRoleEnums));
+export const TeamRoleSchema = z.enum(
+  Object.values(TeamRoleEnums) as [TeamRoleBase, ...TeamRoleBase[]]
+);
 
 export type TeamRole = z.infer<typeof TeamRoleSchema>;
 

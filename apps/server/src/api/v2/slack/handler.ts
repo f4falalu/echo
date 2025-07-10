@@ -130,10 +130,10 @@ export class SlackHandler {
    * Handle OAuth callback from Slack
    */
   async handleOAuthCallback(c: Context): Promise<Response> {
-    try {
-      // Get base URL from environment
-      const baseUrl = process.env.BUSTER_URL || '';
+    // Get base URL from environment
+    const baseUrl = process.env.BUSTER_URL || '';
 
+    try {
       // Get service instance (lazy initialization)
       const slackOAuthService = this.getSlackOAuthService();
 

@@ -1,4 +1,4 @@
-import { z } from 'zod/v4';
+import { z } from 'zod';
 import { TeamSchema } from './teams.types';
 
 export const TeamListResponseSchema = z.array(TeamSchema);

@@ -1,4 +1,4 @@
-import type { z } from 'zod/v4';
+import type { z } from 'zod';
 
 /**
  * Extracts all default values from a Zod schema.

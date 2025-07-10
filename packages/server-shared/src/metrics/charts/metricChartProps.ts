@@ -1,4 +1,4 @@
-import { z } from 'zod/v4';
+import { z } from 'zod';
 
 export const DerivedMetricTitleSchema = z.object({
   // which column to use.

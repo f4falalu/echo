@@ -1,4 +1,4 @@
-import { z } from 'zod/v4';
+import { z } from 'zod';
 import { OrganizationRoleSchema } from '../organization/roles.types';
 import { ShareAssetTypeSchema } from '../share';
 
