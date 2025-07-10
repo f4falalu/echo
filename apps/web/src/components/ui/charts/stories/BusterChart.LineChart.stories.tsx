@@ -2,6 +2,8 @@ import type { Meta, StoryObj } from '@storybook/react';
 import dayjs from 'dayjs';
 import {
   DEFAULT_COLUMN_LABEL_FORMAT,
+  type BarAndLineAxis,
+  type ChartConfigProps,
   type ColumnLabelFormat,
   type ColumnSettings,
   type DataMetadata,
@@ -2072,21 +2074,21 @@ const test = createDefaultChartConfig({
         style: 'number',
         numberSeparatorStyle: ',',
         replaceMissingDataWith: 0
-      },
+      } as ColumnLabelFormat,
       order_month: {
         columnType: 'date',
         style: 'date',
         numberSeparatorStyle: null,
         replaceMissingDataWith: null,
         dateFormat: 'MMM YYYY'
-      }
-    },
+      } as ColumnLabelFormat
+    } as ChartConfigProps['columnLabelFormats'],
     barAndLineAxis: {
       x: ['order_month'],
       y: ['order_count']
-    },
+    } as BarAndLineAxis,
     selectedChartType: 'line'
-  }
+  } as ChartConfigProps
 });
 const data = [
   {
