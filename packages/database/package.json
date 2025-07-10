@@ -47,9 +47,11 @@
   "dependencies": {
     "@buster/typescript-config": "workspace:*",
     "@buster/vitest-config": "workspace:*",
+    "@types/pg": "^8.15.4",
     "ai": "catalog:",
     "drizzle-kit": "^0.31.4",
     "drizzle-orm": "catalog:",
+    "pg": "^8.16.3",
     "postgres": "^3.4.7",
     "zod": "catalog:"
   }
