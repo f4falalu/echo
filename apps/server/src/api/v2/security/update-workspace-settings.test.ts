@@ -1,4 +1,5 @@
 import { db } from '@buster/database';
+import type { OrganizationRole } from '@buster/server-shared/organization';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import * as securityUtils from './security-utils';
 import { createTestOrganization, createTestUser } from './test-fixtures';
@@ -71,17 +72,17 @@ describe('updateWorkspaceSettingsHandler', () => {
   it('should update all settings fields', async () => {
     const request = {
       restrict_new_user_invitations: true,
-      default_role: 'data_admin',
+      default_role: 'data_admin' as OrganizationRole,
     };
 
     vi.mocked(WorkspaceSettingsService.prototype.buildUpdateData).mockReturnValue({
       updatedAt: '2024-01-01T00:00:00Z',
       restrictNewUserInvitations: true,
-      defaultRole: 'data_admin',
+      defaultRole: 'data_admin' as OrganizationRole,
     });
     vi.mocked(WorkspaceSettingsService.prototype.formatWorkspaceSettingsResponse).mockReturnValue({
       restrict_new_user_invitations: true,
-      default_role: 'data_admin',
+      default_role: 'data_admin' as OrganizationRole,
       default_datasets: mockDefaultDatasets,
     });
 
@@ -123,11 +124,11 @@ describe('updateWorkspaceSettingsHandler', () => {
 
     vi.mocked(WorkspaceSettingsService.prototype.buildUpdateData).mockReturnValue({
       updatedAt: '2024-01-01T00:00:00Z',
-      defaultRole: 'data_admin',
+      defaultRole: 'data_admin' as OrganizationRole,
     });
     vi.mocked(WorkspaceSettingsService.prototype.formatWorkspaceSettingsResponse).mockReturnValue({
       restrict_new_user_invitations: false,
-      default_role: 'data_admin',
+      default_role: 'data_admin' as OrganizationRole,
       default_datasets: mockDefaultDatasets,
     });
 
@@ -136,7 +137,7 @@ describe('updateWorkspaceSettingsHandler', () => {
     expect(db.update).toHaveBeenCalled();
     expect(mockDbChain.set).toHaveBeenCalledWith({
       updatedAt: '2024-01-01T00:00:00Z',
-      defaultRole: 'data_admin',
+      defaultRole: 'data_admin' as OrganizationRole,
     });
   });
 
