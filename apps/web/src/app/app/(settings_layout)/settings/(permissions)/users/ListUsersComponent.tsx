@@ -32,7 +32,7 @@ export const ListUsersComponent: React.FC<{
         dataIndex: 'role',
         width: 165,
         render: (role: OrganizationUser['role']) => {
-          return <Text variant="secondary">{OrganizationUserRoleText[role]}</Text>;
+          return <Text variant="secondary">{OrganizationUserRoleText[role].title}</Text>;
         }
       }
     ],

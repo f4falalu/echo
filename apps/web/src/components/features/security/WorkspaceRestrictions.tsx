@@ -12,11 +12,12 @@ import type {
   GetWorkspaceSettingsResponse,
   UpdateWorkspaceSettingsRequest
 } from '@buster/server-shared/security';
-import { Select, type SelectItem } from '@/components/ui/select';
-import { type OrganizationRole, OrganizationRoleEnum } from '@buster/server-shared/organization';
-import { OrganizationUserRoleText } from '@/lib/organization/translations';
+import { type SelectItem } from '@/components/ui/select';
+import { type OrganizationRole } from '@buster/server-shared/organization';
 import { useGetDatasets } from '@/api/buster_rest/datasets';
 import { SelectMultiple } from '@/components/ui/select/SelectMultiple';
+import { AccessRoleSelect } from './AccessRoleSelect';
+import { useMemoizedFn } from '@/hooks';
 
 export const WorkspaceRestrictions = React.memo(() => {
   const { data: workspaceSettings } = useGetWorkspaceSettings();
@@ -31,7 +32,7 @@ export const WorkspaceRestrictions = React.memo(() => {
       />,
       <DefaultRole
         key="default-role"
-        default_role={workspaceSettings?.default_role ?? 'viewer' as OrganizationRole}
+        default_role={workspaceSettings?.default_role ?? ('viewer' as OrganizationRole)}
         updateWorkspaceSettings={updateWorkspaceSettings}
       />,
       <DefaultDatasets
@@ -84,13 +85,6 @@ const DefaultRole = ({
 }: Pick<GetWorkspaceSettingsResponse, 'default_role'> & {
   updateWorkspaceSettings: (request: UpdateWorkspaceSettingsRequest) => Promise<unknown>;
 }) => {
-  const items: SelectItem<OrganizationRole>[] = useMemo(() => {
-    return Object.values(OrganizationRoleEnum).map((role) => ({
-      label: OrganizationUserRoleText[role as OrganizationRole],
-      value: role as OrganizationRole
-    }));
-  }, []);
-
   return (
     <div className="flex items-center justify-between">
       <div className="flex min-w-0 flex-1 flex-col space-y-0.5">
@@ -99,13 +93,11 @@ const DefaultRole = ({
           {`Select which default role is assigned to new users`}
         </Text>
       </div>
-      <Select
-        items={items}
-        className="w-36 max-w-72"
-        value={default_role}
-        onChange={(v) => {
+      <AccessRoleSelect
+        role={default_role}
+        onChange={useMemoizedFn((v) => {
           updateWorkspaceSettings({ default_role: v });
-        }}
+        })}
       />
     </div>
   );

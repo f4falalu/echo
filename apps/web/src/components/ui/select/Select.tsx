@@ -27,10 +27,10 @@ export interface SelectItem<T = string> {
 
 type SearchFunction<T> = (item: SelectItem<T>, searchTerm: string) => boolean;
 
-export interface SelectProps<T> {
+// Base interface with common properties
+interface BaseSelectProps<T> {
   items: SelectItem<T>[] | SelectItemGroup<T>[];
   disabled?: boolean;
-  onChange: (value: T | null) => void;
   placeholder?: string;
   value?: string | undefined;
   onOpenChange?: (open: boolean) => void;
@@ -41,9 +41,23 @@ export interface SelectProps<T> {
   dataTestId?: string;
   loading?: boolean;
   search?: boolean | SearchFunction<T>;
-  clearable?: boolean;
   emptyMessage?: string;
 }
+
+// Clearable version - onChange can return null
+interface ClearableSelectProps<T> extends BaseSelectProps<T> {
+  clearable: true;
+  onChange: (value: T | null) => void;
+}
+
+// Non-clearable version - onChange cannot return null
+interface NonClearableSelectProps<T> extends BaseSelectProps<T> {
+  clearable?: false;
+  onChange: (value: T) => void;
+}
+
+// Union type for type-safe props
+export type SelectProps<T> = ClearableSelectProps<T> | NonClearableSelectProps<T>;
 
 function isGroupedItems<T>(
   items: SelectItem<T>[] | SelectItemGroup<T>[]
@@ -83,17 +97,19 @@ const SelectItemComponent = React.memo(
         onSelect={onSelect}
         disabled={item.disabled}
         className={cn(
-          'flex h-7 items-center gap-2 px-2',
+          'flex min-h-7 items-center gap-2 px-2',
           item.disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer',
           isSelected && 'bg-item-select'
         )}>
         {item.icon}
         <span className="flex-1">
           {showIndex && `${index + 1}. `}
-          {item.label}
-          {item.secondaryLabel && (
-            <span className="text-text-secondary ml-2 text-sm">{item.secondaryLabel}</span>
-          )}
+          <div className="flex flex-col space-y-0">
+            <span className="text-foreground">{item.label}</span>
+            {item.secondaryLabel && (
+              <span className="text-text-secondary text-sm">{item.secondaryLabel}</span>
+            )}
+          </div>
         </span>
         {isSelected && (
           <div className="text-icon-color flex h-4 w-4 items-center">
@@ -191,11 +207,14 @@ function SelectComponent<T = string>({
     (e: React.MouseEvent) => {
       e.stopPropagation();
       e.preventDefault();
-      onChange(null);
-      setSearchValue('');
-      handleOpenChange(false);
+      // Type assertion is safe here because handleClear is only called when clearable is true
+      if (clearable) {
+        (onChange as (value: T | null) => void)(null);
+        setSearchValue('');
+        handleOpenChange(false);
+      }
     },
-    [onChange, handleOpenChange]
+    [onChange, handleOpenChange, clearable]
   );
 
   const handleInputChange = React.useCallback(
