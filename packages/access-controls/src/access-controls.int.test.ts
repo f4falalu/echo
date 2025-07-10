@@ -176,8 +176,6 @@ describe('Access Controls Integration Tests - Organization Default Permission Gr
       permissionGroupId: testDefaultGroupId,
       createdAt: now,
       updatedAt: now,
-      createdBy: testUserId,
-      updatedBy: testUserId,
     });
 
     await db.insert(datasetsToPermissionGroups).values({
@@ -185,8 +183,6 @@ describe('Access Controls Integration Tests - Organization Default Permission Gr
       permissionGroupId: testDefaultGroupId,
       createdAt: now,
       updatedAt: now,
-      createdBy: testUserId,
-      updatedBy: testUserId,
     });
   });
 
@@ -481,8 +477,6 @@ describe('Access Controls Integration Tests - Organization Default Permission Gr
         permissionGroupId: otherGroupId,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
-        createdBy: testUserId,
-        updatedBy: testUserId,
       });
 
       // Test that all paths work correctly and deduplication happens

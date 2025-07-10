@@ -171,7 +171,6 @@ export async function cleanupOldWorkflowManagers(maxAge = 3600000): Promise<void
   }
 
   for (const workflowId of toCleanup) {
-    console.log(`[WorkflowDataSourceManager] Cleaning up old workflow manager: ${workflowId}`);
     await cleanupWorkflowDataSources(workflowId);
   }
 }
