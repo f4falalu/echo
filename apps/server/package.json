@@ -9,7 +9,8 @@
   "scripts": {
     "prebuild": "bun run scripts/validate-env.js && pnpm run typecheck",
     "build": "tsup",
-    "dev": "tsup --watch",
+    "dev": "bun --watch src/index.ts",
+    "dev:build": "tsup --watch",
     "lint": "biome check",
     "start": "bun dist/index.js",
     "test": "vitest run",

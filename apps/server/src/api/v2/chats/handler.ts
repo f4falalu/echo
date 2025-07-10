@@ -88,6 +88,12 @@ export async function createChatHandler(
           throw new Error('Trigger service returned invalid handle');
         }
 
+        // Update the message with the trigger run ID
+        const { updateMessage } = await import('@buster/database');
+        await updateMessage(messageId, {
+          triggerRunId: taskHandle.id,
+        });
+
         // Task was successfully queued - background analysis will proceed
       } catch (triggerError) {
         console.error('Failed to trigger analyst agent task:', triggerError);

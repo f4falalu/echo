@@ -523,7 +523,7 @@ describe('SnowflakeAdapter Integration', () => {
     'should handle connection drops gracefully',
     async () => {
       await adapter.initialize(credentials);
-      
+
       // Simulate network interruption by destroying connection
       // @ts-expect-error - Testing private property
       const conn = adapter.connection;
@@ -534,10 +534,10 @@ describe('SnowflakeAdapter Integration', () => {
           });
         });
       }
-      
+
       // Next query should fail
       await expect(adapter.query('SELECT 1')).rejects.toThrow();
-      
+
       // But adapter should be able to reinitialize
       await adapter.initialize(credentials);
       const result = await adapter.query('SELECT 1 as test');
@@ -550,7 +550,7 @@ describe('SnowflakeAdapter Integration', () => {
     'should handle query cancellation',
     async () => {
       await adapter.initialize(credentials);
-      
+
       // Start a long-running query and cancel it
       const longQuery = adapter.query(
         `SELECT COUNT(*) FROM SNOWFLAKE_SAMPLE_DATA.TPCH_SF1.LINEITEM 
@@ -559,9 +559,9 @@ describe('SnowflakeAdapter Integration', () => {
         undefined,
         100 // Very short timeout to force cancellation
       );
-      
+
       await expect(longQuery).rejects.toThrow(/timeout/i);
-      
+
       // Should be able to run another query immediately
       const result = await adapter.query('SELECT 1 as test');
       expect(result.rows[0].TEST).toBe(1);
@@ -573,10 +573,10 @@ describe('SnowflakeAdapter Integration', () => {
     'should handle very long strings in queries',
     async () => {
       await adapter.initialize(credentials);
-      
+
       // Test with a very long string (1MB)
       const veryLongString = 'x'.repeat(1000000);
-      
+
       // This should work but might be slow
       const result = await adapter.query(
         `SELECT LENGTH('${veryLongString}') as str_length`,
@@ -584,7 +584,7 @@ describe('SnowflakeAdapter Integration', () => {
         undefined,
         60000 // 60 second timeout for large string
       );
-      
+
       expect(result.rows[0].STR_LENGTH).toBe(1000000);
     },
     120000 // 2 minute timeout for this test
@@ -594,7 +594,7 @@ describe('SnowflakeAdapter Integration', () => {
     'should handle Unicode and special characters',
     async () => {
       await adapter.initialize(credentials);
-      
+
       const result = await adapter.query(`
         SELECT 
           '🎉emoji🎊' as emoji_text,
@@ -603,7 +603,7 @@ describe('SnowflakeAdapter Integration', () => {
           'Special: <>&"\\/' as special_chars,
           'Line' || CHR(10) || 'Break' as line_break
       `);
-      
+
       expect(result.rows[0].EMOJI_TEXT).toBe('🎉emoji🎊');
       expect(result.rows[0].CHINESE_TEXT).toBe('Chinese: 你好');
       expect(result.rows[0].ARABIC_TEXT).toBe('Arabic: مرحبا');
@@ -617,14 +617,14 @@ describe('SnowflakeAdapter Integration', () => {
     'should handle extremely large result sets with maxRows',
     async () => {
       await adapter.initialize(credentials);
-      
+
       // Query that would return millions of rows
       const result = await adapter.query(
         'SELECT * FROM SNOWFLAKE_SAMPLE_DATA.TPCH_SF1.LINEITEM',
         undefined,
         1000 // Limit to 1000 rows
       );
-      
+
       expect(result.rows.length).toBe(1000);
       expect(result.hasMoreRows).toBe(true);
       expect(result.rowCount).toBe(1000);
@@ -636,19 +636,19 @@ describe('SnowflakeAdapter Integration', () => {
     'should handle rapid connection cycling',
     async () => {
       const results = [];
-      
+
       // Rapidly create, use, and close connections
       for (let i = 0; i < 5; i++) {
         const tempAdapter = new SnowflakeAdapter();
         await tempAdapter.initialize(credentials);
-        
+
         const result = await tempAdapter.query(`SELECT ${i} as cycle_num`);
         results.push(result.rows[0].CYCLE_NUM);
-        
+
         await tempAdapter.close();
         // No delay - test rapid cycling
       }
-      
+
       expect(results).toEqual([0, 1, 2, 3, 4]);
     },
     60000 // 1 minute for rapid cycling
@@ -658,14 +658,14 @@ describe('SnowflakeAdapter Integration', () => {
     'should handle warehouse suspension gracefully',
     async () => {
       await adapter.initialize(credentials);
-      
+
       // First query to ensure warehouse is running
       await adapter.query('SELECT 1');
-      
+
       // Note: In production, warehouse might auto-suspend
       // This test simulates querying after potential suspension
-      await new Promise(resolve => setTimeout(resolve, 5000)); // 5 second delay
-      
+      await new Promise((resolve) => setTimeout(resolve, 5000)); // 5 second delay
+
       // Should still work (Snowflake should auto-resume)
       const result = await adapter.query('SELECT 2 as test');
       expect(result.rows[0].TEST).toBe(2);
@@ -677,7 +677,7 @@ describe('SnowflakeAdapter Integration', () => {
     'should handle malformed SQL gracefully',
     async () => {
       await adapter.initialize(credentials);
-      
+
       const malformedQueries = [
         'SELECT * FROM', // Incomplete
         'SELCT * FROM table', // Typo
@@ -685,11 +685,11 @@ describe('SnowflakeAdapter Integration', () => {
         'SELECT * FROM "non.existent.schema"."table"', // Invalid schema
         'SELECT 1; DROP TABLE test;', // Multiple statements
       ];
-      
+
       for (const query of malformedQueries) {
         await expect(adapter.query(query)).rejects.toThrow();
       }
-      
+
       // Should still be able to run valid queries
       const result = await adapter.query('SELECT 1 as test');
       expect(result.rows[0].TEST).toBe(1);
@@ -702,24 +702,25 @@ describe('SnowflakeAdapter Integration', () => {
     async () => {
       const adapters: SnowflakeAdapter[] = [];
       const promises: Promise<any>[] = [];
-      
+
       // Create many adapters without closing them (simulating pool exhaustion)
       for (let i = 0; i < 20; i++) {
         const tempAdapter = new SnowflakeAdapter();
         adapters.push(tempAdapter);
-        
-        const promise = tempAdapter.initialize(credentials)
+
+        const promise = tempAdapter
+          .initialize(credentials)
           .then(() => tempAdapter.query(`SELECT ${i} as num`));
-        
+
         promises.push(promise);
       }
-      
+
       // All should complete successfully
       const results = await Promise.all(promises);
       expect(results).toHaveLength(20);
-      
+
       // Cleanup
-      await Promise.all(adapters.map(a => a.close()));
+      await Promise.all(adapters.map((a) => a.close()));
     },
     120000 // 2 minutes for many connections
   );
@@ -728,17 +729,15 @@ describe('SnowflakeAdapter Integration', () => {
     'should maintain connection integrity under load',
     async () => {
       await adapter.initialize(credentials);
-      
+
       // Run many queries in parallel on same adapter
       const queryPromises = [];
       for (let i = 0; i < 50; i++) {
-        queryPromises.push(
-          adapter.query(`SELECT ${i} as num, CURRENT_TIMESTAMP() as ts`)
-        );
+        queryPromises.push(adapter.query(`SELECT ${i} as num, CURRENT_TIMESTAMP() as ts`));
       }
-      
+
       const results = await Promise.all(queryPromises);
-      
+
       // Verify all queries succeeded and returned correct data
       expect(results).toHaveLength(50);
       results.forEach((result, index) => {
@@ -753,14 +752,14 @@ describe('SnowflakeAdapter Integration', () => {
     'should handle binary data correctly',
     async () => {
       await adapter.initialize(credentials);
-      
+
       const result = await adapter.query(`
         SELECT 
           TO_BINARY('48656C6C6F', 'HEX') as hex_binary,
           TO_BINARY('SGVsbG8=', 'BASE64') as base64_binary,
           BASE64_ENCODE(TO_BINARY('48656C6C6F', 'HEX')) as encoded_text
       `);
-      
+
       expect(result.rows[0].HEX_BINARY).toBeTruthy();
       expect(result.rows[0].BASE64_BINARY).toBeTruthy();
       expect(result.rows[0].ENCODED_TEXT).toBe('SGVsbG8=');
@@ -772,7 +771,7 @@ describe('SnowflakeAdapter Integration', () => {
     'should handle timezone-aware timestamps',
     async () => {
       await adapter.initialize(credentials);
-      
+
       const result = await adapter.query(`
         SELECT 
           CONVERT_TIMEZONE('UTC', 'America/New_York', '2024-01-01 12:00:00'::TIMESTAMP_NTZ) as ny_time,
@@ -780,7 +779,7 @@ describe('SnowflakeAdapter Integration', () => {
           CURRENT_TIMESTAMP() as current_ts,
           SYSDATE() as sys_date
       `);
-      
+
       expect(result.rows[0].NY_TIME).toBeTruthy();
       expect(result.rows[0].TOKYO_TIME).toBeTruthy();
       expect(result.rows[0].CURRENT_TS).toBeTruthy();

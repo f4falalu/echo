@@ -3,6 +3,7 @@ import {
   ChatError,
   type ChatWithMessages,
   ChatWithMessagesSchema,
+  CancelChatParamsSchema,
 } from '@buster/server-shared/chats';
 import { zValidator } from '@hono/zod-validator';
 import { Hono } from 'hono';
@@ -11,6 +12,7 @@ import '../../../types/hono.types'; //I added this to fix intermitent type error
 import { HTTPException } from 'hono/http-exception';
 import { z } from 'zod';
 import { createChatHandler } from './handler';
+import { cancelChatHandler } from './cancel-chat';
 
 const app = new Hono()
   // Apply authentication middleware
@@ -48,6 +50,14 @@ const app = new Hono()
       });
     }
   )
+  // DELETE /chats/:chat_id/cancel - Cancel a chat and its running triggers
+  .delete('/:chat_id/cancel', zValidator('param', CancelChatParamsSchema), async (c) => {
+    const params = c.req.valid('param');
+    const user = c.get('busterUser');
+    
+    const response = await cancelChatHandler(params.chat_id, user);
+    return c.json(response);
+  })
   .onError((e, c) => {
     if (e instanceof ChatError) {
       // we need to use this syntax instead of HTTPException because hono bubbles up 500 errors
