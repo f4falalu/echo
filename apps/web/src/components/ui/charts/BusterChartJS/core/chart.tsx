@@ -56,19 +56,7 @@ function ChartComponent<
     reforwardRef(ref, null);
 
     if (chartRef.current) {
-      // Clear all event listeners
-      chartRef.current.canvas?.replaceWith(chartRef.current.canvas.cloneNode(true));
-
-      // Stop any animations
-      chartRef.current.stop();
-
-      // Clear the chart
-      chartRef.current.clear();
-
-      // Destroy the chart instance
       chartRef.current.destroy();
-
-      // Nullify the reference
       chartRef.current = null;
     }
   };
