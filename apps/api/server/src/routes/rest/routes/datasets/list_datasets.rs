@@ -8,6 +8,7 @@ use diesel_async::RunQueryDsl;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 use middleware::AuthenticatedUser;
+use dataset_security::get_permissioned_datasets;
 
 use database::{
     enums::{IdentityType, UserOrganizationRole},
@@ -143,7 +144,7 @@ async fn list_datasets_handler(
             .await?
         }
         UserOrganizationRole::RestrictedQuerier => {
-            get_restricted_user_datasets(user_id, page, page_size).await?
+            get_permissioned_datasets_for_api(user_id, page, page_size).await?
         }
         UserOrganizationRole::Viewer => Vec::new(),
     };
@@ -283,310 +284,56 @@ async fn get_org_datasets(
     Ok(list_dataset_objects)
 }
 
-async fn get_restricted_user_datasets(
+async fn get_permissioned_datasets_for_api(
     user_id: &Uuid,
-    _page: i64,
-    _page_size: i64,
+    page: i64,
+    page_size: i64,
 ) -> Result<Vec<ListDatasetObject>> {
-    // Direct dataset access
-    let direct_user_permissioned_datasets_handle = {
-        let user_id = user_id.clone();
-        tokio::spawn(async move {
-            let mut conn = match get_pg_pool().get().await {
-                Ok(conn) => conn,
-                Err(e) => return Err(anyhow!("Unable to get connection from pool: {}", e)),
-            };
-
-            let result = match datasets::table
-                .inner_join(data_sources::table.on(datasets::data_source_id.eq(data_sources::id)))
-                .inner_join(
-                    dataset_permissions::table.on(dataset_permissions::dataset_id.eq(datasets::id)),
-                )
-                .filter(dataset_permissions::permission_id.eq(user_id))
-                .filter(dataset_permissions::permission_type.eq("user"))
-                .filter(dataset_permissions::deleted_at.is_null())
-                .filter(datasets::deleted_at.is_null())
-                .filter(data_sources::deleted_at.is_null())
-                .filter(datasets::enabled.eq(true))
-                .select((
-                    datasets::id,
-                    datasets::name,
-                    datasets::created_at,
-                    datasets::updated_at,
-                    datasets::enabled,
-                    datasets::imported,
-                    data_sources::id,
-                    data_sources::name,
-                ))
-                .load::<(
-                    Uuid,
-                    String,
-                    DateTime<Utc>,
-                    DateTime<Utc>,
-                    bool,
-                    bool,
-                    Uuid,
-                    String,
-                )>(&mut conn)
-                .await
-            {
-                Ok(datasets) => datasets,
-                Err(e) => return Err(anyhow!("Unable to get datasets from database: {}", e)),
-            };
-
-            Ok(result)
-        })
-    };
-
-    // Permission group access
-    let permission_group_datasets_handle = {
-        let user_id = user_id.clone();
-        tokio::spawn(async move {
-            let mut conn = match get_pg_pool().get().await {
-                Ok(conn) => conn,
-                Err(e) => return Err(anyhow!("Unable to get connection from pool: {}", e)),
-            };
-
-            let result = match datasets::table
-                .inner_join(data_sources::table.on(datasets::data_source_id.eq(data_sources::id)))
-                .inner_join(
-                    dataset_permissions::table.on(dataset_permissions::dataset_id.eq(datasets::id)),
-                )
-                .inner_join(
-                    permission_groups_to_identities::table.on(
-                        permission_groups_to_identities::identity_id
-                            .eq(user_id)
-                            .and(
-                                permission_groups_to_identities::identity_type
-                                    .eq(IdentityType::User),
-                            ),
-                    ),
-                )
-                .filter(
-                    dataset_permissions::permission_id
-                        .eq(permission_groups_to_identities::permission_group_id),
-                )
-                .filter(dataset_permissions::permission_type.eq("permission_group"))
-                .filter(dataset_permissions::deleted_at.is_null())
-                .filter(permission_groups_to_identities::deleted_at.is_null())
-                .filter(datasets::deleted_at.is_null())
-                .filter(data_sources::deleted_at.is_null())
-                .filter(datasets::enabled.eq(true))
-                .select((
-                    datasets::id,
-                    datasets::name,
-                    datasets::created_at,
-                    datasets::updated_at,
-                    datasets::enabled,
-                    datasets::imported,
-                    data_sources::id,
-                    data_sources::name,
-                ))
-                .load::<(
-                    Uuid,
-                    String,
-                    DateTime<Utc>,
-                    DateTime<Utc>,
-                    bool,
-                    bool,
-                    Uuid,
-                    String,
-                )>(&mut conn)
-                .await
-            {
-                Ok(datasets) => datasets,
-                Err(e) => return Err(anyhow!("Unable to get datasets from database: {}", e)),
-            };
-
-            Ok(result)
-        })
-    };
-
-    // Dataset group access
-    let dataset_group_datasets_handle = {
-        let user_id = user_id.clone();
-        tokio::spawn(async move {
-            let mut conn = match get_pg_pool().get().await {
-                Ok(conn) => conn,
-                Err(e) => return Err(anyhow!("Unable to get connection from pool: {}", e)),
-            };
-
-            let result = match datasets::table
-                .inner_join(data_sources::table.on(datasets::data_source_id.eq(data_sources::id)))
-                .inner_join(
-                    dataset_permissions::table.on(dataset_permissions::dataset_id.eq(datasets::id)),
-                )
-                .inner_join(
-                    dataset_groups_permissions::table.on(dataset_groups_permissions::permission_id
-                        .eq(user_id)
-                        .and(dataset_groups_permissions::permission_type.eq("user"))),
-                )
-                .inner_join(
-                    dataset_groups::table
-                        .on(dataset_groups::id.eq(dataset_groups_permissions::dataset_group_id)),
-                )
-                .filter(dataset_permissions::permission_id.eq(dataset_groups::id))
-                .filter(dataset_permissions::permission_type.eq("dataset_group"))
-                .filter(dataset_permissions::deleted_at.is_null())
-                .filter(dataset_groups_permissions::deleted_at.is_null())
-                .filter(dataset_groups::deleted_at.is_null())
-                .filter(datasets::deleted_at.is_null())
-                .filter(data_sources::deleted_at.is_null())
-                .filter(datasets::enabled.eq(true))
-                .select((
-                    datasets::id,
-                    datasets::name,
-                    datasets::created_at,
-                    datasets::updated_at,
-                    datasets::enabled,
-                    datasets::imported,
-                    data_sources::id,
-                    data_sources::name,
-                ))
-                .load::<(
-                    Uuid,
-                    String,
-                    DateTime<Utc>,
-                    DateTime<Utc>,
-                    bool,
-                    bool,
-                    Uuid,
-                    String,
-                )>(&mut conn)
-                .await
-            {
-                Ok(datasets) => datasets,
-                Err(e) => return Err(anyhow!("Unable to get datasets from database: {}", e)),
-            };
-
-            Ok(result)
-        })
-    };
-
-    // Permission group to dataset group access
-    let permission_group_dataset_groups_handle = {
-        let user_id = user_id.clone();
-        tokio::spawn(async move {
-            let mut conn = match get_pg_pool().get().await {
-                Ok(conn) => conn,
-                Err(e) => return Err(anyhow!("Unable to get connection from pool: {}", e)),
-            };
-
-            let result = match datasets::table
-                .inner_join(data_sources::table.on(datasets::data_source_id.eq(data_sources::id)))
-                .inner_join(
-                    dataset_permissions::table.on(dataset_permissions::dataset_id.eq(datasets::id)),
-                )
-                .inner_join(
-                    dataset_groups::table.on(dataset_groups::id
-                        .eq(dataset_permissions::permission_id)
-                        .and(dataset_permissions::permission_type.eq("dataset_group"))),
-                )
-                .inner_join(
-                    dataset_groups_permissions::table
-                        .on(dataset_groups::id.eq(dataset_groups_permissions::dataset_group_id)),
-                )
-                .inner_join(
-                    permission_groups_to_identities::table.on(
-                        permission_groups_to_identities::identity_id
-                            .eq(user_id)
-                            .and(
-                                permission_groups_to_identities::identity_type
-                                    .eq(IdentityType::User),
-                            )
-                            .and(
-                                dataset_groups_permissions::permission_id
-                                    .eq(permission_groups_to_identities::permission_group_id),
-                            )
-                            .and(
-                                dataset_groups_permissions::permission_type.eq("permission_group"),
-                            ),
-                    ),
-                )
-                .filter(dataset_permissions::deleted_at.is_null())
-                .filter(dataset_groups_permissions::deleted_at.is_null())
-                .filter(dataset_groups::deleted_at.is_null())
-                .filter(permission_groups_to_identities::deleted_at.is_null())
-                .filter(datasets::deleted_at.is_null())
-                .filter(data_sources::deleted_at.is_null())
-                .filter(datasets::enabled.eq(true))
-                .select((
-                    datasets::id,
-                    datasets::name,
-                    datasets::created_at,
-                    datasets::updated_at,
-                    datasets::enabled,
-                    datasets::imported,
-                    data_sources::id,
-                    data_sources::name,
-                ))
-                .load::<(
-                    Uuid,
-                    String,
-                    DateTime<Utc>,
-                    DateTime<Utc>,
-                    bool,
-                    bool,
-                    Uuid,
-                    String,
-                )>(&mut conn)
-                .await
-            {
-                Ok(datasets) => datasets,
-                Err(e) => return Err(anyhow!("Unable to get datasets from database: {}", e)),
-            };
-
-            Ok(result)
-        })
-    };
-
-    let mut all_datasets = Vec::new();
-
-    // Collect results from all handles
-    match direct_user_permissioned_datasets_handle.await {
-        Ok(Ok(datasets)) => all_datasets.extend(datasets),
-        Ok(Err(e)) => return Err(anyhow!("Unable to get direct datasets: {}", e)),
-        Err(e) => return Err(anyhow!("Task join error for direct datasets: {}", e)),
+    // Use the dataset_security library which includes all 5 access paths:
+    // 1. Direct User -> Dataset
+    // 2. User -> Group -> Dataset  
+    // 3. User -> Team -> Dataset
+    // 4. User -> Team -> Group -> Dataset
+    // 5. User -> Organization -> Default Permission Group -> Dataset (NEW!)
+    let permissioned_datasets = get_permissioned_datasets(user_id, page, page_size).await?;
+    
+    // Now we need to fetch additional data for each dataset to create ListDatasetObject
+    let dataset_ids: Vec<Uuid> = permissioned_datasets.iter().map(|d| d.id).collect();
+    
+    if dataset_ids.is_empty() {
+        return Ok(Vec::new());
     }
-
-    match permission_group_datasets_handle.await {
-        Ok(Ok(datasets)) => all_datasets.extend(datasets),
-        Ok(Err(e)) => return Err(anyhow!("Unable to get permission group datasets: {}", e)),
-        Err(e) => {
-            return Err(anyhow!(
-                "Task join error for permission group datasets: {}",
-                e
-            ))
-        }
-    }
-
-    match dataset_group_datasets_handle.await {
-        Ok(Ok(datasets)) => all_datasets.extend(datasets),
-        Ok(Err(e)) => return Err(anyhow!("Unable to get dataset group datasets: {}", e)),
-        Err(e) => return Err(anyhow!("Task join error for dataset group datasets: {}", e)),
-    }
-
-    match permission_group_dataset_groups_handle.await {
-        Ok(Ok(datasets)) => all_datasets.extend(datasets),
-        Ok(Err(e)) => {
-            return Err(anyhow!(
-                "Unable to get permission group dataset group datasets: {}",
-                e
-            ))
-        }
-        Err(e) => {
-            return Err(anyhow!(
-                "Task join error for permission group dataset group datasets: {}",
-                e
-            ))
-        }
-    }
-
-    // Deduplicate based on dataset id
-    all_datasets.sort_by_key(|k| k.0);
-    all_datasets.dedup_by_key(|k| k.0);
-
-    let list_dataset_objects: Vec<ListDatasetObject> = all_datasets
+    
+    let mut conn = get_pg_pool().get().await?;
+    
+    // Fetch dataset details with data source info
+    let dataset_details = datasets::table
+        .inner_join(data_sources::table.on(datasets::data_source_id.eq(data_sources::id)))
+        .filter(datasets::id.eq_any(&dataset_ids))
+        .filter(datasets::enabled.eq(true))  // Only enabled datasets
+        .select((
+            datasets::id,
+            datasets::name,
+            datasets::created_at,
+            datasets::updated_at,
+            datasets::enabled,
+            datasets::imported,
+            data_sources::id,
+            data_sources::name,
+        ))
+        .load::<(
+            Uuid,
+            String,
+            DateTime<Utc>,
+            DateTime<Utc>,
+            bool,
+            bool,
+            Uuid,
+            String,
+        )>(&mut conn)
+        .await?;
+    
+    let list_dataset_objects: Vec<ListDatasetObject> = dataset_details
         .into_iter()
         .map(
             |(
@@ -617,6 +364,7 @@ async fn get_restricted_user_datasets(
             },
         )
         .collect();
-
+    
     Ok(list_dataset_objects)
 }
+
