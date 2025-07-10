@@ -33,7 +33,6 @@ export const ChatMessageOptions: React.FC<{
   const { data: postProcessingMessage } = useGetChatMessage(messageId, {
     select: ({ post_processing_message }) => post_processing_message
   });
-  console.log('postProcessingMessage', postProcessingMessage);
 
   const updatedAtFormatted = useMemo(() => {
     if (!updatedAt) return '';
