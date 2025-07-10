@@ -9,7 +9,6 @@ const OrganizationRoleSchema: Record<OrganizationRole, string> = {
   querier: 'querier',
   restricted_querier: 'restricted_querier',
   viewer: 'viewer',
-  none: 'none'
 };
 
 const meta: Meta<typeof NewChatWarning> = {
