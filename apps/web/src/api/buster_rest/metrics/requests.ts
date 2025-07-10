@@ -22,8 +22,10 @@ import type {
 } from '@buster/server-shared/metrics';
 import { serverFetch } from '@/api/createServerInstance';
 import { mainApi } from '../instances';
+import { testMetricDataResponse, testMetricResponse } from './test';
 
-export const getMetric = async (params: GetMetricRequest) => {
+export const getMetric = async (params: GetMetricRequest): Promise<GetMetricResponse> => {
+  // return testMetricResponse as unknown as GetMetricResponse;
   return mainApi
     .get<GetMetricResponse>(`/metrics/${params.id}`, {
       params
@@ -37,7 +39,12 @@ export const getMetric_server = async ({ id, password }: Parameters<typeof getMe
   });
 };
 
-export const getMetricData = async ({ id, version_number, password }: GetMetricDataRequest) => {
+export const getMetricData = async ({
+  id,
+  version_number,
+  password
+}: GetMetricDataRequest): Promise<MetricDataResponse> => {
+  // return testMetricDataResponse as unknown as MetricDataResponse;
   return mainApi
     .get<MetricDataResponse>(`/metrics/${id}/data`, { params: { password, version_number } })
     .then((res) => res.data);
