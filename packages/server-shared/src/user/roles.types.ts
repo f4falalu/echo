@@ -1,11 +1,10 @@
 import type { userOrganizationRoleEnum } from '@buster/database'; //we import as type to avoid postgres dependency in the frontend ☹️
 import { z } from 'zod/v4';
 
-type UserOrganizationRoleBase = (typeof userOrganizationRoleEnum.enumValues)[number] | 'none';
+type UserOrganizationRoleBase = (typeof userOrganizationRoleEnum.enumValues)[number];
 
 const UserOrganizationRoleEnums: Record<UserOrganizationRoleBase, UserOrganizationRoleBase> =
   Object.freeze({
-    none: 'none',
     viewer: 'viewer',
     workspace_admin: 'workspace_admin',
     data_admin: 'data_admin',

@@ -7,8 +7,8 @@
     }
   },
   "scripts": {
-    "prebuild": "bun run scripts/validate-env.js",
-    "build": "bun build src/index.ts --outdir ./dist --target bun --external pino-pretty",
+    "prebuild": "bun run scripts/validate-env.js && pnpm run typecheck",
+    "build": "bun build src/index.ts --outdir ./dist --target bun",
     "dev": "bun --max-old-space-size=512 run --hot src/index.ts",
     "lint": "biome check",
     "prod": "pnpm run build:vercel && pnpm run start:vercel",
@@ -31,13 +31,13 @@
     "@trigger.dev/sdk": "catalog:",
     "drizzle-orm": "catalog:",
     "hono": "catalog:",
-    "hono-pino": "^0.8.0",
+    "hono-pino": "^0.9.1",
     "pino": "^9.7.0",
     "pino-pretty": "^13.0.0",
     "zod": "catalog:"
   },
   "devDependencies": {
-    "@vercel/node": "^5.3.3",
+    "@vercel/node": "^5.3.4",
     "tsup": "^8.5.0"
   }
 }
