@@ -88,7 +88,16 @@ export async function getExistingSlackMessageForChat(chatId: string): Promise<{
       })
       .from(messagesToSlackMessages)
       .innerJoin(messages, eq(messages.id, messagesToSlackMessages.messageId))
-      .where(eq(messages.chatId, chatId))
+      .innerJoin(
+        slackMessageTracking,
+        eq(slackMessageTracking.id, messagesToSlackMessages.slackMessageId)
+      )
+      .where(
+        and(
+          eq(messages.chatId, chatId),
+          eq(slackMessageTracking.messageType, SlackMessageSource.ANALYST_MESSAGE_POST_PROCESSING)
+        )
+      )
       .orderBy(messages.createdAt)
       .limit(1);
 
