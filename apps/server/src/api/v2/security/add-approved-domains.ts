@@ -1,14 +1,14 @@
+import { type User, and, db, eq, isNull, organizations } from '@buster/database';
 import type {
   AddApprovedDomainRequest,
   AddApprovedDomainsResponse,
 } from '@buster/server-shared/security';
-import { type User, db, organizations, eq, and, isNull } from '@buster/database';
-import { 
-  validateUserOrganization, 
-  fetchOrganization, 
-  checkAdminPermissions 
-} from './security-utils';
 import { DomainService } from './domain-service';
+import {
+  checkAdminPermissions,
+  fetchOrganization,
+  validateUserOrganization,
+} from './security-utils';
 
 const domainService = new DomainService();
 
@@ -23,7 +23,7 @@ export async function addApprovedDomainsHandler(
   // Fetch current organization
   const org = await fetchOrganization(userOrg.organizationId);
   const currentDomains = org.domains || [];
-  
+
   // Merge domains using domain service
   const updatedDomains = domainService.mergeDomains(currentDomains, request.domains);
 
@@ -34,20 +34,12 @@ export async function addApprovedDomainsHandler(
   return domainService.formatDomainsResponse(updatedDomains, org.createdAt);
 }
 
-async function updateOrganizationDomains(
-  organizationId: string,
-  domains: string[]
-): Promise<void> {
+async function updateOrganizationDomains(organizationId: string, domains: string[]): Promise<void> {
   await db
     .update(organizations)
     .set({
       domains,
       updatedAt: new Date().toISOString(),
     })
-    .where(
-      and(
-        eq(organizations.id, organizationId),
-        isNull(organizations.deletedAt)
-      )
-    );
+    .where(and(eq(organizations.id, organizationId), isNull(organizations.deletedAt)));
 }

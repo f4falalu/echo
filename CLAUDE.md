@@ -161,3 +161,9 @@ export async function getWorkspaceSettingsHandler(
 - **Use requireAuth middleware** - Apply to all protected routes
 - **Extract user context** - Use `c.get('busterUser')` to get the authenticated user
 - **Type as User** - Import `User` type from `@buster/database` for handler parameters
+
+## Database Operations
+
+### Soft Delete and Upsert Practices
+- In our database, we never hard delete, we always use soft deletes with the `deleted_at` field
+- For update operations, we should almost always perform an upsert unless otherwise specified

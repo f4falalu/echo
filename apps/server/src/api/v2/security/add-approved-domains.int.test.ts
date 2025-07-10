@@ -1,15 +1,15 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import type { Organization, User } from '@buster/database';
+import { HTTPException } from 'hono/http-exception';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { addApprovedDomainsHandler } from './add-approved-domains';
 import {
-  createTestUserInDb,
-  createTestOrganizationInDb,
-  createTestOrgMemberInDb,
-  cleanupTestUser,
   cleanupTestOrganization,
+  cleanupTestUser,
+  createTestOrgMemberInDb,
+  createTestOrganizationInDb,
+  createTestUserInDb,
   getOrganizationFromDb,
 } from './test-db-utils';
-import { HTTPException } from 'hono/http-exception';
-import type { User, Organization } from '@buster/database';
 
 describe('addApprovedDomainsHandler (integration)', () => {
   let testUser: User;
@@ -37,9 +37,9 @@ describe('addApprovedDomainsHandler (integration)', () => {
       const result = await addApprovedDomainsHandler(request, testUser);
 
       expect(result).toHaveLength(3);
-      expect(result.map(d => d.domain)).toContain('existing.com');
-      expect(result.map(d => d.domain)).toContain('new.com');
-      expect(result.map(d => d.domain)).toContain('another.com');
+      expect(result.map((d) => d.domain)).toContain('existing.com');
+      expect(result.map((d) => d.domain)).toContain('new.com');
+      expect(result.map((d) => d.domain)).toContain('another.com');
 
       // Verify database was updated
       const updatedOrg = await getOrganizationFromDb(testOrg.id);
@@ -56,8 +56,8 @@ describe('addApprovedDomainsHandler (integration)', () => {
       const result = await addApprovedDomainsHandler(request, testUser);
 
       expect(result).toHaveLength(2);
-      expect(result.map(d => d.domain)).toContain('first.com');
-      expect(result.map(d => d.domain)).toContain('second.com');
+      expect(result.map((d) => d.domain)).toContain('first.com');
+      expect(result.map((d) => d.domain)).toContain('second.com');
 
       const updatedOrg = await getOrganizationFromDb(orgWithNoDomains.id);
       expect(updatedOrg?.domains).toEqual(['first.com', 'second.com']);
@@ -72,7 +72,7 @@ describe('addApprovedDomainsHandler (integration)', () => {
       const result = await addApprovedDomainsHandler(request, testUser);
 
       expect(result).toHaveLength(3);
-      const domains = result.map(d => d.domain);
+      const domains = result.map((d) => d.domain);
       expect(domains).toContain('existing.com');
       expect(domains).toContain('new.com');
       expect(domains).toContain('test.io');
@@ -85,7 +85,7 @@ describe('addApprovedDomainsHandler (integration)', () => {
       const result = await addApprovedDomainsHandler(request, testUser);
 
       expect(result).toHaveLength(2);
-      const domains = result.map(d => d.domain);
+      const domains = result.map((d) => d.domain);
       expect(domains).toEqual(['existing.com', 'new.com']);
 
       const updatedOrg = await getOrganizationFromDb(testOrg.id);
@@ -150,7 +150,7 @@ describe('addApprovedDomainsHandler (integration)', () => {
       await createTestOrgMemberInDb(testUser.id, testOrg.id, 'workspace_admin');
 
       const originalUpdatedAt = testOrg.updatedAt;
-      await new Promise(resolve => setTimeout(resolve, 10)); // Ensure time difference
+      await new Promise((resolve) => setTimeout(resolve, 10)); // Ensure time difference
 
       const request = { domains: ['new.com'] };
       await addApprovedDomainsHandler(request, testUser);

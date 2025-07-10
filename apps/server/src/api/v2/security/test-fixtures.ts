@@ -1,4 +1,4 @@
-import type { User, Organization, OrganizationMember } from '@buster/database';
+import type { Organization, OrganizationMember, User } from '@buster/database';
 
 export function createTestUser(overrides?: Partial<User>): User {
   const id = `test-user-${Math.random().toString(36).substring(7)}`;
@@ -33,7 +33,7 @@ export function createTestOrganization(overrides?: Partial<Organization>): Organ
 export function createTestOrgMember(
   userId: string,
   organizationId: string,
-  role: string = 'querier'
+  role = 'querier'
 ): { organizationId: string; role: string } {
   return {
     organizationId,

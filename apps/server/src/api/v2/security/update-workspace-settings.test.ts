@@ -1,9 +1,9 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { updateWorkspaceSettingsHandler } from './update-workspace-settings';
-import { createTestUser, createTestOrganization } from './test-fixtures';
-import * as securityUtils from './security-utils';
-import { WorkspaceSettingsService } from './workspace-settings-service';
 import { db } from '@buster/database';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import * as securityUtils from './security-utils';
+import { createTestOrganization, createTestUser } from './test-fixtures';
+import { updateWorkspaceSettingsHandler } from './update-workspace-settings';
+import { WorkspaceSettingsService } from './workspace-settings-service';
 
 // Mock dependencies
 vi.mock('./security-utils');
@@ -33,17 +33,21 @@ describe('updateWorkspaceSettingsHandler', () => {
     defaultRole: 'restricted_querier',
   });
   const mockOrgMembership = { organizationId: 'org-123', role: 'workspace_admin' };
-  
+  const mockDefaultDatasets = [
+    { id: 'dataset-1', name: 'Sales Data' },
+    { id: 'dataset-2', name: 'Customer Data' },
+  ];
+
   beforeEach(() => {
     vi.clearAllMocks();
-    
+
     // Setup default mocks
     vi.mocked(securityUtils.validateUserOrganization).mockResolvedValue(mockOrgMembership);
     vi.mocked(securityUtils.checkWorkspaceAdminPermission).mockImplementation(() => {});
-    vi.mocked(securityUtils.fetchOrganization)
-      .mockResolvedValueOnce(mockOrg) // First call for initial fetch
-      .mockResolvedValueOnce({ ...mockOrg, restrictNewUserInvitations: true }); // Second call after update
-    
+    vi.mocked(securityUtils.fetchOrganization).mockResolvedValue(mockOrg);
+    vi.mocked(securityUtils.updateDefaultDatasets).mockResolvedValue(undefined);
+    vi.mocked(securityUtils.fetchDefaultDatasets).mockResolvedValue(mockDefaultDatasets);
+
     // Setup workspace settings service mocks
     vi.mocked(WorkspaceSettingsService.prototype.buildUpdateData).mockReturnValue({
       updatedAt: '2024-01-01T00:00:00Z',
@@ -52,9 +56,9 @@ describe('updateWorkspaceSettingsHandler', () => {
     vi.mocked(WorkspaceSettingsService.prototype.formatWorkspaceSettingsResponse).mockReturnValue({
       restrict_new_user_invitations: true,
       default_role: 'restricted_querier',
-      default_datasets: [],
+      default_datasets: mockDefaultDatasets,
     });
-    
+
     // Mock database update
     const mockDbChain = {
       update: vi.fn().mockReturnThis(),
@@ -69,7 +73,7 @@ describe('updateWorkspaceSettingsHandler', () => {
       restrict_new_user_invitations: true,
       default_role: 'data_admin',
     };
-    
+
     vi.mocked(WorkspaceSettingsService.prototype.buildUpdateData).mockReturnValue({
       updatedAt: '2024-01-01T00:00:00Z',
       restrictNewUserInvitations: true,
@@ -78,33 +82,33 @@ describe('updateWorkspaceSettingsHandler', () => {
     vi.mocked(WorkspaceSettingsService.prototype.formatWorkspaceSettingsResponse).mockReturnValue({
       restrict_new_user_invitations: true,
       default_role: 'data_admin',
-      default_datasets: [],
+      default_datasets: mockDefaultDatasets,
     });
-    
+
     const result = await updateWorkspaceSettingsHandler(request, mockUser);
-    
+
     expect(securityUtils.validateUserOrganization).toHaveBeenCalledWith(mockUser.id);
     expect(securityUtils.checkWorkspaceAdminPermission).toHaveBeenCalledWith('workspace_admin');
     expect(WorkspaceSettingsService.prototype.buildUpdateData).toHaveBeenCalledWith(request);
-    
+
     expect(result).toEqual({
       restrict_new_user_invitations: true,
       default_role: 'data_admin',
-      default_datasets: [],
+      default_datasets: mockDefaultDatasets,
     });
   });
 
   it('should handle partial updates correctly', async () => {
     const request = { restrict_new_user_invitations: true };
-    
+
     const result = await updateWorkspaceSettingsHandler(request, mockUser);
-    
+
     expect(WorkspaceSettingsService.prototype.buildUpdateData).toHaveBeenCalledWith(request);
-    
+
     expect(result).toEqual({
       restrict_new_user_invitations: true,
       default_role: 'restricted_querier',
-      default_datasets: [],
+      default_datasets: mockDefaultDatasets,
     });
   });
 
@@ -116,7 +120,7 @@ describe('updateWorkspaceSettingsHandler', () => {
       where: vi.fn().mockResolvedValue(undefined),
     };
     vi.mocked(db.update).mockReturnValue(mockDbChain as any);
-    
+
     vi.mocked(WorkspaceSettingsService.prototype.buildUpdateData).mockReturnValue({
       updatedAt: '2024-01-01T00:00:00Z',
       defaultRole: 'data_admin',
@@ -124,11 +128,11 @@ describe('updateWorkspaceSettingsHandler', () => {
     vi.mocked(WorkspaceSettingsService.prototype.formatWorkspaceSettingsResponse).mockReturnValue({
       restrict_new_user_invitations: false,
       default_role: 'data_admin',
-      default_datasets: [],
+      default_datasets: mockDefaultDatasets,
     });
-    
+
     await updateWorkspaceSettingsHandler(request, mockUser);
-    
+
     expect(db.update).toHaveBeenCalled();
     expect(mockDbChain.set).toHaveBeenCalledWith({
       updatedAt: '2024-01-01T00:00:00Z',
@@ -138,9 +142,9 @@ describe('updateWorkspaceSettingsHandler', () => {
 
   it('should fetch updated organization after update', async () => {
     const request = { restrict_new_user_invitations: true };
-    
+
     await updateWorkspaceSettingsHandler(request, mockUser);
-    
+
     expect(securityUtils.fetchOrganization).toHaveBeenCalledTimes(1);
     expect(securityUtils.fetchOrganization).toHaveBeenCalledWith('org-123');
   });
@@ -149,11 +153,11 @@ describe('updateWorkspaceSettingsHandler', () => {
     vi.mocked(securityUtils.validateUserOrganization).mockRejectedValue(
       new Error('User not in organization')
     );
-    
+
     const request = { restrict_new_user_invitations: true };
-    
+
     await expect(updateWorkspaceSettingsHandler(request, mockUser)).rejects.toThrow(
-      'User not in organization'
+      'Failed to update workspace settings'
     );
   });
 
@@ -161,11 +165,11 @@ describe('updateWorkspaceSettingsHandler', () => {
     vi.mocked(securityUtils.checkWorkspaceAdminPermission).mockImplementation(() => {
       throw new Error('Only workspace admins can update settings');
     });
-    
+
     const request = { restrict_new_user_invitations: true };
-    
+
     await expect(updateWorkspaceSettingsHandler(request, mockUser)).rejects.toThrow(
-      'Only workspace admins can update settings'
+      'Failed to update workspace settings'
     );
   });
 
@@ -177,11 +181,58 @@ describe('updateWorkspaceSettingsHandler', () => {
         throw new Error('Only workspace admins can update settings');
       }
     });
-    
+
     const request = { restrict_new_user_invitations: true };
-    
+
     await expect(updateWorkspaceSettingsHandler(request, mockUser)).rejects.toThrow(
-      'Only workspace admins can update settings'
+      'Failed to update workspace settings'
     );
+  });
+
+  it('should update default datasets with specific IDs', async () => {
+    const request = {
+      default_datasets_ids: ['dataset-1', 'dataset-2'],
+    };
+
+    await updateWorkspaceSettingsHandler(request, mockUser);
+
+    expect(securityUtils.updateDefaultDatasets).toHaveBeenCalledWith(
+      'org-123',
+      ['dataset-1', 'dataset-2'],
+      mockUser.id
+    );
+    expect(securityUtils.fetchDefaultDatasets).toHaveBeenCalledWith('org-123');
+  });
+
+  it('should update default datasets with "all" keyword', async () => {
+    const request = {
+      default_datasets_ids: ['all'],
+    };
+
+    await updateWorkspaceSettingsHandler(request, mockUser);
+
+    expect(securityUtils.updateDefaultDatasets).toHaveBeenCalledWith('org-123', 'all', mockUser.id);
+  });
+
+  it('should not update default datasets when not provided', async () => {
+    const request = {
+      restrict_new_user_invitations: true,
+    };
+
+    await updateWorkspaceSettingsHandler(request, mockUser);
+
+    expect(securityUtils.updateDefaultDatasets).not.toHaveBeenCalled();
+    // But should still fetch them for the response
+    expect(securityUtils.fetchDefaultDatasets).toHaveBeenCalledWith('org-123');
+  });
+
+  it('should handle empty default datasets array', async () => {
+    const request = {
+      default_datasets_ids: [],
+    };
+
+    await updateWorkspaceSettingsHandler(request, mockUser);
+
+    expect(securityUtils.updateDefaultDatasets).toHaveBeenCalledWith('org-123', [], mockUser.id);
   });
 });

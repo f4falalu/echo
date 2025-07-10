@@ -1,15 +1,15 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { db, eq, organizations } from '@buster/database';
+import type { Organization, User } from '@buster/database';
+import { HTTPException } from 'hono/http-exception';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { getWorkspaceSettingsHandler } from './get-workspace-settings';
 import {
-  createTestUserInDb,
-  createTestOrganizationInDb,
-  createTestOrgMemberInDb,
-  cleanupTestUser,
   cleanupTestOrganization,
+  cleanupTestUser,
+  createTestOrgMemberInDb,
+  createTestOrganizationInDb,
+  createTestUserInDb,
 } from './test-db-utils';
-import { HTTPException } from 'hono/http-exception';
-import { db, organizations, eq } from '@buster/database';
-import type { User, Organization } from '@buster/database';
 
 describe('getWorkspaceSettingsHandler (integration)', () => {
   let testUser: User;
@@ -160,7 +160,9 @@ describe('getWorkspaceSettingsHandler (integration)', () => {
         .where(eq(organizations.id, testOrg.id))
         .limit(1);
 
-      expect(orgAfter[0]?.restrictNewUserInvitations).toEqual(originalOrg.restrictNewUserInvitations);
+      expect(orgAfter[0]?.restrictNewUserInvitations).toEqual(
+        originalOrg.restrictNewUserInvitations
+      );
       expect(orgAfter[0]?.defaultRole).toEqual(originalOrg.defaultRole);
       expect(new Date(orgAfter[0]?.updatedAt).toISOString()).toEqual(originalOrg.updatedAt);
     });

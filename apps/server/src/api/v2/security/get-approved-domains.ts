@@ -1,13 +1,11 @@
+import type { User } from '@buster/database';
 import type { GetApprovedDomainsResponse } from '@buster/server-shared/security';
-import { type User } from '@buster/database';
-import { validateUserOrganization, fetchOrganization } from './security-utils';
 import { DomainService } from './domain-service';
+import { fetchOrganization, validateUserOrganization } from './security-utils';
 
 const domainService = new DomainService();
 
-export async function getApprovedDomainsHandler(
-  user: User
-): Promise<GetApprovedDomainsResponse> {
+export async function getApprovedDomainsHandler(user: User): Promise<GetApprovedDomainsResponse> {
   // Validate user organization
   const userOrg = await validateUserOrganization(user.id);
 

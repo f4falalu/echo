@@ -1,6 +1,6 @@
-import { describe, it, expect } from 'vitest';
-import { WorkspaceSettingsService } from './workspace-settings-service';
 import type { UpdateWorkspaceSettingsRequest } from '@buster/server-shared/security';
+import { describe, expect, it } from 'vitest';
+import { WorkspaceSettingsService } from './workspace-settings-service';
 
 describe('WorkspaceSettingsService', () => {
   const service = new WorkspaceSettingsService();
@@ -37,15 +37,19 @@ describe('WorkspaceSettingsService', () => {
         restrictNewUserInvitations: false,
         defaultRole: 'member',
       };
-      
-      expect(service.formatWorkspaceSettingsResponse(settingsTrue).restrict_new_user_invitations).toBe(true);
-      expect(service.formatWorkspaceSettingsResponse(settingsFalse).restrict_new_user_invitations).toBe(false);
+
+      expect(
+        service.formatWorkspaceSettingsResponse(settingsTrue).restrict_new_user_invitations
+      ).toBe(true);
+      expect(
+        service.formatWorkspaceSettingsResponse(settingsFalse).restrict_new_user_invitations
+      ).toBe(false);
     });
 
     it('should handle all string values correctly', () => {
       const roles = ['member', 'admin', 'workspace_admin', 'data_admin'];
-      
-      roles.forEach(role => {
+
+      roles.forEach((role) => {
         const settings = {
           restrictNewUserInvitations: false,
           defaultRole: role,
@@ -60,7 +64,7 @@ describe('WorkspaceSettingsService', () => {
     it('should include updatedAt timestamp', () => {
       const request: UpdateWorkspaceSettingsRequest = {};
       const result = service.buildUpdateData(request);
-      
+
       expect(result.updatedAt).toBeDefined();
       expect(new Date(result.updatedAt).toISOString()).toBe(result.updatedAt);
     });
@@ -70,7 +74,7 @@ describe('WorkspaceSettingsService', () => {
         restrict_new_user_invitations: true,
       };
       const result = service.buildUpdateData(request);
-      
+
       expect(result).toHaveProperty('restrictNewUserInvitations', true);
       expect(result).not.toHaveProperty('defaultRole');
     });
@@ -80,7 +84,7 @@ describe('WorkspaceSettingsService', () => {
         default_role: 'admin',
       };
       const result = service.buildUpdateData(request);
-      
+
       expect(result).toHaveProperty('defaultRole', 'admin');
       expect(result).not.toHaveProperty('restrictNewUserInvitations');
     });
@@ -91,7 +95,7 @@ describe('WorkspaceSettingsService', () => {
         default_role: 'member',
       };
       const result = service.buildUpdateData(request);
-      
+
       expect(result).toHaveProperty('restrictNewUserInvitations', false);
       expect(result).toHaveProperty('defaultRole', 'member');
       expect(result).toHaveProperty('updatedAt');
@@ -103,7 +107,7 @@ describe('WorkspaceSettingsService', () => {
         default_role: undefined,
       };
       const result = service.buildUpdateData(request);
-      
+
       expect(result).not.toHaveProperty('restrictNewUserInvitations');
       expect(result).not.toHaveProperty('defaultRole');
       expect(result).toHaveProperty('updatedAt');
@@ -114,7 +118,7 @@ describe('WorkspaceSettingsService', () => {
         restrict_new_user_invitations: false,
       };
       const result = service.buildUpdateData(request);
-      
+
       expect(result.restrictNewUserInvitations).toBe(false);
     });
   });

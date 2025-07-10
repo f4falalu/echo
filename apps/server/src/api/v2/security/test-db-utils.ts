@@ -1,7 +1,7 @@
-import { db, organizations, usersToOrganizations, users } from '@buster/database';
-import { eq, and, isNull } from 'drizzle-orm';
-import type { User, Organization } from '@buster/database';
 import { randomUUID } from 'crypto';
+import { db, organizations, users, usersToOrganizations } from '@buster/database';
+import type { Organization, User } from '@buster/database';
+import { and, eq, isNull } from 'drizzle-orm';
 
 export async function createTestUserInDb(userData: Partial<User> = {}): Promise<User> {
   const id = randomUUID();
@@ -44,7 +44,7 @@ export async function createTestOrganizationInDb(
 export async function createTestOrgMemberInDb(
   userId: string,
   organizationId: string,
-  role: string = 'querier'
+  role = 'querier'
 ): Promise<void> {
   const member = {
     userId,
@@ -63,7 +63,7 @@ export async function createTestOrgMemberInDb(
 export async function cleanupTestUser(userId: string): Promise<void> {
   // Delete organization memberships
   await db.delete(usersToOrganizations).where(eq(usersToOrganizations.userId, userId));
-  
+
   // Delete user
   await db.delete(users).where(eq(users.id, userId));
 }
@@ -71,7 +71,7 @@ export async function cleanupTestUser(userId: string): Promise<void> {
 export async function cleanupTestOrganization(orgId: string): Promise<void> {
   // Delete organization memberships
   await db.delete(usersToOrganizations).where(eq(usersToOrganizations.organizationId, orgId));
-  
+
   // Delete organization
   await db.delete(organizations).where(eq(organizations.id, orgId));
 }
@@ -80,13 +80,8 @@ export async function getOrganizationFromDb(orgId: string): Promise<Organization
   const result = await db
     .select()
     .from(organizations)
-    .where(
-      and(
-        eq(organizations.id, orgId),
-        isNull(organizations.deletedAt)
-      )
-    )
+    .where(and(eq(organizations.id, orgId), isNull(organizations.deletedAt)))
     .limit(1);
 
-  return result[0] as Organization || null;
+  return (result[0] as Organization) || null;
 }

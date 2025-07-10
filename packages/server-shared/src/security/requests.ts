@@ -43,18 +43,7 @@ export const UpdateWorkspaceSettingsRequestSchema = z.object({
   restrict_new_user_invitations: z.boolean().optional(),
   default_role: OrganizationRoleSchema.optional(),
   // this can either be a uuid or "all"
-  default_datasets_ids: z
-    .array(
-      z.union([
-        z
-          .string()
-          .regex(
-            /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$/
-          ),
-        z.literal('all'),
-      ])
-    )
-    .optional(),
+  default_datasets_ids: z.array(z.union([z.uuid(), z.literal('all')])).optional(),
 });
 
 export type UpdateWorkspaceSettingsRequest = z.infer<typeof UpdateWorkspaceSettingsRequestSchema>;

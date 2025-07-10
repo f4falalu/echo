@@ -1,17 +1,24 @@
-import type { 
+import type {
   GetWorkspaceSettingsResponse,
-  UpdateWorkspaceSettingsRequest 
+  UpdateWorkspaceSettingsRequest,
 } from '@buster/server-shared/security';
 
 export class WorkspaceSettingsService {
   formatWorkspaceSettingsResponse(settings: {
     restrictNewUserInvitations: boolean;
-    defaultRole: string;
+    defaultRole:
+      | 'workspace_admin'
+      | 'data_admin'
+      | 'querier'
+      | 'restricted_querier'
+      | 'viewer'
+      | 'none';
+    defaultDatasets?: Array<{ id: string; name: string }>;
   }): GetWorkspaceSettingsResponse {
     return {
       restrict_new_user_invitations: settings.restrictNewUserInvitations,
       default_role: settings.defaultRole,
-      default_datasets: [], // TODO: Implement when datasets are available
+      default_datasets: settings.defaultDatasets || [],
     };
   }
 

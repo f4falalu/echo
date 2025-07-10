@@ -1,15 +1,15 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { db, eq, organizations } from '@buster/database';
+import type { Organization, User } from '@buster/database';
+import { HTTPException } from 'hono/http-exception';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { getApprovedDomainsHandler } from './get-approved-domains';
 import {
-  createTestUserInDb,
-  createTestOrganizationInDb,
-  createTestOrgMemberInDb,
-  cleanupTestUser,
   cleanupTestOrganization,
+  cleanupTestUser,
+  createTestOrgMemberInDb,
+  createTestOrganizationInDb,
+  createTestUserInDb,
 } from './test-db-utils';
-import { HTTPException } from 'hono/http-exception';
-import { db, organizations, eq } from '@buster/database';
-import type { User, Organization } from '@buster/database';
 
 describe('getApprovedDomainsHandler (integration)', () => {
   let testUser: User;
@@ -36,8 +36,8 @@ describe('getApprovedDomainsHandler (integration)', () => {
       const result = await getApprovedDomainsHandler(testUser);
 
       expect(result).toHaveLength(2);
-      expect(result.map(d => d.domain)).toContain('example.com');
-      expect(result.map(d => d.domain)).toContain('test.io');
+      expect(result.map((d) => d.domain)).toContain('example.com');
+      expect(result.map((d) => d.domain)).toContain('test.io');
     });
 
     it('should return empty array for org with no domains', async () => {
@@ -76,8 +76,8 @@ describe('getApprovedDomainsHandler (integration)', () => {
         const result = await getApprovedDomainsHandler(roleUser);
 
         expect(result).toHaveLength(2);
-        expect(result.map(d => d.domain)).toContain('example.com');
-        expect(result.map(d => d.domain)).toContain('test.io');
+        expect(result.map((d) => d.domain)).toContain('example.com');
+        expect(result.map((d) => d.domain)).toContain('test.io');
 
         await cleanupTestUser(roleUser.id);
       }
@@ -138,7 +138,9 @@ describe('getApprovedDomainsHandler (integration)', () => {
         .limit(1);
 
       expect(orgAfter[0]?.domains).toEqual(originalOrg.domains);
-      expect(new Date(orgAfter[0]?.updatedAt).toISOString()).toEqual(new Date(originalOrg.updatedAt).toISOString());
+      expect(new Date(orgAfter[0]?.updatedAt).toISOString()).toEqual(
+        new Date(originalOrg.updatedAt).toISOString()
+      );
     });
 
     it('should return domains in the correct format', async () => {
@@ -146,7 +148,7 @@ describe('getApprovedDomainsHandler (integration)', () => {
 
       const result = await getApprovedDomainsHandler(testUser);
 
-      result.forEach(domainEntry => {
+      result.forEach((domainEntry) => {
         expect(domainEntry).toHaveProperty('domain');
         expect(domainEntry).toHaveProperty('created_at');
         expect(typeof domainEntry.domain).toBe('string');

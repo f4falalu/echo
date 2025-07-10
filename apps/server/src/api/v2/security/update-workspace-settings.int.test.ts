@@ -1,15 +1,15 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { updateWorkspaceSettingsHandler } from './update-workspace-settings';
+import type { Organization, User } from '@buster/database';
+import { HTTPException } from 'hono/http-exception';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import {
-  createTestUserInDb,
-  createTestOrganizationInDb,
-  createTestOrgMemberInDb,
-  cleanupTestUser,
   cleanupTestOrganization,
+  cleanupTestUser,
+  createTestOrgMemberInDb,
+  createTestOrganizationInDb,
+  createTestUserInDb,
   getOrganizationFromDb,
 } from './test-db-utils';
-import { HTTPException } from 'hono/http-exception';
-import type { User, Organization } from '@buster/database';
+import { updateWorkspaceSettingsHandler } from './update-workspace-settings';
 
 describe('updateWorkspaceSettingsHandler (integration)', () => {
   let testUser: User;
@@ -121,7 +121,9 @@ describe('updateWorkspaceSettingsHandler (integration)', () => {
 
         const request = { restrict_new_user_invitations: true };
 
-        await expect(updateWorkspaceSettingsHandler(request, roleUser)).rejects.toThrow(HTTPException);
+        await expect(updateWorkspaceSettingsHandler(request, roleUser)).rejects.toThrow(
+          HTTPException
+        );
         await expect(updateWorkspaceSettingsHandler(request, roleUser)).rejects.toMatchObject({
           status: 403,
           message: 'Only workspace admins can update workspace settings',
@@ -144,7 +146,9 @@ describe('updateWorkspaceSettingsHandler (integration)', () => {
       const request = { restrict_new_user_invitations: true };
 
       // When organization is deleted, user effectively has no organization
-      await expect(updateWorkspaceSettingsHandler(request, testUser)).rejects.toThrow(HTTPException);
+      await expect(updateWorkspaceSettingsHandler(request, testUser)).rejects.toThrow(
+        HTTPException
+      );
       await expect(updateWorkspaceSettingsHandler(request, testUser)).rejects.toMatchObject({
         status: 403,
         message: 'User is not associated with an organization',
@@ -154,7 +158,9 @@ describe('updateWorkspaceSettingsHandler (integration)', () => {
     it('should return 403 for user without organization', async () => {
       const request = { restrict_new_user_invitations: true };
 
-      await expect(updateWorkspaceSettingsHandler(request, testUser)).rejects.toThrow(HTTPException);
+      await expect(updateWorkspaceSettingsHandler(request, testUser)).rejects.toThrow(
+        HTTPException
+      );
       await expect(updateWorkspaceSettingsHandler(request, testUser)).rejects.toMatchObject({
         status: 403,
         message: 'User is not associated with an organization',
@@ -197,7 +203,7 @@ describe('updateWorkspaceSettingsHandler (integration)', () => {
       await createTestOrgMemberInDb(testUser.id, testOrg.id, 'workspace_admin');
 
       const originalUpdatedAt = testOrg.updatedAt;
-      await new Promise(resolve => setTimeout(resolve, 10)); // Ensure time difference
+      await new Promise((resolve) => setTimeout(resolve, 10)); // Ensure time difference
 
       const request = { restrict_new_user_invitations: true };
       await updateWorkspaceSettingsHandler(request, testUser);

@@ -1,15 +1,15 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import type { Organization, User } from '@buster/database';
+import { HTTPException } from 'hono/http-exception';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { removeApprovedDomainsHandler } from './remove-approved-domains';
 import {
-  createTestUserInDb,
-  createTestOrganizationInDb,
-  createTestOrgMemberInDb,
-  cleanupTestUser,
   cleanupTestOrganization,
+  cleanupTestUser,
+  createTestOrgMemberInDb,
+  createTestOrganizationInDb,
+  createTestUserInDb,
   getOrganizationFromDb,
 } from './test-db-utils';
-import { HTTPException } from 'hono/http-exception';
-import type { User, Organization } from '@buster/database';
 
 describe('removeApprovedDomainsHandler (integration)', () => {
   let testUser: User;
@@ -37,8 +37,8 @@ describe('removeApprovedDomainsHandler (integration)', () => {
       const result = await removeApprovedDomainsHandler(request, testUser);
 
       expect(result).toHaveLength(2);
-      expect(result.map(d => d.domain)).toContain('keep.com');
-      expect(result.map(d => d.domain)).toContain('stay.com');
+      expect(result.map((d) => d.domain)).toContain('keep.com');
+      expect(result.map((d) => d.domain)).toContain('stay.com');
 
       // Verify database was updated
       const updatedOrg = await getOrganizationFromDb(testOrg.id);
@@ -52,7 +52,7 @@ describe('removeApprovedDomainsHandler (integration)', () => {
       const result = await removeApprovedDomainsHandler(request, testUser);
 
       expect(result).toHaveLength(4); // All original domains remain
-      const domains = result.map(d => d.domain);
+      const domains = result.map((d) => d.domain);
       expect(domains).toContain('remove1.com');
       expect(domains).toContain('remove2.com');
       expect(domains).toContain('keep.com');
@@ -69,7 +69,7 @@ describe('removeApprovedDomainsHandler (integration)', () => {
       const result = await removeApprovedDomainsHandler(request, testUser);
 
       expect(result).toHaveLength(3);
-      const domains = result.map(d => d.domain);
+      const domains = result.map((d) => d.domain);
       expect(domains).not.toContain('remove1.com');
       expect(domains).toContain('remove2.com');
       expect(domains).toContain('keep.com');
@@ -83,7 +83,7 @@ describe('removeApprovedDomainsHandler (integration)', () => {
       const result = await removeApprovedDomainsHandler(request, testUser);
 
       expect(result).toHaveLength(2);
-      const domains = result.map(d => d.domain);
+      const domains = result.map((d) => d.domain);
       expect(domains).toEqual(['keep.com', 'stay.com']);
     });
 
@@ -94,7 +94,7 @@ describe('removeApprovedDomainsHandler (integration)', () => {
       const result = await removeApprovedDomainsHandler(request, testUser);
 
       expect(result).toHaveLength(2);
-      const domains = result.map(d => d.domain);
+      const domains = result.map((d) => d.domain);
       expect(domains).toEqual(['keep.com', 'stay.com']);
     });
   });
@@ -161,7 +161,7 @@ describe('removeApprovedDomainsHandler (integration)', () => {
       await createTestOrgMemberInDb(testUser.id, testOrg.id, 'workspace_admin');
 
       const originalUpdatedAt = testOrg.updatedAt;
-      await new Promise(resolve => setTimeout(resolve, 10)); // Ensure time difference
+      await new Promise((resolve) => setTimeout(resolve, 10)); // Ensure time difference
 
       const request = { domains: ['remove1.com'] };
       await removeApprovedDomainsHandler(request, testUser);
