@@ -163,6 +163,27 @@ function createDataMetadata(results: Record<string, unknown>[]): DataMetadata {
 }
 
 /**
+ * Wraps a SQL query with a LIMIT clause for validation purposes
+ * Handles existing LIMIT clauses and complex queries
+ */
+function wrapQueryWithLimit(sql: string, limit: number): string {
+  // Remove any existing LIMIT clause to avoid conflicts
+  const sqlWithoutLimit = sql.replace(/\s+LIMIT\s+\d+\s*$/i, '').trim();
+
+  // For CTEs or complex queries, wrap the entire query
+  if (
+    sqlWithoutLimit.toUpperCase().includes('WITH ') ||
+    sqlWithoutLimit.includes('(') ||
+    sqlWithoutLimit.toUpperCase().includes('UNION')
+  ) {
+    return `SELECT * FROM (${sqlWithoutLimit}) AS validation_wrapper LIMIT ${limit}`;
+  }
+
+  // For simple queries, just append LIMIT
+  return `${sqlWithoutLimit} LIMIT ${limit}`;
+}
+
+/**
  * Ensures timeFrame values are properly quoted in YAML content
  * Finds timeFrame: value and wraps the value in quotes if not already quoted
  */
@@ -305,17 +326,21 @@ async function validateSql(
 
     // Retry configuration for SQL validation
     const MAX_RETRIES = 3;
-    const TIMEOUT_MS = 30000; // 30 seconds per attempt
+    const TIMEOUT_MS = 120000; // 120 seconds (2 minutes) per attempt for Snowflake queue handling
     const RETRY_DELAYS = [1000, 3000, 6000]; // 1s, 3s, 6s
 
     // Attempt execution with retries
     for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
       try {
+        // For validation, wrap query with LIMIT at SQL level for better performance
+        // This ensures Snowflake doesn't process the entire dataset
+        const validationSql = wrapQueryWithLimit(sqlQuery, 1000);
+
         // Execute the SQL query using the DataSource with row limit and timeout for validation
         const result = await dataSource.execute({
-          sql: sqlQuery,
+          sql: validationSql,
           options: {
-            maxRows: 1000, // Limit to 1000 rows for validation to protect memory
+            maxRows: 1000, // Additional safety limit at adapter level
             timeout: TIMEOUT_MS,
           },
         });
@@ -784,6 +809,21 @@ Please attempt to modify the metric again. This error could be due to:
             })
             .where(eq(metricFiles.id, file.id))
             .execute();
+
+          // Critical save verification
+          const verificationResult = await db
+            .select({
+              id: metricFiles.id,
+              updatedAt: metricFiles.updatedAt,
+              name: metricFiles.name,
+            })
+            .from(metricFiles)
+            .where(eq(metricFiles.id, file.id))
+            .limit(1);
+
+          if (verificationResult.length === 0) {
+            throw new Error('Critical save verification failed - record not found after update');
+          }
 
           // Add to successful files output
           files.push({
