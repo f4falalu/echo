@@ -85,6 +85,7 @@ declare global {
       POSTHOG_ENV_ID?: string;
       NEXT_PUBLIC_USER?: string;
       NEXT_PUBLIC_USER_PASSWORD?: string;
+      NEXT_ENABLE_TANSTACK_PANEL?: 'true' | 'false';
     }
   }
 }

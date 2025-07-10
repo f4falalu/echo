@@ -59,15 +59,18 @@ export const BusterReactQueryProvider = ({ children }: { children: React.ReactNo
   //   };
   // }, [checkTokenValidity]);
 
-  useHotkeys('meta+shift+i', (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsDevToolsOpen((prev) => !prev);
-  });
+  useHotkeys(
+    'meta+shift+i',
+    (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      setIsDevToolsOpen((prev) => !prev);
+    },
+    { enabled: process.env.NEXT_ENABLE_TANSTACK_PANEL === 'true' }
+  );
 
   return (
     <PersistQueryClientProvider client={queryClient} persistOptions={persistOptions}>
-      {/* <BusterApiContext.Provider value={busterApiContext}>{children}</BusterApiContext.Provider> */}
       {children}
       {isDevToolsOpen && (
         <>
