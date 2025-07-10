@@ -18,8 +18,10 @@ export const AccessRoleSelect = ({ role = 'viewer', onChange }: AccessRoleSelect
   return (
     <Select
       items={items}
-      className="w-36 max-w-72"
+      className="w-36 max-w-64"
       value={role}
+      search
+      emptyMessage="No roles found"
       onChange={(v) => onChange(v as OrganizationRole)}
     />
   );

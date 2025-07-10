@@ -42,6 +42,7 @@ interface BaseSelectProps<T> {
   loading?: boolean;
   search?: boolean | SearchFunction<T>;
   emptyMessage?: string;
+  matchPopUpWidth?: boolean;
 }
 
 // Clearable version - onChange can return null
@@ -70,8 +71,13 @@ function defaultSearchFunction<T>(item: SelectItem<T>, searchTerm: string): bool
   const labelText = typeof item.label === 'string' ? item.label : '';
   const searchText = item.searchLabel || labelText;
   const valueText = String(item.value);
+  const secondaryLabelText = item.secondaryLabel || '';
 
-  return searchText.toLowerCase().includes(term) || valueText.toLowerCase().includes(term);
+  return (
+    searchText.toLowerCase().includes(term) ||
+    valueText.toLowerCase().includes(term) ||
+    secondaryLabelText.toLowerCase().includes(term)
+  );
 }
 
 // Memoized SelectItem component to avoid re-renders
@@ -138,7 +144,8 @@ function SelectComponent<T = string>({
   dataTestId,
   loading = false,
   search = false,
-  clearable = false
+  clearable = false,
+  matchPopUpWidth = false
 }: SelectProps<T>) {
   const [internalOpen, setInternalOpen] = React.useState(false);
   const [searchValue, setSearchValue] = React.useState('');
@@ -371,7 +378,12 @@ function SelectComponent<T = string>({
         </div>
       </PopoverTrigger>
       <PopoverContent
-        className="min-w-[var(--radix-popover-trigger-width)] p-0"
+        className={cn(
+          matchPopUpWidth
+            ? 'w-[var(--radix-popover-trigger-width)]'
+            : 'min-w-[var(--radix-popover-trigger-width)]',
+          'p-0'
+        )}
         align="start"
         onOpenAutoFocus={(e) => {
           e.preventDefault();
