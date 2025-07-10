@@ -1018,6 +1018,9 @@ export const organizations = pgTable(
       .notNull(),
     deletedAt: timestamp('deleted_at', { withTimezone: true, mode: 'string' }),
     paymentRequired: boolean('payment_required').default(false).notNull(),
+    domains: text('domains').array(),
+    restrictNewUserInvitations: boolean('restrict_new_user_invitations').default(false).notNull(),
+    defaultRole: userOrganizationRoleEnum('default_role').default('restricted_querier').notNull(),
   },
   (table) => [unique('organizations_name_key').on(table.name)]
 );

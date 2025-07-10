@@ -1,44 +1,46 @@
-import { describe, expect, test, vi } from 'vitest';
 import type { CoreMessage } from 'ai';
+import { describe, expect, test, vi } from 'vitest';
 import { formatInitialMessageStepExecution } from '../../../src/steps/post-processing/format-initial-message-step';
 
 // Mock the agent and its dependencies
 vi.mock('@mastra/core', () => ({
   Agent: vi.fn().mockImplementation(() => ({
     generate: vi.fn().mockResolvedValue({
-      toolCalls: [{
-        toolName: 'generateSummary',
-        args: {
-          summary_message: 'Test summary message',
-          title: 'Test Title'
-        }
-      }]
-    })
+      toolCalls: [
+        {
+          toolName: 'generateSummary',
+          args: {
+            summary_message: 'Test summary message',
+            title: 'Test Title',
+          },
+        },
+      ],
+    }),
   })),
-  createStep: vi.fn((config) => config)
+  createStep: vi.fn((config) => config),
 }));
 
 vi.mock('braintrust', () => ({
-  wrapTraced: vi.fn((fn) => fn)
+  wrapTraced: vi.fn((fn) => fn),
 }));
 
 vi.mock('../../../src/utils/models/anthropic-cached', () => ({
-  anthropicCachedModel: vi.fn(() => 'mocked-model')
+  anthropicCachedModel: vi.fn(() => 'mocked-model'),
 }));
 
 vi.mock('../../../src/utils/standardizeMessages', () => ({
-  standardizeMessages: vi.fn((msg) => [{ role: 'user', content: msg }])
+  standardizeMessages: vi.fn((msg) => [{ role: 'user', content: msg }]),
 }));
 
 vi.mock('../../../src/tools/post-processing/generate-summary', () => ({
-  generateSummary: {}
+  generateSummary: {},
 }));
 
 describe('Format Initial Message Step Unit Tests', () => {
   test('should include chat history in context message when present', async () => {
     const mockConversationHistory: CoreMessage[] = [
       { role: 'user', content: 'What is the total revenue?' },
-      { role: 'assistant', content: 'The total revenue is $1M' }
+      { role: 'assistant', content: 'The total revenue is $1M' },
     ];
 
     const inputData = {
@@ -59,9 +61,9 @@ describe('Format Initial Message Step Unit Tests', () => {
           descriptiveTitle: 'Revenue Calculation',
           classification: 'metricDefinition' as const,
           explanation: 'Assumed revenue includes all sources',
-          label: 'major' as const
-        }
-      ]
+          label: 'major' as const,
+        },
+      ],
     };
 
     const result = await formatInitialMessageStepExecution({ inputData });
@@ -90,9 +92,9 @@ describe('Format Initial Message Step Unit Tests', () => {
           descriptiveTitle: 'Customer Count',
           classification: 'dataQuality' as const,
           explanation: 'Included all customer statuses',
-          label: 'major' as const
-        }
-      ]
+          label: 'major' as const,
+        },
+      ],
     };
 
     const result = await formatInitialMessageStepExecution({ inputData });
@@ -120,9 +122,9 @@ describe('Format Initial Message Step Unit Tests', () => {
           descriptiveTitle: 'Date Range',
           classification: 'timePeriodInterpretation' as const,
           explanation: 'Assumed current month',
-          label: 'major' as const
-        }
-      ]
+          label: 'major' as const,
+        },
+      ],
     };
 
     const result = await formatInitialMessageStepExecution({ inputData });
@@ -136,7 +138,7 @@ describe('Format Initial Message Step Unit Tests', () => {
     const inputData = {
       conversationHistory: [
         { role: 'user' as const, content: 'Hello' },
-        { role: 'assistant' as const, content: 'Hi there!' }
+        { role: 'assistant' as const, content: 'Hi there!' },
       ],
       userName: 'Alice Cooper',
       messageId: 'msg-999',
@@ -152,9 +154,9 @@ describe('Format Initial Message Step Unit Tests', () => {
           descriptiveTitle: 'Minor Detail',
           classification: 'dataFormat' as const,
           explanation: 'Used standard format',
-          label: 'minor' as const
-        }
-      ]
+          label: 'minor' as const,
+        },
+      ],
     };
 
     const result = await formatInitialMessageStepExecution({ inputData });

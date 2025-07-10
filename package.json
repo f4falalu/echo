@@ -9,6 +9,7 @@
     "ci:check": "pnpm run check && pnpm run typecheck",
     "db:check": "pnpm --filter @buster/database run db:check",
     "db:generate": "pnpm --filter @buster/database run db:generate",
+    "db:generate:custom": "pnpm --filter @buster/database run db:generate:custom",
     "db:init": "pnpm run --filter @buster/database db:init",
     "db:introspect": "pnpm --filter @buster/database run db:introspect",
     "db:migrate": "pnpm --filter @buster/database run db:migrate",

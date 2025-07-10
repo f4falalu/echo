@@ -19,11 +19,6 @@ export const useGetWorkspaceSettings = () => {
   return useQuery({
     ...securityQueryKeys.securityGetWorkspaceSettings,
     queryFn: getWorkspaceSettings,
-    initialData: {
-      restrict_new_user_invitations: false,
-      default_role: 'viewer',
-      default_datasets: []
-    } satisfies GetWorkspaceSettingsResponse
   });
 };
 
@@ -38,7 +33,6 @@ export const useGetApprovedDomains = () => {
   return useQuery({
     ...securityQueryKeys.securityApprovedDomains,
     queryFn: getApprovedDomains,
-    initialData: []
   });
 };
 
