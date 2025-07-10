@@ -2,5 +2,8 @@
   "name": "@buster/supabase",
   "version": "0.0.1",
   "private": false,
-  "scripts": {}
+  "scripts": {
+    "lint": "biome check .",
+    "lint:fix": "biome check . --write"
+  }
 }

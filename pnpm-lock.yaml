@@ -219,11 +219,11 @@ importers:
         specifier: ^3.2.2
         version: 3.2.2(react@18.3.1)
       '@electric-sql/client':
-        specifier: ^1.0.6
-        version: 1.0.6
+        specifier: ^1.0.7
+        version: 1.0.7
       '@electric-sql/react':
-        specifier: ^1.0.6
-        version: 1.0.6(react@18.3.1)
+        specifier: ^1.0.7
+        version: 1.0.7(react@18.3.1)
       '@faker-js/faker':
         specifier: ^9.9.0
         version: 9.9.0
@@ -240,8 +240,8 @@ importers:
         specifier: ^4.7.0
         version: 4.7.0(monaco-editor@0.52.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@posthog/nextjs-config':
-        specifier: ^1.0.0
-        version: 1.0.0(next@14.2.30(@babel/core@7.28.0)(@opentelemetry/api@1.9.0)(@playwright/test@1.53.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.89.2))
+        specifier: ^1.0.1
+        version: 1.0.1(next@14.2.30(@babel/core@7.28.0)(@opentelemetry/api@1.9.0)(@playwright/test@1.54.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.89.2))
       '@radix-ui/react-avatar':
         specifier: ^1.1.10
         version: 1.1.10(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -303,20 +303,20 @@ importers:
         specifier: 'catalog:'
         version: 2.50.2
       '@tanstack/query-sync-storage-persister':
-        specifier: ^5.81.5
-        version: 5.81.5
+        specifier: ^5.82.0
+        version: 5.82.0
       '@tanstack/react-form':
-        specifier: ^1.14.0
-        version: 1.14.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: ^1.14.1
+        version: 1.14.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@tanstack/react-query':
-        specifier: ^5.81.5
-        version: 5.81.5(react@18.3.1)
+        specifier: ^5.82.0
+        version: 5.82.0(react@18.3.1)
       '@tanstack/react-query-devtools':
-        specifier: ^5.81.5
-        version: 5.81.5(@tanstack/react-query@5.81.5(react@18.3.1))(react@18.3.1)
+        specifier: ^5.82.0
+        version: 5.82.0(@tanstack/react-query@5.82.0(react@18.3.1))(react@18.3.1)
       '@tanstack/react-query-persist-client':
-        specifier: ^5.81.5
-        version: 5.81.5(@tanstack/react-query@5.81.5(react@18.3.1))(react@18.3.1)
+        specifier: ^5.82.0
+        version: 5.82.0(@tanstack/react-query@5.82.0(react@18.3.1))(react@18.3.1)
       '@tanstack/react-table':
         specifier: ^8.21.3
         version: 8.21.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -378,8 +378,8 @@ importers:
         specifier: ^11.1.0
         version: 11.1.0
       framer-motion:
-        specifier: ^12.23.0
-        version: 12.23.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: ^12.23.3
+        version: 12.23.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       hono:
         specifier: 'catalog:'
         version: 4.8.3
@@ -418,7 +418,7 @@ importers:
         version: 1.2.0
       next:
         specifier: 14.2.30
-        version: 14.2.30(@babel/core@7.28.0)(@opentelemetry/api@1.9.0)(@playwright/test@1.53.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.89.2)
+        version: 14.2.30(@babel/core@7.28.0)(@opentelemetry/api@1.9.0)(@playwright/test@1.54.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.89.2)
       next-themes:
         specifier: ^0.4.6
         version: 0.4.6(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -429,14 +429,14 @@ importers:
         specifier: ^8.0.0
         version: 8.0.0
       posthog-js:
-        specifier: ^1.256.2
-        version: 1.256.2
+        specifier: ^1.257.0
+        version: 1.257.0
       prettier:
         specifier: ^3.6.2
         version: 3.6.2
       prettier-plugin-tailwindcss:
-        specifier: ^0.6.13
-        version: 0.6.13(prettier@3.6.2)
+        specifier: ^0.6.14
+        version: 0.6.14(prettier@3.6.2)
       react:
         specifier: ^18.3.1
         version: 18.3.1
@@ -517,8 +517,8 @@ importers:
         specifier: ^15.3.5
         version: 15.3.5
       '@playwright/test':
-        specifier: 1.53.2
-        version: 1.53.2
+        specifier: 1.54.0
+        version: 1.54.0
       '@storybook/addon-controls':
         specifier: ^8.6.12
         version: 8.6.14(storybook@8.6.14(prettier@3.6.2))
@@ -533,7 +533,7 @@ importers:
         version: 8.6.14(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(storybook@8.6.14(prettier@3.6.2))
       '@storybook/nextjs':
         specifier: ^8.6.14
-        version: 8.6.14(esbuild@0.25.5)(next@14.2.30(@babel/core@7.28.0)(@opentelemetry/api@1.9.0)(@playwright/test@1.53.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.89.2))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.89.2)(storybook@8.6.14(prettier@3.6.2))(type-fest@4.41.0)(typescript@5.8.3)(webpack-hot-middleware@2.26.1)(webpack@5.99.9(esbuild@0.25.5))
+        version: 8.6.14(esbuild@0.25.5)(next@14.2.30(@babel/core@7.28.0)(@opentelemetry/api@1.9.0)(@playwright/test@1.54.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.89.2))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.89.2)(storybook@8.6.14(prettier@3.6.2))(type-fest@4.41.0)(typescript@5.8.3)(webpack-hot-middleware@2.26.1)(webpack@5.99.9(esbuild@0.25.5))
       '@storybook/react':
         specifier: ^8.6.14
         version: 8.6.14(@storybook/test@8.6.14(storybook@8.6.14(prettier@3.6.2)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(storybook@8.6.14(prettier@3.6.2))(typescript@5.8.3)
@@ -586,8 +586,8 @@ importers:
         specifier: ^8.57.1
         version: 8.57.1
       eslint-config-next:
-        specifier: 15.3.4
-        version: 15.3.4(eslint@8.57.1)(typescript@5.8.3)
+        specifier: 15.3.5
+        version: 15.3.5(eslint@8.57.1)(typescript@5.8.3)
       eslint-config-prettier:
         specifier: ^10.1.5
         version: 10.1.5(eslint@8.57.1)
@@ -2017,11 +2017,11 @@ packages:
   '@electric-sql/client@1.0.0-beta.1':
     resolution: {integrity: sha512-Ei9jN3pDoGzc+a/bGqnB5ajb52IvSv7/n2btuyzUlcOHIR2kM9fqtYTJXPwZYKLkGZlHWlpHgWyRtrinkP2nHg==}
 
-  '@electric-sql/client@1.0.6':
-    resolution: {integrity: sha512-W3vrQhpKeMrOwErnrurC+aXJI8o6g4hSvHdFv10vES4Y+u3zBQoee88otr25GYX8cdleTXlczvh7XQhn4ywRBA==}
+  '@electric-sql/client@1.0.7':
+    resolution: {integrity: sha512-w9geRoZL1gn294Nn68YxicRvWFJEXWYPr+jZubSOyjaSa6tVQJk0rjYuFmOwpQyudFQrsL17HFrGga9UOaBhdA==}
 
-  '@electric-sql/react@1.0.6':
-    resolution: {integrity: sha512-r+45jTP0o4urpn5LF94vIgqcvnBD6MJFi7QwYUjQLVU46gu+43Sudl503Klier10j473emZHIdvrI6FxRWH/Zw==}
+  '@electric-sql/react@1.0.7':
+    resolution: {integrity: sha512-48HNRzdgWqT4G2TEryKbh95K9OZd42mwUzyJ4rnBWUHOtXlQIoaQajEWgIgB/eNrspQwC/STvhAHYQ+2eQJxEw==}
     peerDependencies:
       react: '>=18.3.1 <20.0.0'
     peerDependenciesMeta:
@@ -2726,8 +2726,8 @@ packages:
   '@next/env@14.2.30':
     resolution: {integrity: sha512-KBiBKrDY6kxTQWGzKjQB7QirL3PiiOkV7KW98leHFjtVRKtft76Ra5qSA/SL75xT44dp6hOcqiiJ6iievLOYug==}
 
-  '@next/eslint-plugin-next@15.3.4':
-    resolution: {integrity: sha512-lBxYdj7TI8phbJcLSAqDt57nIcobEign5NYIKCiy0hXQhrUbTqLqOaSDi568U6vFg4hJfBdZYsG4iP/uKhCqgg==}
+  '@next/eslint-plugin-next@15.3.5':
+    resolution: {integrity: sha512-BZwWPGfp9po/rAnJcwUBaM+yT/+yTWIkWdyDwc74G9jcfTrNrmsHe+hXHljV066YNdVs8cxROxX5IgMQGX190w==}
 
   '@next/swc-darwin-arm64@14.2.30':
     resolution: {integrity: sha512-EAqfOTb3bTGh9+ewpO/jC59uACadRHM6TSA9DdxJB/6gxOpyV+zrbqeXiFTDy9uV6bmipFDkfpAskeaDcO+7/g==}
@@ -3542,8 +3542,8 @@ packages:
     resolution: {integrity: sha512-+1VkjdD0QBLPodGrJUeqarH8VAIvQODIbwh9XpP5Syisf7YoQgsJKPNFoqqLQlu+VQ/tVSshMR6loPMn8U+dPg==}
     engines: {node: '>=14'}
 
-  '@playwright/test@1.53.2':
-    resolution: {integrity: sha512-tEB2U5z74ebBeyfGNZ3Jfg29AnW+5HlWhvHtb/Mqco9pFdZU1ZLNdVb2UtB5CvmiilNr2ZfVH/qMmAROG/XTzw==}
+  '@playwright/test@1.54.0':
+    resolution: {integrity: sha512-6Mnd5daQmLivaLu5kxUg6FxPtXY4sXsS5SUwKjWNy4ISe4pKraNHoFxcsaTFiNUULbjy0Vlb5HT86QuM0Jy1pQ==}
     engines: {node: '>=18'}
     hasBin: true
 
@@ -3576,13 +3576,13 @@ packages:
   '@polka/url@1.0.0-next.29':
     resolution: {integrity: sha512-wwQAWhWSuHaag8c4q/KN/vCoeOJYshAIvMQwD4GpSb3OiZklFfvAgmj0VCBBImRpuF/aFgIRzllXlVX93Jevww==}
 
-  '@posthog/cli@0.3.3':
-    resolution: {integrity: sha512-Lbb12w6Ra1vaQ2LUHeztTSpCebxBuzTsHitdiEUnm6egma1+d1MK8hqG8vuEytWK5h8cc8w4dqN+8j3RDji1PA==}
+  '@posthog/cli@0.3.5':
+    resolution: {integrity: sha512-QIsKOOPKzl2VrS6/X/Sh/YormLZAOG1tzQQG8JodYPWBeq+FsuZQWPTUEYjDOSH3dnmW9TgunkYVdYugO7ybbQ==}
     engines: {node: '>=14', npm: '>=6'}
     hasBin: true
 
-  '@posthog/nextjs-config@1.0.0':
-    resolution: {integrity: sha512-pHkPZDu0riKDDSLbTJMoziNGecqhV+oMOrFOgkQ6ob9B/yxT2zjdh6GONC96+60UAx+3Wr6NGn0vF5t51p46gg==}
+  '@posthog/nextjs-config@1.0.1':
+    resolution: {integrity: sha512-pbNQw5J0zIZ5VdP+HT/ojlhry5ippleYzTkGMv8Jtk0nC7zlPOnJHVgcFpoWXqH5mFjFza/Lgx7s9USimz4jKg==}
     engines: {node: '>=18.0.0'}
     peerDependencies:
       next: '>12.1.0'
@@ -4816,20 +4816,20 @@ packages:
   '@tanstack/form-core@1.14.0':
     resolution: {integrity: sha512-uAOW3IxkT/Cmy8JlznK8S/LSpvtHjpUQi2wyuPqVfJ04y95WuV90SO+VKtb9TrNp51QLrrTFBR8tMEuzqp5wmA==}
 
-  '@tanstack/query-core@5.81.5':
-    resolution: {integrity: sha512-ZJOgCy/z2qpZXWaj/oxvodDx07XcQa9BF92c0oINjHkoqUPsmm3uG08HpTaviviZ/N9eP1f9CM7mKSEkIo7O1Q==}
+  '@tanstack/query-core@5.82.0':
+    resolution: {integrity: sha512-JrjoVuaajBQtnoWSg8iaPHaT4mW73lK2t+exxHNOSMqy0+13eKLqJgTKXKImLejQIfdAHQ6Un0njEhOvUtOd5w==}
 
   '@tanstack/query-devtools@5.81.2':
     resolution: {integrity: sha512-jCeJcDCwKfoyyBXjXe9+Lo8aTkavygHHsUHAlxQKKaDeyT0qyQNLKl7+UyqYH2dDF6UN/14873IPBHchcsU+Zg==}
 
-  '@tanstack/query-persist-client-core@5.81.5':
-    resolution: {integrity: sha512-imiMWYXf8KuXavOgVRc5IDixqP0VKEN6IxZ/vyuX87Wk0eX7QmRtjLn1AD4Hz7GxYPM3RalRzP5Bshc30hgOcg==}
+  '@tanstack/query-persist-client-core@5.82.0':
+    resolution: {integrity: sha512-lcjS9Zj9YKo5HNNB/GilPNZos9jKpNqpxmgPkJx2NsKEbgiVfyzWVxKAa09bkhKyWMQ/gMp8kx2RPuh/tG2wSw==}
 
-  '@tanstack/query-sync-storage-persister@5.81.5':
-    resolution: {integrity: sha512-dkCtueftbmK68PxcAT9oIH6R8LV3vZZJGg3uaq0w0gqcmSvRDqkquHmBIVBA7Oi+PAgO9yfw0Gv2SvCr4oJ7sg==}
+  '@tanstack/query-sync-storage-persister@5.82.0':
+    resolution: {integrity: sha512-7GYVJ9kF91F8JD/jet76MUt1+shXwpjSA7pyd1iqmHf4Bycl3x0keXnrS0cWwGJLYz7XwhQmGkEbqZH9IVzPSA==}
 
-  '@tanstack/react-form@1.14.0':
-    resolution: {integrity: sha512-jdxf1n03xUHDvGa/NqBzd9HTdw4QnNZYf4oYmpJJxmHLgtxQtx/O20xEx9ODUP5DfbtU+mAlrbmiOx/7b4JO7Q==}
+  '@tanstack/react-form@1.14.1':
+    resolution: {integrity: sha512-Ioja3zcLZj082OdCH6pFNv15fD4UTfnJgKIXxY7Iumio8EcYLXSuxzanqNWewFvftshUFHknSEa7QtyOAkFs0Q==}
     peerDependencies:
       '@tanstack/react-start': ^1.112.0
       react: ^17.0.0 || ^18.0.0 || ^19.0.0
@@ -4840,20 +4840,20 @@ packages:
       vinxi:
         optional: true
 
-  '@tanstack/react-query-devtools@5.81.5':
-    resolution: {integrity: sha512-lCGMu4RX0uGnlrlLeSckBfnW/UV+KMlTBVqa97cwK7Z2ED5JKnZRSjNXwoma6sQBTJrcULvzgx2K6jEPvNUpDw==}
+  '@tanstack/react-query-devtools@5.82.0':
+    resolution: {integrity: sha512-MC05Zq3zr/59jhgF7dL6JSGPg1krbasDSizmRxjNcvxgh/sUTwRFD9CGN10YYX7LB6jq0ZpFtCjSVGdLiFrKAA==}
     peerDependencies:
-      '@tanstack/react-query': ^5.81.5
+      '@tanstack/react-query': ^5.82.0
       react: ^18 || ^19
 
-  '@tanstack/react-query-persist-client@5.81.5':
-    resolution: {integrity: sha512-ZV69n636C22RkbFK0rzel80oWjyWbMKiUwUE2MKhYWTSr42+JmqoehDwJ5sWcO8CxHNm4vWF8pyG+goRzluMYw==}
+  '@tanstack/react-query-persist-client@5.82.0':
+    resolution: {integrity: sha512-5gzGHxq7XerI8SWSj19DHS4YrivlszumeyP4fPPhrfB3Awky/3c4lI3WBc1mDFsH21rKb0aXF15FSDsnNeN60w==}
     peerDependencies:
-      '@tanstack/react-query': ^5.81.5
+      '@tanstack/react-query': ^5.82.0
       react: ^18 || ^19
 
-  '@tanstack/react-query@5.81.5':
-    resolution: {integrity: sha512-lOf2KqRRiYWpQT86eeeftAGnjuTR35myTP8MXyvHa81VlomoAWNEd8x5vkcAfQefu0qtYCvyqLropFZqgI2EQw==}
+  '@tanstack/react-query@5.82.0':
+    resolution: {integrity: sha512-mnk8/ofKEthFeMdhV1dV8YXRf+9HqvXAcciXkoo755d/ocfWq7N/Y9jGOzS3h7ZW9dDGwSIhs3/HANWUBsyqYg==}
     peerDependencies:
       react: ^18 || ^19
 
@@ -7123,8 +7123,8 @@ packages:
     resolution: {integrity: sha512-/veY75JbMK4j1yjvuUxuVsiS/hr/4iHs9FTT6cgTexxdE0Ly/glccBAkloH/DofkjRbZU3bnoj38mOmhkZ0lHw==}
     engines: {node: '>=12'}
 
-  eslint-config-next@15.3.4:
-    resolution: {integrity: sha512-WqeumCq57QcTP2lYlV6BRUySfGiBYEXlQ1L0mQ+u4N4X4ZhUVSSQ52WtjqHv60pJ6dD7jn+YZc0d1/ZSsxccvg==}
+  eslint-config-next@15.3.5:
+    resolution: {integrity: sha512-oQdvnIgP68wh2RlR3MdQpvaJ94R6qEFl+lnu8ZKxPj5fsAHrSF/HlAOZcsimLw3DT6bnEQIUdbZC2Ab6sWyptg==}
     peerDependencies:
       eslint: ^7.23.0 || ^8.0.0 || ^9.0.0
       typescript: '>=3.3.1'
@@ -7524,8 +7524,8 @@ packages:
     resolution: {integrity: sha512-buRG0fpBtRHSTCOASe6hD258tEubFoRLb4ZNA6NxMVHNw2gOcwHo9wyablzMzOA5z9xA9L1KNjk/Nt6MT9aYow==}
     engines: {node: '>= 0.6'}
 
-  framer-motion@12.23.0:
-    resolution: {integrity: sha512-xf6NxTGAyf7zR4r2KlnhFmsRfKIbjqeBupEDBAaEtVIBJX96sAon00kMlsKButSIRwPSHjbRrAPnYdJJ9kyhbA==}
+  framer-motion@12.23.3:
+    resolution: {integrity: sha512-llmLkf44zuIZOPSrE4bl4J0UTg6bav+rlKEfMRKgvDMXqBrUtMg6cspoQeRVK3nqRLxTmAJhfGXk39UDdZD7Kw==}
     peerDependencies:
       '@emotion/is-prop-valid': '*'
       react: ^18.0.0 || ^19.0.0
@@ -8968,11 +8968,11 @@ packages:
     peerDependencies:
       monaco-editor: '>=0.36'
 
-  motion-dom@12.22.0:
-    resolution: {integrity: sha512-ooH7+/BPw9gOsL9VtPhEJHE2m4ltnhMlcGMhEqA0YGNhKof7jdaszvsyThXI6LVIKshJUZ9/CP6HNqQhJfV7kw==}
+  motion-dom@12.23.2:
+    resolution: {integrity: sha512-73j6xDHX/NvVh5L5oS1ouAVnshsvmApOq4F3VZo5MkYSD/YVsVLal4Qp9wvVgJM9uU2bLZyc0Sn8B9c/MMKk4g==}
 
-  motion-utils@12.19.0:
-    resolution: {integrity: sha512-BuFTHINYmV07pdWs6lj6aI63vr2N4dg0vR+td0rtrdpWOhBzIkEklZyLcvKBoEtwSqx8Jg06vUB5RS0xDiUybw==}
+  motion-utils@12.23.2:
+    resolution: {integrity: sha512-cIEXlBlXAOUyiAtR0S+QPQUM9L3Diz23Bo+zM420NvSd/oPQJwg6U+rT+WRTpp0rizMsBGQOsAwhWIfglUcZfA==}
 
   mri@1.2.0:
     resolution: {integrity: sha512-tzzskb3bG8LvYGFF/mDTpq3jpI6Q9wc3LEmBaghu+DdCssd1FakN7Bc0hVNmEyGq1bq3RgfkCb3cmQLpNPOroA==}
@@ -9500,13 +9500,13 @@ packages:
   pkg-types@1.3.1:
     resolution: {integrity: sha512-/Jm5M4RvtBFVkKWRu2BLUTNP8/M2a+UwuAX+ae4770q1qVGtfjG+WTCupoZixokjmHiry8uI+dlY8KXYV5HVVQ==}
 
-  playwright-core@1.53.2:
-    resolution: {integrity: sha512-ox/OytMy+2w1jcYEYlOo1Hhp8hZkLCximMTUTMBXjGUA1KoFfiSZ+DU+3a739jsPY0yoKH2TFy9S2fsJas8yAw==}
+  playwright-core@1.54.0:
+    resolution: {integrity: sha512-uiWpWaJh3R3etpJ0QrpligEMl62Dk1iSAB6NUXylvmQz+e3eipXHDHvOvydDAssb5Oqo0E818qdn0L9GcJSTyA==}
     engines: {node: '>=18'}
     hasBin: true
 
-  playwright@1.53.2:
-    resolution: {integrity: sha512-6K/qQxVFuVQhRQhFsVZ9fGeatxirtrpPgxzBYWyZLEXJzqYwuL4fuNmfOfD5et1tJE4GScKyPNeLhZeRwuTU3A==}
+  playwright@1.54.0:
+    resolution: {integrity: sha512-y9yzHmXRwEUOpghM7XGcA38GjWuTOUMaTIcm/5rHcYVjh5MSp9qQMRRMc/+p1cx+csoPnX4wkxAF61v5VKirxg==}
     engines: {node: '>=18'}
     hasBin: true
 
@@ -9616,8 +9616,8 @@ packages:
     resolution: {integrity: sha512-Jtc2612XINuBjIl/QTWsV5UvE8UHuNblcO3vVADSrKsrc6RqGX6lOW1cEo3CM2v0XG4Nat8nI+YM7/f26VxXLw==}
     engines: {node: '>=12'}
 
-  posthog-js@1.256.2:
-    resolution: {integrity: sha512-ypepnUHr33i5a1Uk39mozZXXTENRPC17HCG3WHKK6aRcpNwNs8uEqXaIKICGNM+qre+totKeTgl0WoaUFYmyoQ==}
+  posthog-js@1.257.0:
+    resolution: {integrity: sha512-Ujg9RGtWVCu+4tmlRpALSy2ZOZI6JtieSYXIDDdgMWm167KYKvTtbMPHdoBaPWcNu0Km+1hAIBnQFygyn30KhA==}
     peerDependencies:
       '@rrweb/types': 2.0.0-alpha.17
       rrweb-snapshot: 2.0.0-alpha.17
@@ -9646,11 +9646,13 @@ packages:
       svelte-eslint-parser:
         optional: true
 
-  prettier-plugin-tailwindcss@0.6.13:
-    resolution: {integrity: sha512-uQ0asli1+ic8xrrSmIOaElDu0FacR4x69GynTh2oZjFY10JUt6EEumTQl5tB4fMeD6I1naKd+4rXQQ7esT2i1g==}
+  prettier-plugin-tailwindcss@0.6.14:
+    resolution: {integrity: sha512-pi2e/+ZygeIqntN+vC573BcW5Cve8zUB0SSAGxqpB4f96boZF4M3phPVoOFCeypwkpRYdi7+jQ5YJJUwrkGUAg==}
     engines: {node: '>=14.21.3'}
     peerDependencies:
       '@ianvs/prettier-plugin-sort-imports': '*'
+      '@prettier/plugin-hermes': '*'
+      '@prettier/plugin-oxc': '*'
       '@prettier/plugin-pug': '*'
       '@shopify/prettier-plugin-liquid': '*'
       '@trivago/prettier-plugin-sort-imports': '*'
@@ -9669,6 +9671,10 @@ packages:
       prettier-plugin-svelte: '*'
     peerDependenciesMeta:
       '@ianvs/prettier-plugin-sort-imports':
+        optional: true
+      '@prettier/plugin-hermes':
+        optional: true
+      '@prettier/plugin-oxc':
         optional: true
       '@prettier/plugin-pug':
         optional: true
@@ -13497,15 +13503,15 @@ snapshots:
     optionalDependencies:
       '@rollup/rollup-darwin-arm64': 4.44.2
 
-  '@electric-sql/client@1.0.6':
+  '@electric-sql/client@1.0.7':
     dependencies:
       '@microsoft/fetch-event-source': 2.0.1
     optionalDependencies:
       '@rollup/rollup-darwin-arm64': 4.44.2
 
-  '@electric-sql/react@1.0.6(react@18.3.1)':
+  '@electric-sql/react@1.0.7(react@18.3.1)':
     dependencies:
-      '@electric-sql/client': 1.0.6
+      '@electric-sql/client': 1.0.7
       use-sync-external-store: 1.5.0(react@18.3.1)
     optionalDependencies:
       react: 18.3.1
@@ -14193,7 +14199,7 @@ snapshots:
 
   '@next/env@14.2.30': {}
 
-  '@next/eslint-plugin-next@15.3.4':
+  '@next/eslint-plugin-next@15.3.5':
     dependencies:
       fast-glob: 3.3.1
 
@@ -15200,9 +15206,9 @@ snapshots:
   '@pkgjs/parseargs@0.11.0':
     optional: true
 
-  '@playwright/test@1.53.2':
+  '@playwright/test@1.54.0':
     dependencies:
-      playwright: 1.53.2
+      playwright: 1.54.0
 
   '@pmmmwh/react-refresh-webpack-plugin@0.5.17(react-refresh@0.14.2)(type-fest@4.41.0)(webpack-hot-middleware@2.26.1)(webpack@5.99.9(esbuild@0.25.5))':
     dependencies:
@@ -15221,7 +15227,7 @@ snapshots:
 
   '@polka/url@1.0.0-next.29': {}
 
-  '@posthog/cli@0.3.3':
+  '@posthog/cli@0.3.5':
     dependencies:
       axios: 1.10.0
       axios-proxy-builder: 0.1.2
@@ -15231,10 +15237,10 @@ snapshots:
     transitivePeerDependencies:
       - debug
 
-  '@posthog/nextjs-config@1.0.0(next@14.2.30(@babel/core@7.28.0)(@opentelemetry/api@1.9.0)(@playwright/test@1.53.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.89.2))':
+  '@posthog/nextjs-config@1.0.1(next@14.2.30(@babel/core@7.28.0)(@opentelemetry/api@1.9.0)(@playwright/test@1.54.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.89.2))':
     dependencies:
-      '@posthog/cli': 0.3.3
-      next: 14.2.30(@babel/core@7.28.0)(@opentelemetry/api@1.9.0)(@playwright/test@1.53.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.89.2)
+      '@posthog/cli': 0.3.5
+      next: 14.2.30(@babel/core@7.28.0)(@opentelemetry/api@1.9.0)(@playwright/test@1.54.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.89.2)
     transitivePeerDependencies:
       - debug
 
@@ -16446,7 +16452,7 @@ snapshots:
     dependencies:
       storybook: 8.6.14(prettier@3.6.2)
 
-  '@storybook/nextjs@8.6.14(esbuild@0.25.5)(next@14.2.30(@babel/core@7.28.0)(@opentelemetry/api@1.9.0)(@playwright/test@1.53.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.89.2))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.89.2)(storybook@8.6.14(prettier@3.6.2))(type-fest@4.41.0)(typescript@5.8.3)(webpack-hot-middleware@2.26.1)(webpack@5.99.9(esbuild@0.25.5))':
+  '@storybook/nextjs@8.6.14(esbuild@0.25.5)(next@14.2.30(@babel/core@7.28.0)(@opentelemetry/api@1.9.0)(@playwright/test@1.54.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.89.2))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.89.2)(storybook@8.6.14(prettier@3.6.2))(type-fest@4.41.0)(typescript@5.8.3)(webpack-hot-middleware@2.26.1)(webpack@5.99.9(esbuild@0.25.5))':
     dependencies:
       '@babel/core': 7.28.0
       '@babel/plugin-syntax-bigint': 7.8.3(@babel/core@7.28.0)
@@ -16472,7 +16478,7 @@ snapshots:
       find-up: 5.0.0
       image-size: 1.2.1
       loader-utils: 3.3.1
-      next: 14.2.30(@babel/core@7.28.0)(@opentelemetry/api@1.9.0)(@playwright/test@1.53.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.89.2)
+      next: 14.2.30(@babel/core@7.28.0)(@opentelemetry/api@1.9.0)(@playwright/test@1.54.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.89.2)
       node-polyfill-webpack-plugin: 2.0.1(webpack@5.99.9(esbuild@0.25.5))
       pnp-webpack-plugin: 1.7.0(typescript@5.8.3)
       postcss: 8.5.6
@@ -16726,20 +16732,20 @@ snapshots:
     dependencies:
       '@tanstack/store': 0.7.2
 
-  '@tanstack/query-core@5.81.5': {}
+  '@tanstack/query-core@5.82.0': {}
 
   '@tanstack/query-devtools@5.81.2': {}
 
-  '@tanstack/query-persist-client-core@5.81.5':
+  '@tanstack/query-persist-client-core@5.82.0':
     dependencies:
-      '@tanstack/query-core': 5.81.5
+      '@tanstack/query-core': 5.82.0
 
-  '@tanstack/query-sync-storage-persister@5.81.5':
+  '@tanstack/query-sync-storage-persister@5.82.0':
     dependencies:
-      '@tanstack/query-core': 5.81.5
-      '@tanstack/query-persist-client-core': 5.81.5
+      '@tanstack/query-core': 5.82.0
+      '@tanstack/query-persist-client-core': 5.82.0
 
-  '@tanstack/react-form@1.14.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@tanstack/react-form@1.14.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
       '@tanstack/form-core': 1.14.0
       '@tanstack/react-store': 0.7.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -16749,21 +16755,21 @@ snapshots:
     transitivePeerDependencies:
       - react-dom
 
-  '@tanstack/react-query-devtools@5.81.5(@tanstack/react-query@5.81.5(react@18.3.1))(react@18.3.1)':
+  '@tanstack/react-query-devtools@5.82.0(@tanstack/react-query@5.82.0(react@18.3.1))(react@18.3.1)':
     dependencies:
       '@tanstack/query-devtools': 5.81.2
-      '@tanstack/react-query': 5.81.5(react@18.3.1)
+      '@tanstack/react-query': 5.82.0(react@18.3.1)
       react: 18.3.1
 
-  '@tanstack/react-query-persist-client@5.81.5(@tanstack/react-query@5.81.5(react@18.3.1))(react@18.3.1)':
+  '@tanstack/react-query-persist-client@5.82.0(@tanstack/react-query@5.82.0(react@18.3.1))(react@18.3.1)':
     dependencies:
-      '@tanstack/query-persist-client-core': 5.81.5
-      '@tanstack/react-query': 5.81.5(react@18.3.1)
+      '@tanstack/query-persist-client-core': 5.82.0
+      '@tanstack/react-query': 5.82.0(react@18.3.1)
       react: 18.3.1
 
-  '@tanstack/react-query@5.81.5(react@18.3.1)':
+  '@tanstack/react-query@5.82.0(react@18.3.1)':
     dependencies:
-      '@tanstack/query-core': 5.81.5
+      '@tanstack/query-core': 5.82.0
       react: 18.3.1
 
   '@tanstack/react-store@0.7.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
@@ -19337,9 +19343,9 @@ snapshots:
 
   escape-string-regexp@5.0.0: {}
 
-  eslint-config-next@15.3.4(eslint@8.57.1)(typescript@5.8.3):
+  eslint-config-next@15.3.5(eslint@8.57.1)(typescript@5.8.3):
     dependencies:
-      '@next/eslint-plugin-next': 15.3.4
+      '@next/eslint-plugin-next': 15.3.5
       '@rushstack/eslint-patch': 1.12.0
       '@typescript-eslint/eslint-plugin': 8.35.1(@typescript-eslint/parser@8.35.1(eslint@8.57.1)(typescript@5.8.3))(eslint@8.57.1)(typescript@5.8.3)
       '@typescript-eslint/parser': 8.35.1(eslint@8.57.1)(typescript@5.8.3)
@@ -19859,10 +19865,10 @@ snapshots:
 
   forwarded@0.2.0: {}
 
-  framer-motion@12.23.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
+  framer-motion@12.23.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
     dependencies:
-      motion-dom: 12.22.0
-      motion-utils: 12.19.0
+      motion-dom: 12.23.2
+      motion-utils: 12.23.2
       tslib: 2.8.1
     optionalDependencies:
       react: 18.3.1
@@ -21544,11 +21550,11 @@ snapshots:
       vscode-uri: 3.1.0
       yaml: 2.8.0
 
-  motion-dom@12.22.0:
+  motion-dom@12.23.2:
     dependencies:
-      motion-utils: 12.19.0
+      motion-utils: 12.23.2
 
-  motion-utils@12.19.0: {}
+  motion-utils@12.23.2: {}
 
   mri@1.2.0: {}
 
@@ -21672,7 +21678,7 @@ snapshots:
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
 
-  next@14.2.30(@babel/core@7.28.0)(@opentelemetry/api@1.9.0)(@playwright/test@1.53.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.89.2):
+  next@14.2.30(@babel/core@7.28.0)(@opentelemetry/api@1.9.0)(@playwright/test@1.54.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.89.2):
     dependencies:
       '@next/env': 14.2.30
       '@swc/helpers': 0.5.5
@@ -21694,7 +21700,7 @@ snapshots:
       '@next/swc-win32-ia32-msvc': 14.2.30
       '@next/swc-win32-x64-msvc': 14.2.30
       '@opentelemetry/api': 1.9.0
-      '@playwright/test': 1.53.2
+      '@playwright/test': 1.54.0
       sass: 1.89.2
     transitivePeerDependencies:
       - '@babel/core'
@@ -22192,11 +22198,11 @@ snapshots:
       mlly: 1.7.4
       pathe: 2.0.3
 
-  playwright-core@1.53.2: {}
+  playwright-core@1.54.0: {}
 
-  playwright@1.53.2:
+  playwright@1.54.0:
     dependencies:
-      playwright-core: 1.53.2
+      playwright-core: 1.54.0
     optionalDependencies:
       fsevents: 2.3.2
 
@@ -22286,7 +22292,7 @@ snapshots:
 
   postgres@3.4.7: {}
 
-  posthog-js@1.256.2:
+  posthog-js@1.257.0:
     dependencies:
       core-js: 3.44.0
       fflate: 0.4.8
@@ -22315,7 +22321,7 @@ snapshots:
       - supports-color
       - typescript
 
-  prettier-plugin-tailwindcss@0.6.13(prettier@3.6.2):
+  prettier-plugin-tailwindcss@0.6.14(prettier@3.6.2):
     dependencies:
       prettier: 3.6.2
 

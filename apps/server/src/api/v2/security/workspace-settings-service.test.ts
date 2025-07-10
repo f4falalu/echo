@@ -47,16 +47,23 @@ describe('WorkspaceSettingsService', () => {
     });
 
     it('should handle all string values correctly', () => {
-      const roles = ['workspace_admin', 'data_admin', 'querier', 'restricted_querier', 'viewer', 'none'];
+      const roles = [
+        'workspace_admin',
+        'data_admin',
+        'querier',
+        'restricted_querier',
+        'viewer',
+        'none',
+      ];
 
-      roles.forEach((role) => {
+      for (const role of roles) {
         const settings = {
           restrictNewUserInvitations: false,
           defaultRole: role,
         };
         const result = service.formatWorkspaceSettingsResponse(settings);
         expect(result.default_role).toBe(role);
-      });
+      }
     });
   });
 

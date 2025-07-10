@@ -137,7 +137,9 @@ describe('removeApprovedDomainsHandler (integration)', () => {
       const userWithoutOrg = await createUserWithoutOrganization();
       const request = { domains: ['remove1.com'] };
 
-      await expect(removeApprovedDomainsHandler(request, userWithoutOrg)).rejects.toThrow(HTTPException);
+      await expect(removeApprovedDomainsHandler(request, userWithoutOrg)).rejects.toThrow(
+        HTTPException
+      );
       await expect(removeApprovedDomainsHandler(request, userWithoutOrg)).rejects.toMatchObject({
         status: 403,
         message: 'User is not associated with an organization',

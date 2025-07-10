@@ -123,19 +123,15 @@ describe('security-utils', () => {
     it('should reject other roles', () => {
       const roles = ['member', 'viewer', 'user', 'guest'];
 
-      roles.forEach((role) => {
+      for (const role of roles) {
         expect(() => checkAdminPermissions(role)).toThrow(HTTPException);
-        expect(() => checkAdminPermissions(role)).toThrow(
-          'Insufficient admin permissions'
-        );
-      });
+        expect(() => checkAdminPermissions(role)).toThrow('Insufficient admin permissions');
+      }
     });
 
     it('should reject null role', () => {
       expect(() => checkAdminPermissions(null)).toThrow(HTTPException);
-      expect(() => checkAdminPermissions(null)).toThrow(
-        'Insufficient admin permissions'
-      );
+      expect(() => checkAdminPermissions(null)).toThrow('Insufficient admin permissions');
     });
 
     it('should reject undefined role', () => {
@@ -158,12 +154,12 @@ describe('security-utils', () => {
     it('should reject other roles', () => {
       const roles = ['admin', 'member', 'viewer', 'user'];
 
-      roles.forEach((role) => {
+      for (const role of roles) {
         expect(() => checkWorkspaceAdminPermission(role)).toThrow(HTTPException);
         expect(() => checkWorkspaceAdminPermission(role)).toThrow(
           'Only workspace admins can update workspace settings'
         );
-      });
+      }
     });
 
     it('should reject null role', () => {
@@ -552,7 +548,7 @@ describe('security-utils', () => {
       // Should soft-delete all existing first, then batch upsert
       expect(mockTx.update).toHaveBeenCalledTimes(1); // 1 for soft-delete all
       expect(mockTx.insert).toHaveBeenCalledTimes(1); // 1 batch upsert for both datasets
-      
+
       // Verify the insert was called with values
       expect(mockTx.insert).toHaveBeenCalled();
       const insertMock = vi.mocked(mockTx.insert);
