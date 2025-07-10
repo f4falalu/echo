@@ -46,19 +46,19 @@ interface BaseSelectProps<T> {
 }
 
 // Clearable version - onChange can return null
-interface ClearableSelectProps<T> extends BaseSelectProps<T> {
+interface ClearableSelectProps<T = string> extends BaseSelectProps<T> {
   clearable: true;
   onChange: (value: T | null) => void;
 }
 
 // Non-clearable version - onChange cannot return null
-interface NonClearableSelectProps<T> extends BaseSelectProps<T> {
+interface NonClearableSelectProps<T = string> extends BaseSelectProps<T> {
   clearable?: false;
   onChange: (value: T) => void;
 }
 
 // Union type for type-safe props
-export type SelectProps<T> = ClearableSelectProps<T> | NonClearableSelectProps<T>;
+export type SelectProps<T = string> = ClearableSelectProps<T> | NonClearableSelectProps<T>;
 
 function isGroupedItems<T>(
   items: SelectItem<T>[] | SelectItemGroup<T>[]

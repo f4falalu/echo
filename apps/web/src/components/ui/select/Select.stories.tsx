@@ -5,7 +5,7 @@ import { Select, type SelectItem, type SelectProps } from './Select';
 import { User, Gear, PowerOff } from '@/components/ui/icons/NucleoIconOutlined';
 
 const meta = {
-  title: 'UI/select/Select2',
+  title: 'UI/select/Select',
   component: Select,
   parameters: {
     layout: 'centered'
@@ -42,10 +42,10 @@ const meta = {
       </div>
     )
   ]
-} satisfies Meta<typeof Select>;
+} satisfies Meta<SelectProps<string>>;
 
 export default meta;
-type Story = StoryObj<typeof meta>;
+type Story = StoryObj<SelectProps<string>>;
 
 // Basic select with simple string options
 export const BasicSelect: Story = {
@@ -63,16 +63,21 @@ export const BasicSelect: Story = {
     ] as SelectItem<string>[],
     onChange: fn()
   },
-  render: function RenderBasicSelect(args) {
+  render: function RenderBasicSelect(args: SelectProps<string>) {
     const [value, setValue] = React.useState<string | undefined>();
 
     return (
       <Select
-        {...args}
+        items={args.items}
+        placeholder={args.placeholder}
+        disabled={args.disabled}
+        loading={args.loading}
+        showIndex={args.showIndex}
+        search={args.search}
         value={value}
-        onChange={(newValue) => {
-          setValue(newValue as string);
-          args.onChange(newValue);
+        onChange={(newValue: string) => {
+          setValue(newValue);
+          (args.onChange as (value: string) => void)?.(newValue);
         }}
       />
     );
@@ -120,7 +125,7 @@ export const AdvancedSelect: Story = {
         ]
       }
     ],
-    search: (item, searchTerm) => {
+    search: (item: SelectItem<string>, searchTerm: string) => {
       // Custom search that also searches in secondary labels
       const term = searchTerm.toLowerCase();
       const labelText = typeof item.label === 'string' ? item.label.toLowerCase() : '';
@@ -129,16 +134,21 @@ export const AdvancedSelect: Story = {
     },
     onChange: fn()
   },
-  render: function RenderAdvancedSelect(args) {
+  render: function RenderAdvancedSelect(args: SelectProps<string>) {
     const [value, setValue] = React.useState<string | undefined>();
 
     return (
       <Select
-        {...args}
+        items={args.items}
+        placeholder={args.placeholder}
+        disabled={args.disabled}
+        loading={args.loading}
+        showIndex={args.showIndex}
+        search={args.search}
         value={value}
-        onChange={(newValue) => {
-          setValue(newValue as string);
-          args.onChange(newValue);
+        onChange={(newValue: string) => {
+          setValue(newValue);
+          (args.onChange as (value: string) => void)?.(newValue);
         }}
       />
     );
@@ -160,16 +170,21 @@ export const NoSearchSelect: Story = {
     ] as SelectItem<string>[],
     onChange: fn()
   },
-  render: function RenderNoSearchSelect(args) {
+  render: function RenderNoSearchSelect(args: SelectProps<string>) {
     const [value, setValue] = React.useState<string | undefined>();
 
     return (
       <Select
-        {...args}
+        items={args.items}
+        placeholder={args.placeholder}
+        disabled={args.disabled}
+        loading={args.loading}
+        showIndex={args.showIndex}
+        search={args.search}
         value={value}
-        onChange={(newValue) => {
-          setValue(newValue as string);
-          args.onChange(newValue);
+        onChange={(newValue: string) => {
+          setValue(newValue);
+          (args.onChange as (value: string) => void)?.(newValue);
         }}
       />
     );
@@ -189,16 +204,21 @@ export const PreSelectedValue: Story = {
     ] as SelectItem<string>[],
     onChange: fn()
   },
-  render: function RenderPreSelectedValue(args) {
+  render: function RenderPreSelectedValue(args: SelectProps<string>) {
     const [value, setValue] = React.useState<string | undefined>('m');
 
     return (
       <Select
-        {...args}
+        items={args.items}
+        placeholder={args.placeholder}
+        disabled={args.disabled}
+        loading={args.loading}
+        showIndex={args.showIndex}
+        search={args.search}
         value={value}
-        onChange={(newValue) => {
-          setValue(newValue as string);
-          args.onChange(newValue);
+        onChange={(newValue: string) => {
+          setValue(newValue);
+          (args.onChange as (value: string) => void)?.(newValue);
         }}
       />
     );
@@ -219,16 +239,22 @@ export const ClearableSelect: Story = {
     ] as SelectItem<string>[],
     onChange: fn()
   },
-  render: function RenderClearableSelect(args) {
+  render: function RenderClearableSelect(args: SelectProps<string>) {
     const [value, setValue] = React.useState<string | undefined>('option2');
 
     return (
       <Select
-        {...args}
+        items={args.items}
+        placeholder={args.placeholder}
+        disabled={args.disabled}
+        loading={args.loading}
+        showIndex={args.showIndex}
+        search={args.search}
+        clearable={true}
         value={value}
-        onChange={(newValue) => {
+        onChange={(newValue: string | null) => {
           setValue(newValue as string | undefined);
-          args.onChange(newValue);
+          (args.onChange as (value: string | null) => void)?.(newValue);
         }}
       />
     );
