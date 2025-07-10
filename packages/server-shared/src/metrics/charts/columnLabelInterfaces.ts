@@ -1,4 +1,4 @@
-import { z } from 'zod/v4';
+import { z } from 'zod';
 import { getDefaults } from '../defaultHelpers';
 
 export const ColumnLabelFormatSchema = z.object({
@@ -14,10 +14,8 @@ export const ColumnLabelFormatSchema = z.object({
     .optional(
       z
         .number()
-        .check(
-          z.gte(0, 'Minimum fraction digits must be at least 0'),
-          z.lte(20, 'Minimum fraction digits must be at most 20')
-        )
+        .min(0, 'Minimum fraction digits must be at least 0')
+        .max(20, 'Minimum fraction digits must be at most 20')
     )
     .default(0),
   // OPTIONAL: default is 2. This is essentially used to set a maximum number of decimal places. This will only apply if the format is set to 'number'.
@@ -25,10 +23,8 @@ export const ColumnLabelFormatSchema = z.object({
     .optional(
       z
         .number()
-        .check(
-          z.gte(0, 'Maximum fraction digits must be at least 0'),
-          z.lte(20, 'Maximum fraction digits must be at most 20')
-        )
+        .min(0, 'Maximum fraction digits must be at least 0')
+        .max(20, 'Maximum fraction digits must be at most 20')
     )
     .default(2),
   // OPTIONAL: default is 1. This will only apply if the format is set to 'number', 'currency', or 'percent'.
@@ -36,10 +32,8 @@ export const ColumnLabelFormatSchema = z.object({
     .optional(
       z
         .number()
-        .check(
-          z.gte(0.001, 'Multiplier must be at least 0.001'),
-          z.lte(1000000, 'Multiplier must be at most 1,000,000')
-        )
+        .min(0.001, 'Multiplier must be at least 0.001')
+        .max(1000000, 'Multiplier must be at most 1,000,000')
     )
     .default(1),
   // OPTIONAL: default is ''. This sets a prefix to go in front of each value found within the column. This will only apply if the format is set to 'number' or 'percent'.

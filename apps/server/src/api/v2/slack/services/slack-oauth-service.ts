@@ -10,8 +10,8 @@ const SlackEnvSchema = z.object({
   SERVER_URL: z.string().url(),
   SLACK_INTEGRATION_ENABLED: z
     .string()
-    .transform((val) => val === 'true')
-    .default('false'),
+    .default('false')
+    .transform((val) => val === 'true'),
 });
 
 // OAuth metadata schema

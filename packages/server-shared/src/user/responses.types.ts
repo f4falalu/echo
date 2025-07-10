@@ -1,4 +1,4 @@
-import { z } from 'zod/v4';
+import { z } from 'zod';
 import { OrganizationSchema } from '../organization/organization.types';
 import { OrganizationRoleSchema } from '../organization/roles.types';
 import { TeamSchema } from '../teams/teams.types';

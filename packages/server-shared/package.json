@@ -66,7 +66,7 @@
     "@buster/vitest-config": "workspace:*",
     "@buster/typescript-config": "workspace:*",
     "@buster/database": "workspace:*",
-    "zod": "catalog:"
+    "zod": "^3.0.0"
   },
   "devDependencies": {
     "vitest": "catalog:"

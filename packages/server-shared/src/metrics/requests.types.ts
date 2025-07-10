@@ -1,4 +1,4 @@
-import { z } from 'zod/v4';
+import { z } from 'zod';
 import { ShareRoleSchema, VerificationStatusSchema } from '../share';
 import { ChartConfigPropsSchema } from './charts';
 

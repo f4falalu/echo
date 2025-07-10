@@ -1,4 +1,4 @@
-import { z } from 'zod/v4';
+import { z } from 'zod';
 import { ChatMessageSchema } from './chat-message.types';
 
 const AssetType = z.enum(['metric_file', 'dashboard_file']);
