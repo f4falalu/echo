@@ -1,4 +1,6 @@
 import type { Organization, User } from '@buster/database';
+import { db, usersToOrganizations } from '@buster/database';
+import { eq } from 'drizzle-orm';
 import { HTTPException } from 'hono/http-exception';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import {
@@ -7,7 +9,9 @@ import {
   createTestOrgMemberInDb,
   createTestOrganizationInDb,
   createTestUserInDb,
+  createUserWithoutOrganization,
   getOrganizationFromDb,
+  verifyUserOrgMembership,
 } from './test-db-utils';
 import { updateWorkspaceSettingsHandler } from './update-workspace-settings';
 
@@ -33,6 +37,11 @@ describe('updateWorkspaceSettingsHandler (integration)', () => {
   describe('Happy Path', () => {
     it('should update all settings fields', async () => {
       await createTestOrgMemberInDb(testUser.id, testOrg.id, 'workspace_admin');
+      
+      // Verify membership was created properly
+      const membership = await verifyUserOrgMembership(testUser.id, testOrg.id);
+      expect(membership).toBeTruthy();
+      expect(membership?.role).toBe('workspace_admin');
 
       const request = {
         restrict_new_user_invitations: true,
@@ -116,8 +125,14 @@ describe('updateWorkspaceSettingsHandler (integration)', () => {
       const roles = ['querier', 'restricted_querier', 'data_admin', 'viewer'];
 
       for (const role of roles) {
+        // Create a fresh organization for each role test to avoid conflicts
+        const roleTestOrg = await createTestOrganizationInDb({
+          restrictNewUserInvitations: false,
+          defaultRole: 'querier',
+        });
+        
         const roleUser = await createTestUserInDb();
-        await createTestOrgMemberInDb(roleUser.id, testOrg.id, role);
+        await createTestOrgMemberInDb(roleUser.id, roleTestOrg.id, role);
 
         const request = { restrict_new_user_invitations: true };
 
@@ -130,10 +145,12 @@ describe('updateWorkspaceSettingsHandler (integration)', () => {
         });
 
         // Verify settings weren't changed
-        const org = await getOrganizationFromDb(testOrg.id);
+        const org = await getOrganizationFromDb(roleTestOrg.id);
         expect(org?.restrictNewUserInvitations).toBe(false);
 
+        // Clean up both user and org
         await cleanupTestUser(roleUser.id);
+        await cleanupTestOrganization(roleTestOrg.id);
       }
     });
 
@@ -156,15 +173,20 @@ describe('updateWorkspaceSettingsHandler (integration)', () => {
     });
 
     it('should return 403 for user without organization', async () => {
+      const isolatedUser = await createUserWithoutOrganization();
+      
       const request = { restrict_new_user_invitations: true };
 
-      await expect(updateWorkspaceSettingsHandler(request, testUser)).rejects.toThrow(
+      await expect(updateWorkspaceSettingsHandler(request, isolatedUser)).rejects.toThrow(
         HTTPException
       );
-      await expect(updateWorkspaceSettingsHandler(request, testUser)).rejects.toMatchObject({
+      await expect(updateWorkspaceSettingsHandler(request, isolatedUser)).rejects.toMatchObject({
         status: 403,
         message: 'User is not associated with an organization',
       });
+      
+      // Clean up
+      await cleanupTestUser(isolatedUser.id);
     });
   });
 

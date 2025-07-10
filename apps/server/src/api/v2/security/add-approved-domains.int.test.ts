@@ -8,6 +8,7 @@ import {
   createTestOrgMemberInDb,
   createTestOrganizationInDb,
   createTestUserInDb,
+  createUserWithoutOrganization,
   getOrganizationFromDb,
 } from './test-db-utils';
 
@@ -95,13 +96,17 @@ describe('addApprovedDomainsHandler (integration)', () => {
 
   describe('Error Cases', () => {
     it('should return 403 for user without organization', async () => {
+      const userWithoutOrg = await createUserWithoutOrganization();
       const request = { domains: ['new.com'] };
 
-      await expect(addApprovedDomainsHandler(request, testUser)).rejects.toThrow(HTTPException);
-      await expect(addApprovedDomainsHandler(request, testUser)).rejects.toMatchObject({
+      await expect(addApprovedDomainsHandler(request, userWithoutOrg)).rejects.toThrow(HTTPException);
+      await expect(addApprovedDomainsHandler(request, userWithoutOrg)).rejects.toMatchObject({
         status: 403,
         message: 'User is not associated with an organization',
       });
+
+      // Clean up the user created for this test
+      await cleanupTestUser(userWithoutOrg.id);
     });
 
     it('should return 403 for non-admin user', async () => {

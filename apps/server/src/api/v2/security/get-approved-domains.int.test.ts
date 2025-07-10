@@ -9,6 +9,7 @@ import {
   createTestOrgMemberInDb,
   createTestOrganizationInDb,
   createTestUserInDb,
+  createUserWithoutOrganization,
 } from './test-db-utils';
 
 describe('getApprovedDomainsHandler (integration)', () => {
@@ -86,11 +87,15 @@ describe('getApprovedDomainsHandler (integration)', () => {
 
   describe('Error Cases', () => {
     it('should return 403 for user without organization', async () => {
-      await expect(getApprovedDomainsHandler(testUser)).rejects.toThrow(HTTPException);
-      await expect(getApprovedDomainsHandler(testUser)).rejects.toMatchObject({
+      const userWithoutOrg = await createUserWithoutOrganization();
+      
+      await expect(getApprovedDomainsHandler(userWithoutOrg)).rejects.toThrow(HTTPException);
+      await expect(getApprovedDomainsHandler(userWithoutOrg)).rejects.toMatchObject({
         status: 403,
         message: 'User is not associated with an organization',
       });
+      
+      await cleanupTestUser(userWithoutOrg.id);
     });
 
     it('should return 404 for deleted organization', async () => {

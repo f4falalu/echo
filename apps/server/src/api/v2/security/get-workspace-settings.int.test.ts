@@ -9,6 +9,7 @@ import {
   createTestOrgMemberInDb,
   createTestOrganizationInDb,
   createTestUserInDb,
+  createUserWithoutOrganization,
 } from './test-db-utils';
 
 describe('getWorkspaceSettingsHandler (integration)', () => {
@@ -109,11 +110,15 @@ describe('getWorkspaceSettingsHandler (integration)', () => {
 
   describe('Error Cases', () => {
     it('should return 403 for user without organization', async () => {
-      await expect(getWorkspaceSettingsHandler(testUser)).rejects.toThrow(HTTPException);
-      await expect(getWorkspaceSettingsHandler(testUser)).rejects.toMatchObject({
+      const userWithoutOrg = await createUserWithoutOrganization();
+      
+      await expect(getWorkspaceSettingsHandler(userWithoutOrg)).rejects.toThrow(HTTPException);
+      await expect(getWorkspaceSettingsHandler(userWithoutOrg)).rejects.toMatchObject({
         status: 403,
         message: 'User is not associated with an organization',
       });
+      
+      await cleanupTestUser(userWithoutOrg.id);
     });
 
     it('should return 403 for user without valid organization membership', async () => {
