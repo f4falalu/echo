@@ -25,7 +25,7 @@ const createCspHeader = (isEmbed = false) => {
     // Styles
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net",
     // Images
-    "img-src 'self' blob: data: https://*.vercel.app https://*.supabase.co",
+    "img-src 'self' blob: data: https: http:",
     // Fonts
     "font-src 'self' https://fonts.gstatic.com https://cdn.jsdelivr.net",
     // Frame ancestors
