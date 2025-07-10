@@ -71,31 +71,41 @@ describe('getApprovedDomainsHandler (integration)', () => {
       const roles = ['querier', 'data_admin', 'workspace_admin'];
 
       for (const role of roles) {
-        const roleUser = await createTestUserInDb();
-        await createTestOrgMemberInDb(roleUser.id, testOrg.id, role);
+        let roleUser;
+        try {
+          roleUser = await createTestUserInDb();
+          await createTestOrgMemberInDb(roleUser.id, testOrg.id, role);
 
-        const result = await getApprovedDomainsHandler(roleUser);
+          const result = await getApprovedDomainsHandler(roleUser);
 
-        expect(result).toHaveLength(2);
-        expect(result.map((d) => d.domain)).toContain('example.com');
-        expect(result.map((d) => d.domain)).toContain('test.io');
-
-        await cleanupTestUser(roleUser.id);
+          expect(result).toHaveLength(2);
+          expect(result.map((d) => d.domain)).toContain('example.com');
+          expect(result.map((d) => d.domain)).toContain('test.io');
+        } finally {
+          if (roleUser) {
+            await cleanupTestUser(roleUser.id);
+          }
+        }
       }
     });
   });
 
   describe('Error Cases', () => {
     it('should return 403 for user without organization', async () => {
-      const userWithoutOrg = await createUserWithoutOrganization();
-      
-      await expect(getApprovedDomainsHandler(userWithoutOrg)).rejects.toThrow(HTTPException);
-      await expect(getApprovedDomainsHandler(userWithoutOrg)).rejects.toMatchObject({
-        status: 403,
-        message: 'User is not associated with an organization',
-      });
-      
-      await cleanupTestUser(userWithoutOrg.id);
+      let userWithoutOrg;
+      try {
+        userWithoutOrg = await createUserWithoutOrganization();
+        
+        await expect(getApprovedDomainsHandler(userWithoutOrg)).rejects.toThrow(HTTPException);
+        await expect(getApprovedDomainsHandler(userWithoutOrg)).rejects.toMatchObject({
+          status: 403,
+          message: 'User is not associated with an organization',
+        });
+      } finally {
+        if (userWithoutOrg) {
+          await cleanupTestUser(userWithoutOrg.id);
+        }
+      }
     });
 
     it('should return 404 for deleted organization', async () => {

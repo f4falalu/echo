@@ -126,7 +126,7 @@ describe('security-utils', () => {
       roles.forEach((role) => {
         expect(() => checkAdminPermissions(role)).toThrow(HTTPException);
         expect(() => checkAdminPermissions(role)).toThrow(
-          'Insufficient permissions to manage approved domains'
+          'Insufficient admin permissions'
         );
       });
     });
@@ -134,7 +134,7 @@ describe('security-utils', () => {
     it('should reject null role', () => {
       expect(() => checkAdminPermissions(null)).toThrow(HTTPException);
       expect(() => checkAdminPermissions(null)).toThrow(
-        'Insufficient permissions to manage approved domains'
+        'Insufficient admin permissions'
       );
     });
 

@@ -26,17 +26,17 @@ export const WorkspaceRestrictions = React.memo(() => {
     () => [
       <EnableRestrictions
         key="enable-restrictions"
-        restrict_new_user_invitations={workspaceSettings?.restrict_new_user_invitations}
+        restrict_new_user_invitations={workspaceSettings?.restrict_new_user_invitations ?? false}
         updateWorkspaceSettings={updateWorkspaceSettings}
       />,
       <DefaultRole
         key="default-role"
-        default_role={workspaceSettings?.default_role}
+        default_role={workspaceSettings?.default_role ?? 'viewer' as OrganizationRole}
         updateWorkspaceSettings={updateWorkspaceSettings}
       />,
       <DefaultDatasets
         key="default-datasets"
-        default_datasets={workspaceSettings?.default_datasets}
+        default_datasets={workspaceSettings?.default_datasets ?? []}
         updateWorkspaceSettings={updateWorkspaceSettings}
       />
     ],

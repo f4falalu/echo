@@ -47,7 +47,7 @@ describe('WorkspaceSettingsService', () => {
     });
 
     it('should handle all string values correctly', () => {
-      const roles = ['member', 'admin', 'workspace_admin', 'data_admin'];
+      const roles = ['workspace_admin', 'data_admin', 'querier', 'restricted_querier', 'viewer', 'none'];
 
       roles.forEach((role) => {
         const settings = {

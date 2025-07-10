@@ -112,7 +112,6 @@ describe('getWorkspaceSettingsHandler (integration)', () => {
     it('should return 403 for user without organization', async () => {
       const userWithoutOrg = await createUserWithoutOrganization();
       
-      await expect(getWorkspaceSettingsHandler(userWithoutOrg)).rejects.toThrow(HTTPException);
       await expect(getWorkspaceSettingsHandler(userWithoutOrg)).rejects.toMatchObject({
         status: 403,
         message: 'User is not associated with an organization',
@@ -165,6 +164,7 @@ describe('getWorkspaceSettingsHandler (integration)', () => {
         .where(eq(organizations.id, testOrg.id))
         .limit(1);
 
+      expect(orgAfter.length).toBe(1);
       expect(orgAfter[0]?.restrictNewUserInvitations).toEqual(
         originalOrg.restrictNewUserInvitations
       );

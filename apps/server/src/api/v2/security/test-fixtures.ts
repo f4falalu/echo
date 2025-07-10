@@ -31,7 +31,6 @@ export function createTestOrganization(overrides?: Partial<Organization>): Organ
 }
 
 export function createTestOrgMember(
-  userId: string,
   organizationId: string,
   role = 'querier'
 ): { organizationId: string; role: string } {

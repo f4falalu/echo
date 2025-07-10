@@ -72,7 +72,11 @@ export async function updateWorkspaceSettingsHandler(
   } catch (error) {
     console.error('Error in updateWorkspaceSettingsHandler:', {
       userId: user.id,
-      request,
+      requestFields: {
+        hasRestrictNewUserInvitations: request.restrict_new_user_invitations !== undefined,
+        hasDefaultRole: request.default_role !== undefined,
+        hasDefaultDatasets: request.default_datasets_ids !== undefined,
+      },
       error: error instanceof Error ? error.message : error,
     });
 

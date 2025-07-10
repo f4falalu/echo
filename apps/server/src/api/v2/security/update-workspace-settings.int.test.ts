@@ -2,7 +2,7 @@ import type { Organization, User } from '@buster/database';
 import { db, usersToOrganizations } from '@buster/database';
 import { eq } from 'drizzle-orm';
 import { HTTPException } from 'hono/http-exception';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   cleanupTestOrganization,
   cleanupTestUser,
@@ -136,9 +136,6 @@ describe('updateWorkspaceSettingsHandler (integration)', () => {
 
         const request = { restrict_new_user_invitations: true };
 
-        await expect(updateWorkspaceSettingsHandler(request, roleUser)).rejects.toThrow(
-          HTTPException
-        );
         await expect(updateWorkspaceSettingsHandler(request, roleUser)).rejects.toMatchObject({
           status: 403,
           message: 'Only workspace admins can update workspace settings',
@@ -225,7 +222,7 @@ describe('updateWorkspaceSettingsHandler (integration)', () => {
       await createTestOrgMemberInDb(testUser.id, testOrg.id, 'workspace_admin');
 
       const originalUpdatedAt = testOrg.updatedAt;
-      await new Promise((resolve) => setTimeout(resolve, 10)); // Ensure time difference
+      await new Promise((resolve) => setTimeout(resolve, 100)); // Ensure time difference
 
       const request = { restrict_new_user_invitations: true };
       await updateWorkspaceSettingsHandler(request, testUser);

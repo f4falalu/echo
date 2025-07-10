@@ -66,6 +66,21 @@ describe('getApprovedDomainsHandler', () => {
     expect(result).toEqual([]);
   });
 
+  it('should return empty array for org with empty domains array', async () => {
+    const orgWithEmptyDomains = { ...mockOrg, domains: [] };
+    vi.mocked(securityUtils.fetchOrganization).mockResolvedValue(orgWithEmptyDomains);
+
+    vi.mocked(DomainService.prototype.formatDomainsResponse).mockReturnValue([]);
+
+    const result = await getApprovedDomainsHandler(mockUser);
+
+    expect(DomainService.prototype.formatDomainsResponse).toHaveBeenCalledWith(
+      [],
+      mockOrg.createdAt
+    );
+    expect(result).toEqual([]);
+  });
+
   it('should handle validation errors', async () => {
     vi.mocked(securityUtils.validateUserOrganization).mockRejectedValue(
       new Error('User not in organization')

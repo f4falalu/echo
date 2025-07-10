@@ -47,7 +47,7 @@ describe('removeApprovedDomainsHandler (integration)', () => {
     });
 
     it('should handle non-existent domain removal gracefully', async () => {
-      await createTestOrgMemberInDb(testUser.id, testOrg.id, 'data_admin');
+      await createTestOrgMemberInDb(testUser.id, testOrg.id, 'workspace_admin');
 
       const request = { domains: ['notfound.com', 'alsonotfound.com'] };
       const result = await removeApprovedDomainsHandler(request, testUser);
@@ -109,7 +109,7 @@ describe('removeApprovedDomainsHandler (integration)', () => {
       await expect(removeApprovedDomainsHandler(request, testUser)).rejects.toThrow(HTTPException);
       await expect(removeApprovedDomainsHandler(request, testUser)).rejects.toMatchObject({
         status: 403,
-        message: 'Insufficient permissions to manage approved domains',
+        message: 'Insufficient admin permissions',
       });
 
       // Verify no domains were removed
@@ -166,7 +166,7 @@ describe('removeApprovedDomainsHandler (integration)', () => {
       await createTestOrgMemberInDb(testUser.id, testOrg.id, 'workspace_admin');
 
       const originalUpdatedAt = testOrg.updatedAt;
-      await new Promise((resolve) => setTimeout(resolve, 10)); // Ensure time difference
+      await new Promise((resolve) => setTimeout(resolve, 100)); // Ensure time difference
 
       const request = { domains: ['remove1.com'] };
       await removeApprovedDomainsHandler(request, testUser);

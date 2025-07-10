@@ -10,8 +10,8 @@ export class DomainService {
     // Filter out duplicates from new domains
     const uniqueNew = normalizedNew.filter((d) => !normalizedCurrent.includes(d));
 
-    // Return original current domains plus unique new ones
-    return [...currentDomains, ...uniqueNew];
+    // Normalize all domains for consistency
+    return [...normalizedCurrent, ...uniqueNew];
   }
 
   filterDomains(currentDomains: string[], domainsToRemove: string[]): string[] {

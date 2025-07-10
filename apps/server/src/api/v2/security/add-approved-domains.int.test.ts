@@ -99,7 +99,6 @@ describe('addApprovedDomainsHandler (integration)', () => {
       const userWithoutOrg = await createUserWithoutOrganization();
       const request = { domains: ['new.com'] };
 
-      await expect(addApprovedDomainsHandler(request, userWithoutOrg)).rejects.toThrow(HTTPException);
       await expect(addApprovedDomainsHandler(request, userWithoutOrg)).rejects.toMatchObject({
         status: 403,
         message: 'User is not associated with an organization',
@@ -117,7 +116,7 @@ describe('addApprovedDomainsHandler (integration)', () => {
       await expect(addApprovedDomainsHandler(request, testUser)).rejects.toThrow(HTTPException);
       await expect(addApprovedDomainsHandler(request, testUser)).rejects.toMatchObject({
         status: 403,
-        message: 'Insufficient permissions to manage approved domains',
+        message: 'Insufficient admin permissions',
       });
     });
 

@@ -38,7 +38,7 @@ export async function fetchOrganization(organizationId: string) {
 export function checkAdminPermissions(role: string | null): void {
   if (role !== 'workspace_admin' && role !== 'data_admin') {
     throw new HTTPException(403, {
-      message: 'Insufficient permissions to manage approved domains',
+      message: 'Insufficient admin permissions',
     });
   }
 }

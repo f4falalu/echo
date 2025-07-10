@@ -28,7 +28,7 @@ export const RemoveApprovedDomainRequestSchema = z.preprocess(
         return { ...rest, domains: [domainsArray] };
       }
 
-      return rest;
+      return { ...rest, domains: [] };
     }
     return input;
   },
