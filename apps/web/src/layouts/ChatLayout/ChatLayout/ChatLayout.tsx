@@ -41,11 +41,9 @@ export const ChatLayout: React.FC<ChatSplitterProps> = ({ children }) => {
   const mounted = true;
 
   const bustStorageOnInit = (preservedSideValue: number | null, containerSize: number) => {
-    console.log('bustStorageOnInit', autoSaveId, preservedSideValue, {
-      selectedLayout,
-      secondaryFileView,
-      containerSize
-    });
+    if (containerSize && !preservedSideValue) {
+      return true;
+    }
     return selectedLayout === 'chat-only' || selectedLayout === 'file-only' || !!secondaryFileView;
   };
 
