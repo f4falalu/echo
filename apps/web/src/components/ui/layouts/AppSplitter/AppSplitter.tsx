@@ -19,56 +19,200 @@ import { sizeToPixels, easeInOutCubic, createAutoSaveId } from './helpers';
 import { useMemoizedFn } from '@/hooks';
 import { useMount } from '@/hooks/useMount';
 
+// ================================
+// INTERFACES AND TYPES
+// ================================
+
+/**
+ * Props for the AppSplitter component
+ */
 interface IAppSplitterProps {
+  /** Content to display in the left panel */
   leftChildren: React.ReactNode;
+
+  /** Content to display in the right panel */
   rightChildren: React.ReactNode;
+
+  /** Unique identifier for auto-saving layout to localStorage */
   autoSaveId: string;
+
+  /**
+   * Default layout configuration as [left, right] sizes
+   * Can be numbers (pixels), percentages (strings like "50%"), or "auto"
+   */
   defaultLayout: (string | number)[];
+
+  /**
+   * Minimum size for the left panel
+   * Can be a number (pixels) or string (percentage)
+   * @default 0
+   */
   leftPanelMinSize?: number | string;
+
+  /**
+   * Minimum size for the right panel
+   * Can be a number (pixels) or string (percentage)
+   * @default 0
+   */
   rightPanelMinSize?: number | string;
+
+  /**
+   * Maximum size for the left panel
+   * Can be a number (pixels) or string (percentage)
+   * If not specified, defaults to container size
+   */
   leftPanelMaxSize?: number | string;
+
+  /**
+   * Maximum size for the right panel
+   * Can be a number (pixels) or string (percentage)
+   * If not specified, defaults to container size
+   */
   rightPanelMaxSize?: number | string;
+
+  /** Additional CSS classes for the container */
   className?: string;
+
+  /**
+   * Whether the splitter can be resized by dragging
+   * @default true
+   */
   allowResize?: boolean;
+
+  /**
+   * Split direction
+   * @default 'vertical'
+   */
   split?: 'vertical' | 'horizontal';
+
+  /** Additional CSS classes for the splitter element */
   splitterClassName?: string;
+
+  /**
+   * Which side to preserve when resizing
+   * 'left' - left panel maintains its size, right panel adjusts
+   * 'right' - right panel maintains its size, left panel adjusts
+   */
   preserveSide: 'left' | 'right';
+
+  /**
+   * Whether to hide the right panel completely
+   * @default false
+   */
   rightHidden?: boolean;
+
+  /**
+   * Whether to hide the left panel completely
+   * @default false
+   */
   leftHidden?: boolean;
+
+  /** Inline styles for the container */
   style?: React.CSSProperties;
+
+  /**
+   * Whether to hide the splitter handle
+   * @default false
+   */
   hideSplitter?: boolean;
+
+  /** Additional CSS classes for the left panel */
   leftPanelClassName?: string;
+
+  /** Additional CSS classes for the right panel */
   rightPanelClassName?: string;
+
+  /**
+   * Whether to clear saved layout from localStorage on initialization
+   * Can be a boolean or a function that returns a boolean based on preserved side value and container width
+   */
   bustStorageOnInit?: boolean | ((preservedSideValue: number | null, refWidth: number) => boolean);
+
+  /**
+   * Whether to render the left panel content
+   * @default true
+   */
   renderLeftPanel?: boolean;
+
+  /**
+   * Whether to render the right panel content
+   * @default true
+   */
   renderRightPanel?: boolean;
 }
 
+/**
+ * Ref interface for controlling the AppSplitter imperatively
+ */
 export interface AppSplitterRef {
+  /**
+   * Animate a panel to a specific width
+   * @param width - Target width (pixels or percentage)
+   * @param side - Which side to animate
+   * @param duration - Animation duration in milliseconds
+   */
   animateWidth: (
     width: string | number,
     side: 'left' | 'right',
     duration?: number
   ) => Promise<void>;
+
+  /**
+   * Set the split sizes programmatically
+   * @param sizes - [left, right] sizes as pixels or percentages
+   */
   setSplitSizes: (sizes: [string | number, string | number]) => void;
+
+  /**
+   * Check if a side is closed (hidden or 0px)
+   * @param side - Which side to check
+   */
   isSideClosed: (side: 'left' | 'right') => boolean;
+
+  /**
+   * Get current sizes in pixels
+   * @returns [leftSize, rightSize] in pixels
+   */
   getSizesInPixels: () => [number, number];
 }
 
-// Consolidated state interface for better organization
+/**
+ * Internal state interface for the splitter
+ */
 interface SplitterState {
+  /** Current container size in pixels */
   containerSize: number;
+  /** Whether the user is currently dragging the splitter */
   isDragging: boolean;
+  /** Whether an animation is currently in progress */
   isAnimating: boolean;
+  /** Whether the current size was set by an animation */
   sizeSetByAnimation: boolean;
+  /** Whether the user has interacted with the splitter */
   hasUserInteracted: boolean;
 }
 
+// ================================
+// MAIN COMPONENT
+// ================================
+
+/**
+ * AppSplitter - A resizable split panel component with localStorage persistence
+ *
+ * Features:
+ * - Horizontal or vertical splitting
+ * - Drag to resize with constraints
+ * - Auto-save layout to localStorage
+ * - Smooth animations
+ * - Responsive container resizing
+ * - Panel hiding/showing
+ * - Imperative API via ref
+ */
 const AppSplitterWrapper = forwardRef<AppSplitterRef, IAppSplitterProps>(
   ({ autoSaveId, style, className, split = 'vertical', ...props }, componentRef) => {
     const containerRef = useRef<HTMLDivElement>(null);
     const isVertical = split === 'vertical';
-    const [mounted, setMounted] = useState(false);
+    const [mounted, setMounted] = useState(!props.bustStorageOnInit);
     const splitterAutoSaveId = createAutoSaveId(autoSaveId);
 
     useMount(() => {
@@ -97,11 +241,13 @@ const AppSplitterWrapper = forwardRef<AppSplitterRef, IAppSplitterProps>(
 
 AppSplitterWrapper.displayName = 'AppSplitterWrapper';
 
+// ================================
+// CORE IMPLEMENTATION
+// ================================
+
 const AppSplitterBase = forwardRef<
   AppSplitterRef,
   Omit<IAppSplitterProps, 'autoSaveId' | 'style' | 'className'> & {
-    // savedLayout: number | null;
-    // setSavedLayout: (layout: number | null) => void;
     isVertical: boolean;
     containerRef: React.RefObject<HTMLDivElement>;
     splitterAutoSaveId: string;
@@ -134,24 +280,13 @@ const AppSplitterBase = forwardRef<
     },
     ref
   ) => {
+    // ================================
+    // REFS AND STATE
+    // ================================
+
     const startPosRef = useRef(0);
     const startSizeRef = useRef(0);
     const animationRef = useRef<number | null>(null);
-
-    const bustStorageOnInitSplitter = (preservedSideValue: number | null) => {
-      const refWidth = containerRef.current?.offsetWidth;
-      // Don't bust storage if container hasn't been sized yet
-      if (!refWidth || refWidth === 0) return false;
-      return typeof bustStorageOnInit === 'function'
-        ? bustStorageOnInit(preservedSideValue, refWidth)
-        : !!bustStorageOnInit;
-    };
-
-    // Load saved layout from localStorage
-    const [savedLayout, setSavedLayout] = useLocalStorageState<number | null>(splitterAutoSaveId, {
-      defaultValue: null,
-      bustStorageOnInit: bustStorageOnInitSplitter
-    });
 
     // Consolidated state management
     const [state, setState] = useState<SplitterState>({
@@ -161,6 +296,45 @@ const AppSplitterBase = forwardRef<
       sizeSetByAnimation: false,
       hasUserInteracted: false
     });
+
+    // ================================
+    // STORAGE MANAGEMENT
+    // ================================
+
+    const bustStorageOnInitSplitter = (preservedSideValue: number | null) => {
+      const refWidth = containerRef.current?.offsetWidth;
+      // Don't bust storage if container hasn't been sized yet
+      if (!refWidth || refWidth === 0) {
+        console.warn('AppSplitter: container not sized yet');
+        return false;
+      }
+
+      return typeof bustStorageOnInit === 'function'
+        ? bustStorageOnInit(preservedSideValue, refWidth)
+        : !!bustStorageOnInit;
+    };
+
+    const defaultValue = () => {
+      const [leftValue, rightValue] = defaultLayout;
+      if (preserveSide === 'left' && leftValue === 'auto') {
+        return containerRef.current?.offsetWidth ?? 0;
+      }
+      if (preserveSide === 'right' && rightValue === 'auto') {
+        return containerRef.current?.offsetWidth ?? 0;
+      }
+      const preserveValue = preserveSide === 'left' ? leftValue : rightValue;
+      return sizeToPixels(preserveValue, containerRef.current?.offsetWidth ?? 0);
+    };
+
+    // Load saved layout from localStorage
+    const [savedLayout, setSavedLayout] = useLocalStorageState<number | null>(splitterAutoSaveId, {
+      defaultValue,
+      bustStorageOnInit: bustStorageOnInitSplitter
+    });
+
+    // ================================
+    // SIZE CALCULATION LOGIC
+    // ================================
 
     // Calculate initial size based on default layout
     const calculateInitialSize = useMemoizedFn((containerSize: number): number => {
@@ -282,11 +456,9 @@ const AppSplitterBase = forwardRef<
       }
     }, [state, savedLayout, leftHidden, rightHidden, preserveSide, applyConstraints]);
 
-    // Determine if splitter should be hidden
-    const shouldHideSplitter =
-      hideSplitterProp || (leftHidden && rightHidden) || leftSize === 0 || rightSize === 0;
-
-    const showSplitter = !leftHidden && !rightHidden;
+    // ================================
+    // CONTAINER RESIZE HANDLING
+    // ================================
 
     // Update container size and handle initialization
     const updateContainerSize = useMemoizedFn(() => {
@@ -345,6 +517,10 @@ const AppSplitterBase = forwardRef<
         return newState;
       });
     });
+
+    // ================================
+    // ANIMATION LOGIC
+    // ================================
 
     // Animation function
     const animateWidth = useMemoizedFn(
@@ -405,6 +581,10 @@ const AppSplitterBase = forwardRef<
       }
     );
 
+    // ================================
+    // IMPERATIVE API METHODS
+    // ================================
+
     // Set split sizes function
     const setSplitSizes = useMemoizedFn((sizes: [string | number, string | number]) => {
       if (!state.containerSize) return;
@@ -457,7 +637,10 @@ const AppSplitterBase = forwardRef<
       return [leftSize, rightSize];
     }, [leftSize, rightSize]);
 
-    // Mouse event handlers
+    // ================================
+    // MOUSE EVENT HANDLERS
+    // ================================
+
     const handleMouseDown = useMemoizedFn((e: React.MouseEvent) => {
       if (!allowResize) return;
 
@@ -495,13 +678,14 @@ const AppSplitterBase = forwardRef<
       setState((prev) => ({ ...prev, isDragging: false }));
     });
 
-    // Use useLayoutEffect for initial measurement to ensure DOM is ready
-    useLayoutEffect(() => {
-      updateContainerSize();
-    }, [updateContainerSize]);
+    // ================================
+    // EFFECTS AND LIFECYCLE
+    // ================================
 
-    // Use useEffect for ongoing resize monitoring
+    // Container resize monitoring
     useEffect(() => {
+      updateContainerSize();
+
       // If container is still 0 after layout, try again with animation frame
       if (containerRef.current?.offsetWidth === 0) {
         requestAnimationFrame(updateContainerSize);
@@ -520,6 +704,7 @@ const AppSplitterBase = forwardRef<
       };
     }, [updateContainerSize]);
 
+    // Mouse event handling during drag
     useEffect(() => {
       if (state.isDragging) {
         document.addEventListener('mousemove', handleMouseMove);
@@ -536,7 +721,7 @@ const AppSplitterBase = forwardRef<
       }
     }, [state.isDragging, handleMouseMove, handleMouseUp, isVertical]);
 
-    // Expose methods via ref
+    // Expose imperative API via ref
     useImperativeHandle(
       ref,
       () => ({
@@ -547,6 +732,16 @@ const AppSplitterBase = forwardRef<
       }),
       [animateWidth, setSplitSizes, isSideClosed, getSizesInPixels]
     );
+
+    // ================================
+    // RENDER LOGIC
+    // ================================
+
+    // Determine if splitter should be hidden
+    const shouldHideSplitter =
+      hideSplitterProp || (leftHidden && rightHidden) || leftSize === 0 || rightSize === 0;
+
+    const showSplitter = !leftHidden && !rightHidden;
 
     const sizes = useMemo<[string | number, string | number]>(
       () => [`${leftSize}px`, `${rightSize}px`],

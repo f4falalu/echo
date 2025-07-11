@@ -41,17 +41,11 @@ export const ChatLayout: React.FC<ChatSplitterProps> = ({ children }) => {
   const mounted = true;
 
   const bustStorageOnInit = (preservedSideValue: number | null, containerSize: number) => {
-    console.log(
-      selectedLayout === 'chat-only' || selectedLayout === 'file-only' || !!secondaryFileView,
-      'bustStorageOnInit',
-      autoSaveId,
-      preservedSideValue,
-      {
-        selectedLayout,
-        secondaryFileView,
-        containerSize
-      }
-    );
+    console.log('bustStorageOnInit', autoSaveId, preservedSideValue, {
+      selectedLayout,
+      secondaryFileView,
+      containerSize
+    });
     return selectedLayout === 'chat-only' || selectedLayout === 'file-only' || !!secondaryFileView;
   };
 
@@ -60,7 +54,7 @@ export const ChatLayout: React.FC<ChatSplitterProps> = ({ children }) => {
       <ChatContextProvider>
         <AppSplitter
           ref={appSplitterRef}
-          leftChildren={<div>HUH?</div>}
+          leftChildren={useMemo(() => mounted && <ChatContainer />, [mounted])}
           rightChildren={useMemo(
             () => mounted && <FileContainer>{children}</FileContainer>,
             [children, mounted]

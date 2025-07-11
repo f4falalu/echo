@@ -27,7 +27,7 @@ interface Options<T> {
 export function useLocalStorageState<T>(
   key: string,
   options?: Options<T>
-): [T | undefined, (value?: SetState<T>) => void, () => T | undefined] {
+): [T | undefined, (value?: SetState<T>) => void] {
   const {
     defaultValue,
     serializer = JSON.stringify,
@@ -37,27 +37,22 @@ export function useLocalStorageState<T>(
     expirationTime = DEFAULT_EXPIRATION_TIME
   } = options || {};
 
-  const executeBustStorage = useMemoizedFn(() => {
-    console.log(
-      '***executeBustStorage',
-      key,
-      typeof defaultValue === 'function' ? (defaultValue as () => T)() : defaultValue
-    );
-    if (!isServer) window.localStorage.removeItem(key);
-    return typeof defaultValue === 'function' ? (defaultValue as () => T)() : defaultValue;
-  });
-
   // Get initial value from localStorage or use default
   const getInitialValue = useMemoizedFn((): T | undefined => {
+    const gonnaBustTheStorage = () => {
+      if (!isServer) window.localStorage.removeItem(key);
+      return typeof defaultValue === 'function' ? (defaultValue as () => T)() : defaultValue;
+    };
+
     // If bustStorageOnInit is true, ignore localStorage and use default value
     if (bustStorageOnInit === true) {
-      return executeBustStorage();
+      return gonnaBustTheStorage();
     }
 
     try {
       const item = window.localStorage.getItem(key);
       if (item === null) {
-        return executeBustStorage();
+        return gonnaBustTheStorage();
       }
 
       // Parse the stored data which includes value and timestamp
@@ -71,7 +66,7 @@ export function useLocalStorageState<T>(
         !('timestamp' in storageData)
       ) {
         // If the data doesn't have the expected structure (legacy data), treat as expired
-        return executeBustStorage();
+        return gonnaBustTheStorage();
       }
 
       // Check if the data has expired
@@ -80,20 +75,20 @@ export function useLocalStorageState<T>(
 
       if (timeDifference > expirationTime) {
         // Data has expired, remove it and return default value
-        return executeBustStorage();
+        return gonnaBustTheStorage();
       }
 
       // Data is still valid, deserialize and return the value
       const deserializedValue = deserializer(JSON.stringify(storageData.value));
 
       if (typeof bustStorageOnInit === 'function' && bustStorageOnInit(deserializedValue)) {
-        return executeBustStorage();
+        return gonnaBustTheStorage();
       }
 
       return deserializedValue;
     } catch (error) {
       onError?.(error);
-      return executeBustStorage();
+      return gonnaBustTheStorage();
     }
   });
 
@@ -138,5 +133,5 @@ export function useLocalStorageState<T>(
     }
   });
 
-  return [state, setStoredState, executeBustStorage];
+  return [state, setStoredState];
 }
