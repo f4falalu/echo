@@ -11,7 +11,8 @@ const executeSqlStatementInputSchema = z.object({
   statements: z.array(z.string()).describe(
     `Array of lightweight, optimized SQL statements to execute. 
       Each statement should be small and focused. 
-      Query results will be limited to 25 rows for performance.
+      SELECT queries without a LIMIT clause will automatically have LIMIT 50 added for performance.
+      Existing LIMIT clauses will be preserved.
       YOU MUST USE THE <SCHEMA_NAME>.<TABLE_NAME> syntax/qualifier for all table names. 
       NEVER use SELECT * - you must explicitly list the columns you want to query from the documentation provided. 
       NEVER query system tables or use 'SHOW' statements as these will fail to execute.
@@ -385,7 +386,7 @@ async function executeSingleStatement(
         sql: sqlStatement,
         options: {
           timeout: TIMEOUT_MS,
-          maxRows: 25,  // Limit results at the adapter level, not in SQL
+          maxRows: 50, // Limit results at the adapter level, not in SQL
         },
       });
 
@@ -463,7 +464,8 @@ async function executeSingleStatement(
 export const executeSql = createTool({
   id: 'execute-sql',
   description: `Use this to run lightweight, validation queries to understand values in columns, date ranges, etc. 
-    Query results will be limited to 25 rows for performance. 
+    Please limit your queries to 50 rows for performance.
+    Query results will be limited to 50 rows for performance. 
     You must use the <SCHEMA_NAME>.<TABLE_NAME> syntax/qualifier for all table names. 
     Otherwise the queries wont run successfully.`,
   inputSchema: executeSqlStatementInputSchema,
