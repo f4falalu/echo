@@ -20,7 +20,6 @@ interface ChatSplitterProps {
 
 export const ChatLayout: React.FC<ChatSplitterProps> = ({ children }) => {
   const appSplitterRef = useRef<AppSplitterRef>(null);
-  const [mounted, setMounted] = useState(false);
 
   const chatLayoutProps = useChatLayoutContext({ appSplitterRef });
   const { selectedLayout, selectedFile } = chatLayoutProps;
@@ -39,19 +38,23 @@ export const ChatLayout: React.FC<ChatSplitterProps> = ({ children }) => {
   const renderLeftPanel = selectedLayout !== 'file-only';
   const renderRightPanel = selectedLayout !== 'chat-only';
   const secondaryFileView = chatLayoutProps.secondaryView;
-  const bustStorageOnInit =
-    selectedLayout === 'chat-only' || selectedLayout === 'file-only' || !!secondaryFileView;
+  const mounted = true;
 
-  useMount(() => {
-    setMounted(true); //we need to wait for the app splitter to be mounted because this is nested in the app splitter
-  });
+  const bustStorageOnInit = (preservedSideValue: number | null, containerSize: number) => {
+    console.log('bustStorageOnInit', autoSaveId, preservedSideValue, {
+      selectedLayout,
+      secondaryFileView,
+      containerSize
+    });
+    return selectedLayout === 'chat-only' || selectedLayout === 'file-only' || !!secondaryFileView;
+  };
 
   return (
     <ChatLayoutContextProvider chatLayoutProps={chatLayoutProps}>
       <ChatContextProvider>
         <AppSplitter
           ref={appSplitterRef}
-          leftChildren={useMemo(() => mounted && <ChatContainer mounted={mounted} />, [mounted])}
+          leftChildren={useMemo(() => mounted && <ChatContainer />, [mounted])}
           rightChildren={useMemo(
             () => mounted && <FileContainer>{children}</FileContainer>,
             [children, mounted]
