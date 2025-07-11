@@ -18,6 +18,8 @@ interface SnowflakeStatement {
     getScale(): number;
     getPrecision(): number;
   }>;
+  streamRows?: () => NodeJS.ReadableStream;
+  cancel?: (callback: (err: Error | undefined) => void) => void;
 }
 
 // Configure Snowflake SDK to disable logging
@@ -189,16 +191,9 @@ export class SnowflakeAdapter extends BaseAdapter {
       // Set query timeout if specified (default: 120 seconds for Snowflake queue handling)
       const timeoutMs = timeout || TIMEOUT_CONFIG.query.default;
 
-      // For maxRows, we'll fetch maxRows + 1 to determine if there are more rows
-      let effectiveSql = sql;
-      if (maxRows && maxRows > 0) {
-        // Check if query already has LIMIT
-        const upperSql = sql.toUpperCase();
-        if (!upperSql.includes(' LIMIT ')) {
-          effectiveSql = `${sql} LIMIT ${maxRows + 1}`;
-        }
-      }
-
+      // IMPORTANT: Execute the original SQL unchanged to leverage Snowflake's query caching
+      // For memory protection, we'll fetch all rows but limit in memory
+      // This is a compromise to preserve caching while preventing OOM on truly massive queries
       const queryPromise = new Promise<{
         rows: Record<string, unknown>[];
         statement: SnowflakeStatement;
@@ -207,8 +202,9 @@ export class SnowflakeAdapter extends BaseAdapter {
           reject(new Error('Failed to acquire Snowflake connection'));
           return;
         }
+        
         connection.execute({
-          sqlText: effectiveSql,
+          sqlText: sql,  // Use original SQL unchanged for caching
           binds: params as snowflake.Binds,
           complete: (
             err: SnowflakeError | undefined,
@@ -235,7 +231,7 @@ export class SnowflakeAdapter extends BaseAdapter {
           precision: col.getPrecision() > 0 ? col.getPrecision() : 0,
         })) || [];
 
-      // Handle maxRows logic
+      // Handle maxRows logic in memory (not in SQL)
       let finalRows = result.rows;
       let hasMoreRows = false;
 
