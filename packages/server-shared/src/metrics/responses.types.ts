@@ -24,6 +24,7 @@ export const MetricDataResponseSchema = z.object({
   data: DataResultSchema.nullable(),
   data_metadata: DataMetadataSchema,
   metricId: z.string(),
+  has_more_records: z.boolean(),
 });
 
 export type GetMetricResponse = z.infer<typeof GetMetricResponseSchema>;

@@ -6,13 +6,12 @@ import { z } from 'zod';
 import { getWorkflowDataSourceManager } from '../../utils/data-source-manager';
 import { createPermissionErrorMessage, validateSqlPermissions } from '../../utils/sql-permissions';
 import type { AnalystRuntimeContext } from '../../workflows/analyst-workflow';
-import { ensureSqlLimit } from './sql-limit-helper';
 
 const executeSqlStatementInputSchema = z.object({
   statements: z.array(z.string()).describe(
     `Array of lightweight, optimized SQL statements to execute. 
       Each statement should be small and focused. 
-      SELECT queries without a LIMIT clause will automatically have LIMIT 25 added for performance.
+      SELECT queries without a LIMIT clause will automatically have LIMIT 50 added for performance.
       Existing LIMIT clauses will be preserved.
       YOU MUST USE THE <SCHEMA_NAME>.<TABLE_NAME> syntax/qualifier for all table names. 
       NEVER use SELECT * - you must explicitly list the columns you want to query from the documentation provided. 
@@ -363,9 +362,6 @@ async function executeSingleStatement(
     return { success: false, error: 'SQL statement cannot be empty' };
   }
 
-  // Ensure the SQL statement has a LIMIT clause to prevent excessive results
-  const limitedSql = ensureSqlLimit(sqlStatement, 25);
-
   // Validate permissions before execution
   const userId = runtimeContext.get('userId');
   if (!userId) {
@@ -373,7 +369,7 @@ async function executeSingleStatement(
   }
 
   const dataSourceSyntax = runtimeContext.get('dataSourceSyntax');
-  const permissionResult = await validateSqlPermissions(limitedSql, userId, dataSourceSyntax);
+  const permissionResult = await validateSqlPermissions(sqlStatement, userId, dataSourceSyntax);
   if (!permissionResult.isAuthorized) {
     return {
       success: false,
@@ -385,10 +381,12 @@ async function executeSingleStatement(
   for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
     try {
       // Execute the SQL query using the DataSource with timeout
+      // Pass maxRows to the adapter instead of modifying the SQL
       const result = await dataSource.execute({
-        sql: limitedSql,
+        sql: sqlStatement,
         options: {
           timeout: TIMEOUT_MS,
+          maxRows: 50, // Limit results at the adapter level, not in SQL
         },
       });
 
@@ -411,7 +409,7 @@ async function executeSingleStatement(
         console.warn(
           `[execute-sql] Query timeout on attempt ${attempt + 1}/${MAX_RETRIES + 1}. Retrying in ${delay}ms...`,
           {
-            sql: `${limitedSql.substring(0, 100)}...`,
+            sql: `${sqlStatement.substring(0, 100)}...`,
             attempt: attempt + 1,
             nextDelay: delay,
           }
@@ -437,7 +435,7 @@ async function executeSingleStatement(
         console.warn(
           `[execute-sql] Query timeout (exception) on attempt ${attempt + 1}/${MAX_RETRIES + 1}. Retrying in ${delay}ms...`,
           {
-            sql: `${limitedSql.substring(0, 100)}...`,
+            sql: `${sqlStatement.substring(0, 100)}...`,
             attempt: attempt + 1,
             nextDelay: delay,
             error: errorMessage,
@@ -466,7 +464,8 @@ async function executeSingleStatement(
 export const executeSql = createTool({
   id: 'execute-sql',
   description: `Use this to run lightweight, validation queries to understand values in columns, date ranges, etc. 
-    SELECT queries without LIMIT will automatically have LIMIT 25 added. 
+    Please limit your queries to 50 rows for performance.
+    Query results will be limited to 50 rows for performance. 
     You must use the <SCHEMA_NAME>.<TABLE_NAME> syntax/qualifier for all table names. 
     Otherwise the queries wont run successfully.`,
   inputSchema: executeSqlStatementInputSchema,
