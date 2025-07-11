@@ -204,9 +204,10 @@ pub async fn get_metric_data_handler(
     let has_more_records = query_result.data.len() > 5000;
     
     // Truncate to 5000 records if we got more
-    let data = if has_more_records {
-        query_result.data.into_iter().take(5000).collect()
-    } else {
+    let mut data = query_result.data;
+    if has_more_records {
+        data.truncate(5000);
+    }
         query_result.data
     };
 
