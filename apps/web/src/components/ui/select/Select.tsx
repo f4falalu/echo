@@ -152,6 +152,7 @@ function SelectComponent<T = string>({
   const [isFocused, setIsFocused] = React.useState(false);
   const inputRef = React.useRef<HTMLInputElement>(null);
   const commandRef = React.useRef<HTMLDivElement>(null);
+  const listboxId = React.useId();
 
   const open = controlledOpen !== undefined ? controlledOpen : internalOpen;
 
@@ -342,6 +343,7 @@ function SelectComponent<T = string>({
             type="text"
             role="combobox"
             aria-expanded={open}
+            aria-controls={listboxId}
             aria-label={placeholder}
             disabled={disabled || loading}
             value={inputDisplayValue}
@@ -398,7 +400,7 @@ function SelectComponent<T = string>({
             aria-hidden="true"
           />
           <div className="scrollbar-hide max-h-[300px] overflow-y-auto">
-            <CommandList className="p-1">
+            <CommandList id={listboxId} className="p-1">
               <CommandEmpty>{emptyMessage}</CommandEmpty>
               {renderedItems}
             </CommandList>
