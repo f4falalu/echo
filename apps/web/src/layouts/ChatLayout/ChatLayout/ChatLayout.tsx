@@ -39,8 +39,14 @@ export const ChatLayout: React.FC<ChatSplitterProps> = ({ children }) => {
   const renderLeftPanel = selectedLayout !== 'file-only';
   const renderRightPanel = selectedLayout !== 'chat-only';
   const secondaryFileView = chatLayoutProps.secondaryView;
-  const bustStorageOnInit =
-    selectedLayout === 'chat-only' || selectedLayout === 'file-only' || !!secondaryFileView;
+
+  const bustStorageOnInit = (preservedSideValue: number | null) => {
+    console.log('bustStorageOnInit', autoSaveId, preservedSideValue, {
+      selectedLayout,
+      secondaryFileView
+    });
+    return selectedLayout === 'chat-only' || selectedLayout === 'file-only' || !!secondaryFileView;
+  };
 
   useMount(() => {
     setMounted(true); //we need to wait for the app splitter to be mounted because this is nested in the app splitter

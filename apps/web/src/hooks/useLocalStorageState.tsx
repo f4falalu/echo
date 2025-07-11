@@ -27,7 +27,7 @@ interface Options<T> {
 export function useLocalStorageState<T>(
   key: string,
   options?: Options<T>
-): [T | undefined, (value?: SetState<T>) => void] {
+): [T | undefined, (value?: SetState<T>) => void, () => T | undefined] {
   const {
     defaultValue,
     serializer = JSON.stringify,
@@ -37,22 +37,22 @@ export function useLocalStorageState<T>(
     expirationTime = DEFAULT_EXPIRATION_TIME
   } = options || {};
 
+  const executeBustStorage = useMemoizedFn(() => {
+    if (!isServer) window.localStorage.removeItem(key);
+    return typeof defaultValue === 'function' ? (defaultValue as () => T)() : defaultValue;
+  });
+
   // Get initial value from localStorage or use default
   const getInitialValue = useMemoizedFn((): T | undefined => {
-    const gonnaBustTheStorage = () => {
-      if (!isServer) window.localStorage.removeItem(key);
-      return typeof defaultValue === 'function' ? (defaultValue as () => T)() : defaultValue;
-    };
-
     // If bustStorageOnInit is true, ignore localStorage and use default value
     if (bustStorageOnInit === true) {
-      return gonnaBustTheStorage();
+      return executeBustStorage();
     }
 
     try {
       const item = window.localStorage.getItem(key);
       if (item === null) {
-        return gonnaBustTheStorage();
+        return executeBustStorage();
       }
 
       // Parse the stored data which includes value and timestamp
@@ -66,7 +66,7 @@ export function useLocalStorageState<T>(
         !('timestamp' in storageData)
       ) {
         // If the data doesn't have the expected structure (legacy data), treat as expired
-        return gonnaBustTheStorage();
+        return executeBustStorage();
       }
 
       // Check if the data has expired
@@ -75,24 +75,24 @@ export function useLocalStorageState<T>(
 
       if (timeDifference > expirationTime) {
         // Data has expired, remove it and return default value
-        return gonnaBustTheStorage();
+        return executeBustStorage();
       }
 
       // Data is still valid, deserialize and return the value
       const deserializedValue = deserializer(JSON.stringify(storageData.value));
 
       if (typeof bustStorageOnInit === 'function' && bustStorageOnInit(deserializedValue)) {
-        return gonnaBustTheStorage();
+        return executeBustStorage();
       }
 
       return deserializedValue;
     } catch (error) {
       onError?.(error);
-      return gonnaBustTheStorage();
+      return executeBustStorage();
     }
   });
 
-  const [state, setState] = useState<T | undefined>(getInitialValue);
+  const [state, setState] = useState<T | undefined>(() => getInitialValue());
 
   // Initialize state from localStorage on mount
   useMount(() => {
@@ -133,5 +133,5 @@ export function useLocalStorageState<T>(
     }
   });
 
-  return [state, setStoredState];
+  return [state, setStoredState, executeBustStorage];
 }
