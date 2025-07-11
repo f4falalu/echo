@@ -3,7 +3,7 @@ import { AppPageLayout } from '@/components/ui/layouts';
 import { ChatContent } from './ChatContent';
 import { ChatHeader } from './ChatHeader';
 
-export const ChatContainer = React.memo(({ mounted }: { mounted?: boolean }) => {
+export const ChatContainer = React.memo(() => {
   return (
     <AppPageLayout
       headerSizeVariant="default"

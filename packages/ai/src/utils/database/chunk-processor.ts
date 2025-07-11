@@ -4,6 +4,7 @@ import type {
   ChatMessageResponseMessage,
 } from '@buster/server-shared/chats';
 import type { CoreMessage, TextStreamPart, ToolSet } from 'ai';
+import { ErrorAccumulator } from '../error-accumulator';
 import type { ExtractedFile } from '../file-selection';
 import {
   createFileResponseMessages,
@@ -99,6 +100,7 @@ export class ChunkProcessor<T extends ToolSet = GenericToolSet> {
   private pendingDoneToolEntry: ResponseEntry | null = null; // Track pending doneTool entry
   private sqlExecutionStartTimes = new Map<string, number>(); // Track SQL execution start times
   private availableTools?: Set<string>; // Track which tools are available in current step
+  private errorAccumulator: ErrorAccumulator; // Track all errors during processing
 
   // Reactive file selection state
   private currentFileSelection: {
@@ -133,6 +135,11 @@ export class ChunkProcessor<T extends ToolSet = GenericToolSet> {
     this.availableTools = availableTools || new Set();
     // Always ensure workflowStartTime has a value - use current time if not provided
     this.workflowStartTime = workflowStartTime || Date.now();
+    // Initialize error accumulator with workflow context
+    this.errorAccumulator = new ErrorAccumulator(
+      `workflow-${this.workflowStartTime}`,
+      messageId || undefined
+    );
 
     this.state = {
       accumulatedMessages: [...initialMessages],
@@ -197,6 +204,12 @@ export class ChunkProcessor<T extends ToolSet = GenericToolSet> {
       // Save to database if enough time has passed (throttled)
       await this.saveIfNeeded();
     } catch (error) {
+      // Track the error in accumulator
+      this.errorAccumulator.addSilentFailure('chunk-processing', error, {
+        chunkType: chunk.type,
+        messageId: this.messageId,
+      });
+
       console.error('Error processing chunk:', {
         chunkType: chunk.type,
         messageId: this.messageId,
@@ -229,12 +242,6 @@ export class ChunkProcessor<T extends ToolSet = GenericToolSet> {
 
   private async handleToolCall(chunk: TextStreamPart<T>) {
     if (chunk.type !== 'tool-call') return;
-
-    console.log('[ChunkProcessor] handleToolCall:', {
-      toolName: chunk.toolName,
-      toolCallId: chunk.toolCallId,
-      hasArgs: !!chunk.args,
-    });
 
     if (!this.state.currentAssistantMessage) {
       this.state.currentAssistantMessage = {
@@ -418,7 +425,7 @@ export class ChunkProcessor<T extends ToolSet = GenericToolSet> {
           this.state.finalReasoningMessage = `Reasoned for ${minutes} minute${minutes !== 1 ? 's' : ''}`;
         }
 
-        console.log('[ChunkProcessor] Workflow-completing tool detected:', {
+        console.info('[ChunkProcessor] Workflow-completing tool detected:', {
           toolName: chunk.toolName,
           messageId: this.messageId,
           workflowStartTime: this.workflowStartTime,
@@ -430,7 +437,7 @@ export class ChunkProcessor<T extends ToolSet = GenericToolSet> {
 
         // Update the database immediately for workflow-completing tools
         if (this.messageId && this.state.finalReasoningMessage) {
-          console.log('[ChunkProcessor] Updating finalReasoningMessage in database:', {
+          console.info('[ChunkProcessor] Updating finalReasoningMessage in database:', {
             messageId: this.messageId,
             finalReasoningMessage: this.state.finalReasoningMessage,
           });
@@ -439,7 +446,7 @@ export class ChunkProcessor<T extends ToolSet = GenericToolSet> {
             await updateMessageFields(this.messageId, {
               finalReasoningMessage: this.state.finalReasoningMessage,
             });
-            console.log('[ChunkProcessor] Successfully updated finalReasoningMessage in database');
+            console.info('[ChunkProcessor] Successfully updated finalReasoningMessage in database');
           } catch (error) {
             console.error('Error updating finalReasoningMessage in database:', {
               messageId: this.messageId,
@@ -448,7 +455,7 @@ export class ChunkProcessor<T extends ToolSet = GenericToolSet> {
           }
         }
       } else {
-        console.log(
+        console.info(
           '[ChunkProcessor] Step-finishing tool detected (not updating finalReasoningMessage):',
           {
             toolName: chunk.toolName,
@@ -466,11 +473,6 @@ export class ChunkProcessor<T extends ToolSet = GenericToolSet> {
 
   private handleToolCallStart(chunk: TextStreamPart<T>) {
     if (chunk.type !== 'tool-call-streaming-start') return;
-
-    console.log('[ChunkProcessor] handleToolCallStart:', {
-      toolName: chunk.toolName,
-      toolCallId: chunk.toolCallId,
-    });
 
     if (!this.state.currentAssistantMessage) {
       this.state.currentAssistantMessage = {
@@ -615,19 +617,9 @@ export class ChunkProcessor<T extends ToolSet = GenericToolSet> {
         this.state.finalReasoningMessage = `Reasoned for ${minutes} minute${minutes !== 1 ? 's' : ''}`;
       }
 
-      console.log('[ChunkProcessor] Workflow-completing tool detected in streaming start:', {
-        toolName: chunk.toolName,
-        messageId: this.messageId,
-        workflowStartTime: this.workflowStartTime,
-        currentTime: Date.now(),
-        durationMs,
-        seconds,
-        finalReasoningMessage: this.state.finalReasoningMessage,
-      });
-
       // Update the database immediately for workflow-completing tools
       if (this.messageId && this.state.finalReasoningMessage) {
-        console.log(
+        console.info(
           '[ChunkProcessor] Updating finalReasoningMessage in database from streaming start:',
           {
             messageId: this.messageId,
@@ -640,7 +632,7 @@ export class ChunkProcessor<T extends ToolSet = GenericToolSet> {
           finalReasoningMessage: this.state.finalReasoningMessage,
         })
           .then(() => {
-            console.log(
+            console.info(
               '[ChunkProcessor] Successfully updated finalReasoningMessage in database from streaming start'
             );
           })
@@ -990,6 +982,14 @@ export class ChunkProcessor<T extends ToolSet = GenericToolSet> {
         ? allMessages.length - 2 // Exclude the current in-progress message
         : allMessages.length - 1;
     } catch (error) {
+      // Track database save failure
+      this.errorAccumulator.addSilentFailure('database-save', error, {
+        messageId: this.messageId,
+        messageCount: allMessages.length,
+        reasoningCount: this.state.reasoningHistory.length,
+        responseCount: this.state.responseHistory.length,
+      });
+
       console.error('Error saving to database:', {
         messageId: this.messageId,
         messageCount: allMessages.length,
@@ -1852,6 +1852,20 @@ export class ChunkProcessor<T extends ToolSet = GenericToolSet> {
       messages.push(this.state.currentAssistantMessage as CoreMessage);
     }
     return messages;
+  }
+
+  /**
+   * Get the error accumulator for external error reporting
+   */
+  getErrorAccumulator(): ErrorAccumulator {
+    return this.errorAccumulator;
+  }
+
+  /**
+   * Get error summary from the accumulator
+   */
+  getErrorSummary() {
+    return this.errorAccumulator.getSummary();
   }
 
   /**

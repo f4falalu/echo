@@ -110,6 +110,7 @@ export async function updateMessageFields(
     reasoning?: unknown;
     rawLlmMessages?: unknown;
     finalReasoningMessage?: string;
+    isCompleted?: boolean;
   }
 ): Promise<{ success: boolean }> {
   try {
@@ -125,6 +126,7 @@ export async function updateMessageFields(
       reasoning?: unknown;
       rawLlmMessages?: unknown;
       finalReasoningMessage?: string;
+      isCompleted?: boolean;
     } = {
       updatedAt: new Date().toISOString(),
     };
@@ -141,6 +143,10 @@ export async function updateMessageFields(
 
     if ('finalReasoningMessage' in fields) {
       updateData.finalReasoningMessage = fields.finalReasoningMessage;
+    }
+
+    if ('isCompleted' in fields) {
+      updateData.isCompleted = fields.isCompleted;
     }
 
     await db

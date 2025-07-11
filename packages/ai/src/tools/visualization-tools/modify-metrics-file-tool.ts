@@ -162,6 +162,7 @@ function createDataMetadata(results: Record<string, unknown>[]): DataMetadata {
   };
 }
 
+
 /**
  * Ensures timeFrame values are properly quoted in YAML content
  * Finds timeFrame: value and wraps the value in quotes if not already quoted
@@ -305,17 +306,18 @@ async function validateSql(
 
     // Retry configuration for SQL validation
     const MAX_RETRIES = 3;
-    const TIMEOUT_MS = 30000; // 30 seconds per attempt
+    const TIMEOUT_MS = 120000; // 120 seconds (2 minutes) per attempt for Snowflake queue handling
     const RETRY_DELAYS = [1000, 3000, 6000]; // 1s, 3s, 6s
 
     // Attempt execution with retries
     for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
       try {
         // Execute the SQL query using the DataSource with row limit and timeout for validation
+        // Use maxRows to limit results without modifying the SQL query (preserves Snowflake caching)
         const result = await dataSource.execute({
           sql: sqlQuery,
           options: {
-            maxRows: 1000, // Limit to 1000 rows for validation to protect memory
+            maxRows: 1000, // Additional safety limit at adapter level
             timeout: TIMEOUT_MS,
           },
         });
@@ -784,6 +786,21 @@ Please attempt to modify the metric again. This error could be due to:
             })
             .where(eq(metricFiles.id, file.id))
             .execute();
+
+          // Critical save verification
+          const verificationResult = await db
+            .select({
+              id: metricFiles.id,
+              updatedAt: metricFiles.updatedAt,
+              name: metricFiles.name,
+            })
+            .from(metricFiles)
+            .where(eq(metricFiles.id, file.id))
+            .limit(1);
+
+          if (verificationResult.length === 0) {
+            throw new Error('Critical save verification failed - record not found after update');
+          }
 
           // Add to successful files output
           files.push({

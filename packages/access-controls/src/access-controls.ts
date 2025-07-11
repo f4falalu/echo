@@ -176,7 +176,7 @@ async function fetchOrgDefaultDatasetIds(userId: string): Promise<string[]> {
 
   // Get datasets from all default permission groups across all user's organizations
   const allDatasetIds: string[] = [];
-  
+
   for (const userOrg of userOrgs) {
     const { organizationId } = userOrg;
     const defaultGroupName = `default:${organizationId}`;
@@ -249,14 +249,14 @@ export async function getPermissionedDatasets(
 
   // --- Admin/Querier Path ---
   // Check if user has admin/querier role in any organization
-  const adminOrgs = userOrgs.filter(org => 
+  const adminOrgs = userOrgs.filter((org) =>
     ['workspace_admin', 'data_admin', 'querier'].includes(org.role)
   );
-  
+
   if (adminOrgs.length > 0) {
     // Get datasets from ALL organizations where user has admin/querier access
-    const organizationIds = adminOrgs.map(org => org.organizationId);
-    
+    const organizationIds = adminOrgs.map((org) => org.organizationId);
+
     const results = await db
       .select({
         id: datasets.id,
@@ -301,7 +301,7 @@ export async function getPermissionedDatasets(
   }
 
   // Get all organization IDs for the user
-  const organizationIds = userOrgs.map(org => org.organizationId);
+  const organizationIds = userOrgs.map((org) => org.organizationId);
 
   // Fetch the actual dataset info for the combined IDs with pagination
   // IMPORTANT: Filter by organization to prevent cross-org data access
@@ -652,7 +652,7 @@ async function checkOrgDefaultPermission(userId: string, datasetId: string): Pro
       );
 
     const permissionCount: number = result[0]?.count ?? 0;
-    
+
     if (permissionCount > 0) {
       return true; // Found access in this org's default group
     }

@@ -9,7 +9,8 @@
   "scripts": {
     "prebuild": "bun run scripts/validate-env.js && pnpm run typecheck",
     "build": "tsup",
-    "dev": "tsup --watch",
+    "dev": "bun --watch src/index.ts",
+    "dev:build": "tsup --watch",
     "lint": "biome check",
     "start": "bun dist/index.js",
     "test": "vitest run",
@@ -19,6 +20,7 @@
   },
   "dependencies": {
     "@buster/access-controls": "workspace:*",
+    "@buster/ai": "workspace:*",
     "@buster/database": "workspace:*",
     "@buster/server-shared": "workspace:*",
     "@buster/slack": "workspace:*",
@@ -29,6 +31,7 @@
     "@supabase/supabase-js": "catalog:",
     "@trigger.dev/sdk": "catalog:",
     "drizzle-orm": "catalog:",
+    "ai": "catalog:",
     "hono": "catalog:",
     "hono-pino": "^0.9.1",
     "pino": "^9.7.0",

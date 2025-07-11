@@ -60,9 +60,15 @@ export const ChatCreateHandlerRequestSchema = z.object({
   asset_type: AssetType.optional(),
 });
 
+// Cancel chat params schema
+export const CancelChatParamsSchema = z.object({
+  chat_id: z.string().uuid(),
+});
+
 // Infer types from schemas
 export type AssetPermissionRole = z.infer<typeof AssetPermissionRoleSchema>;
 export type BusterShareIndividual = z.infer<typeof BusterShareIndividualSchema>;
 export type ChatWithMessages = z.infer<typeof ChatWithMessagesSchema>;
 export type ChatCreateRequest = z.infer<typeof ChatCreateRequestSchema>;
 export type ChatCreateHandlerRequest = z.infer<typeof ChatCreateHandlerRequestSchema>;
+export type CancelChatParams = z.infer<typeof CancelChatParamsSchema>;

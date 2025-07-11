@@ -31,6 +31,7 @@ pub struct MetricDataResponse {
     pub metric_id: Uuid,
     pub data: Vec<IndexMap<String, DataType>>,
     pub data_metadata: DataMetadata,
+    pub has_more_records: bool,
 }
 
 /// Handler to retrieve both the metric definition and its associated data
@@ -158,6 +159,12 @@ pub async fn get_metric_data_handler(
         request.limit
     );
 
+    // Determine the actual query limit - we query for 5001 to check if there are more records
+    let query_limit = match request.limit {
+        Some(limit) => std::cmp::min(limit, 5001),
+        None => 5001,
+    };
+
     // Try to get cached metadata first
     let mut conn_meta = get_pg_pool().get().await?;
     let cached_metadata = metric_files::table
@@ -172,7 +179,7 @@ pub async fn get_metric_data_handler(
     let query_result = match query_engine::data_source_query_routes::query_engine::query_engine(
         &data_source_id, // Use the direct ID
         &sql,
-        request.limit,
+        Some(query_limit),
     )
     .await
     {
@@ -193,19 +200,28 @@ pub async fn get_metric_data_handler(
         }
     };
 
+    // Check if we have more than 5000 records
+    let has_more_records = query_result.data.len() > 5000;
+    
+    // Truncate to 5000 records if we got more
+    let mut data = query_result.data;
+    if has_more_records {
+        data.truncate(5000);
+    }
+
     // Determine which metadata to use
     let final_metadata = if let Some(metadata) = cached_metadata {
         tracing::debug!(
             "Using cached metadata. Cached rows: {}, Query rows: {}",
             metadata.row_count,
-            query_result.data.len()
+            data.len()
         );
         // Use cached metadata but update row count if it differs significantly or if cached count is 0
         // (We update if different because the cache might be stale regarding row count)
-        if metadata.row_count != query_result.data.len() as i64 {
+        if metadata.row_count != data.len() as i64 {
             tracing::debug!("Row count changed. Updating metadata row count.");
             let mut updated_metadata = metadata.clone();
-            updated_metadata.row_count = query_result.data.len() as i64;
+            updated_metadata.row_count = data.len() as i64;
             // Potentially update updated_at? For now, just row count.
             updated_metadata
         } else {
@@ -214,17 +230,22 @@ pub async fn get_metric_data_handler(
     } else {
         tracing::debug!("No cached metadata found. Using metadata from query result.");
         // No cached metadata, use the one from query_result
-        query_result.metadata.clone()
+        let mut metadata = query_result.metadata.clone();
+        // Update row count to match the actual data we're returning
+        metadata.row_count = data.len() as i64;
+        metadata
     };
 
     // Construct and return the response
     tracing::info!(
-        "Successfully retrieved data for metric {}. Returning response.",
-        request.metric_id
+        "Successfully retrieved data for metric {}. Returning response with has_more_records: {}",
+        request.metric_id,
+        has_more_records
     );
     Ok(MetricDataResponse {
         metric_id: request.metric_id,
-        data: query_result.data,
+        data,
         data_metadata: final_metadata,
+        has_more_records,
     })
 }
