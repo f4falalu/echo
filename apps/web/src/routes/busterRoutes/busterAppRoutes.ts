@@ -33,7 +33,7 @@ export enum BusterAppRoutes {
   APP_CHAT_ID_COLLECTION_ID = '/app/chats/:chatId/collections/:collectionId',
   APP_CHAT_ID_DASHBOARD_ID = '/app/chats/:chatId/dashboards/:dashboardId?secondary_view=:secondaryView&dashboard_version_number=:dashboardVersionNumber',
   APP_CHAT_ID_DASHBOARD_ID_FILE = '/app/chats/:chatId/dashboards/:dashboardId/file?secondary_view=:secondaryView&dashboard_version_number=:dashboardVersionNumber',
-  APP_CHAT_ID_DASHBOARD_ID_METRIC_ID = '/app/chats/:chatId/dashboards/:dashboardId/metric_files/:metricId?secondary_view=:secondaryView&metric_version_number=:metricVersionNumber&dashboard_version_number=:dashboardVersionNumber',
+  APP_CHAT_ID_DASHBOARD_ID_METRIC_ID = '/app/chats/:chatId/dashboards/:dashboardId/metrics/:metricId?secondary_view=:secondaryView&metric_version_number=:metricVersionNumber&dashboard_version_number=:dashboardVersionNumber',
   APP_CHAT_ID_DASHBOARD_ID_METRIC_ID_CHART = '/app/chats/:chatId/dashboards/:dashboardId/metrics/:metricId/chart?secondary_view=:secondaryView&metric_version_number=:metricVersionNumber&dashboard_version_number=:dashboardVersionNumber',
   APP_CHAT_ID_DASHBOARD_ID_METRIC_ID_SQL = '/app/chats/:chatId/dashboards/:dashboardId/metrics/:metricId/sql?secondary_view=:secondaryView&metric_version_number=:metricVersionNumber&dashboard_version_number=:dashboardVersionNumber',
   APP_CHAT_ID_DASHBOARD_ID_METRIC_ID_RESULTS = '/app/chats/:chatId/dashboards/:dashboardId/metrics/:metricId/results?secondary_view=:secondaryView&metric_version_number=:metricVersionNumber&dashboard_version_number=:dashboardVersionNumber',
