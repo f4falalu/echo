@@ -105,6 +105,9 @@ importers:
       '@buster/access-controls':
         specifier: workspace:*
         version: link:../../packages/access-controls
+      '@buster/ai':
+        specifier: workspace:*
+        version: link:../../packages/ai
       '@buster/database':
         specifier: workspace:*
         version: link:../../packages/database
@@ -132,6 +135,9 @@ importers:
       '@trigger.dev/sdk':
         specifier: 'catalog:'
         version: 4.0.0-v4-beta.22(ai@4.3.16(react@18.3.1)(zod@3.25.75))(zod@3.25.75)
+      ai:
+        specifier: 'catalog:'
+        version: 4.3.16(react@18.3.1)(zod@3.25.75)
       drizzle-orm:
         specifier: 'catalog:'
         version: 0.44.2(@opentelemetry/api@1.9.0)(@types/pg@8.15.4)(mysql2@3.14.1)(pg@8.16.3)(postgres@3.4.7)
