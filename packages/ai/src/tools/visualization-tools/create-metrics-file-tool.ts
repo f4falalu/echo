@@ -171,26 +171,6 @@ function createDataMetadata(results: Record<string, unknown>[]): DataMetadata {
   };
 }
 
-/**
- * Wraps a SQL query with a LIMIT clause for validation purposes
- * Handles existing LIMIT clauses and complex queries
- */
-function wrapQueryWithLimit(sql: string, limit: number): string {
-  // Remove any existing LIMIT clause to avoid conflicts
-  const sqlWithoutLimit = sql.replace(/\s+LIMIT\s+\d+\s*$/i, '').trim();
-
-  // For CTEs or complex queries, wrap the entire query
-  if (
-    sqlWithoutLimit.toUpperCase().includes('WITH ') ||
-    sqlWithoutLimit.includes('(') ||
-    sqlWithoutLimit.toUpperCase().includes('UNION')
-  ) {
-    return `SELECT * FROM (${sqlWithoutLimit}) AS validation_wrapper LIMIT ${limit}`;
-  }
-
-  // For simple queries, just append LIMIT
-  return `${sqlWithoutLimit} LIMIT ${limit}`;
-}
 
 /**
  * Ensures timeFrame values are properly quoted in YAML content
@@ -1373,13 +1353,10 @@ async function validateSql(
     // Attempt execution with retries
     for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
       try {
-        // For validation, wrap query with LIMIT at SQL level for better performance
-        // This ensures Snowflake doesn't process the entire dataset
-        const validationSql = wrapQueryWithLimit(sqlQuery, 1000);
-
         // Execute the SQL query using the DataSource with row limit and timeout for validation
+        // Use maxRows to limit results without modifying the SQL query (preserves Snowflake caching)
         const result = await dataSource.execute({
-          sql: validationSql,
+          sql: sqlQuery,
           options: {
             maxRows: 1000, // Additional safety limit at adapter level
             timeout: TIMEOUT_MS,
