@@ -208,8 +208,6 @@ pub async fn get_metric_data_handler(
     if has_more_records {
         data.truncate(5000);
     }
-        query_result.data
-    };
 
     // Determine which metadata to use
     let final_metadata = if let Some(metadata) = cached_metadata {
