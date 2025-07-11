@@ -791,3 +791,5 @@ const AppSplitterBase = forwardRef<
 );
 
 export const AppSplitter = React.memo(AppSplitterWrapper);
+
+AppSplitter.displayName = 'AppSplitter';

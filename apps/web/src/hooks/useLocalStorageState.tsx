@@ -95,9 +95,9 @@ export function useLocalStorageState<T>(
   const [state, setState] = useState<T | undefined>(getInitialValue);
 
   // Initialize state from localStorage on mount
-  useMount(() => {
-    setState(getInitialValue());
-  });
+  // useMount(() => {
+  //   setState(getInitialValue());
+  // });
 
   // Update localStorage when state changes
   useEffect(() => {
