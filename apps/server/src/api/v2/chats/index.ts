@@ -55,8 +55,8 @@ const app = new Hono()
     const params = c.req.valid('param');
     const user = c.get('busterUser');
     
-    const response = await cancelChatHandler(params.chat_id, user);
-    return c.json(response);
+    await cancelChatHandler(params.chat_id, user);
+    return c.json({ success: true, message: 'Chat cancelled successfully' });
   })
   .onError((e, c) => {
     if (e instanceof ChatError) {
