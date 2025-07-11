@@ -50,7 +50,7 @@ describe('useGetFileLink', () => {
         secondaryView: string;
       }) => {
         if (type === 'metric') {
-          return `/metric_files/${assetId}${versionNumber ? `/v${versionNumber}` : ''}${secondaryView ? `/${secondaryView}` : ''}`;
+          return `/metrics/${assetId}${versionNumber ? `/v${versionNumber}` : ''}${secondaryView ? `/${secondaryView}` : ''}`;
         }
         if (type === 'dashboard') {
           return `/dashboards/${assetId}${versionNumber ? `/v${versionNumber}` : ''}${secondaryView ? `/${secondaryView}` : ''}`;
@@ -81,7 +81,7 @@ describe('useGetFileLink', () => {
         versionNumber: 3,
         secondaryView: undefined
       });
-      expect(link).toBe(`/metric_files/${mockMetricId}/v3`);
+      expect(link).toBe(`/metrics/${mockMetricId}/v3`);
     });
 
     it('should generate correct file link for dashboard', () => {
@@ -121,7 +121,7 @@ describe('useGetFileLink', () => {
         versionNumber: 3,
         secondaryView: 'version-history'
       });
-      expect(link).toBe(`/metric_files/${mockMetricId}/v3/version-history`);
+      expect(link).toBe(`/metrics/${mockMetricId}/v3/version-history`);
     });
   });
 
@@ -220,7 +220,7 @@ describe('useGetFileLink', () => {
       });
 
       expect(meta).toEqual({
-        link: `/metric_files/${mockMetricId}/v${mockMetricVersionNumber}`,
+        link: `/metrics/${mockMetricId}/v${mockMetricVersionNumber}`,
         isSelected: true,
         selectedVersionNumber: mockMetricVersionNumber
       });
@@ -253,7 +253,7 @@ describe('useGetFileLink', () => {
       });
 
       expect(meta).toEqual({
-        link: '/metric_files/different-metric/v999',
+        link: '/metrics/different-metric/v999',
         isSelected: false,
         selectedVersionNumber: mockMetricVersionNumber
       });
