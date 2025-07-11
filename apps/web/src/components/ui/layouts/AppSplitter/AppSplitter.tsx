@@ -17,6 +17,7 @@ import { Splitter } from './Splitter';
 import { AppSplitterProvider } from './AppSplitterProvider';
 import { sizeToPixels, easeInOutCubic, createAutoSaveId } from './helpers';
 import { useMemoizedFn } from '@/hooks';
+import { useMount } from '@/hooks/useMount';
 
 interface IAppSplitterProps {
   leftChildren: React.ReactNode;
@@ -59,7 +60,6 @@ interface SplitterState {
   containerSize: number;
   isDragging: boolean;
   isAnimating: boolean;
-  isInitialized: boolean;
   sizeSetByAnimation: boolean;
   hasUserInteracted: boolean;
 }
@@ -68,20 +68,28 @@ const AppSplitterWrapper = forwardRef<AppSplitterRef, IAppSplitterProps>(
   ({ autoSaveId, style, className, split = 'vertical', ...props }, componentRef) => {
     const containerRef = useRef<HTMLDivElement>(null);
     const isVertical = split === 'vertical';
+    const [mounted, setMounted] = useState(false);
     const splitterAutoSaveId = createAutoSaveId(autoSaveId);
+
+    useMount(() => {
+      setMounted(true);
+    });
 
     return (
       <div
         ref={containerRef}
-        className={cn('swag1 flex h-full w-full', isVertical ? 'flex-row' : 'flex-col', className)}
+        id={splitterAutoSaveId}
+        className={cn('flex h-full w-full', isVertical ? 'flex-row' : 'flex-col', className)}
         style={style}>
-        <AppSplitterBase
-          {...props}
-          ref={componentRef}
-          isVertical={isVertical}
-          containerRef={containerRef}
-          splitterAutoSaveId={splitterAutoSaveId}
-        />
+        {mounted && (
+          <AppSplitterBase
+            {...props}
+            ref={componentRef}
+            isVertical={isVertical}
+            containerRef={containerRef}
+            splitterAutoSaveId={splitterAutoSaveId}
+          />
+        )}
       </div>
     );
   }
@@ -132,7 +140,6 @@ const AppSplitterBase = forwardRef<
 
     const bustStorageOnInitSplitter = (preservedSideValue: number | null) => {
       const refWidth = containerRef.current?.offsetWidth;
-      console.log('bustStorageOnInitSplitter', splitterAutoSaveId, refWidth);
       // Don't bust storage if container hasn't been sized yet
       if (!refWidth || refWidth === 0) return false;
       return typeof bustStorageOnInit === 'function'
@@ -151,7 +158,6 @@ const AppSplitterBase = forwardRef<
       containerSize: containerRef.current?.offsetWidth ?? 0,
       isDragging: false,
       isAnimating: false,
-      isInitialized: false,
       sizeSetByAnimation: false,
       hasUserInteracted: false
     });
@@ -232,16 +238,10 @@ const AppSplitterBase = forwardRef<
 
     // Calculate panel sizes with simplified logic
     const { leftSize, rightSize } = useMemo(() => {
-      const {
-        containerSize,
-        isInitialized,
-        isAnimating,
-        sizeSetByAnimation,
-        isDragging,
-        hasUserInteracted
-      } = state;
+      const { containerSize, isAnimating, sizeSetByAnimation, isDragging, hasUserInteracted } =
+        state;
 
-      if (!containerSize || !isInitialized) {
+      if (!containerSize) {
         return { leftSize: 0, rightSize: 0 };
       }
 
@@ -302,9 +302,7 @@ const AppSplitterBase = forwardRef<
         const newState = { ...prev, containerSize: size };
 
         // Initialize if needed - only when container has actual size
-        if (!prev.isInitialized && !prev.isAnimating && size > 0) {
-          newState.isInitialized = true;
-
+        if (!prev.isAnimating && size > 0) {
           // Set initial size if no saved layout exists
           if (savedLayout === null || savedLayout === undefined) {
             const initialSize = calculateInitialSize(size);
@@ -314,13 +312,7 @@ const AppSplitterBase = forwardRef<
 
         // Handle container resize when one panel is at 0px
         // Only adjust layout during resize if we're not currently animating
-        if (
-          prev.isInitialized &&
-          prev.containerSize > 0 &&
-          size > 0 &&
-          savedLayout !== null &&
-          !prev.isAnimating
-        ) {
+        if (prev.containerSize > 0 && size > 0 && savedLayout !== null && !prev.isAnimating) {
           const currentSavedSize = savedLayout;
 
           // If a panel is at 0px, preserve the other panel's size during resize
@@ -570,7 +562,6 @@ const AppSplitterBase = forwardRef<
           hidden={leftHidden}>
           {renderLeftPanel && leftChildren}
         </Panel>
-
         {showSplitter && (
           <Splitter
             onMouseDown={handleMouseDown}
@@ -581,7 +572,6 @@ const AppSplitterBase = forwardRef<
             hidden={shouldHideSplitter}
           />
         )}
-
         <Panel
           className={rightPanelClassName}
           width={isVertical ? rightSize : 'auto'}

@@ -15,6 +15,13 @@ interface StorageData<T> {
   timestamp: number;
 }
 
+interface CookieOptions {
+  domain?: string;
+  path?: string;
+  secure?: boolean;
+  sameSite?: 'strict' | 'lax' | 'none';
+}
+
 interface Options<T> {
   defaultValue?: T | (() => T);
   serializer?: (value: T) => string;
@@ -22,9 +29,65 @@ interface Options<T> {
   onError?: (error: unknown) => void;
   bustStorageOnInit?: boolean | ((layout: T) => boolean);
   expirationTime?: number;
+  cookieOptions?: CookieOptions;
 }
 
-export function useLocalStorageState<T>(
+// Helper function to parse cookies
+const parseCookies = (): Record<string, string> => {
+  if (isServer) return {};
+
+  return document.cookie.split(';').reduce(
+    (cookies, cookie) => {
+      const [name, value] = cookie.trim().split('=');
+      if (name && value) {
+        cookies[name] = decodeURIComponent(value);
+      }
+      return cookies;
+    },
+    {} as Record<string, string>
+  );
+};
+
+// Helper function to set a cookie
+const setCookie = (
+  name: string,
+  value: string,
+  expirationTime: number,
+  options: CookieOptions = {}
+): void => {
+  if (isServer) return;
+
+  const expires = new Date(Date.now() + expirationTime).toUTCString();
+  const { domain, path = '/', secure = true, sameSite = 'lax' } = options;
+
+  let cookieString = `${name}=${encodeURIComponent(value)}; expires=${expires}; path=${path}; SameSite=${sameSite}`;
+
+  if (secure) {
+    cookieString += '; Secure';
+  }
+
+  if (domain) {
+    cookieString += `; Domain=${domain}`;
+  }
+
+  document.cookie = cookieString;
+};
+
+// Helper function to remove a cookie
+const removeCookie = (name: string, options: CookieOptions = {}): void => {
+  if (isServer) return;
+
+  const { domain, path = '/' } = options;
+  let cookieString = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=${path}`;
+
+  if (domain) {
+    cookieString += `; Domain=${domain}`;
+  }
+
+  document.cookie = cookieString;
+};
+
+export function useCookieState<T>(
   key: string,
   options?: Options<T>
 ): [T | undefined, (value?: SetState<T>) => void, () => T | undefined] {
@@ -34,34 +97,32 @@ export function useLocalStorageState<T>(
     deserializer = JSON.parse,
     onError,
     bustStorageOnInit = false,
-    expirationTime = DEFAULT_EXPIRATION_TIME
+    expirationTime = DEFAULT_EXPIRATION_TIME,
+    cookieOptions = {}
   } = options || {};
 
   const executeBustStorage = useMemoizedFn(() => {
-    console.log(
-      '***executeBustStorage',
-      key,
-      typeof defaultValue === 'function' ? (defaultValue as () => T)() : defaultValue
-    );
-    if (!isServer) window.localStorage.removeItem(key);
+    if (!isServer) removeCookie(key, cookieOptions);
     return typeof defaultValue === 'function' ? (defaultValue as () => T)() : defaultValue;
   });
 
-  // Get initial value from localStorage or use default
+  // Get initial value from cookies or use default
   const getInitialValue = useMemoizedFn((): T | undefined => {
-    // If bustStorageOnInit is true, ignore localStorage and use default value
+    // If bustStorageOnInit is true, ignore cookies and use default value
     if (bustStorageOnInit === true) {
       return executeBustStorage();
     }
 
     try {
-      const item = window.localStorage.getItem(key);
-      if (item === null) {
+      const cookies = parseCookies();
+      const cookieValue = cookies[key];
+
+      if (!cookieValue) {
         return executeBustStorage();
       }
 
       // Parse the stored data which includes value and timestamp
-      const storageData: StorageData<T> = JSON.parse(item);
+      const storageData: StorageData<T> = JSON.parse(cookieValue);
 
       // Check if the stored data has the expected structure
       if (
@@ -97,30 +158,30 @@ export function useLocalStorageState<T>(
     }
   });
 
-  const [state, setState] = useState<T | undefined>(getInitialValue);
+  const [state, setState] = useState<T | undefined>(() => getInitialValue());
 
-  // Initialize state from localStorage on mount
+  // Initialize state from cookies on mount
   useMount(() => {
     setState(getInitialValue());
   });
 
-  // Update localStorage when state changes
+  // Update cookies when state changes
   useEffect(() => {
     try {
       if (state === undefined && !isServer) {
-        window.localStorage.removeItem(key);
+        removeCookie(key, cookieOptions);
       } else {
         // Create storage data with current timestamp
         const storageData: StorageData<T> = {
           value: JSON.parse(serializer(state)),
           timestamp: Date.now()
         };
-        window.localStorage.setItem(key, JSON.stringify(storageData));
+        setCookie(key, JSON.stringify(storageData), expirationTime, cookieOptions);
       }
     } catch (error) {
       onError?.(error);
     }
-  }, [key, state, serializer, onError]);
+  }, [key, state, serializer, onError, expirationTime, cookieOptions]);
 
   // Setter function that handles both direct values and function updates
   const setStoredState = useMemoizedFn((value?: SetState<T>) => {

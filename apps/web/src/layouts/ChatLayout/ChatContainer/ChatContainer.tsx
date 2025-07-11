@@ -4,6 +4,7 @@ import { ChatContent } from './ChatContent';
 import { ChatHeader } from './ChatHeader';
 
 export const ChatContainer = React.memo(({ mounted }: { mounted?: boolean }) => {
+  console.log('ChatContainer', mounted);
   return (
     <AppPageLayout
       headerSizeVariant="default"
