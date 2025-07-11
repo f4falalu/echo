@@ -25,14 +25,14 @@ import { mainApi } from '../instances';
 
 export const getMetric = async (params: GetMetricRequest): Promise<GetMetricResponse> => {
   return mainApi
-    .get<GetMetricResponse>(`/metrics/${params.id}`, {
+    .get<GetMetricResponse>(`/metric_files/${params.id}`, {
       params
     })
     .then((res) => res.data);
 };
 
 export const getMetric_server = async ({ id, password }: Parameters<typeof getMetric>[0]) => {
-  return await serverFetch<GetMetricResponse>(`/metrics/${id}`, {
+  return await serverFetch<GetMetricResponse>(`/metric_files/${id}`, {
     params: { ...(password && { password }) }
   });
 };
@@ -43,25 +43,25 @@ export const getMetricData = async ({
   password
 }: GetMetricDataRequest): Promise<MetricDataResponse> => {
   return mainApi
-    .get<MetricDataResponse>(`/metrics/${id}/data`, { params: { password, version_number } })
+    .get<MetricDataResponse>(`/metric_files/${id}/data`, { params: { password, version_number } })
     .then((res) => res.data);
 };
 
 export const listMetrics = async (params: GetMetricListRequest) => {
-  return mainApi.get<ListMetricsResponse>('/metrics', { params }).then((res) => res.data);
+  return mainApi.get<ListMetricsResponse>('/metric_files', { params }).then((res) => res.data);
 };
 
 export const listMetrics_server = async (params: Parameters<typeof listMetrics>[0]) => {
-  return await serverFetch<ListMetricsResponse>('/metrics', { params });
+  return await serverFetch<ListMetricsResponse>('/metric_files', { params });
 };
 
 export const updateMetric = async (params: UpdateMetricRequest) => {
-  return mainApi.put<UpdateMetricResponse>(`/metrics/${params.id}`, params).then((res) => res.data);
+  return mainApi.put<UpdateMetricResponse>(`/metric_files/${params.id}`, params).then((res) => res.data);
 };
 
 export const deleteMetrics = async (data: DeleteMetricRequest) => {
   return mainApi
-    .delete<DeleteMetricResponse>('/metrics', {
+    .delete<DeleteMetricResponse>('/metric_files', {
       data
     })
     .then((res) => res.data);
@@ -69,7 +69,7 @@ export const deleteMetrics = async (data: DeleteMetricRequest) => {
 
 export const duplicateMetric = async (params: DuplicateMetricRequest) => {
   return mainApi
-    .post<DuplicateMetricResponse>('/metrics/duplicate', params)
+    .post<DuplicateMetricResponse>('/metric_files/duplicate', params)
     .then((res) => res.data);
 };
 
@@ -77,7 +77,7 @@ export const bulkUpdateMetricVerificationStatus = async (
   params: BulkUpdateMetricVerificationStatusRequest
 ) => {
   return mainApi
-    .put<BulkUpdateMetricVerificationStatusResponse>('/metrics', params)
+    .put<BulkUpdateMetricVerificationStatusResponse>('/metric_files', params)
     .then((res) => res.data);
 };
 
@@ -85,13 +85,13 @@ export const bulkUpdateMetricVerificationStatus = async (
 
 export const shareMetric = async ({ id, params }: { id: string; params: ShareMetricRequest }) => {
   return mainApi
-    .post<ShareMetricResponse>(`/metrics/${id}/sharing`, params)
+    .post<ShareMetricResponse>(`/metric_files/${id}/sharing`, params)
     .then((res) => res.data);
 };
 
 export const unshareMetric = async ({ id, data }: { id: string; data: ShareDeleteRequest }) => {
   return mainApi
-    .delete<ShareDeleteResponse>(`/metrics/${id}/sharing`, { data })
+    .delete<ShareDeleteResponse>(`/metric_files/${id}/sharing`, { data })
     .then((res) => res.data);
 };
 
@@ -102,5 +102,5 @@ export const updateMetricShare = async ({
   id: string;
   params: ShareUpdateRequest;
 }) => {
-  return mainApi.put<ShareUpdateResponse>(`/metrics/${id}/sharing`, params).then((res) => res.data);
+  return mainApi.put<ShareUpdateResponse>(`/metric_files/${id}/sharing`, params).then((res) => res.data);
 };

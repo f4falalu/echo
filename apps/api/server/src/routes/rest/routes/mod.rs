@@ -32,7 +32,7 @@ pub fn router() -> Router {
             .nest("/organizations", organizations::router())
             .nest("/chats", chats::router())
             .nest("/messages", messages::router())
-            .nest("/metrics", metrics::router())
+            .nest("/metric_files", metrics::router())
             .nest("/dashboards", dashboards::router())
             .nest("/users", users::router())
             .nest("/collections", collections::router())
