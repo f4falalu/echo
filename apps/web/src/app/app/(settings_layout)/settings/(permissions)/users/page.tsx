@@ -16,6 +16,8 @@ export default function Page() {
   const userOrganization = useUserConfigContextSelector((x) => x.userOrganizations);
   const onToggleInviteModal = useInviteModalStore((s) => s.onToggleInviteModal);
   const openInviteModal = useInviteModalStore((s) => s.openInviteModal);
+  const restrictNewUserInvitations =
+    useUserConfigContextSelector((x) => x.userOrganizations?.restrictNewUserInvitations) ?? true;
   const firstOrganizationId = userOrganization?.id || '';
   const { data: users, isFetched } = useGetOrganizationUsers(firstOrganizationId);
 
@@ -43,9 +45,11 @@ export default function Page() {
               setSearchText={handleSearchChange}
             />
 
-            <Button prefix={<Plus />} onClick={() => onToggleInviteModal(true)}>
-              Invite people
-            </Button>
+            {!restrictNewUserInvitations && (
+              <Button prefix={<Plus />} onClick={() => onToggleInviteModal(true)}>
+                Invite people
+              </Button>
+            )}
           </div>
         </div>
 

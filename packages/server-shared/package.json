@@ -5,6 +5,7 @@
   "module": "src/index.ts",
   "private": false,
   "scripts": {
+    "prebuild": "tsx scripts/type-import-check.ts",
     "build": "tsc --build",
     "dev": "tsc --watch",
     "lint": "biome check",
@@ -63,12 +64,13 @@
     }
   },
   "dependencies": {
-    "@buster/vitest-config": "workspace:*",
-    "@buster/typescript-config": "workspace:*",
     "@buster/database": "workspace:*",
+    "@buster/typescript-config": "workspace:*",
+    "@buster/vitest-config": "workspace:*",
     "zod": "^3.0.0"
   },
   "devDependencies": {
+    "tsx": "^4.20.3",
     "vitest": "catalog:"
   }
 }

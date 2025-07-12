@@ -1,9 +1,9 @@
 import {
+  CancelChatParamsSchema,
   ChatCreateRequestSchema,
   ChatError,
   type ChatWithMessages,
   ChatWithMessagesSchema,
-  CancelChatParamsSchema,
 } from '@buster/server-shared/chats';
 import { zValidator } from '@hono/zod-validator';
 import { Hono } from 'hono';
@@ -11,8 +11,8 @@ import { requireAuth } from '../../../middleware/auth';
 import '../../../types/hono.types'; //I added this to fix intermitent type errors. Could probably be removed.
 import { HTTPException } from 'hono/http-exception';
 import { z } from 'zod';
-import { createChatHandler } from './handler';
 import { cancelChatHandler } from './cancel-chat';
+import { createChatHandler } from './handler';
 
 const app = new Hono()
   // Apply authentication middleware
@@ -54,7 +54,7 @@ const app = new Hono()
   .delete('/:chat_id/cancel', zValidator('param', CancelChatParamsSchema), async (c) => {
     const params = c.req.valid('param');
     const user = c.get('busterUser');
-    
+
     await cancelChatHandler(params.chat_id, user);
     return c.json({ success: true, message: 'Chat cancelled successfully' });
   })

@@ -13,6 +13,9 @@ import { useSupabaseContext } from '../Supabase/SupabaseContextProvider';
 import { persistOptions } from './createPersister';
 import { getQueryClient } from './getQueryClient';
 
+const ENABLE_TANSTACK_PANEL =
+  process.env.NEXT_ENABLE_TANSTACK_PANEL === 'true' || process.env.NODE_ENV === 'development';
+
 const ReactQueryDevtools = dynamic(
   () =>
     import('@tanstack/react-query-devtools').then((d) => ({
@@ -59,15 +62,18 @@ export const BusterReactQueryProvider = ({ children }: { children: React.ReactNo
   //   };
   // }, [checkTokenValidity]);
 
-  useHotkeys('meta+shift+i', (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsDevToolsOpen((prev) => !prev);
-  });
+  useHotkeys(
+    'meta+shift+i',
+    (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      setIsDevToolsOpen((prev) => !prev);
+    },
+    { enabled: ENABLE_TANSTACK_PANEL }
+  );
 
   return (
     <PersistQueryClientProvider client={queryClient} persistOptions={persistOptions}>
-      {/* <BusterApiContext.Provider value={busterApiContext}>{children}</BusterApiContext.Provider> */}
       {children}
       {isDevToolsOpen && (
         <>

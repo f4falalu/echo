@@ -2,45 +2,64 @@ import { drizzle } from 'drizzle-orm/postgres-js';
 import type { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
 
-// Pool configuration interface
-export interface PoolConfig {
-  max?: number;
-  idle_timeout?: number;
-  connect_timeout?: number;
-  prepare?: boolean;
-}
-
-// Default pool configuration
-const defaultPoolConfig: PoolConfig = {
-  max: 100,
-  idle_timeout: 30,
-  connect_timeout: 30,
-  prepare: true,
-};
-
 // Global pool instance
 let globalPool: postgres.Sql | null = null;
 let globalDb: PostgresJsDatabase | null = null;
 
-// Initialize the database pool
-export function initializePool(config: PoolConfig = {}): PostgresJsDatabase {
-  const connectionString = process.env.DATABASE_URL;
-  const poolSize = process.env.DATABASE_POOL_SIZE
-    ? Number.parseInt(process.env.DATABASE_POOL_SIZE)
-    : 100;
+// Environment validation
+function validateEnvironment(): string {
+  const isTest = process.env.NODE_ENV === 'test';
+  const isProduction = process.env.NODE_ENV === 'production';
+  const dbUrl = process.env.DATABASE_URL;
 
+  if (!dbUrl) {
+    throw new Error('DATABASE_URL environment variable is required');
+  }
+
+  // Prevent accidental production database usage in tests
+  if (isTest && dbUrl.includes('prod') && !process.env.ALLOW_PROD_DB_IN_TESTS) {
+    throw new Error(
+      'Production database detected in test environment. Set ALLOW_PROD_DB_IN_TESTS=true to override.'
+    );
+  }
+
+  // Warn about non-pooled connections in production
+  if (isProduction && !process.env.DATABASE_POOL_SIZE) {
+    console.warn('DATABASE_POOL_SIZE not set - using default pool size of 100');
+  }
+
+  const connectionString = process.env.DATABASE_URL;
   if (!connectionString) {
     throw new Error('DATABASE_URL environment variable is required');
   }
+
+  return connectionString;
+
+  return connectionString;
+}
+
+// Initialize the database pool
+export function initializePool<T extends Record<string, postgres.PostgresType>>(
+  config: postgres.Options<T> | undefined = {}
+): PostgresJsDatabase {
+  const connectionString = validateEnvironment();
+
+  const poolSize = process.env.DATABASE_POOL_SIZE
+    ? Number.parseInt(process.env.DATABASE_POOL_SIZE)
+    : 100;
 
   if (globalPool && globalDb) {
     return globalDb;
   }
 
-  const poolConfig = { ...defaultPoolConfig, ...config, max: poolSize };
-
   // Create postgres client with pool configuration
-  globalPool = postgres(connectionString, poolConfig);
+  globalPool = postgres(connectionString, {
+    max: poolSize,
+    idle_timeout: 30,
+    connect_timeout: 30,
+    prepare: true,
+    ...config,
+  });
 
   // Create drizzle instance
   globalDb = drizzle(globalPool);

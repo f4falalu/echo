@@ -21,7 +21,7 @@ const app = new Hono()
       // For URL verification, it's application/x-www-form-urlencoded
       // For actual events, it's application/json
       const contentType = c.req.header('content-type');
-      
+
       if (contentType?.includes('application/x-www-form-urlencoded')) {
         // Handle URL verification challenge
         const formData = await c.req.parseBody();
@@ -29,7 +29,7 @@ const app = new Hono()
           return c.text(formData.challenge as string);
         }
       }
-      
+
       // For JSON payloads, try to parse but don't fail
       let body = null;
       if (contentType?.includes('application/json')) {
@@ -39,7 +39,7 @@ const app = new Hono()
           // If JSON parsing fails, just continue
         }
       }
-      
+
       const response = await eventsHandler(body);
       return c.json(response);
     } catch (error) {
