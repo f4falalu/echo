@@ -335,6 +335,7 @@ pub struct Collection {
 
 #[derive(Queryable, Insertable, Identifiable, Debug, Clone, Serialize, Deserialize)]
 #[diesel(table_name = organizations)]
+#[serde(rename_all = "camelCase")]
 pub struct Organization {
     pub id: Uuid,
     pub name: String,
