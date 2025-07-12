@@ -62,7 +62,8 @@ const dataMetadata: DataMetadata = {
 const MOCK_DATA: Required<BusterMetricData> = {
   data: mockData(),
   metricId: 'mock-metric-1',
-  data_metadata: dataMetadata
+  data_metadata: dataMetadata,
+  has_more_records: false
 };
 
 export const createMockData = (metricId: string): Required<BusterMetricData> => {
