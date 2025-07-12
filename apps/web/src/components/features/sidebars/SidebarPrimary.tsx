@@ -155,9 +155,10 @@ const tryGroup = (
 
 export const SidebarPrimary = React.memo(() => {
   const isAdmin = useUserConfigContextSelector((x) => x.isAdmin);
+  const restrictNewUserInvitations =
+    useUserConfigContextSelector((x) => x.userOrganizations?.restrictNewUserInvitations) ?? true;
   const isUserRegistered = useUserConfigContextSelector((x) => x.isUserRegistered);
   const currentParentRoute = useAppLayoutContextSelector((x) => x.currentParentRoute);
-  const isAnonymousUser = useUserConfigContextSelector((state) => state.userOrganizations);
   const onToggleInviteModal = useInviteModalStore((s) => s.onToggleInviteModal);
   const onOpenContactSupportModal = useContactSupportModalStore((s) => s.onOpenContactSupportModal);
 
@@ -193,12 +194,19 @@ export const SidebarPrimary = React.memo(() => {
       items.push(favoritesDropdownItems);
     }
 
-    items.push(tryGroup(onToggleInviteModal, () => onOpenContactSupportModal('feedback'), isAdmin));
+    items.push(
+      tryGroup(
+        onToggleInviteModal,
+        () => onOpenContactSupportModal('feedback'),
+        !restrictNewUserInvitations
+      )
+    );
 
     return items;
   }, [
     isUserRegistered,
     adminToolsItems,
+    restrictNewUserInvitations,
     yourStuffItems,
     favoritesDropdownItems,
     onToggleInviteModal,
