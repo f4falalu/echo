@@ -162,7 +162,6 @@ function createDataMetadata(results: Record<string, unknown>[]): DataMetadata {
   };
 }
 
-
 /**
  * Ensures timeFrame values are properly quoted in YAML content
  * Finds timeFrame: value and wraps the value in quotes if not already quoted

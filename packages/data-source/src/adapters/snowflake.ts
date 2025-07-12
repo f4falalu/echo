@@ -202,9 +202,9 @@ export class SnowflakeAdapter extends BaseAdapter {
           reject(new Error('Failed to acquire Snowflake connection'));
           return;
         }
-        
+
         connection.execute({
-          sqlText: sql,  // Use original SQL unchanged for caching
+          sqlText: sql, // Use original SQL unchanged for caching
           binds: params as snowflake.Binds,
           complete: (
             err: SnowflakeError | undefined,

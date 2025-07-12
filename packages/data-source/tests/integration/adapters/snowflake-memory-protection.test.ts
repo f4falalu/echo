@@ -48,7 +48,7 @@ describe('Snowflake Memory Protection Tests', () => {
     'should handle large result sets with maxRows without running out of memory',
     async () => {
       await adapter.initialize(credentials);
-      
+
       // NOTE: Due to Snowflake SDK limitations, we cannot truly stream results
       // For now, we'll test with a smaller dataset to avoid OOM
       // Query ORDERS table instead of LINEITEM (1.5M rows vs 6M rows)
@@ -61,7 +61,7 @@ describe('Snowflake Memory Protection Tests', () => {
       expect(result.rows.length).toBe(100);
       expect(result.hasMoreRows).toBe(true);
       expect(result.rowCount).toBe(100);
-      
+
       // Verify we got the fields metadata
       expect(result.fields.length).toBeGreaterThan(0);
       expect(result.fields[0]).toHaveProperty('name');
@@ -74,38 +74,38 @@ describe('Snowflake Memory Protection Tests', () => {
     'should preserve query caching when running the same query multiple times',
     async () => {
       await adapter.initialize(credentials);
-      
+
       const sql = 'SELECT * FROM SNOWFLAKE_SAMPLE_DATA.TPCH_SF1.CUSTOMER WHERE C_MKTSEGMENT = ?';
       const params = ['AUTOMOBILE'];
-      
+
       // First execution - will be cached by Snowflake
       const start1 = Date.now();
       const result1 = await adapter.query(sql, params, 50);
       const time1 = Date.now() - start1;
-      
+
       // Second execution - should hit Snowflake's cache
       const start2 = Date.now();
       const result2 = await adapter.query(sql, params, 50);
       const time2 = Date.now() - start2;
-      
+
       // Third execution with different maxRows - should still hit cache
       const start3 = Date.now();
       const result3 = await adapter.query(sql, params, 25);
       const time3 = Date.now() - start3;
-      
+
       // Verify results
       expect(result1.rows.length).toBe(50);
       expect(result2.rows.length).toBe(50);
       expect(result3.rows.length).toBe(25);
-      
+
       // All should indicate more rows available
       expect(result1.hasMoreRows).toBe(true);
       expect(result2.hasMoreRows).toBe(true);
       expect(result3.hasMoreRows).toBe(true);
-      
+
       // Cache hits should be faster (allowing for some variance)
       console.info(`Query times: ${time1}ms, ${time2}ms, ${time3}ms`);
-      
+
       // The cached queries (2nd and 3rd) should generally be faster than the first
       // We use a loose check because network latency can vary
       const avgCachedTime = (time2 + time3) / 2;
@@ -118,11 +118,9 @@ describe('Snowflake Memory Protection Tests', () => {
     'should handle queries with no maxRows (fetch all results)',
     async () => {
       await adapter.initialize(credentials);
-      
+
       // Query a small table without maxRows
-      const result = await adapter.query(
-        'SELECT * FROM SNOWFLAKE_SAMPLE_DATA.TPCH_SF1.REGION'
-      );
+      const result = await adapter.query('SELECT * FROM SNOWFLAKE_SAMPLE_DATA.TPCH_SF1.REGION');
 
       // REGION table has exactly 5 rows
       expect(result.rows.length).toBe(5);
@@ -136,7 +134,7 @@ describe('Snowflake Memory Protection Tests', () => {
     'should handle maxRows=1 correctly',
     async () => {
       await adapter.initialize(credentials);
-      
+
       const result = await adapter.query(
         'SELECT * FROM SNOWFLAKE_SAMPLE_DATA.TPCH_SF1.NATION ORDER BY N_NATIONKEY',
         undefined,
@@ -154,7 +152,7 @@ describe('Snowflake Memory Protection Tests', () => {
     'should handle edge case where result set equals maxRows',
     async () => {
       await adapter.initialize(credentials);
-      
+
       // REGION table has exactly 5 rows
       const result = await adapter.query(
         'SELECT * FROM SNOWFLAKE_SAMPLE_DATA.TPCH_SF1.REGION',
@@ -173,7 +171,7 @@ describe('Snowflake Memory Protection Tests', () => {
     'should handle complex queries with CTEs and maxRows',
     async () => {
       await adapter.initialize(credentials);
-      
+
       const sql = `
         WITH high_value_orders AS (
           SELECT O_CUSTKEY, SUM(O_TOTALPRICE) as total_spent
