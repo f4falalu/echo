@@ -36,11 +36,8 @@
 
   // Enhanced TypeScript settings for monorepo cross-package type checking
   "typescript.preferences.includePackageJsonAutoImports": "on",
-  "typescript.suggest.includeCompletionsForModuleExports": true,
   "typescript.suggest.includeAutomaticOptionalChainCompletions": true,
-  "typescript.preferences.enableRenameShorthandProperties": true,
   "typescript.workspaceSymbols.scope": "allOpenProjects",
-  "typescript.references.enabled": true,
   "typescript.implementationsCodeLens.enabled": true,
   "typescript.referencesCodeLens.enabled": true,
   "typescript.referencesCodeLens.showOnAllFunctions": true,
@@ -50,8 +47,7 @@
   "typescript.format.enable": true,
   "typescript.check.npmIsInstalled": false,
   "typescript.disableAutomaticTypeAcquisition": true,
-  "typescript.experimental.aiCodeActions": "on",
-  "typescript.experimental.includePackageJsonAutoImports": "on",
+
 
   // Default Biome formatting for all file types
   "[typescript]": {

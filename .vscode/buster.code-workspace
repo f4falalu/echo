@@ -1,6 +1,5 @@
 {
   "folders": [
-    { "path": "." },
     { "path": "./apps/api" },
     { "path": "./apps/electric-server" },
     { "path": "./apps/server" },
