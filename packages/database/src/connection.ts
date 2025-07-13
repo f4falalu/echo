@@ -34,8 +34,6 @@ function validateEnvironment(): string {
   }
 
   return connectionString;
-
-  return connectionString;
 }
 
 // Initialize the database pool

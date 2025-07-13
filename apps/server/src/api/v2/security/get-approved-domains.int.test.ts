@@ -1,5 +1,6 @@
 import { db, eq, organizations } from '@buster/database';
-import type { Organization, User } from '@buster/database';
+import type { User } from '@buster/database';
+import type { Organization, OrganizationRole } from '@buster/server-shared/organization';
 import { HTTPException } from 'hono/http-exception';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { getApprovedDomainsHandler } from './get-approved-domains';
@@ -68,7 +69,7 @@ describe('getApprovedDomainsHandler (integration)', () => {
     });
 
     it('should work for users with different roles', async () => {
-      const roles = ['querier', 'data_admin', 'workspace_admin'];
+      const roles: OrganizationRole[] = ['querier', 'data_admin', 'workspace_admin'];
 
       for (const role of roles) {
         let roleUser: User | undefined;
@@ -153,7 +154,7 @@ describe('getApprovedDomainsHandler (integration)', () => {
         .limit(1);
 
       expect(orgAfter[0]?.domains).toEqual(originalOrg.domains);
-      expect(new Date(orgAfter[0]?.updatedAt).toISOString()).toEqual(
+      expect(new Date(orgAfter[0]!.updatedAt).toISOString()).toEqual(
         new Date(originalOrg.updatedAt).toISOString()
       );
     });

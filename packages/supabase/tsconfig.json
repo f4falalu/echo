@@ -1,4 +1,4 @@
 {
   "extends": "../typescript-config/base.json",
-  "include": ["volumes/**/*"]
+  "include": ["volumes*"]
 }

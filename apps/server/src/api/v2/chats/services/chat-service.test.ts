@@ -51,6 +51,8 @@ const mockMessage: Message = {
   updatedAt: new Date().toISOString(),
   deletedAt: null,
   feedback: null,
+  postProcessingMessage: null,
+  triggerRunId: null,
 };
 
 // Mock database functions

@@ -1,4 +1,10 @@
 import { db, slackIntegrations } from '@buster/database';
+import type {
+  GetIntegrationResponse,
+  InitiateOAuthResponse,
+  RemoveIntegrationResponse,
+  SlackErrorResponse,
+} from '@buster/server-shared/slack';
 import { and, eq } from 'drizzle-orm';
 import { Hono } from 'hono';
 import type { Context } from 'hono';
@@ -110,7 +116,12 @@ describe.skipIf(skipIfNoEnv)('SlackHandler Integration Tests', () => {
         // Set auth context for protected routes
         const path = c.req.path;
         if (path.includes('/auth/init') || path.includes('/integration')) {
-          (c as Context).set('busterUser', { id: testUserId });
+          (c as Context).set('busterUser', {
+            id: testUserId,
+            name: 'Test User',
+            email: 'test@example.com',
+            avatarUrl: 'https://example.com/avatar.png',
+          });
           (c as Context).set('organizationId', testOrganizationId);
         }
         await next();
@@ -145,7 +156,12 @@ describe.skipIf(skipIfNoEnv)('SlackHandler Integration Tests', () => {
       const testApp = new Hono();
       testApp.use('*', async (c, next) => {
         if (c.req.path.includes('/auth/init')) {
-          (c as Context).set('busterUser', { id: testUserId });
+          (c as Context).set('busterUser', {
+            id: testUserId,
+            name: 'Test User',
+            email: 'test@example.com',
+            avatarUrl: 'https://example.com/avatar.png',
+          });
           (c as Context).set('organizationId', testOrganizationId);
         }
         await next();
@@ -161,7 +177,7 @@ describe.skipIf(skipIfNoEnv)('SlackHandler Integration Tests', () => {
       });
 
       expect(response.status).toBe(503);
-      const data = await response.json();
+      const data = (await response.json()) as SlackErrorResponse;
       expect(data.error).toBe('Slack integration is not enabled');
       expect(data.code).toBe('INTEGRATION_DISABLED');
 
@@ -221,8 +237,8 @@ describe.skipIf(skipIfNoEnv)('SlackHandler Integration Tests', () => {
       });
 
       expect(response.status).toBe(200);
-      const data = await response.json();
-      expect(data.authUrl).toContain('https://slack.com/oauth');
+      const data = (await response.json()) as InitiateOAuthResponse;
+      expect(data.auth_url).toContain('https://slack.com/oauth');
       expect(data.state).toBeTruthy();
 
       // Verify pending integration was created in database
@@ -232,12 +248,12 @@ describe.skipIf(skipIfNoEnv)('SlackHandler Integration Tests', () => {
         .where(eq(slackIntegrations.organizationId, testOrganizationId));
 
       expect(pending).toBeTruthy();
-      createdIntegrationIds.push(pending.id);
+      createdIntegrationIds.push(pending!.id);
 
-      expect(pending.status).toBe('pending');
-      expect(pending.userId).toBe(testUserId);
-      expect(pending.oauthState).toBeTruthy();
-      expect(pending.oauthMetadata).toMatchObject({
+      expect(pending!.status).toBe('pending');
+      expect(pending!.userId).toBe(testUserId);
+      expect(pending!.oauthState).toBeTruthy();
+      expect(pending!.oauthMetadata).toMatchObject({
         returnUrl: '/dashboard',
         source: 'settings',
         projectId: '550e8400-e29b-41d4-a716-446655440000',
@@ -261,7 +277,7 @@ describe.skipIf(skipIfNoEnv)('SlackHandler Integration Tests', () => {
         })
         .returning();
 
-      createdIntegrationIds.push(existing.id);
+      createdIntegrationIds.push(existing!.id);
 
       const response = await app.request('/api/v2/slack/auth/init', {
         method: 'POST',
@@ -272,7 +288,7 @@ describe.skipIf(skipIfNoEnv)('SlackHandler Integration Tests', () => {
       });
 
       expect(response.status).toBe(409);
-      const data = await response.json();
+      const data = (await response.json()) as SlackErrorResponse;
       expect(data.error).toBe('Organization already has an active Slack integration');
       expect(data.code).toBe('INTEGRATION_EXISTS');
     });
@@ -317,7 +333,7 @@ describe.skipIf(skipIfNoEnv)('SlackHandler Integration Tests', () => {
         })
         .returning();
 
-      createdIntegrationIds.push(pending.id);
+      createdIntegrationIds.push(pending!.id);
 
       const response = await app.request(
         `/api/v2/slack/auth/callback?code=test-code&state=${testState}`,
@@ -333,14 +349,14 @@ describe.skipIf(skipIfNoEnv)('SlackHandler Integration Tests', () => {
       const [activated] = await db
         .select()
         .from(slackIntegrations)
-        .where(eq(slackIntegrations.id, pending.id));
+        .where(eq(slackIntegrations.id, pending!.id));
 
-      expect(activated.status).toBe('active');
-      expect(activated.teamName).toBe('Test Workspace');
-      expect(activated.tokenVaultKey).toBe(`slack-token-${pending.id}`);
-      expect(activated.installedAt).toBeTruthy();
-      expect(activated.oauthState).toBeNull();
-      expect(activated.oauthExpiresAt).toBeNull();
+      expect(activated!.status).toBe('active');
+      expect(activated!.teamName).toBe('Test Workspace');
+      expect(activated!.tokenVaultKey).toBe(`slack-token-${pending!.id}`);
+      expect(activated!.installedAt).toBeTruthy();
+      expect(activated!.oauthState).toBeNull();
+      expect(activated!.oauthExpiresAt).toBeNull();
     });
 
     it('should handle invalid state', async () => {
@@ -390,19 +406,19 @@ describe.skipIf(skipIfNoEnv)('SlackHandler Integration Tests', () => {
         })
         .returning();
 
-      createdIntegrationIds.push(integration.id);
+      createdIntegrationIds.push(integration!.id);
 
       const response = await app.request('/api/v2/slack/integration', {
         method: 'GET',
       });
 
       expect(response.status).toBe(200);
-      const data = await response.json();
+      const data = (await response.json()) as GetIntegrationResponse;
       expect(data.connected).toBe(true);
       expect(data.integration).toBeDefined();
-      expect(data.integration.id).toBe(integration.id);
-      expect(data.integration.teamName).toBe('Status Test Workspace');
-      expect(data.integration.teamDomain).toBe('status-test');
+      expect(data.integration!.id).toBe(integration!.id);
+      expect(data.integration!.team_name).toBe('Status Test Workspace');
+      expect(data.integration!.team_domain).toBe('status-test');
     });
 
     it('should return not connected when no integration exists', async () => {
@@ -416,7 +432,7 @@ describe.skipIf(skipIfNoEnv)('SlackHandler Integration Tests', () => {
       });
 
       expect(response.status).toBe(200);
-      const data = await response.json();
+      const data = (await response.json()) as GetIntegrationResponse;
       expect(data.connected).toBe(false);
       expect(data.integration).toBeUndefined();
     });
@@ -459,14 +475,14 @@ describe.skipIf(skipIfNoEnv)('SlackHandler Integration Tests', () => {
         })
         .returning();
 
-      createdIntegrationIds.push(integration.id);
+      createdIntegrationIds.push(integration!.id);
 
       const response = await app.request('/api/v2/slack/integration', {
         method: 'DELETE',
       });
 
       expect(response.status).toBe(200);
-      const data = await response.json();
+      const data = (await response.json()) as RemoveIntegrationResponse;
       expect(data.message).toBe('Slack integration removed successfully');
 
       // Wait a moment for the database to update
@@ -476,13 +492,13 @@ describe.skipIf(skipIfNoEnv)('SlackHandler Integration Tests', () => {
       const removedList = await db
         .select()
         .from(slackIntegrations)
-        .where(eq(slackIntegrations.id, integration.id));
+        .where(eq(slackIntegrations.id, integration!.id));
 
       expect(removedList.length).toBe(1);
       const removed = removedList[0];
       expect(removed).toBeDefined();
-      expect(removed.status).toBe('revoked');
-      expect(removed.deletedAt).toBeTruthy();
+      expect(removed!.status).toBe('revoked');
+      expect(removed!.deletedAt).toBeTruthy();
     });
 
     it('should handle non-existent integration', async () => {
@@ -499,7 +515,7 @@ describe.skipIf(skipIfNoEnv)('SlackHandler Integration Tests', () => {
       });
 
       expect(response.status).toBe(404);
-      const data = await response.json();
+      const data = (await response.json()) as SlackErrorResponse;
       expect(data.error).toBe('No active Slack integration found');
       expect(data.code).toBe('INTEGRATION_NOT_FOUND');
     });

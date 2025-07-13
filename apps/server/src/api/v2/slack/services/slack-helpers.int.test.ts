@@ -136,12 +136,12 @@ describe.skipIf(skipIfNoDatabase)('Slack Helpers Database Integration Tests', ()
         })
         .returning();
 
-      createdIntegrationIds.push(integration.id);
+      createdIntegrationIds.push(integration!.id);
 
       const result = await slackHelpers.getActiveIntegration(testOrganizationId);
 
       expect(result).toBeTruthy();
-      expect(result?.id).toBe(integration.id);
+      expect(result?.id).toBe(integration!.id);
       expect(result?.status).toBe('active');
       expect(result?.teamName).toBe('Test Workspace');
       expect(result?.organizationId).toBe(testOrganizationId);
@@ -163,7 +163,7 @@ describe.skipIf(skipIfNoDatabase)('Slack Helpers Database Integration Tests', ()
         })
         .returning();
 
-      createdIntegrationIds.push(integration.id);
+      createdIntegrationIds.push(integration!.id);
 
       const result = await slackHelpers.getActiveIntegration(testOrganizationId);
       expect(result).toBeNull();
@@ -192,14 +192,14 @@ describe.skipIf(skipIfNoDatabase)('Slack Helpers Database Integration Tests', ()
         .where(eq(slackIntegrations.id, integrationId));
 
       expect(created).toBeTruthy();
-      expect(created.organizationId).toBe(testOrganizationId);
-      expect(created.userId).toBe(testUserId);
-      expect(created.status).toBe('pending');
-      expect(created.oauthState).toBe(testIds.oauthState);
-      expect(created.oauthMetadata).toEqual(metadata);
+      expect(created!.organizationId).toBe(testOrganizationId);
+      expect(created!.userId).toBe(testUserId);
+      expect(created!.status).toBe('pending');
+      expect(created!.oauthState).toBe(testIds.oauthState);
+      expect(created!.oauthMetadata).toEqual(metadata);
 
       // Check expiry is set to ~15 minutes
-      const expiryTime = new Date(created.oauthExpiresAt!).getTime();
+      const expiryTime = new Date(created!.oauthExpiresAt!).getTime();
       const expectedExpiry = Date.now() + 15 * 60 * 1000;
       expect(Math.abs(expiryTime - expectedExpiry)).toBeLessThan(30000); // Within 30 seconds
     });
@@ -219,7 +219,7 @@ describe.skipIf(skipIfNoDatabase)('Slack Helpers Database Integration Tests', ()
         })
         .returning();
 
-      createdIntegrationIds.push(activeIntegration.id);
+      createdIntegrationIds.push(activeIntegration!.id);
 
       // Try to create a new pending integration
       await expect(
@@ -248,17 +248,17 @@ describe.skipIf(skipIfNoDatabase)('Slack Helpers Database Integration Tests', ()
         })
         .returning();
 
-      createdIntegrationIds.push(pending.id);
+      createdIntegrationIds.push(pending!.id);
 
       // Update it with OAuth response data
-      await slackHelpers.updateIntegrationAfterOAuth(pending.id, {
+      await slackHelpers.updateIntegrationAfterOAuth(pending!.id, {
         teamId: testIds.teamId,
         teamName: 'OAuth Workspace',
         teamDomain: 'oauth-workspace',
         enterpriseId: testIds.enterpriseId,
         botUserId: testIds.botUserId,
         scope: 'channels:read chat:write channels:join',
-        tokenVaultKey: `slack-token-${pending.id}`,
+        tokenVaultKey: `slack-token-${pending!.id}`,
         installedBySlackUserId: 'U11111',
       });
 
@@ -266,20 +266,20 @@ describe.skipIf(skipIfNoDatabase)('Slack Helpers Database Integration Tests', ()
       const [updated] = await db
         .select()
         .from(slackIntegrations)
-        .where(eq(slackIntegrations.id, pending.id));
+        .where(eq(slackIntegrations.id, pending!.id));
 
-      expect(updated.status).toBe('active');
-      expect(updated.teamId).toBe(testIds.teamId);
-      expect(updated.teamName).toBe('OAuth Workspace');
-      expect(updated.teamDomain).toBe('oauth-workspace');
-      expect(updated.enterpriseId).toBe(testIds.enterpriseId);
-      expect(updated.botUserId).toBe(testIds.botUserId);
-      expect(updated.scope).toBe('channels:read chat:write channels:join');
-      expect(updated.tokenVaultKey).toBe(`slack-token-${pending.id}`);
-      expect(updated.installedBySlackUserId).toBe('U11111');
-      expect(updated.installedAt).toBeTruthy();
-      expect(updated.oauthState).toBeNull();
-      expect(updated.oauthExpiresAt).toBeNull();
+      expect(updated!.status).toBe('active');
+      expect(updated!.teamId).toBe(testIds.teamId);
+      expect(updated!.teamName).toBe('OAuth Workspace');
+      expect(updated!.teamDomain).toBe('oauth-workspace');
+      expect(updated!.enterpriseId).toBe(testIds.enterpriseId);
+      expect(updated!.botUserId).toBe(testIds.botUserId);
+      expect(updated!.scope).toBe('channels:read chat:write channels:join');
+      expect(updated!.tokenVaultKey).toBe(`slack-token-${pending!.id}`);
+      expect(updated!.installedBySlackUserId).toBe('U11111');
+      expect(updated!.installedAt).toBeTruthy();
+      expect(updated!.oauthState).toBeNull();
+      expect(updated!.oauthExpiresAt).toBeNull();
     });
   });
 
@@ -302,7 +302,7 @@ describe.skipIf(skipIfNoDatabase)('Slack Helpers Database Integration Tests', ()
         })
         .returning();
 
-      createdIntegrationIds.push(integration.id);
+      createdIntegrationIds.push(integration!.id);
 
       // Update default channel
       const defaultChannel = {
@@ -310,17 +310,17 @@ describe.skipIf(skipIfNoDatabase)('Slack Helpers Database Integration Tests', ()
         id: 'C12345',
       };
 
-      await slackHelpers.updateDefaultChannel(integration.id, defaultChannel);
+      await slackHelpers.updateDefaultChannel(integration!.id, defaultChannel);
 
       // Verify the update
       const [updated] = await db
         .select()
         .from(slackIntegrations)
-        .where(eq(slackIntegrations.id, integration.id));
+        .where(eq(slackIntegrations.id, integration!.id));
 
-      expect(updated.defaultChannel).toEqual(defaultChannel);
-      expect(new Date(updated.updatedAt).getTime()).toBeGreaterThan(
-        new Date(updated.createdAt).getTime()
+      expect(updated!.defaultChannel).toEqual(defaultChannel);
+      expect(new Date(updated!.updatedAt).getTime()).toBeGreaterThan(
+        new Date(updated!.createdAt).getTime()
       );
     });
   });
@@ -344,21 +344,21 @@ describe.skipIf(skipIfNoDatabase)('Slack Helpers Database Integration Tests', ()
         })
         .returning();
 
-      createdIntegrationIds.push(integration.id);
+      createdIntegrationIds.push(integration!.id);
 
       // Soft delete it
-      await slackHelpers.softDeleteIntegration(integration.id);
+      await slackHelpers.softDeleteIntegration(integration!.id);
 
       // Verify it was soft deleted
       const [deleted] = await db
         .select()
         .from(slackIntegrations)
-        .where(eq(slackIntegrations.id, integration.id));
+        .where(eq(slackIntegrations.id, integration!.id));
 
-      expect(deleted.status).toBe('revoked');
-      expect(deleted.deletedAt).toBeTruthy();
-      expect(new Date(deleted.updatedAt).getTime()).toBeGreaterThan(
-        new Date(deleted.createdAt).getTime()
+      expect(deleted!.status).toBe('revoked');
+      expect(deleted!.deletedAt).toBeTruthy();
+      expect(new Date(deleted!.updatedAt).getTime()).toBeGreaterThan(
+        new Date(deleted!.createdAt).getTime()
       );
     });
   });
@@ -382,23 +382,23 @@ describe.skipIf(skipIfNoDatabase)('Slack Helpers Database Integration Tests', ()
         })
         .returning();
 
-      createdIntegrationIds.push(integration.id);
+      createdIntegrationIds.push(integration!.id);
 
       // Wait a bit to ensure timestamp difference
       await new Promise((resolve) => setTimeout(resolve, 100));
 
       // Update last used
-      await slackHelpers.updateLastUsedAt(integration.id);
+      await slackHelpers.updateLastUsedAt(integration!.id);
 
       // Verify the update
       const [updated] = await db
         .select()
         .from(slackIntegrations)
-        .where(eq(slackIntegrations.id, integration.id));
+        .where(eq(slackIntegrations.id, integration!.id));
 
-      expect(updated.lastUsedAt).toBeTruthy();
-      expect(new Date(updated.lastUsedAt!).getTime()).toBeGreaterThan(
-        new Date(updated.createdAt).getTime()
+      expect(updated!.lastUsedAt).toBeTruthy();
+      expect(new Date(updated!.lastUsedAt!).getTime()).toBeGreaterThan(
+        new Date(updated!.createdAt).getTime()
       );
     });
   });
@@ -424,7 +424,7 @@ describe.skipIf(skipIfNoDatabase)('Slack Helpers Database Integration Tests', ()
         })
         .returning();
 
-      createdIntegrationIds.push(integration.id);
+      createdIntegrationIds.push(integration!.id);
 
       const result = await slackHelpers.hasActiveIntegration(testOrganizationId);
       expect(result).toBe(true);
@@ -446,12 +446,12 @@ describe.skipIf(skipIfNoDatabase)('Slack Helpers Database Integration Tests', ()
         })
         .returning();
 
-      createdIntegrationIds.push(integration.id);
+      createdIntegrationIds.push(integration!.id);
 
       const result = await slackHelpers.getPendingIntegrationByState(testIds.oauthState);
 
       expect(result).toBeTruthy();
-      expect(result?.id).toBe(integration.id);
+      expect(result?.id).toBe(integration!.id);
       expect(result?.oauthState).toBe(testIds.oauthState);
     });
 
@@ -469,7 +469,7 @@ describe.skipIf(skipIfNoDatabase)('Slack Helpers Database Integration Tests', ()
         })
         .returning();
 
-      createdIntegrationIds.push(integration.id);
+      createdIntegrationIds.push(integration!.id);
 
       const result = await slackHelpers.getPendingIntegrationByState(testIds.oauthState);
       expect(result).toBeNull();
@@ -505,7 +505,7 @@ describe.skipIf(skipIfNoDatabase)('Slack Helpers Database Integration Tests', ()
         })
         .returning();
 
-      createdIntegrationIds.push(valid.id); // Only track valid one since expired will be deleted
+      createdIntegrationIds.push(valid!.id); // Only track valid one since expired will be deleted
 
       // Run cleanup
       const deletedCount = await slackHelpers.cleanupExpiredPendingIntegrations();
@@ -516,7 +516,7 @@ describe.skipIf(skipIfNoDatabase)('Slack Helpers Database Integration Tests', ()
       const [expiredCheck] = await db
         .select()
         .from(slackIntegrations)
-        .where(eq(slackIntegrations.id, expired.id));
+        .where(eq(slackIntegrations.id, expired!.id));
 
       expect(expiredCheck).toBeUndefined();
 
@@ -524,7 +524,7 @@ describe.skipIf(skipIfNoDatabase)('Slack Helpers Database Integration Tests', ()
       const [validCheck] = await db
         .select()
         .from(slackIntegrations)
-        .where(eq(slackIntegrations.id, valid.id));
+        .where(eq(slackIntegrations.id, valid!.id));
 
       expect(validCheck).toBeTruthy();
     });

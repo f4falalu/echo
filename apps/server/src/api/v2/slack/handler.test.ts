@@ -1,7 +1,8 @@
 import { getUserOrganizationId } from '@buster/database';
+import { SlackError } from '@buster/server-shared/slack';
 import { HTTPException } from 'hono/http-exception';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { SlackError, SlackHandler } from './handler';
+import { SlackHandler } from './handler';
 
 // Mock dependencies
 const mockSlackOAuthService = {
@@ -82,7 +83,7 @@ describe('SlackHandler', () => {
       // Mock getUserOrganizationId to return org info
       vi.mocked(getUserOrganizationId).mockResolvedValue({
         organizationId: 'org-123',
-        userId: 'user-123',
+        role: 'owner',
       });
 
       const mockResult = {
@@ -115,7 +116,7 @@ describe('SlackHandler', () => {
       // Mock getUserOrganizationId to return org info
       vi.mocked(getUserOrganizationId).mockResolvedValue({
         organizationId: 'org-123',
-        userId: 'user-123',
+        role: 'owner',
       });
 
       vi.mocked(mockSlackOAuthService.initiateOAuth).mockRejectedValue(
@@ -209,7 +210,7 @@ describe('SlackHandler', () => {
       // Mock getUserOrganizationId to return org info
       vi.mocked(getUserOrganizationId).mockResolvedValue({
         organizationId: 'org-123',
-        userId: 'user-123',
+        role: 'owner',
       });
 
       const mockStatus = {
@@ -249,7 +250,7 @@ describe('SlackHandler', () => {
       // Mock getUserOrganizationId to return org info
       vi.mocked(getUserOrganizationId).mockResolvedValue({
         organizationId: 'org-123',
-        userId: 'user-123',
+        role: 'owner',
       });
 
       vi.mocked(mockSlackOAuthService.removeIntegration).mockResolvedValue({
@@ -273,7 +274,7 @@ describe('SlackHandler', () => {
       // Mock getUserOrganizationId to return org info
       vi.mocked(getUserOrganizationId).mockResolvedValue({
         organizationId: 'org-123',
-        userId: 'user-123',
+        role: 'owner',
       });
 
       vi.mocked(mockSlackOAuthService.removeIntegration).mockResolvedValue({

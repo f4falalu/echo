@@ -5,6 +5,15 @@
     "outDir": "dist",
     "rootDir": "src"
   },
-  "include": ["src/**/*", "env.d.ts"],
-  "exclude": ["node_modules", "dist"]
+  "include": ["src*", "env.d.ts"],
+  "exclude": ["node_modules", "dist"],
+  "references": [
+    { "path": "../access-controls" },
+    { "path": "../data-source" },
+    { "path": "../database" },
+    { "path": "../server-shared" },
+    { "path": "../stored-values" },
+    { "path": "../test-utils" },
+    { "path": "../vitest-config" }
+  ]
 }

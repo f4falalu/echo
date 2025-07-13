@@ -1,5 +1,7 @@
 import { db, eq, organizations } from '@buster/database';
-import type { Organization, User } from '@buster/database';
+import type { User } from '@buster/database';
+import type { OrganizationRole } from '@buster/server-shared/organization';
+import type { InferSelectModel } from 'drizzle-orm';
 import { HTTPException } from 'hono/http-exception';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { getWorkspaceSettingsHandler } from './get-workspace-settings';
@@ -11,6 +13,8 @@ import {
   createTestUserInDb,
   createUserWithoutOrganization,
 } from './test-db-utils';
+
+type Organization = InferSelectModel<typeof organizations>;
 
 describe('getWorkspaceSettingsHandler (integration)', () => {
   let testUser: User;
@@ -61,7 +65,12 @@ describe('getWorkspaceSettingsHandler (integration)', () => {
     });
 
     it('should work for users with different roles', async () => {
-      const roles = ['querier', 'restricted_querier', 'data_admin', 'workspace_admin'];
+      const roles: OrganizationRole[] = [
+        'querier',
+        'restricted_querier',
+        'data_admin',
+        'workspace_admin',
+      ];
 
       for (const role of roles) {
         const roleUser = await createTestUserInDb();
@@ -169,7 +178,7 @@ describe('getWorkspaceSettingsHandler (integration)', () => {
         originalOrg.restrictNewUserInvitations
       );
       expect(orgAfter[0]?.defaultRole).toEqual(originalOrg.defaultRole);
-      expect(new Date(orgAfter[0]?.updatedAt).toISOString()).toEqual(originalOrg.updatedAt);
+      expect(new Date(orgAfter[0]!.updatedAt).toISOString()).toEqual(originalOrg.updatedAt);
     });
 
     it('should always return empty default_datasets array', async () => {
