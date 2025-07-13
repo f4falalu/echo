@@ -17,8 +17,8 @@ export const ChatInput: React.FC = React.memo(() => {
   const [inputValue, setInputValue] = useState('');
 
   const disableSubmit = useMemo(() => {
-    return !inputHasText(inputValue);
-  }, [inputValue]);
+    return !inputHasText(inputValue) && !isStreamingMessage;
+  }, [inputValue, isStreamingMessage]);
 
   const { onSubmitPreflight, onStopChat } = useChatInputFlow({
     disableSubmit,
