@@ -14,8 +14,8 @@ import {
 } from '@/api/buster_rest/slack/queryRequests';
 import { Dropdown, type DropdownItems } from '@/components/ui/dropdown';
 import { LinkSlash, Refresh2 } from '@/components/ui/icons';
-import { Select } from '@/components/ui/select';
 import { useMemoizedFn } from '@/hooks';
+import pluralize from 'pluralize';
 import { StatusCard } from '@/components/ui/card/StatusCard';
 
 export const SlackIntegrations = React.memo(() => {
@@ -125,11 +125,12 @@ const ConnectedSlackChannels = React.memo(() => {
   const items = useMemo(() => {
     return channels.map((channel) => ({
       label: channel.name,
-      value: channel.id
+      value: channel.id,
+      selected: channel.id === selectedChannelId
     }));
-  }, [channels]);
+  }, [channels, selectedChannelId]);
 
-  const onChange = useMemoizedFn((channelId: string) => {
+  const onSelect = useMemoizedFn((channelId: string) => {
     const channel = channels.find((channel) => channel.id === channelId);
     if (!channel) return;
     updateSlackIntegration({
@@ -168,15 +169,20 @@ const ConnectedSlackChannels = React.memo(() => {
               </Button>
             )}
 
-            <Select
-              className="w-fit min-w-40"
+            <Dropdown
+              selectType="single"
               items={items}
-              placeholder="Select a channel"
-              value={selectedChannelId}
-              onChange={onChange}
-              search={true}
-              loading={isLoadingSlackChannels || isLoadingSlackIntegration}
-            />
+              onSelect={onSelect}
+              menuHeader="Search channels"
+              className="w-fit min-w-40"
+            >
+              <Text variant="secondary">
+                {selectedChannelId 
+                  ? `#${channels.find(c => c.id === selectedChannelId)?.name || 'Unknown channel'}`
+                  : 'Select a channel'
+                }
+              </Text>
+            </Dropdown>
           </>
         ) : (
           <div className="flex items-center space-x-2">
