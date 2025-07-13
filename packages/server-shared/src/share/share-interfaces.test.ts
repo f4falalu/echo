@@ -191,8 +191,8 @@ describe('ShareConfigSchema', () => {
 
     if (result.success) {
       expect(result.data.individual_permissions).toHaveLength(2);
-      expect(result.data.individual_permissions?.[0].email).toBe('user1@example.com');
-      expect(result.data.individual_permissions?.[0].role).toBe('canEdit');
+      expect(result.data.individual_permissions?.[0]?.email).toBe('user1@example.com');
+      expect(result.data.individual_permissions?.[0]?.role).toBe('canEdit');
       expect(result.data.publicly_accessible).toBe(true);
       expect(result.data.permission).toBe('owner');
     }
@@ -369,11 +369,11 @@ describe('ShareConfigSchema', () => {
 
     if (result.success) {
       expect(result.data.individual_permissions).toHaveLength(4);
-      expect(result.data.individual_permissions?.[0].role).toBe('owner');
-      expect(result.data.individual_permissions?.[1].role).toBe('canEdit');
-      expect(result.data.individual_permissions?.[2].role).toBe('canView');
-      expect(result.data.individual_permissions?.[3].role).toBe('canFilter');
-      expect(result.data.individual_permissions?.[2].name).toBeUndefined();
+      expect(result.data.individual_permissions?.[0]?.role).toBe('owner');
+      expect(result.data.individual_permissions?.[1]?.role).toBe('canEdit');
+      expect(result.data.individual_permissions?.[2]?.role).toBe('canView');
+      expect(result.data.individual_permissions?.[3]?.role).toBe('canFilter');
+      expect(result.data.individual_permissions?.[2]?.name).toBeUndefined();
     }
   });
 

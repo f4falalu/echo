@@ -7,5 +7,14 @@
     "tsBuildInfoFile": "dist/.cache/tsbuildinfo.json"
   },
   "include": ["src/**/*", "tests/**/*", "env.d.ts"],
-  "exclude": ["node_modules", "dist"]
+  "exclude": ["node_modules", "dist"],
+  "references": [
+    { "path": "../../packages/access-controls" },
+    { "path": "../../packages/ai" },
+    { "path": "../../packages/database" },
+    { "path": "../../packages/server-shared" },
+    { "path": "../../packages/slack" },
+    { "path": "../../packages/test-utils" },
+    { "path": "../../packages/vitest-config" }
+  ]
 }

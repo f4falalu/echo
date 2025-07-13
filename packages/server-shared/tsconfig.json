@@ -6,8 +6,6 @@
     "tsBuildInfoFile": "dist/.cache/tsbuildinfo.json"
   },
   "include": ["src"],
-  "exclude": ["node_modules", "dist", "**/*.test.ts", "**/*.spec.ts"],
-  "references": [
-    { "path": "../database" } // Reference other projects
-  ]
+  "exclude": ["node_modules", "dist", "**/*.test.tsx", "**/*.test.ts", "**/*.spec.ts"],
+  "references": [{ "path": "../database" }, { "path": "../vitest-config" }]
 }

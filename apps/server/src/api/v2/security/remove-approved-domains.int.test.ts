@@ -1,4 +1,5 @@
-import type { Organization, User } from '@buster/database';
+import type { User, organizations } from '@buster/database';
+import type { InferSelectModel } from 'drizzle-orm';
 import { HTTPException } from 'hono/http-exception';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { removeApprovedDomainsHandler } from './remove-approved-domains';
@@ -11,6 +12,8 @@ import {
   createUserWithoutOrganization,
   getOrganizationFromDb,
 } from './test-db-utils';
+
+type Organization = InferSelectModel<typeof organizations>;
 
 describe('removeApprovedDomainsHandler (integration)', () => {
   let testUser: User;

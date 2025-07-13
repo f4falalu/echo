@@ -1,19 +1,58 @@
 {
-    "folders": [
-      { "path": ".." },
-      { "path": "../apps/web" }
-    ],
-    "settings": {
-      "editor.defaultFormatter": "biomejs.biome",
-      "editor.formatOnSave": true,
-      "editor.codeActionsOnSave": {
-        "quickfix.biome": "explicit",
-        "source.organizeImports.biome": "explicit"
-      },
-      "typescript.preferences.importModuleSpecifier": "relative",
-      "typescript.suggest.autoImports": true,
-      "typescript.updateImportsOnFileMove.enabled": "always",
-      "vitest.maximumConfigs": 25
-    }
+  "folders": [
+    { "path": "./apps/api" },
+    { "path": "./apps/electric-server" },
+    { "path": "./apps/server" },
+    { "path": "./apps/trigger" },
+    { "path": "./apps/web" },
+    { "path": "./packages/access-controls" },
+    { "path": "./packages/ai" },
+    { "path": "./packages/data-source" },
+    { "path": "./packages/database" },
+    { "path": "./packages/rerank" },
+    { "path": "./packages/server-shared" },
+    { "path": "./packages/slack" },
+    { "path": "./packages/stored-values" },
+    { "path": "./packages/supabase" },
+    { "path": "./packages/test-utils" },
+    { "path": "./packages/typescript-config" },
+    { "path": "./packages/vitest-config" },
+    { "path": "./packages/web-tools" }
+  ],
+  "settings": {
+    "editor.defaultFormatter": "biomejs.biome",
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+      "quickfix.biome": "explicit",
+      "source.organizeImports.biome": "explicit"
+    },
+    "typescript.preferences.importModuleSpecifier": "relative",
+    "typescript.suggest.autoImports": true,
+    "typescript.updateImportsOnFileMove.enabled": "always",
+    "typescript.preferences.importTypeKeyword": "force",
+    "vitest.maximumConfigs": 25,
+    
+    // Enhanced TypeScript settings for monorepo
+    "typescript.preferences.includePackageJsonAutoImports": "on",
+    "typescript.suggest.includeCompletionsForModuleExports": true,
+    "typescript.workspaceSymbols.scope": "allOpenProjects",
+    "typescript.references.enabled": true,
+    "typescript.implementationsCodeLens.enabled": true,
+    "typescript.referencesCodeLens.enabled": true,
+    "typescript.referencesCodeLens.showOnAllFunctions": true,
+    "typescript.validate.enable": true,
+    "typescript.format.enable": true,
+    
+    // Force TypeScript to check all files proactively
+    "typescript.disableAutomaticTypeAcquisition": true,
+    "typescript.preferences.noSemicolons": false
+  },
+  "extensions": {
+    "recommendations": [
+      "biomejs.biome",
+      "vitest.explorer",
+      "esbenp.prettier-vscode"
+    ]
   }
+}
   

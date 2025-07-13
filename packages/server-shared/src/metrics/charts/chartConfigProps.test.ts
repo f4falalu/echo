@@ -193,8 +193,8 @@ describe('chartConfigProps', () => {
       });
 
       // Check that defaults are applied to column settings
-      expect(result.columnSettings.revenue.lineWidth).toBe(2);
-      expect(result.columnSettings.profit.columnVisualization).toBe('bar');
+      expect(result.columnSettings.revenue?.lineWidth).toBe(2);
+      expect(result.columnSettings.profit?.columnVisualization).toBe('bar');
 
       expect(result.columnLabelFormats.revenue).toMatchObject({
         prefix: '$',

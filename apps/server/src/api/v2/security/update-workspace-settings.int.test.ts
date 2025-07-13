@@ -1,6 +1,6 @@
-import type { Organization, User } from '@buster/database';
-import { db, usersToOrganizations } from '@buster/database';
-import { eq } from 'drizzle-orm';
+import type { User, organizations } from '@buster/database';
+import type { OrganizationRole } from '@buster/server-shared/organization';
+import type { InferSelectModel } from 'drizzle-orm';
 import { HTTPException } from 'hono/http-exception';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
@@ -14,6 +14,8 @@ import {
   verifyUserOrgMembership,
 } from './test-db-utils';
 import { updateWorkspaceSettingsHandler } from './update-workspace-settings';
+
+type Organization = InferSelectModel<typeof organizations>;
 
 describe('updateWorkspaceSettingsHandler (integration)', () => {
   let testUser: User;
@@ -45,7 +47,7 @@ describe('updateWorkspaceSettingsHandler (integration)', () => {
 
       const request = {
         restrict_new_user_invitations: true,
-        default_role: 'data_admin',
+        default_role: 'data_admin' as const,
       };
       const result = await updateWorkspaceSettingsHandler(request, testUser);
 
@@ -72,7 +74,7 @@ describe('updateWorkspaceSettingsHandler (integration)', () => {
       expect(result1.default_role).toBe('querier'); // Should remain unchanged
 
       // Update only default_role
-      const request2 = { default_role: 'data_admin' };
+      const request2 = { default_role: 'data_admin' as const };
       const result2 = await updateWorkspaceSettingsHandler(request2, testUser);
 
       expect(result2.restrict_new_user_invitations).toBe(true); // Should keep previous update
@@ -88,7 +90,7 @@ describe('updateWorkspaceSettingsHandler (integration)', () => {
 
       const request = {
         restrict_new_user_invitations: true,
-        default_role: 'viewer',
+        default_role: 'viewer' as const,
       };
       const result = await updateWorkspaceSettingsHandler(request, testUser);
 
@@ -122,7 +124,7 @@ describe('updateWorkspaceSettingsHandler (integration)', () => {
 
   describe('Error Cases', () => {
     it('should return 403 for non-workspace-admin users', async () => {
-      const roles = ['querier', 'restricted_querier', 'data_admin', 'viewer'];
+      const roles: OrganizationRole[] = ['querier', 'restricted_querier', 'data_admin', 'viewer'];
 
       for (const role of roles) {
         // Create a fresh organization for each role test to avoid conflicts
@@ -193,7 +195,7 @@ describe('updateWorkspaceSettingsHandler (integration)', () => {
 
       const request = {
         restrict_new_user_invitations: true,
-        default_role: 'viewer',
+        default_role: 'viewer' as const,
       };
       await updateWorkspaceSettingsHandler(request, testUser);
 
@@ -209,13 +211,13 @@ describe('updateWorkspaceSettingsHandler (integration)', () => {
       const originalName = testOrg.name;
       const originalCreatedAt = testOrg.createdAt;
 
-      const request = { default_role: 'data_admin' };
+      const request = { default_role: 'data_admin' as const };
       await updateWorkspaceSettingsHandler(request, testUser);
 
       const updatedOrg = await getOrganizationFromDb(testOrg.id);
       expect(updatedOrg?.domains).toEqual(originalDomains);
       expect(updatedOrg?.name).toBe(originalName);
-      expect(new Date(updatedOrg?.createdAt).toISOString()).toBe(originalCreatedAt);
+      expect(new Date(updatedOrg!.createdAt).toISOString()).toBe(originalCreatedAt);
     });
 
     it("should update organization's updatedAt timestamp", async () => {

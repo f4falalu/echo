@@ -138,12 +138,12 @@ describe.skipIf(skipIfNoEnv)('SlackOAuthService Integration Tests', () => {
         .where(eq(slackIntegrations.organizationId, testOrganizationId));
 
       expect(pending).toBeTruthy();
-      createdIntegrationIds.push(pending.id);
+      createdIntegrationIds.push(pending!.id);
 
-      expect(pending.status).toBe('pending');
-      expect(pending.userId).toBe(testUserId);
-      expect(pending.oauthState).toBeTruthy();
-      expect(pending.oauthMetadata).toMatchObject({
+      expect(pending!.status).toBe('pending');
+      expect(pending!.userId).toBe(testUserId);
+      expect(pending!.oauthState).toBeTruthy();
+      expect(pending!.oauthMetadata).toMatchObject({
         returnUrl: '/dashboard',
         source: 'settings',
         projectId: '550e8400-e29b-41d4-a716-446655440000',
@@ -168,7 +168,7 @@ describe.skipIf(skipIfNoEnv)('SlackOAuthService Integration Tests', () => {
         })
         .returning();
 
-      createdIntegrationIds.push(existing.id);
+      createdIntegrationIds.push(existing!.id);
 
       // Try to initiate OAuth again
       await expect(
@@ -202,9 +202,9 @@ describe.skipIf(skipIfNoEnv)('SlackOAuthService Integration Tests', () => {
             source: 'onboarding',
           },
         })
-        .returning();
+        .returning()!;
 
-      createdIntegrationIds.push(pending.id);
+      createdIntegrationIds.push(pending!.id);
 
       const testIds = generateTestIds();
       // Mock the auth service to return specific state
@@ -227,7 +227,7 @@ describe.skipIf(skipIfNoEnv)('SlackOAuthService Integration Tests', () => {
       });
 
       expect(result.success).toBe(true);
-      expect(result.integrationId).toBe(pending.id);
+      expect(result.integrationId).toBe(pending!.id);
       expect(result.teamName).toBe('Callback Workspace');
       expect(result.metadata).toMatchObject({
         returnUrl: '/settings',
@@ -241,22 +241,22 @@ describe.skipIf(skipIfNoEnv)('SlackOAuthService Integration Tests', () => {
       const activatedList = await db
         .select()
         .from(slackIntegrations)
-        .where(eq(slackIntegrations.id, pending.id));
+        .where(eq(slackIntegrations.id, pending!.id));
 
       expect(activatedList.length).toBe(1);
       const activated = activatedList[0];
       expect(activated).toBeDefined();
-      expect(activated.status).toBe('active');
-      expect(activated.teamId).toBe(testIds.teamId);
-      expect(activated.teamName).toBe('Callback Workspace');
-      expect(activated.teamDomain).toBe('callback-workspace');
-      expect(activated.botUserId).toBe(testIds.botUserId);
-      expect(activated.scope).toBe('channels:read,chat:write,channels:join');
-      expect(activated.tokenVaultKey).toBe(`slack-token-${pending.id}`);
-      expect(activated.installedBySlackUserId).toBe('U88888');
-      expect(activated.installedAt).toBeTruthy();
-      expect(activated.oauthState).toBeNull();
-      expect(activated.oauthExpiresAt).toBeNull();
+      expect(activated!.status).toBe('active');
+      expect(activated!.teamId).toBe(testIds.teamId);
+      expect(activated!.teamName).toBe('Callback Workspace');
+      expect(activated!.teamDomain).toBe('callback-workspace');
+      expect(activated!.botUserId).toBe(testIds.botUserId);
+      expect(activated!.scope).toBe('channels:read,chat:write,channels:join');
+      expect(activated!.tokenVaultKey).toBe(`slack-token-${pending!.id}`);
+      expect(activated!.installedBySlackUserId).toBe('U88888');
+      expect(activated!.installedAt).toBeTruthy();
+      expect(activated!.oauthState).toBeNull();
+      expect(activated!.oauthExpiresAt).toBeNull();
     });
 
     it('should handle invalid state', async () => {
@@ -299,13 +299,13 @@ describe.skipIf(skipIfNoEnv)('SlackOAuthService Integration Tests', () => {
 
       expect(result.success).toBe(false);
       expect(result.error).toBe('Failed to exchange code for token');
-      expect(result.integrationId).toBe(pending.id);
+      expect(result.integrationId).toBe(pending!.id);
 
       // Verify the pending integration was deleted (to allow retry)
       const integrations = await db
         .select()
         .from(slackIntegrations)
-        .where(eq(slackIntegrations.id, pending.id));
+        .where(eq(slackIntegrations.id, pending!.id));
 
       expect(integrations.length).toBe(0);
     });
@@ -332,13 +332,13 @@ describe.skipIf(skipIfNoEnv)('SlackOAuthService Integration Tests', () => {
         })
         .returning();
 
-      createdIntegrationIds.push(integration.id);
+      createdIntegrationIds.push(integration!.id);
 
       const status = await service.getIntegrationStatus(testOrganizationId);
 
       expect(status.connected).toBe(true);
       expect(status.integration).toBeDefined();
-      expect(status.integration!.id).toBe(integration.id);
+      expect(status.integration!.id).toBe(integration!.id);
       expect(status.integration!.teamName).toBe('Status Test Workspace');
       expect(status.integration!.teamDomain).toBe('status-test');
       expect(status.integration!.installedAt).toContain('2024-01-01');
@@ -380,7 +380,7 @@ describe.skipIf(skipIfNoEnv)('SlackOAuthService Integration Tests', () => {
         .returning();
 
       // Store the ID immediately
-      const integrationId = integration.id;
+      const integrationId = integration!.id;
       createdIntegrationIds.push(integrationId);
 
       // Verify it was created
@@ -390,7 +390,7 @@ describe.skipIf(skipIfNoEnv)('SlackOAuthService Integration Tests', () => {
         .where(eq(slackIntegrations.id, integrationId));
 
       expect(created).toBeDefined();
-      expect(created.status).toBe('active');
+      expect(created!.status).toBe('active');
 
       // The service will try to delete the token from vault
       // In integration tests, we let it run naturally
@@ -410,8 +410,8 @@ describe.skipIf(skipIfNoEnv)('SlackOAuthService Integration Tests', () => {
       expect(removedIntegrations.length).toBe(1);
       const removed = removedIntegrations[0];
       expect(removed).toBeDefined();
-      expect(removed.status).toBe('revoked');
-      expect(removed.deletedAt).toBeTruthy();
+      expect(removed!.status).toBe('revoked');
+      expect(removed!.deletedAt).toBeTruthy();
     });
 
     it('should handle non-existent integration', async () => {
