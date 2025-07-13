@@ -10,6 +10,7 @@ import { useMemoizedFn } from '@/hooks';
 import { cn } from '@/lib/classMerge';
 import { inputHasText } from '@/lib/text';
 import { MetricChartEvaluation } from './MetricChartEvaluation';
+import { MetricDataTruncatedWarning } from './MetricDataTruncatedWarning';
 import { MetricSaveFilePopup } from './MetricSaveFilePopup';
 import { MetricViewChartContent } from './MetricViewChartContent';
 import { MetricViewChartHeader } from './MetricViewChartHeader';
@@ -103,6 +104,10 @@ export const MetricViewChart: React.FC<{
             readOnly={isReadOnly}
           />
         </MetricViewChartCard>
+
+        <AnimatePresenceWrapper show={!!metricData?.has_more_records}>
+          <MetricDataTruncatedWarning />
+        </AnimatePresenceWrapper>
 
         <AnimatePresenceWrapper show={showEvaluation}>
           <MetricChartEvaluation
