@@ -30,14 +30,14 @@ describe('useAppLayout - onChangePage', () => {
     originalHistory = window.history;
 
     // Mock window.location
-    (window as any).location = undefined;
-    window.location = {
+    delete (window as any).location;
+    (window as any).location = {
       ...originalLocation,
       href: 'http://localhost:3000',
       origin: 'http://localhost:3000',
       pathname: '/',
       search: ''
-    } as Location;
+    };
 
     // Mock window.history
     (window as any).history = undefined;
@@ -49,7 +49,7 @@ describe('useAppLayout - onChangePage', () => {
 
   afterEach(() => {
     vi.clearAllMocks();
-    window.location = originalLocation;
+    (window as any).location = originalLocation;
     window.history = originalHistory;
   });
 
@@ -242,14 +242,14 @@ describe('useAppLayout - onChangeQueryParams', () => {
     originalHistory = window.history;
 
     // Mock window.location
-    (window as any).location = undefined;
-    window.location = {
+    delete (window as any).location;
+    (window as any).location = {
       ...originalLocation,
       href: 'http://localhost:3000',
       origin: 'http://localhost:3000',
       pathname: '/',
       search: ''
-    } as Location;
+    };
 
     // Mock window.history
     (window as any).history = undefined;
@@ -261,8 +261,8 @@ describe('useAppLayout - onChangeQueryParams', () => {
 
   afterEach(() => {
     vi.clearAllMocks();
-    window.location = originalLocation;
-    window.history = originalHistory;
+    (window as any).location = originalLocation;
+    (window as any).history = originalHistory;
   });
 
   it('should add new query parameters while preserving existing ones', () => {

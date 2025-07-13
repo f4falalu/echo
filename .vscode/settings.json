@@ -9,6 +9,50 @@
   "typescript.suggest.autoImports": true,
   "typescript.updateImportsOnFileMove.enabled": "always",
 
+  // Ensure dist folders are NEVER excluded from file watching
+  "files.watcherExclude": {
+    "**/node_modules/**": true,
+    "**/.git/objects/**": true,
+    "**/.git/subtree-cache/**": true,
+    "**/target/**": true,
+    "**/.turbo/**": true
+  },
+
+  // Exclude dist folders from file explorer (but keep them in watcher)
+  "files.exclude": {
+    "**/.git": true,
+    "**/node_modules": false,
+    "**/.turbo": true,
+    "**/dist": true
+  },
+
+  // Exclude dist folders from search (but keep them in watcher)
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/.git": true,
+    "**/.turbo": true,
+    "**/dist": true
+  },
+
+  // Enhanced TypeScript settings for monorepo cross-package type checking
+  "typescript.preferences.includePackageJsonAutoImports": "on",
+  "typescript.suggest.includeCompletionsForModuleExports": true,
+  "typescript.suggest.includeAutomaticOptionalChainCompletions": true,
+  "typescript.preferences.enableRenameShorthandProperties": true,
+  "typescript.workspaceSymbols.scope": "allOpenProjects",
+  "typescript.references.enabled": true,
+  "typescript.implementationsCodeLens.enabled": true,
+  "typescript.referencesCodeLens.enabled": true,
+  "typescript.referencesCodeLens.showOnAllFunctions": true,
+
+  // Force proactive type checking across all files
+  "typescript.validate.enable": true,
+  "typescript.format.enable": true,
+  "typescript.check.npmIsInstalled": false,
+  "typescript.disableAutomaticTypeAcquisition": true,
+  "typescript.experimental.aiCodeActions": "on",
+  "typescript.experimental.includePackageJsonAutoImports": "on",
+
   // Default Biome formatting for all file types
   "[typescript]": {
     "editor.defaultFormatter": "biomejs.biome"
