@@ -71,11 +71,14 @@ pnpm run check:fix packages/ai
 
 ### 5. Run Tests with Vitest
 ```bash
-# Run all tests
-pnpm run test
+# Run unit tests (always run these when working locally)
+turbo run test:unit
 
-# Run tests for specific package
-turbo run test --filter=@buster/ai
+# Run unit tests for specific package
+turbo run test:unit --filter=@buster/ai
+
+# Run integration tests ONLY for specific features/packages you're working on
+turbo run test:integration --filter=@buster/database
 
 # Run specific test file
 pnpm run test path/to/file.test.ts
@@ -83,6 +86,22 @@ pnpm run test path/to/file.test.ts
 # Watch mode for development
 pnpm run test:watch
 ```
+
+### 6. Pre-Completion Checklist
+**IMPORTANT: Before finishing any task, always run:**
+```bash
+# Run unit tests for the entire monorepo
+turbo run test:unit
+
+# Run linting for the entire monorepo
+turbo run lint
+```
+
+**Key Testing Guidelines:**
+- **Always run unit tests and lint** when working locally before considering a task complete
+- **Unit tests** should be run for the entire monorepo to catch any breaking changes
+- **Integration tests** should only be run for specific packages/features you're working on (NOT the entire monorepo)
+- **Fix all failing tests and lint errors** before completing any task
 
 ## Code Quality Standards
 
