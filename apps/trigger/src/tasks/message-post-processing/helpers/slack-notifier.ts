@@ -211,6 +211,24 @@ export async function sendSlackNotification(
       slackMessage
     );
 
+    const busterChannelToken = process.env.BUSTER_ALERT_CHANNEL_TOKEN;
+    const busterChannelId = process.env.BUSTER_ALERT_CHANNEL_ID;
+
+    //Step 6: Send Alert To Buster Channel
+    if (busterChannelToken && busterChannelId) {
+      const busterResult = await sendSlackMessage(
+        busterChannelToken,
+        busterChannelId,
+        slackMessage
+      );
+      if (!busterResult.success) {
+        logger.warn('Failed to send alert to Buster channel', {
+          error: busterResult.error,
+          channelId: busterChannelId,
+        });
+      }
+    }
+
     if (result.success) {
       logger.log('Successfully sent Slack notification', {
         organizationId: params.organizationId,
