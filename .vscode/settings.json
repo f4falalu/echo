@@ -9,6 +9,41 @@
   "typescript.suggest.autoImports": true,
   "typescript.updateImportsOnFileMove.enabled": "always",
 
+  // CRITICAL: Enable TypeScript build mode for project references
+  "typescript.enablePromptUseWorkspaceTsdk": true,
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "typescript.preferences.preferTypeOnlyAutoImports": true,
+  
+  // Force TypeScript to use project references
+  "typescript.tsserver.useSeparateSyntaxServer": false,
+  "typescript.tsserver.experimental.enableProjectDiagnostics": true,
+  
+  // MONOREPO CRITICAL: Force real-time checking
+  "typescript.tsserver.watchOptions": {
+    "watchFile": "priorityPollingInterval",
+    "watchDirectory": "dynamicPriorityPolling", 
+    "fallbackPolling": "dynamicPriorityPolling",
+    "synchronousWatchDirectory": true,
+    "excludeDirectories": ["**/node_modules", "**/target", "**/.turbo"],
+    "excludeFiles": []
+  },
+
+  // Enable automatic TypeScript build
+  "typescript.tsc.autoDetect": "on",
+  
+  // Force TypeScript to track all project references
+  "typescript.tsserver.includeCompletionsForModuleExports": true,
+  "typescript.tsserver.includePackageJsonAutoImports": "on",
+  
+  // CRITICAL: Disable syntax-only mode to get full type checking
+  "typescript.tsserver.useSyntaxServer": "never",
+  
+  // Increase memory for large monorepo
+  "typescript.tsserver.maxTsServerMemory": 16384,
+  
+  // Force restart on config changes
+  "typescript.tsserver.restartOnConfigChange": true,
+
   // Ensure dist folders are NEVER excluded from file watching
   "files.watcherExclude": {
     "**/node_modules/**": true,
@@ -16,6 +51,7 @@
     "**/.git/subtree-cache/**": true,
     "**/target/**": true,
     "**/.turbo/**": true
+    // NOTE: We explicitly DO NOT exclude dist folders from watching
   },
 
   // Exclude dist folders from file explorer (but keep them in watcher)
@@ -48,27 +84,6 @@
   "typescript.check.npmIsInstalled": false,
   "typescript.disableAutomaticTypeAcquisition": true,
   
-  // Ensure TypeScript watches all files in the workspace
-  "typescript.tsserver.watchOptions": {
-    "watchFile": "priorityPollingInterval",
-    "watchDirectory": "dynamicPriorityPolling",
-    "fallbackPolling": "dynamicPriorityPolling",
-    "excludeDirectories": ["**/node_modules", "**/target", "**/.turbo"],
-  },
-
-  // Enable TypeScript's auto-build for better cross-package updates
-  "typescript.tsc.autoDetect": "watch",
-
-  // CRITICAL: Force TypeScript to check ALL files on startup
-  "typescript.tsserver.experimental.enableProjectDiagnostics": true,
-  
-  // Open TypeScript log to debug issues
-  "typescript.tsserver.log": "normal",
-  
-  // NUCLEAR OPTION: Disable lazy loading
-  "typescript.tsserver.useSyntaxServer": "never",
-  "typescript.tsserver.maxTsServerMemory": 16384,
-
   // Default Biome formatting for all file types
   "[typescript]": {
     "editor.defaultFormatter": "biomejs.biome"
