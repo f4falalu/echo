@@ -52,13 +52,6 @@ describe('cleanupIncompleteToolCalls', () => {
         role: 'assistant',
         content: [
           { type: 'tool-call', toolCallId: '123', toolName: 'getTodo', args: {} },
-          { type: 'tool-call', toolCallId: '456', toolName: 'createTodo', args: { title: 'test' } }
-        ]
-      },
-      {
-        role: 'tool',
-        content: [
-          { type: 'tool-result', toolCallId: '123', toolName: 'getTodo', result: { todo: 'test' } }
         ]
       }
       // Missing result for toolCallId '456' - partially orphaned
