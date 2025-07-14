@@ -50,8 +50,8 @@ export const AppVerticalCodeSplitter = forwardRef<AppSplitterRef, AppVerticalCod
       (preservedSideValue: number | null, refSize: number) => {
         return (
           !preservedSideValue ||
-          preservedSideValue < 80 ||
-          refSize < 120 ||
+          preservedSideValue < 120 ||
+          refSize < 120 + 80 ||
           preservedSideValue > refSize - 80
         );
       }
