@@ -69,6 +69,7 @@ export const useGetMetric = <TData = BusterMetric>(
   const { isFetched: isFetchedInitial, isError: isErrorInitial } = useQuery({
     ...initialOptions,
     queryFn: () => initialQueryFn(paramVersionNumber),
+    staleTime: Infinity,
     enabled: false, //In the year of our lord 2025, April 10, I, Nate Kelley, decided to disable this query in favor of explicityly fetching the data. May god have mercy on our souls.
     retry(_failureCount, error) {
       if (error?.message !== undefined && id) {
