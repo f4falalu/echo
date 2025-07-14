@@ -47,7 +47,27 @@
   "typescript.format.enable": true,
   "typescript.check.npmIsInstalled": false,
   "typescript.disableAutomaticTypeAcquisition": true,
+  
+  // Ensure TypeScript watches all files in the workspace
+  "typescript.tsserver.watchOptions": {
+    "watchFile": "priorityPollingInterval",
+    "watchDirectory": "dynamicPriorityPolling",
+    "fallbackPolling": "dynamicPriorityPolling",
+    "excludeDirectories": ["**/node_modules", "**/target", "**/.turbo"],
+  },
 
+  // Enable TypeScript's auto-build for better cross-package updates
+  "typescript.tsc.autoDetect": "watch",
+
+  // CRITICAL: Force TypeScript to check ALL files on startup
+  "typescript.tsserver.experimental.enableProjectDiagnostics": true,
+  
+  // Open TypeScript log to debug issues
+  "typescript.tsserver.log": "normal",
+  
+  // NUCLEAR OPTION: Disable lazy loading
+  "typescript.tsserver.useSyntaxServer": "never",
+  "typescript.tsserver.maxTsServerMemory": 16384,
 
   // Default Biome formatting for all file types
   "[typescript]": {
