@@ -17,31 +17,13 @@ import { LinkSlash, Refresh2 } from '@/components/ui/icons';
 import { useMemoizedFn } from '@/hooks';
 import pluralize from 'pluralize';
 import { StatusCard } from '@/components/ui/card/StatusCard';
-import type { GetChannelsResponse, GetIntegrationResponse } from '@buster/server-shared/slack';
 
 export const SlackIntegrations = React.memo(() => {
   const {
-    //  data: slackIntegration,
-    //  isFetched: isFetchedSlackIntegration,
-    //  error: slackIntegrationError
+    data: slackIntegration,
+    isFetched: isFetchedSlackIntegration,
+    error: slackIntegrationError
   } = useGetSlackIntegration();
-
-  const slackIntegration: GetIntegrationResponse = {
-    connected: true,
-    integration: {
-      id: '123',
-      team_name: 'Test Team',
-      installed_at: '2021-01-01',
-      team_domain: 'test-team',
-      last_used_at: '2021-01-01',
-      default_channel: {
-        id: '123',
-        name: 'Test Channel'
-      }
-    }
-  };
-  const slackIntegrationError = null;
-  const isFetchedSlackIntegration = true;
 
   const isConnected = slackIntegration?.connected ?? false;
 
