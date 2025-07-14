@@ -202,6 +202,19 @@ export function detectRetryableError(
 
     // Server errors (5xx)
     if (error.statusCode && error.statusCode >= 500 && error.statusCode < 600) {
+      // Special handling for 529 overloaded errors
+      if (error.statusCode === 529) {
+        return {
+          type: 'overloaded-error',
+          originalError: error,
+          healingMessage: {
+            role: 'user',
+            content: `Server overloaded (529). Retrying after cleanup...`,
+          },
+          requiresMessageCleanup: true, // New flag
+        };
+      }
+
       return {
         type: 'server-error',
         originalError: error,

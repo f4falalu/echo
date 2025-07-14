@@ -10,6 +10,7 @@ export {
   logRetryInfo,
   logMessagesAfterHealing,
   handleRetryWithHealing,
+  cleanupIncompleteToolCalls,
 } from './retry-helpers';
 export {
   determineHealingStrategy,
