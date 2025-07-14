@@ -222,6 +222,7 @@ describe('MaxRows Limiting Tests', () => {
       };
       mockConnection = {
         execute: vi.fn(),
+        destroy: vi.fn((cb) => cb()),
       };
       mockStatement.streamRows.mockReturnValue(mockStream);
       (
@@ -243,21 +244,13 @@ describe('MaxRows Limiting Tests', () => {
       });
 
       mockConnection.execute.mockImplementation(
-        (options: { streamResult: boolean; complete: (err?: unknown) => void }) => {
-          expect(options.streamResult).toBe(true);
-          // Defer the callback to allow the statement to be returned first
-          setTimeout(() => {
-            options.complete(undefined);
-            // Now simulate streaming after complete callback
-            dataHandler({ id: 1, name: 'User 1' });
-            dataHandler({ id: 2, name: 'User 2' }); // This should trigger destroy
-
-            // Verify stream was destroyed after 1 row
-            expect(mockStream.destroy).toHaveBeenCalled();
-
-            endHandler();
-          }, 0);
-          return mockStatement;
+        (options: { sqlText: string; binds?: unknown; complete: (err?: unknown, stmt?: unknown, rows?: unknown[]) => void }) => {
+          // The new Snowflake adapter doesn't use streaming for maxRows
+          // It returns all rows and limits in memory
+          options.complete(undefined, mockStatement, [
+            { id: 1, name: 'User 1' },
+            { id: 2, name: 'User 2' }
+          ]);
         }
       );
 

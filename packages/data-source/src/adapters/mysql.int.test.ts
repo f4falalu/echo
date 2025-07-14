@@ -2,9 +2,19 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { MySQLAdapter } from './mysql';
 import { DataSourceType } from '../types/credentials';
 import type { MySQLCredentials } from '../types/credentials';
-import { TEST_TIMEOUT, skipIfNoCredentials, testConfig } from '../../tests/setup';
 
-const testWithCredentials = skipIfNoCredentials('mysql');
+// Check if MySQL test credentials are available
+const hasMySQLCredentials = !!(
+  process.env.TEST_MYSQL_DATABASE &&
+  process.env.TEST_MYSQL_USERNAME &&
+  process.env.TEST_MYSQL_PASSWORD
+);
+
+// Skip tests if credentials are not available
+const testIt = hasMySQLCredentials ? it : it.skip;
+
+// Test timeout - 5 seconds
+const TEST_TIMEOUT = 5000;
 
 describe('MySQLAdapter Integration', () => {
   let adapter: MySQLAdapter;
@@ -19,23 +29,17 @@ describe('MySQLAdapter Integration', () => {
     }
   });
 
-  testWithCredentials(
+  testIt(
     'should connect to MySQL database',
     async () => {
-      if (!testConfig.mysql.database || !testConfig.mysql.username || !testConfig.mysql.password) {
-        throw new Error(
-          'TEST_MYSQL_DATABASE, TEST_MYSQL_USERNAME, and TEST_MYSQL_PASSWORD are required for this test'
-        );
-      }
-
       const credentials: MySQLCredentials = {
         type: DataSourceType.MySQL,
-        host: testConfig.mysql.host,
-        port: testConfig.mysql.port,
-        database: testConfig.mysql.database,
-        username: testConfig.mysql.username,
-        password: testConfig.mysql.password,
-        ssl: testConfig.mysql.ssl,
+        host: process.env.TEST_MYSQL_HOST || 'localhost',
+        port: Number(process.env.TEST_MYSQL_PORT) || 3306,
+        database: process.env.TEST_MYSQL_DATABASE!,
+        username: process.env.TEST_MYSQL_USERNAME!,
+        password: process.env.TEST_MYSQL_PASSWORD!,
+        ssl: process.env.TEST_MYSQL_SSL === 'true',
       };
 
       await adapter.initialize(credentials);
@@ -45,23 +49,17 @@ describe('MySQLAdapter Integration', () => {
     TEST_TIMEOUT
   );
 
-  testWithCredentials(
+  testIt(
     'should execute simple SELECT query',
     async () => {
-      if (!testConfig.mysql.database || !testConfig.mysql.username || !testConfig.mysql.password) {
-        throw new Error(
-          'TEST_MYSQL_DATABASE, TEST_MYSQL_USERNAME, and TEST_MYSQL_PASSWORD are required for this test'
-        );
-      }
-
       const credentials: MySQLCredentials = {
         type: DataSourceType.MySQL,
-        host: testConfig.mysql.host,
-        port: testConfig.mysql.port,
-        database: testConfig.mysql.database,
-        username: testConfig.mysql.username,
-        password: testConfig.mysql.password,
-        ssl: testConfig.mysql.ssl,
+        host: process.env.TEST_MYSQL_HOST || 'localhost',
+        port: Number(process.env.TEST_MYSQL_PORT) || 3306,
+        database: process.env.TEST_MYSQL_DATABASE!,
+        username: process.env.TEST_MYSQL_USERNAME!,
+        password: process.env.TEST_MYSQL_PASSWORD!,
+        ssl: process.env.TEST_MYSQL_SSL === 'true',
       };
 
       await adapter.initialize(credentials);
@@ -75,23 +73,17 @@ describe('MySQLAdapter Integration', () => {
     TEST_TIMEOUT
   );
 
-  testWithCredentials(
+  testIt(
     'should execute parameterized query',
     async () => {
-      if (!testConfig.mysql.database || !testConfig.mysql.username || !testConfig.mysql.password) {
-        throw new Error(
-          'TEST_MYSQL_DATABASE, TEST_MYSQL_USERNAME, and TEST_MYSQL_PASSWORD are required for this test'
-        );
-      }
-
       const credentials: MySQLCredentials = {
         type: DataSourceType.MySQL,
-        host: testConfig.mysql.host,
-        port: testConfig.mysql.port,
-        database: testConfig.mysql.database,
-        username: testConfig.mysql.username,
-        password: testConfig.mysql.password,
-        ssl: testConfig.mysql.ssl,
+        host: process.env.TEST_MYSQL_HOST || 'localhost',
+        port: Number(process.env.TEST_MYSQL_PORT) || 3306,
+        database: process.env.TEST_MYSQL_DATABASE!,
+        username: process.env.TEST_MYSQL_USERNAME!,
+        password: process.env.TEST_MYSQL_PASSWORD!,
+        ssl: process.env.TEST_MYSQL_SSL === 'true',
       };
 
       await adapter.initialize(credentials);
@@ -107,23 +99,17 @@ describe('MySQLAdapter Integration', () => {
     TEST_TIMEOUT
   );
 
-  testWithCredentials(
+  testIt(
     'should handle query errors gracefully',
     async () => {
-      if (!testConfig.mysql.database || !testConfig.mysql.username || !testConfig.mysql.password) {
-        throw new Error(
-          'TEST_MYSQL_DATABASE, TEST_MYSQL_USERNAME, and TEST_MYSQL_PASSWORD are required for this test'
-        );
-      }
-
       const credentials: MySQLCredentials = {
         type: DataSourceType.MySQL,
-        host: testConfig.mysql.host,
-        port: testConfig.mysql.port,
-        database: testConfig.mysql.database,
-        username: testConfig.mysql.username,
-        password: testConfig.mysql.password,
-        ssl: testConfig.mysql.ssl,
+        host: process.env.TEST_MYSQL_HOST || 'localhost',
+        port: Number(process.env.TEST_MYSQL_PORT) || 3306,
+        database: process.env.TEST_MYSQL_DATABASE!,
+        username: process.env.TEST_MYSQL_USERNAME!,
+        password: process.env.TEST_MYSQL_PASSWORD!,
+        ssl: process.env.TEST_MYSQL_SSL === 'true',
       };
 
       await adapter.initialize(credentials);
@@ -133,7 +119,7 @@ describe('MySQLAdapter Integration', () => {
     TEST_TIMEOUT
   );
 
-  testWithCredentials('should return correct data source type', async () => {
+  testIt('should return correct data source type', async () => {
     expect(adapter.getDataSourceType()).toBe(DataSourceType.MySQL);
   });
 

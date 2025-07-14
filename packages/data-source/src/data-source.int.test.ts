@@ -3,48 +3,46 @@ import { DataSource, QueryRouter } from './data-source';
 import type { DataSourceConfig } from './data-source';
 import { DataSourceType } from './types/credentials';
 import type { MySQLCredentials, PostgreSQLCredentials } from './types/credentials';
-import { TEST_TIMEOUT, hasCredentials, testConfig } from '../tests/setup';
 
-// Helper function to create PostgreSQL credentials with proper validation
+// Test timeout - 5 seconds
+const TEST_TIMEOUT = 5000;
+
+// Check if credentials are available
+const hasPostgreSQLCredentials = !!(
+  process.env.TEST_POSTGRES_DATABASE && 
+  process.env.TEST_POSTGRES_USERNAME && 
+  process.env.TEST_POSTGRES_PASSWORD
+);
+const hasMySQLCredentials = !!(
+  process.env.TEST_MYSQL_DATABASE && 
+  process.env.TEST_MYSQL_USERNAME && 
+  process.env.TEST_MYSQL_PASSWORD
+);
+
+// Helper function to create PostgreSQL credentials
 function createPostgreSQLCredentials(): PostgreSQLCredentials {
-  if (
-    !testConfig.postgresql.database ||
-    !testConfig.postgresql.username ||
-    !testConfig.postgresql.password
-  ) {
-    throw new Error(
-      'TEST_POSTGRES_DATABASE, TEST_POSTGRES_USERNAME, and TEST_POSTGRES_PASSWORD are required for this test'
-    );
-  }
-
   return {
     type: DataSourceType.PostgreSQL,
-    host: testConfig.postgresql.host,
-    port: testConfig.postgresql.port,
-    database: testConfig.postgresql.database,
-    username: testConfig.postgresql.username,
-    password: testConfig.postgresql.password,
-    schema: testConfig.postgresql.schema,
-    ssl: testConfig.postgresql.ssl,
+    host: process.env.TEST_POSTGRES_HOST || 'localhost',
+    port: Number(process.env.TEST_POSTGRES_PORT) || 5432,
+    database: process.env.TEST_POSTGRES_DATABASE!,
+    username: process.env.TEST_POSTGRES_USERNAME!,
+    password: process.env.TEST_POSTGRES_PASSWORD!,
+    schema: process.env.TEST_POSTGRES_SCHEMA || 'public',
+    ssl: process.env.TEST_POSTGRES_SSL === 'true',
   };
 }
 
-// Helper function to create MySQL credentials with proper validation
+// Helper function to create MySQL credentials
 function createMySQLCredentials(): MySQLCredentials {
-  if (!testConfig.mysql.database || !testConfig.mysql.username || !testConfig.mysql.password) {
-    throw new Error(
-      'TEST_MYSQL_DATABASE, TEST_MYSQL_USERNAME, and TEST_MYSQL_PASSWORD are required for this test'
-    );
-  }
-
   return {
     type: DataSourceType.MySQL,
-    host: testConfig.mysql.host,
-    port: testConfig.mysql.port,
-    database: testConfig.mysql.database,
-    username: testConfig.mysql.username,
-    password: testConfig.mysql.password,
-    ssl: testConfig.mysql.ssl,
+    host: process.env.TEST_MYSQL_HOST || 'localhost',
+    port: Number(process.env.TEST_MYSQL_PORT) || 3306,
+    database: process.env.TEST_MYSQL_DATABASE!,
+    username: process.env.TEST_MYSQL_USERNAME!,
+    password: process.env.TEST_MYSQL_PASSWORD!,
+    ssl: process.env.TEST_MYSQL_SSL === 'true',
   };
 }
 
@@ -58,49 +56,40 @@ describe('DataSource Integration', () => {
   });
 
   describe('single data source configuration', () => {
-    it('should initialize with PostgreSQL data source', async () => {
-      if (!hasCredentials('postgresql')) {
-        return; // Skip if no credentials
-      }
+    const testIt = hasPostgreSQLCredentials ? it : it.skip;
 
-      const dataSources: DataSourceConfig[] = [
-        {
-          name: 'test-postgres',
-          type: DataSourceType.PostgreSQL,
-          credentials: createPostgreSQLCredentials(),
-        },
-      ];
-
-      dataSource = new DataSource({ dataSources });
-
-      const dataSourceNames = dataSource.getDataSources();
-      expect(dataSourceNames).toEqual(['test-postgres']);
-    });
-
-    it(
-      'should execute query on default data source',
-      async () => {
-        if (!hasCredentials('postgresql')) {
-          return; // Skip if no credentials
-        }
-
-        const dataSources: DataSourceConfig[] = [
+    testIt('should initialize with PostgreSQL data source', async () => {
+      const config: DataSourceConfig = {
+        dataSources: [
           {
             name: 'test-postgres',
-            type: DataSourceType.PostgreSQL,
             credentials: createPostgreSQLCredentials(),
           },
-        ];
+        ],
+      };
 
-        dataSource = new DataSource({ dataSources });
+      dataSource = new DataSource(config);
+      expect(dataSource.getDataSources()).toHaveLength(1);
+      expect(dataSource.getDataSources()[0].name).toBe('test-postgres');
+    });
 
-        const result = await dataSource.execute({
-          sql: "SELECT 1 as test_value, 'hello' as message",
-        });
+    testIt(
+      'should execute query on PostgreSQL',
+      async () => {
+        const config: DataSourceConfig = {
+          dataSources: [
+            {
+              name: 'test-postgres',
+              credentials: createPostgreSQLCredentials(),
+            },
+          ],
+        };
 
-        expect(result.success).toBe(true);
-        expect(result.rows).toHaveLength(1);
-        expect(result.rows[0]).toEqual({ test_value: 1, message: 'hello' });
+        dataSource = new DataSource(config);
+        const result = await dataSource.query("SELECT 1 as num, 'hello' as greeting");
+
+        expect(result.data.rows).toHaveLength(1);
+        expect(result.data.rows[0]).toEqual({ num: 1, greeting: 'hello' });
         expect(result.warehouse).toBe('test-postgres');
       },
       TEST_TIMEOUT
@@ -108,134 +97,108 @@ describe('DataSource Integration', () => {
   });
 
   describe('multiple data source configuration', () => {
-    it('should initialize with multiple data sources', async () => {
-      const dataSources: DataSourceConfig[] = [];
+    const testIt = hasPostgreSQLCredentials && hasMySQLCredentials ? it : it.skip;
 
-      if (hasCredentials('postgresql')) {
-        dataSources.push({
-          name: 'test-postgres',
-          type: DataSourceType.PostgreSQL,
-          credentials: createPostgreSQLCredentials(),
-        });
-      }
-
-      if (hasCredentials('mysql')) {
-        dataSources.push({
-          name: 'test-mysql',
-          type: DataSourceType.MySQL,
-          credentials: createMySQLCredentials(),
-        });
-      }
-
-      if (dataSources.length === 0) {
-        return; // Skip if no credentials available
-      }
-
-      const firstDataSource = dataSources[0];
-      if (!firstDataSource) {
-        throw new Error('Expected at least one data source');
-      }
-
-      dataSource = new DataSource({
-        dataSources,
-        defaultDataSource: firstDataSource.name,
-      });
-
-      const dataSourceNames = dataSource.getDataSources();
-      expect(dataSourceNames).toHaveLength(dataSources.length);
-    });
-
-    it(
-      'should route query to specific data source',
-      async () => {
-        if (!hasCredentials('postgresql')) {
-          return; // Skip if no credentials
-        }
-
-        const dataSources: DataSourceConfig[] = [
+    testIt('should initialize with multiple data sources', async () => {
+      const config: DataSourceConfig = {
+        dataSources: [
           {
             name: 'test-postgres',
-            type: DataSourceType.PostgreSQL,
             credentials: createPostgreSQLCredentials(),
           },
-        ];
+          {
+            name: 'test-mysql',
+            credentials: createMySQLCredentials(),
+          },
+        ],
+        defaultDataSource: 'test-postgres',
+      };
 
-        dataSource = new DataSource({ dataSources });
+      dataSource = new DataSource(config);
+      expect(dataSource.getDataSources()).toHaveLength(2);
+      expect(dataSource.getDefaultDataSourceName()).toBe('test-postgres');
+    });
 
-        const result = await dataSource.execute({
-          sql: 'SELECT 1 as test_value',
+    testIt(
+      'should route queries to specific data sources',
+      async () => {
+        const config: DataSourceConfig = {
+          dataSources: [
+            {
+              name: 'test-postgres',
+              credentials: createPostgreSQLCredentials(),
+            },
+            {
+              name: 'test-mysql',
+              credentials: createMySQLCredentials(),
+            },
+          ],
+        };
+
+        dataSource = new DataSource(config);
+
+        // Query PostgreSQL
+        const pgResult = await dataSource.query("SELECT 'postgres' as db", [], {
           warehouse: 'test-postgres',
         });
+        expect(pgResult.data.rows[0]).toEqual({ db: 'postgres' });
+        expect(pgResult.warehouse).toBe('test-postgres');
 
-        expect(result.success).toBe(true);
-        expect(result.warehouse).toBe('test-postgres');
+        // Query MySQL
+        const mysqlResult = await dataSource.query("SELECT 'mysql' as db", [], {
+          warehouse: 'test-mysql',
+        });
+        expect(mysqlResult.data.rows[0]).toEqual({ db: 'mysql' });
+        expect(mysqlResult.warehouse).toBe('test-mysql');
       },
       TEST_TIMEOUT
     );
   });
 
   describe('data source management', () => {
-    it(
-      'should add data source dynamically',
+    const testIt = hasPostgreSQLCredentials ? it : it.skip;
+
+    testIt(
+      'should add and remove data sources dynamically',
       async () => {
-        if (!hasCredentials('postgresql')) {
-          return; // Skip if no credentials
-        }
-
         dataSource = new DataSource({ dataSources: [] });
+        expect(dataSource.getDataSources()).toHaveLength(0);
 
+        // Add PostgreSQL data source
         await dataSource.addDataSource({
           name: 'dynamic-postgres',
-          type: DataSourceType.PostgreSQL,
           credentials: createPostgreSQLCredentials(),
         });
 
-        const dataSourceNames = dataSource.getDataSources();
+        expect(dataSource.getDataSources()).toHaveLength(1);
+        const dataSourceNames = dataSource.getDataSources().map((ds) => ds.name);
         expect(dataSourceNames).toContain('dynamic-postgres');
+
+        // Remove data source
+        dataSource.removeDataSource('dynamic-postgres');
+        expect(dataSource.getDataSources()).toHaveLength(0);
       },
       TEST_TIMEOUT
     );
+  });
 
-    it('should remove data source', async () => {
-      if (!hasCredentials('postgresql')) {
-        return; // Skip if no credentials
-      }
+  describe('connection testing', () => {
+    const testIt = hasPostgreSQLCredentials ? it : it.skip;
 
-      const dataSources: DataSourceConfig[] = [
-        {
-          name: 'test-postgres',
-          type: DataSourceType.PostgreSQL,
-          credentials: createPostgreSQLCredentials(),
-        },
-      ];
-
-      dataSource = new DataSource({ dataSources });
-
-      expect(dataSource.getDataSources()).toContain('test-postgres');
-
-      await dataSource.removeDataSource('test-postgres');
-
-      expect(dataSource.getDataSources()).not.toContain('test-postgres');
-    });
-
-    it(
+    testIt(
       'should test all data source connections',
       async () => {
-        if (!hasCredentials('postgresql')) {
-          return; // Skip if no credentials
-        }
+        const config: DataSourceConfig = {
+          dataSources: [
+            {
+              name: 'test-postgres',
+              credentials: createPostgreSQLCredentials(),
+            },
+          ],
+        };
 
-        const dataSources: DataSourceConfig[] = [
-          {
-            name: 'test-postgres',
-            type: DataSourceType.PostgreSQL,
-            credentials: createPostgreSQLCredentials(),
-          },
-        ];
-
-        dataSource = new DataSource({ dataSources });
-
-        const results = await dataSource.testAllDataSources();
+        dataSource = new DataSource(config);
+        const results = await dataSource.testAllConnections();
 
         expect(results).toHaveProperty('test-postgres');
         expect(results['test-postgres']).toBe(true);
@@ -245,74 +208,66 @@ describe('DataSource Integration', () => {
   });
 
   describe('introspection capabilities', () => {
-    it(
+    const testIt = hasPostgreSQLCredentials ? it : it.skip;
+
+    testIt(
       'should get databases from data source',
       async () => {
-        if (!hasCredentials('postgresql')) {
-          return; // Skip if no credentials
-        }
+        const config: DataSourceConfig = {
+          dataSources: [
+            {
+              name: 'test-postgres',
+              credentials: createPostgreSQLCredentials(),
+            },
+          ],
+        };
 
-        const dataSources: DataSourceConfig[] = [
-          {
-            name: 'test-postgres',
-            type: DataSourceType.PostgreSQL,
-            credentials: createPostgreSQLCredentials(),
-          },
-        ];
-
-        dataSource = new DataSource({ dataSources });
-
+        dataSource = new DataSource(config);
         const databases = await dataSource.getDatabases('test-postgres');
+
         expect(Array.isArray(databases)).toBe(true);
-        // PostgreSQL should have at least the test database
         expect(databases.length).toBeGreaterThan(0);
       },
       TEST_TIMEOUT
     );
 
-    it(
+    testIt(
       'should get schemas from data source',
       async () => {
-        if (!hasCredentials('postgresql')) {
-          return; // Skip if no credentials
-        }
+        const config: DataSourceConfig = {
+          dataSources: [
+            {
+              name: 'test-postgres',
+              credentials: createPostgreSQLCredentials(),
+            },
+          ],
+        };
 
-        const dataSources: DataSourceConfig[] = [
-          {
-            name: 'test-postgres',
-            type: DataSourceType.PostgreSQL,
-            credentials: createPostgreSQLCredentials(),
-          },
-        ];
-
-        dataSource = new DataSource({ dataSources });
-
+        dataSource = new DataSource(config);
         const schemas = await dataSource.getSchemas('test-postgres');
+
         expect(Array.isArray(schemas)).toBe(true);
-        // PostgreSQL should have at least the public schema
         expect(schemas.length).toBeGreaterThan(0);
       },
       TEST_TIMEOUT
     );
 
-    it(
-      'should get introspector instance',
+    testIt(
+      'should get introspector for data source',
       async () => {
-        if (!hasCredentials('postgresql')) {
-          return; // Skip if no credentials
-        }
+        const config: DataSourceConfig = {
+          dataSources: [
+            {
+              name: 'test-postgres',
+              credentials: createPostgreSQLCredentials(),
+            },
+          ],
+        };
 
-        const dataSources: DataSourceConfig[] = [
-          {
-            name: 'test-postgres',
-            type: DataSourceType.PostgreSQL,
-            credentials: createPostgreSQLCredentials(),
-          },
-        ];
+        dataSource = new DataSource(config);
+        const introspector = dataSource.getIntrospector('test-postgres');
 
-        dataSource = new DataSource({ dataSources });
-
-        const introspector = await dataSource.introspect('test-postgres');
+        expect(introspector).toBeDefined();
         expect(introspector.getDataSourceType()).toBe(DataSourceType.PostgreSQL);
       },
       TEST_TIMEOUT
@@ -320,49 +275,44 @@ describe('DataSource Integration', () => {
   });
 
   describe('error handling', () => {
-    it(
-      'should handle query errors gracefully',
+    const testIt = hasPostgreSQLCredentials ? it : it.skip;
+
+    testIt(
+      'should handle query execution errors gracefully',
       async () => {
-        if (!hasCredentials('postgresql')) {
-          return; // Skip if no credentials
-        }
+        const config: DataSourceConfig = {
+          dataSources: [
+            {
+              name: 'test-postgres',
+              credentials: createPostgreSQLCredentials(),
+            },
+          ],
+        };
 
-        const dataSources: DataSourceConfig[] = [
-          {
-            name: 'test-postgres',
-            type: DataSourceType.PostgreSQL,
-            credentials: createPostgreSQLCredentials(),
-          },
-        ];
+        dataSource = new DataSource(config);
 
-        dataSource = new DataSource({ dataSources });
+        const result = await dataSource.query('SELECT * FROM non_existent_table');
 
-        const result = await dataSource.execute({
-          sql: 'SELECT * FROM non_existent_table',
-        });
-
-        expect(result.success).toBe(false);
+        expect(result.data.rows).toEqual([]);
         expect(result.error).toBeDefined();
         expect(result.error?.code).toBe('QUERY_EXECUTION_ERROR');
       },
       TEST_TIMEOUT
     );
 
-    it('should throw error for non-existent data source', async () => {
+    it('should throw error when querying non-existent data source', async () => {
       dataSource = new DataSource({ dataSources: [] });
 
       await expect(
-        dataSource.execute({
-          sql: 'SELECT 1',
-          warehouse: 'non-existent',
-        })
-      ).rejects.toThrow("Specified data source 'non-existent' not found");
+        dataSource.query('SELECT 1', [], { warehouse: 'non-existent' })
+      ).rejects.toThrow('Data source non-existent not found');
     });
   });
 });
 
 // Test backward compatibility with QueryRouter alias
 describe('QueryRouter Backward Compatibility', () => {
+  const testIt = hasPostgreSQLCredentials ? it : it.skip;
   let router: DataSource;
 
   afterEach(async () => {
@@ -371,22 +321,20 @@ describe('QueryRouter Backward Compatibility', () => {
     }
   });
 
-  it('should work with QueryRouter alias', async () => {
-    if (!hasCredentials('postgresql')) {
-      return; // Skip if no credentials
-    }
+  testIt('should work with QueryRouter alias', async () => {
+    const config: DataSourceConfig = {
+      dataSources: [
+        {
+          name: 'test-postgres',
+          credentials: createPostgreSQLCredentials(),
+        },
+      ],
+    };
 
-    const dataSources: DataSourceConfig[] = [
-      {
-        name: 'test-postgres',
-        type: DataSourceType.PostgreSQL,
-        credentials: createPostgreSQLCredentials(),
-      },
-    ];
+    router = new QueryRouter(config);
+    expect(router).toBeInstanceOf(DataSource);
 
-    router = new QueryRouter({ dataSources });
-
-    const dataSourceNames = router.getDataSources();
-    expect(dataSourceNames).toEqual(['test-postgres']);
+    const result = await router.query('SELECT 1 as test');
+    expect(result.data.rows[0]).toEqual({ test: 1 });
   });
 });

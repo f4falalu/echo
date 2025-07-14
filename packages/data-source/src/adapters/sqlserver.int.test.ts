@@ -2,9 +2,19 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { SQLServerAdapter } from './sqlserver';
 import { DataSourceType } from '../types/credentials';
 import type { SQLServerCredentials } from '../types/credentials';
-import { TEST_TIMEOUT, skipIfNoCredentials, testConfig } from '../../tests/setup';
 
-const testWithCredentials = skipIfNoCredentials('sqlserver');
+// Check if SQLServer test credentials are available
+const hasSQLServerCredentials = !!(
+  process.env.TEST_SQLSERVER_DATABASE &&
+  process.env.TEST_SQLSERVER_USERNAME &&
+  process.env.TEST_SQLSERVER_PASSWORD
+);
+
+// Skip tests if credentials are not available
+const testIt = hasSQLServerCredentials ? it : it.skip;
+
+// Test timeout - 5 seconds
+const TEST_TIMEOUT = 5000;
 
 describe('SQLServerAdapter Integration', () => {
   let adapter: SQLServerAdapter;
@@ -19,29 +29,17 @@ describe('SQLServerAdapter Integration', () => {
     }
   });
 
-  testWithCredentials(
-    'should connect to SQL Server database',
+  testIt(
+    'should connect to SQLServer database',
     async () => {
-      if (
-        !testConfig.sqlserver.server ||
-        !testConfig.sqlserver.database ||
-        !testConfig.sqlserver.username ||
-        !testConfig.sqlserver.password
-      ) {
-        throw new Error(
-          'TEST_SQLSERVER_SERVER, TEST_SQLSERVER_DATABASE, TEST_SQLSERVER_USERNAME, and TEST_SQLSERVER_PASSWORD are required for this test'
-        );
-      }
-
       const credentials: SQLServerCredentials = {
         type: DataSourceType.SQLServer,
-        server: testConfig.sqlserver.server,
-        port: testConfig.sqlserver.port,
-        database: testConfig.sqlserver.database,
-        username: testConfig.sqlserver.username,
-        password: testConfig.sqlserver.password,
-        encrypt: testConfig.sqlserver.encrypt,
-        trust_server_certificate: testConfig.sqlserver.trust_server_certificate,
+        server: process.env.TEST_SQLSERVER_SERVER || 'localhost',
+        port: Number(process.env.TEST_SQLSERVER_PORT) || 1433,
+        database: process.env.TEST_SQLSERVER_DATABASE!,
+        username: process.env.TEST_SQLSERVER_USERNAME!,
+        password: process.env.TEST_SQLSERVER_PASSWORD!,
+        trust_server_certificate: process.env.TEST_SQLSERVER_TRUST_CERT === 'true',
       };
 
       await adapter.initialize(credentials);
@@ -51,29 +49,17 @@ describe('SQLServerAdapter Integration', () => {
     TEST_TIMEOUT
   );
 
-  testWithCredentials(
+  testIt(
     'should execute simple SELECT query',
     async () => {
-      if (
-        !testConfig.sqlserver.server ||
-        !testConfig.sqlserver.database ||
-        !testConfig.sqlserver.username ||
-        !testConfig.sqlserver.password
-      ) {
-        throw new Error(
-          'TEST_SQLSERVER_SERVER, TEST_SQLSERVER_DATABASE, TEST_SQLSERVER_USERNAME, and TEST_SQLSERVER_PASSWORD are required for this test'
-        );
-      }
-
       const credentials: SQLServerCredentials = {
         type: DataSourceType.SQLServer,
-        server: testConfig.sqlserver.server,
-        port: testConfig.sqlserver.port,
-        database: testConfig.sqlserver.database,
-        username: testConfig.sqlserver.username,
-        password: testConfig.sqlserver.password,
-        encrypt: testConfig.sqlserver.encrypt,
-        trust_server_certificate: testConfig.sqlserver.trust_server_certificate,
+        server: process.env.TEST_SQLSERVER_SERVER || 'localhost',
+        port: Number(process.env.TEST_SQLSERVER_PORT) || 1433,
+        database: process.env.TEST_SQLSERVER_DATABASE!,
+        username: process.env.TEST_SQLSERVER_USERNAME!,
+        password: process.env.TEST_SQLSERVER_PASSWORD!,
+        trust_server_certificate: process.env.TEST_SQLSERVER_TRUST_CERT === 'true',
       };
 
       await adapter.initialize(credentials);
@@ -87,33 +73,21 @@ describe('SQLServerAdapter Integration', () => {
     TEST_TIMEOUT
   );
 
-  testWithCredentials(
+  testIt(
     'should execute parameterized query',
     async () => {
-      if (
-        !testConfig.sqlserver.server ||
-        !testConfig.sqlserver.database ||
-        !testConfig.sqlserver.username ||
-        !testConfig.sqlserver.password
-      ) {
-        throw new Error(
-          'TEST_SQLSERVER_SERVER, TEST_SQLSERVER_DATABASE, TEST_SQLSERVER_USERNAME, and TEST_SQLSERVER_PASSWORD are required for this test'
-        );
-      }
-
       const credentials: SQLServerCredentials = {
         type: DataSourceType.SQLServer,
-        server: testConfig.sqlserver.server,
-        port: testConfig.sqlserver.port,
-        database: testConfig.sqlserver.database,
-        username: testConfig.sqlserver.username,
-        password: testConfig.sqlserver.password,
-        encrypt: testConfig.sqlserver.encrypt,
-        trust_server_certificate: testConfig.sqlserver.trust_server_certificate,
+        server: process.env.TEST_SQLSERVER_SERVER || 'localhost',
+        port: Number(process.env.TEST_SQLSERVER_PORT) || 1433,
+        database: process.env.TEST_SQLSERVER_DATABASE!,
+        username: process.env.TEST_SQLSERVER_USERNAME!,
+        password: process.env.TEST_SQLSERVER_PASSWORD!,
+        trust_server_certificate: process.env.TEST_SQLSERVER_TRUST_CERT === 'true',
       };
 
       await adapter.initialize(credentials);
-      const result = await adapter.query('SELECT @param1 as param_value, @param2 as second_param', [
+      const result = await adapter.query('SELECT @p1 as param_value, ? as second_param', [
         42,
         'test',
       ]);
@@ -125,29 +99,17 @@ describe('SQLServerAdapter Integration', () => {
     TEST_TIMEOUT
   );
 
-  testWithCredentials(
+  testIt(
     'should handle query errors gracefully',
     async () => {
-      if (
-        !testConfig.sqlserver.server ||
-        !testConfig.sqlserver.database ||
-        !testConfig.sqlserver.username ||
-        !testConfig.sqlserver.password
-      ) {
-        throw new Error(
-          'TEST_SQLSERVER_SERVER, TEST_SQLSERVER_DATABASE, TEST_SQLSERVER_USERNAME, and TEST_SQLSERVER_PASSWORD are required for this test'
-        );
-      }
-
       const credentials: SQLServerCredentials = {
         type: DataSourceType.SQLServer,
-        server: testConfig.sqlserver.server,
-        port: testConfig.sqlserver.port,
-        database: testConfig.sqlserver.database,
-        username: testConfig.sqlserver.username,
-        password: testConfig.sqlserver.password,
-        encrypt: testConfig.sqlserver.encrypt,
-        trust_server_certificate: testConfig.sqlserver.trust_server_certificate,
+        server: process.env.TEST_SQLSERVER_SERVER || 'localhost',
+        port: Number(process.env.TEST_SQLSERVER_PORT) || 1433,
+        database: process.env.TEST_SQLSERVER_DATABASE!,
+        username: process.env.TEST_SQLSERVER_USERNAME!,
+        password: process.env.TEST_SQLSERVER_PASSWORD!,
+        trust_server_certificate: process.env.TEST_SQLSERVER_TRUST_CERT === 'true',
       };
 
       await adapter.initialize(credentials);
@@ -157,7 +119,7 @@ describe('SQLServerAdapter Integration', () => {
     TEST_TIMEOUT
   );
 
-  testWithCredentials('should return correct data source type', async () => {
+  testIt('should return correct data source type', async () => {
     expect(adapter.getDataSourceType()).toBe(DataSourceType.SQLServer);
   });
 
@@ -166,7 +128,7 @@ describe('SQLServerAdapter Integration', () => {
     async () => {
       const invalidCredentials: SQLServerCredentials = {
         type: DataSourceType.SQLServer,
-        server: 'invalid-server',
+        server: 'invalid-host',
         port: 1433,
         database: 'invalid-db',
         username: 'invalid-user',

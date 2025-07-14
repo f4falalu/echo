@@ -6,7 +6,7 @@ import type { DataSourceIntrospector } from './introspection/base';
 import { DataSourceType } from './types/credentials';
 
 // Mock the adapter factory
-vi.mock('../../src/adapters/factory', () => ({
+vi.mock('./adapters/factory', () => ({
   createAdapter: vi.fn(),
 }));
 
@@ -41,9 +41,9 @@ describe('DataSource Unit Tests', () => {
     };
 
     // Setup mock adapter to return mock introspector
-    vi.mocked(mockAdapter.introspect).mockReturnValue(mockIntrospector);
-    vi.mocked(mockAdapter.testConnection).mockResolvedValue(true);
-    vi.mocked(mockAdapter.query).mockResolvedValue({
+    (mockAdapter.introspect as any).mockReturnValue(mockIntrospector);
+    (mockAdapter.testConnection as any).mockResolvedValue(true);
+    (mockAdapter.query as any).mockResolvedValue({
       rows: [{ test: 'value' }],
       fields: [{ name: 'test', type: 'string' }],
       rowCount: 1,
@@ -51,7 +51,7 @@ describe('DataSource Unit Tests', () => {
 
     // Mock the createAdapter function
     const { createAdapter } = await import('./adapters/factory');
-    vi.mocked(createAdapter).mockResolvedValue(mockAdapter);
+    (createAdapter as any).mockResolvedValue(mockAdapter);
   });
 
   afterEach(async () => {

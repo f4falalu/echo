@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect } from 'vitest';
 import { SnowflakeAdapter } from './snowflake';
 import { DataSourceType } from '../types/credentials';
 import type { SnowflakeCredentials } from '../types/credentials';
-import { TEST_TIMEOUT, skipIfNoCredentials, testConfig } from '../../tests/setup';
+
 
 const testWithCredentials = skipIfNoCredentials('snowflake');
 

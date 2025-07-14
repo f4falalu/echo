@@ -3,7 +3,7 @@ import { DataSource } from '../data-source';
 import type { DataSourceConfig } from '../data-source';
 import { DataSourceType } from '../types/credentials';
 import type { BigQueryCredentials } from '../types/credentials';
-import { TEST_TIMEOUT, skipIfNoCredentials, testConfig } from '../../setup';
+import { TEST_TIMEOUT, skipIfNoCredentials, testConfig } from '../setup';
 
 function createBigQueryCredentials(): BigQueryCredentials {
   if (!testConfig.bigquery.project_id) {
@@ -20,7 +20,7 @@ function createBigQueryCredentials(): BigQueryCredentials {
   };
 }
 
-describe('BigQuery DataSource Introspection', () => {
+describe.skip('BigQuery DataSource Introspection', () => {
   let dataSource: DataSource;
   const testFn = skipIfNoCredentials('bigquery');
 

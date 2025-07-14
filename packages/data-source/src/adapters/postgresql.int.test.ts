@@ -2,9 +2,19 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { PostgreSQLAdapter } from './postgresql';
 import { DataSourceType } from '../types/credentials';
 import type { PostgreSQLCredentials } from '../types/credentials';
-import { TEST_TIMEOUT, skipIfNoCredentials, testConfig } from '../../tests/setup';
 
-const testWithCredentials = skipIfNoCredentials('postgresql');
+// Check if PostgreSQL test credentials are available
+const hasPostgreSQLCredentials = !!(
+  process.env.TEST_POSTGRES_DATABASE &&
+  process.env.TEST_POSTGRES_USERNAME &&
+  process.env.TEST_POSTGRES_PASSWORD
+);
+
+// Skip tests if credentials are not available
+const testIt = hasPostgreSQLCredentials ? it : it.skip;
+
+// Test timeout - 5 seconds
+const TEST_TIMEOUT = 5000;
 
 describe('PostgreSQLAdapter Integration', () => {
   let adapter: PostgreSQLAdapter;
@@ -19,28 +29,18 @@ describe('PostgreSQLAdapter Integration', () => {
     }
   });
 
-  testWithCredentials(
+  testIt(
     'should connect to PostgreSQL database',
     async () => {
-      if (
-        !testConfig.postgresql.database ||
-        !testConfig.postgresql.username ||
-        !testConfig.postgresql.password
-      ) {
-        throw new Error(
-          'TEST_POSTGRES_DATABASE, TEST_POSTGRES_USERNAME, and TEST_POSTGRES_PASSWORD are required for this test'
-        );
-      }
-
       const credentials: PostgreSQLCredentials = {
         type: DataSourceType.PostgreSQL,
-        host: testConfig.postgresql.host,
-        port: testConfig.postgresql.port,
-        database: testConfig.postgresql.database,
-        username: testConfig.postgresql.username,
-        password: testConfig.postgresql.password,
-        schema: testConfig.postgresql.schema,
-        ssl: testConfig.postgresql.ssl,
+        host: process.env.TEST_POSTGRES_HOST || 'localhost',
+        port: Number(process.env.TEST_POSTGRES_PORT) || 5432,
+        database: process.env.TEST_POSTGRES_DATABASE!,
+        username: process.env.TEST_POSTGRES_USERNAME!,
+        password: process.env.TEST_POSTGRES_PASSWORD!,
+        schema: process.env.TEST_POSTGRES_SCHEMA || 'public',
+        ssl: process.env.TEST_POSTGRES_SSL === 'true',
       };
 
       await adapter.initialize(credentials);
@@ -50,28 +50,18 @@ describe('PostgreSQLAdapter Integration', () => {
     TEST_TIMEOUT
   );
 
-  testWithCredentials(
+  testIt(
     'should execute simple SELECT query',
     async () => {
-      if (
-        !testConfig.postgresql.database ||
-        !testConfig.postgresql.username ||
-        !testConfig.postgresql.password
-      ) {
-        throw new Error(
-          'TEST_POSTGRES_DATABASE, TEST_POSTGRES_USERNAME, and TEST_POSTGRES_PASSWORD are required for this test'
-        );
-      }
-
       const credentials: PostgreSQLCredentials = {
         type: DataSourceType.PostgreSQL,
-        host: testConfig.postgresql.host,
-        port: testConfig.postgresql.port,
-        database: testConfig.postgresql.database,
-        username: testConfig.postgresql.username,
-        password: testConfig.postgresql.password,
-        schema: testConfig.postgresql.schema,
-        ssl: testConfig.postgresql.ssl,
+        host: process.env.TEST_POSTGRES_HOST || 'localhost',
+        port: Number(process.env.TEST_POSTGRES_PORT) || 5432,
+        database: process.env.TEST_POSTGRES_DATABASE!,
+        username: process.env.TEST_POSTGRES_USERNAME!,
+        password: process.env.TEST_POSTGRES_PASSWORD!,
+        schema: process.env.TEST_POSTGRES_SCHEMA || 'public',
+        ssl: process.env.TEST_POSTGRES_SSL === 'true',
       };
 
       await adapter.initialize(credentials);
@@ -85,28 +75,18 @@ describe('PostgreSQLAdapter Integration', () => {
     TEST_TIMEOUT
   );
 
-  testWithCredentials(
+  testIt(
     'should execute parameterized query',
     async () => {
-      if (
-        !testConfig.postgresql.database ||
-        !testConfig.postgresql.username ||
-        !testConfig.postgresql.password
-      ) {
-        throw new Error(
-          'TEST_POSTGRES_DATABASE, TEST_POSTGRES_USERNAME, and TEST_POSTGRES_PASSWORD are required for this test'
-        );
-      }
-
       const credentials: PostgreSQLCredentials = {
         type: DataSourceType.PostgreSQL,
-        host: testConfig.postgresql.host,
-        port: testConfig.postgresql.port,
-        database: testConfig.postgresql.database,
-        username: testConfig.postgresql.username,
-        password: testConfig.postgresql.password,
-        schema: testConfig.postgresql.schema,
-        ssl: testConfig.postgresql.ssl,
+        host: process.env.TEST_POSTGRES_HOST || 'localhost',
+        port: Number(process.env.TEST_POSTGRES_PORT) || 5432,
+        database: process.env.TEST_POSTGRES_DATABASE!,
+        username: process.env.TEST_POSTGRES_USERNAME!,
+        password: process.env.TEST_POSTGRES_PASSWORD!,
+        schema: process.env.TEST_POSTGRES_SCHEMA || 'public',
+        ssl: process.env.TEST_POSTGRES_SSL === 'true',
       };
 
       await adapter.initialize(credentials);
@@ -122,28 +102,18 @@ describe('PostgreSQLAdapter Integration', () => {
     TEST_TIMEOUT
   );
 
-  testWithCredentials(
+  testIt(
     'should handle query errors gracefully',
     async () => {
-      if (
-        !testConfig.postgresql.database ||
-        !testConfig.postgresql.username ||
-        !testConfig.postgresql.password
-      ) {
-        throw new Error(
-          'TEST_POSTGRES_DATABASE, TEST_POSTGRES_USERNAME, and TEST_POSTGRES_PASSWORD are required for this test'
-        );
-      }
-
       const credentials: PostgreSQLCredentials = {
         type: DataSourceType.PostgreSQL,
-        host: testConfig.postgresql.host,
-        port: testConfig.postgresql.port,
-        database: testConfig.postgresql.database,
-        username: testConfig.postgresql.username,
-        password: testConfig.postgresql.password,
-        schema: testConfig.postgresql.schema,
-        ssl: testConfig.postgresql.ssl,
+        host: process.env.TEST_POSTGRES_HOST || 'localhost',
+        port: Number(process.env.TEST_POSTGRES_PORT) || 5432,
+        database: process.env.TEST_POSTGRES_DATABASE!,
+        username: process.env.TEST_POSTGRES_USERNAME!,
+        password: process.env.TEST_POSTGRES_PASSWORD!,
+        schema: process.env.TEST_POSTGRES_SCHEMA || 'public',
+        ssl: process.env.TEST_POSTGRES_SSL === 'true',
       };
 
       await adapter.initialize(credentials);
@@ -153,7 +123,7 @@ describe('PostgreSQLAdapter Integration', () => {
     TEST_TIMEOUT
   );
 
-  testWithCredentials('should return correct data source type', async () => {
+  testIt('should return correct data source type', async () => {
     expect(adapter.getDataSourceType()).toBe(DataSourceType.PostgreSQL);
   });
 

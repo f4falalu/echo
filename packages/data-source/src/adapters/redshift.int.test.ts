@@ -2,9 +2,19 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { RedshiftAdapter } from './redshift';
 import { DataSourceType } from '../types/credentials';
 import type { RedshiftCredentials } from '../types/credentials';
-import { TEST_TIMEOUT, skipIfNoCredentials, testConfig } from '../../tests/setup';
 
-const testWithCredentials = skipIfNoCredentials('redshift');
+// Check if Redshift test credentials are available
+const hasRedshiftCredentials = !!(
+  process.env.TEST_REDSHIFT_DATABASE &&
+  process.env.TEST_REDSHIFT_USERNAME &&
+  process.env.TEST_REDSHIFT_PASSWORD
+);
+
+// Skip tests if credentials are not available
+const testIt = hasRedshiftCredentials ? it : it.skip;
+
+// Test timeout - 5 seconds
+const TEST_TIMEOUT = 5000;
 
 describe('RedshiftAdapter Integration', () => {
   let adapter: RedshiftAdapter;
@@ -19,29 +29,17 @@ describe('RedshiftAdapter Integration', () => {
     }
   });
 
-  testWithCredentials(
+  testIt(
     'should connect to Redshift database',
     async () => {
-      if (
-        !testConfig.redshift.host ||
-        !testConfig.redshift.database ||
-        !testConfig.redshift.username ||
-        !testConfig.redshift.password
-      ) {
-        throw new Error(
-          'TEST_REDSHIFT_HOST, TEST_REDSHIFT_DATABASE, TEST_REDSHIFT_USERNAME, and TEST_REDSHIFT_PASSWORD are required for this test'
-        );
-      }
-
       const credentials: RedshiftCredentials = {
         type: DataSourceType.Redshift,
-        host: testConfig.redshift.host,
-        port: testConfig.redshift.port,
-        database: testConfig.redshift.database,
-        username: testConfig.redshift.username,
-        password: testConfig.redshift.password,
-        schema: testConfig.redshift.schema,
-        cluster_identifier: testConfig.redshift.cluster_identifier,
+        host: process.env.TEST_REDSHIFT_HOST || 'localhost',
+        port: Number(process.env.TEST_REDSHIFT_PORT) || 5439,
+        database: process.env.TEST_REDSHIFT_DATABASE!,
+        username: process.env.TEST_REDSHIFT_USERNAME!,
+        password: process.env.TEST_REDSHIFT_PASSWORD!,
+        ssl: process.env.TEST_REDSHIFT_SSL !== 'false',
       };
 
       await adapter.initialize(credentials);
@@ -51,29 +49,17 @@ describe('RedshiftAdapter Integration', () => {
     TEST_TIMEOUT
   );
 
-  testWithCredentials(
+  testIt(
     'should execute simple SELECT query',
     async () => {
-      if (
-        !testConfig.redshift.host ||
-        !testConfig.redshift.database ||
-        !testConfig.redshift.username ||
-        !testConfig.redshift.password
-      ) {
-        throw new Error(
-          'TEST_REDSHIFT_HOST, TEST_REDSHIFT_DATABASE, TEST_REDSHIFT_USERNAME, and TEST_REDSHIFT_PASSWORD are required for this test'
-        );
-      }
-
       const credentials: RedshiftCredentials = {
         type: DataSourceType.Redshift,
-        host: testConfig.redshift.host,
-        port: testConfig.redshift.port,
-        database: testConfig.redshift.database,
-        username: testConfig.redshift.username,
-        password: testConfig.redshift.password,
-        schema: testConfig.redshift.schema,
-        cluster_identifier: testConfig.redshift.cluster_identifier,
+        host: process.env.TEST_REDSHIFT_HOST || 'localhost',
+        port: Number(process.env.TEST_REDSHIFT_PORT) || 5439,
+        database: process.env.TEST_REDSHIFT_DATABASE!,
+        username: process.env.TEST_REDSHIFT_USERNAME!,
+        password: process.env.TEST_REDSHIFT_PASSWORD!,
+        ssl: process.env.TEST_REDSHIFT_SSL !== 'false',
       };
 
       await adapter.initialize(credentials);
@@ -87,33 +73,21 @@ describe('RedshiftAdapter Integration', () => {
     TEST_TIMEOUT
   );
 
-  testWithCredentials(
+  testIt(
     'should execute parameterized query',
     async () => {
-      if (
-        !testConfig.redshift.host ||
-        !testConfig.redshift.database ||
-        !testConfig.redshift.username ||
-        !testConfig.redshift.password
-      ) {
-        throw new Error(
-          'TEST_REDSHIFT_HOST, TEST_REDSHIFT_DATABASE, TEST_REDSHIFT_USERNAME, and TEST_REDSHIFT_PASSWORD are required for this test'
-        );
-      }
-
       const credentials: RedshiftCredentials = {
         type: DataSourceType.Redshift,
-        host: testConfig.redshift.host,
-        port: testConfig.redshift.port,
-        database: testConfig.redshift.database,
-        username: testConfig.redshift.username,
-        password: testConfig.redshift.password,
-        schema: testConfig.redshift.schema,
-        cluster_identifier: testConfig.redshift.cluster_identifier,
+        host: process.env.TEST_REDSHIFT_HOST || 'localhost',
+        port: Number(process.env.TEST_REDSHIFT_PORT) || 5439,
+        database: process.env.TEST_REDSHIFT_DATABASE!,
+        username: process.env.TEST_REDSHIFT_USERNAME!,
+        password: process.env.TEST_REDSHIFT_PASSWORD!,
+        ssl: process.env.TEST_REDSHIFT_SSL !== 'false',
       };
 
       await adapter.initialize(credentials);
-      const result = await adapter.query('SELECT $1 as param_value, $2 as second_param', [
+      const result = await adapter.query('SELECT $1::integer as param_value, $2 as second_param', [
         42,
         'test',
       ]);
@@ -125,29 +99,17 @@ describe('RedshiftAdapter Integration', () => {
     TEST_TIMEOUT
   );
 
-  testWithCredentials(
+  testIt(
     'should handle query errors gracefully',
     async () => {
-      if (
-        !testConfig.redshift.host ||
-        !testConfig.redshift.database ||
-        !testConfig.redshift.username ||
-        !testConfig.redshift.password
-      ) {
-        throw new Error(
-          'TEST_REDSHIFT_HOST, TEST_REDSHIFT_DATABASE, TEST_REDSHIFT_USERNAME, and TEST_REDSHIFT_PASSWORD are required for this test'
-        );
-      }
-
       const credentials: RedshiftCredentials = {
         type: DataSourceType.Redshift,
-        host: testConfig.redshift.host,
-        port: testConfig.redshift.port,
-        database: testConfig.redshift.database,
-        username: testConfig.redshift.username,
-        password: testConfig.redshift.password,
-        schema: testConfig.redshift.schema,
-        cluster_identifier: testConfig.redshift.cluster_identifier,
+        host: process.env.TEST_REDSHIFT_HOST || 'localhost',
+        port: Number(process.env.TEST_REDSHIFT_PORT) || 5439,
+        database: process.env.TEST_REDSHIFT_DATABASE!,
+        username: process.env.TEST_REDSHIFT_USERNAME!,
+        password: process.env.TEST_REDSHIFT_PASSWORD!,
+        ssl: process.env.TEST_REDSHIFT_SSL !== 'false',
       };
 
       await adapter.initialize(credentials);
@@ -157,7 +119,7 @@ describe('RedshiftAdapter Integration', () => {
     TEST_TIMEOUT
   );
 
-  testWithCredentials('should return correct data source type', async () => {
+  testIt('should return correct data source type', async () => {
     expect(adapter.getDataSourceType()).toBe(DataSourceType.Redshift);
   });
 
@@ -166,7 +128,7 @@ describe('RedshiftAdapter Integration', () => {
     async () => {
       const invalidCredentials: RedshiftCredentials = {
         type: DataSourceType.Redshift,
-        host: 'invalid-cluster.redshift.amazonaws.com',
+        host: 'invalid-host',
         port: 5439,
         database: 'invalid-db',
         username: 'invalid-user',

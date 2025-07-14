@@ -2,9 +2,19 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { BigQueryAdapter } from './bigquery';
 import { DataSourceType } from '../types/credentials';
 import type { BigQueryCredentials } from '../types/credentials';
-import { TEST_TIMEOUT, skipIfNoCredentials, testConfig } from '../../tests/setup';
 
-const testWithCredentials = skipIfNoCredentials('bigquery');
+// Check if BigQuery test credentials are available
+const hasBigQueryCredentials = !!(
+  process.env.TEST_BIGQUERY_DATABASE &&
+  process.env.TEST_BIGQUERY_USERNAME &&
+  process.env.TEST_BIGQUERY_PASSWORD
+);
+
+// Skip tests if credentials are not available
+const testIt = hasBigQueryCredentials ? it : it.skip;
+
+// Test timeout - 5 seconds
+const TEST_TIMEOUT = 5000;
 
 describe('BigQueryAdapter Integration', () => {
   let adapter: BigQueryAdapter;
@@ -19,20 +29,16 @@ describe('BigQueryAdapter Integration', () => {
     }
   });
 
-  testWithCredentials(
-    'should connect to BigQuery',
+  testIt(
+    'should connect to BigQuery database',
     async () => {
-      if (!testConfig.bigquery.project_id) {
-        throw new Error('TEST_BIGQUERY_PROJECT_ID is required for this test');
-      }
-
       const credentials: BigQueryCredentials = {
         type: DataSourceType.BigQuery,
-        project_id: testConfig.bigquery.project_id,
-        service_account_key: testConfig.bigquery.service_account_key,
-        key_file_path: testConfig.bigquery.key_file_path,
-        default_dataset: testConfig.bigquery.default_dataset,
-        location: testConfig.bigquery.location,
+        project_id: process.env.TEST_BIGQUERY_PROJECT_ID!,
+        service_account_key: process.env.TEST_BIGQUERY_SERVICE_ACCOUNT_KEY,
+        key_file_path: process.env.TEST_BIGQUERY_KEY_FILE_PATH,
+        default_dataset: process.env.TEST_BIGQUERY_DATASET,
+        location: process.env.TEST_BIGQUERY_LOCATION || 'US',
       };
 
       await adapter.initialize(credentials);
@@ -42,20 +48,16 @@ describe('BigQueryAdapter Integration', () => {
     TEST_TIMEOUT
   );
 
-  testWithCredentials(
+  testIt(
     'should execute simple SELECT query',
     async () => {
-      if (!testConfig.bigquery.project_id) {
-        throw new Error('TEST_BIGQUERY_PROJECT_ID is required for this test');
-      }
-
       const credentials: BigQueryCredentials = {
         type: DataSourceType.BigQuery,
-        project_id: testConfig.bigquery.project_id,
-        service_account_key: testConfig.bigquery.service_account_key,
-        key_file_path: testConfig.bigquery.key_file_path,
-        default_dataset: testConfig.bigquery.default_dataset,
-        location: testConfig.bigquery.location,
+        project_id: process.env.TEST_BIGQUERY_PROJECT_ID!,
+        service_account_key: process.env.TEST_BIGQUERY_SERVICE_ACCOUNT_KEY,
+        key_file_path: process.env.TEST_BIGQUERY_KEY_FILE_PATH,
+        default_dataset: process.env.TEST_BIGQUERY_DATASET,
+        location: process.env.TEST_BIGQUERY_LOCATION || 'US',
       };
 
       await adapter.initialize(credentials);
@@ -64,24 +66,21 @@ describe('BigQueryAdapter Integration', () => {
       expect(result.rows).toHaveLength(1);
       expect(result.rows[0]).toEqual({ test_column: 1, text_column: 'hello' });
       expect(result.rowCount).toBe(1);
+      expect(result.fields).toHaveLength(2);
     },
     TEST_TIMEOUT
   );
 
-  testWithCredentials(
+  testIt(
     'should execute parameterized query',
     async () => {
-      if (!testConfig.bigquery.project_id) {
-        throw new Error('TEST_BIGQUERY_PROJECT_ID is required for this test');
-      }
-
       const credentials: BigQueryCredentials = {
         type: DataSourceType.BigQuery,
-        project_id: testConfig.bigquery.project_id,
-        service_account_key: testConfig.bigquery.service_account_key,
-        key_file_path: testConfig.bigquery.key_file_path,
-        default_dataset: testConfig.bigquery.default_dataset,
-        location: testConfig.bigquery.location,
+        project_id: process.env.TEST_BIGQUERY_PROJECT_ID!,
+        service_account_key: process.env.TEST_BIGQUERY_SERVICE_ACCOUNT_KEY,
+        key_file_path: process.env.TEST_BIGQUERY_KEY_FILE_PATH,
+        default_dataset: process.env.TEST_BIGQUERY_DATASET,
+        location: process.env.TEST_BIGQUERY_LOCATION || 'US',
       };
 
       await adapter.initialize(credentials);
@@ -97,20 +96,16 @@ describe('BigQueryAdapter Integration', () => {
     TEST_TIMEOUT
   );
 
-  testWithCredentials(
+  testIt(
     'should handle query errors gracefully',
     async () => {
-      if (!testConfig.bigquery.project_id) {
-        throw new Error('TEST_BIGQUERY_PROJECT_ID is required for this test');
-      }
-
       const credentials: BigQueryCredentials = {
         type: DataSourceType.BigQuery,
-        project_id: testConfig.bigquery.project_id,
-        service_account_key: testConfig.bigquery.service_account_key,
-        key_file_path: testConfig.bigquery.key_file_path,
-        default_dataset: testConfig.bigquery.default_dataset,
-        location: testConfig.bigquery.location,
+        project_id: process.env.TEST_BIGQUERY_PROJECT_ID!,
+        service_account_key: process.env.TEST_BIGQUERY_SERVICE_ACCOUNT_KEY,
+        key_file_path: process.env.TEST_BIGQUERY_KEY_FILE_PATH,
+        default_dataset: process.env.TEST_BIGQUERY_DATASET,
+        location: process.env.TEST_BIGQUERY_LOCATION || 'US',
       };
 
       await adapter.initialize(credentials);
@@ -120,7 +115,7 @@ describe('BigQueryAdapter Integration', () => {
     TEST_TIMEOUT
   );
 
-  testWithCredentials('should return correct data source type', async () => {
+  testIt('should return correct data source type', async () => {
     expect(adapter.getDataSourceType()).toBe(DataSourceType.BigQuery);
   });
 
@@ -129,17 +124,11 @@ describe('BigQueryAdapter Integration', () => {
     async () => {
       const invalidCredentials: BigQueryCredentials = {
         type: DataSourceType.BigQuery,
-        project_id: 'invalid-project-that-does-not-exist-12345',
-        service_account_key:
-          '{"type": "service_account", "project_id": "invalid", "private_key": "invalid"}',
+        project_id: 'invalid-project',
+        service_account_key: JSON.stringify({ invalid: 'key' }),
       };
 
-      const adapter = new BigQueryAdapter();
-      await adapter.initialize(invalidCredentials);
-
-      // The connection test should fail with invalid credentials
-      const isConnected = await adapter.testConnection();
-      expect(isConnected).toBe(false);
+      await expect(adapter.initialize(invalidCredentials)).rejects.toThrow();
     },
     TEST_TIMEOUT
   );

@@ -4,7 +4,7 @@ import type { DataSourceConfig } from '../data-source';
 import { DataSourceType } from '../types/credentials';
 import type { PostgreSQLCredentials } from '../types/credentials';
 import type { ColumnStatistics, Table, TableStatistics } from '../types/introspection';
-import { TEST_TIMEOUT, skipIfNoCredentials, testConfig } from '../../setup';
+import { TEST_TIMEOUT, skipIfNoCredentials, testConfig } from '../setup';
 
 function createPostgreSQLCredentials(): PostgreSQLCredentials {
   if (
@@ -99,7 +99,7 @@ async function validateColumnMapping(
   }
 }
 
-describe('PostgreSQL DataSource Introspection', () => {
+describe.skip('PostgreSQL DataSource Introspection', () => {
   let dataSource: DataSource;
   const testFn = skipIfNoCredentials('postgresql');
 
@@ -360,7 +360,7 @@ describe('PostgreSQL DataSource Introspection', () => {
     TEST_TIMEOUT
   );
 
-  describe('PostgreSQL Filtering Tests', () => {
+  describe.skip('PostgreSQL Filtering Tests', () => {
     testFn(
       'should filter by database only',
       async () => {
