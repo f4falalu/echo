@@ -54,7 +54,7 @@ describe('cleanupIncompleteToolCalls', () => {
           { type: 'tool-call', toolCallId: '123', toolName: 'getTodo', args: {} },
         ]
       }
-      // Missing result for toolCallId '456' - partially orphaned
+      // Missing result for toolCallId '123' - partially orphaned
     ];
 
     const cleaned = cleanupIncompleteToolCalls(messages);
