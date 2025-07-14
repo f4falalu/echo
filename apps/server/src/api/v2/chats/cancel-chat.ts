@@ -208,6 +208,13 @@ function ensureReasoningMessagesCompleted(
 
 /**
  * Clean up and finalize all message fields for a cancelled chat
+ *
+ * This function handles three cancellation scenarios:
+ * 1. Early cancellation - No reasoning or response messages exist yet
+ * 2. Reasoning cancellation - Reasoning messages exist but no response messages
+ * 3. Response cancellation - Both reasoning and response messages exist
+ *
+ * In all cases, the message is marked as complete with an appropriate final reasoning message.
  */
 interface CleanedMessageFields {
   rawLlmMessages: CoreMessage[];
@@ -267,6 +274,10 @@ async function cleanUpMessage(
       responseMessagesType: Array.isArray(responseMessages) ? 'array' : typeof responseMessages,
     });
 
+    // Check if this is an early cancellation (no reasoning or response messages)
+    const hasReasoningMessages = currentReasoning.length > 0;
+    const hasResponseMessages = currentResponseMessages.length > 0;
+
     // Clean up all message fields
     const cleanedFields = cleanUpMessageFields(
       currentRawMessages,
@@ -274,11 +285,18 @@ async function cleanUpMessage(
       currentResponseMessages
     );
 
-    // Determine the final reasoning message based on whether we were in response phase
-    const hasResponseMessages = currentResponseMessages.length > 0;
-    const finalReasoningMessage = hasResponseMessages
-      ? 'Stopped during final response'
-      : 'Stopped reasoning';
+    // Determine the final reasoning message based on the state of the chat
+    let finalReasoningMessage: string;
+    if (!hasReasoningMessages && !hasResponseMessages) {
+      // Chat was cancelled before any reasoning began
+      finalReasoningMessage = 'Chat cancelled before reasoning started';
+    } else if (hasResponseMessages) {
+      // Chat was cancelled during response generation
+      finalReasoningMessage = 'Stopped during final response';
+    } else {
+      // Chat was cancelled during reasoning
+      finalReasoningMessage = 'Stopped reasoning';
+    }
 
     // Log the cleaned reasoning to debug
     console.info('Cleaned reasoning before save:', {
@@ -287,6 +305,7 @@ async function cleanUpMessage(
         (r) => r && typeof r === 'object' && 'status' in r && r.status === 'loading'
       ).length,
       lastReasoningMessage: cleanedFields.reasoning[cleanedFields.reasoning.length - 1],
+      finalReasoningMessage,
     });
 
     // Ensure the reasoning array is properly serializable
