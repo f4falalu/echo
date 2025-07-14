@@ -63,6 +63,7 @@ export const useGetDashboard = <TData = BusterDashboardResponse>(
 
   const { isFetched: isFetchedInitial, isError: isErrorInitial } = useQuery({
     ...dashboardQueryKeys.dashboardGetDashboard(id, null),
+    staleTime: Infinity,
     queryFn: () => queryFn(id, paramVersionNumber),
     enabled: false, //we made this false because we want to be explicit about the fact that we fetch the dashboard server side
     retry(failureCount, error) {

@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useRef } from 'react';
 import { messageShape, messagesShape } from './shapes';
 import { useShape, useShapeStream } from '../instances';
 import { useChatUpdate } from '@/context/Chats/useChatUpdate';
@@ -12,6 +12,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { dashboardQueryKeys } from '../../query_keys/dashboard';
 import last from 'lodash/last';
 import isEmpty from 'lodash/isEmpty';
+import { metricsQueryKeys } from '../../query_keys/metric';
 
 export const useGetMessage = ({ chatId, messageId }: { chatId: string; messageId: string }) => {
   const shape = useMemo(() => messageShape({ chatId, messageId }), [chatId, messageId]);
@@ -38,7 +39,7 @@ export const useTrackAndUpdateMessageChanges = (
   callback?: (message: ReturnType<typeof updateMessageShapeToIChatMessage>) => void
 ) => {
   const { onUpdateChatMessage, onUpdateChat } = useChatUpdate();
-  const checkIfWeHaveAFollowupDashboard = useCheckIfWeHaveAFollowupDashboard();
+  const checkIfWeHaveAFollowupDashboard = useCheckIfWeHaveAFollowupDashboard(messageId);
   const getChatMemoized = useGetChatMemoized();
 
   const subscribe = !!chatId && !!messageId && messageId !== 'undefined';
@@ -79,7 +80,7 @@ export const useTrackAndUpdateMessageChanges = (
             prefetchGetListChats();
           }
 
-          if (!isEmpty(iChatMessage.reasoning_message_ids)) {
+          if (!isEmpty(iChatMessage.response_message_ids)) {
             checkIfWeHaveAFollowupDashboard(iChatMessage);
           }
 
@@ -95,23 +96,33 @@ export const useTrackAndUpdateMessageChanges = (
   );
 };
 
-const useCheckIfWeHaveAFollowupDashboard = () => {
+const useCheckIfWeHaveAFollowupDashboard = (messageId: string) => {
   const queryClient = useQueryClient();
-  const method = (message: Partial<BusterChatMessage>) => {
-    const lastResponseMessageId = last(message.response_message_ids || []) || '';
-    const lastResponseMessage = message.response_messages?.[lastResponseMessageId] as
-      | ChatMessageResponseMessage_File
-      | undefined;
-    const hasDashboardInMessage =
-      lastResponseMessage && lastResponseMessage?.file_type === 'dashboard';
+  const hasSeenFileByMessageId = useRef<Record<string, boolean>>({});
 
-    if (hasDashboardInMessage) {
-      const fileId = lastResponseMessage?.id;
-      const versionNumber = lastResponseMessage?.version_number;
-      const { queryKey } = dashboardQueryKeys.dashboardGetDashboard(fileId, versionNumber);
-      const isFoundInCache = queryClient.getQueryData(queryKey);
-      if (isFoundInCache) {
-        queryClient.invalidateQueries({ queryKey });
+  const method = (message: Partial<BusterChatMessage>) => {
+    if (!hasSeenFileByMessageId.current[messageId]) {
+      const allFiles = Object.values(message.response_messages || {}).filter(
+        (x) => (x as ChatMessageResponseMessage_File).file_type === 'dashboard'
+      ) as ChatMessageResponseMessage_File[];
+      if (allFiles.length > 0) {
+        hasSeenFileByMessageId.current[messageId] = true;
+
+        for (const file of allFiles) {
+          const fileType = (file as ChatMessageResponseMessage_File).file_type;
+          if (fileType === 'dashboard') {
+            const { queryKey } = dashboardQueryKeys.dashboardGetDashboard(
+              file.id,
+              file.version_number
+            );
+            queryClient.invalidateQueries({ queryKey });
+          } else if (fileType === 'metric') {
+            const { queryKey } = metricsQueryKeys.metricsGetMetric(file.id, file.version_number);
+            queryClient.invalidateQueries({ queryKey });
+          } else {
+            const _exhaustiveCheck: 'reasoning' = fileType;
+          }
+        }
       }
     }
   };
