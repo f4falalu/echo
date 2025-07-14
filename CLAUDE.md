@@ -70,8 +70,19 @@ pnpm run check:fix packages/ai
 ```
 
 ### 5. Run Tests with Vitest
+
+**Important**: Always run unit tests before completing any task to ensure code changes don't break existing functionality.
+
 ```bash
-# Run all tests
+# Run unit tests (excludes integration tests) - REQUIRED before task completion
+pnpm run test:unit
+pnpm run test:unit --filter=@buster/ai  # For specific package
+
+# Run integration tests (only when requested by user)
+pnpm run test:integration
+pnpm run test:integration --filter=@buster/ai  # For specific package
+
+# Run all tests (unit + integration)
 pnpm run test
 
 # Run tests for specific package
@@ -83,6 +94,11 @@ pnpm run test path/to/file.test.ts
 # Watch mode for development
 pnpm run test:watch
 ```
+
+**Testing Guidelines**:
+- Unit tests (`*.test.ts`) - Run these before marking any task as complete
+- Integration tests (`*.int.test.ts`) - Only run when explicitly requested by the user
+- Integration tests are automatically run in CI/CD pipelines
 
 ## Code Quality Standards
 
