@@ -231,6 +231,7 @@ const AppSplitterWrapper = forwardRef<AppSplitterRef, IAppSplitterProps>(
             isVertical={isVertical}
             containerRef={containerRef}
             splitterAutoSaveId={splitterAutoSaveId}
+            split={split}
           />
         )}
       </div>
