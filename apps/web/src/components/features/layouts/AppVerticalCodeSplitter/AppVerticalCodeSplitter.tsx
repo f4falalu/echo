@@ -47,8 +47,13 @@ export const AppVerticalCodeSplitter = forwardRef<AppSplitterRef, AppVerticalCod
     const dataContainerClassName = !topHidden ? `pt-${gapAmount}` : '';
 
     const bustStorageOnInit = useMemoizedFn(
-      (preservedSideValue: number | null, refWidth: number) => {
-        return !preservedSideValue || preservedSideValue < 80 || refWidth < 120;
+      (preservedSideValue: number | null, refSize: number) => {
+        return (
+          !preservedSideValue ||
+          preservedSideValue < 80 ||
+          refSize < 120 ||
+          preservedSideValue > refSize - 80
+        );
       }
     );
 
