@@ -6,5 +6,5 @@ export const createNewChat = async (props: ChatCreateRequest) => {
 };
 
 export const stopChat = async ({ chatId }: { chatId: string }) => {
-  return mainApiV2.patch<unknown>(`/chats/${chatId}`, { stop: true }).then((res) => res.data);
+  return mainApiV2.delete<unknown>(`/chats/${chatId}/cancel`).then((res) => res.data);
 };

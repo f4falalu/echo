@@ -108,29 +108,25 @@ const SubmitButton: React.FC<{
   onSubmitPreflight: () => void;
   onStop?: () => void;
 }> = React.memo(({ disabled, sendIcon, loading, loadingIcon, onSubmitPreflight, onStop }) => {
-  const memoizedPrefix = useMemo(() => {
-    return (
+  const prefix = (
+    <div
+      className={cn('relative h-4 w-4 transition-all duration-300 ease-out will-change-transform')}>
       <div
-        className={cn(
-          'relative h-4 w-4 transition-all duration-300 ease-out will-change-transform'
-        )}>
-        <div
-          className={`absolute inset-0 transition-all duration-300 ease-out ${loading ? 'scale-80 opacity-0' : 'scale-100 opacity-100'}`}>
-          {sendIcon}
-        </div>
-        <div
-          className={`absolute inset-0 flex items-center justify-center text-sm transition-all duration-300 ease-out ${loading ? 'scale-100 opacity-100' : 'scale-85 opacity-0'}`}>
-          {loadingIcon}
-        </div>
+        className={`absolute inset-0 transition-all duration-300 ease-out ${loading ? 'scale-80 opacity-0' : 'scale-100 opacity-100'}`}>
+        {sendIcon}
       </div>
-    );
-  }, [loading, sendIcon, loadingIcon]);
+      <div
+        className={`absolute inset-0 flex items-center justify-center text-sm transition-all duration-300 ease-out ${loading ? 'scale-100 opacity-100' : 'scale-85 opacity-0'}`}>
+        {loadingIcon}
+      </div>
+    </div>
+  );
 
   return (
     <Button
       rounding={'large'}
       variant="black"
-      prefix={memoizedPrefix}
+      prefix={prefix}
       onClick={loading && onStop ? onStop : onSubmitPreflight}
       disabled={disabled}
       className={cn(

@@ -4,7 +4,7 @@ import { useShape, useShapeStream } from '../instances';
 import { useChatUpdate } from '@/context/Chats/useChatUpdate';
 import { updateMessageShapeToIChatMessage } from './helpers';
 import { useMemoizedFn } from '@/hooks';
-import { useGetChatMemoized } from '@/api/buster_rest/chats';
+import { prefetchGetListChats, useGetChatMemoized } from '@/api/buster_rest/chats';
 import uniq from 'lodash/uniq';
 
 export const useGetMessage = ({ chatId, messageId }: { chatId: string; messageId: string }) => {
@@ -33,12 +33,13 @@ export const useTrackAndUpdateMessageChanges = (
 ) => {
   const { onUpdateChatMessage, onUpdateChat } = useChatUpdate();
   const getChatMemoized = useGetChatMemoized();
+
+  const subscribe = !!chatId && !!messageId && messageId !== 'undefined';
+
   const shape = useMemo(
     () => messageShape({ chatId: chatId || '', messageId }),
     [chatId, messageId]
   );
-
-  const subscribe = !!chatId && !!messageId && messageId !== 'undefined';
 
   return useShapeStream(
     shape,
@@ -57,6 +58,10 @@ export const useTrackAndUpdateMessageChanges = (
               ...chat,
               message_ids: allMessageIds
             });
+          }
+
+          if (iChatMessage.is_completed) {
+            prefetchGetListChats();
           }
         }
         callback?.(iChatMessage);

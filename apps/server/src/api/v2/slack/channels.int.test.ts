@@ -1,4 +1,5 @@
 import { db, slackIntegrations } from '@buster/database';
+import type { GetChannelsResponse, SlackErrorResponse } from '@buster/server-shared/slack';
 import { eq } from 'drizzle-orm';
 import { Hono } from 'hono';
 import type { Context } from 'hono';
@@ -90,7 +91,12 @@ describe.skipIf(skipIfNoEnv)('Slack Channels Integration Tests', () => {
       app.use('*', async (c, next) => {
         const path = c.req.path;
         if (path.includes('/channels')) {
-          (c as Context).set('busterUser', { id: testUserId });
+          (c as Context).set('busterUser', {
+            id: testUserId,
+            name: 'Test User',
+            email: 'test@example.com',
+            avatarUrl: 'https://example.com/avatar.png',
+          });
           (c as Context).set('organizationId', testOrganizationId);
         }
         await next();
@@ -115,7 +121,7 @@ describe.skipIf(skipIfNoEnv)('Slack Channels Integration Tests', () => {
       });
 
       expect(response.status).toBe(404);
-      const data = await response.json();
+      const data = (await response.json()) as SlackErrorResponse;
       expect(data.error).toBe('No active Slack integration found');
       expect(data.code).toBe('INTEGRATION_NOT_FOUND');
     });
@@ -150,14 +156,14 @@ describe.skipIf(skipIfNoEnv)('Slack Channels Integration Tests', () => {
         })
         .returning();
 
-      createdIntegrationIds.push(integration.id);
+      createdIntegrationIds.push(integration!.id);
 
       const response = await app.request('/api/v2/slack/channels', {
         method: 'GET',
       });
 
       expect(response.status).toBe(200);
-      const data = await response.json();
+      const data = (await response.json()) as GetChannelsResponse;
       expect(data.channels).toBeDefined();
       expect(Array.isArray(data.channels)).toBe(true);
 
@@ -166,7 +172,7 @@ describe.skipIf(skipIfNoEnv)('Slack Channels Integration Tests', () => {
         expect(data.channels[0]).toHaveProperty('id');
         expect(data.channels[0]).toHaveProperty('name');
         // Should not have other properties (only id and name as requested)
-        expect(Object.keys(data.channels[0])).toEqual(['id', 'name']);
+        expect(Object.keys(data.channels[0]!)).toEqual(['id', 'name']);
       }
 
       // Clean up the secret if we created one
@@ -200,7 +206,7 @@ describe.skipIf(skipIfNoEnv)('Slack Channels Integration Tests', () => {
         })
         .returning();
 
-      createdIntegrationIds.push(integration.id);
+      createdIntegrationIds.push(integration!.id);
 
       await app.request('/api/v2/slack/channels', {
         method: 'GET',
@@ -210,11 +216,11 @@ describe.skipIf(skipIfNoEnv)('Slack Channels Integration Tests', () => {
       const [updated] = await db
         .select()
         .from(slackIntegrations)
-        .where(eq(slackIntegrations.id, integration.id));
+        .where(eq(slackIntegrations.id, integration!.id));
 
-      expect(updated.lastUsedAt).toBeTruthy();
-      expect(new Date(updated.lastUsedAt!).getTime()).toBeGreaterThan(
-        new Date(integration.createdAt).getTime()
+      expect(updated!.lastUsedAt).toBeTruthy();
+      expect(new Date(updated!.lastUsedAt!).getTime()).toBeGreaterThan(
+        new Date(integration!.createdAt).getTime()
       );
     });
 
@@ -231,7 +237,12 @@ describe.skipIf(skipIfNoEnv)('Slack Channels Integration Tests', () => {
       const testApp = new Hono();
       testApp.use('*', async (c, next) => {
         if (c.req.path.includes('/channels')) {
-          (c as Context).set('busterUser', { id: testUserId });
+          (c as Context).set('busterUser', {
+            id: testUserId,
+            name: 'Test User',
+            email: 'test@example.com',
+            avatarUrl: 'https://example.com/avatar.png',
+          });
           (c as Context).set('organizationId', testOrganizationId);
         }
         await next();
@@ -243,7 +254,7 @@ describe.skipIf(skipIfNoEnv)('Slack Channels Integration Tests', () => {
       });
 
       expect(response.status).toBe(503);
-      const data = await response.json();
+      const data = (await response.json()) as SlackErrorResponse;
       expect(data.error).toBe('Slack integration is not configured');
       expect(data.code).toBe('INTEGRATION_NOT_CONFIGURED');
 
@@ -270,14 +281,14 @@ describe.skipIf(skipIfNoEnv)('Slack Channels Integration Tests', () => {
         })
         .returning();
 
-      createdIntegrationIds.push(integration.id);
+      createdIntegrationIds.push(integration!.id);
 
       const response = await app.request('/api/v2/slack/channels', {
         method: 'GET',
       });
 
       expect(response.status).toBe(500);
-      const data = await response.json();
+      const data = (await response.json()) as SlackErrorResponse;
       expect(data.error).toBe('Failed to retrieve authentication token');
       expect(data.code).toBe('TOKEN_RETRIEVAL_ERROR');
     });

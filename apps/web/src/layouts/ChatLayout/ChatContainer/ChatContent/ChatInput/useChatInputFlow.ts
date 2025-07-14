@@ -135,8 +135,10 @@ export const useChatInputFlow = ({
   const onStopChat = useMemoizedFn(() => {
     if (!chatId) return;
     onStopChatContext({ chatId, messageId: currentMessageId });
-    textAreaRef.current?.focus();
-    textAreaRef.current?.select();
+    setTimeout(() => {
+      textAreaRef.current?.focus();
+      textAreaRef.current?.select();
+    }, 100);
   });
 
   return useMemo(

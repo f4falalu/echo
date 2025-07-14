@@ -1,3 +1,4 @@
+import type { OrganizationRole } from '@buster/server-shared/organization';
 import type { UpdateWorkspaceSettingsRequest } from '@buster/server-shared/security';
 import { describe, expect, it } from 'vitest';
 import { WorkspaceSettingsService } from './workspace-settings-service';
@@ -9,8 +10,8 @@ describe('WorkspaceSettingsService', () => {
     it('should map snake_case to camelCase fields', () => {
       const settings = {
         restrictNewUserInvitations: true,
-        defaultRole: 'member',
-      };
+        defaultRole: 'workspace_admin',
+      } as Parameters<typeof service.formatWorkspaceSettingsResponse>[0];
       const result = service.formatWorkspaceSettingsResponse(settings);
       expect(result).toEqual({
         restrict_new_user_invitations: true,
@@ -22,8 +23,8 @@ describe('WorkspaceSettingsService', () => {
     it('should include empty default_datasets array', () => {
       const settings = {
         restrictNewUserInvitations: false,
-        defaultRole: 'admin',
-      };
+        defaultRole: 'admin' as OrganizationRole,
+      } as Parameters<typeof service.formatWorkspaceSettingsResponse>[0];
       const result = service.formatWorkspaceSettingsResponse(settings);
       expect(result.default_datasets).toEqual([]);
     });
@@ -31,12 +32,12 @@ describe('WorkspaceSettingsService', () => {
     it('should handle all boolean values correctly', () => {
       const settingsTrue = {
         restrictNewUserInvitations: true,
-        defaultRole: 'member',
-      };
+        defaultRole: 'member' as OrganizationRole,
+      } as Parameters<typeof service.formatWorkspaceSettingsResponse>[0];
       const settingsFalse = {
         restrictNewUserInvitations: false,
-        defaultRole: 'member',
-      };
+        defaultRole: 'member' as OrganizationRole,
+      } as Parameters<typeof service.formatWorkspaceSettingsResponse>[0];
 
       expect(
         service.formatWorkspaceSettingsResponse(settingsTrue).restrict_new_user_invitations
@@ -57,9 +58,9 @@ describe('WorkspaceSettingsService', () => {
       ];
 
       for (const role of roles) {
-        const settings = {
+        const settings: Parameters<typeof service.formatWorkspaceSettingsResponse>[0] = {
           restrictNewUserInvitations: false,
-          defaultRole: role,
+          defaultRole: role as OrganizationRole,
         };
         const result = service.formatWorkspaceSettingsResponse(settings);
         expect(result.default_role).toBe(role);
@@ -88,8 +89,8 @@ describe('WorkspaceSettingsService', () => {
 
     it('should handle partial updates (only default_role)', () => {
       const request: UpdateWorkspaceSettingsRequest = {
-        default_role: 'admin',
-      };
+        default_role: 'admin' as OrganizationRole,
+      } as Parameters<typeof service.buildUpdateData>[0];
       const result = service.buildUpdateData(request);
 
       expect(result).toHaveProperty('defaultRole', 'admin');
@@ -99,8 +100,8 @@ describe('WorkspaceSettingsService', () => {
     it('should handle full updates', () => {
       const request: UpdateWorkspaceSettingsRequest = {
         restrict_new_user_invitations: false,
-        default_role: 'member',
-      };
+        default_role: 'member' as OrganizationRole,
+      } as Parameters<typeof service.buildUpdateData>[0];
       const result = service.buildUpdateData(request);
 
       expect(result).toHaveProperty('restrictNewUserInvitations', false);

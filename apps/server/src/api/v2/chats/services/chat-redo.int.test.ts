@@ -36,9 +36,9 @@ describe('Chat Message Redo Integration Tests', () => {
     await db.insert(organizations).values({
       id: testOrgId,
       name: 'Test Organization for Redo',
-      slug: 'test-org-redo',
-      createdBy: testUserId,
-      updatedBy: testUserId,
+      restrictNewUserInvitations: false,
+      defaultRole: 'workspace_admin',
+      domains: [],
     });
 
     // Create test user
@@ -49,7 +49,6 @@ describe('Chat Message Redo Integration Tests', () => {
         email: 'test-redo@example.com',
         name: 'Test User Redo',
         avatarUrl: null,
-        metadata: {},
       })
       .returning();
 

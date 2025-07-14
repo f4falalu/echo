@@ -130,7 +130,7 @@ const adminTools = (currentParentRoute: BusterRoutes): ISidebarGroup => ({
 const tryGroup = (
   onClickInvitePeople: () => void,
   onClickLeaveFeedback: () => void,
-  isAdmin: boolean
+  showInvitePeople: boolean
 ): ISidebarGroup => ({
   label: 'Try',
   id: 'try',
@@ -141,7 +141,7 @@ const tryGroup = (
       route: null,
       id: 'invite-people',
       onClick: onClickInvitePeople,
-      show: isAdmin
+      show: showInvitePeople
     },
     {
       label: 'Leave feedback',
@@ -155,6 +155,8 @@ const tryGroup = (
 
 export const SidebarPrimary = React.memo(() => {
   const isAdmin = useUserConfigContextSelector((x) => x.isAdmin);
+  const restrictNewUserInvitations =
+    useUserConfigContextSelector((x) => x.userOrganizations?.restrictNewUserInvitations) ?? true;
   const isUserRegistered = useUserConfigContextSelector((x) => x.isUserRegistered);
   const currentParentRoute = useAppLayoutContextSelector((x) => x.currentParentRoute);
   const onToggleInviteModal = useInviteModalStore((s) => s.onToggleInviteModal);
@@ -192,12 +194,19 @@ export const SidebarPrimary = React.memo(() => {
       items.push(favoritesDropdownItems);
     }
 
-    items.push(tryGroup(onToggleInviteModal, () => onOpenContactSupportModal('feedback'), isAdmin));
+    items.push(
+      tryGroup(
+        onToggleInviteModal,
+        () => onOpenContactSupportModal('feedback'),
+        !restrictNewUserInvitations
+      )
+    );
 
     return items;
   }, [
     isUserRegistered,
     adminToolsItems,
+    restrictNewUserInvitations,
     yourStuffItems,
     favoritesDropdownItems,
     onToggleInviteModal,

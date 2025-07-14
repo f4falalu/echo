@@ -7,6 +7,7 @@ export interface RetryableError {
     | 'empty-response'
     | 'rate-limit'
     | 'server-error'
+    | 'overloaded-error'
     | 'network-timeout'
     | 'stream-interruption'
     | 'json-parse-error'
@@ -14,6 +15,7 @@ export interface RetryableError {
     | 'unknown-error';
   originalError?: Error | unknown;
   healingMessage: CoreMessage;
+  requiresMessageCleanup?: boolean; // New optional flag for 529 errors
 }
 
 /**

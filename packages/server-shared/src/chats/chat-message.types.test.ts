@@ -207,12 +207,12 @@ describe('ReasoningMessageSchema', () => {
       expect(result.data.type).toBe('files');
       if (result.data.type === 'files') {
         expect(result.data.file_ids).toHaveLength(2);
-        expect(result.data.files['file-1'].file_type).toBe('metric');
-        expect(result.data.files['file-1'].file.modified).toEqual([
+        expect(result.data.files['file-1']?.file_type).toBe('metric');
+        expect(result.data.files['file-1']?.file?.modified).toEqual([
           [0, 10],
           [20, 30],
         ]);
-        expect(result.data.files['file-2'].file.modified).toBeUndefined();
+        expect(result.data.files['file-2']?.file?.modified).toBeUndefined();
       }
     }
   });
@@ -258,9 +258,9 @@ describe('ReasoningMessageSchema', () => {
       expect(result.data.type).toBe('pills');
       if (result.data.type === 'pills') {
         expect(result.data.pill_containers).toHaveLength(2);
-        expect(result.data.pill_containers[0].pills).toHaveLength(2);
-        expect(result.data.pill_containers[0].pills[0].type).toBe('metric');
-        expect(result.data.pill_containers[1].pills[0].text).toBe('Sales Overview');
+        expect(result.data.pill_containers?.[0]?.pills).toHaveLength(2);
+        expect(result.data.pill_containers?.[0]?.pills?.[0]?.type).toBe('metric');
+        expect(result.data.pill_containers?.[1]?.pills?.[0]?.text).toBe('Sales Overview');
       }
     }
   });

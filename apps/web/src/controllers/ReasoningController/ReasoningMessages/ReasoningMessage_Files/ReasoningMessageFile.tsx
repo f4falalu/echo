@@ -29,7 +29,7 @@ export const ReasoningMessage_File: React.FC<ReasoningMessageFileProps> = React.
       if (!file || !status || !file_type || !id) return null;
 
       return !isCompletedStream ? (
-        <StreamingMessageStatus status={status} />
+        <StreamingMessageStatus status={status} fileType={file_type} />
       ) : (
         <ReasoningFileButtons
           fileType={file_type}

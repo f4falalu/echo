@@ -67,7 +67,7 @@ describe('getWorkspaceSettingsHandler', () => {
     const orgWithDifferentSettings = {
       ...mockOrg,
       restrictNewUserInvitations: false,
-      defaultRole: 'data_admin',
+      defaultRole: 'data_admin' as const,
     };
     vi.mocked(securityUtils.fetchOrganization).mockResolvedValue(orgWithDifferentSettings);
 

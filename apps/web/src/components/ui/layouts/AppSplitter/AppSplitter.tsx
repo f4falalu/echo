@@ -231,6 +231,7 @@ const AppSplitterWrapper = forwardRef<AppSplitterRef, IAppSplitterProps>(
             isVertical={isVertical}
             containerRef={containerRef}
             splitterAutoSaveId={splitterAutoSaveId}
+            split={split}
           />
         )}
       </div>
@@ -304,7 +305,7 @@ const AppSplitterBase = forwardRef<
       const refWidth = containerRef.current?.offsetWidth;
       // Don't bust storage if container hasn't been sized yet
       if (!refWidth || refWidth === 0) {
-        console.warn('AppSplitter: container not sized yet');
+        // console.warn('AppSplitter: container not sized yet');
         return false;
       }
 

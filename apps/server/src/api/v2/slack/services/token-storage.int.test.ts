@@ -136,7 +136,7 @@ describe.skipIf(skipIfNoEnv)('Token Storage Integration Tests', () => {
         })
         .returning();
 
-      createdIntegrationIds.push(integration.id);
+      createdIntegrationIds.push(integration!.id);
 
       // Retrieve state
       const stateData = await storage.getState(testState);
@@ -167,7 +167,7 @@ describe.skipIf(skipIfNoEnv)('Token Storage Integration Tests', () => {
         })
         .returning();
 
-      createdIntegrationIds.push(integration.id);
+      createdIntegrationIds.push(integration!.id);
 
       // Should return null for expired state
       const stateData = await storage.getState(testState);

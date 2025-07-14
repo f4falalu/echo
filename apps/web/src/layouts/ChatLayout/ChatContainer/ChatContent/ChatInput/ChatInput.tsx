@@ -1,4 +1,4 @@
-import React, { type ChangeEvent, useMemo, useRef, useState } from 'react';
+import React, { type ChangeEvent, useEffect, useMemo, useRef, useState } from 'react';
 import { InputTextAreaButton } from '@/components/ui/inputs/InputTextAreaButton';
 import { useMemoizedFn } from '@/hooks';
 import { cn } from '@/lib/classMerge';
@@ -17,8 +17,8 @@ export const ChatInput: React.FC = React.memo(() => {
   const [inputValue, setInputValue] = useState('');
 
   const disableSubmit = useMemo(() => {
-    return !inputHasText(inputValue);
-  }, [inputValue]);
+    return !inputHasText(inputValue) && !isStreamingMessage;
+  }, [inputValue, isStreamingMessage]);
 
   const { onSubmitPreflight, onStopChat } = useChatInputFlow({
     disableSubmit,
@@ -31,6 +31,14 @@ export const ChatInput: React.FC = React.memo(() => {
   const onChange = useMemoizedFn((e: ChangeEvent<HTMLTextAreaElement>) => {
     setInputValue(e.target.value);
   });
+
+  useEffect(() => {
+    if (hasChat) {
+      requestAnimationFrame(() => {
+        textAreaRef.current?.focus();
+      });
+    }
+  }, [hasChat, textAreaRef]);
 
   return (
     <div

@@ -312,7 +312,10 @@ describe('Helper function edge cases', () => {
   it('should handle null and undefined defaults correctly', () => {
     const NullDefaultsSchema = z.object({
       nullable: z.string().nullable().default(null),
-      optional: z.string().optional().default(undefined),
+      optional: z
+        .string()
+        .optional()
+        .default(undefined as any),
       emptyString: z.string().default(''),
       zero: z.number().default(0),
       false: z.boolean().default(false),

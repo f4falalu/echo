@@ -16,9 +16,9 @@ const createChainableMock = () => {
     'selectDistinct',
   ];
 
-  methods.forEach((method) => {
+  for (const method of methods) {
     mock[method] = vi.fn().mockReturnValue(mock);
-  });
+  }
 
   // Override specific methods that should return data
   mock._resolveWith = (data: any) => {
