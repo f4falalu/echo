@@ -1,11 +1,28 @@
 // Types
 export * from './types';
 export * from './types/errors';
+export * from './types/webhooks';
+
+// Schemas for validation (useful with zValidator)
+export {
+  urlVerificationSchema,
+  slackRequestHeadersSchema,
+  appMentionEventSchema,
+  eventCallbackSchema,
+  slackEventEnvelopeSchema,
+  slackWebhookPayloadSchema,
+} from './types/webhooks';
 
 // Services
 export { SlackAuthService } from './services/auth';
 export { SlackChannelService } from './services/channels';
 export { SlackMessagingService } from './services/messaging';
+export {
+  verifySlackRequest,
+  handleUrlVerification,
+  parseSlackWebhookPayload,
+  getRawBody,
+} from './services/webhook-verification';
 
 // Interfaces
 export type {

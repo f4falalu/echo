@@ -115,3 +115,12 @@ export type RemoveIntegrationResult = z.infer<typeof RemoveIntegrationResultSche
 //     }
 //   }
 // });
+
+/**
+ * Response schema for Slack events endpoint
+ */
+export const SlackEventsResponseSchema = z.object({
+  success: z.boolean(),
+});
+
+export type SlackEventsResponse = z.infer<typeof SlackEventsResponseSchema>;
