@@ -15,7 +15,8 @@
         "noNonNullAssertion": "error",
         "useImportType": "warn",
         "useNodejsImportProtocol": "error",
-        "useConsistentArrayType": "error"
+        "useConsistentArrayType": "error",
+        "noUnusedTemplateLiteral": "off"
       },
       "suspicious": {
         "noExplicitAny": "error",

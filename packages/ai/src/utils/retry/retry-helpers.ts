@@ -326,24 +326,25 @@ export function cleanupIncompleteToolCalls(messages: CoreMessage[]): CoreMessage
 
     if (msg.role === 'assistant' && Array.isArray(msg.content)) {
       const toolCalls = msg.content.filter(
-        c => typeof c === 'object' && 'type' in c && c.type === 'tool-call'
+        (c) => typeof c === 'object' && 'type' in c && c.type === 'tool-call'
       );
 
       // Check if any tool calls lack results
-      const orphanedToolCalls = toolCalls.filter(toolCall => {
+      const orphanedToolCalls = toolCalls.filter((toolCall) => {
         // Look ahead for matching tool result
         for (let j = i + 1; j < cleaned.length; j++) {
           const nextMsg = cleaned[j];
           if (!nextMsg) continue; // Add guard for undefined
-          
+
           if (nextMsg.role === 'tool' && Array.isArray(nextMsg.content)) {
             const hasResult = nextMsg.content.some(
-              c => typeof c === 'object' && 
-                  'type' in c && 
-                  c.type === 'tool-result' && 
-                  'toolCallId' in c &&
-                  'toolCallId' in toolCall &&
-                  c.toolCallId === toolCall.toolCallId
+              (c) =>
+                typeof c === 'object' &&
+                'type' in c &&
+                c.type === 'tool-result' &&
+                'toolCallId' in c &&
+                'toolCallId' in toolCall &&
+                c.toolCallId === toolCall.toolCallId
             );
             if (hasResult) return false;
           }
@@ -353,11 +354,18 @@ export function cleanupIncompleteToolCalls(messages: CoreMessage[]): CoreMessage
 
       if (orphanedToolCalls.length > 0) {
         // Remove the entire assistant message with orphaned tool calls
-        console.info(`cleanupIncompleteToolCalls: Removing assistant message with ${orphanedToolCalls.length} orphaned tool calls`, {
-          messageIndex: i,
-          orphanedToolCallIds: orphanedToolCalls.map(tc => 'toolCallId' in tc ? tc.toolCallId : 'unknown'),
-          textContent: msg.content.filter(c => typeof c === 'object' && 'type' in c && c.type === 'text').map(c => 'text' in c ? c.text : ''),
-        });
+        console.info(
+          `cleanupIncompleteToolCalls: Removing assistant message with ${orphanedToolCalls.length} orphaned tool calls`,
+          {
+            messageIndex: i,
+            orphanedToolCallIds: orphanedToolCalls.map((tc) =>
+              'toolCallId' in tc ? tc.toolCallId : 'unknown'
+            ),
+            textContent: msg.content
+              .filter((c) => typeof c === 'object' && 'type' in c && c.type === 'text')
+              .map((c) => ('text' in c ? c.text : '')),
+          }
+        );
         cleaned.splice(i, 1);
         break; // Only clean up the last problematic message
       }
