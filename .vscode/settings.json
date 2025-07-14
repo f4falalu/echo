@@ -15,7 +15,7 @@
   "typescript.preferences.preferTypeOnlyAutoImports": true,
   
   // Force TypeScript to use project references
-  "typescript.tsserver.useSeparateSyntaxServer": false,
+  "typescript.tsserver.useSyntaxServer": "never",
   "typescript.tsserver.experimental.enableProjectDiagnostics": true,
   
   // MONOREPO CRITICAL: Force real-time checking
@@ -34,10 +34,8 @@
   // Force TypeScript to track all project references
   "typescript.tsserver.includeCompletionsForModuleExports": true,
   "typescript.tsserver.includePackageJsonAutoImports": "on",
-  
   // CRITICAL: Disable syntax-only mode to get full type checking
-  "typescript.tsserver.useSyntaxServer": "never",
-  
+    
   // Increase memory for large monorepo
   "typescript.tsserver.maxTsServerMemory": 16384,
   
