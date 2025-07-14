@@ -8,7 +8,7 @@
     "prebuild": "tsx scripts/type-import-check.ts",
     "build": "tsc --build",
     "dev": "tsc --watch",
-    "lint": "biome check",
+    "lint": "biome check --write",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest"

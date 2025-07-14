@@ -37,7 +37,7 @@
     "db:studio": "drizzle-kit studio",
     "db:init": "echo 'dev:init should be run from turbo.json' && true",
     "dev": "echo 'Running db:init from turbo.json' && npm run db:init",
-    "lint": "biome check",
+    "lint": "biome check --write",
     "stop": "pnpm run db:stop",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
