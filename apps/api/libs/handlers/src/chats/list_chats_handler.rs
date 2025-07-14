@@ -106,7 +106,6 @@ pub async fn list_chats_handler(
         .inner_join(users::table.on(chats::created_by.eq(users::id)))
         .filter(chats::deleted_at.is_null())
         .filter(chats::title.ne("")) // Filter out empty titles
-        .filter(chats::title.ne(" ")) // Filter out single space
         .into_boxed();
     
     // Add user filter if not admin view
