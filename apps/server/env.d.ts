@@ -12,6 +12,7 @@ declare global {
         SLACK_INTEGRATION_ENABLED: string;
         SLACK_CLIENT_ID: string;
         SLACK_CLIENT_SECRET: string;
+        SLACK_SIGNING_SECRET: string;
         SLACK_APP_SUPPORT_URL: string;
         SERVER_URL: string;
         NODE_ENV?: 'development' | 'production' | 'test';
