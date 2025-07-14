@@ -125,7 +125,7 @@ interface IAppSplitterProps {
    * Whether to clear saved layout from localStorage on initialization
    * Can be a boolean or a function that returns a boolean based on preserved side value and container width
    */
-  bustStorageOnInit?: boolean | ((preservedSideValue: number | null, refWidth: number) => boolean);
+  bustStorageOnInit?: boolean | ((preservedSideValue: number | null, refSize: number) => boolean);
 
   /**
    * Whether to render the left panel content
@@ -302,15 +302,18 @@ const AppSplitterBase = forwardRef<
     // ================================
 
     const bustStorageOnInitSplitter = (preservedSideValue: number | null) => {
-      const refWidth = containerRef.current?.offsetWidth;
+      const refSize =
+        split === 'vertical'
+          ? containerRef.current?.offsetWidth
+          : containerRef.current?.offsetHeight;
       // Don't bust storage if container hasn't been sized yet
-      if (!refWidth || refWidth === 0) {
+      if (!refSize || refSize === 0) {
         // console.warn('AppSplitter: container not sized yet');
         return false;
       }
 
       return typeof bustStorageOnInit === 'function'
-        ? bustStorageOnInit(preservedSideValue, refWidth)
+        ? bustStorageOnInit(preservedSideValue, refSize)
         : !!bustStorageOnInit;
     };
 
