@@ -78,6 +78,7 @@ pub async fn list_logs_handler(
         .inner_join(users::table.on(chats::created_by.eq(users::id)))
         .filter(chats::deleted_at.is_null())
         .filter(chats::organization_id.eq(organization_id))
+        .filter(chats::title.ne("")) // Filter out empty titles
         .into_boxed();
 
     // Calculate offset based on page number
