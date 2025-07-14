@@ -110,6 +110,7 @@ export const MetricViewSQLController: React.FC<{
         disabledSave={disableSave}
         fetchingData={isRunningSQL || isSavingMetric || !isFetchedInitialData}
         defaultLayout={defaultLayout}
+        topHidden={false}
       />
     </div>
   );
