@@ -10,6 +10,7 @@ import { useMemoizedFn } from '@/hooks';
 import { cn } from '@/lib/classMerge';
 import { inputHasText } from '@/lib/text';
 import { MetricChartEvaluation } from './MetricChartEvaluation';
+import { MetricDataTruncatedWarning } from './MetricDataTruncatedWarning';
 import { MetricSaveFilePopup } from './MetricSaveFilePopup';
 import { MetricViewChartContent } from './MetricViewChartContent';
 import { MetricViewChartHeader } from './MetricViewChartHeader';
@@ -78,31 +79,35 @@ export const MetricViewChart: React.FC<{
 
     return (
       <div className={cn('flex h-full flex-col justify-between space-y-3.5 p-5', className)}>
-        <MetricViewChartCard
-          loadingData={loadingData}
-          hasData={hasData}
-          errorData={errorData}
-          isTable={isTable}
-          className={cardClassName}>
-          <MetricViewChartHeader
-            className="px-4"
-            name={name}
-            description={description}
-            timeFrame={time_frame}
-            onSetTitle={onSetTitle}
-            readOnly={isReadOnly}
-          />
-          <div className={'border-border border-b'} />
-          <MetricViewChartContent
-            chartConfig={metric.chart_config}
-            metricData={metricData?.data || []}
-            dataMetadata={metricData?.data_metadata}
-            fetchedData={isFetchedMetricData}
-            errorMessage={metricDataError?.message}
-            metricId={metricId}
-            readOnly={isReadOnly}
-          />
-        </MetricViewChartCard>
+        <div className="flex h-full flex-col space-y-3">
+          <MetricViewChartCard
+            loadingData={loadingData}
+            hasData={hasData}
+            errorData={errorData}
+            isTable={isTable}
+            className={cardClassName}>
+            <MetricViewChartHeader
+              className="px-4"
+              name={name}
+              description={description}
+              timeFrame={time_frame}
+              onSetTitle={onSetTitle}
+              readOnly={isReadOnly}
+            />
+            <div className={'border-border border-b'} />
+            <MetricViewChartContent
+              chartConfig={metric.chart_config}
+              metricData={metricData?.data || []}
+              dataMetadata={metricData?.data_metadata}
+              fetchedData={isFetchedMetricData}
+              errorMessage={metricDataError?.message}
+              metricId={metricId}
+              readOnly={isReadOnly}
+            />
+          </MetricViewChartCard>
+
+          {!!metricData?.has_more_records && <MetricDataTruncatedWarning />}
+        </div>
 
         <AnimatePresenceWrapper show={showEvaluation}>
           <MetricChartEvaluation
