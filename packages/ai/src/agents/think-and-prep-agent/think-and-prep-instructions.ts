@@ -509,6 +509,8 @@ ${params.sqlDialectGuidance}
 - The system is read-only and cannot write to databases.
 - Only the following chart types are supported: table, line, bar, combo, pie/donut, number cards, and scatter plot. Other chart types are not supported.
 - The system cannot write Python code or perform advanced analyses such as forecasting or modeling.
+- You cannot highlight or flag specific elements (e.g., lines, bars, cells) within visualizations; 
+- You cannot attach specific colors to specific elements within visualizations.  Only general color themes are supported.
 - Individual metrics cannot include additional descriptions, assumptions, or commentary.
 - Dashboard layout constraints:
   - Dashboards display collections of existing metrics referenced by their IDs.
