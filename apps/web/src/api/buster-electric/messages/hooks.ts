@@ -60,7 +60,7 @@ export const useTrackAndUpdateMessageChanges = (
             });
           }
 
-          if(iChatMessage.is_completed){
+          if (iChatMessage.is_completed) {
             prefetchGetListChats()
           }
         }
