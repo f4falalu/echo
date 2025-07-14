@@ -79,6 +79,7 @@ pub async fn list_logs_handler(
         .filter(chats::deleted_at.is_null())
         .filter(chats::organization_id.eq(organization_id))
         .filter(chats::title.ne("")) // Filter out empty titles
+        .filter(chats::title.ne(" ")) // Filter out single space
         .into_boxed();
 
     // Calculate offset based on page number
@@ -112,6 +113,7 @@ pub async fn list_logs_handler(
     let has_more = results.len() > request.page_size as usize;
     let items: Vec<LogListItem> = results
         .into_iter()
+        .filter(|chat| !chat.title.trim().is_empty()) // Filter out titles with only whitespace
         .take(request.page_size as usize)
         .map(|chat| {
             LogListItem {
