@@ -1,6 +1,5 @@
 'use client';
 
-import findLast from 'lodash/findLast';
 import { useEffect, useLayoutEffect, useRef } from 'react';
 import type { BusterChatResponseMessage_file } from '@/api/asset_interfaces/chat';
 import { useGetChat, useGetChatMessage, useGetChatMessageMemoized } from '@/api/buster_rest/chats';
