@@ -1654,7 +1654,7 @@ export class ChunkProcessor<T extends ToolSet = GenericToolSet> {
           files: {
             [fileId]: {
               id: fileId,
-              file_type: 'agent-action',
+              file_type: 'todo',
               file_name: 'TODO list',
               version_number: 1,
               status: 'loading',
