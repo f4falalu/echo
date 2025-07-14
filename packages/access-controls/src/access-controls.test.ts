@@ -1,5 +1,7 @@
 import { v4 as uuidv4 } from 'uuid';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { AccessControlsError } from './types';
+import { buildAccessQuery, formatPermissionName, isValidUuid } from './utils';
 
 // Create a proper chainable mock
 const createChainableMock = () => {
@@ -229,6 +231,62 @@ describe('Access Controls Unit Tests - Organization Default Permission Group', (
       const { getPermissionedDatasets } = await import('./access-controls');
 
       await expect(getPermissionedDatasets(testUserId, 0, 10)).rejects.toThrow();
+    });
+  });
+});
+
+describe('AccessControlsError', () => {
+  it('should create an error with message and code', () => {
+    const error = new AccessControlsError('Test error', 'TEST_CODE');
+
+    expect(error.message).toBe('Test error');
+    expect(error.code).toBe('TEST_CODE');
+    expect(error.name).toBe('AccessControlsError');
+  });
+
+  it('should create an error with just a message', () => {
+    const error = new AccessControlsError('Test error');
+
+    expect(error.message).toBe('Test error');
+    expect(error.code).toBeUndefined();
+    expect(error.name).toBe('AccessControlsError');
+  });
+});
+
+describe('Utils', () => {
+  describe('formatPermissionName', () => {
+    it('should format permission name correctly', () => {
+      const result = formatPermissionName('Dataset', 'Read');
+      expect(result).toBe('dataset:read');
+    });
+
+    it('should handle lowercase inputs', () => {
+      const result = formatPermissionName('dashboard', 'write');
+      expect(result).toBe('dashboard:write');
+    });
+  });
+
+  describe('buildAccessQuery', () => {
+    it('should build query object with userId and resourceType', () => {
+      const result = buildAccessQuery('user-123', 'dataset');
+
+      expect(result).toEqual({
+        userId: 'user-123',
+        resourceType: 'dataset',
+      });
+    });
+  });
+
+  describe('isValidUuid', () => {
+    it('should validate correct UUID', () => {
+      const validUuid = '123e4567-e89b-12d3-a456-426614174000';
+      expect(isValidUuid(validUuid)).toBe(true);
+    });
+
+    it('should reject invalid UUID', () => {
+      expect(isValidUuid('invalid-uuid')).toBe(false);
+      expect(isValidUuid('')).toBe(false);
+      expect(isValidUuid('123')).toBe(false);
     });
   });
 });

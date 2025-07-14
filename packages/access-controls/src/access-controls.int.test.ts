@@ -497,3 +497,421 @@ describe('Access Controls Integration Tests - Organization Default Permission Gr
     });
   });
 });
+
+describe('getPermissionedDatasets Integration Tests', () => {
+  const db = getDb();
+  
+  // Generate unique IDs for our test users
+  const testUserId = 'c2dd64cd-f7f3-4884-bc91-d46ae431901e';
+  const noAccessUserId = uuidv4();
+  const limitedAccessUserId = uuidv4();
+  const testOrgIdForUsers = uuidv4();
+  const testDataSourceIdForUsers = uuidv4();
+  const salesPersonDatasetId = uuidv4();
+  const employeeDeptDatasetId = uuidv4();
+  const personPhoneDatasetId = uuidv4();
+  const limitedPermissionGroupId = uuidv4();
+
+  beforeAll(async () => {
+    const now = new Date().toISOString();
+    
+    // Create test organization
+    await db.insert(organizations).values({
+      id: testOrgIdForUsers,
+      name: `Test Org for User Access Tests ${Date.now()}`,
+      createdAt: now,
+      updatedAt: now,
+    });
+
+    // Create test users
+    await db.insert(users).values([
+      {
+        id: noAccessUserId,
+        email: `no-access-${noAccessUserId}@test.com`,
+        createdAt: now,
+        updatedAt: now,
+      },
+      {
+        id: limitedAccessUserId,
+        email: `limited-${limitedAccessUserId}@test.com`,
+        createdAt: now,
+        updatedAt: now,
+      },
+    ]);
+
+    // Create user organization memberships
+    await db.insert(usersToOrganizations).values([
+      {
+        userId: noAccessUserId,
+        organizationId: testOrgIdForUsers,
+        role: 'restricted_querier',
+        createdAt: now,
+        updatedAt: now,
+        createdBy: noAccessUserId,
+        updatedBy: noAccessUserId,
+      },
+      {
+        userId: limitedAccessUserId,
+        organizationId: testOrgIdForUsers,
+        role: 'restricted_querier',
+        createdAt: now,
+        updatedAt: now,
+        createdBy: limitedAccessUserId,
+        updatedBy: limitedAccessUserId,
+      },
+    ]);
+
+    // Create data source
+    await db.insert(dataSources).values({
+      id: testDataSourceIdForUsers,
+      name: 'Test Data Source for User Access',
+      type: 'postgres',
+      secretId: uuidv4(),
+      organizationId: testOrgIdForUsers,
+      createdBy: limitedAccessUserId,
+      updatedBy: limitedAccessUserId,
+      createdAt: now,
+      updatedAt: now,
+    });
+
+    // Create test datasets with unique database names
+    await db.insert(datasets).values([
+      {
+        id: salesPersonDatasetId,
+        name: 'sales_person',
+        organizationId: testOrgIdForUsers,
+        dataSourceId: testDataSourceIdForUsers,
+        databaseName: `test_db_sales_${Date.now()}`,
+        type: 'table',
+        definition: 'SELECT * FROM sales_person',
+        schema: 'public',
+        createdAt: now,
+        updatedAt: now,
+        createdBy: limitedAccessUserId,
+        updatedBy: limitedAccessUserId,
+      },
+      {
+        id: employeeDeptDatasetId,
+        name: 'employee_department_history',
+        organizationId: testOrgIdForUsers,
+        dataSourceId: testDataSourceIdForUsers,
+        databaseName: `test_db_emp_${Date.now()}`,
+        type: 'table',
+        definition: 'SELECT * FROM employee_department_history',
+        schema: 'public',
+        createdAt: now,
+        updatedAt: now,
+        createdBy: limitedAccessUserId,
+        updatedBy: limitedAccessUserId,
+      },
+      {
+        id: personPhoneDatasetId,
+        name: 'person_phone',
+        organizationId: testOrgIdForUsers,
+        dataSourceId: testDataSourceIdForUsers,
+        databaseName: `test_db_person_${Date.now()}`,
+        type: 'table',
+        definition: 'SELECT * FROM person_phone',
+        schema: 'public',
+        createdAt: now,
+        updatedAt: now,
+        createdBy: limitedAccessUserId,
+        updatedBy: limitedAccessUserId,
+      },
+    ]);
+
+    // Create permission group for limited access user
+    await db.insert(permissionGroups).values({
+      id: limitedPermissionGroupId,
+      name: 'Limited Access Group',
+      organizationId: testOrgIdForUsers,
+      createdBy: limitedAccessUserId,
+      updatedBy: limitedAccessUserId,
+      createdAt: now,
+      updatedAt: now,
+    });
+
+    // Add limited user to permission group
+    await db.insert(permissionGroupsToIdentities).values({
+      permissionGroupId: limitedPermissionGroupId,
+      identityId: limitedAccessUserId,
+      identityType: 'user',
+      createdAt: now,
+      updatedAt: now,
+      createdBy: limitedAccessUserId,
+      updatedBy: limitedAccessUserId,
+    });
+
+    // Add only person_phone dataset to the permission group
+    await db.insert(datasetsToPermissionGroups).values({
+      datasetId: personPhoneDatasetId,
+      permissionGroupId: limitedPermissionGroupId,
+      createdAt: now,
+      updatedAt: now,
+    });
+  });
+
+  afterAll(async () => {
+    // Clean up test data
+    await db.delete(datasetsToPermissionGroups)
+      .where(eq(datasetsToPermissionGroups.permissionGroupId, limitedPermissionGroupId));
+    
+    await db.delete(permissionGroupsToIdentities)
+      .where(eq(permissionGroupsToIdentities.permissionGroupId, limitedPermissionGroupId));
+      
+    await db.delete(permissionGroups)
+      .where(eq(permissionGroups.id, limitedPermissionGroupId));
+      
+    await db.delete(datasets)
+      .where(eq(datasets.organizationId, testOrgIdForUsers));
+      
+    await db.delete(dataSources)
+      .where(eq(dataSources.id, testDataSourceIdForUsers));
+      
+    await db.delete(usersToOrganizations)
+      .where(eq(usersToOrganizations.organizationId, testOrgIdForUsers));
+      
+    await db.delete(users)
+      .where(inArray(users.id, [noAccessUserId, limitedAccessUserId]));
+      
+    await db.delete(organizations)
+      .where(eq(organizations.id, testOrgIdForUsers));
+  });
+
+  describe('User Dataset Access - Full Access User', () => {
+    it('should return datasets for user including sales_person dataset', async () => {
+      // Get datasets with a reasonable page size to get all results
+      const result = await getPermissionedDatasets(testUserId, 0, 100);
+
+      expect(Array.isArray(result)).toBe(true);
+      expect(result.length).toBeGreaterThan(0);
+
+      // Check if sales_person dataset is in the results
+      const salesPersonDataset = result.find((dataset) => dataset.name === 'sales_person');
+      expect(salesPersonDataset).toBeDefined();
+      expect(salesPersonDataset?.name).toBe('sales_person');
+
+      // Verify dataset structure
+      if (salesPersonDataset) {
+        expect(salesPersonDataset).toHaveProperty('id');
+        expect(salesPersonDataset).toHaveProperty('name');
+        expect(salesPersonDataset).toHaveProperty('ymlFile');
+        expect(salesPersonDataset).toHaveProperty('createdAt');
+        expect(salesPersonDataset).toHaveProperty('updatedAt');
+        expect(salesPersonDataset).toHaveProperty('deletedAt');
+        expect(salesPersonDataset).toHaveProperty('dataSourceId');
+
+        expect(typeof salesPersonDataset.id).toBe('string');
+        expect(typeof salesPersonDataset.name).toBe('string');
+        expect(typeof salesPersonDataset.dataSourceId).toBe('string');
+      }
+
+      console.info(`Found ${result.length} datasets for user ${testUserId}`);
+      console.info(`Sales person dataset found: ${salesPersonDataset ? 'YES' : 'NO'}`);
+    });
+
+    it('should return datasets in alphabetical order', async () => {
+      const result = await getPermissionedDatasets(testUserId, 0, 100);
+
+      expect(result.length).toBeGreaterThan(0);
+
+      // Check if datasets are sorted alphabetically by name
+      for (let i = 1; i < result.length; i++) {
+        expect(result[i].name.localeCompare(result[i - 1].name)).toBeGreaterThanOrEqual(0);
+      }
+
+      // Sales person should be in the sorted position if it exists
+      const salesPersonIndex = result.findIndex((d) => d.name === 'sales_person');
+      if (salesPersonIndex >= 0) {
+        if (salesPersonIndex > 0) {
+          expect(
+            result[salesPersonIndex - 1].name.localeCompare('sales_person')
+          ).toBeLessThanOrEqual(0);
+        }
+
+        if (salesPersonIndex < result.length - 1) {
+          expect(
+            'sales_person'.localeCompare(result[salesPersonIndex + 1].name)
+          ).toBeLessThanOrEqual(0);
+        }
+      }
+    });
+
+    it('should handle pagination correctly', async () => {
+      // Test with different page sizes
+      const page1 = await getPermissionedDatasets(testUserId, 0, 10);
+      expect(page1.length).toBeLessThanOrEqual(10);
+
+      const page2 = await getPermissionedDatasets(testUserId, 0, 50);
+      expect(page2.length).toBeLessThanOrEqual(50);
+
+      // If we have more than 10 datasets, page2 should have more results than page1
+      if (page2.length > 10) {
+        expect(page2.length).toBeGreaterThan(page1.length);
+      }
+
+      // Test pagination offset
+      if (page1.length === 10) {
+        const nextPage = await getPermissionedDatasets(testUserId, 1, 10);
+        // Next page should either have results or be empty
+        expect(Array.isArray(nextPage)).toBe(true);
+
+        // If next page has results, they should be different from first page
+        if (nextPage.length > 0) {
+          const firstPageIds = new Set(page1.map((d) => d.id));
+          const nextPageIds = new Set(nextPage.map((d) => d.id));
+          const intersection = new Set(Array.from(firstPageIds).filter((x) => nextPageIds.has(x)));
+          expect(intersection.size).toBe(0); // No overlap between pages
+        }
+      }
+    });
+
+    it('should return expected number of datasets based on permissions', async () => {
+      // Get all datasets for the user
+      const allDatasets = await getPermissionedDatasets(testUserId, 0, 1000);
+
+      expect(Array.isArray(allDatasets)).toBe(true);
+      expect(allDatasets.length).toBeGreaterThan(0);
+
+      // All datasets should have valid structure
+      for (const dataset of allDatasets) {
+        expect(dataset).toHaveProperty('id');
+        expect(dataset).toHaveProperty('name');
+        expect(dataset).toHaveProperty('dataSourceId');
+        expect(typeof dataset.id).toBe('string');
+        expect(typeof dataset.name).toBe('string');
+        expect(typeof dataset.dataSourceId).toBe('string');
+      }
+
+      // Check for unique dataset IDs
+      const uniqueIds = new Set(allDatasets.map((d) => d.id));
+      expect(uniqueIds.size).toBe(allDatasets.length);
+
+      console.info(`Total datasets accessible by user: ${allDatasets.length}`);
+    });
+  });
+
+  describe('User Dataset Access - No Access User', () => {
+    it('should return empty array for user with no dataset access', async () => {
+      const result = await getPermissionedDatasets(noAccessUserId, 0, 100);
+
+      expect(Array.isArray(result)).toBe(true);
+      expect(result.length).toBe(0);
+
+      console.info(`User ${noAccessUserId} has access to ${result.length} datasets (expected: 0)`);
+    });
+
+    it('should handle pagination correctly for user with no access', async () => {
+      // Test different page configurations
+      const page1 = await getPermissionedDatasets(noAccessUserId, 0, 10);
+      const page2 = await getPermissionedDatasets(noAccessUserId, 1, 10);
+      const largePage = await getPermissionedDatasets(noAccessUserId, 0, 100);
+
+      expect(page1.length).toBe(0);
+      expect(page2.length).toBe(0);
+      expect(largePage.length).toBe(0);
+    });
+  });
+
+  describe('User Dataset Access - Limited Access User', () => {
+    it('should verify limited access user has access to person_phone dataset only', async () => {
+      const result = await getPermissionedDatasets(limitedAccessUserId, 0, 100);
+
+      expect(Array.isArray(result)).toBe(true);
+      expect(result.length).toBe(1);
+
+      console.info(`User ${limitedAccessUserId} has access to ${result.length} datasets`);
+
+      // Log all accessible dataset names for debugging
+      const datasetNames = result.map((d) => d.name).sort();
+      console.info(`Accessible datasets: ${datasetNames.join(', ')}`);
+
+      // Check for dataset access
+      const personPhoneDataset = result.find((dataset) => dataset.name === 'person_phone');
+      const salesPersonDataset = result.find((dataset) => dataset.name === 'sales_person');
+      const employeeDeptHistoryDataset = result.find(
+        (dataset) => dataset.name === 'employee_department_history'
+      );
+
+      console.info(`Person phone dataset found: ${personPhoneDataset ? 'YES' : 'NO'}`);
+      console.info(`Sales person dataset found: ${salesPersonDataset ? 'YES' : 'NO'}`);
+      console.info(
+        `Employee department history dataset found: ${employeeDeptHistoryDataset ? 'YES' : 'NO'}`
+      );
+
+      // This user should have access to person_phone dataset only
+      expect(personPhoneDataset).toBeDefined();
+      expect(personPhoneDataset?.name).toBe('person_phone');
+
+      // Verify dataset structure for person_phone
+      if (personPhoneDataset) {
+        expect(personPhoneDataset).toHaveProperty('id');
+        expect(personPhoneDataset).toHaveProperty('name');
+        expect(personPhoneDataset).toHaveProperty('ymlFile');
+        expect(personPhoneDataset).toHaveProperty('createdAt');
+        expect(personPhoneDataset).toHaveProperty('updatedAt');
+        expect(personPhoneDataset).toHaveProperty('deletedAt');
+        expect(personPhoneDataset).toHaveProperty('dataSourceId');
+
+        expect(typeof personPhoneDataset.id).toBe('string');
+        expect(typeof personPhoneDataset.name).toBe('string');
+        expect(typeof personPhoneDataset.dataSourceId).toBe('string');
+      }
+
+      // This user should not have access to sales_person or employee_department_history
+      expect(salesPersonDataset).toBeUndefined();
+      expect(employeeDeptHistoryDataset).toBeUndefined();
+    });
+
+    it('should return datasets in alphabetical order for limited access user', async () => {
+      const result = await getPermissionedDatasets(limitedAccessUserId, 0, 100);
+
+      if (result.length > 1) {
+        // Check if datasets are sorted alphabetically by name
+        for (let i = 1; i < result.length; i++) {
+          expect(result[i].name.localeCompare(result[i - 1].name)).toBeGreaterThanOrEqual(0);
+        }
+      }
+
+      // All datasets should have valid structure
+      for (const dataset of result) {
+        expect(dataset).toHaveProperty('id');
+        expect(dataset).toHaveProperty('name');
+        expect(dataset).toHaveProperty('dataSourceId');
+        expect(typeof dataset.id).toBe('string');
+        expect(typeof dataset.name).toBe('string');
+        expect(typeof dataset.dataSourceId).toBe('string');
+      }
+    });
+
+    it('should handle pagination correctly for limited access user', async () => {
+      const page1 = await getPermissionedDatasets(limitedAccessUserId, 0, 10);
+      const allResults = await getPermissionedDatasets(limitedAccessUserId, 0, 100);
+
+      expect(Array.isArray(page1)).toBe(true);
+      expect(Array.isArray(allResults)).toBe(true);
+
+      // Page 1 should have at most 10 results or all results if fewer than 10
+      expect(page1.length).toBeLessThanOrEqual(Math.min(10, allResults.length));
+
+      // If there are results, the first page should contain some of them
+      if (allResults.length > 0) {
+        expect(page1.length).toBeGreaterThan(0);
+      }
+    });
+  });
+
+  describe('Error Handling', () => {
+    it('should validate input parameters', async () => {
+      // Test invalid UUID
+      await expect(getPermissionedDatasets('invalid-uuid', 0, 50)).rejects.toThrow();
+
+      // Test negative page
+      await expect(getPermissionedDatasets(testUserId, -1, 50)).rejects.toThrow();
+
+      // Test invalid page size
+      await expect(getPermissionedDatasets(testUserId, 0, 0)).rejects.toThrow();
+      await expect(getPermissionedDatasets(testUserId, 0, 1001)).rejects.toThrow();
+    });
+  });
+});
