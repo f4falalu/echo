@@ -14,16 +14,35 @@ import {
 } from '@/api/buster_rest/slack/queryRequests';
 import { Dropdown, type DropdownItems } from '@/components/ui/dropdown';
 import { LinkSlash, Refresh2 } from '@/components/ui/icons';
-import { Select } from '@/components/ui/select';
 import { useMemoizedFn } from '@/hooks';
+import pluralize from 'pluralize';
 import { StatusCard } from '@/components/ui/card/StatusCard';
+import type { GetChannelsResponse, GetIntegrationResponse } from '@buster/server-shared/slack';
 
 export const SlackIntegrations = React.memo(() => {
   const {
-    data: slackIntegration,
-    isFetched: isFetchedSlackIntegration,
-    error: slackIntegrationError
+    //  data: slackIntegration,
+    //  isFetched: isFetchedSlackIntegration,
+    //  error: slackIntegrationError
   } = useGetSlackIntegration();
+
+  const slackIntegration: GetIntegrationResponse = {
+    connected: true,
+    integration: {
+      id: '123',
+      team_name: 'Test Team',
+      installed_at: '2021-01-01',
+      team_domain: 'test-team',
+      last_used_at: '2021-01-01',
+      default_channel: {
+        id: '123',
+        name: 'Test Channel'
+      }
+    }
+  };
+  const slackIntegrationError = null;
+  const isFetchedSlackIntegration = true;
+
   const isConnected = slackIntegration?.connected ?? false;
 
   const cards = useMemo(() => {
@@ -117,6 +136,7 @@ const ConnectedSlackChannels = React.memo(() => {
     isFetched: isFetchedSlackChannels,
     error: slackChannelsError
   } = useGetSlackChannels();
+
   const { mutate: updateSlackIntegration } = useUpdateSlackIntegration();
 
   const channels = slackChannelsData?.channels || [];
@@ -125,11 +145,16 @@ const ConnectedSlackChannels = React.memo(() => {
   const items = useMemo(() => {
     return channels.map((channel) => ({
       label: channel.name,
-      value: channel.id
+      value: channel.id,
+      selected: channel.id === selectedChannelId
     }));
-  }, [channels]);
+  }, [channels, selectedChannelId]);
 
-  const onChange = useMemoizedFn((channelId: string) => {
+  const numberOfSelectedChannels = useMemo(() => {
+    return items.filter((item) => item.selected).length;
+  }, [items]);
+
+  const onSelect = useMemoizedFn((channelId: string) => {
     const channel = channels.find((channel) => channel.id === channelId);
     if (!channel) return;
     updateSlackIntegration({
@@ -168,15 +193,22 @@ const ConnectedSlackChannels = React.memo(() => {
               </Button>
             )}
 
-            <Select
-              className="w-fit min-w-40"
+            <Dropdown
+              selectType="multiple"
               items={items}
-              placeholder="Select a channel"
-              value={selectedChannelId}
-              onChange={onChange}
-              search={true}
-              loading={isLoadingSlackChannels || isLoadingSlackIntegration}
-            />
+              onSelect={onSelect}
+              menuHeader="Search channels"
+              className="w-fit min-w-40">
+              <Button
+                disabled={!isFetchedSlackChannels}
+                loading={showLoadingButton}
+                size={'tall'}
+                variant="default">
+                {numberOfSelectedChannels > 0
+                  ? `${numberOfSelectedChannels} ${pluralize('channel', numberOfSelectedChannels)} selected`
+                  : 'Select a channel'}
+              </Button>
+            </Dropdown>
           </>
         ) : (
           <div className="flex items-center space-x-2">
