@@ -1,6 +1,6 @@
-import { describe, it, expect, vi } from 'vitest';
 import type { CoreMessage } from 'ai';
 import { APICallError } from 'ai';
+import { describe, expect, it, vi } from 'vitest';
 import { detectRetryableError, handleRetryWithHealing } from '../../../src/utils/retry';
 import type { RetryableError, WorkflowContext } from '../../../src/utils/retry';
 
@@ -12,7 +12,7 @@ describe('529 error handling', () => {
       responseHeaders: {},
       responseBody: 'Server is overloaded, please try again',
       url: 'https://api.example.com',
-      requestBodyValues: {}
+      requestBodyValues: {},
     });
 
     const result = detectRetryableError(error);
@@ -27,36 +27,39 @@ describe('529 error handling', () => {
     const messagesWithOrphan: CoreMessage[] = [
       {
         role: 'user',
-        content: 'Please analyze this data'
+        content: 'Please analyze this data',
       },
       {
         role: 'assistant',
         content: [
           { type: 'text', text: 'Let me analyze that for you' },
-          { type: 'tool-call', toolCallId: 'tc-123', toolName: 'analyzeData', args: { data: 'test' } }
-        ]
-      }
+          {
+            type: 'tool-call',
+            toolCallId: 'tc-123',
+            toolName: 'analyzeData',
+            args: { data: 'test' },
+          },
+        ],
+      },
       // No tool result - connection interrupted
     ];
 
     const retryableError: RetryableError = {
       type: 'overloaded-error',
       originalError: new Error('529'),
-      healingMessage: { role: 'user', content: 'Server overloaded (529). Retrying after cleanup...' },
-      requiresMessageCleanup: true
+      healingMessage: {
+        role: 'user',
+        content: 'Server overloaded (529). Retrying after cleanup...',
+      },
+      requiresMessageCleanup: true,
     };
 
-    const context: WorkflowContext = { 
+    const context: WorkflowContext = {
       currentStep: 'analyst',
-      availableTools: new Set(['analyzeData', 'createMetrics'])
+      availableTools: new Set(['analyzeData', 'createMetrics']),
     };
 
-    const result = await handleRetryWithHealing(
-      retryableError,
-      messagesWithOrphan,
-      0,
-      context
-    );
+    const result = await handleRetryWithHealing(retryableError, messagesWithOrphan, 0, context);
 
     expect(result.healedMessages).toHaveLength(1); // Only user message remains
     expect(result.healedMessages[0]?.role).toBe('user');
@@ -71,7 +74,7 @@ describe('529 error handling', () => {
       responseHeaders: {},
       responseBody: 'Overloaded',
       url: 'https://api.example.com',
-      requestBodyValues: {}
+      requestBodyValues: {},
     });
 
     const error500 = new APICallError({
@@ -80,7 +83,7 @@ describe('529 error handling', () => {
       responseHeaders: {},
       responseBody: 'Internal error',
       url: 'https://api.example.com',
-      requestBodyValues: {}
+      requestBodyValues: {},
     });
 
     const result529 = detectRetryableError(error529);
@@ -94,19 +97,17 @@ describe('529 error handling', () => {
   });
 
   it('should use longer backoff for 529 errors', async () => {
-    const messages: CoreMessage[] = [
-      { role: 'user', content: 'Test' }
-    ];
+    const messages: CoreMessage[] = [{ role: 'user', content: 'Test' }];
 
     const retryableError: RetryableError = {
       type: 'overloaded-error',
       originalError: new Error('529'),
-      healingMessage: { role: 'user', content: 'Retrying...' }
+      healingMessage: { role: 'user', content: 'Retrying...' },
     };
 
-    const context: WorkflowContext = { 
+    const context: WorkflowContext = {
       currentStep: 'analyst', // Changed from 'test' to valid value
-      availableTools: new Set()
+      availableTools: new Set(),
     };
 
     const result = await handleRetryWithHealing(
@@ -122,41 +123,36 @@ describe('529 error handling', () => {
 
   it('should log cleanup details', async () => {
     const consoleSpy = vi.spyOn(console, 'info');
-    
+
     const messagesWithMultipleOrphans: CoreMessage[] = [
       {
         role: 'assistant',
         content: [
           { type: 'tool-call', toolCallId: 'tc-1', toolName: 'tool1', args: {} },
-          { type: 'tool-call', toolCallId: 'tc-2', toolName: 'tool2', args: {} }
-        ]
-      }
+          { type: 'tool-call', toolCallId: 'tc-2', toolName: 'tool2', args: {} },
+        ],
+      },
     ];
 
     const retryableError: RetryableError = {
       type: 'overloaded-error',
       originalError: new Error('529'),
-      healingMessage: { role: 'user', content: 'Retrying...' }
+      healingMessage: { role: 'user', content: 'Retrying...' },
     };
 
-    const context: WorkflowContext = { 
+    const context: WorkflowContext = {
       currentStep: 'analyst',
-      availableTools: new Set()
+      availableTools: new Set(),
     };
 
-    await handleRetryWithHealing(
-      retryableError,
-      messagesWithMultipleOrphans,
-      0,
-      context
-    );
+    await handleRetryWithHealing(retryableError, messagesWithMultipleOrphans, 0, context);
 
     expect(consoleSpy).toHaveBeenCalledWith(
       'analyst: Cleaned incomplete tool calls after 529 error',
       expect.objectContaining({
         originalCount: 1,
         cleanedCount: 0,
-        removed: 1
+        removed: 1,
       })
     );
 
@@ -167,35 +163,33 @@ describe('529 error handling', () => {
     const completeMessages: CoreMessage[] = [
       {
         role: 'assistant',
-        content: [
-          { type: 'tool-call', toolCallId: 'tc-123', toolName: 'getTodo', args: {} }
-        ]
+        content: [{ type: 'tool-call', toolCallId: 'tc-123', toolName: 'getTodo', args: {} }],
       },
       {
         role: 'tool',
         content: [
-          { type: 'tool-result', toolCallId: 'tc-123', toolName: 'getTodo', result: { todo: 'test' } }
-        ]
-      }
+          {
+            type: 'tool-result',
+            toolCallId: 'tc-123',
+            toolName: 'getTodo',
+            result: { todo: 'test' },
+          },
+        ],
+      },
     ];
 
     const retryableError: RetryableError = {
       type: 'overloaded-error',
       originalError: new Error('529'),
-      healingMessage: { role: 'user', content: 'Retrying...' }
+      healingMessage: { role: 'user', content: 'Retrying...' },
     };
 
-    const context: WorkflowContext = { 
+    const context: WorkflowContext = {
       currentStep: 'analyst',
-      availableTools: new Set()
+      availableTools: new Set(),
     };
 
-    const result = await handleRetryWithHealing(
-      retryableError,
-      completeMessages,
-      0,
-      context
-    );
+    const result = await handleRetryWithHealing(retryableError, completeMessages, 0, context);
 
     expect(result.healedMessages).toHaveLength(2); // No cleanup needed
     expect(result.healedMessages).toEqual(completeMessages);

@@ -1,5 +1,5 @@
-import { describe, it, expect } from 'vitest';
 import type { CoreMessage } from 'ai';
+import { describe, expect, it } from 'vitest';
 import { cleanupIncompleteToolCalls } from '../../../src/utils/retry';
 
 describe('cleanupIncompleteToolCalls', () => {
@@ -7,15 +7,15 @@ describe('cleanupIncompleteToolCalls', () => {
     const messages: CoreMessage[] = [
       {
         role: 'user',
-        content: 'Hello'
+        content: 'Hello',
       },
       {
         role: 'assistant',
         content: [
           { type: 'text', text: 'Let me help' },
-          { type: 'tool-call', toolCallId: '123', toolName: 'getTodo', args: {} }
-        ]
-      }
+          { type: 'tool-call', toolCallId: '123', toolName: 'getTodo', args: {} },
+        ],
+      },
       // No tool result - orphaned
     ];
 
@@ -28,16 +28,14 @@ describe('cleanupIncompleteToolCalls', () => {
     const messages: CoreMessage[] = [
       {
         role: 'assistant',
-        content: [
-          { type: 'tool-call', toolCallId: '123', toolName: 'getTodo', args: {} }
-        ]
+        content: [{ type: 'tool-call', toolCallId: '123', toolName: 'getTodo', args: {} }],
       },
       {
         role: 'tool',
         content: [
-          { type: 'tool-result', toolCallId: '123', toolName: 'getTodo', result: { todo: 'test' } }
-        ]
-      }
+          { type: 'tool-result', toolCallId: '123', toolName: 'getTodo', result: { todo: 'test' } },
+        ],
+      },
     ];
 
     const cleaned = cleanupIncompleteToolCalls(messages);
@@ -50,10 +48,8 @@ describe('cleanupIncompleteToolCalls', () => {
     const messages: CoreMessage[] = [
       {
         role: 'assistant',
-        content: [
-          { type: 'tool-call', toolCallId: '123', toolName: 'getTodo', args: {} },
-        ]
-      }
+        content: [{ type: 'tool-call', toolCallId: '123', toolName: 'getTodo', args: {} }],
+      },
       // Missing result for toolCallId '123' - partially orphaned
     ];
 
@@ -65,27 +61,30 @@ describe('cleanupIncompleteToolCalls', () => {
     const messages: CoreMessage[] = [
       {
         role: 'assistant',
-        content: [
-          { type: 'tool-call', toolCallId: '111', toolName: 'getTodo', args: {} }
-        ]
+        content: [{ type: 'tool-call', toolCallId: '111', toolName: 'getTodo', args: {} }],
       },
       {
         role: 'tool',
         content: [
-          { type: 'tool-result', toolCallId: '111', toolName: 'getTodo', result: { todo: 'first' } }
-        ]
+          {
+            type: 'tool-result',
+            toolCallId: '111',
+            toolName: 'getTodo',
+            result: { todo: 'first' },
+          },
+        ],
       },
       {
         role: 'user',
-        content: 'Another request'
+        content: 'Another request',
       },
       {
         role: 'assistant',
         content: [
           { type: 'text', text: 'Processing...' },
-          { type: 'tool-call', toolCallId: '222', toolName: 'createTodo', args: { title: 'new' } }
-        ]
-      }
+          { type: 'tool-call', toolCallId: '222', toolName: 'createTodo', args: { title: 'new' } },
+        ],
+      },
       // No result for '222' - orphaned
     ];
 
@@ -100,12 +99,12 @@ describe('cleanupIncompleteToolCalls', () => {
     const messages: CoreMessage[] = [
       {
         role: 'user',
-        content: 'Hello'
+        content: 'Hello',
       },
       {
         role: 'assistant',
-        content: 'Hi there, how can I help?'
-      }
+        content: 'Hi there, how can I help?',
+      },
     ];
 
     const cleaned = cleanupIncompleteToolCalls(messages);
@@ -126,9 +125,9 @@ describe('cleanupIncompleteToolCalls', () => {
         content: [
           { type: 'text', text: 'Let me search for that' },
           { type: 'tool-call', toolCallId: '789', toolName: 'search', args: { query: 'test' } },
-          { type: 'text', text: 'Searching now...' }
-        ]
-      }
+          { type: 'text', text: 'Searching now...' },
+        ],
+      },
       // No tool result - orphaned
     ];
 
@@ -141,15 +140,18 @@ describe('cleanupIncompleteToolCalls', () => {
       {
         role: 'tool',
         content: [
-          { type: 'tool-result', toolCallId: '999', toolName: 'getTodo', result: { error: 'Not found' } }
-        ]
+          {
+            type: 'tool-result',
+            toolCallId: '999',
+            toolName: 'getTodo',
+            result: { error: 'Not found' },
+          },
+        ],
       },
       {
         role: 'assistant',
-        content: [
-          { type: 'tool-call', toolCallId: '999', toolName: 'getTodo', args: {} }
-        ]
-      }
+        content: [{ type: 'tool-call', toolCallId: '999', toolName: 'getTodo', args: {} }],
+      },
     ];
 
     const cleaned = cleanupIncompleteToolCalls(messages);
@@ -163,16 +165,26 @@ describe('cleanupIncompleteToolCalls', () => {
         role: 'assistant',
         content: [
           { type: 'tool-call', toolCallId: 'abc', toolName: 'getTodo', args: {} },
-          { type: 'tool-call', toolCallId: 'def', toolName: 'createTodo', args: { title: 'new' } }
-        ]
+          { type: 'tool-call', toolCallId: 'def', toolName: 'createTodo', args: { title: 'new' } },
+        ],
       },
       {
         role: 'tool',
         content: [
-          { type: 'tool-result', toolCallId: 'abc', toolName: 'getTodo', result: { todo: 'existing' } },
-          { type: 'tool-result', toolCallId: 'def', toolName: 'createTodo', result: { id: 1, title: 'new' } }
-        ]
-      }
+          {
+            type: 'tool-result',
+            toolCallId: 'abc',
+            toolName: 'getTodo',
+            result: { todo: 'existing' },
+          },
+          {
+            type: 'tool-result',
+            toolCallId: 'def',
+            toolName: 'createTodo',
+            result: { id: 1, title: 'new' },
+          },
+        ],
+      },
     ];
 
     const cleaned = cleanupIncompleteToolCalls(messages);
@@ -184,10 +196,8 @@ describe('cleanupIncompleteToolCalls', () => {
     const messages: CoreMessage[] = [
       {
         role: 'assistant',
-        content: [
-          { type: 'text', text: 'Here is your answer' }
-        ]
-      }
+        content: [{ type: 'text', text: 'Here is your answer' }],
+      },
     ];
 
     const cleaned = cleanupIncompleteToolCalls(messages);
