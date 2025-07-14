@@ -7,6 +7,8 @@ declare global {
       ENVIRONMENT: string;
       NODE_ENV?: 'development' | 'production' | 'test';
       BUSTER_URL: string;
+      BUSTER_ALERT_CHANNEL_TOKEN?: string;
+      BUSTER_ALERT_CHANNEL_ID?: string;
     }
   }
 }
