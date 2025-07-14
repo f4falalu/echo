@@ -21,7 +21,7 @@
     "lint:fix": "biome check --write",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
-    "test:integration": "vitest run tests/integration/",
+    "test:integration": "vitest run --include '**/*.int.test.ts' --include '**/*.integration.test.ts'",
     "test:introspection": "vitest run tests/integration/data-source-introspection.test.ts",
     "test:unit": "vitest run tests/unit/",
     "test:watch": "vitest",

@@ -25,6 +25,8 @@
     "build:commonjs:watch": "npm run build:commonjs && tsc --module commonjs --moduleResolution node --watch",
     "lint": "biome check",
     "test": "vitest run",
+    "test:unit": "vitest run --exclude '**/*.int.test.ts' --exclude '**/*.integration.test.ts'",
+    "test:integration": "vitest run --include '**/*.int.test.ts' --include '**/*.integration.test.ts'",
     "test:coverage": "vitest run --coverage",
     "test:watch": "vitest watch",
     "typecheck": "tsc --noEmit"

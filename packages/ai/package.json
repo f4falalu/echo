@@ -21,6 +21,8 @@
     "dev:mastra": "mastra dev --dir src",
     "lint": "biome check",
     "test": "vitest run",
+    "test:unit": "vitest run --exclude '**/*.int.test.ts' --exclude '**/*.integration.test.ts'",
+    "test:integration": "vitest run --include '**/*.int.test.ts' --include '**/*.integration.test.ts'",
     "test:watch": "vitest watch",
     "test:coverage": "vitest run --coverage",
     "eval:metrics": "npx braintrust eval evals/agents/analyst-agent/metrics",

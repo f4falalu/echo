@@ -19,6 +19,8 @@
     "typecheck": "tsc --noEmit",
     "lint": "biome check",
     "test": "vitest run",
+    "test:unit": "vitest run --exclude '**/*.int.test.ts' --exclude '**/*.integration.test.ts'",
+    "test:integration": "vitest run --include '**/*.int.test.ts' --include '**/*.integration.test.ts'",
     "test:watch": "vitest watch",
     "test:coverage": "vitest run --coverage"
   },
