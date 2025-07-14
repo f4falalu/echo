@@ -289,7 +289,7 @@ async function cleanUpMessage(
     let finalReasoningMessage: string;
     if (!hasReasoningMessages && !hasResponseMessages) {
       // Chat was cancelled before any reasoning began
-      finalReasoningMessage = 'Chat cancelled before reasoning started';
+      finalReasoningMessage = 'Stopped reasoning';
     } else if (hasResponseMessages) {
       // Chat was cancelled during response generation
       finalReasoningMessage = 'Stopped during final response';
