@@ -43,6 +43,14 @@ export function determineHealingStrategy(
       };
     }
 
+    // 529 Overloaded errors - special handling, cleanup is done separately
+    case 'overloaded-error':
+      return {
+        shouldRemoveLastAssistantMessage: false,
+        healingMessage: null, // No healing message needed, cleanup handles it
+        backoffMultiplier: 2, // Longer backoff for overload
+      };
+
     // Network/server errors - just retry with backoff
     case 'network-timeout':
     case 'server-error':
