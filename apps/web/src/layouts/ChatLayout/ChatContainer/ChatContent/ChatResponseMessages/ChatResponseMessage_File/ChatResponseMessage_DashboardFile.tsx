@@ -73,10 +73,6 @@ export const ChatResponseMessage_DashboardFile: React.FC<{
     return <TextAndVersionText text={file_name} version={version_number} />;
   }, [file_name, version_number, metricId]);
 
-  useMount(() => {
-    if (isSelectedFile) prefetchGetDashboard(id, version_number);
-  });
-
   return (
     <AnimatePresence initial={!isCompletedStream}>
       <motion.div

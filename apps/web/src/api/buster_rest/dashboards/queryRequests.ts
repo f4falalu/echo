@@ -87,6 +87,10 @@ export const usePrefetchGetDashboardClient = () => {
   const queryClient = useQueryClient();
   const queryFn = useGetDashboardAndInitializeMetrics(false);
   return useMemoizedFn((id: string, versionNumber: number) => {
+    const getDashboardQueryKey = dashboardQueryKeys.dashboardGetDashboard(id, versionNumber);
+    const isStale = isQueryStale(getDashboardQueryKey, queryClient);
+    if (!isStale) return queryClient;
+
     return queryClient.prefetchQuery({
       ...dashboardQueryKeys.dashboardGetDashboard(id, versionNumber),
       queryFn: () => queryFn(id, versionNumber)
