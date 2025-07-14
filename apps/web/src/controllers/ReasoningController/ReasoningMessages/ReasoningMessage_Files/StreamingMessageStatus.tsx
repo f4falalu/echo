@@ -13,8 +13,20 @@ const animationProps: MotionProps = {
 };
 
 export const StreamingMessageStatus = React.memo(
-  ({ status }: { status: BusterChatMessageReasoning_file['status'] }) => {
+  ({
+    status,
+    fileType
+  }: {
+    status: BusterChatMessageReasoning_file['status'];
+    fileType: BusterChatMessageReasoning_file['file_type'];
+  }) => {
     const content = useMemo(() => {
+      if (fileType === 'todo' || fileType === 'agent-action' || fileType === 'reasoning') {
+        return null;
+      }
+
+      const _typeCheck: 'metric' | 'dashboard' = fileType;
+
       if (status === 'loading')
         return (
           <div className="flex items-center gap-1.5">
@@ -36,7 +48,7 @@ export const StreamingMessageStatus = React.memo(
             Failed <CircleWarning />
           </Text>
         );
-    }, [status]);
+    }, [status, fileType]);
 
     return (
       <AnimatePresence mode="wait">

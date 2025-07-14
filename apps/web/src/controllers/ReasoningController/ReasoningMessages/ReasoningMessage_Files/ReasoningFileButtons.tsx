@@ -25,6 +25,10 @@ export const ReasoningFileButtons = React.memo(
         return;
       }
 
+      if (fileType === 'todo') {
+        return;
+      }
+
       return assetParamsToRoute({
         chatId,
         assetId: fileId,
