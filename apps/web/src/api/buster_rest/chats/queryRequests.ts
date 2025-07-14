@@ -38,7 +38,7 @@ export const useGetListChats = (
   filters?: Omit<Parameters<typeof getListChats>[0], 'page_token' | 'page_size'>
 ) => {
   const filtersCompiled: Parameters<typeof getListChats>[0] = useMemo(
-    () => ({ admin_view: false, page_token: 0, page_size: 3500, ...filters }),
+    () => ({ admin_view: false, page_token: 0, page_size: 5000, ...filters }),
     [filters]
   );
 
