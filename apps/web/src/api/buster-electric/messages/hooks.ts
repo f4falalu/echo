@@ -33,13 +33,13 @@ export const useTrackAndUpdateMessageChanges = (
 ) => {
   const { onUpdateChatMessage, onUpdateChat } = useChatUpdate();
   const getChatMemoized = useGetChatMemoized();
-  
+
+  const subscribe = !!chatId && !!messageId && messageId !== 'undefined';
+
   const shape = useMemo(
     () => messageShape({ chatId: chatId || '', messageId }),
     [chatId, messageId]
   );
-
-  const subscribe = !!chatId && !!messageId && messageId !== 'undefined';
 
   return useShapeStream(
     shape,
@@ -61,7 +61,7 @@ export const useTrackAndUpdateMessageChanges = (
           }
 
           if (iChatMessage.is_completed) {
-            prefetchGetListChats()
+            prefetchGetListChats();
           }
         }
         callback?.(iChatMessage);
