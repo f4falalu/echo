@@ -17,13 +17,32 @@ import { LinkSlash, Refresh2 } from '@/components/ui/icons';
 import { useMemoizedFn } from '@/hooks';
 import pluralize from 'pluralize';
 import { StatusCard } from '@/components/ui/card/StatusCard';
+import type { GetChannelsResponse, GetIntegrationResponse } from '@buster/server-shared/slack';
 
 export const SlackIntegrations = React.memo(() => {
   const {
-    data: slackIntegration,
-    isFetched: isFetchedSlackIntegration,
-    error: slackIntegrationError
+    //  data: slackIntegration,
+    //  isFetched: isFetchedSlackIntegration,
+    //  error: slackIntegrationError
   } = useGetSlackIntegration();
+
+  const slackIntegration: GetIntegrationResponse = {
+    connected: true,
+    integration: {
+      id: '123',
+      team_name: 'Test Team',
+      installed_at: '2021-01-01',
+      team_domain: 'test-team',
+      last_used_at: '2021-01-01',
+      default_channel: {
+        id: '123',
+        name: 'Test Channel'
+      }
+    }
+  };
+  const slackIntegrationError = null;
+  const isFetchedSlackIntegration = true;
+
   const isConnected = slackIntegration?.connected ?? false;
 
   const cards = useMemo(() => {
@@ -117,6 +136,7 @@ const ConnectedSlackChannels = React.memo(() => {
     isFetched: isFetchedSlackChannels,
     error: slackChannelsError
   } = useGetSlackChannels();
+
   const { mutate: updateSlackIntegration } = useUpdateSlackIntegration();
 
   const channels = slackChannelsData?.channels || [];
@@ -129,6 +149,10 @@ const ConnectedSlackChannels = React.memo(() => {
       selected: channel.id === selectedChannelId
     }));
   }, [channels, selectedChannelId]);
+
+  const numberOfSelectedChannels = useMemo(() => {
+    return items.filter((item) => item.selected).length;
+  }, [items]);
 
   const onSelect = useMemoizedFn((channelId: string) => {
     const channel = channels.find((channel) => channel.id === channelId);
@@ -170,18 +194,20 @@ const ConnectedSlackChannels = React.memo(() => {
             )}
 
             <Dropdown
-              selectType="single"
+              selectType="multiple"
               items={items}
               onSelect={onSelect}
               menuHeader="Search channels"
-              className="w-fit min-w-40"
-            >
-              <Text variant="secondary">
-                {selectedChannelId 
-                  ? `#${channels.find(c => c.id === selectedChannelId)?.name || 'Unknown channel'}`
-                  : 'Select a channel'
-                }
-              </Text>
+              className="w-fit min-w-40">
+              <Button
+                disabled={!isFetchedSlackChannels}
+                loading={showLoadingButton}
+                size={'tall'}
+                variant="default">
+                {numberOfSelectedChannels > 0
+                  ? `${numberOfSelectedChannels} ${pluralize('channel', numberOfSelectedChannels)} selected`
+                  : 'Select a channel'}
+              </Button>
             </Dropdown>
           </>
         ) : (
