@@ -56,7 +56,7 @@ export const useGetMetric = <TData = BusterMetric>(
     if (isLatestVersion) {
       setOriginalMetric(updatedMetric);
     }
-    onSetLatestMetricVersion(id || '', last(updatedMetric.versions)?.version_number || 0);
+    onSetLatestMetricVersion(id || '', last(updatedMetric.versions)?.version_number || 1);
     if (result?.version_number) {
       queryClient.setQueryData(
         metricsQueryKeys.metricsGetMetric(result.id, result.version_number).queryKey,

@@ -110,7 +110,7 @@ export const useSaveDashboard = (params?: { updateOnSave?: boolean }) => {
           data
         );
         setOriginalDashboard(data.dashboard);
-        onSetLatestDashboardVersion(data.dashboard.id, last(data.versions)?.version_number || 0);
+        onSetLatestDashboardVersion(data.dashboard.id, last(data.versions)?.version_number || 1);
       }
     }
   });
