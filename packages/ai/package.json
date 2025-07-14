@@ -19,7 +19,7 @@
     "typecheck": "tsc --noEmit",
     "dev": "tsc --watch",
     "dev:mastra": "mastra dev --dir src",
-    "lint": "biome check",
+    "lint": "biome check --write",
     "test": "vitest run",
     "test:watch": "vitest watch",
     "test:coverage": "vitest run --coverage",

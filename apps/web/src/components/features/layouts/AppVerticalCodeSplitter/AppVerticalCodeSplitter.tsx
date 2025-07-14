@@ -3,6 +3,7 @@ import type { DataResult } from '@buster/server-shared/metrics';
 import { AppSplitter, type AppSplitterRef } from '@/components/ui/layouts/AppSplitter';
 import { DataContainer } from './DataContainer';
 import { SQLContainer } from './SQLContainer';
+import { useMemoizedFn } from '../../../../hooks';
 
 export interface AppVerticalCodeSplitterProps {
   sql: string;
@@ -45,6 +46,12 @@ export const AppVerticalCodeSplitter = forwardRef<AppSplitterRef, AppVerticalCod
     const sqlContainerClassName = !topHidden ? `pb-${gapAmount}` : '';
     const dataContainerClassName = !topHidden ? `pt-${gapAmount}` : '';
 
+    const bustStorageOnInit = useMemoizedFn(
+      (preservedSideValue: number | null, refWidth: number) => {
+        return !preservedSideValue || preservedSideValue < 80 || refWidth < 120;
+      }
+    );
+
     return (
       <AppSplitter
         ref={ref}
@@ -78,6 +85,7 @@ export const AppVerticalCodeSplitter = forwardRef<AppSplitterRef, AppVerticalCod
         leftPanelMinSize={'120px'}
         leftHidden={topHidden}
         className={className}
+        bustStorageOnInit={bustStorageOnInit}
       />
     );
   }
