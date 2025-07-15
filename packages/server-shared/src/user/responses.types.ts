@@ -27,7 +27,17 @@ export const UserListResponseSchema = z.array(
 
 export const UserFavoriteResponseSchema = z.array(UserFavoriteSchema);
 
-export const GetUserToOrganizationResponseSchema = z.array(OrganizationUserSchema);
+const PaginationSchema = z.object({
+  page: z.number(),
+  page_size: z.number(),
+  total: z.number(),
+  total_pages: z.number(),
+});
+
+export const GetUserToOrganizationResponseSchema = z.object({
+  users: z.array(OrganizationUserSchema),
+  pagination: PaginationSchema,
+});
 
 export type UserResponse = z.infer<typeof UserResponseSchema>;
 export type UserListResponse = z.infer<typeof UserListResponseSchema>;

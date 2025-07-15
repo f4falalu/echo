@@ -14,12 +14,14 @@ const app = new Hono().get(
     const { id: userId } = c.get('busterUser');
     const { page, page_size, filters } = c.req.valid('json');
 
-    const users = await getUserToOrganization({
+    const result = await getUserToOrganization({
       userId,
+      page,
+      page_size,
       filters,
     });
 
-    const response: GetUserToOrganizationResponse = users;
+    const response: GetUserToOrganizationResponse = result;
 
     return c.json(response);
   }
