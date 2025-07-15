@@ -7,6 +7,8 @@ const app = new Hono()
   // Apply authentication globally to ALL routes in this router
   .use('*', requireAuth)
   .get('/', (c) => {
+    const _user = c.get('busterUser');
+
     // Stub data for user listing (only accessible to authenticated users)
     const stubUsers = [
       { id: '1', name: 'John Doe', email: 'john@example.com', role: 'admin' },
