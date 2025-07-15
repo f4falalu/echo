@@ -15,6 +15,10 @@ import { getQueryClient } from './getQueryClient';
 
 const ENABLE_TANSTACK_PANEL =
   process.env.NEXT_ENABLE_TANSTACK_PANEL === 'true' || process.env.NODE_ENV === 'development';
+console.log({
+  ENABLE_TANSTACK_PANEL,
+  NEXT_ENABLE_TANSTACK_PANEL: process.env.NEXT_ENABLE_TANSTACK_PANEL
+});
 
 const ReactQueryDevtools = dynamic(
   () =>
@@ -65,6 +69,7 @@ export const BusterReactQueryProvider = ({ children }: { children: React.ReactNo
   useHotkeys(
     'meta+shift+i',
     (e) => {
+      console.log('meta+shift+i', isDevToolsOpen);
       e.preventDefault();
       e.stopPropagation();
       setIsDevToolsOpen((prev) => !prev);
@@ -77,7 +82,7 @@ export const BusterReactQueryProvider = ({ children }: { children: React.ReactNo
       {children}
       {isDevToolsOpen && (
         <>
-          <ReactQueryDevtools initialIsOpen={true} />
+          {isDev && <ReactQueryDevtools initialIsOpen={true} />}
           {!isDev && <ReactQueryDevtoolsProduction />}
         </>
       )}
