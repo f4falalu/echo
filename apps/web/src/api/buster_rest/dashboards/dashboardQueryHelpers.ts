@@ -58,11 +58,7 @@ export const useGetDashboardAndInitializeMetrics = (prefetchData = true) => {
         metricsQueryKeys.metricsGetMetric(metric.id, metric.version_number).queryKey
       );
       const upgradedMetric = upgradeMetricToIMetric(metric, prevMetric);
-      console.log(
-        'upgradedMetric',
-        upgradedMetric,
-        metricsQueryKeys.metricsGetMetric(metric.id, metric.version_number).queryKey
-      );
+
       queryClient.setQueryData(
         metricsQueryKeys.metricsGetMetric(metric.id, metric.version_number).queryKey,
         upgradedMetric
