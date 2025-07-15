@@ -65,6 +65,7 @@ try {
   serverEnv = serverEnvSchema.parse(process.env);
   console.log('Successfully parsed server environment variables');
   clientEnv = clientEnvSchema.parse(process.env);
+  console.log(clientEnv);
   console.log('Successfully parsed client environment variables');
 } catch (error) {
   console.error('❌ Server environment validation failed!');
