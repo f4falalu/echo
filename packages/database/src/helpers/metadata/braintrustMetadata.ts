@@ -1,8 +1,8 @@
 import { eq } from 'drizzle-orm';
 import { z } from 'zod';
-import { db } from '../connection';
-import { organizations, users } from '../schema';
-import { getMessageContext } from './messages/messageContext';
+import { db } from '../../connection';
+import { organizations, users } from '../../schema';
+import { getMessageContext } from '../messages/messageContext';
 
 // Input schema
 export const BraintrustMetadataInputSchema = z.object({
