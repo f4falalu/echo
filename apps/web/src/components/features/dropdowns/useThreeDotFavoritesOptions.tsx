@@ -24,8 +24,14 @@ export const useThreeDotFavoritesOptions = ({
   const { mutateAsync: removeUserFavorite } = useDeleteUserFavorite();
   const { data: userFavorites } = useGetUserFavorites();
   const { data: metricList } = useGetMetricsList({}, { enabled: false });
-  const { data: dashboardList } = useGetDashboardsList({}, { enabled: false });
-  const { data: collectionList } = useGetCollectionsList({}, { enabled: false });
+  const { data: dashboardList } = useGetDashboardsList(
+    {},
+    { enabled: false, staleTime: 60 * 1000 }
+  );
+  const { data: collectionList } = useGetCollectionsList(
+    {},
+    { enabled: false, staleTime: 60 * 1000 }
+  );
 
   const nameSearchArray = useMemo(() => {
     if (assetType === 'metric' && metricList) {
