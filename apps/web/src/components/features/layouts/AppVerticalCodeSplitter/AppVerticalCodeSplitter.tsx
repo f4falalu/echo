@@ -52,7 +52,9 @@ export const AppVerticalCodeSplitter = forwardRef<AppSplitterRef, AppVerticalCod
           !preservedSideValue ||
           preservedSideValue < 120 ||
           refSize < 120 + 80 ||
-          preservedSideValue > refSize - 80
+          preservedSideValue > 800 ||
+          preservedSideValue > refSize - 80 ||
+          !refSize
         );
       }
     );
