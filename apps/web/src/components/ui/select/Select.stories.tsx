@@ -60,10 +60,13 @@ export const WithCustomSearch: Story = {
   args: {
     items: userItems,
     placeholder: 'Search by email...',
-    search: (item, searchTerm) => {
-      // Search only in email (secondaryLabel)
-      const email = item.secondaryLabel || '';
-      return email.toLowerCase().includes(searchTerm.toLowerCase());
+    search: {
+      type: 'filter',
+      fn: (item, searchTerm) => {
+        // Search only in email (secondaryLabel)
+        const email = item.secondaryLabel || '';
+        return email.toLowerCase().includes(searchTerm.toLowerCase());
+      }
     }
   }
 };

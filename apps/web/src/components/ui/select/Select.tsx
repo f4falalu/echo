@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import {
   Command,
   CommandEmpty,
@@ -26,7 +26,15 @@ export interface SelectItem<T = string> {
   disabled?: boolean;
 }
 
-type SearchFunction<T> = (item: SelectItem<T>, searchTerm: string) => boolean;
+type SearchFunction<T> =
+  | {
+      type: 'filter';
+      fn: (item: SelectItem<T>, searchTerm: string) => boolean;
+    }
+  | {
+      type: 'async';
+      fn: (searchTerm: string) => Promise<void>;
+    };
 
 // Base interface with common properties
 interface BaseSelectProps<T> {
@@ -47,6 +55,7 @@ interface BaseSelectProps<T> {
   inputValue?: string;
   onInputValueChange?: (value: string) => void;
   hideChevron?: boolean;
+  closeOnSelect?: boolean;
 }
 
 // Clearable version - onChange can return null
@@ -152,11 +161,12 @@ function SelectComponent<T = string>({
   matchPopUpWidth = false,
   inputValue,
   onInputValueChange,
-  hideChevron = false
+  hideChevron = false,
+  closeOnSelect = true
 }: SelectProps<T>) {
-  const [internalOpen, setInternalOpen] = React.useState(false);
   const [internalInputValue, setInternalInputValue] = React.useState('');
   const [isFocused, setIsFocused] = React.useState(false);
+  const triggerRef = useRef<HTMLButtonElement>(null);
   const inputRef = React.useRef<HTMLInputElement>(null);
   const commandRef = React.useRef<HTMLDivElement>(null);
   const listboxId = React.useId();
@@ -165,12 +175,11 @@ function SelectComponent<T = string>({
   const currentInputValue = inputValue ?? internalInputValue;
   const setInputValue = onInputValueChange ?? setInternalInputValue;
 
-  const open = controlledOpen !== undefined ? controlledOpen : internalOpen;
+  const open = controlledOpen !== undefined ? controlledOpen : undefined;
 
   const handleOpenChange = React.useCallback(
     (newOpen: boolean) => {
       if (!disabled) {
-        setInternalOpen(newOpen);
         onOpenChange?.(newOpen);
         if (!newOpen) {
           // Clear search value when closing
@@ -201,8 +210,14 @@ function SelectComponent<T = string>({
     (item: SelectItem<T>): boolean => {
       if (!search || !currentInputValue) return true;
 
-      if (typeof search === 'function') {
-        return search(item, currentInputValue);
+      if (typeof search === 'object') {
+        if (search.type === 'filter') {
+          return search.fn(item, currentInputValue);
+        }
+        if (search.type === 'async') {
+          search.fn(currentInputValue);
+        }
+        return true;
       }
 
       return defaultSearchFunction(item, currentInputValue);
@@ -210,17 +225,23 @@ function SelectComponent<T = string>({
     [search, currentInputValue]
   );
 
+  const closePopover = React.useCallback(() => {
+    handleOpenChange(false);
+    triggerRef.current?.click();
+  }, [handleOpenChange]);
+
   const handleSelect = React.useCallback(
     (itemValue: string) => {
       const item = flatItems.find((i) => String(i.value) === itemValue);
       if (item) {
-        onChange(item.value);
+        if (closeOnSelect) closePopover();
+        onChange?.(item.value);
         handleOpenChange(false);
         setInputValue('');
         inputRef.current?.blur();
       }
     },
-    [flatItems, onChange, handleOpenChange, setInputValue]
+    [flatItems, closeOnSelect, onChange, handleOpenChange, setInputValue, closePopover]
   );
 
   const handleClear = React.useCallback(
@@ -359,8 +380,8 @@ function SelectComponent<T = string>({
   }, [selectedItem, placeholder]);
 
   return (
-    <PopoverRoot open={open} onOpenChange={handleOpenChange}>
-      <PopoverTrigger asChild>
+    <PopoverRoot open={open}>
+      <PopoverTrigger asChild ref={triggerRef}>
         <div className={cn('relative w-full', className)}>
           <input
             ref={inputRef}

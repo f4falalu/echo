@@ -34,7 +34,6 @@ export const InputSearchDropdown = ({
       items={options}
       placeholder={placeholder}
       onChange={onSelect}
-      open={true}
       disabled={disabled}
       clearable={false}
       className={className}
