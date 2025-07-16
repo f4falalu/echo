@@ -375,9 +375,9 @@ export async function updateDefaultSharingPermissions(
       })
       .where(eq(slackIntegrations.id, integrationId));
   } catch (error) {
-    console.error('Failed to update default channel:', error);
+    console.error('Failed to update default sharing permissions:', error);
     throw new Error(
-      `Failed to update default channel: ${
+      `Failed to update default sharing permissions: ${
         error instanceof Error ? error.message : 'Unknown error'
       }`
     );
