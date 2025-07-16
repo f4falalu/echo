@@ -3,6 +3,7 @@ import { z } from 'zod';
 
 const SlackAgentTaskInputSchema = z.object({
   chatId: z.string().uuid(),
+  userId: z.string().uuid(),
 });
 
 const SlackAgentTaskOutputSchema = z.object({});

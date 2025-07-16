@@ -90,9 +90,10 @@ export async function findOrCreateSlackChat({
 /**
  * Queue slack agent task for processing
  */
-export async function queueSlackAgentTask(chatId: string): Promise<void> {
+export async function queueSlackAgentTask(chatId: string, userId: string): Promise<void> {
   await tasks.trigger('slack-agent-task', {
     chatId,
+    userId,
   });
 }
 
@@ -168,7 +169,7 @@ export async function eventsHandler(payload: SlackWebhookPayload): Promise<Slack
       });
 
       // Queue the task
-      await queueSlackAgentTask(chatId);
+      await queueSlackAgentTask(chatId, userId);
     }
 
     return { success: true };
