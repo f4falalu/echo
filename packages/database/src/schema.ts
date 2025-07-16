@@ -97,6 +97,12 @@ export const slackChatAuthorizationEnum = pgEnum('slack_chat_authorization_enum'
   'auto_added',
 ]);
 
+export const slackSharingPermissionEnum = pgEnum('slack_sharing_permission_enum', [
+  'shareWithWorkspace',
+  'shareWithChannel',
+  'noSharing',
+]);
+
 export const apiKeys = pgTable(
   'api_keys',
   {
@@ -1837,6 +1843,11 @@ export const slackIntegrations = pgTable(
       .defaultNow()
       .notNull(),
     deletedAt: timestamp('deleted_at', { withTimezone: true, mode: 'string' }),
+
+    // Default Sharing Permissions in Slack
+    defaultSharingPermissions: slackSharingPermissionEnum('default_sharing_permissions')
+      .default('shareWithChannel')
+      .notNull(),
   },
   (table) => [
     foreignKey({
