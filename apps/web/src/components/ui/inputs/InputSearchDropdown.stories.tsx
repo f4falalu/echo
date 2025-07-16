@@ -11,13 +11,6 @@ const meta: Meta<typeof InputSearchDropdown> = {
   },
   tags: ['autodocs'],
   argTypes: {
-    placement: {
-      control: { type: 'select' },
-      options: ['top', 'bottom']
-    },
-    popoverMatchWidth: {
-      control: { type: 'boolean' }
-    },
     value: {
       control: { type: 'text' }
     },

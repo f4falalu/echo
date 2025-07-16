@@ -9,6 +9,7 @@ import {
 } from '@/components/ui/command';
 import { PopoverRoot, PopoverContent, PopoverTrigger } from '@/components/ui/popover/PopoverBase';
 import { cn } from '@/lib/classMerge';
+import { CircleSpinnerLoader } from '../loaders';
 import { Check, ChevronDown, Xmark } from '@/components/ui/icons';
 
 interface SelectItemGroup<T = string> {
@@ -39,11 +40,13 @@ interface BaseSelectProps<T> {
   className?: string;
   dataTestId?: string;
   loading?: boolean;
+  showLoadingIcon?: boolean;
   search?: boolean | SearchFunction<T>;
-  emptyMessage?: string;
+  emptyMessage?: string | false;
   matchPopUpWidth?: boolean;
   inputValue?: string;
   onInputValueChange?: (value: string) => void;
+  hideChevron?: boolean;
 }
 
 // Clearable version - onChange can return null
@@ -143,11 +146,13 @@ function SelectComponent<T = string>({
   className,
   dataTestId,
   loading = false,
+  showLoadingIcon = true,
   search = false,
   clearable = false,
   matchPopUpWidth = false,
   inputValue,
-  onInputValueChange
+  onInputValueChange,
+  hideChevron = false
 }: SelectProps<T>) {
   const [internalOpen, setInternalOpen] = React.useState(false);
   const [internalInputValue, setInternalInputValue] = React.useState('');
@@ -235,13 +240,25 @@ function SelectComponent<T = string>({
   const handleInputChange = React.useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const newValue = e.target.value;
-      setInputValue(newValue);
+
+      // If we have async loading, use debounced version
+      if (onInputValueChange) {
+        // Update internal state immediately for UI responsiveness
+        if (!inputValue) {
+          setInternalInputValue(newValue);
+        }
+        // Debounce the external callback
+        setInputValue(newValue);
+      } else {
+        // No debouncing, update immediately
+        setInputValue(newValue);
+      }
 
       if (search !== false && newValue && !open) {
         handleOpenChange(true);
       }
     },
-    [search, open, handleOpenChange, setInputValue]
+    [search, open, handleOpenChange, setInputValue, onInputValueChange, inputValue]
   );
 
   const handleInputFocus = React.useCallback(() => {
@@ -352,7 +369,7 @@ function SelectComponent<T = string>({
             aria-expanded={open}
             aria-controls={listboxId}
             aria-label={placeholder}
-            disabled={disabled || loading}
+            disabled={disabled}
             value={inputDisplayValue}
             onChange={handleInputChange}
             onFocus={handleInputFocus}
@@ -369,6 +386,11 @@ function SelectComponent<T = string>({
             )}
           />
           <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
+            {loading && showLoadingIcon && (
+              <div className="mr-1 flex items-center justify-center">
+                <CircleSpinnerLoader size={13} />
+              </div>
+            )}
             {clearable && selectedItem && !isFocused && (
               <button
                 type="button"
@@ -378,7 +400,7 @@ function SelectComponent<T = string>({
                 <Xmark />
               </button>
             )}
-            {!open && (
+            {!open && !hideChevron && (
               <div className="flex h-4 w-4 shrink-0 items-center opacity-50">
                 <ChevronDown />
               </div>
@@ -408,7 +430,7 @@ function SelectComponent<T = string>({
           />
           <div className="scrollbar-hide max-h-[300px] overflow-y-auto">
             <CommandList id={listboxId} className="p-1">
-              <CommandEmpty>{emptyMessage}</CommandEmpty>
+              {emptyMessage && <CommandEmpty>{emptyMessage}</CommandEmpty>}
               {renderedItems}
             </CommandList>
           </div>

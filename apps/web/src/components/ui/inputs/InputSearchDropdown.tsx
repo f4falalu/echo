@@ -8,8 +8,8 @@ interface InputSearchDropdownProps {
   }[];
   onSelect: (value: string) => void;
   placeholder?: string;
-  emptyMessage?: string;
-  onSearch: (value: string) => void;
+  emptyMessage?: string | false;
+  onSearch: (value: string) => void | ((value: string) => Promise<void>);
   value: string;
   className?: string;
   disabled?: boolean;
@@ -34,6 +34,7 @@ export const InputSearchDropdown = ({
       items={options}
       placeholder={placeholder}
       onChange={onSelect}
+      open={true}
       disabled={disabled}
       clearable={false}
       className={className}
@@ -42,6 +43,7 @@ export const InputSearchDropdown = ({
       inputValue={inputValue}
       onInputValueChange={setInputValue}
       search={true}
+      hideChevron={true}
     />
   );
 };
