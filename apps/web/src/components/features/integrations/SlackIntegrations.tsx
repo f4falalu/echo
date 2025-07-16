@@ -252,13 +252,12 @@ const SlackSharingPermissions = React.memo(() => {
         align="end"
         side="bottom"
         selectType="single">
-        <Text
-          className="flex! items-center! space-x-1 cursor-pointer">
-          <span className="truncate">{selectedLabel}</span>
-          <span className="text-2xs text-icon-color">
+        <div className="flex items-center justify-between space-x-2 cursor-pointer border rounded px-3 py-1.5 bg-background hover:bg-item-hover transition-colors min-w-32">
+          <Text size="sm" className="truncate">{selectedLabel}</Text>
+          <span className="text-icon-color flex items-center">
             <ChevronDown />
           </span>
-        </Text>
+        </div>
       </Dropdown>
     </div>
   );
