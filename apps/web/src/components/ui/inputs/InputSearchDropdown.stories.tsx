@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
 import { useState } from 'react';
-import { InputSearchDropdown } from './InputSearchDropdown';
+import { InputSearchDropdown, type InputSearchDropdownProps } from './InputSearchDropdown';
 
 const meta: Meta<typeof InputSearchDropdown> = {
   title: 'UI/inputs/InputSearchDropdown',
@@ -11,9 +11,6 @@ const meta: Meta<typeof InputSearchDropdown> = {
   },
   tags: ['autodocs'],
   argTypes: {
-    value: {
-      control: { type: 'text' }
-    },
     onSelect: {
       action: 'selected'
     },
@@ -38,7 +35,11 @@ const sampleOptions = [
 ];
 
 // Interactive story with state management
-const InputSearchDropdownWithState = (args: any) => {
+const InputSearchDropdownWithState = (
+  args: Omit<InputSearchDropdownProps, 'options' | 'onSelect' | 'onSearch' | 'value'> & {
+    value?: string;
+  }
+) => {
   const [value, setValue] = useState(args.value || '');
   const [filteredOptions, setFilteredOptions] = useState(sampleOptions);
 
@@ -52,8 +53,7 @@ const InputSearchDropdownWithState = (args: any) => {
 
   const handleSelect = (selectedValue: string) => {
     action('selected')(selectedValue);
-    const selectedOption = sampleOptions.find((option) => option.value === selectedValue);
-    setValue(selectedOption?.label || selectedValue);
+    setValue(selectedValue);
   };
 
   return (
@@ -61,7 +61,6 @@ const InputSearchDropdownWithState = (args: any) => {
       <InputSearchDropdown
         {...args}
         options={filteredOptions}
-        value={value}
         onSearch={handleSearch}
         onSelect={handleSelect}
       />
@@ -84,17 +83,7 @@ export const WithInitialValue: Story = {
   args: {
     placeholder: 'Search fruits...',
     value: 'Apple',
-    placement: 'bottom',
-    popoverMatchWidth: true
-  }
-};
 
-export const TopPlacement: Story = {
-  render: (args) => <InputSearchDropdownWithState {...args} />,
-  args: {
-    placeholder: 'Search fruits...',
-    value: '',
-    placement: 'top',
     popoverMatchWidth: true
   }
 };
@@ -104,9 +93,7 @@ export const CustomEmptyState: Story = {
   args: {
     placeholder: 'Search fruits...',
     value: '',
-    placement: 'bottom',
-    popoverMatchWidth: true,
-    emptyState: 'No fruits found matching your search'
+    emptyMessage: 'No fruits found matching your search'
   }
 };
 
@@ -115,8 +102,6 @@ export const CustomStyling: Story = {
   args: {
     placeholder: 'Search fruits...',
     value: '',
-    placement: 'bottom',
-    popoverMatchWidth: true,
     className: 'border-2 border-blue-500 rounded-lg',
     popoverClassName: 'bg-blue-50 border border-blue-200'
   }

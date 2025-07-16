@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Select } from '../select/Select';
 
-interface InputSearchDropdownProps {
+export interface InputSearchDropdownProps {
   options: {
     label: string | React.ReactNode;
     value: string;
@@ -10,17 +10,17 @@ interface InputSearchDropdownProps {
   placeholder?: string;
   emptyMessage?: string | false;
   onSearch: (value: string) => void | ((value: string) => Promise<void>);
-  value: string;
   className?: string;
   disabled?: boolean;
   matchPopUpWidth?: boolean;
+  value?: string;
 }
 
 export const InputSearchDropdown = ({
   options,
   onSelect,
   placeholder = 'Search...',
-  emptyMessage = 'No options found',
+  emptyMessage = false,
   matchPopUpWidth = true,
   onSearch,
   value,

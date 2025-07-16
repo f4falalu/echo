@@ -229,3 +229,14 @@ export const LoadingState: Story = {
     search: true
   }
 };
+
+export const WithHundredItems: Story = {
+  args: {
+    items: Array.from({ length: 100 }, (_, i) => ({
+      value: `item-${i}`,
+      label: `Item ${i}`
+    })),
+    placeholder: 'Select an option',
+    search: true
+  }
+};

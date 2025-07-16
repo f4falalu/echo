@@ -182,9 +182,11 @@ function SelectComponent<T = string>({
       if (!disabled) {
         onOpenChange?.(newOpen);
         if (!newOpen) {
-          // Clear search value when closing
-          setInputValue('');
-          setIsFocused(false);
+          // Clear search value after 200ms to avoid flickering
+          setTimeout(() => {
+            setInputValue('');
+            setIsFocused(false);
+          }, 125);
         }
       }
     },
@@ -200,10 +202,10 @@ function SelectComponent<T = string>({
   }, [items]);
 
   // Find the selected item
-  const selectedItem = React.useMemo(
-    () => flatItems.find((item) => String(item.value) === String(value)),
-    [flatItems, value]
-  );
+  const selectedItem = React.useMemo(() => {
+    if (!value) return undefined;
+    return flatItems.find((item) => String(item.value) === String(value));
+  }, [flatItems, value]);
 
   // Filter items based on search
   const filterItem = React.useCallback(
@@ -292,15 +294,10 @@ function SelectComponent<T = string>({
   const handleInputKeyDown = React.useCallback(
     (e: React.KeyboardEvent<HTMLInputElement>) => {
       if (['ArrowDown', 'ArrowUp', 'Enter', 'Home', 'End'].includes(e.key)) {
-        if (!open && (e.key === 'ArrowDown' || e.key === 'ArrowUp')) {
-          e.preventDefault();
-          handleOpenChange(true);
-          return;
-        }
-
         // Forward the event to the command component
-        if (open && commandRef.current) {
+        if (commandRef.current) {
           const commandInput = commandRef.current.querySelector('[cmdk-input]');
+
           if (commandInput) {
             const newEvent = new KeyboardEvent('keydown', {
               key: e.key,
@@ -326,6 +323,10 @@ function SelectComponent<T = string>({
     [open, handleOpenChange]
   );
 
+  const filteredItems = React.useMemo(() => {
+    return flatItems.filter(filterItem);
+  }, [flatItems, filterItem]);
+
   // Render items with memoization to prevent unnecessary re-renders
   const renderedItems = React.useMemo(() => {
     if (isGroupedItems(items)) {
@@ -350,7 +351,6 @@ function SelectComponent<T = string>({
       });
     }
 
-    const filteredItems = flatItems.filter(filterItem);
     return filteredItems.map((item, index) => (
       <SelectItemComponent
         key={String(item.value)}
@@ -361,7 +361,7 @@ function SelectComponent<T = string>({
         onSelect={handleSelect}
       />
     ));
-  }, [items, flatItems, filterItem, currentInputValue, value, showIndex, handleSelect]);
+  }, [items, filteredItems, currentInputValue, value, showIndex, handleSelect]);
 
   // Display value in input when not focused/searching
   const inputDisplayValue = React.useMemo(() => {
@@ -379,8 +379,13 @@ function SelectComponent<T = string>({
     return typeof selectedItem?.label === 'string' ? selectedItem.label : placeholder;
   }, [selectedItem, placeholder]);
 
+  const renderPopOverContent = React.useMemo(() => {
+    if (emptyMessage === false && filteredItems.length === 0) return false;
+    return true;
+  }, [emptyMessage, filteredItems.length]);
+
   return (
-    <PopoverRoot open={open}>
+    <PopoverRoot open={open} onOpenChange={handleOpenChange}>
       <PopoverTrigger asChild ref={triggerRef}>
         <div className={cn('relative w-full', className)}>
           <input
@@ -439,7 +444,8 @@ function SelectComponent<T = string>({
           matchPopUpWidth
             ? 'w-[var(--radix-popover-trigger-width)]'
             : 'min-w-[var(--radix-popover-trigger-width)]',
-          'p-0'
+          'p-0',
+          !renderPopOverContent && 'hidden'
         )}
         align="start"
         onOpenAutoFocus={(e) => {
@@ -454,7 +460,7 @@ function SelectComponent<T = string>({
             parentClassName="sr-only hidden h-0 border-0 p-0"
             aria-hidden="true"
           />
-          <div className="scrollbar-hide max-h-[300px] overflow-y-auto">
+          <div className={cn('scrollbar-hide max-h-[300px] overflow-y-auto')}>
             <CommandList id={listboxId} className="p-1">
               {emptyMessage && <CommandEmpty>{emptyMessage}</CommandEmpty>}
               {renderedItems}
