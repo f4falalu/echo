@@ -4,7 +4,29 @@ import { type SlackWebhookPayload, isEventCallback } from '@buster/slack';
 import { tasks } from '@trigger.dev/sdk';
 import { and, eq } from 'drizzle-orm';
 import type { Context } from 'hono';
-import { authenticateSlackUser, getUserIdFromAuthResult } from './services/slack-authentication';
+import {
+  type SlackAuthenticationResult,
+  authenticateSlackUser,
+  getUserIdFromAuthResult,
+} from './services/slack-authentication';
+
+/**
+ * Map authentication result type to database enum value
+ */
+function mapAuthResultToDbEnum(
+  authType: SlackAuthenticationResult['type']
+): 'unauthorized' | 'authorized' | 'auto_added' {
+  switch (authType) {
+    case 'unauthorized':
+      return 'unauthorized';
+    case 'authorized':
+      return 'authorized';
+    case 'auto_added':
+      return 'auto_added';
+    default:
+      return 'unauthorized';
+  }
+}
 
 /**
  * Find or create a chat for a Slack thread
@@ -14,11 +36,13 @@ export async function findOrCreateSlackChat({
   channelId,
   organizationId,
   userId,
+  slackChatAuthorization,
 }: {
   threadTs: string;
   channelId: string;
   organizationId: string;
   userId: string;
+  slackChatAuthorization: 'unauthorized' | 'authorized' | 'auto_added';
 }): Promise<string> {
   // Find existing chat
   const existingChat = await db
@@ -46,12 +70,11 @@ export async function findOrCreateSlackChat({
   const newChat = await db
     .insert(chats)
     .values({
-      id: crypto.randomUUID(),
       title: '',
       organizationId,
       createdBy: userId,
       updatedBy: userId,
-      slackChatAuthorization: 'unauthorized',
+      slackChatAuthorization,
       slackThreadTs: threadTs,
       slackChannelId: channelId,
     })
@@ -100,9 +123,7 @@ export async function handleSlackEventsEndpoint(c: Context) {
  * Handles Slack Events API webhook requests
  * Processes validated webhook payloads
  */
-export async function eventsHandler(
-  payload: SlackWebhookPayload
-): Promise<SlackEventsResponse> {
+export async function eventsHandler(payload: SlackWebhookPayload): Promise<SlackEventsResponse> {
   try {
     // Handle the event based on type
     if (isEventCallback(payload)) {
@@ -119,7 +140,7 @@ export async function eventsHandler(
 
       // Authenticate the Slack user
       const authResult = await authenticateSlackUser(event.user, payload.team_id);
-      
+
       // Check if authentication was successful
       const userId = getUserIdFromAuthResult(authResult);
       if (!userId) {
@@ -143,6 +164,7 @@ export async function eventsHandler(
         channelId: event.channel,
         organizationId,
         userId,
+        slackChatAuthorization: mapAuthResultToDbEnum(authResult.type),
       });
 
       // Queue the task

@@ -11,7 +11,7 @@ import { SlackHelpers } from './slack-helpers';
 
 export type SlackAuthenticationResult =
   | { type: 'authorized'; user: User; organization: typeof organizations.$inferSelect }
-  | { type: 'auto_provisioned'; user: User; organization: typeof organizations.$inferSelect }
+  | { type: 'auto_added'; user: User; organization: typeof organizations.$inferSelect }
   | { type: 'unauthorized'; reason: string };
 
 /**
@@ -179,7 +179,7 @@ export async function authenticateSlackUser(
       });
 
       return {
-        type: 'auto_provisioned',
+        type: 'auto_added',
         user,
         organization,
       };
@@ -203,7 +203,7 @@ export async function authenticateSlackUser(
  * Helper to extract user ID from authentication result
  */
 export function getUserIdFromAuthResult(result: SlackAuthenticationResult): string | null {
-  if (result.type === 'authorized' || result.type === 'auto_provisioned') {
+  if (result.type === 'authorized' || result.type === 'auto_added') {
     return result.user.id;
   }
   return null;
@@ -213,5 +213,5 @@ export function getUserIdFromAuthResult(result: SlackAuthenticationResult): stri
  * Helper to check if authentication was successful
  */
 export function isAuthSuccessful(result: SlackAuthenticationResult): boolean {
-  return result.type === 'authorized' || result.type === 'auto_provisioned';
+  return result.type === 'authorized' || result.type === 'auto_added';
 }

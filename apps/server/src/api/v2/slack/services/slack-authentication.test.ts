@@ -258,7 +258,7 @@ describe('slack-authentication', () => {
       const result = await authenticateSlackUser('U123456', 'T123456');
 
       expect(result).toEqual({
-        type: 'auto_provisioned',
+        type: 'auto_added',
         user: mockNewUser,
         organization: mockOrg,
       });
@@ -328,7 +328,7 @@ describe('slack-authentication', () => {
       const result = await authenticateSlackUser('U123456', 'T123456');
 
       expect(result).toEqual({
-        type: 'auto_provisioned',
+        type: 'auto_added',
         user: mockExistingUser,
         organization: mockOrg,
       });
@@ -440,7 +440,7 @@ describe('slack-authentication', () => {
 
     it('should return user ID for auto_provisioned result', () => {
       const result: SlackAuthenticationResult = {
-        type: 'auto_provisioned',
+        type: 'auto_added',
         user: { id: 'user-456' } as any,
         organization: {} as any,
       };
@@ -471,7 +471,7 @@ describe('slack-authentication', () => {
 
     it('should return true for auto_provisioned result', () => {
       const result: SlackAuthenticationResult = {
-        type: 'auto_provisioned',
+        type: 'auto_added',
         user: {} as any,
         organization: {} as any,
       };
