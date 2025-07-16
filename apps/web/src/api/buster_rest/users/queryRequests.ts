@@ -7,8 +7,6 @@ import {
   getMyUserInfo_server,
   getUser,
   getUser_server,
-  getUserList,
-  getUserList_server,
   inviteUser,
   updateOrganizationUser
 } from './requests';
@@ -67,27 +65,6 @@ export const prefetchGetUser = async (userId: string, queryClientProp?: QueryCli
   await queryClient.prefetchQuery({
     ...userQueryKeys.userGetUser(userId),
     queryFn: () => getUser_server({ userId })
-  });
-  return queryClient;
-};
-
-export const useGetUserList = (params: Parameters<typeof getUserList>[0]) => {
-  const queryFn = useMemoizedFn(() => getUserList(params));
-
-  return useQuery({
-    ...userQueryKeys.userGetUserList(params),
-    queryFn
-  });
-};
-
-export const prefetchGetUserList = async (
-  params: Parameters<typeof getUserList>[0],
-  queryClientProp?: QueryClient
-) => {
-  const queryClient = queryClientProp || new QueryClient();
-  await queryClient.prefetchQuery({
-    ...userQueryKeys.userGetUserList(params),
-    queryFn: () => getUserList_server(params)
   });
   return queryClient;
 };
