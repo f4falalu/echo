@@ -9,7 +9,7 @@ const app = new Hono()
   .use('*', requireAuth)
   // Mount the modular routes
   .route('/', GET)
-  .route('/', GET_ID)
+  .route('/:id', GET_ID)
   .route('/', POST);
 
 export default app;

@@ -1,6 +1,6 @@
 {
   "name": "@buster-app/web",
-  "version": "0.1.44",
+  "version": "0.1.45",
   "private": false,
   "scripts": {
     "dev": "next dev --turbo",

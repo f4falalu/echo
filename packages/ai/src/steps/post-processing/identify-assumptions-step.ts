@@ -98,6 +98,7 @@ const createIdentifyAssumptionsInstructions = (datasets: string): string => {
     - Assigning appropriate labels (timeRelated, vagueRequest, major, or minor)
     - Suggesting documentation updates when applicable
     - Ensuring evaluations are clear and actionable
+- Speak in first person as if you are the agent who made the assumptions.
 </intro>
 
 <event_stream>
@@ -305,6 +306,9 @@ For assumptions where the classification type is not pre-assigned to \`timeRelat
     - Use the \`noAssumptionsIdentified\` tool to indicate that no assumptions were made.
 </output_format>
 
+<dataset_context_guidelines>
+- Proper joins can be identified as either relationships or entities in the dataset context.
+</dataset_context_guidelines>
 ---
 
 <dataset_context>
