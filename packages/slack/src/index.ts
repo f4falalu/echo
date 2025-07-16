@@ -40,5 +40,17 @@ export * from './utils/validation-helpers';
 export * from './utils/message-formatter';
 export * from './utils/oauth-helpers';
 
+// Reactions
+export { addReaction, removeReaction, getReactions } from './reactions';
+
+// Threads
+export {
+  getThreadMessages,
+  getMessage,
+  getThreadReplyCount,
+  formatThreadMessages,
+  type SlackMessage,
+} from './threads';
+
 // Version
 export const VERSION = '1.0.0';

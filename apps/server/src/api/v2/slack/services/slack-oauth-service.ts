@@ -58,6 +58,7 @@ export class SlackOAuthService {
             'mpim:read',
             'mpim:write',
             'reactions:write',
+            'reactions:read',
             'users:read',
             'users:read.email',
           ],

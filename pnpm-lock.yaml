@@ -198,6 +198,9 @@ importers:
       braintrust:
         specifier: 'catalog:'
         version: 0.0.209(@aws-sdk/credential-provider-web-identity@3.840.0)(react@18.3.1)(sswr@2.2.0(svelte@5.34.9))(svelte@5.34.9)(vue@3.5.17(typescript@5.8.3))(zod@3.25.1)
+      drizzle-orm:
+        specifier: 'catalog:'
+        version: 0.44.2(@opentelemetry/api@1.9.0)(@types/pg@8.15.4)(mysql2@3.14.1)(pg@8.16.3)(postgres@3.4.7)
       vitest:
         specifier: 'catalog:'
         version: 3.2.4(@edge-runtime/vm@3.2.0)(@types/debug@4.1.12)(@types/node@24.0.10)(@vitest/ui@3.2.4)(jiti@2.4.2)(jsdom@26.1.0)(lightningcss@1.30.1)(msw@2.10.4(@types/node@24.0.10)(typescript@5.8.3))(sass@1.89.2)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.0)
@@ -5950,7 +5953,6 @@ packages:
 
   bun@1.2.18:
     resolution: {integrity: sha512-OR+EpNckoJN4tHMVZPaTPxDj2RgpJgJwLruTIFYbO3bQMguLd0YrmkWKYqsiihcLgm2ehIjF/H1RLfZiRa7+qQ==}
-    cpu: [arm64, x64, aarch64]
     os: [darwin, linux, win32]
     hasBin: true
 
