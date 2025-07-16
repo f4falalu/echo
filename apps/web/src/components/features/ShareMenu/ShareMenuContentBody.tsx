@@ -24,6 +24,7 @@ import { IndividualSharePerson } from './IndividualSharePerson';
 import { ShareMenuContentEmbed } from './ShareMenuContentEmbed';
 import { ShareMenuContentPublish } from './ShareMenuContentPublish';
 import type { ShareMenuTopBarOptions } from './ShareMenuTopBar';
+import { ShareMenuInvite } from './ShareMenuInvite';
 
 export const ShareMenuContentBody: React.FC<{
   selectedOptions: ShareMenuTopBarOptions;
@@ -68,10 +69,6 @@ ShareMenuContentBody.displayName = 'ShareMenuContentBody';
 
 const ShareMenuContentShare: React.FC<ShareMenuContentBodyProps> = React.memo(
   ({ canEditPermissions, assetType, individual_permissions, assetId, className }) => {
-    const { mutateAsync: onShareMetric, isPending: isInvitingMetric } = useShareMetric();
-    const { mutateAsync: onShareDashboard, isPending: isInvitingDashboard } = useShareDashboard();
-    const { mutateAsync: onShareCollection, isPending: isInvitingCollection } =
-      useShareCollection();
     const { mutateAsync: onUpdateMetricShare } = useUpdateMetricShare();
     const { mutateAsync: onUpdateDashboardShare } = useUpdateDashboardShare();
     const { mutateAsync: onUpdateCollectionShare } = useUpdateCollectionShare();
@@ -80,50 +77,7 @@ const ShareMenuContentShare: React.FC<ShareMenuContentBodyProps> = React.memo(
     const { mutateAsync: onUnshareCollection } = useUnshareCollection();
     const { openErrorMessage } = useBusterNotifications();
 
-    const isInviting = isInvitingMetric || isInvitingDashboard || isInvitingCollection;
-
-    const [inputValue, setInputValue] = React.useState<string>('');
-    const [defaultPermissionLevel, setDefaultPermissionLevel] =
-      React.useState<ShareRole>('canView');
-    const disableSubmit = !inputHasText(inputValue) || !isValidEmail(inputValue);
     const hasIndividualPermissions = !!individual_permissions?.length;
-
-    const onSubmitNewEmail = useMemoizedFn(async () => {
-      const emailIsValid = isValidEmail(inputValue);
-      if (!emailIsValid) {
-        openErrorMessage('Invalid email address');
-        return;
-      }
-
-      const isAlreadyShared = individual_permissions?.some(
-        (permission) => permission.email === inputValue
-      );
-
-      if (isAlreadyShared) {
-        openErrorMessage('Email already shared');
-        return;
-      }
-
-      const payload: Parameters<typeof onShareMetric>[0] = {
-        id: assetId,
-        params: [
-          {
-            email: inputValue,
-            role: defaultPermissionLevel
-          }
-        ]
-      };
-
-      if (assetType === 'metric') {
-        await onShareMetric(payload);
-      } else if (assetType === 'dashboard') {
-        await onShareDashboard(payload);
-      } else if (assetType === 'collection') {
-        await onShareCollection(payload);
-      }
-
-      setInputValue('');
-    });
 
     const onUpdateShareRole = useMemoizedFn(async (email: string, role: ShareRole | null) => {
       if (role) {
@@ -160,54 +114,14 @@ const ShareMenuContentShare: React.FC<ShareMenuContentBodyProps> = React.memo(
       }
     });
 
-    const onChangeAccessDropdown = useMemoizedFn((level: ShareRole | null) => {
-      if (level) setDefaultPermissionLevel(level);
-    });
-
     return (
       <div className={cn('flex flex-col space-y-2.5', className)}>
         {canEditPermissions && (
-          <div className="flex h-full items-center space-x-2">
-            <div className="relative flex w-full items-center">
-              {/* <Input
-                className="w-full"
-                placeholder="Invite others by email..."
-                value={inputValue}
-                onChange={onChangeInputValue}
-                onPressEnter={onSubmitNewEmail}
-                autoComplete="off"
-              /> */}
-
-              <InputSearchDropdown
-                options={[]}
-                onSelect={() => {}}
-                onSearch={() => {}}
-                onPressEnter={() => {}}
-                value={inputValue}
-                onChange={setInputValue}
-                placeholder="Invite others by email..."
-                className="w-full"
-              />
-
-              {inputValue && (
-                <AccessDropdown
-                  showRemove={false}
-                  className="absolute top-[50%] right-[10px] -translate-y-1/2"
-                  shareLevel={defaultPermissionLevel}
-                  onChangeShareLevel={onChangeAccessDropdown}
-                  assetType={assetType}
-                  disabled={false}
-                />
-              )}
-            </div>
-            <Button
-              loading={isInviting}
-              size={'tall'}
-              onClick={onSubmitNewEmail}
-              disabled={disableSubmit}>
-              Invite
-            </Button>
-          </div>
+          <ShareMenuInvite
+            assetType={assetType}
+            assetId={assetId}
+            individualPermissions={individual_permissions}
+          />
         )}
 
         {hasIndividualPermissions && (
