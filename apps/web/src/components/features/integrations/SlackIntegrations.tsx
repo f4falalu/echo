@@ -1,6 +1,8 @@
 'use client';
 
 import React, { useMemo } from 'react';
+
+type SlackSharingPermission = 'shareWithWorkspace' | 'shareWithChannel' | 'noSharing';
 import { SettingsCards } from '../settings/SettingsCard';
 import { SlackIcon } from '@/components/ui/icons/customIcons/SlackIcon';
 import { Text } from '@/components/ui/typography';
@@ -229,12 +231,12 @@ const SlackSharingPermissions = React.memo(() => {
     }
   ];
 
-  const selectedOption = slackIntegration?.integration?.default_sharing_permissions || 'noSharing';
+  const selectedOption: SlackSharingPermission = slackIntegration?.integration?.default_sharing_permissions || 'noSharing';
   const selectedLabel = sharingOptions.find(option => option.value === selectedOption)?.label || 'Select option';
 
   const handleSelect = useMemoizedFn((value: string) => {
     updateSlackIntegration({ 
-      default_sharing_permissions: value as 'shareWithWorkspace' | 'shareWithChannel' | 'noSharing'
+      default_sharing_permissions: value as SlackSharingPermission
     });
   });
 

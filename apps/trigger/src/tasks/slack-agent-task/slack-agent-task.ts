@@ -35,7 +35,7 @@ export const slackAgentTask: ReturnType<
 > = schemaTask<'slack-agent-task', typeof SlackAgentTaskInputSchema, SlackAgentTaskOutput>({
   id: 'slack-agent-task',
   schema: SlackAgentTaskInputSchema,
-  maxDuration: 300, // 300 seconds timeout
+  maxDuration: 600, // needs to be the same or longer than the analyst agent task since we wait for it to complete. 
   run: async (payload: SlackAgentTaskInput): Promise<SlackAgentTaskOutput> => {
     try {
       logger.log('Starting Slack agent task', {
@@ -232,17 +232,71 @@ export const slackAgentTask: ReturnType<
         .filter((text) => text.trim() !== '>')
         .join('\n');
 
+      // Check if no messages found - reply directly to Slack
+      if (!formattedMessages.trim()) {
+        logger.log('No messages found after filtering, responding directly to Slack');
+
+        const messagingService = new SlackMessagingService();
+
+        try {
+          const noRequestMessage = {
+            text: "I couldn't find any requests in this conversation. Please send me a message with your question or request.",
+            thread_ts: chatDetails.slackThreadTs,
+          };
+
+          await messagingService.sendMessage(
+            accessToken,
+            chatDetails.slackChannelId,
+            noRequestMessage
+          );
+
+          logger.log('Sent no requests message to Slack thread');
+        } catch (error) {
+          logger.error('Failed to send no requests message to Slack', {
+            error: error instanceof Error ? error.message : 'Unknown error',
+          });
+        }
+
+        // Update reactions - remove hourglass, add X mark on the mention message
+        try {
+          // Remove the hourglass reaction
+          await removeReaction({
+            accessToken,
+            channelId: chatDetails.slackChannelId,
+            messageTs: mentionMessageTs,
+            emoji: 'hourglass_flowing_sand',
+          });
+
+          // Add the X mark reaction to indicate no request found
+          await addReaction({
+            accessToken,
+            channelId: chatDetails.slackChannelId,
+            messageTs: mentionMessageTs,
+            emoji: 'x',
+          });
+
+          logger.log('Updated Slack reactions on mention message (no request found)', {
+            messageTs: mentionMessageTs,
+          });
+        } catch (error) {
+          logger.warn('Failed to update Slack reactions for no request case', {
+            error: error instanceof Error ? error.message : 'Unknown error',
+          });
+        }
+
+        return {
+          success: true,
+          messageId: '',
+          triggerRunId: '',
+        };
+      }
+
       // Generate prompt based on whether it's first message or follow-up
       let prompt: string;
       if (isFollowUp) {
         prompt = `Please fulfill the request from this slack conversation. Here are the messages since your last response:\n${formattedMessages}`;
       } else {
         prompt = `Please fulfill the request from this slack conversation:\n${formattedMessages}`;
-      }
-
-      // Fallback if no messages found
-      if (!formattedMessages.trim()) {
-        prompt = 'who is my top customer?';
       }
 
       // Step 6: Create message

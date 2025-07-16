@@ -1,6 +1,15 @@
 import { WebClient } from '@slack/web-api';
 
 /**
+ * Type guard to check if a message has reactions
+ */
+function hasReactions(
+  message: unknown
+): message is { reactions?: Array<{ name?: string; users?: string[]; count?: number }> } {
+  return typeof message === 'object' && message !== null && 'reactions' in message;
+}
+
+/**
  * Add an emoji reaction to a Slack message
  * @param accessToken - Slack bot access token
  * @param channelId - Slack channel ID
@@ -104,7 +113,7 @@ export async function getReactions({
       timestamp: messageTs,
     });
 
-    if (result.type === 'message' && result.message && 'reactions' in result.message) {
+    if (result.type === 'message' && result.message && hasReactions(result.message)) {
       // Map Slack API reactions to our expected format
       const reactions = result.message.reactions || [];
       return reactions.map((reaction) => ({
