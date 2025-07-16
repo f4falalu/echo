@@ -127,7 +127,7 @@ export async function handleSlackEventsEndpoint(c: Context) {
 export async function eventsHandler(payload: SlackWebhookPayload): Promise<SlackEventsResponse> {
   try {
     // Handle the event based on type
-    if (isEventCallback(payload)) {
+    if (isEventCallback(payload) && payload.event.type === 'app_mention') {
       // Handle app_mention event
       const event = payload.event;
 
