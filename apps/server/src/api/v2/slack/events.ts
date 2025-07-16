@@ -1,11 +1,108 @@
+import { chats, db } from '@buster/database';
 import type { SlackEventsResponse } from '@buster/server-shared/slack';
 import { type SlackWebhookPayload, isEventCallback } from '@buster/slack';
+import { tasks } from '@trigger.dev/sdk';
+import { and, eq } from 'drizzle-orm';
+import type { Context } from 'hono';
+import { authenticateSlackUser, getUserIdFromAuthResult } from './services/slack-authentication';
+
+/**
+ * Find or create a chat for a Slack thread
+ */
+export async function findOrCreateSlackChat({
+  threadTs,
+  channelId,
+  organizationId,
+  userId,
+}: {
+  threadTs: string;
+  channelId: string;
+  organizationId: string;
+  userId: string;
+}): Promise<string> {
+  // Find existing chat
+  const existingChat = await db
+    .select()
+    .from(chats)
+    .where(
+      and(
+        eq(chats.slackThreadTs, threadTs),
+        eq(chats.slackChannelId, channelId),
+        eq(chats.organizationId, organizationId),
+        eq(chats.createdBy, userId)
+      )
+    )
+    .limit(1);
+
+  if (existingChat.length > 0) {
+    const chat = existingChat[0];
+    if (!chat) {
+      throw new Error('Chat data is missing');
+    }
+    return chat.id;
+  }
+
+  // Create new chat
+  const newChat = await db
+    .insert(chats)
+    .values({
+      id: crypto.randomUUID(),
+      title: '',
+      organizationId,
+      createdBy: userId,
+      updatedBy: userId,
+      slackChatAuthorization: 'unauthorized',
+      slackThreadTs: threadTs,
+      slackChannelId: channelId,
+    })
+    .returning();
+
+  const chat = newChat[0];
+  if (!chat) {
+    throw new Error('Failed to create chat');
+  }
+  return chat.id;
+}
+
+/**
+ * Queue slack agent task for processing
+ */
+export async function queueSlackAgentTask(chatId: string): Promise<void> {
+  await tasks.trigger('slack-agent-task', {
+    chatId,
+  });
+}
+
+/**
+ * Handles the /events endpoint for Slack Events API
+ * Includes URL verification and event processing
+ */
+export async function handleSlackEventsEndpoint(c: Context) {
+  // Check if this is a URL verification challenge
+  const challenge = c.get('slackChallenge');
+  if (challenge) {
+    return c.text(challenge);
+  }
+
+  // Get the validated payload
+  const payload = c.get('slackPayload');
+  if (!payload) {
+    // This shouldn't happen if middleware works correctly
+    return c.json({ success: false });
+  }
+
+  // Process the event
+  const response = await eventsHandler(payload);
+  return c.json(response);
+}
 
 /**
  * Handles Slack Events API webhook requests
  * Processes validated webhook payloads
  */
-export async function eventsHandler(payload: SlackWebhookPayload): Promise<SlackEventsResponse> {
+export async function eventsHandler(
+  payload: SlackWebhookPayload
+): Promise<SlackEventsResponse> {
   try {
     // Handle the event based on type
     if (isEventCallback(payload)) {
@@ -20,7 +117,36 @@ export async function eventsHandler(payload: SlackWebhookPayload): Promise<Slack
         event_id: payload.event_id,
       });
 
-      // TODO: Process app mention and respond
+      // Authenticate the Slack user
+      const authResult = await authenticateSlackUser(event.user, payload.team_id);
+      
+      // Check if authentication was successful
+      const userId = getUserIdFromAuthResult(authResult);
+      if (!userId) {
+        console.warn('Slack user authentication failed:', {
+          slackUserId: event.user,
+          teamId: payload.team_id,
+          reason: authResult.type === 'unauthorized' ? authResult.reason : 'Unknown',
+        });
+        // Return success to prevent Slack retries
+        return { success: true };
+      }
+
+      const organizationId = authResult.type === 'unauthorized' ? '' : authResult.organization.id;
+
+      // Extract thread timestamp - if no thread_ts, this is a new thread so use ts
+      const threadTs = event.thread_ts || event.ts;
+
+      // Find or create chat
+      const chatId = await findOrCreateSlackChat({
+        threadTs,
+        channelId: event.channel,
+        organizationId,
+        userId,
+      });
+
+      // Queue the task
+      await queueSlackAgentTask(chatId);
     }
 
     return { success: true };

@@ -34,6 +34,7 @@ export const appMentionEventSchema = z.object({
   ts: z.string(),
   channel: z.string(),
   event_ts: z.string(),
+  thread_ts: z.string().optional(),
 });
 
 export type AppMentionEvent = z.infer<typeof appMentionEventSchema>;
