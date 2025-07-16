@@ -11,7 +11,11 @@ export const getSupabaseUserContext = async (preemptiveRefreshMinutes = 5) => {
   const supabase = await createClient();
 
   // Get the session first
-  let { data: sessionData } = await supabase.auth.getSession();
+  let { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+
+  if (sessionError) {
+    console.error('Error getting session:', sessionError);
+  }
 
   // Check if we need to refresh the session
   if (sessionData.session) {
