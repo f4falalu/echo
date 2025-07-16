@@ -1,5 +1,4 @@
-import { type InferSelectModel, SQL, and, asc, count, eq, isNull, like } from 'drizzle-orm';
-import { PgColumn } from 'drizzle-orm/pg-core';
+import { type InferSelectModel, and, asc, count, eq, isNull, like } from 'drizzle-orm';
 import { z } from 'zod';
 import { db } from '../../connection';
 import { users, usersToOrganizations } from '../../schema';
@@ -7,10 +6,11 @@ import { getUserOrganizationId } from '../organizations/organizations';
 import { type PaginatedResponse, createPaginatedResponse } from '../shared-types';
 import { withPagination } from '../shared-types/with-pagination';
 
-type RawOrganizationUser = InferSelectModel<typeof usersToOrganizations>;
-type RawUser = InferSelectModel<typeof users>;
+// Type-safe schema types
+type User = InferSelectModel<typeof users>;
+type UserToOrganization = InferSelectModel<typeof usersToOrganizations>;
 
-// Input schema for type safety
+// Input validation schema
 const GetUserToOrganizationInputSchema = z.object({
   userId: z.string().uuid('User ID must be a valid UUID'),
   page: z.number().optional().default(1),
@@ -21,74 +21,40 @@ const GetUserToOrganizationInputSchema = z.object({
 
 type GetUserToOrganizationInput = z.infer<typeof GetUserToOrganizationInputSchema>;
 
-type OrganizationUser = Pick<RawUser, 'id' | 'name' | 'email' | 'avatarUrl'> &
-  Pick<RawOrganizationUser, 'role' | 'status'>;
+// Type-safe organization user type using Pick
+type OrganizationUser = Pick<User, 'id' | 'name' | 'email' | 'avatarUrl'> &
+  Pick<UserToOrganization, 'role' | 'status'>;
 
-// Helper function to build the WHERE condition for user organization queries
-function buildUserOrgWhereCondition(
-  organizationId: string,
-  filters?: Pick<GetUserToOrganizationInput, 'user_name' | 'email'>
-) {
-  return and(
-    eq(usersToOrganizations.organizationId, organizationId),
-    isNull(usersToOrganizations.deletedAt),
-    filters?.user_name ? like(users.name, `%${filters.user_name}%`) : undefined,
-    filters?.email ? like(users.email, `%${filters.email}%`) : undefined
-  );
-}
-
-// Helper function to build the base query with joins
-function buildUserOrgBaseQuery<T extends Record<string, PgColumn | SQL>>(selectColumns: T) {
-  return db
-    .select(selectColumns)
-    .from(users)
-    .innerJoin(usersToOrganizations, eq(users.id, usersToOrganizations.userId));
-}
-
-// Helper function to get the total count of users in an organization
-async function getUserToOrganizationTotal(
-  organizationId: string,
-  filters?: Pick<GetUserToOrganizationInput, 'user_name' | 'email'>
-): Promise<number> {
-  try {
-    const query = buildUserOrgBaseQuery({ count: count() }).where(
-      buildUserOrgWhereCondition(organizationId, filters)
-    );
-    const result = await query;
-    return result[0]?.count ?? 0;
-  } catch (error) {
-    console.error(error);
-    return 0;
-  }
-}
-
+/**
+ * Get paginated list of users in the same organization as the requesting user
+ * with optional filtering by name or email
+ */
 export const getUserToOrganization = async (
   params: GetUserToOrganizationInput
 ): Promise<PaginatedResponse<OrganizationUser>> => {
-  // Validate input
-  const { user_name, email, page, page_size, userId } =
+  // Validate and destructure input
+  const { userId, page, page_size, user_name, email } =
     GetUserToOrganizationInputSchema.parse(params);
-  const filters = {
-    user_name,
-    email,
-  };
-  // Get the user's organization ID
-  const { organizationId } = await getUserOrganizationId(userId)
-    .then((userOrg) => {
-      if (!userOrg || !userOrg.organizationId) {
-        throw new Error('User not found in any organization');
-      }
-      return { organizationId: userOrg.organizationId };
-    })
-    .catch((error) => {
-      console.error(error);
-      throw new Error('Error fetching user organization');
-    });
 
-  try {
-    // Build and execute the data query using shared helpers
-    const dataQuery = withPagination(
-      buildUserOrgBaseQuery({
+  // Get the user's organization ID
+  const userOrg = await getUserOrganizationId(userId);
+  if (!userOrg?.organizationId) {
+    throw new Error('User not found in any organization');
+  }
+
+  const { organizationId } = userOrg;
+
+  // Build where conditions
+  const whereConditions = and(
+    eq(usersToOrganizations.organizationId, organizationId),
+    isNull(usersToOrganizations.deletedAt),
+    user_name ? like(users.name, `%${user_name}%`) : undefined,
+    email ? like(users.email, `%${email}%`) : undefined
+  );
+
+  const getData = withPagination(
+    db
+      .select({
         id: users.id,
         name: users.name,
         email: users.email,
@@ -96,20 +62,26 @@ export const getUserToOrganization = async (
         role: usersToOrganizations.role,
         status: usersToOrganizations.status,
       })
-        .where(buildUserOrgWhereCondition(organizationId, filters))
-        .$dynamic(),
-      asc(users.name),
-      page,
-      page_size
-    );
+      .from(users)
+      .innerJoin(usersToOrganizations, eq(users.id, usersToOrganizations.userId))
+      .where(whereConditions)
+      .$dynamic(),
+    asc(users.name),
+    page,
+    page_size
+  );
+  const getTotal = db
+    .select({ count: count() })
+    .from(users)
+    .innerJoin(usersToOrganizations, eq(users.id, usersToOrganizations.userId))
+    .where(whereConditions);
 
-    // Execute queries in parallel for better performance
-    const [data, total] = await Promise.all([
-      dataQuery,
-      getUserToOrganizationTotal(organizationId, filters),
-    ]);
+  try {
+    // Execute data and count queries in parallel
+    const [data, totalResult] = await Promise.all([getData, getTotal]);
 
-    // Use the simple createPaginatedResponse helper
+    const total = totalResult[0]?.count ?? 0;
+
     return createPaginatedResponse({
       data,
       page,
@@ -117,7 +89,7 @@ export const getUserToOrganization = async (
       total,
     });
   } catch (error) {
-    console.error(error);
-    throw new Error('Error fetching users');
+    console.error('Error fetching organization users:', error);
+    throw new Error('Failed to fetch organization users');
   }
 };

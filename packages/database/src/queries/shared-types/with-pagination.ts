@@ -1,7 +1,6 @@
-import { SQL, count } from 'drizzle-orm';
-import { PgColumn, PgSelect, PgTable, TableConfig } from 'drizzle-orm/pg-core';
-import { db } from '../../connection';
-import type { PaginatedResponse, PaginationInput, PaginationMetadata } from './pagination.types';
+import { SQL } from 'drizzle-orm';
+import type { PgColumn, PgSelect } from 'drizzle-orm/pg-core';
+import type { PaginatedResponse, PaginationMetadata } from './pagination.types';
 
 /**
  * Adds pagination to a Drizzle query using the dynamic query builder pattern
