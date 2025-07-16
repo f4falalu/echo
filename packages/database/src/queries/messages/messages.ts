@@ -1,7 +1,7 @@
 import type { InferSelectModel } from 'drizzle-orm';
 import { and, desc, eq, isNull } from 'drizzle-orm';
-import { db } from '../connection';
-import { messages } from '../schema';
+import { db } from '../../connection';
+import { messages } from '../../schema';
 
 export type Message = InferSelectModel<typeof messages>;
 

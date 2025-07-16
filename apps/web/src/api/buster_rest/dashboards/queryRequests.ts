@@ -63,6 +63,7 @@ export const useGetDashboard = <TData = BusterDashboardResponse>(
 
   const { isFetched: isFetchedInitial, isError: isErrorInitial } = useQuery({
     ...dashboardQueryKeys.dashboardGetDashboard(id, null),
+    staleTime: Infinity,
     queryFn: () => queryFn(id, paramVersionNumber),
     enabled: false, //we made this false because we want to be explicit about the fact that we fetch the dashboard server side
     retry(failureCount, error) {
@@ -115,6 +116,12 @@ export const useSaveDashboard = (params?: { updateOnSave?: boolean }) => {
         );
         setOriginalDashboard(data.dashboard);
         onSetLatestDashboardVersion(data.dashboard.id, last(data.versions)?.version_number || 1);
+
+        if (variables.restore_to_version) {
+          queryClient.invalidateQueries({
+            queryKey: dashboardQueryKeys.dashboardGetDashboard(data.dashboard.id, null).queryKey
+          });
+        }
       }
     }
   });
@@ -362,12 +369,10 @@ export const useShareDashboard = () => {
         });
       });
     },
-    onSuccess: (data) => {
-      // queryClient.setQueryData(
-      //   dashboardQueryKeys.dashboardGetDashboard(data.dashboard.id, data.dashboard.version_number)
-      //     .queryKey,
-      //   data
-      // );
+    onSuccess: (data, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: dashboardQueryKeys.dashboardGetDashboard(variables.id, null).queryKey
+      });
     }
   });
 };

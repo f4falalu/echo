@@ -1,0 +1,38 @@
+---
+globs: src/*
+alwaysApply: false
+description: Global rules for server-shared folder
+---
+
+
+## Overview of the `src` Folder Structure
+
+The `src` folder is organized to reflect the structure of our API endpoints and general concepts such as organization, user, team, etc. Each of these concepts is encapsulated within its own folder.
+
+### Folder Structure
+
+- **Endpoint and Concept Folders**: Each folder corresponds to a specific endpoint or concept. Within these folders, you will find:
+  - `request.ts`: Defines the request types using Zod schemas.
+  - `response.ts`: Defines the response types using Zod schemas.
+  - `index.ts`: Exports the types defined in `request.ts` and `response.ts`.
+
+- **Additional Files**: Some folders may contain additional files to assist in defining types specific to that folder's context.
+
+### Type Definition
+
+- **Zod Schemas**: All types are defined using Zod schemas to ensure type safety and validation.
+
+### Special Folder: `type-utilities`
+
+- This folder is dedicated to generic types, such as pagination or query array processing. It provides utility functions and types that can be reused across different folders.
+
+### Exporting Types
+
+- **Package.json**: Any new folder should ensure its types are exported via the `package.json` to facilitate proper building and exporting of types.
+
+This structure ensures a consistent and organized approach to managing types across the application, leveraging Zod for robust type definitions and validation.
+
+
+### Pagination
+
+If we need to use pagination for a type we can take advantage of the generic types found in the type-utilities/pagination file

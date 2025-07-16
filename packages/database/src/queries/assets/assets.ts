@@ -1,11 +1,11 @@
 import { and, eq, isNull } from 'drizzle-orm';
 import type { InferSelectModel } from 'drizzle-orm';
 import { z } from 'zod';
-import { db } from '../connection';
-import { dashboardFiles, messages, messagesToFiles, metricFiles } from '../schema';
+import { db } from '../../connection';
+import { dashboardFiles, messages, messagesToFiles, metricFiles } from '../../schema';
 
 // Type inference from schema
-export type Message = InferSelectModel<typeof messages>;
+type Message = InferSelectModel<typeof messages>;
 
 /**
  * Input schemas

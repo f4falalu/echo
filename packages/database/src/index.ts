@@ -11,7 +11,7 @@ export * from './schema';
 export * from './relations';
 
 // Export database helpers
-export * from './helpers';
+export * from './queries';
 
 // Export vault functions
 export * from './vault';
