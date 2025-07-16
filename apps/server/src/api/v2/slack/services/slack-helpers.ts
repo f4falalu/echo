@@ -1,6 +1,13 @@
-import { type User, db, slackIntegrations, users } from '@buster/database';
+import {
+  type User,
+  db,
+  slackIntegrations,
+  type slackSharingPermissionEnum,
+  users,
+} from '@buster/database';
 import type { InferSelectModel } from 'drizzle-orm';
 import { and, eq, gt, isNull, lt } from 'drizzle-orm';
+import type { z } from 'zod';
 import { tokenStorage } from './token-storage';
 
 export type SlackIntegration = InferSelectModel<typeof slackIntegrations>;
@@ -339,6 +346,31 @@ export async function updateDefaultChannel(
       .update(slackIntegrations)
       .set({
         defaultChannel,
+        updatedAt: new Date().toISOString(),
+      })
+      .where(eq(slackIntegrations.id, integrationId));
+  } catch (error) {
+    console.error('Failed to update default channel:', error);
+    throw new Error(
+      `Failed to update default channel: ${
+        error instanceof Error ? error.message : 'Unknown error'
+      }`
+    );
+  }
+}
+
+/**
+ * Update default sharing permissions for Slack integration
+ */
+export async function updateDefaultSharingPermissions(
+  integrationId: string,
+  defaultSharingPermissions: (typeof slackSharingPermissionEnum.enumValues)[number]
+): Promise<void> {
+  try {
+    await db
+      .update(slackIntegrations)
+      .set({
+        defaultSharingPermissions,
         updatedAt: new Date().toISOString(),
       })
       .where(eq(slackIntegrations.id, integrationId));

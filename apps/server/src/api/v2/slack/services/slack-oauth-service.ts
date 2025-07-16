@@ -262,6 +262,7 @@ export class SlackOAuthService {
         id: string;
         name: string;
       };
+      defaultSharingPermissions?: string;
     };
   }> {
     try {
@@ -298,6 +299,7 @@ export class SlackOAuthService {
               name: defaultChannel.name,
             },
           }),
+          defaultSharingPermissions: integration.defaultSharingPermissions,
         },
       };
     } catch (error) {

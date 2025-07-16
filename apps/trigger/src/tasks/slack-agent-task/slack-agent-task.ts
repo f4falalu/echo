@@ -1,3 +1,4 @@
+import { chats, db, eq, messages } from '@buster/database';
 import {
   SlackMessagingService,
   addReaction,
@@ -192,13 +193,57 @@ export const slackAgentTask: ReturnType<
         });
       }
 
-      // Generate prompt from the filtered messages
-      const prompt =
-        relevantMessages
-          .map((msg) => msg.text || '')
-          .filter((text) => text.trim() !== '')
-          .join(' ')
-          .trim() || 'who is my top customer?'; // Fallback if no messages found
+      // Find all bot messages in the thread to determine if this is a follow-up
+      const previousBotMessages = slackMessages.filter(
+        (msg) => msg.user === integration.botUserId && msg.ts < mentionMessageTs
+      );
+      const isFollowUp = previousBotMessages.length > 0;
+
+      // Get all messages for context, not just after the mention
+      let messagesToInclude: typeof slackMessages;
+
+      if (isFollowUp) {
+        // Find the timestamp of the last bot message before the current mention
+        const lastBotMessageTs = Math.max(
+          ...previousBotMessages.map((msg) => Number.parseFloat(msg.ts))
+        );
+        const lastBotMessageIndex = slackMessages.findIndex(
+          (msg) => Number.parseFloat(msg.ts) === lastBotMessageTs
+        );
+
+        // Include messages after the last bot response
+        messagesToInclude = slackMessages.slice(lastBotMessageIndex + 1);
+      } else {
+        // Include all messages in the thread for first request
+        messagesToInclude = slackMessages;
+      }
+
+      // Filter out bot messages and format the conversation
+      const formattedMessages = messagesToInclude
+        .filter((msg) => msg.user !== integration.botUserId) // Exclude bot messages
+        .map((msg) => {
+          let text = msg.text || '';
+          // Replace bot user ID mentions with @Buster
+          if (integration.botUserId) {
+            text = text.replace(new RegExp(`<@${integration.botUserId}>`, 'g'), '@Buster');
+          }
+          return `> ${text}`;
+        })
+        .filter((text) => text.trim() !== '>')
+        .join('\n');
+
+      // Generate prompt based on whether it's first message or follow-up
+      let prompt: string;
+      if (isFollowUp) {
+        prompt = `Please fulfill the request from this slack conversation. Here are the messages since your last response:\n${formattedMessages}`;
+      } else {
+        prompt = `Please fulfill the request from this slack conversation:\n${formattedMessages}`;
+      }
+
+      // Fallback if no messages found
+      if (!formattedMessages.trim()) {
+        prompt = 'who is my top customer?';
+      }
 
       // Step 6: Create message
       const message = await createMessage({
@@ -228,20 +273,47 @@ export const slackAgentTask: ReturnType<
       // Step 8: Send initial Slack message immediately after triggering
       const messagingService = new SlackMessagingService();
       const busterUrl = process.env.BUSTER_URL || 'https://platform.buster.so';
+      let progressMessageTs: string | undefined;
 
       try {
         const progressMessage = {
-          text: `I've started working on your request! You can view it here: ${busterUrl}/app/chats/${payload.chatId}`,
+          text: "I've started working on your request. I'll notify you when it's finished.",
           thread_ts: chatDetails.slackThreadTs,
+          blocks: [
+            {
+              type: 'section' as const,
+              text: {
+                type: 'mrkdwn' as const,
+                text: "I've started working on your request. I'll notify you when it's finished.",
+              },
+            },
+            {
+              type: 'actions' as const,
+              elements: [
+                {
+                  type: 'button' as const,
+                  text: {
+                    type: 'plain_text' as const,
+                    text: 'Open in Buster',
+                    emoji: false,
+                  },
+                  url: `${busterUrl}/app/chats/${payload.chatId}`,
+                },
+              ],
+            },
+          ],
         };
 
-        await messagingService.sendMessage(
+        const sendResult = await messagingService.sendMessage(
           accessToken,
           chatDetails.slackChannelId,
           progressMessage
         );
 
-        logger.log('Sent progress message to Slack thread');
+        if (sendResult.success && sendResult.messageTs) {
+          progressMessageTs = sendResult.messageTs;
+          logger.log('Sent progress message to Slack thread', { messageTs: progressMessageTs });
+        }
       } catch (error) {
         // Log but don't fail the task if we can't send the progress message
         logger.warn('Failed to send progress message to Slack', {
@@ -316,7 +388,155 @@ export const slackAgentTask: ReturnType<
         );
       }
 
-      // Step 10: Update reactions - remove hourglass, add checkmark on the mention message
+      // Step 10: Fetch the response message and chat details from the database
+      let responseText = "I've finished working on your request!";
+      let chatFileInfo: {
+        mostRecentFileId: string | null;
+        mostRecentFileType: string | null;
+        mostRecentVersionNumber: number | null;
+      } | null = null;
+
+      try {
+        // Fetch both message and chat data in parallel
+        const [messageData, chatData] = await Promise.all([
+          db
+            .select({ responseMessages: messages.responseMessages })
+            .from(messages)
+            .where(eq(messages.id, message.id))
+            .limit(1),
+          db
+            .select({
+              mostRecentFileId: chats.mostRecentFileId,
+              mostRecentFileType: chats.mostRecentFileType,
+              mostRecentVersionNumber: chats.mostRecentVersionNumber,
+            })
+            .from(chats)
+            .where(eq(chats.id, payload.chatId))
+            .limit(1),
+        ]);
+
+        const messageRecord = messageData[0];
+        const chatRecord = chatData[0];
+
+        if (messageRecord?.responseMessages) {
+          // responseMessages is a JSON array, find the text message with is_final_message: true
+          const responseArray = messageRecord.responseMessages as Array<{
+            id: string;
+            type: string;
+            message?: string;
+            is_final_message?: boolean;
+          }>;
+
+          const finalTextMessage = responseArray.find(
+            (msg) => msg.type === 'text' && msg.is_final_message === true
+          );
+
+          if (finalTextMessage?.message) {
+            responseText = finalTextMessage.message;
+          }
+        }
+
+        if (chatRecord) {
+          chatFileInfo = {
+            mostRecentFileId: chatRecord.mostRecentFileId,
+            mostRecentFileType: chatRecord.mostRecentFileType,
+            mostRecentVersionNumber: chatRecord.mostRecentVersionNumber,
+          };
+        }
+      } catch (error) {
+        logger.warn('Failed to fetch data from database', {
+          messageId: message.id,
+          chatId: payload.chatId,
+          error: error instanceof Error ? error.message : 'Unknown error',
+        });
+      }
+
+      // Step 11: Delete the initial message and send a new one with the response
+      if (progressMessageTs) {
+        try {
+          // First, delete the initial message
+          const deleteResult = await messagingService.deleteMessage(
+            accessToken,
+            chatDetails.slackChannelId,
+            progressMessageTs
+          );
+
+          if (deleteResult.success) {
+            logger.log('Deleted initial progress message', {
+              messageTs: progressMessageTs,
+            });
+          } else {
+            logger.warn('Failed to delete initial message', {
+              messageTs: progressMessageTs,
+              error: deleteResult.error,
+            });
+          }
+        } catch (error) {
+          logger.warn('Error deleting initial message', {
+            messageTs: progressMessageTs,
+            error: error instanceof Error ? error.message : 'Unknown error',
+          });
+        }
+      }
+
+      // Send the completion message (whether or not the delete succeeded)
+      try {
+        // Construct the URL based on whether we have file information
+        let buttonUrl = `${busterUrl}/app/chats/${payload.chatId}`;
+
+        if (
+          chatFileInfo?.mostRecentFileId &&
+          chatFileInfo?.mostRecentFileType &&
+          chatFileInfo?.mostRecentVersionNumber !== null
+        ) {
+          buttonUrl = `${busterUrl}/app/chats/${payload.chatId}/${chatFileInfo.mostRecentFileType}s/${chatFileInfo.mostRecentFileId}?${chatFileInfo.mostRecentFileType}_version_number=${chatFileInfo.mostRecentVersionNumber}`;
+        }
+
+        const completionMessage = {
+          text: responseText,
+          thread_ts: chatDetails.slackThreadTs,
+          blocks: [
+            {
+              type: 'section' as const,
+              text: {
+                type: 'mrkdwn' as const,
+                text: responseText,
+              },
+            },
+            {
+              type: 'actions' as const,
+              elements: [
+                {
+                  type: 'button' as const,
+                  text: {
+                    type: 'plain_text' as const,
+                    text: 'Open in Buster',
+                    emoji: false,
+                  },
+                  url: buttonUrl,
+                },
+              ],
+            },
+          ],
+        };
+
+        await messagingService.sendMessage(
+          accessToken,
+          chatDetails.slackChannelId,
+          completionMessage
+        );
+
+        logger.log('Sent completion message to Slack thread', {
+          buttonUrl,
+          hasFileInfo: !!chatFileInfo?.mostRecentFileId,
+        });
+      } catch (error) {
+        logger.error('Failed to send completion message to Slack', {
+          error: error instanceof Error ? error.message : 'Unknown error',
+        });
+      }
+
+      // Step 12: Update reactions - remove hourglass, add checkmark on the mention message
       try {
         // Remove the hourglass reaction
         await removeReaction({
@@ -339,26 +559,6 @@ export const slackAgentTask: ReturnType<
         });
       } catch (error) {
         logger.warn('Failed to update Slack reactions', {
-          error: error instanceof Error ? error.message : 'Unknown error',
-        });
-      }
-
-      // Step 11: Send completion message
-      try {
-        const completionMessage = {
-          text: `I've finished working on your request!`,
-          thread_ts: chatDetails.slackThreadTs,
-        };
-
-        await messagingService.sendMessage(
-          accessToken,
-          chatDetails.slackChannelId,
-          completionMessage
-        );
-
-        logger.log('Sent completion message to Slack thread');
-      } catch (error) {
-        logger.warn('Failed to send completion message to Slack', {
           error: error instanceof Error ? error.message : 'Unknown error',
         });
       }
