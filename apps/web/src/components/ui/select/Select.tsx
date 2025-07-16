@@ -56,6 +56,7 @@ interface BaseSelectProps<T> {
   onInputValueChange?: (value: string) => void;
   hideChevron?: boolean;
   closeOnSelect?: boolean;
+  onPressEnter?: (value: string) => void;
 }
 
 // Clearable version - onChange can return null
@@ -162,6 +163,7 @@ function SelectComponent<T = string>({
   inputValue,
   onInputValueChange,
   hideChevron = false,
+  onPressEnter,
   closeOnSelect = true
 }: SelectProps<T>) {
   const [internalInputValue, setInternalInputValue] = React.useState('');
@@ -216,9 +218,6 @@ function SelectComponent<T = string>({
         if (search.type === 'filter') {
           return search.fn(item, currentInputValue);
         }
-        if (search.type === 'async') {
-          search.fn(currentInputValue);
-        }
         return true;
       }
 
@@ -264,21 +263,14 @@ function SelectComponent<T = string>({
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const newValue = e.target.value;
 
-      // If we have async loading, use debounced version
-      if (onInputValueChange) {
-        // Update internal state immediately for UI responsiveness
-        if (!inputValue) {
-          setInternalInputValue(newValue);
-        }
-        // Debounce the external callback
-        setInputValue(newValue);
-      } else {
-        // No debouncing, update immediately
-        setInputValue(newValue);
-      }
-
+      setInternalInputValue?.(newValue);
+      setInputValue?.(newValue);
       if (search !== false && newValue && !open) {
         handleOpenChange(true);
+      }
+
+      if (search && typeof search === 'object' && search.type === 'async') {
+        search.fn(newValue);
       }
     },
     [search, open, handleOpenChange, setInputValue, onInputValueChange, inputValue]
@@ -293,6 +285,9 @@ function SelectComponent<T = string>({
 
   const handleInputKeyDown = React.useCallback(
     (e: React.KeyboardEvent<HTMLInputElement>) => {
+      if (e.key === 'Enter' && onPressEnter) {
+        return onPressEnter(e.currentTarget.value);
+      }
       if (['ArrowDown', 'ArrowUp', 'Enter', 'Home', 'End'].includes(e.key)) {
         // Forward the event to the command component
         if (commandRef.current) {
@@ -402,6 +397,7 @@ function SelectComponent<T = string>({
             onKeyDown={handleInputKeyDown}
             placeholder={computedPlaceholder}
             data-testid={dataTestId}
+            autoComplete="off"
             readOnly={search === false}
             className={cn(
               'flex h-7 w-full items-center justify-between rounded border px-2.5 text-base',

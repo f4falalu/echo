@@ -112,43 +112,34 @@ export const AsyncSearch: Story = {
     const [inputValue, setInputValue] = React.useState('');
     const [selectedValue, setSelectedValue] = React.useState<string | null>(null);
     const [isLoading, setIsLoading] = React.useState(false);
-    const timeoutRef = React.useRef<NodeJS.Timeout>();
 
-    const { run: debouncedSetInputValue } = useDebounceFn(
-      async (value: string) => {
+    const { run: debouncedSearch } = useDebounceFn(
+      async (searchTerm: string) => {
+        if (!searchTerm) {
+          setItems([]);
+          setIsLoading(false);
+          return;
+        }
+
+        setIsLoading(true);
+
+        // Simulate API call with delay
         await new Promise((resolve) => setTimeout(resolve, 500));
 
         // Filter users based on search term
         const filtered = userItems.filter((item) => {
           const labelText = typeof item.label === 'string' ? item.label : '';
           return (
-            labelText.toLowerCase().includes(inputValue.toLowerCase()) ||
-            (item.secondaryLabel?.toLowerCase().includes(inputValue.toLowerCase()) ?? false)
+            labelText.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            (item.secondaryLabel?.toLowerCase().includes(searchTerm.toLowerCase()) ?? false)
           );
         });
 
         setItems(filtered);
         setIsLoading(false);
       },
-      { wait: 500 }
+      { wait: 300 }
     );
-
-    // Simulate API search with debouncing
-    React.useEffect(() => {
-      if (!inputValue) {
-        setItems([]);
-        return;
-      }
-
-      // Clear previous timeout
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
-      }
-
-      setIsLoading(true);
-
-      debouncedSetInputValue(inputValue);
-    }, [inputValue]);
 
     return (
       <div>
@@ -163,7 +154,14 @@ export const AsyncSearch: Story = {
           inputValue={inputValue}
           onInputValueChange={setInputValue}
           placeholder="Search users (async)..."
-          search={true}
+          search={{
+            type: 'async',
+            fn: (searchTerm: string) => {
+              debouncedSearch(searchTerm);
+              return Promise.resolve();
+            }
+          }}
+          loading={isLoading}
           emptyMessage={inputValue ? 'No users found' : 'Type to search users'}
         />
       </div>

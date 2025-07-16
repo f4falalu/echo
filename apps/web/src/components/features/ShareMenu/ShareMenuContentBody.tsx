@@ -14,6 +14,7 @@ import {
 import { useShareMetric, useUnshareMetric, useUpdateMetricShare } from '@/api/buster_rest/metrics';
 import { Button } from '@/components/ui/buttons';
 import { Input } from '@/components/ui/inputs';
+import { InputSearchDropdown } from '@/components/ui/inputs/InputSearchDropdown';
 import { useBusterNotifications } from '@/context/BusterNotifications';
 import { useMemoizedFn } from '@/hooks';
 import { cn } from '@/lib/classMerge';
@@ -159,10 +160,6 @@ const ShareMenuContentShare: React.FC<ShareMenuContentBodyProps> = React.memo(
       }
     });
 
-    const onChangeInputValue = useMemoizedFn((e: React.ChangeEvent<HTMLInputElement>) => {
-      setInputValue(e.target.value);
-    });
-
     const onChangeAccessDropdown = useMemoizedFn((level: ShareRole | null) => {
       if (level) setDefaultPermissionLevel(level);
     });
@@ -172,13 +169,24 @@ const ShareMenuContentShare: React.FC<ShareMenuContentBodyProps> = React.memo(
         {canEditPermissions && (
           <div className="flex h-full items-center space-x-2">
             <div className="relative flex w-full items-center">
-              <Input
+              {/* <Input
                 className="w-full"
                 placeholder="Invite others by email..."
                 value={inputValue}
                 onChange={onChangeInputValue}
                 onPressEnter={onSubmitNewEmail}
                 autoComplete="off"
+              /> */}
+
+              <InputSearchDropdown
+                options={[]}
+                onSelect={() => {}}
+                onSearch={() => {}}
+                onPressEnter={() => {}}
+                value={inputValue}
+                onChange={setInputValue}
+                placeholder="Invite others by email..."
+                className="w-full"
               />
 
               {inputValue && (

@@ -85,7 +85,7 @@
     "dom-to-image": "^2.6.0",
     "email-validator": "^2.0.4",
     "font-color-contrast": "^11.1.0",
-    "framer-motion": "^12.23.5",
+    "framer-motion": "^12.23.6",
     "hono": "catalog:",
     "html-react-parser": "^5.2.5",
     "intersection-observer": "^0.12.2",

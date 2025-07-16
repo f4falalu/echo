@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
 import { useState } from 'react';
 import { InputSearchDropdown, type InputSearchDropdownProps } from './InputSearchDropdown';
+import { useDebounceFn, useMemoizedFn } from '../../../hooks';
 
 const meta: Meta<typeof InputSearchDropdown> = {
   title: 'UI/inputs/InputSearchDropdown',
@@ -36,25 +37,35 @@ const sampleOptions = [
 
 // Interactive story with state management
 const InputSearchDropdownWithState = (
-  args: Omit<InputSearchDropdownProps, 'options' | 'onSelect' | 'onSearch' | 'value'> & {
+  args: Omit<
+    InputSearchDropdownProps,
+    'options' | 'onSelect' | 'onSearch' | 'value' | 'onPressEnter'
+  > & {
     value?: string;
   }
 ) => {
   const [value, setValue] = useState(args.value || '');
   const [filteredOptions, setFilteredOptions] = useState(sampleOptions);
 
-  const handleSearch = (searchValue: string) => {
-    action('searched')(searchValue);
-    const filtered = sampleOptions.filter((option) =>
-      option.label.toLowerCase().includes(searchValue.toLowerCase())
-    );
-    setFilteredOptions(filtered);
-  };
+  const { run: handleSearch, cancel } = useDebounceFn(
+    async (searchValue: string) => {
+      action('searched')(searchValue);
+      const filtered = sampleOptions.filter((option) =>
+        option.label.toLowerCase().includes(searchValue.toLowerCase())
+      );
+      setFilteredOptions(filtered);
+    },
+    { wait: 600 }
+  );
 
-  const handleSelect = (selectedValue: string) => {
+  const handleSelect = useMemoizedFn((selectedValue: string) => {
     action('selected')(selectedValue);
     setValue(selectedValue);
-  };
+  });
+
+  const handlePressEnter = useMemoizedFn((value: string) => {
+    action('pressedEnter')(value);
+  });
 
   return (
     <div className="w-80">
@@ -63,7 +74,9 @@ const InputSearchDropdownWithState = (
         options={filteredOptions}
         onSearch={handleSearch}
         onSelect={handleSelect}
+        onPressEnter={handlePressEnter}
       />
+      <div className="mt-2 w-fit rounded border border-red-500 p-1">{value}</div>
     </div>
   );
 };
