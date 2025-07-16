@@ -51,13 +51,8 @@ export type GetUserListRequest = z.infer<typeof GetUserListRequestSchema>;
 export const GetUserToOrganizationRequestSchema = z.object({
   page: z.coerce.number().min(1).optional().default(1),
   page_size: z.coerce.number().min(1).max(5000).optional().default(250),
-  filters: z
-    .object({
-      user_name: z.string().optional(),
-      email: z.string().optional(),
-    })
-    .default({})
-    .optional(),
+  user_name: z.string().optional(),
+  email: z.string().optional(),
 });
 
 export type GetUserToOrganizationRequest = z.infer<typeof GetUserToOrganizationRequestSchema>;

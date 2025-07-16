@@ -12,14 +12,12 @@ const app = new Hono().get(
   zValidator('query', GetUserToOrganizationRequestSchema),
   async (c) => {
     const { id: userId } = c.get('busterUser');
-    const { page, page_size, filters } = c.req.valid('query');
-    console.log(page_size, c.req.query());
+    const options = c.req.valid('query');
+
     try {
       const result: GetUserToOrganizationResponse = await getUserToOrganization({
         userId,
-        page,
-        page_size,
-        filters,
+        ...options,
       });
 
       return c.json(result);
