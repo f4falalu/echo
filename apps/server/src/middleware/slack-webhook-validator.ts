@@ -1,8 +1,8 @@
 import {
+  type SlackWebhookPayload,
   handleUrlVerification,
   parseSlackWebhookPayload,
   verifySlackRequest,
-  type SlackWebhookPayload,
 } from '@buster/slack';
 import type { Context, MiddlewareHandler } from 'hono';
 import { HTTPException } from 'hono/http-exception';
@@ -18,7 +18,7 @@ export function slackWebhookValidator(): MiddlewareHandler {
       // Get the raw body for signature verification
       const rawBody = await c.req.text();
       console.info('Raw body length:', rawBody.length);
-      
+
       // Get headers for verification
       const headers: Record<string, string | string[] | undefined> = {};
       c.req.raw.headers.forEach((value, key) => {
@@ -38,7 +38,7 @@ export function slackWebhookValidator(): MiddlewareHandler {
 
       // Parse the request body
       const parsedBody = JSON.parse(rawBody);
-      
+
       // Check if this is a URL verification request
       const challenge = handleUrlVerification(parsedBody);
       if (challenge) {
@@ -50,17 +50,17 @@ export function slackWebhookValidator(): MiddlewareHandler {
 
       // Parse and validate the webhook payload
       const payload = parseSlackWebhookPayload(parsedBody);
-      
+
       // Set the validated payload in context
       c.set('slackPayload', payload);
       c.set('slackChallenge', null);
-      
+
       return next();
     } catch (error) {
       // For Slack webhooks, we should always return 200 OK
       // to prevent retries, but log the error
       console.error('Slack webhook validation error:', error);
-      
+
       // Return 200 OK with success: false
       return c.json({ success: false });
     }

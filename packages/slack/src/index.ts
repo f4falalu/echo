@@ -17,6 +17,7 @@ export {
 export { SlackAuthService } from './services/auth';
 export { SlackChannelService } from './services/channels';
 export { SlackMessagingService } from './services/messaging';
+export { SlackUserService, type SlackUser, type SlackUserInfoResponse } from './services/users';
 export {
   verifySlackRequest,
   handleUrlVerification,

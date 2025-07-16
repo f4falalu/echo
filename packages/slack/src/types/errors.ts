@@ -13,6 +13,8 @@ export const SlackErrorCodeSchema = z.enum([
   'UNKNOWN_ERROR',
   'VERIFICATION_FAILED',
   'INVALID_PAYLOAD',
+  'USER_NOT_FOUND',
+  'EMAIL_NOT_FOUND',
 ]);
 
 export type SlackErrorCode = z.infer<typeof SlackErrorCodeSchema>;
