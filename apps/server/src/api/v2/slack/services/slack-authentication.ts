@@ -98,39 +98,42 @@ export async function authenticateSlackUser(
       };
     }
 
-    // Check if user exists in the organization
-    const userOrgInfo = await checkUserInOrganization(
-      integration.userId,
-      integration.organizationId
-    );
+    // Check if a Buster user exists with this email
+    const existingUser = await SlackHelpers.getUserByEmail(userEmail);
 
-    if (userOrgInfo) {
-      // User exists - check their status
-      if (userOrgInfo.status !== 'active') {
+    if (existingUser) {
+      // User exists - check if they belong to this organization
+      const userOrgInfo = await checkUserInOrganization(
+        existingUser.id,
+        integration.organizationId
+      );
+
+      if (userOrgInfo) {
+        // User exists in organization - check their status
+        if (userOrgInfo.status !== 'active') {
+          return {
+            type: 'unauthorized',
+            reason: `User account is ${userOrgInfo.status}. Please contact your administrator.`,
+          };
+        }
+
+        // Get organization data
+        const organization = await getOrganizationWithDefaults(integration.organizationId);
+
+        if (!organization) {
+          return {
+            type: 'unauthorized',
+            reason: 'Failed to load organization data',
+          };
+        }
+
         return {
-          type: 'unauthorized',
-          reason: `User account is ${userOrgInfo.status}. Please contact your administrator.`,
+          type: 'authorized',
+          user: existingUser,
+          organization,
         };
       }
-
-      // Get full user and organization data concurrently
-      const [user, organization] = await Promise.all([
-        SlackHelpers.getUserById(integration.userId),
-        getOrganizationWithDefaults(integration.organizationId),
-      ]);
-
-      if (!user || !organization) {
-        return {
-          type: 'unauthorized',
-          reason: 'Failed to load user or organization data',
-        };
-      }
-
-      return {
-        type: 'authorized',
-        user,
-        organization,
-      };
+      // User exists but not in this organization - fall through to domain check
     }
 
     // User doesn't exist - check if we can auto-provision

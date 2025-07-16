@@ -20,7 +20,7 @@ describe('slack-authentication', () => {
       const mockIntegration = {
         id: 'int-123',
         organizationId: 'org-123',
-        userId: 'user-123',
+        userId: 'installer-123',
         tokenVaultKey: 'token-key',
       };
 
@@ -40,7 +40,7 @@ describe('slack-authentication', () => {
         mockIntegration as any
       );
       vi.mocked(SlackHelpers.getAccessToken).mockResolvedValue('slack-token');
-      vi.mocked(SlackHelpers.getUserById).mockResolvedValue(mockUser as any);
+      vi.mocked(SlackHelpers.getUserByEmail).mockResolvedValue(mockUser as any);
 
       const mockSlackUserService = {
         isBot: vi.fn().mockResolvedValue(false),
@@ -76,6 +76,11 @@ describe('slack-authentication', () => {
       expect(mockSlackUserService.isBot).toHaveBeenCalledWith('slack-token', 'U123456');
       expect(mockSlackUserService.isDeleted).toHaveBeenCalledWith('slack-token', 'U123456');
       expect(mockSlackUserService.getUserInfo).toHaveBeenCalledWith('slack-token', 'U123456');
+      expect(vi.mocked(SlackHelpers.getUserByEmail)).toHaveBeenCalledWith('john@example.com');
+      expect(vi.mocked(accessControls.checkUserInOrganization)).toHaveBeenCalledWith(
+        'user-123',
+        'org-123'
+      );
     });
 
     it('should return unauthorized for bot users', async () => {
@@ -152,14 +157,21 @@ describe('slack-authentication', () => {
       const mockIntegration = {
         id: 'int-123',
         organizationId: 'org-123',
-        userId: 'user-123',
+        userId: 'installer-123',
         tokenVaultKey: 'token-key',
+      };
+
+      const mockUser = {
+        id: 'user-123',
+        email: 'john@example.com',
+        name: 'John Doe',
       };
 
       vi.mocked(SlackHelpers.getActiveIntegrationByTeamId).mockResolvedValue(
         mockIntegration as any
       );
       vi.mocked(SlackHelpers.getAccessToken).mockResolvedValue('slack-token');
+      vi.mocked(SlackHelpers.getUserByEmail).mockResolvedValue(mockUser as any);
 
       const mockSlackUserService = {
         isBot: vi.fn().mockResolvedValue(false),
@@ -215,6 +227,7 @@ describe('slack-authentication', () => {
         mockIntegration as any
       );
       vi.mocked(SlackHelpers.getAccessToken).mockResolvedValue('slack-token');
+      vi.mocked(SlackHelpers.getUserByEmail).mockResolvedValue(null); // No existing user
 
       const mockSlackUserService = {
         isBot: vi.fn().mockResolvedValue(false),
@@ -230,7 +243,6 @@ describe('slack-authentication', () => {
       };
       vi.mocked(SlackUserService).mockImplementation(() => mockSlackUserService as any);
 
-      vi.mocked(accessControls.checkUserInOrganization).mockResolvedValue(null);
       vi.mocked(accessControls.getOrganizationWithDefaults).mockResolvedValue(mockOrg as any);
       vi.mocked(accessControls.checkEmailDomainForOrganization).mockResolvedValue(true);
       vi.mocked(accessControls.createUserInOrganization).mockResolvedValue({
@@ -259,6 +271,69 @@ describe('slack-authentication', () => {
       );
     });
 
+    it('should auto-provision existing user when they are not in org but domain matches', async () => {
+      const mockIntegration = {
+        id: 'int-123',
+        organizationId: 'org-123',
+        userId: 'installer-123',
+        tokenVaultKey: 'token-key',
+      };
+
+      const mockOrg = {
+        id: 'org-123',
+        name: 'Example Org',
+        defaultRole: 'restricted_querier',
+        domains: ['example.com'],
+      };
+
+      const mockExistingUser = {
+        id: 'existing-user-123',
+        email: 'existing@example.com',
+        name: 'Existing User',
+      };
+
+      vi.mocked(SlackHelpers.getActiveIntegrationByTeamId).mockResolvedValue(
+        mockIntegration as any
+      );
+      vi.mocked(SlackHelpers.getAccessToken).mockResolvedValue('slack-token');
+      vi.mocked(SlackHelpers.getUserByEmail).mockResolvedValue(mockExistingUser as any);
+
+      const mockSlackUserService = {
+        isBot: vi.fn().mockResolvedValue(false),
+        isDeleted: vi.fn().mockResolvedValue(false),
+        getUserInfo: vi.fn().mockResolvedValue({
+          id: 'U123456',
+          real_name: 'Existing User',
+          name: 'existing',
+          profile: {
+            email: 'existing@example.com',
+          },
+        }),
+      };
+      vi.mocked(SlackUserService).mockImplementation(() => mockSlackUserService as any);
+
+      vi.mocked(accessControls.checkUserInOrganization).mockResolvedValue(null); // Not in org
+      vi.mocked(accessControls.getOrganizationWithDefaults).mockResolvedValue(mockOrg as any);
+      vi.mocked(accessControls.checkEmailDomainForOrganization).mockResolvedValue(true);
+      vi.mocked(accessControls.createUserInOrganization).mockResolvedValue({
+        user: mockExistingUser as any,
+        membership: {
+          userId: 'existing-user-123',
+          organizationId: 'org-123',
+          role: 'restricted_querier',
+          status: 'active',
+        },
+      });
+
+      const result = await authenticateSlackUser('U123456', 'T123456');
+
+      expect(result).toEqual({
+        type: 'auto_provisioned',
+        user: mockExistingUser,
+        organization: mockOrg,
+      });
+    });
+
     it('should return unauthorized when domain does not match', async () => {
       const mockIntegration = {
         id: 'int-123',
@@ -278,6 +353,7 @@ describe('slack-authentication', () => {
         mockIntegration as any
       );
       vi.mocked(SlackHelpers.getAccessToken).mockResolvedValue('slack-token');
+      vi.mocked(SlackHelpers.getUserByEmail).mockResolvedValue(null); // No existing user
 
       const mockSlackUserService = {
         isBot: vi.fn().mockResolvedValue(false),
@@ -293,7 +369,6 @@ describe('slack-authentication', () => {
       };
       vi.mocked(SlackUserService).mockImplementation(() => mockSlackUserService as any);
 
-      vi.mocked(accessControls.checkUserInOrganization).mockResolvedValue(null);
       vi.mocked(accessControls.getOrganizationWithDefaults).mockResolvedValue(mockOrg as any);
       vi.mocked(accessControls.checkEmailDomainForOrganization).mockResolvedValue(false);
 

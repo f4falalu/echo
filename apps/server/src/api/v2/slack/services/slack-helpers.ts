@@ -460,6 +460,26 @@ export async function getUserById(userId: string): Promise<User | null> {
   }
 }
 
+/**
+ * Get user by email address
+ */
+export async function getUserByEmail(email: string): Promise<User | null> {
+  try {
+    const [user] = await db
+      .select()
+      .from(users)
+      .where(and(eq(users.email, email)))
+      .limit(1);
+
+    return user || null;
+  } catch (error) {
+    console.error('Failed to get user by email:', error);
+    throw new Error(
+      `Failed to get user by email: ${error instanceof Error ? error.message : 'Unknown error'}`
+    );
+  }
+}
+
 // Export as namespace for easier import
 export const SlackHelpers = {
   getActiveIntegration,
@@ -477,4 +497,5 @@ export const SlackHelpers = {
   getActiveIntegrationByTeamId,
   getAccessToken,
   getUserById,
+  getUserByEmail,
 };
