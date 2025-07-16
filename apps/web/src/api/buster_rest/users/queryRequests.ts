@@ -77,6 +77,7 @@ export const useInviteUser = () => {
     onSuccess: () => {
       const user = queryClient.getQueryData(userQueryKeys.userGetUserMyself.queryKey);
 
+      // Invalidate organization users for all user's organizations
       for (const organization of user?.organizations || []) {
         queryClient.invalidateQueries({
           queryKey: [organizationQueryKeys.organizationUsers(organization.id).queryKey],
@@ -84,12 +85,11 @@ export const useInviteUser = () => {
         });
       }
 
-      for (const team of user?.teams || []) {
-        queryClient.invalidateQueries({
-          queryKey: [userQueryKeys.userGetUserList({ team_id: team.id }).queryKey],
-          refetchType: 'all'
-        });
-      }
+      // Invalidate all userGetUserToOrganization queries (any params)
+      queryClient.invalidateQueries({
+        queryKey: userQueryKeys.userGetUserToOrganization({}).queryKey.slice(0, -1),
+        refetchType: 'all'
+      });
     }
   });
 };

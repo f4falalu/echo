@@ -8,9 +8,10 @@ import type {
 } from '@/api/asset_interfaces/users';
 import type { OrganizationUser } from '@buster/server-shared/organization';
 import type {
+  GetUserToOrganizationRequest,
+  GetUserToOrganizationResponse,
   UserFavoriteResponse,
-  UserResponse,
-  UserListResponse
+  UserResponse
 } from '@buster/server-shared/user';
 
 const favoritesGetList = queryOptions<UserFavoriteResponse>({
@@ -55,9 +56,9 @@ const userGetUserDatasetGroups = (userId: string) =>
     queryKey: ['users', userId, 'datasetGroups'] as const
   });
 
-const userGetUserList = (params: { team_id: string; page?: number; page_size?: number }) =>
-  queryOptions<UserListResponse>({
-    queryKey: ['users', 'list', params] as const
+const userGetUserToOrganization = (params: GetUserToOrganizationRequest) =>
+  queryOptions<GetUserToOrganizationResponse>({
+    queryKey: ['users', 'organization', params] as const
   });
 
 export const userQueryKeys = {
@@ -69,5 +70,5 @@ export const userQueryKeys = {
   userGetUserAttributes,
   userGetUserDatasets,
   userGetUserDatasetGroups,
-  userGetUserList
+  userGetUserToOrganization
 };

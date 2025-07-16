@@ -37,12 +37,13 @@ interface BaseSelectProps<T> {
   open?: boolean;
   showIndex?: boolean;
   className?: string;
-  defaultValue?: string;
   dataTestId?: string;
   loading?: boolean;
   search?: boolean | SearchFunction<T>;
   emptyMessage?: string;
   matchPopUpWidth?: boolean;
+  inputValue?: string;
+  onInputValueChange?: (value: string) => void;
 }
 
 // Clearable version - onChange can return null
@@ -140,19 +141,24 @@ function SelectComponent<T = string>({
   open: controlledOpen,
   showIndex = false,
   className,
-  defaultValue,
   dataTestId,
   loading = false,
   search = false,
   clearable = false,
-  matchPopUpWidth = false
+  matchPopUpWidth = false,
+  inputValue,
+  onInputValueChange
 }: SelectProps<T>) {
   const [internalOpen, setInternalOpen] = React.useState(false);
-  const [searchValue, setSearchValue] = React.useState('');
+  const [internalInputValue, setInternalInputValue] = React.useState('');
   const [isFocused, setIsFocused] = React.useState(false);
   const inputRef = React.useRef<HTMLInputElement>(null);
   const commandRef = React.useRef<HTMLDivElement>(null);
   const listboxId = React.useId();
+
+  // Use provided inputValue or internal state
+  const currentInputValue = inputValue ?? internalInputValue;
+  const setInputValue = onInputValueChange ?? setInternalInputValue;
 
   const open = controlledOpen !== undefined ? controlledOpen : internalOpen;
 
@@ -162,12 +168,13 @@ function SelectComponent<T = string>({
         setInternalOpen(newOpen);
         onOpenChange?.(newOpen);
         if (!newOpen) {
-          setSearchValue('');
+          // Clear search value when closing
+          setInputValue('');
           setIsFocused(false);
         }
       }
     },
-    [disabled, onOpenChange]
+    [disabled, onOpenChange, setInputValue]
   );
 
   // Get all items in a flat array for easier processing
@@ -187,15 +194,15 @@ function SelectComponent<T = string>({
   // Filter items based on search
   const filterItem = React.useCallback(
     (item: SelectItem<T>): boolean => {
-      if (!search || !searchValue) return true;
+      if (!search || !currentInputValue) return true;
 
       if (typeof search === 'function') {
-        return search(item, searchValue);
+        return search(item, currentInputValue);
       }
 
-      return defaultSearchFunction(item, searchValue);
+      return defaultSearchFunction(item, currentInputValue);
     },
-    [search, searchValue]
+    [search, currentInputValue]
   );
 
   const handleSelect = React.useCallback(
@@ -204,11 +211,11 @@ function SelectComponent<T = string>({
       if (item) {
         onChange(item.value);
         handleOpenChange(false);
-        setSearchValue('');
+        setInputValue('');
         inputRef.current?.blur();
       }
     },
-    [flatItems, onChange, handleOpenChange]
+    [flatItems, onChange, handleOpenChange, setInputValue]
   );
 
   const handleClear = React.useCallback(
@@ -218,23 +225,23 @@ function SelectComponent<T = string>({
       // Type assertion is safe here because handleClear is only called when clearable is true
       if (clearable) {
         (onChange as (value: T | null) => void)(null);
-        setSearchValue('');
+        setInputValue('');
         handleOpenChange(false);
       }
     },
-    [onChange, handleOpenChange, clearable]
+    [onChange, handleOpenChange, clearable, setInputValue]
   );
 
   const handleInputChange = React.useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const newValue = e.target.value;
-      setSearchValue(newValue);
+      setInputValue(newValue);
 
       if (search !== false && newValue && !open) {
         handleOpenChange(true);
       }
     },
-    [search, open, handleOpenChange]
+    [search, open, handleOpenChange, setInputValue]
   );
 
   const handleInputFocus = React.useCallback(() => {
@@ -286,7 +293,7 @@ function SelectComponent<T = string>({
     if (isGroupedItems(items)) {
       return items.map((group, groupIndex) => {
         const filteredItems = group.items.filter(filterItem);
-        if (filteredItems.length === 0 && searchValue) return null;
+        if (filteredItems.length === 0 && currentInputValue) return null;
 
         return (
           <CommandGroup key={`${group.label}-${groupIndex}`} heading={group.label}>
@@ -316,18 +323,18 @@ function SelectComponent<T = string>({
         onSelect={handleSelect}
       />
     ));
-  }, [items, flatItems, filterItem, searchValue, value, showIndex, handleSelect]);
+  }, [items, flatItems, filterItem, currentInputValue, value, showIndex, handleSelect]);
 
   // Display value in input when not focused/searching
   const inputDisplayValue = React.useMemo(() => {
-    if (isFocused || searchValue) {
-      return searchValue;
+    if (isFocused || currentInputValue) {
+      return currentInputValue;
     }
     if (selectedItem) {
       return typeof selectedItem.label === 'string' ? selectedItem.label : '';
     }
     return '';
-  }, [isFocused, searchValue, selectedItem]);
+  }, [isFocused, currentInputValue, selectedItem]);
 
   // Compute placeholder once
   const computedPlaceholder = React.useMemo(() => {
@@ -358,7 +365,7 @@ function SelectComponent<T = string>({
               'bg-background cursor-pointer transition-all duration-300',
               'focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50',
               disabled ? 'bg-disabled text-gray-light' : '',
-              !selectedItem && !searchValue && 'text-text-secondary'
+              !selectedItem && !currentInputValue && 'text-text-secondary'
             )}
           />
           <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
@@ -394,8 +401,8 @@ function SelectComponent<T = string>({
         <Command ref={commandRef} shouldFilter={false}>
           {/* Hidden input that Command uses for keyboard navigation */}
           <CommandInput
-            value={searchValue}
-            onValueChange={setSearchValue}
+            value={currentInputValue}
+            onValueChange={setInputValue}
             parentClassName="sr-only hidden h-0 border-0 p-0"
             aria-hidden="true"
           />

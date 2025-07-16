@@ -1,25 +1,13 @@
-import { QueryClient, useQuery } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { userQueryKeys } from '@/api/query_keys/users';
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
-import { getUserList, getUserList_server } from './requests';
+import { getUserToOrganization } from './requests';
 
-export const useGetUserList = (params: Parameters<typeof getUserList>[0]) => {
-  const queryFn = useMemoizedFn(() => getUserList(params));
+export const useGetUserToOrganization = (params: Parameters<typeof getUserToOrganization>[0]) => {
+  const queryFn = useMemoizedFn(() => getUserToOrganization(params));
 
   return useQuery({
-    ...userQueryKeys.userGetUserList(params),
+    ...userQueryKeys.userGetUserToOrganization(params),
     queryFn
   });
-};
-
-export const prefetchGetUserList = async (
-  params: Parameters<typeof getUserList>[0],
-  queryClientProp?: QueryClient
-) => {
-  const queryClient = queryClientProp || new QueryClient();
-  await queryClient.prefetchQuery({
-    ...userQueryKeys.userGetUserList(params),
-    queryFn: () => getUserList_server(params)
-  });
-  return queryClient;
 };

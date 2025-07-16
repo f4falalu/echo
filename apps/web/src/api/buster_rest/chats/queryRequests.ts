@@ -19,7 +19,7 @@ import {
 } from '../collections/queryRequests';
 import type { RustApiError } from '../errors';
 import { prefetchGetMetricDataClient } from '../metrics/queryRequests';
-import { useGetUserFavorites } from '../users/queryRequestFavorites';
+import { useGetUserFavorites } from '../users/favorites';
 import {
   deleteChat,
   duplicateChat,
