@@ -91,6 +91,12 @@ export const slackIntegrationStatusEnum = pgEnum('slack_integration_status_enum'
   'revoked',
 ]);
 
+export const slackChatAuthorizationEnum = pgEnum('slack_chat_authorization_enum', [
+  'unauthorized',
+  'authorized',
+  'auto_added',
+]);
+
 export const apiKeys = pgTable(
   'api_keys',
   {
@@ -963,6 +969,9 @@ export const chats = pgTable(
     mostRecentFileId: uuid('most_recent_file_id'),
     mostRecentFileType: varchar('most_recent_file_type', { length: 255 }),
     mostRecentVersionNumber: integer('most_recent_version_number'),
+    slackChatAuthorization: slackChatAuthorizationEnum('slack_chat_authorization'),
+    slackThreadTs: text('slack_thread_ts'),
+    slackChannelId: text('slack_channel_id'),
   },
   (table) => [
     index('chats_created_at_idx').using(
