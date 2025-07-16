@@ -1,8 +1,8 @@
 import { and, eq, isNull } from 'drizzle-orm';
 import type { InferSelectModel } from 'drizzle-orm';
 import { z } from 'zod';
-import { db } from '../connection';
-import { usersToOrganizations } from '../schema';
+import { db } from '../../connection';
+import { usersToOrganizations } from '../../schema';
 
 // Type inference from schema
 export type UserToOrganization = InferSelectModel<typeof usersToOrganizations>;

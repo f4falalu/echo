@@ -14,7 +14,8 @@ import { persistOptions } from './createPersister';
 import { getQueryClient } from './getQueryClient';
 
 const ENABLE_TANSTACK_PANEL =
-  process.env.NEXT_ENABLE_TANSTACK_PANEL === 'true' || process.env.NODE_ENV === 'development';
+  process.env.NEXT_PUBLIC_ENABLE_TANSTACK_PANEL === 'true' ||
+  process.env.NODE_ENV === 'development';
 
 const ReactQueryDevtools = dynamic(
   () =>
@@ -77,7 +78,7 @@ export const BusterReactQueryProvider = ({ children }: { children: React.ReactNo
       {children}
       {isDevToolsOpen && (
         <>
-          <ReactQueryDevtools initialIsOpen={true} />
+          {isDev && <ReactQueryDevtools initialIsOpen={true} />}
           {!isDev && <ReactQueryDevtoolsProduction />}
         </>
       )}

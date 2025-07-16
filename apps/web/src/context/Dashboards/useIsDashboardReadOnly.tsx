@@ -20,7 +20,6 @@ export const useIsDashboardReadOnly = ({
   } = useGetDashboard(
     { id: dashboardId },
     {
-      enabled: false,
       select: (x) => ({
         permission: x.permission,
         versions: x.versions

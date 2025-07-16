@@ -69,7 +69,7 @@ export const useSaveToDashboardDropdownContent = ({
 > & {
   ModalComponent: React.ReactNode;
 } => {
-  const { data: dashboardsList } = useGetDashboardsList({});
+  const { data: dashboardsList } = useGetDashboardsList({}, { staleTime: 60 * 1000 });
   const onChangePage = useAppLayoutContextSelector((x) => x.onChangePage);
   const [openNewDashboardModal, setOpenNewDashboardModal] = useState(false);
 

@@ -72,9 +72,8 @@
   "typescript.preferences.includePackageJsonAutoImports": "on",
   "typescript.suggest.includeAutomaticOptionalChainCompletions": true,
   "typescript.workspaceSymbols.scope": "allOpenProjects",
-  "typescript.implementationsCodeLens.enabled": true,
-  "typescript.referencesCodeLens.enabled": true,
-  "typescript.referencesCodeLens.showOnAllFunctions": true,
+  "typescript.implementationsCodeLens.enabled": false,
+  "typescript.referencesCodeLens.enabled": false,
 
   // Force proactive type checking across all files
   "typescript.validate.enable": true,

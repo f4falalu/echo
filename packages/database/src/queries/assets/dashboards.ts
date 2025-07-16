@@ -1,8 +1,8 @@
 import type { InferSelectModel } from 'drizzle-orm';
 import { and, eq, isNull } from 'drizzle-orm';
 import { z } from 'zod';
-import { db } from '../connection';
-import { dashboardFiles, messages, messagesToFiles } from '../schema';
+import { db } from '../../connection';
+import { dashboardFiles, messages, messagesToFiles } from '../../schema';
 
 // Input schema for type safety
 const GetChatDashboardFilesInputSchema = z.object({

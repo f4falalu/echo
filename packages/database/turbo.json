@@ -33,6 +33,11 @@
     "dev": {
       "cache": false,
       "persistent": false,
+      "dependsOn": ["start"]
+    },
+    "start": {
+      "cache": false,
+      "persistent": false,
       "dependsOn": ["db:start-supabase"]
     },
     "stop": {

@@ -92,7 +92,11 @@ export const useGetAsset = (
       id: isMetric ? props.assetId : undefined,
       versionNumber
     },
-    { enabled: isMetric && props.assetId !== undefined, select: (x) => x?.name }
+    {
+      enabled: isMetric && props.assetId !== undefined,
+      select: (x) => x?.name,
+      staleTime: Infinity
+    }
   );
 
   const { isFetched: metricDataIsFetched } = useGetMetricData({
@@ -110,7 +114,7 @@ export const useGetAsset = (
       id: isDashboard ? props.assetId : undefined,
       versionNumber
     },
-    { enabled: isDashboard, select: (x) => x?.dashboard?.name }
+    { enabled: isDashboard, select: (x) => x?.dashboard?.name, staleTime: Infinity }
   );
 
   const {
