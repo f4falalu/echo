@@ -1,0 +1,2 @@
+CREATE TYPE "public"."slack_sharing_permission_enum" AS ENUM('shareWithWorkspace', 'shareWithChannel', 'noSharing');--> statement-breakpoint
+ALTER TABLE "slack_integrations" ADD COLUMN "default_sharing_permissions" "slack_sharing_permission_enum" DEFAULT 'shareWithChannel' NOT NULL;

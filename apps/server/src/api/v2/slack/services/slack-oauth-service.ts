@@ -41,25 +41,26 @@ export class SlackOAuthService {
           clientSecret: this.env.SLACK_CLIENT_SECRET,
           redirectUri: `${this.env.SERVER_URL}/api/v2/slack/auth/callback`,
           scopes: [
+            'app_mentions:read',
             'channels:history',
             'channels:read',
             'chat:write',
-            'im:write',
-            'im:read',
-            'im:history',
-            'mpim:read',
-            'mpim:history',
-            'mpim:write',
             'chat:write.public',
-            'users:read',
-            'users:read.email',
-            'app_mentions:read',
             'commands',
+            'files:read',
+            'files:write',
             'groups:history',
             'groups:write',
-            'files:write',
-            'files:read',
+            'im:history',
+            'im:read',
+            'im:write',
+            'mpim:history',
+            'mpim:read',
+            'mpim:write',
             'reactions:write',
+            'reactions:read',
+            'users:read',
+            'users:read.email',
           ],
         },
         tokenStorage,
@@ -261,6 +262,7 @@ export class SlackOAuthService {
         id: string;
         name: string;
       };
+      defaultSharingPermissions?: string;
     };
   }> {
     try {
@@ -297,6 +299,7 @@ export class SlackOAuthService {
               name: defaultChannel.name,
             },
           }),
+          defaultSharingPermissions: integration.defaultSharingPermissions,
         },
       };
     } catch (error) {

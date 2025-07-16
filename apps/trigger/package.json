@@ -31,7 +31,8 @@
     "ai": "catalog:",
     "braintrust": "catalog:",
     "vitest": "catalog:",
-    "zod": "catalog:"
+    "zod": "catalog:",
+    "drizzle-orm": "catalog:"
   },
   "devDependencies": {
     "@trigger.dev/build": "catalog:"

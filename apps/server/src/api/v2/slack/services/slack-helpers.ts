@@ -1,6 +1,13 @@
-import { db, slackIntegrations } from '@buster/database';
+import {
+  type User,
+  db,
+  slackIntegrations,
+  type slackSharingPermissionEnum,
+  users,
+} from '@buster/database';
 import type { InferSelectModel } from 'drizzle-orm';
 import { and, eq, gt, isNull, lt } from 'drizzle-orm';
+import type { z } from 'zod';
 import { tokenStorage } from './token-storage';
 
 export type SlackIntegration = InferSelectModel<typeof slackIntegrations>;
@@ -353,6 +360,31 @@ export async function updateDefaultChannel(
 }
 
 /**
+ * Update default sharing permissions for Slack integration
+ */
+export async function updateDefaultSharingPermissions(
+  integrationId: string,
+  defaultSharingPermissions: (typeof slackSharingPermissionEnum.enumValues)[number]
+): Promise<void> {
+  try {
+    await db
+      .update(slackIntegrations)
+      .set({
+        defaultSharingPermissions,
+        updatedAt: new Date().toISOString(),
+      })
+      .where(eq(slackIntegrations.id, integrationId));
+  } catch (error) {
+    console.error('Failed to update default sharing permissions:', error);
+    throw new Error(
+      `Failed to update default sharing permissions: ${
+        error instanceof Error ? error.message : 'Unknown error'
+      }`
+    );
+  }
+}
+
+/**
  * Clean up expired pending integrations
  */
 export async function cleanupExpiredPendingIntegrations(): Promise<number> {
@@ -401,3 +433,101 @@ export async function cleanupExpiredPendingIntegrations(): Promise<number> {
     );
   }
 }
+
+/**
+ * Get active Slack integration by Slack team ID
+ */
+export async function getActiveIntegrationByTeamId(
+  teamId: string
+): Promise<SlackIntegration | null> {
+  try {
+    const [integration] = await db
+      .select()
+      .from(slackIntegrations)
+      .where(
+        and(
+          eq(slackIntegrations.teamId, teamId),
+          eq(slackIntegrations.status, 'active'),
+          isNull(slackIntegrations.deletedAt)
+        )
+      )
+      .limit(1);
+
+    return integration || null;
+  } catch (error) {
+    console.error('Failed to get active Slack integration by team ID:', error);
+    throw new Error(
+      `Failed to get active Slack integration by team ID: ${
+        error instanceof Error ? error.message : 'Unknown error'
+      }`
+    );
+  }
+}
+
+/**
+ * Get access token from vault
+ */
+export async function getAccessToken(tokenVaultKey: string): Promise<string | null> {
+  try {
+    return await tokenStorage.getToken(tokenVaultKey);
+  } catch (error) {
+    console.error('Failed to get access token from vault:', error);
+    return null;
+  }
+}
+
+/**
+ * Get user by ID
+ */
+export async function getUserById(userId: string): Promise<User | null> {
+  try {
+    const [user] = await db.select().from(users).where(eq(users.id, userId)).limit(1);
+
+    return user || null;
+  } catch (error) {
+    console.error('Failed to get user by ID:', error);
+    throw new Error(
+      `Failed to get user by ID: ${error instanceof Error ? error.message : 'Unknown error'}`
+    );
+  }
+}
+
+/**
+ * Get user by email address
+ */
+export async function getUserByEmail(email: string): Promise<User | null> {
+  try {
+    const [user] = await db
+      .select()
+      .from(users)
+      .where(and(eq(users.email, email)))
+      .limit(1);
+
+    return user || null;
+  } catch (error) {
+    console.error('Failed to get user by email:', error);
+    throw new Error(
+      `Failed to get user by email: ${error instanceof Error ? error.message : 'Unknown error'}`
+    );
+  }
+}
+
+// Export as namespace for easier import
+export const SlackHelpers = {
+  getActiveIntegration,
+  getPendingIntegrationByState,
+  createPendingIntegration,
+  updateIntegrationAfterOAuth,
+  markIntegrationAsFailed,
+  softDeleteIntegration,
+  updateLastUsedAt,
+  getIntegrationById,
+  hasActiveIntegration,
+  getExistingIntegration,
+  updateDefaultChannel,
+  cleanupExpiredPendingIntegrations,
+  getActiveIntegrationByTeamId,
+  getAccessToken,
+  getUserById,
+  getUserByEmail,
+};

@@ -30,6 +30,7 @@
     "@buster/vitest-config": "workspace:*",
     "lru-cache": "^11.1.0",
     "zod": "catalog:",
-    "uuid": "catalog:"
+    "uuid": "catalog:",
+    "drizzle-orm": "catalog:"
   }
 }

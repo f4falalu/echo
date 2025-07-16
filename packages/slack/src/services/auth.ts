@@ -186,6 +186,27 @@ export class SlackAuthService {
   }
 
   /**
+   * Get an authenticated Slack WebClient for a team
+   * @param teamId The Slack team ID
+   * @returns WebClient instance configured with the team's access token
+   */
+  async getSlackClient(teamId: string): Promise<WebClient> {
+    const accessToken = await this.tokenStorage.getToken(teamId);
+    if (!accessToken) {
+      throw new SlackIntegrationError(
+        'TOKEN_NOT_FOUND',
+        `No access token found for team ${teamId}`,
+        false
+      );
+    }
+
+    // Validate token before returning client
+    await this.validateToken(accessToken);
+
+    return new WebClient(accessToken);
+  }
+
+  /**
    * Exchange authorization code for access token
    * @param code Authorization code from Slack
    * @returns Raw response from Slack API
