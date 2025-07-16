@@ -1,0 +1,18 @@
+---
+globs: src/*
+alwaysApply: false
+description: These rules help define patterns for query params in the server requests
+---
+
+
+## Handling Array Query Parameters
+
+For query parameters expected to be arrays, use the utility functions from `@query-array-preprocessor.ts`:
+
+- **`createQueryArrayPreprocessor`**: Converts required string query parameters into arrays.
+- **`createOptionalQueryArrayPreprocessor`**: Converts optional string query parameters into arrays, allowing them to be undefined.
+
+These functions ensure proper handling of array inputs, even when provided as single or comma-separated strings.
+
+
+
