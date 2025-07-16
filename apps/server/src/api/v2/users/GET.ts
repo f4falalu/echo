@@ -13,21 +13,20 @@ const app = new Hono().get(
   async (c) => {
     const { id: userId } = c.get('busterUser');
     const { page, page_size, filters } = c.req.valid('query');
+    console.log(page_size, c.req.query());
+    try {
+      const result: GetUserToOrganizationResponse = await getUserToOrganization({
+        userId,
+        page,
+        page_size,
+        filters,
+      });
 
-    console.log('page', page);
-    console.log('page_size', page_size);
-    console.log('filters', filters);
-
-    const result: GetUserToOrganizationResponse = await getUserToOrganization({
-      userId,
-      page,
-      page_size,
-      filters,
-    });
-
-    console.log('result', result);
-
-    return c.json(result);
+      return c.json(result);
+    } catch (error) {
+      console.error(error);
+      return c.json({ message: 'Error fetching users' }, 500);
+    }
   }
 );
 

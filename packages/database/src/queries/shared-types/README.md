@@ -144,6 +144,53 @@ Creates just the pagination metadata from count and page info.
 
 ## Common Patterns
 
+### Using the Composable Approach with JOINs (Recommended)
+
+The `buildPaginationQueries` helper ensures your count query has the same structure as your data query:
+
+```typescript
+import { and, eq, isNull, asc } from 'drizzle-orm';
+import { 
+  buildPaginationQueries, 
+  withPaginationMeta 
+} from '@/queries/shared-types';
+
+// Define your WHERE condition once
+const whereCondition = and(
+  eq(usersToOrganizations.organizationId, orgId),
+  isNull(usersToOrganizations.deletedAt)
+);
+
+// Build matching queries with the same structure
+const { dataQuery, buildCountQuery } = buildPaginationQueries({
+  select: {
+    id: users.id,
+    name: users.name,
+    email: users.email,
+    role: usersToOrganizations.role,
+    status: usersToOrganizations.status,
+  },
+  from: users,
+  joins: [
+    {
+      type: 'inner',
+      table: usersToOrganizations,
+      on: eq(users.id, usersToOrganizations.userId),
+    }
+  ],
+  where: whereCondition,
+});
+
+// Use withPaginationMeta to execute both queries
+const result = await withPaginationMeta({
+  query: dataQuery,
+  buildCountQuery,
+  orderBy: asc(users.name),
+  page: 1,
+  page_size: 20,
+});
+```
+
 ### API Endpoint with Automatic Count
 
 ```typescript
