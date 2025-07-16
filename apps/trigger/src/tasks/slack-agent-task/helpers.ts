@@ -7,9 +7,7 @@ import {
   updateMessage,
 } from '@buster/database';
 import type { Chat, Message } from '@buster/database';
-import { tasks } from '@trigger.dev/sdk';
 import { and, eq, isNull } from 'drizzle-orm';
-import type { analystAgentTask } from '../analyst-agent-task/analyst-agent-task';
 
 /**
  * Create a message for an existing chat
@@ -58,38 +56,10 @@ export async function createMessageForChat({
 }
 
 /**
- * Trigger the analyst agent task for a message
- * Returns the trigger handle ID for tracking
+ * Main helper to create a message
+ * Now only creates the message, triggering is handled in the main task
  */
-export async function triggerAnalystAgent(messageId: string): Promise<string> {
-  try {
-    // Trigger the analyst agent task
-    const taskHandle = await tasks.trigger<typeof analystAgentTask>('analyst-agent-task', {
-      message_id: messageId,
-    });
-
-    // Verify trigger service received the task
-    if (!taskHandle.id) {
-      throw new Error('Trigger service returned invalid handle');
-    }
-
-    // Update the message with the trigger run ID
-    await updateMessage(messageId, {
-      triggerRunId: taskHandle.id,
-    });
-
-    return taskHandle.id;
-  } catch (error) {
-    console.error('Failed to trigger analyst agent task:', error);
-    throw error;
-  }
-}
-
-/**
- * Main helper to create a message and trigger analysis
- * Combines both operations for convenience
- */
-export async function createMessageAndTriggerAnalysis({
+export async function createMessage({
   chatId,
   userId,
   content,
@@ -97,10 +67,7 @@ export async function createMessageAndTriggerAnalysis({
   chatId: string;
   userId: string;
   content: string;
-}): Promise<{
-  message: Message;
-  triggerRunId: string;
-}> {
+}): Promise<Message> {
   // Create the message
   const message = await createMessageForChat({
     chatId,
@@ -108,13 +75,7 @@ export async function createMessageAndTriggerAnalysis({
     content,
   });
 
-  // Trigger the analyst agent task
-  const triggerRunId = await triggerAnalystAgent(message.id);
-
-  return {
-    message,
-    triggerRunId,
-  };
+  return message;
 }
 
 /**
@@ -183,4 +144,59 @@ export async function getOrganizationSlackIntegration(organizationId: string): P
     integration,
     accessToken: vaultSecret.secret,
   };
+}
+
+/**
+ * Filter Slack messages to only include non-bot messages after the most recent app mention
+ *
+ * @param messages - Array of Slack messages from a thread
+ * @param botUserId - The bot user ID to identify bot messages
+ * @returns Object containing array of non-bot messages that came after the most recent @mention and the mention message timestamp
+ */
+export function filterMessagesAfterLastMention(
+  messages: Array<{
+    ts: string;
+    text?: string | undefined;
+    user?: string | undefined;
+    [key: string]: unknown;
+  }>,
+  botUserId: string
+): {
+  filteredMessages: Array<{
+    ts: string;
+    text?: string | undefined;
+    user?: string | undefined;
+    [key: string]: unknown;
+  }>;
+  mentionMessageTs: string | null;
+} {
+  if (!messages || messages.length === 0) {
+    return { filteredMessages: [], mentionMessageTs: null };
+  }
+
+  // Find the most recent message that contains an app mention (@Buster)
+  let lastMentionIndex = -1;
+  let mentionMessageTs: string | null = null;
+
+  // Iterate backwards to find the most recent mention
+  for (let i = messages.length - 1; i >= 0; i--) {
+    const message = messages[i];
+    if (message?.text?.includes(`<@${botUserId}>`)) {
+      lastMentionIndex = i;
+      mentionMessageTs = message.ts;
+      break;
+    }
+  }
+
+  // If no mention found, return empty array
+  if (lastMentionIndex === -1) {
+    return { filteredMessages: [], mentionMessageTs: null };
+  }
+
+  // Filter messages: only non-bot messages after the last mention
+  const filteredMessages = messages
+    .slice(lastMentionIndex + 1) // Get messages after the mention
+    .filter((message) => message.user !== botUserId); // Remove bot messages
+
+  return { filteredMessages, mentionMessageTs };
 }
