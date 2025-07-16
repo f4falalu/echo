@@ -22,6 +22,10 @@ export interface AppVerticalCodeSplitterProps {
   readOnly?: boolean;
 }
 
+const MIN_LEFT_SIZE = 120;
+const MIN_RIGHT_SIZE = 80;
+const AUTO_BUST_STORAGE_ON_INIT_SIZE = 800;
+
 export const AppVerticalCodeSplitter = forwardRef<AppSplitterRef, AppVerticalCodeSplitterProps>(
   (
     {
@@ -50,10 +54,10 @@ export const AppVerticalCodeSplitter = forwardRef<AppSplitterRef, AppVerticalCod
       (preservedSideValue: number | null, refSize: number) => {
         return (
           !preservedSideValue ||
-          preservedSideValue < 120 ||
-          refSize < 120 + 80 ||
-          preservedSideValue > 800 ||
-          preservedSideValue > refSize - 80 ||
+          preservedSideValue < MIN_LEFT_SIZE ||
+          refSize < MIN_LEFT_SIZE + MIN_RIGHT_SIZE ||
+          preservedSideValue > AUTO_BUST_STORAGE_ON_INIT_SIZE ||
+          preservedSideValue > refSize - MIN_RIGHT_SIZE ||
           !refSize
         );
       }
@@ -88,8 +92,8 @@ export const AppVerticalCodeSplitter = forwardRef<AppSplitterRef, AppVerticalCod
         defaultLayout={defaultLayout}
         autoSaveId={autoSaveId}
         preserveSide="left"
-        rightPanelMinSize={'80px'}
-        leftPanelMinSize={'120px'}
+        rightPanelMinSize={`${MIN_RIGHT_SIZE}px`}
+        leftPanelMinSize={`${MIN_LEFT_SIZE}px`}
         leftHidden={topHidden}
         className={className}
         bustStorageOnInit={bustStorageOnInit}
