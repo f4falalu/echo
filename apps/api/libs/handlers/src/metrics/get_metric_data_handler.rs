@@ -1,11 +1,10 @@
 use anyhow::{anyhow, Result};
-use chrono::Utc;
 use database::{
     pool::get_pg_pool,
-    schema::{dashboard_files, metric_files, metric_files_to_dashboard_files},
+    schema::metric_files,
     types::{data_metadata::DataMetadata, MetricYml},
 };
-use diesel::{BoolExpressionMethods, ExpressionMethods, JoinOnDsl, QueryDsl};
+use diesel::{ExpressionMethods, QueryDsl};
 use diesel_async::RunQueryDsl;
 use indexmap::IndexMap;
 use middleware::AuthenticatedUser;
@@ -68,41 +67,18 @@ pub async fn get_metric_data_handler(
 
             if is_permission_error {
                 tracing::warn!(
-                    "Initial metric access failed due to potential permission issue: {}. Checking public dashboard access.",
+                    "Initial metric access failed due to potential permission issue: {}. Checking dashboard access.",
                     e
                 );
 
-                // --- Step 3: Check if metric belongs to a valid public dashboard ---
-                let mut conn_check = get_pg_pool().get().await?;
-                let now = Utc::now();
-
-                let public_dashboard_exists = match metric_files_to_dashboard_files::table
-                    .inner_join(dashboard_files::table.on(
-                        dashboard_files::id.eq(metric_files_to_dashboard_files::dashboard_file_id),
-                    ))
-                    .filter(metric_files_to_dashboard_files::metric_file_id.eq(request.metric_id))
-                    .filter(dashboard_files::publicly_accessible.eq(true))
-                    .filter(dashboard_files::deleted_at.is_null())
-                    .filter(
-                        dashboard_files::public_expiry_date
-                            .is_null()
-                            .or(dashboard_files::public_expiry_date.gt(now)),
-                    )
-                    .select(dashboard_files::id) // Select any column to check existence
-                    .first::<Uuid>(&mut conn_check) // Try to get the first matching ID
+                // Check if user has access to ANY dashboard containing this metric (including public dashboards)
+                let has_dashboard_access = sharing::check_metric_dashboard_access(&request.metric_id, &user.id)
                     .await
-                {
-                    Ok(id) => Some(id),
-                    Err(diesel::NotFound) => None,
-                    Err(e) => {
-                        tracing::error!("Error checking if public dashboard exists: {}", e);
-                        return Err(anyhow!("Error checking if public dashboard exists: {}", e));
-                    }
-                };
+                    .unwrap_or(false);
 
-                if public_dashboard_exists.is_some() {
-                    // --- Step 4: Public dashboard found, fetch metric bypassing permissions ---
-                    tracing::info!("Found associated public dashboard. Fetching metric definition without direct permissions.");
+                if has_dashboard_access {
+                    // User has access to a dashboard containing this metric
+                    tracing::info!("Found associated dashboard with user access. Fetching metric with dashboard context.");
                     match get_metric_for_dashboard_handler(
                         &request.metric_id,
                         &user,
@@ -113,19 +89,19 @@ pub async fn get_metric_data_handler(
                     {
                         Ok(metric_via_dashboard) => {
                             tracing::debug!(
-                                "Successfully retrieved metric via public dashboard association."
+                                "Successfully retrieved metric via dashboard association."
                             );
                             metric_via_dashboard // Use this metric definition
                         }
                         Err(fetch_err) => {
                             // If fetching via dashboard fails unexpectedly, return that error
-                            tracing::error!("Failed to fetch metric via dashboard context even though public dashboard exists: {}", fetch_err);
+                            tracing::error!("Failed to fetch metric via dashboard context: {}", fetch_err);
                             return Err(fetch_err);
                         }
                     }
                 } else {
-                    // No public dashboard association found, return the original permission error
-                    tracing::warn!("No valid public dashboard association found for metric. Returning original error.");
+                    // No dashboard access, return the original permission error
+                    tracing::warn!("No dashboard association found for metric. Returning original error.");
                     return Err(e);
                 }
             } else {

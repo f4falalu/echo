@@ -7,6 +7,9 @@ import { checkTokenValidityFromServer } from '@/api/buster_rest/nextjs/auth';
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import { millisecondsFromUnixTimestamp } from '@/lib/timestamp';
 import type { UseSupabaseUserContextType } from '@/lib/supabase';
+import { timeout } from '@/lib/timeout';
+import { useBusterNotifications } from '../BusterNotifications';
+import { flushSync } from 'react-dom';
 
 const PREEMTIVE_REFRESH_MINUTES = 5;
 
@@ -16,6 +19,7 @@ const useSupabaseContextInternal = ({
   supabaseContext: UseSupabaseUserContextType;
 }) => {
   const refreshTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const { openErrorNotification, openInfoMessage } = useBusterNotifications();
   const [accessToken, setAccessToken] = useState(supabaseContext.accessToken || '');
 
   const isAnonymousUser = !supabaseContext.user?.id || supabaseContext.user?.is_anonymous === true;
@@ -45,7 +49,8 @@ const useSupabaseContextInternal = ({
           accessToken,
           preemptiveRefreshMinutes: PREEMTIVE_REFRESH_MINUTES
         });
-        onUpdateToken({ accessToken: res.access_token, expiresAt: res.expires_at });
+        await onUpdateToken({ accessToken: res.access_token, expiresAt: res.expires_at });
+        await timeout(25);
         return res;
       }
 
@@ -55,6 +60,11 @@ const useSupabaseContextInternal = ({
       };
     } catch (e) {
       console.error(e);
+      openErrorNotification({
+        title: 'Error checking user authentication',
+        description: 'Please try again later',
+        duration: 120 * 1000 //2 minutes
+      });
       throw e;
     }
   });
@@ -62,6 +72,9 @@ const useSupabaseContextInternal = ({
   const onUpdateToken = useMemoizedFn(
     async ({ accessToken, expiresAt: _expiresAt }: { accessToken: string; expiresAt: number }) => {
       setAccessToken(accessToken);
+      flushSync(() => {
+        openInfoMessage('Token refreshed');
+      });
     }
   );
 
