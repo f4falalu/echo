@@ -184,4 +184,3 @@ export async function getOrganizationSlackIntegration(organizationId: string): P
     accessToken: vaultSecret.secret,
   };
 }
-

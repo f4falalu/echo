@@ -1,3 +1,10 @@
+import {
+  SlackMessagingService,
+  addReaction,
+  getReactions,
+  getThreadMessages,
+  removeReaction,
+} from '@buster/slack';
 import { type TaskOutput, logger, schemaTask } from '@trigger.dev/sdk';
 import { z } from 'zod';
 import {
@@ -5,7 +12,6 @@ import {
   getChatDetails,
   getOrganizationSlackIntegration,
 } from './helpers';
-import { addReaction, removeReaction, getReactions, getThreadMessages } from '@buster/slack';
 
 const SlackAgentTaskInputSchema = z.object({
   chatId: z.string().uuid(),
@@ -36,7 +42,7 @@ export const slackAgentTask: ReturnType<
 
       // Step 1: Get chat details first (we need this for everything else)
       const chatDetails = await getChatDetails(payload.chatId);
-      
+
       if (!chatDetails.slackChannelId || !chatDetails.slackThreadTs) {
         throw new Error('Chat is missing Slack channel or thread information');
       }
@@ -46,12 +52,44 @@ export const slackAgentTask: ReturnType<
         organizationId: chatDetails.organizationId,
         slackChannelId: chatDetails.slackChannelId,
         slackThreadTs: chatDetails.slackThreadTs,
+        slackChatAuthorization: chatDetails.chat.slackChatAuthorization,
       });
 
       // Step 2: Get Slack integration for access token
       const { integration, accessToken } = await getOrganizationSlackIntegration(
         chatDetails.organizationId
       );
+
+      // Check if user is unauthorized
+      if (chatDetails.chat.slackChatAuthorization === 'unauthorized') {
+        logger.log('User is unauthorized, sending message to Slack thread');
+
+        const messagingService = new SlackMessagingService();
+        const unauthorizedMessage = {
+          text: "It looks like you haven't been added to this Buster workspace. One of your workspace admins will need to add you before you can send requests.",
+          thread_ts: chatDetails.slackThreadTs,
+        };
+
+        try {
+          await messagingService.sendMessage(
+            accessToken,
+            chatDetails.slackChannelId,
+            unauthorizedMessage
+          );
+          logger.log('Sent unauthorized message to Slack thread');
+        } catch (error) {
+          logger.error('Failed to send unauthorized message to Slack', {
+            error: error instanceof Error ? error.message : 'Unknown error',
+          });
+        }
+
+        // Return early - don't process the request
+        return {
+          success: false,
+          messageId: '',
+          triggerRunId: '',
+        };
+      }
 
       logger.log('Retrieved Slack integration', {
         organizationId: chatDetails.organizationId,
@@ -71,10 +109,11 @@ export const slackAgentTask: ReturnType<
 
         // Remove any existing reactions from the bot
         if (integration.botUserId && existingReactions.length > 0) {
-          const botReactions = existingReactions.filter(
-            reaction => reaction.users.includes(integration.botUserId!)
+          const botUserId = integration.botUserId;
+          const botReactions = existingReactions.filter((reaction) =>
+            reaction.users.includes(botUserId)
           );
-          
+
           for (const reaction of botReactions) {
             try {
               await removeReaction({
@@ -101,7 +140,7 @@ export const slackAgentTask: ReturnType<
           messageTs: chatDetails.slackThreadTs,
           emoji: 'hourglass_flowing_sand',
         });
-        
+
         logger.log('Added hourglass reaction to Slack thread');
       } catch (error) {
         // Log but don't fail the entire task if reaction handling fails
