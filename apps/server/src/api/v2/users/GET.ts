@@ -14,6 +14,8 @@ const app = new Hono().get(
     const { id: userId } = c.get('busterUser');
     const options = c.req.valid('query');
 
+    console.log(options);
+
     try {
       const result: GetUserToOrganizationResponse = await getUserToOrganization({
         userId,

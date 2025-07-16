@@ -1,7 +1,13 @@
-import { type InferSelectModel, and, asc, count, eq, isNull, like } from 'drizzle-orm';
+import { type InferSelectModel, and, asc, count, eq, inArray, isNull, like } from 'drizzle-orm';
+import { createSelectSchema } from 'drizzle-zod';
 import { z } from 'zod';
 import { db } from '../../connection';
-import { users, usersToOrganizations } from '../../schema';
+import {
+  userOrganizationRoleEnum,
+  userOrganizationStatusEnum,
+  users,
+  usersToOrganizations,
+} from '../../schema';
 import { getUserOrganizationId } from '../organizations/organizations';
 import { type PaginatedResponse, createPaginatedResponse } from '../shared-types';
 import { withPagination } from '../shared-types/with-pagination';
@@ -17,6 +23,8 @@ const GetUserToOrganizationInputSchema = z.object({
   page_size: z.number().optional().default(250),
   user_name: z.string().optional(),
   email: z.string().optional(),
+  role: z.array(z.enum(userOrganizationRoleEnum.enumValues)).optional(),
+  status: z.array(z.enum(userOrganizationStatusEnum.enumValues)).optional(),
 });
 
 type GetUserToOrganizationInput = z.infer<typeof GetUserToOrganizationInputSchema>;
@@ -33,7 +41,7 @@ export const getUserToOrganization = async (
   params: GetUserToOrganizationInput
 ): Promise<PaginatedResponse<OrganizationUser>> => {
   // Validate and destructure input
-  const { userId, page, page_size, user_name, email } =
+  const { userId, page, page_size, user_name, email, role, status } =
     GetUserToOrganizationInputSchema.parse(params);
 
   // Get the user's organization ID
@@ -49,7 +57,9 @@ export const getUserToOrganization = async (
     eq(usersToOrganizations.organizationId, organizationId),
     isNull(usersToOrganizations.deletedAt),
     user_name ? like(users.name, `%${user_name}%`) : undefined,
-    email ? like(users.email, `%${email}%`) : undefined
+    email ? like(users.email, `%${email}%`) : undefined,
+    role ? inArray(usersToOrganizations.role, role) : undefined,
+    status ? inArray(usersToOrganizations.status, status) : undefined
   );
 
   const getData = withPagination(
