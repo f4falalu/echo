@@ -11,7 +11,11 @@ export const getSupabaseUserContext = async (preemptiveRefreshMinutes = 5) => {
   const supabase = await createClient();
 
   // Get the session first
-  let { data: sessionData } = await supabase.auth.getSession();
+  let { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+
+  if (sessionError) {
+    console.error('Error getting session:', sessionError);
+  }
 
   // Check if we need to refresh the session
   if (sessionData.session) {
@@ -29,10 +33,15 @@ export const getSupabaseUserContext = async (preemptiveRefreshMinutes = 5) => {
   }
 
   // Get user data
-  const { data: userData } = await supabase.auth.getUser();
+  const { data: userData, error: userError } = await supabase.auth.getUser();
+
+  if (userError) {
+    console.error('Error getting user:', userData, userError);
+  }
 
   if (!userData.user) {
     const { session: anonSession } = await signInWithAnonymousUser();
+    console.info('created anon session', anonSession);
     return {
       user: anonSession?.user || null,
       accessToken: anonSession?.access_token
@@ -42,6 +51,11 @@ export const getSupabaseUserContext = async (preemptiveRefreshMinutes = 5) => {
   const user = userData.user;
   const accessToken = sessionData.session?.access_token;
   const refreshToken = sessionData.session?.refresh_token;
+
+  if (!accessToken) {
+    console.error('No access token found for user:', user);
+  }
+
   return { user, accessToken, refreshToken };
 };
 

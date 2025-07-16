@@ -51,6 +51,10 @@ export const defaultAxiosRequestHandler = async (
     token = (await options?.checkTokenValidity()?.then((res) => res?.access_token || '')) || '';
   }
 
+  if (!token) {
+    throw new Error('User authentication error - no token found');
+  }
+
   (config.headers as AxiosRequestHeaders).Authorization = `Bearer ${token}`;
 
   return config;
