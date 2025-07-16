@@ -53,7 +53,7 @@ const clientEnvSchema = z.object({
   // Development/Testing credentials
   NEXT_PUBLIC_USER: z.string().optional(),
   NEXT_PUBLIC_USER_PASSWORD: z.string().optional(),
-  NEXT_ENABLE_TANSTACK_PANEL: z.string().optional()
+  NEXT_PUBLIC_ENABLE_TANSTACK_PANEL: z.string().optional()
 });
 
 const serverEnvSchema = z.object({});
@@ -66,6 +66,7 @@ try {
   serverEnv = serverEnvSchema.parse(process.env);
   console.log('Successfully parsed server environment variables');
   clientEnv = clientEnvSchema.parse(process.env);
+  console.log(clientEnv);
   console.log('Successfully parsed client environment variables');
 } catch (error) {
   console.error('❌ Server environment validation failed!');
