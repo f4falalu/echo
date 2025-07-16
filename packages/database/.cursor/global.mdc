@@ -20,6 +20,7 @@ database/
 │   │   │   └── index.ts           # Exports all shared types
 │   │   ├── chats/                 # Chat-related queries
 │   │   │   ├── chats.ts           # Chat query functions
+│   │   │   └── index.ts           # Exports chat queries
 │   │   ├── users/                 # User-related queries
 │   │   │   ├── user.ts            # User query functions
 │   │   │   ├── users-to-organizations.ts
