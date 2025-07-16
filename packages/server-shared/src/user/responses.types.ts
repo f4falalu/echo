@@ -2,6 +2,7 @@ import { z } from 'zod';
 import { OrganizationSchema } from '../organization/organization.types';
 import { OrganizationRoleSchema } from '../organization/roles.types';
 import { TeamSchema } from '../teams/teams.types';
+import { PaginatedResponseSchema } from '../type-utilities/pagination';
 import { UserFavoriteSchema } from './favorites.types';
 import { OrganizationUserSchema } from './organization-user.types';
 import { UserSchema } from './users.types';
@@ -27,17 +28,7 @@ export const UserListResponseSchema = z.array(
 
 export const UserFavoriteResponseSchema = z.array(UserFavoriteSchema);
 
-const PaginationSchema = z.object({
-  page: z.number(),
-  page_size: z.number(),
-  total: z.number(),
-  total_pages: z.number(),
-});
-
-export const GetUserToOrganizationResponseSchema = z.object({
-  users: z.array(OrganizationUserSchema),
-  pagination: PaginationSchema,
-});
+export const GetUserToOrganizationResponseSchema = PaginatedResponseSchema(OrganizationUserSchema);
 
 export type UserResponse = z.infer<typeof UserResponseSchema>;
 export type UserListResponse = z.infer<typeof UserListResponseSchema>;

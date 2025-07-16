@@ -9,21 +9,25 @@ import { Hono } from 'hono';
 
 const app = new Hono().get(
   '/',
-  zValidator('json', GetUserToOrganizationRequestSchema),
+  zValidator('query', GetUserToOrganizationRequestSchema),
   async (c) => {
     const { id: userId } = c.get('busterUser');
-    const { page, page_size, filters } = c.req.valid('json');
+    const { page, page_size, filters } = c.req.valid('query');
 
-    const result = await getUserToOrganization({
+    console.log('page', page);
+    console.log('page_size', page_size);
+    console.log('filters', filters);
+
+    const result: GetUserToOrganizationResponse = await getUserToOrganization({
       userId,
       page,
       page_size,
       filters,
     });
 
-    const response: GetUserToOrganizationResponse = result;
+    console.log('result', result);
 
-    return c.json(response);
+    return c.json(result);
   }
 );
 

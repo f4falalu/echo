@@ -49,9 +49,8 @@ export const GetUserListRequestSchema = z.object({
 export type GetUserListRequest = z.infer<typeof GetUserListRequestSchema>;
 
 export const GetUserToOrganizationRequestSchema = z.object({
-  user_id: z.string(),
-  page: z.number().optional().default(1),
-  page_size: z.number().optional().default(250),
+  page: z.coerce.number().min(1).optional().default(1),
+  page_size: z.coerce.number().min(1).max(5000).optional().default(250),
   filters: z
     .object({
       user_name: z.string().optional(),

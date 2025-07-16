@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { db } from '../../connection';
 import { users, usersToOrganizations } from '../../schema';
 import { getUserOrganizationId } from '../organizations/organizations';
-import { withPaginationMeta } from '../shared-types';
+import { type PaginatedResponse, withPaginationMeta } from '../shared-types';
 
 type RawOrganizationUser = InferSelectModel<typeof usersToOrganizations>;
 type RawUser = InferSelectModel<typeof users>;
@@ -26,15 +26,7 @@ export type GetUserToOrganizationInput = z.infer<typeof GetUserToOrganizationInp
 export type OrganizationUser = Pick<RawUser, 'id' | 'name' | 'email' | 'avatarUrl'> &
   Pick<RawOrganizationUser, 'role' | 'status'>;
 
-export type GetUserToOrganizationResult = {
-  users: OrganizationUser[];
-  pagination: {
-    page: number;
-    page_size: number;
-    total: number;
-    total_pages: number;
-  };
-};
+export type GetUserToOrganizationResult = PaginatedResponse<OrganizationUser>;
 
 export const getUserToOrganization = async ({
   userId,
@@ -42,9 +34,10 @@ export const getUserToOrganization = async ({
   page_size = 250,
   filters,
 }: GetUserToOrganizationInput): Promise<GetUserToOrganizationResult> => {
+  console.log('before');
   // Validate input
   const validated = GetUserToOrganizationInputSchema.parse({ userId, page, page_size, filters });
-
+  console.log('validated', validated);
   // Get the user's organization ID
   const userOrg = await getUserOrganizationId(validated.userId);
   if (!userOrg) {
@@ -95,8 +88,5 @@ export const getUserToOrganization = async ({
   const result = await withPaginationMeta(paginationOptions);
 
   // Transform to match expected format
-  return {
-    users: result.data,
-    pagination: result.pagination,
-  };
+  return result;
 };

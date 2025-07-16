@@ -3,11 +3,11 @@
   "extends": ["//"],
   "tasks": {
     "start": {
-      "dependsOn": ["@buster/database#dev"],
+      "dependsOn": ["@buster/database#start"],
       "outputs": []
     },
     "dev": {
-      "dependsOn": ["@buster/database#dev"],
+      "dependsOn": ["@buster/database#start"],
       "outputs": []
     }
   }
