@@ -400,8 +400,13 @@ function SelectComponent<T = string>({
                 <Xmark />
               </button>
             )}
-            {!open && !hideChevron && (
-              <div className="flex h-4 w-4 shrink-0 items-center opacity-50">
+            {!hideChevron && (
+              <div
+                className="flex h-4 w-4 shrink-0 items-center justify-center opacity-50 transition-transform duration-200 ease-in-out"
+                style={{
+                  transform: open ? 'rotate(180deg)' : 'rotate(0deg)',
+                  transformOrigin: 'center'
+                }}>
                 <ChevronDown />
               </div>
             )}
