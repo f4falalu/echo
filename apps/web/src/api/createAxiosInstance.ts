@@ -17,17 +17,43 @@ export const createAxiosInstance = (baseURL: string) => {
     }
   });
 
+  // Response interceptor with retry logic for auth errors
   apiInstance.interceptors.response.use(
     (resp) => {
       return resp;
     },
-    (error: AxiosError) => {
+    async (error: AxiosError) => {
       const errorCode = error.response?.status;
+
       //402 is the payment required error code
       if (errorCode === 402) {
         window.location.href = createBusterRoute({
           route: BusterRoutes.INFO_GETTING_STARTED
         });
+        return Promise.reject(rustErrorHandler(error));
+      }
+
+      // Handle 401 Unauthorized - token might be expired
+      if (errorCode === 401 && !isServer) {
+        // Only retry once to avoid infinite loops
+        const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
+        if (originalRequest && !originalRequest._retry) {
+          originalRequest._retry = true;
+
+          try {
+            // Force token refresh and retry the request
+            console.info('401 error detected, attempting to refresh token and retry request');
+
+            // The request interceptor will handle getting the new token
+            return apiInstance(originalRequest);
+          } catch (refreshError) {
+            console.error('Failed to refresh token and retry request:', refreshError);
+            // If refresh fails, redirect to login or show error
+            window.location.href = createBusterRoute({
+              route: BusterRoutes.AUTH_LOGIN
+            });
+          }
+        }
       }
 
       return Promise.reject(rustErrorHandler(error));
@@ -45,17 +71,25 @@ export const defaultAxiosRequestHandler = async (
   }
 ) => {
   let token = '';
-  if (isServer) {
-    token = await getSupabaseTokenFromCookies();
-  } else {
-    token = (await options?.checkTokenValidity()?.then((res) => res?.access_token || '')) || '';
+
+  try {
+    if (isServer) {
+      token = await getSupabaseTokenFromCookies();
+    } else {
+      // Always check token validity before making requests
+      const tokenResult = await options?.checkTokenValidity();
+      token = tokenResult?.access_token || '';
+    }
+
+    if (!token) {
+      throw new Error('User authentication error - no token found');
+    }
+
+    (config.headers as AxiosRequestHeaders).Authorization = `Bearer ${token}`;
+
+    return config;
+  } catch (error) {
+    console.error('Error getting auth token for request:', error);
+    throw new Error('User authentication error - failed to get valid token');
   }
-
-  if (!token) {
-    throw new Error('User authentication error - no token found');
-  }
-
-  (config.headers as AxiosRequestHeaders).Authorization = `Bearer ${token}`;
-
-  return config;
 };
