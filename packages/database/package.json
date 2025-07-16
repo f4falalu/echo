@@ -36,9 +36,10 @@
     "db:stop": "supabase stop",
     "db:studio": "drizzle-kit studio",
     "db:init": "echo 'dev:init should be run from turbo.json' && true",
-    "dev": "echo 'Running db:init from turbo.json' && npm run db:init",
+    "dev": "tsc --watch",
     "lint": "biome check --write",
     "stop": "pnpm run db:stop",
+    "start": "echo 'Running db:init from turbo.json' && npm run db:init",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
     "test:watch": "vitest",
@@ -50,6 +51,7 @@
     "ai": "catalog:",
     "drizzle-kit": "^0.31.4",
     "drizzle-orm": "catalog:",
+    "drizzle-zod": "^0.8.2",
     "postgres": "^3.4.7",
     "zod": "catalog:"
   }

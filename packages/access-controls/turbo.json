@@ -12,6 +12,12 @@
       "cache": false,
       "persistent": true,
       "dependsOn": ["build:commonjs"]
+    },
+    "dev": {
+      "cache": false,
+      "persistent": true,
+      "dependsOn": ["^build"],
+      "with": ["@buster/database#dev"]
     }
   }
 }

@@ -1,13 +1,13 @@
 import { and, eq, isNull } from 'drizzle-orm';
 import type { InferSelectModel } from 'drizzle-orm';
 import { z } from 'zod';
-import { db } from '../connection';
-import { chats, messages, userFavorites, users } from '../schema';
+import { db } from '../../connection';
+import { chats, messages, userFavorites, users } from '../../schema';
 
 // Type inference from schema
 export type Chat = InferSelectModel<typeof chats>;
-export type Message = InferSelectModel<typeof messages>;
-export type User = InferSelectModel<typeof users>;
+type Message = InferSelectModel<typeof messages>;
+type User = InferSelectModel<typeof users>;
 
 // Create a type for updateable chat fields by excluding auto-managed fields
 type UpdateableChatFields = Partial<
@@ -162,17 +162,6 @@ export async function createMessage(input: CreateMessageInput): Promise<Message>
     }
     throw error;
   }
-}
-
-/**
- * Get all messages for a chat
- */
-export async function getMessagesForChat(chatId: string): Promise<Message[]> {
-  return db
-    .select()
-    .from(messages)
-    .where(and(eq(messages.chatId, chatId), isNull(messages.deletedAt)))
-    .orderBy(messages.createdAt);
 }
 
 /**

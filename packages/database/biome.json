@@ -23,7 +23,8 @@
       "linter": {
         "rules": {
           "suspicious": {
-            "noConsoleLog": "off"
+            "noConsoleLog": "off",
+            "noExplicitAny": "warn"
           }
         }
       }

@@ -4,6 +4,8 @@ import { AnalystAgentTaskInputSchema, type AnalystAgentTaskOutput } from './type
 
 // Task 2 & 4: Database helpers (IMPLEMENTED)
 import {
+  type MessageContextOutput,
+  type OrganizationDataSourceOutput,
   getBraintrustMetadata,
   getChatConversationHistory,
   getChatDashboardFiles,
@@ -16,10 +18,6 @@ import { type AnalystRuntimeContext, analystWorkflow } from '@buster/ai';
 
 // Mastra workflow integration
 import { RuntimeContext } from '@mastra/core/runtime-context';
-
-// Task 3: Runtime Context Setup Function
-// Database helper output types
-import type { MessageContextOutput, OrganizationDataSourceOutput } from '@buster/database';
 
 import type { messagePostProcessingTask } from '../message-post-processing/message-post-processing';
 
