@@ -1,0 +1,458 @@
+---
+globs: src/*
+alwaysApply: false
+description: Global rules for the database directory
+---
+
+## Overview
+
+The database package provides centralized database utilities, query builders, and shared types for consistent data access patterns across the application.
+
+## Directory Structure
+
+```
+database/
+├── src/
+│   ├── queries/
+│   │   ├── shared-types/          # Reusable query utilities and types
+│   │   │   ├── pagination.types.ts # Pagination type definitions
+│   │   │   ├── with-pagination.ts  # Pagination query utilities
+│   │   │   └── index.ts           # Exports all shared types
+│   │   ├── chats/                 # Chat-related queries
+│   │   │   ├── chats.ts           # Chat query functions
+│   │   ├── users/                 # User-related queries
+│   │   │   ├── user.ts            # User query functions
+│   │   │   ├── users-to-organizations.ts
+│   │   │   ├── users-to-organizations.test.ts
+│   │   │   └── index.ts           # Exports user queries
+│   │   ├── organizations/         # Organization-related queries
+│   │   ├── messages/              # Message-related queries
+│   │   ├── assets/                # Asset-related queries
+│   │   ├── dataSources/           # Data source queries
+│   │   ├── metadata/              # Metadata queries
+│   │   └── index.ts               # Exports all query modules
+│   ├── schema/                    # Database schema definitions
+│   └── index.ts                   # Main package exports
+└── drizzle/                       # Migration files
+```
+
+## Query Organization
+
+The `queries/` directory is organized into domain-specific folders, each containing multiple query files related to that domain:
+
+- **`shared-types/`** - Reusable utilities like pagination, sorting, and filtering that can be used across all domains
+- **Domain folders** (`chats/`, `users/`, `organizations/`, etc.) - Each contains:
+  - Multiple `.ts` files with query functions specific to that domain
+  - Optional `.test.ts` files for testing query logic
+  - An `index.ts` file that exports all queries from that domain
+- **Root `index.ts`** - Exports all query modules for easy importing
+
+### Domain Query Patterns
+
+Each domain folder should follow this structure:
+
+```typescript
+// Example: queries/chats/chats.ts
+export async function getChatById(id: string) {
+  // Chat-specific query logic
+}
+
+export async function getChatsForUser(userId: string) {
+  // More chat queries
+}
+
+// queries/chats/index.ts
+export * from './chats';
+```
+
+---
+
+# Part 1: Building Shared Utilities
+
+This section covers creating reusable utilities in the `shared-types/` folder.
+
+## Pagination Patterns
+
+### Type Definitions (`pagination.types.ts`)
+
+**Always use these standard pagination types:**
+
+```typescript
+// ✅ Use the standard pagination input schema
+import { PaginationInputSchema } from '@/database/queries/shared-types';
+
+// Validate pagination inputs
+const validatedInput = PaginationInputSchema.parse({ page: 1, page_size: 10 });
+
+// ✅ Use the standard response type
+import type { PaginatedResponse } from '@/database/queries/shared-types';
+
+function getUsers(): Promise<PaginatedResponse<User>> {
+  // Returns { data: User[], pagination: PaginationMetadata }
+}
+```
+
+**Type Hierarchy:**
+- `PaginationInput` - For API input validation (page, page_size)
+- `PaginationMetadata` - For response metadata (page, page_size, total, total_pages)
+- `PaginatedResponse<T>` - Generic response wrapper with data + pagination
+- `WithPagination<T>` - Type helper for adding pagination to existing types
+
+### Query Utilities (`with-pagination.ts`)
+
+**Use `withPagination()` for Drizzle queries:**
+
+```typescript
+import { withPagination } from '@/database/queries/shared-types';
+
+// ✅ Apply pagination to any Drizzle query
+const query = db.select().from(users).$dynamic();
+const paginatedQuery = withPagination(query, users.createdAt, page, pageSize);
+const results = await paginatedQuery;
+```
+
+**Use `createPaginatedResponse()` for custom data:**
+
+```typescript
+import { createPaginatedResponse } from '@/database/queries/shared-types';
+
+// ✅ When you already have data and count from separate queries
+// Use Promise.all for parallel execution when queries are independent
+const [users, total] = await Promise.all([
+  customUserQuery(),
+  customCountQuery()
+]);
+
+return createPaginatedResponse({
+  data: users.map(transformUser),
+  page: 1,
+  page_size: 10,
+  total
+});
+```
+
+> **🚀 Performance Note**: Using `Promise.all()` is crucial here because the user data query and count query are independent operations that can run in parallel. This can reduce response time by up to 50% compared to sequential `await` calls, especially with network latency to the database. Always use `Promise.all()` when you have multiple independent async operations.
+
+## Shared Utilities Best Practices
+
+### 1. File Organization
+
+- **`shared-types/`** - Place reusable query utilities and type definitions here
+- **Export pattern** - Always export through `index.ts` for clean imports
+- **Naming convention** - Use descriptive names that indicate the utility purpose
+
+### 2. Type Safety Rules
+
+```typescript
+// ✅ Always use proper typing with generics
+export function withSorting<T extends PgSelect>(
+  qb: T,
+  sortColumn?: PgColumn | SQL | SQL.Aliased | null
+): T {
+  // Implementation
+}
+
+// ✅ Provide clear type constraints
+export interface FilterOptions<TTable> {
+  where?: PgColumn<TTable> | SQL;
+  limit?: number;
+}
+
+// ❌ Avoid 'any' types in shared utilities
+export function badUtility(query: any): any {
+  // This defeats type safety
+}
+```
+
+### 3. Schema Validation
+
+```typescript
+// ✅ Always provide Zod schemas for input validation
+export const SortInputSchema = z.object({
+  column: z.string(),
+  direction: z.enum(['asc', 'desc']).default('asc'),
+});
+
+export type SortInput = z.infer<typeof SortInputSchema>;
+
+// ✅ Use schemas in your utilities
+export function withSorting<T>(qb: T, sort: SortInput): T {
+  const validatedSort = SortInputSchema.parse(sort);
+  // Implementation
+}
+```
+
+### 4. Documentation Standards
+
+```typescript
+/**
+ * Brief description of the utility function
+ *
+ * @example
+ * ```typescript
+ * // Show realistic usage example
+ * const query = db.select().from(users).$dynamic();
+ * const result = withUtility(query, options);
+ * ```
+ *
+ * @param qb - The Drizzle query builder
+ * @param options - Configuration options
+ * @returns Modified query builder
+ */
+export function withUtility<T>(qb: T, options: Options): T {
+  // Implementation
+}
+```
+
+## Common Utility Patterns
+
+### 1. Query Builder Extensions
+
+```typescript
+// ✅ Create composable query utilities
+export function withFilters<T extends PgSelect>(
+  qb: T,
+  filters: FilterOptions
+): T {
+  let query = qb;
+  
+  if (filters.where) {
+    query = query.where(filters.where);
+  }
+  
+  return query;
+}
+
+// ✅ Chain utilities together
+const results = await withPagination(
+  withFilters(
+    db.select().from(users).$dynamic(),
+    { where: eq(users.active, true) }
+  ),
+  users.createdAt,
+  page,
+  pageSize
+);
+```
+
+### 2. Type-Safe Response Builders
+
+```typescript
+// ✅ Create helpers for consistent API responses
+export function createSuccessResponse<T>(data: T): ApiResponse<T> {
+  return {
+    success: true,
+    data,
+    error: null,
+  };
+}
+
+export function createErrorResponse(error: string): ApiResponse<never> {
+  return {
+    success: false,
+    data: null,
+    error,
+  };
+}
+```
+
+### 3. Reusable Type Transformers
+
+```typescript
+// ✅ Create helpers for common transformations
+export type WithTimestamps<T> = T & {
+  created_at: Date;
+  updated_at: Date;
+};
+
+export type WithId<T> = T & {
+  id: string;
+};
+
+// ✅ Use Pick for type-safe selections
+export type UserSummary = Pick<User, 'id' | 'name' | 'email'>;
+```
+
+## Anti-Patterns for Shared Utilities
+
+```typescript
+// ❌ Don't use 'any' types in shared utilities
+export function badQuery(options: any): any { }
+
+// ❌ Don't hard-code pagination limits
+export function badPagination(page: number) {
+  return query.limit(10); // Should be configurable
+}
+
+// ❌ Don't create utilities without proper generics
+export function badUtility(query: PgSelect) {
+  // Loses type information
+}
+
+// ❌ Don't mix pagination logic in domain-specific queries
+export function getUsersWithPagination() {
+  // Should use withPagination utility instead
+}
+
+// ❌ Don't use sequential await for independent operations
+export async function badParallelQueries() {
+  const users = await getUsersQuery();     // Waits unnecessarily
+  const count = await getCountQuery();     // Could run in parallel
+  return { users, count };
+}
+
+// ✅ Use Promise.all for independent operations
+export async function goodParallelQueries() {
+  const [users, count] = await Promise.all([
+    getUsersQuery(),
+    getCountQuery()
+  ]);
+  return { users, count };
+}
+```
+
+## When to Add New Shared Types
+
+Add new utilities to `shared-types/` when:
+- ✅ The pattern is used in 3+ different queries
+- ✅ The utility provides type safety benefits
+- ✅ The pattern has reusable business logic
+- ✅ It improves consistency across the codebase
+
+Don't add to `shared-types/` when:
+- ❌ The utility is domain-specific to one feature
+- ❌ It's a simple wrapper without added value
+- ❌ The pattern is unlikely to be reused
+
+---
+
+# Part 2: Writing Domain Queries
+
+This section covers best practices for writing query functions in domain folders (like `users/`, `chats/`, `organizations/`, etc.).
+
+## Type Safety and Schema Validation
+
+**Always use type-safe schema types:**
+
+```typescript
+// ✅ Use InferSelectModel for type safety
+import { type InferSelectModel } from 'drizzle-orm';
+type User = InferSelectModel<typeof users>;
+type UserToOrganization = InferSelectModel<typeof usersToOrganizations>;
+
+// ✅ Use Pick for type-safe selections instead of full types
+type OrganizationUser = Pick<User, 'id' | 'name' | 'email' | 'avatarUrl'> &
+  Pick<UserToOrganization, 'role' | 'status'>;
+```
+
+**Always validate input with Zod schemas:**
+
+```typescript
+// ✅ Define input validation schema
+const GetUserToOrganizationInputSchema = z.object({
+  userId: z.string().uuid('User ID must be a valid UUID'),
+  page: z.number().optional().default(1),
+  page_size: z.number().optional().default(250),
+  user_name: z.string().optional(),
+  email: z.string().optional(),
+});
+
+type GetUserToOrganizationInput = z.infer<typeof GetUserToOrganizationInputSchema>;
+```
+
+## Query Performance Patterns
+
+**Use Promise.all for independent operations:**
+
+```typescript
+// ✅ Execute data and count queries in parallel
+const [data, totalResult] = await Promise.all([getData, getTotal]);
+```
+
+**Use shared utilities for common patterns:**
+
+```typescript
+// ✅ Use withPagination for consistent pagination
+const getData = withPagination(
+  db.select({...}).from(users).$dynamic(),
+  asc(users.name),
+  page,
+  page_size
+);
+
+// ✅ Use createPaginatedResponse for consistent API responses
+return createPaginatedResponse({
+  data,
+  page,
+  page_size,
+  total,
+});
+```
+
+## Error Handling and Logging
+
+**Always wrap queries in try/catch blocks:**
+
+```typescript
+// ✅ Proper error handling
+try {
+  const [data, totalResult] = await Promise.all([getData, getTotal]);
+  return createPaginatedResponse({ data, page, page_size, total });
+} catch (error) {
+  console.error('Error fetching organization users:', error);
+  throw new Error('Failed to fetch organization users');
+}
+```
+
+## Documentation Standards
+
+**Document all exported functions with JSDoc:**
+
+```typescript
+/**
+ * Get paginated list of users in the same organization as the requesting user
+ * with optional filtering by name or email
+ */
+export const getUserToOrganization = async (
+  params: GetUserToOrganizationInput
+): Promise<PaginatedResponse<OrganizationUser>> => {
+  // Implementation
+};
+```
+
+## Query Building Best Practices
+
+**Use dynamic query building with proper conditions:**
+
+```typescript
+// ✅ Build where conditions safely
+const whereConditions = and(
+  eq(usersToOrganizations.organizationId, organizationId),
+  isNull(usersToOrganizations.deletedAt),
+  user_name ? like(users.name, `%${user_name}%`) : undefined,
+  email ? like(users.email, `%${email}%`) : undefined,
+  role ? inArray(usersToOrganizations.role, role) : undefined,
+);
+```
+
+---
+
+# Import Guidelines
+
+```typescript
+// ✅ Use clean imports from shared-types
+import {
+  withPagination,
+  createPaginatedResponse,
+  type PaginatedResponse,
+  type PaginationInput
+} from '@/database/queries/shared-types';
+
+// ✅ Import types with 'type' keyword for tree-shaking
+import type { PaginationMetadata } from '@/database/queries/shared-types';
+```
+
+Don't add to `shared-types/` when:
+- ❌ The utility is domain-specific to one feature
+- ❌ It's a simple wrapper without added value
+- ❌ The pattern is unlikely to be reused # Database Package Cursor Rules
