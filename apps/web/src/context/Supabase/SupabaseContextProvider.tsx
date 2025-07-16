@@ -3,15 +3,16 @@
 import { jwtDecode } from 'jwt-decode';
 import React, { type PropsWithChildren, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { createContext, useContextSelector } from 'use-context-selector';
-import { checkTokenValidityFromServer } from '@/api/buster_rest/nextjs/auth';
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import { millisecondsFromUnixTimestamp } from '@/lib/timestamp';
 import type { UseSupabaseUserContextType } from '@/lib/supabase';
 import { timeout } from '@/lib/timeout';
 import { useBusterNotifications } from '../BusterNotifications';
 import { flushSync } from 'react-dom';
+import { createClient } from '@/lib/supabase/client';
 
 const PREEMTIVE_REFRESH_MINUTES = 5;
+const supabase = createClient();
 
 const useSupabaseContextInternal = ({
   supabaseContext
@@ -45,13 +46,27 @@ const useSupabaseContextInternal = ({
       }
 
       if (isTokenExpired) {
-        const res = await checkTokenValidityFromServer({
-          accessToken,
-          preemptiveRefreshMinutes: PREEMTIVE_REFRESH_MINUTES
-        });
-        await onUpdateToken({ accessToken: res.access_token, expiresAt: res.expires_at });
+        const { data: refreshedSession, error: refreshedSessionError } =
+          await supabase.auth.refreshSession();
+
+        if (refreshedSessionError || !refreshedSession.session) {
+          openErrorNotification({
+            title: 'Error refreshing session',
+            description: 'Please refresh the page and try again',
+            duration: 120 * 1000 //2 minutes
+          });
+          throw refreshedSessionError;
+        }
+
+        const accessToken = refreshedSession.session?.access_token;
+        const expiresAt = refreshedSession.session?.expires_at ?? 0;
+
+        await onUpdateToken({ accessToken, expiresAt });
         await timeout(25);
-        return res;
+        return {
+          access_token: accessToken,
+          isTokenValid: true
+        };
       }
 
       return {

@@ -3,16 +3,14 @@
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { BusterRoutes, createBusterRoute } from '@/routes';
-import { createClient } from './server';
+import { createSupabaseServerClient } from './server';
 
 const authURLFull = `${process.env.NEXT_PUBLIC_URL}${createBusterRoute({
   route: BusterRoutes.AUTH_CALLBACK
 })}`;
 
 // Type for server action results
-type ServerActionResult<T = void> = 
-  | { success: true; data?: T }
-  | { success: false; error: string };
+type ServerActionResult<T = void> = { success: true; data?: T } | { success: false; error: string };
 
 export const signInWithEmailAndPassword = async ({
   email,
@@ -22,7 +20,7 @@ export const signInWithEmailAndPassword = async ({
   password: string;
 }): Promise<ServerActionResult> => {
   'use server';
-  const supabase = await createClient();
+  const supabase = await createSupabaseServerClient();
 
   const { error } = await supabase.auth.signInWithPassword({
     email,
@@ -46,7 +44,7 @@ export const signInWithEmailAndPassword = async ({
 export const signInWithGoogle = async (): Promise<ServerActionResult<string>> => {
   'use server';
 
-  const supabase = await createClient();
+  const supabase = await createSupabaseServerClient();
 
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: 'google',
@@ -66,7 +64,7 @@ export const signInWithGoogle = async (): Promise<ServerActionResult<string>> =>
 export const signInWithGithub = async (): Promise<ServerActionResult<string>> => {
   'use server';
 
-  const supabase = await createClient();
+  const supabase = await createSupabaseServerClient();
 
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: 'github',
@@ -86,7 +84,7 @@ export const signInWithGithub = async (): Promise<ServerActionResult<string>> =>
 export const signInWithAzure = async (): Promise<ServerActionResult<string>> => {
   'use server';
 
-  const supabase = await createClient();
+  const supabase = await createSupabaseServerClient();
 
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: 'azure',
@@ -103,9 +101,15 @@ export const signInWithAzure = async (): Promise<ServerActionResult<string>> => 
   return redirect(data.url);
 };
 
-export const signUp = async ({ email, password }: { email: string; password: string }): Promise<ServerActionResult> => {
+export const signUp = async ({
+  email,
+  password
+}: {
+  email: string;
+  password: string;
+}): Promise<ServerActionResult> => {
   'use server';
-  const supabase = await createClient();
+  const supabase = await createSupabaseServerClient();
   const authURL = createBusterRoute({
     route: BusterRoutes.AUTH_CONFIRM
   });
@@ -135,7 +139,7 @@ export const signUp = async ({ email, password }: { email: string; password: str
 export const signInWithAnonymousUser = async () => {
   'use server';
 
-  const supabase = await createClient();
+  const supabase = await createSupabaseServerClient();
 
   const { data, error } = await supabase.auth.signInAnonymously();
 
