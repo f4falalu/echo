@@ -2,7 +2,7 @@ import { WebClient } from '@slack/web-api';
 import { z } from 'zod';
 import { type SendMessageResult, type SlackMessage, SlackMessageSchema } from '../types';
 import { SlackIntegrationError } from '../types/errors';
-import { convertMarkdownToSlack } from '../utils/markdownToSlack';
+import { convertMarkdownToSlack } from '../utils/markdown-to-slack';
 import { validateWithSchema } from '../utils/validation-helpers';
 
 export class SlackMessagingService {
