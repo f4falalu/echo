@@ -78,7 +78,7 @@ pub async fn list_chats_handler(
     request: ListChatsRequest,
     user: &AuthenticatedUser,
 ) -> Result<Vec<ChatListItem>> {
-    use database::schema::{asset_permissions, chats, users};
+    use database::schema::{asset_permissions, chats, messages, users};
     
     let mut conn = get_pg_pool().get().await?;
     
@@ -101,11 +101,26 @@ pub async fn list_chats_handler(
         Vec::new() // If admin view, we'll show all chats anyway
     };
     
+    let user_message_count = messages::table
+        .filter(messages::chat_id.eq(chats::id))
+        .filter(messages::request_message.is_not_null())
+        .filter(messages::deleted_at.is_null())
+        .count();
+
+    let total_message_count = messages::table
+        .filter(messages::chat_id.eq(chats::id))
+        .filter(messages::deleted_at.is_null())
+        .count();
+
     // Start building the query
     let mut query = chats::table
         .inner_join(users::table.on(chats::created_by.eq(users::id)))
         .filter(chats::deleted_at.is_null())
         .filter(chats::title.ne("")) // Filter out empty titles
+        .filter(
+            user_message_count.gt(0)
+            .or(total_message_count.gt(1))
+        )
         .into_boxed();
     
     // Add user filter if not admin view

@@ -69,9 +69,20 @@ pub async fn list_logs_handler(
     request: ListLogsRequest,
     organization_id: Uuid,
 ) -> Result<ListLogsResponse, anyhow::Error> {
-    use database::schema::{chats, users};
+    use database::schema::{chats, messages, users};
 
     let mut conn = get_pg_pool().get().await?;
+
+    let user_message_count = messages::table
+        .filter(messages::chat_id.eq(chats::id))
+        .filter(messages::request_message.is_not_null())
+        .filter(messages::deleted_at.is_null())
+        .count();
+
+    let total_message_count = messages::table
+        .filter(messages::chat_id.eq(chats::id))
+        .filter(messages::deleted_at.is_null())
+        .count();
 
     // Start building the query
     let mut query = chats::table
@@ -80,6 +91,10 @@ pub async fn list_logs_handler(
         .filter(chats::organization_id.eq(organization_id))
         .filter(chats::title.ne("")) // Filter out empty titles
         .filter(chats::title.ne(" ")) // Filter out single space
+        .filter(
+            user_message_count.gt(0)
+            .or(total_message_count.gt(1))
+        )
         .into_boxed();
 
     // Calculate offset based on page number
