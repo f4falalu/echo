@@ -1,13 +1,13 @@
-import { type InferSelectModel, and, eq, isNull } from 'drizzle-orm';
+import { and, eq, isNull } from 'drizzle-orm';
 import { z } from 'zod';
 import { db } from '../../connection';
 import { organizations } from '../../schema';
-import { getUserOrganizationId } from './organizations';
+import type { OrganizationColorPalettes } from '../../schema-types';
 
 // Organization Color Palette schema
 const OrganizationColorPaletteSchema = z.object({
   id: z.string(),
-  color: z.array(z.string()),
+  colors: z.array(z.string()),
 });
 
 // Input validation schema
@@ -30,7 +30,7 @@ export const updateOrganization = async (params: UpdateOrganizationInput): Promi
     // Build update data
     const updateData: {
       updatedAt: string;
-      organizationColorPalettes?: Array<{ id: string; color: string[] }>;
+      organizationColorPalettes?: OrganizationColorPalettes;
     } = {
       updatedAt: new Date().toISOString(),
     };
@@ -44,12 +44,6 @@ export const updateOrganization = async (params: UpdateOrganizationInput): Promi
       .update(organizations)
       .set(updateData)
       .where(and(eq(organizations.id, organizationId), isNull(organizations.deletedAt)));
-
-    console.info('Organization updated successfully:', {
-      organizationId,
-
-      updatedFields: organizationColorPalettes !== undefined ? ['organizationColorPalettes'] : [],
-    });
   } catch (error) {
     console.error('Error updating organization:', {
       organizationId,

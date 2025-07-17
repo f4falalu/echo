@@ -14,7 +14,7 @@ import { requireOrganizationAdmin } from '../../../middleware/auth';
  * Updates organization settings
  * Currently supports updating organization color palettes
  */
-export async function updateOrganizationHandler(
+async function updateOrganizationHandler(
   organizationId: string,
   request: UpdateOrganizationRequest,
   user: User
@@ -48,32 +48,34 @@ export async function updateOrganizationHandler(
 }
 
 // Create route module for the update endpoint
-const app = new Hono().put(
-  '/',
-  requireOrganizationAdmin,
-  zValidator('json', UpdateOrganizationRequestSchema),
-  async (c) => {
-    const request = c.req.valid('json');
+const app = new Hono()
+  .use('*', requireOrganizationAdmin)
+  .put('/', zValidator('json', UpdateOrganizationRequestSchema), async (c) => {
+    const request = await c.req.valid('json');
     const user = c.get('busterUser');
     const userOrg = c.get('userOrganizationInfo');
 
     const organizationId = userOrg.organizationId;
-    //const role = userOrg.role;
 
-    // if (!canEditOrganization(role)) {
-    //   throw new HTTPException(403, {
-    //     message: 'User does not have permission to edit organization',
-    //   });
-    // }
+    try {
+      const response: UpdateOrganizationResponse = await updateOrganizationHandler(
+        organizationId,
+        request,
+        user
+      );
+      return c.json(response);
+    } catch (error) {
+      console.error('Error in updateOrganizationHandler:', {
+        organizationId,
+        userId: user.id,
+        requestFields: Object.keys(request),
+        error: error instanceof Error ? error.message : error,
+      });
 
-    const response: UpdateOrganizationResponse = await updateOrganizationHandler(
-      organizationId,
-      request,
-      user
-    );
-
-    return c.json(response);
-  }
-);
+      throw new HTTPException(500, {
+        message: 'Failed to update organization',
+      });
+    }
+  });
 
 export default app;

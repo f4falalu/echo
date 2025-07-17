@@ -97,7 +97,8 @@ export async function requireUser(c: Context, next: Next) {
   }
 }
 
-export const requireOrganization = async (c: Context) => {
+// Utility function to get user organization (can be called from other middleware)
+const getUserOrganization = async (c: Context) => {
   const user = c.get('busterUser');
   const userOrganizationInfo = c.get('userOrganizationInfo');
 
@@ -116,28 +117,28 @@ export const requireOrganization = async (c: Context) => {
   return userOrg;
 };
 
-export const requireOrganizationAdmin = async (c: Context) => {
+// Middleware version that can be used in route chains
+export const requireOrganization = async (c: Context, next: Next) => {
+  await getUserOrganization(c);
+  await next();
+};
+
+export const requireOrganizationAdmin = async (c: Context, next: Next) => {
   const user = c.get('busterUser');
 
   if (!user?.id) {
     console.warn('This is likely an issue where requireAuth middleware was not called first');
-    return c.json({
-      message: 'User not authenticated',
-    });
+    return c.json({ message: 'User not authenticated' }, 401);
   }
 
-  const userOrg = await requireOrganization(c);
+  const userOrg = await getUserOrganization(c);
 
   const isAdmin = isOrganizationAdmin(userOrg.role);
 
   if (!isAdmin) {
-    return c.json(
-      {
-        message: 'User is not an organization admin',
-      },
-      403
-    );
+    return c.json({ message: 'User is not an organization admin' }, 403);
   }
 
-  return true;
+  // If all checks pass, continue to the next middleware/handler
+  return await next();
 };

@@ -36,3 +36,13 @@ This structure ensures a consistent and organized approach to managing types acr
 ### Pagination
 
 If we need to use pagination for a type we can take advantage of the generic types found in the type-utilities/pagination file
+
+
+## Database partity
+There are cirumstances where we need to ensure that a schema in server-shared and a database type are the same. We should use a pattern like this:
+
+```
+ type _OrganizationEqualityCheck = Expect<Equal<Organization, typeof organizations.$inferSelect>>;
+```
+
+Where organizations is imported as a "type" from @buster/database. This ensure that we are maintaining type parity between the two packages.
