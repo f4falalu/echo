@@ -30,7 +30,11 @@ describe('mock-helpers.ts - Unit Tests', () => {
 
   describe('mockConsole', () => {
     it('should mock console methods', () => {
-      const originalConsole = { ...console };
+      const originalLog = console.log;
+      const originalError = console.error;
+      const originalWarn = console.warn;
+      const originalInfo = console.info;
+      
       const { mocks, restore } = mockConsole();
       
       expect(vi.isMockFunction(console.log)).toBe(true);
@@ -44,10 +48,10 @@ describe('mock-helpers.ts - Unit Tests', () => {
       expect(mocks.info).toBe(console.info);
       
       restore();
-      expect(console.log).toBe(originalConsole.log);
-      expect(console.error).toBe(originalConsole.error);
-      expect(console.warn).toBe(originalConsole.warn);
-      expect(console.info).toBe(originalConsole.info);
+      expect(console.log).toBe(originalLog);
+      expect(console.error).toBe(originalError);
+      expect(console.warn).toBe(originalWarn);
+      expect(console.info).toBe(originalInfo);
     });
 
     it('should track console method calls', () => {
@@ -126,11 +130,12 @@ describe('mock-helpers.ts - Unit Tests', () => {
       const mock1 = createMockDate(date1);
       expect(new Date().toISOString()).toBe(date1);
       
+      mock1.restore();
+      
       const mock2 = createMockDate(date2);
       expect(new Date().toISOString()).toBe(date2);
       
       mock2.restore();
-      mock1.restore();
     });
   });
 });

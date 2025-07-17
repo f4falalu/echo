@@ -19,7 +19,11 @@ describe('env-helpers.ts - Unit Tests', () => {
       
       expect(process.env.NODE_ENV).toBe('test');
       
-      process.env.NODE_ENV = originalEnv;
+      if (originalEnv !== undefined) {
+        process.env.NODE_ENV = originalEnv;
+      } else {
+        delete process.env.NODE_ENV;
+      }
     });
 
     it('should store original environment variables', async () => {
@@ -99,7 +103,11 @@ describe('env-helpers.ts - Unit Tests', () => {
       
       expect(testFn).toHaveBeenCalled();
       
-      process.env.NODE_ENV = originalNodeEnv;
+      if (originalNodeEnv !== undefined) {
+        process.env.NODE_ENV = originalNodeEnv;
+      } else {
+        delete process.env.NODE_ENV;
+      }
     });
 
     it('should clean up environment after test completion', async () => {
@@ -117,8 +125,14 @@ describe('env-helpers.ts - Unit Tests', () => {
       const wrappedFn = withTestEnv(testFn);
       await wrappedFn();
       
-      expect(process.env.NODE_ENV).toBe(originalNodeEnv);
+      expect(process.env.NODE_ENV).toBe('production');
       expect(process.env.CUSTOM_VAR).toBe('original');
+      
+      if (originalNodeEnv !== undefined) {
+        process.env.NODE_ENV = originalNodeEnv;
+      } else {
+        delete process.env.NODE_ENV;
+      }
       
       if (originalCustomVar === undefined) {
         delete process.env.CUSTOM_VAR;
@@ -134,7 +148,13 @@ describe('env-helpers.ts - Unit Tests', () => {
       
       await expect(wrappedFn()).rejects.toThrow('Test error');
       
-      expect(process.env.NODE_ENV).toBe(originalNodeEnv);
+      expect(process.env.NODE_ENV).toBe('production');
+      
+      if (originalNodeEnv !== undefined) {
+        process.env.NODE_ENV = originalNodeEnv;
+      } else {
+        delete process.env.NODE_ENV;
+      }
     });
 
     it('should return the same result as the wrapped function', async () => {

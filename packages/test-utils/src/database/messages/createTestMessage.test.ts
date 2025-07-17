@@ -1,24 +1,39 @@
-import { db, messages } from '@buster/database';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { cleanupTestEnvironment, setupTestEnvironment } from '../../envHelpers/env-helpers';
 import { type CreateTestMessageOptions, createTestMessage } from './createTestMessage';
 
-const mockValues = vi.fn().mockResolvedValue(undefined);
-const mockInsert = vi.fn().mockReturnValue({
-  values: mockValues,
+vi.mock('@buster/database', () => {
+  const mockValues = vi.fn().mockResolvedValue(undefined);
+  const mockInsert = vi.fn().mockReturnValue({
+    values: mockValues,
+  });
+  const mockMessages = {};
+
+  return {
+    db: {
+      insert: mockInsert,
+    },
+    messages: mockMessages,
+    mockValues,
+    mockInsert,
+    mockMessages,
+  };
 });
 
-vi.mock('@buster/database', () => ({
-  db: {
-    insert: mockInsert,
-  },
-  messages: {},
-}));
-
 describe('createTestMessage', () => {
+  let mockValues: any;
+  let mockInsert: any;
+  let mockMessages: any;
+
   beforeEach(async () => {
     await setupTestEnvironment();
     vi.clearAllMocks();
+    
+    const dbMock = await vi.importMock('@buster/database') as any;
+    mockValues = dbMock.mockValues;
+    mockInsert = dbMock.mockInsert;
+    mockMessages = dbMock.mockMessages;
+    
     mockValues.mockResolvedValue(undefined);
   });
 
@@ -36,7 +51,7 @@ describe('createTestMessage', () => {
     expect(typeof messageId).toBe('string');
     expect(messageId).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i);
 
-    expect(mockInsert).toHaveBeenCalledWith(messages);
+    expect(mockInsert).toHaveBeenCalledWith(mockMessages);
     expect(mockValues).toHaveBeenCalledWith(
       expect.objectContaining({
         id: messageId,

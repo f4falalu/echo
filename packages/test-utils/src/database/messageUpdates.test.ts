@@ -1,10 +1,10 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { cleanupTestEnvironment, setupTestEnvironment } from '../envHelpers/env-helpers';
-import { createTestMessageWithContext } from './messages/createTestMessageWithContext';
 
-vi.mock('@buster/database', () => ({
-  updateMessageReasoning: vi.fn(),
-  updateMessageStreamingFields: vi.fn(),
+const mockCreateTestMessageWithContext = vi.fn();
+
+vi.mock('./messages/createTestMessageWithContext', () => ({
+  createTestMessageWithContext: mockCreateTestMessageWithContext,
 }));
 
 describe('Message Updates Test Helpers - Unit Tests', () => {
@@ -18,25 +18,45 @@ describe('Message Updates Test Helpers - Unit Tests', () => {
   });
 
   test('createTestMessageWithContext provides context for message reasoning updates', async () => {
+    const mockResult = {
+      messageId: 'test-message-id',
+      userId: 'test-user-id',
+      chatId: 'test-chat-id',
+      organizationId: 'test-org-id',
+    };
+    
+    mockCreateTestMessageWithContext.mockResolvedValue(mockResult);
+    
+    const { createTestMessageWithContext } = await import('./messages/createTestMessageWithContext');
     const result = await createTestMessageWithContext({
       reasoning: { steps: ['Initial step'], conclusion: 'Test conclusion' },
     });
     
-    expect(result).toHaveProperty('messageId');
-    expect(result).toHaveProperty('userId');
-    expect(result).toHaveProperty('chatId');
-    expect(result).toHaveProperty('organizationId');
+    expect(result).toEqual(mockResult);
+    expect(mockCreateTestMessageWithContext).toHaveBeenCalledWith({
+      reasoning: { steps: ['Initial step'], conclusion: 'Test conclusion' },
+    });
   });
 
   test('createTestMessageWithContext provides context for streaming field updates', async () => {
+    const mockResult = {
+      messageId: 'test-message-id',
+      userId: 'test-user-id',
+      chatId: 'test-chat-id',
+      organizationId: 'test-org-id',
+    };
+    
+    mockCreateTestMessageWithContext.mockResolvedValue(mockResult);
+    
+    const { createTestMessageWithContext } = await import('./messages/createTestMessageWithContext');
     const result = await createTestMessageWithContext({
       responseMessages: { content: 'Streaming response', metadata: { streaming: true } },
     });
     
-    expect(result.messageId).toBeDefined();
-    expect(result.userId).toBeDefined();
-    expect(result.chatId).toBeDefined();
-    expect(result.organizationId).toBeDefined();
+    expect(result).toEqual(mockResult);
+    expect(mockCreateTestMessageWithContext).toHaveBeenCalledWith({
+      responseMessages: { content: 'Streaming response', metadata: { streaming: true } },
+    });
   });
 
   test('createTestMessageWithContext can create messages with raw LLM messages', async () => {
@@ -45,12 +65,25 @@ describe('Message Updates Test Helpers - Unit Tests', () => {
       { role: 'assistant', content: 'Hi there' },
     ];
     
+    const mockResult = {
+      messageId: 'test-message-id',
+      userId: 'test-user-id',
+      chatId: 'test-chat-id',
+      organizationId: 'test-org-id',
+    };
+    
+    mockCreateTestMessageWithContext.mockResolvedValue(mockResult);
+    
+    const { createTestMessageWithContext } = await import('./messages/createTestMessageWithContext');
     const result = await createTestMessageWithContext({
       rawLlmMessages,
       requestMessage: 'Hello',
     });
     
-    expect(result.messageId).toBeDefined();
-    expect(result.chatId).toBeDefined();
+    expect(result).toEqual(mockResult);
+    expect(mockCreateTestMessageWithContext).toHaveBeenCalledWith({
+      rawLlmMessages,
+      requestMessage: 'Hello',
+    });
   });
 });

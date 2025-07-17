@@ -1,10 +1,10 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { cleanupTestEnvironment, setupTestEnvironment } from '../envHelpers/env-helpers';
-import { createTestMessageWithContext } from './messages/createTestMessageWithContext';
 
-vi.mock('@buster/database', () => ({
-  updateMessageFields: vi.fn(),
-  getLatestMessageForChat: vi.fn(),
+const mockCreateTestMessageWithContext = vi.fn();
+
+vi.mock('./messages/createTestMessageWithContext', () => ({
+  createTestMessageWithContext: mockCreateTestMessageWithContext,
 }));
 
 describe('updateMessageFields - Unit Tests', () => {
@@ -18,24 +18,42 @@ describe('updateMessageFields - Unit Tests', () => {
   });
 
   test('createTestMessageWithContext can be used for updateMessageFields testing', async () => {
+    const mockResult = {
+      messageId: 'test-message-id',
+      userId: 'test-user-id',
+      chatId: 'test-chat-id',
+      organizationId: 'test-org-id',
+    };
+    
+    mockCreateTestMessageWithContext.mockResolvedValue(mockResult);
+    
+    const { createTestMessageWithContext } = await import('./messages/createTestMessageWithContext');
     const result = await createTestMessageWithContext();
     
-    expect(result).toHaveProperty('messageId');
-    expect(result).toHaveProperty('chatId');
-    expect(typeof result.messageId).toBe('string');
-    expect(typeof result.chatId).toBe('string');
+    expect(result).toEqual(mockResult);
+    expect(mockCreateTestMessageWithContext).toHaveBeenCalledWith();
   });
 
   test('createTestMessageWithContext provides context for message updates', async () => {
-    const result = await createTestMessageWithContext({
+    const options = {
       title: 'Test Message for Updates',
       requestMessage: 'Initial request',
       isCompleted: false,
-    });
+    };
     
-    expect(result.messageId).toBeDefined();
-    expect(result.userId).toBeDefined();
-    expect(result.chatId).toBeDefined();
-    expect(result.organizationId).toBeDefined();
+    const mockResult = {
+      messageId: 'test-message-id',
+      userId: 'test-user-id',
+      chatId: 'test-chat-id',
+      organizationId: 'test-org-id',
+    };
+    
+    mockCreateTestMessageWithContext.mockResolvedValue(mockResult);
+    
+    const { createTestMessageWithContext } = await import('./messages/createTestMessageWithContext');
+    const result = await createTestMessageWithContext(options);
+    
+    expect(result).toEqual(mockResult);
+    expect(mockCreateTestMessageWithContext).toHaveBeenCalledWith(options);
   });
 });

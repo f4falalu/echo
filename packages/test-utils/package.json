@@ -19,7 +19,7 @@
     "typecheck": "tsc --noEmit",
     "lint": "biome check",
     "test": "vitest run",
-    "test:unit": "vitest run --exclude '**/*.int.test.ts' --exclude '**/*.integration.test.ts'",
+    "test:unit": "DATABASE_URL=postgresql://test:test@localhost:5432/test vitest run --exclude '**/*.int.test.ts' --exclude '**/*.integration.test.ts'",
     "test:integration": "vitest run **/*.int.test.ts **/*.integration.test.ts",
     "test:watch": "vitest watch",
     "test:coverage": "vitest run --coverage"
