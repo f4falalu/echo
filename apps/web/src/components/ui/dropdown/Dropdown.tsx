@@ -56,7 +56,7 @@ export interface DropdownProps<T = string> extends DropdownMenuProps {
   onSelect?: (value: T) => void;
   align?: 'start' | 'center' | 'end';
   side?: 'top' | 'right' | 'bottom' | 'left';
-  emptyStateText?: string;
+  emptyStateText?: string | React.ReactNode;
   className?: string;
   footerContent?: React.ReactNode;
   showIndex?: boolean;

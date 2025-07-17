@@ -8,6 +8,8 @@ import type { ShareRole } from '@buster/server-shared/share';
 export type SharePostRequest = {
   email: string;
   role: ShareRole;
+  avatar_url?: string | null;
+  name?: string | undefined;
 }[];
 
 export type ShareDeleteRequest = string[];

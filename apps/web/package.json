@@ -85,7 +85,7 @@
     "dom-to-image": "^2.6.0",
     "email-validator": "^2.0.4",
     "font-color-contrast": "^11.1.0",
-    "framer-motion": "^12.23.5",
+    "framer-motion": "^12.23.6",
     "hono": "catalog:",
     "html-react-parser": "^5.2.5",
     "intersection-observer": "^0.12.2",
@@ -162,6 +162,7 @@
     "jsdom": "^26.1.0",
     "msw-storybook-addon": "^2.0.5",
     "prettier-eslint": "^16.4.2",
+    "storybook": "^8.6.14",
     "vitest": "catalog:"
   },
   "msw": {
