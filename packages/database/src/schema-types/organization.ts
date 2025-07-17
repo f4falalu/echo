@@ -1,7 +1,11 @@
 // Organization Color Palette Types
 export type OrganizationColorPalette = {
-  id: string | number;
+  id: string;
   colors: string[]; // Hex color codes
+  name: string;
 };
 
-export type OrganizationColorPalettes = OrganizationColorPalette[];
+export type OrganizationColorPalettes = {
+  selectedId: string;
+  palettes: OrganizationColorPalette[];
+};

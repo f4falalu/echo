@@ -14,17 +14,17 @@ const HexColorSchema = z
 
 // Organization Color Palette schema
 const OrganizationColorPaletteSchema = z.object({
-  id: z.string().or(z.number()),
+  id: z.string().min(1).max(255),
   colors: z.array(HexColorSchema),
+  name: z.string().min(1).max(255),
 });
 
 // Input validation schema
 const UpdateOrganizationInputSchema = z.object({
   organizationId: z.string().uuid('Organization ID must be a valid UUID'),
-  organizationColorPalettes: z
-    .array(OrganizationColorPaletteSchema)
-    .optional()
-    .refine(
+  organizationColorPalettes: z.object({
+    selectedId: z.string().min(1).max(255),
+    palettes: z.array(OrganizationColorPaletteSchema).refine(
       (palettes) => {
         if (!palettes || palettes.length === 0) return true;
         const ids = palettes.map((palette) => palette.id);
@@ -35,6 +35,7 @@ const UpdateOrganizationInputSchema = z.object({
         message: 'All color palette IDs must be unique',
       }
     ),
+  }),
 });
 
 type UpdateOrganizationInput = z.infer<typeof UpdateOrganizationInputSchema>;

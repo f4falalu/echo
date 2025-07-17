@@ -12,8 +12,9 @@ const HexColorSchema = z
   );
 
 export const OrganizationColorPaletteSchema = z.object({
-  id: z.string().or(z.number()),
+  id: z.string(),
   colors: z.array(HexColorSchema).min(1).max(25),
+  name: z.string().min(1).max(255),
 });
 
 export const OrganizationSchema = z.object({
@@ -27,7 +28,10 @@ export const OrganizationSchema = z.object({
   domains: z.array(z.string()).nullable(),
   restrictNewUserInvitations: z.boolean(),
   defaultRole: OrganizationRoleSchema,
-  organizationColorPalettes: z.array(OrganizationColorPaletteSchema),
+  organizationColorPalettes: z.object({
+    selectedId: z.string(),
+    palettes: z.array(OrganizationColorPaletteSchema),
+  }),
 });
 
 export type Organization = z.infer<typeof OrganizationSchema>;
