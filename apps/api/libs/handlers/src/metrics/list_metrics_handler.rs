@@ -75,8 +75,6 @@ pub async fn list_metrics_handler(
         ))
         .filter(metric_files::deleted_at.is_null())
         .order((metric_files::updated_at.desc(), metric_files::id.asc()))
-        .offset(offset)
-        .limit(request.page_size)
         .into_boxed();
 
     // Add filters based on request parameters
@@ -168,8 +166,6 @@ pub async fn list_metrics_handler(
             users::avatar_url.nullable(),
         ))
         .order((metric_files::updated_at.desc(), metric_files::id.asc()))
-        .offset(offset)
-        .limit(request.page_size)
         .into_boxed();
 
     // Apply filters to workspace-shared query
@@ -201,7 +197,7 @@ pub async fn list_metrics_handler(
     };
 
     // Transform query results into BusterMetricListItem
-    let mut metrics: Vec<BusterMetricListItem> = metric_results
+    let mut all_metrics: Vec<BusterMetricListItem> = metric_results
         .into_iter()
         .map(
             |(
@@ -225,7 +221,7 @@ pub async fn list_metrics_handler(
 
     // Add workspace-shared metrics
     for (id, name, created_by, _created_at, updated_at, status, _workspace_sharing, created_by_name, created_by_email, created_by_avatar) in workspace_shared_results {
-        metrics.push(BusterMetricListItem {
+        all_metrics.push(BusterMetricListItem {
             id,
             name,
             last_edited: updated_at,
@@ -238,5 +234,14 @@ pub async fn list_metrics_handler(
         });
     }
 
-    Ok(metrics)
+    // Sort all metrics by last_edited descending
+    all_metrics.sort_by(|a, b| b.last_edited.cmp(&a.last_edited));
+    
+    // Apply pagination
+    let paginated_metrics: Vec<BusterMetricListItem> = all_metrics.into_iter()
+        .skip(offset as usize)
+        .take(request.page_size as usize)
+        .collect();
+
+    Ok(paginated_metrics)
 }

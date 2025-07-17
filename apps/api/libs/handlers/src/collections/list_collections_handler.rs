@@ -93,8 +93,6 @@ async fn get_permissioned_collections(
         )
         .distinct()
         .order((collections::updated_at.desc(), collections::id.asc()))
-        .offset(page * page_size)
-        .limit(page_size)
         .into_boxed();
 
     if let Some(filters) = req.filters {
@@ -176,8 +174,6 @@ async fn get_permissioned_collections(
             collections::organization_id,
         ))
         .order((collections::updated_at.desc(), collections::id.asc()))
-        .offset(page * page_size)
-        .limit(page_size)
         .load::<(
             Uuid,
             String,
@@ -283,5 +279,14 @@ async fn get_permissioned_collections(
         collections.push(collection);
     }
 
-    Ok(collections)
+    // Sort all collections by updated_at descending
+    collections.sort_by(|a, b| b.last_edited.cmp(&a.last_edited));
+    
+    // Apply pagination
+    let paginated_collections: Vec<ListCollectionsCollection> = collections.into_iter()
+        .skip((page * page_size) as usize)
+        .take(page_size as usize)
+        .collect();
+
+    Ok(paginated_collections)
 }

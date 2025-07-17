@@ -128,11 +128,9 @@ pub async fn list_chats_handler(
         );
     }
     
-    // Order by updated date descending and apply pagination
+    // Order by updated date descending (no pagination yet)
     query = query
-        .order_by(chats::updated_at.desc())
-        .offset(offset as i64)
-        .limit((request.page_size + 1) as i64);
+        .order_by(chats::updated_at.desc());
     
     // Execute query and select required fields
     let results: Vec<ChatWithUser> = query
@@ -200,24 +198,19 @@ pub async fn list_chats_handler(
                 users::avatar_url.nullable(),
             ))
             .order_by(chats::updated_at.desc())
-            .offset(offset as i64)
-            .limit((request.page_size + 1) as i64)
             .load::<ChatWithUser>(&mut conn)
             .await?
     } else {
         vec![]
     };
 
-    // Check if there are more results and prepare pagination info
-    let has_more = results.len() > request.page_size as usize || workspace_shared_chats.len() > request.page_size as usize;
+    // Process all chats first
+    let mut all_items: Vec<ChatListItem> = Vec::new();
     
     // Process directly-accessed chats
-    let mut items: Vec<ChatListItem> = results
-        .into_iter()
-        .filter(|chat| !chat.title.trim().is_empty()) // Filter out titles with only whitespace
-        .take(request.page_size as usize)
-        .map(|chat| {
-            ChatListItem {
+    for chat in results {
+        if !chat.title.trim().is_empty() {
+            all_items.push(ChatListItem {
                 id: chat.id.to_string(),
                 name: chat.title,
                 is_favorited: false, // TODO: Implement favorites feature
@@ -232,15 +225,14 @@ pub async fn list_chats_handler(
                 latest_file_type: chat.most_recent_file_type,
                 latest_version_number: chat.most_recent_version_number,
                 is_shared: chat.created_by != user.id, // Mark as shared if the user is not the creator
-            }
-        })
-        .collect();
+            });
+        }
+    }
 
-    // Add workspace-shared chats (if we have room in the page)
-    let remaining_slots = request.page_size as usize - items.len();
-    for chat in workspace_shared_chats.into_iter().take(remaining_slots) {
+    // Add all workspace-shared chats
+    for chat in workspace_shared_chats {
         if !chat.title.trim().is_empty() {
-            items.push(ChatListItem {
+            all_items.push(ChatListItem {
                 id: chat.id.to_string(),
                 name: chat.title,
                 is_favorited: false,
@@ -259,12 +251,28 @@ pub async fn list_chats_handler(
         }
     }
 
+    // Sort all items by updated_at descending
+    all_items.sort_by(|a, b| b.updated_at.cmp(&a.updated_at));
+    
+    // Apply pagination
+    let total_items = all_items.len();
+    let start_index = offset as usize;
+    let end_index = (start_index + request.page_size as usize).min(total_items);
+    
+    let paginated_items: Vec<ChatListItem> = all_items.into_iter()
+        .skip(start_index)
+        .take(request.page_size as usize)
+        .collect();
+    
+    // Check if there are more results
+    let has_more = end_index < total_items;
+    
     // Create pagination info
     let _pagination = PaginationInfo {
         has_more,
         next_page: if has_more { Some(page + 1) } else { None },
-        total_items: items.len() as i32,
+        total_items: paginated_items.len() as i32,
     };
     
-    Ok(items)
+    Ok(paginated_items)
 }

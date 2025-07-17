@@ -254,14 +254,12 @@ pub async fn list_dashboard_handler(
         }
     }
 
-    // Sort dashboards by updated_at desc
+    // Sort dashboards by updated_at desc (already sorted by queries, but need to re-sort after combining)
     dashboards.sort_by(|a, b| b.last_edited.cmp(&a.last_edited));
     
     // Apply pagination after combining results
-    let start = request.page_token as usize * request.page_size as usize;
-    let end = start + request.page_size as usize;
     let paginated_dashboards = dashboards.into_iter()
-        .skip(start)
+        .skip(offset as usize)
         .take(request.page_size as usize)
         .collect();
 
