@@ -107,6 +107,45 @@ src/api/v2/organization/
 └── index.ts   # Barrel export that combines all methods
 ```
 
+### Nested Route Structure
+
+The modular pattern extends seamlessly to nested routes. You can create deeper path structures by nesting directories:
+
+```
+src/api/v2/organization/
+├── GET.ts           # Handles GET /organization
+├── PUT.ts           # Handles PUT /organization
+├── index.ts         # Barrel export for /organization
+└── members/         # Nested route for /organization/members
+    ├── GET.ts       # Handles GET /organization/members
+    ├── POST.ts      # Handles POST /organization/members
+    ├── index.ts     # Barrel export for /organization/members
+    └── [id]/        # Dynamic nested route for /organization/members/:id
+        ├── GET.ts   # Handles GET /organization/members/:id
+        ├── PUT.ts   # Handles PUT /organization/members/:id
+        ├── DELETE.ts # Handles DELETE /organization/members/:id
+        └── index.ts # Barrel export for /organization/members/:id
+```
+
+To mount nested routes, the parent's `index.ts` would route to the child:
+
+```typescript
+// organization/index.ts
+import { Hono } from 'hono';
+import { requireAuth } from '../../../middleware/auth';
+import GET from './GET';
+import PUT from './PUT';
+import members from './members'; // Import nested route
+
+const app = new Hono()
+  .use('*', requireAuth)
+  .route('/', GET)
+  .route('/', PUT)
+  .route('/members', members); // Mount nested route
+
+export default app;
+```
+
 **Example Implementation:**
 
 ```typescript
