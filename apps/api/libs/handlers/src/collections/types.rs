@@ -12,6 +12,7 @@ pub struct BusterShareIndividual {
     pub email: String,
     pub role: AssetPermissionRole,
     pub name: Option<String>,
+    pub avatar_url: Option<String>,
 }
 
 // List collections types

@@ -1,4 +1,4 @@
-import { randomUUID } from 'crypto';
+import { randomUUID } from 'node:crypto';
 import * as db from '@buster/database';
 import { describe, expect, it, vi } from 'vitest';
 import {
@@ -297,11 +297,8 @@ describe('user-organizations', () => {
         limit: vi.fn().mockImplementation(() => {
           // Check if we're querying users or organizations
           const lastCall = mockDb.from.mock.lastCall;
-          if (lastCall && lastCall[0] === db.users) {
-            return Promise.resolve([]);
-          } else {
-            return Promise.resolve([mockOrg]);
-          }
+          if (lastCall && lastCall[0] === db.users) return Promise.resolve([]);
+          return Promise.resolve([mockOrg]);
         }),
         insert: vi.fn().mockReturnThis(),
         values: vi.fn().mockReturnThis(),
@@ -352,11 +349,8 @@ describe('user-organizations', () => {
         limit: vi.fn().mockImplementation(() => {
           // Check if we're querying users or organizations
           const lastCall = mockDb.from.mock.lastCall;
-          if (lastCall && lastCall[0] === db.users) {
-            return Promise.resolve([mockExistingUser]);
-          } else {
-            return Promise.resolve([mockOrg]);
-          }
+          if (lastCall && lastCall[0] === db.users) return Promise.resolve([mockExistingUser]);
+          return Promise.resolve([mockOrg]);
         }),
         insert: vi.fn().mockReturnThis(),
         values: vi.fn().mockReturnThis(),
@@ -411,11 +405,8 @@ describe('user-organizations', () => {
         limit: vi.fn().mockImplementation(() => {
           // Check if we're querying users or organizations
           const lastCall = mockDb.from.mock.lastCall;
-          if (lastCall && lastCall[0] === db.users) {
-            return Promise.resolve([]);
-          } else {
-            return Promise.resolve([mockOrg]);
-          }
+          if (lastCall && lastCall[0] === db.users) return Promise.resolve([]);
+          return Promise.resolve([mockOrg]);
         }),
         insert: vi.fn().mockReturnThis(),
         values: vi.fn().mockReturnThis(),

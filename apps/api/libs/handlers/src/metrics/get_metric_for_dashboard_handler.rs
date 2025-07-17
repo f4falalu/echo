@@ -34,6 +34,7 @@ struct AssetPermissionInfo {
     role: AssetPermissionRole,
     email: String,
     name: Option<String>,
+    avatar_url: Option<String>,
 }
 
 /// Fetch the dashboards associated with the given metric id, filtered by user permissions
@@ -365,7 +366,7 @@ pub async fn get_metric_for_dashboard_handler(
         .filter(asset_permissions::asset_type.eq(AssetType::MetricFile))
         .filter(asset_permissions::identity_type.eq(IdentityType::User))
         .filter(asset_permissions::deleted_at.is_null())
-        .select((asset_permissions::role, users::email, users::name))
+        .select((asset_permissions::role, users::email, users::name, users::avatar_url))
         .load::<AssetPermissionInfo>(&mut conn)
         .await;
 
@@ -429,6 +430,7 @@ pub async fn get_metric_for_dashboard_handler(
                             email: p.email,
                             role: p.role,
                             name: p.name,
+                            avatar_url: p.avatar_url,
                         })
                         .collect::<Vec<BusterShareIndividual>>(),
                 )

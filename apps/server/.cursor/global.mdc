@@ -1,0 +1,196 @@
+---
+globs: src/*
+alwaysApply: false
+---
+
+# Buster Server API Patterns
+
+## Modular Route Architecture
+
+### File Structure Pattern
+Create separate files for each HTTP method within feature directories:
+```
+src/api/v2/[resource]/
+├── GET.ts     # GET operations
+├── PUT.ts     # PUT operations  
+├── POST.ts    # POST operations
+├── DELETE.ts  # DELETE operations
+└── index.ts   # Barrel export combining all methods
+```
+
+### Barrel Export Pattern (index.ts)
+Always combine route methods through barrel exports with global middleware:
+```typescript
+import { Hono } from 'hono';
+import { requireAuth } from '../../../middleware/auth';
+import GET from './GET';
+import PUT from './PUT';
+
+const app = new Hono()
+  .use('*', requireAuth) // Global auth for ALL methods
+  .route('/', GET)       // Mount individual handlers
+  .route('/', PUT);
+
+export default app;
+```
+
+## Middleware Patterns
+
+### Layered Authentication
+1. **Global Level**: Apply `requireAuth` in index.ts for ALL routes
+2. **Method Level**: Apply specific authorization in individual files:
+   - `requireOrganization` - User must belong to organization
+   - `requireOrganizationAdmin` - User must be organization admin
+   - `requireWorkspaceAccess` - User must have workspace access
+
+```typescript
+// In individual route files (GET.ts, PUT.ts, etc.)
+const app = new Hono()
+  .use('*', requireOrganizationAdmin) // Method-specific auth
+  .put('/', zValidator('json', RequestSchema), handler);
+```
+
+## Type Safety Requirements
+
+### Schema Definition Pattern
+Define all schemas in `@buster/server-shared/[feature]`:
+```typescript
+// @buster/server-shared/organization/types.ts
+export const UpdateOrganizationRequestSchema = z.object({
+  colorPalette: z.array(z.string()).optional(),
+});
+
+export type UpdateOrganizationRequest = z.infer<typeof UpdateOrganizationRequestSchema>;
+export type UpdateOrganizationResponse = {
+  id: string;
+  // ... fields
+};
+```
+
+### Import Pattern
+**CRITICAL**: Always use `type` keyword for type imports to minimize build size:
+```typescript
+import type { RequestType, ResponseType } from '@buster/server-shared/feature';
+import { RequestSchema } from '@buster/server-shared/feature';
+```
+
+### Validation Pattern
+Use Hono's `zValidator` for ALL request validation:
+```typescript
+import { zValidator } from '@hono/zod-validator';
+
+const app = new Hono()
+  .put('/', zValidator('json', RequestSchema), async (c) => {
+    const request = c.req.valid('json'); // Fully typed
+    // handler logic
+  });
+```
+
+## Database Interaction Rules
+
+### Required Pattern
+**ALL database operations MUST go through `@buster/database` package:**
+```typescript
+// ✅ CORRECT
+import { getOrganization, updateOrganization } from '@buster/database';
+const org = await getOrganization({ organizationId });
+
+// ❌ FORBIDDEN - No direct database queries
+// const result = await db.query('SELECT...');
+```
+
+## Error Handling Strategy
+
+### Use Shared Error Utilities
+Use standardized error handling from `@/utils/response` for consistency:
+```typescript
+import { standardErrorHandler } from '../../utils/response';
+
+// Basic usage - handles all error types automatically
+.onError(standardErrorHandler);
+
+// With custom message for specific errors
+.onError((e, c) => standardErrorHandler(e, c, 'Custom error message'));
+```
+
+### Available Error Utilities
+- `standardErrorHandler(error, context, customMessage?)` - Complete error handler that returns Hono response for all error types
+- `handleZodError(zodError)` - Formats Zod validation errors with detailed issues
+- `errorResponse(message, status)` - Creates HTTPException for throwing errors
+- `notFoundResponse(resource)` - Standard 404 error
+- `unauthorizedResponse(message)` - Standard 401 error
+
+## Required Handler Structure
+
+### Handler Function Pattern
+```typescript
+import { errorResponse } from '../../utils/response';
+
+async function handlerFunction(
+  resourceId: string,
+  request: RequestType,
+  user: User
+): Promise<ResponseType> {
+  try {
+    // Database operations through @buster/database only
+    const result = await databaseFunction({ resourceId, ...request });
+    return result;
+  } catch (error) {
+    // Log with context
+    console.error('Error in handler:', {
+      resourceId,
+      userId: user.id,
+      error: error instanceof Error ? error.message : error,
+    });
+
+    // Re-throw Zod errors for route handler
+    if (error instanceof z.ZodError) {
+      throw error;
+    }
+
+    // Use shared error response utility
+    throw errorResponse('Operation failed', 500);
+  }
+}
+```
+
+### Route Definition Pattern
+```typescript
+import { zValidator } from '@hono/zod-validator';
+import { Hono } from 'hono';
+import { standardErrorHandler, errorResponse } from '../../utils/response';
+
+const app = new Hono()
+  .use('*', /* appropriate middleware */)
+  .method('/', zValidator('json', RequestSchema), async (c) => {
+    const request = c.req.valid('json');
+    const user = c.get('busterUser');
+    const userOrg = c.get('userOrganizationInfo');
+    
+    const response = await handlerFunction(
+      userOrg.organizationId, 
+      request, 
+      user
+    );
+    
+    return c.json(response);
+  })
+  .onError(standardErrorHandler);
+  // Or with custom message: .onError((e, c) => standardErrorHandler(e, c, 'Custom message'));
+
+export default app;
+```
+
+## Checklist for New Routes
+
+- [ ] Create separate file for each HTTP method (GET.ts, PUT.ts, etc.)
+- [ ] Define request/response types in `@buster/server-shared`
+- [ ] Import types with `type` keyword
+- [ ] Use `zValidator` for request validation
+- [ ] Apply appropriate middleware (global + method-specific)
+- [ ] Route database operations through `@buster/database`
+- [ ] Import and use `standardErrorHandler` from `@/utils/response`
+- [ ] Implement error handling with `.onError(standardErrorHandler)`
+- [ ] Use `errorResponse` for throwing consistent errors in handlers
+- [ ] Combine methods in index.ts with barrel export pattern
+- [ ] Add global `requireAuth` middleware in index.ts

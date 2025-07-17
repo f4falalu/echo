@@ -24,6 +24,7 @@
     "test:watch": "vitest watch",
     "test:coverage": "vitest run --coverage",
     "eval:metrics": "npx braintrust eval evals/agents/analyst-agent/metrics",
+    "eval:post-processing": "npx braintrust eval evals/agents/post-processing-agent",
     "braintrust:push": "npx braintrust push evals/agents/analyst-agent/metrics/test_scorers.ts",
     "braintrust:push:staged": "npx braintrust push evals/agents/analyst-agent/metrics/staged_scorers.ts"
   },

@@ -1,7 +1,20 @@
 import type { organizations } from '@buster/database';
 import { z } from 'zod';
-import type { IsEqual } from '../type-utilities';
+import type { Equal, Expect } from '../type-utilities';
 import { OrganizationRoleSchema } from './roles.types';
+
+// Hex color validation schema for 3 or 6 digit hex codes
+const HexColorSchema = z
+  .string()
+  .regex(
+    /^#([0-9A-Fa-f]{3}|[0-9A-Fa-f]{6})$/,
+    'Must be a valid 3 or 6 digit hex color code (e.g., #fff or #ffffff)'
+  );
+
+export const OrganizationColorPaletteSchema = z.object({
+  id: z.string().or(z.number()),
+  colors: z.array(HexColorSchema).min(1).max(25),
+});
 
 export const OrganizationSchema = z.object({
   id: z.string(),
@@ -14,8 +27,9 @@ export const OrganizationSchema = z.object({
   domains: z.array(z.string()).nullable(),
   restrictNewUserInvitations: z.boolean(),
   defaultRole: OrganizationRoleSchema,
+  organizationColorPalettes: z.array(OrganizationColorPaletteSchema),
 });
 
 export type Organization = z.infer<typeof OrganizationSchema>;
 
-type _DBEqualityCheck = IsEqual<Organization, typeof organizations.$inferSelect>;
+type _OrganizationEqualityCheck = Expect<Equal<Organization, typeof organizations.$inferSelect>>;

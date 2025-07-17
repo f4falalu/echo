@@ -1,6 +1,7 @@
-import { getUser } from '@buster/database';
+import { getUser, getUserOrganizationId } from '@buster/database';
 import type { Context, Next } from 'hono';
 import { bearerAuth } from 'hono/bearer-auth';
+import { isOrganizationAdmin } from '../utils/admin';
 import { createSupabaseClient } from './supabase';
 
 const supabase = createSupabaseClient();
@@ -95,3 +96,49 @@ export async function requireUser(c: Context, next: Next) {
     throw new Error('User not authenticated - server error');
   }
 }
+
+// Utility function to get user organization (can be called from other middleware)
+const getUserOrganization = async (c: Context) => {
+  const user = c.get('busterUser');
+  const userOrganizationInfo = c.get('userOrganizationInfo');
+
+  if (userOrganizationInfo) {
+    return userOrganizationInfo;
+  }
+
+  const userOrg = await getUserOrganizationId(user.id);
+
+  if (!userOrg) {
+    throw new Error('User is not associated with an organization');
+  }
+
+  c.set('userOrganizationInfo', userOrg);
+
+  return userOrg;
+};
+
+// Middleware version that can be used in route chains
+export const requireOrganization = async (c: Context, next: Next) => {
+  await getUserOrganization(c);
+  await next();
+};
+
+export const requireOrganizationAdmin = async (c: Context, next: Next) => {
+  const user = c.get('busterUser');
+
+  if (!user?.id) {
+    console.warn('This is likely an issue where requireAuth middleware was not called first');
+    return c.json({ message: 'User not authenticated' }, 401);
+  }
+
+  const userOrg = await getUserOrganization(c);
+
+  const isAdmin = isOrganizationAdmin(userOrg.role);
+
+  if (!isAdmin) {
+    return c.json({ message: 'User is not an organization admin' }, 403);
+  }
+
+  // If all checks pass, continue to the next middleware/handler
+  return await next();
+};

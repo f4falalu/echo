@@ -26,6 +26,7 @@ struct AssetPermissionInfo {
     role: AssetPermissionRole,
     email: String,
     name: Option<String>,
+    avatar_url: Option<String>,
 }
 
 /// Type for querying asset data from database
@@ -130,6 +131,7 @@ pub async fn get_collection_handler(
             asset_permissions::role,
             users::email,
             users::name,
+            users::avatar_url,
         ))
         .load::<AssetPermissionInfo>(&mut conn)
         .await;
@@ -152,6 +154,7 @@ pub async fn get_collection_handler(
                             email: p.email,
                             role: p.role,
                             name: p.name,
+                            avatar_url: p.avatar_url,
                         })
                         .collect::<Vec<BusterShareIndividual>>(),
                 )

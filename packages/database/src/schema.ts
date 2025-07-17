@@ -19,8 +19,7 @@ import {
   uuid,
   varchar,
 } from 'drizzle-orm/pg-core';
-import { createSelectSchema } from 'drizzle-zod';
-import { z } from 'zod';
+import type { OrganizationColorPalettes } from './schema-types';
 
 export const assetPermissionRoleEnum = pgEnum('asset_permission_role_enum', [
   'owner',
@@ -1070,6 +1069,10 @@ export const organizations = pgTable(
     domains: text('domains').array(),
     restrictNewUserInvitations: boolean('restrict_new_user_invitations').default(false).notNull(),
     defaultRole: userOrganizationRoleEnum('default_role').default('restricted_querier').notNull(),
+    organizationColorPalettes: jsonb('organization_color_palettes')
+      .$type<OrganizationColorPalettes>()
+      .default(sql`'[]'::jsonb`)
+      .notNull(),
   },
   (table) => [unique('organizations_name_key').on(table.name)]
 );

@@ -32,6 +32,7 @@ export type InitiateOAuthResponse = z.infer<typeof InitiateOAuthResponseSchema>;
 // GET /api/v2/slack/integration
 export const GetIntegrationResponseSchema = z.object({
   connected: z.boolean(),
+  status: z.enum(['connected', 'disconnected', 're_install_required']).optional(),
   integration: z
     .object({
       id: z.string(),

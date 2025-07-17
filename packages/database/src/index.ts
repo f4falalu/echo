@@ -16,6 +16,9 @@ export * from './queries';
 // Export vault functions
 export * from './vault';
 
+// Export schema types
+export * from './schema-types';
+
 // Export common Drizzle utilities
 export {
   eq,

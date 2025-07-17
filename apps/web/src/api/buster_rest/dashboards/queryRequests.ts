@@ -355,17 +355,14 @@ export const useShareDashboard = () => {
   const { latestVersionNumber } = useGetDashboardVersionNumber();
   return useMutation({
     mutationFn: shareDashboard,
-    onMutate: (variables) => {
-      const queryKey = dashboardQueryKeys.dashboardGetDashboard(
-        variables.id,
-        latestVersionNumber
-      ).queryKey;
+    onMutate: ({ id, params }) => {
+      const queryKey = dashboardQueryKeys.dashboardGetDashboard(id, latestVersionNumber).queryKey;
 
       queryClient.setQueryData(queryKey, (previousData) => {
         if (!previousData) return previousData;
         return create(previousData, (draft) => {
           draft.individual_permissions = [
-            ...variables.params.map((p) => ({
+            ...params.map((p) => ({
               ...p,
               name: p.name,
               avatar_url: p.avatar_url || null
