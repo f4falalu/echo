@@ -38,6 +38,8 @@ pub struct ChatWithMessages {
     pub workspace_sharing: WorkspaceSharing,
     pub workspace_sharing_enabled_by: Option<String>,
     pub workspace_sharing_enabled_at: Option<DateTime<Utc>>,
+    // Workspace member count
+    pub workspace_member_count: i64,
 }
 
 impl ChatWithMessages {
@@ -69,6 +71,7 @@ impl ChatWithMessages {
             workspace_sharing: WorkspaceSharing::None,
             workspace_sharing_enabled_by: None,
             workspace_sharing_enabled_at: None,
+            workspace_member_count: 0,
         }
     }
 
@@ -114,6 +117,7 @@ impl ChatWithMessages {
             workspace_sharing: WorkspaceSharing::None,
             workspace_sharing_enabled_by: None,
             workspace_sharing_enabled_at: None,
+            workspace_member_count: 0,
         }
     }
     
@@ -145,6 +149,11 @@ impl ChatWithMessages {
         self.workspace_sharing = workspace_sharing;
         self.workspace_sharing_enabled_by = workspace_sharing_enabled_by;
         self.workspace_sharing_enabled_at = workspace_sharing_enabled_at;
+        self
+    }
+    
+    pub fn with_workspace_member_count(mut self, count: i64) -> Self {
+        self.workspace_member_count = count;
         self
     }
 

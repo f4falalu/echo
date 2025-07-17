@@ -13,6 +13,7 @@ use tokio;
 use uuid::Uuid;
 
 use crate::collections::types::{CollectionState, CreateCollectionRequest};
+use crate::utils::workspace::count_workspace_members;
 
 /// Handler for creating a new collection
 ///
@@ -147,6 +148,11 @@ pub async fn create_collection_handler(
         return Err(anyhow!("Error in collection search insert: {:?}", e));
     }
 
+    // Count workspace members
+    let workspace_member_count = count_workspace_members(collection.organization_id)
+        .await
+        .unwrap_or(0);
+
     // Return the collection state
     Ok(CollectionState {
         collection: collection.clone(),
@@ -161,5 +167,6 @@ pub async fn create_collection_handler(
         workspace_sharing: collection.workspace_sharing,
         workspace_sharing_enabled_by: None,
         workspace_sharing_enabled_at: collection.workspace_sharing_enabled_at,
+        workspace_member_count,
     })
 }

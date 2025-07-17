@@ -8,6 +8,7 @@ use sharing::asset_access_checks::check_metric_collection_access;
 use uuid::Uuid;
 
 use crate::metrics::types::{AssociatedCollection, AssociatedDashboard, BusterMetric, Dataset};
+use crate::utils::workspace::count_workspace_members;
 use database::enums::{AssetPermissionRole, AssetType, IdentityType};
 use database::helpers::metric_files::fetch_metric_file_with_permissions;
 use database::pool::get_pg_pool;
@@ -474,6 +475,11 @@ pub async fn get_metric_handler(
         None
     };
 
+    // Count workspace members
+    let workspace_member_count = count_workspace_members(metric_file.organization_id)
+        .await
+        .unwrap_or(0);
+
     // Construct BusterMetric using resolved values
     Ok(BusterMetric {
         id: metric_file.id,
@@ -512,5 +518,7 @@ pub async fn get_metric_handler(
         workspace_sharing: metric_file.workspace_sharing,
         workspace_sharing_enabled_by,
         workspace_sharing_enabled_at: metric_file.workspace_sharing_enabled_at,
+        // Workspace member count
+        workspace_member_count,
     })
 }

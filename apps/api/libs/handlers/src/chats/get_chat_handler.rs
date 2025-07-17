@@ -11,6 +11,7 @@ use uuid::Uuid;
 
 use crate::chats::types::{BusterShareIndividual, ChatWithMessages};
 use crate::messages::types::{ChatMessage, ChatUserMessage};
+use crate::utils::workspace::count_workspace_members;
 use database::schema::{asset_permissions, chats, messages, users};
 use database::{
     enums::{AssetPermissionRole, AssetType, IdentityType},
@@ -386,6 +387,11 @@ pub async fn get_chat_handler(
         None
     };
 
+    // Count workspace members
+    let workspace_member_count = count_workspace_members(chat_with_permission.chat.organization_id)
+        .await
+        .unwrap_or(0);
+
     // Add permissions
     Ok(chat
         .with_permissions(
@@ -399,5 +405,6 @@ pub async fn get_chat_handler(
             chat_with_permission.chat.workspace_sharing,
             workspace_sharing_enabled_by,
             chat_with_permission.chat.workspace_sharing_enabled_at,
-        ))
+        )
+        .with_workspace_member_count(workspace_member_count))
 }

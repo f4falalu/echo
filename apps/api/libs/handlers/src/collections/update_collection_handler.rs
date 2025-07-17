@@ -15,6 +15,7 @@ use tokio;
 use uuid::Uuid;
 
 use crate::collections::types::{CollectionState, UpdateCollectionObject, UpdateCollectionRequest};
+use crate::utils::workspace::count_workspace_members;
 
 /// Handler for updating a collection
 ///
@@ -98,6 +99,11 @@ pub async fn update_collection_handler(
         None => return Err(anyhow!("Collection not found after update")),
     };
 
+    // Count workspace members
+    let workspace_member_count = count_workspace_members(updated_collection_with_permission.collection.organization_id)
+        .await
+        .unwrap_or(0);
+
     Ok(CollectionState {
         collection: updated_collection_with_permission.collection.clone(),
         assets: None,
@@ -111,6 +117,7 @@ pub async fn update_collection_handler(
         workspace_sharing: updated_collection_with_permission.collection.workspace_sharing,
         workspace_sharing_enabled_by: None,  // Would need to fetch if we want email
         workspace_sharing_enabled_at: updated_collection_with_permission.collection.workspace_sharing_enabled_at,
+        workspace_member_count,
     })
 }
 

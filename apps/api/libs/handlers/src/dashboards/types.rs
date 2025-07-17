@@ -53,6 +53,8 @@ pub struct BusterDashboardResponse {
     pub workspace_sharing_enabled_at: Option<DateTime<Utc>>,
     // Versioning field
     pub versions: Vec<Version>,
+    // Workspace member count
+    pub workspace_member_count: i64,
 }
 
 // Note: This extends BusterShare but omits certain fields

@@ -14,6 +14,7 @@ use uuid::Uuid;
 use crate::dashboards::types::{BusterShareIndividual, DashboardCollection};
 use crate::metrics::{get_metric_for_dashboard_handler, get_metric_handler};
 use crate::metrics::{BusterMetric, Dataset, Version};
+use crate::utils::workspace::count_workspace_members;
 use database::enums::{AssetPermissionRole, AssetType, IdentityType, Verification};
 use database::helpers::dashboard_files::fetch_dashboard_file_with_permission;
 use database::pool::get_pg_pool;
@@ -456,6 +457,11 @@ pub async fn get_dashboard_handler(
         None
     };
 
+    // Count workspace members
+    let workspace_member_count = count_workspace_members(dashboard_file.organization_id)
+        .await
+        .unwrap_or(0);
+
     Ok(BusterDashboardResponse {
         access: permission,
         metrics,
@@ -474,6 +480,8 @@ pub async fn get_dashboard_handler(
         workspace_sharing_enabled_at: dashboard_file.workspace_sharing_enabled_at,
         // Version information
         versions,
+        // Workspace member count
+        workspace_member_count,
     })
 }
 

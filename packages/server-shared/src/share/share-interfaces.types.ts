@@ -33,6 +33,7 @@ export const ShareConfigSchema = z.object({
   public_password: z.string().nullable(),
   permission: ShareRoleSchema, //this is the permission the user has to the metric, dashboard or collection
   workspace_sharing: WorkspaceShareRoleSchema.nullable(),
+  workspace_member_count: z.number().nullable(),
 });
 
 // Export the inferred types

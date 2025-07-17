@@ -70,8 +70,8 @@ export const WorkspaceShareSection: React.FC<WorkspaceShareSectionProps> = React
         </div>
         <div className="flex w-full flex-col gap-y-0 overflow-hidden">
           <Text className="truncate">Workspace</Text>
-          <Text variant="secondary" size="xs" className="truncate">
-            Share with 1,819 members
+          <Text variant="secondary" size="sm" className="truncate">
+            Share with {shareAssetConfig.workspace_member_count?.toLocaleString() || 0} members
           </Text>
         </div>
       </div>

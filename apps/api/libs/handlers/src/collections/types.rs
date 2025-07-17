@@ -88,6 +88,8 @@ pub struct CollectionState {
     pub workspace_sharing: WorkspaceSharing,
     pub workspace_sharing_enabled_by: Option<String>,
     pub workspace_sharing_enabled_at: Option<DateTime<Utc>>,
+    // Workspace member count
+    pub workspace_member_count: i64,
 }
 
 // Create collection types

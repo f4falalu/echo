@@ -213,7 +213,8 @@ export const createMockMetric = (id: string): BusterMetric => {
     public_password: '',
     permission: 'owner',
     id,
-    workspace_sharing: 'none'
+    workspace_sharing: 'none',
+    workspace_member_count: 20
   };
 };
 

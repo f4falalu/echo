@@ -19,6 +19,7 @@ use uuid::Uuid;
 use crate::collections::types::{
     AssetUser, BusterShareIndividual, CollectionAsset, CollectionState, GetCollectionRequest,
 };
+use crate::utils::workspace::count_workspace_members;
 
 #[derive(Queryable)]
 struct AssetPermissionInfo {
@@ -328,6 +329,11 @@ pub async fn get_collection_handler(
         None
     };
 
+    // Count workspace members
+    let workspace_member_count = count_workspace_members(collection_with_permission.collection.organization_id)
+        .await
+        .unwrap_or(0);
+
     // Create collection state
     let collection_state = CollectionState {
         collection: collection_with_permission.collection.clone(),
@@ -343,6 +349,8 @@ pub async fn get_collection_handler(
         workspace_sharing: collection_with_permission.collection.workspace_sharing,
         workspace_sharing_enabled_by,
         workspace_sharing_enabled_at: collection_with_permission.collection.workspace_sharing_enabled_at,
+        // Workspace member count
+        workspace_member_count,
     };
 
     Ok(collection_state)
