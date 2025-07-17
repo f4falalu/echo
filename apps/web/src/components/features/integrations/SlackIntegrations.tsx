@@ -1,6 +1,8 @@
 'use client';
 
 import React, { useMemo } from 'react';
+
+type SlackSharingPermission = 'shareWithWorkspace' | 'shareWithChannel' | 'noSharing';
 import { SettingsCards } from '../settings/SettingsCard';
 import { SlackIcon } from '@/components/ui/icons/customIcons/SlackIcon';
 import { Text } from '@/components/ui/typography';
@@ -13,7 +15,7 @@ import {
   useUpdateSlackIntegration
 } from '@/api/buster_rest/slack/queryRequests';
 import { Dropdown, type DropdownItems } from '@/components/ui/dropdown';
-import { LinkSlash, Refresh2 } from '@/components/ui/icons';
+import { LinkSlash, Refresh2, ChevronDown } from '@/components/ui/icons';
 import { useMemoizedFn } from '@/hooks';
 import pluralize from 'pluralize';
 import { StatusCard } from '@/components/ui/card/StatusCard';
@@ -30,7 +32,8 @@ export const SlackIntegrations = React.memo(() => {
   const cards = useMemo(() => {
     const sections = [
       <ConnectSlackCard key="connect-slack-card" />,
-      isConnected && <ConnectedSlackChannels key="connected-slack-channels" />
+      isConnected && <ConnectedSlackChannels key="connected-slack-channels" />,
+      isConnected && <SlackSharingPermissions key="slack-sharing-permissions" />
     ].filter(Boolean);
     return [{ sections }];
   }, [isConnected]);
@@ -205,3 +208,61 @@ const ConnectedSlackChannels = React.memo(() => {
 });
 
 ConnectedSlackChannels.displayName = 'ConnectedSlackChannels';
+
+const SlackSharingPermissions = React.memo(() => {
+  const { data: slackIntegration } = useGetSlackIntegration();
+  const { mutate: updateSlackIntegration } = useUpdateSlackIntegration();
+
+  const sharingOptions = [
+    {
+      label: 'Workspace',
+      value: 'shareWithWorkspace',
+      secondaryLabel: 'All workspace members will have access to any chat created from any channel.'
+    },
+    {
+      label: 'Channel', 
+      value: 'shareWithChannel',
+      secondaryLabel: 'All channel members will have access to any chat created from that channel.'
+    },
+    {
+      label: 'None',
+      value: 'noSharing', 
+      secondaryLabel: 'Only the user who sent the request will have access to their chat.'
+    }
+  ];
+
+  const selectedOption: SlackSharingPermission = slackIntegration?.integration?.default_sharing_permissions || 'noSharing';
+  const selectedLabel = sharingOptions.find(option => option.value === selectedOption)?.label || 'Select option';
+
+  const handleSelect = useMemoizedFn((value: string) => {
+    updateSlackIntegration({ 
+      default_sharing_permissions: value as SlackSharingPermission
+    });
+  });
+
+  return (
+    <div className="flex items-center justify-between space-x-4">
+      <div className="flex flex-col space-y-0.5">
+        <Text>Auto-share chats with other users</Text>
+        <Text variant="secondary" size={'xs'}>
+          Specify how chats are auto-shared when created from slack channels
+        </Text>
+      </div>
+      <Dropdown
+        items={sharingOptions}
+        onSelect={handleSelect}
+        align="end"
+        side="bottom"
+        selectType="single">
+        <div className="flex items-center justify-between space-x-2 cursor-pointer border rounded px-3 py-1.5 bg-background hover:bg-item-hover transition-colors min-w-32">
+          <Text size="sm" className="truncate">{selectedLabel}</Text>
+          <span className="text-icon-color flex items-center">
+            <ChevronDown />
+          </span>
+        </div>
+      </Dropdown>
+    </div>
+  );
+});
+
+SlackSharingPermissions.displayName = 'SlackSharingPermissions';

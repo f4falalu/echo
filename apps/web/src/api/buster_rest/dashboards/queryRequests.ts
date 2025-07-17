@@ -44,6 +44,7 @@ import {
   unshareDashboard,
   updateDashboardShare
 } from './requests';
+import { userQueryKeys } from '../../query_keys/users';
 
 export const useGetDashboard = <TData = BusterDashboardResponse>(
   {
@@ -359,19 +360,28 @@ export const useShareDashboard = () => {
         variables.id,
         latestVersionNumber
       ).queryKey;
+
       queryClient.setQueryData(queryKey, (previousData) => {
         if (!previousData) return previousData;
         return create(previousData, (draft) => {
           draft.individual_permissions = [
-            ...variables.params.map((p) => ({ ...p, avatar_url: null })),
+            ...variables.params.map((p) => ({
+              ...p,
+              name: p.name,
+              avatar_url: p.avatar_url || null
+            })),
             ...(draft.individual_permissions || [])
           ];
         });
       });
     },
     onSuccess: (data, variables) => {
+      const partialMatchedKey = dashboardQueryKeys
+        .dashboardGetDashboard(variables.id, null)
+        .queryKey.slice(0, -1);
       queryClient.invalidateQueries({
-        queryKey: dashboardQueryKeys.dashboardGetDashboard(variables.id, null).queryKey
+        queryKey: partialMatchedKey,
+        refetchType: 'all'
       });
     }
   });

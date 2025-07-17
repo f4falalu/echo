@@ -56,7 +56,9 @@ export const BulkUpdateMetricVerificationStatusRequestSchema = z.array(
 export const ShareMetricRequestSchema = z.array(
   z.object({
     email: z.string(),
+    name: z.string().optional(),
     role: ShareRoleSchema,
+    avatar_url: z.string().nullable().optional(),
   })
 );
 

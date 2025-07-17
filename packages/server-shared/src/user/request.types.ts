@@ -51,14 +51,18 @@ export const GetUserListRequestSchema = z.object({
 export type GetUserListRequest = z.infer<typeof GetUserListRequestSchema>;
 
 export const GetUserToOrganizationRequestSchema = z.object({
-  page: z.coerce.number().min(1).optional().default(1),
-  page_size: z.coerce.number().min(1).max(5000).optional().default(25),
+  page: z.coerce.number().min(1).default(1),
+  page_size: z.coerce.number().min(1).max(5000).default(25),
   user_name: z.string().optional(),
   email: z.string().optional(),
   //We need this because the frontend sends the roles as a comma-separated string in the query params
-  role: createOptionalQueryArrayPreprocessor(OrganizationRoleSchema),
+  role: createOptionalQueryArrayPreprocessor(OrganizationRoleSchema).optional(),
   //We need this because the frontend sends the status as a comma-separated string in the query params
-  status: createOptionalQueryArrayPreprocessor(OrganizationStatusSchema),
+  status: createOptionalQueryArrayPreprocessor(OrganizationStatusSchema)
+    .default(['active'])
+    .optional(),
 });
 
-export type GetUserToOrganizationRequest = z.infer<typeof GetUserToOrganizationRequestSchema>;
+export type GetUserToOrganizationRequest = Partial<
+  z.infer<typeof GetUserToOrganizationRequestSchema>
+>;
