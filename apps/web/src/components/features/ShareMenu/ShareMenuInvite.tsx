@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { InputSearchDropdown } from '@/components/ui/inputs/InputSearchDropdown';
 import type { ShareAssetType, ShareConfig, ShareRole } from '@buster/server-shared/share';
 import { AccessDropdown } from './AccessDropdown';
@@ -10,6 +10,9 @@ import { useMemoizedFn } from '@/hooks';
 import { useShareMetric } from '@/api/buster_rest/metrics';
 import { useShareDashboard } from '@/api/buster_rest/dashboards';
 import { useShareCollection } from '@/api/buster_rest/collections';
+import { useGetUserToOrganization } from '../../../api/buster_rest/users';
+import type { SelectItem } from '../../ui/select';
+import { AvatarUserButton } from '../../ui/avatar/AvatarUserButton';
 
 interface ShareMenuInviteProps {
   assetType: ShareAssetType;
@@ -17,96 +20,136 @@ interface ShareMenuInviteProps {
   individualPermissions: ShareConfig['individual_permissions'];
 }
 
-export const ShareMenuInvite: React.FC<ShareMenuInviteProps> = ({
-  individualPermissions,
-  assetType,
-  assetId
-}) => {
-  const { openErrorMessage } = useBusterNotifications();
+export const ShareMenuInvite: React.FC<ShareMenuInviteProps> = React.memo(
+  ({ individualPermissions, assetType, assetId }) => {
+    const { openErrorMessage } = useBusterNotifications();
 
-  const { mutateAsync: onShareMetric, isPending: isInvitingMetric } = useShareMetric();
-  const { mutateAsync: onShareDashboard, isPending: isInvitingDashboard } = useShareDashboard();
-  const { mutateAsync: onShareCollection, isPending: isInvitingCollection } = useShareCollection();
+    const { mutateAsync: onShareMetric, isPending: isInvitingMetric } = useShareMetric();
+    const { mutateAsync: onShareDashboard, isPending: isInvitingDashboard } = useShareDashboard();
+    const { mutateAsync: onShareCollection, isPending: isInvitingCollection } =
+      useShareCollection();
 
-  const [inputValue, setInputValue] = React.useState<string>('');
-  const [defaultPermissionLevel, setDefaultPermissionLevel] = React.useState<ShareRole>('canView');
+    const [inputValue, setInputValue] = React.useState<string>('');
+    const [defaultPermissionLevel, setDefaultPermissionLevel] =
+      React.useState<ShareRole>('canView');
 
-  const disableSubmit = !inputHasText(inputValue) || !isValidEmail(inputValue);
-  const isInviting = isInvitingMetric || isInvitingDashboard || isInvitingCollection;
+    const { data: usersData } = useGetUserToOrganization({
+      user_name: inputValue,
+      email: inputValue,
+      page: 1,
+      page_size: 5
+    });
 
-  const onChangeAccessDropdown = useMemoizedFn((level: ShareRole | null) => {
-    if (level) setDefaultPermissionLevel(level);
-  });
+    const disableSubmit = !inputHasText(inputValue) || !isValidEmail(inputValue);
+    const isInviting = isInvitingMetric || isInvitingDashboard || isInvitingCollection;
 
-  const onSubmitNewEmail = useMemoizedFn(async () => {
-    const emailIsValid = isValidEmail(inputValue);
-    if (!emailIsValid) {
-      openErrorMessage('Invalid email address');
-      return;
-    }
+    const options: SelectItem<string>[] = useMemo(() => {
+      return (
+        usersData?.data.map((user) => ({
+          label: (
+            <AvatarUserButton
+              username={user.name}
+              email={user.email}
+              avatarUrl={user.avatarUrl}
+              avatarSize={24}
+              className="cursor-pointer p-0"
+            />
+          ),
+          value: user.email
+        })) || []
+      );
+    }, [usersData]);
 
-    const isAlreadyShared = individualPermissions?.some(
-      (permission) => permission.email === inputValue
-    );
+    const onChangeAccessDropdown = useMemoizedFn((level: ShareRole | null) => {
+      if (level) setDefaultPermissionLevel(level);
+    });
 
-    if (isAlreadyShared) {
-      openErrorMessage('Email already shared');
-      return;
-    }
+    const onSubmitNewEmail = useMemoizedFn(async () => {
+      const emailIsValid = isValidEmail(inputValue);
+      if (!emailIsValid) {
+        openErrorMessage('Invalid email address');
+        return;
+      }
 
-    const payload: Parameters<typeof onShareMetric>[0] = {
-      id: assetId,
-      params: [
-        {
-          email: inputValue,
-          role: defaultPermissionLevel
-        }
-      ]
-    };
+      const isAlreadyShared = individualPermissions?.some(
+        (permission) => permission.email === inputValue
+      );
 
-    if (assetType === 'metric') {
-      await onShareMetric(payload);
-    } else if (assetType === 'dashboard') {
-      await onShareDashboard(payload);
-    } else if (assetType === 'collection') {
-      await onShareCollection(payload);
-    }
+      if (isAlreadyShared) {
+        openErrorMessage('Email already shared');
+        return;
+      }
 
-    setInputValue('');
-  });
+      const payload: Parameters<typeof onShareMetric>[0] = {
+        id: assetId,
+        params: [
+          {
+            email: inputValue,
+            role: defaultPermissionLevel
+          }
+        ]
+      };
 
-  return (
-    <div className="flex h-full items-center space-x-2">
-      <div className="relative flex w-full items-center">
-        <InputSearchDropdown
-          options={[]}
-          onSelect={() => {}}
-          onSearch={() => {}}
-          onPressEnter={() => {}}
-          value={inputValue}
-          onChange={setInputValue}
-          placeholder="Invite others by email..."
-          className="w-full"
-        />
+      if (assetType === 'metric') {
+        await onShareMetric(payload);
+      } else if (assetType === 'dashboard') {
+        await onShareDashboard(payload);
+      } else if (assetType === 'collection') {
+        await onShareCollection(payload);
+      }
 
-        {inputValue && (
-          <AccessDropdown
-            showRemove={false}
-            className="absolute top-[50%] right-[10px] -translate-y-1/2"
-            shareLevel={defaultPermissionLevel}
-            onChangeShareLevel={onChangeAccessDropdown}
-            assetType={assetType}
-            disabled={false}
+      setInputValue('');
+    });
+
+    const onPressEnter = useMemoizedFn((value: string) => {
+      onSubmitNewEmail();
+    });
+
+    const onSelect = useMemoizedFn((value: string) => {
+      const associatedUser = usersData?.data.find((user) => user.email === value);
+
+      if (associatedUser) {
+        setInputValue(associatedUser.email || '');
+      } else {
+        setInputValue(value);
+      }
+    });
+
+    return (
+      <div className="flex h-full items-center space-x-2">
+        <div className="relative flex w-full items-center">
+          <InputSearchDropdown
+            options={options}
+            onSelect={onSelect}
+            onChange={setInputValue}
+            onSearch={setInputValue}
+            onPressEnter={onPressEnter}
+            value={inputValue}
+            placeholder="Invite others by email..."
+            className="w-full"
           />
-        )}
+
+          {inputValue && (
+            <AccessDropdown
+              showRemove={false}
+              className="absolute top-[50%] right-[10px] -translate-y-1/2"
+              shareLevel={defaultPermissionLevel}
+              onChangeShareLevel={onChangeAccessDropdown}
+              assetType={assetType}
+              disabled={false}
+            />
+          )}
+        </div>
+        <Button
+          loading={isInviting}
+          size={'tall'}
+          onClick={onSubmitNewEmail}
+          disabled={disableSubmit}>
+          Invite
+        </Button>
       </div>
-      <Button
-        loading={isInviting}
-        size={'tall'}
-        onClick={onSubmitNewEmail}
-        disabled={disableSubmit}>
-        Invite
-      </Button>
-    </div>
-  );
-};
+    );
+  }
+);
+
+ShareMenuInvite.displayName = 'ShareMenuInvite';

@@ -1,27 +1,25 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
-import { Select } from '../select/Select';
-import { useMemoizedFn } from '@/hooks';
+import React, { useMemo } from 'react';
+import { Select, type SelectItem } from '../select/Select';
+import { cn } from '@/lib/utils';
 
-export interface InputSearchDropdownProps {
-  options: {
-    label: string | React.ReactNode;
-    value: string;
-  }[];
-  onSelect: (value: string) => void;
+export interface InputSearchDropdownProps<T = string> {
+  options: SelectItem<T>[];
+  onSelect: (value: T) => void;
   placeholder?: string;
   emptyMessage?: string | false;
   onSearch: ((value: string) => Promise<void>) | ((value: string) => void);
   className?: string;
   disabled?: boolean;
   matchPopUpWidth?: boolean;
-  value?: string;
+  value: string;
   onChange?: (value: string) => void;
   onPressEnter: (value: string) => void;
+  loading?: boolean;
 }
 
-export const InputSearchDropdown = ({
+export const InputSearchDropdown = <T extends string>({
   options,
   onSelect,
   onPressEnter,
@@ -32,10 +30,9 @@ export const InputSearchDropdown = ({
   value,
   className,
   onChange,
+  loading = false,
   disabled = false
-}: InputSearchDropdownProps) => {
-  const [inputValue, setInputValue] = useState(value);
-
+}: InputSearchDropdownProps<T>) => {
   const handleSearch = useMemo(() => {
     return {
       type: 'async' as const,
@@ -45,14 +42,9 @@ export const InputSearchDropdown = ({
     };
   }, [onSearch]);
 
-  const handleChange = useMemoizedFn((value: string) => {
-    setInputValue(value);
-    onChange?.(value);
-  });
-
   return (
     <Select
-      items={options}
+      items={value.length > 0 ? options : []}
       placeholder={placeholder}
       onChange={onSelect}
       disabled={disabled}
@@ -60,11 +52,14 @@ export const InputSearchDropdown = ({
       className={className}
       matchPopUpWidth={matchPopUpWidth}
       emptyMessage={emptyMessage}
-      inputValue={inputValue}
-      onInputValueChange={handleChange}
+      inputValue={value}
+      onInputValueChange={onChange}
       search={handleSearch}
       hideChevron={true}
+      clearOnSelect={false}
+      loading={loading}
       onPressEnter={onPressEnter}
+      type="input"
     />
   );
 };

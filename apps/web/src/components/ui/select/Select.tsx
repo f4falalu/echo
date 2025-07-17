@@ -57,6 +57,8 @@ interface BaseSelectProps<T> {
   hideChevron?: boolean;
   closeOnSelect?: boolean;
   onPressEnter?: (value: string) => void;
+  type?: 'select' | 'input';
+  clearOnSelect?: boolean;
 }
 
 // Clearable version - onChange can return null
@@ -149,6 +151,7 @@ function SelectComponent<T = string>({
   onChange,
   placeholder = 'Select an option',
   emptyMessage = 'No options found.',
+  type = 'select',
   value,
   onOpenChange,
   open: controlledOpen,
@@ -164,10 +167,13 @@ function SelectComponent<T = string>({
   onInputValueChange,
   hideChevron = false,
   onPressEnter,
+  clearOnSelect = true,
   closeOnSelect = true
 }: SelectProps<T>) {
   const [internalInputValue, setInternalInputValue] = React.useState('');
   const [isFocused, setIsFocused] = React.useState(false);
+  // Track whether user is in navigation mode (using arrow keys) vs input mode (typing)
+  const [isNavigationMode, setIsNavigationMode] = React.useState(false);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const inputRef = React.useRef<HTMLInputElement>(null);
   const commandRef = React.useRef<HTMLDivElement>(null);
@@ -184,15 +190,17 @@ function SelectComponent<T = string>({
       if (!disabled) {
         onOpenChange?.(newOpen);
         if (!newOpen) {
+          // Reset navigation mode when closing
+          setIsNavigationMode(false);
           // Clear search value after 200ms to avoid flickering
           setTimeout(() => {
-            setInputValue('');
+            if (clearOnSelect) setInputValue('');
             setIsFocused(false);
           }, 125);
         }
       }
     },
-    [disabled, onOpenChange, setInputValue]
+    [disabled, onOpenChange, setInputValue, clearOnSelect]
   );
 
   // Get all items in a flat array for easier processing
@@ -238,7 +246,7 @@ function SelectComponent<T = string>({
         if (closeOnSelect) closePopover();
         onChange?.(item.value);
         handleOpenChange(false);
-        setInputValue('');
+        if (clearOnSelect) setInputValue('');
         inputRef.current?.blur();
       }
     },
@@ -263,6 +271,9 @@ function SelectComponent<T = string>({
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const newValue = e.target.value;
 
+      // Reset navigation mode when user starts typing
+      setIsNavigationMode(false);
+
       setInternalInputValue?.(newValue);
       setInputValue?.(newValue);
       if (search !== false && newValue && !open) {
@@ -278,44 +289,59 @@ function SelectComponent<T = string>({
 
   const handleInputFocus = React.useCallback(() => {
     setIsFocused(true);
+    // Reset navigation mode when input gains focus
+    setIsNavigationMode(false);
     if (!open) {
       handleOpenChange(true);
     }
   }, [open, handleOpenChange]);
 
+  // Helper function to forward keyboard events to the command component
+  const forwardKeyToCommand = React.useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (commandRef.current) {
+      const commandInput = commandRef.current.querySelector('[cmdk-input]');
+      if (commandInput) {
+        const newEvent = new KeyboardEvent('keydown', {
+          key: e.key,
+          code: e.code,
+          keyCode: e.keyCode,
+          which: e.which,
+          shiftKey: e.shiftKey,
+          ctrlKey: e.ctrlKey,
+          altKey: e.altKey,
+          metaKey: e.metaKey,
+          bubbles: true,
+          cancelable: true
+        });
+        commandInput.dispatchEvent(newEvent);
+        e.preventDefault();
+      }
+    }
+  }, []);
+
   const handleInputKeyDown = React.useCallback(
     (e: React.KeyboardEvent<HTMLInputElement>) => {
-      if (e.key === 'Enter' && onPressEnter) {
-        return onPressEnter(e.currentTarget.value);
-      }
-      if (['ArrowDown', 'ArrowUp', 'Enter', 'Home', 'End'].includes(e.key)) {
-        // Forward the event to the command component
-        if (commandRef.current) {
-          const commandInput = commandRef.current.querySelector('[cmdk-input]');
-
-          if (commandInput) {
-            const newEvent = new KeyboardEvent('keydown', {
-              key: e.key,
-              code: e.code,
-              keyCode: e.keyCode,
-              which: e.which,
-              shiftKey: e.shiftKey,
-              ctrlKey: e.ctrlKey,
-              altKey: e.altKey,
-              metaKey: e.metaKey,
-              bubbles: true,
-              cancelable: true
-            });
-            commandInput.dispatchEvent(newEvent);
-            e.preventDefault();
-          }
+      if (e.key === 'Enter') {
+        if (isNavigationMode) {
+          // In navigation mode: forward to command for item selection
+          forwardKeyToCommand(e);
+        } else if (onPressEnter && search !== false) {
+          // In input mode: trigger onPressEnter callback
+          onPressEnter(e.currentTarget.value);
+          e.preventDefault();
         }
+      } else if (['ArrowDown', 'ArrowUp', 'Home', 'End'].includes(e.key)) {
+        // Enter navigation mode when using arrow keys
+        setIsNavigationMode(true);
+        // Forward the event to the command component
+        forwardKeyToCommand(e);
       } else if (e.key === 'Escape') {
+        setIsNavigationMode(false);
         handleOpenChange(false);
         inputRef.current?.blur();
       }
     },
-    [open, handleOpenChange]
+    [isNavigationMode, onPressEnter, search, handleOpenChange, forwardKeyToCommand]
   );
 
   const filteredItems = React.useMemo(() => {
@@ -401,10 +427,11 @@ function SelectComponent<T = string>({
             readOnly={search === false}
             className={cn(
               'flex h-7 w-full items-center justify-between rounded border px-2.5 text-base',
-              'bg-background cursor-pointer transition-all duration-300',
+              'bg-background transition-all duration-300',
               'focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50',
               disabled ? 'bg-disabled text-gray-light' : '',
-              !selectedItem && !currentInputValue && 'text-text-secondary'
+              !selectedItem && !currentInputValue && 'text-text-secondary',
+              type === 'input' ? 'cursor-text' : 'cursor-pointer'
             )}
           />
           <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
