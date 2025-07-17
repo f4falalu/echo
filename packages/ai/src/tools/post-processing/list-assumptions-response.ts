@@ -35,6 +35,10 @@ export const assumptionItemSchema = z
         'grouping',
         'calculationMethod',
         'dataRelevance',
+        'valueScale',
+        'joinSelection',
+        'metricAmbiguity',
+        'dataStaticAssumption',
       ])
       .describe('The classification type of the assumption'),
     explanation: z
