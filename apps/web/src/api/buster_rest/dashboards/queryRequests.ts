@@ -44,6 +44,7 @@ import {
   unshareDashboard,
   updateDashboardShare
 } from './requests';
+import { userQueryKeys } from '../../query_keys/users';
 
 export const useGetDashboard = <TData = BusterDashboardResponse>(
   {
@@ -63,6 +64,7 @@ export const useGetDashboard = <TData = BusterDashboardResponse>(
 
   const { isFetched: isFetchedInitial, isError: isErrorInitial } = useQuery({
     ...dashboardQueryKeys.dashboardGetDashboard(id, null),
+    staleTime: Infinity,
     queryFn: () => queryFn(id, paramVersionNumber),
     enabled: false, //we made this false because we want to be explicit about the fact that we fetch the dashboard server side
     retry(failureCount, error) {
@@ -87,6 +89,10 @@ export const usePrefetchGetDashboardClient = () => {
   const queryClient = useQueryClient();
   const queryFn = useGetDashboardAndInitializeMetrics(false);
   return useMemoizedFn((id: string, versionNumber: number) => {
+    const getDashboardQueryKey = dashboardQueryKeys.dashboardGetDashboard(id, versionNumber);
+    const isStale = isQueryStale(getDashboardQueryKey, queryClient);
+    if (!isStale) return queryClient;
+
     return queryClient.prefetchQuery({
       ...dashboardQueryKeys.dashboardGetDashboard(id, versionNumber),
       queryFn: () => queryFn(id, versionNumber)
@@ -110,7 +116,13 @@ export const useSaveDashboard = (params?: { updateOnSave?: boolean }) => {
           data
         );
         setOriginalDashboard(data.dashboard);
-        onSetLatestDashboardVersion(data.dashboard.id, last(data.versions)?.version_number || 0);
+        onSetLatestDashboardVersion(data.dashboard.id, last(data.versions)?.version_number || 1);
+
+        if (variables.restore_to_version) {
+          queryClient.invalidateQueries({
+            queryKey: dashboardQueryKeys.dashboardGetDashboard(data.dashboard.id, null).queryKey
+          });
+        }
       }
     }
   });
@@ -343,27 +355,31 @@ export const useShareDashboard = () => {
   const { latestVersionNumber } = useGetDashboardVersionNumber();
   return useMutation({
     mutationFn: shareDashboard,
-    onMutate: (variables) => {
-      const queryKey = dashboardQueryKeys.dashboardGetDashboard(
-        variables.id,
-        latestVersionNumber
-      ).queryKey;
+    onMutate: ({ id, params }) => {
+      const queryKey = dashboardQueryKeys.dashboardGetDashboard(id, latestVersionNumber).queryKey;
+
       queryClient.setQueryData(queryKey, (previousData) => {
         if (!previousData) return previousData;
         return create(previousData, (draft) => {
           draft.individual_permissions = [
-            ...variables.params.map((p) => ({ ...p, avatar_url: null })),
+            ...params.map((p) => ({
+              ...p,
+              name: p.name,
+              avatar_url: p.avatar_url || null
+            })),
             ...(draft.individual_permissions || [])
           ];
         });
       });
     },
-    onSuccess: (data) => {
-      // queryClient.setQueryData(
-      //   dashboardQueryKeys.dashboardGetDashboard(data.dashboard.id, data.dashboard.version_number)
-      //     .queryKey,
-      //   data
-      // );
+    onSuccess: (data, variables) => {
+      const partialMatchedKey = dashboardQueryKeys
+        .dashboardGetDashboard(variables.id, null)
+        .queryKey.slice(0, -1);
+      queryClient.invalidateQueries({
+        queryKey: partialMatchedKey,
+        refetchType: 'all'
+      });
     }
   });
 };

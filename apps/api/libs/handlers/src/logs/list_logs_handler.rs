@@ -69,7 +69,7 @@ pub async fn list_logs_handler(
     request: ListLogsRequest,
     organization_id: Uuid,
 ) -> Result<ListLogsResponse, anyhow::Error> {
-    use database::schema::{chats, users};
+    use database::schema::{chats, messages, users};
 
     let mut conn = get_pg_pool().get().await?;
 
@@ -78,6 +78,20 @@ pub async fn list_logs_handler(
         .inner_join(users::table.on(chats::created_by.eq(users::id)))
         .filter(chats::deleted_at.is_null())
         .filter(chats::organization_id.eq(organization_id))
+        .filter(chats::title.ne("")) // Filter out empty titles
+        .filter(chats::title.ne(" ")) // Filter out single space
+        .filter(
+            diesel::dsl::exists(
+                messages::table
+                    .filter(messages::chat_id.eq(chats::id))
+                    .filter(messages::request_message.is_not_null())
+                    .filter(messages::deleted_at.is_null())
+            ).or(
+                diesel::dsl::sql::<diesel::sql_types::Bool>(
+                    "(SELECT COUNT(*) FROM messages WHERE messages.chat_id = chats.id AND messages.deleted_at IS NULL) > 1"
+                )
+            )
+        )
         .into_boxed();
 
     // Calculate offset based on page number
@@ -111,6 +125,7 @@ pub async fn list_logs_handler(
     let has_more = results.len() > request.page_size as usize;
     let items: Vec<LogListItem> = results
         .into_iter()
+        .filter(|chat| !chat.title.trim().is_empty()) // Filter out titles with only whitespace
         .take(request.page_size as usize)
         .map(|chat| {
             LogListItem {

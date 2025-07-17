@@ -54,7 +54,7 @@ pub struct ListChatsResponse {
 struct ChatWithUser {
     // Chat fields
     pub id: Uuid,
-    pub name: String,
+    pub title: String,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
     pub created_by: Uuid,
@@ -78,7 +78,7 @@ pub async fn list_chats_handler(
     request: ListChatsRequest,
     user: &AuthenticatedUser,
 ) -> Result<Vec<ChatListItem>> {
-    use database::schema::{asset_permissions, chats, users};
+    use database::schema::{asset_permissions, chats, messages, users};
     
     let mut conn = get_pg_pool().get().await?;
     
@@ -105,6 +105,19 @@ pub async fn list_chats_handler(
     let mut query = chats::table
         .inner_join(users::table.on(chats::created_by.eq(users::id)))
         .filter(chats::deleted_at.is_null())
+        .filter(chats::title.ne("")) // Filter out empty titles
+        .filter(
+            diesel::dsl::exists(
+                messages::table
+                    .filter(messages::chat_id.eq(chats::id))
+                    .filter(messages::request_message.is_not_null())
+                    .filter(messages::deleted_at.is_null())
+            ).or(
+                diesel::dsl::sql::<diesel::sql_types::Bool>(
+                    "(SELECT COUNT(*) FROM messages WHERE messages.chat_id = chats.id AND messages.deleted_at IS NULL) > 1"
+                )
+            )
+        )
         .into_boxed();
     
     // Add user filter if not admin view
@@ -142,11 +155,12 @@ pub async fn list_chats_handler(
     let has_more = results.len() > request.page_size as usize;
     let items: Vec<ChatListItem> = results
         .into_iter()
+        .filter(|chat| !chat.title.trim().is_empty()) // Filter out titles with only whitespace
         .take(request.page_size as usize)
         .map(|chat| {
             ChatListItem {
                 id: chat.id.to_string(),
-                name: chat.name,
+                name: chat.title,
                 is_favorited: false, // TODO: Implement favorites feature
                 created_at: chat.created_at.to_rfc3339(),
                 updated_at: chat.updated_at.to_rfc3339(),

@@ -3,11 +3,11 @@
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { BusterRoutes, createBusterRoute } from '@/routes/busterRoutes';
-import { createClient } from './server';
+import { createSupabaseServerClient } from './server';
 
 export const signOut = async () => {
   'use server';
-  const supabase = await createClient();
+  const supabase = await createSupabaseServerClient();
   const cookieStore = cookies();
 
   // Clear all cookies

@@ -53,13 +53,6 @@ export const BulkUpdateMetricVerificationStatusRequestSchema = z.array(
   })
 );
 
-export const ShareMetricRequestSchema = z.array(
-  z.object({
-    email: z.string(),
-    role: ShareRoleSchema,
-  })
-);
-
 export const ShareDeleteRequestSchema = z.array(z.string());
 
 export const ShareUpdateRequestSchema = z.object({
@@ -85,6 +78,5 @@ export type DuplicateMetricRequest = z.infer<typeof DuplicateMetricRequestSchema
 export type BulkUpdateMetricVerificationStatusRequest = z.infer<
   typeof BulkUpdateMetricVerificationStatusRequestSchema
 >;
-export type ShareMetricRequest = z.infer<typeof ShareMetricRequestSchema>;
 export type ShareDeleteRequest = z.infer<typeof ShareDeleteRequestSchema>;
 export type ShareUpdateRequest = z.infer<typeof ShareUpdateRequestSchema>;

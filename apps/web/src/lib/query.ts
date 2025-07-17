@@ -8,6 +8,7 @@ export const isQueryStale = (
   queryClient: QueryClient
 ): boolean => {
   const queryState = queryClient.getQueryState(options.queryKey);
+
   const updatedAt = queryState?.dataUpdatedAt;
   const staleTime =
     (options.staleTime as number) ||
@@ -15,7 +16,7 @@ export const isQueryStale = (
     0;
   const isStale = updatedAt ? Date.now() - updatedAt > staleTime : true;
 
-  return isStale;
+  return isStale && queryState?.fetchStatus !== 'fetching';
 };
 
 export const hasOrganizationId = (queryClient: QueryClient): boolean => {

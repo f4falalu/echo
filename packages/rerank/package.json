@@ -19,7 +19,7 @@
     "test:integration": "vitest run **/*.int.test.ts **/*.integration.test.ts",
     "test:watch": "vitest watch",
     "test:coverage": "vitest run --coverage",
-    "lint": "biome check",
+    "lint": "biome check --write",
     "lint:fix": "biome check --apply .",
     "format": "biome format .",
     "format:fix": "biome format --write ."

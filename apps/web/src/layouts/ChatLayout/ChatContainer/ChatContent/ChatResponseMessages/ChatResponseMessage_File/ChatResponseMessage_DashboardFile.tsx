@@ -35,7 +35,7 @@ export const ChatResponseMessage_DashboardFile: React.FC<{
   const {
     data: dashboardResponse,
     isError,
-    isFetched,
+    isFetched: isFetchedDashboard,
     isLoading
   } = useGetDashboard(
     { id, versionNumber: version_number },
@@ -73,10 +73,6 @@ export const ChatResponseMessage_DashboardFile: React.FC<{
     return <TextAndVersionText text={file_name} version={version_number} />;
   }, [file_name, version_number, metricId]);
 
-  useMount(() => {
-    if (isSelectedFile) prefetchGetDashboard(id, version_number);
-  });
-
   return (
     <AnimatePresence initial={!isCompletedStream}>
       <motion.div
@@ -95,7 +91,7 @@ export const ChatResponseMessage_DashboardFile: React.FC<{
           {!hasMetrics ? null : dashboardResponse ? (
             <Content
               dashboardResponse={dashboardResponse}
-              isFetched={isFetched}
+              isFetched={isFetchedDashboard}
               metricId={metricId}
               dashboardId={dashboardId}
               chatId={chatId}

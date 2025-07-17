@@ -74,19 +74,14 @@ pnpm run check:fix packages/ai
 **Important**: Always run unit tests before completing any task to ensure code changes don't break existing functionality.
 
 ```bash
-# Run unit tests (excludes integration tests) - REQUIRED before task completion
-pnpm run test:unit
-pnpm run test:unit --filter=@buster/ai  # For specific package
+# Run unit tests (always run these when working locally)
+turbo run test:unit
 
-# Run integration tests (only when requested by user)
-pnpm run test:integration
-pnpm run test:integration --filter=@buster/ai  # For specific package
+# Run unit tests for specific package
+turbo run test:unit --filter=@buster/ai
 
-# Run all tests (unit + integration)
-pnpm run test
-
-# Run tests for specific package
-turbo run test --filter=@buster/ai
+# Run integration tests ONLY for specific features/packages you're working on
+turbo run test:integration --filter=@buster/database
 
 # Run specific test file
 pnpm run test path/to/file.test.ts
@@ -95,10 +90,21 @@ pnpm run test path/to/file.test.ts
 pnpm run test:watch
 ```
 
-**Testing Guidelines**:
-- Unit tests (`*.test.ts`) - Run these before marking any task as complete
-- Integration tests (`*.int.test.ts`) - Only run when explicitly requested by the user
-- Integration tests are automatically run in CI/CD pipelines
+### 6. Pre-Completion Checklist
+**IMPORTANT: Before finishing any task, always run:**
+```bash
+# Run unit tests for the entire monorepo
+turbo run test:unit
+
+# Run linting for the entire monorepo
+turbo run lint
+```
+
+**Key Testing Guidelines:**
+- **Always run unit tests and lint** when working locally before considering a task complete
+- **Unit tests** should be run for the entire monorepo to catch any breaking changes
+- **Integration tests** should only be run for specific packages/features you're working on (NOT the entire monorepo)
+- **Fix all failing tests and lint errors** before completing any task
 
 ## Code Quality Standards
 

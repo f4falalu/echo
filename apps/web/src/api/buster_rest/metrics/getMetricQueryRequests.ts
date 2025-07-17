@@ -56,7 +56,7 @@ export const useGetMetric = <TData = BusterMetric>(
     if (isLatestVersion) {
       setOriginalMetric(updatedMetric);
     }
-    onSetLatestMetricVersion(id || '', last(updatedMetric.versions)?.version_number || 0);
+    onSetLatestMetricVersion(id || '', last(updatedMetric.versions)?.version_number || 1);
     if (result?.version_number) {
       queryClient.setQueryData(
         metricsQueryKeys.metricsGetMetric(result.id, result.version_number).queryKey,
@@ -69,6 +69,7 @@ export const useGetMetric = <TData = BusterMetric>(
   const { isFetched: isFetchedInitial, isError: isErrorInitial } = useQuery({
     ...initialOptions,
     queryFn: () => initialQueryFn(paramVersionNumber),
+    staleTime: Infinity,
     enabled: false, //In the year of our lord 2025, April 10, I, Nate Kelley, decided to disable this query in favor of explicityly fetching the data. May god have mercy on our souls.
     retry(_failureCount, error) {
       if (error?.message !== undefined && id) {

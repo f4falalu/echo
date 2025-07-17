@@ -5,11 +5,16 @@ export const SlackErrorCodeSchema = z.enum([
   'OAUTH_INVALID_STATE',
   'OAUTH_TOKEN_EXCHANGE_FAILED',
   'INVALID_TOKEN',
+  'TOKEN_NOT_FOUND',
   'CHANNEL_NOT_FOUND',
   'NOT_IN_CHANNEL',
   'RATE_LIMITED',
   'NETWORK_ERROR',
   'UNKNOWN_ERROR',
+  'VERIFICATION_FAILED',
+  'INVALID_PAYLOAD',
+  'USER_NOT_FOUND',
+  'EMAIL_NOT_FOUND',
 ]);
 
 export type SlackErrorCode = z.infer<typeof SlackErrorCodeSchema>;

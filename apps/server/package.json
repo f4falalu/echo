@@ -11,7 +11,7 @@
     "build": "tsup",
     "dev": "bun --watch src/index.ts",
     "dev:build": "tsup --watch",
-    "lint": "biome check",
+    "lint": "biome check --write",
     "start": "bun dist/index.js",
     "test": "vitest run",
     "test:unit": "vitest run --exclude '**/*.int.test.ts' --exclude '**/*.integration.test.ts'",

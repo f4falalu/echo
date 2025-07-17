@@ -30,7 +30,7 @@ export const ChatLayout: React.FC<ChatSplitterProps> = ({ children }) => {
     return ['380px', 'auto'];
   }, [selectedLayout]);
 
-  const autoSaveId = `chat-splitter-${chatLayoutProps.chatId || '🫥'}-${chatLayoutProps.metricId || '❌'}`;
+  const autoSaveId = `chat-splitter-${chatLayoutProps.chatId || '🫥'}-${chatLayoutProps.dashboardId || chatLayoutProps.metricId || '❌'}`;
   const leftPanelMinSize = selectedFile ? DEFAULT_CHAT_OPTION_SIDEBAR_SIZE : '0px';
   const leftPanelMaxSize = selectedLayout === 'both' ? MAX_CHAT_BOTH_SIDEBAR_SIZE : undefined;
   const rightPanelMinSize = selectedFile ? DEFAULT_FILE_OPTION_SIDEBAR_SIZE : '0px';

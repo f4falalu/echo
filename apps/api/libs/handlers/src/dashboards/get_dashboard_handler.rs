@@ -52,6 +52,7 @@ struct AssetPermissionInfo {
     role: AssetPermissionRole,
     email: String,
     name: Option<String>,
+    avatar_url: Option<String>,
 }
 
 /// Fetches collections that the dashboard belongs to, filtered by user permissions
@@ -147,48 +148,61 @@ pub async fn get_dashboard_handler(
             tracing::debug!(dashboard_id = %dashboard_id, user_id = %user.id, ?permission, "Granting access via direct permission.");
         }
     } else {
-        // No sufficient direct/admin permission, check public access rules
-        tracing::debug!(dashboard_id = %dashboard_id, "Insufficient direct/admin permission. Checking public access rules.");
-        if !dashboard_file.publicly_accessible {
-            tracing::warn!(dashboard_id = %dashboard_id, user_id = %user.id, "Permission denied (not public, insufficient direct permission).");
-            return Err(anyhow!("You don't have permission to view this dashboard"));
-        }
-        tracing::debug!(dashboard_id = %dashboard_id, "Dashboard is publicly accessible.");
-
-        // Check if the public access has expired
-        if let Some(expiry_date) = dashboard_file.public_expiry_date {
-            tracing::debug!(dashboard_id = %dashboard_id, ?expiry_date, "Checking expiry date");
-            if expiry_date < chrono::Utc::now() {
-                tracing::warn!(dashboard_id = %dashboard_id, "Public access expired");
-                return Err(anyhow!("Public access to this dashboard has expired"));
-            }
-        }
-
-        // Check if a password is required
-        tracing::debug!(dashboard_id = %dashboard_id, has_password = dashboard_file.public_password.is_some(), "Checking password requirement");
-        if let Some(required_password) = &dashboard_file.public_password {
-            tracing::debug!(dashboard_id = %dashboard_id, "Password required. Checking provided password.");
-            match password {
-                Some(provided_password) => {
-                    if provided_password != *required_password {
-                        // Incorrect password provided
-                        tracing::warn!(dashboard_id = %dashboard_id, user_id = %user.id, "Incorrect public password provided");
-                        return Err(anyhow!("Incorrect password for public access"));
-                    }
-                    // Correct password provided, grant CanView via public access
-                    tracing::debug!(dashboard_id = %dashboard_id, user_id = %user.id, "Correct public password provided. Granting CanView.");
-                    permission = AssetPermissionRole::CanView;
-                }
-                None => {
-                    // Password required but none provided
-                    tracing::warn!(dashboard_id = %dashboard_id, user_id = %user.id, "Public password required but none provided");
-                    return Err(anyhow!("public_password required for this dashboard"));
-                }
-            }
-        } else {
-            // Publicly accessible, not expired, and no password required
-            tracing::debug!(dashboard_id = %dashboard_id, "Public access granted (no password required).");
+        // No sufficient direct/admin permission, check if user has access via a chat
+        tracing::debug!(dashboard_id = %dashboard_id, "Insufficient direct/admin permission. Checking chat access.");
+        
+        let has_chat_access = sharing::check_dashboard_chat_access(dashboard_id, &user.id)
+            .await
+            .unwrap_or(false);
+            
+        if has_chat_access {
+            // User has access to a chat containing this dashboard, grant CanView
+            tracing::debug!(dashboard_id = %dashboard_id, user_id = %user.id, "User has access via chat. Granting CanView.");
             permission = AssetPermissionRole::CanView;
+        } else {
+            // No chat access either, check public access rules
+            tracing::debug!(dashboard_id = %dashboard_id, "No chat access. Checking public access rules.");
+            if !dashboard_file.publicly_accessible {
+                tracing::warn!(dashboard_id = %dashboard_id, user_id = %user.id, "Permission denied (not public, no chat access, insufficient direct permission).");
+                return Err(anyhow!("You don't have permission to view this dashboard"));
+            }
+            tracing::debug!(dashboard_id = %dashboard_id, "Dashboard is publicly accessible.");
+
+            // Check if the public access has expired
+            if let Some(expiry_date) = dashboard_file.public_expiry_date {
+                tracing::debug!(dashboard_id = %dashboard_id, ?expiry_date, "Checking expiry date");
+                if expiry_date < chrono::Utc::now() {
+                    tracing::warn!(dashboard_id = %dashboard_id, "Public access expired");
+                    return Err(anyhow!("Public access to this dashboard has expired"));
+                }
+            }
+
+            // Check if a password is required
+            tracing::debug!(dashboard_id = %dashboard_id, has_password = dashboard_file.public_password.is_some(), "Checking password requirement");
+            if let Some(required_password) = &dashboard_file.public_password {
+                tracing::debug!(dashboard_id = %dashboard_id, "Password required. Checking provided password.");
+                match password {
+                    Some(provided_password) => {
+                        if provided_password != *required_password {
+                            // Incorrect password provided
+                            tracing::warn!(dashboard_id = %dashboard_id, user_id = %user.id, "Incorrect public password provided");
+                            return Err(anyhow!("Incorrect password for public access"));
+                        }
+                        // Correct password provided, grant CanView via public access
+                        tracing::debug!(dashboard_id = %dashboard_id, user_id = %user.id, "Correct public password provided. Granting CanView.");
+                        permission = AssetPermissionRole::CanView;
+                    }
+                    None => {
+                        // Password required but none provided
+                        tracing::warn!(dashboard_id = %dashboard_id, user_id = %user.id, "Public password required but none provided");
+                        return Err(anyhow!("public_password required for this dashboard"));
+                    }
+                }
+            } else {
+                // Publicly accessible, not expired, and no password required
+                tracing::debug!(dashboard_id = %dashboard_id, "Public access granted (no password required).");
+                permission = AssetPermissionRole::CanView;
+            }
         }
     }
 
@@ -315,7 +329,7 @@ pub async fn get_dashboard_handler(
         .filter(asset_permissions::asset_type.eq(AssetType::DashboardFile))
         .filter(asset_permissions::identity_type.eq(IdentityType::User))
         .filter(asset_permissions::deleted_at.is_null())
-        .select((asset_permissions::role, users::email, users::name))
+        .select((asset_permissions::role, users::email, users::name, users::avatar_url))
         .load::<AssetPermissionInfo>(&mut conn)
         .await;
 
@@ -358,6 +372,7 @@ pub async fn get_dashboard_handler(
                             email: p.email,
                             role: p.role,
                             name: p.name,
+                            avatar_url: p.avatar_url,
                         })
                         .collect::<Vec<BusterShareIndividual>>(),
                 )

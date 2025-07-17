@@ -17,6 +17,12 @@
         "@buster/data-source#build:commonjs:watch",
         "@buster/stored-values#build:commonjs:watch"
       ]
+    },
+    "dev": {
+      "cache": false,
+      "persistent": true,
+      "dependsOn": ["^build"],
+      "with": ["@buster/database#dev"]
     }
   }
 }

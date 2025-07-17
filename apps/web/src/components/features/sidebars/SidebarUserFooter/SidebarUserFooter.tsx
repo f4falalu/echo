@@ -42,7 +42,10 @@ export const SidebarUserFooter: React.FC = () => {
             username={name}
             email={email}
             avatarUrl={avatar_url}
-            className={cn(COLLAPSED_HIDDEN, 'w-full')}
+            className={cn(
+              COLLAPSED_HIDDEN,
+              'hover:bg-item-hover active:bg-item-active w-full cursor-pointer'
+            )}
           />
         </div>
         <div className={cn(COLLAPSED_VISIBLE, 'items-center justify-center')}>

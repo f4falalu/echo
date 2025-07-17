@@ -19,6 +19,7 @@ import {
   uuid,
   varchar,
 } from 'drizzle-orm/pg-core';
+import type { OrganizationColorPalettes } from './schema-types';
 
 export const assetPermissionRoleEnum = pgEnum('asset_permission_role_enum', [
   'owner',
@@ -89,6 +90,18 @@ export const slackIntegrationStatusEnum = pgEnum('slack_integration_status_enum'
   'active',
   'failed',
   'revoked',
+]);
+
+export const slackChatAuthorizationEnum = pgEnum('slack_chat_authorization_enum', [
+  'unauthorized',
+  'authorized',
+  'auto_added',
+]);
+
+export const slackSharingPermissionEnum = pgEnum('slack_sharing_permission_enum', [
+  'shareWithWorkspace',
+  'shareWithChannel',
+  'noSharing',
 ]);
 
 export const apiKeys = pgTable(
@@ -963,6 +976,9 @@ export const chats = pgTable(
     mostRecentFileId: uuid('most_recent_file_id'),
     mostRecentFileType: varchar('most_recent_file_type', { length: 255 }),
     mostRecentVersionNumber: integer('most_recent_version_number'),
+    slackChatAuthorization: slackChatAuthorizationEnum('slack_chat_authorization'),
+    slackThreadTs: text('slack_thread_ts'),
+    slackChannelId: text('slack_channel_id'),
   },
   (table) => [
     index('chats_created_at_idx').using(
@@ -1022,6 +1038,10 @@ export const organizations = pgTable(
     domains: text('domains').array(),
     restrictNewUserInvitations: boolean('restrict_new_user_invitations').default(false).notNull(),
     defaultRole: userOrganizationRoleEnum('default_role').default('restricted_querier').notNull(),
+    organizationColorPalettes: jsonb('organization_color_palettes')
+      .$type<OrganizationColorPalettes>()
+      .default(sql`'[]'::jsonb`)
+      .notNull(),
   },
   (table) => [unique('organizations_name_key').on(table.name)]
 );
@@ -1828,6 +1848,11 @@ export const slackIntegrations = pgTable(
       .defaultNow()
       .notNull(),
     deletedAt: timestamp('deleted_at', { withTimezone: true, mode: 'string' }),
+
+    // Default Sharing Permissions in Slack
+    defaultSharingPermissions: slackSharingPermissionEnum('default_sharing_permissions')
+      .default('shareWithChannel')
+      .notNull(),
   },
   (table) => [
     foreignKey({

@@ -119,7 +119,7 @@ export const FileContainer: React.FC<FileContainerProps> = ({ children }) => {
         allowResize={selectedFileViewRenderSecondary}
         hideSplitter={!selectedFileViewRenderSecondary}
         preserveSide={'right'}
-        rightPanelMinSize={250}
+        rightPanelMinSize={260}
         rightPanelMaxSize={385}
         bustStorageOnInit={bustStorageOnInit}
       />

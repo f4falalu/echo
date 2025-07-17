@@ -9,6 +9,7 @@ import {
 import { ELECTRIC_BASE_URL } from './config';
 import { useSupabaseContext } from '@/context/Supabase';
 import { useEffect, useMemo, useRef } from 'react';
+import { useMemoizedFn } from '../../hooks';
 
 export type ElectricShapeOptions<T extends Row<unknown> = Row<unknown>> = Omit<
   Parameters<typeof useElectricShape<T>>[0],
@@ -60,7 +61,7 @@ export const useShapeStream = <T extends Row<unknown> = Row<unknown>>(
   const memoParams = useMemo(() => params, [JSON.stringify(params)]);
   const abortRef = useRef<AbortController>();
 
-  const stream = useMemo(() => {
+  const createStream = useMemoizedFn(() => {
     abortRef.current?.abort();
     const controller = new AbortController();
     abortRef.current = controller;
@@ -72,12 +73,14 @@ export const useShapeStream = <T extends Row<unknown> = Row<unknown>>(
       ...opts,
       signal: controller.signal
     });
-  }, [memoParams, accessToken]);
+  });
 
   useEffect(() => {
     if (!subscribe) {
       return;
     }
+
+    const stream = createStream();
 
     let hasSyncedInitial = false;
 
@@ -107,13 +110,13 @@ export const useShapeStream = <T extends Row<unknown> = Row<unknown>>(
     };
 
     function tearDown() {
-      unsubscribe();
+      unsubscribe?.();
       abortRef.current?.abort();
     }
   }, [
-    stream,
-    subscribe,
     memoParams,
+    accessToken,
+    subscribe,
     operations.join(','), // primitive dep
     onUpdate,
     shouldUnsubscribe

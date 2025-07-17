@@ -16,7 +16,7 @@ export const MetricViewSQLController: React.FC<{
   const appSplitterRef = React.useRef<AppSplitterRef>(null);
   const containerRef = React.useRef<HTMLDivElement>(null);
 
-  const autoSaveId = `metric-view-sql-${metricId}`;
+  const autoSaveId = `view-sql-${metricId}`;
 
   const isVersionHistoryMode = useChatLayoutContextSelector((x) => x.isVersionHistoryMode);
 
@@ -110,6 +110,7 @@ export const MetricViewSQLController: React.FC<{
         disabledSave={disableSave}
         fetchingData={isRunningSQL || isSavingMetric || !isFetchedInitialData}
         defaultLayout={defaultLayout}
+        topHidden={false}
       />
     </div>
   );

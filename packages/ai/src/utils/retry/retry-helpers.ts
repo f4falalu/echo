@@ -312,6 +312,70 @@ export function logMessagesAfterHealing(
 }
 
 /**
+ * Cleans up incomplete tool calls from message history
+ * This is specifically for handling 529 errors that disconnect mid-stream
+ * while generating tool calls, leaving orphaned tool calls without results
+ */
+export function cleanupIncompleteToolCalls(messages: CoreMessage[]): CoreMessage[] {
+  const cleaned = [...messages];
+
+  // Find the last assistant message
+  for (let i = cleaned.length - 1; i >= 0; i--) {
+    const msg = cleaned[i];
+    if (!msg) continue; // Add guard for undefined
+
+    if (msg.role === 'assistant' && Array.isArray(msg.content)) {
+      const toolCalls = msg.content.filter(
+        (c) => typeof c === 'object' && 'type' in c && c.type === 'tool-call'
+      );
+
+      // Check if any tool calls lack results
+      const orphanedToolCalls = toolCalls.filter((toolCall) => {
+        // Look ahead for matching tool result
+        for (let j = i + 1; j < cleaned.length; j++) {
+          const nextMsg = cleaned[j];
+          if (!nextMsg) continue; // Add guard for undefined
+
+          if (nextMsg.role === 'tool' && Array.isArray(nextMsg.content)) {
+            const hasResult = nextMsg.content.some(
+              (c) =>
+                typeof c === 'object' &&
+                'type' in c &&
+                c.type === 'tool-result' &&
+                'toolCallId' in c &&
+                'toolCallId' in toolCall &&
+                c.toolCallId === toolCall.toolCallId
+            );
+            if (hasResult) return false;
+          }
+        }
+        return true; // No result found
+      });
+
+      if (orphanedToolCalls.length > 0) {
+        // Remove the entire assistant message with orphaned tool calls
+        console.info(
+          `cleanupIncompleteToolCalls: Removing assistant message with ${orphanedToolCalls.length} orphaned tool calls`,
+          {
+            messageIndex: i,
+            orphanedToolCallIds: orphanedToolCalls.map((tc) =>
+              'toolCallId' in tc ? tc.toolCallId : 'unknown'
+            ),
+            textContent: msg.content
+              .filter((c) => typeof c === 'object' && 'type' in c && c.type === 'text')
+              .map((c) => ('text' in c ? c.text : '')),
+          }
+        );
+        cleaned.splice(i, 1);
+        break; // Only clean up the last problematic message
+      }
+    }
+  }
+
+  return cleaned;
+}
+
+/**
  * Handles retry logic after a RetryWithHealingError is caught
  * Returns the healed messages and whether to continue without healing
  */
@@ -327,6 +391,23 @@ export async function handleRetryWithHealing(
 }> {
   // Determine the healing strategy
   const healingStrategy = determineHealingStrategy(retryableError, context);
+
+  // Special handling for 529 overloaded errors
+  if (retryableError.type === 'overloaded-error') {
+    const cleanedMessages = cleanupIncompleteToolCalls(currentMessages);
+
+    console.info(`${context.currentStep}: Cleaned incomplete tool calls after 529 error`, {
+      originalCount: currentMessages.length,
+      cleanedCount: cleanedMessages.length,
+      removed: currentMessages.length - cleanedMessages.length,
+    });
+
+    return {
+      healedMessages: cleanedMessages,
+      shouldContinueWithoutHealing: false,
+      backoffDelay: calculateBackoffDelay(retryCount) * 2, // Longer backoff for overload
+    };
+  }
 
   // For network/server errors, just retry without healing
   if (shouldRetryWithoutHealing(retryableError.type)) {

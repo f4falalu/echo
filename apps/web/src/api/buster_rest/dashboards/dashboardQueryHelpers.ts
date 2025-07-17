@@ -1,7 +1,6 @@
 import { useQueryClient } from '@tanstack/react-query';
 import last from 'lodash/last';
 import type { BusterDashboardResponse } from '@/api/asset_interfaces/dashboard';
-import { queryKeys } from '@/api/query_keys';
 import { dashboardQueryKeys } from '@/api/query_keys/dashboard';
 import { useBusterAssetsContextSelector } from '@/context/Assets/BusterAssetsProvider';
 import { useBusterNotifications } from '@/context/BusterNotifications';
@@ -14,6 +13,7 @@ import {
   useGetLatestDashboardVersionMemoized
 } from './dashboardQueryStore';
 import { dashboardsGetDashboard } from './requests';
+import { metricsQueryKeys } from '@/api/query_keys/metric';
 
 export const useEnsureDashboardConfig = (prefetchData = true) => {
   const queryClient = useQueryClient();
@@ -55,11 +55,12 @@ export const useGetDashboardAndInitializeMetrics = (prefetchData = true) => {
   const initializeMetrics = useMemoizedFn((metrics: BusterDashboardResponse['metrics']) => {
     for (const metric of Object.values(metrics)) {
       const prevMetric = queryClient.getQueryData(
-        queryKeys.metricsGetMetric(metric.id, metric.version_number).queryKey
+        metricsQueryKeys.metricsGetMetric(metric.id, metric.version_number).queryKey
       );
       const upgradedMetric = upgradeMetricToIMetric(metric, prevMetric);
+
       queryClient.setQueryData(
-        queryKeys.metricsGetMetric(metric.id, metric.version_number).queryKey,
+        metricsQueryKeys.metricsGetMetric(metric.id, metric.version_number).queryKey,
         upgradedMetric
       );
       if (prefetchData) {
@@ -80,7 +81,9 @@ export const useGetDashboardAndInitializeMetrics = (prefetchData = true) => {
       version_number: version_number || undefined
     }).then((data) => {
       initializeMetrics(data.metrics);
-      const isLatestVersion = data.dashboard.version_number === last(data.versions)?.version_number;
+      const latestVersion = last(data.versions)?.version_number || 1;
+      const isLatestVersion = data.dashboard.version_number === latestVersion;
+
       if (isLatestVersion) {
         setOriginalDashboard(data.dashboard);
       }
@@ -91,7 +94,7 @@ export const useGetDashboardAndInitializeMetrics = (prefetchData = true) => {
             .queryKey,
           data
         );
-        onSetLatestDashboardVersion(data.dashboard.id, last(data.versions)?.version_number || 0);
+        onSetLatestDashboardVersion(data.dashboard.id, latestVersion);
       }
 
       return data;

@@ -125,7 +125,7 @@ interface IAppSplitterProps {
    * Whether to clear saved layout from localStorage on initialization
    * Can be a boolean or a function that returns a boolean based on preserved side value and container width
    */
-  bustStorageOnInit?: boolean | ((preservedSideValue: number | null, refWidth: number) => boolean);
+  bustStorageOnInit?: boolean | ((preservedSideValue: number | null, refSize: number) => boolean);
 
   /**
    * Whether to render the left panel content
@@ -231,6 +231,7 @@ const AppSplitterWrapper = forwardRef<AppSplitterRef, IAppSplitterProps>(
             isVertical={isVertical}
             containerRef={containerRef}
             splitterAutoSaveId={splitterAutoSaveId}
+            split={split}
           />
         )}
       </div>
@@ -289,7 +290,10 @@ const AppSplitterBase = forwardRef<
 
     // Consolidated state management
     const [state, setState] = useState<SplitterState>({
-      containerSize: containerRef.current?.offsetWidth ?? 0,
+      containerSize:
+        split === 'vertical'
+          ? (containerRef.current?.offsetWidth ?? 0)
+          : (containerRef.current?.offsetHeight ?? 0),
       isDragging: false,
       isAnimating: false,
       sizeSetByAnimation: false,
@@ -301,28 +305,37 @@ const AppSplitterBase = forwardRef<
     // ================================
 
     const bustStorageOnInitSplitter = (preservedSideValue: number | null) => {
-      const refWidth = containerRef.current?.offsetWidth;
+      const refSize =
+        split === 'vertical'
+          ? containerRef.current?.offsetWidth
+          : containerRef.current?.offsetHeight;
       // Don't bust storage if container hasn't been sized yet
-      if (!refWidth || refWidth === 0) {
+      if (!refSize || refSize === 0) {
         // console.warn('AppSplitter: container not sized yet');
         return false;
       }
 
       return typeof bustStorageOnInit === 'function'
-        ? bustStorageOnInit(preservedSideValue, refWidth)
+        ? bustStorageOnInit(preservedSideValue, refSize)
         : !!bustStorageOnInit;
     };
 
     const defaultValue = () => {
       const [leftValue, rightValue] = defaultLayout;
+      const containerSize =
+        split === 'vertical'
+          ? (containerRef.current?.offsetWidth ?? 0)
+          : (containerRef.current?.offsetHeight ?? 0);
+
       if (preserveSide === 'left' && leftValue === 'auto') {
-        return containerRef.current?.offsetWidth ?? 0;
+        return containerSize;
       }
       if (preserveSide === 'right' && rightValue === 'auto') {
-        return containerRef.current?.offsetWidth ?? 0;
+        return containerSize;
       }
       const preserveValue = preserveSide === 'left' ? leftValue : rightValue;
-      return sizeToPixels(preserveValue, containerRef.current?.offsetWidth ?? 0);
+      const result = sizeToPixels(preserveValue, containerSize);
+      return result;
     };
 
     // Load saved layout from localStorage
@@ -686,7 +699,7 @@ const AppSplitterBase = forwardRef<
       updateContainerSize();
 
       // If container is still 0 after layout, try again with animation frame
-      if (containerRef.current?.offsetWidth === 0) {
+      if (containerRef.current?.offsetWidth === 0 || containerRef.current?.offsetHeight === 0) {
         requestAnimationFrame(updateContainerSize);
       }
 

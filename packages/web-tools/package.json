@@ -6,7 +6,7 @@
   "module": "src/index.ts",
   "scripts": {
     "build": "tsc --build",
-    "lint": "biome check",
+    "lint": "biome check --write",
     "test": "vitest run",
     "test:unit": "vitest run --exclude '**/*.int.test.ts' --exclude '**/*.integration.test.ts'",
     "test:integration": "vitest run **/*.int.test.ts **/*.integration.test.ts",

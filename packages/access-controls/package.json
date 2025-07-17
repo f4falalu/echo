@@ -18,7 +18,7 @@
     "build:commonjs": "tsc --module commonjs --moduleResolution node",
     "build:commonjs:watch": "npm run build:commonjs && tsc --module commonjs --moduleResolution node --watch",
     "dev": "tsc --watch",
-    "lint": "biome check",
+    "lint": "biome check --write",
     "test": "vitest run",
     "test:unit": "vitest run --exclude '**/*.int.test.ts' --exclude '**/*.integration.test.ts'",
     "test:integration": "vitest run **/*.int.test.ts **/*.integration.test.ts",
@@ -32,6 +32,7 @@
     "@buster/vitest-config": "workspace:*",
     "lru-cache": "^11.1.0",
     "zod": "catalog:",
-    "uuid": "catalog:"
+    "uuid": "catalog:",
+    "drizzle-orm": "catalog:"
   }
 }

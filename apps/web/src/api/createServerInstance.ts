@@ -2,7 +2,7 @@
 
 import type { RequestInit } from 'next/dist/server/web/spec-extension/request';
 import { cookies } from 'next/headers';
-import { createClient } from '@/lib/supabase/server';
+import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { BASE_URL } from './buster_rest/config';
 import type { RustApiError } from './buster_rest/errors';
 
@@ -12,8 +12,9 @@ interface FetchConfig extends RequestInit {
 }
 
 export const serverFetch = async <T>(url: string, config: FetchConfig = {}): Promise<T> => {
-  const supabase = await createClient();
+  const supabase = await createSupabaseServerClient();
   const sessionData = await supabase.auth.getSession();
+
   const accessToken = sessionData.data?.session?.access_token;
 
   const { baseURL = BASE_URL, params, headers = {}, method = 'GET', ...restConfig } = config;
