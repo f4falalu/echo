@@ -167,12 +167,12 @@ function extractMetricIdsFromDashboard(ymlContent: string): string[] {
  */
 function deduplicateFilesByVersion(files: ExtractedFile[]): ExtractedFile[] {
   const deduplicated = new Map<string, ExtractedFile>();
-  
+
   for (const file of files) {
     const existingFile = deduplicated.get(file.id);
     const fileVersion = file.versionNumber || 1;
     const existingVersion = existingFile?.versionNumber || 1;
-    
+
     if (!existingFile || fileVersion > existingVersion) {
       if (existingFile && fileVersion > existingVersion) {
         console.info('[File Selection] Replacing file with higher version:', {
@@ -192,7 +192,7 @@ function deduplicateFilesByVersion(files: ExtractedFile[]): ExtractedFile[] {
       });
     }
   }
-  
+
   return Array.from(deduplicated.values());
 }
 
@@ -378,7 +378,7 @@ export function selectFilesForResponse(
   if (selectedFiles.length > 0) {
     // Check if we have any dashboards in the selection
     const hasDashboards = selectedFiles.some((f) => f.fileType === 'dashboard');
-    
+
     if (hasDashboards) {
       // 2. Standalone metrics that are NOT already represented in selected dashboards
       const metricsInDashboards = new Set<string>();
@@ -408,14 +408,14 @@ export function selectFilesForResponse(
       // Include standalone metrics (not in any returned dashboard)
       // Apply priority logic: when dashboards are present, exclude standalone created metrics
       const standaloneMetrics = metrics.filter((m) => !metricsInDashboards.has(m.id));
-      
+
       // Check if any standalone metrics are the result of deduplication
       const originalMetrics = files.filter((f) => f.fileType === 'metric');
       const hasDeduplicatedMetrics = standaloneMetrics.some(metric => {
         const duplicates = originalMetrics.filter(m => m.id === metric.id);
         return duplicates.length > 1;
       });
-      
+
       if (hasDeduplicatedMetrics) {
         // Include all standalone metrics when deduplication occurred
         selectedFiles.push(...standaloneMetrics);
