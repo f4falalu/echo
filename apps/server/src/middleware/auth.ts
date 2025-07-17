@@ -1,6 +1,7 @@
-import { getUser } from '@buster/database';
+import { getUser, getUserOrganizationId } from '@buster/database';
 import type { Context, Next } from 'hono';
 import { bearerAuth } from 'hono/bearer-auth';
+import { isOrganizationAdmin } from '../utils/admin';
 import { createSupabaseClient } from './supabase';
 
 const supabase = createSupabaseClient();
@@ -95,3 +96,48 @@ export async function requireUser(c: Context, next: Next) {
     throw new Error('User not authenticated - server error');
   }
 }
+
+export const requireOrganization = async (c: Context) => {
+  const user = c.get('busterUser');
+  const userOrganizationInfo = c.get('userOrganizationInfo');
+
+  if (userOrganizationInfo) {
+    return userOrganizationInfo;
+  }
+
+  const userOrg = await getUserOrganizationId(user.id);
+
+  if (!userOrg) {
+    throw new Error('User is not associated with an organization');
+  }
+
+  c.set('userOrganizationInfo', userOrg);
+
+  return userOrg;
+};
+
+export const requireOrganizationAdmin = async (c: Context) => {
+  const user = c.get('busterUser');
+
+  if (!user?.id) {
+    console.warn('This is likely an issue where requireAuth middleware was not called first');
+    return c.json({
+      message: 'User not authenticated',
+    });
+  }
+
+  const userOrg = await requireOrganization(c);
+
+  const isAdmin = isOrganizationAdmin(userOrg.role);
+
+  if (!isAdmin) {
+    return c.json(
+      {
+        message: 'User is not an organization admin',
+      },
+      403
+    );
+  }
+
+  return true;
+};

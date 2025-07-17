@@ -4,6 +4,7 @@ import healthcheckRoutes from '../healthcheck';
 import chatsRoutes from './chats';
 import currencyRoutes from './currency';
 import electricShapeRoutes from './electric-shape';
+import organizationRoutes from './organization';
 import securityRoutes from './security';
 import slackRoutes from './slack';
 import supportRoutes from './support';
@@ -17,6 +18,7 @@ const app = new Hono()
   .route('/slack', slackRoutes)
   .route('/currency', currencyRoutes)
   .route('/support', supportRoutes)
-  .route('/security', securityRoutes);
+  .route('/security', securityRoutes)
+  .route('/organizations', organizationRoutes);
 
 export default app;
