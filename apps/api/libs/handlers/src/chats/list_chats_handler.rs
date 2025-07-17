@@ -101,25 +101,22 @@ pub async fn list_chats_handler(
         Vec::new() // If admin view, we'll show all chats anyway
     };
     
-    let user_message_count = messages::table
-        .filter(messages::chat_id.eq(chats::id))
-        .filter(messages::request_message.is_not_null())
-        .filter(messages::deleted_at.is_null())
-        .count();
-
-    let total_message_count = messages::table
-        .filter(messages::chat_id.eq(chats::id))
-        .filter(messages::deleted_at.is_null())
-        .count();
-
     // Start building the query
     let mut query = chats::table
         .inner_join(users::table.on(chats::created_by.eq(users::id)))
         .filter(chats::deleted_at.is_null())
         .filter(chats::title.ne("")) // Filter out empty titles
         .filter(
-            user_message_count.gt(0)
-            .or(total_message_count.gt(1))
+            diesel::dsl::exists(
+                messages::table
+                    .filter(messages::chat_id.eq(chats::id))
+                    .filter(messages::request_message.is_not_null())
+                    .filter(messages::deleted_at.is_null())
+            ).or(
+                diesel::dsl::sql::<diesel::sql_types::Bool>(
+                    "(SELECT COUNT(*) FROM messages WHERE messages.chat_id = chats.id AND messages.deleted_at IS NULL) > 1"
+                )
+            )
         )
         .into_boxed();
     
