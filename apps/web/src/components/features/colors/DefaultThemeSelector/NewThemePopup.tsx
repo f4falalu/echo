@@ -6,9 +6,9 @@ import type { IColorTheme } from '../ThemeList';
 import { useMemoizedFn } from '@/hooks';
 import { v4 as uuidv4 } from 'uuid';
 import { Plus, Trash } from '../../../ui/icons';
-import { ALL_THEMES } from '../themes';
 import { ColorPickButton } from './DraggableColorPicker';
 import { inputHasText } from '@/lib/text';
+import { DEFAULT_CHART_THEME } from '@buster/server-shared/metrics';
 
 interface NewThemePopupProps {
   selectedTheme?: IColorTheme;
@@ -16,12 +16,10 @@ interface NewThemePopupProps {
   onDelete?: (id: string) => Promise<void>;
 }
 
-const DEFAULT_THEME: IColorTheme = ALL_THEMES[0];
-
 export const NewThemePopup = React.memo(
   ({ selectedTheme, onDelete, onSave }: NewThemePopupProps) => {
     const [title, setTitle] = useState('');
-    const [colors, setColors] = useState<string[]>(DEFAULT_THEME.colors);
+    const [colors, setColors] = useState<string[]>(DEFAULT_CHART_THEME);
     const [id, setId] = useState(uuidv4());
 
     const isNewTheme = !selectedTheme;
@@ -29,7 +27,7 @@ export const NewThemePopup = React.memo(
 
     const reset = useMemoizedFn(() => {
       setTitle('');
-      setColors(DEFAULT_THEME.colors);
+      setColors(DEFAULT_CHART_THEME);
       setId(uuidv4());
     });
 

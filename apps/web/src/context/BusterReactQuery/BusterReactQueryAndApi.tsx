@@ -3,7 +3,7 @@
 import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
 import dynamic from 'next/dynamic';
 import type React from 'react';
-import { useLayoutEffect, useMemo, useState } from 'react';
+import { useLayoutEffect, useState } from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
 import mainApi, { mainApiV2 } from '@/api/buster_rest/instances';
 import { defaultAxiosRequestHandler } from '@/api/createAxiosInstance';

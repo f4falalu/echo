@@ -4,12 +4,13 @@ import type { ChartConfigProps } from '@buster/server-shared/metrics';
 import { useMemoizedFn } from '@/hooks';
 import type { IColorTheme } from '@/components/features/colors/ThemeList';
 import { ThemeList } from '@/components/features/colors/ThemeList';
-import { ALL_THEMES } from '@/components/features/colors/themes';
+import { useColorThemes } from '@/api/buster_rest/dictionaries';
 
 export const ColorsApp: React.FC<{
   colors: ChartConfigProps['colors'];
   onUpdateChartConfig: (chartConfig: Partial<ChartConfigProps>) => void;
 }> = ({ colors, onUpdateChartConfig }) => {
+  const { data: themes } = useColorThemes();
   const onChangeColorTheme = useMemoizedFn((theme: IColorTheme) => {
     onUpdateChartConfig({ colors: theme.colors });
   });
@@ -17,7 +18,7 @@ export const ColorsApp: React.FC<{
   return (
     <div className="flex flex-col space-y-2">
       <ColorPicker
-        selectedSegmentColors={ALL_THEMES}
+        selectedSegmentColors={themes}
         colors={colors}
         onChangeColorTheme={onChangeColorTheme}
       />

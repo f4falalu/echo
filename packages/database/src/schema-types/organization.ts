@@ -6,6 +6,6 @@ export type OrganizationColorPalette = {
 };
 
 export type OrganizationColorPalettes = {
-  selectedId: string;
+  selectedId: string | null;
   palettes: OrganizationColorPalette[];
 };

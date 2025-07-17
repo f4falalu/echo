@@ -35,5 +35,6 @@ export const OrganizationSchema = z.object({
 });
 
 export type Organization = z.infer<typeof OrganizationSchema>;
+export type OrganizationColorPalette = z.infer<typeof OrganizationColorPaletteSchema>;
 
 type _OrganizationEqualityCheck = Expect<Equal<Organization, typeof organizations.$inferSelect>>;

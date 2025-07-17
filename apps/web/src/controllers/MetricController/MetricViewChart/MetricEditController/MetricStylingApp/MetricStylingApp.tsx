@@ -15,6 +15,8 @@ import { MetricStylingAppSegment } from './MetricStylingAppSegment';
 import { StylingAppColors } from './StylingAppColors';
 import { StylingAppStyling } from './StylingAppStyling';
 import { StylingAppVisualize } from './StylingAppVisualize';
+import { useMount } from '@/hooks';
+import { prefetchColorThemes } from '@/api/buster_rest/dictionaries';
 
 export const MetricStylingApp: React.FC<{
   metricId: string;
@@ -89,6 +91,10 @@ export const MetricStylingApp: React.FC<{
     scatterAxis,
     barAndLineAxis
   );
+
+  useMount(() => {
+    prefetchColorThemes();
+  });
 
   return (
     <div className="flex h-full w-full flex-col overflow-hidden pt-3">

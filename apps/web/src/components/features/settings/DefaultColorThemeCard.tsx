@@ -3,8 +3,15 @@
 import React from 'react';
 import { SettingsCards } from './SettingsCard';
 import { Text } from '@/components/ui/typography';
+import { useGetMyUserInfo } from '@/api/buster_rest/users/queryRequests';
 
 export const DefaultColorThemeCard = React.memo(() => {
+  const { data: userData } = useGetMyUserInfo();
+
+  const organization = userData?.organizations?.[0]!;
+
+  const defaultColorTheme = organization.organizationColorPalettes?.selectedId;
+
   return (
     <SettingsCards
       cards={[

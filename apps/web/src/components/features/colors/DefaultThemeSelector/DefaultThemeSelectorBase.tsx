@@ -1,12 +1,13 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import type { IColorTheme } from '../ThemeList/interfaces';
 import { ThemeList } from '../ThemeList';
-import { ALL_THEMES } from '@/components/features/colors/themes';
 import { cn } from '@/lib/utils';
 import { AddCustomThemeBase } from './AddCustomThemeBase';
+import { useColorThemes } from '../../../../api/buster_rest/dictionaries';
 
 export interface DefaultThemeSelectorProps {
   customThemes: Omit<IColorTheme, 'selected'>[];
+  themes: Omit<IColorTheme, 'selected'>[];
   onChangeTheme: (theme: IColorTheme) => void;
   onCreateCustomTheme: (theme: IColorTheme) => Promise<void>;
   onDeleteCustomTheme: (themeId: string) => Promise<void>;
@@ -19,6 +20,7 @@ export interface DefaultThemeSelectorProps {
 export const DefaultThemeSelectorBase = React.memo(
   ({
     customThemes,
+    themes,
     useDefaultThemes = true,
     selectedThemeId,
     onChangeTheme,
@@ -27,10 +29,7 @@ export const DefaultThemeSelectorBase = React.memo(
     onDeleteCustomTheme,
     onModifyCustomTheme
   }: DefaultThemeSelectorProps) => {
-    // Compute the list of themes, optionally including default themes
-    const themes = ALL_THEMES;
-
-    const iThemes: Required<IColorTheme>[] = themes.map((theme) => ({
+    const iThemes: Required<IColorTheme>[] = themes?.map((theme) => ({
       ...theme,
       selected: theme.id === selectedThemeId,
       id: theme.name
