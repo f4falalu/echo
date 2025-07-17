@@ -38,7 +38,7 @@ export function convertMarkdownToSlack(markdown: string): MarkdownConversionResu
   }
 
   const codeBlockRegex = /```(\w+)?\n?([\s\S]*?)```/g;
-  text = text.replace(codeBlockRegex, (match, language, code) => {
+  text = text.replace(codeBlockRegex, (_match, language, code) => {
     return `\`\`\`${language || ''}\n${code.trim()}\n\`\`\``;
   });
 
@@ -50,7 +50,7 @@ export function convertMarkdownToSlack(markdown: string): MarkdownConversionResu
   let boldCounter = 0;
 
   const boldRegex = /(\*\*|__)(.*?)\1/g;
-  text = text.replace(boldRegex, (match, delimiter, content) => {
+  text = text.replace(boldRegex, (_match, _delimiter, content) => {
     const placeholder = `${boldPlaceholder}${boldCounter}${boldPlaceholder}`;
     const processedContent = content.replace(/\*([^*]+)\*/g, '_$1_').replace(/_([^_]+)_/g, '_$1_');
     boldMatches.push({ placeholder, replacement: `*${processedContent}*` });
