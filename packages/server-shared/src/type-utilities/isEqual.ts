@@ -1,23 +1,47 @@
-/*
-IsEqual is a type utility that checks if two types are equal.
-It's used to ensure that a database type is equal to a type. Like when we have a type that is a database type and we want to ensure that it's equal to the schema we have.
+/**
+ * Macro for creating type equality checks. Copy this pattern and replace T and U:
+ *
+ * @example
+ * // Copy and paste this pattern, replacing YourType and YourDatabaseType:
+ * const _typeCheck1: YourType = {} as YourDatabaseType;
+ * const _typeCheck2: YourDatabaseType = {} as YourType;
+ *
+ * // Or use the type utility version:
+ * type _TypeCheck = Expect<Equal<YourType, YourDatabaseType>>;
+ */
 
-RECOMMENDED USAGE (more reliable):
-Instead of using IsEqual<T, U>, use variable assignments for better error messages:
+/**
+ * Precise type equality checker using conditional types with function signatures.
+ * This is the most reliable method for checking exact type equality.
+ *
+ * @example
+ * type _EqualityCheck = Expect<Equal<MyType, DatabaseType>>;
+ */
+export type Equal<A, B> = (<T>() => T extends A ? 1 : 2) extends <T>() => T extends B ? 1 : 2
+  ? (<T>() => T extends B ? 1 : 2) extends <T>() => T extends A ? 1 : 2
+    ? true
+    : false
+  : false;
 
-// Type equality check - this will cause a compilation error if types don't match
-const _organizationTypeCheck: Organization = {} as typeof organizations.$inferSelect;
-const _databaseTypeCheck: typeof organizations.$inferSelect = {} as Organization;
+/**
+ * Compile-time assertion: T must be `true`, otherwise TypeScript errors.
+ * Use this with Equal<> to force compilation errors when types don't match.
+ *
+ * @example
+ * type _Check = Expect<Equal<MyType, DatabaseType>>; // Errors if types don't match exactly
+ */
+export type Expect<T extends true> = T;
 
-This approach provides:
-- Clearer error messages
-- Better TypeScript error reporting
-- More reliable type checking
-*/
+/**
+ * Variable assignment approach for type equality (most reliable)
+ * Copy this pattern for guaranteed type checking:
+ *
+ * @example
+ * const _check1: MyType = {} as DatabaseType;
+ * const _check2: DatabaseType = {} as MyType;
+ */
 
-// Legacy type equality checker (variable assignment approach is recommended)
-type StrictEqual<T, U> = (<G>() => G extends T ? 1 : 2) extends <G>() => G extends U ? 1 : 2
-  ? true
-  : never;
-
-export type IsEqual<T, U> = StrictEqual<T, U>;
+/**
+ * Legacy type equality checker - use Equal + Expect pattern instead
+ */
+export type IsEqual<T, U> = Equal<T, U>;

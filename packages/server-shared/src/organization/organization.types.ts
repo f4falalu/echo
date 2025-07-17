@@ -1,5 +1,6 @@
 import type { organizations } from '@buster/database';
 import { z } from 'zod';
+import type { Equal, Expect } from '../type-utilities';
 import { OrganizationRoleSchema } from './roles.types';
 
 export const OrganizationColorPaletteSchema = z.object({
@@ -23,6 +24,4 @@ export const OrganizationSchema = z.object({
 
 export type Organization = z.infer<typeof OrganizationSchema>;
 
-// Type equality check - this will cause a compilation error if types don't match
-const _organizationTypeCheck: Organization = {} as typeof organizations.$inferSelect;
-const _databaseTypeCheck: typeof organizations.$inferSelect = {} as Organization;
+type _OrganizationEqualityCheck = Expect<Equal<Organization, typeof organizations.$inferSelect>>;
