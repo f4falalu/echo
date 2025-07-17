@@ -104,7 +104,7 @@ const ShareMenuContentShare: React.FC<ShareMenuContentBodyProps> = React.memo(
       const payload: Parameters<typeof onUpdateMetricShare>[0] = {
         id: assetId,
         params: {
-          workspace_permissions: role
+          workspace_sharing: role
         }
       };
       
@@ -127,16 +127,6 @@ const ShareMenuContentShare: React.FC<ShareMenuContentBodyProps> = React.memo(
           />
         )}
 
-        {canEditPermissions && (
-          <WorkspaceShareSection
-            shareAssetConfig={shareAssetConfig}
-            assetType={assetType}
-            assetId={assetId}
-            canEditPermissions={canEditPermissions}
-            onUpdateWorkspacePermissions={onUpdateWorkspacePermissions}
-          />
-        )}
-
         {hasIndividualPermissions && (
           <div className="flex flex-col space-y-2 overflow-hidden">
             {individual_permissions?.map((permission) => (
@@ -149,6 +139,16 @@ const ShareMenuContentShare: React.FC<ShareMenuContentBodyProps> = React.memo(
               />
             ))}
           </div>
+        )}
+
+        {canEditPermissions && (
+          <WorkspaceShareSection
+            shareAssetConfig={shareAssetConfig}
+            assetType={assetType}
+            assetId={assetId}
+            canEditPermissions={canEditPermissions}
+            onUpdateWorkspacePermissions={onUpdateWorkspacePermissions}
+          />
         )}
       </div>
     );

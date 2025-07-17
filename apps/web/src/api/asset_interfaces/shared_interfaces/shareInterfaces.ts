@@ -19,7 +19,7 @@ export type ShareUpdateRequest = {
     email: string;
     role: ShareRole;
   }[];
-  workspace_permissions?: WorkspaceShareRole | null;
+  workspace_sharing?: WorkspaceShareRole | null;
   publicly_accessible?: boolean;
   public_password?: string | null;
   public_expiry_date?: string | null;

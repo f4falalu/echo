@@ -2,10 +2,14 @@ use anyhow::{anyhow, Result};
 use chrono::{DateTime, Utc};
 use database::{
     chats::fetch_chat_with_permission,
-    enums::{AssetPermissionRole, AssetType},
+    enums::{AssetPermissionRole, AssetType, WorkspaceSharing},
+    pool::get_pg_pool,
+    schema::chats::dsl,
 };
 use middleware::AuthenticatedUser;
 use serde::{Deserialize, Serialize};
+use diesel::ExpressionMethods;
+use diesel_async::RunQueryDsl as AsyncRunQueryDsl;
 use sharing::{check_permission_access, create_share_by_email, types::UpdateField};
 use tracing::info;
 use uuid::Uuid;
@@ -30,6 +34,9 @@ pub struct UpdateChatSharingRequest {
     /// Expiration date for public access
     #[serde(default)]
     pub public_expiry_date: UpdateField<DateTime<Utc>>,
+    /// Workspace sharing permissions
+    #[serde(rename = "workspace_sharing")]
+    pub workspace_permissions: Option<Option<WorkspaceSharing>>,
 }
 
 /// Updates sharing permissions for a chat
@@ -114,6 +121,54 @@ pub async fn update_chat_sharing_handler(
     // The public_* fields are included for API consistency but are ignored
     // If public sharing for chats is implemented in the future, this section will need to be updated
     // Following the pattern from metric_sharing_handler.rs and dashboard_sharing_handler.rs
+
+    // 4. Handle workspace_permissions if provided
+    if let Some(workspace_perm) = request.workspace_permissions {
+        let mut conn = get_pg_pool().get().await?;
+        
+        match workspace_perm {
+            Some(perm) => {
+                info!(
+                    chat_id = %chat_id,
+                    "Setting workspace permissions for chat to {:?}",
+                    perm
+                );
+                diesel::update(dsl::chats)
+                    .filter(dsl::id.eq(chat_id))
+                    .set((
+                        dsl::workspace_sharing.eq(perm),
+                        dsl::workspace_sharing_enabled_by.eq(if perm != WorkspaceSharing::None {
+                            Some(user.id)
+                        } else {
+                            None
+                        }),
+                        dsl::workspace_sharing_enabled_at.eq(if perm != WorkspaceSharing::None {
+                            Some(Utc::now())
+                        } else {
+                            None
+                        }),
+                    ))
+                    .execute(&mut conn)
+                    .await?;
+            }
+            None => {
+                // Setting to None means removing workspace sharing
+                info!(
+                    chat_id = %chat_id,
+                    "Removing workspace permissions for chat"
+                );
+                diesel::update(dsl::chats)
+                    .filter(dsl::id.eq(chat_id))
+                    .set((
+                        dsl::workspace_sharing.eq(WorkspaceSharing::None),
+                        dsl::workspace_sharing_enabled_by.eq(None::<Uuid>),
+                        dsl::workspace_sharing_enabled_at.eq(None::<DateTime<Utc>>),
+                    ))
+                    .execute(&mut conn)
+                    .await?;
+            }
+        }
+    }
 
     Ok(())
 }

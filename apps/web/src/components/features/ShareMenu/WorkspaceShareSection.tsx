@@ -3,7 +3,7 @@ import type { ShareAssetType, ShareConfig, WorkspaceShareRole } from '@buster/se
 import { Dropdown } from '@/components/ui/dropdown';
 import type { DropdownItem } from '@/components/ui/dropdown';
 import { ChevronDown } from '@/components/ui/icons/NucleoIconFilled';
-import { Office } from '@/components/ui/icons/NucleoIconOutlined';
+import { ApartmentBuilding } from '@/components/ui/icons/NucleoIconOutlined';
 import { Text } from '@/components/ui/typography';
 import { useMemoizedFn } from '@/hooks';
 import { cn } from '@/lib/classMerge';
@@ -44,7 +44,7 @@ export const WorkspaceShareSection: React.FC<WorkspaceShareSectionProps> = React
   canEditPermissions,
   onUpdateWorkspacePermissions
 }) => {
-  const currentRole = shareAssetConfig.workspace_permissions?.[0] || 'none';
+  const currentRole = shareAssetConfig.workspace_sharing || 'none';
   
   const selectedLabel = React.useMemo(() => {
     const selectedItem = workspaceShareRoleItems.find(item => item.value === currentRole);
@@ -66,7 +66,7 @@ export const WorkspaceShareSection: React.FC<WorkspaceShareSectionProps> = React
     <div className="flex h-8 items-center justify-between space-x-2 overflow-hidden">
       <div className="flex items-center space-x-2">
         <div className="flex h-6 w-6 items-center justify-center rounded bg-gray-100 text-gray-600">
-          <Office />
+          <ApartmentBuilding />
         </div>
         <div className="flex flex-col overflow-hidden">
           <Text className="truncate font-medium">Workspace</Text>

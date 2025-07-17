@@ -742,15 +742,15 @@ impl FromSql<sql_types::MessageFeedbackEnum, Pg> for MessageFeedback {
     Serialize,
 )]
 #[diesel(sql_type = sql_types::WorkspaceSharingEnum)]
-#[serde(rename_all = "snake_case")]
+#[serde(rename_all = "camelCase")]
 pub enum WorkspaceSharing {
     #[serde(alias = "none")]
     None,
-    #[serde(alias = "canView")]
+    #[serde(alias = "can_view")]
     CanView,
-    #[serde(alias = "canEdit")]
+    #[serde(alias = "can_edit")]
     CanEdit,
-    #[serde(alias = "fullAccess")]
+    #[serde(alias = "full_access")]
     FullAccess,
 }
 

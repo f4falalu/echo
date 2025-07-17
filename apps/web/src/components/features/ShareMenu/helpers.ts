@@ -17,7 +17,7 @@ export const getShareAssetConfig = (
     public_enabled_by,
     publicly_accessible,
     public_password,
-    workspace_permissions
+    workspace_sharing
   } = message;
 
   return {
@@ -27,6 +27,6 @@ export const getShareAssetConfig = (
     public_enabled_by,
     publicly_accessible,
     public_password,
-    workspace_permissions
+    workspace_sharing
   };
 };

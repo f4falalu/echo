@@ -1,11 +1,15 @@
 use anyhow::{anyhow, Result};
 use chrono::{DateTime, Utc};
 use database::{
-    enums::{AssetPermissionRole, AssetType},
+    enums::{AssetPermissionRole, AssetType, WorkspaceSharing},
     helpers::collections::fetch_collection_with_permission,
+    pool::get_pg_pool,
+    schema::collections::dsl,
 };
 use middleware::AuthenticatedUser;
 use serde::{Deserialize, Serialize};
+use diesel::ExpressionMethods;
+use diesel_async::RunQueryDsl as AsyncRunQueryDsl;
 use sharing::{
     check_permission_access,
     create_asset_permission::create_share_by_email,
@@ -37,6 +41,9 @@ pub struct UpdateCollectionSharingRequest {
     /// Note: Collections are not publicly accessible, this field is ignored
     #[serde(default)]
     pub public_expiry_date: UpdateField<DateTime<Utc>>,
+    /// Workspace sharing permissions
+    #[serde(rename = "workspace_sharing")]
+    pub workspace_permissions: Option<Option<WorkspaceSharing>>,
 }
 
 /// Update sharing permissions for a collection
@@ -111,6 +118,57 @@ pub async fn update_collection_sharing_handler(
 
     // 4. Public access settings are ignored for collections
     // Collections are not publicly accessible, so we ignore the public_* fields
+
+    // 5. Handle workspace_permissions if provided
+    if let Some(workspace_perm) = request.workspace_permissions {
+        let mut conn = get_pg_pool().get().await?;
+        
+        // Load current collection data for updates
+        let collection = collection_with_permission.collection;
+        
+        match workspace_perm {
+            Some(perm) => {
+                info!(
+                    collection_id = %collection_id,
+                    "Setting workspace permissions for collection to {:?}",
+                    perm
+                );
+                diesel::update(dsl::collections)
+                    .filter(dsl::id.eq(collection_id))
+                    .set((
+                        dsl::workspace_sharing.eq(perm),
+                        dsl::workspace_sharing_enabled_by.eq(if perm != WorkspaceSharing::None {
+                            Some(user.id)
+                        } else {
+                            None
+                        }),
+                        dsl::workspace_sharing_enabled_at.eq(if perm != WorkspaceSharing::None {
+                            Some(Utc::now())
+                        } else {
+                            None
+                        }),
+                    ))
+                    .execute(&mut conn)
+                    .await?;
+            }
+            None => {
+                // Setting to None means removing workspace sharing
+                info!(
+                    collection_id = %collection_id,
+                    "Removing workspace permissions for collection"
+                );
+                diesel::update(dsl::collections)
+                    .filter(dsl::id.eq(collection_id))
+                    .set((
+                        dsl::workspace_sharing.eq(WorkspaceSharing::None),
+                        dsl::workspace_sharing_enabled_by.eq(None::<Uuid>),
+                        dsl::workspace_sharing_enabled_at.eq(None::<DateTime<Utc>>),
+                    ))
+                    .execute(&mut conn)
+                    .await?;
+            }
+        }
+    }
 
     Ok(())
 }
