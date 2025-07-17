@@ -1,7 +1,22 @@
 import { SlackAuthService } from '@buster/slack';
 import { z } from 'zod';
+import { SLACK_OAUTH_SCOPES } from '../constants';
 import * as slackHelpers from './slack-helpers';
 import { oauthStateStorage, tokenStorage } from './token-storage';
+
+/**
+ * Validates if an integration has all required OAuth scopes
+ */
+function validateScopes(currentScopeString?: string | null): boolean {
+  if (!currentScopeString) return false;
+  
+  const currentScopes = currentScopeString.includes(',') 
+    ? currentScopeString.split(',').map(s => s.trim())
+    : currentScopeString.split(' ').map(s => s.trim());
+    
+  const requiredScopes = [...SLACK_OAUTH_SCOPES];
+  return requiredScopes.every((scope) => currentScopes.includes(scope));
+}
 
 // Environment validation
 const SlackEnvSchema = z.object({
@@ -40,28 +55,7 @@ export class SlackOAuthService {
           clientId: this.env.SLACK_CLIENT_ID,
           clientSecret: this.env.SLACK_CLIENT_SECRET,
           redirectUri: `${this.env.SERVER_URL}/api/v2/slack/auth/callback`,
-          scopes: [
-            'app_mentions:read',
-            'channels:history',
-            'channels:read',
-            'chat:write',
-            'chat:write.public',
-            'commands',
-            'files:read',
-            'files:write',
-            'groups:history',
-            'groups:write',
-            'im:history',
-            'im:read',
-            'im:write',
-            'mpim:history',
-            'mpim:read',
-            'mpim:write',
-            'reactions:write',
-            'reactions:read',
-            'users:read',
-            'users:read.email',
-          ],
+          scopes: [...SLACK_OAUTH_SCOPES],
         },
         tokenStorage,
         oauthStateStorage
@@ -106,10 +100,14 @@ export class SlackOAuthService {
         throw new Error('Slack integration is not enabled');
       }
 
-      // Check for existing integration
+      // Check for existing integration - allow re-installation if scopes don't match
       const existing = await slackHelpers.getActiveIntegration(params.organizationId);
       if (existing) {
-        throw new Error('Organization already has an active Slack integration');
+        if (validateScopes(existing.scope)) {
+          throw new Error(
+            'Organization already has an active Slack integration with current scopes'
+          );
+        }
       }
 
       // Add system metadata
@@ -252,6 +250,7 @@ export class SlackOAuthService {
    */
   async getIntegrationStatus(organizationId: string): Promise<{
     connected: boolean;
+    status?: 'connected' | 'disconnected' | 're_install_required';
     integration?: {
       id: string;
       teamName: string;
@@ -269,7 +268,42 @@ export class SlackOAuthService {
       const integration = await slackHelpers.getActiveIntegration(organizationId);
 
       if (!integration) {
-        return { connected: false };
+        return { connected: false, status: 'disconnected' };
+      }
+
+      // Validate scopes
+      if (!validateScopes(integration.scope)) {
+        // Cast defaultChannel to the expected type
+        const defaultChannel = integration.defaultChannel as
+          | { id: string; name: string }
+          | Record<string, never>
+          | null;
+
+        // Check if defaultChannel has content
+        const hasDefaultChannel =
+          defaultChannel &&
+          typeof defaultChannel === 'object' &&
+          'id' in defaultChannel &&
+          'name' in defaultChannel;
+
+        return {
+          connected: true,
+          status: 're_install_required',
+          integration: {
+            id: integration.id,
+            teamName: integration.teamName || '',
+            ...(integration.teamDomain != null && { teamDomain: integration.teamDomain }),
+            installedAt: integration.installedAt || integration.createdAt,
+            ...(integration.lastUsedAt != null && { lastUsedAt: integration.lastUsedAt }),
+            ...(hasDefaultChannel && {
+              defaultChannel: {
+                id: defaultChannel.id,
+                name: defaultChannel.name,
+              },
+            }),
+            defaultSharingPermissions: integration.defaultSharingPermissions,
+          },
+        };
       }
 
       // Cast defaultChannel to the expected type
@@ -287,6 +321,7 @@ export class SlackOAuthService {
 
       return {
         connected: true,
+        status: 'connected',
         integration: {
           id: integration.id,
           teamName: integration.teamName || '',
