@@ -149,25 +149,37 @@ pub async fn get_dashboard_handler(
             "Granting access with effective permission (max of direct and workspace sharing)."
         );
     } else {
-        // No sufficient direct/admin permission, check if user has access via a chat
-        tracing::debug!(dashboard_id = %dashboard_id, "Insufficient direct/admin permission. Checking chat access.");
+        // No sufficient direct/admin permission, check if user has access via a collection
+        tracing::debug!(dashboard_id = %dashboard_id, "Insufficient direct/admin permission. Checking collection access.");
         
-        let has_chat_access = sharing::check_dashboard_chat_access(dashboard_id, &user.id, &user.organizations)
+        let has_collection_access = sharing::check_dashboard_collection_access(dashboard_id, &user.id, &user.organizations)
             .await
             .unwrap_or(false);
             
-        if has_chat_access {
-            // User has access to a chat containing this dashboard, grant CanView
-            tracing::debug!(dashboard_id = %dashboard_id, user_id = %user.id, "User has access via chat. Granting CanView.");
+        if has_collection_access {
+            // User has access to a collection containing this dashboard, grant CanView
+            tracing::debug!(dashboard_id = %dashboard_id, user_id = %user.id, "User has access via collection. Granting CanView.");
             permission = AssetPermissionRole::CanView;
         } else {
-            // No chat access either, check public access rules
-            tracing::debug!(dashboard_id = %dashboard_id, "No chat access. Checking public access rules.");
-            if !dashboard_file.publicly_accessible {
-                tracing::warn!(dashboard_id = %dashboard_id, user_id = %user.id, "Permission denied (not public, no chat access, insufficient direct permission).");
-                return Err(anyhow!("You don't have permission to view this dashboard"));
-            }
-            tracing::debug!(dashboard_id = %dashboard_id, "Dashboard is publicly accessible.");
+            // No collection access, check if user has access via a chat
+            tracing::debug!(dashboard_id = %dashboard_id, "No collection access. Checking chat access.");
+            
+            let has_chat_access = sharing::check_dashboard_chat_access(dashboard_id, &user.id, &user.organizations)
+                .await
+                .unwrap_or(false);
+                
+            if has_chat_access {
+                // User has access to a chat containing this dashboard, grant CanView
+                tracing::debug!(dashboard_id = %dashboard_id, user_id = %user.id, "User has access via chat. Granting CanView.");
+                permission = AssetPermissionRole::CanView;
+            } else {
+                // No chat access either, check public access rules
+                tracing::debug!(dashboard_id = %dashboard_id, "No chat access. Checking public access rules.");
+                if !dashboard_file.publicly_accessible {
+                    tracing::warn!(dashboard_id = %dashboard_id, user_id = %user.id, "Permission denied (not public, no collection/chat access, insufficient direct permission).");
+                    return Err(anyhow!("You don't have permission to view this dashboard"));
+                }
+                tracing::debug!(dashboard_id = %dashboard_id, "Dashboard is publicly accessible.");
 
             // Check if the public access has expired
             if let Some(expiry_date) = dashboard_file.public_expiry_date {
@@ -203,6 +215,7 @@ pub async fn get_dashboard_handler(
                 // Publicly accessible, not expired, and no password required
                 tracing::debug!(dashboard_id = %dashboard_id, "Public access granted (no password required).");
                 permission = AssetPermissionRole::CanView;
+            }
             }
         }
     }

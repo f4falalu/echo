@@ -1,6 +1,6 @@
 use database::enums::{AssetPermissionRole, AssetType, IdentityType, UserOrganizationRole, WorkspaceSharing};
 use database::pool::get_pg_pool;
-use database::schema::{asset_permissions, dashboard_files, metric_files_to_dashboard_files, collections, collections_to_assets};
+use database::schema::{asset_permissions, dashboard_files, metric_files_to_dashboard_files, collections, collections_to_assets, chats};
 use diesel::{BoolExpressionMethods, ExpressionMethods, JoinOnDsl, QueryDsl, OptionalExtension};
 use diesel_async::RunQueryDsl;
 use middleware::OrganizationMembership;
@@ -126,6 +126,7 @@ pub fn check_permission_access(
 /// This function is used to implement permission cascading from dashboards to metrics.
 /// If a user has access to any dashboard containing the metric (either through direct permissions,
 /// workspace sharing, or if the dashboard is public), they get at least CanView permission.
+/// This also checks if the dashboard itself is accessible via collections (transitive cascading).
 ///
 /// # Arguments
 /// * `metric_id` - UUID of the metric to check
@@ -146,81 +147,130 @@ pub async fn check_metric_dashboard_access(
         )
     })?;
 
-    // First check if user has direct access to any dashboard containing this metric
-    let has_direct_access = metric_files_to_dashboard_files::table
+    // Get all dashboards containing this metric
+    let dashboard_ids: Vec<Uuid> = metric_files_to_dashboard_files::table
         .inner_join(
             dashboard_files::table
                 .on(dashboard_files::id.eq(metric_files_to_dashboard_files::dashboard_file_id)),
-        )
-        .inner_join(
-            asset_permissions::table.on(
-                asset_permissions::asset_id.eq(dashboard_files::id)
-                    .and(asset_permissions::asset_type.eq(AssetType::DashboardFile))
-                    .and(asset_permissions::identity_id.eq(user_id))
-                    .and(asset_permissions::identity_type.eq(IdentityType::User))
-                    .and(asset_permissions::deleted_at.is_null())
-            ),
         )
         .filter(metric_files_to_dashboard_files::metric_file_id.eq(metric_id))
         .filter(dashboard_files::deleted_at.is_null())
         .filter(metric_files_to_dashboard_files::deleted_at.is_null())
         .select(dashboard_files::id)
-        .first::<Uuid>(&mut conn)
-        .await
-        .optional()?;
+        .load::<Uuid>(&mut conn)
+        .await?;
 
-    if has_direct_access.is_some() {
-        return Ok(true);
+    if dashboard_ids.is_empty() {
+        return Ok(false);
     }
 
-    // Now check if metric belongs to any PUBLIC dashboard (not expired)
-    let now = chrono::Utc::now();
-    let has_public_access = metric_files_to_dashboard_files::table
-        .inner_join(
-            dashboard_files::table
-                .on(dashboard_files::id.eq(metric_files_to_dashboard_files::dashboard_file_id)),
-        )
-        .filter(metric_files_to_dashboard_files::metric_file_id.eq(metric_id))
-        .filter(dashboard_files::deleted_at.is_null())
-        .filter(metric_files_to_dashboard_files::deleted_at.is_null())
-        .filter(dashboard_files::publicly_accessible.eq(true))
-        .filter(
-            dashboard_files::public_expiry_date
-                .is_null()
-                .or(dashboard_files::public_expiry_date.gt(now)),
-        )
-        .select(dashboard_files::id)
-        .first::<Uuid>(&mut conn)
-        .await
-        .optional()?;
+    // Check multiple access paths concurrently
+    let user_id_clone = *user_id;
+    let user_orgs_clone = user_orgs.to_vec();
+    let dashboard_ids_clone = dashboard_ids.clone();
+    
+    // 1. Check direct access to dashboards
+    let direct_access_future = async move {
+        let mut conn = get_pg_pool().get().await.map_err(|e| {
+            diesel::result::Error::DatabaseError(
+                diesel::result::DatabaseErrorKind::UnableToSendCommand,
+                Box::new(e.to_string()),
+            )
+        })?;
+        
+        let has_direct = asset_permissions::table
+            .filter(asset_permissions::asset_id.eq_any(&dashboard_ids_clone))
+            .filter(asset_permissions::asset_type.eq(AssetType::DashboardFile))
+            .filter(asset_permissions::identity_id.eq(user_id_clone))
+            .filter(asset_permissions::identity_type.eq(IdentityType::User))
+            .filter(asset_permissions::deleted_at.is_null())
+            .select(asset_permissions::asset_id)
+            .first::<Uuid>(&mut conn)
+            .await
+            .optional()?;
+            
+        Ok::<bool, diesel::result::Error>(has_direct.is_some())
+    };
 
-    if has_public_access.is_some() {
-        return Ok(true);
-    }
+    // 2. Check public access to dashboards
+    let dashboard_ids_public = dashboard_ids.clone();
+    let public_access_future = async move {
+        let mut conn = get_pg_pool().get().await.map_err(|e| {
+            diesel::result::Error::DatabaseError(
+                diesel::result::DatabaseErrorKind::UnableToSendCommand,
+                Box::new(e.to_string()),
+            )
+        })?;
+        
+        let now = chrono::Utc::now();
+        let has_public = dashboard_files::table
+            .filter(dashboard_files::id.eq_any(&dashboard_ids_public))
+            .filter(dashboard_files::deleted_at.is_null())
+            .filter(dashboard_files::publicly_accessible.eq(true))
+            .filter(
+                dashboard_files::public_expiry_date
+                    .is_null()
+                    .or(dashboard_files::public_expiry_date.gt(now)),
+            )
+            .select(dashboard_files::id)
+            .first::<Uuid>(&mut conn)
+            .await
+            .optional()?;
+            
+        Ok::<bool, diesel::result::Error>(has_public.is_some())
+    };
 
-    // Check if metric belongs to any workspace-shared dashboard
-    let workspace_shared_dashboard = metric_files_to_dashboard_files::table
-        .inner_join(
-            dashboard_files::table
-                .on(dashboard_files::id.eq(metric_files_to_dashboard_files::dashboard_file_id)),
-        )
-        .filter(metric_files_to_dashboard_files::metric_file_id.eq(metric_id))
-        .filter(dashboard_files::deleted_at.is_null())
-        .filter(metric_files_to_dashboard_files::deleted_at.is_null())
-        .filter(dashboard_files::workspace_sharing.ne(WorkspaceSharing::None))
-        .select((dashboard_files::organization_id, dashboard_files::workspace_sharing))
-        .first::<(Uuid, WorkspaceSharing)>(&mut conn)
-        .await
-        .optional()?;
-
-    if let Some((org_id, _sharing_level)) = workspace_shared_dashboard {
-        // Check if user is member of that organization
-        if user_orgs.iter().any(|org| org.id == org_id) {
-            return Ok(true);
+    // 3. Check workspace sharing on dashboards
+    let dashboard_ids_ws = dashboard_ids.clone();
+    let user_orgs_ws = user_orgs.to_vec();
+    let workspace_access_future = async move {
+        let mut conn = get_pg_pool().get().await.map_err(|e| {
+            diesel::result::Error::DatabaseError(
+                diesel::result::DatabaseErrorKind::UnableToSendCommand,
+                Box::new(e.to_string()),
+            )
+        })?;
+        
+        let workspace_dashboards = dashboard_files::table
+            .filter(dashboard_files::id.eq_any(&dashboard_ids_ws))
+            .filter(dashboard_files::deleted_at.is_null())
+            .filter(dashboard_files::workspace_sharing.ne(WorkspaceSharing::None))
+            .select((dashboard_files::organization_id, dashboard_files::workspace_sharing))
+            .load::<(Uuid, WorkspaceSharing)>(&mut conn)
+            .await?;
+            
+        for (org_id, _) in workspace_dashboards {
+            if user_orgs_ws.iter().any(|org| org.id == org_id) {
+                return Ok::<bool, diesel::result::Error>(true);
+            }
         }
-    }
+        
+        Ok::<bool, diesel::result::Error>(false)
+    };
 
-    Ok(false)
+    // 4. Check if dashboards are accessible via collections
+    let dashboard_ids_coll = dashboard_ids.clone();
+    let user_id_coll = *user_id;
+    let user_orgs_coll = user_orgs.to_vec();
+    let collection_access_future = async move {
+        for dashboard_id in &dashboard_ids_coll {
+            if check_dashboard_collection_access(&dashboard_id, &user_id_coll, &user_orgs_coll).await? {
+                return Ok::<bool, diesel::result::Error>(true);
+            }
+        }
+        Ok::<bool, diesel::result::Error>(false)
+    };
+
+    // Execute all checks concurrently
+    let (direct_result, public_result, workspace_result, collection_result) = tokio::join!(
+        direct_access_future,
+        public_access_future,
+        workspace_access_future,
+        collection_access_future
+    );
+
+    // Return true if any check succeeds
+    Ok(direct_result? || public_result? || workspace_result? || collection_result?)
 }
 
 /// Checks if a user has access to a metric through any associated chat.
@@ -601,6 +651,85 @@ pub async fn check_dashboard_collection_access(
         )
         .filter(collections_to_assets::asset_id.eq(dashboard_id))
         .filter(collections_to_assets::asset_type.eq(AssetType::DashboardFile))
+        .filter(collections::deleted_at.is_null())
+        .filter(collections_to_assets::deleted_at.is_null())
+        .filter(collections::workspace_sharing.ne(WorkspaceSharing::None))
+        .select((collections::organization_id, collections::workspace_sharing))
+        .first::<(Uuid, WorkspaceSharing)>(&mut conn)
+        .await
+        .optional()?;
+
+    if let Some((org_id, _sharing_level)) = workspace_shared_collection {
+        // Check if user is member of that organization
+        if user_orgs.iter().any(|org| org.id == org_id) {
+            return Ok(true);
+        }
+    }
+
+    Ok(false)
+}
+
+/// Checks if a user has access to a chat through any associated collection.
+///
+/// This function is used to implement permission cascading from collections to chats.
+/// If a user has access to any collection containing the chat (either through direct permissions
+/// or workspace sharing), they get at least CanView permission.
+///
+/// # Arguments
+/// * `chat_id` - UUID of the chat to check
+/// * `user_id` - UUID of the user to check permissions for
+/// * `user_orgs` - User's organization memberships
+///
+/// # Returns
+/// * `Result<bool>` - True if the user has access to any collection containing the chat, false otherwise
+pub async fn check_chat_collection_access(
+    chat_id: &Uuid,
+    user_id: &Uuid,
+    user_orgs: &[OrganizationMembership],
+) -> Result<bool, diesel::result::Error> {
+    let mut conn = get_pg_pool().get().await.map_err(|e| {
+        diesel::result::Error::DatabaseError(
+            diesel::result::DatabaseErrorKind::UnableToSendCommand,
+            Box::new(e.to_string()),
+        )
+    })?;
+
+    // First check if user has direct access to any collection containing this chat
+    let has_direct_access = collections_to_assets::table
+        .inner_join(
+            collections::table
+                .on(collections::id.eq(collections_to_assets::collection_id)),
+        )
+        .inner_join(
+            asset_permissions::table.on(
+                asset_permissions::asset_id.eq(collections::id)
+                    .and(asset_permissions::asset_type.eq(AssetType::Collection))
+                    .and(asset_permissions::identity_id.eq(user_id))
+                    .and(asset_permissions::identity_type.eq(IdentityType::User))
+                    .and(asset_permissions::deleted_at.is_null())
+            ),
+        )
+        .filter(collections_to_assets::asset_id.eq(chat_id))
+        .filter(collections_to_assets::asset_type.eq(AssetType::Chat))
+        .filter(collections::deleted_at.is_null())
+        .filter(collections_to_assets::deleted_at.is_null())
+        .select(collections::id)
+        .first::<Uuid>(&mut conn)
+        .await
+        .optional()?;
+
+    if has_direct_access.is_some() {
+        return Ok(true);
+    }
+
+    // Check if chat belongs to any workspace-shared collection
+    let workspace_shared_collection = collections_to_assets::table
+        .inner_join(
+            collections::table
+                .on(collections::id.eq(collections_to_assets::collection_id)),
+        )
+        .filter(collections_to_assets::asset_id.eq(chat_id))
+        .filter(collections_to_assets::asset_type.eq(AssetType::Chat))
         .filter(collections::deleted_at.is_null())
         .filter(collections_to_assets::deleted_at.is_null())
         .filter(collections::workspace_sharing.ne(WorkspaceSharing::None))

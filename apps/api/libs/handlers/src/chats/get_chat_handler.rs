@@ -17,7 +17,7 @@ use database::{
     helpers::chats::fetch_chat_with_permission,
     pool::get_pg_pool,
 };
-use sharing::check_permission_access;
+use sharing::{check_permission_access, compute_effective_permission};
 
 #[derive(Queryable)]
 pub struct ChatWithUser {
@@ -100,7 +100,14 @@ pub async fn get_chat_handler(
     let is_creator = chat_with_permission.chat.created_by == user.id;
 
     if !has_permission && !is_creator {
-        return Err(anyhow!("You don't have permission to view this chat"));
+        // Check if user has access via a collection
+        let has_collection_access = sharing::check_chat_collection_access(chat_id, &user.id, &user.organizations)
+            .await
+            .unwrap_or(false);
+            
+        if !has_collection_access {
+            return Err(anyhow!("You don't have permission to view this chat"));
+        }
     }
 
     // Run messages query
