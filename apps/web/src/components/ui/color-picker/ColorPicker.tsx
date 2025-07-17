@@ -15,6 +15,7 @@ interface ColorPickerProps {
   onChange?: (value: string) => void;
   onChangeComplete?: (value: string) => void;
   onBlur?: () => void;
+  onOpenChange?: (open: boolean) => void;
   disabled?: boolean;
   size?: 'default' | 'small' | 'tall';
   name?: string;
@@ -48,6 +49,7 @@ const ColorPicker = ({
   size = 'default',
   value: valueProp = '#000000',
   onChange,
+  onOpenChange,
   name,
   className = '',
   children,
@@ -60,6 +62,14 @@ const ColorPicker = ({
   ...props
 }: ColorPickerProps) => {
   const [open, setOpen] = useState(false);
+
+  const handleOpenChange = useCallback(
+    (newOpen: boolean) => {
+      setOpen(newOpen);
+      onOpenChange?.(newOpen);
+    },
+    [onOpenChange]
+  );
   const [value, setValue] = useState(valueProp);
 
   const parsedValue = useMemo(() => {
@@ -96,7 +106,7 @@ const ColorPicker = ({
   }, [valueProp]);
 
   return (
-    <PopoverRoot onOpenChange={setOpen} open={open}>
+    <PopoverRoot onOpenChange={handleOpenChange} open={open}>
       <PopoverTrigger asChild disabled={disabled}>
         {children || (
           <div data-testid="color-picker-trigger">
