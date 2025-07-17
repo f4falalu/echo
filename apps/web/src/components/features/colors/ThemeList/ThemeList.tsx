@@ -3,16 +3,22 @@ import { Text } from '@/components/ui/typography';
 import { cn } from '@/lib/classMerge';
 import type { IColorTheme } from './interfaces';
 import { ThemeColorDots } from './ThemeColorDots';
+import { Dots } from '../../../ui/icons';
+import { Button } from '../../../ui/buttons';
+import { Popover } from '../../../ui/popover';
 
 export const ThemeList: React.FC<{
   themes: Required<IColorTheme>[];
+  className?: string;
   onChangeColorTheme: (theme: IColorTheme) => void;
-}> = ({ themes, onChangeColorTheme }) => {
+  themeThreeDotsMenu?: React.FC<{ theme: IColorTheme }>;
+}> = ({ themes, className, themeThreeDotsMenu, onChangeColorTheme }) => {
   return (
     <div
       className={cn(
         'bg-item-select rounded-sm border p-1',
-        'flex w-full flex-col space-y-0.5 overflow-y-auto'
+        'flex w-full flex-col space-y-0.5 overflow-y-auto',
+        className
       )}>
       {themes.map((theme) => (
         <ColorOption
@@ -20,6 +26,7 @@ export const ThemeList: React.FC<{
           theme={theme}
           selected={theme.selected}
           onChangeColorTheme={onChangeColorTheme}
+          threeDotMenu={themeThreeDotsMenu}
         />
       ))}
     </div>
@@ -29,9 +36,12 @@ export const ThemeList: React.FC<{
 const ColorOption: React.FC<{
   theme: IColorTheme;
   selected: boolean;
+  threeDotMenu?: React.FC<{ theme: IColorTheme }>;
   onChangeColorTheme: (theme: IColorTheme) => void;
-}> = React.memo(({ theme, selected, onChangeColorTheme }) => {
+}> = React.memo(({ theme, selected, threeDotMenu, onChangeColorTheme }) => {
   const { name, colors } = theme;
+
+  const ThreeDotMenuComponent = threeDotMenu;
 
   return (
     <div
@@ -49,7 +59,20 @@ const ColorOption: React.FC<{
         {name}
       </Text>
 
-      <ThemeColorDots selected={selected} colors={colors} />
+      <div className="flex items-center gap-x-1">
+        <ThemeColorDots selected={selected} colors={colors} />
+
+        {ThreeDotMenuComponent && (
+          <div onClick={(e) => e.stopPropagation()}>
+            <Popover
+              className="p-0"
+              content={<ThreeDotMenuComponent theme={theme} />}
+              trigger="click">
+              <Button variant={'ghost'} size={'small'} prefix={<Dots />}></Button>
+            </Popover>
+          </div>
+        )}
+      </div>
     </div>
   );
 });

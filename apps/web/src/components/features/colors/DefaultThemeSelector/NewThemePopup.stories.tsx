@@ -45,7 +45,6 @@ const meta: Meta<typeof NewThemePopup> = {
     layout: 'centered'
   },
   args: {
-    isOpen: true,
     onSave: fn(),
     onDelete: fn()
   },
@@ -82,12 +81,5 @@ export const EditingThemeWithLongName: Story = {
 export const EditingThemeWithManyColors: Story = {
   args: {
     selectedTheme: manyColorsTheme
-  }
-};
-
-export const Closed: Story = {
-  args: {
-    isOpen: false,
-    selectedTheme: mockTheme
   }
 };

@@ -11,7 +11,6 @@ import { ColorPickButton } from './DraggableColorPicker';
 import { inputHasText } from '@/lib/text';
 
 interface NewThemePopupProps {
-  isOpen: boolean;
   selectedTheme?: IColorTheme;
   onSave: (theme: IColorTheme) => Promise<void>;
   onDelete: (id: string) => Promise<void>;
@@ -20,7 +19,7 @@ interface NewThemePopupProps {
 const DEFAULT_THEME: IColorTheme = ALL_THEMES[0];
 
 export const NewThemePopup = React.memo(
-  ({ selectedTheme, isOpen, onDelete, onSave }: NewThemePopupProps) => {
+  ({ selectedTheme, onDelete, onSave }: NewThemePopupProps) => {
     const [title, setTitle] = useState('');
     const [colors, setColors] = useState<string[]>(DEFAULT_THEME.colors);
     const [id, setId] = useState(uuidv4());
@@ -47,6 +46,14 @@ export const NewThemePopup = React.memo(
         reset();
       }, 350);
     });
+
+    useEffect(() => {
+      if (selectedTheme) {
+        setTitle(selectedTheme.name);
+        setColors(selectedTheme.colors);
+        setId(selectedTheme.id);
+      }
+    }, [selectedTheme]);
 
     return (
       <div className="w-[280px]">
