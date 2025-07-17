@@ -31,17 +31,3 @@ export type Equal<A, B> = (<T>() => T extends A ? 1 : 2) extends <T>() => T exte
  * type _Check = Expect<Equal<MyType, DatabaseType>>; // Errors if types don't match exactly
  */
 export type Expect<T extends true> = T;
-
-/**
- * Variable assignment approach for type equality (most reliable)
- * Copy this pattern for guaranteed type checking:
- *
- * @example
- * const _check1: MyType = {} as DatabaseType;
- * const _check2: DatabaseType = {} as MyType;
- */
-
-/**
- * Legacy type equality checker - use Equal + Expect pattern instead
- */
-export type IsEqual<T, U> = Equal<T, U>;
