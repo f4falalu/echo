@@ -53,6 +53,7 @@ struct AssetPermissionInfo {
     role: AssetPermissionRole,
     email: String,
     name: Option<String>,
+    avatar_url: Option<String>,
 }
 
 pub async fn get_chat_handler(
@@ -154,7 +155,7 @@ pub async fn get_chat_handler(
                 .filter(asset_permissions::asset_type.eq(AssetType::Chat))
                 .filter(asset_permissions::identity_type.eq(IdentityType::User))
                 .filter(asset_permissions::deleted_at.is_null())
-                .select((asset_permissions::role, users::email, users::name))
+                .select((asset_permissions::role, users::email, users::name, users::avatar_url))
                 .load::<AssetPermissionInfo>(&mut conn)
                 .await;
 
@@ -302,6 +303,7 @@ pub async fn get_chat_handler(
                             email: p.email,
                             role: p.role,
                             name: p.name,
+                            avatar_url: p.avatar_url,
                         })
                         .collect::<Vec<BusterShareIndividual>>(),
                 )

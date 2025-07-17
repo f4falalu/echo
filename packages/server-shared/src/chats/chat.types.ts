@@ -1,17 +1,11 @@
 import { z } from 'zod';
+import { ShareIndividualSchema } from '../share';
 import { ChatMessageSchema } from './chat-message.types';
 
 const AssetType = z.enum(['metric_file', 'dashboard_file']);
 
 // Asset Permission Role enum (matching database enum)
 export const AssetPermissionRoleSchema = z.enum(['viewer', 'editor', 'owner']);
-
-// Individual permission schema
-export const BusterShareIndividualSchema = z.object({
-  email: z.string().email(),
-  role: AssetPermissionRoleSchema,
-  name: z.string().optional(),
-});
 
 // Main ChatWithMessages schema
 export const ChatWithMessagesSchema = z.object({
@@ -27,7 +21,7 @@ export const ChatWithMessagesSchema = z.object({
   created_by_name: z.string(),
   created_by_avatar: z.string().nullable(),
   // Sharing fields
-  individual_permissions: z.array(BusterShareIndividualSchema).optional(),
+  individual_permissions: z.array(ShareIndividualSchema).optional(),
   publicly_accessible: z.boolean(),
   public_expiry_date: z.string().datetime().optional(),
   public_enabled_by: z.string().optional(),
@@ -67,7 +61,6 @@ export const CancelChatParamsSchema = z.object({
 
 // Infer types from schemas
 export type AssetPermissionRole = z.infer<typeof AssetPermissionRoleSchema>;
-export type BusterShareIndividual = z.infer<typeof BusterShareIndividualSchema>;
 export type ChatWithMessages = z.infer<typeof ChatWithMessagesSchema>;
 export type ChatCreateRequest = z.infer<typeof ChatCreateRequestSchema>;
 export type ChatCreateHandlerRequest = z.infer<typeof ChatCreateHandlerRequestSchema>;

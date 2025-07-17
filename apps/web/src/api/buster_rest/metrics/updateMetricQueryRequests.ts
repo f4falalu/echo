@@ -221,17 +221,14 @@ export const useShareMetric = () => {
   const { selectedVersionNumber } = useGetMetricVersionNumber();
   return useMutation({
     mutationFn: shareMetric,
-    onMutate: (variables) => {
-      const queryKey = metricsQueryKeys.metricsGetMetric(
-        variables.id,
-        selectedVersionNumber
-      ).queryKey;
+    onMutate: ({ id, params }) => {
+      const queryKey = metricsQueryKeys.metricsGetMetric(id, selectedVersionNumber).queryKey;
 
       queryClient.setQueryData(queryKey, (previousData: BusterMetric | undefined) => {
         if (!previousData) return previousData;
         return create(previousData, (draft: BusterMetric) => {
           draft.individual_permissions = [
-            ...variables.params.map((p) => ({
+            ...params.map((p) => ({
               ...p,
               name: p.name,
               avatar_url: p.avatar_url || null

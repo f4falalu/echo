@@ -9,8 +9,6 @@ import type {
   DuplicateMetricResponse,
   GetMetricDataRequest,
   ListMetricsResponse,
-  ShareMetricRequest,
-  ShareMetricResponse,
   UpdateMetricRequest,
   GetMetricRequest,
   GetMetricListRequest,
@@ -22,6 +20,7 @@ import type {
 } from '@buster/server-shared/metrics';
 import { serverFetch } from '@/api/createServerInstance';
 import { mainApi } from '../instances';
+import { SharePostRequest } from '@buster/server-shared/share';
 
 export const getMetric = async (params: GetMetricRequest): Promise<GetMetricResponse> => {
   return mainApi
@@ -85,7 +84,7 @@ export const bulkUpdateMetricVerificationStatus = async (
 
 // share metrics
 
-export const shareMetric = async ({ id, params }: { id: string; params: ShareMetricRequest }) => {
+export const shareMetric = async ({ id, params }: { id: string; params: SharePostRequest }) => {
   return mainApi.post<string>(`/metric_files/${id}/sharing`, params).then((res) => res.data);
 };
 
