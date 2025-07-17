@@ -247,6 +247,7 @@ export class SlackHandler {
 
       return c.json<GetIntegrationResponse>({
         connected: status.connected,
+        status: status.status,
         integration: status.integration
           ? {
               id: status.integration.id,
