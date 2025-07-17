@@ -3,7 +3,7 @@ import type { ShareAssetType, ShareConfig, WorkspaceShareRole } from '@buster/se
 import { Dropdown } from '@/components/ui/dropdown';
 import type { DropdownItem } from '@/components/ui/dropdown';
 import { ChevronDown } from '@/components/ui/icons/NucleoIconFilled';
-import { ApartmentBuilding } from '@/components/ui/icons/NucleoIconOutlined';
+import { ApartmentBuilding } from '@/components/ui/icons/NucleoIconFilled';
 import { Text } from '@/components/ui/typography';
 import { useMemoizedFn } from '@/hooks';
 import { cn } from '@/lib/classMerge';
