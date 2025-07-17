@@ -34,7 +34,7 @@ export const ShareMenuInvite: React.FC<ShareMenuInviteProps> = React.memo(
     const [defaultPermissionLevel, setDefaultPermissionLevel] =
       React.useState<ShareRole>('canView');
 
-    const debouncedInputValue = useDebounce(inputValue, { wait: 350 });
+    const debouncedInputValue = useDebounce(inputValue, { wait: 150 });
     const { data: usersData } = useGetUserToOrganization({
       user_name: debouncedInputValue,
       email: debouncedInputValue,
@@ -82,12 +82,16 @@ export const ShareMenuInvite: React.FC<ShareMenuInviteProps> = React.memo(
         return;
       }
 
+      const user = usersData?.data.find((user) => user.email === inputValue);
+
       const payload: Parameters<typeof onShareMetric>[0] = {
         id: assetId,
         params: [
           {
             email: inputValue,
-            role: defaultPermissionLevel
+            role: defaultPermissionLevel,
+            name: user?.name || '',
+            avatar_url: user?.avatarUrl || null
           }
         ]
       };

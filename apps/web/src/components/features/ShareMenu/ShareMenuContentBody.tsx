@@ -1,25 +1,10 @@
 import React from 'react';
 import type { ShareAssetType, ShareConfig, ShareRole } from '@buster/server-shared/share';
-import { isValidEmail } from '@/lib/email';
-import {
-  useShareCollection,
-  useUnshareCollection,
-  useUpdateCollectionShare
-} from '@/api/buster_rest/collections';
-import {
-  useShareDashboard,
-  useUnshareDashboard,
-  useUpdateDashboardShare
-} from '@/api/buster_rest/dashboards';
-import { useShareMetric, useUnshareMetric, useUpdateMetricShare } from '@/api/buster_rest/metrics';
-import { Button } from '@/components/ui/buttons';
-import { Input } from '@/components/ui/inputs';
-import { InputSearchDropdown } from '@/components/ui/inputs/InputSearchDropdown';
-import { useBusterNotifications } from '@/context/BusterNotifications';
+import { useUnshareCollection, useUpdateCollectionShare } from '@/api/buster_rest/collections';
+import { useUnshareDashboard, useUpdateDashboardShare } from '@/api/buster_rest/dashboards';
+import { useUnshareMetric, useUpdateMetricShare } from '@/api/buster_rest/metrics';
 import { useMemoizedFn } from '@/hooks';
 import { cn } from '@/lib/classMerge';
-import { inputHasText } from '@/lib/text';
-import { AccessDropdown } from './AccessDropdown';
 import { IndividualSharePerson } from './IndividualSharePerson';
 import { ShareMenuContentEmbed } from './ShareMenuContentEmbed';
 import { ShareMenuContentPublish } from './ShareMenuContentPublish';
@@ -75,7 +60,6 @@ const ShareMenuContentShare: React.FC<ShareMenuContentBodyProps> = React.memo(
     const { mutateAsync: onUnshareMetric } = useUnshareMetric();
     const { mutateAsync: onUnshareDashboard } = useUnshareDashboard();
     const { mutateAsync: onUnshareCollection } = useUnshareCollection();
-    const { openErrorMessage } = useBusterNotifications();
 
     const hasIndividualPermissions = !!individual_permissions?.length;
 

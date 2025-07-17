@@ -80,9 +80,7 @@ export const collectionsDeleteCollection = async (data: {
 // share collections
 
 export const shareCollection = async ({ id, params }: { id: string; params: SharePostRequest }) => {
-  return mainApi
-    .post<BusterCollection>(`/collections/${id}/sharing`, params)
-    .then((res) => res.data);
+  return mainApi.post<string>(`/collections/${id}/sharing`, params).then((res) => res.data);
 };
 
 export const unshareCollection = async ({ id, data }: { id: string; data: ShareDeleteRequest }) => {

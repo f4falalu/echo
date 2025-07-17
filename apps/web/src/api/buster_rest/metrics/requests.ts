@@ -56,7 +56,9 @@ export const listMetrics_server = async (params: Parameters<typeof listMetrics>[
 };
 
 export const updateMetric = async (params: UpdateMetricRequest) => {
-  return mainApi.put<UpdateMetricResponse>(`/metric_files/${params.id}`, params).then((res) => res.data);
+  return mainApi
+    .put<UpdateMetricResponse>(`/metric_files/${params.id}`, params)
+    .then((res) => res.data);
 };
 
 export const deleteMetrics = async (data: DeleteMetricRequest) => {
@@ -84,9 +86,7 @@ export const bulkUpdateMetricVerificationStatus = async (
 // share metrics
 
 export const shareMetric = async ({ id, params }: { id: string; params: ShareMetricRequest }) => {
-  return mainApi
-    .post<ShareMetricResponse>(`/metric_files/${id}/sharing`, params)
-    .then((res) => res.data);
+  return mainApi.post<string>(`/metric_files/${id}/sharing`, params).then((res) => res.data);
 };
 
 export const unshareMetric = async ({ id, data }: { id: string; data: ShareDeleteRequest }) => {
@@ -102,5 +102,7 @@ export const updateMetricShare = async ({
   id: string;
   params: ShareUpdateRequest;
 }) => {
-  return mainApi.put<ShareUpdateResponse>(`/metric_files/${id}/sharing`, params).then((res) => res.data);
+  return mainApi
+    .put<ShareUpdateResponse>(`/metric_files/${id}/sharing`, params)
+    .then((res) => res.data);
 };

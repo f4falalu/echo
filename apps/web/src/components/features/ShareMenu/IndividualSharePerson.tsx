@@ -1,6 +1,4 @@
 import React from 'react';
-import { Avatar } from '@/components/ui/avatar';
-import { Text } from '@/components/ui/typography';
 import { useMemoizedFn } from '@/hooks';
 import { AccessDropdown } from './AccessDropdown';
 import type { ShareAssetType, ShareRole } from '@buster/server-shared/share';
@@ -10,13 +8,11 @@ export const IndividualSharePerson: React.FC<{
   name?: string;
   email: string;
   role: ShareRole;
-  avatar_url: string | null;
+  avatar_url?: string | null;
   onUpdateShareRole: (email: string, role: ShareRole | null) => void;
   assetType: ShareAssetType;
   disabled: boolean;
 }> = React.memo(({ name, onUpdateShareRole, email, avatar_url, role, assetType, disabled }) => {
-  const isSameEmailName = name === email;
-
   const onChangeShareLevel = useMemoizedFn((v: ShareRole | null) => {
     onUpdateShareRole(email, v);
   });

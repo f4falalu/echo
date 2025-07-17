@@ -180,17 +180,20 @@ export const useShareCollection = () => {
         if (!previousData) return previousData;
         return create(previousData, (draft: BusterCollection) => {
           draft.individual_permissions = [
-            ...params.map((p) => ({ ...p, avatar_url: null })),
+            ...params.map((p) => ({ ...p })),
             ...(draft.individual_permissions || [])
           ];
         });
       });
     },
     onSuccess: (data) => {
-      queryClient.setQueryData(
-        collectionQueryKeys.collectionsGetCollection(data.id).queryKey,
-        data
-      );
+      const partialMatchedKey = collectionQueryKeys
+        .collectionsGetCollection(data)
+        .queryKey.slice(0, -1);
+      queryClient.invalidateQueries({
+        queryKey: partialMatchedKey,
+        refetchType: 'all'
+      });
     }
   });
 };

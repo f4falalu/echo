@@ -59,7 +59,7 @@ const userGetUserDatasetGroups = (userId: string) =>
 const userGetUserToOrganization = (params: GetUserToOrganizationRequest) =>
   queryOptions<GetUserToOrganizationResponse>({
     queryKey: ['users', 'organization', params] as const,
-    staleTime: 10 * 1000
+    staleTime: 20 * 1000
   });
 
 export const userQueryKeys = {

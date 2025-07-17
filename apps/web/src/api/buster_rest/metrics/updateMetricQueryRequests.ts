@@ -22,6 +22,7 @@ import {
   updateMetric,
   updateMetricShare
 } from './requests';
+import { userQueryKeys } from '../../query_keys/users';
 
 /**
  * This is a mutation that saves a metric to the server.
@@ -225,26 +226,29 @@ export const useShareMetric = () => {
         variables.id,
         selectedVersionNumber
       ).queryKey;
+
       queryClient.setQueryData(queryKey, (previousData: BusterMetric | undefined) => {
         if (!previousData) return previousData;
         return create(previousData, (draft: BusterMetric) => {
           draft.individual_permissions = [
-            ...variables.params.map((p) => ({ ...p, avatar_url: null })),
+            ...variables.params.map((p) => ({
+              ...p,
+              name: p.name,
+              avatar_url: p.avatar_url || null
+            })),
             ...(draft.individual_permissions || [])
           ];
         });
       });
     },
-    onSuccess: (data) => {
-      const oldMetric = queryClient.getQueryData(
-        metricsQueryKeys.metricsGetMetric(data.id, data.version_number).queryKey
-      );
-      const upgradedMetric = upgradeMetricToIMetric(data, oldMetric || null);
-
-      queryClient.setQueryData(
-        metricsQueryKeys.metricsGetMetric(data.id, data.version_number).queryKey,
-        upgradedMetric
-      );
+    onSuccess: (data, variables) => {
+      const partialMatchedKey = metricsQueryKeys
+        .metricsGetMetric(variables.id, null)
+        .queryKey.slice(0, -1);
+      queryClient.invalidateQueries({
+        queryKey: partialMatchedKey,
+        refetchType: 'all'
+      });
     }
   });
 };
