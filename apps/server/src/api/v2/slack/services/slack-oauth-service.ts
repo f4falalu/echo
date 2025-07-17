@@ -8,7 +8,12 @@ import { oauthStateStorage, tokenStorage } from './token-storage';
  * Validates if an integration has all required OAuth scopes
  */
 function validateScopes(currentScopeString?: string | null): boolean {
-  const currentScopes = currentScopeString ? currentScopeString.split(' ') : [];
+  if (!currentScopeString) return false;
+  
+  const currentScopes = currentScopeString.includes(',') 
+    ? currentScopeString.split(',').map(s => s.trim())
+    : currentScopeString.split(' ').map(s => s.trim());
+    
   const requiredScopes = [...SLACK_OAUTH_SCOPES];
   return requiredScopes.every((scope) => currentScopes.includes(scope));
 }
@@ -268,6 +273,19 @@ export class SlackOAuthService {
 
       // Validate scopes
       if (!validateScopes(integration.scope)) {
+        // Cast defaultChannel to the expected type
+        const defaultChannel = integration.defaultChannel as
+          | { id: string; name: string }
+          | Record<string, never>
+          | null;
+
+        // Check if defaultChannel has content
+        const hasDefaultChannel =
+          defaultChannel &&
+          typeof defaultChannel === 'object' &&
+          'id' in defaultChannel &&
+          'name' in defaultChannel;
+
         return {
           connected: true,
           status: 're_install_required',
@@ -277,6 +295,12 @@ export class SlackOAuthService {
             ...(integration.teamDomain != null && { teamDomain: integration.teamDomain }),
             installedAt: integration.installedAt || integration.createdAt,
             ...(integration.lastUsedAt != null && { lastUsedAt: integration.lastUsedAt }),
+            ...(hasDefaultChannel && {
+              defaultChannel: {
+                id: defaultChannel.id,
+                name: defaultChannel.name,
+              },
+            }),
             defaultSharingPermissions: integration.defaultSharingPermissions,
           },
         };
