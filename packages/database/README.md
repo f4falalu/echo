@@ -1,340 +1,247 @@
 # @buster/database
 
-A Bun-based database library using Drizzle ORM with PostgreSQL connection pooling. This library provides a centralized database connection and schema management for the Buster application.
+A TypeScript database library using Drizzle ORM with PostgreSQL connection pooling. This library provides a centralized database connection and schema management for the Buster application.
 
-## Features
+## Architecture & Patterns
 
-- 🔄 **Connection Pooling**: Efficient PostgreSQL connection management
-- 📊 **Schema Introspection**: Auto-generated TypeScript types from existing database
-- 🔧 **Migration Management**: Full migration lifecycle support
-- 🏗️ **Type Safety**: Complete TypeScript support with inferred types
-- 🚀 **Performance**: Optimized for serverless and traditional deployments
+### Schema Definition (`src/schema.ts`)
 
-## Installation
+The database schema is defined using Drizzle ORM. All table definitions and modifications should be made in this file.
 
-```bash
-cd packages/database
-bun install
-```
+#### JSONB Columns with Type Safety
 
-## Environment Setup
-
-Ensure your `.env` file contains:
-
-```env
-DATABASE_URL=postgresql://username:password@host:port/database
-```
-
-## Quick Start
-
-### Basic Usage
+For JSONB columns, we use a specific pattern to ensure type safety:
 
 ```typescript
-import { getDb, users, eq } from '@buster/database';
-
-// Get database instance
-const db = getDb();
-
-// Query users
-const allUsers = await db.select().from(users);
-
-// Find user by ID
-const user = await db.select().from(users).where(eq(users.id, userId));
-
-// Insert new user
-const [newUser] = await db.insert(users).values({
-  name: 'John Doe',
-  email: 'john@example.com'
-}).returning();
-```
-
-### Using Database Helpers
-
-The package includes helper functions for common database operations:
-
-```typescript
-import { 
-  getRawLlmMessages, 
-  getMessagesForChat, 
-  getLatestMessageForChat 
-} from '@buster/database';
-
-// Get raw LLM messages from a specific message record
-const rawMessages = await getRawLlmMessages(messageId);
-
-// Get all messages for a chat
-const chatMessages = await getMessagesForChat(chatId);
-
-// Get the latest message in a chat
-const latestMessage = await getLatestMessageForChat(chatId);
-```
-
-### Connection Pool Management
-
-```typescript
-import { initializePool, closePool, type PoolConfig } from '@buster/database';
-
-// Initialize with custom pool configuration
-const config: PoolConfig = {
-  max: 20,
-  idle_timeout: 30,
-  connect_timeout: 30,
-  prepare: false
+// 1. Define the type in src/schema-types/[entity].ts
+export type OrganizationColorPalette = {
+  id: string | number;
+  colors: string[]; // Hex color codes
 };
 
-const db = initializePool(config);
+export type OrganizationColorPalettes = OrganizationColorPalette[];
 
-// Graceful shutdown
-await closePool();
-```
+// 2. Export from src/schema-types/index.ts
+export * from './organization';
 
-## Database Schema
+// 3. Use in schema.ts with .$type<T>()
+import type { OrganizationColorPalettes } from './schema-types';
 
-The schema has been introspected from your existing database and includes:
-
-- **41 tables** with complete type definitions
-- **386 columns** with proper TypeScript types
-- **12 enums** for type safety
-- **39 indexes** for performance
-- **85 foreign keys** for referential integrity
-
-### Key Tables
-
-- `users` - User management
-- `organizations` - Organization structure
-- `teams` - Team management
-- `dashboards` - Dashboard configurations
-- `datasets` - Data source definitions
-- `collections` - Asset collections
-- `api_keys` - API authentication
-- And many more...
-
-## Database Helpers
-
-This package includes helper functions organized by entity for common database operations:
-
-### Structure
-
-```
-src/helpers/
-├── index.ts        # Exports all helpers
-├── messages.ts     # Message-related helpers
-└── ...            # Future entity helpers
-```
-
-### Available Helpers
-
-#### Messages (`messages.ts`)
-
-- `getRawLlmMessages(messageId)` - Get raw LLM messages from a specific message record
-- `getMessagesForChat(chatId)` - Get all messages for a specific chat
-- `getLatestMessageForChat(chatId)` - Get the most recent message for a chat
-- `getCompletedMessagesForChat(chatId)` - Get completed messages for a chat
-- `getAllRawLlmMessagesForChat(chatId)` - Get raw LLM messages from all messages in a chat
-
-### Adding New Helpers
-
-When adding helpers for a new entity:
-
-1. Create `src/helpers/{entity}.ts` with typed helper functions
-2. Export the new helpers in `src/helpers/index.ts`
-3. Update this README with the new helper functions
-4. Follow the existing patterns for type safety and error handling
-
-## Migration Workflow
-
-### For Existing Database (Current Setup)
-
-Since this library was created from an existing database, the initial state has been captured:
-
-```bash
-# The database was introspected and schema generated
-bun run db:pull
-
-# Initial migration file created: drizzle/0000_uneven_black_widow.sql
-# This represents your current database state
-```
-
-### Future Schema Changes
-
-When you need to make schema changes:
-
-1. **Update the schema** in `src/schema.ts`
-2. **Generate migration**:
-
-   ```bash
-   bun run db:generate
-   ```
-
-3. **Apply migration**:
-
-   ```bash
-   bun run db:migrate
-   ```
-
-### Available Scripts
-
-```bash
-# Database introspection and setup
-bun run db:pull           # Pull schema from database
-bun run db:validate       # Validate schema against database
-
-# Migration management
-bun run db:generate       # Generate migration from schema changes
-bun run db:migrate        # Apply pending migrations
-bun run db:push           # Push schema directly (dev only)
-bun run db:check          # Check for migration conflicts
-
-# Development tools
-bun run db:studio         # Open Drizzle Studio
-bun run db:snapshot       # Generate current state snapshot
-```
-
-## Usage in Other Packages
-
-### In Tasks Package
-
-```typescript
-// tasks/src/some-task.ts
-import { getDb, users, organizations, eq } from '@buster/database';
-
-export async function processUsers() {
-  const db = getDb();
-  
-  const activeUsers = await db
-    .select()
-    .from(users)
-    .innerJoin(organizations, eq(users.organizationId, organizations.id))
-    .where(eq(users.isActive, true));
-    
-  // Process users...
-}
-```
-
-### In Server Package
-
-```typescript
-// server/src/handlers/user-handler.ts
-import { getDb, users, eq, type User } from '@buster/database';
-
-export async function getUserHandler(userId: string): Promise<User | null> {
-  const db = getDb();
-  
-  const [user] = await db
-    .select()
-    .from(users)
-    .where(eq(users.id, userId));
-    
-  return user || null;
-}
-```
-
-## Type Safety
-
-All database tables have automatically generated TypeScript types:
-
-```typescript
-import type { 
-  User,           // Select type for users table
-  NewUser,        // Insert type for users table
-  Dashboard,      // Select type for dashboards table
-  NewDashboard,   // Insert type for dashboards table
-  // ... and many more
-} from '@buster/database';
-
-// Type-safe operations
-const userData: NewUser = {
-  name: 'John Doe',
-  email: 'john@example.com',
-  // TypeScript will enforce correct types
-};
-```
-
-## Advanced Usage
-
-### Transactions
-
-```typescript
-import { getDb, users, organizations } from '@buster/database';
-
-const db = getDb();
-
-await db.transaction(async (tx) => {
-  const [org] = await tx.insert(organizations).values({
-    name: 'New Org'
-  }).returning();
-  
-  await tx.insert(users).values({
-    name: 'Admin User',
-    email: 'admin@neworg.com',
-    organizationId: org.id
-  });
+export const organizations = pgTable('organizations', {
+  // ... other columns
+  organizationColorPalettes: jsonb('organization_color_palettes')
+    .$type<OrganizationColorPalettes>()
+    .default(sql`'[]'::jsonb`)
+    .notNull(),
 });
 ```
 
-### Raw SQL
+### Query Organization (`src/queries/`)
+
+**ALL DATABASE INTERACTIONS MUST GO THROUGH THE QUERIES FOLDER**. Direct database access outside of this folder is not allowed.
+
+#### Directory Structure
+
+```
+queries/
+├── shared-types/          # Reusable query utilities and types
+│   ├── pagination.types.ts
+│   ├── with-pagination.ts
+│   └── index.ts
+├── organizations/         # Domain-specific queries
+│   ├── organizations.ts
+│   ├── update-organization.ts
+│   └── index.ts
+├── users/
+│   ├── user.ts
+│   ├── users-to-organizations.ts
+│   └── index.ts
+└── index.ts              # Exports all query modules
+```
+
+#### Query Function Pattern
+
+Every query function follows this pattern:
 
 ```typescript
-import { getDb, sql } from '@buster/database';
+import { z } from 'zod';
+import { type InferSelectModel } from 'drizzle-orm';
+import { db } from '../../connection';
+import { tableName } from '../../schema';
 
-const db = getDb();
+// 1. Type inference from schema
+type TableType = InferSelectModel<typeof tableName>;
 
-const result = await db.execute(sql`
-  SELECT COUNT(*) as user_count 
-  FROM users 
-  WHERE created_at > NOW() - INTERVAL '30 days'
-`);
+// 2. Input validation schema using Zod
+const GetSomethingInputSchema = z.object({
+  id: z.string().uuid('ID must be a valid UUID'),
+  // ... other fields
+});
+
+type GetSomethingInput = z.infer<typeof GetSomethingInputSchema>;
+
+// 3. Query function with proper error handling
+export async function getSomething(params: GetSomethingInput): Promise<TableType> {
+  try {
+    // Validate input
+    const validated = GetSomethingInputSchema.parse(params);
+    
+    // Execute query
+    const result = await db
+      .select()
+      .from(tableName)
+      .where(/* conditions */)
+      .limit(1);
+    
+    if (!result.length || !result[0]) {
+      throw new Error('Resource not found');
+    }
+    
+    return result[0];
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      throw new Error(
+        `Invalid input: ${error.errors.map((e) => e.message).join(', ')}`
+      );
+    }
+    throw error;
+  }
+}
 ```
 
-## Migration from Other ORMs
+### Pagination Pattern
 
-This library was specifically designed to migrate from your existing ORM setup. The introspection process captured your current database state, so you can:
+For paginated queries, use the shared pagination utilities:
 
-1. **Gradually migrate** your existing code to use this library
-2. **Maintain compatibility** with your current database structure
-3. **Add new features** using Drizzle's type-safe API
+```typescript
+import { withPagination, createPaginatedResponse, type PaginatedResponse } from '../shared-types';
 
-## Troubleshooting
+const GetUsersInputSchema = z.object({
+  page: z.number().optional().default(1),
+  page_size: z.number().optional().default(250),
+  // ... other filters
+});
 
-### Connection Issues
+export async function getUsers(params: GetUsersInput): Promise<PaginatedResponse<User>> {
+  const { page, page_size } = GetUsersInputSchema.parse(params);
+  
+  // Build base query
+  const baseQuery = db
+    .select()
+    .from(users)
+    .where(/* conditions */)
+    .$dynamic(); // Required for withPagination
+  
+  // Apply pagination
+  const getData = withPagination(baseQuery, users.name, page, page_size);
+  
+  // Get total count
+  const getTotal = db
+    .select({ count: count() })
+    .from(users)
+    .where(/* same conditions */);
+  
+  // Execute in parallel
+  const [data, totalResult] = await Promise.all([getData, getTotal]);
+  
+  return createPaginatedResponse({
+    data,
+    page,
+    page_size,
+    total: totalResult[0]?.count ?? 0,
+  });
+}
+```
+
+### Type Safety Patterns
+
+#### Using Pick for Specific Types
+
+When you need only specific fields from multiple tables:
+
+```typescript
+// Type-safe subset using Pick
+type OrganizationUser = Pick<User, 'id' | 'name' | 'email' | 'avatarUrl'> &
+  Pick<UserToOrganization, 'role' | 'status'>;
+```
+
+#### Update Operations
+
+For update operations, validate input and build update objects dynamically:
+
+```typescript
+const UpdateOrganizationInputSchema = z.object({
+  organizationId: z.string().uuid(),
+  organizationColorPalettes: z.array(ColorPaletteSchema).optional(),
+});
+
+export async function updateOrganization(params: UpdateOrganizationInput): Promise<void> {
+  const validated = UpdateOrganizationInputSchema.parse(params);
+  
+  // Build update data dynamically
+  const updateData: Partial<Organization> = {
+    updatedAt: new Date().toISOString(),
+  };
+  
+  if (validated.organizationColorPalettes !== undefined) {
+    updateData.organizationColorPalettes = validated.organizationColorPalettes;
+  }
+  
+  await db
+    .update(organizations)
+    .set(updateData)
+    .where(eq(organizations.id, validated.organizationId));
+}
+```
+
+## Best Practices
+
+1. **Always use Zod for input validation** - Parse inputs before using them in queries
+2. **Export types alongside functions** - Make types available for consumers
+3. **Use InferSelectModel for type safety** - Derive types from schema definitions
+4. **Handle errors explicitly** - Differentiate between validation errors and database errors
+5. **Use transactions for multi-step operations** - Ensure data consistency
+6. **Parallel queries when possible** - Use `Promise.all()` for independent queries
+7. **Consistent naming** - Use `get`, `create`, `update`, `delete` prefixes
+
+## Adding New Queries
+
+1. Create a new folder under `queries/` for your domain if it doesn't exist
+2. Create query files following the pattern above
+3. Export all functions from an `index.ts` in your domain folder
+4. Add the export to the main `queries/index.ts`
+
+## Running Migrations
 
 ```bash
-# Verify database connection
-bun run db:validate
+# Generate migration from schema changes
+pnpm drizzle-kit generate:pg
+
+# Apply migrations
+pnpm run migrations
+
+# Push schema changes directly (development only)
+pnpm drizzle-kit push:pg
 ```
 
-### Schema Drift
+## Testing
 
-If your database schema changes outside of migrations:
+Query functions should be tested with integration tests that use a test database. Unit tests can mock the database connection for isolated testing.
 
-```bash
-# Re-sync with database
-bun run db:pull
-
-# Generate new migration
-bun run db:generate
+```typescript
+// Example test structure
+describe('getUserOrganization', () => {
+  it('should return user organization data', async () => {
+    const result = await getUserOrganization({ userId: 'valid-uuid' });
+    expect(result).toMatchObject({
+      organizationId: expect.any(String),
+      role: expect.any(String),
+    });
+  });
+  
+  it('should throw on invalid UUID', async () => {
+    await expect(getUserOrganization({ userId: 'invalid' }))
+      .rejects.toThrow('User ID must be a valid UUID');
+  });
+});
 ```
-
-### Performance
-
-The connection pool is configured for optimal performance:
-
-- **Max connections**: 20 (configurable)
-- **Idle timeout**: 30 seconds
-- **Connect timeout**: 30 seconds
-- **Prepared statements**: Disabled by default (configurable)
-
-## Contributing
-
-When adding new tables or modifying existing ones:
-
-1. Update the schema in `src/schema.ts`
-2. Generate and test migrations
-3. Update this README if needed
-4. Ensure type exports are properly configured
-
-## Resources
-
-- [Drizzle ORM Documentation](https://orm.drizzle.team/)
-- [Drizzle Kit CLI](https://orm.drizzle.team/docs/kit-overview)
-- [PostgreSQL with Drizzle](https://orm.drizzle.team/docs/get-started/postgresql-existing)

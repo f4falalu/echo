@@ -1,38 +1,161 @@
 ---
 globs: src/*
 alwaysApply: false
-description: Global rules for server-shared folder
+description: Global rules for server-shared folder - Shared TypeScript types and schemas
 ---
-
 
 ## Overview of the `src` Folder Structure
 
-The `src` folder is organized to reflect the structure of our API endpoints and general concepts such as organization, user, team, etc. Each of these concepts is encapsulated within its own folder.
+The `src` folder is organized to reflect the structure of our API endpoints and general concepts such as organization, user, team, etc. Each of these concepts is encapsulated within its own folder following strict patterns to ensure consistency across frontend and backend services.
 
-### Folder Structure
+### Core Architecture Principles
 
-- **Endpoint and Concept Folders**: Each folder corresponds to a specific endpoint or concept. Within these folders, you will find:
-  - `request.ts`: Defines the request types using Zod schemas.
-  - `response.ts`: Defines the response types using Zod schemas.
-  - `index.ts`: Exports the types defined in `request.ts` and `response.ts`.
+#### 1. Zod-First Approach (MANDATORY)
+All types MUST be defined using Zod schemas first, then TypeScript types are inferred from them:
 
-- **Additional Files**: Some folders may contain additional files to assist in defining types specific to that folder's context.
+```typescript
+// ✅ CORRECT: Define schema first
+export const UserSchema = z.object({
+  id: z.string(),
+  email: z.string().email(),
+  name: z.string(),
+});
 
-### Type Definition
+export type User = z.infer<typeof UserSchema>;
 
-- **Zod Schemas**: All types are defined using Zod schemas to ensure type safety and validation.
+// ❌ WRONG: Defining types without schemas
+export interface User {
+  id: string;
+  email: string;
+  name: string;
+}
+```
 
-### Special Folder: `type-utilities`
+#### 2. Database Type Imports (CRITICAL)
+When referencing database types from `@buster/database`, **ALWAYS** import them as types to avoid compilation errors:
 
-- This folder is dedicated to generic types, such as pagination or query array processing. It provides utility functions and types that can be reused across different folders.
+```typescript
+// ✅ CORRECT: Import as type
+import type { organizations, userOrganizationRoleEnum } from '@buster/database';
+
+// ❌ WRONG: Import as value (will cause build failures)
+import { organizations } from '@buster/database';
+```
+
+### Folder Structure Requirements
+
+Each module folder MUST contain:
+- **`index.ts`**: Barrel exports for all public types in the module
+- **`requests.ts`**: Request schemas and types for API endpoints
+- **`responses.ts`**: Response schemas and types for API endpoints
+- **Additional type files**: As needed for the module's domain
+
+Example structure:
+```
+organization/
+├── index.ts            # export * from './organization.types'; etc.
+├── organization.types.ts
+├── requests.ts         # UpdateOrganizationRequestSchema, etc.
+├── responses.ts        # GetOrganizationResponseSchema, etc.
+├── roles.types.ts      # Additional domain types
+└── user.types.ts
+```
+
+### Enum Pattern for Database Parity
+
+When creating enums that mirror database enums, use frozen objects to maintain type safety:
+
+```typescript
+import type { userOrganizationRoleEnum } from '@buster/database';
+
+type OrganizationRoleBase = (typeof userOrganizationRoleEnum.enumValues)[number];
+
+// Create a frozen object that mirrors the database enum
+export const OrganizationRoleEnum: Record<OrganizationRoleBase, OrganizationRoleBase> = 
+  Object.freeze({
+    viewer: 'viewer',
+    workspace_admin: 'workspace_admin',
+    data_admin: 'data_admin',
+    querier: 'querier',
+    restricted_querier: 'restricted_querier',
+  });
+
+// Create Zod schema from the enum
+export const OrganizationRoleSchema = z.enum(
+  Object.values(OrganizationRoleEnum) as [OrganizationRoleBase, ...OrganizationRoleBase[]]
+);
+
+export type OrganizationRole = z.infer<typeof OrganizationRoleSchema>;
+```
+
+### Database Type Parity
+
+When types are direct copies of database models, use the `Expect` and `Equal` utilities:
+
+```typescript
+import type { organizations } from '@buster/database';
+import type { Equal, Expect } from '../type-utilities';
+
+export type Organization = z.infer<typeof OrganizationSchema>;
+
+// This will cause a TypeScript error if the types don't match
+type _OrganizationEqualityCheck = Expect<Equal<Organization, typeof organizations.$inferSelect>>;
+```
+
+### Special Folders
+
+#### `type-utilities`
+Contains generic utility types that can be reused across modules:
+- Pagination types and utilities
+- Type equality checking utilities (`Equal`, `Expect`)
+- Query array preprocessing utilities
+- Other cross-cutting type utilities
 
 ### Exporting Types
 
-- **Package.json**: Any new folder should ensure its types are exported via the `package.json` to facilitate proper building and exporting of types.
+1. **Module Exports**: Each module must have proper barrel exports in its `index.ts`
+2. **Package.json**: New modules MUST be added to the package.json exports:
+   ```json
+   "./your-module": {
+     "types": "./dist/your-module/index.d.ts",
+     "default": "./dist/your-module/index.js"
+   }
+   ```
 
-This structure ensures a consistent and organized approach to managing types across the application, leveraging Zod for robust type definitions and validation.
+### Naming Conventions
 
+- Use either `requests.ts`/`responses.ts` OR `requests.types.ts`/`responses.types.ts` consistently within a module
+- Type files should use `.types.ts` suffix (e.g., `organization.types.ts`)
+- Test files should use `.test.ts` suffix and be colocated with source files
 
-### Pagination
+### Common Patterns
 
-If we need to use pagination for a type we can take advantage of the generic types found in the type-utilities/pagination file
+#### Hex Color Validation
+```typescript
+const HexColorSchema = z
+  .string()
+  .regex(
+    /^#([0-9A-Fa-f]{3}|[0-9A-Fa-f]{6})$/,
+    'Must be a valid 3 or 6 digit hex color code'
+  );
+```
+
+#### Pagination
+```typescript
+import { PaginationParams } from '../type-utilities';
+
+export const ListUsersRequestSchema = z.object({
+  ...PaginationParams.shape,
+  filter: z.string().optional(),
+});
+```
+
+### Critical Rules Summary
+
+1. **NEVER** import database constants directly - only import as types
+2. **ALWAYS** define Zod schemas before TypeScript types
+3. **ALWAYS** use `Expect<Equal<>>` for database model type parity
+4. **ALWAYS** export modules through package.json
+5. **ALWAYS** include requests.ts and responses.ts in each module
+6. **NEVER** use interfaces when you can use Zod inference
+7. **ALWAYS** use barrel exports through index.ts files

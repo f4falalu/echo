@@ -35,7 +35,7 @@ export const slackAgentTask: ReturnType<
 > = schemaTask<'slack-agent-task', typeof SlackAgentTaskInputSchema, SlackAgentTaskOutput>({
   id: 'slack-agent-task',
   schema: SlackAgentTaskInputSchema,
-  maxDuration: 600, // needs to be the same or longer than the analyst agent task since we wait for it to complete. 
+  maxDuration: 600, // needs to be the same or longer than the analyst agent task since we wait for it to complete.
   run: async (payload: SlackAgentTaskInput): Promise<SlackAgentTaskOutput> => {
     try {
       logger.log('Starting Slack agent task', {

@@ -1,10 +1,33 @@
-/*
-IsEqual is a type utility that checks if two types are equal.
-It's used to ensure that a database type is equal to a type. Like when we have a type that is a database type and we want to ensure that it's equal to the schema we have.
+/**
+ * Macro for creating type equality checks. Copy this pattern and replace T and U:
+ *
+ * @example
+ * // Copy and paste this pattern, replacing YourType and YourDatabaseType:
+ * const _typeCheck1: YourType = {} as YourDatabaseType;
+ * const _typeCheck2: YourDatabaseType = {} as YourType;
+ *
+ * // Or use the type utility version:
+ * type _TypeCheck = Expect<Equal<YourType, YourDatabaseType>>;
+ */
 
-Example:
-type _DBEqualityCheck = IsEqual<Organization, typeof organizations.$inferSelect>; // This will cause a compile error if Organization and organizations.$inferSelect don't match.
+/**
+ * Precise type equality checker using conditional types with function signatures.
+ * This is the most reliable method for checking exact type equality.
+ *
+ * @example
+ * type _EqualityCheck = Expect<Equal<MyType, DatabaseType>>;
+ */
+export type Equal<A, B> = (<T>() => T extends A ? 1 : 2) extends <T>() => T extends B ? 1 : 2
+  ? (<T>() => T extends B ? 1 : 2) extends <T>() => T extends A ? 1 : 2
+    ? true
+    : false
+  : false;
 
-This will cause a compile error if Organization and OrganizationDB don't match.
-*/
-export type IsEqual<T, U> = [T] extends [U] ? ([U] extends [T] ? true : false) : false;
+/**
+ * Compile-time assertion: T must be `true`, otherwise TypeScript errors.
+ * Use this with Equal<> to force compilation errors when types don't match.
+ *
+ * @example
+ * type _Check = Expect<Equal<MyType, DatabaseType>>; // Errors if types don't match exactly
+ */
+export type Expect<T extends true> = T;
