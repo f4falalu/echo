@@ -4,6 +4,15 @@ import { SLACK_OAUTH_SCOPES } from '../constants';
 import * as slackHelpers from './slack-helpers';
 import { oauthStateStorage, tokenStorage } from './token-storage';
 
+/**
+ * Validates if an integration has all required OAuth scopes
+ */
+function validateScopes(currentScopeString?: string | null): boolean {
+  const currentScopes = currentScopeString ? currentScopeString.split(' ') : [];
+  const requiredScopes = [...SLACK_OAUTH_SCOPES];
+  return requiredScopes.every((scope) => currentScopes.includes(scope));
+}
+
 // Environment validation
 const SlackEnvSchema = z.object({
   SLACK_CLIENT_ID: z.string().min(1),
@@ -89,11 +98,7 @@ export class SlackOAuthService {
       // Check for existing integration - allow re-installation if scopes don't match
       const existing = await slackHelpers.getActiveIntegration(params.organizationId);
       if (existing) {
-        const currentScopes = existing.scope ? existing.scope.split(' ') : [];
-        const requiredScopes = [...SLACK_OAUTH_SCOPES];
-        const hasAllRequiredScopes = requiredScopes.every((scope) => currentScopes.includes(scope));
-        
-        if (hasAllRequiredScopes) {
+        if (validateScopes(existing.scope)) {
           throw new Error(
             'Organization already has an active Slack integration with current scopes'
           );
@@ -262,11 +267,7 @@ export class SlackOAuthService {
       }
 
       // Validate scopes
-      const currentScopes = integration.scope ? integration.scope.split(' ') : [];
-      const requiredScopes = [...SLACK_OAUTH_SCOPES];
-      const hasAllRequiredScopes = requiredScopes.every((scope) => currentScopes.includes(scope));
-
-      if (!hasAllRequiredScopes) {
+      if (!validateScopes(integration.scope)) {
         return {
           connected: true,
           status: 're_install_required',
