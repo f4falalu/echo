@@ -56,6 +56,7 @@ const ConnectSlackCard = React.memo(() => {
   const { mutate: initiateSlackOAuth } = useInitiateSlackOAuth();
 
   const isConnected = slackIntegration?.connected;
+  const needsReinstall = slackIntegration?.status === 're_install_required';
 
   return (
     <div className="flex items-center justify-between gap-x-2">
@@ -72,7 +73,18 @@ const ConnectSlackCard = React.memo(() => {
       </div>
 
       {isConnected ? (
-        <ConnectedDropdown />
+        needsReinstall ? (
+          <Button 
+            prefix={<SlackIcon size={16} />} 
+            onClick={() => initiateSlackOAuth()} 
+            size={'tall'}
+            className="border-yellow-500 bg-yellow-50 text-yellow-700 hover:bg-yellow-100"
+          >
+            Re-install Required
+          </Button>
+        ) : (
+          <ConnectedDropdown />
+        )
       ) : (
         <Button prefix={<SlackIcon size={16} />} onClick={() => initiateSlackOAuth()} size={'tall'}>
           Connect Slack

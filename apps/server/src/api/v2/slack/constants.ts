@@ -1,0 +1,24 @@
+export const SLACK_OAUTH_SCOPES = [
+  'app_mentions:read',
+  'channels:history',
+  'channels:read',
+  'chat:write',
+  'chat:write.public',
+  'commands',
+  'files:read',
+  'files:write',
+  'groups:history',
+  'groups:write',
+  'im:history',
+  'im:read',
+  'im:write',
+  'mpim:history',
+  'mpim:read',
+  'mpim:write',
+  'reactions:write',
+  'reactions:read',
+  'users:read',
+  'users:read.email',
+] as const;
+
+export type SlackOAuthScope = (typeof SLACK_OAUTH_SCOPES)[number];
