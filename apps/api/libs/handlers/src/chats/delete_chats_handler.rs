@@ -55,6 +55,7 @@ pub async fn delete_chats_handler(
                 ],
                 cwp.chat.organization_id,
                 &user.organizations,
+                cwp.chat.workspace_sharing,
             );
 
             has_permission

@@ -120,6 +120,9 @@ async fn process_dashboard_file(
         public_expiry_date: None,
         version_history: VersionHistory::new(1, dashboard_yml.clone()),
         public_password: None,
+        workspace_sharing: database::enums::WorkspaceSharing::None,
+        workspace_sharing_enabled_by: None,
+        workspace_sharing_enabled_at: None,
     };
 
     Ok((dashboard_file, dashboard_yml))

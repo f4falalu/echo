@@ -726,3 +726,52 @@ impl FromSql<sql_types::MessageFeedbackEnum, Pg> for MessageFeedback {
         }
     }
 }
+
+// WorkspaceSharing enum
+#[derive(
+    Debug,
+    Clone,
+    Copy,
+    PartialEq,
+    Eq,
+    diesel::AsExpression,
+    diesel::FromSqlRow,
+    Deserialize,
+    Serialize,
+)]
+#[diesel(sql_type = sql_types::WorkspaceSharingEnum)]
+#[serde(rename_all = "snake_case")]
+pub enum WorkspaceSharing {
+    #[serde(alias = "none")]
+    None,
+    #[serde(alias = "canView")]
+    CanView,
+    #[serde(alias = "canEdit")]
+    CanEdit,
+    #[serde(alias = "fullAccess")]
+    FullAccess,
+}
+
+impl ToSql<sql_types::WorkspaceSharingEnum, Pg> for WorkspaceSharing {
+    fn to_sql<'b>(&'b self, out: &mut Output<'b, '_, Pg>) -> serialize::Result {
+        match *self {
+            WorkspaceSharing::None => out.write_all(b"none")?,
+            WorkspaceSharing::CanView => out.write_all(b"can_view")?,
+            WorkspaceSharing::CanEdit => out.write_all(b"can_edit")?,
+            WorkspaceSharing::FullAccess => out.write_all(b"full_access")?,
+        }
+        Ok(IsNull::No)
+    }
+}
+
+impl FromSql<sql_types::WorkspaceSharingEnum, Pg> for WorkspaceSharing {
+    fn from_sql(bytes: PgValue<'_>) -> deserialize::Result<Self> {
+        match bytes.as_bytes() {
+            b"none" => Ok(WorkspaceSharing::None),
+            b"can_view" => Ok(WorkspaceSharing::CanView),
+            b"can_edit" => Ok(WorkspaceSharing::CanEdit),
+            b"full_access" => Ok(WorkspaceSharing::FullAccess),
+            _ => Err("Unrecognized WorkspaceSharing variant".into()),
+        }
+    }
+}

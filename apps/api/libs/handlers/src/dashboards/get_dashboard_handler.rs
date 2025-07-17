@@ -126,6 +126,7 @@ pub async fn get_dashboard_handler(
         ],
         dashboard_file.organization_id,
         &user.organizations,
+        dashboard_file.workspace_sharing,
     );
     tracing::debug!(dashboard_id = %dashboard_id, ?direct_permission_level, has_sufficient_direct_permission, "Direct permission check result");
 
@@ -150,7 +151,7 @@ pub async fn get_dashboard_handler(
         // No sufficient direct/admin permission, check if user has access via a chat
         tracing::debug!(dashboard_id = %dashboard_id, "Insufficient direct/admin permission. Checking chat access.");
         
-        let has_chat_access = sharing::check_dashboard_chat_access(dashboard_id, &user.id)
+        let has_chat_access = sharing::check_dashboard_chat_access(dashboard_id, &user.id, &user.organizations)
             .await
             .unwrap_or(false);
             

@@ -1,6 +1,6 @@
-use database::enums::{AssetPermissionRole, AssetType, IdentityType, UserOrganizationRole};
+use database::enums::{AssetPermissionRole, AssetType, IdentityType, UserOrganizationRole, WorkspaceSharing};
 use database::pool::get_pg_pool;
-use database::schema::{asset_permissions, dashboard_files, metric_files_to_dashboard_files};
+use database::schema::{asset_permissions, dashboard_files, metric_files_to_dashboard_files, collections, collections_to_assets};
 use diesel::{BoolExpressionMethods, ExpressionMethods, JoinOnDsl, QueryDsl, OptionalExtension};
 use diesel_async::RunQueryDsl;
 use middleware::OrganizationMembership;
@@ -13,6 +13,7 @@ use uuid::Uuid;
 /// * `required_permission_level` - Required permission level to access the asset
 /// * `organization_id` - UUID of the organization
 /// * `organization_role_grants` - Array of tuples containing (UUID, UserOrganizationRole) for the user
+/// * `workspace_sharing` - Workspace sharing level for the asset
 ///
 /// # Returns
 /// * `bool` - True if the user has sufficient permissions, false otherwise
@@ -21,6 +22,7 @@ pub fn check_permission_access(
     required_permission_level: &[AssetPermissionRole],
     organization_id: Uuid,
     organization_role_grants: &[OrganizationMembership],
+    workspace_sharing: WorkspaceSharing,
 ) -> bool {
     // First check if the user has WorkspaceAdmin or DataAdmin role for the organization
     for org in organization_role_grants {
@@ -29,6 +31,25 @@ pub fn check_permission_access(
                 || org.role == UserOrganizationRole::DataAdmin)
         {
             return true;
+        }
+    }
+
+    // Check if user is member of the workspace and asset is shared
+    if workspace_sharing != WorkspaceSharing::None {
+        for org in organization_role_grants {
+            if org.id == organization_id {
+                // Map workspace sharing level to permission role
+                let workspace_permission = match workspace_sharing {
+                    WorkspaceSharing::CanView => AssetPermissionRole::CanView,
+                    WorkspaceSharing::CanEdit => AssetPermissionRole::CanEdit,
+                    WorkspaceSharing::FullAccess => AssetPermissionRole::FullAccess,
+                    WorkspaceSharing::None => unreachable!(),
+                };
+                
+                if required_permission_level.contains(&workspace_permission) {
+                    return true;
+                }
+            }
         }
     }
 
@@ -46,18 +67,20 @@ pub fn check_permission_access(
 /// Checks if a user has access to a metric through any associated dashboard.
 ///
 /// This function is used to implement permission cascading from dashboards to metrics.
-/// If a user has access to any dashboard containing the metric (either through direct permissions
-/// or if the dashboard is public), they get at least CanView permission.
+/// If a user has access to any dashboard containing the metric (either through direct permissions,
+/// workspace sharing, or if the dashboard is public), they get at least CanView permission.
 ///
 /// # Arguments
 /// * `metric_id` - UUID of the metric to check
 /// * `user_id` - UUID of the user to check permissions for
+/// * `user_orgs` - User's organization memberships
 ///
 /// # Returns
 /// * `Result<bool>` - True if the user has access to any dashboard containing the metric, false otherwise
 pub async fn check_metric_dashboard_access(
     metric_id: &Uuid,
     user_id: &Uuid,
+    user_orgs: &[OrganizationMembership],
 ) -> Result<bool, diesel::result::Error> {
     let mut conn = get_pg_pool().get().await.map_err(|e| {
         diesel::result::Error::DatabaseError(
@@ -114,23 +137,52 @@ pub async fn check_metric_dashboard_access(
         .await
         .optional()?;
 
-    Ok(has_public_access.is_some())
+    if has_public_access.is_some() {
+        return Ok(true);
+    }
+
+    // Check if metric belongs to any workspace-shared dashboard
+    let workspace_shared_dashboard = metric_files_to_dashboard_files::table
+        .inner_join(
+            dashboard_files::table
+                .on(dashboard_files::id.eq(metric_files_to_dashboard_files::dashboard_file_id)),
+        )
+        .filter(metric_files_to_dashboard_files::metric_file_id.eq(metric_id))
+        .filter(dashboard_files::deleted_at.is_null())
+        .filter(metric_files_to_dashboard_files::deleted_at.is_null())
+        .filter(dashboard_files::workspace_sharing.ne(WorkspaceSharing::None))
+        .select((dashboard_files::organization_id, dashboard_files::workspace_sharing))
+        .first::<(Uuid, WorkspaceSharing)>(&mut conn)
+        .await
+        .optional()?;
+
+    if let Some((org_id, _sharing_level)) = workspace_shared_dashboard {
+        // Check if user is member of that organization
+        if user_orgs.iter().any(|org| org.id == org_id) {
+            return Ok(true);
+        }
+    }
+
+    Ok(false)
 }
 
 /// Checks if a user has access to a metric through any associated chat.
 ///
 /// This function is used to implement permission cascading from chats to metrics.
-/// If a user has access to any chat containing the metric, they get at least CanView permission.
+/// If a user has access to any chat containing the metric (either through direct permissions,
+/// workspace sharing, or if the chat is public), they get at least CanView permission.
 ///
 /// # Arguments
 /// * `metric_id` - UUID of the metric to check
 /// * `user_id` - UUID of the user to check permissions for
+/// * `user_orgs` - User's organization memberships
 ///
 /// # Returns
 /// * `Result<bool>` - True if the user has access to any chat containing the metric, false otherwise
 pub async fn check_metric_chat_access(
     metric_id: &Uuid,
     user_id: &Uuid,
+    user_orgs: &[OrganizationMembership],
 ) -> Result<bool, diesel::result::Error> {
     let mut conn = get_pg_pool().get().await.map_err(|e| {
         diesel::result::Error::DatabaseError(
@@ -197,23 +249,57 @@ pub async fn check_metric_chat_access(
         .await
         .optional()?;
 
-    Ok(has_public_chat_access.is_some())
+    if has_public_chat_access.is_some() {
+        return Ok(true);
+    }
+
+    // Check if metric belongs to any workspace-shared chat
+    let workspace_shared_chat = database::schema::messages_to_files::table
+        .inner_join(
+            database::schema::messages::table
+                .on(database::schema::messages::id.eq(database::schema::messages_to_files::message_id)),
+        )
+        .inner_join(
+            database::schema::chats::table
+                .on(database::schema::chats::id.eq(database::schema::messages::chat_id)),
+        )
+        .filter(database::schema::messages_to_files::file_id.eq(metric_id))
+        .filter(database::schema::messages_to_files::deleted_at.is_null())
+        .filter(database::schema::messages::deleted_at.is_null())
+        .filter(database::schema::chats::deleted_at.is_null())
+        .filter(database::schema::chats::workspace_sharing.ne(WorkspaceSharing::None))
+        .select((database::schema::chats::organization_id, database::schema::chats::workspace_sharing))
+        .first::<(Uuid, WorkspaceSharing)>(&mut conn)
+        .await
+        .optional()?;
+
+    if let Some((org_id, _sharing_level)) = workspace_shared_chat {
+        // Check if user is member of that organization
+        if user_orgs.iter().any(|org| org.id == org_id) {
+            return Ok(true);
+        }
+    }
+
+    Ok(false)
 }
 
 /// Checks if a user has access to a dashboard through any associated chat.
 ///
 /// This function is used to implement permission cascading from chats to dashboards.
-/// If a user has access to any chat containing the dashboard, they get at least CanView permission.
+/// If a user has access to any chat containing the dashboard (either through direct permissions,
+/// workspace sharing, or if the chat is public), they get at least CanView permission.
 ///
 /// # Arguments
 /// * `dashboard_id` - UUID of the dashboard to check
 /// * `user_id` - UUID of the user to check permissions for
+/// * `user_orgs` - User's organization memberships
 ///
 /// # Returns
 /// * `Result<bool>` - True if the user has access to any chat containing the dashboard, false otherwise
 pub async fn check_dashboard_chat_access(
     dashboard_id: &Uuid,
     user_id: &Uuid,
+    user_orgs: &[OrganizationMembership],
 ) -> Result<bool, diesel::result::Error> {
     let mut conn = get_pg_pool().get().await.map_err(|e| {
         diesel::result::Error::DatabaseError(
@@ -280,7 +366,200 @@ pub async fn check_dashboard_chat_access(
         .await
         .optional()?;
 
-    Ok(has_public_chat_access.is_some())
+    if has_public_chat_access.is_some() {
+        return Ok(true);
+    }
+
+    // Check if dashboard belongs to any workspace-shared chat
+    let workspace_shared_chat = database::schema::messages_to_files::table
+        .inner_join(
+            database::schema::messages::table
+                .on(database::schema::messages::id.eq(database::schema::messages_to_files::message_id)),
+        )
+        .inner_join(
+            database::schema::chats::table
+                .on(database::schema::chats::id.eq(database::schema::messages::chat_id)),
+        )
+        .filter(database::schema::messages_to_files::file_id.eq(dashboard_id))
+        .filter(database::schema::messages_to_files::deleted_at.is_null())
+        .filter(database::schema::messages::deleted_at.is_null())
+        .filter(database::schema::chats::deleted_at.is_null())
+        .filter(database::schema::chats::workspace_sharing.ne(WorkspaceSharing::None))
+        .select((database::schema::chats::organization_id, database::schema::chats::workspace_sharing))
+        .first::<(Uuid, WorkspaceSharing)>(&mut conn)
+        .await
+        .optional()?;
+
+    if let Some((org_id, _sharing_level)) = workspace_shared_chat {
+        // Check if user is member of that organization
+        if user_orgs.iter().any(|org| org.id == org_id) {
+            return Ok(true);
+        }
+    }
+
+    Ok(false)
+}
+
+/// Checks if a user has access to a metric through any associated collection.
+///
+/// This function is used to implement permission cascading from collections to metrics.
+/// If a user has access to any collection containing the metric (either through direct permissions,
+/// workspace sharing, or if the collection is public), they get at least CanView permission.
+///
+/// # Arguments
+/// * `metric_id` - UUID of the metric to check
+/// * `user_id` - UUID of the user to check permissions for
+/// * `user_orgs` - User's organization memberships
+///
+/// # Returns
+/// * `Result<bool>` - True if the user has access to any collection containing the metric, false otherwise
+pub async fn check_metric_collection_access(
+    metric_id: &Uuid,
+    user_id: &Uuid,
+    user_orgs: &[OrganizationMembership],
+) -> Result<bool, diesel::result::Error> {
+    let mut conn = get_pg_pool().get().await.map_err(|e| {
+        diesel::result::Error::DatabaseError(
+            diesel::result::DatabaseErrorKind::UnableToSendCommand,
+            Box::new(e.to_string()),
+        )
+    })?;
+
+    // First check if user has direct access to any collection containing this metric
+    let has_direct_access = collections_to_assets::table
+        .inner_join(
+            collections::table
+                .on(collections::id.eq(collections_to_assets::collection_id)),
+        )
+        .inner_join(
+            asset_permissions::table.on(
+                asset_permissions::asset_id.eq(collections::id)
+                    .and(asset_permissions::asset_type.eq(AssetType::Collection))
+                    .and(asset_permissions::identity_id.eq(user_id))
+                    .and(asset_permissions::identity_type.eq(IdentityType::User))
+                    .and(asset_permissions::deleted_at.is_null())
+            ),
+        )
+        .filter(collections_to_assets::asset_id.eq(metric_id))
+        .filter(collections_to_assets::asset_type.eq(AssetType::MetricFile))
+        .filter(collections::deleted_at.is_null())
+        .filter(collections_to_assets::deleted_at.is_null())
+        .select(collections::id)
+        .first::<Uuid>(&mut conn)
+        .await
+        .optional()?;
+
+    if has_direct_access.is_some() {
+        return Ok(true);
+    }
+
+    // Note: Collections don't have publicly_accessible fields, only workspace_sharing
+
+    // Check if metric belongs to any workspace-shared collection
+    let workspace_shared_collection = collections_to_assets::table
+        .inner_join(
+            collections::table
+                .on(collections::id.eq(collections_to_assets::collection_id)),
+        )
+        .filter(collections_to_assets::asset_id.eq(metric_id))
+        .filter(collections_to_assets::asset_type.eq(AssetType::MetricFile))
+        .filter(collections::deleted_at.is_null())
+        .filter(collections_to_assets::deleted_at.is_null())
+        .filter(collections::workspace_sharing.ne(WorkspaceSharing::None))
+        .select((collections::organization_id, collections::workspace_sharing))
+        .first::<(Uuid, WorkspaceSharing)>(&mut conn)
+        .await
+        .optional()?;
+
+    if let Some((org_id, _sharing_level)) = workspace_shared_collection {
+        // Check if user is member of that organization
+        if user_orgs.iter().any(|org| org.id == org_id) {
+            return Ok(true);
+        }
+    }
+
+    Ok(false)
+}
+
+/// Checks if a user has access to a dashboard through any associated collection.
+///
+/// This function is used to implement permission cascading from collections to dashboards.
+/// If a user has access to any collection containing the dashboard (either through direct permissions,
+/// workspace sharing, or if the collection is public), they get at least CanView permission.
+///
+/// # Arguments
+/// * `dashboard_id` - UUID of the dashboard to check
+/// * `user_id` - UUID of the user to check permissions for
+/// * `user_orgs` - User's organization memberships
+///
+/// # Returns
+/// * `Result<bool>` - True if the user has access to any collection containing the dashboard, false otherwise
+pub async fn check_dashboard_collection_access(
+    dashboard_id: &Uuid,
+    user_id: &Uuid,
+    user_orgs: &[OrganizationMembership],
+) -> Result<bool, diesel::result::Error> {
+    let mut conn = get_pg_pool().get().await.map_err(|e| {
+        diesel::result::Error::DatabaseError(
+            diesel::result::DatabaseErrorKind::UnableToSendCommand,
+            Box::new(e.to_string()),
+        )
+    })?;
+
+    // First check if user has direct access to any collection containing this dashboard
+    let has_direct_access = collections_to_assets::table
+        .inner_join(
+            collections::table
+                .on(collections::id.eq(collections_to_assets::collection_id)),
+        )
+        .inner_join(
+            asset_permissions::table.on(
+                asset_permissions::asset_id.eq(collections::id)
+                    .and(asset_permissions::asset_type.eq(AssetType::Collection))
+                    .and(asset_permissions::identity_id.eq(user_id))
+                    .and(asset_permissions::identity_type.eq(IdentityType::User))
+                    .and(asset_permissions::deleted_at.is_null())
+            ),
+        )
+        .filter(collections_to_assets::asset_id.eq(dashboard_id))
+        .filter(collections_to_assets::asset_type.eq(AssetType::DashboardFile))
+        .filter(collections::deleted_at.is_null())
+        .filter(collections_to_assets::deleted_at.is_null())
+        .select(collections::id)
+        .first::<Uuid>(&mut conn)
+        .await
+        .optional()?;
+
+    if has_direct_access.is_some() {
+        return Ok(true);
+    }
+
+    // Note: Collections don't have publicly_accessible fields, only workspace_sharing
+
+    // Check if dashboard belongs to any workspace-shared collection
+    let workspace_shared_collection = collections_to_assets::table
+        .inner_join(
+            collections::table
+                .on(collections::id.eq(collections_to_assets::collection_id)),
+        )
+        .filter(collections_to_assets::asset_id.eq(dashboard_id))
+        .filter(collections_to_assets::asset_type.eq(AssetType::DashboardFile))
+        .filter(collections::deleted_at.is_null())
+        .filter(collections_to_assets::deleted_at.is_null())
+        .filter(collections::workspace_sharing.ne(WorkspaceSharing::None))
+        .select((collections::organization_id, collections::workspace_sharing))
+        .first::<(Uuid, WorkspaceSharing)>(&mut conn)
+        .await
+        .optional()?;
+
+    if let Some((org_id, _sharing_level)) = workspace_shared_collection {
+        // Check if user is member of that organization
+        if user_orgs.iter().any(|org| org.id == org_id) {
+            return Ok(true);
+        }
+    }
+
+    Ok(false)
 }
 
 #[cfg(test)]
@@ -299,7 +578,8 @@ mod tests {
             None,
             &[AssetPermissionRole::Owner],
             org_id,
-            &grants
+            &grants,
+            WorkspaceSharing::None
         ));
     }
 
@@ -315,7 +595,8 @@ mod tests {
             None,
             &[AssetPermissionRole::Owner],
             org_id,
-            &grants
+            &grants,
+            WorkspaceSharing::None
         ));
     }
 
@@ -331,7 +612,8 @@ mod tests {
             Some(AssetPermissionRole::CanEdit),
             &[AssetPermissionRole::CanEdit],
             org_id,
-            &grants
+            &grants,
+            WorkspaceSharing::None
         ));
     }
 
@@ -347,7 +629,8 @@ mod tests {
             Some(AssetPermissionRole::CanView),
             &[AssetPermissionRole::CanEdit],
             org_id,
-            &grants
+            &grants,
+            WorkspaceSharing::None
         ));
     }
 
@@ -363,7 +646,8 @@ mod tests {
             None,
             &[AssetPermissionRole::CanView],
             org_id,
-            &grants
+            &grants,
+            WorkspaceSharing::None
         ));
     }
 }

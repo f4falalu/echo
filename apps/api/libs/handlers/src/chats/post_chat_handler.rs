@@ -1,5 +1,6 @@
 use agents::tools::file_tools::common::{generate_deterministic_uuid, ModifyFilesOutput};
 use dashmap::DashMap;
+use database::enums::WorkspaceSharing;
 use middleware::AuthenticatedUser;
 use std::collections::HashSet;
 use std::env;
@@ -2929,6 +2930,9 @@ async fn initialize_chat(
             most_recent_file_id: None,
             most_recent_file_type: None,
             most_recent_version_number: None,
+            workspace_sharing: WorkspaceSharing::None,
+            workspace_sharing_enabled_at: None,
+            workspace_sharing_enabled_by: None,
         };
 
         // Create initial message using the *new* message ID

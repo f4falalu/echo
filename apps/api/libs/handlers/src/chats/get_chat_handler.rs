@@ -93,6 +93,7 @@ pub async fn get_chat_handler(
         &access_requirement,
         chat_with_permission.chat.organization_id,
         &user.organizations,
+        chat_with_permission.chat.workspace_sharing,
     );
 
     // If user is the creator, they automatically have access

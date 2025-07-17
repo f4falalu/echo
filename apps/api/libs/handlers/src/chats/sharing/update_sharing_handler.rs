@@ -67,6 +67,7 @@ pub async fn update_chat_sharing_handler(
         &[AssetPermissionRole::Owner, AssetPermissionRole::FullAccess],
         chat.chat.organization_id,
         &user.organizations,
+        chat.chat.workspace_sharing,
     ) {
         return Err(anyhow!(
             "Insufficient permissions to update sharing for this chat. You need Full Access or higher."

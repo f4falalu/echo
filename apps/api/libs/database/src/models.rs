@@ -38,6 +38,9 @@ pub struct DashboardFile {
     pub public_expiry_date: Option<DateTime<Utc>>,
     pub version_history: VersionHistory,
     pub public_password: Option<String>,
+    pub workspace_sharing: WorkspaceSharing,
+    pub workspace_sharing_enabled_by: Option<Uuid>,
+    pub workspace_sharing_enabled_at: Option<DateTime<Utc>>,
 }
 
 #[derive(Queryable, Insertable, Identifiable, Associations, Debug, Clone, Serialize)]
@@ -97,6 +100,9 @@ pub struct MetricFile {
     pub data_metadata: Option<DataMetadata>,
     pub public_password: Option<String>,
     pub data_source_id: Uuid,
+    pub workspace_sharing: WorkspaceSharing,
+    pub workspace_sharing_enabled_by: Option<Uuid>,
+    pub workspace_sharing_enabled_at: Option<DateTime<Utc>>,
 }
 
 #[derive(Queryable, Insertable, Identifiable, Associations, Debug, Clone, Serialize)]
@@ -118,6 +124,9 @@ pub struct Chat {
     pub most_recent_file_id: Option<Uuid>,
     pub most_recent_file_type: Option<String>,
     pub most_recent_version_number: Option<i32>,
+    pub workspace_sharing: WorkspaceSharing,
+    pub workspace_sharing_enabled_by: Option<Uuid>,
+    pub workspace_sharing_enabled_at: Option<DateTime<Utc>>,
 }
 
 #[derive(Queryable, Insertable, Associations, Debug)]
@@ -331,6 +340,9 @@ pub struct Collection {
     pub updated_at: DateTime<Utc>,
     pub deleted_at: Option<DateTime<Utc>>,
     pub organization_id: Uuid,
+    pub workspace_sharing: WorkspaceSharing,
+    pub workspace_sharing_enabled_by: Option<Uuid>,
+    pub workspace_sharing_enabled_at: Option<DateTime<Utc>>,
 }
 
 #[derive(Queryable, Insertable, Identifiable, Debug, Clone, Serialize, Deserialize)]

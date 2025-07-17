@@ -88,6 +88,7 @@ async fn delete_single_dashboard(dashboard_id: Uuid, user: &AuthenticatedUser) -
         &[AssetPermissionRole::FullAccess, AssetPermissionRole::Owner],
         dashboard_with_permission.dashboard_file.organization_id,
         &user.organizations,
+        dashboard_with_permission.dashboard_file.workspace_sharing,
     );
 
     if !has_permission {

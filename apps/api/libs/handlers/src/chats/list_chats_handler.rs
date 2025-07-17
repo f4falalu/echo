@@ -1,7 +1,7 @@
 use anyhow::Result;
 use chrono::{DateTime, Utc};
 use database::{
-    enums::{AssetType, IdentityType},
+    enums::{AssetType, IdentityType, WorkspaceSharing},
     pool::get_pg_pool,
 };
 use diesel::prelude::*;
@@ -151,9 +151,68 @@ pub async fn list_chats_handler(
         .load::<ChatWithUser>(&mut conn)
         .await?;
     
+    // Get user's organization IDs  
+    let user_org_ids: Vec<Uuid> = user.organizations.iter().map(|org| org.id).collect();
+    
+    // Second query: Get workspace-shared chats that the user doesn't have direct access to
+    let workspace_shared_chats = if !request.admin_view && !user_org_ids.is_empty() {
+        chats::table
+            .inner_join(users::table.on(chats::created_by.eq(users::id)))
+            .filter(chats::deleted_at.is_null())
+            .filter(chats::title.ne(""))
+            .filter(chats::organization_id.eq_any(&user_org_ids))
+            .filter(chats::workspace_sharing.ne(WorkspaceSharing::None))
+            // Exclude chats we already have direct access to
+            .filter(
+                chats::created_by.ne(user.id).and(
+                    diesel::dsl::not(diesel::dsl::exists(
+                        asset_permissions::table
+                            .filter(asset_permissions::asset_id.eq(chats::id))
+                            .filter(asset_permissions::asset_type.eq(AssetType::Chat))
+                            .filter(asset_permissions::identity_id.eq(user.id))
+                            .filter(asset_permissions::identity_type.eq(IdentityType::User))
+                            .filter(asset_permissions::deleted_at.is_null())
+                    ))
+                )
+            )
+            .filter(
+                diesel::dsl::exists(
+                    messages::table
+                        .filter(messages::chat_id.eq(chats::id))
+                        .filter(messages::request_message.is_not_null())
+                        .filter(messages::deleted_at.is_null())
+                ).or(
+                    diesel::dsl::sql::<diesel::sql_types::Bool>(
+                        "(SELECT COUNT(*) FROM messages WHERE messages.chat_id = chats.id AND messages.deleted_at IS NULL) > 1"
+                    )
+                )
+            )
+            .select((
+                chats::id,
+                chats::title,
+                chats::created_at,
+                chats::updated_at,
+                chats::created_by,
+                chats::most_recent_file_id,
+                chats::most_recent_file_type,
+                chats::most_recent_version_number,
+                users::name.nullable(),
+                users::avatar_url.nullable(),
+            ))
+            .order_by(chats::updated_at.desc())
+            .offset(offset as i64)
+            .limit((request.page_size + 1) as i64)
+            .load::<ChatWithUser>(&mut conn)
+            .await?
+    } else {
+        vec![]
+    };
+
     // Check if there are more results and prepare pagination info
-    let has_more = results.len() > request.page_size as usize;
-    let items: Vec<ChatListItem> = results
+    let has_more = results.len() > request.page_size as usize || workspace_shared_chats.len() > request.page_size as usize;
+    
+    // Process directly-accessed chats
+    let mut items: Vec<ChatListItem> = results
         .into_iter()
         .filter(|chat| !chat.title.trim().is_empty()) // Filter out titles with only whitespace
         .take(request.page_size as usize)
@@ -176,6 +235,29 @@ pub async fn list_chats_handler(
             }
         })
         .collect();
+
+    // Add workspace-shared chats (if we have room in the page)
+    let remaining_slots = request.page_size as usize - items.len();
+    for chat in workspace_shared_chats.into_iter().take(remaining_slots) {
+        if !chat.title.trim().is_empty() {
+            items.push(ChatListItem {
+                id: chat.id.to_string(),
+                name: chat.title,
+                is_favorited: false,
+                created_at: chat.created_at.to_rfc3339(),
+                updated_at: chat.updated_at.to_rfc3339(),
+                created_by: chat.created_by.to_string(),
+                created_by_id: chat.created_by.to_string(),
+                created_by_name: chat.user_name.unwrap_or_else(|| "Unknown".to_string()),
+                created_by_avatar: chat.user_avatar_url,
+                last_edited: chat.updated_at.to_rfc3339(),
+                latest_file_id: chat.most_recent_file_id.map(|id| id.to_string()),
+                latest_file_type: chat.most_recent_file_type,
+                latest_version_number: chat.most_recent_version_number,
+                is_shared: true, // Always true for workspace-shared chats
+            });
+        }
+    }
 
     // Create pagination info
     let _pagination = PaginationInfo {

@@ -91,6 +91,7 @@ pub async fn get_collection_handler(
         ],
         collection_with_permission.collection.organization_id,
         &user.organizations,
+        collection_with_permission.collection.workspace_sharing,
     ) {
         return Err(anyhow!("You don't have permission to view this collection"));
     }

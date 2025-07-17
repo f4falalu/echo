@@ -1,7 +1,7 @@
 use anyhow::{anyhow, Result};
 use chrono::Utc;
 use database::{
-    enums::{AssetPermissionRole, AssetType, IdentityType},
+    enums::{AssetPermissionRole, AssetType, IdentityType, WorkspaceSharing},
     models::{AssetPermission, Collection},
     pool::get_pg_pool,
     schema::{asset_permissions, collections},
@@ -45,6 +45,9 @@ pub async fn create_collection_handler(
         updated_by: user.id,
         deleted_at: None,
         organization_id,
+        workspace_sharing: WorkspaceSharing::None,
+        workspace_sharing_enabled_at: None,
+        workspace_sharing_enabled_by: None,
     };
 
     let insert_task_user_id = user.id;
