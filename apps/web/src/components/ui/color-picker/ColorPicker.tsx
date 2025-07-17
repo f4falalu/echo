@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/inputs';
 import { PopoverContent, PopoverRoot, PopoverTrigger } from '@/components/ui/popover';
 import { useDebounceFn } from '@/hooks';
 import { cn } from '@/lib/classMerge';
+import type { PopoverContentProps } from '@radix-ui/react-popover';
 
 interface ColorPickerProps {
   value: string | null | undefined;
@@ -19,9 +20,12 @@ interface ColorPickerProps {
   name?: string;
   className?: string;
   children?: React.ReactNode;
+  popoverChildren?: React.ReactNode;
   showInput?: boolean;
   showPicker?: boolean;
   pickerBackgroundImage?: string;
+  align?: PopoverContentProps['align'];
+  side?: PopoverContentProps['side'];
 }
 
 const colorPickerWrapperVariants = cva('border p-0.5 rounded cursor-pointer shadow', {
@@ -47,9 +51,12 @@ const ColorPicker = ({
   name,
   className = '',
   children,
+  popoverChildren,
   showInput = true,
   showPicker = true,
   pickerBackgroundImage,
+  align = 'end',
+  side = 'bottom',
   ...props
 }: ColorPickerProps) => {
   const [open, setOpen] = useState(false);
@@ -91,16 +98,18 @@ const ColorPicker = ({
   return (
     <PopoverRoot onOpenChange={setOpen} open={open}>
       <PopoverTrigger asChild disabled={disabled}>
-        <div>
-          <ColorPickerInputBox
-            parsedValue={parsedValue}
-            size={size}
-            disabled={disabled}
-            pickerBackgroundImage={pickerBackgroundImage}
-          />
-        </div>
+        {children || (
+          <div data-testid="color-picker-trigger">
+            <ColorPickerInputBox
+              parsedValue={parsedValue}
+              size={size}
+              disabled={disabled}
+              pickerBackgroundImage={pickerBackgroundImage}
+            />
+          </div>
+        )}
       </PopoverTrigger>
-      <PopoverContent className="w-full" align="end" side="bottom">
+      <PopoverContent className="w-full" align={align} side={side}>
         <div>
           {showPicker && (
             <HexColorPicker color={parsedValue} onChange={handleHexColorPickerChange} />
@@ -113,7 +122,9 @@ const ColorPicker = ({
               value={parsedValue}
             />
           )}
-          {children && <div className={cn((showInput || showPicker) && 'mt-2.5')}>{children}</div>}
+          {popoverChildren && (
+            <div className={cn((showInput || showPicker) && 'mt-2.5')}>{popoverChildren}</div>
+          )}
         </div>
       </PopoverContent>
     </PopoverRoot>

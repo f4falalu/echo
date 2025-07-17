@@ -24,13 +24,8 @@ import {
   VIBRANT_RAINBOW,
   VIBRANT_RAINBOW_THEME
 } from '@/components/ui/charts/config/configColors';
-import type { IColorTheme } from '../Common/interfaces';
+import type { IColorTheme } from '@/components/features/colors/ThemeList/interfaces';
 import { DEFAULT_CHART_THEME } from '@buster/server-shared/metrics';
-
-export enum ColorAppSegments {
-  Colorful = 'Colorful',
-  Monochrome = 'Monochrome'
-}
 
 export const COLORFUL_THEMES: IColorTheme[] = [
   {
@@ -90,7 +85,10 @@ export const COLORFUL_THEMES: IColorTheme[] = [
     name: 'Vibrant Rainbow',
     colors: VIBRANT_RAINBOW
   }
-];
+].map((theme) => ({
+  ...theme,
+  id: theme.name
+}));
 
 export const MONOCHROME_THEMES: IColorTheme[] = [
   {
@@ -138,4 +136,9 @@ export const MONOCHROME_THEMES: IColorTheme[] = [
     name: 'Blue',
     colors: BLUE_THEME
   }
-];
+].map((theme) => ({
+  ...theme,
+  id: theme.name
+}));
+
+export const ALL_THEMES = [...COLORFUL_THEMES, ...MONOCHROME_THEMES];

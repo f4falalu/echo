@@ -5,11 +5,7 @@ import type { IColorTheme } from './interfaces';
 import { ThemeColorDots } from './ThemeColorDots';
 
 export const ThemeList: React.FC<{
-  themes: {
-    selected: boolean;
-    name: string;
-    colors: string[];
-  }[];
+  themes: Required<IColorTheme>[];
   onChangeColorTheme: (theme: IColorTheme) => void;
 }> = ({ themes, onChangeColorTheme }) => {
   return (
