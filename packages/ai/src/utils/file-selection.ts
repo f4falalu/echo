@@ -163,6 +163,40 @@ function extractMetricIdsFromDashboard(ymlContent: string): string[] {
 }
 
 /**
+ * Deduplicate files by ID, keeping the highest version number
+ */
+function deduplicateFilesByVersion(files: ExtractedFile[]): ExtractedFile[] {
+  const deduplicated = new Map<string, ExtractedFile>();
+  
+  for (const file of files) {
+    const existingFile = deduplicated.get(file.id);
+    const fileVersion = file.versionNumber || 1;
+    const existingVersion = existingFile?.versionNumber || 1;
+    
+    if (!existingFile || fileVersion > existingVersion) {
+      if (existingFile && fileVersion > existingVersion) {
+        console.info('[File Selection] Replacing file with higher version:', {
+          fileId: file.id,
+          fileName: file.fileName,
+          oldVersion: existingVersion,
+          newVersion: fileVersion,
+        });
+      }
+      deduplicated.set(file.id, file);
+    } else if (fileVersion < existingVersion) {
+      console.info('[File Selection] Skipping file with lower version:', {
+        fileId: file.id,
+        fileName: file.fileName,
+        currentVersion: existingVersion,
+        skippedVersion: fileVersion,
+      });
+    }
+  }
+  
+  return Array.from(deduplicated.values());
+}
+
+/**
  * Build metric-to-dashboard relationships from extracted files
  */
 function buildMetricToDashboardRelationships(files: ExtractedFile[]): void {
@@ -342,50 +376,77 @@ export function selectFilesForResponse(
 
   // 4. Determine which metrics to include
   if (selectedFiles.length > 0) {
-    // Don't include metrics that are already represented in selected dashboards
-    const metricsInDashboards = new Set<string>();
+    // Check if we have any dashboards in the selection
+    const hasDashboards = selectedFiles.some((f) => f.fileType === 'dashboard');
+    
+    if (hasDashboards) {
+      // 2. Standalone metrics that are NOT already represented in selected dashboards
+      const metricsInDashboards = new Set<string>();
 
-    // Check metrics in session dashboards
-    for (const dashboard of selectedFiles.filter((f) => f.ymlContent)) {
-      if (dashboard.ymlContent) {
-        const metricIds = extractMetricIdsFromDashboard(dashboard.ymlContent);
-        for (const id of metricIds) {
-          metricsInDashboards.add(id);
-        }
-      }
-    }
-
-    // Check metrics in context dashboards
-    if (dashboardContext) {
-      for (const dashboard of selectedFiles) {
-        const contextDashboard = dashboardContext.find((d) => d.id === dashboard.id);
-        if (contextDashboard) {
-          for (const metricId of contextDashboard.metricIds) {
-            metricsInDashboards.add(metricId);
+      // Check metrics in session dashboards
+      for (const dashboard of selectedFiles.filter((f) => f.ymlContent)) {
+        if (dashboard.ymlContent) {
+          const metricIds = extractMetricIdsFromDashboard(dashboard.ymlContent);
+          for (const id of metricIds) {
+            metricsInDashboards.add(id);
           }
         }
       }
-    }
 
-    // Include standalone metrics (not in any returned dashboard)
-    const standaloneMetrics = metrics.filter((m) => !metricsInDashboards.has(m.id));
-    selectedFiles.push(...standaloneMetrics);
+      // Check metrics in context dashboards
+      if (dashboardContext) {
+        for (const dashboard of selectedFiles) {
+          const contextDashboard = dashboardContext.find((d) => d.id === dashboard.id);
+          if (contextDashboard) {
+            for (const metricId of contextDashboard.metricIds) {
+              metricsInDashboards.add(metricId);
+            }
+          }
+        }
+      }
+
+      // Include standalone metrics (not in any returned dashboard)
+      // Apply priority logic: when dashboards are present, exclude standalone created metrics
+      const standaloneMetrics = metrics.filter((m) => !metricsInDashboards.has(m.id));
+      
+      // Check if any standalone metrics are the result of deduplication
+      const originalMetrics = files.filter((f) => f.fileType === 'metric');
+      const hasDeduplicatedMetrics = standaloneMetrics.some(metric => {
+        const duplicates = originalMetrics.filter(m => m.id === metric.id);
+        return duplicates.length > 1;
+      });
+      
+      if (hasDeduplicatedMetrics) {
+        // Include all standalone metrics when deduplication occurred
+        selectedFiles.push(...standaloneMetrics);
+      } else {
+        const standaloneModifiedMetrics = standaloneMetrics.filter(m => m.operation === 'modified');
+        selectedFiles.push(...standaloneModifiedMetrics);
+      }
+    } else {
+      // No dashboards selected, include all metrics
+      selectedFiles.push(...metrics);
+    }
   } else {
     // No dashboards selected, just return metrics
     selectedFiles.push(...metrics);
   }
 
-  console.info('[File Selection] Final selection:', {
-    totalSelected: selectedFiles.length,
-    selectedFiles: selectedFiles.map((f) => ({
+  // Apply final deduplication to handle any remaining duplicates
+  const finalSelection = deduplicateFilesByVersion(selectedFiles);
+
+  console.info('[File Selection] Final selection after deduplication:', {
+    totalSelected: finalSelection.length,
+    selectedFiles: finalSelection.map((f) => ({
       id: f.id,
       type: f.fileType,
       name: f.fileName,
       operation: f.operation,
+      version: f.versionNumber || 1,
     })),
   });
 
-  return selectedFiles;
+  return finalSelection;
 }
 
 /**
