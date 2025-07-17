@@ -100,9 +100,40 @@ pub async fn get_metric_data_handler(
                         }
                     }
                 } else {
-                    // No dashboard access, return the original permission error
-                    tracing::warn!("No dashboard association found for metric. Returning original error.");
-                    return Err(e);
+                    // No dashboard access, check if user has access via a chat
+                    tracing::info!("No dashboard association found. Checking chat access.");
+                    let has_chat_access = sharing::check_metric_chat_access(&request.metric_id, &user.id)
+                        .await
+                        .unwrap_or(false);
+
+                    if has_chat_access {
+                        // User has access to a chat containing this metric
+                        tracing::info!("Found associated chat with user access. Fetching metric with chat context.");
+                        match get_metric_for_dashboard_handler(
+                            &request.metric_id,
+                            &user,
+                            request.version_number,
+                            request.password.clone(),
+                        )
+                        .await
+                        {
+                            Ok(metric_via_chat) => {
+                                tracing::debug!(
+                                    "Successfully retrieved metric via chat association."
+                                );
+                                metric_via_chat // Use this metric definition
+                            }
+                            Err(fetch_err) => {
+                                // If fetching via chat fails unexpectedly, return that error
+                                tracing::error!("Failed to fetch metric via chat context: {}", fetch_err);
+                                return Err(fetch_err);
+                            }
+                        }
+                    } else {
+                        // No dashboard or chat access, return the original permission error
+                        tracing::warn!("No dashboard or chat association found for metric. Returning original error.");
+                        return Err(e);
+                    }
                 }
             } else {
                 // Error was not permission-related, return original error
