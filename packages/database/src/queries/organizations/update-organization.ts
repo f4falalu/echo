@@ -4,16 +4,37 @@ import { db } from '../../connection';
 import { organizations } from '../../schema';
 import type { OrganizationColorPalettes } from '../../schema-types';
 
+// Hex color validation schema for 3 or 6 digit hex codes
+const HexColorSchema = z
+  .string()
+  .regex(
+    /^#([0-9A-Fa-f]{3}|[0-9A-Fa-f]{6})$/,
+    'Must be a valid 3 or 6 digit hex color code (e.g., #fff or #ffffff)'
+  );
+
 // Organization Color Palette schema
 const OrganizationColorPaletteSchema = z.object({
-  id: z.string(),
-  colors: z.array(z.string()),
+  id: z.string().or(z.number()),
+  colors: z.array(HexColorSchema),
 });
 
 // Input validation schema
 const UpdateOrganizationInputSchema = z.object({
   organizationId: z.string().uuid('Organization ID must be a valid UUID'),
-  organizationColorPalettes: z.array(OrganizationColorPaletteSchema).optional(),
+  organizationColorPalettes: z
+    .array(OrganizationColorPaletteSchema)
+    .optional()
+    .refine(
+      (palettes) => {
+        if (!palettes || palettes.length === 0) return true;
+        const ids = palettes.map((palette) => palette.id);
+        const uniqueIds = new Set(ids);
+        return ids.length === uniqueIds.size;
+      },
+      {
+        message: 'All color palette IDs must be unique',
+      }
+    ),
 });
 
 type UpdateOrganizationInput = z.infer<typeof UpdateOrganizationInputSchema>;

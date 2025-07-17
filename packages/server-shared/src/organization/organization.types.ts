@@ -12,7 +12,7 @@ const HexColorSchema = z
   );
 
 export const OrganizationColorPaletteSchema = z.object({
-  id: z.string(),
+  id: z.string().or(z.number()),
   colors: z.array(HexColorSchema).min(1).max(25),
 });
 
