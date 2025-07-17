@@ -64,12 +64,12 @@ export const WorkspaceShareSection: React.FC<WorkspaceShareSectionProps> = React
 
   return (
     <div className="flex h-8 items-center justify-between space-x-2 overflow-hidden">
-      <div className="flex items-center space-x-2">
-        <div className="flex h-6 w-6 items-center justify-center rounded bg-gray-100 text-gray-600">
+      <div className="flex w-full items-center gap-x-2 rounded-md p-1">
+        <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-gray-100 text-gray-600 text-md">
           <ApartmentBuilding />
         </div>
-        <div className="flex flex-col overflow-hidden">
-          <Text className="truncate font-medium">Workspace</Text>
+        <div className="flex w-full flex-col gap-y-0 overflow-hidden">
+          <Text className="truncate">Workspace</Text>
           <Text variant="secondary" size="xs" className="truncate">
             Share with 1,819 members
           </Text>

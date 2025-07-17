@@ -128,7 +128,7 @@ const ShareMenuContentShare: React.FC<ShareMenuContentBodyProps> = React.memo(
         )}
 
         {hasIndividualPermissions && (
-          <div className="flex flex-col space-y-2 overflow-hidden">
+          <div className="flex flex-col space-y-2.5 overflow-hidden">
             {individual_permissions?.map((permission) => (
               <IndividualSharePerson
                 key={permission.email}

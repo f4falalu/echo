@@ -43,7 +43,8 @@ describe('useOriginalMetricStore', () => {
       public_enabled_by: null,
       publicly_accessible: false,
       public_password: null,
-      versions: []
+      versions: [],
+      workspace_sharing: 'none'
     };
 
     // Use the hook
