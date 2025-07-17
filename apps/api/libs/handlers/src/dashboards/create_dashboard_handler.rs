@@ -129,6 +129,9 @@ pub async fn create_dashboard_handler(user: &AuthenticatedUser) -> Result<Buster
         publicly_accessible: false,
         public_expiry_date: None,
         public_enabled_by: None,
+        workspace_sharing: database::enums::WorkspaceSharing::None,
+        workspace_sharing_enabled_by: None,
+        workspace_sharing_enabled_at: None,
         versions: vec![initial_version],
     })
 }

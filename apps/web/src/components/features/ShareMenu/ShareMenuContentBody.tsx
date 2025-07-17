@@ -1,5 +1,5 @@
 import React from 'react';
-import type { ShareAssetType, ShareConfig, ShareRole } from '@buster/server-shared/share';
+import type { ShareAssetType, ShareConfig, ShareRole, WorkspaceShareRole } from '@buster/server-shared/share';
 import { useUnshareCollection, useUpdateCollectionShare } from '@/api/buster_rest/collections';
 import { useUnshareDashboard, useUpdateDashboardShare } from '@/api/buster_rest/dashboards';
 import { useUnshareMetric, useUpdateMetricShare } from '@/api/buster_rest/metrics';
@@ -10,6 +10,7 @@ import { ShareMenuContentEmbed } from './ShareMenuContentEmbed';
 import { ShareMenuContentPublish } from './ShareMenuContentPublish';
 import type { ShareMenuTopBarOptions } from './ShareMenuTopBar';
 import { ShareMenuInvite } from './ShareMenuInvite';
+import { WorkspaceShareSection } from './WorkspaceShareSection';
 
 export const ShareMenuContentBody: React.FC<{
   selectedOptions: ShareMenuTopBarOptions;
@@ -46,6 +47,7 @@ export const ShareMenuContentBody: React.FC<{
         assetType={assetType}
         canEditPermissions={canEditPermissions}
         className={className}
+        shareAssetConfig={shareAssetConfig}
       />
     );
   }
@@ -53,7 +55,7 @@ export const ShareMenuContentBody: React.FC<{
 ShareMenuContentBody.displayName = 'ShareMenuContentBody';
 
 const ShareMenuContentShare: React.FC<ShareMenuContentBodyProps> = React.memo(
-  ({ canEditPermissions, assetType, individual_permissions, assetId, className }) => {
+  ({ canEditPermissions, assetType, individual_permissions, assetId, className, shareAssetConfig }) => {
     const { mutateAsync: onUpdateMetricShare } = useUpdateMetricShare();
     const { mutateAsync: onUpdateDashboardShare } = useUpdateDashboardShare();
     const { mutateAsync: onUpdateCollectionShare } = useUpdateCollectionShare();
@@ -98,6 +100,23 @@ const ShareMenuContentShare: React.FC<ShareMenuContentBodyProps> = React.memo(
       }
     });
 
+    const onUpdateWorkspacePermissions = useMemoizedFn(async (role: WorkspaceShareRole | null) => {
+      const payload: Parameters<typeof onUpdateMetricShare>[0] = {
+        id: assetId,
+        params: {
+          workspace_permissions: role
+        }
+      };
+      
+      if (assetType === 'metric') {
+        await onUpdateMetricShare(payload);
+      } else if (assetType === 'dashboard') {
+        await onUpdateDashboardShare(payload);
+      } else if (assetType === 'collection') {
+        await onUpdateCollectionShare(payload);
+      }
+    });
+
     return (
       <div className={cn('flex flex-col space-y-2.5', className)}>
         {canEditPermissions && (
@@ -105,6 +124,16 @@ const ShareMenuContentShare: React.FC<ShareMenuContentBodyProps> = React.memo(
             assetType={assetType}
             assetId={assetId}
             individualPermissions={individual_permissions}
+          />
+        )}
+
+        {canEditPermissions && (
+          <WorkspaceShareSection
+            shareAssetConfig={shareAssetConfig}
+            assetType={assetType}
+            assetId={assetId}
+            canEditPermissions={canEditPermissions}
+            onUpdateWorkspacePermissions={onUpdateWorkspacePermissions}
           />
         )}
 
@@ -137,6 +166,7 @@ export interface ShareMenuContentBodyProps {
   assetType: ShareAssetType;
   canEditPermissions: boolean;
   className: string;
+  shareAssetConfig: ShareConfig;
 }
 
 const ContentRecord: Record<ShareMenuTopBarOptions, React.FC<ShareMenuContentBodyProps>> = {

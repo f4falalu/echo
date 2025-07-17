@@ -99,7 +99,7 @@ pub async fn update_collection_handler(
     };
 
     Ok(CollectionState {
-        collection: updated_collection_with_permission.collection,
+        collection: updated_collection_with_permission.collection.clone(),
         assets: None,
         permission: updated_collection_with_permission.permission.unwrap_or(AssetPermissionRole::Owner),
         organization_permissions: false,
@@ -108,6 +108,9 @@ pub async fn update_collection_handler(
         public_expiry_date: None,
         public_enabled_by: None,
         public_password: None,
+        workspace_sharing: updated_collection_with_permission.collection.workspace_sharing,
+        workspace_sharing_enabled_by: None,  // Would need to fetch if we want email
+        workspace_sharing_enabled_at: updated_collection_with_permission.collection.workspace_sharing_enabled_at,
     })
 }
 

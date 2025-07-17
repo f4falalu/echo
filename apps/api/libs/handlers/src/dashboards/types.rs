@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use chrono::{DateTime, Utc};
-use database::enums::{AssetPermissionRole, Verification};
+use database::enums::{AssetPermissionRole, Verification, WorkspaceSharing};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
@@ -47,6 +47,10 @@ pub struct BusterDashboardResponse {
     pub publicly_accessible: bool,
     pub public_expiry_date: Option<DateTime<Utc>>,
     pub public_enabled_by: Option<String>,
+    // Workspace sharing fields
+    pub workspace_sharing: WorkspaceSharing,
+    pub workspace_sharing_enabled_by: Option<String>,
+    pub workspace_sharing_enabled_at: Option<DateTime<Utc>>,
     // Versioning field
     pub versions: Vec<Version>,
 }

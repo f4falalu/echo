@@ -1,6 +1,6 @@
 use chrono::{DateTime, Utc};
 use database::{
-    enums::{AssetPermissionRole, AssetType},
+    enums::{AssetPermissionRole, AssetType, WorkspaceSharing},
     models::Collection,
 };
 use diesel::AsChangeset;
@@ -84,6 +84,10 @@ pub struct CollectionState {
     pub public_expiry_date: Option<DateTime<Utc>>,
     pub public_enabled_by: Option<String>,
     pub public_password: Option<String>,
+    // Workspace sharing fields
+    pub workspace_sharing: WorkspaceSharing,
+    pub workspace_sharing_enabled_by: Option<String>,
+    pub workspace_sharing_enabled_at: Option<DateTime<Utc>>,
 }
 
 // Create collection types

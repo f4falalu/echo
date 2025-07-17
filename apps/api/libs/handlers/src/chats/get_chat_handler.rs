@@ -369,6 +369,23 @@ pub async fn get_chat_handler(
         user_permission = Some(AssetPermissionRole::Owner);
     }
 
+    // Get workspace sharing enabled by email if set
+    let workspace_sharing_enabled_by = if let Some(enabled_by_id) = chat_with_permission.chat.workspace_sharing_enabled_by {
+        let mut conn = match get_pg_pool().get().await {
+            Ok(conn) => conn,
+            Err(_) => return Err(anyhow!("Failed to get database connection")),
+        };
+        
+        users::table
+            .filter(users::id.eq(enabled_by_id))
+            .select(users::email)
+            .first::<String>(&mut conn)
+            .await
+            .ok()
+    } else {
+        None
+    };
+
     // Add permissions
     Ok(chat
         .with_permissions(
@@ -377,5 +394,10 @@ pub async fn get_chat_handler(
             public_expiry_date,
             publicly_enabled_by,
         )
-        .with_permission(user_permission))
+        .with_permission(user_permission)
+        .with_workspace_sharing(
+            chat_with_permission.chat.workspace_sharing,
+            workspace_sharing_enabled_by,
+            chat_with_permission.chat.workspace_sharing_enabled_at,
+        ))
 }

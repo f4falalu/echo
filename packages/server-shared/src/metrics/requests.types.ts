@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { ShareRoleSchema, VerificationStatusSchema } from '../share';
+import { ShareRoleSchema, VerificationStatusSchema, WorkspaceShareRoleSchema } from '../share';
 import { ChartConfigPropsSchema } from './charts';
 
 export const GetMetricRequestSchema = z.object({
@@ -76,6 +76,7 @@ export const ShareUpdateRequestSchema = z.object({
   publicly_accessible: z.boolean().optional(),
   public_password: z.string().nullable().optional(),
   public_expiry_date: z.string().nullable().optional(),
+  workspace_permissions: WorkspaceShareRoleSchema.nullable().optional(),
 });
 
 export type GetMetricDataRequest = z.infer<typeof GetMetricDataRequestSchema>;

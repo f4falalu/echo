@@ -1,4 +1,4 @@
-import type { ShareRole } from '@buster/server-shared/share';
+import type { ShareRole, WorkspaceShareRole } from '@buster/server-shared/share';
 
 /**
  * Type defining the sharing permissions and settings for a dashboard
@@ -19,6 +19,7 @@ export type ShareUpdateRequest = {
     email: string;
     role: ShareRole;
   }[];
+  workspace_permissions?: WorkspaceShareRole | null;
   publicly_accessible?: boolean;
   public_password?: string | null;
   public_expiry_date?: string | null;

@@ -437,6 +437,9 @@ export const useUpdateDashboardShare = () => {
           if (params.public_expiry_date !== undefined) {
             draft.public_expiry_date = params.public_expiry_date;
           }
+          if (params.workspace_permissions !== undefined) {
+            draft.workspace_permissions = params.workspace_permissions ? [params.workspace_permissions] : [];
+          }
         });
       });
     }

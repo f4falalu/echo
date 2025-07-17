@@ -462,6 +462,18 @@ pub async fn get_metric_handler(
         Err(_) => None,
     };
 
+    // Get workspace sharing enabled by email if set
+    let workspace_sharing_enabled_by = if let Some(enabled_by_id) = metric_file.workspace_sharing_enabled_by {
+        users::table
+            .filter(users::id.eq(enabled_by_id))
+            .select(users::email)
+            .first::<String>(&mut conn)
+            .await
+            .ok()
+    } else {
+        None
+    };
+
     // Construct BusterMetric using resolved values
     Ok(BusterMetric {
         id: metric_file.id,
@@ -496,5 +508,9 @@ pub async fn get_metric_handler(
         public_expiry_date: metric_file.public_expiry_date, // Not versioned
         public_enabled_by: public_enabled_by_user, // Not versioned
         public_password: metric_file.public_password, // Not versioned
+        // Workspace sharing fields
+        workspace_sharing: metric_file.workspace_sharing,
+        workspace_sharing_enabled_by,
+        workspace_sharing_enabled_at: metric_file.workspace_sharing_enabled_at,
     })
 }

@@ -316,6 +316,9 @@ export const useUpdateMetricShare = () => {
           if (variables.params.public_expiry_date !== undefined) {
             draft.public_expiry_date = variables.params.public_expiry_date;
           }
+          if (variables.params.workspace_permissions !== undefined) {
+            draft.workspace_permissions = variables.params.workspace_permissions ? [variables.params.workspace_permissions] : [];
+          }
         });
       });
     }

@@ -316,9 +316,21 @@ pub async fn get_collection_handler(
     let all_assets = [metric_assets, dashboard_assets, chat_assets].concat(); // Add chat_assets
     let formatted_assets = format_assets(all_assets);
 
+    // Get workspace sharing enabled by email if set
+    let workspace_sharing_enabled_by = if let Some(enabled_by_id) = collection_with_permission.collection.workspace_sharing_enabled_by {
+        users::table
+            .filter(users::id.eq(enabled_by_id))
+            .select(users::email)
+            .first::<String>(&mut conn)
+            .await
+            .ok()
+    } else {
+        None
+    };
+
     // Create collection state
     let collection_state = CollectionState {
-        collection: collection_with_permission.collection,
+        collection: collection_with_permission.collection.clone(),
         assets: Some(formatted_assets),
         permission,
         organization_permissions: false, // TODO: Implement organization permissions
@@ -327,6 +339,10 @@ pub async fn get_collection_handler(
         public_expiry_date,
         public_enabled_by,
         public_password: None, // TODO: Implement password protection
+        // Workspace sharing fields
+        workspace_sharing: collection_with_permission.collection.workspace_sharing,
+        workspace_sharing_enabled_by,
+        workspace_sharing_enabled_at: collection_with_permission.collection.workspace_sharing_enabled_at,
     };
 
     Ok(collection_state)

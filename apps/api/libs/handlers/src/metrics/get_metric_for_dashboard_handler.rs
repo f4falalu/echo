@@ -445,6 +445,18 @@ pub async fn get_metric_for_dashboard_handler(
         }
     };
 
+    // Get workspace sharing enabled by email if set
+    let workspace_sharing_enabled_by = if let Some(enabled_by_id) = metric_file.workspace_sharing_enabled_by {
+        users::table
+            .filter(users::id.eq(enabled_by_id))
+            .select(users::email)
+            .first::<String>(&mut conn)
+            .await
+            .ok()
+    } else {
+        None
+    };
+
     // Map evaluation score - this is not versioned
     let evaluation_score = metric_file.evaluation_score.map(|score| {
         if score >= 0.8 {
@@ -490,5 +502,9 @@ pub async fn get_metric_for_dashboard_handler(
         public_expiry_date: metric_file.public_expiry_date,
         public_enabled_by: public_enabled_by_user,
         public_password: metric_file.public_password,
+        // Workspace sharing fields
+        workspace_sharing: metric_file.workspace_sharing,
+        workspace_sharing_enabled_by,
+        workspace_sharing_enabled_at: metric_file.workspace_sharing_enabled_at,
     })
 } 

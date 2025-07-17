@@ -444,6 +444,18 @@ pub async fn get_dashboard_handler(
         }
     };
 
+    // Get workspace sharing enabled by email if set
+    let workspace_sharing_enabled_by = if let Some(enabled_by_id) = dashboard_file.workspace_sharing_enabled_by {
+        users::table
+            .filter(users::id.eq(enabled_by_id))
+            .select(users::email)
+            .first::<String>(&mut conn)
+            .await
+            .ok()
+    } else {
+        None
+    };
+
     Ok(BusterDashboardResponse {
         access: permission,
         metrics,
@@ -456,6 +468,10 @@ pub async fn get_dashboard_handler(
         publicly_accessible: dashboard_file.publicly_accessible,
         public_expiry_date: dashboard_file.public_expiry_date,
         public_enabled_by: public_enabled_by_user,
+        // Workspace sharing fields
+        workspace_sharing: dashboard_file.workspace_sharing,
+        workspace_sharing_enabled_by,
+        workspace_sharing_enabled_at: dashboard_file.workspace_sharing_enabled_at,
         // Version information
         versions,
     })

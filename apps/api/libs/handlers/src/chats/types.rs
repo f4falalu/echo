@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
-use database::enums::AssetPermissionRole;
+use database::enums::{AssetPermissionRole, WorkspaceSharing};
 use chrono::{DateTime, Utc};
 
 use crate::messages::types::ChatMessage;
@@ -34,6 +34,10 @@ pub struct ChatWithMessages {
     pub public_enabled_by: Option<String>,
     pub public_password: Option<String>,
     pub permission: Option<AssetPermissionRole>,
+    // Workspace sharing fields
+    pub workspace_sharing: WorkspaceSharing,
+    pub workspace_sharing_enabled_by: Option<String>,
+    pub workspace_sharing_enabled_at: Option<DateTime<Utc>>,
 }
 
 impl ChatWithMessages {
@@ -62,6 +66,9 @@ impl ChatWithMessages {
             public_enabled_by: None,
             public_password: None,
             permission: None,
+            workspace_sharing: WorkspaceSharing::None,
+            workspace_sharing_enabled_by: None,
+            workspace_sharing_enabled_at: None,
         }
     }
 
@@ -104,6 +111,9 @@ impl ChatWithMessages {
             public_enabled_by: None,
             public_password: None,
             permission: None,
+            workspace_sharing: WorkspaceSharing::None,
+            workspace_sharing_enabled_by: None,
+            workspace_sharing_enabled_at: None,
         }
     }
     
@@ -123,6 +133,18 @@ impl ChatWithMessages {
     
     pub fn with_permission(mut self, permission: Option<AssetPermissionRole>) -> Self {
         self.permission = permission;
+        self
+    }
+    
+    pub fn with_workspace_sharing(
+        mut self,
+        workspace_sharing: WorkspaceSharing,
+        workspace_sharing_enabled_by: Option<String>,
+        workspace_sharing_enabled_at: Option<DateTime<Utc>>,
+    ) -> Self {
+        self.workspace_sharing = workspace_sharing;
+        self.workspace_sharing_enabled_by = workspace_sharing_enabled_by;
+        self.workspace_sharing_enabled_at = workspace_sharing_enabled_at;
         self
     }
 

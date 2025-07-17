@@ -149,7 +149,7 @@ pub async fn create_collection_handler(
 
     // Return the collection state
     Ok(CollectionState {
-        collection,
+        collection: collection.clone(),
         assets: None,
         permission: AssetPermissionRole::Owner,
         organization_permissions: false,
@@ -158,5 +158,8 @@ pub async fn create_collection_handler(
         public_expiry_date: None,
         public_enabled_by: None,
         public_password: None,
+        workspace_sharing: collection.workspace_sharing,
+        workspace_sharing_enabled_by: None,
+        workspace_sharing_enabled_at: collection.workspace_sharing_enabled_at,
     })
 }
