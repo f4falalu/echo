@@ -7,7 +7,7 @@ import {
   SearchTermsSchema,
   StoredValueResultSchema,
   UuidSchema,
-} from '../src/schemas';
+} from './schemas';
 
 describe('schemas.ts - Unit Tests', () => {
   describe('UuidSchema', () => {

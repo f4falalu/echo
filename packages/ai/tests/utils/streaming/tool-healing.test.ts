@@ -61,7 +61,7 @@ describe('tool-healing', () => {
         'sequential-thinking': {},
       };
 
-      const result = healStreamingToolError(error, availableTools);
+      const result = healStreamingToolError(error as HealableStreamError, availableTools as any);
 
       expect(result).not.toBeNull();
       expect(result?.healed).toBe(false);
@@ -108,13 +108,13 @@ describe('tool-healing', () => {
       (error as MockToolError).cause = zodError;
 
       const availableTools = { 'create-metrics-file': {} };
-      const result = healStreamingToolError(error, availableTools);
+      const result = healStreamingToolError(error as HealableStreamError, availableTools as any);
 
       expect(result).not.toBeNull();
       expect(result?.healed).toBe(true);
       expect(result?.healedArgs).toBeDefined();
-      expect(result?.healedArgs.files).toBeInstanceOf(Array);
-      expect(result?.healedArgs.files[0]).toMatchObject({
+      expect((result?.healedArgs as any)?.files).toBeInstanceOf(Array);
+      expect((result?.healedArgs as any)?.files[0]).toMatchObject({
         name: 'test-metric',
         yml_content: 'name: Test Metric\\nsql: SELECT 1',
       });
@@ -145,11 +145,11 @@ describe('tool-healing', () => {
       (error as MockToolError).cause = zodError;
 
       const availableTools = { 'modify-dashboards-file': {} };
-      const result = healStreamingToolError(error, availableTools);
+      const result = healStreamingToolError(error as HealableStreamError, availableTools as any);
 
       expect(result).not.toBeNull();
       expect(result?.healed).toBe(true);
-      expect(result?.healedArgs.files).toBeInstanceOf(Array);
+      expect((result?.healedArgs as any)?.files).toBeInstanceOf(Array);
     });
 
     it('should provide guidance when files parameter is malformed JSON string', () => {
@@ -176,7 +176,7 @@ describe('tool-healing', () => {
       (error as MockToolError).cause = zodError;
 
       const availableTools = { 'create-metrics-file': {} };
-      const result = healStreamingToolError(error, availableTools);
+      const result = healStreamingToolError(error as HealableStreamError, availableTools as any);
 
       expect(result).not.toBeNull();
       expect(result?.healed).toBe(false);
@@ -208,7 +208,7 @@ describe('tool-healing', () => {
       (error as MockToolError).cause = zodError;
 
       const availableTools = { 'create-dashboards-file': {} };
-      const result = healStreamingToolError(error, availableTools);
+      const result = healStreamingToolError(error as HealableStreamError, availableTools as any);
 
       expect(result).not.toBeNull();
       expect(result?.healed).toBe(false);
@@ -241,7 +241,7 @@ describe('tool-healing', () => {
       (error as MockToolError).cause = zodError;
 
       const availableTools = { 'execute-sql': {} };
-      const result = healStreamingToolError(error, availableTools);
+      const result = healStreamingToolError(error as HealableStreamError, availableTools as any);
 
       expect(result).not.toBeNull();
       expect(result?.healed).toBe(false);
@@ -252,13 +252,16 @@ describe('tool-healing', () => {
   });
 
   describe('healStreamingToolError - unsupported errors', () => {
-    it('should return null for non-healable errors', () => {
+    it('should return healing message for generic errors', () => {
       const error = new Error('Some other error');
       const availableTools = {};
 
       const result = healStreamingToolError(error as HealableStreamError, availableTools);
 
-      expect(result).toBeNull();
+      expect(result).not.toBeNull();
+      expect(result?.healed).toBe(false);
+      expect(result?.healingMessage.role).toBe('user');
+      expect(result?.healingMessage.content).toBe('An error occurred, please try again.');
     });
   });
 });

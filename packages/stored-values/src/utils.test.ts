@@ -5,7 +5,7 @@ import {
   formatHalfvecLiteral,
   formatSchemaName,
   isValidEmbedding,
-} from '../src/utils';
+} from './utils';
 
 describe('utils.ts - Unit Tests', () => {
   describe('formatSchemaName', () => {

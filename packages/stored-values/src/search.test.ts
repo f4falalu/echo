@@ -11,7 +11,7 @@ import {
   searchValuesAcrossTargets,
   searchValuesByEmbedding,
   searchValuesByEmbeddingWithFilters,
-} from '../src/search';
+} from './search';
 
 // Mock dependencies
 vi.mock('@buster/database', () => ({

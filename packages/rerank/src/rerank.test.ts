@@ -1,21 +1,34 @@
 import axios from 'axios';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { Reranker, rerankResults } from '../src/index';
-import type { RerankResult } from '../src/types';
+import { Reranker, rerankResults } from './index';
+import type { RerankResult } from './types';
 
 vi.mock('axios');
 const mockedAxios = vi.mocked(axios);
+const mockCreate = vi.fn();
 
 describe('Reranker - Unit Tests', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mockedAxios.create.mockReturnValue({
+    
+    process.env.RERANK_API_KEY = 'test-api-key';
+    process.env.RERANK_BASE_URL = 'https://test-api.com/rerank';
+    process.env.RERANK_MODEL = 'test-model';
+    
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+    
+    const mockAxiosInstance = {
       post: vi.fn(),
-    });
+    };
+    mockCreate.mockReturnValue(mockAxiosInstance as any);
+    mockedAxios.create = mockCreate;
   });
 
   afterEach(() => {
     vi.restoreAllMocks();
+    delete process.env.RERANK_API_KEY;
+    delete process.env.RERANK_BASE_URL;
+    delete process.env.RERANK_MODEL;
   });
 
   describe('Constructor', () => {
@@ -66,9 +79,10 @@ describe('Reranker - Unit Tests', () => {
 
     beforeEach(() => {
       mockPost = vi.fn();
-      mockedAxios.create.mockReturnValue({
+      const mockAxiosInstance = {
         post: mockPost,
-      });
+      };
+      mockCreate.mockReturnValue(mockAxiosInstance as any);
       reranker = new Reranker();
     });
 
@@ -219,9 +233,10 @@ describe('Reranker - Unit Tests', () => {
       const mockPost = vi.fn().mockResolvedValueOnce({
         data: { results: mockResults },
       });
-      mockedAxios.create.mockReturnValue({
+      const mockAxiosInstance = {
         post: mockPost,
-      });
+      };
+      mockCreate.mockReturnValue(mockAxiosInstance as any);
 
       const results = await rerankResults('query', ['doc1']);
 
@@ -237,9 +252,10 @@ describe('Reranker - Unit Tests', () => {
       const mockPost = vi.fn().mockResolvedValueOnce({
         data: { results: [] },
       });
-      mockedAxios.create.mockReturnValue({
+      const mockAxiosInstance = {
         post: mockPost,
-      });
+      };
+      mockCreate.mockReturnValue(mockAxiosInstance as any);
 
       await rerankResults('query', ['doc1'], 5, config);
 

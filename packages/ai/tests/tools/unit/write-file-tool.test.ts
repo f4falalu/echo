@@ -65,11 +65,9 @@ describe('Write File Tool Unit Tests', () => {
   test('should write new file successfully', async () => {
     const content = 'Hello, world!';
     const result = await writeFileTool.execute({
-      context: {
-        file_path: testFile,
-        content,
-        overwrite: false,
-      },
+      file_path: testFile,
+      content,
+      overwrite: false,
     });
 
     expect(result.success).toBe(true);
@@ -83,12 +81,10 @@ describe('Write File Tool Unit Tests', () => {
   test('should overwrite existing file with backup', async () => {
     const newContent = 'New content';
     const result = await writeFileTool.execute({
-      context: {
-        file_path: existingFile,
-        content: newContent,
-        overwrite: true,
-        create_backup: true,
-      },
+      file_path: existingFile,
+      content: newContent,
+      overwrite: true,
+      create_backup: true,
     });
 
     expect(result.success).toBe(true);
@@ -103,13 +99,11 @@ describe('Write File Tool Unit Tests', () => {
   test('should create directories if they do not exist', async () => {
     const nestedFile = join(tempDir, 'nested', 'deep', 'file.txt');
     const result = await writeFileTool.execute({
-      context: {
-        file_path: nestedFile,
-        content: 'Nested content',
-        overwrite: false,
-        create_backup: true,
-        encoding: 'utf8',
-      },
+      file_path: nestedFile,
+      content: 'Nested content',
+      overwrite: false,
+      create_backup: true,
+      encoding: 'utf8',
     });
 
     expect(result.success).toBe(true);
@@ -121,11 +115,9 @@ describe('Write File Tool Unit Tests', () => {
   test('should reject overwrite when overwrite=false and file exists', async () => {
     await expect(
       writeFileTool.execute({
-        context: {
-          file_path: existingFile,
-          content: 'New content',
-          overwrite: false,
-        },
+        file_path: existingFile,
+        content: 'New content',
+        overwrite: false,
       })
     ).rejects.toThrow('File already exists');
   });
@@ -133,10 +125,8 @@ describe('Write File Tool Unit Tests', () => {
   test('should reject non-absolute paths', async () => {
     await expect(
       writeFileTool.execute({
-        context: {
-          file_path: 'relative/path.txt',
-          content: 'content',
-        },
+        file_path: 'relative/path.txt',
+        content: 'content',
       })
     ).rejects.toThrow('File path must be absolute');
   });
@@ -144,13 +134,11 @@ describe('Write File Tool Unit Tests', () => {
   test('should reject path traversal attempts', async () => {
     await expect(
       writeFileTool.execute({
-        context: {
-          file_path: '/tmp/../etc/passwd',
-          content: 'malicious content',
-          overwrite: false,
-          create_backup: true,
-          encoding: 'utf8',
-        },
+        file_path: '/tmp/../etc/passwd',
+        content: 'malicious content',
+        overwrite: false,
+        create_backup: true,
+        encoding: 'utf8',
       })
     ).rejects.toThrow(/Write access denied to system directory|Path traversal not allowed/);
   });
@@ -158,13 +146,11 @@ describe('Write File Tool Unit Tests', () => {
   test('should reject writes to system directories', async () => {
     await expect(
       writeFileTool.execute({
-        context: {
-          file_path: '/etc/malicious.txt',
-          content: 'malicious content',
-          overwrite: false,
-          create_backup: true,
-          encoding: 'utf8',
-        },
+        file_path: '/etc/malicious.txt',
+        content: 'malicious content',
+        overwrite: false,
+        create_backup: true,
+        encoding: 'utf8',
       })
     ).rejects.toThrow('Write access denied to system directory');
   });
@@ -172,13 +158,11 @@ describe('Write File Tool Unit Tests', () => {
   test('should support different encodings', async () => {
     const content = 'ASCII content';
     const result = await writeFileTool.execute({
-      context: {
-        file_path: testFile,
-        content,
-        overwrite: false,
-        create_backup: true,
-        encoding: 'ascii',
-      },
+      file_path: testFile,
+      content,
+      overwrite: false,
+      create_backup: true,
+      encoding: 'ascii',
     });
 
     expect(result.success).toBe(true);
@@ -188,12 +172,10 @@ describe('Write File Tool Unit Tests', () => {
   test('should handle write without backup when file exists', async () => {
     const newContent = 'No backup content';
     const result = await writeFileTool.execute({
-      context: {
-        file_path: existingFile,
-        content: newContent,
-        overwrite: true,
-        create_backup: false,
-      },
+      file_path: existingFile,
+      content: newContent,
+      overwrite: true,
+      create_backup: false,
     });
 
     expect(result.success).toBe(true);

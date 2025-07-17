@@ -6,7 +6,13 @@ export function createMockFunction<T extends (...args: any[]) => any>(implementa
 }
 
 export function mockConsole() {
-  const originalConsole = console;
+  const originalMethods = {
+    log: console.log,
+    error: console.error,
+    warn: console.warn,
+    info: console.info,
+  };
+  
   const mockedMethods = {
     log: vi.fn(),
     error: vi.fn(),
@@ -14,11 +20,17 @@ export function mockConsole() {
     info: vi.fn(),
   };
 
-  Object.assign(console, mockedMethods);
+  console.log = mockedMethods.log;
+  console.error = mockedMethods.error;
+  console.warn = mockedMethods.warn;
+  console.info = mockedMethods.info;
 
   return {
     restore: () => {
-      Object.assign(console, originalConsole);
+      console.log = originalMethods.log;
+      console.error = originalMethods.error;
+      console.warn = originalMethods.warn;
+      console.info = originalMethods.info;
     },
     mocks: mockedMethods,
   };

@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { SnowflakeAdapter } from './snowflake';
 import { DataSourceType } from '../types/credentials';
 import type { SnowflakeCredentials } from '../types/credentials';
@@ -13,8 +13,11 @@ describe('SnowflakeAdapter', () => {
   let adapter: SnowflakeAdapter;
   let mockConnection: any;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     vi.clearAllMocks();
+    
+    await SnowflakeAdapter.cleanup();
+    
     adapter = new SnowflakeAdapter();
     
     // Create mock connection for each test
@@ -29,6 +32,12 @@ describe('SnowflakeAdapter', () => {
     mockedSnowflake.configure = vi.fn();
   });
 
+  afterEach(async () => {
+    // Clean up warm connections after each test
+    await SnowflakeAdapter.cleanup();
+    vi.restoreAllMocks();
+  });
+
   describe('initialization', () => {
     it('should initialize with valid credentials', async () => {
       const credentials: SnowflakeCredentials = {
@@ -38,7 +47,6 @@ describe('SnowflakeAdapter', () => {
         password: 'testpass',
         warehouse_id: 'COMPUTE_WH',
         default_database: 'TESTDB',
-        schema: 'PUBLIC',
       };
 
       await adapter.initialize(credentials);
@@ -54,13 +62,13 @@ describe('SnowflakeAdapter', () => {
     });
 
     it('should use no default warehouse when not specified', async () => {
-      const credentials: SnowflakeCredentials = {
+      const credentials = {
         type: DataSourceType.Snowflake,
         account_id: 'testaccount',
         username: 'testuser',
         password: 'testpass',
         default_database: 'TESTDB',
-      };
+      } as SnowflakeCredentials;
 
       await adapter.initialize(credentials);
 
@@ -72,13 +80,13 @@ describe('SnowflakeAdapter', () => {
     });
 
     it('should use no default database when not specified', async () => {
-      const credentials: SnowflakeCredentials = {
+      const credentials = {
         type: DataSourceType.Snowflake,
         account_id: 'testaccount',
         username: 'testuser',
         password: 'testpass',
         warehouse_id: 'COMPUTE_WH',
-      };
+      } as SnowflakeCredentials;
 
       await adapter.initialize(credentials);
 
@@ -113,7 +121,7 @@ describe('SnowflakeAdapter', () => {
         database: 'testdb',
         username: 'testuser',
         password: 'testpass',
-      };
+      } as any;
 
       await expect(adapter.initialize(credentials)).rejects.toThrow(
         'Invalid credentials type. Expected snowflake, got postgres'
@@ -133,13 +141,26 @@ describe('SnowflakeAdapter', () => {
     };
 
     beforeEach(async () => {
+      // Reset all mocks before each test
+      vi.clearAllMocks();
+      
+      await SnowflakeAdapter.cleanup();
+      
+      // Create fresh adapter and connection for each test
+      adapter = new SnowflakeAdapter();
+      mockConnection = {
+        connect: vi.fn((cb) => cb()),
+        execute: vi.fn(),
+        destroy: vi.fn((cb) => cb()),
+        isUp: vi.fn().mockReturnValue(false),
+      };
+      mockedSnowflake.createConnection = vi.fn().mockReturnValue(mockConnection);
+      
       await adapter.initialize(credentials);
     });
 
     it('should execute simple query without parameters', async () => {
       const mockRows = [{ ID: 1, NAME: 'Test' }];
-      // Reset the mock before this test
-      mockConnection.execute.mockReset();
       mockConnection.execute.mockImplementation(({ complete }) => {
         complete(null, { 
           getColumns: () => [
@@ -206,7 +227,7 @@ describe('SnowflakeAdapter', () => {
       });
 
       await expect(adapter.query('SELECT * FROM invalid_table')).rejects.toThrow(
-        'Query execution failed: Query failed'
+        'Snowflake query failed: Query failed'
       );
     });
 
@@ -254,6 +275,23 @@ describe('SnowflakeAdapter', () => {
   });
 
   describe('connection management', () => {
+    beforeEach(async () => {
+      // Reset all mocks before each test
+      vi.clearAllMocks();
+      
+      await SnowflakeAdapter.cleanup();
+      
+      // Create fresh adapter and connection for each test
+      adapter = new SnowflakeAdapter();
+      mockConnection = {
+        connect: vi.fn((cb) => cb()),
+        execute: vi.fn(),
+        destroy: vi.fn((cb) => cb()),
+        isUp: vi.fn().mockReturnValue(false),
+      };
+      mockedSnowflake.createConnection = vi.fn().mockReturnValue(mockConnection);
+    });
+
     it('should test connection successfully', async () => {
       const credentials: SnowflakeCredentials = {
         type: DataSourceType.Snowflake,
@@ -277,7 +315,7 @@ describe('SnowflakeAdapter', () => {
       expect(result).toBe(true);
       expect(mockConnection.execute).toHaveBeenCalledWith(
         expect.objectContaining({
-          sqlText: 'SELECT 1 as test',
+          sqlText: 'SELECT 1',
         })
       );
     });
@@ -314,9 +352,20 @@ describe('SnowflakeAdapter', () => {
       };
 
       await adapter.initialize(credentials);
+      
+      const originalDateNow = Date.now;
+      const currentTime = Date.now();
+      const oldTime = currentTime - (6 * 60 * 1000); // 6 minutes ago (older than CONNECTION_REUSE_TIME of 5 minutes)
+      
+      (adapter as any).lastActivity = oldTime;
+      
+      Date.now = vi.fn().mockReturnValue(currentTime);
+      
       await adapter.close();
 
       expect(mockConnection.destroy).toHaveBeenCalled();
+      
+      Date.now = originalDateNow;
     });
 
     it('should handle close errors gracefully', async () => {
@@ -331,14 +380,36 @@ describe('SnowflakeAdapter', () => {
 
       await adapter.initialize(credentials);
       
+      const originalDateNow = Date.now;
+      Date.now = vi.fn().mockReturnValue(1000000000); // Old timestamp to force destroy
+      
       mockConnection.destroy.mockImplementation((cb) => cb(new Error('Close failed')));
 
       // Should not throw
       await adapter.close();
+      
+      Date.now = originalDateNow;
     });
   });
 
   describe('introspection', () => {
+    beforeEach(async () => {
+      // Reset all mocks before each test
+      vi.clearAllMocks();
+      
+      await SnowflakeAdapter.cleanup();
+      
+      // Create fresh adapter and connection for each test
+      adapter = new SnowflakeAdapter();
+      mockConnection = {
+        connect: vi.fn((cb) => cb()),
+        execute: vi.fn(),
+        destroy: vi.fn((cb) => cb()),
+        isUp: vi.fn().mockReturnValue(false),
+      };
+      mockedSnowflake.createConnection = vi.fn().mockReturnValue(mockConnection);
+    });
+
     it('should return introspector', async () => {
       const credentials: SnowflakeCredentials = {
         type: DataSourceType.Snowflake,
@@ -375,6 +446,23 @@ describe('SnowflakeAdapter', () => {
   });
 
   describe('connection statistics', () => {
+    beforeEach(async () => {
+      // Reset all mocks before each test
+      vi.clearAllMocks();
+      
+      await SnowflakeAdapter.cleanup();
+      
+      // Create fresh adapter and connection for each test
+      adapter = new SnowflakeAdapter();
+      mockConnection = {
+        connect: vi.fn((cb) => cb()),
+        execute: vi.fn(),
+        destroy: vi.fn((cb) => cb()),
+        isUp: vi.fn().mockReturnValue(false),
+      };
+      mockedSnowflake.createConnection = vi.fn().mockReturnValue(mockConnection);
+    });
+
     it('should return connection stats', async () => {
       const credentials: SnowflakeCredentials = {
         type: DataSourceType.Snowflake,
@@ -390,9 +478,9 @@ describe('SnowflakeAdapter', () => {
       const stats = adapter.getConnectionStats();
       
       expect(stats).toHaveProperty('connected', true);
-      expect(stats).toHaveProperty('queries_executed');
-      expect(stats).toHaveProperty('queries_successful');
-      expect(stats).toHaveProperty('queries_failed');
+      expect(stats).toHaveProperty('credentialKey');
+      expect(stats).toHaveProperty('lastActivity');
+      expect(stats).toHaveProperty('isWarmConnection');
     });
   });
 });

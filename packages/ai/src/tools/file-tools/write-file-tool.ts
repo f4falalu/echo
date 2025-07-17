@@ -27,7 +27,7 @@ interface WriteFileResult {
   success: boolean;
   file_path: string;
   bytes_written: number;
-  backup_path?: string;
+  backup_path?: string | undefined;
   created_directories: string[];
 }
 
@@ -49,8 +49,8 @@ export const writeFileTool = createTool({
     backup_path: z.string().optional(),
     created_directories: z.array(z.string()),
   }),
-  execute: async ({ context }) => {
-    return await writeFile(context as WriteFileParams);
+  execute: async (params) => {
+    return await writeFile(params as unknown as WriteFileParams);
   },
 });
 
@@ -109,7 +109,7 @@ const writeFile = wrapTraced(
         success: true,
         file_path,
         bytes_written: stats.size,
-        backup_path: backupPath || '',
+        backup_path: backupPath,
         created_directories: createdDirs,
       };
     } catch (error) {

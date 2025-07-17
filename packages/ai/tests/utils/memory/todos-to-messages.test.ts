@@ -20,7 +20,7 @@ describe('Todos to Message Conversion', () => {
       if (Array.isArray(message.content)) {
         expect(message.content).toHaveLength(1);
 
-        const textContent = validateArrayAccess(message.content, 0, 'message content');
+        const textContent = message.content[0];
         expect(textContent).toMatchObject({
           type: 'text',
         });
@@ -36,8 +36,8 @@ describe('Todos to Message Conversion', () => {
 
       expect(message.role).toBe('user');
       if (Array.isArray(message.content)) {
-        const textContent = validateArrayAccess(message.content, 0, 'message content');
-        if (textContent && 'text' in textContent) {
+        const textContent = message.content[0];
+        if (textContent && typeof textContent === 'object' && 'text' in textContent) {
           expect(textContent.text).toContain('<todo_list>');
         }
       }
@@ -96,9 +96,11 @@ describe('Todos to Message Conversion', () => {
 
       // Verify conversation message structure
       expect(conversationMessage.role).toBe('user');
-      const textContent = validateArrayAccess(conversationMessage.content, 0, 'message content');
-      if (Array.isArray(conversationMessage.content) && textContent && 'text' in textContent) {
-        expect(textContent.text).toContain(sampleTodos);
+      if (Array.isArray(conversationMessage.content)) {
+        const textContent = conversationMessage.content[0];
+        if (textContent && typeof textContent === 'object' && 'text' in textContent) {
+          expect(textContent.text).toContain(sampleTodos);
+        }
       }
 
       // Verify reasoning message structure
