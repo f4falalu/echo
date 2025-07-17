@@ -5,6 +5,63 @@ use diesel::{BoolExpressionMethods, ExpressionMethods, JoinOnDsl, QueryDsl, Opti
 use diesel_async::RunQueryDsl;
 use middleware::OrganizationMembership;
 use uuid::Uuid;
+use std::cmp::Ordering;
+
+/// Computes the effective permission level for a user on an asset by taking the maximum
+/// of their direct permission and workspace sharing permission.
+///
+/// # Arguments
+/// * `direct_permission` - The user's direct permission on the asset (if any)
+/// * `workspace_sharing` - The workspace sharing level for the asset
+/// * `organization_id` - UUID of the organization
+/// * `organization_role_grants` - User's organization memberships
+///
+/// # Returns
+/// * `Option<AssetPermissionRole>` - The highest permission level available to the user
+pub fn compute_effective_permission(
+    direct_permission: Option<AssetPermissionRole>,
+    workspace_sharing: WorkspaceSharing,
+    organization_id: Uuid,
+    organization_role_grants: &[OrganizationMembership],
+) -> Option<AssetPermissionRole> {
+    // First check if the user has WorkspaceAdmin or DataAdmin role for the organization
+    for org in organization_role_grants {
+        if org.id == organization_id
+            && (org.role == UserOrganizationRole::WorkspaceAdmin
+                || org.role == UserOrganizationRole::DataAdmin)
+        {
+            return Some(AssetPermissionRole::Owner);
+        }
+    }
+
+    // Compute workspace-granted permission
+    let workspace_permission = if workspace_sharing != WorkspaceSharing::None {
+        // Check if user is member of the organization
+        if organization_role_grants.iter().any(|org| org.id == organization_id) {
+            match workspace_sharing {
+                WorkspaceSharing::CanView => Some(AssetPermissionRole::CanView),
+                WorkspaceSharing::CanEdit => Some(AssetPermissionRole::CanEdit),
+                WorkspaceSharing::FullAccess => Some(AssetPermissionRole::FullAccess),
+                WorkspaceSharing::None => None,
+            }
+        } else {
+            None
+        }
+    } else {
+        None
+    };
+
+    // Return the highest permission level
+    match (direct_permission, workspace_permission) {
+        (Some(direct), Some(workspace)) => {
+            // Use the max method to get the higher permission
+            Some(direct.max(workspace))
+        }
+        (Some(direct), None) => Some(direct),
+        (None, Some(workspace)) => Some(workspace),
+        (None, None) => None,
+    }
+}
 
 /// Checks if a user has sufficient permissions based on organization roles and asset permissions.
 ///

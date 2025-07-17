@@ -17,7 +17,7 @@ use database::schema::{
     asset_permissions, collections, collections_to_assets, dashboard_files, datasets, metric_files,
     metric_files_to_dashboard_files, metric_files_to_datasets, users,
 };
-use sharing::check_permission_access;
+use sharing::{check_permission_access, compute_effective_permission};
 
 use super::Version;
 
@@ -142,22 +142,23 @@ pub async fn get_metric_for_dashboard_handler(
     tracing::debug!(metric_id = %metric_id, ?direct_permission_level, has_sufficient_direct_permission, "Direct permission check result");
 
     if has_sufficient_direct_permission {
-        // Check if user is WorkspaceAdmin or DataAdmin for this organization
-        let is_admin = user.organizations.iter().any(|org| {
-            org.id == metric_file.organization_id
-                && (org.role == database::enums::UserOrganizationRole::WorkspaceAdmin
-                    || org.role == database::enums::UserOrganizationRole::DataAdmin)
-        });
-
-        if is_admin {
-            // Admin users get Owner permissions
-            permission = AssetPermissionRole::Owner;
-            tracing::debug!(metric_id = %metric_id, user_id = %user.id, ?permission, "Granting Owner access to admin user.");
-        } else {
-            // User has direct permission, use that role
-            permission = direct_permission_level.unwrap_or(AssetPermissionRole::CanView); // Default just in case
-            tracing::debug!(metric_id = %metric_id, user_id = %user.id, ?permission, "Granting access via direct permission.");
-        }
+        // Compute the effective permission (highest of direct and workspace sharing)
+        let effective_permission = compute_effective_permission(
+            direct_permission_level,
+            metric_file.workspace_sharing,
+            metric_file.organization_id,
+            &user.organizations,
+        );
+        
+        permission = effective_permission.unwrap_or(AssetPermissionRole::CanView);
+        tracing::debug!(
+            metric_id = %metric_id, 
+            user_id = %user.id, 
+            ?direct_permission_level,
+            workspace_sharing = ?metric_file.workspace_sharing,
+            ?permission, 
+            "Granting access with effective permission (max of direct and workspace sharing)."
+        );
     } else {
         // No sufficient direct/admin permission, check if user has access via a dashboard
         tracing::debug!(metric_id = %metric_id, "Insufficient direct/admin permission. Checking dashboard access.");

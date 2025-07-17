@@ -12,7 +12,7 @@ use database::{
 use diesel::{ExpressionMethods, JoinOnDsl, NullableExpressionMethods, QueryDsl, Queryable};
 use diesel_async::RunQueryDsl;
 use middleware::AuthenticatedUser;
-use sharing::check_permission_access;
+use sharing::{check_permission_access, compute_effective_permission};
 use tracing;
 use uuid::Uuid;
 
@@ -96,22 +96,22 @@ pub async fn get_collection_handler(
         return Err(anyhow!("You don't have permission to view this collection"));
     }
 
-    // Extract permission for consistent use in response
-    // If the asset is public and the user has no direct permission, default to CanView
-    let mut permission = collection_with_permission.permission
-        .unwrap_or(AssetPermissionRole::CanView);
-
-    // Check if user is WorkspaceAdmin or DataAdmin for this organization
-    let is_admin = user.organizations.iter().any(|org| {
-        org.id == collection_with_permission.collection.organization_id
-            && (org.role == database::enums::UserOrganizationRole::WorkspaceAdmin
-                || org.role == database::enums::UserOrganizationRole::DataAdmin)
-    });
-
-    if is_admin {
-        // Admin users get Owner permissions
-        permission = AssetPermissionRole::Owner;
-    }
+    // Compute the effective permission (highest of direct and workspace sharing)
+    let permission = compute_effective_permission(
+        collection_with_permission.permission,
+        collection_with_permission.collection.workspace_sharing,
+        collection_with_permission.collection.organization_id,
+        &user.organizations,
+    ).unwrap_or(AssetPermissionRole::CanView);
+    
+    tracing::debug!(
+        collection_id = %req.id, 
+        user_id = %user.id, 
+        direct_permission = ?collection_with_permission.permission,
+        workspace_sharing = ?collection_with_permission.collection.workspace_sharing,
+        effective_permission = ?permission, 
+        "Computed effective permission for collection"
+    );
 
     let mut conn = match get_pg_pool().get().await {
         Ok(conn) => conn,

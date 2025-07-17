@@ -92,6 +92,8 @@ pub enum TeamToUserRole {
     Hash,
     diesel::AsExpression,
     diesel::FromSqlRow,
+    Ord,
+    PartialOrd,
 )]
 #[diesel(sql_type = sql_types::AssetPermissionRoleEnum)]
 #[serde(rename_all = "camelCase")]

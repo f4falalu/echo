@@ -21,7 +21,7 @@ use database::schema::{
     asset_permissions, collections, collections_to_assets, dashboard_files, metric_files, users,
 };
 use database::types::{MetricYml, VersionHistory};
-use sharing::check_permission_access;
+use sharing::{check_permission_access, compute_effective_permission};
 
 use super::{
     BusterDashboard, BusterDashboardResponse, DashboardConfig, DashboardRow, DashboardRowItem,
@@ -131,22 +131,23 @@ pub async fn get_dashboard_handler(
     tracing::debug!(dashboard_id = %dashboard_id, ?direct_permission_level, has_sufficient_direct_permission, "Direct permission check result");
 
     if has_sufficient_direct_permission {
-        // Check if user is WorkspaceAdmin or DataAdmin for this organization
-        let is_admin = user.organizations.iter().any(|org| {
-            org.id == dashboard_file.organization_id
-                && (org.role == database::enums::UserOrganizationRole::WorkspaceAdmin
-                    || org.role == database::enums::UserOrganizationRole::DataAdmin)
-        });
-
-        if is_admin {
-            // Admin users get Owner permissions
-            permission = AssetPermissionRole::Owner;
-            tracing::debug!(dashboard_id = %dashboard_id, user_id = %user.id, ?permission, "Granting Owner access to admin user.");
-        } else {
-            // User has direct permission, use that role
-            permission = direct_permission_level.unwrap_or(AssetPermissionRole::CanView); // Default just in case
-            tracing::debug!(dashboard_id = %dashboard_id, user_id = %user.id, ?permission, "Granting access via direct permission.");
-        }
+        // Compute the effective permission (highest of direct and workspace sharing)
+        let effective_permission = compute_effective_permission(
+            direct_permission_level,
+            dashboard_file.workspace_sharing,
+            dashboard_file.organization_id,
+            &user.organizations,
+        );
+        
+        permission = effective_permission.unwrap_or(AssetPermissionRole::CanView);
+        tracing::debug!(
+            dashboard_id = %dashboard_id, 
+            user_id = %user.id, 
+            ?direct_permission_level,
+            workspace_sharing = ?dashboard_file.workspace_sharing,
+            ?permission, 
+            "Granting access with effective permission (max of direct and workspace sharing)."
+        );
     } else {
         // No sufficient direct/admin permission, check if user has access via a chat
         tracing::debug!(dashboard_id = %dashboard_id, "Insufficient direct/admin permission. Checking chat access.");
