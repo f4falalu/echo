@@ -103,8 +103,8 @@ jobs:
       - name: Build and push API image
         uses: useblacksmith/build-push-action@v1
         with:
-          context: ./api
-          file: ./api/Dockerfile
+          context: ./apps/api
+          file: ./apps/api/Dockerfile
           push: true
           platforms: ${{ matrix.docker_platform }}
           tags: |
