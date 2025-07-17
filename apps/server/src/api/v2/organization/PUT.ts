@@ -1,4 +1,4 @@
-import { getOrganization, getUserOrganizationId, updateOrganization } from '@buster/database';
+import { getOrganization, updateOrganization } from '@buster/database';
 import type { User } from '@buster/database';
 import type {
   UpdateOrganizationRequest,
