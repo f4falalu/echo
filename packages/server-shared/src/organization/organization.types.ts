@@ -1,7 +1,11 @@
 import type { organizations } from '@buster/database';
 import { z } from 'zod';
-import type { IsEqual } from '../type-utilities';
 import { OrganizationRoleSchema } from './roles.types';
+
+export const OrganizationColorPaletteSchema = z.object({
+  id: z.string(),
+  color: z.array(z.string()),
+});
 
 export const OrganizationSchema = z.object({
   id: z.string(),
@@ -14,8 +18,11 @@ export const OrganizationSchema = z.object({
   domains: z.array(z.string()).nullable(),
   restrictNewUserInvitations: z.boolean(),
   defaultRole: OrganizationRoleSchema,
+  organizationColorPalettes: z.array(OrganizationColorPaletteSchema),
 });
 
 export type Organization = z.infer<typeof OrganizationSchema>;
 
-type _DBEqualityCheck = IsEqual<Organization, typeof organizations.$inferSelect>;
+// Type equality check - this will cause a compilation error if types don't match
+const _organizationTypeCheck: Organization = {} as typeof organizations.$inferSelect;
+const _databaseTypeCheck: typeof organizations.$inferSelect = {} as Organization;
