@@ -4,6 +4,7 @@ import { Text } from '@/components/ui/typography';
 import { useMemoizedFn } from '@/hooks';
 import { AccessDropdown } from './AccessDropdown';
 import type { ShareAssetType, ShareRole } from '@buster/server-shared/share';
+import { AvatarUserButton } from '../../ui/avatar/AvatarUserButton';
 
 export const IndividualSharePerson: React.FC<{
   name?: string;
@@ -24,22 +25,7 @@ export const IndividualSharePerson: React.FC<{
     <div
       className="flex h-8 items-center justify-between space-x-2 overflow-hidden"
       data-testid={`share-person-${email}`}>
-      <div className="flex h-full items-center space-x-1.5 overflow-hidden">
-        <div className="flex h-full flex-col items-center justify-center">
-          <Avatar className="h-[24px] w-[24px]" name={name || email} image={avatar_url} />
-        </div>
-        <div className="flex flex-col space-y-0 overflow-hidden">
-          <Text truncate className="leading-1.3">
-            {name || email}
-          </Text>
-
-          {isSameEmailName ? null : (
-            <Text truncate size="xs" variant="tertiary" className="leading-1.3">
-              {email}
-            </Text>
-          )}
-        </div>
-      </div>
+      <AvatarUserButton username={name} email={email} avatarUrl={avatar_url} avatarSize={24} />
 
       <AccessDropdown
         shareLevel={role}

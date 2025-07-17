@@ -6,6 +6,6 @@ import {
 
 export const getUserToOrganization = async (payload: GetUserToOrganizationRequest) => {
   return mainApiV2
-    .get<GetUserToOrganizationResponse>('/users/organization', { params: payload })
+    .get<GetUserToOrganizationResponse>('/users', { params: payload })
     .then((response) => response.data);
 };

@@ -57,6 +57,8 @@ interface BaseSelectProps<T> {
   hideChevron?: boolean;
   closeOnSelect?: boolean;
   onPressEnter?: (value: string) => void;
+  type?: 'select' | 'input';
+  clearOnSelect?: boolean;
 }
 
 // Clearable version - onChange can return null
@@ -149,6 +151,7 @@ function SelectComponent<T = string>({
   onChange,
   placeholder = 'Select an option',
   emptyMessage = 'No options found.',
+  type = 'select',
   value,
   onOpenChange,
   open: controlledOpen,
@@ -164,6 +167,7 @@ function SelectComponent<T = string>({
   onInputValueChange,
   hideChevron = false,
   onPressEnter,
+  clearOnSelect = true,
   closeOnSelect = true
 }: SelectProps<T>) {
   const [internalInputValue, setInternalInputValue] = React.useState('');
@@ -186,7 +190,7 @@ function SelectComponent<T = string>({
         if (!newOpen) {
           // Clear search value after 200ms to avoid flickering
           setTimeout(() => {
-            setInputValue('');
+            if (clearOnSelect) setInputValue('');
             setIsFocused(false);
           }, 125);
         }
@@ -238,7 +242,7 @@ function SelectComponent<T = string>({
         if (closeOnSelect) closePopover();
         onChange?.(item.value);
         handleOpenChange(false);
-        setInputValue('');
+        if (clearOnSelect) setInputValue('');
         inputRef.current?.blur();
       }
     },
@@ -401,10 +405,11 @@ function SelectComponent<T = string>({
             readOnly={search === false}
             className={cn(
               'flex h-7 w-full items-center justify-between rounded border px-2.5 text-base',
-              'bg-background cursor-pointer transition-all duration-300',
+              'bg-background transition-all duration-300',
               'focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50',
               disabled ? 'bg-disabled text-gray-light' : '',
-              !selectedItem && !currentInputValue && 'text-text-secondary'
+              !selectedItem && !currentInputValue && 'text-text-secondary',
+              type === 'input' ? 'cursor-text' : 'cursor-pointer'
             )}
           />
           <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
