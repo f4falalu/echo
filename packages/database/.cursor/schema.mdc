@@ -15,7 +15,7 @@ When adding a new JSONB column to the database schema, it is important to ensure
      ```typescript
      export type NewEntityConfig = {
        key: string;
-       value: any; // Use specific types instead of 'any' for better type safety
+       value: string | number | boolean; // Use specific types instead of 'any' for better type safety
      };
      ```
 
