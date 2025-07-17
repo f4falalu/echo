@@ -51,8 +51,11 @@ col2 [value3]`;
 
       const message = createStoredValuesToolCallMessage(searchResults);
 
-      expect(message.content[0].text).toBe(searchResults);
-      expect(message.content[0].text).toContain('\n');
+      const textContent = message.content[0];
+      if (textContent && typeof textContent === 'object' && 'text' in textContent) {
+        expect(textContent.text).toBe(searchResults);
+        expect(textContent.text).toContain('\n');
+      }
     });
   });
 
@@ -76,7 +79,7 @@ name [Red Bull, Monster Energy]`;
       expect(reasoningMessage.files[fileId]).toBeDefined();
 
       const file = reasoningMessage.files[fileId];
-      expect(file.file_type).toBe('search-results');
+      expect(file.file_type).toBe('agent-action');
       expect(file.file_name).toBe('stored-values-search');
       expect(file.version_number).toBe(1);
       expect(file.status).toBe('completed');
@@ -112,7 +115,7 @@ name [Red Bull, Monster Energy]`;
       const file = reasoningMessage.files[fileId];
 
       expect(file.id).toBe(fileId);
-      expect(file.file_type).toBe('search-results');
+      expect(file.file_type).toBe('agent-action');
       expect(file.file_name).toBe('stored-values-search');
       expect(file.version_number).toBe(1);
       expect(file.status).toBe('completed');

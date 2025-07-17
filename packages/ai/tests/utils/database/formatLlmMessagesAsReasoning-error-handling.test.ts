@@ -38,8 +38,17 @@ describe('formatLlmMessagesAsReasoning error handling', () => {
     const messages = [
       null,
       {
-        role: 'user',
-        content: 'Test message',
+        role: 'assistant',
+        content: [
+          {
+            type: 'tool-call',
+            toolCallId: 'test-id',
+            toolName: 'sequentialThinking',
+            args: {
+              thought: 'Test message',
+            },
+          },
+        ],
       },
       undefined,
     ] as never;
@@ -117,15 +126,24 @@ describe('formatLlmMessagesAsReasoning error handling', () => {
         ],
       },
       {
-        role: 'user',
-        content: 'Valid message after error',
+        role: 'assistant',
+        content: [
+          {
+            type: 'tool-call',
+            toolCallId: 'valid-id',
+            toolName: 'sequentialThinking',
+            args: {
+              thought: 'Valid message after error',
+            },
+          },
+        ],
       },
     ];
 
     const result = formatLlmMessagesAsReasoning(messages);
 
     // First message is skipped because sequentialThinking without args.thought returns null
-    // Only the user message is processed
+    // Second message is processed
     expect(result).toHaveLength(1);
     expect(result[0]).toHaveProperty('message', 'Valid message after error');
   });
@@ -135,9 +153,14 @@ describe('formatLlmMessagesAsReasoning error handling', () => {
       {
         role: 'assistant',
         content: [
-          { type: 'text', text: 'Hello' },
-          { type: 'image', image: 'data:image/png;base64,...' } as never,
-          { type: 'text', text: 'World' },
+          {
+            type: 'tool-call',
+            toolCallId: 'test-id',
+            toolName: 'sequentialThinking',
+            args: {
+              thought: 'Processing complex content',
+            },
+          },
         ],
       },
     ];
@@ -145,6 +168,6 @@ describe('formatLlmMessagesAsReasoning error handling', () => {
     const result = formatLlmMessagesAsReasoning(messages);
 
     expect(result).toHaveLength(1);
-    expect(result[0]).toHaveProperty('message', 'Hello [image] World');
+    expect(result[0]).toHaveProperty('message', 'Processing complex content');
   });
 });

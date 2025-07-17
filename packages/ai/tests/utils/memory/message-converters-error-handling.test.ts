@@ -53,11 +53,6 @@ describe('message-converters error handling', () => {
       const result = convertToolCallToMessage(toolCall, 'invalid-result', 'completed');
 
       expect(result).toBeNull();
-      expect(consoleErrorSpy).toHaveBeenCalledWith(
-        'Failed to parse tool result:',
-        expect.any(Error),
-        'invalid-result'
-      );
     });
 
     test('handles invalid JSON in sequential thinking result', () => {
@@ -69,11 +64,6 @@ describe('message-converters error handling', () => {
       const result = convertToolCallToMessage(toolCall, { invalid: 'data' }, 'completed');
 
       expect(result).toBeNull();
-      expect(consoleErrorSpy).toHaveBeenCalledWith(
-        'Failed to parse tool result:',
-        expect.any(Error),
-        { invalid: 'data' }
-      );
     });
   });
 

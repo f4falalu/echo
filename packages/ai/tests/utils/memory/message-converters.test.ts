@@ -1,10 +1,9 @@
 import type { AssistantContent } from 'ai';
 import { describe, expect, it } from 'vitest';
 import type {
-  BusterChatMessageReasoning_files,
-  BusterChatMessageReasoning_text,
-  BusterChatResponseMessage_text,
-} from 'web/src/api/asset_interfaces/chat/chatMessageInterfaces';
+  ChatMessageReasoningMessage,
+  ChatMessageResponseMessage,
+} from '@buster/server-shared';
 import {
   convertToolCallToMessage,
   extractMessagesFromToolCalls,
@@ -24,7 +23,7 @@ function createToolCall(
     toolCallId,
     toolName,
     args,
-  };
+  } as ToolCall;
 }
 
 describe('message-converters', () => {
@@ -42,7 +41,7 @@ describe('message-converters', () => {
           id: 'test-id-1',
           type: 'text',
           message: 'Analysis complete',
-        } as BusterChatResponseMessage_text);
+        } as Extract<ChatMessageResponseMessage, { type: 'text' }>);
       });
 
       it('should handle done-tool alias', () => {
@@ -71,7 +70,7 @@ describe('message-converters', () => {
           id: 'test-id-3',
           type: 'text',
           message: 'Quick response',
-        } as BusterChatResponseMessage_text);
+        } as Extract<ChatMessageResponseMessage, { type: 'text' }>);
       });
     });
 
@@ -94,7 +93,7 @@ describe('message-converters', () => {
 
         expect(result).not.toBeNull();
         expect(result?.type).toBe('reasoning');
-        const reasoning = result?.message as BusterChatMessageReasoning_text;
+        const reasoning = result?.message as Extract<ChatMessageReasoningMessage, { type: 'text' }>;
         expect(reasoning).toMatchObject({
           id: 'test-id-4',
           type: 'text',
@@ -122,7 +121,7 @@ describe('message-converters', () => {
         const result = convertToolCallToMessage(toolCall, toolResult, 'completed');
 
         expect(result).not.toBeNull();
-        const reasoning = result?.message as BusterChatMessageReasoning_text;
+        const reasoning = result?.message as Extract<ChatMessageReasoningMessage, { type: 'text' }>;
         expect(reasoning.finished_reasoning).toBe(true);
       });
     });
@@ -157,7 +156,7 @@ describe('message-converters', () => {
 
         expect(result).not.toBeNull();
         expect(result?.type).toBe('reasoning');
-        const reasoning = result?.message as BusterChatMessageReasoning_files;
+        const reasoning = result?.message as Extract<ChatMessageReasoningMessage, { type: 'files' }>;
         expect(reasoning).toMatchObject({
           id: 'test-id-6',
           type: 'files',
@@ -191,7 +190,7 @@ describe('message-converters', () => {
 
         const result = convertToolCallToMessage(toolCall, toolResult, 'completed');
 
-        const reasoning = result?.message as BusterChatMessageReasoning_files;
+        const reasoning = result?.message as Extract<ChatMessageReasoningMessage, { type: 'files' }>;
         expect(reasoning.title).toBe('Created 1 metric');
         expect(reasoning.secondary_title).toBeUndefined();
       });
@@ -216,7 +215,7 @@ describe('message-converters', () => {
 
         expect(result).not.toBeNull();
         expect(result?.type).toBe('reasoning');
-        const reasoning = result?.message as BusterChatMessageReasoning_files;
+        const reasoning = result?.message as Extract<ChatMessageReasoningMessage, { type: 'files' }>;
         expect(reasoning.files['dashboard-1'].file_type).toBe('dashboard');
       });
     });
@@ -238,7 +237,7 @@ describe('message-converters', () => {
 
         const result = convertToolCallToMessage(toolCall, toolResult, 'completed');
 
-        const reasoning = result?.message as BusterChatMessageReasoning_files;
+        const reasoning = result?.message as Extract<ChatMessageReasoningMessage, { type: 'files' }>;
         expect(reasoning.title).toBe('Modified 1 metric');
         expect(reasoning.files['metric-1'].version_number).toBe(2);
       });
@@ -257,7 +256,7 @@ describe('message-converters', () => {
 
         const result = convertToolCallToMessage(toolCall, toolResult, 'completed');
 
-        const reasoning = result?.message as BusterChatMessageReasoning_files;
+        const reasoning = result?.message as Extract<ChatMessageReasoningMessage, { type: 'files' }>;
         expect(reasoning.title).toBe('Modified 0 dashboards');
         expect(reasoning.secondary_title).toBe('1 failed');
         expect(reasoning.status).toBe('completed');
@@ -277,7 +276,7 @@ describe('message-converters', () => {
 
         expect(result).not.toBeNull();
         expect(result?.type).toBe('reasoning');
-        const reasoning = result?.message as BusterChatMessageReasoning_text;
+        const reasoning = result?.message as Extract<ChatMessageReasoningMessage, { type: 'text' }>;
         expect(reasoning).toMatchObject({
           type: 'text',
           title: 'Executed SQL Query',
@@ -346,7 +345,7 @@ describe('message-converters', () => {
 
       const toolResults = new Map([
         ['id-1', { message: 'Valid message' }],
-        ['id-2', { invalid: 'structure' }], // Invalid result structure
+        ['id-2', { invalid: 'structure' } as any], // Invalid result structure
       ]);
 
       const { reasoningMessages, responseMessages } = extractMessagesFromToolCalls(

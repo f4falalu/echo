@@ -69,7 +69,7 @@ describe('LS Tool Unit Tests', () => {
   });
 
   test('should list directory contents successfully', async () => {
-    const result = await lsTool.execute({ path: tempDir });
+    const result = await lsTool.execute({ context: { path: tempDir } });
 
     expect(result.path).toBe(tempDir);
     expect(result.total_items).toBeGreaterThan(0);
@@ -128,7 +128,7 @@ describe('LS Tool Unit Tests', () => {
 
   test('should identify file types correctly', async () => {
     const result = await lsTool.execute({
-      path: tempDir,
+      context: { path: tempDir },
     });
 
     const file = result.items.find((item) => item.name === 'file1.txt');
@@ -140,8 +140,7 @@ describe('LS Tool Unit Tests', () => {
 
   test('should format file sizes in human readable format', async () => {
     const result = await lsTool.execute({
-      path: tempDir,
-      human_readable: true,
+      context: { path: tempDir, human_readable: true },
     });
 
     const file = result.items.find((item) => item.name === 'file1.txt');
@@ -184,7 +183,7 @@ describe('LS Tool Unit Tests', () => {
       // If successful, it should resolve to /etc
       expect(result.path).toBe('/etc');
       expect(result.total_items).toBeGreaterThan(0);
-    } catch (error) {
+    } catch (error: any) {
       // If it throws, it should be about path traversal
       expect(error.message).toContain('Path traversal not allowed');
     }
@@ -192,7 +191,7 @@ describe('LS Tool Unit Tests', () => {
 
   test('should format permissions correctly', async () => {
     const result = await lsTool.execute({
-      path: tempDir,
+      context: { path: tempDir },
     });
 
     const file = result.items.find((item) => item.name === 'file1.txt');
@@ -201,7 +200,7 @@ describe('LS Tool Unit Tests', () => {
 
   test('should include modification timestamps', async () => {
     const result = await lsTool.execute({
-      path: tempDir,
+      context: { path: tempDir },
     });
 
     const file = result.items.find((item) => item.name === 'file1.txt');
