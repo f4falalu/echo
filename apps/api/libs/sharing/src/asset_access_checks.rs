@@ -117,6 +117,172 @@ pub async fn check_metric_dashboard_access(
     Ok(has_public_access.is_some())
 }
 
+/// Checks if a user has access to a metric through any associated chat.
+///
+/// This function is used to implement permission cascading from chats to metrics.
+/// If a user has access to any chat containing the metric, they get at least CanView permission.
+///
+/// # Arguments
+/// * `metric_id` - UUID of the metric to check
+/// * `user_id` - UUID of the user to check permissions for
+///
+/// # Returns
+/// * `Result<bool>` - True if the user has access to any chat containing the metric, false otherwise
+pub async fn check_metric_chat_access(
+    metric_id: &Uuid,
+    user_id: &Uuid,
+) -> Result<bool, diesel::result::Error> {
+    let mut conn = get_pg_pool().get().await.map_err(|e| {
+        diesel::result::Error::DatabaseError(
+            diesel::result::DatabaseErrorKind::UnableToSendCommand,
+            Box::new(e.to_string()),
+        )
+    })?;
+
+    // Check if user has access to any chat containing this metric
+    let has_chat_access = database::schema::messages_to_files::table
+        .inner_join(
+            database::schema::messages::table
+                .on(database::schema::messages::id.eq(database::schema::messages_to_files::message_id)),
+        )
+        .inner_join(
+            database::schema::chats::table
+                .on(database::schema::chats::id.eq(database::schema::messages::chat_id)),
+        )
+        .inner_join(
+            asset_permissions::table.on(
+                asset_permissions::asset_id.eq(database::schema::chats::id)
+                    .and(asset_permissions::asset_type.eq(AssetType::Chat))
+                    .and(asset_permissions::identity_id.eq(user_id))
+                    .and(asset_permissions::identity_type.eq(IdentityType::User))
+                    .and(asset_permissions::deleted_at.is_null())
+            ),
+        )
+        .filter(database::schema::messages_to_files::file_id.eq(metric_id))
+        .filter(database::schema::messages_to_files::deleted_at.is_null())
+        .filter(database::schema::messages::deleted_at.is_null())
+        .filter(database::schema::chats::deleted_at.is_null())
+        .select(database::schema::chats::id)
+        .first::<Uuid>(&mut conn)
+        .await
+        .optional()?;
+
+    if has_chat_access.is_some() {
+        return Ok(true);
+    }
+
+    // Now check if metric belongs to any PUBLIC chat
+    let now = chrono::Utc::now();
+    let has_public_chat_access = database::schema::messages_to_files::table
+        .inner_join(
+            database::schema::messages::table
+                .on(database::schema::messages::id.eq(database::schema::messages_to_files::message_id)),
+        )
+        .inner_join(
+            database::schema::chats::table
+                .on(database::schema::chats::id.eq(database::schema::messages::chat_id)),
+        )
+        .filter(database::schema::messages_to_files::file_id.eq(metric_id))
+        .filter(database::schema::messages_to_files::deleted_at.is_null())
+        .filter(database::schema::messages::deleted_at.is_null())
+        .filter(database::schema::chats::deleted_at.is_null())
+        .filter(database::schema::chats::publicly_accessible.eq(true))
+        .filter(
+            database::schema::chats::public_expiry_date
+                .is_null()
+                .or(database::schema::chats::public_expiry_date.gt(now)),
+        )
+        .select(database::schema::chats::id)
+        .first::<Uuid>(&mut conn)
+        .await
+        .optional()?;
+
+    Ok(has_public_chat_access.is_some())
+}
+
+/// Checks if a user has access to a dashboard through any associated chat.
+///
+/// This function is used to implement permission cascading from chats to dashboards.
+/// If a user has access to any chat containing the dashboard, they get at least CanView permission.
+///
+/// # Arguments
+/// * `dashboard_id` - UUID of the dashboard to check
+/// * `user_id` - UUID of the user to check permissions for
+///
+/// # Returns
+/// * `Result<bool>` - True if the user has access to any chat containing the dashboard, false otherwise
+pub async fn check_dashboard_chat_access(
+    dashboard_id: &Uuid,
+    user_id: &Uuid,
+) -> Result<bool, diesel::result::Error> {
+    let mut conn = get_pg_pool().get().await.map_err(|e| {
+        diesel::result::Error::DatabaseError(
+            diesel::result::DatabaseErrorKind::UnableToSendCommand,
+            Box::new(e.to_string()),
+        )
+    })?;
+
+    // Check if user has access to any chat containing this dashboard
+    let has_chat_access = database::schema::messages_to_files::table
+        .inner_join(
+            database::schema::messages::table
+                .on(database::schema::messages::id.eq(database::schema::messages_to_files::message_id)),
+        )
+        .inner_join(
+            database::schema::chats::table
+                .on(database::schema::chats::id.eq(database::schema::messages::chat_id)),
+        )
+        .inner_join(
+            asset_permissions::table.on(
+                asset_permissions::asset_id.eq(database::schema::chats::id)
+                    .and(asset_permissions::asset_type.eq(AssetType::Chat))
+                    .and(asset_permissions::identity_id.eq(user_id))
+                    .and(asset_permissions::identity_type.eq(IdentityType::User))
+                    .and(asset_permissions::deleted_at.is_null())
+            ),
+        )
+        .filter(database::schema::messages_to_files::file_id.eq(dashboard_id))
+        .filter(database::schema::messages_to_files::deleted_at.is_null())
+        .filter(database::schema::messages::deleted_at.is_null())
+        .filter(database::schema::chats::deleted_at.is_null())
+        .select(database::schema::chats::id)
+        .first::<Uuid>(&mut conn)
+        .await
+        .optional()?;
+
+    if has_chat_access.is_some() {
+        return Ok(true);
+    }
+
+    // Now check if dashboard belongs to any PUBLIC chat
+    let now = chrono::Utc::now();
+    let has_public_chat_access = database::schema::messages_to_files::table
+        .inner_join(
+            database::schema::messages::table
+                .on(database::schema::messages::id.eq(database::schema::messages_to_files::message_id)),
+        )
+        .inner_join(
+            database::schema::chats::table
+                .on(database::schema::chats::id.eq(database::schema::messages::chat_id)),
+        )
+        .filter(database::schema::messages_to_files::file_id.eq(dashboard_id))
+        .filter(database::schema::messages_to_files::deleted_at.is_null())
+        .filter(database::schema::messages::deleted_at.is_null())
+        .filter(database::schema::chats::deleted_at.is_null())
+        .filter(database::schema::chats::publicly_accessible.eq(true))
+        .filter(
+            database::schema::chats::public_expiry_date
+                .is_null()
+                .or(database::schema::chats::public_expiry_date.gt(now)),
+        )
+        .select(database::schema::chats::id)
+        .first::<Uuid>(&mut conn)
+        .await
+        .optional()?;
+
+    Ok(has_public_chat_access.is_some())
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

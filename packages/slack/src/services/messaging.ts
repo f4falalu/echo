@@ -2,6 +2,7 @@ import { WebClient } from '@slack/web-api';
 import { z } from 'zod';
 import { type SendMessageResult, type SlackMessage, SlackMessageSchema } from '../types';
 import { SlackIntegrationError } from '../types/errors';
+import { convertMarkdownToSlack } from '../utils/markdownToSlack';
 import { validateWithSchema } from '../utils/validation-helpers';
 
 export class SlackMessagingService {
@@ -33,10 +34,15 @@ export class SlackMessagingService {
         throw new SlackIntegrationError('CHANNEL_NOT_FOUND', 'Channel ID is required');
       }
 
+      const convertedMessage =
+        typeof message.text === 'string'
+          ? { ...message, ...convertMarkdownToSlack(message.text) }
+          : message;
+
       // Validate message
       const validatedMessage = validateWithSchema(
         SlackMessageSchema,
-        message,
+        convertedMessage,
         'Invalid message format'
       );
 
@@ -151,10 +157,15 @@ export class SlackMessagingService {
         );
       }
 
+      const convertedReplyMessage =
+        typeof replyMessage.text === 'string'
+          ? { ...replyMessage, ...convertMarkdownToSlack(replyMessage.text) }
+          : replyMessage;
+
       // Validate message
       const validatedMessage = validateWithSchema(
         SlackMessageSchema,
-        replyMessage,
+        convertedReplyMessage,
         'Invalid reply message format'
       );
 
@@ -320,10 +331,15 @@ export class SlackMessagingService {
         );
       }
 
+      const convertedUpdatedMessage =
+        typeof updatedMessage.text === 'string'
+          ? { ...updatedMessage, ...convertMarkdownToSlack(updatedMessage.text) }
+          : updatedMessage;
+
       // Validate message
       const validatedMessage = validateWithSchema(
         SlackMessageSchema,
-        updatedMessage,
+        convertedUpdatedMessage,
         'Invalid message format'
       );
 

@@ -1,17 +1,5 @@
 import type { ShareRole } from '@buster/server-shared/share';
 
-/**
- * Type defining the sharing permissions and settings for a dashboard
- *
- * @interface ShareRequest
- */
-export type SharePostRequest = {
-  email: string;
-  role: ShareRole;
-  avatar_url?: string | null;
-  name?: string | undefined;
-}[];
-
 export type ShareDeleteRequest = string[];
 
 export type ShareUpdateRequest = {

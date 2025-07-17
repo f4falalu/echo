@@ -32,6 +32,7 @@ struct AssetPermissionInfo {
     role: AssetPermissionRole,
     email: String,
     name: Option<String>,
+    avatar_url: Option<String>,
 }
 
 /// Fetch the dashboards associated with the given metric id, filtered by user permissions
@@ -169,48 +170,61 @@ pub async fn get_metric_for_dashboard_handler(
             tracing::debug!(metric_id = %metric_id, user_id = %user.id, "User has access via dashboard. Granting CanView.");
             permission = AssetPermissionRole::CanView;
         } else {
-            // No dashboard access, check public access rules
-            tracing::debug!(metric_id = %metric_id, "No dashboard access. Checking public access rules.");
-            if !metric_file.publicly_accessible {
-                tracing::warn!(metric_id = %metric_id, user_id = %user.id, "Permission denied (not public, no dashboard access, insufficient direct permission).");
-                return Err(anyhow!("You don't have permission to view this metric"));
-            }
-            tracing::debug!(metric_id = %metric_id, "Metric is publicly accessible.");
-
-            // Check if the public access has expired
-            if let Some(expiry_date) = metric_file.public_expiry_date {
-                tracing::debug!(metric_id = %metric_id, ?expiry_date, "Checking expiry date");
-                if expiry_date < chrono::Utc::now() {
-                    tracing::warn!(metric_id = %metric_id, "Public access expired");
-                    return Err(anyhow!("Public access to this metric has expired"));
-                }
-            }
-
-            // Check if a password is required
-            tracing::debug!(metric_id = %metric_id, has_password = metric_file.public_password.is_some(), "Checking password requirement");
-            if let Some(required_password) = &metric_file.public_password {
-                tracing::debug!(metric_id = %metric_id, "Password required. Checking provided password.");
-                match password {
-                    Some(provided_password) => {
-                        if provided_password != *required_password {
-                            // Incorrect password provided
-                            tracing::warn!(metric_id = %metric_id, user_id = %user.id, "Incorrect public password provided");
-                            return Err(anyhow!("Incorrect password for public access"));
-                        }
-                        // Correct password provided, grant CanView via public access
-                        tracing::debug!(metric_id = %metric_id, user_id = %user.id, "Correct public password provided. Granting CanView.");
-                        permission = AssetPermissionRole::CanView;
-                    }
-                    None => {
-                        // Password required but none provided
-                        tracing::warn!(metric_id = %metric_id, user_id = %user.id, "Public password required but none provided");
-                        return Err(anyhow!("public_password required for this metric"));
-                    }
-                }
-            } else {
-                // Publicly accessible, not expired, and no password required
-                tracing::debug!(metric_id = %metric_id, "Public access granted (no password required).");
+            // No dashboard access, check if user has access via a chat
+            tracing::debug!(metric_id = %metric_id, "No dashboard access. Checking chat access.");
+            
+            let has_chat_access = sharing::check_metric_chat_access(metric_id, &user.id)
+                .await
+                .unwrap_or(false);
+                
+            if has_chat_access {
+                // User has access to a chat containing this metric, grant CanView
+                tracing::debug!(metric_id = %metric_id, user_id = %user.id, "User has access via chat. Granting CanView.");
                 permission = AssetPermissionRole::CanView;
+            } else {
+                // No chat access either, check public access rules
+                tracing::debug!(metric_id = %metric_id, "No chat access. Checking public access rules.");
+                if !metric_file.publicly_accessible {
+                    tracing::warn!(metric_id = %metric_id, user_id = %user.id, "Permission denied (not public, no dashboard/chat access, insufficient direct permission).");
+                    return Err(anyhow!("You don't have permission to view this metric"));
+                }
+                tracing::debug!(metric_id = %metric_id, "Metric is publicly accessible.");
+
+                // Check if the public access has expired
+                if let Some(expiry_date) = metric_file.public_expiry_date {
+                    tracing::debug!(metric_id = %metric_id, ?expiry_date, "Checking expiry date");
+                    if expiry_date < chrono::Utc::now() {
+                        tracing::warn!(metric_id = %metric_id, "Public access expired");
+                        return Err(anyhow!("Public access to this metric has expired"));
+                    }
+                }
+
+                // Check if a password is required
+                tracing::debug!(metric_id = %metric_id, has_password = metric_file.public_password.is_some(), "Checking password requirement");
+                if let Some(required_password) = &metric_file.public_password {
+                    tracing::debug!(metric_id = %metric_id, "Password required. Checking provided password.");
+                    match password {
+                        Some(provided_password) => {
+                            if provided_password != *required_password {
+                                // Incorrect password provided
+                                tracing::warn!(metric_id = %metric_id, user_id = %user.id, "Incorrect public password provided");
+                                return Err(anyhow!("Incorrect password for public access"));
+                            }
+                            // Correct password provided, grant CanView via public access
+                            tracing::debug!(metric_id = %metric_id, user_id = %user.id, "Correct public password provided. Granting CanView.");
+                            permission = AssetPermissionRole::CanView;
+                        }
+                        None => {
+                            // Password required but none provided
+                            tracing::warn!(metric_id = %metric_id, user_id = %user.id, "Public password required but none provided");
+                            return Err(anyhow!("public_password required for this metric"));
+                        }
+                    }
+                } else {
+                    // Publicly accessible, not expired, and no password required
+                    tracing::debug!(metric_id = %metric_id, "Public access granted (no password required).");
+                    permission = AssetPermissionRole::CanView;
+                }
             }
         }
     }
@@ -335,7 +349,7 @@ pub async fn get_metric_for_dashboard_handler(
         .filter(asset_permissions::asset_type.eq(AssetType::MetricFile))
         .filter(asset_permissions::identity_type.eq(IdentityType::User))
         .filter(asset_permissions::deleted_at.is_null())
-        .select((asset_permissions::role, users::email, users::name))
+        .select((asset_permissions::role, users::email, users::name, users::avatar_url))
         .load::<AssetPermissionInfo>(&mut conn)
         .await;
 
@@ -399,6 +413,7 @@ pub async fn get_metric_for_dashboard_handler(
                             email: p.email,
                             role: p.role,
                             name: p.name,
+                            avatar_url: p.avatar_url,
                         })
                         .collect::<Vec<BusterShareIndividual>>(),
                 )
