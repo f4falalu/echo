@@ -105,7 +105,7 @@ const AddCustomThemeButton: React.FC<{}> = React.memo(({}) => {
       trigger="click"
       className="p-0"
       sideOffset={12}>
-      <Button variant={'ghost'} size={'tall'} block prefix={<Plus />}>
+      <Button variant={'ghost'} size={'tall'} prefix={<Plus />}>
         Add a custom theme
       </Button>
     </Popover>

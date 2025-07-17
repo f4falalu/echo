@@ -11,7 +11,10 @@ const meta: Meta<typeof DefaultThemeSelectorBase> = {
   },
   args: {
     onChangeTheme: fn(),
-    selectedThemeId: 'Ocean Breeze',
+    onCreateCustomTheme: fn(),
+    onDeleteCustomTheme: fn(),
+    onModifyCustomTheme: fn(),
+    selectedThemeId: 'custom-sunset',
     useDefaultThemes: true,
     customThemes: [
       {
