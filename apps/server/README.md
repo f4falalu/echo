@@ -90,6 +90,235 @@ Each package in `@/packages` typically contains:
 
 This architecture keeps the server layer focused on HTTP routing, middleware, and request/response handling while delegating domain logic to specialized packages.
 
+## API Route Patterns
+
+We follow a specific modular pattern for organizing API routes that promotes maintainability, type safety, and clear separation of concerns.
+
+### Modular Route Structure
+
+Each HTTP method is defined in its own dedicated file and exported through a barrel pattern:
+
+```
+src/api/v2/organization/
+├── GET.ts     # Handles GET /organization
+├── PUT.ts     # Handles PUT /organization  
+├── POST.ts    # Handles POST /organization (if needed)
+├── DELETE.ts  # Handles DELETE /organization (if needed)
+└── index.ts   # Barrel export that combines all methods
+```
+
+**Example Implementation:**
+
+```typescript
+// GET.ts - Individual route handler
+import { getOrganization } from '@buster/database';
+import type { GetOrganizationResponse } from '@buster/server-shared/organization';
+import { Hono } from 'hono';
+import { requireOrganization } from '../../../middleware/auth';
+
+const app = new Hono()
+  .use('*', requireOrganization)
+  .get('/', async (c) => {
+    const userOrg = c.get('userOrganizationInfo');
+    
+    const organization: GetOrganizationResponse = await getOrganization({
+      organizationId: userOrg.organizationId,
+    });
+
+    return c.json(organization);
+  });
+
+export default app;
+```
+
+```typescript
+// index.ts - Barrel export combining all methods
+import { Hono } from 'hono';
+import { requireAuth } from '../../../middleware/auth';
+import GET from './GET';
+import PUT from './PUT';
+
+const app = new Hono()
+  .use('*', requireAuth) // Global middleware for all methods
+  .route('/', GET)       // Mount individual route handlers
+  .route('/', PUT);
+
+export default app;
+```
+
+### Middleware Architecture
+
+We use a layered middleware approach for authentication and authorization:
+
+1. **Global Authentication**: Applied at the barrel export level (`requireAuth`)
+2. **Method-Specific Authorization**: Applied in individual route files (`requireOrganization`, `requireOrganizationAdmin`)
+
+```typescript
+// index.ts - Global auth for all methods
+const app = new Hono()
+  .use('*', requireAuth) // ALL routes require authentication
+  .route('/', GET)
+  .route('/', PUT);
+
+// PUT.ts - Additional admin requirement for updates
+const app = new Hono()
+  .use('*', requireOrganizationAdmin) // PUT requires admin privileges
+  .put('/', zValidator('json', UpdateOrganizationRequestSchema), async (c) => {
+    // Handler logic
+  });
+```
+
+### Type Safety and Validation
+
+All endpoints must define strict request and response types using our established patterns:
+
+#### 1. Schema Definition in `@buster/server-shared`
+
+```typescript
+// @buster/server-shared/organization/types.ts
+import { z } from 'zod';
+
+export const UpdateOrganizationRequestSchema = z.object({
+  colorPalette: z.array(z.string()).optional(),
+  // ... other fields
+});
+
+export type UpdateOrganizationRequest = z.infer<typeof UpdateOrganizationRequestSchema>;
+export type UpdateOrganizationResponse = {
+  id: string;
+  name: string;
+  // ... organization fields
+};
+```
+
+#### 2. Import Types with `type` Keyword
+
+**Critical**: Always use the `type` keyword when importing types to minimize build size:
+
+```typescript
+import type { 
+  UpdateOrganizationRequest,
+  UpdateOrganizationResponse 
+} from '@buster/server-shared/organization';
+import { UpdateOrganizationRequestSchema } from '@buster/server-shared/organization';
+```
+
+#### 3. Use Hono's `zValidator` for Request Validation
+
+```typescript
+import { zValidator } from '@hono/zod-validator';
+
+const app = new Hono()
+  .put('/', zValidator('json', UpdateOrganizationRequestSchema), async (c) => {
+    const request = c.req.valid('json'); // Fully typed request
+    // Handler logic
+  });
+```
+
+### Database Interaction Pattern
+
+**Important**: All database interactions must go through the `@buster/database` package. Never interact with the database directly in route handlers.
+
+```typescript
+// ✅ Correct - Use database package functions
+import { getOrganization, updateOrganization } from '@buster/database';
+
+const organization = await getOrganization({ organizationId });
+await updateOrganization({ organizationId, ...request });
+
+// ❌ Incorrect - Direct database queries
+// const result = await db.query('SELECT * FROM organizations...');
+```
+
+### Error Handling Strategy
+
+We pass detailed errors straight through to the client to make debugging easier for developers. Use the shared error handling utilities from `@/utils/response`:
+
+```typescript
+import { standardErrorHandler } from '../../utils/response';
+
+// Basic usage - handles all error types automatically
+.onError(standardErrorHandler);
+
+// With custom message for specific errors
+.onError((e, c) => standardErrorHandler(e, c, 'Failed to update organization settings'));
+```
+
+**Available Error Utilities:**
+- `standardErrorHandler(error, context, customMessage?)` - Complete error handler that returns Hono response for all error types
+- `handleZodError(zodError)` - Specifically formats Zod validation errors with detailed issues
+- `errorResponse(message, status)` - Creates HTTPException for throwing errors
+- `notFoundResponse(resource)` - Standard 404 error
+- `unauthorizedResponse(message)` - Standard 401 error
+
+### Complete Route Handler Template
+
+```typescript
+import { /* database functions */ } from '@buster/database';
+import type { User } from '@buster/database';
+import type { 
+  RequestType, 
+  ResponseType 
+} from '@buster/server-shared/feature';
+import { RequestSchema } from '@buster/server-shared/feature';
+import { zValidator } from '@hono/zod-validator';
+import { Hono } from 'hono';
+import { z } from 'zod';
+import { /* middleware */ } from '../../../middleware/auth';
+import { standardErrorHandler, errorResponse } from '../../utils/response';
+
+/**
+ * Handler function with proper error handling
+ */
+async function handlerFunction(
+  resourceId: string,
+  request: RequestType,
+  user: User
+): Promise<ResponseType> {
+  try {
+    // Database operations through @buster/database
+    const result = await databaseFunction({ resourceId, ...request });
+    return result;
+  } catch (error) {
+    console.error('Error in handler:', {
+      resourceId,
+      userId: user.id,
+      error: error instanceof Error ? error.message : error,
+    });
+
+    // Re-throw Zod errors for route error handler
+    if (error instanceof z.ZodError) {
+      throw error;
+    }
+
+    // Use shared error response utility
+    throw errorResponse('Operation failed', 500);
+  }
+}
+
+const app = new Hono()
+  .use('*', /* appropriate middleware */)
+  .put('/', zValidator('json', RequestSchema), async (c) => {
+    const request = c.req.valid('json');
+    const user = c.get('busterUser');
+    const userOrg = c.get('userOrganizationInfo');
+    
+    const response = await handlerFunction(
+      userOrg.organizationId, 
+      request, 
+      user
+    );
+    
+    return c.json(response);
+  })
+  .onError(standardErrorHandler);
+
+// Or with custom error message for this specific route
+// .onError((e, c) => standardErrorHandler(e, c, 'Failed to update organization'));
+
+export default app;
+```
+
 ## Best Practices
 
 - Use TypeScript for type safety
@@ -98,3 +327,9 @@ This architecture keeps the server layer focused on HTTP routing, middleware, an
 - Use proper error handling with Hono's error utilities
 - Leverage Hono's built-in validation and serialization
 - Follow RESTful conventions for API endpoints
+- **Always use the modular route pattern** with separate files per HTTP method
+- **Import types with `type` keyword** to minimize build size
+- **Use `zValidator` for all request validation**
+- **Route all database interactions through `@buster/database`**
+- **Use shared error utilities from `@/utils/response`** for consistent error handling
+- **Pass detailed errors to clients** for easier debugging

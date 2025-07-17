@@ -7,9 +7,9 @@ import type {
 import { UpdateOrganizationRequestSchema } from '@buster/server-shared/organization';
 import { zValidator } from '@hono/zod-validator';
 import { Hono } from 'hono';
-import { HTTPException } from 'hono/http-exception';
 import { z } from 'zod';
 import { requireOrganizationAdmin } from '../../../middleware/auth';
+import { errorResponse, standardErrorHandler } from '../../../utils/response';
 
 /**
  * Updates organization settings
@@ -46,9 +46,7 @@ async function updateOrganizationHandler(
       throw error;
     }
 
-    throw new HTTPException(500, {
-      message: 'Failed to update organization',
-    });
+    throw errorResponse('Failed to update organization', 500);
   }
 }
 
@@ -70,39 +68,6 @@ const app = new Hono()
 
     return c.json(response);
   })
-  .onError((e, c) => {
-    // Handle Zod validation errors with detailed information
-    if (e instanceof z.ZodError) {
-      return c.json(
-        {
-          error: 'Validation Error',
-          message: 'Invalid request data',
-          issues: e.issues.map((issue) => ({
-            path: issue.path.join('.'),
-            message: issue.message,
-            code: issue.code,
-          })),
-        },
-        400
-      );
-    }
-
-    // Handle HTTP exceptions
-    if (e instanceof HTTPException) {
-      return e.getResponse();
-    }
-
-    // Log unexpected errors
-    console.error('Unhandled error in organization PUT:', e);
-
-    // Return generic error for unexpected issues
-    return c.json(
-      {
-        error: 'Internal Server Error',
-        message: 'Failed to update organization',
-      },
-      500
-    );
-  });
+  .onError(standardErrorHandler);
 
 export default app;
