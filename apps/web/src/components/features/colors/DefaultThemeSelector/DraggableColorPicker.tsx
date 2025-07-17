@@ -13,6 +13,7 @@ import {
   useSensor,
   useSensors
 } from '@dnd-kit/core';
+import { restrictToHorizontalAxis } from '@dnd-kit/modifiers';
 import {
   SortableContext,
   arrayMove,
@@ -68,7 +69,11 @@ export const ColorPickButton: React.FC<ColorPickButtonProps> = React.memo(
     });
 
     return (
-      <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+      <DndContext
+        sensors={sensors}
+        collisionDetection={closestCenter}
+        onDragEnd={handleDragEnd}
+        modifiers={[restrictToHorizontalAxis]}>
         <SortableContext
           items={colorItems.map((item) => item.id)}
           strategy={horizontalListSortingStrategy}>

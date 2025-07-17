@@ -13,7 +13,7 @@ import { inputHasText } from '@/lib/text';
 interface NewThemePopupProps {
   selectedTheme?: IColorTheme;
   onSave: (theme: IColorTheme) => Promise<void>;
-  onDelete: (id: string) => Promise<void>;
+  onDelete?: (id: string) => Promise<void>;
 }
 
 const DEFAULT_THEME: IColorTheme = ALL_THEMES[0];
@@ -34,7 +34,7 @@ export const NewThemePopup = React.memo(
     });
 
     const onDeleteClick = useMemoizedFn(async () => {
-      if (selectedTheme) await onDelete(id);
+      if (selectedTheme) await onDelete?.(id);
       setTimeout(() => {
         reset();
       }, 350);

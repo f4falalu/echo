@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { AddCustomThemeBase } from './AddCustomThemeBase';
 import type { IColorTheme } from '../ThemeList';
+import { fn } from '@storybook/test';
 
 const meta: Meta<typeof AddCustomThemeBase> = {
   title: 'Features/Colors/AddCustomThemeBase',
@@ -37,14 +38,9 @@ export const Default: Story = {
   args: {
     customThemes: sampleCustomThemes,
     selectedThemeId: 'custom-1',
-    createCustomTheme: (theme: IColorTheme) => {
-      console.log('Creating custom theme:', theme);
-    },
-    deleteCustomTheme: (themeId: string) => {
-      console.log('Deleting custom theme:', themeId);
-    },
-    modifyCustomTheme: (themeId: string, theme: IColorTheme) => {
-      console.log('Modifying custom theme:', themeId, theme);
-    }
+    createCustomTheme: fn(),
+    deleteCustomTheme: fn(),
+    modifyCustomTheme: fn(),
+    onSelectTheme: fn()
   }
 };
