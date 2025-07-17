@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/buttons';
 import { inputHasText } from '@/lib/text';
 import { isValidEmail } from '@/lib/email';
 import { useBusterNotifications } from '@/context/BusterNotifications';
-import { useMemoizedFn } from '@/hooks';
+import { useDebounce, useMemoizedFn } from '@/hooks';
 import { useShareMetric } from '@/api/buster_rest/metrics';
 import { useShareDashboard } from '@/api/buster_rest/dashboards';
 import { useShareCollection } from '@/api/buster_rest/collections';
@@ -30,12 +30,14 @@ export const ShareMenuInvite: React.FC<ShareMenuInviteProps> = React.memo(
       useShareCollection();
 
     const [inputValue, setInputValue] = React.useState<string>('');
+
     const [defaultPermissionLevel, setDefaultPermissionLevel] =
       React.useState<ShareRole>('canView');
 
+    const debouncedInputValue = useDebounce(inputValue, { wait: 350 });
     const { data: usersData } = useGetUserToOrganization({
-      user_name: inputValue,
-      email: inputValue,
+      user_name: debouncedInputValue,
+      email: debouncedInputValue,
       page: 1,
       page_size: 5
     });

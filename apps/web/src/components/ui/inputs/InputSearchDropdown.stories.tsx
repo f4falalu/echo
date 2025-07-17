@@ -73,6 +73,8 @@ const InputSearchDropdownWithState = (
         {...args}
         options={filteredOptions}
         onSearch={handleSearch}
+        value={value}
+        onChange={setValue}
         onSelect={handleSelect}
         onPressEnter={handlePressEnter}
       />

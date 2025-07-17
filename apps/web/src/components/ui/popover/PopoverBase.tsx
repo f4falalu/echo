@@ -40,7 +40,7 @@ const PopoverRoot: React.FC<PopoverProps> = ({ children, trigger = 'click', ...p
     );
 
   return (
-    <Popover {...props} open={trigger === 'hover' ? isOpen : props.open}>
+    <Popover {...props} open={trigger === 'hover' ? isOpen : undefined}>
       {content}
     </Popover>
   );
