@@ -9,7 +9,7 @@ use uuid::Uuid;
 pub const DEFAULT_COLOR_PALETTE: [&str; 10] = [
     "#B399FD", "#FC8497", "#FBBC30", "#279EFF", 
     "#E83562", "#41F8FF", "#F3864F", "#C82184", 
-    "#31FCB4", "#E83562"
+    "#31FCB4", "#6B5B95"
 ];
 
 // Define all default palettes to match TypeScript
