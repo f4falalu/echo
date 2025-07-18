@@ -74,4 +74,47 @@ describe('runTypescript integration test', () => {
     expect(result.result).toBe('Hello, Buster\n');
     expect(result.exitCode).toBe(0);
   });
+
+  it.skipIf(!hasApiKey)('should create a file and confirm its existence', async () => {
+    const code = `
+      import * as fs from 'fs';
+      import * as path from 'path';
+      
+      const filePath = path.join(process.cwd(), 'test-file.txt');
+      const content = 'Hello from Buster sandbox!';
+      
+      fs.writeFileSync(filePath, content);
+      console.log(\`File created at: \${filePath}\`);
+      console.log(\`File exists: \${fs.existsSync(filePath)}\`);
+    `;
+
+    const result = await runTypescript(sandbox, code);
+
+    // Check the execution was successful
+    expect(result.exitCode).toBe(0);
+    expect(result.result).toContain('File created at:');
+    expect(result.result).toContain('File exists: true');
+
+    // Now verify the file actually exists in the sandbox by running another command
+    const verifyCode = `
+      import * as fs from 'fs';
+      import * as path from 'path';
+      
+      const filePath = path.join(process.cwd(), 'test-file.txt');
+      
+      if (fs.existsSync(filePath)) {
+        const content = fs.readFileSync(filePath, 'utf-8');
+        console.log(\`File exists: true\`);
+        console.log(\`Content: \${content}\`);
+      } else {
+        console.log('File exists: false');
+      }
+    `;
+
+    const verifyResult = await runTypescript(sandbox, verifyCode);
+
+    expect(verifyResult.exitCode).toBe(0);
+    expect(verifyResult.result).toContain('File exists: true');
+    expect(verifyResult.result).toContain('Content: Hello from Buster sandbox!');
+  });
 });
