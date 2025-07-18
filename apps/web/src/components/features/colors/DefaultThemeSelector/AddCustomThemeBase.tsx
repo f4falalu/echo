@@ -1,10 +1,9 @@
-import React, { useRef, type PropsWithChildren } from 'react';
+import React, { useRef } from 'react';
 import { ThemeList, type IColorPalette } from '../ThemeList';
 import { Button } from '@/components/ui/buttons';
 import { Plus } from '../../../ui/icons';
 import { NewThemePopup } from './NewThemePopup';
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
-import { Popover } from '../../../ui/popover';
 import { EditCustomThemeMenu } from './EditCustomThemeMenu';
 import { AddThemeProviderWrapper, useAddTheme } from './AddThemeProviderWrapper';
 
@@ -59,25 +58,16 @@ const AddCustomThemeButton: React.FC = React.memo(({}) => {
   const { createCustomTheme } = useAddTheme();
   const buttonRef = useRef<HTMLButtonElement>(null);
 
-  const closePopover = useMemoizedFn(() => {
-    buttonRef.current?.click();
-  });
-
-  const onSave = useMemoizedFn(async (theme: IColorPalette) => {
-    await createCustomTheme(theme);
-    closePopover();
-  });
-
   return (
-    <Popover
-      content={<NewThemePopup selectedTheme={undefined} onSave={onSave} onDelete={undefined} />}
-      trigger="click"
-      className="max-w-[320px] p-0"
-      sideOffset={12}>
+    <NewThemePopup
+      onSave={createCustomTheme}
+      selectedTheme={undefined}
+      onDelete={undefined}
+      onUpdate={undefined}>
       <Button ref={buttonRef} variant={'ghost'} size={'tall'} prefix={<Plus />}>
         Add a custom theme
       </Button>
-    </Popover>
+    </NewThemePopup>
   );
 });
 

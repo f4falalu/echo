@@ -11,7 +11,7 @@ export const ThemeList: React.FC<{
   themes: IColorPalette[];
   className?: string;
   onChangeColorTheme: (theme: IColorPalette) => void;
-  themeThreeDotsMenu?: React.FC<{ theme: IColorPalette }>;
+  themeThreeDotsMenu?: React.FC<{ theme: IColorPalette; children: React.ReactNode }>;
 }> = ({ themes, className, themeThreeDotsMenu, onChangeColorTheme }) => {
   return (
     <div
@@ -36,7 +36,7 @@ export const ThemeList: React.FC<{
 const ColorOption: React.FC<{
   theme: IColorPalette;
   selected: boolean | undefined;
-  threeDotMenu?: React.FC<{ theme: IColorPalette }>;
+  threeDotMenu?: React.FC<{ theme: IColorPalette; children: React.ReactNode }>;
   onChangeColorTheme: (theme: IColorPalette) => void;
 }> = React.memo(({ theme, selected = false, threeDotMenu, onChangeColorTheme }) => {
   const { name, colors } = theme;
@@ -65,17 +65,14 @@ const ColorOption: React.FC<{
 
         {shouldShowMenu && (
           <div onClick={(e) => e.stopPropagation()}>
-            <Popover
-              className="p-0"
-              content={<ThreeDotMenuComponent theme={theme} />}
-              trigger="click">
+            <ThreeDotMenuComponent theme={theme}>
               <Button
                 data-testid={`color-theme-three-dots-menu`}
                 variant={'ghost'}
                 size={'small'}
                 prefix={<Dots />}
               />
-            </Popover>
+            </ThreeDotMenuComponent>
           </div>
         )}
       </div>

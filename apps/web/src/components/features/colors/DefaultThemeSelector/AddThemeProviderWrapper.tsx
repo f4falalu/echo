@@ -27,5 +27,11 @@ export const AddThemeProviderWrapper: React.FC<PropsWithChildren<AddThemeProps>>
 };
 
 export const useAddTheme = () => {
-  return React.useContext(AddThemeProvider);
+  const context = React.useContext(AddThemeProvider);
+
+  if (!context) {
+    throw new Error('useAddTheme must be used within an AddThemeProvider');
+  }
+
+  return context;
 };
