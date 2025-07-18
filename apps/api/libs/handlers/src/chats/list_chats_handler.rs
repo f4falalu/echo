@@ -78,7 +78,7 @@ pub async fn list_chats_handler(
     request: ListChatsRequest,
     user: &AuthenticatedUser,
 ) -> Result<Vec<ChatListItem>> {
-    use database::schema::{asset_permissions, chats, messages, users};
+    use database::schema::{asset_permissions, chats, messages, users, user_favorites};
     
     let mut conn = get_pg_pool().get().await?;
     
@@ -152,7 +152,29 @@ pub async fn list_chats_handler(
     // Get user's organization IDs  
     let user_org_ids: Vec<Uuid> = user.organizations.iter().map(|org| org.id).collect();
     
+    // Get user's favorited chat IDs
+    let favorited_chat_ids: Vec<Uuid> = if !request.admin_view {
+        asset_permissions::table
+            .filter(asset_permissions::identity_id.eq(user.id))
+            .filter(asset_permissions::asset_type.eq(AssetType::Chat))
+            .filter(asset_permissions::identity_type.eq(IdentityType::User))
+            .filter(asset_permissions::deleted_at.is_null())
+            .select(asset_permissions::asset_id)
+            .union(
+                user_favorites::table
+                    .filter(user_favorites::user_id.eq(user.id))
+                    .filter(user_favorites::asset_type.eq(AssetType::Chat))
+                    .filter(user_favorites::deleted_at.is_null())
+                    .select(user_favorites::asset_id)
+            )
+            .load::<Uuid>(&mut conn)
+            .await?
+    } else {
+        Vec::new()
+    };
+
     // Second query: Get workspace-shared chats that the user doesn't have direct access to
+    // but has either contributed to or favorited
     let workspace_shared_chats = if !request.admin_view && !user_org_ids.is_empty() {
         chats::table
             .inner_join(users::table.on(chats::created_by.eq(users::id)))
@@ -171,6 +193,24 @@ pub async fn list_chats_handler(
                             .filter(asset_permissions::identity_type.eq(IdentityType::User))
                             .filter(asset_permissions::deleted_at.is_null())
                     ))
+                )
+            )
+            // Only include if user has contributed (created or updated a message) or favorited
+            .filter(
+                // User has favorited the chat
+                chats::id.eq_any(&favorited_chat_ids)
+                .or(
+                    // User has created a message in the chat
+                    diesel::dsl::exists(
+                        messages::table
+                            .filter(messages::chat_id.eq(chats::id))
+                            .filter(messages::created_by.eq(user.id))
+                            .filter(messages::deleted_at.is_null())
+                    )
+                )
+                .or(
+                    // User has updated the chat
+                    chats::updated_by.eq(user.id)
                 )
             )
             .filter(

@@ -33,3 +33,4 @@ pub mod sharing;
 pub mod metrics;
 pub mod dashboards;
 pub mod collections;
+pub mod chats_list_filter_test;
