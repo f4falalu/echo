@@ -46,6 +46,7 @@ pub async fn delete_collection_sharing_handler(
         &[AssetPermissionRole::FullAccess, AssetPermissionRole::Owner],
         collection_with_permission.collection.organization_id,
         &user.organizations,
+        collection_with_permission.collection.workspace_sharing,
     );
 
     if !has_permission {

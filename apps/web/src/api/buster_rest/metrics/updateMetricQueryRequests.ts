@@ -22,7 +22,6 @@ import {
   updateMetric,
   updateMetricShare
 } from './requests';
-import { userQueryKeys } from '../../query_keys/users';
 
 /**
  * This is a mutation that saves a metric to the server.
@@ -312,6 +311,9 @@ export const useUpdateMetricShare = () => {
           }
           if (variables.params.public_expiry_date !== undefined) {
             draft.public_expiry_date = variables.params.public_expiry_date;
+          }
+          if (variables.params.workspace_sharing !== undefined) {
+            draft.workspace_sharing = variables.params.workspace_sharing;
           }
         });
       });

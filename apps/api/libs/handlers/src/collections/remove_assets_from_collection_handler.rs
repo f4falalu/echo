@@ -86,6 +86,7 @@ pub async fn remove_assets_from_collection_handler(
         ],
         collection_with_permission.collection.organization_id,
         &user.organizations,
+        collection_with_permission.collection.workspace_sharing,
     );
     
     if !has_permission {

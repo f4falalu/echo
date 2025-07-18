@@ -65,6 +65,7 @@ pub async fn update_chats_handler(
                 &[AssetPermissionRole::CanEdit, AssetPermissionRole::FullAccess, AssetPermissionRole::Owner],
                 cwp.chat.organization_id,
                 &user.organizations,
+                cwp.chat.workspace_sharing,
             );
             
             is_creator || has_permission

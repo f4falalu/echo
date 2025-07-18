@@ -37,6 +37,7 @@ pub async fn delete_chat_sharing_handler(
         &[AssetPermissionRole::Owner, AssetPermissionRole::FullAccess],
         chat.chat.organization_id,
         &user.organizations,
+        chat.chat.workspace_sharing,
     ) {
         error!(
             chat_id = %chat_id,

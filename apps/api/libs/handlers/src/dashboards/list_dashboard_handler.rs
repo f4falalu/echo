@@ -1,7 +1,7 @@
 use anyhow::{anyhow, Result};
 use chrono::{DateTime, Utc};
 use database::{
-    enums::{AssetPermissionRole, AssetType, IdentityType, Verification},
+    enums::{AssetPermissionRole, AssetType, IdentityType, Verification, WorkspaceSharing},
     pool::get_pg_pool,
     schema::{asset_permissions, dashboard_files, teams_to_users, users},
 };
@@ -41,7 +41,8 @@ pub async fn list_dashboard_handler(
     let offset = request.page_token * request.page_size;
 
     // Build the query to get dashboards with permissions
-    // This is similar to how collections are queried
+    // We need to handle both direct permissions and workspace sharing
+    // First, get dashboards with direct permissions
     let mut dashboard_statement = dashboard_files::table
         .inner_join(
             asset_permissions::table.on(dashboard_files::id
@@ -66,6 +67,7 @@ pub async fn list_dashboard_handler(
             users::name.nullable(),
             users::avatar_url.nullable(),
             dashboard_files::organization_id,
+            dashboard_files::workspace_sharing,
         ))
         .filter(dashboard_files::deleted_at.is_null())
         .filter(
@@ -109,6 +111,7 @@ pub async fn list_dashboard_handler(
             Option<String>,
             Option<String>,
             Uuid,
+            WorkspaceSharing,
         )>(&mut conn)
         .await
     {
@@ -120,7 +123,7 @@ pub async fn list_dashboard_handler(
     // We'll include dashboards where the user has at least CanView permission
     let mut dashboards = Vec::new();
 
-    for (id, name, created_by, created_at, updated_at, role, creator_name, creator_avatar_url, org_id) in
+    for (id, name, created_by, created_at, updated_at, role, creator_name, creator_avatar_url, org_id, workspace_sharing) in
         dashboard_results
     {
         // Check if user has at least CanView permission
@@ -134,6 +137,7 @@ pub async fn list_dashboard_handler(
             ],
             org_id,
             &user.organizations,
+            workspace_sharing,
         );
 
         if !has_permission {
@@ -160,5 +164,104 @@ pub async fn list_dashboard_handler(
         dashboards.push(dashboard_item);
     }
 
-    Ok(dashboards)
+    // Now also fetch workspace-shared dashboards that the user doesn't have direct access to
+    let user_org_ids: Vec<Uuid> = user.organizations.iter().map(|org| org.id).collect();
+    
+    if !user_org_ids.is_empty() {
+        let workspace_shared_dashboards = dashboard_files::table
+            .inner_join(users::table.on(users::id.eq(dashboard_files::created_by)))
+            .filter(dashboard_files::deleted_at.is_null())
+            .filter(dashboard_files::organization_id.eq_any(&user_org_ids))
+            .filter(dashboard_files::workspace_sharing.ne(WorkspaceSharing::None))
+            // Exclude dashboards we already have direct access to
+            .filter(
+                diesel::dsl::not(diesel::dsl::exists(
+                    asset_permissions::table
+                        .filter(asset_permissions::asset_id.eq(dashboard_files::id))
+                        .filter(asset_permissions::asset_type.eq(AssetType::DashboardFile))
+                        .filter(asset_permissions::deleted_at.is_null())
+                        .filter(
+                            asset_permissions::identity_id
+                                .eq(user.id)
+                                .or(
+                                    asset_permissions::identity_type.eq(IdentityType::Team)
+                                        .and(diesel::dsl::exists(
+                                            teams_to_users::table
+                                                .filter(teams_to_users::team_id.eq(asset_permissions::identity_id))
+                                                .filter(teams_to_users::user_id.eq(user.id))
+                                                .filter(teams_to_users::deleted_at.is_null())
+                                        ))
+                                )
+                        )
+                ))
+            )
+            .select((
+                dashboard_files::id,
+                dashboard_files::name,
+                dashboard_files::created_by,
+                dashboard_files::created_at,
+                dashboard_files::updated_at,
+                dashboard_files::workspace_sharing,
+                users::name.nullable(),
+                users::avatar_url.nullable(),
+                dashboard_files::organization_id,
+            ))
+            .order((
+                dashboard_files::updated_at.desc(),
+                dashboard_files::id.asc(),
+            ))
+            .load::<(
+                Uuid,
+                String,
+                Uuid,
+                DateTime<Utc>,
+                DateTime<Utc>,
+                WorkspaceSharing,
+                Option<String>,
+                Option<String>,
+                Uuid,
+            )>(&mut conn)
+            .await
+            .map_err(|e| anyhow!("Error getting workspace shared dashboards: {}", e))?;
+
+        for (id, name, created_by, created_at, updated_at, workspace_sharing, creator_name, creator_avatar_url, org_id) in workspace_shared_dashboards {
+            // Determine the effective permission based on workspace sharing
+            let role = match workspace_sharing {
+                WorkspaceSharing::CanView => AssetPermissionRole::CanView,
+                WorkspaceSharing::CanEdit => AssetPermissionRole::CanEdit,
+                WorkspaceSharing::FullAccess => AssetPermissionRole::FullAccess,
+                WorkspaceSharing::None => continue, // Should not happen due to filter
+            };
+
+            let owner = DashboardMember {
+                id: created_by,
+                name: creator_name.unwrap_or_else(|| "Unknown".to_string()),
+                avatar_url: creator_avatar_url,
+            };
+
+            let dashboard_item = BusterDashboardListItem {
+                id,
+                name,
+                created_at,
+                last_edited: updated_at,
+                owner,
+                members: vec![],
+                status: Verification::Verified,
+                is_shared: true, // Always shared for workspace-shared dashboards
+            };
+
+            dashboards.push(dashboard_item);
+        }
+    }
+
+    // Sort dashboards by updated_at desc (already sorted by queries, but need to re-sort after combining)
+    dashboards.sort_by(|a, b| b.last_edited.cmp(&a.last_edited));
+    
+    // Apply pagination after combining results
+    let paginated_dashboards = dashboards.into_iter()
+        .skip(offset as usize)
+        .take(request.page_size as usize)
+        .collect();
+
+    Ok(paginated_dashboards)
 }

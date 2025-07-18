@@ -57,6 +57,7 @@ pub async fn delete_metric_handler(metric_id: &Uuid, user: &AuthenticatedUser) -
         &[AssetPermissionRole::FullAccess, AssetPermissionRole::Owner],
         metric_file.metric_file.organization_id,
         &user.organizations,
+        metric_file.metric_file.workspace_sharing,
     ) {
         return Err(anyhow!("You don't have permission to delete this metric"));
     }
@@ -115,6 +116,7 @@ pub async fn delete_metrics_handler(
                     &[AssetPermissionRole::FullAccess, AssetPermissionRole::Owner],
                     metric_with_permission.metric_file.organization_id,
                     &user.organizations,
+                    metric_with_permission.metric_file.workspace_sharing,
                 ) {
                     // Set the deleted_at timestamp for this metric
                     match diesel::update(metric_files::table)

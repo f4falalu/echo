@@ -1,5 +1,5 @@
 {
-  "id": "2969a455-c2ba-4650-8f69-2719e3458967",
+  "id": "70a9c3cc-d169-4322-8391-05a1b295b1c3",
   "prevId": "0225764d-f5a8-42d4-965d-a3bcd03225ec",
   "version": "7",
   "dialect": "postgresql",
@@ -60,8 +60,12 @@
           "name": "api_keys_organization_id_fkey",
           "tableFrom": "api_keys",
           "tableTo": "organizations",
-          "columnsFrom": ["organization_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "organization_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -69,8 +73,12 @@
           "name": "api_keys_owner_id_fkey",
           "tableFrom": "api_keys",
           "tableTo": "users",
-          "columnsFrom": ["owner_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "owner_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "cascade"
         }
@@ -80,7 +88,9 @@
         "api_keys_key_key": {
           "name": "api_keys_key_key",
           "nullsNotDistinct": false,
-          "columns": ["key"]
+          "columns": [
+            "key"
+          ]
         }
       },
       "policies": {},
@@ -163,8 +173,12 @@
           "name": "asset_permissions_created_by_fkey",
           "tableFrom": "asset_permissions",
           "tableTo": "users",
-          "columnsFrom": ["created_by"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "created_by"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "cascade"
         },
@@ -172,8 +186,12 @@
           "name": "asset_permissions_updated_by_fkey",
           "tableFrom": "asset_permissions",
           "tableTo": "users",
-          "columnsFrom": ["updated_by"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "updated_by"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "cascade"
         }
@@ -181,7 +199,12 @@
       "compositePrimaryKeys": {
         "asset_permissions_pkey": {
           "name": "asset_permissions_pkey",
-          "columns": ["identity_id", "identity_type", "asset_id", "asset_type"]
+          "columns": [
+            "identity_id",
+            "identity_type",
+            "asset_id",
+            "asset_type"
+          ]
         }
       },
       "uniqueConstraints": {},
@@ -403,26 +426,6 @@
           "type": "text",
           "primaryKey": false,
           "notNull": false
-        },
-        "workspace_sharing": {
-          "name": "workspace_sharing",
-          "type": "workspace_sharing_enum",
-          "typeSchema": "public",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'none'"
-        },
-        "workspace_sharing_enabled_by": {
-          "name": "workspace_sharing_enabled_by",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "workspace_sharing_enabled_at": {
-          "name": "workspace_sharing_enabled_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": false
         }
       },
       "indexes": {
@@ -512,8 +515,12 @@
           "name": "chats_organization_id_fkey",
           "tableFrom": "chats",
           "tableTo": "organizations",
-          "columnsFrom": ["organization_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "organization_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -521,8 +528,12 @@
           "name": "chats_created_by_fkey",
           "tableFrom": "chats",
           "tableTo": "users",
-          "columnsFrom": ["created_by"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "created_by"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "cascade"
         },
@@ -530,8 +541,12 @@
           "name": "chats_updated_by_fkey",
           "tableFrom": "chats",
           "tableTo": "users",
-          "columnsFrom": ["updated_by"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "updated_by"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "cascade"
         },
@@ -539,17 +554,12 @@
           "name": "chats_publicly_enabled_by_fkey",
           "tableFrom": "chats",
           "tableTo": "users",
-          "columnsFrom": ["publicly_enabled_by"],
-          "columnsTo": ["id"],
-          "onDelete": "no action",
-          "onUpdate": "cascade"
-        },
-        "chats_workspace_sharing_enabled_by_fkey": {
-          "name": "chats_workspace_sharing_enabled_by_fkey",
-          "tableFrom": "chats",
-          "tableTo": "users",
-          "columnsFrom": ["workspace_sharing_enabled_by"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "publicly_enabled_by"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "cascade"
         }
@@ -620,26 +630,6 @@
           "type": "uuid",
           "primaryKey": false,
           "notNull": true
-        },
-        "workspace_sharing": {
-          "name": "workspace_sharing",
-          "type": "workspace_sharing_enum",
-          "typeSchema": "public",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'none'"
-        },
-        "workspace_sharing_enabled_by": {
-          "name": "workspace_sharing_enabled_by",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "workspace_sharing_enabled_at": {
-          "name": "workspace_sharing_enabled_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": false
         }
       },
       "indexes": {},
@@ -648,8 +638,12 @@
           "name": "collections_organization_id_fkey",
           "tableFrom": "collections",
           "tableTo": "organizations",
-          "columnsFrom": ["organization_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "organization_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "cascade"
         },
@@ -657,8 +651,12 @@
           "name": "collections_created_by_fkey",
           "tableFrom": "collections",
           "tableTo": "users",
-          "columnsFrom": ["created_by"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "created_by"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "cascade"
         },
@@ -666,17 +664,12 @@
           "name": "collections_updated_by_fkey",
           "tableFrom": "collections",
           "tableTo": "users",
-          "columnsFrom": ["updated_by"],
-          "columnsTo": ["id"],
-          "onDelete": "no action",
-          "onUpdate": "cascade"
-        },
-        "collections_workspace_sharing_enabled_by_fkey": {
-          "name": "collections_workspace_sharing_enabled_by_fkey",
-          "tableFrom": "collections",
-          "tableTo": "users",
-          "columnsFrom": ["workspace_sharing_enabled_by"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "updated_by"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "cascade"
         }
@@ -749,8 +742,12 @@
           "name": "collections_to_assets_created_by_fkey",
           "tableFrom": "collections_to_assets",
           "tableTo": "users",
-          "columnsFrom": ["created_by"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "created_by"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "cascade"
         },
@@ -758,8 +755,12 @@
           "name": "collections_to_assets_updated_by_fkey",
           "tableFrom": "collections_to_assets",
           "tableTo": "users",
-          "columnsFrom": ["updated_by"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "updated_by"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "cascade"
         }
@@ -767,7 +768,11 @@
       "compositePrimaryKeys": {
         "collections_to_assets_pkey": {
           "name": "collections_to_assets_pkey",
-          "columns": ["collection_id", "asset_id", "asset_type"]
+          "columns": [
+            "collection_id",
+            "asset_id",
+            "asset_type"
+          ]
         }
       },
       "uniqueConstraints": {},
@@ -873,26 +878,6 @@
           "type": "text",
           "primaryKey": false,
           "notNull": false
-        },
-        "workspace_sharing": {
-          "name": "workspace_sharing",
-          "type": "workspace_sharing_enum",
-          "typeSchema": "public",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'none'"
-        },
-        "workspace_sharing_enabled_by": {
-          "name": "workspace_sharing_enabled_by",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "workspace_sharing_enabled_at": {
-          "name": "workspace_sharing_enabled_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": false
         }
       },
       "indexes": {
@@ -950,8 +935,12 @@
           "name": "dashboard_files_created_by_fkey",
           "tableFrom": "dashboard_files",
           "tableTo": "users",
-          "columnsFrom": ["created_by"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "created_by"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "cascade"
         },
@@ -959,17 +948,12 @@
           "name": "dashboard_files_publicly_enabled_by_fkey",
           "tableFrom": "dashboard_files",
           "tableTo": "users",
-          "columnsFrom": ["publicly_enabled_by"],
-          "columnsTo": ["id"],
-          "onDelete": "no action",
-          "onUpdate": "cascade"
-        },
-        "dashboard_files_workspace_sharing_enabled_by_fkey": {
-          "name": "dashboard_files_workspace_sharing_enabled_by_fkey",
-          "tableFrom": "dashboard_files",
-          "tableTo": "users",
-          "columnsFrom": ["workspace_sharing_enabled_by"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "publicly_enabled_by"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "cascade"
         }
@@ -1030,8 +1014,12 @@
           "name": "dashboard_versions_dashboard_id_fkey",
           "tableFrom": "dashboard_versions",
           "tableTo": "dashboards",
-          "columnsFrom": ["dashboard_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "dashboard_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -1141,8 +1129,12 @@
           "name": "dashboards_publicly_enabled_by_fkey",
           "tableFrom": "dashboards",
           "tableTo": "users",
-          "columnsFrom": ["publicly_enabled_by"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "publicly_enabled_by"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "cascade"
         },
@@ -1150,8 +1142,12 @@
           "name": "dashboards_organization_id_fkey",
           "tableFrom": "dashboards",
           "tableTo": "organizations",
-          "columnsFrom": ["organization_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "organization_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "cascade"
         },
@@ -1159,8 +1155,12 @@
           "name": "dashboards_created_by_fkey",
           "tableFrom": "dashboards",
           "tableTo": "users",
-          "columnsFrom": ["created_by"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "created_by"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "cascade"
         },
@@ -1168,8 +1168,12 @@
           "name": "dashboards_updated_by_fkey",
           "tableFrom": "dashboards",
           "tableTo": "users",
-          "columnsFrom": ["updated_by"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "updated_by"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "cascade"
         }
@@ -1275,8 +1279,12 @@
           "name": "data_sources_organization_id_fkey",
           "tableFrom": "data_sources",
           "tableTo": "organizations",
-          "columnsFrom": ["organization_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "organization_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -1284,8 +1292,12 @@
           "name": "data_sources_created_by_fkey",
           "tableFrom": "data_sources",
           "tableTo": "users",
-          "columnsFrom": ["created_by"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "created_by"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "cascade"
         },
@@ -1293,8 +1305,12 @@
           "name": "data_sources_updated_by_fkey",
           "tableFrom": "data_sources",
           "tableTo": "users",
-          "columnsFrom": ["updated_by"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "updated_by"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "cascade"
         }
@@ -1304,7 +1320,11 @@
         "data_sources_name_organization_id_env_key": {
           "name": "data_sources_name_organization_id_env_key",
           "nullsNotDistinct": false,
-          "columns": ["name", "organization_id", "env"]
+          "columns": [
+            "name",
+            "organization_id",
+            "env"
+          ]
         }
       },
       "policies": {},
@@ -1409,8 +1429,12 @@
           "name": "database_metadata_data_source_id_fkey",
           "tableFrom": "database_metadata",
           "tableTo": "data_sources",
-          "columnsFrom": ["data_source_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "data_source_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -1420,7 +1444,10 @@
         "database_metadata_data_source_id_name_key": {
           "name": "database_metadata_data_source_id_name_key",
           "nullsNotDistinct": false,
-          "columns": ["data_source_id", "name"]
+          "columns": [
+            "data_source_id",
+            "name"
+          ]
         }
       },
       "policies": {},
@@ -1544,7 +1571,10 @@
         "unique_dataset_column_name": {
           "name": "unique_dataset_column_name",
           "nullsNotDistinct": false,
-          "columns": ["dataset_id", "name"]
+          "columns": [
+            "dataset_id",
+            "name"
+          ]
         }
       },
       "policies": {},
@@ -1634,8 +1664,12 @@
           "name": "dataset_groups_organization_id_fkey",
           "tableFrom": "dataset_groups",
           "tableTo": "organizations",
-          "columnsFrom": ["organization_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "organization_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -1647,7 +1681,9 @@
           "name": "dataset_groups_policy",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": ["authenticated"],
+          "to": [
+            "authenticated"
+          ],
           "using": "true"
         }
       },
@@ -1765,8 +1801,12 @@
           "name": "dataset_groups_permissions_dataset_group_id_fkey",
           "tableFrom": "dataset_groups_permissions",
           "tableTo": "dataset_groups",
-          "columnsFrom": ["dataset_group_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "dataset_group_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -1774,8 +1814,12 @@
           "name": "dataset_groups_permissions_organization_id_fkey",
           "tableFrom": "dataset_groups_permissions",
           "tableTo": "organizations",
-          "columnsFrom": ["organization_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "organization_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -1785,7 +1829,11 @@
         "unique_dataset_group_permission": {
           "name": "unique_dataset_group_permission",
           "nullsNotDistinct": false,
-          "columns": ["dataset_group_id", "permission_id", "permission_type"]
+          "columns": [
+            "dataset_group_id",
+            "permission_id",
+            "permission_type"
+          ]
         }
       },
       "policies": {},
@@ -1926,8 +1974,12 @@
           "name": "dataset_permissions_organization_id_fkey",
           "tableFrom": "dataset_permissions",
           "tableTo": "organizations",
-          "columnsFrom": ["organization_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "organization_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -1935,8 +1987,12 @@
           "name": "dataset_permissions_dataset_id_fkey",
           "tableFrom": "dataset_permissions",
           "tableTo": "datasets",
-          "columnsFrom": ["dataset_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "dataset_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -1946,7 +2002,11 @@
         "dataset_permissions_dataset_id_permission_id_permission_typ_key": {
           "name": "dataset_permissions_dataset_id_permission_id_permission_typ_key",
           "nullsNotDistinct": false,
-          "columns": ["dataset_id", "permission_id", "permission_type"]
+          "columns": [
+            "dataset_id",
+            "permission_id",
+            "permission_type"
+          ]
         }
       },
       "policies": {
@@ -1954,7 +2014,9 @@
           "name": "dataset_permissions_policy",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": ["authenticated"],
+          "to": [
+            "authenticated"
+          ],
           "using": "true"
         }
       },
@@ -2103,8 +2165,12 @@
           "name": "datasets_data_source_id_fkey",
           "tableFrom": "datasets",
           "tableTo": "data_sources",
-          "columnsFrom": ["data_source_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "data_source_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -2112,8 +2178,12 @@
           "name": "datasets_organization_id_fkey",
           "tableFrom": "datasets",
           "tableTo": "organizations",
-          "columnsFrom": ["organization_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "organization_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -2121,8 +2191,12 @@
           "name": "datasets_created_by_fkey",
           "tableFrom": "datasets",
           "tableTo": "users",
-          "columnsFrom": ["created_by"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "created_by"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "cascade"
         },
@@ -2130,8 +2204,12 @@
           "name": "datasets_updated_by_fkey",
           "tableFrom": "datasets",
           "tableTo": "users",
-          "columnsFrom": ["updated_by"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "updated_by"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "cascade"
         }
@@ -2141,7 +2219,10 @@
         "datasets_database_name_data_source_id_key": {
           "name": "datasets_database_name_data_source_id_key",
           "nullsNotDistinct": false,
-          "columns": ["database_name", "data_source_id"]
+          "columns": [
+            "database_name",
+            "data_source_id"
+          ]
         }
       },
       "policies": {},
@@ -2208,8 +2289,12 @@
           "name": "datasets_to_dataset_groups_dataset_id_fkey",
           "tableFrom": "datasets_to_dataset_groups",
           "tableTo": "datasets",
-          "columnsFrom": ["dataset_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "dataset_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -2217,8 +2302,12 @@
           "name": "datasets_to_dataset_groups_dataset_group_id_fkey",
           "tableFrom": "datasets_to_dataset_groups",
           "tableTo": "dataset_groups",
-          "columnsFrom": ["dataset_group_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "dataset_group_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -2226,7 +2315,10 @@
       "compositePrimaryKeys": {
         "datasets_to_dataset_groups_pkey": {
           "name": "datasets_to_dataset_groups_pkey",
-          "columns": ["dataset_id", "dataset_group_id"]
+          "columns": [
+            "dataset_id",
+            "dataset_group_id"
+          ]
         }
       },
       "uniqueConstraints": {},
@@ -2235,7 +2327,9 @@
           "name": "datasets_to_dataset_groups_policy",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": ["authenticated"],
+          "to": [
+            "authenticated"
+          ],
           "using": "true"
         }
       },
@@ -2285,8 +2379,12 @@
           "name": "datasets_to_permission_groups_dataset_id_fkey",
           "tableFrom": "datasets_to_permission_groups",
           "tableTo": "datasets",
-          "columnsFrom": ["dataset_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "dataset_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -2294,8 +2392,12 @@
           "name": "datasets_to_permission_groups_permission_group_id_fkey",
           "tableFrom": "datasets_to_permission_groups",
           "tableTo": "permission_groups",
-          "columnsFrom": ["permission_group_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "permission_group_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -2303,7 +2405,10 @@
       "compositePrimaryKeys": {
         "datasets_to_permission_groups_pkey": {
           "name": "datasets_to_permission_groups_pkey",
-          "columns": ["dataset_id", "permission_group_id"]
+          "columns": [
+            "dataset_id",
+            "permission_group_id"
+          ]
         }
       },
       "uniqueConstraints": {},
@@ -2312,7 +2417,9 @@
           "name": "datasets_to_permission_groups_policy",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": ["authenticated"],
+          "to": [
+            "authenticated"
+          ],
           "using": "true"
         }
       },
@@ -2346,7 +2453,9 @@
           "name": "diesel_schema_migrations_policy",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": ["authenticated"],
+          "to": [
+            "authenticated"
+          ],
           "using": "true"
         }
       },
@@ -2388,7 +2497,10 @@
       "compositePrimaryKeys": {
         "entity_relationship_pkey": {
           "name": "entity_relationship_pkey",
-          "columns": ["primary_dataset_id", "foreign_dataset_id"]
+          "columns": [
+            "primary_dataset_id",
+            "foreign_dataset_id"
+          ]
         }
       },
       "uniqueConstraints": {},
@@ -2556,8 +2668,12 @@
           "name": "messages_chat_id_fkey",
           "tableFrom": "messages",
           "tableTo": "chats",
-          "columnsFrom": ["chat_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "chat_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -2565,8 +2681,12 @@
           "name": "messages_created_by_fkey",
           "tableFrom": "messages",
           "tableTo": "users",
-          "columnsFrom": ["created_by"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "created_by"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "cascade"
         }
@@ -2728,8 +2848,12 @@
           "name": "messages_sent_by_fkey",
           "tableFrom": "messages_deprecated",
           "tableTo": "users",
-          "columnsFrom": ["sent_by"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "sent_by"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "cascade"
         },
@@ -2737,8 +2861,12 @@
           "name": "messages_dataset_id_fkey",
           "tableFrom": "messages_deprecated",
           "tableTo": "datasets",
-          "columnsFrom": ["dataset_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "dataset_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -2746,8 +2874,12 @@
           "name": "messages_deprecated_sent_by_fkey",
           "tableFrom": "messages_deprecated",
           "tableTo": "users",
-          "columnsFrom": ["sent_by"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "sent_by"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "cascade"
         }
@@ -2854,8 +2986,12 @@
           "name": "messages_to_files_message_id_fkey",
           "tableFrom": "messages_to_files",
           "tableTo": "messages",
-          "columnsFrom": ["message_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "message_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -2865,7 +3001,10 @@
         "messages_to_files_message_id_file_id_key": {
           "name": "messages_to_files_message_id_file_id_key",
           "nullsNotDistinct": false,
-          "columns": ["message_id", "file_id"]
+          "columns": [
+            "message_id",
+            "file_id"
+          ]
         }
       },
       "policies": {},
@@ -2948,8 +3087,12 @@
           "name": "messages_to_slack_messages_message_id_fkey",
           "tableFrom": "messages_to_slack_messages",
           "tableTo": "messages",
-          "columnsFrom": ["message_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "message_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -2957,8 +3100,12 @@
           "name": "messages_to_slack_messages_slack_message_id_fkey",
           "tableFrom": "messages_to_slack_messages",
           "tableTo": "slack_message_tracking",
-          "columnsFrom": ["slack_message_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "slack_message_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -2966,7 +3113,10 @@
       "compositePrimaryKeys": {
         "messages_to_slack_messages_pkey": {
           "name": "messages_to_slack_messages_pkey",
-          "columns": ["message_id", "slack_message_id"]
+          "columns": [
+            "message_id",
+            "slack_message_id"
+          ]
         }
       },
       "uniqueConstraints": {},
@@ -3104,26 +3254,6 @@
           "type": "uuid",
           "primaryKey": false,
           "notNull": true
-        },
-        "workspace_sharing": {
-          "name": "workspace_sharing",
-          "type": "workspace_sharing_enum",
-          "typeSchema": "public",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'none'"
-        },
-        "workspace_sharing_enabled_by": {
-          "name": "workspace_sharing_enabled_by",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "workspace_sharing_enabled_at": {
-          "name": "workspace_sharing_enabled_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": false
         }
       },
       "indexes": {
@@ -3197,8 +3327,12 @@
           "name": "metric_files_created_by_fkey",
           "tableFrom": "metric_files",
           "tableTo": "users",
-          "columnsFrom": ["created_by"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "created_by"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "cascade"
         },
@@ -3206,8 +3340,12 @@
           "name": "metric_files_publicly_enabled_by_fkey",
           "tableFrom": "metric_files",
           "tableTo": "users",
-          "columnsFrom": ["publicly_enabled_by"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "publicly_enabled_by"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "cascade"
         },
@@ -3215,19 +3353,14 @@
           "name": "fk_data_source",
           "tableFrom": "metric_files",
           "tableTo": "data_sources",
-          "columnsFrom": ["data_source_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "data_source_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
-        },
-        "metric_files_workspace_sharing_enabled_by_fkey": {
-          "name": "metric_files_workspace_sharing_enabled_by_fkey",
-          "tableFrom": "metric_files",
-          "tableTo": "users",
-          "columnsFrom": ["workspace_sharing_enabled_by"],
-          "columnsTo": ["id"],
-          "onDelete": "no action",
-          "onUpdate": "cascade"
         }
       },
       "compositePrimaryKeys": {},
@@ -3334,8 +3467,12 @@
           "name": "metric_files_to_dashboard_files_metric_file_id_fkey",
           "tableFrom": "metric_files_to_dashboard_files",
           "tableTo": "metric_files",
-          "columnsFrom": ["metric_file_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "metric_file_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -3343,8 +3480,12 @@
           "name": "metric_files_to_dashboard_files_dashboard_file_id_fkey",
           "tableFrom": "metric_files_to_dashboard_files",
           "tableTo": "dashboard_files",
-          "columnsFrom": ["dashboard_file_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "dashboard_file_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -3352,8 +3493,12 @@
           "name": "metric_files_to_dashboard_files_created_by_fkey",
           "tableFrom": "metric_files_to_dashboard_files",
           "tableTo": "users",
-          "columnsFrom": ["created_by"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "created_by"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "cascade"
         }
@@ -3361,7 +3506,10 @@
       "compositePrimaryKeys": {
         "metric_files_to_dashboard_files_pkey": {
           "name": "metric_files_to_dashboard_files_pkey",
-          "columns": ["metric_file_id", "dashboard_file_id"]
+          "columns": [
+            "metric_file_id",
+            "dashboard_file_id"
+          ]
         }
       },
       "uniqueConstraints": {},
@@ -3405,8 +3553,12 @@
           "name": "fk_metric_file",
           "tableFrom": "metric_files_to_datasets",
           "tableTo": "metric_files",
-          "columnsFrom": ["metric_file_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "metric_file_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -3414,8 +3566,12 @@
           "name": "fk_dataset",
           "tableFrom": "metric_files_to_datasets",
           "tableTo": "datasets",
-          "columnsFrom": ["dataset_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "dataset_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -3423,7 +3579,11 @@
       "compositePrimaryKeys": {
         "metric_files_to_datasets_pkey": {
           "name": "metric_files_to_datasets_pkey",
-          "columns": ["metric_file_id", "dataset_id", "metric_version_number"]
+          "columns": [
+            "metric_file_id",
+            "dataset_id",
+            "metric_version_number"
+          ]
         }
       },
       "uniqueConstraints": {},
@@ -3501,6 +3661,13 @@
           "primaryKey": false,
           "notNull": true,
           "default": "'restricted_querier'"
+        },
+        "organization_color_palettes": {
+          "name": "organization_color_palettes",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'[]'"
         }
       },
       "indexes": {},
@@ -3510,7 +3677,9 @@
         "organizations_name_key": {
           "name": "organizations_name_key",
           "nullsNotDistinct": false,
-          "columns": ["name"]
+          "columns": [
+            "name"
+          ]
         }
       },
       "policies": {},
@@ -3579,8 +3748,12 @@
           "name": "permission_groups_organization_id_fkey",
           "tableFrom": "permission_groups",
           "tableTo": "organizations",
-          "columnsFrom": ["organization_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "organization_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -3588,8 +3761,12 @@
           "name": "permission_groups_created_by_fkey",
           "tableFrom": "permission_groups",
           "tableTo": "users",
-          "columnsFrom": ["created_by"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "created_by"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "cascade"
         },
@@ -3597,8 +3774,12 @@
           "name": "permission_groups_updated_by_fkey",
           "tableFrom": "permission_groups",
           "tableTo": "users",
-          "columnsFrom": ["updated_by"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "updated_by"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "cascade"
         }
@@ -3671,8 +3852,12 @@
           "name": "permission_groups_to_identities_created_by_fkey",
           "tableFrom": "permission_groups_to_identities",
           "tableTo": "users",
-          "columnsFrom": ["created_by"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "created_by"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "cascade"
         },
@@ -3680,8 +3865,12 @@
           "name": "permission_groups_to_identities_updated_by_fkey",
           "tableFrom": "permission_groups_to_identities",
           "tableTo": "users",
-          "columnsFrom": ["updated_by"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "updated_by"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "cascade"
         }
@@ -3689,7 +3878,11 @@
       "compositePrimaryKeys": {
         "permission_groups_to_identities_pkey": {
           "name": "permission_groups_to_identities_pkey",
-          "columns": ["permission_group_id", "identity_id", "identity_type"]
+          "columns": [
+            "permission_group_id",
+            "identity_id",
+            "identity_type"
+          ]
         }
       },
       "uniqueConstraints": {},
@@ -3744,8 +3937,12 @@
           "name": "permission_groups_to_users_permission_group_id_fkey",
           "tableFrom": "permission_groups_to_users",
           "tableTo": "permission_groups",
-          "columnsFrom": ["permission_group_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "permission_group_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -3753,8 +3950,12 @@
           "name": "permission_groups_to_users_user_id_fkey",
           "tableFrom": "permission_groups_to_users",
           "tableTo": "users",
-          "columnsFrom": ["user_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "cascade"
         }
@@ -3762,7 +3963,10 @@
       "compositePrimaryKeys": {
         "permission_groups_to_users_pkey": {
           "name": "permission_groups_to_users_pkey",
-          "columns": ["permission_group_id", "user_id"]
+          "columns": [
+            "permission_group_id",
+            "user_id"
+          ]
         }
       },
       "uniqueConstraints": {},
@@ -3771,7 +3975,9 @@
           "name": "permission_groups_to_users_policy",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": ["authenticated"],
+          "to": [
+            "authenticated"
+          ],
           "using": "true"
         }
       },
@@ -3904,8 +4110,12 @@
           "name": "schema_metadata_data_source_id_fkey",
           "tableFrom": "schema_metadata",
           "tableTo": "data_sources",
-          "columnsFrom": ["data_source_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "data_source_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -3913,8 +4123,12 @@
           "name": "schema_metadata_database_id_fkey",
           "tableFrom": "schema_metadata",
           "tableTo": "database_metadata",
-          "columnsFrom": ["database_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "database_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -3924,7 +4138,11 @@
         "schema_metadata_data_source_id_database_id_name_key": {
           "name": "schema_metadata_data_source_id_database_id_name_key",
           "nullsNotDistinct": false,
-          "columns": ["data_source_id", "database_id", "name"]
+          "columns": [
+            "data_source_id",
+            "database_id",
+            "name"
+          ]
         }
       },
       "policies": {},
@@ -4148,8 +4366,12 @@
           "name": "slack_integrations_organization_id_fkey",
           "tableFrom": "slack_integrations",
           "tableTo": "organizations",
-          "columnsFrom": ["organization_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "organization_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -4157,8 +4379,12 @@
           "name": "slack_integrations_user_id_fkey",
           "tableFrom": "slack_integrations",
           "tableTo": "users",
-          "columnsFrom": ["user_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -4168,17 +4394,24 @@
         "slack_integrations_oauth_state_unique": {
           "name": "slack_integrations_oauth_state_unique",
           "nullsNotDistinct": false,
-          "columns": ["oauth_state"]
+          "columns": [
+            "oauth_state"
+          ]
         },
         "slack_integrations_token_vault_key_unique": {
           "name": "slack_integrations_token_vault_key_unique",
           "nullsNotDistinct": false,
-          "columns": ["token_vault_key"]
+          "columns": [
+            "token_vault_key"
+          ]
         },
         "slack_integrations_org_team_key": {
           "name": "slack_integrations_org_team_key",
           "nullsNotDistinct": false,
-          "columns": ["organization_id", "team_id"]
+          "columns": [
+            "organization_id",
+            "team_id"
+          ]
         }
       },
       "policies": {},
@@ -4318,8 +4551,12 @@
           "name": "slack_message_tracking_integration_id_fkey",
           "tableFrom": "slack_message_tracking",
           "tableTo": "slack_integrations",
-          "columnsFrom": ["integration_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "integration_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -4329,7 +4566,9 @@
         "slack_message_tracking_internal_message_id_unique": {
           "name": "slack_message_tracking_internal_message_id_unique",
           "nullsNotDistinct": false,
-          "columns": ["internal_message_id"]
+          "columns": [
+            "internal_message_id"
+          ]
         }
       },
       "policies": {},
@@ -4537,8 +4776,12 @@
           "name": "stored_values_sync_jobs_data_source_id_fkey",
           "tableFrom": "stored_values_sync_jobs",
           "tableTo": "data_sources",
-          "columnsFrom": ["data_source_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "data_source_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -4730,8 +4973,12 @@
           "name": "table_metadata_data_source_id_fkey",
           "tableFrom": "table_metadata",
           "tableTo": "data_sources",
-          "columnsFrom": ["data_source_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "data_source_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -4739,8 +4986,12 @@
           "name": "table_metadata_database_id_fkey",
           "tableFrom": "table_metadata",
           "tableTo": "database_metadata",
-          "columnsFrom": ["database_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "database_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -4748,8 +4999,12 @@
           "name": "table_metadata_schema_id_fkey",
           "tableFrom": "table_metadata",
           "tableTo": "schema_metadata",
-          "columnsFrom": ["schema_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "schema_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -4759,7 +5014,11 @@
         "table_metadata_data_source_id_schema_id_name_key": {
           "name": "table_metadata_data_source_id_schema_id_name_key",
           "nullsNotDistinct": false,
-          "columns": ["data_source_id", "schema_id", "name"]
+          "columns": [
+            "data_source_id",
+            "schema_id",
+            "name"
+          ]
         }
       },
       "policies": {},
@@ -4858,8 +5117,12 @@
           "name": "teams_organization_id_fkey",
           "tableFrom": "teams",
           "tableTo": "organizations",
-          "columnsFrom": ["organization_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "organization_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -4867,8 +5130,12 @@
           "name": "teams_created_by_fkey",
           "tableFrom": "teams",
           "tableTo": "users",
-          "columnsFrom": ["created_by"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "created_by"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "cascade"
         }
@@ -4878,7 +5145,9 @@
         "teams_name_key": {
           "name": "teams_name_key",
           "nullsNotDistinct": false,
-          "columns": ["name"]
+          "columns": [
+            "name"
+          ]
         }
       },
       "policies": {},
@@ -4936,8 +5205,12 @@
           "name": "teams_to_users_team_id_fkey",
           "tableFrom": "teams_to_users",
           "tableTo": "teams",
-          "columnsFrom": ["team_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "team_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -4945,8 +5218,12 @@
           "name": "teams_to_users_user_id_fkey",
           "tableFrom": "teams_to_users",
           "tableTo": "users",
-          "columnsFrom": ["user_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "cascade"
         }
@@ -4954,7 +5231,10 @@
       "compositePrimaryKeys": {
         "teams_to_users_pkey": {
           "name": "teams_to_users_pkey",
-          "columns": ["team_id", "user_id"]
+          "columns": [
+            "team_id",
+            "user_id"
+          ]
         }
       },
       "uniqueConstraints": {},
@@ -5036,8 +5316,12 @@
           "name": "terms_organization_id_fkey",
           "tableFrom": "terms",
           "tableTo": "organizations",
-          "columnsFrom": ["organization_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "organization_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -5045,8 +5329,12 @@
           "name": "terms_created_by_fkey",
           "tableFrom": "terms",
           "tableTo": "users",
-          "columnsFrom": ["created_by"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "created_by"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "cascade"
         },
@@ -5054,8 +5342,12 @@
           "name": "terms_updated_by_fkey",
           "tableFrom": "terms",
           "tableTo": "users",
-          "columnsFrom": ["updated_by"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "updated_by"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "cascade"
         }
@@ -5109,8 +5401,12 @@
           "name": "terms_to_datasets_term_id_fkey",
           "tableFrom": "terms_to_datasets",
           "tableTo": "terms",
-          "columnsFrom": ["term_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "term_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -5118,8 +5414,12 @@
           "name": "terms_to_datasets_dataset_id_fkey",
           "tableFrom": "terms_to_datasets",
           "tableTo": "datasets",
-          "columnsFrom": ["dataset_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "dataset_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -5127,7 +5427,10 @@
       "compositePrimaryKeys": {
         "terms_to_datasets_pkey": {
           "name": "terms_to_datasets_pkey",
-          "columns": ["term_id", "dataset_id"]
+          "columns": [
+            "term_id",
+            "dataset_id"
+          ]
         }
       },
       "uniqueConstraints": {},
@@ -5228,8 +5531,12 @@
           "name": "threads_created_by_fkey",
           "tableFrom": "threads_deprecated",
           "tableTo": "users",
-          "columnsFrom": ["created_by"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "created_by"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "cascade"
         },
@@ -5237,8 +5544,12 @@
           "name": "threads_updated_by_fkey",
           "tableFrom": "threads_deprecated",
           "tableTo": "users",
-          "columnsFrom": ["updated_by"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "updated_by"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "cascade"
         },
@@ -5246,8 +5557,12 @@
           "name": "threads_publicly_enabled_by_fkey",
           "tableFrom": "threads_deprecated",
           "tableTo": "users",
-          "columnsFrom": ["publicly_enabled_by"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "publicly_enabled_by"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "cascade"
         },
@@ -5255,8 +5570,12 @@
           "name": "threads_parent_thread_id_fkey",
           "tableFrom": "threads_deprecated",
           "tableTo": "threads_deprecated",
-          "columnsFrom": ["parent_thread_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "parent_thread_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "cascade"
         },
@@ -5264,8 +5583,12 @@
           "name": "threads_organization_id_fkey",
           "tableFrom": "threads_deprecated",
           "tableTo": "organizations",
-          "columnsFrom": ["organization_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "organization_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -5273,8 +5596,12 @@
           "name": "threads_deprecated_created_by_fkey",
           "tableFrom": "threads_deprecated",
           "tableTo": "users",
-          "columnsFrom": ["created_by"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "created_by"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "cascade"
         },
@@ -5282,8 +5609,12 @@
           "name": "threads_deprecated_updated_by_fkey",
           "tableFrom": "threads_deprecated",
           "tableTo": "users",
-          "columnsFrom": ["updated_by"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "updated_by"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "cascade"
         },
@@ -5291,8 +5622,12 @@
           "name": "threads_deprecated_publicly_enabled_by_fkey",
           "tableFrom": "threads_deprecated",
           "tableTo": "users",
-          "columnsFrom": ["publicly_enabled_by"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "publicly_enabled_by"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "cascade"
         }
@@ -5352,8 +5687,12 @@
           "name": "threads_to_dashboards_thread_id_fkey",
           "tableFrom": "threads_to_dashboards",
           "tableTo": "threads_deprecated",
-          "columnsFrom": ["thread_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "thread_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -5361,8 +5700,12 @@
           "name": "threads_to_dashboards_dashboard_id_fkey",
           "tableFrom": "threads_to_dashboards",
           "tableTo": "dashboards",
-          "columnsFrom": ["dashboard_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "dashboard_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -5370,8 +5713,12 @@
           "name": "threads_to_dashboards_added_by_fkey",
           "tableFrom": "threads_to_dashboards",
           "tableTo": "users",
-          "columnsFrom": ["added_by"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "added_by"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "cascade"
         }
@@ -5379,7 +5726,10 @@
       "compositePrimaryKeys": {
         "threads_to_dashboards_pkey": {
           "name": "threads_to_dashboards_pkey",
-          "columns": ["thread_id", "dashboard_id"]
+          "columns": [
+            "thread_id",
+            "dashboard_id"
+          ]
         }
       },
       "uniqueConstraints": {},
@@ -5436,8 +5786,12 @@
           "name": "user_favorites_user_id_fkey",
           "tableFrom": "user_favorites",
           "tableTo": "users",
-          "columnsFrom": ["user_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "cascade"
         }
@@ -5445,7 +5799,11 @@
       "compositePrimaryKeys": {
         "user_favorites_pkey": {
           "name": "user_favorites_pkey",
-          "columns": ["user_id", "asset_id", "asset_type"]
+          "columns": [
+            "user_id",
+            "asset_id",
+            "asset_type"
+          ]
         }
       },
       "uniqueConstraints": {},
@@ -5518,7 +5876,9 @@
         "users_email_key": {
           "name": "users_email_key",
           "nullsNotDistinct": false,
-          "columns": ["email"]
+          "columns": [
+            "email"
+          ]
         }
       },
       "policies": {},
@@ -5638,8 +5998,12 @@
           "name": "users_to_organizations_organization_id_fkey",
           "tableFrom": "users_to_organizations",
           "tableTo": "organizations",
-          "columnsFrom": ["organization_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "organization_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -5647,8 +6011,12 @@
           "name": "users_to_organizations_user_id_fkey",
           "tableFrom": "users_to_organizations",
           "tableTo": "users",
-          "columnsFrom": ["user_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "cascade"
         },
@@ -5656,8 +6024,12 @@
           "name": "users_to_organizations_created_by_fkey",
           "tableFrom": "users_to_organizations",
           "tableTo": "users",
-          "columnsFrom": ["created_by"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "created_by"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "cascade"
         },
@@ -5665,8 +6037,12 @@
           "name": "users_to_organizations_updated_by_fkey",
           "tableFrom": "users_to_organizations",
           "tableTo": "users",
-          "columnsFrom": ["updated_by"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "updated_by"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "cascade"
         },
@@ -5674,8 +6050,12 @@
           "name": "users_to_organizations_deleted_by_fkey",
           "tableFrom": "users_to_organizations",
           "tableTo": "users",
-          "columnsFrom": ["deleted_by"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "deleted_by"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "cascade"
         }
@@ -5683,7 +6063,10 @@
       "compositePrimaryKeys": {
         "users_to_organizations_pkey": {
           "name": "users_to_organizations_pkey",
-          "columns": ["user_id", "organization_id"]
+          "columns": [
+            "user_id",
+            "organization_id"
+          ]
         }
       },
       "uniqueConstraints": {},
@@ -5720,47 +6103,85 @@
     "public.data_source_onboarding_status_enum": {
       "name": "data_source_onboarding_status_enum",
       "schema": "public",
-      "values": ["notStarted", "inProgress", "completed", "failed"]
+      "values": [
+        "notStarted",
+        "inProgress",
+        "completed",
+        "failed"
+      ]
     },
     "public.dataset_type_enum": {
       "name": "dataset_type_enum",
       "schema": "public",
-      "values": ["table", "view", "materializedView"]
+      "values": [
+        "table",
+        "view",
+        "materializedView"
+      ]
     },
     "public.identity_type_enum": {
       "name": "identity_type_enum",
       "schema": "public",
-      "values": ["user", "team", "organization"]
+      "values": [
+        "user",
+        "team",
+        "organization"
+      ]
     },
     "public.message_feedback_enum": {
       "name": "message_feedback_enum",
       "schema": "public",
-      "values": ["positive", "negative"]
+      "values": [
+        "positive",
+        "negative"
+      ]
     },
     "public.sharing_setting_enum": {
       "name": "sharing_setting_enum",
       "schema": "public",
-      "values": ["none", "team", "organization", "public"]
+      "values": [
+        "none",
+        "team",
+        "organization",
+        "public"
+      ]
     },
     "public.slack_chat_authorization_enum": {
       "name": "slack_chat_authorization_enum",
       "schema": "public",
-      "values": ["unauthorized", "authorized", "auto_added"]
+      "values": [
+        "unauthorized",
+        "authorized",
+        "auto_added"
+      ]
     },
     "public.slack_integration_status_enum": {
       "name": "slack_integration_status_enum",
       "schema": "public",
-      "values": ["pending", "active", "failed", "revoked"]
+      "values": [
+        "pending",
+        "active",
+        "failed",
+        "revoked"
+      ]
     },
     "public.slack_sharing_permission_enum": {
       "name": "slack_sharing_permission_enum",
       "schema": "public",
-      "values": ["shareWithWorkspace", "shareWithChannel", "noSharing"]
+      "values": [
+        "shareWithWorkspace",
+        "shareWithChannel",
+        "noSharing"
+      ]
     },
     "public.stored_values_status_enum": {
       "name": "stored_values_status_enum",
       "schema": "public",
-      "values": ["syncing", "success", "failed"]
+      "values": [
+        "syncing",
+        "success",
+        "failed"
+      ]
     },
     "public.table_type_enum": {
       "name": "table_type_enum",
@@ -5776,7 +6197,10 @@
     "public.team_role_enum": {
       "name": "team_role_enum",
       "schema": "public",
-      "values": ["manager", "member"]
+      "values": [
+        "manager",
+        "member"
+      ]
     },
     "public.user_organization_role_enum": {
       "name": "user_organization_role_enum",
@@ -5792,7 +6216,12 @@
     "public.user_organization_status_enum": {
       "name": "user_organization_status_enum",
       "schema": "public",
-      "values": ["active", "inactive", "pending", "guest"]
+      "values": [
+        "active",
+        "inactive",
+        "pending",
+        "guest"
+      ]
     },
     "public.verification_enum": {
       "name": "verification_enum",
@@ -5804,11 +6233,6 @@
         "requested",
         "notRequested"
       ]
-    },
-    "public.workspace_sharing_enum": {
-      "name": "workspace_sharing_enum",
-      "schema": "public",
-      "values": ["none", "can_view", "can_edit", "full_access"]
     }
   },
   "schemas": {},

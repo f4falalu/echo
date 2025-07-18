@@ -86,6 +86,7 @@ pub async fn update_dashboard_handler(
         ],
         dashboard_with_permission.dashboard_file.organization_id,
         &user.organizations,
+        dashboard_with_permission.dashboard_file.workspace_sharing,
     );
 
     if !has_permission {

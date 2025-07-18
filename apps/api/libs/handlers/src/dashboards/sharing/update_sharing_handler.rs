@@ -1,7 +1,7 @@
 use anyhow::{anyhow, Result};
 use chrono::{DateTime, Utc};
 use database::{
-    enums::{AssetPermissionRole, AssetType},
+    enums::{AssetPermissionRole, AssetType, WorkspaceSharing},
     helpers::dashboard_files::fetch_dashboard_file_with_permission,
     schema::dashboard_files::dsl,
     pool::get_pg_pool,
@@ -38,6 +38,9 @@ pub struct UpdateDashboardSharingRequest {
     /// Expiration date for public access
     #[serde(default)]
     pub public_expiry_date: UpdateField<DateTime<Utc>>,
+    /// Workspace sharing permissions
+    #[serde(rename = "workspace_sharing")]
+    pub workspace_permissions: Option<Option<WorkspaceSharing>>,
 }
 
 /// Updates sharing permissions for a dashboard
@@ -81,6 +84,7 @@ pub async fn update_dashboard_sharing_handler(
         ],
         dashboard_with_permission.dashboard_file.organization_id,
         &user.organizations,
+        dashboard_with_permission.dashboard_file.workspace_sharing,
     );
     
     if !has_permission {
@@ -137,6 +141,9 @@ pub async fn update_dashboard_sharing_handler(
     let mut publicly_enabled_by = dashboard.publicly_enabled_by;
     let mut public_password = dashboard.public_password;
     let mut public_expiry_date = dashboard.public_expiry_date;
+    let mut workspace_sharing = dashboard.workspace_sharing;
+    let mut workspace_sharing_enabled_by = dashboard.workspace_sharing_enabled_by;
+    let mut workspace_sharing_enabled_at = dashboard.workspace_sharing_enabled_at;
     let mut update_needed = false;
     
     // Update publicly_accessible if provided
@@ -207,6 +214,42 @@ pub async fn update_dashboard_sharing_handler(
         UpdateField::NoChange => {}
     }
     
+    // Handle workspace_permissions
+    if let Some(workspace_perm) = request.workspace_permissions {
+        match workspace_perm {
+            Some(perm) => {
+                info!(
+                    dashboard_id = %dashboard_id,
+                    "Setting workspace permissions for dashboard to {:?}",
+                    perm
+                );
+                workspace_sharing = perm;
+                workspace_sharing_enabled_by = if perm != WorkspaceSharing::None {
+                    Some(user.id)
+                } else {
+                    None
+                };
+                workspace_sharing_enabled_at = if perm != WorkspaceSharing::None {
+                    Some(Utc::now())
+                } else {
+                    None
+                };
+                update_needed = true;
+            }
+            None => {
+                // Setting to None means removing workspace sharing
+                info!(
+                    dashboard_id = %dashboard_id,
+                    "Removing workspace permissions for dashboard"
+                );
+                workspace_sharing = WorkspaceSharing::None;
+                workspace_sharing_enabled_by = None;
+                workspace_sharing_enabled_at = None;
+                update_needed = true;
+            }
+        }
+    }
+    
     // Execute the update if any changes were made
     if update_needed {
         diesel::update(dsl::dashboard_files)
@@ -216,6 +259,9 @@ pub async fn update_dashboard_sharing_handler(
                 dsl::publicly_enabled_by.eq(publicly_enabled_by),
                 dsl::public_password.eq(public_password),
                 dsl::public_expiry_date.eq(public_expiry_date),
+                dsl::workspace_sharing.eq(workspace_sharing),
+                dsl::workspace_sharing_enabled_by.eq(workspace_sharing_enabled_by),
+                dsl::workspace_sharing_enabled_at.eq(workspace_sharing_enabled_at),
             ))
             .execute(&mut conn)
             .await?;

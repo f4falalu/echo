@@ -1,7 +1,7 @@
 use anyhow::{anyhow, Result};
 use chrono::Utc;
 use database::{
-    enums::{AssetPermissionRole, AssetType, IdentityType},
+    enums::{AssetPermissionRole, AssetType, IdentityType, WorkspaceSharing},
     models::{AssetPermission, Collection},
     pool::get_pg_pool,
     schema::{asset_permissions, collections},
@@ -13,6 +13,7 @@ use tokio;
 use uuid::Uuid;
 
 use crate::collections::types::{CollectionState, CreateCollectionRequest};
+use crate::utils::workspace::count_workspace_members;
 
 /// Handler for creating a new collection
 ///
@@ -45,6 +46,9 @@ pub async fn create_collection_handler(
         updated_by: user.id,
         deleted_at: None,
         organization_id,
+        workspace_sharing: WorkspaceSharing::None,
+        workspace_sharing_enabled_at: None,
+        workspace_sharing_enabled_by: None,
     };
 
     let insert_task_user_id = user.id;
@@ -144,9 +148,14 @@ pub async fn create_collection_handler(
         return Err(anyhow!("Error in collection search insert: {:?}", e));
     }
 
+    // Count workspace members
+    let workspace_member_count = count_workspace_members(collection.organization_id)
+        .await
+        .unwrap_or(0);
+
     // Return the collection state
     Ok(CollectionState {
-        collection,
+        collection: collection.clone(),
         assets: None,
         permission: AssetPermissionRole::Owner,
         organization_permissions: false,
@@ -155,5 +164,9 @@ pub async fn create_collection_handler(
         public_expiry_date: None,
         public_enabled_by: None,
         public_password: None,
+        workspace_sharing: collection.workspace_sharing,
+        workspace_sharing_enabled_by: None,
+        workspace_sharing_enabled_at: collection.workspace_sharing_enabled_at,
+        workspace_member_count,
     })
 }

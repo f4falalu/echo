@@ -47,6 +47,7 @@ pub async fn create_metric_sharing_handler(
         &[AssetPermissionRole::FullAccess, AssetPermissionRole::Owner],
         metric_file.metric_file.organization_id,
         &user.organizations,
+        metric_file.metric_file.workspace_sharing,
     ) {
         return Err(anyhow!("You don't have permission to share this metric"));
     }

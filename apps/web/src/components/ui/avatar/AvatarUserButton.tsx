@@ -7,7 +7,7 @@ export const AvatarUserButton = React.forwardRef<
   HTMLDivElement,
   {
     username?: string | null;
-    avatarUrl?: string | null;
+    avatarUrl?: string | null | React.ReactNode;
     email?: string | null;
     className?: string;
     avatarSize?: number;
@@ -17,7 +17,11 @@ export const AvatarUserButton = React.forwardRef<
 
   return (
     <div ref={ref} className={cn('flex w-full items-center gap-x-2 rounded-md p-1', className)}>
-      <Avatar size={avatarSize} fallbackClassName="text-base" image={avatarUrl} name={username} />
+      {typeof avatarUrl === 'string' || avatarUrl === null ? (
+        <Avatar size={avatarSize} fallbackClassName="text-base" image={avatarUrl} name={username} />
+      ) : (
+        avatarUrl
+      )}
       <div className="flex w-full flex-col gap-y-0 overflow-hidden">
         <Text truncate className="flex-grow">
           {username}
