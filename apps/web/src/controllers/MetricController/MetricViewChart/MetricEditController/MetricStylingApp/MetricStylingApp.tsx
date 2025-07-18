@@ -15,6 +15,8 @@ import { MetricStylingAppSegment } from './MetricStylingAppSegment';
 import { StylingAppColors } from './StylingAppColors';
 import { StylingAppStyling } from './StylingAppStyling';
 import { StylingAppVisualize } from './StylingAppVisualize';
+import { useMount } from '@/hooks';
+import { prefetchColorThemes } from '@/api/buster_rest/dictionaries';
 
 export const MetricStylingApp: React.FC<{
   metricId: string;
@@ -24,6 +26,10 @@ export const MetricStylingApp: React.FC<{
   );
   const { data: chartConfig } = useGetMetric({ id: metricId }, { select: (x) => x.chart_config });
   const { data: metricData } = useGetMetricData({ id: metricId }, { enabled: false });
+
+  useMount(() => {
+    prefetchColorThemes();
+  });
 
   if (!chartConfig) return null;
 
@@ -89,6 +95,8 @@ export const MetricStylingApp: React.FC<{
     scatterAxis,
     barAndLineAxis
   );
+
+
 
   return (
     <div className="flex h-full w-full flex-col overflow-hidden pt-3">

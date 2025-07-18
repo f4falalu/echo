@@ -1,4 +1,3 @@
-import { InviteLinks } from '@/components/features/security/InviteLinks';
 import { SettingsPageHeader } from '@/components/features/settings';
 import { ApprovedEmailDomains } from '@/components/features/security/ApprovedEmailDomains';
 import { WorkspaceRestrictions } from '@/components/features/security/WorkspaceRestrictions';
