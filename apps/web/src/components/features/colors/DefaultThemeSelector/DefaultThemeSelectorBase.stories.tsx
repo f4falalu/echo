@@ -15,7 +15,6 @@ const meta: Meta<typeof DefaultThemeSelectorBase> = {
     onDeleteCustomTheme: fn(),
     onModifyCustomTheme: fn(),
     selectedThemeId: 'custom-sunset',
-    useDefaultThemes: true,
     customThemes: [
       {
         name: 'Custom Sunset',

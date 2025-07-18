@@ -11,10 +11,15 @@ const HexColorSchema = z
     'Must be a valid 3 or 6 digit hex color code (e.g., #fff or #ffffff)'
   );
 
-export const OrganizationColorPaletteSchema = z.object({
+export const ColorPalettesSchema = z.object({
   id: z.string(),
   colors: z.array(HexColorSchema).min(1).max(25),
   name: z.string().min(1).max(255),
+});
+
+export const OrganizationColorPaletteSchema = z.object({
+  selectedId: z.string().nullable(),
+  palettes: z.array(ColorPalettesSchema),
 });
 
 export const OrganizationSchema = z.object({
@@ -28,13 +33,11 @@ export const OrganizationSchema = z.object({
   domains: z.array(z.string()).nullable(),
   restrictNewUserInvitations: z.boolean(),
   defaultRole: OrganizationRoleSchema,
-  organizationColorPalettes: z.object({
-    selectedId: z.string(),
-    palettes: z.array(OrganizationColorPaletteSchema),
-  }),
+  organizationColorPalettes: OrganizationColorPaletteSchema,
 });
 
 export type Organization = z.infer<typeof OrganizationSchema>;
 export type OrganizationColorPalette = z.infer<typeof OrganizationColorPaletteSchema>;
+export type ColorPalette = z.infer<typeof ColorPalettesSchema>;
 
 type _OrganizationEqualityCheck = Expect<Equal<Organization, typeof organizations.$inferSelect>>;

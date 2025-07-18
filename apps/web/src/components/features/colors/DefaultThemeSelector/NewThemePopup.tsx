@@ -14,10 +14,11 @@ interface NewThemePopupProps {
   selectedTheme?: IColorTheme;
   onSave: (theme: IColorTheme) => Promise<void>;
   onDelete?: (id: string) => Promise<void>;
+  onUpdate?: (theme: IColorTheme) => Promise<void>;
 }
 
 export const NewThemePopup = React.memo(
-  ({ selectedTheme, onDelete, onSave }: NewThemePopupProps) => {
+  ({ selectedTheme, onDelete, onUpdate, onSave }: NewThemePopupProps) => {
     const [title, setTitle] = useState('');
     const [colors, setColors] = useState<string[]>(DEFAULT_CHART_THEME);
     const [id, setId] = useState(uuidv4());
@@ -45,6 +46,13 @@ export const NewThemePopup = React.memo(
       }, 350);
     });
 
+    const onUpdateClick = useMemoizedFn(async () => {
+      await onUpdate?.({ id, name: title, colors });
+      setTimeout(() => {
+        reset();
+      }, 350);
+    });
+
     useEffect(() => {
       if (selectedTheme) {
         setTitle(selectedTheme.name);
@@ -54,7 +62,7 @@ export const NewThemePopup = React.memo(
     }, [selectedTheme]);
 
     return (
-      <div className="w-[280px]">
+      <div className="w-[280px] max-w-[340px]">
         <div className="grid grid-cols-[80px_1fr] items-center gap-2 p-2.5">
           <Text>Title</Text>
           <Input
@@ -67,13 +75,22 @@ export const NewThemePopup = React.memo(
         </div>
         <div className="w-full border-t"></div>
 
-        <div className="p-2.5">
+        <div className="flex space-x-1.5 p-2.5">
+          {onDelete && !isNewTheme && (
+            <Button
+              block
+              disabled={disableCreateTheme}
+              onClick={isNewTheme ? onSaveClick : onDeleteClick}
+              prefix={<Trash />}>
+              {'Delete theme'}
+            </Button>
+          )}
           <Button
             block
             disabled={disableCreateTheme}
-            onClick={isNewTheme ? onSaveClick : onDeleteClick}
-            prefix={isNewTheme ? <Plus /> : <Trash />}>
-            {isNewTheme ? 'Create theme' : 'Delete theme'}
+            onClick={isNewTheme ? onSaveClick : onUpdateClick}
+            prefix={<Plus />}>
+            {isNewTheme || !onUpdate ? 'Create theme' : 'Update theme'}
           </Button>
         </div>
       </div>

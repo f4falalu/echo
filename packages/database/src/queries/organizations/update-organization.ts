@@ -23,7 +23,7 @@ const OrganizationColorPaletteSchema = z.object({
 const UpdateOrganizationInputSchema = z.object({
   organizationId: z.string().uuid('Organization ID must be a valid UUID'),
   organizationColorPalettes: z.object({
-    selectedId: z.string().min(1).max(255),
+    selectedId: z.string().min(1).max(255).nullable(),
     palettes: z.array(OrganizationColorPaletteSchema).refine(
       (palettes) => {
         if (!palettes || palettes.length === 0) return true;

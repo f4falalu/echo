@@ -1,1 +1,1 @@
-export * from './DefaultThemeSelectorBase';
+export * from './DefaultThemeSelector';

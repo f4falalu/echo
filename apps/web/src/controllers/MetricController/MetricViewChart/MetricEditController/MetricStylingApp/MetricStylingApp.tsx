@@ -27,6 +27,10 @@ export const MetricStylingApp: React.FC<{
   const { data: chartConfig } = useGetMetric({ id: metricId }, { select: (x) => x.chart_config });
   const { data: metricData } = useGetMetricData({ id: metricId }, { enabled: false });
 
+  useMount(() => {
+    prefetchColorThemes();
+  });
+
   if (!chartConfig) return null;
 
   const columnMetadata = metricData?.data_metadata?.column_metadata || [];
@@ -92,9 +96,7 @@ export const MetricStylingApp: React.FC<{
     barAndLineAxis
   );
 
-  useMount(() => {
-    prefetchColorThemes();
-  });
+
 
   return (
     <div className="flex h-full w-full flex-col overflow-hidden pt-3">

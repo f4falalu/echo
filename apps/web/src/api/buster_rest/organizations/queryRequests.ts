@@ -51,7 +51,7 @@ export const useUpdateOrganization = () => {
       queryClient.setQueryData(userQueryKey, (prev) => {
         if (!prev) return prev;
 
-        return create(prev, (draft) => {
+        const newOrganization = create(prev, (draft) => {
           if (
             draft.organizations &&
             Array.isArray(draft.organizations) &&
@@ -60,6 +60,8 @@ export const useUpdateOrganization = () => {
             Object.assign(draft.organizations[0], organizationUpdates);
           }
         });
+
+        return newOrganization;
       });
     },
     onSuccess: () => {

@@ -1,4 +1,4 @@
-import React, { type PropsWithChildren } from 'react';
+import React, { useRef, type PropsWithChildren } from 'react';
 import { ThemeList, type IColorTheme } from '../ThemeList';
 import { Button } from '@/components/ui/buttons';
 import { Plus } from '../../../ui/icons';
@@ -50,8 +50,7 @@ export const AddCustomThemeBase = React.memo(
   }: AddCustomThemeBaseProps) => {
     const iThemes: Required<IColorTheme>[] = customThemes.map((theme) => ({
       ...theme,
-      selected: theme.id === selectedThemeId,
-      id: theme.id
+      selected: theme.id === selectedThemeId
     }));
 
     return (
@@ -60,12 +59,14 @@ export const AddCustomThemeBase = React.memo(
         deleteCustomTheme={deleteCustomTheme}
         modifyCustomTheme={modifyCustomTheme}>
         <div className="bg-item-select flex flex-col space-y-1 rounded border p-1">
-          <ThemeList
-            className="border-none bg-transparent p-0"
-            themes={iThemes}
-            onChangeColorTheme={onSelectTheme}
-            themeThreeDotsMenu={ThreeDotMenu}
-          />
+          {iThemes.length > 0 && (
+            <ThemeList
+              className="border-none bg-transparent p-0"
+              themes={iThemes}
+              onChangeColorTheme={onSelectTheme}
+              themeThreeDotsMenu={ThreeDotMenu}
+            />
+          )}
 
           <AddCustomThemeButton />
         </div>
@@ -87,25 +88,37 @@ const ThreeDotMenu: React.FC<{ theme: IColorTheme }> = React.memo(({ theme }) =>
     await deleteCustomTheme(themeId);
   });
 
-  return <NewThemePopup selectedTheme={theme} onSave={onSave} onDelete={onDelete} />;
+  const onUpdate = useMemoizedFn(async (theme: IColorTheme) => {
+    await modifyCustomTheme(theme.id, theme);
+  });
+
+  return (
+    <NewThemePopup selectedTheme={theme} onSave={onSave} onDelete={onDelete} onUpdate={onUpdate} />
+  );
 });
 
 ThreeDotMenu.displayName = 'ThreeDotMenu';
 
-const AddCustomThemeButton: React.FC<{}> = React.memo(({}) => {
+const AddCustomThemeButton: React.FC = React.memo(({}) => {
   const { createCustomTheme } = useAddTheme();
+  const buttonRef = useRef<HTMLButtonElement>(null);
+
+  const closePopover = useMemoizedFn(() => {
+    buttonRef.current?.click();
+  });
 
   const onSave = useMemoizedFn(async (theme: IColorTheme) => {
     await createCustomTheme(theme);
+    closePopover();
   });
 
   return (
     <Popover
       content={<NewThemePopup selectedTheme={undefined} onSave={onSave} onDelete={undefined} />}
       trigger="click"
-      className="p-0"
+      className="max-w-[320px] p-0"
       sideOffset={12}>
-      <Button variant={'ghost'} size={'tall'} prefix={<Plus />}>
+      <Button ref={buttonRef} variant={'ghost'} size={'tall'} prefix={<Plus />}>
         Add a custom theme
       </Button>
     </Popover>

@@ -1,4 +1,4 @@
-import type { OrganizationColorPalette } from '@buster/server-shared/organization';
+import type { ColorPalette, OrganizationColorPalette } from '@buster/server-shared/organization';
 
 export const DEFAULT_CHART_THEME = [
   '#B399FD',
@@ -321,7 +321,7 @@ const PINK_THEME = [
   '#ad1457',
 ];
 
-export const COLORFUL_THEMES: OrganizationColorPalette[] = [
+export const COLORFUL_THEMES = [
   {
     name: 'Buster',
     colors: DEFAULT_CHART_THEME,
@@ -372,7 +372,7 @@ export const COLORFUL_THEMES: OrganizationColorPalette[] = [
     colors: EMERALD_SPECTRUM_THEME,
   },
   {
-    name: 'Forest Lake',
+    name: 'Deep Forest',
     colors: DIVERSE_DARK_PALETTE_GREEN_THEME,
   },
   {
@@ -384,7 +384,7 @@ export const COLORFUL_THEMES: OrganizationColorPalette[] = [
   id: theme.name,
 }));
 
-export const MONOCHROME_THEMES: OrganizationColorPalette[] = [
+export const MONOCHROME_THEMES = [
   {
     name: 'Greens',
     colors: GREENS_THEME,
@@ -395,7 +395,7 @@ export const MONOCHROME_THEMES: OrganizationColorPalette[] = [
     colors: BLUE_TO_ORANGE_GRADIENT,
   },
   {
-    name: 'Forest Lake',
+    name: 'Forest Sunset',
     colors: FOREST_LAKE_GRADIENT,
   },
   {
@@ -435,4 +435,14 @@ export const MONOCHROME_THEMES: OrganizationColorPalette[] = [
   id: theme.name,
 }));
 
-export const ALL_THEMES: OrganizationColorPalette[] = [...COLORFUL_THEMES, ...MONOCHROME_THEMES];
+const simplifyId = (name: string, index: number) => {
+  return `${name.toLowerCase().replace(/ /g, '-')}-${index}`;
+};
+
+export const ALL_THEMES: ColorPalette[] = [...COLORFUL_THEMES, ...MONOCHROME_THEMES].map(
+  (theme, index) => ({
+    colors: theme.colors,
+    name: theme.name,
+    id: simplifyId(theme.name, index),
+  })
+);

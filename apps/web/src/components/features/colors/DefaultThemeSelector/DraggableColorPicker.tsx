@@ -3,7 +3,7 @@ import { AppTooltip } from '@/components/ui/tooltip';
 import { ColorPicker } from '@/components/ui/color-picker';
 import { cn } from '@/lib/utils';
 import { useMemoizedFn } from '@/hooks';
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   DndContext,
   DragEndEvent,
@@ -166,13 +166,21 @@ const ColorWithPicker: React.FC<{
     const originalColor = useRef(colorProp);
     const [color, setColor] = useState(colorProp);
 
+    useEffect(() => {
+      setColor(colorProp);
+      originalColor.current = colorProp;
+    }, [colorProp]);
+
     return (
       <ColorPicker
         value={color}
         onChange={setColor}
         align="center"
         side="bottom"
-        onOpenChange={onPickerOpenChange}
+        onOpenChange={(v) => {
+          setColor(originalColor.current);
+          onPickerOpenChange(v);
+        }}
         popoverChildren={
           <div className="flex w-full items-center gap-2 border-t py-2">
             <Button block variant={'default'} onClick={() => setColor(originalColor.current)}>

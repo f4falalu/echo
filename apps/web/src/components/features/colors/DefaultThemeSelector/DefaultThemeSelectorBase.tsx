@@ -3,7 +3,6 @@ import type { IColorTheme } from '../ThemeList/interfaces';
 import { ThemeList } from '../ThemeList';
 import { cn } from '@/lib/utils';
 import { AddCustomThemeBase } from './AddCustomThemeBase';
-import { useColorThemes } from '../../../../api/buster_rest/dictionaries';
 
 export interface DefaultThemeSelectorProps {
   customThemes: Omit<IColorTheme, 'selected'>[];
@@ -13,42 +12,44 @@ export interface DefaultThemeSelectorProps {
   onDeleteCustomTheme: (themeId: string) => Promise<void>;
   onModifyCustomTheme: (themeId: string, theme: IColorTheme) => Promise<void>;
   selectedThemeId: string | null;
-  useDefaultThemes?: boolean;
   themeListClassName?: string;
+  className?: string;
 }
 
 export const DefaultThemeSelectorBase = React.memo(
   ({
     customThemes,
     themes,
-    useDefaultThemes = true,
     selectedThemeId,
     onChangeTheme,
     themeListClassName,
+    className,
     onCreateCustomTheme,
     onDeleteCustomTheme,
     onModifyCustomTheme
   }: DefaultThemeSelectorProps) => {
     const iThemes: Required<IColorTheme>[] = themes?.map((theme) => ({
       ...theme,
-      selected: theme.id === selectedThemeId,
-      id: theme.name
+      selected: theme.id === selectedThemeId
     }));
 
     return (
-      <div className="flex w-full flex-col space-y-2.5">
+      <div className={cn('flex w-full flex-col space-y-2.5', className)}>
+        <AddCustomThemeBase
+          customThemes={customThemes}
+          selectedThemeId={selectedThemeId}
+          onSelectTheme={onChangeTheme}
+          createCustomTheme={onCreateCustomTheme}
+          deleteCustomTheme={onDeleteCustomTheme}
+          modifyCustomTheme={onModifyCustomTheme}
+        />
+
         <div>
-          <AddCustomThemeBase
-            customThemes={customThemes}
-            selectedThemeId={selectedThemeId}
-            onSelectTheme={onChangeTheme}
-            createCustomTheme={onCreateCustomTheme}
-            deleteCustomTheme={onDeleteCustomTheme}
-            modifyCustomTheme={onModifyCustomTheme}
+          <ThemeList
+            themes={iThemes}
+            onChangeColorTheme={onChangeTheme}
+            className={cn(themeListClassName)}
           />
-        </div>
-        <div className={cn(themeListClassName)}>
-          <ThemeList themes={iThemes} onChangeColorTheme={onChangeTheme} />
         </div>
       </div>
     );

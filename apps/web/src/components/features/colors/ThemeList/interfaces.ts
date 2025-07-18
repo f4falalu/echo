@@ -1,5 +1,5 @@
-import type { OrganizationColorPalette } from '@buster/server-shared/organization';
+import type { ColorPalette } from '@buster/server-shared/organization';
 
-export type IColorTheme = OrganizationColorPalette & {
+export type IColorTheme = ColorPalette & {
   selected?: boolean;
 };

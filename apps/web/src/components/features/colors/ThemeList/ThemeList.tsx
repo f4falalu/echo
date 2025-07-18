@@ -22,7 +22,7 @@ export const ThemeList: React.FC<{
       )}>
       {themes.map((theme) => (
         <ColorOption
-          key={theme.name}
+          key={theme.id}
           theme={theme}
           selected={theme.selected}
           onChangeColorTheme={onChangeColorTheme}
@@ -52,7 +52,7 @@ const ColorOption: React.FC<{
       data-selected={selected}
       className={cn(
         'flex w-full items-center justify-between space-x-2.5 overflow-hidden',
-        'h-7 cursor-pointer rounded-sm px-3 py-2',
+        'h-7 min-h-7 cursor-pointer rounded-sm px-3 py-2',
         selected ? 'bg-background border' : 'bg-item-active hover:bg-nav-item-hover'
       )}>
       <Text truncate variant={selected ? 'default' : 'secondary'}>

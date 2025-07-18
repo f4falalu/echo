@@ -1,3 +1,3 @@
-import type { OrganizationColorPalette } from '../organization/organization.types';
+import type { ColorPalette } from '../organization/organization.types';
 
-export type ColorThemeDictionariesResponse = OrganizationColorPalette[];
+export type ColorThemeDictionariesResponse = ColorPalette[];
