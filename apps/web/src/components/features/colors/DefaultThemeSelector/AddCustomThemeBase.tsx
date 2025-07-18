@@ -26,7 +26,7 @@ export const AddCustomThemeBase = React.memo(
     deleteCustomTheme,
     modifyCustomTheme
   }: AddCustomThemeBaseProps) => {
-    const iThemes: Required<IColorPalette>[] = customThemes.map((theme) => ({
+    const iThemes: IColorPalette[] = customThemes.map((theme) => ({
       ...theme,
       selected: theme.id === selectedThemeId
     }));

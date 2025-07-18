@@ -7,6 +7,7 @@ import { type BusterChartProps } from '@/api/asset_interfaces/metric/charts';
 import {
   DEFAULT_CHART_CONFIG,
   DEFAULT_CHART_THEME,
+  DEFAULT_COLUMN_METADATA,
   type ChartEncodes
 } from '@buster/server-shared/metrics';
 import { useMemoizedFn } from '@/hooks';
@@ -51,6 +52,7 @@ export const BusterChart: React.FC<BusterChartProps> = React.memo(
     columnLabelFormats = DEFAULT_CHART_CONFIG.columnLabelFormats,
     columnSettings = DEFAULT_CHART_CONFIG.columnSettings,
     colors = DEFAULT_CHART_THEME,
+    columnMetadata = DEFAULT_COLUMN_METADATA,
     ...props
   }) => {
     const isTable = selectedChartType === 'table';
@@ -152,7 +154,7 @@ export const BusterChart: React.FC<BusterChartProps> = React.memo(
         columnSettings,
         readOnly,
         colors,
-        columnMetadata: props.columnMetadata ?? [],
+        columnMetadata,
         ...props
       };
 
