@@ -5,7 +5,7 @@ import { useColorDictionaryThemes } from '@/api/buster_rest/dictionaries';
 import { StatusCard } from '@/components/ui/card/StatusCard';
 import { CircleSpinnerLoader } from '../../../ui/loaders';
 import { useThemeOperations } from '@/context-hooks/useThemeOperations';
-import { useGetPalettes } from '@/context-hooks/useGetOrganizationPalettes';
+import { useGetPalettes } from '@/context-hooks/usePalettes';
 
 export const DefaultThemeSelector = React.memo(
   ({ className, themeListClassName }: { className?: string; themeListClassName?: string }) => {

@@ -9,7 +9,7 @@ import { ThemeColorDots } from '../colors/ThemeList/ThemeColorDots';
 import { Popover } from '../../ui/popover';
 import { DefaultThemeSelector } from '../colors/DefaultThemeSelector';
 import { ChevronDown } from '../../ui/icons';
-import { useGetPalettes } from '@/context-hooks/useGetOrganizationPalettes';
+import { useGetPalettes } from '@/context-hooks/usePalettes';
 
 export const DefaultColorThemeCard = React.memo(() => {
   return (

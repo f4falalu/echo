@@ -14,6 +14,7 @@ import { MetricDataTruncatedWarning } from './MetricDataTruncatedWarning';
 import { MetricSaveFilePopup } from './MetricSaveFilePopup';
 import { MetricViewChartContent } from './MetricViewChartContent';
 import { MetricViewChartHeader } from './MetricViewChartHeader';
+import { useSelectedColorPalette } from '@/context-hooks/usePalettes';
 
 export const MetricViewChart: React.FC<{
   metricId: string;
@@ -66,6 +67,7 @@ export const MetricViewChart: React.FC<{
     const hasData = !loadingData && !isEmpty(metricData?.data);
     const errorData = !!metricDataError;
     const showEvaluation = !!evaluation_score && !!evaluation_summary;
+    const colors = useSelectedColorPalette(metric?.chart_config.colors);
 
     const onSetTitle = useMemoizedFn((title: string) => {
       if (inputHasText(title)) {
@@ -96,7 +98,7 @@ export const MetricViewChart: React.FC<{
             />
             <div className={'border-border border-b'} />
             <MetricViewChartContent
-              chartConfig={metric.chart_config}
+              chartConfig={{ ...metric.chart_config, colors }}
               metricData={metricData?.data || []}
               dataMetadata={metricData?.data_metadata}
               fetchedData={isFetchedMetricData}

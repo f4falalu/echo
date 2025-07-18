@@ -7,7 +7,7 @@ import { ThemeList } from '@/components/features/colors/ThemeList';
 import { EditCustomThemeMenu } from '@/components/features/colors/DefaultThemeSelector/EditCustomThemeMenu';
 import { AddThemeProviderWrapper } from '@/components/features/colors/DefaultThemeSelector/AddThemeProviderWrapper';
 import { useThemeOperations } from '@/context-hooks/useThemeOperations';
-import { useGetPalettes } from '@/context-hooks/useGetOrganizationPalettes';
+import { useGetPalettes } from '@/context-hooks/usePalettes';
 
 export const ColorsApp: React.FC<{
   colors: ChartConfigProps['colors'];
