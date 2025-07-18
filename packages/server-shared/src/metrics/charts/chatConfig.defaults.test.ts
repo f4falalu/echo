@@ -12,7 +12,7 @@ describe('DEFAULT_CHART_CONFIG', () => {
       const config = parseResult.data;
 
       // Test key default values
-      expect(config.colors).toEqual(DEFAULT_CHART_THEME);
+      expect(config.colors).toBeUndefined();
       expect(config.gridLines).toBe(true);
       expect(config.showLegendHeadline).toBe(false);
       expect(config.disableTooltip).toBe(false);

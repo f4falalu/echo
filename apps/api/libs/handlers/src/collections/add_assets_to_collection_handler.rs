@@ -93,6 +93,7 @@ pub async fn add_assets_to_collection_handler(
         ],
         collection_with_permission.collection.organization_id,
         &user.organizations,
+        collection_with_permission.collection.workspace_sharing,
     );
 
     if !has_permission {
@@ -173,6 +174,7 @@ pub async fn add_assets_to_collection_handler(
                 ],
                 dashboard.dashboard_file.organization_id,
                 &user.organizations,
+                dashboard.dashboard_file.workspace_sharing,
             );
 
             if !has_dashboard_permission {
@@ -330,6 +332,7 @@ pub async fn add_assets_to_collection_handler(
                 ],
                 metric.metric_file.organization_id,
                 &user.organizations,
+                metric.metric_file.workspace_sharing,
             );
 
             if !has_metric_permission {
@@ -476,6 +479,7 @@ pub async fn add_assets_to_collection_handler(
                 ],
                 chat_permission.chat.organization_id,
                 &user.organizations,
+                chat_permission.chat.workspace_sharing,
             );
 
             if !has_chat_permission {

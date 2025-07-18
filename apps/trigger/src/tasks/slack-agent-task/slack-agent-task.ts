@@ -2,6 +2,7 @@ import { chats, db, eq, messages } from '@buster/database';
 import {
   SlackMessagingService,
   addReaction,
+  convertMarkdownToSlack,
   getReactions,
   getThreadMessages,
   removeReaction,
@@ -546,32 +547,43 @@ export const slackAgentTask: ReturnType<
           buttonUrl = `${busterUrl}/app/chats/${payload.chatId}/${chatFileInfo.mostRecentFileType}s/${chatFileInfo.mostRecentFileId}?${chatFileInfo.mostRecentFileType}_version_number=${chatFileInfo.mostRecentVersionNumber}`;
         }
 
-        const completionMessage = {
-          text: responseText,
-          thread_ts: chatDetails.slackThreadTs,
-          blocks: [
-            {
-              type: 'section' as const,
-              text: {
-                type: 'mrkdwn' as const,
-                text: responseText,
-              },
+        // Convert markdown to Slack format
+        const convertedResponse = convertMarkdownToSlack(responseText);
+
+        // Create the message with converted text and any blocks from conversion
+        const messageBlocks = [...(convertedResponse.blocks || [])];
+
+        // If no blocks were created from conversion, create a section block with the converted text
+        if (messageBlocks.length === 0 && convertedResponse.text) {
+          messageBlocks.push({
+            type: 'section' as const,
+            text: {
+              type: 'mrkdwn' as const,
+              text: convertedResponse.text,
             },
+          });
+        }
+
+        // Add the action button block
+        messageBlocks.push({
+          type: 'actions' as const,
+          elements: [
             {
-              type: 'actions' as const,
-              elements: [
-                {
-                  type: 'button' as const,
-                  text: {
-                    type: 'plain_text' as const,
-                    text: 'Open in Buster',
-                    emoji: false,
-                  },
-                  url: buttonUrl,
-                },
-              ],
+              type: 'button' as const,
+              text: {
+                type: 'plain_text' as const,
+                text: 'Open in Buster',
+                emoji: false,
+              },
+              url: buttonUrl,
             },
           ],
+        });
+
+        const completionMessage = {
+          text: convertedResponse.text || responseText, // Use converted text as fallback
+          thread_ts: chatDetails.slackThreadTs,
+          blocks: messageBlocks,
         };
 
         await messagingService.sendMessage(

@@ -83,7 +83,7 @@ describe('SlackHandler', () => {
       // Mock getUserOrganizationId to return org info
       vi.mocked(getUserOrganizationId).mockResolvedValue({
         organizationId: 'org-123',
-        role: 'owner',
+        role: 'workspace_admin',
       });
 
       const mockResult = {
@@ -98,11 +98,13 @@ describe('SlackHandler', () => {
         organizationId: 'org-123',
         userId: 'user-123',
         metadata: {
-          returnUrl: '/dashboard',
           ipAddress: '192.168.1.1',
         },
       });
-      expect(mockContext.json).toHaveBeenCalledWith(mockResult);
+      expect(mockContext.json).toHaveBeenCalledWith({
+        auth_url: 'https://slack.com/oauth/authorize',
+        state: 'test-state',
+      });
     });
 
     it('should handle existing integration error', async () => {
@@ -116,7 +118,7 @@ describe('SlackHandler', () => {
       // Mock getUserOrganizationId to return org info
       vi.mocked(getUserOrganizationId).mockResolvedValue({
         organizationId: 'org-123',
-        role: 'owner',
+        role: 'workspace_admin',
       });
 
       vi.mocked(mockSlackOAuthService.initiateOAuth).mockRejectedValue(
@@ -134,7 +136,7 @@ describe('SlackHandler', () => {
       await handler.handleOAuthCallback(mockContext);
 
       expect(mockContext.redirect).toHaveBeenCalledWith(
-        '/app/settings/integrations?status=cancelled'
+        'http://localhost:3000/app/settings/integrations?status=cancelled'
       );
     });
 
@@ -144,7 +146,7 @@ describe('SlackHandler', () => {
       await handler.handleOAuthCallback(mockContext);
 
       expect(mockContext.redirect).toHaveBeenCalledWith(
-        '/app/settings/integrations?status=error&error=invalid_parameters'
+        'http://localhost:3000/app/settings/integrations?status=error&error=invalid_parameters'
       );
     });
 
@@ -169,7 +171,7 @@ describe('SlackHandler', () => {
         state: 'test-state',
       });
       expect(mockContext.redirect).toHaveBeenCalledWith(
-        '/dashboard?status=success&workspace=Test%20Workspace'
+        'http://localhost:3000/dashboard?status=success&workspace=Test%20Workspace'
       );
     });
 
@@ -189,7 +191,7 @@ describe('SlackHandler', () => {
       await handler.handleOAuthCallback(mockContext);
 
       expect(mockContext.redirect).toHaveBeenCalledWith(
-        '/app/settings/integrations?status=error&error=invalid_state'
+        'http://localhost:3000/app/settings/integrations?status=error&error=invalid_state'
       );
     });
   });
@@ -210,16 +212,21 @@ describe('SlackHandler', () => {
       // Mock getUserOrganizationId to return org info
       vi.mocked(getUserOrganizationId).mockResolvedValue({
         organizationId: 'org-123',
-        role: 'owner',
+        role: 'workspace_admin',
       });
 
       const mockStatus = {
         connected: true,
         integration: {
           id: 'integration-123',
-          teamName: 'Test Workspace',
-          installedAt: '2025-01-01T00:00:00.000Z',
+          team_name: undefined,
+          installed_at: undefined,
+          default_channel: undefined,
+          default_sharing_permissions: undefined,
+          last_used_at: undefined,
+          team_domain: undefined,
         },
+        status: undefined,
       };
       vi.mocked(mockSlackOAuthService.getIntegrationStatus).mockResolvedValue(mockStatus);
 
@@ -250,7 +257,7 @@ describe('SlackHandler', () => {
       // Mock getUserOrganizationId to return org info
       vi.mocked(getUserOrganizationId).mockResolvedValue({
         organizationId: 'org-123',
-        role: 'owner',
+        role: 'workspace_admin',
       });
 
       vi.mocked(mockSlackOAuthService.removeIntegration).mockResolvedValue({
@@ -274,7 +281,7 @@ describe('SlackHandler', () => {
       // Mock getUserOrganizationId to return org info
       vi.mocked(getUserOrganizationId).mockResolvedValue({
         organizationId: 'org-123',
-        role: 'owner',
+        role: 'workspace_admin',
       });
 
       vi.mocked(mockSlackOAuthService.removeIntegration).mockResolvedValue({

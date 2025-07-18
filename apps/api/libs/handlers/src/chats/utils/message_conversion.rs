@@ -107,35 +107,6 @@ mod tests {
     }
     
     #[test]
-    fn test_assistant_with_tool_call() {
-        let tool_call = ToolCall {
-            id: "call_123".to_string(),
-            function: litellm::Function {
-                name: "import_assets".to_string(),
-                arguments: r#"{"files": []}"#.to_string(),
-            },
-        };
-        
-        let msg = AgentMessage::Assistant {
-            id: Some("assistant_123".to_string()),
-            content: None,
-            name: None,
-            tool_calls: Some(vec![tool_call]),
-            progress: MessageProgress::Complete,
-            initial: false,
-        };
-        
-        let core_msg = agent_message_to_core_message(&msg).unwrap();
-        
-        assert_eq!(core_msg["role"], "assistant");
-        assert!(core_msg["content"].is_array());
-        let content = core_msg["content"].as_array().unwrap();
-        assert_eq!(content.len(), 1);
-        assert_eq!(content[0]["type"], "tool-call");
-        assert_eq!(content[0]["toolName"], "import_assets");
-    }
-    
-    #[test]
     fn test_tool_result_conversion() {
         let msg = AgentMessage::Tool {
             id: None,

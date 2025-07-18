@@ -113,7 +113,9 @@ refresh_interval: 300`,
     public_enabled_by: null,
     publicly_accessible: false,
     collections: [],
-    versions: []
+    versions: [],
+    workspace_sharing: 'none',
+    workspace_member_count: 20
   };
 
   return { dashboard, response };

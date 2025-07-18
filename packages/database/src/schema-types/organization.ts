@@ -8,4 +8,5 @@ export type OrganizationColorPalette = {
 export type OrganizationColorPalettes = {
   selectedId: string | null;
   palettes: OrganizationColorPalette[];
+  selectedDictionaryPalette: OrganizationColorPalette | null;
 };

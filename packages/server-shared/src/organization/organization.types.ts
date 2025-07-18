@@ -20,6 +20,7 @@ export const ColorPalettesSchema = z.object({
 export const OrganizationColorPaletteSchema = z.object({
   selectedId: z.string().nullable(),
   palettes: z.array(ColorPalettesSchema),
+  selectedDictionaryPalette: ColorPalettesSchema.nullable().default(null),
 });
 
 export const OrganizationSchema = z.object({

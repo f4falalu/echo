@@ -1,5 +1,5 @@
 {
-  "id": "70a9c3cc-d169-4322-8391-05a1b295b1c3",
+  "id": "2969a455-c2ba-4650-8f69-2719e3458967",
   "prevId": "0225764d-f5a8-42d4-965d-a3bcd03225ec",
   "version": "7",
   "dialect": "postgresql",
@@ -403,6 +403,26 @@
           "type": "text",
           "primaryKey": false,
           "notNull": false
+        },
+        "workspace_sharing": {
+          "name": "workspace_sharing",
+          "type": "workspace_sharing_enum",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'none'"
+        },
+        "workspace_sharing_enabled_by": {
+          "name": "workspace_sharing_enabled_by",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "workspace_sharing_enabled_at": {
+          "name": "workspace_sharing_enabled_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
         }
       },
       "indexes": {
@@ -523,6 +543,15 @@
           "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "cascade"
+        },
+        "chats_workspace_sharing_enabled_by_fkey": {
+          "name": "chats_workspace_sharing_enabled_by_fkey",
+          "tableFrom": "chats",
+          "tableTo": "users",
+          "columnsFrom": ["workspace_sharing_enabled_by"],
+          "columnsTo": ["id"],
+          "onDelete": "no action",
+          "onUpdate": "cascade"
         }
       },
       "compositePrimaryKeys": {},
@@ -591,6 +620,26 @@
           "type": "uuid",
           "primaryKey": false,
           "notNull": true
+        },
+        "workspace_sharing": {
+          "name": "workspace_sharing",
+          "type": "workspace_sharing_enum",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'none'"
+        },
+        "workspace_sharing_enabled_by": {
+          "name": "workspace_sharing_enabled_by",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "workspace_sharing_enabled_at": {
+          "name": "workspace_sharing_enabled_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
         }
       },
       "indexes": {},
@@ -618,6 +667,15 @@
           "tableFrom": "collections",
           "tableTo": "users",
           "columnsFrom": ["updated_by"],
+          "columnsTo": ["id"],
+          "onDelete": "no action",
+          "onUpdate": "cascade"
+        },
+        "collections_workspace_sharing_enabled_by_fkey": {
+          "name": "collections_workspace_sharing_enabled_by_fkey",
+          "tableFrom": "collections",
+          "tableTo": "users",
+          "columnsFrom": ["workspace_sharing_enabled_by"],
           "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "cascade"
@@ -815,6 +873,26 @@
           "type": "text",
           "primaryKey": false,
           "notNull": false
+        },
+        "workspace_sharing": {
+          "name": "workspace_sharing",
+          "type": "workspace_sharing_enum",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'none'"
+        },
+        "workspace_sharing_enabled_by": {
+          "name": "workspace_sharing_enabled_by",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "workspace_sharing_enabled_at": {
+          "name": "workspace_sharing_enabled_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
         }
       },
       "indexes": {
@@ -882,6 +960,15 @@
           "tableFrom": "dashboard_files",
           "tableTo": "users",
           "columnsFrom": ["publicly_enabled_by"],
+          "columnsTo": ["id"],
+          "onDelete": "no action",
+          "onUpdate": "cascade"
+        },
+        "dashboard_files_workspace_sharing_enabled_by_fkey": {
+          "name": "dashboard_files_workspace_sharing_enabled_by_fkey",
+          "tableFrom": "dashboard_files",
+          "tableTo": "users",
+          "columnsFrom": ["workspace_sharing_enabled_by"],
           "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "cascade"
@@ -3017,6 +3104,26 @@
           "type": "uuid",
           "primaryKey": false,
           "notNull": true
+        },
+        "workspace_sharing": {
+          "name": "workspace_sharing",
+          "type": "workspace_sharing_enum",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'none'"
+        },
+        "workspace_sharing_enabled_by": {
+          "name": "workspace_sharing_enabled_by",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "workspace_sharing_enabled_at": {
+          "name": "workspace_sharing_enabled_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
         }
       },
       "indexes": {
@@ -3112,6 +3219,15 @@
           "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
+        },
+        "metric_files_workspace_sharing_enabled_by_fkey": {
+          "name": "metric_files_workspace_sharing_enabled_by_fkey",
+          "tableFrom": "metric_files",
+          "tableTo": "users",
+          "columnsFrom": ["workspace_sharing_enabled_by"],
+          "columnsTo": ["id"],
+          "onDelete": "no action",
+          "onUpdate": "cascade"
         }
       },
       "compositePrimaryKeys": {},
@@ -3385,13 +3501,6 @@
           "primaryKey": false,
           "notNull": true,
           "default": "'restricted_querier'"
-        },
-        "organization_color_palettes": {
-          "name": "organization_color_palettes",
-          "type": "jsonb",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'{\"selectedId\": null, \"palettes\": []}'"
         }
       },
       "indexes": {},
@@ -5695,6 +5804,11 @@
         "requested",
         "notRequested"
       ]
+    },
+    "public.workspace_sharing_enum": {
+      "name": "workspace_sharing_enum",
+      "schema": "public",
+      "values": ["none", "can_view", "can_edit", "full_access"]
     }
   },
   "schemas": {},

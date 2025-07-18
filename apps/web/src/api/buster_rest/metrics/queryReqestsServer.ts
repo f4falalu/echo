@@ -3,9 +3,6 @@ import { metricsQueryKeys } from '@/api/query_keys/metric';
 import { upgradeMetricToIMetric } from '@/lib/metrics';
 import { getMetric_server } from './requests';
 
-/*
-
- */
 export const prefetchGetMetric = async (
   params: Parameters<typeof getMetric_server>[0],
   queryClientProp?: QueryClient

@@ -227,7 +227,12 @@ export class SQLServerAdapter extends BaseAdapter {
 
   async close(): Promise<void> {
     if (this.pool) {
-      await this.pool.close();
+      try {
+        await this.pool.close();
+      } catch (error) {
+        // Log error but don't throw - connection is being closed anyway
+        console.error('Error closing SQL Server connection:', error);
+      }
       this.pool = undefined;
     }
     this.connected = false;
@@ -238,6 +243,7 @@ export class SQLServerAdapter extends BaseAdapter {
   }
 
   introspect(): DataSourceIntrospector {
+    this.ensureConnected();
     if (!this.introspector) {
       this.introspector = new SQLServerIntrospector('sqlserver', this);
     }

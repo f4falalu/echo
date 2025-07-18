@@ -5,7 +5,6 @@ import { datasetGroupQueryKeys } from './dataset_groups';
 import { datasetQueryKeys } from './datasets';
 import { datasourceQueryKeys } from './datasources';
 import { metricsQueryKeys } from './metric';
-import { currencyQueryKeys } from './currency';
 import { permissionGroupQueryKeys } from './permission_groups';
 import { searchQueryKeys } from './search';
 import { termsQueryKeys } from './terms';
@@ -26,7 +25,6 @@ export const queryKeys = {
   ...datasourceQueryKeys,
   ...datasetGroupQueryKeys,
   ...permissionGroupQueryKeys,
-  ...currencyQueryKeys,
   ...securityQueryKeys,
   ...slackQueryKeys,
   ...dictionariesQueryKeys

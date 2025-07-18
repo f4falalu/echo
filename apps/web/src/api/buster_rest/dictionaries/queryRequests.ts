@@ -1,22 +1,41 @@
 import { useQuery, QueryClient } from '@tanstack/react-query';
-import { getColorThemes } from './requests';
-import { dictionariesQueryKeys } from '../../query_keys/dictionaries';
+import { getColorPalettes, getCurrencies } from './requests';
+import { dictionariesQueryKeys } from '@/api/query_keys/dictionaries';
+import { useSupabaseContext } from '@/context/Supabase';
 
-export const useColorThemes = () => {
+export const useColorDictionaryThemes = () => {
+  const isAnonymousUser = useSupabaseContext((x) => x.isAnonymousUser);
   return useQuery({
-    ...dictionariesQueryKeys.colorThemes,
-    initialData: [],
-    initialDataUpdatedAt: 0,
-    queryFn: getColorThemes
+    ...dictionariesQueryKeys.colorPalettes,
+    queryFn: getColorPalettes,
+    enabled: !isAnonymousUser
   });
 };
 
-export const prefetchColorThemes = async (queryClientProp?: QueryClient) => {
+export const prefetchColorPalettes = async (queryClientProp?: QueryClient) => {
   const queryClient = queryClientProp || new QueryClient();
 
   await queryClient.prefetchQuery({
-    ...dictionariesQueryKeys.colorThemes,
-    queryFn: getColorThemes
+    ...dictionariesQueryKeys.colorPalettes,
+    queryFn: getColorPalettes
+  });
+
+  return queryClient;
+};
+
+export const useGetCurrencies = () => {
+  return useQuery({
+    ...dictionariesQueryKeys.getCurrencies,
+    queryFn: getCurrencies
+  });
+};
+
+export const prefetchGetCurrencies = async (queryClientProp?: QueryClient) => {
+  const queryClient = queryClientProp || new QueryClient();
+
+  await queryClient.prefetchQuery({
+    ...dictionariesQueryKeys.getCurrencies,
+    queryFn: getCurrencies
   });
 
   return queryClient;

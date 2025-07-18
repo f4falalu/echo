@@ -66,6 +66,7 @@ export async function createTestOrganizationInDb(
     organizationColorPalettes: {
       selectedId: null,
       palettes: [],
+      selectedDictionaryPalette: null,
     },
     ...orgData,
   };

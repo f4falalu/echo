@@ -304,6 +304,7 @@ export class SnowflakeAdapter extends BaseAdapter {
   }
 
   introspect(): DataSourceIntrospector {
+    this.ensureConnected();
     if (!this.introspector) {
       this.introspector = new SnowflakeIntrospector('snowflake', this);
     }

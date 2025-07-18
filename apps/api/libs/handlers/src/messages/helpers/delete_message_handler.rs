@@ -56,6 +56,7 @@ pub async fn delete_message_handler(user: AuthenticatedUser, message_id: Uuid) -
         ],
         chat_with_permission.chat.organization_id,
         &user.organizations,
+        chat_with_permission.chat.workspace_sharing,
     );
     
     // If user is the creator, they automatically have access

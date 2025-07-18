@@ -26,10 +26,11 @@ const keySpecificHandlers: Partial<
   >
 > = {
   colors: (value: unknown) => {
+    //because colors can come from the org, we only define them if they are not already defined
     const colors = value as ChartConfigProps['colors'];
-    if (isEmpty(colors)) return DEFAULT_CHART_CONFIG.colors;
-    if (colors.length >= 3) return colors; //we need at least 3 colors for the chart icons
-    return Array.from({ length: 3 }, (_, index) => colors[index % colors.length]);
+    if (colors && !isEmpty(colors)) return colors;
+    if (colors && colors.length <= 3)
+      return Array.from({ length: 3 }, (_, index) => colors[index % colors.length]);
   },
   scatterDotSize: (value: unknown) => {
     const scatterDotSize = value as ChartConfigProps['scatterDotSize'];

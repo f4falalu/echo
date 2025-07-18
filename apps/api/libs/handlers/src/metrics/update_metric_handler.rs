@@ -1,7 +1,7 @@
 use anyhow::{anyhow, bail, Result};
 use chrono::{DateTime, Utc};
 use database::{
-    enums::{AssetPermissionRole, AssetType, DataSourceType, IdentityType, Verification},
+    enums::{AssetPermissionRole, AssetType, DataSourceType, IdentityType, Verification, WorkspaceSharing},
     helpers::metric_files::fetch_metric_file_with_permissions,
     models::{Dataset, MetricFile, MetricFileToDataset},
     pool::get_pg_pool,
@@ -131,6 +131,7 @@ pub async fn update_metric_handler(
         ],
         organization_id,
         &user.organizations,
+        WorkspaceSharing::None, // Use None as default for update handlers
     ) {
         return Err(anyhow!(
             "You don't have permission to update this metric. Editor or higher role required."

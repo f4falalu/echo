@@ -13,6 +13,7 @@ import {
   scatterDataProblematic1
 } from './scatterData_problematic1';
 import { DEFAULT_COLUMN_LABEL_FORMAT, type ColumnLabelFormat } from '@buster/server-shared/metrics';
+import { DEFAULT_CHART_THEME } from '@buster/server-shared/metrics';
 
 type ScatterChartData = ReturnType<typeof generateScatterChartData>;
 
@@ -833,18 +834,7 @@ export const ProblematicDatasetWithLinearRegression: Story = {
         barRoundness: 8
       }
     },
-    colors: [
-      '#B399FD',
-      '#FC8497',
-      '#FBBC30',
-      '#279EFF',
-      '#E83562',
-      '#41F8FF',
-      '#F3864F',
-      '#C82184',
-      '#31FCB4',
-      '#E83562'
-    ],
+    colors: DEFAULT_CHART_THEME,
     gridLines: true,
     showLegendHeadline: false,
     goalLines: [],

@@ -12,7 +12,7 @@ export const PERSISTED_QUERIES = [queryKeys.slackGetChannels.queryKey].map(hashK
 
 export const PERMANENT_QUERIES = [
   queryKeys.getCurrencies.queryKey,
-  queryKeys.colorThemes.queryKey
+  queryKeys.colorPalettes.queryKey
 ].map(hashKey);
 
 const ALL_PERSISTED_QUERIES = [...PERSISTED_QUERIES, ...PERMANENT_QUERIES];

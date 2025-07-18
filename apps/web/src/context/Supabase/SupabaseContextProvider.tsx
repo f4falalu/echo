@@ -23,7 +23,8 @@ const useSupabaseContextInternal = ({
   const { openErrorNotification, openInfoMessage } = useBusterNotifications();
   const [accessToken, setAccessToken] = useState(supabaseContext.accessToken || '');
 
-  const isAnonymousUser = !supabaseContext.user?.id || supabaseContext.user?.is_anonymous === true;
+  const isAnonymousUser: boolean =
+    !supabaseContext.user?.id || supabaseContext.user?.is_anonymous === true;
 
   const getExpiresAt = useMemoizedFn((token?: string) => {
     const decoded = jwtDecode(token || accessToken);
@@ -88,7 +89,7 @@ const useSupabaseContextInternal = ({
     async ({ accessToken, expiresAt: _expiresAt }: { accessToken: string; expiresAt: number }) => {
       setAccessToken(accessToken);
       flushSync(() => {
-        openInfoMessage('Token refreshed');
+        //noop
       });
     }
   );

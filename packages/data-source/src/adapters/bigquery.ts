@@ -162,6 +162,7 @@ export class BigQueryAdapter extends BaseAdapter {
   }
 
   introspect(): DataSourceIntrospector {
+    this.ensureConnected();
     if (!this.introspector) {
       this.introspector = new BigQueryIntrospector('bigquery', this);
     }

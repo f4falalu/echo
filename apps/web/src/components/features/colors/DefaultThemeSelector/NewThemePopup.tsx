@@ -1,24 +1,33 @@
 import { Button } from '@/components/ui/buttons';
 import { Input } from '@/components/ui/inputs';
 import { Text } from '@/components/ui/typography';
-import React, { useEffect, useState } from 'react';
-import type { IColorTheme } from '../ThemeList';
+import React, { useEffect, useRef, useState } from 'react';
+import type { IColorPalette } from '../ThemeList';
 import { useMemoizedFn } from '@/hooks';
 import { v4 as uuidv4 } from 'uuid';
-import { Plus, Trash } from '../../../ui/icons';
+import { Plus, Trash, FloppyDisk } from '../../../ui/icons';
 import { ColorPickButton } from './DraggableColorPicker';
 import { inputHasText } from '@/lib/text';
 import { DEFAULT_CHART_THEME } from '@buster/server-shared/metrics';
+import { Popover } from '../../../ui/popover';
 
 interface NewThemePopupProps {
-  selectedTheme?: IColorTheme;
-  onSave: (theme: IColorTheme) => Promise<void>;
+  selectedTheme?: IColorPalette;
+  onSave: (theme: IColorPalette) => Promise<void>;
   onDelete?: (id: string) => Promise<void>;
-  onUpdate?: (theme: IColorTheme) => Promise<void>;
+  onUpdate?: (theme: IColorPalette) => Promise<void>;
 }
 
-export const NewThemePopup = React.memo(
-  ({ selectedTheme, onDelete, onUpdate, onSave }: NewThemePopupProps) => {
+const NewThemePopupContent = React.memo(
+  ({
+    selectedTheme,
+    onDelete,
+    onUpdate,
+    onSave,
+    triggerRef
+  }: NewThemePopupProps & {
+    triggerRef: React.RefObject<HTMLSpanElement>;
+  }) => {
     const [title, setTitle] = useState('');
     const [colors, setColors] = useState<string[]>(DEFAULT_CHART_THEME);
     const [id, setId] = useState(uuidv4());
@@ -32,8 +41,13 @@ export const NewThemePopup = React.memo(
       setId(uuidv4());
     });
 
+    const closePopover = useMemoizedFn(() => {
+      triggerRef.current?.click();
+    });
+
     const onDeleteClick = useMemoizedFn(async () => {
       if (selectedTheme) await onDelete?.(id);
+      closePopover();
       setTimeout(() => {
         reset();
       }, 350);
@@ -41,6 +55,7 @@ export const NewThemePopup = React.memo(
 
     const onSaveClick = useMemoizedFn(async () => {
       await onSave({ id, name: title, colors });
+      closePopover();
       setTimeout(() => {
         reset();
       }, 350);
@@ -48,6 +63,7 @@ export const NewThemePopup = React.memo(
 
     const onUpdateClick = useMemoizedFn(async () => {
       await onUpdate?.({ id, name: title, colors });
+      closePopover();
       setTimeout(() => {
         reset();
       }, 350);
@@ -89,7 +105,7 @@ export const NewThemePopup = React.memo(
             block
             disabled={disableCreateTheme}
             onClick={isNewTheme ? onSaveClick : onUpdateClick}
-            prefix={<Plus />}>
+            prefix={isNewTheme ? <Plus /> : <FloppyDisk />}>
             {isNewTheme || !onUpdate ? 'Create theme' : 'Update theme'}
           </Button>
         </div>
@@ -98,4 +114,22 @@ export const NewThemePopup = React.memo(
   }
 );
 
-NewThemePopup.displayName = 'NewThemePopup';
+NewThemePopupContent.displayName = 'NewThemePopupContent';
+
+export const NewThemePopup = ({
+  children,
+  ...props
+}: NewThemePopupProps & { children: React.ReactNode }) => {
+  const triggerRef = useRef<HTMLSpanElement>(null);
+  return (
+    <Popover
+      content={<NewThemePopupContent {...props} triggerRef={triggerRef} />}
+      trigger="click"
+      className="max-w-[320px] p-0"
+      sideOffset={12}>
+      <span data-testid="new-theme-popup-trigger" ref={triggerRef}>
+        {children}
+      </span>
+    </Popover>
+  );
+};
