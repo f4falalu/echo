@@ -1,76 +1,89 @@
-import { Eval, initDataset } from 'braintrust';
 import { RuntimeContext } from '@mastra/core/runtime-context';
-import analystWorkflow, { AnalystRuntimeContext } from '../../../../src/workflows/analyst-workflow';
-import { usesExpectedPrecomputedMetric, acceptableAnswersScorer, preferredAnswerScorer, 
-    doneMessageMatchesSqlResults, checkUsesExecuteSQLToCreateMetrics, todoMarkdownBoxes,
-    executeSqlFollowedByValidTool, allFilesUseYmlBlockScalar, MetricCreatedSuccessfully,
-    timeFrameIsString, exactlyOneDoneTool, NoFailureToCreateMetrics, dashboardCreatedForMultipleMetrics} from './example_scorers';
+import { Eval, initDataset } from 'braintrust';
+import analystWorkflow, {
+  type AnalystRuntimeContext,
+} from '../../../../src/workflows/analyst-workflow';
+import {
+  MetricCreatedSuccessfully,
+  NoFailureToCreateMetrics,
+  acceptableAnswersScorer,
+  allFilesUseYmlBlockScalar,
+  checkUsesExecuteSQLToCreateMetrics,
+  dashboardCreatedForMultipleMetrics,
+  doneMessageMatchesSqlResults,
+  exactlyOneDoneTool,
+  executeSqlFollowedByValidTool,
+  preferredAnswerScorer,
+  timeFrameIsString,
+  todoMarkdownBoxes,
+  usesExpectedPrecomputedMetric,
+} from './example_scorers';
 
-
-const basicSuite = [executeSqlFollowedByValidTool, MetricCreatedSuccessfully, exactlyOneDoneTool,
-    NoFailureToCreateMetrics, dashboardCreatedForMultipleMetrics
-]
-const formatSuite = [todoMarkdownBoxes, allFilesUseYmlBlockScalar, timeFrameIsString]
-const basicLLMSuite = [checkUsesExecuteSQLToCreateMetrics, doneMessageMatchesSqlResults]
-const expectedSuite = [usesExpectedPrecomputedMetric, acceptableAnswersScorer, preferredAnswerScorer]
+const basicSuite = [
+  executeSqlFollowedByValidTool,
+  MetricCreatedSuccessfully,
+  exactlyOneDoneTool,
+  NoFailureToCreateMetrics,
+  dashboardCreatedForMultipleMetrics,
+];
+const formatSuite = [todoMarkdownBoxes, allFilesUseYmlBlockScalar, timeFrameIsString];
+const basicLLMSuite = [checkUsesExecuteSQLToCreateMetrics, doneMessageMatchesSqlResults];
+const expectedSuite = [
+  usesExpectedPrecomputedMetric,
+  acceptableAnswersScorer,
+  preferredAnswerScorer,
+];
 
 const getMetricCreation = async (input: string) => {
-    const runtimeContext = new RuntimeContext<AnalystRuntimeContext>();
-    runtimeContext.set('userId', 'c2dd64cd-f7f3-4884-bc91-d46ae431901e');
-    runtimeContext.set('organizationId', 'bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce');
-    runtimeContext.set('dataSourceId', 'cc3ef3bc-44ec-4a43-8dc4-681cae5c996a');
-    runtimeContext.set('dataSourceSyntax', 'postgresql');
-    const run = analystWorkflow.createRun();
-  
-    const response = await run.start({
-      inputData: { prompt: input },
-      runtimeContext,
-    });
-  
-    if (response.status === 'failed') {
-      throw new Error(`Workflow failed: ${response.error}`);
-    }
-  
-    const formatOutputStep = response.steps['format-output'];
-    if (formatOutputStep.status === 'failed') {
-      throw new Error(`Format output step failed: ${formatOutputStep.error}`);
-    }
-  
-    return  formatOutputStep.output.outputMessages || [];
-};
+  const runtimeContext = new RuntimeContext<AnalystRuntimeContext>();
+  runtimeContext.set('userId', 'c2dd64cd-f7f3-4884-bc91-d46ae431901e');
+  runtimeContext.set('organizationId', 'bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce');
+  runtimeContext.set('dataSourceId', 'cc3ef3bc-44ec-4a43-8dc4-681cae5c996a');
+  runtimeContext.set('dataSourceSyntax', 'postgresql');
+  const run = analystWorkflow.createRun();
 
+  const response = await run.start({
+    inputData: { prompt: input },
+    runtimeContext,
+  });
+
+  if (response.status === 'failed') {
+    throw new Error(`Workflow failed: ${response.error}`);
+  }
+
+  const formatOutputStep = response.steps['format-output'];
+  if (formatOutputStep.status === 'failed') {
+    throw new Error(`Format output step failed: ${formatOutputStep.error}`);
+  }
+
+  return formatOutputStep.output.outputMessages || [];
+};
 
 //basic function that just returns the input, used for super basic testing
 const returnOutput = async (input: string) => {
-    return input;
-  };
-  
+  return input;
+};
 
 //Example eval for testing evals with a pre-made output
-Eval("Eval-Testing",
-{
-experimentName: 'check-answer-scorers',
-data: initDataset({
+Eval('Eval-Testing', {
+  experimentName: 'check-answer-scorers',
+  data: initDataset({
     project: 'Eval-Testing',
     dataset: 'premade-badmath-runs',
-}),
-    task: (input, hooks) => {
+  }),
+  task: (input, hooks) => {
     return hooks.metadata.output;
-    },
-scores: []
-},
-);
-
+  },
+  scores: [],
+});
 
 Eval('development', {
-experimentName: 'bad-math-prompt-changes',
-data: initDataset({
+  experimentName: 'bad-math-prompt-changes',
+  data: initDataset({
     project: 'development',
     dataset: 'Does-Bad-Math',
-}),
-task: getMetricCreation,
-scores: [],
-maxConcurrency: 5,
-})
-
-  
+  }),
+  task: getMetricCreation,
+  scores: [],
+  maxConcurrency: 5,
+});
