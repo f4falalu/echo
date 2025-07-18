@@ -5,7 +5,7 @@ import { useMemoizedFn } from '@/hooks';
 import type { IColorTheme } from '@/components/features/colors/ThemeList';
 import { ThemeList } from '@/components/features/colors/ThemeList';
 import { useColorThemes } from '@/api/buster_rest/dictionaries';
-import { useGetMyUserInfo, useGetUser } from '@/api/buster_rest/users';
+import { useGetMyUserInfo } from '@/api/buster_rest/users';
 import { EditCustomThemeMenu } from '@/components/features/colors/DefaultThemeSelector/EditCustomThemeMenu';
 import { AddThemeProviderWrapper } from '@/components/features/colors/DefaultThemeSelector/AddThemeProviderWrapper';
 import { useThemeOperations } from '@/components/features/colors/useThemeOperations';
@@ -22,20 +22,20 @@ export const ColorsApp: React.FC<{
     userConfig?.organizations?.[0]?.organizationColorPalettes?.palettes || [];
 
   const iThemes: Required<IColorTheme>[] = useMemo(() => {
-    const organizationThemes = organizationPalettes.map((theme) => ({
+    const organizationThemes = organizationPalettes.map((theme: any) => ({
       ...theme,
       selected: isEqual(theme.colors, colors),
       hideThreeDotMenu: false
     }));
     
-    const dictionaryThemes = themes.map((theme) => ({
+    const dictionaryThemes = themes.map((theme: any) => ({
       ...theme,
       selected: isEqual(theme.colors, colors),
       hideThreeDotMenu: true
     }));
 
     return [...organizationThemes, ...dictionaryThemes];
-  }, [themes, organizationPalettes, colors]);
+  }, [themes, organizationPalettes, colors, userConfig]);
 
   const onChangeColorTheme = useMemoizedFn((theme: IColorTheme) => {
     onUpdateChartConfig({ colors: theme.colors });

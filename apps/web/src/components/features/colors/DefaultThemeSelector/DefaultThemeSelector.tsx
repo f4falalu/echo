@@ -1,7 +1,6 @@
 import React from 'react';
 import { DefaultThemeSelectorBase } from './DefaultThemeSelectorBase';
 import { useGetMyUserInfo } from '@/api/buster_rest/users/queryRequests';
-import { useUpdateOrganization } from '@/api/buster_rest/organizations/queryRequests';
 import type { IColorTheme } from '../ThemeList';
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import { useColorThemes } from '@/api/buster_rest/dictionaries';
@@ -13,7 +12,6 @@ export const DefaultThemeSelector = React.memo(
   ({ className, themeListClassName }: { className?: string; themeListClassName?: string }) => {
     const { data: userData } = useGetMyUserInfo();
     const { data: themes, isFetched: isFetchedThemes, isError: isErrorThemes } = useColorThemes();
-    const { mutateAsync: updateOrganization } = useUpdateOrganization();
 
     const { onCreateCustomTheme, onDeleteCustomTheme, onModifyCustomTheme, onSelectTheme } = useThemeOperations();
 

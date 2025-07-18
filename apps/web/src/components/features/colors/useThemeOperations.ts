@@ -28,7 +28,7 @@ export const useThemeOperations = () => {
       organizationColorPalettes: {
         selectedId: isSelectedTheme ? null : currentThemeId,
         palettes: organization.organizationColorPalettes.palettes.filter(
-          (theme) => theme.id !== themeId
+          (theme: { id: string }) => theme.id !== themeId
         )
       }
     });
@@ -40,17 +40,17 @@ export const useThemeOperations = () => {
     await updateOrganization({
       organizationColorPalettes: {
         selectedId: organization.organizationColorPalettes.selectedId,
-        palettes: organization.organizationColorPalettes.palettes.map((t) =>
+        palettes: organization.organizationColorPalettes.palettes.map((t: IColorTheme) =>
           t.id === themeId ? theme : t
         )
       }
     });
   });
 
-  const onSelectTheme = useMemoizedFn((theme: IColorTheme) => {
+  const onSelectTheme = useMemoizedFn(async (theme: IColorTheme) => {
     if (!organization) return;
 
-    updateOrganization({
+    await updateOrganization({
       organizationColorPalettes: {
         selectedId: theme.id,
         palettes: organization.organizationColorPalettes.palettes
