@@ -1,15 +1,15 @@
 'use client';
 
-import React, { useMemo } from 'react';
+import React from 'react';
 import { SettingsCards } from './SettingsCard';
 import { Text } from '@/components/ui/typography';
-import { useGetMyUserInfo } from '@/api/buster_rest/users/queryRequests';
 import { useMount } from '../../../hooks';
-import { prefetchColorThemes, useColorThemes } from '../../../api/buster_rest/dictionaries';
+import { prefetchColorThemes } from '../../../api/buster_rest/dictionaries';
 import { ThemeColorDots } from '../colors/ThemeList/ThemeColorDots';
 import { Popover } from '../../ui/popover';
 import { DefaultThemeSelector } from '../colors/DefaultThemeSelector';
 import { ChevronDown } from '../../ui/icons';
+import { useGetPalettes } from '@/context-hooks/useGetOrganizationPalettes';
 
 export const DefaultColorThemeCard = React.memo(() => {
   return (
@@ -36,22 +36,9 @@ export const DefaultColorThemeCard = React.memo(() => {
 DefaultColorThemeCard.displayName = 'DefaultColorThemeCard';
 
 const PickButton = React.memo(() => {
-  const { data: userData } = useGetMyUserInfo();
-  const { data: colorThemes } = useColorThemes();
+  const { defaultPalette } = useGetPalettes();
 
-  const organization = userData?.organizations?.[0];
-  const customThemes = organization?.organizationColorPalettes.palettes ?? [];
-  const defaultColorThemeId = organization?.organizationColorPalettes.selectedId;
-
-  const allThemes = useMemo(() => {
-    return [...colorThemes, ...customThemes];
-  }, [colorThemes, customThemes]);
-
-  const defaultColorTheme = useMemo(() => {
-    return allThemes.find((theme) => theme.id === defaultColorThemeId);
-  }, [allThemes, defaultColorThemeId]);
-
-  const hasDefaultColorTheme = !!defaultColorTheme;
+  const hasDefaultPalette = !!defaultPalette;
 
   useMount(() => {
     prefetchColorThemes();
@@ -68,8 +55,8 @@ const PickButton = React.memo(() => {
       }>
       <div className="hover:bg-item-hover flex h-7 min-h-7 cursor-pointer items-center space-x-1.5 overflow-hidden rounded border px-2 py-1 pl-2.5">
         <div>
-          {hasDefaultColorTheme ? (
-            <ThemeColorDots colors={defaultColorTheme.colors} numberOfColors={'all'} />
+          {hasDefaultPalette ? (
+            <ThemeColorDots colors={defaultPalette.colors} numberOfColors={'all'} />
           ) : (
             <Text variant="secondary" size={'xs'}>
               No default color theme

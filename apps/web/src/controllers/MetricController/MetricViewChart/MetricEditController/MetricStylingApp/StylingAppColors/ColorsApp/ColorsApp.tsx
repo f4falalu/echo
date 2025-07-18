@@ -4,26 +4,21 @@ import type { ChartConfigProps } from '@buster/server-shared/metrics';
 import { useMemoizedFn } from '@/hooks';
 import type { IColorPalette } from '@/components/features/colors/ThemeList';
 import { ThemeList } from '@/components/features/colors/ThemeList';
-import { useColorThemes } from '@/api/buster_rest/dictionaries';
-import { useGetMyUserInfo } from '@/api/buster_rest/users';
 import { EditCustomThemeMenu } from '@/components/features/colors/DefaultThemeSelector/EditCustomThemeMenu';
 import { AddThemeProviderWrapper } from '@/components/features/colors/DefaultThemeSelector/AddThemeProviderWrapper';
 import { useThemeOperations } from '@/context-hooks/useThemeOperations';
+import { useGetPalettes } from '@/context-hooks/useGetOrganizationPalettes';
 
 export const ColorsApp: React.FC<{
   colors: ChartConfigProps['colors'];
   onUpdateChartConfig: (chartConfig: Partial<ChartConfigProps>) => void;
 }> = ({ colors, onUpdateChartConfig }) => {
-  const { data: themes } = useColorThemes();
-  const { data: userConfig } = useGetMyUserInfo();
   const { onCreateCustomTheme, onDeleteCustomTheme, onModifyCustomTheme } = useThemeOperations();
-
-  const organizationPalettes =
-    userConfig?.organizations?.[0]?.organizationColorPalettes?.palettes || [];
+  const { organizationPalettes, dictionaryPalettes } = useGetPalettes();
 
   const iThemes: Required<IColorPalette>[] = useMemo(() => {
     let hasSelectedTheme = false;
-    const organizationThemes = organizationPalettes.map((theme: any) => {
+    const organizationThemes = organizationPalettes.map((theme) => {
       const isSelected = isEqual(theme.colors, colors);
       if (isSelected) {
         hasSelectedTheme = true;
@@ -35,7 +30,7 @@ export const ColorsApp: React.FC<{
       };
     });
 
-    const dictionaryThemes = themes.map((theme: any) => {
+    const dictionaryThemes = dictionaryPalettes.map((theme) => {
       const isSelected = !hasSelectedTheme && isEqual(theme.colors, colors);
       if (isSelected) {
         hasSelectedTheme = true;
@@ -49,10 +44,12 @@ export const ColorsApp: React.FC<{
 
     if (!hasSelectedTheme && organizationPalettes.length > 0) {
       organizationThemes[0].selected = true;
+    } else if (!hasSelectedTheme && dictionaryPalettes.length > 0) {
+      dictionaryThemes[0].selected = true;
     }
 
     return [...organizationThemes, ...dictionaryThemes];
-  }, [themes, organizationPalettes, colors, userConfig]);
+  }, [dictionaryPalettes, organizationPalettes, colors]);
 
   const onChangeColorTheme = useMemoizedFn((theme: IColorPalette) => {
     onUpdateChartConfig({ colors: theme.colors });

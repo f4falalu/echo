@@ -3,7 +3,7 @@ import { queryOptions } from '@tanstack/react-query';
 
 export const colorThemes = queryOptions<ColorThemeDictionariesResponse>({
   queryKey: ['color-themes', 'list'],
-  staleTime: 60 * 1000 * 60 * 24 * 7 // 7 days
+  staleTime: 60 * 1000 * 60 * 24 * 3 // 3 days
 });
 
 export const dictionariesQueryKeys = {

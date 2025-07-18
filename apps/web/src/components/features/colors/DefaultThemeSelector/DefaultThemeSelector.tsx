@@ -1,27 +1,30 @@
 import React from 'react';
 import { DefaultThemeSelectorBase } from './DefaultThemeSelectorBase';
 import { useGetMyUserInfo } from '@/api/buster_rest/users/queryRequests';
-import { useColorThemes } from '@/api/buster_rest/dictionaries';
+import { useColorDictionaryThemes } from '@/api/buster_rest/dictionaries';
 import { StatusCard } from '@/components/ui/card/StatusCard';
 import { CircleSpinnerLoader } from '../../../ui/loaders';
 import { useThemeOperations } from '@/context-hooks/useThemeOperations';
+import { useGetPalettes } from '@/context-hooks/useGetOrganizationPalettes';
 
 export const DefaultThemeSelector = React.memo(
   ({ className, themeListClassName }: { className?: string; themeListClassName?: string }) => {
     const { data: userData } = useGetMyUserInfo();
-    const { data: themes, isFetched: isFetchedThemes, isError: isErrorThemes } = useColorThemes();
+
+    const {
+      isErrorDictionaryPalettes,
+      isFetchedDictionaryPalettes,
+      organizationPalettes,
+      dictionaryPalettes,
+      selectedPaletteId
+    } = useGetPalettes();
 
     const { onCreateCustomTheme, onDeleteCustomTheme, onModifyCustomTheme, onSelectTheme } =
       useThemeOperations();
 
-    const organization = userData?.organizations?.[0];
-    const organizationColorPalettes = organization?.organizationColorPalettes;
+    if (!isFetchedDictionaryPalettes) return <CircleSpinnerLoader />;
 
-    if (!organizationColorPalettes || !organization) return null;
-
-    if (!isFetchedThemes) return <CircleSpinnerLoader />;
-
-    if (isErrorThemes)
+    if (isErrorDictionaryPalettes)
       return (
         <StatusCard
           title="Error fetching themes"
@@ -32,9 +35,9 @@ export const DefaultThemeSelector = React.memo(
 
     return (
       <DefaultThemeSelectorBase
-        customThemes={organizationColorPalettes.palettes}
-        selectedThemeId={organizationColorPalettes.selectedId}
-        themes={themes || []}
+        customThemes={organizationPalettes}
+        selectedThemeId={selectedPaletteId}
+        themes={dictionaryPalettes || []}
         onCreateCustomTheme={onCreateCustomTheme}
         onDeleteCustomTheme={onDeleteCustomTheme}
         onModifyCustomTheme={onModifyCustomTheme}
