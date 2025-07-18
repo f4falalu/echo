@@ -6,6 +6,7 @@ import { ThemeColorDots } from './ThemeColorDots';
 import { Dots } from '../../../ui/icons';
 import { Button } from '../../../ui/buttons';
 import { Popover } from '../../../ui/popover';
+import { useUserConfigContextSelector } from '@/context/Users';
 
 export const ThemeList: React.FC<{
   themes: Required<IColorTheme>[];
@@ -40,8 +41,10 @@ const ColorOption: React.FC<{
   onChangeColorTheme: (theme: IColorTheme) => void;
 }> = React.memo(({ theme, selected, threeDotMenu, onChangeColorTheme }) => {
   const { name, colors } = theme;
+  const isAdmin = useUserConfigContextSelector((state) => state.isAdmin);
 
   const ThreeDotMenuComponent = threeDotMenu;
+  const shouldShowMenu = ThreeDotMenuComponent && !theme.hideThreeDotMenu && isAdmin;
 
   return (
     <div
@@ -62,7 +65,7 @@ const ColorOption: React.FC<{
       <div className="flex items-center gap-x-1">
         <ThemeColorDots selected={selected} colors={colors} />
 
-        {ThreeDotMenuComponent && (
+        {shouldShowMenu && (
           <div onClick={(e) => e.stopPropagation()}>
             <Popover
               className="p-0"
