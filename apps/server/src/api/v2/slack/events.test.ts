@@ -1,5 +1,5 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { db } from '@buster/database';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { findOrCreateSlackChat } from './events';
 
 vi.mock('@buster/database', () => ({
@@ -19,10 +19,10 @@ describe('findOrCreateSlackChat', () => {
   it('should create a chat with workspace sharing when Slack integration has shareWithWorkspace', async () => {
     // Mock implementations need to handle being called twice
     let selectCallCount = 0;
-    
+
     vi.mocked(db.select).mockImplementation(() => {
       selectCallCount++;
-      
+
       // First call is for existing chat, second is for slack integration
       if (selectCallCount === 1) {
         // Mock for existing chat query
@@ -30,13 +30,6 @@ describe('findOrCreateSlackChat', () => {
           from: vi.fn().mockReturnThis(),
           where: vi.fn().mockReturnThis(),
           limit: vi.fn().mockResolvedValue([]),
-        } as any;
-      } else {
-        // Mock for slack integration query
-        return {
-          from: vi.fn().mockReturnThis(),
-          where: vi.fn().mockReturnThis(),
-          limit: vi.fn().mockResolvedValue([{ defaultSharingPermissions: 'shareWithWorkspace' }]),
         } as any;
       }
     });
@@ -75,10 +68,10 @@ describe('findOrCreateSlackChat', () => {
   it('should create a chat without workspace sharing when Slack integration has different setting', async () => {
     // Mock implementations need to handle being called twice
     let selectCallCount = 0;
-    
+
     vi.mocked(db.select).mockImplementation(() => {
       selectCallCount++;
-      
+
       // First call is for existing chat, second is for slack integration
       if (selectCallCount === 1) {
         // Mock for existing chat query
@@ -86,13 +79,6 @@ describe('findOrCreateSlackChat', () => {
           from: vi.fn().mockReturnThis(),
           where: vi.fn().mockReturnThis(),
           limit: vi.fn().mockResolvedValue([]),
-        } as any;
-      } else {
-        // Mock for slack integration query
-        return {
-          from: vi.fn().mockReturnThis(),
-          where: vi.fn().mockReturnThis(),
-          limit: vi.fn().mockResolvedValue([{ defaultSharingPermissions: 'shareWithChannel' }]),
         } as any;
       }
     });
@@ -131,10 +117,10 @@ describe('findOrCreateSlackChat', () => {
   it('should return existing chat if found', async () => {
     // Mock implementations need to handle being called twice
     let selectCallCount = 0;
-    
+
     vi.mocked(db.select).mockImplementation(() => {
       selectCallCount++;
-      
+
       // First call is for existing chat, second is for slack integration
       if (selectCallCount === 1) {
         // Mock for existing chat query - chat exists
@@ -142,13 +128,6 @@ describe('findOrCreateSlackChat', () => {
           from: vi.fn().mockReturnThis(),
           where: vi.fn().mockReturnThis(),
           limit: vi.fn().mockResolvedValue([{ id: 'existing-chat-id' }]),
-        } as any;
-      } else {
-        // Mock for slack integration query (won't be used due to early return)
-        return {
-          from: vi.fn().mockReturnThis(),
-          where: vi.fn().mockReturnThis(),
-          limit: vi.fn().mockResolvedValue([]),
         } as any;
       }
     });
@@ -169,20 +148,13 @@ describe('findOrCreateSlackChat', () => {
   it('should create chat without workspace sharing when no Slack integration found', async () => {
     // Mock implementations need to handle being called twice
     let selectCallCount = 0;
-    
+
     vi.mocked(db.select).mockImplementation(() => {
       selectCallCount++;
-      
+
       // First call is for existing chat, second is for slack integration
       if (selectCallCount === 1) {
         // Mock for existing chat query
-        return {
-          from: vi.fn().mockReturnThis(),
-          where: vi.fn().mockReturnThis(),
-          limit: vi.fn().mockResolvedValue([]),
-        } as any;
-      } else {
-        // Mock for slack integration query - no integration found
         return {
           from: vi.fn().mockReturnThis(),
           where: vi.fn().mockReturnThis(),
