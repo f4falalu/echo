@@ -12,13 +12,14 @@ use database::{
 use diesel::{ExpressionMethods, JoinOnDsl, NullableExpressionMethods, QueryDsl, Queryable};
 use diesel_async::RunQueryDsl;
 use middleware::AuthenticatedUser;
-use sharing::check_permission_access;
+use sharing::{check_permission_access, compute_effective_permission};
 use tracing;
 use uuid::Uuid;
 
 use crate::collections::types::{
     AssetUser, BusterShareIndividual, CollectionAsset, CollectionState, GetCollectionRequest,
 };
+use crate::utils::workspace::count_workspace_members;
 
 #[derive(Queryable)]
 struct AssetPermissionInfo {
@@ -92,26 +93,27 @@ pub async fn get_collection_handler(
         ],
         collection_with_permission.collection.organization_id,
         &user.organizations,
+        collection_with_permission.collection.workspace_sharing,
     ) {
         return Err(anyhow!("You don't have permission to view this collection"));
     }
 
-    // Extract permission for consistent use in response
-    // If the asset is public and the user has no direct permission, default to CanView
-    let mut permission = collection_with_permission.permission
-        .unwrap_or(AssetPermissionRole::CanView);
-
-    // Check if user is WorkspaceAdmin or DataAdmin for this organization
-    let is_admin = user.organizations.iter().any(|org| {
-        org.id == collection_with_permission.collection.organization_id
-            && (org.role == database::enums::UserOrganizationRole::WorkspaceAdmin
-                || org.role == database::enums::UserOrganizationRole::DataAdmin)
-    });
-
-    if is_admin {
-        // Admin users get Owner permissions
-        permission = AssetPermissionRole::Owner;
-    }
+    // Compute the effective permission (highest of direct and workspace sharing)
+    let permission = compute_effective_permission(
+        collection_with_permission.permission,
+        collection_with_permission.collection.workspace_sharing,
+        collection_with_permission.collection.organization_id,
+        &user.organizations,
+    ).unwrap_or(AssetPermissionRole::CanView);
+    
+    tracing::debug!(
+        collection_id = %req.id, 
+        user_id = %user.id, 
+        direct_permission = ?collection_with_permission.permission,
+        workspace_sharing = ?collection_with_permission.collection.workspace_sharing,
+        effective_permission = ?permission, 
+        "Computed effective permission for collection"
+    );
 
     let mut conn = match get_pg_pool().get().await {
         Ok(conn) => conn,
@@ -318,9 +320,26 @@ pub async fn get_collection_handler(
     let all_assets = [metric_assets, dashboard_assets, chat_assets].concat(); // Add chat_assets
     let formatted_assets = format_assets(all_assets);
 
+    // Get workspace sharing enabled by email if set
+    let workspace_sharing_enabled_by = if let Some(enabled_by_id) = collection_with_permission.collection.workspace_sharing_enabled_by {
+        users::table
+            .filter(users::id.eq(enabled_by_id))
+            .select(users::email)
+            .first::<String>(&mut conn)
+            .await
+            .ok()
+    } else {
+        None
+    };
+
+    // Count workspace members
+    let workspace_member_count = count_workspace_members(collection_with_permission.collection.organization_id)
+        .await
+        .unwrap_or(0);
+
     // Create collection state
     let collection_state = CollectionState {
-        collection: collection_with_permission.collection,
+        collection: collection_with_permission.collection.clone(),
         assets: Some(formatted_assets),
         permission,
         organization_permissions: false, // TODO: Implement organization permissions
@@ -329,6 +348,12 @@ pub async fn get_collection_handler(
         public_expiry_date,
         public_enabled_by,
         public_password: None, // TODO: Implement password protection
+        // Workspace sharing fields
+        workspace_sharing: collection_with_permission.collection.workspace_sharing,
+        workspace_sharing_enabled_by,
+        workspace_sharing_enabled_at: collection_with_permission.collection.workspace_sharing_enabled_at,
+        // Workspace member count
+        workspace_member_count,
     };
 
     Ok(collection_state)

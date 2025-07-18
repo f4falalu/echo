@@ -927,6 +927,9 @@ pub async fn process_metric_file(
         public_expiry_date: None,
         version_history: VersionHistory::new(1, metric_yml.clone()),
         data_metadata: metadata,
+        workspace_sharing: database::enums::WorkspaceSharing::None,
+        workspace_sharing_enabled_by: None,
+        workspace_sharing_enabled_at: None,
         public_password: None,
         data_source_id,
     };
@@ -1253,6 +1256,7 @@ pub fn apply_modifications_to_content(
 mod tests {
     use super::*;
     use chrono::Utc;
+    use database::enums::WorkspaceSharing;
     use database::models::DashboardFile;
     use database::types::DashboardYml;
 
@@ -1368,6 +1372,9 @@ rows:
             public_expiry_date: None,
             version_history,
             public_password: None,
+            workspace_sharing: WorkspaceSharing::None,
+            workspace_sharing_enabled_at: None,
+            workspace_sharing_enabled_by: None,
         };
 
         // Create a file modification
@@ -1543,6 +1550,9 @@ rows:
             public_expiry_date: None,
             version_history,
             public_password: None,
+            workspace_sharing: WorkspaceSharing::None,
+            workspace_sharing_enabled_at: None,
+            workspace_sharing_enabled_by: None,
         };
 
         // Create a file modification that would match in multiple places

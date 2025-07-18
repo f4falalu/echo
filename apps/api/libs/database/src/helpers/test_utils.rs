@@ -1,4 +1,4 @@
-use crate::enums::{AssetPermissionRole, AssetType, IdentityType, Verification};
+use crate::enums::{AssetPermissionRole, AssetType, IdentityType, Verification, WorkspaceSharing};
 use crate::models::{AssetPermission, DashboardFile, MetricFile, User};
 use crate::pool::get_pg_pool;
 use crate::types::metric_yml::{BarAndLineAxis, BarLineChartConfig, BaseChartConfig, ChartConfig};
@@ -96,6 +96,9 @@ impl TestDb {
             data_metadata: None,
             public_password: None,
             data_source_id: Uuid::new_v4(),
+            workspace_sharing: WorkspaceSharing::None,
+            workspace_sharing_enabled_by: None,
+            workspace_sharing_enabled_at: None,
         };
 
         Ok(metric_file)
@@ -126,6 +129,9 @@ impl TestDb {
             public_expiry_date: None,
             version_history: VersionHistory(std::collections::HashMap::new()),
             public_password: None,
+            workspace_sharing: WorkspaceSharing::None,
+            workspace_sharing_enabled_by: None,
+            workspace_sharing_enabled_at: None,
         };
 
         Ok(dashboard_file)

@@ -11,6 +11,7 @@ use serde_json::Value;
 use uuid::Uuid;
 
 use crate::metrics::Version;
+use crate::utils::workspace::count_workspace_members;
 use super::{BusterDashboard, BusterDashboardResponse, DashboardConfig};
 use database::organization::get_user_organization_id;
 use database::enums::{AssetPermissionRole, AssetType, IdentityType, Verification};
@@ -118,6 +119,11 @@ pub async fn create_dashboard_handler(user: &AuthenticatedUser) -> Result<Buster
         updated_at: now,
     };
 
+    // Count workspace members
+    let workspace_member_count = count_workspace_members(organization_id)
+        .await
+        .unwrap_or(0);
+
     Ok(BusterDashboardResponse {
         access: AssetPermissionRole::Owner,
         metrics: HashMap::new(),
@@ -129,7 +135,11 @@ pub async fn create_dashboard_handler(user: &AuthenticatedUser) -> Result<Buster
         publicly_accessible: false,
         public_expiry_date: None,
         public_enabled_by: None,
+        workspace_sharing: database::enums::WorkspaceSharing::None,
+        workspace_sharing_enabled_by: None,
+        workspace_sharing_enabled_at: None,
         versions: vec![initial_version],
+        workspace_member_count,
     })
 }
 

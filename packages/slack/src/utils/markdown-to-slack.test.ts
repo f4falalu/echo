@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { convertMarkdownToSlack } from './markdownToSlack';
+import { convertMarkdownToSlack } from './markdown-to-slack';
 
 describe('convertMarkdownToSlack', () => {
   it('should handle empty or invalid input', () => {
