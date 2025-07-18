@@ -6,7 +6,7 @@ import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import { useColorThemes } from '@/api/buster_rest/dictionaries';
 import { StatusCard } from '@/components/ui/card/StatusCard';
 import { CircleSpinnerLoader } from '../../../ui/loaders';
-import { useThemeOperations } from '../useThemeOperations';
+import { useThemeOperations } from '@/context-hooks/useThemeOperations';
 
 export const DefaultThemeSelector = React.memo(
   ({ className, themeListClassName }: { className?: string; themeListClassName?: string }) => {

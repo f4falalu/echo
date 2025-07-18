@@ -8,7 +8,7 @@ import { useColorThemes } from '@/api/buster_rest/dictionaries';
 import { useGetMyUserInfo } from '@/api/buster_rest/users';
 import { EditCustomThemeMenu } from '@/components/features/colors/DefaultThemeSelector/EditCustomThemeMenu';
 import { AddThemeProviderWrapper } from '@/components/features/colors/DefaultThemeSelector/AddThemeProviderWrapper';
-import { useThemeOperations } from '@/components/features/colors/useThemeOperations';
+import { useThemeOperations } from '@/context-hooks/useThemeOperations';
 
 export const ColorsApp: React.FC<{
   colors: ChartConfigProps['colors'];

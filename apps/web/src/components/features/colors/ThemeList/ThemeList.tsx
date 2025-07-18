@@ -6,7 +6,6 @@ import { ThemeColorDots } from './ThemeColorDots';
 import { Dots } from '../../../ui/icons';
 import { Button } from '../../../ui/buttons';
 import { Popover } from '../../../ui/popover';
-import { useUserConfigContextSelector } from '@/context/Users';
 
 export const ThemeList: React.FC<{
   themes: Required<IColorTheme>[];
@@ -41,10 +40,9 @@ const ColorOption: React.FC<{
   onChangeColorTheme: (theme: IColorTheme) => void;
 }> = React.memo(({ theme, selected, threeDotMenu, onChangeColorTheme }) => {
   const { name, colors } = theme;
-  const isAdmin = useUserConfigContextSelector((state) => state.isAdmin);
 
   const ThreeDotMenuComponent = threeDotMenu;
-  const shouldShowMenu = ThreeDotMenuComponent && !theme.hideThreeDotMenu && isAdmin;
+  const shouldShowMenu = ThreeDotMenuComponent && !theme.hideThreeDotMenu;
 
   return (
     <div

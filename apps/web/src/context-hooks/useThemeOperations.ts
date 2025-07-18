@@ -1,7 +1,7 @@
-import { useMemoizedFn } from '@/hooks';
+import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import { useGetMyUserInfo } from '@/api/buster_rest/users/queryRequests';
 import { useUpdateOrganization } from '@/api/buster_rest/organizations/queryRequests';
-import type { IColorTheme } from './ThemeList';
+import type { IColorTheme } from '@/components/features/colors/ThemeList';
 
 export const useThemeOperations = () => {
   const { data: userData } = useGetMyUserInfo();
