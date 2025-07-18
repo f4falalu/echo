@@ -9,6 +9,7 @@ use serde_yaml;
 use sharing::asset_access_checks::check_metric_collection_access;
 use uuid::Uuid;
 
+use crate::metrics::color_palette_helpers::apply_color_fallback;
 use crate::metrics::types::{AssociatedCollection, AssociatedDashboard, BusterMetric, BusterShareIndividual, Dataset};
 use crate::utils::workspace::count_workspace_members;
 use database::enums::{AssetPermissionRole, AssetType, IdentityType};
@@ -448,6 +449,11 @@ pub async fn get_metric_for_dashboard_handler(
         }
     };
 
+    let mut final_chart_config = resolved_chart_config.clone();
+    if let Err(e) = apply_color_fallback(&mut final_chart_config, &metric_file.organization_id).await {
+        tracing::warn!(metric_id = %metric_id, error = %e, "Failed to apply color fallback logic, continuing with original chart config");
+    }
+
     // Get workspace sharing enabled by email if set
     let workspace_sharing_enabled_by = if let Some(enabled_by_id) = metric_file.workspace_sharing_enabled_by {
         users::table
@@ -488,7 +494,7 @@ pub async fn get_metric_for_dashboard_handler(
         datasets,
         data_source_id: metric_file.data_source_id,
         error: None,
-        chart_config: Some(resolved_chart_config),
+        chart_config: Some(final_chart_config), // Use chart config with color fallback applied
         data_metadata,
         status: metric_file.verification,
         evaluation_score,
@@ -517,4 +523,4 @@ pub async fn get_metric_for_dashboard_handler(
         // Workspace member count
         workspace_member_count,
     })
-} 
+}       
