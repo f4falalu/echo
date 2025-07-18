@@ -4,17 +4,10 @@ export const ShareRoleSchema = z.enum([
   'owner', //owner of the asset
   'fullAccess', //same as owner, can share with others
   'canEdit', //can edit, cannot share
-  'canFilter', //can filter dashboard
   'canView', //can view asset
 ]);
 
-export const WorkspaceShareRoleSchema = z.enum([
-  'owner',
-  'fullAccess',
-  'canEdit',
-  'canView',
-  'none',
-]);
+export const WorkspaceShareRoleSchema = z.enum([...ShareRoleSchema.options, 'none']);
 
 export const ShareAssetTypeSchema = z.enum(['metric', 'dashboard', 'collection', 'chat']);
 

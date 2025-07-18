@@ -1,16 +1,23 @@
-import React from 'react';
-import type { ShareAssetType, ShareConfig, ShareRole, WorkspaceShareRole } from '@buster/server-shared/share';
+import React, { useMemo } from 'react';
+import type {
+  ShareAssetType,
+  ShareConfig,
+  ShareRole,
+  WorkspaceShareRole
+} from '@buster/server-shared/share';
 import { useUnshareCollection, useUpdateCollectionShare } from '@/api/buster_rest/collections';
 import { useUnshareDashboard, useUpdateDashboardShare } from '@/api/buster_rest/dashboards';
 import { useUnshareMetric, useUpdateMetricShare } from '@/api/buster_rest/metrics';
 import { useMemoizedFn } from '@/hooks';
 import { cn } from '@/lib/classMerge';
-import { IndividualSharePerson } from './IndividualSharePerson';
 import { ShareMenuContentEmbed } from './ShareMenuContentEmbed';
 import { ShareMenuContentPublish } from './ShareMenuContentPublish';
 import type { ShareMenuTopBarOptions } from './ShareMenuTopBar';
 import { ShareMenuInvite } from './ShareMenuInvite';
 import { WorkspaceShareSection } from './WorkspaceShareSection';
+import { ShareRowItem } from './ShareRowItem';
+import { WorkspaceAvatar } from './WorkspaceAvatar';
+import pluralize from 'pluralize';
 
 export const ShareMenuContentBody: React.FC<{
   selectedOptions: ShareMenuTopBarOptions;
@@ -55,7 +62,14 @@ export const ShareMenuContentBody: React.FC<{
 ShareMenuContentBody.displayName = 'ShareMenuContentBody';
 
 const ShareMenuContentShare: React.FC<ShareMenuContentBodyProps> = React.memo(
-  ({ canEditPermissions, assetType, individual_permissions, assetId, className, shareAssetConfig }) => {
+  ({
+    canEditPermissions,
+    assetType,
+    individual_permissions,
+    assetId,
+    className,
+    shareAssetConfig
+  }) => {
     const { mutateAsync: onUpdateMetricShare } = useUpdateMetricShare();
     const { mutateAsync: onUpdateDashboardShare } = useUpdateDashboardShare();
     const { mutateAsync: onUpdateCollectionShare } = useUpdateCollectionShare();
@@ -64,6 +78,7 @@ const ShareMenuContentShare: React.FC<ShareMenuContentBodyProps> = React.memo(
     const { mutateAsync: onUnshareCollection } = useUnshareCollection();
 
     const hasIndividualPermissions = !!individual_permissions?.length;
+    const workspaceMemberCount = shareAssetConfig.workspace_member_count || 0;
 
     const onUpdateShareRole = useMemoizedFn(async (email: string, role: ShareRole | null) => {
       if (role) {
@@ -107,7 +122,7 @@ const ShareMenuContentShare: React.FC<ShareMenuContentBodyProps> = React.memo(
           workspace_sharing: role
         }
       };
-      
+
       if (assetType === 'metric') {
         await onUpdateMetricShare(payload);
       } else if (assetType === 'dashboard') {
@@ -130,24 +145,36 @@ const ShareMenuContentShare: React.FC<ShareMenuContentBodyProps> = React.memo(
         {hasIndividualPermissions && (
           <div className="flex flex-col space-y-2.5 overflow-hidden">
             {individual_permissions?.map((permission) => (
-              <IndividualSharePerson
-                key={permission.email}
-                {...permission}
-                onUpdateShareRole={onUpdateShareRole}
+              <ShareRowItem
+                primary={permission.name}
+                secondary={permission.email}
+                role={permission.role}
+                avatar={permission.avatar_url}
+                onChangeShareLevel={useMemoizedFn((role) =>
+                  onUpdateShareRole(permission.email, role)
+                )}
                 assetType={assetType}
                 disabled={!canEditPermissions || permission.role === 'owner'}
+                type="user"
               />
             ))}
           </div>
         )}
 
         {canEditPermissions && (
-          <WorkspaceShareSection
-            shareAssetConfig={shareAssetConfig}
+          <ShareRowItem
+            primary={'Workspace'}
+            secondary={`Share with ${workspaceMemberCount} ${pluralize('member', workspaceMemberCount)}`}
+            role={shareAssetConfig.workspace_sharing || 'none'}
+            type="workspace"
+            avatar={useMemo(
+              () => (
+                <WorkspaceAvatar />
+              ),
+              []
+            )}
+            onChangeShareLevel={onUpdateWorkspacePermissions}
             assetType={assetType}
-            assetId={assetId}
-            canEditPermissions={canEditPermissions}
-            onUpdateWorkspacePermissions={onUpdateWorkspacePermissions}
           />
         )}
       </div>

@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import type { ShareAssetType, ShareRole } from '@buster/server-shared/share';
+import type { ShareAssetType, ShareRole, WorkspaceShareRole } from '@buster/server-shared/share';
 import type { DropdownItem } from '@/components/ui/dropdown';
 import { Dropdown } from '@/components/ui/dropdown';
 import { ChevronDown } from '@/components/ui/icons/NucleoIconFilled';
@@ -7,24 +7,45 @@ import { Paragraph, Text } from '@/components/ui/typography';
 import { useMemoizedFn } from '@/hooks';
 import { cn } from '@/lib/classMerge';
 
-type DropdownValue = ShareRole | 'remove' | 'notShared';
+type DropdownValue = ShareRole | WorkspaceShareRole | 'remove';
 
-export const AccessDropdown: React.FC<{
-  className?: string;
-  showRemove?: boolean;
-  shareLevel?: ShareRole | null;
-  onChangeShareLevel?: (level: ShareRole | null) => void;
+type AccessDropdownBaseProps = {
   assetType: ShareAssetType;
   disabled: boolean;
-}> = ({
+  className?: string;
+};
+
+type AccessDropdownUserProps = {
+  showRemove?: boolean;
+  shareLevel?: ShareRole | null;
+  type: 'user';
+  onChangeShareLevel?: (level: ShareRole | null) => void;
+};
+
+type AccessDropdownWorkspaceProps = {
+  type: 'workspace';
+  shareLevel?: WorkspaceShareRole | null;
+  onChangeShareLevel?: (level: WorkspaceShareRole | null) => void;
+};
+
+type AccessDropdownProps = AccessDropdownBaseProps &
+  (AccessDropdownUserProps | AccessDropdownWorkspaceProps);
+
+export const AccessDropdown: React.FC<AccessDropdownProps> = ({
   shareLevel,
-  showRemove = true,
   disabled,
   className = '',
   onChangeShareLevel,
-  assetType
+  assetType,
+  ...props
 }) => {
+  const showRemove = props.type === 'user' && props.showRemove !== false;
+
   const items = useMemo(() => {
+    if (props.type === 'workspace') {
+      return workspaceItems;
+    }
+
     const baseItems: DropdownItem<DropdownValue>[] = [...(itemsRecord[assetType] || [])];
 
     if (showRemove) {
@@ -38,7 +59,7 @@ export const AccessDropdown: React.FC<{
       ...item,
       selected: item.value === shareLevel
     }));
-  }, [showRemove, shareLevel, assetType]);
+  }, [showRemove, shareLevel, assetType, props.type]);
 
   const selectedLabel = useMemo(() => {
     const selectedItem = items.find((item) => item.selected) || OWNER_ITEM;
@@ -51,16 +72,17 @@ export const AccessDropdown: React.FC<{
         return 'Full access';
       case 'canEdit':
         return 'Can edit';
-      case 'canFilter':
-        return 'Can filter';
       case 'canView':
         return 'Can view';
       case 'owner':
         return 'Owner';
       case 'remove':
         return 'Remove';
-      case 'notShared':
+      case 'none':
         return 'Not shared';
+      default:
+        const _exhaustiveCheck: never = value;
+        return value;
     }
   }, [items]);
 
@@ -128,11 +150,6 @@ const dashboardItems: DropdownItem<ShareRole>[] = [
     label: 'Can edit',
     secondaryLabel: 'Can edit but not share with others.'
   },
-  // {
-  //   value: 'canFilter',
-  //   label: 'Can filter',
-  //   secondaryLabel: 'Can filter dashboards but not edit.'
-  // },
   {
     value: 'canView',
     label: 'Can view',
@@ -155,6 +172,29 @@ const collectionItems: DropdownItem<ShareRole>[] = [
     value: 'canView',
     label: 'Can view',
     secondaryLabel: 'Can view assets but not edit.'
+  }
+];
+
+const workspaceItems: DropdownItem<WorkspaceShareRole>[] = [
+  {
+    value: 'fullAccess',
+    label: 'Full access',
+    secondaryLabel: 'Can edit and share with others.'
+  },
+  {
+    value: 'canEdit',
+    label: 'Can edit',
+    secondaryLabel: 'Can edit, but not share with others.'
+  },
+  {
+    value: 'canView',
+    label: 'Can view',
+    secondaryLabel: 'Cannot edit or share with others.'
+  },
+  {
+    value: 'none',
+    label: 'Not shared',
+    secondaryLabel: 'Does not have access.'
   }
 ];
 
