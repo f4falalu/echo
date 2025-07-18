@@ -31,7 +31,7 @@
     "db:pull": "drizzle-kit pull",
     "db:push": "drizzle-kit push",
     "db:reset": "supabase db reset",
-    "db:seed": "pnpm run scripts/setup-db.ts && pnpm run scripts/seed.ts",
+    "db:seed": "bun run scripts/setup-db.ts && bun run scripts/seed.ts",
     "db:start-supabase": "supabase start",
     "db:stop": "supabase stop",
     "db:studio": "drizzle-kit studio",
