@@ -22,7 +22,7 @@ export const ChatHeaderTitle: React.FC<{
   const { mutateAsync: updateChat } = useUpdateChat();
 
   if (!chatTitle) {
-    return null;
+    return <div />; //we need to return something for alignment
   }
 
   return (

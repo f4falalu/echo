@@ -1,4 +1,4 @@
-import type { CurrencyResponse } from '@buster/server-shared/currency';
+import type { CurrencyResponse } from '@buster/server-shared/dictionary';
 import { Hono } from 'hono';
 import { CURRENCIES_MAP } from './config';
 

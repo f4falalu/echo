@@ -1,4 +1,4 @@
-import type { Currency } from '@buster/server-shared/currency';
+import type { Currency } from '@buster/server-shared/dictionary';
 
 const codeToFlag = {
   AED: '🇦🇪',

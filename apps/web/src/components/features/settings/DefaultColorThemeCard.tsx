@@ -3,8 +3,6 @@
 import React from 'react';
 import { SettingsCards } from './SettingsCard';
 import { Text } from '@/components/ui/typography';
-import { useMount } from '../../../hooks';
-import { prefetchColorThemes } from '../../../api/buster_rest/dictionaries';
 import { ThemeColorDots } from '../colors/ThemeList/ThemeColorDots';
 import { Popover } from '../../ui/popover';
 import { DefaultThemeSelector } from '../colors/DefaultThemeSelector';
@@ -39,10 +37,6 @@ const PickButton = React.memo(() => {
   const { defaultPalette } = useGetPalettes();
 
   const hasDefaultPalette = !!defaultPalette;
-
-  useMount(() => {
-    prefetchColorThemes();
-  });
 
   return (
     <Popover

@@ -1,5 +1,9 @@
+import type { DEFAULT_COLOR_PALETTE_ID as DEFAULT_COLOR_PALETTE_ID_DATABASE } from '@buster/database';
 import { DEFAULT_CHART_THEME } from '@buster/server-shared/metrics';
+
 import type { ColorPalette } from '@buster/server-shared/organization';
+
+export const DEFAULT_COLOR_PALETTE = DEFAULT_CHART_THEME;
 
 const SOFT_THEME = [
   '#36A2EB', // Light Blue
@@ -309,10 +313,16 @@ const PINK_THEME = [
   '#ad1457',
 ];
 
+export const DEFAULT_COLOR_PALETTE_ID: typeof DEFAULT_COLOR_PALETTE_ID_DATABASE = '__DEFAULT__';
+
+const createDefaultId = (name: string, index: number) => {
+  return `${DEFAULT_COLOR_PALETTE_ID}${name.toLowerCase().replace(/ /g, '-')}-${index}`;
+};
+
 export const COLORFUL_THEMES = [
   {
     name: 'Buster',
-    colors: DEFAULT_CHART_THEME,
+    colors: DEFAULT_COLOR_PALETTE,
   },
   {
     name: 'Rainbow',
@@ -367,9 +377,9 @@ export const COLORFUL_THEMES = [
     name: 'Vibrant Rainbow',
     colors: VIBRANT_RAINBOW,
   },
-].map((theme) => ({
+].map((theme, index) => ({
   ...theme,
-  id: theme.name,
+  id: createDefaultId(theme.name, index),
 }));
 
 export const MONOCHROME_THEMES = [
@@ -418,19 +428,11 @@ export const MONOCHROME_THEMES = [
     name: 'Blue',
     colors: BLUE_THEME,
   },
-].map((theme) => ({
+].map((theme, index) => ({
   ...theme,
-  id: theme.name,
+  id: createDefaultId(theme.name, index),
 }));
 
-const simplifyId = (name: string, index: number) => {
-  return `${name.toLowerCase().replace(/ /g, '-')}-${index}`;
-};
+export const ALL_THEMES: ColorPalette[] = [...COLORFUL_THEMES, ...MONOCHROME_THEMES];
 
-export const ALL_THEMES: ColorPalette[] = [...COLORFUL_THEMES, ...MONOCHROME_THEMES].map(
-  (theme, index) => ({
-    colors: theme.colors,
-    name: theme.name,
-    id: simplifyId(theme.name, index),
-  })
-);
+export const ALL_DICTIONARY_THEMES: ColorPalette[] = ALL_THEMES;

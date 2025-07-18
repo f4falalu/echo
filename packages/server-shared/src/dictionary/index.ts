@@ -1,1 +1,2 @@
-export * from './color-themes';
+export * from './color-palettes';
+export * from './currency';

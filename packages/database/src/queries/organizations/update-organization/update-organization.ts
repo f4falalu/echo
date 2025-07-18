@@ -1,41 +1,14 @@
 import { and, eq, isNull } from 'drizzle-orm';
 import { z } from 'zod';
-import { db } from '../../connection';
-import { organizations } from '../../schema';
-import type { OrganizationColorPalettes } from '../../schema-types';
-
-// Hex color validation schema for 3 or 6 digit hex codes
-const HexColorSchema = z
-  .string()
-  .regex(
-    /^#([0-9A-Fa-f]{3}|[0-9A-Fa-f]{6})$/,
-    'Must be a valid 3 or 6 digit hex color code (e.g., #fff or #ffffff)'
-  );
-
-// Organization Color Palette schema
-const OrganizationColorPaletteSchema = z.object({
-  id: z.string().min(1).max(255),
-  colors: z.array(HexColorSchema),
-  name: z.string().min(1).max(255),
-});
+import { db } from '../../../connection';
+import { organizations } from '../../../schema';
+import type { OrganizationColorPalettes } from '../../../schema-types';
+import { OrganizationColorPalettesSchema } from './organization-color-palettes';
 
 // Input validation schema
 const UpdateOrganizationInputSchema = z.object({
   organizationId: z.string().uuid('Organization ID must be a valid UUID'),
-  organizationColorPalettes: z.object({
-    selectedId: z.string().min(1).max(255).nullable(),
-    palettes: z.array(OrganizationColorPaletteSchema).refine(
-      (palettes) => {
-        if (!palettes || palettes.length === 0) return true;
-        const ids = palettes.map((palette) => palette.id);
-        const uniqueIds = new Set(ids);
-        return ids.length === uniqueIds.size;
-      },
-      {
-        message: 'All color palette IDs must be unique',
-      }
-    ),
-  }),
+  organizationColorPalettes: OrganizationColorPalettesSchema,
 });
 
 type UpdateOrganizationInput = z.infer<typeof UpdateOrganizationInputSchema>;
