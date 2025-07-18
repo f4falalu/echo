@@ -1,10 +1,10 @@
 import React, { type PropsWithChildren } from 'react';
-import type { IColorTheme } from '../ThemeList';
+import type { IColorPalette } from '../ThemeList';
 
 type AddThemeProps = {
-  createCustomTheme: (theme: IColorTheme) => Promise<void>;
+  createCustomTheme: (theme: IColorPalette) => Promise<void>;
   deleteCustomTheme: (themeId: string) => Promise<void>;
-  modifyCustomTheme: (themeId: string, theme: IColorTheme) => Promise<void>;
+  modifyCustomTheme: (themeId: string, theme: IColorPalette) => Promise<void>;
 };
 
 const AddThemeProvider = React.createContext<AddThemeProps>({

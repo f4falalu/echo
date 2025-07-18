@@ -1,8 +1,6 @@
 import React from 'react';
 import { DefaultThemeSelectorBase } from './DefaultThemeSelectorBase';
 import { useGetMyUserInfo } from '@/api/buster_rest/users/queryRequests';
-import type { IColorTheme } from '../ThemeList';
-import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import { useColorThemes } from '@/api/buster_rest/dictionaries';
 import { StatusCard } from '@/components/ui/card/StatusCard';
 import { CircleSpinnerLoader } from '../../../ui/loaders';
@@ -13,11 +11,11 @@ export const DefaultThemeSelector = React.memo(
     const { data: userData } = useGetMyUserInfo();
     const { data: themes, isFetched: isFetchedThemes, isError: isErrorThemes } = useColorThemes();
 
-    const { onCreateCustomTheme, onDeleteCustomTheme, onModifyCustomTheme, onSelectTheme } = useThemeOperations();
+    const { onCreateCustomTheme, onDeleteCustomTheme, onModifyCustomTheme, onSelectTheme } =
+      useThemeOperations();
 
     const organization = userData?.organizations?.[0];
     const organizationColorPalettes = organization?.organizationColorPalettes;
-
 
     if (!organizationColorPalettes || !organization) return null;
 

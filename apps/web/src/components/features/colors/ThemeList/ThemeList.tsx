@@ -1,17 +1,17 @@
 import React from 'react';
 import { Text } from '@/components/ui/typography';
 import { cn } from '@/lib/classMerge';
-import type { IColorTheme } from './interfaces';
+import type { IColorPalette } from './interfaces';
 import { ThemeColorDots } from './ThemeColorDots';
 import { Dots } from '../../../ui/icons';
 import { Button } from '../../../ui/buttons';
 import { Popover } from '../../../ui/popover';
 
 export const ThemeList: React.FC<{
-  themes: Required<IColorTheme>[];
+  themes: IColorPalette[];
   className?: string;
-  onChangeColorTheme: (theme: IColorTheme) => void;
-  themeThreeDotsMenu?: React.FC<{ theme: IColorTheme }>;
+  onChangeColorTheme: (theme: IColorPalette) => void;
+  themeThreeDotsMenu?: React.FC<{ theme: IColorPalette }>;
 }> = ({ themes, className, themeThreeDotsMenu, onChangeColorTheme }) => {
   return (
     <div
@@ -34,11 +34,11 @@ export const ThemeList: React.FC<{
 };
 
 const ColorOption: React.FC<{
-  theme: IColorTheme;
-  selected: boolean;
-  threeDotMenu?: React.FC<{ theme: IColorTheme }>;
-  onChangeColorTheme: (theme: IColorTheme) => void;
-}> = React.memo(({ theme, selected, threeDotMenu, onChangeColorTheme }) => {
+  theme: IColorPalette;
+  selected: boolean | undefined;
+  threeDotMenu?: React.FC<{ theme: IColorPalette }>;
+  onChangeColorTheme: (theme: IColorPalette) => void;
+}> = React.memo(({ theme, selected = false, threeDotMenu, onChangeColorTheme }) => {
   const { name, colors } = theme;
 
   const ThreeDotMenuComponent = threeDotMenu;

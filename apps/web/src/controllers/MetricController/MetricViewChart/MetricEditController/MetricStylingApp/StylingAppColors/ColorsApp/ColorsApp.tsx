@@ -2,7 +2,7 @@ import isEqual from 'lodash/isEqual';
 import React, { useMemo } from 'react';
 import type { ChartConfigProps } from '@buster/server-shared/metrics';
 import { useMemoizedFn } from '@/hooks';
-import type { IColorTheme } from '@/components/features/colors/ThemeList';
+import type { IColorPalette } from '@/components/features/colors/ThemeList';
 import { ThemeList } from '@/components/features/colors/ThemeList';
 import { useColorThemes } from '@/api/buster_rest/dictionaries';
 import { useGetMyUserInfo } from '@/api/buster_rest/users';
@@ -21,13 +21,13 @@ export const ColorsApp: React.FC<{
   const organizationPalettes =
     userConfig?.organizations?.[0]?.organizationColorPalettes?.palettes || [];
 
-  const iThemes: Required<IColorTheme>[] = useMemo(() => {
+  const iThemes: Required<IColorPalette>[] = useMemo(() => {
     const organizationThemes = organizationPalettes.map((theme: any) => ({
       ...theme,
       selected: isEqual(theme.colors, colors),
       hideThreeDotMenu: false
     }));
-    
+
     const dictionaryThemes = themes.map((theme: any) => ({
       ...theme,
       selected: isEqual(theme.colors, colors),
@@ -37,7 +37,7 @@ export const ColorsApp: React.FC<{
     return [...organizationThemes, ...dictionaryThemes];
   }, [themes, organizationPalettes, colors, userConfig]);
 
-  const onChangeColorTheme = useMemoizedFn((theme: IColorTheme) => {
+  const onChangeColorTheme = useMemoizedFn((theme: IColorPalette) => {
     onUpdateChartConfig({ colors: theme.colors });
   });
 
@@ -54,9 +54,15 @@ export const ColorsApp: React.FC<{
 };
 
 const ColorPicker: React.FC<{
-  themes: Required<IColorTheme>[];
-  onChangeColorTheme: (theme: IColorTheme) => void;
+  themes: Required<IColorPalette>[];
+  onChangeColorTheme: (theme: IColorPalette) => void;
 }> = React.memo(({ themes, onChangeColorTheme }) => {
-  return <ThemeList themes={themes} onChangeColorTheme={onChangeColorTheme} themeThreeDotsMenu={EditCustomThemeMenu} />;
+  return (
+    <ThemeList
+      themes={themes}
+      onChangeColorTheme={onChangeColorTheme}
+      themeThreeDotsMenu={EditCustomThemeMenu}
+    />
+  );
 });
 ColorPicker.displayName = 'ColorPicker';

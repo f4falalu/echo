@@ -1,7 +1,7 @@
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import { useGetMyUserInfo } from '@/api/buster_rest/users/queryRequests';
 import { useUpdateOrganization } from '@/api/buster_rest/organizations/queryRequests';
-import type { IColorTheme } from '@/components/features/colors/ThemeList';
+import type { IColorPalette } from '@/components/features/colors/ThemeList';
 
 export const useThemeOperations = () => {
   const { data: userData } = useGetMyUserInfo();
@@ -9,7 +9,7 @@ export const useThemeOperations = () => {
 
   const organization = userData?.organizations?.[0];
 
-  const onCreateCustomTheme = useMemoizedFn(async (theme: IColorTheme) => {
+  const onCreateCustomTheme = useMemoizedFn(async (theme: IColorPalette) => {
     if (!organization) return;
     await updateOrganization({
       organizationColorPalettes: {
@@ -34,20 +34,20 @@ export const useThemeOperations = () => {
     });
   });
 
-  const onModifyCustomTheme = useMemoizedFn(async (themeId: string, theme: IColorTheme) => {
+  const onModifyCustomTheme = useMemoizedFn(async (themeId: string, theme: IColorPalette) => {
     if (!organization) return;
 
     await updateOrganization({
       organizationColorPalettes: {
         selectedId: organization.organizationColorPalettes.selectedId,
-        palettes: organization.organizationColorPalettes.palettes.map((t: IColorTheme) =>
+        palettes: organization.organizationColorPalettes.palettes.map((t: IColorPalette) =>
           t.id === themeId ? theme : t
         )
       }
     });
   });
 
-  const onSelectTheme = useMemoizedFn(async (theme: IColorTheme) => {
+  const onSelectTheme = useMemoizedFn(async (theme: IColorPalette) => {
     if (!organization) return;
 
     await updateOrganization({

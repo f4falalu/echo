@@ -2,7 +2,7 @@ import { Button } from '@/components/ui/buttons';
 import { Input } from '@/components/ui/inputs';
 import { Text } from '@/components/ui/typography';
 import React, { useEffect, useState } from 'react';
-import type { IColorTheme } from '../ThemeList';
+import type { IColorPalette } from '../ThemeList';
 import { useMemoizedFn } from '@/hooks';
 import { v4 as uuidv4 } from 'uuid';
 import { Plus, Trash } from '../../../ui/icons';
@@ -11,10 +11,10 @@ import { inputHasText } from '@/lib/text';
 import { DEFAULT_CHART_THEME } from '@buster/server-shared/metrics';
 
 interface NewThemePopupProps {
-  selectedTheme?: IColorTheme;
-  onSave: (theme: IColorTheme) => Promise<void>;
+  selectedTheme?: IColorPalette;
+  onSave: (theme: IColorPalette) => Promise<void>;
   onDelete?: (id: string) => Promise<void>;
-  onUpdate?: (theme: IColorTheme) => Promise<void>;
+  onUpdate?: (theme: IColorPalette) => Promise<void>;
 }
 
 export const NewThemePopup = React.memo(
