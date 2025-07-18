@@ -231,11 +231,11 @@ const SlackSharingPermissions = React.memo(() => {
       value: 'shareWithWorkspace',
       secondaryLabel: 'All workspace members will have access to any chat created from any channel.'
     },
-    {
-      label: 'Channel', 
-      value: 'shareWithChannel',
-      secondaryLabel: 'All channel members will have access to any chat created from that channel.'
-    },
+    // {
+    //   label: 'Channel', 
+    //   value: 'shareWithChannel',
+    //   secondaryLabel: 'All channel members will have access to any chat created from that channel.'
+    // },
     {
       label: 'None',
       value: 'noSharing', 
