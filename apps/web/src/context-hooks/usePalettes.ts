@@ -52,5 +52,8 @@ export const useGetPalettes = () => {
 export const useSelectedColorPalette = (colors: string[] | undefined | null): string[] => {
   const { defaultOrganizationPalette } = useGetOrganizationPalettes();
 
-  return colors || defaultOrganizationPalette?.colors || DEFAULT_CHART_THEME;
+  return useMemo(
+    () => colors || defaultOrganizationPalette?.colors || DEFAULT_CHART_THEME,
+    [colors, defaultOrganizationPalette]
+  );
 };
