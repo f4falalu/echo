@@ -14,6 +14,7 @@ export default defineConfig({
       'packages/supabase',
       'packages/test-utils',
       'packages/web-tools',
+      'packages/sandbox',
       'apps/server',
       'apps/trigger',
       'apps/web',
