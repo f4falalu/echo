@@ -15,7 +15,7 @@ describe('WorkspaceSettingsService', () => {
       const result = service.formatWorkspaceSettingsResponse(settings);
       expect(result).toEqual({
         restrict_new_user_invitations: true,
-        default_role: 'member',
+        default_role: 'workspace_admin',
         default_datasets: [],
       });
     });
