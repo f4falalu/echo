@@ -1553,7 +1553,7 @@ export class ChunkProcessor<T extends ToolSet = GenericToolSet> {
             files[fileId] = {
               id: fileId,
               file_type: 'agent-action',
-              file_name: 'Validation Queries',
+              file_name: 'SQL Statements',
               version_number: 1,
               status: 'loading',
               file: {
@@ -1564,7 +1564,7 @@ export class ChunkProcessor<T extends ToolSet = GenericToolSet> {
             return {
               id: toolCallId,
               type: 'files',
-              title: 'Generating validation queries...',
+              title: 'Executing SQL',
               status: 'loading',
               secondary_title: undefined,
               file_ids: [fileId],
@@ -2015,31 +2015,22 @@ export class ChunkProcessor<T extends ToolSet = GenericToolSet> {
         this.sqlExecutionStartTimes.delete(toolCallId);
       }
 
-      // Create a new reasoning entry for the results
-      const resultsFileId = crypto.randomUUID();
-      const resultsEntry: ReasoningEntry = {
-        id: `${toolCallId}-results`,
-        type: 'files',
-        title,
-        status: 'completed',
-        secondary_title: secondaryTitle,
-        file_ids: [resultsFileId],
-        files: {
-          [resultsFileId]: {
-            id: resultsFileId,
-            file_type: 'agent-action',
-            file_name: 'Query Results',
-            version_number: 1,
-            status: 'completed',
-            file: {
-              text: resultsYaml,
-            },
-          },
-        },
-      } as ReasoningEntry;
-
-      // Add the new reasoning entry for results
-      this.state.reasoningHistory.push(resultsEntry);
+      // Update the existing file with results appended
+      const fileObj = file as { file?: { text?: string } };
+      const currentContent = fileObj.file?.text || '';
+      
+      // Append results to the existing content
+      if (fileObj.file) {
+        fileObj.file.text = currentContent + '\n\n' + resultsYaml;
+      }
+      
+      // Update the entry title and secondary title
+      if ('title' in entry) {
+        (entry as any).title = title;
+      }
+      if ('secondary_title' in entry && secondaryTitle) {
+        (entry as any).secondary_title = secondaryTitle;
+      }
     } catch (error) {
       console.error('Error updating SQL file with results:', {
         toolCallId,
