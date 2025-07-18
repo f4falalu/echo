@@ -22,17 +22,34 @@ export const ColorsApp: React.FC<{
     userConfig?.organizations?.[0]?.organizationColorPalettes?.palettes || [];
 
   const iThemes: Required<IColorPalette>[] = useMemo(() => {
-    const organizationThemes = organizationPalettes.map((theme: any) => ({
-      ...theme,
-      selected: isEqual(theme.colors, colors),
-      hideThreeDotMenu: false
-    }));
+    let hasSelectedTheme = false;
+    const organizationThemes = organizationPalettes.map((theme: any) => {
+      const isSelected = isEqual(theme.colors, colors);
+      if (isSelected) {
+        hasSelectedTheme = true;
+      }
+      return {
+        ...theme,
+        selected: isSelected,
+        hideThreeDotMenu: false
+      };
+    });
 
-    const dictionaryThemes = themes.map((theme: any) => ({
-      ...theme,
-      selected: isEqual(theme.colors, colors),
-      hideThreeDotMenu: true
-    }));
+    const dictionaryThemes = themes.map((theme: any) => {
+      const isSelected = !hasSelectedTheme && isEqual(theme.colors, colors);
+      if (isSelected) {
+        hasSelectedTheme = true;
+      }
+      return {
+        ...theme,
+        selected: isSelected,
+        hideThreeDotMenu: true
+      };
+    });
+
+    if (!hasSelectedTheme && organizationPalettes.length > 0) {
+      organizationThemes[0].selected = true;
+    }
 
     return [...organizationThemes, ...dictionaryThemes];
   }, [themes, organizationPalettes, colors, userConfig]);
