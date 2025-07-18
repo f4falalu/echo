@@ -32,6 +32,12 @@ describe('findOrCreateSlackChat', () => {
           limit: vi.fn().mockResolvedValue([]),
         } as any;
       }
+      // Mock for slack integration query
+      return {
+        from: vi.fn().mockReturnThis(),
+        where: vi.fn().mockReturnThis(),
+        limit: vi.fn().mockResolvedValue([{ defaultSharingPermissions: 'shareWithWorkspace' }]),
+      } as any;
     });
 
     // Mock insert
@@ -81,6 +87,12 @@ describe('findOrCreateSlackChat', () => {
           limit: vi.fn().mockResolvedValue([]),
         } as any;
       }
+      // Mock for slack integration query
+      return {
+        from: vi.fn().mockReturnThis(),
+        where: vi.fn().mockReturnThis(),
+        limit: vi.fn().mockResolvedValue([{ defaultSharingPermissions: 'shareWithChannel' }]),
+      } as any;
     });
 
     // Mock insert
@@ -130,6 +142,12 @@ describe('findOrCreateSlackChat', () => {
           limit: vi.fn().mockResolvedValue([{ id: 'existing-chat-id' }]),
         } as any;
       }
+      // Mock for slack integration query (won't be used due to early return)
+      return {
+        from: vi.fn().mockReturnThis(),
+        where: vi.fn().mockReturnThis(),
+        limit: vi.fn().mockResolvedValue([]),
+      } as any;
     });
 
     const result = await findOrCreateSlackChat({
@@ -161,6 +179,12 @@ describe('findOrCreateSlackChat', () => {
           limit: vi.fn().mockResolvedValue([]),
         } as any;
       }
+      // Mock for slack integration query - no integration found
+      return {
+        from: vi.fn().mockReturnThis(),
+        where: vi.fn().mockReturnThis(),
+        limit: vi.fn().mockResolvedValue([]),
+      } as any;
     });
 
     // Mock insert
