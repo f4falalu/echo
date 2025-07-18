@@ -7,7 +7,7 @@ import {
   createUserInOrganization,
   getOrganizationWithDefaults,
   getUserOrganizations,
-} from '../../src/user-organizations';
+} from './user-organizations';
 
 // Mock the database module
 vi.mock('@buster/database', () => ({

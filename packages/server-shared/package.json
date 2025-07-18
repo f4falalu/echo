@@ -11,7 +11,7 @@
     "lint": "biome check --write",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "test:unit": "vitest run --exclude '**/*.int.test.ts' --exclude '**/*.integration.test.ts'",
+    "test:unit": "vitest run --exclude '**/*.int.test.ts' --exclude '**/*.integration.test.ts' --passWithNoTests",
     "test:integration": "vitest run **/*.int.test.ts **/*.integration.test.ts",
     "test:watch": "vitest"
   },

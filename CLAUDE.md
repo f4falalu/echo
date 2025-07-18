@@ -189,3 +189,10 @@ export async function getWorkspaceSettingsHandler(
 ### Soft Delete and Upsert Practices
 - In our database, we never hard delete, we always use soft deletes with the `deleted_at` field
 - For update operations, we should almost always perform an upsert unless otherwise specified
+```
+
+**Test Running Guidelines**:
+- When running tests, use the following Turbo commands:
+  - `turbo test:unit` for unit tests
+  - `turbo test:integration` for integration tests
+  - `turbo test` for running all tests
