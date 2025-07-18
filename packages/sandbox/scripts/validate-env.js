@@ -10,9 +10,7 @@ console.info('🔍 Validating environment variables...');
 
 const env = {
   NODE_ENV: process.env.NODE_ENV || 'development',
-  // Add your required environment variables here
-  // DATABASE_URL: process.env.DATABASE_URL,
-  // API_KEY: process.env.API_KEY,
+  DAYTONA_API_KEY: process.env.DAYTONA_API_KEY,
 };
 
 let hasErrors = false;
