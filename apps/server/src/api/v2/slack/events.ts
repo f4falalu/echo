@@ -52,8 +52,7 @@ export async function findOrCreateSlackChat({
       and(
         eq(chats.slackThreadTs, threadTs),
         eq(chats.slackChannelId, channelId),
-        eq(chats.organizationId, organizationId),
-        eq(chats.createdBy, userId)
+        eq(chats.organizationId, organizationId)
       )
     )
     .limit(1);
