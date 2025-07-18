@@ -148,7 +148,9 @@ export const executeSqlFollowedByValidTool = ({ output }: { output: any }) => {
           // Check if the next tool is either executeSql or sequentialThinking
           if (nextToolName === 'executeSql' || nextToolName === 'sequentialThinking') {
             break;
-          } else {
+          }
+          // biome-ignore lint/style/noUselessElse: We are checking for a specific tool call
+          else {
             return 0; // Fail if next tool is neither executeSql nor sequentialThinking
           }
         }
@@ -175,7 +177,7 @@ export const allFilesUseYmlBlockScalar = (args: {
     if (message.content && Array.isArray(message.content)) {
       for (const contentItem of message.content) {
         if (contentItem.type === 'tool-call' && contentItem.toolName === 'createMetricsFileTool') {
-          if (contentItem.args && contentItem.args.files) {
+          if (contentItem?.args?.files) {
             for (const file of contentItem.args.files) {
               const yml = file.yml_content;
               if (yml.includes('sql') && !yml.includes('sql: |')) {
@@ -246,10 +248,10 @@ export const timeFrameIsString = ({ output }: { output: any }) => {
 
         // Extract timeFrame from YML content
         const timeFrameMatch = ymlContent.match(/timeFrame:\s*([^\n]+)/);
-        if (timeFrameMatch && timeFrameMatch[1]) {
+        if (timeFrameMatch?.[1]) {
           const timeFrame = timeFrameMatch[1].trim();
           // Check if timeFrame is a number (invalid)
-          if (!isNaN(Number(timeFrame))) {
+          if (!Number.isNaN(Number(timeFrame))) {
             return 0; // Fail if timeFrame is a number
           }
         } else {
