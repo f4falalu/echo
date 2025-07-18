@@ -66,6 +66,7 @@ describe('SlackOAuthService', () => {
         id: 'existing-integration',
         organizationId: 'org-123',
         status: 'active',
+        scope: 'app_mentions:read,channels:history,channels:join,channels:manage,channels:read,chat:write,chat:write.public,commands,files:read,files:write,groups:history,groups:write,im:history,im:read,im:write,mpim:history,mpim:read,mpim:write,reactions:write,reactions:read,users:read,users:read.email',
       } as any);
 
       await expect(
@@ -73,7 +74,7 @@ describe('SlackOAuthService', () => {
           organizationId: 'org-123',
           userId: 'user-123',
         })
-      ).rejects.toThrow('Organization already has an active Slack integration');
+      ).rejects.toThrow('Organization already has an active Slack integration with current scopes');
     });
 
     it('should create pending integration and return auth URL', async () => {

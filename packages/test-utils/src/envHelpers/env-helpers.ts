@@ -29,11 +29,18 @@ export async function setupTestEnvironment(): Promise<TestEnvironment> {
 
 export function withTestEnv<T>(testFn: () => Promise<T>): () => Promise<T> {
   return async () => {
+    const originalEnv = { ...process.env };
     const env = await setupTestEnvironment();
     try {
       return await testFn();
     } finally {
-      await env.cleanup();
+      // Restore original environment
+      Object.keys(process.env).forEach(key => {
+        if (!(key in originalEnv)) {
+          delete process.env[key];
+        }
+      });
+      Object.assign(process.env, originalEnv);
     }
   };
 }

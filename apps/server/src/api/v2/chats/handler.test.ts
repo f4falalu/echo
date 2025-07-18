@@ -24,6 +24,7 @@ vi.mock('@buster/database', () => ({
   createMessage: vi.fn(),
   generateAssetMessages: vi.fn(),
   getMessagesForChat: vi.fn(),
+  updateMessage: vi.fn(),
   db: {
     transaction: vi.fn().mockImplementation((callback: any) =>
       callback({
@@ -37,7 +38,7 @@ vi.mock('@buster/database', () => ({
   messages: {},
 }));
 
-import { getUserOrganizationId } from '@buster/database';
+import { getUserOrganizationId, updateMessage } from '@buster/database';
 import { tasks } from '@trigger.dev/sdk/v3';
 import { createChatHandler } from './handler';
 import { handleAssetChat } from './services/chat-helpers';
@@ -93,9 +94,10 @@ describe('createChatHandler', () => {
     });
     vi.mocked(getUserOrganizationId).mockResolvedValue({
       organizationId: '550e8400-e29b-41d4-a716-446655440000',
-      role: 'admin',
+      role: 'workspace_admin',
     });
     vi.mocked(tasks.trigger).mockResolvedValue({ id: 'task-handle-123' } as any);
+    vi.mocked(updateMessage).mockResolvedValue({} as any);
   });
 
   it('should create a new chat with prompt', async () => {
