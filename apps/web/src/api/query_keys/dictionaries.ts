@@ -1,12 +1,12 @@
 import type { CurrencyResponse } from '@buster/server-shared/dictionary';
-import type { ColorThemeDictionariesResponse } from '@buster/server-shared/dictionary';
+import type { ColorPaletteDictionariesResponse } from '@buster/server-shared/dictionary';
 import { queryOptions } from '@tanstack/react-query';
 
-export const colorThemes = queryOptions<ColorThemeDictionariesResponse>({
-  queryKey: ['dictionaries', 'color-themes', 'list'] as const,
+export const colorPalettes = queryOptions<ColorPaletteDictionariesResponse>({
+  queryKey: ['dictionaries', 'color-palettes', 'list'] as const,
   initialData: [],
   initialDataUpdatedAt: 0,
-  staleTime: 1000 * 60 * 60 * 24 * 7 // 7 days
+  staleTime: 1000 // 7 days
 });
 
 export const getCurrencies = queryOptions<CurrencyResponse>({
@@ -17,6 +17,6 @@ export const getCurrencies = queryOptions<CurrencyResponse>({
 });
 
 export const dictionariesQueryKeys = {
-  colorThemes,
+  colorPalettes,
   getCurrencies
 };

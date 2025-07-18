@@ -1,11 +1,11 @@
 import { useQuery, QueryClient } from '@tanstack/react-query';
-import { getColorThemes, getCurrencies } from './requests';
+import { getColorPalettes, getCurrencies } from './requests';
 import { dictionariesQueryKeys } from '@/api/query_keys/dictionaries';
 
 export const useColorDictionaryThemes = () => {
   return useQuery({
-    ...dictionariesQueryKeys.colorThemes,
-    queryFn: getColorThemes
+    ...dictionariesQueryKeys.colorPalettes,
+    queryFn: getColorPalettes
   });
 };
 
@@ -13,8 +13,8 @@ export const prefetchColorThemes = async (queryClientProp?: QueryClient) => {
   const queryClient = queryClientProp || new QueryClient();
 
   await queryClient.prefetchQuery({
-    ...dictionariesQueryKeys.colorThemes,
-    queryFn: getColorThemes
+    ...dictionariesQueryKeys.colorPalettes,
+    queryFn: getColorPalettes
   });
 
   return queryClient;

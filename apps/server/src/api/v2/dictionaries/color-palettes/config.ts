@@ -309,6 +309,12 @@ const PINK_THEME = [
   '#ad1457',
 ];
 
+export const DEFAULT_COLOR_PALETTE_ID = '__DEFAULT__';
+
+const createDefaultId = (name: string, index: number) => {
+  return `${DEFAULT_COLOR_PALETTE_ID}${name.toLowerCase().replace(/ /g, '-')}-${index}`;
+};
+
 export const COLORFUL_THEMES = [
   {
     name: 'Buster',
@@ -367,9 +373,9 @@ export const COLORFUL_THEMES = [
     name: 'Vibrant Rainbow',
     colors: VIBRANT_RAINBOW,
   },
-].map((theme) => ({
+].map((theme, index) => ({
   ...theme,
-  id: theme.name,
+  id: createDefaultId(theme.name, index),
 }));
 
 export const MONOCHROME_THEMES = [
@@ -418,19 +424,9 @@ export const MONOCHROME_THEMES = [
     name: 'Blue',
     colors: BLUE_THEME,
   },
-].map((theme) => ({
+].map((theme, index) => ({
   ...theme,
-  id: theme.name,
+  id: createDefaultId(theme.name, index),
 }));
 
-const simplifyId = (name: string, index: number) => {
-  return `${name.toLowerCase().replace(/ /g, '-')}-${index}`;
-};
-
-export const ALL_THEMES: ColorPalette[] = [...COLORFUL_THEMES, ...MONOCHROME_THEMES].map(
-  (theme, index) => ({
-    colors: theme.colors,
-    name: theme.name,
-    id: simplifyId(theme.name, index),
-  })
-);
+export const ALL_THEMES: ColorPalette[] = [...COLORFUL_THEMES, ...MONOCHROME_THEMES];

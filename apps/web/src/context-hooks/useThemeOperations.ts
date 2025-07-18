@@ -50,9 +50,11 @@ export const useThemeOperations = () => {
   const onSelectTheme = useMemoizedFn(async (theme: IColorPalette) => {
     if (!organization) return;
 
+    const isSelectedTheme = organization.organizationColorPalettes.selectedId === theme.id;
+
     await updateOrganization({
       organizationColorPalettes: {
-        selectedId: theme.id,
+        selectedId: isSelectedTheme ? null : theme.id,
         palettes: organization.organizationColorPalettes.palettes
       }
     });

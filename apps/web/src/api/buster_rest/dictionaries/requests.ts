@@ -1,10 +1,10 @@
-import type { ColorThemeDictionariesResponse } from '@buster/server-shared/dictionary';
+import type { ColorPaletteDictionariesResponse } from '@buster/server-shared/dictionary';
 import { mainApiV2 } from '../instances';
 import type { CurrencyResponse } from '@buster/server-shared/dictionary';
 
-export const getColorThemes = async () => {
+export const getColorPalettes = async () => {
   return await mainApiV2
-    .get<ColorThemeDictionariesResponse>('/dictionaries/color-themes')
+    .get<ColorPaletteDictionariesResponse>('/dictionaries/color-palettes')
     .then((res) => res.data);
 };
 

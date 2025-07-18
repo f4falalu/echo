@@ -32,8 +32,6 @@ export const useGetPalettes = () => {
     useColorDictionaryThemes();
   const { data: currencies } = useGetCurrencies();
 
-  console.log(currencies, dictionaryPalettes);
-
   return useMemo(() => {
     const allPalettes = [...dictionaryPalettes, ...organizationPalettes];
     const defaultPalette = allPalettes.find((palette) => palette.id === selectedPaletteId);
