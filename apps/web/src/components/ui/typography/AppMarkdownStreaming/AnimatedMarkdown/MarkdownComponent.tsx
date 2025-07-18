@@ -2,8 +2,8 @@ import React from 'react';
 import type { AnimatedMarkdownProps } from './AnimatedMarkdown';
 import { animateTokenizedText, createAnimationStyle } from './animation-helpers';
 import { cva } from 'class-variance-authority';
-import { AppCodeBlock } from '../../AppCodeBlock';
 import { StreamingMessageCode } from '../../../streaming/StreamingMessageCode';
+import { cn } from '@/lib/classMerge';
 
 type MarkdownComponentProps = {
   children: React.ReactNode;
@@ -284,10 +284,26 @@ export const BreakComponent: React.FC<Omit<NonAnimatedMarkdownComponentProps, 'c
 export const CodeComponent: React.FC<
   MarkdownComponentProps & {
     language?: string;
+    isInline?: boolean;
   }
-> = ({ children, className, style, language: languageProp, isStreamFinished, ...rest }) => {
+> = ({
+  children,
+  className,
+  style,
+  language: languageProp,
+  isStreamFinished,
+  isInline = false
+}) => {
   const matchRegex = /language-(\w+)/.exec(className || '');
   const language = languageProp || (matchRegex ? matchRegex[1] : undefined);
+
+  if (isInline) {
+    return (
+      <pre style={style} className={cn(className, 'bg-item-select rounded-sm border px-1')}>
+        {children}
+      </pre>
+    );
+  }
 
   return (
     <StreamingMessageCode

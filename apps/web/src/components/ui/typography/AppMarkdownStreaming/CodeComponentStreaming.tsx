@@ -12,6 +12,10 @@ const CodeComponentStreaming: LLMOutputComponent = ({ blockMatch }) => {
   const language = match && match[1] ? match[1] : '';
   const { isStreamFinished } = useAppMarkdownStreaming();
 
+  if (!language) {
+    return null;
+  }
+
   return (
     <CodeComponent language={language} isStreamFinished={isStreamFinished}>
       {markdown}

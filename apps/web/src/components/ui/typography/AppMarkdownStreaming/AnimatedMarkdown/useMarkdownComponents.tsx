@@ -167,8 +167,9 @@ export const useMarkdownComponents = ({
         </TableHeaderCellComponent>
       ),
       br: ({ className, style }) => <BreakComponent className={className} style={style} />,
-      code: ({ children, className, style }) => (
-        <CodeComponent {...commonProps} className={className} style={style}>
+      code: ({ children, className, style, ...rest }) => (
+        //we can assume that code is inline if it reach to this point
+        <CodeComponent {...commonProps} className={className} style={style} isInline={true}>
           {children}
         </CodeComponent>
       )

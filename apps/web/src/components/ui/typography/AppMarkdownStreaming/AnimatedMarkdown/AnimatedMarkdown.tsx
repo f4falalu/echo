@@ -7,6 +7,7 @@ import rehypeRaw from 'rehype-raw';
 import { useMarkdownComponents } from './useMarkdownComponents';
 import { MarkdownAnimation } from './animation-helpers';
 import styles from './AnimatedMarkdown.module.css';
+import { cn } from '@/lib/classMerge';
 import './animations.css';
 
 export interface AnimatedMarkdownProps {
@@ -44,11 +45,16 @@ const AnimatedMarkdown: React.FC<AnimatedMarkdownProps> = ({
   });
 
   return (
-    <div className={`${styles.container} flex flex-col space-y-2 leading-1.5 ${className}`}>
+    <div className={cn(styles.container, 'flex flex-col space-y-2 leading-1.5', className)}>
       <ReactMarkdown
         components={components}
+        // remarkPlugins are used to extend or modify the Markdown parsing behavior.
+        // Here, remarkGfm enables GitHub Flavored Markdown features (like tables, strikethrough, task lists).
         remarkPlugins={remarkPlugins}
-        rehypePlugins={rehypePlugins}>
+        // rehypePlugins are used to transform the resulting HTML AST after Markdown is parsed.
+        // rehypeRaw allows raw HTML in the Markdown to be parsed and rendered (be cautious with untrusted content).
+        //  rehypePlugins={rehypePlugins}
+      >
         {optimizedContent}
       </ReactMarkdown>
     </div>

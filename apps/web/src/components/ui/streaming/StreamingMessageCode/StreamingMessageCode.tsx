@@ -3,11 +3,9 @@
 import pluralize from 'pluralize';
 import React, { useEffect, useMemo, useState } from 'react';
 import { SyntaxHighlighter } from '@/components/ui/typography/SyntaxHighlight';
-import type { BusterChatMessageReasoning_file } from '@/api/asset_interfaces';
 import { Text } from '@/components/ui/typography';
 import { cn } from '@/lib/classMerge';
 import { FileCard } from '../../card/FileCard';
-import { TextAndVersionPill } from '../../typography/TextAndVersionPill';
 import { Button } from '../../buttons';
 import { Copy2 } from '../../icons';
 import { useMemoizedFn } from '../../../../hooks';
