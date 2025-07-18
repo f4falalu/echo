@@ -9,6 +9,8 @@
   "typescript.suggest.autoImports": true,
   "typescript.updateImportsOnFileMove.enabled": "always",
 
+  "vitest.maximumConfigs": 25,
+
   // CRITICAL: Enable TypeScript build mode for project references
   "typescript.enablePromptUseWorkspaceTsdk": true,
   "typescript.tsdk": "node_modules/typescript/lib",
