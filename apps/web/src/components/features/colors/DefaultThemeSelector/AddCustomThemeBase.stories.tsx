@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { AddCustomThemeBase } from './AddCustomThemeBase';
-import type { IColorTheme } from '../ThemeList';
+import type { IColorPalette } from '../ThemeList';
 import { fn } from '@storybook/test';
 
 const meta: Meta<typeof AddCustomThemeBase> = {
@@ -16,7 +16,7 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 // Sample custom themes data
-const sampleCustomThemes: Omit<IColorTheme, 'selected'>[] = [
+const sampleCustomThemes: Omit<IColorPalette, 'selected'>[] = [
   {
     id: 'custom-1',
     name: 'Ocean Blue',

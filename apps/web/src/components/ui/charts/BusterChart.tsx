@@ -4,7 +4,12 @@ import type { Chart } from 'chart.js';
 import isEmpty from 'lodash/isEmpty';
 import React, { useMemo } from 'react';
 import { type BusterChartProps } from '@/api/asset_interfaces/metric/charts';
-import { DEFAULT_CHART_CONFIG, type ChartEncodes } from '@buster/server-shared/metrics';
+import {
+  DEFAULT_CHART_CONFIG,
+  DEFAULT_CHART_THEME,
+  DEFAULT_COLUMN_METADATA,
+  type ChartEncodes
+} from '@buster/server-shared/metrics';
 import { useMemoizedFn } from '@/hooks';
 import { BusterChartComponent } from './BusterChartComponent';
 import { BusterChartErrorWrapper } from './BusterChartErrorWrapper';
@@ -46,6 +51,8 @@ export const BusterChart: React.FC<BusterChartProps> = React.memo(
     selectedChartType,
     columnLabelFormats = DEFAULT_CHART_CONFIG.columnLabelFormats,
     columnSettings = DEFAULT_CHART_CONFIG.columnSettings,
+    colors = DEFAULT_CHART_THEME,
+    columnMetadata = DEFAULT_COLUMN_METADATA,
     ...props
   }) => {
     const isTable = selectedChartType === 'table';
@@ -134,7 +141,6 @@ export const BusterChart: React.FC<BusterChartProps> = React.memo(
 
       const chartProps: BusterChartRenderComponentProps = {
         ...DEFAULT_CHART_CONFIG,
-        columnMetadata: props.columnMetadata ?? [],
         data,
         onChartMounted,
         onInitialAnimationEnd: onInitialAnimationEndPreflight,
@@ -147,6 +153,8 @@ export const BusterChart: React.FC<BusterChartProps> = React.memo(
         loading,
         columnSettings,
         readOnly,
+        colors,
+        columnMetadata,
         ...props
       };
 

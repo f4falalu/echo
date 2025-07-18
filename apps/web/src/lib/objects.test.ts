@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import { compareObjectsByKeys } from './objects';
+import { DEFAULT_CHART_THEME } from '@buster/server-shared/metrics';
 
 describe('compareObjectsByKeys', () => {
   // Test basic equality
@@ -78,18 +79,7 @@ describe('compareObjectsByKeys', () => {
     const consoleSpy = vi.spyOn(console, 'log');
 
     const object1 = {
-      colors: [
-        '#B399FD',
-        '#FC8497',
-        '#FBBC30',
-        '#279EFF',
-        '#E83562',
-        '#41F8FF',
-        '#F3864F',
-        '#C82184',
-        '#31FCB4',
-        '#E83562'
-      ]
+      colors: DEFAULT_CHART_THEME
     };
 
     const object2 = {

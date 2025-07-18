@@ -2,21 +2,21 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { fn } from '@storybook/test';
 import React from 'react';
 import { NewThemePopup } from './NewThemePopup';
-import type { IColorTheme } from '../ThemeList';
+import type { IColorPalette } from '../ThemeList';
 
-const mockTheme: IColorTheme = {
+const mockTheme: IColorPalette = {
   id: '1',
   name: 'Ocean Breeze',
   colors: ['#1E88E5', '#00ACC1', '#00897B', '#43A047', '#7CB342', '#673AB7', '#3F51B5']
 };
 
-const longNameTheme: IColorTheme = {
+const longNameTheme: IColorPalette = {
   id: '2',
   name: 'Super Long Theme Name That Might Wrap Around',
   colors: ['#FF7043', '#FFB74D', '#FFA726', '#FF5722', '#F4511E']
 };
 
-const manyColorsTheme: IColorTheme = {
+const manyColorsTheme: IColorPalette = {
   id: '3',
   name: 'Rainbow',
   colors: [

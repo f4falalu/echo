@@ -1,13 +1,13 @@
 import React from 'react';
-import type { IColorTheme } from '../ThemeList';
+import type { IColorPalette } from '../ThemeList';
 import { useMemoizedFn } from '@/hooks';
 import { NewThemePopup } from './NewThemePopup';
 import { useAddTheme } from './AddThemeProviderWrapper';
 
-export const EditCustomThemeMenu: React.FC<{ theme: IColorTheme }> = React.memo(({ theme }) => {
+export const EditCustomThemeMenu: React.FC<{ theme: IColorPalette }> = React.memo(({ theme }) => {
   const { deleteCustomTheme, modifyCustomTheme } = useAddTheme();
 
-  const onSave = useMemoizedFn(async (theme: IColorTheme) => {
+  const onSave = useMemoizedFn(async (theme: IColorPalette) => {
     await modifyCustomTheme(theme.id, theme);
   });
 
@@ -15,7 +15,7 @@ export const EditCustomThemeMenu: React.FC<{ theme: IColorTheme }> = React.memo(
     await deleteCustomTheme(themeId);
   });
 
-  const onUpdate = useMemoizedFn(async (theme: IColorTheme) => {
+  const onUpdate = useMemoizedFn(async (theme: IColorPalette) => {
     await modifyCustomTheme(theme.id, theme);
   });
 
