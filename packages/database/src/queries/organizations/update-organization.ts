@@ -19,10 +19,9 @@ const OrganizationColorPaletteSchema = z.object({
   name: z.string().min(1).max(255),
 });
 
-// Input validation schema
-const UpdateOrganizationInputSchema = z.object({
-  organizationId: z.string().uuid('Organization ID must be a valid UUID'),
-  organizationColorPalettes: z.object({
+// Organization Color Palettes schema (extracted to its own schema)
+const OrganizationColorPalettesSchema = z
+  .object({
     selectedId: z.string().min(1).max(255).nullable(),
     palettes: z.array(OrganizationColorPaletteSchema).refine(
       (palettes) => {
@@ -35,7 +34,26 @@ const UpdateOrganizationInputSchema = z.object({
         message: 'All color palette IDs must be unique',
       }
     ),
-  }),
+  })
+  .refine(
+    (data) => {
+      // If selectedId is null, no validation needed
+      if (data.selectedId === null) return true;
+
+      // If selectedId is provided, it must exist in the palettes array
+      const paletteIds = data.palettes.map((palette) => palette.id);
+      return paletteIds.includes(data.selectedId);
+    },
+    {
+      message: 'Selected ID must exist in the palettes array',
+      path: ['selectedId'], // Point the error to the selectedId field
+    }
+  );
+
+// Input validation schema
+const UpdateOrganizationInputSchema = z.object({
+  organizationId: z.string().uuid('Organization ID must be a valid UUID'),
+  organizationColorPalettes: OrganizationColorPalettesSchema,
 });
 
 type UpdateOrganizationInput = z.infer<typeof UpdateOrganizationInputSchema>;
