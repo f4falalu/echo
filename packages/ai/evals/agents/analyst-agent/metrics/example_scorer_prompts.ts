@@ -51,7 +51,7 @@ export const usesExpectedPrecomputedMetricPrompt = `
   {{expected}}
   
   Return Y if the condition is met, N if it is not.
-`
+`;
 
 export const acceptableAnswersScorerPrompt = `
   You are an evaluator tasked with determining if the results returned by 'createMetrics' tool calls match any of the acceptable answers provided in the metadata. Your goal is to assess whether the actual metric results align with the expected acceptable answers, allowing for reasonable flexibility in formatting, ordering, and additional data.
@@ -117,7 +117,7 @@ export const acceptableAnswersScorerPrompt = `
   Return 'Y' if the metric results match any acceptable answer (with flexible matching applied).
   Return 'N' if no acceptable answers match the metric results.
   Return 'Y' if no 'createMetrics' tool calls are found (nothing to evaluate).
-`
+`;
 
 export const preferredAnswerScorerPrompt = `
   You are an evaluator tasked with determining if the results returned by 'createMetrics' tool calls match the preferred answer provided in the metadata. Your goal is to assess whether the actual metric results align with the specific preferred answer, representing the ideal response we want the system to provide. This scorer is more strict than acceptable answers since it evaluates against a single preferred outcome.
@@ -186,7 +186,7 @@ export const preferredAnswerScorerPrompt = `
   Return 'Y' if the metric results match the preferred answer (with flexible matching applied).
   Return 'N' if the preferred answer does not match the metric results.
   Return 'Y' if no 'createMetrics' or 'updateMetrics' tool calls are found (nothing to evaluate).
-`
+`;
 
 export const doneMessageMatchesSqlResultsPrompt = `
   You are evaluating whether the final response in the 'doneTool' tool call accurately reflects the results of the SQL query executed in the 'createMetrics' tool call. The output is a structured JSON array of messages representing a conversation, including user queries, assistant responses, tool calls, and tool results.
@@ -232,7 +232,7 @@ export const doneMessageMatchesSqlResultsPrompt = `
   - Do not include any text outside of the JSON object.
   Return Y if the condition is met, N if it is not.
   
-`
+`;
 
 export const checkUsesExecuteSQLToCreateMetricsPrompt = `
       You are evaluating a conversation between a user, an LLM, and tool calls/results to determine if any SQL query in an 'executeSql' tool call is nearly identical to the SQL query in a 'createMetrics' tool call. The goal is to check for redundant SQL queries where the model unnecessarily runs a query in 'executeSql' that matches the final query used in 'createMetrics'. If no 'executeSql' tool calls are present, the evaluation should return null.
@@ -279,4 +279,4 @@ export const checkUsesExecuteSQLToCreateMetricsPrompt = `
   
       The JSON output is:
       {{output}}
-`
+`;
