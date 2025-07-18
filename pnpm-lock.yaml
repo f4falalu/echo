@@ -812,7 +812,7 @@ importers:
         specifier: workspace:*
         version: link:../vitest-config
       zod:
-        specifier: ^3.0.0
+        specifier: 'catalog:'
         version: 3.25.1
     devDependencies:
       tsx:
