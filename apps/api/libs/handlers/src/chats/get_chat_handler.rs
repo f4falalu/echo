@@ -11,13 +11,14 @@ use uuid::Uuid;
 
 use crate::chats::types::{BusterShareIndividual, ChatWithMessages};
 use crate::messages::types::{ChatMessage, ChatUserMessage};
+use crate::utils::workspace::count_workspace_members;
 use database::schema::{asset_permissions, chats, messages, users};
 use database::{
     enums::{AssetPermissionRole, AssetType, IdentityType},
     helpers::chats::fetch_chat_with_permission,
     pool::get_pg_pool,
 };
-use sharing::check_permission_access;
+use sharing::{check_permission_access, compute_effective_permission};
 
 #[derive(Queryable)]
 pub struct ChatWithUser {
@@ -53,6 +54,7 @@ struct AssetPermissionInfo {
     role: AssetPermissionRole,
     email: String,
     name: Option<String>,
+    avatar_url: Option<String>,
 }
 
 pub async fn get_chat_handler(
@@ -93,13 +95,21 @@ pub async fn get_chat_handler(
         &access_requirement,
         chat_with_permission.chat.organization_id,
         &user.organizations,
+        chat_with_permission.chat.workspace_sharing,
     );
 
     // If user is the creator, they automatically have access
     let is_creator = chat_with_permission.chat.created_by == user.id;
 
     if !has_permission && !is_creator {
-        return Err(anyhow!("You don't have permission to view this chat"));
+        // Check if user has access via a collection
+        let has_collection_access = sharing::check_chat_collection_access(chat_id, &user.id, &user.organizations)
+            .await
+            .unwrap_or(false);
+            
+        if !has_collection_access {
+            return Err(anyhow!("You don't have permission to view this chat"));
+        }
     }
 
     // Run messages query
@@ -154,7 +164,7 @@ pub async fn get_chat_handler(
                 .filter(asset_permissions::asset_type.eq(AssetType::Chat))
                 .filter(asset_permissions::identity_type.eq(IdentityType::User))
                 .filter(asset_permissions::deleted_at.is_null())
-                .select((asset_permissions::role, users::email, users::name))
+                .select((asset_permissions::role, users::email, users::name, users::avatar_url))
                 .load::<AssetPermissionInfo>(&mut conn)
                 .await;
 
@@ -302,6 +312,7 @@ pub async fn get_chat_handler(
                             email: p.email,
                             role: p.role,
                             name: p.name,
+                            avatar_url: p.avatar_url,
                         })
                         .collect::<Vec<BusterShareIndividual>>(),
                 )
@@ -361,6 +372,28 @@ pub async fn get_chat_handler(
         user_permission = Some(AssetPermissionRole::Owner);
     }
 
+    // Get workspace sharing enabled by email if set
+    let workspace_sharing_enabled_by = if let Some(enabled_by_id) = chat_with_permission.chat.workspace_sharing_enabled_by {
+        let mut conn = match get_pg_pool().get().await {
+            Ok(conn) => conn,
+            Err(_) => return Err(anyhow!("Failed to get database connection")),
+        };
+        
+        users::table
+            .filter(users::id.eq(enabled_by_id))
+            .select(users::email)
+            .first::<String>(&mut conn)
+            .await
+            .ok()
+    } else {
+        None
+    };
+
+    // Count workspace members
+    let workspace_member_count = count_workspace_members(chat_with_permission.chat.organization_id)
+        .await
+        .unwrap_or(0);
+
     // Add permissions
     Ok(chat
         .with_permissions(
@@ -369,5 +402,11 @@ pub async fn get_chat_handler(
             public_expiry_date,
             publicly_enabled_by,
         )
-        .with_permission(user_permission))
+        .with_permission(user_permission)
+        .with_workspace_sharing(
+            chat_with_permission.chat.workspace_sharing,
+            workspace_sharing_enabled_by,
+            chat_with_permission.chat.workspace_sharing_enabled_at,
+        )
+        .with_workspace_member_count(workspace_member_count))
 }

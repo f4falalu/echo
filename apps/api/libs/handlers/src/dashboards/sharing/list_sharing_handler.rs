@@ -53,6 +53,7 @@ pub async fn list_dashboard_sharing_handler(
         ],
         dashboard_with_permission.dashboard_file.organization_id,
         &user.organizations,
+        dashboard_with_permission.dashboard_file.workspace_sharing,
     );
     
     if !has_permission {

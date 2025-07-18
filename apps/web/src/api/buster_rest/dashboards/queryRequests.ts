@@ -44,6 +44,7 @@ import {
   unshareDashboard,
   updateDashboardShare
 } from './requests';
+import { userQueryKeys } from '../../query_keys/users';
 
 export const useGetDashboard = <TData = BusterDashboardResponse>(
   {
@@ -354,24 +355,30 @@ export const useShareDashboard = () => {
   const { latestVersionNumber } = useGetDashboardVersionNumber();
   return useMutation({
     mutationFn: shareDashboard,
-    onMutate: (variables) => {
-      const queryKey = dashboardQueryKeys.dashboardGetDashboard(
-        variables.id,
-        latestVersionNumber
-      ).queryKey;
+    onMutate: ({ id, params }) => {
+      const queryKey = dashboardQueryKeys.dashboardGetDashboard(id, latestVersionNumber).queryKey;
+
       queryClient.setQueryData(queryKey, (previousData) => {
         if (!previousData) return previousData;
         return create(previousData, (draft) => {
           draft.individual_permissions = [
-            ...variables.params.map((p) => ({ ...p, avatar_url: null })),
+            ...params.map((p) => ({
+              ...p,
+              name: p.name,
+              avatar_url: p.avatar_url || null
+            })),
             ...(draft.individual_permissions || [])
           ];
         });
       });
     },
     onSuccess: (data, variables) => {
+      const partialMatchedKey = dashboardQueryKeys
+        .dashboardGetDashboard(variables.id, null)
+        .queryKey.slice(0, -1);
       queryClient.invalidateQueries({
-        queryKey: dashboardQueryKeys.dashboardGetDashboard(variables.id, null).queryKey
+        queryKey: partialMatchedKey,
+        refetchType: 'all'
       });
     }
   });
@@ -426,6 +433,9 @@ export const useUpdateDashboardShare = () => {
           }
           if (params.public_expiry_date !== undefined) {
             draft.public_expiry_date = params.public_expiry_date;
+          }
+          if (params.workspace_sharing !== undefined) {
+            draft.workspace_sharing = params.workspace_sharing;
           }
         });
       });

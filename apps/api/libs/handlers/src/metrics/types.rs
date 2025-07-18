@@ -1,5 +1,5 @@
 use chrono::{DateTime, Utc};
-use database::{enums::{AssetPermissionRole, Verification}, types::{ChartConfig, DataMetadata}};
+use database::{enums::{AssetPermissionRole, Verification, WorkspaceSharing}, types::{ChartConfig, DataMetadata}};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 use std::collections::HashMap;
@@ -23,6 +23,7 @@ pub struct BusterShareIndividual {
     pub email: String,
     pub role: AssetPermissionRole,
     pub name: Option<String>,
+    pub avatar_url: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -61,6 +62,12 @@ pub struct BusterMetric {
     pub public_enabled_by: Option<String>,
     pub publicly_accessible: bool,
     pub public_password: Option<String>,
+    // Workspace sharing fields
+    pub workspace_sharing: WorkspaceSharing,
+    pub workspace_sharing_enabled_by: Option<String>,
+    pub workspace_sharing_enabled_at: Option<DateTime<Utc>>,
+    // Workspace member count
+    pub workspace_member_count: i64,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]

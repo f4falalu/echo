@@ -180,17 +180,20 @@ export const useShareCollection = () => {
         if (!previousData) return previousData;
         return create(previousData, (draft: BusterCollection) => {
           draft.individual_permissions = [
-            ...params.map((p) => ({ ...p, avatar_url: null })),
+            ...params.map((p) => ({ ...p })),
             ...(draft.individual_permissions || [])
           ];
         });
       });
     },
     onSuccess: (data) => {
-      queryClient.setQueryData(
-        collectionQueryKeys.collectionsGetCollection(data.id).queryKey,
-        data
-      );
+      const partialMatchedKey = collectionQueryKeys
+        .collectionsGetCollection(data)
+        .queryKey.slice(0, -1);
+      queryClient.invalidateQueries({
+        queryKey: partialMatchedKey,
+        refetchType: 'all'
+      });
     }
   });
 };
@@ -242,6 +245,9 @@ export const useUpdateCollectionShare = () => {
           }
           if (params.public_expiry_date !== undefined) {
             draft.public_expiry_date = params.public_expiry_date;
+          }
+          if (params.workspace_sharing !== undefined) {
+            draft.workspace_sharing = params.workspace_sharing;
           }
         });
       });

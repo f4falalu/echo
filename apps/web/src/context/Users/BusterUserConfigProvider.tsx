@@ -33,8 +33,8 @@ export const useUserConfigProvider = () => {
   };
 };
 
-const BusterUserConfig = createContext<ReturnType<typeof useUserConfigProvider>>(
-  {} as ReturnType<typeof useUserConfigProvider>
+const BusterUserConfig = createContext<ReturnType<typeof useUserConfigProvider> | undefined>(
+  undefined
 );
 
 export const BusterUserConfigProvider = React.memo<PropsWithChildren>(({ children }) => {
@@ -44,6 +44,23 @@ export const BusterUserConfigProvider = React.memo<PropsWithChildren>(({ childre
 });
 BusterUserConfigProvider.displayName = 'BusterUserConfigProvider';
 
+// Higher-order function to create a selector with error checking
+const createSafeSelector = <T,>(
+  selector: (state: ReturnType<typeof useUserConfigProvider>) => T
+) => {
+  return (state: ReturnType<typeof useUserConfigProvider> | undefined) => {
+    if (state === undefined) {
+      throw new Error(
+        'useUserConfigContextSelector must be used within a BusterUserConfigProvider'
+      );
+    }
+    return selector(state);
+  };
+};
+
 export const useUserConfigContextSelector = <T,>(
   selector: (state: ReturnType<typeof useUserConfigProvider>) => T
-) => useContextSelector(BusterUserConfig, selector);
+) => {
+  const safeSelector = createSafeSelector(selector);
+  return useContextSelector(BusterUserConfig, safeSelector);
+};

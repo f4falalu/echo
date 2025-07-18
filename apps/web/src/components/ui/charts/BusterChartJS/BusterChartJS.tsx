@@ -4,7 +4,11 @@ import './ChartJSTheme';
 
 import type React from 'react';
 import { useCallback, useRef, useState } from 'react';
-import { DEFAULT_CHART_CONFIG, DEFAULT_COLUMN_METADATA } from '@buster/server-shared/metrics';
+import {
+  DEFAULT_CHART_CONFIG,
+  DEFAULT_CHART_THEME,
+  DEFAULT_COLUMN_METADATA
+} from '@buster/server-shared/metrics';
 import { useMemoizedFn } from '@/hooks';
 import type { BusterChartComponentProps } from '../interfaces';
 import { BusterChartJSComponent } from './BusterChartJSComponent';
@@ -15,7 +19,7 @@ export const BusterChartJS: React.FC<BusterChartComponentProps> = ({
   selectedChartType,
   className = '',
   animate = true,
-  colors = DEFAULT_CHART_CONFIG.colors,
+  colors = DEFAULT_CHART_THEME,
   showLegend,
   columnLabelFormats = DEFAULT_CHART_CONFIG.columnLabelFormats,
   selectedAxis,

@@ -70,12 +70,18 @@ pnpm run check:fix packages/ai
 ```
 
 ### 5. Run Tests with Vitest
-```bash
-# Run all tests
-pnpm run test
 
-# Run tests for specific package
-turbo run test --filter=@buster/ai
+**Important**: Always run unit tests before completing any task to ensure code changes don't break existing functionality.
+
+```bash
+# Run unit tests (always run these when working locally)
+turbo run test:unit
+
+# Run unit tests for specific package
+turbo run test:unit --filter=@buster/ai
+
+# Run integration tests ONLY for specific features/packages you're working on
+turbo run test:integration --filter=@buster/database
 
 # Run specific test file
 pnpm run test path/to/file.test.ts
@@ -83,6 +89,22 @@ pnpm run test path/to/file.test.ts
 # Watch mode for development
 pnpm run test:watch
 ```
+
+### 6. Pre-Completion Checklist
+**IMPORTANT: Before finishing any task, always run:**
+```bash
+# Run unit tests for the entire monorepo
+turbo run test:unit
+
+# Run linting for the entire monorepo
+turbo run lint
+```
+
+**Key Testing Guidelines:**
+- **Always run unit tests and lint** when working locally before considering a task complete
+- **Unit tests** should be run for the entire monorepo to catch any breaking changes
+- **Integration tests** should only be run for specific packages/features you're working on (NOT the entire monorepo)
+- **Fix all failing tests and lint errors** before completing any task
 
 ## Code Quality Standards
 
@@ -167,3 +189,10 @@ export async function getWorkspaceSettingsHandler(
 ### Soft Delete and Upsert Practices
 - In our database, we never hard delete, we always use soft deletes with the `deleted_at` field
 - For update operations, we should almost always perform an upsert unless otherwise specified
+```
+
+**Test Running Guidelines**:
+- When running tests, use the following Turbo commands:
+  - `turbo test:unit` for unit tests
+  - `turbo test:integration` for integration tests
+  - `turbo test` for running all tests

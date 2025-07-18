@@ -269,6 +269,83 @@ describe('file-selection', () => {
       expect(selected).toHaveLength(1);
       expect(selected[0]?.id).toBe('dashboard-1');
     });
+
+    it('should deduplicate files by ID and keep highest version', () => {
+      const files: ExtractedFile[] = [
+        {
+          id: 'dashboard-1',
+          fileType: 'dashboard',
+          fileName: 'Sales Dashboard',
+          status: 'completed',
+          operation: 'created',
+          versionNumber: 1,
+        },
+        {
+          id: 'dashboard-1',
+          fileType: 'dashboard',
+          fileName: 'Sales Dashboard',
+          status: 'completed',
+          operation: 'modified',
+          versionNumber: 2,
+        },
+        {
+          id: 'metric-1',
+          fileType: 'metric',
+          fileName: 'Revenue Metric',
+          status: 'completed',
+          operation: 'created',
+          versionNumber: 3,
+        },
+        {
+          id: 'metric-1',
+          fileType: 'metric',
+          fileName: 'Revenue Metric',
+          status: 'completed',
+          operation: 'modified',
+          versionNumber: 1,
+        },
+      ];
+
+      const selected = selectFilesForResponse(files);
+
+      expect(selected).toHaveLength(2);
+
+      const dashboard = selected.find((f) => f.fileType === 'dashboard');
+      const metric = selected.find((f) => f.fileType === 'metric');
+
+      expect(dashboard?.versionNumber).toBe(2);
+      expect(dashboard?.operation).toBe('modified');
+
+      expect(metric?.versionNumber).toBe(3);
+      expect(metric?.operation).toBe('created');
+    });
+
+    it('should default missing version numbers to 1 during deduplication', () => {
+      const files: ExtractedFile[] = [
+        {
+          id: 'metric-1',
+          fileType: 'metric',
+          fileName: 'Revenue Metric',
+          status: 'completed',
+          operation: 'created',
+          // No versionNumber provided (should default to 1)
+        },
+        {
+          id: 'metric-1',
+          fileType: 'metric',
+          fileName: 'Revenue Metric',
+          status: 'completed',
+          operation: 'modified',
+          versionNumber: 2,
+        },
+      ];
+
+      const selected = selectFilesForResponse(files);
+
+      expect(selected).toHaveLength(1);
+      expect(selected[0]?.versionNumber).toBe(2);
+      expect(selected[0]?.operation).toBe('modified');
+    });
   });
 
   describe('createFileResponseMessages', () => {

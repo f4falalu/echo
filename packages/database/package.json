@@ -41,6 +41,8 @@
     "stop": "pnpm run db:stop",
     "start": "echo 'Running db:init from turbo.json' && pnpm run db:init",
     "test": "vitest run",
+    "test:unit": "DATABASE_URL=mock://test SUPABASE_URL=mock://test SUPABASE_SERVICE_ROLE_KEY=mock SUPABASE_ANON_KEY=mock vitest run --exclude '**/*.int.test.ts' --exclude '**/*.integration.test.ts' --passWithNoTests",
+    "test:integration": "vitest run **/*.int.test.ts **/*.integration.test.ts",
     "test:coverage": "vitest run --coverage",
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit"

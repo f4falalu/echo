@@ -1,4 +1,5 @@
 pub mod bulk_update_metrics_handler;
+pub mod color_palette_helpers;
 pub mod delete_metric_handler;
 pub mod get_metric_data_handler;
 pub mod get_metric_handler;

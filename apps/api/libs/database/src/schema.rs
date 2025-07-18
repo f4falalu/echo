@@ -48,6 +48,10 @@ pub mod sql_types {
     #[derive(diesel::query_builder::QueryId, Clone, diesel::sql_types::SqlType)]
     #[diesel(postgres_type(name = "verification_enum"))]
     pub struct VerificationEnum;
+
+    #[derive(diesel::query_builder::QueryId, Clone, diesel::sql_types::SqlType)]
+    #[diesel(postgres_type(name = "workspace_sharing_enum"))]
+    pub struct WorkspaceSharingEnum;
 }
 
 diesel::table! {
@@ -83,6 +87,9 @@ diesel::table! {
 }
 
 diesel::table! {
+    use diesel::sql_types::*;
+    use super::sql_types::WorkspaceSharingEnum;
+
     chats (id) {
         id -> Uuid,
         title -> Text,
@@ -99,10 +106,16 @@ diesel::table! {
         #[max_length = 255]
         most_recent_file_type -> Nullable<Varchar>,
         most_recent_version_number -> Nullable<Int4>,
+        workspace_sharing -> WorkspaceSharingEnum,
+        workspace_sharing_enabled_by -> Nullable<Uuid>,
+        workspace_sharing_enabled_at -> Nullable<Timestamptz>,
     }
 }
 
 diesel::table! {
+    use diesel::sql_types::*;
+    use super::sql_types::WorkspaceSharingEnum;
+
     collections (id) {
         id -> Uuid,
         name -> Text,
@@ -113,6 +126,9 @@ diesel::table! {
         updated_at -> Timestamptz,
         deleted_at -> Nullable<Timestamptz>,
         organization_id -> Uuid,
+        workspace_sharing -> WorkspaceSharingEnum,
+        workspace_sharing_enabled_by -> Nullable<Uuid>,
+        workspace_sharing_enabled_at -> Nullable<Timestamptz>,
     }
 }
 
@@ -133,6 +149,9 @@ diesel::table! {
 }
 
 diesel::table! {
+    use diesel::sql_types::*;
+    use super::sql_types::WorkspaceSharingEnum;
+
     dashboard_files (id) {
         id -> Uuid,
         name -> Varchar,
@@ -149,6 +168,9 @@ diesel::table! {
         public_expiry_date -> Nullable<Timestamptz>,
         version_history -> Jsonb,
         public_password -> Nullable<Text>,
+        workspace_sharing -> WorkspaceSharingEnum,
+        workspace_sharing_enabled_by -> Nullable<Uuid>,
+        workspace_sharing_enabled_at -> Nullable<Timestamptz>,
     }
 }
 
@@ -392,6 +414,7 @@ diesel::table! {
 diesel::table! {
     use diesel::sql_types::*;
     use super::sql_types::VerificationEnum;
+    use super::sql_types::WorkspaceSharingEnum;
 
     metric_files (id) {
         id -> Uuid,
@@ -414,6 +437,9 @@ diesel::table! {
         data_metadata -> Nullable<Jsonb>,
         public_password -> Nullable<Text>,
         data_source_id -> Uuid,
+        workspace_sharing -> WorkspaceSharingEnum,
+        workspace_sharing_enabled_by -> Nullable<Uuid>,
+        workspace_sharing_enabled_at -> Nullable<Timestamptz>,
     }
 }
 
@@ -452,6 +478,7 @@ diesel::table! {
         domains -> Nullable<Array<Text>>,
         restrict_new_user_invitations -> Bool,
         default_role -> UserOrganizationRoleEnum,
+        organization_color_palettes -> Jsonb,
     }
 }
 

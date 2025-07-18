@@ -1,6 +1,6 @@
 use chrono::{DateTime, Utc};
 use database::{
-    enums::{AssetPermissionRole, AssetType},
+    enums::{AssetPermissionRole, AssetType, WorkspaceSharing},
     models::Collection,
 };
 use diesel::AsChangeset;
@@ -12,6 +12,7 @@ pub struct BusterShareIndividual {
     pub email: String,
     pub role: AssetPermissionRole,
     pub name: Option<String>,
+    pub avatar_url: Option<String>,
 }
 
 // List collections types
@@ -84,6 +85,12 @@ pub struct CollectionState {
     pub public_expiry_date: Option<DateTime<Utc>>,
     pub public_enabled_by: Option<String>,
     pub public_password: Option<String>,
+    // Workspace sharing fields
+    pub workspace_sharing: WorkspaceSharing,
+    pub workspace_sharing_enabled_by: Option<String>,
+    pub workspace_sharing_enabled_at: Option<DateTime<Utc>>,
+    // Workspace member count
+    pub workspace_member_count: i64,
 }
 
 // Create collection types

@@ -255,23 +255,32 @@ export function extractFileResultsFromToolResult(toolResult: unknown): Array<{
     const result = toolResult as Record<string, unknown>;
     const fileResults: Array<{ id: string; status: 'completed' | 'failed'; error?: string }> = [];
 
-    // Extract successful files from the 'files' array
+    // Extract files from the 'files' array, checking for individual errors
     if ('files' in result && Array.isArray(result.files)) {
       const files = result.files as unknown[];
-      const successfulFiles = files
-        .filter(
-          (file): file is Record<string, unknown> =>
-            file !== null && typeof file === 'object' && 'id' in file
-        )
-        .map((file) => {
+      for (const file of files) {
+        if (file && typeof file === 'object' && 'id' in file) {
           const fileObj = file as Record<string, unknown>;
-          return {
-            id: typeof fileObj.id === 'string' ? fileObj.id : String(fileObj.id),
-            status: 'completed' as const,
-          };
-        });
+          const id = typeof fileObj.id === 'string' ? fileObj.id : String(fileObj.id);
 
-      fileResults.push(...successfulFiles);
+          // Check if this individual file has an error property or success: false
+          if (
+            ('error' in fileObj && fileObj.error) ||
+            ('success' in fileObj && fileObj.success === false)
+          ) {
+            fileResults.push({
+              id,
+              status: 'failed' as const,
+              error: typeof fileObj.error === 'string' ? fileObj.error : 'File creation failed',
+            });
+          } else {
+            fileResults.push({
+              id,
+              status: 'completed' as const,
+            });
+          }
+        }
+      }
     }
 
     // Handle failed files from 'failed_files' array (create-metrics/dashboards pattern)

@@ -220,31 +220,31 @@ export const useShareMetric = () => {
   const { selectedVersionNumber } = useGetMetricVersionNumber();
   return useMutation({
     mutationFn: shareMetric,
-    onMutate: (variables) => {
-      const queryKey = metricsQueryKeys.metricsGetMetric(
-        variables.id,
-        selectedVersionNumber
-      ).queryKey;
+    onMutate: ({ id, params }) => {
+      const queryKey = metricsQueryKeys.metricsGetMetric(id, selectedVersionNumber).queryKey;
+
       queryClient.setQueryData(queryKey, (previousData: BusterMetric | undefined) => {
         if (!previousData) return previousData;
         return create(previousData, (draft: BusterMetric) => {
           draft.individual_permissions = [
-            ...variables.params.map((p) => ({ ...p, avatar_url: null })),
+            ...params.map((p) => ({
+              ...p,
+              name: p.name,
+              avatar_url: p.avatar_url || null
+            })),
             ...(draft.individual_permissions || [])
           ];
         });
       });
     },
-    onSuccess: (data) => {
-      const oldMetric = queryClient.getQueryData(
-        metricsQueryKeys.metricsGetMetric(data.id, data.version_number).queryKey
-      );
-      const upgradedMetric = upgradeMetricToIMetric(data, oldMetric || null);
-
-      queryClient.setQueryData(
-        metricsQueryKeys.metricsGetMetric(data.id, data.version_number).queryKey,
-        upgradedMetric
-      );
+    onSuccess: (data, variables) => {
+      const partialMatchedKey = metricsQueryKeys
+        .metricsGetMetric(variables.id, null)
+        .queryKey.slice(0, -1);
+      queryClient.invalidateQueries({
+        queryKey: partialMatchedKey,
+        refetchType: 'all'
+      });
     }
   });
 };
@@ -311,6 +311,9 @@ export const useUpdateMetricShare = () => {
           }
           if (variables.params.public_expiry_date !== undefined) {
             draft.public_expiry_date = variables.params.public_expiry_date;
+          }
+          if (variables.params.workspace_sharing !== undefined) {
+            draft.workspace_sharing = variables.params.workspace_sharing;
           }
         });
       });

@@ -32,3 +32,14 @@ export {
 
 // Export utility functions
 export { formatPermissionName, buildAccessQuery } from './utils';
+
+// Export user organization functions
+export {
+  checkUserInOrganization,
+  getUserOrganizations,
+  checkEmailDomainForOrganization,
+  getOrganizationWithDefaults,
+  createUserInOrganization,
+  type UserOrganizationInfo,
+  type OrganizationWithDefaults,
+} from './user-organizations';

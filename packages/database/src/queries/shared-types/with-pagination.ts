@@ -1,4 +1,4 @@
-import { SQL } from 'drizzle-orm';
+import type { SQL } from 'drizzle-orm';
 import type { PgColumn, PgSelect } from 'drizzle-orm/pg-core';
 import type { PaginatedResponse, PaginationMetadata } from './pagination.types';
 

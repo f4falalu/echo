@@ -2,11 +2,11 @@ import React, { useMemo } from 'react';
 import type { ChartConfigProps } from '@buster/server-shared/metrics';
 import { type ChartEncodes, type ColumnSettings } from '@buster/server-shared/metrics';
 import type { ColumnLabelFormat } from '@buster/server-shared/metrics';
-import { useGetCurrencies } from '@/api/buster_rest/currency';
+import { prefetchGetCurrencies } from '@/api/buster_rest/dictionaries';
 import { ErrorBoundary } from '@/components/ui/error';
 import { Text } from '@/components/ui/typography';
 import { useUpdateMetricChart } from '@/context/Metrics';
-import { useMemoizedFn } from '@/hooks';
+import { useMemoizedFn, useMount } from '@/hooks';
 import { formatLabel } from '@/lib';
 import { cn } from '@/lib/classMerge';
 import { SelectAxisContainerId } from '../config';
@@ -315,9 +315,6 @@ const LabelSettings: React.FC<{
     return formatLabel(id, columnLabelFormat, true);
   }, [displayName]);
 
-  //THIS IS HERE JUST TO PREFETCH THE CURRENCIES, I guess I could use prefetch...
-  useGetCurrencies();
-
   const ComponentsLoop = [
     {
       enabled: isXAxis || isScatterChart,
@@ -424,6 +421,10 @@ const LabelSettings: React.FC<{
       )
     }
   ].filter(({ enabled }) => enabled);
+
+  useMount(() => {
+    prefetchGetCurrencies();
+  });
 
   if (ComponentsLoop.length === 0) return null;
 

@@ -19,4 +19,8 @@ pub use types::{
     SerializableAssetPermission, UserInfo,
 };
 pub use user_lookup::find_user_by_email;
-pub use asset_access_checks::{check_permission_access, check_metric_dashboard_access};
+pub use asset_access_checks::{
+    check_permission_access, check_metric_dashboard_access, check_metric_chat_access, 
+    check_dashboard_chat_access, check_metric_collection_access, check_dashboard_collection_access,
+    check_chat_collection_access, compute_effective_permission
+};

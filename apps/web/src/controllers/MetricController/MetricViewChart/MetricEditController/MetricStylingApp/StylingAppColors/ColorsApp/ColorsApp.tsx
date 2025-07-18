@@ -1,59 +1,82 @@
 import isEqual from 'lodash/isEqual';
-import React, { useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 import type { ChartConfigProps } from '@buster/server-shared/metrics';
 import { useMemoizedFn } from '@/hooks';
-import type { IColorTheme } from '../Common';
-import { ThemeList } from '../Common/ThemeList';
-import { ColorStyleSegments } from './ColorStyleSegments';
-import { COLORFUL_THEMES, ColorAppSegments, MONOCHROME_THEMES } from './config';
+import type { IColorPalette } from '@/components/features/colors/ThemeList';
+import { ThemeList } from '@/components/features/colors/ThemeList';
+import { EditCustomThemeMenu } from '@/components/features/colors/DefaultThemeSelector/EditCustomThemeMenu';
+import { AddThemeProviderWrapper } from '@/components/features/colors/DefaultThemeSelector/AddThemeProviderWrapper';
+import { useThemeOperations } from '@/context-hooks/useThemeOperations';
+import { useGetPalettes } from '@/context-hooks/usePalettes';
 
 export const ColorsApp: React.FC<{
   colors: ChartConfigProps['colors'];
   onUpdateChartConfig: (chartConfig: Partial<ChartConfigProps>) => void;
 }> = ({ colors, onUpdateChartConfig }) => {
-  const initialSelectedSegment = useMemo(() => {
-    const isFromColorfulThemes = COLORFUL_THEMES.some((theme) => isEqual(theme.colors, colors));
-    return isFromColorfulThemes ? ColorAppSegments.Colorful : ColorAppSegments.Monochrome;
-  }, []);
+  const { onCreateCustomTheme, onDeleteCustomTheme, onModifyCustomTheme } = useThemeOperations();
+  const { organizationPalettes, dictionaryPalettes } = useGetPalettes();
 
-  const [selectedSegment, setSelectedSegment] = useState<ColorAppSegments>(initialSelectedSegment);
+  const iThemes: Required<IColorPalette>[] = useMemo(() => {
+    let hasSelectedTheme = false;
+    const organizationThemes = organizationPalettes.map((theme) => {
+      const isSelected = isEqual(theme.colors, colors);
+      if (isSelected) {
+        hasSelectedTheme = true;
+      }
+      return {
+        ...theme,
+        selected: isSelected,
+        hideThreeDotMenu: false
+      };
+    });
 
-  const selectedSegmentColors = useMemo(() => {
-    return selectedSegment === ColorAppSegments.Colorful ? COLORFUL_THEMES : MONOCHROME_THEMES;
-  }, [selectedSegment]);
+    const dictionaryThemes = dictionaryPalettes.map((theme) => {
+      const isSelected = !hasSelectedTheme && isEqual(theme.colors, colors);
+      if (isSelected) {
+        hasSelectedTheme = true;
+      }
+      return {
+        ...theme,
+        selected: isSelected,
+        hideThreeDotMenu: true
+      };
+    });
 
-  const onChangeColorTheme = useMemoizedFn((theme: IColorTheme) => {
+    if (!hasSelectedTheme && organizationPalettes.length > 0) {
+      organizationThemes[0].selected = true;
+    } else if (!hasSelectedTheme && dictionaryPalettes.length > 0) {
+      dictionaryThemes[0].selected = true;
+    }
+
+    return [...organizationThemes, ...dictionaryThemes];
+  }, [dictionaryPalettes, organizationPalettes, colors]);
+
+  const onChangeColorTheme = useMemoizedFn((theme: IColorPalette) => {
     onUpdateChartConfig({ colors: theme.colors });
   });
 
   return (
     <div className="flex flex-col space-y-2">
-      <ColorStyleSegments
-        selectedSegment={selectedSegment}
-        setSelectedSegment={setSelectedSegment}
-      />
-
-      <ColorPicker
-        selectedSegmentColors={selectedSegmentColors}
-        colors={colors}
-        onChangeColorTheme={onChangeColorTheme}
-      />
+      <AddThemeProviderWrapper
+        createCustomTheme={onCreateCustomTheme}
+        deleteCustomTheme={onDeleteCustomTheme}
+        modifyCustomTheme={onModifyCustomTheme}>
+        <ColorPicker themes={iThemes} onChangeColorTheme={onChangeColorTheme} />
+      </AddThemeProviderWrapper>
     </div>
   );
 };
 
 const ColorPicker: React.FC<{
-  selectedSegmentColors: IColorTheme[];
-  colors: ChartConfigProps['colors'];
-  onChangeColorTheme: (theme: IColorTheme) => void;
-}> = React.memo(({ selectedSegmentColors, colors, onChangeColorTheme }) => {
-  const themes = useMemo(() => {
-    return selectedSegmentColors.map((theme) => ({
-      ...theme,
-      selected: isEqual(theme.colors, colors)
-    }));
-  }, [selectedSegmentColors, colors]);
-
-  return <ThemeList themes={themes} onChangeColorTheme={onChangeColorTheme} />;
+  themes: Required<IColorPalette>[];
+  onChangeColorTheme: (theme: IColorPalette) => void;
+}> = React.memo(({ themes, onChangeColorTheme }) => {
+  return (
+    <ThemeList
+      themes={themes}
+      onChangeColorTheme={onChangeColorTheme}
+      themeThreeDotsMenu={EditCustomThemeMenu}
+    />
+  );
 });
 ColorPicker.displayName = 'ColorPicker';

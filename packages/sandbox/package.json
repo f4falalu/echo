@@ -1,0 +1,35 @@
+{
+  "name": "@buster/sandbox",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./*": {
+      "types": "./dist/*.d.ts",
+      "default": "./dist/*.js"
+    }
+  },
+  "scripts": {
+    "prebuild": "node scripts/validate-env.js",
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
+    "dev": "tsc --watch",
+    "lint": "biome check",
+    "test": "dotenv -e .env -- vitest run",
+    "test:unit": "vitest run --exclude '**/*.int.test.ts' --exclude '**/*.integration.test.ts' --passWithNoTests",
+    "test:watch": "dotenv -e .env -- vitest watch",
+    "test:coverage": "dotenv -e .env -- vitest run --coverage",
+    "test:integration": "dotenv -e .env -- vitest run src/**/*.int.test.ts"
+  },
+  "dependencies": {
+    "@buster/typescript-config": "workspace:*",
+    "@buster/vitest-config": "workspace:*",
+    "@daytonaio/sdk": "^0.24.2",
+    "zod": "catalog:"
+  }
+}

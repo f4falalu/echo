@@ -17,5 +17,5 @@ export const canShare = (role: ShareRole | null | undefined) => {
 };
 
 export const canFilter = (role: ShareRole | null | undefined) => {
-  return role === 'canFilter' || role === 'fullAccess' || role === 'owner' || role === 'canEdit';
+  return role === 'fullAccess' || role === 'owner' || role === 'canEdit';
 };

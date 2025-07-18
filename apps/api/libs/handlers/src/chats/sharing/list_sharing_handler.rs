@@ -51,6 +51,7 @@ pub async fn list_chat_sharing_handler(
         &[AssetPermissionRole::Owner, AssetPermissionRole::FullAccess, AssetPermissionRole::CanEdit, AssetPermissionRole::CanView],
         chat.chat.organization_id,
         &user.organizations,
+        chat.chat.workspace_sharing,
     ) {
         error!(
             chat_id = %chat_id,

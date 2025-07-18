@@ -1,0 +1,65 @@
+## Database Schema Definition Rules
+
+The database schema is defined using Drizzle ORM in `src/schema.ts`. All table definitions and modifications should be made in this file.
+
+## Adding a New JSONB Column
+
+When adding a new JSONB column to the database schema, it is important to ensure type safety and maintainability by defining the corresponding TypeScript type. Follow these steps:
+
+1. **Define the TypeScript Type**: 
+   - Navigate to the `src/schema-types` directory.
+   - Create a new file for your entity if it doesn't exist (e.g., `newEntity.ts`).
+   - Define the TypeScript type for the JSONB column. For example:
+     ```typescript
+     export type NewEntityConfig = {
+       key: string;
+       value: string; // Use specific types instead of 'any' for better type safety
+       // Add proper typing for all fields
+     };
+     
+     // For arrays of objects
+     export type NewEntityConfigs = NewEntityConfig[];
+     ```
+
+2. **Export the Type**:
+   - Ensure the new type is exported from the `index.ts` file in the `src/schema-types` directory:
+     ```typescript
+     export * from './newEntity';
+     ```
+
+3. **Consume the Type in Schema**:
+   - In the `src/schema.ts` file, use the defined type for the JSONB column with the `.$type<T>()` method:
+     ```typescript
+     import type { NewEntityConfig } from './schema-types';
+
+     export const newEntities = pgTable('new_entities', {
+       // ... other columns
+       config: jsonb('config')
+         .$type<NewEntityConfig>()
+         .default(sql`'{}'::jsonb`)
+         .notNull(),
+       
+       // For nullable JSONB columns
+       metadata: jsonb('metadata')
+         .$type<SomeMetadata>()
+         .default(sql`null`),
+     });
+     ```
+
+By following these steps, you ensure that the JSONB column is type-safe and maintainable, leveraging TypeScript's compile-time checks and IntelliSense support.
+
+## Type Inference from Schema
+
+Always use `InferSelectModel` for deriving types from table definitions:
+
+```typescript
+import { type InferSelectModel } from 'drizzle-orm';
+export type User = InferSelectModel<typeof users>;
+```
+
+This ensures types stay in sync with the database schema automatically.
+
+
+
+By following these steps, you ensure that the JSONB column is type-safe and maintainable, leveraging TypeScript's compile-time checks and IntelliSense support.
+

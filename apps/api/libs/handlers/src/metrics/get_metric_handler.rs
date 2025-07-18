@@ -4,9 +4,12 @@ use diesel_async::RunQueryDsl;
 use futures::future::join;
 use middleware::AuthenticatedUser;
 use serde_yaml;
+use sharing::asset_access_checks::check_metric_collection_access;
 use uuid::Uuid;
 
+use crate::metrics::color_palette_helpers::apply_color_fallback;
 use crate::metrics::types::{AssociatedCollection, AssociatedDashboard, BusterMetric, Dataset};
+use crate::utils::workspace::count_workspace_members;
 use database::enums::{AssetPermissionRole, AssetType, IdentityType};
 use database::helpers::metric_files::fetch_metric_file_with_permissions;
 use database::pool::get_pg_pool;
@@ -14,7 +17,7 @@ use database::schema::{
     asset_permissions, collections, collections_to_assets, dashboard_files, datasets,
     metric_files_to_dashboard_files, users, metric_files_to_datasets,
 };
-use sharing::check_permission_access;
+use sharing::{check_permission_access, compute_effective_permission};
 
 use super::Version;
 
@@ -30,6 +33,7 @@ struct AssetPermissionInfo {
     role: AssetPermissionRole,
     email: String,
     name: Option<String>,
+    avatar_url: Option<String>,
 }
 
 /// Fetch the dashboards associated with the given metric id, filtered by user permissions
@@ -134,31 +138,33 @@ pub async fn get_metric_handler(
         ],
         metric_file.organization_id,
         &user.organizations,
+        metric_file.workspace_sharing,
     );
     tracing::debug!(metric_id = %metric_id, ?direct_permission_level, has_sufficient_direct_permission, "Direct permission check result");
 
     if has_sufficient_direct_permission {
-        // Check if user is WorkspaceAdmin or DataAdmin for this organization
-        let is_admin = user.organizations.iter().any(|org| {
-            org.id == metric_file.organization_id
-                && (org.role == database::enums::UserOrganizationRole::WorkspaceAdmin
-                    || org.role == database::enums::UserOrganizationRole::DataAdmin)
-        });
-
-        if is_admin {
-            // Admin users get Owner permissions
-            permission = AssetPermissionRole::Owner;
-            tracing::debug!(metric_id = %metric_id, user_id = %user.id, ?permission, "Granting Owner access to admin user.");
-        } else {
-            // User has direct permission, use that role
-            permission = direct_permission_level.unwrap_or(AssetPermissionRole::CanView); // Default just in case
-            tracing::debug!(metric_id = %metric_id, user_id = %user.id, ?permission, "Granting access via direct permission.");
-        }
+        // Compute the effective permission (highest of direct and workspace sharing)
+        let effective_permission = compute_effective_permission(
+            direct_permission_level,
+            metric_file.workspace_sharing,
+            metric_file.organization_id,
+            &user.organizations,
+        );
+        
+        permission = effective_permission.unwrap_or(AssetPermissionRole::CanView);
+        tracing::debug!(
+            metric_id = %metric_id, 
+            user_id = %user.id, 
+            ?direct_permission_level,
+            workspace_sharing = ?metric_file.workspace_sharing,
+            ?permission, 
+            "Granting access with effective permission (max of direct and workspace sharing)."
+        );
     } else {
         // No sufficient direct/admin permission, check if user has access via a dashboard
         tracing::debug!(metric_id = %metric_id, "Insufficient direct/admin permission. Checking dashboard access.");
         
-        let has_dashboard_access = sharing::check_metric_dashboard_access(metric_id, &user.id)
+        let has_dashboard_access = sharing::check_metric_dashboard_access(metric_id, &user.id, &user.organizations)
             .await
             .unwrap_or(false);
             
@@ -167,48 +173,74 @@ pub async fn get_metric_handler(
             tracing::debug!(metric_id = %metric_id, user_id = %user.id, "User has access via dashboard. Granting CanView.");
             permission = AssetPermissionRole::CanView;
         } else {
-            // No dashboard access, check public access rules
-            tracing::debug!(metric_id = %metric_id, "No dashboard access. Checking public access rules.");
-            if !metric_file.publicly_accessible {
-                tracing::warn!(metric_id = %metric_id, user_id = %user.id, "Permission denied (not public, no dashboard access, insufficient direct permission).");
-                return Err(anyhow!("You don't have permission to view this metric"));
-            }
-            tracing::debug!(metric_id = %metric_id, "Metric is publicly accessible.");
+            // No dashboard access, check if user has access via a chat
+            tracing::debug!(metric_id = %metric_id, "No dashboard access. Checking chat access.");
+            
+            let has_chat_access = sharing::check_metric_chat_access(metric_id, &user.id, &user.organizations)
+                .await
+                .unwrap_or(false);
+                
+            if has_chat_access {
+                // User has access to a chat containing this metric, grant CanView
+                tracing::debug!(metric_id = %metric_id, user_id = %user.id, "User has access via chat. Granting CanView.");
+                permission = AssetPermissionRole::CanView;
+            } else {
+                // No chat access, check if user has access via a collection
+                tracing::debug!(metric_id = %metric_id, "No chat access. Checking collection access.");
+                
+                let has_collection_access = check_metric_collection_access(metric_id, &user.id, &user.organizations)
+                    .await
+                    .unwrap_or(false);
+                    
+                if has_collection_access {
+                    // User has access to a collection containing this metric, grant CanView
+                    tracing::debug!(metric_id = %metric_id, user_id = %user.id, "User has access via collection. Granting CanView.");
+                    permission = AssetPermissionRole::CanView;
+                } else {
+                    // No collection access either, check public access rules
+                    tracing::debug!(metric_id = %metric_id, "No collection access. Checking public access rules.");
+                    if !metric_file.publicly_accessible {
+                        tracing::warn!(metric_id = %metric_id, user_id = %user.id, "Permission denied (not public, no dashboard/chat/collection access, insufficient direct permission).");
+                        return Err(anyhow!("You don't have permission to view this metric"));
+                    }
+                    tracing::debug!(metric_id = %metric_id, "Metric is publicly accessible.");
 
-            // Check if the public access has expired
-            if let Some(expiry_date) = metric_file.public_expiry_date {
-                tracing::debug!(metric_id = %metric_id, ?expiry_date, "Checking expiry date");
-                if expiry_date < chrono::Utc::now() {
-                    tracing::warn!(metric_id = %metric_id, "Public access expired");
-                    return Err(anyhow!("Public access to this metric has expired"));
+                    // Check if the public access has expired
+                    if let Some(expiry_date) = metric_file.public_expiry_date {
+                    tracing::debug!(metric_id = %metric_id, ?expiry_date, "Checking expiry date");
+                    if expiry_date < chrono::Utc::now() {
+                        tracing::warn!(metric_id = %metric_id, "Public access expired");
+                        return Err(anyhow!("Public access to this metric has expired"));
+                    }
                 }
-            }
 
-            // Check if a password is required
-            tracing::debug!(metric_id = %metric_id, has_password = metric_file.public_password.is_some(), "Checking password requirement");
-            if let Some(required_password) = &metric_file.public_password {
-                tracing::debug!(metric_id = %metric_id, "Password required. Checking provided password.");
-                match password {
-                    Some(provided_password) => {
-                        if provided_password != *required_password {
-                            // Incorrect password provided
-                            tracing::warn!(metric_id = %metric_id, user_id = %user.id, "Incorrect public password provided");
-                            return Err(anyhow!("Incorrect password for public access"));
+                // Check if a password is required
+                tracing::debug!(metric_id = %metric_id, has_password = metric_file.public_password.is_some(), "Checking password requirement");
+                if let Some(required_password) = &metric_file.public_password {
+                    tracing::debug!(metric_id = %metric_id, "Password required. Checking provided password.");
+                    match password {
+                        Some(provided_password) => {
+                            if provided_password != *required_password {
+                                // Incorrect password provided
+                                tracing::warn!(metric_id = %metric_id, user_id = %user.id, "Incorrect public password provided");
+                                return Err(anyhow!("Incorrect password for public access"));
+                            }
+                            // Correct password provided, grant CanView via public access
+                            tracing::debug!(metric_id = %metric_id, user_id = %user.id, "Correct public password provided. Granting CanView.");
+                            permission = AssetPermissionRole::CanView;
                         }
-                        // Correct password provided, grant CanView via public access
-                        tracing::debug!(metric_id = %metric_id, user_id = %user.id, "Correct public password provided. Granting CanView.");
+                        None => {
+                            // Password required but none provided
+                            tracing::warn!(metric_id = %metric_id, user_id = %user.id, "Public password required but none provided");
+                            return Err(anyhow!("public_password required for this metric"));
+                        }
+                    }
+                    } else {
+                        // Publicly accessible, not expired, and no password required
+                        tracing::debug!(metric_id = %metric_id, "Public access granted (no password required).");
                         permission = AssetPermissionRole::CanView;
                     }
-                    None => {
-                        // Password required but none provided
-                        tracing::warn!(metric_id = %metric_id, user_id = %user.id, "Public password required but none provided");
-                        return Err(anyhow!("public_password required for this metric"));
-                    }
                 }
-            } else {
-                // Publicly accessible, not expired, and no password required
-                tracing::debug!(metric_id = %metric_id, "Public access granted (no password required).");
-                permission = AssetPermissionRole::CanView;
             }
         }
     }
@@ -271,6 +303,11 @@ pub async fn get_metric_handler(
         resolved_content_for_yaml = current_content; // Use this content for YAML
 
         tracing::debug!(metric_id = %metric_id, latest_version = resolved_version_num, "Determined latest version number");
+    }
+
+    let mut final_chart_config = resolved_chart_config.clone();
+    if let Err(e) = apply_color_fallback(&mut final_chart_config, &metric_file.organization_id).await {
+        tracing::warn!(metric_id = %metric_id, error = %e, "Failed to apply color fallback logic, continuing with original chart config");
     }
 
     // Convert the selected content to pretty YAML for the 'file' field
@@ -361,7 +398,7 @@ pub async fn get_metric_handler(
         .filter(asset_permissions::asset_type.eq(AssetType::MetricFile))
         .filter(asset_permissions::identity_type.eq(IdentityType::User))
         .filter(asset_permissions::deleted_at.is_null())
-        .select((asset_permissions::role, users::email, users::name))
+        .select((asset_permissions::role, users::email, users::name, users::avatar_url))
         .load::<AssetPermissionInfo>(&mut conn)
         .await;
 
@@ -425,6 +462,7 @@ pub async fn get_metric_handler(
                             email: p.email,
                             role: p.role,
                             name: p.name,
+                            avatar_url: p.avatar_url,
                         })
                         .collect::<Vec<crate::metrics::types::BusterShareIndividual>>(),
                 )
@@ -432,6 +470,23 @@ pub async fn get_metric_handler(
         }
         Err(_) => None,
     };
+
+    // Get workspace sharing enabled by email if set
+    let workspace_sharing_enabled_by = if let Some(enabled_by_id) = metric_file.workspace_sharing_enabled_by {
+        users::table
+            .filter(users::id.eq(enabled_by_id))
+            .select(users::email)
+            .first::<String>(&mut conn)
+            .await
+            .ok()
+    } else {
+        None
+    };
+
+    // Count workspace members
+    let workspace_member_count = count_workspace_members(metric_file.organization_id)
+        .await
+        .unwrap_or(0);
 
     // Construct BusterMetric using resolved values
     Ok(BusterMetric {
@@ -445,7 +500,7 @@ pub async fn get_metric_handler(
         datasets, // Fetched based on resolved_dataset_ids (for display purposes only)
         data_source_id: metric_file.data_source_id, // Use canonical ID (Uuid) from main record
         error: None, // Assume ok
-        chart_config: Some(resolved_chart_config), // Use resolved chart config
+        chart_config: Some(final_chart_config), // Use chart config with color fallback applied
         data_metadata, // Not versioned
         status: metric_file.verification, // Not versioned
         evaluation_score, // Not versioned
@@ -467,5 +522,11 @@ pub async fn get_metric_handler(
         public_expiry_date: metric_file.public_expiry_date, // Not versioned
         public_enabled_by: public_enabled_by_user, // Not versioned
         public_password: metric_file.public_password, // Not versioned
+        // Workspace sharing fields
+        workspace_sharing: metric_file.workspace_sharing,
+        workspace_sharing_enabled_by,
+        workspace_sharing_enabled_at: metric_file.workspace_sharing_enabled_at,
+        // Workspace member count
+        workspace_member_count,
     })
 }

@@ -193,7 +193,12 @@ export class RedshiftAdapter extends BaseAdapter {
 
   async close(): Promise<void> {
     if (this.client) {
-      await this.client.end();
+      try {
+        await this.client.end();
+      } catch (error) {
+        // Log error but don't throw - connection is being closed anyway
+        console.error('Error closing Redshift connection:', error);
+      }
       this.client = undefined;
     }
     this.connected = false;
@@ -204,6 +209,7 @@ export class RedshiftAdapter extends BaseAdapter {
   }
 
   introspect(): DataSourceIntrospector {
+    this.ensureConnected();
     if (!this.introspector) {
       this.introspector = new RedshiftIntrospector('redshift', this);
     }

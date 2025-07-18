@@ -14,7 +14,11 @@ import {
 import { SlackChannelService } from '@buster/slack';
 import type { Context } from 'hono';
 import { HTTPException } from 'hono/http-exception';
-import { getActiveIntegration, updateDefaultChannel } from './services/slack-helpers';
+import {
+  getActiveIntegration,
+  updateDefaultChannel,
+  updateDefaultSharingPermissions,
+} from './services/slack-helpers';
 import * as slackHelpers from './services/slack-helpers';
 import { type SlackOAuthService, createSlackOAuthService } from './services/slack-oauth-service';
 
@@ -243,6 +247,7 @@ export class SlackHandler {
 
       return c.json<GetIntegrationResponse>({
         connected: status.connected,
+        status: status.status,
         integration: status.integration
           ? {
               id: status.integration.id,
@@ -251,6 +256,11 @@ export class SlackHandler {
               team_domain: status.integration.teamDomain,
               last_used_at: status.integration.lastUsedAt,
               default_channel: status.integration.defaultChannel,
+              default_sharing_permissions: status.integration.defaultSharingPermissions as
+                | 'shareWithWorkspace'
+                | 'shareWithChannel'
+                | 'noSharing'
+                | undefined,
             }
           : undefined,
       });
@@ -386,6 +396,13 @@ export class SlackHandler {
       // Update integration settings
       if (parsed.data.default_channel) {
         await updateDefaultChannel(integration.id, parsed.data.default_channel);
+      }
+
+      if (parsed.data.default_sharing_permissions) {
+        await updateDefaultSharingPermissions(
+          integration.id,
+          parsed.data.default_sharing_permissions
+        );
       }
 
       return c.json<UpdateIntegrationResponse>({

@@ -16,7 +16,9 @@ export const getShareAssetConfig = (
     public_expiry_date,
     public_enabled_by,
     publicly_accessible,
-    public_password
+    public_password,
+    workspace_sharing,
+    workspace_member_count
   } = message;
 
   return {
@@ -25,6 +27,8 @@ export const getShareAssetConfig = (
     public_expiry_date,
     public_enabled_by,
     publicly_accessible,
-    public_password
+    public_password,
+    workspace_sharing,
+    workspace_member_count
   };
 };

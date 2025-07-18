@@ -1,4 +1,4 @@
-import { type InferSelectModel, and, asc, count, eq, inArray, isNull, like } from 'drizzle-orm';
+import { type InferSelectModel, and, asc, count, eq, inArray, isNull, like, or } from 'drizzle-orm';
 import { z } from 'zod';
 import { db } from '../../connection';
 import {
@@ -51,14 +51,16 @@ export const getUserToOrganization = async (
 
   const { organizationId } = userOrg;
 
-  // Build where conditions
+  // Combine conditions: base conditions AND (name OR email)
   const whereConditions = and(
     eq(usersToOrganizations.organizationId, organizationId),
     isNull(usersToOrganizations.deletedAt),
-    user_name ? like(users.name, `%${user_name}%`) : undefined,
-    email ? like(users.email, `%${email}%`) : undefined,
     role ? inArray(usersToOrganizations.role, role) : undefined,
-    status ? inArray(usersToOrganizations.status, status) : undefined
+    status ? inArray(usersToOrganizations.status, status) : undefined,
+    or(
+      user_name ? like(users.name, `%${user_name}%`) : undefined,
+      email ? like(users.email, `%${email}%`) : undefined
+    )
   );
 
   const getData = withPagination(

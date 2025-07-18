@@ -15,6 +15,8 @@ import { MetricStylingAppSegment } from './MetricStylingAppSegment';
 import { StylingAppColors } from './StylingAppColors';
 import { StylingAppStyling } from './StylingAppStyling';
 import { StylingAppVisualize } from './StylingAppVisualize';
+import { useMount } from '@/hooks';
+import { useSelectedColorPalette } from '@/context-hooks/usePalettes';
 
 export const MetricStylingApp: React.FC<{
   metricId: string;
@@ -24,6 +26,7 @@ export const MetricStylingApp: React.FC<{
   );
   const { data: chartConfig } = useGetMetric({ id: metricId }, { select: (x) => x.chart_config });
   const { data: metricData } = useGetMetricData({ id: metricId }, { enabled: false });
+  const colors = useSelectedColorPalette(chartConfig?.colors);
 
   if (!chartConfig) return null;
 
@@ -68,7 +71,6 @@ export const MetricStylingApp: React.FC<{
     pieInnerLabelTitle,
     pieShowInnerLabel,
     pieMinimumSlicePercentage,
-    colors,
     metricColumnId,
     metricHeader,
     metricSubHeader,

@@ -1,4 +1,10 @@
-import { QueryClient, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import {
+  QueryClient,
+  useMutation,
+  useQuery,
+  useQueryClient,
+  type UseQueryOptions
+} from '@tanstack/react-query';
 import { userQueryKeys } from '@/api/query_keys/users';
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import { useCreateOrganization } from '../organizations/queryRequests';
@@ -7,18 +13,22 @@ import {
   getMyUserInfo_server,
   getUser,
   getUser_server,
-  getUserList,
-  getUserList_server,
   inviteUser,
   updateOrganizationUser
 } from './requests';
 import { organizationQueryKeys } from '@/api/query_keys/organization';
+import { UserResponse } from '@buster/server-shared/user';
+import type { RustApiError } from '../errors';
 
-export const useGetMyUserInfo = () => {
+export const useGetMyUserInfo = <TData = UserResponse>(
+  props?: Omit<UseQueryOptions<UserResponse | null, RustApiError, TData>, 'queryKey' | 'queryFn'>
+) => {
   return useQuery({
     ...userQueryKeys.userGetUserMyself,
     queryFn: getMyUserInfo,
-    enabled: false //This is a server only query
+    enabled: false, //This is a server only query,
+    select: props?.select,
+    ...props
   });
 };
 
@@ -71,27 +81,6 @@ export const prefetchGetUser = async (userId: string, queryClientProp?: QueryCli
   return queryClient;
 };
 
-export const useGetUserList = (params: Parameters<typeof getUserList>[0]) => {
-  const queryFn = useMemoizedFn(() => getUserList(params));
-
-  return useQuery({
-    ...userQueryKeys.userGetUserList(params),
-    queryFn
-  });
-};
-
-export const prefetchGetUserList = async (
-  params: Parameters<typeof getUserList>[0],
-  queryClientProp?: QueryClient
-) => {
-  const queryClient = queryClientProp || new QueryClient();
-  await queryClient.prefetchQuery({
-    ...userQueryKeys.userGetUserList(params),
-    queryFn: () => getUserList_server(params)
-  });
-  return queryClient;
-};
-
 export const useInviteUser = () => {
   const queryClient = useQueryClient();
 
@@ -100,6 +89,7 @@ export const useInviteUser = () => {
     onSuccess: () => {
       const user = queryClient.getQueryData(userQueryKeys.userGetUserMyself.queryKey);
 
+      // Invalidate organization users for all user's organizations
       for (const organization of user?.organizations || []) {
         queryClient.invalidateQueries({
           queryKey: [organizationQueryKeys.organizationUsers(organization.id).queryKey],
@@ -107,18 +97,17 @@ export const useInviteUser = () => {
         });
       }
 
-      for (const team of user?.teams || []) {
-        queryClient.invalidateQueries({
-          queryKey: [userQueryKeys.userGetUserList({ team_id: team.id }).queryKey],
-          refetchType: 'all'
-        });
-      }
+      // Invalidate all userGetUserToOrganization queries (any params)
+      queryClient.invalidateQueries({
+        queryKey: userQueryKeys.userGetUserToOrganization({}).queryKey.slice(0, -1),
+        refetchType: 'all'
+      });
     }
   });
 };
 
 export const useCreateUserOrganization = () => {
-  const { data: userResponse, refetch: refetchUserResponse } = useGetMyUserInfo();
+  const { data: userResponse, refetch: refetchUserResponse } = useGetMyUserInfo({});
   const { mutateAsync: createOrganization } = useCreateOrganization();
   const { mutateAsync: updateUserInfo } = useUpdateUser();
 

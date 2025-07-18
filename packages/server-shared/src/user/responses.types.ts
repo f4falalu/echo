@@ -17,20 +17,10 @@ export const UserResponseSchema = z.object({
   organizations: z.array(OrganizationWithUserRoleSchema).nullable(),
 });
 
-export const UserListResponseSchema = z.array(
-  z.object({
-    email: z.string(),
-    id: z.string(),
-    name: z.string(),
-    role: OrganizationRoleSchema.nullable(),
-  })
-);
-
 export const UserFavoriteResponseSchema = z.array(UserFavoriteSchema);
 
 export const GetUserToOrganizationResponseSchema = PaginatedResponseSchema(OrganizationUserSchema);
 
 export type UserResponse = z.infer<typeof UserResponseSchema>;
-export type UserListResponse = z.infer<typeof UserListResponseSchema>;
 export type UserFavoriteResponse = z.infer<typeof UserFavoriteResponseSchema>;
 export type GetUserToOrganizationResponse = z.infer<typeof GetUserToOrganizationResponseSchema>;

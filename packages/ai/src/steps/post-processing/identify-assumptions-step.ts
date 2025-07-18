@@ -69,6 +69,10 @@ export const identifyAssumptionsOutputSchema = z.object({
             'grouping',
             'calculationMethod',
             'dataRelevance',
+            'valueScale',
+            'joinSelection',
+            'metricAmbiguity',
+            'dataStaticAssumption',
           ])
           .describe('The type/category of assumption made'),
         explanation: z
@@ -188,8 +192,9 @@ When identifying assumptions, use the following classification types to categori
 
 13. **segmentDefinition**: Assumptions about how a business segment is defined, due to missing documentation.  
     - *Example*: Assuming all \`TEAMS\` entries are Redo customers.  
+    - *Example*: Assuming all chicken menu items can be identified by doing \`name like '%chicken%'\`
     - *Available labels*: major, minor  
-    - *Label decision guidelines*: If the segment definition is undocumented and introduces a new segment, it’s "major." If it’s a minor adjustment to a partially documented segment, it’s "minor."
+    - *Label decision guidelines*: If the segment definition is undocumented and introduces a new segment, it’s "major." If the segment definition may be too restrictive and there is no documentation, it is "major." If it’s a minor adjustment to a partially documented segment, it’s "minor."
 
 14. **businessLogic**: Assumptions about specific business rules or processes.  
     - *Example*: Assuming the most recent tracking details are most relevant.  
@@ -206,15 +211,16 @@ When identifying assumptions, use the following classification types to categori
     - *Available labels*: major, minor  
     - *Label decision guidelines*: If the optimization (e.g., a limit) skews key results, it’s "major." If it’s a practical optimization with minimal impact, it’s "minor."
 
-17. **aggregation**: Assumptions about how to aggregate data (e.g., sum, average).  
+17. **aggregation**: Assumptions about how to aggregate data (e.g., sum, average). Everytime the SQL query uses aggregation, it is an assumption.
     - *Example*: Assuming revenue is summed, not averaged.  
     - *Available labels*: major, minor  
-    - *Label decision guidelines*: If the aggregation is undocumented and introduces a new calculation, it’s "major." If it’s based on a documented or standard method, it’s "minor."
+    - *Label decision guidelines*: If the aggregation is undocumented and introduces a new calculation or if the aggregation selection is not stated in the response message, it’s "major." If it’s based on a documented or standard method, it’s "minor."
 
 18. **filtering**: Assumptions about additional filters to apply beyond user specification.  
     - *Example*: Assuming to exclude inactive records.  
+    - *Example*: Assuming all chicken menu items can be identified by doing \`name like '%chicken%'\`
     - *Available labels*: major, minor  
-    - *Label decision guidelines*: If the filter is critical and undocumented, it’s "major." If it’s a standard or low-impact filter, it’s "minor."
+    - *Label decision guidelines*: If the filter is critical and undocumented, it’s "major." If the filter may change the scope by being too restrictive or too broad and there is no documentation, its "major." If it’s a standard or low-impact filter, it’s "minor."
 
 19. **sorting**: Assumptions about how to sort the results when not specified.  
     - *Example*: Assuming descending order by date.  
@@ -235,6 +241,26 @@ When identifying assumptions, use the following classification types to categori
     - *Example*: Assuming recent data outweighs older data.  
     - *Available labels*: major, minor  
     - *Label decision guidelines*: If the relevance assumption is undocumented and has a significant impact, it’s "major." If it’s a minor relevance assumption, it’s "minor."
+
+23. **valueScale**: Assumptions about the scale or format of numerical values, such as percentages or currency. This classification often involves assumptions about how percentage-type columns are stored, which can lead to significant errors if not validated. For example, assuming a value is 50 when it is actually 0.5, or vice versa, can result in incorrect calculations, such as multiplying by 100 and producing vastly incorrect results
+    - *Example*: Using \`commission_pct * salesytd\` to calculate a salesperson's commission or any time you are using a numeric column in a calculation
+    - *Available labels*: major, minor
+    - *Label decision guidelines*: This should be flagged as a major assumption unless the format is validated through execution or documentation. If the assumption is validated by executing SQL and confirming the storage format, it can be considered minor.
+
+24. **joinSelection**: Assumptions about prioritizing one join over another when multiple joins are possible, even if multiple joins are technically used. This prioritization should be flagged as a major assumption due to its potential impact on results and the likelihood of being undocumented unless the prioritization is explicitly documented.
+    - *Example*: When looking at contact information, assuming you should prioritize the 'MOBILE_PHONE_ID' over the 'EMAIL_ID' or anytime you need to select or prioritize one join over another.
+    - *Available labels*: major
+    - *Label decision guidelines*: This classification type is always "major" because prioritizing one join over another can significantly impact the results and may not be documented. Specifically, if a query uses a conditional logic (e.g., CASE WHEN statements) to determine which join to prioritize, it should be flagged as a major assumption. This is because such logic often indicates a lack of clear documentation or best practices regarding which join should be used in different scenarios.
+
+25. **metricAmbiguity**: Assumptions about how to aggregate data (e.g., sum, average).
+    - *Example*: Assuming 'most popular coffee' is the coffee with the most orders instad of the coffee with the most oz sold
+    - *Available labels*: major, minor
+    - *Label decision guidelines*: If the different aggregation methods will have different results and there is no documented preference, it should be flagged as a major assumption. If the different aggregation methods have the same results or are based on a documented preference, it is minor.
+
+26. **dataStaticAssumption**: Assumptions that a particular data point or value is static and unchanging, which might not be the case.
+    - *Example*: Assuming departmental budgets remain constant year over year without considering potential changes due to economic conditions or strategic shifts.
+    - *Available labels*: major, minor
+    - *Label decision guidelines*: If the assumption of static data could significantly impact the analysis or decision-making process, it’s "major." If the assumption is based on standard practices or if the impact of the assumption is minimal, it’s "minor."
 </classification_types>
 
 <identification_guidelines>
@@ -254,8 +280,9 @@ When identifying assumptions, use the following classification types to categori
 - For lack of documentation:
     - Confirm every table and column in the query is documented; flag undocumented ones as "fieldMapping" or "tableRelationship" assumptions.
     - Verify filter values and logic are documented; flag unsupported ones as "filtering" or "dataQuality" assumptions.
-    - Ensure joins are based on documented relationships; flag undocumented joins as "tableRelationship" assumptions.
+    - Ensure joins are based on documented relationships; flag undocumented joins as "tableRelationship" assumptions, flag prioritized joins as "joinSelection" assumptions.
     - Check aggregations or formulas are defined in documentation; flag undocumented ones as "aggregation" or "calculationMethod" assumptions.
+    - Confirm that column value formats are documented; flag undocumented ones as "valueScale" assumptions.
 - For vagueness of user request:
     - Identify terms with multiple meanings; classify assumptions about their interpretation under "metricInterpretation," "segmentInterpretation," etc.
     - Detect omitted specifics; classify assumptions about filling them in under "timePeriodInterpretation," "quantityInterpretation," etc.
@@ -267,20 +294,35 @@ For assumptions where the classification type is not pre-assigned to \`timeRelat
     - Assumptions about key metrics, segments, or data relationships that are not documented.
     - Assumptions that could substantially alter the outcome if wrong.
     - Assumptions where there is high uncertainty or risk.
+    - Assumptions that have a high impact on the final result.
+    - Assumptions that are not easily visible to the user.
+    - Assumptions where increased documentation would improve the analysis.
 - **Minor assumption**: The assumption has a limited impact on the analysis, and even if incorrect, would not substantially alter the results or interpretations. This typically includes:
     - Assumptions based on standard data analysis practices.
     - Assumptions about minor details or where there is some documentation support.
     - Assumptions where the risk of error is low.
 - If significance is unclear, document the ambiguity in the explanation and suggest seeking clarification from the user or enhancing documentation.
+- When debating between major and minor, it is preferred to flag as major.
 </scoring_framework>
 
 <evaluation_process>
 - Review the user request for context and intent.
 - Assess all decisions made by Buster while addressing TODO list items.
 - Compare decisions and metric query elements to documentation.
+- Use the \`evaluation_guidelines\` to evaluate the assumptions.
 - Identify assumptions using the identification guidelines, classify them using the classification types, and assign the appropriate label (\`timeRelated\`, \`vagueRequest\`, \`major\`, or \`minor\`) based on the classification type and significance assessment.
 - Format the response as described in the output format.
 </evaluation_process>
+
+==**critical** Always follow the evaluation guidelines==
+<evaluation_guidelines>
+- Always evaluate all SQL joins to determine if a \`joinSelection\` or \`tableRelationship\` assumption was made.
+- Always evaluate all calculations to determine if a \`calculationMethod\` or \`valueScale\` assumption was made.
+- Always evaluate all SQL aggregation to determine if a \`aggregation\` or \`metricAmbiguity\` assumption was made.
+- Whenever there are multiple possible ways to aggregate something, it is a \`metricAmbiguity\` assumption.
+- Whenever your analysis requires a numeric value to be static, a \`dataStaticAssumption\` was made.
+- Whenever filters are used, a \`filtering\` or \`segmentDefinition\` assumption was made.
+</evaluation_guidelines>
 
 <output_format>
 - Identified assumptions:

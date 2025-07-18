@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { ShareRoleSchema, VerificationStatusSchema } from '../share';
+import { ShareRoleSchema, VerificationStatusSchema, WorkspaceShareRoleSchema } from '../share';
 import { ChartConfigPropsSchema } from './charts';
 
 export const GetMetricRequestSchema = z.object({
@@ -53,13 +53,6 @@ export const BulkUpdateMetricVerificationStatusRequestSchema = z.array(
   })
 );
 
-export const ShareMetricRequestSchema = z.array(
-  z.object({
-    email: z.string(),
-    role: ShareRoleSchema,
-  })
-);
-
 export const ShareDeleteRequestSchema = z.array(z.string());
 
 export const ShareUpdateRequestSchema = z.object({
@@ -74,6 +67,7 @@ export const ShareUpdateRequestSchema = z.object({
   publicly_accessible: z.boolean().optional(),
   public_password: z.string().nullable().optional(),
   public_expiry_date: z.string().nullable().optional(),
+  workspace_sharing: WorkspaceShareRoleSchema.nullable().optional(),
 });
 
 export type GetMetricDataRequest = z.infer<typeof GetMetricDataRequestSchema>;
@@ -85,6 +79,5 @@ export type DuplicateMetricRequest = z.infer<typeof DuplicateMetricRequestSchema
 export type BulkUpdateMetricVerificationStatusRequest = z.infer<
   typeof BulkUpdateMetricVerificationStatusRequestSchema
 >;
-export type ShareMetricRequest = z.infer<typeof ShareMetricRequestSchema>;
 export type ShareDeleteRequest = z.infer<typeof ShareDeleteRequestSchema>;
 export type ShareUpdateRequest = z.infer<typeof ShareUpdateRequestSchema>;

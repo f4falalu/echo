@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import {
   Command,
   CommandEmpty,
@@ -9,6 +9,7 @@ import {
 } from '@/components/ui/command';
 import { PopoverRoot, PopoverContent, PopoverTrigger } from '@/components/ui/popover/PopoverBase';
 import { cn } from '@/lib/classMerge';
+import { CircleSpinnerLoader } from '../loaders';
 import { Check, ChevronDown, Xmark } from '@/components/ui/icons';
 
 interface SelectItemGroup<T = string> {
@@ -25,7 +26,15 @@ export interface SelectItem<T = string> {
   disabled?: boolean;
 }
 
-type SearchFunction<T> = (item: SelectItem<T>, searchTerm: string) => boolean;
+type SearchFunction<T> =
+  | {
+      type: 'filter';
+      fn: (item: SelectItem<T>, searchTerm: string) => boolean;
+    }
+  | {
+      type: 'async';
+      fn: (searchTerm: string) => Promise<void>;
+    };
 
 // Base interface with common properties
 interface BaseSelectProps<T> {
@@ -37,12 +46,19 @@ interface BaseSelectProps<T> {
   open?: boolean;
   showIndex?: boolean;
   className?: string;
-  defaultValue?: string;
   dataTestId?: string;
   loading?: boolean;
+  showLoadingIcon?: boolean;
   search?: boolean | SearchFunction<T>;
-  emptyMessage?: string;
+  emptyMessage?: string | false;
   matchPopUpWidth?: boolean;
+  inputValue?: string;
+  onInputValueChange?: (value: string) => void;
+  hideChevron?: boolean;
+  closeOnSelect?: boolean;
+  onPressEnter?: (value: string) => void;
+  type?: 'select' | 'input';
+  clearOnSelect?: boolean;
 }
 
 // Clearable version - onChange can return null
@@ -135,39 +151,56 @@ function SelectComponent<T = string>({
   onChange,
   placeholder = 'Select an option',
   emptyMessage = 'No options found.',
+  type = 'select',
   value,
   onOpenChange,
   open: controlledOpen,
   showIndex = false,
   className,
-  defaultValue,
   dataTestId,
   loading = false,
+  showLoadingIcon = true,
   search = false,
   clearable = false,
-  matchPopUpWidth = false
+  matchPopUpWidth = false,
+  inputValue,
+  onInputValueChange,
+  hideChevron = false,
+  onPressEnter,
+  clearOnSelect = true,
+  closeOnSelect = true
 }: SelectProps<T>) {
-  const [internalOpen, setInternalOpen] = React.useState(false);
-  const [searchValue, setSearchValue] = React.useState('');
+  const [internalInputValue, setInternalInputValue] = React.useState('');
   const [isFocused, setIsFocused] = React.useState(false);
+  // Track whether user is in navigation mode (using arrow keys) vs input mode (typing)
+  const [isNavigationMode, setIsNavigationMode] = React.useState(false);
+  const triggerRef = useRef<HTMLButtonElement>(null);
   const inputRef = React.useRef<HTMLInputElement>(null);
   const commandRef = React.useRef<HTMLDivElement>(null);
   const listboxId = React.useId();
 
-  const open = controlledOpen !== undefined ? controlledOpen : internalOpen;
+  // Use provided inputValue or internal state
+  const currentInputValue = inputValue ?? internalInputValue;
+  const setInputValue = onInputValueChange ?? setInternalInputValue;
+
+  const open = controlledOpen !== undefined ? controlledOpen : undefined;
 
   const handleOpenChange = React.useCallback(
     (newOpen: boolean) => {
       if (!disabled) {
-        setInternalOpen(newOpen);
         onOpenChange?.(newOpen);
         if (!newOpen) {
-          setSearchValue('');
-          setIsFocused(false);
+          // Reset navigation mode when closing
+          setIsNavigationMode(false);
+          // Clear search value after 200ms to avoid flickering
+          setTimeout(() => {
+            if (clearOnSelect) setInputValue('');
+            setIsFocused(false);
+          }, 125);
         }
       }
     },
-    [disabled, onOpenChange]
+    [disabled, onOpenChange, setInputValue, clearOnSelect]
   );
 
   // Get all items in a flat array for easier processing
@@ -179,36 +212,45 @@ function SelectComponent<T = string>({
   }, [items]);
 
   // Find the selected item
-  const selectedItem = React.useMemo(
-    () => flatItems.find((item) => String(item.value) === String(value)),
-    [flatItems, value]
-  );
+  const selectedItem = React.useMemo(() => {
+    if (!value) return undefined;
+    return flatItems.find((item) => String(item.value) === String(value));
+  }, [flatItems, value]);
 
   // Filter items based on search
   const filterItem = React.useCallback(
     (item: SelectItem<T>): boolean => {
-      if (!search || !searchValue) return true;
+      if (!search || !currentInputValue) return true;
 
-      if (typeof search === 'function') {
-        return search(item, searchValue);
+      if (typeof search === 'object') {
+        if (search.type === 'filter') {
+          return search.fn(item, currentInputValue);
+        }
+        return true;
       }
 
-      return defaultSearchFunction(item, searchValue);
+      return defaultSearchFunction(item, currentInputValue);
     },
-    [search, searchValue]
+    [search, currentInputValue]
   );
+
+  const closePopover = React.useCallback(() => {
+    handleOpenChange(false);
+    triggerRef.current?.click();
+  }, [handleOpenChange]);
 
   const handleSelect = React.useCallback(
     (itemValue: string) => {
       const item = flatItems.find((i) => String(i.value) === itemValue);
       if (item) {
-        onChange(item.value);
+        if (closeOnSelect) closePopover();
+        onChange?.(item.value);
         handleOpenChange(false);
-        setSearchValue('');
+        if (clearOnSelect) setInputValue('');
         inputRef.current?.blur();
       }
     },
-    [flatItems, onChange, handleOpenChange]
+    [flatItems, closeOnSelect, onChange, handleOpenChange, setInputValue, closePopover]
   );
 
   const handleClear = React.useCallback(
@@ -218,75 +260,100 @@ function SelectComponent<T = string>({
       // Type assertion is safe here because handleClear is only called when clearable is true
       if (clearable) {
         (onChange as (value: T | null) => void)(null);
-        setSearchValue('');
+        setInputValue('');
         handleOpenChange(false);
       }
     },
-    [onChange, handleOpenChange, clearable]
+    [onChange, handleOpenChange, clearable, setInputValue]
   );
 
   const handleInputChange = React.useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const newValue = e.target.value;
-      setSearchValue(newValue);
 
+      // Reset navigation mode when user starts typing
+      setIsNavigationMode(false);
+
+      setInternalInputValue?.(newValue);
+      setInputValue?.(newValue);
       if (search !== false && newValue && !open) {
         handleOpenChange(true);
       }
+
+      if (search && typeof search === 'object' && search.type === 'async') {
+        search.fn(newValue);
+      }
     },
-    [search, open, handleOpenChange]
+    [search, open, handleOpenChange, setInputValue, onInputValueChange, inputValue]
   );
 
   const handleInputFocus = React.useCallback(() => {
     setIsFocused(true);
+    // Reset navigation mode when input gains focus
+    setIsNavigationMode(false);
     if (!open) {
       handleOpenChange(true);
     }
   }, [open, handleOpenChange]);
 
+  // Helper function to forward keyboard events to the command component
+  const forwardKeyToCommand = React.useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (commandRef.current) {
+      const commandInput = commandRef.current.querySelector('[cmdk-input]');
+      if (commandInput) {
+        const newEvent = new KeyboardEvent('keydown', {
+          key: e.key,
+          code: e.code,
+          keyCode: e.keyCode,
+          which: e.which,
+          shiftKey: e.shiftKey,
+          ctrlKey: e.ctrlKey,
+          altKey: e.altKey,
+          metaKey: e.metaKey,
+          bubbles: true,
+          cancelable: true
+        });
+        commandInput.dispatchEvent(newEvent);
+        e.preventDefault();
+      }
+    }
+  }, []);
+
   const handleInputKeyDown = React.useCallback(
     (e: React.KeyboardEvent<HTMLInputElement>) => {
-      if (['ArrowDown', 'ArrowUp', 'Enter', 'Home', 'End'].includes(e.key)) {
-        if (!open && (e.key === 'ArrowDown' || e.key === 'ArrowUp')) {
+      if (e.key === 'Enter') {
+        if (isNavigationMode) {
+          // In navigation mode: forward to command for item selection
+          forwardKeyToCommand(e);
+        } else if (onPressEnter && search !== false) {
+          // In input mode: trigger onPressEnter callback
+          onPressEnter(e.currentTarget.value);
           e.preventDefault();
-          handleOpenChange(true);
-          return;
         }
-
+      } else if (['ArrowDown', 'ArrowUp', 'Home', 'End'].includes(e.key)) {
+        // Enter navigation mode when using arrow keys
+        setIsNavigationMode(true);
         // Forward the event to the command component
-        if (open && commandRef.current) {
-          const commandInput = commandRef.current.querySelector('[cmdk-input]');
-          if (commandInput) {
-            const newEvent = new KeyboardEvent('keydown', {
-              key: e.key,
-              code: e.code,
-              keyCode: e.keyCode,
-              which: e.which,
-              shiftKey: e.shiftKey,
-              ctrlKey: e.ctrlKey,
-              altKey: e.altKey,
-              metaKey: e.metaKey,
-              bubbles: true,
-              cancelable: true
-            });
-            commandInput.dispatchEvent(newEvent);
-            e.preventDefault();
-          }
-        }
+        forwardKeyToCommand(e);
       } else if (e.key === 'Escape') {
+        setIsNavigationMode(false);
         handleOpenChange(false);
         inputRef.current?.blur();
       }
     },
-    [open, handleOpenChange]
+    [isNavigationMode, onPressEnter, search, handleOpenChange, forwardKeyToCommand]
   );
+
+  const filteredItems = React.useMemo(() => {
+    return flatItems.filter(filterItem);
+  }, [flatItems, filterItem]);
 
   // Render items with memoization to prevent unnecessary re-renders
   const renderedItems = React.useMemo(() => {
     if (isGroupedItems(items)) {
       return items.map((group, groupIndex) => {
         const filteredItems = group.items.filter(filterItem);
-        if (filteredItems.length === 0 && searchValue) return null;
+        if (filteredItems.length === 0 && currentInputValue) return null;
 
         return (
           <CommandGroup key={`${group.label}-${groupIndex}`} heading={group.label}>
@@ -305,7 +372,6 @@ function SelectComponent<T = string>({
       });
     }
 
-    const filteredItems = flatItems.filter(filterItem);
     return filteredItems.map((item, index) => (
       <SelectItemComponent
         key={String(item.value)}
@@ -316,27 +382,32 @@ function SelectComponent<T = string>({
         onSelect={handleSelect}
       />
     ));
-  }, [items, flatItems, filterItem, searchValue, value, showIndex, handleSelect]);
+  }, [items, filteredItems, currentInputValue, value, showIndex, handleSelect]);
 
   // Display value in input when not focused/searching
   const inputDisplayValue = React.useMemo(() => {
-    if (isFocused || searchValue) {
-      return searchValue;
+    if (isFocused || currentInputValue) {
+      return currentInputValue;
     }
     if (selectedItem) {
       return typeof selectedItem.label === 'string' ? selectedItem.label : '';
     }
     return '';
-  }, [isFocused, searchValue, selectedItem]);
+  }, [isFocused, currentInputValue, selectedItem]);
 
   // Compute placeholder once
   const computedPlaceholder = React.useMemo(() => {
     return typeof selectedItem?.label === 'string' ? selectedItem.label : placeholder;
   }, [selectedItem, placeholder]);
 
+  const renderPopOverContent = React.useMemo(() => {
+    if (emptyMessage === false && filteredItems.length === 0) return false;
+    return true;
+  }, [emptyMessage, filteredItems.length]);
+
   return (
     <PopoverRoot open={open} onOpenChange={handleOpenChange}>
-      <PopoverTrigger asChild>
+      <PopoverTrigger asChild ref={triggerRef}>
         <div className={cn('relative w-full', className)}>
           <input
             ref={inputRef}
@@ -345,23 +416,30 @@ function SelectComponent<T = string>({
             aria-expanded={open}
             aria-controls={listboxId}
             aria-label={placeholder}
-            disabled={disabled || loading}
+            disabled={disabled}
             value={inputDisplayValue}
             onChange={handleInputChange}
             onFocus={handleInputFocus}
             onKeyDown={handleInputKeyDown}
             placeholder={computedPlaceholder}
             data-testid={dataTestId}
+            autoComplete="off"
             readOnly={search === false}
             className={cn(
               'flex h-7 w-full items-center justify-between rounded border px-2.5 text-base',
-              'bg-background cursor-pointer transition-all duration-300',
+              'bg-background transition-all duration-300',
               'focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50',
               disabled ? 'bg-disabled text-gray-light' : '',
-              !selectedItem && !searchValue && 'text-text-secondary'
+              !selectedItem && !currentInputValue && 'text-text-secondary',
+              type === 'input' ? 'cursor-text' : 'cursor-pointer'
             )}
           />
           <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
+            {loading && showLoadingIcon && (
+              <div className="mr-1 flex items-center justify-center">
+                <CircleSpinnerLoader size={13} />
+              </div>
+            )}
             {clearable && selectedItem && !isFocused && (
               <button
                 type="button"
@@ -371,8 +449,13 @@ function SelectComponent<T = string>({
                 <Xmark />
               </button>
             )}
-            {!open && (
-              <div className="flex h-4 w-4 shrink-0 items-center opacity-50">
+            {!hideChevron && (
+              <div
+                className="flex h-4 w-4 shrink-0 items-center justify-center opacity-50 transition-transform duration-200 ease-in-out"
+                style={{
+                  transform: open ? 'rotate(180deg)' : 'rotate(0deg)',
+                  transformOrigin: 'center'
+                }}>
                 <ChevronDown />
               </div>
             )}
@@ -384,7 +467,8 @@ function SelectComponent<T = string>({
           matchPopUpWidth
             ? 'w-[var(--radix-popover-trigger-width)]'
             : 'min-w-[var(--radix-popover-trigger-width)]',
-          'p-0'
+          'p-0',
+          !renderPopOverContent && 'hidden'
         )}
         align="start"
         onOpenAutoFocus={(e) => {
@@ -394,14 +478,14 @@ function SelectComponent<T = string>({
         <Command ref={commandRef} shouldFilter={false}>
           {/* Hidden input that Command uses for keyboard navigation */}
           <CommandInput
-            value={searchValue}
-            onValueChange={setSearchValue}
+            value={currentInputValue}
+            onValueChange={setInputValue}
             parentClassName="sr-only hidden h-0 border-0 p-0"
             aria-hidden="true"
           />
-          <div className="scrollbar-hide max-h-[300px] overflow-y-auto">
+          <div className={cn('scrollbar-hide max-h-[300px] overflow-y-auto')}>
             <CommandList id={listboxId} className="p-1">
-              <CommandEmpty>{emptyMessage}</CommandEmpty>
+              {emptyMessage && <CommandEmpty>{emptyMessage}</CommandEmpty>}
               {renderedItems}
             </CommandList>
           </div>

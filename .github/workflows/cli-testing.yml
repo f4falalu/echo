@@ -31,8 +31,8 @@ jobs:
       - name: Build and Load API Docker Image
         uses: useblacksmith/build-push-action@v1
         with:
-          context: ./api
-          file: ./api/Dockerfile
+          context: ./apps/api
+          file: ./apps/api/Dockerfile
           push: false # Do not push, load locally for service container
           load: true  # Load the image into the runner's Docker daemon
           tags: local-api-test:latest # Tag for the service definition

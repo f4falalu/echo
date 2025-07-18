@@ -10,7 +10,10 @@ export const PERSIST_TIME = 1000 * 60 * 60 * 24 * 7; // 7 days
 
 export const PERSISTED_QUERIES = [queryKeys.slackGetChannels.queryKey].map(hashKey);
 
-export const PERMANENT_QUERIES = [queryKeys.getCurrencies.queryKey].map(hashKey);
+export const PERMANENT_QUERIES = [
+  queryKeys.getCurrencies.queryKey,
+  queryKeys.colorPalettes.queryKey
+].map(hashKey);
 
 const ALL_PERSISTED_QUERIES = [...PERSISTED_QUERIES, ...PERMANENT_QUERIES];
 

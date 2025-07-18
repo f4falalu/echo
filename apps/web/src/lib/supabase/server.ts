@@ -9,7 +9,7 @@ export const COOKIE_OPTIONS: CookieOptions = {
   maxAge: 60 * 60 * 24 * 7 // 1 week
 };
 
-export async function createClient() {
+export async function createSupabaseServerClient() {
   'use server';
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;

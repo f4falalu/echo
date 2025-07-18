@@ -1,7 +1,7 @@
 use anyhow::{anyhow, Result};
 use chrono::{DateTime, Utc};
 use database::{
-    enums::{AssetPermissionRole, AssetType, IdentityType},
+    enums::{AssetPermissionRole, AssetType, IdentityType, WorkspaceSharing},
     pool::get_pg_pool,
     schema::{asset_permissions, collections, teams_to_users, users},
 };
@@ -93,8 +93,6 @@ async fn get_permissioned_collections(
         )
         .distinct()
         .order((collections::updated_at.desc(), collections::id.asc()))
-        .offset(page * page_size)
-        .limit(page_size)
         .into_boxed();
 
     if let Some(filters) = req.filters {
@@ -134,8 +132,66 @@ async fn get_permissioned_collections(
         Err(e) => return Err(anyhow!("Error getting collection results: {}", e)),
     };
 
+    // Get user's organization IDs
+    let user_org_ids: Vec<Uuid> = user.organizations.iter().map(|org| org.id).collect();
+
+    // Second query: Get workspace-shared collections that the user doesn't have direct access to
+    let workspace_shared_collections = collections::table
+        .inner_join(users::table.on(users::id.eq(collections::created_by)))
+        .filter(collections::deleted_at.is_null())
+        .filter(collections::organization_id.eq_any(&user_org_ids))
+        .filter(collections::workspace_sharing.ne(WorkspaceSharing::None))
+        // Exclude collections we already have direct access to
+        .filter(
+            diesel::dsl::not(diesel::dsl::exists(
+                asset_permissions::table
+                    .filter(asset_permissions::asset_id.eq(collections::id))
+                    .filter(asset_permissions::asset_type.eq(AssetType::Collection))
+                    .filter(asset_permissions::deleted_at.is_null())
+                    .filter(
+                        asset_permissions::identity_id
+                            .eq(user.id)
+                            .or(teams_to_users::table
+                                .filter(teams_to_users::team_id.eq(asset_permissions::identity_id))
+                                .filter(teams_to_users::user_id.eq(user.id))
+                                .filter(teams_to_users::deleted_at.is_null())
+                                .select(teams_to_users::user_id)
+                                .single_value()
+                                .is_not_null()),
+                    ),
+            )),
+        )
+        .select((
+            collections::id,
+            collections::name,
+            collections::updated_at,
+            collections::created_at,
+            collections::workspace_sharing,
+            users::id,
+            users::name.nullable(),
+            users::email,
+            users::avatar_url.nullable(),
+            collections::organization_id,
+        ))
+        .order((collections::updated_at.desc(), collections::id.asc()))
+        .load::<(
+            Uuid,
+            String,
+            DateTime<Utc>,
+            DateTime<Utc>,
+            WorkspaceSharing,
+            Uuid,
+            Option<String>,
+            String,
+            Option<String>,
+            Uuid,
+        )>(&mut conn)
+        .await
+        .map_err(|e| anyhow!("Error getting workspace-shared collections: {}", e))?;
+
     let mut collections: Vec<ListCollectionsCollection> = Vec::new();
 
+    // Process directly-accessed collections
     // Filter collections based on user permissions
     // We'll include collections where the user has at least CanView permission
     for (id, name, updated_at, created_at, role, creator_id, creator_name, email, creator_avatar_url, org_id) in collection_results {
@@ -150,6 +206,7 @@ async fn get_permissioned_collections(
             ],
             org_id,
             &user.organizations,
+            WorkspaceSharing::None, // Use None as default for list handlers
         );
 
         if !has_permission {
@@ -175,5 +232,61 @@ async fn get_permissioned_collections(
         collections.push(collection);
     }
 
-    Ok(collections)
+    // Process workspace-shared collections
+    for (id, name, updated_at, created_at, workspace_sharing, creator_id, creator_name, email, creator_avatar_url, org_id) in workspace_shared_collections {
+        // Map workspace sharing level to a permission role
+        let workspace_permission = match workspace_sharing {
+            WorkspaceSharing::CanView => AssetPermissionRole::CanView,
+            WorkspaceSharing::CanEdit => AssetPermissionRole::CanEdit,
+            WorkspaceSharing::FullAccess => AssetPermissionRole::FullAccess,
+            WorkspaceSharing::None => continue, // Skip if None
+        };
+
+        // Check if user has the workspace-granted permission
+        let has_permission = check_permission_access(
+            Some(workspace_permission),
+            &[
+                AssetPermissionRole::CanView,
+                AssetPermissionRole::CanEdit,
+                AssetPermissionRole::FullAccess,
+                AssetPermissionRole::Owner,
+            ],
+            org_id,
+            &user.organizations,
+            workspace_sharing,
+        );
+
+        if !has_permission {
+            continue;
+        }
+
+        let owner = ListCollectionsUser {
+            id: creator_id,
+            name: creator_name.unwrap_or(email),
+            avatar_url: creator_avatar_url,
+        };
+
+        let collection = ListCollectionsCollection {
+            id,
+            name,
+            last_edited: updated_at,
+            created_at,
+            owner,
+            description: "".to_string(),
+            is_shared: true, // Always true for workspace-shared collections
+        };
+
+        collections.push(collection);
+    }
+
+    // Sort all collections by updated_at descending
+    collections.sort_by(|a, b| b.last_edited.cmp(&a.last_edited));
+    
+    // Apply pagination
+    let paginated_collections: Vec<ListCollectionsCollection> = collections.into_iter()
+        .skip((page * page_size) as usize)
+        .take(page_size as usize)
+        .collect();
+
+    Ok(paginated_collections)
 }
