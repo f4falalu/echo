@@ -800,6 +800,15 @@ importers:
         specifier: 'catalog:'
         version: 3.25.1
 
+  packages/sandbox:
+    dependencies:
+      '@buster/typescript-config':
+        specifier: workspace:*
+        version: link:../typescript-config
+      '@buster/vitest-config':
+        specifier: workspace:*
+        version: link:../vitest-config
+
   packages/server-shared:
     dependencies:
       '@buster/database':
