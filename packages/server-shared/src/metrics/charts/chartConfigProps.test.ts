@@ -15,7 +15,6 @@ describe('chartConfigProps', () => {
         selectedChartType: 'table',
         columnSettings: {},
         columnLabelFormats: {},
-        colors: DEFAULT_CHART_THEME,
         showLegend: null,
         gridLines: true,
         goalLines: [],
@@ -30,8 +29,8 @@ describe('chartConfigProps', () => {
     });
 
     it('should have the expected color palette', () => {
-      expect(DEFAULT_CHART_CONFIG.colors).toHaveLength(10);
-      expect(DEFAULT_CHART_CONFIG.colors).toEqual([
+      expect(DEFAULT_CHART_CONFIG.colors).toBeUndefined();
+      expect(DEFAULT_CHART_THEME).toEqual([
         '#B399FD',
         '#FC8497',
         '#FBBC30',
@@ -94,7 +93,6 @@ describe('chartConfigProps', () => {
       const entriesMap = new Map(DEFAULT_CHART_CONFIG_ENTRIES);
 
       expect(entriesMap.get('selectedChartType')).toBe('table');
-      expect(entriesMap.get('colors')).toEqual(DEFAULT_CHART_THEME);
       expect(entriesMap.get('gridLines')).toBe(true);
       expect(entriesMap.get('showLegend')).toBeNull();
       expect(entriesMap.get('disableTooltip')).toBe(false);
@@ -128,7 +126,6 @@ describe('chartConfigProps', () => {
         selectedChartType: 'table',
         columnSettings: {},
         columnLabelFormats: {},
-        colors: DEFAULT_CHART_THEME,
         showLegend: null,
         gridLines: true,
         goalLines: [],
@@ -166,7 +163,6 @@ describe('chartConfigProps', () => {
       expect(result.disableTooltip).toBe(true);
       // Defaults should be applied for missing fields
       expect(result.selectedChartType).toBe('table');
-      expect(result.colors).toEqual(DEFAULT_CHART_THEME);
     });
 
     it('should handle complex column configurations', () => {

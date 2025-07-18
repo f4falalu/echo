@@ -96,8 +96,6 @@ export const MetricStylingApp: React.FC<{
     barAndLineAxis
   );
 
-
-
   return (
     <div className="flex h-full w-full flex-col overflow-hidden pt-3">
       <MetricStylingAppSegment

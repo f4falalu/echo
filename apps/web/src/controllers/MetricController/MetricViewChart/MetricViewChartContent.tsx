@@ -7,7 +7,7 @@ import { METRIC_CHART_CONTAINER_ID } from './config';
 
 interface MetricViewChartContentProps {
   className?: string;
-  chartConfig: BusterMetric['chart_config'];
+  chartConfig: Required<BusterMetric['chart_config']>;
   metricData: BusterMetricData['data'];
   dataMetadata: DataMetadata | undefined;
   fetchedData: boolean;
@@ -30,10 +30,8 @@ export const MetricViewChartContent: React.FC<MetricViewChartContentProps> = Rea
     const columnMetadata = dataMetadata?.column_metadata;
     const isTable = chartConfig?.selectedChartType === 'table';
 
-    const cardClassName = useMemo(() => {
-      if (isTable || !fetchedData) return '';
-      return 'p-4';
-    }, [isTable, fetchedData]);
+    // Determine the card class name based on chart type and data fetch status
+    const cardClassName = isTable || !fetchedData ? '' : 'p-4';
 
     return (
       <div

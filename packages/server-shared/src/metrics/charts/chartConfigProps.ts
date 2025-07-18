@@ -27,7 +27,7 @@ export const ChartConfigPropsSchema = z.object({
   columnSettings: z.record(z.string(), ColumnSettingsSchema).default({}),
   columnLabelFormats: z.record(z.string(), ColumnLabelFormatSchema).default({}),
   // OPTIONAL: default is the buster color palette
-  colors: z.array(z.string()).default(DEFAULT_CHART_THEME),
+  colors: z.array(z.string()).optional(),
   // OPTIONAL: default is null and will be true if there are multiple Y axes or if a category axis is used
   showLegend: z.nullable(z.boolean()).default(null),
   // OPTIONAL: default: true
