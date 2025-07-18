@@ -380,11 +380,16 @@ export const slackAgentTask: ReturnType<
       let isComplete = false;
       let analystResult: { ok: boolean; output?: unknown; error?: unknown } | null = null;
       const maxPollingTime = 30 * 60 * 1000; // 30 minutes
-      const pollingInterval = 5000; // 5 seconds
+      const initialPollingInterval = 20000; // 20 seconds for first wait
+      const subsequentPollingInterval = 10000; // 10 seconds for subsequent waits
       const startTime = Date.now();
+      let isFirstPoll = true;
 
       while (!isComplete && Date.now() - startTime < maxPollingTime) {
-        await wait.for({ seconds: pollingInterval / 1000 });
+        // Wait with different intervals: 20s for first poll, 10s for subsequent polls
+        const currentInterval = isFirstPoll ? initialPollingInterval : subsequentPollingInterval;
+        await wait.for({ seconds: currentInterval / 1000 });
+        isFirstPoll = false;
 
         try {
           const run = await runs.retrieve(analystHandle.id);
