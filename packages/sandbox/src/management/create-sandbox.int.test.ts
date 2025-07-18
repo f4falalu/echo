@@ -10,6 +10,8 @@ describe('createSandbox integration tests', () => {
     expect(sandbox).toBeDefined();
     expect(sandbox).toHaveProperty('id');
     expect(sandbox).toHaveProperty('process');
+
+    sandbox.delete();
   });
 
   it.skipIf(!hasApiKey)('should create a sandbox with custom language', async () => {
@@ -18,6 +20,8 @@ describe('createSandbox integration tests', () => {
     expect(sandbox).toBeDefined();
     expect(sandbox).toHaveProperty('id');
     expect(sandbox).toHaveProperty('process');
+
+    sandbox.delete();
   });
 
   it.skipIf(!hasApiKey)('should execute code in the sandbox', async () => {
@@ -27,5 +31,7 @@ describe('createSandbox integration tests', () => {
 
     expect(response).toBeDefined();
     expect(response.result).toBeDefined();
+
+    sandbox.delete();
   });
 });
