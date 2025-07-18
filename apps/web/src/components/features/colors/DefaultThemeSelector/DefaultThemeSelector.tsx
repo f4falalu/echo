@@ -1,7 +1,5 @@
 import React from 'react';
 import { DefaultThemeSelectorBase } from './DefaultThemeSelectorBase';
-import { useGetMyUserInfo } from '@/api/buster_rest/users/queryRequests';
-import { useColorDictionaryThemes } from '@/api/buster_rest/dictionaries';
 import { StatusCard } from '@/components/ui/card/StatusCard';
 import { CircleSpinnerLoader } from '../../../ui/loaders';
 import { useThemeOperations } from '@/context-hooks/useThemeOperations';
@@ -9,11 +7,8 @@ import { useGetPalettes } from '@/context-hooks/usePalettes';
 
 export const DefaultThemeSelector = React.memo(
   ({ className, themeListClassName }: { className?: string; themeListClassName?: string }) => {
-    const { data: userData } = useGetMyUserInfo();
-
     const {
       isErrorDictionaryPalettes,
-      isFetchedDictionaryPalettes,
       organizationPalettes,
       dictionaryPalettes,
       selectedPaletteId
@@ -22,7 +17,12 @@ export const DefaultThemeSelector = React.memo(
     const { onCreateCustomTheme, onDeleteCustomTheme, onModifyCustomTheme, onSelectTheme } =
       useThemeOperations();
 
-    if (!isFetchedDictionaryPalettes) return <CircleSpinnerLoader />;
+    if (dictionaryPalettes.length === 0 && !isErrorDictionaryPalettes)
+      return (
+        <div className="flex h-24 w-full min-w-24 items-center justify-center">
+          <CircleSpinnerLoader size={24} />
+        </div>
+      );
 
     if (isErrorDictionaryPalettes)
       return (

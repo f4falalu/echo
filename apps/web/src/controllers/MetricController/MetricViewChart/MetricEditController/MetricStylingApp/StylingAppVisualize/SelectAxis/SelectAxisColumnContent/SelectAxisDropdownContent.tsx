@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import type { ChartConfigProps } from '@buster/server-shared/metrics';
 import { type ChartEncodes, type ColumnSettings } from '@buster/server-shared/metrics';
 import type { ColumnLabelFormat } from '@buster/server-shared/metrics';
-import { prefetchGetCurrencies } from '@/api/buster_rest/currency';
+import { prefetchGetCurrencies } from '@/api/buster_rest/dictionaries';
 import { ErrorBoundary } from '@/components/ui/error';
 import { Text } from '@/components/ui/typography';
 import { useUpdateMetricChart } from '@/context/Metrics';

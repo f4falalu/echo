@@ -7,3 +7,7 @@ export const CurrencySchema = z.object({
 });
 
 export type Currency = z.infer<typeof CurrencySchema>;
+
+export const CurrencyResponseSchema = z.array(CurrencySchema);
+
+export type CurrencyResponse = z.infer<typeof CurrencyResponseSchema>;

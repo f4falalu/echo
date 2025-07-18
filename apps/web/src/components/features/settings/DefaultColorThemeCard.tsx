@@ -40,10 +40,6 @@ const PickButton = React.memo(() => {
 
   const hasDefaultPalette = !!defaultPalette;
 
-  useMount(() => {
-    prefetchColorThemes();
-  });
-
   return (
     <Popover
       className="p-0"
