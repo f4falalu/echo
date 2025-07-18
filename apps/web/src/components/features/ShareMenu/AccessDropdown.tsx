@@ -6,6 +6,7 @@ import { ChevronDown } from '@/components/ui/icons/NucleoIconFilled';
 import { Paragraph, Text } from '@/components/ui/typography';
 import { useMemoizedFn } from '@/hooks';
 import { cn } from '@/lib/classMerge';
+import last from 'lodash/last';
 
 type DropdownValue = ShareRole | WorkspaceShareRole | 'remove';
 
@@ -17,109 +18,107 @@ type AccessDropdownBaseProps = {
 
 type AccessDropdownUserProps = {
   showRemove?: boolean;
-  shareLevel?: ShareRole | null;
+  shareLevel: ShareRole | null;
   type: 'user';
   onChangeShareLevel?: (level: ShareRole | null) => void;
 };
 
 type AccessDropdownWorkspaceProps = {
   type: 'workspace';
-  shareLevel?: WorkspaceShareRole | null;
+  shareLevel: WorkspaceShareRole | null;
   onChangeShareLevel?: (level: WorkspaceShareRole | null) => void;
 };
 
 type AccessDropdownProps = AccessDropdownBaseProps &
   (AccessDropdownUserProps | AccessDropdownWorkspaceProps);
 
-export const AccessDropdown: React.FC<AccessDropdownProps> = ({
-  shareLevel,
-  disabled,
-  className = '',
-  onChangeShareLevel,
-  assetType,
-  ...props
-}) => {
-  const showRemove = props.type === 'user' && props.showRemove !== false;
+export const AccessDropdown: React.FC<AccessDropdownProps> = React.memo(
+  ({ shareLevel, disabled, className = '', onChangeShareLevel, assetType, ...props }) => {
+    const showRemove = props.type === 'user' && props.showRemove;
 
-  const items = useMemo(() => {
-    if (props.type === 'workspace') {
-      return workspaceItems;
-    }
+    const items = useMemo(() => {
+      const isWorkspace = props.type === 'workspace';
 
-    const baseItems: DropdownItem<DropdownValue>[] = [...(itemsRecord[assetType] || [])];
+      const baseItems: DropdownItem<DropdownValue>[] = [
+        ...(isWorkspace ? workspaceItems : itemsRecord[assetType] || [])
+      ];
 
-    if (showRemove) {
-      baseItems.push({
-        label: 'Remove',
-        value: 'remove'
-      });
-    }
+      if (showRemove) {
+        baseItems.push({
+          label: 'Remove',
+          value: 'remove'
+        });
+      }
 
-    return baseItems.map((item) => ({
-      ...item,
-      selected: item.value === shareLevel
-    }));
-  }, [showRemove, shareLevel, assetType, props.type]);
+      return baseItems.map((item) => ({
+        ...item,
+        selected: item.value === shareLevel
+      }));
+    }, [showRemove, shareLevel, assetType, props.type]);
 
-  const selectedLabel = useMemo(() => {
-    const selectedItem = items.find((item) => item.selected) || OWNER_ITEM;
+    const selectedLabel = useMemo(() => {
+      const defaultLabel = props.type === 'workspace' ? WORKSPACE_NOT_SHARED_ITEM : OWNER_ITEM;
+      const selectedItem = items.find((item) => item.selected) || defaultLabel;
 
-    const { value } = selectedItem;
+      const { value } = selectedItem;
 
-    // Using a type-safe switch to handle all ShareRole values
-    switch (value) {
-      case 'fullAccess':
-        return 'Full access';
-      case 'canEdit':
-        return 'Can edit';
-      case 'canView':
-        return 'Can view';
-      case 'owner':
-        return 'Owner';
-      case 'remove':
-        return 'Remove';
-      case 'none':
-        return 'Not shared';
-      default:
-        const _exhaustiveCheck: never = value;
-        return value;
-    }
-  }, [items]);
+      // Using a type-safe switch to handle all ShareRole values
+      switch (value) {
+        case 'fullAccess':
+          return 'Full access';
+        case 'canEdit':
+          return 'Can edit';
+        case 'canView':
+          return 'Can view';
+        case 'owner':
+          return 'Owner';
+        case 'remove':
+          return 'Remove';
+        case 'none':
+          return 'Not shared';
+        default:
+          const _exhaustiveCheck: never = value;
+          return value;
+      }
+    }, [items, props.type]);
 
-  const onSelectMenuItem = useMemoizedFn((value: string) => {
-    if (value === 'remove' || value === 'notShared') {
-      onChangeShareLevel?.(null);
-    } else {
-      onChangeShareLevel?.(value as ShareRole);
-    }
-  });
+    const onSelectMenuItem = useMemoizedFn((value: string) => {
+      if (value === 'remove' || value === 'notShared') {
+        onChangeShareLevel?.(null);
+      } else {
+        onChangeShareLevel?.(value as ShareRole);
+      }
+    });
 
-  return (
-    <Dropdown
-      items={items}
-      disabled={disabled}
-      footerContent={<FooterContent />}
-      footerClassName="p-0!"
-      onSelect={onSelectMenuItem}
-      sideOffset={16}
-      selectType="single"
-      align="end"
-      side="bottom">
-      <Text
-        dataTestId={`share-role-${shareLevel}`}
-        variant="secondary"
-        size="xs"
-        className={cn('flex! items-center! space-x-1', !disabled && 'cursor-pointer', className)}>
-        <span className="truncate">{selectedLabel}</span>
-        {!disabled && (
-          <span className="text-2xs text-icon-color">
-            <ChevronDown />
-          </span>
-        )}
-      </Text>
-    </Dropdown>
-  );
-};
+    return (
+      <Dropdown
+        items={items}
+        disabled={disabled}
+        footerContent={<FooterContent />}
+        footerClassName="p-0!"
+        onSelect={onSelectMenuItem}
+        sideOffset={16}
+        selectType="single"
+        align="end"
+        side="bottom">
+        <Text
+          dataTestId={`share-role-${shareLevel}`}
+          variant="secondary"
+          size="xs"
+          className={cn('flex! items-center! space-x-1', !disabled && 'cursor-pointer', className)}>
+          <span className="truncate">{selectedLabel}</span>
+          {!disabled && (
+            <span className="text-2xs text-icon-color">
+              <ChevronDown />
+            </span>
+          )}
+        </Text>
+      </Dropdown>
+    );
+  }
+);
+
+AccessDropdown.displayName = 'AccessDropdown';
 
 const metricItems: DropdownItem<ShareRole>[] = [
   {
@@ -210,6 +209,8 @@ const OWNER_ITEM: DropdownItem<DropdownValue> = {
   label: 'Owner',
   secondaryLabel: 'Owner of the asset.'
 };
+
+const WORKSPACE_NOT_SHARED_ITEM: DropdownItem<DropdownValue> = last(workspaceItems)!;
 
 const FooterContent = React.memo(() => {
   return (

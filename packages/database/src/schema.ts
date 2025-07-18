@@ -266,7 +266,10 @@ export const collections = pgTable(
     organizationId: uuid('organization_id').notNull(),
     workspaceSharing: workspaceSharingEnum('workspace_sharing').default('none').notNull(),
     workspaceSharingEnabledBy: uuid('workspace_sharing_enabled_by'),
-    workspaceSharingEnabledAt: timestamp('workspace_sharing_enabled_at', { withTimezone: true, mode: 'string' }),
+    workspaceSharingEnabledAt: timestamp('workspace_sharing_enabled_at', {
+      withTimezone: true,
+      mode: 'string',
+    }),
   },
   (table) => [
     foreignKey({
@@ -942,7 +945,10 @@ export const dashboardFiles = pgTable(
     publicPassword: text('public_password'),
     workspaceSharing: workspaceSharingEnum('workspace_sharing').default('none').notNull(),
     workspaceSharingEnabledBy: uuid('workspace_sharing_enabled_by'),
-    workspaceSharingEnabledAt: timestamp('workspace_sharing_enabled_at', { withTimezone: true, mode: 'string' }),
+    workspaceSharingEnabledAt: timestamp('workspace_sharing_enabled_at', {
+      withTimezone: true,
+      mode: 'string',
+    }),
   },
   (table) => [
     index('dashboard_files_created_by_idx').using(
@@ -1004,7 +1010,10 @@ export const chats = pgTable(
     slackChannelId: text('slack_channel_id'),
     workspaceSharing: workspaceSharingEnum('workspace_sharing').default('none').notNull(),
     workspaceSharingEnabledBy: uuid('workspace_sharing_enabled_by'),
-    workspaceSharingEnabledAt: timestamp('workspace_sharing_enabled_at', { withTimezone: true, mode: 'string' }),
+    workspaceSharingEnabledAt: timestamp('workspace_sharing_enabled_at', {
+      withTimezone: true,
+      mode: 'string',
+    }),
   },
   (table) => [
     index('chats_created_at_idx').using(
@@ -1152,7 +1161,10 @@ export const metricFiles = pgTable(
     dataSourceId: uuid('data_source_id').notNull(),
     workspaceSharing: workspaceSharingEnum('workspace_sharing').default('none').notNull(),
     workspaceSharingEnabledBy: uuid('workspace_sharing_enabled_by'),
-    workspaceSharingEnabledAt: timestamp('workspace_sharing_enabled_at', { withTimezone: true, mode: 'string' }),
+    workspaceSharingEnabledAt: timestamp('workspace_sharing_enabled_at', {
+      withTimezone: true,
+      mode: 'string',
+    }),
   },
   (table) => [
     index('metric_files_created_by_idx').using(

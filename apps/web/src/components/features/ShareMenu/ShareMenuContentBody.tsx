@@ -14,7 +14,6 @@ import { ShareMenuContentEmbed } from './ShareMenuContentEmbed';
 import { ShareMenuContentPublish } from './ShareMenuContentPublish';
 import type { ShareMenuTopBarOptions } from './ShareMenuTopBar';
 import { ShareMenuInvite } from './ShareMenuInvite';
-import { WorkspaceShareSection } from './WorkspaceShareSection';
 import { ShareRowItem } from './ShareRowItem';
 import { WorkspaceAvatar } from './WorkspaceAvatar';
 import pluralize from 'pluralize';
@@ -80,6 +79,18 @@ const ShareMenuContentShare: React.FC<ShareMenuContentBodyProps> = React.memo(
     const hasIndividualPermissions = !!individual_permissions?.length;
     const workspaceMemberCount = shareAssetConfig.workspace_member_count || 0;
 
+    const updateByAssetType = useMemoizedFn(
+      async (payload: Parameters<typeof onUpdateMetricShare>[0], assetType: ShareAssetType) => {
+        if (assetType === 'metric') {
+          await onUpdateMetricShare(payload);
+        } else if (assetType === 'dashboard') {
+          await onUpdateDashboardShare(payload);
+        } else if (assetType === 'collection') {
+          await onUpdateCollectionShare(payload);
+        }
+      }
+    );
+
     const onUpdateShareRole = useMemoizedFn(async (email: string, role: ShareRole | null) => {
       if (role) {
         const payload: Parameters<typeof onUpdateMetricShare>[0] = {
@@ -93,13 +104,7 @@ const ShareMenuContentShare: React.FC<ShareMenuContentBodyProps> = React.memo(
             ]
           }
         };
-        if (assetType === 'metric') {
-          await onUpdateMetricShare(payload);
-        } else if (assetType === 'dashboard') {
-          await onUpdateDashboardShare(payload);
-        } else if (assetType === 'collection') {
-          await onUpdateCollectionShare(payload);
-        }
+        return updateByAssetType(payload, assetType);
       } else {
         const payload: Parameters<typeof onUnshareMetric>[0] = {
           id: assetId,
@@ -123,13 +128,7 @@ const ShareMenuContentShare: React.FC<ShareMenuContentBodyProps> = React.memo(
         }
       };
 
-      if (assetType === 'metric') {
-        await onUpdateMetricShare(payload);
-      } else if (assetType === 'dashboard') {
-        await onUpdateDashboardShare(payload);
-      } else if (assetType === 'collection') {
-        await onUpdateCollectionShare(payload);
-      }
+      return updateByAssetType(payload, assetType);
     });
 
     return (
@@ -146,16 +145,16 @@ const ShareMenuContentShare: React.FC<ShareMenuContentBodyProps> = React.memo(
           <div className="flex flex-col space-y-2.5 overflow-hidden">
             {individual_permissions?.map((permission) => (
               <ShareRowItem
+                type="user"
+                key={permission.email + permission.name}
                 primary={permission.name}
                 secondary={permission.email}
                 role={permission.role}
                 avatar={permission.avatar_url}
-                onChangeShareLevel={useMemoizedFn((role) =>
-                  onUpdateShareRole(permission.email, role)
-                )}
+                onChangeShareLevel={(role) => onUpdateShareRole(permission.email, role)}
                 assetType={assetType}
+                shareLevel={permission.role}
                 disabled={!canEditPermissions || permission.role === 'owner'}
-                type="user"
               />
             ))}
           </div>
@@ -167,14 +166,10 @@ const ShareMenuContentShare: React.FC<ShareMenuContentBodyProps> = React.memo(
             secondary={`Share with ${workspaceMemberCount} ${pluralize('member', workspaceMemberCount)}`}
             role={shareAssetConfig.workspace_sharing || 'none'}
             type="workspace"
-            avatar={useMemo(
-              () => (
-                <WorkspaceAvatar />
-              ),
-              []
-            )}
+            avatar={<WorkspaceAvatar />}
             onChangeShareLevel={onUpdateWorkspacePermissions}
             assetType={assetType}
+            shareLevel={shareAssetConfig.workspace_sharing || 'none'}
           />
         )}
       </div>

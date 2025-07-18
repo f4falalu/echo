@@ -1,10 +1,10 @@
 import React from 'react';
-import { ApartmentBuilding } from '@/components/ui/icons';
+import { ApartmentBuilding } from '@/components/ui/icons/NucleoIconFilled';
 import { cn } from '@/lib/classMerge';
 
 export const WorkspaceAvatar: React.FC<{
   className?: string;
-}> = React.memo(({ className }) => {
+}> = ({ className }) => {
   return (
     <div
       className={cn(
@@ -14,4 +14,4 @@ export const WorkspaceAvatar: React.FC<{
       <ApartmentBuilding />
     </div>
   );
-});
+};

@@ -22,7 +22,6 @@ import {
   updateMetric,
   updateMetricShare
 } from './requests';
-import { userQueryKeys } from '../../query_keys/users';
 
 /**
  * This is a mutation that saves a metric to the server.
