@@ -30,7 +30,7 @@ export const OrganizationColorPalettesSchema = z
       },
       { message: 'All color palette IDs must be unique' }
     ),
-    selectedDictionaryPalette: OrganizationColorPaletteSchema.nullable(),
+    selectedDictionaryPalette: OrganizationColorPaletteSchema.nullable().default(null),
   })
   .refine(
     (data) => {

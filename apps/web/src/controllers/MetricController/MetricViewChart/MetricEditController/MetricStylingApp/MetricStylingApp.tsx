@@ -16,7 +16,6 @@ import { StylingAppColors } from './StylingAppColors';
 import { StylingAppStyling } from './StylingAppStyling';
 import { StylingAppVisualize } from './StylingAppVisualize';
 import { useMount } from '@/hooks';
-import { prefetchColorThemes } from '@/api/buster_rest/dictionaries';
 import { useSelectedColorPalette } from '@/context-hooks/usePalettes';
 
 export const MetricStylingApp: React.FC<{
@@ -28,10 +27,6 @@ export const MetricStylingApp: React.FC<{
   const { data: chartConfig } = useGetMetric({ id: metricId }, { select: (x) => x.chart_config });
   const { data: metricData } = useGetMetricData({ id: metricId }, { enabled: false });
   const colors = useSelectedColorPalette(chartConfig?.colors);
-
-  useMount(() => {
-    prefetchColorThemes();
-  });
 
   if (!chartConfig) return null;
 

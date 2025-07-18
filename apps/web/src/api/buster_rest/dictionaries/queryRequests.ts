@@ -9,7 +9,7 @@ export const useColorDictionaryThemes = () => {
   });
 };
 
-export const prefetchColorThemes = async (queryClientProp?: QueryClient) => {
+export const prefetchColorPalettes = async (queryClientProp?: QueryClient) => {
   const queryClient = queryClientProp || new QueryClient();
 
   await queryClient.prefetchQuery({

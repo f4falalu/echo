@@ -11,6 +11,8 @@ const useGetOrganizationPalettes = () => {
   const organizationPalettes: ColorPalette[] =
     organization?.organizationColorPalettes.palettes || [];
   const selectedPaletteId = organization?.organizationColorPalettes.selectedId;
+  const selectedDictionaryPalette =
+    organization?.organizationColorPalettes.selectedDictionaryPalette;
 
   return useMemo(() => {
     const defaultOrganizationPalette = organizationPalettes.find(
@@ -20,20 +22,28 @@ const useGetOrganizationPalettes = () => {
     return {
       organizationPalettes,
       selectedPaletteId: selectedPaletteId || null,
-      defaultOrganizationPalette
+      defaultOrganizationPalette,
+      selectedDictionaryPalette
     };
-  }, [organizationPalettes, selectedPaletteId]);
+  }, [organizationPalettes, selectedPaletteId, selectedDictionaryPalette]);
 };
 
 export const useGetPalettes = () => {
-  const { organizationPalettes, selectedPaletteId } = useGetOrganizationPalettes();
+  const { organizationPalettes, selectedPaletteId, selectedDictionaryPalette } =
+    useGetOrganizationPalettes();
   const { data: dictionaryPalettes, isError: isErrorDictionaryPalettes } =
     useColorDictionaryThemes();
 
   return useMemo(() => {
     const allPalettes = [...dictionaryPalettes, ...organizationPalettes];
-    const defaultPalette =
-      allPalettes.find((palette) => palette.id === selectedPaletteId) || dictionaryPalettes[0];
+    const isSelectedDictionaryPalette =
+      selectedPaletteId &&
+      selectedDictionaryPalette &&
+      selectedPaletteId === selectedDictionaryPalette?.id;
+    const defaultPalette = isSelectedDictionaryPalette
+      ? selectedDictionaryPalette
+      : organizationPalettes.find((palette) => palette.id === selectedPaletteId) ||
+        dictionaryPalettes[0];
 
     return {
       allPalettes,

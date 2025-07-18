@@ -6,7 +6,7 @@ export const colorPalettes = queryOptions<ColorPaletteDictionariesResponse>({
   queryKey: ['dictionaries', 'color-palettes', 'list'] as const,
   initialData: [],
   initialDataUpdatedAt: 0,
-  staleTime: 1000 // 7 days
+  staleTime: 1000 * 60 * 60 * 1 // 1 hour
 });
 
 export const getCurrencies = queryOptions<CurrencyResponse>({

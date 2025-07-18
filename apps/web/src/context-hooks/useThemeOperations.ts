@@ -2,9 +2,11 @@ import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import { useGetMyUserInfo } from '@/api/buster_rest/users/queryRequests';
 import { useUpdateOrganization } from '@/api/buster_rest/organizations/queryRequests';
 import type { IColorPalette } from '@/components/features/colors/ThemeList';
+import { useGetPalettes } from './usePalettes';
 
 export const useThemeOperations = () => {
   const { data: userData } = useGetMyUserInfo();
+  const { dictionaryPalettes } = useGetPalettes();
   const { mutateAsync: updateOrganization } = useUpdateOrganization();
 
   const organization = userData?.organizations?.[0];
@@ -14,7 +16,8 @@ export const useThemeOperations = () => {
     await updateOrganization({
       organizationColorPalettes: {
         selectedId: theme.id,
-        palettes: [theme, ...organization.organizationColorPalettes.palettes]
+        palettes: [theme, ...organization.organizationColorPalettes.palettes],
+        selectedDictionaryPalette: null
       }
     });
   });
@@ -29,7 +32,10 @@ export const useThemeOperations = () => {
         selectedId: isSelectedTheme ? null : currentThemeId,
         palettes: organization.organizationColorPalettes.palettes.filter(
           (theme: { id: string }) => theme.id !== themeId
-        )
+        ),
+        selectedDictionaryPalette: isSelectedTheme
+          ? null
+          : organization.organizationColorPalettes.selectedDictionaryPalette
       }
     });
   });
@@ -42,7 +48,8 @@ export const useThemeOperations = () => {
         selectedId: organization.organizationColorPalettes.selectedId,
         palettes: organization.organizationColorPalettes.palettes.map((t: IColorPalette) =>
           t.id === themeId ? theme : t
-        )
+        ),
+        selectedDictionaryPalette: organization.organizationColorPalettes.selectedDictionaryPalette
       }
     });
   });
@@ -51,11 +58,13 @@ export const useThemeOperations = () => {
     if (!organization) return;
 
     const isSelectedTheme = organization.organizationColorPalettes.selectedId === theme.id;
+    const isDictionaryTheme = dictionaryPalettes.some((palette) => palette.id === theme.id);
 
     await updateOrganization({
       organizationColorPalettes: {
         selectedId: isSelectedTheme ? null : theme.id,
-        palettes: organization.organizationColorPalettes.palettes
+        palettes: organization.organizationColorPalettes.palettes,
+        selectedDictionaryPalette: isDictionaryTheme && !isSelectedTheme ? theme : null
       }
     });
   });
