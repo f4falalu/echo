@@ -8,7 +8,7 @@ use uuid::Uuid;
 pub const DEFAULT_COLOR_PALETTE: [&str; 10] = [
     "#B399FD", "#FC8497", "#FBBC30", "#279EFF", 
     "#E83562", "#41F8FF", "#F3864F", "#C82184", 
-    "#31FCB4", "#E83562"
+    "#31FCB4", "#6B5B95"
 ];
 
 pub async fn get_organization_color_palette(organization_id: &Uuid) -> Result<Option<Vec<String>>> {
@@ -19,6 +19,7 @@ pub async fn get_organization_color_palette(organization_id: &Uuid) -> Result<Op
          INNER JOIN users_to_organizations ON users.id = users_to_organizations.user_id
          WHERE users_to_organizations.organization_id = $1 
          AND users_to_organizations.deleted_at IS NULL
+         ORDER BY users_to_organizations.role = 'admin' DESC, users_to_organizations.created_at ASC
          LIMIT 1"
     )
     .bind::<diesel::sql_types::Uuid, _>(organization_id)
