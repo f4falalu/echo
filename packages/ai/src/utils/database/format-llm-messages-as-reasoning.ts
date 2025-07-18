@@ -88,14 +88,20 @@ function formatMessageAsReasoningEntry(
             case 'sequentialThinking':
             case 'sequential-thinking':
               if (args.thought) {
+                const thoughtNumber = args.thoughtNumber as number;
+                const totalThoughts = args.totalThoughts as number;
+                const title = thoughtNumber && totalThoughts 
+                  ? `Thought ${thoughtNumber} of ${totalThoughts}`
+                  : 'Thinking...';
+                
                 const textEntry: ReasoningTextEntry = {
                   id: toolCall.toolCallId,
                   type: 'text',
-                  title: 'Thinking...',
+                  title,
                   status: 'completed',
                   message: args.thought as string,
                   message_chunk: null,
-                  secondary_title: undefined,
+                  secondary_title: 'TODO',
                   finished_reasoning: !args.nextThoughtNeeded,
                 };
                 reasoningMessages.push(textEntry);
@@ -131,7 +137,7 @@ function formatMessageAsReasoningEntry(
                   type: 'files',
                   title: `Creating ${args.files.length} metric${args.files.length === 1 ? '' : 's'}`,
                   status: 'loading',
-                  secondary_title: undefined,
+                  secondary_title: 'TODO',
                   file_ids: fileIds,
                   files,
                 };
@@ -422,7 +428,7 @@ export function extractResponseMessages(messages: CoreMessage[]): ChatMessageRes
           const responseMessage: ResponseTextMessage = {
             id: toolCall.toolCallId,
             type: 'text',
-            message: (args.final_response as string) || '',
+            message: (args.message as string) || (args.final_response as string) || '',
             is_final_message: true,
           };
           try {

@@ -77,7 +77,7 @@ async function processMessageUserClarifyingQuestion(): Promise<
 
 // Main message user clarifying question function with tracing
 const executeMessageUserClarifyingQuestion = wrapTraced(
-  async (): Promise<z.infer<typeof messageUserClarifyingQuestionOutputSchema>> => {
+  async (clarifyingQuestion: string): Promise<z.infer<typeof messageUserClarifyingQuestionOutputSchema>> => {
     return await processMessageUserClarifyingQuestion();
   },
   { name: 'message-user-clarifying-question' }
@@ -90,7 +90,9 @@ export const messageUserClarifyingQuestion = createTool({
     "Ask the user a clarifying question when additional information is needed to proceed with the analysis. Use this when partial analysis is possible but user confirmation is needed, or when the request is ambiguous. This must be in markdown format and not use the '•' bullet character.",
   inputSchema: messageUserClarifyingQuestionInputSchema,
   outputSchema: messageUserClarifyingQuestionOutputSchema,
-  execute: executeMessageUserClarifyingQuestion,
+  execute: async ({ context }) => {
+    return await executeMessageUserClarifyingQuestion((context as z.infer<typeof messageUserClarifyingQuestionInputSchema>).clarifying_question);
+  },
 });
 
 export default messageUserClarifyingQuestion;

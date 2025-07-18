@@ -16,7 +16,7 @@ const meta: Meta<typeof SelectAxisColumnPopover> = {
     layout: 'centered',
     msw: {
       handlers: [
-        http.get(`api/currency`, () => {
+        http.get(`api/dictionaries/currency`, () => {
           return HttpResponse.json([
             { code: 'USD', description: 'United States Dollar', flag: '🇺🇸' },
             { code: 'EUR', description: 'Euro', flag: '🇪🇺' },

@@ -129,7 +129,6 @@ export function convertToolCallToMessage(
         };
         return { type: 'response', message: responseMessage };
       } catch (error) {
-        console.error('Failed to parse tool result:', error, toolResult);
         return null;
       }
     }
@@ -146,7 +145,6 @@ export function convertToolCallToMessage(
         };
         return { type: 'response', message: responseMessage };
       } catch (error) {
-        console.error('Failed to parse tool result:', error, toolResult);
         return null;
       }
     }
@@ -167,7 +165,6 @@ export function convertToolCallToMessage(
         };
         return { type: 'reasoning', message: reasoningMessage };
       } catch (error) {
-        console.error('Failed to parse tool result:', error, toolResult);
         return null;
       }
     }
@@ -227,16 +224,26 @@ export function convertToolCallToMessage(
         };
         return { type: 'reasoning', message: reasoningMessage };
       } catch (error) {
-        console.error('Failed to parse tool result:', error, toolResult);
         return null;
       }
     }
 
     case 'executeSql':
     case 'execute-sql': {
-      // SQL execution is now handled directly in ChunkProcessor as file-type reasoning entries
-      // No separate text message needed
-      return null;
+      try {
+        const parsed = ExecuteSqlResultSchema.parse(toolResult);
+        const reasoningMessage: Extract<ChatMessageReasoningMessage, { type: 'text' }> = {
+          id: toolId,
+          type: 'text',
+          title: 'Executed SQL Query',
+          secondary_title: `${parsed.rowCount} rows returned`,
+          message: `Query: ${parsed.query}\n\nReturned ${parsed.rowCount} rows`,
+          status,
+        };
+        return { type: 'reasoning', message: reasoningMessage };
+      } catch (error) {
+        return null;
+      }
     }
 
     case 'createDashboardsFile':
@@ -294,7 +301,6 @@ export function convertToolCallToMessage(
         };
         return { type: 'reasoning', message: reasoningMessage };
       } catch (error) {
-        console.error('Failed to parse tool result:', error, toolResult);
         return null;
       }
     }
@@ -354,7 +360,6 @@ export function convertToolCallToMessage(
         };
         return { type: 'reasoning', message: reasoningMessage };
       } catch (error) {
-        console.error('Failed to parse tool result:', error, toolResult);
         return null;
       }
     }
@@ -414,7 +419,6 @@ export function convertToolCallToMessage(
         };
         return { type: 'reasoning', message: reasoningMessage };
       } catch (error) {
-        console.error('Failed to parse tool result:', error, toolResult);
         return null;
       }
     }
@@ -448,7 +452,10 @@ export function extractMessagesFromToolCalls(
     }
 
     const toolResult = toolResults.get(toolCall.toolCallId);
-    const converted = convertToolCallToMessage(toolCall, toolResult || null, 'completed');
+    if (!toolResult) {
+      continue;
+    }
+    const converted = convertToolCallToMessage(toolCall, toolResult, 'completed');
 
     if (converted) {
       if (converted.type === 'reasoning') {

@@ -88,7 +88,7 @@ const useSupabaseContextInternal = ({
     async ({ accessToken, expiresAt: _expiresAt }: { accessToken: string; expiresAt: number }) => {
       setAccessToken(accessToken);
       flushSync(() => {
-        openInfoMessage('Token refreshed');
+        //noop
       });
     }
   );
