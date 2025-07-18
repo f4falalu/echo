@@ -27,7 +27,7 @@ describe('retry-helpers', () => {
       const handler = createRetryOnErrorHandler({
         retryCount: 5,
         maxRetries: 5,
-        workflowContext: { currentStep: 'test-step' },
+        workflowContext: { currentStep: 'think-and-prep' },
       });
 
       const error = new Error('Test error');
@@ -37,10 +37,10 @@ describe('retry-helpers', () => {
       await expect(handler({ error })).resolves.toBeUndefined();
 
       expect(consoleErrorSpy).toHaveBeenCalledWith(
-        'test-step stream error caught in onError:',
+        'think-and-prep stream error caught in onError:',
         error
       );
-      expect(consoleErrorSpy).toHaveBeenCalledWith('test-step onError: Max retries reached', {
+      expect(consoleErrorSpy).toHaveBeenCalledWith('think-and-prep onError: Max retries reached', {
         retryCount: 5,
         maxRetries: 5,
       });
@@ -52,7 +52,7 @@ describe('retry-helpers', () => {
       const handler = createRetryOnErrorHandler({
         retryCount: 2,
         maxRetries: 5,
-        workflowContext: { currentStep: 'test-step' },
+        workflowContext: { currentStep: 'think-and-prep' },
       });
 
       const error = new Error('Test error');
@@ -75,7 +75,7 @@ describe('retry-helpers', () => {
       await expect(handler({ error })).rejects.toThrow(RetryWithHealingError);
 
       expect(consoleInfoSpy).toHaveBeenCalledWith(
-        'test-step onError: Setting up retry with specific healing',
+        'think-and-prep onError: Setting up retry with specific healing',
         {
           retryCount: 3,
           maxRetries: 5,
@@ -92,7 +92,7 @@ describe('retry-helpers', () => {
       const handler = createRetryOnErrorHandler({
         retryCount: 1,
         maxRetries: 5,
-        workflowContext: { currentStep: 'test-step' },
+        workflowContext: { currentStep: 'think-and-prep' },
       });
 
       const error = new Error('Unknown error');
@@ -432,7 +432,7 @@ describe('retry-helpers', () => {
 
       const healingMessage: CoreMessage = {
         role: 'tool',
-        content: [{ type: 'tool-result', toolCallId: '123', result: 'Result' }],
+        content: [{ type: 'tool-result', toolCallId: '123', toolName: 'testTool', result: 'Result' }],
       };
 
       const messages: CoreMessage[] = [
@@ -443,7 +443,7 @@ describe('retry-helpers', () => {
       logMessagesAfterHealing('TestStep', 1, messages, 1, healingMessage);
 
       const logCall = consoleInfoSpy.mock.calls[0];
-      const loggedData = logCall[1] as any;
+      const loggedData = logCall![1] as any;
       expect(loggedData.lastThreeMessages[0].content).toBe('A'.repeat(100)); // Truncated
 
       consoleInfoSpy.mockRestore();
@@ -547,7 +547,7 @@ describe('retry-helpers', () => {
       expect(result.shouldContinueWithoutHealing).toBe(false);
       expect(result.healedMessages).toHaveLength(3);
       expect(result.healedMessages[2]?.role).toBe('tool');
-      expect(result.healedMessages[2]?.content[0].toolCallId).toBe('call123');
+      expect((result.healedMessages[2]?.content[0] as any).toolCallId).toBe('call123');
       expect(result.backoffDelay).toBe(1000); // 2^0 * 1000
 
       consoleInfoSpy.mockRestore();

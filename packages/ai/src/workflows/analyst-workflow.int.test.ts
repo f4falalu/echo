@@ -140,9 +140,9 @@ describe('Analyst Workflow Integration Tests', () => {
 
     console.log('\n=== DATABASE SAVE VERIFICATION ===');
     console.log('Message ID:', messageId);
-    console.log('Raw LLM Messages count:', updatedMessage[0]!.rawLlmMessages?.length || 0);
-    console.log('Reasoning entries count:', updatedMessage[0]!.reasoning?.length || 0);
-    console.log('Response messages count:', updatedMessage[0]!.responseMessages?.length || 0);
+    console.log('Raw LLM Messages count:', Array.isArray(updatedMessage[0]!.rawLlmMessages) ? updatedMessage[0]!.rawLlmMessages.length : 0);
+    console.log('Reasoning entries count:', Array.isArray(updatedMessage[0]!.reasoning) ? updatedMessage[0]!.reasoning.length : 0);
+    console.log('Response messages count:', Array.isArray(updatedMessage[0]!.responseMessages) ? updatedMessage[0]!.responseMessages.length : 0);
 
     // Check reasoning entries for partial content
     if (updatedMessage[0]!.reasoning && Array.isArray(updatedMessage[0]!.reasoning)) {
@@ -190,10 +190,10 @@ describe('Analyst Workflow Integration Tests', () => {
     // Assert that we have response messages with actual content
     expect(updatedMessage[0]!.responseMessages).toBeDefined();
     expect(Array.isArray(updatedMessage[0]!.responseMessages)).toBe(true);
-    expect(updatedMessage[0]!.responseMessages.length).toBeGreaterThan(0);
+    expect((updatedMessage[0]!.responseMessages as any[]).length).toBeGreaterThan(0);
 
     // Check that at least one response message has content
-    const responseWithContent = updatedMessage[0]!.responseMessages.find(
+    const responseWithContent = (updatedMessage[0]!.responseMessages as any[]).find(
       (msg: { message?: string }) => msg.message && msg.message.length > 0
     );
     expect(responseWithContent).toBeDefined();

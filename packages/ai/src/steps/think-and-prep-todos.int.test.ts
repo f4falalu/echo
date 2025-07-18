@@ -1,6 +1,6 @@
 import { RuntimeContext } from '@mastra/core/runtime-context';
 import { initLogger } from 'braintrust';
-import { afterAll, beforeAll, describe, expect, test } from 'vitest';
+import { afterAll, beforeAll, describe, expect, test, vi } from 'vitest';
 import { thinkAndPrepStep } from './think-and-prep-step';
 import type { AnalystRuntimeContext } from '../workflows/analyst-workflow';
 
@@ -30,14 +30,14 @@ describe('Think and Prep Step - Todos in Message History Integration', { timeout
 [ ] Determine the visualization type and axes`;
 
     const inputData = {
-      'create-todos': { todos },
+      'create-todos': { todos, reasoningHistory: [] },
       'extract-values-search': {
         values: [],
         searchResults: '',
         foundValues: {},
         searchPerformed: false,
       },
-      'generate-chat-title': { chatTitle: 'Test Sales Analysis' },
+      'generate-chat-title': { title: 'Test Sales Analysis' },
       prompt: 'Show me sales data for the last quarter',
       conversationHistory: [],
     };
@@ -49,7 +49,14 @@ describe('Think and Prep Step - Todos in Message History Integration', { timeout
       inputData,
       getInitData,
       runtimeContext,
-    });
+      runId: 'test-run-id-1',
+      mastra: {} as any,
+      getStepResult: vi.fn(),
+      suspend: vi.fn(),
+      bail: vi.fn(),
+      engine: {} as any,
+      [Symbol.for('emitter')]: {} as any,
+    } as any);
 
     // Verify the output messages contain the todos
     expect(result.outputMessages).toBeDefined();
@@ -118,14 +125,14 @@ describe('Think and Prep Step - Todos in Message History Integration', { timeout
     ];
 
     const inputData = {
-      'create-todos': { todos },
+      'create-todos': { todos, reasoningHistory: [] },
       'extract-values-search': {
         values: [],
         searchResults: '',
         foundValues: {},
         searchPerformed: false,
       },
-      'generate-chat-title': { chatTitle: 'Top Customers Analysis' },
+      'generate-chat-title': { title: 'Top Customers Analysis' },
       prompt: 'Now show me our top customers',
       conversationHistory: existingHistory,
     };
@@ -137,7 +144,14 @@ describe('Think and Prep Step - Todos in Message History Integration', { timeout
       inputData,
       getInitData,
       runtimeContext,
-    });
+      runId: 'test-run-id-2',
+      mastra: {} as any,
+      getStepResult: vi.fn(),
+      suspend: vi.fn(),
+      bail: vi.fn(),
+      engine: {} as any,
+      [Symbol.for('emitter')]: {} as any,
+    } as any);
 
     // Verify conversation history is preserved
     expect(result.outputMessages.length).toBeGreaterThan(existingHistory.length);
@@ -190,14 +204,14 @@ describe('Think and Prep Step - Todos in Message History Integration', { timeout
     ]);
 
     const inputData = {
-      'create-todos': { todos: '' },
+      'create-todos': { todos: '', reasoningHistory: [] },
       'extract-values-search': {
         values: [],
         searchResults: '',
         foundValues: {},
         searchPerformed: false,
       },
-      'generate-chat-title': { chatTitle: 'Empty Todos Test' },
+      'generate-chat-title': { title: 'Empty Todos Test' },
       prompt: 'Simple request',
       conversationHistory: [],
     };
@@ -209,7 +223,14 @@ describe('Think and Prep Step - Todos in Message History Integration', { timeout
       inputData,
       getInitData,
       runtimeContext,
-    });
+      runId: 'test-run-id-3',
+      mastra: {} as any,
+      getStepResult: vi.fn(),
+      suspend: vi.fn(),
+      bail: vi.fn(),
+      engine: {} as any,
+      [Symbol.for('emitter')]: {} as any,
+    } as any);
 
     // Verify empty todos are still injected
     const todoMessages = result.outputMessages.filter(

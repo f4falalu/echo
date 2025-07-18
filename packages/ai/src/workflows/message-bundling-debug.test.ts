@@ -118,8 +118,8 @@ describe('Message Bundling Debug', () => {
           : 'text'
       );
       if (msg.role === 'assistant' && Array.isArray(msg.content)) {
-        (msg.content as Array<AssistantContent extends (infer U)[] ? U : never>).forEach(
-          (item, j) => {
+        (msg.content as any[]).forEach(
+          (item: any, j) => {
             if (item.type === 'tool-call') {
               const toolCall = item as ToolCallPart;
               console.log(`    [${j}] tool-call: ${toolCall.toolName} (${toolCall.toolCallId})`);
@@ -179,7 +179,7 @@ describe('Message Bundling Debug', () => {
     console.log('\n=== SIMULATED step.response.messages ===');
     console.log(JSON.stringify(stepResponseMessages, null, 2));
 
-    const extracted = extractMessageHistory(stepResponseMessages);
+    const extracted = extractMessageHistory(stepResponseMessages as CoreMessage[]);
 
     console.log('\n=== AFTER EXTRACTION ===');
     console.log(JSON.stringify(extracted, null, 2));

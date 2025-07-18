@@ -1,5 +1,7 @@
 import type { CoreMessage } from 'ai';
 
+export type { CoreMessage };
+
 export interface RetryableError {
   type:
     | 'no-such-tool'
