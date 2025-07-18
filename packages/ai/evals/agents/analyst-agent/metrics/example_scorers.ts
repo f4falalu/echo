@@ -190,7 +190,7 @@ export const allFilesUseYmlBlockScalar = (args: {
   return 1;
 };
 
-//Makes sure that a metric is created successfully, primairly fails if there is a bug or if the model sends back a clarifying question
+//Makes sure that a metric is created successfully, primarily fails if there is a bug or if the model sends back a clarifying question
 export const MetricCreatedSuccessfully = ({ output }: { output: any[] }) => {
   try {
     const hasSuccessfulCreation = output.some(
