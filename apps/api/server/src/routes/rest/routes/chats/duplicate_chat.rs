@@ -60,6 +60,7 @@ mod tests {
     use axum::routing::post;
     use axum::Router;
     use chrono::Utc;
+    use database::enums::WorkspaceSharing;
     use database::{
         enums::{AssetPermissionRole, AssetType, IdentityType, UserOrganizationRole},
         models::{AssetPermission, Chat, Message, MessageToFile, User},
@@ -137,6 +138,9 @@ mod tests {
             most_recent_file_id: None,
             most_recent_file_type: None,
             most_recent_version_number: None,
+            workspace_sharing: WorkspaceSharing::None,
+            workspace_sharing_enabled_at: None,
+            workspace_sharing_enabled_by: None,
         };
 
         let mut conn = get_pg_pool().get().await.unwrap();
@@ -184,6 +188,8 @@ mod tests {
                 deleted_at: None,
                 created_by: user.id,
                 feedback: None,
+                is_completed: true,
+                post_processing_message: None,
             };
 
             insert_into(messages::table)

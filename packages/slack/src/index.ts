@@ -39,6 +39,7 @@ export { MessageTrackingDataSchema } from './interfaces/message-tracking';
 export * from './utils/validation-helpers';
 export * from './utils/message-formatter';
 export * from './utils/oauth-helpers';
+export { convertMarkdownToSlack } from './utils/markdown-to-slack';
 
 // Reactions
 export { addReaction, removeReaction, getReactions } from './reactions';

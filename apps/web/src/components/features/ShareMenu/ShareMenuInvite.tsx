@@ -143,6 +143,7 @@ export const ShareMenuInvite: React.FC<ShareMenuInviteProps> = React.memo(
               onChangeShareLevel={onChangeAccessDropdown}
               assetType={assetType}
               disabled={false}
+              type="user"
             />
           )}
         </div>

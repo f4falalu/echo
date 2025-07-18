@@ -9,6 +9,7 @@ use diesel_async::RunQueryDsl;
 use indexmap::IndexMap;
 use middleware::AuthenticatedUser;
 use serde::{Deserialize, Serialize};
+use sharing::asset_access_checks::check_metric_collection_access;
 use uuid::Uuid;
 
 use query_engine::data_types::DataType;
@@ -72,7 +73,7 @@ pub async fn get_metric_data_handler(
                 );
 
                 // Check if user has access to ANY dashboard containing this metric (including public dashboards)
-                let has_dashboard_access = sharing::check_metric_dashboard_access(&request.metric_id, &user.id)
+                let has_dashboard_access = sharing::check_metric_dashboard_access(&request.metric_id, &user.id, &user.organizations)
                     .await
                     .unwrap_or(false);
 
@@ -102,7 +103,7 @@ pub async fn get_metric_data_handler(
                 } else {
                     // No dashboard access, check if user has access via a chat
                     tracing::info!("No dashboard association found. Checking chat access.");
-                    let has_chat_access = sharing::check_metric_chat_access(&request.metric_id, &user.id)
+                    let has_chat_access = sharing::check_metric_chat_access(&request.metric_id, &user.id, &user.organizations)
                         .await
                         .unwrap_or(false);
 
@@ -130,9 +131,40 @@ pub async fn get_metric_data_handler(
                             }
                         }
                     } else {
-                        // No dashboard or chat access, return the original permission error
-                        tracing::warn!("No dashboard or chat association found for metric. Returning original error.");
-                        return Err(e);
+                        // No chat access, check if user has access via a collection
+                        tracing::info!("No chat association found. Checking collection access.");
+                        let has_collection_access = check_metric_collection_access(&request.metric_id, &user.id, &user.organizations)
+                            .await
+                            .unwrap_or(false);
+
+                        if has_collection_access {
+                            // User has access to a collection containing this metric
+                            tracing::info!("Found associated collection with user access. Fetching metric with collection context.");
+                            match get_metric_for_dashboard_handler(
+                                &request.metric_id,
+                                &user,
+                                request.version_number,
+                                request.password.clone(),
+                            )
+                            .await
+                            {
+                                Ok(metric_via_collection) => {
+                                    tracing::debug!(
+                                        "Successfully retrieved metric via collection association."
+                                    );
+                                    metric_via_collection // Use this metric definition
+                                }
+                                Err(fetch_err) => {
+                                    // If fetching via collection fails unexpectedly, return that error
+                                    tracing::error!("Failed to fetch metric via collection context: {}", fetch_err);
+                                    return Err(fetch_err);
+                                }
+                            }
+                        } else {
+                            // No dashboard, chat, or collection access, return the original permission error
+                            tracing::warn!("No dashboard, chat, or collection association found for metric. Returning original error.");
+                            return Err(e);
+                        }
                     }
                 }
             } else {

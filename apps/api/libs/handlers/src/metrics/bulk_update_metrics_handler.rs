@@ -3,7 +3,7 @@ use database::helpers::metric_files::fetch_metric_files_with_permissions;
 use futures::future::join_all;
 use middleware::AuthenticatedUser;
 use sharing::check_permission_access;
-use database::enums::AssetPermissionRole;
+use database::enums::{AssetPermissionRole, WorkspaceSharing};
 use std::collections::HashMap;
 use uuid::Uuid;
 
@@ -143,6 +143,7 @@ pub async fn bulk_update_metrics_handler(
                         ],
                         *organization_id,
                         &user.organizations,
+                        WorkspaceSharing::None, // Use None as default for bulk handlers
                     ) {
                         // User has permission, process the update
                         futures.push(process_single_update(update, user));

@@ -246,6 +246,9 @@ export const useUpdateCollectionShare = () => {
           if (params.public_expiry_date !== undefined) {
             draft.public_expiry_date = params.public_expiry_date;
           }
+          if (params.workspace_sharing !== undefined) {
+            draft.workspace_sharing = params.workspace_sharing;
+          }
         });
       });
     }

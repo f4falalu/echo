@@ -7,7 +7,7 @@ use uuid::Uuid;
 
 use crate::chats::get_chat_handler::get_chat_handler;
 use crate::chats::types::ChatWithMessages;
-use database::enums::{AssetPermissionRole, AssetType, IdentityType};
+use database::enums::{AssetPermissionRole, AssetType, IdentityType, WorkspaceSharing};
 use database::helpers::chats::fetch_chat_with_permission;
 use database::models::{AssetPermission, Chat, Message, MessageToFile};
 use database::pool::get_pg_pool;
@@ -49,6 +49,7 @@ pub async fn duplicate_chat_handler(
         ],
         chat_with_permission.chat.organization_id,
         &user.organizations,
+        chat_with_permission.chat.workspace_sharing,
     );
 
     // If user is the creator, they automatically have access
@@ -83,6 +84,9 @@ pub async fn duplicate_chat_handler(
         most_recent_file_id: source_chat.most_recent_file_id,
         most_recent_file_type: source_chat.most_recent_file_type.clone(),
         most_recent_version_number: source_chat.most_recent_version_number,
+        workspace_sharing: WorkspaceSharing::None,
+        workspace_sharing_enabled_at: None,
+        workspace_sharing_enabled_by: None,
     };
 
     // Insert the new chat record
