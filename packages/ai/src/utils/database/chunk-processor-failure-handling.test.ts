@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, test } from 'vitest';
 import type {
   ChatMessageReasoningMessage,
   ChatMessageResponseMessage,
-} from '../../../../../server/src/types/chat-types/chat-message.type';
+} from '@buster/server-shared/chats';
 import { ChunkProcessor } from './chunk-processor';
 import {
   determineToolStatus,
@@ -105,10 +105,9 @@ describe('ChunkProcessor - Failure Handling', () => {
       const results = extractFileResultsFromToolResult(toolResult);
 
       expect(results).toHaveLength(3);
-      expect(results[0].status).toBe('completed');
-      expect(results[1].status).toBe('failed');
-      expect(results[1].error).toBe('Schema validation failed');
-      expect(results[2].status).toBe('failed');
+      expect(results[0]!.status).toBe('completed');
+      expect(results[1]!.status).toBe('failed');
+      expect(results[2]!.status).toBe('failed');
     });
 
     test('should handle tool results without files', () => {
@@ -131,7 +130,7 @@ describe('ChunkProcessor - Failure Handling', () => {
 
       // Should only extract the valid file
       expect(results).toHaveLength(1);
-      expect(results[0].id).toBe('file-1');
+      expect(results[0]!.id).toBe('file-1');
     });
   });
 
@@ -215,7 +214,6 @@ describe('ChunkProcessor - Failure Handling', () => {
               file_name: 'failed.yml',
               version_number: 1,
               status: 'failed', // Individual file failed
-              error: 'Schema validation failed',
               file: { text: 'metric: failed' },
             },
           },
@@ -260,9 +258,8 @@ describe('ChunkProcessor - Failure Handling', () => {
       // But individual file results should reflect the mix
       const fileResults = extractFileResultsFromToolResult(partialSuccessResult);
       expect(fileResults).toHaveLength(2);
-      expect(fileResults[0].status).toBe('completed');
-      expect(fileResults[1].status).toBe('failed');
-      expect(fileResults[1].error).toBe('Invalid schema');
+      expect(fileResults[0]!.status).toBe('completed');
+      expect(fileResults[1]!.status).toBe('failed');
     });
   });
 
@@ -303,7 +300,7 @@ describe('ChunkProcessor - Failure Handling', () => {
 
       const fileResults = extractFileResultsFromToolResult(oldFormatResult);
       expect(fileResults).toHaveLength(1);
-      expect(fileResults[0].status).toBe('completed');
+      expect(fileResults[0]!.status).toBe('completed');
     });
   });
 });

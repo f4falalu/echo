@@ -119,12 +119,12 @@ describe('message extraction integration', () => {
 
     // Should have 2 reasoning messages (sequentialThinking and executeSql)
     expect(reasoning).toHaveLength(2);
-    expect(reasoning[0].title).toBe('Thought 1 of 2');
-    expect(reasoning[1].title).toBe('Executing SQL');
+    expect(reasoning[0]!.title).toBe('Thought 1 of 2');
+    expect(reasoning[1]!.title).toBe('Executing SQL');
 
     // Should have 1 response message (doneTool)
     expect(responses).toHaveLength(1);
-    expect(responses[0].message).toBe('Analysis complete');
+    expect((responses[0] as any).message).toBe('Analysis complete');
   });
 
   test('handles create metrics file correctly', () => {
@@ -160,8 +160,8 @@ describe('message extraction integration', () => {
       files: expect.any(Object),
     });
 
-    const fileId = reasoning[0].file_ids[0];
-    expect(reasoning[0].files[fileId]).toMatchObject({
+    const fileId = (reasoning[0] as any).file_ids[0];
+    expect((reasoning[0] as any).files[fileId]).toMatchObject({
       file_type: 'metric',
       file_name: 'revenue_by_customer.yml',
       file: {

@@ -476,7 +476,7 @@ describe('Message History Utilities', () => {
         const assistantMsg = validateArrayAccess(extracted, assistantIdx, 'assistant message');
         const assistantContent = assistantMsg?.content;
         if (Array.isArray(assistantContent) && assistantContent.length > 0) {
-          const toolCall = validateArrayAccess(assistantContent, 0, 'tool call');
+          const toolCall = validateArrayAccess(assistantContent as any[], 0, 'tool call');
           if (hasToolCallId(toolCall)) {
             expect(toolCall.toolCallId).toBe(validateArrayAccess(toolCallIds, i, 'tool call id'));
           }
@@ -486,7 +486,7 @@ describe('Message History Utilities', () => {
         const toolMsg = validateArrayAccess(extracted, toolIdx, 'tool message');
         const toolContent = toolMsg?.content;
         if (Array.isArray(toolContent) && toolContent.length > 0) {
-          const toolResult = validateArrayAccess(toolContent, 0, 'tool result');
+          const toolResult = validateArrayAccess(toolContent as any[], 0, 'tool result');
           if (hasToolCallId(toolResult)) {
             expect(toolResult.toolCallId).toBe(validateArrayAccess(toolCallIds, i, 'tool call id'));
           }
@@ -687,22 +687,22 @@ describe('Message History Utilities', () => {
       const interleaved = properlyInterleaveMessages(mixed);
 
       expect(interleaved).toHaveLength(5);
-      expect(interleaved[0].role).toBe('assistant');
-      expect(interleaved[0].content).toEqual([
+      expect(interleaved[0]!.role).toBe('assistant');
+      expect(interleaved[0]!.content).toEqual([
         { type: 'text', text: 'Let me help you with that.' },
       ]);
-      expect(interleaved[1].role).toBe('assistant');
-      const ic1 = interleaved[1].content;
+      expect(interleaved[1]!.role).toBe('assistant');
+      const ic1 = interleaved[1]!.content;
       if (Array.isArray(ic1) && ic1[0] && typeof ic1[0] === 'object' && 'toolCallId' in ic1[0]) {
         expect(ic1[0].toolCallId).toBe('id1');
       }
-      expect(interleaved[2].role).toBe('tool');
-      expect(interleaved[3].role).toBe('assistant');
-      const ic3 = interleaved[3].content;
+      expect(interleaved[2]!.role).toBe('tool');
+      expect(interleaved[3]!.role).toBe('assistant');
+      const ic3 = interleaved[3]!.content;
       if (Array.isArray(ic3) && ic3[0] && typeof ic3[0] === 'object' && 'toolCallId' in ic3[0]) {
         expect(ic3[0].toolCallId).toBe('id2');
       }
-      expect(interleaved[4].role).toBe('tool');
+      expect(interleaved[4]!.role).toBe('tool');
     });
 
     test('should handle conversation with follow-up questions', () => {
@@ -752,13 +752,13 @@ describe('Message History Utilities', () => {
       // (but IDs may be added to assistant messages with tool calls)
       expect(result).toHaveLength(7);
       expect(result[0]).toEqual(conversation[0]); // user message unchanged
-      expect(result[1].role).toBe('assistant');
-      expect(result[1].content).toEqual(conversation[1].content);
+      expect(result[1]!.role).toBe('assistant');
+      expect(result[1]!.content).toEqual(conversation[1]!.content);
       expect(result[2]).toEqual(conversation[2]); // tool result unchanged
       expect(result[3]).toEqual(conversation[3]); // assistant text unchanged
       expect(result[4]).toEqual(conversation[4]); // user message unchanged
-      expect(result[5].role).toBe('assistant');
-      expect(result[5].content).toEqual(conversation[5].content);
+      expect(result[5]!.role).toBe('assistant');
+      expect(result[5]!.content).toEqual(conversation[5]!.content);
       expect(result[6]).toEqual(conversation[6]); // tool result unchanged
     });
   });

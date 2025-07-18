@@ -107,11 +107,11 @@ describe('Todos to Message Conversion', () => {
       expect(reasoningMessage.type).toBe('files');
       const fileId = validateArrayAccess(reasoningMessage.file_ids, 0, 'file_ids');
       if (fileId) {
-        expect(reasoningMessage.files[fileId].file.text).toBe(sampleTodos);
+        expect(reasoningMessage.files[fileId]!.file.text).toBe(sampleTodos);
       }
 
       // Both should contain the same todo content
-      expect(reasoningMessage.files[fileId].file.text).toBe(sampleTodos);
+      expect(reasoningMessage.files[fileId!]!.file.text).toBe(sampleTodos);
     });
   });
 });

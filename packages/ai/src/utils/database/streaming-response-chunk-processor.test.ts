@@ -53,7 +53,7 @@ describe('ChunkProcessor - Response Message Streaming', () => {
       } as TextStreamPart<never>);
 
       responseHistory = processor.getResponseHistory();
-      expect(responseHistory[0].message).toBe('Hello, I can help you');
+      expect((responseHistory[0]! as any).message).toBe('Hello, I can help you');
 
       // Complete the response
       await processor.processChunk({
@@ -64,7 +64,7 @@ describe('ChunkProcessor - Response Message Streaming', () => {
       } as TextStreamPart<never>);
 
       responseHistory = processor.getResponseHistory();
-      expect(responseHistory[0].message).toBe('Hello, I can help you with that task.');
+      expect((responseHistory[0]! as any).message).toBe('Hello, I can help you with that task.');
     });
 
     it('should handle complete doneTool call (non-streaming)', async () => {
@@ -80,7 +80,7 @@ describe('ChunkProcessor - Response Message Streaming', () => {
         args: {
           final_response: 'This is the complete response.',
         },
-      } as TextStreamPart<never>);
+      } as unknown as TextStreamPart<never>);
 
       const responseHistory = processor.getResponseHistory();
       expect(responseHistory).toHaveLength(1);
@@ -132,7 +132,7 @@ describe('ChunkProcessor - Response Message Streaming', () => {
       } as TextStreamPart<never>);
 
       responseHistory = processor.getResponseHistory();
-      expect(responseHistory[0].message).toBe('Based on the analysis');
+      expect((responseHistory[0]! as any).message).toBe('Based on the analysis');
     });
   });
 
@@ -149,7 +149,7 @@ describe('ChunkProcessor - Response Message Streaming', () => {
         args: {
           final_response: 'Final message',
         },
-      } as TextStreamPart<never>);
+      } as unknown as TextStreamPart<never>);
 
       // Should have response entry but no reasoning entry
       expect(processor.getResponseHistory()).toHaveLength(1);
@@ -168,7 +168,7 @@ describe('ChunkProcessor - Response Message Streaming', () => {
         args: {
           final_response: 'Quick response',
         },
-      } as TextStreamPart<never>);
+      } as unknown as TextStreamPart<never>);
 
       // Should have response entry but no reasoning entry
       expect(processor.getResponseHistory()).toHaveLength(1);
@@ -190,7 +190,7 @@ describe('ChunkProcessor - Response Message Streaming', () => {
           thought: 'Let me analyze this...',
           nextThoughtNeeded: true,
         },
-      } as TextStreamPart<never>);
+      } as unknown as TextStreamPart<never>);
 
       // Then a response tool
       await processor.processChunk({
@@ -200,7 +200,7 @@ describe('ChunkProcessor - Response Message Streaming', () => {
         args: {
           final_response: 'Here is my conclusion.',
         },
-      } as TextStreamPart<never>);
+      } as unknown as TextStreamPart<never>);
 
       // Should have one reasoning and one response
       expect(processor.getReasoningHistory()).toHaveLength(1);

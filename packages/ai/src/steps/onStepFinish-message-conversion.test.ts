@@ -365,7 +365,7 @@ describe('onStepFinish message conversion', () => {
         if (toolResult?.result) {
           const result = toolResult.result as { rowCount: number; data: Array<{ total: number }> };
           expect(result.rowCount).toBe(1);
-          expect(result.data[0].total).toBe(42);
+          expect(result.data[0]!.total).toBe(42);
         }
       }
     });

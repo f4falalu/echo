@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import type {
   ChatMessageReasoningMessage,
   ChatMessageResponseMessage,
-} from '@buster/server-shared';
+} from '@buster/server-shared/chats';
 import {
   convertToolCallToMessage,
   extractMessagesFromToolCalls,
@@ -216,7 +216,7 @@ describe('message-converters', () => {
         expect(result).not.toBeNull();
         expect(result?.type).toBe('reasoning');
         const reasoning = result?.message as Extract<ChatMessageReasoningMessage, { type: 'files' }>;
-        expect(reasoning.files['dashboard-1'].file_type).toBe('dashboard');
+        expect(reasoning.files!['dashboard-1']!.file_type).toBe('dashboard');
       });
     });
 
@@ -239,7 +239,7 @@ describe('message-converters', () => {
 
         const reasoning = result?.message as Extract<ChatMessageReasoningMessage, { type: 'files' }>;
         expect(reasoning.title).toBe('Modified 1 metric');
-        expect(reasoning.files['metric-1'].version_number).toBe(2);
+        expect(reasoning.files!['metric-1']!.version_number).toBe(2);
       });
 
       it('should convert modifyDashboardsFile to reasoning files message', () => {

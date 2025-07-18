@@ -102,10 +102,10 @@ describe('ChunkProcessor - Streaming Tool Call Deduplication', () => {
     expect(messages[0]?.content).toHaveLength(2); // Two tool calls
 
     // Check tool call IDs are unique
-    const toolCallIds = messages[0]?.content
-      .filter((c) => c.type === 'tool-call')
-      .map((c) => (c.type === 'tool-call' ? c.toolCallId : undefined))
-      .filter((id): id is string => id !== undefined);
+    const toolCallIds = (messages[0]?.content as any[])
+      .filter((c: any) => c.type === 'tool-call')
+      .map((c: any) => (c.type === 'tool-call' ? c.toolCallId : undefined))
+      .filter((id: any): id is string => id !== undefined);
 
     expect(toolCallIds).toEqual(['tool-1', 'tool-2']);
 
@@ -165,8 +165,8 @@ describe('ChunkProcessor - Streaming Tool Call Deduplication', () => {
 
     // Verify partial state
     let messages = processor.getAccumulatedMessages();
-    let toolCall = messages[0]?.content?.[0];
-    expect(toolCall.args).toMatchObject({ files: [{ name: 'metric1.yml' }] });
+    let toolCall = messages[0]?.content?.[0] as any;
+    expect(toolCall!.args).toMatchObject({ files: [{ name: 'metric1.yml' }] });
 
     // Complete tool-call with full args
     await processor.processChunk({
@@ -184,8 +184,8 @@ describe('ChunkProcessor - Streaming Tool Call Deduplication', () => {
     // Verify args were updated, not duplicated
     messages = processor.getAccumulatedMessages();
     expect(messages[0]?.content).toHaveLength(1); // Still just one tool call
-    toolCall = messages[0]?.content?.[0];
-    expect(toolCall.args).toEqual({
+    toolCall = messages[0]?.content?.[0] as any;
+    expect(toolCall!.args).toEqual({
       files: [
         { name: 'metric1.yml', yml_content: 'content1' },
         { name: 'metric2.yml', yml_content: 'content2' },

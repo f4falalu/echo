@@ -411,8 +411,8 @@ describe('ChunkProcessor - Cross-Step Message Accumulation', () => {
 
     const messages = processor.getAccumulatedMessages();
     expect(messages).toHaveLength(3); // Original 2 + new assistant message
-    expect(messages[2].role).toBe('assistant');
-    expect(messages[2].content).toEqual([{ type: 'text', text: ' How can I help?' }]);
+    expect(messages[2]!.role).toBe('assistant');
+    expect(messages[2]!.content).toEqual([{ type: 'text', text: ' How can I help?' }]);
   });
 });
 

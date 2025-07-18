@@ -431,7 +431,7 @@ chartConfig:
       };
 
       // This would fail our UUID validation
-      expect(invalidUuidInput.files[0].id).toBe('not-a-valid-uuid');
+      expect(invalidUuidInput.files[0]!.id).toBe('not-a-valid-uuid');
       // In real validation, this would be rejected as not a valid UUID
     });
 
@@ -566,8 +566,8 @@ chartConfig:
       };
 
       const latestVersion = mockVersionHistory.getLatestVersion();
-      expect(latestVersion.versionNumber).toBe(3);
-      expect(latestVersion.content.name).toBe('Second Update');
+      expect(latestVersion!.versionNumber).toBe(3);
+      expect(latestVersion!.content.name).toBe('Second Update');
     });
   });
 

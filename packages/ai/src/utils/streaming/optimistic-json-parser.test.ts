@@ -116,7 +116,7 @@ describe('OptimisticJsonParser', () => {
       ]);
 
       // Last one should be complete
-      const lastResult = OptimisticJsonParser.parse(stages[stages.length - 1]);
+      const lastResult = OptimisticJsonParser.parse(stages[stages.length - 1]!);
       expect(lastResult.isComplete).toBe(true);
     });
   });

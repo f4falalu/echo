@@ -78,9 +78,6 @@ describe('AI SDK Error Mocks - Comprehensive Error Handling', () => {
     it('should handle APICallError with network timeout', async () => {
       const error = new APICallError({
         message: 'Network request failed',
-        statusCode: undefined,
-        responseHeaders: {},
-        responseBody: undefined,
         url: 'https://api.openai.com/v1/chat/completions',
         requestBodyValues: {},
         cause: new Error('ETIMEDOUT'),
@@ -147,8 +144,7 @@ describe('AI SDK Error Mocks - Comprehensive Error Handling', () => {
     it('should handle InvalidToolArgumentsError with Zod validation', () => {
       const error = new InvalidToolArgumentsError({
         toolName: 'executeSql',
-        toolCallId: 'call_123',
-        args: { query: 123 }, // Wrong type
+        toolArgs: JSON.stringify({ query: 123 }), // Wrong type
         cause: {
           errors: [{ path: ['query'], message: 'Expected string, received number' }],
         },
@@ -176,7 +172,7 @@ describe('AI SDK Error Mocks - Comprehensive Error Handling', () => {
       const error = new ToolExecutionError({
         toolName: 'readFile',
         toolCallId: 'call_456',
-        message: 'File not found',
+        toolArgs: JSON.stringify({}),
         cause: new Error('ENOENT: no such file or directory'),
       });
 
@@ -210,7 +206,6 @@ describe('AI SDK Error Mocks - Comprehensive Error Handling', () => {
 
     it('should handle JSONParseError', () => {
       const error = new JSONParseError({
-        message: 'Invalid JSON',
         text: '{"incomplete": ',
         cause: new SyntaxError('Unexpected end of JSON input'),
       });
@@ -248,7 +243,8 @@ describe('AI SDK Error Mocks - Comprehensive Error Handling', () => {
   describe('Validation Errors', () => {
     it('should handle InvalidArgumentError', () => {
       const error = new InvalidArgumentError({
-        argument: 'messages',
+        parameter: 'messages',
+        value: [],
         message: 'Messages cannot be empty',
       });
 
@@ -288,8 +284,8 @@ describe('AI SDK Error Mocks - Comprehensive Error Handling', () => {
 
     it('should handle TypeValidationError', () => {
       const error = new TypeValidationError({
-        message: 'Type validation failed',
         value: { invalid: true },
+        cause: new Error('Type validation failed'),
       });
 
       const detailedMessage = extractDetailedErrorMessage(error);
@@ -332,9 +328,11 @@ describe('AI SDK Error Mocks - Comprehensive Error Handling', () => {
 
     it('should NOT retry NoSuchProviderError', () => {
       const error = new NoSuchProviderError({
-        message: 'Provider not found',
+        modelId: 'unknown-model',
+        modelType: 'languageModel',
         providerId: 'unknown-provider',
         availableProviders: ['openai', 'anthropic'],
+        message: 'Provider not found',
       });
       (error as any).name = 'AI_NoSuchProviderError';
 
@@ -383,7 +381,6 @@ describe('AI SDK Error Mocks - Comprehensive Error Handling', () => {
         message: 'Failed after 3 retries',
         reason: 'maxRetriesExceeded',
         errors: [nestedError, nestedError, nestedError],
-        lastError: nestedError,
       });
 
       const retryableError = detectRetryableError(error);

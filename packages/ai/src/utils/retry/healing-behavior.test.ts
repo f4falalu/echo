@@ -68,7 +68,6 @@ describe('Healing Behavior - Different Error Types', () => {
       ];
 
       const error = new JSONParseError({
-        message: 'Invalid JSON',
         text: '{"name": "revenue", "expression": ',
         cause: new SyntaxError('Unexpected end of JSON input'),
       });
@@ -127,8 +126,8 @@ describe('Healing Behavior - Different Error Types', () => {
 
       // Healing message should be added
       expect(healedMessages[2]?.role).toBe('tool');
-      expect(healedMessages[2]?.content[0].type).toBe('tool-result');
-      expect(healedMessages[2]?.content[0].result.error).toContain(
+      expect((healedMessages[2]?.content[0] as any).type).toBe('tool-result');
+      expect((healedMessages[2]?.content[0] as any).result.error).toContain(
         'Tool "createDashboards" is not available'
       );
     });
@@ -153,8 +152,7 @@ describe('Healing Behavior - Different Error Types', () => {
 
       const error = new InvalidToolArgumentsError({
         toolName: 'executeSql',
-        toolCallId: 'call_456',
-        args: { query: 123 },
+        toolArgs: JSON.stringify({ query: 123 }),
         cause: {
           errors: [{ path: ['query'], message: 'Expected string, received number' }],
         },
@@ -174,7 +172,7 @@ describe('Healing Behavior - Different Error Types', () => {
       // Tool error result should be added
       const toolResult = healedMessages[2];
       expect(toolResult?.role).toBe('tool');
-      expect(toolResult?.content[0].result.error).toContain(
+      expect((toolResult?.content[0] as any).result.error).toContain(
         'query: Expected string, received number'
       );
     });
@@ -189,9 +187,6 @@ describe('Healing Behavior - Different Error Types', () => {
 
       const error = new APICallError({
         message: 'Network timeout',
-        statusCode: undefined,
-        responseHeaders: {},
-        responseBody: undefined,
         url: 'https://api.example.com',
         requestBodyValues: {},
         cause: new Error('ETIMEDOUT'),
@@ -275,7 +270,6 @@ describe('Healing Behavior - Different Error Types', () => {
       });
 
       const error = new JSONParseError({
-        message: 'Invalid JSON',
         text: '{"incomplete":',
         cause: new SyntaxError('Unexpected end of JSON input'),
       });

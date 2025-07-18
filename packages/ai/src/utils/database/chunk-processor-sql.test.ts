@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import type { ChatMessageReasoningMessage } from '../../../../../server/src/types/chat-types/chat-message.type';
+import type { ChatMessageReasoningMessage } from '@buster/server-shared/chats';
 import { ChunkProcessor } from './chunk-processor';
 import { validateArrayAccess } from '../validation-helpers';
 

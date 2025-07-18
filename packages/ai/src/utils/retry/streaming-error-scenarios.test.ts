@@ -23,7 +23,7 @@ describe('Streaming Error Scenarios - Real-World Tests', () => {
           toDataStreamResponse: vi.fn(),
           pipeDataStreamToResponse: vi.fn(),
           pipeTextStreamToResponse: vi.fn(),
-        } as StreamTextResult<any>;
+        } as unknown as StreamTextResult<any, any>;
       }),
       tools: {
         sequentialThinking: {},
@@ -60,9 +60,7 @@ describe('Streaming Error Scenarios - Real-World Tests', () => {
             // Simulate network error during streaming
             throw new APICallError({
               message: 'Connection reset',
-              statusCode: undefined,
               responseHeaders: {},
-              responseBody: undefined,
               url: 'https://api.example.com',
               requestBodyValues: {},
               cause: new Error('ECONNRESET'),
@@ -73,7 +71,7 @@ describe('Streaming Error Scenarios - Real-World Tests', () => {
       });
 
       // Capture the onError handler when stream is called
-      mockAgent.stream.mockImplementation(async (_messages, options) => {
+      (mockAgent.stream as any).mockImplementation(async (_messages: any, options: any) => {
         onErrorHandler = options?.onError;
 
         const streamBehavior = () => ({
@@ -84,9 +82,7 @@ describe('Streaming Error Scenarios - Real-World Tests', () => {
             // Simulate the error and let onError handle it
             const error = new APICallError({
               message: 'Connection reset',
-              statusCode: undefined,
               responseHeaders: {},
-              responseBody: undefined,
               url: 'https://api.example.com',
               requestBodyValues: {},
               cause: new Error('ECONNRESET'),
@@ -110,7 +106,7 @@ describe('Streaming Error Scenarios - Real-World Tests', () => {
           toDataStreamResponse: vi.fn(),
           pipeDataStreamToResponse: vi.fn(),
           pipeTextStreamToResponse: vi.fn(),
-        } as StreamTextResult<any>;
+        } as unknown as StreamTextResult<any, any>;
       });
 
       const runtimeContext = new RuntimeContext();
@@ -218,12 +214,12 @@ describe('Streaming Error Scenarios - Real-World Tests', () => {
           'x-ratelimit-remaining': '0',
           'x-ratelimit-reset': '1234567890',
         },
-        responseBody: {
+        responseBody: JSON.stringify({
           error: {
             message: 'You have exceeded your rate limit',
             type: 'rate_limit_error',
           },
-        },
+        }),
         url: 'https://api.openai.com/v1/chat/completions',
         requestBodyValues: {},
         cause: undefined,
@@ -325,9 +321,7 @@ describe('Streaming Error Scenarios - Real-World Tests', () => {
 
       const disconnectError = new APICallError({
         message: 'Server disconnected',
-        statusCode: undefined,
         responseHeaders: {},
-        responseBody: undefined,
         url: 'https://api.example.com',
         requestBodyValues: {},
         cause: new Error('EPIPE: broken pipe'),

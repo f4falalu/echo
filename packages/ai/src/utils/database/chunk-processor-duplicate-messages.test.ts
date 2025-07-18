@@ -41,20 +41,20 @@ describe('ChunkProcessor - Duplicate Message Detection', () => {
       type: 'tool-call-streaming-start',
       toolCallId,
       toolName: 'sequentialThinking',
-    } as TextStreamPart<ToolSet>);
+    } as unknown as TextStreamPart<ToolSet>);
 
     // Then tool-call-delta events (simulating streaming args)
     await processor.processChunk({
       type: 'tool-call-delta',
       toolCallId,
       argsTextDelta: '{"thought": "Let me work through',
-    } as TextStreamPart<ToolSet>);
+    } as unknown as TextStreamPart<ToolSet>);
 
     await processor.processChunk({
       type: 'tool-call-delta',
       toolCallId,
       argsTextDelta: ' the TODO list items..."}',
-    } as TextStreamPart<ToolSet>);
+    } as unknown as TextStreamPart<ToolSet>);
 
     // Then the complete tool-call event
     await processor.processChunk({
@@ -69,7 +69,7 @@ describe('ChunkProcessor - Duplicate Message Detection', () => {
         needsMoreThoughts: false,
         nextThoughtNeeded: true,
       },
-    } as TextStreamPart<ToolSet>);
+    } as unknown as TextStreamPart<ToolSet>);
 
     // Tool result
     await processor.processChunk({
@@ -77,7 +77,7 @@ describe('ChunkProcessor - Duplicate Message Detection', () => {
       toolCallId,
       toolName: 'sequentialThinking',
       result: { success: true },
-    } as TextStreamPart<ToolSet>);
+    } as unknown as TextStreamPart<ToolSet>);
 
     // Get accumulated messages
     const messages = processor.getAccumulatedMessages();
@@ -97,11 +97,11 @@ describe('ChunkProcessor - Duplicate Message Detection', () => {
     expect(messages).toHaveLength(4); // 2 initial + 1 assistant + 1 tool result
     expect(messages[0]).toEqual(initialMessages[0]);
     expect(messages[1]).toEqual(initialMessages[1]);
-    expect(messages[2].role).toBe('assistant');
-    expect(messages[3].role).toBe('tool');
+    expect(messages[2]!.role).toBe('assistant');
+    expect(messages[3]!.role).toBe('tool');
 
     // Verify the assistant message has the tool call
-    const assistantMsg = messages[2];
+    const assistantMsg = messages[2]!;
     expect(assistantMsg.content).toEqual([
       {
         type: 'tool-call',
@@ -128,21 +128,21 @@ describe('ChunkProcessor - Duplicate Message Detection', () => {
       type: 'tool-call-streaming-start',
       toolCallId: toolCallId1,
       toolName: 'executeSql',
-    } as TextStreamPart<ToolSet>);
+    } as unknown as TextStreamPart<ToolSet>);
 
     await processor.processChunk({
       type: 'tool-call',
       toolCallId: toolCallId1,
       toolName: 'executeSql',
       args: { statements: ['SELECT 1'] },
-    } as TextStreamPart<ToolSet>);
+    } as unknown as TextStreamPart<ToolSet>);
 
     await processor.processChunk({
       type: 'tool-result',
       toolCallId: toolCallId1,
       toolName: 'executeSql',
       result: { results: [] },
-    } as TextStreamPart<ToolSet>);
+    } as unknown as TextStreamPart<ToolSet>);
 
     // Process second tool call
     const toolCallId2 = 'toolu_02DEF';
@@ -150,21 +150,21 @@ describe('ChunkProcessor - Duplicate Message Detection', () => {
       type: 'tool-call-streaming-start',
       toolCallId: toolCallId2,
       toolName: 'executeSql',
-    } as TextStreamPart<ToolSet>);
+    } as unknown as TextStreamPart<ToolSet>);
 
     await processor.processChunk({
       type: 'tool-call',
       toolCallId: toolCallId2,
       toolName: 'executeSql',
       args: { statements: ['SELECT 2'] },
-    } as TextStreamPart<ToolSet>);
+    } as unknown as TextStreamPart<ToolSet>);
 
     await processor.processChunk({
       type: 'tool-result',
       toolCallId: toolCallId2,
       toolName: 'executeSql',
       result: { results: [] },
-    } as TextStreamPart<ToolSet>);
+    } as unknown as TextStreamPart<ToolSet>);
 
     const messages = processor.getAccumulatedMessages();
 
@@ -195,7 +195,7 @@ describe('ChunkProcessor - Duplicate Message Detection', () => {
       toolCallId,
       toolName: 'sequentialThinking',
       args: { thought: 'Test thought' },
-    } as TextStreamPart<ToolSet>);
+    } as unknown as TextStreamPart<ToolSet>);
 
     // Get messages after first processing
     const messagesAfterFirst = processor.getAccumulatedMessages();
@@ -207,7 +207,7 @@ describe('ChunkProcessor - Duplicate Message Detection', () => {
       toolCallId,
       toolName: 'sequentialThinking',
       args: { thought: 'Test thought' },
-    } as TextStreamPart<ToolSet>);
+    } as unknown as TextStreamPart<ToolSet>);
 
     // Should still have only 1 message
     const messagesAfterSecond = processor.getAccumulatedMessages();

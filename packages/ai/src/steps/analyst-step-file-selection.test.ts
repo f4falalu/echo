@@ -2,7 +2,7 @@ import { describe, expect, test } from 'vitest';
 import type {
   ChatMessageReasoningMessage,
   ChatMessageResponseMessage,
-} from '../../../../../server/src/types/chat-types/chat-message.type';
+} from '@buster/server-shared/chats';
 import { hasFailureIndicators, hasFileFailureIndicators } from '../utils/database/types';
 
 // Import the functions we want to test (we'll need to export them from analyst-step.ts)
@@ -12,7 +12,7 @@ interface ExtractedFile {
   fileType: 'metric' | 'dashboard';
   fileName: string;
   status: 'completed' | 'failed' | 'loading';
-  ymlContent?: string;
+  ymlContent?: string | undefined;
 }
 
 function extractFilesFromReasoning(

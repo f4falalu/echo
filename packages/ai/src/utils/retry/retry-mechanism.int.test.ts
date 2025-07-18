@@ -94,6 +94,8 @@ describe('Retry Mechanism Integration Tests', () => {
           inputData,
           getInitData: async () => inputData,
           runtimeContext,
+          runId: 'test-retry-run-id-1',
+          mastra: {} as any,
         } as any)) as ThinkAndPrepOutput;
 
         // Verify the step completed successfully
@@ -166,6 +168,8 @@ describe('Retry Mechanism Integration Tests', () => {
           inputData,
           getInitData: async () => inputData,
           runtimeContext,
+          runId: 'test-retry-run-id-2',
+          mastra: {} as any,
         } as any)) as AnalystStepOutput;
 
         // Verify the step completed

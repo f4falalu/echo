@@ -32,6 +32,8 @@ describe('Stream Error Integration', () => {
       chunkProcessor,
       runtimeContext,
       abortController,
+      resourceId: 'test-resource-id',
+      threadId: 'test-thread-id',
       maxRetries: 3,
       toolChoice: 'required',
     });
@@ -83,6 +85,8 @@ describe('Stream Error Integration', () => {
       chunkProcessor,
       runtimeContext,
       abortController,
+      resourceId: 'test-resource-id',
+      threadId: 'test-thread-id',
       maxRetries: 3,
       toolChoice: 'required',
     });
@@ -115,6 +119,8 @@ describe('Stream Error Integration', () => {
       chunkProcessor,
       runtimeContext,
       abortController,
+      resourceId: 'test-resource-id',
+      threadId: 'test-thread-id',
       maxRetries: 3,
       toolChoice: 'required',
     });
@@ -150,6 +156,8 @@ describe('Stream Error Integration', () => {
       chunkProcessor,
       runtimeContext,
       abortController,
+      resourceId: 'test-resource-id',
+      threadId: 'test-thread-id',
       maxRetries: 3,
       toolChoice: 'required',
     });
