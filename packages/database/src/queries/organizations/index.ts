@@ -9,4 +9,4 @@ export {
   type UserToOrganization,
 } from './organizations';
 
-export { updateOrganization } from './update-organization';
+export { updateOrganization, type DEFAULT_COLOR_PALETTE_ID } from './update-organization';
