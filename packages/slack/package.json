@@ -33,6 +33,6 @@
   "devDependencies": {
     "@buster/typescript-config": "workspace:*",
     "@buster/vitest-config": "workspace:*",
-    "tsx": "^4.20.3"
+    "tsx": "catalog:"
   }
 }

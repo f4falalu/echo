@@ -10,5 +10,8 @@
   "dependencies": {
     "@buster/database": "workspace:*",
     "@buster/typescript-config": "workspace:*"
+  },
+  "devDependencies": {
+    "tsx": "catalog:"
   }
 }

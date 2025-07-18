@@ -72,7 +72,7 @@
     "zod": "^3.0.0"
   },
   "devDependencies": {
-    "tsx": "^4.20.3",
+    "tsx": "catalog:",
     "vitest": "catalog:"
   }
 }
