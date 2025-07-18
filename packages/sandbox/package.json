@@ -21,11 +21,15 @@
     "dev": "tsc --watch",
     "lint": "biome check",
     "test": "vitest run",
+    "test:unit": "vitest run --exclude '**/*.int.test.ts' --exclude '**/*.integration.test.ts' --passWithNoTests",
     "test:watch": "vitest watch",
-    "test:coverage": "vitest run --coverage"
+    "test:coverage": "vitest run --coverage",
+    "test:integration": "vitest run src/**/*.int.test.ts"
   },
   "dependencies": {
     "@buster/typescript-config": "workspace:*",
-    "@buster/vitest-config": "workspace:*"
+    "@buster/vitest-config": "workspace:*",
+    "@daytonaio/sdk": "^0.24.2",
+    "zod": "catalog:"
   }
 }
