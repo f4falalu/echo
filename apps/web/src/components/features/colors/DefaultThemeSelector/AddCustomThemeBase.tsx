@@ -5,6 +5,8 @@ import { Plus } from '../../../ui/icons';
 import { NewThemePopup } from './NewThemePopup';
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import { Popover } from '../../../ui/popover';
+import { EditCustomThemeMenu } from './EditCustomThemeMenu';
+import { AddThemeProviderWrapper, useAddTheme } from './AddThemeProviderWrapper';
 
 interface AddCustomThemeBaseProps {
   customThemes: Omit<IColorTheme, 'selected'>[];
@@ -14,30 +16,6 @@ interface AddCustomThemeBaseProps {
   deleteCustomTheme: (themeId: string) => Promise<void>;
   modifyCustomTheme: (themeId: string, theme: IColorTheme) => Promise<void>;
 }
-
-const AddThemeProvider = React.createContext<
-  Pick<AddCustomThemeBaseProps, 'createCustomTheme' | 'deleteCustomTheme' | 'modifyCustomTheme'>
->({
-  createCustomTheme: async () => {},
-  deleteCustomTheme: async () => {},
-  modifyCustomTheme: async () => {}
-});
-
-const AddThemeProviderWrapper: React.FC<
-  PropsWithChildren<
-    Pick<AddCustomThemeBaseProps, 'createCustomTheme' | 'deleteCustomTheme' | 'modifyCustomTheme'>
-  >
-> = ({ children, createCustomTheme, deleteCustomTheme, modifyCustomTheme }) => {
-  return (
-    <AddThemeProvider.Provider value={{ createCustomTheme, deleteCustomTheme, modifyCustomTheme }}>
-      {children}
-    </AddThemeProvider.Provider>
-  );
-};
-
-const useAddTheme = () => {
-  return React.useContext(AddThemeProvider);
-};
 
 export const AddCustomThemeBase = React.memo(
   ({
@@ -64,7 +42,7 @@ export const AddCustomThemeBase = React.memo(
               className="border-none bg-transparent p-0"
               themes={iThemes}
               onChangeColorTheme={onSelectTheme}
-              themeThreeDotsMenu={ThreeDotMenu}
+              themeThreeDotsMenu={EditCustomThemeMenu}
             />
           )}
 
@@ -76,28 +54,6 @@ export const AddCustomThemeBase = React.memo(
 );
 
 AddCustomThemeBase.displayName = 'AddCustomThemeBase';
-
-const ThreeDotMenu: React.FC<{ theme: IColorTheme }> = React.memo(({ theme }) => {
-  const { deleteCustomTheme, modifyCustomTheme } = useAddTheme();
-
-  const onSave = useMemoizedFn(async (theme: IColorTheme) => {
-    await modifyCustomTheme(theme.id, theme);
-  });
-
-  const onDelete = useMemoizedFn(async (themeId: string) => {
-    await deleteCustomTheme(themeId);
-  });
-
-  const onUpdate = useMemoizedFn(async (theme: IColorTheme) => {
-    await modifyCustomTheme(theme.id, theme);
-  });
-
-  return (
-    <NewThemePopup selectedTheme={theme} onSave={onSave} onDelete={onDelete} onUpdate={onUpdate} />
-  );
-});
-
-ThreeDotMenu.displayName = 'ThreeDotMenu';
 
 const AddCustomThemeButton: React.FC = React.memo(({}) => {
   const { createCustomTheme } = useAddTheme();
