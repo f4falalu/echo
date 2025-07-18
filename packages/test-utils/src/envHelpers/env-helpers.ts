@@ -35,7 +35,7 @@ export function withTestEnv<T>(testFn: () => Promise<T>): () => Promise<T> {
       return await testFn();
     } finally {
       // Restore original environment
-      Object.keys(process.env).forEach(key => {
+      Object.keys(process.env).forEach((key) => {
         if (!(key in originalEnv)) {
           delete process.env[key];
         }

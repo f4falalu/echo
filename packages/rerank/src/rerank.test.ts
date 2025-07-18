@@ -10,13 +10,13 @@ const mockCreate = vi.fn();
 describe('Reranker - Unit Tests', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    
+
     process.env.RERANK_API_KEY = 'test-api-key';
     process.env.RERANK_BASE_URL = 'https://test-api.com/rerank';
     process.env.RERANK_MODEL = 'test-model';
-    
+
     vi.spyOn(console, 'error').mockImplementation(() => {});
-    
+
     const mockAxiosInstance = {
       post: vi.fn(),
     };

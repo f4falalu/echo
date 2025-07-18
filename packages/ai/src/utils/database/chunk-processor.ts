@@ -2018,12 +2018,12 @@ export class ChunkProcessor<T extends ToolSet = GenericToolSet> {
       // Update the existing file with results appended
       const fileObj = file as { file?: { text?: string } };
       const currentContent = fileObj.file?.text || '';
-      
+
       // Append results to the existing content
       if (fileObj.file) {
         fileObj.file.text = currentContent + '\n\n' + resultsYaml;
       }
-      
+
       // Update the entry title and secondary title
       if ('title' in entry) {
         (entry as any).title = title;

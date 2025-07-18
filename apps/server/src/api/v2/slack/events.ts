@@ -1,4 +1,4 @@
-import { chats, db } from '@buster/database';
+import { chats, db, slackIntegrations } from '@buster/database';
 import type { SlackEventsResponse } from '@buster/server-shared/slack';
 import { type SlackWebhookPayload, isEventCallback } from '@buster/slack';
 import { tasks } from '@trigger.dev/sdk';
@@ -37,25 +37,44 @@ export async function findOrCreateSlackChat({
   organizationId,
   userId,
   slackChatAuthorization,
+  teamId,
 }: {
   threadTs: string;
   channelId: string;
   organizationId: string;
   userId: string;
   slackChatAuthorization: 'unauthorized' | 'authorized' | 'auto_added';
+  teamId: string;
 }): Promise<string> {
-  // Find existing chat
-  const existingChat = await db
-    .select()
-    .from(chats)
-    .where(
-      and(
-        eq(chats.slackThreadTs, threadTs),
-        eq(chats.slackChannelId, channelId),
-        eq(chats.organizationId, organizationId)
+  // Run both queries concurrently for better performance
+  const [existingChat, slackIntegration] = await Promise.all([
+    // Find existing chat
+    db
+      .select()
+      .from(chats)
+      .where(
+        and(
+          eq(chats.slackThreadTs, threadTs),
+          eq(chats.slackChannelId, channelId),
+          eq(chats.organizationId, organizationId)
+        )
       )
-    )
-    .limit(1);
+      .limit(1),
+    // Fetch Slack integration settings if we have an organization
+    organizationId
+      ? db
+          .select({ defaultSharingPermissions: slackIntegrations.defaultSharingPermissions })
+          .from(slackIntegrations)
+          .where(
+            and(
+              eq(slackIntegrations.organizationId, organizationId),
+              eq(slackIntegrations.teamId, teamId),
+              eq(slackIntegrations.status, 'active')
+            )
+          )
+          .limit(1)
+      : Promise.resolve([]),
+  ]);
 
   if (existingChat.length > 0) {
     const chat = existingChat[0];
@@ -64,6 +83,12 @@ export async function findOrCreateSlackChat({
     }
     return chat.id;
   }
+
+  // Extract default sharing permissions
+  const defaultSharingPermissions =
+    slackIntegration.length > 0 && slackIntegration[0]
+      ? slackIntegration[0].defaultSharingPermissions
+      : undefined;
 
   // Create new chat
   const newChat = await db
@@ -76,6 +101,11 @@ export async function findOrCreateSlackChat({
       slackChatAuthorization,
       slackThreadTs: threadTs,
       slackChannelId: channelId,
+      // Set workspace sharing based on Slack integration settings
+      workspaceSharing: defaultSharingPermissions === 'shareWithWorkspace' ? 'can_view' : 'none',
+      workspaceSharingEnabledBy: defaultSharingPermissions === 'shareWithWorkspace' ? userId : null,
+      workspaceSharingEnabledAt:
+        defaultSharingPermissions === 'shareWithWorkspace' ? new Date().toISOString() : null,
     })
     .returning();
 
@@ -165,6 +195,7 @@ export async function eventsHandler(payload: SlackWebhookPayload): Promise<Slack
         organizationId,
         userId,
         slackChatAuthorization: mapAuthResultToDbEnum(authResult.type),
+        teamId: payload.team_id,
       });
 
       // Queue the task
