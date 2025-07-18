@@ -63,7 +63,10 @@ export async function createTestOrganizationInDb(
     deletedAt: null,
     domain: null,
     paymentRequired: true,
-    organizationColorPalettes: [],
+    organizationColorPalettes: {
+      selectedId: null,
+      palettes: [],
+    },
     ...orgData,
   };
 

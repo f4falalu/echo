@@ -1,4 +1,10 @@
-import { QueryClient, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import {
+  QueryClient,
+  useMutation,
+  useQuery,
+  useQueryClient,
+  type UseQueryOptions
+} from '@tanstack/react-query';
 import { userQueryKeys } from '@/api/query_keys/users';
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import { useCreateOrganization } from '../organizations/queryRequests';
@@ -11,12 +17,18 @@ import {
   updateOrganizationUser
 } from './requests';
 import { organizationQueryKeys } from '@/api/query_keys/organization';
+import { UserResponse } from '@buster/server-shared/user';
+import type { RustApiError } from '../errors';
 
-export const useGetMyUserInfo = () => {
+export const useGetMyUserInfo = <TData = UserResponse>(
+  props?: Omit<UseQueryOptions<UserResponse | null, RustApiError, TData>, 'queryKey' | 'queryFn'>
+) => {
   return useQuery({
     ...userQueryKeys.userGetUserMyself,
     queryFn: getMyUserInfo,
-    enabled: false //This is a server only query
+    enabled: false, //This is a server only query,
+    select: props?.select,
+    ...props
   });
 };
 
@@ -95,7 +107,7 @@ export const useInviteUser = () => {
 };
 
 export const useCreateUserOrganization = () => {
-  const { data: userResponse, refetch: refetchUserResponse } = useGetMyUserInfo();
+  const { data: userResponse, refetch: refetchUserResponse } = useGetMyUserInfo({});
   const { mutateAsync: createOrganization } = useCreateOrganization();
   const { mutateAsync: updateUserInfo } = useUpdateUser();
 

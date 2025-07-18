@@ -123,6 +123,7 @@ pub async fn get_user_information(user_id: &Uuid) -> Result<UserInfoObject> {
                 organizations::domains,
                 organizations::restrict_new_user_invitations,
                 organizations::default_role,
+                organizations::organization_color_palettes,
             )
                 .nullable(),
             users_to_organizations::role.nullable(),

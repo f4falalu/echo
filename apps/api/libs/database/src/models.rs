@@ -347,6 +347,7 @@ pub struct Organization {
     pub domains: Option<Vec<String>>,
     pub restrict_new_user_invitations: bool,
     pub default_role: UserOrganizationRole,
+    pub organization_color_palettes: serde_json::Value,
 }
 
 #[derive(
@@ -725,6 +726,22 @@ pub struct MessageResponses {
 pub struct UserConfig {
     pub color_palettes: Option<Vec<Vec<String>>>,
     pub last_used_color_palette: Option<Vec<String>>,
+}
+
+/// Organization Color Palette Types
+#[derive(Serialize, Deserialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct OrganizationColorPalette {
+    pub id: String,
+    pub colors: Vec<String>, // Hex color codes
+    pub name: String,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct OrganizationColorPalettes {
+    pub selected_id: Option<String>,
+    pub palettes: Vec<OrganizationColorPalette>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
