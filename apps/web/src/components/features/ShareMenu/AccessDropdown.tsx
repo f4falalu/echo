@@ -128,11 +128,11 @@ const dashboardItems: DropdownItem<ShareRole>[] = [
     label: 'Can edit',
     secondaryLabel: 'Can edit but not share with others.'
   },
-  {
-    value: 'canFilter',
-    label: 'Can filter',
-    secondaryLabel: 'Can filter dashboards but not edit.'
-  },
+  // {
+  //   value: 'canFilter',
+  //   label: 'Can filter',
+  //   secondaryLabel: 'Can filter dashboards but not edit.'
+  // },
   {
     value: 'canView',
     label: 'Can view',

@@ -61,6 +61,10 @@
     "./security": {
       "types": "./dist/security/index.d.ts",
       "default": "./dist/security/index.js"
+    },
+    "./dictionary": {
+      "types": "./dist/dictionary/index.d.ts",
+      "default": "./dist/dictionary/index.js"
     }
   },
   "dependencies": {

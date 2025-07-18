@@ -1,0 +1,1 @@
+ALTER TABLE "organizations" ADD COLUMN "organization_color_palettes" jsonb DEFAULT '{"selectedId": null, "palettes": []}' NOT NULL;

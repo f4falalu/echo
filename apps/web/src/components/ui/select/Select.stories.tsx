@@ -1,39 +1,13 @@
-import type { Meta, StoryObj } from '@storybook/react';
 import React from 'react';
-import { fn } from '@storybook/test';
-import { Select, type SelectItem, type SelectProps } from './Select';
-import { User, Gear, PowerOff } from '@/components/ui/icons/NucleoIconOutlined';
+import { Meta, StoryObj } from '@storybook/react';
+import { Select, SelectItem } from './Select';
+import { useDebounceFn } from '../../../hooks';
 
-const meta = {
+const meta: Meta<typeof Select> = {
   title: 'UI/select/Select',
   component: Select,
   parameters: {
     layout: 'centered'
-  },
-  argTypes: {
-    search: {
-      control: { type: 'boolean' },
-      description: 'Enable/disable search functionality'
-    },
-    disabled: {
-      control: { type: 'boolean' },
-      description: 'Disable the select'
-    },
-    loading: {
-      control: { type: 'boolean' },
-      description: 'Show loading state'
-    },
-    showIndex: {
-      control: { type: 'boolean' },
-      description: 'Show index numbers for items'
-    },
-    placeholder: {
-      control: { type: 'text' },
-      description: 'Placeholder text when no item is selected'
-    },
-    onChange: {
-      action: 'onChange'
-    }
   },
   decorators: [
     (Story) => (
@@ -42,221 +16,225 @@ const meta = {
       </div>
     )
   ]
-} satisfies Meta<SelectProps<string>>;
+};
 
 export default meta;
-type Story = StoryObj<SelectProps<string>>;
+type Story = StoryObj<typeof Select>;
 
-// Basic select with simple string options
-export const BasicSelect: Story = {
+// Basic items for examples
+const basicItems: SelectItem[] = [
+  { value: '1', label: 'Option 1' },
+  { value: '2', label: 'Option 2' },
+  { value: '3', label: 'Option 3' },
+  { value: '4', label: 'Option 4' },
+  { value: '5', label: 'Option 5' }
+];
+
+const userItems: SelectItem[] = [
+  { value: 'john', label: 'John Doe', secondaryLabel: 'john@example.com' },
+  { value: 'jane', label: 'Jane Smith', secondaryLabel: 'jane@example.com' },
+  { value: 'bob', label: 'Bob Johnson', secondaryLabel: 'bob@example.com' },
+  { value: 'alice', label: 'Alice Williams', secondaryLabel: 'alice@example.com' },
+  { value: 'charlie', label: 'Charlie Brown', secondaryLabel: 'charlie@example.com' }
+];
+
+// Basic select without search
+export const Basic: Story = {
   args: {
-    placeholder: 'Select a fruit',
-    items: [
-      { value: 'apple', label: 'Apple' },
-      { value: 'banana', label: 'Banana' },
-      { value: 'orange', label: 'Orange' },
-      { value: 'grape', label: 'Grape' },
-      { value: 'strawberry', label: 'Strawberry' },
-      { value: 'watermelon', label: 'Watermelon' },
-      { value: 'pineapple', label: 'Pineapple' },
-      { value: 'mango', label: 'Mango' }
-    ] as SelectItem<string>[],
-    onChange: fn()
-  },
-  render: function RenderBasicSelect(args: SelectProps<string>) {
-    const [value, setValue] = React.useState<string | undefined>();
+    items: basicItems,
+    placeholder: 'Select an option'
+  }
+};
+
+// Select with search enabled
+export const WithSearch: Story = {
+  args: {
+    items: userItems,
+    placeholder: 'Search users...',
+    search: true
+  }
+};
+
+// Select with custom search function
+export const WithCustomSearch: Story = {
+  args: {
+    items: userItems,
+    placeholder: 'Search by email...',
+    search: {
+      type: 'filter',
+      fn: (item, searchTerm) => {
+        // Search only in email (secondaryLabel)
+        const email = item.secondaryLabel || '';
+        return email.toLowerCase().includes(searchTerm.toLowerCase());
+      }
+    }
+  }
+};
+
+// Clearable select
+export const Clearable: Story = {
+  args: {
+    items: basicItems,
+    placeholder: 'Select an option',
+    clearable: true,
+    search: true
+  }
+};
+
+// Controlled input example
+export const ControlledInput: Story = {
+  render: () => {
+    const [inputValue, setInputValue] = React.useState('');
+    const [selectedValue, setSelectedValue] = React.useState<string | null>(null);
 
     return (
-      <Select
-        items={args.items}
-        placeholder={args.placeholder}
-        disabled={args.disabled}
-        loading={args.loading}
-        showIndex={args.showIndex}
-        search={args.search}
-        value={value}
-        onChange={(newValue: string) => {
-          setValue(newValue);
-          (args.onChange as (value: string) => void)?.(newValue);
-        }}
-      />
+      <div>
+        <p style={{ marginTop: '10px', fontSize: '14px' }}>Search value: "{inputValue}"</p>
+        <p style={{ fontSize: '14px' }}>Selected value: {selectedValue || 'None'}</p>
+        <Select
+          items={userItems}
+          value={selectedValue || undefined}
+          onChange={setSelectedValue}
+          inputValue={inputValue}
+          onInputValueChange={setInputValue}
+          placeholder="Controlled search..."
+          search={true}
+        />
+      </div>
     );
   }
 };
 
-// Advanced select with grouped items, icons, secondary labels, and custom search
-export const AdvancedSelect: Story = {
+// Async search example
+export const AsyncSearch: Story = {
+  render: () => {
+    const [items, setItems] = React.useState<SelectItem[]>([]);
+    const [inputValue, setInputValue] = React.useState('');
+    const [selectedValue, setSelectedValue] = React.useState<string | null>(null);
+    const [isLoading, setIsLoading] = React.useState(false);
+
+    const { run: debouncedSearch } = useDebounceFn(
+      async (searchTerm: string) => {
+        if (!searchTerm) {
+          setItems([]);
+          setIsLoading(false);
+          return;
+        }
+
+        setIsLoading(true);
+
+        // Simulate API call with delay
+        await new Promise((resolve) => setTimeout(resolve, 500));
+
+        // Filter users based on search term
+        const filtered = userItems.filter((item) => {
+          const labelText = typeof item.label === 'string' ? item.label : '';
+          return (
+            labelText.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            (item.secondaryLabel?.toLowerCase().includes(searchTerm.toLowerCase()) ?? false)
+          );
+        });
+
+        setItems(filtered);
+        setIsLoading(false);
+      },
+      { wait: 300 }
+    );
+
+    return (
+      <div>
+        <p style={{ marginTop: '10px', fontSize: '14px' }}>
+          {isLoading ? 'Loading...' : `Found ${items.length} results`}
+        </p>
+        <p style={{ fontSize: '14px' }}>Search value: "{inputValue}"</p>
+        <Select
+          items={items}
+          value={selectedValue || undefined}
+          onChange={setSelectedValue}
+          inputValue={inputValue}
+          onInputValueChange={setInputValue}
+          placeholder="Search users (async)..."
+          search={{
+            type: 'async',
+            fn: (searchTerm: string) => {
+              debouncedSearch(searchTerm);
+              return Promise.resolve();
+            }
+          }}
+          loading={isLoading}
+          emptyMessage={inputValue ? 'No users found' : 'Type to search users'}
+        />
+      </div>
+    );
+  }
+};
+
+// Grouped items example
+export const GroupedItems: Story = {
   args: {
-    placeholder: 'Select an action',
     items: [
       {
-        label: 'Account',
+        label: 'Fruits',
         items: [
-          {
-            value: 'profile',
-            label: 'View Profile',
-            icon: <User />,
-            secondaryLabel: 'See your profile details'
-          },
-          {
-            value: 'settings',
-            label: 'Settings',
-            icon: <Gear />,
-            secondaryLabel: 'Manage your preferences'
-          }
+          { value: 'apple', label: 'Apple' },
+          { value: 'banana', label: 'Banana' },
+          { value: 'orange', label: 'Orange' }
         ]
       },
       {
-        label: 'Session',
+        label: 'Vegetables',
         items: [
-          {
-            value: 'logout',
-            label: 'Log Out',
-            icon: <PowerOff />,
-            secondaryLabel: 'End your session',
-            disabled: false
-          },
-          {
-            value: 'switch-account',
-            label: 'Switch Account',
-            secondaryLabel: 'Change to another account',
-            disabled: true
-          }
+          { value: 'carrot', label: 'Carrot' },
+          { value: 'broccoli', label: 'Broccoli' },
+          { value: 'spinach', label: 'Spinach' }
         ]
       }
     ],
-    search: (item: SelectItem<string>, searchTerm: string) => {
-      // Custom search that also searches in secondary labels
-      const term = searchTerm.toLowerCase();
-      const labelText = typeof item.label === 'string' ? item.label.toLowerCase() : '';
-      const secondaryText = item.secondaryLabel?.toLowerCase() || '';
-      return labelText.includes(term) || secondaryText.includes(term);
-    },
-    onChange: fn()
-  },
-  render: function RenderAdvancedSelect(args: SelectProps<string>) {
-    const [value, setValue] = React.useState<string | undefined>();
-
-    return (
-      <Select
-        items={args.items}
-        placeholder={args.placeholder}
-        disabled={args.disabled}
-        loading={args.loading}
-        showIndex={args.showIndex}
-        search={args.search}
-        value={value}
-        onChange={(newValue: string) => {
-          setValue(newValue);
-          (args.onChange as (value: string) => void)?.(newValue);
-        }}
-      />
-    );
+    placeholder: 'Select a food...',
+    search: true
   }
 };
 
-// Select with search disabled
-export const NoSearchSelect: Story = {
+// Disabled state
+export const Disabled: Story = {
   args: {
-    placeholder: 'Select a color',
-    search: false,
-    items: [
-      { value: 'red', label: 'Red' },
-      { value: 'green', label: 'Green' },
-      { value: 'blue', label: 'Blue' },
-      { value: 'yellow', label: 'Yellow' },
-      { value: 'purple', label: 'Purple' },
-      { value: 'orange', label: 'Orange' }
-    ] as SelectItem<string>[],
-    onChange: fn()
-  },
-  render: function RenderNoSearchSelect(args: SelectProps<string>) {
-    const [value, setValue] = React.useState<string | undefined>();
-
-    return (
-      <Select
-        items={args.items}
-        placeholder={args.placeholder}
-        disabled={args.disabled}
-        loading={args.loading}
-        showIndex={args.showIndex}
-        search={args.search}
-        value={value}
-        onChange={(newValue: string) => {
-          setValue(newValue);
-          (args.onChange as (value: string) => void)?.(newValue);
-        }}
-      />
-    );
+    items: basicItems,
+    placeholder: 'Select an option',
+    disabled: true
   }
 };
 
-// Select with pre-selected value
-export const PreSelectedValue: Story = {
+// With icons example
+export const WithIcons: Story = {
   args: {
-    placeholder: 'Select a size',
     items: [
-      { value: 'xs', label: 'Extra Small' },
-      { value: 's', label: 'Small' },
-      { value: 'm', label: 'Medium' },
-      { value: 'l', label: 'Large' },
-      { value: 'xl', label: 'Extra Large' }
-    ] as SelectItem<string>[],
-    onChange: fn()
-  },
-  render: function RenderPreSelectedValue(args: SelectProps<string>) {
-    const [value, setValue] = React.useState<string | undefined>('m');
-
-    return (
-      <Select
-        items={args.items}
-        placeholder={args.placeholder}
-        disabled={args.disabled}
-        loading={args.loading}
-        showIndex={args.showIndex}
-        search={args.search}
-        value={value}
-        onChange={(newValue: string) => {
-          setValue(newValue);
-          (args.onChange as (value: string) => void)?.(newValue);
-        }}
-      />
-    );
+      { value: 'home', label: 'Home', icon: '🏠' },
+      { value: 'work', label: 'Work', icon: '💼' },
+      { value: 'school', label: 'School', icon: '🎓' },
+      { value: 'gym', label: 'Gym', icon: '💪' }
+    ],
+    placeholder: 'Select a location...',
+    search: true
   }
 };
 
-// Select with clearable option
-export const ClearableSelect: Story = {
+// Loading state example
+export const LoadingState: Story = {
   args: {
-    placeholder: 'Select an option (clearable)',
-    clearable: true,
-    items: [
-      { value: 'option1', label: 'Option 1' },
-      { value: 'option2', label: 'Option 2' },
-      { value: 'option3', label: 'Option 3' },
-      { value: 'option4', label: 'Option 4' },
-      { value: 'option5', label: 'Option 5' }
-    ] as SelectItem<string>[],
-    onChange: fn()
-  },
-  render: function RenderClearableSelect(args: SelectProps<string>) {
-    const [value, setValue] = React.useState<string | undefined>('option2');
+    items: userItems,
+    placeholder: 'Loading...',
+    loading: true,
+    search: true
+  }
+};
 
-    return (
-      <Select
-        items={args.items}
-        placeholder={args.placeholder}
-        disabled={args.disabled}
-        loading={args.loading}
-        showIndex={args.showIndex}
-        search={args.search}
-        clearable={true}
-        value={value}
-        onChange={(newValue: string | null) => {
-          setValue(newValue as string | undefined);
-          (args.onChange as (value: string | null) => void)?.(newValue);
-        }}
-      />
-    );
+export const WithHundredItems: Story = {
+  args: {
+    items: Array.from({ length: 100 }, (_, i) => ({
+      value: `item-${i}`,
+      label: `Item ${i}`
+    })),
+    placeholder: 'Select an option',
+    search: true
   }
 };

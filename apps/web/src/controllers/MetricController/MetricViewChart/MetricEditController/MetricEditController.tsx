@@ -6,7 +6,7 @@ export const MetricEditController: React.FC<{
   metricId: string;
 }> = React.memo(({ metricId }) => {
   return (
-    <div className="flex h-full w-full min-w-[250px] flex-col overflow-hidden">
+    <div className="flex h-full w-full min-w-[260px] flex-col overflow-hidden">
       <MetricEditControllerHeader />
       <MetricStylingApp metricId={metricId} />
     </div>

@@ -1,40 +1,24 @@
 import isEqual from 'lodash/isEqual';
-import React, { useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 import type { ChartConfigProps } from '@buster/server-shared/metrics';
 import { useMemoizedFn } from '@/hooks';
-import type { IColorTheme } from '../Common';
-import { ThemeList } from '../Common/ThemeList';
-import { ColorStyleSegments } from './ColorStyleSegments';
-import { COLORFUL_THEMES, ColorAppSegments, MONOCHROME_THEMES } from './config';
+import type { IColorTheme } from '@/components/features/colors/ThemeList';
+import { ThemeList } from '@/components/features/colors/ThemeList';
+import { useColorThemes } from '@/api/buster_rest/dictionaries';
 
 export const ColorsApp: React.FC<{
   colors: ChartConfigProps['colors'];
   onUpdateChartConfig: (chartConfig: Partial<ChartConfigProps>) => void;
 }> = ({ colors, onUpdateChartConfig }) => {
-  const initialSelectedSegment = useMemo(() => {
-    const isFromColorfulThemes = COLORFUL_THEMES.some((theme) => isEqual(theme.colors, colors));
-    return isFromColorfulThemes ? ColorAppSegments.Colorful : ColorAppSegments.Monochrome;
-  }, []);
-
-  const [selectedSegment, setSelectedSegment] = useState<ColorAppSegments>(initialSelectedSegment);
-
-  const selectedSegmentColors = useMemo(() => {
-    return selectedSegment === ColorAppSegments.Colorful ? COLORFUL_THEMES : MONOCHROME_THEMES;
-  }, [selectedSegment]);
-
+  const { data: themes } = useColorThemes();
   const onChangeColorTheme = useMemoizedFn((theme: IColorTheme) => {
     onUpdateChartConfig({ colors: theme.colors });
   });
 
   return (
     <div className="flex flex-col space-y-2">
-      <ColorStyleSegments
-        selectedSegment={selectedSegment}
-        setSelectedSegment={setSelectedSegment}
-      />
-
       <ColorPicker
-        selectedSegmentColors={selectedSegmentColors}
+        selectedSegmentColors={themes}
         colors={colors}
         onChangeColorTheme={onChangeColorTheme}
       />

@@ -52,7 +52,8 @@ const clientEnvSchema = z.object({
 
   // Development/Testing credentials
   NEXT_PUBLIC_USER: z.string().optional(),
-  NEXT_PUBLIC_USER_PASSWORD: z.string().optional()
+  NEXT_PUBLIC_USER_PASSWORD: z.string().optional(),
+  NEXT_PUBLIC_ENABLE_TANSTACK_PANEL: z.string().optional()
 });
 
 const serverEnvSchema = z.object({});

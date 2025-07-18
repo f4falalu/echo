@@ -1,4 +1,5 @@
 export * from './useAsyncEffect';
+export * from './useClickAway';
 export * from './useDebounce';
 export * from './useDebounceEffect';
 export * from './useDebounceSearch';

@@ -69,7 +69,7 @@ pub async fn list_logs_handler(
     request: ListLogsRequest,
     organization_id: Uuid,
 ) -> Result<ListLogsResponse, anyhow::Error> {
-    use database::schema::{chats, users};
+    use database::schema::{chats, messages, users};
 
     let mut conn = get_pg_pool().get().await?;
 
@@ -80,6 +80,18 @@ pub async fn list_logs_handler(
         .filter(chats::organization_id.eq(organization_id))
         .filter(chats::title.ne("")) // Filter out empty titles
         .filter(chats::title.ne(" ")) // Filter out single space
+        .filter(
+            diesel::dsl::exists(
+                messages::table
+                    .filter(messages::chat_id.eq(chats::id))
+                    .filter(messages::request_message.is_not_null())
+                    .filter(messages::deleted_at.is_null())
+            ).or(
+                diesel::dsl::sql::<diesel::sql_types::Bool>(
+                    "(SELECT COUNT(*) FROM messages WHERE messages.chat_id = chats.id AND messages.deleted_at IS NULL) > 1"
+                )
+            )
+        )
         .into_boxed();
 
     // Calculate offset based on page number

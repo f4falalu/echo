@@ -290,7 +290,10 @@ const AppSplitterBase = forwardRef<
 
     // Consolidated state management
     const [state, setState] = useState<SplitterState>({
-      containerSize: containerRef.current?.offsetWidth ?? 0,
+      containerSize:
+        split === 'vertical'
+          ? (containerRef.current?.offsetWidth ?? 0)
+          : (containerRef.current?.offsetHeight ?? 0),
       isDragging: false,
       isAnimating: false,
       sizeSetByAnimation: false,
@@ -319,14 +322,20 @@ const AppSplitterBase = forwardRef<
 
     const defaultValue = () => {
       const [leftValue, rightValue] = defaultLayout;
+      const containerSize =
+        split === 'vertical'
+          ? (containerRef.current?.offsetWidth ?? 0)
+          : (containerRef.current?.offsetHeight ?? 0);
+
       if (preserveSide === 'left' && leftValue === 'auto') {
-        return containerRef.current?.offsetWidth ?? 0;
+        return containerSize;
       }
       if (preserveSide === 'right' && rightValue === 'auto') {
-        return containerRef.current?.offsetWidth ?? 0;
+        return containerSize;
       }
       const preserveValue = preserveSide === 'left' ? leftValue : rightValue;
-      return sizeToPixels(preserveValue, containerRef.current?.offsetWidth ?? 0);
+      const result = sizeToPixels(preserveValue, containerSize);
+      return result;
     };
 
     // Load saved layout from localStorage
@@ -690,7 +699,7 @@ const AppSplitterBase = forwardRef<
       updateContainerSize();
 
       // If container is still 0 after layout, try again with animation frame
-      if (containerRef.current?.offsetWidth === 0) {
+      if (containerRef.current?.offsetWidth === 0 || containerRef.current?.offsetHeight === 0) {
         requestAnimationFrame(updateContainerSize);
       }
 

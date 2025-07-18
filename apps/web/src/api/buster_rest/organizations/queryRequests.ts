@@ -1,6 +1,13 @@
-import { QueryClient, useMutation, useQuery } from '@tanstack/react-query';
+import { QueryClient, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { organizationQueryKeys } from '@/api/query_keys/organization';
-import { createOrganization, getOrganizationUsers, getOrganizationUsers_server } from './requests';
+import {
+  createOrganization,
+  getOrganizationUsers,
+  getOrganizationUsers_server,
+  updateOrganization
+} from './requests';
+import { userQueryKeys } from '../../query_keys/users';
+import { create } from 'mutative';
 
 export const useGetOrganizationUsers = (organizationId: string) => {
   const queryFn = () => {
@@ -32,5 +39,33 @@ export const prefetchGetOrganizationUsers = async (
 export const useCreateOrganization = () => {
   return useMutation({
     mutationFn: createOrganization
+  });
+};
+
+export const useUpdateOrganization = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: updateOrganization,
+    onMutate: async (organizationUpdates) => {
+      const userQueryKey = userQueryKeys.userGetUserMyself.queryKey;
+      queryClient.setQueryData(userQueryKey, (prev) => {
+        if (!prev) return prev;
+
+        const newOrganization = create(prev, (draft) => {
+          if (
+            draft.organizations &&
+            Array.isArray(draft.organizations) &&
+            draft.organizations.length > 0
+          ) {
+            Object.assign(draft.organizations[0], organizationUpdates);
+          }
+        });
+
+        return newOrganization;
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: userQueryKeys.userGetUserMyself.queryKey });
+    }
   });
 };

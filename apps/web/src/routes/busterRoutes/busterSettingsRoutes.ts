@@ -30,7 +30,8 @@ export enum BusterSettingsRoutes {
   SETTINGS_DATASET_GROUPS_ID_DATASETS = '/app/settings/dataset-groups/:datasetGroupId/datasets',
   SETTINGS_DATASET_GROUPS_ID_USERS = '/app/settings/dataset-groups/:datasetGroupId/users',
   SETTINGS_ATTRIBUTES = '/app/settings/attributes',
-  SETTINGS_SECURITY = '/app/settings/security'
+  SETTINGS_SECURITY = '/app/settings/security',
+  SETTINGS_WORKSPACE = '/app/settings/workspace'
 }
 
 export type BusterSettingsRoutesWithArgs = {
@@ -121,4 +122,5 @@ export type BusterSettingsRoutesWithArgs = {
   };
   [BusterSettingsRoutes.SETTINGS_ATTRIBUTES]: { route: BusterSettingsRoutes.SETTINGS_ATTRIBUTES };
   [BusterSettingsRoutes.SETTINGS_SECURITY]: { route: BusterSettingsRoutes.SETTINGS_SECURITY };
+  [BusterSettingsRoutes.SETTINGS_WORKSPACE]: { route: BusterSettingsRoutes.SETTINGS_WORKSPACE };
 };

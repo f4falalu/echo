@@ -14,7 +14,7 @@ export const ShareIndividualSchema = z.object({
   email: z.string(),
   role: ShareRoleSchema,
   name: z.string().optional(),
-  avatar_url: z.string().nullable(),
+  avatar_url: z.string().nullable().optional(),
 });
 
 export const ShareConfigSchema = z.object({

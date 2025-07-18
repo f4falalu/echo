@@ -3,12 +3,16 @@
 import { jwtDecode } from 'jwt-decode';
 import React, { type PropsWithChildren, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { createContext, useContextSelector } from 'use-context-selector';
-import { checkTokenValidityFromServer } from '@/api/buster_rest/nextjs/auth';
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import { millisecondsFromUnixTimestamp } from '@/lib/timestamp';
 import type { UseSupabaseUserContextType } from '@/lib/supabase';
+import { timeout } from '@/lib/timeout';
+import { useBusterNotifications } from '../BusterNotifications';
+import { flushSync } from 'react-dom';
+import { createClient } from '@/lib/supabase/client';
 
 const PREEMTIVE_REFRESH_MINUTES = 5;
+const supabase = createClient();
 
 const useSupabaseContextInternal = ({
   supabaseContext
@@ -16,6 +20,7 @@ const useSupabaseContextInternal = ({
   supabaseContext: UseSupabaseUserContextType;
 }) => {
   const refreshTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const { openErrorNotification, openInfoMessage } = useBusterNotifications();
   const [accessToken, setAccessToken] = useState(supabaseContext.accessToken || '');
 
   const isAnonymousUser = !supabaseContext.user?.id || supabaseContext.user?.is_anonymous === true;
@@ -41,12 +46,27 @@ const useSupabaseContextInternal = ({
       }
 
       if (isTokenExpired) {
-        const res = await checkTokenValidityFromServer({
-          accessToken,
-          preemptiveRefreshMinutes: PREEMTIVE_REFRESH_MINUTES
-        });
-        onUpdateToken({ accessToken: res.access_token, expiresAt: res.expires_at });
-        return res;
+        const { data: refreshedSession, error: refreshedSessionError } =
+          await supabase.auth.refreshSession();
+
+        if (refreshedSessionError || !refreshedSession.session) {
+          openErrorNotification({
+            title: 'Error refreshing session',
+            description: 'Please refresh the page and try again',
+            duration: 120 * 1000 //2 minutes
+          });
+          throw refreshedSessionError;
+        }
+
+        const accessToken = refreshedSession.session?.access_token;
+        const expiresAt = refreshedSession.session?.expires_at ?? 0;
+
+        await onUpdateToken({ accessToken, expiresAt });
+        await timeout(25);
+        return {
+          access_token: accessToken,
+          isTokenValid: true
+        };
       }
 
       return {
@@ -55,6 +75,11 @@ const useSupabaseContextInternal = ({
       };
     } catch (e) {
       console.error(e);
+      openErrorNotification({
+        title: 'Error checking user authentication',
+        description: 'Please try again later',
+        duration: 120 * 1000 //2 minutes
+      });
       throw e;
     }
   });
@@ -62,6 +87,9 @@ const useSupabaseContextInternal = ({
   const onUpdateToken = useMemoizedFn(
     async ({ accessToken, expiresAt: _expiresAt }: { accessToken: string; expiresAt: number }) => {
       setAccessToken(accessToken);
+      flushSync(() => {
+        openInfoMessage('Token refreshed');
+      });
     }
   );
 

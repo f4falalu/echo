@@ -37,6 +37,10 @@ pub async fn post_organization_handler(name: String, user: AuthenticatedUser) ->
         domains: None,
         restrict_new_user_invitations: false,
         default_role: UserOrganizationRole::RestrictedQuerier,
+        organization_color_palettes: serde_json::json!({
+            "selectedId": null,
+            "palettes": []
+        }),
     };
 
     insert_into(organizations::table)

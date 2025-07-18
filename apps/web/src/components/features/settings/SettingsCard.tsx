@@ -3,8 +3,8 @@ import { Title, Paragraph } from '@/components/ui/typography';
 import { cn } from '@/lib/classMerge';
 
 interface SettingsCardsProps {
-  title: string;
-  description: string;
+  title?: string;
+  description?: string;
   cards: {
     sections: React.ReactNode[];
   }[];
@@ -14,12 +14,15 @@ export const SettingsCards: React.FC<SettingsCardsProps> = React.memo(
   ({ title, description, cards }) => {
     return (
       <div className="flex flex-col space-y-3.5">
-        <div className="flex flex-col space-y-1.5">
-          <Title as="h3" className="text-lg">
-            {title}
-          </Title>
-          <Paragraph variant="secondary">{description}</Paragraph>
-        </div>
+        {(title || description) && (
+          <div className="flex flex-col space-y-1.5">
+            <Title as="h3" className="text-lg">
+              {title}
+            </Title>
+            <Paragraph variant="secondary">{description}</Paragraph>
+          </div>
+        )}
+
         {cards.map((card, index) => (
           <SettingsCard key={index} sections={card.sections} />
         ))}

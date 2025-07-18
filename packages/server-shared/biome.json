@@ -3,5 +3,17 @@
   "extends": ["../../biome.json"],
   "files": {
     "include": ["src/**/*"]
-  }
+  },
+  "overrides": [
+    {
+      "include": ["**/scripts/**/*", "**/script/**/*"],
+      "linter": {
+        "rules": {
+          "suspicious": {
+            "noConsoleLog": "off"
+          }
+        }
+      }
+    }
+  ]
 }

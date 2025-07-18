@@ -1,10 +1,10 @@
 'use server';
 
 import { BusterRoutes, createBusterRoute } from '@/routes';
-import { createClient } from './server';
+import { createSupabaseServerClient } from './server';
 
 export const resetPasswordEmailSend = async ({ email }: { email: string }) => {
-  const supabase = await createClient();
+  const supabase = await createSupabaseServerClient();
 
   const authURLFull = `${process.env.NEXT_PUBLIC_URL}${createBusterRoute({
     route: BusterRoutes.AUTH_CALLBACK
@@ -24,7 +24,7 @@ export const resetPasswordEmailSend = async ({ email }: { email: string }) => {
 export const resetPassword = async ({ password }: { password: string }) => {
   'use server';
 
-  const supabase = await createClient();
+  const supabase = await createSupabaseServerClient();
 
   const { data, error } = await supabase.auth.updateUser({ password });
 

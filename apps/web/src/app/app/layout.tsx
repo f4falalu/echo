@@ -28,7 +28,7 @@ export default async function Layout({
 
   const userInfoState = queryClient.getQueryState(queryKeys.userGetUserMyself.queryKey);
 
-  const is402Error = userInfoState?.status === 'error' && userInfoState?.error?.status === 402;
+  const is402Error = userInfoState?.status === 'error' && userInfoState?.error?.status === 402; //402 is the payment required error code
 
   if (is402Error) {
     return <ClientRedirect to={createBusterRoute({ route: BusterRoutes.INFO_GETTING_STARTED })} />;

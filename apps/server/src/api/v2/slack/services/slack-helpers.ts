@@ -1,9 +1,21 @@
-import { db, slackIntegrations } from '@buster/database';
+import {
+  type User,
+  db,
+  slackIntegrations,
+  type slackSharingPermissionEnum,
+  users,
+} from '@buster/database';
 import type { InferSelectModel } from 'drizzle-orm';
 import { and, eq, gt, isNull, lt } from 'drizzle-orm';
+import type { z } from 'zod';
 import { tokenStorage } from './token-storage';
 
 export type SlackIntegration = InferSelectModel<typeof slackIntegrations>;
+
+interface OriginalSettings {
+  defaultChannel?: { id: string; name: string } | Record<string, never> | null;
+  defaultSharingPermissions?: 'shareWithWorkspace' | 'shareWithChannel' | 'noSharing';
+}
 
 /**
  * Get active Slack integration for an organization
@@ -78,19 +90,54 @@ export async function createPendingIntegration(params: {
     const expiresAt = new Date();
     expiresAt.setMinutes(expiresAt.getMinutes() + 15); // 15 minute expiry
 
-    // Check for existing integration (including revoked ones)
-    const existing = await getExistingIntegration(params.organizationId);
+    // Check for existing integration (including active ones for re-installation)
+    const existing = await getActiveIntegration(params.organizationId);
 
     if (existing) {
-      if (existing.status === 'active') {
-        // Active integration exists
-        throw new Error('Organization already has an active Slack integration');
-      }
+      const originalSettings = {
+        defaultChannel: existing.defaultChannel,
+        defaultSharingPermissions: existing.defaultSharingPermissions,
+      };
 
-      // Clean up vault token before deleting the old integration
+      const metadata = {
+        ...params.oauthMetadata,
+        isReinstallation: true,
+        originalIntegrationId: existing.id,
+        originalSettings,
+      };
+
+      // Clean up vault token before updating
       if (existing.tokenVaultKey) {
         try {
           await tokenStorage.deleteToken(existing.tokenVaultKey);
+        } catch (error) {
+          console.error('Failed to clean up vault token:', error);
+        }
+      }
+
+      await db
+        .update(slackIntegrations)
+        .set({
+          oauthState: params.oauthState,
+          oauthExpiresAt: expiresAt.toISOString(),
+          oauthMetadata: metadata,
+          status: 'pending',
+          tokenVaultKey: null,
+          updatedAt: new Date().toISOString(),
+        })
+        .where(eq(slackIntegrations.id, existing.id));
+
+      return existing.id;
+    }
+
+    // Check for existing non-active integration (revoked/failed ones)
+    const existingNonActive = await getExistingIntegration(params.organizationId);
+
+    if (existingNonActive && existingNonActive.status !== 'active') {
+      // Clean up vault token before deleting the old integration
+      if (existingNonActive.tokenVaultKey) {
+        try {
+          await tokenStorage.deleteToken(existingNonActive.tokenVaultKey);
         } catch (error) {
           console.error('Failed to clean up vault token:', error);
           // Continue with deletion even if vault cleanup fails
@@ -98,7 +145,7 @@ export async function createPendingIntegration(params: {
       }
 
       // Delete the old revoked/failed integration to avoid constraint issues
-      await db.delete(slackIntegrations).where(eq(slackIntegrations.id, existing.id));
+      await db.delete(slackIntegrations).where(eq(slackIntegrations.id, existingNonActive.id));
     }
 
     // No existing integration, create new one
@@ -146,17 +193,35 @@ export async function updateIntegrationAfterOAuth(
   }
 ): Promise<void> {
   try {
+    const currentIntegration = await getIntegrationById(integrationId);
+    const isReinstallation = (currentIntegration?.oauthMetadata as Record<string, unknown>)?.isReinstallation;
+    const originalSettings = (currentIntegration?.oauthMetadata as Record<string, unknown>)?.originalSettings as OriginalSettings;
+
+    const baseUpdateData = {
+      ...params,
+      status: 'active' as const,
+      installedAt: new Date().toISOString(),
+      oauthState: null,
+      oauthExpiresAt: null,
+      oauthMetadata: {},
+      updatedAt: new Date().toISOString(),
+    };
+
+    const updateData = isReinstallation && originalSettings
+      ? {
+          ...baseUpdateData,
+          ...(originalSettings.defaultChannel !== undefined && {
+            defaultChannel: originalSettings.defaultChannel,
+          }),
+          ...(originalSettings.defaultSharingPermissions !== undefined && {
+            defaultSharingPermissions: originalSettings.defaultSharingPermissions,
+          }),
+        }
+      : baseUpdateData;
+
     await db
       .update(slackIntegrations)
-      .set({
-        ...params,
-        status: 'active',
-        installedAt: new Date().toISOString(),
-        oauthState: null,
-        oauthExpiresAt: null,
-        oauthMetadata: {},
-        updatedAt: new Date().toISOString(),
-      })
+      .set(updateData)
       .where(eq(slackIntegrations.id, integrationId));
   } catch (error) {
     console.error('Failed to update integration after OAuth:', error);
@@ -174,8 +239,6 @@ export async function markIntegrationAsFailed(
   _error?: string
 ): Promise<void> {
   try {
-    // Due to database constraint, we cannot mark a pending integration as failed
-    // without a team_id. Instead, we'll delete it to allow retry
     const [integration] = await db
       .select()
       .from(slackIntegrations)
@@ -186,19 +249,40 @@ export async function markIntegrationAsFailed(
       return;
     }
 
-    if (integration.status === 'pending') {
-      // For pending integrations, clean up vault token if exists before deletion
-      if (integration.tokenVaultKey) {
-        try {
-          await tokenStorage.deleteToken(integration.tokenVaultKey);
-        } catch (error) {
-          console.error('Failed to clean up vault token:', error);
-          // Continue with deletion even if vault cleanup fails
-        }
-      }
+    const isReinstallation = (integration.oauthMetadata as Record<string, unknown>)?.isReinstallation;
+    const originalSettings = (integration.oauthMetadata as Record<string, unknown>)?.originalSettings as OriginalSettings;
 
-      // Delete the pending integration to allow retry
-      await db.delete(slackIntegrations).where(eq(slackIntegrations.id, integrationId));
+    if (integration.status === 'pending') {
+      if (isReinstallation && originalSettings) {
+        await db
+          .update(slackIntegrations)
+          .set({
+            status: 'active',
+            oauthState: null,
+            oauthExpiresAt: null,
+            oauthMetadata: {},
+            ...(originalSettings.defaultChannel !== undefined && {
+              defaultChannel: originalSettings.defaultChannel,
+            }),
+            ...(originalSettings.defaultSharingPermissions !== undefined && {
+              defaultSharingPermissions: originalSettings.defaultSharingPermissions,
+            }),
+            updatedAt: new Date().toISOString(),
+          })
+          .where(eq(slackIntegrations.id, integrationId));
+      } else {
+        // Clean up vault token if exists before deletion
+        if (integration.tokenVaultKey) {
+          try {
+            await tokenStorage.deleteToken(integration.tokenVaultKey);
+          } catch (error) {
+            console.error('Failed to clean up vault token:', error);
+          }
+        }
+
+        // Delete the pending integration to allow retry
+        await db.delete(slackIntegrations).where(eq(slackIntegrations.id, integrationId));
+      }
     } else {
       // For active integrations, mark as failed
       await db
@@ -353,6 +437,31 @@ export async function updateDefaultChannel(
 }
 
 /**
+ * Update default sharing permissions for Slack integration
+ */
+export async function updateDefaultSharingPermissions(
+  integrationId: string,
+  defaultSharingPermissions: (typeof slackSharingPermissionEnum.enumValues)[number]
+): Promise<void> {
+  try {
+    await db
+      .update(slackIntegrations)
+      .set({
+        defaultSharingPermissions,
+        updatedAt: new Date().toISOString(),
+      })
+      .where(eq(slackIntegrations.id, integrationId));
+  } catch (error) {
+    console.error('Failed to update default sharing permissions:', error);
+    throw new Error(
+      `Failed to update default sharing permissions: ${
+        error instanceof Error ? error.message : 'Unknown error'
+      }`
+    );
+  }
+}
+
+/**
  * Clean up expired pending integrations
  */
 export async function cleanupExpiredPendingIntegrations(): Promise<number> {
@@ -401,3 +510,101 @@ export async function cleanupExpiredPendingIntegrations(): Promise<number> {
     );
   }
 }
+
+/**
+ * Get active Slack integration by Slack team ID
+ */
+export async function getActiveIntegrationByTeamId(
+  teamId: string
+): Promise<SlackIntegration | null> {
+  try {
+    const [integration] = await db
+      .select()
+      .from(slackIntegrations)
+      .where(
+        and(
+          eq(slackIntegrations.teamId, teamId),
+          eq(slackIntegrations.status, 'active'),
+          isNull(slackIntegrations.deletedAt)
+        )
+      )
+      .limit(1);
+
+    return integration || null;
+  } catch (error) {
+    console.error('Failed to get active Slack integration by team ID:', error);
+    throw new Error(
+      `Failed to get active Slack integration by team ID: ${
+        error instanceof Error ? error.message : 'Unknown error'
+      }`
+    );
+  }
+}
+
+/**
+ * Get access token from vault
+ */
+export async function getAccessToken(tokenVaultKey: string): Promise<string | null> {
+  try {
+    return await tokenStorage.getToken(tokenVaultKey);
+  } catch (error) {
+    console.error('Failed to get access token from vault:', error);
+    return null;
+  }
+}
+
+/**
+ * Get user by ID
+ */
+export async function getUserById(userId: string): Promise<User | null> {
+  try {
+    const [user] = await db.select().from(users).where(eq(users.id, userId)).limit(1);
+
+    return user || null;
+  } catch (error) {
+    console.error('Failed to get user by ID:', error);
+    throw new Error(
+      `Failed to get user by ID: ${error instanceof Error ? error.message : 'Unknown error'}`
+    );
+  }
+}
+
+/**
+ * Get user by email address
+ */
+export async function getUserByEmail(email: string): Promise<User | null> {
+  try {
+    const [user] = await db
+      .select()
+      .from(users)
+      .where(and(eq(users.email, email)))
+      .limit(1);
+
+    return user || null;
+  } catch (error) {
+    console.error('Failed to get user by email:', error);
+    throw new Error(
+      `Failed to get user by email: ${error instanceof Error ? error.message : 'Unknown error'}`
+    );
+  }
+}
+
+// Export as namespace for easier import
+export const SlackHelpers = {
+  getActiveIntegration,
+  getPendingIntegrationByState,
+  createPendingIntegration,
+  updateIntegrationAfterOAuth,
+  markIntegrationAsFailed,
+  softDeleteIntegration,
+  updateLastUsedAt,
+  getIntegrationById,
+  hasActiveIntegration,
+  getExistingIntegration,
+  updateDefaultChannel,
+  cleanupExpiredPendingIntegrations,
+  getActiveIntegrationByTeamId,
+  getAccessToken,
+  getUserById,
+  getUserByEmail,
+};

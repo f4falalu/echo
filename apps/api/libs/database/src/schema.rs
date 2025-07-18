@@ -452,6 +452,7 @@ diesel::table! {
         domains -> Nullable<Array<Text>>,
         restrict_new_user_invitations -> Bool,
         default_role -> UserOrganizationRoleEnum,
+        organization_color_palettes -> Jsonb,
     }
 }
 

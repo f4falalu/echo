@@ -1,4 +1,14 @@
+import type { slackSharingPermissionEnum } from '@buster/database'; //we import as type to avoid postgres dependency in the frontend ☹️
 import { z } from 'zod';
+
+type SlackSharingPermissionBase = (typeof slackSharingPermissionEnum.enumValues)[number];
+
+const SlackSharingPermissionEnum: Record<SlackSharingPermissionBase, SlackSharingPermissionBase> =
+  Object.freeze({
+    shareWithWorkspace: 'shareWithWorkspace',
+    shareWithChannel: 'shareWithChannel',
+    noSharing: 'noSharing',
+  });
 
 // Error response schema
 export const SlackErrorResponseSchema = z.object({
@@ -22,6 +32,7 @@ export type InitiateOAuthResponse = z.infer<typeof InitiateOAuthResponseSchema>;
 // GET /api/v2/slack/integration
 export const GetIntegrationResponseSchema = z.object({
   connected: z.boolean(),
+  status: z.enum(['connected', 'disconnected', 're_install_required']).optional(),
   integration: z
     .object({
       id: z.string(),
@@ -34,6 +45,14 @@ export const GetIntegrationResponseSchema = z.object({
           id: z.string(),
           name: z.string(),
         })
+        .optional(),
+      default_sharing_permissions: z
+        .enum(
+          Object.values(SlackSharingPermissionEnum) as [
+            SlackSharingPermissionBase,
+            ...SlackSharingPermissionBase[],
+          ]
+        )
         .optional(),
     })
     .optional(),
@@ -56,6 +75,14 @@ export const UpdateIntegrationResponseSchema = z.object({
       name: z.string(),
       id: z.string(),
     })
+    .optional(),
+  default_sharing_permissions: z
+    .enum(
+      Object.values(SlackSharingPermissionEnum) as [
+        SlackSharingPermissionBase,
+        ...SlackSharingPermissionBase[],
+      ]
+    )
     .optional(),
 });
 
@@ -115,3 +142,12 @@ export type RemoveIntegrationResult = z.infer<typeof RemoveIntegrationResultSche
 //     }
 //   }
 // });
+
+/**
+ * Response schema for Slack events endpoint
+ */
+export const SlackEventsResponseSchema = z.object({
+  success: z.boolean(),
+});
+
+export type SlackEventsResponse = z.infer<typeof SlackEventsResponseSchema>;

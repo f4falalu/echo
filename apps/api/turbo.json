@@ -3,7 +3,8 @@
   "extends": ["//"],
   "tasks": {
     "dev": {
-      "dependsOn": ["@buster/database#dev"],
+      "dependsOn": ["@buster/database#start"],
+      "with": [],
       "outputs": []
     }
   }
