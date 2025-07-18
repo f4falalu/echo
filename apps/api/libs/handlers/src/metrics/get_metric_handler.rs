@@ -7,6 +7,7 @@ use serde_yaml;
 use sharing::asset_access_checks::check_metric_collection_access;
 use uuid::Uuid;
 
+use crate::metrics::color_palette_helpers::apply_color_fallback;
 use crate::metrics::types::{AssociatedCollection, AssociatedDashboard, BusterMetric, Dataset};
 use crate::utils::workspace::count_workspace_members;
 use database::enums::{AssetPermissionRole, AssetType, IdentityType};
@@ -304,6 +305,11 @@ pub async fn get_metric_handler(
         tracing::debug!(metric_id = %metric_id, latest_version = resolved_version_num, "Determined latest version number");
     }
 
+    let mut final_chart_config = resolved_chart_config.clone();
+    if let Err(e) = apply_color_fallback(&mut final_chart_config, &metric_file.organization_id).await {
+        tracing::warn!(metric_id = %metric_id, error = %e, "Failed to apply color fallback logic, continuing with original chart config");
+    }
+
     // Convert the selected content to pretty YAML for the 'file' field
     let file = match serde_yaml::to_string(&resolved_content_for_yaml) {
         Ok(yaml) => yaml,
@@ -494,7 +500,7 @@ pub async fn get_metric_handler(
         datasets, // Fetched based on resolved_dataset_ids (for display purposes only)
         data_source_id: metric_file.data_source_id, // Use canonical ID (Uuid) from main record
         error: None, // Assume ok
-        chart_config: Some(resolved_chart_config), // Use resolved chart config
+        chart_config: Some(final_chart_config), // Use chart config with color fallback applied
         data_metadata, // Not versioned
         status: metric_file.verification, // Not versioned
         evaluation_score, // Not versioned
