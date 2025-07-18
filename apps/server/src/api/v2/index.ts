@@ -3,6 +3,7 @@ import { Hono } from 'hono';
 import healthcheckRoutes from '../healthcheck';
 import chatsRoutes from './chats';
 import currencyRoutes from './currency';
+import dictionariesRoutes from './dictionaries';
 import electricShapeRoutes from './electric-shape';
 import organizationRoutes from './organization';
 import securityRoutes from './security';
@@ -19,6 +20,7 @@ const app = new Hono()
   .route('/currency', currencyRoutes)
   .route('/support', supportRoutes)
   .route('/security', securityRoutes)
-  .route('/organizations', organizationRoutes);
+  .route('/organizations', organizationRoutes)
+  .route('/dictionaries', dictionariesRoutes);
 
 export default app;

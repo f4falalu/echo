@@ -25,11 +25,16 @@ const accountItems = (currentParentRoute: BusterRoutes): ISidebarGroup => ({
 });
 
 const workspaceItems = (currentParentRoute: BusterRoutes): ISidebarGroup => ({
-  label: 'Workspace',
+  label: 'Administration',
   variant: 'icon',
-  id: 'workspace',
+  id: 'administration',
   icon: <ApartmentBuilding />,
   items: [
+    {
+      label: 'Workspace',
+      route: createBusterRoute({ route: BusterRoutes.SETTINGS_WORKSPACE }),
+      id: BusterRoutes.SETTINGS_WORKSPACE
+    },
     {
       label: 'API Keys',
       route: createBusterRoute({ route: BusterRoutes.SETTINGS_API_KEYS }),

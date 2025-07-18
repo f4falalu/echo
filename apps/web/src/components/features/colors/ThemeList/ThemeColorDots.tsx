@@ -2,10 +2,10 @@ import type React from 'react';
 import { cn } from '@/lib/classMerge';
 
 export const ThemeColorDots: React.FC<{
-  selected: boolean;
+  selected?: boolean;
   colors: string[];
   numberOfColors?: number | 'all';
-}> = ({ selected, colors, numberOfColors = 'all' }) => {
+}> = ({ selected = false, colors, numberOfColors = 'all' }) => {
   const numberOfColorsToShow = numberOfColors === 'all' ? colors.length : numberOfColors;
 
   return (
@@ -14,8 +14,7 @@ export const ThemeColorDots: React.FC<{
         <div
           key={color + colorIdx}
           className={cn(
-            'ball rounded-full',
-            colorIdx > 0 && '-ml-0.5 h-2 w-2 shadow-[0_0_0_0.75px]',
+            'ball -ml-0.5 h-2 w-2 rounded-full shadow-[0_0_0_0.75px]',
             !selected ? 'shadow-item-select' : 'shadow-background'
           )}
           style={{ backgroundColor: color }}

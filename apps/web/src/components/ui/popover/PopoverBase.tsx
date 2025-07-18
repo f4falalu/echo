@@ -12,6 +12,8 @@ const Popover = PopoverPrimitive.Root;
 
 interface PopoverProps extends React.ComponentPropsWithoutRef<typeof Popover> {
   trigger?: PopoverTriggerType;
+  children: React.ReactNode;
+  open?: boolean;
 }
 
 const PopoverRoot: React.FC<PopoverProps> = ({ children, trigger = 'click', ...props }) => {

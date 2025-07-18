@@ -4,7 +4,7 @@ import React from 'react';
 import { ThemeList } from './ThemeList';
 
 const meta: Meta<typeof ThemeList> = {
-  title: 'Controllers/MetricController/ThemeList',
+  title: 'Features/Colors/ThemeList',
   component: ThemeList,
   parameters: {
     layout: 'centered'
@@ -71,7 +71,10 @@ const meta: Meta<typeof ThemeList> = {
         selected: false,
         colors: ['#880E4F', '#4A148C', '#1A237E', '#0D47A1', '#1B5E20']
       }
-    ]
+    ].map((theme, index) => ({
+      ...theme,
+      id: index.toString()
+    }))
   },
   decorators: [
     (Story) => (
