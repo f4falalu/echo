@@ -7,7 +7,7 @@ export const useGetCurrencies = () => {
   return useQuery({
     ...queryKeys.getCurrencies,
     queryFn: async () => {
-      return mainApiV2.get<Currency[]>('/currency').then(async (res) => res.data);
+      return mainApiV2.get<Currency[]>('/dictionaries/currency').then(async (res) => res.data);
     }
   });
 };
@@ -18,7 +18,7 @@ export const prefetchGetCurrencies = async (queryClientProp?: QueryClient) => {
   await queryClient.prefetchQuery({
     ...queryKeys.getCurrencies,
     queryFn: async () => {
-      return mainApiV2.get<Currency[]>('/currency').then(async (res) => res.data);
+      return mainApiV2.get<Currency[]>('/dictionaries/currency').then(async (res) => res.data);
     }
   });
 
