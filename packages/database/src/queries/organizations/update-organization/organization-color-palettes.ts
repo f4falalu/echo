@@ -28,16 +28,13 @@ export const OrganizationColorPalettesSchema = z
         const uniqueIds = new Set(ids);
         return ids.length === uniqueIds.size;
       },
-      {
-        message: 'All color palette IDs must be unique',
-      }
+      { message: 'All color palette IDs must be unique' }
     ),
+    selectedDictionaryPalette: OrganizationColorPaletteSchema.nullable(),
   })
   .refine(
     (data) => {
-      // If selectedId is null, no validation needed
-      console.log('data.selectedId', data.selectedId);
-      if (data.selectedId === null || data.selectedId.startsWith(DEFAULT_COLOR_PALETTE_ID)) {
+      if (data.selectedId === null || data.selectedDictionaryPalette?.id === data.selectedId) {
         return true;
       }
 
@@ -51,3 +48,5 @@ export const OrganizationColorPalettesSchema = z
       path: ['selectedId'], // Point the error to the selectedId field
     }
   );
+
+export type OrganizationColorPalettes = z.infer<typeof OrganizationColorPalettesSchema>;

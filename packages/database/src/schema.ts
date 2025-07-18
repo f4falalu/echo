@@ -1080,7 +1080,9 @@ export const organizations = pgTable(
     defaultRole: userOrganizationRoleEnum('default_role').default('restricted_querier').notNull(),
     organizationColorPalettes: jsonb('organization_color_palettes')
       .$type<OrganizationColorPalettes>()
-      .default(sql`'{"selectedId": null, "palettes": []}'::jsonb`)
+      .default(
+        sql`'{"selectedId": null, "palettes": [], "selectedDictionaryPalette": null}'::jsonb`
+      )
       .notNull(),
   },
   (table) => [unique('organizations_name_key').on(table.name)]
