@@ -19,6 +19,7 @@
     { "path": "./packages/stored-values" },
     { "path": "./packages/test-utils" },
     { "path": "./packages/web-tools" },
+    { "path": "./packages/sandbox" },
     
     // Apps
     { "path": "./apps/server" },
