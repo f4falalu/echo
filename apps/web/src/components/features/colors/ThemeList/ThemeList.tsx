@@ -69,7 +69,12 @@ const ColorOption: React.FC<{
               className="p-0"
               content={<ThreeDotMenuComponent theme={theme} />}
               trigger="click">
-              <Button variant={'ghost'} size={'small'} prefix={<Dots />}></Button>
+              <Button
+                data-testid={`color-theme-three-dots-menu`}
+                variant={'ghost'}
+                size={'small'}
+                prefix={<Dots />}
+              />
             </Popover>
           </div>
         )}

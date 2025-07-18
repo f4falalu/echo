@@ -3,6 +3,8 @@ import { DEFAULT_CHART_THEME } from '@buster/server-shared/metrics';
 
 import type { ColorPalette } from '@buster/server-shared/organization';
 
+export const DEFAULT_COLOR_PALETTE = DEFAULT_CHART_THEME;
+
 const SOFT_THEME = [
   '#36A2EB', // Light Blue
   '#4BC0C0', // Soft Cyan
@@ -320,7 +322,7 @@ const createDefaultId = (name: string, index: number) => {
 export const COLORFUL_THEMES = [
   {
     name: 'Buster',
-    colors: DEFAULT_CHART_THEME,
+    colors: DEFAULT_COLOR_PALETTE,
   },
   {
     name: 'Rainbow',
