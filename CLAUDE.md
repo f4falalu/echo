@@ -2,6 +2,8 @@
 
 This file provides guidance to Claude Code when working with code in this monorepo.
 
+**Note**: Many packages and apps have their own CLAUDE.md files with specific implementation details and patterns. Always check for a local CLAUDE.md when working in a specific directory.
+
 ## Monorepo Structure
 
 This is a pnpm-based monorepo using Turborepo with the following structure:
@@ -28,6 +30,7 @@ This is a pnpm-based monorepo using Turborepo with the following structure:
 - `packages/web-tools` - Web scraping and research tools
 - `packages/slack` - Standalone Slack integration (OAuth, messaging, channels)
 - `packages/supabase` - Supabase setup and configuration
+- `packages/sandbox` - Sandboxed code execution using Daytona SDK
 
 ## Development Workflow
 
@@ -37,6 +40,8 @@ When writing code, follow this workflow to ensure code quality:
 - Create small, focused functions with single responsibilities
 - Design functions to be easily testable with clear inputs/outputs
 - Use dependency injection for external dependencies
+- **IMPORTANT: Write functional, composable code - avoid classes**
+- All features should be composed of testable functions
 - Follow existing patterns in the codebase
 
 ### 2. Build Features by Composing Functions
@@ -91,20 +96,26 @@ pnpm run test:watch
 ```
 
 ### 6. Pre-Completion Checklist
-**IMPORTANT: Before finishing any task, always run:**
+**IMPORTANT: Before finishing any task or creating PRs, always run:**
 ```bash
-# Run unit tests for the entire monorepo
+# 1. Run unit tests for the entire monorepo
 turbo run test:unit
 
-# Run linting for the entire monorepo
+# 2. Build the entire monorepo to ensure everything compiles
+turbo run build
+
+# 3. Run linting for the entire monorepo
 turbo run lint
 ```
 
 **Key Testing Guidelines:**
-- **Always run unit tests and lint** when working locally before considering a task complete
+- **Always run unit tests, build, and lint** when working locally before considering a task complete
 - **Unit tests** should be run for the entire monorepo to catch any breaking changes
+- **Build** must pass for the entire monorepo to ensure type safety
 - **Integration tests** should only be run for specific packages/features you're working on (NOT the entire monorepo)
-- **Fix all failing tests and lint errors** before completing any task
+- **Fix all failing tests, build errors, and lint errors** before completing any task
+- **Heavily bias toward unit tests** - they are faster and cheaper to run
+- **Mock everything you can** in unit tests for isolation and speed
 
 ## Code Quality Standards
 
