@@ -43,6 +43,7 @@ pub struct MessageWithUser {
     pub updated_at: DateTime<Utc>,
     pub user_id: Uuid,
     pub user_name: Option<String>,
+    pub user_email: String,
     pub user_avatar_url: Option<String>,
     pub feedback: Option<String>,
     pub is_completed: bool,
@@ -137,6 +138,7 @@ pub async fn get_chat_handler(
                     messages::updated_at,
                     users::id,
                     users::name.nullable(),
+                    users::email,
                     users::avatar_url.nullable(),
                     messages::feedback.nullable(),
                     messages::is_completed,
@@ -274,7 +276,7 @@ pub async fn get_chat_handler(
                 Some(ChatUserMessage {
                     request: Some(request_message),
                     sender_id: msg.user_id,
-                    sender_name: msg.user_name.unwrap_or_else(|| "Unknown".to_string()),
+                    sender_name: msg.user_name.unwrap_or_else(|| msg.user_email.clone()),
                     sender_avatar: msg.user_avatar_url,
                 })
             } else {
@@ -353,7 +355,7 @@ pub async fn get_chat_handler(
         thread_messages,
         false, // is_favorited not implemented in current schema
         thread.user_id.to_string(),
-        thread.user_name.unwrap_or_else(|| "Unknown".to_string()),
+        thread.user_name.unwrap_or_else(|| thread.user_email.clone()),
         created_by_avatar,
     );
 
