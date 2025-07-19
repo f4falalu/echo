@@ -57,7 +57,7 @@ export function editSingleFile(params: EditFileParams): EditFileResult {
       };
     }
 
-    const updatedContent = content.replace(findString, replaceString);
+    const updatedContent = content.replace(new RegExp(escapeRegExp(findString), 'g'), replaceString);
 
     try {
       writeFileSync(resolvedPath, updatedContent, 'utf-8');

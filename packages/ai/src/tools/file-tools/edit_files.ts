@@ -11,7 +11,7 @@ const editFileParamsSchema = z.object({
 });
 
 const editFilesSchema = z.object({
-  edits: z.array(editFileParamsSchema).min(1, 'At least one edit must be provided'),
+  edits: z.array(editFileParamsSchema).min(1, 'At least one edit must be provided').max(100, 'Maximum 100 edits allowed per request'),
 });
 
 const outputSchema = z.object({
