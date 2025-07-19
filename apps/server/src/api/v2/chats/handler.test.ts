@@ -108,9 +108,15 @@ describe('createChatHandler', () => {
       mockUser,
       '550e8400-e29b-41d4-a716-446655440000'
     );
-    expect(tasks.trigger).toHaveBeenCalledWith('analyst-agent-task', {
-      message_id: 'msg-123',
-    });
+    expect(tasks.trigger).toHaveBeenCalledWith(
+      'analyst-agent-task',
+      {
+        message_id: 'msg-123',
+      },
+      {
+        concurrencyKey: 'chat-123',
+      }
+    );
     expect(result).toEqual(mockChat);
   });
 
@@ -131,9 +137,15 @@ describe('createChatHandler', () => {
       mockUser,
       mockChat
     );
-    expect(tasks.trigger).toHaveBeenCalledWith('analyst-agent-task', {
-      message_id: 'msg-123',
-    });
+    expect(tasks.trigger).toHaveBeenCalledWith(
+      'analyst-agent-task',
+      {
+        message_id: 'msg-123',
+      },
+      {
+        concurrencyKey: 'chat-123',
+      }
+    );
     expect(result).toEqual(assetChat);
   });
 
@@ -153,9 +165,15 @@ describe('createChatHandler', () => {
     );
 
     expect(handleAssetChat).not.toHaveBeenCalled();
-    expect(tasks.trigger).toHaveBeenCalledWith('analyst-agent-task', {
-      message_id: 'msg-123',
-    });
+    expect(tasks.trigger).toHaveBeenCalledWith(
+      'analyst-agent-task',
+      {
+        message_id: 'msg-123',
+      },
+      {
+        concurrencyKey: 'chat-123',
+      }
+    );
     expect(result).toEqual(mockChat);
   });
 

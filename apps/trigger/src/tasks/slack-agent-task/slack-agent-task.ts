@@ -288,13 +288,55 @@ export const slackAgentTask: ReturnType<
         messageId: message.id,
       });
 
-      const analystHandle = await analystAgentTask.trigger({
-        message_id: message.id,
-      });
+      const analystHandle = await analystAgentTask.trigger(
+        {
+          message_id: message.id,
+        },
+        {
+          concurrencyKey: payload.chatId, // Ensure sequential processing per chat
+        }
+      );
 
       logger.log('Analyst agent task triggered', {
         runId: analystHandle.id,
       });
+
+      // Check if the analyst task is queued (another task is already running for this chat)
+      try {
+        const runStatus = await runs.retrieve(analystHandle.id);
+
+        if (runStatus.status === 'QUEUED') {
+          logger.log('Analyst task is queued, notifying user', {
+            runId: analystHandle.id,
+            status: runStatus.status,
+          });
+
+          // Send a message to Slack indicating the task is queued
+          const messagingService = new SlackMessagingService();
+          try {
+            const queuedMessage = {
+              text: "It looks like I'm still running your previous request. When that finishes I'll start working on this one!",
+              thread_ts: chatDetails.slackThreadTs,
+            };
+
+            await messagingService.sendMessage(
+              accessToken,
+              chatDetails.slackChannelId,
+              queuedMessage
+            );
+
+            logger.log('Sent queued message to Slack thread');
+          } catch (error) {
+            logger.warn('Failed to send queued message to Slack', {
+              error: error instanceof Error ? error.message : 'Unknown error',
+            });
+          }
+        }
+      } catch (error) {
+        logger.warn('Failed to check run status', {
+          error: error instanceof Error ? error.message : 'Unknown error',
+        });
+      }
 
       // Update the message with the trigger run ID
       if (!analystHandle.id) {
