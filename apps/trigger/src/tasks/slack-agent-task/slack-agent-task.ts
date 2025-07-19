@@ -3,7 +3,6 @@ import {
   SlackMessagingService,
   addReaction,
   convertMarkdownToSlack,
-  getReactions,
   getThreadMessages,
   removeReaction,
 } from '@buster/slack';
@@ -102,9 +101,7 @@ export const slackAgentTask: ReturnType<
         botUserId: integration.botUserId,
       });
 
-      // Step 3: We'll add reactions after we fetch messages and find the mention
-
-      // Step 4: Fetch all needed data concurrently
+      // Step 3: Fetch all needed data concurrently
       const [slackMessages] = await Promise.all([
         getThreadMessages({
           accessToken,
@@ -139,59 +136,6 @@ export const slackAgentTask: ReturnType<
       if (!mentionMessageTs) {
         logger.error('No @Buster mention found in thread');
         throw new Error('No @Buster mention found in the thread');
-      }
-
-      // Step 5: Add hourglass reaction to the message that mentioned @Buster
-      try {
-        // First, get existing reactions to see if we need to clean up
-        const existingReactions = await getReactions({
-          accessToken,
-          channelId: chatDetails.slackChannelId,
-          messageTs: mentionMessageTs,
-        });
-
-        // Remove any existing reactions from the bot
-        if (integration.botUserId && existingReactions.length > 0) {
-          const botUserId = integration.botUserId;
-          const botReactions = existingReactions.filter((reaction) =>
-            reaction.users.includes(botUserId)
-          );
-
-          for (const reaction of botReactions) {
-            try {
-              await removeReaction({
-                accessToken,
-                channelId: chatDetails.slackChannelId,
-                messageTs: mentionMessageTs,
-                emoji: reaction.name,
-              });
-              logger.log('Removed existing bot reaction', { emoji: reaction.name });
-            } catch (error) {
-              // Log but don't fail if we can't remove a reaction
-              logger.warn('Failed to remove bot reaction', {
-                emoji: reaction.name,
-                error: error instanceof Error ? error.message : 'Unknown error',
-              });
-            }
-          }
-        }
-
-        // Add the hourglass reaction
-        await addReaction({
-          accessToken,
-          channelId: chatDetails.slackChannelId,
-          messageTs: mentionMessageTs,
-          emoji: 'hourglass_flowing_sand',
-        });
-
-        logger.log('Added hourglass reaction to message with @Buster mention', {
-          messageTs: mentionMessageTs,
-        });
-      } catch (error) {
-        // Log but don't fail the entire task if reaction handling fails
-        logger.warn('Failed to manage Slack reactions', {
-          error: error instanceof Error ? error.message : 'Unknown error',
-        });
       }
 
       // Find all bot messages in the thread to determine if this is a follow-up
@@ -300,7 +244,7 @@ export const slackAgentTask: ReturnType<
         prompt = `Please fulfill the request from this slack conversation:\n${formattedMessages}`;
       }
 
-      // Step 6: Create message
+      // Step 4: Create message
       const message = await createMessage({
         chatId: payload.chatId,
         userId: payload.userId,
@@ -312,7 +256,7 @@ export const slackAgentTask: ReturnType<
         messageId: message.id,
       });
 
-      // Step 7: Trigger analyst agent task (without waiting)
+      // Step 5: Trigger analyst agent task (without waiting)
       logger.log('Triggering analyst agent task', {
         messageId: message.id,
       });
@@ -325,7 +269,7 @@ export const slackAgentTask: ReturnType<
         runId: analystHandle.id,
       });
 
-      // Step 8: Send initial Slack message immediately after triggering
+      // Step 6: Send initial Slack message immediately after triggering
       const messagingService = new SlackMessagingService();
       const busterUrl = process.env.BUSTER_URL || 'https://platform.buster.so';
       let progressMessageTs: string | undefined;
@@ -376,7 +320,7 @@ export const slackAgentTask: ReturnType<
         });
       }
 
-      // Step 9: Poll for analyst task completion
+      // Step 7: Poll for analyst task completion
       let isComplete = false;
       let analystResult: { ok: boolean; output?: unknown; error?: unknown } | null = null;
       const maxPollingTime = 30 * 60 * 1000; // 30 minutes
@@ -448,7 +392,7 @@ export const slackAgentTask: ReturnType<
         );
       }
 
-      // Step 10: Fetch the response message and chat details from the database
+      // Step 8: Fetch the response message and chat details from the database
       let responseText = "I've finished working on your request!";
       let chatFileInfo: {
         mostRecentFileId: string | null;
@@ -511,7 +455,7 @@ export const slackAgentTask: ReturnType<
         });
       }
 
-      // Step 11: Delete the initial message and send a new one with the response
+      // Step 9: Delete the initial message and send a new one with the response
       if (progressMessageTs) {
         try {
           // First, delete the initial message
@@ -607,7 +551,7 @@ export const slackAgentTask: ReturnType<
         });
       }
 
-      // Step 12: Update reactions - remove hourglass, add checkmark on the mention message
+      // Step 10: Update reactions - remove hourglass, add checkmark on the mention message
       try {
         // Remove the hourglass reaction
         await removeReaction({
