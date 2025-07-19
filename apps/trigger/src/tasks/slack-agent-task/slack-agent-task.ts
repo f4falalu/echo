@@ -1,4 +1,11 @@
-import { chats, db, eq, messages, updateMessage } from '@buster/database';
+import {
+  chats,
+  checkForDuplicateMessages,
+  db,
+  eq,
+  messages,
+  updateMessage,
+} from '@buster/database';
 import {
   SlackMessagingService,
   addReaction,
@@ -242,6 +249,26 @@ export const slackAgentTask: ReturnType<
         prompt = `Please fulfill the request from this slack conversation. Here are the messages since your last response:\n${formattedMessages}`;
       } else {
         prompt = `Please fulfill the request from this slack conversation:\n${formattedMessages}`;
+      }
+
+      // Check for duplicate messages before creating
+      const duplicateCheck = await checkForDuplicateMessages({
+        chatId: payload.chatId,
+        requestMessage: prompt,
+      });
+
+      if (duplicateCheck.isDuplicate) {
+        logger.warn('Duplicate message detected, stopping task', {
+          chatId: payload.chatId,
+          duplicateMessageIds: duplicateCheck.duplicateMessageIds,
+          requestMessage: prompt,
+        });
+
+        return {
+          success: false,
+          messageId: '',
+          triggerRunId: '',
+        };
       }
 
       // Step 4: Create message
