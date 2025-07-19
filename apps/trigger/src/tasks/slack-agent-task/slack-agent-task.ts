@@ -324,37 +324,88 @@ export const slackAgentTask: ReturnType<
         // Don't throw here - continue with the flow since the task is already triggered
       }
 
-      // Step 6: Poll for analyst task completion and handle Slack messages
+      // Step 6: Initial fast polling to check if task starts quickly
       const messagingService = new SlackMessagingService();
       const busterUrl = process.env.BUSTER_URL || 'https://platform.buster.so';
       let progressMessageTs: string | undefined;
       let queuedMessageTs: string | undefined;
       let hasStartedRunning = false;
-
+      
+      // First, do rapid polling for up to 20 seconds to see if task starts
+      const rapidPollInterval = 1000; // 1 second
+      const maxRapidPolls = 20; // 20 attempts = 20 seconds total
+      let rapidPollCount = 0;
       let isComplete = false;
       let analystResult: { ok: boolean; output?: unknown; error?: unknown } | null = null;
-      const maxPollingTime = 30 * 60 * 1000; // 30 minutes
-      const initialPollingInterval = 20000; // 20 seconds for first wait
-      const subsequentPollingInterval = 10000; // 10 seconds for subsequent waits
-      const startTime = Date.now();
-      let isFirstPoll = true;
-
-      while (!isComplete && Date.now() - startTime < maxPollingTime) {
-        // Wait with different intervals: 20s for first poll, 10s for subsequent polls
-        const currentInterval = isFirstPoll ? initialPollingInterval : subsequentPollingInterval;
-        await wait.for({ seconds: currentInterval / 1000 });
-
+      
+      while (rapidPollCount < maxRapidPolls && !hasStartedRunning && !isComplete) {
+        await wait.for({ seconds: rapidPollInterval / 1000 });
+        rapidPollCount++;
+        
         try {
           const run = await runs.retrieve(analystHandle.id);
-
-          logger.log('Polling analyst task status', {
+          
+          logger.log('Rapid polling analyst task status', {
             runId: analystHandle.id,
             status: run.status,
-            isFirstPoll,
+            pollCount: rapidPollCount,
           });
+          
+          // Check if task has started
+          if (run.status === 'EXECUTING' || run.status === 'REATTEMPTING') {
+            hasStartedRunning = true;
+            logger.log('Analyst task started executing during rapid poll', {
+              runId: analystHandle.id,
+              pollCount: rapidPollCount,
+            });
+            
+            // Send the progress message
+            try {
+              const progressMessage = {
+                text: "I've started working on your request. I'll notify you when it's finished.",
+                thread_ts: chatDetails.slackThreadTs,
+                blocks: [
+                  {
+                    type: 'section' as const,
+                    text: {
+                      type: 'mrkdwn' as const,
+                      text: "I've started working on your request. I'll notify you when it's finished.",
+                    },
+                  },
+                  {
+                    type: 'actions' as const,
+                    elements: [
+                      {
+                        type: 'button' as const,
+                        text: {
+                          type: 'plain_text' as const,
+                          text: 'Open in Buster',
+                          emoji: false,
+                        },
+                        url: `${busterUrl}/app/chats/${payload.chatId}`,
+                      },
+                    ],
+                  },
+                ],
+              };
 
-          // Handle queued state on first poll
-          if (isFirstPoll && run.status === 'QUEUED') {
+              const sendResult = await messagingService.sendMessage(
+                accessToken,
+                chatDetails.slackChannelId,
+                progressMessage
+              );
+
+              if (sendResult.success && sendResult.messageTs) {
+                progressMessageTs = sendResult.messageTs;
+                logger.log('Sent progress message to Slack thread', { messageTs: progressMessageTs });
+              }
+            } catch (error) {
+              logger.warn('Failed to send progress message to Slack', {
+                error: error instanceof Error ? error.message : 'Unknown error',
+              });
+            }
+          } else if (run.status === 'QUEUED' && rapidPollCount === maxRapidPolls) {
+            // Still queued after 20 seconds, send the queued message
             logger.log('Analyst task is still queued after 20 seconds, notifying user', {
               runId: analystHandle.id,
             });
@@ -380,9 +431,47 @@ export const slackAgentTask: ReturnType<
                 error: error instanceof Error ? error.message : 'Unknown error',
               });
             }
+          } else if (
+            run.status === 'COMPLETED' ||
+            run.status === 'SYSTEM_FAILURE' ||
+            run.status === 'CRASHED' ||
+            run.status === 'CANCELED' ||
+            run.status === 'TIMED_OUT' ||
+            run.status === 'INTERRUPTED'
+          ) {
+            // Task already completed or failed during rapid polling
+            isComplete = true;
+            if (run.status === 'COMPLETED') {
+              analystResult = { ok: true, output: run.output };
+            } else {
+              analystResult = { ok: false, error: run.error || 'Task failed' };
+            }
           }
+        } catch (error) {
+          logger.warn('Failed to retrieve run status during rapid poll', {
+            error: error instanceof Error ? error.message : 'Unknown error',
+            pollCount: rapidPollCount,
+          });
+        }
+      }
+      
+      // Step 7: Main polling loop for task completion
+      const maxPollingTime = 30 * 60 * 1000; // 30 minutes
+      const normalPollingInterval = 10000; // 10 seconds
+      const startTime = Date.now();
 
-          // Handle transition from queued to executing
+      while (!isComplete && Date.now() - startTime < maxPollingTime) {
+        await wait.for({ seconds: normalPollingInterval / 1000 });
+
+        try {
+          const run = await runs.retrieve(analystHandle.id);
+
+          logger.log('Polling analyst task status', {
+            runId: analystHandle.id,
+            status: run.status,
+          });
+
+          // Handle transition from queued to executing if we haven't sent progress message yet
           if (!hasStartedRunning && (run.status === 'EXECUTING' || run.status === 'REATTEMPTING')) {
             hasStartedRunning = true;
             logger.log('Analyst task has started executing', {
@@ -453,9 +542,7 @@ export const slackAgentTask: ReturnType<
 
               if (sendResult.success && sendResult.messageTs) {
                 progressMessageTs = sendResult.messageTs;
-                logger.log('Sent progress message to Slack thread', {
-                  messageTs: progressMessageTs,
-                });
+                logger.log('Sent progress message to Slack thread', { messageTs: progressMessageTs });
               }
             } catch (error) {
               logger.warn('Failed to send progress message to Slack', {
@@ -483,8 +570,6 @@ export const slackAgentTask: ReturnType<
             error: error instanceof Error ? error.message : 'Unknown error',
           });
         }
-
-        isFirstPoll = false;
       }
 
       // Check if we timed out
