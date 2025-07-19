@@ -301,43 +301,6 @@ export const slackAgentTask: ReturnType<
         runId: analystHandle.id,
       });
 
-      // Check if the analyst task is queued (another task is already running for this chat)
-      try {
-        const runStatus = await runs.retrieve(analystHandle.id);
-
-        if (runStatus.status === 'QUEUED') {
-          logger.log('Analyst task is queued, notifying user', {
-            runId: analystHandle.id,
-            status: runStatus.status,
-          });
-
-          // Send a message to Slack indicating the task is queued
-          const messagingService = new SlackMessagingService();
-          try {
-            const queuedMessage = {
-              text: "It looks like I'm still running your previous request. When that finishes I'll start working on this one!",
-              thread_ts: chatDetails.slackThreadTs,
-            };
-
-            await messagingService.sendMessage(
-              accessToken,
-              chatDetails.slackChannelId,
-              queuedMessage
-            );
-
-            logger.log('Sent queued message to Slack thread');
-          } catch (error) {
-            logger.warn('Failed to send queued message to Slack', {
-              error: error instanceof Error ? error.message : 'Unknown error',
-            });
-          }
-        }
-      } catch (error) {
-        logger.warn('Failed to check run status', {
-          error: error instanceof Error ? error.message : 'Unknown error',
-        });
-      }
-
       // Update the message with the trigger run ID
       if (!analystHandle.id) {
         throw new Error('Trigger service returned invalid handle');
@@ -361,58 +324,13 @@ export const slackAgentTask: ReturnType<
         // Don't throw here - continue with the flow since the task is already triggered
       }
 
-      // Step 6: Send initial Slack message immediately after triggering
+      // Step 6: Poll for analyst task completion and handle Slack messages
       const messagingService = new SlackMessagingService();
       const busterUrl = process.env.BUSTER_URL || 'https://platform.buster.so';
       let progressMessageTs: string | undefined;
+      let queuedMessageTs: string | undefined;
+      let hasStartedRunning = false;
 
-      try {
-        const progressMessage = {
-          text: "I've started working on your request. I'll notify you when it's finished.",
-          thread_ts: chatDetails.slackThreadTs,
-          blocks: [
-            {
-              type: 'section' as const,
-              text: {
-                type: 'mrkdwn' as const,
-                text: "I've started working on your request. I'll notify you when it's finished.",
-              },
-            },
-            {
-              type: 'actions' as const,
-              elements: [
-                {
-                  type: 'button' as const,
-                  text: {
-                    type: 'plain_text' as const,
-                    text: 'Open in Buster',
-                    emoji: false,
-                  },
-                  url: `${busterUrl}/app/chats/${payload.chatId}`,
-                },
-              ],
-            },
-          ],
-        };
-
-        const sendResult = await messagingService.sendMessage(
-          accessToken,
-          chatDetails.slackChannelId,
-          progressMessage
-        );
-
-        if (sendResult.success && sendResult.messageTs) {
-          progressMessageTs = sendResult.messageTs;
-          logger.log('Sent progress message to Slack thread', { messageTs: progressMessageTs });
-        }
-      } catch (error) {
-        // Log but don't fail the task if we can't send the progress message
-        logger.warn('Failed to send progress message to Slack', {
-          error: error instanceof Error ? error.message : 'Unknown error',
-        });
-      }
-
-      // Step 7: Poll for analyst task completion
       let isComplete = false;
       let analystResult: { ok: boolean; output?: unknown; error?: unknown } | null = null;
       const maxPollingTime = 30 * 60 * 1000; // 30 minutes
@@ -425,7 +343,6 @@ export const slackAgentTask: ReturnType<
         // Wait with different intervals: 20s for first poll, 10s for subsequent polls
         const currentInterval = isFirstPoll ? initialPollingInterval : subsequentPollingInterval;
         await wait.for({ seconds: currentInterval / 1000 });
-        isFirstPoll = false;
 
         try {
           const run = await runs.retrieve(analystHandle.id);
@@ -433,8 +350,121 @@ export const slackAgentTask: ReturnType<
           logger.log('Polling analyst task status', {
             runId: analystHandle.id,
             status: run.status,
+            isFirstPoll,
           });
 
+          // Handle queued state on first poll
+          if (isFirstPoll && run.status === 'QUEUED') {
+            logger.log('Analyst task is still queued after 20 seconds, notifying user', {
+              runId: analystHandle.id,
+            });
+
+            try {
+              const queuedMessage = {
+                text: "It looks like I'm still running your previous request. When that finishes I'll start working on this one!",
+                thread_ts: chatDetails.slackThreadTs,
+              };
+
+              const sendResult = await messagingService.sendMessage(
+                accessToken,
+                chatDetails.slackChannelId,
+                queuedMessage
+              );
+
+              if (sendResult.success && sendResult.messageTs) {
+                queuedMessageTs = sendResult.messageTs;
+                logger.log('Sent queued message to Slack thread', { messageTs: queuedMessageTs });
+              }
+            } catch (error) {
+              logger.warn('Failed to send queued message to Slack', {
+                error: error instanceof Error ? error.message : 'Unknown error',
+              });
+            }
+          }
+
+          // Handle transition from queued to executing
+          if (!hasStartedRunning && (run.status === 'EXECUTING' || run.status === 'REATTEMPTING')) {
+            hasStartedRunning = true;
+            logger.log('Analyst task has started executing', {
+              runId: analystHandle.id,
+              previouslyQueued: !!queuedMessageTs,
+            });
+
+            // If we sent a queued message, delete it first
+            if (queuedMessageTs) {
+              try {
+                const deleteResult = await messagingService.deleteMessage(
+                  accessToken,
+                  chatDetails.slackChannelId,
+                  queuedMessageTs
+                );
+
+                if (deleteResult.success) {
+                  logger.log('Deleted queued message', { messageTs: queuedMessageTs });
+                } else {
+                  logger.warn('Failed to delete queued message', {
+                    messageTs: queuedMessageTs,
+                    error: deleteResult.error,
+                  });
+                }
+              } catch (error) {
+                logger.warn('Error deleting queued message', {
+                  messageTs: queuedMessageTs,
+                  error: error instanceof Error ? error.message : 'Unknown error',
+                });
+              }
+            }
+
+            // Send the progress message
+            try {
+              const progressMessage = {
+                text: "I've started working on your request. I'll notify you when it's finished.",
+                thread_ts: chatDetails.slackThreadTs,
+                blocks: [
+                  {
+                    type: 'section' as const,
+                    text: {
+                      type: 'mrkdwn' as const,
+                      text: "I've started working on your request. I'll notify you when it's finished.",
+                    },
+                  },
+                  {
+                    type: 'actions' as const,
+                    elements: [
+                      {
+                        type: 'button' as const,
+                        text: {
+                          type: 'plain_text' as const,
+                          text: 'Open in Buster',
+                          emoji: false,
+                        },
+                        url: `${busterUrl}/app/chats/${payload.chatId}`,
+                      },
+                    ],
+                  },
+                ],
+              };
+
+              const sendResult = await messagingService.sendMessage(
+                accessToken,
+                chatDetails.slackChannelId,
+                progressMessage
+              );
+
+              if (sendResult.success && sendResult.messageTs) {
+                progressMessageTs = sendResult.messageTs;
+                logger.log('Sent progress message to Slack thread', {
+                  messageTs: progressMessageTs,
+                });
+              }
+            } catch (error) {
+              logger.warn('Failed to send progress message to Slack', {
+                error: error instanceof Error ? error.message : 'Unknown error',
+              });
+            }
+          }
+
+          // Check for completion or failure
           if (run.status === 'COMPLETED') {
             isComplete = true;
             analystResult = { ok: true, output: run.output };
@@ -453,6 +483,8 @@ export const slackAgentTask: ReturnType<
             error: error instanceof Error ? error.message : 'Unknown error',
           });
         }
+
+        isFirstPoll = false;
       }
 
       // Check if we timed out
