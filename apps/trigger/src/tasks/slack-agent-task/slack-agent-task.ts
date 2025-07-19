@@ -1,4 +1,4 @@
-import { chats, db, eq, messages } from '@buster/database';
+import { chats, db, eq, messages, updateMessage } from '@buster/database';
 import {
   SlackMessagingService,
   addReaction,
@@ -268,6 +268,29 @@ export const slackAgentTask: ReturnType<
       logger.log('Analyst agent task triggered', {
         runId: analystHandle.id,
       });
+
+      // Update the message with the trigger run ID
+      if (!analystHandle.id) {
+        throw new Error('Trigger service returned invalid handle');
+      }
+
+      try {
+        await updateMessage(message.id, {
+          triggerRunId: analystHandle.id,
+        });
+
+        logger.log('Updated message with trigger run ID', {
+          messageId: message.id,
+          triggerRunId: analystHandle.id,
+        });
+      } catch (updateError) {
+        logger.error('Failed to update message with trigger run ID', {
+          messageId: message.id,
+          triggerRunId: analystHandle.id,
+          error: updateError instanceof Error ? updateError.message : 'Unknown error',
+        });
+        // Don't throw here - continue with the flow since the task is already triggered
+      }
 
       // Step 6: Send initial Slack message immediately after triggering
       const messagingService = new SlackMessagingService();
