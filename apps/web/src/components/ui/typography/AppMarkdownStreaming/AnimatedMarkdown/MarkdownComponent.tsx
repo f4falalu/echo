@@ -77,7 +77,7 @@ export const BlockquoteComponent: React.FC<MarkdownComponentProps> = ({
   ...rest
 }) => {
   return (
-    <blockquote style={{ ...createAnimationStyle(rest), ...style }} className={className}>
+    <blockquote style={style} className={className}>
       {animateTokenizedText(children, rest)}
     </blockquote>
   );
@@ -116,7 +116,7 @@ export const DeleteComponent: React.FC<MarkdownComponentProps> = ({
   ...rest
 }) => {
   return (
-    <del style={{ ...createAnimationStyle(rest), ...style }} className={className}>
+    <del style={style} className={className}>
       {children}
     </del>
   );
@@ -218,7 +218,7 @@ export const UnorderedListComponent: React.FC<MarkdownComponentProps> = ({
   ...rest
 }) => {
   return (
-    <ul style={style} className={cn(className, 'mt-1 space-y-1')}>
+    <ul style={style} className={cn(className, 'mt-1 space-y-1', 'list-inside')}>
       {children}
     </ul>
   );
@@ -231,7 +231,7 @@ export const OrderedListComponent: React.FC<MarkdownComponentProps & { start?: n
   start
 }) => {
   return (
-    <ol style={style} className={cn(className, 'mt-1 space-y-1')} start={start}>
+    <ol style={style} className={cn(className, 'mt-1 space-y-1', 'list-inside')} start={start}>
       {children}
     </ol>
   );
@@ -244,12 +244,17 @@ export const ListItemComponent: React.FC<MarkdownComponentProps> = ({
   ...rest
 }) => {
   return (
-    <li style={style} className={className}>
+    <li
+      style={style}
+      className={cn(
+        className,
+        // Ensure proper vertical alignment
+        '[&>span]:align-top'
+      )}>
       {animateTokenizedText(children, {
         ...rest,
         doNotAnimateInitialText: true
       })}
-      {children}
     </li>
   );
 };

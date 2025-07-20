@@ -151,11 +151,14 @@ export const useMarkdownComponents = ({
           {children}
         </OrderedListComponent>
       ),
-      li: ({ children, className, style }) => (
-        <ListItemComponent {...commonProps} className={className} style={style}>
-          {children}
-        </ListItemComponent>
-      ),
+      li: ({ children, className, style }) => {
+        console.log('li', children);
+        return (
+          <ListItemComponent {...commonProps} className={className} style={style}>
+            {children}
+          </ListItemComponent>
+        );
+      },
       td: ({ children, className, style }) => (
         <TableCellComponent className={className} style={style}>
           {children}
