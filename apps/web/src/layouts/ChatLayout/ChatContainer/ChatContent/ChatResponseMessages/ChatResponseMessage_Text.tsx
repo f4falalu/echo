@@ -18,15 +18,12 @@ export const ChatResponseMessage_Text: React.FC<ChatResponseMessageProps> = Reac
     if (!message) return null;
 
     return (
-      <div className={cn("text-base leading-1.5!")}>
-        <AppMarkdownStreaming
-          content={message}
-          isStreamFinished={isCompletedStream}
-        />
-      </div>
+      <AppMarkdownStreaming
+        content={message}
+        isStreamFinished={isCompletedStream}
+        className="text-base leading-1.5!"
+      />
     );
-
-    // return <StreamingMessage_Text message={message} isCompletedStream={isCompletedStream} />;
   }
 );
 

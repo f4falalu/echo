@@ -11,7 +11,7 @@ export const LLMAnimatedMarkdown: React.FC<LLMAnimatedMarkdownProps> = ({ blockM
   const markdown = blockMatch.output;
   const {
     animation,
-    isStreamFinished,
+    stripFormatting,
     isThrottleStreamingFinished,
     animationDuration,
     animationTimingFunction
@@ -24,6 +24,7 @@ export const LLMAnimatedMarkdown: React.FC<LLMAnimatedMarkdownProps> = ({ blockM
       animation={animation}
       animationDuration={animationDuration}
       animationTimingFunction={animationTimingFunction}
+      stripFormatting={stripFormatting}
     />
   );
 };

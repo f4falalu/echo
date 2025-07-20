@@ -10,6 +10,7 @@ import type {
   MarkdownAnimationTimingFunction
 } from './AnimatedMarkdown/animation-helpers';
 import { createContext } from 'react';
+import { cn } from '@/lib/classMerge';
 
 const throttle = throttleBasic({
   // show output as soon as it arrives
@@ -27,13 +28,17 @@ const AppMarkdownStreaming = ({
   isStreamFinished,
   animation,
   animationDuration,
-  animationTimingFunction
+  animationTimingFunction,
+  className,
+  stripFormatting = false
 }: {
   content: string;
   isStreamFinished: boolean;
   animation?: MarkdownAnimation;
   animationDuration?: number;
   animationTimingFunction?: MarkdownAnimationTimingFunction;
+  className?: string;
+  stripFormatting?: boolean;
 }) => {
   const { blockMatches, isFinished, ...rest } = useLLMOutput({
     llmOutput: content,
@@ -60,9 +65,10 @@ const AppMarkdownStreaming = ({
         animationDuration,
         animationTimingFunction,
         isStreamFinished,
-        isThrottleStreamingFinished: isFinished
+        isThrottleStreamingFinished: isFinished,
+        stripFormatting
       }}>
-      <div className="flex flex-col space-y-2.5">
+      <div className={cn('flex flex-col space-y-2.5', className)}>
         {blockMatches.map((blockMatch, index) => {
           const Component = blockMatch.block.component;
           return <Component key={index} blockMatch={blockMatch} />;
@@ -80,12 +86,14 @@ const AppMarkdownStreamingContext = createContext<{
   animationTimingFunction?: MarkdownAnimationTimingFunction;
   isStreamFinished: boolean;
   isThrottleStreamingFinished: boolean;
+  stripFormatting: boolean;
 }>({
   animation: 'fadeIn',
   animationDuration: 700,
   animationTimingFunction: 'ease-in-out',
   isStreamFinished: false,
-  isThrottleStreamingFinished: false
+  isThrottleStreamingFinished: false,
+  stripFormatting: false
 });
 
 export const useAppMarkdownStreaming = () => {

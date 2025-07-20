@@ -15,12 +15,11 @@ export const ReasoningMessage_Text: React.FC<ReasoningMessageProps> = React.memo
     if (!message) return null;
 
     return (
-      <div className={cn("text-text-secondary text-xs!")}>
-        <AppMarkdownStreaming
-          content={message}
-          isStreamFinished={isCompletedStream}
-        />
-      </div>
+      <AppMarkdownStreaming
+        content={message}
+        isStreamFinished={isCompletedStream}
+        className="text-text-secondary text-xs!"
+      />
     );
   }
 );
