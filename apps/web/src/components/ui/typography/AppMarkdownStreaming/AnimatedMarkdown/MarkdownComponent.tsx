@@ -57,9 +57,12 @@ export const HeaderComponent: React.FC<
   return (
     <Tag
       style={style}
-      className={`${headingVariants({
-        level: stripFormatting ? 'base' : tag
-      })} ${className}`}>
+      className={cn(
+        headingVariants({
+          level: stripFormatting ? 'base' : tag
+        }),
+        className
+      )}>
       {animateTokenizedText(children, rest)}
     </Tag>
   );
@@ -215,7 +218,7 @@ export const UnorderedListComponent: React.FC<MarkdownComponentProps> = ({
   ...rest
 }) => {
   return (
-    <ul style={style} className={`${className} mt-1 space-y-1`}>
+    <ul style={style} className={cn(className, 'mt-1 space-y-1')}>
       {children}
     </ul>
   );
@@ -228,7 +231,7 @@ export const OrderedListComponent: React.FC<MarkdownComponentProps & { start?: n
   start
 }) => {
   return (
-    <ol style={style} className={`${className} mt-1 space-y-1`} start={start}>
+    <ol style={style} className={cn(className, 'mt-1 space-y-1')} start={start}>
       {children}
     </ol>
   );
@@ -241,11 +244,12 @@ export const ListItemComponent: React.FC<MarkdownComponentProps> = ({
   ...rest
 }) => {
   return (
-    <li style={{ ...createAnimationStyle(rest), ...style }} className={className}>
+    <li style={style} className={className}>
       {animateTokenizedText(children, {
         ...rest,
         doNotAnimateInitialText: true
       })}
+      {children}
     </li>
   );
 };

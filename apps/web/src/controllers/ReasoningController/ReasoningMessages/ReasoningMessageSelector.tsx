@@ -14,28 +14,16 @@ import { ReasoningMessage_Text } from './ReasoningMessage_Text';
 import isEmpty from 'lodash/isEmpty';
 
 const itemAnimationConfig: MotionProps = {
-  initial: { opacity: 0, height: 0 },
+  initial: { opacity: 0 },
   animate: {
     opacity: 1,
-    height: 'auto',
     transition: {
-      height: {
-        type: 'spring',
-        stiffness: 300,
-        damping: 40
-      },
       opacity: { duration: 0.16 }
     }
   },
   exit: {
     opacity: 0,
-    height: 0,
     transition: {
-      height: {
-        type: 'spring',
-        stiffness: 350,
-        damping: 45
-      },
       opacity: { duration: 0.12 }
     }
   }
@@ -104,6 +92,7 @@ export const ReasoningMessageSelector: React.FC<ReasoningMessageSelectorProps> =
           <motion.div
             key={animationKey}
             {...itemAnimationConfig}
+            className="h-auto"
             //  layout={!isCompletedStream} I removed this because it was causing weird animation issues
           >
             <div className="min-h-[1px]">

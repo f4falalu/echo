@@ -3,7 +3,6 @@
 import React, { useMemo } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import rehypeRaw from 'rehype-raw';
 import { useMarkdownComponents } from './useMarkdownComponents';
 import { MarkdownAnimation } from './animation-helpers';
 import styles from './AnimatedMarkdown.module.css';
@@ -21,7 +20,6 @@ export interface AnimatedMarkdownProps {
 }
 
 const remarkPlugins = [remarkGfm];
-const rehypePlugins = [rehypeRaw];
 
 const AnimatedMarkdown: React.FC<AnimatedMarkdownProps> = ({
   content,
