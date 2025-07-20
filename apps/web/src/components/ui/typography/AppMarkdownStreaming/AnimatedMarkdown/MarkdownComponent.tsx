@@ -299,9 +299,9 @@ export const CodeComponent: React.FC<
 
   if (isInline) {
     return (
-      <pre style={style} className={cn(className, 'bg-item-select rounded-sm border px-1')}>
+      <code style={style} className={cn(className, 'bg-item-select rounded-sm border px-1')}>
         {children}
-      </pre>
+      </code>
     );
   }
 
