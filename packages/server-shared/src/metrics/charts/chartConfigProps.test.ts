@@ -29,7 +29,7 @@ describe('chartConfigProps', () => {
     });
 
     it('should have the expected color palette', () => {
-      expect(DEFAULT_CHART_CONFIG.colors).toBeUndefined();
+      expect(DEFAULT_CHART_CONFIG.colors).toEqual(DEFAULT_CHART_THEME);
       expect(DEFAULT_CHART_THEME).toEqual([
         '#B399FD',
         '#FC8497',

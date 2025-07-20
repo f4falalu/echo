@@ -77,9 +77,15 @@ export async function createChatHandler(
     if (request.prompt || request.asset_id) {
       try {
         // Just queue the background job - should be <100ms
-        const taskHandle = await tasks.trigger('analyst-agent-task', {
-          message_id: messageId,
-        });
+        const taskHandle = await tasks.trigger(
+          'analyst-agent-task',
+          {
+            message_id: messageId,
+          },
+          {
+            concurrencyKey: chatId, // Ensure sequential processing per chat
+          }
+        );
 
         // Health check: Verify trigger service received the task
         // The presence of taskHandle.id confirms Trigger.dev accepted our request

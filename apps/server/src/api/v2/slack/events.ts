@@ -1,6 +1,6 @@
-import { chats, db, slackIntegrations } from '@buster/database';
+import { chats, db, getSecretByName, slackIntegrations } from '@buster/database';
 import type { SlackEventsResponse } from '@buster/server-shared/slack';
-import { type SlackWebhookPayload, isEventCallback } from '@buster/slack';
+import { type SlackWebhookPayload, addReaction, isEventCallback } from '@buster/slack';
 import { tasks } from '@trigger.dev/sdk';
 import { and, eq } from 'drizzle-orm';
 import type { Context } from 'hono';
@@ -187,6 +187,53 @@ export async function eventsHandler(payload: SlackWebhookPayload): Promise<Slack
 
       // Extract thread timestamp - if no thread_ts, this is a new thread so use ts
       const threadTs = event.thread_ts || event.ts;
+
+      // Add hourglass reaction immediately after authentication
+      if (organizationId) {
+        try {
+          // Fetch Slack integration to get token vault key
+          const slackIntegration = await db
+            .select({
+              tokenVaultKey: slackIntegrations.tokenVaultKey,
+            })
+            .from(slackIntegrations)
+            .where(
+              and(
+                eq(slackIntegrations.organizationId, organizationId),
+                eq(slackIntegrations.teamId, payload.team_id),
+                eq(slackIntegrations.status, 'active')
+              )
+            )
+            .limit(1);
+
+          if (slackIntegration.length > 0 && slackIntegration[0]?.tokenVaultKey) {
+            // Get the access token from vault
+            const vaultSecret = await getSecretByName(slackIntegration[0].tokenVaultKey);
+
+            if (vaultSecret?.secret) {
+              // Add the hourglass reaction
+              await addReaction({
+                accessToken: vaultSecret.secret,
+                channelId: event.channel,
+                messageTs: event.ts,
+                emoji: 'hourglass_flowing_sand',
+              });
+
+              console.info('Added hourglass reaction to app mention', {
+                channel: event.channel,
+                messageTs: event.ts,
+              });
+            }
+          }
+        } catch (error) {
+          // Log but don't fail the entire process if reaction fails
+          console.warn('Failed to add hourglass reaction', {
+            error: error instanceof Error ? error.message : 'Unknown error',
+            channel: event.channel,
+            messageTs: event.ts,
+          });
+        }
+      }
 
       // Find or create chat
       const chatId = await findOrCreateSlackChat({

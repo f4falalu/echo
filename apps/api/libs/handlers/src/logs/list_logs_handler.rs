@@ -55,6 +55,7 @@ struct ChatWithUser {
     pub most_recent_version_number: Option<i32>,
     // User fields
     pub user_name: Option<String>,
+    pub user_email: String,
     pub user_avatar_url: Option<String>,
 }
 
@@ -116,6 +117,7 @@ pub async fn list_logs_handler(
             chats::most_recent_file_type,
             chats::most_recent_version_number,
             users::name.nullable(),
+            users::email,
             users::avatar_url.nullable(),
         ))
         .load::<ChatWithUser>(&mut conn)
@@ -135,7 +137,7 @@ pub async fn list_logs_handler(
                 updated_at: chat.updated_at.to_rfc3339(),
                 created_by: chat.created_by.to_string(),
                 created_by_id: chat.created_by.to_string(),
-                created_by_name: chat.user_name.unwrap_or_else(|| "Unknown".to_string()),
+                created_by_name: chat.user_name.unwrap_or_else(|| chat.user_email.clone()),
                 created_by_avatar: chat.user_avatar_url,
                 last_edited: chat.updated_at.to_rfc3339(),
                 latest_file_id: chat.most_recent_file_id.map(|id| id.to_string()),
