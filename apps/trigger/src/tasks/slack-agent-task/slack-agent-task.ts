@@ -330,27 +330,27 @@ export const slackAgentTask: ReturnType<
       let progressMessageTs: string | undefined;
       let queuedMessageTs: string | undefined;
       let hasStartedRunning = false;
-      
+
       // First, do rapid polling for up to 20 seconds to see if task starts
       const rapidPollInterval = 1000; // 1 second
       const maxRapidPolls = 20; // 20 attempts = 20 seconds total
       let rapidPollCount = 0;
       let isComplete = false;
       let analystResult: { ok: boolean; output?: unknown; error?: unknown } | null = null;
-      
+
       while (rapidPollCount < maxRapidPolls && !hasStartedRunning && !isComplete) {
         await wait.for({ seconds: rapidPollInterval / 1000 });
         rapidPollCount++;
-        
+
         try {
           const run = await runs.retrieve(analystHandle.id);
-          
+
           logger.log('Rapid polling analyst task status', {
             runId: analystHandle.id,
             status: run.status,
             pollCount: rapidPollCount,
           });
-          
+
           // Check if task has started
           if (run.status === 'EXECUTING' || run.status === 'REATTEMPTING') {
             hasStartedRunning = true;
@@ -358,7 +358,7 @@ export const slackAgentTask: ReturnType<
               runId: analystHandle.id,
               pollCount: rapidPollCount,
             });
-            
+
             // Send the progress message
             try {
               const progressMessage = {
@@ -397,7 +397,9 @@ export const slackAgentTask: ReturnType<
 
               if (sendResult.success && sendResult.messageTs) {
                 progressMessageTs = sendResult.messageTs;
-                logger.log('Sent progress message to Slack thread', { messageTs: progressMessageTs });
+                logger.log('Sent progress message to Slack thread', {
+                  messageTs: progressMessageTs,
+                });
               }
             } catch (error) {
               logger.warn('Failed to send progress message to Slack', {
@@ -454,7 +456,7 @@ export const slackAgentTask: ReturnType<
           });
         }
       }
-      
+
       // Step 7: Main polling loop for task completion
       const maxPollingTime = 30 * 60 * 1000; // 30 minutes
       const normalPollingInterval = 10000; // 10 seconds
@@ -542,7 +544,9 @@ export const slackAgentTask: ReturnType<
 
               if (sendResult.success && sendResult.messageTs) {
                 progressMessageTs = sendResult.messageTs;
-                logger.log('Sent progress message to Slack thread', { messageTs: progressMessageTs });
+                logger.log('Sent progress message to Slack thread', {
+                  messageTs: progressMessageTs,
+                });
               }
             } catch (error) {
               logger.warn('Failed to send progress message to Slack', {
