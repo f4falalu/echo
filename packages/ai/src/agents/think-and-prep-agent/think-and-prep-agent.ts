@@ -22,7 +22,7 @@ const DEFAULT_OPTIONS = {
 
 export const thinkAndPrepAgent = new Agent({
   name: 'Think and Prep Agent',
-  instructions: getThinkAndPrepInstructions,
+  instructions: '', // We control the system messages in the step at stream instantiation
   model: anthropicCachedModel('claude-sonnet-4-20250514'),
   tools: {
     sequentialThinking,

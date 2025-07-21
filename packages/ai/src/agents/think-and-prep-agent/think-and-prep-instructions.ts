@@ -567,3 +567,15 @@ export const getThinkAndPrepInstructions = async ({
     sqlDialectGuidance,
   });
 };
+
+// Export the template function without dataset context for use in step files
+export const createThinkAndPrepInstructionsWithoutDatasets = (
+  sqlDialectGuidance: string
+): string => {
+  return createThinkAndPrepInstructions({
+    databaseContext: '',
+    sqlDialectGuidance,
+  })
+    .replace(/<database_context>[\s\S]*?<\/database_context>/, '')
+    .trim();
+};

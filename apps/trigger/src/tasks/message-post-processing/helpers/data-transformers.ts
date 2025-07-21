@@ -1,44 +1,7 @@
 import type { PermissionedDataset } from '@buster/access-controls';
 import type { MessageHistory } from '@buster/ai/utils/memory/types';
 import type { PostProcessingWorkflowInput } from '@buster/ai/workflows/post-processing-workflow';
-import type { CoreMessage } from 'ai';
-import type { ConversationMessage, MessageContext, PostProcessingResult } from '../types';
-
-/**
- * Combine raw LLM messages from multiple messages into a single conversation history
- */
-export function buildConversationHistory(
-  messages: ConversationMessage[]
-): MessageHistory | undefined {
-  if (messages.length === 0) {
-    return undefined;
-  }
-
-  const allMessages: CoreMessage[] = [];
-
-  for (const message of messages) {
-    if (!message.rawLlmMessages) {
-      continue;
-    }
-
-    try {
-      // rawLlmMessages from the database is already CoreMessage[]
-      if (Array.isArray(message.rawLlmMessages)) {
-        allMessages.push(...message.rawLlmMessages);
-      }
-    } catch (_error) {
-      // Skip messages that can't be parsed
-      // Continue with other messages
-    }
-  }
-
-  if (allMessages.length === 0) {
-    return undefined;
-  }
-
-  // Return as MessageHistory which is CoreMessage[]
-  return allMessages as MessageHistory;
-}
+import type { MessageContext, PostProcessingResult } from '../types';
 
 /**
  * Extract post-processing messages as string array
@@ -80,13 +43,12 @@ export function concatenateDatasets(datasets: PermissionedDataset[]): string {
  */
 export function buildWorkflowInput(
   messageContext: MessageContext,
-  conversationMessages: ConversationMessage[],
   previousPostProcessingResults: PostProcessingResult[],
   datasets: PermissionedDataset[],
   slackMessageExists: boolean
 ): PostProcessingWorkflowInput {
-  // Build conversation history from all messages
-  const conversationHistory = buildConversationHistory(conversationMessages);
+  // Use conversation history directly from the message context
+  const conversationHistory = messageContext.rawLlmMessages as MessageHistory;
 
   // Determine if this is a follow-up
   const isFollowUp = previousPostProcessingResults.length > 0;
