@@ -27,7 +27,7 @@ COPY apps/server/ ./apps/server/
 RUN START=$(date +%s) && \
     echo "=== Starting incremental dependency update ===" && \
     rm -rf node_modules && \
-    time pnpm install --ignore-scripts && \
+    time pnpm install --frozen-lockfile --ignore-scripts && \
     END=$(date +%s) && \
     echo "Finished dependency update in $((END - START)) seconds"
 
