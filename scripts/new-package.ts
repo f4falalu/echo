@@ -371,6 +371,14 @@ config();
 
 console.info('🔍 Validating environment variables...');
 
+// Skip validation during Docker builds (environment variables are only available at runtime)
+if (process.env.DOCKER_BUILD || process.env.CI || process.env.NODE_ENV === 'production') {
+  console.info(
+    '🐳 Docker/CI build detected - skipping environment validation (will validate at runtime)'
+  );
+  process.exit(0);
+}
+
 const env = {
   NODE_ENV: process.env.NODE_ENV || 'development',
   // Add your required environment variables here
@@ -401,6 +409,49 @@ console.info('✅ All required environment variables are present');
 
   await writeFile(join(directory, "scripts", "validate-env.js"), validateEnv);
 
+  // Create .gitignore for TypeScript build artifacts
+  const gitignore = `# TypeScript build artifacts
+dist/
+build/
+*.tsbuildinfo
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# Coverage
+coverage/
+*.lcov
+.nyc_output
+
+# Node modules
+node_modules/
+
+# Temporary files
+*.tmp
+*.temp
+.DS_Store
+
+# Environment files
+.env.local
+.env.*.local
+
+# Test artifacts
+junit.xml
+test-results/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+`;
+
+  await writeFile(join(directory, ".gitignore"), gitignore);
+
   console.log("📄 Created package.json");
   console.log("📄 Created env.d.ts");
   console.log("📄 Created tsconfig.json");
@@ -409,6 +460,7 @@ console.info('✅ All required environment variables are present');
   console.log("📄 Created src/index.ts");
   console.log("📄 Created src/lib/index.ts");
   console.log("📄 Created scripts/validate-env.js");
+  console.log("📄 Created .gitignore");
 }
 
 // Run the CLI

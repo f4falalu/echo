@@ -1992,7 +1992,10 @@ export const githubIntegrations = pgTable(
       foreignColumns: [users.id],
       name: 'github_integrations_user_id_fkey',
     }).onDelete('set null'),
-    unique('github_integrations_org_installation_key').on(table.organizationId, table.installationId),
+    unique('github_integrations_org_installation_key').on(
+      table.organizationId,
+      table.installationId
+    ),
     index('idx_github_integrations_org_id').using(
       'btree',
       table.organizationId.asc().nullsLast().op('uuid_ops')

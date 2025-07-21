@@ -1,3 +1,30 @@
+// Mock database before any imports that might use it
+vi.mock('@buster/database', () => ({
+  getUserOrganizationId: vi.fn(),
+  db: {
+    select: vi.fn(),
+    from: vi.fn(),
+    where: vi.fn(),
+    limit: vi.fn(),
+    insert: vi.fn(),
+    update: vi.fn(),
+    transaction: vi.fn(),
+  },
+  organizations: {},
+  datasets: {},
+  datasetsToPermissionGroups: {},
+  permissionGroups: {},
+  users: {},
+  slackIntegrations: {},
+  eq: vi.fn(),
+  and: vi.fn(),
+  isNull: vi.fn(),
+  getSecretByName: vi.fn(),
+  createSecret: vi.fn(),
+  updateSecret: vi.fn(),
+  deleteSecret: vi.fn(),
+}));
+
 import * as accessControls from '@buster/access-controls';
 import { SlackUserService } from '@buster/slack';
 import { describe, expect, it, vi } from 'vitest';
