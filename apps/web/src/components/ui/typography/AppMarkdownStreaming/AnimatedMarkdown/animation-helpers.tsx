@@ -78,6 +78,15 @@ export const animateTokenizedText = (
       return <TokenizedText key={`text-${index}`} text={item} {...animationsProps} />;
     } else if (React.isValidElement(item)) {
       const noAnimateElementTypes: Array<React.ElementType> = ['br', 'ul', 'ol', 'td', 'th'];
+      const inlineElementTypes: Array<React.ElementType> = [
+        'strong',
+        'em',
+        'del',
+        'code',
+        'a',
+        'span'
+      ];
+
       let typeName = item.type;
       if (typeof typeName === 'function') {
         typeName = typeName.name;
@@ -90,6 +99,10 @@ export const animateTokenizedText = (
         // Render these elements directly without an animation wrapper
         return <React.Fragment key={`fragment-${index}`}>{item}</React.Fragment>;
       }
+
+      // Determine display type based on element type
+      const isInlineElement =
+        typeof typeName === 'string' && inlineElementTypes.includes(typeName as React.ElementType);
 
       // For other React elements, wrap them in animation span if they are not container elements
       // whose children are already animated by the `components` prop of ReactMarkdown
@@ -104,7 +117,7 @@ export const animateTokenizedText = (
             ...createAnimationStyle(animationsProps),
             animationIterationCount: 1,
             whiteSpace: 'pre-wrap',
-            display: 'inline-block'
+            display: isInlineElement ? 'inline' : 'inline-block'
           }}>
           {item}
         </span>
@@ -118,7 +131,7 @@ export const animateTokenizedText = (
           ...createAnimationStyle(animationsProps),
           animationIterationCount: 1,
           whiteSpace: 'pre-wrap',
-          display: 'inline-block'
+          display: 'inline'
         }}>
         {item}
       </span>

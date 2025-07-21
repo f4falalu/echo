@@ -152,7 +152,6 @@ export const useMarkdownComponents = ({
         </OrderedListComponent>
       ),
       li: ({ children, className, style }) => {
-        console.log('li', children);
         return (
           <ListItemComponent {...commonProps} className={className} style={style}>
             {children}
