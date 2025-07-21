@@ -4,7 +4,6 @@ import { createTool } from '@mastra/core/tools';
 import { wrapTraced } from 'braintrust';
 import { z } from 'zod';
 import { type SandboxContext, SandboxContextKey } from '../../../context/sandbox-context';
-import type { AnalystRuntimeContext } from '../../../schemas/workflow-schemas';
 
 const fileCreateParamsSchema = z.object({
   path: z.string().describe('The relative or absolute path to create the file at'),
