@@ -37,7 +37,7 @@ export const anthropicCachedModel = (modelId: string) => {
               .filter((systemMessage: { text?: string; content?: string }) => {
                 // Filter out messages with empty text or content
                 const messageContent = systemMessage.text || systemMessage.content || '';
-                return messageContent.trim() !== '';
+                return messageContent.trim() !== '' && messageContent.trim() !== '.';
               })
               .map(
                 (systemMessage: {
