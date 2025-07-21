@@ -11,9 +11,7 @@ const fileCreateParamsSchema = z.object({
 });
 
 const createFilesInputSchema = z.object({
-  files: z
-    .array(fileCreateParamsSchema)
-    .describe('Array of file creation operations to perform'),
+  files: z.array(fileCreateParamsSchema).describe('Array of file creation operations to perform'),
 });
 
 const createFilesOutputSchema = z.object({

@@ -43,7 +43,9 @@ async function createSingleFile(fileParams: FileCreateParams): Promise<FileCreat
   }
 }
 
-export async function createFilesSafely(fileParams: FileCreateParams[]): Promise<FileCreateResult[]> {
+export async function createFilesSafely(
+  fileParams: FileCreateParams[]
+): Promise<FileCreateResult[]> {
   const fileCreatePromises = fileParams.map((params) => createSingleFile(params));
   return Promise.all(fileCreatePromises);
 }

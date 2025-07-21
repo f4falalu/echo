@@ -1,7 +1,11 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
-import { createFilesSafely, generateFileCreateCode, type FileCreateParams } from './create-file-functions';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import {
+  type FileCreateParams,
+  createFilesSafely,
+  generateFileCreateCode,
+} from './create-file-functions';
 
 vi.mock('node:fs/promises');
 const mockFs = vi.mocked(fs);
@@ -44,9 +48,7 @@ describe('create-file-functions', () => {
     });
 
     it('should handle relative paths correctly', async () => {
-      const fileParams: FileCreateParams[] = [
-        { path: 'relative/file.txt', content: 'content' },
-      ];
+      const fileParams: FileCreateParams[] = [{ path: 'relative/file.txt', content: 'content' }];
 
       mockFs.mkdir.mockResolvedValue(undefined);
       mockFs.writeFile.mockResolvedValue(undefined);
@@ -61,15 +63,13 @@ describe('create-file-functions', () => {
 
       const expectedPath = path.join(process.cwd(), 'relative/file.txt');
       const expectedDir = path.dirname(expectedPath);
-      
+
       expect(mockFs.mkdir).toHaveBeenCalledWith(expectedDir, { recursive: true });
       expect(mockFs.writeFile).toHaveBeenCalledWith(expectedPath, 'content', 'utf-8');
     });
 
     it('should handle directory creation errors', async () => {
-      const fileParams: FileCreateParams[] = [
-        { path: '/test/file.txt', content: 'content' },
-      ];
+      const fileParams: FileCreateParams[] = [{ path: '/test/file.txt', content: 'content' }];
 
       mockFs.mkdir.mockRejectedValue(new Error('Permission denied'));
 
@@ -84,9 +84,7 @@ describe('create-file-functions', () => {
     });
 
     it('should handle file write errors', async () => {
-      const fileParams: FileCreateParams[] = [
-        { path: '/test/file.txt', content: 'content' },
-      ];
+      const fileParams: FileCreateParams[] = [{ path: '/test/file.txt', content: 'content' }];
 
       mockFs.mkdir.mockResolvedValue(undefined);
       mockFs.writeFile.mockRejectedValue(new Error('Disk full'));
@@ -141,12 +139,12 @@ describe('create-file-functions', () => {
 
       const code = generateFileCreateCode(fileParams);
 
-      expect(code).toContain('const fs = require(\'fs\');');
-      expect(code).toContain('const path = require(\'path\');');
+      expect(code).toContain("const fs = require('fs');");
+      expect(code).toContain("const path = require('path');");
       expect(code).toContain('function createSingleFile(fileParams)');
       expect(code).toContain('function createFilesConcurrently(fileParams)');
       expect(code).toContain('fs.mkdirSync(dirPath, { recursive: true });');
-      expect(code).toContain('fs.writeFileSync(resolvedPath, content, \'utf-8\');');
+      expect(code).toContain("fs.writeFileSync(resolvedPath, content, 'utf-8');");
       expect(code).toContain('console.log(JSON.stringify(results));');
       expect(code).toContain(JSON.stringify(fileParams));
     });
@@ -163,7 +161,7 @@ describe('create-file-functions', () => {
       ];
 
       const code = generateFileCreateCode(fileParams);
-      
+
       expect(code).toContain('"content":"line1\\nline2\\ttab"');
     });
   });
