@@ -15,11 +15,13 @@ pub async fn get_redshift_connection(credentials: &RedshiftCredentials) -> Resul
         .username(credentials.username.as_str())
         .password(credentials.password.as_str())
         .database(&credentials.default_database)
-        .extra_float_digits(2);
+        .extra_float_digits(2)
+        .connect_timeout(Duration::from_secs(60)); // 60 second connection timeout
 
     let redshift_pool = match PgPoolOptions::new()
         .max_connections(1)
-        .acquire_timeout(Duration::from_secs(5))
+        .acquire_timeout(Duration::from_secs(60)) // 60 second acquire timeout
+        .connect_timeout(Duration::from_secs(60)) // 60 second pool connection timeout
         .connect_with(options)
         .await
     {

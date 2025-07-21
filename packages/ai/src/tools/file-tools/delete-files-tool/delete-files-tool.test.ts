@@ -42,10 +42,7 @@ describe('delete-files-tool', () => {
 
     it('should validate input schema correctly', () => {
       const validInput = {
-        files: [
-          { path: '/test/file1.txt' },
-          { path: '/test/file2.txt' },
-        ],
+        files: [{ path: '/test/file1.txt' }, { path: '/test/file2.txt' }],
       };
 
       expect(() => deleteFiles.inputSchema.parse(validInput)).not.toThrow();
@@ -53,9 +50,7 @@ describe('delete-files-tool', () => {
 
     it('should reject invalid input schema', () => {
       const invalidInput = {
-        files: [
-          { },
-        ],
+        files: [{}],
       };
 
       expect(() => deleteFiles.inputSchema.parse(invalidInput)).toThrow();
@@ -142,10 +137,7 @@ describe('delete-files-tool', () => {
 
     it('should handle mixed success and error results', async () => {
       const input = {
-        files: [
-          { path: '/test/file1.txt' },
-          { path: '/test/file2.txt' },
-        ],
+        files: [{ path: '/test/file1.txt' }, { path: '/test/file2.txt' }],
       };
 
       const mockLocalResult = [
@@ -161,10 +153,12 @@ describe('delete-files-tool', () => {
       });
 
       expect(result.successes).toEqual(['/test/file1.txt']);
-      expect(result.failures).toEqual([{
-        path: '/test/file2.txt',
-        error: 'Permission denied',
-      }]);
+      expect(result.failures).toEqual([
+        {
+          path: '/test/file2.txt',
+          error: 'Permission denied',
+        },
+      ]);
     });
 
     it('should handle empty files array', async () => {
