@@ -15,18 +15,21 @@ pub async fn get_redshift_connection(credentials: &RedshiftCredentials) -> Resul
         .username(credentials.username.as_str())
         .password(credentials.password.as_str())
         .database(&credentials.default_database)
-        .extra_float_digits(2);
+        .extra_float_digits(2)
+        .options([("connect_timeout", "120")]); // 120 second connection timeout
 
     let redshift_pool = match PgPoolOptions::new()
         .max_connections(1)
-        .acquire_timeout(Duration::from_secs(5))
+        .acquire_timeout(Duration::from_secs(120)) // 120 second acquire timeout
+        .idle_timeout(Duration::from_secs(600)) // 10 minute idle timeout
+        .max_lifetime(Duration::from_secs(3600)) // 1 hour max lifetime
         .connect_with(options)
         .await
     {
         Ok(redshift_pool) => redshift_pool,
         Err(e) => {
             tracing::error!("There was an issue while connecting to Redshift: {}", e);
-            return Err(anyhow!(e));
+            return Err(anyhow!("Failed to connect to Redshift: {}", e));
         }
     };
 
