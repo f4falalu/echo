@@ -40,6 +40,7 @@ const TokenizedText: React.FC<TokenizedTextProps> = React.memo(
       (chunk: string, index: number) => (
         <span
           key={`animated-chunk-${index}`}
+          className={chunk.trim().length > 0 ? 'whitespace-pre-wrap' : ''}
           style={doNotAnimateInitialText && index === 0 ? {} : animationStyle}>
           {chunk}
         </span>

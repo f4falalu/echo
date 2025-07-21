@@ -24,10 +24,11 @@ const remarkPlugins = [remarkGfm];
 const AnimatedMarkdown: React.FC<AnimatedMarkdownProps> = ({
   content,
   animation = 'fadeIn',
-  animationDuration = 700,
+  animationDuration = 300,
   animationTimingFunction = 'ease-in-out',
   isStreamFinished = true,
   stripFormatting = false,
+
   className
 }) => {
   const optimizedContent = useMemo(() => {
@@ -48,11 +49,7 @@ const AnimatedMarkdown: React.FC<AnimatedMarkdownProps> = ({
         components={components}
         // remarkPlugins are used to extend or modify the Markdown parsing behavior.
         // Here, remarkGfm enables GitHub Flavored Markdown features (like tables, strikethrough, task lists).
-        remarkPlugins={remarkPlugins}
-        // rehypePlugins are used to transform the resulting HTML AST after Markdown is parsed.
-        // rehypeRaw allows raw HTML in the Markdown to be parsed and rendered (be cautious with untrusted content).
-        //  rehypePlugins={rehypePlugins}
-      >
+        remarkPlugins={remarkPlugins}>
         {optimizedContent}
       </ReactMarkdown>
     </div>

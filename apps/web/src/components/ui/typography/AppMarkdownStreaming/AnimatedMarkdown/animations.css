@@ -1,21 +1,21 @@
 @keyframes buster-fadeIn {
-    from {
-        opacity: 0;
-    }
-    to {
-        opacity: 1;
-    }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes buster-blurIn {
-    from {
-        opacity: 0;
-        filter: blur(4px);
-    }
-    to {
-        opacity: 1;
-        filter: blur(0px);
-    }
+  from {
+    opacity: 0;
+    filter: blur(3px);
+  }
+  to {
+    opacity: 1;
+    filter: blur(0px);
+  }
 }
 
 @keyframes buster-typewriter {
@@ -71,7 +71,10 @@
 }
 
 @keyframes buster-bounceIn {
-  0%, 40%, 80%, 100% {
+  0%,
+  40%,
+  80%,
+  100% {
     transform: translateY(0);
   }
   20% {
@@ -83,7 +86,8 @@
 }
 
 @keyframes buster-elastic {
-  0%, 100% {
+  0%,
+  100% {
     transform: scale(1);
   }
   10% {
@@ -145,7 +149,7 @@
   }
 }
 
-:root { 
+:root {
   --buster-marker-animation: none;
 }
 

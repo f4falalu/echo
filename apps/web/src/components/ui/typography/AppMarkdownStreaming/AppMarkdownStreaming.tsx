@@ -4,7 +4,7 @@ import { markdownLookBack } from '@llm-ui/markdown';
 import { throttleBasic, useLLMOutput } from '@llm-ui/react';
 import { LLMAnimatedMarkdown } from './AnimatedMarkdown/LLMAnimatedMarkdown';
 import CodeComponentStreaming from './CodeComponentStreaming';
-import React, { useContext } from 'react';
+import React, { useContext, useMemo } from 'react';
 import type {
   MarkdownAnimation,
   MarkdownAnimationTimingFunction
@@ -14,7 +14,7 @@ import { cn } from '@/lib/classMerge';
 
 const throttle = throttleBasic({
   // show output as soon as it arrives
-  readAheadChars: 0,
+  readAheadChars: 10,
   // stay literally at the LLM’s pace
   targetBufferChars: 10,
   adjustPercentage: 0.4,
@@ -26,9 +26,9 @@ const throttle = throttleBasic({
 const AppMarkdownStreaming = ({
   content,
   isStreamFinished,
-  animation,
-  animationDuration,
-  animationTimingFunction,
+  animation = 'blurIn',
+  animationDuration = 300,
+  animationTimingFunction = 'linear',
   className,
   stripFormatting = false
 }: {
@@ -40,7 +40,7 @@ const AppMarkdownStreaming = ({
   className?: string;
   stripFormatting?: boolean;
 }) => {
-  const { blockMatches, isFinished, ...rest } = useLLMOutput({
+  const { blockMatches, isFinished } = useLLMOutput({
     llmOutput: content,
     fallbackBlock: {
       component: LLMAnimatedMarkdown,

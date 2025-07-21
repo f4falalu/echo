@@ -5,6 +5,15 @@ import { cva } from 'class-variance-authority';
 import { StreamingMessageCode } from '../../../streaming/StreamingMessageCode';
 import { cn } from '@/lib/classMerge';
 
+// Create a context to track list item state
+const ListItemContext = React.createContext<{
+  isInListItem: boolean;
+  initialHadParagraph: boolean | null;
+}>({
+  isInListItem: false,
+  initialHadParagraph: null
+});
+
 type MarkdownComponentProps = {
   children: React.ReactNode;
   className?: string;
@@ -26,8 +35,16 @@ export const ParagraphComponent: React.FC<MarkdownComponentProps> = ({
   style,
   ...rest
 }) => {
+  const listItemContext = React.useContext(ListItemContext);
+
+  // If we're in a list item that started without paragraphs, don't render the p tag
+  if (listItemContext.isInListItem && listItemContext.initialHadParagraph === false) {
+    // Return children directly without the p tag wrapper
+    return <>{animateTokenizedText(children, rest)}</>;
+  }
+
   return (
-    <p style={style} className={className}>
+    <p style={style} className={className} data-testid="paragraph-component">
       {animateTokenizedText(children, rest)}
     </p>
   );
@@ -218,7 +235,7 @@ export const UnorderedListComponent: React.FC<MarkdownComponentProps> = ({
   ...rest
 }) => {
   return (
-    <ul style={style} className={cn(className, 'mt-1 space-y-1', 'list-inside')}>
+    <ul style={style} className={cn(className, 'mt-1 space-y-1', 'list-inside', 'list-disc')}>
       {children}
     </ul>
   );
@@ -231,7 +248,10 @@ export const OrderedListComponent: React.FC<MarkdownComponentProps & { start?: n
   start
 }) => {
   return (
-    <ol style={style} className={cn(className, 'mt-1 space-y-1', 'list-inside')} start={start}>
+    <ol
+      style={style}
+      className={cn(className, 'mt-1 space-y-1', 'list-inside', 'list-decimal')}
+      start={start}>
       {children}
     </ol>
   );
@@ -248,13 +268,15 @@ export const ListItemComponent: React.FC<MarkdownComponentProps> = ({
       style={style}
       className={cn(
         className,
-        // Ensure proper vertical alignment
-        '[&>span]:align-top'
+
+        '[&_span]:inline',
+        // // Normal text flow
+        'whitespace-normal',
+        // Fix alignment of content
+        '[&>span]:inline [&>span]:align-top',
+        '[&>p]:inline [&>p]:align-top'
       )}>
-      {animateTokenizedText(children, {
-        ...rest,
-        doNotAnimateInitialText: true
-      })}
+      {animateTokenizedText(children, rest)}
     </li>
   );
 };

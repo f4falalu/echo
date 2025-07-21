@@ -82,7 +82,7 @@ const actualTokenArray = [
   {
     token:
       "Looking at the database context, I can see there's a `customer` model that serves as the comprehensive customer model for customer relationship management and purchase behavior analysis. ",
-    delayMs: 800
+    delayMs: 300
   },
   {
     token: 'The customer is identified by `customerid` which is a unique identifier. ',
@@ -91,11 +91,11 @@ const actualTokenArray = [
   {
     token:
       'The customer model also has relationships to `person` (for individual customers) and `store` (for store customers), as well as connections to `sales_order_header` for tracking customer orders. ',
-    delayMs: 900
+    delayMs: 500
   },
   {
     token: 'This gives me a clear way to identify customers in the system.\n\n',
-    delayMs: 8400
+    delayMs: 1000
   },
   // {
   //   token: '## PAUSE 400ms seconds\n\n',
@@ -198,13 +198,7 @@ const StreamingDemo: React.FC<{ animation: MarkdownAnimation }> = ({ animation }
   return (
     <div className="flex w-full space-y-4 space-x-4">
       <div className="w-1/2">
-        <AppMarkdownStreaming
-          content={output}
-          isStreamFinished={isStreamFinished}
-          animation={animation}
-          animationDuration={700}
-          animationTimingFunction="ease-in-out"
-        />
+        <AppMarkdownStreaming content={output} isStreamFinished={isStreamFinished} />
       </div>
       <div className="flex w-1/2 flex-col space-y-2 rounded-md border border-gray-200 p-4">
         <h1 className="bg-gray-100 p-2 text-2xl font-bold">ACTUAL OUTPUT FROM LLM</h1>
@@ -482,7 +476,7 @@ export const ParagraphToListTransition: Story = {
               <AppMarkdownStreaming
                 content={output}
                 isStreamFinished={isStreamFinished}
-                animation="fadeIn"
+                animation="blurIn"
                 animationDuration={700}
                 animationTimingFunction="ease-in-out"
               />
