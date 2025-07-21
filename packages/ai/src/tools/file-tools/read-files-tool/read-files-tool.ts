@@ -2,7 +2,8 @@ import type { RuntimeContext } from '@mastra/core/runtime-context';
 import { createTool } from '@mastra/core/tools';
 import { wrapTraced } from 'braintrust';
 import { z } from 'zod';
-import type { AnalystRuntimeContext } from '../../schemas/workflow-schemas';
+import type { SandboxContext } from '../../../context/sandbox-context';
+import type { AnalystRuntimeContext } from '../../../schemas/workflow-schemas';
 
 const readFilesInputSchema = z.object({
   files: z
@@ -32,60 +33,10 @@ const readFilesOutputSchema = z.object({
   ),
 });
 
-export function parseStreamingArgs(
-  accumulatedText: string
-): Partial<z.infer<typeof readFilesInputSchema>> | null {
-  if (typeof accumulatedText !== 'string') {
-    throw new Error(`parseStreamingArgs expects string input, got ${typeof accumulatedText}`);
-  }
-
-  try {
-    const parsed = JSON.parse(accumulatedText);
-    if (parsed.files !== undefined && !Array.isArray(parsed.files)) {
-      console.warn('[read-files parseStreamingArgs] files is not an array:', {
-        type: typeof parsed.files,
-        value: parsed.files,
-      });
-      return null;
-    }
-    return { files: parsed.files || undefined };
-  } catch (error) {
-    if (error instanceof SyntaxError) {
-      const filesMatch = accumulatedText.match(/"files"\s*:\s*\[(.*)/s);
-      if (filesMatch && filesMatch[1] !== undefined) {
-        const arrayContent = filesMatch[1];
-        try {
-          const testArray = `[${arrayContent}]`;
-          const parsed = JSON.parse(testArray);
-          return { files: parsed };
-        } catch {
-          const files: string[] = [];
-          const fileMatches = arrayContent.matchAll(/"((?:[^"\\]|\\.)*)"/g);
-          for (const match of fileMatches) {
-            if (match[1] !== undefined) {
-              const filePath = match[1].replace(/\\"/g, '"').replace(/\\\\/g, '\\');
-              files.push(filePath);
-            }
-          }
-          return { files };
-        }
-      }
-      const partialMatch = accumulatedText.match(/"files"\s*:\s*\[/);
-      if (partialMatch) {
-        return { files: [] };
-      }
-      return null;
-    }
-    throw new Error(
-      `Unexpected error in parseStreamingArgs: ${error instanceof Error ? error.message : 'Unknown error'}`
-    );
-  }
-}
-
 const readFilesExecution = wrapTraced(
   async (
     params: z.infer<typeof readFilesInputSchema>,
-    _runtimeContext: RuntimeContext<AnalystRuntimeContext>
+    runtimeContext: RuntimeContext<SandboxContext>
   ): Promise<z.infer<typeof readFilesOutputSchema>> => {
     const { files } = params;
 
@@ -94,7 +45,7 @@ const readFilesExecution = wrapTraced(
     }
 
     try {
-      const { readFilesSafely } = await import('./file-operations');
+      const { readFilesSafely } = await import('./read-file');
       const fileResults = await readFilesSafely(files);
 
       return {
@@ -137,7 +88,7 @@ export const readFiles = createTool({
     runtimeContext,
   }: {
     context: z.infer<typeof readFilesInputSchema>;
-    runtimeContext: RuntimeContext<AnalystRuntimeContext>;
+    runtimeContext: RuntimeContext<SandboxContext>;
   }) => {
     return await readFilesExecution(context, runtimeContext);
   },
