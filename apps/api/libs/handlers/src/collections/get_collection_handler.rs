@@ -133,6 +133,7 @@ pub async fn get_collection_handler(
             users::name,
             users::avatar_url,
         ))
+        .order_by(users::email)
         .load::<AssetPermissionInfo>(&mut conn)
         .await;
 

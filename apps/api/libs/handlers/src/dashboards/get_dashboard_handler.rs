@@ -346,6 +346,7 @@ pub async fn get_dashboard_handler(
         .filter(asset_permissions::identity_type.eq(IdentityType::User))
         .filter(asset_permissions::deleted_at.is_null())
         .select((asset_permissions::role, users::email, users::name, users::avatar_url))
+        .order_by(users::email)
         .load::<AssetPermissionInfo>(&mut conn)
         .await;
 
