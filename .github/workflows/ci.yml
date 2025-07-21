@@ -1,0 +1,74 @@
+name: CI
+
+on:
+  pull_request:
+
+env:
+  TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+  TURBO_TEAM: ${{ vars.TURBO_TEAM }}
+  TURBO_REMOTE_ONLY: true
+
+jobs:
+  ci:
+    name: Build, Lint & Test
+    runs-on: blacksmith-4vcpu-ubuntu-2404
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Setup Node.js
+        uses: useblacksmith/setup-node@v5
+        with:
+          node-version: 22
+          cache: 'pnpm'
+
+      - name: Mount node_modules sticky disk
+        uses: useblacksmith/stickydisk@v1
+        with:
+          key: ${{ github.repository }}-node-modules-${{ hashFiles('**/pnpm-lock.yaml') }}
+          path: ./node_modules
+
+      - name: Mount pnpm store sticky disk
+        uses: useblacksmith/stickydisk@v1
+        with:
+          key: ${{ github.repository }}-pnpm-store
+          path: ~/.local/share/pnpm/store
+
+      - name: Mount Turbo cache sticky disk
+        uses: useblacksmith/stickydisk@v1
+        with:
+          key: ${{ github.repository }}-turbo-cache
+          path: ./.turbo
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build all packages
+        run: pnpm build
+        env:
+          NODE_ENV: production
+
+      - name: Lint all packages
+        run: pnpm lint
+
+      - name: Run all unit tests
+        run: pnpm test:unit
+
+      - name: Upload test coverage
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: coverage
+          path: |
+            **/coverage/**
+            !**/coverage/tmp/**
+          retention-days: 7
