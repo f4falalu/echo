@@ -2,21 +2,31 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { extractParamFromWhere, getElectricShapeUrl } from '.';
 
 describe('getElectricShapeUrl', () => {
-  process.env.ELECTRIC_PROXY_URL = 'http://localhost:3000';
-  const originalElectricUrl = process.env.ELECTRIC_PROXY_URL;
+  let originalElectricUrl: string | undefined;
+  let originalSourceId: string | undefined;
 
   beforeEach(() => {
-    // Clean up environment variable before each test
+    // Save original environment variables
+    originalElectricUrl = process.env.ELECTRIC_PROXY_URL;
+    originalSourceId = process.env.ELECTRIC_SOURCE_ID;
+
+    // Set default test values
     process.env.ELECTRIC_PROXY_URL = 'http://localhost:3000';
     process.env.ELECTRIC_SOURCE_ID = '';
   });
 
   afterEach(() => {
-    // Restore original environment variable after each test
+    // Restore original environment variables
     if (originalElectricUrl !== undefined) {
       process.env.ELECTRIC_PROXY_URL = originalElectricUrl;
     } else {
-      process.env.ELECTRIC_PROXY_URL = '';
+      delete process.env.ELECTRIC_PROXY_URL;
+    }
+
+    if (originalSourceId !== undefined) {
+      process.env.ELECTRIC_SOURCE_ID = originalSourceId;
+    } else {
+      delete process.env.ELECTRIC_SOURCE_ID;
     }
   });
 

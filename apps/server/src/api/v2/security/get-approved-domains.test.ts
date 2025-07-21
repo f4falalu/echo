@@ -1,3 +1,24 @@
+// Mock database before any imports that might use it
+vi.mock('@buster/database', () => ({
+  getUserOrganizationId: vi.fn(),
+  db: {
+    select: vi.fn(),
+    from: vi.fn(),
+    where: vi.fn(),
+    limit: vi.fn(),
+    insert: vi.fn(),
+    update: vi.fn(),
+    transaction: vi.fn(),
+  },
+  organizations: {},
+  datasets: {},
+  datasetsToPermissionGroups: {},
+  permissionGroups: {},
+  eq: vi.fn(),
+  and: vi.fn(),
+  isNull: vi.fn(),
+}));
+
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { DomainService } from './domain-service';
 import { getApprovedDomainsHandler } from './get-approved-domains';
@@ -18,7 +39,7 @@ describe('getApprovedDomainsHandler', () => {
     id: 'org-123',
     domains: ['example.com', 'test.io'],
   });
-  const mockOrgMembership = { organizationId: 'org-123', role: 'member' };
+  const mockOrgMembership = { organizationId: 'org-123', role: 'querier' as const };
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -99,7 +120,7 @@ describe('getApprovedDomainsHandler', () => {
 
   it('should not require admin permissions', async () => {
     // Test with non-admin role
-    const nonAdminMembership = { organizationId: 'org-123', role: 'member' };
+    const nonAdminMembership = { organizationId: 'org-123', role: 'querier' as const };
     vi.mocked(securityUtils.validateUserOrganization).mockResolvedValue(nonAdminMembership);
 
     const result = await getApprovedDomainsHandler(mockUser);

@@ -74,6 +74,7 @@ export const postProcessingWorkflowOutputSchema = z.object({
             'joinSelection',
             'metricAmbiguity',
             'dataStaticAssumption',
+            'uniqueIdentifier',
           ])
           .describe('The type/category of assumption made'),
         explanation: z

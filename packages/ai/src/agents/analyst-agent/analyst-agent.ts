@@ -23,7 +23,7 @@ const DEFAULT_OPTIONS = {
 
 export const analystAgent = new Agent({
   name: 'Analyst Agent',
-  instructions: getAnalystInstructions,
+  instructions: '', // We control the system messages in the step at stream instantiation
   model: anthropicCachedModel('claude-sonnet-4-20250514'),
   tools: {
     createMetrics,
