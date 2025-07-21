@@ -28,6 +28,7 @@
   },
   "dependencies": {
     "@buster/database": "workspace:*",
+    "@buster/env-utils": "workspace:*",
     "@buster/typescript-config": "workspace:*",
     "@buster/vitest-config": "workspace:*",
     "lru-cache": "^11.1.0",

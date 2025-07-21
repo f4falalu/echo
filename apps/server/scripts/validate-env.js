@@ -1,76 +1,36 @@
 #!/usr/bin/env node
 
-// Build-time environment validation
+// This script uses the shared env-utils to validate environment variables
+import { loadRootEnv, validateEnv } from '@buster/env-utils';
 
-console.info('🔍 Validating environment variables...');
+// Load environment variables from root .env file
+loadRootEnv();
 
-// Skip validation during Docker builds (environment variables are only available at runtime)
-if (process.env.DOCKER_BUILD || process.env.CI || process.env.NODE_ENV === 'production') {
-  console.info(
-    '🐳 Docker/CI build detected - skipping environment validation (will validate at runtime)'
-  );
-  process.exit(0);
-}
-
-const env = {
+// Define required environment variables for this package
+const requiredEnv = {
   SERVER_PORT: process.env.SERVER_PORT,
   SUPABASE_URL: process.env.SUPABASE_URL,
   SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY,
   ELECTRIC_PROXY_URL: process.env.ELECTRIC_PROXY_URL,
   DATABASE_URL: process.env.DATABASE_URL,
-  NODE_ENV: process.env.NODE_ENV || 'development',
   TRIGGER_SECRET_KEY: process.env.TRIGGER_SECRET_KEY,
 };
 
-// Optional Slack OAuth environment variables
-const slackEnv = {
-  SLACK_CLIENT_ID: process.env.SLACK_CLIENT_ID,
-  SLACK_CLIENT_SECRET: process.env.SLACK_CLIENT_SECRET,
-  SLACK_INTEGRATION_ENABLED: process.env.SLACK_INTEGRATION_ENABLED || 'false',
-  SLACK_APP_SUPPORT_URL: process.env.SLACK_APP_SUPPORT_URL,
-  SERVER_URL: process.env.SERVER_URL,
-};
-
-let hasErrors = false;
-
-for (const [envKey, value] of Object.entries(env)) {
-  if (!value) {
-    console.error(`❌ Missing required environment variable: ${envKey}`);
-    hasErrors = true;
-  } else {
-    console.info(`✅ ${envKey} is set`);
-  }
+// Conditionally validate Slack environment variables if integration is enabled
+const conditionalEnv = {};
+if (process.env.SLACK_INTEGRATION_ENABLED === 'true') {
+  conditionalEnv.SLACK_CLIENT_ID = process.env.SLACK_CLIENT_ID;
+  conditionalEnv.SLACK_CLIENT_SECRET = process.env.SLACK_CLIENT_SECRET;
+  conditionalEnv.SLACK_APP_SUPPORT_URL = process.env.SLACK_APP_SUPPORT_URL;
+  conditionalEnv.SERVER_URL = process.env.SERVER_URL;
 }
 
-// Check Slack variables only if integration is enabled
-if (slackEnv.SLACK_INTEGRATION_ENABLED === 'true') {
-  console.info('');
-  console.info('🔍 Slack integration is enabled. Validating Slack environment variables...');
+// Combine required and conditional environment variables
+const allRequiredEnv = { ...requiredEnv, ...conditionalEnv };
 
-  const requiredSlackVars = [
-    'SLACK_CLIENT_ID',
-    'SLACK_CLIENT_SECRET',
-    'SLACK_APP_SUPPORT_URL',
-    'SERVER_URL',
-  ];
-
-  for (const envKey of requiredSlackVars) {
-    if (!slackEnv[envKey]) {
-      console.error(`❌ Missing required Slack environment variable: ${envKey}`);
-      hasErrors = true;
-    } else {
-      console.info(`✅ ${envKey} is set`);
-    }
-  }
-} else {
-  console.info('ℹ️  Slack integration is disabled (SLACK_INTEGRATION_ENABLED != true)');
-}
+// Validate environment variables
+const { hasErrors } = validateEnv(allRequiredEnv);
 
 if (hasErrors) {
-  console.error('');
-  console.error('❌ Build cannot continue with missing environment variables.');
-  console.error('Please check your .env file and ensure all required variables are set.');
   process.exit(1);
 }
-
-console.info('✅ All required environment variables are present');

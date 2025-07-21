@@ -1,7 +1,7 @@
+import { existsSync } from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { config } from 'dotenv';
-import path from 'path';
-import { fileURLToPath } from 'url';
-import { existsSync } from 'fs';
 
 // Get the directory of the current module
 const __filename = fileURLToPath(import.meta.url);
@@ -21,9 +21,19 @@ function findMonorepoRoot(): string {
 
 // Load environment variables from root .env file
 export function loadRootEnv(): void {
-  const rootDir = findMonorepoRoot();
-  const envPath = path.join(rootDir, '.env');
-  
+  let envPath: string;
+  try {
+    const rootDir = findMonorepoRoot();
+    envPath = path.join(rootDir, '.env');
+    if (!existsSync(envPath)) {
+      // If .env does not exist in root, fallback to .env in current directory
+      envPath = path.join(__dirname, '.env');
+    }
+  } catch {
+    // If monorepo root not found, fallback to .env in current directory
+    envPath = path.join(__dirname, '.env');
+  }
+
   config({ path: envPath });
 }
 
@@ -43,11 +53,7 @@ export function validateEnv(
   requiredVars: Record<string, string | undefined>,
   options: EnvValidationOptions = {}
 ): EnvValidationResult {
-  const {
-    skipInCI = true,
-    skipInProduction = true,
-    skipInDocker = true,
-  } = options;
+  const { skipInCI = true, skipInProduction = true, skipInDocker = true } = options;
 
   console.info('🔍 Validating environment variables...');
 
@@ -57,9 +63,7 @@ export function validateEnv(
     (skipInCI && process.env.CI) ||
     (skipInProduction && process.env.NODE_ENV === 'production')
   ) {
-    console.info(
-      '🐳 Docker/CI/Production build detected - skipping environment validation'
-    );
+    console.info('🐳 Docker/CI/Production build detected - skipping environment validation');
     return { hasErrors: false, missingVariables: [] };
   }
 
@@ -77,7 +81,9 @@ export function validateEnv(
   if (missingVariables.length > 0) {
     console.error('');
     console.error('❌ Build cannot continue with missing environment variables.');
-    console.error('Please check your .env file at the project root and ensure all required variables are set.');
+    console.error(
+      'Please check your .env file at the project root and ensure all required variables are set.'
+    );
   } else {
     console.info('✅ All required environment variables are present');
   }
@@ -91,7 +97,7 @@ export function validateEnv(
 // Create a validate-env script for a package
 export function createValidateEnvScript(requiredEnvVars: string[]): string {
   const envVarsObject = requiredEnvVars
-    .map(varName => `  ${varName}: process.env.${varName},`)
+    .map((varName) => `  ${varName}: process.env.${varName},`)
     .join('\n');
 
   return `#!/usr/bin/env node

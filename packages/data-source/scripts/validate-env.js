@@ -1,39 +1,19 @@
 #!/usr/bin/env node
 
-// Load environment variables from .env file
-import { config } from 'dotenv';
-config();
+// This script uses the shared env-utils to validate environment variables
+import { loadRootEnv, validateEnv } from '@buster/env-utils';
 
-// Build-time environment validation
+// Load environment variables from root .env file
+loadRootEnv();
 
-console.log('🔍 Validating environment variables...');
+// Define required environment variables for this package
+const requiredEnv = {
+  // Currently no specific env vars required for data-source package
+};
 
-// Skip validation during Docker builds (environment variables are only available at runtime)
-if (process.env.DOCKER_BUILD || process.env.CI || process.env.NODE_ENV === 'production') {
-  console.log(
-    '🐳 Docker/CI build detected - skipping environment validation (will validate at runtime)'
-  );
-  process.exit(0);
-}
-
-const env = {};
-
-let hasErrors = false;
-
-for (const [envKey, value] of Object.entries(env)) {
-  if (!value) {
-    console.error(`❌ Missing required environment variable: ${envKey}`);
-    hasErrors = true;
-  } else {
-    console.log(`✅ ${envKey} is set`);
-  }
-}
+// Validate environment variables
+const { hasErrors } = validateEnv(requiredEnv);
 
 if (hasErrors) {
-  console.error('');
-  console.error('❌ Build cannot continue with missing environment variables.');
-  console.error('Please check your .env file and ensure all required variables are set.');
   process.exit(1);
 }
-
-console.log('✅ All required environment variables are present');

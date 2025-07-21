@@ -1,7 +1,7 @@
+import { existsSync } from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { config } from 'dotenv';
-import path from 'path';
-import { fileURLToPath } from 'url';
-import { existsSync } from 'fs';
 // Get the directory of the current module
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -18,13 +18,24 @@ function findMonorepoRoot() {
 }
 // Load environment variables from root .env file
 export function loadRootEnv() {
-    const rootDir = findMonorepoRoot();
-    const envPath = path.join(rootDir, '.env');
+    let envPath;
+    try {
+        const rootDir = findMonorepoRoot();
+        envPath = path.join(rootDir, '.env');
+        if (!existsSync(envPath)) {
+            // If .env does not exist in root, fallback to .env in current directory
+            envPath = path.join(__dirname, '.env');
+        }
+    }
+    catch {
+        // If monorepo root not found, fallback to .env in current directory
+        envPath = path.join(__dirname, '.env');
+    }
     config({ path: envPath });
 }
 // Validate required environment variables
 export function validateEnv(requiredVars, options = {}) {
-    const { skipInCI = true, skipInProduction = true, skipInDocker = true, } = options;
+    const { skipInCI = true, skipInProduction = true, skipInDocker = true } = options;
     console.info('🔍 Validating environment variables...');
     // Skip validation in certain environments
     if ((skipInDocker && process.env.DOCKER_BUILD) ||
@@ -59,7 +70,7 @@ export function validateEnv(requiredVars, options = {}) {
 // Create a validate-env script for a package
 export function createValidateEnvScript(requiredEnvVars) {
     const envVarsObject = requiredEnvVars
-        .map(varName => `  ${varName}: process.env.${varName},`)
+        .map((varName) => `  ${varName}: process.env.${varName},`)
         .join('\n');
     return `#!/usr/bin/env node
 

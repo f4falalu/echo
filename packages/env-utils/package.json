@@ -18,6 +18,6 @@
   },
   "dependencies": {
     "@buster/typescript-config": "workspace:*",
-    "dotenv": "^16.6.1"
+    "dotenv": "catalog:"
   }
 }
