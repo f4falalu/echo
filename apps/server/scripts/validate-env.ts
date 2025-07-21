@@ -17,7 +17,7 @@ const requiredEnv = {
 };
 
 // Conditionally validate Slack environment variables if integration is enabled
-const conditionalEnv = {};
+const conditionalEnv: Record<string, string> = {};
 if (process.env.SLACK_INTEGRATION_ENABLED === 'true') {
   conditionalEnv.SLACK_CLIENT_ID = process.env.SLACK_CLIENT_ID;
   conditionalEnv.SLACK_CLIENT_SECRET = process.env.SLACK_CLIENT_SECRET;
