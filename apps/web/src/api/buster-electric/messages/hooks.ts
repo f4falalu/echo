@@ -42,6 +42,7 @@ export const useTrackAndUpdateMessageChanges = (
   const { onUpdateChatMessage, onUpdateChat } = useChatUpdate();
   const checkIfWeHaveAFollowupDashboard = useCheckIfWeHaveAFollowupDashboard(messageId);
   const getChatMemoized = useGetChatMemoized();
+  const queryClient = useQueryClient();
 
   const subscribe = !!chatId && !!messageId && messageId !== 'undefined';
 
@@ -78,16 +79,20 @@ export const useTrackAndUpdateMessageChanges = (
               (reasoningMessage as ChatMessageResponseMessage_File)?.file_type === 'dashboard'
             );
           });
-          if (hasFiles) {
-            prefetchGetChatsList();
-          }
 
           if (!isEmpty(iChatMessage.response_message_ids)) {
             checkIfWeHaveAFollowupDashboard(iChatMessage);
           }
 
           if (iChatMessage.is_completed) {
-            prefetchGetChatsList();
+            queryClient.invalidateQueries({
+              queryKey: chatQueryKeys.chatsGetList().queryKey
+            });
+            if (hasFiles) {
+              queryClient.invalidateQueries({
+                queryKey: metricsQueryKeys.metricsGetList().queryKey
+              });
+            }
           }
         }
         callback?.(iChatMessage);
