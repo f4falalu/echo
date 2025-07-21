@@ -1,8 +1,8 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { z } from 'zod';
 import { RuntimeContext } from '@mastra/core/runtime-context';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { z } from 'zod';
+import { type SandboxContext, SandboxContextKey } from '../../../context/sandbox-context';
 import { createFiles } from './create-file-tool';
-import { SandboxContextKey, type SandboxContext } from '../../../context/sandbox-context';
 
 vi.mock('@buster/sandbox', () => ({
   runTypescript: vi.fn(),
@@ -14,7 +14,7 @@ vi.mock('./create-file-functions', () => ({
 }));
 
 import { runTypescript } from '@buster/sandbox';
-import { generateFileCreateCode, createFilesSafely } from './create-file-functions';
+import { createFilesSafely, generateFileCreateCode } from './create-file-functions';
 
 const mockRunTypescript = vi.mocked(runTypescript);
 const mockGenerateFileCreateCode = vi.mocked(generateFileCreateCode);
@@ -66,9 +66,7 @@ describe('create-file-tool', () => {
       runtimeContext.set(SandboxContextKey.Sandbox, mockSandbox as any);
 
       const input = {
-        files: [
-          { path: '/test/file.txt', content: 'test content' },
-        ],
+        files: [{ path: '/test/file.txt', content: 'test content' }],
       };
 
       const mockCode = 'generated typescript code';
@@ -97,14 +95,10 @@ describe('create-file-tool', () => {
 
     it('should fallback to local execution when sandbox not available', async () => {
       const input = {
-        files: [
-          { path: '/test/file.txt', content: 'test content' },
-        ],
+        files: [{ path: '/test/file.txt', content: 'test content' }],
       };
 
-      const mockLocalResult = [
-        { success: true, filePath: '/test/file.txt' },
-      ];
+      const mockLocalResult = [{ success: true, filePath: '/test/file.txt' }];
 
       mockCreateFilesSafely.mockResolvedValue(mockLocalResult);
 
@@ -126,9 +120,7 @@ describe('create-file-tool', () => {
       runtimeContext.set(SandboxContextKey.Sandbox, mockSandbox as any);
 
       const input = {
-        files: [
-          { path: '/test/file.txt', content: 'test content' },
-        ],
+        files: [{ path: '/test/file.txt', content: 'test content' }],
       };
 
       const mockCode = 'generated typescript code';
@@ -202,9 +194,7 @@ describe('create-file-tool', () => {
       runtimeContext.set(SandboxContextKey.Sandbox, mockSandbox as any);
 
       const input = {
-        files: [
-          { path: '/test/file.txt', content: 'test content' },
-        ],
+        files: [{ path: '/test/file.txt', content: 'test content' }],
       };
 
       const mockCode = 'generated typescript code';

@@ -8,7 +8,11 @@ export interface FileEditResult {
   error?: string;
 }
 
-async function editSingleFile(filePath: string, findString: string, replaceString: string): Promise<FileEditResult> {
+async function editSingleFile(
+  filePath: string,
+  findString: string,
+  replaceString: string
+): Promise<FileEditResult> {
   try {
     const resolvedPath = path.isAbsolute(filePath) ? filePath : path.join(process.cwd(), filePath);
 
@@ -23,7 +27,7 @@ async function editSingleFile(filePath: string, findString: string, replaceStrin
     }
 
     const content = await fs.readFile(resolvedPath, 'utf-8');
-    
+
     const escapedFindString = findString.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     const occurrences = (content.match(new RegExp(escapedFindString, 'g')) || []).length;
 
@@ -60,8 +64,12 @@ async function editSingleFile(filePath: string, findString: string, replaceStrin
   }
 }
 
-export async function editFilesSafely(edits: Array<{ filePath: string; findString: string; replaceString: string }>): Promise<FileEditResult[]> {
-  const editPromises = edits.map((edit) => editSingleFile(edit.filePath, edit.findString, edit.replaceString));
+export async function editFilesSafely(
+  edits: Array<{ filePath: string; findString: string; replaceString: string }>
+): Promise<FileEditResult[]> {
+  const editPromises = edits.map((edit) =>
+    editSingleFile(edit.filePath, edit.findString, edit.replaceString)
+  );
   return Promise.all(editPromises);
 }
 
@@ -69,7 +77,9 @@ export async function editFilesSafely(edits: Array<{ filePath: string; findStrin
  * Generates TypeScript code that can be executed in a sandbox to edit files
  * The generated code is self-contained and outputs results as JSON to stdout
  */
-export function generateFileEditCode(edits: Array<{ filePath: string; findString: string; replaceString: string }>): string {
+export function generateFileEditCode(
+  edits: Array<{ filePath: string; findString: string; replaceString: string }>
+): string {
   return `
 const fs = require('fs');
 const path = require('path');

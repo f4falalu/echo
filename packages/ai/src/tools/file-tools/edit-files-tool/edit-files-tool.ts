@@ -51,9 +51,9 @@ const editFilesExecution = wrapTraced(
     const { edits } = params;
 
     if (!edits || edits.length === 0) {
-      return { 
+      return {
         results: [],
-        summary: { total: 0, successful: 0, failed: 0 }
+        summary: { total: 0, successful: 0, failed: 0 },
       };
     }
 
@@ -76,7 +76,7 @@ const editFilesExecution = wrapTraced(
           message?: string;
           error?: string;
         }>;
-        
+
         try {
           fileResults = JSON.parse(result.result.trim());
         } catch (parseError) {
@@ -111,7 +111,7 @@ const editFilesExecution = wrapTraced(
           },
         };
       }
-      
+
       const { editFilesSafely } = await import('./edit-files');
       const fileResults = await editFilesSafely(edits);
 
