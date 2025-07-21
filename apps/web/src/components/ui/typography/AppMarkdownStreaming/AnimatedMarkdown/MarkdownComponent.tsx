@@ -4,15 +4,7 @@ import { animateTokenizedText, createAnimationStyle } from './animation-helpers'
 import { cva } from 'class-variance-authority';
 import { StreamingMessageCode } from '../../../streaming/StreamingMessageCode';
 import { cn } from '@/lib/classMerge';
-
-// Create a context to track list item state
-const ListItemContext = React.createContext<{
-  isInListItem: boolean;
-  initialHadParagraph: boolean | null;
-}>({
-  isInListItem: false,
-  initialHadParagraph: null
-});
+import { useAnimationContext, AnimationProvider } from './AnimationContext';
 
 type MarkdownComponentProps = {
   children: React.ReactNode;
@@ -35,17 +27,14 @@ export const ParagraphComponent: React.FC<MarkdownComponentProps> = ({
   style,
   ...rest
 }) => {
-  const listItemContext = React.useContext(ListItemContext);
-
-  // If we're in a list item that started without paragraphs, don't render the p tag
-  if (listItemContext.isInListItem && listItemContext.initialHadParagraph === false) {
-    // Return children directly without the p tag wrapper
-    return <>{animateTokenizedText(children, rest)}</>;
-  }
+  const { shouldStopAnimations } = useAnimationContext();
 
   return (
     <p style={style} className={className} data-testid="paragraph-component">
-      {animateTokenizedText(children, rest)}
+      {animateTokenizedText(children, {
+        ...rest,
+        animation: shouldStopAnimations ? 'none' : rest.animation
+      })}
     </p>
   );
 };
@@ -263,21 +252,36 @@ export const ListItemComponent: React.FC<MarkdownComponentProps> = ({
   style,
   ...rest
 }) => {
-  return (
-    <li
-      style={style}
-      className={cn(
-        className,
+  const numberOfChildren = React.Children.count(children);
+  const stopAnimations = React.useRef(false);
+  const previousChildrenLength = React.useRef(numberOfChildren);
 
-        '[&_span]:inline',
-        // // Normal text flow
-        'whitespace-normal',
-        // Fix alignment of content
-        '[&>span]:inline [&>span]:align-top',
-        '[&>p]:inline [&>p]:align-top'
-      )}>
-      {animateTokenizedText(children, rest)}
-    </li>
+  const numberOfChildrenIsLessThanPrevious = numberOfChildren < previousChildrenLength.current;
+  previousChildrenLength.current = numberOfChildren;
+
+  if (numberOfChildrenIsLessThanPrevious) {
+    stopAnimations.current = true;
+  }
+
+  return (
+    <AnimationProvider shouldStopAnimations={stopAnimations.current}>
+      <li
+        style={style}
+        className={cn(
+          className,
+          '[&_span]:inline',
+          // // Normal text flow
+          'whitespace-normal',
+          // Fix alignment of content
+          '[&>span]:inline [&>span]:align-top',
+          '[&>p]:inline [&>p]:align-top'
+        )}>
+        {animateTokenizedText(children, {
+          ...rest,
+          animation: stopAnimations.current ? 'none' : rest.animation
+        })}
+      </li>
+    </AnimationProvider>
   );
 };
 

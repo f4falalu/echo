@@ -45,7 +45,7 @@ const TokenizedText: React.FC<TokenizedTextProps> = React.memo(
           {chunk}
         </span>
       ),
-      [animationStyle]
+      [animationStyle, doNotAnimateInitialText]
     );
 
     const content = useMemo(() => {

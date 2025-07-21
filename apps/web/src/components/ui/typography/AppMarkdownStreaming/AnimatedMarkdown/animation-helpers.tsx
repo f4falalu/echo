@@ -16,7 +16,8 @@ export type MarkdownAnimation =
   | 'typewriter'
   | 'highlight'
   | 'blurAndSharpen'
-  | 'dropIn';
+  | 'dropIn'
+  | 'none';
 
 export type MarkdownAnimationTimingFunction = 'ease-in-out' | 'ease-out' | 'ease-in' | 'linear';
 
@@ -34,7 +35,8 @@ export const animations: Record<MarkdownAnimation, string> = {
   typewriter: 'buster-typewriter',
   highlight: 'buster-highlight',
   blurAndSharpen: 'buster-blurAndSharpen',
-  dropIn: 'buster-dropIn'
+  dropIn: 'buster-dropIn',
+  none: 'none'
 };
 
 interface AnimationStyleProps {
@@ -50,11 +52,12 @@ export const createAnimationStyle = ({
   animationTimingFunction = 'ease-in-out',
   isStreamFinished = true
 }: AnimationStyleProps) => {
+  if (animation === 'none' || isStreamFinished) {
+    return { animation: 'none' };
+  }
+
   return {
-    animation:
-      animation && !isStreamFinished
-        ? `${animations[animation]} ${animationDuration}ms ${animationTimingFunction}`
-        : 'none'
+    animation: `${animations[animation]} ${animationDuration}ms ${animationTimingFunction}`
   };
 };
 
@@ -115,7 +118,6 @@ export const animateTokenizedText = (
           data-testid="other-markdown-element"
           style={{
             ...createAnimationStyle(animationsProps),
-            animationIterationCount: 1,
             whiteSpace: 'pre-wrap',
             display: isInlineElement ? 'inline' : 'inline-block'
           }}>
@@ -129,7 +131,6 @@ export const animateTokenizedText = (
         data-testid="animated-markdown-element"
         style={{
           ...createAnimationStyle(animationsProps),
-          animationIterationCount: 1,
           whiteSpace: 'pre-wrap',
           display: 'inline'
         }}>
