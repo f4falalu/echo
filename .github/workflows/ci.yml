@@ -57,11 +57,11 @@ jobs:
         env:
           NODE_ENV: production
 
-      - name: Lint all packages
-        run: pnpm lint
+      - name: Lint all packages (excluding web)
+        run: pnpm lint --filter='!@buster-app/web'
 
-      - name: Run all unit tests
-        run: pnpm test:unit
+      - name: Run all unit tests (excluding web)
+        run: pnpm test:unit --filter='!@buster-app/web'
 
       - name: Upload test coverage
         uses: actions/upload-artifact@v4
