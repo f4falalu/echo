@@ -49,6 +49,58 @@ When writing code, follow this workflow to ensure code quality:
 - Keep business logic separate from infrastructure concerns
 - Use proper error handling at each level
 
+## Environment Variables
+
+This project uses a centralized environment variable system:
+
+1. **All environment variables are defined at the root level** in a single `.env` file
+2. **Turbo passes these variables** to all packages via the `globalEnv` configuration in `turbo.json`
+3. **Individual packages validate** their required environment variables using the shared `@buster/env-utils` package
+
+### Setting Up Environment Variables
+
+1. Copy `.env.example` to `.env` at the project root:
+   ```bash
+   cp .env.example .env
+   ```
+
+2. Fill in the required values in `.env`
+
+3. All packages will automatically have access to these variables through Turbo
+
+### Adding New Environment Variables
+
+When adding new environment variables:
+
+1. Add the variable to `.env.example` with a descriptive comment
+2. Add the variable name to the `globalEnv` array in `turbo.json`
+3. Update the package's `validate-env.js` script to include the new variable
+4. Update the package's `env.d.ts` file with the TypeScript type definition
+
+### Migrating Packages to Centralized Env
+
+To migrate an existing package to use the centralized environment system:
+
+1. Remove any local `.env` files from the package
+2. Add `@buster/env-utils` as a dependency:
+   ```json
+   "@buster/env-utils": "workspace:*"
+   ```
+3. Update the package's `scripts/validate-env.js` to use the shared utilities:
+   ```javascript
+   import { loadRootEnv, validateEnv } from '@buster/env-utils';
+   
+   loadRootEnv();
+   
+   const requiredEnv = {
+     DATABASE_URL: process.env.DATABASE_URL,
+     // ... other required variables
+   };
+   
+   const { hasErrors } = validateEnv(requiredEnv);
+   if (hasErrors) process.exit(1);
+   ```
+
 ### 3. Ensure Type Safety
 ```bash
 # Build entire monorepo to check types
