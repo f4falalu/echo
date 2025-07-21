@@ -41,12 +41,12 @@
     "trigger:dev": "dotenv -e .env -- pnpm --filter @buster/trigger run dev",
     "trigger:test": "pnpm --filter @buster/trigger run test",
     "trigger:test:integration": "pnpm --filter @buster/trigger run test:integration",
-    "typecheck": "turbo typecheck",
-    "typescript": "^5.8.3"
+    "typecheck": "turbo typecheck"
   },
   "dependencies": {
     "dotenv": "catalog:",
-    "dotenv-cli": "^8.0.0"
+    "dotenv-cli": "^8.0.0",
+    "typescript": "^5.8.3"
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
