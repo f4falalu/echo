@@ -1957,10 +1957,10 @@ export const githubIntegrations = pgTable(
     organizationId: uuid('organization_id').notNull(),
     userId: uuid('user_id').notNull(),
 
-    installationId: varchar('installation_id', { length: 255 }),
+    installationId: varchar('installation_id', { length: 255 }).notNull(),
     appId: varchar('app_id', { length: 255 }),
 
-    githubOrgId: varchar('github_org_id', { length: 255 }),
+    githubOrgId: varchar('github_org_id', { length: 255 }).notNull(),
     githubOrgName: varchar('github_org_name', { length: 255 }),
 
     tokenVaultKey: varchar('token_vault_key', { length: 255 }).unique(),
@@ -1991,7 +1991,7 @@ export const githubIntegrations = pgTable(
       columns: [table.userId],
       foreignColumns: [users.id],
       name: 'github_integrations_user_id_fkey',
-    }),
+    }).onDelete('set null'),
     unique('github_integrations_org_installation_key').on(table.organizationId, table.installationId),
     index('idx_github_integrations_org_id').using(
       'btree',
@@ -2000,6 +2000,10 @@ export const githubIntegrations = pgTable(
     index('idx_github_integrations_installation_id').using(
       'btree',
       table.installationId.asc().nullsLast().op('text_ops')
+    ),
+    index('idx_github_integrations_github_org_id').using(
+      'btree',
+      table.githubOrgId.asc().nullsLast().op('text_ops')
     ),
   ]
 );
