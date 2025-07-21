@@ -7,13 +7,28 @@ import { markdownLookBack } from '@llm-ui/markdown';
 const throttle = throttleBasic({
   // show output as soon as it arrives
   readAheadChars: 0,
-  // stay literally at the LLM’s pace
+  // stay literally at the LLM's pace
   targetBufferChars: 10,
   adjustPercentage: 0.4,
   frameLookBackMs: 10000,
-  // split that into 250 ms windows for smoothing
+  // split that into 250 ms windows for smoothing
   windowLookBackMs: 250
 });
+
+const blocks = [
+  // Handle code blocks (triple backticks)
+  {
+    component: CodeComponentStreaming,
+    findCompleteMatch: findCompleteCodeBlock(),
+    findPartialMatch: findPartialCodeBlock(),
+    lookBack: codeBlockLookBack()
+  }
+];
+
+const fallbackBlock = {
+  component: LLMAnimatedMarkdown,
+  lookBack: markdownLookBack()
+};
 
 export const useMarkdownStreaming = ({
   content,
@@ -24,18 +39,8 @@ export const useMarkdownStreaming = ({
 }) => {
   return useLLMOutput({
     llmOutput: content,
-    fallbackBlock: {
-      component: LLMAnimatedMarkdown,
-      lookBack: markdownLookBack()
-    },
-    blocks: [
-      {
-        component: CodeComponentStreaming,
-        findCompleteMatch: findCompleteCodeBlock(),
-        findPartialMatch: findPartialCodeBlock(),
-        lookBack: codeBlockLookBack()
-      }
-    ],
+    fallbackBlock,
+    blocks,
     isStreamFinished,
     throttle
   });

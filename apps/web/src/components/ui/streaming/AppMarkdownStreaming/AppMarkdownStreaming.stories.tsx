@@ -496,3 +496,249 @@ export const ParagraphToListTransition: Story = {
     );
   }
 };
+
+// Test case for broken up inline code streaming
+const brokenInlineCodeTokens = [
+  {
+    token: 'This paragraph contains several inline code examples. Here is a complete ',
+    delayMs: 300
+  },
+  {
+    token: '`complete_code_block`',
+    delayMs: 200
+  },
+  {
+    token: ' HOLD ',
+    delayMs: 1000
+  },
+  {
+    token: " that arrives in one token. Now let's test broken inline code: ",
+    delayMs: 300
+  },
+  {
+    token: '`br',
+    delayMs: 400
+  },
+  {
+    token: 'oken',
+    delayMs: 2000
+  },
+  {
+    token: '_code',
+    delayMs: 250
+  },
+  {
+    token: '_block',
+    delayMs: 260
+  },
+  {
+    token: '`',
+    delayMs: 650
+  },
+  {
+    token: " where the backticks and content are split. Here's another example with ",
+    delayMs: 300
+  },
+  {
+    token: '`',
+    delayMs: 500
+  },
+  {
+    token: 'useState',
+    delayMs: 200
+  },
+  {
+    token: '`',
+    delayMs: 400
+  },
+  {
+    token: ' and ',
+    delayMs: 150
+  },
+  {
+    token: '`',
+    delayMs: 300
+  },
+  {
+    token: 'useEffect',
+    delayMs: 200
+  },
+  {
+    token: '`',
+    delayMs: 300
+  },
+  {
+    token: ' hooks. Sometimes the content itself is split like ',
+    delayMs: 300
+  },
+  {
+    token: '`',
+    delayMs: 200
+  },
+  {
+    token: 'customer',
+    delayMs: 150
+  },
+  {
+    token: '_all',
+    delayMs: 150
+  },
+  {
+    token: '_time',
+    delayMs: 150
+  },
+  {
+    token: '_clv',
+    delayMs: 150
+  },
+  {
+    token: '`',
+    delayMs: 200
+  },
+  {
+    token: ' and we need to wait for all parts to complete the inline code block.\n\n',
+    delayMs: 400
+  },
+  {
+    token: 'Another paragraph with more examples: ',
+    delayMs: 200
+  },
+  {
+    token: '`',
+    delayMs: 300
+  },
+  {
+    token: 'const',
+    delayMs: 150
+  },
+  {
+    token: ' result',
+    delayMs: 150
+  },
+  {
+    token: ' =',
+    delayMs: 100
+  },
+  {
+    token: ' await',
+    delayMs: 150
+  },
+  {
+    token: ' fetch',
+    delayMs: 150
+  },
+  {
+    token: '()',
+    delayMs: 100
+  },
+  {
+    token: '`',
+    delayMs: 300
+  },
+  {
+    token: ' shows how complex code can be streamed. Mixed with normal ',
+    delayMs: 300
+  },
+  {
+    token: '`simple`',
+    delayMs: 150
+  },
+  {
+    token: ' inline code that arrives complete.\n\n',
+    delayMs: 200
+  },
+  {
+    token: 'Final test case: ',
+    delayMs: 200
+  },
+  {
+    token: '`',
+    delayMs: 400
+  },
+  {
+    token: 'database',
+    delayMs: 200
+  },
+  {
+    token: '.query',
+    delayMs: 150
+  },
+  {
+    token: '("SELECT',
+    delayMs: 150
+  },
+  {
+    token: ' * FROM',
+    delayMs: 150
+  },
+  {
+    token: ' customers',
+    delayMs: 150
+  },
+  {
+    token: ' WHERE',
+    delayMs: 150
+  },
+  {
+    token: ' active',
+    delayMs: 150
+  },
+  {
+    token: ' = true")',
+    delayMs: 200
+  },
+  {
+    token: '`',
+    delayMs: 300
+  },
+  {
+    token: ' demonstrates SQL code streaming.',
+    delayMs: 200
+  },
+  {
+    token: 'HOLD',
+    delayMs: 50000
+  }
+];
+
+export const InlineCodeStreaming: Story = {
+  render: () => {
+    const { isStreamFinished, output } = useStreamTokenArray(brokenInlineCodeTokens);
+
+    return (
+      <div className="flex flex-col space-y-4">
+        <div className="text-lg font-bold">Testing Broken Inline Code Streaming</div>
+        <div className="mb-4 text-sm text-gray-600">
+          Watch how inline code renders when backticks and content are split across multiple stream
+          tokens
+        </div>
+        <div className="flex w-full space-x-4">
+          <div className="w-1/2">
+            <h3 className="mb-2 font-semibold">Animated Output</h3>
+            <div className="rounded border border-gray-300 p-4">
+              <AppMarkdownStreaming
+                content={output}
+                isStreamFinished={isStreamFinished}
+                animation="fadeIn"
+                animationDuration={500}
+                animationTimingFunction="ease-in-out"
+              />
+            </div>
+          </div>
+          <div className="w-1/2">
+            <h3 className="mb-2 font-semibold">Raw Streaming Content</h3>
+            <div className="max-h-[400px] overflow-y-auto rounded border border-gray-300 p-4">
+              <pre className="font-mono text-sm whitespace-pre-wrap">{output}</pre>
+            </div>
+            <div className="mt-2 text-sm text-gray-600">
+              Stream Status: {isStreamFinished ? '✅ Complete' : '⏳ Streaming...'}
+            </div>
+            <div className="mt-1 text-xs text-gray-500">
+              Current length: {output.length} characters
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+};

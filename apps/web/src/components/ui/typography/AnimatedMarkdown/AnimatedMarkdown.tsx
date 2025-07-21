@@ -8,6 +8,7 @@ import { MarkdownAnimation } from './animation-helpers';
 import styles from './AnimatedMarkdown.module.css';
 import { cn } from '@/lib/classMerge';
 import './animations.css';
+import { useMount } from '../../../../hooks';
 
 export interface AnimatedMarkdownProps {
   className?: string;
@@ -28,13 +29,8 @@ const AnimatedMarkdown: React.FC<AnimatedMarkdownProps> = ({
   animationTimingFunction = 'ease-in-out',
   isStreamFinished = true,
   stripFormatting = false,
-
   className
 }) => {
-  const optimizedContent = useMemo(() => {
-    return content;
-  }, [content]);
-
   const { components } = useMarkdownComponents({
     animation,
     animationDuration,
@@ -50,7 +46,7 @@ const AnimatedMarkdown: React.FC<AnimatedMarkdownProps> = ({
         // remarkPlugins are used to extend or modify the Markdown parsing behavior.
         // Here, remarkGfm enables GitHub Flavored Markdown features (like tables, strikethrough, task lists).
         remarkPlugins={remarkPlugins}>
-        {optimizedContent}
+        {content}
       </ReactMarkdown>
     </div>
   );

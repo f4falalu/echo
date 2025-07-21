@@ -23,6 +23,7 @@ import {
   BreakComponent,
   CodeComponent
 } from './MarkdownComponent';
+import { useMount, useWhyDidYouUpdate } from '../../../../hooks';
 
 interface UseMarkdownComponentsProps {
   stripFormatting?: boolean;
@@ -139,8 +140,6 @@ export const useMarkdownComponents = ({
         </TableRowComponent>
       ),
 
-      // Components WITHOUT animations
-      // Components WITH animations (updated)
       ul: ({ children, className, style }) => (
         <UnorderedListComponent {...commonProps} className={className} style={style}>
           {children}
