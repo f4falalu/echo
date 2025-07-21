@@ -675,6 +675,9 @@ importers:
       '@buster/database':
         specifier: workspace:*
         version: link:../database
+      '@buster/sandbox':
+        specifier: workspace:*
+        version: link:../sandbox
       '@buster/server-shared':
         specifier: workspace:*
         version: link:../server-shared
@@ -690,6 +693,9 @@ importers:
       '@buster/vitest-config':
         specifier: workspace:*
         version: link:../vitest-config
+      '@daytonaio/sdk':
+        specifier: 'catalog:'
+        version: 0.24.2
       '@mastra/core':
         specifier: 'catalog:'
         version: 0.10.8(openapi-types@12.1.3)(react@18.3.1)(zod@3.25.1)

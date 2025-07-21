@@ -1,4 +1,4 @@
-import type Sandbox from '@daytonaio/sdk';
+import type { Sandbox } from '@daytonaio/sdk';
 
 export enum SandboxContextKey {
   Sandbox = 'sandbox',
