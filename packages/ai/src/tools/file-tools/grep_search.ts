@@ -5,7 +5,7 @@ import type { RuntimeContext } from '@mastra/core/runtime-context';
 import { createTool } from '@mastra/core/tools';
 import { wrapTraced } from 'braintrust';
 import { z } from 'zod';
-import type { AnalystRuntimeContext } from '../../workflows/analyst-workflow';
+import { type SandboxContext, SandboxContextKey } from '../../context/sandbox-context';
 
 const grepSearchConfigSchema = z.object({
   path: z.string().describe('File or directory path to search'),
@@ -160,7 +160,7 @@ function executeGrepSearch(search: GrepSearchConfig): {
 
 async function processGrepSearches(
   params: GrepSearchInput,
-  _runtimeContext: RuntimeContext<AnalystRuntimeContext>
+  _runtimeContext: RuntimeContext<SandboxContext>
 ): Promise<GrepSearchOutput> {
   const startTime = Date.now();
   const { searches } = params;
@@ -234,7 +234,7 @@ async function processGrepSearches(
 const executeGrepSearches = wrapTraced(
   async (
     params: GrepSearchInput,
-    runtimeContext: RuntimeContext<AnalystRuntimeContext>
+    runtimeContext: RuntimeContext<SandboxContext>
   ): Promise<GrepSearchOutput> => {
     return await processGrepSearches(params, runtimeContext);
   },
@@ -253,7 +253,7 @@ export const grepSearch = createTool({
     runtimeContext,
   }: {
     context: GrepSearchInput;
-    runtimeContext: RuntimeContext<AnalystRuntimeContext>;
+    runtimeContext: RuntimeContext<SandboxContext>;
   }) => {
     return await executeGrepSearches(context, runtimeContext);
   },
