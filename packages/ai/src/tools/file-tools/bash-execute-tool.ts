@@ -1,31 +1,32 @@
+import { spawn } from 'node:child_process';
 import { createTool } from '@mastra/core';
 import type { RuntimeContext } from '@mastra/core/runtime-context';
 import { wrapTraced } from 'braintrust';
 import { z } from 'zod';
-import { spawn } from 'node:child_process';
 
 const bashCommandSchema = z.object({
   command: z.string().describe('The bash command to execute'),
   description: z.string().optional().describe('Description of what this command does'),
-  timeout: z.number().optional().describe('Timeout in milliseconds')
+  timeout: z.number().optional().describe('Timeout in milliseconds'),
 });
 
 const inputSchema = z.object({
-  commands: z.union([
-    bashCommandSchema,
-    z.array(bashCommandSchema)
-  ]).describe('Single command or array of bash commands to execute')
+  commands: z
+    .union([bashCommandSchema, z.array(bashCommandSchema)])
+    .describe('Single command or array of bash commands to execute'),
 });
 
 const outputSchema = z.object({
-  results: z.array(z.object({
-    command: z.string(),
-    stdout: z.string(),
-    stderr: z.string().optional(),
-    exitCode: z.number(),
-    success: z.boolean(),
-    error: z.string().optional()
-  }))
+  results: z.array(
+    z.object({
+      command: z.string(),
+      stdout: z.string(),
+      stderr: z.string().optional(),
+      exitCode: z.number(),
+      success: z.boolean(),
+      error: z.string().optional(),
+    })
+  ),
 });
 
 async function executeSingleBashCommand(
@@ -38,7 +39,7 @@ async function executeSingleBashCommand(
 }> {
   return new Promise((resolve, reject) => {
     const child = spawn('bash', ['-c', command], {
-      stdio: ['pipe', 'pipe', 'pipe']
+      stdio: ['pipe', 'pipe', 'pipe'],
     });
 
     let stdout = '';
@@ -67,7 +68,7 @@ async function executeSingleBashCommand(
       resolve({
         stdout: stdout.trim(),
         stderr: stderr.trim(),
-        exitCode: code || 0
+        exitCode: code || 0,
       });
     });
 
@@ -83,7 +84,7 @@ async function executeSingleBashCommand(
 const executeBashCommands = wrapTraced(
   async (
     input: z.infer<typeof inputSchema>,
-    runtimeContext?: RuntimeContext
+    _runtimeContext?: RuntimeContext
   ): Promise<z.infer<typeof outputSchema>> => {
     const commands = Array.isArray(input.commands) ? input.commands : [input.commands];
     const results = [];
@@ -91,14 +92,14 @@ const executeBashCommands = wrapTraced(
     for (const cmd of commands) {
       try {
         const result = await executeSingleBashCommand(cmd.command, cmd.timeout);
-        
+
         results.push({
           command: cmd.command,
           stdout: result.stdout,
           stderr: result.stderr || undefined,
           exitCode: result.exitCode,
           success: result.exitCode === 0,
-          error: result.exitCode !== 0 ? result.stderr || 'Command failed' : undefined
+          error: result.exitCode !== 0 ? result.stderr || 'Command failed' : undefined,
         });
       } catch (error) {
         results.push({
@@ -107,7 +108,7 @@ const executeBashCommands = wrapTraced(
           stderr: undefined,
           exitCode: 1,
           success: false,
-          error: error instanceof Error ? error.message : 'Unknown execution error'
+          error: error instanceof Error ? error.message : 'Unknown execution error',
         });
       }
     }
@@ -124,5 +125,5 @@ export const bashExecute = createTool({
   outputSchema,
   execute: async ({ context, runtimeContext }) => {
     return await executeBashCommands(context, runtimeContext);
-  }
+  },
 });

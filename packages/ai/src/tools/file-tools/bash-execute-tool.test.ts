@@ -4,7 +4,9 @@ import { bashExecute } from './bash-execute-tool';
 describe('bash-execute-tool', () => {
   it('should have correct tool configuration', () => {
     expect(bashExecute.id).toBe('bash_execute');
-    expect(bashExecute.description).toBe('Executes bash commands and captures stdout, stderr, and exit codes');
+    expect(bashExecute.description).toBe(
+      'Executes bash commands and captures stdout, stderr, and exit codes'
+    );
     expect(bashExecute.inputSchema).toBeDefined();
     expect(bashExecute.outputSchema).toBeDefined();
     expect(bashExecute.execute).toBeDefined();
@@ -15,22 +17,19 @@ describe('bash-execute-tool', () => {
       commands: {
         command: 'echo "hello"',
         description: 'Test command',
-        timeout: 5000
-      }
+        timeout: 5000,
+      },
     };
-    
+
     const result = bashExecute.inputSchema.safeParse(singleCommandInput);
     expect(result.success).toBe(true);
   });
 
   it('should validate input schema for array of commands', () => {
     const arrayCommandInput = {
-      commands: [
-        { command: 'echo "hello"' },
-        { command: 'echo "world"', timeout: 1000 }
-      ]
+      commands: [{ command: 'echo "hello"' }, { command: 'echo "world"', timeout: 1000 }],
     };
-    
+
     const result = bashExecute.inputSchema.safeParse(arrayCommandInput);
     expect(result.success).toBe(true);
   });
@@ -44,11 +43,11 @@ describe('bash-execute-tool', () => {
           stderr: undefined,
           exitCode: 0,
           success: true,
-          error: undefined
-        }
-      ]
+          error: undefined,
+        },
+      ],
     };
-    
+
     const result = bashExecute.outputSchema.safeParse(outputExample);
     expect(result.success).toBe(true);
   });
