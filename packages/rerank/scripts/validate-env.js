@@ -8,6 +8,14 @@ config();
 
 console.log('🔍 Validating environment variables...');
 
+// Skip validation during Docker builds (environment variables are only available at runtime)
+if (process.env.DOCKER_BUILD || process.env.CI || process.env.NODE_ENV === 'production') {
+  console.log(
+    '🐳 Docker/CI build detected - skipping environment validation (will validate at runtime)'
+  );
+  process.exit(0);
+}
+
 const env = {
   RERANK_API_KEY: process.env.RERANK_API_KEY,
   RERANK_MODEL: process.env.RERANK_MODEL,
