@@ -240,9 +240,11 @@ async function main() {
   console.log(`\n✅ ${config.type === 'package' ? 'Package' : 'App'} created successfully!`);
   console.log(`\n📋 Next steps:`);
   console.log(`   1. cd ${config.type === 'package' ? 'packages' : 'apps'}/${config.name}`);
-  console.log(`   2. Update the env.d.ts file with your environment variables`);
-  console.log(`   3. Add your source code in the src/ directory`);
-  console.log(`   4. Run 'npm run build' to build the ${config.type}`);
+  console.log(`   2. Update the env.d.ts file with your environment variable types`);
+  console.log(`   3. Add any required env vars to scripts/validate-env.js`);
+  console.log(`   4. Make sure required env vars are defined in the root .env file`);
+  console.log(`   5. Add your source code in the src/ directory`);
+  console.log(`   6. Run 'npm run build' to build the ${config.type}`);
 }
 
 async function createPackageFiles(config: PackageConfig) {
@@ -281,7 +283,8 @@ async function createPackageFiles(config: PackageConfig) {
     },
     dependencies: {
       "@buster/typescript-config": "workspace:*",
-      "@buster/vitest-config": "workspace:*"
+      "@buster/vitest-config": "workspace:*",
+      "@buster/env-utils": "workspace:*"
     },
   };
 
@@ -363,48 +366,26 @@ export const howdy = () => {
   // Create a proper validate-env.js script
   const validateEnv = `#!/usr/bin/env node
 
-// Load environment variables from .env file
-import { config } from 'dotenv';
-config();
+// This script uses the shared env-utils to validate environment variables
+import { loadRootEnv, validateEnv } from '@buster/env-utils';
 
-// Build-time environment validation
+// Load environment variables from root .env file
+loadRootEnv();
 
-console.info('🔍 Validating environment variables...');
-
-// Skip validation during Docker builds (environment variables are only available at runtime)
-if (process.env.DOCKER_BUILD || process.env.CI || process.env.NODE_ENV === 'production') {
-  console.info(
-    '🐳 Docker/CI build detected - skipping environment validation (will validate at runtime)'
-  );
-  process.exit(0);
-}
-
-const env = {
-  NODE_ENV: process.env.NODE_ENV || 'development',
-  // Add your required environment variables here
+// Define required environment variables for this package
+const requiredEnv = {
+  // NODE_ENV is optional - will default to 'development' if not set
+  // Add your required environment variables here:
   // DATABASE_URL: process.env.DATABASE_URL,
   // API_KEY: process.env.API_KEY,
 };
 
-let hasErrors = false;
-
-for (const [envKey, value] of Object.entries(env)) {
-  if (!value) {
-    console.error(\`❌ Missing required environment variable: \${envKey}\`);
-    hasErrors = true;
-  } else {
-    console.info(\`✅ \${envKey} is set\`);
-  }
-}
+// Validate environment variables
+const { hasErrors } = validateEnv(requiredEnv);
 
 if (hasErrors) {
-  console.error('');
-  console.error('❌ Build cannot continue with missing environment variables.');
-  console.error('Please check your .env file and ensure all required variables are set.');
   process.exit(1);
 }
-
-console.info('✅ All required environment variables are present');
 `;
 
   await writeFile(join(directory, "scripts", "validate-env.js"), validateEnv);

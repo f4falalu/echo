@@ -36,6 +36,7 @@
     "@buster/access-controls": "workspace:*",
     "@buster/data-source": "workspace:*",
     "@buster/database": "workspace:*",
+    "@buster/env-utils": "workspace:*",
     "@buster/sandbox": "workspace:*",
     "@buster/server-shared": "workspace:*",
     "@buster/stored-values": "workspace:*",
