@@ -11,6 +11,10 @@
 FROM ghcr.io/buster-so/server-base:latest AS builder
 # Note: Base image already has tools (node, pnpm, bun) + most dependencies
 
+# Set build environment to skip runtime validation
+ENV DOCKER_BUILD=true
+ENV CI=true
+
 RUN echo "=== ULTRA-FAST BUILD START ==="
 
 # Update package files (in case they changed since base was built)
