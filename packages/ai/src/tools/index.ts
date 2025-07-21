@@ -12,3 +12,4 @@ export { createTodoList } from './planning-thinking-tools/create-todo-item-tool'
 export { editFiles } from './file-tools/edit-files-tool/edit-files-tool';
 export { readFiles } from './file-tools/read-files-tool/read-files-tool';
 export { createFiles } from './file-tools/create-files-tool/create-file-tool';
+export { deleteFiles } from './file-tools/delete-files-tool/delete-files-tool';
