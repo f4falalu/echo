@@ -104,6 +104,13 @@ export const slackSharingPermissionEnum = pgEnum('slack_sharing_permission_enum'
   'noSharing',
 ]);
 
+export const githubIntegrationStatusEnum = pgEnum('github_integration_status_enum', [
+  'pending',
+  'active',
+  'suspended',
+  'revoked',
+]);
+
 export const workspaceSharingEnum = pgEnum('workspace_sharing_enum', [
   'none',
   'can_view',
@@ -1938,6 +1945,61 @@ export const slackIntegrations = pgTable(
     check(
       'slack_integrations_status_check',
       sql`(status = 'pending' AND oauth_state IS NOT NULL) OR (status != 'pending' AND team_id IS NOT NULL)`
+    ),
+  ]
+);
+
+// GitHub integrations table
+export const githubIntegrations = pgTable(
+  'github_integrations',
+  {
+    id: uuid().defaultRandom().primaryKey().notNull(),
+    organizationId: uuid('organization_id').notNull(),
+    userId: uuid('user_id').notNull(),
+
+    installationId: varchar('installation_id', { length: 255 }),
+    appId: varchar('app_id', { length: 255 }),
+
+    githubOrgId: varchar('github_org_id', { length: 255 }),
+    githubOrgName: varchar('github_org_name', { length: 255 }),
+
+    tokenVaultKey: varchar('token_vault_key', { length: 255 }).unique(),
+    webhookSecretVaultKey: varchar('webhook_secret_vault_key', { length: 255 }),
+
+    repositoryPermissions: jsonb('repository_permissions').default({}),
+
+    status: githubIntegrationStatusEnum().default('pending').notNull(),
+    installedAt: timestamp('installed_at', { withTimezone: true, mode: 'string' }),
+    lastUsedAt: timestamp('last_used_at', { withTimezone: true, mode: 'string' }),
+
+    // Timestamps
+    createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'string' })
+      .defaultNow()
+      .notNull(),
+    deletedAt: timestamp('deleted_at', { withTimezone: true, mode: 'string' }),
+  },
+  (table) => [
+    foreignKey({
+      columns: [table.organizationId],
+      foreignColumns: [organizations.id],
+      name: 'github_integrations_organization_id_fkey',
+    }).onDelete('cascade'),
+    foreignKey({
+      columns: [table.userId],
+      foreignColumns: [users.id],
+      name: 'github_integrations_user_id_fkey',
+    }),
+    unique('github_integrations_org_installation_key').on(table.organizationId, table.installationId),
+    index('idx_github_integrations_org_id').using(
+      'btree',
+      table.organizationId.asc().nullsLast().op('uuid_ops')
+    ),
+    index('idx_github_integrations_installation_id').using(
+      'btree',
+      table.installationId.asc().nullsLast().op('text_ops')
     ),
   ]
 );
