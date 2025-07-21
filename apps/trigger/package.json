@@ -14,7 +14,7 @@
     "test:coverage": "vitest run --coverage",
     "test:integration": "vitest run **/*.int.test.ts **/*.integration.test.ts",
     "test:integration:watch": "vitest watch tests/integration",
-    "test:unit": "vitest run tests/unit",
+    "test:unit": "vitest run --exclude '**/*.int.test.ts' --exclude '**/*.integration.test.ts'",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

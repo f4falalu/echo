@@ -46,8 +46,7 @@ export const flagChatOutputSchema = z.object({
 });
 
 // Template function that accepts datasets parameter
-const createFlagChatInstructions = (datasets: string): string => {
-  return `
+const CREATE_FLAG_CHAT_SYSTEM_PROMPT = `
 <intro>
 - You are a specialized AI agent within the Buster system, an AI-powered data analyst platform.
 - Your role is to review the chat history between Buster and the user, identify signs of user frustration or issues, and flag chats for review by the data team.
@@ -135,13 +134,12 @@ Flag the chat if any of these conditions are met:
   - Title: "No Final Response Sent"
 - If no issues, use the \`noIssuesFound\` tool.
 </output_format>
-
----
-
-<dataset_context>
-${datasets}
-</dataset_context>
 `;
+
+const createDatasetSystemMessage = (datasets: string): string => {
+  return `<dataset_context>
+${datasets}
+</dataset_context>`;
 };
 
 const DEFAULT_OPTIONS = {
@@ -151,9 +149,13 @@ const DEFAULT_OPTIONS = {
   providerOptions: {
     anthropic: {
       disableParallelToolCalls: true,
-      thinking: { type: 'enabled', budgetTokens: 16000 },
+      thinking: { type: 'enabled', budgetTokens: 5000 },
     },
   },
+};
+
+const DEFAULT_CACHE_OPTIONS = {
+  anthropic: { cacheControl: { type: 'ephemeral' } },
 };
 
 export const flagChatStepExecution = async ({
@@ -165,15 +167,10 @@ export const flagChatStepExecution = async ({
     // Use the conversation history directly since this is post-processing
     const conversationHistory = inputData.conversationHistory;
 
-    // Create instructions with datasets injected
-    const instructionsWithDatasets = createFlagChatInstructions(
-      inputData.datasets || 'No dataset context available.'
-    );
-
     // Create agent with injected instructions
     const flagChatAgentWithContext = new Agent({
       name: 'Flag Chat Review',
-      instructions: instructionsWithDatasets,
+      instructions: '', // We control the system messages below at stream instantiation
       model: anthropicCachedModel('claude-sonnet-4-20250514'),
       tools: {
         flagChat,
@@ -188,18 +185,39 @@ export const flagChatStepExecution = async ({
     if (conversationHistory && conversationHistory.length > 0) {
       // Format conversation history as text for analysis
       const chatHistoryText = JSON.stringify(conversationHistory, null, 2);
-      const analysisPrompt = `Here is the chat history to analyze:
+
+      // Create separate system message for chat history and user message for analysis prompt
+      messages = [
+        {
+          role: 'system',
+          content: createDatasetSystemMessage(
+            inputData.datasets || 'No dataset context available.'
+          ),
+          providerOptions: DEFAULT_CACHE_OPTIONS,
+        },
+        {
+          role: 'system',
+          content: CREATE_FLAG_CHAT_SYSTEM_PROMPT,
+          providerOptions: DEFAULT_CACHE_OPTIONS,
+        },
+        {
+          role: 'system',
+          content: `Here is the chat history to analyze:
 
 User: ${inputData.userName}
 
 Chat History:
 \`\`\`
 ${chatHistoryText}
-\`\`\`
-
-Please analyze this conversation history for potential user frustration or issues that should be flagged for review.`;
-
-      messages = standardizeMessages(analysisPrompt);
+\`\`\``,
+          providerOptions: DEFAULT_CACHE_OPTIONS,
+        },
+        {
+          role: 'user',
+          content:
+            'Please analyze this conversation history for potential user frustration or issues that should be flagged for review.',
+        },
+      ];
     } else {
       // If no conversation history, create a message indicating that
       messages = standardizeMessages(`User: ${inputData.userName}
