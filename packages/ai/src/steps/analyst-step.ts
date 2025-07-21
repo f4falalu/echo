@@ -4,11 +4,14 @@ import type { CoreMessage } from 'ai';
 import { wrapTraced } from 'braintrust';
 import { z } from 'zod';
 
+import { getPermissionedDatasets } from '@buster/access-controls';
 import type {
   ChatMessageReasoningMessage,
   ChatMessageResponseMessage,
 } from '@buster/server-shared/chats';
 import { analystAgent } from '../agents/analyst-agent/analyst-agent';
+import { createAnalystInstructionsWithoutDatasets } from '../agents/analyst-agent/analyst-agent-instructions';
+import { getSqlDialectGuidance } from '../agents/shared/sql-dialect-guidance';
 import { ChunkProcessor } from '../utils/database/chunk-processor';
 import {
   MessageHistorySchema,
@@ -55,6 +58,10 @@ const outputSchema = z.object({
     .optional(),
   finalReasoningMessage: z.string().optional(),
 });
+
+const DEFAULT_CACHE_OPTIONS = {
+  anthropic: { cacheControl: { type: 'ephemeral' } },
+};
 
 /**
  * Transform reasoning/response history to match ChunkProcessor expected types
@@ -253,6 +260,28 @@ const analystExecution = async ({
   let retryCount = 0;
   const maxRetries = 5;
 
+  // Get database context and SQL dialect guidance
+  const userId = runtimeContext.get('userId');
+  const dataSourceSyntax = runtimeContext.get('dataSourceSyntax');
+
+  const datasets = await getPermissionedDatasets(userId, 0, 1000);
+
+  // Extract yml_content from each dataset and join with separators
+  const assembledYmlContent = datasets
+    .map((dataset: { ymlFile: string | null | undefined }) => dataset.ymlFile)
+    .filter((content: string | null | undefined) => content !== null && content !== undefined)
+    .join('\n---\n');
+
+  // Get dialect-specific guidance
+  const sqlDialectGuidance = getSqlDialectGuidance(dataSourceSyntax);
+
+  // Create dataset system message
+  const createDatasetSystemMessage = (databaseContext: string): string => {
+    return `<database_context>
+${databaseContext}
+</database_context>`;
+  };
+
   // Initialize chunk processor with histories from previous step
   // IMPORTANT: Pass histories from think-and-prep to accumulate across steps
   const { reasoningHistory: transformedReasoning, responseHistory: transformedResponse } =
@@ -359,8 +388,25 @@ const analystExecution = async ({
 
       const wrappedStream = wrapTraced(
         async () => {
+          // Create system messages with dataset context and instructions
+          const systemMessages: CoreMessage[] = [
+            {
+              role: 'system',
+              content: createDatasetSystemMessage(assembledYmlContent),
+              providerOptions: DEFAULT_CACHE_OPTIONS,
+            },
+            {
+              role: 'system',
+              content: createAnalystInstructionsWithoutDatasets(sqlDialectGuidance),
+              providerOptions: DEFAULT_CACHE_OPTIONS,
+            },
+          ];
+
+          // Combine system messages with conversation messages
+          const messagesWithSystem = [...systemMessages, ...messages];
+
           // Create stream directly without retryableAgentStreamWithHealing
-          const stream = await analystAgent.stream(messages, {
+          const stream = await analystAgent.stream(messagesWithSystem, {
             toolCallStreaming: true,
             runtimeContext,
             maxRetries: 5,
@@ -442,7 +488,7 @@ const analystExecution = async ({
           continue;
         }
 
-        // Update messages for the retry
+        // Update messages for the retry (without system messages)
         messages = healedMessages;
 
         // Update chunk processor with the healed messages

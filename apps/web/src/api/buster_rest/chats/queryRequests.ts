@@ -50,9 +50,9 @@ export const useGetListChats = (
   });
 };
 
-export const prefetchGetListChats = async (
-  params?: Parameters<typeof getListChats>[0],
-  queryClientProp?: QueryClient
+export const prefetchGetChatsList = async (
+  queryClientProp?: QueryClient,
+  params?: Parameters<typeof getListChats>[0]
 ) => {
   const queryClient = queryClientProp || new QueryClient();
 

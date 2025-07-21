@@ -114,7 +114,7 @@ export function buildChatWithMessages(
   const messageIds: string[] = new Array(messageCount);
 
   // Cache user info to avoid repeated property access
-  const userName = user?.name || 'Unknown User';
+  const userName = user?.name || user?.email || 'Unknown User';
   const userAvatar = user?.avatarUrl || undefined;
 
   // Single iteration with optimized object creation

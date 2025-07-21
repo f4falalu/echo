@@ -11,6 +11,10 @@
 FROM ghcr.io/buster-so/server-base:latest AS builder
 # Note: Base image already has tools (node, pnpm, bun) + most dependencies
 
+# Set build environment to skip runtime validation
+ENV DOCKER_BUILD=true
+ENV CI=true
+
 RUN echo "=== ULTRA-FAST BUILD START ==="
 
 # Update package files (in case they changed since base was built)
@@ -19,9 +23,11 @@ COPY packages/ ./packages/
 COPY apps/server/ ./apps/server/
 
 # Incremental install - only installs NEW/UPDATED packages since base
+# Force reinstall to ensure all dependencies are properly linked
 RUN START=$(date +%s) && \
     echo "=== Starting incremental dependency update ===" && \
-    time pnpm install --ignore-scripts && \
+    rm -rf node_modules && \
+    time pnpm install --ignore-scripts --frozen-lockfile && \
     END=$(date +%s) && \
     echo "Finished dependency update in $((END - START)) seconds"
 

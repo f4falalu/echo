@@ -1,20 +1,7 @@
 import { getPermissionedDatasets } from '@buster/access-controls';
-import {
-  and,
-  chats,
-  desc,
-  eq,
-  getDb,
-  isNotNull,
-  isNull,
-  lt,
-  lte,
-  messages,
-  users,
-} from '@buster/database';
+import { and, chats, eq, getDb, isNotNull, isNull, lte, messages, users } from '@buster/database';
 import type { CoreMessage } from 'ai';
 import {
-  type ConversationMessage,
   DataFetchError,
   type MessageContext,
   MessageNotFoundError,
@@ -34,6 +21,7 @@ export async function fetchMessageWithContext(messageId: string): Promise<Messag
         chatId: messages.chatId,
         createdBy: messages.createdBy,
         createdAt: messages.createdAt,
+        rawLlmMessages: messages.rawLlmMessages,
         userName: users.name,
         organizationId: chats.organizationId,
       })
@@ -53,6 +41,7 @@ export async function fetchMessageWithContext(messageId: string): Promise<Messag
       chatId: messageData.chatId,
       createdBy: messageData.createdBy,
       createdAt: new Date(messageData.createdAt),
+      rawLlmMessages: messageData.rawLlmMessages as CoreMessage[],
       userName: messageData.userName ?? 'Unknown',
       organizationId: messageData.organizationId,
     };
@@ -62,36 +51,6 @@ export async function fetchMessageWithContext(messageId: string): Promise<Messag
     }
     throw new DataFetchError(
       `Failed to fetch message context for ${messageId}`,
-      error instanceof Error ? { cause: error } : undefined
-    );
-  }
-}
-
-/**
- * Fetch all messages for conversation history
- */
-export async function fetchConversationHistory(chatId: string): Promise<ConversationMessage[]> {
-  const db = getDb();
-
-  try {
-    const result = await db
-      .select({
-        id: messages.id,
-        rawLlmMessages: messages.rawLlmMessages,
-        createdAt: messages.createdAt,
-      })
-      .from(messages)
-      .where(and(eq(messages.chatId, chatId), isNull(messages.deletedAt)))
-      .orderBy(messages.createdAt);
-
-    return result.map((msg) => ({
-      id: msg.id,
-      rawLlmMessages: msg.rawLlmMessages as CoreMessage[],
-      createdAt: new Date(msg.createdAt),
-    }));
-  } catch (error) {
-    throw new DataFetchError(
-      `Failed to fetch conversation history for chat ${chatId}`,
       error instanceof Error ? { cause: error } : undefined
     );
   }

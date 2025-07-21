@@ -156,6 +156,102 @@ async function updatePnpmWorkspace(config: PackageConfig) {
   }
 }
 
+async function updateVsCodeWorkspace(config: PackageConfig) {
+  try {
+    const workspaceFile = join(process.cwd(), '.vscode', 'buster.code-workspace');
+    let content = await readFile(workspaceFile, 'utf-8');
+    
+    // Clean up trailing commas that might cause JSON.parse to fail
+    content = content.replace(/,(\s*[}\]])/g, '$1');
+    
+    // Parse the JSON
+    const workspace = JSON.parse(content);
+    
+    // Create the new folder entry
+    const newFolderEntry = {
+      path: `../packages/${config.name}`
+    };
+    
+    if (config.type === 'app') {
+      newFolderEntry.path = `../apps/${config.name}`;
+    }
+    
+    // Check if the entry already exists
+    const existingIndex = workspace.folders.findIndex((folder: any) => folder.path === newFolderEntry.path);
+    if (existingIndex !== -1) {
+      console.log("✅ Entry already exists in VS Code workspace");
+      return;
+    }
+    
+    // Find the correct insertion point to maintain alphabetical order within the type
+    let insertIndex = -1;
+    const basePath = config.type === 'app' ? '../apps/' : '../packages/';
+    
+    for (let i = 0; i < workspace.folders.length; i++) {
+      const folder = workspace.folders[i];
+      
+      // If we're adding a package, find where packages start and end
+      if (config.type === 'package' && folder.path.startsWith('../packages/')) {
+        // Keep looking for the right alphabetical spot
+        if (folder.path > newFolderEntry.path) {
+          insertIndex = i;
+          break;
+        }
+      }
+      // If we're adding an app, find where apps start and end
+      else if (config.type === 'app' && folder.path.startsWith('../apps/')) {
+        // Keep looking for the right alphabetical spot
+        if (folder.path > newFolderEntry.path) {
+          insertIndex = i;
+          break;
+        }
+      }
+      // If we've moved past the section we care about, insert here
+      else if (config.type === 'package' && folder.path.startsWith('../packages/')) {
+        // We're in the packages section, continue
+        continue;
+      } else if (config.type === 'app' && folder.path.startsWith('../apps/')) {
+        // We're in the apps section, continue
+        continue;
+      } else if (config.type === 'package' && !folder.path.startsWith('../apps/') && !folder.path.startsWith('../packages/')) {
+        // We've reached non-package/app entries, insert before this
+        insertIndex = i;
+        break;
+      }
+    }
+    
+    // If we didn't find a spot, add to the end of the appropriate section
+    if (insertIndex === -1) {
+      // Find the last entry of our type
+      for (let i = workspace.folders.length - 1; i >= 0; i--) {
+        const folder = workspace.folders[i];
+        if (folder.path.startsWith(basePath)) {
+          insertIndex = i + 1;
+          break;
+        }
+      }
+      
+      // If still no index found, just append
+      if (insertIndex === -1) {
+        insertIndex = workspace.folders.length;
+      }
+    }
+    
+    // Insert the new folder entry
+    workspace.folders.splice(insertIndex, 0, newFolderEntry);
+    
+    // Write the updated workspace file with proper formatting
+    const newContent = JSON.stringify(workspace, null, 2) + '\n';
+    await writeFile(workspaceFile, newContent);
+    console.log("✅ Updated VS Code workspace file");
+    
+  } catch (error) {
+    console.warn("⚠️ Warning: Failed to update VS Code workspace file. Please add manually:");
+    console.warn(`   { "path": "../${config.type === 'package' ? 'packages' : 'apps'}/${config.name}" }`);
+    console.warn(error);
+  }
+}
+
 async function main() {
   const rl = createReadlineInterface();
   
@@ -228,6 +324,10 @@ async function main() {
     console.log("📝 Updating pnpm-workspace.yaml...");
     await updatePnpmWorkspace(config);
   }
+  
+  // Update VS Code workspace
+  console.log("📝 Updating VS Code workspace...");
+  await updateVsCodeWorkspace(config);
   
   // Install dependencies
   console.log("\n📦 Installing dependencies...");
@@ -371,6 +471,14 @@ config();
 
 console.info('🔍 Validating environment variables...');
 
+// Skip validation during Docker builds (environment variables are only available at runtime)
+if (process.env.DOCKER_BUILD || process.env.CI || process.env.NODE_ENV === 'production') {
+  console.info(
+    '🐳 Docker/CI build detected - skipping environment validation (will validate at runtime)'
+  );
+  process.exit(0);
+}
+
 const env = {
   NODE_ENV: process.env.NODE_ENV || 'development',
   // Add your required environment variables here
@@ -401,6 +509,49 @@ console.info('✅ All required environment variables are present');
 
   await writeFile(join(directory, "scripts", "validate-env.js"), validateEnv);
 
+  // Create .gitignore for TypeScript build artifacts
+  const gitignore = `# TypeScript build artifacts
+dist/
+build/
+*.tsbuildinfo
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# Coverage
+coverage/
+*.lcov
+.nyc_output
+
+# Node modules
+node_modules/
+
+# Temporary files
+*.tmp
+*.temp
+.DS_Store
+
+# Environment files
+.env.local
+.env.*.local
+
+# Test artifacts
+junit.xml
+test-results/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+`;
+
+  await writeFile(join(directory, ".gitignore"), gitignore);
+
   console.log("📄 Created package.json");
   console.log("📄 Created env.d.ts");
   console.log("📄 Created tsconfig.json");
@@ -409,6 +560,7 @@ console.info('✅ All required environment variables are present');
   console.log("📄 Created src/index.ts");
   console.log("📄 Created src/lib/index.ts");
   console.log("📄 Created scripts/validate-env.js");
+  console.log("📄 Created .gitignore");
 }
 
 // Run the CLI

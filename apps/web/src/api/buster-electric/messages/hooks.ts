@@ -4,13 +4,7 @@ import { useShape, useShapeStream } from '../instances';
 import { useChatUpdate } from '@/context/Chats/useChatUpdate';
 import { updateMessageShapeToIChatMessage } from './helpers';
 import { useMemoizedFn } from '@/hooks';
-import {
-  prefetchGetListChats,
-  prefetchGetChat,
-  useGetChatMemoized,
-  useGetChatMessageMemoized,
-  useGetChat
-} from '@/api/buster_rest/chats';
+import { useGetChatMemoized, useGetChatMessageMemoized } from '@/api/buster_rest/chats';
 import uniq from 'lodash/uniq';
 import type { ChatMessageResponseMessage_File } from '@buster/server-shared/chats';
 import type { BusterChatMessage } from '../../asset_interfaces/chat';
@@ -85,7 +79,7 @@ export const useTrackAndUpdateMessageChanges = (
             );
           });
           if (hasFiles) {
-            prefetchGetListChats();
+            prefetchGetChatsList();
           }
 
           if (!isEmpty(iChatMessage.response_message_ids)) {
@@ -93,7 +87,7 @@ export const useTrackAndUpdateMessageChanges = (
           }
 
           if (iChatMessage.is_completed) {
-            prefetchGetListChats();
+            prefetchGetChatsList();
           }
         }
         callback?.(iChatMessage);
