@@ -4,15 +4,21 @@ import { useShape, useShapeStream } from '../instances';
 import { useChatUpdate } from '@/context/Chats/useChatUpdate';
 import { updateMessageShapeToIChatMessage } from './helpers';
 import { useMemoizedFn } from '@/hooks';
-import { prefetchGetListChats, useGetChatMemoized } from '@/api/buster_rest/chats';
+import {
+  prefetchGetListChats,
+  prefetchGetChat,
+  useGetChatMemoized,
+  useGetChatMessageMemoized,
+  useGetChat
+} from '@/api/buster_rest/chats';
 import uniq from 'lodash/uniq';
 import type { ChatMessageResponseMessage_File } from '@buster/server-shared/chats';
 import type { BusterChatMessage } from '../../asset_interfaces/chat';
 import { useQueryClient } from '@tanstack/react-query';
 import { dashboardQueryKeys } from '../../query_keys/dashboard';
-import last from 'lodash/last';
 import isEmpty from 'lodash/isEmpty';
 import { metricsQueryKeys } from '../../query_keys/metric';
+import { chatQueryKeys } from '../../query_keys/chat';
 
 export const useGetMessage = ({ chatId, messageId }: { chatId: string; messageId: string }) => {
   const shape = useMemo(() => messageShape({ chatId, messageId }), [chatId, messageId]);
@@ -135,10 +141,12 @@ const useCheckIfWeHaveAFollowupDashboard = (messageId: string) => {
 export const useTrackAndUpdateNewMessages = ({ chatId }: { chatId: string | undefined }) => {
   const { onUpdateChat } = useChatUpdate();
   const getChatMemoized = useGetChatMemoized();
+  const getChatMessageMemoized = useGetChatMessageMemoized();
+  const queryClient = useQueryClient();
 
   const subscribe = !!chatId;
 
-  const shape = useMemo(() => messagesShape({ chatId: chatId || '' }), [chatId]);
+  const shape = useMemo(() => messagesShape({ chatId: chatId || '', columns: ['id'] }), [chatId]);
 
   return useShapeStream(
     shape,
@@ -151,13 +159,20 @@ export const useTrackAndUpdateNewMessages = ({ chatId }: { chatId: string | unde
         if (chat && messageId) {
           const currentMessageIds = chat.message_ids;
           const allMessageIds = uniq([...currentMessageIds, messageId]);
-          
+
           if (currentMessageIds.length !== allMessageIds.length) {
             onUpdateChat({
               ...chat,
               id: chatId,
               message_ids: allMessageIds
             });
+
+            const messageIsStored = getChatMessageMemoized(messageId);
+            if (!messageIsStored) {
+              queryClient.invalidateQueries({
+                queryKey: chatQueryKeys.chatsGetChat(chatId).queryKey
+              });
+            }
           }
         }
       }
