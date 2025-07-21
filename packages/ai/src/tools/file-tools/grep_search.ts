@@ -1,11 +1,11 @@
-import { createTool } from '@mastra/core/tools';
-import { wrapTraced } from 'braintrust';
-import { z } from 'zod';
-import type { RuntimeContext } from '@mastra/core/runtime-context';
-import type { AnalystRuntimeContext } from '../../workflows/analyst-workflow';
 import { execSync } from 'node:child_process';
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
+import type { RuntimeContext } from '@mastra/core/runtime-context';
+import { createTool } from '@mastra/core/tools';
+import { wrapTraced } from 'braintrust';
+import { z } from 'zod';
+import type { AnalystRuntimeContext } from '../../workflows/analyst-workflow';
 
 const grepSearchConfigSchema = z.object({
   path: z.string().describe('File or directory path to search'),
@@ -15,7 +15,11 @@ const grepSearchConfigSchema = z.object({
   invertMatch: z.boolean().optional().default(false).describe('Invert matches (-v)'),
   lineNumbers: z.boolean().optional().default(true).describe('Show line numbers (-n)'),
   wordMatch: z.boolean().optional().default(false).describe('Match whole words only (-w)'),
-  fixedStrings: z.boolean().optional().default(false).describe('Treat pattern as fixed string (-F)'),
+  fixedStrings: z
+    .boolean()
+    .optional()
+    .default(false)
+    .describe('Treat pattern as fixed string (-F)'),
   maxCount: z.number().optional().describe('Maximum number of matches (-m)'),
 });
 
@@ -72,7 +76,7 @@ function executeGrepSearch(search: GrepSearchConfig): {
     }
 
     const grepArgs: string[] = [];
-    
+
     if (search.recursive) grepArgs.push('-r');
     if (search.ignoreCase) grepArgs.push('-i');
     if (search.invertMatch) grepArgs.push('-v');
@@ -80,93 +84,95 @@ function executeGrepSearch(search: GrepSearchConfig): {
     if (search.wordMatch) grepArgs.push('-w');
     if (search.fixedStrings) grepArgs.push('-F');
     if (search.maxCount) grepArgs.push('-m', search.maxCount.toString());
-    
+
     grepArgs.push(search.pattern);
     grepArgs.push(search.path);
-    
-    const output = execSync(`grep ${grepArgs.map(arg => `"${arg.replace(/"/g, '\\"')}"`).join(' ')}`, { 
-      encoding: 'utf8',
-      maxBuffer: 1024 * 1024 * 10, // 10MB buffer
-      timeout: 30000 // 30 second timeout
-    });
-    
-    const lines = output.trim().split('\n').filter(line => line.length > 0);
+
+    const output = execSync(
+      `grep ${grepArgs.map((arg) => `"${arg.replace(/"/g, '\\"')}"`).join(' ')}`,
+      {
+        encoding: 'utf8',
+        maxBuffer: 1024 * 1024 * 10, // 10MB buffer
+        timeout: 30000, // 30 second timeout
+      }
+    );
+
+    const lines = output
+      .trim()
+      .split('\n')
+      .filter((line) => line.length > 0);
     const matches: Array<{ file: string; lineNumber?: number; content: string }> = [];
-    
+
     for (const line of lines) {
       if (search.lineNumbers) {
         const match = line.match(/^([^:]+):(\d+):(.*)$/);
-        if (match && match[1] && match[2] && match[3] !== undefined) {
+        if (match?.[1] && match[2] && match[3] !== undefined) {
           matches.push({
             file: match[1],
-            lineNumber: parseInt(match[2], 10),
-            content: match[3]
-          });
-        } else {
-          matches.push({
-            file: search.path,
-            content: line
+            lineNumber: Number.parseInt(match[2], 10),
+            content: match[3],
           });
         }
+        matches.push({
+          file: search.path,
+          content: line,
+        });
       } else {
         const colonIndex = line.indexOf(':');
         if (colonIndex > 0) {
           matches.push({
             file: line.substring(0, colonIndex),
-            content: line.substring(colonIndex + 1)
-          });
-        } else {
-          matches.push({
-            file: search.path,
-            content: line
+            content: line.substring(colonIndex + 1),
           });
         }
+        matches.push({
+          file: search.path,
+          content: line,
+        });
       }
     }
-    
+
     return {
       success: true,
       path: search.path,
       pattern: search.pattern,
       matches,
-      matchCount: matches.length
+      matchCount: matches.length,
     };
-    
-  } catch (error: any) {
-    if (error.status === 1) {
+  } catch (error: unknown) {
+    if (error && typeof error === 'object' && 'status' in error && error.status === 1) {
       return {
         success: true,
         path: search.path,
         pattern: search.pattern,
         matches: [],
-        matchCount: 0
-      };
-    } else {
-      return {
-        success: false,
-        path: search.path,
-        pattern: search.pattern,
-        error: error.message || 'Unknown error occurred'
+        matchCount: 0,
       };
     }
+    return {
+      success: false,
+      path: search.path,
+      pattern: search.pattern,
+      error: error instanceof Error ? error.message : 'Unknown error occurred',
+    };
   }
 }
 
 async function processGrepSearches(
   params: GrepSearchInput,
-  runtimeContext: RuntimeContext<AnalystRuntimeContext>
+  _runtimeContext: RuntimeContext<AnalystRuntimeContext>
 ): Promise<GrepSearchOutput> {
   const startTime = Date.now();
   const { searches } = params;
-  
+
   const successfulSearches: z.infer<typeof grepSearchResultSchema>[] = [];
   const failedSearches: z.infer<typeof grepSearchFailureSchema>[] = [];
-  
+
   const results = await Promise.allSettled(
     searches.map(async (search) => {
       try {
         const result = executeGrepSearch(search);
-        
+
         if (result.success) {
           return {
             type: 'success' as const,
@@ -177,16 +183,15 @@ async function processGrepSearches(
               matchCount: result.matchCount || 0,
             },
           };
-        } else {
-          return {
-            type: 'failure' as const,
-            data: {
-              path: result.path,
-              pattern: result.pattern,
-              error: result.error || 'Unknown error occurred',
-            },
-          };
         }
+        return {
+          type: 'failure' as const,
+          data: {
+            path: result.path,
+            pattern: result.pattern,
+            error: result.error || 'Unknown error occurred',
+          },
+        };
       } catch (error) {
         return {
           type: 'failure' as const,
@@ -199,7 +204,7 @@ async function processGrepSearches(
       }
     })
   );
-  
+
   for (const result of results) {
     if (result.status === 'fulfilled') {
       if (result.value.type === 'success') {
@@ -215,9 +220,9 @@ async function processGrepSearches(
       });
     }
   }
-  
+
   const duration = Date.now() - startTime;
-  
+
   return {
     message: `Completed ${successfulSearches.length} searches successfully, ${failedSearches.length} failed`,
     duration,
@@ -239,7 +244,8 @@ const executeGrepSearches = wrapTraced(
 // Export the tool
 export const grepSearch = createTool({
   id: 'grep_search',
-  description: 'Performs grep-like searches on files and directories with pattern matching. Supports various grep options like recursive search, case-insensitive matching, line numbers, and more. Can handle bulk searches efficiently.',
+  description:
+    'Performs grep-like searches on files and directories with pattern matching. Supports various grep options like recursive search, case-insensitive matching, line numbers, and more. Can handle bulk searches efficiently.',
   inputSchema: grepSearchInputSchema,
   outputSchema: grepSearchOutputSchema,
   execute: async ({
