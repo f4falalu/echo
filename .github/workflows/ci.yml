@@ -52,8 +52,8 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Build all packages
-        run: pnpm build
+      - name: Build all packages (excluding web)
+        run: pnpm build --filter='!@buster-app/web'
         env:
           NODE_ENV: production
 
