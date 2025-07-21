@@ -49,7 +49,6 @@
     "autoevals": "^0.0.130",
     "braintrust": "catalog:",
     "drizzle-orm": "catalog:",
-    "@daytonaio/sdk": "catalog:",
     "glob": "^11.0.3",
     "minimatch": "^10.0.3",
     "node-sql-parser": "^5.3.10",

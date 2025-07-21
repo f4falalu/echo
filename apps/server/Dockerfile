@@ -23,8 +23,10 @@ COPY packages/ ./packages/
 COPY apps/server/ ./apps/server/
 
 # Incremental install - only installs NEW/UPDATED packages since base
+# Force reinstall to ensure all dependencies are properly linked
 RUN START=$(date +%s) && \
     echo "=== Starting incremental dependency update ===" && \
+    rm -rf node_modules && \
     time pnpm install --ignore-scripts && \
     END=$(date +%s) && \
     echo "Finished dependency update in $((END - START)) seconds"
