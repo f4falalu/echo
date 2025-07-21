@@ -39,6 +39,7 @@ export const assumptionItemSchema = z
         'joinSelection',
         'metricAmbiguity',
         'dataStaticAssumption',
+        'uniqueIdentifier',
       ])
       .describe('The classification type of the assumption'),
     explanation: z

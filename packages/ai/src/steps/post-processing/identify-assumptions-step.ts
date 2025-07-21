@@ -73,6 +73,7 @@ export const identifyAssumptionsOutputSchema = z.object({
             'joinSelection',
             'metricAmbiguity',
             'dataStaticAssumption',
+            'uniqueIdentifier',
           ])
           .describe('The type/category of assumption made'),
         explanation: z
@@ -188,7 +189,7 @@ When identifying assumptions, use the following classification types to categori
 12. **metricDefinition**: Assumptions about how a metric is defined or calculated, due to missing documentation.  
     - *Example*: Assuming \`FIRST_CLOSED_WON_DEAL_AMOUNT\` is the total deal value.  
     - *Available labels*: major, minor  
-    - *Label decision guidelines*: If the metric is undocumented, defining it introduces a new metric and is "major." If partial documentation exists and the assumption is a standard tweak (e.g., summing a documented total), it’s "minor."
+    - *Label decision guidelines*: If the metric is undocumented, defining it introduces a new metric and is "major." If you are using a documented precomputed metric that is clearly connected to the user request, it is "minor". If partial documentation exists and the assumption is a standard tweak (e.g., summing a documented total), it’s "minor."
 
 13. **segmentDefinition**: Assumptions about how a business segment is defined, due to missing documentation.  
     - *Example*: Assuming all \`TEAMS\` entries are Redo customers.  
@@ -214,7 +215,7 @@ When identifying assumptions, use the following classification types to categori
 17. **aggregation**: Assumptions about how to aggregate data (e.g., sum, average). Everytime the SQL query uses aggregation, it is an assumption.
     - *Example*: Assuming revenue is summed, not averaged.  
     - *Available labels*: major, minor  
-    - *Label decision guidelines*: If the aggregation is undocumented and introduces a new calculation or if the aggregation selection is not stated in the response message, it’s "major." If it’s based on a documented or standard method, it’s "minor."
+    - *Label decision guidelines*: If the aggregation is undocumented and introduces a new calculation or if the aggregation selection is not stated in the response message, it’s "major." Only minor if it the only obvious aggregation method, it is a documented preference, or will have the same result as other aggregation methods.
 
 18. **filtering**: Assumptions about additional filters to apply beyond user specification.  
     - *Example*: Assuming to exclude inactive records.  
@@ -261,6 +262,11 @@ When identifying assumptions, use the following classification types to categori
     - *Example*: Assuming departmental budgets remain constant year over year without considering potential changes due to economic conditions or strategic shifts.
     - *Available labels*: major, minor
     - *Label decision guidelines*: If the assumption of static data could significantly impact the analysis or decision-making process, it’s "major." If the assumption is based on standard practices or if the impact of the assumption is minimal, it’s "minor."
+
+27. **uniqueIdentifier**: Assumptions about uniqueness of an identifier.
+    - *Example*: Assuming that someone can be identified by their name
+    - *Available labels*: major, minor
+    - *Label decision guidelines*: If the assumption of uniqueness could significantly impact the analysis or decision-making process or cause different entities to be grouped together incorrectly, it’s "major." If the assumption is based on standard practices or if the impact of the assumption is minimal, it’s "minor."
 </classification_types>
 
 <identification_guidelines>
@@ -286,6 +292,14 @@ When identifying assumptions, use the following classification types to categori
 - For vagueness of user request:
     - Identify terms with multiple meanings; classify assumptions about their interpretation under "metricInterpretation," "segmentInterpretation," etc.
     - Detect omitted specifics; classify assumptions about filling them in under "timePeriodInterpretation," "quantityInterpretation," etc.
+- For uniqueIdentifier assumptions:
+    - If the identifier is the ID of a table, it is not a \`uniqueIdentifier\ assumption
+    - If the identifier is an ID from a different table, it is a \`uniqueIdentifier\ assumption
+    - If the identifier is not an ID (e.g. name), it is a \`uniqueIdentifier\ assumption
+    - If the identifier is being used to purposely group distinct entities together (grouping customers into premium and non-premium groups), it is not a \`uniqueIdentifier\` assumption
+- For filtering and segmentDefinition assumptions:
+    - If the the filter or segment definition is not documented, it should be flagged as a major assumption even if it is validated using the executeSQL tool unless the filter or segment definition is a standard filter or segment definition.
+    - Data exploration is not able to prove that you capture all the data that you need to, it can only show that you are not capturing data that you want to avoid.
 </identification_guidelines>
 
 <scoring_framework>
@@ -322,6 +336,27 @@ For assumptions where the classification type is not pre-assigned to \`timeRelat
 - Whenever there are multiple possible ways to aggregate something, it is a \`metricAmbiguity\` assumption.
 - Whenever your analysis requires a numeric value to be static, a \`dataStaticAssumption\` was made.
 - Whenever filters are used, a \`filtering\` or \`segmentDefinition\` assumption was made.
+- Data is only considered documented if it is explicitly stated in the user input message or if it is stated in the \`dataset_context\`
+- When using precomputed metrics:
+    - If the metric is not documented, it is a \`metricDefinition\` assumption
+    - If the metric is documented but it is not obviously connected to the user request, it is a \`metricDefinition\` assumption
+    - If the metric is documented and obviously connected to the user request (a total_shipped metric is clearly connected to the user request of "number of orders shipped"), it is only a minor \`metricDefinition\` assumption.
+- When interpeting a user request:
+    - Basic clearly defined interpretations of a user request are not assumptions as long as they are explained in the response message.
+      - Example: Assuming former employees are employees that are not active
+      - Example: Assuming profit represents revenue minus cost
+    - Basic definitions built by clearly defined interpretations of a user request are not assumptions as long as the definition is explained in the output message.
+      - Example: Assuming former employees are defined as employees where \`is_active\` is \`false\` 
+      - Example: Assuming "profit" is computed as the sum of \`revenue - cost\`
+    - Interpretation that is not immediately obvious is an assumption.
+      - Example: assuming "most popular coffee" means the coffee with the most orders instead of the coffee with the most oz sold is a \`metricAmbiguity\` or \`aggregation\` assumption.
+      - Example: assuming "churned customers" means customers who have not made a purchase in the last 6 months is a \`segmentDefinition\` assumption.
+      - Example: Assuming you can filter for clothes by doing where \`material is in ('cotton', 'wool')\` is a major \`filtering\` or \`segmentDefinition\` assumption.
+    - If the interpretation is critical to the analysis, it is a major assumption. If the interpretation is not critical to the analysis, it is a minor assumption.
+- When looking at numeric columns:
+    - Validate if you are making a \`valueScale\` assumption.
+    - Validate if you are making a \`dataStaticAssumption\` assumption.
+- When there are multiple relationships/entities that you can join on, validate if you are making a \`joinSelection\` assumption.
 </evaluation_guidelines>
 
 <output_format>
@@ -332,18 +367,6 @@ For assumptions where the classification type is not pre-assigned to \`timeRelat
         - **classification**: The classification type from the list (e.g., "fieldMapping").
         - **label**: The assigned label (\`timeRelated\`, \`vagueRequest\`, \`major\`, or \`minor\`).
         - **explanation**: Detailed explanation of the assumption, including query context, documentation gaps, potential issues, and contributing factors. When referring to specific fields or calculations, use backticks (e.g. "... the \`sales.revenue\` table..."). For assumptions with label \`major\` or \`minor\`, include the reasoning for the significance assessment. For \`timeRelated\` or \`vagueRequest\`, explain why the assumption fits that category.
-- No assumptions identified:
-    - Use the \`noAssumptionsIdentified\` tool to indicate that no assumptions were made.
-</output_format>
-
-<output_format>
-- Identified assumptions:
-    - Use the \`listAssumptionsResponse\` tool to list all assumptions found.
-    - Each assumption should include:
-        - **descriptive_title**: Clear title summarizing the assumption.
-        - **classification**: The classification type from the list (e.g., "fieldMapping").
-        - **label**: The assigned label (\`timeRelated\`, \`vagueRequest\`, \`major\`, or \`minor\`).
-        - **explanation**: Detailed explanation of the assumption, including query context, documentation gaps, potential issues, and contributing factors. Ensure that all references to database tables, fields, and calculations are enclosed in backticks for clarity (e.g., \`sales.revenue\` or \`(# of orders delivered on or before due date) / (Total number of orders) * 100\`). For assumptions with label \`major\` or \`minor\`, include the reasoning for the significance assessment. For \`timeRelated\` or \`vagueRequest\`, explain why the assumption fits that category.
 - No assumptions identified:
     - Use the \`noAssumptionsIdentified\` tool to indicate that no assumptions were made.
 </output_format>
