@@ -17,7 +17,8 @@
     { "path": "../packages/test-utils" },
     { "path": "../packages/typescript-config" },
     { "path": "../packages/vitest-config" },
-    { "path": "../packages/web-tools" }
+    { "path": "../packages/web-tools" },
+    { "path": "../packages/sandbox" }
   ],
   "settings": {
     "editor.defaultFormatter": "biomejs.biome",
