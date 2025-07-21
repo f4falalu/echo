@@ -6,6 +6,7 @@ import React, { useRef } from 'react';
 import { prefetchGetCollectionsList } from '@/api/buster_rest/collections';
 import { prefetchGetDashboardsList } from '@/api/buster_rest/dashboards';
 import { prefetchGetMetricsList } from '@/api/buster_rest/metrics';
+import { prefetchGetChatsList } from '@/api/buster_rest/chats';
 import { useAsyncEffect } from '@/hooks';
 import { timeout } from '@/lib';
 import { BusterRoutes, createBusterRoute } from '@/routes';
@@ -32,6 +33,7 @@ const LOW_PRIORITY_ROUTES = [
 ];
 
 const LOW_PRIORITY_PREFETCH: ((queryClient: QueryClient) => Promise<QueryClient>)[] = [
+  (queryClient) => prefetchGetChatsList(queryClient),
   (queryClient) => prefetchGetMetricsList(queryClient),
   (queryClient) => prefetchGetDashboardsList(queryClient),
   (queryClient) => prefetchGetCollectionsList(queryClient)
@@ -45,7 +47,7 @@ export const RoutePrefetcher: React.FC = React.memo(() => {
   const isPreFetchedLowPriorityRef = useRef(false);
 
   useAsyncEffect(async () => {
-    const prefetchRoutes = (
+    const prefetchRoutes = async (
       routes: BusterRoutes[],
       prefetchFns: typeof LOW_PRIORITY_PREFETCH,
       priority: 'high' | 'low'
@@ -58,8 +60,8 @@ export const RoutePrefetcher: React.FC = React.memo(() => {
         router.prefetch(path);
       }
 
-      for (const prefetchFn of prefetchFns) {
-        prefetchFn(queryClient);
+      for await (const prefetchFn of prefetchFns) {
+        await prefetchFn(queryClient);
       }
 
       if (priority === 'high') {

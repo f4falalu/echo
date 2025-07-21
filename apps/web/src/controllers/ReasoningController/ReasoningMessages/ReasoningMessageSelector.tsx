@@ -14,28 +14,16 @@ import { ReasoningMessage_Text } from './ReasoningMessage_Text';
 import isEmpty from 'lodash/isEmpty';
 
 const itemAnimationConfig: MotionProps = {
-  initial: { opacity: 0, height: 0 },
+  initial: { opacity: 0 },
   animate: {
     opacity: 1,
-    height: 'auto',
     transition: {
-      height: {
-        type: 'spring',
-        stiffness: 400,
-        damping: 32
-      },
       opacity: { duration: 0.16 }
     }
   },
   exit: {
     opacity: 0,
-    height: 0,
     transition: {
-      height: {
-        type: 'spring',
-        stiffness: 450,
-        damping: 35
-      },
       opacity: { duration: 0.12 }
     }
   }
