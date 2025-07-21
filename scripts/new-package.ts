@@ -241,7 +241,7 @@ async function main() {
   console.log(`\n📋 Next steps:`);
   console.log(`   1. cd ${config.type === 'package' ? 'packages' : 'apps'}/${config.name}`);
   console.log(`   2. Update the env.d.ts file with your environment variable types`);
-  console.log(`   3. Add any required env vars to scripts/validate-env.js`);
+  console.log(`   3. Add any required env vars to scripts/validate-env.ts`);
   console.log(`   4. Make sure required env vars are defined in the root .env file`);
   console.log(`   5. Add your source code in the src/ directory`);
   console.log(`   6. Run 'npm run build' to build the ${config.type}`);
@@ -272,7 +272,7 @@ async function createPackageFiles(config: PackageConfig) {
       },
     },
     scripts: {
-      prebuild: "node scripts/validate-env.js",
+      prebuild: "tsx scripts/validate-env.ts",
       build: "tsc",
       typecheck: "tsc --noEmit",
       dev: "tsc --watch",
@@ -363,7 +363,7 @@ export const howdy = () => {
 
   await writeFile(join(directory, "src", "lib", "index.ts"), libIndex);
 
-  // Create a proper validate-env.js script
+  // Create a proper validate-env.ts script
   const validateEnv = `#!/usr/bin/env node
 
 // This script uses the shared env-utils to validate environment variables
@@ -388,7 +388,7 @@ if (hasErrors) {
 }
 `;
 
-  await writeFile(join(directory, "scripts", "validate-env.js"), validateEnv);
+  await writeFile(join(directory, "scripts", "validate-env.ts"), validateEnv);
 
   // Create .gitignore for TypeScript build artifacts
   const gitignore = `# TypeScript build artifacts
@@ -440,7 +440,7 @@ test-results/
   console.log("📄 Created vitest.config.ts");
   console.log("📄 Created src/index.ts");
   console.log("📄 Created src/lib/index.ts");
-  console.log("📄 Created scripts/validate-env.js");
+  console.log("📄 Created scripts/validate-env.ts");
   console.log("📄 Created .gitignore");
 }
 

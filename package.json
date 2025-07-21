@@ -52,6 +52,7 @@
     "@biomejs/biome": "^1.9.4",
     "@types/node": "^20.19.4",
     "turbo": "^2.5.5",
+    "tsx": "catalog:",
     "vitest": "catalog:"
   },
   "peerDependencies": {
