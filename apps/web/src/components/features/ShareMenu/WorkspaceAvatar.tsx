@@ -8,7 +8,7 @@ export const WorkspaceAvatar: React.FC<{
   return (
     <div
       className={cn(
-        'text-md flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-gray-100 text-gray-600',
+        'text-md text-icon-color bg-background flex h-6 w-6 shrink-0 items-center justify-center rounded-full border',
         className
       )}>
       <ApartmentBuilding />
