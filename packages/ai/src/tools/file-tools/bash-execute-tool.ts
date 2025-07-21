@@ -1,8 +1,9 @@
-import { spawn } from 'node:child_process';
-import { createTool } from '@mastra/core';
+import { runTypescript } from '@buster/sandbox';
 import type { RuntimeContext } from '@mastra/core/runtime-context';
+import { createTool } from '@mastra/core/tools';
 import { wrapTraced } from 'braintrust';
 import { z } from 'zod';
+import { type SandboxContext, SandboxContextKey } from '../../../context/sandbox-context';
 
 const bashCommandSchema = z.object({
   command: z.string().describe('The bash command to execute'),
@@ -29,91 +30,67 @@ const outputSchema = z.object({
   ),
 });
 
-async function executeSingleBashCommand(
-  command: string,
-  timeout?: number
-): Promise<{
-  stdout: string;
-  stderr: string;
-  exitCode: number;
-}> {
-  return new Promise((resolve, reject) => {
-    const child = spawn('bash', ['-c', command], {
-      stdio: ['pipe', 'pipe', 'pipe'],
-    });
-
-    let stdout = '';
-    let stderr = '';
-    let timeoutId: NodeJS.Timeout | undefined;
-
-    if (timeout) {
-      timeoutId = setTimeout(() => {
-        child.kill('SIGTERM');
-        reject(new Error(`Command timed out after ${timeout}ms`));
-      }, timeout);
-    }
-
-    child.stdout?.on('data', (data) => {
-      stdout += data.toString();
-    });
-
-    child.stderr?.on('data', (data) => {
-      stderr += data.toString();
-    });
-
-    child.on('close', (code) => {
-      if (timeoutId) {
-        clearTimeout(timeoutId);
-      }
-      resolve({
-        stdout: stdout.trim(),
-        stderr: stderr.trim(),
-        exitCode: code || 0,
-      });
-    });
-
-    child.on('error', (error) => {
-      if (timeoutId) {
-        clearTimeout(timeoutId);
-      }
-      reject(error);
-    });
-  });
-}
-
 const executeBashCommands = wrapTraced(
   async (
     input: z.infer<typeof inputSchema>,
-    _runtimeContext?: RuntimeContext
+    runtimeContext: RuntimeContext<SandboxContext>
   ): Promise<z.infer<typeof outputSchema>> => {
     const commands = Array.isArray(input.commands) ? input.commands : [input.commands];
-    const results = [];
 
-    for (const cmd of commands) {
-      try {
-        const result = await executeSingleBashCommand(cmd.command, cmd.timeout);
+    if (!commands || commands.length === 0) {
+      return { results: [] };
+    }
 
-        results.push({
-          command: cmd.command,
-          stdout: result.stdout,
-          stderr: result.stderr || undefined,
-          exitCode: result.exitCode,
-          success: result.exitCode === 0,
-          error: result.exitCode !== 0 ? result.stderr || 'Command failed' : undefined,
-        });
-      } catch (error) {
-        results.push({
+    try {
+      const sandbox = runtimeContext.get(SandboxContextKey.Sandbox);
+
+      if (sandbox) {
+        const { generateBashExecuteCode } = await import('./bash-execute-functions');
+        const code = generateBashExecuteCode(commands);
+        const result = await runTypescript(sandbox, code);
+
+        if (result.exitCode !== 0) {
+          console.error('Sandbox execution failed. Exit code:', result.exitCode);
+          console.error('Stderr:', result.stderr);
+          console.error('Stdout:', result.result);
+          throw new Error(`Sandbox execution failed: ${result.stderr || 'Unknown error'}`);
+        }
+
+        let bashResults: Array<{
+          command: string;
+          stdout: string;
+          stderr?: string;
+          exitCode: number;
+          success: boolean;
+          error?: string;
+        }>;
+        try {
+          bashResults = JSON.parse(result.result.trim());
+        } catch (parseError) {
+          console.error('Failed to parse sandbox output:', result.result);
+          throw new Error(
+            `Failed to parse sandbox output: ${parseError instanceof Error ? parseError.message : 'Unknown parse error'}`
+          );
+        }
+
+        return { results: bashResults };
+      }
+
+      const { executeBashCommandsSafely } = await import('./bash-execute-functions');
+      const bashResults = await executeBashCommandsSafely(commands);
+      return { results: bashResults };
+    } catch (error) {
+      return {
+        results: commands.map((cmd) => ({
           command: cmd.command,
           stdout: '',
           stderr: undefined,
           exitCode: 1,
           success: false,
-          error: error instanceof Error ? error.message : 'Unknown execution error',
-        });
-      }
+          error: `Execution error: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        })),
+      };
     }
-
-    return { results };
   },
   { name: 'bash-execute-tool' }
 );
@@ -123,7 +100,13 @@ export const bashExecute = createTool({
   description: 'Executes bash commands and captures stdout, stderr, and exit codes',
   inputSchema,
   outputSchema,
-  execute: async ({ context, runtimeContext }) => {
+  execute: async ({
+    context,
+    runtimeContext,
+  }: {
+    context: z.infer<typeof inputSchema>;
+    runtimeContext: RuntimeContext<SandboxContext>;
+  }) => {
     return await executeBashCommands(context, runtimeContext);
   },
 });

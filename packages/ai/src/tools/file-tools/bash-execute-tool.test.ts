@@ -1,54 +1,78 @@
-import { describe, expect, it } from 'vitest';
+import type { RuntimeContext } from '@mastra/core/runtime-context';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+
+vi.mock('./bash-execute-functions', () => ({
+  executeBashCommandsSafely: vi.fn(),
+}));
+
+import { executeBashCommandsSafely } from './bash-execute-functions';
 import { bashExecute } from './bash-execute-tool';
 
+const mockExecuteBashCommandsSafely = vi.mocked(executeBashCommandsSafely);
+
 describe('bash-execute-tool', () => {
-  it('should have correct tool configuration', () => {
-    expect(bashExecute.id).toBe('bash_execute');
-    expect(bashExecute.description).toBe(
-      'Executes bash commands and captures stdout, stderr, and exit codes'
-    );
-    expect(bashExecute.inputSchema).toBeDefined();
-    expect(bashExecute.outputSchema).toBeDefined();
-    expect(bashExecute.execute).toBeDefined();
+  let mockRuntimeContext: RuntimeContext;
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+
+    mockRuntimeContext = {
+      get: vi.fn(),
+    } as any;
   });
 
-  it('should validate input schema for single command', () => {
-    const singleCommandInput = {
-      commands: {
+  it('should execute commands locally', async () => {
+    const input = {
+      commands: [{ command: 'echo "hello"' }],
+    };
+
+    const mockLocalResults = [
+      {
         command: 'echo "hello"',
-        description: 'Test command',
-        timeout: 5000,
+        stdout: 'hello',
+        stderr: undefined,
+        exitCode: 0,
+        success: true,
+        error: undefined,
       },
-    };
+    ];
 
-    const result = bashExecute.inputSchema.safeParse(singleCommandInput);
-    expect(result.success).toBe(true);
+    mockExecuteBashCommandsSafely.mockResolvedValue(mockLocalResults);
+
+    const result = await bashExecute.execute({
+      context: input,
+      runtimeContext: mockRuntimeContext,
+    });
+
+    expect(mockExecuteBashCommandsSafely).toHaveBeenCalledWith(input.commands);
+    expect(result.results).toEqual(mockLocalResults);
   });
 
-  it('should validate input schema for array of commands', () => {
-    const arrayCommandInput = {
-      commands: [{ command: 'echo "hello"' }, { command: 'echo "world"', timeout: 1000 }],
+  it('should handle execution errors', async () => {
+    const input = {
+      commands: [{ command: 'echo "hello"' }],
     };
 
-    const result = bashExecute.inputSchema.safeParse(arrayCommandInput);
-    expect(result.success).toBe(true);
+    mockExecuteBashCommandsSafely.mockRejectedValue(new Error('Execution failed'));
+
+    const result = await bashExecute.execute({
+      context: input,
+      runtimeContext: mockRuntimeContext,
+    });
+
+    expect(result.results).toHaveLength(1);
+    expect(result.results[0]?.success).toBe(false);
+    expect(result.results[0]?.error).toContain('Execution error');
   });
 
-  it('should validate output schema structure', () => {
-    const outputExample = {
-      results: [
-        {
-          command: 'echo "test"',
-          stdout: 'test',
-          stderr: undefined,
-          exitCode: 0,
-          success: true,
-          error: undefined,
-        },
-      ],
-    };
+  it('should handle empty commands array', async () => {
+    const input = { commands: [] };
 
-    const result = bashExecute.outputSchema.safeParse(outputExample);
-    expect(result.success).toBe(true);
+    const result = await bashExecute.execute({
+      context: input,
+      runtimeContext: mockRuntimeContext,
+    });
+
+    expect(result.results).toHaveLength(0);
   });
 });
