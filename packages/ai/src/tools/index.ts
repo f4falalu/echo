@@ -10,3 +10,4 @@ export { modifyDashboards } from './visualization-tools/modify-dashboards-file-t
 export { executeSql } from './database-tools/execute-sql';
 export { createTodoList } from './planning-thinking-tools/create-todo-item-tool';
 export { readFiles } from './file-tools/read-files-tool/read-files-tool';
+export { createFiles } from './file-tools/create-files-tool/create-file-tool';
