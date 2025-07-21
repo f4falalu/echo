@@ -71,7 +71,8 @@ The analysis uses data from your employee productivity system, which tracks tota
       }
 
       // Step 4: Add the action button block
-      const buttonUrl = 'https://platform.buster.so/app/chats/123/dashboards/456?dashboard_version_number=1';
+      const buttonUrl =
+        'https://platform.buster.so/app/chats/123/dashboards/456?dashboard_version_number=1';
       messageBlocks.push({
         type: 'actions' as const,
         elements: [
@@ -95,17 +96,21 @@ The analysis uses data from your employee productivity system, which tracks tota
       };
 
       // Step 6: Send the message
-      const result = await messagingService.sendMessage('xoxb-test-token', 'C123', completionMessage);
+      const result = await messagingService.sendMessage(
+        'xoxb-test-token',
+        'C123',
+        completionMessage
+      );
 
       expect(result.success).toBe(true);
 
       // Verify the message was sent correctly
       const callArgs = mockSlackClient.chat.postMessage.mock.calls[0][0];
-      
+
       // The blocks should be preserved as-is
       expect(callArgs.blocks).toBeDefined();
       expect(callArgs.blocks).toEqual(messageBlocks);
-      
+
       // Verify the button is at the bottom
       const lastBlock = callArgs.blocks[callArgs.blocks.length - 1];
       expect(lastBlock.type).toBe('actions');
@@ -173,10 +178,10 @@ Content 5`;
       expect(result.success).toBe(true);
 
       const callArgs = mockSlackClient.chat.postMessage.mock.calls[0][0];
-      
+
       // Verify all blocks including button are present
       expect(callArgs.blocks).toEqual(messageBlocks);
-      
+
       // Verify button is still at the bottom
       const lastBlock = callArgs.blocks[callArgs.blocks.length - 1];
       expect(lastBlock.type).toBe('actions');
@@ -191,10 +196,10 @@ Content 5`;
       });
 
       const originalText = '## Header\nSome **bold** text';
-      
+
       // Pre-convert the markdown
       const convertedOnce = convertMarkdownToSlack(originalText);
-      
+
       // Create message with both text and already-converted blocks
       const message = {
         text: originalText, // Original markdown text
@@ -222,10 +227,10 @@ Content 5`;
       expect(result.success).toBe(true);
 
       const callArgs = mockSlackClient.chat.postMessage.mock.calls[0][0];
-      
+
       // Blocks should be exactly what we provided, not re-converted
       expect(callArgs.blocks).toEqual(message.blocks);
-      
+
       // Verify the button is still there
       const lastBlock = callArgs.blocks[callArgs.blocks.length - 1];
       expect(lastBlock.type).toBe('actions');

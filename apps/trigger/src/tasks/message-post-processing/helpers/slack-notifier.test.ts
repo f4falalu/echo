@@ -16,11 +16,15 @@ vi.mock('@buster/database', () => ({
     select: vi.fn(() => ({
       from: vi.fn(() => ({
         where: vi.fn(() => ({
-          limit: vi.fn(() => Promise.resolve([{ id: 'integration-1', defaultChannel: { id: 'C123' }, tokenVaultKey: 'vault-key-1' }]))
-        }))
-      }))
+          limit: vi.fn(() =>
+            Promise.resolve([
+              { id: 'integration-1', defaultChannel: { id: 'C123' }, tokenVaultKey: 'vault-key-1' },
+            ])
+          ),
+        })),
+      })),
     })),
-    transaction: vi.fn()
+    transaction: vi.fn(),
   })),
   getSecretByName: vi.fn(() => Promise.resolve({ secret: 'xoxb-test-token' })),
   eq: vi.fn(),
@@ -46,13 +50,13 @@ describe('slack-notifier', () => {
       const mockConvertMarkdownToSlack = vi.mocked(convertMarkdownToSlack);
       mockConvertMarkdownToSlack.mockReturnValue({
         text: 'Kevin requested a "total count of customers".\n\n• I included all customer records in `customers.status`, regardless of status (active, inactive, deleted). If incorrect, this likely inflates the count.',
-        blocks: []
+        blocks: [],
       });
 
       // Mock the sendSlackMessage function's fetch call
       vi.mocked(fetch).mockResolvedValue({
         ok: true,
-        json: async () => ({ ok: true, ts: '1234567890.123456' })
+        json: async () => ({ ok: true, ts: '1234567890.123456' }),
       } as Response);
 
       // Import the actual functions after mocks are set up
@@ -63,8 +67,9 @@ describe('slack-notifier', () => {
         userName: 'Kevin',
         chatId: 'chat-456',
         summaryTitle: 'Customer Count Includes All Statuses',
-        summaryMessage: 'Kevin requested a "total count of customers".\n\n- I included all customer records in `customers.status`, regardless of status (active, inactive, deleted). If incorrect, this likely inflates the count.',
-        toolCalled: 'generateSummary'
+        summaryMessage:
+          'Kevin requested a "total count of customers".\n\n- I included all customer records in `customers.status`, regardless of status (active, inactive, deleted). If incorrect, this likely inflates the count.',
+        toolCalled: 'generateSummary',
       };
 
       const result = await sendSlackNotification(params);
@@ -74,15 +79,18 @@ describe('slack-notifier', () => {
 
       // Verify the fetch was called with converted text
       const fetchCall = vi.mocked(fetch).mock.calls[0];
-      const body = JSON.parse(fetchCall[1]?.body as string);
-      
+      if (!fetchCall || !fetchCall[1]) {
+        throw new Error('Expected fetch to be called');
+      }
+      const body = JSON.parse(fetchCall[1].body as string);
+
       expect(body.blocks).toContainEqual({
         type: 'section',
         text: {
           type: 'mrkdwn',
           text: 'Kevin requested a "total count of customers".\n\n• I included all customer records in `customers.status`, regardless of status (active, inactive, deleted). If incorrect, this likely inflates the count.',
-          verbatim: false
-        }
+          verbatim: false,
+        },
       });
     });
 
@@ -90,12 +98,12 @@ describe('slack-notifier', () => {
       const mockConvertMarkdownToSlack = vi.mocked(convertMarkdownToSlack);
       mockConvertMarkdownToSlack.mockReturnValue({
         text: 'I found no matching records for the request about *recent returns*.',
-        blocks: []
+        blocks: [],
       });
 
       vi.mocked(fetch).mockResolvedValue({
         ok: true,
-        json: async () => ({ ok: true, ts: '1234567890.123456' })
+        json: async () => ({ ok: true, ts: '1234567890.123456' }),
       } as Response);
 
       const { sendSlackNotification } = await import('./slack-notifier');
@@ -105,7 +113,7 @@ describe('slack-notifier', () => {
         userName: 'Nate',
         chatId: 'chat-789',
         toolCalled: 'flagChat',
-        message: 'I found no matching records for the request about **recent returns**.'
+        message: 'I found no matching records for the request about **recent returns**.',
       };
 
       const result = await sendSlackNotification(params);
@@ -114,15 +122,18 @@ describe('slack-notifier', () => {
       expect(mockConvertMarkdownToSlack).toHaveBeenCalledWith(params.message);
 
       const fetchCall = vi.mocked(fetch).mock.calls[0];
-      const body = JSON.parse(fetchCall[1]?.body as string);
-      
+      if (!fetchCall || !fetchCall[1]) {
+        throw new Error('Expected fetch to be called');
+      }
+      const body = JSON.parse(fetchCall[1].body as string);
+
       expect(body.blocks).toContainEqual({
         type: 'section',
         text: {
           type: 'mrkdwn',
           text: 'I found no matching records for the request about *recent returns*.',
-          verbatim: false
-        }
+          verbatim: false,
+        },
       });
     });
 
@@ -130,12 +141,12 @@ describe('slack-notifier', () => {
       const mockConvertMarkdownToSlack = vi.mocked(convertMarkdownToSlack);
       mockConvertMarkdownToSlack.mockReturnValue({
         text: 'Leslie requested "users and their referral_ids for the Northwest team".\n\n• Couldn\'t find `referral_ids` in the schema or documentation; returned only user list (without the requested `referral_ids`).',
-        blocks: []
+        blocks: [],
       });
 
       vi.mocked(fetch).mockResolvedValue({
         ok: true,
-        json: async () => ({ ok: true, ts: '1234567890.123456' })
+        json: async () => ({ ok: true, ts: '1234567890.123456' }),
       } as Response);
 
       const { sendSlackNotification } = await import('./slack-notifier');
@@ -145,8 +156,9 @@ describe('slack-notifier', () => {
         userName: 'Leslie',
         chatId: 'chat-999',
         summaryTitle: 'Missing Referral IDs',
-        summaryMessage: 'Leslie requested "users and their referral_ids for the Northwest team".\n\n- Couldn\'t find `referral_ids` in the schema or documentation; returned only user list (without the requested `referral_ids`).',
-        toolCalled: 'generateSummary'
+        summaryMessage:
+          'Leslie requested "users and their referral_ids for the Northwest team".\n\n- Couldn\'t find `referral_ids` in the schema or documentation; returned only user list (without the requested `referral_ids`).',
+        toolCalled: 'generateSummary',
       };
 
       const result = await sendSlackNotification(params);
@@ -155,8 +167,11 @@ describe('slack-notifier', () => {
       expect(mockConvertMarkdownToSlack).toHaveBeenCalledWith(params.summaryMessage);
 
       const fetchCall = vi.mocked(fetch).mock.calls[0];
-      const body = JSON.parse(fetchCall[1]?.body as string);
-      
+      if (!fetchCall || !fetchCall[1]) {
+        throw new Error('Expected fetch to be called');
+      }
+      const body = JSON.parse(fetchCall[1].body as string);
+
       expect(body.blocks[1].text.text).toContain('`referral_ids`');
     });
 
@@ -164,12 +179,12 @@ describe('slack-notifier', () => {
       const mockConvertMarkdownToSlack = vi.mocked(convertMarkdownToSlack);
       mockConvertMarkdownToSlack.mockReturnValue({
         text: 'Test message',
-        blocks: []
+        blocks: [],
       });
 
       vi.mocked(fetch).mockResolvedValue({
         ok: true,
-        json: async () => ({ ok: true, ts: '1234567890.123456' })
+        json: async () => ({ ok: true, ts: '1234567890.123456' }),
       } as Response);
 
       const { sendSlackNotification } = await import('./slack-notifier');
@@ -180,7 +195,7 @@ describe('slack-notifier', () => {
         chatId: 'chat-123',
         summaryTitle: 'Test Title',
         summaryMessage: 'Test message',
-        toolCalled: 'generateSummary'
+        toolCalled: 'generateSummary',
       };
 
       const result = await sendSlackNotification(params);
@@ -188,8 +203,11 @@ describe('slack-notifier', () => {
       expect(result.sent).toBe(true);
 
       const fetchCall = vi.mocked(fetch).mock.calls[0];
-      const body = JSON.parse(fetchCall[1]?.body as string);
-      
+      if (!fetchCall || !fetchCall[1]) {
+        throw new Error('Expected fetch to be called');
+      }
+      const body = JSON.parse(fetchCall[1].body as string);
+
       // Check that the button exists and has correct URL
       const actionsBlock = body.blocks.find((block: any) => block.type === 'actions');
       expect(actionsBlock).toBeDefined();
@@ -203,12 +221,12 @@ describe('slack-notifier', () => {
       const mockConvertMarkdownToSlack = vi.mocked(convertMarkdownToSlack);
       mockConvertMarkdownToSlack.mockReturnValue({
         text: 'Update: The analysis found *5 major assumptions* that need review.',
-        blocks: []
+        blocks: [],
       });
 
       vi.mocked(fetch).mockResolvedValue({
         ok: true,
-        json: async () => ({ ok: true, ts: '1234567890.123456' })
+        json: async () => ({ ok: true, ts: '1234567890.123456' }),
       } as Response);
 
       const { sendSlackReplyNotification } = await import('./slack-notifier');
@@ -222,7 +240,7 @@ describe('slack-notifier', () => {
         threadTs: '1234567890.000001',
         channelId: 'C123',
         integrationId: 'integration-1',
-        tokenVaultKey: 'vault-key-1'
+        tokenVaultKey: 'vault-key-1',
       };
 
       const result = await sendSlackReplyNotification(params);
@@ -231,22 +249,27 @@ describe('slack-notifier', () => {
       expect(mockConvertMarkdownToSlack).toHaveBeenCalledWith(params.formattedMessage);
 
       const fetchCall = vi.mocked(fetch).mock.calls[0];
-      const body = JSON.parse(fetchCall[1]?.body as string);
-      
+      if (!fetchCall || !fetchCall[1]) {
+        throw new Error('Expected fetch to be called');
+      }
+      const body = JSON.parse(fetchCall[1].body as string);
+
       expect(body.thread_ts).toBe('1234567890.000001');
-      expect(body.blocks[0].text.text).toBe('Update: The analysis found *5 major assumptions* that need review.');
+      expect(body.blocks[0].text.text).toBe(
+        'Update: The analysis found *5 major assumptions* that need review.'
+      );
     });
 
     it('should convert markdown in reply with summaryMessage', async () => {
       const mockConvertMarkdownToSlack = vi.mocked(convertMarkdownToSlack);
       mockConvertMarkdownToSlack.mockReturnValue({
         text: 'Found issues with `order_status` field mapping.',
-        blocks: []
+        blocks: [],
       });
 
       vi.mocked(fetch).mockResolvedValue({
         ok: true,
-        json: async () => ({ ok: true, ts: '1234567890.123456' })
+        json: async () => ({ ok: true, ts: '1234567890.123456' }),
       } as Response);
 
       const { sendSlackReplyNotification } = await import('./slack-notifier');
@@ -261,7 +284,7 @@ describe('slack-notifier', () => {
         threadTs: '1234567890.000001',
         channelId: 'C123',
         integrationId: 'integration-1',
-        tokenVaultKey: 'vault-key-1'
+        tokenVaultKey: 'vault-key-1',
       };
 
       const result = await sendSlackReplyNotification(params);
@@ -270,8 +293,11 @@ describe('slack-notifier', () => {
       expect(mockConvertMarkdownToSlack).toHaveBeenCalledWith(params.summaryMessage);
 
       const fetchCall = vi.mocked(fetch).mock.calls[0];
-      const body = JSON.parse(fetchCall[1]?.body as string);
-      
+      if (!fetchCall || !fetchCall[1]) {
+        throw new Error('Expected fetch to be called');
+      }
+      const body = JSON.parse(fetchCall[1].body as string);
+
       expect(body.blocks[0].text.text).toContain('`order_status`');
     });
 
@@ -279,12 +305,12 @@ describe('slack-notifier', () => {
       const mockConvertMarkdownToSlack = vi.mocked(convertMarkdownToSlack);
       mockConvertMarkdownToSlack.mockReturnValue({
         text: 'Error: Could not process the *dashboard request*.',
-        blocks: []
+        blocks: [],
       });
 
       vi.mocked(fetch).mockResolvedValue({
         ok: true,
-        json: async () => ({ ok: true, ts: '1234567890.123456' })
+        json: async () => ({ ok: true, ts: '1234567890.123456' }),
       } as Response);
 
       const { sendSlackReplyNotification } = await import('./slack-notifier');
@@ -298,7 +324,7 @@ describe('slack-notifier', () => {
         threadTs: '1234567890.000001',
         channelId: 'C123',
         integrationId: 'integration-1',
-        tokenVaultKey: 'vault-key-1'
+        tokenVaultKey: 'vault-key-1',
       };
 
       const result = await sendSlackReplyNotification(params);
@@ -307,8 +333,11 @@ describe('slack-notifier', () => {
       expect(mockConvertMarkdownToSlack).toHaveBeenCalledWith(params.message);
 
       const fetchCall = vi.mocked(fetch).mock.calls[0];
-      const body = JSON.parse(fetchCall[1]?.body as string);
-      
+      if (!fetchCall || !fetchCall[1]) {
+        throw new Error('Expected fetch to be called');
+      }
+      const body = JSON.parse(fetchCall[1].body as string);
+
       expect(body.blocks[0].text.text).toBe('Error: Could not process the *dashboard request*.');
     });
   });
@@ -318,12 +347,12 @@ describe('slack-notifier', () => {
       const mockConvertMarkdownToSlack = vi.mocked(convertMarkdownToSlack);
       mockConvertMarkdownToSlack.mockReturnValue({
         text: 'Simple text without formatting',
-        blocks: [] // Empty blocks array
+        blocks: [], // Empty blocks array
       });
 
       vi.mocked(fetch).mockResolvedValue({
         ok: true,
-        json: async () => ({ ok: true, ts: '1234567890.123456' })
+        json: async () => ({ ok: true, ts: '1234567890.123456' }),
       } as Response);
 
       const { sendSlackNotification } = await import('./slack-notifier');
@@ -334,7 +363,7 @@ describe('slack-notifier', () => {
         chatId: 'chat-456',
         summaryTitle: 'Simple Title',
         summaryMessage: 'Simple text without formatting',
-        toolCalled: 'generateSummary'
+        toolCalled: 'generateSummary',
       };
 
       const result = await sendSlackNotification(params);
@@ -342,24 +371,28 @@ describe('slack-notifier', () => {
       expect(result.sent).toBe(true);
 
       const fetchCall = vi.mocked(fetch).mock.calls[0];
-      const body = JSON.parse(fetchCall[1]?.body as string);
-      
+      if (!fetchCall || !fetchCall[1]) {
+        throw new Error('Expected fetch to be called');
+      }
+      const body = JSON.parse(fetchCall[1].body as string);
+
       // Should still have the section block with converted text
       expect(body.blocks).toHaveLength(3); // Header, message, actions
       expect(body.blocks[1].text.text).toBe('Simple text without formatting');
     });
 
     it('should handle complex markdown with multiple backticks and formatting', async () => {
-      const complexMarkdown = 'Assumed `SUM(subtotal + taxamt + freight)` from `sales_order_header` table for **total sales** calculation.';
+      const complexMarkdown =
+        'Assumed `SUM(subtotal + taxamt + freight)` from `sales_order_header` table for **total sales** calculation.';
       const mockConvertMarkdownToSlack = vi.mocked(convertMarkdownToSlack);
       mockConvertMarkdownToSlack.mockReturnValue({
         text: 'Assumed `SUM(subtotal + taxamt + freight)` from `sales_order_header` table for *total sales* calculation.',
-        blocks: []
+        blocks: [],
       });
 
       vi.mocked(fetch).mockResolvedValue({
         ok: true,
-        json: async () => ({ ok: true, ts: '1234567890.123456' })
+        json: async () => ({ ok: true, ts: '1234567890.123456' }),
       } as Response);
 
       const { sendSlackNotification } = await import('./slack-notifier');
@@ -370,7 +403,7 @@ describe('slack-notifier', () => {
         chatId: 'chat-456',
         summaryTitle: 'Sales Calculation Assumption',
         summaryMessage: complexMarkdown,
-        toolCalled: 'generateSummary'
+        toolCalled: 'generateSummary',
       };
 
       const result = await sendSlackNotification(params);
@@ -379,8 +412,11 @@ describe('slack-notifier', () => {
       expect(mockConvertMarkdownToSlack).toHaveBeenCalledWith(complexMarkdown);
 
       const fetchCall = vi.mocked(fetch).mock.calls[0];
-      const body = JSON.parse(fetchCall[1]?.body as string);
-      
+      if (!fetchCall || !fetchCall[1]) {
+        throw new Error('Expected fetch to be called');
+      }
+      const body = JSON.parse(fetchCall[1].body as string);
+
       const messageBlock = body.blocks[1];
       expect(messageBlock.text.text).toContain('`SUM(subtotal + taxamt + freight)`');
       expect(messageBlock.text.text).toContain('`sales_order_header`');
