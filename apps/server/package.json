@@ -39,6 +39,7 @@
     "hono-pino": "^0.9.1",
     "pino": "^9.7.0",
     "pino-pretty": "^13.0.0",
+    "typescript": "5.8.3",
     "tsup": "catalog:",
     "zod": "catalog:"
   }
