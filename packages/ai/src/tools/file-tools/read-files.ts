@@ -95,7 +95,7 @@ const readFilesExecution = wrapTraced(
 
     try {
       const { readFilesSafely } = await import('./file-operations');
-      const fileResults = readFilesSafely(files);
+      const fileResults = await readFilesSafely(files);
 
       return {
         results: fileResults.map((fileResult) => {
