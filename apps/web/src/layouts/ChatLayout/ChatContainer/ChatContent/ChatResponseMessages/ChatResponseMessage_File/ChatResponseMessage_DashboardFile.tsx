@@ -1,14 +1,12 @@
 import type { BusterChatResponseMessage_file } from '@/api/asset_interfaces/chat/chatMessageInterfaces';
 import { useGetDashboard, usePrefetchGetDashboardClient } from '@/api/buster_rest/dashboards';
 import React, { useMemo } from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
-import { itemAnimationConfig } from '@/components/ui/streaming/animationConfig';
+import { AnimatePresence, motion, type MotionProps } from 'framer-motion';
 import { BusterDashboardResponse } from '@/api/asset_interfaces/dashboard';
 import { CircleSpinnerLoader } from '@/components/ui/loaders/CircleSpinnerLoader';
 import { CircleXmark } from '@/components/ui/icons';
 import { ASSET_ICONS } from '@/components/features/config/assetIcons';
 import { AppTooltip } from '@/components/ui/tooltip';
-import { useMount } from '@/hooks';
 import { useChatLayoutContextSelector } from '@/layouts/ChatLayout/ChatLayoutContext';
 import { ChartType, DEFAULT_CHART_CONFIG } from '@buster/server-shared/metrics';
 import { useGetMetricMemoized } from '@/context/Metrics';
@@ -20,6 +18,12 @@ import { CollapisbleFileCard } from '@/components/ui/card/CollapisbleFileCard';
 import { ShimmerText } from '@/components/ui/typography/ShimmerText';
 import { TextAndVersionText } from '@/components/ui/typography/TextAndVersionText';
 import { Button } from '@/components/ui/buttons';
+
+const itemAnimationConfig: MotionProps = {
+  initial: { opacity: 0 },
+  animate: { opacity: 1 },
+  transition: { duration: 0.7 }
+};
 
 export const ChatResponseMessage_DashboardFile: React.FC<{
   isCompletedStream: boolean;

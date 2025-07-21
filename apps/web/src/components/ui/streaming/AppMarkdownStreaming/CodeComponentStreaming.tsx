@@ -2,10 +2,10 @@
 
 import type { LLMOutputComponent } from '@llm-ui/react';
 import React from 'react';
-import { CodeComponent } from '../AnimatedMarkdown/MarkdownComponent';
+import { CodeComponent } from '../../typography/AnimatedMarkdown/MarkdownComponent';
 import { useAppMarkdownStreaming } from './AppMarkdownStreaming';
 
-const CodeComponentStreaming: LLMOutputComponent = ({ blockMatch }) => {
+const CodeComponentStreaming: LLMOutputComponent = React.memo(({ blockMatch }) => {
   const markdown = blockMatch.output;
   const codeBlockRegex = /^```(\w+)?/;
   const match = blockMatch.output.match(codeBlockRegex);
@@ -21,6 +21,8 @@ const CodeComponentStreaming: LLMOutputComponent = ({ blockMatch }) => {
       {markdown}
     </CodeComponent>
   );
-};
+});
+
+CodeComponentStreaming.displayName = 'CodeComponentStreaming';
 
 export default CodeComponentStreaming;

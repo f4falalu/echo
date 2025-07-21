@@ -1,9 +1,8 @@
 import React from 'react';
 import type { BusterChatMessageReasoning_text } from '@/api/asset_interfaces/chat';
 import { useGetChatMessage } from '@/api/buster_rest/chats';
-import AppMarkdownStreaming from '@/components/ui/typography/AppMarkdownStreaming/AppMarkdownStreaming';
+import AppMarkdownStreaming from '@/components/ui/streaming/AppMarkdownStreaming/AppMarkdownStreaming';
 import type { ReasoningMessageProps } from '../ReasoningMessageSelector';
-import { cn } from '@/lib/classMerge';
 
 export const ReasoningMessage_Text: React.FC<ReasoningMessageProps> = React.memo(
   ({ reasoningMessageId, messageId, isCompletedStream }) => {
