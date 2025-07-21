@@ -1,7 +1,7 @@
 import type { BlockMatch } from '@llm-ui/react';
-import AnimatedMarkdown from './AnimatedMarkdown';
+import AnimatedMarkdown from '../AnimatedMarkdown/AnimatedMarkdown';
 import React from 'react';
-import { useAppMarkdownStreaming } from '../AppMarkdownStreaming';
+import { useAppMarkdownStreaming } from './AppMarkdownStreaming';
 
 type LLMAnimatedMarkdownProps = {
   blockMatch: BlockMatch;

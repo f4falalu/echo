@@ -2,13 +2,13 @@
 import { codeBlockLookBack, findCompleteCodeBlock, findPartialCodeBlock } from '@llm-ui/code';
 import { markdownLookBack } from '@llm-ui/markdown';
 import { throttleBasic, useLLMOutput } from '@llm-ui/react';
-import { LLMAnimatedMarkdown } from './AnimatedMarkdown/LLMAnimatedMarkdown';
+import { LLMAnimatedMarkdown } from './LLMAnimatedMarkdown';
 import CodeComponentStreaming from './CodeComponentStreaming';
-import React, { useContext, useMemo } from 'react';
+import React, { useContext } from 'react';
 import type {
   MarkdownAnimation,
   MarkdownAnimationTimingFunction
-} from './AnimatedMarkdown/animation-helpers';
+} from '../AnimatedMarkdown/animation-helpers';
 import { createContext } from 'react';
 import { cn } from '@/lib/classMerge';
 

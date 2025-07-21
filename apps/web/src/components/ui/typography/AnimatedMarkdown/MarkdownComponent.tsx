@@ -2,7 +2,7 @@ import React from 'react';
 import type { AnimatedMarkdownProps } from './AnimatedMarkdown';
 import { animateTokenizedText, createAnimationStyle } from './animation-helpers';
 import { cva } from 'class-variance-authority';
-import { StreamingMessageCode } from '../../../streaming/StreamingMessageCode';
+import { StreamingMessageCode } from '../../streaming/StreamingMessageCode';
 import { cn } from '@/lib/classMerge';
 import { useAnimationContext, AnimationProvider } from './AnimationContext';
 

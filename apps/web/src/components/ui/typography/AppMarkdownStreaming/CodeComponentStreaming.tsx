@@ -2,7 +2,7 @@
 
 import type { LLMOutputComponent } from '@llm-ui/react';
 import React from 'react';
-import { CodeComponent } from './AnimatedMarkdown/MarkdownComponent';
+import { CodeComponent } from '../AnimatedMarkdown/MarkdownComponent';
 import { useAppMarkdownStreaming } from './AppMarkdownStreaming';
 
 const CodeComponentStreaming: LLMOutputComponent = ({ blockMatch }) => {
