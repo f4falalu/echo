@@ -18,7 +18,7 @@ use crate::tools::{
             CreateDashboardFilesTool, CreateMetricFilesTool, ModifyDashboardFilesTool,
             ModifyMetricFilesTool, SearchDataCatalogTool,
         },
-        response_tools::Done,
+        response_tools::{Done, Idle},
     },
     IntoToolCallExecutor,
 };
@@ -67,6 +67,7 @@ pub fn get_configuration(agent_data: &ModeAgentData, data_source_syntax: Option<
             let create_dashboard_files_tool = CreateDashboardFilesTool::new(agent_clone.clone());
             let modify_dashboard_files_tool = ModifyDashboardFilesTool::new(agent_clone.clone());
             let done_tool = Done::new(agent_clone.clone());
+            let idle_tool = Idle::new(agent_clone.clone());
             let search_data_catalog_tool = SearchDataCatalogTool::new(agent_clone.clone());
 
             // --- Define Conditions based on Agent State (as per original load_tools) ---
@@ -144,6 +145,13 @@ pub fn get_configuration(agent_data: &ModeAgentData, data_source_syntax: Option<
                 .add_tool(
                     done_tool.get_name(),
                     done_tool.into_tool_call_executor(),
+                    done_condition.clone(),
+                )
+                .await;
+            agent_clone
+                .add_tool(
+                    idle_tool.get_name(),
+                    idle_tool.into_tool_call_executor(),
                     done_condition,
                 )
                 .await;
@@ -160,7 +168,7 @@ pub fn get_configuration(agent_data: &ModeAgentData, data_source_syntax: Option<
     });
 
     // 4. Define terminating tools for this mode
-    let terminating_tools = vec![Done::get_name()];
+    let terminating_tools = vec![Done::get_name(), Idle::get_name()];
 
     // 5. Construct and return the ModeConfiguration
     ModeConfiguration {

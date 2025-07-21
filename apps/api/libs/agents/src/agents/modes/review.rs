@@ -13,7 +13,7 @@ use super::{ModeAgentData, ModeConfiguration};
 
 // Import necessary tools for this mode
 use crate::tools::{
-    categories::response_tools::{Done, MessageUserClarifyingQuestion},
+    categories::response_tools::{Done, Idle, MessageUserClarifyingQuestion},
     planning_tools::ReviewPlan,
     IntoToolCallExecutor,
 };
@@ -46,6 +46,7 @@ pub fn get_configuration(
             // Instantiate tools for this mode
             let review_tool = ReviewPlan::new(agent_clone.clone());
             let done_tool = Done::new(agent_clone.clone());
+            let idle_tool = Idle::new(agent_clone.clone());
 
             // Condition (always true for this mode's tools)
             let condition = Some(|_state: &HashMap<String, Value>| -> bool { true });
@@ -67,12 +68,20 @@ pub fn get_configuration(
                 )
                 .await;
 
+            agent_clone
+                .add_tool(
+                    idle_tool.get_name(),
+                    idle_tool.into_tool_call_executor(),
+                    condition.clone(),
+                )
+                .await;
+
             Ok(())
         })
     });
 
     // 4. Define terminating tools for this mode (From original load_tools)
-    let terminating_tools = vec![Done::get_name()];
+    let terminating_tools = vec![Done::get_name(), Idle::get_name()];
 
     // 5. Construct and return the ModeConfiguration
     ModeConfiguration {

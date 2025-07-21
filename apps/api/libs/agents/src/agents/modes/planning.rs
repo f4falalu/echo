@@ -15,7 +15,7 @@ use super::{ModeAgentData, ModeConfiguration};
 use crate::tools::{
     categories::{
         planning_tools::{CreatePlanInvestigative, CreatePlanStraightforward},
-        response_tools::{Done, MessageUserClarifyingQuestion},
+        response_tools::{Done, Idle, MessageUserClarifyingQuestion},
     },
     IntoToolCallExecutor,
 };
@@ -56,6 +56,7 @@ pub fn get_configuration(
                 CreatePlanStraightforward::new(agent_clone.clone());
             let create_plan_investigative_tool = CreatePlanInvestigative::new(agent_clone.clone());
             let done_tool = Done::new(agent_clone.clone());
+            let idle_tool = Idle::new(agent_clone.clone());
             let clarify_tool = MessageUserClarifyingQuestion::new();
 
             // Condition (always true for this mode's tools)
@@ -88,6 +89,14 @@ pub fn get_configuration(
 
             agent_clone
                 .add_tool(
+                    idle_tool.get_name(),
+                    idle_tool.into_tool_call_executor(),
+                    condition.clone(),
+                )
+                .await;
+
+            agent_clone
+                .add_tool(
                     clarify_tool.get_name(),
                     clarify_tool.into_tool_call_executor(),
                     condition.clone(),
@@ -102,7 +111,7 @@ pub fn get_configuration(
         prompt,
         model,
         tool_loader,
-        terminating_tools: vec![Done::get_name(), MessageUserClarifyingQuestion::get_name()],
+        terminating_tools: vec![Done::get_name(), Idle::get_name(), MessageUserClarifyingQuestion::get_name()],
     }
 }
 

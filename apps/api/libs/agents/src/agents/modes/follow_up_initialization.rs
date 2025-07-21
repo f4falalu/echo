@@ -18,7 +18,7 @@ use crate::tools::{
             ModifyMetricFilesTool, SearchDataCatalogTool,
         },
         planning_tools::{CreatePlanInvestigative, CreatePlanStraightforward},
-        response_tools::{Done, MessageUserClarifyingQuestion},
+        response_tools::{Done, Idle, MessageUserClarifyingQuestion},
         utility_tools::no_search_needed::NoSearchNeededTool,
     },
     planning_tools::ReviewPlan,
@@ -65,6 +65,7 @@ pub fn get_configuration(agent_data: &ModeAgentData) -> ModeConfiguration {
             let modify_dashboard_files_tool = ModifyDashboardFilesTool::new(agent_clone.clone());
             let message_user_clarifying_question_tool = MessageUserClarifyingQuestion::new();
             let done_tool = Done::new(agent_clone.clone());
+            let idle_tool = Idle::new(agent_clone.clone());
             let review_tool = ReviewPlan::new(agent_clone.clone());
 
             // --- Define Conditions based on Agent State (as per original load_tools) ---
@@ -172,6 +173,13 @@ pub fn get_configuration(agent_data: &ModeAgentData) -> ModeConfiguration {
                 .add_tool(
                     done_tool.get_name(),
                     done_tool.into_tool_call_executor(),
+                    always_available.clone(),
+                )
+                .await;
+            agent_clone
+                .add_tool(
+                    idle_tool.get_name(),
+                    idle_tool.into_tool_call_executor(),
                     always_available,
                 )
                 .await;
@@ -186,6 +194,7 @@ pub fn get_configuration(agent_data: &ModeAgentData) -> ModeConfiguration {
         // Use hardcoded names if static access isn't available
         "message_user_clarifying_question".to_string(), // Assuming this is the name
         "finish_and_respond".to_string(),               // Assuming this is the name for Done tool
+        Idle::get_name(),                               // Add idle tool
     ];
 
     // 5. Construct and return the ModeConfiguration
