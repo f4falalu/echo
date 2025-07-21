@@ -14,7 +14,7 @@ import { cn } from '@/lib/classMerge';
 
 const throttle = throttleBasic({
   // show output as soon as it arrives
-  readAheadChars: 10,
+  readAheadChars: 0,
   // stay literally at the LLM’s pace
   targetBufferChars: 10,
   adjustPercentage: 0.4,

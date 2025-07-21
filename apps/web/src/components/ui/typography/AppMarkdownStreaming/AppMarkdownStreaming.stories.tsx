@@ -73,7 +73,7 @@ const actualTokenArray = [
   {
     token:
       "Let me start by thinking through the TODO items to understand what's needed to identify the top customer.\n\n",
-    delayMs: 1000
+    delayMs: 100
   },
   {
     token: '1. **Determine how a "customer" is identified**\n',
@@ -192,8 +192,8 @@ const actualTokenArray = [
 
 const StreamingDemo: React.FC<{ animation: MarkdownAnimation }> = ({ animation }) => {
   const { isStreamFinished, output } = useStreamTokenArray([
-    ...actualTokenArray,
-    ...redRisingPoemTokenArray
+    ...redRisingPoemTokenArray,
+    ...actualTokenArray
   ]);
   return (
     <div className="flex w-full space-y-4 space-x-4">
@@ -316,7 +316,7 @@ const complexMarkdownTokenArray = [
   { token: 'javascript\n', delayMs: 100 },
   { token: 'function ', delayMs: 50 },
   { token: 'greet(name) {\n', delayMs: 100 },
-  { token: '  console.log(`Hello, ${name}!`);\n', delayMs: 150 },
+  { token: '  console.swag(`Hello, ${name}!`);\n', delayMs: 150 },
   { token: '}\n\ngreet("World");\n```\n\n', delayMs: 200 },
 
   // Python code block - large chunk

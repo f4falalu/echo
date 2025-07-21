@@ -8,8 +8,8 @@ import { cn } from '@/lib/classMerge';
 import { FileCard } from '../../card/FileCard';
 import { Button } from '../../buttons';
 import { Copy2 } from '../../icons';
-import { useMemoizedFn } from '../../../../hooks';
-import { useBusterNotifications } from '../../../../context/BusterNotifications';
+import { useMemoizedFn } from '@/hooks';
+import { useBusterNotifications } from '@/context/BusterNotifications';
 
 type LineSegment = {
   type: 'text' | 'hidden';
@@ -25,108 +25,119 @@ export const StreamingMessageCode: React.FC<{
   fileName: string | React.ReactNode | null;
   text: string;
   modified?: [number, number][];
-}> = React.memo(({ isStreamFinished, fileName, buttons, collapsible = false, text, modified }) => {
-  const [lineSegments, setLineSegments] = useState<LineSegment[]>([]);
-  const { openSuccessMessage } = useBusterNotifications();
+  animation?: 'blur-in' | 'fade-in';
+}> = React.memo(
+  ({
+    isStreamFinished,
+    fileName,
+    buttons,
+    collapsible = false,
+    text,
+    modified,
+    animation = 'blur-in'
+  }) => {
+    const [lineSegments, setLineSegments] = useState<LineSegment[]>([]);
+    const { openSuccessMessage } = useBusterNotifications();
 
-  const copyToClipboard = useMemoizedFn(() => {
-    navigator.clipboard.writeText(text);
-    openSuccessMessage('Copied to clipboard');
-  });
+    const copyToClipboard = useMemoizedFn(() => {
+      navigator.clipboard.writeText(text);
+      openSuccessMessage('Copied to clipboard');
+    });
 
-  const buttonComponent = useMemo(() => {
-    if (buttons === null) {
-      return null;
-    }
+    const buttonComponent = useMemo(() => {
+      if (buttons === null) {
+        return null;
+      }
 
-    if (!buttons) {
-      return (
-        <div className="flex justify-end">
-          <Button prefix={<Copy2 />} variant="ghost" onClick={copyToClipboard}>
-            Copy
-          </Button>
-        </div>
-      );
-    }
-    return buttons;
-  }, [buttons]);
+      if (!buttons) {
+        return (
+          <div className="flex justify-end">
+            <Button prefix={<Copy2 />} variant="ghost" onClick={copyToClipboard}>
+              Copy
+            </Button>
+          </div>
+        );
+      }
+      return buttons;
+    }, [buttons]);
 
-  useEffect(() => {
-    const processText = () => {
-      // Split the text into lines, keeping empty lines
-      const lines = (text || '').split('\n');
-      const segments: LineSegment[] = [];
-      let currentLine = 1;
+    useEffect(() => {
+      const processText = () => {
+        // Split the text into lines, keeping empty lines
+        const lines = (text || '').split('\n');
+        const segments: LineSegment[] = [];
+        let currentLine = 1;
 
-      if (!modified || modified.length === 0) {
-        for (const line of lines) {
-          segments.push({
-            type: 'text',
-            content: line,
-            lineNumber: currentLine++
-          });
-        }
-      } else {
-        // Sort modified ranges to ensure proper processing
-        const sortedModified = [...modified].sort((a, b) => a[0] - b[0]);
+        if (!modified || modified.length === 0) {
+          for (const line of lines) {
+            segments.push({
+              type: 'text',
+              content: line,
+              lineNumber: currentLine++
+            });
+          }
+        } else {
+          // Sort modified ranges to ensure proper processing
+          const sortedModified = [...modified].sort((a, b) => a[0] - b[0]);
 
-        let lastEnd = 0;
-        for (const [start, end] of sortedModified) {
-          // Add visible lines before the hidden section
-          for (let i = lastEnd; i < start - 1; i++) {
+          let lastEnd = 0;
+          for (const [start, end] of sortedModified) {
+            // Add visible lines before the hidden section
+            for (let i = lastEnd; i < start - 1; i++) {
+              segments.push({
+                type: 'text',
+                content: lines[i],
+                lineNumber: currentLine++
+              });
+            }
+
+            // Add hidden section
+            const hiddenLineCount = end - start + 1;
+            segments.push({
+              type: 'hidden',
+              content: '',
+              lineNumber: currentLine,
+              numberOfLines: hiddenLineCount
+            });
+            currentLine += hiddenLineCount;
+            lastEnd = end;
+          }
+
+          // Add remaining visible lines after the last hidden section
+          for (let i = lastEnd; i < lines.length; i++) {
             segments.push({
               type: 'text',
               content: lines[i],
               lineNumber: currentLine++
             });
           }
-
-          // Add hidden section
-          const hiddenLineCount = end - start + 1;
-          segments.push({
-            type: 'hidden',
-            content: '',
-            lineNumber: currentLine,
-            numberOfLines: hiddenLineCount
-          });
-          currentLine += hiddenLineCount;
-          lastEnd = end;
         }
 
-        // Add remaining visible lines after the last hidden section
-        for (let i = lastEnd; i < lines.length; i++) {
-          segments.push({
-            type: 'text',
-            content: lines[i],
-            lineNumber: currentLine++
-          });
-        }
-      }
+        setLineSegments(segments);
+      };
 
-      setLineSegments(segments);
-    };
+      processText();
+    }, [text, modified]);
 
-    processText();
-  }, [text, modified]);
-
-  return (
-    <FileCard collapsible={collapsible} fileName={fileName} headerButtons={buttonComponent}>
-      <div className="w-full overflow-x-auto p-3">
-        {lineSegments.map((segment, index) => (
-          <div
-            key={`${segment.lineNumber}-${index}`}
-            className={cn('line-number pr-1', !isStreamFinished && 'fade-in duration-500')}>
-            {segment.type === 'text' ? (
-              <MemoizedSyntaxHighlighter lineNumber={segment.lineNumber} text={segment.content} />
-            ) : (
-              <HiddenSection numberOfLinesUnmodified={segment.numberOfLines || 0} />
-            )}
-          </div>
-        ))}
-      </div>
-    </FileCard>
-  );
-});
+    return (
+      <FileCard collapsible={collapsible} fileName={fileName} headerButtons={buttonComponent}>
+        <div className="w-full overflow-x-auto p-3">
+          {lineSegments.map((segment, index) => (
+            <div
+              key={`${segment.lineNumber}-${index}`}
+              className={cn('line-number pr-1', !isStreamFinished && `duration-300 ${animation}`)}>
+              {segment.type === 'text' ? (
+                <MemoizedSyntaxHighlighter lineNumber={segment.lineNumber} text={segment.content} />
+              ) : (
+                <HiddenSection numberOfLinesUnmodified={segment.numberOfLines || 0} />
+              )}
+            </div>
+          ))}
+        </div>
+      </FileCard>
+    );
+  }
+);
 
 StreamingMessageCode.displayName = 'StreamingMessageCode';
 
