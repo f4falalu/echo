@@ -9,7 +9,7 @@ import {
   slackIntegrations,
   slackMessageTracking,
 } from '@buster/database';
-import { SlackMessageSource } from '@buster/slack';
+import { SlackMessageSource, convertMarkdownToSlack } from '@buster/slack';
 import { logger } from '@trigger.dev/sdk/v3';
 
 export interface SlackNotificationParams {
@@ -361,13 +361,14 @@ function shouldSendSlackNotification(params: SlackNotificationParams): boolean {
 function formatSlackReplyMessage(params: SlackReplyNotificationParams): SlackMessage {
   // Format reply messages differently - more concise since context is in the thread
   if (params.formattedMessage) {
+    const converted = convertMarkdownToSlack(params.formattedMessage);
     return {
       blocks: [
         {
           type: 'section',
           text: {
             type: 'mrkdwn',
-            text: params.formattedMessage,
+            text: converted.text || params.formattedMessage,
             verbatim: false,
           },
         },
@@ -377,13 +378,14 @@ function formatSlackReplyMessage(params: SlackReplyNotificationParams): SlackMes
 
   // For summary notifications, just show the message
   if (params.summaryTitle && params.summaryMessage) {
+    const converted = convertMarkdownToSlack(params.summaryMessage);
     return {
       blocks: [
         {
           type: 'section',
           text: {
             type: 'mrkdwn',
-            text: params.summaryMessage,
+            text: converted.text || params.summaryMessage,
             verbatim: false,
           },
         },
@@ -393,13 +395,14 @@ function formatSlackReplyMessage(params: SlackReplyNotificationParams): SlackMes
 
   // For flagged chat notifications, just show the message
   if (params.toolCalled === 'flagChat' && params.message) {
+    const converted = convertMarkdownToSlack(params.message);
     return {
       blocks: [
         {
           type: 'section',
           text: {
             type: 'mrkdwn',
-            text: params.message,
+            text: converted.text || params.message,
             verbatim: false,
           },
         },
@@ -422,6 +425,7 @@ function formatSlackMessage(params: SlackNotificationParams): SlackMessage {
 
   // Case 1: Formatted message from workflow (highest priority)
   if (params.formattedMessage) {
+    const converted = convertMarkdownToSlack(params.formattedMessage);
     return {
       blocks: [
         {
@@ -435,7 +439,7 @@ function formatSlackMessage(params: SlackNotificationParams): SlackMessage {
           type: 'section',
           text: {
             type: 'mrkdwn',
-            text: params.formattedMessage,
+            text: converted.text || params.formattedMessage,
             verbatim: false,
           },
         },
@@ -459,6 +463,7 @@ function formatSlackMessage(params: SlackNotificationParams): SlackMessage {
 
   // Case 2: Summary notification (summaryTitle and summaryMessage present)
   if (params.summaryTitle && params.summaryMessage) {
+    const converted = convertMarkdownToSlack(params.summaryMessage);
     return {
       blocks: [
         {
@@ -472,7 +477,7 @@ function formatSlackMessage(params: SlackNotificationParams): SlackMessage {
           type: 'section',
           text: {
             type: 'mrkdwn',
-            text: params.summaryMessage,
+            text: converted.text || params.summaryMessage,
             verbatim: false,
           },
         },
@@ -496,6 +501,7 @@ function formatSlackMessage(params: SlackNotificationParams): SlackMessage {
 
   // Case 3: Flagged chat notification (toolCalled is 'flagChat' and message present)
   if (params.toolCalled === 'flagChat' && params.message) {
+    const converted = convertMarkdownToSlack(params.message);
     return {
       blocks: [
         {
@@ -509,7 +515,7 @@ function formatSlackMessage(params: SlackNotificationParams): SlackMessage {
           type: 'section',
           text: {
             type: 'mrkdwn',
-            text: params.message,
+            text: converted.text || params.message,
             verbatim: false,
           },
         },
