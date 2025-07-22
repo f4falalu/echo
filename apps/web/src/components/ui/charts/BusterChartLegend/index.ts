@@ -4,4 +4,4 @@ export * from './interfaces';
 export * from './LegendDot';
 export * from './legendHeadlineHelpers';
 export * from './useBusterChartLegend';
-export * from './useLegendAutoShow';
+

@@ -2,7 +2,7 @@
 
 import React, { useMemo } from 'react';
 import { Card, CardHeader } from '@/components/ui/card/CardBase';
-import { BusterChartDynamic } from '@/components/ui/charts';
+import { BusterChartDynamic } from '@/components/ui/charts/BusterChartDynamic';
 import { useMemoizedFn } from '@/hooks';
 import { cn } from '@/lib/classMerge';
 import { MetricTitle } from './MetricTitle';

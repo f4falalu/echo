@@ -1,5 +1,6 @@
-import { formatLabel } from '@/lib';
-import { formatLabelForDataset, JOIN_CHARACTER } from '../../../commonHelpers';
+import { formatLabel } from '@/lib/columnFormatter';
+import { formatLabelForDataset } from '../../../commonHelpers';
+import { JOIN_CHARACTER } from '@/lib/axisFormatter';
 import type { ChartProps } from '../../core';
 import type { SeriesBuilderProps } from './interfaces';
 import type { LabelBuilderProps } from './useSeriesOptions';

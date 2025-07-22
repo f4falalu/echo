@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import type { BusterMetricData, BusterMetric } from '@/api/asset_interfaces/metric';
 import type { DataMetadata } from '@buster/server-shared/metrics';
-import { BusterChartDynamic } from '@/components/ui/charts';
+import { BusterChartDynamic } from '@/components/ui/charts/BusterChartDynamic';
 import { cn } from '@/lib/classMerge';
 import { METRIC_CHART_CONTAINER_ID } from './config';
 

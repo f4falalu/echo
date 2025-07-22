@@ -3,14 +3,10 @@ import type { Context } from 'chartjs-plugin-datalabels';
 import type { Options } from 'chartjs-plugin-datalabels/types/options';
 import type { BusterChartProps } from '@/api/asset_interfaces/metric/charts';
 import { DEFAULT_COLUMN_LABEL_FORMAT, type ColumnLabelFormat } from '@buster/server-shared/metrics';
-import { formatLabel } from '@/lib';
+import { formatLabel } from '@/lib/columnFormatter';
 import type { DatasetOption } from '../../../chartHooks';
-import {
-  formatLabelForDataset,
-  formatYAxisLabel,
-  JOIN_CHARACTER,
-  yAxisSimilar
-} from '../../../commonHelpers';
+import { formatLabelForDataset, formatYAxisLabel, yAxisSimilar } from '../../../commonHelpers';
+import { JOIN_CHARACTER } from '@/lib/axisFormatter';
 import { DEFAULT_CHART_LAYOUT } from '../../ChartJSTheme';
 import type { ChartProps } from '../../core';
 import { dataLabelFontColorContrast, formatBarAndLineDataLabel } from '../../helpers';

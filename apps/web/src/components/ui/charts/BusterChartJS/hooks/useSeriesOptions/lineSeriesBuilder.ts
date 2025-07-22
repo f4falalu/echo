@@ -1,7 +1,10 @@
 import { Chart, Filler, type ScriptableContext } from 'chart.js';
-import { addOpacityToColor, createDayjsDate, formatLabel } from '@/lib';
+import { addOpacityToColor } from '@/lib/colors';
+import { createDayjsDate } from '@/lib/date';
+import { formatLabel } from '@/lib/columnFormatter';
 import type { DatasetOption } from '../../../chartHooks';
-import { formatLabelForDataset, JOIN_CHARACTER } from '../../../commonHelpers';
+import { formatLabelForDataset } from '../../../commonHelpers';
+import { JOIN_CHARACTER } from '@/lib/axisFormatter';
 import type { ChartProps } from '../../core';
 import { formatBarAndLineDataLabel } from '../../helpers';
 import { defaultLabelOptionConfig } from '../useChartSpecificOptions/labelOptionConfig';

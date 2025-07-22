@@ -1,14 +1,14 @@
 import React, { useMemo } from 'react';
 import type { ChartConfigProps } from '@buster/server-shared/metrics';
 import type { ColumnLabelFormat } from '@buster/server-shared/metrics';
-import { AXIS_TITLE_SEPARATOR } from '@/components/ui/charts/commonHelpers/axisHelper';
 import { useUpdateMetricChart } from '@/context/Metrics';
 import { useMemoizedFn } from '@/hooks';
-import { formatLabel } from '@/lib';
+import { formatLabel } from '@/lib/columnFormatter';
 import { useSelectAxisContextSelector } from '../useSelectAxisContext';
 import { EditAxisLabelRotation } from './EditAxisLabelRotation';
 import { EditShowAxisLabel } from './EditShowAxisLabel';
 import { EditShowAxisTitle } from './EditShowAxisTitle';
+import { AXIS_TITLE_SEPARATOR } from '@/lib/axisFormatter';
 
 export const XAxisSettingContent: React.FC = React.memo(() => {
   const { onUpdateMetricChartConfig } = useUpdateMetricChart();
