@@ -5,7 +5,7 @@ import AppMarkdownStreaming from '@/components/ui/streaming/AppMarkdownStreaming
 import type { ReasoningMessageProps } from '../ReasoningMessageSelector';
 
 export const ReasoningMessage_Text: React.FC<ReasoningMessageProps> = React.memo(
-  ({ reasoningMessageId, messageId, isCompletedStream }) => {
+  ({ reasoningMessageId, messageId, isStreamFinished }) => {
     const { data: message } = useGetChatMessage(messageId, {
       select: (x) =>
         (x?.reasoning_messages[reasoningMessageId] as BusterChatMessageReasoning_text)?.message
@@ -16,7 +16,7 @@ export const ReasoningMessage_Text: React.FC<ReasoningMessageProps> = React.memo
     return (
       <AppMarkdownStreaming
         content={message}
-        isStreamFinished={isCompletedStream}
+        isStreamFinished={isStreamFinished}
         className="text-text-secondary text-xs!"
       />
     );

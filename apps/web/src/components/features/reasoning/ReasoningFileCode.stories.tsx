@@ -89,7 +89,7 @@ export const Default: Story = {
   args: {
     ...baseProps,
     status: 'completed',
-    isCompletedStream: true,
+    isStreamFinished: true,
     file: {
       text: sampleYaml,
       modified: []
@@ -101,7 +101,7 @@ export const WithHiddenLines: Story = {
   args: {
     ...baseProps,
     status: 'completed',
-    isCompletedStream: true,
+    isStreamFinished: true,
     file: {
       text: sampleYaml,
       modified: [[2, 4]] // This will hide lines 2-4
@@ -113,7 +113,7 @@ export const Loading: Story = {
   args: {
     ...baseProps,
     status: 'loading',
-    isCompletedStream: false,
+    isStreamFinished: false,
     file: {
       text: sampleYaml,
       modified: []
@@ -125,7 +125,7 @@ export const WithButtons: Story = {
   args: {
     ...baseProps,
     status: 'completed',
-    isCompletedStream: true,
+    isStreamFinished: true,
     file: {
       text: sampleYaml,
       modified: []
@@ -154,7 +154,7 @@ export const InteractiveStreaming: Story = {
   args: {
     ...baseProps,
     status: 'completed',
-    isCompletedStream: false,
+    isStreamFinished: false,
     file: {
       text: streamingContent.slice(0, 3).join('\n'),
       modified: []
@@ -182,7 +182,7 @@ export const InteractiveStreaming: Story = {
       <div className="space-y-4">
         <ReasoningFileCode
           {...args}
-          isCompletedStream={!isStreaming}
+          isStreamFinished={!isStreaming}
           file={{
             text: streamingContent.slice(0, currentLines).join('\n'),
             modified: []

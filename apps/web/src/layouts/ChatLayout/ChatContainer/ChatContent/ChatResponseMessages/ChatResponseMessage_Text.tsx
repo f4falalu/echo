@@ -8,7 +8,7 @@ import type { ChatResponseMessageProps } from './ChatResponseMessageSelector';
 // import { AppMarkdownDynamic as AppMarkdown } from '@/components/ui/typography/AppMarkdown/AppMarkdownDynamic';
 
 export const ChatResponseMessage_Text: React.FC<ChatResponseMessageProps> = React.memo(
-  ({ responseMessageId, messageId, isCompletedStream }) => {
+  ({ responseMessageId, messageId, isStreamFinished }) => {
     const { data: responseMessage } = useGetChatMessage(messageId, {
       select: (x) => x?.response_messages?.[responseMessageId]
     });
@@ -19,7 +19,7 @@ export const ChatResponseMessage_Text: React.FC<ChatResponseMessageProps> = Reac
     return (
       <AppMarkdownStreaming
         content={message}
-        isStreamFinished={isCompletedStream}
+        isStreamFinished={isStreamFinished}
         className="text-base leading-1.5!"
       />
     );

@@ -18,7 +18,7 @@ export const useAutoChangeLayout = ({
   const getChatMessageMemoized = useGetChatMessageMemoized();
   const onSetSelectedFile = useChatLayoutContextSelector((x) => x.onSetSelectedFile);
   const messageId = useChatLayoutContextSelector((x) => x.messageId);
-  const { data: isCompletedStream = false } = useGetChatMessage(lastMessageId, {
+  const { data: isStreamFinished = false } = useGetChatMessage(lastMessageId, {
     select: (x) => x?.is_completed
   });
   const { data: lastReasoningMessageId } = useGetChatMessage(lastMessageId, {
@@ -33,7 +33,7 @@ export const useAutoChangeLayout = ({
 
   const onChangePage = useAppLayoutContextSelector((x) => x.onChangePage);
   const previousLastMessageId = useRef<string | null>(null);
-  const previousIsCompletedStream = useRef<boolean>(isCompletedStream);
+  const previousIsCompletedStream = useRef<boolean>(isStreamFinished);
 
   const { data: hasLoadedChat } = useGetChat({ id: chatId || '' }, { select: (x) => !!x.id });
 
@@ -42,7 +42,7 @@ export const useAutoChangeLayout = ({
   const hasReasoning = !!lastReasoningMessageId;
 
   useLayoutEffect(() => {
-    previousIsCompletedStream.current = isCompletedStream;
+    previousIsCompletedStream.current = isStreamFinished;
   }, [hasLoadedChat]);
 
   useEffect(() => {
@@ -57,7 +57,7 @@ export const useAutoChangeLayout = ({
     });
 
     //this will happen if it is streaming and has a file in the response
-    if (!isCompletedStream && firstFileId) {
+    if (!isStreamFinished && firstFileId) {
       const firstFile = chatMessage?.response_messages[firstFileId] as
         | BusterChatResponseMessage_file
         | undefined;
@@ -78,7 +78,7 @@ export const useAutoChangeLayout = ({
     }
 
     //this will trigger when the chat is streaming and is has not completed yet (new chat)
-    else if (!isCompletedStream && !isFinishedReasoning && hasReasoning && chatId) {
+    else if (!isStreamFinished && !isFinishedReasoning && hasReasoning && chatId) {
       previousLastMessageId.current = lastMessageId;
 
       if (!messageId) {
@@ -87,12 +87,12 @@ export const useAutoChangeLayout = ({
     }
 
     //this happen will when the chat is completed and it WAS streaming
-    else if (isCompletedStream && previousIsCompletedStream.current === false && !firstFileId) {
+    else if (isStreamFinished && previousIsCompletedStream.current === false && !firstFileId) {
       //no file is found, so we need to collapse the chat
       onChangePage({
         route: BusterRoutes.APP_CHAT_ID,
         chatId
       });
     }
-  }, [isCompletedStream, hasReasoning, hasResponseFile, chatId, lastMessageId]); //only use these values to trigger the useEffect
+  }, [isStreamFinished, hasReasoning, hasResponseFile, chatId, lastMessageId]); //only use these values to trigger the useEffect
 };

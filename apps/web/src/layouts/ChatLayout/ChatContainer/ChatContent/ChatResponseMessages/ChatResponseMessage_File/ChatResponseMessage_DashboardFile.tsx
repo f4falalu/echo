@@ -26,12 +26,12 @@ const itemAnimationConfig: MotionProps = {
 };
 
 export const ChatResponseMessage_DashboardFile: React.FC<{
-  isCompletedStream: boolean;
+  isStreamFinished: boolean;
   responseMessage: BusterChatResponseMessage_file;
   isSelectedFile: boolean;
   chatId: string;
   href: string;
-}> = React.memo(({ isCompletedStream, responseMessage, isSelectedFile, chatId, href }) => {
+}> = React.memo(({ isStreamFinished, responseMessage, isSelectedFile, chatId, href }) => {
   const { version_number, id, file_name } = responseMessage;
   const metricId = useChatLayoutContextSelector((x) => x.metricId);
   const dashboardId = useChatLayoutContextSelector((x) => x.dashboardId);
@@ -78,7 +78,7 @@ export const ChatResponseMessage_DashboardFile: React.FC<{
   }, [file_name, version_number, metricId]);
 
   return (
-    <AnimatePresence initial={!isCompletedStream}>
+    <AnimatePresence initial={!isStreamFinished}>
       <motion.div
         id={id}
         {...itemAnimationConfig}

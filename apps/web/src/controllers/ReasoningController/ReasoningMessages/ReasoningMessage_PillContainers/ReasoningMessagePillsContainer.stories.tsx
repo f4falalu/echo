@@ -52,7 +52,7 @@ const mockReasoningMessage: BusterChatMessageReasoning_pills = {
 export const Default: Story = {
   args: {
     ...mockReasoningMessage,
-    isCompletedStream: true
+    isStreamFinished: true
   }
 };
 
@@ -91,7 +91,7 @@ const InteractiveLoadingWrapper = () => {
       <Button onClick={addNewContainer} variant="default">
         Add New Container
       </Button>
-      <ReasoningMessagePillsContainer {...message} chatId={chatId} isCompletedStream={false} />
+      <ReasoningMessagePillsContainer {...message} chatId={chatId} isStreamFinished={false} />
     </div>
   );
 };
@@ -108,7 +108,7 @@ export const Failed: Story = {
   args: {
     ...mockReasoningMessage,
     status: 'failed',
-    isCompletedStream: true
+    isStreamFinished: true
   }
 };
 
@@ -116,7 +116,7 @@ export const EmptyPills: Story = {
   args: {
     ...mockReasoningMessage,
     pill_containers: [],
-    isCompletedStream: true
+    isStreamFinished: true
   }
 };
 
@@ -124,7 +124,7 @@ export const SingleContainer: Story = {
   args: {
     ...mockReasoningMessage,
     pill_containers: [mockReasoningMessage.pill_containers![0]],
-    isCompletedStream: true
+    isStreamFinished: true
   }
 };
 
@@ -141,6 +141,6 @@ export const ManyPills: Story = {
         }))
       }
     ],
-    isCompletedStream: false
+    isStreamFinished: false
   }
 };

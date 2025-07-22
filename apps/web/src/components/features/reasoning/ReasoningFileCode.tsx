@@ -8,12 +8,12 @@ import { StreamingMessageCode } from '@/components/ui/streaming/StreamingMessage
 
 export const ReasoningFileCode: React.FC<
   BusterChatMessageReasoning_file & {
-    isCompletedStream: boolean;
+    isStreamFinished: boolean;
     collapsible?: 'chevron' | 'overlay-peek' | false;
     buttons?: React.ReactNode;
   }
 > = ({
-  isCompletedStream,
+  isStreamFinished,
   file,
   file_type,
   file_name,
@@ -38,7 +38,7 @@ export const ReasoningFileCode: React.FC<
       modified={modified}
       collapsible={collapsible}
       buttons={buttons}
-      isStreamFinished={isCompletedStream}
+      isStreamFinished={isStreamFinished}
     />
   );
 };

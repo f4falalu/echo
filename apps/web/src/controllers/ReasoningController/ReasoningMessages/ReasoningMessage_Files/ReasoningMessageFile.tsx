@@ -11,11 +11,11 @@ export type ReasoningMessageFileProps = {
   fileId: string;
   messageId: string;
   reasoningMessageId: string;
-  isCompletedStream: boolean;
+  isStreamFinished: boolean;
 };
 
 export const ReasoningMessage_File: React.FC<ReasoningMessageFileProps> = React.memo(
-  ({ isCompletedStream, fileId, chatId, messageId, reasoningMessageId }) => {
+  ({ isStreamFinished, fileId, chatId, messageId, reasoningMessageId }) => {
     const { data: file } = useGetChatMessage(messageId, {
       select: (x) =>
         (x?.reasoning_messages[reasoningMessageId] as BusterChatMessageReasoning_files)?.files?.[
@@ -28,7 +28,7 @@ export const ReasoningMessage_File: React.FC<ReasoningMessageFileProps> = React.
     const buttons = useMemo(() => {
       if (!file || !status || !file_type || !id) return null;
 
-      return !isCompletedStream ? (
+      return !isStreamFinished ? (
         <StreamingMessageStatus status={status} fileType={file_type} />
       ) : (
         <ReasoningFileButtons
@@ -39,7 +39,7 @@ export const ReasoningMessage_File: React.FC<ReasoningMessageFileProps> = React.
           type="file"
         />
       );
-    }, [isCompletedStream, status, file_type, chatId, id, version_number]);
+    }, [isStreamFinished, status, file_type, chatId, id, version_number]);
 
     const collapsible: 'overlay-peek' | false = useMemo(() => {
       if (file_type === 'agent-action') return 'overlay-peek';
@@ -55,7 +55,7 @@ export const ReasoningMessage_File: React.FC<ReasoningMessageFileProps> = React.
         {...file}
         collapsible={collapsible}
         buttons={buttons}
-        isCompletedStream={isCompletedStream}
+        isStreamFinished={isStreamFinished}
       />
     );
   }

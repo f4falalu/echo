@@ -13,7 +13,7 @@ interface MessageContainerProps {
   onMouseEnter?: () => void;
   onMouseLeave?: () => void;
   hideAvatar?: boolean;
-  isCompletedStream?: boolean;
+  isStreamFinished?: boolean;
   isFinishedReasoning?: boolean;
   hasReasoningMessage?: boolean;
 }
@@ -28,7 +28,7 @@ export const MessageContainer = forwardRef<HTMLDivElement, MessageContainerProps
       className = '',
       hideAvatar = false,
       hasReasoningMessage = true,
-      isCompletedStream = true,
+      isStreamFinished = true,
       isFinishedReasoning = true,
       onMouseEnter,
       onMouseLeave
@@ -46,7 +46,7 @@ export const MessageContainer = forwardRef<HTMLDivElement, MessageContainerProps
             <Avatar size={24} name={senderName} image={senderAvatar || ''} useToolTip={true} />
           ) : (
             <BusterLoadingAvatar
-              loading={!isCompletedStream && !isFinishedReasoning}
+              loading={!isStreamFinished && !isFinishedReasoning}
               variant={hasReasoningMessage ? 'default' : 'gray'}
             />
           )}
