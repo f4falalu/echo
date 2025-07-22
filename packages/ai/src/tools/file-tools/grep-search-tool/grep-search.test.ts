@@ -41,8 +41,9 @@ describe('grep-search', () => {
       ]);
 
       expect(result.successful_searches).toHaveLength(1);
-      expect(result.successful_searches[0]?.matches).toHaveLength(1);
-      expect(result.successful_searches[0]?.matches[0]).toEqual({
+      expect(result.successful_searches[0]).toBeDefined();
+      expect(result.successful_searches[0]!.matches).toHaveLength(1);
+      expect(result.successful_searches[0]!.matches[0]).toEqual({
         file: file1Path,
         lineNumber: 2,
         content: 'This is a test',
@@ -66,7 +67,8 @@ describe('grep-search', () => {
         },
       ]);
 
-      expect(result.successful_searches[0]?.matches).toHaveLength(3);
+      expect(result.successful_searches[0]).toBeDefined();
+      expect(result.successful_searches[0]!.matches).toHaveLength(3);
     });
 
     it('should handle recursive searches', async () => {
@@ -92,7 +94,8 @@ describe('grep-search', () => {
         },
       ]);
 
-      expect(result.successful_searches[0]?.matches).toHaveLength(2);
+      expect(result.successful_searches[0]).toBeDefined();
+      expect(result.successful_searches[0]!.matches).toHaveLength(2);
     });
 
     it('should handle non-existent files', async () => {
@@ -136,8 +139,10 @@ describe('grep-search', () => {
         },
       ]);
 
-      expect(result.successful_searches[0]?.matches).toHaveLength(1);
-      expect(result.successful_searches[0]?.matches[0]?.content).toBe('word test word');
+      expect(result.successful_searches[0]).toBeDefined();
+      expect(result.successful_searches[0]!.matches).toHaveLength(1);
+      expect(result.successful_searches[0]!.matches[0]).toBeDefined();
+      expect(result.successful_searches[0]!.matches[0]!.content).toBe('word test word');
     });
   });
 
