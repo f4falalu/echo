@@ -59,17 +59,7 @@ const grepSearchOutputSchema = z.object({
   failed_searches: z.array(grepSearchFailureSchema).describe('Failed searches with error messages'),
 });
 
-export type GrepSearchConfig = {
-  path: string;
-  pattern: string;
-  recursive: boolean;
-  ignoreCase: boolean;
-  invertMatch: boolean;
-  lineNumbers: boolean;
-  wordMatch: boolean;
-  fixedStrings: boolean;
-  maxCount?: number;
-};
+export type GrepSearchConfig = z.infer<typeof grepSearchConfigSchema>;
 export type GrepSearchInput = z.infer<typeof grepSearchInputSchema>;
 export type GrepSearchOutput = z.infer<typeof grepSearchOutputSchema>;
 
@@ -80,15 +70,7 @@ const grepSearchExecution = wrapTraced(
   ): Promise<z.infer<typeof grepSearchOutputSchema>> => {
     const { searches: rawSearches } = params;
     
-    const searches: GrepSearchConfig[] = rawSearches.map(search => ({
-      ...search,
-      recursive: search.recursive ?? false,
-      ignoreCase: search.ignoreCase ?? false,
-      invertMatch: search.invertMatch ?? false,
-      lineNumbers: search.lineNumbers ?? true,
-      wordMatch: search.wordMatch ?? false,
-      fixedStrings: search.fixedStrings ?? false,
-    }));
+    const searches = rawSearches;
     const startTime = Date.now();
 
     if (!rawSearches || rawSearches.length === 0) {
