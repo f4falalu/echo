@@ -444,14 +444,7 @@ async fn test_wildcard_allowed_on_cte() {
     let sql = "WITH user_cte AS (SELECT u.id, u.name FROM schema.users u) SELECT * FROM user_cte";
     let result = analyze_query(sql.to_string(), "postgres").await;
     
-    match result {
-        Ok(_) => {
-        }
-        Err(e) => {
-            eprintln!("DEBUG: Unexpected error in test_wildcard_allowed_on_cte: {:?}", e);
-            panic!("Wildcard on CTE should be allowed, but got error: {:?}", e);
-        }
-    }
+    assert!(result.is_ok(), "Wildcard on CTE should be allowed");
 }
 
 #[tokio::test]

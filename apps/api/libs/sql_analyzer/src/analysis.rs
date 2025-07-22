@@ -1150,25 +1150,9 @@ impl QueryAnalyzer {
     }
 
     fn validate_wildcard_on_tables(&self) -> Result<(), SqlAnalyzerError> {
-        // Only validate tables that are actually in the FROM clause
-        if let Some(from_table) = &self.current_from_relation_identifier {
-            if let Some(table_info) = self.tables.get(from_table) {
-                if table_info.kind == TableKind::Base {
-                    return Err(SqlAnalyzerError::BlockedWildcardUsage(format!(
-                        "table '{}'", table_info.table_identifier
-                    )));
-                }
-            }
-        }
-        
-        // Also check any tables that might be in current scope aliases that are physical tables
+        // Check all tables in current scope aliases for physical tables
+        // This covers tables that are accessible in the current SELECT scope
         for alias in self.current_scope_aliases.keys() {
-            if let Some(from_table) = &self.current_from_relation_identifier {
-                if alias == from_table {
-                    continue;
-                }
-            }
-            
             if let Some(table_info) = self.tables.get(alias) {
                 if table_info.kind == TableKind::Base {
                     return Err(SqlAnalyzerError::BlockedWildcardUsage(format!(
