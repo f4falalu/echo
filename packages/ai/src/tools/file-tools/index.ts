@@ -1,1 +1,1 @@
-export { bashExecute } from './bash-execute-tool';
+export { bashExecute } from './bash-tool/bash-execute-tool';

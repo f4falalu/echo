@@ -1,7 +1,7 @@
 import { RuntimeContext } from '@mastra/core/runtime-context';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { z } from 'zod';
-import { type SandboxContext, SandboxContextKey } from '../../../context/sandbox-context';
+import { type DocsAgentContext, DocsAgentContextKey } from '../../../context/docs-agent-context';
 import { deleteFiles } from './delete-files-tool';
 
 vi.mock('@buster/sandbox', () => ({
@@ -21,11 +21,11 @@ const mockGenerateFileDeleteCode = vi.mocked(generateFileDeleteCode);
 const mockDeleteFilesSafely = vi.mocked(deleteFilesSafely);
 
 describe('delete-files-tool', () => {
-  let runtimeContext: RuntimeContext<SandboxContext>;
+  let runtimeContext: RuntimeContext<DocsAgentContext>;
 
   beforeEach(() => {
     vi.clearAllMocks();
-    runtimeContext = new RuntimeContext<SandboxContext>();
+    runtimeContext = new RuntimeContext<DocsAgentContext>();
   });
 
   afterEach(() => {
@@ -58,7 +58,7 @@ describe('delete-files-tool', () => {
 
     it('should execute with sandbox when available', async () => {
       const mockSandbox = { process: { codeRun: vi.fn() } };
-      runtimeContext.set(SandboxContextKey.Sandbox, mockSandbox as any);
+      runtimeContext.set(DocsAgentContextKey.Sandbox, mockSandbox as any);
 
       const input = {
         files: [{ path: '/test/file.txt' }],
@@ -106,7 +106,7 @@ describe('delete-files-tool', () => {
 
     it('should handle sandbox execution errors', async () => {
       const mockSandbox = { process: { codeRun: vi.fn() } };
-      runtimeContext.set(SandboxContextKey.Sandbox, mockSandbox as any);
+      runtimeContext.set(DocsAgentContextKey.Sandbox, mockSandbox as any);
 
       const input = {
         files: [{ path: '/test/file.txt' }],
@@ -175,7 +175,7 @@ describe('delete-files-tool', () => {
 
     it('should handle JSON parse errors from sandbox', async () => {
       const mockSandbox = { process: { codeRun: vi.fn() } };
-      runtimeContext.set(SandboxContextKey.Sandbox, mockSandbox as any);
+      runtimeContext.set(DocsAgentContextKey.Sandbox, mockSandbox as any);
 
       const input = {
         files: [{ path: '/test/file.txt' }],

@@ -3,7 +3,7 @@ import type { RuntimeContext } from '@mastra/core/runtime-context';
 import { createTool } from '@mastra/core/tools';
 import { wrapTraced } from 'braintrust';
 import { z } from 'zod';
-import { type SandboxContext, SandboxContextKey } from '../../../context/sandbox-context';
+import { type DocsAgentContext, DocsAgentContextKey } from '../../../context/docs-agent-context';
 import type { LsOptions } from './ls-files-impl';
 
 const lsOptionsSchema = z.object({
@@ -63,7 +63,7 @@ const lsFilesOutputSchema = z.object({
 const lsFilesExecution = wrapTraced(
   async (
     params: z.infer<typeof lsFilesInputSchema>,
-    runtimeContext: RuntimeContext<SandboxContext>
+    runtimeContext: RuntimeContext<DocsAgentContext>
   ): Promise<z.infer<typeof lsFilesOutputSchema>> => {
     const { paths, options } = params;
 
@@ -72,7 +72,7 @@ const lsFilesExecution = wrapTraced(
     }
 
     try {
-      const sandbox = runtimeContext.get(SandboxContextKey.Sandbox);
+      const sandbox = runtimeContext.get(DocsAgentContextKey.Sandbox);
 
       if (sandbox) {
         const { generateLsCode } = await import('./ls-files-impl');
@@ -185,7 +185,7 @@ export const lsFiles = createTool({
     runtimeContext,
   }: {
     context: z.infer<typeof lsFilesInputSchema>;
-    runtimeContext: RuntimeContext<SandboxContext>;
+    runtimeContext: RuntimeContext<DocsAgentContext>;
   }) => {
     return await lsFilesExecution(context, runtimeContext);
   },

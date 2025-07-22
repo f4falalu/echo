@@ -1,7 +1,7 @@
 import { RuntimeContext } from '@mastra/core/runtime-context';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { z } from 'zod';
-import { type SandboxContext, SandboxContextKey } from '../../context/sandbox-context';
+import { type DocsAgentContext, DocsAgentContextKey } from '../../../context/docs-agent-context';
 import { bashExecute } from './bash-execute-tool';
 
 vi.mock('@buster/sandbox', () => ({
@@ -21,11 +21,11 @@ const mockGenerateBashExecuteCode = vi.mocked(generateBashExecuteCode);
 const mockExecuteBashCommandsSafely = vi.mocked(executeBashCommandsSafely);
 
 describe('bash-execute-tool', () => {
-  let runtimeContext: RuntimeContext<SandboxContext>;
+  let runtimeContext: RuntimeContext<DocsAgentContext>;
 
   beforeEach(() => {
     vi.clearAllMocks();
-    runtimeContext = new RuntimeContext<SandboxContext>();
+    runtimeContext = new RuntimeContext<DocsAgentContext>();
   });
 
   afterEach(() => {
@@ -53,7 +53,7 @@ describe('bash-execute-tool', () => {
 
     it('should execute with sandbox when available', async () => {
       const mockSandbox = { process: { codeRun: vi.fn() } };
-      runtimeContext.set(SandboxContextKey.Sandbox, mockSandbox as any);
+      runtimeContext.set(DocsAgentContextKey.Sandbox, mockSandbox as any);
 
       const input = {
         commands: [{ command: 'echo "hello"' }],
@@ -125,7 +125,7 @@ describe('bash-execute-tool', () => {
 
     it('should handle sandbox execution errors', async () => {
       const mockSandbox = { process: { codeRun: vi.fn() } };
-      runtimeContext.set(SandboxContextKey.Sandbox, mockSandbox as any);
+      runtimeContext.set(DocsAgentContextKey.Sandbox, mockSandbox as any);
 
       const input = {
         commands: [{ command: 'echo "hello"' }],
@@ -187,7 +187,7 @@ describe('bash-execute-tool', () => {
 
     it('should handle JSON parse errors from sandbox', async () => {
       const mockSandbox = { process: { codeRun: vi.fn() } };
-      runtimeContext.set(SandboxContextKey.Sandbox, mockSandbox as any);
+      runtimeContext.set(DocsAgentContextKey.Sandbox, mockSandbox as any);
 
       const input = {
         commands: [{ command: 'echo "hello"' }],

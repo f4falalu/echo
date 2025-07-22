@@ -3,7 +3,7 @@ import type { RuntimeContext } from '@mastra/core/runtime-context';
 import { createTool } from '@mastra/core/tools';
 import { wrapTraced } from 'braintrust';
 import { z } from 'zod';
-import { type SandboxContext, SandboxContextKey } from '../../../context/sandbox-context';
+import { type DocsAgentContext, DocsAgentContextKey } from '../../../context/docs-agent-context';
 
 const editFileParamsSchema = z.object({
   filePath: z.string().describe('Relative or absolute path to the file'),
@@ -46,7 +46,7 @@ const editFilesOutputSchema = z.object({
 const editFilesExecution = wrapTraced(
   async (
     params: z.infer<typeof editFilesInputSchema>,
-    runtimeContext: RuntimeContext<SandboxContext>
+    runtimeContext: RuntimeContext<DocsAgentContext>
   ): Promise<z.infer<typeof editFilesOutputSchema>> => {
     const { edits } = params;
 
@@ -58,7 +58,7 @@ const editFilesExecution = wrapTraced(
     }
 
     try {
-      const sandbox = runtimeContext.get(SandboxContextKey.Sandbox);
+      const sandbox = runtimeContext.get(DocsAgentContextKey.Sandbox);
 
       if (sandbox) {
         const { generateFileEditCode } = await import('./edit-files');
@@ -182,7 +182,7 @@ For bulk operations, each edit is processed independently and the tool returns b
     runtimeContext,
   }: {
     context: z.infer<typeof editFilesInputSchema>;
-    runtimeContext: RuntimeContext<SandboxContext>;
+    runtimeContext: RuntimeContext<DocsAgentContext>;
   }) => {
     return await editFilesExecution(context, runtimeContext);
   },
