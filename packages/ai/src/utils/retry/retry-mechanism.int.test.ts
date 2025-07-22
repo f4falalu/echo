@@ -8,9 +8,8 @@ import type { AnalystRuntimeContext } from '../../workflows/analyst-workflow';
 
 // Define types for the step outputs
 interface ThinkAndPrepOutput {
-  outputMessages: CoreMessage[];
-  finished: boolean;
   conversationHistory: CoreMessage[];
+  finished: boolean;
   metadata?: {
     toolsUsed: string[];
     finalTool?: string;
@@ -52,7 +51,6 @@ interface ThinkAndPrepInputData {
 
 interface AnalystInputData {
   finished: boolean;
-  outputMessages: CoreMessage[];
   conversationHistory: CoreMessage[];
   metadata: {
     toolsUsed: string[];
@@ -100,18 +98,18 @@ describe('Retry Mechanism Integration Tests', () => {
 
         // Verify the step completed successfully
         expect(result).toBeDefined();
-        expect(result.outputMessages).toBeDefined();
-        expect(Array.isArray(result.outputMessages)).toBe(true);
+        expect(result.conversationHistory).toBeDefined();
+        expect(Array.isArray(result.conversationHistory)).toBe(true);
 
         // Check if any healing messages were injected (they would be tool result messages)
-        const toolResultMessages = result.outputMessages.filter(
+        const toolResultMessages = result.conversationHistory.filter(
           (msg) =>
             msg.role === 'tool' || (msg.role === 'user' && msg.content === 'Please continue.')
         );
 
         // The presence of healing messages would indicate retry mechanism was triggered
         console.log('Tool result messages found:', toolResultMessages.length);
-        console.log('Total messages:', result.outputMessages.length);
+        console.log('Total messages:', result.conversationHistory.length);
       });
     });
   });
@@ -156,7 +154,6 @@ describe('Retry Mechanism Integration Tests', () => {
 
         const inputData: AnalystInputData = {
           finished: false,
-          outputMessages: mockMessages,
           conversationHistory: mockMessages,
           metadata: {
             toolsUsed: ['sequentialThinking'],
@@ -219,17 +216,19 @@ describe('Retry Mechanism Integration Tests', () => {
         } as any)) as ThinkAndPrepOutput;
 
         // Verify original messages are preserved
-        expect(result.outputMessages).toBeDefined();
+        expect(result.conversationHistory).toBeDefined();
 
         // The conversation should start with the original messages
-        const userMessages = result.outputMessages.filter((msg) => msg.role === 'user');
-        const assistantMessages = result.outputMessages.filter((msg) => msg.role === 'assistant');
+        const userMessages = result.conversationHistory.filter((msg) => msg.role === 'user');
+        const assistantMessages = result.conversationHistory.filter(
+          (msg) => msg.role === 'assistant'
+        );
 
         expect(userMessages.length).toBeGreaterThan(0);
         expect(assistantMessages.length).toBeGreaterThan(0);
 
         // Check that we have a complete conversation flow
-        expect(result.outputMessages.length).toBeGreaterThanOrEqual(originalMessages.length);
+        expect(result.conversationHistory.length).toBeGreaterThanOrEqual(originalMessages.length);
       });
     });
   });

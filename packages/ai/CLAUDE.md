@@ -221,11 +221,11 @@ The analyst workflow demonstrates the multi-agent pattern:
 
 ```typescript
 // In think-and-prep-step.ts
-outputMessages = extractMessageHistory(step.response.messages);
+conversationHistory = extractMessageHistory(step.response.messages);
 
 // In analyst-step.ts  
 const formattedMessages = formatMessagesForAnalyst(
-  inputData.outputMessages,
+  inputData.conversationHistory,
   initialPrompt
 );
 ```

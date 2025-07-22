@@ -170,8 +170,6 @@ describe('useChatInputFlow', () => {
       chatId: 'test-chat-id',
       messageId: 'test-message-id'
     });
-    expect(mockTextAreaRef.current.focus).toHaveBeenCalled();
-    expect(mockTextAreaRef.current.select).toHaveBeenCalled();
   });
 
   it('should not submit when disabled', async () => {

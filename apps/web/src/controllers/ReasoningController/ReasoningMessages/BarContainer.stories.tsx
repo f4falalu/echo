@@ -19,7 +19,7 @@ const meta = {
     showBar: {
       control: { type: 'boolean' }
     },
-    isCompletedStream: {
+    isStreamFinished: {
       control: { type: 'boolean' }
     },
     title: {
@@ -38,7 +38,7 @@ export const Default: Story = {
   args: {
     showBar: true,
     status: 'completed',
-    isCompletedStream: true,
+    isStreamFinished: true,
     title: 'Processing Data',
     secondaryTitle: 'Step 1 of 3'
   }
@@ -48,7 +48,7 @@ export const Loading: Story = {
   args: {
     showBar: true,
     status: 'loading',
-    isCompletedStream: false,
+    isStreamFinished: false,
     title: 'Analyzing Query',
     secondaryTitle: 'Please wait...'
   }
@@ -58,7 +58,7 @@ export const Failed: Story = {
   args: {
     showBar: true,
     status: 'failed',
-    isCompletedStream: true,
+    isStreamFinished: true,
     title: 'Processing Failed',
     secondaryTitle: 'Unable to complete'
   }
@@ -68,7 +68,7 @@ export const WithoutBar: Story = {
   args: {
     showBar: false,
     status: 'completed',
-    isCompletedStream: true,
+    isStreamFinished: true,
     title: 'Simple Title',
     secondaryTitle: 'No bar displayed'
   }
@@ -78,7 +78,7 @@ export const NoSecondaryTitle: Story = {
   args: {
     showBar: true,
     status: 'completed',
-    isCompletedStream: true,
+    isStreamFinished: true,
     title: 'Just a Title'
   }
 };
@@ -87,7 +87,7 @@ export const WithChildren: Story = {
   args: {
     showBar: true,
     status: 'completed',
-    isCompletedStream: true,
+    isStreamFinished: true,
     title: 'Container with Content',
     secondaryTitle: 'Has children'
   },
@@ -109,7 +109,7 @@ export const LongTitles: Story = {
   args: {
     showBar: true,
     status: 'loading',
-    isCompletedStream: false,
+    isStreamFinished: false,
     title: 'This is a very long title that might wrap or get truncated',
     secondaryTitle:
       'And this is also a very long secondary title that might not display on smaller containers'
@@ -121,7 +121,7 @@ export const AllStates: Story = {
   args: {
     showBar: true,
     status: 'completed',
-    isCompletedStream: true,
+    isStreamFinished: true,
     title: 'Default',
     secondaryTitle: 'Default'
   },
@@ -133,21 +133,21 @@ export const AllStates: Story = {
           <BarContainer
             showBar={true}
             status="loading"
-            isCompletedStream={false}
+            isStreamFinished={false}
             title="Loading State"
             secondaryTitle="In progress..."
           />
           <BarContainer
             showBar={true}
             status="completed"
-            isCompletedStream={true}
+            isStreamFinished={true}
             title="Completed State"
             secondaryTitle="Done!"
           />
           <BarContainer
             showBar={true}
             status="failed"
-            isCompletedStream={true}
+            isStreamFinished={true}
             title="Failed State"
             secondaryTitle="Error occurred"
           />
@@ -160,14 +160,14 @@ export const AllStates: Story = {
           <BarContainer
             showBar={false}
             status="completed"
-            isCompletedStream={true}
+            isStreamFinished={true}
             title="No Bar"
             secondaryTitle="Bar hidden"
           />
           <BarContainer
             showBar={true}
             status="completed"
-            isCompletedStream={true}
+            isStreamFinished={true}
             title="Only Primary Title"
           />
         </div>
@@ -180,7 +180,7 @@ export const InteractiveContent: Story = {
   args: {
     showBar: true,
     status: 'completed',
-    isCompletedStream: true,
+    isStreamFinished: true,
     title: 'Interactive Container',
     secondaryTitle: 'Click to add content'
   },

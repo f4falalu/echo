@@ -1,10 +1,13 @@
+import { getPermissionedDatasets } from '@buster/access-controls';
 import type { ChatMessageReasoningMessage } from '@buster/server-shared/chats';
 import { createStep } from '@mastra/core';
 import type { RuntimeContext } from '@mastra/core/runtime-context';
 import type { CoreMessage } from 'ai';
 import { wrapTraced } from 'braintrust';
 import { z } from 'zod';
+import { getSqlDialectGuidance } from '../agents/shared/sql-dialect-guidance';
 import { thinkAndPrepAgent } from '../agents/think-and-prep-agent/think-and-prep-agent';
+import { createThinkAndPrepInstructionsWithoutDatasets } from '../agents/think-and-prep-agent/think-and-prep-instructions';
 import type { thinkAndPrepWorkflowInputSchema } from '../schemas/workflow-schemas';
 import { ChunkProcessor } from '../utils/database/chunk-processor';
 import {
@@ -60,10 +63,14 @@ type BusterChatMessageResponse = z.infer<typeof BusterChatMessageResponseSchema>
 
 const outputSchema = ThinkAndPrepOutputSchema;
 
+const DEFAULT_CACHE_OPTIONS = {
+  anthropic: { cacheControl: { type: 'ephemeral' } },
+};
+
 // Helper function to create the result object
 const createStepResult = (
   finished: boolean,
-  outputMessages: MessageHistory,
+  conversationHistory: MessageHistory,
   finalStepData: StepFinishData | null,
   reasoningHistory: BusterChatMessageReasoning[] = [],
   responseHistory: BusterChatMessageResponse[] = [],
@@ -75,14 +82,13 @@ const createStepResult = (
   }>
 ): z.infer<typeof outputSchema> => ({
   finished,
-  outputMessages,
-  conversationHistory: outputMessages,
+  conversationHistory,
   stepData: finalStepData || undefined,
   reasoningHistory,
   responseHistory,
   metadata: {
-    toolsUsed: getAllToolsUsed(outputMessages),
-    finalTool: getLastToolUsed(outputMessages) as
+    toolsUsed: getAllToolsUsed(conversationHistory),
+    finalTool: getLastToolUsed(conversationHistory) as
       | 'submitThoughts'
       | 'respondWithoutAnalysis'
       | 'messageUserClarifyingQuestion'
@@ -105,7 +111,7 @@ const thinkAndPrepExecution = async ({
   const abortController = new AbortController();
   const messageId = runtimeContext.get('messageId') as string | null;
 
-  let outputMessages: MessageHistory = [];
+  let conversationHistory: MessageHistory = [];
   let completeConversationHistory: MessageHistory = [];
   let finished = false;
   const finalStepData: StepFinishData | null = null;
@@ -150,17 +156,38 @@ const thinkAndPrepExecution = async ({
   );
 
   try {
+    // Get database context and SQL dialect guidance
+    const userId = runtimeContext.get('userId');
+    const dataSourceSyntax = runtimeContext.get('dataSourceSyntax');
+
+    const datasets = await getPermissionedDatasets(userId, 0, 1000);
+
+    // Extract yml_content from each dataset and join with separators
+    const assembledYmlContent = datasets
+      .map((dataset: { ymlFile: string | null | undefined }) => dataset.ymlFile)
+      .filter((content: string | null | undefined) => content !== null && content !== undefined)
+      .join('\n---\n');
+
+    // Get dialect-specific guidance
+    const sqlDialectGuidance = getSqlDialectGuidance(dataSourceSyntax);
+
+    // Create dataset system message
+    const createDatasetSystemMessage = (databaseContext: string): string => {
+      return `<database_context>
+${databaseContext}
+</database_context>`;
+    };
     const todos = inputData['create-todos'].todos;
 
     // Standardize messages from workflow inputs
     const inputPrompt = initData.prompt;
-    const conversationHistory = initData.conversationHistory || [];
+    const inputConversationHistory = initData.conversationHistory || [];
 
     // Create base messages from prompt
     let baseMessages: CoreMessage[];
-    if (conversationHistory.length > 0) {
+    if (inputConversationHistory.length > 0) {
       // If we have conversation history, append the new prompt to it
-      baseMessages = appendToConversation(conversationHistory, inputPrompt);
+      baseMessages = appendToConversation(inputConversationHistory, inputPrompt);
     } else {
       // Otherwise, just use the prompt as a new conversation
       baseMessages = standardizeMessages(inputPrompt);
@@ -223,8 +250,25 @@ const thinkAndPrepExecution = async ({
 
         const wrappedStream = wrapTraced(
           async () => {
+            // Create system messages with dataset context and instructions
+            const systemMessages: CoreMessage[] = [
+              {
+                role: 'system',
+                content: createDatasetSystemMessage(assembledYmlContent),
+                providerOptions: DEFAULT_CACHE_OPTIONS,
+              },
+              {
+                role: 'system',
+                content: createThinkAndPrepInstructionsWithoutDatasets(sqlDialectGuidance),
+                providerOptions: DEFAULT_CACHE_OPTIONS,
+              },
+            ];
+
+            // Combine system messages with conversation messages
+            const messagesWithSystem = [...systemMessages, ...messages];
+
             // Create stream directly without retryableAgentStreamWithHealing
-            const stream = await thinkAndPrepAgent.stream(messages, {
+            const stream = await thinkAndPrepAgent.stream(messagesWithSystem, {
               toolCallStreaming: true,
               runtimeContext,
               maxRetries: 5,
@@ -316,7 +360,7 @@ const thinkAndPrepExecution = async ({
             continue;
           }
 
-          // Update messages for the retry
+          // Update messages for the retry (without system messages)
           messages = healedMessages;
 
           // Update chunk processor with the healed messages
@@ -357,12 +401,12 @@ const thinkAndPrepExecution = async ({
 
     // Get final results from chunk processor
     completeConversationHistory = chunkProcessor.getAccumulatedMessages();
-    outputMessages = extractMessageHistory(completeConversationHistory);
+    conversationHistory = extractMessageHistory(completeConversationHistory);
 
     // DEBUG: Log what we're passing to analyst step
     console.info('[Think and Prep Step] Creating result:', {
       finished,
-      outputMessagesCount: outputMessages.length,
+      conversationHistoryCount: conversationHistory.length,
       reasoningHistoryCount: chunkProcessor.getReasoningHistory().length,
       responseHistoryCount: chunkProcessor.getResponseHistory().length,
       dashboardFilesProvided: dashboardFiles !== undefined,
@@ -372,7 +416,7 @@ const thinkAndPrepExecution = async ({
 
     const result = createStepResult(
       finished,
-      outputMessages,
+      conversationHistory,
       finalStepData,
       chunkProcessor.getReasoningHistory() as BusterChatMessageReasoning[],
       chunkProcessor.getResponseHistory() as BusterChatMessageResponse[],
@@ -385,11 +429,11 @@ const thinkAndPrepExecution = async ({
     if (error instanceof Error && error.name === 'AbortError') {
       // Get final results from chunk processor
       completeConversationHistory = chunkProcessor.getAccumulatedMessages();
-      outputMessages = extractMessageHistory(completeConversationHistory);
+      conversationHistory = extractMessageHistory(completeConversationHistory);
 
       return createStepResult(
         finished,
-        outputMessages,
+        conversationHistory,
         finalStepData,
         chunkProcessor.getReasoningHistory() as BusterChatMessageReasoning[],
         chunkProcessor.getResponseHistory() as BusterChatMessageResponse[],

@@ -8,24 +8,24 @@ import { cn } from '@/lib/classMerge';
 export const BarContainer: React.FC<{
   showBar: boolean;
   status: BusterChatMessageReasoning_status;
-  isCompletedStream: boolean;
+  isStreamFinished: boolean;
   children?: React.ReactNode;
   title: string;
   secondaryTitle?: string;
-}> = React.memo(({ showBar, isCompletedStream, status, children, title, secondaryTitle }) => {
+}> = React.memo(({ showBar, isStreamFinished, status, children, title, secondaryTitle }) => {
   return (
     <div className={'relative flex space-x-1.5 overflow-visible'}>
       <VerticalBarContainer
         showBar={showBar}
         status={status}
-        isCompletedStream={isCompletedStream}
+        isStreamFinished={isStreamFinished}
       />
 
       <div className={'mb-2 flex w-full min-w-0 flex-col space-y-2'}>
         <TitleContainer
           title={title}
           secondaryTitle={secondaryTitle}
-          isCompletedStream={isCompletedStream}
+          isStreamFinished={isStreamFinished}
         />
         {children}
       </div>
@@ -38,20 +38,20 @@ BarContainer.displayName = 'BarContainer';
 const VerticalBarContainer: React.FC<{
   showBar: boolean;
   status: BusterChatMessageReasoning_status;
-  isCompletedStream: boolean;
-}> = React.memo(({ showBar, isCompletedStream, status }) => {
+  isStreamFinished: boolean;
+}> = React.memo(({ showBar, isStreamFinished, status }) => {
   return (
     <div className="ml-2 flex w-5 min-w-5 flex-col items-center pt-0.5">
       <StatusIndicator status={status} />
-      <VerticalBar show={showBar} isCompletedStream={isCompletedStream} />
+      <VerticalBar show={showBar} isStreamFinished={isStreamFinished} />
     </div>
   );
 });
 
 VerticalBarContainer.displayName = 'BarContainer';
 
-const VerticalBar: React.FC<{ show?: boolean; isCompletedStream: boolean }> = React.memo(
-  ({ show, isCompletedStream }) => {
+const VerticalBar: React.FC<{ show?: boolean; isStreamFinished: boolean }> = React.memo(
+  ({ show, isStreamFinished }) => {
     return (
       <div
         className={cn(
@@ -59,7 +59,7 @@ const VerticalBar: React.FC<{ show?: boolean; isCompletedStream: boolean }> = Re
           'opacity-0 transition-opacity duration-300',
           show && 'opacity-100!'
         )}>
-        <AnimatePresence initial={!isCompletedStream}>
+        <AnimatePresence initial={!isStreamFinished}>
           <motion.div
             className={cn('bg-text-tertiary w-[0.5px]', 'mt-1 overflow-hidden')}
             initial={{ height: 0 }}
@@ -80,11 +80,11 @@ VerticalBar.displayName = 'VerticalBar';
 const TitleContainer: React.FC<{
   title: string;
   secondaryTitle?: string;
-  isCompletedStream: boolean;
-}> = React.memo(({ title, secondaryTitle, isCompletedStream }) => {
+  isStreamFinished: boolean;
+}> = React.memo(({ title, secondaryTitle, isStreamFinished }) => {
   return (
     <div className={cn('@container flex w-full items-center space-x-1.5 overflow-hidden')}>
-      <AnimatePresence mode="wait" initial={!isCompletedStream}>
+      <AnimatePresence mode="wait" initial={!isStreamFinished}>
         <motion.div
           className="flex items-center space-x-1.5"
           initial={{ opacity: 0 }}

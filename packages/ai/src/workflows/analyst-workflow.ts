@@ -38,9 +38,7 @@ const outputSchema = z.object({
   todos: z.array(z.string()).optional(),
   values: z.array(z.string()).optional(),
   conversationHistory: MessageHistorySchema.optional(),
-  // Keep existing fields for backward compatibility
   finished: z.boolean().optional(),
-  outputMessages: MessageHistorySchema.optional(),
   stepData: StepFinishDataSchema.optional(),
   reasoningHistory: ReasoningHistorySchema, // Add reasoning history
   responseHistory: ResponseHistorySchema, // Add response history

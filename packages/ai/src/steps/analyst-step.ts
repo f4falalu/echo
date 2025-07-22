@@ -4,11 +4,14 @@ import type { CoreMessage } from 'ai';
 import { wrapTraced } from 'braintrust';
 import { z } from 'zod';
 
+import { getPermissionedDatasets } from '@buster/access-controls';
 import type {
   ChatMessageReasoningMessage,
   ChatMessageResponseMessage,
 } from '@buster/server-shared/chats';
 import { analystAgent } from '../agents/analyst-agent/analyst-agent';
+import { createAnalystInstructionsWithoutDatasets } from '../agents/analyst-agent/analyst-agent-instructions';
+import { getSqlDialectGuidance } from '../agents/shared/sql-dialect-guidance';
 import { ChunkProcessor } from '../utils/database/chunk-processor';
 import {
   MessageHistorySchema,
@@ -41,7 +44,6 @@ const AnalystMetadataSchema = z.object({
 const outputSchema = z.object({
   conversationHistory: MessageHistorySchema, // Properly typed message history
   finished: z.boolean().optional(),
-  outputMessages: MessageHistorySchema.optional(),
   stepData: StepFinishDataSchema.optional(),
   reasoningHistory: ReasoningHistorySchema, // Add reasoning history
   responseHistory: ResponseHistorySchema, // Add response history
@@ -55,6 +57,10 @@ const outputSchema = z.object({
     .optional(),
   finalReasoningMessage: z.string().optional(),
 });
+
+const DEFAULT_CACHE_OPTIONS = {
+  anthropic: { cacheControl: { type: 'ephemeral' } },
+};
 
 /**
  * Transform reasoning/response history to match ChunkProcessor expected types
@@ -236,9 +242,8 @@ const analystExecution = async ({
   // Check if think-and-prep already finished - if so, pass through
   if (inputData.finished === true) {
     return {
-      conversationHistory: inputData.conversationHistory || inputData.outputMessages,
+      conversationHistory: inputData.conversationHistory,
       finished: true,
-      outputMessages: inputData.outputMessages,
       stepData: inputData.stepData,
       reasoningHistory: inputData.reasoningHistory || [],
       responseHistory: inputData.responseHistory || [],
@@ -252,6 +257,28 @@ const analystExecution = async ({
   let completeConversationHistory: CoreMessage[] = [];
   let retryCount = 0;
   const maxRetries = 5;
+
+  // Get database context and SQL dialect guidance
+  const userId = runtimeContext.get('userId');
+  const dataSourceSyntax = runtimeContext.get('dataSourceSyntax');
+
+  const datasets = await getPermissionedDatasets(userId, 0, 1000);
+
+  // Extract yml_content from each dataset and join with separators
+  const assembledYmlContent = datasets
+    .map((dataset: { ymlFile: string | null | undefined }) => dataset.ymlFile)
+    .filter((content: string | null | undefined) => content !== null && content !== undefined)
+    .join('\n---\n');
+
+  // Get dialect-specific guidance
+  const sqlDialectGuidance = getSqlDialectGuidance(dataSourceSyntax);
+
+  // Create dataset system message
+  const createDatasetSystemMessage = (databaseContext: string): string => {
+    return `<database_context>
+${databaseContext}
+</database_context>`;
+  };
 
   // Initialize chunk processor with histories from previous step
   // IMPORTANT: Pass histories from think-and-prep to accumulate across steps
@@ -297,7 +324,7 @@ const analystExecution = async ({
 
   // Messages come directly from think-and-prep step output
   // They are already in CoreMessage[] format
-  let messages = inputData.outputMessages;
+  let messages = inputData.conversationHistory;
 
   if (messages && messages.length > 0) {
     // Deduplicate messages based on role and toolCallId
@@ -312,16 +339,9 @@ const analystExecution = async ({
       isArray: Array.isArray(messages),
     });
 
-    // Try to use conversationHistory as fallback
-    const fallbackMessages = inputData.conversationHistory;
-    if (fallbackMessages && Array.isArray(fallbackMessages) && fallbackMessages.length > 0) {
-      console.warn('Using conversationHistory as fallback for empty outputMessages');
-      messages = deduplicateMessages(fallbackMessages);
-    } else {
-      throw new Error(
-        'Critical error: No valid messages found in analyst step input. Both outputMessages and conversationHistory are empty.'
-      );
-    }
+    throw new Error(
+      'Critical error: No valid messages found in analyst step input. conversationHistory is empty.'
+    );
   }
 
   // Set initial messages in chunk processor
@@ -359,8 +379,25 @@ const analystExecution = async ({
 
       const wrappedStream = wrapTraced(
         async () => {
+          // Create system messages with dataset context and instructions
+          const systemMessages: CoreMessage[] = [
+            {
+              role: 'system',
+              content: createDatasetSystemMessage(assembledYmlContent),
+              providerOptions: DEFAULT_CACHE_OPTIONS,
+            },
+            {
+              role: 'system',
+              content: createAnalystInstructionsWithoutDatasets(sqlDialectGuidance),
+              providerOptions: DEFAULT_CACHE_OPTIONS,
+            },
+          ];
+
+          // Combine system messages with conversation messages
+          const messagesWithSystem = [...systemMessages, ...messages];
+
           // Create stream directly without retryableAgentStreamWithHealing
-          const stream = await analystAgent.stream(messages, {
+          const stream = await analystAgent.stream(messagesWithSystem, {
             toolCallStreaming: true,
             runtimeContext,
             maxRetries: 5,
@@ -442,7 +479,7 @@ const analystExecution = async ({
           continue;
         }
 
-        // Update messages for the retry
+        // Update messages for the retry (without system messages)
         messages = healedMessages;
 
         // Update chunk processor with the healed messages
@@ -518,7 +555,6 @@ const analystExecution = async ({
   return {
     conversationHistory: completeConversationHistory,
     finished: true,
-    outputMessages: completeConversationHistory,
     reasoningHistory: chunkProcessor.getReasoningHistory() as z.infer<
       typeof ReasoningHistorySchema
     >,
