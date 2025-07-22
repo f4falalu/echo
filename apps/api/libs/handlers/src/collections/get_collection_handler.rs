@@ -11,6 +11,7 @@ use database::{
 };
 use diesel::{ExpressionMethods, JoinOnDsl, NullableExpressionMethods, QueryDsl, Queryable};
 use diesel_async::RunQueryDsl;
+use itertools::Itertools;
 use middleware::AuthenticatedUser;
 use sharing::{check_permission_access, compute_effective_permission};
 use tracing;
@@ -133,7 +134,6 @@ pub async fn get_collection_handler(
             users::name,
             users::avatar_url,
         ))
-        .order_by(users::email)
         .load::<AssetPermissionInfo>(&mut conn)
         .await;
 
@@ -157,7 +157,10 @@ pub async fn get_collection_handler(
                             name: p.name,
                             avatar_url: p.avatar_url,
                         })
-                        .collect::<Vec<BusterShareIndividual>>(),
+                        .collect::<Vec<BusterShareIndividual>>()
+                        .into_iter()
+                        .sorted_by(|a, b| a.email.to_lowercase().cmp(&b.email.to_lowercase()))
+                        .collect(),
                 )
             }
         }
