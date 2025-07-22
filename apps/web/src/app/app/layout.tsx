@@ -49,8 +49,12 @@ export default async function Layout({
     (supabaseContext.user?.is_anonymous && pathname !== loginRoute) ||
     !supabaseContext?.user?.id
   ) {
-    const redirectParam = pathname && isValidRedirectUrl(pathname) ? encodeURIComponent(pathname) : '';
-    const loginUrlWithRedirect = redirectParam ? `${loginRoute}?next=${redirectParam}` : loginRoute;
+    const redirectParam =
+      pathname && isValidRedirectUrl(pathname) ? encodeURIComponent(pathname) : '';
+
+    const loginUrlWithRedirect = redirectParam
+      ? createBusterRoute({ route: BusterRoutes.AUTH_LOGIN, next: redirectParam })
+      : loginRoute;
     return <ClientRedirect to={loginUrlWithRedirect} />;
   }
 

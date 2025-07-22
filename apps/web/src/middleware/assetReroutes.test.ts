@@ -8,7 +8,12 @@ vi.mock('@/routes/busterRoutes', () => ({
   BusterRoutes: {
     AUTH_LOGIN: '/auth/login'
   },
-  createBusterRoute: vi.fn(({ route }) => route),
+  createBusterRoute: vi.fn(({ route, next }) => {
+    if (next) {
+      return `${route}?next=${encodeURIComponent(next)}`;
+    }
+    return route;
+  }),
   isPublicPage: vi.fn(),
   isShareableAssetPage: vi.fn(),
   getEmbedAssetRedirect: vi.fn()

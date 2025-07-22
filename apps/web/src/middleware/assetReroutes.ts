@@ -13,8 +13,11 @@ import {
  */
 const createLoginRedirect = (request: NextRequest): NextResponse => {
   const originalUrl = `${request.nextUrl.pathname}${request.nextUrl.search}`;
-  const loginUrl = new URL(createBusterRoute({ route: BusterRoutes.AUTH_LOGIN }), request.url);
-  loginUrl.searchParams.set('next', encodeURIComponent(originalUrl));
+  const loginUrl = new URL(
+    createBusterRoute({ route: BusterRoutes.AUTH_LOGIN, next: originalUrl }),
+    request.url
+  );
+
   return NextResponse.redirect(loginUrl);
 };
 
