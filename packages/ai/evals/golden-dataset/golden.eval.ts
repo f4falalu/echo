@@ -60,7 +60,7 @@ Eval('development', {
   experimentName: 'Golden-Dataset-Run',
   data: initDataset({
     project: 'development',
-    dataset: 'Golden-Dataset-Temp',
+    dataset: 'Golden-Dataset',
   }),
   task: getMetricCreation,
   scores: basicSuite.concat(basicLLMSuite).concat(expectedSuite).concat(formatSuite),
