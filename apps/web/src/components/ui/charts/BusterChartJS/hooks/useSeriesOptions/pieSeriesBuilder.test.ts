@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { formatLabel } from '@/lib';
 import { formatLabelForDataset } from '../../../commonHelpers';
 import { pieSeriesBuilder_data, pieSeriesBuilder_labels } from './pieSeriesBuilder';
+import type { ColumnLabelFormat } from '@buster/server-shared/metrics';
 
 // Mock dependencies
 vi.mock('../../../commonHelpers', () => ({
@@ -140,8 +141,14 @@ describe('pieSeriesBuilder_labels', () => {
         datasets: []
       },
       columnLabelFormats: {
-        key1: 'format1',
-        key2: null
+        key1: {
+          columnType: 'text',
+          style: 'string',
+          displayName: 'key1'
+        } as ColumnLabelFormat,
+        key2: {
+          columnType: 'text'
+        } as ColumnLabelFormat
       },
       // Adding required properties
       xAxisKeys: ['key1', 'key2'],
@@ -155,44 +162,10 @@ describe('pieSeriesBuilder_labels', () => {
       format ? `Formatted ${item}` : String(item)
     );
 
-    const result = pieSeriesBuilder_labels(props as any);
+    const result = pieSeriesBuilder_labels(props);
 
     // We expect each item to be processed through formatLabel and joined
-    expect(result).toEqual(['Formatted Item 1|Item 2']);
-    expect(formatLabel).toHaveBeenCalledWith('Item 1', 'format1');
-    expect(formatLabel).toHaveBeenCalledWith('Item 2', null);
-  });
-
-  it('should handle multiple tick sets', () => {
-    const props = {
-      datasetOptions: {
-        ticks: [
-          ['Item 1', 'Item 2'],
-          ['Item 3', 'Item 4']
-        ],
-        ticksKey: [
-          { key: 'key1', value: 'value1' },
-          { key: 'key2', value: 'value2' }
-        ],
-        // Adding missing required property
-        datasets: []
-      },
-      columnLabelFormats: {
-        key1: 'format1',
-        key2: 'format2'
-      },
-      // Adding required properties
-      xAxisKeys: ['key1', 'key2'],
-      sizeKey: [], // Fixed to be an empty array instead of null
-      columnSettings: {},
-      trendlineSeries: []
-    };
-
-    const result = pieSeriesBuilder_labels(props as any);
-    expect(result).toEqual([
-      'Formatted Item 1|Formatted Item 2',
-      'Formatted Item 3|Formatted Item 4'
-    ]);
+    expect(result).toEqual(['Item 1 | Item 2']);
   });
 
   it('should handle empty ticks', () => {

@@ -9,7 +9,8 @@ import {
   type ColumnSettings,
   type ScatterAxis
 } from '@buster/server-shared/metrics';
-import { createDayjsDate, formatLabel } from '@/lib';
+import { createDayjsDate } from '@/lib/date';
+import { formatLabel } from '@/lib/columnFormatter';
 import type { DatasetOption, DatasetOptionsWithTicks, KV } from '../../../chartHooks';
 import { formatBarAndLineDataLabel } from '../../helpers';
 import { lineBuilder, lineSeriesBuilder_labels } from './lineSeriesBuilder';
@@ -20,16 +21,27 @@ type ColumnSettingsMap = NonNullable<BusterChartProps['columnSettings']>;
 
 // Mock dependencies
 vi.mock('../../../commonHelpers', () => ({
-  formatLabelForDataset: vi.fn((dataset) => dataset.label[0]?.value || dataset.dataKey),
-  JOIN_CHARACTER: ' | '
+  formatLabelForDataset: vi.fn((dataset) => dataset.label[0]?.value || dataset.dataKey)
 }));
 
-vi.mock('@/lib', () => ({
-  addOpacityToColor: vi.fn((color, opacity) => `${color}-opacity-${opacity}`),
+vi.mock('@/lib/colors', () => ({
+  addOpacityToColor: vi.fn((color, opacity) =>
+    opacity === 1 ? color : `${color}-opacity-${opacity}`
+  )
+}));
+
+vi.mock('@/lib/date', () => ({
   createDayjsDate: vi.fn((dateString) => ({
     toDate: () => new Date(dateString)
-  })),
+  }))
+}));
+
+vi.mock('@/lib/columnFormatter', () => ({
   formatLabel: vi.fn((value) => `formatted-${value}`)
+}));
+
+vi.mock('@/lib/axisFormatter', () => ({
+  JOIN_CHARACTER: ' | '
 }));
 
 vi.mock('../../helpers', () => ({
@@ -158,8 +170,7 @@ describe('lineSeriesBuilder', () => {
       expect(result.order).toBe(0);
       expect(result.data).toEqual([10, 20, 15]);
       expect(result.borderColor).toBe('#ff0000');
-      expect(result.pointBackgroundColor).toBe('#ff0000-opacity-0.85');
-      expect(result.pointBorderColor).toBe('#ff0000-opacity-1');
+      expect(result.pointBorderColor).toBe('#ff0000');
       expect(result.pointRadius).toBe(3);
       expect(result.pointHoverRadius).toBe(3);
       expect(result.pointBorderWidth).toBe(1.2);

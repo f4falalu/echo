@@ -2,10 +2,7 @@ import isEqual from 'lodash/isEqual';
 import pick from 'lodash/pick';
 import type { BusterChartProps } from '@/api/asset_interfaces/metric/charts';
 import { formatLabel } from '@/lib/columnFormatter';
-import { JOIN_CHARACTER } from './labelHelpers';
 import type { BarAndLineAxis, ScatterAxis } from '@buster/server-shared/metrics';
-
-export const AXIS_TITLE_SEPARATOR = JOIN_CHARACTER;
 
 export const formatYAxisLabel = (
   value: string | number,

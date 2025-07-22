@@ -3,7 +3,11 @@
 import Link from 'next/link';
 import type React from 'react';
 import { useEffect, useState } from 'react';
-import { DatabaseNames, type DataSourceTypes, SUPPORTED_DATASOURCES } from '@/api/asset_interfaces';
+import {
+  DatabaseNames,
+  type DataSourceTypes,
+  SUPPORTED_DATASOURCES
+} from '@/api/asset_interfaces/datasources';
 import { AppDataSourceIcon } from '@/components/ui/icons/AppDataSourceIcons';
 import { Text, Title } from '@/components/ui/typography';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';

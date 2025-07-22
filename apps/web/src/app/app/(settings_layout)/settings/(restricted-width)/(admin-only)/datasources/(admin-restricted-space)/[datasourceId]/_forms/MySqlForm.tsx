@@ -3,7 +3,7 @@ import {
   type DataSource,
   type MySQLCredentials,
   MySQLCredentialsSchema
-} from '@/api/asset_interfaces';
+} from '@/api/asset_interfaces/datasources';
 import {
   type createMySQLDataSource,
   useCreateMySQLDataSource,

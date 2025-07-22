@@ -2,7 +2,7 @@
 
 import React, { useMemo } from 'react';
 import { Card, CardHeader } from '@/components/ui/card/CardBase';
-import { BusterChart } from '@/components/ui/charts/BusterChart';
+import { BusterChartDynamic } from '@/components/ui/charts/BusterChartDynamic';
 import { useMemoizedFn } from '@/hooks';
 import { cn } from '@/lib/classMerge';
 import { MetricTitle } from './MetricTitle';
@@ -103,7 +103,7 @@ const DashboardMetricItemBase: React.FC<{
         {renderChart &&
           chartOptions &&
           (!hideChart ? (
-            <BusterChart
+            <BusterChartDynamic
               data={data}
               loading={loading}
               error={error}
