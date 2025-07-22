@@ -29,7 +29,6 @@
     "lint": "turbo lint",
     "new:package": "tsx scripts/new-package.ts",
     "setup": "bash scripts/setup.sh",
-    "test-before-pr": "turbo run test:unit build lint",
     "test": "dotenv -e .env -- turbo test",
     "test:unit": "dotenv -e .env -- turbo run test:unit",
     "test:integration": "dotenv -e .env -- turbo run test:integration",
