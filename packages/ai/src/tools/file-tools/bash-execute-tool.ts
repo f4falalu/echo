@@ -3,7 +3,7 @@ import type { RuntimeContext } from '@mastra/core/runtime-context';
 import { createTool } from '@mastra/core/tools';
 import { wrapTraced } from 'braintrust';
 import { z } from 'zod';
-import { type SandboxContext, SandboxContextKey } from '../../context/sandbox-context';
+import { type DocsAgentContext, DocsAgentContextKey } from '../../context/docs-agent-context';
 
 const bashCommandSchema = z.object({
   command: z.string().describe('The bash command to execute'),
@@ -33,7 +33,7 @@ const outputSchema = z.object({
 const executeBashCommands = wrapTraced(
   async (
     input: z.infer<typeof inputSchema>,
-    runtimeContext: RuntimeContext<SandboxContext>
+    runtimeContext: RuntimeContext<DocsAgentContext>
   ): Promise<z.infer<typeof outputSchema>> => {
     const commands = Array.isArray(input.commands) ? input.commands : [input.commands];
 
@@ -43,7 +43,7 @@ const executeBashCommands = wrapTraced(
 
     try {
       // Check if sandbox is available in runtime context
-      const sandbox = runtimeContext.get(SandboxContextKey.Sandbox);
+      const sandbox = runtimeContext.get(DocsAgentContextKey.Sandbox);
 
       if (sandbox) {
         const { generateBashExecuteCode } = await import('./bash-execute-functions');
@@ -106,7 +106,7 @@ export const bashExecute = createTool({
     runtimeContext,
   }: {
     context: z.infer<typeof inputSchema>;
-    runtimeContext: RuntimeContext<SandboxContext>;
+    runtimeContext: RuntimeContext<DocsAgentContext>;
   }) => {
     return await executeBashCommands(context, runtimeContext);
   },

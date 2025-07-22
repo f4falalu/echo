@@ -3,7 +3,7 @@ import type { RuntimeContext } from '@mastra/core/runtime-context';
 import { createTool } from '@mastra/core/tools';
 import { wrapTraced } from 'braintrust';
 import { z } from 'zod';
-import { type SandboxContext, SandboxContextKey } from '../../../context/sandbox-context';
+import { type DocsAgentContext, DocsAgentContextKey } from '../../../context/docs-agent-context';
 
 const deleteFilesInputSchema = z.object({
   files: z
@@ -28,7 +28,7 @@ const deleteFilesOutputSchema = z.object({
 const deleteFilesExecution = wrapTraced(
   async (
     params: z.infer<typeof deleteFilesInputSchema>,
-    runtimeContext: RuntimeContext<SandboxContext>
+    runtimeContext: RuntimeContext<DocsAgentContext>
   ): Promise<z.infer<typeof deleteFilesOutputSchema>> => {
     const { files } = params;
 
@@ -37,7 +37,7 @@ const deleteFilesExecution = wrapTraced(
     }
 
     try {
-      const sandbox = runtimeContext.get(SandboxContextKey.Sandbox);
+      const sandbox = runtimeContext.get(DocsAgentContextKey.Sandbox);
 
       if (sandbox) {
         const { generateFileDeleteCode } = await import('./delete-files-functions');
@@ -123,7 +123,7 @@ export const deleteFiles = createTool({
     runtimeContext,
   }: {
     context: z.infer<typeof deleteFilesInputSchema>;
-    runtimeContext: RuntimeContext<SandboxContext>;
+    runtimeContext: RuntimeContext<DocsAgentContext>;
   }) => {
     return await deleteFilesExecution(context, runtimeContext);
   },

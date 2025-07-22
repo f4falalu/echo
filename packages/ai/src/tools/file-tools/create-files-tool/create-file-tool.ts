@@ -3,7 +3,7 @@ import type { RuntimeContext } from '@mastra/core/runtime-context';
 import { createTool } from '@mastra/core/tools';
 import { wrapTraced } from 'braintrust';
 import { z } from 'zod';
-import { type SandboxContext, SandboxContextKey } from '../../../context/sandbox-context';
+import { type DocsAgentContext, DocsAgentContextKey } from '../../../context/docs-agent-context';
 
 const fileCreateParamsSchema = z.object({
   path: z.string().describe('The relative or absolute path to create the file at'),
@@ -33,7 +33,7 @@ const createFilesOutputSchema = z.object({
 const createFilesExecution = wrapTraced(
   async (
     params: z.infer<typeof createFilesInputSchema>,
-    runtimeContext: RuntimeContext<SandboxContext>
+    runtimeContext: RuntimeContext<DocsAgentContext>
   ): Promise<z.infer<typeof createFilesOutputSchema>> => {
     const { files } = params;
 
@@ -43,7 +43,7 @@ const createFilesExecution = wrapTraced(
 
     try {
       // Check if sandbox is available in runtime context
-      const sandbox = runtimeContext.get(SandboxContextKey.Sandbox);
+      const sandbox = runtimeContext.get(DocsAgentContextKey.Sandbox);
 
       if (sandbox) {
         // Execute in sandbox
@@ -132,7 +132,7 @@ export const createFiles = createTool({
     runtimeContext,
   }: {
     context: z.infer<typeof createFilesInputSchema>;
-    runtimeContext: RuntimeContext<SandboxContext>;
+    runtimeContext: RuntimeContext<DocsAgentContext>;
   }) => {
     return await createFilesExecution(context, runtimeContext);
   },

@@ -220,7 +220,9 @@ describe('Retry Mechanism Integration Tests', () => {
 
         // The conversation should start with the original messages
         const userMessages = result.conversationHistory.filter((msg) => msg.role === 'user');
-        const assistantMessages = result.conversationHistory.filter((msg) => msg.role === 'assistant');
+        const assistantMessages = result.conversationHistory.filter(
+          (msg) => msg.role === 'assistant'
+        );
 
         expect(userMessages.length).toBeGreaterThan(0);
         expect(assistantMessages.length).toBeGreaterThan(0);
