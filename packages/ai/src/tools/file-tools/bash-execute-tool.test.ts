@@ -1,7 +1,7 @@
 import { RuntimeContext } from '@mastra/core/runtime-context';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { z } from 'zod';
-import { type SandboxContext, SandboxContextKey } from '../../../context/sandbox-context';
+import { type SandboxContext, SandboxContextKey } from '../../context/sandbox-context';
 import { bashExecute } from './bash-execute-tool';
 
 vi.mock('@buster/sandbox', () => ({
