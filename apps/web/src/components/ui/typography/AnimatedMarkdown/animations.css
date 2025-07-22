@@ -1,4 +1,4 @@
-@keyframes buster-fadeIn {
+@keyframes animated-md-fadeIn {
   from {
     opacity: 0;
   }
@@ -7,7 +7,7 @@
   }
 }
 
-@keyframes buster-blurIn {
+@keyframes animated-md-blurIn {
   from {
     opacity: 0;
     filter: blur(3px);
@@ -18,7 +18,7 @@
   }
 }
 
-@keyframes buster-typewriter {
+@keyframes animated-md-typewriter {
   from {
     width: 0;
     overflow: hidden;
@@ -28,7 +28,7 @@
   }
 }
 
-@keyframes buster-slideInFromLeft {
+@keyframes animated-md-slideInFromLeft {
   from {
     transform: translateX(-100%);
     opacity: 0;
@@ -39,7 +39,7 @@
   }
 }
 
-@keyframes buster-fadeAndScale {
+@keyframes animated-md-fadeAndScale {
   from {
     transform: scale(0.5);
     opacity: 0;
@@ -50,16 +50,16 @@
   }
 }
 
-@keyframes buster-colorTransition {
+@keyframes animated-md-colorTransition {
   from {
-    color: var(--buster-color-from, var(--color-primary));
+    color: var(--animated-md-color-from, var(--color-primary));
   }
   to {
-    color: var(--buster-color-to, var(--color-foreground));
+    color: var(--animated-md-color-to, var(--color-foreground));
   }
 } 
 
-@keyframes buster-rotateIn {
+@keyframes animated-md-rotateIn {
   from {
     transform: rotate(-360deg);
     opacity: 0;
@@ -70,7 +70,7 @@
   }
 }
 
-@keyframes buster-bounceIn {
+@keyframes animated-md-bounceIn {
   0%,
   40%,
   80%,
@@ -85,7 +85,7 @@
   }
 }
 
-@keyframes buster-elastic {
+@keyframes animated-md-elastic {
   0%,
   100% {
     transform: scale(1);
@@ -95,7 +95,7 @@
   }
 }
 
-@keyframes buster-highlight {
+@keyframes animated-md-highlight {
   from {
     background-color: yellow;
   }
@@ -104,7 +104,7 @@
   }
 }
 
-@keyframes buster-blurAndSharpen {
+@keyframes animated-md-blurAndSharpen {
   from {
     filter: blur(5px);
     opacity: 0;
@@ -115,7 +115,7 @@
   }
 }
 
-@keyframes buster-dropIn {
+@keyframes animated-md-dropIn {
   from {
     transform: translateY(-10%);
     opacity: 0;
@@ -126,7 +126,7 @@
   }
 }
 
-@keyframes buster-slideUp {
+@keyframes animated-md-slideUp {
   from {
     transform: translateY(10%);
     opacity: 0;
@@ -137,7 +137,7 @@
   }
 }
 
-@keyframes buster-wave {
+@keyframes animated-md-wave {
   from {
     transform: translateY(0);
   }
@@ -150,13 +150,13 @@
 }
 
 :root {
-  --buster-marker-animation: none;
+  --animated-md-marker-animation: none;
 }
 
-.buster-custom-li::marker {
-  animation: var(--buster-marker-animation);
+.animated-md-custom-li::marker {
+  animation: var(--animated-md-marker-animation);
 }
 
-.buster-code-block {
-  animation: var(--buster-marker-animation);
+.animated-md-code-block {
+  animation: var(--animated-md-marker-animation);
 }

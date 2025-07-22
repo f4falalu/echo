@@ -22,20 +22,20 @@ export type MarkdownAnimation =
 export type MarkdownAnimationTimingFunction = 'ease-in-out' | 'ease-out' | 'ease-in' | 'linear';
 
 export const animations: Record<MarkdownAnimation, string> = {
-  fadeIn: 'buster-fadeIn',
-  slideUp: 'buster-slideUp',
-  wave: 'buster-wave',
-  elastic: 'buster-elastic',
-  bounceIn: 'buster-bounceIn',
-  rotateIn: 'buster-rotateIn',
-  colorTransition: 'buster-colorTransition',
-  fadeAndScale: 'buster-fadeAndScale',
-  slideInFromLeft: 'buster-slideInFromLeft',
-  blurIn: 'buster-blurIn',
-  typewriter: 'buster-typewriter',
-  highlight: 'buster-highlight',
-  blurAndSharpen: 'buster-blurAndSharpen',
-  dropIn: 'buster-dropIn',
+  fadeIn: 'animated-md-fadeIn',
+  slideUp: 'animated-md-slideUp',
+  wave: 'animated-md-wave',
+  elastic: 'animated-md-elastic',
+  bounceIn: 'animated-md-bounceIn',
+  rotateIn: 'animated-md-rotateIn',
+  colorTransition: 'animated-md-colorTransition',
+  fadeAndScale: 'animated-md-fadeAndScale',
+  slideInFromLeft: 'animated-md-slideInFromLeft',
+  blurIn: 'animated-md-blurIn',
+  typewriter: 'animated-md-typewriter',
+  highlight: 'animated-md-highlight',
+  blurAndSharpen: 'animated-md-blurAndSharpen',
+  dropIn: 'animated-md-dropIn',
   none: 'none'
 };
 
