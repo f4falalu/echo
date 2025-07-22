@@ -4,7 +4,6 @@ import {
   createDashboards,
   createMetrics,
   doneTool,
-  idleTool,
   modifyDashboards,
   modifyMetrics,
 } from '../../tools';
@@ -32,7 +31,6 @@ export const analystAgent = new Agent({
     createDashboards,
     modifyDashboards,
     doneTool,
-    idleTool,
   },
   defaultGenerateOptions: DEFAULT_OPTIONS,
   defaultStreamOptions: DEFAULT_OPTIONS,
