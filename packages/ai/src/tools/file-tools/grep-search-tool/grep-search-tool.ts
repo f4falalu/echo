@@ -1,4 +1,4 @@
-import { runTypescript } from '@buster/sandbox';
+import { runTypescript } from '@buster/sandbox/src/execute/run-typescript';
 import type { RuntimeContext } from '@mastra/core/runtime-context';
 import { createTool } from '@mastra/core/tools';
 import { wrapTraced } from 'braintrust';
