@@ -66,9 +66,7 @@ export const animateTokenizedText = (
   animationsProps: Pick<
     AnimatedMarkdownProps,
     'animation' | 'animationDuration' | 'animationTimingFunction' | 'isStreamFinished'
-  > & {
-    doNotAnimateInitialText?: boolean;
-  }
+  > 
 ) => {
   if (!animationsProps.animation) {
     return text;

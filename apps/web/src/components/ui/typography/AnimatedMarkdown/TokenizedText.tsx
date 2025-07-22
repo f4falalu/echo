@@ -7,8 +7,7 @@ type TokenizedTextProps = {
   animation?: MarkdownAnimation;
   animationDuration?: number;
   animationTimingFunction?: 'ease-in-out' | 'ease-in' | 'ease-out' | 'linear';
-  doNotAnimateInitialText?: boolean;
-  isStreamFinished?: boolean;
+   isStreamFinished?: boolean;
 };
 
 const TokenizedText: React.FC<TokenizedTextProps> = React.memo(
@@ -17,7 +16,7 @@ const TokenizedText: React.FC<TokenizedTextProps> = React.memo(
     animation,
     animationDuration,
     animationTimingFunction,
-    doNotAnimateInitialText,
+
     isStreamFinished
   }) => {
     const previousTextRef = useRef<string>('');
@@ -41,11 +40,11 @@ const TokenizedText: React.FC<TokenizedTextProps> = React.memo(
         <span
           key={`animated-chunk-${index}`}
           className={chunk.trim().length > 0 ? 'whitespace-pre-wrap' : ''}
-          style={doNotAnimateInitialText && index === 0 ? {} : animationStyle}>
+          style={ animationStyle}>
           {chunk}
         </span>
       ),
-      [animationStyle, doNotAnimateInitialText]
+      [animationStyle,  ]
     );
 
     const content = useMemo(() => {
