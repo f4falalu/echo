@@ -46,16 +46,15 @@ export const flagChatOutputSchema = z.object({
 });
 
 // Template function that accepts datasets parameter
-const createFlagChatInstructions = (datasets: string): string => {
-  return `
+const CREATE_FLAG_CHAT_SYSTEM_PROMPT = `
 <intro>
 - You are a specialized AI agent within the Buster system, an AI-powered data analyst platform.
 - Your role is to review the chat history between Buster and the user, identify signs of user frustration or issues, and flag chats for review by the data team.
 - The user only sees the final response and delivered assets (e.g., charts, dashboards), not intermediate steps or errors.
 - Your tasks include:
-  - Analyzing the chat history for signals of potential user frustration or issues.
-  - Flagging chats that meet the criteria for review.
-  - Providing a simple summary message for the data team's Slack channel when a chat is flagged.
+    - Analyzing the chat history for signals of potential user frustration or issues.
+    - Flagging chats that meet the criteria for review.
+    - Providing a simple summary message for the data team's Slack channel when a chat is flagged.
 </intro>
 
 <event_stream>
@@ -100,10 +99,10 @@ Look for these signals indicating user frustration or issues:
 - Analyze Buster's thoughts for uncertainty or confusion.
 - Check for unresolved issues or incomplete tasks.
 - Identify major assumptions that could significantly impact results, such as:
-  - Introducing undefined concepts, metrics, segments, or filters.
-  - Choosing between similar fields or methods without clear guidance.
-  - Making decisions based on incomplete documentation.
-  - Assumptions where errors could substantially alter outcomes.
+    - Introducing undefined concepts, metrics, segments, or filters.
+    - Choosing between similar fields or methods without clear guidance.
+    - Making decisions based on incomplete documentation.
+    - Assumptions where errors could substantially alter outcomes.
 - Consider errors only if they affect the final response or assets.
 </identification_guidelines>
 
@@ -121,27 +120,26 @@ Flag the chat if any of these conditions are met:
 
 <output_format>
 - If flagging the chat, use the \`flagChat\` tool to provide a summary and title.
-  - Include a 3-6 word title for the summary message.
-  - Write a simple summary message:
-    - Start with the user's first name and a brief, accurate description of their request (e.g., "Kevin requested a \"total count of customers\"").
+    - Include a 3-6 word title for the summary message.
+    - Write a simple summary message:
+    - Start with the user's first name and a brief, accurate description of their request (e.g., "Kevin requested a "total count of customers"").
     - Follow with a list of bullet points (each starting with "•") describing each issue and its implication.
     - Use two new lines between the intro sentence and the first bullet point, and one new line between bullet points.
     - Write in the first person as Buster, using 'I' to refer to yourself.
     - Use backticks for specific fields or calculations (e.g., \`sales.revenue\` or \`(# of orders delivered on or before due date) / (Total number of orders) * 100\`).
-  - Do not use bold, headers, or emojis in the title or summary.
-  - The title and summary should be written using a JSON string format.
+    - Do not use bold, headers, or emojis in the title or summary.
+    - The title and summary should be written using a JSON string format.
 - Example of \`flagChat\` fields:
-  - Summary Message: "Nate requested \"recent returns for Retail Ready customers with Canadian shipping addresses\".\n\n• Found no matching records.\n• The conversation history doesn't show a final response was sent. Likely encountered an error."
-  - Title: "No Final Response Sent"
+    - Summary Message: "Nate requested \"recent returns for Retail Ready customers with Canadian shipping addresses\".\n\n- Found no matching records.\n- The conversation history doesn't show a final response was sent. Likely encountered an error."
+    - Title: "No Final Response Sent"
 - If no issues, use the \`noIssuesFound\` tool.
 </output_format>
-
----
-
-<dataset_context>
-${datasets}
-</dataset_context>
 `;
+
+const createDatasetSystemMessage = (datasets: string): string => {
+  return `<dataset_context>
+${datasets}
+</dataset_context>`;
 };
 
 const DEFAULT_OPTIONS = {
@@ -151,9 +149,13 @@ const DEFAULT_OPTIONS = {
   providerOptions: {
     anthropic: {
       disableParallelToolCalls: true,
-      thinking: { type: 'enabled', budgetTokens: 16000 },
+      thinking: { type: 'enabled', budgetTokens: 5000 },
     },
   },
+};
+
+const DEFAULT_CACHE_OPTIONS = {
+  anthropic: { cacheControl: { type: 'ephemeral' } },
 };
 
 export const flagChatStepExecution = async ({
@@ -165,15 +167,10 @@ export const flagChatStepExecution = async ({
     // Use the conversation history directly since this is post-processing
     const conversationHistory = inputData.conversationHistory;
 
-    // Create instructions with datasets injected
-    const instructionsWithDatasets = createFlagChatInstructions(
-      inputData.datasets || 'No dataset context available.'
-    );
-
     // Create agent with injected instructions
     const flagChatAgentWithContext = new Agent({
       name: 'Flag Chat Review',
-      instructions: instructionsWithDatasets,
+      instructions: '', // We control the system messages below at stream instantiation
       model: anthropicCachedModel('claude-sonnet-4-20250514'),
       tools: {
         flagChat,
@@ -188,18 +185,39 @@ export const flagChatStepExecution = async ({
     if (conversationHistory && conversationHistory.length > 0) {
       // Format conversation history as text for analysis
       const chatHistoryText = JSON.stringify(conversationHistory, null, 2);
-      const analysisPrompt = `Here is the chat history to analyze:
+
+      // Create separate system message for chat history and user message for analysis prompt
+      messages = [
+        {
+          role: 'system',
+          content: createDatasetSystemMessage(
+            inputData.datasets || 'No dataset context available.'
+          ),
+          providerOptions: DEFAULT_CACHE_OPTIONS,
+        },
+        {
+          role: 'system',
+          content: CREATE_FLAG_CHAT_SYSTEM_PROMPT,
+          providerOptions: DEFAULT_CACHE_OPTIONS,
+        },
+        {
+          role: 'system',
+          content: `Here is the chat history to analyze:
 
 User: ${inputData.userName}
 
 Chat History:
 \`\`\`
 ${chatHistoryText}
-\`\`\`
-
-Please analyze this conversation history for potential user frustration or issues that should be flagged for review.`;
-
-      messages = standardizeMessages(analysisPrompt);
+\`\`\``,
+          providerOptions: DEFAULT_CACHE_OPTIONS,
+        },
+        {
+          role: 'user',
+          content:
+            'Please analyze this conversation history for potential user frustration or issues that should be flagged for review.',
+        },
+      ];
     } else {
       // If no conversation history, create a message indicating that
       messages = standardizeMessages(`User: ${inputData.userName}

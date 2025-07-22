@@ -3,7 +3,6 @@ import * as database from '@buster/database';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { DataFetchError, MessageNotFoundError } from '../types';
 import {
-  fetchConversationHistory,
   fetchMessageWithContext,
   fetchPreviousPostProcessingMessages,
   fetchUserDatasets,
@@ -15,9 +14,18 @@ vi.mock('@buster/database', () => ({
   and: vi.fn((...args) => ({ type: 'and', args })),
   eq: vi.fn((a, b) => ({ type: 'eq', a, b })),
   lt: vi.fn((a, b) => ({ type: 'lt', a, b })),
+  lte: vi.fn((a, b) => ({ type: 'lte', a, b })),
   isNull: vi.fn((a) => ({ type: 'isNull', a })),
   isNotNull: vi.fn((a) => ({ type: 'isNotNull', a })),
-  messages: { id: 'messages.id', chatId: 'messages.chatId', createdBy: 'messages.createdBy' },
+  messages: {
+    id: 'messages.id',
+    chatId: 'messages.chatId',
+    createdBy: 'messages.createdBy',
+    createdAt: 'messages.createdAt',
+    postProcessingMessage: 'messages.postProcessingMessage',
+    deletedAt: 'messages.deletedAt',
+    rawLlmMessages: 'messages.rawLlmMessages',
+  },
   chats: { id: 'chats.id', organizationId: 'chats.organizationId' },
   users: { id: 'users.id', name: 'users.name' },
 }));
@@ -38,9 +46,17 @@ describe('message-fetchers', () => {
       innerJoin: vi.fn().mockReturnThis(),
       leftJoin: vi.fn().mockReturnThis(),
       where: vi.fn().mockReturnThis(),
-      orderBy: vi.fn().mockReturnThis(),
-      limit: vi.fn().mockReturnThis(),
+      orderBy: vi.fn(),
+      limit: vi.fn(),
     };
+
+    // Set up the mock chain to return itself for most methods
+    mockDb.select.mockReturnValue(mockDb);
+    mockDb.from.mockReturnValue(mockDb);
+    mockDb.innerJoin.mockReturnValue(mockDb);
+    mockDb.leftJoin.mockReturnValue(mockDb);
+    mockDb.where.mockReturnValue(mockDb);
+
     vi.mocked(database.getDb).mockReturnValue(mockDb);
   });
 
@@ -51,6 +67,7 @@ describe('message-fetchers', () => {
         chatId: '223e4567-e89b-12d3-a456-426614174000',
         createdBy: '323e4567-e89b-12d3-a456-426614174000',
         createdAt: '2024-01-01T00:00:00Z',
+        rawLlmMessages: [{ role: 'user', content: 'Test message' }],
         userName: 'John Doe',
         organizationId: '423e4567-e89b-12d3-a456-426614174000',
       };
@@ -64,6 +81,7 @@ describe('message-fetchers', () => {
         chatId: messageData.chatId,
         createdBy: messageData.createdBy,
         createdAt: new Date(messageData.createdAt),
+        rawLlmMessages: messageData.rawLlmMessages,
         userName: messageData.userName,
         organizationId: messageData.organizationId,
       });
@@ -87,6 +105,7 @@ describe('message-fetchers', () => {
         chatId: '223e4567-e89b-12d3-a456-426614174000',
         createdBy: '323e4567-e89b-12d3-a456-426614174000',
         createdAt: '2024-01-01T00:00:00Z',
+        rawLlmMessages: [{ role: 'user', content: 'Test' }],
         userName: null,
         organizationId: '423e4567-e89b-12d3-a456-426614174000',
       };
@@ -94,7 +113,7 @@ describe('message-fetchers', () => {
       mockDb.limit.mockResolvedValue([messageData]);
 
       const result = await fetchMessageWithContext(messageData.id);
-      expect(result.userName).toBeNull();
+      expect(result.userName).toBe('Unknown');
     });
 
     it('should wrap database errors in DataFetchError', async () => {
@@ -102,54 +121,6 @@ describe('message-fetchers', () => {
       mockDb.limit.mockRejectedValue(dbError);
 
       await expect(fetchMessageWithContext('123')).rejects.toThrow(DataFetchError);
-    });
-  });
-
-  describe('fetchConversationHistory', () => {
-    it('should return messages in chronological order', async () => {
-      const messages = [
-        {
-          id: '1',
-          rawLlmMessages: [{ role: 'user', content: 'Hello' }],
-          createdAt: '2024-01-01T00:00:00Z',
-        },
-        {
-          id: '2',
-          rawLlmMessages: [{ role: 'assistant', content: 'Hi there' }],
-          createdAt: '2024-01-01T00:01:00Z',
-        },
-      ];
-
-      mockDb.orderBy.mockResolvedValue(messages);
-
-      const result = await fetchConversationHistory('chat-id');
-
-      expect(result).toHaveLength(2);
-      expect(result[0]?.id).toBe('1');
-      expect(result[1]?.id).toBe('2');
-      expect(mockDb.orderBy).toHaveBeenCalled();
-    });
-
-    it('should return empty array for non-existent chat', async () => {
-      mockDb.orderBy.mockResolvedValue([]);
-
-      const result = await fetchConversationHistory('non-existent-chat');
-      expect(result).toEqual([]);
-    });
-
-    it('should handle messages with null rawLlmMessages', async () => {
-      const messages = [
-        {
-          id: '1',
-          rawLlmMessages: null,
-          createdAt: '2024-01-01T00:00:00Z',
-        },
-      ];
-
-      mockDb.orderBy.mockResolvedValue(messages);
-
-      const result = await fetchConversationHistory('chat-id');
-      expect(result[0]?.rawLlmMessages).toBeNull();
     });
   });
 
@@ -168,7 +139,8 @@ describe('message-fetchers', () => {
         },
       ];
 
-      mockDb.orderBy.mockResolvedValue(messages);
+      mockDb.orderBy.mockReturnValue(mockDb);
+      mockDb.orderBy.mockResolvedValueOnce(messages);
 
       const result = await fetchPreviousPostProcessingMessages('chat-id', beforeTimestamp);
 
@@ -189,7 +161,8 @@ describe('message-fetchers', () => {
         },
       ];
 
-      mockDb.orderBy.mockResolvedValue(messages);
+      mockDb.orderBy.mockReturnValue(mockDb);
+      mockDb.orderBy.mockResolvedValueOnce(messages);
 
       const result = await fetchPreviousPostProcessingMessages('chat-id', beforeTimestamp);
 
@@ -197,7 +170,8 @@ describe('message-fetchers', () => {
     });
 
     it('should return empty array when no results', async () => {
-      mockDb.orderBy.mockResolvedValue([]);
+      mockDb.orderBy.mockReturnValue(mockDb);
+      mockDb.orderBy.mockResolvedValueOnce([]);
 
       const result = await fetchPreviousPostProcessingMessages('chat-id', beforeTimestamp);
       expect(result).toEqual([]);

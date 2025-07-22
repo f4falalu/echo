@@ -34,8 +34,9 @@ export class SlackMessagingService {
         throw new SlackIntegrationError('CHANNEL_NOT_FOUND', 'Channel ID is required');
       }
 
+      // Only convert markdown if blocks are not already provided
       const convertedMessage =
-        typeof message.text === 'string'
+        typeof message.text === 'string' && !message.blocks
           ? { ...message, ...convertMarkdownToSlack(message.text) }
           : message;
 

@@ -13,3 +13,4 @@ export { editFiles } from './file-tools/edit-files-tool/edit-files-tool';
 export { readFiles } from './file-tools/read-files-tool/read-files-tool';
 export { createFiles } from './file-tools/create-files-tool/create-file-tool';
 export { grepSearch } from './file-tools/grep_search';
+export { deleteFiles } from './file-tools/delete-files-tool/delete-files-tool';
