@@ -1,16 +1,6 @@
 import { execSync } from 'node:child_process';
 import { existsSync } from 'node:fs';
-export interface GrepSearchConfig {
-  path: string;
-  pattern: string;
-  recursive: boolean;
-  ignoreCase: boolean;
-  invertMatch: boolean;
-  lineNumbers: boolean;
-  wordMatch: boolean;
-  fixedStrings: boolean;
-  maxCount?: number;
-}
+import type { GrepSearchConfig } from './grep-search-tool';
 
 export interface GrepSearchResult {
   success: boolean;
@@ -21,7 +11,7 @@ export interface GrepSearchResult {
   error?: string;
 }
 
-function executeGrepSearchLocally(search: GrepSearchConfig): GrepSearchResult {
+function executeGrepSearchLocally(search: any): GrepSearchResult {
   try {
     if (!existsSync(search.path)) {
       return {
@@ -34,12 +24,12 @@ function executeGrepSearchLocally(search: GrepSearchConfig): GrepSearchResult {
 
     const grepArgs: string[] = [];
 
-    if (search.recursive) grepArgs.push('-r');
-    if (search.ignoreCase) grepArgs.push('-i');
-    if (search.invertMatch) grepArgs.push('-v');
-    if (search.lineNumbers) grepArgs.push('-n');
-    if (search.wordMatch) grepArgs.push('-w');
-    if (search.fixedStrings) grepArgs.push('-F');
+    if (search.recursive ?? false) grepArgs.push('-r');
+    if (search.ignoreCase ?? false) grepArgs.push('-i');
+    if (search.invertMatch ?? false) grepArgs.push('-v');
+    if (search.lineNumbers ?? true) grepArgs.push('-n');
+    if (search.wordMatch ?? false) grepArgs.push('-w');
+    if (search.fixedStrings ?? false) grepArgs.push('-F');
     if (search.maxCount) grepArgs.push('-m', search.maxCount.toString());
 
     grepArgs.push(search.pattern);
@@ -61,7 +51,7 @@ function executeGrepSearchLocally(search: GrepSearchConfig): GrepSearchResult {
     const matches: Array<{ file: string; lineNumber?: number; content: string }> = [];
 
     for (const line of lines) {
-      if (search.lineNumbers) {
+      if (search.lineNumbers ?? true) {
         const match = line.match(/^([^:]+):(\d+):(.*)$/);
         if (match?.[1] && match[2] && match[3] !== undefined) {
           matches.push({
@@ -117,7 +107,7 @@ function executeGrepSearchLocally(search: GrepSearchConfig): GrepSearchResult {
   }
 }
 
-export async function executeGrepSearchesLocally(searches: GrepSearchConfig[]): Promise<{
+export async function executeGrepSearchesLocally(searches: any[]): Promise<{
   successful_searches: Array<{
     path: string;
     pattern: string;
@@ -201,7 +191,7 @@ export async function executeGrepSearchesLocally(searches: GrepSearchConfig[]): 
   };
 }
 
-export function generateGrepSearchCode(searches: GrepSearchConfig[]): string {
+export function generateGrepSearchCode(searches: any[]): string {
   return `
 const { execSync } = require('child_process');
 const fs = require('fs');
@@ -246,7 +236,7 @@ function executeGrepSearch(search) {
     const matches = [];
 
     for (const line of lines) {
-      if (search.lineNumbers) {
+      if (search.lineNumbers !== false) {
         const match = line.match(/^([^:]+):(\\d+):(.*)$/);
         if (match && match[1] && match[2] && match[3] !== undefined) {
           matches.push({
