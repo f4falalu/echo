@@ -8,6 +8,13 @@ import {
   isShareableAssetPage
 } from '@/routes/busterRoutes';
 
+const createLoginRedirect = (request: NextRequest): NextResponse => {
+  const originalUrl = `${request.nextUrl.pathname}${request.nextUrl.search}`;
+  const loginUrl = new URL(createBusterRoute({ route: BusterRoutes.AUTH_LOGIN }), request.url);
+  loginUrl.searchParams.set('next', encodeURIComponent(originalUrl));
+  return NextResponse.redirect(loginUrl);
+};
+
 export const assetReroutes = async (
   request: NextRequest,
   response: NextResponse,
@@ -15,10 +22,7 @@ export const assetReroutes = async (
 ) => {
   const userExists = !!user && !!user.id;
   if (!userExists && !isPublicPage(request)) {
-    const originalUrl = `${request.nextUrl.pathname}${request.nextUrl.search}`;
-    const loginUrl = new URL(createBusterRoute({ route: BusterRoutes.AUTH_LOGIN }), request.url);
-    loginUrl.searchParams.set('next', encodeURIComponent(originalUrl));
-    return NextResponse.redirect(loginUrl);
+    return createLoginRedirect(request);
   }
 
   if (!userExists && isShareableAssetPage(request)) {
@@ -26,10 +30,7 @@ export const assetReroutes = async (
     if (redirect) {
       return NextResponse.redirect(new URL(redirect, request.url));
     }
-    const originalUrl = `${request.nextUrl.pathname}${request.nextUrl.search}`;
-    const loginUrl = new URL(createBusterRoute({ route: BusterRoutes.AUTH_LOGIN }), request.url);
-    loginUrl.searchParams.set('next', encodeURIComponent(originalUrl));
-    return NextResponse.redirect(loginUrl);
+    return createLoginRedirect(request);
   }
 
   return response;
