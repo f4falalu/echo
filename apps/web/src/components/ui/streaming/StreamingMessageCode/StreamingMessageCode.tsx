@@ -121,18 +121,31 @@ export const StreamingMessageCode: React.FC<{
 
     return (
       <FileCard collapsible={collapsible} fileName={fileName} headerButtons={buttonComponent}>
-        <div className="w-full overflow-x-auto p-3">
-          {lineSegments.map((segment, index) => (
+        <div className="w-full pr-0">
+          {/* {lineSegments.map((segment, index) => (
             <div
               key={`${segment.lineNumber}-${index}`}
               className={cn('line-number pr-1', !isStreamFinished && `duration-300 ${animation}`)}>
               {segment.type === 'text' ? (
-                <MemoizedSyntaxHighlighter lineNumber={segment.lineNumber} text={segment.content} />
+                <SyntaxHighlighter
+                  language={'yaml'}
+                  showLineNumbers
+                  startingLineNumber={segment.lineNumber}
+                  className={'m-0! w-fit! border-none! p-0! text-[10px]'}>
+                  {segment.content}
+                </SyntaxHighlighter>
               ) : (
                 <HiddenSection numberOfLinesUnmodified={segment.numberOfLines || 0} />
               )}
             </div>
-          ))}
+          ))} */}
+          <SyntaxHighlighter
+            language={'yaml'}
+            showLineNumbers
+            startingLineNumber={1}
+            className={'p-2.5 text-[10px]'}>
+            {text}
+          </SyntaxHighlighter>
         </div>
       </FileCard>
     );
@@ -152,19 +165,3 @@ const HiddenSection: React.FC<{
     <div className="bg-border h-[0.5px] w-4" />
   </div>
 );
-
-const MemoizedSyntaxHighlighter = React.memo(
-  ({ lineNumber, text }: { lineNumber: number; text: string }) => {
-    return (
-      <SyntaxHighlighter
-        language={'yaml'}
-        showLineNumbers
-        startingLineNumber={lineNumber}
-        className={'m-0! w-fit! border-none! p-0!'}>
-        {text}
-      </SyntaxHighlighter>
-    );
-  }
-);
-
-MemoizedSyntaxHighlighter.displayName = 'MemoizedSyntaxHighlighter';

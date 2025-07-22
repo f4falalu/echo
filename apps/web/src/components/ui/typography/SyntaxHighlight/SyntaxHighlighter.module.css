@@ -2,7 +2,8 @@
 .shikiWrapper :global(pre) {
   margin: 0;
   padding: 0em;
-  overflow-x: auto;
+  width: fit-content;
+  margin-right: 0.75rem;
 }
 
 .shikiWrapper :global(code) {
@@ -23,8 +24,8 @@
 .shikiWrapper.withLineNumbers .line::before {
   content: counter(step);
   counter-increment: step;
-  width: 2rem;
-  margin-right: 1.35rem;
+  width: 1.5rem;
+  margin-right: 1rem;
   display: inline-block;
   text-align: right;
   color: var(--color-text-tertiary);

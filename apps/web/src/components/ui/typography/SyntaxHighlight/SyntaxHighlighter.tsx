@@ -7,65 +7,65 @@ import styles from './SyntaxHighlighter.module.css';
 import { animations, type MarkdownAnimation } from '../animation-common';
 import type { ThemedToken } from 'shiki';
 
-export const SyntaxHighlighter = (props: {
-  children: string;
-  language?: 'sql' | 'yaml';
-  showLineNumbers?: boolean;
-  startingLineNumber?: number;
-  className?: string;
-  containerClassName?: string;
-  customStyle?: React.CSSProperties;
-  isDarkMode?: boolean;
-  animation?: MarkdownAnimation;
-  animationDuration?: number;
-}) => {
-  const {
-    children,
-    language = 'sql',
-    showLineNumbers = false,
-    startingLineNumber = 1,
-    className = '',
-    containerClassName = '',
-    customStyle = {},
-    isDarkMode = false,
-    animation = 'none',
-    animationDuration = 700
-  } = props;
+export const SyntaxHighlighter = React.memo(
+  (props: {
+    children: string;
+    language?: 'sql' | 'yaml';
+    showLineNumbers?: boolean;
+    startingLineNumber?: number;
+    className?: string;
+    containerClassName?: string;
+    isDarkMode?: boolean;
+    animation?: MarkdownAnimation;
+    animationDuration?: number;
+  }) => {
+    const {
+      children,
+      language = 'sql',
+      showLineNumbers = false,
+      startingLineNumber = 1,
+      className = '',
+      containerClassName = '',
+      isDarkMode = false,
+      animation = 'none',
+      animationDuration = 700
+    } = props;
 
-  const [tokens, setTokens] = useState<any>(null);
-  const [isLoading, setIsLoading] = useState(true);
+    const [tokens, setTokens] = useState<{
+      tokens: ThemedToken[][];
+      bg: string;
+      fg: string;
+    } | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    const loadTokens = async () => {
-      try {
-        const theme = isDarkMode ? 'github-dark' : 'github-light';
-        const tokenData = await getCodeTokens(children, language, theme);
+    useEffect(() => {
+      const loadTokens = async () => {
+        try {
+          const theme = isDarkMode ? 'github-dark' : 'github-light';
+          const tokenData = await getCodeTokens(children, language, theme);
 
-        setTokens(tokenData);
-        setIsLoading(false);
-      } catch (error) {
-        console.error('Error tokenizing code:', error);
-        setIsLoading(false);
-      }
-    };
+          setTokens(tokenData);
+          setIsLoading(false);
+        } catch (error) {
+          console.error('Error tokenizing code:', error);
+          setIsLoading(false);
+        }
+      };
 
-    loadTokens();
-  }, [children, language, isDarkMode]);
+      loadTokens();
+    }, [children, language, isDarkMode]);
 
-  if (isLoading || !tokens) {
+    if (isLoading || !tokens) {
+      return (
+        <div className={cn(styles.shikiContainer, containerClassName, 'invisible')}>
+          <pre>
+            <code lang={language}>{children}</code>
+          </pre>
+        </div>
+      );
+    }
+
     return (
-      <div
-        className={cn(styles.shikiContainer, containerClassName, 'invisible')}
-        style={customStyle}>
-        <pre>
-          <code>{children}</code>
-        </pre>
-      </div>
-    );
-  }
-
-  return (
-    <div className={cn(styles.shikiContainer, containerClassName)} style={customStyle}>
       <div
         className={cn(
           styles.shikiWrapper,
@@ -85,7 +85,7 @@ export const SyntaxHighlighter = (props: {
         }}>
         <pre>
           <code>
-            {tokens.tokens.map((line: any[], index: number) => {
+            {tokens.tokens.map((line: ThemedToken[], index: number) => {
               return (
                 <Line
                   key={index}
@@ -99,9 +99,11 @@ export const SyntaxHighlighter = (props: {
           </code>
         </pre>
       </div>
-    </div>
-  );
-};
+    );
+  }
+);
+
+SyntaxHighlighter.displayName = 'SyntaxHighlighter';
 
 // Line component for rendering individual lines with animation support
 interface LineProps {
