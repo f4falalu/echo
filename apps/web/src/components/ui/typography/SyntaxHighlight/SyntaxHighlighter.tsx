@@ -7,6 +7,48 @@ import styles from './SyntaxHighlighter.module.css';
 import { animations, type MarkdownAnimation } from '../animation-common';
 import type { ThemedToken } from 'shiki';
 
+// Type for token data
+type TokenData = {
+  tokens: ThemedToken[][];
+  bg: string;
+  fg: string;
+};
+
+// Custom hook to handle token loading
+const useCodeTokens = (code: string, language: 'sql' | 'yaml', isDarkMode: boolean) => {
+  const [tokens, setTokens] = useState<TokenData | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const loadTokens = () => {
+      try {
+        const theme = isDarkMode ? 'github-dark' : 'github-light';
+        getCodeTokens(code, language, theme).then((data) => {
+          if (!cancelled) {
+            setTokens(data);
+            setIsLoading(false);
+          }
+        });
+      } catch (error) {
+        console.error('Error tokenizing code:', error);
+        if (!cancelled) {
+          setIsLoading(false);
+        }
+      }
+    };
+
+    loadTokens();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [code, language, isDarkMode]);
+
+  return { tokens, isLoading };
+};
+
 export const SyntaxHighlighter = React.memo(
   (props: {
     children: string;
@@ -31,29 +73,7 @@ export const SyntaxHighlighter = React.memo(
       animationDuration = 700
     } = props;
 
-    const [tokens, setTokens] = useState<{
-      tokens: ThemedToken[][];
-      bg: string;
-      fg: string;
-    } | null>(null);
-    const [isLoading, setIsLoading] = useState(true);
-
-    useEffect(() => {
-      const loadTokens = async () => {
-        try {
-          const theme = isDarkMode ? 'github-dark' : 'github-light';
-          const tokenData = await getCodeTokens(children, language, theme);
-
-          setTokens(tokenData);
-          setIsLoading(false);
-        } catch (error) {
-          console.error('Error tokenizing code:', error);
-          setIsLoading(false);
-        }
-      };
-
-      loadTokens();
-    }, [children, language, isDarkMode]);
+    const { tokens, isLoading } = useCodeTokens(children, language, isDarkMode);
 
     if (isLoading || !tokens) {
       return (
