@@ -4,8 +4,8 @@
   "private": false,
   "type": "module",
   "scripts": {
-    "dev": "npx trigger.dev@v4-beta dev",
-    "deploy": "npx trigger.dev@v4-beta deploy",
+    "dev": "echo 'y' | npx trigger.dev@v4-beta dev",
+    "deploy": "echo 'y' | npx trigger.dev@v4-beta deploy",
     "prebuild": "tsx scripts/validate-env.ts",
     "build": "echo 'No build step required but we run it to make sure env is loaded' && tsc --noEmit",
     "lint": "biome check --write",
@@ -36,6 +36,6 @@
     "drizzle-orm": "catalog:"
   },
   "devDependencies": {
-    "@trigger.dev/build": "4.0.0-v4-beta.24"
+    "@trigger.dev/build": "catalog:"
   }
 }

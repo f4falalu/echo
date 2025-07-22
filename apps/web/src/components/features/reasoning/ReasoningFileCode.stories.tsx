@@ -4,11 +4,11 @@ import type { Meta, StoryObj } from '@storybook/react';
 import React from 'react';
 import type { FileType } from '@/api/asset_interfaces';
 import { Button } from '@/components/ui/buttons';
-import { StreamingMessageCode } from './StreamingMessageCode';
+import { ReasoningFileCode } from './ReasoningFileCode';
 
-const meta: Meta<typeof StreamingMessageCode> = {
-  title: 'UI/streaming/StreamingMessageCode',
-  component: StreamingMessageCode,
+const meta: Meta<typeof ReasoningFileCode> = {
+  title: 'UI/streaming/ReasoningFileCode',
+  component: ReasoningFileCode,
   parameters: {
     layout: 'centered'
   },
@@ -16,7 +16,7 @@ const meta: Meta<typeof StreamingMessageCode> = {
 };
 
 export default meta;
-type Story = StoryObj<typeof StreamingMessageCode>;
+type Story = StoryObj<typeof ReasoningFileCode>;
 
 const sampleYaml = `apiVersion: v1
 kind: ConfigMap
@@ -89,7 +89,7 @@ export const Default: Story = {
   args: {
     ...baseProps,
     status: 'completed',
-    isCompletedStream: true,
+    isStreamFinished: true,
     file: {
       text: sampleYaml,
       modified: []
@@ -101,7 +101,7 @@ export const WithHiddenLines: Story = {
   args: {
     ...baseProps,
     status: 'completed',
-    isCompletedStream: true,
+    isStreamFinished: true,
     file: {
       text: sampleYaml,
       modified: [[2, 4]] // This will hide lines 2-4
@@ -113,7 +113,7 @@ export const Loading: Story = {
   args: {
     ...baseProps,
     status: 'loading',
-    isCompletedStream: false,
+    isStreamFinished: false,
     file: {
       text: sampleYaml,
       modified: []
@@ -125,7 +125,7 @@ export const WithButtons: Story = {
   args: {
     ...baseProps,
     status: 'completed',
-    isCompletedStream: true,
+    isStreamFinished: true,
     file: {
       text: sampleYaml,
       modified: []
@@ -154,7 +154,7 @@ export const InteractiveStreaming: Story = {
   args: {
     ...baseProps,
     status: 'completed',
-    isCompletedStream: false,
+    isStreamFinished: false,
     file: {
       text: streamingContent.slice(0, 3).join('\n'),
       modified: []
@@ -180,9 +180,9 @@ export const InteractiveStreaming: Story = {
 
     return (
       <div className="space-y-4">
-        <StreamingMessageCode
+        <ReasoningFileCode
           {...args}
-          isCompletedStream={!isStreaming}
+          isStreamFinished={!isStreaming}
           file={{
             text: streamingContent.slice(0, currentLines).join('\n'),
             modified: []

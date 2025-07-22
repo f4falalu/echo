@@ -31,10 +31,10 @@ const itemVariants: MotionProps['variants'] = {
 export const ReasoningMessagePillsContainer: React.FC<
   BusterChatMessageReasoning_pills & {
     status: NonNullable<BusterChatMessageReasoning_pills['status']>;
-    isCompletedStream: boolean;
+    isStreamFinished: boolean;
     chatId: string;
   }
-> = ({ pill_containers, status, isCompletedStream, chatId }) => {
+> = ({ pill_containers, status, isStreamFinished, chatId }) => {
   const hasPills = !!pill_containers && pill_containers.length > 0;
 
   if (!hasPills) return null;
@@ -42,14 +42,14 @@ export const ReasoningMessagePillsContainer: React.FC<
   return (
     <motion.div
       variants={containerVariants}
-      initial={!isCompletedStream ? 'hidden' : false}
+      initial={!isStreamFinished ? 'hidden' : false}
       animate="visible"
       className="flex flex-col space-y-3">
       {pill_containers.map((pill_container, index) => (
         <motion.div key={pill_container.title + index.toString()} variants={itemVariants}>
           <ReasoningMessagePillContainer
             pillContainer={pill_container}
-            isCompletedStream={isCompletedStream}
+            isStreamFinished={isStreamFinished}
             chatId={chatId}
           />
         </motion.div>

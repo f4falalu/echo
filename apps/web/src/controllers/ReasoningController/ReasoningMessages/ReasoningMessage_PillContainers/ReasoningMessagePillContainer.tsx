@@ -5,9 +5,9 @@ import { ReasoningMessagePills } from './ReasoningMessagePills';
 
 export const ReasoningMessagePillContainer: React.FC<{
   pillContainer: BusterChatMessageReasoning_pillContainer;
-  isCompletedStream: boolean;
+  isStreamFinished: boolean;
   chatId: string;
-}> = React.memo(({ pillContainer, isCompletedStream, chatId }) => {
+}> = React.memo(({ pillContainer, isStreamFinished, chatId }) => {
   return (
     <div className="flex flex-col space-y-1">
       <Text size="xs" variant="tertiary">
@@ -16,7 +16,7 @@ export const ReasoningMessagePillContainer: React.FC<{
       <ReasoningMessagePills
         chatId={chatId}
         pills={pillContainer.pills}
-        isCompletedStream={isCompletedStream}
+        isStreamFinished={isStreamFinished}
       />
     </div>
   );
