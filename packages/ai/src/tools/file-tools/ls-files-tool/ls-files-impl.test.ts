@@ -51,9 +51,9 @@ drwxr-xr-x 2 user group 4096 Jan 15 10:31 directory1`;
       const result = await lsFilesSafely(['/test/path'], options);
 
       expect(result).toHaveLength(1);
-      expect(result[0].success).toBe(true);
-      expect(result[0].entries).toHaveLength(2);
-      expect(result[0].entries?.[0]).toEqual({
+      expect(result[0]?.success).toBe(true);
+      expect(result[0]?.entries).toHaveLength(2);
+      expect(result[0]?.entries?.[0]).toEqual({
         name: 'file1.txt',
         type: 'file',
         size: '1024',
@@ -62,7 +62,7 @@ drwxr-xr-x 2 user group 4096 Jan 15 10:31 directory1`;
         owner: 'user',
         group: 'group',
       });
-      expect(result[0].entries?.[1]).toEqual({
+      expect(result[0]?.entries?.[1]).toEqual({
         name: 'directory1',
         type: 'directory',
         size: '4096',
@@ -138,9 +138,9 @@ drwxr-xr-x 2 user group 4096 Jan 15 10:31 directory1`;
       const result = await lsFilesSafely(['/good/path', '/bad/path']);
 
       expect(result).toHaveLength(2);
-      expect(result[0].success).toBe(true);
-      expect(result[1].success).toBe(false);
-      expect(result[1].error).toBe('Path not found');
+      expect(result[0]?.success).toBe(true);
+      expect(result[1]?.success).toBe(false);
+      expect(result[1]?.error).toBe('Path not found');
     });
   });
 
