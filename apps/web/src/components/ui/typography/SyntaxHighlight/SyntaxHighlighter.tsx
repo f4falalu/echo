@@ -1,155 +1,164 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { cn } from '@/lib/classMerge';
-import { getCodeTokens } from './shiki-instance';
+import { getFallbackStyle } from './shiki-instance';
 import styles from './SyntaxHighlighter.module.css';
 import { animations, type MarkdownAnimation } from '../animation-common';
 import type { ThemedToken } from 'shiki';
-
-// Type for token data
-type TokenData = {
-  tokens: ThemedToken[][];
-  bg: string;
-  fg: string;
-};
-
-// Custom hook to handle token loading
-const useCodeTokens = (code: string, language: 'sql' | 'yaml', isDarkMode: boolean) => {
-  const [tokens, setTokens] = useState<TokenData | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    let cancelled = false;
-
-    const loadTokens = () => {
-      try {
-        const theme = isDarkMode ? 'github-dark' : 'github-light';
-        getCodeTokens(code, language, theme).then((data) => {
-          if (!cancelled) {
-            setTokens(data);
-            setIsLoading(false);
-          }
-        });
-      } catch (error) {
-        console.error('Error tokenizing code:', error);
-        if (!cancelled) {
-          setIsLoading(false);
-        }
-      }
-    };
-
-    loadTokens();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [code, language, isDarkMode]);
-
-  return { tokens, isLoading };
-};
+import { useHotkeys } from 'react-hotkeys-hook';
+import { useCodeTokens } from './useCodeTokens';
 
 export const SyntaxHighlighter = React.memo(
-  (props: {
+  ({
+    children,
+    language = 'sql',
+    showLineNumbers = false,
+    startingLineNumber = 1,
+    className = '',
+    isDarkMode = false,
+    animation = 'none',
+    animationDuration = 700
+  }: {
     children: string;
     language?: 'sql' | 'yaml';
     showLineNumbers?: boolean;
     startingLineNumber?: number;
     className?: string;
-    containerClassName?: string;
     isDarkMode?: boolean;
     animation?: MarkdownAnimation;
     animationDuration?: number;
   }) => {
-    const {
-      children,
-      language = 'sql',
-      showLineNumbers = false,
-      startingLineNumber = 1,
-      className = '',
-      containerClassName = '',
-      isDarkMode = false,
-      animation = 'none',
-      animationDuration = 700
-    } = props;
-
     const { tokens, isLoading } = useCodeTokens(children, language, isDarkMode);
+    const [test, setTest] = useState(false);
 
-    if (isLoading || !tokens) {
-      return (
-        <div className={cn(styles.shikiContainer, containerClassName, 'invisible')}>
-          <pre>
-            <code lang={language}>{children}</code>
-          </pre>
-        </div>
-      );
-    }
+    const style = useMemo(() => {
+      if (tokens) {
+        return {
+          background: tokens.bg,
+          color: tokens.fg
+        };
+      }
+      return getFallbackStyle(isDarkMode);
+    }, [!!tokens, isDarkMode]);
+
+    const hasTokens = !!tokens && !isLoading && !test;
+
+    useHotkeys('l', () => {
+      setTest(!test);
+    });
 
     return (
-      <div
-        className={cn(
-          styles.shikiWrapper,
-          showLineNumbers && styles.withLineNumbers,
-          animation !== 'none' && styles.animated,
-          'overflow-x-auto',
-          className
+      <SyntaxWrapper
+        showLineNumbers={showLineNumbers}
+        startingLineNumber={startingLineNumber}
+        className={className}
+        style={style}
+        animation={animation}>
+        {hasTokens ? (
+          tokens.tokens.map((line: ThemedToken[], index: number) => {
+            return (
+              <Line
+                key={index}
+                tokens={line}
+                lineNumber={index + 1}
+                animation={animation !== 'none' ? animations[animation] : undefined}
+                animationDuration={animationDuration}
+              />
+            );
+          })
+        ) : (
+          <SyntaxFallback fallbackColor={style.color}>{children}</SyntaxFallback>
         )}
-        style={{
-          background: tokens.bg,
-          color: tokens.fg,
-          ...(showLineNumbers && startingLineNumber !== 1
-            ? ({
-                '--line-number-start': startingLineNumber - 1
-              } as React.CSSProperties)
-            : undefined)
-        }}>
-        <pre>
-          <code>
-            {tokens.tokens.map((line: ThemedToken[], index: number) => {
-              return (
-                <Line
-                  key={index}
-                  tokens={line}
-                  lineNumber={index + 1}
-                  animation={animation !== 'none' ? animations[animation] : undefined}
-                  animationDuration={animationDuration}
-                />
-              );
-            })}
-          </code>
-        </pre>
-      </div>
+      </SyntaxWrapper>
     );
   }
 );
 
 SyntaxHighlighter.displayName = 'SyntaxHighlighter';
 
-// Line component for rendering individual lines with animation support
-interface LineProps {
-  tokens: ThemedToken[];
+const SyntaxWrapper: React.FC<{
+  children: React.ReactNode;
+  showLineNumbers: boolean;
+  startingLineNumber: number;
+  className: string;
+  style: React.CSSProperties;
+  animation: MarkdownAnimation;
+}> = ({ showLineNumbers, startingLineNumber, className, style, animation, children }) => {
+  return (
+    <div
+      className={cn(
+        styles.shikiWrapper,
+        showLineNumbers && styles.withLineNumbers,
+        animation !== 'none' && styles.animated,
+        'overflow-x-auto',
+        className
+      )}
+      style={{
+        ...style,
+        ...(showLineNumbers && startingLineNumber !== 1
+          ? ({
+              '--line-number-start': startingLineNumber - 1
+            } as React.CSSProperties)
+          : undefined)
+      }}>
+      <pre>
+        <code>{children}</code>
+      </pre>
+    </div>
+  );
+};
+
+const Line: React.FC<{
+  tokens: Pick<ThemedToken, 'content' | 'color'>[];
   lineNumber: number;
   animation?: string;
   animationDuration?: number;
-}
+}> = React.memo(({ tokens, animation, lineNumber, animationDuration = 700 }) => {
+  const lineStyle =
+    animation && animation !== 'none'
+      ? { animation: `${animation} ${animationDuration}ms ease-in-out forwards` }
+      : undefined;
 
-const Line: React.FC<LineProps> = React.memo(
-  ({ tokens, animation, lineNumber, animationDuration = 700 }) => {
-    const lineStyle =
-      animation && animation !== 'none'
-        ? { animation: `${animation} ${animationDuration}ms ease-in-out forwards` }
-        : undefined;
-
-    return (
-      <div className={styles.line} style={lineStyle} data-line-number={lineNumber}>
-        {tokens.map((token, index) => (
-          <span key={index} style={{ color: token.color }}>
-            {token.content}
-          </span>
-        ))}
-      </div>
-    );
-  }
-);
+  return (
+    <div className={styles.line} style={lineStyle} data-line-number={lineNumber}>
+      {tokens.map((token, index) => (
+        <span key={index} style={{ color: token.color }}>
+          {token.content}
+        </span>
+      ))}
+    </div>
+  );
+});
 
 Line.displayName = 'Line';
+
+const SyntaxFallback: React.FC<{ children: string; fallbackColor?: string }> = ({
+  children,
+  fallbackColor = 'inherit'
+}) => {
+  const fallbackChildren: Pick<ThemedToken, 'content' | 'color'>[][] = children
+    .split('\n')
+    .map((line) => {
+      return [
+        {
+          content: line,
+          color: fallbackColor
+        }
+      ];
+    });
+
+  return (
+    <>
+      {fallbackChildren.map((line, index) => (
+        <Line
+          key={index}
+          tokens={line}
+          lineNumber={index + 1}
+          animation={'none'}
+          animationDuration={0}
+        />
+      ))}
+    </>
+  );
+};

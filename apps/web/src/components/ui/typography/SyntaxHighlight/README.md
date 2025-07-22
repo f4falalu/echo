@@ -1,16 +1,18 @@
 # SyntaxHighlighter Component
 
-A high-performance syntax highlighting component built with [Shiki](https://shiki.matsu.io/) for React applications. Features include theme support, line numbers, caching, and a singleton pattern for optimal performance.
+A high-performance syntax highlighting component built with [Shiki](https://shiki.matsu.io/) for React applications. Features include theme support, line numbers, animations, intelligent fallback rendering, and a custom hook for optimal performance.
 
 ## Features
 
 - 🎨 **Light & Dark themes** - GitHub Light and GitHub Dark themes
 - 🔢 **Line numbers** - Optional line numbers with customizable starting point
-- ⚡ **Performance optimized** - Singleton instance shared across all components
+- ⚡ **Performance optimized** - Custom hook with efficient token loading
 - 💾 **Result caching** - Highlighted code is cached to avoid reprocessing
 - 🌐 **Language support** - SQL and YAML (easily extensible)
-- 🎯 **No loading flicker** - Shows raw code immediately, then enhances with highlighting
+- 🎯 **Smart fallback** - Shows styled fallback immediately while tokens load
+- ✨ **Animations** - Built-in animation support for code reveal effects
 - 📦 **Zero config** - Works out of the box with smart defaults
+- 🎮 **Debug mode** - Press 'l' key to toggle between highlighted and fallback view
 
 ## Basic Usage
 
@@ -36,21 +38,29 @@ import { SyntaxHighlighter } from '@/components/ui/typography/SyntaxHighlight';
 >
   {sqlCode}
 </SyntaxHighlighter>
+
+// With animation
+<SyntaxHighlighter
+  language="sql"
+  animation="fadeIn"
+  animationDuration={500}
+>
+  {sqlCode}
+</SyntaxHighlighter>
 ```
 
 ## Props
 
-| Prop                       | Type                  | Default  | Description                                        |
-| -------------------------- | --------------------- | -------- | -------------------------------------------------- |
-| `children`                 | `string`              | required | The code content to highlight                      |
-| `language`                 | `'sql' \| 'yaml'`     | `'sql'`  | Programming language for syntax highlighting       |
-| `isDarkMode`               | `boolean`             | `false`  | Whether to use dark theme                          |
-| `showLineNumbers`          | `boolean`             | `false`  | Whether to show line numbers                       |
-| `startingLineNumber`       | `number`              | `1`      | Starting line number (when line numbers are shown) |
-| `className`                | `string`              | `''`     | Additional CSS classes for the container           |
-| `customStyle`              | `React.CSSProperties` | `{}`     | Custom inline styles for the container             |
-| `lineNumberStyle`          | `React.CSSProperties` | `{}`     | Custom styles for line numbers                     |
-| `lineNumberContainerStyle` | `React.CSSProperties` | `{}`     | Custom styles for line number container            |
+| Prop                 | Type                | Default  | Description                                        |
+| -------------------- | ------------------- | -------- | -------------------------------------------------- |
+| `children`           | `string`            | required | The code content to highlight                      |
+| `language`           | `'sql' \| 'yaml'`   | `'sql'`  | Programming language for syntax highlighting       |
+| `isDarkMode`         | `boolean`           | `false`  | Whether to use dark theme                          |
+| `showLineNumbers`    | `boolean`           | `false`  | Whether to show line numbers                       |
+| `startingLineNumber` | `number`            | `1`      | Starting line number (when line numbers are shown) |
+| `className`          | `string`            | `''`     | Additional CSS classes for the wrapper             |
+| `animation`          | `MarkdownAnimation` | `'none'` | Animation type for code reveal                     |
+| `animationDuration`  | `number`            | `700`    | Animation duration in milliseconds                 |
 
 ## Examples
 
@@ -70,10 +80,10 @@ import { SyntaxHighlighter } from '@/components/ui/typography/SyntaxHighlight';
 </SyntaxHighlighter>
 ```
 
-### YAML Configuration
+### YAML Configuration with Animation
 
 ```tsx
-<SyntaxHighlighter language="yaml" showLineNumbers>
+<SyntaxHighlighter language="yaml" showLineNumbers animation="slideIn" animationDuration={500}>
   database: host: localhost port: 5432 name: myapp_db pool: min: 5 max: 20
 </SyntaxHighlighter>
 ```
@@ -86,62 +96,59 @@ import { SyntaxHighlighter } from '@/components/ui/typography/SyntaxHighlight';
   isDarkMode
   showLineNumbers
   className="rounded-lg shadow-lg"
-  customStyle={{
-    backgroundColor: '#1a1a1a',
-    padding: '20px'
-  }}
-  lineNumberStyle={{
-    fontWeight: 'bold',
-    opacity: 0.7
-  }}>
+  animation="fadeIn">
   {codeContent}
 </SyntaxHighlighter>
 ```
 
 ## Advanced Usage
 
-### With Provider (Optional)
+### Using the Hook Directly
 
-For better performance when using many syntax highlighters, you can wrap your app with the provider to pre-initialize the highlighter:
-
-```tsx
-// In your app root
-import { SyntaxHighlightProvider } from '@/components/ui/typography/SyntaxHighlight';
-
-function App() {
-  return <SyntaxHighlightProvider>{/* Your app content */}</SyntaxHighlightProvider>;
-}
-```
-
-### Using the Hook (with Provider)
+For custom implementations, you can use the `useCodeTokens` hook:
 
 ```tsx
-import { useSyntaxHighlight } from '@/components/ui/typography/SyntaxHighlight';
+import { useCodeTokens } from '@/components/ui/typography/SyntaxHighlight/useCodeTokens';
 
-function MyComponent() {
-  const { isReady, error } = useSyntaxHighlight();
+function CustomHighlighter({ code, language, isDarkMode }) {
+  const { tokens, isLoading } = useCodeTokens(code, language, isDarkMode);
 
-  if (error) {
-    console.error('Syntax highlighter failed to initialize:', error);
+  if (isLoading || !tokens) {
+    return <div>Loading...</div>;
   }
 
-  return <div>Highlighter ready: {isReady ? 'Yes' : 'No'}</div>;
+  // Custom rendering logic
+  return (
+    <div style={{ background: tokens.bg, color: tokens.fg }}>{/* Custom implementation */}</div>
+  );
 }
 ```
 
 ## Performance
 
-### Singleton Pattern
+### Smart Token Loading
 
-All `SyntaxHighlighter` components share a single highlighter instance, reducing memory usage and initialization time.
+The component uses a custom `useCodeTokens` hook that:
 
-### Caching
+- Loads tokens asynchronously without blocking the UI
+- Prevents memory leaks with proper cleanup
+- Shows styled fallback content immediately
 
-Highlighted code is cached based on content, language, and theme. Identical code blocks render instantly after the first highlight.
+### Fallback Rendering
 
-### No Loading States
+While tokens are loading, the component displays a styled fallback that:
 
-The component shows raw code immediately and updates to highlighted code seamlessly, preventing layout shifts and flicker.
+- Preserves line structure
+- Applies theme-appropriate colors
+- Maintains consistent layout to prevent shifts
+
+### Animation Support
+
+Animations are applied per-line for smooth code reveal effects:
+
+- Minimal performance impact
+- Configurable duration
+- Multiple animation types available
 
 ## Adding More Languages
 
@@ -166,9 +173,9 @@ language?: 'sql' | 'yaml' | 'javascript';
 
 The component uses CSS modules for encapsulated styling. You can customize appearance through:
 
-1. **Props** - `className`, `customStyle`, `lineNumberStyle`
+1. **Props** - `className` for wrapper styles
 2. **CSS Variables** - Component respects CSS variables for theming
-3. **Wrapper Styles** - Apply styles to parent containers
+3. **Theme Colors** - Automatically adapts to light/dark mode
 
 ### Example with Tailwind
 
@@ -187,18 +194,26 @@ The component uses CSS modules for encapsulated styling. You can customize appea
 ```
 SyntaxHighlight/
 ├── SyntaxHighlighter.tsx         # Main component
-├── shiki-instance.ts            # Singleton highlighter manager
-├── SyntaxHighlightProvider.tsx  # Optional React context provider
+├── useCodeTokens.ts             # Custom hook for token loading
+├── shiki-instance.ts            # Shiki instance manager & utilities
 ├── SyntaxHighlighter.module.css # Component styles
-├── shiki-dark-theme.ts          # Custom dark theme (if needed)
+├── animation-common.ts          # Animation definitions
 └── index.ts                     # Exports
 ```
+
+### Component Structure
+
+The main component is composed of several sub-components:
+
+- **`SyntaxWrapper`** - Handles the outer container and styling
+- **`Line`** - Renders individual lines with animation support
+- **`SyntaxFallback`** - Provides styled fallback while tokens load
 
 ## Browser Support
 
 - Modern browsers with ES2015+ support
 - WebAssembly support required for syntax highlighting engine
-- Graceful fallback to raw code display if initialization fails
+- Graceful fallback to styled code display if initialization fails
 
 ## Troubleshooting
 
@@ -207,18 +222,27 @@ SyntaxHighlight/
 - Check browser console for errors
 - Ensure WebAssembly is supported and enabled
 - Verify the code content is a valid string
+- Try toggling debug mode with 'l' key to see fallback behavior
 
 ### Performance issues
 
-- Use the `SyntaxHighlightProvider` at app root
+- Consider using fewer syntax highlighters on a single page
 - Ensure you're not recreating code strings on every render
-- Consider memoizing components that use syntax highlighting
+- Use React.memo() on parent components if needed
 
 ### Styling issues
 
 - Check for conflicting global styles on `pre` or `code` elements
 - Ensure CSS modules are properly configured in your build setup
-- Use `customStyle` prop for quick fixes
+- Verify the `className` prop is being applied correctly
+
+## Debug Mode
+
+Press the 'l' key while the component is rendered to toggle between the highlighted view and the fallback view. This is useful for:
+
+- Testing fallback appearance
+- Debugging rendering issues
+- Comparing performance
 
 ## License
 

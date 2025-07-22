@@ -80,3 +80,10 @@ if (typeof window !== 'undefined') {
     console.warn('Failed to pre-initialize syntax highlighter:', error);
   });
 }
+
+export const getFallbackStyle = (isDarkMode: boolean) => {
+  return {
+    background: isDarkMode ? githubDark.bg : githubLight.bg,
+    color: isDarkMode ? githubDark.fg : githubLight.fg
+  };
+};
