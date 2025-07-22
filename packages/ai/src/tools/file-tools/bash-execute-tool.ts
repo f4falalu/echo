@@ -42,6 +42,7 @@ const executeBashCommands = wrapTraced(
     }
 
     try {
+      // Check if sandbox is available in runtime context
       const sandbox = runtimeContext.get(SandboxContextKey.Sandbox);
 
       if (sandbox) {
