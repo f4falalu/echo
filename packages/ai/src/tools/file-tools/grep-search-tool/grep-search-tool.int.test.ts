@@ -1,5 +1,4 @@
-import { createSandbox } from '@buster/sandbox';
-import type { Sandbox } from '@daytonaio/sdk';
+import { type Sandbox, createSandbox } from '@buster/sandbox';
 import { RuntimeContext } from '@mastra/core/runtime-context';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { SandboxContextKey } from '../../../context/sandbox-context';
@@ -45,12 +44,22 @@ describe('grep-search-tool integration test', () => {
           {
             path: 'test1.txt',
             pattern: 'test',
+            recursive: false,
+            ignoreCase: false,
+            invertMatch: false,
             lineNumbers: true,
+            wordMatch: false,
+            fixedStrings: false,
           },
           {
             path: 'test2.txt',
             pattern: 'Hello',
+            recursive: false,
+            ignoreCase: false,
+            invertMatch: false,
             lineNumbers: true,
+            wordMatch: false,
+            fixedStrings: false,
           },
         ],
       },
@@ -94,6 +103,12 @@ describe('grep-search-tool integration test', () => {
           {
             path: 'nonexistent.txt',
             pattern: 'test',
+            recursive: false,
+            ignoreCase: false,
+            invertMatch: false,
+            lineNumbers: true,
+            wordMatch: false,
+            fixedStrings: false,
           },
         ],
       },
@@ -125,15 +140,19 @@ describe('grep-search-tool integration test', () => {
           {
             path: 'case-test.txt',
             pattern: 'hello',
+            recursive: false,
             ignoreCase: true,
+            invertMatch: false,
             lineNumbers: true,
+            wordMatch: false,
+            fixedStrings: false,
           },
         ],
       },
       runtimeContext,
     });
 
-    expect(result.successful_searches[0].matchCount).toBe(3);
+    expect(result.successful_searches[0]?.matchCount).toBe(3);
   });
 
   it('should fall back to local execution when no sandbox is available', async () => {
@@ -145,6 +164,12 @@ describe('grep-search-tool integration test', () => {
           {
             path: 'nonexistent-local.txt',
             pattern: 'test',
+            recursive: false,
+            ignoreCase: false,
+            invertMatch: false,
+            lineNumbers: true,
+            wordMatch: false,
+            fixedStrings: false,
           },
         ],
       },

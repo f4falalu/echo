@@ -31,13 +31,18 @@ describe('grep-search', () => {
         {
           path: file1Path,
           pattern: 'test',
+          recursive: false,
+          ignoreCase: false,
+          invertMatch: false,
           lineNumbers: true,
+          wordMatch: false,
+          fixedStrings: false,
         },
       ]);
 
       expect(result.successful_searches).toHaveLength(1);
-      expect(result.successful_searches[0].matches).toHaveLength(1);
-      expect(result.successful_searches[0].matches[0]).toEqual({
+      expect(result.successful_searches[0]?.matches).toHaveLength(1);
+      expect(result.successful_searches[0]?.matches[0]).toEqual({
         file: file1Path,
         lineNumber: 2,
         content: 'This is a test',
@@ -52,12 +57,16 @@ describe('grep-search', () => {
         {
           path: filePath,
           pattern: 'hello',
+          recursive: false,
           ignoreCase: true,
+          invertMatch: false,
           lineNumbers: true,
+          wordMatch: false,
+          fixedStrings: false,
         },
       ]);
 
-      expect(result.successful_searches[0].matches).toHaveLength(3);
+      expect(result.successful_searches[0]?.matches).toHaveLength(3);
     });
 
     it('should handle recursive searches', async () => {
@@ -75,11 +84,15 @@ describe('grep-search', () => {
           path: tempDir,
           pattern: 'search term',
           recursive: true,
+          ignoreCase: false,
+          invertMatch: false,
           lineNumbers: true,
+          wordMatch: false,
+          fixedStrings: false,
         },
       ]);
 
-      expect(result.successful_searches[0].matches).toHaveLength(2);
+      expect(result.successful_searches[0]?.matches).toHaveLength(2);
     });
 
     it('should handle non-existent files', async () => {
@@ -89,6 +102,12 @@ describe('grep-search', () => {
         {
           path: nonExistentPath,
           pattern: 'test',
+          recursive: false,
+          ignoreCase: false,
+          invertMatch: false,
+          lineNumbers: true,
+          wordMatch: false,
+          fixedStrings: false,
         },
       ]);
 
@@ -108,13 +127,17 @@ describe('grep-search', () => {
         {
           path: filePath,
           pattern: 'test',
-          wordMatch: true,
+          recursive: false,
+          ignoreCase: false,
+          invertMatch: false,
           lineNumbers: true,
+          wordMatch: true,
+          fixedStrings: false,
         },
       ]);
 
-      expect(result.successful_searches[0].matches).toHaveLength(1);
-      expect(result.successful_searches[0].matches[0].content).toBe('word test word');
+      expect(result.successful_searches[0]?.matches).toHaveLength(1);
+      expect(result.successful_searches[0]?.matches[0]?.content).toBe('word test word');
     });
   });
 
@@ -127,7 +150,12 @@ describe('grep-search', () => {
         {
           path: testFile,
           pattern: 'pattern',
+          recursive: false,
+          ignoreCase: false,
+          invertMatch: false,
           lineNumbers: true,
+          wordMatch: false,
+          fixedStrings: false,
         },
       ]);
 
@@ -174,12 +202,22 @@ describe('grep-search', () => {
         {
           path: file1,
           pattern: 'First',
+          recursive: false,
+          ignoreCase: false,
+          invertMatch: false,
           lineNumbers: true,
+          wordMatch: false,
+          fixedStrings: false,
         },
         {
           path: file2,
           pattern: 'Second',
+          recursive: false,
+          ignoreCase: false,
+          invertMatch: false,
           lineNumbers: true,
+          wordMatch: false,
+          fixedStrings: false,
         },
       ]);
 
@@ -191,8 +229,8 @@ describe('grep-search', () => {
       const results = JSON.parse(stdout.trim());
 
       expect(results).toHaveLength(2);
-      expect(results[0].matches[0].content).toBe('First file content');
-      expect(results[1].matches[0].content).toBe('Second file content');
+      expect(results[0]?.matches[0]?.content).toBe('First file content');
+      expect(results[1]?.matches[0]?.content).toBe('Second file content');
     });
 
     it('should properly escape special characters in patterns', () => {
@@ -200,10 +238,22 @@ describe('grep-search', () => {
         {
           path: 'test.txt',
           pattern: 'pattern"with"quotes',
+          recursive: false,
+          ignoreCase: false,
+          invertMatch: false,
+          lineNumbers: true,
+          wordMatch: false,
+          fixedStrings: false,
         },
         {
           path: 'test2.txt',
           pattern: "pattern'with'apostrophes",
+          recursive: false,
+          ignoreCase: false,
+          invertMatch: false,
+          lineNumbers: true,
+          wordMatch: false,
+          fixedStrings: false,
         },
       ];
 
@@ -221,6 +271,12 @@ describe('grep-search', () => {
         {
           path: nonExistent,
           pattern: 'test',
+          recursive: false,
+          ignoreCase: false,
+          invertMatch: false,
+          lineNumbers: true,
+          wordMatch: false,
+          fixedStrings: false,
         },
       ]);
 
