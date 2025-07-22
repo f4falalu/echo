@@ -1,20 +1,13 @@
 /* Styles for the Shiki syntax highlighter wrapper */
 .shikiWrapper :global(pre) {
   margin: 0;
-  padding: 0;
+  padding: 0em;
   overflow-x: auto;
-  background: transparent !important;
 }
 
 .shikiWrapper :global(code) {
-  background: transparent !important;
   font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
   line-height: 1.45;
-}
-
-/* Single-line code padding for non-line-number view */
-.shikiWrapper:not(.shikiWrapperWithLineNumbers) :global(pre) {
-  padding: 1rem;
 }
 
 /* CSS counter-based line numbers */
@@ -22,7 +15,12 @@
   counter-reset: step var(--line-number-start, 0);
 }
 
-.shikiWrapper.withLineNumbers :global(code .line)::before {
+/* Line class for syntax highlighted lines */
+.line {
+  display: block;
+}
+
+.shikiWrapper.withLineNumbers .line::before {
   content: counter(step);
   counter-increment: step;
   width: 2rem;

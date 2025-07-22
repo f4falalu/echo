@@ -1,9 +1,9 @@
-import { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { cn } from '@/lib/classMerge';
 import { getCodeTokens } from './shiki-instance';
 import styles from './SyntaxHighlighter.module.css';
 import { animations, type MarkdownAnimation } from '../animation-common';
-import { Line } from './Line';
+import type { ThemedToken } from 'shiki';
 
 export const SyntaxHighlighter = (props: {
   children: string;
@@ -11,6 +11,7 @@ export const SyntaxHighlighter = (props: {
   showLineNumbers?: boolean;
   startingLineNumber?: number;
   className?: string;
+  containerClassName?: string;
   customStyle?: React.CSSProperties;
   isDarkMode?: boolean;
   animation?: MarkdownAnimation;
@@ -22,6 +23,7 @@ export const SyntaxHighlighter = (props: {
     showLineNumbers = false,
     startingLineNumber = 1,
     className = '',
+    containerClassName = '',
     customStyle = {},
     isDarkMode = false,
     animation = 'none',
@@ -31,22 +33,11 @@ export const SyntaxHighlighter = (props: {
   const [tokens, setTokens] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Track which lines have been rendered before
-  const renderedLinesRef = useRef<Set<number>>(new Set());
-  const previousLineCountRef = useRef(0);
-
   useEffect(() => {
     const loadTokens = async () => {
       try {
-        const theme = isDarkMode ? 'buster-dark' : 'buster-light';
+        const theme = isDarkMode ? 'github-dark' : 'github-light';
         const tokenData = await getCodeTokens(children, language, theme);
-
-        // Check if content got shorter (lines were removed)
-        const currentLineCount = tokenData.tokens.length;
-        if (currentLineCount < previousLineCountRef.current) {
-          renderedLinesRef.current.clear();
-        }
-        previousLineCountRef.current = currentLineCount;
 
         setTokens(tokenData);
         setIsLoading(false);
@@ -61,7 +52,9 @@ export const SyntaxHighlighter = (props: {
 
   if (isLoading || !tokens) {
     return (
-      <div className={cn(styles.shikiContainer, className)} style={customStyle}>
+      <div
+        className={cn(styles.shikiContainer, containerClassName, 'invisible')}
+        style={customStyle}>
         <pre>
           <code>{children}</code>
         </pre>
@@ -70,38 +63,34 @@ export const SyntaxHighlighter = (props: {
   }
 
   return (
-    <div className={cn(styles.shikiContainer, className)} style={customStyle}>
+    <div className={cn(styles.shikiContainer, containerClassName)} style={customStyle}>
       <div
         className={cn(
           styles.shikiWrapper,
           showLineNumbers && styles.withLineNumbers,
           animation !== 'none' && styles.animated,
-          'overflow-x-auto'
+          'overflow-x-auto',
+          className
         )}
-        style={
-          showLineNumbers && startingLineNumber !== 1
+        style={{
+          background: tokens.bg,
+          color: tokens.fg,
+          ...(showLineNumbers && startingLineNumber !== 1
             ? ({
                 '--line-number-start': startingLineNumber - 1
               } as React.CSSProperties)
-            : undefined
-        }>
-        <pre style={{ background: tokens.bg, color: tokens.fg }}>
+            : undefined)
+        }}>
+        <pre>
           <code>
             {tokens.tokens.map((line: any[], index: number) => {
-              const isNewLine = !renderedLinesRef.current.has(index);
-              if (isNewLine) {
-                renderedLinesRef.current.add(index);
-              }
-
               return (
                 <Line
                   key={index}
                   tokens={line}
                   lineNumber={index + 1}
-                  showLineNumber={showLineNumbers}
                   animation={animation !== 'none' ? animations[animation] : undefined}
                   animationDuration={animationDuration}
-                  isNew={isNewLine}
                 />
               );
             })}
@@ -111,3 +100,32 @@ export const SyntaxHighlighter = (props: {
     </div>
   );
 };
+
+// Line component for rendering individual lines with animation support
+interface LineProps {
+  tokens: ThemedToken[];
+  lineNumber: number;
+  animation?: string;
+  animationDuration?: number;
+}
+
+const Line: React.FC<LineProps> = React.memo(
+  ({ tokens, animation, lineNumber, animationDuration = 700 }) => {
+    const lineStyle =
+      animation && animation !== 'none'
+        ? { animation: `${animation} ${animationDuration}ms ease-in-out forwards` }
+        : undefined;
+
+    return (
+      <div className={styles.line} style={lineStyle} data-line-number={lineNumber}>
+        {tokens.map((token, index) => (
+          <span key={index} style={{ color: token.color }}>
+            {token.content}
+          </span>
+        ))}
+      </div>
+    );
+  }
+);
+
+Line.displayName = 'Line';

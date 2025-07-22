@@ -153,9 +153,6 @@ const HiddenSection: React.FC<{
   </div>
 );
 
-const lineNumberStyles: React.CSSProperties = {
-  minWidth: '2.25em'
-};
 const MemoizedSyntaxHighlighter = React.memo(
   ({ lineNumber, text }: { lineNumber: number; text: string }) => {
     return (
@@ -163,7 +160,6 @@ const MemoizedSyntaxHighlighter = React.memo(
         language={'yaml'}
         showLineNumbers
         startingLineNumber={lineNumber}
-        lineNumberStyle={lineNumberStyles}
         className={'m-0! w-fit! border-none! p-0!'}>
         {text}
       </SyntaxHighlighter>

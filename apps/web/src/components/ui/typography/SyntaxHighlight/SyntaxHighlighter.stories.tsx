@@ -95,7 +95,7 @@ export const SqlExample: Story = {
     language: 'sql',
     isDarkMode: false,
     showLineNumbers: false,
-    className: 'border rounded-lg p-4 mr-2 max-w-[350px]'
+    className: 'border rounded-lg pl-4 py-3 mr-2 max-w-[350px]'
   }
 };
 
@@ -222,6 +222,7 @@ const StreamingAnimationStory = ({
         animation={animation}
         isDarkMode={isDarkMode}
         showLineNumbers={showLineNumbers}
+        animationDuration={800}
         className="rounded-lg border p-4">
         {currentCode}
       </SyntaxHighlighter>
@@ -231,7 +232,7 @@ const StreamingAnimationStory = ({
 
 export const StreamingFadeIn: Story = {
   render: () => (
-    <StreamingAnimationStory code={sqlCode} language="sql" animation="fadeIn" delay={300} />
+    <StreamingAnimationStory code={sqlCode} language="sql" animation="fadeIn" delay={100} />
   )
 };
 
