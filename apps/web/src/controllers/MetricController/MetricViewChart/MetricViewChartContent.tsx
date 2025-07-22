@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import type { BusterMetricData, BusterMetric } from '@/api/asset_interfaces/metric';
 import type { DataMetadata } from '@buster/server-shared/metrics';
-import { BusterChart } from '@/components/ui/charts';
+import { BusterChartDynamic } from '@/components/ui/charts';
 import { cn } from '@/lib/classMerge';
 import { METRIC_CHART_CONTAINER_ID } from './config';
 
@@ -36,7 +36,7 @@ export const MetricViewChartContent: React.FC<MetricViewChartContentProps> = ({
     <div
       className={cn('flex h-full flex-col overflow-hidden', cardClassName, className)}
       data-testid="metric-view-chart-content">
-      <BusterChart
+      <BusterChartDynamic
         loading={!fetchedData}
         error={errorMessage || undefined}
         data={metricData}

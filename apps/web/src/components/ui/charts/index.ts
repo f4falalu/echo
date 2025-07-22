@@ -1,5 +1,4 @@
-import { BusterChart } from './BusterChart';
+import { BusterChartDynamic } from './BusterChartDynamic';
 
-export * from './config/configColors';
 
-export { BusterChart };
+export { BusterChartDynamic };
