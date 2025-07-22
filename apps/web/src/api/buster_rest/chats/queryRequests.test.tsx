@@ -91,7 +91,7 @@ describe('Chat Query Hooks', () => {
       expect(requests.getListChats).toHaveBeenCalledWith({
         admin_view: false,
         page_token: 0,
-        page_size: 3500,
+        page_size: 5000,
         search: 'test'
       });
     });

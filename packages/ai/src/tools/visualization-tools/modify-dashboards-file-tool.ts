@@ -371,8 +371,10 @@ const modifyDashboardFiles = wrapTraced(
 
           for (const file of dashboardFilesToUpdate) {
             // Get current metric IDs from updated dashboard content
-            const newMetricIds = (file.content as DashboardYml).rows.flatMap(row => row.items).map(item => item.id);
-            
+            const newMetricIds = (file.content as DashboardYml).rows
+              .flatMap((row) => row.items)
+              .map((item) => item.id);
+
             const existingAssociations = await tx
               .select({ metricFileId: metricFilesToDashboardFiles.metricFileId })
               .from(metricFilesToDashboardFiles)
@@ -383,10 +385,12 @@ const modifyDashboardFiles = wrapTraced(
                 )
               )
               .execute();
-            
-            const existingMetricIds = existingAssociations.map(a => a.metricFileId);
-            
-            const addedMetricIds = newMetricIds.filter((id: string) => !existingMetricIds.includes(id));
+
+            const existingMetricIds = existingAssociations.map((a) => a.metricFileId);
+
+            const addedMetricIds = newMetricIds.filter(
+              (id: string) => !existingMetricIds.includes(id)
+            );
             for (const metricId of addedMetricIds) {
               await tx
                 .insert(metricFilesToDashboardFiles)
@@ -396,25 +400,30 @@ const modifyDashboardFiles = wrapTraced(
                   createdAt: new Date().toISOString(),
                   updatedAt: new Date().toISOString(),
                   deletedAt: null,
-                  createdBy: userId
+                  createdBy: userId,
                 })
                 .onConflictDoUpdate({
-                  target: [metricFilesToDashboardFiles.metricFileId, metricFilesToDashboardFiles.dashboardFileId],
+                  target: [
+                    metricFilesToDashboardFiles.metricFileId,
+                    metricFilesToDashboardFiles.dashboardFileId,
+                  ],
                   set: {
                     deletedAt: null,
-                    updatedAt: new Date().toISOString()
-                  }
+                    updatedAt: new Date().toISOString(),
+                  },
                 })
                 .execute();
             }
-            
-            const removedMetricIds = existingMetricIds.filter((id: string) => !newMetricIds.includes(id));
+
+            const removedMetricIds = existingMetricIds.filter(
+              (id: string) => !newMetricIds.includes(id)
+            );
             if (removedMetricIds.length > 0) {
               await tx
                 .update(metricFilesToDashboardFiles)
                 .set({
                   deletedAt: new Date().toISOString(),
-                  updatedAt: new Date().toISOString()
+                  updatedAt: new Date().toISOString(),
                 })
                 .where(
                   and(
