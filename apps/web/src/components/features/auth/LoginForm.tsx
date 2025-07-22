@@ -30,7 +30,7 @@ const DEFAULT_CREDENTIALS = {
   password: process.env.NEXT_PUBLIC_USER_PASSWORD || ''
 };
 
-export const LoginForm: React.FC = () => {
+export const LoginForm: React.FC<{ redirectTo?: string | null }> = ({ redirectTo }) => {
   const [loading, setLoading] = useState<'google' | 'github' | 'azure' | 'email' | null>(null);
   const [errorMessages, setErrorMessages] = useState<string[]>([]);
   const [signUpFlow, setSignUpFlow] = useState(true);
@@ -40,7 +40,7 @@ export const LoginForm: React.FC = () => {
     async ({ email, password }: { email: string; password: string }) => {
       setLoading('email');
       try {
-        const result = await signInWithEmailAndPassword({ email, password });
+        const result = await signInWithEmailAndPassword({ email, password, redirectTo });
         if (result && 'success' in result && !result.success) {
           setErrorMessages([result.error]);
           setLoading(null);
@@ -56,7 +56,7 @@ export const LoginForm: React.FC = () => {
   const onSignInWithGoogle = useMemoizedFn(async () => {
     setLoading('google');
     try {
-      const result = await signInWithGoogle();
+      const result = await signInWithGoogle({ redirectTo });
       if (result && 'success' in result && !result.success) {
         setErrorMessages([result.error]);
         setLoading(null);
@@ -71,7 +71,7 @@ export const LoginForm: React.FC = () => {
   const onSignInWithGithub = useMemoizedFn(async () => {
     setLoading('github');
     try {
-      const result = await signInWithGithub();
+      const result = await signInWithGithub({ redirectTo });
       if (result && 'success' in result && !result.success) {
         setErrorMessages([result.error]);
         setLoading(null);
@@ -86,7 +86,7 @@ export const LoginForm: React.FC = () => {
   const onSignInWithAzure = useMemoizedFn(async () => {
     setLoading('azure');
     try {
-      const result = await signInWithAzure();
+      const result = await signInWithAzure({ redirectTo });
       if (result && 'success' in result && !result.success) {
         setErrorMessages([result.error]);
         setLoading(null);
@@ -101,7 +101,7 @@ export const LoginForm: React.FC = () => {
   const onSignUp = useMemoizedFn(async (d: { email: string; password: string }) => {
     setLoading('email');
     try {
-      const result = await signUp(d);
+      const result = await signUp({ ...d, redirectTo });
       if (result && 'success' in result && !result.success) {
         setErrorMessages([result.error]);
         setLoading(null);

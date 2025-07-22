@@ -10,6 +10,15 @@ import { createBusterRoute } from '@/routes';
 import { BusterRoutes } from '@/routes/busterRoutes';
 import { ClientRedirect } from '../../components/ui/layouts/ClientRedirect';
 
+const isValidRedirectUrl = (url: string): boolean => {
+  try {
+    const decoded = decodeURIComponent(url);
+    return decoded.startsWith('/') && !decoded.startsWith('//');
+  } catch {
+    return false;
+  }
+};
+
 const newUserRoute = createBusterRoute({ route: BusterRoutes.NEW_USER });
 const loginRoute = createBusterRoute({ route: BusterRoutes.AUTH_LOGIN });
 
@@ -40,7 +49,13 @@ export default async function Layout({
     (supabaseContext.user?.is_anonymous && pathname !== loginRoute) ||
     !supabaseContext?.user?.id
   ) {
-    return <ClientRedirect to={loginRoute} />;
+    const redirectParam =
+      pathname && isValidRedirectUrl(pathname) ? encodeURIComponent(pathname) : '';
+
+    const loginUrlWithRedirect = redirectParam
+      ? createBusterRoute({ route: BusterRoutes.AUTH_LOGIN, next: redirectParam })
+      : loginRoute;
+    return <ClientRedirect to={loginUrlWithRedirect} />;
   }
 
   if ((!userInfo?.organizations?.[0]?.id || !userInfo?.user?.name) && pathname !== newUserRoute) {

@@ -59,3 +59,24 @@ vi.mock('remark-gfm', () => ({
   __esModule: true,
   default: vi.fn()
 }));
+
+// Mock Supabase client to prevent environment variable errors in tests
+vi.mock('@/lib/supabase/client', () => ({
+  createBrowserClient: vi.fn(() => ({
+    auth: {
+      refreshSession: vi.fn().mockResolvedValue({
+        data: {
+          session: {
+            access_token: 'mock-token',
+            expires_at: Date.now() / 1000 + 3600 // 1 hour from now
+          }
+        },
+        error: null
+      }),
+      getUser: vi.fn().mockResolvedValue({
+        data: { user: null },
+        error: null
+      })
+    }
+  }))
+}));

@@ -27,7 +27,7 @@
     "format": "biome format ${1:-.}",
     "format:fix": "biome format --write ${1:-.}",
     "lint": "turbo lint",
-    "new:package": "bun run scripts/new-package.ts",
+    "new:package": "tsx scripts/new-package.ts",
     "setup": "bash scripts/setup.sh",
     "test": "dotenv -e .env -- turbo test",
     "test:unit": "dotenv -e .env -- turbo run test:unit",
