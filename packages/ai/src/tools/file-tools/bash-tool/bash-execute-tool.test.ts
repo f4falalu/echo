@@ -1,7 +1,7 @@
 import { RuntimeContext } from '@mastra/core/runtime-context';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { z } from 'zod';
-import { type DocsAgentContext, DocsAgentContextKey } from '../../context/docs-agent-context';
+import { type DocsAgentContext, DocsAgentContextKey } from '../../../context/docs-agent-context';
 import { bashExecute } from './bash-execute-tool';
 
 vi.mock('@buster/sandbox', () => ({
