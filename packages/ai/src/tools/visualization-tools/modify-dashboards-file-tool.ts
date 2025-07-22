@@ -371,7 +371,7 @@ const modifyDashboardFiles = wrapTraced(
 
           for (const file of dashboardFilesToUpdate) {
             // Get current metric IDs from updated dashboard content
-            const newMetricIds = (file.content as DashboardYml).rows.flatMap((row: any) => row.items).map((item: any) => item.id);
+            const newMetricIds = (file.content as DashboardYml).rows.flatMap(row => row.items).map(item => item.id);
             
             const existingAssociations = await tx
               .select({ metricFileId: metricFilesToDashboardFiles.metricFileId })
