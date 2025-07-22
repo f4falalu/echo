@@ -1,5 +1,7 @@
-import { createHighlighterCore, HighlighterCore } from 'shiki/core';
-import type { ShikiTransformer } from 'shiki';
+'use client';
+
+import type { ShikiTransformer, HighlighterCore } from 'shiki';
+import { createHighlighterCore } from 'shiki/core';
 import { createOnigurumaEngine } from 'shiki/engine/oniguruma';
 import githubLight from '@shikijs/themes/github-light';
 import githubDark from '@shikijs/themes/github-dark';

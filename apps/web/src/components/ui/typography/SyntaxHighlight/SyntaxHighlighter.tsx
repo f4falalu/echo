@@ -1,4 +1,6 @@
-import React, { useEffect, useState, useRef } from 'react';
+'use client';
+
+import React, { useEffect, useState } from 'react';
 import { cn } from '@/lib/classMerge';
 import { getCodeTokens } from './shiki-instance';
 import styles from './SyntaxHighlighter.module.css';

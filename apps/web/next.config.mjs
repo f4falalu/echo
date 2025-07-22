@@ -72,6 +72,8 @@ const createCspHeader = (isEmbed = false) => {
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: false,
+  // Transpile ESM packages
+  transpilePackages: ['shiki'],
   // ESLint configuration
   eslint: {
     ignoreDuringBuilds: false,
