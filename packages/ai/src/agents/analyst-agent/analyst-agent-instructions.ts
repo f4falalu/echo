@@ -314,3 +314,13 @@ export const getAnalystInstructions = async ({
     sqlDialectGuidance,
   });
 };
+
+// Export the template function without dataset context for use in step files
+export const createAnalystInstructionsWithoutDatasets = (sqlDialectGuidance: string): string => {
+  return createAnalystInstructions({
+    databaseContext: '',
+    sqlDialectGuidance,
+  })
+    .replace(/<database_context>[\s\S]*?<\/database_context>/, '')
+    .trim();
+};

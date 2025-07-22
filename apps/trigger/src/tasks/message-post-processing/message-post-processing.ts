@@ -13,7 +13,6 @@ import { currentSpan, initLogger, wrapTraced } from 'braintrust';
 import { z } from 'zod/v4';
 import {
   buildWorkflowInput,
-  fetchConversationHistory,
   fetchMessageWithContext,
   fetchPreviousPostProcessingMessages,
   fetchUserDatasets,
@@ -120,33 +119,26 @@ export const messagePostProcessingTask: ReturnType<
       });
 
       // Step 2: Fetch all required data concurrently
-      const [
-        conversationMessages,
-        previousPostProcessingResults,
-        datasets,
-        braintrustMetadata,
-        existingSlackMessage,
-      ] = await Promise.all([
-        fetchConversationHistory(messageContext.chatId),
-        fetchPreviousPostProcessingMessages(messageContext.chatId, messageContext.createdAt),
-        fetchUserDatasets(messageContext.createdBy),
-        getBraintrustMetadata({ messageId: payload.messageId }),
-        getExistingSlackMessageForChat(messageContext.chatId),
-      ]);
+      const [previousPostProcessingResults, datasets, braintrustMetadata, existingSlackMessage] =
+        await Promise.all([
+          fetchPreviousPostProcessingMessages(messageContext.chatId, messageContext.createdAt),
+          fetchUserDatasets(messageContext.createdBy),
+          getBraintrustMetadata({ messageId: payload.messageId }),
+          getExistingSlackMessageForChat(messageContext.chatId),
+        ]);
 
       logger.log('Fetched required data', {
         messageId: payload.messageId,
-        conversationMessagesCount: conversationMessages.length,
         previousPostProcessingCount: previousPostProcessingResults.length,
         datasetsCount: datasets.length,
         braintrustMetadata, // Log the metadata to verify it's working
         slackMessageExists: existingSlackMessage?.exists || false,
+        hasRawLlmMessages: !!messageContext.rawLlmMessages,
       });
 
       // Step 3: Build workflow input
       const workflowInput = buildWorkflowInput(
         messageContext,
-        conversationMessages,
         previousPostProcessingResults,
         datasets,
         existingSlackMessage?.exists || false
@@ -238,7 +230,7 @@ export const messagePostProcessingTask: ReturnType<
         message: validatedOutput.message,
       });
 
-      // Step 5: Store result in database
+      // Step 6: Store result in database
       logger.log('Storing post-processing result in database', {
         messageId: payload.messageId,
       });
@@ -273,7 +265,7 @@ export const messagePostProcessingTask: ReturnType<
         throw new Error(`Database update failed: ${errorMessage}`);
       }
 
-      // Step 6: Send Slack notification if conditions are met
+      // Step 7: Send Slack notification if conditions are met
       let slackNotificationSent = false;
 
       // Skip Slack notification if tool_called is "noIssuesFound" and there are no major assumptions

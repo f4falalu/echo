@@ -43,6 +43,7 @@ export const MessageContextSchema = z.object({
   chatId: z.string(),
   createdBy: z.string(),
   createdAt: z.date(),
+  rawLlmMessages: z.custom<CoreMessage[]>(),
   userName: z.string(),
   organizationId: z.string(),
 });

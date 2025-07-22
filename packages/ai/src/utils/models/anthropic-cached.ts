@@ -33,15 +33,22 @@ export const anthropicCachedModel = (modelId: string) => {
           };
 
           if (modifiedBody.system && Array.isArray(modifiedBody.system)) {
-            modifiedBody.system = modifiedBody.system.map(
-              (systemMessage: {
-                text?: string;
-                cache_control?: { type: string };
-              }) => ({
-                ...systemMessage,
-                cache_control: { type: 'ephemeral' },
+            modifiedBody.system = modifiedBody.system
+              .filter((systemMessage: { text?: string; content?: string }) => {
+                // Filter out messages with empty text or content
+                const messageContent = systemMessage.text || systemMessage.content || '';
+                return messageContent.trim() !== '' && messageContent.trim() !== '.';
               })
-            );
+              .map(
+                (systemMessage: {
+                  text?: string;
+                  cache_control?: { type: string };
+                }) => ({
+                  ...systemMessage,
+                  // Only add cache_control if it doesn't already exist
+                  cache_control: systemMessage.cache_control || { type: 'ephemeral' },
+                })
+              );
           }
 
           // Add disable_parallel_tool_use if tool_choice is present
