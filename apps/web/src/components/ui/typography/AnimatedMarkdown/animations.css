@@ -52,12 +52,12 @@
 
 @keyframes buster-colorTransition {
   from {
-    color: red;
+    color: var(--buster-color-from, var(--color-primary));
   }
   to {
-    color: black;
+    color: var(--buster-color-to, var(--color-foreground));
   }
-}
+} 
 
 @keyframes buster-rotateIn {
   from {
