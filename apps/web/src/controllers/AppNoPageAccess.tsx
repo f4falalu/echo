@@ -6,32 +6,41 @@ import { BusterLogo } from '@/assets/svg/BusterLogo';
 import { Button } from '@/components/ui/buttons';
 import { Title } from '@/components/ui/typography';
 import { useSupabaseContext } from '@/context/Supabase';
-import { BusterRoutes, createBusterRoute } from '@/routes';
+import {
+  BusterRoutes,
+  createBusterRoute,
+  createPathnameToBusterRoute,
+  extractPathParamsFromRoute,
+  getEmbedAssetToRegularAsset
+} from '@/routes';
 
 export const AppNoPageAccess: React.FC<{
   assetId: string;
 }> = React.memo(({ assetId }) => {
   const isAnonymousUser = useSupabaseContext((x) => x.isAnonymousUser);
-  
+
   const { buttonText, linkUrl } = useMemo(() => {
-    const isEmbedPage = typeof window !== 'undefined' && window.location.pathname.startsWith('/embed');
-    
+    const isEmbedPage =
+      typeof window !== 'undefined' && window.location.pathname.startsWith('/embed');
+
     const shouldShowLogin = isAnonymousUser || isEmbedPage;
-    
+
     if (shouldShowLogin) {
-      const currentUrl = typeof window !== 'undefined' 
-        ? `${window.location.pathname}${window.location.search}`
-        : '';
-        
+      const currentUrl =
+        typeof window !== 'undefined' ? `${window.location.pathname}${window.location.search}` : '';
+
+      const linkUrl = getEmbedAssetToRegularAsset(currentUrl);
+
       return {
-        buttonText: 'Login',
-        linkUrl: createBusterRoute({
-          route: BusterRoutes.AUTH_LOGIN,
-          next: encodeURIComponent(currentUrl)
-        })
+        buttonText: 'Login to view asset',
+        linkUrl:
+          linkUrl ||
+          createBusterRoute({
+            route: BusterRoutes.AUTH_LOGIN
+          })
       };
     }
-    
+
     return {
       buttonText: 'Go home',
       linkUrl: createBusterRoute({

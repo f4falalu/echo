@@ -45,6 +45,12 @@ const assetRedirectRecord: Partial<Record<BusterRoutes, BusterRoutes>> = {
   [BusterRoutes.APP_CHAT_ID_DASHBOARD_ID_METRIC_ID_SQL]: BusterRoutes.EMBED_METRIC_ID
 };
 
+const embedAssetToRegularAssetRecord: Record<BusterEmbedRoutes, BusterRoutes> = {
+  [BusterRoutes.EMBED_METRIC_ID]: BusterRoutes.APP_METRIC_ID_CHART,
+  [BusterRoutes.EMBED_DASHBOARD_ID]: BusterRoutes.APP_DASHBOARD_ID,
+  [BusterRoutes.EMBED_COLLECTION_ID]: BusterRoutes.APP_COLLECTIONS_ID
+};
+
 const publicPages: BusterRoutes[] = [
   BusterRoutes.APP_METRIC_ID_CHART,
   BusterRoutes.APP_DASHBOARD_ID,
@@ -86,4 +92,14 @@ export const getEmbedAssetRedirect = (request: NextRequest): string | undefined 
   }
 
   return undefined;
+};
+
+export const getEmbedAssetToRegularAsset = (pathnameAndQueryParams: string) => {
+  const route = createPathnameToBusterRoute(pathnameAndQueryParams);
+  const matched = embedAssetToRegularAssetRecord[route as BusterEmbedRoutes];
+
+  if (matched) {
+    const params = extractPathParamsFromRoute(pathnameAndQueryParams);
+    return createBusterRoute({ route: matched, ...(params as any) });
+  }
 };
