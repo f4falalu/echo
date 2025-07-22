@@ -37,6 +37,7 @@ semantic_layer = { path = "../semantic_layer" }
 
 # Add any handler-specific dependencies here 
 dashmap = "5.5.3"
+itertools = { workspace = true }
 
 # Add stored_values dependency
 stored_values = { path = "../stored_values" }
