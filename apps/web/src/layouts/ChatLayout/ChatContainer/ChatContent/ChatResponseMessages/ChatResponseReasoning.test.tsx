@@ -89,7 +89,7 @@ describe('ChatResponseReasoning', () => {
   const defaultProps = {
     reasoningMessageId: 'reasoning-id',
     finalReasoningMessage: undefined,
-    isCompletedStream: false,
+    isStreamFinished: false,
     messageId: 'message-id',
     chatId: 'chat-id'
   };
@@ -147,7 +147,7 @@ describe('ChatResponseReasoning', () => {
       <ChatResponseReasoning
         {...defaultProps}
         finalReasoningMessage="Final reasoning message"
-        isCompletedStream={true}
+        isStreamFinished={true}
       />
     );
 
@@ -159,7 +159,7 @@ describe('ChatResponseReasoning', () => {
       data: 'Black box message'
     });
 
-    render(<ChatResponseReasoning {...defaultProps} isCompletedStream={true} />);
+    render(<ChatResponseReasoning {...defaultProps} isStreamFinished={true} />);
 
     expect(screen.getByText('Black box message')).toBeInTheDocument();
   });
@@ -171,7 +171,7 @@ describe('ChatResponseReasoning', () => {
       return null;
     });
 
-    render(<ChatResponseReasoning {...defaultProps} isCompletedStream={true} />);
+    render(<ChatResponseReasoning {...defaultProps} isStreamFinished={true} />);
 
     // When reasoning file is selected, link should point to chat without reasoning
     const link = screen.getByTestId('link');

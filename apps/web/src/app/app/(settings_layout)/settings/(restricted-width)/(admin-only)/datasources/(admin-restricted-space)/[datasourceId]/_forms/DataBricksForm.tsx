@@ -3,7 +3,7 @@ import {
   type DatabricksCredentials,
   DatabricksCredentialsSchema,
   type DataSource
-} from '@/api/asset_interfaces';
+} from '@/api/asset_interfaces/datasources';
 import {
   type createDatabricksDataSource,
   useCreateDatabricksDataSource,
