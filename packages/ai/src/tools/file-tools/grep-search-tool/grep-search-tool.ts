@@ -1,4 +1,4 @@
-import { runTypescript } from '@buster/sandbox/src/execute/run-typescript';
+import { runTypescript } from '@buster/sandbox';
 import type { RuntimeContext } from '@mastra/core/runtime-context';
 import { createTool } from '@mastra/core/tools';
 import { wrapTraced } from 'braintrust';
@@ -19,7 +19,15 @@ const grepSearchConfigSchema = z.object({
     .default(false)
     .describe('Treat pattern as fixed string (-F)'),
   maxCount: z.number().optional().describe('Maximum number of matches (-m)'),
-});
+}).transform((data) => ({
+  ...data,
+  recursive: data.recursive ?? false,
+  ignoreCase: data.ignoreCase ?? false,
+  invertMatch: data.invertMatch ?? false,
+  lineNumbers: data.lineNumbers ?? true,
+  wordMatch: data.wordMatch ?? false,
+  fixedStrings: data.fixedStrings ?? false,
+}));
 
 const grepSearchInputSchema = z.object({
   searches: z.array(grepSearchConfigSchema).min(1).describe('Array of search configurations'),
@@ -51,7 +59,17 @@ const grepSearchOutputSchema = z.object({
   failed_searches: z.array(grepSearchFailureSchema).describe('Failed searches with error messages'),
 });
 
-export type GrepSearchConfig = z.infer<typeof grepSearchConfigSchema>;
+export type GrepSearchConfig = {
+  path: string;
+  pattern: string;
+  recursive: boolean;
+  ignoreCase: boolean;
+  invertMatch: boolean;
+  lineNumbers: boolean;
+  wordMatch: boolean;
+  fixedStrings: boolean;
+  maxCount?: number;
+};
 export type GrepSearchInput = z.infer<typeof grepSearchInputSchema>;
 export type GrepSearchOutput = z.infer<typeof grepSearchOutputSchema>;
 
@@ -60,10 +78,20 @@ const grepSearchExecution = wrapTraced(
     params: z.infer<typeof grepSearchInputSchema>,
     runtimeContext: RuntimeContext<SandboxContext>
   ): Promise<z.infer<typeof grepSearchOutputSchema>> => {
-    const { searches } = params;
+    const { searches: rawSearches } = params;
+    
+    const searches: GrepSearchConfig[] = rawSearches.map(search => ({
+      ...search,
+      recursive: search.recursive ?? false,
+      ignoreCase: search.ignoreCase ?? false,
+      invertMatch: search.invertMatch ?? false,
+      lineNumbers: search.lineNumbers ?? true,
+      wordMatch: search.wordMatch ?? false,
+      fixedStrings: search.fixedStrings ?? false,
+    }));
     const startTime = Date.now();
 
-    if (!searches || searches.length === 0) {
+    if (!rawSearches || rawSearches.length === 0) {
       return {
         message: 'No searches provided',
         duration: Date.now() - startTime,
