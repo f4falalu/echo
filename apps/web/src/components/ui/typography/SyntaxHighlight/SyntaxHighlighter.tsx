@@ -1,76 +1,113 @@
-import { getHighlighter } from 'shiki';
-import { useEffect, useState } from 'react';
-import { shikiLightTheme } from './shiki-light-theme';
+import { useEffect, useState, useRef } from 'react';
+import { cn } from '@/lib/classMerge';
+import { getCodeTokens } from './shiki-instance';
+import styles from './SyntaxHighlighter.module.css';
+import { animations, type MarkdownAnimation } from '../animation-common';
+import { Line } from './Line';
 
-let highlighterInstance: any = null;
+export const SyntaxHighlighter = (props: {
+  children: string;
+  language?: 'sql' | 'yaml';
+  showLineNumbers?: boolean;
+  startingLineNumber?: number;
+  className?: string;
+  customStyle?: React.CSSProperties;
+  isDarkMode?: boolean;
+  animation?: MarkdownAnimation;
+  animationDuration?: number;
+}) => {
+  const {
+    children,
+    language = 'sql',
+    showLineNumbers = false,
+    startingLineNumber = 1,
+    className = '',
+    customStyle = {},
+    isDarkMode = false,
+    animation = 'none',
+    animationDuration = 700
+  } = props;
 
-export const SyntaxHighlighter = (
-  props: {
-    children: string;
-    language?: string;
-    showLineNumbers?: boolean;
-    startingLineNumber?: number;
-    lineNumberStyle?: React.CSSProperties;
-    lineNumberContainerStyle?: React.CSSProperties;
-    className?: string;
-    customStyle?: React.CSSProperties;
-    isDarkMode?: boolean;
-  }
-) => {
-  const [isReady, setIsReady] = useState(false);
-  const [highlightedCode, setHighlightedCode] = useState('');
+  const [tokens, setTokens] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Track which lines have been rendered before
+  const renderedLinesRef = useRef<Set<number>>(new Set());
+  const previousLineCountRef = useRef(0);
 
   useEffect(() => {
-    const initHighlighter = async () => {
+    const loadTokens = async () => {
       try {
-        if (!highlighterInstance) {
-          highlighterInstance = await getHighlighter({
-            themes: [shikiLightTheme],
-            langs: ['yaml', 'sql', 'javascript', 'typescript', 'json', 'markdown']
-          });
+        const theme = isDarkMode ? 'buster-dark' : 'buster-light';
+        const tokenData = await getCodeTokens(children, language, theme);
+
+        // Check if content got shorter (lines were removed)
+        const currentLineCount = tokenData.tokens.length;
+        if (currentLineCount < previousLineCountRef.current) {
+          renderedLinesRef.current.clear();
         }
-        
-        const lang = props.language || 'yaml';
-        const html = highlighterInstance.codeToHtml(props.children || '', { 
-          lang,
-          theme: 'buster-light'
-        });
-        
-        setHighlightedCode(html);
-        setIsReady(true);
+        previousLineCountRef.current = currentLineCount;
+
+        setTokens(tokenData);
+        setIsLoading(false);
       } catch (error) {
-        console.error('Failed to initialize syntax highlighter:', error);
-        setIsReady(true);
+        console.error('Error tokenizing code:', error);
+        setIsLoading(false);
       }
     };
 
-    initHighlighter();
-  }, [props.children, props.language]);
+    loadTokens();
+  }, [children, language, isDarkMode]);
 
-  if (!isReady) {
+  if (isLoading || !tokens) {
     return (
-      <pre 
-        className={props.className} 
-        style={{
-          ...props.customStyle,
-          fontFamily: '"Consolas", "Bitstream Vera Sans Mono", "Courier New", Courier, monospace',
-          fontSize: '.9em',
-          lineHeight: '1.2em',
-          color: '#393A34',
-          margin: 0,
-          padding: 0
-        }}
-      >
-        <code>{props.children}</code>
-      </pre>
+      <div className={cn(styles.shikiContainer, className)} style={customStyle}>
+        <pre>
+          <code>{children}</code>
+        </pre>
+      </div>
     );
   }
 
   return (
-    <div 
-      className={props.className}
-      style={props.customStyle}
-      dangerouslySetInnerHTML={{ __html: highlightedCode }}
-    />
+    <div className={cn(styles.shikiContainer, className)} style={customStyle}>
+      <div
+        className={cn(
+          styles.shikiWrapper,
+          showLineNumbers && styles.withLineNumbers,
+          animation !== 'none' && styles.animated,
+          'overflow-x-auto'
+        )}
+        style={
+          showLineNumbers && startingLineNumber !== 1
+            ? ({
+                '--line-number-start': startingLineNumber - 1
+              } as React.CSSProperties)
+            : undefined
+        }>
+        <pre style={{ background: tokens.bg, color: tokens.fg }}>
+          <code>
+            {tokens.tokens.map((line: any[], index: number) => {
+              const isNewLine = !renderedLinesRef.current.has(index);
+              if (isNewLine) {
+                renderedLinesRef.current.add(index);
+              }
+
+              return (
+                <Line
+                  key={index}
+                  tokens={line}
+                  lineNumber={index + 1}
+                  showLineNumber={showLineNumbers}
+                  animation={animation !== 'none' ? animations[animation] : undefined}
+                  animationDuration={animationDuration}
+                  isNew={isNewLine}
+                />
+              );
+            })}
+          </code>
+        </pre>
+      </div>
+    </div>
   );
 };

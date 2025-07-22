@@ -1,13 +1,13 @@
 'use client';
 
 import React, { useContext } from 'react';
-import type {
-  MarkdownAnimation,
-  MarkdownAnimationTimingFunction
-} from '../../typography/AnimatedMarkdown/animation-helpers';
 import { createContext } from 'react';
 import { cn } from '@/lib/classMerge';
 import { useMarkdownStreaming } from './useMarkdownStreaming';
+import type {
+  MarkdownAnimation,
+  MarkdownAnimationTimingFunction
+} from '../../typography/animation-common';
 
 const AppMarkdownStreaming = ({
   content,
