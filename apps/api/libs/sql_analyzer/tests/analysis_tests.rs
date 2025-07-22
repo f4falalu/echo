@@ -414,6 +414,90 @@ async fn test_multiple_chained_ctes() {
 }
 
 #[tokio::test]
+async fn test_wildcard_blocked_on_physical_table() {
+    let sql = "SELECT * FROM schema.users";
+    let result = analyze_query(sql.to_string(), "postgres").await;
+    
+    assert!(result.is_err());
+    if let Err(SqlAnalyzerError::BlockedWildcardUsage(msg)) = result {
+        assert!(msg.contains("users"));
+    } else {
+        panic!("Expected BlockedWildcardUsage error, got: {:?}", result);
+    }
+}
+
+#[tokio::test]
+async fn test_qualified_wildcard_blocked_on_physical_table() {
+    let sql = "SELECT u.* FROM schema.users u";
+    let result = analyze_query(sql.to_string(), "postgres").await;
+    
+    assert!(result.is_err());
+    if let Err(SqlAnalyzerError::BlockedWildcardUsage(msg)) = result {
+        assert!(msg.contains("users"));
+    } else {
+        panic!("Expected BlockedWildcardUsage error, got: {:?}", result);
+    }
+}
+
+#[tokio::test]
+async fn test_wildcard_allowed_on_cte() {
+    let sql = "WITH user_cte AS (SELECT u.id, u.name FROM schema.users u) SELECT * FROM user_cte";
+    let result = analyze_query(sql.to_string(), "postgres").await;
+    
+    match result {
+        Ok(_) => {
+        }
+        Err(e) => {
+            eprintln!("DEBUG: Unexpected error in test_wildcard_allowed_on_cte: {:?}", e);
+            panic!("Wildcard on CTE should be allowed, but got error: {:?}", e);
+        }
+    }
+}
+
+#[tokio::test]
+async fn test_qualified_wildcard_allowed_on_cte() {
+    let sql = "WITH user_cte AS (SELECT u.id, u.name FROM schema.users u) SELECT uc.* FROM user_cte uc";
+    let result = analyze_query(sql.to_string(), "postgres").await;
+    
+    assert!(result.is_ok(), "Qualified wildcard on CTE should be allowed");
+}
+
+#[tokio::test]
+async fn test_wildcard_blocked_when_cte_uses_wildcard_on_physical_table() {
+    let sql = "WITH user_cte AS (SELECT * FROM schema.users) SELECT * FROM user_cte";
+    let result = analyze_query(sql.to_string(), "postgres").await;
+    
+    assert!(result.is_err());
+    if let Err(SqlAnalyzerError::BlockedWildcardUsage(msg)) = result {
+        assert!(msg.contains("users"));
+    } else {
+        panic!("Expected BlockedWildcardUsage error for CTE using wildcard on physical table, got: {:?}", result);
+    }
+}
+
+#[tokio::test]
+async fn test_wildcard_allowed_when_cte_uses_explicit_columns() {
+    let sql = "WITH user_cte AS (SELECT u.id, u.name FROM schema.users u) SELECT * FROM user_cte";
+    let result = analyze_query(sql.to_string(), "postgres").await;
+    
+    assert!(result.is_ok(), "Wildcard should be allowed when CTE uses explicit columns");
+}
+
+#[tokio::test]
+async fn test_mixed_wildcard_scenarios() {
+    let sql = "WITH orders_cte AS (SELECT o.order_id FROM schema.orders o) 
+               SELECT oc.*, u.* FROM orders_cte oc JOIN schema.users u ON oc.order_id = u.id";
+    let result = analyze_query(sql.to_string(), "postgres").await;
+    
+    assert!(result.is_err());
+    if let Err(SqlAnalyzerError::BlockedWildcardUsage(msg)) = result {
+        assert!(msg.contains("users"));
+    } else {
+        panic!("Expected BlockedWildcardUsage error for wildcard on physical table, got: {:?}", result);
+    }
+}
+
+#[tokio::test]
 async fn test_complex_where_clause() {
     let sql = r#"
     SELECT
@@ -2098,7 +2182,7 @@ async fn test_databricks_pivot() {
 
 #[tokio::test]
 async fn test_databricks_qualified_wildcard() {
-    // Test Databricks qualified wildcards
+    // Test Databricks qualified wildcards - should now be blocked due to security enhancement
     let sql = r#"
     SELECT 
         u.user_id,
@@ -2111,25 +2195,14 @@ async fn test_databricks_qualified_wildcard() {
     WHERE u.status = 'active' AND p.amount > 100
     "#;
 
-    let result = analyze_query(sql.to_string(), "databricks").await.unwrap();
+    let result = analyze_query(sql.to_string(), "databricks").await;
     
-    // Check base tables
-    let base_tables: Vec<_> = result.tables.iter()
-        .filter(|t| t.kind == TableKind::Base)
-        .map(|t| t.table_identifier.clone())
-        .collect();
-    
-    assert!(base_tables.contains(&"users".to_string()), "Should detect users table");
-    assert!(base_tables.contains(&"purchases".to_string()), "Should detect purchases table");
-    
-    // Check columns
-    let users_table = result.tables.iter().find(|t| t.table_identifier == "users").unwrap();
-    assert!(users_table.columns.contains("user_id"), "Should detect user_id column");
-    assert!(users_table.columns.contains("name"), "Should detect name column");
-    assert!(users_table.columns.contains("status"), "Should detect status column");
-    
-    // Check joins
-    assert!(!result.joins.is_empty(), "Should detect JOIN");
+    assert!(result.is_err());
+    if let Err(SqlAnalyzerError::BlockedWildcardUsage(msg)) = result {
+        assert!(msg.contains("users") || msg.contains("purchases"));
+    } else {
+        panic!("Expected BlockedWildcardUsage error for wildcards on physical tables, got: {:?}", result);
+    }
 }
 
 #[tokio::test]
