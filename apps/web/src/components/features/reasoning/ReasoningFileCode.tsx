@@ -29,7 +29,7 @@ export const ReasoningFileCode: React.FC<
     }
 
     return <Text>{file_name}</Text>;
-  }, [file_name, version_number]);
+  }, [file_name, version_number, file_type]);
 
   return (
     <StreamingMessageCode
