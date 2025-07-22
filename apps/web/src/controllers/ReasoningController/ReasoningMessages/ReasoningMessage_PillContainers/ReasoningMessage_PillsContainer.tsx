@@ -5,7 +5,7 @@ import type { ReasoningMessageProps } from '../ReasoningMessageSelector';
 import { ReasoningMessagePillsContainer } from './ReasoningMessagePillsContainer';
 
 export const ReasoningMessage_PillsContainer: React.FC<ReasoningMessageProps> = React.memo(
-  ({ reasoningMessageId, messageId, isCompletedStream, chatId }) => {
+  ({ reasoningMessageId, messageId, isStreamFinished, chatId }) => {
     const { data: reasoningMessage } = useGetChatMessage(messageId, {
       select: (x) => x?.reasoning_messages[reasoningMessageId]
     });
@@ -17,7 +17,7 @@ export const ReasoningMessage_PillsContainer: React.FC<ReasoningMessageProps> = 
       <ReasoningMessagePillsContainer
         {...reasoningMessagePills}
         status={status}
-        isCompletedStream={isCompletedStream}
+        isStreamFinished={isStreamFinished}
         chatId={chatId}
       />
     );

@@ -14,28 +14,16 @@ import { ReasoningMessage_Text } from './ReasoningMessage_Text';
 import isEmpty from 'lodash/isEmpty';
 
 const itemAnimationConfig: MotionProps = {
-  initial: { opacity: 0, height: 0 },
+  initial: { opacity: 0 },
   animate: {
     opacity: 1,
-    height: 'auto',
     transition: {
-      height: {
-        type: 'spring',
-        stiffness: 400,
-        damping: 32
-      },
       opacity: { duration: 0.16 }
     }
   },
   exit: {
     opacity: 0,
-    height: 0,
     transition: {
-      height: {
-        type: 'spring',
-        stiffness: 450,
-        damping: 35
-      },
       opacity: { duration: 0.12 }
     }
   }
@@ -44,7 +32,7 @@ const itemAnimationConfig: MotionProps = {
 export interface ReasoningMessageProps {
   reasoningMessageId: string;
   messageId: string;
-  isCompletedStream: boolean;
+  isStreamFinished: boolean;
   chatId: string;
 }
 
@@ -60,13 +48,13 @@ const ReasoningMessageRecord: Record<
 export interface ReasoningMessageSelectorProps {
   reasoningMessageId: string;
   messageId: string;
-  isCompletedStream: boolean;
+  isStreamFinished: boolean;
   chatId: string;
   isLastMessage: boolean;
 }
 
 export const ReasoningMessageSelector: React.FC<ReasoningMessageSelectorProps> = React.memo(
-  ({ reasoningMessageId, isCompletedStream, chatId, messageId, isLastMessage }) => {
+  ({ reasoningMessageId, isStreamFinished, chatId, messageId, isLastMessage }) => {
     const { data: messageStuff } = useGetChatMessage(messageId, {
       select: (x) => ({
         title: x?.reasoning_messages[reasoningMessageId]?.title,
@@ -97,19 +85,20 @@ export const ReasoningMessageSelector: React.FC<ReasoningMessageSelectorProps> =
       <BarContainer
         showBar={showBar}
         status={status}
-        isCompletedStream={isCompletedStream}
+        isStreamFinished={isStreamFinished}
         title={title ?? ''}
         secondaryTitle={secondary_title ?? ''}>
-        <AnimatePresence mode="wait" initial={!isCompletedStream}>
+        <AnimatePresence mode="wait" initial={!isStreamFinished}>
           <motion.div
             key={animationKey}
             {...itemAnimationConfig}
-            //  layout={!isCompletedStream} I removed this because it was causing weird animation issues
-            className="">
+            className="h-auto"
+            //  layout={!isStreamFinished} I removed this because it was causing weird animation issues
+          >
             <div className="min-h-[1px]">
               <ReasoningMessage
                 reasoningMessageId={reasoningMessageId}
-                isCompletedStream={isCompletedStream}
+                isStreamFinished={isStreamFinished}
                 messageId={messageId}
                 chatId={chatId}
               />

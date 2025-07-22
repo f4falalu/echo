@@ -1,5 +1,6 @@
 import { logger, schemaTask, tasks } from '@trigger.dev/sdk';
 import { currentSpan, initLogger, wrapTraced } from 'braintrust';
+import { analystQueue } from '../../queues/analyst-queue';
 import { AnalystAgentTaskInputSchema, type AnalystAgentTaskOutput } from './types';
 
 // Task 2 & 4: Database helpers (IMPLEMENTED)
@@ -276,6 +277,7 @@ export const analystAgentTask: ReturnType<
   id: 'analyst-agent-task',
   machine: 'small-2x',
   schema: AnalystAgentTaskInputSchema,
+  queue: analystQueue,
   maxDuration: 600, // 10 minutes for complex analysis
   run: async (payload): Promise<AnalystAgentTaskOutput> => {
     const taskStartTime = Date.now();

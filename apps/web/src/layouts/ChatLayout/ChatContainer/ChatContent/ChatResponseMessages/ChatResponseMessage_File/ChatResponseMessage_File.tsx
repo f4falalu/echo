@@ -11,7 +11,7 @@ import { ChatResponseMessage_DashboardFile } from './ChatResponseMessage_Dashboa
 import { ChatResponseMessage_StandardFile } from './ChatResponseMessage_StandardFile';
 
 export const ChatResponseMessage_File: React.FC<ChatResponseMessageProps> = React.memo(
-  ({ isCompletedStream, chatId, responseMessageId, messageId }) => {
+  ({ isStreamFinished, chatId, responseMessageId, messageId }) => {
     const router = useRouter();
     const { data } = useGetChatMessage(messageId, {
       select: (x) => x?.response_messages?.[responseMessageId]
@@ -40,7 +40,7 @@ export const ChatResponseMessage_File: React.FC<ChatResponseMessageProps> = Reac
 
     return (
       <SelectedComponent
-        isCompletedStream={isCompletedStream}
+        isStreamFinished={isStreamFinished}
         responseMessage={responseMessage}
         isSelectedFile={isSelectedFile}
         chatId={chatId}

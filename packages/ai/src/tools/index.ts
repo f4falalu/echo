@@ -1,4 +1,5 @@
 export { doneTool } from './communication-tools/done-tool';
+export { idleTool } from './communication-tools/idle-tool';
 export { respondWithoutAnalysis } from './communication-tools/respond-without-analysis';
 export { submitThoughts } from './communication-tools/submit-thoughts-tool';
 export { messageUserClarifyingQuestion } from './communication-tools/message-user-clarifying-question';
@@ -9,3 +10,10 @@ export { createDashboards } from './visualization-tools/create-dashboards-file-t
 export { modifyDashboards } from './visualization-tools/modify-dashboards-file-tool';
 export { executeSql } from './database-tools/execute-sql';
 export { createTodoList } from './planning-thinking-tools/create-todo-item-tool';
+export { editFiles } from './file-tools/edit-files-tool/edit-files-tool';
+export { readFiles } from './file-tools/read-files-tool/read-files-tool';
+export { createFiles } from './file-tools/create-files-tool/create-file-tool';
+export { lsFiles } from './file-tools/ls-files-tool/ls-files-tool';
+export { grepSearch } from './file-tools/grep-search-tool/grep-search-tool';
+export { bashExecute } from './file-tools';
+export { deleteFiles } from './file-tools/delete-files-tool/delete-files-tool';

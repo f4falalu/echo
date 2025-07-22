@@ -6,14 +6,14 @@ import { BLACK_BOX_INITIAL_THOUGHT } from '@/layouts/ChatLayout/ChatContext/useB
 export const BlackBoxMessage: React.FC<{
   blackBoxMessage: string | undefined | null;
   finalReasoningMessage: string | undefined | null;
-  isCompletedStream: boolean;
-}> = React.memo(({ blackBoxMessage, finalReasoningMessage, isCompletedStream }) => {
+  isStreamFinished: boolean;
+}> = React.memo(({ blackBoxMessage, finalReasoningMessage, isStreamFinished }) => {
   if (blackBoxMessage || finalReasoningMessage) {
     return (
       <BarContainer
         showBar={false}
         status={finalReasoningMessage ? 'completed' : 'loading'}
-        isCompletedStream={isCompletedStream}
+        isStreamFinished={isStreamFinished}
         title={finalReasoningMessage ?? blackBoxMessage ?? BLACK_BOX_INITIAL_THOUGHT}
         secondaryTitle={''}
       />
