@@ -6,14 +6,14 @@ import { ChatResponseMessageSelector } from './ChatResponseMessageSelector';
 import { ChatResponseReasoning } from './ChatResponseReasoning';
 
 interface ChatResponseMessagesProps {
-  isCompletedStream: boolean;
+  isStreamFinished: boolean;
   messageId: string;
   chatId: string;
   messageIndex: number;
 }
 
 export const ChatResponseMessages: React.FC<ChatResponseMessagesProps> = React.memo(
-  ({ chatId, isCompletedStream, messageId, messageIndex }) => {
+  ({ chatId, isStreamFinished, messageId, messageIndex }) => {
     const { data: responseMessageIds } = useGetChatMessage(messageId, {
       select: (x) => x?.response_message_ids || []
     });
@@ -24,20 +24,20 @@ export const ChatResponseMessages: React.FC<ChatResponseMessagesProps> = React.m
       select: (x) => x?.final_reasoning_message
     });
     const showReasoningMessage =
-      messageIndex === 0 ? !!lastReasoningMessageId || !isCompletedStream : true;
+      messageIndex === 0 ? !!lastReasoningMessageId || !isStreamFinished : true;
 
     return (
       <MessageContainer
         className="group flex w-full flex-col space-y-3 overflow-hidden"
         hideAvatar={false}
-        isCompletedStream={isCompletedStream}
+        isStreamFinished={isStreamFinished}
         isFinishedReasoning={!!finalReasoningMessage}
         hasReasoningMessage={!!lastReasoningMessageId}>
         {showReasoningMessage && (
           <ChatResponseReasoning
             reasoningMessageId={lastReasoningMessageId}
             finalReasoningMessage={finalReasoningMessage}
-            isCompletedStream={isCompletedStream}
+            isStreamFinished={isStreamFinished}
             messageId={messageId}
             chatId={chatId}
           />
@@ -48,13 +48,13 @@ export const ChatResponseMessages: React.FC<ChatResponseMessagesProps> = React.m
             <ChatResponseMessageSelector
               responseMessageId={responseMessageId}
               messageId={messageId}
-              isCompletedStream={isCompletedStream}
+              isStreamFinished={isStreamFinished}
               chatId={chatId}
             />
           </React.Fragment>
         ))}
 
-        {isCompletedStream && <ChatMessageOptions messageId={messageId} chatId={chatId} />}
+        {isStreamFinished && <ChatMessageOptions messageId={messageId} chatId={chatId} />}
       </MessageContainer>
     );
   }

@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server';
 import { describe, expect, it, vi } from 'vitest';
-import { getEmbedAssetRedirect } from './assetPageChecks';
+import { getEmbedAssetRedirect, getEmbedAssetToRegularAsset } from './assetPageChecks';
 
 vi.mock('next/server', () => ({
   NextRequest: vi.fn().mockImplementation((url) => ({
@@ -64,5 +64,35 @@ describe('getEmbedAssetRedirect', () => {
     const request = new NextRequest('https://example.com/some/random/path');
     const redirect = getEmbedAssetRedirect(request);
     expect(redirect).toBeUndefined();
+  });
+});
+
+describe('getEmbedAssetToRegularAsset', () => {
+  it('should convert embed metric URL to regular metric chart URL', () => {
+    // Test converting an embed metric URL to the corresponding regular app metric chart URL
+    const embedMetricUrl = '/embed/metrics/123';
+    const result = getEmbedAssetToRegularAsset(embedMetricUrl);
+    expect(result).toBe('/app/metrics/123/chart');
+  });
+
+  it('should convert embed dashboard URL to regular dashboard URL', () => {
+    // Test converting an embed dashboard URL to the corresponding regular app dashboard URL
+    const embedDashboardUrl = '/embed/dashboards/456';
+    const result = getEmbedAssetToRegularAsset(embedDashboardUrl);
+    expect(result).toBe('/app/dashboards/456');
+  });
+
+  it('should return undefined for regular app URLs (non-embed)', () => {
+    // Test that regular app URLs that are not embed URLs return undefined
+    const regularAppUrl = '/app/metrics/123/chart';
+    const result = getEmbedAssetToRegularAsset(regularAppUrl);
+    expect(result).toBeUndefined();
+  });
+
+  it('should return undefined for invalid or unknown URLs', () => {
+    // Test that completely unknown/invalid URLs return undefined
+    const invalidUrl = '/some/random/unknown/path';
+    const result = getEmbedAssetToRegularAsset(invalidUrl);
+    expect(result).toBeUndefined();
   });
 });

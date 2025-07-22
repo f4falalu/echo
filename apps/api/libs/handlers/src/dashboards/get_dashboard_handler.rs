@@ -5,6 +5,7 @@ use chrono::{DateTime, Utc};
 use diesel::{BoolExpressionMethods, ExpressionMethods, JoinOnDsl, QueryDsl, Queryable, Selectable};
 use diesel_async::RunQueryDsl;
 use futures::future::join_all;
+use itertools::Itertools;
 use middleware::AuthenticatedUser;
 use serde_json::Value;
 use serde_yaml;
@@ -390,7 +391,10 @@ pub async fn get_dashboard_handler(
                             name: p.name,
                             avatar_url: p.avatar_url,
                         })
-                        .collect::<Vec<BusterShareIndividual>>(),
+                        .collect::<Vec<BusterShareIndividual>>()
+                        .into_iter()
+                        .sorted_by(|a, b| a.email.to_lowercase().cmp(&b.email.to_lowercase()))
+                        .collect(),
                 )
             }
         }

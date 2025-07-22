@@ -47,6 +47,7 @@ describe('RedshiftAdapter', () => {
         user: 'testuser',
         password: 'testpass',
         ssl: true,
+        connectionTimeoutMillis: 60000,
       });
       expect(mockClient.connect).toHaveBeenCalled();
     });

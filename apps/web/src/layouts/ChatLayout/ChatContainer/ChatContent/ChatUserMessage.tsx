@@ -16,9 +16,9 @@ import { MessageContainer } from './MessageContainer';
 export const ChatUserMessage: React.FC<{
   messageId: string;
   chatId: string;
-  isCompletedStream: boolean;
+  isStreamFinished: boolean;
   requestMessage: NonNullable<BusterChatMessageRequest>;
-}> = React.memo(({ messageId, chatId, isCompletedStream, requestMessage }) => {
+}> = React.memo(({ messageId, chatId, isStreamFinished, requestMessage }) => {
   const { openSuccessMessage } = useBusterNotifications();
   const [isTooltipOpen, setIsTooltipOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -63,7 +63,7 @@ export const ChatUserMessage: React.FC<{
               {request}
             </Paragraph>
           </div>
-          {isCompletedStream && (
+          {isStreamFinished && (
             <RequestMessageTooltip
               isTooltipOpen={isTooltipOpen}
               requestMessage={requestMessage}

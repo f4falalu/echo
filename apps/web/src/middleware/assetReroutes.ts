@@ -8,26 +8,40 @@ import {
   isShareableAssetPage
 } from '@/routes/busterRoutes';
 
+/**
+ * Creates a login redirect URL with the current page as the 'next' parameter
+ */
+const createLoginRedirect = (request: NextRequest): NextResponse => {
+  const originalUrl = `${request.nextUrl.pathname}${request.nextUrl.search}`;
+  const loginUrl = new URL(
+    createBusterRoute({ route: BusterRoutes.AUTH_LOGIN, next: originalUrl }),
+    request.url
+  );
+
+  return NextResponse.redirect(loginUrl);
+};
+
 export const assetReroutes = async (
   request: NextRequest,
   response: NextResponse,
   user: User | null
 ) => {
   const userExists = !!user && !!user.id;
+
+  // If user doesn't exist and page requires authentication
   if (!userExists && !isPublicPage(request)) {
-    return NextResponse.redirect(
-      new URL(createBusterRoute({ route: BusterRoutes.AUTH_LOGIN }), request.url)
-    );
+    return createLoginRedirect(request);
   }
 
+  // If user doesn't exist and it's a shareable asset page
   if (!userExists && isShareableAssetPage(request)) {
-    const redirect = getEmbedAssetRedirect(request);
-    if (redirect) {
-      return NextResponse.redirect(new URL(redirect, request.url));
+    // Try to get embed asset redirect first
+    const embedRedirect = getEmbedAssetRedirect(request);
+    if (embedRedirect) {
+      return NextResponse.redirect(new URL(embedRedirect, request.url));
     }
-    return NextResponse.redirect(
-      new URL(createBusterRoute({ route: BusterRoutes.AUTH_LOGIN }), request.url)
-    );
+    // Fall back to login redirect
+    return createLoginRedirect(request);
   }
 
   return response;

@@ -58,12 +58,12 @@ describe('Think and Prep Step - Todos in Message History Integration', { timeout
       [Symbol.for('emitter')]: {} as any,
     } as any);
 
-    // Verify the output messages contain the todos
-    expect(result.outputMessages).toBeDefined();
-    expect(Array.isArray(result.outputMessages)).toBe(true);
+    // Verify the conversation history contains the todos
+    expect(result.conversationHistory).toBeDefined();
+    expect(Array.isArray(result.conversationHistory)).toBe(true);
 
     // Find the assistant message with tool call
-    const todoToolCallMessage = result.outputMessages.find(
+    const todoToolCallMessage = result.conversationHistory.find(
       (msg) =>
         msg.role === 'assistant' &&
         Array.isArray(msg.content) &&
@@ -86,7 +86,7 @@ describe('Think and Prep Step - Todos in Message History Integration', { timeout
     }
 
     // Find the tool result message
-    const todoResultMessage = result.outputMessages.find(
+    const todoResultMessage = result.conversationHistory.find(
       (msg) =>
         msg.role === 'tool' &&
         Array.isArray(msg.content) &&
@@ -154,11 +154,11 @@ describe('Think and Prep Step - Todos in Message History Integration', { timeout
     } as any);
 
     // Verify conversation history is preserved
-    expect(result.outputMessages.length).toBeGreaterThan(existingHistory.length);
+    expect(result.conversationHistory.length).toBeGreaterThan(existingHistory.length);
 
     // Verify original messages are preserved
-    const firstMessage = result.outputMessages[0];
-    const secondMessage = result.outputMessages[1];
+    const firstMessage = result.conversationHistory[0];
+    const secondMessage = result.conversationHistory[1];
     const firstHistoryMessage = existingHistory[0];
     const secondHistoryMessage = existingHistory[1];
 
@@ -170,14 +170,14 @@ describe('Think and Prep Step - Todos in Message History Integration', { timeout
     }
 
     // Verify new user message is added
-    const newUserMessage = result.outputMessages.find(
+    const newUserMessage = result.conversationHistory.find(
       (msg, index) =>
         index > 1 && msg.role === 'user' && msg.content === 'Now show me our top customers'
     );
     expect(newUserMessage).toBeDefined();
 
     // Verify todos are injected after the conversation
-    const todoMessages = result.outputMessages.filter(
+    const todoMessages = result.conversationHistory.filter(
       (msg) =>
         (msg.role === 'assistant' &&
           Array.isArray(msg.content) &&
@@ -233,7 +233,7 @@ describe('Think and Prep Step - Todos in Message History Integration', { timeout
     } as any);
 
     // Verify empty todos are still injected
-    const todoMessages = result.outputMessages.filter(
+    const todoMessages = result.conversationHistory.filter(
       (msg) =>
         (msg.role === 'assistant' &&
           Array.isArray(msg.content) &&

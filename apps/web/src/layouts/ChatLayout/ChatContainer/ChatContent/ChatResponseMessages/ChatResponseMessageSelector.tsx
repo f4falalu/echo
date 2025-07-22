@@ -13,7 +13,7 @@ const ChatResponseMessageRecord: Record<
 };
 
 export interface ChatResponseMessageProps {
-  isCompletedStream: boolean;
+  isStreamFinished: boolean;
   messageId: string;
   responseMessageId: string;
   chatId: string;
@@ -21,13 +21,13 @@ export interface ChatResponseMessageProps {
 
 export interface ChatResponseMessageSelectorProps {
   responseMessageId: string;
-  isCompletedStream: boolean;
+  isStreamFinished: boolean;
   messageId: string;
   chatId: string;
 }
 
 export const ChatResponseMessageSelector: React.FC<ChatResponseMessageSelectorProps> = React.memo(
-  ({ responseMessageId, messageId, chatId, isCompletedStream }) => {
+  ({ responseMessageId, messageId, chatId, isStreamFinished }) => {
     const { data: messageType } = useGetChatMessage(messageId, {
       select: (x) => x?.response_messages?.[responseMessageId]?.type || 'text'
     });
@@ -36,7 +36,7 @@ export const ChatResponseMessageSelector: React.FC<ChatResponseMessageSelectorPr
 
     return (
       <ChatResponseMessage
-        isCompletedStream={isCompletedStream}
+        isStreamFinished={isStreamFinished}
         responseMessageId={responseMessageId}
         messageId={messageId}
         chatId={chatId}

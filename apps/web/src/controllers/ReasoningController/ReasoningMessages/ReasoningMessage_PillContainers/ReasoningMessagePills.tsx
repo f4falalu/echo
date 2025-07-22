@@ -44,10 +44,10 @@ const pillVariants: MotionProps['variants'] = {
 
 export const ReasoningMessagePills: React.FC<{
   pills: BusterChatMessageReasoning_pill[];
-  isCompletedStream: boolean;
+  isStreamFinished: boolean;
   chatId: string;
-}> = React.memo(({ pills = [], isCompletedStream, chatId }) => {
-  const useAnimation = !isCompletedStream;
+}> = React.memo(({ pills = [], isStreamFinished, chatId }) => {
+  const useAnimation = !isStreamFinished;
 
   const makeHref = useMemoizedFn((pill: Pick<BusterChatMessageReasoning_pill, 'id' | 'type'>) => {
     const link = assetParamsToRoute({
@@ -60,7 +60,7 @@ export const ReasoningMessagePills: React.FC<{
   });
 
   return (
-    <AnimatePresence initial={!isCompletedStream}>
+    <AnimatePresence initial={!isStreamFinished}>
       <motion.div
         variants={containerVariants}
         initial="hidden"

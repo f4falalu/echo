@@ -1,14 +1,14 @@
 'use client';
 
-import { createBrowserClient } from '@supabase/ssr';
+import { createBrowserClient as createBrowserClientSSR } from '@supabase/ssr';
 
-export function createClient() {
+export function createBrowserClient() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
   if (!supabaseUrl || !supabaseAnonKey) {
-    throw new Error('Missing Supabase environment variables');
+    throw new Error('Missing Supabase environment variables for browser client');
   }
 
-  return createBrowserClient(supabaseUrl, supabaseAnonKey);
+  return createBrowserClientSSR(supabaseUrl, supabaseAnonKey);
 }

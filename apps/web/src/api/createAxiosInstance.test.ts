@@ -98,17 +98,29 @@ describe('defaultAxiosRequestHandler', () => {
     expect(result.headers.Authorization).toBe(`Bearer ${mockToken}`);
   });
 
-  it('handles empty token gracefully', async () => {
+  it('throws error when token is empty', async () => {
     const mockCheckTokenValidity = vi.fn().mockResolvedValue({
       access_token: '',
       isTokenValid: false
     });
 
-    const result = await defaultAxiosRequestHandler(mockConfig, {
-      checkTokenValidity: () => Promise.resolve(mockCheckTokenValidity())
-    });
+    // The function should throw an error when no token is available
+    await expect(
+      defaultAxiosRequestHandler(mockConfig, {
+        checkTokenValidity: () => Promise.resolve(mockCheckTokenValidity())
+      })
+    ).rejects.toThrow('User authentication error - failed to get valid token');
+  });
 
-    expect(result.headers.Authorization).toBe('Bearer ');
+  it('throws error when checkTokenValidity fails', async () => {
+    const mockCheckTokenValidity = vi.fn().mockRejectedValue(new Error('Token validation failed'));
+
+    // The function should throw an error when token validation fails
+    await expect(
+      defaultAxiosRequestHandler(mockConfig, {
+        checkTokenValidity: () => Promise.reject(mockCheckTokenValidity())
+      })
+    ).rejects.toThrow('User authentication error - failed to get valid token');
   });
 
   it('preserves existing config properties', async () => {

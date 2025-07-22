@@ -1,3 +1,24 @@
+// Mock database before any imports that might use it
+vi.mock('@buster/database', () => ({
+  getUserOrganizationId: vi.fn(),
+  db: {
+    select: vi.fn(),
+    from: vi.fn(),
+    where: vi.fn(),
+    limit: vi.fn(),
+    insert: vi.fn(),
+    update: vi.fn(),
+    transaction: vi.fn(),
+  },
+  organizations: {},
+  datasets: {},
+  datasetsToPermissionGroups: {},
+  permissionGroups: {},
+  eq: vi.fn(),
+  and: vi.fn(),
+  isNull: vi.fn(),
+}));
+
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { getWorkspaceSettingsHandler } from './get-workspace-settings';
 import * as securityUtils from './security-utils';
@@ -19,7 +40,7 @@ describe('getWorkspaceSettingsHandler', () => {
     restrictNewUserInvitations: true,
     defaultRole: 'restricted_querier',
   });
-  const mockOrgMembership = { organizationId: 'org-123', role: 'member' };
+  const mockOrgMembership = { organizationId: 'org-123', role: 'querier' as const };
   const mockDefaultDatasets = [
     { id: 'dataset-1', name: 'Sales Data' },
     { id: 'dataset-2', name: 'Customer Data' },
@@ -116,7 +137,7 @@ describe('getWorkspaceSettingsHandler', () => {
 
   it('should not require admin permissions', async () => {
     // Test with various non-admin roles
-    const roles = ['querier', 'restricted_querier', 'viewer'];
+    const roles = ['querier', 'restricted_querier', 'viewer'] as const;
 
     for (const role of roles) {
       vi.clearAllMocks();

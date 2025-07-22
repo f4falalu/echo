@@ -27,7 +27,7 @@
     "format": "biome format ${1:-.}",
     "format:fix": "biome format --write ${1:-.}",
     "lint": "turbo lint",
-    "new:package": "bun run scripts/new-package.ts",
+    "new:package": "tsx scripts/new-package.ts",
     "setup": "bash scripts/setup.sh",
     "test": "dotenv -e .env -- turbo test",
     "test:unit": "dotenv -e .env -- turbo run test:unit",
@@ -41,17 +41,18 @@
     "trigger:dev": "dotenv -e .env -- pnpm --filter @buster/trigger run dev",
     "trigger:test": "pnpm --filter @buster/trigger run test",
     "trigger:test:integration": "pnpm --filter @buster/trigger run test:integration",
-    "typecheck": "turbo typecheck",
-    "typescript": "^5.8.3"
+    "typecheck": "turbo typecheck"
   },
   "dependencies": {
-    "dotenv": "^16.6.1",
-    "dotenv-cli": "^8.0.0"
+    "dotenv": "catalog:",
+    "dotenv-cli": "^8.0.0",
+    "typescript": "^5.8.3"
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
     "@types/node": "^20.19.4",
     "turbo": "^2.5.5",
+    "tsx": "catalog:",
     "vitest": "catalog:"
   },
   "peerDependencies": {

@@ -22,11 +22,11 @@ const animations = {
 export const ChatResponseReasoning: React.FC<{
   reasoningMessageId: string | undefined;
   finalReasoningMessage: string | undefined | null;
-  isCompletedStream: boolean;
+  isStreamFinished: boolean;
   messageId: string;
   chatId: string;
 }> = React.memo(
-  ({ finalReasoningMessage, reasoningMessageId, isCompletedStream, messageId, chatId }) => {
+  ({ finalReasoningMessage, reasoningMessageId, isStreamFinished, messageId, chatId }) => {
     const urlMessageId = useChatLayoutContextSelector((x) => x.messageId);
     const { data: lastMessageTitle } = useGetChatMessage(messageId, {
       select: (x) => x?.reasoning_messages?.[reasoningMessageId ?? '']?.title
@@ -35,7 +35,7 @@ export const ChatResponseReasoning: React.FC<{
     const isReasonginFileSelected = selectedFileType === 'reasoning' && urlMessageId === messageId;
     const showShimmerText = isReasonginFileSelected
       ? !finalReasoningMessage
-      : !isCompletedStream && !finalReasoningMessage;
+      : !isStreamFinished && !finalReasoningMessage;
 
     const blackBoxMessage = useQuery({
       ...queryKeys.chatsBlackBoxMessages(messageId),
@@ -68,7 +68,7 @@ export const ChatResponseReasoning: React.FC<{
 
     return (
       <Link href={href} prefetch aria-label="Reasoning link" className="mt-0.5 leading-1.5">
-        <AnimatePresence initial={!isCompletedStream} mode="wait">
+        <AnimatePresence initial={!isStreamFinished} mode="wait">
           <motion.div
             {...animations}
             key={text}

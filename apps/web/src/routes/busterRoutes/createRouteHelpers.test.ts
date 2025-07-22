@@ -16,6 +16,34 @@ describe('createBusterRoute', () => {
     const result = createBusterRoute(input);
     expect(result).toBe('/auth/login');
   });
+
+  it('should handle AUTH_LOGIN route with next parameter', () => {
+    const input = {
+      route: BusterAuthRoutes.AUTH_LOGIN,
+      next: '/app/home'
+    } as const;
+    const result = createBusterRoute(input);
+    expect(result).toBe('/auth/login?next=%2Fapp%2Fhome');
+  });
+
+  it('should handle AUTH_LOGIN route with encoded next parameter', () => {
+    const input = {
+      route: BusterAuthRoutes.AUTH_LOGIN,
+      next: '/app/chats/123?tab=metrics'
+    } as const;
+    const result = createBusterRoute(input);
+    expect(result).toBe('/auth/login?next=%2Fapp%2Fchats%2F123%3Ftab%3Dmetrics');
+  });
+
+  it('should handle AUTH_LOGIN route with undefined next parameter', () => {
+    const input = {
+      route: BusterAuthRoutes.AUTH_LOGIN,
+      next: undefined
+    } as const;
+    const result = createBusterRoute(input);
+    expect(result).toBe('/auth/login');
+  });
+
   it('should replace single dynamic parameter in route', () => {
     const input = {
       route: BusterAppRoutes.APP_CHAT_ID,

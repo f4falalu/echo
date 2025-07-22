@@ -50,9 +50,9 @@ export const useGetListChats = (
   });
 };
 
-export const prefetchGetListChats = async (
-  params?: Parameters<typeof getListChats>[0],
-  queryClientProp?: QueryClient
+export const prefetchGetChatsList = async (
+  queryClientProp?: QueryClient,
+  params?: Parameters<typeof getListChats>[0]
 ) => {
   const queryClient = queryClientProp || new QueryClient();
 
@@ -152,7 +152,7 @@ export const useStartChatFromAsset = () => {
   });
 };
 
-export const prefetchGetChat = async (
+export const prefetchGetChatServer = async (
   params: Parameters<typeof getChat>[0],
   queryClientProp?: QueryClient
 ) => {
@@ -165,6 +165,20 @@ export const prefetchGetChat = async (
         return updateChatToIChat(chat).iChat;
       });
     }
+  });
+
+  return queryClient;
+};
+
+export const prefetchGetChat = async (
+  params: Parameters<typeof getChat>[0],
+  queryClientProp?: QueryClient
+) => {
+  const queryClient = queryClientProp || new QueryClient();
+
+  await queryClient.prefetchQuery({
+    ...chatQueryKeys.chatsGetChat(params.id),
+    queryFn: () => getChat(params)
   });
 
   return queryClient;
