@@ -1,6 +1,6 @@
 'use client';
 
-import { format } from 'date-fns';
+import dayjs from 'dayjs';
 import * as React from 'react';
 import { Button } from '@/components/ui/buttons';
 import { Calendar } from '@/components/ui/calendar';
@@ -39,6 +39,11 @@ export function DateTimePicker() {
     }
   };
 
+  const formattedDate = React.useMemo(() => {
+    if (!date) return 'MM/DD/YYYY hh:mm aa';
+    return dayjs(date).format('MM/DD/YYYY hh:mm aa');
+  }, [date]);
+
   return (
     <Popover open={isOpen} onOpenChange={setIsOpen}>
       <PopoverTrigger asChild>
@@ -47,7 +52,7 @@ export function DateTimePicker() {
           <div className="mr-2 h-4 w-4">
             <CalendarIcon />
           </div>
-          {date ? format(date, 'MM/dd/yyyy hh:mm aa') : <span>MM/DD/YYYY hh:mm aa</span>}
+          <span>{formattedDate}</span>
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-auto p-0">

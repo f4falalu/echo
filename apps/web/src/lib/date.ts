@@ -5,7 +5,7 @@ import quarterOfYear from 'dayjs/plugin/quarterOfYear';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import timezone from 'dayjs/plugin/timezone';
 import utc from 'dayjs/plugin/utc';
-import { isNaN as lodashIsNaN } from 'lodash';
+import lodashIsNaN from 'lodash/isNaN';
 import isDate from 'lodash/isDate';
 import isNumber from 'lodash/isNumber';
 import isString from 'lodash/isString';

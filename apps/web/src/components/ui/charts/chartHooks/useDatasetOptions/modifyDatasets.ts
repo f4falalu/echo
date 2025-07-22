@@ -1,4 +1,4 @@
-import { sum as lodashSum } from 'lodash';
+import lodashSum from 'lodash/sum';
 import cloneDeep from 'lodash/cloneDeep';
 import type { BarSortBy, ChartType, PieSortBy } from '@buster/server-shared/metrics';
 import type { DatasetOption, DatasetOptionsWithTicks, KV } from './interfaces';
