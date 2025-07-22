@@ -2,7 +2,6 @@
 
 import Cookies from 'js-cookie';
 import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
 import React, { useMemo, useState } from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
 import { Button } from '@/components/ui/buttons';
@@ -31,9 +30,7 @@ const DEFAULT_CREDENTIALS = {
   password: process.env.NEXT_PUBLIC_USER_PASSWORD || ''
 };
 
-export const LoginForm: React.FC = () => {
-  const searchParams = useSearchParams();
-  const redirectTo = searchParams.get('next');
+export const LoginForm: React.FC<{ redirectTo?: string | null }> = ({ redirectTo }) => {
   const [loading, setLoading] = useState<'google' | 'github' | 'azure' | 'email' | null>(null);
   const [errorMessages, setErrorMessages] = useState<string[]>([]);
   const [signUpFlow, setSignUpFlow] = useState(true);
