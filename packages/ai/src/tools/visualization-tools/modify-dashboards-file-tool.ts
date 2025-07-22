@@ -1,8 +1,8 @@
-import { dashboardFiles, db, metricFiles } from '@buster/database';
+import { dashboardFiles, db, metricFiles, metricFilesToDashboardFiles } from '@buster/database';
 import type { RuntimeContext } from '@mastra/core/runtime-context';
 import { createTool } from '@mastra/core/tools';
 import { wrapTraced } from 'braintrust';
-import { eq, inArray } from 'drizzle-orm';
+import { and, eq, inArray, isNull } from 'drizzle-orm';
 import * as yaml from 'yaml';
 import { z } from 'zod';
 import type { AnalystRuntimeContext } from '../../workflows/analyst-workflow';
@@ -354,18 +354,79 @@ const modifyDashboardFiles = wrapTraced(
 
       // Update dashboard files in database with version history
       if (dashboardFilesToUpdate.length > 0) {
-        for (const file of dashboardFilesToUpdate) {
-          await db
-            .update(dashboardFiles)
-            .set({
-              content: file.content,
-              updatedAt: file.updatedAt,
-              versionHistory: file.versionHistory,
-              name: file.name,
-            })
-            .where(eq(dashboardFiles.id, file.id))
-            .execute();
-        }
+        await db.transaction(async (tx) => {
+          // Update dashboard files
+          for (const file of dashboardFilesToUpdate) {
+            await tx
+              .update(dashboardFiles)
+              .set({
+                content: file.content,
+                updatedAt: file.updatedAt,
+                versionHistory: file.versionHistory,
+                name: file.name,
+              })
+              .where(eq(dashboardFiles.id, file.id))
+              .execute();
+          }
+
+          for (const file of dashboardFilesToUpdate) {
+            // Get current metric IDs from updated dashboard content
+            const newMetricIds = (file.content as DashboardYml).rows.flatMap(row => row.items).map(item => item.id);
+            
+            const existingAssociations = await tx
+              .select({ metricFileId: metricFilesToDashboardFiles.metricFileId })
+              .from(metricFilesToDashboardFiles)
+              .where(
+                and(
+                  eq(metricFilesToDashboardFiles.dashboardFileId, file.id),
+                  isNull(metricFilesToDashboardFiles.deletedAt)
+                )
+              )
+              .execute();
+            
+            const existingMetricIds = existingAssociations.map(a => a.metricFileId);
+            
+            const addedMetricIds = newMetricIds.filter((id: string) => !existingMetricIds.includes(id));
+            for (const metricId of addedMetricIds) {
+              await tx
+                .insert(metricFilesToDashboardFiles)
+                .values({
+                  metricFileId: metricId,
+                  dashboardFileId: file.id,
+                  createdAt: new Date().toISOString(),
+                  updatedAt: new Date().toISOString(),
+                  deletedAt: null,
+                  createdBy: userId
+                })
+                .onConflictDoUpdate({
+                  target: [metricFilesToDashboardFiles.metricFileId, metricFilesToDashboardFiles.dashboardFileId],
+                  set: {
+                    deletedAt: null,
+                    updatedAt: new Date().toISOString()
+                  }
+                })
+                .execute();
+            }
+            
+            const removedMetricIds = existingMetricIds.filter((id: string) => !newMetricIds.includes(id));
+            if (removedMetricIds.length > 0) {
+              await tx
+                .update(metricFilesToDashboardFiles)
+                .set({
+                  deletedAt: new Date().toISOString(),
+                  updatedAt: new Date().toISOString()
+                })
+                .where(
+                  and(
+                    eq(metricFilesToDashboardFiles.dashboardFileId, file.id),
+                    inArray(metricFilesToDashboardFiles.metricFileId, removedMetricIds),
+                    isNull(metricFilesToDashboardFiles.deletedAt)
+                  )
+                )
+                .execute();
+            }
+          }
+        });
 
         // Add successful files to output
         for (const file of dashboardFilesToUpdate) {

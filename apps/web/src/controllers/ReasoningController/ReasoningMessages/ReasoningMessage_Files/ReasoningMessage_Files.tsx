@@ -11,7 +11,7 @@ const getReasoningMessage = (x: BusterChatMessage | undefined, reasoningMessageI
   x?.reasoning_messages[reasoningMessageId] as BusterChatMessageReasoning_files | undefined;
 
 export const ReasoningMessage_Files: React.FC<ReasoningMessageProps> = React.memo(
-  ({ isCompletedStream, chatId, reasoningMessageId, messageId }) => {
+  ({ isStreamFinished, chatId, reasoningMessageId, messageId }) => {
     const { data: file_ids } = useGetChatMessage(messageId, {
       select: (x) => {
         const reasoningMessage = getReasoningMessage(x, reasoningMessageId);
@@ -31,7 +31,7 @@ export const ReasoningMessage_Files: React.FC<ReasoningMessageProps> = React.mem
             chatId={chatId}
             messageId={messageId}
             reasoningMessageId={reasoningMessageId}
-            isCompletedStream={isCompletedStream}
+            isStreamFinished={isStreamFinished}
           />
         ))}
       </div>

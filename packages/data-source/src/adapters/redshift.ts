@@ -40,10 +40,8 @@ export class RedshiftAdapter extends BaseAdapter {
         ssl: redshiftCredentials.ssl ?? true, // SSL is typically required for Redshift
       };
 
-      // Handle connection timeout
-      if (redshiftCredentials.connection_timeout) {
-        config.connectionTimeoutMillis = redshiftCredentials.connection_timeout;
-      }
+      // Handle connection timeout - default to 60 seconds for serverless
+      config.connectionTimeoutMillis = redshiftCredentials.connection_timeout || 60000;
 
       // Set default schema if provided
       if (redshiftCredentials.schema) {

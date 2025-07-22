@@ -1,5 +1,5 @@
 import type { InferSelectModel } from 'drizzle-orm';
-import { and, desc, eq, isNull } from 'drizzle-orm';
+import { and, desc, eq, isNull, ne } from 'drizzle-orm';
 import { db } from '../../connection';
 import { messages } from '../../schema';
 
@@ -231,5 +231,49 @@ export async function updateMessage(
       throw error;
     }
     throw new Error(`Failed to update message ${messageId}`);
+  }
+}
+
+/**
+ * Check for duplicate messages in the same chat
+ * @param options - Options for duplicate checking
+ * @returns Object indicating if duplicate exists and duplicate message IDs
+ */
+export async function checkForDuplicateMessages(options: {
+  chatId: string;
+  requestMessage: string;
+  excludeMessageId?: string;
+}): Promise<{ isDuplicate: boolean; duplicateMessageIds: string[] }> {
+  const { chatId, requestMessage, excludeMessageId } = options;
+
+  try {
+    // Build query conditions
+    const conditions = [
+      eq(messages.chatId, chatId),
+      eq(messages.requestMessage, requestMessage),
+      isNull(messages.deletedAt),
+    ];
+
+    // Only add exclusion if messageId provided
+    if (excludeMessageId) {
+      conditions.push(ne(messages.id, excludeMessageId));
+    }
+
+    // Query for messages with same chatId and requestMessage
+    const duplicateMessages = await db
+      .select({
+        id: messages.id,
+      })
+      .from(messages)
+      .where(and(...conditions))
+      .orderBy(desc(messages.createdAt));
+
+    return {
+      isDuplicate: duplicateMessages.length > 0,
+      duplicateMessageIds: duplicateMessages.map((msg) => msg.id),
+    };
+  } catch (error) {
+    console.error('Failed to check for duplicate messages:', error);
+    throw new Error(`Failed to check for duplicate messages in chat ${chatId}`);
   }
 }

@@ -8,14 +8,14 @@ import { ChatHeaderTitle } from './ChatHeaderTitle';
 export const ChatHeader: React.FC = React.memo(() => {
   const chatId = useChatIndividualContextSelector((state) => state.chatId);
   const chatTitle = useChatIndividualContextSelector((state) => state.chatTitle);
-  const isCompletedStream = useChatIndividualContextSelector((state) => state.isStreamingMessage);
+  const isStreamFinished = useChatIndividualContextSelector((state) => state.isStreamingMessage);
 
   return (
     <>
       <ChatHeaderTitle
         chatTitle={chatTitle || ''}
         chatId={chatId || ''}
-        isCompletedStream={isCompletedStream}
+        isStreamFinished={isStreamFinished}
       />
       <ChatHeaderOptions />
     </>

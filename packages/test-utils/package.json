@@ -14,7 +14,7 @@
     }
   },
   "scripts": {
-    "prebuild": "node scripts/validate-env.js",
+    "prebuild": "tsx scripts/validate-env.ts",
     "build": "tsc",
     "typecheck": "tsc --noEmit",
     "lint": "biome check --write",
@@ -25,9 +25,10 @@
     "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
+    "@buster/database": "workspace:*",
+    "@buster/env-utils": "workspace:*",
     "@buster/typescript-config": "workspace:*",
     "@buster/vitest-config": "workspace:*",
-    "@buster/database": "workspace:*",
     "uuid": "catalog:"
   }
 }

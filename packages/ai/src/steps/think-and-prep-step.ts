@@ -1,10 +1,13 @@
+import { getPermissionedDatasets } from '@buster/access-controls';
 import type { ChatMessageReasoningMessage } from '@buster/server-shared/chats';
 import { createStep } from '@mastra/core';
 import type { RuntimeContext } from '@mastra/core/runtime-context';
 import type { CoreMessage } from 'ai';
 import { wrapTraced } from 'braintrust';
 import { z } from 'zod';
+import { getSqlDialectGuidance } from '../agents/shared/sql-dialect-guidance';
 import { thinkAndPrepAgent } from '../agents/think-and-prep-agent/think-and-prep-agent';
+import { createThinkAndPrepInstructionsWithoutDatasets } from '../agents/think-and-prep-agent/think-and-prep-instructions';
 import type { thinkAndPrepWorkflowInputSchema } from '../schemas/workflow-schemas';
 import { ChunkProcessor } from '../utils/database/chunk-processor';
 import {
@@ -59,6 +62,10 @@ type BusterChatMessageReasoning = z.infer<typeof BusterChatMessageReasoningSchem
 type BusterChatMessageResponse = z.infer<typeof BusterChatMessageResponseSchema>;
 
 const outputSchema = ThinkAndPrepOutputSchema;
+
+const DEFAULT_CACHE_OPTIONS = {
+  anthropic: { cacheControl: { type: 'ephemeral' } },
+};
 
 // Helper function to create the result object
 const createStepResult = (
@@ -150,6 +157,27 @@ const thinkAndPrepExecution = async ({
   );
 
   try {
+    // Get database context and SQL dialect guidance
+    const userId = runtimeContext.get('userId');
+    const dataSourceSyntax = runtimeContext.get('dataSourceSyntax');
+
+    const datasets = await getPermissionedDatasets(userId, 0, 1000);
+
+    // Extract yml_content from each dataset and join with separators
+    const assembledYmlContent = datasets
+      .map((dataset: { ymlFile: string | null | undefined }) => dataset.ymlFile)
+      .filter((content: string | null | undefined) => content !== null && content !== undefined)
+      .join('\n---\n');
+
+    // Get dialect-specific guidance
+    const sqlDialectGuidance = getSqlDialectGuidance(dataSourceSyntax);
+
+    // Create dataset system message
+    const createDatasetSystemMessage = (databaseContext: string): string => {
+      return `<database_context>
+${databaseContext}
+</database_context>`;
+    };
     const todos = inputData['create-todos'].todos;
 
     // Standardize messages from workflow inputs
@@ -223,8 +251,25 @@ const thinkAndPrepExecution = async ({
 
         const wrappedStream = wrapTraced(
           async () => {
+            // Create system messages with dataset context and instructions
+            const systemMessages: CoreMessage[] = [
+              {
+                role: 'system',
+                content: createDatasetSystemMessage(assembledYmlContent),
+                providerOptions: DEFAULT_CACHE_OPTIONS,
+              },
+              {
+                role: 'system',
+                content: createThinkAndPrepInstructionsWithoutDatasets(sqlDialectGuidance),
+                providerOptions: DEFAULT_CACHE_OPTIONS,
+              },
+            ];
+
+            // Combine system messages with conversation messages
+            const messagesWithSystem = [...systemMessages, ...messages];
+
             // Create stream directly without retryableAgentStreamWithHealing
-            const stream = await thinkAndPrepAgent.stream(messages, {
+            const stream = await thinkAndPrepAgent.stream(messagesWithSystem, {
               toolCallStreaming: true,
               runtimeContext,
               maxRetries: 5,
@@ -316,7 +361,7 @@ const thinkAndPrepExecution = async ({
             continue;
           }
 
-          // Update messages for the retry
+          // Update messages for the retry (without system messages)
           messages = healedMessages;
 
           // Update chunk processor with the healed messages

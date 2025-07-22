@@ -24,7 +24,7 @@ export const ReasoningController: React.FC<ReasoningControllerProps> = ({ chatId
     select: ({ reasoning_message_ids }) => reasoning_message_ids
   });
   const reasoningMessageIds = useMemo(() => reasoning_message_ids, [reasoning_message_ids]);
-  const { data: isCompletedStream } = useGetChatMessage(messageId, {
+  const { data: isStreamFinished } = useGetChatMessage(messageId, {
     select: ({ is_completed }) => is_completed
   });
   const { data: finalReasoningMessage } = useGetChatMessage(messageId, {
@@ -58,7 +58,7 @@ export const ReasoningController: React.FC<ReasoningControllerProps> = ({ chatId
             <ReasoningMessageSelector
               key={reasoningMessageId}
               reasoningMessageId={reasoningMessageId}
-              isCompletedStream={isCompletedStream ?? true}
+              isStreamFinished={isStreamFinished ?? true}
               chatId={chatId}
               messageId={messageId}
               isLastMessage={messageIndex === reasoningMessageIds.length - 1 && !blackBoxMessage}
@@ -68,7 +68,7 @@ export const ReasoningController: React.FC<ReasoningControllerProps> = ({ chatId
           <BlackBoxMessage
             blackBoxMessage={blackBoxMessage}
             finalReasoningMessage={finalReasoningMessage}
-            isCompletedStream={isCompletedStream ?? true}
+            isStreamFinished={isStreamFinished ?? true}
           />
         </div>
       </ScrollArea>

@@ -1,15 +1,11 @@
-if (!process.env.ELECTRIC_PROXY_URL) {
-  throw new Error('ELECTRIC_PROXY_URL is not set');
-}
-
-if (process.env.NODE_ENV === 'production' && !process.env.ELECTRIC_SOURCE_ID) {
-  console.warn('ELECTRIC_SOURCE_ID is not set');
-}
-
 export const getElectricShapeUrl = (requestUrl: string) => {
   const url = new URL(requestUrl);
 
-  const baseUrl = process.env.ELECTRIC_PROXY_URL || '';
+  const baseUrl = process.env.ELECTRIC_PROXY_URL;
+
+  if (!baseUrl) {
+    throw new Error('ELECTRIC_PROXY_URL is not set');
+  }
 
   // Parse the base URL and replace the path with /v1/shape
   const baseUrlObj = new URL(baseUrl);
