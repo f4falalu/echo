@@ -70,7 +70,7 @@ const DEFAULT_CACHE_OPTIONS = {
 // Helper function to create the result object
 const createStepResult = (
   finished: boolean,
-  outputMessages: MessageHistory,
+  conversationHistory: MessageHistory,
   finalStepData: StepFinishData | null,
   reasoningHistory: BusterChatMessageReasoning[] = [],
   responseHistory: BusterChatMessageResponse[] = [],
@@ -82,14 +82,13 @@ const createStepResult = (
   }>
 ): z.infer<typeof outputSchema> => ({
   finished,
-  outputMessages,
-  conversationHistory: outputMessages,
+  conversationHistory,
   stepData: finalStepData || undefined,
   reasoningHistory,
   responseHistory,
   metadata: {
-    toolsUsed: getAllToolsUsed(outputMessages),
-    finalTool: getLastToolUsed(outputMessages) as
+    toolsUsed: getAllToolsUsed(conversationHistory),
+    finalTool: getLastToolUsed(conversationHistory) as
       | 'submitThoughts'
       | 'respondWithoutAnalysis'
       | 'messageUserClarifyingQuestion'
@@ -112,7 +111,7 @@ const thinkAndPrepExecution = async ({
   const abortController = new AbortController();
   const messageId = runtimeContext.get('messageId') as string | null;
 
-  let outputMessages: MessageHistory = [];
+  let conversationHistory: MessageHistory = [];
   let completeConversationHistory: MessageHistory = [];
   let finished = false;
   const finalStepData: StepFinishData | null = null;
@@ -182,13 +181,13 @@ ${databaseContext}
 
     // Standardize messages from workflow inputs
     const inputPrompt = initData.prompt;
-    const conversationHistory = initData.conversationHistory || [];
+    const inputConversationHistory = initData.conversationHistory || [];
 
     // Create base messages from prompt
     let baseMessages: CoreMessage[];
-    if (conversationHistory.length > 0) {
+    if (inputConversationHistory.length > 0) {
       // If we have conversation history, append the new prompt to it
-      baseMessages = appendToConversation(conversationHistory, inputPrompt);
+      baseMessages = appendToConversation(inputConversationHistory, inputPrompt);
     } else {
       // Otherwise, just use the prompt as a new conversation
       baseMessages = standardizeMessages(inputPrompt);
@@ -402,12 +401,12 @@ ${databaseContext}
 
     // Get final results from chunk processor
     completeConversationHistory = chunkProcessor.getAccumulatedMessages();
-    outputMessages = extractMessageHistory(completeConversationHistory);
+    conversationHistory = extractMessageHistory(completeConversationHistory);
 
     // DEBUG: Log what we're passing to analyst step
     console.info('[Think and Prep Step] Creating result:', {
       finished,
-      outputMessagesCount: outputMessages.length,
+      conversationHistoryCount: conversationHistory.length,
       reasoningHistoryCount: chunkProcessor.getReasoningHistory().length,
       responseHistoryCount: chunkProcessor.getResponseHistory().length,
       dashboardFilesProvided: dashboardFiles !== undefined,
@@ -417,7 +416,7 @@ ${databaseContext}
 
     const result = createStepResult(
       finished,
-      outputMessages,
+      conversationHistory,
       finalStepData,
       chunkProcessor.getReasoningHistory() as BusterChatMessageReasoning[],
       chunkProcessor.getResponseHistory() as BusterChatMessageResponse[],
@@ -430,11 +429,11 @@ ${databaseContext}
     if (error instanceof Error && error.name === 'AbortError') {
       // Get final results from chunk processor
       completeConversationHistory = chunkProcessor.getAccumulatedMessages();
-      outputMessages = extractMessageHistory(completeConversationHistory);
+      conversationHistory = extractMessageHistory(completeConversationHistory);
 
       return createStepResult(
         finished,
-        outputMessages,
+        conversationHistory,
         finalStepData,
         chunkProcessor.getReasoningHistory() as BusterChatMessageReasoning[],
         chunkProcessor.getResponseHistory() as BusterChatMessageResponse[],

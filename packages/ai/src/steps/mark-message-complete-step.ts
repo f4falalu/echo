@@ -23,7 +23,6 @@ const AnalystMetadataSchema = z.object({
 const inputSchema = z.object({
   conversationHistory: MessageHistorySchema,
   finished: z.boolean().optional(),
-  outputMessages: MessageHistorySchema.optional(),
   stepData: StepFinishDataSchema.optional(),
   reasoningHistory: ReasoningHistorySchema,
   responseHistory: ResponseHistorySchema,
@@ -42,7 +41,6 @@ const inputSchema = z.object({
 const outputSchema = z.object({
   conversationHistory: MessageHistorySchema,
   finished: z.boolean().optional(),
-  outputMessages: MessageHistorySchema.optional(),
   stepData: StepFinishDataSchema.optional(),
   reasoningHistory: ReasoningHistorySchema,
   responseHistory: ResponseHistorySchema,

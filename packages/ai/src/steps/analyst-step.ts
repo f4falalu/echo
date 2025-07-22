@@ -44,7 +44,6 @@ const AnalystMetadataSchema = z.object({
 const outputSchema = z.object({
   conversationHistory: MessageHistorySchema, // Properly typed message history
   finished: z.boolean().optional(),
-  outputMessages: MessageHistorySchema.optional(),
   stepData: StepFinishDataSchema.optional(),
   reasoningHistory: ReasoningHistorySchema, // Add reasoning history
   responseHistory: ResponseHistorySchema, // Add response history
@@ -243,9 +242,8 @@ const analystExecution = async ({
   // Check if think-and-prep already finished - if so, pass through
   if (inputData.finished === true) {
     return {
-      conversationHistory: inputData.conversationHistory || inputData.outputMessages,
+      conversationHistory: inputData.conversationHistory,
       finished: true,
-      outputMessages: inputData.outputMessages,
       stepData: inputData.stepData,
       reasoningHistory: inputData.reasoningHistory || [],
       responseHistory: inputData.responseHistory || [],
@@ -326,7 +324,7 @@ ${databaseContext}
 
   // Messages come directly from think-and-prep step output
   // They are already in CoreMessage[] format
-  let messages = inputData.outputMessages;
+  let messages = inputData.conversationHistory;
 
   if (messages && messages.length > 0) {
     // Deduplicate messages based on role and toolCallId
@@ -341,16 +339,9 @@ ${databaseContext}
       isArray: Array.isArray(messages),
     });
 
-    // Try to use conversationHistory as fallback
-    const fallbackMessages = inputData.conversationHistory;
-    if (fallbackMessages && Array.isArray(fallbackMessages) && fallbackMessages.length > 0) {
-      console.warn('Using conversationHistory as fallback for empty outputMessages');
-      messages = deduplicateMessages(fallbackMessages);
-    } else {
-      throw new Error(
-        'Critical error: No valid messages found in analyst step input. Both outputMessages and conversationHistory are empty.'
-      );
-    }
+    throw new Error(
+      'Critical error: No valid messages found in analyst step input. conversationHistory is empty.'
+    );
   }
 
   // Set initial messages in chunk processor
@@ -564,7 +555,6 @@ ${databaseContext}
   return {
     conversationHistory: completeConversationHistory,
     finished: true,
-    outputMessages: completeConversationHistory,
     reasoningHistory: chunkProcessor.getReasoningHistory() as z.infer<
       typeof ReasoningHistorySchema
     >,
