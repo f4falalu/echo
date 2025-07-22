@@ -5,29 +5,50 @@ import { wrapTraced } from 'braintrust';
 import { z } from 'zod';
 import { type SandboxContext, SandboxContextKey } from '../../../context/sandbox-context';
 
-const grepSearchConfigSchema = z.object({
-  path: z.string().describe('File or directory path to search'),
-  pattern: z.string().describe('Search pattern'),
-  recursive: z.boolean().optional().default(false).describe('Recursive search (-r)'),
-  ignoreCase: z.boolean().optional().default(false).describe('Case-insensitive search (-i)'),
-  invertMatch: z.boolean().optional().default(false).describe('Invert matches (-v)'),
-  lineNumbers: z.boolean().optional().default(true).describe('Show line numbers (-n)'),
-  wordMatch: z.boolean().optional().default(false).describe('Match whole words only (-w)'),
-  fixedStrings: z
-    .boolean()
-    .optional()
-    .default(false)
-    .describe('Treat pattern as fixed string (-F)'),
-  maxCount: z.number().optional().describe('Maximum number of matches (-m)'),
-}).transform((data) => ({
-  ...data,
-  recursive: data.recursive ?? false,
-  ignoreCase: data.ignoreCase ?? false,
-  invertMatch: data.invertMatch ?? false,
-  lineNumbers: data.lineNumbers ?? true,
-  wordMatch: data.wordMatch ?? false,
-  fixedStrings: data.fixedStrings ?? false,
-}));
+const grepSearchConfigSchema = z
+  .object({
+    path: z.string().describe('File or directory path to search'),
+    pattern: z.string().describe('Search pattern'),
+    recursive: z.boolean().optional().default(false).describe('Recursive search (-r)'),
+    ignoreCase: z.boolean().optional().default(false).describe('Case-insensitive search (-i)'),
+    invertMatch: z.boolean().optional().default(false).describe('Invert matches (-v)'),
+    lineNumbers: z.boolean().optional().default(true).describe('Show line numbers (-n)'),
+    wordMatch: z.boolean().optional().default(false).describe('Match whole words only (-w)'),
+    fixedStrings: z
+      .boolean()
+      .optional()
+      .default(false)
+      .describe('Treat pattern as fixed string (-F)'),
+    maxCount: z.number().optional().describe('Maximum number of matches (-m)'),
+  })
+  .transform((data) => {
+    const result: {
+      path: string;
+      pattern: string;
+      recursive: boolean;
+      ignoreCase: boolean;
+      invertMatch: boolean;
+      lineNumbers: boolean;
+      wordMatch: boolean;
+      fixedStrings: boolean;
+      maxCount?: number;
+    } = {
+      path: data.path,
+      pattern: data.pattern,
+      recursive: data.recursive ?? false,
+      ignoreCase: data.ignoreCase ?? false,
+      invertMatch: data.invertMatch ?? false,
+      lineNumbers: data.lineNumbers ?? true,
+      wordMatch: data.wordMatch ?? false,
+      fixedStrings: data.fixedStrings ?? false,
+    };
+
+    if (data.maxCount !== undefined) {
+      result.maxCount = data.maxCount;
+    }
+
+    return result;
+  });
 
 const grepSearchInputSchema = z.object({
   searches: z.array(grepSearchConfigSchema).min(1).describe('Array of search configurations'),
@@ -69,7 +90,7 @@ const grepSearchExecution = wrapTraced(
     runtimeContext: RuntimeContext<SandboxContext>
   ): Promise<z.infer<typeof grepSearchOutputSchema>> => {
     const { searches: rawSearches } = params;
-    
+
     const searches = rawSearches;
     const startTime = Date.now();
 

@@ -74,10 +74,10 @@ describe('grep-search', () => {
     it('should handle recursive searches', async () => {
       const subDir = path.join(tempDir, 'subdir');
       await fs.mkdir(subDir);
-      
+
       const file1 = path.join(tempDir, 'root.txt');
       const file2 = path.join(subDir, 'nested.txt');
-      
+
       await fs.writeFile(file1, 'search term in root');
       await fs.writeFile(file2, 'search term in nested');
 
@@ -140,9 +140,11 @@ describe('grep-search', () => {
       ]);
 
       expect(result.successful_searches[0]).toBeDefined();
-      expect(result.successful_searches[0]!.matches).toHaveLength(1);
+      expect(result.successful_searches[0]!.matches).toHaveLength(2);
       expect(result.successful_searches[0]!.matches[0]).toBeDefined();
-      expect(result.successful_searches[0]!.matches[0]!.content).toBe('word test word');
+      expect(result.successful_searches[0]!.matches[0]!.content).toBe('test testing tested');
+      expect(result.successful_searches[0]!.matches[1]).toBeDefined();
+      expect(result.successful_searches[0]!.matches[1]!.content).toBe('word test word');
     });
   });
 

@@ -36,7 +36,7 @@ function executeGrepSearchLocally(search: {
     if (search.recursive ?? false) grepArgs.push('-r');
     if (search.ignoreCase ?? false) grepArgs.push('-i');
     if (search.invertMatch ?? false) grepArgs.push('-v');
-    if (search.lineNumbers ?? false) grepArgs.push('-n');
+    if (search.lineNumbers ?? true) grepArgs.push('-n');
     if (search.wordMatch ?? false) grepArgs.push('-w');
     if (search.fixedStrings ?? false) grepArgs.push('-F');
     if (search.maxCount) grepArgs.push('-m', search.maxCount.toString());
@@ -60,23 +60,42 @@ function executeGrepSearchLocally(search: {
     const matches: Array<{ file: string; lineNumber?: number; content: string }> = [];
 
     for (const line of lines) {
-      if (search.lineNumbers ?? false) {
-        const match = line.match(/^([^:]+):(\d+):(.*)$/);
-        if (match?.[1] && match[2] && match[3] !== undefined) {
-          matches.push({
-            file: match[1],
-            lineNumber: Number.parseInt(match[2], 10),
-            content: match[3],
-          });
+      if (search.lineNumbers ?? true) {
+        // When not in recursive mode, grep outputs: linenumber:content
+        // When in recursive mode, grep outputs: filename:linenumber:content
+        if (search.recursive) {
+          const match = line.match(/^([^:]+):(\d+):(.*)$/);
+          if (match?.[1] && match[2] && match[3] !== undefined) {
+            matches.push({
+              file: match[1],
+              lineNumber: Number.parseInt(match[2], 10),
+              content: match[3],
+            });
+          } else {
+            matches.push({
+              file: search.path,
+              content: line,
+            });
+          }
         } else {
-          matches.push({
-            file: search.path,
-            content: line,
-          });
+          // For single file search with line numbers: linenumber:content
+          const match = line.match(/^(\d+):(.*)$/);
+          if (match?.[1] && match[2] !== undefined) {
+            matches.push({
+              file: search.path,
+              lineNumber: Number.parseInt(match[1], 10),
+              content: match[2],
+            });
+          } else {
+            matches.push({
+              file: search.path,
+              content: line,
+            });
+          }
         }
       } else {
         const colonIndex = line.indexOf(':');
-        if (colonIndex > 0) {
+        if (colonIndex > 0 && search.recursive) {
           matches.push({
             file: line.substring(0, colonIndex),
             content: line.substring(colonIndex + 1),
@@ -116,17 +135,19 @@ function executeGrepSearchLocally(search: {
   }
 }
 
-export async function executeGrepSearchesLocally(searches: Array<{
-  path: string;
-  pattern: string;
-  recursive?: boolean;
-  ignoreCase?: boolean;
-  invertMatch?: boolean;
-  lineNumbers?: boolean;
-  wordMatch?: boolean;
-  fixedStrings?: boolean;
-  maxCount?: number;
-}>): Promise<{
+export async function executeGrepSearchesLocally(
+  searches: Array<{
+    path: string;
+    pattern: string;
+    recursive?: boolean;
+    ignoreCase?: boolean;
+    invertMatch?: boolean;
+    lineNumbers?: boolean;
+    wordMatch?: boolean;
+    fixedStrings?: boolean;
+    maxCount?: number;
+  }>
+): Promise<{
   successful_searches: Array<{
     path: string;
     pattern: string;
@@ -210,17 +231,19 @@ export async function executeGrepSearchesLocally(searches: Array<{
   };
 }
 
-export function generateGrepSearchCode(searches: Array<{
-  path: string;
-  pattern: string;
-  recursive?: boolean;
-  ignoreCase?: boolean;
-  invertMatch?: boolean;
-  lineNumbers?: boolean;
-  wordMatch?: boolean;
-  fixedStrings?: boolean;
-  maxCount?: number;
-}>): string {
+export function generateGrepSearchCode(
+  searches: Array<{
+    path: string;
+    pattern: string;
+    recursive?: boolean;
+    ignoreCase?: boolean;
+    invertMatch?: boolean;
+    lineNumbers?: boolean;
+    wordMatch?: boolean;
+    fixedStrings?: boolean;
+    maxCount?: number;
+  }>
+): string {
   return `
 const { execSync } = require('child_process');
 const fs = require('fs');
@@ -241,7 +264,7 @@ function executeGrepSearch(search) {
     if (search.recursive ?? false) grepArgs.push('-r');
     if (search.ignoreCase ?? false) grepArgs.push('-i');
     if (search.invertMatch ?? false) grepArgs.push('-v');
-    if (search.lineNumbers ?? false) grepArgs.push('-n');
+    if (search.lineNumbers ?? true) grepArgs.push('-n');
     if (search.wordMatch ?? false) grepArgs.push('-w');
     if (search.fixedStrings ?? false) grepArgs.push('-F');
     if (search.maxCount) grepArgs.push('-m', search.maxCount.toString());
@@ -265,23 +288,42 @@ function executeGrepSearch(search) {
     const matches = [];
 
     for (const line of lines) {
-      if (search.lineNumbers ?? false) {
-        const match = line.match(/^([^:]+):(\\d+):(.*)$/);
-        if (match && match[1] && match[2] && match[3] !== undefined) {
-          matches.push({
-            file: match[1],
-            lineNumber: parseInt(match[2], 10),
-            content: match[3],
-          });
+      if (search.lineNumbers ?? true) {
+        // When not in recursive mode, grep outputs: linenumber:content
+        // When in recursive mode, grep outputs: filename:linenumber:content
+        if (search.recursive) {
+          const match = line.match(/^([^:]+):(\\d+):(.*)$/);
+          if (match && match[1] && match[2] && match[3] !== undefined) {
+            matches.push({
+              file: match[1],
+              lineNumber: parseInt(match[2], 10),
+              content: match[3],
+            });
+          } else {
+            matches.push({
+              file: search.path,
+              content: line,
+            });
+          }
         } else {
-          matches.push({
-            file: search.path,
-            content: line,
-          });
+          // For single file search with line numbers: linenumber:content
+          const match = line.match(/^(\\d+):(.*)$/);
+          if (match && match[1] && match[2] !== undefined) {
+            matches.push({
+              file: search.path,
+              lineNumber: parseInt(match[1], 10),
+              content: match[2],
+            });
+          } else {
+            matches.push({
+              file: search.path,
+              content: line,
+            });
+          }
         }
       } else {
         const colonIndex = line.indexOf(':');
-        if (colonIndex > 0) {
+        if (colonIndex > 0 && search.recursive) {
           matches.push({
             file: line.substring(0, colonIndex),
             content: line.substring(colonIndex + 1),
