@@ -1,7 +1,11 @@
 'use client';
 
 import React from 'react';
-import { DatabaseNames, type DataSource, type DataSourceTypes } from '@/api/asset_interfaces';
+import {
+  DatabaseNames,
+  type DataSource,
+  type DataSourceTypes
+} from '@/api/asset_interfaces/datasources';
 import { Text } from '@/components/ui/typography';
 import { BigQueryForm } from './BigQueryForm';
 import { DataBricksForm } from './DataBricksForm';

@@ -3,7 +3,7 @@ import {
   type DataSource,
   type SnowflakeCredentials,
   SnowflakeCredentialsSchema
-} from '@/api/asset_interfaces';
+} from '@/api/asset_interfaces/datasources';
 import {
   type createSnowflakeDataSource,
   useCreateSnowflakeDataSource,

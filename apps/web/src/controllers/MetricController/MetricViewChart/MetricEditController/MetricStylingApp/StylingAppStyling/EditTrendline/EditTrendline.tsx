@@ -10,11 +10,11 @@ import type {
   ColumnMetaData
 } from '@buster/server-shared/metrics';
 import { Button } from '@/components/ui/buttons';
-import { JOIN_CHARACTER } from '@/components/ui/charts/commonHelpers';
 import { Plus } from '@/components/ui/icons';
 import { Separator } from '@/components/ui/seperator';
 import { useMemoizedFn, useSet } from '@/hooks';
-import { formatLabel } from '@/lib';
+import { formatLabel } from '@/lib/columnFormatter';
+import { JOIN_CHARACTER } from '@/lib/axisFormatter';
 import { LabelAndInput } from '../../Common';
 import { CollapseDelete } from '../../Common/CollapseDelete';
 import { TypeToLabel } from './config';

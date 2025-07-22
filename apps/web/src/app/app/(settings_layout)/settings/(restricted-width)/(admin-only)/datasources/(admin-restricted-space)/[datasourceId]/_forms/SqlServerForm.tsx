@@ -3,7 +3,7 @@ import {
   type DataSource,
   type SQLServerCredentials,
   SQLServerCredentialsSchema
-} from '@/api/asset_interfaces';
+} from '@/api/asset_interfaces/datasources';
 import {
   type createSQLServerDataSource,
   useCreateSQLServerDataSource,

@@ -3,7 +3,7 @@ import {
   type DataSource,
   type RedshiftCredentials,
   RedshiftCredentialsSchema
-} from '@/api/asset_interfaces';
+} from '@/api/asset_interfaces/datasources';
 import {
   type createRedshiftDataSource,
   useCreateRedshiftDataSource,

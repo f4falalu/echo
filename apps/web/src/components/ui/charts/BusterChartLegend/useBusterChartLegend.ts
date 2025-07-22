@@ -9,7 +9,7 @@ import {
   DEFAULT_Y_AXIS_COLUMN_NAMES
 } from './config';
 import type { BusterChartLegendItem } from './interfaces';
-import { useLegendAutoShow } from './useLegendAutoShow';
+import { useLegendAutoShow } from '../../charts-shared/useLegendAutoShow';
 import type {
   ChartType,
   ChartEncodes,
