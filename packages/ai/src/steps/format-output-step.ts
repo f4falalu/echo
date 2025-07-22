@@ -16,7 +16,6 @@ import type { AnalystRuntimeContext } from '../workflows/analyst-workflow';
 const MarkMessageCompleteOutputSchema = z.object({
   conversationHistory: MessageHistorySchema,
   finished: z.boolean().optional(),
-  outputMessages: MessageHistorySchema.optional(),
   stepData: StepFinishDataSchema.optional(),
   reasoningHistory: ReasoningHistorySchema, // Add reasoning history
   responseHistory: ResponseHistorySchema, // Add response history
@@ -63,7 +62,6 @@ const outputSchema = z.object({
   values: z.array(z.string()).optional(),
   conversationHistory: MessageHistorySchema.optional(),
   finished: z.boolean().optional(),
-  outputMessages: MessageHistorySchema.optional(),
   stepData: StepFinishDataSchema.optional(),
   reasoningHistory: ReasoningHistorySchema, // Add reasoning history
   responseHistory: ResponseHistorySchema, // Add response history
@@ -96,7 +94,6 @@ const formatOutputExecution = async ({
       // Core conversation data
       conversationHistory: getMessageArray(inputData.conversationHistory),
       finished: inputData.finished ?? false,
-      outputMessages: getMessageArray(inputData.outputMessages),
       stepData: inputData.stepData ?? undefined,
       reasoningHistory: inputData.reasoningHistory || [],
       responseHistory: inputData.responseHistory || [],
@@ -132,7 +129,6 @@ const formatOutputExecution = async ({
       return {
         conversationHistory: getMessageArray(inputData.conversationHistory),
         finished: inputData.finished ?? false,
-        outputMessages: getMessageArray(inputData.outputMessages),
         stepData: inputData.stepData ?? undefined,
         reasoningHistory: inputData.reasoningHistory || [],
         responseHistory: inputData.responseHistory || [],
