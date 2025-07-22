@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useMemo } from 'react';
+import React from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { useMarkdownComponents } from './useMarkdownComponents';
@@ -8,7 +8,6 @@ import { MarkdownAnimation } from './animation-helpers';
 import styles from './AnimatedMarkdown.module.css';
 import { cn } from '@/lib/classMerge';
 import './animations.css';
-import { useMount } from '../../../../hooks';
 
 export interface AnimatedMarkdownProps {
   className?: string;
