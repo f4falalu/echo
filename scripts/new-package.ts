@@ -156,6 +156,102 @@ async function updatePnpmWorkspace(config: PackageConfig) {
   }
 }
 
+async function updateVsCodeWorkspace(config: PackageConfig) {
+  try {
+    const workspaceFile = join(process.cwd(), '.vscode', 'buster.code-workspace');
+    let content = await readFile(workspaceFile, 'utf-8');
+    
+    // Clean up trailing commas that might cause JSON.parse to fail
+    content = content.replace(/,(\s*[}\]])/g, '$1');
+    
+    // Parse the JSON
+    const workspace = JSON.parse(content);
+    
+    // Create the new folder entry
+    const newFolderEntry = {
+      path: `../packages/${config.name}`
+    };
+    
+    if (config.type === 'app') {
+      newFolderEntry.path = `../apps/${config.name}`;
+    }
+    
+    // Check if the entry already exists
+    const existingIndex = workspace.folders.findIndex((folder: any) => folder.path === newFolderEntry.path);
+    if (existingIndex !== -1) {
+      console.log("✅ Entry already exists in VS Code workspace");
+      return;
+    }
+    
+    // Find the correct insertion point to maintain alphabetical order within the type
+    let insertIndex = -1;
+    const basePath = config.type === 'app' ? '../apps/' : '../packages/';
+    
+    for (let i = 0; i < workspace.folders.length; i++) {
+      const folder = workspace.folders[i];
+      
+      // If we're adding a package, find where packages start and end
+      if (config.type === 'package' && folder.path.startsWith('../packages/')) {
+        // Keep looking for the right alphabetical spot
+        if (folder.path > newFolderEntry.path) {
+          insertIndex = i;
+          break;
+        }
+      }
+      // If we're adding an app, find where apps start and end
+      else if (config.type === 'app' && folder.path.startsWith('../apps/')) {
+        // Keep looking for the right alphabetical spot
+        if (folder.path > newFolderEntry.path) {
+          insertIndex = i;
+          break;
+        }
+      }
+      // If we've moved past the section we care about, insert here
+      else if (config.type === 'package' && folder.path.startsWith('../packages/')) {
+        // We're in the packages section, continue
+        continue;
+      } else if (config.type === 'app' && folder.path.startsWith('../apps/')) {
+        // We're in the apps section, continue
+        continue;
+      } else if (config.type === 'package' && !folder.path.startsWith('../apps/') && !folder.path.startsWith('../packages/')) {
+        // We've reached non-package/app entries, insert before this
+        insertIndex = i;
+        break;
+      }
+    }
+    
+    // If we didn't find a spot, add to the end of the appropriate section
+    if (insertIndex === -1) {
+      // Find the last entry of our type
+      for (let i = workspace.folders.length - 1; i >= 0; i--) {
+        const folder = workspace.folders[i];
+        if (folder.path.startsWith(basePath)) {
+          insertIndex = i + 1;
+          break;
+        }
+      }
+      
+      // If still no index found, just append
+      if (insertIndex === -1) {
+        insertIndex = workspace.folders.length;
+      }
+    }
+    
+    // Insert the new folder entry
+    workspace.folders.splice(insertIndex, 0, newFolderEntry);
+    
+    // Write the updated workspace file with proper formatting
+    const newContent = JSON.stringify(workspace, null, 2) + '\n';
+    await writeFile(workspaceFile, newContent);
+    console.log("✅ Updated VS Code workspace file");
+    
+  } catch (error) {
+    console.warn("⚠️ Warning: Failed to update VS Code workspace file. Please add manually:");
+    console.warn(`   { "path": "../${config.type === 'package' ? 'packages' : 'apps'}/${config.name}" }`);
+    console.warn(error);
+  }
+}
+
 async function main() {
   const rl = createReadlineInterface();
   
@@ -229,6 +325,10 @@ async function main() {
     await updatePnpmWorkspace(config);
   }
   
+  // Update VS Code workspace
+  console.log("📝 Updating VS Code workspace...");
+  await updateVsCodeWorkspace(config);
+  
   // Install dependencies
   console.log("\n📦 Installing dependencies...");
   await installDependencies(config);
@@ -240,9 +340,11 @@ async function main() {
   console.log(`\n✅ ${config.type === 'package' ? 'Package' : 'App'} created successfully!`);
   console.log(`\n📋 Next steps:`);
   console.log(`   1. cd ${config.type === 'package' ? 'packages' : 'apps'}/${config.name}`);
-  console.log(`   2. Update the env.d.ts file with your environment variables`);
-  console.log(`   3. Add your source code in the src/ directory`);
-  console.log(`   4. Run 'npm run build' to build the ${config.type}`);
+  console.log(`   2. Update the env.d.ts file with your environment variable types`);
+  console.log(`   3. Add any required env vars to scripts/validate-env.ts`);
+  console.log(`   4. Make sure required env vars are defined in the root .env file`);
+  console.log(`   5. Add your source code in the src/ directory`);
+  console.log(`   6. Run 'npm run build' to build the ${config.type}`);
 }
 
 async function createPackageFiles(config: PackageConfig) {
@@ -270,7 +372,7 @@ async function createPackageFiles(config: PackageConfig) {
       },
     },
     scripts: {
-      prebuild: "node scripts/validate-env.js",
+      prebuild: "tsx scripts/validate-env.ts",
       build: "tsc",
       typecheck: "tsc --noEmit",
       dev: "tsc --watch",
@@ -281,7 +383,8 @@ async function createPackageFiles(config: PackageConfig) {
     },
     dependencies: {
       "@buster/typescript-config": "workspace:*",
-      "@buster/vitest-config": "workspace:*"
+      "@buster/vitest-config": "workspace:*",
+      "@buster/env-utils": "workspace:*"
     },
   };
 
@@ -360,54 +463,32 @@ export const howdy = () => {
 
   await writeFile(join(directory, "src", "lib", "index.ts"), libIndex);
 
-  // Create a proper validate-env.js script
+  // Create a proper validate-env.ts script
   const validateEnv = `#!/usr/bin/env node
 
-// Load environment variables from .env file
-import { config } from 'dotenv';
-config();
+// This script uses the shared env-utils to validate environment variables
+import { loadRootEnv, validateEnv } from '@buster/env-utils';
 
-// Build-time environment validation
+// Load environment variables from root .env file
+loadRootEnv();
 
-console.info('🔍 Validating environment variables...');
-
-// Skip validation during Docker builds (environment variables are only available at runtime)
-if (process.env.DOCKER_BUILD || process.env.CI || process.env.NODE_ENV === 'production') {
-  console.info(
-    '🐳 Docker/CI build detected - skipping environment validation (will validate at runtime)'
-  );
-  process.exit(0);
-}
-
-const env = {
-  NODE_ENV: process.env.NODE_ENV || 'development',
-  // Add your required environment variables here
+// Define required environment variables for this package
+const requiredEnv = {
+  // NODE_ENV is optional - will default to 'development' if not set
+  // Add your required environment variables here:
   // DATABASE_URL: process.env.DATABASE_URL,
   // API_KEY: process.env.API_KEY,
 };
 
-let hasErrors = false;
-
-for (const [envKey, value] of Object.entries(env)) {
-  if (!value) {
-    console.error(\`❌ Missing required environment variable: \${envKey}\`);
-    hasErrors = true;
-  } else {
-    console.info(\`✅ \${envKey} is set\`);
-  }
-}
+// Validate environment variables
+const { hasErrors } = validateEnv(requiredEnv);
 
 if (hasErrors) {
-  console.error('');
-  console.error('❌ Build cannot continue with missing environment variables.');
-  console.error('Please check your .env file and ensure all required variables are set.');
   process.exit(1);
 }
-
-console.info('✅ All required environment variables are present');
 `;
 
-  await writeFile(join(directory, "scripts", "validate-env.js"), validateEnv);
+  await writeFile(join(directory, "scripts", "validate-env.ts"), validateEnv);
 
   // Create .gitignore for TypeScript build artifacts
   const gitignore = `# TypeScript build artifacts
@@ -459,7 +540,7 @@ test-results/
   console.log("📄 Created vitest.config.ts");
   console.log("📄 Created src/index.ts");
   console.log("📄 Created src/lib/index.ts");
-  console.log("📄 Created scripts/validate-env.js");
+  console.log("📄 Created scripts/validate-env.ts");
   console.log("📄 Created .gitignore");
 }
 

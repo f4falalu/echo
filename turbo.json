@@ -109,7 +109,8 @@
     "BRAINTRUST_KEY",
     "TRIGGER_SECRET_KEY",
 
-    "PLAYWRIGHT_START_COMMAND"
+    "PLAYWRIGHT_START_COMMAND",
+    "DAYTONA_API_KEY"
   ],
   "envMode": "strict"
 }

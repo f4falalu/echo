@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "npx trigger.dev@v4-beta dev",
     "deploy": "npx trigger.dev@v4-beta deploy",
-    "prebuild": "node scripts/validate-env.js",
+    "prebuild": "tsx scripts/validate-env.ts",
     "build": "echo 'No build step required but we run it to make sure env is loaded' && tsc --noEmit",
     "lint": "biome check --write",
     "test": "vitest run",
@@ -19,6 +19,7 @@
   },
   "dependencies": {
     "@buster/access-controls": "workspace:*",
+    "@buster/env-utils": "workspace:*",
     "@buster/server-shared": "workspace:*",
     "@buster/ai": "workspace:*",
     "@buster/database": "workspace:*",
@@ -27,7 +28,7 @@
     "@buster/typescript-config": "workspace:*",
     "@buster/vitest-config": "workspace:*",
     "@mastra/core": "catalog:",
-    "@trigger.dev/sdk": "catalog:",
+    "@trigger.dev/sdk": "4.0.0-v4-beta.24",
     "ai": "catalog:",
     "braintrust": "catalog:",
     "vitest": "catalog:",
@@ -35,6 +36,6 @@
     "drizzle-orm": "catalog:"
   },
   "devDependencies": {
-    "@trigger.dev/build": "catalog:"
+    "@trigger.dev/build": "4.0.0-v4-beta.24"
   }
 }

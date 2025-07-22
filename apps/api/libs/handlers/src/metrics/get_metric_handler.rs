@@ -2,6 +2,7 @@ use anyhow::{anyhow, Result};
 use diesel::{BoolExpressionMethods, ExpressionMethods, JoinOnDsl, QueryDsl, Queryable};
 use diesel_async::RunQueryDsl;
 use futures::future::join;
+use itertools::Itertools;
 use middleware::AuthenticatedUser;
 use serde_yaml;
 use sharing::asset_access_checks::check_metric_collection_access;
@@ -464,7 +465,10 @@ pub async fn get_metric_handler(
                             name: p.name,
                             avatar_url: p.avatar_url,
                         })
-                        .collect::<Vec<crate::metrics::types::BusterShareIndividual>>(),
+                        .collect::<Vec<crate::metrics::types::BusterShareIndividual>>()
+                        .into_iter()
+                        .sorted_by(|a, b| a.email.to_lowercase().cmp(&b.email.to_lowercase()))
+                        .collect(),
                 )
             }
         }

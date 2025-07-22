@@ -6,11 +6,13 @@ import { z } from 'zod';
 import { type SandboxContext, SandboxContextKey } from '../../../context/sandbox-context';
 
 const deleteFilesInputSchema = z.object({
-  files: z.array(
-    z.object({
-      path: z.string().describe('File path to delete (absolute or relative)'),
-    })
-  ).describe('Array of file deletion operations to perform'),
+  files: z
+    .array(
+      z.object({
+        path: z.string().describe('File path to delete (absolute or relative)'),
+      })
+    )
+    .describe('Array of file deletion operations to perform'),
 });
 
 const deleteFilesOutputSchema = z.object({

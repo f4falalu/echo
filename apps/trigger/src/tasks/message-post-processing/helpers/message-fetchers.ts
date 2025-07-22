@@ -23,6 +23,7 @@ export async function fetchMessageWithContext(messageId: string): Promise<Messag
         createdAt: messages.createdAt,
         rawLlmMessages: messages.rawLlmMessages,
         userName: users.name,
+        userEmail: users.email,
         organizationId: chats.organizationId,
       })
       .from(messages)
@@ -42,7 +43,7 @@ export async function fetchMessageWithContext(messageId: string): Promise<Messag
       createdBy: messageData.createdBy,
       createdAt: new Date(messageData.createdAt),
       rawLlmMessages: messageData.rawLlmMessages as CoreMessage[],
-      userName: messageData.userName ?? 'Unknown',
+      userName: messageData.userName ?? messageData.userEmail ?? 'Unknown',
       organizationId: messageData.organizationId,
     };
   } catch (error) {

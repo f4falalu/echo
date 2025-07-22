@@ -60,12 +60,25 @@ vi.mock('@trigger.dev/sdk/v3', () => ({
   })),
 }));
 
+// Mock Braintrust
+vi.mock('braintrust', () => ({
+  initLogger: vi.fn(() => ({
+    flush: vi.fn().mockResolvedValue(undefined),
+  })),
+  currentSpan: vi.fn(() => ({
+    log: vi.fn(),
+  })),
+  wrapTraced: vi.fn((fn) => fn),
+}));
+
 describe('messagePostProcessingTask', () => {
   let mockDb: any;
   let mockWorkflowRun: any;
 
   beforeEach(() => {
     vi.clearAllMocks();
+    // Mock BRAINTRUST_KEY for unit tests
+    vi.stubEnv('BRAINTRUST_KEY', 'test-braintrust-key');
     mockDb = {
       update: vi.fn().mockReturnThis(),
       set: vi.fn().mockReturnThis(),
@@ -234,6 +247,8 @@ describe('messagePostProcessingTask', () => {
       sent: true,
       messageTs: 'msg-ts-456',
       threadTs: 'thread-ts-456',
+      integrationId: 'int-123',
+      channelId: 'C123456',
     });
     vi.mocked(helpers.buildWorkflowInput).mockReturnValue({
       conversationHistory: undefined,
@@ -290,6 +305,8 @@ describe('messagePostProcessingTask', () => {
       sent: true,
       messageTs: 'msg-ts-123',
       threadTs: 'thread-ts-123',
+      integrationId: 'int-123',
+      channelId: 'C123456',
     });
     vi.mocked(helpers.buildWorkflowInput).mockReturnValue({
       conversationHistory: undefined,
@@ -365,6 +382,8 @@ describe('messagePostProcessingTask', () => {
       sent: true,
       messageTs: 'msg-ts-123',
       threadTs: 'thread-ts-123',
+      integrationId: 'int-123',
+      channelId: 'C123456',
     });
     vi.mocked(helpers.buildWorkflowInput).mockReturnValue({
       conversationHistory: undefined,
