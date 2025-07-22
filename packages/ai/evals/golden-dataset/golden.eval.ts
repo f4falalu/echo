@@ -1,14 +1,11 @@
 import { RuntimeContext } from '@mastra/core/runtime-context';
 import { Eval, initDataset } from 'braintrust';
-import analystWorkflow, {
-  type AnalystRuntimeContext,
-} from '../../../../src/workflows/analyst-workflow';
+import analystWorkflow, { type AnalystRuntimeContext } from '../../src/workflows/analyst-workflow';
 import {
   MetricCreatedSuccessfully,
   NoFailureToCreateMetrics,
   acceptableAnswersScorer,
   allFilesUseYmlBlockScalar,
-  checkUsesExecuteSQLToCreateMetrics,
   dashboardCreatedForMultipleMetrics,
   doneMessageMatchesSqlResults,
   exactlyOneDoneTool,
@@ -17,7 +14,7 @@ import {
   timeFrameIsString,
   todoMarkdownBoxes,
   usesExpectedPrecomputedMetric,
-} from './example_scorers';
+} from './scorers';
 
 const basicSuite = [
   executeSqlFollowedByValidTool,
@@ -27,7 +24,7 @@ const basicSuite = [
   dashboardCreatedForMultipleMetrics,
 ];
 const formatSuite = [todoMarkdownBoxes, allFilesUseYmlBlockScalar, timeFrameIsString];
-const basicLLMSuite = [checkUsesExecuteSQLToCreateMetrics, doneMessageMatchesSqlResults];
+const basicLLMSuite = [doneMessageMatchesSqlResults];
 const expectedSuite = [
   usesExpectedPrecomputedMetric,
   acceptableAnswersScorer,
@@ -59,31 +56,13 @@ const getMetricCreation = async (input: string) => {
   return formatOutputStep.output.conversationHistory || [];
 };
 
-//basic function that just returns the input, used for super basic testing
-const returnOutput = async (input: string) => {
-  return input;
-};
-
-//Example eval for testing evals with a pre-made output
-Eval('Eval-Testing', {
-  experimentName: 'check-answer-scorers',
-  data: initDataset({
-    project: 'Eval-Testing',
-    dataset: 'premade-badmath-runs',
-  }),
-  task: (input, hooks) => {
-    return hooks.metadata.output;
-  },
-  scores: [],
-});
-
 Eval('development', {
-  experimentName: 'bad-math-prompt-changes',
+  experimentName: 'Golden-Dataset-Run',
   data: initDataset({
     project: 'development',
-    dataset: 'Does-Bad-Math',
+    dataset: 'Golden-Dataset',
   }),
   task: getMetricCreation,
-  scores: [],
+  scores: basicSuite.concat(basicLLMSuite).concat(expectedSuite).concat(formatSuite),
   maxConcurrency: 5,
 });

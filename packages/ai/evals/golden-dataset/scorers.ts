@@ -1,11 +1,10 @@
 import { LLMClassifierFromTemplate } from 'autoevals';
 import {
   acceptableAnswersScorerPrompt,
-  checkUsesExecuteSQLToCreateMetricsPrompt,
   doneMessageMatchesSqlResultsPrompt,
   preferredAnswerScorerPrompt,
   usesExpectedPrecomputedMetricPrompt,
-} from './example_scorer_prompts';
+} from './scorer-prompts';
 
 // Checks if the output SQL uses the precomputed metric from the expected SQL in braintrust
 export const usesExpectedPrecomputedMetric = LLMClassifierFromTemplate({
@@ -55,21 +54,40 @@ export const doneMessageMatchesSqlResults = LLMClassifierFromTemplate({
   model: 'gpt-4.1',
 });
 
-//Checks to make sure that the model does not build the output SQL in ExecuteSQL, really just a price saving check
-export const checkUsesExecuteSQLToCreateMetrics = LLMClassifierFromTemplate({
-  name: 'checkUsesExecuteSQLToCreateMetrics',
-  promptTemplate: checkUsesExecuteSQLToCreateMetricsPrompt,
-  choiceScores: {
-    Y: 1,
-    N: 0,
-  },
-  useCoT: true,
-});
+export const getMostRecentOutput = ({ output }: { output: any }) => {
+  try {
+    const messages = output;
+    let latestRequestIndex = -1;
+
+    // Iterate backwards to find the first user message that follows an assistant or tool message
+    for (let i = messages.length - 1; i >= 0; i--) {
+      if (messages[i].role === 'user') {
+        // Check if this user message follows an assistant or tool message
+        if (i === 0 || messages[i - 1].role === 'assistant' || messages[i - 1].role === 'tool') {
+          latestRequestIndex = i;
+          break;
+        }
+      }
+    }
+
+    // If no valid request transition is found, return empty array
+    if (latestRequestIndex === -1) {
+      return [];
+    }
+
+    const mostRecentOutput = messages.slice(latestRequestIndex);
+
+    return mostRecentOutput;
+  } catch (error) {
+    console.error('Error in getMostRecentOutput scorer:', error);
+    return null;
+  }
+};
 
 //Makes sure that the todo list has the right format
 export const todoMarkdownBoxes = ({ output }: { output: any[] }) => {
   try {
-    const messages = Array.isArray(output) ? output : JSON.parse(output);
+    const messages = getMostRecentOutput({ output });
     const todoListMessages = messages.filter(
       (msg: any) =>
         msg.role === 'user' &&
@@ -112,9 +130,7 @@ export const todoMarkdownBoxes = ({ output }: { output: any[] }) => {
 //Makes sure that executeSQL is always followed by either another executeSQL or a sequentialThinking tool call
 export const executeSqlFollowedByValidTool = ({ output }: { output: any }) => {
   try {
-    // const op = output.result.conversationHistory;
-    // const messages = Array.isArray(op) ? op : JSON.parse(op);
-    const messages = Array.isArray(output) ? output : JSON.parse(output);
+    const messages = getMostRecentOutput({ output });
     // Find all executeSql tool calls
     const executeSqlCalls = messages
       .map((msg: any, index: number) => ({
@@ -195,7 +211,8 @@ export const allFilesUseYmlBlockScalar = (args: {
 //Makes sure that a metric is created successfully, primarily fails if there is a bug or if the model sends back a clarifying question
 export const MetricCreatedSuccessfully = ({ output }: { output: any[] }) => {
   try {
-    const hasSuccessfulCreation = output.some(
+    const messages = getMostRecentOutput({ output });
+    const hasSuccessfulCreation = messages.some(
       (message) =>
         message.role === 'tool' &&
         Array.isArray(message.content) &&
@@ -209,7 +226,8 @@ export const MetricCreatedSuccessfully = ({ output }: { output: any[] }) => {
         )
     );
     return hasSuccessfulCreation ? 1 : 0;
-  } catch {
+  } catch (error) {
+    console.error('Error in metric-creation-scorer scorer:', error);
     return null;
   }
 };
@@ -218,7 +236,7 @@ export const MetricCreatedSuccessfully = ({ output }: { output: any[] }) => {
 export const timeFrameIsString = ({ output }: { output: any }) => {
   try {
     // Parse the output, expecting an array of messages
-    const messages = Array.isArray(output) ? output : JSON.parse(output);
+    const messages = getMostRecentOutput({ output });
 
     // Filter for createMetrics tool calls
     const createMetricsCalls = messages.filter(
@@ -248,10 +266,10 @@ export const timeFrameIsString = ({ output }: { output: any }) => {
 
         // Extract timeFrame from YML content
         const timeFrameMatch = ymlContent.match(/timeFrame:\s*([^\n]+)/);
-        if (timeFrameMatch?.[1]) {
+        if (timeFrameMatch && timeFrameMatch[1]) {
           const timeFrame = timeFrameMatch[1].trim();
           // Check if timeFrame is a number (invalid)
-          if (!Number.isNaN(Number(timeFrame))) {
+          if (!isNaN(Number(timeFrame))) {
             return 0; // Fail if timeFrame is a number
           }
         } else {
@@ -264,14 +282,15 @@ export const timeFrameIsString = ({ output }: { output: any }) => {
     return 1;
   } catch (error) {
     console.error('Error in timeFrameIsString scorer:', error);
-    return 0; // Fail on any parsing or unexpected errors
+    return null; // Fail on any parsing or unexpected errors
   }
 };
 
 //Makes sure that there is exactly one doneTool tool call. If there is more than one, its wasting time/money, if there is none then the model broke somehow
 export const exactlyOneDoneTool = ({ output }: { output: any[] }) => {
+  const messages = getMostRecentOutput({ output });
   try {
-    const doneToolCount = output.filter(
+    const doneToolCount = messages.filter(
       (message) =>
         message.role === 'assistant' &&
         Array.isArray(message.content) &&
@@ -280,15 +299,17 @@ export const exactlyOneDoneTool = ({ output }: { output: any[] }) => {
         )
     ).length;
     return doneToolCount === 1 ? 1 : 0;
-  } catch {
-    return 0;
+  } catch (error) {
+    console.error('Error in exactly-one-done-tool scorer:', error);
+    return null;
   }
 };
 
 //Makes sure that all metrics are created successfully. Even if it fails then rebuilds the SQL, this scorer will fail
 export const NoFailureToCreateMetrics = ({ output }: { output: any[] }) => {
   try {
-    const hasUnsuccessfulCreation = output.some(
+    const messages = getMostRecentOutput({ output });
+    const hasUnsuccessfulCreation = messages.some(
       (message) =>
         message.role === 'tool' &&
         Array.isArray(message.content) &&
@@ -302,7 +323,8 @@ export const NoFailureToCreateMetrics = ({ output }: { output: any[] }) => {
         )
     );
     return hasUnsuccessfulCreation ? 0 : 1;
-  } catch {
+  } catch (error) {
+    console.error('Error in no-failed-creation scorer:', error);
     return null;
   }
 };
@@ -310,7 +332,7 @@ export const NoFailureToCreateMetrics = ({ output }: { output: any[] }) => {
 //Makes sure that when multiple metrics are created, a dashboard is created for them
 export const dashboardCreatedForMultipleMetrics = ({ output }: { output: any }) => {
   try {
-    const messages = Array.isArray(output) ? output : JSON.parse(output);
+    const messages = getMostRecentOutput({ output });
 
     // Check for createMetrics tool calls
     const createMetricsCalls = messages.filter(
