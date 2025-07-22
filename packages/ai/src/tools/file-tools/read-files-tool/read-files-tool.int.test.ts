@@ -1,4 +1,4 @@
-import { createSandbox, type Sandbox } from '@buster/sandbox';
+import { type Sandbox, createSandbox } from '@buster/sandbox';
 import { RuntimeContext } from '@mastra/core/runtime-context';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { SandboxContextKey } from '../../../context/sandbox-context';
