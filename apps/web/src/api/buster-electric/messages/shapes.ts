@@ -15,7 +15,7 @@ export type BusterChatMessageShape = {
   is_completed: boolean;
 };
 
-const columns: (keyof BusterChatMessageShape)[] = [
+const MESSAGE_DEFAULT_COLUMNS: (keyof BusterChatMessageShape)[] = [
   'id',
   'response_messages',
   'reasoning',
@@ -36,18 +36,24 @@ export const messageShape = ({
     params: {
       table: 'messages',
       where: `chat_id='${chatId}' AND id='${messageId}'`,
-      columns,
+      columns: MESSAGE_DEFAULT_COLUMNS,
       replica: 'default'
     }
   };
 };
 
 export const messagesShape = ({
-  chatId
+  chatId,
+  columns = MESSAGE_DEFAULT_COLUMNS
 }: {
   chatId: string;
+  columns?: (keyof BusterChatMessageShape)[];
 }): ElectricShapeOptions<BusterChatMessageShape> => {
   return {
-    params: { table: 'messages', where: `chat_id='${chatId}'`, columns }
+    params: {
+      table: 'messages',
+      where: `chat_id='${chatId}'`,
+      columns: columns || MESSAGE_DEFAULT_COLUMNS
+    }
   };
 };

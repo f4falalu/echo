@@ -4,7 +4,7 @@ import { useShape, useShapeStream } from '../instances';
 import { useChatUpdate } from '@/context/Chats/useChatUpdate';
 import { updateMessageShapeToIChatMessage } from './helpers';
 import { useMemoizedFn } from '@/hooks';
-import { prefetchGetChatsList, useGetChatMemoized } from '@/api/buster_rest/chats';
+import { useGetChatMemoized, useGetChatMessageMemoized } from '@/api/buster_rest/chats';
 import uniq from 'lodash/uniq';
 import type { ChatMessageResponseMessage_File } from '@buster/server-shared/chats';
 import type { BusterChatMessage } from '../../asset_interfaces/chat';
@@ -12,6 +12,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { dashboardQueryKeys } from '../../query_keys/dashboard';
 import isEmpty from 'lodash/isEmpty';
 import { metricsQueryKeys } from '../../query_keys/metric';
+import { chatQueryKeys } from '../../query_keys/chat';
 
 export const useGetMessage = ({ chatId, messageId }: { chatId: string; messageId: string }) => {
   const shape = useMemo(() => messageShape({ chatId, messageId }), [chatId, messageId]);
@@ -24,6 +25,7 @@ export const useGetMessages = ({ chatId }: { chatId: string }) => {
 };
 
 const updateOperations: Array<'insert' | 'update' | 'delete'> = ['update'];
+const insertOperations: Array<'insert' | 'update' | 'delete'> = ['insert'];
 
 export const useTrackAndUpdateMessageChanges = (
   {
@@ -40,6 +42,7 @@ export const useTrackAndUpdateMessageChanges = (
   const { onUpdateChatMessage, onUpdateChat } = useChatUpdate();
   const checkIfWeHaveAFollowupDashboard = useCheckIfWeHaveAFollowupDashboard(messageId);
   const getChatMemoized = useGetChatMemoized();
+  const queryClient = useQueryClient();
 
   const subscribe = !!chatId && !!messageId && messageId !== 'undefined';
 
@@ -63,6 +66,7 @@ export const useTrackAndUpdateMessageChanges = (
           if (currentMessageIds.length !== allMessageIds.length) {
             onUpdateChat({
               ...chat,
+              id: chatId,
               message_ids: allMessageIds
             });
           }
@@ -75,16 +79,20 @@ export const useTrackAndUpdateMessageChanges = (
               (reasoningMessage as ChatMessageResponseMessage_File)?.file_type === 'dashboard'
             );
           });
-          if (hasFiles) {
-            prefetchGetChatsList();
-          }
 
           if (!isEmpty(iChatMessage.response_message_ids)) {
             checkIfWeHaveAFollowupDashboard(iChatMessage);
           }
 
           if (iChatMessage.is_completed) {
-            prefetchGetChatsList();
+            queryClient.invalidateQueries({
+              queryKey: chatQueryKeys.chatsGetList().queryKey
+            });
+            if (hasFiles) {
+              queryClient.invalidateQueries({
+                queryKey: metricsQueryKeys.metricsGetList().queryKey
+              });
+            }
           }
         }
         callback?.(iChatMessage);
@@ -127,4 +135,47 @@ const useCheckIfWeHaveAFollowupDashboard = (messageId: string) => {
   };
 
   return useMemoizedFn(method);
+};
+
+export const useTrackAndUpdateNewMessages = ({ chatId }: { chatId: string | undefined }) => {
+  const { onUpdateChat } = useChatUpdate();
+  const getChatMemoized = useGetChatMemoized();
+  const getChatMessageMemoized = useGetChatMessageMemoized();
+  const queryClient = useQueryClient();
+
+  const subscribe = !!chatId;
+
+  const shape = useMemo(() => messagesShape({ chatId: chatId || '', columns: ['id'] }), [chatId]);
+
+  return useShapeStream(
+    shape,
+    insertOperations,
+    useMemoizedFn((message) => {
+      if (message && message.value && chatId) {
+        const messageId = message.value.id;
+        const chat = getChatMemoized(chatId);
+
+        if (chat && messageId) {
+          const currentMessageIds = chat.message_ids;
+          const allMessageIds = uniq([...currentMessageIds, messageId]);
+
+          if (currentMessageIds.length !== allMessageIds.length) {
+            onUpdateChat({
+              ...chat,
+              id: chatId,
+              message_ids: allMessageIds
+            });
+
+            const messageIsStored = getChatMessageMemoized(messageId);
+            if (!messageIsStored) {
+              queryClient.invalidateQueries({
+                queryKey: chatQueryKeys.chatsGetChat(chatId).queryKey
+              });
+            }
+          }
+        }
+      }
+    }),
+    subscribe
+  );
 };

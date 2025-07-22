@@ -1,8 +1,6 @@
-import type { CoreMessage } from 'ai';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { MessageContext } from '../types';
 import {
-  buildConversationHistory,
   buildWorkflowInput,
   concatenateDatasets,
   formatPreviousMessages,
@@ -14,78 +12,6 @@ beforeEach(() => {
 });
 
 describe('data-transformers', () => {
-  describe('buildConversationHistory', () => {
-    it('should combine multiple message arrays correctly', () => {
-      const messages = [
-        {
-          id: '1',
-          rawLlmMessages: [
-            { role: 'user', content: 'Hello' } as CoreMessage,
-            { role: 'assistant', content: 'Hi there' } as CoreMessage,
-          ],
-          createdAt: new Date('2024-01-01T00:00:00Z'),
-        },
-        {
-          id: '2',
-          rawLlmMessages: [
-            { role: 'user', content: 'How are you?' } as CoreMessage,
-            { role: 'assistant', content: 'I am fine' } as CoreMessage,
-          ],
-          createdAt: new Date('2024-01-01T00:01:00Z'),
-        },
-      ];
-
-      const result = buildConversationHistory(messages);
-
-      expect(result).toHaveLength(4);
-      expect(result?.[0]).toEqual({ role: 'user', content: 'Hello' });
-      expect(result?.[3]).toEqual({ role: 'assistant', content: 'I am fine' });
-    });
-
-    it('should handle empty messages array', () => {
-      const result = buildConversationHistory([]);
-      expect(result).toBeUndefined();
-    });
-
-    it('should skip messages with null rawLlmMessages', () => {
-      const messages = [
-        {
-          id: '1',
-          rawLlmMessages: null as any,
-          createdAt: new Date(),
-        },
-        {
-          id: '2',
-          rawLlmMessages: [{ role: 'user', content: 'Test' } as CoreMessage],
-          createdAt: new Date(),
-        },
-      ];
-
-      const result = buildConversationHistory(messages);
-      expect(result).toHaveLength(1);
-      expect(result?.[0]).toEqual({ role: 'user', content: 'Test' });
-    });
-
-    it('should handle non-array rawLlmMessages gracefully', () => {
-      const messages = [
-        {
-          id: '1',
-          rawLlmMessages: 'invalid data' as any,
-          createdAt: new Date(),
-        },
-        {
-          id: '2',
-          rawLlmMessages: [{ role: 'user', content: 'Valid message' } as CoreMessage],
-          createdAt: new Date(),
-        },
-      ];
-
-      const result = buildConversationHistory(messages);
-      expect(result).toHaveLength(1);
-      expect(result?.[0]).toEqual({ role: 'user', content: 'Valid message' });
-    });
-  });
-
   describe('formatPreviousMessages', () => {
     it('should extract string representation correctly', () => {
       const results = [
@@ -233,17 +159,10 @@ describe('data-transformers', () => {
       chatId: 'chat-123',
       createdBy: 'user-123',
       createdAt: new Date(),
+      rawLlmMessages: [{ role: 'user', content: 'Hello' }] as any,
       userName: 'John Doe',
       organizationId: 'org-123',
     };
-
-    const baseConversationMessages = [
-      {
-        id: '1',
-        rawLlmMessages: [{ role: 'user', content: 'Hello' }] as any,
-        createdAt: new Date(),
-      },
-    ];
 
     const basePreviousResults: any[] = [];
 
@@ -262,7 +181,6 @@ describe('data-transformers', () => {
     it('should build complete workflow input for initial message', () => {
       const result = buildWorkflowInput(
         baseMessageContext,
-        baseConversationMessages,
         basePreviousResults,
         baseDatasets,
         false
@@ -289,13 +207,7 @@ describe('data-transformers', () => {
         },
       ];
 
-      const result = buildWorkflowInput(
-        baseMessageContext,
-        baseConversationMessages,
-        previousResults,
-        baseDatasets,
-        true
-      );
+      const result = buildWorkflowInput(baseMessageContext, previousResults, baseDatasets, true);
 
       expect(result.isFollowUp).toBe(true);
       expect(result.isSlackFollowUp).toBe(true);
@@ -311,7 +223,6 @@ describe('data-transformers', () => {
 
       const result = buildWorkflowInput(
         messageContextWithNullUser,
-        baseConversationMessages,
         basePreviousResults,
         baseDatasets,
         false
@@ -320,14 +231,17 @@ describe('data-transformers', () => {
     });
 
     it('should handle empty conversation history', () => {
+      const messageContextNoHistory = {
+        ...baseMessageContext,
+        rawLlmMessages: [] as any,
+      };
       const result = buildWorkflowInput(
-        baseMessageContext,
-        [],
+        messageContextNoHistory,
         basePreviousResults,
         baseDatasets,
         false
       );
-      expect(result.conversationHistory).toBeUndefined();
+      expect(result.conversationHistory).toEqual([]);
     });
   });
 });

@@ -12,8 +12,11 @@ function validateEnvironment(): string {
   const isProduction = process.env.NODE_ENV === 'production';
   const dbUrl = process.env.DATABASE_URL;
 
+  // Use default local database URL if none provided
   if (!dbUrl) {
-    throw new Error('DATABASE_URL environment variable is required');
+    const defaultUrl = 'postgresql://postgres:postgres@localhost:54322/postgres';
+    console.warn(`DATABASE_URL not set - using default: ${defaultUrl}`);
+    return defaultUrl;
   }
 
   // Prevent accidental production database usage in tests
@@ -28,12 +31,7 @@ function validateEnvironment(): string {
     console.warn('DATABASE_POOL_SIZE not set - using default pool size of 100');
   }
 
-  const connectionString = process.env.DATABASE_URL;
-  if (!connectionString) {
-    throw new Error('DATABASE_URL environment variable is required');
-  }
-
-  return connectionString;
+  return dbUrl;
 }
 
 // Initialize the database pool
