@@ -1,6 +1,5 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { RuntimeContext } from '@mastra/core/runtime-context';
-import { lsFiles } from './ls-files-tool';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { SandboxContextKey } from '../../../context/sandbox-context';
 
 const mockRunTypescript = vi.fn();
@@ -8,13 +7,15 @@ const mockLsFilesSafely = vi.fn();
 const mockGenerateLsCode = vi.fn();
 
 vi.mock('@buster/sandbox', () => ({
-  runTypescript: mockRunTypescript,
+  runTypescript: (...args: any[]) => mockRunTypescript(...args),
 }));
 
 vi.mock('./ls-files-impl', () => ({
-  lsFilesSafely: mockLsFilesSafely,
-  generateLsCode: mockGenerateLsCode,
+  lsFilesSafely: (...args: any[]) => mockLsFilesSafely(...args),
+  generateLsCode: (...args: any[]) => mockGenerateLsCode(...args),
 }));
+
+import { lsFiles } from './ls-files-tool';
 
 describe('ls-files-tool', () => {
   let runtimeContext: RuntimeContext<any>;

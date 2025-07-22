@@ -10,15 +10,14 @@ const lsOptionsSchema = z.object({
   detailed: z
     .boolean()
     .optional()
-    .describe('Use -l flag for detailed listing with permissions, owner, size, and modification date'),
+    .describe(
+      'Use -l flag for detailed listing with permissions, owner, size, and modification date'
+    ),
   all: z
     .boolean()
     .optional()
     .describe('Use -a flag to include hidden files and directories (those starting with .)'),
-  recursive: z
-    .boolean()
-    .optional()
-    .describe('Use -R flag for recursive listing of subdirectories'),
+  recursive: z.boolean().optional().describe('Use -R flag for recursive listing of subdirectories'),
   humanReadable: z
     .boolean()
     .optional()
@@ -31,9 +30,7 @@ const lsFilesInputSchema = z.object({
     .describe(
       'Array of paths to list. Can be absolute paths (e.g., /path/to/directory) or relative paths (e.g., ./relative/path). Directories will be listed with their contents.'
     ),
-  options: lsOptionsSchema
-    .optional()
-    .describe('Options for ls command execution'),
+  options: lsOptionsSchema.optional().describe('Options for ls command execution'),
 });
 
 const lsFilesOutputSchema = z.object({

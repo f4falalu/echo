@@ -1,6 +1,6 @@
 import * as child_process from 'node:child_process';
-import * as path from 'node:path';
 import * as fs from 'node:fs/promises';
+import * as path from 'node:path';
 
 export interface LsOptions {
   detailed?: boolean;
@@ -28,26 +28,29 @@ export interface LsResult {
 
 function buildLsCommand(targetPath: string, options?: LsOptions): string {
   const flags: string[] = [];
-  
+
   if (options?.detailed) flags.push('-l');
   if (options?.all) flags.push('-a');
   if (options?.recursive) flags.push('-R');
   if (options?.humanReadable) flags.push('-h');
-  
+
   const flagString = flags.length > 0 ? ` ${flags.join('')}` : '';
   return `ls${flagString} "${targetPath}"`;
 }
 
 function parseDetailedLsOutput(output: string): LsEntry[] {
-  const lines = output.trim().split('\n').filter(line => line.trim() !== '');
+  const lines = output
+    .trim()
+    .split('\n')
+    .filter((line) => line.trim() !== '');
   const entries: LsEntry[] = [];
-  
+
   for (const line of lines) {
     if (line.startsWith('total ') || line.trim() === '') continue;
-    
+
     const parts = line.trim().split(/\s+/);
     if (parts.length < 9) continue;
-    
+
     const permissions = parts[0];
     const owner = parts[2];
     const group = parts[3];
@@ -56,36 +59,39 @@ function parseDetailedLsOutput(output: string): LsEntry[] {
     const day = parts[6];
     const timeOrYear = parts[7];
     const name = parts.slice(8).join(' ');
-    
+
     if (!permissions) continue;
-    
+
     let type: LsEntry['type'] = 'file';
     if (permissions.startsWith('d')) type = 'directory';
     else if (permissions.startsWith('l')) type = 'symlink';
     else if (!permissions.startsWith('-')) type = 'other';
-    
+
     const modified = `${month} ${day} ${timeOrYear}`;
-    
+
     const entry: LsEntry = {
       name,
       type,
     };
-    
+
     if (size) entry.size = size;
     if (permissions) entry.permissions = permissions;
     if (modified) entry.modified = modified;
     if (owner) entry.owner = owner;
     if (group) entry.group = group;
-    
+
     entries.push(entry);
   }
-  
+
   return entries;
 }
 
 function parseSimpleLsOutput(output: string): LsEntry[] {
-  const lines = output.trim().split('\n').filter(line => line.trim() !== '');
-  return lines.map(name => ({
+  const lines = output
+    .trim()
+    .split('\n')
+    .filter((line) => line.trim() !== '');
+  return lines.map((name) => ({
     name: name.trim(),
     type: 'file' as const,
   }));
@@ -93,8 +99,10 @@ function parseSimpleLsOutput(output: string): LsEntry[] {
 
 async function lsSinglePath(targetPath: string, options?: LsOptions): Promise<LsResult> {
   try {
-    const resolvedPath = path.isAbsolute(targetPath) ? targetPath : path.join(process.cwd(), targetPath);
-    
+    const resolvedPath = path.isAbsolute(targetPath)
+      ? targetPath
+      : path.join(process.cwd(), targetPath);
+
     try {
       await fs.access(resolvedPath);
     } catch {
@@ -104,7 +112,7 @@ async function lsSinglePath(targetPath: string, options?: LsOptions): Promise<Ls
         error: 'Path not found',
       };
     }
-    
+
     if (process.platform === 'win32') {
       return {
         success: false,
@@ -112,9 +120,9 @@ async function lsSinglePath(targetPath: string, options?: LsOptions): Promise<Ls
         error: 'ls command not available on Windows platform',
       };
     }
-    
+
     const command = buildLsCommand(resolvedPath, options);
-    
+
     return new Promise((resolve) => {
       child_process.exec(command, (error, stdout, stderr) => {
         if (error) {
@@ -125,12 +133,12 @@ async function lsSinglePath(targetPath: string, options?: LsOptions): Promise<Ls
           });
           return;
         }
-        
+
         try {
-          const entries = options?.detailed 
+          const entries = options?.detailed
             ? parseDetailedLsOutput(stdout)
             : parseSimpleLsOutput(stdout);
-          
+
           resolve({
             success: true,
             path: targetPath,

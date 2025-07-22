@@ -1,7 +1,7 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
 import * as child_process from 'node:child_process';
 import * as fs from 'node:fs/promises';
-import { lsFilesSafely, generateLsCode, type LsOptions } from './ls-files-impl';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { type LsOptions, generateLsCode, lsFilesSafely } from './ls-files-impl';
 
 vi.mock('node:child_process');
 vi.mock('node:fs/promises');
