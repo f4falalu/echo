@@ -73,20 +73,22 @@ function getMostRecentRawLlmMessages(
     // We iterate backwards to find the most recent valid message
     for (let i = chatMessages.length - 1; i >= 0; i--) {
       const message = chatMessages[i];
-      
+
       // Skip if message is not completed
       if (!message?.isCompleted) {
         continue;
       }
-      
+
       // Skip if rawLlmMessages is empty, null, or default empty object
       const rawMessages = message.rawLlmMessages;
-      if (!rawMessages || 
-          (typeof rawMessages === 'object' && Object.keys(rawMessages).length === 0) ||
-          rawMessages === '{}') {
+      if (
+        !rawMessages ||
+        (typeof rawMessages === 'object' && Object.keys(rawMessages).length === 0) ||
+        rawMessages === '{}'
+      ) {
         continue;
       }
-      
+
       // Check if it's a valid array
       if (Array.isArray(rawMessages) && rawMessages.length > 0) {
         return rawMessages as CoreMessage[];
