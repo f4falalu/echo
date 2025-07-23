@@ -14,7 +14,7 @@ import {
   useRemoveSlackIntegration,
   useUpdateSlackIntegration
 } from '@/api/buster_rest/slack/queryRequests';
-import { Dropdown, type DropdownItems } from '@/components/ui/dropdown';
+import { Dropdown, type DropdownItem, type DropdownItems } from '@/components/ui/dropdown';
 import { LinkSlash, Refresh2, ChevronDown } from '@/components/ui/icons';
 import { useMemoizedFn } from '@/hooks';
 import pluralize from 'pluralize';
@@ -111,7 +111,7 @@ const ConnectedDropdown = React.memo(() => {
   ];
 
   return (
-    <Dropdown items={dropdownItems} align="end" side="bottom">
+    <Dropdown items={dropdownItems} align="end" side="bottom" selectType="single">
       <div className="hover:bg-item-hover flex! cursor-pointer items-center space-x-1.5 rounded p-1.5">
         <div className="bg-success-foreground h-2.5 w-2.5 rounded-full" />
         <Text className="select-none">Connected</Text>
@@ -222,28 +222,34 @@ const SlackSharingPermissions = React.memo(() => {
   const { data: slackIntegration } = useGetSlackIntegration();
   const { mutate: updateSlackIntegration } = useUpdateSlackIntegration();
 
-  const sharingOptions = [
-    {
-      label: 'Workspace',
-      value: 'shareWithWorkspace',
-      secondaryLabel: 'All workspace members will have access to any chat created from any channel.'
-    },
-    // {
-    //   label: 'Channel',
-    //   value: 'shareWithChannel',
-    //   secondaryLabel: 'All channel members will have access to any chat created from that channel.'
-    // },
-    {
-      label: 'None',
-      value: 'noSharing',
-      secondaryLabel: 'Only the user who sent the request will have access to their chat.'
-    }
-  ];
-
   const selectedOption: SlackSharingPermission =
     slackIntegration?.integration?.default_sharing_permissions || 'noSharing';
-  const selectedLabel =
-    sharingOptions.find((option) => option.value === selectedOption)?.label || 'Select option';
+
+  const sharingOptions: DropdownItem<SlackSharingPermission>[] = (
+    [
+      {
+        label: 'Workspace',
+        value: 'shareWithWorkspace' satisfies SlackSharingPermission,
+        secondaryLabel:
+          'All workspace members will have access to any chat created from any channel.'
+      },
+      // {
+      //   label: 'Channel',
+      //   value: 'shareWithChannel',
+      //   secondaryLabel: 'All channel members will have access to any chat created from that channel.'
+      // },
+      {
+        label: 'None',
+        value: 'noSharing' satisfies SlackSharingPermission,
+        secondaryLabel: 'Only the user who sent the request will have access to their chat.'
+      }
+    ] satisfies DropdownItem<SlackSharingPermission>[]
+  ).map((option) => ({
+    ...option,
+    selected: option.value === selectedOption
+  }));
+
+  const selectedLabel = sharingOptions.find((option) => option.selected)?.label || 'Select option';
 
   const handleSelect = useMemoizedFn((value: string) => {
     updateSlackIntegration({
@@ -273,7 +279,7 @@ const SlackSharingPermissions = React.memo(() => {
 
 SlackSharingPermissions.displayName = 'SlackSharingPermissions';
 
-const WeirdFakeSelectButtonForBlake = ({ label }: { label: string }) => {
+const WeirdFakeSelectButtonForBlake = ({ label }: { label: string | React.ReactNode }) => {
   return (
     <div className="bg-background hover:bg-item-hover flex min-w-32 cursor-pointer items-center justify-between space-x-2 rounded border px-3 py-1.5 transition-colors">
       <Text size="sm" className="truncate">
