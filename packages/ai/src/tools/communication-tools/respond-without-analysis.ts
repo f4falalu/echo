@@ -79,11 +79,11 @@ const executeRespondWithoutAnalysis = wrapTraced(
   async (): Promise<z.infer<typeof respondWithoutAnalysisOutputSchema>> => {
     return await processRespondWithoutAnalysis();
   },
-  { name: 'respond-without-analysis' }
+  { name: 'respond-without-asset-creation' }
 );
 
 // Export the tool
-export const respondWithoutAnalysis = createTool({
+export const respondWithoutAssetCreation = createTool({
   id: 'respond-without-analysis',
   description:
     "Marks all remaining unfinished tasks as complete, sends a final response to the user, and ends the workflow. Use this when the workflow is finished. This must be in markdown format and not use the '•' bullet character.",
@@ -92,4 +92,4 @@ export const respondWithoutAnalysis = createTool({
   execute: executeRespondWithoutAnalysis,
 });
 
-export default respondWithoutAnalysis;
+export default respondWithoutAssetCreation;

@@ -2,7 +2,7 @@ import { Agent } from '@mastra/core';
 import {
   executeSql,
   messageUserClarifyingQuestion,
-  respondWithoutAnalysis,
+  respondWithoutAssetCreation,
   sequentialThinking,
   submitThoughts,
 } from '../../tools';
@@ -26,7 +26,7 @@ export const thinkAndPrepAgent = new Agent({
   tools: {
     sequentialThinking,
     executeSql,
-    respondWithoutAnalysis,
+    respondWithoutAssetCreation,
     submitThoughts,
     messageUserClarifyingQuestion,
   },
