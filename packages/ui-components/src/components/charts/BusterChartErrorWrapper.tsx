@@ -1,6 +1,6 @@
 import type React from 'react';
 import type { ReactNode } from 'react';
-import { ErrorBoundary } from '../error/ErrorBoundary';
+import { ErrorBoundary } from './OtherComponents/error/ErrorBoundary';
 
 interface Props {
   children: ReactNode;

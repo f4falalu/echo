@@ -2,7 +2,7 @@ import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import { cn } from '@/lib/classMerge';
 import { type VariantProps, cva } from 'class-variance-authority';
 import React, { useMemo } from 'react';
-import Target from '../TextComponents/Target';
+import Target from '../OtherComponents/Target';
 import type { BusterChartLegendItem } from './interfaces';
 
 const itemVariants = cva(

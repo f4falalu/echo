@@ -2,7 +2,7 @@ import { cn } from '@/lib/classMerge';
 import type { ShowLegendHeadline } from '@buster/server-shared/metrics';
 import React from 'react';
 import { BusterChartLegend, type BusterChartLegendItem } from '.';
-import CircleSpinnerLoader from '../../loaders/CircleSpinnerLoader';
+import CircleSpinnerLoader from '../OtherComponents/loaders/CircleSpinnerLoader';
 import {
   ChartLegendWrapperProvider,
   useChartWrapperContextSelector,

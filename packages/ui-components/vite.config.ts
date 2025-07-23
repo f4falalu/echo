@@ -1,4 +1,5 @@
 import { resolve } from 'node:path';
+// @ts-ignore - TypeScript can't resolve .d.mts files properly
 import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';

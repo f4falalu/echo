@@ -1,7 +1,7 @@
 import { cn } from '@/lib/classMerge';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import React from 'react';
-import { Popover } from '../../popover/Popover';
+import { Popover } from '../OtherComponents/popover/Popover';
 import { LegendItemDot } from './LegendDot';
 import { LegendItem } from './LegendItem';
 import type { BusterChartLegendItem, BusterChartLegendProps } from './interfaces';

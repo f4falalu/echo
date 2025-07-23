@@ -5,7 +5,6 @@ import { flexRender } from '@tanstack/react-table';
 import type { Virtualizer } from '@tanstack/react-virtual';
 import type React from 'react';
 import type { CSSProperties } from 'react';
-import { Text } from '../../../typography/Text';
 import { useSortColumnContext } from './SortColumnWrapper';
 import { HEADER_HEIGHT } from './constants';
 import CaretDown from './icons/caret-down';

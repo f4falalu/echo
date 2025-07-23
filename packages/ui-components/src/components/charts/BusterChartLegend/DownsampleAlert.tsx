@@ -1,7 +1,7 @@
 import { cn } from '@/lib/classMerge';
 import type React from 'react';
 
-import TriangleWarning from '../TextComponents/TriangleWarning';
+import TriangleWarning from '../OtherComponents/TriangleWarning';
 import { DOWNSIZE_SAMPLE_THRESHOLD } from '../config';
 
 export const DownsampleAlert: React.FC<{ isDownsampled: boolean }> = ({ isDownsampled }) => {
