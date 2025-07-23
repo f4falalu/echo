@@ -5,7 +5,7 @@ import { CircleWarning, RadioChecked } from '../icons';
 
 export const StatusIndicator: React.FC<{
   status?: 'completed' | 'loading' | 'failed';
-  isCompletedStream?: boolean;
+  isStreamFinished?: boolean;
 }> = React.memo(({ status = 'completed' }) => {
   const inProgress = status === 'loading';
   const failed = status === 'failed';

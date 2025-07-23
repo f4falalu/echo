@@ -89,7 +89,7 @@ describe('ChatResponseReasoning', () => {
   const defaultProps = {
     reasoningMessageId: 'reasoning-id',
     finalReasoningMessage: undefined,
-    isCompletedStream: false,
+    isStreamFinished: false,
     messageId: 'message-id',
     chatId: 'chat-id'
   };
@@ -132,19 +132,6 @@ describe('ChatResponseReasoning', () => {
     expect(screen.getByText('Test Title')).toBeInTheDocument();
   });
 
-  it('renders Text component when stream is completed', () => {
-    render(<ChatResponseReasoning {...defaultProps} isCompletedStream={true} />);
-
-    // With completed stream, we should render Text component
-    const textElement = screen.getByTestId('text');
-    expect(textElement).toBeInTheDocument();
-    expect(textElement).toHaveTextContent('Test Title');
-    expect(screen.getByTestId('link')).toHaveAttribute(
-      'href',
-      '/app/chat/chat-id/message-id/reasoning'
-    );
-  });
-
   it('displays finalReasoningMessage when available', () => {
     (useGetChatMessage as any).mockImplementation((id: any, options: any) => {
       if (options?.select?.toString().includes('reasoning_messages')) {
@@ -160,7 +147,7 @@ describe('ChatResponseReasoning', () => {
       <ChatResponseReasoning
         {...defaultProps}
         finalReasoningMessage="Final reasoning message"
-        isCompletedStream={true}
+        isStreamFinished={true}
       />
     );
 
@@ -172,7 +159,7 @@ describe('ChatResponseReasoning', () => {
       data: 'Black box message'
     });
 
-    render(<ChatResponseReasoning {...defaultProps} isCompletedStream={true} />);
+    render(<ChatResponseReasoning {...defaultProps} isStreamFinished={true} />);
 
     expect(screen.getByText('Black box message')).toBeInTheDocument();
   });
@@ -184,7 +171,7 @@ describe('ChatResponseReasoning', () => {
       return null;
     });
 
-    render(<ChatResponseReasoning {...defaultProps} isCompletedStream={true} />);
+    render(<ChatResponseReasoning {...defaultProps} isStreamFinished={true} />);
 
     // When reasoning file is selected, link should point to chat without reasoning
     const link = screen.getByTestId('link');

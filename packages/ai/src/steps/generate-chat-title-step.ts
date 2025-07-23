@@ -5,7 +5,7 @@ import type { CoreMessage } from 'ai';
 import { wrapTraced } from 'braintrust';
 import { z } from 'zod';
 import { thinkAndPrepWorkflowInputSchema } from '../schemas/workflow-schemas';
-import { anthropicCachedModel } from '../utils/models/anthropic-cached';
+import { Haiku35 } from '../utils/models/haiku-3-5';
 import { appendToConversation, standardizeMessages } from '../utils/standardizeMessages';
 import type { AnalystRuntimeContext } from '../workflows/analyst-workflow';
 
@@ -33,7 +33,7 @@ I am a chat title generator that is responsible for generating a title for the c
 const todosAgent = new Agent({
   name: 'Extract Values',
   instructions: generateChatTitleInstructions,
-  model: anthropicCachedModel('claude-3-5-haiku-20241022'),
+  model: Haiku35,
 });
 
 const generateChatTitleExecution = async ({

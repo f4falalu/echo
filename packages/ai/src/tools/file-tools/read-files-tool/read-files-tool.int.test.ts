@@ -1,7 +1,7 @@
 import { type Sandbox, createSandbox } from '@buster/sandbox';
 import { RuntimeContext } from '@mastra/core/runtime-context';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { SandboxContextKey } from '../../../context/sandbox-context';
+import { DocsAgentContextKey } from '../../../context/docs-agent-context';
 import { readFiles } from './read-files-tool';
 
 describe('read-files-tool integration test', () => {
@@ -40,7 +40,7 @@ describe('read-files-tool integration test', () => {
 
     // Now test reading files with the tool
     const runtimeContext = new RuntimeContext();
-    runtimeContext.set(SandboxContextKey.Sandbox, sandbox);
+    runtimeContext.set(DocsAgentContextKey.Sandbox, sandbox);
 
     const result = await readFiles.execute({
       context: {
@@ -66,7 +66,7 @@ describe('read-files-tool integration test', () => {
 
   it.skipIf(!hasApiKey)('should handle non-existent files in sandbox', async () => {
     const runtimeContext = new RuntimeContext();
-    runtimeContext.set(SandboxContextKey.Sandbox, sandbox);
+    runtimeContext.set(DocsAgentContextKey.Sandbox, sandbox);
 
     const result = await readFiles.execute({
       context: {
@@ -97,7 +97,7 @@ describe('read-files-tool integration test', () => {
     await sandbox.process.codeRun(createFilesCode);
 
     const runtimeContext = new RuntimeContext();
-    runtimeContext.set(SandboxContextKey.Sandbox, sandbox);
+    runtimeContext.set(DocsAgentContextKey.Sandbox, sandbox);
 
     const result = await readFiles.execute({
       context: {

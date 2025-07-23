@@ -8,29 +8,62 @@ export const createBusterRoute = ({ route, ...args }: BusterRoutesWithArgsRoute)
   // Split the route into base path and query template if it exists
   const [basePath, queryTemplate] = (route as string).split('?');
 
+  let queryParams: string[] = [];
+  const usedParams = new Set<string>();
+
+  // Track which parameters are used in path replacement
+  const pathParamRegex = /:([^/?]+)/g;
+  let match;
+  while ((match = pathParamRegex.exec(basePath)) !== null) {
+    usedParams.add(match[1]);
+  }
+
+  // Also track bracket-style parameters
+  const bracketParamRegex = /\[([^\]]+)\]/g;
+  while ((match = bracketParamRegex.exec(basePath)) !== null) {
+    usedParams.add(match[1]);
+  }
+
   // Replace path parameters
   const resultPath = Object.entries(args).reduce<string>((acc, [key, value]) => {
     return acc.replace(`:${key}`, value as string).replace(`[${key}]`, value as string);
   }, basePath);
 
-  // If there's no query template, return just the path
-  if (!queryTemplate) return resultPath;
+  // Handle query parameters from template if they exist
+  if (queryTemplate) {
+    queryParams = queryTemplate
+      .split('&')
+      .map((param: string) => {
+        const [key, value] = param.split('=');
+        if (value.startsWith(':')) {
+          const paramName = value.slice(1);
+          usedParams.add(paramName);
+          return (args as Record<string, string | undefined>)[paramName]
+            ? `${key}=${(args as Record<string, string | undefined>)[paramName]}`
+            : null;
+        }
+        return `${key}=${value}`;
+      })
+      .filter(Boolean) as string[];
+  }
 
-  // Handle query parameters
-  const queryParams = queryTemplate
-    .split('&')
-    .map((param: string) => {
-      const [key, value] = param.split('=');
-      return value.startsWith(':')
-        ? (args as Record<string, string | undefined>)[value.slice(1)]
-          ? `${key}=${(args as Record<string, string | undefined>)[value.slice(1)]}`
-          : null
-        : `${key}=${value}`;
-    })
-    .filter(Boolean);
+  // Handle additional query parameters not in template (like 'next' for AUTH_LOGIN)
+  // Only include known query parameter names that should be passed through
+  const allowedQueryParams = ['next'];
+  const additionalParams = Object.entries(args)
+    .filter(
+      ([key, value]) =>
+        !usedParams.has(key) &&
+        value !== undefined &&
+        value !== null &&
+        allowedQueryParams.includes(key)
+    )
+    .map(([key, value]) => `${key}=${encodeURIComponent(value as string)}`);
+
+  const allQueryParams = [...queryParams, ...additionalParams];
 
   // Return path with query string if there are valid query params
-  return queryParams.length > 0 ? `${resultPath}?${queryParams.join('&')}` : resultPath;
+  return allQueryParams.length > 0 ? `${resultPath}?${allQueryParams.join('&')}` : resultPath;
 };
 
 const routeToRegex = (route: string): RegExp => {

@@ -249,6 +249,13 @@ export async function getWorkspaceSettingsHandler(
 
 ## Database Operations
 
+### Query Organization
+- **All database queries must be created as helper functions** in `@packages/database/src/queries/`
+- **Organize by table** - Each table should have its own subdirectory (e.g., `assets/`, `chats/`, `users/`)
+- **Type all queries** - Every query function must have properly typed parameters and return types
+- **Export from index** - Each subdirectory should have an `index.ts` that exports all queries for that table
+- **Reusable and composable** - Write queries as small, focused functions that can be composed together
+
 ### Soft Delete and Upsert Practices
 - In our database, we never hard delete, we always use soft deletes with the `deleted_at` field
 - For update operations, we should almost always perform an upsert unless otherwise specified

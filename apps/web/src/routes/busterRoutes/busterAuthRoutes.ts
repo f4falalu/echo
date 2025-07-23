@@ -9,7 +9,10 @@ export enum BusterAuthRoutes {
 }
 
 export type BusterAuthRoutesWithArgs = {
-  [BusterAuthRoutes.AUTH_LOGIN]: { route: BusterAuthRoutes.AUTH_LOGIN };
+  [BusterAuthRoutes.AUTH_LOGIN]: { 
+    route: BusterAuthRoutes.AUTH_LOGIN;
+    next?: string;
+  };
   [BusterAuthRoutes.AUTH_CALLBACK]: { route: BusterAuthRoutes.AUTH_CALLBACK };
   [BusterAuthRoutes.AUTH_RESET_PASSWORD]: { route: BusterAuthRoutes.AUTH_RESET_PASSWORD };
   [BusterAuthRoutes.AUTH_CONFIRM_EMAIL]: { route: BusterAuthRoutes.AUTH_CONFIRM_EMAIL };

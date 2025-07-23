@@ -1,5 +1,6 @@
 export { doneTool } from './communication-tools/done-tool';
-export { respondWithoutAnalysis } from './communication-tools/respond-without-analysis';
+export { idleTool } from './communication-tools/idle-tool';
+export { respondWithoutAssetCreation } from './communication-tools/respond-without-asset-creation';
 export { submitThoughts } from './communication-tools/submit-thoughts-tool';
 export { messageUserClarifyingQuestion } from './communication-tools/message-user-clarifying-question';
 export { sequentialThinking } from './planning-thinking-tools/sequential-thinking-tool';
@@ -12,4 +13,9 @@ export { createTodoList } from './planning-thinking-tools/create-todo-item-tool'
 export { editFiles } from './file-tools/edit-files-tool/edit-files-tool';
 export { readFiles } from './file-tools/read-files-tool/read-files-tool';
 export { createFiles } from './file-tools/create-files-tool/create-file-tool';
+export { lsFiles } from './file-tools/ls-files-tool/ls-files-tool';
+export { grepSearch } from './file-tools/grep-search-tool/grep-search-tool';
+export { bashExecute } from './file-tools';
 export { deleteFiles } from './file-tools/delete-files-tool/delete-files-tool';
+export { checkOffTodoList } from './planning-thinking-tools/check-off-todo-list-tool/check-off-todo-list-tool';
+export { updateClarificationsFile } from './planning-thinking-tools/update-clarifications-file-tool/update-clarifications-file-tool';

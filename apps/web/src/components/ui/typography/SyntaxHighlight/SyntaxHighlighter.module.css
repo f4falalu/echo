@@ -1,0 +1,33 @@
+/* Styles for the Shiki syntax highlighter wrapper */
+.shikiWrapper :global(pre) {
+  margin: 0;
+  padding: 0em;
+  width: fit-content;
+  margin-right: 0.75rem;
+}
+
+.shikiWrapper :global(code) {
+  line-height: 1.45;
+}
+
+/* CSS counter-based line numbers */
+.shikiWrapper.withLineNumbers :global(code) {
+  counter-reset: step var(--line-number-start, 0);
+}
+
+/* Line class for syntax highlighted lines */
+.line {
+  display: block;
+}
+
+.shikiWrapper.withLineNumbers .line::before {
+  content: counter(step);
+  counter-increment: step;
+  width: 1.5rem;
+  margin-right: 1rem;
+  display: inline-block;
+  text-align: right;
+  color: var(--color-text-tertiary);
+  user-select: none;
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+}

@@ -16,7 +16,7 @@ import { configureMonacoToUseYaml } from './yamlHelper';
 //import NightOwnTheme from 'monaco-themes/themes/Night Owl.json';
 //https://github.com/brijeshb42/monaco-ace-tokenizer
 
-import { Editor as DynamicEditor } from '@monaco-editor/react';
+import { Editor } from '@monaco-editor/react';
 import { useTheme } from 'next-themes';
 
 interface AppCodeEditorProps {
@@ -149,7 +149,7 @@ export const AppCodeEditor = forwardRef<AppCodeEditorHandle, AppCodeEditorProps>
           className
         )}
         style={style}>
-        <DynamicEditor
+        <Editor
           key={useDarkMode ? 'dark' : 'light'}
           height={height}
           loading={<LoadingContainer />}
@@ -168,7 +168,6 @@ export const AppCodeEditor = forwardRef<AppCodeEditorHandle, AppCodeEditorProps>
 );
 AppCodeEditor.displayName = 'AppCodeEditor';
 
-const LoadingContainer = React.memo(() => {
+const LoadingContainer = () => {
   return <CircleSpinnerLoaderContainer className="animate-in fade-in-0 duration-300" />;
-});
-LoadingContainer.displayName = 'LoadingContainer';
+};

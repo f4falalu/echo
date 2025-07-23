@@ -2,12 +2,18 @@
 
 import pluralize from 'pluralize';
 import React, { useEffect, useMemo, useState } from 'react';
-import { SyntaxHighlighter } from '@/components/ui/typography/SyntaxHighlight';
-import type { BusterChatMessageReasoning_file } from '@/api/asset_interfaces';
 import { Text } from '@/components/ui/typography';
-import { cn } from '@/lib/classMerge';
 import { FileCard } from '../../card/FileCard';
-import { TextAndVersionPill } from '../../typography/TextAndVersionPill';
+import { Button } from '../../buttons';
+import { Copy2 } from '../../icons';
+import { useMemoizedFn } from '@/hooks';
+import { useBusterNotifications } from '@/context/BusterNotifications';
+import dynamic from 'next/dynamic';
+
+const SyntaxHighlighter = dynamic(
+  () => import('@/components/ui/typography/SyntaxHighlight').then((mod) => mod.SyntaxHighlighter),
+  { ssr: false }
+);
 
 type LineSegment = {
   type: 'text' | 'hidden';
@@ -16,25 +22,48 @@ type LineSegment = {
   numberOfLines?: number;
 };
 
-export const StreamingMessageCode: React.FC<
-  BusterChatMessageReasoning_file & {
-    isCompletedStream: boolean;
-    collapsible?: 'chevron' | 'overlay-peek' | false;
-    buttons?: React.ReactNode;
-  }
-> = React.memo(
+export const StreamingMessageCode: React.FC<{
+  isStreamFinished: boolean;
+  collapsible?: 'chevron' | 'overlay-peek' | false;
+  buttons?: React.ReactNode | null;
+  fileName: string | React.ReactNode | null;
+  text: string;
+  modified?: [number, number][];
+  animation?: 'blur-in' | 'fade-in';
+}> = React.memo(
   ({
-    isCompletedStream,
-    file,
-    file_type,
-    file_name,
-    version_number,
+    isStreamFinished,
+    fileName,
     buttons,
-    collapsible = false
+    collapsible = false,
+    text,
+    modified,
+    animation = 'blur-in'
   }) => {
-    const { text = '', modified } = file;
-
     const [lineSegments, setLineSegments] = useState<LineSegment[]>([]);
+    const { openSuccessMessage } = useBusterNotifications();
+
+    const copyToClipboard = useMemoizedFn(() => {
+      navigator.clipboard.writeText(text);
+      openSuccessMessage('Copied to clipboard');
+    });
+
+    const buttonComponent = useMemo(() => {
+      if (buttons === null) {
+        return null;
+      }
+
+      if (!buttons) {
+        return (
+          <div className="flex justify-end">
+            <Button prefix={<Copy2 />} variant="ghost" onClick={copyToClipboard}>
+              Copy
+            </Button>
+          </div>
+        );
+      }
+      return buttons;
+    }, [buttons]);
 
     useEffect(() => {
       const processText = () => {
@@ -94,28 +123,17 @@ export const StreamingMessageCode: React.FC<
       processText();
     }, [text, modified]);
 
-    const fileInfo = useMemo(() => {
-      if (file_type === 'dashboard' || file_type === 'metric') {
-        return <TextAndVersionPill fileName={file_name} versionNumber={version_number} />;
-      }
-
-      return <Text>{file_name}</Text>;
-    }, [file_name, version_number]);
-
     return (
-      <FileCard collapsible={collapsible} fileName={fileInfo} headerButtons={buttons}>
-        <div className="w-full overflow-x-auto p-3">
-          {lineSegments.map((segment, index) => (
-            <div
-              key={`${segment.lineNumber}-${index}`}
-              className={cn('line-number pr-1', !isCompletedStream && 'fade-in duration-500')}>
-              {segment.type === 'text' ? (
-                <MemoizedSyntaxHighlighter lineNumber={segment.lineNumber} text={segment.content} />
-              ) : (
-                <HiddenSection numberOfLinesUnmodified={segment.numberOfLines || 0} />
-              )}
-            </div>
-          ))}
+      <FileCard collapsible={collapsible} fileName={fileName} headerButtons={buttonComponent}>
+        <div className="w-full pr-0">
+          <SyntaxHighlighter
+            language={'yaml'}
+            showLineNumbers
+            startingLineNumber={1}
+            animation={!isStreamFinished ? 'blurIn' : 'none'}
+            className={'p-2.5 text-[10px]'}>
+            {text}
+          </SyntaxHighlighter>
         </div>
       </FileCard>
     );
@@ -135,24 +153,3 @@ const HiddenSection: React.FC<{
     <div className="bg-border h-[0.5px] w-4" />
   </div>
 );
-
-const lineNumberStyles: React.CSSProperties = {
-  minWidth: '2.25em'
-};
-const MemoizedSyntaxHighlighter = React.memo(
-  ({ lineNumber, text }: { lineNumber: number; text: string }) => {
-    return (
-      <SyntaxHighlighter
-        language={'yaml'}
-        showLineNumbers
-        startingLineNumber={lineNumber}
-        lineNumberStyle={lineNumberStyles}
-        lineNumberContainerStyle={{ color: 'red' }}
-        className={'m-0! w-fit! border-none! p-0!'}>
-        {text}
-      </SyntaxHighlighter>
-    );
-  }
-);
-
-MemoizedSyntaxHighlighter.displayName = 'MemoizedSyntaxHighlighter';

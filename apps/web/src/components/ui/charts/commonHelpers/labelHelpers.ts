@@ -1,8 +1,7 @@
 import type { BusterChartProps } from '@/api/asset_interfaces/metric/charts';
-import { formatLabel } from '@/lib';
+import { formatLabel } from '@/lib/columnFormatter';
 import type { DatasetOption } from '../chartHooks';
-
-export const JOIN_CHARACTER = ' | ';
+import { JOIN_CHARACTER } from '@/lib/axisFormatter';
 
 //NEW LABEL HELPERS
 

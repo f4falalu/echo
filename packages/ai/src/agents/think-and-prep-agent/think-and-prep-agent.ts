@@ -2,12 +2,11 @@ import { Agent } from '@mastra/core';
 import {
   executeSql,
   messageUserClarifyingQuestion,
-  respondWithoutAnalysis,
+  respondWithoutAssetCreation,
   sequentialThinking,
   submitThoughts,
 } from '../../tools';
-import { anthropicCachedModel } from '../../utils/models/anthropic-cached';
-import { getThinkAndPrepInstructions } from './think-and-prep-instructions';
+import { Sonnet4 } from '../../utils/models/sonnet-4';
 
 const DEFAULT_OPTIONS = {
   maxSteps: 18,
@@ -23,11 +22,11 @@ const DEFAULT_OPTIONS = {
 export const thinkAndPrepAgent = new Agent({
   name: 'Think and Prep Agent',
   instructions: '', // We control the system messages in the step at stream instantiation
-  model: anthropicCachedModel('claude-sonnet-4-20250514'),
+  model: Sonnet4,
   tools: {
     sequentialThinking,
     executeSql,
-    respondWithoutAnalysis,
+    respondWithoutAssetCreation,
     submitThoughts,
     messageUserClarifyingQuestion,
   },

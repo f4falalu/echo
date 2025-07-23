@@ -46,7 +46,7 @@ const meta: Meta<typeof ChatResponseMessage_DashboardFile> = {
   },
   tags: ['autodocs'],
   argTypes: {
-    isCompletedStream: {
+    isStreamFinished: {
       control: 'boolean',
       description: 'Whether the stream has completed'
     },
@@ -66,7 +66,7 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
   args: {
-    isCompletedStream: true,
+    isStreamFinished: true,
     responseMessage: mockResponseMessage,
     isSelectedFile: false
   }
@@ -74,7 +74,7 @@ export const Default: Story = {
 
 export const Selected: Story = {
   args: {
-    isCompletedStream: true,
+    isStreamFinished: true,
     responseMessage: mockResponseMessage,
     isSelectedFile: true
   }
@@ -82,7 +82,7 @@ export const Selected: Story = {
 
 export const StreamingInProgress: Story = {
   args: {
-    isCompletedStream: false,
+    isStreamFinished: false,
     responseMessage: mockResponseMessage,
     isSelectedFile: false
   }
@@ -104,7 +104,7 @@ export const LoadingState: Story = {
     }
   },
   args: {
-    isCompletedStream: true,
+    isStreamFinished: true,
     responseMessage: mockResponseMessage,
     isSelectedFile: false
   }
@@ -124,7 +124,7 @@ export const ErrorState: Story = {
     }
   },
   args: {
-    isCompletedStream: true,
+    isStreamFinished: true,
     responseMessage: mockResponseMessage,
     isSelectedFile: false
   }
@@ -132,7 +132,7 @@ export const ErrorState: Story = {
 
 export const DifferentVersions: Story = {
   args: {
-    isCompletedStream: true,
+    isStreamFinished: true,
     responseMessage: {
       ...mockResponseMessage,
       version_number: 3,
@@ -144,7 +144,7 @@ export const DifferentVersions: Story = {
 
 export const WithMetadata: Story = {
   args: {
-    isCompletedStream: true,
+    isStreamFinished: true,
     responseMessage: {
       ...mockResponseMessage,
       metadata: [

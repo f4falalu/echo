@@ -22,10 +22,6 @@ describe('Format Output Step Unit Tests', () => {
         { role: 'assistant' as const, content: 'Analysis complete' },
       ],
       finished: true,
-      outputMessages: [
-        { role: 'user' as const, content: 'Analyze data' },
-        { role: 'assistant' as const, content: 'Analysis complete' },
-      ],
       stepData: {
         stepType: 'analyst',
         text: 'Analysis response',
@@ -81,7 +77,6 @@ describe('Format Output Step Unit Tests', () => {
     expect(result).toEqual({
       conversationHistory: analystOutput.conversationHistory,
       finished: analystOutput.finished,
-      outputMessages: analystOutput.outputMessages,
       stepData: analystOutput.stepData,
       metadata: analystOutput.metadata,
       title: undefined,
@@ -99,13 +94,9 @@ describe('Format Output Step Unit Tests', () => {
         { role: 'assistant' as const, content: 'Hi there!' },
       ],
       finished: true,
-      outputMessages: [
-        { role: 'user' as const, content: 'Hello' },
-        { role: 'assistant' as const, content: 'Hi there!' },
-      ],
       metadata: {
-        toolsUsed: ['respondWithoutAnalysis'],
-        finalTool: 'respondWithoutAnalysis',
+        toolsUsed: ['respondWithoutAssetCreation'],
+        finalTool: 'respondWithoutAssetCreation',
       },
     };
 
@@ -126,7 +117,6 @@ describe('Format Output Step Unit Tests', () => {
 
     expect(result.conversationHistory).toEqual(passthroughOutput.conversationHistory);
     expect(result.finished).toBe(true);
-    expect(result.outputMessages).toEqual(passthroughOutput.outputMessages);
     expect(result.metadata).toEqual(passthroughOutput.metadata);
   });
 
@@ -152,7 +142,6 @@ describe('Format Output Step Unit Tests', () => {
 
     expect(result.conversationHistory).toEqual(minimalOutput.conversationHistory);
     expect(result.finished).toBe(false);
-    expect(result.outputMessages).toEqual([]);
     expect(result.stepData).toBeUndefined();
     expect(result.metadata).toBeUndefined();
   });
@@ -160,7 +149,6 @@ describe('Format Output Step Unit Tests', () => {
   test('should handle empty arrays gracefully', async () => {
     const emptyOutput = {
       conversationHistory: [],
-      outputMessages: [],
       finished: false,
     };
 
@@ -180,7 +168,6 @@ describe('Format Output Step Unit Tests', () => {
     const result = await formatOutputStep.execute(mockContext as any);
 
     expect(result.conversationHistory).toEqual([]);
-    expect(result.outputMessages).toEqual([]);
     expect(result.finished).toBe(false);
   });
 });

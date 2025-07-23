@@ -5,7 +5,7 @@ import {
   type BigQueryCredentials,
   BigQueryCredentialsSchema,
   type DataSource
-} from '@/api/asset_interfaces';
+} from '@/api/asset_interfaces/datasources';
 import {
   type createBigQueryDataSource,
   useCreateBigQueryDataSource,

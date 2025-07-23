@@ -231,8 +231,7 @@ export type DashboardFileContext = z.infer<typeof DashboardFileContextSchema>;
 // Output schema for think-and-prep step
 export const ThinkAndPrepOutputSchema = z.object({
   finished: z.boolean(),
-  outputMessages: MessageHistorySchema,
-  conversationHistory: MessageHistorySchema.optional(), // Include conversation history for workflow output
+  conversationHistory: MessageHistorySchema,
   stepData: StepFinishDataSchema.optional(), // The full step object
   reasoningHistory: ReasoningHistorySchema, // Add reasoning history
   responseHistory: ResponseHistorySchema, // Add response history
@@ -240,7 +239,7 @@ export const ThinkAndPrepOutputSchema = z.object({
     .object({
       toolsUsed: z.array(z.string()),
       finalTool: z
-        .enum(['submitThoughts', 'respondWithoutAnalysis', 'messageUserClarifyingQuestion'])
+        .enum(['submitThoughts', 'respondWithoutAssetCreation', 'messageUserClarifyingQuestion'])
         .optional(),
       text: z.string().optional(),
       reasoning: z.string().optional(),

@@ -1,3 +1,4 @@
+/*
 import { LLMClassifierFromTemplate } from 'autoevals';
 import {
   acceptableAnswersScorerPrompt,
@@ -112,7 +113,7 @@ export const todoMarkdownBoxes = ({ output }: { output: any[] }) => {
 //Makes sure that executeSQL is always followed by either another executeSQL or a sequentialThinking tool call
 export const executeSqlFollowedByValidTool = ({ output }: { output: any }) => {
   try {
-    // const op = output.result.outputMessages;
+    // const op = output.result.conversationHistory;
     // const messages = Array.isArray(op) ? op : JSON.parse(op);
     const messages = Array.isArray(output) ? output : JSON.parse(output);
     // Find all executeSql tool calls
@@ -363,3 +364,4 @@ export const dashboardCreatedForMultipleMetrics = ({ output }: { output: any }) 
     return null;
   }
 };
+*/

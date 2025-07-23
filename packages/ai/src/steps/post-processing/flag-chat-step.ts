@@ -5,7 +5,7 @@ import { z } from 'zod';
 import { flagChat } from '../../tools/post-processing/flag-chat';
 import { noIssuesFound } from '../../tools/post-processing/no-issues-found';
 import { MessageHistorySchema } from '../../utils/memory/types';
-import { anthropicCachedModel } from '../../utils/models/anthropic-cached';
+import { Sonnet4 } from '../../utils/models/sonnet-4';
 import { standardizeMessages } from '../../utils/standardizeMessages';
 
 const inputSchema = z.object({
@@ -171,7 +171,7 @@ export const flagChatStepExecution = async ({
     const flagChatAgentWithContext = new Agent({
       name: 'Flag Chat Review',
       instructions: '', // We control the system messages below at stream instantiation
-      model: anthropicCachedModel('claude-sonnet-4-20250514'),
+      model: Sonnet4,
       tools: {
         flagChat,
         noIssuesFound,

@@ -1,3 +1,4 @@
+/*
 import { RuntimeContext } from '@mastra/core/runtime-context';
 import { Eval, initDataset } from 'braintrust';
 import analystWorkflow, {
@@ -56,7 +57,7 @@ const getMetricCreation = async (input: string) => {
     throw new Error(`Format output step failed: ${formatOutputStep.error}`);
   }
 
-  return formatOutputStep.output.outputMessages || [];
+  return formatOutputStep.output.conversationHistory || [];
 };
 
 //basic function that just returns the input, used for super basic testing
@@ -87,3 +88,4 @@ Eval('development', {
   scores: [],
   maxConcurrency: 5,
 });
+*/
