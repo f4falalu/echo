@@ -74,7 +74,7 @@ async function processRespondWithoutAssetCreation(): Promise<
   return {};
 }
 
-// Main respond without analysis function with tracing
+// Main respond without asset creation function with tracing
 const executeRespondWithoutAssetCreation = wrapTraced(
   async (): Promise<z.infer<typeof respondWithoutAssetCreationOutputSchema>> => {
     return await processRespondWithoutAssetCreation();
