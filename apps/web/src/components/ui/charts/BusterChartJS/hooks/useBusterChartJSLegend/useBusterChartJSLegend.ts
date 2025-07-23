@@ -1,21 +1,23 @@
 'use client';
 
+import { useDebounceFn } from '@/hooks/useDebounce';
+import { useMemoizedFn } from '@/hooks/useMemoizedFn';
+import { useUpdateDebounceEffect } from '@/hooks/useUpdateDebounceEffect';
+import { timeout } from '@/lib/timeout';
+import type { ChartEncodes, ChartType } from '@buster/server-shared/metrics';
 import type React from 'react';
 import { useEffect, useMemo, useState, useTransition } from 'react';
-import type { BusterChartProps } from '@/api/asset_interfaces/metric/charts';
-import { useDebounceFn, useMemoizedFn, useUpdateDebounceEffect } from '@/hooks';
-import { timeout } from '@/lib';
+import type { BusterChartProps } from '../../../BusterChart.types';
 import {
-  addLegendHeadlines,
   type BusterChartLegendItem,
   type UseChartLengendReturnValues,
-  useBusterChartLegend
+  addLegendHeadlines,
+  useBusterChartLegend,
 } from '../../../BusterChartLegend';
 import type { DatasetOptionsWithTicks } from '../../../chartHooks';
 import { LEGEND_ANIMATION_THRESHOLD } from '../../../config';
 import type { ChartJSOrUndefined } from '../../core/types';
 import { getLegendItems } from './getLegendItems';
-import type { ChartEncodes, ChartType } from '@buster/server-shared/metrics';
 
 interface UseBusterChartJSLegendProps {
   chartRef: React.RefObject<ChartJSOrUndefined | null>;
@@ -56,9 +58,9 @@ export const useBusterChartJSLegend = ({
   columnMetadata,
   animateLegend: animateLegendProp,
   columnSettings,
-  numberOfDataPoints
+  numberOfDataPoints,
 }: UseBusterChartJSLegendProps): UseChartLengendReturnValues => {
-  const [isPending, startTransition] = useTransition();
+  const [_isPending, startTransition] = useTransition();
   const [isUpdatingChart, setIsUpdatingChart] = useState(false);
   const isLargeDataset = numberOfDataPoints > LEGEND_ANIMATION_THRESHOLD;
   const legendTimeoutDuration = isLargeDataset ? DELAY_DURATION_FOR_LARGE_DATASET : 0;
@@ -71,14 +73,14 @@ export const useBusterChartJSLegend = ({
     renderLegend,
     isStackPercentage,
     showLegend,
-    allYAxisColumnNames
+    allYAxisColumnNames,
   } = useBusterChartLegend({
     selectedChartType,
     showLegendProp,
     selectedAxis,
     loading,
     lineGroupType,
-    barGroupType
+    barGroupType,
   });
 
   const animateLegend = useMemo(() => {
@@ -96,7 +98,7 @@ export const useBusterChartJSLegend = ({
         inactiveDatasets,
         selectedChartType,
         columnLabelFormats,
-        columnSettings
+        columnSettings,
       });
 
       if (!isStackPercentage && showLegendHeadline) {
@@ -131,10 +133,10 @@ export const useBusterChartJSLegend = ({
 
     if (isHover && index !== -1) {
       const allElementsAssociatedWithDataset = chartjs.getDatasetMeta(assosciatedDatasetIndex).data;
-      const activeElements = allElementsAssociatedWithDataset.map((item, index) => {
+      const activeElements = allElementsAssociatedWithDataset.map((_item, index) => {
         return {
           datasetIndex: assosciatedDatasetIndex,
-          index
+          index,
         };
       });
       chartjs.setActiveElements(activeElements);
@@ -181,7 +183,7 @@ export const useBusterChartJSLegend = ({
     // Update dataset visibility state
     setInactiveDatasets((prev) => ({
       ...prev,
-      [item.id]: prev[item.id] ? !prev[item.id] : true
+      [item.id]: prev[item.id] ? !prev[item.id] : true,
     }));
 
     await timeout(legendTimeoutDuration);
@@ -241,7 +243,7 @@ export const useBusterChartJSLegend = ({
         }
         setInactiveDatasets((prev) => ({
           ...prev,
-          ...inactiveDatasetsRecord
+          ...inactiveDatasetsRecord,
         }));
       }
 
@@ -258,6 +260,7 @@ export const useBusterChartJSLegend = ({
   );
 
   //immediate items
+  //biome-ignore lint/correctness/useExhaustiveDependencies: we have tracked all dependencies
   useEffect(() => {
     calculateLegendItems();
   }, [
@@ -270,7 +273,7 @@ export const useBusterChartJSLegend = ({
     columnLabelFormats,
     allYAxisColumnNames,
     columnSettings,
-    pieMinimumSlicePercentage
+    pieMinimumSlicePercentage,
   ]);
 
   return {
@@ -282,6 +285,6 @@ export const useBusterChartJSLegend = ({
     showLegend,
     inactiveDatasets,
     isUpdatingChart,
-    animateLegend
+    animateLegend,
   };
 };

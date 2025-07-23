@@ -1,12 +1,12 @@
+import {
+  type ChartConfigProps,
+  type ChartType,
+  DEFAULT_COLUMN_LABEL_FORMAT,
+  type GoalLine,
+} from '@buster/server-shared/metrics';
 import { renderHook } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import { useGoalLines } from './useGoalLines';
-import {
-  DEFAULT_COLUMN_LABEL_FORMAT,
-  type ChartConfigProps,
-  type ChartType,
-  type GoalLine
-} from '@buster/server-shared/metrics';
 
 describe('useGoalLines', () => {
   const defaultParams = {
@@ -17,7 +17,7 @@ describe('useGoalLines', () => {
     y2AxisKeys: undefined,
     lineGroupType: null as ChartConfigProps['lineGroupType'],
     barLayout: 'vertical' as ChartConfigProps['barLayout'],
-    barGroupType: 'group' as ChartConfigProps['barGroupType']
+    barGroupType: 'group' as ChartConfigProps['barGroupType'],
   };
 
   const mockGoalLine: GoalLine = {
@@ -25,7 +25,7 @@ describe('useGoalLines', () => {
     goalLineLabel: 'Target',
     goalLineColor: 'red',
     showGoalLineLabel: true,
-    show: true
+    show: true,
   };
 
   it('should return empty annotations when no goal lines are provided', () => {
@@ -37,7 +37,7 @@ describe('useGoalLines', () => {
     const params = {
       ...defaultParams,
       goalLines: [mockGoalLine],
-      barGroupType: 'percentage-stack' as ChartConfigProps['barGroupType']
+      barGroupType: 'percentage-stack' as ChartConfigProps['barGroupType'],
     };
     const { result } = renderHook(() => useGoalLines(params));
     expect(result.current).toEqual([]);
@@ -48,8 +48,8 @@ describe('useGoalLines', () => {
       ...defaultParams,
       goalLines: [mockGoalLine],
       columnLabelFormats: {
-        metric1: DEFAULT_COLUMN_LABEL_FORMAT
-      }
+        metric1: DEFAULT_COLUMN_LABEL_FORMAT,
+      },
     };
 
     const { result } = renderHook(() => useGoalLines(params));
@@ -65,8 +65,8 @@ describe('useGoalLines', () => {
       yMax: 100,
       label: {
         content: 'Target 100',
-        display: true
-      }
+        display: true,
+      },
     });
   });
 
@@ -76,8 +76,8 @@ describe('useGoalLines', () => {
       barLayout: 'horizontal' as ChartConfigProps['barLayout'],
       goalLines: [mockGoalLine],
       columnLabelFormats: {
-        metric1: DEFAULT_COLUMN_LABEL_FORMAT
-      }
+        metric1: DEFAULT_COLUMN_LABEL_FORMAT,
+      },
     };
 
     const { result } = renderHook(() => useGoalLines(params));
@@ -93,8 +93,8 @@ describe('useGoalLines', () => {
       xMax: 100,
       label: {
         content: 'Target 100',
-        display: true
-      }
+        display: true,
+      },
     });
   });
 
@@ -105,16 +105,16 @@ describe('useGoalLines', () => {
         ...mockGoalLine,
         value: 200,
         goalLineLabel: 'Maximum',
-        goalLineColor: 'blue'
-      }
+        goalLineColor: 'blue',
+      },
     ];
 
     const params = {
       ...defaultParams,
       goalLines: multipleGoalLines,
       columnLabelFormats: {
-        metric1: DEFAULT_COLUMN_LABEL_FORMAT
-      }
+        metric1: DEFAULT_COLUMN_LABEL_FORMAT,
+      },
     };
 
     const { result } = renderHook(() => useGoalLines(params));
@@ -128,8 +128,8 @@ describe('useGoalLines', () => {
       yMax: 100,
       borderColor: 'red',
       label: {
-        content: 'Target 100'
-      }
+        content: 'Target 100',
+      },
     });
 
     expect(annotationValues[1]).toMatchObject({
@@ -137,8 +137,8 @@ describe('useGoalLines', () => {
       yMax: 200,
       borderColor: 'blue',
       label: {
-        content: 'Maximum 200'
-      }
+        content: 'Maximum 200',
+      },
     });
   });
 });

@@ -1,10 +1,10 @@
 import type { ArcElement, Point } from 'chart.js';
 import { toFontString } from 'chart.js/helpers';
-import { drawRoundedRect, textSize } from './helpers';
 import type OutLabelsContext from './OutLabelsContext';
 import type { OutLabelStyle } from './OutLabelsStyle';
 import type Rect from './Rect';
 import type Size from './Size';
+import { drawRoundedRect, textSize } from './helpers';
 
 export default class OutLabel {
   ctx: CanvasRenderingContext2D;
@@ -31,7 +31,7 @@ export default class OutLabel {
   get center(): Point {
     return {
       x: this.x,
-      y: this.y
+      y: this.y,
     };
   }
 
@@ -48,7 +48,7 @@ export default class OutLabel {
     this.style = style;
 
     // Init text
-    const label = context.labels[index];
+    const label = context.labels[index] ?? '';
     let text = this.style.text;
 
     if (context.formatter) {
@@ -95,7 +95,7 @@ export default class OutLabel {
     if (!lines || !lines.length) throw new Error('No text to show.');
 
     for (let i = 0; i < lines.length; ++i) {
-      lines[i] = lines[i].trim();
+      lines[i] = (lines[i] ?? '').trim();
     }
 
     this.text = text;
@@ -114,7 +114,7 @@ export default class OutLabel {
         this.style.borderWidth,
       y: this.y - this.size.height / 2 - this.style.padding.top - this.style.borderWidth,
       width: this.size.width + 2 * this.style.borderWidth + this.style.padding.width,
-      height: this.size.height + 2 * this.style.borderWidth + this.style.padding.height
+      height: this.size.height + 2 * this.style.borderWidth + this.style.padding.height,
     };
   }
 
@@ -140,7 +140,12 @@ export default class OutLabel {
     const x = this.x;
     let y = this.y;
     for (let idx = 0; idx < this.lines.length; ++idx) {
-      this.ctx.fillText(this.lines[idx], Math.round(x), Math.round(y), Math.round(this.size.width));
+      this.ctx.fillText(
+        this.lines[idx] ?? '',
+        Math.round(x),
+        Math.round(y),
+        Math.round(this.size.width)
+      );
 
       y += this.style.font.lineSize;
     }

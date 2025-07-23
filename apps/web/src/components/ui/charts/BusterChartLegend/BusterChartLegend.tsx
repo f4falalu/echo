@@ -1,13 +1,13 @@
 'use client';
 
+import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import { AnimatePresence, motion } from 'framer-motion';
 import React, { useMemo, useRef } from 'react';
-import { useMemoizedFn } from '@/hooks';
-import { ErrorBoundary } from '../../error';
-import { computeHiddenShowItems } from './helpers';
-import type { BusterChartLegendProps } from './interfaces';
+import { ErrorBoundary } from '../OtherComponents/error';
 import { LegendItem } from './LegendItem';
 import { OverflowButton } from './OverflowContainer';
+import { computeHiddenShowItems } from './helpers';
+import type { BusterChartLegendProps } from './interfaces';
 
 export const BusterChartLegend: React.FC<BusterChartLegendProps> = React.memo(
   ({
@@ -18,7 +18,7 @@ export const BusterChartLegend: React.FC<BusterChartLegendProps> = React.memo(
     showLegendHeadline,
     onFocusItem,
     onHoverItem,
-    show
+    show,
   }) => {
     const legendWidth = containerWidth;
     const completedInitialAnimation = useRef(false);
@@ -57,7 +57,7 @@ export const BusterChartLegend: React.FC<BusterChartLegendProps> = React.memo(
       return {
         initial: {
           height: show && !completedInitialAnimation.current ? initialHeight : 0,
-          minHeight: show && !completedInitialAnimation.current ? initialHeight : 0
+          minHeight: show && !completedInitialAnimation.current ? initialHeight : 0,
         },
         animate: {
           height: showLegend ? initialHeight : 0,
@@ -67,10 +67,10 @@ export const BusterChartLegend: React.FC<BusterChartLegendProps> = React.memo(
               : 0
             : showLegend
               ? initialHeight
-              : 0
+              : 0,
         },
         exit: { height: 0 },
-        transition: { duration: 0.25 }
+        transition: { duration: 0.25 },
       };
     }, [animateLegend, initialHeight, showLegend]);
 
@@ -81,7 +81,7 @@ export const BusterChartLegend: React.FC<BusterChartLegendProps> = React.memo(
         initial: { opacity: 0 },
         animate: { opacity: 1 },
         exit: { opacity: 0 },
-        transition: { duration: 0.25 }
+        transition: { duration: 0.25 },
       };
     }, [animateLegend, showLegend]);
 
@@ -96,17 +96,19 @@ export const BusterChartLegend: React.FC<BusterChartLegendProps> = React.memo(
     }, [animateLegend, showLegend, show]);
 
     return (
-      <ErrorBoundary errorComponent={<div className="text-red-500">Error rendering legend</div>}>
+      <ErrorBoundary errorComponent={<div className='text-red-500'>Error rendering legend</div>}>
         <motion.div
           className={`chart-legend flex w-full items-center overflow-hidden ${forceInitialHeight ? 'min-h-[24px]' : ''}`}
           onAnimationComplete={onAnimationComplete}
-          {...memoizedAnimation}>
-          <AnimatePresence mode="wait" initial={false}>
+          {...memoizedAnimation}
+        >
+          <AnimatePresence mode='wait' initial={false}>
             {showLegend && (
               <motion.div
                 key={legendKey}
                 {...memoizedChildAnimation}
-                className="flex w-full flex-nowrap justify-end space-x-2 overflow-hidden">
+                className='flex w-full flex-nowrap justify-end space-x-2 overflow-hidden'
+              >
                 {shownItems.map((item) => (
                   <LegendItem
                     key={item.id + item.serieName}

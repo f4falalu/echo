@@ -1,25 +1,25 @@
 'use client';
 
+import { useDebounceFn } from '@/hooks/useDebounce';
+import { useUpdateEffect } from '@/hooks/useUpdateEffect';
+import { cn } from '@/lib/classMerge';
 import {
   type ColumnDef,
+  type SortingState,
   getCoreRowModel,
   getSortedRowModel,
-  type SortingState,
-  useReactTable
+  useReactTable,
 } from '@tanstack/react-table';
 import { useVirtualizer } from '@tanstack/react-virtual';
-import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { useDebounceFn, useUpdateEffect } from '@/hooks';
-import { cn } from '@/lib/classMerge';
-import { createDefaultTableColumnWidths } from '@/lib/metrics/messageAutoChartHandler/createDefaultTableColumnWidths';
-import { CELL_HEIGHT, OVERSCAN } from './constants';
-import { DataGridHeader } from './DataGridHeader';
-import { DataGridRow } from './DataGridRow';
-import { defaultCellFormat, defaultHeaderFormat } from './defaultFormat';
-import { SortColumnWrapper } from './SortColumnWrapper';
 import isEmpty from 'lodash/isEmpty';
 import isEqual from 'lodash/isEqual';
-import { MIN_COLUMN_WIDTH } from './constants';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { DataGridHeader } from './DataGridHeader';
+import { DataGridRow } from './DataGridRow';
+import { SortColumnWrapper } from './SortColumnWrapper';
+import { CELL_HEIGHT, OVERSCAN } from './constants';
+import { defaultCellFormat, defaultHeaderFormat } from './defaultFormat';
+import { createDefaultTableColumnWidths } from './helpers/createDefaultTableColumnWidths';
 
 export interface TanStackDataGridProps {
   className?: string;
@@ -54,7 +54,7 @@ export const TanStackDataGrid: React.FC<TanStackDataGridProps> = React.memo(
     onReady,
     rows,
     headerFormat = defaultHeaderFormat,
-    cellFormat = defaultCellFormat
+    cellFormat = defaultCellFormat,
   }) => {
     // Get a list of fields (each field becomes a column)
     const fields = useMemo(() => {
@@ -86,7 +86,7 @@ export const TanStackDataGrid: React.FC<TanStackDataGridProps> = React.memo(
           cell: (info) => cellFormat(info.getValue(), field),
           enableSorting: sortable,
           enableResizing: resizable,
-          enableDragging: draggable
+          enableDragging: draggable,
         })),
       [fields, headerFormat, cellFormat, sortable, resizable, draggable]
     );
@@ -98,7 +98,7 @@ export const TanStackDataGrid: React.FC<TanStackDataGridProps> = React.memo(
       state: {
         sorting,
         columnSizing,
-        columnOrder: colOrder
+        columnOrder: colOrder,
       },
       enableSorting: sortable,
       onSortingChange: setSorting,
@@ -106,7 +106,7 @@ export const TanStackDataGrid: React.FC<TanStackDataGridProps> = React.memo(
       onColumnOrderChange: setColOrder,
       getCoreRowModel: getCoreRowModel(),
       getSortedRowModel: getSortedRowModel(),
-      columnResizeMode: 'onChange'
+      columnResizeMode: 'onChange',
     });
 
     // Set up the virtualizer for infinite scrolling.
@@ -115,14 +115,15 @@ export const TanStackDataGrid: React.FC<TanStackDataGridProps> = React.memo(
       count: table.getRowModel().rows.length,
       getScrollElement: () => parentRef.current,
       estimateSize: () => CELL_HEIGHT, // estimated row height
-      overscan: OVERSCAN
+      overscan: OVERSCAN,
     });
 
     const { run: onResizeColumnsDebounced } = useDebounceFn(onResizeColumns || (() => {}), {
-      wait: 450
+      wait: 450,
     });
 
     // Notify when column sizing changes.
+    // biome-ignore lint/correctness/useExhaustiveDependencies: we only want to re-run this when the columnSizing changes
     useEffect(() => {
       if (onResizeColumns) {
         const sizes = Object.entries(columnSizing).map(([key, size]) => ({ key, size }));
@@ -157,8 +158,9 @@ export const TanStackDataGrid: React.FC<TanStackDataGridProps> = React.memo(
           draggable={draggable}
           colOrder={colOrder}
           setColOrder={setColOrder}
-          onReorderColumns={onReorderColumns}>
-          <table className="bg-background w-full">
+          onReorderColumns={onReorderColumns}
+        >
+          <table className='bg-background w-full'>
             <DataGridHeader
               table={table}
               sortable={sortable}
@@ -168,10 +170,12 @@ export const TanStackDataGrid: React.FC<TanStackDataGridProps> = React.memo(
             />
 
             <tbody
-              className="relative"
-              style={{ display: 'grid', height: `${rowVirtualizer.getTotalSize()}px` }}>
+              className='relative'
+              style={{ display: 'grid', height: `${rowVirtualizer.getTotalSize()}px` }}
+            >
               {rowVirtualizer.getVirtualItems().map((virtualRow) => {
                 const row = table.getRowModel().rows[virtualRow.index];
+                if (!row) return null;
                 return <DataGridRow key={row.id} row={row} virtualRow={virtualRow} />;
               })}
             </tbody>

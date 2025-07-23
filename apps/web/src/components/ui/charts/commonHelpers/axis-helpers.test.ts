@@ -1,6 +1,6 @@
-import { describe, expect, it } from 'vitest';
-import { doesChartHaveValidAxis } from './helpers';
 import type { ChartEncodes } from '@buster/server-shared/metrics';
+import { describe, expect, it } from 'vitest';
+import { doesChartHaveValidAxis } from './axis-helpers';
 
 describe('doesChartHaveValidAxis', () => {
   it('should return true when isTable is true regardless of other parameters', () => {

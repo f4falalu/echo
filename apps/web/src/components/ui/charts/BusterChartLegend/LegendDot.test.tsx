@@ -1,13 +1,13 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
-import type { ChartType } from '@buster/server-shared/metrics';
 import { LegendItemDot } from './LegendDot';
+import '@testing-library/jest-dom';
 
 describe('LegendItemDot', () => {
   const defaultProps = {
     color: '#FF0000',
     inactive: false,
-    type: 'bar'
+    type: 'bar',
   } as Parameters<typeof LegendItemDot>[0];
 
   it('renders with default props', () => {
@@ -28,10 +28,10 @@ describe('LegendItemDot', () => {
   });
 
   it('renders with different sizes', () => {
-    const { rerender } = render(<LegendItemDot {...defaultProps} size="default" />);
+    const { rerender } = render(<LegendItemDot {...defaultProps} size='default' />);
     expect(screen.getByTestId('legend-dot-container')).toHaveClass('w-4.5');
 
-    rerender(<LegendItemDot {...defaultProps} size="sm" />);
+    rerender(<LegendItemDot {...defaultProps} size='sm' />);
     expect(screen.getByTestId('legend-dot-container')).toHaveClass('w-2');
   });
 
@@ -77,6 +77,7 @@ describe('LegendItemDot', () => {
     const parentClick = vi.fn();
 
     render(
+      // biome-ignore lint/a11y/useKeyWithClickEvents: <explanation>
       <div onClick={parentClick}>
         <LegendItemDot {...defaultProps} onFocusItem={onFocusItem} />
       </div>

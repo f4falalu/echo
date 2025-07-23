@@ -5,6 +5,7 @@ export interface ChartTotalizerPluginOptions {
 }
 
 declare module 'chart.js' {
+  // biome-ignore lint/correctness/noUnusedVariables: we need to define the plugin options
   interface PluginOptionsByType<TType extends ChartType> {
     totalizer?: ChartTotalizerPluginOptions | false;
   }
@@ -23,7 +24,7 @@ export const ChartTotalizerPlugin: Plugin<ChartType, ChartTotalizerPluginOptions
     chart.$totalizer = { stackTotals: {}, seriesTotals: [] };
   },
 
-  beforeDatasetsUpdate: (chart, args, options) => {
+  beforeDatasetsUpdate: (chart, _args, options) => {
     if (options?.enabled === false) return;
 
     const stackTotals: Record<string, number> = {};
@@ -35,8 +36,8 @@ export const ChartTotalizerPlugin: Plugin<ChartType, ChartTotalizerPluginOptions
         //dataset.hidden is true when the dataset is hidden by what was passed in the options
         return !meta.hidden && !dataset.hidden;
       })
-      .forEach((dataset, datasetIndex) => {
-        (chart.data.labels as string[])?.forEach((label, labelIndex) => {
+      .forEach((dataset) => {
+        (chart.data.labels as string[])?.forEach((_label, labelIndex) => {
           const value = dataset.data[labelIndex];
           if (typeof value === 'number') {
             stackTotals[labelIndex] = (stackTotals[labelIndex] || 0) + value;
@@ -54,6 +55,6 @@ export const ChartTotalizerPlugin: Plugin<ChartType, ChartTotalizerPluginOptions
     chart.$totalizer = { stackTotals, seriesTotals };
   },
   defaults: {
-    enabled: true
-  }
+    enabled: true,
+  },
 };

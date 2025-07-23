@@ -1,10 +1,10 @@
-import { describe, expect, it } from 'vitest';
-import type { BusterChartProps } from '@/api/asset_interfaces/metric/charts';
 import {
+  type ColumnLabelFormat,
   DEFAULT_COLUMN_LABEL_FORMAT,
   DEFAULT_COLUMN_SETTINGS,
-  type ColumnLabelFormat
 } from '@buster/server-shared/metrics';
+import { describe, expect, it } from 'vitest';
+import type { BusterChartProps } from '../../../BusterChart.types';
 import type { DatasetOption } from '../../../chartHooks';
 import type { DatasetOptionsWithTicks } from '../../../chartHooks/useDatasetOptions/interfaces';
 import { barSeriesBuilder } from './barSeriesBuilder';
@@ -21,11 +21,11 @@ describe('barSeriesBuilder', () => {
           data: [100, 200, 300],
           label: [{ key: 'sales', value: '' }],
           tooltipData: [],
-          axisType: 'y'
-        }
+          axisType: 'y',
+        },
       ],
       ticks: [['Jan'], ['Feb'], ['Mar']],
-      ticksKey: [{ key: 'date', value: '' }]
+      ticksKey: [{ key: 'date', value: '' }],
     };
 
     const mockProps: SeriesBuilderProps = {
@@ -36,8 +36,8 @@ describe('barSeriesBuilder', () => {
           ...DEFAULT_COLUMN_SETTINGS,
           showDataLabels: true,
           barRoundness: 4,
-          showDataLabelsAsPercentage: false
-        }
+          showDataLabelsAsPercentage: false,
+        },
       },
       columnLabelFormats: {
         sales: {
@@ -49,8 +49,8 @@ describe('barSeriesBuilder', () => {
           prefix: '',
           suffix: '',
           replaceMissingDataWith: 0,
-          makeLabelHumanReadable: true
-        } as ColumnLabelFormat
+          makeLabelHumanReadable: true,
+        } as ColumnLabelFormat,
       },
       barShowTotalAtTop: false,
       barGroupType: 'group',
@@ -60,7 +60,7 @@ describe('barSeriesBuilder', () => {
       trendlines: [],
       sizeOptions: null,
       scatterDotSize: [5, 5],
-      lineGroupType: null
+      lineGroupType: null,
     };
 
     // Act
@@ -74,7 +74,7 @@ describe('barSeriesBuilder', () => {
       data: [100, 200, 300],
       backgroundColor: '#FF0000',
       borderRadius: 2,
-      yAxisKey: 'sales'
+      yAxisKey: 'sales',
     });
   });
 
@@ -88,7 +88,7 @@ describe('barSeriesBuilder', () => {
           data: [100, 200, 300],
           label: [{ key: 'sales_2022', value: '' }],
           tooltipData: [],
-          axisType: 'y'
+          axisType: 'y',
         },
         {
           id: 'sales-2023',
@@ -96,11 +96,11 @@ describe('barSeriesBuilder', () => {
           data: [150, 250, 350],
           label: [{ key: 'sales_2023', value: '' }],
           tooltipData: [],
-          axisType: 'y'
-        }
+          axisType: 'y',
+        },
       ],
       ticks: [['Q1'], ['Q2'], ['Q3']],
-      ticksKey: [{ key: 'quarter', value: '' }]
+      ticksKey: [{ key: 'quarter', value: '' }],
     };
 
     const mockProps: SeriesBuilderProps = {
@@ -111,14 +111,14 @@ describe('barSeriesBuilder', () => {
           ...DEFAULT_COLUMN_SETTINGS,
           showDataLabels: true,
           barRoundness: 4,
-          showDataLabelsAsPercentage: false
+          showDataLabelsAsPercentage: false,
         },
         sales2023: {
           ...DEFAULT_COLUMN_SETTINGS,
           showDataLabels: true,
           barRoundness: 4,
-          showDataLabelsAsPercentage: false
-        }
+          showDataLabelsAsPercentage: false,
+        },
       },
       columnLabelFormats: {
         sales2022: {
@@ -130,7 +130,7 @@ describe('barSeriesBuilder', () => {
           prefix: '$',
           suffix: '',
           replaceMissingDataWith: 0,
-          makeLabelHumanReadable: true
+          makeLabelHumanReadable: true,
         } as ColumnLabelFormat,
         sales2023: {
           columnType: 'number',
@@ -141,8 +141,8 @@ describe('barSeriesBuilder', () => {
           prefix: '$',
           suffix: '',
           replaceMissingDataWith: 0,
-          makeLabelHumanReadable: true
-        } as ColumnLabelFormat
+          makeLabelHumanReadable: true,
+        } as ColumnLabelFormat,
       },
       barShowTotalAtTop: false,
       barGroupType: 'group',
@@ -152,7 +152,7 @@ describe('barSeriesBuilder', () => {
       trendlines: [],
       sizeOptions: null,
       scatterDotSize: [5, 5],
-      lineGroupType: null
+      lineGroupType: null,
     };
 
     // Act
@@ -167,7 +167,7 @@ describe('barSeriesBuilder', () => {
       data: [100, 200, 300],
       backgroundColor: '#FF0000',
       borderRadius: 2,
-      yAxisKey: 'sales2022'
+      yAxisKey: 'sales2022',
     });
     expect(result[1]).toMatchObject({
       type: 'bar',
@@ -176,7 +176,7 @@ describe('barSeriesBuilder', () => {
       data: [150, 250, 350],
       backgroundColor: '#00FF00',
       borderRadius: 2,
-      yAxisKey: 'sales2023'
+      yAxisKey: 'sales2023',
     });
   });
 
@@ -190,11 +190,11 @@ describe('barSeriesBuilder', () => {
           data: [25, 35, 40],
           label: [{ key: 'marketShare', value: 5000 }],
           tooltipData: [],
-          axisType: 'y'
-        }
+          axisType: 'y',
+        },
       ],
       ticks: [['Product A'], ['Product B'], ['Product C']],
-      ticksKey: [{ key: 'product', value: '' }]
+      ticksKey: [{ key: 'product', value: '' }],
     };
 
     const mockProps: SeriesBuilderProps = {
@@ -205,8 +205,8 @@ describe('barSeriesBuilder', () => {
           ...DEFAULT_COLUMN_SETTINGS,
           showDataLabels: true,
           barRoundness: 4,
-          showDataLabelsAsPercentage: true
-        }
+          showDataLabelsAsPercentage: true,
+        },
       },
       columnLabelFormats: {
         marketShare: {
@@ -218,8 +218,8 @@ describe('barSeriesBuilder', () => {
           prefix: '',
           suffix: '%',
           replaceMissingDataWith: 0,
-          makeLabelHumanReadable: true
-        } as ColumnLabelFormat
+          makeLabelHumanReadable: true,
+        } as ColumnLabelFormat,
       },
       barShowTotalAtTop: false,
       barGroupType: 'group',
@@ -229,7 +229,7 @@ describe('barSeriesBuilder', () => {
       sizeOptions: null,
       scatterDotSize: [5, 5],
       lineGroupType: null,
-      trendlines: []
+      trendlines: [],
     };
 
     // Act
@@ -246,7 +246,7 @@ describe('barSeriesBuilder', () => {
       data: [25, 35, 40],
       backgroundColor: '#0000FF',
       borderRadius: 2,
-      yAxisKey: 'marketShare'
+      yAxisKey: 'marketShare',
     });
     expect(firstDataset.datalabels).toBeDefined();
   });
@@ -256,7 +256,7 @@ describe('barBuilder', () => {
   const defaultProps = {
     dataset: {
       dataKey: 'test',
-      data: [1, 2, 3]
+      data: [1, 2, 3],
     } as DatasetOption,
     colors: ['#000'],
     columnSettings: {},
@@ -267,13 +267,13 @@ describe('barBuilder', () => {
     datasetOptions: {
       datasets: [],
       ticks: [],
-      ticksKey: []
+      ticksKey: [],
     },
     categoryKeys: [],
     sizeOptions: undefined,
     scatterDotSize: undefined,
     yAxisKeys: [],
-    y2AxisKeys: []
+    y2AxisKeys: [],
   };
 
   it('should build bar chart datasets with correct properties', () => {

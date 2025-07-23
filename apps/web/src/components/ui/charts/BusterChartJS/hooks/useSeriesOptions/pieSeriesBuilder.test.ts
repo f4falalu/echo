@@ -1,8 +1,8 @@
+import type { ColumnLabelFormat } from '@buster/server-shared/metrics';
 import { describe, expect, it, vi } from 'vitest';
-import { formatLabel } from '@/lib';
+import { formatLabel } from '@/lib/columnFormatter';
 import { formatLabelForDataset } from '../../../commonHelpers';
 import { pieSeriesBuilder_data, pieSeriesBuilder_labels } from './pieSeriesBuilder';
-import type { ColumnLabelFormat } from '@buster/server-shared/metrics';
 
 // Mock dependencies
 vi.mock('../../../commonHelpers', () => ({

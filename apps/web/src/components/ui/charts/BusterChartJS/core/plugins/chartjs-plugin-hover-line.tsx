@@ -19,23 +19,23 @@ export const ChartHoverLinePlugin: Plugin<ChartType, ChartHoverLinePluginOptions
   afterInit: (chart) => {
     const chartType = chart.config.type as ChartType;
     chart.$pluginHoverLineManager = {
-      enabled: chartType === 'line'
+      enabled: chartType === 'line',
     };
   },
-  beforeDraw: (chart, args, options) => {
+  beforeDraw: (chart, _args, options) => {
     if (!chart.$pluginHoverLineManager.enabled) return;
 
     const {
       ctx,
       tooltip,
-      chartArea: { top, bottom }
+      chartArea: { top, bottom },
     } = chart;
 
     const tooltipActive = tooltip?.getActiveElements();
 
     if (tooltipActive?.length) {
       const activePoint = tooltipActive[0];
-      const x = activePoint.element.x;
+      const x = activePoint?.element.x ?? 0;
       const topY = top;
       const bottomY = bottom;
 
@@ -55,6 +55,6 @@ export const ChartHoverLinePlugin: Plugin<ChartType, ChartHoverLinePluginOptions
   defaults: {
     lineWidth: 1,
     lineColor: 'rgba(0,0,0,0.22)',
-    lineDash: [5, 3]
-  }
+    lineDash: [5, 3],
+  },
 };

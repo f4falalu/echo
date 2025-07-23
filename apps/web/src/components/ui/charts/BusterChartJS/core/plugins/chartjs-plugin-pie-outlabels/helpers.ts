@@ -13,13 +13,13 @@ export function textSize(
   ctx.font = toFontString(font);
 
   for (let i = 0; i < lines.length; ++i) {
-    width = Math.max(ctx.measureText(lines[i]).width, width);
+    width = Math.max(ctx.measureText(lines[i] ?? '').width, width);
   }
 
   ctx.font = prev;
   return {
     height: lines.length * font.lineSize,
-    width: width
+    width: width,
   };
 }
 

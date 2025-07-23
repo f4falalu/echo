@@ -1,5 +1,5 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { ColumnLabelFormat, SimplifiedColumnType } from '@buster/server-shared/metrics';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { formatLabel } from '@/lib/columnFormatter';
 import { formatYAxisLabel, yAxisSimilar } from './axisHelper';
 

@@ -1,24 +1,23 @@
-import type { GridLineOptions, Scale, ScaleChartOptions } from 'chart.js';
-import { useMemo } from 'react';
-import type { DeepPartial } from 'utility-types';
-import { useMemoizedFn } from '@/hooks';
-import { formatYAxisLabel, yAxisSimilar } from '../../../commonHelpers';
-import { useYAxisTitle } from './axisHooks/useYAxisTitle';
-import { useIsStacked } from './useIsStacked';
+import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import {
-  DEFAULT_COLUMN_LABEL_FORMAT,
   type ChartConfigProps,
   type ChartEncodes,
   type ChartType,
-  type ColumnLabelFormat
+  type ColumnLabelFormat,
+  DEFAULT_COLUMN_LABEL_FORMAT,
 } from '@buster/server-shared/metrics';
-import type { BusterChartProps } from '@/api/asset_interfaces/metric';
+import type { GridLineOptions, Scale, ScaleChartOptions } from 'chart.js';
+import { useMemo } from 'react';
+import type { DeepPartial } from 'utility-types';
+import type { BusterChartProps } from '../../../BusterChart.types';
+import { formatYAxisLabel, yAxisSimilar } from '../../../commonHelpers';
+import { useYAxisTitle } from './axisHooks/useYAxisTitle';
+import { useIsStacked } from './useIsStacked';
 
 export const useYAxis = ({
   columnLabelFormats,
   selectedAxis,
   selectedChartType,
-  columnMetadata,
   barGroupType,
   lineGroupType,
   yAxisAxisTitle,
@@ -26,7 +25,7 @@ export const useYAxis = ({
   yAxisShowAxisLabel,
   yAxisStartAxisAtZero,
   yAxisScaleType,
-  gridLines
+  gridLines,
 }: {
   columnLabelFormats: NonNullable<ChartConfigProps['columnLabelFormats']>;
   selectedAxis: ChartEncodes;
@@ -49,7 +48,7 @@ export const useYAxis = ({
 
   const grid: DeepPartial<GridLineOptions> | undefined = useMemo(() => {
     return {
-      display: gridLines
+      display: gridLines,
     } satisfies DeepPartial<GridLineOptions>;
   }, [gridLines]);
 
@@ -84,10 +83,14 @@ export const useYAxis = ({
     yAxisAxisTitle,
     yAxisShowAxisTitle,
     selectedAxis,
-    isSupportedChartForAxisTitles: isSupportedType
+    isSupportedChartForAxisTitles: isSupportedType,
   });
 
-  const tickCallback = useMemoizedFn(function (this: Scale, value: string | number, index: number) {
+  const tickCallback = useMemoizedFn(function (
+    this: Scale,
+    value: string | number,
+    _index: number
+  ) {
     return formatYAxisLabel(
       value,
       yAxisKeys,
@@ -114,15 +117,15 @@ export const useYAxis = ({
         stacked,
         title: {
           display: !!title,
-          text: title
+          text: title,
         },
         ticks: {
           display: yAxisShowAxisLabel,
-          callback: tickCallback
+          callback: tickCallback,
         },
         border: {
-          display: yAxisShowAxisLabel
-        }
+          display: yAxisShowAxisLabel,
+        },
       } satisfies DeepPartial<ScaleChartOptions<'bar'>['scales']['y']>;
     }, [
       tickCallback,
@@ -133,7 +136,7 @@ export const useYAxis = ({
       isSupportedType,
       yAxisStartAxisAtZero,
       yAxisShowAxisLabel,
-      usePercentageModeAxis
+      usePercentageModeAxis,
     ]);
 
   return memoizedYAxisOptions;

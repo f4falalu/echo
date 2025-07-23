@@ -1,6 +1,6 @@
-import type { Chart, ChartTypeRegistry, TooltipItem } from 'chart.js';
+import { formatLabel } from '@/lib/columnFormatter';
 import type { ChartConfigProps } from '@buster/server-shared/metrics';
-import { formatLabel } from '@/lib';
+import type { Chart, ChartTypeRegistry, TooltipItem } from 'chart.js';
 import type { ITooltipItem } from '../../../../BusterChartTooltip/interfaces';
 import { getPercentage } from './helpers';
 
@@ -21,6 +21,9 @@ export const barAndLineTooltipHelper = (
     const dataPointDataIndex = dataPoint.dataIndex;
     const tooltipData = tooltipDataset.tooltipData;
     const selectedToolTipData = tooltipData[dataPointDataIndex];
+
+    if (!selectedToolTipData) return [];
+
     return selectedToolTipData.map<ITooltipItem>((item) => {
       const colorItem = tooltipDataset?.backgroundColor as string;
       const color =
@@ -53,9 +56,9 @@ export const barAndLineTooltipHelper = (
               chart,
               hasMultipleShownDatasets,
               percentageMode
-            )
-          }
-        ]
+            ),
+          },
+        ],
       };
     });
   });

@@ -5,7 +5,7 @@ import {
   type ChartDataset,
   type ChartMeta,
   type ChartType,
-  type Plugin
+  type Plugin,
 } from 'chart.js';
 import OutLabel from './OutLabel';
 import type OutLabelsContext from './OutLabelsContext';
@@ -20,6 +20,7 @@ interface CustomAnimationSpec extends AnimationSpec<'doughnut' | 'pie'> {
 const globalAnimationDuration = (Chart.defaults.animation as CustomAnimationSpec).duration;
 
 declare module 'chart.js' {
+  // biome-ignore lint/correctness/noUnusedVariables: <explanation>
   interface PluginOptionsByType<TType extends ChartType> {
     outlabels?: OutLabelsOptions | false;
   }
@@ -90,7 +91,7 @@ export const OutLabelsPlugin: OutLabelsPlugin = {
 
     outLabelsManager.setCancelled(true);
   },
-  beforeLayout: function (chart, args, options) {
+  beforeLayout: function (chart, _args, options) {
     if (!this._isEnabled(chart)) return;
     const shrinkPercentage = options.shrinkPercentage ?? 1;
     const outLabelsManager = chart.$outLabelsManager;
@@ -111,7 +112,7 @@ export const OutLabelsPlugin: OutLabelsPlugin = {
   afterDatasetUpdate: function (chart, args, options) {
     const meta = chart.getDatasetMeta(args.index);
     const dataset = chart.data.datasets[args.index];
-    if (!this._isEnabled(chart) || dataset.hidden || args.meta.hidden || meta.hidden) return;
+    if (!this._isEnabled(chart) || dataset?.hidden || args.meta.hidden || meta.hidden) return;
 
     const outLabelsManager = chart.$outLabelsManager;
     const labels = chart.config.data.labels;
@@ -130,7 +131,7 @@ export const OutLabelsPlugin: OutLabelsPlugin = {
       const el = elements[i];
       let newLabel = null;
 
-      const percent = dataset.data[i] / sumOfRemaining;
+      const percent = (dataset?.data?.[i] ?? 0) / sumOfRemaining;
       const isHidden = !chart.getDataVisibility(i);
 
       const context: OutLabelsContext = {
@@ -139,18 +140,18 @@ export const OutLabelsPlugin: OutLabelsPlugin = {
         dataset: dataset as ChartDataset<'doughnut', number[]>,
         labels: labels as string[],
         datasetIndex: args.index,
-        value: dataset.data[i],
+        value: dataset?.data?.[i] ?? 0,
         percent: percent,
         display: !isHidden,
         formatter: options.formatter,
-        usePercent: options.usePercent
+        usePercent: options.usePercent ?? false,
       };
 
       const style = new OutLabelStyle(options, context, i);
       if (el && !isHidden) {
         try {
           newLabel = new OutLabel(ctx, context, i, style);
-        } catch (e) {
+        } catch (_e) {
           newLabel = null;
         }
       } else if (el && isHidden) {
@@ -195,7 +196,7 @@ export const OutLabelsPlugin: OutLabelsPlugin = {
 
     for (const [, label] of chartOutlabels) {
       if (elements[label.index]) {
-        label.positionCenter(elements[label.index]);
+        label.positionCenter(elements[label.index] as ArcElement);
         label.updateRects();
       }
     }
@@ -222,10 +223,10 @@ export const OutLabelsPlugin: OutLabelsPlugin = {
       size: 10,
       resizable: true,
       minSize: 10,
-      maxSize: 10
+      maxSize: 10,
     },
-    usePercent: false
-  }
+    usePercent: false,
+  },
 };
 
 export default OutLabelsPlugin;

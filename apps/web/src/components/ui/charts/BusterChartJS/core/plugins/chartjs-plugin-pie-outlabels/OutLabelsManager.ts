@@ -48,12 +48,12 @@ export default class OutLabelsManager {
     let totalShifts = 0;
 
     for (let i = 0; i < list.length; i++) {
-      const item = list[i];
+      const item = list[i] ?? { rect: { y: 0, height: 0, width: 0, x: 0 } };
       const rect = item.rect;
       const delta = rect.y - lastPos;
       if (delta < 0) {
         rect.y -= delta;
-        item.y -= delta;
+        (item as OutLabel).y -= delta;
         adjusted = true;
       }
       const shift = Math.max(-delta, 0);
@@ -69,7 +69,7 @@ export default class OutLabelsManager {
       if (delta !== 0) adjusted = true;
 
       for (let i = 0; i < list.length; i++) {
-        const item = list[i];
+        const item = list[i] ?? { rect: { y: 0, height: 0 } };
         const rect = item.rect;
         rect.y += delta;
         item.rect.y += delta;
@@ -84,8 +84,8 @@ export default class OutLabelsManager {
 
     const cx = (chart.chartArea.left + chart.chartArea.right) / 2;
     const cy = (chart.chartArea.top + chart.chartArea.bottom) / 2;
-    const r = list[0].arc.outerRadius;
-    const dir = list[0].nx < 0 ? -1 : 1;
+    const r = list[0]?.arc.outerRadius ?? 0;
+    const dir = (list[0]?.nx ?? 0) < 0 ? -1 : 1;
 
     let maxY = 0;
     let rB = 0;

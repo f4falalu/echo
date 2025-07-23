@@ -1,3 +1,4 @@
+import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import {
   DndContext,
   type DragEndEvent,
@@ -6,23 +7,21 @@ import {
   type DragStartEvent,
   KeyboardSensor,
   MouseSensor,
-  pointerWithin,
   TouchSensor,
+  pointerWithin,
   useSensor,
-  useSensors
+  useSensors,
 } from '@dnd-kit/core';
 import { restrictToHorizontalAxis } from '@dnd-kit/modifiers';
 import { arrayMove } from '@dnd-kit/sortable';
-import { flexRender, type Header, type Table } from '@tanstack/react-table';
-import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { createContext, useContextSelector } from 'use-context-selector';
-import { useMemoizedFn } from '@/hooks';
+import { type Header, type Table, flexRender } from '@tanstack/react-table';
+import React, { useEffect, useMemo, useRef, useState, createContext, useContext } from 'react';
 import { HEADER_HEIGHT } from './constants';
 
 const ACTIVATION_CONSTRAINT = {
   activationConstraint: {
-    distance: 2
-  }
+    distance: 2,
+  },
 };
 
 export const SortColumnWrapper: React.FC<{
@@ -31,7 +30,7 @@ export const SortColumnWrapper: React.FC<{
   children: React.ReactNode;
   colOrder: string[];
   setColOrder: (colOrder: string[]) => void;
-  onReorderColumns?: (colOrder: string[]) => void;
+  onReorderColumns?: ((columnIds: string[]) => void) | undefined;
 }> = React.memo(({ table, draggable, children, colOrder, setColOrder, onReorderColumns }) => {
   // Track active drag item and over target
   const [activeId, setActiveId] = useState<string | null>(null);
@@ -70,7 +69,12 @@ export const SortColumnWrapper: React.FC<{
       ?.headers.findIndex((header) => header.id === active.id);
 
     if (headerIndex !== undefined && headerIndex !== -1) {
-      setActiveHeader(table.getHeaderGroups()[0]?.headers[headerIndex]);
+      setActiveHeader(
+        table.getHeaderGroups()[0]?.headers[headerIndex] as Header<
+          Record<string, string | number | Date | null>,
+          unknown
+        >
+      );
     }
   });
 
@@ -135,15 +139,17 @@ export const SortColumnWrapper: React.FC<{
       collisionDetection={pointerWithin}
       onDragStart={onDragStart}
       onDragOver={onDragOver}
-      onDragEnd={onDragEnd}>
+      onDragEnd={onDragEnd}
+    >
       <SortColumnContext.Provider value={{ overTargetId }}>
         {children}
 
         <DragOverlay
-          wrapperElement="span"
+          wrapperElement='span'
           adjustScale={false}
           dropAnimation={null} // Using null to completely disable animation
-          zIndex={1000}>
+          zIndex={1000}
+        >
           {activeId && activeHeader && <HeaderDragOverlay header={activeHeader} />}
         </DragOverlay>
       </SortColumnContext.Provider>
@@ -158,28 +164,31 @@ type SortColumnContextType = {
 };
 
 export const SortColumnContext = createContext<SortColumnContextType>({
-  overTargetId: null
+  overTargetId: null,
 });
 
-export const useSortColumnContext = <T,>(selector: (ctx: SortColumnContextType) => T) =>
-  useContextSelector(SortColumnContext, selector);
+export const useSortColumnContext = <T,>(selector: (ctx: SortColumnContextType) => T): T => {
+  const context = useContext(SortColumnContext);
+  return selector(context);
+};
 
 // Header content component to use in the DragOverlay
 const HeaderDragOverlay = ({
-  header
+  header,
 }: {
   header: Header<Record<string, string | number | Date | null>, unknown>;
 }) => {
   return (
     <div
-      className="flex items-center rounded-sm border bg-white p-2 shadow-lg"
+      className='flex items-center rounded-sm border bg-white p-2 shadow-lg'
       style={{
         width: header.column.getSize(),
         height: `${HEADER_HEIGHT}px`,
         opacity: 0.85,
         transform: 'translate3d(0, 0, 0)', // Ensure no unexpected transforms are applied
-        pointerEvents: 'none' // Prevent the overlay from intercepting pointer events
-      }}>
+        pointerEvents: 'none', // Prevent the overlay from intercepting pointer events
+      }}
+    >
       {flexRender(header.column.columnDef.header, header.getContext())}
       {header.column.getIsSorted() === 'asc' && <span> 🔼</span>}
       {header.column.getIsSorted() === 'desc' && <span> 🔽</span>}

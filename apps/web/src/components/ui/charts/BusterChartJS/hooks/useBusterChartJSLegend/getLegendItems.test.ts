@@ -1,24 +1,24 @@
-import type { Chart } from 'chart.js';
-import { describe, expect, it } from 'vitest';
 import type { ColumnSettings } from '@buster/server-shared/metrics';
 import type { ColumnLabelFormat, SimplifiedColumnType } from '@buster/server-shared/metrics';
+import type { Chart } from 'chart.js';
+import { describe, expect, it } from 'vitest';
 import { getLegendItems } from './getLegendItems';
 
 describe('getLegendItems', () => {
   const mockColors = ['#FF0000', '#00FF00', '#0000FF'];
   const defaultColumnSettings: Record<string, Partial<ColumnSettings>> = {
     value: { columnVisualization: 'bar' },
-    value2: { columnVisualization: 'line' }
+    value2: { columnVisualization: 'line' },
   };
   const defaultColumnLabelFormats: Record<string, ColumnLabelFormat> = {
     value: {
       columnType: 'number' as SimplifiedColumnType,
-      style: 'number'
+      style: 'number',
     } as ColumnLabelFormat,
     value2: {
       columnType: 'number' as SimplifiedColumnType,
-      style: 'number'
-    } as ColumnLabelFormat
+      style: 'number',
+    } as ColumnLabelFormat,
   };
 
   it('should return empty array when chart data is not available', () => {
@@ -29,7 +29,7 @@ describe('getLegendItems', () => {
       inactiveDatasets: {},
       selectedChartType: 'bar',
       columnLabelFormats: defaultColumnLabelFormats,
-      columnSettings: defaultColumnSettings as Record<string, ColumnSettings>
+      columnSettings: defaultColumnSettings as Record<string, ColumnSettings>,
     });
 
     expect(result).toEqual([]);
@@ -45,11 +45,11 @@ describe('getLegendItems', () => {
             {
               label: 'Dataset 1',
               data: [10, 20],
-              yAxisKey: 'value'
-            }
-          ]
-        }
-      } as unknown as Chart
+              yAxisKey: 'value',
+            },
+          ],
+        },
+      } as unknown as Chart,
     };
 
     const result = getLegendItems({
@@ -58,7 +58,7 @@ describe('getLegendItems', () => {
       inactiveDatasets: {},
       selectedChartType: 'pie',
       columnLabelFormats: defaultColumnLabelFormats,
-      columnSettings: defaultColumnSettings as Record<string, ColumnSettings>
+      columnSettings: defaultColumnSettings as Record<string, ColumnSettings>,
     });
 
     expect(result).toHaveLength(2);
@@ -70,7 +70,7 @@ describe('getLegendItems', () => {
       formattedName: 'Category 1',
       id: 'Category 1',
       data: [10, 20],
-      yAxisKey: 'value'
+      yAxisKey: 'value',
     });
   });
 
@@ -85,18 +85,18 @@ describe('getLegendItems', () => {
               data: [10, 20],
               yAxisKey: 'value',
               hidden: false,
-              isTrendline: false
+              isTrendline: false,
             },
             {
               label: 'Line Data',
               data: [15, 25],
               yAxisKey: 'value2',
               hidden: false,
-              isTrendline: false
-            }
-          ]
-        }
-      } as unknown as Chart
+              isTrendline: false,
+            },
+          ],
+        },
+      } as unknown as Chart,
     };
 
     const result = getLegendItems({
@@ -105,7 +105,7 @@ describe('getLegendItems', () => {
       inactiveDatasets: {},
       selectedChartType: 'combo',
       columnLabelFormats: defaultColumnLabelFormats,
-      columnSettings: defaultColumnSettings as Record<string, ColumnSettings>
+      columnSettings: defaultColumnSettings as Record<string, ColumnSettings>,
     });
 
     expect(result).toHaveLength(2);
@@ -116,7 +116,7 @@ describe('getLegendItems', () => {
       formattedName: 'Bar Data',
       id: 'Bar Data',
       data: [10, 20],
-      yAxisKey: 'value'
+      yAxisKey: 'value',
     });
     expect(result[1].type).toBe('line');
   });
@@ -132,16 +132,16 @@ describe('getLegendItems', () => {
               data: [10, 20],
               yAxisKey: 'value3',
               hidden: false,
-              isTrendline: false
-            }
-          ]
-        }
-      } as unknown as Chart
+              isTrendline: false,
+            },
+          ],
+        },
+      } as unknown as Chart,
     };
 
     const customColumnSettings: Record<string, ColumnSettings> = {
       ...defaultColumnSettings,
-      value3: { columnVisualization: 'dot' } as ColumnSettings
+      value3: { columnVisualization: 'dot' } as ColumnSettings,
     };
 
     const result = getLegendItems({
@@ -150,7 +150,7 @@ describe('getLegendItems', () => {
       inactiveDatasets: {},
       selectedChartType: 'combo',
       columnLabelFormats: defaultColumnLabelFormats,
-      columnSettings: customColumnSettings
+      columnSettings: customColumnSettings,
     });
 
     expect(result).toHaveLength(1);
@@ -168,18 +168,18 @@ describe('getLegendItems', () => {
               data: [10, 20],
               yAxisKey: 'value',
               hidden: false,
-              isTrendline: false
+              isTrendline: false,
             },
             {
               label: 'Inactive Dataset',
               data: [15, 25],
               yAxisKey: 'value2',
               hidden: false,
-              isTrendline: false
-            }
-          ]
-        }
-      } as unknown as Chart
+              isTrendline: false,
+            },
+          ],
+        },
+      } as unknown as Chart,
     };
 
     const result = getLegendItems({
@@ -188,7 +188,7 @@ describe('getLegendItems', () => {
       inactiveDatasets: { 'Inactive Dataset': true },
       selectedChartType: 'bar',
       columnLabelFormats: defaultColumnLabelFormats,
-      columnSettings: defaultColumnSettings as Record<string, ColumnSettings>
+      columnSettings: defaultColumnSettings as Record<string, ColumnSettings>,
     });
 
     expect(result).toHaveLength(2);
@@ -208,16 +208,16 @@ describe('getLegendItems', () => {
             {
               label: 'Dataset 1',
               data: [30, 70],
-              yAxisKey: 'value'
+              yAxisKey: 'value',
             },
             {
               label: 'Dataset 2',
               data: [40, 60],
-              yAxisKey: 'value2'
-            }
-          ]
-        }
-      } as unknown as Chart
+              yAxisKey: 'value2',
+            },
+          ],
+        },
+      } as unknown as Chart,
     };
 
     const result = getLegendItems({
@@ -226,7 +226,7 @@ describe('getLegendItems', () => {
       inactiveDatasets: {},
       selectedChartType: 'pie',
       columnLabelFormats: defaultColumnLabelFormats,
-      columnSettings: defaultColumnSettings as Record<string, ColumnSettings>
+      columnSettings: defaultColumnSettings as Record<string, ColumnSettings>,
     });
 
     expect(result).toHaveLength(4);
@@ -239,7 +239,7 @@ describe('getLegendItems', () => {
       formattedName: 'Category A | Dataset 1',
       id: 'Category A',
       data: [30, 70],
-      yAxisKey: 'value'
+      yAxisKey: 'value',
     });
     expect(result[1]).toEqual({
       color: mockColors[1],
@@ -249,7 +249,7 @@ describe('getLegendItems', () => {
       formattedName: 'Category B | Dataset 1',
       id: 'Category B',
       data: [30, 70],
-      yAxisKey: 'value'
+      yAxisKey: 'value',
     });
     // Second dataset categories should have different formatted names
     expect(result[2].formattedName).toBe('Category A | Dataset 2');
@@ -266,10 +266,10 @@ describe('getLegendItems', () => {
             data: [10, 20],
             yAxisKey: 'value',
             hidden: false,
-            isTrendline: false
-          }))
-        }
-      } as unknown as Chart
+            isTrendline: false,
+          })),
+        },
+      } as unknown as Chart,
     };
 
     const result = getLegendItems({
@@ -278,7 +278,7 @@ describe('getLegendItems', () => {
       inactiveDatasets: {},
       selectedChartType: 'bar',
       columnLabelFormats: defaultColumnLabelFormats,
-      columnSettings: defaultColumnSettings as Record<string, ColumnSettings>
+      columnSettings: defaultColumnSettings as Record<string, ColumnSettings>,
     });
 
     expect(result).toHaveLength(5);

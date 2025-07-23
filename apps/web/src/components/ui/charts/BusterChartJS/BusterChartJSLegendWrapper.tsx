@@ -1,10 +1,10 @@
+import type { ChartEncodes } from '@buster/server-shared/metrics';
 import React from 'react';
-import type { BusterChartProps } from '@/api/asset_interfaces/metric/charts';
+import type { BusterChartProps } from '../BusterChart.types';
 import { BusterChartLegendWrapper } from '../BusterChartLegend/BusterChartLegendWrapper';
 import type { DatasetOptionsWithTicks } from '../chartHooks';
 import type { ChartJSOrUndefined } from './core/types';
 import { useBusterChartJSLegend } from './hooks';
-import type { ChartEncodes } from '@buster/server-shared/metrics';
 
 interface BusterChartJSLegendWrapperProps {
   children: React.ReactNode;
@@ -40,7 +40,7 @@ export const BusterChartJSLegendWrapper = React.memo<BusterChartJSLegendWrapperP
     selectedAxis,
     chartRef,
     selectedChartType,
-    animateLegend: animateLegendProp,
+    animateLegend: animateLegendProp = false,
     columnSettings,
     columnMetadata,
     showLegendHeadline,
@@ -50,7 +50,7 @@ export const BusterChartJSLegendWrapper = React.memo<BusterChartJSLegendWrapperP
     datasetOptions,
     pieMinimumSlicePercentage,
     isDownsampled,
-    numberOfDataPoints
+    numberOfDataPoints,
   }) => {
     const {
       renderLegend,
@@ -61,7 +61,7 @@ export const BusterChartJSLegendWrapper = React.memo<BusterChartJSLegendWrapperP
       onLegendItemFocus,
       showLegend,
       isUpdatingChart,
-      animateLegend
+      animateLegend,
     } = useBusterChartJSLegend({
       selectedAxis,
       columnLabelFormats,
@@ -79,7 +79,7 @@ export const BusterChartJSLegendWrapper = React.memo<BusterChartJSLegendWrapperP
       datasetOptions,
       pieMinimumSlicePercentage,
       numberOfDataPoints,
-      animateLegend: animateLegendProp
+      animateLegend: animateLegendProp,
     });
 
     return (
@@ -95,7 +95,8 @@ export const BusterChartJSLegendWrapper = React.memo<BusterChartJSLegendWrapperP
         onHoverItem={onHoverItem}
         onLegendItemClick={onLegendItemClick}
         onLegendItemFocus={onLegendItemFocus}
-        isUpdatingChart={isUpdatingChart}>
+        isUpdatingChart={isUpdatingChart}
+      >
         {children}
       </BusterChartLegendWrapper>
     );

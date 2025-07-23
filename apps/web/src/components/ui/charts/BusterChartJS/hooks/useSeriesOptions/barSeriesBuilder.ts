@@ -1,12 +1,12 @@
+import { JOIN_CHARACTER } from '@/lib/axisFormatter';
+import { formatLabel } from '@/lib/columnFormatter';
+import { type ColumnLabelFormat, DEFAULT_COLUMN_LABEL_FORMAT } from '@buster/server-shared/metrics';
 import type { BarElement } from 'chart.js';
 import type { Context } from 'chartjs-plugin-datalabels';
 import type { Options } from 'chartjs-plugin-datalabels/types/options';
-import type { BusterChartProps } from '@/api/asset_interfaces/metric/charts';
-import { DEFAULT_COLUMN_LABEL_FORMAT, type ColumnLabelFormat } from '@buster/server-shared/metrics';
-import { formatLabel } from '@/lib/columnFormatter';
+import type { BusterChartProps } from '../../../BusterChart.types';
 import type { DatasetOption } from '../../../chartHooks';
 import { formatLabelForDataset, formatYAxisLabel, yAxisSimilar } from '../../../commonHelpers';
-import { JOIN_CHARACTER } from '@/lib/axisFormatter';
 import { DEFAULT_CHART_LAYOUT } from '../../ChartJSTheme';
 import type { ChartProps } from '../../core';
 import { dataLabelFontColorContrast, formatBarAndLineDataLabel } from '../../helpers';
@@ -25,7 +25,7 @@ export const barSeriesBuilder = ({
   yAxisKeys,
   y2AxisKeys,
   xAxisKeys,
-  trendlines
+  trendlines,
 }: SeriesBuilderProps): ChartProps<'bar'>['data']['datasets'] => {
   const dataLabelOptions: Options['labels'] = {};
 
@@ -55,7 +55,7 @@ export const barSeriesBuilder = ({
       },
       formatter: (_, context) => {
         const canUseSameYFormatter = yAxisSimilar(yAxisKeys, columnLabelFormats);
-        const value = context.chart.$totalizer.stackTotals[context.dataIndex];
+        const value = context.chart.$totalizer.stackTotals[context.dataIndex] || 0;
         return formatYAxisLabel(
           value,
           yAxisKeys,
@@ -70,7 +70,7 @@ export const barSeriesBuilder = ({
       clamp: true,
       clip: false,
       z: 999,
-      ...defaultLabelOptionConfig
+      ...defaultLabelOptionConfig,
     } as NonNullable<Options['labels']>['stackTotal'];
   }
 
@@ -85,7 +85,7 @@ export const barSeriesBuilder = ({
         dataLabelOptions,
         barGroupType,
         xAxisKeys,
-        trendlines
+        trendlines,
       });
     }
   );
@@ -118,7 +118,7 @@ export const barBuilder = ({
   dataLabelOptions,
   barGroupType,
   xAxisKeys,
-  trendlines
+  trendlines,
 }: Pick<SeriesBuilderProps, 'colors' | 'columnSettings' | 'columnLabelFormats' | 'xAxisKeys'> & {
   dataset: DatasetOption;
   index: number;
@@ -158,7 +158,7 @@ export const barBuilder = ({
       trendlines,
       datasetColor: color,
       yAxisKey: dataset.dataKey,
-      columnLabelFormats
+      columnLabelFormats,
     }),
     datalabels: showLabels
       ? ({
@@ -184,7 +184,7 @@ export const barBuilder = ({
                   //we call this here to ensure that the barDataLabels are set
                   getFormattedValueAndSetBarDataLabels(context, {
                     percentageMode,
-                    columnLabelFormat: columnLabelFormat || DEFAULT_COLUMN_LABEL_FORMAT
+                    columnLabelFormat: columnLabelFormat || DEFAULT_COLUMN_LABEL_FORMAT,
                   });
                 }
 
@@ -203,7 +203,7 @@ export const barBuilder = ({
 
                 const formattedValue = getFormattedValueAndSetBarDataLabels(context, {
                   percentageMode,
-                  columnLabelFormat: columnLabelFormat || DEFAULT_COLUMN_LABEL_FORMAT
+                  columnLabelFormat: columnLabelFormat || DEFAULT_COLUMN_LABEL_FORMAT,
                 });
 
                 // Get text width for this specific label
@@ -235,13 +235,13 @@ export const barBuilder = ({
               },
               backgroundColor: ({ datasetIndex, chart }) => {
                 const backgroundColor = chart.options.backgroundColor as string[];
-                return backgroundColor[datasetIndex];
-              }
+                return backgroundColor[datasetIndex] ?? null;
+              },
             },
-            ...dataLabelOptions
-          }
+            ...dataLabelOptions,
+          },
         } satisfies ChartProps<'bar'>['data']['datasets'][number]['datalabels'])
-      : undefined
+      : undefined,
   } satisfies ChartProps<'bar'>['data']['datasets'][number];
 };
 
@@ -257,8 +257,8 @@ const setBarDataLabelsManager = (
     ...context.chart.$barDataLabels,
     [datasetIndex]: {
       ...context.chart.$barDataLabels?.[datasetIndex],
-      [dataIndex]: formattedValue
-    }
+      [dataIndex]: formattedValue,
+    },
   };
   context.chart.$barDataLabelsPercentageMode = percentageMode;
 };
@@ -273,7 +273,7 @@ const getBarDimensions = (context: Context) => {
     true
   ) || {
     width: 0,
-    height: 0
+    height: 0,
   };
   return { barWidth, barHeight };
 };
@@ -307,7 +307,7 @@ const setGlobalRotation = (context: Context) => {
   const labels = context.chart.data.datasets
     .filter((d) => !d.hidden)
     .flatMap((dataset, datasetIndex) => {
-      return dataset.data.map((value, dataIndex) => {
+      return dataset.data.map((_value, dataIndex) => {
         const currentValue = context.chart.$barDataLabels?.[datasetIndex]?.[dataIndex] || '';
         return currentValue || '';
       });
@@ -329,7 +329,7 @@ const getFormattedValueAndSetBarDataLabels = (
   context: Context,
   {
     percentageMode,
-    columnLabelFormat
+    columnLabelFormat,
   }: {
     percentageMode: false | 'stacked' | 'data-label';
     columnLabelFormat: ColumnLabelFormat;
@@ -350,14 +350,14 @@ const getFormattedValueAndSetBarDataLabels = (
 
 export const barSeriesBuilder_labels = ({
   datasetOptions,
-  columnLabelFormats
+  columnLabelFormats,
 }: LabelBuilderProps) => {
   const ticksKey = datasetOptions.ticksKey;
 
   const labels = datasetOptions.ticks.flatMap((item) => {
     return item
       .map<string>((item, index) => {
-        const key = ticksKey[index]?.key;
+        const key = ticksKey[index]?.key || '';
         const columnLabelFormat = columnLabelFormats[key];
         return formatLabel(item, columnLabelFormat);
       })

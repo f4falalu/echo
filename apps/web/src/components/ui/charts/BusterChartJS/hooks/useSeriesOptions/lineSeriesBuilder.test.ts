@@ -1,16 +1,16 @@
-import type { ChartDataset, ScriptableContext } from 'chart.js';
-import { describe, expect, it, vi } from 'vitest';
-import type { BusterChartProps } from '@/api/asset_interfaces/metric/charts';
 import {
-  DEFAULT_COLUMN_LABEL_FORMAT,
-  DEFAULT_COLUMN_SETTINGS,
   type ChartEncodes,
   type ColumnLabelFormat,
   type ColumnSettings,
+  DEFAULT_COLUMN_LABEL_FORMAT,
+  DEFAULT_COLUMN_SETTINGS,
   type ScatterAxis
 } from '@buster/server-shared/metrics';
-import { createDayjsDate } from '@/lib/date';
+import type { ChartDataset, ScriptableContext } from 'chart.js';
+import { describe, expect, it, vi } from 'vitest';
 import { formatLabel } from '@/lib/columnFormatter';
+import { createDayjsDate } from '@/lib/date';
+import type { BusterChartProps } from '../../../BusterChart.types';
 import type { DatasetOption, DatasetOptionsWithTicks, KV } from '../../../chartHooks';
 import { formatBarAndLineDataLabel } from '../../helpers';
 import { lineBuilder, lineSeriesBuilder_labels } from './lineSeriesBuilder';

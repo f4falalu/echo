@@ -1,7 +1,7 @@
+import { cn } from '@/lib/classMerge';
 import type { Row } from '@tanstack/react-table';
 import type { VirtualItem } from '@tanstack/react-virtual';
 import type React from 'react';
-import { cn } from '@/lib/classMerge';
 import { DataGridCell } from './DataGridCell';
 
 interface DataGridRowProps {
@@ -19,8 +19,9 @@ export const DataGridRow: React.FC<DataGridRowProps> = ({ row, virtualRow }) => 
       )}
       style={{
         transform: `translateY(${virtualRow.start}px)`,
-        height: `${virtualRow.size}px`
-      }}>
+        height: `${virtualRow.size}px`,
+      }}
+    >
       {row.getVisibleCells().map((cell) => (
         <DataGridCell key={cell.id} cell={cell} />
       ))}

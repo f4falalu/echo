@@ -1,11 +1,11 @@
 import type React from 'react';
 import { useMemo } from 'react';
+import { BusterChartJS } from './BusterChartJS';
 import { useDatasetOptions } from './chartHooks';
 import type {
   BusterChartComponentProps,
-  BusterChartRenderComponentProps
+  BusterChartRenderComponentProps,
 } from './interfaces/chartComponentInterfaces';
-import { BusterChartJS } from './BusterChartJS';
 
 export const BusterChartComponent: React.FC<BusterChartRenderComponentProps> = ({
   data: dataProp,
@@ -21,7 +21,7 @@ export const BusterChartComponent: React.FC<BusterChartRenderComponentProps> = (
     lineGroupType,
     columnLabelFormats,
     selectedChartType,
-    selectedAxis
+    selectedAxis,
   } = props;
 
   const {
@@ -31,7 +31,7 @@ export const BusterChartComponent: React.FC<BusterChartRenderComponentProps> = (
     yAxisKeys,
     tooltipKeys,
     hasMismatchedTooltipsAndMeasures,
-    isDownsampled
+    isDownsampled,
   } = useDatasetOptions({
     data: dataProp,
     selectedAxis,
@@ -43,9 +43,10 @@ export const BusterChartComponent: React.FC<BusterChartRenderComponentProps> = (
     lineGroupType,
     trendlines,
     pieSortBy,
-    columnMetadata
+    columnMetadata,
   });
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: we are content with the current dependencies
   const chartProps: BusterChartComponentProps = useMemo(
     () => ({
       ...props,
@@ -57,10 +58,10 @@ export const BusterChartComponent: React.FC<BusterChartRenderComponentProps> = (
       hasMismatchedTooltipsAndMeasures,
       isDownsampled,
       numberOfDataPoints,
-      trendlines
+      trendlines,
     }),
     [
-      props,
+      props.selectedAxis,
       pieMinimumSlicePercentage,
       datasetOptions,
       y2AxisKeys,
@@ -68,7 +69,7 @@ export const BusterChartComponent: React.FC<BusterChartRenderComponentProps> = (
       hasMismatchedTooltipsAndMeasures,
       tooltipKeys,
       isDownsampled,
-      numberOfDataPoints
+      numberOfDataPoints,
     ]
   );
 

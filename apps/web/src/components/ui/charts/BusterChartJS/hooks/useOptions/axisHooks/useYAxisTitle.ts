@@ -1,9 +1,9 @@
-import { useMemo } from 'react';
-import type { BusterChartProps } from '@/api/asset_interfaces/metric/charts';
-import { formatLabel } from '@/lib/columnFormatter';
-import { truncateWithEllipsis } from '../../../../commonHelpers/titleHelpers';
-import type { ChartEncodes } from '@buster/server-shared/metrics';
 import { AXIS_TITLE_SEPARATOR } from '@/lib/axisFormatter';
+import { formatLabel } from '@/lib/columnFormatter';
+import type { ChartEncodes } from '@buster/server-shared/metrics';
+import { useMemo } from 'react';
+import type { BusterChartProps } from '../../../../BusterChart.types';
+import { truncateWithEllipsis } from '../../../../commonHelpers/titleHelpers';
 
 interface UseYAxisTitleProps {
   yAxis: string[];
@@ -20,7 +20,7 @@ export const useYAxisTitle = ({
   isSupportedChartForAxisTitles,
   yAxisAxisTitle,
   yAxisShowAxisTitle,
-  selectedAxis
+  selectedAxis,
 }: UseYAxisTitleProps) => {
   const yAxisColumnLabelFormats = useMemo(() => {
     return yAxis.map((y) => columnLabelFormats[y]);

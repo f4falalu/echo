@@ -1,5 +1,5 @@
+import { type ColumnLabelFormat, DEFAULT_COLUMN_LABEL_FORMAT } from '@buster/server-shared/metrics';
 import { describe, expect, it } from 'vitest';
-import { DEFAULT_COLUMN_LABEL_FORMAT, type ColumnLabelFormat } from '@buster/server-shared/metrics';
 import { dataMapper } from './dataMapper';
 
 describe('dataMapper', () => {
@@ -8,22 +8,22 @@ describe('dataMapper', () => {
     const xAxisColumn = 'xAxis';
     const ticks = {
       ticks: [['1'], ['2'], ['3']],
-      ticksKey: [{ key: 'xAxis', value: '' }]
+      ticksKey: [{ key: 'xAxis', value: '' }],
     };
 
     const columnLabelFormats: Record<string, ColumnLabelFormat> = {
       xAxis: {
         ...DEFAULT_COLUMN_LABEL_FORMAT,
         columnType: 'number',
-        style: 'number'
-      }
+        style: 'number',
+      },
     };
 
     const result = dataMapper(data, xAxisColumn, ticks, columnLabelFormats);
     expect(result).toEqual([
       [0, 10],
       [1, 20],
-      [2, 30]
+      [2, 30],
     ]);
   });
 
@@ -33,15 +33,15 @@ describe('dataMapper', () => {
     const dates = ['2023-01-01', '2023-01-02', '2023-01-03'];
     const ticks = {
       ticks: dates.map((d) => [d]),
-      ticksKey: [{ key: 'date', value: '' }]
+      ticksKey: [{ key: 'date', value: '' }],
     };
 
     const columnLabelFormats: Record<string, ColumnLabelFormat> = {
       date: {
         ...DEFAULT_COLUMN_LABEL_FORMAT,
         columnType: 'date',
-        style: 'date'
-      }
+        style: 'date',
+      },
     };
 
     const result = dataMapper(data, xAxisColumn, ticks, columnLabelFormats);
@@ -65,22 +65,22 @@ describe('dataMapper', () => {
     const xAxisColumn = 'category';
     const ticks = {
       ticks: [['A'], ['B'], ['C']],
-      ticksKey: [{ key: 'category', value: '' }]
+      ticksKey: [{ key: 'category', value: '' }],
     };
 
     const columnLabelFormats: Record<string, ColumnLabelFormat> = {
       category: {
         ...DEFAULT_COLUMN_LABEL_FORMAT,
         columnType: 'text',
-        style: 'string'
-      }
+        style: 'string',
+      },
     };
 
     const result = dataMapper(data, xAxisColumn, ticks, columnLabelFormats);
     expect(result).toEqual([
       [0, 15],
       [1, 25],
-      [2, 35]
+      [2, 35],
     ]);
   });
 
@@ -90,15 +90,15 @@ describe('dataMapper', () => {
     const xAxisColumn = 'xAxis';
     const ticks = {
       ticks: [['1'], ['2'], ['3'], ['4'], ['5']],
-      ticksKey: [{ key: 'xAxis', value: '' }]
+      ticksKey: [{ key: 'xAxis', value: '' }],
     };
 
     const columnLabelFormats: Record<string, ColumnLabelFormat> = {
       xAxis: {
         ...DEFAULT_COLUMN_LABEL_FORMAT,
         columnType: 'number',
-        style: 'number'
-      }
+        style: 'number',
+      },
     };
 
     const result = dataMapper(data, xAxisColumn, ticks, columnLabelFormats);
@@ -107,7 +107,7 @@ describe('dataMapper', () => {
       [1, 0],
       [2, 30],
       [3, 0],
-      [4, 50]
+      [4, 50],
     ]);
   });
 
@@ -116,15 +116,15 @@ describe('dataMapper', () => {
     const xAxisColumn = 'xAxis';
     const ticks = {
       ticks: [],
-      ticksKey: [{ key: 'xAxis', value: '' }]
+      ticksKey: [{ key: 'xAxis', value: '' }],
     };
 
     const columnLabelFormats: Record<string, ColumnLabelFormat> = {
       xAxis: {
         ...DEFAULT_COLUMN_LABEL_FORMAT,
         columnType: 'number',
-        style: 'number'
-      }
+        style: 'number',
+      },
     };
 
     const result = dataMapper(data, xAxisColumn, ticks, columnLabelFormats);
@@ -136,21 +136,21 @@ describe('dataMapper', () => {
     const xAxisColumn = 'xAxis';
     const ticks = {
       ticks: [['1'], [], ['3']], // Missing tick in the middle
-      ticksKey: [{ key: 'xAxis', value: '' }]
+      ticksKey: [{ key: 'xAxis', value: '' }],
     };
 
     const columnLabelFormats: Record<string, ColumnLabelFormat> = {
       xAxis: {
         ...DEFAULT_COLUMN_LABEL_FORMAT,
         columnType: 'number',
-        style: 'number'
-      }
+        style: 'number',
+      },
     };
 
     const result = dataMapper(data, xAxisColumn, ticks, columnLabelFormats);
     expect(result).toEqual([
       [0, 10],
-      [1, 30]
+      [1, 30],
     ]);
   });
 });

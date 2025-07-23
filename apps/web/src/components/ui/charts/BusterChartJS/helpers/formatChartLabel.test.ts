@@ -1,7 +1,7 @@
-import { describe, expect, it } from 'vitest';
-import type { BusterChartProps } from '@/api/asset_interfaces/metric/charts';
-import { formatChartLabel } from './formatChartLabel';
 import type { ColumnLabelFormat } from '@buster/server-shared/metrics';
+import { describe, expect, it } from 'vitest';
+import type { BusterChartProps } from '../../BusterChart.types';
+import { formatChartLabel } from './formatChartLabel';
 
 describe('formatChartLabel', () => {
   const columnLabelFormats = {
@@ -22,7 +22,7 @@ describe('formatChartLabel', () => {
       prefix: '',
       suffix: '',
       replaceMissingDataWith: null,
-      makeLabelHumanReadable: true
+      makeLabelHumanReadable: true,
     },
     recent_total: {
       style: 'currency',
@@ -41,7 +41,7 @@ describe('formatChartLabel', () => {
       prefix: '',
       suffix: '',
       replaceMissingDataWith: 0,
-      makeLabelHumanReadable: true
+      makeLabelHumanReadable: true,
     },
     percentage: {
       style: 'percent',
@@ -51,7 +51,7 @@ describe('formatChartLabel', () => {
       numberSeparatorStyle: ',',
       minimumFractionDigits: 1,
       maximumFractionDigits: 1,
-      makeLabelHumanReadable: true
+      makeLabelHumanReadable: true,
     } as ColumnLabelFormat,
     text_field: {
       style: 'string',
@@ -61,7 +61,7 @@ describe('formatChartLabel', () => {
       numberSeparatorStyle: ',',
       minimumFractionDigits: 0,
       maximumFractionDigits: 2,
-      makeLabelHumanReadable: true
+      makeLabelHumanReadable: true,
     } as ColumnLabelFormat,
     custom_field: {
       style: 'number',
@@ -73,8 +73,8 @@ describe('formatChartLabel', () => {
       maximumFractionDigits: 1,
       prefix: '(',
       suffix: ')',
-      makeLabelHumanReadable: true
-    } as ColumnLabelFormat
+      makeLabelHumanReadable: true,
+    } as ColumnLabelFormat,
   } satisfies NonNullable<BusterChartProps['columnLabelFormats']>;
 
   it('should format a date label correctly', () => {

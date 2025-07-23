@@ -5,7 +5,7 @@ import type {
   ChartType,
   DefaultDataPoint,
   Plugin,
-  UpdateMode
+  UpdateMode,
 } from 'chart.js';
 import type { CanvasHTMLAttributes, JSX, MutableRefObject, ReactNode } from 'react';
 
@@ -14,7 +14,7 @@ export type ForwardedRef<T> = ((instance: T | null) => void) | MutableRefObject<
 export interface ChartProps<
   TType extends ChartType = ChartType,
   TData = DefaultDataPoint<TType>,
-  TLabel = unknown
+  TLabel = unknown,
 > extends CanvasHTMLAttributes<HTMLCanvasElement> {
   /**
    * Chart.js chart type
@@ -30,13 +30,13 @@ export interface ChartProps<
    * @see https://www.chartjs.org/docs/latest/general/options.html
    * @default {}
    */
-  options?: ChartOptions<TType>;
+  options?: ChartOptions<TType> | undefined;
   /**
    * The plugins array that is passed into the Chart.js chart
    * @see https://www.chartjs.org/docs/latest/developers/plugins.html
    * @default []
    */
-  plugins?: Plugin<TType>[];
+  plugins?: Plugin<TType>[] | undefined;
   /**
    * Teardown and redraw chart on every update
    * @default false
@@ -66,13 +66,13 @@ export interface ChartProps<
 export type ChartJSOrUndefined<
   TType extends ChartType = ChartType,
   TData = DefaultDataPoint<TType>,
-  TLabel = unknown
+  TLabel = unknown,
 > = Chart<TType, TData, TLabel> | undefined;
 
 export type BaseChartComponent = <
   TType extends ChartType = ChartType,
   TData = DefaultDataPoint<TType>,
-  TLabel = unknown
+  TLabel = unknown,
 >(
   props: ChartProps<TType, TData, TLabel> & {
     ref?: ForwardedRef<ChartJSOrUndefined<TType, TData, TLabel>>;
@@ -81,7 +81,7 @@ export type BaseChartComponent = <
 
 export type TypedChartComponent<TDefaultType extends ChartType> = <
   TData = DefaultDataPoint<TDefaultType>,
-  TLabel = unknown
+  TLabel = unknown,
 >(
   props: Omit<ChartProps<TDefaultType, TData, TLabel>, 'type'> & {
     ref?: ForwardedRef<ChartJSOrUndefined<TDefaultType, TData, TLabel>>;

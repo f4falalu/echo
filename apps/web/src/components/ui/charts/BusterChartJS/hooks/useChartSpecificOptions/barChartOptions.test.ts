@@ -1,7 +1,7 @@
+import type { ColumnSettings } from '@buster/server-shared/metrics';
 import { describe, expect, it } from 'vitest';
 import { barOptionsHandler, barPluginsHandler } from './barChartOptions';
 import type { ChartSpecificOptionsProps } from './interfaces';
-import type { ColumnSettings } from '@buster/server-shared/metrics';
 
 type BarGroupType = 'stack' | 'group' | 'percentage-stack' | null;
 
@@ -17,7 +17,7 @@ const baseMockProps: ChartSpecificOptionsProps = {
   barShowTotalAtTop: false,
   columnSettings: {},
   barGroupType: null,
-  data: { datasets: [], labels: [] }
+  data: { datasets: [], labels: [] },
 };
 
 describe('barOptionsHandler', () => {
@@ -31,14 +31,14 @@ describe('barPluginsHandler', () => {
   it('should enable totalizer when barShowTotalAtTop is true', () => {
     const mockProps = {
       ...baseMockProps,
-      barShowTotalAtTop: true
+      barShowTotalAtTop: true,
     };
 
     const result = barPluginsHandler(mockProps);
     expect(result).toEqual({
       totalizer: {
-        enabled: true
-      }
+        enabled: true,
+      },
     });
   });
 
@@ -47,29 +47,29 @@ describe('barPluginsHandler', () => {
       ...baseMockProps,
       columnSettings: {
         column1: { showDataLabelsAsPercentage: true } as ColumnSettings,
-        column2: { showDataLabelsAsPercentage: false } as ColumnSettings
-      } as ChartSpecificOptionsProps['columnSettings']
+        column2: { showDataLabelsAsPercentage: false } as ColumnSettings,
+      } as ChartSpecificOptionsProps['columnSettings'],
     } as Parameters<typeof barPluginsHandler>[0];
 
     const result = barPluginsHandler(mockProps);
     expect(result).toEqual({
       totalizer: {
-        enabled: true
-      }
+        enabled: true,
+      },
     });
   });
 
   it('should enable totalizer when barGroupType is provided', () => {
     const mockProps = {
       ...baseMockProps,
-      barGroupType: 'stack' as BarGroupType
+      barGroupType: 'stack' as BarGroupType,
     };
 
     const result = barPluginsHandler(mockProps);
     expect(result).toEqual({
       totalizer: {
-        enabled: true
-      }
+        enabled: true,
+      },
     });
   });
 
@@ -77,15 +77,15 @@ describe('barPluginsHandler', () => {
     const mockProps = {
       ...baseMockProps,
       columnSettings: {
-        column1: { showDataLabelsAsPercentage: false } as ColumnSettings
-      } as ChartSpecificOptionsProps['columnSettings']
+        column1: { showDataLabelsAsPercentage: false } as ColumnSettings,
+      } as ChartSpecificOptionsProps['columnSettings'],
     } as Parameters<typeof barPluginsHandler>[0];
 
     const result = barPluginsHandler(mockProps);
     expect(result).toEqual({
       totalizer: {
-        enabled: false
-      }
+        enabled: false,
+      },
     });
   });
 });

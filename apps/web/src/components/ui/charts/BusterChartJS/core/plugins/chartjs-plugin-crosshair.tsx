@@ -29,7 +29,7 @@ const crosshairPlugin: Plugin<'line'> = {
     labelBackgroundColor: 'rgba(102, 102, 102, 1)',
     labelFont: 'bold 12px sans-serif',
     labelFontColor: 'white',
-    labelHeight: 24
+    labelHeight: 24,
   },
 
   // Initialize the crosshair state
@@ -55,11 +55,11 @@ const crosshairPlugin: Plugin<'line'> = {
   },
 
   // Draw the crosshair lines and labels after the chart is rendered
-  afterDraw(chart: Chart, args, options: CrosshairPluginOptions) {
+  afterDraw(chart: Chart, _args, options: CrosshairPluginOptions) {
     if (!chart) return;
     const {
       ctx,
-      chartArea: { top, bottom, left, right }
+      chartArea: { top, bottom, left, right },
     } = chart;
     const crosshair = chart.$crosshair;
     if (!crosshair || !ctx) return;
@@ -97,6 +97,8 @@ const crosshairPlugin: Plugin<'line'> = {
       const yScale = chart.scales.y;
       const xScale = chart.scales.x;
 
+      if (!yScale || !xScale) return;
+
       // --- Draw Y-Axis Label ---
       const yValue = yScale.getValueForPixel(y);
       const yLabel = yValue?.toFixed(2) || '';
@@ -131,7 +133,7 @@ const crosshairPlugin: Plugin<'line'> = {
 
       ctx.restore();
     }
-  }
+  },
 };
 
 export default crosshairPlugin;

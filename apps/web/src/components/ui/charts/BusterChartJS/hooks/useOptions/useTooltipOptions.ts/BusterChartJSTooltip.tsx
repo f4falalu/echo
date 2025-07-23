@@ -1,8 +1,8 @@
+import { formatLabel } from '@/lib/columnFormatter';
 import type { Chart, ChartType as ChartJSChartType, TooltipItem } from 'chart.js';
 import type React from 'react';
 import { useMemo } from 'react';
-import { type BusterChartProps } from '@/api/asset_interfaces/metric/charts';
-import { formatLabel } from '@/lib/columnFormatter';
+import type { BusterChartProps } from '../../../../BusterChart.types';
 import { BusterChartTooltip } from '../../../../BusterChartTooltip';
 import type { ITooltipItem } from '../../../../BusterChartTooltip/interfaces';
 import { barAndLineTooltipHelper } from './barAndLineTooltipHelper';
@@ -26,9 +26,8 @@ export const BusterChartJSTooltip: React.FC<{
   selectedChartType,
   hasCategoryAxis,
   keyToUsePercentage,
-  hasMultipleMeasures,
   lineGroupType,
-  barGroupType
+  barGroupType,
 }) => {
   const isPieChart = selectedChartType === 'pie';
   const isScatter = selectedChartType === 'scatter';
@@ -49,6 +48,7 @@ export const BusterChartJSTooltip: React.FC<{
     return undefined;
   }, [isBar, barGroupType, isLine, lineGroupType]);
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies:we are tracking the dataPoints and chart
   const tooltipItems: ITooltipItem[] = useMemo(() => {
     if (isBar || isLine || isComboChart) {
       const hasMultipleShownDatasets = datasets.filter((dataset) => !dataset.hidden).length > 1;
@@ -74,21 +74,22 @@ export const BusterChartJSTooltip: React.FC<{
     return [];
   }, []);
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies:we are tracking the dataPoints and chart
   const title = useMemo(() => {
     if (isScatter) {
       if (!hasCategoryAxis) return undefined;
       return {
-        title: tooltipItems[0].formattedLabel,
-        color: tooltipItems[0].color,
-        seriesType: 'scatter'
+        title: tooltipItems[0]?.formattedLabel || '',
+        color: tooltipItems[0]?.color || '',
+        seriesType: 'scatter',
       };
     }
 
-    const dataIndex = dataPoints[0].dataIndex;
+    const dataIndex = dataPoints[0]?.dataIndex;
     const value = dataIndex !== undefined ? chart.data.labels?.[dataIndex] : undefined;
     if (typeof value === 'string') return String(value);
 
-    const datasetIndex = dataPoints[0].datasetIndex;
+    const datasetIndex = dataPoints[0]?.datasetIndex;
     const dataset = datasetIndex !== undefined ? datasets[datasetIndex] : undefined;
     const xAxisKeys = dataset?.xAxisKeys;
     const key = xAxisKeys?.at(0);
@@ -111,5 +112,5 @@ export const BusterChartJSTooltip: React.FC<{
     }
   }
 
-  return <BusterChartTooltip title={title} tooltipItems={tooltipItems} />;
+  return <BusterChartTooltip title={title || ''} tooltipItems={tooltipItems} />;
 };

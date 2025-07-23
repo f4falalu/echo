@@ -1,8 +1,7 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
-import type { ChartType } from '@buster/server-shared/metrics';
-import type { BusterChartLegendItem } from './interfaces';
 import { LegendItem } from './LegendItem';
+import type { BusterChartLegendItem } from './interfaces';
 
 describe('LegendItem', () => {
   const mockItem: BusterChartLegendItem = {
@@ -12,15 +11,15 @@ describe('LegendItem', () => {
     inactive: false,
     data: [],
     id: 'test-1',
-    yAxisKey: 'test'
+    yAxisKey: 'test',
   };
 
   const mockItemWithHeadline: BusterChartLegendItem = {
     ...mockItem,
     headline: {
       type: 'current',
-      titleAmount: '100'
-    }
+      titleAmount: '100',
+    },
   };
 
   it('renders basic legend item correctly', () => {
@@ -96,8 +95,8 @@ describe('LegendItem', () => {
         ...mockItem,
         headline: {
           type,
-          titleAmount: '100'
-        }
+          titleAmount: '100',
+        },
       };
 
       const { unmount } = render(<LegendItem item={item} />);

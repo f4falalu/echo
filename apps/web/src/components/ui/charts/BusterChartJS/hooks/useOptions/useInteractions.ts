@@ -1,7 +1,7 @@
+import type { ChartConfigProps } from '@buster/server-shared/metrics';
 import type { CoreInteractionOptions } from 'chart.js';
 import { useMemo } from 'react';
 import type { DeepPartial } from 'utility-types'; // Add this import
-import type { ChartConfigProps } from '@buster/server-shared/metrics';
 
 interface UseInteractionsProps {
   selectedChartType: ChartConfigProps['selectedChartType'];
@@ -15,7 +15,7 @@ export const useInteractions = ({ selectedChartType, barLayout }: UseInteraction
         intersect: true,
         axis: 'xy',
         mode: 'nearest',
-        includeInvisible: false
+        includeInvisible: false,
       } as CoreInteractionOptions;
     }
 
@@ -25,7 +25,7 @@ export const useInteractions = ({ selectedChartType, barLayout }: UseInteraction
         intersect: false,
         mode: 'index',
         includeInvisible: false,
-        axis: isHorizontalBar ? 'y' : 'x'
+        axis: isHorizontalBar ? 'y' : 'x',
       } as CoreInteractionOptions;
     }
 
@@ -34,7 +34,7 @@ export const useInteractions = ({ selectedChartType, barLayout }: UseInteraction
         intersect: false,
         mode: 'nearest',
         includeInvisible: false,
-        axis: 'x'
+        axis: 'x',
       } as CoreInteractionOptions;
     }
 

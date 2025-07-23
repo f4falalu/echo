@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useRef } from 'react';
-import { useSize } from '@/hooks';
+import { useSize } from '@/hooks/useSize';
 import { cn } from '@/lib/classMerge';
+import React, { useRef } from 'react';
 import { ChartWrapperProvider } from './chartHooks';
 
 const BREAKING_MIN_WIDTH = 76;
@@ -26,7 +26,8 @@ export const BusterChartWrapper = React.memo<{
           className,
           'flex h-full w-full flex-col overflow-hidden transition duration-300',
           loading && 'bg-transparent!'
-        )}>
+        )}
+      >
         {width > BREAKING_MIN_WIDTH ? children : null}
       </div>
     </ChartWrapperProvider>
