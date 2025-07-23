@@ -9,7 +9,7 @@ interface InputCardProps {
   buttonText: string;
   value?: string;
   onChange?: (value: string) => void;
-  onSubmit?: () => Promise<void>;
+  onSubmit?: (value: string) => Promise<void>;
   loading?: boolean;
   className?: string;
 }
@@ -30,7 +30,7 @@ export const InputCard: React.FC<InputCardProps> = ({
     onChange?.(e.target.value);
   };
 
-  const disableSubmit = inputHasText(inputValue);
+  const disableSubmit = inputHasText(inputValue) || loading;
 
   const spacingClass = 'py-2.5 px-3';
 
@@ -51,7 +51,7 @@ export const InputCard: React.FC<InputCardProps> = ({
       <div className="w-full border-t" />
       <div className={spacingClass}>
         <Button
-          onClick={onSubmit}
+          onClick={() => !disableSubmit && onSubmit?.(inputValue)}
           loading={loading}
           block
           variant={'black'}
