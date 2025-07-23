@@ -6,6 +6,9 @@ import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
 import tsconfigPaths from 'vite-tsconfig-paths';
 
+// Directories to exclude from entry points (type-only directories)
+const EXCLUDED_DIRECTORIES = ['interfaces', 'types'];
+
 // Function to recursively find all index.ts files in components
 function findComponentEntries(dir: string, baseDir: string = dir): Record<string, string> {
   const entries: Record<string, string> = {};
@@ -16,6 +19,11 @@ function findComponentEntries(dir: string, baseDir: string = dir): Record<string
     const stat = statSync(fullPath);
 
     if (stat.isDirectory()) {
+      // Skip excluded directories
+      if (EXCLUDED_DIRECTORIES.includes(item)) {
+        continue;
+      }
+
       // Check if this directory has an index.ts file
       const indexPath = resolve(fullPath, 'index.ts');
       try {
@@ -57,7 +65,17 @@ export default defineConfig({
       },
     },
     rollupOptions: {
-      external: ['react', 'react-dom', 'react/jsx-runtime'],
+      external: [
+        'react',
+        'react-dom',
+        'react/jsx-runtime',
+        // Exclude test dependencies
+        /\.test\./,
+        /\.stories\./,
+        /vitest/,
+        /@testing-library/,
+        /@storybook/,
+      ],
       output: {
         // Ensure CSS is extracted
         assetFileNames: (assetInfo) => {
