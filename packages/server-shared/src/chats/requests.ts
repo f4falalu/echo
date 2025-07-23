@@ -47,18 +47,6 @@ export const DuplicateChatRequestSchema = z.object({
 
 export type DuplicateChatRequest = z.infer<typeof DuplicateChatRequestSchema>;
 
-// Asset type enum for starting chat from asset
-const AssetTypeSchema = z.enum(['metric', 'dashboard']);
-
-// Request for starting a chat from an asset
-export const StartChatFromAssetRequestSchema = z.object({
-  asset_id: z.string(),
-  asset_type: AssetTypeSchema,
-  prompt: z.string().optional(),
-});
-
-export type StartChatFromAssetRequest = z.infer<typeof StartChatFromAssetRequestSchema>;
-
 // Logs list request (same as chats list)
 export const GetLogsListRequestSchema = GetChatsListRequestSchema;
 export type GetLogsListRequest = z.infer<typeof GetLogsListRequestSchema>;

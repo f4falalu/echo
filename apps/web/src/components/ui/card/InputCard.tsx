@@ -30,7 +30,7 @@ export const InputCard: React.FC<InputCardProps> = ({
     onChange?.(e.target.value);
   };
 
-  const disableSubmit = inputHasText(inputValue) || loading;
+  const disableSubmit = !inputHasText(inputValue) || loading;
 
   const spacingClass = 'py-2.5 px-3';
 

@@ -11,9 +11,7 @@ import type {
   UpdateChatMessageFeedbackRequest,
   UpdateChatMessageFeedbackResponse,
   DuplicateChatRequest,
-  DuplicateChatResponse,
-  StartChatFromAssetRequest,
-  StartChatFromAssetResponse
+  DuplicateChatResponse
 } from '@buster/server-shared/chats';
 import { serverFetch } from '../../createServerInstance';
 import { mainApi } from '../instances';
@@ -83,16 +81,4 @@ export const duplicateChat = async ({
   message_id
 }: DuplicateChatRequest): Promise<DuplicateChatResponse> => {
   return mainApi.post(`${CHATS_BASE}/duplicate`, { id, message_id }).then((res) => res.data);
-};
-
-export const startChatFromAsset = async ({
-  asset_id,
-  asset_type
-}: StartChatFromAssetRequest): Promise<StartChatFromAssetResponse> => {
-  return mainApi
-    .post(`${CHATS_BASE}`, {
-      asset_id,
-      asset_type
-    })
-    .then((res) => res.data);
 };

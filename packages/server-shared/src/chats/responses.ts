@@ -12,6 +12,7 @@ export type GetChatsListResponse = z.infer<typeof GetChatsListResponseSchema>;
 
 // Response for getting logs list (same as chats list)
 export const GetLogsListResponseSchema = GetChatsListResponseSchema;
+export type GetLogsListResponse = z.infer<typeof GetLogsListResponseSchema>;
 
 // Response for updating a chat
 export const UpdateChatResponseSchema = ChatWithMessagesSchema;

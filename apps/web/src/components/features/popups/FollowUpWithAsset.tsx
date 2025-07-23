@@ -4,6 +4,9 @@ import { InputCard } from '../../ui/card/InputCard';
 import type { ShareAssetType } from '@buster/server-shared/share';
 import { useMemoizedFn } from '../../../hooks';
 import { useStartChatFromAsset } from '../../../api/buster_rest/chats';
+import { AppTooltip } from '../../ui/tooltip';
+import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
+import { assetParamsToRoute } from '../../../lib/assets';
 
 type FollowUpWithAssetProps = {
   assetType: Exclude<ShareAssetType, 'chat' | 'collection'>;
@@ -19,20 +22,31 @@ export const FollowUpWithAssetPopup: React.FC<FollowUpWithAssetProps> = React.me
   ({
     assetType,
     assetId,
-    side,
-    align,
+    side = 'bottom',
+    align = 'end',
     children,
     placeholder = 'Describe the filter you want to apply',
     buttonText = 'Apply custom filter'
   }) => {
     const { mutateAsync: startChatFromAsset, isPending } = useStartChatFromAsset();
+    const onChangePage = useAppLayoutContextSelector((x) => x.onChangePage);
+
     const onSubmit = useMemoizedFn(async (prompt: string) => {
       if (!prompt || !assetId || !assetType || isPending) return;
-      await startChatFromAsset({
+      const res = await startChatFromAsset({
         asset_id: assetId,
         asset_type: assetType,
         prompt
       });
+      const link = assetParamsToRoute({
+        assetId,
+        type: assetType,
+        chatId: res.id
+      });
+
+      console.log(link);
+
+      onChangePage(link);
     });
 
     return (
@@ -46,9 +60,10 @@ export const FollowUpWithAssetPopup: React.FC<FollowUpWithAssetProps> = React.me
             buttonText={buttonText}
             onSubmit={onSubmit}
             loading={isPending}
+            className="border-none"
           />
         }>
-        {children}
+        <AppTooltip title="Apply custom filter">{children}</AppTooltip>
       </Popover>
     );
   }
