@@ -128,20 +128,16 @@ describe('SnowflakeAdapter Integration', () => {
     expect(adapter.getDataSourceType()).toBe(DataSourceType.Snowflake);
   });
 
-  it(
-    'should fail to connect with invalid credentials',
-    async () => {
-      const invalidCredentials: SnowflakeCredentials = {
-        type: DataSourceType.Snowflake,
-        account_id: 'invalid-account',
-        warehouse_id: 'INVALID_WH',
-        default_database: 'invalid-db',
-        username: 'invalid-user',
-        password: 'invalid-pass',
-      };
+  it('should fail to connect with invalid credentials', async () => {
+    const invalidCredentials: SnowflakeCredentials = {
+      type: DataSourceType.Snowflake,
+      account_id: 'invalid-account',
+      warehouse_id: 'INVALID_WH',
+      default_database: 'invalid-db',
+      username: 'invalid-user',
+      password: 'invalid-pass',
+    };
 
-      await expect(adapter.initialize(invalidCredentials)).rejects.toThrow();
-    },
-    30000 // Increase timeout for connection failure
-  );
+    await expect(adapter.initialize(invalidCredentials)).rejects.toThrow();
+  }, 30000); // Increase timeout for connection failure
 });

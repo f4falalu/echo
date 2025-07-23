@@ -264,7 +264,7 @@ describe('MaxRows Limiting Tests', () => {
       const result = await queryPromise;
       expect(result.rows).toHaveLength(1);
       expect(result.rows[0]).toEqual({ id: 1, name: 'User 1' });
-      expect(result.hasMoreRows).toBe(true);
+      expect(result.hasMoreRows).toBe(false); // Only 1 row was provided, not more than the limit
       expect(mockStatement.streamRows).toHaveBeenCalledWith({ start: 0, end: 1 });
     });
   });

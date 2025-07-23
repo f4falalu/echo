@@ -158,7 +158,7 @@ describe('SnowflakeAdapter', () => {
     });
 
     it('should execute simple query without parameters', async () => {
-      const mockRows = [{ ID: 1, NAME: 'Test' }];
+      const mockRows = [{ id: 1, name: 'Test' }];
       const mockStream = {
         on: vi.fn(),
       };
@@ -212,15 +212,15 @@ describe('SnowflakeAdapter', () => {
         rows: mockRows,
         rowCount: 1,
         fields: [
-          { name: 'ID', type: 'NUMBER', nullable: false, scale: 0, precision: 38 },
-          { name: 'NAME', type: 'TEXT', nullable: true, scale: 0, precision: 0 },
+          { name: 'id', type: 'NUMBER', nullable: false, scale: 0, precision: 38 },
+          { name: 'name', type: 'TEXT', nullable: true, scale: 0, precision: 0 },
         ],
         hasMoreRows: false,
       });
     });
 
     it('should execute parameterized query', async () => {
-      const mockRows = [{ ID: 1 }];
+      const mockRows = [{ id: 1 }];
       const mockStream = {
         on: vi.fn(),
       };
@@ -259,7 +259,7 @@ describe('SnowflakeAdapter', () => {
     });
 
     it('should handle maxRows limit', async () => {
-      const mockRows = Array.from({ length: 10 }, (_, i) => ({ ID: i + 1 }));
+      const mockRows = Array.from({ length: 10 }, (_, i) => ({ id: i + 1 }));
       const mockStream = {
         on: vi.fn(),
       };
@@ -297,7 +297,7 @@ describe('SnowflakeAdapter', () => {
 
       expect(mockStatement.streamRows).toHaveBeenCalledWith({ start: 0, end: 10 });
       expect(result.rows).toHaveLength(10);
-      expect(result.hasMoreRows).toBe(true); // Since we got exactly the limit
+      expect(result.hasMoreRows).toBe(false); // We got exactly the limit, not more
     });
 
     it('should handle query errors', async () => {
