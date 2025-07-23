@@ -24,8 +24,8 @@ vi.mock('braintrust', () => ({
   wrapTraced: vi.fn((fn) => fn),
 }));
 
-vi.mock('../../../src/utils/models/anthropic-cached', () => ({
-  anthropicCachedModel: vi.fn(() => 'mocked-model'),
+vi.mock('../../utils/models/sonnet-4', () => ({
+  Sonnet4: 'mocked-model',
 }));
 
 vi.mock('../../../src/utils/standardizeMessages', () => ({
