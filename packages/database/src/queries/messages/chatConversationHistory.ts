@@ -35,12 +35,14 @@ async function getAllMessagesForChat(chatId: string): Promise<
     id: string;
     rawLlmMessages: unknown;
     createdAt: string;
+    isCompleted: boolean;
   }>
 > {
   let chatMessages: Array<{
     id: string;
     rawLlmMessages: unknown;
     createdAt: string;
+    isCompleted: boolean;
   }>;
   try {
     chatMessages = await db
@@ -48,6 +50,7 @@ async function getAllMessagesForChat(chatId: string): Promise<
         id: messages.id,
         rawLlmMessages: messages.rawLlmMessages,
         createdAt: messages.createdAt,
+        isCompleted: messages.isCompleted,
       })
       .from(messages)
       .where(and(eq(messages.chatId, chatId), isNull(messages.deletedAt)))
@@ -61,25 +64,42 @@ async function getAllMessagesForChat(chatId: string): Promise<
   return chatMessages;
 }
 
-// Helper function to combine raw LLM messages
-function combineRawLlmMessages(chatMessages: Array<{ rawLlmMessages: unknown }>): CoreMessage[] {
-  const conversationHistory: CoreMessage[] = [];
-
+// Helper function to get the most recent raw LLM messages
+function getMostRecentRawLlmMessages(
+  chatMessages: Array<{ rawLlmMessages: unknown; isCompleted: boolean }>
+): CoreMessage[] {
   try {
-    for (const message of chatMessages) {
-      if (message.rawLlmMessages && Array.isArray(message.rawLlmMessages)) {
-        // Preserve the exact message structure from the database
-        // Each rawLlmMessages array should contain properly unbundled messages
-        conversationHistory.push(...(message.rawLlmMessages as CoreMessage[]));
+    // Find the most recent completed message with valid rawLlmMessages
+    // We iterate backwards to find the most recent valid message
+    for (let i = chatMessages.length - 1; i >= 0; i--) {
+      const message = chatMessages[i];
+      
+      // Skip if message is not completed
+      if (!message?.isCompleted) {
+        continue;
+      }
+      
+      // Skip if rawLlmMessages is empty, null, or default empty object
+      const rawMessages = message.rawLlmMessages;
+      if (!rawMessages || 
+          (typeof rawMessages === 'object' && Object.keys(rawMessages).length === 0) ||
+          rawMessages === '{}') {
+        continue;
+      }
+      
+      // Check if it's a valid array
+      if (Array.isArray(rawMessages) && rawMessages.length > 0) {
+        return rawMessages as CoreMessage[];
       }
     }
+
+    // No valid messages found
+    return [];
   } catch (processingError) {
     throw new Error(
       `Failed to process conversation history: ${processingError instanceof Error ? processingError.message : 'Unknown processing error'}`
     );
   }
-
-  return conversationHistory;
 }
 
 // Zod schemas for validation
@@ -94,7 +114,8 @@ export type ChatConversationHistoryOutput = z.infer<typeof ChatConversationHisto
 
 /**
  * Get complete conversation history for a chat from any message in that chat
- * Finds the chat from the given messageId, then loads ALL rawLlmMessages from ALL messages in that chat
+ * Finds the chat from the given messageId, then returns the most recent message's rawLlmMessages
+ * which contains the complete conversation history up to that point
  */
 export async function getChatConversationHistory(
   input: ChatConversationHistoryInput
@@ -109,8 +130,8 @@ export async function getChatConversationHistory(
     // Get all messages for this chat
     const chatMessages = await getAllMessagesForChat(chatId);
 
-    // Combine all rawLlmMessages into conversation history
-    const conversationHistory = combineRawLlmMessages(chatMessages);
+    // Get the most recent rawLlmMessages which contains the complete conversation history
+    const conversationHistory = getMostRecentRawLlmMessages(chatMessages);
 
     // Validate output
     try {

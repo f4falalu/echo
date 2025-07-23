@@ -1,5 +1,16 @@
 import { getPermissionedDatasets } from '@buster/access-controls';
-import { and, chats, eq, getDb, isNotNull, isNull, lte, messages, users } from '@buster/database';
+import {
+  and,
+  chats,
+  eq,
+  getChatConversationHistory,
+  getDb,
+  isNotNull,
+  isNull,
+  lte,
+  messages,
+  users,
+} from '@buster/database';
 import type { CoreMessage } from 'ai';
 import {
   DataFetchError,
@@ -37,12 +48,25 @@ export async function fetchMessageWithContext(messageId: string): Promise<Messag
       throw new MessageNotFoundError(messageId);
     }
 
+    // Get the complete conversation history using the fixed helper
+    // This ensures we get the most recent completed message with valid rawLlmMessages
+    let conversationHistory: CoreMessage[] = [];
+    try {
+      conversationHistory = await getChatConversationHistory({ messageId });
+    } catch (_error) {
+      // If we can't get conversation history, fall back to the current message's rawLlmMessages
+      // This handles edge cases where there are no completed messages yet
+      if (messageData.rawLlmMessages && Array.isArray(messageData.rawLlmMessages)) {
+        conversationHistory = messageData.rawLlmMessages as CoreMessage[];
+      }
+    }
+
     return {
       id: messageData.id,
       chatId: messageData.chatId,
       createdBy: messageData.createdBy,
       createdAt: new Date(messageData.createdAt),
-      rawLlmMessages: messageData.rawLlmMessages as CoreMessage[],
+      rawLlmMessages: conversationHistory,
       userName: messageData.userName ?? messageData.userEmail ?? 'Unknown',
       organizationId: messageData.organizationId,
     };
