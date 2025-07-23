@@ -13,7 +13,7 @@ export const ShimmerLoadingText: React.FC<ShimmerLoadingTextProps> = React.memo(
   ({
     text,
     colors = ['var(--color-foreground)', 'var(--color-text-tertiary)'],
-    duration = 1.5,
+    duration = 2.5,
     fontSize = 13,
     className = ''
   }) => {
@@ -21,19 +21,15 @@ export const ShimmerLoadingText: React.FC<ShimmerLoadingTextProps> = React.memo(
       throw new Error('ShimmerText requires at least 2 colors');
     }
 
-    const gradientColors = [...colors, colors[0]].join(', ');
-
     return (
       <div
-        className={cn(
-          'animate-shimmer inline-block bg-[length:200%_100%] bg-clip-text text-transparent',
-          className
-        )}
+        className={cn('inline-block pulse-colors', className)}
         style={{
-          backgroundImage: `linear-gradient(90deg, ${gradientColors})`,
           fontSize: fontSize,
-          animationDuration: `${duration}s`
-        }}>
+          animationDuration: `${duration}s`,
+          '--pulse-color-1': colors[0],
+          '--pulse-color-2': colors[1]
+        } as React.CSSProperties & { '--pulse-color-1': string; '--pulse-color-2': string }}>
         {text}
       </div>
     );

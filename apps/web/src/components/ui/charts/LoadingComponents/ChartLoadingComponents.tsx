@@ -1,6 +1,6 @@
 import { cn } from '@/lib/classMerge';
 import type React from 'react';
-import { ShimmerLoadingText } from '../OtherComponents/ShimmerText';
+import { ShimmerLoadingText } from '../OtherComponents/ShimmerLoadingText';
 
 export const PreparingYourRequestLoader: React.FC<{
   className?: string;
