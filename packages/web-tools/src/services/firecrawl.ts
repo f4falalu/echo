@@ -46,6 +46,30 @@ interface ScrapeResponse {
   error?: string;
 }
 
+export interface WebSearchOptions {
+  limit?: number;
+  location?: string;
+  tbs?: string;
+  timeout?: number;
+  scrapeOptions?: {
+    formats?: ('markdown' | 'html' | 'rawHtml' | 'links' | 'screenshot')[];
+    onlyMainContent?: boolean;
+  };
+}
+
+export interface WebSearchResult {
+  title: string;
+  url: string;
+  description: string;
+  content?: string;
+}
+
+export interface WebSearchResponse {
+  success: boolean;
+  results: WebSearchResult[];
+  error?: string;
+}
+
 export class FirecrawlService {
   private app: FirecrawlApp;
 
@@ -166,6 +190,68 @@ export class FirecrawlService {
       return true;
     } catch {
       return false;
+    }
+  }
+
+  /**
+   * Search the web using Firecrawl's search endpoint
+   */
+  async webSearch(
+    query: string,
+    options?: WebSearchOptions
+  ): Promise<WebSearchResponse> {
+    try {
+      const searchOptions = {
+        limit: options?.limit || 5,
+        ...(options?.location && { location: options.location }),
+        ...(options?.tbs && { tbs: options.tbs }),
+        ...(options?.timeout && { timeout: options.timeout }),
+        scrapeOptions: {
+          formats: options?.scrapeOptions?.formats || ['markdown'],
+          ...(options?.scrapeOptions?.onlyMainContent !== undefined && {
+            onlyMainContent: options.scrapeOptions.onlyMainContent,
+          }),
+        },
+      };
+
+      const response = await this.app.search(query, searchOptions);
+
+      const searchResponse = response as {
+        success?: boolean;
+        data?: Array<{
+          title?: string;
+          url?: string;
+          description?: string;
+          content?: string;
+        }>;
+        error?: string;
+      };
+
+      if (!searchResponse.success && searchResponse.error) {
+        throw new CompanyResearchError(
+          `Search failed: ${searchResponse.error}`,
+          'API_ERROR',
+          searchResponse.error
+        );
+      }
+
+      const results: WebSearchResult[] = (searchResponse.data || []).map((item) => ({
+        title: item.title || '',
+        url: item.url || '',
+        description: item.description || '',
+        ...(item.content && { content: item.content }),
+      }));
+
+      return {
+        success: true,
+        results,
+      };
+    } catch (error) {
+      throw new CompanyResearchError(
+        `Failed to perform web search: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        'API_ERROR',
+        error instanceof Error ? error : String(error)
+      );
     }
   }
 }

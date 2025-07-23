@@ -6,6 +6,7 @@ interface MockFirecrawlApp {
   deepResearch: ReturnType<typeof vi.fn>;
   checkDeepResearchStatus: ReturnType<typeof vi.fn>;
   scrapeUrl: ReturnType<typeof vi.fn>;
+  search: ReturnType<typeof vi.fn>;
 }
 
 // Mock the FirecrawlApp
@@ -16,6 +17,7 @@ vi.mock('@mendable/firecrawl-js', () => {
         deepResearch: vi.fn(),
         checkDeepResearchStatus: vi.fn(),
         scrapeUrl: vi.fn(),
+        search: vi.fn(),
       })
     ),
   };
@@ -178,6 +180,88 @@ describe('FirecrawlService', () => {
       const isValid = await service.validateUrl('https://invalid.com');
 
       expect(isValid).toBe(false);
+    });
+  });
+
+  describe('webSearch', () => {
+    beforeEach(() => {
+      service = new FirecrawlService();
+    });
+
+    it('should perform web search with default options', async () => {
+      const mockResponse = {
+        success: true,
+        data: [
+          {
+            title: 'Test Result',
+            url: 'https://example.com',
+            description: 'Test description',
+            content: 'Test content',
+          },
+        ],
+      };
+      const mockApp = (service as unknown as { app: MockFirecrawlApp }).app;
+      mockApp.search.mockResolvedValue(mockResponse);
+
+      const result = await service.webSearch('test query');
+
+      expect(result.success).toBe(true);
+      expect(result.results).toHaveLength(1);
+      expect(result.results[0]).toEqual({
+        title: 'Test Result',
+        url: 'https://example.com',
+        description: 'Test description',
+        content: 'Test content',
+      });
+      expect(mockApp.search).toHaveBeenCalledWith('test query', {
+        limit: 5,
+        scrapeOptions: {
+          formats: ['markdown'],
+        },
+      });
+    });
+
+    it('should perform web search with content scraping options', async () => {
+      const mockResponse = {
+        success: true,
+        data: [
+          {
+            title: 'Test Result',
+            url: 'https://example.com',
+            description: 'Test description',
+            content: 'Test content',
+          },
+        ],
+      };
+      const mockApp = (service as unknown as { app: MockFirecrawlApp }).app;
+      mockApp.search.mockResolvedValue(mockResponse);
+
+      const result = await service.webSearch('test query', {
+        limit: 3,
+        location: 'US',
+        scrapeOptions: {
+          formats: ['html', 'markdown'],
+          onlyMainContent: false,
+        },
+      });
+
+      expect(result.success).toBe(true);
+      expect(result.results).toHaveLength(1);
+      expect(mockApp.search).toHaveBeenCalledWith('test query', {
+        limit: 3,
+        location: 'US',
+        scrapeOptions: {
+          formats: ['html', 'markdown'],
+          onlyMainContent: false,
+        },
+      });
+    });
+
+    it('should handle search errors', async () => {
+      const mockApp = (service as unknown as { app: MockFirecrawlApp }).app;
+      mockApp.search.mockRejectedValue(new Error('Search failed'));
+
+      await expect(service.webSearch('test query')).rejects.toThrow(CompanyResearchError);
     });
   });
 });
