@@ -51,7 +51,10 @@ describe('Permission Validator', () => {
         },
       ] as any);
 
-      const result = await validateSqlPermissions('SELECT id, user_id FROM public.orders', 'user123');
+      const result = await validateSqlPermissions(
+        'SELECT id, user_id FROM public.orders',
+        'user123'
+      );
 
       expect(result).toEqual({
         isAuthorized: false,

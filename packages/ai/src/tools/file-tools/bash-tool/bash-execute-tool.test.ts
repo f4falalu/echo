@@ -34,7 +34,7 @@ describe('bash-execute-tool', () => {
 
   describe('bashExecute tool', () => {
     it('should have correct tool configuration', () => {
-      expect(executeBash.id).toBe('bash_execute');
+      expect(executeBash.id).toBe('execute-bash');
       expect(executeBash.description).toContain('Executes bash commands');
       expect(executeBash.inputSchema).toBeDefined();
       expect(executeBash.outputSchema).toBeDefined();
