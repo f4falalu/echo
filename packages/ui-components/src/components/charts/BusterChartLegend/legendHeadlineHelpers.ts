@@ -1,18 +1,18 @@
-import type { BusterChartProps } from '../../../BusterChart.types';
 import { formatLabel } from '@/lib/columnFormatter';
 import { ArrayOperations } from '@/lib/math';
 import type { ChartConfigProps, ShowLegendHeadline } from '@buster/server-shared/metrics';
+import type { BusterChartProps } from '../BusterChart.types';
 import type { DatasetOptionsWithTicks } from '../chartHooks';
 import type { BusterChartLegendItem } from './interfaces';
 
 export const addLegendHeadlines = (
   legendItems: BusterChartLegendItem[],
-  { datasets, ...rest }: DatasetOptionsWithTicks,
+  _datasets: DatasetOptionsWithTicks,
   showLegendHeadline: ShowLegendHeadline,
-  columnMetadata: NonNullable<BusterChartProps['columnMetadata']>,
+  _columnMetadata: NonNullable<BusterChartProps['columnMetadata']>,
   columnLabelFormats: NonNullable<BusterChartProps['columnLabelFormats']>,
   selectedChartType: ChartConfigProps['selectedChartType'],
-  xAxisKeys: string[]
+  _xAxisKeys: string[]
 ) => {
   const isScatterChart = selectedChartType === 'scatter';
 

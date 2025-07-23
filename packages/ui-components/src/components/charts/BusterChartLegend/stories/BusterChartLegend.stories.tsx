@@ -6,7 +6,7 @@ const meta: Meta<typeof BusterChartLegend> = {
   title: 'UI/Charts/BusterChartLegend',
   component: BusterChartLegend,
   parameters: {
-    layout: 'centered'
+    layout: 'centered',
   },
   tags: ['autodocs'],
   argTypes: {
@@ -16,9 +16,9 @@ const meta: Meta<typeof BusterChartLegend> = {
       control: 'select',
       description:
         'Show the legend headline will only work if a headline is provided (see example)',
-      options: [false, 'total', 'average', 'min', 'max', 'current', 'median']
-    }
-  }
+      options: [false, 'total', 'average', 'min', 'max', 'current', 'median'],
+    },
+  },
 };
 
 export default meta;
@@ -33,7 +33,7 @@ const defaultLegendItems: BusterChartLegendItem[] = [
     id: 'revenue',
     serieName: 'revenue',
     data: [],
-    yAxisKey: 'revenue'
+    yAxisKey: 'revenue',
   },
   {
     color: '#52C41A',
@@ -43,7 +43,7 @@ const defaultLegendItems: BusterChartLegendItem[] = [
     id: 'profit',
     serieName: 'profit',
     data: [],
-    yAxisKey: 'profit'
+    yAxisKey: 'profit',
   },
   {
     color: '#F5222D',
@@ -53,8 +53,8 @@ const defaultLegendItems: BusterChartLegendItem[] = [
     id: 'orders',
     serieName: 'orders',
     data: [],
-    yAxisKey: 'orders'
-  }
+    yAxisKey: 'orders',
+  },
 ];
 
 export const Default: Story = {
@@ -65,40 +65,40 @@ export const Default: Story = {
     containerWidth: 600,
     showLegendHeadline: false,
     onClickItem: () => {},
-    onFocusItem: () => {}
-  }
+    onFocusItem: () => {},
+  },
 };
 
 export const WithHeadline: Story = {
   args: {
     legendItems: [
       {
-        ...defaultLegendItems[0],
+        ...defaultLegendItems[0]!,
         headline: {
           type: 'total',
-          titleAmount: '$1,234,567'
-        }
+          titleAmount: '$1,234,567',
+        },
       },
       {
-        ...defaultLegendItems[1],
+        ...defaultLegendItems[1]!,
         headline: {
           type: 'total',
-          titleAmount: '$567,890'
-        }
+          titleAmount: '$567,890',
+        },
       },
       {
-        ...defaultLegendItems[2],
+        ...defaultLegendItems[2]!,
         headline: {
           type: 'total',
-          titleAmount: '$98,765'
-        }
-      }
+          titleAmount: '$98,765',
+        },
+      },
     ],
     show: true,
     animateLegend: true,
     containerWidth: 600,
-    showLegendHeadline: 'total'
-  }
+    showLegendHeadline: 'total',
+  },
 };
 
 export const WithOverflow: Story = {
@@ -113,7 +113,7 @@ export const WithOverflow: Story = {
         id: 'customers',
         serieName: 'customers',
         data: [],
-        yAxisKey: 'customers'
+        yAxisKey: 'customers',
       },
       {
         color: '#13C2C2',
@@ -123,7 +123,7 @@ export const WithOverflow: Story = {
         id: 'aov',
         serieName: 'aov',
         data: [],
-        yAxisKey: 'aov'
+        yAxisKey: 'aov',
       },
       {
         color: '#FA8C16',
@@ -133,16 +133,16 @@ export const WithOverflow: Story = {
         id: 'returns',
         serieName: 'returns',
         data: [],
-        yAxisKey: 'returns'
-      }
+        yAxisKey: 'returns',
+      },
     ],
     show: true,
     animateLegend: true,
     containerWidth: 400,
     showLegendHeadline: undefined,
     onClickItem: () => {},
-    onFocusItem: () => {}
-  }
+    onFocusItem: () => {},
+  },
 };
 
 export const Hidden: Story = {
@@ -153,6 +153,6 @@ export const Hidden: Story = {
     containerWidth: 600,
     showLegendHeadline: undefined,
     onClickItem: () => {},
-    onFocusItem: () => {}
-  }
+    onFocusItem: () => {},
+  },
 };

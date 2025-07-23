@@ -1,6 +1,6 @@
-import React from 'react';
-import type { BusterChartProps } from '../../../BusterChart.types';
 import type { ChartEncodes } from '@buster/server-shared/metrics';
+import React from 'react';
+import type { BusterChartProps } from '../BusterChart.types';
 import { BusterChartLegendWrapper } from '../BusterChartLegend/BusterChartLegendWrapper';
 import type { DatasetOptionsWithTicks } from '../chartHooks';
 import type { ChartJSOrUndefined } from './core/types';
@@ -40,7 +40,7 @@ export const BusterChartJSLegendWrapper = React.memo<BusterChartJSLegendWrapperP
     selectedAxis,
     chartRef,
     selectedChartType,
-    animateLegend: animateLegendProp,
+    animateLegend: animateLegendProp = false,
     columnSettings,
     columnMetadata,
     showLegendHeadline,

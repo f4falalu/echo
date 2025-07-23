@@ -54,7 +54,7 @@ export const LegendItemDot: React.FC<
     color: string | undefined;
     inactive: boolean;
     type: BusterChartLegendItem['type'];
-    onFocusItem?: () => void;
+    onFocusItem?: (() => void) | undefined;
   } & VariantProps<typeof itemVariants>
 > = React.memo(({ color, type, inactive, onFocusItem, size = 'default' }) => {
   const hasFocusItem = onFocusItem !== undefined;

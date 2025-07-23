@@ -1,3 +1,3 @@
-import { baseConfig } from '@buster/vitest-config';
+import { uiConfig } from '@buster/vitest-config/ui';
 
-export default baseConfig;
+export default uiConfig;
