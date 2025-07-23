@@ -1,6 +1,7 @@
 import { updateChat, updateMessage } from '@buster/database';
-import { Agent, createStep } from '@mastra/core';
+import { createStep } from '@mastra/core';
 import type { RuntimeContext } from '@mastra/core/runtime-context';
+import { generateObject } from 'ai';
 import type { CoreMessage } from 'ai';
 import { wrapTraced } from 'braintrust';
 import { z } from 'zod';
@@ -11,6 +12,12 @@ import type { AnalystRuntimeContext } from '../workflows/analyst-workflow';
 
 const inputSchema = thinkAndPrepWorkflowInputSchema;
 
+// Schema for what the LLM returns
+const llmOutputSchema = z.object({
+  title: z.string().describe('The title for the chat.'),
+});
+
+// Schema for what the step returns (includes pass-through data)
 export const generateChatTitleOutputSchema = z.object({
   title: z.string().describe('The title for the chat.'),
   // Pass through dashboard context
@@ -28,13 +35,9 @@ export const generateChatTitleOutputSchema = z.object({
 
 const generateChatTitleInstructions = `
 I am a chat title generator that is responsible for generating a title for the chat.
-`;
 
-const todosAgent = new Agent({
-  name: 'Extract Values',
-  instructions: generateChatTitleInstructions,
-  model: Haiku35,
-});
+The title should be 3-8 words, capturing the main topic or intent of the conversation.
+`;
 
 const generateChatTitleExecution = async ({
   inputData,
@@ -63,12 +66,19 @@ const generateChatTitleExecution = async ({
     try {
       const tracedChatTitle = wrapTraced(
         async () => {
-          const response = await todosAgent.generate(messages, {
-            maxSteps: 0,
-            output: generateChatTitleOutputSchema,
+          const { object } = await generateObject({
+            model: Haiku35,
+            schema: llmOutputSchema,
+            messages: [
+              {
+                role: 'system',
+                content: generateChatTitleInstructions,
+              },
+              ...messages,
+            ],
           });
 
-          return response.object;
+          return object;
         },
         {
           name: 'Generate Chat Title',
