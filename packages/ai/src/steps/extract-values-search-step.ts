@@ -6,7 +6,7 @@ import type { CoreMessage } from 'ai';
 import { wrapTraced } from 'braintrust';
 import { z } from 'zod';
 import { thinkAndPrepWorkflowInputSchema } from '../schemas/workflow-schemas';
-import { anthropicCachedModel } from '../utils/models/anthropic-cached';
+import { Haiku35 } from '../utils/models/haiku-3-5';
 import { appendToConversation, standardizeMessages } from '../utils/standardizeMessages';
 import type { AnalystRuntimeContext } from '../workflows/analyst-workflow';
 
@@ -234,7 +234,7 @@ async function searchStoredValues(
 const valuesAgent = new Agent({
   name: 'Extract Values',
   instructions: extractValuesInstructions,
-  model: anthropicCachedModel('claude-3-5-haiku-20241022'),
+  model: Haiku35,
 });
 
 const extractValuesSearchStepExecution = async ({

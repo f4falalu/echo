@@ -1,4 +1,3 @@
-import { updateMessageFields } from '@buster/database';
 import { Agent, createStep } from '@mastra/core';
 import type { RuntimeContext } from '@mastra/core/runtime-context';
 import type { CoreMessage } from 'ai';
@@ -8,18 +7,11 @@ import { z } from 'zod';
 import { thinkAndPrepWorkflowInputSchema } from '../schemas/workflow-schemas';
 import { createTodoList } from '../tools/planning-thinking-tools/create-todo-item-tool';
 import { ChunkProcessor } from '../utils/database/chunk-processor';
-import { createTodoReasoningMessage } from '../utils/memory/todos-to-messages';
-import type { BusterChatMessageReasoningSchema } from '../utils/memory/types';
 import { ReasoningHistorySchema } from '../utils/memory/types';
-import { anthropicCachedModel } from '../utils/models/anthropic-cached';
-import {
-  RetryWithHealingError,
-  detectRetryableError,
-  isRetryWithHealingError,
-} from '../utils/retry';
-import type { RetryableError, WorkflowContext } from '../utils/retry/types';
+import { Sonnet4 } from '../utils/models/sonnet-4';
+import { RetryWithHealingError, isRetryWithHealingError } from '../utils/retry';
 import { appendToConversation, standardizeMessages } from '../utils/standardizeMessages';
-import { createOnChunkHandler, handleStreamingError } from '../utils/streaming';
+import { createOnChunkHandler } from '../utils/streaming';
 import type { AnalystRuntimeContext } from '../workflows/analyst-workflow';
 
 const inputSchema = thinkAndPrepWorkflowInputSchema;
@@ -196,7 +188,7 @@ const DEFAULT_OPTIONS = {
 export const todosAgent = new Agent({
   name: 'Create Todos',
   instructions: todosInstructions,
-  model: anthropicCachedModel('claude-sonnet-4-20250514'),
+  model: Sonnet4,
   tools: {
     createTodoList,
   },

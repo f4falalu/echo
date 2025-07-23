@@ -10,7 +10,12 @@ export * from './convertToCoreMessages';
 export * from './standardizeMessages';
 
 // Model utilities
+export * from './models/ai-fallback';
+export * from './models/providers/anthropic';
 export * from './models/anthropic-cached';
+export * from './models/providers/vertex';
+export * from './models/sonnet-4';
+export * from './models/haiku-3-5';
 
 // Streaming utilities
 export * from './streaming';

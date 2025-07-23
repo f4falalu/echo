@@ -8,7 +8,7 @@ import {
 } from '../../tools/post-processing/list-assumptions-response';
 import { noAssumptionsIdentified } from '../../tools/post-processing/no-assumptions-identified';
 import { MessageHistorySchema } from '../../utils/memory/types';
-import { anthropicCachedModel } from '../../utils/models/anthropic-cached';
+import { Sonnet4 } from '../../utils/models/sonnet-4';
 
 const inputSchema = z.object({
   conversationHistory: MessageHistorySchema.optional(),
@@ -409,7 +409,7 @@ export const identifyAssumptionsStepExecution = async ({
     const identifyAssumptionsAgentWithContext = new Agent({
       name: 'Identify Assumptions',
       instructions: '', // We control the system messages below at stream instantiation
-      model: anthropicCachedModel('claude-sonnet-4-20250514'),
+      model: Sonnet4,
       tools: {
         listAssumptionsResponse,
         noAssumptionsIdentified,

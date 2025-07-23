@@ -12,8 +12,8 @@ vi.mock('@buster/stored-values/search', () => {
 });
 
 // Mock the AI models
-vi.mock('../../../src/utils/models/anthropic-cached', () => ({
-  anthropicCachedModel: vi.fn(() => 'mock-model'),
+vi.mock('../utils/models/sonnet-4', () => ({
+  Sonnet4: 'mock-model',
 }));
 
 // Mock Braintrust
