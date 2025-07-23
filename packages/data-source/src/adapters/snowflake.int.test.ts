@@ -142,6 +142,6 @@ describe('SnowflakeAdapter Integration', () => {
 
       await expect(adapter.initialize(invalidCredentials)).rejects.toThrow();
     },
-    TEST_TIMEOUT
+    30000 // Increase timeout for connection failure
   );
 });

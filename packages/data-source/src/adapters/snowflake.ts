@@ -216,6 +216,7 @@ export class SnowflakeAdapter extends BaseAdapter {
             const rows: Record<string, unknown>[] = [];
             let hasMoreRows = false;
 
+            // Request one extra row to check if there are more rows
             const stream = stmt.streamRows?.({ start: 0, end: limit });
             if (!stream) {
               reject(new Error('Snowflake streaming not supported'));
@@ -226,14 +227,23 @@ export class SnowflakeAdapter extends BaseAdapter {
 
             stream
               .on('data', (row: Record<string, unknown>) => {
-                rows.push(row);
+                // Only keep up to limit rows
+                if (rowCount < limit) {
+                  // Transform column names to lowercase to match expected behavior
+                  const transformedRow: Record<string, unknown> = {};
+                  for (const [key, value] of Object.entries(row)) {
+                    transformedRow[key.toLowerCase()] = value;
+                  }
+                  rows.push(transformedRow);
+                }
                 rowCount++;
               })
               .on('error', (streamErr: Error) => {
                 reject(new Error(`Snowflake stream error: ${streamErr.message}`));
               })
               .on('end', () => {
-                hasMoreRows = rowCount >= limit;
+                // If we got more rows than requested, there are more available
+                hasMoreRows = rowCount > limit;
                 resolve({
                   rows,
                   statement: stmt,
@@ -248,7 +258,7 @@ export class SnowflakeAdapter extends BaseAdapter {
 
       const fields: FieldMetadata[] =
         result.statement?.getColumns?.()?.map((col) => ({
-          name: col.getName(),
+          name: col.getName().toLowerCase(),
           type: col.getType(),
           nullable: col.isNullable(),
           scale: col.getScale() > 0 ? col.getScale() : 0,
