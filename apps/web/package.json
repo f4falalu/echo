@@ -7,7 +7,7 @@
     "dev": "next dev --turbo",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint && npx prettier --write .",
+    "lint": "next lint && npx prettier --write . '!src/components/ui/icons/**' --log-level error",
     "lint:eslint": "eslint .",
     "lint:ci": "npm run lint && npm run typecheck",
     "typecheck": "tsc --noEmit",
