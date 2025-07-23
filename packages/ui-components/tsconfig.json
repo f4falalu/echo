@@ -6,6 +6,8 @@
     "rootDir": "src",
     "jsx": "react-jsx",
     "lib": ["ESNext", "DOM"],
+    "declarationDir": "dist",
+    "emitDeclarationOnly": true,
     "paths": {
       "@/hooks/*": ["./src/hooks/*"],
       "@/lib/*": ["./src/lib/*"]

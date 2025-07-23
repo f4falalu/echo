@@ -2,16 +2,22 @@
   "name": "@buster/ui-components",
   "version": "1.0.0",
   "type": "module",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "exports": {
-    "styles": "./src/styles/styles.css"
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./styles": "./src/styles/styles.css",
+    "./dist/style.css": "./dist/style.css"
   },
+  "files": ["dist", "src/styles/styles.css"],
   "scripts": {
     "prebuild": "tsx scripts/validate-env.ts",
-    "build": "tsc",
+    "build": "vite build && tsc --emitDeclarationOnly --declaration",
     "typecheck": "tsc --noEmit",
-    "dev": "tsc --watch",
+    "dev": "vite build --watch",
     "lint": "biome check",
     "test": "vitest run",
     "test:watch": "vitest watch",

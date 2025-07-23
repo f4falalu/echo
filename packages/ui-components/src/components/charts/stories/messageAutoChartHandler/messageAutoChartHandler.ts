@@ -31,6 +31,8 @@ const keySpecificHandlers: Partial<
     if (colors && !isEmpty(colors)) return colors;
     if (colors && colors.length <= 3)
       return Array.from({ length: 3 }, (_, index) => colors[index % colors.length]);
+
+    return;
   },
   scatterDotSize: (value: unknown) => {
     const scatterDotSize = value as ChartConfigProps['scatterDotSize'];
