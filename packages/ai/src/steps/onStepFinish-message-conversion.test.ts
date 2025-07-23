@@ -137,11 +137,11 @@ describe('onStepFinish message conversion', () => {
       });
     });
 
-    it('should convert respondWithoutAnalysis to response text messages', async () => {
+    it('should convert respondWithoutAssetCreation to response text messages', async () => {
       const toolCalls = [
         {
           toolCallId: 'respond-1',
-          toolName: 'respondWithoutAnalysis',
+          toolName: 'respondWithoutAssetCreation',
           args: {
             message: 'Here is a quick answer without analysis',
           },
@@ -155,7 +155,7 @@ describe('onStepFinish message conversion', () => {
             {
               type: 'tool-call',
               toolCallId: 'respond-1',
-              toolName: 'respondWithoutAnalysis',
+              toolName: 'respondWithoutAssetCreation',
               args: {
                 message: 'Here is a quick answer without analysis',
               },
@@ -168,7 +168,7 @@ describe('onStepFinish message conversion', () => {
             {
               type: 'tool-result',
               toolCallId: 'respond-1',
-              toolName: 'respondWithoutAnalysis',
+              toolName: 'respondWithoutAssetCreation',
               result: {
                 message: 'Here is a quick answer without analysis',
               },
@@ -180,13 +180,13 @@ describe('onStepFinish message conversion', () => {
       const step = createMockStepResult(toolCalls, responseMessages);
       const toolNames = step.toolCalls.map((call) => call.toolName);
 
-      // Check that respondWithoutAnalysis is a finishing tool
+      // Check that respondWithoutAssetCreation is a finishing tool
       const hasFinishingTools = toolNames.some((toolName: string) =>
-        ['submitThoughts', 'respondWithoutAnalysis'].includes(toolName)
+        ['submitThoughts', 'respondWithoutAssetCreation'].includes(toolName)
       );
 
       expect(hasFinishingTools).toBe(true);
-      expect(toolNames.includes('respondWithoutAnalysis')).toBe(true);
+      expect(toolNames.includes('respondWithoutAssetCreation')).toBe(true);
     });
   });
 

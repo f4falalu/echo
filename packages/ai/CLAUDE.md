@@ -80,7 +80,7 @@ steps/
 tools/
 ├── communication-tools/     # Agent-to-agent communication
 │   ├── done-tool.ts
-│   ├── respond-without-analysis.ts
+│   ├── respond-without-asset-creation.ts
 │   └── submit-thoughts-tool.ts
 ├── database-tools/          # Data access
 │   └── find-required-text-values.ts
@@ -133,13 +133,51 @@ utils/
 │   ├── types.ts             # Message/step data types
 │   └── index.ts
 └── models/
-    └── anthropic-cached.ts   # Model configuration
+    ├── ai-fallback.ts        # Fallback model wrapper with retry logic
+    ├── anthropic.ts          # Basic Anthropic model wrapper
+    ├── anthropic-cached.ts   # Anthropic with caching support
+    ├── vertex.ts             # Google Vertex AI model wrapper
+    ├── sonnet-4.ts           # Claude Sonnet 4 with fallback
+    └── haiku-3-5.ts          # Claude Haiku 3.5 with fallback
 ```
 
 **Pattern**: Utilities support core functionality:
 - **Memory**: Handles message history between agents in multi-step workflows
-- **Models**: Wraps AI models with caching and Braintrust integration
+- **Models**: Provides various AI model configurations with fallback support
 - **Message History**: Critical for multi-agent workflows - extracts and formats messages for passing between agents
+
+##### Model Configuration Pattern
+
+The models folder provides different AI model configurations with automatic fallback support:
+
+1. **Base Model Wrappers** (`anthropic.ts`, `vertex.ts`):
+   - Wrap AI SDK models with Braintrust tracing
+   - Handle authentication and configuration
+   - Provide consistent interface for model usage
+
+2. **Fallback Models** (`sonnet-4.ts`, `haiku-3-5.ts`):
+   - Use `createFallback()` to define multiple model providers
+   - Automatically switch between providers on errors
+   - Configure retry behavior and error handling
+   - Example: Sonnet4 tries Vertex first, falls back to Anthropic
+
+3. **Cached Model** (`anthropic-cached.ts`):
+   - Adds caching support to Anthropic models
+   - Automatically adds cache_control to system messages
+   - Includes connection pooling for better performance
+   - Used by agents requiring prompt caching
+
+**Usage Example**:
+```typescript
+// For general use with fallback support
+import { Sonnet4, Haiku35 } from '@buster/ai';
+
+// For agents with complex prompts needing caching
+import { anthropicCachedModel } from '@buster/ai';
+
+// Direct model usage (no fallback)
+import { anthropicModel, vertexModel } from '@buster/ai';
+```
 
 ### Testing Strategy (`tests/`)
 
@@ -239,7 +277,7 @@ const formattedMessages = formatMessagesForAnalyst(
 export const agentName = new Agent({
   name: 'Agent Name',
   instructions: getInstructions,
-  model:  anthropicCachedModel('anthropic/claude-sonnet-4'),
+  model: Sonnet4,  // Can use Sonnet4, Haiku35, or anthropicCachedModel('model-id')
   tools: { tool1, tool2, tool3 },
   memory: getSharedMemory(),
   defaultGenerateOptions: DEFAULT_OPTIONS,

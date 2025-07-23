@@ -7,8 +7,7 @@ import {
   modifyDashboards,
   modifyMetrics,
 } from '../../tools';
-import { anthropicCachedModel } from '../../utils/models/anthropic-cached';
-import { getAnalystInstructions } from './analyst-agent-instructions';
+import { Sonnet4 } from '../../utils/models/sonnet-4';
 
 const DEFAULT_OPTIONS = {
   maxSteps: 18,
@@ -24,7 +23,7 @@ const DEFAULT_OPTIONS = {
 export const analystAgent = new Agent({
   name: 'Analyst Agent',
   instructions: '', // We control the system messages in the step at stream instantiation
-  model: anthropicCachedModel('claude-sonnet-4-20250514'),
+  model: Sonnet4,
   tools: {
     createMetrics,
     modifyMetrics,

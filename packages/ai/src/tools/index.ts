@@ -1,6 +1,6 @@
 export { doneTool } from './communication-tools/done-tool';
 export { idleTool } from './communication-tools/idle-tool';
-export { respondWithoutAnalysis } from './communication-tools/respond-without-analysis';
+export { respondWithoutAssetCreation } from './communication-tools/respond-without-asset-creation';
 export { submitThoughts } from './communication-tools/submit-thoughts-tool';
 export { messageUserClarifyingQuestion } from './communication-tools/message-user-clarifying-question';
 export { sequentialThinking } from './planning-thinking-tools/sequential-thinking-tool';

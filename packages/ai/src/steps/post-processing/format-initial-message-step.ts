@@ -3,11 +3,10 @@ import type { CoreMessage } from 'ai';
 import { wrapTraced } from 'braintrust';
 import type { z } from 'zod';
 import { generateSummary } from '../../tools/post-processing/generate-summary';
-import { MessageHistorySchema } from '../../utils/memory/types';
-import { anthropicCachedModel } from '../../utils/models/anthropic-cached';
 import { standardizeMessages } from '../../utils/standardizeMessages';
 import { postProcessingWorkflowOutputSchema } from './schemas';
 
+import { Sonnet4 } from '../../utils/models/sonnet-4';
 // Import the schema from combine-parallel-results step
 import { combineParallelResultsOutputSchema } from './combine-parallel-results-step';
 
@@ -104,7 +103,7 @@ const DEFAULT_OPTIONS = {
 export const initialMessageAgent = new Agent({
   name: 'Format Initial Message',
   instructions: initialMessageInstructions,
-  model: anthropicCachedModel('claude-sonnet-4-20250514'),
+  model: Sonnet4,
   tools: {
     generateSummary,
   },
