@@ -191,9 +191,24 @@ export class FallbackModel implements LanguageModelV1 {
             }
             controller.close();
           } catch (error) {
+            // Check if this is an intentional abort (not a retry scenario)
+            if (error instanceof Error && error.name === 'AbortError') {
+              // Don't retry on intentional aborts, just close the controller
+              controller.close();
+              return;
+            }
+
             if (self.settings.onError) {
               await self.settings.onError(error as Error, self.modelId);
             }
+
+            // Check if we should retry this error
+            const shouldRetry = self.settings.shouldRetryThisError || defaultShouldRetryThisError;
+            if (!shouldRetry(error as Error)) {
+              controller.error(error);
+              return;
+            }
+
             if (
               (!hasStreamedAny || self.retryAfterOutput) &&
               streamRetryAttempts < maxStreamRetries

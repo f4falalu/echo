@@ -55,13 +55,14 @@ function initializeHaiku35() {
 
 // Export a proxy that initializes on first use
 export const Haiku35 = new Proxy({} as ReturnType<typeof createFallback>, {
-  get(_target, prop, receiver) {
+  get(_target, prop) {
     const instance = initializeHaiku35();
-    return Reflect.get(instance, prop, receiver);
+    // Direct property access without receiver to avoid proxy conflicts
+    return instance[prop as keyof typeof instance];
   },
   has(_target, prop) {
     const instance = initializeHaiku35();
-    return Reflect.has(instance, prop);
+    return prop in instance;
   },
   ownKeys(_target) {
     const instance = initializeHaiku35();

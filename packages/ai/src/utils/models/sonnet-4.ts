@@ -55,13 +55,14 @@ function initializeSonnet4() {
 
 // Export a proxy that initializes on first use
 export const Sonnet4 = new Proxy({} as ReturnType<typeof createFallback>, {
-  get(_target, prop, receiver) {
+  get(_target, prop) {
     const instance = initializeSonnet4();
-    return Reflect.get(instance, prop, receiver);
+    // Direct property access without receiver to avoid proxy conflicts
+    return instance[prop as keyof typeof instance];
   },
   has(_target, prop) {
     const instance = initializeSonnet4();
-    return Reflect.has(instance, prop);
+    return prop in instance;
   },
   ownKeys(_target) {
     const instance = initializeSonnet4();

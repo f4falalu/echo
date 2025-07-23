@@ -99,6 +99,52 @@ function createFailingStreamModel(id: string, errorAfterChunks = 1): LanguageMod
   return mockModel;
 }
 
+// Helper to create a model that throws AbortError during streaming
+function createAbortingStreamModel(id: string, abortAfterChunks = 1): LanguageModelV1 {
+  const mockModel: LanguageModelV1 = {
+    specificationVersion: 'v1' as const,
+    modelId: id,
+    provider: `provider-${id}`,
+    defaultObjectGenerationMode: undefined,
+
+    doGenerate: vi.fn(),
+
+    doStream: vi.fn().mockImplementation(async () => {
+      const chunks: LanguageModelV1StreamPart[] = [
+        { type: 'text-delta', textDelta: `Stream from ${id} before abort` },
+        { type: 'text-delta', textDelta: ' more text' },
+        { type: 'finish', finishReason: 'stop', usage: { promptTokens: 10, completionTokens: 20 } },
+      ];
+
+      const stream = new ReadableStream<LanguageModelV1StreamPart>({
+        start(controller) {
+          let chunkCount = 0;
+          // Enqueue chunks up to the abort point
+          for (const chunk of chunks) {
+            if (chunkCount >= abortAfterChunks) {
+              // Simulate an AbortError
+              const abortError = new Error('The operation was aborted');
+              abortError.name = 'AbortError';
+              setTimeout(() => controller.error(abortError), 0);
+              return;
+            }
+            controller.enqueue(chunk);
+            chunkCount++;
+          }
+          controller.close();
+        },
+      });
+
+      return {
+        stream,
+        rawCall: { rawPrompt: 'test', rawSettings: {} },
+      };
+    }),
+  };
+
+  return mockModel;
+}
+
 // NOTE: These streaming tests are temporarily disabled due to memory issues
 // with ReadableStream in the test environment. See ai-fallback-memory-safe.test.ts
 // for alternative streaming tests that avoid memory issues.
@@ -273,6 +319,126 @@ describe.skip('FallbackModel - Streaming', () => {
             if (done) break;
           }
         }).rejects.toThrow('Stream error in model2');
+      });
+    });
+
+    describe('abort error handling', () => {
+      it('should handle AbortError without retrying or causing controller closed error', async () => {
+        const model1 = createAbortingStreamModel('model1', 1); // Aborts after first chunk
+        const model2 = createMockModel('model2');
+        const onError = vi.fn();
+        const fallback = createFallback({
+          models: [model1, model2],
+          onError,
+        });
+
+        const options: LanguageModelV1CallOptions = {
+          inputFormat: 'prompt',
+          prompt: [{ role: 'user', content: [{ type: 'text', text: 'Test prompt' }] }],
+          mode: { type: 'regular' },
+        };
+
+        const result = await fallback.doStream(options);
+        const reader = result.stream.getReader();
+        const chunks: LanguageModelV1StreamPart[] = [];
+        let errorThrown: Error | null = null;
+
+        try {
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            chunks.push(value);
+          }
+        } catch (error) {
+          errorThrown = error as Error;
+        }
+
+        // Should have received the chunk before the abort
+        expect(chunks).toHaveLength(1);
+        expect(chunks[0]).toEqual({
+          type: 'text-delta',
+          textDelta: 'Stream from model1 before abort',
+        });
+
+        // Should not have called onError since AbortError is intentional
+        expect(onError).not.toHaveBeenCalled();
+
+        // Should not have tried the second model
+        expect(model2.doStream).not.toHaveBeenCalled();
+
+        // Stream should have ended cleanly without throwing
+        expect(errorThrown).toBeNull();
+      });
+
+      it('should handle AbortError before any output', async () => {
+        const model1 = createAbortingStreamModel('model1', 0); // Aborts immediately
+        const model2 = createMockModel('model2');
+        const fallback = createFallback({ models: [model1, model2] });
+
+        const options: LanguageModelV1CallOptions = {
+          inputFormat: 'prompt',
+          prompt: [{ role: 'user', content: [{ type: 'text', text: 'Test prompt' }] }],
+          mode: { type: 'regular' },
+        };
+
+        const result = await fallback.doStream(options);
+        const reader = result.stream.getReader();
+        const chunks: LanguageModelV1StreamPart[] = [];
+        let errorThrown: Error | null = null;
+
+        try {
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            chunks.push(value);
+          }
+        } catch (error) {
+          errorThrown = error as Error;
+        }
+
+        // Should not have received any chunks
+        expect(chunks).toHaveLength(0);
+
+        // Should not have tried the second model (abort is intentional)
+        expect(model2.doStream).not.toHaveBeenCalled();
+
+        // Stream should have ended cleanly without throwing
+        expect(errorThrown).toBeNull();
+      });
+
+      it('should handle AbortError with retryAfterOutput enabled', async () => {
+        const model1 = createAbortingStreamModel('model1', 1); // Aborts after first chunk
+        const model2 = createMockModel('model2');
+        const fallback = createFallback({
+          models: [model1, model2],
+          retryAfterOutput: true, // Even with this enabled, AbortError should not retry
+        });
+
+        const options: LanguageModelV1CallOptions = {
+          inputFormat: 'prompt',
+          prompt: [{ role: 'user', content: [{ type: 'text', text: 'Test prompt' }] }],
+          mode: { type: 'regular' },
+        };
+
+        const result = await fallback.doStream(options);
+        const reader = result.stream.getReader();
+        const chunks: LanguageModelV1StreamPart[] = [];
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          chunks.push(value);
+        }
+
+        // Should only have chunks from model1 before abort
+        expect(chunks).toHaveLength(1);
+        expect(chunks[0]).toEqual({
+          type: 'text-delta',
+          textDelta: 'Stream from model1 before abort',
+        });
+
+        // Should not have tried model2 even with retryAfterOutput
+        expect(model2.doStream).not.toHaveBeenCalled();
       });
     });
 
