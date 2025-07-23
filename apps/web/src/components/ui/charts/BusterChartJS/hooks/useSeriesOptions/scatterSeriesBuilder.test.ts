@@ -1,5 +1,5 @@
+import { type ColumnLabelFormat, DEFAULT_COLUMN_LABEL_FORMAT } from '@buster/server-shared/metrics';
 import { describe, expect, it } from 'vitest';
-import { DEFAULT_COLUMN_LABEL_FORMAT, type ColumnLabelFormat } from '@buster/server-shared/metrics';
 import { createDayjsDate } from '@/lib/date';
 import type { DatasetOptionsWithTicks } from '../../../chartHooks/useDatasetOptions/interfaces';
 import type { SeriesBuilderProps } from './interfaces';

@@ -10,6 +10,11 @@ export type {
   CompanyResearchError,
 } from './deep-research/types';
 
-export type { FirecrawlConfig } from './services/firecrawl';
+export type {
+  FirecrawlConfig,
+  WebSearchOptions,
+  WebSearchResult,
+  WebSearchResponse,
+} from './services/firecrawl';
 
 export type { PollingOptions } from './utils/polling';

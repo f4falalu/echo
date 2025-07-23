@@ -1,4 +1,4 @@
-import { Parser } from 'node-sql-parser';
+import { BaseFrom, ColumnRefItem, Join, Parser, type Select } from 'node-sql-parser';
 import * as yaml from 'yaml';
 
 export interface ParsedTable {
@@ -13,6 +13,12 @@ export interface QueryTypeCheckResult {
   isReadOnly: boolean;
   queryType?: string;
   error?: string;
+}
+
+export interface WildcardValidationResult {
+  isValid: boolean;
+  error?: string;
+  blockedTables?: string[];
 }
 
 // Map data source syntax to node-sql-parser dialect
@@ -333,6 +339,269 @@ export function extractTablesFromYml(ymlContent: string): ParsedTable[] {
     }
   } catch (_error) {
     // If YML parsing fails, return empty array
+  }
+
+  return tables;
+}
+
+/**
+ * Validates that wildcards (SELECT *) are not used on physical tables
+ * Allows wildcards on CTEs but blocks them on physical database tables
+ */
+export function validateWildcardUsage(
+  sql: string,
+  dataSourceSyntax?: string
+): WildcardValidationResult {
+  const dialect = getParserDialect(dataSourceSyntax);
+  const parser = new Parser();
+
+  try {
+    // Parse SQL into AST with the appropriate dialect
+    const ast = parser.astify(sql, { database: dialect });
+
+    // Handle single statement or array of statements
+    const statements = Array.isArray(ast) ? ast : [ast];
+
+    // Extract CTE names to allow wildcards on them
+    const cteNames = new Set<string>();
+    for (const statement of statements) {
+      if ('with' in statement && statement.with && Array.isArray(statement.with)) {
+        for (const cte of statement.with) {
+          if (cte.name?.value) {
+            cteNames.add(cte.name.value.toLowerCase());
+          }
+        }
+      }
+    }
+
+    const tableList = parser.tableList(sql, { database: dialect });
+    const tableAliasMap = new Map<string, string>(); // alias -> table name
+
+    if (Array.isArray(tableList)) {
+      for (const tableRef of tableList) {
+        if (typeof tableRef === 'string') {
+          // Simple table name
+          tableAliasMap.set(tableRef.toLowerCase(), tableRef);
+        } else if (tableRef && typeof tableRef === 'object') {
+          const tableRefObj = tableRef as Record<string, unknown>;
+          const tableName = tableRefObj.table || tableRefObj.name;
+          const alias = tableRefObj.as || tableRefObj.alias;
+          if (tableName && typeof tableName === 'string') {
+            if (alias && typeof alias === 'string') {
+              tableAliasMap.set(alias.toLowerCase(), tableName);
+            }
+            tableAliasMap.set(tableName.toLowerCase(), tableName);
+          }
+        }
+      }
+    }
+
+    // Check each statement for wildcard usage
+    const blockedTables: string[] = [];
+
+    for (const statement of statements) {
+      if ('type' in statement && statement.type === 'select') {
+        const wildcardTables = findWildcardUsageOnPhysicalTables(
+          statement as unknown as Record<string, unknown>,
+          cteNames
+        );
+        blockedTables.push(...wildcardTables);
+      }
+    }
+
+    if (blockedTables.length > 0) {
+      const tableList = blockedTables.join(', ');
+      return {
+        isValid: false,
+        error: `Wildcard usage on physical tables is not allowed: ${tableList}. Please specify explicit column names.`,
+        blockedTables,
+      };
+    }
+
+    return { isValid: true };
+  } catch (error) {
+    return {
+      isValid: false,
+      error: `Failed to validate wildcard usage: ${error instanceof Error ? error.message : 'Unknown error'}`,
+    };
+  }
+}
+
+/**
+ * Recursively finds wildcard usage on physical tables in a SELECT statement
+ */
+function findWildcardUsageOnPhysicalTables(
+  selectStatement: Record<string, unknown>,
+  cteNames: Set<string>
+): string[] {
+  const blockedTables: string[] = [];
+
+  // Build alias mapping for this statement
+  const aliasToTableMap = new Map<string, string>();
+  if (selectStatement.from && Array.isArray(selectStatement.from)) {
+    for (const fromItem of selectStatement.from) {
+      const fromItemAny = fromItem as unknown as Record<string, unknown>;
+      if (fromItemAny.table && fromItemAny.as) {
+        let tableName: string;
+        if (typeof fromItemAny.table === 'string') {
+          tableName = fromItemAny.table;
+        } else if (fromItemAny.table && typeof fromItemAny.table === 'object') {
+          const tableObj = fromItemAny.table as Record<string, unknown>;
+          tableName = String(
+            tableObj.table || tableObj.name || tableObj.value || fromItemAny.table
+          );
+        } else {
+          continue;
+        }
+        aliasToTableMap.set(String(fromItemAny.as).toLowerCase(), tableName.toLowerCase());
+      }
+
+      // Handle JOINs
+      if (fromItemAny.join && Array.isArray(fromItemAny.join)) {
+        for (const joinItem of fromItemAny.join) {
+          if (joinItem.table && joinItem.as) {
+            let tableName: string;
+            if (typeof joinItem.table === 'string') {
+              tableName = joinItem.table;
+            } else if (joinItem.table && typeof joinItem.table === 'object') {
+              const tableObj = joinItem.table as Record<string, unknown>;
+              tableName = String(
+                tableObj.table || tableObj.name || tableObj.value || joinItem.table
+              );
+            } else {
+              continue;
+            }
+            aliasToTableMap.set(String(joinItem.as).toLowerCase(), tableName.toLowerCase());
+          }
+        }
+      }
+    }
+  }
+
+  if (selectStatement.columns && Array.isArray(selectStatement.columns)) {
+    for (const column of selectStatement.columns) {
+      if (column.expr && column.expr.type === 'column_ref') {
+        // Check for unqualified wildcard (SELECT *)
+        if (column.expr.column === '*' && !column.expr.table) {
+          // Get all tables in FROM clause that are not CTEs
+          const physicalTables = getPhysicalTablesFromFrom(
+            selectStatement.from as unknown as Record<string, unknown>[],
+            cteNames
+          );
+          blockedTables.push(...physicalTables);
+        }
+        // Check for qualified wildcard (SELECT table.*)
+        else if (column.expr.column === '*' && column.expr.table) {
+          // Handle table reference - could be string or object
+          let tableName: string;
+          if (typeof column.expr.table === 'string') {
+            tableName = column.expr.table;
+          } else if (column.expr.table && typeof column.expr.table === 'object') {
+            // Handle object format - could have table property or be the table name itself
+            const tableRefObj = column.expr.table as Record<string, unknown>;
+            tableName = String(
+              tableRefObj.table || tableRefObj.name || tableRefObj.value || column.expr.table
+            );
+          } else {
+            continue; // Skip if we can't determine table name
+          }
+
+          // Check if this is an alias that maps to a CTE
+          const actualTableName = aliasToTableMap.get(tableName.toLowerCase());
+          const isAliasToCte = actualTableName && cteNames.has(actualTableName);
+          const isDirectCte = cteNames.has(tableName.toLowerCase());
+
+          if (!isAliasToCte && !isDirectCte) {
+            blockedTables.push(tableName);
+          }
+        }
+      }
+    }
+  }
+
+  // Check CTEs for nested wildcard usage
+  if (selectStatement.with && Array.isArray(selectStatement.with)) {
+    for (const cte of selectStatement.with) {
+      const cteAny = cte as unknown as Record<string, unknown>;
+      if (cteAny.stmt && typeof cteAny.stmt === 'object' && cteAny.stmt !== null) {
+        const stmt = cteAny.stmt as Record<string, unknown>;
+        if (stmt.type === 'select') {
+          const subBlocked = findWildcardUsageOnPhysicalTables(stmt, cteNames);
+          blockedTables.push(...subBlocked);
+        }
+      }
+    }
+  }
+
+  if (selectStatement.from && Array.isArray(selectStatement.from)) {
+    for (const fromItem of selectStatement.from) {
+      const fromItemAny = fromItem as unknown as Record<string, unknown>;
+      if (fromItemAny.expr && typeof fromItemAny.expr === 'object' && fromItemAny.expr !== null) {
+        const expr = fromItemAny.expr as Record<string, unknown>;
+        if (expr.type === 'select') {
+          const subBlocked = findWildcardUsageOnPhysicalTables(expr, cteNames);
+          blockedTables.push(...subBlocked);
+        }
+      }
+    }
+  }
+
+  return blockedTables;
+}
+
+/**
+ * Extracts physical table names from FROM clause, excluding CTEs
+ */
+function getPhysicalTablesFromFrom(
+  fromClause: Record<string, unknown>[],
+  cteNames: Set<string>
+): string[] {
+  const tables: string[] = [];
+
+  if (!fromClause || !Array.isArray(fromClause)) {
+    return tables;
+  }
+
+  for (const fromItem of fromClause) {
+    // Extract table name from fromItem
+    if (fromItem.table) {
+      let tableName: string;
+      if (typeof fromItem.table === 'string') {
+        tableName = fromItem.table;
+      } else if (fromItem.table && typeof fromItem.table === 'object') {
+        const tableObj = fromItem.table as Record<string, unknown>;
+        tableName = String(tableObj.table || tableObj.name || tableObj.value || fromItem.table);
+      } else {
+        continue;
+      }
+
+      if (tableName && !cteNames.has(tableName.toLowerCase())) {
+        const aliasName = fromItem.as || tableName;
+        tables.push(String(aliasName));
+      }
+    }
+
+    // Handle JOINs
+    if (fromItem.join && Array.isArray(fromItem.join)) {
+      for (const joinItem of fromItem.join) {
+        if (joinItem.table) {
+          let tableName: string;
+          if (typeof joinItem.table === 'string') {
+            tableName = joinItem.table;
+          } else if (joinItem.table && typeof joinItem.table === 'object') {
+            const tableObj = joinItem.table as Record<string, unknown>;
+            tableName = String(tableObj.table || tableObj.name || tableObj.value || joinItem.table);
+          } else {
+            continue;
+          }
+
+          if (tableName && !cteNames.has(tableName.toLowerCase())) {
+            const aliasName = joinItem.as || tableName;
+            tables.push(String(aliasName));
+          }
+        }
+      }
+    }
   }
 
   return tables;

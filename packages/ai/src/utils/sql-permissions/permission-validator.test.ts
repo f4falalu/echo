@@ -32,7 +32,7 @@ describe('Permission Validator', () => {
         },
       ] as any);
 
-      const result = await validateSqlPermissions('SELECT * FROM public.users', 'user123');
+      const result = await validateSqlPermissions('SELECT id, name FROM public.users', 'user123');
 
       expect(result).toEqual({
         isAuthorized: true,
@@ -51,7 +51,10 @@ describe('Permission Validator', () => {
         },
       ] as any);
 
-      const result = await validateSqlPermissions('SELECT * FROM public.orders', 'user123');
+      const result = await validateSqlPermissions(
+        'SELECT id, user_id FROM public.orders',
+        'user123'
+      );
 
       expect(result).toEqual({
         isAuthorized: false,
@@ -73,7 +76,7 @@ describe('Permission Validator', () => {
       ] as any);
 
       const result = await validateSqlPermissions(
-        'SELECT * FROM public.users u JOIN public.orders o ON u.id = o.user_id',
+        'SELECT u.id, u.name, o.id, o.total FROM public.users u JOIN public.orders o ON u.id = o.user_id',
         'user123'
       );
 
@@ -95,7 +98,7 @@ describe('Permission Validator', () => {
       ] as any);
 
       const result = await validateSqlPermissions(
-        'SELECT * FROM public.users u JOIN sales.orders o ON u.id = o.user_id',
+        'SELECT u.id, u.name, o.id, o.total FROM public.users u JOIN sales.orders o ON u.id = o.user_id',
         'user123'
       );
 
@@ -124,7 +127,7 @@ describe('Permission Validator', () => {
           FROM ont_ont.product_total_revenue AS ptr
           GROUP BY ptr.product_name
         )
-        SELECT pqs.*, t.total_revenue
+        SELECT pqs.product_name, pqs.quarter, t.total_revenue
         FROM ont_ont.product_quarterly_sales AS pqs
         JOIN top5 t ON pqs.product_name = t.product_name
       `;
@@ -151,7 +154,7 @@ describe('Permission Validator', () => {
       ] as any);
 
       const sql = `
-        SELECT * FROM public.users u
+        SELECT u.id, u.name FROM public.users u
         WHERE u.id IN (
           SELECT user_id FROM public.orders WHERE total > 100
         )
@@ -178,7 +181,7 @@ describe('Permission Validator', () => {
 
       // Query has full qualification, permission has partial
       // Note: Parser may not support database.schema.table in FROM clause
-      const result = await validateSqlPermissions('SELECT * FROM public.users', 'user123');
+      const result = await validateSqlPermissions('SELECT id, name FROM public.users', 'user123');
 
       expect(result).toEqual({
         isAuthorized: true,
@@ -198,7 +201,7 @@ describe('Permission Validator', () => {
       ] as any);
 
       // Query missing schema that permission requires
-      const result = await validateSqlPermissions('SELECT * FROM users', 'user123');
+      const result = await validateSqlPermissions('SELECT id, name FROM users', 'user123');
 
       expect(result.isAuthorized).toBe(false);
       expect(result.unauthorizedTables).toContain('users');
@@ -209,7 +212,7 @@ describe('Permission Validator', () => {
         new Error('Database connection failed')
       );
 
-      const result = await validateSqlPermissions('SELECT * FROM users', 'user123');
+      const result = await validateSqlPermissions('SELECT id, name FROM users', 'user123');
 
       expect(result).toEqual({
         isAuthorized: false,
@@ -323,7 +326,7 @@ describe('Permission Validator', () => {
       ] as any);
 
       const result = await validateSqlPermissions(
-        'SELECT * FROM public.users u JOIN public.orders o ON u.id = o.user_id',
+        'SELECT u.id, u.name, o.id, o.total FROM public.users u JOIN public.orders o ON u.id = o.user_id',
         'user123'
       );
 

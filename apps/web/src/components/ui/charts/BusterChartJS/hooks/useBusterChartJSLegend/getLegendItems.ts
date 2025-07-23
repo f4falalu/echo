@@ -1,17 +1,16 @@
+import type { ChartType } from '@buster/server-shared/metrics';
 import type { ChartDataset } from 'chart.js';
 import type React from 'react';
-import { type BusterChartProps } from '@/api/asset_interfaces/metric/charts';
+import type { BusterChartProps } from '../../../BusterChart.types';
 import type { BusterChartLegendItem } from '../../../BusterChartLegend';
 import { formatLabelForPieLegend } from '../../../commonHelpers';
 import type { ChartJSOrUndefined } from '../../core/types';
-import type { ChartType } from '@buster/server-shared/metrics';
 
 export const getLegendItems = ({
   chartRef,
   colors,
   inactiveDatasets,
   selectedChartType,
-  columnLabelFormats,
   columnSettings
 }: {
   colors: string[];
@@ -34,10 +33,10 @@ export const getLegendItems = ({
 
     return data.datasets.flatMap((dataset) => {
       return labels?.map<BusterChartLegendItem>((label, index) => ({
-        color: colors[index % colors.length],
-        inactive: inactiveDatasets[label],
+        color: colors[index % colors.length] ?? '',
+        inactive: inactiveDatasets[label] ?? false,
         type: globalType,
-        serieName: dataset.label,
+        serieName: dataset.label ?? '',
         formattedName: formatLabelForPieLegend(label, dataset.label || '', hasMultipleYAxis),
         id: label,
         data: dataset.data,
@@ -49,8 +48,8 @@ export const getLegendItems = ({
   const datasets = data.datasets?.filter((dataset) => !dataset.hidden) || [];
 
   return datasets.map<BusterChartLegendItem>((dataset, index) => ({
-    color: colors[index % colors.length],
-    inactive: dataset.label ? inactiveDatasets[dataset.label] : false,
+    color: colors[index % colors.length] ?? '',
+    inactive: dataset.label ? (inactiveDatasets[dataset.label] ?? false) : false,
     type: getType(isComboChart, globalType, dataset, columnSettings),
     formattedName: dataset.label as string,
     id: dataset.label || '',

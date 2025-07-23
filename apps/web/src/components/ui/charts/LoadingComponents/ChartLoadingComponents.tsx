@@ -1,11 +1,11 @@
+import { cn } from '@/lib/classMerge';
 import type React from 'react';
-import { ShimmerText } from '@/components/ui/typography/ShimmerText';
-import { cn } from '@/lib/utils';
+import { ShimmerLoadingText } from '../OtherComponents/ShimmerLoadingText';
 
 export const PreparingYourRequestLoader: React.FC<{
   className?: string;
   text?: string;
-  error?: string | null;
+  error?: string | null | undefined;
   useShimmer?: boolean;
 }> = ({ className = '', text = 'Processing your request...', error, useShimmer = true }) => {
   return (
@@ -17,7 +17,7 @@ export const PreparingYourRequestLoader: React.FC<{
       {error || useShimmer === false ? (
         <span className="text-text-tertiary flex items-center text-center">{error || text}</span>
       ) : (
-        <ShimmerText className="text-center" text={text} />
+        <ShimmerLoadingText className="text-center" text={text} />
       )}
     </div>
   );

@@ -1,7 +1,14 @@
+import { isNumericColumnType } from '@/lib/messages';
+import type {
+  ChartConfigProps,
+  ChartEncodes,
+  ChartType,
+  ColumnMetaData,
+  ScatterAxis
+} from '@buster/server-shared/metrics';
 import type { ChartType as ChartJSChartType } from 'chart.js';
 import { useMemo } from 'react';
-import type { BusterChartProps } from '@/api/asset_interfaces/metric/charts';
-import { isNumericColumnType } from '@/lib';
+import type { BusterChartProps } from '../../../BusterChart.types';
 import type { DatasetOptionsWithTicks } from '../../../chartHooks';
 import type { ChartProps } from '../../core';
 import { barSeriesBuilder, barSeriesBuilder_labels } from './barSeriesBuilder';
@@ -10,13 +17,6 @@ import type { SeriesBuilderProps } from './interfaces';
 import { lineSeriesBuilder, lineSeriesBuilder_labels } from './lineSeriesBuilder';
 import { pieSeriesBuilder_data, pieSeriesBuilder_labels } from './pieSeriesBuilder';
 import { scatterSeriesBuilder_data, scatterSeriesBuilder_labels } from './scatterSeriesBuilder';
-import type {
-  ChartConfigProps,
-  ChartEncodes,
-  ChartType,
-  ColumnMetaData,
-  ScatterAxis
-} from '@buster/server-shared/metrics';
 
 export interface UseSeriesOptionsProps {
   selectedChartType: ChartType;

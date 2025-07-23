@@ -1,9 +1,9 @@
+import type { ChartEncodes } from '@buster/server-shared/metrics';
 import { renderHook } from '@testing-library/react';
 import { act } from 'react';
 import { describe, expect, it } from 'vitest';
 import type { BusterChartLegendItem } from './interfaces';
 import { useBusterChartLegend } from './useBusterChartLegend';
-import type { ChartEncodes } from '@buster/server-shared/metrics';
 
 describe('useBusterChartLegend', () => {
   const defaultProps = {

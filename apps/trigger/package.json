@@ -28,7 +28,7 @@
     "@buster/typescript-config": "workspace:*",
     "@buster/vitest-config": "workspace:*",
     "@mastra/core": "catalog:",
-    "@trigger.dev/sdk": "4.0.0-v4-beta.24",
+    "@trigger.dev/sdk": "catalog:",
     "ai": "catalog:",
     "braintrust": "catalog:",
     "vitest": "catalog:",

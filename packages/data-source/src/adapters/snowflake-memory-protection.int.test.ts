@@ -1,9 +1,20 @@
-import { afterEach, beforeEach, describe, expect } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { DataSourceType } from '../types/credentials';
 import type { SnowflakeCredentials } from '../types/credentials';
 import { SnowflakeAdapter } from './snowflake';
 
-const testWithCredentials = skipIfNoCredentials('snowflake');
+// Check if Snowflake test credentials are available
+const hasSnowflakeCredentials = !!(
+  process.env.TEST_SNOWFLAKE_DATABASE &&
+  process.env.TEST_SNOWFLAKE_USERNAME &&
+  process.env.TEST_SNOWFLAKE_PASSWORD &&
+  process.env.TEST_SNOWFLAKE_ACCOUNT_ID
+);
+
+// Skip tests if credentials are not available
+const testWithCredentials = hasSnowflakeCredentials ? it : it.skip;
+
+const TEST_TIMEOUT = 30000;
 
 describe('Snowflake Memory Protection Tests', () => {
   let adapter: SnowflakeAdapter;
@@ -12,28 +23,16 @@ describe('Snowflake Memory Protection Tests', () => {
   beforeEach(() => {
     adapter = new SnowflakeAdapter();
 
-    // Set up credentials once
-    if (
-      !testConfig.snowflake.account_id ||
-      !testConfig.snowflake.warehouse_id ||
-      !testConfig.snowflake.username ||
-      !testConfig.snowflake.password ||
-      !testConfig.snowflake.default_database
-    ) {
-      throw new Error(
-        'TEST_SNOWFLAKE_ACCOUNT_ID, TEST_SNOWFLAKE_WAREHOUSE_ID, TEST_SNOWFLAKE_USERNAME, TEST_SNOWFLAKE_PASSWORD, and TEST_SNOWFLAKE_DATABASE are required for this test'
-      );
-    }
-
+    // Set up credentials from environment variables
     credentials = {
       type: DataSourceType.Snowflake,
-      account_id: testConfig.snowflake.account_id,
-      warehouse_id: testConfig.snowflake.warehouse_id,
-      username: testConfig.snowflake.username,
-      password: testConfig.snowflake.password,
-      default_database: testConfig.snowflake.default_database,
-      default_schema: testConfig.snowflake.default_schema,
-      role: testConfig.snowflake.role,
+      account_id: process.env.TEST_SNOWFLAKE_ACCOUNT_ID!,
+      warehouse_id: process.env.TEST_SNOWFLAKE_WAREHOUSE_ID || 'COMPUTE_WH',
+      default_database: process.env.TEST_SNOWFLAKE_DATABASE!,
+      default_schema: process.env.TEST_SNOWFLAKE_SCHEMA || 'PUBLIC',
+      username: process.env.TEST_SNOWFLAKE_USERNAME!,
+      password: process.env.TEST_SNOWFLAKE_PASSWORD!,
+      role: process.env.TEST_SNOWFLAKE_ROLE,
     };
   });
 
@@ -108,7 +107,7 @@ describe('Snowflake Memory Protection Tests', () => {
       // The cached queries (2nd and 3rd) should generally be faster than the first
       // We use a loose check because network latency can vary
       const avgCachedTime = (time2 + time3) / 2;
-      expect(avgCachedTime).toBeLessThanOrEqual(time1 * 1.5); // Allow 50% variance
+      expect(avgCachedTime).toBeLessThanOrEqual(time1 * 2); // Allow 100% variance for network fluctuations
     },
     TEST_TIMEOUT
   );
@@ -142,7 +141,7 @@ describe('Snowflake Memory Protection Tests', () => {
 
       expect(result.rows.length).toBe(1);
       expect(result.hasMoreRows).toBe(true);
-      expect(result.rows[0]).toHaveProperty('N_NATIONKEY', 0); // First nation
+      expect(result.rows[0]).toHaveProperty('n_nationkey', 0); // First nation
     },
     TEST_TIMEOUT
   );

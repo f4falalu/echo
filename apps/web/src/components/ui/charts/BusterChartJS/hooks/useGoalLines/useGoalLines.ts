@@ -10,8 +10,7 @@
  * @packageDocumentation
  */
 
-import type { AnnotationOptions, AnnotationPluginOptions } from 'chartjs-plugin-annotation';
-import { useMemo } from 'react';
+import { formatLabel } from '@/lib/columnFormatter';
 import { DEFAULT_COLUMN_LABEL_FORMAT } from '@buster/server-shared/metrics';
 import type {
   ChartConfigProps,
@@ -19,7 +18,8 @@ import type {
   ColumnLabelFormat,
   GoalLine
 } from '@buster/server-shared/metrics';
-import { formatLabel } from '@/lib/columnFormatter';
+import type { AnnotationOptions, AnnotationPluginOptions } from 'chartjs-plugin-annotation';
+import { useMemo } from 'react';
 import { yAxisSimilar } from '../../../commonHelpers';
 import { defaultLabelOptionConfig } from '../useChartSpecificOptions/labelOptionConfig';
 
@@ -85,7 +85,7 @@ export const useGoalLines = ({
     const allKeys = [...yAxisKeys, ...(y2AxisKeys || [])];
     const isSimilar = yAxisSimilar(allKeys, columnLabelFormats);
     if (isSimilar) {
-      const key = yAxisKeys[0];
+      const key = yAxisKeys[0] ?? '';
       return columnLabelFormats[key] || DEFAULT_COLUMN_LABEL_FORMAT;
     }
     return {

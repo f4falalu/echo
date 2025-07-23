@@ -1,11 +1,10 @@
+import type {
+  ChartEncodes,
+  ColumnLabelFormat,
+  SimplifiedColumnType
+} from '@buster/server-shared/metrics';
 import { renderHook } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import type { BusterChartProps } from '@/api/asset_interfaces/metric/charts';
-import {
-  type ChartEncodes,
-  type ColumnLabelFormat,
-  type SimplifiedColumnType
-} from '@buster/server-shared/metrics';
 import { formatLabel } from '@/lib/columnFormatter';
 import { truncateWithEllipsis } from '../../../../commonHelpers/titleHelpers';
 import { useXAxisTitle } from './useXAxisTitle';

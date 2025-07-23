@@ -8,7 +8,7 @@ const OrganizationRoleSchema: Record<OrganizationRole, string> = {
   workspace_admin: 'workspace_admin',
   querier: 'querier',
   restricted_querier: 'restricted_querier',
-  viewer: 'viewer',
+  viewer: 'viewer'
 };
 
 const meta: Meta<typeof NewChatWarning> = {

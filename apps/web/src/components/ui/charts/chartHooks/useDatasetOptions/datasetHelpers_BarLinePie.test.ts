@@ -1,5 +1,5 @@
-import { describe, expect, it } from 'vitest';
 import type { ColumnMetaData } from '@buster/server-shared/metrics';
+import { describe, expect, it } from 'vitest';
 import { sortLineBarData } from './datasetHelpers_BarLinePie';
 
 describe('sortLineBarData', () => {

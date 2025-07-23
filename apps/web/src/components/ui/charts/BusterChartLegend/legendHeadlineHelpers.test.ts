@@ -1,11 +1,11 @@
-import { describe, expect, it } from 'vitest';
 import {
   type ColumnLabelFormat,
-  type ShowLegendHeadline,
   type ColumnMetaData,
-  type SimplifiedColumnType,
-  DEFAULT_COLUMN_LABEL_FORMAT
+  DEFAULT_COLUMN_LABEL_FORMAT,
+  type ShowLegendHeadline,
+  type SimplifiedColumnType
 } from '@buster/server-shared/metrics';
+import { describe, expect, it } from 'vitest';
 import type { DatasetOptionsWithTicks } from '../chartHooks/useDatasetOptions/interfaces';
 import type { BusterChartLegendItem } from './interfaces';
 import { addLegendHeadlines } from './legendHeadlineHelpers';

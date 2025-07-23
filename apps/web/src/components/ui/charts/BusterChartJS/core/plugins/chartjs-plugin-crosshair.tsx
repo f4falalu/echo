@@ -55,7 +55,7 @@ const crosshairPlugin: Plugin<'line'> = {
   },
 
   // Draw the crosshair lines and labels after the chart is rendered
-  afterDraw(chart: Chart, args, options: CrosshairPluginOptions) {
+  afterDraw(chart: Chart, _args, options: CrosshairPluginOptions) {
     if (!chart) return;
     const {
       ctx,
@@ -96,6 +96,8 @@ const crosshairPlugin: Plugin<'line'> = {
       // Get the scales for label values
       const yScale = chart.scales.y;
       const xScale = chart.scales.x;
+
+      if (!yScale || !xScale) return;
 
       // --- Draw Y-Axis Label ---
       const yValue = yScale.getValueForPixel(y);

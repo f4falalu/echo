@@ -1,3 +1,4 @@
+import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import {
   DndContext,
   type DragEndEvent,
@@ -6,17 +7,15 @@ import {
   type DragStartEvent,
   KeyboardSensor,
   MouseSensor,
-  pointerWithin,
   TouchSensor,
+  pointerWithin,
   useSensor,
   useSensors
 } from '@dnd-kit/core';
 import { restrictToHorizontalAxis } from '@dnd-kit/modifiers';
 import { arrayMove } from '@dnd-kit/sortable';
-import { flexRender, type Header, type Table } from '@tanstack/react-table';
-import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { createContext, useContextSelector } from 'use-context-selector';
-import { useMemoizedFn } from '@/hooks';
+import { type Header, type Table, flexRender } from '@tanstack/react-table';
+import React, { useEffect, useMemo, useRef, useState, createContext, useContext } from 'react';
 import { HEADER_HEIGHT } from './constants';
 
 const ACTIVATION_CONSTRAINT = {
@@ -31,7 +30,7 @@ export const SortColumnWrapper: React.FC<{
   children: React.ReactNode;
   colOrder: string[];
   setColOrder: (colOrder: string[]) => void;
-  onReorderColumns?: (colOrder: string[]) => void;
+  onReorderColumns?: ((columnIds: string[]) => void) | undefined;
 }> = React.memo(({ table, draggable, children, colOrder, setColOrder, onReorderColumns }) => {
   // Track active drag item and over target
   const [activeId, setActiveId] = useState<string | null>(null);
@@ -70,7 +69,12 @@ export const SortColumnWrapper: React.FC<{
       ?.headers.findIndex((header) => header.id === active.id);
 
     if (headerIndex !== undefined && headerIndex !== -1) {
-      setActiveHeader(table.getHeaderGroups()[0]?.headers[headerIndex]);
+      setActiveHeader(
+        table.getHeaderGroups()[0]?.headers[headerIndex] as Header<
+          Record<string, string | number | Date | null>,
+          unknown
+        >
+      );
     }
   });
 
@@ -161,8 +165,10 @@ export const SortColumnContext = createContext<SortColumnContextType>({
   overTargetId: null
 });
 
-export const useSortColumnContext = <T,>(selector: (ctx: SortColumnContextType) => T) =>
-  useContextSelector(SortColumnContext, selector);
+export const useSortColumnContext = <T,>(selector: (ctx: SortColumnContextType) => T): T => {
+  const context = useContext(SortColumnContext);
+  return selector(context);
+};
 
 // Header content component to use in the DragOverlay
 const HeaderDragOverlay = ({

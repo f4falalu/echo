@@ -1,1 +1,1 @@
-export { default as AppMarkdownStreaming } from "./AppMarkdownStreaming";
+export { default as AppMarkdownStreaming } from './AppMarkdownStreaming';

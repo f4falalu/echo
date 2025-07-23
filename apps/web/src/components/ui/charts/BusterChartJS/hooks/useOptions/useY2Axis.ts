@@ -1,19 +1,19 @@
-import type { Scale, ScaleChartOptions } from 'chart.js';
-import { useMemo } from 'react';
-import type { DeepPartial } from 'utility-types';
-import { useMemoizedFn } from '@/hooks';
-import { formatYAxisLabel, yAxisSimilar } from '../../../commonHelpers';
-import { useY2AxisTitle } from './axisHooks/useY2AxisTitle';
+import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import {
-  DEFAULT_CHART_CONFIG,
-  DEFAULT_COLUMN_LABEL_FORMAT,
   type ChartConfigProps,
   type ChartEncodes,
   type ChartType,
   type ColumnLabelFormat,
-  type ComboChartAxis
+  type ComboChartAxis,
+  DEFAULT_CHART_CONFIG,
+  DEFAULT_COLUMN_LABEL_FORMAT
 } from '@buster/server-shared/metrics';
-import type { BusterChartProps } from '@/api/asset_interfaces';
+import type { Scale, ScaleChartOptions } from 'chart.js';
+import { useMemo } from 'react';
+import type { DeepPartial } from 'utility-types';
+import type { BusterChartProps } from '../../../BusterChart.types';
+import { formatYAxisLabel, yAxisSimilar } from '../../../commonHelpers';
+import { useY2AxisTitle } from './axisHooks/useY2AxisTitle';
 
 export const useY2Axis = ({
   columnLabelFormats,
@@ -74,7 +74,11 @@ export const useY2Axis = ({
     }, {});
   }, [y2AxisKeysString, columnLabelFormats]);
 
-  const tickCallback = useMemoizedFn(function (this: Scale, value: string | number, index: number) {
+  const tickCallback = useMemoizedFn(function (
+    this: Scale,
+    value: string | number,
+    _index: number
+  ) {
     return formatYAxisLabel(value, y2AxisKeys, canUseSameY2Formatter, y2AxisColumnFormats, false);
   });
 

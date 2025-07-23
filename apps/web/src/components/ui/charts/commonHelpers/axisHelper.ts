@@ -1,8 +1,8 @@
-import isEqual from 'lodash/isEqual';
-import pick from 'lodash/pick';
-import type { BusterChartProps } from '@/api/asset_interfaces/metric/charts';
 import { formatLabel } from '@/lib/columnFormatter';
 import type { BarAndLineAxis, ScatterAxis } from '@buster/server-shared/metrics';
+import isEqual from 'lodash/isEqual';
+import pick from 'lodash/pick';
+import type { BusterChartProps } from '../BusterChart.types';
 
 export const formatYAxisLabel = (
   value: string | number,
@@ -17,7 +17,7 @@ export const formatYAxisLabel = (
   }
 
   if (canUseSameFormatter) {
-    const firstYAxis = axisColumnNames[0];
+    const firstYAxis = axisColumnNames[0] || '';
     const columnFormat = columnLabelFormats[firstYAxis];
     return formatLabel(value, { ...columnFormat, compactNumbers }, false);
   }
