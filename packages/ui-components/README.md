@@ -13,9 +13,8 @@ This is an internal monorepo package. It's automatically available to other pack
 Components must be imported from their specific paths for optimal tree-shaking:
 
 ```typescript
-import { LineChart } from '@buster/ui-components/components/charts';
-import { DataTable } from '@buster/ui-components/components/table';
-```
+import { BusterChart } from '@buster/ui-components/components/charts';
+ ```
 
 ### Hooks
 

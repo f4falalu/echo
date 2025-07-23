@@ -28,11 +28,31 @@
   },
   "peerDependencies": {
     "react": "^18.0.0",
-    "react-dom": "^18.0.0"
+    "react-dom": "^18.0.0",
+    "chart.js": "^4.5.0",
+    "chartjs-adapter-dayjs-4": "^1.0.4",
+    "chartjs-plugin-annotation": "^3.1.0",
+    "chartjs-plugin-datalabels": "^2.2.0",
+    "chartjs-plugin-deferred": "^2.0.0"
   },
   "peerDependenciesMeta": {
     "react-dom": {
       "optional": true
+    },
+    "chart.js": {
+      "optional": false
+    },
+    "chartjs-adapter-dayjs-4": {
+      "optional": false
+    },
+    "chartjs-plugin-annotation": {
+      "optional": false
+    },
+    "chartjs-plugin-datalabels": {
+      "optional": false
+    },
+    "chartjs-plugin-deferred": {
+      "optional": false
     }
   },
   "scripts": {
@@ -61,11 +81,6 @@
     "@tanstack/react-virtual": "^3.13.12",
     "@testing-library/react": "^16.3.0",
     "@vitejs/plugin-react": "^4.7.0",
-    "chart.js": "4.5.0",
-    "chartjs-adapter-dayjs-4": "^1.0.4",
-    "chartjs-plugin-annotation": "^3.1.0",
-    "chartjs-plugin-datalabels": "^2.2.0",
-    "chartjs-plugin-deferred": "^2.0.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "dayjs": "^1.11.13",
