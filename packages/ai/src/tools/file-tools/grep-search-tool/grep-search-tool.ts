@@ -3,7 +3,10 @@ import type { RuntimeContext } from '@mastra/core/runtime-context';
 import { createTool } from '@mastra/core/tools';
 import { wrapTraced } from 'braintrust';
 import { z } from 'zod';
-import { type DocsAgentContext, DocsAgentContextKey } from '../../../context/docs-agent-context';
+import {
+  type DocsAgentContext,
+  DocsAgentContextKeys,
+} from '../../../context/docs-agent-context';
 
 const grepSearchConfigSchema = z
   .object({
@@ -104,7 +107,7 @@ const grepSearchExecution = wrapTraced(
     }
 
     try {
-      const sandbox = runtimeContext.get(DocsAgentContextKey.Sandbox);
+      const sandbox = runtimeContext.get(DocsAgentContextKeys.Sandbox);
 
       if (sandbox) {
         const { generateGrepSearchCode } = await import('./grep-search');

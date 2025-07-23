@@ -6,6 +6,7 @@ import {
   createFiles,
   deleteFiles,
   editFiles,
+  executeSqlDocsAgent,
   grepSearch,
   idleTool,
   readFiles,
@@ -26,18 +27,18 @@ const DEFAULT_OPTIONS = {
   },
 };
 
-export const analystAgent = new Agent({
+export const docsAgent = new Agent({
   name: 'Docs Agent',
   instructions: '', // We control the system messages in the step at stream instantiation
   model: Sonnet4,
   tools: {
-    // TODO: missing execute sql
     sequentialThinking,
     grepSearch,
     readFiles,
     editFiles,
     createFiles,
     deleteFiles,
+    executeSql: executeSqlDocsAgent, // Use the docs-specific SQL tool that operates as a
     bashExecute,
     updateClarificationsFile,
     checkOffTodoList,

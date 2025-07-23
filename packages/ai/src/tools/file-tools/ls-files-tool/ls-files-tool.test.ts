@@ -1,6 +1,6 @@
 import { RuntimeContext } from '@mastra/core/runtime-context';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { DocsAgentContextKey } from '../../../context/docs-agent-context';
+import { DocsAgentContextKeys } from '../../../context/docs-agent-context';
 
 const mockRunTypescript = vi.fn();
 const mockLsFilesSafely = vi.fn();
@@ -70,7 +70,7 @@ describe('ls-files-tool', () => {
 
     it('should execute with sandbox when available', async () => {
       const mockSandbox = { process: { codeRun: vi.fn() } };
-      runtimeContext.set(DocsAgentContextKey.Sandbox, mockSandbox);
+      runtimeContext.set(DocsAgentContextKeys.Sandbox, mockSandbox);
 
       mockGenerateLsCode.mockReturnValue('generated code');
       mockRunTypescript.mockResolvedValue({
@@ -116,7 +116,7 @@ describe('ls-files-tool', () => {
 
     it('should handle sandbox execution failure', async () => {
       const mockSandbox = { process: { codeRun: vi.fn() } };
-      runtimeContext.set(DocsAgentContextKey.Sandbox, mockSandbox);
+      runtimeContext.set(DocsAgentContextKeys.Sandbox, mockSandbox);
 
       mockGenerateLsCode.mockReturnValue('generated code');
       mockRunTypescript.mockResolvedValue({

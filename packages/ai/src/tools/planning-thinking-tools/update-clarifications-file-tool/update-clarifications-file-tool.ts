@@ -5,24 +5,20 @@ import { z } from 'zod';
 import {
   ClarifyingQuestionSchema,
   type DocsAgentContext,
-  DocsAgentContextKey,
   type MessageUserClarifyingQuestion,
 } from '../../../context/docs-agent-context';
 
 const updateClarificationsInputSchema = z.object({
-  issue: z.string().describe('The issue or problem that needs clarification'),
-  context: z
-    .string()
-    .describe('The context around the issue to help understand what clarification is needed'),
-  clarificationQuestion: z
-    .string()
-    .describe('The specific question to ask the user for clarification'),
+  clarifications: z
+    .array(ClarifyingQuestionSchema)
+    .describe('Array of clarification questions to set as the complete clarification file'),
 });
 
 const updateClarificationsOutputSchema = z.object({
   success: z.boolean(),
-  clarification: ClarifyingQuestionSchema.optional(),
+  clarifications: z.array(ClarifyingQuestionSchema).optional(),
   message: z.string().optional(),
+  totalClarifications: z.number().optional().describe('Total number of clarification questions'),
 });
 
 const updateClarificationsExecution = wrapTraced(
@@ -30,26 +26,20 @@ const updateClarificationsExecution = wrapTraced(
     params: z.infer<typeof updateClarificationsInputSchema>,
     runtimeContext: RuntimeContext<DocsAgentContext>
   ): Promise<z.infer<typeof updateClarificationsOutputSchema>> => {
-    const { issue, context, clarificationQuestion } = params;
+    const { clarifications } = params;
 
     try {
-      // Create the new clarification question
-      const newClarification: MessageUserClarifyingQuestion = {
-        issue,
-        context,
-        clarificationQuestion,
-      };
+      // Validate all clarifications against the schema
+      const validatedClarifications = z.array(ClarifyingQuestionSchema).parse(clarifications);
 
-      // Validate the clarification against the schema
-      const validatedClarification = ClarifyingQuestionSchema.parse(newClarification);
-
-      // Update the context with the new clarification
-      runtimeContext.set('clarificationQuestion', validatedClarification);
+      // Update the context with the new clarifications array
+      runtimeContext.set('clarificationQuestions', validatedClarifications);
 
       return {
         success: true,
-        clarification: validatedClarification,
-        message: 'Successfully added clarification question',
+        clarifications: validatedClarifications,
+        message: 'Successfully updated clarification questions',
+        totalClarifications: validatedClarifications.length,
       };
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -61,7 +51,7 @@ const updateClarificationsExecution = wrapTraced(
 
       return {
         success: false,
-        message: `Error adding clarification: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        message: `Error updating clarifications: ${error instanceof Error ? error.message : 'Unknown error'}`,
       };
     }
   },
@@ -71,7 +61,7 @@ const updateClarificationsExecution = wrapTraced(
 export const updateClarificationsFile = createTool({
   id: 'update-clarifications-file',
   description:
-    'Add a new clarification question to the context. This tool helps agents request clarification from users when they encounter ambiguous or unclear requirements.',
+    'Update the clarification questions file with a new array of clarification questions. This replaces any existing clarification questions with the provided array.',
   inputSchema: updateClarificationsInputSchema,
   outputSchema: updateClarificationsOutputSchema,
   execute: async ({

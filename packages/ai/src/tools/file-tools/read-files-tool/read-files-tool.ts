@@ -3,7 +3,10 @@ import type { RuntimeContext } from '@mastra/core/runtime-context';
 import { createTool } from '@mastra/core/tools';
 import { wrapTraced } from 'braintrust';
 import { z } from 'zod';
-import { type DocsAgentContext, DocsAgentContextKey } from '../../../context/docs-agent-context';
+import {
+  type DocsAgentContext,
+  DocsAgentContextKeys,
+} from '../../../context/docs-agent-context';
 import type { AnalystRuntimeContext } from '../../../schemas/workflow-schemas';
 
 const readFilesInputSchema = z.object({
@@ -47,7 +50,7 @@ const readFilesExecution = wrapTraced(
 
     try {
       // Check if sandbox is available in runtime context
-      const sandbox = runtimeContext.get(DocsAgentContextKey.Sandbox);
+      const sandbox = runtimeContext.get(DocsAgentContextKeys.Sandbox);
 
       if (sandbox) {
         // Execute in sandbox

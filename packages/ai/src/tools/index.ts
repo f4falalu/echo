@@ -9,6 +9,7 @@ export { modifyMetrics } from './visualization-tools/modify-metrics-file-tool';
 export { createDashboards } from './visualization-tools/create-dashboards-file-tool';
 export { modifyDashboards } from './visualization-tools/modify-dashboards-file-tool';
 export { executeSql } from './database-tools/execute-sql';
+export { executeSqlDocsAgent } from './database-tools/execute-sql-docs-agent';
 export { createTodoList } from './planning-thinking-tools/create-todo-item-tool';
 export { editFiles } from './file-tools/edit-files-tool/edit-files-tool';
 export { readFiles } from './file-tools/read-files-tool/read-files-tool';

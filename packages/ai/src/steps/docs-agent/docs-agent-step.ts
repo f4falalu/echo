@@ -2,25 +2,18 @@ import type { Sandbox } from '@buster/sandbox';
 import { createStep } from '@mastra/core';
 import type { RuntimeContext } from '@mastra/core/runtime-context';
 import { z } from 'zod';
-import { DocsAgentContextKey } from '../../context/docs-agent-context';
+import { docsAgent } from '../../agents/docs-agent/docs-agent';
+import { getDocsInstructions } from '../../agents/docs-agent/docs-agent-instructions';
+import { DocsAgentContextKeys, DocsAgentContextSchema } from '../../context/docs-agent-context';
 import type { MessageUserClarifyingQuestion } from '../../context/docs-agent-context';
+import { standardizeMessages } from '../../utils/standardizeMessages';
 
 const docsAgentStepInputSchema = z.object({
-  todos: z.array(z.string()),
+  todos: z.string(),
   todoList: z.string(),
   message: z.string(),
   organizationId: z.string(),
-  context: z.object({
-    sandbox: z.any(),
-    todoList: z.string(),
-    clarificationQuestion: z
-      .object({
-        issue: z.string(),
-        context: z.string(),
-        clarificationQuestion: z.string(),
-      })
-      .optional(),
-  }),
+  context: DocsAgentContextSchema,
 });
 
 const docsAgentStepOutputSchema = z.object({
@@ -52,47 +45,105 @@ const docsAgentExecution = async ({
   runtimeContext: RuntimeContext;
 }): Promise<z.infer<typeof docsAgentStepOutputSchema>> => {
   // Access values from runtime context
-  const sandbox = runtimeContext.get(DocsAgentContextKey.Sandbox) as Sandbox;
-  const todoList = runtimeContext.get(DocsAgentContextKey.TodoListFile) as string;
-  const clarificationQuestion = runtimeContext.get(DocsAgentContextKey.ClarificationFile) as
+  const sandbox = runtimeContext.get(DocsAgentContextKeys.Sandbox) as Sandbox;
+  const todoList = runtimeContext.get(DocsAgentContextKeys.TodoList) as string;
+  const clarificationQuestion = runtimeContext.get(DocsAgentContextKeys.ClarificationQuestions) as
     | MessageUserClarifyingQuestion
     | undefined;
 
   // Also access standard workflow context
   const organizationId = runtimeContext.get('organizationId') as string;
   const workflowStartTime = runtimeContext.get('workflowStartTime') as number;
+  const dataSourceId = runtimeContext.get('dataSourceId') as string;
+  const dataSourceSyntax = runtimeContext.get('dataSourceSyntax') as string;
 
-  console.info('[DocsAgent] Runtime context values:', {
+  console.info('[DocsAgent] Starting docs agent execution', {
     hasSandbox: !!sandbox,
-    todoList,
+    todoListLength: todoList?.length || 0,
     hasClarificationQuestion: !!clarificationQuestion,
     organizationId,
     workflowStartTime,
+    dataSourceId,
+    dataSourceSyntax,
   });
 
-  // TODO: Implement the docs agent logic
-  // This step should:
-  // 1. Process the todos using the sandbox
-  // 2. Create documentation files
-  // 3. Handle clarification questions if needed
+  try {
+    // Get the docs agent instructions with the current date
+    const instructions = getDocsInstructions();
 
-  // Example of how to use sandbox (when implemented):
-  // const result = await sandbox.execute('console.log("Hello from sandbox")');
+    // Prepare the initial messages
+    const initialMessage = `${inputData.message}\n\n---\n\nTODO LIST:\n${todoList}`;
+    const messages = standardizeMessages(initialMessage);
 
-  // If you need to update clarification question:
-  // runtimeContext.set(DocsAgentContextKey.ClarificationFile, newClarificationQuestion);
+    // Execute the docs agent
+    const result = await docsAgent.stream(messages, {
+      instructions,
+      runtimeContext,
+      maxSteps: 50, // Allow more steps for complex documentation tasks
+    });
 
-  return {
-    todos: inputData.todos,
-    todoList: inputData.todoList,
-    documentationCreated: false,
-    clarificationNeeded: false,
-    finished: true,
-    metadata: {
-      filesCreated: 0,
-      toolsUsed: [],
-    },
-  };
+    // Process the stream to extract results
+    let documentationCreated = false;
+    let clarificationNeeded = false;
+    let filesCreated = 0;
+    const toolsUsed = new Set<string>();
+    let finished = false;
+
+    for await (const chunk of result.fullStream) {
+      // Track tool usage
+      if (chunk.type === 'tool-call') {
+        toolsUsed.add(chunk.toolName);
+
+        // Track specific tool outcomes
+        if (chunk.toolName === 'createFiles' || chunk.toolName === 'editFiles') {
+          documentationCreated = true;
+          filesCreated++;
+        }
+
+        if (chunk.toolName === 'updateClarificationsFile') {
+          clarificationNeeded = true;
+        }
+
+        if (chunk.toolName === 'idleTool') {
+          finished = true;
+        }
+      }
+
+      // Check for clarification updates in tool results
+      if (chunk.type === 'tool-result') {
+        if (chunk.toolName === 'updateClarificationsFile' && chunk.result) {
+          // Update the runtime context with any new clarification questions
+          const resultData = chunk.result as Record<string, unknown>;
+          if (resultData.clarificationQuestion) {
+            runtimeContext.set(
+              DocsAgentContextKeys.ClarificationQuestions,
+              resultData.clarificationQuestion
+            );
+          }
+        }
+      }
+    }
+
+    // Get the final todo list state
+    const finalTodoList = runtimeContext.get(DocsAgentContextKeys.TodoList) as string;
+
+    return {
+      todos: inputData.todos.split('\n').filter((line) => line.trim()),
+      todoList: finalTodoList || inputData.todoList,
+      documentationCreated,
+      clarificationNeeded,
+      finished,
+      metadata: {
+        filesCreated,
+        toolsUsed: Array.from(toolsUsed),
+      },
+    };
+  } catch (error) {
+    console.error('[DocsAgent] Error executing docs agent:', error);
+    throw new Error(
+      `Docs agent execution failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+    );
+  }
 };
 
 export const docsAgentStep = createStep({

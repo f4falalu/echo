@@ -25,7 +25,8 @@ const docsAgentWorkflowInputSchema = z.object({
     }
   ),
   todoList: z.string().optional().default(''),
-  clarificationQuestion: ClarifyingQuestionSchema.optional(),
+  clarificationQuestions: z.array(ClarifyingQuestionSchema).optional(),
+  dataSourceId: z.string().uuid().optional(),
 });
 
 // Output schema for the workflow

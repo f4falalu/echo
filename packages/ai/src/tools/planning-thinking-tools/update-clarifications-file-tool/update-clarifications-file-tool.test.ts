@@ -1,6 +1,7 @@
 import { RuntimeContext } from '@mastra/core/runtime-context';
 import { beforeEach, describe, expect, it } from 'vitest';
 import type { DocsAgentContext } from '../../../context/docs-agent-context';
+import { DocsAgentContextKeys } from '../../../context/docs-agent-context';
 import { updateClarificationsFile } from './update-clarifications-file-tool';
 
 describe('updateClarificationsFile', () => {
@@ -13,17 +14,21 @@ describe('updateClarificationsFile', () => {
   it('should add a clarification question successfully', async () => {
     const result = await updateClarificationsFile.execute({
       context: {
-        issue: 'Database connection configuration',
-        context:
-          'The user mentioned they need to connect to a database but did not specify which type',
-        clarificationQuestion:
-          'Which type of database are you using? (PostgreSQL, MySQL, MongoDB, etc.)',
+        clarifications: [
+          {
+            issue: 'Database connection configuration',
+            context:
+              'The user mentioned they need to connect to a database but did not specify which type',
+            clarificationQuestion:
+              'Which type of database are you using? (PostgreSQL, MySQL, MongoDB, etc.)',
+          },
+        ],
       },
       runtimeContext,
     });
 
     expect(result.success).toBe(true);
-    expect(result.clarification).toEqual({
+    expect(result.clarifications).toEqual({
       issue: 'Database connection configuration',
       context:
         'The user mentioned they need to connect to a database but did not specify which type',
@@ -33,17 +38,21 @@ describe('updateClarificationsFile', () => {
     expect(result.message).toBe('Successfully added clarification question');
 
     // Verify context was updated
-    const savedClarification = runtimeContext.get('clarificationQuestion');
-    expect(savedClarification).toEqual(result.clarification);
+    const savedClarification = runtimeContext.get(DocsAgentContextKeys.ClarificationQuestions);
+    expect(savedClarification).toEqual(result.clarifications);
   });
 
   it('should overwrite previous clarification when adding new one', async () => {
     // Add first clarification
     await updateClarificationsFile.execute({
       context: {
-        issue: 'First issue',
-        context: 'First context',
-        clarificationQuestion: 'First question?',
+        clarifications: [
+          {
+            issue: 'First issue',
+            context: 'First context',
+            clarificationQuestion: 'First question?',
+          },
+        ],
       },
       runtimeContext,
     });
@@ -51,23 +60,27 @@ describe('updateClarificationsFile', () => {
     // Add second clarification
     const result = await updateClarificationsFile.execute({
       context: {
-        issue: 'Second issue',
-        context: 'Second context',
-        clarificationQuestion: 'Second question?',
+        clarifications: [
+          {
+            issue: 'Second issue',
+            context: 'Second context',
+            clarificationQuestion: 'Second question?',
+          },
+        ],
       },
       runtimeContext,
     });
 
     expect(result.success).toBe(true);
-    expect(result.clarification).toEqual({
+    expect(result.clarifications).toEqual({
       issue: 'Second issue',
       context: 'Second context',
       clarificationQuestion: 'Second question?',
     });
 
     // Verify only the second clarification is stored
-    const savedClarification = runtimeContext.get('clarificationQuestion');
-    expect(savedClarification).toEqual(result.clarification);
+    const savedClarification = runtimeContext.get(DocsAgentContextKeys.ClarificationQuestions);
+    expect(savedClarification).toEqual(result.clarifications);
   });
 
   it('should handle very long clarification content', async () => {
@@ -75,17 +88,21 @@ describe('updateClarificationsFile', () => {
 
     const result = await updateClarificationsFile.execute({
       context: {
-        issue: longText,
-        context: longText,
-        clarificationQuestion: `${longText}?`,
+        clarifications: [
+          {
+            issue: longText,
+            context: longText,
+            clarificationQuestion: `${longText}?`,
+          },
+        ],
       },
       runtimeContext,
     });
 
     expect(result.success).toBe(true);
-    expect(result.clarification?.issue).toBe(longText);
-    expect(result.clarification?.context).toBe(longText);
-    expect(result.clarification?.clarificationQuestion).toBe(`${longText}?`);
+    expect(result.clarifications?.[0]?.issue).toBe(longText);
+    expect(result.clarifications?.[0]?.context).toBe(longText);
+    expect(result.clarifications?.[0]?.clarificationQuestion).toBe(`${longText}?`);
   });
 
   it('should validate input schema', () => {
@@ -152,15 +169,19 @@ describe('updateClarificationsFile', () => {
   it('should handle empty strings', async () => {
     const result = await updateClarificationsFile.execute({
       context: {
-        issue: '',
-        context: '',
-        clarificationQuestion: '',
+        clarifications: [
+          {
+            issue: '',
+            context: '',
+            clarificationQuestion: '',
+          },
+        ],
       },
       runtimeContext,
     });
 
     expect(result.success).toBe(true);
-    expect(result.clarification).toEqual({
+    expect(result.clarifications).toEqual({
       issue: '',
       context: '',
       clarificationQuestion: '',
@@ -170,16 +191,20 @@ describe('updateClarificationsFile', () => {
   it('should handle special characters in clarification content', async () => {
     const result = await updateClarificationsFile.execute({
       context: {
-        issue: 'Issue with "quotes" and \'apostrophes\'',
-        context: 'Context with\nnewlines\tand\ttabs',
-        clarificationQuestion: 'Question with émojis 🤔 and special chars: <>?/@#$%',
+        clarifications: [
+          {
+            issue: 'Issue with "quotes" and \'apostrophes\'',
+            context: 'Context with\nnewlines\tand\ttabs',
+            clarificationQuestion: 'Question with émojis 🤔 and special chars: <>?/@#$%',
+          },
+        ],
       },
       runtimeContext,
     });
 
     expect(result.success).toBe(true);
-    expect(result.clarification).toEqual({
-      issue: 'Issue with "quotes" and \'apostrophes\'',
+    expect(result.clarifications).toEqual({
+          issue: 'Issue with "quotes" and \'apostrophes\'',
       context: 'Context with\nnewlines\tand\ttabs',
       clarificationQuestion: 'Question with émojis 🤔 and special chars: <>?/@#$%',
     });

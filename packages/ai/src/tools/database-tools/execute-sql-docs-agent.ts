@@ -3,20 +3,25 @@ import type { RuntimeContext } from '@mastra/core/runtime-context';
 import { createTool } from '@mastra/core/tools';
 import { wrapTraced } from 'braintrust';
 import { z } from 'zod';
+import type { DocsAgentContext } from '../../context/docs-agent-context';
 import { getWorkflowDataSourceManager } from '../../utils/data-source-manager';
-import { createPermissionErrorMessage, validateSqlPermissions } from '../../utils/sql-permissions';
-import type { AnalystRuntimeContext } from '../../workflows/analyst-workflow';
+import { checkQueryIsReadOnly } from '../../utils/sql-permissions/sql-parser-helpers';
 
-const executeSqlStatementInputSchema = z.object({
+const executeSqlDocsAgentInputSchema = z.object({
   statements: z.array(z.string()).describe(
-    `Array of lightweight, optimized SQL statements to execute. 
+    `Array of lightweight, optimized SQL statements to execute for documentation purposes. 
       Each statement should be small and focused. 
-      SELECT queries without a LIMIT clause will automatically have LIMIT 50 added for performance.
+      This tool is specifically for the docs agent to gather metadata and validation information.
+      SELECT queries without a LIMIT clause will automatically have LIMIT 100 added for performance.
       Existing LIMIT clauses will be preserved.
-      YOU MUST USE THE <SCHEMA_NAME>.<TABLE_NAME> syntax/qualifier for all table names. 
-      NEVER use SELECT * on physical tables - for security purposes you must explicitly select the columns you intend to use. NOT ADHERING TO THESE INSTRUCTIONS WILL RETURN AN ERROR
-      NEVER query system tables or use 'SHOW' statements as these will fail to execute.
-      Queries without these requirements will fail to execute.`
+      YOU MUST USE THE <SCHEMA_NAME>.<TABLE_NAME> syntax/qualifier for all table names.
+      Common documentation queries:
+      - Row counts: SELECT COUNT(*) FROM schema.table;
+      - Sample values: SELECT DISTINCT column FROM schema.table LIMIT 10;
+      - Min/Max values: SELECT MIN(column), MAX(column) FROM schema.table;
+      - Distinct counts: SELECT COUNT(DISTINCT column) FROM schema.table;
+      - Referential integrity: SELECT COUNT(*) FROM schema.table_a WHERE foreign_key NOT IN (SELECT primary_key FROM schema.table_b);
+      - Match percentage: SELECT (SELECT COUNT(*) FROM schema.table_a JOIN schema.table_b ON a.key = b.key) * 100.0 / (SELECT COUNT(*) FROM schema.table_a);`
   ),
 });
 
@@ -67,12 +72,12 @@ function truncateQueryResults(
 }
 
 /**
- * Optimistic parsing function for streaming execute-sql tool arguments
+ * Optimistic parsing function for streaming execute-sql-docs-agent tool arguments
  * Extracts the statements array as it's being built incrementally
  */
 export function parseStreamingArgs(
   accumulatedText: string
-): Partial<z.infer<typeof executeSqlStatementInputSchema>> | null {
+): Partial<z.infer<typeof executeSqlDocsAgentInputSchema>> | null {
   // Validate input type
   if (typeof accumulatedText !== 'string') {
     throw new Error(`parseStreamingArgs expects string input, got ${typeof accumulatedText}`);
@@ -84,7 +89,7 @@ export function parseStreamingArgs(
 
     // Ensure statements is an array if present
     if (parsed.statements !== undefined && !Array.isArray(parsed.statements)) {
-      console.warn('[execute-sql parseStreamingArgs] statements is not an array:', {
+      console.warn('[execute-sql-docs-agent parseStreamingArgs] statements is not an array:', {
         type: typeof parsed.statements,
         value: parsed.statements,
       });
@@ -142,7 +147,7 @@ export function parseStreamingArgs(
   }
 }
 
-const executeSqlStatementOutputSchema = z.object({
+const executeSqlDocsAgentOutputSchema = z.object({
   results: z.array(
     z.discriminatedUnion('status', [
       z.object({
@@ -159,16 +164,16 @@ const executeSqlStatementOutputSchema = z.object({
   ),
 });
 
-const executeSqlStatement = wrapTraced(
+const executeSqlDocsAgentStatement = wrapTraced(
   async (
-    params: z.infer<typeof executeSqlStatementInputSchema>,
-    runtimeContext: RuntimeContext<AnalystRuntimeContext>
-  ): Promise<z.infer<typeof executeSqlStatementOutputSchema>> => {
+    params: z.infer<typeof executeSqlDocsAgentInputSchema>,
+    runtimeContext: RuntimeContext<DocsAgentContext>
+  ): Promise<z.infer<typeof executeSqlDocsAgentOutputSchema>> => {
     let { statements } = params;
 
     // Handle various edge cases for statements
     if (statements === undefined || statements === null) {
-      console.error('[execute-sql] Invalid input: statements is undefined or null', {
+      console.error('[execute-sql-docs-agent] Invalid input: statements is undefined or null', {
         params: params,
       });
       return {
@@ -184,7 +189,7 @@ const executeSqlStatement = wrapTraced(
 
     // If statements is not an array, try to convert it
     if (!Array.isArray(statements)) {
-      console.error('[execute-sql] Invalid input: statements is not an array', {
+      console.error('[execute-sql-docs-agent] Invalid input: statements is not an array', {
         type: typeof statements,
         value: statements,
         params: params,
@@ -198,23 +203,23 @@ const executeSqlStatement = wrapTraced(
           const parsed = JSON.parse(stringStatement);
           if (Array.isArray(parsed)) {
             statements = parsed;
-            console.warn('[execute-sql] Recovered statements from JSON string');
+            console.warn('[execute-sql-docs-agent] Recovered statements from JSON string');
           } else {
             // Treat as single statement
             statements = [stringStatement];
-            console.warn('[execute-sql] Treating string as single statement');
+            console.warn('[execute-sql-docs-agent] Treating string as single statement');
           }
         } catch {
           // Treat as single statement
           statements = [stringStatement];
-          console.warn('[execute-sql] Treating unparseable string as single statement');
+          console.warn('[execute-sql-docs-agent] Treating unparseable string as single statement');
         }
       } else if (typeof statements === 'object' && statements !== null) {
         // Handle object with map method that's not an array (edge case)
         if ('map' in statements && typeof (statements as { map?: unknown }).map === 'function') {
           try {
             statements = Array.from(statements as Iterable<string>);
-            console.warn('[execute-sql] Recovered statements from array-like object');
+            console.warn('[execute-sql-docs-agent] Recovered statements from array-like object');
           } catch {
             return {
               results: [
@@ -252,9 +257,12 @@ const executeSqlStatement = wrapTraced(
 
     // Final validation - ensure all elements are strings
     if (!statements.every((stmt) => typeof stmt === 'string')) {
-      console.error('[execute-sql] Invalid input: statements contains non-string elements', {
-        statements: statements,
-      });
+      console.error(
+        '[execute-sql-docs-agent] Invalid input: statements contains non-string elements',
+        {
+          statements: statements,
+        }
+      );
       statements = statements.map((stmt) => String(stmt));
     }
 
@@ -266,15 +274,9 @@ const executeSqlStatement = wrapTraced(
     }
 
     const dataSourceId = runtimeContext.get('dataSourceId');
-    const workflowStartTime = runtimeContext.get('workflowStartTime') as number | undefined;
-
-    // Generate a unique workflow ID using start time and data source
-    const workflowId = workflowStartTime
-      ? `workflow-${workflowStartTime}-${dataSourceId}`
-      : `workflow-${Date.now()}-${dataSourceId}`;
 
     // Get data source from workflow manager (reuses existing connections)
-    const manager = getWorkflowDataSourceManager(workflowId);
+    const manager = getWorkflowDataSourceManager(dataSourceId);
 
     try {
       const dataSource = await manager.getDataSource(dataSourceId);
@@ -284,7 +286,7 @@ const executeSqlStatement = wrapTraced(
         withRateLimit(
           'sql-execution',
           async () => {
-            const result = await executeSingleStatement(sqlStatement, dataSource, runtimeContext);
+            const result = await executeSingleStatement(sqlStatement, dataSource);
             return { sql: sqlStatement, result };
           },
           {
@@ -300,7 +302,7 @@ const executeSqlStatement = wrapTraced(
       const executionResults = await Promise.allSettled(executionPromises);
 
       // Process results
-      const results: z.infer<typeof executeSqlStatementOutputSchema>['results'] =
+      const results: z.infer<typeof executeSqlDocsAgentOutputSchema>['results'] =
         executionResults.map((executionResult, index) => {
           const sql = statements[index] || '';
 
@@ -330,7 +332,7 @@ const executeSqlStatement = wrapTraced(
       return { results };
     } catch (error) {
       // If we can't get data source, return error for all statements
-      console.error('[execute-sql] Failed to get data source:', error);
+      console.error('[execute-sql-docs-agent] Failed to get data source:', error);
       return {
         results: statements.map((sql) => ({
           status: 'error' as const,
@@ -341,13 +343,12 @@ const executeSqlStatement = wrapTraced(
     }
     // Note: We don't close the data source here anymore - it's managed by the workflow manager
   },
-  { name: 'execute-sql' }
+  { name: 'execute-sql-docs-agent' }
 );
 
 async function executeSingleStatement(
   sqlStatement: string,
-  dataSource: DataSource,
-  runtimeContext: RuntimeContext<AnalystRuntimeContext>
+  dataSource: DataSource
 ): Promise<{
   success: boolean;
   data?: Record<string, unknown>[];
@@ -362,18 +363,12 @@ async function executeSingleStatement(
     return { success: false, error: 'SQL statement cannot be empty' };
   }
 
-  // Validate permissions before execution
-  const userId = runtimeContext.get('userId');
-  if (!userId) {
-    return { success: false, error: 'User authentication required for SQL execution' };
-  }
-
-  const dataSourceSyntax = runtimeContext.get('dataSourceSyntax');
-  const permissionResult = await validateSqlPermissions(sqlStatement, userId, dataSourceSyntax);
-  if (!permissionResult.isAuthorized) {
+  // Check if query is read-only (SELECT statements only)
+  const readOnlyCheck = checkQueryIsReadOnly(sqlStatement);
+  if (!readOnlyCheck.isReadOnly) {
     return {
       success: false,
-      error: createPermissionErrorMessage(permissionResult.unauthorizedTables),
+      error: readOnlyCheck.error || 'Only SELECT statements are allowed',
     };
   }
 
@@ -386,7 +381,7 @@ async function executeSingleStatement(
         sql: sqlStatement,
         options: {
           timeout: TIMEOUT_MS,
-          maxRows: 50, // Limit results at the adapter level, not in SQL
+          maxRows: 100, // Limit results at the adapter level, not in SQL
         },
       });
 
@@ -407,7 +402,7 @@ async function executeSingleStatement(
         // Wait before retry
         const delay = RETRY_DELAYS[attempt] || 6000;
         console.warn(
-          `[execute-sql] Query timeout on attempt ${attempt + 1}/${MAX_RETRIES + 1}. Retrying in ${delay}ms...`,
+          `[execute-sql-docs-agent] Query timeout on attempt ${attempt + 1}/${MAX_RETRIES + 1}. Retrying in ${delay}ms...`,
           {
             sql: `${sqlStatement.substring(0, 100)}...`,
             attempt: attempt + 1,
@@ -433,7 +428,7 @@ async function executeSingleStatement(
         // Wait before retry
         const delay = RETRY_DELAYS[attempt] || 6000;
         console.warn(
-          `[execute-sql] Query timeout (exception) on attempt ${attempt + 1}/${MAX_RETRIES + 1}. Retrying in ${delay}ms...`,
+          `[execute-sql-docs-agent] Query timeout (exception) on attempt ${attempt + 1}/${MAX_RETRIES + 1}. Retrying in ${delay}ms...`,
           {
             sql: `${sqlStatement.substring(0, 100)}...`,
             attempt: attempt + 1,
@@ -461,24 +456,26 @@ async function executeSingleStatement(
 }
 
 // Export the tool
-export const executeSql = createTool({
-  id: 'execute-sql',
-  description: `Use this to run lightweight, validation queries to understand values in columns, date ranges, etc. 
-    Please limit your queries to 50 rows for performance.
-    Query results will be limited to 50 rows for performance. 
+export const executeSqlDocsAgent = createTool({
+  id: 'execute-sql-docs-agent',
+  description: `Use this to run lightweight validation and metadata queries for documentation purposes.
+    This tool is specifically for the docs agent to gather metadata, validate assumptions, and collect context.
+    Please limit your queries to 100 rows for performance.
+    Query results will be limited to 100 rows for performance. 
     You must use the <SCHEMA_NAME>.<TABLE_NAME> syntax/qualifier for all table names. 
-    Otherwise the queries wont run successfully.`,
-  inputSchema: executeSqlStatementInputSchema,
-  outputSchema: executeSqlStatementOutputSchema,
+    Common documentation queries include row counts, sample values, min/max values, distinct counts, 
+    referential integrity checks, and match percentage calculations.`,
+  inputSchema: executeSqlDocsAgentInputSchema,
+  outputSchema: executeSqlDocsAgentOutputSchema,
   execute: async ({
     context,
     runtimeContext,
   }: {
-    context: z.infer<typeof executeSqlStatementInputSchema>;
-    runtimeContext: RuntimeContext<AnalystRuntimeContext>;
+    context: z.infer<typeof executeSqlDocsAgentInputSchema>;
+    runtimeContext: RuntimeContext<DocsAgentContext>;
   }) => {
-    return await executeSqlStatement(context, runtimeContext);
+    return await executeSqlDocsAgentStatement(context, runtimeContext);
   },
 });
 
-export default executeSql;
+export default executeSqlDocsAgent;
