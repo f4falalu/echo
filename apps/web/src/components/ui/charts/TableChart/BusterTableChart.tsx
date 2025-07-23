@@ -7,6 +7,7 @@ import React, { useCallback } from 'react';
 import { AppDataGrid } from '../../table/AppDataGrid';
 import type { BusterChartPropsBase } from '../BusterChart.types';
 import type { BusterTableChartConfig } from './interfaces';
+import { useUpdateMetricChart } from '@/context/Metrics';
 
 export interface BusterTableChartProps extends BusterTableChartConfig, BusterChartPropsBase {}
 
@@ -27,19 +28,17 @@ const BusterTableChartBase: React.FC<BusterTableChartProps> = ({
   //  tableHeaderFontColor,
   //  tableColumnFontColor,
 }) => {
-  // const { onUpdateMetricChartConfig, onInitializeTableColumnWidths } = useUpdateMetricChart();
+  const { onUpdateMetricChartConfig, onInitializeTableColumnWidths } = useUpdateMetricChart();
 
   const onChangeConfig = useMemoizedFn((config: Partial<ChartConfigProps>) => {
     if (readOnly) return;
-    // onUpdateMetricChartConfig({ chartConfig: config });
-    alert('TODO - FIX THIS BEFORE A PR');
+    onUpdateMetricChartConfig({ chartConfig: config });
 
     if (
       (tableColumnWidths === null || isEmpty(tableColumnWidths)) &&
       !isEmpty(config.tableColumnWidths)
     ) {
-      alert('TODO - FIX THIS BEFORE A PR');
-      //  onInitializeTableColumnWidths(config.tableColumnWidths);
+      onInitializeTableColumnWidths(config.tableColumnWidths);
     }
   });
 
