@@ -86,11 +86,11 @@ const results = await readFiles(['file.txt']);
 Tools should check for sandbox in runtime context and adapt accordingly:
 
 ```typescript
-import { SandboxContextKey } from '@buster/ai/context/sandbox-context';
+import { DocsAgentContextKey } from '@buster/ai/context/docs-agent-context';
 import { runTypescript } from '@buster/sandbox';
 
 // In your tool execution:
-const sandbox = runtimeContext.get(SandboxContextKey.Sandbox);
+const sandbox = runtimeContext.get(DocsAgentContextKey.Sandbox);
 
 if (sandbox) {
   // Generate CommonJS/sync code for sandbox

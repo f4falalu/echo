@@ -3,7 +3,7 @@ import type { RuntimeContext } from '@mastra/core/runtime-context';
 import { createTool } from '@mastra/core/tools';
 import { wrapTraced } from 'braintrust';
 import { z } from 'zod';
-import { type SandboxContext, SandboxContextKey } from '../../../context/sandbox-context';
+import { type DocsAgentContext, DocsAgentContextKey } from '../../../context/docs-agent-context';
 
 const grepSearchConfigSchema = z
   .object({
@@ -87,7 +87,7 @@ export type GrepSearchOutput = z.infer<typeof grepSearchOutputSchema>;
 const grepSearchExecution = wrapTraced(
   async (
     params: z.infer<typeof grepSearchInputSchema>,
-    runtimeContext: RuntimeContext<SandboxContext>
+    runtimeContext: RuntimeContext<DocsAgentContext>
   ): Promise<z.infer<typeof grepSearchOutputSchema>> => {
     const { searches: rawSearches } = params;
 
@@ -104,7 +104,7 @@ const grepSearchExecution = wrapTraced(
     }
 
     try {
-      const sandbox = runtimeContext.get(SandboxContextKey.Sandbox);
+      const sandbox = runtimeContext.get(DocsAgentContextKey.Sandbox);
 
       if (sandbox) {
         const { generateGrepSearchCode } = await import('./grep-search');
@@ -199,7 +199,7 @@ export const grepSearch = createTool({
     runtimeContext,
   }: {
     context: z.infer<typeof grepSearchInputSchema>;
-    runtimeContext: RuntimeContext<SandboxContext>;
+    runtimeContext: RuntimeContext<DocsAgentContext>;
   }) => {
     return await grepSearchExecution(context, runtimeContext);
   },

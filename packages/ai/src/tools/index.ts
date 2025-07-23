@@ -17,3 +17,5 @@ export { lsFiles } from './file-tools/ls-files-tool/ls-files-tool';
 export { grepSearch } from './file-tools/grep-search-tool/grep-search-tool';
 export { bashExecute } from './file-tools';
 export { deleteFiles } from './file-tools/delete-files-tool/delete-files-tool';
+export { checkOffTodoList } from './planning-thinking-tools/check-off-todo-list-tool/check-off-todo-list-tool';
+export { updateClarificationsFile } from './planning-thinking-tools/update-clarifications-file-tool/update-clarifications-file-tool';

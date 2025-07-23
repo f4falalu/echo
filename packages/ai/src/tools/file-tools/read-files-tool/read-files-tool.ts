@@ -3,7 +3,7 @@ import type { RuntimeContext } from '@mastra/core/runtime-context';
 import { createTool } from '@mastra/core/tools';
 import { wrapTraced } from 'braintrust';
 import { z } from 'zod';
-import { type SandboxContext, SandboxContextKey } from '../../../context/sandbox-context';
+import { type DocsAgentContext, DocsAgentContextKey } from '../../../context/docs-agent-context';
 import type { AnalystRuntimeContext } from '../../../schemas/workflow-schemas';
 
 const readFilesInputSchema = z.object({
@@ -37,7 +37,7 @@ const readFilesOutputSchema = z.object({
 const readFilesExecution = wrapTraced(
   async (
     params: z.infer<typeof readFilesInputSchema>,
-    runtimeContext: RuntimeContext<SandboxContext>
+    runtimeContext: RuntimeContext<DocsAgentContext>
   ): Promise<z.infer<typeof readFilesOutputSchema>> => {
     const { files } = params;
 
@@ -47,7 +47,7 @@ const readFilesExecution = wrapTraced(
 
     try {
       // Check if sandbox is available in runtime context
-      const sandbox = runtimeContext.get(SandboxContextKey.Sandbox);
+      const sandbox = runtimeContext.get(DocsAgentContextKey.Sandbox);
 
       if (sandbox) {
         // Execute in sandbox
@@ -141,7 +141,7 @@ export const readFiles = createTool({
     runtimeContext,
   }: {
     context: z.infer<typeof readFilesInputSchema>;
-    runtimeContext: RuntimeContext<SandboxContext>;
+    runtimeContext: RuntimeContext<DocsAgentContext>;
   }) => {
     return await readFilesExecution(context, runtimeContext);
   },
