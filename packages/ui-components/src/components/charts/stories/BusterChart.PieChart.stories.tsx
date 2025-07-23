@@ -144,8 +144,8 @@ export const DonutMultipleValues: Story = {
 
 export const ResizableContainer: Story = {
   render: (args) => (
-    <div className="h-[500px] min-h-[200px] w-[500px] min-w-[200px] resize overflow-auto rounded-lg border border-gray-200 p-4">
-      <BusterChart {...args} className="h-full w-full" />
+    <div className='h-[500px] min-h-[200px] w-[500px] min-w-[200px] resize overflow-auto rounded-lg border border-gray-200 p-4'>
+      <BusterChart {...args} className='h-full w-full' />
     </div>
   ),
   args: {
@@ -281,8 +281,8 @@ export const WithSortingByValue: Story = {
 
 export const ShowLabelAsPercent: Story = {
   render: (args) => (
-    <div className="h-[500px] min-h-[200px] w-[500px] min-w-[200px] resize overflow-auto rounded-lg border border-gray-200 p-4">
-      <BusterChart {...args} className="h-full w-full" />
+    <div className='h-[500px] min-h-[200px] w-[500px] min-w-[200px] resize overflow-auto rounded-lg border border-gray-200 p-4'>
+      <BusterChart {...args} className='h-full w-full' />
     </div>
   ),
   args: {

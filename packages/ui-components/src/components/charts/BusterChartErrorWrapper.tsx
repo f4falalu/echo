@@ -8,10 +8,10 @@ interface Props {
 
 const ErrorCardComponent: React.FC = () => {
   return (
-    <div className="rounded-lg border border-red-200 bg-red-50 p-4">
-      <div className="flex flex-col gap-2">
-        <h3 className="text-sm font-medium text-red-800">Chart rendering error</h3>
-        <p className="text-sm text-red-700">
+    <div className='rounded-lg border border-red-200 bg-red-50 p-4'>
+      <div className='flex flex-col gap-2'>
+        <h3 className='text-sm font-medium text-red-800'>Chart rendering error</h3>
+        <p className='text-sm text-red-700'>
           Something went wrong rendering the chart. This is likely an error on our end. Please
           contact Buster support.
         </p>

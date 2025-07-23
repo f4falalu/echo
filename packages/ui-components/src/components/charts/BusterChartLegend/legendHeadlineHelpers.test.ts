@@ -4,7 +4,7 @@ import {
   type ShowLegendHeadline,
   type ColumnMetaData,
   type SimplifiedColumnType,
-  DEFAULT_COLUMN_LABEL_FORMAT
+  DEFAULT_COLUMN_LABEL_FORMAT,
 } from '@buster/server-shared/metrics';
 import type { DatasetOptionsWithTicks } from '../chartHooks/useDatasetOptions/interfaces';
 import type { BusterChartLegendItem } from './interfaces';
@@ -19,14 +19,14 @@ describe('legendHeadlineHelpers', () => {
       color: '#000000',
       inactive: false,
       type: 'line',
-      formattedName: 'Test Series'
-    }
+      formattedName: 'Test Series',
+    },
   ];
 
   const mockDatasetOptions: DatasetOptionsWithTicks = {
     datasets: [],
     ticks: [[]],
-    ticksKey: [{ key: 'x', value: '' }]
+    ticksKey: [{ key: 'x', value: '' }],
   };
 
   const mockColumnMetadata: ColumnMetaData[] = [
@@ -36,21 +36,21 @@ describe('legendHeadlineHelpers', () => {
       max_value: '2024-01-31',
       unique_values: 1,
       simple_type: 'date',
-      type: 'timestamp'
-    }
+      type: 'timestamp',
+    },
   ];
 
   const mockColumnLabelFormats: Record<string, ColumnLabelFormat> = {
     timestamp: {
       ...DEFAULT_COLUMN_LABEL_FORMAT,
       columnType: 'timestamp' as SimplifiedColumnType,
-      style: 'date'
+      style: 'date',
     },
     value: {
       ...DEFAULT_COLUMN_LABEL_FORMAT,
       columnType: 'number' as SimplifiedColumnType,
-      style: 'number'
-    }
+      style: 'number',
+    },
   };
 
   const mockXAxisKeys = ['timestamp'];
@@ -93,8 +93,8 @@ describe('legendHeadlineHelpers', () => {
           color: '#000000',
           inactive: false,
           type: 'pie',
-          formattedName: 'Pie Slice'
-        }
+          formattedName: 'Pie Slice',
+        },
       ];
 
       const result = addLegendHeadlines(
@@ -109,7 +109,7 @@ describe('legendHeadlineHelpers', () => {
 
       expect(result[0].headline).toEqual({
         type: 'current',
-        titleAmount: '10'
+        titleAmount: '10',
       });
     });
 
@@ -126,7 +126,7 @@ describe('legendHeadlineHelpers', () => {
 
       expect(result[0].headline).toEqual({
         type: 'average',
-        titleAmount: '3' // average of [1,2,3,4,5]
+        titleAmount: '3', // average of [1,2,3,4,5]
       });
     });
 
@@ -143,7 +143,7 @@ describe('legendHeadlineHelpers', () => {
 
       expect(result[0].headline).toEqual({
         type: 'total',
-        titleAmount: '15' // sum of [1,2,3,4,5]
+        titleAmount: '15', // sum of [1,2,3,4,5]
       });
     });
 
@@ -156,8 +156,8 @@ describe('legendHeadlineHelpers', () => {
           color: '#000000',
           inactive: false,
           type: 'line',
-          formattedName: 'Invalid Data'
-        }
+          formattedName: 'Invalid Data',
+        },
       ];
 
       const result = addLegendHeadlines(
@@ -172,7 +172,7 @@ describe('legendHeadlineHelpers', () => {
 
       expect(result[0].headline).toEqual({
         type: 'average',
-        titleAmount: '0'
+        titleAmount: '0',
       });
     });
 
@@ -189,7 +189,7 @@ describe('legendHeadlineHelpers', () => {
 
       expect(result[0].headline).toEqual({
         type: 'min',
-        titleAmount: '1'
+        titleAmount: '1',
       });
     });
 
@@ -206,7 +206,7 @@ describe('legendHeadlineHelpers', () => {
 
       expect(result[0].headline).toEqual({
         type: 'max',
-        titleAmount: '5'
+        titleAmount: '5',
       });
     });
 
@@ -223,7 +223,7 @@ describe('legendHeadlineHelpers', () => {
 
       expect(result[0].headline).toEqual({
         type: 'median',
-        titleAmount: '3'
+        titleAmount: '3',
       });
     });
 
@@ -236,8 +236,8 @@ describe('legendHeadlineHelpers', () => {
           color: '#000000',
           inactive: false,
           type: 'line',
-          formattedName: 'Revenue'
-        }
+          formattedName: 'Revenue',
+        },
       ];
 
       const currencyColumnLabelFormats: Record<string, ColumnLabelFormat> = {
@@ -245,8 +245,8 @@ describe('legendHeadlineHelpers', () => {
         revenue: {
           ...DEFAULT_COLUMN_LABEL_FORMAT,
           columnType: 'number' as SimplifiedColumnType,
-          style: 'currency'
-        }
+          style: 'currency',
+        },
       };
 
       const result = addLegendHeadlines(
@@ -261,7 +261,7 @@ describe('legendHeadlineHelpers', () => {
 
       expect(result[0].headline).toEqual({
         type: 'total',
-        titleAmount: '$15,000.00'
+        titleAmount: '$15,000.00',
       });
     });
 
@@ -274,8 +274,8 @@ describe('legendHeadlineHelpers', () => {
           color: '#000000',
           inactive: false,
           type: 'line',
-          formattedName: 'Active Users'
-        }
+          formattedName: 'Active Users',
+        },
       ];
 
       const prefixColumnLabelFormats: Record<string, ColumnLabelFormat> = {
@@ -284,8 +284,8 @@ describe('legendHeadlineHelpers', () => {
           ...DEFAULT_COLUMN_LABEL_FORMAT,
           columnType: 'number' as SimplifiedColumnType,
           style: 'number',
-          prefix: '👥 '
-        }
+          prefix: '👥 ',
+        },
       };
 
       const result = addLegendHeadlines(
@@ -300,7 +300,7 @@ describe('legendHeadlineHelpers', () => {
 
       expect(result[0].headline).toEqual({
         type: 'average',
-        titleAmount: '👥 30'
+        titleAmount: '👥 30',
       });
     });
   });

@@ -6,9 +6,9 @@ const meta: Meta<typeof BusterMetricChart> = {
   title: 'UI/Charts/BusterChart/BusterMetricChart',
   component: BusterMetricChart,
   parameters: {
-    layout: 'centered'
+    layout: 'centered',
   },
-  tags: ['autodocs']
+  tags: ['autodocs'],
 } satisfies Meta<typeof BusterMetricChart>;
 
 export default meta;
@@ -23,21 +23,21 @@ export const Basic: Story = {
         ...DEFAULT_COLUMN_LABEL_FORMAT,
         columnType: 'number',
         style: 'number',
-        numberSeparatorStyle: ','
+        numberSeparatorStyle: ',',
       } as ColumnLabelFormat,
       category: {
         columnType: 'text',
-        style: 'string'
-      } as ColumnLabelFormat
+        style: 'string',
+      } as ColumnLabelFormat,
     },
     metricHeader: 'Total Count',
-    animate: true
+    animate: true,
   },
   render: (args) => (
-    <div className="h-[200px] w-[300px] rounded-md border border-slate-200 p-4">
+    <div className='h-[200px] w-[300px] rounded-md border border-slate-200 p-4'>
       <BusterMetricChart {...args} />
     </div>
-  )
+  ),
 };
 
 export const WithCurrency: Story = {
@@ -49,23 +49,23 @@ export const WithCurrency: Story = {
         ...DEFAULT_COLUMN_LABEL_FORMAT,
         columnType: 'number',
         style: 'currency',
-        currency: 'USD'
+        currency: 'USD',
       } as ColumnLabelFormat,
       month: {
         ...DEFAULT_COLUMN_LABEL_FORMAT,
         columnType: 'text',
-        style: 'string'
-      } as ColumnLabelFormat
+        style: 'string',
+      } as ColumnLabelFormat,
     },
     metricHeader: 'Monthly Revenue',
     metricSubHeader: 'January 2024',
-    animate: true
+    animate: true,
   },
   render: (args) => (
-    <div className="h-[200px] w-[300px] rounded-md border border-slate-200 p-4">
+    <div className='h-[200px] w-[300px] rounded-md border border-slate-200 p-4'>
       <BusterMetricChart {...args} />
     </div>
-  )
+  ),
 };
 
 export const WithAggregate: Story = {
@@ -74,7 +74,7 @@ export const WithAggregate: Story = {
       { sales: 1200, region: 'North' },
       { sales: 1500, region: 'South' },
       { sales: 2300, region: 'East' },
-      { sales: 1800, region: 'West' }
+      { sales: 1800, region: 'West' },
     ],
     metricColumnId: 'sales',
     metricValueAggregate: 'sum',
@@ -83,23 +83,23 @@ export const WithAggregate: Story = {
         ...DEFAULT_COLUMN_LABEL_FORMAT,
         columnType: 'number',
         style: 'currency',
-        currency: 'USD'
+        currency: 'USD',
       } as ColumnLabelFormat,
       region: {
         ...DEFAULT_COLUMN_LABEL_FORMAT,
         columnType: 'text',
-        style: 'string'
-      } as ColumnLabelFormat
+        style: 'string',
+      } as ColumnLabelFormat,
     },
     metricHeader: 'Total Sales',
     metricSubHeader: 'All Regions',
-    animate: true
+    animate: true,
   },
   render: (args) => (
-    <div className="h-[200px] w-[300px] rounded-md border border-slate-200 p-4">
+    <div className='h-[200px] w-[300px] rounded-md border border-slate-200 p-4'>
       <BusterMetricChart {...args} />
     </div>
-  )
+  ),
 };
 
 export const WithDynamicHeaders: Story = {
@@ -112,27 +112,27 @@ export const WithDynamicHeaders: Story = {
       count: {
         ...DEFAULT_COLUMN_LABEL_FORMAT,
         columnType: 'number',
-        style: 'number'
+        style: 'number',
       } satisfies ColumnLabelFormat,
       category: {
         ...DEFAULT_COLUMN_LABEL_FORMAT,
         columnType: 'text',
-        style: 'string'
+        style: 'string',
       } satisfies ColumnLabelFormat,
       date: {
         ...DEFAULT_COLUMN_LABEL_FORMAT,
         columnType: 'date',
         style: 'date',
-        dateFormat: 'LL'
-      } satisfies ColumnLabelFormat
+        dateFormat: 'LL',
+      } satisfies ColumnLabelFormat,
     },
-    animate: true
+    animate: true,
   },
   render: (args) => (
-    <div className="h-[200px] w-[300px] rounded-md border border-slate-200 p-4">
+    <div className='h-[200px] w-[300px] rounded-md border border-slate-200 p-4'>
       <BusterMetricChart {...args} />
     </div>
-  )
+  ),
 };
 
 export const NoAnimation: Story = {
@@ -145,22 +145,22 @@ export const NoAnimation: Story = {
         columnType: 'number',
         style: 'percent',
         minimumFractionDigits: 1,
-        maximumFractionDigits: 1
+        maximumFractionDigits: 1,
       } as ColumnLabelFormat,
       unit: {
         ...DEFAULT_COLUMN_LABEL_FORMAT,
         columnType: 'text',
-        style: 'string'
-      } satisfies ColumnLabelFormat
+        style: 'string',
+      } satisfies ColumnLabelFormat,
     },
     metricHeader: 'Completion Rate',
-    animate: false
+    animate: false,
   },
   render: (args) => (
-    <div className="h-[200px] w-[300px] rounded-md border border-slate-200 p-4">
+    <div className='h-[200px] w-[300px] rounded-md border border-slate-200 p-4'>
       <BusterMetricChart {...args} />
     </div>
-  )
+  ),
 };
 
 export const CustomValueLabel: Story = {
@@ -172,23 +172,23 @@ export const CustomValueLabel: Story = {
       value: {
         ...DEFAULT_COLUMN_LABEL_FORMAT,
         columnType: 'number',
-        style: 'number'
+        style: 'number',
       } as ColumnLabelFormat,
       type: {
         ...DEFAULT_COLUMN_LABEL_FORMAT,
         columnType: 'text',
-        style: 'string'
-      } as ColumnLabelFormat
+        style: 'string',
+      } as ColumnLabelFormat,
     },
     metricHeader: 'User Growth',
     metricSubHeader: 'Last Month',
-    animate: true
+    animate: true,
   },
   render: (args) => (
-    <div className="h-[200px] w-[300px] rounded-md border border-slate-200 p-4">
+    <div className='h-[200px] w-[300px] rounded-md border border-slate-200 p-4'>
       <BusterMetricChart {...args} />
     </div>
-  )
+  ),
 };
 
 export const WithLongTextValue: Story = {
@@ -199,16 +199,16 @@ export const WithLongTextValue: Story = {
       value: {
         ...DEFAULT_COLUMN_LABEL_FORMAT,
         columnType: 'text',
-        style: 'string'
-      } as ColumnLabelFormat
+        style: 'string',
+      } as ColumnLabelFormat,
     },
     metricHeader: 'Long Text Value that is like really long',
     metricSubHeader: 'This is a long text value that should be wrapped',
-    animate: true
+    animate: true,
   },
   render: (args) => (
-    <div className="w-80vw h-[200px] rounded-md border border-red-500 p-4">
+    <div className='w-80vw h-[200px] rounded-md border border-red-500 p-4'>
       <BusterMetricChart {...args} />
     </div>
-  )
+  ),
 };

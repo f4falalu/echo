@@ -5,7 +5,7 @@ import { BusterChart } from '../BusterChart';
 export const sharedMeta: Partial<Meta<typeof BusterChart>> = {
   component: BusterChart,
   parameters: {
-    layout: 'centered'
+    layout: 'centered',
   },
   argTypes: {
     colors: {
@@ -14,14 +14,14 @@ export const sharedMeta: Partial<Meta<typeof BusterChart>> = {
       control: { type: 'object' },
       table: {
         type: { summary: 'string[]' },
-        defaultValue: { summary: 'DEFAULT_CHART_THEME' }
-      }
+        defaultValue: { summary: 'DEFAULT_CHART_THEME' },
+      },
     },
     selectedChartType: {
       control: 'select',
       description: 'The type of chart to display.',
       defaultValue: 'table',
-      options: ['line', 'bar', 'scatter', 'pie', 'table', 'combo', 'metric']
+      options: ['line', 'bar', 'scatter', 'pie', 'table', 'combo', 'metric'],
     },
     xAxisTimeInterval: {
       control: 'select',
@@ -30,12 +30,12 @@ export const sharedMeta: Partial<Meta<typeof BusterChart>> = {
       options: ['day', 'week', 'month', 'quarter', 'year', null],
       table: {
         type: { summary: "'day' | 'week' | 'month' | 'quarter' | 'year' | null" },
-        defaultValue: { summary: 'null' }
-      }
-    }
+        defaultValue: { summary: 'null' },
+      },
+    },
   },
   args: {
     ...DEFAULT_CHART_CONFIG,
-    className: 'w-[400px] h-[400px]'
-  }
+    className: 'w-[400px] h-[400px]',
+  },
 };

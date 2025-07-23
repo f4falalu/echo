@@ -2,7 +2,7 @@ import type {
   BarControllerDatasetOptions,
   Chart,
   ChartDatasetProperties,
-  TooltipItem
+  TooltipItem,
 } from 'chart.js';
 import { describe, expect, it } from 'vitest';
 import type { ColumnLabelFormat } from '@buster/server-shared/metrics';
@@ -29,44 +29,44 @@ describe('barAndLineTooltipHelper', () => {
           label: 'Dataset 1',
           type: 'bar' as const,
           hidden: false,
-          isTrendline: false
+          isTrendline: false,
         },
         {
           data: [150, 250, 350],
           label: 'Dataset 2',
           type: 'bar' as const,
           hidden: false,
-          isTrendline: false
-        }
-      ]
+          isTrendline: false,
+        },
+      ],
     },
     $totalizer: {
       stackTotals: [250, 450, 650],
-      seriesTotals: [600, 750]
+      seriesTotals: [600, 750],
     },
     scales: {
       x: {
-        getPixelForValue: () => 0
+        getPixelForValue: () => 0,
       },
       y: {
-        getPixelForValue: () => 0
-      }
-    }
+        getPixelForValue: () => 0,
+      },
+    },
   } as unknown as Chart;
 
   const mockColumnLabelFormats: Record<string, ColumnLabelFormat> = {
     value: {
       columnType: 'number',
-      style: 'number'
+      style: 'number',
     } as ColumnLabelFormat,
     percentage: {
       columnType: 'number',
-      style: 'percent'
+      style: 'percent',
     } as ColumnLabelFormat,
     label: {
       columnType: 'text',
-      style: 'string'
-    } as ColumnLabelFormat
+      style: 'string',
+    } as ColumnLabelFormat,
   };
 
   const createMockDataset = (overrides = {}): MockDataset => ({
@@ -82,11 +82,11 @@ describe('barAndLineTooltipHelper', () => {
     tooltipData: [
       [
         { key: 'value', value: 250 },
-        { key: 'percentage', value: 25 }
-      ]
+        { key: 'percentage', value: 25 },
+      ],
     ],
     hidden: false,
-    ...overrides
+    ...overrides,
   });
 
   const createMockDataPoint = (overrides = {}): TooltipItem<'bar'> => ({
@@ -99,7 +99,7 @@ describe('barAndLineTooltipHelper', () => {
     label: 'Test Dataset',
     chart: mockChart,
     element: {} as any,
-    ...overrides
+    ...overrides,
   });
 
   it('should correctly format tooltip items', () => {
@@ -128,9 +128,9 @@ describe('barAndLineTooltipHelper', () => {
         {
           formattedValue: '250',
           formattedLabel: 'Test Dataset',
-          formattedPercentage: '100%'
-        }
-      ]
+          formattedPercentage: '100%',
+        },
+      ],
     });
   });
 

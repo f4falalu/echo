@@ -7,7 +7,7 @@ describe('barDelayAnimation', () => {
     const animation = barDelayAnimation({
       barGroupType: 'group',
       maxDelayBetweenDatasets: 500,
-      maxDelayBetweenDataPoints: 200
+      maxDelayBetweenDataPoints: 200,
     });
 
     // Mock chart context
@@ -19,13 +19,13 @@ describe('barDelayAnimation', () => {
       chart: {
         id: 'test-chart-1',
         data: {
-          datasets: [{ data: [1, 2, 3] }, { data: [4, 5, 6] }, { data: [7, 8, 9] }]
-        }
+          datasets: [{ data: [1, 2, 3] }, { data: [4, 5, 6] }, { data: [7, 8, 9] }],
+        },
       } as unknown as Chart,
       active: true,
       dataset: { data: [7, 8, 9] },
       parsed: 8,
-      raw: 8
+      raw: 8,
     } as unknown as ScriptableContext<'bar'>;
 
     // Calculate expected delay
@@ -39,7 +39,7 @@ describe('barDelayAnimation', () => {
     const animation = barDelayAnimation({
       barGroupType: 'percentage-stack',
       maxDelayBetweenDatasets: 500,
-      maxDelayBetweenDataPoints: 200
+      maxDelayBetweenDataPoints: 200,
     });
 
     const context = {
@@ -50,13 +50,13 @@ describe('barDelayAnimation', () => {
       chart: {
         id: 'test-chart-2',
         data: {
-          datasets: [{ data: [1, 2, 3] }, { data: [4, 5, 6] }]
-        }
+          datasets: [{ data: [1, 2, 3] }, { data: [4, 5, 6] }],
+        },
       } as unknown as Chart,
       active: true,
       dataset: { data: [1, 2, 3] },
       parsed: 1,
-      raw: 1
+      raw: 1,
     } as unknown as ScriptableContext<'bar'>;
 
     const delay = animation.delay?.(context);

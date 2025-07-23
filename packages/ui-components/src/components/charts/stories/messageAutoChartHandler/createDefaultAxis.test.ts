@@ -4,7 +4,7 @@ import { DEFAULT_CHART_CONFIG } from '@buster/server-shared/metrics';
 import {
   createDefaultBarAndLineAxis,
   createDefaultPieAxis,
-  createDefaultScatterAxis
+  createDefaultScatterAxis,
 } from './createDefaultAxis';
 
 describe('createDefaultAxis', () => {
@@ -17,7 +17,7 @@ describe('createDefaultAxis', () => {
           min_value: '',
           max_value: '',
           unique_values: 5,
-          type: 'date'
+          type: 'date',
         },
         {
           name: 'number_column',
@@ -25,8 +25,8 @@ describe('createDefaultAxis', () => {
           min_value: 0,
           max_value: 100,
           unique_values: 10,
-          type: 'float'
-        }
+          type: 'float',
+        },
       ];
 
       const result = createDefaultBarAndLineAxis(columnsMetaData);
@@ -34,7 +34,7 @@ describe('createDefaultAxis', () => {
       expect(result).toEqual({
         ...DEFAULT_CHART_CONFIG.barAndLineAxis,
         x: ['date_column'],
-        y: ['number_column']
+        y: ['number_column'],
       });
     });
 
@@ -46,7 +46,7 @@ describe('createDefaultAxis', () => {
           min_value: '',
           max_value: '',
           unique_values: 5,
-          type: 'text'
+          type: 'text',
         },
         {
           name: 'number_column',
@@ -54,8 +54,8 @@ describe('createDefaultAxis', () => {
           min_value: 0,
           max_value: 100,
           unique_values: 10,
-          type: 'float'
-        }
+          type: 'float',
+        },
       ];
 
       const result = createDefaultBarAndLineAxis(columnsMetaData);
@@ -63,7 +63,7 @@ describe('createDefaultAxis', () => {
       expect(result).toEqual({
         ...DEFAULT_CHART_CONFIG.barAndLineAxis,
         x: ['string_column'],
-        y: ['number_column']
+        y: ['number_column'],
       });
     });
 
@@ -75,7 +75,7 @@ describe('createDefaultAxis', () => {
       expect(result).toEqual({
         ...DEFAULT_CHART_CONFIG.barAndLineAxis,
         x: [],
-        y: []
+        y: [],
       });
     });
 
@@ -85,7 +85,7 @@ describe('createDefaultAxis', () => {
       expect(result).toEqual({
         ...DEFAULT_CHART_CONFIG.barAndLineAxis,
         x: [],
-        y: []
+        y: [],
       });
     });
   });
@@ -99,7 +99,7 @@ describe('createDefaultAxis', () => {
           min_value: '',
           max_value: '',
           unique_values: 5,
-          type: 'text'
+          type: 'text',
         },
         {
           name: 'number_column',
@@ -107,8 +107,8 @@ describe('createDefaultAxis', () => {
           min_value: 0,
           max_value: 100,
           unique_values: 10,
-          type: 'float'
-        }
+          type: 'float',
+        },
       ];
 
       const result = createDefaultPieAxis(columnsMetaData);
@@ -116,7 +116,7 @@ describe('createDefaultAxis', () => {
       expect(result).toEqual({
         ...DEFAULT_CHART_CONFIG.pieChartAxis,
         x: ['string_column'],
-        y: ['number_column']
+        y: ['number_column'],
       });
     });
 
@@ -128,7 +128,7 @@ describe('createDefaultAxis', () => {
           min_value: '',
           max_value: '',
           unique_values: 5,
-          type: 'date'
+          type: 'date',
         },
         {
           name: 'number_column',
@@ -136,8 +136,8 @@ describe('createDefaultAxis', () => {
           min_value: 0,
           max_value: 100,
           unique_values: 10,
-          type: 'float'
-        }
+          type: 'float',
+        },
       ];
 
       const result = createDefaultPieAxis(columnsMetaData);
@@ -145,7 +145,7 @@ describe('createDefaultAxis', () => {
       expect(result).toEqual({
         ...DEFAULT_CHART_CONFIG.pieChartAxis,
         x: ['date_column'],
-        y: ['number_column']
+        y: ['number_column'],
       });
     });
 
@@ -157,7 +157,7 @@ describe('createDefaultAxis', () => {
       expect(result).toEqual({
         ...DEFAULT_CHART_CONFIG.pieChartAxis,
         x: [],
-        y: []
+        y: [],
       });
     });
 
@@ -167,7 +167,7 @@ describe('createDefaultAxis', () => {
       expect(result).toEqual({
         ...DEFAULT_CHART_CONFIG.pieChartAxis,
         x: [],
-        y: []
+        y: [],
       });
     });
   });
@@ -181,7 +181,7 @@ describe('createDefaultAxis', () => {
           min_value: 0,
           max_value: 100,
           unique_values: 10,
-          type: 'float'
+          type: 'float',
         },
         {
           name: 'number_column2',
@@ -189,8 +189,8 @@ describe('createDefaultAxis', () => {
           min_value: 0,
           max_value: 100,
           unique_values: 10,
-          type: 'float'
-        }
+          type: 'float',
+        },
       ];
 
       const result = createDefaultScatterAxis(columnsMetaData);
@@ -198,7 +198,7 @@ describe('createDefaultAxis', () => {
       expect(result).toEqual({
         ...DEFAULT_CHART_CONFIG.scatterAxis,
         x: ['number_column1'],
-        y: ['number_column2']
+        y: ['number_column2'],
       });
     });
 
@@ -210,7 +210,7 @@ describe('createDefaultAxis', () => {
           min_value: 0,
           max_value: 100,
           unique_values: 10,
-          type: 'float'
+          type: 'float',
         },
         {
           name: 'string_column',
@@ -218,8 +218,8 @@ describe('createDefaultAxis', () => {
           min_value: '',
           max_value: '',
           unique_values: 5,
-          type: 'text'
-        }
+          type: 'text',
+        },
       ];
 
       const result = createDefaultScatterAxis(columnsMetaData);
@@ -227,7 +227,7 @@ describe('createDefaultAxis', () => {
       expect(result).toEqual({
         ...DEFAULT_CHART_CONFIG.scatterAxis,
         x: ['number_column1'],
-        y: []
+        y: [],
       });
     });
 
@@ -239,7 +239,7 @@ describe('createDefaultAxis', () => {
           min_value: '',
           max_value: '',
           unique_values: 5,
-          type: 'text'
+          type: 'text',
         },
         {
           name: 'date_column',
@@ -247,8 +247,8 @@ describe('createDefaultAxis', () => {
           min_value: '',
           max_value: '',
           unique_values: 5,
-          type: 'date'
-        }
+          type: 'date',
+        },
       ];
 
       const result = createDefaultScatterAxis(columnsMetaData);
@@ -256,7 +256,7 @@ describe('createDefaultAxis', () => {
       expect(result).toEqual({
         ...DEFAULT_CHART_CONFIG.scatterAxis,
         x: [],
-        y: []
+        y: [],
       });
     });
 
@@ -266,7 +266,7 @@ describe('createDefaultAxis', () => {
       expect(result).toEqual({
         ...DEFAULT_CHART_CONFIG.scatterAxis,
         x: [],
-        y: []
+        y: [],
       });
     });
   });

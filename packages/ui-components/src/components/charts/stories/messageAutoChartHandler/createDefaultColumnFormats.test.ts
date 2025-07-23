@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   type ColumnMetaData,
   type ColumnLabelFormat,
-  DEFAULT_COLUMN_LABEL_FORMAT
+  DEFAULT_COLUMN_LABEL_FORMAT,
 } from '@buster/server-shared/metrics';
 import { createDefaultColumnLabelFormats } from './createDefaultColumnFormats';
 
@@ -21,7 +21,7 @@ describe('createDefaultColumnFormats', () => {
         min_value: '0',
         max_value: '100',
         unique_values: 10,
-        type: 'float'
+        type: 'float',
       },
       {
         name: 'text_column',
@@ -29,7 +29,7 @@ describe('createDefaultColumnFormats', () => {
         min_value: '',
         max_value: '',
         unique_values: 5,
-        type: 'text'
+        type: 'text',
       },
       {
         name: 'date_column',
@@ -37,8 +37,8 @@ describe('createDefaultColumnFormats', () => {
         min_value: '',
         max_value: '',
         unique_values: 3,
-        type: 'date'
-      }
+        type: 'date',
+      },
     ];
 
     const result = createDefaultColumnLabelFormats(undefined, columnsMetaData);
@@ -72,8 +72,8 @@ describe('createDefaultColumnFormats', () => {
         min_value: '0',
         max_value: '100',
         unique_values: 10,
-        type: 'float'
-      }
+        type: 'float',
+      },
     ];
 
     const existingLabelFormats: Record<string, ColumnLabelFormat> = {
@@ -82,8 +82,8 @@ describe('createDefaultColumnFormats', () => {
         style: 'currency',
         suffix: '%',
         maximumFractionDigits: 1,
-        columnType: 'number'
-      }
+        columnType: 'number',
+      },
     };
 
     const result = createDefaultColumnLabelFormats(existingLabelFormats, columnsMetaData);
@@ -103,7 +103,7 @@ describe('createDefaultColumnFormats', () => {
         min_value: '',
         max_value: '',
         unique_values: 8,
-        type: 'timestamptz'
+        type: 'timestamptz',
       },
       {
         name: 'decimal_column',
@@ -111,8 +111,8 @@ describe('createDefaultColumnFormats', () => {
         min_value: '0.1',
         max_value: '999.99',
         unique_values: 50,
-        type: 'decimal'
-      }
+        type: 'decimal',
+      },
     ];
 
     const result = createDefaultColumnLabelFormats(undefined, columnsMetaData);
@@ -146,8 +146,8 @@ describe('createDefaultColumnFormats', () => {
         min_value: '0',
         max_value: '100',
         unique_values: 10,
-        type: 'float'
-      }
+        type: 'float',
+      },
     ];
 
     const existingLabelFormats: Record<string, ColumnLabelFormat> = {
@@ -155,8 +155,8 @@ describe('createDefaultColumnFormats', () => {
         ...DEFAULT_COLUMN_LABEL_FORMAT,
         style: 'percent',
         columnType: 'number',
-        suffix: '%'
-      }
+        suffix: '%',
+      },
     };
 
     const result = createDefaultColumnLabelFormats(existingLabelFormats, columnsMetaData);

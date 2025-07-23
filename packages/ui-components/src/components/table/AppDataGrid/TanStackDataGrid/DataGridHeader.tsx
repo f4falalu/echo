@@ -77,19 +77,19 @@ const DraggableHeader: React.FC<DraggableHeaderProps> = ({
         {...attributes}
         {...listeners}
       >
-        <div className="truncate text-base text-text-secondary">
+        <div className='truncate text-base text-text-secondary'>
           {flexRender(header.column.columnDef.header, header.getContext())}
         </div>
 
         {sortable && (
           <>
             {header.column.getIsSorted() === 'asc' && (
-              <span className="text-icon-color text-xs">
+              <span className='text-icon-color text-xs'>
                 <CaretUp />
               </span>
             )}
             {header.column.getIsSorted() === 'desc' && (
-              <span className="text-icon-color text-xs">
+              <span className='text-icon-color text-xs'>
                 <CaretDown />
               </span>
             )}
@@ -148,7 +148,7 @@ export const DataGridHeader: React.FC<DataGridHeaderProps> = ({
 
   return (
     <>
-      <thead className="bg-background sticky top-0 z-10 w-full" suppressHydrationWarning>
+      <thead className='bg-background sticky top-0 z-10 w-full' suppressHydrationWarning>
         <tr
           ref={setDropNodeRef}
           className={cn(

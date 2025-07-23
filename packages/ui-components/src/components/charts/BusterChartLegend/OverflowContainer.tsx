@@ -14,9 +14,9 @@ export const OverflowButton: React.FC<{
 }> = React.memo(({ legendItems, onFocusClick, onClickItem, onHoverItem }) => {
   return (
     <Popover
-      align="center"
-      side="left"
-      className="flex max-h-[420px] max-w-[265px]! min-w-[240px] flex-col overflow-hidden px-0 py-0.5"
+      align='center'
+      side='left'
+      className='flex max-h-[420px] max-w-[265px]! min-w-[240px] flex-col overflow-hidden px-0 py-0.5'
       content={
         <OverflowPopoverContent
           legendItems={legendItems}
@@ -33,7 +33,7 @@ export const OverflowButton: React.FC<{
         )}
       >
         <LegendItemDot type={'bar'} color={undefined} inactive={true} />
-        <span className="text-sm text-nowrap select-none">Next {legendItems.length}</span>
+        <span className='text-sm text-nowrap select-none'>Next {legendItems.length}</span>
       </div>
     </Popover>
   );
@@ -92,7 +92,7 @@ const OverflowPopoverContent = React.memo(
                   height: `${virtualRow.size}px`,
                   transform: `translateY(${virtualRow.start}px)`,
                 }}
-                className="p-0.5"
+                className='p-0.5'
               >
                 <LegendItem
                   item={item}

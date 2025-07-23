@@ -162,11 +162,11 @@ export const BusterMetricChart: React.FC<BusterMetricChartProps> = React.memo(
           className={`flex h-full w-full flex-col items-center justify-center ${className}`}
           {...memoizedAnimation}
         >
-          <AnimatedTitleWrapper title={formattedHeader} type="header" />
-          <div className="w-full overflow-hidden p-2 text-center">
-            <div className="truncate">{formattedValue}</div>
+          <AnimatedTitleWrapper title={formattedHeader} type='header' />
+          <div className='w-full overflow-hidden p-2 text-center'>
+            <div className='truncate'>{formattedValue}</div>
           </div>
-          <AnimatedTitleWrapper title={formattedSubHeader} type="subHeader" />
+          <AnimatedTitleWrapper title={formattedSubHeader} type='subHeader' />
         </motion.div>
       </AnimatePresence>
     );
@@ -214,11 +214,11 @@ const AnimatedTitleWrapper = ({ title, type }: { title: string; type: 'header' |
   }, []);
 
   return (
-    <AnimatePresence mode="wait" initial={false}>
+    <AnimatePresence mode='wait' initial={false}>
       {title && (
-        <motion.div className="w-full overflow-visible text-center" {...memoizedAnimation}>
-          <motion.div className="origin-center">
-            <h4 className="truncate text-text-default text-lg font-normal!">{title}</h4>
+        <motion.div className='w-full overflow-visible text-center' {...memoizedAnimation}>
+          <motion.div className='origin-center'>
+            <h4 className='truncate text-text-default text-lg font-normal!'>{title}</h4>
           </motion.div>
         </motion.div>
       )}

@@ -145,7 +145,7 @@ export const SortColumnWrapper: React.FC<{
         {children}
 
         <DragOverlay
-          wrapperElement="span"
+          wrapperElement='span'
           adjustScale={false}
           dropAnimation={null} // Using null to completely disable animation
           zIndex={1000}
@@ -180,7 +180,7 @@ const HeaderDragOverlay = ({
 }) => {
   return (
     <div
-      className="flex items-center rounded-sm border bg-white p-2 shadow-lg"
+      className='flex items-center rounded-sm border bg-white p-2 shadow-lg'
       style={{
         width: header.column.getSize(),
         height: `${HEADER_HEIGHT}px`,

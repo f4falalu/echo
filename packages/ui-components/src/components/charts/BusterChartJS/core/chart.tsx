@@ -135,7 +135,7 @@ function ChartComponent<
   }, []);
 
   return (
-    <canvas ref={canvasRef} role="img" height={height} width={width} {...canvasProps}>
+    <canvas ref={canvasRef} role='img' height={height} width={width} {...canvasProps}>
       {fallbackContent}
     </canvas>
   );

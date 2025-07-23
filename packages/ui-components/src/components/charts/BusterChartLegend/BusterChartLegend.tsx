@@ -1,13 +1,13 @@
-"use client";
+'use client';
 
-import { useMemoizedFn } from "@/hooks/useMemoizedFn";
-import { AnimatePresence, motion } from "framer-motion";
-import React, { useMemo, useRef } from "react";
-import { ErrorBoundary } from "../../error";
-import { LegendItem } from "./LegendItem";
-import { OverflowButton } from "./OverflowContainer";
-import { computeHiddenShowItems } from "./helpers";
-import type { BusterChartLegendProps } from "./interfaces";
+import { useMemoizedFn } from '@/hooks/useMemoizedFn';
+import { AnimatePresence, motion } from 'framer-motion';
+import React, { useMemo, useRef } from 'react';
+import { ErrorBoundary } from '../../error';
+import { LegendItem } from './LegendItem';
+import { OverflowButton } from './OverflowContainer';
+import { computeHiddenShowItems } from './helpers';
+import type { BusterChartLegendProps } from './interfaces';
 
 export const BusterChartLegend: React.FC<BusterChartLegendProps> = React.memo(
   ({
@@ -28,16 +28,13 @@ export const BusterChartLegend: React.FC<BusterChartLegendProps> = React.memo(
         return { shownItems: [], hiddenItems: [] };
       }
 
-      const { shownItems, hiddenItems } = computeHiddenShowItems(
-        legendItems,
-        legendWidth
-      );
+      const { shownItems, hiddenItems } = computeHiddenShowItems(legendItems, legendWidth);
 
       return { shownItems, hiddenItems };
     }, [legendItems, legendWidth, show]);
 
     const legendKey = useMemo(() => {
-      return legendItems.map((item) => item.id).join("");
+      return legendItems.map((item) => item.id).join('');
     }, [legendItems]);
 
     const hasOverflowButtons = hiddenItems.length > 0;
@@ -50,8 +47,8 @@ export const BusterChartLegend: React.FC<BusterChartLegendProps> = React.memo(
       const hasHeadline = !completedInitialAnimation.current
         ? showLegendHeadline
         : legendItems.some((item) => item.headline);
-      if (hasHeadline) return "38px";
-      return "24px";
+      if (hasHeadline) return '38px';
+      return '24px';
     }, [legendItems, showLegendHeadline]);
 
     const memoizedAnimation = useMemo(() => {
@@ -59,10 +56,8 @@ export const BusterChartLegend: React.FC<BusterChartLegendProps> = React.memo(
 
       return {
         initial: {
-          height:
-            show && !completedInitialAnimation.current ? initialHeight : 0,
-          minHeight:
-            show && !completedInitialAnimation.current ? initialHeight : 0,
+          height: show && !completedInitialAnimation.current ? initialHeight : 0,
+          minHeight: show && !completedInitialAnimation.current ? initialHeight : 0,
         },
         animate: {
           height: showLegend ? initialHeight : 0,
@@ -101,22 +96,18 @@ export const BusterChartLegend: React.FC<BusterChartLegendProps> = React.memo(
     }, [animateLegend, showLegend, show]);
 
     return (
-      <ErrorBoundary
-        errorComponent={
-          <div className="text-red-500">Error rendering legend</div>
-        }
-      >
+      <ErrorBoundary errorComponent={<div className='text-red-500'>Error rendering legend</div>}>
         <motion.div
-          className={`chart-legend flex w-full items-center overflow-hidden ${forceInitialHeight ? "min-h-[24px]" : ""}`}
+          className={`chart-legend flex w-full items-center overflow-hidden ${forceInitialHeight ? 'min-h-[24px]' : ''}`}
           onAnimationComplete={onAnimationComplete}
           {...memoizedAnimation}
         >
-          <AnimatePresence mode="wait" initial={false}>
+          <AnimatePresence mode='wait' initial={false}>
             {showLegend && (
               <motion.div
                 key={legendKey}
                 {...memoizedChildAnimation}
-                className="flex w-full flex-nowrap justify-end space-x-2 overflow-hidden"
+                className='flex w-full flex-nowrap justify-end space-x-2 overflow-hidden'
               >
                 {shownItems.map((item) => (
                   <LegendItem
@@ -145,4 +136,4 @@ export const BusterChartLegend: React.FC<BusterChartLegendProps> = React.memo(
   }
 );
 
-BusterChartLegend.displayName = "BusterChartLegend";
+BusterChartLegend.displayName = 'BusterChartLegend';

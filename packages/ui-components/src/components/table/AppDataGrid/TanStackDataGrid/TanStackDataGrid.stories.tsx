@@ -29,7 +29,7 @@ const meta: Meta<typeof TanStackDataGrid> = {
   },
   decorators: [
     (Story) => (
-      <div className="h-[80vh] w-[90vw] border border-red-500 p-0">
+      <div className='h-[80vh] w-[90vw] border border-red-500 p-0'>
         <Story />
       </div>
     ),

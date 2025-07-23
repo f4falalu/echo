@@ -21,7 +21,7 @@ const generateTableData = (count = 5) => {
     sales: generateSales(index),
     units: generateUnits(index),
     profit: generateProfit(index),
-    date: generateDate(index)
+    date: generateDate(index),
   }));
 };
 
@@ -29,9 +29,9 @@ const meta: Meta<typeof BusterTableChart> = {
   title: 'UI/Charts/BusterChart/BusterTableChart',
   component: BusterTableChart,
   parameters: {
-    layout: 'centered'
+    layout: 'centered',
   },
-  tags: ['autodocs']
+  tags: ['autodocs'],
 } as Meta<typeof BusterTableChart>;
 
 export default meta;
@@ -43,38 +43,38 @@ export const Default: Story = {
     columnLabelFormats: {
       product: {
         columnType: 'text',
-        style: 'string'
+        style: 'string',
       } as ColumnLabelFormat,
       sales: {
         columnType: 'number',
         style: 'currency',
         currency: 'USD',
-        displayName: 'SALES'
+        displayName: 'SALES',
       } as ColumnLabelFormat,
       units: {
         columnType: 'number',
         style: 'number',
-        numberSeparatorStyle: ','
+        numberSeparatorStyle: ',',
       } as ColumnLabelFormat,
       profit: {
         columnType: 'number',
         style: 'currency',
-        currency: 'USD'
+        currency: 'USD',
       } as ColumnLabelFormat,
       date: {
         columnType: 'date',
         style: 'date',
-        dateFormat: 'LL'
-      } as ColumnLabelFormat
-    }
+        dateFormat: 'LL',
+      } as ColumnLabelFormat,
+    },
   },
   render: (args) => {
     return (
-      <div className="h-[400px] w-[600px]">
+      <div className='h-[400px] w-[600px]'>
         <BusterTableChart {...args} />
       </div>
     );
-  }
+  },
 };
 
 export const WithTableColumnOrder: Story = {
@@ -84,37 +84,37 @@ export const WithTableColumnOrder: Story = {
     columnLabelFormats: {
       product: {
         columnType: 'text',
-        style: 'string'
+        style: 'string',
       } as ColumnLabelFormat,
       sales: {
         columnType: 'number',
         style: 'currency',
-        currency: 'USD'
+        currency: 'USD',
       } as ColumnLabelFormat,
       units: {
         columnType: 'number',
         style: 'number',
-        numberSeparatorStyle: ','
+        numberSeparatorStyle: ',',
       } as ColumnLabelFormat,
       profit: {
         columnType: 'number',
         style: 'currency',
-        currency: 'USD'
+        currency: 'USD',
       } as ColumnLabelFormat,
       date: {
         columnType: 'date',
         style: 'date',
-        dateFormat: 'LL'
-      } as ColumnLabelFormat
-    }
+        dateFormat: 'LL',
+      } as ColumnLabelFormat,
+    },
   },
   render: (args) => {
     return (
-      <div className="h-[400px] w-[600px]">
+      <div className='h-[400px] w-[600px]'>
         <BusterTableChart {...args} />
       </div>
     );
-  }
+  },
 };
 
 export const WithTableColumnWidths: Story = {
@@ -125,42 +125,42 @@ export const WithTableColumnWidths: Story = {
       sales: 150,
       units: 100,
       profit: 150,
-      date: 200
+      date: 200,
     },
     columnLabelFormats: {
       product: {
         columnType: 'text',
-        style: 'string'
+        style: 'string',
       } as ColumnLabelFormat,
       sales: {
         columnType: 'number',
         style: 'currency',
-        currency: 'USD'
+        currency: 'USD',
       } as ColumnLabelFormat,
       units: {
         columnType: 'number',
         style: 'number',
-        numberSeparatorStyle: ','
+        numberSeparatorStyle: ',',
       } as ColumnLabelFormat,
       profit: {
         columnType: 'number',
         style: 'currency',
-        currency: 'USD'
+        currency: 'USD',
       } as ColumnLabelFormat,
       date: {
         columnType: 'date',
         style: 'date',
-        dateFormat: 'LL'
-      } as ColumnLabelFormat
-    }
+        dateFormat: 'LL',
+      } as ColumnLabelFormat,
+    },
   },
   render: (args) => {
     return (
-      <div className="h-[400px] w-[600px]">
+      <div className='h-[400px] w-[600px]'>
         <BusterTableChart {...args} />
       </div>
     );
-  }
+  },
 };
 
 export const ReadOnly: Story = {
@@ -170,37 +170,37 @@ export const ReadOnly: Story = {
     columnLabelFormats: {
       product: {
         columnType: 'text',
-        style: 'string'
+        style: 'string',
       } as ColumnLabelFormat,
       sales: {
         columnType: 'number',
         style: 'currency',
-        currency: 'USD'
+        currency: 'USD',
       } as ColumnLabelFormat,
       units: {
         columnType: 'number',
         style: 'number',
-        numberSeparatorStyle: ','
+        numberSeparatorStyle: ',',
       } as ColumnLabelFormat,
       profit: {
         columnType: 'number',
         style: 'currency',
-        currency: 'USD'
+        currency: 'USD',
       } as ColumnLabelFormat,
       date: {
         columnType: 'date',
         style: 'date',
-        dateFormat: 'LL'
-      } as ColumnLabelFormat
-    }
+        dateFormat: 'LL',
+      } as ColumnLabelFormat,
+    },
   },
   render: (args) => {
     return (
-      <div className="h-[400px] w-[600px]">
+      <div className='h-[400px] w-[600px]'>
         <BusterTableChart {...args} />
       </div>
     );
-  }
+  },
 };
 
 export const LargeDataset: Story = {
@@ -209,37 +209,37 @@ export const LargeDataset: Story = {
     columnLabelFormats: {
       product: {
         columnType: 'text',
-        style: 'string'
+        style: 'string',
       } as ColumnLabelFormat,
       sales: {
         columnType: 'number',
         style: 'currency',
-        currency: 'USD'
+        currency: 'USD',
       } as ColumnLabelFormat,
       units: {
         columnType: 'number',
         style: 'number',
-        numberSeparatorStyle: ','
+        numberSeparatorStyle: ',',
       } as ColumnLabelFormat,
       profit: {
         columnType: 'number',
         style: 'currency',
-        currency: 'USD'
+        currency: 'USD',
       } as ColumnLabelFormat,
       date: {
         columnType: 'date',
         style: 'date',
-        dateFormat: 'LL'
-      } as ColumnLabelFormat
-    }
+        dateFormat: 'LL',
+      } as ColumnLabelFormat,
+    },
   },
   render: (args) => {
     return (
-      <div className="h-[600px] w-[800px]">
+      <div className='h-[600px] w-[800px]'>
         <BusterTableChart {...args} />
       </div>
     );
-  }
+  },
 };
 
 export const CustomClassname: Story = {
@@ -249,51 +249,51 @@ export const CustomClassname: Story = {
     columnLabelFormats: {
       product: {
         columnType: 'text',
-        style: 'string'
+        style: 'string',
       } as ColumnLabelFormat,
       sales: {
         columnType: 'number',
         style: 'currency',
-        currency: 'USD'
+        currency: 'USD',
       } as ColumnLabelFormat,
       units: {
         columnType: 'number',
         style: 'number',
-        numberSeparatorStyle: ','
+        numberSeparatorStyle: ',',
       } as ColumnLabelFormat,
       profit: {
         columnType: 'number',
         style: 'currency',
-        currency: 'USD'
+        currency: 'USD',
       } as ColumnLabelFormat,
       date: {
         columnType: 'date',
         style: 'date',
-        dateFormat: 'LL'
-      } as ColumnLabelFormat
-    }
+        dateFormat: 'LL',
+      } as ColumnLabelFormat,
+    },
   },
   render: (args) => {
     return (
-      <div className="h-[400px] w-[600px]">
+      <div className='h-[400px] w-[600px]'>
         <BusterTableChart {...args} />
       </div>
     );
-  }
+  },
 };
 
 export const WithNullStringValues: Story = {
   args: {
     data: generateTableData().map((item, index) => ({
       ...item,
-      product: index % 2 === 0 ? null : item.product
+      product: index % 2 === 0 ? null : item.product,
     })),
     columnLabelFormats: {
       product: {
         ...DEFAULT_COLUMN_LABEL_FORMAT,
         columnType: 'text',
-        style: 'string'
-      } as ColumnLabelFormat
-    }
-  }
+        style: 'string',
+      } as ColumnLabelFormat,
+    },
+  },
 };

@@ -10,7 +10,7 @@ export const DownsampleAlert: React.FC<{ isDownsampled: boolean }> = ({ isDownsa
   }
 
   return (
-    <div className="absolute right-0 bottom-0.5 left-0 w-full px-1 pb-0">
+    <div className='absolute right-0 bottom-0.5 left-0 w-full px-1 pb-0'>
       <div
         className={cn(
           'flex h-6 w-full items-center justify-center space-x-1 rounded-sm border px-1.5 text-sm shadow',

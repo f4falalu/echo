@@ -2,7 +2,7 @@ import { create } from 'mutative';
 import {
   type ColumnMetaData,
   type ChartConfigProps,
-  DEFAULT_COLUMN_SETTINGS
+  DEFAULT_COLUMN_SETTINGS,
 } from '@buster/server-shared/metrics';
 import type { ColumnSettings } from '@buster/server-shared/metrics';
 

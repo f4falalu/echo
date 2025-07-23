@@ -81,11 +81,11 @@ export const LegendItemDot: React.FC<
   }, [type, size]);
 
   return (
-    <div className={cn(itemVariants({ size }))} data-testid="legend-dot-container">
+    <div className={cn(itemVariants({ size }))} data-testid='legend-dot-container'>
       <button
-        type="button"
+        type='button'
         onClick={onClick}
-        data-testid="legend-dot"
+        data-testid='legend-dot'
         className={cn('cursor-pointer', dotStyle, {
           'group-hover:opacity-0': hasFocusItem,
         })}
@@ -93,13 +93,13 @@ export const LegendItemDot: React.FC<
       />
       {hasFocusItem && (
         <button
-          type="button"
+          type='button'
           onClick={onFocusItemPreflight}
-          className="absolute hidden h-full w-full cursor-pointer items-center justify-center overflow-hidden group-hover:flex"
+          className='absolute hidden h-full w-full cursor-pointer items-center justify-center overflow-hidden group-hover:flex'
         >
           <div
-            data-testid="focus-target"
-            className="focus-item group-hover:bg-item-hover flex h-full w-full items-center justify-center rounded-sm"
+            data-testid='focus-target'
+            className='focus-item group-hover:bg-item-hover flex h-full w-full items-center justify-center rounded-sm'
           >
             <div
               className={cn(

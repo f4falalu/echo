@@ -160,7 +160,7 @@ export const TanStackDataGrid: React.FC<TanStackDataGridProps> = React.memo(
           setColOrder={setColOrder}
           onReorderColumns={onReorderColumns}
         >
-          <table className="bg-background w-full">
+          <table className='bg-background w-full'>
             <DataGridHeader
               table={table}
               sortable={sortable}
@@ -170,7 +170,7 @@ export const TanStackDataGrid: React.FC<TanStackDataGridProps> = React.memo(
             />
 
             <tbody
-              className="relative"
+              className='relative'
               style={{ display: 'grid', height: `${rowVirtualizer.getTotalSize()}px` }}
             >
               {rowVirtualizer.getVirtualItems().map((virtualRow) => {

@@ -3,7 +3,7 @@ import {
   type ChartType,
   type DataMetadata,
   type ChartConfigProps,
-  DEFAULT_CHART_CONFIG
+  DEFAULT_CHART_CONFIG,
 } from '@buster/server-shared/metrics';
 import { createDefaultChartConfig } from '.';
 
@@ -11,7 +11,7 @@ describe('createDefaultChartConfig', () => {
   it('should create a default chart config', () => {
     const message = {
       chart_config: DEFAULT_CHART_CONFIG,
-      data_metadata: TEST_DATA_METADATA
+      data_metadata: TEST_DATA_METADATA,
     };
 
     const config = createDefaultChartConfig(message);
@@ -27,7 +27,7 @@ describe('createDefaultChartConfig', () => {
         '#F3864F',
         '#C82184',
         '#31FCB4',
-        '#E83562'
+        '#E83562',
       ],
       selectedChartType: 'table',
       yAxisShowAxisLabel: true,
@@ -90,8 +90,8 @@ describe('createDefaultChartConfig', () => {
           lineType: 'normal',
           lineSymbolSize: 0,
           barRoundness: 8,
-          showDataLabelsAsPercentage: false
-        }
+          showDataLabelsAsPercentage: false,
+        },
       },
       columnLabelFormats: {
         test: {
@@ -111,9 +111,9 @@ describe('createDefaultChartConfig', () => {
           prefix: '',
           suffix: '',
           replaceMissingDataWith: null,
-          makeLabelHumanReadable: true
-        }
-      }
+          makeLabelHumanReadable: true,
+        },
+      },
     } satisfies ChartConfigProps;
 
     expect(config).toEqual(expected);
@@ -123,9 +123,9 @@ describe('createDefaultChartConfig', () => {
     const message = {
       chart_config: {
         ...DEFAULT_CHART_CONFIG,
-        comboChartAxis: { x: [], y: [], y2: undefined as any, tooltip: null, category: [] }
+        comboChartAxis: { x: [], y: [], y2: undefined as any, tooltip: null, category: [] },
       },
-      data_metadata: TEST_DATA_METADATA
+      data_metadata: TEST_DATA_METADATA,
     } as Parameters<typeof createDefaultChartConfig>[0];
 
     const config = createDefaultChartConfig(message);
@@ -137,9 +137,9 @@ describe('createDefaultChartConfig', () => {
     const message = {
       chart_config: {
         ...DEFAULT_CHART_CONFIG,
-        comboChartAxis: { x: [], y: [], y2: [], tooltip: null, category: [] }
+        comboChartAxis: { x: [], y: [], y2: [], tooltip: null, category: [] },
       },
-      data_metadata: TEST_DATA_METADATA
+      data_metadata: TEST_DATA_METADATA,
     } as Parameters<typeof createDefaultChartConfig>[0];
 
     const config = createDefaultChartConfig(message);
@@ -151,9 +151,9 @@ describe('createDefaultChartConfig', () => {
     const message = {
       chart_config: {
         ...DEFAULT_CHART_CONFIG,
-        comboChartAxis: { x: [], y: [], y2: null, tooltip: null, category: [] }
+        comboChartAxis: { x: [], y: [], y2: null, tooltip: null, category: [] },
       },
-      data_metadata: TEST_DATA_METADATA
+      data_metadata: TEST_DATA_METADATA,
     } as any;
 
     const config = createDefaultChartConfig(message);
@@ -165,9 +165,9 @@ describe('createDefaultChartConfig', () => {
     const message = {
       chart_config: {
         ...DEFAULT_CHART_CONFIG,
-        comboChartAxis: { x: [], y: [], y2: ['test-y2'], tooltip: null, category: [] }
+        comboChartAxis: { x: [], y: [], y2: ['test-y2'], tooltip: null, category: [] },
       },
-      data_metadata: TEST_DATA_METADATA
+      data_metadata: TEST_DATA_METADATA,
     } as Parameters<typeof createDefaultChartConfig>[0];
 
     const config = createDefaultChartConfig(message);
@@ -185,8 +185,8 @@ const TEST_DATA_METADATA: DataMetadata = {
       min_value: 0,
       max_value: 100,
       unique_values: 10,
-      type: 'text'
-    }
+      type: 'text',
+    },
   ],
-  row_count: 10
+  row_count: 10,
 };

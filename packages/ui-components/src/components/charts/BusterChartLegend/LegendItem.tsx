@@ -111,7 +111,7 @@ const LegendItemStandard = React.memo(
       >
         <AnimatePresence initial={false}>
           {hasHeadline && (
-            <motion.div {...headlineAnimation} className="flex items-center space-x-1.5">
+            <motion.div {...headlineAnimation} className='flex items-center space-x-1.5'>
               <span
                 className={cn(
                   'text-[15px] leading-none font-semibold!',
@@ -143,7 +143,7 @@ const LegendItemStandard = React.memo(
               !inactive ? 'text-foreground' : 'text-text-secondary'
             )}
           >
-            <AnimatePresence mode="wait" initial={false}>
+            <AnimatePresence mode='wait' initial={false}>
               {headlinePreText && (
                 <motion.div
                   key={hasHeadline ? 'hasHeadline' : 'noHeadline'}

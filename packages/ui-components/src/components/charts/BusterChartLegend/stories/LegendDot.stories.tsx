@@ -6,21 +6,21 @@ const meta = {
   title: 'UI/Charts/LegendDot',
   component: LegendItemDot,
   parameters: {
-    layout: 'centered'
+    layout: 'centered',
   },
   tags: ['autodocs'],
   argTypes: {
     color: { control: 'color' },
     type: {
       control: 'select',
-      options: ['line', 'bar', 'scatter']
+      options: ['line', 'bar', 'scatter'],
     },
     inactive: { control: 'boolean' },
     size: {
       control: 'select',
-      options: ['sm', 'default']
-    }
-  }
+      options: ['sm', 'default'],
+    },
+  },
 } satisfies Meta<typeof LegendItemDot>;
 
 export default meta;
@@ -31,8 +31,8 @@ export const Bar: Story = {
     color: '#1677ff',
     type: 'bar',
     inactive: false,
-    size: 'default'
-  }
+    size: 'default',
+  },
 };
 
 export const Line: Story = {
@@ -40,8 +40,8 @@ export const Line: Story = {
     color: '#1677ff',
     type: 'line',
     inactive: false,
-    size: 'default'
-  }
+    size: 'default',
+  },
 };
 
 export const Scatter: Story = {
@@ -49,8 +49,8 @@ export const Scatter: Story = {
     color: '#1677ff',
     type: 'scatter',
     inactive: false,
-    size: 'default'
-  }
+    size: 'default',
+  },
 };
 
 export const Small: Story = {
@@ -58,8 +58,8 @@ export const Small: Story = {
     color: '#1677ff',
     type: 'bar',
     inactive: false,
-    size: 'sm'
-  }
+    size: 'sm',
+  },
 };
 
 export const Inactive: Story = {
@@ -67,8 +67,8 @@ export const Inactive: Story = {
     color: '#1677ff',
     type: 'bar',
     inactive: true,
-    size: 'default'
-  }
+    size: 'default',
+  },
 };
 
 export const WithFocus: Story = {
@@ -77,6 +77,6 @@ export const WithFocus: Story = {
     type: 'bar',
     inactive: false,
     size: 'default',
-    onFocusItem: fn
-  }
+    onFocusItem: fn,
+  },
 };

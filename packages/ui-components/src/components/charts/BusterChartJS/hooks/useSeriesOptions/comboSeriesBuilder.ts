@@ -7,7 +7,7 @@ import type { LabelBuilderProps } from './useSeriesOptions';
 import {
   DEFAULT_COLUMN_SETTINGS,
   ENABLED_DOTS_ON_LINE_SIZE,
-  type ColumnSettings
+  type ColumnSettings,
 } from '@buster/server-shared/metrics';
 
 type ComboSeries = Array<
@@ -21,7 +21,7 @@ export const comboSeriesBuilder_data = (props: SeriesBuilderProps): ComboSeries 
     const renderResult = comboBuilder({
       ...props,
       dataset,
-      index
+      index,
     });
     return renderResult;
   });
@@ -55,7 +55,7 @@ const comboBuilder = (
   const renderProps = {
     ...props,
     index,
-    yAxisID: axisType
+    yAxisID: axisType,
   };
 
   const renderResult = renderBuilder[columnVisualization](renderProps);
@@ -83,7 +83,7 @@ const renderBuilder: Record<
 > = {
   bar: barBuilder,
   line: (props) => lineBuilder({ ...props, order: -props.index }),
-  dot: dotSeriesBuilder
+  dot: dotSeriesBuilder,
 };
 
 export const comboSeriesBuilder_labels = (props: LabelBuilderProps): (string | Date)[] => {

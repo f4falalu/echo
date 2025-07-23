@@ -17,7 +17,7 @@ describe('createDefaultColumnSettings', () => {
         min_value: '0',
         max_value: '1000',
         unique_values: 100,
-        type: 'float'
+        type: 'float',
       },
       {
         name: 'category',
@@ -25,8 +25,8 @@ describe('createDefaultColumnSettings', () => {
         min_value: '',
         max_value: '',
         unique_values: 5,
-        type: 'text'
-      }
+        type: 'text',
+      },
     ];
 
     const result = createDefaultColumnSettings(undefined, columnsMetaData);
@@ -48,16 +48,16 @@ describe('createDefaultColumnSettings', () => {
         min_value: '0',
         max_value: '10000',
         unique_values: 200,
-        type: 'float'
-      }
+        type: 'float',
+      },
     ];
 
     const existingColumnSettings: Record<string, ColumnSettings> = {
       revenue: {
         showDataLabels: true,
         columnVisualization: 'line',
-        lineType: 'smooth'
-      } as ColumnSettings
+        lineType: 'smooth',
+      } as ColumnSettings,
     };
 
     const result = createDefaultColumnSettings(existingColumnSettings, columnsMetaData);

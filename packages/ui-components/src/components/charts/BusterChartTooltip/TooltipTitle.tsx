@@ -17,7 +17,7 @@ export const TooltipTitle: React.FC<{
       {seriesType && (
         <LegendItemDot color={color} type={seriesType as ChartType} inactive={false} />
       )}
-      <span className="text-foreground text-base font-medium">{title}</span>
+      <span className='text-foreground text-base font-medium'>{title}</span>
     </div>
   );
 };

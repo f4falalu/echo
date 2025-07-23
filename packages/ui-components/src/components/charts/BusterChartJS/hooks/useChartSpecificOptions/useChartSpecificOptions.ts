@@ -24,7 +24,7 @@ export const useChartSpecificOptions = ({
 
   return {
     chartPlugins,
-    chartOptions
+    chartOptions,
   };
 };
 
@@ -42,7 +42,7 @@ const chartTypeOptionsHandler: Record<
   ['bar']: barOptionsHandler,
   ['combo']: defaultHandler,
   ['metric']: defaultHandler,
-  ['table']: defaultHandler
+  ['table']: defaultHandler,
 };
 
 //********** PLUGINS ************ */
@@ -61,5 +61,5 @@ const chartTypePluginsHandler: Record<
   ['bar']: barPluginsHandler,
   ['combo']: defaultPluginsHandler,
   ['metric']: defaultPluginsHandler,
-  ['table']: defaultPluginsHandler
+  ['table']: defaultPluginsHandler,
 };

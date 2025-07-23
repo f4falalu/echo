@@ -7,9 +7,9 @@ const meta = {
   title: 'UI/Charts/OverflowButton',
   component: OverflowButton,
   parameters: {
-    layout: 'centered'
+    layout: 'centered',
   },
-  tags: ['autodocs']
+  tags: ['autodocs'],
 } satisfies Meta<typeof OverflowButton>;
 
 export default meta;
@@ -24,7 +24,7 @@ const mockLegendItems: BusterChartLegendItem[] = [
     formattedName: 'Series A',
     serieName: 'series-a',
     data: [],
-    yAxisKey: 'revenue'
+    yAxisKey: 'revenue',
   },
   {
     id: '2',
@@ -34,7 +34,7 @@ const mockLegendItems: BusterChartLegendItem[] = [
     formattedName: 'Series B',
     serieName: 'series-b',
     data: [],
-    yAxisKey: 'revenue'
+    yAxisKey: 'revenue',
   },
   {
     id: '3',
@@ -44,22 +44,22 @@ const mockLegendItems: BusterChartLegendItem[] = [
     formattedName: 'Inactive Series C',
     serieName: 'series-c',
     data: [],
-    yAxisKey: 'revenue'
-  }
+    yAxisKey: 'revenue',
+  },
 ];
 
 export const Default: Story = {
   args: {
     legendItems: mockLegendItems,
     onClickItem: fn(),
-    onFocusClick: fn()
-  }
+    onFocusClick: fn(),
+  },
 };
 
 export const WithInactiveItems: Story = {
   args: {
-    legendItems: mockLegendItems.map((item) => ({ ...item, inactive: true }))
-  }
+    legendItems: mockLegendItems.map((item) => ({ ...item, inactive: true })),
+  },
 };
 
 export const WithManyItems: Story = {
@@ -72,7 +72,7 @@ export const WithManyItems: Story = {
       formattedName: `Series ${String.fromCharCode(65 + i)}`,
       serieName: `series-${String.fromCharCode(97 + i)}`,
       data: [],
-      yAxisKey: 'revenue'
-    }))
-  }
+      yAxisKey: 'revenue',
+    })),
+  },
 };

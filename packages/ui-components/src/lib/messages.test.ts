@@ -6,7 +6,7 @@ import {
   isNumericColumnType,
   NUMBER_TYPES,
   simplifyColumnType,
-  TEXT_TYPES
+  TEXT_TYPES,
 } from './messages';
 
 describe('simplifyColumnType', () => {

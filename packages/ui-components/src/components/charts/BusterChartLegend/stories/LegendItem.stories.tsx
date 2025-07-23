@@ -6,7 +6,7 @@ const meta = {
   title: 'UI/Charts/LegendItem',
   component: LegendItem,
   parameters: {
-    layout: 'centered'
+    layout: 'centered',
   },
   tags: ['autodocs'],
   args: {
@@ -18,27 +18,27 @@ const meta = {
       id: '1',
       serieName: 'series1',
       data: [],
-      yAxisKey: 'revenue'
-    }
+      yAxisKey: 'revenue',
+    },
   },
   argTypes: {
     item: {
       control: 'object',
-      description: 'The legend item configuration'
+      description: 'The legend item configuration',
     },
     onClickItem: {
       action: 'clicked',
-      description: 'Function called when the legend item is clicked'
+      description: 'Function called when the legend item is clicked',
     },
     onFocusItem: {
       action: 'focused',
-      description: 'Function called when the legend item is focused'
+      description: 'Function called when the legend item is focused',
     },
     onHoverItem: {
       action: 'hovered',
-      description: 'Function called when the legend item is hovered'
-    }
-  }
+      description: 'Function called when the legend item is hovered',
+    },
+  },
 } satisfies Meta<typeof LegendItem>;
 
 export default meta;
@@ -55,9 +55,9 @@ export const Basic: Story = {
       id: '1',
       serieName: 'series1',
       data: [],
-      yAxisKey: 'revenue'
-    }
-  }
+      yAxisKey: 'revenue',
+    },
+  },
 };
 
 // Inactive legend item
@@ -71,9 +71,9 @@ export const Inactive: Story = {
       id: '2',
       serieName: 'series2',
       data: [],
-      yAxisKey: 'revenue'
-    }
-  }
+      yAxisKey: 'revenue',
+    },
+  },
 };
 
 // Bar type legend item
@@ -87,9 +87,9 @@ export const BarType: Story = {
       id: '3',
       serieName: 'series3',
       data: [],
-      yAxisKey: 'revenue'
-    }
-  }
+      yAxisKey: 'revenue',
+    },
+  },
 };
 
 // Scatter type legend item
@@ -103,9 +103,9 @@ export const ScatterType: Story = {
       id: '4',
       serieName: 'series4',
       data: [],
-      yAxisKey: 'revenue'
-    }
-  }
+      yAxisKey: 'revenue',
+    },
+  },
 };
 
 // With headline
@@ -122,10 +122,10 @@ export const WithHeadline: Story = {
       yAxisKey: 'revenue',
       headline: {
         type: 'current',
-        titleAmount: '$50,000'
-      }
-    }
-  }
+        titleAmount: '$50,000',
+      },
+    },
+  },
 };
 
 // With average headline
@@ -142,10 +142,10 @@ export const WithAverageHeadline: Story = {
       yAxisKey: 'revenue',
       headline: {
         type: 'average',
-        titleAmount: '$25,000'
-      }
-    }
-  }
+        titleAmount: '$25,000',
+      },
+    },
+  },
 };
 
 // Interactive example with all handlers
@@ -159,10 +159,10 @@ export const WithFocusEvent: Story = {
       id: '7',
       serieName: 'series7',
       data: [],
-      yAxisKey: 'revenue'
+      yAxisKey: 'revenue',
     },
     onClickItem: fn(),
     onFocusItem: fn(),
-    onHoverItem: fn()
-  }
+    onHoverItem: fn(),
+  },
 };

@@ -37,7 +37,7 @@ const Slider = ({
   const foundValue = Array.isArray(value) ? value[0] : value;
   return (
     <input
-      type="range"
+      type='range'
       min={min}
       max={max}
       step={step}
@@ -143,12 +143,12 @@ export const LargeDatasetNoCategory: Story = {
     };
 
     return (
-      <div className="space-y-4">
-        <div className="flex items-center gap-4">
-          <span className="text-sm">Number of points:</span>
-          <div className="w-64">
+      <div className='space-y-4'>
+        <div className='flex items-center gap-4'>
+          <span className='text-sm'>Number of points:</span>
+          <div className='w-64'>
             <input
-              type="range"
+              type='range'
               min={0}
               max={5000}
               step={50}
@@ -156,12 +156,12 @@ export const LargeDatasetNoCategory: Story = {
               onChange={(e) => onChangeValue(Number(e.target.value))}
             />
           </div>
-          <span className="w-16 text-sm">{points}</span>
+          <span className='w-16 text-sm'>{points}</span>
         </div>
         <div>
-          <span className="text-sm">Total processing time: {processingTime}ms</span>
+          <span className='text-sm'>Total processing time: {processingTime}ms</span>
         </div>
-        <div className="h-[400px] w-[400px]" key={points}>
+        <div className='h-[400px] w-[400px]' key={points}>
           <BusterChart {...args} data={data} />
         </div>
       </div>
@@ -209,18 +209,18 @@ export const LargeDatasetWithCategory: Story = {
     };
 
     return (
-      <div className="space-y-4">
-        <div className="flex items-center gap-4">
-          <span className="text-sm">Number of points:</span>
-          <div className="w-64">
+      <div className='space-y-4'>
+        <div className='flex items-center gap-4'>
+          <span className='text-sm'>Number of points:</span>
+          <div className='w-64'>
             <Slider min={0} max={5000} step={50} value={points} onChange={onChangeValue} />
           </div>
-          <span className="w-16 text-sm">{points}</span>
+          <span className='w-16 text-sm'>{points}</span>
         </div>
         <div>
-          <span className="text-sm">Total processing time: {processingTime}ms</span>
+          <span className='text-sm'>Total processing time: {processingTime}ms</span>
         </div>
-        <div className="h-[400px] w-[400px]" key={points}>
+        <div className='h-[400px] w-[400px]' key={points}>
           <BusterChart {...args} data={data} />
         </div>
       </div>

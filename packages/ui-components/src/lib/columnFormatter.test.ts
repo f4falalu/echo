@@ -14,7 +14,7 @@ describe('formatLabel', () => {
           columnType: 'number',
           style: 'number',
           minimumFractionDigits: 3,
-          maximumFractionDigits: 3
+          maximumFractionDigits: 3,
         })
       ).toBe('1,234.567');
     });
@@ -25,7 +25,7 @@ describe('formatLabel', () => {
           columnType: 'number',
           style: 'number',
           minimumFractionDigits: 2,
-          maximumFractionDigits: 3
+          maximumFractionDigits: 3,
         })
       ).toBe('1,234.00');
 
@@ -34,7 +34,7 @@ describe('formatLabel', () => {
           columnType: 'number',
           style: 'number',
           minimumFractionDigits: 4,
-          maximumFractionDigits: 4
+          maximumFractionDigits: 4,
         })
       ).toBe('1,234.4900');
 
@@ -43,7 +43,7 @@ describe('formatLabel', () => {
           columnType: 'number',
           style: 'number',
           minimumFractionDigits: 1,
-          maximumFractionDigits: 1
+          maximumFractionDigits: 1,
         })
       ).toBe('1,234.5');
     });
@@ -53,7 +53,7 @@ describe('formatLabel', () => {
         formatLabel(1234.56, {
           columnType: 'number',
           style: 'currency',
-          currency: 'USD'
+          currency: 'USD',
         })
       ).toBe('$1,234.56');
 
@@ -61,7 +61,7 @@ describe('formatLabel', () => {
         formatLabel(1234.56, {
           columnType: 'number',
           style: 'currency',
-          currency: 'EUR'
+          currency: 'EUR',
         })
       ).toBe('€1,234.56');
     });
@@ -72,7 +72,7 @@ describe('formatLabel', () => {
           columnType: 'number',
           style: 'number',
           prefix: 'Pre-',
-          suffix: '-Post'
+          suffix: '-Post',
         })
       ).toBe('Pre-1,234-Post');
     });
@@ -82,7 +82,7 @@ describe('formatLabel', () => {
         formatLabel(null, {
           columnType: 'number',
           style: 'number',
-          replaceMissingDataWith: 0
+          replaceMissingDataWith: 0,
         })
       ).toBe('0');
 
@@ -90,7 +90,7 @@ describe('formatLabel', () => {
         formatLabel(undefined, {
           columnType: 'number',
           style: 'number',
-          replaceMissingDataWith: null
+          replaceMissingDataWith: null,
         })
       ).toBe('null');
     });
@@ -99,7 +99,7 @@ describe('formatLabel', () => {
       expect(
         formatLabel(0.1234, {
           columnType: 'number',
-          style: 'percent'
+          style: 'percent',
         })
       ).toBe('0.12%');
     });
@@ -109,7 +109,7 @@ describe('formatLabel', () => {
         formatLabel(100, {
           columnType: 'number',
           style: 'number',
-          multiplier: 2
+          multiplier: 2,
         })
       ).toBe('200');
     });
@@ -119,7 +119,7 @@ describe('formatLabel', () => {
         formatLabel(null, {
           columnType: 'number',
           style: 'number',
-          replaceMissingDataWith: 'N/A'
+          replaceMissingDataWith: 'N/A',
         })
       ).toBe('N/A');
     });
@@ -129,7 +129,7 @@ describe('formatLabel', () => {
         formatLabel(null, {
           columnType: 'number',
           style: 'number',
-          replaceMissingDataWith: ''
+          replaceMissingDataWith: '',
         })
       ).toBe('');
     });
@@ -139,7 +139,7 @@ describe('formatLabel', () => {
         formatLabel(undefined, {
           columnType: 'number',
           style: 'number',
-          replaceMissingDataWith: '-999'
+          replaceMissingDataWith: '-999',
         })
       ).toBe('-999');
     });
@@ -150,7 +150,7 @@ describe('formatLabel', () => {
           columnType: 'number',
           style: 'currency',
           currency: 'USD',
-          replaceMissingDataWith: null
+          replaceMissingDataWith: null,
         })
       ).toBe('null');
     });
@@ -160,7 +160,7 @@ describe('formatLabel', () => {
         formatLabel(undefined, {
           columnType: 'number',
           style: 'number',
-          replaceMissingDataWith: ''
+          replaceMissingDataWith: '',
         })
       ).toBe('');
     });
@@ -184,7 +184,7 @@ describe('formatLabel', () => {
         prefix: '',
         suffix: '',
         replaceMissingDataWith: 0,
-        makeLabelHumanReadable: true
+        makeLabelHumanReadable: true,
       } satisfies ColumnLabelFormat;
 
       const result = formatLabel(rawValue, config);
@@ -209,7 +209,7 @@ describe('formatLabel', () => {
           {
             columnType: 'text',
             style: 'string',
-            makeLabelHumanReadable: true
+            makeLabelHumanReadable: true,
           },
           true
         )
@@ -241,7 +241,7 @@ describe('formatLabel', () => {
         formatLabel(null, {
           columnType: 'text',
           style: 'string',
-          replaceMissingDataWith: 0
+          replaceMissingDataWith: 0,
         })
       ).toBe('null');
     });
@@ -251,7 +251,7 @@ describe('formatLabel', () => {
         formatLabel(undefined, {
           columnType: 'text',
           style: 'string',
-          replaceMissingDataWith: 'N/A'
+          replaceMissingDataWith: 'N/A',
         })
       ).toBe('N/A');
     });
@@ -261,7 +261,7 @@ describe('formatLabel', () => {
         formatLabel(null, {
           columnType: 'text',
           style: 'string',
-          replaceMissingDataWith: ''
+          replaceMissingDataWith: '',
         })
       ).toBe('');
     });
@@ -271,7 +271,7 @@ describe('formatLabel', () => {
         formatLabel(null, {
           columnType: 'text',
           style: 'string',
-          replaceMissingDataWith: null
+          replaceMissingDataWith: null,
         })
       ).toBe('null');
     });
@@ -283,7 +283,7 @@ describe('formatLabel', () => {
       expect(
         formatLabel(testDate, {
           columnType: 'date',
-          style: 'date'
+          style: 'date',
         })
       ).toMatch(/Mar(ch)? 14, 2024/);
     });
@@ -292,7 +292,7 @@ describe('formatLabel', () => {
         formatLabel(testDate, {
           columnType: 'date',
           style: 'date',
-          dateFormat: 'YYYY-MM-DD'
+          dateFormat: 'YYYY-MM-DD',
         })
       ).toBe('2024-03-14');
     });
@@ -302,7 +302,7 @@ describe('formatLabel', () => {
           columnType: 'date',
           style: 'date',
           dateFormat: 'YYYY-MM-DD HH:mm',
-          isUTC: true
+          isUTC: true,
         })
       ).toBe('2024-03-14 12:00');
     });
@@ -312,21 +312,21 @@ describe('formatLabel', () => {
         formatLabel(1, {
           columnType: 'date',
           style: 'date',
-          convertNumberTo: 'month_of_year'
+          convertNumberTo: 'month_of_year',
         })
       ).toMatch(/January/);
       expect(
         formatLabel(1, {
           columnType: 'date',
           style: 'date',
-          convertNumberTo: 'day_of_week'
+          convertNumberTo: 'day_of_week',
         })
       ).toMatch(/Monday/);
       expect(
         formatLabel(1, {
           columnType: 'date',
           style: 'date',
-          convertNumberTo: 'quarter'
+          convertNumberTo: 'quarter',
         })
       ).toMatch(`${currentYear} QQ`);
     });

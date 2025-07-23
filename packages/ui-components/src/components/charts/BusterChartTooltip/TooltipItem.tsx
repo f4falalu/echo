@@ -9,14 +9,14 @@ export const TooltipItem: React.FC<ITooltipItem> = ({
   color,
   seriesType,
   formattedLabel,
-  usePercentage
+  usePercentage,
 }) => {
   const isScatter = seriesType === 'scatter';
 
   return (
     <>
       {!isScatter && (
-        <div className="flex items-center space-x-1.5 overflow-hidden pl-3">
+        <div className='flex items-center space-x-1.5 overflow-hidden pl-3'>
           <LegendItemDot color={color} type={seriesType as ChartType} inactive={false} />
           <span className={cn('truncate text-base')}>{formattedLabel}</span>
         </div>
@@ -41,7 +41,7 @@ const TooltipItemValue: React.FC<{
 
   if (values.length > 1 || isScatter) {
     return (
-      <div className="grid grid-cols-[auto_auto] items-center gap-x-5 px-3">
+      <div className='grid grid-cols-[auto_auto] items-center gap-x-5 px-3'>
         {values.map((value, index) => (
           <GroupTooltipValue
             key={index.toString()}
@@ -58,7 +58,8 @@ const TooltipItemValue: React.FC<{
     <div
       className={cn(
         'text-text-default tooltip-values overflow-hidden px-3 text-right text-xs font-medium text-ellipsis whitespace-nowrap'
-      )}>
+      )}
+    >
       {chooseValue(formattedValue, values[0]?.formattedPercentage)}
     </div>
   );
@@ -74,7 +75,8 @@ const GroupTooltipValue: React.FC<{
       <div
         className={cn(
           'text-text-default overflow-hidden text-right text-sm font-medium text-ellipsis whitespace-nowrap'
-        )}>
+        )}
+      >
         {value}
       </div>
     </>
