@@ -1,29 +1,39 @@
-import type { BusterChat } from '@/api/asset_interfaces/chat/chatInterfaces';
-import type { ChatListItem } from '@buster/server-shared/chats';
+import type {
+  GetChatsListRequest,
+  GetChatsListResponse,
+  GetLogsListRequest,
+  GetLogsListResponse,
+  GetChatRequest,
+  GetChatResponse,
+  DeleteChatsRequest,
+  UpdateChatRequest,
+  UpdateChatResponse,
+  UpdateChatMessageFeedbackRequest,
+  UpdateChatMessageFeedbackResponse,
+  DuplicateChatRequest,
+  DuplicateChatResponse,
+  StartChatFromAssetRequest,
+  StartChatFromAssetResponse
+} from '@buster/server-shared/chats';
 import { serverFetch } from '../../createServerInstance';
 import { mainApi } from '../instances';
 
 const CHATS_BASE = '/chats';
 
 // Client-side fetch version
-export const getListChats = async (params?: {
-  page_token: number;
-  page_size: number;
-}): Promise<ChatListItem[]> => {
+export const getListChats = async (params?: GetChatsListRequest): Promise<GetChatsListResponse> => {
   const { page_token = 0, page_size = 3500 } = params || {};
   return mainApi
-    .get<ChatListItem[]>(`${CHATS_BASE}`, {
+    .get<GetChatsListResponse>(`${CHATS_BASE}`, {
       params: { page_token, page_size }
     })
     .then((res) => res.data);
 };
 
-export const getListLogs = async (
-  params?: Parameters<typeof getListChats>[0]
-): Promise<ChatListItem[]> => {
+export const getListLogs = async (params?: GetLogsListRequest): Promise<GetLogsListResponse> => {
   const { page_token = 0, page_size = 3500 } = params || {};
   return mainApi
-    .get<ChatListItem[]>('/logs', {
+    .get<GetLogsListResponse>('/logs', {
       params: { page_token, page_size }
     })
     .then((res) => res.data);
@@ -31,25 +41,25 @@ export const getListLogs = async (
 
 // Server-side fetch version
 export const getListChats_server = async (
-  params?: Parameters<typeof getListChats>[0]
-): Promise<ChatListItem[]> => {
+  params?: GetChatsListRequest
+): Promise<GetChatsListResponse> => {
   const { page_token = 0, page_size = 1000 } = params || {};
-  return await serverFetch<ChatListItem[]>(`${CHATS_BASE}`, {
+  return await serverFetch<GetChatsListResponse>(`${CHATS_BASE}`, {
     params: { page_token, page_size }
   });
 };
 
 // Client-side fetch version
-export const getChat = async ({ id }: { id: string }): Promise<BusterChat> => {
-  return mainApi.get<BusterChat>(`${CHATS_BASE}/${id}`).then((res) => res.data);
+export const getChat = async ({ id }: GetChatRequest): Promise<GetChatResponse> => {
+  return mainApi.get<GetChatResponse>(`${CHATS_BASE}/${id}`).then((res) => res.data);
 };
 
 // Server-side fetch version
-export const getChat_server = async ({ id }: { id: string }): Promise<BusterChat> => {
-  return await serverFetch<BusterChat>(`${CHATS_BASE}/${id}`);
+export const getChat_server = async ({ id }: GetChatRequest): Promise<GetChatResponse> => {
+  return await serverFetch<GetChatResponse>(`${CHATS_BASE}/${id}`);
 };
 
-export const deleteChat = async (data: string[]): Promise<void> => {
+export const deleteChat = async (data: DeleteChatsRequest): Promise<void> => {
   const stringifiedData = JSON.stringify(data);
   return mainApi.delete(`${CHATS_BASE}`, { data: stringifiedData }).then((res) => res.data);
 };
@@ -57,41 +67,28 @@ export const deleteChat = async (data: string[]): Promise<void> => {
 export const updateChat = async ({
   id,
   ...data
-}: {
-  id: string;
-  title?: string;
-  is_favorited?: boolean;
-}): Promise<BusterChat> => {
-  return mainApi.put<BusterChat>(`${CHATS_BASE}/${id}`, data).then((res) => res.data);
+}: UpdateChatRequest): Promise<UpdateChatResponse> => {
+  return mainApi.put<UpdateChatResponse>(`${CHATS_BASE}/${id}`, data).then((res) => res.data);
 };
 
 export const updateChatMessageFeedback = async ({
   message_id,
   ...params
-}: {
-  message_id: string;
-  feedback: 'negative' | null;
-}): Promise<BusterChat> => {
+}: UpdateChatMessageFeedbackRequest): Promise<UpdateChatMessageFeedbackResponse> => {
   return mainApi.put(`/messages/${message_id}`, params).then((res) => res.data);
 };
 
 export const duplicateChat = async ({
   id,
   message_id
-}: {
-  id: string;
-  message_id?: string;
-}): Promise<BusterChat> => {
+}: DuplicateChatRequest): Promise<DuplicateChatResponse> => {
   return mainApi.post(`${CHATS_BASE}/duplicate`, { id, message_id }).then((res) => res.data);
 };
 
 export const startChatFromAsset = async ({
   asset_id,
   asset_type
-}: {
-  asset_id: string;
-  asset_type: 'metric' | 'dashboard';
-}): Promise<BusterChat> => {
+}: StartChatFromAssetRequest): Promise<StartChatFromAssetResponse> => {
   return mainApi
     .post(`${CHATS_BASE}`, {
       asset_id,

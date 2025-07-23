@@ -26,12 +26,12 @@ export const FollowUpWithAssetPopup: React.FC<FollowUpWithAssetProps> = React.me
     buttonText = 'Apply custom filter'
   }) => {
     const { mutateAsync: startChatFromAsset, isPending } = useStartChatFromAsset();
-    const onSubmit = useMemoizedFn(async (value: string) => {
-      console.log('onSubmit', assetType, assetId);
+    const onSubmit = useMemoizedFn(async (prompt: string) => {
+      if (!prompt || !assetId || !assetType || isPending) return;
       await startChatFromAsset({
         asset_id: assetId,
         asset_type: assetType,
-        prompt: value
+        prompt
       });
     });
 
