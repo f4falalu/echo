@@ -9,7 +9,8 @@
       "recommended": true,
       "correctness": {
         "noUnusedVariables": "error",
-        "noUnusedImports": "off"
+        "noUnusedImports": "off",
+        "useExhaustiveDependencies": "warn"
       },
       "style": {
         "noNonNullAssertion": "error",

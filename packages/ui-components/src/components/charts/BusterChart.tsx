@@ -1,29 +1,29 @@
 'use client';
 
+import { useMemoizedFn } from '@/hooks/useMemoizedFn';
+import {
+  type ChartEncodes,
+  DEFAULT_CHART_CONFIG,
+  DEFAULT_CHART_THEME,
+  DEFAULT_COLUMN_METADATA,
+} from '@buster/server-shared/metrics';
 import type { Chart } from 'chart.js';
 import isEmpty from 'lodash/isEmpty';
 import React, { useMemo } from 'react';
-import { type BusterChartProps } from '@/api/asset_interfaces/metric/charts';
-import {
-  DEFAULT_CHART_CONFIG,
-  DEFAULT_CHART_THEME, 
-  DEFAULT_COLUMN_METADATA,
-  type ChartEncodes
-} from '@buster/server-shared/metrics';
-import { useMemoizedFn } from '@/hooks';
+import type { BusterChartProps } from './BusterChart.types';
 import { BusterChartComponent } from './BusterChartComponent';
 import { BusterChartErrorWrapper } from './BusterChartErrorWrapper';
 import { DEFAULT_DATA } from './BusterChartLegend/config';
 import { BusterChartWrapper } from './BusterChartWrapper';
-import { doesChartHaveValidAxis } from './helpers';
-import type { BusterChartRenderComponentProps } from './interfaces/chartComponentInterfaces';
 import { NoValidAxis } from './LoadingComponents';
 import {
   NoChartData,
-  PreparingYourRequestLoader
+  PreparingYourRequestLoader,
 } from './LoadingComponents/ChartLoadingComponents';
 import { BusterMetricChart } from './MetricChart';
 import { BusterTableChart } from './TableChart';
+import { doesChartHaveValidAxis } from './helpers';
+import type { BusterChartRenderComponentProps } from './interfaces/chartComponentInterfaces';
 
 export const BusterChart: React.FC<BusterChartProps> = React.memo(
   ({
@@ -57,26 +57,23 @@ export const BusterChart: React.FC<BusterChartProps> = React.memo(
   }) => {
     const isTable = selectedChartType === 'table';
     const showNoData = !loading && (isEmpty(data) || data === null);
+
+    const { pieChartAxis, comboChartAxis, scatterAxis, barAndLineAxis } = props;
+
     const selectedAxis: ChartEncodes | undefined = useMemo(() => {
-      const { pieChartAxis, comboChartAxis, scatterAxis, barAndLineAxis } = props;
       if (selectedChartType === 'pie') return pieChartAxis;
       if (selectedChartType === 'combo') return comboChartAxis;
       if (selectedChartType === 'scatter') return scatterAxis;
       if (selectedChartType === 'bar') return barAndLineAxis;
       if (selectedChartType === 'line') return barAndLineAxis;
-    }, [
-      selectedChartType,
-      props.pieChartAxis,
-      props.comboChartAxis,
-      props.scatterAxis,
-      props.barAndLineAxis
-    ]);
+      return undefined;
+    }, [selectedChartType, pieChartAxis, comboChartAxis, scatterAxis, barAndLineAxis]);
 
     const hasValidAxis = useMemo(() => {
       return doesChartHaveValidAxis({
         selectedChartType,
         selectedAxis,
-        isTable
+        isTable,
       });
     }, [selectedChartType, isTable, selectedAxis]);
 
@@ -155,7 +152,7 @@ export const BusterChart: React.FC<BusterChartProps> = React.memo(
         readOnly,
         colors,
         columnMetadata,
-        ...props
+        ...props,
       };
 
       return <BusterChartComponent {...chartProps} />;

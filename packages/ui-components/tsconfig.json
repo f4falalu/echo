@@ -1,0 +1,16 @@
+{
+  "extends": "@buster/typescript-config/base.json",
+  "compilerOptions": {
+    "tsBuildInfoFile": "dist/.cache/tsbuildinfo.json",
+    "outDir": "dist",
+    "rootDir": "src",
+    "jsx": "react-jsx",
+    "lib": ["ESNext", "DOM"],
+    "paths": {
+      "@/hooks/*": ["./src/hooks/*"],
+      "@/lib/*": ["./src/lib/*"]
+    }
+  },
+  "include": ["src/**/*", "env.d.ts"],
+  "exclude": ["node_modules", "dist", "tests", "**/*.test.ts", "**/*.spec.ts"]
+}
