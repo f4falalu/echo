@@ -1,4 +1,10 @@
-import { getChatTitle, getCollectionTitle, getDashboardTitle, getMetricTitle, getUserOrganizationId } from '@buster/database';
+import {
+  getChatTitle,
+  getCollectionTitle,
+  getDashboardTitle,
+  getMetricTitle,
+  getUserOrganizationId,
+} from '@buster/database';
 import { GetTitleRequestSchema, type GetTitleResponse } from '@buster/server-shared/title';
 import { zValidator } from '@hono/zod-validator';
 import { Hono } from 'hono';
@@ -12,14 +18,14 @@ const app = new Hono()
     try {
       const { assetId, assetType } = c.req.valid('query');
       const user = c.get('busterUser');
-      
+
       const userOrg = await getUserOrganizationId(user.id);
       if (!userOrg) {
         throw new HTTPException(403, { message: 'User is not associated with an organization' });
       }
-      
+
       let title: string | null = null;
-      
+
       switch (assetType) {
         case 'chat':
           title = await getChatTitle({ assetId, organizationId: userOrg.organizationId });
@@ -33,15 +39,16 @@ const app = new Hono()
         case 'dashboard':
           title = await getDashboardTitle({ assetId, organizationId: userOrg.organizationId });
           break;
-        default:
+        default: {
           const _exhaustive: never = assetType;
           throw new HTTPException(400, { message: `Unsupported asset type: ${assetType}` });
+        }
       }
-      
+
       if (title === null) {
         throw new HTTPException(404, { message: 'Asset not found or access denied' });
       }
-      
+
       const response: GetTitleResponse = { title };
       return c.json(response);
     } catch (error) {
