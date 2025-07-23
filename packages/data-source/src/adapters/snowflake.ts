@@ -18,7 +18,7 @@ interface SnowflakeStatement {
     getScale(): number;
     getPrecision(): number;
   }>;
-  streamRows?: () => NodeJS.ReadableStream;
+  streamRows?: (options?: { start?: number; end?: number }) => NodeJS.ReadableStream;
   cancel?: (callback: (err: Error | undefined) => void) => void;
 }
 
@@ -191,12 +191,12 @@ export class SnowflakeAdapter extends BaseAdapter {
       // Set query timeout if specified (default: 120 seconds for Snowflake queue handling)
       const timeoutMs = timeout || TIMEOUT_CONFIG.query.default;
 
-      // IMPORTANT: Execute the original SQL unchanged to leverage Snowflake's query caching
-      // For memory protection, we'll fetch all rows but limit in memory
-      // This is a compromise to preserve caching while preventing OOM on truly massive queries
+      const limit = maxRows && maxRows > 0 ? maxRows : 5000;
+
       const queryPromise = new Promise<{
         rows: Record<string, unknown>[];
         statement: SnowflakeStatement;
+        hasMoreRows: boolean;
       }>((resolve, reject) => {
         if (!connection) {
           reject(new Error('Failed to acquire Snowflake connection'));
@@ -206,16 +206,40 @@ export class SnowflakeAdapter extends BaseAdapter {
         connection.execute({
           sqlText: sql, // Use original SQL unchanged for caching
           binds: params as snowflake.Binds,
-          complete: (
-            err: SnowflakeError | undefined,
-            stmt: SnowflakeStatement,
-            rows: Record<string, unknown>[] | undefined
-          ) => {
+          streamResult: true, // Enable streaming
+          complete: (err: SnowflakeError | undefined, stmt: SnowflakeStatement) => {
             if (err) {
               reject(new Error(`Snowflake query failed: ${err.message}`));
-            } else {
-              resolve({ rows: rows || [], statement: stmt });
+              return;
             }
+
+            const rows: Record<string, unknown>[] = [];
+            let hasMoreRows = false;
+
+            const stream = stmt.streamRows?.({ start: 0, end: limit });
+            if (!stream) {
+              reject(new Error('Snowflake streaming not supported'));
+              return;
+            }
+
+            let rowCount = 0;
+
+            stream
+              .on('data', (row: Record<string, unknown>) => {
+                rows.push(row);
+                rowCount++;
+              })
+              .on('error', (streamErr: Error) => {
+                reject(new Error(`Snowflake stream error: ${streamErr.message}`));
+              })
+              .on('end', () => {
+                hasMoreRows = rowCount >= limit;
+                resolve({
+                  rows,
+                  statement: stmt,
+                  hasMoreRows,
+                });
+              });
           },
         });
       });
@@ -231,20 +255,11 @@ export class SnowflakeAdapter extends BaseAdapter {
           precision: col.getPrecision() > 0 ? col.getPrecision() : 0,
         })) || [];
 
-      // Handle maxRows logic in memory (not in SQL)
-      let finalRows = result.rows;
-      let hasMoreRows = false;
-
-      if (maxRows && maxRows > 0 && result.rows.length > maxRows) {
-        finalRows = result.rows.slice(0, maxRows);
-        hasMoreRows = true;
-      }
-
       const queryResult = {
-        rows: finalRows,
-        rowCount: finalRows.length,
+        rows: result.rows,
+        rowCount: result.rows.length,
         fields,
-        hasMoreRows,
+        hasMoreRows: result.hasMoreRows,
       };
 
       return queryResult;

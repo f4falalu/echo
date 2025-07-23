@@ -159,29 +159,42 @@ describe('SnowflakeAdapter', () => {
 
     it('should execute simple query without parameters', async () => {
       const mockRows = [{ ID: 1, NAME: 'Test' }];
-      mockConnection.execute.mockImplementation(({ complete }) => {
-        complete(
-          null,
+      const mockStream = {
+        on: vi.fn(),
+      };
+
+      const mockStatement = {
+        getColumns: () => [
           {
-            getColumns: () => [
-              {
-                getName: () => 'ID',
-                getType: () => 'NUMBER',
-                isNullable: () => false,
-                getScale: () => 0,
-                getPrecision: () => 38,
-              },
-              {
-                getName: () => 'NAME',
-                getType: () => 'TEXT',
-                isNullable: () => true,
-                getScale: () => 0,
-                getPrecision: () => 0,
-              },
-            ],
+            getName: () => 'ID',
+            getType: () => 'NUMBER',
+            isNullable: () => false,
+            getScale: () => 0,
+            getPrecision: () => 38,
           },
-          mockRows
-        );
+          {
+            getName: () => 'NAME',
+            getType: () => 'TEXT',
+            isNullable: () => true,
+            getScale: () => 0,
+            getPrecision: () => 0,
+          },
+        ],
+        streamRows: vi.fn().mockReturnValue(mockStream),
+      };
+
+      mockConnection.execute.mockImplementation(({ complete, streamResult }) => {
+        expect(streamResult).toBe(true);
+        complete(null, mockStatement);
+      });
+
+      mockStream.on.mockImplementation((event: string, handler: (data?: unknown) => void) => {
+        if (event === 'data') {
+          setTimeout(() => handler(mockRows[0]), 0);
+        } else if (event === 'end') {
+          setTimeout(() => handler(), 0);
+        }
+        return mockStream;
       });
 
       const result = await adapter.query('SELECT * FROM users');
@@ -189,8 +202,11 @@ describe('SnowflakeAdapter', () => {
       expect(mockConnection.execute).toHaveBeenCalledWith({
         sqlText: 'SELECT * FROM users',
         binds: undefined,
+        streamResult: true,
         complete: expect.any(Function),
       });
+
+      expect(mockStatement.streamRows).toHaveBeenCalledWith({ start: 0, end: 5000 });
 
       expect(result).toEqual({
         rows: mockRows,
@@ -205,58 +221,88 @@ describe('SnowflakeAdapter', () => {
 
     it('should execute parameterized query', async () => {
       const mockRows = [{ ID: 1 }];
-      mockConnection.execute.mockImplementation(({ complete }) => {
-        complete(
-          null,
+      const mockStream = {
+        on: vi.fn(),
+      };
+
+      const mockStatement = {
+        getColumns: () => [
           {
-            getColumns: () => [
-              {
-                getName: () => 'ID',
-                getType: () => 'NUMBER',
-                isNullable: () => false,
-                getScale: () => 0,
-                getPrecision: () => 38,
-              },
-            ],
+            getName: () => 'ID',
+            getType: () => 'NUMBER',
+            isNullable: () => false,
+            getScale: () => 0,
+            getPrecision: () => 38,
           },
-          mockRows
-        );
+        ],
+        streamRows: vi.fn().mockReturnValue(mockStream),
+      };
+
+      mockConnection.execute.mockImplementation(({ complete, streamResult }) => {
+        expect(streamResult).toBe(true);
+        complete(null, mockStatement);
+      });
+
+      mockStream.on.mockImplementation((event: string, handler: (data?: unknown) => void) => {
+        if (event === 'data') {
+          setTimeout(() => handler(mockRows[0]), 0);
+        } else if (event === 'end') {
+          setTimeout(() => handler(), 0);
+        }
+        return mockStream;
       });
 
       const result = await adapter.query('SELECT * FROM users WHERE id = ?', [1]);
 
       expect(result.rows).toEqual(mockRows);
+      expect(mockStatement.streamRows).toHaveBeenCalledWith({ start: 0, end: 5000 });
     });
 
     it('should handle maxRows limit', async () => {
-      const mockRows = Array.from({ length: 15 }, (_, i) => ({ ID: i + 1 }));
+      const mockRows = Array.from({ length: 10 }, (_, i) => ({ ID: i + 1 }));
+      const mockStream = {
+        on: vi.fn(),
+      };
 
-      mockConnection.execute.mockImplementation(({ complete }) => {
-        complete(
-          null,
+      const mockStatement = {
+        getColumns: () => [
           {
-            getColumns: () => [
-              {
-                getName: () => 'ID',
-                getType: () => 'NUMBER',
-                isNullable: () => false,
-                getScale: () => 0,
-                getPrecision: () => 38,
-              },
-            ],
+            getName: () => 'ID',
+            getType: () => 'NUMBER',
+            isNullable: () => false,
+            getScale: () => 0,
+            getPrecision: () => 38,
           },
-          mockRows
-        );
+        ],
+        streamRows: vi.fn().mockReturnValue(mockStream),
+      };
+
+      mockConnection.execute.mockImplementation(({ complete, streamResult }) => {
+        expect(streamResult).toBe(true);
+        complete(null, mockStatement);
+      });
+
+      mockStream.on.mockImplementation((event: string, handler: (data?: unknown) => void) => {
+        if (event === 'data') {
+          setTimeout(() => {
+            mockRows.forEach((row) => handler(row));
+          }, 0);
+        } else if (event === 'end') {
+          setTimeout(() => handler(), 0);
+        }
+        return mockStream;
       });
 
       const result = await adapter.query('SELECT * FROM users', [], 10);
 
+      expect(mockStatement.streamRows).toHaveBeenCalledWith({ start: 0, end: 10 });
       expect(result.rows).toHaveLength(10);
-      expect(result.hasMoreRows).toBe(true);
+      expect(result.hasMoreRows).toBe(true); // Since we got exactly the limit
     });
 
     it('should handle query errors', async () => {
-      mockConnection.execute.mockImplementation(({ complete }) => {
+      mockConnection.execute.mockImplementation(({ complete, streamResult }) => {
+        expect(streamResult).toBe(true);
         complete(new Error('Query failed'));
       });
 
@@ -274,29 +320,40 @@ describe('SnowflakeAdapter', () => {
     });
 
     it('should handle empty result sets', async () => {
-      mockConnection.execute.mockImplementation(({ complete }) => {
-        complete(
-          null,
+      const mockStream = {
+        on: vi.fn(),
+      };
+
+      const mockStatement = {
+        getColumns: () => [
           {
-            getColumns: () => [
-              {
-                getName: () => 'ID',
-                getType: () => 'NUMBER',
-                isNullable: () => false,
-                getScale: () => 0,
-                getPrecision: () => 38,
-              },
-              {
-                getName: () => 'NAME',
-                getType: () => 'TEXT',
-                isNullable: () => true,
-                getScale: () => 0,
-                getPrecision: () => 0,
-              },
-            ],
+            getName: () => 'ID',
+            getType: () => 'NUMBER',
+            isNullable: () => false,
+            getScale: () => 0,
+            getPrecision: () => 38,
           },
-          []
-        );
+          {
+            getName: () => 'NAME',
+            getType: () => 'TEXT',
+            isNullable: () => true,
+            getScale: () => 0,
+            getPrecision: () => 0,
+          },
+        ],
+        streamRows: vi.fn().mockReturnValue(mockStream),
+      };
+
+      mockConnection.execute.mockImplementation(({ complete, streamResult }) => {
+        expect(streamResult).toBe(true);
+        complete(null, mockStatement);
+      });
+
+      mockStream.on.mockImplementation((event: string, handler: (data?: unknown) => void) => {
+        if (event === 'end') {
+          setTimeout(() => handler(), 0);
+        }
+        return mockStream;
       });
 
       const result = await adapter.query('SELECT * FROM users WHERE 1=0');
@@ -304,6 +361,7 @@ describe('SnowflakeAdapter', () => {
       expect(result.rows).toEqual([]);
       expect(result.rowCount).toBe(0);
       expect(result.fields).toHaveLength(2);
+      expect(result.hasMoreRows).toBe(false);
     });
 
     it('should handle query timeout', async () => {
