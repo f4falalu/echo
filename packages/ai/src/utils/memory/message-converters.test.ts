@@ -53,8 +53,8 @@ describe('message-converters', () => {
     });
 
     describe('Respond Without Analysis tool', () => {
-      it('should convert respondWithoutAnalysis to response text message', () => {
-        const toolCall = createToolCall('test-id-3', 'respondWithoutAnalysis', {
+      it('should convert respondWithoutAssetCreation to response text message', () => {
+        const toolCall = createToolCall('test-id-3', 'respondWithoutAssetCreation', {
           message: 'Quick response',
         });
         const toolResult = { message: 'Quick response' };

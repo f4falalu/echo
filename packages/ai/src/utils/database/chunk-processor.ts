@@ -1691,7 +1691,7 @@ export class ChunkProcessor<T extends ToolSet = GenericToolSet> {
   }
 
   /**
-   * Check if a tool is a response tool (doneTool, respondWithoutAnalysis)
+   * Check if a tool is a response tool (doneTool, respondWithoutAssetCreation)
    */
   private isResponseTool(toolName: string): boolean {
     const responseTools = [

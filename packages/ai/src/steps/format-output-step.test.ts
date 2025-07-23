@@ -95,8 +95,8 @@ describe('Format Output Step Unit Tests', () => {
       ],
       finished: true,
       metadata: {
-        toolsUsed: ['respondWithoutAnalysis'],
-        finalTool: 'respondWithoutAnalysis',
+        toolsUsed: ['respondWithoutAssetCreation'],
+        finalTool: 'respondWithoutAssetCreation',
       },
     };
 

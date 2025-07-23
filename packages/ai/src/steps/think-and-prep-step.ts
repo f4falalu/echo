@@ -90,7 +90,7 @@ const createStepResult = (
     toolsUsed: getAllToolsUsed(conversationHistory),
     finalTool: getLastToolUsed(conversationHistory) as
       | 'submitThoughts'
-      | 'respondWithoutAnalysis'
+      | 'respondWithoutAssetCreation'
       | 'messageUserClarifyingQuestion'
       | undefined,
     text: undefined,
