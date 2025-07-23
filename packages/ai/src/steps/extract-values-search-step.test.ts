@@ -1,7 +1,9 @@
-import { RuntimeContext } from '@mastra/core/runtime-context';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import type { AnalystRuntimeContext } from '../workflows/analyst-workflow';
-import { extractValuesSearchStep } from './extract-values-search-step';
+
+// Mock the AI models first, before any imports that might use them
+vi.mock('../utils/models/haiku-3-5', () => ({
+  Haiku35: 'mock-model',
+}));
 
 // Mock the stored-values package
 vi.mock('@buster/stored-values/search', () => {
@@ -11,16 +13,31 @@ vi.mock('@buster/stored-values/search', () => {
   };
 });
 
-// Mock the AI models
-vi.mock('../utils/models/sonnet-4', () => ({
-  Sonnet4: 'mock-model',
-}));
-
 // Mock Braintrust
 vi.mock('braintrust', () => ({
   wrapTraced: vi.fn((fn) => fn),
   wrapAISDKModel: vi.fn((model) => model),
 }));
+
+// Create a ref object to hold the mock generate function
+const mockGenerateRef = { current: vi.fn() };
+
+// Mock the Agent class from Mastra with the generate function
+vi.mock('@mastra/core', async () => {
+  const actual = await vi.importActual('@mastra/core');
+  return {
+    ...actual,
+    Agent: vi.fn().mockImplementation(() => ({
+      generate: (...args: any[]) => mockGenerateRef.current(...args),
+    })),
+    createStep: actual.createStep,
+  };
+});
+
+// Now import after mocks are set up
+import { RuntimeContext } from '@mastra/core/runtime-context';
+import type { AnalystRuntimeContext } from '../workflows/analyst-workflow';
+import { extractValuesSearchStep } from './extract-values-search-step';
 
 // Import the mocked functions
 import { generateEmbedding, searchValuesByEmbedding } from '@buster/stored-values/search';
@@ -28,9 +45,16 @@ import { generateEmbedding, searchValuesByEmbedding } from '@buster/stored-value
 const mockGenerateEmbedding = generateEmbedding as ReturnType<typeof vi.fn>;
 const mockSearchValuesByEmbedding = searchValuesByEmbedding as ReturnType<typeof vi.fn>;
 
-describe.skip('extractValuesSearchStep', () => {
+// Access the mock generate function through the ref
+const mockGenerate = mockGenerateRef.current;
+
+describe('extractValuesSearchStep', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    // Set default mock behavior
+    mockGenerate.mockResolvedValue({
+      object: { values: [] },
+    });
   });
 
   afterEach(() => {
@@ -48,17 +72,8 @@ describe.skip('extractValuesSearchStep', () => {
       runtimeContext.set('dataSourceId', 'test-datasource-id');
 
       // Mock the LLM response for keyword extraction
-      const mockAgentGenerate = vi.fn().mockResolvedValue({
+      mockGenerate.mockResolvedValue({
         object: { values: ['Red Bull', 'California'] },
-      });
-
-      // Mock the values agent
-      vi.doMock('../../../src/steps/extract-values-search-step', async () => {
-        const actual = await vi.importActual('../../../src/steps/extract-values-search-step');
-        return {
-          ...actual,
-          valuesAgent: { generate: mockAgentGenerate },
-        };
       });
 
       mockGenerateEmbedding.mockResolvedValue([1, 2, 3]);
@@ -126,7 +141,7 @@ describe.skip('extractValuesSearchStep', () => {
       runtimeContext.set('dataSourceId', 'test-datasource-id');
 
       // Mock empty keyword extraction
-      const mockAgentGenerate = vi.fn().mockResolvedValue({
+      mockGenerate.mockResolvedValue({
         object: { values: [] },
       });
 
@@ -179,6 +194,11 @@ describe.skip('extractValuesSearchStep', () => {
       const runtimeContext = new RuntimeContext<AnalystRuntimeContext>();
       runtimeContext.set('dataSourceId', 'test-datasource-id');
 
+      // Mock successful keyword extraction
+      mockGenerate.mockResolvedValue({
+        object: { values: ['Red Bull'] },
+      });
+
       // Mock successful search
       mockGenerateEmbedding.mockResolvedValue([1, 2, 3]);
       mockSearchValuesByEmbedding.mockResolvedValue(mockSearchResults);
@@ -206,7 +226,7 @@ describe.skip('extractValuesSearchStep', () => {
       runtimeContext.set('dataSourceId', 'test-datasource-id');
 
       // Mock LLM extraction success but embedding failure
-      const mockAgentGenerate = vi.fn().mockResolvedValue({
+      mockGenerate.mockResolvedValue({
         object: { values: ['test keyword'] },
       });
 
@@ -232,6 +252,11 @@ describe.skip('extractValuesSearchStep', () => {
 
       const runtimeContext = new RuntimeContext<AnalystRuntimeContext>();
       runtimeContext.set('dataSourceId', 'test-datasource-id');
+
+      // Mock successful keyword extraction
+      mockGenerate.mockResolvedValue({
+        object: { values: ['test keyword'] },
+      });
 
       // Mock successful embedding but database failure
       mockGenerateEmbedding.mockResolvedValue([1, 2, 3]);
@@ -259,7 +284,7 @@ describe.skip('extractValuesSearchStep', () => {
       runtimeContext.set('dataSourceId', 'test-datasource-id');
 
       // Mock two keywords: one succeeds, one fails
-      const mockAgentGenerate = vi.fn().mockResolvedValue({
+      mockGenerate.mockResolvedValue({
         object: { values: ['keyword1', 'keyword2'] },
       });
 
@@ -302,7 +327,7 @@ describe.skip('extractValuesSearchStep', () => {
       runtimeContext.set('dataSourceId', 'test-datasource-id');
 
       // Mock everything to fail
-      const mockAgentGenerate = vi.fn().mockRejectedValue(new Error('LLM failure'));
+      mockGenerate.mockRejectedValue(new Error('LLM failure'));
       mockGenerateEmbedding.mockRejectedValue(new Error('Embedding failure'));
       mockSearchValuesByEmbedding.mockRejectedValue(new Error('Database failure'));
 
@@ -344,9 +369,6 @@ describe.skip('extractValuesSearchStep', () => {
         },
       ];
 
-      mockGenerateEmbedding.mockResolvedValue([1, 2, 3]);
-      mockSearchValuesByEmbedding.mockResolvedValue(mockSearchResults);
-
       const inputData = {
         prompt: 'Test prompt',
         conversationHistory: [],
@@ -354,6 +376,14 @@ describe.skip('extractValuesSearchStep', () => {
 
       const runtimeContext = new RuntimeContext<AnalystRuntimeContext>();
       runtimeContext.set('dataSourceId', 'test-datasource-id');
+
+      // Mock successful keyword extraction
+      mockGenerate.mockResolvedValue({
+        object: { values: ['Red Bull'] },
+      });
+
+      mockGenerateEmbedding.mockResolvedValue([1, 2, 3]);
+      mockSearchValuesByEmbedding.mockResolvedValue(mockSearchResults);
 
       const result = await extractValuesSearchStep.execute({
         inputData,
@@ -398,9 +428,6 @@ describe.skip('extractValuesSearchStep', () => {
         },
       ];
 
-      mockGenerateEmbedding.mockResolvedValue([1, 2, 3]);
-      mockSearchValuesByEmbedding.mockResolvedValue(mockSearchResults);
-
       const inputData = {
         prompt: 'Test prompt',
         conversationHistory: [],
@@ -408,6 +435,14 @@ describe.skip('extractValuesSearchStep', () => {
 
       const runtimeContext = new RuntimeContext<AnalystRuntimeContext>();
       runtimeContext.set('dataSourceId', 'test-datasource-id');
+
+      // Mock successful keyword extraction
+      mockGenerate.mockResolvedValue({
+        object: { values: ['test'] },
+      });
+
+      mockGenerateEmbedding.mockResolvedValue([1, 2, 3]);
+      mockSearchValuesByEmbedding.mockResolvedValue(mockSearchResults);
 
       const result = await extractValuesSearchStep.execute({
         inputData,
