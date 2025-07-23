@@ -11,6 +11,7 @@ import {
   readFiles,
   sequentialThinking,
   updateClarificationsFile,
+  webSearch,
 } from '../../tools';
 import { Sonnet4 } from '../../utils/models/sonnet-4';
 
@@ -30,7 +31,7 @@ export const analystAgent = new Agent({
   instructions: '', // We control the system messages in the step at stream instantiation
   model: Sonnet4,
   tools: {
-    // TODO: missing execute sql for now and search internet
+    // TODO: missing execute sql
     sequentialThinking,
     grepSearch,
     readFiles,
@@ -41,6 +42,7 @@ export const analystAgent = new Agent({
     updateClarificationsFile,
     checkOffTodoList,
     idleTool,
+    webSearch,
   },
   defaultGenerateOptions: DEFAULT_OPTIONS,
   defaultStreamOptions: DEFAULT_OPTIONS,
