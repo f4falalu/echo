@@ -33,6 +33,5 @@ test-results/
 
 # IDE
 .idea/
-.vscode/
 *.swp
 *.swo
