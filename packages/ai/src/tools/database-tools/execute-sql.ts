@@ -14,7 +14,7 @@ const executeSqlStatementInputSchema = z.object({
       SELECT queries without a LIMIT clause will automatically have LIMIT 50 added for performance.
       Existing LIMIT clauses will be preserved.
       YOU MUST USE THE <SCHEMA_NAME>.<TABLE_NAME> syntax/qualifier for all table names. 
-      NEVER use SELECT * - you must explicitly list the columns you want to query from the documentation provided. 
+      NEVER use SELECT * on physical tables - for security purposes you must explicitly select the columns you intend to use. NOT ADHERING TO THESE INSTRUCTIONS WILL RETURN AN ERROR
       NEVER query system tables or use 'SHOW' statements as these will fail to execute.
       Queries without these requirements will fail to execute.`
   ),
