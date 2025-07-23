@@ -2,14 +2,18 @@
 
 import pluralize from 'pluralize';
 import React, { useEffect, useMemo, useState } from 'react';
-import { SyntaxHighlighter } from '@/components/ui/typography/SyntaxHighlight';
 import { Text } from '@/components/ui/typography';
-import { cn } from '@/lib/classMerge';
 import { FileCard } from '../../card/FileCard';
 import { Button } from '../../buttons';
 import { Copy2 } from '../../icons';
 import { useMemoizedFn } from '@/hooks';
 import { useBusterNotifications } from '@/context/BusterNotifications';
+import dynamic from 'next/dynamic';
+
+const SyntaxHighlighter = dynamic(
+  () => import('@/components/ui/typography/SyntaxHighlight').then((mod) => mod.SyntaxHighlighter),
+  { ssr: false }
+);
 
 type LineSegment = {
   type: 'text' | 'hidden';
@@ -122,27 +126,11 @@ export const StreamingMessageCode: React.FC<{
     return (
       <FileCard collapsible={collapsible} fileName={fileName} headerButtons={buttonComponent}>
         <div className="w-full pr-0">
-          {/* {lineSegments.map((segment, index) => (
-            <div
-              key={`${segment.lineNumber}-${index}`}
-              className={cn('line-number pr-1', !isStreamFinished && `duration-300 ${animation}`)}>
-              {segment.type === 'text' ? (
-                <SyntaxHighlighter
-                  language={'yaml'}
-                  showLineNumbers
-                  startingLineNumber={segment.lineNumber}
-                  className={'m-0! w-fit! border-none! p-0! text-[10px]'}>
-                  {segment.content}
-                </SyntaxHighlighter>
-              ) : (
-                <HiddenSection numberOfLinesUnmodified={segment.numberOfLines || 0} />
-              )}
-            </div>
-          ))} */}
           <SyntaxHighlighter
             language={'yaml'}
             showLineNumbers
             startingLineNumber={1}
+            animation={!isStreamFinished ? 'blurIn' : 'none'}
             className={'p-2.5 text-[10px]'}>
             {text}
           </SyntaxHighlighter>

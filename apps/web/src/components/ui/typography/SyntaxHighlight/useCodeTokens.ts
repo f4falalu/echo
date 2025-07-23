@@ -1,17 +1,10 @@
 import { useState, useLayoutEffect } from 'react';
-import type { ThemedToken } from 'shiki';
+import type { TokensResult } from 'shiki';
 import { getCodeTokens } from './shiki-instance';
-
-// Type for token data
-export type TokenData = {
-  tokens: ThemedToken[][];
-  bg: string;
-  fg: string;
-};
 
 // Custom hook to handle token loading
 export const useCodeTokens = (code: string, language: 'sql' | 'yaml', isDarkMode: boolean) => {
-  const [tokens, setTokens] = useState<TokenData | null>(null);
+  const [tokens, setTokens] = useState<TokensResult | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useLayoutEffect(() => {

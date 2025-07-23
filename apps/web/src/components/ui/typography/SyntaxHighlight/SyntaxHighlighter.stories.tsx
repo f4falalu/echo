@@ -182,14 +182,14 @@ export const AnimatedBlurIn: Story = {
 const StreamingAnimationStory = ({
   code,
   language = 'sql' as 'sql' | 'yaml',
-  animation = 'fadeIn' as any,
+  animation = 'fadeIn',
   isDarkMode = false,
   showLineNumbers = false,
   delay = 500
 }: {
   code: string;
   language?: 'sql' | 'yaml';
-  animation?: any;
+  animation?: 'fadeIn' | 'blurIn';
   isDarkMode?: boolean;
   showLineNumbers?: boolean;
   delay?: number;

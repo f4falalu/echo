@@ -64,14 +64,12 @@ export const getCodeTokens = async (
   code: string,
   language: 'sql' | 'yaml',
   theme: 'github-light' | 'github-dark'
-): Promise<any> => {
+) => {
   const highlighter = await initializeHighlighter();
-  const tokens = highlighter.codeToTokens(code, {
+  return highlighter.codeToTokens(code, {
     lang: language,
     theme
   });
-
-  return tokens;
 };
 
 // Pre-initialize highlighter on module load for better performance

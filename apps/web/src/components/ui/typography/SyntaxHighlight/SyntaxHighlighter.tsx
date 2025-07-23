@@ -1,12 +1,11 @@
 'use client';
 
-import React, { useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 import { cn } from '@/lib/classMerge';
 import { getFallbackStyle } from './shiki-instance';
 import styles from './SyntaxHighlighter.module.css';
 import { animations, type MarkdownAnimation } from '../animation-common';
 import type { ThemedToken } from 'shiki';
-import { useHotkeys } from 'react-hotkeys-hook';
 import { useCodeTokens } from './useCodeTokens';
 
 export const SyntaxHighlighter = React.memo(
@@ -18,7 +17,7 @@ export const SyntaxHighlighter = React.memo(
     className = '',
     isDarkMode = false,
     animation = 'none',
-    animationDuration = 700
+    animationDuration = 500
   }: {
     children: string;
     language?: 'sql' | 'yaml';
@@ -30,7 +29,8 @@ export const SyntaxHighlighter = React.memo(
     animationDuration?: number;
   }) => {
     const { tokens, isLoading } = useCodeTokens(children, language, isDarkMode);
-    const [test, setTest] = useState(false);
+
+    const hasTokens = !!tokens && !isLoading;
 
     const style = useMemo(() => {
       if (tokens) {
@@ -40,21 +40,14 @@ export const SyntaxHighlighter = React.memo(
         };
       }
       return getFallbackStyle(isDarkMode);
-    }, [!!tokens, isDarkMode]);
-
-    const hasTokens = !!tokens && !isLoading && !test;
-
-    useHotkeys('l', () => {
-      setTest(!test);
-    });
+    }, [hasTokens, isDarkMode]);
 
     return (
       <SyntaxWrapper
         showLineNumbers={showLineNumbers}
         startingLineNumber={startingLineNumber}
         className={className}
-        style={style}
-        animation={animation}>
+        style={style}>
         {hasTokens ? (
           tokens.tokens.map((line: ThemedToken[], index: number) => {
             return (
@@ -83,14 +76,12 @@ const SyntaxWrapper: React.FC<{
   startingLineNumber: number;
   className: string;
   style: React.CSSProperties;
-  animation: MarkdownAnimation;
-}> = ({ showLineNumbers, startingLineNumber, className, style, animation, children }) => {
+}> = ({ showLineNumbers, startingLineNumber, className, style, children }) => {
   return (
     <div
       className={cn(
         styles.shikiWrapper,
         showLineNumbers && styles.withLineNumbers,
-        animation !== 'none' && styles.animated,
         'overflow-x-auto',
         className
       )}
@@ -114,7 +105,7 @@ const Line: React.FC<{
   lineNumber: number;
   animation?: string;
   animationDuration?: number;
-}> = React.memo(({ tokens, animation, lineNumber, animationDuration = 700 }) => {
+}> = React.memo(({ tokens, animation, lineNumber, animationDuration = 500 }) => {
   const lineStyle =
     animation && animation !== 'none'
       ? { animation: `${animation} ${animationDuration}ms ease-in-out forwards` }

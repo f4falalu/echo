@@ -7,7 +7,6 @@
 }
 
 .shikiWrapper :global(code) {
-  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
   line-height: 1.45;
 }
 
