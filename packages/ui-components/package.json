@@ -12,7 +12,10 @@
     "./styles": "./src/styles/styles.css",
     "./dist/style.css": "./dist/style.css"
   },
-  "files": ["dist", "src/styles/styles.css"],
+  "files": [
+    "dist",
+    "src/styles/styles.css"
+  ],
   "scripts": {
     "prebuild": "tsx scripts/validate-env.ts",
     "build": "vite build && tsc --emitDeclarationOnly --declaration",

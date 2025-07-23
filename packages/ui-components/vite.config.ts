@@ -9,6 +9,7 @@ export default defineConfig({
     lib: {
       entry: resolve(__dirname, 'src/index.ts'),
       formats: ['es'],
+      fileName: () => 'index.js',
     },
     rollupOptions: {
       external: ['react', 'react-dom'],

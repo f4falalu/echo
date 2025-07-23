@@ -1,10 +1,8 @@
 'use client';
 
 import { cn } from '@/lib/classMerge';
-import { type MotionProps, motion } from 'framer-motion';
-import React, { useMemo } from 'react';
-
-interface ShimmerText2Props {
+import React from 'react';
+interface ShimmerTextProps {
   text: string;
   colors?: string[];
   duration?: number;
@@ -12,11 +10,7 @@ interface ShimmerText2Props {
   className?: string;
 }
 
-const animate = {
-  backgroundPosition: ['200% 50%', '0% 50%'],
-};
-
-export const ShimmerText: React.FC<ShimmerText2Props> = React.memo(
+export const ShimmerText: React.FC<ShimmerTextProps> = React.memo(
   ({
     text,
     colors = ['var(--color-foreground)', 'var(--color-text-tertiary)'],
@@ -30,38 +24,20 @@ export const ShimmerText: React.FC<ShimmerText2Props> = React.memo(
 
     const gradientColors = [...colors, colors[0]].join(', ');
 
-    const memoizedStyle: MotionProps['style'] = useMemo(() => {
-      return {
-        position: 'relative',
-        display: 'inline-block',
-        background: `linear-gradient(90deg, ${gradientColors})`,
-        backgroundSize: '200% 100%',
-        backgroundClip: 'text',
-        WebkitBackgroundClip: 'text',
-        WebkitTextFillColor: 'transparent',
-        fontSize: fontSize,
-      };
-    }, [gradientColors, fontSize]);
-
-    const memoizedTransition: MotionProps['transition'] = useMemo(() => {
-      return {
-        duration,
-        repeat: Number.POSITIVE_INFINITY,
-        ease: 'linear',
-      };
-    }, [duration]);
-
     return (
-      <>
-        <motion.div
-          className={cn('shimmer-text leading-1.3', className)}
-          style={memoizedStyle}
-          animate={animate}
-          transition={memoizedTransition}
-        >
-          {text}
-        </motion.div>
-      </>
+      <div
+        className={cn(
+          'inline-block animate-shimmer bg-[length:200%_100%] bg-clip-text text-transparent',
+          className
+        )}
+        style={{
+          backgroundImage: `linear-gradient(90deg, ${gradientColors})`,
+          fontSize: fontSize,
+          animationDuration: `${duration}s`,
+        }}
+      >
+        {text}
+      </div>
     );
   }
 );

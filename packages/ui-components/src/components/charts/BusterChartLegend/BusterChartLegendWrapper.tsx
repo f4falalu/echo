@@ -1,13 +1,13 @@
-import { cn } from '@/lib/classMerge';
-import type { ShowLegendHeadline } from '@buster/server-shared/metrics';
-import React from 'react';
-import { BusterChartLegend, type BusterChartLegendItem } from '.';
-import CircleSpinnerLoader from '../../loaders/CircleSpinnerLoader';
+import { cn } from "@/lib/classMerge";
+import type { ShowLegendHeadline } from "@buster/server-shared/metrics";
+import React from "react";
+import { BusterChartLegend, type BusterChartLegendItem } from ".";
+import CircleSpinnerLoader from "../../loaders/CircleSpinnerLoader";
 import {
   ChartLegendWrapperProvider,
   useChartWrapperContextSelector,
-} from '../chartHooks/useChartWrapperProvider';
-import { DownsampleAlert } from './DownsampleAlert';
+} from "../chartHooks/useChartWrapperProvider";
+import { DownsampleAlert } from "./DownsampleAlert";
 
 export type BusterChartLegendWrapper = {
   children: React.ReactNode;
@@ -25,53 +25,59 @@ export type BusterChartLegendWrapper = {
   onLegendItemFocus: ((item: BusterChartLegendItem) => void) | undefined;
 };
 
-export const BusterChartLegendWrapper: React.FC<BusterChartLegendWrapper> = React.memo(
-  ({
-    children,
-    renderLegend,
-    legendItems,
-    showLegend,
-    showLegendHeadline,
-    inactiveDatasets,
-    animateLegend,
-    className,
-    isUpdatingChart,
-    isDownsampled,
-    onHoverItem,
-    onLegendItemClick,
-    onLegendItemFocus,
-  }) => {
-    const width = useChartWrapperContextSelector(({ width }) => width);
+export const BusterChartLegendWrapper: React.FC<BusterChartLegendWrapper> =
+  React.memo(
+    ({
+      children,
+      renderLegend,
+      legendItems,
+      showLegend,
+      showLegendHeadline,
+      inactiveDatasets,
+      animateLegend,
+      className,
+      isUpdatingChart,
+      isDownsampled,
+      onHoverItem,
+      onLegendItemClick,
+      onLegendItemFocus,
+    }) => {
+      const width = useChartWrapperContextSelector(({ width }) => width);
 
-    return (
-      <ChartLegendWrapperProvider inactiveDatasets={inactiveDatasets}>
-        <div
-          className={cn('legend-wrapper flex h-full w-full flex-col overflow-hidden', className)}
-        >
-          {renderLegend && (
-            <BusterChartLegend
-              show={showLegend}
-              animateLegend={animateLegend}
-              legendItems={legendItems}
-              containerWidth={width}
-              onClickItem={onLegendItemClick}
-              onFocusItem={onLegendItemFocus}
-              onHoverItem={onHoverItem}
-              showLegendHeadline={showLegendHeadline}
-            />
-          )}
+      return (
+        <ChartLegendWrapperProvider inactiveDatasets={inactiveDatasets}>
+          <div
+            className={cn(
+              "legend-wrapper flex h-full w-full flex-col overflow-hidden",
+              className
+            )}
+          >
+            {renderLegend && (
+              <BusterChartLegend
+                show={showLegend}
+                animateLegend={animateLegend}
+                legendItems={legendItems}
+                containerWidth={width}
+                onClickItem={onLegendItemClick}
+                onFocusItem={onLegendItemFocus}
+                onHoverItem={onHoverItem}
+                showLegendHeadline={showLegendHeadline}
+              />
+            )}
 
-          <div className="relative flex h-full w-full flex-col items-center justify-center overflow-hidden">
-            {isUpdatingChart && <LoadingOverlay />}
-            {children}
-            {isDownsampled && <DownsampleAlert isDownsampled={isDownsampled} />}
+            <div className="relative flex h-full w-full flex-col items-center justify-center overflow-hidden">
+              {isUpdatingChart && <LoadingOverlay />}
+              {children}
+              {isDownsampled && (
+                <DownsampleAlert isDownsampled={isDownsampled} />
+              )}
+            </div>
           </div>
-        </div>
-      </ChartLegendWrapperProvider>
-    );
-  }
-);
-BusterChartLegendWrapper.displayName = 'BusterChartLegendWrapper';
+        </ChartLegendWrapperProvider>
+      );
+    }
+  );
+BusterChartLegendWrapper.displayName = "BusterChartLegendWrapper";
 
 const LoadingOverlay = () => {
   return (
