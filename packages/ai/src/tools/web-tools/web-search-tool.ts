@@ -1,12 +1,12 @@
-import { createTool } from '@mastra/core/tools';
-import type { RuntimeContext } from '@mastra/core/runtime-context';
-import { wrapTraced } from 'braintrust';
-import { z } from 'zod';
 import {
   FirecrawlService,
   type WebSearchOptions,
   type WebSearchResult,
 } from '@buster-tools/web-tools';
+import type { RuntimeContext } from '@mastra/core/runtime-context';
+import { createTool } from '@mastra/core/tools';
+import { wrapTraced } from 'braintrust';
+import { z } from 'zod';
 
 const inputSchema = z.object({
   query: z.string().min(1, 'Search query is required').describe('The search query to execute'),

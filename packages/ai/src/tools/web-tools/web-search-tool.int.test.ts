@@ -13,8 +13,8 @@ describe('webSearch tool integration', () => {
     async () => {
       const result = await webSearch.execute({
         context: {
-          query: 'OpenAI GPT',
-          limit: 3,
+          query: 'Buster Data',
+          limit: 10,
           scrapeContent: true,
           formats: ['markdown'],
         },

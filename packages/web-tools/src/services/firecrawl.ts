@@ -196,10 +196,7 @@ export class FirecrawlService {
   /**
    * Search the web using Firecrawl's search endpoint
    */
-  async webSearch(
-    query: string,
-    options?: WebSearchOptions
-  ): Promise<WebSearchResponse> {
+  async webSearch(query: string, options?: WebSearchOptions): Promise<WebSearchResponse> {
     try {
       const searchOptions = {
         limit: options?.limit || 5,
