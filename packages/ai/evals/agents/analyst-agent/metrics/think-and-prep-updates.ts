@@ -43,5 +43,5 @@ Eval('development', {
   }),
   task: runAnalystWorkflow,
   scores: [], // No scoring functions for now - just running the experiment
-  maxConcurrency: 10, // Run up to 1 tests at the same time
+  maxConcurrency: 10, // Run up to 10 tests at the same time
 });
