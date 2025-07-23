@@ -4,7 +4,7 @@ import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import { useMount } from '@/hooks/useMount';
 import { usePreviousRef } from '@/hooks/usePrevious';
 import type { ScatterAxis } from '@buster/server-shared/metrics';
-import type { ChartType as ChartJSChartType, ChartOptions, Plugin, UpdateMode } from 'chart.js';
+import type { ChartType as ChartJSChartType, Plugin, UpdateMode } from 'chart.js';
 import React, { useMemo, useState } from 'react';
 import { useColors } from '../chartHooks';
 import type { BusterChartTypeComponentProps } from '../interfaces/chartComponentInterfaces';

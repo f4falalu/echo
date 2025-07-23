@@ -256,7 +256,7 @@ class PolynomialFitter extends BaseFitter {
     for (const x of this.xs) {
       const powers = [1]; // x^0 = 1
       for (let p = 1; p <= 2 * m; p++) {
-        powers.push((powers[p - 1] ?? 0) * x);
+        powers.push((powers[p - 1] as number) * x);
       }
       xPowers.push(powers);
     }
@@ -270,13 +270,13 @@ class PolynomialFitter extends BaseFitter {
       for (let j = 0; j <= m; j++) {
         for (let k = 0; k < this.xs.length; k++) {
           // @ts-expect-error - complex but valid
-          A[i][j] += xPowers[k]?.[i + j] ?? 0;
+          A[i][j] += (xPowers[k] as number[])[i + j];
         }
       }
 
       for (let k = 0; k < this.xs.length; k++) {
         // @ts-expect-error - xPowers is an array of arrays
-        b[i] += this.ys[k] * xPowers[k]?.[i] ?? 0;
+        b[i] += (this.ys[k] as number) * (xPowers[k] as number[])[i];
       }
     }
 

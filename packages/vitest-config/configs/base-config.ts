@@ -1,7 +1,6 @@
 import { loadEnv } from 'vite';
 import { defineConfig } from 'vitest/config';
 
-//@ts-expect-error - for some reason it is not happy with this type but it is valid
 export const baseConfig = defineConfig(async () => {
   const { default: tsconfigPaths } = await import('vite-tsconfig-paths');
 
