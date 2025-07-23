@@ -14,7 +14,7 @@ const DoneToolResultSchema = z.object({
   message: z.string(),
 });
 
-const RespondWithoutAnalysisResultSchema = z.object({
+const RespondWithoutAssetCreationResultSchema = z.object({
   message: z.string(),
 });
 
@@ -85,7 +85,7 @@ const ExecuteSqlResultSchema = z.object({
 // Type for parsed tool results
 type ParsedToolResult =
   | z.infer<typeof DoneToolResultSchema>
-  | z.infer<typeof RespondWithoutAnalysisResultSchema>
+  | z.infer<typeof RespondWithoutAssetCreationResultSchema>
   | z.infer<typeof SequentialThinkingResultSchema>
   | z.infer<typeof CreateMetricsFileResultSchema>
   | z.infer<typeof CreateDashboardFileResultSchema>
@@ -133,11 +133,28 @@ export function convertToolCallToMessage(
       }
     }
 
+    case 'respondWithoutAssetCreation':
+    case 'respond-without-asset-creation': {
+      // Respond Without Asset Creation generates a response message
+      try {
+        const parsed = RespondWithoutAssetCreationResultSchema.parse(toolResult);
+        const responseMessage: Extract<ChatMessageResponseMessage, { type: 'text' }> = {
+          id: toolId,
+          type: 'text',
+          message: parsed.message,
+        };
+        return { type: 'response', message: responseMessage };
+      } catch (_error) {
+        return null;
+      }
+    }
+
+    // Deprecated: Here for backwards compatibility
     case 'respondWithoutAnalysis':
     case 'respond-without-analysis': {
       // Respond Without Analysis generates a response message
       try {
-        const parsed = RespondWithoutAnalysisResultSchema.parse(toolResult);
+        const parsed = RespondWithoutAssetCreationResultSchema.parse(toolResult);
         const responseMessage: Extract<ChatMessageResponseMessage, { type: 'text' }> = {
           id: toolId,
           type: 'text',

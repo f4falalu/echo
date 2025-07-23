@@ -395,7 +395,7 @@ export class ChunkProcessor<T extends ToolSet = GenericToolSet> {
     // Check if this is a finishing tool
     const finishingTools = [
       'doneTool',
-      'respondWithoutAnalysis',
+      'respondWithoutAssetCreation',
       'submitThoughts',
       'messageUserClarifyingQuestion',
     ];
@@ -407,7 +407,7 @@ export class ChunkProcessor<T extends ToolSet = GenericToolSet> {
       // Tools that complete the ENTIRE workflow (not just a step)
       const workflowCompletingTools = [
         'doneTool',
-        'respondWithoutAnalysis',
+        'respondWithoutAssetCreation',
         'messageUserClarifyingQuestion',
       ];
 
@@ -597,7 +597,7 @@ export class ChunkProcessor<T extends ToolSet = GenericToolSet> {
     // We do this here for streaming tools since they might not send a complete tool-call event
     const workflowCompletingTools = [
       'doneTool',
-      'respondWithoutAnalysis',
+      'respondWithoutAssetCreation',
       'messageUserClarifyingQuestion',
     ];
 
@@ -693,7 +693,7 @@ export class ChunkProcessor<T extends ToolSet = GenericToolSet> {
       const isResponseTool = this.isResponseTool(inProgress.toolName);
 
       if (isResponseTool) {
-        // Handle response tools (doneTool, respondWithoutAnalysis)
+        // Handle response tools (doneTool, respondWithoutAssetCreation)
         if (inProgress.toolName === 'doneTool' && this.deferDoneToolResponse) {
           // Find the response entry in the response history
           const existingResponse = this.state.responseHistory.find(
@@ -1116,8 +1116,8 @@ export class ChunkProcessor<T extends ToolSet = GenericToolSet> {
     switch (toolName) {
       case 'doneTool':
       case 'done-tool':
-      case 'respondWithoutAnalysis':
-      case 'respond-without-analysis': {
+      case 'respondWithoutAssetCreation':
+      case 'respond-without-asset-creation': {
         // Update message with optimistically parsed final_response
         const finalResponse = getOptimisticValue<string>(
           parseResult.extractedValues,
@@ -1459,8 +1459,8 @@ export class ChunkProcessor<T extends ToolSet = GenericToolSet> {
     const responseTools = [
       'doneTool',
       'done-tool',
-      'respondWithoutAnalysis',
-      'respond-without-analysis',
+      'respondWithoutAssetCreation',
+      'respond-without-asset-creation',
       'messageUserClarifyingQuestion',
       'message-user-clarifying-question',
     ];
@@ -1691,14 +1691,14 @@ export class ChunkProcessor<T extends ToolSet = GenericToolSet> {
   }
 
   /**
-   * Check if a tool is a response tool (doneTool, respondWithoutAnalysis)
+   * Check if a tool is a response tool (doneTool, respondWithoutAssetCreation)
    */
   private isResponseTool(toolName: string): boolean {
     const responseTools = [
       'doneTool',
       'done-tool',
-      'respondWithoutAnalysis',
-      'respond-without-analysis',
+      'respondWithoutAssetCreation',
+      'respond-without-asset-creation',
       'messageUserClarifyingQuestion',
       'message-user-clarifying-question',
     ];
@@ -1723,8 +1723,8 @@ export class ChunkProcessor<T extends ToolSet = GenericToolSet> {
             getOptimisticValue<string>(parseResult.extractedValues, 'final_response', '') || '';
           break;
 
-        case 'respondWithoutAnalysis':
-        case 'respond-without-analysis':
+        case 'respondWithoutAssetCreation':
+        case 'respond-without-asset-creation':
           message =
             getOptimisticValue<string>(parseResult.extractedValues, 'final_response', '') || '';
           break;
@@ -1776,8 +1776,8 @@ export class ChunkProcessor<T extends ToolSet = GenericToolSet> {
           getOptimisticValue<string>(parseResult.extractedValues, 'final_response', '') || '';
         break;
 
-      case 'respondWithoutAnalysis':
-      case 'respond-without-analysis':
+      case 'respondWithoutAssetCreation':
+      case 'respond-without-asset-creation':
         message =
           getOptimisticValue<string>(parseResult.extractedValues, 'final_response', '') || '';
         break;

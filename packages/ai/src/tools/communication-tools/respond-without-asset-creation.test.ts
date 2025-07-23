@@ -1,8 +1,8 @@
 import { describe, expect, test } from 'vitest';
 import { validateArrayAccess } from '../../utils/validation-helpers';
-import { parseStreamingArgs } from './respond-without-analysis';
+import { parseStreamingArgs } from './respond-without-asset-creation';
 
-describe('Respond Without Analysis Tool Streaming Parser', () => {
+describe('Respond Without Asset Creation Tool Streaming Parser', () => {
   test('should return null for empty or invalid input', () => {
     expect(parseStreamingArgs('')).toBeNull();
     expect(parseStreamingArgs('{')).toBeNull();

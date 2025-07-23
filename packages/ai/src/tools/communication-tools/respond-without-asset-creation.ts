@@ -3,7 +3,7 @@ import { wrapTraced } from 'braintrust';
 import { z } from 'zod';
 
 // Input/Output schemas
-const respondWithoutAnalysisInputSchema = z.object({
+const respondWithoutAssetCreationInputSchema = z.object({
   final_response: z
     .string()
     .min(1, 'Final response is required')
@@ -13,12 +13,12 @@ const respondWithoutAnalysisInputSchema = z.object({
 });
 
 /**
- * Optimistic parsing function for streaming respond-without-analysis tool arguments
+ * Optimistic parsing function for streaming respond-without-asset-creation tool arguments
  * Extracts the final_response field as it's being built incrementally
  */
 export function parseStreamingArgs(
   accumulatedText: string
-): Partial<z.infer<typeof respondWithoutAnalysisInputSchema>> | null {
+): Partial<z.infer<typeof respondWithoutAssetCreationInputSchema>> | null {
   // Validate input type
   if (typeof accumulatedText !== 'string') {
     throw new Error(`parseStreamingArgs expects string input, got ${typeof accumulatedText}`);
@@ -63,33 +63,33 @@ export function parseStreamingArgs(
   }
 }
 
-const respondWithoutAnalysisOutputSchema = z.object({});
+const respondWithoutAssetCreationOutputSchema = z.object({});
 
-// Process respond without analysis tool execution
-async function processRespondWithoutAnalysis(): Promise<
-  z.infer<typeof respondWithoutAnalysisOutputSchema>
+// Process respond without asset creation tool execution
+async function processRespondWithoutAssetCreation(): Promise<
+  z.infer<typeof respondWithoutAssetCreationOutputSchema>
 > {
   // This tool signals the end of the workflow and provides the final response.
   // The actual agent termination logic resides elsewhere.
   return {};
 }
 
-// Main respond without analysis function with tracing
-const executeRespondWithoutAnalysis = wrapTraced(
-  async (): Promise<z.infer<typeof respondWithoutAnalysisOutputSchema>> => {
-    return await processRespondWithoutAnalysis();
+// Main respond without asset creation function with tracing
+const executeRespondWithoutAssetCreation = wrapTraced(
+  async (): Promise<z.infer<typeof respondWithoutAssetCreationOutputSchema>> => {
+    return await processRespondWithoutAssetCreation();
   },
-  { name: 'respond-without-analysis' }
+  { name: 'respond-without-asset-creation' }
 );
 
 // Export the tool
-export const respondWithoutAnalysis = createTool({
-  id: 'respond-without-analysis',
+export const respondWithoutAssetCreation = createTool({
+  id: 'respond-without-asset-creation',
   description:
     "Marks all remaining unfinished tasks as complete, sends a final response to the user, and ends the workflow. Use this when the workflow is finished. This must be in markdown format and not use the '•' bullet character.",
-  inputSchema: respondWithoutAnalysisInputSchema,
-  outputSchema: respondWithoutAnalysisOutputSchema,
-  execute: executeRespondWithoutAnalysis,
+  inputSchema: respondWithoutAssetCreationInputSchema,
+  outputSchema: respondWithoutAssetCreationOutputSchema,
+  execute: executeRespondWithoutAssetCreation,
 });
 
-export default respondWithoutAnalysis;
+export default respondWithoutAssetCreation;

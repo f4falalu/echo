@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest';
 import { parseStreamingArgs as parseDoneArgs } from '../../tools/communication-tools/done-tool';
-import { parseStreamingArgs as parseRespondWithoutAnalysisArgs } from '../../tools/communication-tools/respond-without-analysis';
+import { parseStreamingArgs as parseRespondWithoutAssetCreationArgs } from '../../tools/communication-tools/respond-without-asset-creation';
 import { parseStreamingArgs as parseExecuteSqlArgs } from '../../tools/database-tools/execute-sql';
 import { parseStreamingArgs as parseSequentialArgs } from '../../tools/planning-thinking-tools/sequential-thinking-tool';
 import { parseStreamingArgs as parseCreateMetricsArgs } from '../../tools/visualization-tools/create-metrics-file-tool';
@@ -8,7 +8,7 @@ import { parseStreamingArgs as parseCreateMetricsArgs } from '../../tools/visual
 describe('Streaming Parser Error Handling', () => {
   const parsers = [
     { name: 'done-tool', parser: parseDoneArgs },
-    { name: 'respond-without-analysis', parser: parseRespondWithoutAnalysisArgs },
+    { name: 'respond-without-asset-creation', parser: parseRespondWithoutAssetCreationArgs },
     { name: 'sequential-thinking', parser: parseSequentialArgs },
     { name: 'execute-sql', parser: parseExecuteSqlArgs },
     { name: 'create-metrics-file', parser: parseCreateMetricsArgs },
@@ -82,9 +82,9 @@ describe('Streaming Parser Error Handling', () => {
       expect(result).toEqual({ final_response: 'Test response' });
     });
 
-    test('respond-without-analysis should parse valid complete JSON', () => {
+    test('respond-without-asset-creation should parse valid complete JSON', () => {
       const validJson = '{"final_response": "Test response"}';
-      const result = parseRespondWithoutAnalysisArgs(validJson);
+      const result = parseRespondWithoutAssetCreationArgs(validJson);
       expect(result).toEqual({ final_response: 'Test response' });
     });
 
