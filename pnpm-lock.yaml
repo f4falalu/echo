@@ -360,8 +360,8 @@ importers:
         specifier: ^3.13.12
         version: 3.13.12(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       axios:
-        specifier: ^1.10.0
-        version: 1.10.0
+        specifier: ^1.11.0
+        version: 1.11.0
       canvas-confetti:
         specifier: ^1.9.3
         version: 1.9.3
@@ -5961,6 +5961,9 @@ packages:
   axios@1.10.0:
     resolution: {integrity: sha512-/1xYAC4MP/HEG+3duIhFr4ZQXR4sQXOIe+o6sdqzeykGLx6Upp/1p8MHqhINOvGeP7xyNHe7tsiJByc4SSVUxw==}
 
+  axios@1.11.0:
+    resolution: {integrity: sha512-1Lx3WLFQWm3ooKDYZD1eXmoGO9fxYQjrycfHFC8P0sCfQVXyROp0p9PFWBehewBOdCwHc+f/b8I0fMto5eSfwA==}
+
   axobject-query@4.1.0:
     resolution: {integrity: sha512-qIj0G9wZbMGNLjLmg1PT6v2mE9AH2zlnADJD/2tC6E00hgmhUOfEB6greHPAfLRSufHqROIUTkw6E+M3lH0PTQ==}
     engines: {node: '>= 0.4'}
@@ -7454,6 +7457,10 @@ packages:
 
   form-data@4.0.3:
     resolution: {integrity: sha512-qsITQPfmvMOSAdeyZ+12I1c+CKSstAFAwu+97zrnWAbIr5u8wfsExUzCesVLC8NgHuRUqNN4Zy6UPWUTRGslcA==}
+    engines: {node: '>= 6'}
+
+  form-data@4.0.4:
+    resolution: {integrity: sha512-KrGhL9Q4zjj0kiUt5OO4Mr/A/jlI2jDYs5eHBpYHPcBEVSiipAvn2Ko2HnPe20rmcuuvMHNdZFp+4IlGTMF0Ow==}
     engines: {node: '>= 6'}
 
   formdata-node@4.4.1:
@@ -13409,7 +13416,7 @@ snapshots:
 
   '@daytonaio/api-client@0.24.2':
     dependencies:
-      axios: 1.10.0
+      axios: 1.11.0
     transitivePeerDependencies:
       - debug
 
@@ -13419,7 +13426,7 @@ snapshots:
       '@aws-sdk/lib-storage': 3.848.0(@aws-sdk/client-s3@3.842.0)
       '@daytonaio/api-client': 0.24.2
       '@iarna/toml': 2.2.5
-      axios: 1.10.0
+      axios: 1.11.0
       dotenv: 17.2.0
       expand-tilde: 2.0.2
       fast-glob: 3.3.3
@@ -14111,7 +14118,7 @@ snapshots:
 
   '@mendable/firecrawl-js@1.29.1':
     dependencies:
-      axios: 1.10.0
+      axios: 1.11.0
       typescript-event-target: 1.1.1
       zod: 3.25.1
       zod-to-json-schema: 3.24.6(zod@3.25.1)
@@ -15186,7 +15193,7 @@ snapshots:
 
   '@posthog/cli@0.3.5':
     dependencies:
-      axios: 1.10.0
+      axios: 1.11.0
       axios-proxy-builder: 0.1.2
       console.table: 0.10.0
       detect-libc: 2.0.4
@@ -15846,7 +15853,7 @@ snapshots:
       '@slack/types': 2.14.0
       '@types/is-stream': 1.1.0
       '@types/node': 24.0.10
-      axios: 1.10.0
+      axios: 1.11.0
       eventemitter3: 3.1.2
       form-data: 2.5.3
       is-electron: 2.2.2
@@ -18008,6 +18015,14 @@ snapshots:
     transitivePeerDependencies:
       - debug
 
+  axios@1.11.0:
+    dependencies:
+      follow-redirects: 1.15.9
+      form-data: 4.0.4
+      proxy-from-env: 1.1.0
+    transitivePeerDependencies:
+      - debug
+
   axobject-query@4.1.0: {}
 
   babel-loader@9.2.1(@babel/core@7.28.0)(webpack@5.99.9(esbuild@0.25.5)):
@@ -19714,6 +19729,14 @@ snapshots:
       safe-buffer: 5.2.1
 
   form-data@4.0.3:
+    dependencies:
+      asynckit: 0.4.0
+      combined-stream: 1.0.8
+      es-set-tostringtag: 2.1.0
+      hasown: 2.0.2
+      mime-types: 2.1.35
+
+  form-data@4.0.4:
     dependencies:
       asynckit: 0.4.0
       combined-stream: 1.0.8
@@ -23014,7 +23037,7 @@ snapshots:
       asn1.js: 5.4.1
       asn1.js-rfc2560: 5.0.1(asn1.js@5.4.1)
       asn1.js-rfc5280: 3.0.0
-      axios: 1.10.0
+      axios: 1.11.0
       big-integer: 1.6.52
       bignumber.js: 9.3.0
       binascii: 0.0.2
