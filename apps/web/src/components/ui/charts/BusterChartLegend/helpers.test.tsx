@@ -1,4 +1,3 @@
-import type { ChartType } from '@buster/server-shared/metrics';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { computeHiddenShowItems } from './helpers';
 import type { BusterChartLegendItem } from './interfaces';
@@ -12,6 +11,7 @@ const mockRemoveChild = vi.fn();
 // Mock renderToString to return a predictable width
 vi.mock('react-dom/server', () => ({
   renderToString: vi.fn(() => '<div style="width: 100px">Mock Item</div>'),
+  renderToStaticMarkup: vi.fn(() => '<div style="width: 100px">Mock Item</div>')
 }));
 
 describe('computeHiddenShowItems', () => {
@@ -24,7 +24,7 @@ describe('computeHiddenShowItems', () => {
     mockCreateElement.mockReturnValue({
       style: {},
       getBoundingClientRect: mockGetBoundingClientRect,
-      innerHTML: '',
+      innerHTML: ''
     });
 
     // Mock document methods
@@ -37,7 +37,7 @@ describe('computeHiddenShowItems', () => {
     const result = computeHiddenShowItems([], 0);
     expect(result).toEqual({
       shownItems: [],
-      hiddenItems: [],
+      hiddenItems: []
     });
   });
 
@@ -45,7 +45,7 @@ describe('computeHiddenShowItems', () => {
     const result = computeHiddenShowItems([], 100);
     expect(result).toEqual({
       shownItems: [],
-      hiddenItems: [],
+      hiddenItems: []
     });
   });
 
@@ -53,7 +53,7 @@ describe('computeHiddenShowItems', () => {
     const result = computeHiddenShowItems(null as any, 100);
     expect(result).toEqual({
       shownItems: [],
-      hiddenItems: [],
+      hiddenItems: []
     });
   });
 
@@ -66,7 +66,7 @@ describe('computeHiddenShowItems', () => {
         formattedName: 'Item 1',
         id: '1',
         data: [],
-        yAxisKey: 'y1',
+        yAxisKey: 'y1'
       },
       {
         color: '#fff',
@@ -75,8 +75,8 @@ describe('computeHiddenShowItems', () => {
         formattedName: 'Item 2',
         id: '2',
         data: [],
-        yAxisKey: 'y2',
-      },
+        yAxisKey: 'y2'
+      }
     ];
 
     // Container width is enough for both items (100px each + 8px spacing)
@@ -96,7 +96,7 @@ describe('computeHiddenShowItems', () => {
         formattedName: 'Item 1',
         id: '1',
         data: [],
-        yAxisKey: 'y1',
+        yAxisKey: 'y1'
       },
       {
         color: '#fff',
@@ -105,7 +105,7 @@ describe('computeHiddenShowItems', () => {
         formattedName: 'Item 2',
         id: '2',
         data: [],
-        yAxisKey: 'y2',
+        yAxisKey: 'y2'
       },
       {
         color: '#ccc',
@@ -114,8 +114,8 @@ describe('computeHiddenShowItems', () => {
         formattedName: 'Item 3',
         id: '3',
         data: [],
-        yAxisKey: 'y3',
-      },
+        yAxisKey: 'y3'
+      }
     ];
 
     // Container width only fits one item (100px) plus overflow width (79px)
@@ -136,7 +136,7 @@ describe('computeHiddenShowItems', () => {
         formattedName: 'Item 1',
         id: '1',
         data: [],
-        yAxisKey: 'y1',
+        yAxisKey: 'y1'
       },
       {
         color: '#fff',
@@ -145,8 +145,8 @@ describe('computeHiddenShowItems', () => {
         formattedName: 'Item 2',
         id: '2',
         data: [],
-        yAxisKey: 'y2',
-      },
+        yAxisKey: 'y2'
+      }
     ];
 
     // Container width fits both items (100px each) plus spacing (8px) plus overflow (79px)
@@ -165,8 +165,8 @@ describe('computeHiddenShowItems', () => {
         formattedName: 'Item 1',
         id: '1',
         data: [],
-        yAxisKey: 'y1',
-      },
+        yAxisKey: 'y1'
+      }
     ];
 
     computeHiddenShowItems(items, 200);

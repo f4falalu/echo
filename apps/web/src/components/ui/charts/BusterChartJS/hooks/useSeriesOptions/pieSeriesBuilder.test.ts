@@ -10,7 +10,7 @@ vi.mock('../../../commonHelpers', () => ({
   JOIN_CHARACTER: '|'
 }));
 
-vi.mock('@/lib', () => ({
+vi.mock('@/lib/columnFormatter', () => ({
   formatLabel: vi.fn((item, format) => (format ? `Formatted ${item}` : String(item)))
 }));
 
@@ -158,14 +158,14 @@ describe('pieSeriesBuilder_labels', () => {
     };
 
     // Reset mocks
-    (formatLabel as any).mockImplementation((item: any, format: any) =>
+    vi.mocked(formatLabel).mockImplementation((item: any, format: any) =>
       format ? `Formatted ${item}` : String(item)
     );
 
     const result = pieSeriesBuilder_labels(props);
 
     // We expect each item to be processed through formatLabel and joined
-    expect(result).toEqual(['Item 1 | Item 2']);
+    expect(result).toEqual(['Formatted Item 1 | Formatted Item 2']);
   });
 
   it('should handle empty ticks', () => {
