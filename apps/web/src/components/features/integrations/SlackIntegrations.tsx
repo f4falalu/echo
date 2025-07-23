@@ -74,12 +74,11 @@ const ConnectSlackCard = React.memo(() => {
 
       {isConnected ? (
         needsReinstall ? (
-          <Button 
-            prefix={<SlackIcon size={16} />} 
-            onClick={() => initiateSlackOAuth()} 
+          <Button
+            prefix={<SlackIcon size={16} />}
+            onClick={() => initiateSlackOAuth()}
             size={'tall'}
-            className="border-yellow-500 bg-yellow-50 text-yellow-700 hover:bg-yellow-100"
-          >
+            className="border-yellow-500 bg-yellow-50 text-yellow-700 hover:bg-yellow-100">
             Re-install Required
           </Button>
         ) : (
@@ -196,15 +195,13 @@ const ConnectedSlackChannels = React.memo(() => {
               onSelect={onSelect}
               menuHeader="Search channels"
               className="w-fit min-w-40">
-              <Button
-                disabled={!isFetchedSlackChannels}
-                loading={showLoadingButton}
-                size={'tall'}
-                variant="default">
-                {numberOfSelectedChannels > 0
-                  ? `${numberOfSelectedChannels} ${pluralize('channel', numberOfSelectedChannels)} selected`
-                  : 'Select a channel'}
-              </Button>
+              <WeirdFakeSelectButtonForBlake
+                label={
+                  numberOfSelectedChannels > 0
+                    ? `${numberOfSelectedChannels} ${pluralize('channel', numberOfSelectedChannels)} selected`
+                    : 'Select a channel'
+                }
+              />
             </Dropdown>
           </>
         ) : (
@@ -232,22 +229,24 @@ const SlackSharingPermissions = React.memo(() => {
       secondaryLabel: 'All workspace members will have access to any chat created from any channel.'
     },
     // {
-    //   label: 'Channel', 
+    //   label: 'Channel',
     //   value: 'shareWithChannel',
     //   secondaryLabel: 'All channel members will have access to any chat created from that channel.'
     // },
     {
       label: 'None',
-      value: 'noSharing', 
+      value: 'noSharing',
       secondaryLabel: 'Only the user who sent the request will have access to their chat.'
     }
   ];
 
-  const selectedOption: SlackSharingPermission = slackIntegration?.integration?.default_sharing_permissions || 'noSharing';
-  const selectedLabel = sharingOptions.find(option => option.value === selectedOption)?.label || 'Select option';
+  const selectedOption: SlackSharingPermission =
+    slackIntegration?.integration?.default_sharing_permissions || 'noSharing';
+  const selectedLabel =
+    sharingOptions.find((option) => option.value === selectedOption)?.label || 'Select option';
 
   const handleSelect = useMemoizedFn((value: string) => {
-    updateSlackIntegration({ 
+    updateSlackIntegration({
       default_sharing_permissions: value as SlackSharingPermission
     });
   });
@@ -266,15 +265,23 @@ const SlackSharingPermissions = React.memo(() => {
         align="end"
         side="bottom"
         selectType="single">
-        <div className="flex items-center justify-between space-x-2 cursor-pointer border rounded px-3 py-1.5 bg-background hover:bg-item-hover transition-colors min-w-32">
-          <Text size="sm" className="truncate">{selectedLabel}</Text>
-          <span className="text-icon-color flex items-center">
-            <ChevronDown />
-          </span>
-        </div>
+        <WeirdFakeSelectButtonForBlake label={selectedLabel} />
       </Dropdown>
     </div>
   );
 });
 
 SlackSharingPermissions.displayName = 'SlackSharingPermissions';
+
+const WeirdFakeSelectButtonForBlake = ({ label }: { label: string }) => {
+  return (
+    <div className="bg-background hover:bg-item-hover flex min-w-32 cursor-pointer items-center justify-between space-x-2 rounded border px-3 py-1.5 transition-colors">
+      <Text size="sm" className="truncate">
+        {label}
+      </Text>
+      <span className="text-icon-color flex items-center">
+        <ChevronDown />
+      </span>
+    </div>
+  );
+};
