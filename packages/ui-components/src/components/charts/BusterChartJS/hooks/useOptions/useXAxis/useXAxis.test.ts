@@ -1,15 +1,15 @@
 import '../../../ChartJSTheme';
 
+import {
+  type ChartEncodes,
+  type ColumnSettings,
+  DEFAULT_COLUMN_LABEL_FORMAT,
+  DEFAULT_COLUMN_SETTINGS,
+  type SimplifiedColumnType,
+} from '@buster/server-shared/metrics';
 import { renderHook } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import { useXAxis } from './useXAxis';
-import {
-  DEFAULT_COLUMN_LABEL_FORMAT,
-  DEFAULT_COLUMN_SETTINGS,
-  type ChartEncodes,
-  type ColumnSettings,
-  type SimplifiedColumnType,
-} from '@buster/server-shared/metrics';
 
 describe('useXAxis', () => {
   const defaultProps = {

@@ -1,10 +1,10 @@
-import { create } from 'mutative';
 import {
-  type ColumnMetaData,
   type ChartConfigProps,
+  type ColumnMetaData,
   DEFAULT_COLUMN_SETTINGS,
 } from '@buster/server-shared/metrics';
 import type { ColumnSettings } from '@buster/server-shared/metrics';
+import { create } from 'mutative';
 
 export const createDefaultColumnSettings = (
   existingColumnSettings: Record<string, ColumnSettings> | undefined,

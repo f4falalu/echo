@@ -1,12 +1,12 @@
+import {
+  type ChartConfigProps,
+  type ChartType,
+  DEFAULT_COLUMN_LABEL_FORMAT,
+  type GoalLine,
+} from '@buster/server-shared/metrics';
 import { renderHook } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import { useGoalLines } from './useGoalLines';
-import {
-  DEFAULT_COLUMN_LABEL_FORMAT,
-  type ChartConfigProps,
-  type ChartType,
-  type GoalLine,
-} from '@buster/server-shared/metrics';
 
 describe('useGoalLines', () => {
   const defaultParams = {

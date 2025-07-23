@@ -1,7 +1,7 @@
-import type { Chart } from 'chart.js';
-import { describe, expect, it } from 'vitest';
 import type { ColumnSettings } from '@buster/server-shared/metrics';
 import type { ColumnLabelFormat, SimplifiedColumnType } from '@buster/server-shared/metrics';
+import type { Chart } from 'chart.js';
+import { describe, expect, it } from 'vitest';
 import { getLegendItems } from './getLegendItems';
 
 describe('getLegendItems', () => {

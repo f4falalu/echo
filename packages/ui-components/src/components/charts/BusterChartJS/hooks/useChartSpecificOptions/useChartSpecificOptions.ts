@@ -1,3 +1,4 @@
+import type { ChartType } from '@buster/server-shared/metrics';
 import type { ChartType as ChartJSChartType, PluginChartOptions } from 'chart.js';
 import { useMemo } from 'react';
 import type { DeepPartial } from 'utility-types';
@@ -5,7 +6,6 @@ import type { ChartProps } from '../../core';
 import { barOptionsHandler, barPluginsHandler } from './barChartOptions';
 import type { ChartSpecificOptionsProps, UseChartSpecificOptionsProps } from './interfaces';
 import { pieOptionsHandler, piePluginsHandler } from './pieChartOptions';
-import type { ChartType } from '@buster/server-shared/metrics';
 
 export const useChartSpecificOptions = ({
   selectedChartType,
@@ -36,13 +36,13 @@ const chartTypeOptionsHandler: Record<
   ChartType,
   (props: ChartSpecificOptionsProps) => ChartProps<ChartJSChartType>['options']
 > = {
-  ['pie']: pieOptionsHandler,
-  ['line']: defaultHandler,
-  ['scatter']: defaultHandler,
-  ['bar']: barOptionsHandler,
-  ['combo']: defaultHandler,
-  ['metric']: defaultHandler,
-  ['table']: defaultHandler,
+  pie: pieOptionsHandler,
+  line: defaultHandler,
+  scatter: defaultHandler,
+  bar: barOptionsHandler,
+  combo: defaultHandler,
+  metric: defaultHandler,
+  table: defaultHandler,
 };
 
 //********** PLUGINS ************ */
@@ -55,11 +55,11 @@ const chartTypePluginsHandler: Record<
   ChartType,
   (props: ChartSpecificOptionsProps) => DeepPartial<PluginChartOptions<ChartJSChartType>>['plugins']
 > = {
-  ['pie']: piePluginsHandler,
-  ['line']: defaultPluginsHandler,
-  ['scatter']: defaultPluginsHandler,
-  ['bar']: barPluginsHandler,
-  ['combo']: defaultPluginsHandler,
-  ['metric']: defaultPluginsHandler,
-  ['table']: defaultPluginsHandler,
+  pie: piePluginsHandler,
+  line: defaultPluginsHandler,
+  scatter: defaultPluginsHandler,
+  bar: barPluginsHandler,
+  combo: defaultPluginsHandler,
+  metric: defaultPluginsHandler,
+  table: defaultPluginsHandler,
 };

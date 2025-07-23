@@ -376,7 +376,7 @@ async function createPackageFiles(config: PackageConfig) {
       build: "tsc",
       typecheck: "tsc --noEmit",
       dev: "tsc --watch",
-      lint: "biome check",
+      lint: "biome check --write",
       test: "vitest run",
       "test:watch": "vitest watch",
       "test:coverage": "vitest run --coverage",

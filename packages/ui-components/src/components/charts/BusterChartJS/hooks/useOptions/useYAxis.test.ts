@@ -1,7 +1,7 @@
+import { type ChartEncodes, DEFAULT_COLUMN_LABEL_FORMAT } from '@buster/server-shared/metrics';
 import { renderHook } from '@testing-library/react';
 import type { LinearScaleOptions } from 'chart.js';
 import { describe, expect, it } from 'vitest';
-import { DEFAULT_COLUMN_LABEL_FORMAT, type ChartEncodes } from '@buster/server-shared/metrics';
 import { useYAxis } from './useYAxis';
 
 describe('useYAxis', () => {

@@ -1,10 +1,10 @@
-import { describe, expect, it } from 'vitest';
 import {
-  type ChartType,
-  type DataMetadata,
   type ChartConfigProps,
+  type ChartType,
   DEFAULT_CHART_CONFIG,
+  type DataMetadata,
 } from '@buster/server-shared/metrics';
+import { describe, expect, it } from 'vitest';
 import { createDefaultChartConfig } from '.';
 
 describe('createDefaultChartConfig', () => {

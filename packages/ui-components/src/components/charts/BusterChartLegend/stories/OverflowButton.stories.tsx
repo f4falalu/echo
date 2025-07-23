@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { fn } from '@storybook/test';
-import type { BusterChartLegendItem } from '../interfaces';
 import { OverflowButton } from '../OverflowContainer';
+import type { BusterChartLegendItem } from '../interfaces';
 
 const meta = {
   title: 'UI/Charts/OverflowButton',

@@ -4,7 +4,7 @@ import type { ChartProps } from '../../core';
 import type { ChartSpecificOptionsProps } from './interfaces';
 
 export const barOptionsHandler = (
-  props: ChartSpecificOptionsProps
+  _props: ChartSpecificOptionsProps
 ): ChartProps<ChartJSChartType>['options'] => {
   return {};
 };

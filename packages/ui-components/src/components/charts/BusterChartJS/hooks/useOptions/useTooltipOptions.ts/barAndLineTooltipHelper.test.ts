@@ -1,3 +1,4 @@
+import type { ColumnLabelFormat } from '@buster/server-shared/metrics';
 import type {
   BarControllerDatasetOptions,
   Chart,
@@ -5,7 +6,6 @@ import type {
   TooltipItem,
 } from 'chart.js';
 import { describe, expect, it } from 'vitest';
-import type { ColumnLabelFormat } from '@buster/server-shared/metrics';
 import { barAndLineTooltipHelper } from './barAndLineTooltipHelper';
 
 type MockDataset = Partial<

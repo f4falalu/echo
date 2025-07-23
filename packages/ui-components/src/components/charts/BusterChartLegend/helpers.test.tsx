@@ -1,5 +1,5 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { ChartType } from '@buster/server-shared/metrics';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { computeHiddenShowItems } from './helpers';
 import type { BusterChartLegendItem } from './interfaces';
 

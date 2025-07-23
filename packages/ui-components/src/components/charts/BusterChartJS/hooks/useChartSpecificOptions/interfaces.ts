@@ -1,6 +1,6 @@
+import type { ChartEncodes, ChartType } from '@buster/server-shared/metrics';
 import type { ChartType as ChartJSChartType } from 'chart.js';
 import type { BusterChartProps } from '../../../BusterChart.types';
-import type { ChartEncodes, ChartType } from '@buster/server-shared/metrics';
 import type { ChartProps } from '../../core';
 
 export interface UseChartSpecificOptionsProps {

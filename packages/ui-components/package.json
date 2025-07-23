@@ -12,16 +12,13 @@
     "./styles": "./src/styles/styles.css",
     "./dist/style.css": "./dist/style.css"
   },
-  "files": [
-    "dist",
-    "src/styles/styles.css"
-  ],
+  "files": ["dist", "src/styles/styles.css"],
   "scripts": {
     "prebuild": "tsx scripts/validate-env.ts",
     "build": "vite build && tsc --emitDeclarationOnly --declaration",
     "typecheck": "tsc --noEmit",
     "dev": "vite build --watch",
-    "lint": "biome check",
+    "lint": "biome check --write",
     "test": "vitest run",
     "test:watch": "vitest watch",
     "test:coverage": "vitest run --coverage"

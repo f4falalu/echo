@@ -1,6 +1,6 @@
+import { type ComboChartAxis, DEFAULT_COLUMN_LABEL_FORMAT } from '@buster/server-shared/metrics';
 import { renderHook } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
-import { DEFAULT_COLUMN_LABEL_FORMAT, type ComboChartAxis } from '@buster/server-shared/metrics';
 import { useY2Axis } from './useY2Axis';
 
 describe('useY2Axis', () => {

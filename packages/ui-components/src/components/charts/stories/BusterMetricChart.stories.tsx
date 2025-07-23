@@ -1,5 +1,5 @@
+import { type ColumnLabelFormat, DEFAULT_COLUMN_LABEL_FORMAT } from '@buster/server-shared/metrics';
 import type { Meta, StoryObj } from '@storybook/react';
-import { DEFAULT_COLUMN_LABEL_FORMAT, type ColumnLabelFormat } from '@buster/server-shared/metrics';
 import { BusterMetricChart } from '../MetricChart/BusterMetricChart';
 
 const meta: Meta<typeof BusterMetricChart> = {

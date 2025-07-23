@@ -1,9 +1,9 @@
-import { describe, expect, it } from 'vitest';
 import {
-  type ColumnMetaData,
   type ColumnLabelFormat,
+  type ColumnMetaData,
   DEFAULT_COLUMN_LABEL_FORMAT,
 } from '@buster/server-shared/metrics';
+import { describe, expect, it } from 'vitest';
 import { createDefaultColumnLabelFormats } from './createDefaultColumnFormats';
 
 describe('createDefaultColumnFormats', () => {

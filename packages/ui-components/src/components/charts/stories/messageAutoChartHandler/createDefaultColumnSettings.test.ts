@@ -1,6 +1,6 @@
-import { describe, expect, it } from 'vitest';
 import type { ColumnMetaData, ColumnSettings } from '@buster/server-shared/metrics';
 import { DEFAULT_COLUMN_SETTINGS } from '@buster/server-shared/metrics';
+import { describe, expect, it } from 'vitest';
 import { createDefaultColumnSettings } from './createDefaultColumnSettings';
 
 describe('createDefaultColumnSettings', () => {

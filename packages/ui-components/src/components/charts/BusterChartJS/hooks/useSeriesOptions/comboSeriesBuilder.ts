@@ -1,14 +1,14 @@
+import {
+  type ColumnSettings,
+  DEFAULT_COLUMN_SETTINGS,
+  ENABLED_DOTS_ON_LINE_SIZE,
+} from '@buster/server-shared/metrics';
 import type { DatasetOption } from '../../../chartHooks';
 import type { ChartProps } from '../../core';
 import { barBuilder } from './barSeriesBuilder';
 import type { SeriesBuilderProps } from './interfaces';
 import { lineBuilder, lineSeriesBuilder_labels } from './lineSeriesBuilder';
 import type { LabelBuilderProps } from './useSeriesOptions';
-import {
-  DEFAULT_COLUMN_SETTINGS,
-  ENABLED_DOTS_ON_LINE_SIZE,
-  type ColumnSettings,
-} from '@buster/server-shared/metrics';
 
 type ComboSeries = Array<
   ChartProps<'bar'>['data']['datasets'][number] | ChartProps<'line'>['data']['datasets'][number]
