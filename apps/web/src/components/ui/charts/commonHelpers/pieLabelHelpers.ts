@@ -9,7 +9,7 @@ export const InnerLabelTitleRecord: Record<
   median: 'Median',
   max: 'Max',
   min: 'Min',
-  count: 'Count',
+  count: 'Count'
 };
 
 export const getPieInnerLabelTitle = (

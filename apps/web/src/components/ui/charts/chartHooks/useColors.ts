@@ -7,7 +7,7 @@ export const useColors = ({
   yAxisKeys,
   y2AxisKeys,
   selectedChartType,
-  datasetOptions,
+  datasetOptions
 }: {
   colors: string[];
   yAxisKeys: string[];

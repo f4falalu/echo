@@ -7,25 +7,25 @@ describe('useY2Axis', () => {
   const defaultProps = {
     columnLabelFormats: {
       metric1: { ...DEFAULT_COLUMN_LABEL_FORMAT },
-      metric2: { ...DEFAULT_COLUMN_LABEL_FORMAT },
+      metric2: { ...DEFAULT_COLUMN_LABEL_FORMAT }
     },
     selectedAxis: {
       x: ['date'],
       y: ['metric1'],
-      y2: ['metric2'],
+      y2: ['metric2']
     } as ComboChartAxis,
     selectedChartType: 'combo',
     y2AxisAxisTitle: 'Test Y2 Axis',
     y2AxisShowAxisTitle: true,
     y2AxisShowAxisLabel: true,
     y2AxisStartAxisAtZero: true,
-    y2AxisScaleType: 'linear' as const,
+    y2AxisScaleType: 'linear' as const
   } as Parameters<typeof useY2Axis>[0];
 
   it('should return undefined display when chart type is not Combo', () => {
     const props = {
       ...defaultProps,
-      selectedChartType: 'line',
+      selectedChartType: 'line'
     } as Parameters<typeof useY2Axis>[0];
 
     const { result } = renderHook(() => useY2Axis(props));
@@ -40,18 +40,18 @@ describe('useY2Axis', () => {
       display: true,
       title: {
         display: true,
-        text: 'Test Y2 Axis',
+        text: 'Test Y2 Axis'
       },
       grid: {
-        drawOnChartArea: false,
-      },
+        drawOnChartArea: false
+      }
     });
   });
 
   it('should set logarithmic scale when y2AxisScaleType is log', () => {
     const props = {
       ...defaultProps,
-      y2AxisScaleType: 'log' as const,
+      y2AxisScaleType: 'log' as const
     };
 
     const { result } = renderHook(() => useY2Axis(props));
@@ -61,7 +61,7 @@ describe('useY2Axis', () => {
   it('should hide axis when y2AxisShowAxisLabel is false', () => {
     const props = {
       ...defaultProps,
-      y2AxisShowAxisLabel: false,
+      y2AxisShowAxisLabel: false
     };
 
     const { result } = renderHook(() => useY2Axis(props));
@@ -71,7 +71,7 @@ describe('useY2Axis', () => {
   it('should hide title when y2AxisShowAxisTitle is false', () => {
     const props = {
       ...defaultProps,
-      y2AxisShowAxisTitle: false,
+      y2AxisShowAxisTitle: false
     };
 
     const { result } = renderHook(() => useY2Axis(props));
@@ -81,7 +81,7 @@ describe('useY2Axis', () => {
   it('should respect y2AxisStartAxisAtZero setting', () => {
     const props = {
       ...defaultProps,
-      y2AxisStartAxisAtZero: false,
+      y2AxisStartAxisAtZero: false
     };
 
     const { result } = renderHook(() => useY2Axis(props));
@@ -95,8 +95,8 @@ describe('useY2Axis', () => {
       selectedAxis: {
         x: ['date'],
         y: ['metric1'],
-        y2: [] as string[],
-      } as ComboChartAxis,
+        y2: [] as string[]
+      } as ComboChartAxis
     } as Parameters<typeof useY2Axis>[0];
 
     const { result } = renderHook(() => useY2Axis(props));

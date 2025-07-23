@@ -3,7 +3,7 @@ export type DataItem = Record<string, string | number | Date | null>;
 export const emptyDatasetOptions = () => ({
   datasetOptions: [],
   yAxisKeys: [],
-  tooltipKeys: [],
+  tooltipKeys: []
 });
 
 export const TRENDLINE_DELIMETER = '_🫷🥸🫸trend_';
@@ -34,7 +34,7 @@ export const TrendlineToEcMethod = {
   linear_trend: 'linear',
   exponential_regression: 'exponential',
   polynomial_regression: 'polynomial',
-  logarithmic: 'logarithmic',
+  logarithmic: 'logarithmic'
 };
 
 export const DATASET_IDS = {
@@ -57,5 +57,5 @@ export const DATASET_IDS = {
   average: (columnId: string) => createLinearTrendlineDatasetKey('average', columnId),
   min: (columnId: string) => createLinearTrendlineDatasetKey('min', columnId),
   max: (columnId: string) => createLinearTrendlineDatasetKey('max', columnId),
-  median: (columnId: string) => createLinearTrendlineDatasetKey('median', columnId),
+  median: (columnId: string) => createLinearTrendlineDatasetKey('median', columnId)
 };

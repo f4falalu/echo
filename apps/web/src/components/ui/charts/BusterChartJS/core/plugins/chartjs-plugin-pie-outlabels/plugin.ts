@@ -5,7 +5,7 @@ import {
   type ChartDataset,
   type ChartMeta,
   type ChartType,
-  type Plugin,
+  type Plugin
 } from 'chart.js';
 import OutLabel from './OutLabel';
 import type OutLabelsContext from './OutLabelsContext';
@@ -144,7 +144,7 @@ export const OutLabelsPlugin: OutLabelsPlugin = {
         percent: percent,
         display: !isHidden,
         formatter: options.formatter,
-        usePercent: options.usePercent ?? false,
+        usePercent: options.usePercent ?? false
       };
 
       const style = new OutLabelStyle(options, context, i);
@@ -223,10 +223,10 @@ export const OutLabelsPlugin: OutLabelsPlugin = {
       size: 10,
       resizable: true,
       minSize: 10,
-      maxSize: 10,
+      maxSize: 10
     },
-    usePercent: false,
-  },
+    usePercent: false
+  }
 };
 
 export default OutLabelsPlugin;

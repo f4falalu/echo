@@ -39,12 +39,11 @@
       opacity: 0;
     }
   }
-
-
 }
 
 @keyframes pulse-colors {
-  0%, 100% {
+  0%,
+  100% {
     color: var(--pulse-color-1, var(--color-foreground));
   }
   50% {

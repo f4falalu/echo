@@ -13,7 +13,7 @@ describe('modifyDatasets - pieMinimumSlicePercentage tests', () => {
           data: [500], // 50%
           dataKey: 'slice1',
           axisType: 'y',
-          tooltipData: [[{ key: 'value', value: 500 }]],
+          tooltipData: [[{ key: 'value', value: 500 }]]
         },
         {
           id: 'slice2',
@@ -21,7 +21,7 @@ describe('modifyDatasets - pieMinimumSlicePercentage tests', () => {
           data: [300], // 30%
           dataKey: 'slice2',
           axisType: 'y',
-          tooltipData: [[{ key: 'value', value: 300 }]],
+          tooltipData: [[{ key: 'value', value: 300 }]]
         },
         {
           id: 'slice3',
@@ -29,7 +29,7 @@ describe('modifyDatasets - pieMinimumSlicePercentage tests', () => {
           data: [100], // 10%
           dataKey: 'slice3',
           axisType: 'y',
-          tooltipData: [[{ key: 'value', value: 100 }]],
+          tooltipData: [[{ key: 'value', value: 100 }]]
         },
         {
           id: 'slice4',
@@ -37,7 +37,7 @@ describe('modifyDatasets - pieMinimumSlicePercentage tests', () => {
           data: [80], // 8%
           dataKey: 'slice4',
           axisType: 'y',
-          tooltipData: [[{ key: 'value', value: 80 }]],
+          tooltipData: [[{ key: 'value', value: 80 }]]
         },
         {
           id: 'slice5',
@@ -45,11 +45,11 @@ describe('modifyDatasets - pieMinimumSlicePercentage tests', () => {
           data: [20], // 2%
           dataKey: 'slice5',
           axisType: 'y',
-          tooltipData: [],
-        },
+          tooltipData: []
+        }
       ],
       ticks: [],
-      ticksKey: [],
+      ticksKey: []
     };
   };
   it('should not modify datasets if chart type is not pie', () => {
@@ -61,7 +61,7 @@ describe('modifyDatasets - pieMinimumSlicePercentage tests', () => {
       pieSortBy: undefined,
       barGroupType: undefined,
       lineGroupType: null,
-      selectedChartType: 'bar',
+      selectedChartType: 'bar'
     });
 
     expect(result).toEqual(datasets.datasets);
@@ -76,7 +76,7 @@ describe('modifyDatasets - pieMinimumSlicePercentage tests', () => {
       pieSortBy: undefined,
       barGroupType: undefined,
       lineGroupType: null,
-      selectedChartType: 'pie',
+      selectedChartType: 'pie'
     });
 
     expect(result).toEqual(datasets.datasets);
@@ -93,7 +93,7 @@ describe('modifyDatasets - pieMinimumSlicePercentage tests', () => {
       pieSortBy: undefined,
       barGroupType: undefined,
       lineGroupType: null,
-      selectedChartType: 'pie',
+      selectedChartType: 'pie'
     });
 
     // Slices 1, 2 and 3 should remain (>=10%)
@@ -126,7 +126,7 @@ describe('modifyDatasets - pieMinimumSlicePercentage tests', () => {
       pieSortBy: undefined,
       barGroupType: undefined,
       lineGroupType: null,
-      selectedChartType: 'pie',
+      selectedChartType: 'pie'
     });
 
     // All slices should remain, no "Other" category
@@ -144,7 +144,7 @@ describe('modifyDatasets - pieMinimumSlicePercentage tests', () => {
       pieSortBy: undefined,
       barGroupType: undefined,
       lineGroupType: null,
-      selectedChartType: 'pie',
+      selectedChartType: 'pie'
     });
 
     // All slices should be combined into one "Other" slice
@@ -157,14 +157,14 @@ describe('modifyDatasets - pieMinimumSlicePercentage tests', () => {
       datasets: {
         datasets: [],
         ticks: [],
-        ticksKey: [],
+        ticksKey: []
       },
       pieMinimumSlicePercentage: 10,
       barSortBy: undefined,
       pieSortBy: undefined,
       barGroupType: undefined,
       lineGroupType: null,
-      selectedChartType: 'pie',
+      selectedChartType: 'pie'
     });
 
     expect(result).toEqual([]);
@@ -177,7 +177,7 @@ describe('modifyDatasets - pieMinimumSlicePercentage tests', () => {
         data: [null], // Null value
         dataKey: 'slice1',
         axisType: 'y',
-        tooltipData: [[{ key: 'value', value: null }]],
+        tooltipData: [[{ key: 'value', value: null }]]
       },
       {
         id: 'slice2',
@@ -185,7 +185,7 @@ describe('modifyDatasets - pieMinimumSlicePercentage tests', () => {
         data: [0], // Zero value
         dataKey: 'slice2',
         axisType: 'y',
-        tooltipData: [[{ key: 'value', value: 0 }]],
+        tooltipData: [[{ key: 'value', value: 0 }]]
       },
       {
         id: 'slice3',
@@ -193,22 +193,22 @@ describe('modifyDatasets - pieMinimumSlicePercentage tests', () => {
         data: [100], // The only actual value
         dataKey: 'slice3',
         axisType: 'y',
-        tooltipData: [[{ key: 'value', value: 100 }]],
-      },
+        tooltipData: [[{ key: 'value', value: 100 }]]
+      }
     ];
 
     const { datasets: result } = modifyDatasets({
       datasets: {
         datasets,
         ticks: [],
-        ticksKey: [],
+        ticksKey: []
       },
       pieMinimumSlicePercentage: 10,
       barSortBy: undefined,
       pieSortBy: undefined,
       barGroupType: undefined,
       lineGroupType: null,
-      selectedChartType: 'pie',
+      selectedChartType: 'pie'
     });
 
     // Since we want a minimum percentage of 10%, it will combine the null and 0 values into the "Other" category
@@ -227,7 +227,7 @@ describe('modifyDatasets - pieMinimumSlicePercentage tests', () => {
         data: [null],
         dataKey: 'slice1',
         axisType: 'y',
-        tooltipData: [[{ key: 'value', value: null }]],
+        tooltipData: [[{ key: 'value', value: null }]]
       },
       {
         id: 'slice2',
@@ -235,22 +235,22 @@ describe('modifyDatasets - pieMinimumSlicePercentage tests', () => {
         data: [0],
         dataKey: 'slice2',
         axisType: 'y',
-        tooltipData: [[{ key: 'value', value: 0 }]],
-      },
+        tooltipData: [[{ key: 'value', value: 0 }]]
+      }
     ];
 
     const { datasets: result } = modifyDatasets({
       datasets: {
         datasets,
         ticks: [],
-        ticksKey: [],
+        ticksKey: []
       },
       pieMinimumSlicePercentage: 10,
       barSortBy: undefined,
       pieSortBy: undefined,
       barGroupType: undefined,
       lineGroupType: null,
-      selectedChartType: 'pie',
+      selectedChartType: 'pie'
     });
 
     // Should return the original datasets when all values are null/zero
@@ -267,7 +267,7 @@ describe('modifyDatasets - pieMinimumSlicePercentage tests', () => {
       pieSortBy: undefined,
       barGroupType: undefined,
       lineGroupType: null,
-      selectedChartType: 'pie',
+      selectedChartType: 'pie'
     });
 
     // Slices 1, 2 and 3 should remain (>=8.5%)
@@ -292,7 +292,7 @@ describe('modifyDatasets - pieMinimumSlicePercentage tests', () => {
       pieSortBy: undefined,
       barGroupType: undefined,
       lineGroupType: null,
-      selectedChartType: 'pie',
+      selectedChartType: 'pie'
     });
 
     const otherCategory = result.find((dataset) => dataset.id === 'other');
@@ -316,7 +316,7 @@ describe('modifyDatasets - pieMinimumSlicePercentage tests', () => {
       pieSortBy: undefined,
       barGroupType: undefined,
       lineGroupType: null,
-      selectedChartType: 'pie',
+      selectedChartType: 'pie'
     });
 
     // Slices 1, 2, 3, and 4 should remain (>=8%)
@@ -344,9 +344,9 @@ describe('modifyDatasets - pieMinimumSlicePercentage tests', () => {
           [
             { key: 'value', value: 500 },
             { key: 'region', value: 'North' },
-            { key: 'growth', value: 15 },
-          ],
-        ],
+            { key: 'growth', value: 15 }
+          ]
+        ]
       },
       {
         id: 'slice2',
@@ -358,9 +358,9 @@ describe('modifyDatasets - pieMinimumSlicePercentage tests', () => {
           [
             { key: 'value', value: 300 },
             { key: 'region', value: 'South' },
-            { key: 'growth', value: 8 },
-          ],
-        ],
+            { key: 'growth', value: 8 }
+          ]
+        ]
       },
       {
         id: 'slice3',
@@ -372,9 +372,9 @@ describe('modifyDatasets - pieMinimumSlicePercentage tests', () => {
           [
             { key: 'value', value: 100 },
             { key: 'region', value: 'East' },
-            { key: 'growth', value: 5 },
-          ],
-        ],
+            { key: 'growth', value: 5 }
+          ]
+        ]
       },
       {
         id: 'slice4',
@@ -386,9 +386,9 @@ describe('modifyDatasets - pieMinimumSlicePercentage tests', () => {
           [
             { key: 'value', value: 50 },
             { key: 'region', value: 'West' },
-            { key: 'growth', value: 3 },
-          ],
-        ],
+            { key: 'growth', value: 3 }
+          ]
+        ]
       },
       {
         id: 'slice5',
@@ -400,9 +400,9 @@ describe('modifyDatasets - pieMinimumSlicePercentage tests', () => {
           [
             { key: 'value', value: 40 },
             { key: 'region', value: 'Central' },
-            { key: 'growth', value: 2 },
-          ],
-        ],
+            { key: 'growth', value: 2 }
+          ]
+        ]
       },
       {
         id: 'slice6',
@@ -414,10 +414,10 @@ describe('modifyDatasets - pieMinimumSlicePercentage tests', () => {
           [
             { key: 'value', value: 10 },
             { key: 'region', value: 'Northwest' },
-            { key: 'growth', value: 1 },
-          ],
-        ],
-      },
+            { key: 'growth', value: 1 }
+          ]
+        ]
+      }
     ];
 
     const minimumPercentage = 10;
@@ -426,14 +426,14 @@ describe('modifyDatasets - pieMinimumSlicePercentage tests', () => {
       datasets: {
         datasets: datasetsWithDetailedTooltips,
         ticks: [],
-        ticksKey: [],
+        ticksKey: []
       },
       pieMinimumSlicePercentage: minimumPercentage,
       barSortBy: undefined,
       pieSortBy: undefined,
       barGroupType: undefined,
       lineGroupType: null,
-      selectedChartType: 'pie',
+      selectedChartType: 'pie'
     });
 
     // Verify the result has the right number of datasets
@@ -463,8 +463,8 @@ describe('modifyDatasets - pieMinimumSlicePercentage tests', () => {
       [
         { key: 'value', value: 100 },
         { key: 'region', value: 'West, Central, Northwest' },
-        { key: 'growth', value: 6 },
-      ],
+        { key: 'growth', value: 6 }
+      ]
     ]);
 
     // Verify the tooltipData value is correctly summed
@@ -488,7 +488,7 @@ describe('modifyDatasets - pieMinimumSlicePercentage tests', () => {
       pieSortBy: undefined,
       barGroupType: undefined,
       lineGroupType: null,
-      selectedChartType: 'pie',
+      selectedChartType: 'pie'
     });
 
     // Verify the result has the right number of datasets
@@ -523,9 +523,9 @@ describe('modifyDatasets - pieMinimumSlicePercentage tests', () => {
         tooltipData: [
           [
             { key: 'value', value: 500 },
-            { key: 'region', value: 'North' },
-          ],
-        ],
+            { key: 'region', value: 'North' }
+          ]
+        ]
       },
       {
         id: 'slice2',
@@ -535,10 +535,10 @@ describe('modifyDatasets - pieMinimumSlicePercentage tests', () => {
         axisType: 'y',
         tooltipData: [
           [
-            { key: 'value', value: 200 },
+            { key: 'value', value: 200 }
             // No region key
-          ],
-        ],
+          ]
+        ]
       },
       {
         id: 'slice3',
@@ -550,9 +550,9 @@ describe('modifyDatasets - pieMinimumSlicePercentage tests', () => {
           [
             { key: 'value', value: 100 },
             { key: 'region', value: 'East' },
-            { key: 'extra', value: 'Additional data' }, // Extra field
-          ],
-        ],
+            { key: 'extra', value: 'Additional data' } // Extra field
+          ]
+        ]
       },
       {
         id: 'slice4',
@@ -563,9 +563,9 @@ describe('modifyDatasets - pieMinimumSlicePercentage tests', () => {
         tooltipData: [
           [
             { key: 'value', value: 80 },
-            { key: 'region', value: 'West' },
-          ],
-        ],
+            { key: 'region', value: 'West' }
+          ]
+        ]
       },
       {
         id: 'slice5',
@@ -577,9 +577,9 @@ describe('modifyDatasets - pieMinimumSlicePercentage tests', () => {
           [
             // Different order
             { key: 'region', value: 'Central' },
-            { key: 'value', value: 70 },
-          ],
-        ],
+            { key: 'value', value: 70 }
+          ]
+        ]
       },
       {
         id: 'slice6',
@@ -590,10 +590,10 @@ describe('modifyDatasets - pieMinimumSlicePercentage tests', () => {
         tooltipData: [
           [
             { key: 'value', value: 50 },
-            { key: 'region', value: 'Northwest' },
-          ],
-        ],
-      },
+            { key: 'region', value: 'Northwest' }
+          ]
+        ]
+      }
     ];
 
     const minimumPercentage = 10;
@@ -602,14 +602,14 @@ describe('modifyDatasets - pieMinimumSlicePercentage tests', () => {
       datasets: {
         datasets: datasetsWithVariedTooltips,
         ticks: [],
-        ticksKey: [],
+        ticksKey: []
       },
       pieMinimumSlicePercentage: minimumPercentage,
       barSortBy: undefined,
       pieSortBy: undefined,
       barGroupType: undefined,
       lineGroupType: null,
-      selectedChartType: 'pie',
+      selectedChartType: 'pie'
     });
 
     // Verify the result has the right number of datasets
@@ -638,8 +638,8 @@ describe('modifyDatasets - pieMinimumSlicePercentage tests', () => {
     expect(otherCategory?.tooltipData).toEqual([
       [
         { key: 'value', value: 200 },
-        { key: 'region', value: 'West, Central, Northwest' },
-      ],
+        { key: 'region', value: 'West, Central, Northwest' }
+      ]
     ]);
   });
   it('should properly handle and combine numeric tooltip values in Other category', () => {
@@ -654,9 +654,9 @@ describe('modifyDatasets - pieMinimumSlicePercentage tests', () => {
         tooltipData: [
           [
             { key: 'value', value: 500 },
-            { key: 'growth', value: 10 },
-          ],
-        ],
+            { key: 'growth', value: 10 }
+          ]
+        ]
       },
       {
         id: 'slice2',
@@ -667,9 +667,9 @@ describe('modifyDatasets - pieMinimumSlicePercentage tests', () => {
         tooltipData: [
           [
             { key: 'value', value: 300 },
-            { key: 'growth', value: 5 },
-          ],
-        ],
+            { key: 'growth', value: 5 }
+          ]
+        ]
       },
       {
         id: 'slice3',
@@ -680,9 +680,9 @@ describe('modifyDatasets - pieMinimumSlicePercentage tests', () => {
         tooltipData: [
           [
             { key: 'value', value: 40 },
-            { key: 'growth', value: 8 },
-          ],
-        ],
+            { key: 'growth', value: 8 }
+          ]
+        ]
       },
       {
         id: 'slice4',
@@ -693,10 +693,10 @@ describe('modifyDatasets - pieMinimumSlicePercentage tests', () => {
         tooltipData: [
           [
             { key: 'value', value: 60 },
-            { key: 'growth', value: 12 },
-          ],
-        ],
-      },
+            { key: 'growth', value: 12 }
+          ]
+        ]
+      }
     ];
 
     const minimumPercentage = 10;
@@ -705,14 +705,14 @@ describe('modifyDatasets - pieMinimumSlicePercentage tests', () => {
       datasets: {
         datasets: datasetsWithNumericTooltips,
         ticks: [],
-        ticksKey: [],
+        ticksKey: []
       },
       pieMinimumSlicePercentage: minimumPercentage,
       barSortBy: undefined,
       pieSortBy: undefined,
       barGroupType: undefined,
       lineGroupType: null,
-      selectedChartType: 'pie',
+      selectedChartType: 'pie'
     });
 
     // Verify the result has the right number of datasets
@@ -751,9 +751,9 @@ describe('modifyDatasets - pieMinimumSlicePercentage tests', () => {
         tooltipData: [
           [
             { key: 'value', value: 500 },
-            { key: 'region', value: 'North' },
-          ],
-        ],
+            { key: 'region', value: 'North' }
+          ]
+        ]
       },
       {
         id: 'slice2',
@@ -764,9 +764,9 @@ describe('modifyDatasets - pieMinimumSlicePercentage tests', () => {
         tooltipData: [
           [
             { key: 'value', value: 300 },
-            { key: 'region', value: 'South' },
-          ],
-        ],
+            { key: 'region', value: 'South' }
+          ]
+        ]
       },
       {
         id: 'slice3',
@@ -777,9 +777,9 @@ describe('modifyDatasets - pieMinimumSlicePercentage tests', () => {
         tooltipData: [
           [
             { key: 'value', value: 40 },
-            { key: 'region', value: 'East' },
-          ],
-        ],
+            { key: 'region', value: 'East' }
+          ]
+        ]
       },
       {
         id: 'slice4',
@@ -790,10 +790,10 @@ describe('modifyDatasets - pieMinimumSlicePercentage tests', () => {
         tooltipData: [
           [
             { key: 'value', value: 60 },
-            { key: 'region', value: 'West' },
-          ],
-        ],
-      },
+            { key: 'region', value: 'West' }
+          ]
+        ]
+      }
     ];
 
     const minimumPercentage = 10;
@@ -802,14 +802,14 @@ describe('modifyDatasets - pieMinimumSlicePercentage tests', () => {
       datasets: {
         datasets: datasetsWithStringTooltips,
         ticks: [],
-        ticksKey: [],
+        ticksKey: []
       },
       pieMinimumSlicePercentage: minimumPercentage,
       barSortBy: undefined,
       pieSortBy: undefined,
       barGroupType: undefined,
       lineGroupType: null,
-      selectedChartType: 'pie',
+      selectedChartType: 'pie'
     });
 
     // Verify the result has the right number of datasets
@@ -848,9 +848,9 @@ describe('modifyDatasets - pieMinimumSlicePercentage tests', () => {
           [
             { key: 'value', value: 500 },
             { key: 'growth', value: 10 },
-            { key: 'status', value: 'Active' },
-          ],
-        ],
+            { key: 'status', value: 'Active' }
+          ]
+        ]
       },
       {
         id: 'slice2',
@@ -862,9 +862,9 @@ describe('modifyDatasets - pieMinimumSlicePercentage tests', () => {
           [
             { key: 'value', value: 300 },
             { key: 'growth', value: 5 },
-            { key: 'status', value: 'Active' },
-          ],
-        ],
+            { key: 'status', value: 'Active' }
+          ]
+        ]
       },
       {
         id: 'slice3',
@@ -876,9 +876,9 @@ describe('modifyDatasets - pieMinimumSlicePercentage tests', () => {
           [
             { key: 'value', value: 40 },
             { key: 'growth', value: 8 },
-            { key: 'status', value: 'Inactive' },
-          ],
-        ],
+            { key: 'status', value: 'Inactive' }
+          ]
+        ]
       },
       {
         id: 'slice4',
@@ -890,9 +890,9 @@ describe('modifyDatasets - pieMinimumSlicePercentage tests', () => {
           [
             { key: 'value', value: 60 },
             { key: 'growth', value: -2 }, // Note the negative value
-            { key: 'status', value: 'Pending' },
-          ],
-        ],
+            { key: 'status', value: 'Pending' }
+          ]
+        ]
       },
       {
         id: 'slice5',
@@ -904,10 +904,10 @@ describe('modifyDatasets - pieMinimumSlicePercentage tests', () => {
           [
             { key: 'value', value: 30 },
             { key: 'growth', value: 0 }, // Zero value
-            { key: 'status', value: 'Active' },
-          ],
-        ],
-      },
+            { key: 'status', value: 'Active' }
+          ]
+        ]
+      }
     ];
 
     const minimumPercentage = 10;
@@ -916,14 +916,14 @@ describe('modifyDatasets - pieMinimumSlicePercentage tests', () => {
       datasets: {
         datasets: datasetsWithMixedTooltips,
         ticks: [],
-        ticksKey: [],
+        ticksKey: []
       },
       pieMinimumSlicePercentage: minimumPercentage,
       barSortBy: undefined,
       pieSortBy: undefined,
       barGroupType: undefined,
       lineGroupType: null,
-      selectedChartType: 'pie',
+      selectedChartType: 'pie'
     });
 
     // Verify the result has the right number of datasets
@@ -967,9 +967,9 @@ describe('modifyDatasets - pieMinimumSlicePercentage tests', () => {
           [
             { key: 'value', value: 500 },
             { key: 'region', value: 'North' },
-            { key: 'status', value: 'Active' },
-          ],
-        ],
+            { key: 'status', value: 'Active' }
+          ]
+        ]
       },
       {
         id: 'slice2',
@@ -980,10 +980,10 @@ describe('modifyDatasets - pieMinimumSlicePercentage tests', () => {
         tooltipData: [
           [
             { key: 'value', value: 300 },
-            { key: 'region', value: 'South' },
+            { key: 'region', value: 'South' }
             // No status key
-          ],
-        ],
+          ]
+        ]
       },
       {
         id: 'slice3',
@@ -995,9 +995,9 @@ describe('modifyDatasets - pieMinimumSlicePercentage tests', () => {
           [
             { key: 'value', value: 50 },
             // No region key
-            { key: 'status', value: 'Inactive' },
-          ],
-        ],
+            { key: 'status', value: 'Inactive' }
+          ]
+        ]
       },
       {
         id: 'slice4',
@@ -1010,9 +1010,9 @@ describe('modifyDatasets - pieMinimumSlicePercentage tests', () => {
             { key: 'value', value: 30 },
             { key: 'region', value: 'West' },
             { key: 'status', value: 'Pending' },
-            { key: 'extra', value: 'Unique field' }, // Unique key not in other slices
-          ],
-        ],
+            { key: 'extra', value: 'Unique field' } // Unique key not in other slices
+          ]
+        ]
       },
       {
         id: 'slice5',
@@ -1021,8 +1021,8 @@ describe('modifyDatasets - pieMinimumSlicePercentage tests', () => {
         dataKey: 'slice5',
         axisType: 'y',
         // No tooltipData at all
-        tooltipData: [],
-      },
+        tooltipData: []
+      }
     ];
 
     const minimumPercentage = 10;
@@ -1031,14 +1031,14 @@ describe('modifyDatasets - pieMinimumSlicePercentage tests', () => {
       datasets: {
         datasets: datasetsWithMissingTooltips,
         ticks: [],
-        ticksKey: [],
+        ticksKey: []
       },
       pieMinimumSlicePercentage: minimumPercentage,
       barSortBy: undefined,
       pieSortBy: undefined,
       barGroupType: undefined,
       lineGroupType: null,
-      selectedChartType: 'pie',
+      selectedChartType: 'pie'
     });
 
     // Verify the result has the right number of datasets
@@ -1085,7 +1085,7 @@ describe('modifyDatasets - pieMinimumSlicePercentage tests', () => {
         data: [500], // 50%
         dataKey: 'slice1',
         axisType: 'y',
-        tooltipData: [[{ key: 'value', value: 500 }]],
+        tooltipData: [[{ key: 'value', value: 500 }]]
       },
       {
         id: 'slice2',
@@ -1093,7 +1093,7 @@ describe('modifyDatasets - pieMinimumSlicePercentage tests', () => {
         data: [300], // 30%
         dataKey: 'slice2',
         axisType: 'y',
-        tooltipData: [[{ key: 'value', value: 300 }]],
+        tooltipData: [[{ key: 'value', value: 300 }]]
       },
       {
         id: 'slice3',
@@ -1101,22 +1101,22 @@ describe('modifyDatasets - pieMinimumSlicePercentage tests', () => {
         data: [-100], // Negative value
         dataKey: 'slice3',
         axisType: 'y',
-        tooltipData: [[{ key: 'value', value: -100 }]],
-      },
+        tooltipData: [[{ key: 'value', value: -100 }]]
+      }
     ];
 
     const { datasets: result } = modifyDatasets({
       datasets: {
         datasets: datasetsWithNegativeValues,
         ticks: [],
-        ticksKey: [],
+        ticksKey: []
       },
       pieMinimumSlicePercentage: 10,
       barSortBy: undefined,
       pieSortBy: undefined,
       barGroupType: undefined,
       lineGroupType: null,
-      selectedChartType: 'pie',
+      selectedChartType: 'pie'
     });
 
     // Negative values should be ignored in percentage calculations for pie charts
@@ -1138,18 +1138,18 @@ describe('modifyDatasets - pieMinimumSlicePercentage tests', () => {
         data: [500], // 50%
         dataKey: 'slice1',
         axisType: 'y',
-        tooltipData: [[{ key: 'value', value: 500 }]],
+        tooltipData: [[{ key: 'value', value: 500 }]]
       },
       {
         id: 'slice2',
         label: [
           { key: 'category', value: 'Category B' },
-          { key: 'subcategory', value: 'Subcategory 1' }, // Complex label with subcategory
+          { key: 'subcategory', value: 'Subcategory 1' } // Complex label with subcategory
         ],
         data: [300], // 30%
         dataKey: 'slice2',
         axisType: 'y',
-        tooltipData: [[{ key: 'value', value: 300 }]],
+        tooltipData: [[{ key: 'value', value: 300 }]]
       },
       {
         id: 'slice3',
@@ -1157,7 +1157,7 @@ describe('modifyDatasets - pieMinimumSlicePercentage tests', () => {
         data: [80], // 8%
         dataKey: 'slice3',
         axisType: 'y',
-        tooltipData: [[{ key: 'value', value: 80 }]],
+        tooltipData: [[{ key: 'value', value: 80 }]]
       },
       {
         id: 'slice4',
@@ -1165,7 +1165,7 @@ describe('modifyDatasets - pieMinimumSlicePercentage tests', () => {
         data: [70], // 7%
         dataKey: 'slice4',
         axisType: 'y',
-        tooltipData: [[{ key: 'value', value: 70 }]],
+        tooltipData: [[{ key: 'value', value: 70 }]]
       },
       {
         id: 'slice5',
@@ -1173,22 +1173,22 @@ describe('modifyDatasets - pieMinimumSlicePercentage tests', () => {
         data: [50], // 5%
         dataKey: 'slice5',
         axisType: 'y',
-        tooltipData: [[{ key: 'value', value: 50 }]],
-      },
+        tooltipData: [[{ key: 'value', value: 50 }]]
+      }
     ];
 
     const { datasets: result } = modifyDatasets({
       datasets: {
         datasets: datasetsWithDifferentLabels,
         ticks: [],
-        ticksKey: [],
+        ticksKey: []
       },
       pieMinimumSlicePercentage: 10,
       barSortBy: undefined,
       pieSortBy: undefined,
       barGroupType: undefined,
       lineGroupType: null,
-      selectedChartType: 'pie',
+      selectedChartType: 'pie'
     });
 
     // Slices 1 and 2 should remain (>=10%)
@@ -1224,17 +1224,17 @@ describe('modifyDatasets - pieSortBy tests', () => {
         tooltipData: [
           [
             { key: 'value', value: 300 },
-            { key: 'label', value: 'Category C' },
+            { key: 'label', value: 'Category C' }
           ],
           [
             { key: 'value', value: 100 },
-            { key: 'label', value: 'Category A' },
+            { key: 'label', value: 'Category A' }
           ],
           [
             { key: 'value', value: 500 },
-            { key: 'label', value: 'Category B' },
-          ],
-        ],
+            { key: 'label', value: 'Category B' }
+          ]
+        ]
       },
       {
         id: 'slice2',
@@ -1245,21 +1245,21 @@ describe('modifyDatasets - pieSortBy tests', () => {
         tooltipData: [
           [
             { key: 'value', value: 100 },
-            { key: 'label', value: 'Category A' },
+            { key: 'label', value: 'Category A' }
           ],
           [
             { key: 'value', value: 300 },
-            { key: 'label', value: 'Category B' },
+            { key: 'label', value: 'Category B' }
           ],
           [
             { key: 'value', value: 200 },
-            { key: 'label', value: 'Category C' },
-          ],
-        ],
-      },
+            { key: 'label', value: 'Category C' }
+          ]
+        ]
+      }
     ],
     ticks: [],
-    ticksKey: [],
+    ticksKey: []
   });
   it('should sort pie chart data by value in ascending order', () => {
     const datasets = createPieDatasets();
@@ -1270,7 +1270,7 @@ describe('modifyDatasets - pieSortBy tests', () => {
       pieSortBy: 'value',
       barGroupType: undefined,
       lineGroupType: null,
-      selectedChartType: 'pie',
+      selectedChartType: 'pie'
     });
 
     // Should maintain the same number of datasets
@@ -1294,7 +1294,7 @@ describe('modifyDatasets - pieSortBy tests', () => {
       pieSortBy: 'key',
       barGroupType: undefined,
       lineGroupType: null,
-      selectedChartType: 'pie',
+      selectedChartType: 'pie'
     });
 
     // Should maintain the same number of datasets
@@ -1319,7 +1319,7 @@ describe('modifyDatasets - pieSortBy tests', () => {
       pieSortBy: null,
       barGroupType: undefined,
       lineGroupType: null,
-      selectedChartType: 'pie',
+      selectedChartType: 'pie'
     });
 
     // Should maintain the same number of datasets and original order
@@ -1337,7 +1337,7 @@ describe('modifyDatasets - pieSortBy tests', () => {
     const emptyDatasets: DatasetOptionsWithTicks = {
       datasets: [],
       ticks: [],
-      ticksKey: [],
+      ticksKey: []
     };
 
     const { datasets: result } = modifyDatasets({
@@ -1347,7 +1347,7 @@ describe('modifyDatasets - pieSortBy tests', () => {
       pieSortBy: 'value',
       barGroupType: undefined,
       lineGroupType: null,
-      selectedChartType: 'pie',
+      selectedChartType: 'pie'
     });
 
     expect(result).toEqual([]);
@@ -1366,8 +1366,8 @@ describe('modifyDatasets - percentage stack tests', () => {
         tooltipData: [
           [{ key: 'value', value: 100 }],
           [{ key: 'value', value: 200 }],
-          [{ key: 'value', value: 300 }],
-        ],
+          [{ key: 'value', value: 300 }]
+        ]
       },
       {
         id: 'dataset2',
@@ -1378,12 +1378,12 @@ describe('modifyDatasets - percentage stack tests', () => {
         tooltipData: [
           [{ key: 'value', value: 50 }],
           [{ key: 'value', value: 150 }],
-          [{ key: 'value', value: 250 }],
-        ],
-      },
+          [{ key: 'value', value: 250 }]
+        ]
+      }
     ],
     ticks: [],
-    ticksKey: [],
+    ticksKey: []
   });
   it('should convert bar chart values to percentages for percentage-stack mode', () => {
     const datasets = createBarDatasets();
@@ -1396,7 +1396,7 @@ describe('modifyDatasets - percentage stack tests', () => {
       pieSortBy: undefined,
       barGroupType: 'percentage-stack',
       lineGroupType: null,
-      selectedChartType: 'bar',
+      selectedChartType: 'bar'
     });
 
     // Should maintain the same number of datasets
@@ -1426,7 +1426,7 @@ describe('modifyDatasets - percentage stack tests', () => {
       pieSortBy: undefined,
       barGroupType: undefined,
       lineGroupType: null,
-      selectedChartType: 'bar',
+      selectedChartType: 'bar'
     });
 
     // Should maintain the same number of datasets
@@ -1457,7 +1457,7 @@ describe('modifyDatasets - percentage stack tests', () => {
       pieSortBy: undefined,
       barGroupType: undefined,
       lineGroupType: 'percentage-stack',
-      selectedChartType: 'line',
+      selectedChartType: 'line'
     });
 
     // Should maintain the same number of datasets
@@ -1489,8 +1489,8 @@ describe('modifyDatasets - percentage stack tests', () => {
         tooltipData: [
           [{ key: 'value', value: 100 }],
           [{ key: 'value', value: 0 }],
-          [{ key: 'value', value: 300 }],
-        ],
+          [{ key: 'value', value: 300 }]
+        ]
       },
       {
         id: 'dataset2',
@@ -1501,23 +1501,23 @@ describe('modifyDatasets - percentage stack tests', () => {
         tooltipData: [
           [{ key: 'value', value: 50 }],
           [{ key: 'value', value: 150 }],
-          [{ key: 'value', value: 0 }],
-        ],
-      },
+          [{ key: 'value', value: 0 }]
+        ]
+      }
     ];
 
     const { datasets: result } = modifyDatasets({
       datasets: {
         datasets: datasetsWithZeros,
         ticks: [],
-        ticksKey: [],
+        ticksKey: []
       },
       pieMinimumSlicePercentage: undefined,
       barSortBy: undefined,
       pieSortBy: undefined,
       barGroupType: 'percentage-stack',
       lineGroupType: null,
-      selectedChartType: 'bar',
+      selectedChartType: 'bar'
     });
 
     // Should maintain the same number of datasets
@@ -1549,8 +1549,8 @@ describe('modifyDatasets - percentage stack tests', () => {
         tooltipData: [
           [{ key: 'value', value: 100 }],
           [{ key: 'value', value: null }],
-          [{ key: 'value', value: 300 }],
-        ],
+          [{ key: 'value', value: 300 }]
+        ]
       },
       {
         id: 'dataset2',
@@ -1561,8 +1561,8 @@ describe('modifyDatasets - percentage stack tests', () => {
         tooltipData: [
           [{ key: 'value', value: 50 }],
           [{ key: 'value', value: 150 }],
-          [{ key: 'value', value: 0 }],
-        ],
+          [{ key: 'value', value: 0 }]
+        ]
       },
       {
         id: 'dataset3',
@@ -1573,23 +1573,23 @@ describe('modifyDatasets - percentage stack tests', () => {
         tooltipData: [
           [{ key: 'value', value: 0 }],
           [{ key: 'value', value: 0 }],
-          [{ key: 'value', value: 200 }],
-        ],
-      },
+          [{ key: 'value', value: 200 }]
+        ]
+      }
     ];
 
     const { datasets: result } = modifyDatasets({
       datasets: {
         datasets: datasetsWithNulls,
         ticks: [],
-        ticksKey: [],
+        ticksKey: []
       },
       pieMinimumSlicePercentage: undefined,
       barSortBy: undefined,
       pieSortBy: undefined,
       barGroupType: 'percentage-stack',
       lineGroupType: null,
-      selectedChartType: 'bar',
+      selectedChartType: 'bar'
     });
 
     // Should maintain the same number of datasets
@@ -1625,8 +1625,8 @@ describe('modifyDatasets - percentage stack tests', () => {
           [{ key: 'value', value: 100 }],
           [{ key: 'value', value: 200 }],
           [{ key: 'value', value: 300 }],
-          [{ key: 'value', value: 400 }],
-        ],
+          [{ key: 'value', value: 400 }]
+        ]
       },
       {
         id: 'dataset2',
@@ -1634,22 +1634,22 @@ describe('modifyDatasets - percentage stack tests', () => {
         data: [50, 150], // Only 2 data points
         dataKey: 'dataset2',
         axisType: 'y',
-        tooltipData: [[{ key: 'value', value: 50 }], [{ key: 'value', value: 150 }]],
-      },
+        tooltipData: [[{ key: 'value', value: 50 }], [{ key: 'value', value: 150 }]]
+      }
     ];
 
     const { datasets: result } = modifyDatasets({
       datasets: {
         datasets: datasetsWithUnevenLengths,
         ticks: [],
-        ticksKey: [],
+        ticksKey: []
       },
       pieMinimumSlicePercentage: undefined,
       barSortBy: undefined,
       pieSortBy: undefined,
       barGroupType: 'percentage-stack',
       lineGroupType: null,
-      selectedChartType: 'bar',
+      selectedChartType: 'bar'
     });
 
     // Should maintain the same number of datasets and data length
@@ -1685,8 +1685,8 @@ describe('modifyDatasets - barSortBy tests', () => {
         tooltipData: [
           [{ key: 'value', value: 300 }],
           [{ key: 'value', value: 100 }],
-          [{ key: 'value', value: 200 }],
-        ],
+          [{ key: 'value', value: 200 }]
+        ]
       },
       {
         id: 'dataset2',
@@ -1697,12 +1697,12 @@ describe('modifyDatasets - barSortBy tests', () => {
         tooltipData: [
           [{ key: 'value', value: 200 }],
           [{ key: 'value', value: 150 }],
-          [{ key: 'value', value: 50 }],
-        ],
-      },
+          [{ key: 'value', value: 50 }]
+        ]
+      }
     ],
     ticks: [],
-    ticksKey: [],
+    ticksKey: []
   });
   it('should sort bar chart data by descending values', () => {
     const datasets = createBarDatasets();
@@ -1713,7 +1713,7 @@ describe('modifyDatasets - barSortBy tests', () => {
       pieSortBy: undefined,
       barGroupType: undefined,
       lineGroupType: null,
-      selectedChartType: 'bar',
+      selectedChartType: 'bar'
     });
 
     // Should maintain the same number of datasets
@@ -1751,8 +1751,8 @@ describe('modifyDatasets - barSortBy tests', () => {
         tooltipData: [
           [{ key: 'value', value: 300 }],
           [{ key: 'value', value: 100 }],
-          [{ key: 'value', value: 200 }],
-        ],
+          [{ key: 'value', value: 200 }]
+        ]
       },
       {
         id: 'dataset2',
@@ -1763,23 +1763,23 @@ describe('modifyDatasets - barSortBy tests', () => {
         tooltipData: [
           [{ key: 'value', value: 200 }],
           [{ key: 'value', value: 50 }],
-          [{ key: 'value', value: 150 }],
-        ],
-      },
+          [{ key: 'value', value: 150 }]
+        ]
+      }
     ];
 
     const { datasets: result } = modifyDatasets({
       datasets: {
         datasets: datasetsNotInOrder,
         ticks: [],
-        ticksKey: [],
+        ticksKey: []
       },
       pieMinimumSlicePercentage: undefined,
       barSortBy: ['asc'],
       pieSortBy: undefined,
       barGroupType: undefined,
       lineGroupType: null,
-      selectedChartType: 'bar',
+      selectedChartType: 'bar'
     });
 
     // Should maintain the same number of datasets
@@ -1816,7 +1816,7 @@ describe('modifyDatasets - barSortBy tests', () => {
       pieSortBy: undefined,
       barGroupType: undefined,
       lineGroupType: null,
-      selectedChartType: 'bar',
+      selectedChartType: 'bar'
     });
 
     // Should maintain the same number of datasets
@@ -1845,7 +1845,7 @@ describe('modifyDatasets - barSortBy tests', () => {
       pieSortBy: undefined,
       barGroupType: undefined,
       lineGroupType: null,
-      selectedChartType: 'bar',
+      selectedChartType: 'bar'
     });
 
     // First dataset - should now be sorted
@@ -1869,8 +1869,8 @@ describe('modifyDatasets - barSortBy tests', () => {
         tooltipData: [
           [{ key: 'value', value: -100 }],
           [{ key: 'value', value: 200 }],
-          [{ key: 'value', value: -300 }],
-        ],
+          [{ key: 'value', value: -300 }]
+        ]
       },
       {
         id: 'dataset2',
@@ -1881,23 +1881,23 @@ describe('modifyDatasets - barSortBy tests', () => {
         tooltipData: [
           [{ key: 'value', value: -50 }],
           [{ key: 'value', value: 150 }],
-          [{ key: 'value', value: -100 }],
-        ],
-      },
+          [{ key: 'value', value: -100 }]
+        ]
+      }
     ];
 
     const { datasets: result } = modifyDatasets({
       datasets: {
         datasets: datasetsWithNegatives,
         ticks: [],
-        ticksKey: [],
+        ticksKey: []
       },
       pieMinimumSlicePercentage: undefined,
       barSortBy: ['asc'],
       pieSortBy: undefined,
       barGroupType: undefined,
       lineGroupType: null,
-      selectedChartType: 'bar',
+      selectedChartType: 'bar'
     });
 
     // Should maintain the same number of datasets
@@ -1934,8 +1934,8 @@ describe('modifyDatasets - barSortBy tests', () => {
         tooltipData: [
           [{ key: 'value', value: null }],
           [{ key: 'value', value: 200 }],
-          [{ key: 'value', value: 100 }],
-        ],
+          [{ key: 'value', value: 100 }]
+        ]
       },
       {
         id: 'dataset2',
@@ -1946,23 +1946,23 @@ describe('modifyDatasets - barSortBy tests', () => {
         tooltipData: [
           [{ key: 'value', value: 50 }],
           [{ key: 'value', value: null }],
-          [{ key: 'value', value: 150 }],
-        ],
-      },
+          [{ key: 'value', value: 150 }]
+        ]
+      }
     ];
 
     const { datasets: result } = modifyDatasets({
       datasets: {
         datasets: datasetsWithNulls,
         ticks: [],
-        ticksKey: [],
+        ticksKey: []
       },
       pieMinimumSlicePercentage: undefined,
       barSortBy: ['desc'],
       pieSortBy: undefined,
       barGroupType: undefined,
       lineGroupType: null,
-      selectedChartType: 'bar',
+      selectedChartType: 'bar'
     });
 
     // Should maintain the same number of datasets
@@ -1999,23 +1999,23 @@ describe('modifyDatasets - barSortBy tests', () => {
         tooltipData: [
           [{ key: 'value', value: 300 }],
           [{ key: 'value', value: 100 }],
-          [{ key: 'value', value: 200 }],
-        ],
-      },
+          [{ key: 'value', value: 200 }]
+        ]
+      }
     ];
 
     const { datasets: result } = modifyDatasets({
       datasets: {
         datasets,
         ticks: [],
-        ticksKey: [],
+        ticksKey: []
       },
       pieMinimumSlicePercentage: undefined,
       barSortBy: ['asc'],
       pieSortBy: undefined,
       barGroupType: undefined,
       lineGroupType: null,
-      selectedChartType: 'bar',
+      selectedChartType: 'bar'
     });
 
     expect(result.length).toBe(1);
@@ -2034,23 +2034,23 @@ describe('modifyDatasets - barSortBy tests', () => {
         tooltipData: [
           [{ key: 'value', value: 300 }],
           [{ key: 'value', value: 100 }],
-          [{ key: 'value', value: 200 }],
-        ],
-      },
+          [{ key: 'value', value: 200 }]
+        ]
+      }
     ];
 
     const { datasets: result } = modifyDatasets({
       datasets: {
         datasets,
         ticks: [],
-        ticksKey: [],
+        ticksKey: []
       },
       pieMinimumSlicePercentage: undefined,
       barSortBy: ['desc'],
       pieSortBy: undefined,
       barGroupType: undefined,
       lineGroupType: null,
-      selectedChartType: 'bar',
+      selectedChartType: 'bar'
     });
 
     expect(result.length).toBe(1);
@@ -2071,23 +2071,23 @@ describe('modifyDatasets - barSortBy tests', () => {
           [{ key: 'value', value: null }],
           [{ key: 'value', value: 200 }],
           [{ key: 'value', value: 150 }],
-          [{ key: 'value', value: null }],
-        ],
-      },
+          [{ key: 'value', value: null }]
+        ]
+      }
     ];
 
     const { datasets: result } = modifyDatasets({
       datasets: {
         datasets,
         ticks: [],
-        ticksKey: [],
+        ticksKey: []
       },
       pieMinimumSlicePercentage: undefined,
       barSortBy: ['desc'],
       pieSortBy: undefined,
       barGroupType: undefined,
       lineGroupType: null,
-      selectedChartType: 'bar',
+      selectedChartType: 'bar'
     });
 
     expect(result.length).toBe(1);

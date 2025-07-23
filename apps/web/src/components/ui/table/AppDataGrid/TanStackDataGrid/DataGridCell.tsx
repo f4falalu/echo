@@ -15,12 +15,11 @@ export const DataGridCell: React.FC<DataGridCellProps> = ({ cell }) => {
         'relative flex items-center border-r px-2 last:border-r-0',
         cell.column.getIsResizing() && 'bg-primary/4'
       )}
-      style={{ width: cell.column.getSize(), height: CELL_HEIGHT }}
-    >
-      <div className='truncate'>{flexRender(cell.column.columnDef.cell, cell.getContext())}</div>
+      style={{ width: cell.column.getSize(), height: CELL_HEIGHT }}>
+      <div className="truncate">{flexRender(cell.column.columnDef.cell, cell.getContext())}</div>
 
       {cell.column.getIsResizing() && (
-        <span className='bg-primary absolute inset-y-0 -right-0.5 z-10 -my-1 h-[105%] w-1' />
+        <span className="bg-primary absolute inset-y-0 -right-0.5 z-10 -my-1 h-[105%] w-1" />
       )}
     </td>
   );

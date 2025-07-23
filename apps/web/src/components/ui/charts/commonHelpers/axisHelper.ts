@@ -27,7 +27,7 @@ export const formatYAxisLabel = (
     {
       columnType: 'number',
       style: 'number',
-      compactNumbers,
+      compactNumbers
     },
     false
   );

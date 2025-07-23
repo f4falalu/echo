@@ -40,7 +40,7 @@ export const pieTooltipHelper = (
         color,
         usePercentage,
         formattedLabel,
-        values: [{ formattedValue, formattedLabel, formattedPercentage }],
+        values: [{ formattedValue, formattedLabel, formattedPercentage }]
       };
     });
 

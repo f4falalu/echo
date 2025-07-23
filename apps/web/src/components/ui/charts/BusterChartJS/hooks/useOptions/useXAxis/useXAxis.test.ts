@@ -5,7 +5,7 @@ import {
   type ColumnSettings,
   DEFAULT_COLUMN_LABEL_FORMAT,
   DEFAULT_COLUMN_SETTINGS,
-  type SimplifiedColumnType,
+  type SimplifiedColumnType
 } from '@buster/server-shared/metrics';
 import { renderHook } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
@@ -17,22 +17,22 @@ describe('useXAxis', () => {
       date_column: {
         ...DEFAULT_COLUMN_LABEL_FORMAT,
         columnType: 'date' as SimplifiedColumnType,
-        style: 'date' as const,
+        style: 'date' as const
       },
       numeric_column: {
         ...DEFAULT_COLUMN_LABEL_FORMAT,
         columnType: 'number' as SimplifiedColumnType,
-        style: 'number' as const,
+        style: 'number' as const
       },
       category_column: {
         ...DEFAULT_COLUMN_LABEL_FORMAT,
         columnType: 'text' as SimplifiedColumnType,
-        style: 'string' as const,
-      },
+        style: 'string' as const
+      }
     },
     selectedAxis: {
       x: ['category_column'],
-      y: ['numeric_column'],
+      y: ['numeric_column']
     } as ChartEncodes,
     selectedChartType: 'bar',
     xAxisLabelRotation: 'auto' as const,
@@ -43,13 +43,13 @@ describe('useXAxis', () => {
     lineGroupType: null,
     barGroupType: 'group' as const,
     columnSettings: {},
-    xAxisTimeInterval: null,
+    xAxisTimeInterval: null
   } as Parameters<typeof useXAxis>[0];
 
   it('should return undefined for pie charts', () => {
     const props = {
       ...defaultProps,
-      selectedChartType: 'pie',
+      selectedChartType: 'pie'
     } as const;
 
     const { result } = renderHook(() => useXAxis(props));
@@ -62,8 +62,8 @@ describe('useXAxis', () => {
       selectedChartType: 'line',
       selectedAxis: {
         x: ['date_column'],
-        y: ['numeric_column'],
-      } as ChartEncodes,
+        y: ['numeric_column']
+      } as ChartEncodes
     } as const;
 
     const { result } = renderHook(() => useXAxis(props));
@@ -82,7 +82,7 @@ describe('useXAxis', () => {
 
     const propsWithoutTitle = {
       ...defaultProps,
-      xAxisShowAxisTitle: false,
+      xAxisShowAxisTitle: false
     };
     const { result: resultWithoutTitle } = renderHook(() => useXAxis(propsWithoutTitle));
     expect(resultWithoutTitle.current?.title?.display).toBe(false);
@@ -91,7 +91,7 @@ describe('useXAxis', () => {
   it('should handle grid display for scatter charts', () => {
     const scatterProps = {
       ...defaultProps,
-      selectedChartType: 'scatter',
+      selectedChartType: 'scatter'
     } as const;
 
     const { result } = renderHook(() => useXAxis(scatterProps));
@@ -99,7 +99,7 @@ describe('useXAxis', () => {
 
     const noGridProps = {
       ...scatterProps,
-      gridLines: false,
+      gridLines: false
     };
     const { result: resultNoGrid } = renderHook(() => useXAxis(noGridProps));
     expect(resultNoGrid.current?.grid?.display).toBe(false);
@@ -111,9 +111,9 @@ describe('useXAxis', () => {
       selectedChartType: 'line',
       selectedAxis: {
         x: ['date_column'],
-        y: ['numeric_column'],
+        y: ['numeric_column']
       } as ChartEncodes,
-      xAxisTimeInterval: 'month' as const,
+      xAxisTimeInterval: 'month' as const
     } as const;
 
     const { result } = renderHook(() => useXAxis(timeIntervalProps));
@@ -125,7 +125,7 @@ describe('useXAxis', () => {
   it('should handle label rotation', () => {
     const rotationProps = {
       ...defaultProps,
-      xAxisLabelRotation: 45 as const,
+      xAxisLabelRotation: 45 as const
     };
 
     const { result } = renderHook(() => useXAxis(rotationProps));
@@ -136,7 +136,7 @@ describe('useXAxis', () => {
   it('should handle axis label visibility', () => {
     const hiddenLabelsProps = {
       ...defaultProps,
-      xAxisShowAxisLabel: false,
+      xAxisShowAxisLabel: false
     };
 
     const { result } = renderHook(() => useXAxis(hiddenLabelsProps));
@@ -146,7 +146,7 @@ describe('useXAxis', () => {
   it('should handle stacked bar charts configuration', () => {
     const stackedBarProps = {
       ...defaultProps,
-      barGroupType: 'stack' as const,
+      barGroupType: 'stack' as const
     };
 
     const { result } = renderHook(() => useXAxis(stackedBarProps));
@@ -158,8 +158,8 @@ describe('useXAxis', () => {
       ...defaultProps,
       selectedAxis: {
         x: ['category_column', 'numeric_column'],
-        y: ['numeric_column'],
-      } as ChartEncodes,
+        y: ['numeric_column']
+      } as ChartEncodes
     };
 
     const { result } = renderHook(() => useXAxis(multipleXAxisProps));
@@ -173,8 +173,8 @@ describe('useXAxis', () => {
       selectedChartType: 'line',
       selectedAxis: {
         x: ['date_column'],
-        y: ['numeric_column'],
-      } as ChartEncodes,
+        y: ['numeric_column']
+      } as ChartEncodes
     } as const;
 
     const { result } = renderHook(() => useXAxis(dateAxisProps));
@@ -191,9 +191,9 @@ describe('useXAxis', () => {
           aggregation: 'sum',
           format: 'number',
           precision: 2,
-          showDataLabels: true,
-        } as ColumnSettings,
-      },
+          showDataLabels: true
+        } as ColumnSettings
+      }
     };
 
     const { result } = renderHook(() => useXAxis(customColumnProps));
@@ -203,7 +203,7 @@ describe('useXAxis', () => {
   it('should handle auto rotation settings correctly', () => {
     const autoRotationProps = {
       ...defaultProps,
-      xAxisLabelRotation: 'auto' as const,
+      xAxisLabelRotation: 'auto' as const
     };
 
     const { result } = renderHook(() => useXAxis(autoRotationProps));
@@ -217,8 +217,8 @@ describe('useXAxis', () => {
       selectedChartType: 'scatter',
       selectedAxis: {
         x: ['numeric_column'],
-        y: ['numeric_column'],
-      } as ChartEncodes,
+        y: ['numeric_column']
+      } as ChartEncodes
     } as const;
 
     const { result } = renderHook(() => useXAxis(scatterProps));
@@ -229,7 +229,7 @@ describe('useXAxis', () => {
   it('should handle zero degree rotation explicitly', () => {
     const zeroRotationProps = {
       ...defaultProps,
-      xAxisLabelRotation: 0 as const,
+      xAxisLabelRotation: 0 as const
     };
 
     const { result } = renderHook(() => useXAxis(zeroRotationProps));
@@ -244,8 +244,8 @@ describe('useXAxis', () => {
       lineGroupType: 'stack' as const,
       selectedAxis: {
         x: ['date_column'],
-        y: ['numeric_column'],
-      } as ChartEncodes,
+        y: ['numeric_column']
+      } as ChartEncodes
     } as const;
 
     const { result } = renderHook(() => useXAxis(lineGroupProps));
@@ -256,7 +256,7 @@ describe('useXAxis', () => {
   it('should handle disabled grid lines', () => {
     const noGridProps = {
       ...defaultProps,
-      gridLines: false,
+      gridLines: false
     };
 
     const { result } = renderHook(() => useXAxis(noGridProps));
@@ -269,9 +269,9 @@ describe('useXAxis', () => {
       selectedChartType: 'line',
       selectedAxis: {
         x: ['date_column'],
-        y: ['numeric_column'],
+        y: ['numeric_column']
       } as ChartEncodes,
-      xAxisTimeInterval: 'quarter' as const,
+      xAxisTimeInterval: 'quarter' as const
     } as const;
 
     const { result } = renderHook(() => useXAxis(quarterIntervalProps));
@@ -283,7 +283,7 @@ describe('useXAxis', () => {
     const noTitleProps = {
       ...defaultProps,
       xAxisShowAxisTitle: false,
-      xAxisAxisTitle: null,
+      xAxisAxisTitle: null
     } as Parameters<typeof useXAxis>[0];
 
     const { result } = renderHook(() => useXAxis(noTitleProps));
@@ -305,8 +305,8 @@ describe('useXAxis', () => {
       selectedChartType: 'scatter',
       selectedAxis: {
         x: ['numeric_column'],
-        y: ['numeric_column'],
-      } as ChartEncodes,
+        y: ['numeric_column']
+      } as ChartEncodes
     } as const;
 
     const { result: scatterResult } = renderHook(() => useXAxis(scatterProps));
@@ -318,8 +318,8 @@ describe('useXAxis', () => {
       ...defaultProps,
       selectedAxis: {
         x: ['category_column', 'numeric_column'],
-        y: ['numeric_column'],
-      } as ChartEncodes,
+        y: ['numeric_column']
+      } as ChartEncodes
     };
 
     const { result: multiResult } = renderHook(() => useXAxis(multipleColumnsProps));
@@ -329,7 +329,7 @@ describe('useXAxis', () => {
     // For unsupported chart type (pie)
     const pieProps = {
       ...defaultProps,
-      selectedChartType: 'pie',
+      selectedChartType: 'pie'
     } as const;
 
     const { result: pieResult } = renderHook(() => useXAxis(pieProps));
@@ -343,8 +343,8 @@ describe('useXAxis', () => {
       selectedChartType: 'scatter',
       selectedAxis: {
         x: ['numeric_column'],
-        y: ['numeric_column'],
-      } as ChartEncodes,
+        y: ['numeric_column']
+      } as ChartEncodes
     } as const;
 
     const { result } = renderHook(() => useXAxis(scatterProps));
@@ -368,9 +368,9 @@ describe('useXAxis', () => {
           columnType: 'number' as SimplifiedColumnType,
           style: 'number' as const,
           minimumFractionDigits: 3,
-          maximumFractionDigits: 3,
-        },
-      },
+          maximumFractionDigits: 3
+        }
+      }
     };
 
     const { result: customResult } = renderHook(() => useXAxis(customFormatProps));
@@ -385,15 +385,15 @@ describe('useXAxis', () => {
       selectedChartType: 'line',
       selectedAxis: {
         x: ['date_column'],
-        y: ['numeric_column'],
+        y: ['numeric_column']
       } as ChartEncodes,
       columnLabelFormats: {
         ...defaultProps.columnLabelFormats,
         date_column: {
           ...defaultProps.columnLabelFormats.date_column,
-          dateFormat: 'YYYY-MM-DD',
-        },
-      },
+          dateFormat: 'YYYY-MM-DD'
+        }
+      }
     } as Parameters<typeof useXAxis>[0];
 
     const { result } = renderHook(() => useXAxis(customDateFormatProps));
@@ -408,9 +408,9 @@ describe('useXAxis', () => {
         ...defaultProps.columnLabelFormats,
         date_column: {
           ...defaultProps.columnLabelFormats.date_column,
-          dateFormat: 'auto',
-        },
-      },
+          dateFormat: 'auto'
+        }
+      }
     } as Parameters<typeof useXAxis>[0];
 
     const { result: autoResult } = renderHook(() => useXAxis(autoDateFormatProps));

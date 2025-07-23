@@ -2,7 +2,7 @@ import type {
   FontSpec,
   Scriptable,
   ScriptableAndScriptableOptions,
-  ScriptableChartContext,
+  ScriptableChartContext
 } from 'chart.js';
 import type OutLabelsContext from './OutLabelsContext';
 

@@ -1,7 +1,7 @@
 import {
   type ChartEncodes,
   type ChartType,
-  DEFAULT_COLUMN_LABEL_FORMAT,
+  DEFAULT_COLUMN_LABEL_FORMAT
 } from '@buster/server-shared/metrics';
 import { renderHook } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -10,12 +10,12 @@ import { useTooltipOptions } from './useTooltipOptions';
 
 // Mock necessary hooks and dependencies
 vi.mock('react-dom/server', () => ({
-  renderToString: vi.fn().mockReturnValue('<div>Mocked tooltip</div>'),
+  renderToString: vi.fn().mockReturnValue('<div>Mocked tooltip</div>')
 }));
 
 vi.mock('@/hooks', () => ({
   useMemoizedFn: vi.fn((fn) => fn),
-  useUnmount: vi.fn((fn) => fn()),
+  useUnmount: vi.fn((fn) => fn())
 }));
 
 describe('useTooltipOptions', () => {
@@ -32,11 +32,11 @@ describe('useTooltipOptions', () => {
       x: [],
       y: ['test'],
       category: ['category'],
-      tooltip: null,
+      tooltip: null
     } as ChartEncodes,
     hasMismatchedTooltipsAndMeasures: false,
     disableTooltip: false,
-    colors: ['#ff0000'],
+    colors: ['#ff0000']
   };
 
   beforeEach(() => {
@@ -55,7 +55,7 @@ describe('useTooltipOptions', () => {
     const { result } = renderHook(() =>
       useTooltipOptions({
         ...defaultProps,
-        disableTooltip: true,
+        disableTooltip: true
       })
     );
 
@@ -67,7 +67,7 @@ describe('useTooltipOptions', () => {
     const { result } = renderHook(() =>
       useTooltipOptions({
         ...defaultProps,
-        selectedChartType: 'scatter' as ChartType,
+        selectedChartType: 'scatter' as ChartType
       })
     );
 
@@ -77,7 +77,7 @@ describe('useTooltipOptions', () => {
     const { result } = renderHook(() =>
       useTooltipOptions({
         ...defaultProps,
-        selectedChartType: 'pie' as ChartType,
+        selectedChartType: 'pie' as ChartType
       })
     );
 
@@ -88,7 +88,7 @@ describe('useTooltipOptions', () => {
       useTooltipOptions({
         ...defaultProps,
         selectedChartType: 'pie' as ChartType,
-        pieDisplayLabelAs: 'number' as BusterChartProps['pieDisplayLabelAs'],
+        pieDisplayLabelAs: 'number' as BusterChartProps['pieDisplayLabelAs']
       })
     );
 
@@ -99,7 +99,7 @@ describe('useTooltipOptions', () => {
       useTooltipOptions({
         ...defaultProps,
         selectedChartType: 'pie' as ChartType,
-        pieDisplayLabelAs: 'percent' as BusterChartProps['pieDisplayLabelAs'],
+        pieDisplayLabelAs: 'percent' as BusterChartProps['pieDisplayLabelAs']
       })
     );
 

@@ -13,40 +13,40 @@ describe('pieTooltipHelper', () => {
     tooltipData: [
       [
         { key: 'value', value: 250 },
-        { key: 'percentage', value: 25 },
+        { key: 'percentage', value: 25 }
       ],
       [
         { key: 'value', value: 750 },
-        { key: 'percentage', value: 75 },
-      ],
-    ],
+        { key: 'percentage', value: 75 }
+      ]
+    ]
   };
 
   const mockChart = {
     data: {
-      datasets: [mockDataset],
+      datasets: [mockDataset]
     },
     $totalizer: {
-      seriesTotals: [1000], // Total for the first dataset
-    },
+      seriesTotals: [1000] // Total for the first dataset
+    }
   } as unknown as Chart;
 
   const mockColumnLabelFormats: Record<string, ColumnLabelFormat> = {
     value: {
       ...DEFAULT_COLUMN_LABEL_FORMAT,
       columnType: 'number',
-      style: 'number',
+      style: 'number'
     },
     percentage: {
       ...DEFAULT_COLUMN_LABEL_FORMAT,
       columnType: 'number',
-      style: 'percent',
+      style: 'percent'
     },
     label: {
       ...DEFAULT_COLUMN_LABEL_FORMAT,
       columnType: 'text',
-      style: 'string',
-    },
+      style: 'string'
+    }
   };
 
   const mockDataPoints = [
@@ -58,8 +58,8 @@ describe('pieTooltipHelper', () => {
       raw: 250,
       formattedValue: '250',
       label: 'Test Dataset',
-      chart: mockChart,
-    } as TooltipItem<any>,
+      chart: mockChart
+    } as TooltipItem<any>
   ];
 
   it('should correctly format tooltip items', () => {
@@ -84,9 +84,9 @@ describe('pieTooltipHelper', () => {
         {
           formattedValue: '250',
           formattedLabel: 'Value',
-          formattedPercentage: undefined,
-        },
-      ],
+          formattedPercentage: undefined
+        }
+      ]
     });
 
     // Check the percentage item
@@ -99,9 +99,9 @@ describe('pieTooltipHelper', () => {
         {
           formattedValue: '25%',
           formattedLabel: 'Percentage',
-          formattedPercentage: '25%',
-        },
-      ],
+          formattedPercentage: '25%'
+        }
+      ]
     });
   });
 
@@ -112,14 +112,14 @@ describe('pieTooltipHelper', () => {
         dataIndex: 0,
         dataset: {
           ...mockDataset,
-          tooltipData: [[]],
+          tooltipData: [[]]
         },
         parsed: 100,
         raw: 100,
         formattedValue: '100',
         label: 'Test Dataset',
-        chart: mockChart,
-      } as TooltipItem<any>,
+        chart: mockChart
+      } as TooltipItem<any>
     ];
 
     const result = pieTooltipHelper(emptyDataPoints, mockChart, mockColumnLabelFormats, []);
@@ -137,7 +137,7 @@ describe('pieTooltipHelper', () => {
         raw: 300,
         formattedValue: '300',
         label: 'Test Dataset',
-        chart: mockChart,
+        chart: mockChart
       } as TooltipItem<any>,
       {
         datasetIndex: 0,
@@ -147,8 +147,8 @@ describe('pieTooltipHelper', () => {
         raw: 700,
         formattedValue: '700',
         label: 'Test Dataset',
-        chart: mockChart,
-      } as TooltipItem<any>,
+        chart: mockChart
+      } as TooltipItem<any>
     ];
 
     const keyToUsePercentage = ['percentage'];

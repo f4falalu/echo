@@ -4,7 +4,7 @@ import {
   type ChartEncodes,
   type ChartType,
   type ColumnLabelFormat,
-  DEFAULT_COLUMN_LABEL_FORMAT,
+  DEFAULT_COLUMN_LABEL_FORMAT
 } from '@buster/server-shared/metrics';
 import type { GridLineOptions, Scale, ScaleChartOptions } from 'chart.js';
 import { useMemo } from 'react';
@@ -25,7 +25,7 @@ export const useYAxis = ({
   yAxisShowAxisLabel,
   yAxisStartAxisAtZero,
   yAxisScaleType,
-  gridLines,
+  gridLines
 }: {
   columnLabelFormats: NonNullable<ChartConfigProps['columnLabelFormats']>;
   selectedAxis: ChartEncodes;
@@ -48,7 +48,7 @@ export const useYAxis = ({
 
   const grid: DeepPartial<GridLineOptions> | undefined = useMemo(() => {
     return {
-      display: gridLines,
+      display: gridLines
     } satisfies DeepPartial<GridLineOptions>;
   }, [gridLines]);
 
@@ -83,7 +83,7 @@ export const useYAxis = ({
     yAxisAxisTitle,
     yAxisShowAxisTitle,
     selectedAxis,
-    isSupportedChartForAxisTitles: isSupportedType,
+    isSupportedChartForAxisTitles: isSupportedType
   });
 
   const tickCallback = useMemoizedFn(function (
@@ -117,15 +117,15 @@ export const useYAxis = ({
         stacked,
         title: {
           display: !!title,
-          text: title,
+          text: title
         },
         ticks: {
           display: yAxisShowAxisLabel,
-          callback: tickCallback,
+          callback: tickCallback
         },
         border: {
-          display: yAxisShowAxisLabel,
-        },
+          display: yAxisShowAxisLabel
+        }
       } satisfies DeepPartial<ScaleChartOptions<'bar'>['scales']['y']>;
     }, [
       tickCallback,
@@ -136,7 +136,7 @@ export const useYAxis = ({
       isSupportedType,
       yAxisStartAxisAtZero,
       yAxisShowAxisLabel,
-      usePercentageModeAxis,
+      usePercentageModeAxis
     ]);
 
   return memoizedYAxisOptions;

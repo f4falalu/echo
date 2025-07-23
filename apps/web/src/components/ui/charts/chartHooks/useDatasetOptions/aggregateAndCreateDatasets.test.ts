@@ -7,14 +7,14 @@ describe('aggregateAndCreateDatasets', () => {
     const testData = [
       { month: 'Jan', revenue: 1000 },
       { month: 'Feb', revenue: 1500 },
-      { month: 'Mar', revenue: 2000 },
+      { month: 'Mar', revenue: 2000 }
     ];
 
     const result = aggregateAndCreateDatasets(
       testData,
       {
         x: ['month'],
-        y: ['revenue'],
+        y: ['revenue']
       },
       {}
     );
@@ -26,7 +26,7 @@ describe('aggregateAndCreateDatasets', () => {
     expect(result.datasets[0].tooltipData).toEqual([
       [{ key: 'revenue', value: 1000 }],
       [{ key: 'revenue', value: 1500 }],
-      [{ key: 'revenue', value: 2000 }],
+      [{ key: 'revenue', value: 2000 }]
     ]);
 
     expect(result.ticks).toEqual([['Jan'], ['Feb'], ['Mar']]);
@@ -42,22 +42,22 @@ describe('aggregateAndCreateDatasets', () => {
       { region: 'North', category: 'A', sales: 100, profit: 20 },
       { region: 'North', category: 'B', sales: 150, profit: 30 },
       { region: 'South', category: 'A', sales: 200, profit: 40 },
-      { region: 'South', category: 'B', sales: 250, profit: 50 },
+      { region: 'South', category: 'B', sales: 250, profit: 50 }
     ];
 
     const columnLabelFormats: Record<string, ColumnLabelFormat> = {
       sales: {
         ...DEFAULT_COLUMN_LABEL_FORMAT,
         style: 'currency',
-        currency: 'USD',
-      },
+        currency: 'USD'
+      }
     };
 
     const result = aggregateAndCreateDatasets(
       testData,
       {
         x: ['region', 'category'],
-        y: ['sales'],
+        y: ['sales']
       },
       columnLabelFormats
     );
@@ -73,19 +73,19 @@ describe('aggregateAndCreateDatasets', () => {
       [{ key: 'sales', value: 100 }],
       [{ key: 'sales', value: 150 }],
       [{ key: 'sales', value: 200 }],
-      [{ key: 'sales', value: 250 }],
+      [{ key: 'sales', value: 250 }]
     ]);
 
     // Verify ticks
     expect(result.ticksKey).toEqual([
       { key: 'region', value: '' },
-      { key: 'category', value: '' },
+      { key: 'category', value: '' }
     ]);
     expect(result.ticks).toEqual([
       ['North', 'A'],
       ['North', 'B'],
       ['South', 'A'],
-      ['South', 'B'],
+      ['South', 'B']
     ]);
   });
 
@@ -94,21 +94,21 @@ describe('aggregateAndCreateDatasets', () => {
       { region: 'North', sales: 100 },
       { region: 'North', sales: 150 },
       { region: 'South', sales: 200 },
-      { region: 'South', sales: 250 },
+      { region: 'South', sales: 250 }
     ];
 
     const columnLabelFormats: Record<string, ColumnLabelFormat> = {
       sales: {
         ...DEFAULT_COLUMN_LABEL_FORMAT,
         style: 'currency',
-        currency: 'USD',
-      },
+        currency: 'USD'
+      }
     };
     const result = aggregateAndCreateDatasets(
       testData,
       {
         x: ['region'],
-        y: ['sales'],
+        y: ['sales']
       },
       columnLabelFormats
     );
@@ -129,7 +129,7 @@ describe('aggregateAndCreateDatasets', () => {
     // Check tooltip data
     expect(result.datasets[0].tooltipData).toEqual([
       [{ key: 'sales', value: 250 }],
-      [{ key: 'sales', value: 450 }],
+      [{ key: 'sales', value: 450 }]
     ]);
 
     // Check ticks
@@ -141,14 +141,14 @@ describe('aggregateAndCreateDatasets', () => {
     const testData = [
       { x: 1, y: 100, category: 'A' },
       { x: 2, y: 150, category: 'A' },
-      { x: 3, y: 200, category: 'B' },
+      { x: 3, y: 200, category: 'B' }
     ];
 
     const result = aggregateAndCreateDatasets(
       testData,
       {
         x: ['x'],
-        y: ['y'],
+        y: ['y']
       },
       {},
       true // scatter plot mode
@@ -174,22 +174,22 @@ describe('aggregateAndCreateDatasets', () => {
       { region: 'North', category: 'A', sales: 100, profit: 20 },
       { region: 'North', category: 'B', sales: 150, profit: 30 },
       { region: 'South', category: 'A', sales: 200, profit: 40 },
-      { region: 'South', category: 'B', sales: 250, profit: 50 },
+      { region: 'South', category: 'B', sales: 250, profit: 50 }
     ];
 
     const columnLabelFormats: Record<string, ColumnLabelFormat> = {
       sales: {
         ...DEFAULT_COLUMN_LABEL_FORMAT,
         style: 'currency',
-        currency: 'USD',
-      },
+        currency: 'USD'
+      }
     };
 
     const result = aggregateAndCreateDatasets(
       testData,
       {
         x: ['region', 'category'],
-        y: ['sales'],
+        y: ['sales']
       },
       columnLabelFormats
     );
@@ -205,19 +205,19 @@ describe('aggregateAndCreateDatasets', () => {
       [{ key: 'sales', value: 100 }],
       [{ key: 'sales', value: 150 }],
       [{ key: 'sales', value: 200 }],
-      [{ key: 'sales', value: 250 }],
+      [{ key: 'sales', value: 250 }]
     ]);
 
     // Verify ticks
     expect(result.ticksKey).toEqual([
       { key: 'region', value: '' },
-      { key: 'category', value: '' },
+      { key: 'category', value: '' }
     ]);
     expect(result.ticks).toEqual([
       ['North', 'A'],
       ['North', 'B'],
       ['South', 'A'],
-      ['South', 'B'],
+      ['South', 'B']
     ]);
   });
 
@@ -226,21 +226,21 @@ describe('aggregateAndCreateDatasets', () => {
       { region: 'North', sales: 100 },
       { region: 'North', sales: 150 },
       { region: 'South', sales: 200 },
-      { region: 'South', sales: 250 },
+      { region: 'South', sales: 250 }
     ];
 
     const columnLabelFormats: Record<string, ColumnLabelFormat> = {
       sales: {
         ...DEFAULT_COLUMN_LABEL_FORMAT,
         style: 'currency',
-        currency: 'USD',
-      },
+        currency: 'USD'
+      }
     };
     const result = aggregateAndCreateDatasets(
       testData,
       {
         x: ['region'],
-        y: ['sales'],
+        y: ['sales']
       },
       columnLabelFormats
     );
@@ -261,7 +261,7 @@ describe('aggregateAndCreateDatasets', () => {
     // Check tooltip data
     expect(result.datasets[0].tooltipData).toEqual([
       [{ key: 'sales', value: 250 }],
-      [{ key: 'sales', value: 450 }],
+      [{ key: 'sales', value: 450 }]
     ]);
 
     // Check ticks
@@ -273,14 +273,14 @@ describe('aggregateAndCreateDatasets', () => {
     const testData = [
       { x: 1, y: 100, category: 'A' },
       { x: 2, y: 150, category: 'A' },
-      { x: 3, y: 200, category: 'B' },
+      { x: 3, y: 200, category: 'B' }
     ];
 
     const result = aggregateAndCreateDatasets(
       testData,
       {
         x: ['x'],
-        y: ['y'],
+        y: ['y']
       },
       {},
       true // scatter plot mode
@@ -304,7 +304,7 @@ describe('aggregateAndCreateDatasets', () => {
   it('should handle bubble chart with size data in scatter plot mode', () => {
     const testData = [
       { x: 1, y: 100, size: 20 },
-      { x: 2, y: 150, size: 30 },
+      { x: 2, y: 150, size: 30 }
     ];
 
     const result = aggregateAndCreateDatasets(
@@ -312,7 +312,7 @@ describe('aggregateAndCreateDatasets', () => {
       {
         x: ['x'],
         y: ['y'],
-        size: ['size'],
+        size: ['size']
       },
       {},
       true // scatter plot mode
@@ -332,13 +332,13 @@ describe('aggregateAndCreateDatasets', () => {
       [
         { key: 'x', value: 1 },
         { key: 'y', value: 100 },
-        { key: 'size', value: 20 },
+        { key: 'size', value: 20 }
       ],
       [
         { key: 'x', value: 2 },
         { key: 'y', value: 150 },
-        { key: 'size', value: 30 },
-      ],
+        { key: 'size', value: 30 }
+      ]
     ]);
 
     // Check ticks
@@ -349,14 +349,14 @@ describe('aggregateAndCreateDatasets', () => {
   it('should handle multiple metrics in scatter plot mode', () => {
     const testData = [
       { x: 1, sales: 100, profit: 20 },
-      { x: 2, sales: 150, profit: 30 },
+      { x: 2, sales: 150, profit: 30 }
     ];
 
     const result = aggregateAndCreateDatasets(
       testData,
       {
         x: ['x'],
-        y: ['sales', 'profit'],
+        y: ['sales', 'profit']
       },
       {},
       true // scatter plot mode
@@ -372,12 +372,12 @@ describe('aggregateAndCreateDatasets', () => {
     expect(result.datasets[0].tooltipData).toEqual([
       [
         { key: 'x', value: 1 },
-        { key: 'sales', value: 100 },
+        { key: 'sales', value: 100 }
       ],
       [
         { key: 'x', value: 2 },
-        { key: 'sales', value: 150 },
-      ],
+        { key: 'sales', value: 150 }
+      ]
     ]);
 
     // Check profit metrics
@@ -388,12 +388,12 @@ describe('aggregateAndCreateDatasets', () => {
     expect(result.datasets[1].tooltipData).toEqual([
       [
         { key: 'x', value: 1 },
-        { key: 'profit', value: 20 },
+        { key: 'profit', value: 20 }
       ],
       [
         { key: 'x', value: 2 },
-        { key: 'profit', value: 30 },
-      ],
+        { key: 'profit', value: 30 }
+      ]
     ]);
 
     // Check ticks
@@ -406,14 +406,14 @@ describe('aggregateAndCreateDatasets', () => {
       { region: 'North', quarter: 'Q1', sales: 1000 },
       { region: 'North', quarter: 'Q2', sales: 1200 },
       { region: 'South', quarter: 'Q1', sales: 800 },
-      { region: 'South', quarter: 'Q2', sales: 900 },
+      { region: 'South', quarter: 'Q2', sales: 900 }
     ];
 
     const result = aggregateAndCreateDatasets(
       testData,
       {
         x: ['region', 'quarter'],
-        y: ['sales'],
+        y: ['sales']
       },
       {}
     );
@@ -425,7 +425,7 @@ describe('aggregateAndCreateDatasets', () => {
       [{ key: 'sales', value: 1000 }],
       [{ key: 'sales', value: 1200 }],
       [{ key: 'sales', value: 800 }],
-      [{ key: 'sales', value: 900 }],
+      [{ key: 'sales', value: 900 }]
     ]);
 
     // Check ticks structure
@@ -433,11 +433,11 @@ describe('aggregateAndCreateDatasets', () => {
       ['North', 'Q1'],
       ['North', 'Q2'],
       ['South', 'Q1'],
-      ['South', 'Q2'],
+      ['South', 'Q2']
     ]);
     expect(result.ticksKey).toEqual([
       { key: 'region', value: '' },
-      { key: 'quarter', value: '' },
+      { key: 'quarter', value: '' }
     ]);
   });
 
@@ -445,14 +445,14 @@ describe('aggregateAndCreateDatasets', () => {
     const testData = [
       { month: 'Jan', revenue: 1000, profit: 200 },
       { month: 'Feb', revenue: 1500, profit: 300 },
-      { month: 'Mar', revenue: 2000, profit: 400 },
+      { month: 'Mar', revenue: 2000, profit: 400 }
     ];
 
     const result = aggregateAndCreateDatasets(
       testData,
       {
         x: ['month'],
-        y: ['revenue', 'profit'],
+        y: ['revenue', 'profit']
       },
       {}
     );
@@ -469,7 +469,7 @@ describe('aggregateAndCreateDatasets', () => {
     expect(result.datasets[0].tooltipData).toEqual([
       [{ key: 'revenue', value: 1000 }],
       [{ key: 'revenue', value: 1500 }],
-      [{ key: 'revenue', value: 2000 }],
+      [{ key: 'revenue', value: 2000 }]
     ]);
 
     // Check profit dataset
@@ -477,7 +477,7 @@ describe('aggregateAndCreateDatasets', () => {
     expect(result.datasets[1].tooltipData).toEqual([
       [{ key: 'profit', value: 200 }],
       [{ key: 'profit', value: 300 }],
-      [{ key: 'profit', value: 400 }],
+      [{ key: 'profit', value: 400 }]
     ]);
 
     // Check ticks
@@ -490,7 +490,7 @@ describe('aggregateAndCreateDatasets', () => {
       { month: 'Jan', sales: 1000, product: 'A' },
       { month: 'Jan', sales: 800, product: 'B' },
       { month: 'Feb', sales: 1200, product: 'A' },
-      { month: 'Feb', sales: 1000, product: 'B' },
+      { month: 'Feb', sales: 1000, product: 'B' }
     ];
 
     const result = aggregateAndCreateDatasets(
@@ -498,7 +498,7 @@ describe('aggregateAndCreateDatasets', () => {
       {
         x: ['month'],
         y: ['sales'],
-        category: ['product'],
+        category: ['product']
       },
       {}
     );
@@ -514,7 +514,7 @@ describe('aggregateAndCreateDatasets', () => {
 
     expect(result.datasets[0].tooltipData).toEqual([
       [{ key: 'sales', value: 1000, categoryValue: 'A', categoryKey: 'product' }],
-      [{ key: 'sales', value: 1200, categoryValue: 'A', categoryKey: 'product' }],
+      [{ key: 'sales', value: 1200, categoryValue: 'A', categoryKey: 'product' }]
     ]);
     expect(result.datasets[0].dataKey).toBe('sales');
     expect(result.datasets[0].axisType).toBe('y');
@@ -524,7 +524,7 @@ describe('aggregateAndCreateDatasets', () => {
     expect(result.datasets[1].label).toEqual([{ key: 'product', value: 'B' }]);
     expect(result.datasets[1].tooltipData).toEqual([
       [{ key: 'sales', value: 800, categoryValue: 'B', categoryKey: 'product' }],
-      [{ key: 'sales', value: 1000, categoryValue: 'B', categoryKey: 'product' }],
+      [{ key: 'sales', value: 1000, categoryValue: 'B', categoryKey: 'product' }]
     ]);
     expect(result.datasets[1].dataKey).toBe('sales');
     expect(result.datasets[1].axisType).toBe('y');
@@ -535,7 +535,7 @@ describe('aggregateAndCreateDatasets', () => {
       { month: 'Jan', revenue: 1000, profit: 200, region: 'North' },
       { month: 'Jan', revenue: 800, profit: 150, region: 'South' },
       { month: 'Feb', revenue: 1200, profit: 250, region: 'North' },
-      { month: 'Feb', revenue: 900, profit: 180, region: 'South' },
+      { month: 'Feb', revenue: 900, profit: 180, region: 'South' }
     ];
 
     const result = aggregateAndCreateDatasets(
@@ -543,7 +543,7 @@ describe('aggregateAndCreateDatasets', () => {
       {
         x: ['month'],
         y: ['revenue', 'profit'],
-        category: ['region'],
+        category: ['region']
       },
       {}
     );
@@ -552,7 +552,7 @@ describe('aggregateAndCreateDatasets', () => {
 
     expect(result.datasets[0].label).toEqual([
       { key: 'revenue', value: '' },
-      { key: 'region', value: 'North' },
+      { key: 'region', value: 'North' }
     ]);
 
     expect(result.datasets[0].data).toEqual([1000, 1200]);
@@ -565,14 +565,14 @@ describe('aggregateAndCreateDatasets', () => {
     const testData = [
       { xValue: 1, yValue: 100, date: '2023-01-01' },
       { xValue: 2, yValue: 150, date: '2023-01-02' },
-      { xValue: 3, yValue: 200, date: '2023-01-03' },
+      { xValue: 3, yValue: 200, date: '2023-01-03' }
     ];
 
     const result = aggregateAndCreateDatasets(
       testData,
       {
         x: ['xValue'],
-        y: ['yValue'],
+        y: ['yValue']
       },
       {},
       true // scatter plot mode
@@ -584,16 +584,16 @@ describe('aggregateAndCreateDatasets', () => {
     expect(result.datasets[0].tooltipData).toEqual([
       [
         { key: 'xValue', value: 1 },
-        { key: 'yValue', value: 100 },
+        { key: 'yValue', value: 100 }
       ],
       [
         { key: 'xValue', value: 2 },
-        { key: 'yValue', value: 150 },
+        { key: 'yValue', value: 150 }
       ],
       [
         { key: 'xValue', value: 3 },
-        { key: 'yValue', value: 200 },
-      ],
+        { key: 'yValue', value: 200 }
+      ]
     ]);
 
     // Check ticks
@@ -606,7 +606,7 @@ describe('aggregateAndCreateDatasets', () => {
       { x: 1, y: 100, group: 'A' },
       { x: 2, y: 150, group: 'A' },
       { x: 1, y: 80, group: 'B' },
-      { x: 2, y: 120, group: 'B' },
+      { x: 2, y: 120, group: 'B' }
     ];
 
     const result = aggregateAndCreateDatasets(
@@ -614,7 +614,7 @@ describe('aggregateAndCreateDatasets', () => {
       {
         x: ['x'],
         y: ['y'],
-        category: ['group'],
+        category: ['group']
       },
       {},
       true // scatter plot mode
@@ -629,12 +629,12 @@ describe('aggregateAndCreateDatasets', () => {
     expect(datasetA.tooltipData).toEqual([
       [
         { key: 'x', value: 1 },
-        { key: 'y', value: 100 },
+        { key: 'y', value: 100 }
       ],
       [
         { key: 'x', value: 2 },
-        { key: 'y', value: 150 },
-      ],
+        { key: 'y', value: 150 }
+      ]
     ]);
 
     // Check second category (B)
@@ -644,12 +644,12 @@ describe('aggregateAndCreateDatasets', () => {
     expect(datasetB.tooltipData).toEqual([
       [
         { key: 'x', value: 1 },
-        { key: 'y', value: 80 },
+        { key: 'y', value: 80 }
       ],
       [
         { key: 'x', value: 2 },
-        { key: 'y', value: 120 },
-      ],
+        { key: 'y', value: 120 }
+      ]
     ]);
 
     // Check ticks
@@ -660,14 +660,14 @@ describe('aggregateAndCreateDatasets', () => {
   it('should handle scatter plot with custom tooltip fields', () => {
     const testData = [
       { x: 1, y: 100, name: 'Point 1', description: 'First point' },
-      { x: 2, y: 150, name: 'Point 2', description: 'Second point' },
+      { x: 2, y: 150, name: 'Point 2', description: 'Second point' }
     ];
 
     const resultWithoutTooltips = aggregateAndCreateDatasets(
       testData,
       {
         x: ['x'],
-        y: ['y'],
+        y: ['y']
       },
       {},
       true // scatter plot mode
@@ -678,7 +678,7 @@ describe('aggregateAndCreateDatasets', () => {
       {
         x: ['x'],
         y: ['y'],
-        tooltip: ['name', 'description'],
+        tooltip: ['name', 'description']
       },
       {},
       true // scatter plot mode
@@ -698,7 +698,7 @@ describe('aggregateAndCreateDatasets', () => {
   it('should handle scatter plot with custom tooltip fields', () => {
     const testData = [
       { x: 1, y: 100, name: 'Point 1', description: 'First point' },
-      { x: 2, y: 150, name: 'Point 2', description: 'Second point' },
+      { x: 2, y: 150, name: 'Point 2', description: 'Second point' }
     ];
 
     const result = aggregateAndCreateDatasets(
@@ -706,7 +706,7 @@ describe('aggregateAndCreateDatasets', () => {
       {
         x: ['x'],
         y: ['y'],
-        tooltip: ['name', 'description'],
+        tooltip: ['name', 'description']
       },
       {},
       true // scatter plot mode
@@ -718,18 +718,18 @@ describe('aggregateAndCreateDatasets', () => {
     expect(dataset.tooltipData.length).toBe(2);
     expect(dataset.tooltipData[0]).toEqual([
       { key: 'name', value: 'Point 1' },
-      { key: 'description', value: 'First point' },
+      { key: 'description', value: 'First point' }
     ]);
     expect(dataset.tooltipData[1]).toEqual([
       { key: 'name', value: 'Point 2' },
-      { key: 'description', value: 'Second point' },
+      { key: 'description', value: 'Second point' }
     ]);
   });
 
   it('should handle scatter plot with custom tooltip fields', () => {
     const testData = [
       { x: 1, y: 100, name: 'Point 1', description: 'First point' },
-      { x: 2, y: 150, name: 'Point 2', description: 'Second point' },
+      { x: 2, y: 150, name: 'Point 2', description: 'Second point' }
     ];
 
     const result = aggregateAndCreateDatasets(
@@ -737,7 +737,7 @@ describe('aggregateAndCreateDatasets', () => {
       {
         x: ['x'],
         y: ['y'],
-        tooltip: ['name', 'description'],
+        tooltip: ['name', 'description']
       },
       {},
       true // scatter plot mode
@@ -749,11 +749,11 @@ describe('aggregateAndCreateDatasets', () => {
     expect(dataset.tooltipData.length).toBe(2);
     expect(dataset.tooltipData[0]).toEqual([
       { key: 'name', value: 'Point 1' },
-      { key: 'description', value: 'First point' },
+      { key: 'description', value: 'First point' }
     ]);
     expect(dataset.tooltipData[1]).toEqual([
       { key: 'name', value: 'Point 2' },
-      { key: 'description', value: 'Second point' },
+      { key: 'description', value: 'Second point' }
     ]);
   });
 
@@ -761,18 +761,18 @@ describe('aggregateAndCreateDatasets', () => {
     const testData = [
       { x: 1, y: 100, size: 20 },
       { x: 2, y: null, size: 30 },
-      { x: 3, y: undefined, size: null },
+      { x: 3, y: undefined, size: null }
     ];
 
     const columnLabelFormats: Record<string, ColumnLabelFormat> = {
       y: {
         ...DEFAULT_COLUMN_LABEL_FORMAT,
-        replaceMissingDataWith: 0,
+        replaceMissingDataWith: 0
       },
       size: {
         ...DEFAULT_COLUMN_LABEL_FORMAT,
-        replaceMissingDataWith: 0,
-      },
+        replaceMissingDataWith: 0
+      }
     };
 
     const result = aggregateAndCreateDatasets(
@@ -780,7 +780,7 @@ describe('aggregateAndCreateDatasets', () => {
       {
         x: ['x'],
         y: ['y'],
-        size: ['size'],
+        size: ['size']
       },
       columnLabelFormats,
       true // scatter plot mode
@@ -796,18 +796,18 @@ describe('aggregateAndCreateDatasets', () => {
       [
         { key: 'x', value: 1 },
         { key: 'y', value: 100 },
-        { key: 'size', value: 20 },
+        { key: 'size', value: 20 }
       ],
       [
         { key: 'x', value: 2 },
         { key: 'y', value: 0 },
-        { key: 'size', value: 30 },
+        { key: 'size', value: 30 }
       ],
       [
         { key: 'x', value: 3 },
         { key: 'y', value: 0 },
-        { key: 'size', value: 0 },
-      ],
+        { key: 'size', value: 0 }
+      ]
     ]);
 
     // Check ticks
@@ -820,25 +820,25 @@ describe('aggregateAndCreateDatasets', () => {
     const testData = [
       { id: 1, metric1: 100, metric2: 50 },
       { id: 2, metric1: null, metric2: 60 },
-      { id: 3, metric1: 120, metric2: null },
+      { id: 3, metric1: 120, metric2: null }
     ];
 
     const columnLabelFormats: Record<string, ColumnLabelFormat> = {
       metric1: {
         ...DEFAULT_COLUMN_LABEL_FORMAT,
-        replaceMissingDataWith: 0,
+        replaceMissingDataWith: 0
       },
       metric2: {
         ...DEFAULT_COLUMN_LABEL_FORMAT,
-        replaceMissingDataWith: 0,
-      },
+        replaceMissingDataWith: 0
+      }
     };
 
     const result = aggregateAndCreateDatasets(
       testData,
       {
         x: ['id'],
-        y: ['metric1', 'metric2'],
+        y: ['metric1', 'metric2']
       },
       columnLabelFormats,
       true // scatter plot mode
@@ -851,14 +851,14 @@ describe('aggregateAndCreateDatasets', () => {
     expect(metric1Dataset.data).toEqual([100, 0, 120]); // metric1 with missing value replaced by 0
     expect(metric1Dataset.tooltipData[1]).toEqual([
       { key: 'id', value: 2 },
-      { key: 'metric1', value: 0 },
+      { key: 'metric1', value: 0 }
     ]);
 
     // Check metric2 dataset
     expect(metric2Dataset.data).toEqual([50, 60, 0]); // metric2 with missing value replaced by 0
     expect(metric2Dataset.tooltipData[2]).toEqual([
       { key: 'id', value: 3 },
-      { key: 'metric2', value: 0 },
+      { key: 'metric2', value: 0 }
     ]);
 
     // Check ticks
@@ -871,21 +871,21 @@ describe('aggregateAndCreateDatasets', () => {
     const testData = [
       { x: 1, y: 100 },
       { x: 2, y: null },
-      { x: 3, y: 200 },
+      { x: 3, y: 200 }
     ];
 
     const columnLabelFormats: Record<string, ColumnLabelFormat> = {
       y: {
         ...DEFAULT_COLUMN_LABEL_FORMAT,
-        replaceMissingDataWith: null,
-      },
+        replaceMissingDataWith: null
+      }
     };
 
     const result = aggregateAndCreateDatasets(
       testData,
       {
         x: ['x'],
-        y: ['y'],
+        y: ['y']
       },
       columnLabelFormats,
       true // scatter plot mode
@@ -897,7 +897,7 @@ describe('aggregateAndCreateDatasets', () => {
     expect(dataset.data).toEqual([100, null, 200]); // null values preserved
     expect(dataset.tooltipData[1]).toEqual([
       { key: 'x', value: 2 },
-      { key: 'y', value: '' }, // null values should be converted to empty string in tooltip
+      { key: 'y', value: '' } // null values should be converted to empty string in tooltip
     ]);
 
     // Check ticks
@@ -912,7 +912,7 @@ describe('aggregateAndCreateDatasets', () => {
       { region: 'North', product: 'A', channel: 'Store', sales: 150, cost: 70 },
       { region: 'North', product: 'B', channel: 'Online', sales: 200, cost: 100 },
       { region: 'South', product: 'A', channel: 'Online', sales: 120, cost: 60 },
-      { region: 'South', product: 'B', channel: 'Store', sales: 180, cost: 90 },
+      { region: 'South', product: 'B', channel: 'Store', sales: 180, cost: 90 }
     ];
 
     const result = aggregateAndCreateDatasets(
@@ -920,7 +920,7 @@ describe('aggregateAndCreateDatasets', () => {
       {
         x: ['region'],
         y: ['sales', 'cost'],
-        category: ['product', 'channel'],
+        category: ['product', 'channel']
       },
       {}
     );
@@ -946,7 +946,7 @@ describe('aggregateAndCreateDatasets', () => {
       testData,
       {
         x: ['x'],
-        y: ['y'],
+        y: ['y']
       },
       {}
     );
@@ -959,7 +959,7 @@ describe('aggregateAndCreateDatasets', () => {
   it('should handle tooltip customization with custom fields', () => {
     const testData = [
       { date: '2023-01-01', sales: 1000, notes: 'Holiday sale', manager: 'John' },
-      { date: '2023-01-02', sales: 1200, notes: 'Weekend', manager: 'Jane' },
+      { date: '2023-01-02', sales: 1200, notes: 'Weekend', manager: 'Jane' }
     ];
 
     const result = aggregateAndCreateDatasets(
@@ -967,7 +967,7 @@ describe('aggregateAndCreateDatasets', () => {
       {
         x: ['date'],
         y: ['sales'],
-        tooltip: ['notes', 'manager', 'sales'],
+        tooltip: ['notes', 'manager', 'sales']
       },
       {}
     );
@@ -979,7 +979,7 @@ describe('aggregateAndCreateDatasets', () => {
     expect(dataset.tooltipData[0]).toEqual([
       { key: 'notes', value: 'Holiday sale' },
       { key: 'manager', value: 'John' },
-      { key: 'sales', value: 1000 },
+      { key: 'sales', value: 1000 }
     ]);
 
     // Check ticks
@@ -990,7 +990,7 @@ describe('aggregateAndCreateDatasets', () => {
   it('should handle tooltip with null values in data', () => {
     const testData = [
       { date: '2023-01-01', sales: 1000, notes: null, manager: 'John' },
-      { date: '2023-01-02', sales: 1200, notes: 'Weekend', manager: null },
+      { date: '2023-01-02', sales: 1200, notes: 'Weekend', manager: null }
     ];
 
     const result = aggregateAndCreateDatasets(
@@ -998,7 +998,7 @@ describe('aggregateAndCreateDatasets', () => {
       {
         x: ['date'],
         y: ['sales'],
-        tooltip: ['notes', 'manager', 'sales'],
+        tooltip: ['notes', 'manager', 'sales']
       },
       {}
     );
@@ -1010,13 +1010,13 @@ describe('aggregateAndCreateDatasets', () => {
     expect(dataset.tooltipData[0]).toEqual([
       { key: 'notes', value: '' },
       { key: 'manager', value: 'John' },
-      { key: 'sales', value: 1000 },
+      { key: 'sales', value: 1000 }
     ]);
 
     expect(dataset.tooltipData[1]).toEqual([
       { key: 'notes', value: 'Weekend' },
       { key: 'manager', value: '' },
-      { key: 'sales', value: 1200 },
+      { key: 'sales', value: 1200 }
     ]);
 
     // Check ticks
@@ -1027,7 +1027,7 @@ describe('aggregateAndCreateDatasets', () => {
   it('should handle tooltip with mixed data types', () => {
     const testData = [
       { date: '2023-01-01', metric: 1000, boolean: true, object: { test: 'value' } },
-      { date: '2023-01-02', metric: 1200, boolean: false, object: { test: 'other' } },
+      { date: '2023-01-02', metric: 1200, boolean: false, object: { test: 'other' } }
     ] as any;
 
     const result = aggregateAndCreateDatasets(
@@ -1035,7 +1035,7 @@ describe('aggregateAndCreateDatasets', () => {
       {
         x: ['date'],
         y: ['metric'],
-        tooltip: ['metric', 'boolean', 'object'],
+        tooltip: ['metric', 'boolean', 'object']
       },
       {}
     );
@@ -1046,20 +1046,20 @@ describe('aggregateAndCreateDatasets', () => {
     expect(result.datasets[0].tooltipData[0]).toEqual([
       { key: 'metric', value: 1000 },
       { key: 'boolean', value: true },
-      { key: 'object', value: '[object Object]' },
+      { key: 'object', value: '[object Object]' }
     ]);
 
     expect(result.datasets[0].tooltipData[1]).toEqual([
       { key: 'metric', value: 1200 },
       { key: 'boolean', value: false },
-      { key: 'object', value: '[object Object]' },
+      { key: 'object', value: '[object Object]' }
     ]);
   });
 
   it('should handle tooltip with custom order in both scatter and non-scatter mode', () => {
     const testData = [
       { x: 1, y: 100, category: 'A', description: 'First point' },
-      { x: 2, y: 200, category: 'B', description: 'Second point' },
+      { x: 2, y: 200, category: 'B', description: 'Second point' }
     ];
 
     // Test regular mode
@@ -1068,7 +1068,7 @@ describe('aggregateAndCreateDatasets', () => {
       {
         x: ['x'],
         y: ['y'],
-        tooltip: ['description', 'category', 'y'],
+        tooltip: ['description', 'category', 'y']
       },
       {}
     );
@@ -1076,7 +1076,7 @@ describe('aggregateAndCreateDatasets', () => {
     expect(result.datasets[0].tooltipData[0]).toEqual([
       { key: 'description', value: 'First point' },
       { key: 'category', value: 'A' },
-      { key: 'y', value: 100 },
+      { key: 'y', value: 100 }
     ]);
 
     // Test scatter mode
@@ -1085,7 +1085,7 @@ describe('aggregateAndCreateDatasets', () => {
       {
         x: ['x'],
         y: ['y'],
-        tooltip: ['description', 'category', 'y'],
+        tooltip: ['description', 'category', 'y']
       },
       {},
       true // scatter plot mode
@@ -1094,14 +1094,14 @@ describe('aggregateAndCreateDatasets', () => {
     expect(scatterResult.datasets[0].tooltipData[0]).toEqual([
       { key: 'description', value: 'First point' },
       { key: 'category', value: 'A' },
-      { key: 'y', value: 100 },
+      { key: 'y', value: 100 }
     ]);
   });
 
   it('should handle date objects in data and tooltip', () => {
     const testData = [
       { x: 1, y: 100, date: new Date('2023-01-01').toISOString() },
-      { x: 2, y: 200, date: new Date('2023-01-02').toISOString() },
+      { x: 2, y: 200, date: new Date('2023-01-02').toISOString() }
     ];
 
     const result = aggregateAndCreateDatasets(
@@ -1109,7 +1109,7 @@ describe('aggregateAndCreateDatasets', () => {
       {
         x: ['x'],
         y: ['y'],
-        tooltip: ['date', 'y'],
+        tooltip: ['date', 'y']
       },
       {},
       true // scatter plot mode
@@ -1125,7 +1125,7 @@ describe('aggregateAndCreateDatasets', () => {
   it('should handle y2 axis data correctly', () => {
     const testData = [
       { month: 'Jan', primary: 100, secondary: 10 },
-      { month: 'Feb', primary: 200, secondary: 20 },
+      { month: 'Feb', primary: 200, secondary: 20 }
     ];
 
     const result = aggregateAndCreateDatasets(
@@ -1133,7 +1133,7 @@ describe('aggregateAndCreateDatasets', () => {
       {
         x: ['month'],
         y: ['primary'],
-        y2: ['secondary'],
+        y2: ['secondary']
       },
       {}
     );
@@ -1161,7 +1161,7 @@ describe('aggregateAndCreateDatasets', () => {
       { x: 1, y: 100, group: true },
       { x: 2, y: 150, group: true },
       { x: 1, y: 80, group: false },
-      { x: 2, y: 120, group: false },
+      { x: 2, y: 120, group: false }
     ] as any;
 
     const result = aggregateAndCreateDatasets(
@@ -1169,7 +1169,7 @@ describe('aggregateAndCreateDatasets', () => {
       {
         x: ['x'],
         y: ['y'],
-        category: ['group'],
+        category: ['group']
       },
       {},
       true // scatter plot mode
@@ -1189,14 +1189,14 @@ describe('aggregateAndCreateDatasets', () => {
   it('should populate tooltipData with all fields and values when tooltip option is not specified', () => {
     const testData = [
       { id: 1, sales: 100, profit: 20, units: 5 },
-      { id: 2, sales: 200, profit: 40, units: 10 },
+      { id: 2, sales: 200, profit: 40, units: 10 }
     ];
 
     const result = aggregateAndCreateDatasets(
       testData,
       {
         x: ['id'],
-        y: ['sales', 'profit'],
+        y: ['sales', 'profit']
       },
       {},
       true // scatter plot mode
@@ -1207,28 +1207,28 @@ describe('aggregateAndCreateDatasets', () => {
     // Check sales dataset tooltips - should contain x and y values by default
     expect(result.datasets[0].tooltipData[0]).toEqual([
       { key: 'id', value: 1 },
-      { key: 'sales', value: 100 },
+      { key: 'sales', value: 100 }
     ]);
     expect(result.datasets[0].tooltipData[1]).toEqual([
       { key: 'id', value: 2 },
-      { key: 'sales', value: 200 },
+      { key: 'sales', value: 200 }
     ]);
 
     // Check profit dataset tooltips
     expect(result.datasets[1].tooltipData[0]).toEqual([
       { key: 'id', value: 1 },
-      { key: 'profit', value: 20 },
+      { key: 'profit', value: 20 }
     ]);
     expect(result.datasets[1].tooltipData[1]).toEqual([
       { key: 'id', value: 2 },
-      { key: 'profit', value: 40 },
+      { key: 'profit', value: 40 }
     ]);
   });
 
   it('should include size data in tooltipData when size axis is specified', () => {
     const testData = [
       { x: 1, y: 100, size: 5, category: 'A' },
-      { x: 2, y: 200, size: 10, category: 'B' },
+      { x: 2, y: 200, size: 10, category: 'B' }
     ];
 
     const result = aggregateAndCreateDatasets(
@@ -1236,7 +1236,7 @@ describe('aggregateAndCreateDatasets', () => {
       {
         x: ['x'],
         y: ['y'],
-        size: ['size'],
+        size: ['size']
       },
       {},
       true // scatter plot mode
@@ -1248,12 +1248,12 @@ describe('aggregateAndCreateDatasets', () => {
     expect(result.datasets[0].tooltipData[0]).toEqual([
       { key: 'x', value: 1 },
       { key: 'y', value: 100 },
-      { key: 'size', value: 5 },
+      { key: 'size', value: 5 }
     ]);
     expect(result.datasets[0].tooltipData[1]).toEqual([
       { key: 'x', value: 2 },
       { key: 'y', value: 200 },
-      { key: 'size', value: 10 },
+      { key: 'size', value: 10 }
     ]);
 
     // Check size data is properly included in the dataset
@@ -1264,7 +1264,7 @@ describe('aggregateAndCreateDatasets', () => {
   it('should honor the order of tooltip fields as specified in the tooltip option', () => {
     const testData = [
       { id: 1, name: 'Product A', sales: 100, profit: 20, timestamp: '2023-01-01' },
-      { id: 2, name: 'Product B', sales: 200, profit: 40, timestamp: '2023-01-02' },
+      { id: 2, name: 'Product B', sales: 200, profit: 40, timestamp: '2023-01-02' }
     ];
 
     // Specify custom tooltip field order
@@ -1273,7 +1273,7 @@ describe('aggregateAndCreateDatasets', () => {
       {
         x: ['id'],
         y: ['sales'],
-        tooltip: ['timestamp', 'name', 'profit', 'sales'], // Intentionally different order
+        tooltip: ['timestamp', 'name', 'profit', 'sales'] // Intentionally different order
       },
       {},
       true // scatter plot mode
@@ -1286,13 +1286,13 @@ describe('aggregateAndCreateDatasets', () => {
       { key: 'timestamp', value: '2023-01-01' },
       { key: 'name', value: 'Product A' },
       { key: 'profit', value: 20 },
-      { key: 'sales', value: 100 },
+      { key: 'sales', value: 100 }
     ]);
     expect(result.datasets[0].tooltipData[1]).toEqual([
       { key: 'timestamp', value: '2023-01-02' },
       { key: 'name', value: 'Product B' },
       { key: 'profit', value: 40 },
-      { key: 'sales', value: 200 },
+      { key: 'sales', value: 200 }
     ]);
 
     // Without tooltip option, x and y should be included by default in that order
@@ -1300,7 +1300,7 @@ describe('aggregateAndCreateDatasets', () => {
       testData,
       {
         x: ['id'],
-        y: ['sales'],
+        y: ['sales']
       },
       {},
       true
@@ -1308,7 +1308,7 @@ describe('aggregateAndCreateDatasets', () => {
 
     expect(defaultResult.datasets[0].tooltipData[0]).toEqual([
       { key: 'id', value: 1 },
-      { key: 'sales', value: 100 },
+      { key: 'sales', value: 100 }
     ]);
   });
 
@@ -1317,14 +1317,14 @@ describe('aggregateAndCreateDatasets', () => {
       { region: 'North', product: 'A', sales: 100 },
       { region: 'North', product: 'A', sales: 150 },
       { region: 'South', product: 'B', sales: 200 },
-      { region: 'South', product: 'B', sales: 250 },
+      { region: 'South', product: 'B', sales: 250 }
     ];
 
     const result = aggregateAndCreateDatasets(
       testData,
       {
         x: ['region'],
-        y: ['sales'],
+        y: ['sales']
       },
       {}
     );
@@ -1334,7 +1334,7 @@ describe('aggregateAndCreateDatasets', () => {
     // In non-scatter mode without tooltip specified, tooltipData should contain the metric values
     expect(result.datasets[0].tooltipData).toEqual([
       [{ key: 'sales', value: 250 }],
-      [{ key: 'sales', value: 450 }],
+      [{ key: 'sales', value: 450 }]
     ]);
 
     // Check ticks are correct
@@ -1347,7 +1347,7 @@ describe('aggregateAndCreateDatasets', () => {
       { month: 'Jan', product: 'A', sales: 100, notes: 'New launch' },
       { month: 'Feb', product: 'A', sales: 120, notes: 'Price increase' },
       { month: 'Jan', product: 'B', sales: 80, notes: 'Limited stock' },
-      { month: 'Feb', product: 'B', sales: 90, notes: 'Back in stock' },
+      { month: 'Feb', product: 'B', sales: 90, notes: 'Back in stock' }
     ];
 
     const result = aggregateAndCreateDatasets(
@@ -1356,7 +1356,7 @@ describe('aggregateAndCreateDatasets', () => {
         x: ['month'],
         y: ['sales'],
         category: ['product'],
-        tooltip: ['month', 'product', 'sales', 'notes'],
+        tooltip: ['month', 'product', 'sales', 'notes']
       },
       {}
     );
@@ -1375,14 +1375,14 @@ describe('aggregateAndCreateDatasets', () => {
         { key: 'month', value: 'Jan' },
         { key: 'product', value: 'A', categoryValue: 'A', categoryKey: 'product' },
         { key: 'sales', value: 100 },
-        { key: 'notes', value: 'New launch' },
+        { key: 'notes', value: 'New launch' }
       ],
       [
         { key: 'month', value: 'Feb' },
         { key: 'product', value: 'A', categoryValue: 'A', categoryKey: 'product' },
         { key: 'sales', value: 120 },
-        { key: 'notes', value: 'Price increase' },
-      ],
+        { key: 'notes', value: 'Price increase' }
+      ]
     ]);
 
     // Check ticks structure
@@ -1394,21 +1394,21 @@ describe('aggregateAndCreateDatasets', () => {
     const testData = [
       { id: 1, value: 0 },
       { id: 2, value: null },
-      { id: 3, value: 50 },
+      { id: 3, value: 50 }
     ];
 
     const columnLabelFormats = {
       value: {
         ...DEFAULT_COLUMN_LABEL_FORMAT,
-        replaceMissingDataWith: -1 as any, // Using any to avoid type issues
-      },
+        replaceMissingDataWith: -1 as any // Using any to avoid type issues
+      }
     };
 
     const result = aggregateAndCreateDatasets(
       testData,
       {
         x: ['id'],
-        y: ['value'],
+        y: ['value']
       },
       columnLabelFormats,
       true // scatter plot mode
@@ -1432,7 +1432,7 @@ describe('aggregateAndCreateDatasets', () => {
   it('should prioritize tooltip fields in the specified order even when fields are missing', () => {
     const testData = [
       { id: 1, primary: 100, secondary: 20, note: 'first' },
-      { id: 2, primary: 150, secondary: null, extra: 'metadata' },
+      { id: 2, primary: 150, secondary: null, extra: 'metadata' }
     ];
 
     const result = aggregateAndCreateDatasets(
@@ -1440,7 +1440,7 @@ describe('aggregateAndCreateDatasets', () => {
       {
         x: ['id'],
         y: ['primary'],
-        tooltip: ['note', 'secondary', 'extra', 'primary'],
+        tooltip: ['note', 'secondary', 'extra', 'primary']
       },
       {},
       true // scatter plot mode
@@ -1453,7 +1453,7 @@ describe('aggregateAndCreateDatasets', () => {
       { key: 'note', value: 'first' },
       { key: 'secondary', value: 20 },
       { key: 'extra', value: '' }, // Missing in the first object
-      { key: 'primary', value: 100 },
+      { key: 'primary', value: 100 }
     ]);
 
     // Second data point should have properly ordered tooltip with missing fields as empty string
@@ -1461,7 +1461,7 @@ describe('aggregateAndCreateDatasets', () => {
       { key: 'note', value: '' }, // Missing in the second object
       { key: 'secondary', value: '' }, // Null value in the second object
       { key: 'extra', value: 'metadata' },
-      { key: 'primary', value: 150 },
+      { key: 'primary', value: 150 }
     ]);
   });
 
@@ -1470,7 +1470,7 @@ describe('aggregateAndCreateDatasets', () => {
     const testData = Array.from({ length: 5000 }, (_, i) => ({
       x: i % 100, // Creates cycle of x values
       y: Math.sin(i * 0.01) * 100 + 100, // Sine wave pattern
-      category: i % 5, // 5 different categories
+      category: i % 5 // 5 different categories
     }));
 
     const start = performance.now();
@@ -1480,7 +1480,7 @@ describe('aggregateAndCreateDatasets', () => {
       {
         x: ['x'],
         y: ['y'],
-        category: ['category'],
+        category: ['category']
       },
       {},
       true // scatter plot mode
@@ -1505,7 +1505,7 @@ describe('aggregateAndCreateDatasets', () => {
 
     expect(result.datasets[0].tooltipData[0]).toEqual([
       { key: 'x', value: 0 },
-      { key: 'y', value: 100 },
+      { key: 'y', value: 100 }
     ]);
   });
 
@@ -1515,7 +1515,7 @@ describe('aggregateAndCreateDatasets', () => {
       date: `2023-${Math.floor(i / 500) + 1}-${(i % 500) + 1}`, // Spread across months
       sales: Math.random() * 1000,
       profit: Math.random() * 200,
-      units: Math.floor(Math.random() * 50),
+      units: Math.floor(Math.random() * 50)
     }));
 
     const start = performance.now();
@@ -1524,7 +1524,7 @@ describe('aggregateAndCreateDatasets', () => {
       testData,
       {
         x: ['date'],
-        y: ['sales', 'profit', 'units'],
+        y: ['sales', 'profit', 'units']
       },
       {}
     );
@@ -1561,18 +1561,18 @@ describe('aggregateAndCreateDatasets', () => {
       { region: 'North', product: 'A', channel: 'Online', sales: 100, cost: null },
       { region: 'North', product: 'A', channel: 'Store', sales: null, cost: 30 },
       { region: 'South', product: 'B', channel: 'Online', sales: 200, cost: 40 },
-      { region: 'South', product: 'B', channel: 'Store', sales: 250, cost: null },
+      { region: 'South', product: 'B', channel: 'Store', sales: 250, cost: null }
     ];
 
     const columnLabelFormats = {
       sales: {
         ...DEFAULT_COLUMN_LABEL_FORMAT,
-        replaceMissingDataWith: 'No Data' as any,
+        replaceMissingDataWith: 'No Data' as any
       },
       cost: {
         ...DEFAULT_COLUMN_LABEL_FORMAT,
-        replaceMissingDataWith: 0 as any,
-      },
+        replaceMissingDataWith: 0 as any
+      }
     };
 
     const result = aggregateAndCreateDatasets(
@@ -1581,7 +1581,7 @@ describe('aggregateAndCreateDatasets', () => {
         x: ['region'],
         y: ['sales', 'cost'],
         category: ['product', 'channel'],
-        tooltip: ['region', 'product', 'channel', 'sales', 'cost'],
+        tooltip: ['region', 'product', 'channel', 'sales', 'cost']
       },
       columnLabelFormats
     );
@@ -1605,7 +1605,7 @@ describe('aggregateAndCreateDatasets', () => {
       'product',
       'channel',
       'sales',
-      'cost',
+      'cost'
     ]);
   });
 
@@ -1614,14 +1614,14 @@ describe('aggregateAndCreateDatasets', () => {
       { category: '🚀', value: 100 },
       { category: '&%$#@', value: 200 },
       { category: 'normal', value: 300 },
-      { category: '中文', value: 400 },
+      { category: '中文', value: 400 }
     ];
 
     const result = aggregateAndCreateDatasets(
       testData,
       {
         x: ['category'],
-        y: ['value'],
+        y: ['value']
       },
       {}
     );
@@ -1644,7 +1644,7 @@ describe('aggregateAndCreateDatasets', () => {
         metric2: 200,
         metric3: 300,
         category: 'A',
-        additionalInfo: 'info1',
+        additionalInfo: 'info1'
       },
       {
         date: '2024-01-02',
@@ -1652,8 +1652,8 @@ describe('aggregateAndCreateDatasets', () => {
         metric2: 250,
         metric3: 350,
         category: 'B',
-        additionalInfo: 'info2',
-      },
+        additionalInfo: 'info2'
+      }
     ];
 
     it('should not duplicate tooltip data in dual axis charts', () => {
@@ -1663,7 +1663,7 @@ describe('aggregateAndCreateDatasets', () => {
           x: ['date'],
           y: ['metric1', 'metric2'],
           y2: ['metric3'],
-          tooltip: ['metric1', 'metric2', 'metric3', 'additionalInfo'],
+          tooltip: ['metric1', 'metric2', 'metric3', 'additionalInfo']
         },
         {}
       );
@@ -1709,7 +1709,7 @@ describe('aggregateAndCreateDatasets', () => {
           y: ['metric1'],
           y2: ['metric2'],
           category: ['category'],
-          tooltip: ['metric1', 'metric2', 'category', 'additionalInfo'],
+          tooltip: ['metric1', 'metric2', 'category', 'additionalInfo']
         },
         {}
       );
@@ -1749,7 +1749,7 @@ describe('aggregateAndCreateDatasets', () => {
     const testData = [
       { month: 'Jan', temperature: 20, humidity: 80, rainfall: 50 },
       { month: 'Feb', temperature: 22, humidity: 75, rainfall: 45 },
-      { month: 'Mar', temperature: 25, humidity: 70, rainfall: 40 },
+      { month: 'Mar', temperature: 25, humidity: 70, rainfall: 40 }
     ];
 
     const result = aggregateAndCreateDatasets(
@@ -1758,7 +1758,7 @@ describe('aggregateAndCreateDatasets', () => {
         x: ['month'],
         y: ['temperature', 'humidity'],
         y2: ['rainfall'],
-        tooltip: ['temperature', 'humidity', 'rainfall'],
+        tooltip: ['temperature', 'humidity', 'rainfall']
       },
       {}
     );
@@ -1772,14 +1772,14 @@ describe('aggregateAndCreateDatasets', () => {
     expect(y2Dataset?.tooltipData).toEqual([
       [{ key: 'rainfall', value: 50 }],
       [{ key: 'rainfall', value: 45 }],
-      [{ key: 'rainfall', value: 40 }],
+      [{ key: 'rainfall', value: 40 }]
     ]);
 
     // Verify y axis tooltips exclude y2 metrics
     const yDataset = result.datasets.find((d) => d.dataKey === 'temperature');
     expect(yDataset?.tooltipData?.[0]).toEqual([
       { key: 'temperature', value: 20 },
-      { key: 'humidity', value: 80 },
+      { key: 'humidity', value: 80 }
     ]);
   });
 
@@ -1787,14 +1787,14 @@ describe('aggregateAndCreateDatasets', () => {
     // Generate 50 data points with some null values mixed in
     const testData = Array.from({ length: 60 }, (_, i) => ({
       x: i, // Reduced null frequency to every 10th point
-      y: i * 2,
+      y: i * 2
     }));
 
     const result = aggregateAndCreateDatasets(
       testData,
       {
         x: ['x'],
-        y: ['y'],
+        y: ['y']
       },
       {},
       true // scatter plot mode
@@ -1813,14 +1813,14 @@ describe('aggregateAndCreateDatasets', () => {
     // Generate 50 data points with some null values mixed in
     const testData = Array.from({ length: 60 }, (_, i) => ({
       x: i === 5 ? null : i, // Reduced null frequency to every 10th point
-      y: i * 2,
+      y: i * 2
     }));
 
     const result = aggregateAndCreateDatasets(
       testData,
       {
         x: ['x'],
-        y: ['y'],
+        y: ['y']
       },
       {},
       true // scatter plot mode
@@ -1837,14 +1837,14 @@ describe('aggregateAndCreateDatasets', () => {
   it('should maintain exact data-tick alignment for scatter plots with large datasets - with nulls in y', () => {
     const testData = Array.from({ length: 60 }, (_, i) => ({
       x: i,
-      y: i === 5 ? null : i * 2,
+      y: i === 5 ? null : i * 2
     }));
 
     const result = aggregateAndCreateDatasets(
       testData,
       {
         x: ['x'],
-        y: ['y'],
+        y: ['y']
       },
       {},
       true // scatter plot mode
@@ -1862,7 +1862,7 @@ describe('aggregateAndCreateDatasets', () => {
     const testData = Array.from({ length: 60 }, (_, i) => ({
       x: i,
       y: i,
-      category: i % 2 === 0 ? 'A' : 'B',
+      category: i % 2 === 0 ? 'A' : 'B'
     }));
 
     const result = aggregateAndCreateDatasets(
@@ -1870,7 +1870,7 @@ describe('aggregateAndCreateDatasets', () => {
       {
         x: ['x'],
         y: ['y'],
-        category: ['category'],
+        category: ['category']
       },
       {},
       true // scatter plot mode
@@ -1894,7 +1894,7 @@ describe('aggregateAndCreateDatasets', () => {
       x: i,
       y: i,
       category: i % 2 === 0 ? 'A' : 'B',
-      size: i / 10,
+      size: i / 10
     }));
 
     const result = aggregateAndCreateDatasets(
@@ -1903,7 +1903,7 @@ describe('aggregateAndCreateDatasets', () => {
         x: ['x'],
         y: ['y'],
         category: ['category'],
-        size: ['size'],
+        size: ['size']
       },
       {},
       true // scatter plot mode
@@ -1930,7 +1930,7 @@ describe('aggregateAndCreateDatasets', () => {
     const testData = [
       { x: 1, y: 100, region: 'North', product: 'A' },
       { x: 2, y: 150, region: 'North', product: 'B' },
-      { x: 3, y: 200, region: 'South', product: 'A' },
+      { x: 3, y: 200, region: 'South', product: 'A' }
     ];
 
     const result = aggregateAndCreateDatasets(
@@ -1939,7 +1939,7 @@ describe('aggregateAndCreateDatasets', () => {
         x: ['x'],
         y: ['y'],
         category: ['region', 'product'],
-        tooltip: ['x', 'y', 'region', 'product'],
+        tooltip: ['x', 'y', 'region', 'product']
       },
       {},
       true // scatter plot mode
@@ -1964,14 +1964,14 @@ describe('aggregateAndCreateDatasets', () => {
           key: 'region',
           value: 'North',
           categoryKey: 'region',
-          categoryValue: 'North',
+          categoryValue: 'North'
         }),
         expect.objectContaining({
           key: 'product',
           value: 'A',
           categoryKey: 'product',
-          categoryValue: 'A',
-        }),
+          categoryValue: 'A'
+        })
       ])
     );
   });
@@ -1981,7 +1981,7 @@ describe('aggregateAndCreateDatasets', () => {
       { month: 'Jan', sales: 1000, region: 'North' },
       { month: 'Feb', sales: 1200, region: 'North' },
       { month: 'Jan', sales: 800, region: 'South' },
-      { month: 'Feb', sales: 900, region: 'South' },
+      { month: 'Feb', sales: 900, region: 'South' }
     ];
 
     const result = aggregateAndCreateDatasets(
@@ -1989,7 +1989,7 @@ describe('aggregateAndCreateDatasets', () => {
       {
         x: ['month'],
         y: ['sales'],
-        category: ['region'],
+        category: ['region']
       },
       {}
     );
@@ -2010,8 +2010,8 @@ describe('aggregateAndCreateDatasets', () => {
         key: 'sales',
         value: 1000,
         categoryKey: 'region',
-        categoryValue: 'North',
-      }),
+        categoryValue: 'North'
+      })
     ]);
 
     // Find South dataset
@@ -2025,8 +2025,8 @@ describe('aggregateAndCreateDatasets', () => {
         key: 'sales',
         value: 800,
         categoryKey: 'region',
-        categoryValue: 'South',
-      }),
+        categoryValue: 'South'
+      })
     ]);
   });
 });

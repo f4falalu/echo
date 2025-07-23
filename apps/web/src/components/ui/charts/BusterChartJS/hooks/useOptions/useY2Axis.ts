@@ -6,7 +6,7 @@ import {
   type ColumnLabelFormat,
   type ComboChartAxis,
   DEFAULT_CHART_CONFIG,
-  DEFAULT_COLUMN_LABEL_FORMAT,
+  DEFAULT_COLUMN_LABEL_FORMAT
 } from '@buster/server-shared/metrics';
 import type { Scale, ScaleChartOptions } from 'chart.js';
 import { useMemo } from 'react';
@@ -23,7 +23,7 @@ export const useY2Axis = ({
   y2AxisShowAxisTitle,
   y2AxisShowAxisLabel,
   y2AxisStartAxisAtZero,
-  y2AxisScaleType,
+  y2AxisScaleType
 }: {
   columnLabelFormats: NonNullable<ChartConfigProps['columnLabelFormats']>;
   selectedAxis: ChartEncodes;
@@ -57,7 +57,7 @@ export const useY2Axis = ({
     columnLabelFormats,
     y2AxisAxisTitle,
     y2AxisShowAxisTitle,
-    isSupportedChartForAxisTitles: selectedChartType === 'combo',
+    isSupportedChartForAxisTitles: selectedChartType === 'combo'
   });
 
   const type = useMemo(() => {
@@ -86,7 +86,7 @@ export const useY2Axis = ({
     useMemo(() => {
       if (!isSupportedType)
         return {
-          display: false,
+          display: false
         };
 
       return {
@@ -96,15 +96,15 @@ export const useY2Axis = ({
         beginAtZero: y2AxisStartAxisAtZero !== false,
         title: {
           display: !!title,
-          text: title,
+          text: title
         },
         ticks: {
           autoSkip: true,
-          callback: tickCallback,
+          callback: tickCallback
         },
         grid: {
-          drawOnChartArea: false, // only want the grid lines for one axis to show up
-        },
+          drawOnChartArea: false // only want the grid lines for one axis to show up
+        }
       } satisfies DeepPartial<ScaleChartOptions<'bar'>['scales']['y2']>;
     }, [
       tickCallback,
@@ -113,7 +113,7 @@ export const useY2Axis = ({
       isSupportedType,
       y2AxisShowAxisLabel,
       y2AxisStartAxisAtZero,
-      type,
+      type
     ]);
 
   return memoizedYAxisOptions;

@@ -3,7 +3,7 @@ import type { ChartConfigProps } from '@buster/server-shared/metrics';
 import type { ChartEncodes, ScatterAxis } from '@buster/server-shared/metrics';
 import { useLegendAutoShow } from '@/components/ui/charts-shared/useLegendAutoShow';
 import { Switch } from '@/components/ui/switch';
-import { LabelAndInput } from '../Common'; 
+import { LabelAndInput } from '../Common';
 
 export const EditShowLegend: React.FC<{
   showLegend: ChartConfigProps['showLegend'];

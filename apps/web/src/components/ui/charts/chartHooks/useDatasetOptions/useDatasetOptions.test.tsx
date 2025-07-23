@@ -1,7 +1,7 @@
 import {
   type ChartType,
   type ColumnLabelFormat,
-  DEFAULT_COLUMN_LABEL_FORMAT,
+  DEFAULT_COLUMN_LABEL_FORMAT
 } from '@buster/server-shared/metrics';
 import { renderHook } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
@@ -11,13 +11,13 @@ describe('useDatasetOptions', () => {
   const mockData = [
     { month: 'Jan', sales: 100, profit: 50 },
     { month: 'Feb', sales: 200, profit: 100 },
-    { month: 'Mar', sales: 300, profit: 150 },
+    { month: 'Mar', sales: 300, profit: 150 }
   ];
 
   const mockColumnLabelFormats: Record<string, ColumnLabelFormat> = {
     sales: { ...DEFAULT_COLUMN_LABEL_FORMAT, columnType: 'number', style: 'number' },
     profit: { ...DEFAULT_COLUMN_LABEL_FORMAT, columnType: 'number', style: 'number' },
-    month: { ...DEFAULT_COLUMN_LABEL_FORMAT, columnType: 'text', style: 'string' },
+    month: { ...DEFAULT_COLUMN_LABEL_FORMAT, columnType: 'text', style: 'string' }
   };
   it('should return the correct axis keys for bar chart', () => {
     const { result } = renderHook(() =>
@@ -26,7 +26,7 @@ describe('useDatasetOptions', () => {
         selectedAxis: {
           x: ['month'],
           y: ['sales'],
-          tooltip: ['profit'],
+          tooltip: ['profit']
         },
         selectedChartType: 'bar' as ChartType,
         columnLabelFormats: mockColumnLabelFormats,
@@ -37,7 +37,7 @@ describe('useDatasetOptions', () => {
         trendlines: undefined,
         barSortBy: undefined,
         pieSortBy: undefined,
-        groupByMethod: undefined,
+        groupByMethod: undefined
       } as unknown as any)
     );
 
@@ -53,7 +53,7 @@ describe('useDatasetOptions', () => {
         selectedAxis: {
           x: ['month'],
           y: ['sales', 'profit'],
-          tooltip: [],
+          tooltip: []
         },
         selectedChartType: 'line' as ChartType,
         columnLabelFormats: mockColumnLabelFormats,
@@ -64,7 +64,7 @@ describe('useDatasetOptions', () => {
         trendlines: undefined,
         barSortBy: undefined,
         pieSortBy: undefined,
-        groupByMethod: undefined,
+        groupByMethod: undefined
       } as unknown as any)
     );
 

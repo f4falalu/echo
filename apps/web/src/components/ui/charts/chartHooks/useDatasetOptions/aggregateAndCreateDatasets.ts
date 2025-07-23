@@ -4,7 +4,7 @@ import type { DatasetOption, DatasetOptionsWithTicks, KV } from './interfaces';
 type ColumnLabelFormatBase = Pick<Partial<ColumnLabelFormat>, 'replaceMissingDataWith'>;
 
 export function aggregateAndCreateDatasets<
-  T extends Record<string, string | number | null | Date | undefined>,
+  T extends Record<string, string | number | null | Date | undefined>
 >(
   data: T[],
   axis: {
@@ -31,7 +31,7 @@ export function aggregateAndCreateDatasets<
     ...yKeys,
     ...y2Keys,
     ...(sizeKey ? [sizeKey] : []),
-    ...tooltipKeys,
+    ...tooltipKeys
   ]);
   const colFormats: Record<string, ColumnLabelFormatBase> = {};
   for (const k of allKeys) {
@@ -120,7 +120,7 @@ export function aggregateAndCreateDatasets<
   // Series metadata for non-scatter
   const seriesMeta = [
     ...yKeys.map((k) => ({ key: k, axisType: 'y' as const })),
-    ...y2Keys.map((k) => ({ key: k, axisType: 'y2' as const })),
+    ...y2Keys.map((k) => ({ key: k, axisType: 'y2' as const }))
   ];
 
   const datasets: DatasetOption[] = [];
@@ -153,7 +153,7 @@ export function aggregateAndCreateDatasets<
             for (const k of tooltipKeys) {
               const tooltip: KV = {
                 key: k,
-                value: formatTooltip(r[k], colFormats[k] || {}),
+                value: formatTooltip(r[k], colFormats[k] || {})
               };
 
               // Add categoryKey and categoryValue for category keys if categories exist
@@ -168,7 +168,7 @@ export function aggregateAndCreateDatasets<
             for (const k of xKeys) {
               const tooltip: KV = {
                 key: k,
-                value: formatTooltip(r[k], colFormats[k] || {}),
+                value: formatTooltip(r[k], colFormats[k] || {})
               };
 
               // Add categoryKey and categoryValue for category keys if categories exist
@@ -185,7 +185,7 @@ export function aggregateAndCreateDatasets<
             if (sizeArr && sizeKey) {
               pts.push({
                 key: sizeKey,
-                value: formatTooltip(r[sizeKey], colFormats[sizeKey] || {}),
+                value: formatTooltip(r[sizeKey], colFormats[sizeKey] || {})
               });
             }
           }
@@ -211,7 +211,7 @@ export function aggregateAndCreateDatasets<
           axisType,
           tooltipData: tooltipArr,
           ticksForScatter,
-          ...(sizeArr && { sizeData: sizeArr, sizeDataKey: sizeKey ?? '' }),
+          ...(sizeArr && { sizeData: sizeArr, sizeDataKey: sizeKey ?? '' })
         });
       }
     }
@@ -219,7 +219,7 @@ export function aggregateAndCreateDatasets<
     return {
       datasets,
       ticksKey: scatterTicksKey,
-      ticks: [], // Empty ticks for scatter plots
+      ticks: [] // Empty ticks for scatter plots
     };
   }
   // NON-SCATTER
@@ -256,8 +256,8 @@ export function aggregateAndCreateDatasets<
                 return [
                   {
                     key: metric,
-                    value: formatTooltip(rowMetric, colFormats[metric] || {}),
-                  },
+                    value: formatTooltip(rowMetric, colFormats[metric] || {})
+                  }
                 ];
               }
               // For y axis metrics, exclude y2-axis metrics from tooltips
@@ -265,7 +265,7 @@ export function aggregateAndCreateDatasets<
               return uniqueTooltipKeys.map((k) => {
                 const tooltip: KV = {
                   key: k,
-                  value: formatTooltip(row[k], colFormats[k] || {}),
+                  value: formatTooltip(row[k], colFormats[k] || {})
                 };
 
                 // Add categoryKey and categoryValue for category keys if categories exist
@@ -280,7 +280,7 @@ export function aggregateAndCreateDatasets<
           : dataArr.map((value) => {
               const tooltip: KV = {
                 key: metric,
-                value: value === null ? '' : value,
+                value: value === null ? '' : value
               };
 
               // Add category info if this is a metrics tooltip
@@ -303,7 +303,7 @@ export function aggregateAndCreateDatasets<
           data: dataArr,
           dataKey: metric,
           axisType,
-          tooltipData: tooltipArr,
+          tooltipData: tooltipArr
         });
       }
     }
@@ -341,22 +341,22 @@ export function aggregateAndCreateDatasets<
               return [
                 {
                   key: metric,
-                  value: formatTooltip(rowMetric, colFormats[metric] || {}),
-                },
+                  value: formatTooltip(rowMetric, colFormats[metric] || {})
+                }
               ];
             }
             // For y axis metrics, exclude y2-axis metrics from tooltips
             const uniqueTooltipKeys = tooltipKeys.filter((k) => !y2Keys.includes(k));
             return uniqueTooltipKeys.map((k) => ({
               key: k,
-              value: formatTooltip(row[k], colFormats[k] || {}),
+              value: formatTooltip(row[k], colFormats[k] || {})
             }));
           })
         : dataArr.map((value) => [
             {
               key: metric,
-              value: value === null ? '' : value,
-            },
+              value: value === null ? '' : value
+            }
           ]);
 
       // Generate ID for the dataset
@@ -368,7 +368,7 @@ export function aggregateAndCreateDatasets<
         data: dataArr,
         dataKey: metric,
         axisType,
-        tooltipData: tooltipArr,
+        tooltipData: tooltipArr
       });
     }
   }
@@ -376,7 +376,7 @@ export function aggregateAndCreateDatasets<
   // Create ticks from the x-axis values
   const ticksKey: KV[] = xKeys.map((key) => ({
     key,
-    value: '',
+    value: ''
   }));
 
   // Extract ticks from xGroups
@@ -390,7 +390,7 @@ export function aggregateAndCreateDatasets<
   return {
     datasets,
     ticksKey,
-    ticks,
+    ticks
   };
 }
 

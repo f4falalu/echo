@@ -10,5 +10,5 @@ export const TypeToLabel: Record<TrendlineType, string> = {
   min: 'Min',
   max: 'Max',
   median: 'Median',
-  average: 'Average',
+  average: 'Average'
 };

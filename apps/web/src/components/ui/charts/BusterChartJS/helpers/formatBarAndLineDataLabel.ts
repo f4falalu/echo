@@ -26,6 +26,6 @@ export const formatBarAndLineDataLabel = (
   return formatLabel(percentage, {
     ...columnLabelFormat,
     style: 'percent',
-    columnType: 'number',
+    columnType: 'number'
   });
 };

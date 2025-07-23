@@ -20,7 +20,7 @@ export const useXAxisTitle = ({
   isSupportedChartForAxisTitles,
   xAxisAxisTitle,
   xAxisShowAxisTitle,
-  selectedAxis,
+  selectedAxis
 }: UseXAxisTitleProps): string => {
   const xAxisColumnLabelFormats = useMemo(() => {
     return xAxis.map((x) => columnLabelFormats[x]);
@@ -41,7 +41,7 @@ export const useXAxisTitle = ({
     isSupportedChartForAxisTitles,
     xAxisShowAxisTitle,
     xAxis,
-    xAxisColumnLabelFormats,
+    xAxisColumnLabelFormats
   ]);
 
   return xAxisTitle;

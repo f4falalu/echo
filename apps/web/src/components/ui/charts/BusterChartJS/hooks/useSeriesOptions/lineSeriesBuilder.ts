@@ -5,7 +5,7 @@ import { createDayjsDate } from '@/lib/date';
 import {
   type ColumnSettings,
   DEFAULT_COLUMN_LABEL_FORMAT,
-  DEFAULT_COLUMN_SETTINGS,
+  DEFAULT_COLUMN_SETTINGS
 } from '@buster/server-shared/metrics';
 import { Chart as ChartJS, Filler, type Scale, type ScriptableContext } from 'chart.js';
 import type { DatasetOption } from '../../../chartHooks';
@@ -28,7 +28,7 @@ export const lineSeriesBuilder = ({
   lineGroupType,
   datasetOptions,
   xAxisKeys,
-  trendlines,
+  trendlines
 }: SeriesBuilderProps): ChartProps<'line'>['data']['datasets'][number][] => {
   return datasetOptions.datasets.map<ChartProps<'line'>['data']['datasets'][number]>(
     (dataset, index) => {
@@ -40,7 +40,7 @@ export const lineSeriesBuilder = ({
         columnLabelFormats,
         index,
         xAxisKeys,
-        trendlines,
+        trendlines
       });
     }
   );
@@ -72,7 +72,7 @@ export const lineBuilder = (
     order,
     dataset,
     xAxisKeys,
-    trendlines,
+    trendlines
   } = props;
   const { dataKey } = dataset;
   const yKey = dataKey;
@@ -83,7 +83,7 @@ export const lineBuilder = (
     lineSymbolSize = DEFAULT_COLUMN_SETTINGS.lineSymbolSize,
     lineStyle,
     lineWidth,
-    lineType,
+    lineType
   } = columnSetting;
 
   const colorLength = colors.length;
@@ -127,7 +127,7 @@ export const lineBuilder = (
       trendlines,
       datasetColor: color,
       yAxisKey: dataset.dataKey,
-      columnLabelFormats,
+      columnLabelFormats
     }),
     datalabels: {
       clamp: true,
@@ -148,9 +148,9 @@ export const lineBuilder = (
       ...getLabelPosition(isStackedArea),
       ...defaultLabelOptionConfig,
       ...(percentageMode === 'data-label' && {
-        color: 'white',
-      }),
-    } satisfies ChartProps<'line'>['data']['datasets'][number]['datalabels'],
+        color: 'white'
+      })
+    } satisfies ChartProps<'line'>['data']['datasets'][number]['datalabels']
   } satisfies ChartProps<'line'>['data']['datasets'][number];
 };
 
@@ -160,13 +160,13 @@ const getLabelPosition = (
   if (isStackedArea) {
     return {
       anchor: 'start',
-      align: 'bottom',
+      align: 'bottom'
       //  offset: -10
     };
   }
   return {
     anchor: 'end',
-    align: 'top',
+    align: 'top'
     //  offset:0
   };
 };
@@ -211,7 +211,7 @@ const createFillColor = (color: string, isArea: boolean, isStackedArea: boolean)
 export const lineSeriesBuilder_labels = ({
   datasetOptions,
   xAxisKeys,
-  columnLabelFormats,
+  columnLabelFormats
 }: LabelBuilderProps): (string | Date)[] => {
   const xColumnLabelFormat = columnLabelFormats[xAxisKeys[0] || ''] || DEFAULT_COLUMN_LABEL_FORMAT;
   const useDateLabels =

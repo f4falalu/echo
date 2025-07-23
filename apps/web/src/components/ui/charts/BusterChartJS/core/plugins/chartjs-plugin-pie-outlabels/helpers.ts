@@ -19,7 +19,7 @@ export function textSize(
   ctx.font = prev;
   return {
     height: lines.length * font.lineSize,
-    width: width,
+    width: width
   };
 }
 

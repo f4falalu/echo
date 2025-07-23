@@ -8,7 +8,7 @@ import {
   type SortingState,
   getCoreRowModel,
   getSortedRowModel,
-  useReactTable,
+  useReactTable
 } from '@tanstack/react-table';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import isEmpty from 'lodash/isEmpty';
@@ -54,7 +54,7 @@ export const TanStackDataGrid: React.FC<TanStackDataGridProps> = React.memo(
     onReady,
     rows,
     headerFormat = defaultHeaderFormat,
-    cellFormat = defaultCellFormat,
+    cellFormat = defaultCellFormat
   }) => {
     // Get a list of fields (each field becomes a column)
     const fields = useMemo(() => {
@@ -86,7 +86,7 @@ export const TanStackDataGrid: React.FC<TanStackDataGridProps> = React.memo(
           cell: (info) => cellFormat(info.getValue(), field),
           enableSorting: sortable,
           enableResizing: resizable,
-          enableDragging: draggable,
+          enableDragging: draggable
         })),
       [fields, headerFormat, cellFormat, sortable, resizable, draggable]
     );
@@ -98,7 +98,7 @@ export const TanStackDataGrid: React.FC<TanStackDataGridProps> = React.memo(
       state: {
         sorting,
         columnSizing,
-        columnOrder: colOrder,
+        columnOrder: colOrder
       },
       enableSorting: sortable,
       onSortingChange: setSorting,
@@ -106,7 +106,7 @@ export const TanStackDataGrid: React.FC<TanStackDataGridProps> = React.memo(
       onColumnOrderChange: setColOrder,
       getCoreRowModel: getCoreRowModel(),
       getSortedRowModel: getSortedRowModel(),
-      columnResizeMode: 'onChange',
+      columnResizeMode: 'onChange'
     });
 
     // Set up the virtualizer for infinite scrolling.
@@ -115,11 +115,11 @@ export const TanStackDataGrid: React.FC<TanStackDataGridProps> = React.memo(
       count: table.getRowModel().rows.length,
       getScrollElement: () => parentRef.current,
       estimateSize: () => CELL_HEIGHT, // estimated row height
-      overscan: OVERSCAN,
+      overscan: OVERSCAN
     });
 
     const { run: onResizeColumnsDebounced } = useDebounceFn(onResizeColumns || (() => {}), {
-      wait: 450,
+      wait: 450
     });
 
     // Notify when column sizing changes.
@@ -158,9 +158,8 @@ export const TanStackDataGrid: React.FC<TanStackDataGridProps> = React.memo(
           draggable={draggable}
           colOrder={colOrder}
           setColOrder={setColOrder}
-          onReorderColumns={onReorderColumns}
-        >
-          <table className='bg-background w-full'>
+          onReorderColumns={onReorderColumns}>
+          <table className="bg-background w-full">
             <DataGridHeader
               table={table}
               sortable={sortable}
@@ -170,9 +169,8 @@ export const TanStackDataGrid: React.FC<TanStackDataGridProps> = React.memo(
             />
 
             <tbody
-              className='relative'
-              style={{ display: 'grid', height: `${rowVirtualizer.getTotalSize()}px` }}
-            >
+              className="relative"
+              style={{ display: 'grid', height: `${rowVirtualizer.getTotalSize()}px` }}>
               {rowVirtualizer.getVirtualItems().map((virtualRow) => {
                 const row = table.getRowModel().rows[virtualRow.index];
                 if (!row) return null;

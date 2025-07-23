@@ -6,7 +6,7 @@ import {
   type ChartConfigProps,
   type ColumnLabelFormat,
   DEFAULT_CHART_CONFIG,
-  DEFAULT_COLUMN_LABEL_FORMAT,
+  DEFAULT_COLUMN_LABEL_FORMAT
 } from '@buster/server-shared/metrics';
 import { AnimatePresence, type MotionProps, motion } from 'framer-motion';
 import React, { useMemo } from 'react';
@@ -24,7 +24,7 @@ export const BusterMetricChart: React.FC<BusterMetricChartProps> = React.memo(
     animate,
     columnLabelFormats,
     metricValueLabel,
-    onInitialAnimationEnd,
+    onInitialAnimationEnd
   }) => {
     const firstRow = data?.[0];
     const firstRowValue = firstRow?.[metricColumnId];
@@ -46,7 +46,7 @@ export const BusterMetricChart: React.FC<BusterMetricChartProps> = React.memo(
         const columnLabelFormat = headerColumnLabelFormat;
         const format: ColumnLabelFormat = {
           ...columnLabelFormat,
-          style: isCount ? 'number' : columnLabelFormat.style,
+          style: isCount ? 'number' : columnLabelFormat.style
         };
         return format;
       }
@@ -69,7 +69,7 @@ export const BusterMetricChart: React.FC<BusterMetricChartProps> = React.memo(
         const isCount = metricValueAggregate === 'count' && columnLabelFormat.style !== 'date';
         const format: ColumnLabelFormat = {
           ...columnLabelFormat,
-          style: isCount ? 'number' : columnLabelFormat.style,
+          style: isCount ? 'number' : columnLabelFormat.style
         };
         return format;
       }
@@ -124,7 +124,7 @@ export const BusterMetricChart: React.FC<BusterMetricChartProps> = React.memo(
         const isCount = metricValueAggregate === 'count';
         const format: ColumnLabelFormat = {
           ...yLabelFormat,
-          style: isCount ? 'number' : yLabelFormat?.style || DEFAULT_COLUMN_LABEL_FORMAT.style,
+          style: isCount ? 'number' : yLabelFormat?.style || DEFAULT_COLUMN_LABEL_FORMAT.style
         };
 
         return formatLabel(operator[metricValueAggregate](), format);
@@ -143,7 +143,7 @@ export const BusterMetricChart: React.FC<BusterMetricChartProps> = React.memo(
         initial: { opacity: 0 },
         animate: { opacity: 1 },
         exit: { opacity: 0 },
-        transition: { duration: 0.6 },
+        transition: { duration: 0.6 }
       };
     }, [animate]);
 
@@ -160,13 +160,12 @@ export const BusterMetricChart: React.FC<BusterMetricChartProps> = React.memo(
       <AnimatePresence>
         <motion.div
           className={`flex h-full w-full flex-col items-center justify-center ${className}`}
-          {...memoizedAnimation}
-        >
-          <AnimatedTitleWrapper title={formattedHeader} type='header' />
-          <div className='w-full overflow-hidden p-2 text-center'>
-            <div className='truncate'>{formattedValue}</div>
+          {...memoizedAnimation}>
+          <AnimatedTitleWrapper title={formattedHeader} type="header" />
+          <div className="w-full overflow-hidden p-2 text-center">
+            <div className="truncate">{formattedValue}</div>
           </div>
-          <AnimatedTitleWrapper title={formattedSubHeader} type='subHeader' />
+          <AnimatedTitleWrapper title={formattedSubHeader} type="subHeader" />
         </motion.div>
       </AnimatePresence>
     );
@@ -182,43 +181,43 @@ const AnimatedTitleWrapper = ({ title, type }: { title: string; type: 'header' |
         opacity: 0,
         height: 0,
         scale: 0.95,
-        y: type === 'header' ? -4 : 4,
+        y: type === 'header' ? -4 : 4
       },
       animate: {
         opacity: 1,
         height: 'auto',
         scale: 1,
-        y: 0,
+        y: 0
       },
       exit: {
         opacity: 0,
         height: 0,
         scale: 0.94,
-        y: type === 'header' ? -7 : 4,
+        y: type === 'header' ? -7 : 4
       },
       transition: {
         duration: 0.25,
         ease: [0.4, 0, 0.2, 1],
         height: {
-          duration: 0.2,
+          duration: 0.2
         },
         opacity: {
           duration: 0.25,
-          delay: 0.05,
+          delay: 0.05
         },
         scale: {
-          duration: 0.25,
-        },
-      },
+          duration: 0.25
+        }
+      }
     };
   }, []);
 
   return (
-    <AnimatePresence mode='wait' initial={false}>
+    <AnimatePresence mode="wait" initial={false}>
       {title && (
-        <motion.div className='w-full overflow-visible text-center' {...memoizedAnimation}>
-          <motion.div className='origin-center'>
-            <h4 className='truncate text-text-default text-lg font-normal!'>{title}</h4>
+        <motion.div className="w-full overflow-visible text-center" {...memoizedAnimation}>
+          <motion.div className="origin-center">
+            <h4 className="text-text-default truncate text-lg font-normal!">{title}</h4>
           </motion.div>
         </motion.div>
       )}

@@ -15,8 +15,8 @@ describe('useBusterChartLegend', () => {
     selectedAxis: {
       x: ['timestamp'],
       y: ['value1', 'value2'],
-      y2: ['value3'],
-    } as ChartEncodes,
+      y2: ['value3']
+    } as ChartEncodes
   } as Parameters<typeof useBusterChartLegend>[0];
 
   it('should initialize with default values', () => {
@@ -33,7 +33,7 @@ describe('useBusterChartLegend', () => {
   it('should not render legend for metric chart type', () => {
     const props = {
       ...defaultProps,
-      selectedChartType: 'metric',
+      selectedChartType: 'metric'
     } as Parameters<typeof useBusterChartLegend>[0];
 
     const { result } = renderHook(() => useBusterChartLegend(props));
@@ -43,7 +43,7 @@ describe('useBusterChartLegend', () => {
   it('should detect percentage stack type for line chart', () => {
     const props = {
       ...defaultProps,
-      lineGroupType: 'percentage-stack' as const,
+      lineGroupType: 'percentage-stack' as const
     };
 
     const { result } = renderHook(() => useBusterChartLegend(props));
@@ -54,7 +54,7 @@ describe('useBusterChartLegend', () => {
     const props = {
       ...defaultProps,
       selectedChartType: 'bar',
-      barGroupType: 'percentage-stack' as const,
+      barGroupType: 'percentage-stack' as const
     } as Parameters<typeof useBusterChartLegend>[0];
 
     const { result } = renderHook(() => useBusterChartLegend(props));
@@ -82,8 +82,8 @@ describe('useBusterChartLegend', () => {
         formattedName: 'Test Series',
         id: 'test-1',
         yAxisKey: 'y',
-        serieName: 'Test',
-      },
+        serieName: 'Test'
+      }
     ];
 
     act(() => {
@@ -95,7 +95,7 @@ describe('useBusterChartLegend', () => {
 
   it('should reset inactiveDatasets when axis changes', () => {
     const { result, rerender } = renderHook((props) => useBusterChartLegend(props), {
-      initialProps: defaultProps,
+      initialProps: defaultProps
     });
 
     act(() => {
@@ -106,8 +106,8 @@ describe('useBusterChartLegend', () => {
       ...defaultProps,
       selectedAxis: {
         ...defaultProps.selectedAxis,
-        y: ['newValue1', 'newValue2'],
-      } as ChartEncodes,
+        y: ['newValue1', 'newValue2']
+      } as ChartEncodes
     } as Parameters<typeof useBusterChartLegend>[0];
 
     rerender(newProps);

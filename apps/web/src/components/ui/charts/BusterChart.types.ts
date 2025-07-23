@@ -29,5 +29,5 @@ export type BusterChartProps = {
 type ChartJSOrUndefined<
   TType extends ChartType = ChartType,
   TData = DefaultDataPoint<TType>,
-  TLabel = unknown,
+  TLabel = unknown
 > = Chart<TType, TData, TLabel> | undefined;

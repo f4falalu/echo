@@ -32,7 +32,7 @@ export const barDelayAnimation = (props?: {
   const {
     maxDelayBetweenDataPoints = DEFAULT_MAX_DELAY_DATA_POINT,
     maxDelayBetweenDatasets = DEFAULT_MAX_DELAY_DATASET,
-    barGroupType,
+    barGroupType
   } = props || {};
   let delayed = false;
 
@@ -74,6 +74,6 @@ export const barDelayAnimation = (props?: {
       }
 
       return delay;
-    },
+    }
   } satisfies AnimationOptions<'bar'>['animation'];
 };

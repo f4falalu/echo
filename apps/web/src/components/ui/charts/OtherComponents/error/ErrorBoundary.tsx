@@ -12,7 +12,7 @@ interface State {
 
 export class ErrorBoundary extends Component<Props, State> {
   override state: State = {
-    hasError: false,
+    hasError: false
   };
 
   static getDerivedStateFromError(_: Error): State {

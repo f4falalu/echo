@@ -21,7 +21,7 @@ export const dataMapper = (
   const validDataPoints = data
     .map((value, index) => ({
       value: Number(value || 0),
-      tick: ticks.ticks[index]?.[0], // Use first tick value as x-axis value
+      tick: ticks.ticks[index]?.[0] // Use first tick value as x-axis value
     }))
     .filter(
       (point) => point.value !== null && point.value !== undefined && point.tick !== undefined

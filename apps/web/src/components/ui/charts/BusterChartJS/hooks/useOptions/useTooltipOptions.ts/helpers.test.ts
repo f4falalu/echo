@@ -11,21 +11,21 @@ describe('getPercentage', () => {
         {
           data: [200, 300],
           hidden: false,
-          isTrendline: false,
-        },
-      ],
+          isTrendline: false
+        }
+      ]
     },
     $totalizer: {
       seriesTotals: [1000, 2000],
-      stackTotals: [500],
-    },
+      stackTotals: [500]
+    }
   } as unknown as Chart;
 
   const mockColumnLabelFormats: NonNullable<BusterChartProps['columnLabelFormats']> = {
     'test.field': {
       style: 'percent',
-      columnType: 'number',
-    } as ColumnLabelFormat,
+      columnType: 'number'
+    } as ColumnLabelFormat
   };
 
   it('should calculate series percentage when hasMultipleShownDatasets is false', () => {
@@ -79,8 +79,8 @@ describe('percentageFormatter', () => {
     const columnLabelFormats: NonNullable<BusterChartProps['columnLabelFormats']> = {
       'test.field': {
         style: 'percent',
-        columnType: 'number',
-      } as ColumnLabelFormat,
+        columnType: 'number'
+      } as ColumnLabelFormat
     };
 
     const result = percentageFormatter(
@@ -96,8 +96,8 @@ describe('percentageFormatter', () => {
     const columnLabelFormats: NonNullable<BusterChartProps['columnLabelFormats']> = {
       'test.field': {
         style: 'number',
-        columnType: 'number',
-      } as ColumnLabelFormat,
+        columnType: 'number'
+      } as ColumnLabelFormat
     };
 
     const result = percentageFormatter(33.333, 'test.field', columnLabelFormats);
@@ -109,8 +109,8 @@ describe('percentageFormatter', () => {
     const columnLabelFormats: NonNullable<BusterChartProps['columnLabelFormats']> = {
       field: {
         style: 'percent',
-        columnType: 'number',
-      } as ColumnLabelFormat,
+        columnType: 'number'
+      } as ColumnLabelFormat
     };
 
     const result = percentageFormatter(50, 'nested.field', columnLabelFormats);

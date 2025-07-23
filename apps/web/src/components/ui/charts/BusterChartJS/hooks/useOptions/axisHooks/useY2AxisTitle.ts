@@ -9,7 +9,7 @@ export const useY2AxisTitle = ({
   columnLabelFormats,
   isSupportedChartForAxisTitles,
   y2AxisAxisTitle,
-  y2AxisShowAxisTitle,
+  y2AxisShowAxisTitle
 }: {
   y2Axis: string[];
   columnLabelFormats: NonNullable<ChartConfigProps['columnLabelFormats']>;
@@ -31,7 +31,7 @@ export const useY2AxisTitle = ({
     y2AxisAxisTitle,
     isSupportedChartForAxisTitles,
     y2AxisShowAxisTitle,
-    y2AxisColumnLabelFormats,
+    y2AxisColumnLabelFormats
   ]);
 
   return y2AxisTitle;

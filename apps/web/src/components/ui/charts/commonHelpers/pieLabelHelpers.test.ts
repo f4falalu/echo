@@ -58,7 +58,7 @@ describe('pieLabelHelpers', () => {
         'median',
         'max',
         'min',
-        'count',
+        'count'
       ];
 
       testCases.forEach((aggregate) => {

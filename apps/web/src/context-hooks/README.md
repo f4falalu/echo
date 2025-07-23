@@ -9,6 +9,7 @@ This directory contains hooks that are specifically related to API calls and con
 ## Purpose
 
 Context hooks bridge the gap between raw API calls and UI components by providing:
+
 - Reusable business logic
 - Consistent error handling
 - Optimized data fetching patterns

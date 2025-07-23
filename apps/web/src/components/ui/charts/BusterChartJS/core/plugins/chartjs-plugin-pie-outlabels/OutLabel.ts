@@ -31,7 +31,7 @@ export default class OutLabel {
   get center(): Point {
     return {
       x: this.x,
-      y: this.y,
+      y: this.y
     };
   }
 
@@ -114,7 +114,7 @@ export default class OutLabel {
         this.style.borderWidth,
       y: this.y - this.size.height / 2 - this.style.padding.top - this.style.borderWidth,
       width: this.size.width + 2 * this.style.borderWidth + this.style.padding.width,
-      height: this.size.height + 2 * this.style.borderWidth + this.style.padding.height,
+      height: this.size.height + 2 * this.style.borderWidth + this.style.padding.height
     };
   }
 

@@ -18,7 +18,7 @@ describe('sortLineBarData', () => {
     const data = [
       { id: 3, value: 30 },
       { id: 1, value: 10 },
-      { id: 2, value: 20 },
+      { id: 2, value: 20 }
     ];
     const columnMetadata: ColumnMetaData[] = [
       {
@@ -27,8 +27,8 @@ describe('sortLineBarData', () => {
         type: 'integer',
         min_value: 10,
         max_value: 30,
-        unique_values: 3,
-      },
+        unique_values: 3
+      }
     ];
     const xFieldSorts = ['value'];
     const xFields = ['value'];
@@ -37,14 +37,14 @@ describe('sortLineBarData', () => {
     expect(result).toEqual([
       { id: 1, value: 10 },
       { id: 2, value: 20 },
-      { id: 3, value: 30 },
+      { id: 3, value: 30 }
     ]);
   });
   it('sorts date fields correctly', () => {
     const data = [
       { id: 3, created: '2023-03-01' },
       { id: 1, created: '2023-01-01' },
-      { id: 2, created: '2023-02-01' },
+      { id: 2, created: '2023-02-01' }
     ];
     const columnMetadata: ColumnMetaData[] = [
       {
@@ -53,8 +53,8 @@ describe('sortLineBarData', () => {
         type: 'date',
         min_value: '2023-01-01',
         max_value: '2023-03-01',
-        unique_values: 3,
-      },
+        unique_values: 3
+      }
     ];
     const xFieldSorts = ['created'];
     const xFields = ['created'];
@@ -63,14 +63,14 @@ describe('sortLineBarData', () => {
     expect(result).toEqual([
       { id: 1, created: '2023-01-01' },
       { id: 2, created: '2023-02-01' },
-      { id: 3, created: '2023-03-01' },
+      { id: 3, created: '2023-03-01' }
     ]);
   });
   it('sorts text fields correctly', () => {
     const data = [
       { id: 3, name: 'Charlie' },
       { id: 1, name: 'Alice' },
-      { id: 2, name: 'Bob' },
+      { id: 2, name: 'Bob' }
     ];
     const columnMetadata: ColumnMetaData[] = [
       {
@@ -79,8 +79,8 @@ describe('sortLineBarData', () => {
         type: 'text',
         min_value: 'Alice',
         max_value: 'Charlie',
-        unique_values: 3,
-      },
+        unique_values: 3
+      }
     ];
     const xFieldSorts = ['name'];
     const xFields = ['name'];
@@ -89,7 +89,7 @@ describe('sortLineBarData', () => {
     expect(result).toEqual([
       { id: 1, name: 'Alice' },
       { id: 2, name: 'Bob' },
-      { id: 3, name: 'Charlie' },
+      { id: 3, name: 'Charlie' }
     ]);
   });
   it('handles multiple sort fields correctly', () => {
@@ -97,7 +97,7 @@ describe('sortLineBarData', () => {
       { id: 1, category: 'A', value: 30 },
       { id: 2, category: 'B', value: 10 },
       { id: 3, category: 'A', value: 10 },
-      { id: 4, category: 'B', value: 20 },
+      { id: 4, category: 'B', value: 20 }
     ];
     const columnMetadata: ColumnMetaData[] = [
       {
@@ -106,7 +106,7 @@ describe('sortLineBarData', () => {
         type: 'text',
         min_value: 'A',
         max_value: 'B',
-        unique_values: 2,
+        unique_values: 2
       },
       {
         name: 'value',
@@ -114,8 +114,8 @@ describe('sortLineBarData', () => {
         type: 'integer',
         min_value: 10,
         max_value: 30,
-        unique_values: 3,
-      },
+        unique_values: 3
+      }
     ];
     const xFieldSorts = ['category', 'value'];
     const xFields = ['category', 'value'];
@@ -125,14 +125,14 @@ describe('sortLineBarData', () => {
       { id: 3, category: 'A', value: 10 },
       { id: 1, category: 'A', value: 30 },
       { id: 2, category: 'B', value: 10 },
-      { id: 4, category: 'B', value: 20 },
+      { id: 4, category: 'B', value: 20 }
     ]);
   });
   it('falls back to type inference when metadata is missing', () => {
     const data = [
       { id: 3, value: 30 },
       { id: 1, value: 10 },
-      { id: 2, value: 20 },
+      { id: 2, value: 20 }
     ];
     const columnMetadata: ColumnMetaData[] = [];
     const xFieldSorts = ['value'];
@@ -142,7 +142,7 @@ describe('sortLineBarData', () => {
     expect(result).toEqual([
       { id: 1, value: 10 },
       { id: 2, value: 20 },
-      { id: 3, value: 30 },
+      { id: 3, value: 30 }
     ]);
   });
 });

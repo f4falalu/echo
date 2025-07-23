@@ -22,7 +22,7 @@ describe('formatChartLabel', () => {
       prefix: '',
       suffix: '',
       replaceMissingDataWith: null,
-      makeLabelHumanReadable: true,
+      makeLabelHumanReadable: true
     },
     recent_total: {
       style: 'currency',
@@ -41,7 +41,7 @@ describe('formatChartLabel', () => {
       prefix: '',
       suffix: '',
       replaceMissingDataWith: 0,
-      makeLabelHumanReadable: true,
+      makeLabelHumanReadable: true
     },
     percentage: {
       style: 'percent',
@@ -51,7 +51,7 @@ describe('formatChartLabel', () => {
       numberSeparatorStyle: ',',
       minimumFractionDigits: 1,
       maximumFractionDigits: 1,
-      makeLabelHumanReadable: true,
+      makeLabelHumanReadable: true
     } as ColumnLabelFormat,
     text_field: {
       style: 'string',
@@ -61,7 +61,7 @@ describe('formatChartLabel', () => {
       numberSeparatorStyle: ',',
       minimumFractionDigits: 0,
       maximumFractionDigits: 2,
-      makeLabelHumanReadable: true,
+      makeLabelHumanReadable: true
     } as ColumnLabelFormat,
     custom_field: {
       style: 'number',
@@ -73,8 +73,8 @@ describe('formatChartLabel', () => {
       maximumFractionDigits: 1,
       prefix: '(',
       suffix: ')',
-      makeLabelHumanReadable: true,
-    } as ColumnLabelFormat,
+      makeLabelHumanReadable: true
+    } as ColumnLabelFormat
   } satisfies NonNullable<BusterChartProps['columnLabelFormats']>;
 
   it('should format a date label correctly', () => {

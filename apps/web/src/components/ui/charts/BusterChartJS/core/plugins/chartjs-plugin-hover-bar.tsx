@@ -22,7 +22,7 @@ export const ChartHoverBarPlugin: Plugin<ChartType, ChartHoverBarPluginOptions> 
     chart.$pluginHoverBarManager = {
       enabled:
         chartType === 'bar' ||
-        (chartType === 'line' && chart.data.datasets.some((dataset) => dataset.type === 'bar')), //this line is for combo chart
+        (chartType === 'line' && chart.data.datasets.some((dataset) => dataset.type === 'bar')) //this line is for combo chart
     };
   },
   beforeDraw: (chart, _args, options) => {
@@ -33,7 +33,7 @@ export const ChartHoverBarPlugin: Plugin<ChartType, ChartHoverBarPluginOptions> 
       ctx,
       tooltip,
       chartArea: { top, bottom },
-      scales: { x },
+      scales: { x }
     } = chart;
 
     const tooltipActive = tooltip?.getActiveElements();
@@ -73,8 +73,8 @@ export const ChartHoverBarPlugin: Plugin<ChartType, ChartHoverBarPluginOptions> 
     }
   },
   defaults: {
-    isDarkMode: false,
-  },
+    isDarkMode: false
+  }
 };
 
 const isHorizontalChart = (chartInstance: Chart) => {

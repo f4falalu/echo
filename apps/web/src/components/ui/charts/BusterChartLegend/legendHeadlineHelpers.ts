@@ -24,7 +24,7 @@ export const addLegendHeadlines = (
     if (!item.data || !Array.isArray(item.data)) {
       item.headline = {
         type: showLegendHeadline,
-        titleAmount: 0,
+        titleAmount: 0
       };
       return;
     }
@@ -34,7 +34,7 @@ export const addLegendHeadlines = (
       const formattedResult = formatLabel(result, columnLabelFormats[item.yAxisKey]);
       const headline: BusterChartLegendItem['headline'] = {
         type: 'current',
-        titleAmount: formattedResult,
+        titleAmount: formattedResult
       };
       item.headline = headline;
       return;
@@ -48,7 +48,7 @@ export const addLegendHeadlines = (
       console.warn(`Unknown operation: ${showLegendHeadline}`);
       item.headline = {
         type: showLegendHeadline,
-        titleAmount: 0,
+        titleAmount: 0
       };
       return;
     }
@@ -57,7 +57,7 @@ export const addLegendHeadlines = (
     const formattedResult = formatLabel(result, columnLabelFormats[item.yAxisKey]);
     const headline: BusterChartLegendItem['headline'] = {
       type: showLegendHeadline,
-      titleAmount: formattedResult,
+      titleAmount: formattedResult
     };
     item.headline = headline;
   });
@@ -74,5 +74,5 @@ const legendHeadlineToOperation: Record<
   total: (arrayOperations) => arrayOperations.sum(),
   median: (arrayOperations) => arrayOperations.median(),
   min: (arrayOperations) => arrayOperations.min(),
-  max: (arrayOperations) => arrayOperations.max(),
+  max: (arrayOperations) => arrayOperations.max()
 };

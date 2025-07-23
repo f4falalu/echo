@@ -56,9 +56,9 @@ export const barAndLineTooltipHelper = (
               chart,
               hasMultipleShownDatasets,
               percentageMode
-            ),
-          },
-        ],
+            )
+          }
+        ]
       };
     });
   });

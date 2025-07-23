@@ -44,5 +44,5 @@ export const canSupportTrendlineRecord: Record<
   average: (columnLabelFormats, trendline) =>
     isNumericColumnType(
       columnLabelFormats[trendline.columnId]?.columnType || DEFAULT_COLUMN_LABEL_FORMAT.columnType
-    ),
+    )
 };

@@ -5,7 +5,7 @@ import type { BusterChartProps } from '../../../BusterChart.types';
 export const useIsStacked = ({
   selectedChartType,
   lineGroupType,
-  barGroupType,
+  barGroupType
 }: {
   selectedChartType: ChartType;
   lineGroupType: BusterChartProps['lineGroupType'];

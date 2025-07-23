@@ -7,7 +7,7 @@ describe('LegendItemDot', () => {
   const defaultProps = {
     color: '#FF0000',
     inactive: false,
-    type: 'bar',
+    type: 'bar'
   } as Parameters<typeof LegendItemDot>[0];
 
   it('renders with default props', () => {
@@ -28,10 +28,10 @@ describe('LegendItemDot', () => {
   });
 
   it('renders with different sizes', () => {
-    const { rerender } = render(<LegendItemDot {...defaultProps} size='default' />);
+    const { rerender } = render(<LegendItemDot {...defaultProps} size="default" />);
     expect(screen.getByTestId('legend-dot-container')).toHaveClass('w-4.5');
 
-    rerender(<LegendItemDot {...defaultProps} size='sm' />);
+    rerender(<LegendItemDot {...defaultProps} size="sm" />);
     expect(screen.getByTestId('legend-dot-container')).toHaveClass('w-2');
   });
 

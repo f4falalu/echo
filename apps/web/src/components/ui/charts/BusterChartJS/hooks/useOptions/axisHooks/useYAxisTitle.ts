@@ -20,7 +20,7 @@ export const useYAxisTitle = ({
   isSupportedChartForAxisTitles,
   yAxisAxisTitle,
   yAxisShowAxisTitle,
-  selectedAxis,
+  selectedAxis
 }: UseYAxisTitleProps) => {
   const yAxisColumnLabelFormats = useMemo(() => {
     return yAxis.map((y) => columnLabelFormats[y]);

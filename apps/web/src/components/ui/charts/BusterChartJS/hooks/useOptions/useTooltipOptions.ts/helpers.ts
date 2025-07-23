@@ -57,7 +57,7 @@ export const percentageFormatter = (
   if (!isPercentage) {
     columnLabelFormat = {
       style: 'percent',
-      columnType: 'number',
+      columnType: 'number'
     };
   }
   return formatLabel(percentage, columnLabelFormat, false);

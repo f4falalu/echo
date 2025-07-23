@@ -13,13 +13,13 @@ const AxisMethodCheckRecord: Record<ChartType, (selectedAxis: ChartEncodes) => b
   pie: defaultAxisCheck,
   combo: defaultAxisCheck,
   metric: () => true,
-  table: () => true,
+  table: () => true
 };
 
 export const doesChartHaveValidAxis = ({
   selectedAxis,
   isTable,
-  selectedChartType,
+  selectedChartType
 }: {
   selectedChartType: ChartType;
   selectedAxis: ChartEncodes | undefined;

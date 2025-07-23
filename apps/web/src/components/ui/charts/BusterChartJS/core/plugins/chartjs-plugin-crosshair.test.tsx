@@ -7,7 +7,7 @@ describe('crosshairPlugin', () => {
     // Mock Chart instance
     const mockChart = {
       $crosshair: { x: null, y: null },
-      config: { type: 'line' as const },
+      config: { type: 'line' as const }
     } as Chart<'line'>;
 
     // Mock event args
@@ -15,14 +15,14 @@ describe('crosshairPlugin', () => {
       type: 'mousemove',
       x: 100,
       y: 200,
-      native: new MouseEvent('mousemove'),
+      native: new MouseEvent('mousemove')
     };
 
     const args = {
       event: mockEvent,
       replay: false,
       cancelable: false as const,
-      inChartArea: true,
+      inChartArea: true
     };
     const options: CrosshairPluginOptions = {};
 

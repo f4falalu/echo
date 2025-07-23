@@ -10,7 +10,7 @@ import {
   PieController,
   PolarAreaController,
   RadarController,
-  ScatterController,
+  ScatterController
 } from 'chart.js';
 import { forwardRef } from 'react';
 import { Chart } from './chart';

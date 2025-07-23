@@ -14,14 +14,14 @@ describe('ChartMountedPlugin', () => {
     mockChart = {
       data: {
         labels: ['label1', 'label2'],
-        datasets: [],
+        datasets: []
       } as ChartData<ChartType>,
-      $mountedPlugin: false,
+      $mountedPlugin: false
     };
 
     mockOptions = {
       onMounted: vi.fn(),
-      onInitialAnimationEnd: vi.fn(),
+      onInitialAnimationEnd: vi.fn()
     };
   });
 

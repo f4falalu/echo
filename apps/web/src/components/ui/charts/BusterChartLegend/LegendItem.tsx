@@ -43,19 +43,19 @@ const headlineTypeToText: Record<
   total: 'Total',
   median: 'Med.',
   min: 'Min.',
-  max: 'Max.',
+  max: 'Max.'
 };
 
 const headlineAnimation = {
   initial: { opacity: 0, height: 0 },
   animate: { opacity: 1, height: '20px' },
-  exit: { opacity: 0, height: 0 },
+  exit: { opacity: 0, height: 0 }
 };
 
 const headlinePreTextAnimation = {
   initial: { opacity: 0, width: 0, marginRight: 0 },
   animate: { opacity: 1, width: 'auto', marginRight: '3px' },
-  exit: { opacity: 0, width: 0, marginRight: 0 },
+  exit: { opacity: 0, width: 0, marginRight: 0 }
 };
 
 const LegendItemStandard = React.memo(
@@ -92,7 +92,7 @@ const LegendItemStandard = React.memo(
     const itemWrapperAnimation = useMemo(() => {
       return {
         height: hasHeadline ? 38 : 24,
-        borderRadius: hasHeadline ? 8 : 4,
+        borderRadius: hasHeadline ? 8 : 4
       };
     }, [hasHeadline]);
 
@@ -107,17 +107,15 @@ const LegendItemStandard = React.memo(
         className={cn(
           'flex h-[24px] flex-col justify-center space-y-0 rounded-sm px-2.5',
           clickable && 'transition-background hover:bg-item-hover cursor-pointer duration-100'
-        )}
-      >
+        )}>
         <AnimatePresence initial={false}>
           {hasHeadline && (
-            <motion.div {...headlineAnimation} className='flex items-center space-x-1.5'>
+            <motion.div {...headlineAnimation} className="flex items-center space-x-1.5">
               <span
                 className={cn(
                   'text-[15px] leading-none font-semibold!',
                   !inactive ? 'text-foreground' : 'text-text-secondary'
-                )}
-              >
+                )}>
                 {headline?.titleAmount}
               </span>
             </motion.div>
@@ -126,9 +124,8 @@ const LegendItemStandard = React.memo(
 
         <div
           className={cn('flex flex-nowrap items-center space-x-1.5 whitespace-nowrap', {
-            clickable: clickable,
-          })}
-        >
+            clickable: clickable
+          })}>
           <LegendItemDot
             size={!hasHeadline ? 'default' : 'sm'}
             onFocusItem={onFocusItem}
@@ -141,14 +138,12 @@ const LegendItemStandard = React.memo(
             className={cn(
               'flex max-w-[185px] items-center truncate text-base transition-all duration-100 select-none',
               !inactive ? 'text-foreground' : 'text-text-secondary'
-            )}
-          >
-            <AnimatePresence mode='wait' initial={false}>
+            )}>
+            <AnimatePresence mode="wait" initial={false}>
               {headlinePreText && (
                 <motion.div
                   key={hasHeadline ? 'hasHeadline' : 'noHeadline'}
-                  {...headlinePreTextAnimation}
-                >
+                  {...headlinePreTextAnimation}>
                   {headlinePreText}
                 </motion.div>
               )}

@@ -55,6 +55,6 @@ export const ChartTotalizerPlugin: Plugin<ChartType, ChartTotalizerPluginOptions
     chart.$totalizer = { stackTotals, seriesTotals };
   },
   defaults: {
-    enabled: true,
-  },
+    enabled: true
+  }
 };

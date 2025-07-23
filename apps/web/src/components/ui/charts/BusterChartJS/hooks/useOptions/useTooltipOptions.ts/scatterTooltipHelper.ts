@@ -27,9 +27,9 @@ export const scatterTooltipHelper = (
           {
             formattedValue: formatLabel(item.value as number, columnLabelFormats[item.key]),
             formattedPercentage: undefined,
-            formattedLabel: formatLabel(item.key as string, columnLabelFormats[item.key], true),
-          },
-        ],
+            formattedLabel: formatLabel(item.key as string, columnLabelFormats[item.key], true)
+          }
+        ]
       };
     });
   });

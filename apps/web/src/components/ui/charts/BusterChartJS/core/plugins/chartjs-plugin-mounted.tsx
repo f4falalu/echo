@@ -38,6 +38,6 @@ export const ChartMountedPlugin: Plugin<ChartType, ChartMountedPluginOptions> = 
   },
   defaults: {
     onMounted: () => {},
-    onInitialAnimationEnd: () => {},
-  },
+    onInitialAnimationEnd: () => {}
+  }
 };

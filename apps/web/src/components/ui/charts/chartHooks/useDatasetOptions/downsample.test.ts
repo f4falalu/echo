@@ -14,7 +14,7 @@ describe('uniformSampling', () => {
     { x: 6, y: 70 },
     { x: 7, y: 80 },
     { x: 8, y: 90 },
-    { x: 9, y: 100 },
+    { x: 9, y: 100 }
   ];
 
   it('should return original data if targetPoints is greater than or equal to data length', () => {
@@ -66,7 +66,7 @@ describe('uniformSampling', () => {
     // Generate a dataset with 1000 points
     const largeDataset: DataPoint[] = Array.from({ length: 1000 }, (_, i) => ({
       x: i,
-      y: Math.sin(i * 0.01) * 100 + 100, // Generate sine wave data
+      y: Math.sin(i * 0.01) * 100 + 100 // Generate sine wave data
     }));
 
     const targetPoints = 50;
@@ -104,7 +104,7 @@ describe('randomSampling', () => {
     { x: 6, y: 70 },
     { x: 7, y: 80 },
     { x: 8, y: 90 },
-    { x: 9, y: 100 },
+    { x: 9, y: 100 }
   ];
 
   it('should return original data if targetPoints is greater than or equal to data length', () => {
@@ -186,7 +186,7 @@ describe('randomSampling', () => {
       x: i,
       y: Math.sin(i * 0.005) * 50 + Math.cos(i * 0.002) * 30 + 100, // Complex wave pattern
       z: i % 5, // Add another property to make objects more complex
-      timestamp: new Date(2023, 0, 1, 0, 0, i % 60, i % 1000), // Add date objects too
+      timestamp: new Date(2023, 0, 1, 0, 0, i % 60, i % 1000) // Add date objects too
     }));
 
     // Performance test - measure time to downsample
@@ -249,7 +249,7 @@ describe('detectAnomalies', () => {
       { value: 8 },
       { value: 100 }, // Anomaly
       { value: 11 },
-      { value: 10 },
+      { value: 10 }
     ];
 
     const anomalies = detectAnomalies(testData, 'value', 1.5);
@@ -273,13 +273,13 @@ describe('randomSampling with anomaly preservation', () => {
       { value: 8 },
       { value: 100 }, // Anomaly
       { value: 11 },
-      { value: 10 },
+      { value: 10 }
     ];
 
     // Request 5 points with anomaly preservation
     const result = randomSampling(testData, 5, true, {
       numericField: 'value',
-      threshold: 1.5,
+      threshold: 1.5
     });
 
     // Should have exactly 5 points

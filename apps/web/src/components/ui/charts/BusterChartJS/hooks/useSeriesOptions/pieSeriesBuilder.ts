@@ -13,7 +13,7 @@ export const pieSeriesBuilder_data = ({
   datasetOptions,
   colors,
   xAxisKeys,
-  columnLabelFormats,
+  columnLabelFormats
 }: SeriesBuilderProps): PieSerieType[] => {
   return datasetOptions.datasets.map<PieSerieType>((dataset) => {
     return {
@@ -23,14 +23,14 @@ export const pieSeriesBuilder_data = ({
       yAxisKey: dataset.dataKey,
       data: dataset.data as number[],
       borderColor: 'white', //I tried to set this globally in the theme but it didn't work
-      tooltipData: dataset.tooltipData,
+      tooltipData: dataset.tooltipData
     };
   });
 };
 
 export const pieSeriesBuilder_labels = ({
   datasetOptions,
-  columnLabelFormats,
+  columnLabelFormats
 }: LabelBuilderProps) => {
   const { ticks, ticksKey } = datasetOptions;
   return ticks.flatMap((item) => {

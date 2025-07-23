@@ -8,5 +8,5 @@ export const AUTO_DATE_FORMATS = {
   week: 'll', // e.g., "Mar 19, 2024"
   month: 'MMM YYYY', // e.g., "Mar 2024"
   quarter: '[Q]Q - YYYY', // e.g., "Q1 - 2024"
-  year: 'YYYY', // e.g., "2024"
+  year: 'YYYY' // e.g., "2024"
 };

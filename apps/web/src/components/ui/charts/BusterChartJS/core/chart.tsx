@@ -6,7 +6,7 @@ import type {
   ChartType,
   ChartTypeRegistry,
   DefaultDataPoint,
-  Point,
+  Point
 } from 'chart.js';
 import { Chart as ChartJS } from 'chart.js';
 import { forwardRef, useEffect, useRef } from 'react';
@@ -16,7 +16,7 @@ import { cloneData, reforwardRef, setDatasets, setLabels, setOptions } from './u
 function ChartComponent<
   TType extends ChartType = ChartType,
   TData = DefaultDataPoint<TType>,
-  TLabel = unknown,
+  TLabel = unknown
 >(props: ChartProps<TType, TData, TLabel>, ref: ForwardedRef<ChartJS<TType, TData, TLabel>>) {
   const {
     height = 150,
@@ -42,7 +42,7 @@ function ChartComponent<
         type,
         data: cloneData(data, datasetIdKey),
         options: options && { ...options },
-        plugins,
+        plugins
       });
 
       reforwardRef(ref, chartRef.current as ChartJS<TType, TData, TLabel>);
@@ -135,7 +135,7 @@ function ChartComponent<
   }, []);
 
   return (
-    <canvas ref={canvasRef} role='img' height={height} width={width} {...canvasProps}>
+    <canvas ref={canvasRef} role="img" height={height} width={width} {...canvasProps}>
       {fallbackContent}
     </canvas>
   );

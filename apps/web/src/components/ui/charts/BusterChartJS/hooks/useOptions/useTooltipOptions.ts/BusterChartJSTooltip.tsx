@@ -27,7 +27,7 @@ export const BusterChartJSTooltip: React.FC<{
   hasCategoryAxis,
   keyToUsePercentage,
   lineGroupType,
-  barGroupType,
+  barGroupType
 }) => {
   const isPieChart = selectedChartType === 'pie';
   const isScatter = selectedChartType === 'scatter';
@@ -81,7 +81,7 @@ export const BusterChartJSTooltip: React.FC<{
       return {
         title: tooltipItems[0]?.formattedLabel || '',
         color: tooltipItems[0]?.color || '',
-        seriesType: 'scatter',
+        seriesType: 'scatter'
       };
     }
 

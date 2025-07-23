@@ -80,7 +80,7 @@ export class OutLabelStyle {
       [
         options.backgroundColor,
         context.dataset.backgroundColor,
-        context.chart.options.backgroundColor,
+        context.chart.options.backgroundColor
       ],
       context,
       index
@@ -95,7 +95,7 @@ export class OutLabelStyle {
         options.borderColor,
         context.dataset.borderColor,
         options.backgroundColor,
-        context.dataset.backgroundColor,
+        context.dataset.backgroundColor
       ],
       context,
       index

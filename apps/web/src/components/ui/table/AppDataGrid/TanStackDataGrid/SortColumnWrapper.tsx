@@ -10,7 +10,7 @@ import {
   TouchSensor,
   pointerWithin,
   useSensor,
-  useSensors,
+  useSensors
 } from '@dnd-kit/core';
 import { restrictToHorizontalAxis } from '@dnd-kit/modifiers';
 import { arrayMove } from '@dnd-kit/sortable';
@@ -20,8 +20,8 @@ import { HEADER_HEIGHT } from './constants';
 
 const ACTIVATION_CONSTRAINT = {
   activationConstraint: {
-    distance: 2,
-  },
+    distance: 2
+  }
 };
 
 export const SortColumnWrapper: React.FC<{
@@ -139,17 +139,15 @@ export const SortColumnWrapper: React.FC<{
       collisionDetection={pointerWithin}
       onDragStart={onDragStart}
       onDragOver={onDragOver}
-      onDragEnd={onDragEnd}
-    >
+      onDragEnd={onDragEnd}>
       <SortColumnContext.Provider value={{ overTargetId }}>
         {children}
 
         <DragOverlay
-          wrapperElement='span'
+          wrapperElement="span"
           adjustScale={false}
           dropAnimation={null} // Using null to completely disable animation
-          zIndex={1000}
-        >
+          zIndex={1000}>
           {activeId && activeHeader && <HeaderDragOverlay header={activeHeader} />}
         </DragOverlay>
       </SortColumnContext.Provider>
@@ -164,7 +162,7 @@ type SortColumnContextType = {
 };
 
 export const SortColumnContext = createContext<SortColumnContextType>({
-  overTargetId: null,
+  overTargetId: null
 });
 
 export const useSortColumnContext = <T,>(selector: (ctx: SortColumnContextType) => T): T => {
@@ -174,21 +172,20 @@ export const useSortColumnContext = <T,>(selector: (ctx: SortColumnContextType) 
 
 // Header content component to use in the DragOverlay
 const HeaderDragOverlay = ({
-  header,
+  header
 }: {
   header: Header<Record<string, string | number | Date | null>, unknown>;
 }) => {
   return (
     <div
-      className='flex items-center rounded-sm border bg-white p-2 shadow-lg'
+      className="flex items-center rounded-sm border bg-white p-2 shadow-lg"
       style={{
         width: header.column.getSize(),
         height: `${HEADER_HEIGHT}px`,
         opacity: 0.85,
         transform: 'translate3d(0, 0, 0)', // Ensure no unexpected transforms are applied
-        pointerEvents: 'none', // Prevent the overlay from intercepting pointer events
-      }}
-    >
+        pointerEvents: 'none' // Prevent the overlay from intercepting pointer events
+      }}>
       {flexRender(header.column.columnDef.header, header.getContext())}
       {header.column.getIsSorted() === 'asc' && <span> 🔼</span>}
       {header.column.getIsSorted() === 'desc' && <span> 🔽</span>}

@@ -19,9 +19,8 @@ export const DataGridRow: React.FC<DataGridRowProps> = ({ row, virtualRow }) => 
       )}
       style={{
         transform: `translateY(${virtualRow.start}px)`,
-        height: `${virtualRow.size}px`,
-      }}
-    >
+        height: `${virtualRow.size}px`
+      }}>
       {row.getVisibleCells().map((cell) => (
         <DataGridCell key={cell.id} cell={cell} />
       ))}

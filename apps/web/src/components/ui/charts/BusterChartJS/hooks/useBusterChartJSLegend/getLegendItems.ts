@@ -11,7 +11,7 @@ export const getLegendItems = ({
   colors,
   inactiveDatasets,
   selectedChartType,
-  columnSettings,
+  columnSettings
 }: {
   colors: string[];
   columnSettings: NonNullable<BusterChartProps['columnSettings']>;
@@ -40,7 +40,7 @@ export const getLegendItems = ({
         formattedName: formatLabelForPieLegend(label, dataset.label || '', hasMultipleYAxis),
         id: label,
         data: dataset.data,
-        yAxisKey: dataset.yAxisKey,
+        yAxisKey: dataset.yAxisKey
       }));
     });
   }
@@ -54,7 +54,7 @@ export const getLegendItems = ({
     formattedName: dataset.label as string,
     id: dataset.label || '',
     data: dataset.data,
-    yAxisKey: dataset.yAxisKey,
+    yAxisKey: dataset.yAxisKey
   }));
 };
 

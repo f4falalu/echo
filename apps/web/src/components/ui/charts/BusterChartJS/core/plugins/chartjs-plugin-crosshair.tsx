@@ -29,7 +29,7 @@ const crosshairPlugin: Plugin<'line'> = {
     labelBackgroundColor: 'rgba(102, 102, 102, 1)',
     labelFont: 'bold 12px sans-serif',
     labelFontColor: 'white',
-    labelHeight: 24,
+    labelHeight: 24
   },
 
   // Initialize the crosshair state
@@ -59,7 +59,7 @@ const crosshairPlugin: Plugin<'line'> = {
     if (!chart) return;
     const {
       ctx,
-      chartArea: { top, bottom, left, right },
+      chartArea: { top, bottom, left, right }
     } = chart;
     const crosshair = chart.$crosshair;
     if (!crosshair || !ctx) return;
@@ -133,7 +133,7 @@ const crosshairPlugin: Plugin<'line'> = {
 
       ctx.restore();
     }
-  },
+  }
 };
 
 export default crosshairPlugin;

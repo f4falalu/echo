@@ -50,7 +50,7 @@ export const BusterChartJSLegendWrapper = React.memo<BusterChartJSLegendWrapperP
     datasetOptions,
     pieMinimumSlicePercentage,
     isDownsampled,
-    numberOfDataPoints,
+    numberOfDataPoints
   }) => {
     const {
       renderLegend,
@@ -61,7 +61,7 @@ export const BusterChartJSLegendWrapper = React.memo<BusterChartJSLegendWrapperP
       onLegendItemFocus,
       showLegend,
       isUpdatingChart,
-      animateLegend,
+      animateLegend
     } = useBusterChartJSLegend({
       selectedAxis,
       columnLabelFormats,
@@ -79,7 +79,7 @@ export const BusterChartJSLegendWrapper = React.memo<BusterChartJSLegendWrapperP
       datasetOptions,
       pieMinimumSlicePercentage,
       numberOfDataPoints,
-      animateLegend: animateLegendProp,
+      animateLegend: animateLegendProp
     });
 
     return (
@@ -95,8 +95,7 @@ export const BusterChartJSLegendWrapper = React.memo<BusterChartJSLegendWrapperP
         onHoverItem={onHoverItem}
         onLegendItemClick={onLegendItemClick}
         onLegendItemFocus={onLegendItemFocus}
-        isUpdatingChart={isUpdatingChart}
-      >
+        isUpdatingChart={isUpdatingChart}>
         {children}
       </BusterChartLegendWrapper>
     );

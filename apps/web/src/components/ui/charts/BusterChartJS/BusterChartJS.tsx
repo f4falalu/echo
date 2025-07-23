@@ -6,7 +6,7 @@ import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import {
   DEFAULT_CHART_CONFIG,
   DEFAULT_CHART_THEME,
-  DEFAULT_COLUMN_METADATA,
+  DEFAULT_COLUMN_METADATA
 } from '@buster/server-shared/metrics';
 import type React from 'react';
 import { useCallback, useRef, useState } from 'react';
@@ -66,8 +66,7 @@ export const BusterChartJS: React.FC<BusterChartComponentProps> = ({
       datasetOptions={datasetOptions}
       isDownsampled={props.isDownsampled}
       numberOfDataPoints={props.numberOfDataPoints}
-      pieMinimumSlicePercentage={pieMinimumSlicePercentage}
-    >
+      pieMinimumSlicePercentage={pieMinimumSlicePercentage}>
       <BusterChartJSComponent
         ref={chartRef}
         selectedChartType={selectedChartType}

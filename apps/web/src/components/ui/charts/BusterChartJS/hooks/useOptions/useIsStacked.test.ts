@@ -8,7 +8,7 @@ describe('useIsStacked', () => {
       useIsStacked({
         selectedChartType: 'line',
         lineGroupType: 'percentage-stack',
-        barGroupType: null,
+        barGroupType: null
       })
     );
 
@@ -20,7 +20,7 @@ describe('useIsStacked', () => {
       useIsStacked({
         selectedChartType: 'line',
         lineGroupType: 'stack',
-        barGroupType: null,
+        barGroupType: null
       })
     );
 
@@ -32,7 +32,7 @@ describe('useIsStacked', () => {
       useIsStacked({
         selectedChartType: 'line',
         lineGroupType: null,
-        barGroupType: 'stack',
+        barGroupType: 'stack'
       })
     );
 
@@ -44,7 +44,7 @@ describe('useIsStacked', () => {
       useIsStacked({
         selectedChartType: 'bar',
         lineGroupType: null,
-        barGroupType: 'percentage-stack',
+        barGroupType: 'percentage-stack'
       })
     );
 
@@ -56,7 +56,7 @@ describe('useIsStacked', () => {
       useIsStacked({
         selectedChartType: 'bar',
         lineGroupType: null,
-        barGroupType: 'stack',
+        barGroupType: 'stack'
       })
     );
 
@@ -68,7 +68,7 @@ describe('useIsStacked', () => {
       useIsStacked({
         selectedChartType: 'bar',
         lineGroupType: null,
-        barGroupType: 'group',
+        barGroupType: 'group'
       })
     );
 
@@ -80,7 +80,7 @@ describe('useIsStacked', () => {
       useIsStacked({
         selectedChartType: 'pie',
         lineGroupType: null,
-        barGroupType: 'stack',
+        barGroupType: 'stack'
       })
     );
 
@@ -93,7 +93,7 @@ describe('useIsStacked', () => {
       useIsStacked({
         selectedChartType: 'line',
         lineGroupType: null,
-        barGroupType: null,
+        barGroupType: null
       })
     );
 
@@ -105,7 +105,7 @@ describe('useIsStacked', () => {
       useIsStacked({
         selectedChartType: 'line',
         lineGroupType: 'stack',
-        barGroupType: null,
+        barGroupType: null
       })
     );
 

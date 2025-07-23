@@ -23,13 +23,15 @@ export const ShimmerLoadingText: React.FC<ShimmerLoadingTextProps> = React.memo(
 
     return (
       <div
-        className={cn('inline-block pulse-colors', className)}
-        style={{
-          fontSize: fontSize,
-          animationDuration: `${duration}s`,
-          '--pulse-color-1': colors[0],
-          '--pulse-color-2': colors[1]
-        } as React.CSSProperties & { '--pulse-color-1': string; '--pulse-color-2': string }}>
+        className={cn('pulse-colors inline-block', className)}
+        style={
+          {
+            fontSize: fontSize,
+            animationDuration: `${duration}s`,
+            '--pulse-color-1': colors[0],
+            '--pulse-color-2': colors[1]
+          } as React.CSSProperties & { '--pulse-color-1': string; '--pulse-color-2': string }
+        }>
         {text}
       </div>
     );
