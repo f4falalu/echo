@@ -1,16 +1,16 @@
-import type { ChartDataset, ScriptableContext } from 'chart.js';
-import { describe, expect, it, vi } from 'vitest';
-import type { BusterChartProps } from '@/api/asset_interfaces/metric/charts';
 import {
-  DEFAULT_COLUMN_LABEL_FORMAT,
-  DEFAULT_COLUMN_SETTINGS,
   type ChartEncodes,
   type ColumnLabelFormat,
   type ColumnSettings,
-  type ScatterAxis
+  DEFAULT_COLUMN_LABEL_FORMAT,
+  DEFAULT_COLUMN_SETTINGS,
+  type ScatterAxis,
 } from '@buster/server-shared/metrics';
-import { createDayjsDate } from '@/lib/date';
-import { formatLabel } from '@/lib/columnFormatter';
+import type { ChartDataset, ScriptableContext } from 'chart.js';
+import { describe, expect, it, vi } from 'vitest';
+import { formatLabel } from '../../../../../lib/columnFormatter';
+import { createDayjsDate } from '../../../../../lib/date';
+import type { BusterChartProps } from '../../../BusterChart.types';
 import type { DatasetOption, DatasetOptionsWithTicks, KV } from '../../../chartHooks';
 import { formatBarAndLineDataLabel } from '../../helpers';
 import { lineBuilder, lineSeriesBuilder_labels } from './lineSeriesBuilder';
@@ -21,34 +21,34 @@ type ColumnSettingsMap = NonNullable<BusterChartProps['columnSettings']>;
 
 // Mock dependencies
 vi.mock('../../../commonHelpers', () => ({
-  formatLabelForDataset: vi.fn((dataset) => dataset.label[0]?.value || dataset.dataKey)
+  formatLabelForDataset: vi.fn((dataset) => dataset.label[0]?.value || dataset.dataKey),
 }));
 
 vi.mock('@/lib/colors', () => ({
   addOpacityToColor: vi.fn((color, opacity) =>
     opacity === 1 ? color : `${color}-opacity-${opacity}`
-  )
+  ),
 }));
 
 vi.mock('@/lib/date', () => ({
   createDayjsDate: vi.fn((dateString) => ({
-    toDate: () => new Date(dateString)
-  }))
+    toDate: () => new Date(dateString),
+  })),
 }));
 
 vi.mock('@/lib/columnFormatter', () => ({
-  formatLabel: vi.fn((value) => `formatted-${value}`)
+  formatLabel: vi.fn((value) => `formatted-${value}`),
 }));
 
 vi.mock('@/lib/axisFormatter', () => ({
-  JOIN_CHARACTER: ' | '
+  JOIN_CHARACTER: ' | ',
 }));
 
 vi.mock('../../helpers', () => ({
   formatBarAndLineDataLabel: vi.fn(
     (value, context, percentageMode, columnLabelFormat) =>
       `label-${value}-${percentageMode || 'none'}`
-  )
+  ),
 }));
 
 const mockContext = (
@@ -64,18 +64,18 @@ const mockContext = (
       scales: { x: { type: scaleType } },
       ctx: {
         createLinearGradient: vi.fn(() => ({
-          addColorStop: vi.fn()
-        }))
+          addColorStop: vi.fn(),
+        })),
       },
       height: 400,
       data: {
-        datasets: chartDatasets
-      }
+        datasets: chartDatasets,
+      },
     },
     dataIndex: dataIndex,
     datasetIndex: datasetIndex,
     dataset: { data: datasetData },
-    value: value
+    value: value,
   }) as unknown as ScriptableContext<'line'>;
 
 describe('lineSeriesBuilder', () => {
@@ -90,7 +90,7 @@ describe('lineSeriesBuilder', () => {
           lineType: 'smooth',
           lineWidth: 2,
           lineSymbolSize: 3,
-          lineStyle: 'line'
+          lineStyle: 'line',
         },
         metric2: {
           ...DEFAULT_COLUMN_SETTINGS,
@@ -98,7 +98,7 @@ describe('lineSeriesBuilder', () => {
           lineType: 'normal',
           lineWidth: 1,
           lineSymbolSize: 4,
-          lineStyle: 'area'
+          lineStyle: 'area',
         } as ColumnSettings,
         metric3: {
           ...DEFAULT_COLUMN_SETTINGS,
@@ -107,26 +107,26 @@ describe('lineSeriesBuilder', () => {
           lineWidth: 3,
           lineSymbolSize: 5,
           lineStyle: 'line',
-          showDataLabelsAsPercentage: true
-        }
+          showDataLabelsAsPercentage: true,
+        },
       } as ColumnSettingsMap,
       columnLabelFormats: {
         metric1: {
           ...DEFAULT_COLUMN_LABEL_FORMAT,
           columnType: 'number',
-          style: 'number'
+          style: 'number',
         } as ColumnLabelFormat,
         metric2: {
           ...DEFAULT_COLUMN_LABEL_FORMAT,
           columnType: 'number',
           style: 'currency',
-          currency: 'USD'
+          currency: 'USD',
         } as ColumnLabelFormat,
         metric3: {
           ...DEFAULT_COLUMN_LABEL_FORMAT,
           columnType: 'number',
-          style: 'percent'
-        } as ColumnLabelFormat
+          style: 'percent',
+        } as ColumnLabelFormat,
       } as ColumnLabelFormatMap,
       xAxisKeys: ['category'] as ChartEncodes['x'],
       lineGroupType: null,
@@ -141,18 +141,18 @@ describe('lineSeriesBuilder', () => {
         tooltipData: [
           [
             { key: 'label', value: 'point1' },
-            { key: 'value', value: 10 }
+            { key: 'value', value: 10 },
           ],
           [
             { key: 'label', value: 'point2' },
-            { key: 'value', value: 20 }
+            { key: 'value', value: 20 },
           ],
           [
             { key: 'label', value: 'point3' },
-            { key: 'value', value: 15 }
-          ]
-        ]
-      } as DatasetOption
+            { key: 'value', value: 15 },
+          ],
+        ],
+      } as DatasetOption,
     } as Parameters<typeof lineBuilder>[0];
 
     it('should build a basic line series correctly', () => {
@@ -194,7 +194,7 @@ describe('lineSeriesBuilder', () => {
         ...baseProps.dataset,
         id: 'm2',
         dataKey: 'metric2',
-        label: [{ key: 'label', value: 'Metric Two' }]
+        label: [{ key: 'label', value: 'Metric Two' }],
       };
       const props = { ...baseProps, index: 1, dataset: datasetMetric2 };
       const result = lineBuilder(props);
@@ -235,7 +235,7 @@ describe('lineSeriesBuilder', () => {
         ...baseProps.dataset,
         id: 'm3',
         dataKey: 'metric3',
-        label: [{ key: 'label', value: 'Metric Three' }]
+        label: [{ key: 'label', value: 'Metric Three' }],
       };
       const props = { ...baseProps, index: 2, dataset: datasetMetric3 };
       const result = lineBuilder(props);
@@ -279,31 +279,31 @@ describe('lineSeriesBuilder', () => {
       datasetOptions: {
         ticksKey: [
           { key: 'date', value: 'Date' },
-          { key: 'category', value: 'Category' }
+          { key: 'category', value: 'Category' },
         ] as KV[],
         ticks: [
           ['2023-01-01', 'A'],
           ['2023-01-02', 'B'],
-          ['2023-01-03', 'A']
+          ['2023-01-03', 'A'],
         ],
-        datasets: []
+        datasets: [],
       } as DatasetOptionsWithTicks,
       columnLabelFormats: {
         date: {
           ...DEFAULT_COLUMN_LABEL_FORMAT,
           columnType: 'date',
-          style: 'date'
+          style: 'date',
         } as ColumnLabelFormat,
         category: {
           ...DEFAULT_COLUMN_LABEL_FORMAT,
           columnType: 'text',
-          style: 'string'
-        } as ColumnLabelFormat
+          style: 'string',
+        } as ColumnLabelFormat,
       } as ColumnLabelFormatMap,
       columnSettings: {} as ColumnSettingsMap,
       sizeKey: [] as ScatterAxis['size'],
       trendlineSeries: [] as ChartDataset<'line'>[],
-      colors: []
+      colors: [],
     };
 
     it('should create date labels correctly when specified', () => {
@@ -312,8 +312,8 @@ describe('lineSeriesBuilder', () => {
         xAxisKeys: ['date'] as ChartEncodes['x'],
         datasetOptions: {
           ...baseProps.datasetOptions,
-          ticks: [['2023-01-01'], ['2023-01-02'], ['2023-01-03']]
-        }
+          ticks: [['2023-01-01'], ['2023-01-02'], ['2023-01-03']],
+        },
       };
       const labels = lineSeriesBuilder_labels(props);
       expect(props.datasetOptions.ticks).toHaveLength(3);

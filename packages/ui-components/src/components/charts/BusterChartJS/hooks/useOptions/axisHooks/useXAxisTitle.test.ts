@@ -1,22 +1,21 @@
+import type {
+  ChartEncodes,
+  ColumnLabelFormat,
+  SimplifiedColumnType,
+} from '@buster/server-shared/metrics';
 import { renderHook } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import type { BusterChartProps } from '@/api/asset_interfaces/metric/charts';
-import {
-  type ChartEncodes,
-  type ColumnLabelFormat,
-  type SimplifiedColumnType
-} from '@buster/server-shared/metrics';
-import { formatLabel } from '@/lib/columnFormatter';
+import { formatLabel } from '../../../../../../lib/columnFormatter';
 import { truncateWithEllipsis } from '../../../../commonHelpers/titleHelpers';
 import { useXAxisTitle } from './useXAxisTitle';
 
 // Mock the dependencies
 vi.mock('@/lib/columnFormatter', () => ({
-  formatLabel: vi.fn()
+  formatLabel: vi.fn(),
 }));
 
 vi.mock('../../../../commonHelpers/titleHelpers', () => ({
-  truncateWithEllipsis: vi.fn()
+  truncateWithEllipsis: vi.fn(),
 }));
 
 describe('useXAxisTitle', () => {
@@ -25,24 +24,24 @@ describe('useXAxisTitle', () => {
     columnLabelFormats: {
       date: {
         columnType: 'date' as SimplifiedColumnType,
-        style: 'date' as const
+        style: 'date' as const,
       } as ColumnLabelFormat,
       category: {
         columnType: 'string' as SimplifiedColumnType,
-        style: 'string' as const
+        style: 'string' as const,
       } as ColumnLabelFormat,
       value: {
         columnType: 'number' as SimplifiedColumnType,
-        style: 'number' as const
-      } as ColumnLabelFormat
+        style: 'number' as const,
+      } as ColumnLabelFormat,
     } as Record<string, ColumnLabelFormat>,
     isSupportedChartForAxisTitles: true,
     xAxisShowAxisTitle: true,
     xAxisAxisTitle: '',
     selectedAxis: {
       x: ['date', 'category'],
-      y: ['value']
-    } as ChartEncodes
+      y: ['value'],
+    } as ChartEncodes,
   };
 
   beforeEach(() => {
@@ -55,7 +54,7 @@ describe('useXAxisTitle', () => {
   it('should return empty string when chart type is not supported', () => {
     const props = {
       ...defaultProps,
-      isSupportedChartForAxisTitles: false
+      isSupportedChartForAxisTitles: false,
     };
 
     const { result } = renderHook(() => useXAxisTitle(props));
@@ -67,7 +66,7 @@ describe('useXAxisTitle', () => {
   it('should return empty string when xAxisShowAxisTitle is false', () => {
     const props = {
       ...defaultProps,
-      xAxisShowAxisTitle: false
+      xAxisShowAxisTitle: false,
     };
 
     const { result } = renderHook(() => useXAxisTitle(props));
@@ -91,7 +90,7 @@ describe('useXAxisTitle', () => {
     const customTitle = 'Custom X-Axis Title';
     const props = {
       ...defaultProps,
-      xAxisAxisTitle: customTitle
+      xAxisAxisTitle: customTitle,
     };
 
     (truncateWithEllipsis as any).mockReturnValue('Truncated Custom Title');
@@ -115,7 +114,7 @@ describe('useXAxisTitle', () => {
       ...defaultProps,
       xAxisAxisTitle: null, // Set to null instead of empty string to ensure formatLabel is called
       isSupportedChartForAxisTitles: true,
-      xAxisShowAxisTitle: true
+      xAxisShowAxisTitle: true,
     };
 
     const { result } = renderHook(() => useXAxisTitle(modifiedProps));
@@ -139,9 +138,9 @@ describe('useXAxisTitle', () => {
       xAxis: ['date'],
       selectedAxis: {
         x: ['date'],
-        y: ['value']
+        y: ['value'],
       } as ChartEncodes,
-      xAxisAxisTitle: null // Set to null instead of empty string to ensure formatLabel is called
+      xAxisAxisTitle: null, // Set to null instead of empty string to ensure formatLabel is called
     };
 
     (formatLabel as any).mockReturnValue('Formatted Date');
@@ -158,7 +157,7 @@ describe('useXAxisTitle', () => {
     // Modified props to ensure formatLabel is called
     const modifiedProps = {
       ...defaultProps,
-      xAxisAxisTitle: null // Set to null instead of empty string to ensure formatLabel is called
+      xAxisAxisTitle: null, // Set to null instead of empty string to ensure formatLabel is called
     };
 
     const { result, rerender } = renderHook(() => useXAxisTitle(modifiedProps));
@@ -176,13 +175,13 @@ describe('useXAxisTitle', () => {
 
   it('should update when dependencies change', () => {
     const { result, rerender } = renderHook((props) => useXAxisTitle(props), {
-      initialProps: defaultProps
+      initialProps: defaultProps,
     });
 
     // Change a dependency
     const newProps = {
       ...defaultProps,
-      xAxisAxisTitle: 'New Title'
+      xAxisAxisTitle: 'New Title',
     };
 
     (truncateWithEllipsis as any).mockReturnValue('Truncated New Title');

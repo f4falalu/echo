@@ -1,21 +1,21 @@
-import { Chart, Filler, type ScriptableContext } from 'chart.js';
+import { JOIN_CHARACTER } from '@/lib/axisFormatter';
 import { addOpacityToColor } from '@/lib/colors';
-import { createDayjsDate } from '@/lib/date';
 import { formatLabel } from '@/lib/columnFormatter';
+import { createDayjsDate } from '@/lib/date';
+import {
+  type ColumnSettings,
+  DEFAULT_COLUMN_LABEL_FORMAT,
+  DEFAULT_COLUMN_SETTINGS,
+} from '@buster/server-shared/metrics';
+import { Chart, Filler, type Scale, type ScriptableContext } from 'chart.js';
 import type { DatasetOption } from '../../../chartHooks';
 import { formatLabelForDataset } from '../../../commonHelpers';
-import { JOIN_CHARACTER } from '@/lib/axisFormatter';
 import type { ChartProps } from '../../core';
 import { formatBarAndLineDataLabel } from '../../helpers';
 import { defaultLabelOptionConfig } from '../useChartSpecificOptions/labelOptionConfig';
 import { createTrendlineOnSeries } from './createTrendlines';
 import type { SeriesBuilderProps } from './interfaces';
 import type { LabelBuilderProps } from './useSeriesOptions';
-import {
-  DEFAULT_COLUMN_LABEL_FORMAT,
-  DEFAULT_COLUMN_SETTINGS,
-  type ColumnSettings
-} from '@buster/server-shared/metrics';
 
 Chart.register(Filler);
 
@@ -28,7 +28,7 @@ export const lineSeriesBuilder = ({
   lineGroupType,
   datasetOptions,
   xAxisKeys,
-  trendlines
+  trendlines,
 }: SeriesBuilderProps): ChartProps<'line'>['data']['datasets'][number][] => {
   return datasetOptions.datasets.map<ChartProps<'line'>['data']['datasets'][number]>(
     (dataset, index) => {
@@ -40,7 +40,7 @@ export const lineSeriesBuilder = ({
         columnLabelFormats,
         index,
         xAxisKeys,
-        trendlines
+        trendlines,
       });
     }
   );
@@ -72,7 +72,7 @@ export const lineBuilder = (
     order,
     dataset,
     xAxisKeys,
-    trendlines
+    trendlines,
   } = props;
   const { dataKey } = dataset;
   const yKey = dataKey;
@@ -83,11 +83,11 @@ export const lineBuilder = (
     lineSymbolSize = DEFAULT_COLUMN_SETTINGS.lineSymbolSize,
     lineStyle,
     lineWidth,
-    lineType
+    lineType,
   } = columnSetting;
 
   const colorLength = colors.length;
-  const color = colors[index % colorLength];
+  const color = colors[index % colorLength] || '';
 
   // Pre-calculate point dimensions
   const hoverRadius = lineSymbolSize * HOVER_RADIUS_MULTIPLIER;
@@ -127,13 +127,13 @@ export const lineBuilder = (
       trendlines,
       datasetColor: color,
       yAxisKey: dataset.dataKey,
-      columnLabelFormats
+      columnLabelFormats,
     }),
     datalabels: {
       clamp: true,
       display: showDataLabels
         ? (context) => {
-            const xScale = context.chart.scales.x;
+            const xScale = context.chart.scales.x as Scale;
             const isXScaleTime = xScale.type === 'time';
 
             if (isXScaleTime && context.dataIndex === context.dataset.data.length - 1) {
@@ -148,9 +148,9 @@ export const lineBuilder = (
       ...getLabelPosition(isStackedArea),
       ...defaultLabelOptionConfig,
       ...(percentageMode === 'data-label' && {
-        color: 'white'
-      })
-    } satisfies ChartProps<'line'>['data']['datasets'][number]['datalabels']
+        color: 'white',
+      }),
+    } satisfies ChartProps<'line'>['data']['datasets'][number]['datalabels'],
   } satisfies ChartProps<'line'>['data']['datasets'][number];
 };
 
@@ -160,13 +160,13 @@ const getLabelPosition = (
   if (isStackedArea) {
     return {
       anchor: 'start',
-      align: 'bottom'
+      align: 'bottom',
       //  offset: -10
     };
   }
   return {
     anchor: 'end',
-    align: 'top'
+    align: 'top',
     //  offset:0
   };
 };
@@ -211,9 +211,9 @@ const createFillColor = (color: string, isArea: boolean, isStackedArea: boolean)
 export const lineSeriesBuilder_labels = ({
   datasetOptions,
   xAxisKeys,
-  columnLabelFormats
+  columnLabelFormats,
 }: LabelBuilderProps): (string | Date)[] => {
-  const xColumnLabelFormat = columnLabelFormats[xAxisKeys[0]] || DEFAULT_COLUMN_LABEL_FORMAT;
+  const xColumnLabelFormat = columnLabelFormats[xAxisKeys[0] || ''] || DEFAULT_COLUMN_LABEL_FORMAT;
   const useDateLabels =
     xAxisKeys.length === 1 &&
     datasetOptions.ticks[0]?.length === 1 &&
@@ -223,7 +223,7 @@ export const lineSeriesBuilder_labels = ({
 
   if (useDateLabels) {
     return datasetOptions.ticks.flatMap((item) => {
-      return item.map<Date>((item, index) => {
+      return item.map<Date>((item) => {
         return createDayjsDate(item as string).toDate(); //do not join because it will turn into a string
       });
     });
@@ -232,7 +232,7 @@ export const lineSeriesBuilder_labels = ({
   return datasetOptions.ticks.flatMap((item) => {
     return item
       .map<string>((item, index) => {
-        const key = ticksKey[index]?.key;
+        const key = ticksKey[index]?.key || '';
         const columnLabelFormat = columnLabelFormats[key];
         return formatLabel(item, columnLabelFormat);
       })

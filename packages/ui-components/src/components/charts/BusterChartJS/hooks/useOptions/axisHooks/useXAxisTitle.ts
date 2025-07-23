@@ -1,8 +1,8 @@
-import { useMemo } from 'react';
-import type { BusterChartProps } from '../../../BusterChart.types';
 import { AXIS_TITLE_SEPARATOR } from '@/lib/axisFormatter';
 import { formatLabel } from '@/lib/columnFormatter';
 import type { ChartEncodes } from '@buster/server-shared/metrics';
+import { useMemo } from 'react';
+import type { BusterChartProps } from '../../../../BusterChart.types';
 import { truncateWithEllipsis } from '../../../../commonHelpers/titleHelpers';
 
 interface UseXAxisTitleProps {

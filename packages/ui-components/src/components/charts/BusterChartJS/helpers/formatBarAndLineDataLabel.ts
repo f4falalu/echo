@@ -1,6 +1,6 @@
-import type { Context } from 'chartjs-plugin-datalabels';
 import { formatLabel } from '@/lib/columnFormatter';
 import type { ColumnLabelFormat } from '@buster/server-shared/metrics';
+import type { Context } from 'chartjs-plugin-datalabels';
 
 export const formatBarAndLineDataLabel = (
   value: number,
@@ -17,14 +17,15 @@ export const formatBarAndLineDataLabel = (
 
   const useStackTotal = hasMultipleDatasets || percentageMode === 'stacked';
 
-  const total: number = useStackTotal
-    ? context.chart.$totalizer.stackTotals[context.dataIndex]
-    : context.chart.$totalizer.seriesTotals[context.datasetIndex];
+  const total: number =
+    (useStackTotal
+      ? context.chart.$totalizer.stackTotals[context.dataIndex]
+      : context.chart.$totalizer.seriesTotals[context.datasetIndex]) || 0;
   const percentage = ((value as number) / total) * 100;
 
   return formatLabel(percentage, {
     ...columnLabelFormat,
     style: 'percent',
-    columnType: 'number'
+    columnType: 'number',
   });
 };

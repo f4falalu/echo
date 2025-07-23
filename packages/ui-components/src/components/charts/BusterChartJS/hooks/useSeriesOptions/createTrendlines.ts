@@ -1,20 +1,20 @@
-import { type BusterChartProps } from '@/api/asset_interfaces/metric';
 import { formatLabel } from '@/lib/columnFormatter';
+import { type ChartEncodes, DEFAULT_TRENDLINE_CONFIG } from '@buster/server-shared/metrics';
+import type { BusterChartProps } from '../../../BusterChart.types';
 import type {
   AggregateMultiple,
   TrendlineOptions,
-  TrendlinePluginOptions
+  TrendlinePluginOptions,
 } from '../../core/plugins/chartjs-plugin-trendlines';
 import { canSupportTrendlineRecord } from '../../core/plugins/chartjs-plugin-trendlines/canSupportTrendline';
 import { TypeToLabel } from '../../core/plugins/chartjs-plugin-trendlines/config';
-import { DEFAULT_TRENDLINE_CONFIG, type ChartEncodes } from '@buster/server-shared/metrics';
 
 export const createTrendlineOnSeries = ({
   trendlines,
   yAxisKey,
   datasetColor,
   columnLabelFormats,
-  useAggregateTrendlines
+  useAggregateTrendlines,
 }: {
   trendlines: BusterChartProps['trendlines'];
   yAxisKey: string;
@@ -49,7 +49,6 @@ export const createTrendlineOnSeries = ({
         projection,
         offset,
         trendlineLabelPositionOffset,
-        ...rest
       }) => {
         return {
           type,
@@ -93,9 +92,9 @@ export const createTrendlineOnSeries = ({
                       : defaultLabel;
 
                   return labelContent;
-                }
+                },
               }
-            : undefined
+            : undefined,
         } satisfies TrendlineOptions;
       }
     )
@@ -105,7 +104,7 @@ export const createTrendlineOnSeries = ({
 export const createAggregrateTrendlines = ({
   trendlines,
   columnLabelFormats,
-  selectedAxis
+  selectedAxis,
 }: {
   selectedAxis: ChartEncodes;
   trendlines: BusterChartProps['trendlines'];
@@ -118,7 +117,7 @@ export const createAggregrateTrendlines = ({
       trendlines: [trendline],
       yAxisKey: trendline.columnId,
       columnLabelFormats,
-      useAggregateTrendlines: true
+      useAggregateTrendlines: true,
     });
 
     if (result?.[0]) {
@@ -126,7 +125,7 @@ export const createAggregrateTrendlines = ({
       acc.push({
         ...result[0],
         yAxisID: isYAxis ? 'y' : 'y2',
-        yAxisKey: trendline.columnId
+        yAxisKey: trendline.columnId,
       });
     }
 
@@ -134,6 +133,6 @@ export const createAggregrateTrendlines = ({
   }, []);
 
   return {
-    aggregateMultiple: trendlineOptions
+    aggregateMultiple: trendlineOptions,
   };
 };

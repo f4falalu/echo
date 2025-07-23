@@ -1,15 +1,15 @@
+import type { ChartType } from '@buster/server-shared/metrics';
 import type { AnimationOptions, ChartType as ChartTypeJS } from 'chart.js';
 import { useMemo } from 'react';
-import type { BusterChartProps } from '@/api/asset_interfaces/metric';
+import type { BusterChartProps } from '../../../BusterChart.types';
 import { ANIMATION_DURATION, ANIMATION_THRESHOLD } from '../../../config';
 import { barDelayAnimation } from '../../core/animations/barDelayAnimation';
-import type { ChartType } from '@buster/server-shared/metrics';
 
 export const useAnimations = ({
   animate,
   numberOfDataPoints,
   selectedChartType,
-  barGroupType
+  barGroupType,
 }: {
   animate: boolean;
   numberOfDataPoints: number;
@@ -26,7 +26,7 @@ export const useAnimations = ({
     return isAnimationEnabled
       ? {
           duration: ANIMATION_DURATION,
-          ...animationRecord[selectedChartType]?.({ barGroupType })
+          ...animationRecord[selectedChartType]?.({ barGroupType }),
         }
       : false;
   }, [isAnimationEnabled, selectedChartType, barGroupType]);
@@ -35,7 +35,7 @@ export const useAnimations = ({
 const animationRecord: Record<
   ChartType,
   ({
-    barGroupType
+    barGroupType,
   }: {
     barGroupType: BusterChartProps['barGroupType'];
   }) => AnimationOptions<ChartTypeJS>['animation']
@@ -46,5 +46,5 @@ const animationRecord: Record<
   pie: () => ({}),
   metric: () => ({}),
   table: () => ({}),
-  combo: () => ({})
+  combo: () => ({}),
 };

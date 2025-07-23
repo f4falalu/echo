@@ -1,11 +1,7 @@
 'use client';
 
-import type { TooltipOptions } from 'chart.js';
-import { useEffect, useMemo, useRef } from 'react';
-import { renderToString } from 'react-dom/server';
-import type { DeepPartial } from 'utility-types';
-import type { BusterChartProps } from '../../../BusterChart.types';
-import { useMemoizedFn, useUnmount } from '@/hooks';
+import { useMemoizedFn } from '@/hooks/useMemoizedFn';
+import { useUnmount } from '@/hooks/useUnmount';
 import { cn } from '@/lib/classMerge';
 import { isNumericColumnType } from '@/lib/messages';
 import {
@@ -13,6 +9,11 @@ import {
   type ComboChartAxis,
   DEFAULT_COLUMN_LABEL_FORMAT,
 } from '@buster/server-shared/metrics';
+import type { TooltipOptions } from 'chart.js';
+import { useEffect, useMemo, useRef } from 'react';
+import { renderToString } from 'react-dom/server';
+import type { DeepPartial } from 'utility-types';
+import type { BusterChartProps } from '../../../../BusterChart.types';
 import type { ChartJSOrUndefined } from '../../../core/types';
 import { BusterChartJSTooltip } from './BusterChartJSTooltip';
 

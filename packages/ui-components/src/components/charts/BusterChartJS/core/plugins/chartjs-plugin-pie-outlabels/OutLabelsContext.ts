@@ -9,6 +9,6 @@ export default interface OutLabelsContext {
   value: number;
   percent: number;
   display: boolean;
-  formatter?: (value: number) => string;
+  formatter?: ((value: number) => string) | undefined;
   usePercent?: boolean;
 }

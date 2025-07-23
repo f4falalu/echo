@@ -1,6 +1,6 @@
+import { type ColumnLabelFormat, DEFAULT_COLUMN_LABEL_FORMAT } from '@buster/server-shared/metrics';
 import { describe, expect, it } from 'vitest';
-import { DEFAULT_COLUMN_LABEL_FORMAT, type ColumnLabelFormat } from '@buster/server-shared/metrics';
-import { createDayjsDate } from '@/lib/date';
+import { createDayjsDate } from '../../../../../lib/date';
 import type { DatasetOptionsWithTicks } from '../../../chartHooks/useDatasetOptions/interfaces';
 import type { SeriesBuilderProps } from './interfaces';
 import { scatterSeriesBuilder_data, scatterSeriesBuilder_labels } from './scatterSeriesBuilder';
@@ -21,31 +21,31 @@ describe('scatterSeriesBuilder_data', () => {
           [1000, 'Jan 1'],
           [2000, 'Jan 2'],
           [3000, 'Jan 3'],
-          [4000, 'Jan 4']
+          [4000, 'Jan 4'],
         ],
         tooltipData: [],
         label: [{ key: 'metric1', value: 'Metric 1' }],
-        axisType: 'y'
-      }
+        axisType: 'y',
+      },
     ],
     ticks: [
       [1000, 'Jan 1'],
       [2000, 'Jan 2'],
       [3000, 'Jan 3'],
-      [4000, 'Jan 4']
+      [4000, 'Jan 4'],
     ],
-    ticksKey: [{ key: 'timestamp', value: 'Timestamp' }]
+    ticksKey: [{ key: 'timestamp', value: 'Timestamp' }],
   };
 
   const baseColumnLabelFormats: Record<string, Partial<ColumnLabelFormat>> = {
     timestamp: {
       columnType: 'date',
-      style: 'date'
+      style: 'date',
     },
     metric1: {
       columnType: 'number',
-      style: 'number'
-    }
+      style: 'number',
+    },
   };
 
   const baseProps: SeriesBuilderProps = {
@@ -61,7 +61,7 @@ describe('scatterSeriesBuilder_data', () => {
     barGroupType: null,
     yAxisKeys: ['metric1'],
     y2AxisKeys: [],
-    trendlines: []
+    trendlines: [],
   };
 
   it('should create basic scatter dataset without size options', () => {
@@ -81,15 +81,15 @@ describe('scatterSeriesBuilder_data', () => {
           ...baseDatasetOptions.datasets[0],
           data: [10],
           ticksForScatter: [[timestamp, 'Jan 1']],
-          tooltipData: [[]]
-        }
+          tooltipData: [[]],
+        },
       ],
-      ticks: [[timestamp, 'Jan 1']]
+      ticks: [[timestamp, 'Jan 1']],
     };
 
     const result = scatterSeriesBuilder_data({
       ...baseProps,
-      datasetOptions: dateDataset
+      datasetOptions: dateDataset,
     });
 
     expect(result[0].data[0].x).toBe(createDayjsDate(timestamp).valueOf());
@@ -99,7 +99,7 @@ describe('scatterSeriesBuilder_data', () => {
     const sizeOptions = {
       key: 'size',
       minValue: 0,
-      maxValue: 100
+      maxValue: 100,
     };
 
     const datasetWithSize: DatasetOptionsWithTicks = {
@@ -107,15 +107,15 @@ describe('scatterSeriesBuilder_data', () => {
       datasets: [
         {
           ...baseDatasetOptions.datasets[0],
-          sizeData: [50]
-        }
-      ]
+          sizeData: [50],
+        },
+      ],
     };
 
     const result = scatterSeriesBuilder_data({
       ...baseProps,
       sizeOptions,
-      datasetOptions: datasetWithSize
+      datasetOptions: datasetWithSize,
     });
 
     expect(result[0].data[0].originalR).toBe(50);
@@ -129,12 +129,12 @@ describe('scatterSeriesBuilder_labels', () => {
       datasetOptions: {
         ticks: [],
         datasets: [],
-        ticksKey: []
+        ticksKey: [],
       },
       columnLabelFormats: {},
       xAxisKeys: ['x'],
       sizeKey: [],
-      columnSettings: {}
+      columnSettings: {},
     };
 
     const result = scatterSeriesBuilder_labels(props);
@@ -150,18 +150,18 @@ describe('scatterSeriesBuilder_labels', () => {
             data: [10, 20],
             ticksForScatter: [
               [1, 'A'],
-              [2, 'B']
-            ]
-          } as any
+              [2, 'B'],
+            ],
+          } as any,
         ],
-        ticksKey: [{ key: 'x', value: 'X Axis' }]
+        ticksKey: [{ key: 'x', value: 'X Axis' }],
       } as any,
       columnLabelFormats: {
-        x: DEFAULT_COLUMN_LABEL_FORMAT
+        x: DEFAULT_COLUMN_LABEL_FORMAT,
       },
       xAxisKeys: ['x'],
       sizeKey: [],
-      columnSettings: {}
+      columnSettings: {},
     };
 
     const result = scatterSeriesBuilder_labels(props);

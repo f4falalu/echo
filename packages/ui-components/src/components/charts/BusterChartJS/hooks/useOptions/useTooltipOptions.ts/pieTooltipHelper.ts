@@ -1,6 +1,6 @@
+import { formatLabel } from '@/lib/columnFormatter';
 import type { Chart, ChartTypeRegistry, TooltipItem } from 'chart.js';
-import type { BusterChartProps } from '../../../BusterChart.types';
-import { formatLabel } from '@/lib';
+import type { BusterChartProps } from '../../../../BusterChart.types';
 import type { ITooltipItem } from '../../../../BusterChartTooltip/interfaces';
 import { percentageFormatter } from './helpers';
 
@@ -16,6 +16,8 @@ export const pieTooltipHelper = (
     const dataPointDataIndex = dataPoint.dataIndex;
     const tooltipData = tooltipDataset.tooltipData;
     const selectedToolTipData = tooltipData[dataPointDataIndex];
+
+    if (!selectedToolTipData) return [];
 
     const items = selectedToolTipData.map<ITooltipItem>((item) => {
       const { key, value } = item;
@@ -56,11 +58,11 @@ const getPiePercentage = (
   chart: Chart
 ): string => {
   const totalizer = chart.$totalizer;
-  const total = totalizer.seriesTotals[datasetIndex];
+  const total = totalizer.seriesTotals[datasetIndex] || 1;
   const compareValue = datasetData[dataPointDataIndex] as number;
   const percentage = (compareValue / total) * 100;
   const dataset = chart.data.datasets[datasetIndex];
-  const yAxisKey = dataset.yAxisKey;
+  const yAxisKey = dataset?.yAxisKey || '';
 
   return percentageFormatter(percentage, yAxisKey, columnLabelFormats);
 };

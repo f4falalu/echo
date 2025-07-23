@@ -127,7 +127,7 @@ const extractDateForFormatting = (
   return String(date);
 };
 
-const valueIsValidMonth = (value: string | number | Date | undefined) => {
+export const valueIsValidMonth = (value: string | number | Date | undefined) => {
   if (value === undefined || value === null) return false;
   const month = Number(value);
   return month > 0 && month <= 12;

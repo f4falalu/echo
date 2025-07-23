@@ -11,9 +11,9 @@ export type PopoverTriggerType = 'click' | 'hover';
 const Popover = PopoverPrimitive.Root;
 
 interface PopoverProps extends React.ComponentPropsWithoutRef<typeof Popover> {
-  trigger?: PopoverTriggerType;
-  children: React.ReactNode;
-  open?: boolean;
+  trigger?: PopoverTriggerType | undefined;
+  children: React.ReactNode | undefined;
+  open?: boolean | undefined;
 }
 
 const PopoverRoot: React.FC<PopoverProps> = ({ children, trigger = 'click', ...props }) => {
@@ -41,11 +41,11 @@ const PopoverRoot: React.FC<PopoverProps> = ({ children, trigger = 'click', ...p
       children
     );
 
-  return (
-    <Popover {...props} open={trigger === 'hover' ? isOpen : undefined}>
-      {content}
-    </Popover>
-  );
+  if (trigger === 'hover') {
+    props.open = isOpen;
+  }
+
+  return <Popover {...props}>{content}</Popover>;
 };
 
 const PopoverTrigger = PopoverPrimitive.Trigger;

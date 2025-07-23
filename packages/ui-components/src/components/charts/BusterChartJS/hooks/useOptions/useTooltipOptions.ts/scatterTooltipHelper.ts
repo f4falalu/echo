@@ -1,6 +1,6 @@
-import type { ChartTypeRegistry, TooltipItem } from 'chart.js';
-import type { ChartConfigProps } from '@buster/server-shared/metrics';
 import { formatLabel } from '@/lib/columnFormatter';
+import type { ChartConfigProps } from '@buster/server-shared/metrics';
+import type { ChartTypeRegistry, TooltipItem } from 'chart.js';
 import type { ITooltipItem } from '../../../../BusterChartTooltip/interfaces';
 
 export const scatterTooltipHelper = (
@@ -15,6 +15,8 @@ export const scatterTooltipHelper = (
 
     const title = dataPointDataset.label as string;
 
+    if (!selectedToolTipData) return [];
+
     return selectedToolTipData.map<ITooltipItem>((item) => {
       return {
         color: dataPointDataset.backgroundColor as string,
@@ -25,9 +27,9 @@ export const scatterTooltipHelper = (
           {
             formattedValue: formatLabel(item.value as number, columnLabelFormats[item.key]),
             formattedPercentage: undefined,
-            formattedLabel: formatLabel(item.key as string, columnLabelFormats[item.key], true)
-          }
-        ]
+            formattedLabel: formatLabel(item.key as string, columnLabelFormats[item.key], true),
+          },
+        ],
       };
     });
   });

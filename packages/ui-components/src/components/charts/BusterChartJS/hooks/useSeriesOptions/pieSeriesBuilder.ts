@@ -1,6 +1,6 @@
+import { JOIN_CHARACTER } from '@/lib/axisFormatter';
 import { formatLabel } from '@/lib/columnFormatter';
 import { formatLabelForDataset } from '../../../commonHelpers';
-import { JOIN_CHARACTER } from '@/lib/axisFormatter';
 import type { ChartProps } from '../../core';
 import type { SeriesBuilderProps } from './interfaces';
 import type { LabelBuilderProps } from './useSeriesOptions';
@@ -13,7 +13,7 @@ export const pieSeriesBuilder_data = ({
   datasetOptions,
   colors,
   xAxisKeys,
-  columnLabelFormats
+  columnLabelFormats,
 }: SeriesBuilderProps): PieSerieType[] => {
   return datasetOptions.datasets.map<PieSerieType>((dataset) => {
     return {
@@ -23,20 +23,20 @@ export const pieSeriesBuilder_data = ({
       yAxisKey: dataset.dataKey,
       data: dataset.data as number[],
       borderColor: 'white', //I tried to set this globally in the theme but it didn't work
-      tooltipData: dataset.tooltipData
+      tooltipData: dataset.tooltipData,
     };
   });
 };
 
 export const pieSeriesBuilder_labels = ({
   datasetOptions,
-  columnLabelFormats
+  columnLabelFormats,
 }: LabelBuilderProps) => {
   const { ticks, ticksKey } = datasetOptions;
   return ticks.flatMap((item) => {
     return item
       .map<string>((item, index) => {
-        const key = ticksKey[index]?.key;
+        const key = ticksKey[index]?.key || '';
         const columnLabelFormat = columnLabelFormats[key];
         return formatLabel(item, columnLabelFormat);
       })

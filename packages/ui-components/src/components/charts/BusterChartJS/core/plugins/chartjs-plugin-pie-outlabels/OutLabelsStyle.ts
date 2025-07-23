@@ -1,7 +1,7 @@
+import { determineFontColorContrast } from '@/lib/colors';
 import type { ChartArea, FontSpec } from 'chart.js';
 import { defaults } from 'chart.js';
 import { resolve, toFont, toLineHeight, toPadding } from 'chart.js/helpers';
-import { determineFontColorContrast } from '@/lib';
 import type OutLabelsContext from './OutLabelsContext';
 import type { FontOptions, OutLabelsOptions } from './OutLabelsOptions';
 
@@ -80,7 +80,7 @@ export class OutLabelStyle {
       [
         options.backgroundColor,
         context.dataset.backgroundColor,
-        context.chart.options.backgroundColor
+        context.chart.options.backgroundColor,
       ],
       context,
       index
@@ -95,7 +95,7 @@ export class OutLabelStyle {
         options.borderColor,
         context.dataset.borderColor,
         options.backgroundColor,
-        context.dataset.backgroundColor
+        context.dataset.backgroundColor,
       ],
       context,
       index

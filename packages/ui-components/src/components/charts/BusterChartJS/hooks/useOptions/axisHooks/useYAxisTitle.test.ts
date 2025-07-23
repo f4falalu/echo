@@ -1,21 +1,21 @@
-import { renderHook } from '@testing-library/react';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { formatLabel } from '@/lib/columnFormatter';
-import { truncateWithEllipsis } from '../../../../commonHelpers/titleHelpers';
-import { useYAxisTitle } from './useYAxisTitle';
 import type {
   ChartEncodes,
   ColumnLabelFormat,
-  SimplifiedColumnType
+  SimplifiedColumnType,
 } from '@buster/server-shared/metrics';
+import { renderHook } from '@testing-library/react';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { formatLabel } from '../../../../../../lib/columnFormatter';
+import { truncateWithEllipsis } from '../../../../commonHelpers/titleHelpers';
+import { useYAxisTitle } from './useYAxisTitle';
 
 // Mock the dependencies
 vi.mock('@/lib/columnFormatter', () => ({
-  formatLabel: vi.fn()
+  formatLabel: vi.fn(),
 }));
 
 vi.mock('../../../../commonHelpers/titleHelpers', () => ({
-  truncateWithEllipsis: vi.fn()
+  truncateWithEllipsis: vi.fn(),
 }));
 
 describe('useYAxisTitle', () => {
@@ -24,28 +24,28 @@ describe('useYAxisTitle', () => {
     columnLabelFormats: {
       date: {
         columnType: 'date' as SimplifiedColumnType,
-        style: 'date' as const
+        style: 'date' as const,
       } as ColumnLabelFormat,
       category: {
         columnType: 'string' as SimplifiedColumnType,
-        style: 'string' as const
+        style: 'string' as const,
       } as ColumnLabelFormat,
       value: {
         columnType: 'number' as SimplifiedColumnType,
-        style: 'number' as const
+        style: 'number' as const,
       } as ColumnLabelFormat,
       count: {
         columnType: 'number' as SimplifiedColumnType,
-        style: 'number' as const
-      } as ColumnLabelFormat
+        style: 'number' as const,
+      } as ColumnLabelFormat,
     } as Record<string, ColumnLabelFormat>,
     isSupportedChartForAxisTitles: true,
     yAxisShowAxisTitle: true,
     yAxisAxisTitle: '',
     selectedAxis: {
       x: ['date', 'category'],
-      y: ['value', 'count']
-    } as ChartEncodes
+      y: ['value', 'count'],
+    } as ChartEncodes,
   };
 
   beforeEach(() => {
@@ -58,7 +58,7 @@ describe('useYAxisTitle', () => {
   it('should return empty string when chart type is not supported', () => {
     const props = {
       ...defaultProps,
-      isSupportedChartForAxisTitles: false
+      isSupportedChartForAxisTitles: false,
     };
 
     const { result } = renderHook(() => useYAxisTitle(props));
@@ -70,7 +70,7 @@ describe('useYAxisTitle', () => {
   it('should return empty string when yAxisShowAxisTitle is false', () => {
     const props = {
       ...defaultProps,
-      yAxisShowAxisTitle: false
+      yAxisShowAxisTitle: false,
     };
 
     const { result } = renderHook(() => useYAxisTitle(props));
@@ -83,7 +83,7 @@ describe('useYAxisTitle', () => {
     const customTitle = 'Custom Y-Axis Title';
     const props = {
       ...defaultProps,
-      yAxisAxisTitle: customTitle
+      yAxisAxisTitle: customTitle,
     };
 
     (truncateWithEllipsis as any).mockReturnValue('Truncated Custom Title');
@@ -105,7 +105,7 @@ describe('useYAxisTitle', () => {
     // Modified props to ensure formatLabel is called
     const modifiedProps = {
       ...defaultProps,
-      yAxisAxisTitle: null // Set to null instead of empty string to ensure formatLabel is called
+      yAxisAxisTitle: null, // Set to null instead of empty string to ensure formatLabel is called
     };
 
     const { result } = renderHook(() => useYAxisTitle(modifiedProps));
@@ -125,9 +125,9 @@ describe('useYAxisTitle', () => {
       yAxis: ['value'],
       selectedAxis: {
         x: ['date', 'category'],
-        y: ['value']
+        y: ['value'],
       } as ChartEncodes,
-      yAxisAxisTitle: null // Set to null instead of empty string to ensure formatLabel is called
+      yAxisAxisTitle: null, // Set to null instead of empty string to ensure formatLabel is called
     };
 
     (formatLabel as any).mockReturnValue('Formatted Value');
@@ -144,7 +144,7 @@ describe('useYAxisTitle', () => {
     // Modified props to ensure formatLabel is called
     const modifiedProps = {
       ...defaultProps,
-      yAxisAxisTitle: null // Set to null instead of empty string to ensure formatLabel is called
+      yAxisAxisTitle: null, // Set to null instead of empty string to ensure formatLabel is called
     };
 
     const { result, rerender } = renderHook(() => useYAxisTitle(modifiedProps));
@@ -162,13 +162,13 @@ describe('useYAxisTitle', () => {
 
   it('should update when dependencies change', () => {
     const { result, rerender } = renderHook((props) => useYAxisTitle(props), {
-      initialProps: defaultProps
+      initialProps: defaultProps,
     });
 
     // Change a dependency
     const newProps = {
       ...defaultProps,
-      yAxisAxisTitle: 'New Title'
+      yAxisAxisTitle: 'New Title',
     };
 
     (truncateWithEllipsis as any).mockReturnValue('Truncated New Title');
@@ -186,9 +186,9 @@ describe('useYAxisTitle', () => {
       yAxis: [],
       selectedAxis: {
         x: ['date', 'category'],
-        y: [] as string[]
+        y: [] as string[],
       } as ChartEncodes,
-      yAxisAxisTitle: null
+      yAxisAxisTitle: null,
     };
 
     (truncateWithEllipsis as any).mockReturnValue('');
@@ -207,9 +207,9 @@ describe('useYAxisTitle', () => {
       yAxis: ['count'], // This is different from selectedAxis.y
       selectedAxis: {
         x: ['date'],
-        y: ['value', 'count'] // This should be used for formatting
+        y: ['value', 'count'], // This should be used for formatting
       } as ChartEncodes,
-      yAxisAxisTitle: null
+      yAxisAxisTitle: null,
     };
 
     (formatLabel as any)

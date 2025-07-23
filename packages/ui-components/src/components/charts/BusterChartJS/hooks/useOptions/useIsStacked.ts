@@ -1,11 +1,11 @@
-import { useMemo } from 'react';
-import { type BusterChartProps } from '@/api/asset_interfaces/metric/charts';
 import type { ChartType } from '@buster/server-shared/metrics';
+import { useMemo } from 'react';
+import type { BusterChartProps } from '../../../BusterChart.types';
 
 export const useIsStacked = ({
   selectedChartType,
   lineGroupType,
-  barGroupType
+  barGroupType,
 }: {
   selectedChartType: ChartType;
   lineGroupType: BusterChartProps['lineGroupType'];

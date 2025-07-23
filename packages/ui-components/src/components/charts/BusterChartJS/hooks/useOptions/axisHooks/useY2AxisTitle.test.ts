@@ -1,18 +1,17 @@
+import type { ColumnLabelFormat, SimplifiedColumnType } from '@buster/server-shared/metrics';
 import { renderHook } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import type { BusterChartProps } from '@/api/asset_interfaces/metric/charts';
-import { formatLabel } from '@/lib/columnFormatter';
+import { formatLabel } from '../../../../../../lib/columnFormatter';
 import { truncateWithEllipsis } from '../../../../commonHelpers/titleHelpers';
 import { useY2AxisTitle } from './useY2AxisTitle';
-import type { ColumnLabelFormat, SimplifiedColumnType } from '@buster/server-shared/metrics';
 
 // Mock the dependencies
 vi.mock('@/lib/columnFormatter', () => ({
-  formatLabel: vi.fn()
+  formatLabel: vi.fn(),
 }));
 
 vi.mock('../../../../commonHelpers/titleHelpers', () => ({
-  truncateWithEllipsis: vi.fn()
+  truncateWithEllipsis: vi.fn(),
 }));
 
 describe('useY2AxisTitle', () => {
@@ -22,21 +21,21 @@ describe('useY2AxisTitle', () => {
       revenue: {
         columnType: 'number' as SimplifiedColumnType,
         style: 'currency' as const,
-        currency: 'USD'
+        currency: 'USD',
       } as ColumnLabelFormat,
       profit: {
         columnType: 'number' as SimplifiedColumnType,
         style: 'currency' as const,
-        currency: 'USD'
+        currency: 'USD',
       } as ColumnLabelFormat,
       count: {
         columnType: 'number' as SimplifiedColumnType,
-        style: 'number' as const
-      } as ColumnLabelFormat
+        style: 'number' as const,
+      } as ColumnLabelFormat,
     } as Record<string, ColumnLabelFormat>,
     isSupportedChartForAxisTitles: true,
     y2AxisShowAxisTitle: true,
-    y2AxisAxisTitle: ''
+    y2AxisAxisTitle: '',
   };
 
   beforeEach(() => {
@@ -49,7 +48,7 @@ describe('useY2AxisTitle', () => {
   it('should return empty string when chart type is not supported', () => {
     const props = {
       ...defaultProps,
-      isSupportedChartForAxisTitles: false
+      isSupportedChartForAxisTitles: false,
     };
 
     const { result } = renderHook(() => useY2AxisTitle(props));
@@ -61,7 +60,7 @@ describe('useY2AxisTitle', () => {
   it('should return empty string when y2AxisShowAxisTitle is false', () => {
     const props = {
       ...defaultProps,
-      y2AxisShowAxisTitle: false
+      y2AxisShowAxisTitle: false,
     };
 
     const { result } = renderHook(() => useY2AxisTitle(props));
@@ -74,7 +73,7 @@ describe('useY2AxisTitle', () => {
     const customTitle = 'Custom Y2-Axis Title';
     const props = {
       ...defaultProps,
-      y2AxisAxisTitle: customTitle
+      y2AxisAxisTitle: customTitle,
     };
 
     (truncateWithEllipsis as any).mockReturnValue('Truncated Custom Title');
@@ -96,7 +95,7 @@ describe('useY2AxisTitle', () => {
     // Set y2AxisAxisTitle to null to test the fallback behavior
     const props = {
       ...defaultProps,
-      y2AxisAxisTitle: null
+      y2AxisAxisTitle: null,
     };
 
     const { result } = renderHook(() => useY2AxisTitle(props));
@@ -122,7 +121,7 @@ describe('useY2AxisTitle', () => {
     const singleAxisProps = {
       ...defaultProps,
       y2Axis: ['revenue'],
-      y2AxisAxisTitle: null
+      y2AxisAxisTitle: null,
     };
 
     (formatLabel as any).mockReturnValue('Formatted Revenue');
@@ -143,7 +142,7 @@ describe('useY2AxisTitle', () => {
     // Set y2AxisAxisTitle to null to test the fallback behavior
     const props = {
       ...defaultProps,
-      y2AxisAxisTitle: null
+      y2AxisAxisTitle: null,
     };
 
     const { result, rerender } = renderHook(() => useY2AxisTitle(props));
@@ -161,13 +160,13 @@ describe('useY2AxisTitle', () => {
 
   it('should update when dependencies change', () => {
     const { result, rerender } = renderHook((props) => useY2AxisTitle(props), {
-      initialProps: defaultProps
+      initialProps: defaultProps,
     });
 
     // Change a dependency
     const newProps = {
       ...defaultProps,
-      y2AxisAxisTitle: 'New Title'
+      y2AxisAxisTitle: 'New Title',
     };
 
     (truncateWithEllipsis as any).mockReturnValue('Truncated New Title');
@@ -183,7 +182,7 @@ describe('useY2AxisTitle', () => {
     const emptyAxisProps = {
       ...defaultProps,
       y2Axis: [],
-      y2AxisAxisTitle: null
+      y2AxisAxisTitle: null,
     };
 
     (truncateWithEllipsis as any).mockReturnValue('');

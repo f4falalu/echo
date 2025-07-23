@@ -1,9 +1,9 @@
+import type { ColumnLabelFormat } from '@buster/server-shared/metrics';
 import type { ChartData } from 'chart.js';
 import { describe, expect, it, vi } from 'vitest';
-import { determineFontColorContrast } from '@/lib/colors';
+import { determineFontColorContrast } from '../../../../../lib/colors';
 import type { ChartSpecificOptionsProps } from './interfaces';
 import { pieOptionsHandler, piePluginsHandler } from './pieChartOptions';
-import type { ColumnLabelFormat } from '@buster/server-shared/metrics';
 
 vi.mock('@/lib/colors');
 
@@ -16,9 +16,9 @@ const mockChartData: ChartData = {
       type: 'pie',
       tooltipData: [],
       xAxisKeys: ['category'],
-      yAxisKey: 'value'
-    }
-  ]
+      yAxisKey: 'value',
+    },
+  ],
 };
 
 describe('pieOptionsHandler', () => {
@@ -34,13 +34,13 @@ describe('pieOptionsHandler', () => {
         y: ['value'],
         x: ['category'],
         category: [],
-        tooltip: null
+        tooltip: null,
       } as ChartSpecificOptionsProps['selectedAxis'],
       columnLabelFormats: {},
       barShowTotalAtTop: false,
       columnSettings: {},
       barGroupType: 'stack',
-      data: mockChartData
+      data: mockChartData,
     };
 
     const result = pieOptionsHandler(props);
@@ -62,15 +62,15 @@ describe('piePluginsHandler', () => {
         y: ['value'],
         x: ['category'],
         category: [],
-        tooltip: null
+        tooltip: null,
       } as ChartSpecificOptionsProps['selectedAxis'],
       columnLabelFormats: {
-        value: { columnType: 'number', style: 'number' } as any
+        value: { columnType: 'number', style: 'number' } as any,
       },
       barShowTotalAtTop: false,
       columnSettings: {},
       barGroupType: 'stack',
-      data: mockChartData
+      data: mockChartData,
     };
 
     const result = piePluginsHandler(props);
@@ -97,15 +97,15 @@ describe('piePluginsHandler', () => {
         y: ['value'],
         x: ['category'],
         category: [],
-        tooltip: null
+        tooltip: null,
       } as ChartSpecificOptionsProps['selectedAxis'],
       columnLabelFormats: {
-        value: { columnType: 'number', style: 'number' } as ColumnLabelFormat
+        value: { columnType: 'number', style: 'number' } as ColumnLabelFormat,
       },
       barShowTotalAtTop: false,
       columnSettings: {},
       barGroupType: 'stack',
-      data: mockChartData
+      data: mockChartData,
     };
 
     const result = piePluginsHandler(props);

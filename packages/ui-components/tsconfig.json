@@ -9,7 +9,8 @@
     "paths": {
       "@/hooks/*": ["./src/hooks/*"],
       "@/lib/*": ["./src/lib/*"]
-    }
+    },
+    "exactOptionalPropertyTypes": false
   },
   "include": ["src/**/*", "env.d.ts"],
   "exclude": ["node_modules", "dist", "tests", "**/*.test.ts", "**/*.spec.ts"]

@@ -1,9 +1,9 @@
+import type { ChartConfigProps, ChartEncodes } from '@buster/server-shared/metrics';
 import type { ChartType as ChartJSChartType, PluginChartOptions } from 'chart.js';
 import type { AnnotationPluginOptions } from 'chartjs-plugin-annotation';
 import { useMemo } from 'react';
 import type { DeepPartial } from 'utility-types';
 import type { BusterChartProps } from '../../../BusterChart.types';
-import type { ChartConfigProps, ChartEncodes } from '@buster/server-shared/metrics';
 import type { DatasetOptionsWithTicks } from '../../../chartHooks';
 import {
   LINE_DECIMATION_SAMPLES,
@@ -82,7 +82,6 @@ export const useOptions = ({
   pieDisplayLabelAs,
   columnSettings,
   tooltipKeys,
-  datasetOptions,
   hasMismatchedTooltipsAndMeasures,
   yAxisAxisTitle,
   yAxisShowAxisTitle,
@@ -100,7 +99,7 @@ export const useOptions = ({
   disableTooltip: disableTooltipProp,
   xAxisTimeInterval,
   numberOfDataPoints,
-}: UseOptionsProps) => {
+}: UseOptionsProps): ChartProps<ChartJSChartType>['options'] => {
   const xAxis = useXAxis({
     columnLabelFormats,
     columnSettings,
@@ -190,6 +189,7 @@ export const useOptions = ({
     colors,
   });
 
+  //biome-ignore lint/correctness/useExhaustiveDependencies: all deps are correct
   const trendlineOptions = useMemo(() => {
     return createAggregrateTrendlines({
       trendlines,
@@ -198,6 +198,7 @@ export const useOptions = ({
     });
   }, [trendlines, columnLabelFormats, selectedAxis.y, (selectedAxis as { y2: string[] }).y2]);
 
+  //biome-ignore lint/correctness/useExhaustiveDependencies: all deps are correct
   const options: ChartProps<ChartJSChartType>['options'] = useMemo(() => {
     const chartAnnotations = chartPlugins?.annotation?.annotations;
     const isLargeDataset = numberOfDataPoints > LINE_DECIMATION_THRESHOLD;
@@ -224,7 +225,7 @@ export const useOptions = ({
       },
       animation,
       ...chartOptions,
-    } satisfies ChartProps<ChartJSChartType>['options'];
+    } as ChartProps<ChartJSChartType>['options'];
   }, [
     animation,
     colors,

@@ -130,7 +130,7 @@ export const BusterChartJSComponent = React.memo(
         barGroupType,
       });
 
-      const options: ChartOptions<ChartJSChartType> = useOptions({
+      const options: ChartProps<ChartJSChartType>['options'] = useOptions({
         goalLinesAnnotations,
         colors,
         selectedChartType,

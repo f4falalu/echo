@@ -1,10 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { determineFontColorContrast } from '@/lib/colors';
+import { determineFontColorContrast } from '../../../../lib/colors';
 import { dataLabelFontColorContrast } from './datalabelHelper';
 
 // Mock the determineFontColorContrast function
 vi.mock('@/lib/colors', () => ({
-  determineFontColorContrast: vi.fn()
+  determineFontColorContrast: vi.fn(),
 }));
 
 describe('dataLabelFontColorContrast', () => {
@@ -16,8 +16,8 @@ describe('dataLabelFontColorContrast', () => {
     // Mock context
     const context = {
       dataset: {
-        backgroundColor: '#FF0000' // Red background
-      }
+        backgroundColor: '#FF0000', // Red background
+      },
     };
 
     // Mock return value
@@ -35,8 +35,8 @@ describe('dataLabelFontColorContrast', () => {
     // Mock context with array of colors
     const context = {
       dataset: {
-        backgroundColor: ['#FF0000', '#00FF00', '#0000FF']
-      }
+        backgroundColor: ['#FF0000', '#00FF00', '#0000FF'],
+      },
     };
 
     // Mock return value
@@ -54,8 +54,8 @@ describe('dataLabelFontColorContrast', () => {
     // Mock context with undefined background color
     const context = {
       dataset: {
-        backgroundColor: undefined
-      }
+        backgroundColor: undefined,
+      },
     };
 
     // Mock return value

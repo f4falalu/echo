@@ -41,7 +41,7 @@ export const simplifyColumnType = (type: string): SimplifiedColumnType => {
   return 'text';
 };
 
-export const isNumericColumnType = (type: SimplifiedColumnType) => {
+export const isNumericColumnType = (type: SimplifiedColumnType | undefined) => {
   return type === 'number';
 };
 

@@ -1,11 +1,13 @@
 'use client';
 
+import { useDebounceFn } from '@/hooks/useDebounce';
+import { useMemoizedFn } from '@/hooks/useMemoizedFn';
+import { useUpdateDebounceEffect } from '@/hooks/useUpdateDebounceEffect';
+import { timeout } from '@/lib/timeout';
+import type { ChartEncodes, ChartType } from '@buster/server-shared/metrics';
 import type React from 'react';
 import { useEffect, useMemo, useState, useTransition } from 'react';
 import type { BusterChartProps } from '../../../BusterChart.types';
-import { useDebounceFn, useMemoizedFn, useUpdateDebounceEffect } from '@/hooks';
-import { timeout } from '@/lib';
-import type { ChartEncodes, ChartType } from '@buster/server-shared/metrics';
 import {
   type BusterChartLegendItem,
   type UseChartLengendReturnValues,
@@ -58,7 +60,7 @@ export const useBusterChartJSLegend = ({
   columnSettings,
   numberOfDataPoints,
 }: UseBusterChartJSLegendProps): UseChartLengendReturnValues => {
-  const [isPending, startTransition] = useTransition();
+  const [_isPending, startTransition] = useTransition();
   const [isUpdatingChart, setIsUpdatingChart] = useState(false);
   const isLargeDataset = numberOfDataPoints > LEGEND_ANIMATION_THRESHOLD;
   const legendTimeoutDuration = isLargeDataset ? DELAY_DURATION_FOR_LARGE_DATASET : 0;
@@ -131,7 +133,7 @@ export const useBusterChartJSLegend = ({
 
     if (isHover && index !== -1) {
       const allElementsAssociatedWithDataset = chartjs.getDatasetMeta(assosciatedDatasetIndex).data;
-      const activeElements = allElementsAssociatedWithDataset.map((item, index) => {
+      const activeElements = allElementsAssociatedWithDataset.map((_item, index) => {
         return {
           datasetIndex: assosciatedDatasetIndex,
           index,
@@ -258,6 +260,7 @@ export const useBusterChartJSLegend = ({
   );
 
   //immediate items
+  //biome-ignore lint/correctness/useExhaustiveDependencies: we have tracked all dependencies
   useEffect(() => {
     calculateLegendItems();
   }, [

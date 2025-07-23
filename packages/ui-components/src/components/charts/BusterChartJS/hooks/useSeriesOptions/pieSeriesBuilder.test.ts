@@ -1,17 +1,17 @@
+import type { ColumnLabelFormat } from '@buster/server-shared/metrics';
 import { describe, expect, it, vi } from 'vitest';
-import { formatLabel } from '@/lib';
+import { formatLabel } from '../../../../../lib/columnFormatter';
 import { formatLabelForDataset } from '../../../commonHelpers';
 import { pieSeriesBuilder_data, pieSeriesBuilder_labels } from './pieSeriesBuilder';
-import type { ColumnLabelFormat } from '@buster/server-shared/metrics';
 
 // Mock dependencies
 vi.mock('../../../commonHelpers', () => ({
   formatLabelForDataset: vi.fn((dataset) => `Formatted ${dataset.name}`),
-  JOIN_CHARACTER: '|'
+  JOIN_CHARACTER: '|',
 }));
 
 vi.mock('@/lib', () => ({
-  formatLabel: vi.fn((item, format) => (format ? `Formatted ${item}` : String(item)))
+  formatLabel: vi.fn((item, format) => (format ? `Formatted ${item}` : String(item))),
 }));
 
 // Mock the implementation of the functions to avoid TypeScript errors
@@ -21,7 +21,7 @@ vi.mock('./pieSeriesBuilder', async () => {
   return {
     ...originalModule,
     pieSeriesBuilder_data: vi.fn(originalModule.pieSeriesBuilder_data),
-    pieSeriesBuilder_labels: vi.fn(originalModule.pieSeriesBuilder_labels)
+    pieSeriesBuilder_labels: vi.fn(originalModule.pieSeriesBuilder_labels),
   };
 });
 
@@ -35,21 +35,21 @@ describe('pieSeriesBuilder_data', () => {
             name: 'Dataset 1',
             dataKey: 'value1',
             data: [10, 20, 30],
-            tooltipData: { someInfo: 'test' }
+            tooltipData: { someInfo: 'test' },
           },
           {
             name: 'Dataset 2',
             dataKey: 'value2',
             data: [15, 25, 35],
-            tooltipData: { someInfo: 'test2' }
-          }
+            tooltipData: { someInfo: 'test2' },
+          },
         ],
         // Adding missing required properties
         ticks: [['Item 1', 'Item 2']],
         ticksKey: [
           { key: 'key1', value: 'value1' },
-          { key: 'key2', value: 'value2' }
-        ]
+          { key: 'key2', value: 'value2' },
+        ],
       },
       colors: ['#ff0000', '#00ff00', '#0000ff'],
       xAxisKeys: ['key1', 'key2'],
@@ -62,7 +62,7 @@ describe('pieSeriesBuilder_data', () => {
       barShowTotalAtTop: false,
       barGroupType: 'grouped',
       yAxisKeys: ['value1', 'value2'],
-      y2AxisKeys: []
+      y2AxisKeys: [],
     };
 
     // Expected output
@@ -74,7 +74,7 @@ describe('pieSeriesBuilder_data', () => {
         yAxisKey: 'value1',
         data: [10, 20, 30],
         borderColor: 'white',
-        tooltipData: { someInfo: 'test' }
+        tooltipData: { someInfo: 'test' },
       },
       {
         label: 'Formatted Dataset 2',
@@ -83,8 +83,8 @@ describe('pieSeriesBuilder_data', () => {
         yAxisKey: 'value2',
         data: [15, 25, 35],
         borderColor: 'white',
-        tooltipData: { someInfo: 'test2' }
-      }
+        tooltipData: { someInfo: 'test2' },
+      },
     ];
 
     const result = pieSeriesBuilder_data(props as any);
@@ -106,7 +106,7 @@ describe('pieSeriesBuilder_data', () => {
         datasets: [],
         // Adding missing required properties
         ticks: [],
-        ticksKey: []
+        ticksKey: [],
       },
       colors: ['#ff0000'],
       xAxisKeys: ['key1'],
@@ -119,7 +119,7 @@ describe('pieSeriesBuilder_data', () => {
       barShowTotalAtTop: false,
       barGroupType: 'grouped',
       yAxisKeys: [],
-      y2AxisKeys: []
+      y2AxisKeys: [],
     };
 
     const result = pieSeriesBuilder_data(props as any);
@@ -135,26 +135,26 @@ describe('pieSeriesBuilder_labels', () => {
         ticks: [['Item 1', 'Item 2']],
         ticksKey: [
           { key: 'key1', value: 'value1' },
-          { key: 'key2', value: 'value2' }
+          { key: 'key2', value: 'value2' },
         ],
         // Adding missing required property
-        datasets: []
+        datasets: [],
       },
       columnLabelFormats: {
         key1: {
           columnType: 'text',
           style: 'string',
-          displayName: 'key1'
+          displayName: 'key1',
         } as ColumnLabelFormat,
         key2: {
-          columnType: 'text'
-        } as ColumnLabelFormat
+          columnType: 'text',
+        } as ColumnLabelFormat,
       },
       // Adding required properties
       xAxisKeys: ['key1', 'key2'],
       sizeKey: [], // Fixed to be an empty array instead of null
       columnSettings: {},
-      trendlineSeries: []
+      trendlineSeries: [],
     };
 
     // Reset mocks
@@ -174,14 +174,14 @@ describe('pieSeriesBuilder_labels', () => {
         ticks: [],
         ticksKey: [],
         // Adding missing required property
-        datasets: []
+        datasets: [],
       },
       columnLabelFormats: {},
       // Adding required properties
       xAxisKeys: [],
       sizeKey: [], // Fixed to be an empty array instead of null
       columnSettings: {},
-      trendlineSeries: []
+      trendlineSeries: [],
     };
 
     const result = pieSeriesBuilder_labels(props as any);
