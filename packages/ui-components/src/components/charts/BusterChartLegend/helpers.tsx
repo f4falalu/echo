@@ -1,6 +1,6 @@
-import { renderToString } from 'react-dom/server';
-import type { BusterChartLegendItem } from './interfaces';
+import { createRoot } from 'react-dom/client';
 import { LegendItem } from './LegendItem';
+import type { BusterChartLegendItem } from './interfaces';
 
 const WIDTH_OF_OVERFLOW = 79;
 
@@ -8,7 +8,7 @@ export const computeHiddenShowItems = (legendItems: BusterChartLegendItem[], wid
   if (width === 0 || !legendItems || legendItems.length === 0) {
     return {
       shownItems: [],
-      hiddenItems: []
+      hiddenItems: [],
     };
   }
 
@@ -22,10 +22,14 @@ export const computeHiddenShowItems = (legendItems: BusterChartLegendItem[], wid
   measurementDiv.style.left = '0';
 
   document.body.appendChild(measurementDiv);
+  const root = createRoot(measurementDiv);
 
   const shownItems = legendItems.reduce<BusterChartLegendItem[]>((acc, item, index) => {
-    const html = renderToString(<LegendItem item={item} />);
-    measurementDiv.innerHTML = html;
+    // Render the actual LegendItem component
+    root.render(<LegendItem item={item} />);
+
+    // Force a synchronous layout calculation
+    measurementDiv.offsetHeight;
 
     const itemWidth = measurementDiv.getBoundingClientRect().width;
     const spacing = index !== 0 ? 8 : 0;
@@ -37,6 +41,7 @@ export const computeHiddenShowItems = (legendItems: BusterChartLegendItem[], wid
     return acc;
   }, []);
 
+  root.unmount();
   document.body.removeChild(measurementDiv);
 
   const hiddenItems = legendItems?.filter((item) => !shownItems.includes(item));

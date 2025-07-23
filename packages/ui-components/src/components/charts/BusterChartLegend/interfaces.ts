@@ -1,5 +1,5 @@
-import type { ChartDataset } from 'chart.js';
 import type { ChartType, ShowLegendHeadline } from '@buster/server-shared/metrics';
+import type { ChartDataset } from 'chart.js';
 
 export interface BusterChartLegendProps {
   animateLegend: boolean;
@@ -7,9 +7,9 @@ export interface BusterChartLegendProps {
   show?: boolean;
   containerWidth: number;
   showLegendHeadline: ShowLegendHeadline | undefined;
-  onHoverItem?: (item: BusterChartLegendItem, isHover: boolean) => void;
-  onClickItem?: (item: BusterChartLegendItem) => void;
-  onFocusItem?: (item: BusterChartLegendItem) => void;
+  onHoverItem?: ((item: BusterChartLegendItem, isHover: boolean) => void) | undefined;
+  onClickItem?: ((item: BusterChartLegendItem) => void) | undefined;
+  onFocusItem?: ((item: BusterChartLegendItem) => void) | undefined;
 }
 
 export interface BusterChartLegendItem {

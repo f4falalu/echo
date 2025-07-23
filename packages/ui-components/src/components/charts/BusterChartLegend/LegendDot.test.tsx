@@ -1,13 +1,12 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
-import type { ChartType } from '@buster/server-shared/metrics';
 import { LegendItemDot } from './LegendDot';
 
 describe('LegendItemDot', () => {
   const defaultProps = {
     color: '#FF0000',
     inactive: false,
-    type: 'bar'
+    type: 'bar',
   } as Parameters<typeof LegendItemDot>[0];
 
   it('renders with default props', () => {

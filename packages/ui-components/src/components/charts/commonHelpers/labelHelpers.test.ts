@@ -1,14 +1,14 @@
+import type { ColumnLabelFormat } from '@buster/server-shared/metrics';
 import { describe, expect, it, vi } from 'vitest';
-import type { BusterChartProps } from '@/api/asset_interfaces/metric/charts';
-import { formatLabel } from '@/lib';
+import { JOIN_CHARACTER } from '../../../lib/axisFormatter';
+import { formatLabel } from '../../../lib/columnFormatter';
+import type { BusterChartProps } from '../BusterChart.types';
 import type { DatasetOption } from '../chartHooks';
 import { formatLabelForDataset, formatLabelForPieLegend } from './labelHelpers';
-import type { ColumnLabelFormat } from '@buster/server-shared/metrics';
-import { JOIN_CHARACTER } from '@/lib/axisFormatter';
 
 // Mock the formatLabel function
 vi.mock('@/lib/columnFormatter', () => ({
-  formatLabel: vi.fn((value, format, useKey) => `formatted_${value}`)
+  formatLabel: vi.fn((value, format, useKey) => `formatted_${value}`),
 }));
 
 describe('labelHelpers', () => {
@@ -24,17 +24,17 @@ describe('labelHelpers', () => {
         id: 'test-id',
         label: [
           { key: 'key1', value: 'value1' },
-          { key: 'key2', value: 'value2' }
+          { key: 'key2', value: 'value2' },
         ],
         data: [1, 2, 3],
         dataKey: 'test-key',
         axisType: 'y',
-        tooltipData: [[{ key: 'key1', value: 'value1' }], [{ key: 'key2', value: 'value2' }]]
+        tooltipData: [[{ key: 'key1', value: 'value1' }], [{ key: 'key2', value: 'value2' }]],
       };
 
       const columnLabelFormats: NonNullable<BusterChartProps['columnLabelFormats']> = {
         key1: { columnType: 'text', style: 'string' } as ColumnLabelFormat,
-        key2: { columnType: 'text', style: 'string' } as ColumnLabelFormat
+        key2: { columnType: 'text', style: 'string' } as ColumnLabelFormat,
       };
 
       const result = formatLabelForDataset(dataset, columnLabelFormats);
@@ -48,17 +48,17 @@ describe('labelHelpers', () => {
         id: 'test-id',
         label: [
           { key: 'key1', value: null },
-          { key: 'key2', value: 'value2' }
+          { key: 'key2', value: 'value2' },
         ],
         data: [1, 2, 3],
         dataKey: 'test-key',
         axisType: 'y',
-        tooltipData: [[{ key: 'key1', value: null }], [{ key: 'key2', value: 'value2' }]]
+        tooltipData: [[{ key: 'key1', value: null }], [{ key: 'key2', value: 'value2' }]],
       };
 
       const columnLabelFormats: NonNullable<BusterChartProps['columnLabelFormats']> = {
         key1: { columnType: 'text', style: 'string' } as ColumnLabelFormat,
-        key2: { columnType: 'text', style: 'string' } as ColumnLabelFormat
+        key2: { columnType: 'text', style: 'string' } as ColumnLabelFormat,
       };
 
       const result = formatLabelForDataset(dataset, columnLabelFormats);

@@ -1,13 +1,13 @@
-import React from 'react';
 import { cn } from '@/lib/classMerge';
-import { CircleSpinnerLoader } from '../../loaders';
+import type { ShowLegendHeadline } from '@buster/server-shared/metrics';
+import React from 'react';
+import { BusterChartLegend, type BusterChartLegendItem } from '.';
+import CircleSpinnerLoader from '../../loaders/CircleSpinnerLoader';
 import {
   ChartLegendWrapperProvider,
-  useChartWrapperContextSelector
+  useChartWrapperContextSelector,
 } from '../chartHooks/useChartWrapperProvider';
-import { BusterChartLegend, type BusterChartLegendItem } from '.';
 import { DownsampleAlert } from './DownsampleAlert';
-import type { ShowLegendHeadline } from '@buster/server-shared/metrics';
 
 export type BusterChartLegendWrapper = {
   children: React.ReactNode;
@@ -39,14 +39,15 @@ export const BusterChartLegendWrapper: React.FC<BusterChartLegendWrapper> = Reac
     isDownsampled,
     onHoverItem,
     onLegendItemClick,
-    onLegendItemFocus
+    onLegendItemFocus,
   }) => {
     const width = useChartWrapperContextSelector(({ width }) => width);
 
     return (
       <ChartLegendWrapperProvider inactiveDatasets={inactiveDatasets}>
         <div
-          className={cn('legend-wrapper flex h-full w-full flex-col overflow-hidden', className)}>
+          className={cn('legend-wrapper flex h-full w-full flex-col overflow-hidden', className)}
+        >
           {renderLegend && (
             <BusterChartLegend
               show={showLegend}

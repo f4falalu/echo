@@ -1,15 +1,15 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { DEFAULT_COLUMN_LABEL_FORMAT, type Trendline } from '@buster/server-shared/metrics';
-import { isNumericColumnType } from '@/lib/messages';
+import { beforeEach, describe, expect, it, test, vi } from 'vitest';
+import { isNumericColumnType } from '../../../../../lib/messages';
+import type { BusterChartProps } from '../../../BusterChart.types';
 import { canSupportTrendlineRecord } from './canSupportTrendline';
-import type { BusterChartProps } from '@/api/asset_interfaces/metric';
 
 // Mock the isNumericColumnType function
 vi.mock('@/lib/messages', () => ({
-  isNumericColumnType: vi.fn()
+  isNumericColumnType: vi.fn(),
 }));
 
-const mockedIsNumericColumnType = isNumericColumnType as any;
+const mockedIsNumericColumnType = vi.mocked(isNumericColumnType);
 
 describe('canSupportTrendlineRecord', () => {
   const trendlineTypes: Trendline['type'][] = [
@@ -20,7 +20,7 @@ describe('canSupportTrendlineRecord', () => {
     'min',
     'max',
     'median',
-    'average'
+    'average',
   ];
 
   const columnId = 'test-column';
@@ -28,8 +28,8 @@ describe('canSupportTrendlineRecord', () => {
     [columnId]: {
       ...DEFAULT_COLUMN_LABEL_FORMAT,
       columnType: 'number',
-      style: 'number'
-    }
+      style: 'number',
+    },
   };
 
   beforeEach(() => {
@@ -46,7 +46,7 @@ describe('canSupportTrendlineRecord', () => {
         columnId,
         show: true,
         showTrendlineLabel: true,
-        trendlineLabel: 'Test Label'
+        trendlineLabel: 'Test Label',
       } as Trendline;
 
       // Act
@@ -68,7 +68,7 @@ describe('canSupportTrendlineRecord', () => {
         columnId,
         show: true,
         showTrendlineLabel: true,
-        trendlineLabel: 'Test Label'
+        trendlineLabel: 'Test Label',
       } as Trendline;
 
       // Act
@@ -90,7 +90,7 @@ describe('canSupportTrendlineRecord', () => {
         columnId: 'non-existent',
         show: true,
         showTrendlineLabel: true,
-        trendlineLabel: 'Test Label'
+        trendlineLabel: 'Test Label',
       } as Trendline;
 
       // Act
