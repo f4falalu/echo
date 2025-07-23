@@ -52,7 +52,7 @@ describe('message-converters', () => {
       });
     });
 
-    describe('Respond Without Analysis tool', () => {
+    describe('Respond Without Asset Creation tool', () => {
       it('should convert respondWithoutAssetCreation to response text message', () => {
         const toolCall = createToolCall('test-id-3', 'respondWithoutAssetCreation', {
           message: 'Quick response',
