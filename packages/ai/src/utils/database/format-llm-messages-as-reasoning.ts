@@ -441,7 +441,7 @@ export function extractResponseMessages(messages: CoreMessage[]): ChatMessageRes
             console.error('Invalid response message:', error, responseMessage);
           }
         } else if (
-          // Backwards compatible with respond without anlysis since that was an old tool we used before.
+          // Backwards compatible with respond without analysis since that was an old tool we used before.
           toolCall.toolName === 'respondWithoutAnalysis' ||
           toolCall.toolName === 'respond-without-analysis' ||
           toolCall.toolName === 'respondWithoutAssetCreation' ||
