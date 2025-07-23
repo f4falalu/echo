@@ -28,10 +28,6 @@ export type UpdateChatMessageFeedbackResponse = z.infer<
 export const DuplicateChatResponseSchema = ChatWithMessagesSchema;
 export type DuplicateChatResponse = z.infer<typeof DuplicateChatResponseSchema>;
 
-// Response for starting a chat from an asset
-export const StartChatFromAssetResponseSchema = ChatWithMessagesSchema;
-export type StartChatFromAssetResponse = z.infer<typeof StartChatFromAssetResponseSchema>;
-
 // Response for deleting chats (void)
 export const DeleteChatsResponseSchema = z.void();
 export type DeleteChatsResponse = z.infer<typeof DeleteChatsResponseSchema>;

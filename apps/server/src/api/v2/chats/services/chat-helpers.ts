@@ -11,6 +11,7 @@ import {
 } from '@buster/database';
 import type { Chat, Message } from '@buster/database';
 import type {
+  ChatAssetType,
   ChatMessage,
   ChatMessageReasoningMessage,
   ChatMessageResponseMessage,
@@ -20,6 +21,7 @@ import { ChatError, ChatErrorCode } from '@buster/server-shared/chats';
 import { PostProcessingMessageSchema } from '@buster/server-shared/message';
 import { and, eq, gte, isNull } from 'drizzle-orm';
 import type { z } from 'zod';
+import { convertChatToAssetChat } from './server-asset-conversion';
 
 /**
  * Validates a nullable JSONB field against a Zod schema
@@ -359,13 +361,14 @@ export async function handleAssetChat(
   chatId: string,
   _messageId: string,
   assetId: string,
-  assetType: 'metric_file' | 'dashboard_file',
+  chatAssetType: ChatAssetType,
   user: User,
   chat: ChatWithMessages
 ): Promise<ChatWithMessages> {
   const userId = user.id;
   try {
     // Generate asset messages
+    const assetType = convertChatToAssetChat(chatAssetType);
     const assetMessages = await generateAssetMessages({
       assetId,
       assetType,
@@ -422,7 +425,7 @@ export async function handleAssetChat(
     console.error('Failed to handle asset chat:', {
       chatId,
       assetId,
-      assetType,
+      chatAssetType,
       userId,
       error:
         error instanceof Error
