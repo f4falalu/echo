@@ -15,10 +15,6 @@ describe('Sequential Thinking Tool Streaming Parser', () => {
       thought: 'I need to analyze this step by step',
       nextThoughtNeeded: true,
       thoughtNumber: 1,
-      totalThoughts: 5,
-      isRevision: false,
-      needsMoreThoughts: false,
-      branchId: 'main',
     });
 
     const result = parseStreamingArgs(completeJson);
@@ -27,10 +23,6 @@ describe('Sequential Thinking Tool Streaming Parser', () => {
       thought: 'I need to analyze this step by step',
       nextThoughtNeeded: true,
       thoughtNumber: 1,
-      totalThoughts: 5,
-      isRevision: false,
-      needsMoreThoughts: false,
-      branchId: 'main',
     });
   });
 
@@ -97,27 +89,20 @@ describe('Sequential Thinking Tool Streaming Parser', () => {
   });
 
   test('should handle boolean fields correctly', () => {
-    const withBooleans =
-      '{"nextThoughtNeeded": true, "isRevision": false, "needsMoreThoughts": true';
+    const withBooleans = '{"nextThoughtNeeded": true';
     const result = parseStreamingArgs(withBooleans);
 
     expect(result).toEqual({
       nextThoughtNeeded: true,
-      isRevision: false,
-      needsMoreThoughts: true,
     });
   });
 
   test('should handle number fields correctly', () => {
-    const withNumbers =
-      '{"thoughtNumber": 3, "totalThoughts": 7, "revisesThought": 2, "branchFromThought": 1';
+    const withNumbers = '{"thoughtNumber": 3';
     const result = parseStreamingArgs(withNumbers);
 
     expect(result).toEqual({
       thoughtNumber: 3,
-      totalThoughts: 7,
-      revisesThought: 2,
-      branchFromThought: 1,
     });
   });
 
@@ -132,24 +117,13 @@ describe('Sequential Thinking Tool Streaming Parser', () => {
 
   test('should handle mixed field types', () => {
     const mixedFields =
-      '{"thought": "Step 1 analysis", "thoughtNumber": 1, "nextThoughtNeeded": true, "isRevision": false';
+      '{"thought": "Step 1 analysis", "thoughtNumber": 1, "nextThoughtNeeded": true';
     const result = parseStreamingArgs(mixedFields);
 
     expect(result).toEqual({
       thought: 'Step 1 analysis',
       thoughtNumber: 1,
       nextThoughtNeeded: true,
-      isRevision: false,
-    });
-  });
-
-  test('should handle string fields like branchId', () => {
-    const withBranchId = '{"branchId": "alternative-path", "thought": "Exploring alternative"';
-    const result = parseStreamingArgs(withBranchId);
-
-    expect(result).toEqual({
-      branchId: 'alternative-path',
-      thought: 'Exploring alternative',
     });
   });
 
@@ -182,38 +156,19 @@ describe('Sequential Thinking Tool Streaming Parser', () => {
     expect(result).toBeNull();
   });
 
-  test('should handle optional fields correctly when present', () => {
-    const withOptionalFields =
-      '{"thought": "Revision", "isRevision": true, "revisesThought": 2, "branchFromThought": 1';
-    const result = parseStreamingArgs(withOptionalFields);
-
-    expect(result).toEqual({
-      thought: 'Revision',
-      isRevision: true,
-      revisesThought: 2,
-      branchFromThought: 1,
-    });
-  });
-
-  test('should handle complete JSON with undefined fields correctly', () => {
-    const jsonWithUndefined = JSON.stringify({
+  test('should handle complete JSON correctly', () => {
+    const completeJson = JSON.stringify({
       thought: 'Complete thought',
       nextThoughtNeeded: false,
       thoughtNumber: 5,
-      totalThoughts: 5,
-      isRevision: false,
-      needsMoreThoughts: false,
     });
 
-    const result = parseStreamingArgs(jsonWithUndefined);
+    const result = parseStreamingArgs(completeJson);
 
     expect(result).toEqual({
       thought: 'Complete thought',
       nextThoughtNeeded: false,
       thoughtNumber: 5,
-      totalThoughts: 5,
-      isRevision: false,
-      needsMoreThoughts: false,
     });
   });
 });

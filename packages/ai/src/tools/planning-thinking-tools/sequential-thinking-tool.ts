@@ -7,12 +7,6 @@ interface SequentialThinkingParams {
   thought: string;
   nextThoughtNeeded: boolean;
   thoughtNumber: number;
-  totalThoughts: number;
-  isRevision: boolean;
-  revisesThought?: number;
-  branchFromThought?: number;
-  branchId?: string;
-  needsMoreThoughts: boolean;
 }
 
 interface SequentialThinkingOutput {
@@ -28,33 +22,7 @@ const sequentialThinkingSchema = z.object({
       'Your current thinking step, which can include: Regular analytical steps, Revisions of previous thoughts, Questions about previous decisions, Realizations about needing more analysis, Changes in approach, Hypothesis generation, Hypothesis verification.'
     ),
   nextThoughtNeeded: z.boolean().describe('Whether another thought step is needed.'),
-  thoughtNumber: z
-    .number()
-    .int()
-    .positive()
-    .describe('Current number in sequence (can go beyond initial total if needed).'),
-  totalThoughts: z
-    .number()
-    .int()
-    .positive()
-    .describe('Current estimate of thoughts needed (can be adjusted up/down).'),
-  isRevision: z
-    .boolean()
-    .describe('A boolean indicating if this thought revises previous thinking.'),
-  revisesThought: z
-    .number()
-    .int()
-    .positive()
-    .optional()
-    .describe('If is_revision is true, which thought number is being reconsidered.'),
-  branchFromThought: z
-    .number()
-    .int()
-    .positive()
-    .optional()
-    .describe('If branching, which thought number is the branching point.'),
-  branchId: z.string().optional().describe('Identifier for the current branch (if any).'),
-  needsMoreThoughts: z.boolean().describe('If reaching end but realizing more thoughts needed.'),
+  thoughtNumber: z.number().int().positive().describe('Current number in sequence.'),
 });
 
 /**
@@ -78,12 +46,6 @@ export function parseStreamingArgs(
     if (parsed.thought !== undefined) result.thought = parsed.thought;
     if (parsed.nextThoughtNeeded !== undefined) result.nextThoughtNeeded = parsed.nextThoughtNeeded;
     if (parsed.thoughtNumber !== undefined) result.thoughtNumber = parsed.thoughtNumber;
-    if (parsed.totalThoughts !== undefined) result.totalThoughts = parsed.totalThoughts;
-    if (parsed.isRevision !== undefined) result.isRevision = parsed.isRevision;
-    if (parsed.revisesThought !== undefined) result.revisesThought = parsed.revisesThought;
-    if (parsed.branchFromThought !== undefined) result.branchFromThought = parsed.branchFromThought;
-    if (parsed.branchId !== undefined) result.branchId = parsed.branchId;
-    if (parsed.needsMoreThoughts !== undefined) result.needsMoreThoughts = parsed.needsMoreThoughts;
 
     return result;
   } catch (error) {
@@ -110,43 +72,10 @@ export function parseStreamingArgs(
         result.nextThoughtNeeded = nextThoughtMatch[1] === 'true';
       }
 
-      const isRevisionMatch = accumulatedText.match(/"isRevision"\s*:\s*(true|false)/);
-      if (isRevisionMatch) {
-        result.isRevision = isRevisionMatch[1] === 'true';
-      }
-
-      const needsMoreThoughtsMatch = accumulatedText.match(
-        /"needsMoreThoughts"\s*:\s*(true|false)/
-      );
-      if (needsMoreThoughtsMatch) {
-        result.needsMoreThoughts = needsMoreThoughtsMatch[1] === 'true';
-      }
-
       // Extract number fields
       const thoughtNumberMatch = accumulatedText.match(/"thoughtNumber"\s*:\s*(\d+)/);
       if (thoughtNumberMatch && thoughtNumberMatch[1] !== undefined) {
         result.thoughtNumber = Number.parseInt(thoughtNumberMatch[1], 10);
-      }
-
-      const totalThoughtsMatch = accumulatedText.match(/"totalThoughts"\s*:\s*(\d+)/);
-      if (totalThoughtsMatch && totalThoughtsMatch[1] !== undefined) {
-        result.totalThoughts = Number.parseInt(totalThoughtsMatch[1], 10);
-      }
-
-      const revisesThoughtMatch = accumulatedText.match(/"revisesThought"\s*:\s*(\d+)/);
-      if (revisesThoughtMatch && revisesThoughtMatch[1] !== undefined) {
-        result.revisesThought = Number.parseInt(revisesThoughtMatch[1], 10);
-      }
-
-      const branchFromThoughtMatch = accumulatedText.match(/"branchFromThought"\s*:\s*(\d+)/);
-      if (branchFromThoughtMatch && branchFromThoughtMatch[1] !== undefined) {
-        result.branchFromThought = Number.parseInt(branchFromThoughtMatch[1], 10);
-      }
-
-      // Extract string fields
-      const branchIdMatch = accumulatedText.match(/"branchId"\s*:\s*"([^"]*)"/);
-      if (branchIdMatch) {
-        result.branchId = branchIdMatch[1];
       }
 
       // Return result if we found at least one field
@@ -171,15 +100,12 @@ Each thought can build on, question, or revise previous insights as understandin
 - Breaking down complex problems into steps
 - Planning and design with room for revision
 - Analysis that might need course correction
-- Problems where the full scope might not be clear initially
 - Problems that require a multi-step solution
 - Tasks that need to maintain context over multiple steps
 - Situations where irrelevant information needs to be filtered out
 
 **Key features:**
-- You can adjust total_thoughts up or down as you progress
 - You can question or revise previous thoughts
-- You can add more thoughts even after reaching what seemed like the end
 - You can express uncertainty and explore alternative approaches
 - Not every thought needs to build linearly - you can branch or backtrack
 - Generates a solution hypothesis
@@ -188,17 +114,14 @@ Each thought can build on, question, or revise previous insights as understandin
 - Provides a correct answer
 
 **You should:**
-1. Start with an initial estimate of needed thoughts, but be ready to adjust
-2. Feel free to question or revise previous thoughts
-3. Don't hesitate to add more thoughts if needed, even at the "end"
-4. Express uncertainty when present
-5. Mark thoughts that revise previous thinking or branch into new paths
-6. Ignore information that is irrelevant to the current step
-7. Generate a solution hypothesis when appropriate
-8. Verify the hypothesis based on the Chain of Thought steps
-9. Repeat the process until satisfied with the solution
-10. Provide a single, ideally correct answer as the final output
-11. Only set next_thought_needed to false when truly done and a satisfactory answer is reached`,
+1. Feel free to question or revise previous thoughts
+2. Express uncertainty when present
+3. Ignore information that is irrelevant to the current step
+4. Generate a solution hypothesis when appropriate
+5. Verify the hypothesis based on the Chain of Thought steps
+6. Repeat the process until satisfied with the solution
+7. Provide a single, ideally correct answer as the final output
+8. Only set nextThoughtNeeded to false when truly done and a satisfactory answer is reached`,
   inputSchema: sequentialThinkingSchema,
   outputSchema: z.object({
     success: z.boolean().describe('Whether the thinking step was processed successfully'),
@@ -240,11 +163,5 @@ async function processThought(params: SequentialThinkingParams): Promise<Sequent
     thought: params.thought.trim(),
     nextThoughtNeeded: params.nextThoughtNeeded,
     thoughtNumber: params.thoughtNumber,
-    totalThoughts: params.totalThoughts,
-    isRevision: params.isRevision,
-    revisesThought: params.revisesThought || 0,
-    branchFromThought: params.branchFromThought || 0,
-    branchId: params.branchId || '',
-    needsMoreThoughts: params.needsMoreThoughts,
   };
 }

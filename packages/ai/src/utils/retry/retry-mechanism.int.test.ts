@@ -54,7 +54,7 @@ interface AnalystInputData {
   conversationHistory: CoreMessage[];
   metadata: {
     toolsUsed: string[];
-    finalTool?: 'submitThoughts' | 'respondWithoutAnalysis' | undefined;
+    finalTool?: 'submitThoughts' | 'respondWithoutAssetCreation' | undefined;
   };
 }
 

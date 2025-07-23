@@ -35,10 +35,10 @@ describe('SnowflakeAdapter Integration', () => {
     async () => {
       const credentials: SnowflakeCredentials = {
         type: DataSourceType.Snowflake,
-        account: process.env.TEST_SNOWFLAKE_ACCOUNT_ID!,
-        warehouse: process.env.TEST_SNOWFLAKE_WAREHOUSE_ID || 'COMPUTE_WH',
-        database: process.env.TEST_SNOWFLAKE_DATABASE!,
-        schema: process.env.TEST_SNOWFLAKE_SCHEMA || 'PUBLIC',
+        account_id: process.env.TEST_SNOWFLAKE_ACCOUNT_ID!,
+        warehouse_id: process.env.TEST_SNOWFLAKE_WAREHOUSE_ID || 'COMPUTE_WH',
+        default_database: process.env.TEST_SNOWFLAKE_DATABASE!,
+        default_schema: process.env.TEST_SNOWFLAKE_SCHEMA || 'PUBLIC',
         username: process.env.TEST_SNOWFLAKE_USERNAME!,
         password: process.env.TEST_SNOWFLAKE_PASSWORD!,
         role: process.env.TEST_SNOWFLAKE_ROLE,
@@ -56,10 +56,10 @@ describe('SnowflakeAdapter Integration', () => {
     async () => {
       const credentials: SnowflakeCredentials = {
         type: DataSourceType.Snowflake,
-        account: process.env.TEST_SNOWFLAKE_ACCOUNT_ID!,
-        warehouse: process.env.TEST_SNOWFLAKE_WAREHOUSE_ID || 'COMPUTE_WH',
-        database: process.env.TEST_SNOWFLAKE_DATABASE!,
-        schema: process.env.TEST_SNOWFLAKE_SCHEMA || 'PUBLIC',
+        account_id: process.env.TEST_SNOWFLAKE_ACCOUNT_ID!,
+        warehouse_id: process.env.TEST_SNOWFLAKE_WAREHOUSE_ID || 'COMPUTE_WH',
+        default_database: process.env.TEST_SNOWFLAKE_DATABASE!,
+        default_schema: process.env.TEST_SNOWFLAKE_SCHEMA || 'PUBLIC',
         username: process.env.TEST_SNOWFLAKE_USERNAME!,
         password: process.env.TEST_SNOWFLAKE_PASSWORD!,
         role: process.env.TEST_SNOWFLAKE_ROLE,
@@ -81,10 +81,10 @@ describe('SnowflakeAdapter Integration', () => {
     async () => {
       const credentials: SnowflakeCredentials = {
         type: DataSourceType.Snowflake,
-        account: process.env.TEST_SNOWFLAKE_ACCOUNT_ID!,
-        warehouse: process.env.TEST_SNOWFLAKE_WAREHOUSE_ID || 'COMPUTE_WH',
-        database: process.env.TEST_SNOWFLAKE_DATABASE!,
-        schema: process.env.TEST_SNOWFLAKE_SCHEMA || 'PUBLIC',
+        account_id: process.env.TEST_SNOWFLAKE_ACCOUNT_ID!,
+        warehouse_id: process.env.TEST_SNOWFLAKE_WAREHOUSE_ID || 'COMPUTE_WH',
+        default_database: process.env.TEST_SNOWFLAKE_DATABASE!,
+        default_schema: process.env.TEST_SNOWFLAKE_SCHEMA || 'PUBLIC',
         username: process.env.TEST_SNOWFLAKE_USERNAME!,
         password: process.env.TEST_SNOWFLAKE_PASSWORD!,
         role: process.env.TEST_SNOWFLAKE_ROLE,
@@ -108,10 +108,10 @@ describe('SnowflakeAdapter Integration', () => {
     async () => {
       const credentials: SnowflakeCredentials = {
         type: DataSourceType.Snowflake,
-        account: process.env.TEST_SNOWFLAKE_ACCOUNT_ID!,
-        warehouse: process.env.TEST_SNOWFLAKE_WAREHOUSE_ID || 'COMPUTE_WH',
-        database: process.env.TEST_SNOWFLAKE_DATABASE!,
-        schema: process.env.TEST_SNOWFLAKE_SCHEMA || 'PUBLIC',
+        account_id: process.env.TEST_SNOWFLAKE_ACCOUNT_ID!,
+        warehouse_id: process.env.TEST_SNOWFLAKE_WAREHOUSE_ID || 'COMPUTE_WH',
+        default_database: process.env.TEST_SNOWFLAKE_DATABASE!,
+        default_schema: process.env.TEST_SNOWFLAKE_SCHEMA || 'PUBLIC',
         username: process.env.TEST_SNOWFLAKE_USERNAME!,
         password: process.env.TEST_SNOWFLAKE_PASSWORD!,
         role: process.env.TEST_SNOWFLAKE_ROLE,
@@ -128,20 +128,16 @@ describe('SnowflakeAdapter Integration', () => {
     expect(adapter.getDataSourceType()).toBe(DataSourceType.Snowflake);
   });
 
-  it(
-    'should fail to connect with invalid credentials',
-    async () => {
-      const invalidCredentials: SnowflakeCredentials = {
-        type: DataSourceType.Snowflake,
-        account: 'invalid-account',
-        warehouse: 'INVALID_WH',
-        database: 'invalid-db',
-        username: 'invalid-user',
-        password: 'invalid-pass',
-      };
+  it('should fail to connect with invalid credentials', async () => {
+    const invalidCredentials: SnowflakeCredentials = {
+      type: DataSourceType.Snowflake,
+      account_id: 'invalid-account',
+      warehouse_id: 'INVALID_WH',
+      default_database: 'invalid-db',
+      username: 'invalid-user',
+      password: 'invalid-pass',
+    };
 
-      await expect(adapter.initialize(invalidCredentials)).rejects.toThrow();
-    },
-    TEST_TIMEOUT
-  );
+    await expect(adapter.initialize(invalidCredentials)).rejects.toThrow();
+  }, 30000); // Increase timeout for connection failure
 });
