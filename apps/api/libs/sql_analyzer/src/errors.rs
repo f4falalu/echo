@@ -35,9 +35,6 @@ pub enum SqlAnalyzerError {
     #[error("Unsupported statement type found: {0}")]
     UnsupportedStatement(String),
 
-    #[error("Wildcard usage on physical tables is not allowed: {0}")]
-    BlockedWildcardUsage(String),
-
     #[error("Internal error: {0}")]
     Internal(#[from] anyhow::Error),
 }

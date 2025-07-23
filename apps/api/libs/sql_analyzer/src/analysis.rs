@@ -178,11 +178,11 @@ impl QueryAnalyzer {
         self.parent_scope_aliases = parent_aliases.clone();
 
         // Process WITH clause (CTEs) if present
-        let is_with_query = self.process_with_clause(query)?;
+        let is_with_query = self.process_with_clause(query);
 
         // Process the main query body
         match query.body.as_ref() {
-            SetExpr::Select(select) => self.process_select_query(select)?,
+            SetExpr::Select(select) => self.process_select_query(select),
             SetExpr::Query(inner_query) => {
                 self.process_nested_query(inner_query)?;
             }
@@ -201,7 +201,7 @@ impl QueryAnalyzer {
     }
 
     // Process WITH clause and return whether it was processed
-    fn process_with_clause(&mut self, query: &Query) -> Result<bool, SqlAnalyzerError> {
+    fn process_with_clause(&mut self, query: &Query) -> bool {
         if let Some(with) = &query.with {
             if !with.cte_tables.is_empty() {
                 // Create a new scope for CTE definitions
@@ -223,16 +223,18 @@ impl QueryAnalyzer {
                         .chain(self.parent_scope_aliases.iter())
                         .map(|(k, v)| (k.clone(), v.clone()))
                         .collect();
-                    self.process_cte(cte, &combined_aliases_for_cte)?;
+                    if let Err(e) = self.process_cte(cte, &combined_aliases_for_cte) {
+                        eprintln!("Error processing CTE: {}", e);
+                    }
                 }
-                return Ok(true);
+                return true;
             }
         }
-        Ok(false)
+        false
     }
 
     // Process a SELECT query
-    fn process_select_query(&mut self, select: &sqlparser::ast::Select) -> Result<(), SqlAnalyzerError> {
+    fn process_select_query(&mut self, select: &sqlparser::ast::Select) {
         self.current_scope_aliases.clear();
         self.current_select_list_aliases.clear();
         self.current_from_relation_identifier = None;
@@ -291,9 +293,8 @@ impl QueryAnalyzer {
 
         // Process SELECT list
         for item in &select.projection {
-            self.process_select_item(item, &combined_aliases_for_visit)?;
+            self.process_select_item(item, &combined_aliases_for_visit);
         }
-        Ok(())
     }
 
     // Process join data and collect conditions for later processing
@@ -517,7 +518,6 @@ impl QueryAnalyzer {
                     Err(e @ SqlAnalyzerError::VagueReferences(_)) => Err(
                         SqlAnalyzerError::VagueReferences(format!("In CTE '{}': {}", cte_name, e)),
                     ),
-                    Err(e @ SqlAnalyzerError::BlockedWildcardUsage(_)) => Err(e),
                     Err(e) => Err(SqlAnalyzerError::Internal(anyhow::anyhow!(
                         "Internal error summarizing CTE '{}': {}",
                         cte_name,
@@ -528,7 +528,6 @@ impl QueryAnalyzer {
             Err(e @ SqlAnalyzerError::VagueReferences(_)) => Err(
                 SqlAnalyzerError::VagueReferences(format!("In CTE '{}': {}", cte_name, e)),
             ),
-            Err(e @ SqlAnalyzerError::BlockedWildcardUsage(_)) => Err(e),
             Err(e) => Err(SqlAnalyzerError::Internal(anyhow::anyhow!(
                 "Error processing CTE '{}': {}",
                 cte_name,
@@ -915,7 +914,7 @@ impl QueryAnalyzer {
         &mut self,
         select_item: &SelectItem,
         parent_aliases: &HashMap<String, String>,
-    ) -> Result<(), SqlAnalyzerError> {
+    ) {
         match select_item {
             SelectItem::UnnamedExpr(expr) | SelectItem::ExprWithAlias { expr, .. } => {
                 self.visit_expr_with_parent_scope(expr, parent_aliases);
@@ -927,8 +926,6 @@ impl QueryAnalyzer {
                     .map(|i| i.value.clone())
                     .unwrap_or_default();
                 if !qualifier.is_empty() {
-                    self.validate_qualified_wildcard(&qualifier)?;
-                    
                     if !self.current_scope_aliases.contains_key(&qualifier)
                         && !parent_aliases.contains_key(&qualifier)
                         && !self.tables.contains_key(&qualifier)
@@ -939,10 +936,9 @@ impl QueryAnalyzer {
                 }
             }
             SelectItem::Wildcard(_) => {
-                self.validate_wildcard_on_tables()?;
+                // Unqualified wildcard - we don't explicitly add columns for unqualified wildcard
             }
         }
-        Ok(())
     }
 
     fn into_summary(mut self) -> Result<QuerySummary, SqlAnalyzerError> {
@@ -1147,37 +1143,6 @@ impl QueryAnalyzer {
         let in_ctes = self.ctes.iter().any(|cte| cte.name == name);
 
         in_definitions || in_ctes
-    }
-
-    fn validate_wildcard_on_tables(&self) -> Result<(), SqlAnalyzerError> {
-        // Check all tables in current scope aliases for physical tables
-        // This covers tables that are accessible in the current SELECT scope
-        for alias in self.current_scope_aliases.keys() {
-            if let Some(table_info) = self.tables.get(alias) {
-                if table_info.kind == TableKind::Base {
-                    return Err(SqlAnalyzerError::BlockedWildcardUsage(format!(
-                        "table '{}'", table_info.table_identifier
-                    )));
-                }
-            }
-        }
-        Ok(())
-    }
-
-    fn validate_qualified_wildcard(&self, qualifier: &str) -> Result<(), SqlAnalyzerError> {
-        let resolved_table = self.current_scope_aliases.get(qualifier)
-            .or_else(|| self.parent_scope_aliases.get(qualifier))
-            .map(|s| s.as_str())
-            .unwrap_or(qualifier);
-
-        if let Some(table_info) = self.tables.get(resolved_table) {
-            if table_info.kind == TableKind::Base {
-                return Err(SqlAnalyzerError::BlockedWildcardUsage(format!(
-                    "table '{}'", table_info.table_identifier
-                )));
-            }
-        }
-        Ok(())
     }
 
     fn add_column_reference(
