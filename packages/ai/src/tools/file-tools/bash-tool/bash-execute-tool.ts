@@ -96,8 +96,8 @@ const executeBashCommands = wrapTraced(
   { name: 'bash-execute-tool' }
 );
 
-export const bashExecute = createTool({
-  id: 'bash_execute',
+export const executeBash = createTool({
+  id: 'execute-bash',
   description: 'Executes bash commands and captures stdout, stderr, and exit codes',
   inputSchema,
   outputSchema,

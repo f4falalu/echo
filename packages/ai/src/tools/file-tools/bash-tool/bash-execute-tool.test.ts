@@ -2,7 +2,7 @@ import { RuntimeContext } from '@mastra/core/runtime-context';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { z } from 'zod';
 import { type DocsAgentContext, DocsAgentContextKey } from '../../../context/docs-agent-context';
-import { bashExecute } from './bash-execute-tool';
+import { executeBash } from './bash-execute-tool';
 
 vi.mock('@buster/sandbox', () => ({
   runTypescript: vi.fn(),
@@ -34,10 +34,10 @@ describe('bash-execute-tool', () => {
 
   describe('bashExecute tool', () => {
     it('should have correct tool configuration', () => {
-      expect(bashExecute.id).toBe('bash_execute');
-      expect(bashExecute.description).toContain('Executes bash commands');
-      expect(bashExecute.inputSchema).toBeDefined();
-      expect(bashExecute.outputSchema).toBeDefined();
+      expect(executeBash.id).toBe('bash_execute');
+      expect(executeBash.description).toContain('Executes bash commands');
+      expect(executeBash.inputSchema).toBeDefined();
+      expect(executeBash.outputSchema).toBeDefined();
     });
 
     it('should validate input schema correctly', () => {
@@ -48,7 +48,7 @@ describe('bash-execute-tool', () => {
         ],
       };
 
-      expect(() => bashExecute.inputSchema.parse(validInput)).not.toThrow();
+      expect(() => executeBash.inputSchema.parse(validInput)).not.toThrow();
     });
 
     it('should execute with sandbox when available', async () => {
@@ -78,7 +78,7 @@ describe('bash-execute-tool', () => {
       mockGenerateBashExecuteCode.mockReturnValue(mockCode);
       mockRunTypescript.mockResolvedValue(mockSandboxResult);
 
-      const result = await bashExecute.execute({
+      const result = await executeBash.execute({
         context: input,
         runtimeContext,
       });
@@ -114,7 +114,7 @@ describe('bash-execute-tool', () => {
 
       mockExecuteBashCommandsSafely.mockResolvedValue(mockLocalResults);
 
-      const result = await bashExecute.execute({
+      const result = await executeBash.execute({
         context: input,
         runtimeContext,
       });
@@ -141,7 +141,7 @@ describe('bash-execute-tool', () => {
       mockGenerateBashExecuteCode.mockReturnValue(mockCode);
       mockRunTypescript.mockResolvedValue(mockSandboxResult);
 
-      const result = await bashExecute.execute({
+      const result = await executeBash.execute({
         context: input,
         runtimeContext,
       });
@@ -164,7 +164,7 @@ describe('bash-execute-tool', () => {
 
       mockExecuteBashCommandsSafely.mockRejectedValue(new Error('Execution failed'));
 
-      const result = await bashExecute.execute({
+      const result = await executeBash.execute({
         context: input,
         runtimeContext,
       });
@@ -177,7 +177,7 @@ describe('bash-execute-tool', () => {
     it('should handle empty commands array', async () => {
       const input = { commands: [] };
 
-      const result = await bashExecute.execute({
+      const result = await executeBash.execute({
         context: input,
         runtimeContext,
       });
@@ -203,7 +203,7 @@ describe('bash-execute-tool', () => {
       mockGenerateBashExecuteCode.mockReturnValue(mockCode);
       mockRunTypescript.mockResolvedValue(mockSandboxResult);
 
-      const result = await bashExecute.execute({
+      const result = await executeBash.execute({
         context: input,
         runtimeContext,
       });
