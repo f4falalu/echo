@@ -1,5 +1,3 @@
-import React from 'react';
-
 export const getBrowserLanguage = (full = false) => {
   if (!navigator) return 'en';
 

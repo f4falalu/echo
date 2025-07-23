@@ -56,7 +56,7 @@ export const formatNumber = (
       options?.minDecimals,
       options?.maximumFractionDigits,
       options?.maximumDecimals,
-      options?.maximumSignificantDigits
+      options?.maximumSignificantDigits,
     ].filter(isNumber)
   );
 
@@ -68,7 +68,7 @@ export const formatNumber = (
       compactDisplay: 'short',
       style: options?.currency ? 'currency' : 'decimal',
       currency: options?.currency,
-      useGrouping: options?.useGrouping !== false
+      useGrouping: options?.useGrouping !== false,
     });
 
     return formatter.format(Number(processedValue));
@@ -105,7 +105,7 @@ export const formatNumber = (
  * countTotalDigits(1000000) // returns 7
  * countTotalDigits(-123.4) // returns 4 (ignores sign)
  */
-export const countTotalDigits = (num: number, roundToDecimals: number = 2): number => {
+export const countTotalDigits = (num: number, roundToDecimals = 2): number => {
   const roundedNum = roundNumber(num, 0, roundToDecimals);
   const str = Math.abs(roundedNum).toString();
   return str.replace('.', '').length;
