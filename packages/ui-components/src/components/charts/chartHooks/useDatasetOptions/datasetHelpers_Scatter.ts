@@ -1,6 +1,6 @@
-import type { BusterChartProps } from '@/api/asset_interfaces/metric/charts';
-import { randomSampling } from '@/lib/downsample';
+import type { BusterChartProps } from '../../BusterChart.types';
 import { DOWNSIZE_SAMPLE_THRESHOLD } from '../../config';
+import { randomSampling } from './downsample';
 
 const downsampleScatterData = (data: NonNullable<BusterChartProps['data']>) => {
   return randomSampling(data, DOWNSIZE_SAMPLE_THRESHOLD);

@@ -2,12 +2,13 @@ import type { ChartType as ChartJSChartType, PluginChartOptions } from 'chart.js
 import type { AnnotationPluginOptions } from 'chartjs-plugin-annotation';
 import { useMemo } from 'react';
 import type { DeepPartial } from 'utility-types';
-import type { BusterChartProps } from '@/api/asset_interfaces/metric/charts';
+import type { BusterChartProps } from '../../../BusterChart.types';
+import type { ChartConfigProps, ChartEncodes } from '@buster/server-shared/metrics';
 import type { DatasetOptionsWithTicks } from '../../../chartHooks';
 import {
   LINE_DECIMATION_SAMPLES,
   LINE_DECIMATION_THRESHOLD,
-  TOOLTIP_THRESHOLD
+  TOOLTIP_THRESHOLD,
 } from '../../../config';
 import type { BusterChartTypeComponentProps } from '../../../interfaces';
 import type { ChartProps } from '../../core';
@@ -18,7 +19,6 @@ import { useTooltipOptions } from './useTooltipOptions.ts/useTooltipOptions';
 import { useXAxis } from './useXAxis';
 import { useY2Axis } from './useY2Axis';
 import { useYAxis } from './useYAxis';
-import type { ChartConfigProps, ChartEncodes } from '@buster/server-shared/metrics';
 
 interface UseOptionsProps {
   colors: string[];
@@ -99,7 +99,7 @@ export const useOptions = ({
   goalLinesAnnotations,
   disableTooltip: disableTooltipProp,
   xAxisTimeInterval,
-  numberOfDataPoints
+  numberOfDataPoints,
 }: UseOptionsProps) => {
   const xAxis = useXAxis({
     columnLabelFormats,
@@ -113,7 +113,7 @@ export const useOptions = ({
     xAxisShowAxisTitle,
     lineGroupType,
     barGroupType,
-    xAxisTimeInterval
+    xAxisTimeInterval,
   });
 
   const yAxis = useYAxis({
@@ -128,7 +128,7 @@ export const useOptions = ({
     yAxisStartAxisAtZero,
     yAxisShowAxisLabel,
     yAxisScaleType,
-    gridLines
+    gridLines,
   });
 
   const y2Axis = useY2Axis({
@@ -139,7 +139,7 @@ export const useOptions = ({
     y2AxisShowAxisTitle,
     y2AxisShowAxisLabel,
     y2AxisScaleType,
-    y2AxisStartAxisAtZero
+    y2AxisStartAxisAtZero,
   });
 
   const isHorizontalBar = useMemo(() => {
@@ -152,14 +152,14 @@ export const useOptions = ({
     return {
       x: isHorizontalBar ? yAxis : xAxis,
       y: isHorizontalBar ? xAxis : yAxis,
-      y2: y2Axis
+      y2: y2Axis,
     };
   }, [xAxis, yAxis, y2Axis, isHorizontalBar]);
 
   const chartMounted = useMemo(() => {
     return {
       onMounted: onChartReady,
-      onInitialAnimationEnd
+      onInitialAnimationEnd,
     };
   }, [onChartReady, onInitialAnimationEnd]);
 
@@ -169,7 +169,7 @@ export const useOptions = ({
     animate,
     numberOfDataPoints,
     selectedChartType,
-    barGroupType
+    barGroupType,
   });
 
   const disableTooltip = useMemo(() => {
@@ -187,14 +187,14 @@ export const useOptions = ({
     columnSettings,
     hasMismatchedTooltipsAndMeasures,
     disableTooltip,
-    colors
+    colors,
   });
 
   const trendlineOptions = useMemo(() => {
     return createAggregrateTrendlines({
       trendlines,
       columnLabelFormats,
-      selectedAxis
+      selectedAxis,
     });
   }, [trendlines, columnLabelFormats, selectedAxis.y, (selectedAxis as { y2: string[] }).y2]);
 
@@ -213,17 +213,17 @@ export const useOptions = ({
         tooltip: tooltipOptions,
         ...chartPlugins,
         annotation: {
-          annotations: { ...goalLinesAnnotations, ...chartAnnotations }
+          annotations: { ...goalLinesAnnotations, ...chartAnnotations },
         },
         decimation: {
           enabled: isLargeDataset,
           algorithm: 'lttb',
-          samples: LINE_DECIMATION_SAMPLES
+          samples: LINE_DECIMATION_SAMPLES,
         },
-        trendline: trendlineOptions
+        trendline: trendlineOptions,
       },
       animation,
-      ...chartOptions
+      ...chartOptions,
     } satisfies ChartProps<ChartJSChartType>['options'];
   }, [
     animation,
@@ -238,7 +238,7 @@ export const useOptions = ({
     isHorizontalBar,
     goalLinesAnnotations,
     tooltipOptions,
-    trendlineOptions
+    trendlineOptions,
   ]);
 
   return options;

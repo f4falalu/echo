@@ -1,20 +1,19 @@
-import type { Meta, StoryObj } from '@storybook/react';
-import React from 'react';
-import { generatePieChartData } from '../../../../mocks/chart/chartMocks';
-import { BusterChart } from '../BusterChart';
-import { sharedMeta } from './BusterChartShared';
 import {
+  type ColumnLabelFormat,
+  type ColumnSettings,
   DEFAULT_COLUMN_LABEL_FORMAT,
   DEFAULT_COLUMN_SETTINGS,
-  type ColumnLabelFormat,
-  type ColumnSettings
 } from '@buster/server-shared/metrics';
+import type { Meta, StoryObj } from '@storybook/react';
+import { BusterChart } from '../BusterChart';
+import { sharedMeta } from './BusterChartShared';
+import { generatePieChartData } from './chartMocks';
 
 type PieChartData = ReturnType<typeof generatePieChartData>;
 
 const meta: Meta<typeof BusterChart> = {
   ...sharedMeta,
-  title: 'UI/Charts/BusterChart/Pie'
+  title: 'UI/Charts/BusterChart/Pie',
 } as Meta<typeof BusterChart>;
 
 export default meta;
@@ -27,24 +26,24 @@ export const Default: Story = {
     pieChartAxis: {
       x: ['segment'],
       y: ['value'],
-      tooltip: null
+      tooltip: null,
     },
     columnLabelFormats: {
       segment: {
         ...DEFAULT_COLUMN_LABEL_FORMAT,
         columnType: 'text',
-        style: 'string'
+        style: 'string',
       } as ColumnLabelFormat,
       value: {
         columnType: 'number',
         style: 'number',
-        numberSeparatorStyle: ','
-      } as ColumnLabelFormat
+        numberSeparatorStyle: ',',
+      } as ColumnLabelFormat,
     },
     pieDisplayLabelAs: 'percent',
     pieDonutWidth: 0,
-    className: 'w-[500px] h-[500px]'
-  }
+    className: 'w-[500px] h-[500px]',
+  },
 };
 
 export const MultipleValues: Story = {
@@ -53,33 +52,33 @@ export const MultipleValues: Story = {
     data: [
       { segment: 'A', value1: 30, value2: 45 },
       { segment: 'B', value1: 20, value2: 25 },
-      { segment: 'C', value1: 50, value2: 30 }
+      { segment: 'C', value1: 50, value2: 30 },
     ],
     pieChartAxis: {
       x: ['segment'],
       y: ['value1', 'value2'],
-      tooltip: null
+      tooltip: null,
     },
     columnLabelFormats: {
       segment: {
         columnType: 'text',
-        style: 'string'
+        style: 'string',
       } as ColumnLabelFormat,
       value1: {
         columnType: 'number',
         style: 'number',
-        numberSeparatorStyle: ','
+        numberSeparatorStyle: ',',
       } as ColumnLabelFormat,
       value2: {
         columnType: 'number',
         style: 'number',
-        numberSeparatorStyle: ','
-      } as ColumnLabelFormat
+        numberSeparatorStyle: ',',
+      } as ColumnLabelFormat,
     },
     pieDisplayLabelAs: 'number',
     pieDonutWidth: 20,
-    className: 'w-[500px] h-[500px]'
-  }
+    className: 'w-[500px] h-[500px]',
+  },
 };
 
 export const Donut: Story = {
@@ -89,23 +88,23 @@ export const Donut: Story = {
     pieChartAxis: {
       x: ['segment'],
       y: ['value'],
-      tooltip: null
+      tooltip: null,
     },
     columnLabelFormats: {
       segment: {
         columnType: 'text',
-        style: 'string'
+        style: 'string',
       } as ColumnLabelFormat,
       value: {
         columnType: 'number',
         style: 'number',
-        numberSeparatorStyle: ','
-      } as ColumnLabelFormat
+        numberSeparatorStyle: ',',
+      } as ColumnLabelFormat,
     },
     pieDisplayLabelAs: 'percent',
     pieDonutWidth: 20,
-    className: 'w-[500px] h-[500px]'
-  }
+    className: 'w-[500px] h-[500px]',
+  },
 };
 
 export const DonutMultipleValues: Story = {
@@ -114,33 +113,33 @@ export const DonutMultipleValues: Story = {
     data: [
       { segment: 'A', value1: 30, value2: 45 },
       { segment: 'B', value1: 20, value2: 25 },
-      { segment: 'C', value1: 50, value2: 30 }
+      { segment: 'C', value1: 50, value2: 30 },
     ],
     pieChartAxis: {
       x: ['segment'],
       y: ['value1', 'value2'],
-      tooltip: null
+      tooltip: null,
     },
     columnLabelFormats: {
       segment: {
         columnType: 'text',
-        style: 'string'
+        style: 'string',
       } as ColumnLabelFormat,
       value1: {
         columnType: 'number',
         style: 'number',
-        numberSeparatorStyle: ','
+        numberSeparatorStyle: ',',
       } as ColumnLabelFormat,
       value2: {
         columnType: 'number',
         style: 'number',
-        numberSeparatorStyle: ','
-      } as ColumnLabelFormat
+        numberSeparatorStyle: ',',
+      } as ColumnLabelFormat,
     },
     pieDisplayLabelAs: 'percent',
     pieDonutWidth: 10,
-    className: 'w-[500px] h-[500px]'
-  }
+    className: 'w-[500px] h-[500px]',
+  },
 };
 
 export const ResizableContainer: Story = {
@@ -155,32 +154,32 @@ export const ResizableContainer: Story = {
     pieChartAxis: {
       x: ['segment'],
       y: ['value'],
-      tooltip: null
+      tooltip: null,
     },
     columnLabelFormats: {
       segment: {
         columnType: 'text',
-        style: 'string'
+        style: 'string',
       } as ColumnLabelFormat,
       value: {
         columnType: 'number',
         style: 'number',
-        numberSeparatorStyle: ','
-      } as ColumnLabelFormat
+        numberSeparatorStyle: ',',
+      } as ColumnLabelFormat,
     },
     pieDisplayLabelAs: 'number',
     pieDonutWidth: 10,
     pieInnerLabelTitle: 'Total',
-    pieInnerLabelAggregate: 'sum'
+    pieInnerLabelAggregate: 'sum',
   },
   parameters: {
     docs: {
       description: {
         story:
-          'This story provides a resizable container. Drag the bottom-right corner to resize the chart.'
-      }
-    }
-  }
+          'This story provides a resizable container. Drag the bottom-right corner to resize the chart.',
+      },
+    },
+  },
 };
 
 const names = ['Zack', 'Peter', 'Mary', 'John', 'William', 'David', 'Thomas', 'Alice'];
@@ -196,20 +195,20 @@ const dates = [
   '2021-01-03',
   '2021-01-08',
   '2021-01-04',
-  '2021-01-06'
+  '2021-01-06',
 ];
 
 export const WithSortingByKey: Story = {
   args: {
     selectedChartType: 'pie',
     data: Array.from({ length: 8 }, (_, index) => ({
-      segment: names[index],
-      value: numbers[index]
+      segment: names[index]!,
+      value: numbers[index]!,
     })),
     pieChartAxis: {
       x: ['segment'],
       y: ['value'],
-      tooltip: null
+      tooltip: null,
     },
     pieSortBy: 'key',
     columnMetadata: [
@@ -219,7 +218,7 @@ export const WithSortingByKey: Story = {
         min_value: 0,
         max_value: 100,
         unique_values: 10,
-        type: 'text'
+        type: 'text',
       },
       {
         name: 'value',
@@ -227,30 +226,30 @@ export const WithSortingByKey: Story = {
         min_value: 0,
         max_value: 100,
         unique_values: 10,
-        type: 'number'
-      }
-    ]
-  }
+        type: 'number',
+      },
+    ],
+  },
 };
 
 export const WithSortingByKeyWithDates: Story = {
   args: {
     selectedChartType: 'pie',
     data: Array.from({ length: 8 }, (_, index) => ({
-      date: dates[index],
-      value: numbers[index]
+      date: dates[index]!,
+      value: numbers[index]!,
     })),
     pieChartAxis: {
       x: ['date'],
       y: ['value'],
-      tooltip: null
+      tooltip: null,
     },
     pieSortBy: 'key',
     columnLabelFormats: {
       date: {
         columnType: 'date',
-        style: 'date'
-      } as ColumnLabelFormat
+        style: 'date',
+      } as ColumnLabelFormat,
     },
     columnMetadata: [
       {
@@ -259,7 +258,7 @@ export const WithSortingByKeyWithDates: Story = {
         min_value: 0,
         max_value: 100,
         unique_values: 10,
-        type: 'date'
+        type: 'date',
       },
       {
         name: 'value',
@@ -267,17 +266,17 @@ export const WithSortingByKeyWithDates: Story = {
         min_value: 0,
         max_value: 100,
         unique_values: 10,
-        type: 'number'
-      }
-    ]
-  }
+        type: 'number',
+      },
+    ],
+  },
 };
 
 export const WithSortingByValue: Story = {
   args: {
     ...WithSortingByKey.args!,
-    pieSortBy: 'value'
-  }
+    pieSortBy: 'value',
+  },
 };
 
 export const ShowLabelAsPercent: Story = {
@@ -289,40 +288,40 @@ export const ShowLabelAsPercent: Story = {
   args: {
     selectedChartType: 'pie',
     data: Array.from({ length: 5 }, (_, index) => ({
-      segment: names[index],
-      value: numbers[index],
-      value2: numbers2[index]
+      segment: names[index]!,
+      value: numbers[index]!,
+      value2: numbers2[index]!,
     })),
     pieSortBy: 'value',
     pieChartAxis: {
       x: ['segment'],
       y: ['value', 'value2'],
-      tooltip: null
+      tooltip: null,
     },
     columnLabelFormats: {
       segment: {
         columnType: 'text',
-        style: 'string'
+        style: 'string',
       } as ColumnLabelFormat,
       value: {
         columnType: 'number',
         style: 'number',
 
-        numberSeparatorStyle: ','
+        numberSeparatorStyle: ',',
       } as ColumnLabelFormat,
       value2: {
         columnType: 'number',
         style: 'number',
-        numberSeparatorStyle: ','
-      } as ColumnLabelFormat
+        numberSeparatorStyle: ',',
+      } as ColumnLabelFormat,
     },
     pieDisplayLabelAs: 'percent',
     pieDonutWidth: 5,
     pieInnerLabelTitle: 'Total',
     pieShowInnerLabel: false,
     pieLabelPosition: 'inside',
-    pieInnerLabelAggregate: 'sum'
-  }
+    pieInnerLabelAggregate: 'sum',
+  },
 };
 
 export const ManyValuesWithDataLabels: Story = {
@@ -331,63 +330,63 @@ export const ManyValuesWithDataLabels: Story = {
     columnSettings: {
       value: {
         ...DEFAULT_COLUMN_SETTINGS,
-        showDataLabels: true
-      } as ColumnSettings
+        showDataLabels: true,
+      } as ColumnSettings,
     },
     columnLabelFormats: {
       value: {
         columnType: 'number',
         style: 'number',
-        numberSeparatorStyle: ','
-      } as ColumnLabelFormat
+        numberSeparatorStyle: ',',
+      } as ColumnLabelFormat,
     },
     data: Array.from({ length: 50 }, (_, index) => ({
-      segment: names[index],
-      value: numbers[index]
+      segment: names[index]!,
+      value: numbers[index]!,
     })),
     pieChartAxis: {
       x: ['segment'],
       y: ['value'],
-      tooltip: null
+      tooltip: null,
     },
     pieDisplayLabelAs: 'number',
     pieLabelPosition: 'inside',
-    pieDonutWidth: 0
-  }
+    pieDonutWidth: 0,
+  },
 };
 
 export const DataLabelsOutside: Story = {
   args: {
     selectedChartType: 'pie',
     data: Array.from({ length: 5 }, (_, index) => ({
-      segment: names[index],
-      value: numbers[index]
+      segment: names[index]!,
+      value: numbers[index]!,
     })),
     pieChartAxis: {
       x: ['segment'],
       y: ['value'],
-      tooltip: null
+      tooltip: null,
     },
     columnLabelFormats: {
       segment: {
         ...DEFAULT_COLUMN_LABEL_FORMAT,
         columnType: 'text',
-        style: 'string'
+        style: 'string',
       } as ColumnLabelFormat,
       value: {
         columnType: 'number',
         style: 'number',
 
-        numberSeparatorStyle: ','
+        numberSeparatorStyle: ',',
       } as ColumnLabelFormat,
       value2: {
         columnType: 'number',
         style: 'number',
-        numberSeparatorStyle: ','
-      } as ColumnLabelFormat
+        numberSeparatorStyle: ',',
+      } as ColumnLabelFormat,
     },
-    pieLabelPosition: 'outside'
-  }
+    pieLabelPosition: 'outside',
+  },
 };
 
 export const MinimumSlicePercentage: Story = {
@@ -400,39 +399,39 @@ export const MinimumSlicePercentage: Story = {
       { segment: 'Small Segment 2', sales: 6 },
       { segment: 'Tiny Segment 1', sales: 3 },
       { segment: 'Tiny Segment 2', sales: 2 },
-      { segment: 'Tiny Segment 3', sales: 1 }
+      { segment: 'Tiny Segment 3', sales: 1 },
     ],
     pieChartAxis: {
       x: ['segment'],
       y: ['sales'],
-      tooltip: null
+      tooltip: null,
     },
     columnLabelFormats: {
       segment: {
         columnType: 'text',
         style: 'string',
-        prefix: 'PREFIX TEST: '
+        prefix: 'PREFIX TEST: ',
       } as ColumnLabelFormat,
       sales: {
         columnType: 'number',
         style: 'currency',
         currency: 'USD',
         displayName: 'HUH?',
-        prefix: 'PREFIX TEST2: '
-      } as ColumnLabelFormat
+        prefix: 'PREFIX TEST2: ',
+      } as ColumnLabelFormat,
     },
     pieDisplayLabelAs: 'percent',
     pieMinimumSlicePercentage: 25,
-    className: 'w-[500px] h-[500px]'
+    className: 'w-[500px] h-[500px]',
   },
   parameters: {
     docs: {
       description: {
         story:
-          'This story demonstrates the minimum slice percentage feature, which groups slices smaller than the specified percentage into an "Other" category.'
-      }
-    }
-  }
+          'This story demonstrates the minimum slice percentage feature, which groups slices smaller than the specified percentage into an "Other" category.',
+      },
+    },
+  },
 };
 
 export const WithLegendHeadline: Story = {
@@ -448,10 +447,10 @@ export const WithLegendHeadline: Story = {
         ...Default.args!.columnLabelFormats!.value!,
         columnType: 'number',
         style: 'currency',
-        currency: 'USD'
-      }
-    }
-  }
+        currency: 'USD',
+      },
+    },
+  },
 };
 
 export const MultipleValuesWithLegendHeadline: Story = {
@@ -459,6 +458,6 @@ export const MultipleValuesWithLegendHeadline: Story = {
     ...MultipleValues.args,
     showLegend: true,
     showLegendHeadline: 'average',
-    pieDisplayLabelAs: 'number'
-  }
+    pieDisplayLabelAs: 'number',
+  },
 };

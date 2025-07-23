@@ -1,6 +1,6 @@
+import { measureTextWidth } from '@/lib/canvas';
 import clamp from 'lodash/clamp';
 import sampleSize from 'lodash/sampleSize';
-import { measureTextWidth } from '@/lib';
 
 export const MIN_COLUMN_WIDTH = 80;
 export const MAX_COLUMN_WIDTH = 370;
@@ -34,7 +34,7 @@ const getDefaultColumnWidth = (
 ) => {
   const headerString = headerFormat(field, field);
   const longestString = rows.reduce((acc, curr) => {
-    const currString = cellFormat(curr[field], field);
+    const currString = cellFormat(curr[field] ?? null, field);
     if (!currString) return acc;
     return String(acc).length > String(currString).length ? acc : currString;
   }, headerString);

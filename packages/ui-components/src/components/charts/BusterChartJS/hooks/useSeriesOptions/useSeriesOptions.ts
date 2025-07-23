@@ -1,7 +1,14 @@
 import type { ChartType as ChartJSChartType } from 'chart.js';
 import { useMemo } from 'react';
-import type { BusterChartProps } from '@/api/asset_interfaces/metric/charts';
+import type { BusterChartProps } from '../../../BusterChart.types';
 import { isNumericColumnType } from '@/lib';
+import type {
+  ChartConfigProps,
+  ChartEncodes,
+  ChartType,
+  ColumnMetaData,
+  ScatterAxis,
+} from '@buster/server-shared/metrics';
 import type { DatasetOptionsWithTicks } from '../../../chartHooks';
 import type { ChartProps } from '../../core';
 import { barSeriesBuilder, barSeriesBuilder_labels } from './barSeriesBuilder';
@@ -10,13 +17,6 @@ import type { SeriesBuilderProps } from './interfaces';
 import { lineSeriesBuilder, lineSeriesBuilder_labels } from './lineSeriesBuilder';
 import { pieSeriesBuilder_data, pieSeriesBuilder_labels } from './pieSeriesBuilder';
 import { scatterSeriesBuilder_data, scatterSeriesBuilder_labels } from './scatterSeriesBuilder';
-import type {
-  ChartConfigProps,
-  ChartEncodes,
-  ChartType,
-  ColumnMetaData,
-  ScatterAxis
-} from '@buster/server-shared/metrics';
 
 export interface UseSeriesOptionsProps {
   selectedChartType: ChartType;
@@ -51,7 +51,7 @@ export const useSeriesOptions = ({
   lineGroupType,
   barShowTotalAtTop,
   barGroupType,
-  trendlines
+  trendlines,
 }: UseSeriesOptionsProps): ChartProps<ChartJSChartType>['data'] => {
   const labels: (string | Date | number)[] | undefined = useMemo(() => {
     return labelsBuilderRecord[selectedChartType]({
@@ -59,7 +59,7 @@ export const useSeriesOptions = ({
       columnLabelFormats,
       xAxisKeys,
       sizeKey,
-      columnSettings
+      columnSettings,
     });
   }, [datasetOptions, columnSettings, columnLabelFormats, xAxisKeys, sizeKey]);
 
@@ -79,7 +79,7 @@ export const useSeriesOptions = ({
     return {
       key: sizeKey[0],
       minValue: Number(assosciatedColumn?.min_value),
-      maxValue: Number(assosciatedColumn?.max_value)
+      maxValue: Number(assosciatedColumn?.max_value),
     };
   }, [sizeKey]);
 
@@ -97,7 +97,7 @@ export const useSeriesOptions = ({
       barShowTotalAtTop,
       yAxisKeys,
       y2AxisKeys,
-      trendlines
+      trendlines,
     });
   }, [
     trendlines,
@@ -112,12 +112,12 @@ export const useSeriesOptions = ({
     barGroupType,
     barShowTotalAtTop,
     yAxisKeys,
-    y2AxisKeys
+    y2AxisKeys,
   ]);
 
   return {
     labels,
-    datasets
+    datasets,
   };
 };
 
@@ -140,7 +140,7 @@ const labelsBuilderRecord: Record<
   scatter: scatterSeriesBuilder_labels,
   combo: comboSeriesBuilder_labels,
   metric: () => [],
-  table: () => []
+  table: () => [],
 };
 
 const dataBuilderRecord: Record<
@@ -154,5 +154,5 @@ const dataBuilderRecord: Record<
   combo: comboSeriesBuilder_data,
   //NOT USED
   metric: () => [],
-  table: () => []
+  table: () => [],
 };

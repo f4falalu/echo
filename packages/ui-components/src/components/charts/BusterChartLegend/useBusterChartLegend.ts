@@ -1,21 +1,21 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import type { BusterChartProps } from '@/api/asset_interfaces/metric/charts';
+import type { BusterChartProps } from '../../../BusterChart.types';
 import { useUpdateEffect } from '@/hooks';
+import type {
+  ChartEncodes,
+  ChartType,
+  ComboChartAxis,
+  ScatterAxis,
+} from '@buster/server-shared/metrics';
+import { useLegendAutoShow } from '../../charts-shared/useLegendAutoShow';
 import {
   DEFAULT_CATEGORY_AXIS_COLUMN_NAMES,
   DEFAULT_X_AXIS_COLUMN_NAMES,
-  DEFAULT_Y_AXIS_COLUMN_NAMES
+  DEFAULT_Y_AXIS_COLUMN_NAMES,
 } from './config';
 import type { BusterChartLegendItem } from './interfaces';
-import { useLegendAutoShow } from '../../charts-shared/useLegendAutoShow';
-import type {
-  ChartType,
-  ChartEncodes,
-  ComboChartAxis,
-  ScatterAxis
-} from '@buster/server-shared/metrics';
 
 interface UseBusterChartLegendProps {
   selectedChartType: ChartType;
@@ -32,7 +32,7 @@ export const useBusterChartLegend = ({
   selectedAxis,
   loading,
   lineGroupType,
-  barGroupType
+  barGroupType,
 }: UseBusterChartLegendProps) => {
   const [inactiveDatasets, setInactiveDatasets] = useState<Record<string, boolean>>({});
   const [legendItems, setLegendItems] = useState<BusterChartLegendItem[]>([]);
@@ -57,7 +57,7 @@ export const useBusterChartLegend = ({
     selectedChartType,
     showLegendProp,
     categoryAxisColumnNames,
-    allYAxisColumnNames
+    allYAxisColumnNames,
   });
 
   const renderLegend = useMemo(() => {
@@ -84,6 +84,6 @@ export const useBusterChartLegend = ({
     isStackPercentage,
     showLegend,
     categoryAxisColumnNames,
-    allYAxisColumnNames
+    allYAxisColumnNames,
   };
 };

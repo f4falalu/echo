@@ -146,6 +146,19 @@
           }
         }
       }
+    },
+    {
+      "include": ["**/*.stories.tsx"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noNonNullAssertion": "off"
+          },
+          "correctness": {
+            "noUnusedVariables": "off"
+          }
+        }
+      }
     }
   ]
 }

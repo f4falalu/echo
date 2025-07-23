@@ -10,7 +10,6 @@ import {
 } from '@buster/server-shared/metrics';
 import { AnimatePresence, type MotionProps, motion } from 'framer-motion';
 import React, { useMemo } from 'react';
-import { Title } from '../../typography/Title';
 import type { BusterMetricChartProps } from './interfaces';
 
 export const BusterMetricChart: React.FC<BusterMetricChartProps> = React.memo(
@@ -118,6 +117,7 @@ export const BusterMetricChart: React.FC<BusterMetricChartProps> = React.memo(
       return formatLabel(metricSubHeader.columnId, subHeaderFormat, true);
     }, [metricSubHeader, firstRow, subHeaderFormat]);
 
+    // biome-ignore lint/correctness/useExhaustiveDependencies: we are content with the current dependencies
     const formattedValue = useMemo(() => {
       if (metricValueAggregate && !metricValueLabel) {
         const operator = new JsonDataFrameOperationsSingle(data, metricColumnId);
@@ -164,7 +164,7 @@ export const BusterMetricChart: React.FC<BusterMetricChartProps> = React.memo(
         >
           <AnimatedTitleWrapper title={formattedHeader} type="header" />
           <div className="w-full overflow-hidden p-2 text-center">
-            <Title truncate>{formattedValue}</Title>
+            <div className="truncate">{formattedValue}</div>
           </div>
           <AnimatedTitleWrapper title={formattedSubHeader} type="subHeader" />
         </motion.div>
@@ -175,6 +175,7 @@ export const BusterMetricChart: React.FC<BusterMetricChartProps> = React.memo(
 BusterMetricChart.displayName = 'BusterMetricChart';
 
 const AnimatedTitleWrapper = ({ title, type }: { title: string; type: 'header' | 'subHeader' }) => {
+  // biome-ignore lint/correctness/useExhaustiveDependencies: we are content with the current dependencies
   const memoizedAnimation: MotionProps = useMemo(() => {
     return {
       initial: {
@@ -217,9 +218,7 @@ const AnimatedTitleWrapper = ({ title, type }: { title: string; type: 'header' |
       {title && (
         <motion.div className="w-full overflow-visible text-center" {...memoizedAnimation}>
           <motion.div className="origin-center">
-            <Title truncate as="h4">
-              {title}
-            </Title>
+            <h4 className="truncate text-text-default text-lg font-normal!">{title}</h4>
           </motion.div>
         </motion.div>
       )}

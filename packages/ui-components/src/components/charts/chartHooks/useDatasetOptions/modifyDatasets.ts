@@ -1,13 +1,13 @@
-import lodashSum from 'lodash/sum';
-import cloneDeep from 'lodash/cloneDeep';
 import type { BarSortBy, ChartType, PieSortBy } from '@buster/server-shared/metrics';
+import cloneDeep from 'lodash/cloneDeep';
+import lodashSum from 'lodash/sum';
+import type { BusterChartProps } from '../../BusterChart.types';
 import type { DatasetOption, DatasetOptionsWithTicks, KV } from './interfaces';
-import type { BusterChartProps } from '@/api/asset_interfaces/metric';
 
 // Helper: ensure pie slices meet minimum percentage
 function handlePieThreshold(datasets: DatasetOption[], minPercent: number): DatasetOption[] {
   // Special case: if there's a single dataset with multiple values (bar/line as pie)
-  if (datasets.length === 1 && datasets[0].data.length > 1) {
+  if (datasets.length === 1 && datasets[0]?.data.length && datasets[0]?.data.length > 1) {
     const dataset = cloneDeep(datasets[0]);
     const total = lodashSum(dataset.data.map((v) => (v === null ? 0 : v || 0)));
     if (total <= 0) return datasets;
@@ -36,7 +36,7 @@ function handlePieThreshold(datasets: DatasetOption[], minPercent: number): Data
 
     // Add all data points above threshold
     for (const i of aboveIndices) {
-      newData.push(dataset.data[i]);
+      newData.push(dataset.data[i] ?? null);
       newTooltipData.push(dataset.tooltipData?.[i] || []);
     }
 
@@ -44,9 +44,9 @@ function handlePieThreshold(datasets: DatasetOption[], minPercent: number): Data
     newData.push(otherValue);
 
     // Create "Other" tooltip with combined info
-    const firstTooltip = dataset.tooltipData?.[belowIndices[0]] || [];
+    const firstTooltip = dataset.tooltipData?.[belowIndices[0] ?? 0] || [];
     const valueKey =
-      firstTooltip.find((t) => t.value === dataset.data[belowIndices[0]])?.key || 'value';
+      firstTooltip.find((t) => t.value === dataset.data[belowIndices[0] ?? 0])?.key || 'value';
     const otherTooltip: KV[] = [{ key: valueKey, value: otherValue }];
 
     // Add item sources to tooltip
@@ -69,8 +69,8 @@ function handlePieThreshold(datasets: DatasetOption[], minPercent: number): Data
       {
         ...dataset,
         data: newData,
-        tooltipData: newTooltipData
-      }
+        tooltipData: newTooltipData,
+      },
     ];
   }
 
@@ -91,8 +91,8 @@ function handlePieThreshold(datasets: DatasetOption[], minPercent: number): Data
 
   // Combine 'below' into "Other"
   const otherValue = lodashSum(below.map((ds) => ds.data[0] || 0));
-  const firstTooltip = below[0].tooltipData?.[0] || [];
-  const valueKey = firstTooltip.find((t) => t.value === below[0].data[0])?.key || 'value';
+  const firstTooltip = below?.[0]?.tooltipData?.[0] || [];
+  const valueKey = firstTooltip.find((t) => t.value === below?.[0]?.data[0])?.key || 'value';
   const tooltipMap = new Map<string, string | number | null>([[valueKey, otherValue]]);
 
   for (const ds of below) {
@@ -125,8 +125,8 @@ function handlePieThreshold(datasets: DatasetOption[], minPercent: number): Data
       data: [otherValue],
       dataKey: 'other',
       axisType: 'y',
-      tooltipData: [otherTooltip]
-    }
+      tooltipData: [otherTooltip],
+    },
   ];
 }
 
@@ -145,10 +145,12 @@ function sortPie(
   const firstDataset = items[0];
 
   // Create indices array based on the first dataset's length
-  const indices = Array.from({ length: firstDataset.data.length }, (_, i) => i);
+  const indices = Array.from({ length: firstDataset?.data.length || 0 }, (_, i) => i);
+
+  if (!firstDataset) return result;
 
   // Sort indices based on the first dataset's values
-  if (sortBy === 'value') {
+  if (sortBy === 'value' && firstDataset) {
     indices.sort((a, b) => {
       const valueA = firstDataset.data[a] === null ? 0 : firstDataset.data[a] || 0;
       const valueB = firstDataset.data[b] === null ? 0 : firstDataset.data[b] || 0;
@@ -162,22 +164,22 @@ function sortPie(
       return (label?.toString() || '').toLowerCase();
     });
 
-    indices.sort((a, b) => labels[a].localeCompare(labels[b]));
+    indices.sort((a, b) => labels[a]?.localeCompare(labels[b] || '') || 0);
   }
 
   // Apply the same sorting order to all datasets
   result.datasets = items.map((dataset) => ({
     ...dataset,
-    data: indices.map((i) => dataset.data[i]),
+    data: indices.map((i) => dataset.data[i] as number),
     tooltipData: dataset.tooltipData
-      ? indices.map((i) => dataset.tooltipData?.[i])
+      ? indices.map((i) => dataset.tooltipData?.[i] || [])
       : dataset.tooltipData,
-    sizeData: dataset.sizeData ? indices.map((i) => dataset.sizeData?.[i] ?? null) : []
+    sizeData: dataset.sizeData ? indices.map((i) => dataset.sizeData?.[i] ?? null) : [],
   }));
 
   // Sort ticks if they exist
   if (ticks.length > 0) {
-    result.ticks = indices.map((i) => ticks[i]);
+    result.ticks = indices.map((i) => ticks[i] as (string | number)[]);
   }
 
   return result;
@@ -193,6 +195,7 @@ function applyPercentageStack(datasets: DatasetOption[]): DatasetOption[] {
   for (const ds of clone) {
     ds.data.forEach((v, i) => {
       if (v !== null) {
+        //@ts-expect-error
         sums[i] += v || 0;
       }
     });
@@ -236,23 +239,25 @@ function sortBar(
   const sums = new Array<number>(dataLen).fill(0);
   for (const ds of items) {
     ds.data.forEach((v, i) => {
+      //@ts-expect-error
       sums[i] += v === null ? 0 : v || 0;
     });
   }
 
   // Create sorting indices
   const indices = Array.from({ length: dataLen }, (_, idx) => idx);
+  //@ts-expect-error
   indices.sort((a, b) => (sortKey === 'asc' ? sums[a] - sums[b] : sums[b] - sums[a]));
 
   // Sort datasets
   result.datasets = items.map((ds) => ({
     ...ds,
     // Sort data
-    data: indices.map((i) => ds.data[i]),
+    data: indices.map((i) => ds.data[i] ?? null),
     // Sort tooltipData if it exists
-    tooltipData: ds.tooltipData ? indices.map((i) => ds.tooltipData?.[i]) : ds.tooltipData,
+    tooltipData: ds.tooltipData ? indices.map((i) => ds.tooltipData?.[i] || []) : ds.tooltipData,
     // Sort sizeData if it exists
-    sizeData: ds.sizeData ? indices.map((i) => ds.sizeData?.[i] ?? null) : []
+    sizeData: ds.sizeData ? indices.map((i) => ds.sizeData?.[i] ?? null) : [],
   }));
 
   // Sort ticks (x-axis labels)
@@ -265,10 +270,10 @@ function sortBar(
 
 type ModifyDatasetsParams = {
   datasets: DatasetOptionsWithTicks;
-  pieMinimumSlicePercentage?: number;
-  barSortBy?: BarSortBy;
-  pieSortBy?: PieSortBy;
-  barGroupType?: BusterChartProps['barGroupType'];
+  pieMinimumSlicePercentage?: number | undefined;
+  barSortBy?: BarSortBy | undefined;
+  pieSortBy?: PieSortBy | undefined;
+  barGroupType?: BusterChartProps['barGroupType'] | undefined;
   lineGroupType: BusterChartProps['lineGroupType'];
   selectedChartType: ChartType;
 };
@@ -280,7 +285,7 @@ export function modifyDatasets({
   barSortBy,
   barGroupType,
   lineGroupType,
-  selectedChartType
+  selectedChartType,
 }: ModifyDatasetsParams): DatasetOptionsWithTicks {
   if (!datasets.datasets.length) return datasets;
 

@@ -1,27 +1,27 @@
 'use client';
 
-import isEmpty from 'lodash/isEmpty';
-import uniq from 'lodash/uniq';
-import { useMemo } from 'react';
 import { DEFAULT_COLUMN_LABEL_FORMAT } from '@buster/server-shared/metrics';
 import type {
   BarSortBy,
   ChartConfigProps,
   ChartEncodes,
   ChartType,
-  ComboChartAxis,
   ColumnLabelFormat,
+  ComboChartAxis,
   PieSortBy,
   ScatterAxis,
-  Trendline
+  Trendline,
 } from '@buster/server-shared/metrics';
+import isEmpty from 'lodash/isEmpty';
+import uniq from 'lodash/uniq';
+import { useMemo } from 'react';
+import type { BusterChartProps } from '../../BusterChart.types';
 import { DOWNSIZE_SAMPLE_THRESHOLD } from '../../config';
 import { aggregateAndCreateDatasets } from './aggregateAndCreateDatasets';
 import { sortLineBarData } from './datasetHelpers_BarLinePie';
 import { downsampleAndSortScatterData } from './datasetHelpers_Scatter';
 import type { DatasetOptionsWithTicks } from './interfaces';
 import { modifyDatasets } from './modifyDatasets';
-import type { BusterChartProps } from '@/api/asset_interfaces/metric';
 
 type DatasetHookResult = {
   datasetOptions: DatasetOptionsWithTicks;
@@ -60,16 +60,15 @@ export const useDatasetOptions = (params: DatasetHookParams): DatasetHookResult 
     pieMinimumSlicePercentage,
     barGroupType,
     lineGroupType,
-    trendlines,
     pieSortBy,
-    columnMetadata
+    columnMetadata,
   } = params;
   const {
     x: xFields,
     y: yAxisFields,
     size: sizeField,
     tooltip: _tooltipFields = null,
-    category: categoryFields = []
+    category: categoryFields = [],
   } = selectedAxis as ScatterAxis;
   const { y2: y2AxisFields = defaultYAxis2 } = selectedAxis as ComboChartAxis;
 
@@ -94,7 +93,7 @@ export const useDatasetOptions = (params: DatasetHookParams): DatasetHookResult 
   }, [xFieldsString, columnLabelFormats]);
 
   //WILL ONLY BE USED FOR BAR AND PIE CHART
-  const xFieldSorts = useMemo(() => {
+  const xFieldSorts: string[] = useMemo(() => {
     if (isPieChart) {
       if (pieSortBy === 'key') return xFieldColumnLabelFormatColumnTypes;
       return [];
@@ -105,7 +104,7 @@ export const useDatasetOptions = (params: DatasetHookParams): DatasetHookResult 
     }
 
     if (isScatter) {
-      return [xFields[0]];
+      return [xFields[0] ?? ''];
     }
 
     return xFieldColumnLabelFormatColumnTypes.filter((columnType) => columnType === 'date');
@@ -122,7 +121,7 @@ export const useDatasetOptions = (params: DatasetHookParams): DatasetHookResult 
   }, [data, isScatter]);
 
   const sortedAndLimitedData = useMemo(() => {
-    if (isScatter) return downsampleAndSortScatterData(data, xFields[0]);
+    if (isScatter) return downsampleAndSortScatterData(data, xFields[0] ?? '');
     return sortLineBarData(data, columnMetadata, xFieldSorts, xFields);
   }, [data, xFieldSortsString, xFieldsString, isScatter]);
 
@@ -170,7 +169,7 @@ export const useDatasetOptions = (params: DatasetHookParams): DatasetHookResult 
         y2: y2AxisFields,
         category: categoryFields,
         size: sizeField,
-        tooltip: tooltipFields
+        tooltip: tooltipFields,
       },
       columnLabelFormats,
       isScatter
@@ -184,7 +183,7 @@ export const useDatasetOptions = (params: DatasetHookParams): DatasetHookResult 
     sizeFieldString,
     tooltipFieldsString,
     measureFieldsReplaceDataWithKey,
-    isScatter
+    isScatter,
   ]);
 
   const datasetOptions = useMemo(() => {
@@ -195,7 +194,7 @@ export const useDatasetOptions = (params: DatasetHookParams): DatasetHookResult 
       barSortBy,
       barGroupType,
       lineGroupType,
-      selectedChartType
+      selectedChartType,
     });
   }, [
     aggregatedDatasets,
@@ -204,7 +203,7 @@ export const useDatasetOptions = (params: DatasetHookParams): DatasetHookResult 
     barSortBy,
     barGroupType,
     lineGroupType,
-    selectedChartType
+    selectedChartType,
   ]);
 
   const numberOfDataPoints = useMemo(() => {
@@ -218,6 +217,6 @@ export const useDatasetOptions = (params: DatasetHookParams): DatasetHookResult 
     y2AxisKeys,
     tooltipKeys,
     hasMismatchedTooltipsAndMeasures,
-    isDownsampled
+    isDownsampled,
   };
 };

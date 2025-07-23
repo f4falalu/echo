@@ -1,8 +1,8 @@
 'use client';
 
-import type { BusterChartProps } from '@/api/asset_interfaces/metric/charts';
-import type { ColumnMetaData, SimplifiedColumnType } from '@buster/server-shared/metrics';
 import { createDayjsDate } from '@/lib/date';
+import type { ColumnMetaData, SimplifiedColumnType } from '@buster/server-shared/metrics';
+import type { BusterChartProps } from '../../BusterChart.types';
 
 export const sortLineBarData = (
   data: NonNullable<BusterChartProps['data']>,
@@ -24,7 +24,7 @@ export const sortLineBarData = (
   if (xFieldSorts.length > 0) {
     sortedData.sort((a, b) => {
       for (let i = 0; i < xFieldSorts.length; i++) {
-        const field = xFields[i];
+        const field = xFields[i] ?? '';
         const fieldType: SimplifiedColumnType = columnMetadataRecord[field]?.simple_type || 'text';
 
         //NUMBER CASE

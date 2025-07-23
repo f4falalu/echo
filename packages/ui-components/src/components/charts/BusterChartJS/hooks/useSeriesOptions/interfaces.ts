@@ -1,6 +1,6 @@
-import type { BusterChartProps } from '@/api/asset_interfaces/metric/charts';
-import type { DatasetOptionsWithTicks } from '../../../chartHooks';
+import type { BusterChartProps } from '../../../BusterChart.types';
 import type { ChartEncodes } from '@buster/server-shared/metrics';
+import type { DatasetOptionsWithTicks } from '../../../chartHooks';
 
 export interface SeriesBuilderProps {
   datasetOptions: DatasetOptionsWithTicks;

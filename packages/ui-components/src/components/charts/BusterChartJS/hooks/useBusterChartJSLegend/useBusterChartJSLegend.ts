@@ -2,20 +2,20 @@
 
 import type React from 'react';
 import { useEffect, useMemo, useState, useTransition } from 'react';
-import type { BusterChartProps } from '@/api/asset_interfaces/metric/charts';
+import type { BusterChartProps } from '../../../BusterChart.types';
 import { useDebounceFn, useMemoizedFn, useUpdateDebounceEffect } from '@/hooks';
 import { timeout } from '@/lib';
+import type { ChartEncodes, ChartType } from '@buster/server-shared/metrics';
 import {
-  addLegendHeadlines,
   type BusterChartLegendItem,
   type UseChartLengendReturnValues,
-  useBusterChartLegend
+  addLegendHeadlines,
+  useBusterChartLegend,
 } from '../../../BusterChartLegend';
 import type { DatasetOptionsWithTicks } from '../../../chartHooks';
 import { LEGEND_ANIMATION_THRESHOLD } from '../../../config';
 import type { ChartJSOrUndefined } from '../../core/types';
 import { getLegendItems } from './getLegendItems';
-import type { ChartEncodes, ChartType } from '@buster/server-shared/metrics';
 
 interface UseBusterChartJSLegendProps {
   chartRef: React.RefObject<ChartJSOrUndefined | null>;
@@ -56,7 +56,7 @@ export const useBusterChartJSLegend = ({
   columnMetadata,
   animateLegend: animateLegendProp,
   columnSettings,
-  numberOfDataPoints
+  numberOfDataPoints,
 }: UseBusterChartJSLegendProps): UseChartLengendReturnValues => {
   const [isPending, startTransition] = useTransition();
   const [isUpdatingChart, setIsUpdatingChart] = useState(false);
@@ -71,14 +71,14 @@ export const useBusterChartJSLegend = ({
     renderLegend,
     isStackPercentage,
     showLegend,
-    allYAxisColumnNames
+    allYAxisColumnNames,
   } = useBusterChartLegend({
     selectedChartType,
     showLegendProp,
     selectedAxis,
     loading,
     lineGroupType,
-    barGroupType
+    barGroupType,
   });
 
   const animateLegend = useMemo(() => {
@@ -96,7 +96,7 @@ export const useBusterChartJSLegend = ({
         inactiveDatasets,
         selectedChartType,
         columnLabelFormats,
-        columnSettings
+        columnSettings,
       });
 
       if (!isStackPercentage && showLegendHeadline) {
@@ -134,7 +134,7 @@ export const useBusterChartJSLegend = ({
       const activeElements = allElementsAssociatedWithDataset.map((item, index) => {
         return {
           datasetIndex: assosciatedDatasetIndex,
-          index
+          index,
         };
       });
       chartjs.setActiveElements(activeElements);
@@ -181,7 +181,7 @@ export const useBusterChartJSLegend = ({
     // Update dataset visibility state
     setInactiveDatasets((prev) => ({
       ...prev,
-      [item.id]: prev[item.id] ? !prev[item.id] : true
+      [item.id]: prev[item.id] ? !prev[item.id] : true,
     }));
 
     await timeout(legendTimeoutDuration);
@@ -241,7 +241,7 @@ export const useBusterChartJSLegend = ({
         }
         setInactiveDatasets((prev) => ({
           ...prev,
-          ...inactiveDatasetsRecord
+          ...inactiveDatasetsRecord,
         }));
       }
 
@@ -270,7 +270,7 @@ export const useBusterChartJSLegend = ({
     columnLabelFormats,
     allYAxisColumnNames,
     columnSettings,
-    pieMinimumSlicePercentage
+    pieMinimumSlicePercentage,
   ]);
 
   return {
@@ -282,6 +282,6 @@ export const useBusterChartJSLegend = ({
     showLegend,
     inactiveDatasets,
     isUpdatingChart,
-    animateLegend
+    animateLegend,
   };
 };
