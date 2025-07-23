@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { MarkdownAnimation, type MarkdownAnimationTimingFunction } from './animation-helpers';
+import { type MarkdownAnimation, type MarkdownAnimationTimingFunction } from '../animation-common';
 import { type Components } from 'react-markdown';
 import {
   ParagraphComponent,
@@ -23,7 +23,6 @@ import {
   BreakComponent,
   CodeComponent
 } from './MarkdownComponent';
-import { useMount, useWhyDidYouUpdate } from '../../../../hooks';
 
 interface UseMarkdownComponentsProps {
   stripFormatting?: boolean;

@@ -1,11 +1,11 @@
 import React from 'react';
 import type { AnimatedMarkdownProps } from './AnimatedMarkdown';
-import { animateTokenizedText, createAnimationStyle } from './animation-helpers';
+import { animateTokenizedText } from './animation-helpers';
+import { createAnimationStyle } from '../animation-common';
 import { cva } from 'class-variance-authority';
 import { StreamingMessageCode } from '../../streaming/StreamingMessageCode';
 import { cn } from '@/lib/classMerge';
 import { useAnimationContext, AnimationProvider } from './AnimationContext';
-import { useMount } from '../../../../hooks';
 
 type MarkdownComponentProps = {
   children: React.ReactNode;

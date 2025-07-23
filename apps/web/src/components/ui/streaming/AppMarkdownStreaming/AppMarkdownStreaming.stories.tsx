@@ -2,7 +2,7 @@ import React from 'react';
 import AppMarkdownStreaming from './AppMarkdownStreaming';
 import type { Meta, StoryObj } from '@storybook/react';
 import { useStreamTokenArray } from '@llm-ui/react';
-import type { MarkdownAnimation } from '../../typography/AnimatedMarkdown/animation-helpers';
+import type { MarkdownAnimation } from '../../typography/animation-common';
 
 const meta: Meta<typeof AppMarkdownStreaming> = {
   title: 'UI/Typography/AppMarkdownStreaming',

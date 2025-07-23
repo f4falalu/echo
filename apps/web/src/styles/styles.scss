@@ -1,7 +1,6 @@
 @use './tailwind';
 @use './fonts';
 @use './buster';
-@use './sql';
 
 input {
   font-family:
@@ -26,6 +25,11 @@ input {
 
 [data-color-scheme='light'] {
   color-scheme: light;
+}
+
+code,
+pre {
+  font-family: var(--font-mono);
 }
 
 html,

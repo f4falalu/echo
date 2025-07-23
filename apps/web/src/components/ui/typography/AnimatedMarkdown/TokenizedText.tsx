@@ -1,13 +1,13 @@
 import React, { useMemo, useRef, useCallback } from 'react';
-import type { MarkdownAnimation } from './animation-helpers';
-import { createAnimationStyle } from './animation-helpers';
+import { type MarkdownAnimation } from '../animation-common';
+import { createAnimationStyle } from '../animation-common';
 
 type TokenizedTextProps = {
   text: string;
   animation?: MarkdownAnimation;
   animationDuration?: number;
   animationTimingFunction?: 'ease-in-out' | 'ease-in' | 'ease-out' | 'linear';
-   isStreamFinished?: boolean;
+  isStreamFinished?: boolean;
 };
 
 const TokenizedText: React.FC<TokenizedTextProps> = React.memo(
@@ -40,11 +40,11 @@ const TokenizedText: React.FC<TokenizedTextProps> = React.memo(
         <span
           key={`animated-chunk-${index}`}
           className={chunk.trim().length > 0 ? 'whitespace-pre-wrap' : ''}
-          style={ animationStyle}>
+          style={animationStyle}>
           {chunk}
         </span>
       ),
-      [animationStyle,  ]
+      [animationStyle]
     );
 
     const content = useMemo(() => {
