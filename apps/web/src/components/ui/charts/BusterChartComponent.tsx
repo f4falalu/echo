@@ -1,11 +1,11 @@
 import type React from 'react';
 import { useMemo } from 'react';
+import { BusterChartJS } from './BusterChartJS';
 import { useDatasetOptions } from './chartHooks';
 import type {
   BusterChartComponentProps,
   BusterChartRenderComponentProps
 } from './interfaces/chartComponentInterfaces';
-import { BusterChartJS } from './BusterChartJS';
 
 export const BusterChartComponent: React.FC<BusterChartRenderComponentProps> = ({
   data: dataProp,
@@ -46,6 +46,7 @@ export const BusterChartComponent: React.FC<BusterChartRenderComponentProps> = (
     columnMetadata
   });
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: we are content with the current dependencies
   const chartProps: BusterChartComponentProps = useMemo(
     () => ({
       ...props,
@@ -60,7 +61,7 @@ export const BusterChartComponent: React.FC<BusterChartRenderComponentProps> = (
       trendlines
     }),
     [
-      props,
+      props.selectedAxis,
       pieMinimumSlicePercentage,
       datasetOptions,
       y2AxisKeys,

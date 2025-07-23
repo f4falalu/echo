@@ -1,3 +1,5 @@
+import React from 'react';
+
 export const chartContainerId = (id?: string) => `buster-chart-container-${id}`;
 
 export const DEFAULT_Y_AXIS_COLUMN_NAMES: string[] = [];

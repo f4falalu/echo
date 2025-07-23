@@ -5,7 +5,10 @@ import { updateChatToIChat } from '@/lib/chat';
 import { useQueryClient } from '@tanstack/react-query';
 import { prefetchGetMetricDataClient } from '@/api/buster_rest/metrics';
 import { queryKeys } from '@/api/query_keys';
-import { useTrackAndUpdateMessageChanges, useTrackAndUpdateNewMessages } from '@/api/buster-electric/messages';
+import {
+  useTrackAndUpdateMessageChanges,
+  useTrackAndUpdateNewMessages
+} from '@/api/buster-electric/messages';
 import { useTrackAndUpdateChatChanges } from '@/api/buster-electric/chats';
 import { useEffect } from 'react';
 import { useGetChatMessageMemoized } from '@/api/buster_rest/chats';

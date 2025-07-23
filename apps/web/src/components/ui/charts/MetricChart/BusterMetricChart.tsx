@@ -1,15 +1,16 @@
-import { AnimatePresence, motion, type MotionProps } from 'framer-motion';
-import React, { useMemo } from 'react';
-import { Title } from '@/components/ui/typography';
-import { useMount } from '@/hooks';
-import { formatLabel, JsonDataFrameOperationsSingle, timeout } from '@/lib';
-import type { BusterMetricChartProps } from './interfaces';
+import { useMount } from '@/hooks/useMount';
+import { formatLabel } from '@/lib/columnFormatter';
+import { JsonDataFrameOperationsSingle } from '@/lib/math';
+import { timeout } from '@/lib/timeout';
 import {
-  DEFAULT_CHART_CONFIG,
-  DEFAULT_COLUMN_LABEL_FORMAT,
   type ChartConfigProps,
-  type ColumnLabelFormat
+  type ColumnLabelFormat,
+  DEFAULT_CHART_CONFIG,
+  DEFAULT_COLUMN_LABEL_FORMAT
 } from '@buster/server-shared/metrics';
+import { AnimatePresence, type MotionProps, motion } from 'framer-motion';
+import React, { useMemo } from 'react';
+import type { BusterMetricChartProps } from './interfaces';
 
 export const BusterMetricChart: React.FC<BusterMetricChartProps> = React.memo(
   ({
@@ -37,6 +38,7 @@ export const BusterMetricChart: React.FC<BusterMetricChartProps> = React.memo(
       return DEFAULT_COLUMN_LABEL_FORMAT;
     }, [metricHeader, columnLabelFormats]);
 
+    // biome-ignore lint/correctness/useExhaustiveDependencies: we are content with the current dependencies
     const headerLabelFormat: ColumnLabelFormat = useMemo(() => {
       const isDerivedTitle = typeof metricHeader === 'object' && metricHeader?.columnId;
       if (isDerivedTitle) {
@@ -59,6 +61,7 @@ export const BusterMetricChart: React.FC<BusterMetricChartProps> = React.memo(
       return DEFAULT_COLUMN_LABEL_FORMAT;
     }, [metricSubHeader, columnLabelFormats]);
 
+    // biome-ignore lint/correctness/useExhaustiveDependencies: we are content with the current dependencies
     const subHeaderFormat: ColumnLabelFormat = useMemo(() => {
       const isDerivedSubTitle = typeof metricSubHeader === 'object' && metricSubHeader?.columnId;
       if (isDerivedSubTitle) {
@@ -73,6 +76,7 @@ export const BusterMetricChart: React.FC<BusterMetricChartProps> = React.memo(
       return DEFAULT_COLUMN_LABEL_FORMAT;
     }, [metricSubHeader, subHeaderColumnLabelFormat]);
 
+    // biome-ignore lint/correctness/useExhaustiveDependencies: we are content with the current dependencies
     const formattedHeader = useMemo(() => {
       if (!metricHeader) return '';
       const isStringTitle = typeof metricHeader === 'string';
@@ -93,6 +97,7 @@ export const BusterMetricChart: React.FC<BusterMetricChartProps> = React.memo(
       return formatLabel(metricHeader.columnId, headerLabelFormat, true);
     }, [metricHeader, firstRow, headerLabelFormat]);
 
+    // biome-ignore lint/correctness/useExhaustiveDependencies: we are content with the current dependencies
     const formattedSubHeader = useMemo(() => {
       if (!metricSubHeader) return '';
       const isStringTitle = typeof metricSubHeader === 'string';
@@ -112,6 +117,7 @@ export const BusterMetricChart: React.FC<BusterMetricChartProps> = React.memo(
       return formatLabel(metricSubHeader.columnId, subHeaderFormat, true);
     }, [metricSubHeader, firstRow, subHeaderFormat]);
 
+    // biome-ignore lint/correctness/useExhaustiveDependencies: we are content with the current dependencies
     const formattedValue = useMemo(() => {
       if (metricValueAggregate && !metricValueLabel) {
         const operator = new JsonDataFrameOperationsSingle(data, metricColumnId);
@@ -157,7 +163,7 @@ export const BusterMetricChart: React.FC<BusterMetricChartProps> = React.memo(
           {...memoizedAnimation}>
           <AnimatedTitleWrapper title={formattedHeader} type="header" />
           <div className="w-full overflow-hidden p-2 text-center">
-            <Title truncate>{formattedValue}</Title>
+            <div className="truncate">{formattedValue}</div>
           </div>
           <AnimatedTitleWrapper title={formattedSubHeader} type="subHeader" />
         </motion.div>
@@ -168,6 +174,7 @@ export const BusterMetricChart: React.FC<BusterMetricChartProps> = React.memo(
 BusterMetricChart.displayName = 'BusterMetricChart';
 
 const AnimatedTitleWrapper = ({ title, type }: { title: string; type: 'header' | 'subHeader' }) => {
+  // biome-ignore lint/correctness/useExhaustiveDependencies: we are content with the current dependencies
   const memoizedAnimation: MotionProps = useMemo(() => {
     return {
       initial: {
@@ -210,9 +217,7 @@ const AnimatedTitleWrapper = ({ title, type }: { title: string; type: 'header' |
       {title && (
         <motion.div className="w-full overflow-visible text-center" {...memoizedAnimation}>
           <motion.div className="origin-center">
-            <Title truncate as="h4">
-              {title}
-            </Title>
+            <h4 className="text-text-default truncate text-lg font-normal!">{title}</h4>
           </motion.div>
         </motion.div>
       )}

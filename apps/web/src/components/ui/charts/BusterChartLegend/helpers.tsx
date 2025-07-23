@@ -1,6 +1,6 @@
-import { renderToString } from 'react-dom/server';
-import type { BusterChartLegendItem } from './interfaces';
+import { renderToStaticMarkup } from 'react-dom/server';
 import { LegendItem } from './LegendItem';
+import type { BusterChartLegendItem } from './interfaces';
 
 const WIDTH_OF_OVERFLOW = 79;
 
@@ -24,7 +24,7 @@ export const computeHiddenShowItems = (legendItems: BusterChartLegendItem[], wid
   document.body.appendChild(measurementDiv);
 
   const shownItems = legendItems.reduce<BusterChartLegendItem[]>((acc, item, index) => {
-    const html = renderToString(<LegendItem item={item} />);
+    const html = renderToStaticMarkup(<LegendItem item={item} />);
     measurementDiv.innerHTML = html;
 
     const itemWidth = measurementDiv.getBoundingClientRect().width;

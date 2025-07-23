@@ -1,5 +1,6 @@
-import { type BusterChartProps } from '@/api/asset_interfaces/metric';
 import { formatLabel } from '@/lib/columnFormatter';
+import { type ChartEncodes, DEFAULT_TRENDLINE_CONFIG } from '@buster/server-shared/metrics';
+import type { BusterChartProps } from '../../../BusterChart.types';
 import type {
   AggregateMultiple,
   TrendlineOptions,
@@ -7,7 +8,6 @@ import type {
 } from '../../core/plugins/chartjs-plugin-trendlines';
 import { canSupportTrendlineRecord } from '../../core/plugins/chartjs-plugin-trendlines/canSupportTrendline';
 import { TypeToLabel } from '../../core/plugins/chartjs-plugin-trendlines/config';
-import { DEFAULT_TRENDLINE_CONFIG, type ChartEncodes } from '@buster/server-shared/metrics';
 
 export const createTrendlineOnSeries = ({
   trendlines,
@@ -48,8 +48,7 @@ export const createTrendlineOnSeries = ({
         columnId,
         projection,
         offset,
-        trendlineLabelPositionOffset,
-        ...rest
+        trendlineLabelPositionOffset
       }) => {
         return {
           type,

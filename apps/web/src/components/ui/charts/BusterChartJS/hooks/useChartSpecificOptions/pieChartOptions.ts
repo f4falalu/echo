@@ -1,20 +1,20 @@
 'use client';
 
-import { isServer } from '@tanstack/react-query';
-import type { ChartType as ChartJSChartType, PluginChartOptions } from 'chart.js';
-import type { AnnotationPluginOptions } from 'chartjs-plugin-annotation';
-import type { Context } from 'chartjs-plugin-datalabels';
-import type { DeepPartial } from 'utility-types';
-import type { BusterChartProps } from '@/api/asset_interfaces/metric/charts';
-import {
-  DEFAULT_COLUMN_LABEL_FORMAT,
-  type ChartConfigProps,
-  type ColumnLabelFormat
-} from '@buster/server-shared/metrics';
 import { determineFontColorContrast } from '@/lib/colors';
 import { formatLabel } from '@/lib/columnFormatter';
 import { ArrayOperations } from '@/lib/math';
 import { countTotalDigits } from '@/lib/numbers';
+import { isServer } from '@/lib/window';
+import {
+  type ChartConfigProps,
+  type ColumnLabelFormat,
+  DEFAULT_COLUMN_LABEL_FORMAT
+} from '@buster/server-shared/metrics';
+import type { ChartType as ChartJSChartType, PluginChartOptions } from 'chart.js';
+import type { AnnotationPluginOptions } from 'chartjs-plugin-annotation';
+import type { Context } from 'chartjs-plugin-datalabels';
+import type { DeepPartial } from 'utility-types';
+import type { BusterChartProps } from '../../../BusterChart.types';
 import { getPieInnerLabelTitle } from '../../../commonHelpers';
 import type { ChartProps } from '../../core';
 import type { ChartJSOrUndefined } from '../../core/types';
@@ -62,7 +62,7 @@ export const piePluginsHandler = ({
           content: ({ chart }) => {
             const firstDatasetIndex = 0; //we can assume there is only one dataset
             const datasets = chart.data.datasets;
-            const firstDatasetData = datasets[firstDatasetIndex].data as number[];
+            const firstDatasetData = datasets[firstDatasetIndex]?.data as number[];
             return [
               getPieInnerLabelTitle(pieInnerLabelTitle, pieInnerLabelAggregate),
               getInnerLabelValue(
@@ -108,11 +108,11 @@ export const piePluginsHandler = ({
       padding: 2,
       backgroundColor: ({ dataIndex, chart }) => {
         const backgroundColor = chart.options.backgroundColor as string[];
-        return backgroundColor[dataIndex];
+        return backgroundColor[dataIndex] ?? '';
       },
       color: ({ dataIndex, chart }) => {
         const backgroundColor = chart.options.backgroundColor as string[];
-        const color = backgroundColor[dataIndex];
+        const color = backgroundColor[dataIndex] ?? '';
         return determineFontColorContrast(color);
       },
       formatter: (value: number, context) => {
@@ -141,7 +141,7 @@ const getInnerLabelValue = (
       chart?.legend?.legendItems?.filter((item) => item.hidden === false) || [];
     const dataByActiveLegendItems = activeLegendItems.map((item) => {
       const index = item.index as number;
-      return firstDatasetData[index];
+      return firstDatasetData[index] ?? 0;
     });
     const operator = new ArrayOperations(dataByActiveLegendItems);
     const result = operator[pieInnerLabelAggregate || 'average']();
@@ -158,7 +158,7 @@ const getInnerLabelValue = (
       compactNumbers: yColumnLabel?.compactNumbers || countTotalDigits(result) >= 9
     });
     return formattedLabel;
-  } catch (error) {
+  } catch (_error) {
     return '';
   }
 };

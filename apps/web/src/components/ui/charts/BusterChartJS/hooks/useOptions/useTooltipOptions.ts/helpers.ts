@@ -1,7 +1,7 @@
-import type { Chart } from 'chart.js';
-import type { BusterChartProps } from '@/api/asset_interfaces/metric/charts';
 import { formatLabel } from '@/lib/columnFormatter';
-import { DEFAULT_COLUMN_LABEL_FORMAT, type ColumnLabelFormat } from '@buster/server-shared/metrics';
+import { type ColumnLabelFormat, DEFAULT_COLUMN_LABEL_FORMAT } from '@buster/server-shared/metrics';
+import type { Chart } from 'chart.js';
+import type { BusterChartProps } from '../../../../BusterChart.types';
 
 export const getPercentage = (
   rawValue: number,
@@ -25,10 +25,10 @@ const getSeriesPercentage = (
   columnLabelFormats: NonNullable<BusterChartProps['columnLabelFormats']>,
   chart: Chart
 ): string => {
-  const total = chart.$totalizer.seriesTotals[datasetIndex];
+  const total = chart.$totalizer.seriesTotals[datasetIndex] || 1;
   const percentage = (rawValue / total) * 100;
   const dataset = chart.data.datasets[datasetIndex];
-  const yAxisKey = dataset.yAxisKey;
+  const yAxisKey = dataset?.yAxisKey || '';
   return percentageFormatter(percentage, yAxisKey, columnLabelFormats);
 };
 
@@ -42,7 +42,7 @@ const getStackedPercentage = (
   const stackTotal = chart.$totalizer.stackTotals[dataPointIndex];
   const percentage = (rawValue / (stackTotal || 1)) * 100;
   const dataset = chart.data.datasets[datasetIndex];
-  const yAxisKey = dataset.yAxisKey;
+  const yAxisKey = dataset?.yAxisKey || '';
   return percentageFormatter(percentage, yAxisKey, columnLabelFormats);
 };
 

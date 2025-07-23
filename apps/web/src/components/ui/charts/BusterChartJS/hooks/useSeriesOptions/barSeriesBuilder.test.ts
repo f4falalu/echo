@@ -1,10 +1,10 @@
-import { describe, expect, it } from 'vitest';
-import type { BusterChartProps } from '@/api/asset_interfaces/metric/charts';
 import {
+  type ColumnLabelFormat,
   DEFAULT_COLUMN_LABEL_FORMAT,
-  DEFAULT_COLUMN_SETTINGS,
-  type ColumnLabelFormat
+  DEFAULT_COLUMN_SETTINGS
 } from '@buster/server-shared/metrics';
+import { describe, expect, it } from 'vitest';
+import type { BusterChartProps } from '../../../BusterChart.types';
 import type { DatasetOption } from '../../../chartHooks';
 import type { DatasetOptionsWithTicks } from '../../../chartHooks/useDatasetOptions/interfaces';
 import { barSeriesBuilder } from './barSeriesBuilder';

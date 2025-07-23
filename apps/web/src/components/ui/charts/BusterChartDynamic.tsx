@@ -7,4 +7,4 @@ export const BusterChartDynamic = dynamic(
     ssr: false,
     loading: () => <PreparingYourRequestLoader />
   }
-); 
+);

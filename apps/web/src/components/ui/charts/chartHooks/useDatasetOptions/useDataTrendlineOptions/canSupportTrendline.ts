@@ -1,7 +1,7 @@
-import type { BusterChartProps } from '@/api/asset_interfaces/metric/charts';
 import { isNumericColumnType } from '@/lib/messages';
 import type { Trendline } from '@buster/server-shared/metrics';
 import { DEFAULT_COLUMN_LABEL_FORMAT } from '@buster/server-shared/metrics';
+import type { BusterChartProps } from '../../../BusterChart.types';
 
 export const canSupportTrendlineRecord: Record<
   Trendline['type'],

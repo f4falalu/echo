@@ -7,6 +7,7 @@ export interface ChartHoverScatterPluginOptions {
 }
 
 declare module 'chart.js' {
+  // biome-ignore lint/correctness/noUnusedVariables: <explanation>
   interface PluginOptionsByType<TType extends ChartType> {
     hoverScatter?: ChartHoverScatterPluginOptions | false;
   }
@@ -32,7 +33,7 @@ export const ChartHoverScatterPlugin: Plugin<ChartType, ChartHoverScatterPluginO
     lineDash: [3, 3]
   },
 
-  beforeDraw: (chart, args, options) => {
+  beforeDraw: (chart, _args, options) => {
     if (!chart.$pluginHoverScatterManager.enabled) return;
 
     const { ctx, chartArea } = chart;
@@ -42,7 +43,7 @@ export const ChartHoverScatterPlugin: Plugin<ChartType, ChartHoverScatterPluginO
     if (activeElements.length === 0) return;
 
     const activePoint = activeElements[0];
-    const { x, y } = activePoint.element;
+    const { x, y } = activePoint?.element ?? { x: 0, y: 0 };
 
     // Draw crosshair
     ctx.save();

@@ -1,24 +1,23 @@
-import type { GridLineOptions, Scale, ScaleChartOptions } from 'chart.js';
-import { useMemo } from 'react';
-import type { DeepPartial } from 'utility-types';
-import { useMemoizedFn } from '@/hooks';
-import { formatYAxisLabel, yAxisSimilar } from '../../../commonHelpers';
-import { useYAxisTitle } from './axisHooks/useYAxisTitle';
-import { useIsStacked } from './useIsStacked';
+import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import {
-  DEFAULT_COLUMN_LABEL_FORMAT,
   type ChartConfigProps,
   type ChartEncodes,
   type ChartType,
-  type ColumnLabelFormat
+  type ColumnLabelFormat,
+  DEFAULT_COLUMN_LABEL_FORMAT
 } from '@buster/server-shared/metrics';
-import type { BusterChartProps } from '@/api/asset_interfaces/metric';
+import type { GridLineOptions, Scale, ScaleChartOptions } from 'chart.js';
+import { useMemo } from 'react';
+import type { DeepPartial } from 'utility-types';
+import type { BusterChartProps } from '../../../BusterChart.types';
+import { formatYAxisLabel, yAxisSimilar } from '../../../commonHelpers';
+import { useYAxisTitle } from './axisHooks/useYAxisTitle';
+import { useIsStacked } from './useIsStacked';
 
 export const useYAxis = ({
   columnLabelFormats,
   selectedAxis,
   selectedChartType,
-  columnMetadata,
   barGroupType,
   lineGroupType,
   yAxisAxisTitle,
@@ -87,7 +86,11 @@ export const useYAxis = ({
     isSupportedChartForAxisTitles: isSupportedType
   });
 
-  const tickCallback = useMemoizedFn(function (this: Scale, value: string | number, index: number) {
+  const tickCallback = useMemoizedFn(function (
+    this: Scale,
+    value: string | number,
+    _index: number
+  ) {
     return formatYAxisLabel(
       value,
       yAxisKeys,

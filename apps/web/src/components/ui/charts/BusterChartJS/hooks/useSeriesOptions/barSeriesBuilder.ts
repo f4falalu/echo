@@ -1,12 +1,12 @@
+import { JOIN_CHARACTER } from '@/lib/axisFormatter';
+import { formatLabel } from '@/lib/columnFormatter';
+import { type ColumnLabelFormat, DEFAULT_COLUMN_LABEL_FORMAT } from '@buster/server-shared/metrics';
 import type { BarElement } from 'chart.js';
 import type { Context } from 'chartjs-plugin-datalabels';
 import type { Options } from 'chartjs-plugin-datalabels/types/options';
-import type { BusterChartProps } from '@/api/asset_interfaces/metric/charts';
-import { DEFAULT_COLUMN_LABEL_FORMAT, type ColumnLabelFormat } from '@buster/server-shared/metrics';
-import { formatLabel } from '@/lib/columnFormatter';
+import type { BusterChartProps } from '../../../BusterChart.types';
 import type { DatasetOption } from '../../../chartHooks';
 import { formatLabelForDataset, formatYAxisLabel, yAxisSimilar } from '../../../commonHelpers';
-import { JOIN_CHARACTER } from '@/lib/axisFormatter';
 import { DEFAULT_CHART_LAYOUT } from '../../ChartJSTheme';
 import type { ChartProps } from '../../core';
 import { dataLabelFontColorContrast, formatBarAndLineDataLabel } from '../../helpers';
@@ -55,7 +55,7 @@ export const barSeriesBuilder = ({
       },
       formatter: (_, context) => {
         const canUseSameYFormatter = yAxisSimilar(yAxisKeys, columnLabelFormats);
-        const value = context.chart.$totalizer.stackTotals[context.dataIndex];
+        const value = context.chart.$totalizer.stackTotals[context.dataIndex] || 0;
         return formatYAxisLabel(
           value,
           yAxisKeys,
@@ -235,7 +235,7 @@ export const barBuilder = ({
               },
               backgroundColor: ({ datasetIndex, chart }) => {
                 const backgroundColor = chart.options.backgroundColor as string[];
-                return backgroundColor[datasetIndex];
+                return backgroundColor[datasetIndex] ?? null;
               }
             },
             ...dataLabelOptions
@@ -307,7 +307,7 @@ const setGlobalRotation = (context: Context) => {
   const labels = context.chart.data.datasets
     .filter((d) => !d.hidden)
     .flatMap((dataset, datasetIndex) => {
-      return dataset.data.map((value, dataIndex) => {
+      return dataset.data.map((_value, dataIndex) => {
         const currentValue = context.chart.$barDataLabels?.[datasetIndex]?.[dataIndex] || '';
         return currentValue || '';
       });
@@ -357,7 +357,7 @@ export const barSeriesBuilder_labels = ({
   const labels = datasetOptions.ticks.flatMap((item) => {
     return item
       .map<string>((item, index) => {
-        const key = ticksKey[index]?.key;
+        const key = ticksKey[index]?.key || '';
         const columnLabelFormat = columnLabelFormats[key];
         return formatLabel(item, columnLabelFormat);
       })
