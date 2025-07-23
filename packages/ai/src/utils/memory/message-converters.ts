@@ -135,7 +135,7 @@ export function convertToolCallToMessage(
 
     case 'respondWithoutAssetCreation':
     case 'respond-without-asset-creation': {
-      // Respond Without Analysis generates a response message
+      // Respond Without Asset Creation generates a response message
       try {
         const parsed = RespondWithoutAssetCreationResultSchema.parse(toolResult);
         const responseMessage: Extract<ChatMessageResponseMessage, { type: 'text' }> = {
