@@ -174,6 +174,9 @@ export class FallbackModel implements LanguageModelV1 {
       const result = await currentModel.doStream(options);
 
       let hasStreamedAny = false;
+      let streamRetryAttempts = 0;
+      const maxStreamRetries = self.settings.models.length - 1; // -1 because we already tried one
+
       // Wrap the stream to handle errors and switch providers if needed
       const wrappedStream = new ReadableStream<LanguageModelV1StreamPart>({
         async start(controller) {
@@ -191,9 +194,13 @@ export class FallbackModel implements LanguageModelV1 {
             if (self.settings.onError) {
               await self.settings.onError(error as Error, self.modelId);
             }
-            if (!hasStreamedAny || self.retryAfterOutput) {
-              // If nothing was streamed yet, switch models and retry
+            if (
+              (!hasStreamedAny || self.retryAfterOutput) &&
+              streamRetryAttempts < maxStreamRetries
+            ) {
+              // If nothing was streamed yet and we haven't exhausted retries, switch models and retry
               self.switchToNextModel();
+              streamRetryAttempts++;
               try {
                 const nextResult = await self.doStream(options);
                 const nextReader = nextResult.stream.getReader();

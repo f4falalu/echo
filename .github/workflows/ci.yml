@@ -30,7 +30,7 @@ jobs:
         uses: useblacksmith/setup-node@v5
         with:
           node-version: 22
-          cache: 'pnpm'
+          # Remove cache here since we're using stickydisk for pnpm store
           
       - name: Get pnpm store directory
         shell: bash
@@ -49,8 +49,21 @@ jobs:
           key: ${{ github.repository }}-turbo-cache
           path: ./.turbo
 
+      - name: Check if lockfile changed
+        id: lockfile-check
+        run: |
+          if git diff HEAD~1 HEAD --name-only | grep -q "pnpm-lock.yaml"; then
+            echo "changed=true" >> $GITHUB_OUTPUT
+          else
+            echo "changed=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Fetch dependencies (if lockfile changed)
+        if: steps.lockfile-check.outputs.changed == 'true'
+        run: pnpm fetch --frozen-lockfile
+
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm install --frozen-lockfile --prefer-offline
 
       - name: Build all packages (excluding web)
         run: pnpm build --filter='!@buster-app/web'
