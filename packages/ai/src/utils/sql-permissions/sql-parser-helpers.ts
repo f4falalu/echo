@@ -371,6 +371,28 @@ export function validateWildcardUsage(sql: string, dataSourceSyntax?: string): W
       }
     }
 
+    const tableList = parser.tableList(sql, { database: dialect });
+    const tableAliasMap = new Map<string, string>(); // alias -> table name
+    
+    if (Array.isArray(tableList)) {
+      for (const tableRef of tableList) {
+        if (typeof tableRef === 'string') {
+          // Simple table name
+          tableAliasMap.set(tableRef.toLowerCase(), tableRef);
+        } else if (tableRef && typeof tableRef === 'object') {
+          const tableRefObj = tableRef as any; // Type assertion to handle dynamic properties
+          const tableName = tableRefObj.table || tableRefObj.name;
+          const alias = tableRefObj.as || tableRefObj.alias;
+          if (tableName) {
+            if (alias) {
+              tableAliasMap.set(alias.toLowerCase(), tableName);
+            }
+            tableAliasMap.set(tableName.toLowerCase(), tableName);
+          }
+        }
+      }
+    }
+
     // Check each statement for wildcard usage
     const blockedTables: string[] = [];
     
@@ -405,6 +427,43 @@ export function validateWildcardUsage(sql: string, dataSourceSyntax?: string): W
 function findWildcardUsageOnPhysicalTables(selectStatement: any, cteNames: Set<string>): string[] {
   const blockedTables: string[] = [];
 
+  // Build alias mapping for this statement
+  const aliasToTableMap = new Map<string, string>();
+  if (selectStatement.from && Array.isArray(selectStatement.from)) {
+    for (const fromItem of selectStatement.from) {
+      if (fromItem.table && fromItem.as) {
+        let tableName: string;
+        if (typeof fromItem.table === 'string') {
+          tableName = fromItem.table;
+        } else if (fromItem.table && typeof fromItem.table === 'object') {
+          const tableObj = fromItem.table as any;
+          tableName = tableObj.table || tableObj.name || tableObj.value || String(fromItem.table);
+        } else {
+          continue;
+        }
+        aliasToTableMap.set(fromItem.as.toLowerCase(), tableName.toLowerCase());
+      }
+      
+      // Handle JOINs
+      if (fromItem.join && Array.isArray(fromItem.join)) {
+        for (const joinItem of fromItem.join) {
+          if (joinItem.table && joinItem.as) {
+            let tableName: string;
+            if (typeof joinItem.table === 'string') {
+              tableName = joinItem.table;
+            } else if (joinItem.table && typeof joinItem.table === 'object') {
+              const tableObj = joinItem.table as any;
+              tableName = tableObj.table || tableObj.name || tableObj.value || String(joinItem.table);
+            } else {
+              continue;
+            }
+            aliasToTableMap.set(joinItem.as.toLowerCase(), tableName.toLowerCase());
+          }
+        }
+      }
+    }
+  }
+
   if (selectStatement.columns && Array.isArray(selectStatement.columns)) {
     for (const column of selectStatement.columns) {
       if (column.expr && column.expr.type === 'column_ref') {
@@ -416,8 +475,24 @@ function findWildcardUsageOnPhysicalTables(selectStatement: any, cteNames: Set<s
         }
         // Check for qualified wildcard (SELECT table.*)
         else if (column.expr.column === '*' && column.expr.table) {
-          const tableName = column.expr.table.toLowerCase();
-          if (!cteNames.has(tableName)) {
+          // Handle table reference - could be string or object
+          let tableName: string;
+          if (typeof column.expr.table === 'string') {
+            tableName = column.expr.table;
+          } else if (column.expr.table && typeof column.expr.table === 'object') {
+            // Handle object format - could have table property or be the table name itself
+            const tableRefObj = column.expr.table as any;
+            tableName = tableRefObj.table || tableRefObj.name || tableRefObj.value || String(column.expr.table);
+          } else {
+            continue; // Skip if we can't determine table name
+          }
+          
+          // Check if this is an alias that maps to a CTE
+          const actualTableName = aliasToTableMap.get(tableName.toLowerCase());
+          const isAliasToCte = actualTableName && cteNames.has(actualTableName);
+          const isDirectCte = cteNames.has(tableName.toLowerCase());
+          
+          if (!isAliasToCte && !isDirectCte) {
             blockedTables.push(tableName);
           }
         }
@@ -425,6 +500,7 @@ function findWildcardUsageOnPhysicalTables(selectStatement: any, cteNames: Set<s
     }
   }
 
+  // Check CTEs for nested wildcard usage
   if (selectStatement.with && Array.isArray(selectStatement.with)) {
     for (const cte of selectStatement.with) {
       if (cte.stmt && cte.stmt.type === 'select') {
@@ -457,13 +533,21 @@ function getPhysicalTablesFromFrom(fromClause: any[], cteNames: Set<string>): st
   }
 
   for (const fromItem of fromClause) {
+    // Extract table name from fromItem
     if (fromItem.table) {
-      const tableName = typeof fromItem.table === 'string' 
-        ? fromItem.table 
-        : fromItem.table.table || fromItem.table;
+      let tableName: string;
+      if (typeof fromItem.table === 'string') {
+        tableName = fromItem.table;
+      } else if (fromItem.table && typeof fromItem.table === 'object') {
+        const tableObj = fromItem.table as any;
+        tableName = tableObj.table || tableObj.name || tableObj.value || String(fromItem.table);
+      } else {
+        continue;
+      }
       
       if (tableName && !cteNames.has(tableName.toLowerCase())) {
-        tables.push(tableName);
+        const aliasName = fromItem.as || tableName;
+        tables.push(aliasName);
       }
     }
     
@@ -471,12 +555,19 @@ function getPhysicalTablesFromFrom(fromClause: any[], cteNames: Set<string>): st
     if (fromItem.join && Array.isArray(fromItem.join)) {
       for (const joinItem of fromItem.join) {
         if (joinItem.table) {
-          const tableName = typeof joinItem.table === 'string'
-            ? joinItem.table
-            : joinItem.table.table || joinItem.table;
+          let tableName: string;
+          if (typeof joinItem.table === 'string') {
+            tableName = joinItem.table;
+          } else if (joinItem.table && typeof joinItem.table === 'object') {
+            const tableObj = joinItem.table as any;
+            tableName = tableObj.table || tableObj.name || tableObj.value || String(joinItem.table);
+          } else {
+            continue;
+          }
           
           if (tableName && !cteNames.has(tableName.toLowerCase())) {
-            tables.push(tableName);
+            const aliasName = joinItem.as || tableName;
+            tables.push(aliasName);
           }
         }
       }
