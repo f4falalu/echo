@@ -1,6 +1,6 @@
 {
   "name": "@buster/ui-components",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "Modern, tree-shakeable UI component library for Buster",
   "type": "module",
   "sideEffects": ["**/*.css", "**/styles/*"],

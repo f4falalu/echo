@@ -3,13 +3,13 @@
 import { truncateText } from '@/lib/text';
 import { isServer } from '@/lib/window';
 import { DEFAULT_CHART_THEME } from '@buster/server-shared/metrics';
+import { Chart as ChartJS } from 'chart.js';
 import {
   ArcElement,
   BarController,
   BarElement,
   BubbleController,
   CategoryScale,
-  Chart as ChartJS,
   Colors,
   DoughnutController,
   Legend,

@@ -7,7 +7,7 @@ import {
   DEFAULT_COLUMN_LABEL_FORMAT,
   DEFAULT_COLUMN_SETTINGS,
 } from '@buster/server-shared/metrics';
-import { Chart, Filler, type Scale, type ScriptableContext } from 'chart.js';
+import { Chart as ChartJS, Filler, type Scale, type ScriptableContext } from 'chart.js';
 import type { DatasetOption } from '../../../chartHooks';
 import { formatLabelForDataset } from '../../../commonHelpers';
 import type { ChartProps } from '../../core';
@@ -17,7 +17,7 @@ import { createTrendlineOnSeries } from './createTrendlines';
 import type { SeriesBuilderProps } from './interfaces';
 import type { LabelBuilderProps } from './useSeriesOptions';
 
-Chart.register(Filler);
+ChartJS.register(Filler); // Removed to reduce bundle size
 
 const HOVER_RADIUS_MULTIPLIER = 1;
 
