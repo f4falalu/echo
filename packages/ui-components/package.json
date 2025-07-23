@@ -1,18 +1,40 @@
 {
   "name": "@buster/ui-components",
   "version": "1.0.0",
+  "description": "Modern, tree-shakeable UI component library for Buster",
   "type": "module",
-  "module": "./dist/index.js",
-  "types": "./dist/index.d.ts",
+  "sideEffects": ["**/*.css", "**/styles/*"],
   "exports": {
-    ".": {
-      "import": "./dist/index.js",
-      "types": "./dist/index.d.ts"
+    "./components/*": {
+      "import": "./dist/components/*/index.js",
+      "types": "./dist/components/*/index.d.ts"
     },
-    "./styles": "./src/styles/styles.css",
-    "./dist/style.css": "./dist/style.css"
+    "./hooks": {
+      "import": "./dist/hooks/index.js",
+      "types": "./dist/hooks/index.d.ts"
+    },
+    "./lib": {
+      "import": "./dist/lib/index.js",
+      "types": "./dist/lib/index.d.ts"
+    },
+    "./styles": {
+      "import": "./src/styles/styles.css",
+      "require": "./src/styles/styles.css"
+    }
   },
-  "files": ["dist", "src/styles/styles.css"],
+  "files": ["dist", "src/styles"],
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "peerDependencies": {
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0"
+  },
+  "peerDependenciesMeta": {
+    "react-dom": {
+      "optional": true
+    }
+  },
   "scripts": {
     "prebuild": "tsx scripts/validate-env.ts",
     "build": "vite build && tsc --emitDeclarationOnly --declaration",
@@ -64,6 +86,7 @@
     "@testing-library/jest-dom": "^6.6.3",
     "@types/lodash": "^4.17.20",
     "@types/react": "^18.3.23",
-    "@types/react-dom": "^18.3.7"
+    "@types/react-dom": "^18.3.7",
+    "vite-tsconfig-paths": "^5.1.4"
   }
 }

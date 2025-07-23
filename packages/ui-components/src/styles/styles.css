@@ -1,1 +1,53 @@
+/* @buster/ui-components base styles */
+
+/* Import Tailwind CSS with custom theme configuration */
 @import "./tailwind.css";
+
+/* Base styles for all components */
+@layer base {
+  /* Reset and normalize styles for components */
+  .buster-component {
+    box-sizing: border-box;
+  }
+  
+  /* Apply custom theme colors to common elements */
+  .buster-component button {
+    @apply transition-colors duration-200;
+  }
+}
+
+/* Component-specific styles */
+@layer components {
+  /* Component styles that should be included with the library */
+  
+  /* Card component base styles */
+  .buster-card {
+    @apply bg-buster-surface rounded-buster-md shadow-buster-sm;
+    @apply hover:shadow-buster-md transition-shadow duration-buster-normal;
+  }
+  
+  /* Button component base styles */
+  .buster-button {
+    @apply px-4 py-2 rounded-buster-md font-medium;
+    @apply transition-all duration-buster-fast;
+  }
+  
+  .buster-button-primary {
+    @apply bg-buster-primary text-white;
+    @apply hover:opacity-90 active:scale-95;
+  }
+}
+
+/* Utility classes specific to this component library */
+@layer utilities {
+  /* Custom utility for focus states */
+  .buster-focus {
+    @apply outline-none ring-2 ring-buster-primary ring-offset-2;
+  }
+  
+  /* Text utilities */
+  .buster-text-gradient {
+    @apply bg-gradient-to-r from-buster-primary to-buster-secondary;
+    @apply bg-clip-text text-transparent;
+  }
+}

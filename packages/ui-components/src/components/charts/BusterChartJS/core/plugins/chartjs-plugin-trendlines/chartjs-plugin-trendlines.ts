@@ -269,7 +269,7 @@ class PolynomialFitter extends BaseFitter {
     for (let i = 0; i <= m; i++) {
       for (let j = 0; j <= m; j++) {
         for (let k = 0; k < this.xs.length; k++) {
-          // @ts-expect-error - xPowers is an array of arrays
+          // @ts-expect-error - complex but valid
           A[i][j] += xPowers[k]?.[i + j] ?? 0;
         }
       }

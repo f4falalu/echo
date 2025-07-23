@@ -1,143 +1,89 @@
 # @buster/ui-components
 
-A shared UI component library built with React, TypeScript, and Tailwind CSS v4. This package provides reusable components, hooks, and utilities that can be used across both the web application and server-side rendering contexts.
-
-## Overview
-
-This package serves as the central design system for the Buster monorepo, ensuring consistency across all applications. It includes:
-
-- **Components**: Reusable React components with TypeScript support
-- **Hooks**: Custom React hooks for common functionality
-- **Utilities**: Helper functions and shared logic
-- **Styles**: Tailwind CSS v4 configuration with custom theme
+A modern, tree-shakeable UI component library built with React, TypeScript, and Tailwind CSS 4.
 
 ## Installation
 
-Since this is a workspace package in the monorepo, it's automatically available to other packages. In your app's `package.json`:
-
-```json
-{
-  "dependencies": {
-    "@buster/ui-components": "workspace:*"
-  }
-}
-```
+This is an internal monorepo package. It's automatically available to other packages in the workspace.
 
 ## Usage
 
-### Importing Components
+### Components
+
+Components must be imported from their specific paths for optimal tree-shaking:
 
 ```typescript
-import { Button, Card, Input } from '@buster/ui-components/components';
+import { LineChart } from '@buster/ui-components/components/charts';
+import { DataTable } from '@buster/ui-components/components/table';
 ```
 
-### Importing Hooks
+### Hooks
 
 ```typescript
-import { useTheme, useDebounce } from '@buster/ui-components/hooks';
+import { useDebounce, useSize, useMount } from '@buster/ui-components/hooks';
 ```
 
-### Importing Utilities
+### Utilities
 
 ```typescript
-import { cn, formatDate } from '@buster/ui-components/lib';
+import { formatNumber, formatDate, classMerge } from '@buster/ui-components/lib';
 ```
 
-### Using Tailwind Styles
+### Styles
 
-The package includes Tailwind CSS v4 with custom theme configuration. Import the styles in your app:
+Import the styles in your app's main CSS file:
 
 ```css
+/* In your app.css or globals.css */
 @import "@buster/ui-components/styles";
 ```
 
-## Tailwind CSS v4 Configuration
+This includes:
+- Tailwind CSS 4 with Buster's custom theme
+- Component-specific styles
+- Custom utilities
 
-This package uses Tailwind CSS v4's new `@theme` directive for configuration. Custom colors, fonts, and other design tokens are defined in the CSS file using CSS variables.
+## Theme Customization
 
-### Theme Structure
+Override theme variables in your app:
 
 ```css
 @theme {
-  /* Custom Colors */
-  --color-primary: /* defined in styles */
-  --color-secondary: /* defined in styles */
-  
-  /* Custom Fonts */
-  --font-sans: /* defined in styles */
-  
-  /* Custom Spacing, etc. */
+  /* Override any Buster theme variable */
+  --color-buster-primary: oklch(70% 0.25 350);
 }
 ```
 
-### Using Theme Values
-
-Theme values can be used with Tailwind utility classes:
-
-```jsx
-<div className="bg-primary text-secondary font-sans">
-  Content
-</div>
-```
+Available theme variables include:
+- Colors: `--color-buster-primary`, `--color-buster-secondary`, etc.
+- Typography: `--font-size-buster-lg`, `--font-size-buster-xl`, etc.
+- Spacing: `--spacing-buster-md`, `--spacing-buster-lg`, etc.
+- Shadows: `--shadow-buster-sm`, `--shadow-buster-md`, etc.
 
 ## Development
 
-### Building Components
-
 ```bash
+# Build the library
 pnpm run build
-```
 
-### Type Checking
+# Run in watch mode
+pnpm run dev
 
-```bash
+# Run tests
+pnpm run test
+
+# Type check
 pnpm run typecheck
 ```
 
-### Testing
+## Import Strategy
 
-```bash
-pnpm run test
-```
+- **Components**: Direct imports only (no barrel exports)
+- **Hooks & Utilities**: Barrel exports for convenience
+- **Styles**: Single import for all styles
 
-## Architecture
-
-The package is structured as follows:
-
-```
-src/
-├── components/     # React components
-│   ├── charts/    # Chart components
-│   ├── error/     # Error handling components
-│   └── ...
-├── hooks/         # Custom React hooks
-├── lib/           # Utility functions
-│   ├── classMerge.ts
-│   ├── date.ts
-│   ├── math.ts
-│   └── ...
-└── styles/        # Tailwind CSS configuration
-    └── globals.css
-```
-
-## Best Practices
-
-1. **Component Composition**: Build complex components by composing smaller, reusable ones
-2. **Type Safety**: All components and utilities are fully typed with TypeScript
-3. **Tree Shaking**: Import only what you need to keep bundle sizes small
-4. **Theme Consistency**: Use theme values instead of hardcoded colors/sizes
-5. **Accessibility**: Components follow WCAG guidelines
-
-## Contributing
-
-When adding new components:
-
-1. Create the component in the appropriate directory
-2. Export it from the component's index file
-3. Add TypeScript types
-4. Include unit tests
-5. Update this README if needed
+This approach maximizes tree-shaking for components while maintaining good DX for smaller modules.
 
 ## License
 
-Private - See root LICENSE file 
+See LICENSE file in the root of the monorepo. 
