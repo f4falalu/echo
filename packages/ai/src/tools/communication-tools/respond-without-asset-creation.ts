@@ -65,7 +65,7 @@ export function parseStreamingArgs(
 
 const respondWithoutAssetCreationOutputSchema = z.object({});
 
-// Process respond without analysis tool execution
+// Process respond without asset creation tool execution
 async function processRespondWithoutAssetCreation(): Promise<
   z.infer<typeof respondWithoutAssetCreationOutputSchema>
 > {
