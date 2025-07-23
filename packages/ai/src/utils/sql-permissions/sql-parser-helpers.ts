@@ -15,6 +15,12 @@ export interface QueryTypeCheckResult {
   error?: string;
 }
 
+export interface WildcardValidationResult {
+  isValid: boolean;
+  error?: string;
+  blockedTables?: string[];
+}
+
 // Map data source syntax to node-sql-parser dialect
 const DIALECT_MAPPING: Record<string, string> = {
   // Direct mappings
@@ -333,6 +339,148 @@ export function extractTablesFromYml(ymlContent: string): ParsedTable[] {
     }
   } catch (_error) {
     // If YML parsing fails, return empty array
+  }
+
+  return tables;
+}
+
+/**
+ * Validates that wildcards (SELECT *) are not used on physical tables
+ * Allows wildcards on CTEs but blocks them on physical database tables
+ */
+export function validateWildcardUsage(sql: string, dataSourceSyntax?: string): WildcardValidationResult {
+  const dialect = getParserDialect(dataSourceSyntax);
+  const parser = new Parser();
+
+  try {
+    // Parse SQL into AST with the appropriate dialect
+    const ast = parser.astify(sql, { database: dialect });
+
+    // Handle single statement or array of statements
+    const statements = Array.isArray(ast) ? ast : [ast];
+
+    // Extract CTE names to allow wildcards on them
+    const cteNames = new Set<string>();
+    for (const statement of statements) {
+      if ('with' in statement && statement.with && Array.isArray(statement.with)) {
+        for (const cte of statement.with) {
+          if (cte.name?.value) {
+            cteNames.add(cte.name.value.toLowerCase());
+          }
+        }
+      }
+    }
+
+    // Check each statement for wildcard usage
+    const blockedTables: string[] = [];
+    
+    for (const statement of statements) {
+      if ('type' in statement && statement.type === 'select') {
+        const wildcardTables = findWildcardUsageOnPhysicalTables(statement, cteNames);
+        blockedTables.push(...wildcardTables);
+      }
+    }
+
+    if (blockedTables.length > 0) {
+      const tableList = blockedTables.join(', ');
+      return {
+        isValid: false,
+        error: `Wildcard usage on physical tables is not allowed: ${tableList}. Please specify explicit column names.`,
+        blockedTables,
+      };
+    }
+
+    return { isValid: true };
+  } catch (error) {
+    return {
+      isValid: false,
+      error: `Failed to validate wildcard usage: ${error instanceof Error ? error.message : 'Unknown error'}`,
+    };
+  }
+}
+
+/**
+ * Recursively finds wildcard usage on physical tables in a SELECT statement
+ */
+function findWildcardUsageOnPhysicalTables(selectStatement: any, cteNames: Set<string>): string[] {
+  const blockedTables: string[] = [];
+
+  if (selectStatement.columns && Array.isArray(selectStatement.columns)) {
+    for (const column of selectStatement.columns) {
+      if (column.expr && column.expr.type === 'column_ref') {
+        // Check for unqualified wildcard (SELECT *)
+        if (column.expr.column === '*' && !column.expr.table) {
+          // Get all tables in FROM clause that are not CTEs
+          const physicalTables = getPhysicalTablesFromFrom(selectStatement.from, cteNames);
+          blockedTables.push(...physicalTables);
+        }
+        // Check for qualified wildcard (SELECT table.*)
+        else if (column.expr.column === '*' && column.expr.table) {
+          const tableName = column.expr.table.toLowerCase();
+          if (!cteNames.has(tableName)) {
+            blockedTables.push(tableName);
+          }
+        }
+      }
+    }
+  }
+
+  if (selectStatement.with && Array.isArray(selectStatement.with)) {
+    for (const cte of selectStatement.with) {
+      if (cte.stmt && cte.stmt.type === 'select') {
+        const subBlocked = findWildcardUsageOnPhysicalTables(cte.stmt, cteNames);
+        blockedTables.push(...subBlocked);
+      }
+    }
+  }
+
+  if (selectStatement.from && Array.isArray(selectStatement.from)) {
+    for (const fromItem of selectStatement.from) {
+      if (fromItem.expr && fromItem.expr.type === 'select') {
+        const subBlocked = findWildcardUsageOnPhysicalTables(fromItem.expr, cteNames);
+        blockedTables.push(...subBlocked);
+      }
+    }
+  }
+
+  return blockedTables;
+}
+
+/**
+ * Extracts physical table names from FROM clause, excluding CTEs
+ */
+function getPhysicalTablesFromFrom(fromClause: any[], cteNames: Set<string>): string[] {
+  const tables: string[] = [];
+
+  if (!fromClause || !Array.isArray(fromClause)) {
+    return tables;
+  }
+
+  for (const fromItem of fromClause) {
+    if (fromItem.table) {
+      const tableName = typeof fromItem.table === 'string' 
+        ? fromItem.table 
+        : fromItem.table.table || fromItem.table;
+      
+      if (tableName && !cteNames.has(tableName.toLowerCase())) {
+        tables.push(tableName);
+      }
+    }
+    
+    // Handle JOINs
+    if (fromItem.join && Array.isArray(fromItem.join)) {
+      for (const joinItem of fromItem.join) {
+        if (joinItem.table) {
+          const tableName = typeof joinItem.table === 'string'
+            ? joinItem.table
+            : joinItem.table.table || joinItem.table;
+          
+          if (tableName && !cteNames.has(tableName.toLowerCase())) {
+            tables.push(tableName);
+          }
+        }
+      }
+    }
   }
 
   return tables;

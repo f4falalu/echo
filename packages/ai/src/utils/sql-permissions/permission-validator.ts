@@ -5,6 +5,7 @@ import {
   extractPhysicalTables,
   extractTablesFromYml,
   tablesMatch,
+  validateWildcardUsage,
 } from './sql-parser-helpers';
 
 export interface PermissionValidationResult {
@@ -30,6 +31,15 @@ export async function validateSqlPermissions(
         isAuthorized: false,
         unauthorizedTables: [],
         error: readOnlyCheck.error || 'Only read-only queries are allowed',
+      };
+    }
+
+    const wildcardCheck = validateWildcardUsage(sql, dataSourceSyntax);
+    if (!wildcardCheck.isValid) {
+      return {
+        isAuthorized: false,
+        unauthorizedTables: wildcardCheck.blockedTables || [],
+        error: wildcardCheck.error || 'Wildcard usage on physical tables is not allowed',
       };
     }
 

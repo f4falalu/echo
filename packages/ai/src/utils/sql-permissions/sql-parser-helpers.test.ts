@@ -7,6 +7,7 @@ import {
   normalizeTableIdentifier,
   parseTableReference,
   tablesMatch,
+  validateWildcardUsage,
 } from './sql-parser-helpers';
 
 describe('SQL Parser Helpers', () => {
@@ -417,6 +418,110 @@ models:
       const invalidYml = 'not valid yaml: [}';
       const tables2 = extractTablesFromYml(invalidYml);
       expect(tables2).toHaveLength(0);
+    });
+  });
+
+  describe('validateWildcardUsage', () => {
+    it('should block unqualified wildcard on physical table', () => {
+      const sql = 'SELECT * FROM users';
+      const result = validateWildcardUsage(sql);
+      expect(result.isValid).toBe(false);
+      expect(result.error).toContain('Wildcard usage on physical tables is not allowed');
+      expect(result.blockedTables).toContain('users');
+    });
+
+    it('should block qualified wildcard on physical table', () => {
+      const sql = 'SELECT u.* FROM users u';
+      const result = validateWildcardUsage(sql);
+      expect(result.isValid).toBe(false);
+      expect(result.error).toContain('Wildcard usage on physical tables is not allowed');
+      expect(result.blockedTables).toContain('u');
+    });
+
+    it('should allow wildcard on CTE', () => {
+      const sql = `
+        WITH user_stats AS (
+          SELECT user_id, COUNT(*) as count FROM orders GROUP BY user_id
+        )
+        SELECT * FROM user_stats
+      `;
+      const result = validateWildcardUsage(sql);
+      expect(result.isValid).toBe(true);
+      expect(result.error).toBeUndefined();
+    });
+
+    it('should allow qualified wildcard on CTE', () => {
+      const sql = `
+        WITH user_stats AS (
+          SELECT user_id, COUNT(*) as count FROM orders GROUP BY user_id
+        )
+        SELECT us.* FROM user_stats us
+      `;
+      const result = validateWildcardUsage(sql);
+      expect(result.isValid).toBe(true);
+    });
+
+    it('should block wildcard when CTE uses wildcard on physical table', () => {
+      const sql = `
+        WITH user_cte AS (
+          SELECT * FROM users
+        )
+        SELECT * FROM user_cte
+      `;
+      const result = validateWildcardUsage(sql);
+      expect(result.isValid).toBe(false);
+      expect(result.error).toContain('Wildcard usage on physical tables is not allowed');
+      expect(result.blockedTables).toContain('users');
+    });
+
+    it('should allow wildcard when CTE uses explicit columns', () => {
+      const sql = `
+        WITH user_cte AS (
+          SELECT id, name FROM users
+        )
+        SELECT * FROM user_cte
+      `;
+      const result = validateWildcardUsage(sql);
+      expect(result.isValid).toBe(true);
+    });
+
+    it('should block wildcard on physical tables in JOIN', () => {
+      const sql = `
+        WITH orders_cte AS (
+          SELECT order_id FROM orders
+        )
+        SELECT oc.*, u.* FROM orders_cte oc JOIN users u ON oc.order_id = u.id
+      `;
+      const result = validateWildcardUsage(sql);
+      expect(result.isValid).toBe(false);
+      expect(result.blockedTables).toContain('u');
+    });
+
+    it('should allow explicit column selection', () => {
+      const sql = 'SELECT id, name, email FROM users';
+      const result = validateWildcardUsage(sql);
+      expect(result.isValid).toBe(true);
+    });
+
+    it('should handle multiple physical tables with wildcards', () => {
+      const sql = 'SELECT u.*, o.* FROM users u JOIN orders o ON u.id = o.user_id';
+      const result = validateWildcardUsage(sql);
+      expect(result.isValid).toBe(false);
+      expect(result.blockedTables).toEqual(expect.arrayContaining(['u', 'o']));
+    });
+
+    it('should handle schema-qualified tables', () => {
+      const sql = 'SELECT * FROM public.users';
+      const result = validateWildcardUsage(sql);
+      expect(result.isValid).toBe(false);
+      expect(result.error).toContain('Wildcard usage on physical tables is not allowed');
+    });
+
+    it('should handle invalid SQL gracefully', () => {
+      const sql = 'NOT VALID SQL';
+      const result = validateWildcardUsage(sql);
+      expect(result.isValid).toBe(false);
+      expect(result.error).toContain('Failed to validate wildcard usage');
     });
   });
 
