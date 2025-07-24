@@ -272,7 +272,7 @@ const useEditChartButton = ({
         secondaryView: 'chart-edit'
       })
     }),
-    [metricId]
+    [metricId, dashboardId, chatId]
   );
 };
 
