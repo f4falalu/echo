@@ -1,10 +1,10 @@
+import type { ColumnLabelFormat } from '@buster/server-shared/metrics';
 import { describe, expect, it, vi } from 'vitest';
-import type { BusterChartProps } from '@/api/asset_interfaces/metric/charts';
-import { formatLabel } from '@/lib';
+import { JOIN_CHARACTER } from '@/lib/axisFormatter';
+import { formatLabel } from '@/lib/columnFormatter';
+import type { BusterChartProps } from '../BusterChart.types';
 import type { DatasetOption } from '../chartHooks';
 import { formatLabelForDataset, formatLabelForPieLegend } from './labelHelpers';
-import type { ColumnLabelFormat } from '@buster/server-shared/metrics';
-import { JOIN_CHARACTER } from '@/lib/axisFormatter';
 
 // Mock the formatLabel function
 vi.mock('@/lib/columnFormatter', () => ({

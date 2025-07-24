@@ -1,7 +1,7 @@
+import type { ChartConfigProps } from '@buster/server-shared/metrics';
 import type { CoreInteractionOptions } from 'chart.js';
 import { useMemo } from 'react';
 import type { DeepPartial } from 'utility-types'; // Add this import
-import type { ChartConfigProps } from '@buster/server-shared/metrics';
 
 interface UseInteractionsProps {
   selectedChartType: ChartConfigProps['selectedChartType'];

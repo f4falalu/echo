@@ -426,7 +426,7 @@ models:
       const sql = 'SELECT * FROM users';
       const result = validateWildcardUsage(sql);
       expect(result.isValid).toBe(false);
-      expect(result.error).toContain('Wildcard usage on physical tables is not allowed');
+      expect(result.error).toContain("You're not allowed to use a wildcard on physical tables");
       expect(result.blockedTables).toContain('users');
     });
 
@@ -434,7 +434,7 @@ models:
       const sql = 'SELECT u.* FROM users u';
       const result = validateWildcardUsage(sql);
       expect(result.isValid).toBe(false);
-      expect(result.error).toContain('Wildcard usage on physical tables is not allowed');
+      expect(result.error).toContain("You're not allowed to use a wildcard on physical tables");
       expect(result.blockedTables).toContain('u');
     });
 
@@ -470,7 +470,7 @@ models:
       `;
       const result = validateWildcardUsage(sql);
       expect(result.isValid).toBe(false);
-      expect(result.error).toContain('Wildcard usage on physical tables is not allowed');
+      expect(result.error).toContain("You're not allowed to use a wildcard on physical tables");
       expect(result.blockedTables).toContain('users');
     });
 
@@ -514,7 +514,7 @@ models:
       const sql = 'SELECT * FROM public.users';
       const result = validateWildcardUsage(sql);
       expect(result.isValid).toBe(false);
-      expect(result.error).toContain('Wildcard usage on physical tables is not allowed');
+      expect(result.error).toContain("You're not allowed to use a wildcard on physical tables");
     });
 
     it('should handle invalid SQL gracefully', () => {

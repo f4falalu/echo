@@ -9,7 +9,8 @@
       "recommended": true,
       "correctness": {
         "noUnusedVariables": "error",
-        "noUnusedImports": "off"
+        "noUnusedImports": "off",
+        "useExhaustiveDependencies": "warn"
       },
       "style": {
         "noNonNullAssertion": "error",
@@ -50,7 +51,7 @@
   "javascript": {
     "formatter": {
       "quoteStyle": "single",
-      "jsxQuoteStyle": "double",
+      "jsxQuoteStyle": "single",
       "trailingCommas": "es5",
       "semicolons": "always",
       "arrowParentheses": "always"
@@ -142,6 +143,19 @@
         "rules": {
           "suspicious": {
             "noConsoleLog": "off"
+          }
+        }
+      }
+    },
+    {
+      "include": ["**/*.stories.tsx"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noNonNullAssertion": "off"
+          },
+          "correctness": {
+            "noUnusedVariables": "off"
           }
         }
       }

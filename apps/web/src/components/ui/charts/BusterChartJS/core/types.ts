@@ -30,13 +30,13 @@ export interface ChartProps<
    * @see https://www.chartjs.org/docs/latest/general/options.html
    * @default {}
    */
-  options?: ChartOptions<TType>;
+  options?: ChartOptions<TType> | undefined;
   /**
    * The plugins array that is passed into the Chart.js chart
    * @see https://www.chartjs.org/docs/latest/developers/plugins.html
    * @default []
    */
-  plugins?: Plugin<TType>[];
+  plugins?: Plugin<TType>[] | undefined;
   /**
    * Teardown and redraw chart on every update
    * @default false

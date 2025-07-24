@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { webSearch } from './web-search-tool';
 
-vi.mock('@buster-tools/web-tools', () => {
+vi.mock('@buster/web-tools', () => {
   const mockFirecrawlService = {
     webSearch: vi.fn(),
   };
@@ -17,9 +17,7 @@ describe('webSearch tool', () => {
 
   beforeEach(async () => {
     vi.clearAllMocks();
-    const { mockFirecrawlService: mock } = vi.mocked(
-      await import('@buster-tools/web-tools')
-    ) as any;
+    const { mockFirecrawlService: mock } = vi.mocked(await import('@buster/web-tools')) as any;
     mockFirecrawlService = mock;
   });
 

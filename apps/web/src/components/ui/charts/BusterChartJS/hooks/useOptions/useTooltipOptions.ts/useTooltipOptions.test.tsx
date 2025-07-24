@@ -1,11 +1,11 @@
+import {
+  type ChartEncodes,
+  type ChartType,
+  DEFAULT_COLUMN_LABEL_FORMAT
+} from '@buster/server-shared/metrics';
 import { renderHook } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import type { BusterChartProps } from '@/api/asset_interfaces/metric/charts';
-import {
-  DEFAULT_COLUMN_LABEL_FORMAT,
-  type ChartEncodes,
-  type ChartType
-} from '@buster/server-shared/metrics';
+import type { BusterChartProps } from '../../../../BusterChart.types';
 import { useTooltipOptions } from './useTooltipOptions';
 
 // Mock necessary hooks and dependencies

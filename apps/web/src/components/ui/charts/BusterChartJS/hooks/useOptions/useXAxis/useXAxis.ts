@@ -1,25 +1,27 @@
-import type { GridLineOptions, Scale, ScaleChartOptions, TimeScale } from 'chart.js';
-import { Chart as ChartJS } from 'chart.js';
-import isDate from 'lodash/isDate';
-import { useMemo } from 'react';
-import type { DeepPartial } from 'utility-types';
-import type { BusterChartProps } from '@/api/asset_interfaces/metric/charts';
-import { useMemoizedFn } from '@/hooks';
-import { formatLabel, isNumericColumnType, truncateText } from '@/lib';
-import { useXAxisTitle } from '../axisHooks/useXAxisTitle';
-import { useIsStacked } from '../useIsStacked';
-import { AUTO_DATE_FORMATS } from './config';
+import { useMemoizedFn } from '@/hooks/useMemoizedFn';
+import { formatLabel } from '@/lib/columnFormatter';
+import { isNumericColumnType } from '@/lib/messages';
+import { truncateText } from '@/lib/text';
 import {
-  DEFAULT_COLUMN_LABEL_FORMAT,
-  DEFAULT_COLUMN_SETTINGS,
   type ChartConfigProps,
   type ChartEncodes,
   type ChartType,
   type ColumnLabelFormat,
   type ColumnSettings,
   type ComboChartAxis,
+  DEFAULT_COLUMN_LABEL_FORMAT,
+  DEFAULT_COLUMN_SETTINGS,
   type XAxisConfig
 } from '@buster/server-shared/metrics';
+import type { GridLineOptions, Scale, ScaleChartOptions, Tick, TimeScale } from 'chart.js';
+import { Chart as ChartJS } from 'chart.js';
+import isDate from 'lodash/isDate';
+import { useMemo } from 'react';
+import type { DeepPartial } from 'utility-types';
+import type { BusterChartProps } from '../../../../BusterChart.types';
+import { useXAxisTitle } from '../axisHooks/useXAxisTitle';
+import { useIsStacked } from '../useIsStacked';
+import { AUTO_DATE_FORMATS } from './config';
 
 const DEFAULT_X_AXIS_TICK_CALLBACK = ChartJS.defaults.scales.category?.ticks?.callback;
 
@@ -81,12 +83,12 @@ export const useXAxis = ({
   const firstXColumnLabelFormat = useMemo(() => {
     if (isScatterChart) {
       return {
-        ...xAxisColumnFormats[selectedAxis.x[0]],
+        ...xAxisColumnFormats[selectedAxis.x[0] || ''],
         minimumFractionDigits: 0,
         maximumFractionDigits: 0
       };
     }
-    return xAxisColumnFormats[selectedAxis.x[0]];
+    return xAxisColumnFormats[selectedAxis.x[0] || ''];
   }, [isScatterChart, xAxisColumnFormats, selectedAxis.x]);
 
   const stacked = useIsStacked({ selectedChartType, lineGroupType, barGroupType });
@@ -103,7 +105,7 @@ export const useXAxis = ({
     const xAxisKeysLength = xAxisKeys.length;
 
     if (xAxisKeysLength === 1) {
-      const xIsDate = firstXColumnLabelFormat.columnType === 'date';
+      const xIsDate = firstXColumnLabelFormat?.columnType === 'date';
 
       if ((isLineChart || isScatterChart) && xIsDate) {
         return 'time';
@@ -128,7 +130,7 @@ export const useXAxis = ({
     }
 
     if (isScatterChart && xAxisKeysLength === 1) {
-      const isNumeric = isNumericColumnType(firstXColumnLabelFormat?.columnType);
+      const isNumeric = isNumericColumnType(firstXColumnLabelFormat?.columnType || 'text');
       if (isNumeric) return 'linear';
     }
 
@@ -146,7 +148,7 @@ export const useXAxis = ({
   const derivedTimeUnit = useMemo(() => {
     if (type !== 'time') return false;
 
-    const fmt = firstXColumnLabelFormat.dateFormat;
+    const fmt = firstXColumnLabelFormat?.dateFormat;
     if (!fmt || fmt === 'auto') return false;
 
     // look for patterns in your DATE_FORMATS keys
@@ -177,7 +179,7 @@ export const useXAxis = ({
 
     if (type === 'time' || isDate(rawValue)) {
       const xColumnLabelFormat = firstXColumnLabelFormat;
-      const isAutoFormat = xColumnLabelFormat.dateFormat === 'auto';
+      const isAutoFormat = xColumnLabelFormat?.dateFormat === 'auto';
       if (isAutoFormat) {
         const unit = (this.chart.scales.x as TimeScale)._unit as
           | 'millisecond'
@@ -202,7 +204,12 @@ export const useXAxis = ({
     }
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any -- I had a devil of a time trying to type this... This is a hack to get the type to work
-    return DEFAULT_X_AXIS_TICK_CALLBACK.call(this, value, index, this.getLabels() as any);
+    return DEFAULT_X_AXIS_TICK_CALLBACK.call(
+      this,
+      value,
+      index,
+      this.getLabels() as unknown as Tick[]
+    );
   });
 
   const rotation = useMemo(() => {

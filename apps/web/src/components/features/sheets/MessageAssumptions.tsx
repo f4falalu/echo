@@ -13,6 +13,8 @@ import {
 } from '@/lib/messages/confidence-translations';
 import { CircleCheck, OctagonWarning } from '@/components/ui/icons';
 import { Pill } from '@/components/ui/pills/Pill';
+import { AppMarkdownStreaming } from '@/components/ui/streaming/AppMarkdownStreaming';
+import { AnimatedMarkdown } from '../../ui/typography/AnimatedMarkdown';
 
 type MessageAssumptionsProps = Pick<
   PostProcessingMessage,
@@ -149,9 +151,13 @@ const AssumptionSummary = ({
           {summary_title}
         </Title>
       </div>
-      <Paragraph className="mt-2" variant={'secondary'}>
-        {summary_message}
-      </Paragraph>
+      <div className="mt-2">
+        <AnimatedMarkdown
+          content={summary_message}
+          className="text-text-secondary"
+          animation="none"
+        />
+      </div>
     </div>
   );
 };
@@ -267,9 +273,7 @@ const AssumptionCard = ({
         <Title as={'h4'} className="text-base">
           {title}
         </Title>
-        <Paragraph size={'sm'} variant={'secondary'}>
-          {explanation}
-        </Paragraph>
+        <AnimatedMarkdown content={explanation} animation="none" className="text-text-secondary" />
       </div>
 
       <div className="flex items-center justify-between border-t px-3.5 py-2">

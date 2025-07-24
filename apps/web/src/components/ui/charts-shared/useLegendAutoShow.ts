@@ -17,7 +17,7 @@ export const useLegendAutoShow = ({
   const showLegend = useMemo(() => {
     if (UNSUPPORTED_CHART_TYPES.includes(selectedChartType)) {
       return false;
-    } 
+    }
 
     if (typeof showLegendProp === 'boolean') {
       return showLegendProp;

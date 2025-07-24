@@ -31,7 +31,7 @@ describe('removeApprovedDomainsHandler', () => {
     id: 'org-123',
     domains: ['example.com', 'test.io', 'keep.com'],
   });
-  const mockOrgMembership = { organizationId: 'org-123', role: 'workspace_admin' };
+  const mockOrgMembership = { organizationId: 'org-123', role: 'workspace_admin' as const };
 
   beforeEach(() => {
     vi.clearAllMocks();

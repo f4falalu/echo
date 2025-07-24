@@ -45,13 +45,16 @@ export const signInWithEmailAndPassword = async ({
   }
 
   revalidatePath('/', 'layout');
-  const finalRedirect = redirectTo && isValidRedirectUrl(redirectTo) 
-    ? decodeURIComponent(redirectTo)
-    : createBusterRoute({ route: BusterRoutes.APP_HOME });
+  const finalRedirect =
+    redirectTo && isValidRedirectUrl(redirectTo)
+      ? decodeURIComponent(redirectTo)
+      : createBusterRoute({ route: BusterRoutes.APP_HOME });
   return redirect(finalRedirect);
 };
 
-export const signInWithGoogle = async ({ redirectTo }: { redirectTo?: string | null } = {}): Promise<ServerActionResult<string>> => {
+export const signInWithGoogle = async ({
+  redirectTo
+}: { redirectTo?: string | null } = {}): Promise<ServerActionResult<string>> => {
   'use server';
 
   const supabase = await createSupabaseServerClient();
@@ -60,7 +63,7 @@ export const signInWithGoogle = async ({ redirectTo }: { redirectTo?: string | n
   if (redirectTo && isValidRedirectUrl(redirectTo)) {
     callbackUrl.searchParams.set('next', redirectTo);
   }
-  
+
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: 'google',
     options: {
@@ -76,7 +79,9 @@ export const signInWithGoogle = async ({ redirectTo }: { redirectTo?: string | n
   return redirect(data.url);
 };
 
-export const signInWithGithub = async ({ redirectTo }: { redirectTo?: string | null } = {}): Promise<ServerActionResult<string>> => {
+export const signInWithGithub = async ({
+  redirectTo
+}: { redirectTo?: string | null } = {}): Promise<ServerActionResult<string>> => {
   'use server';
 
   const supabase = await createSupabaseServerClient();
@@ -85,7 +90,7 @@ export const signInWithGithub = async ({ redirectTo }: { redirectTo?: string | n
   if (redirectTo && isValidRedirectUrl(redirectTo)) {
     callbackUrl.searchParams.set('next', redirectTo);
   }
-  
+
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: 'github',
     options: {
@@ -101,7 +106,9 @@ export const signInWithGithub = async ({ redirectTo }: { redirectTo?: string | n
   return redirect(data.url);
 };
 
-export const signInWithAzure = async ({ redirectTo }: { redirectTo?: string | null } = {}): Promise<ServerActionResult<string>> => {
+export const signInWithAzure = async ({ redirectTo }: { redirectTo?: string | null } = {}): Promise<
+  ServerActionResult<string>
+> => {
   'use server';
 
   const supabase = await createSupabaseServerClient();
@@ -110,7 +117,7 @@ export const signInWithAzure = async ({ redirectTo }: { redirectTo?: string | nu
   if (redirectTo && isValidRedirectUrl(redirectTo)) {
     callbackUrl.searchParams.set('next', redirectTo);
   }
-  
+
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: 'azure',
     options: {
@@ -156,9 +163,10 @@ export const signUp = async ({
   }
 
   revalidatePath('/', 'layout');
-  const finalRedirect = redirectTo && isValidRedirectUrl(redirectTo) 
-    ? decodeURIComponent(redirectTo)
-    : createBusterRoute({ route: BusterRoutes.APP_HOME });
+  const finalRedirect =
+    redirectTo && isValidRedirectUrl(redirectTo)
+      ? decodeURIComponent(redirectTo)
+      : createBusterRoute({ route: BusterRoutes.APP_HOME });
   return redirect(finalRedirect);
 };
 

@@ -5,7 +5,7 @@ import { useMemoizedFn } from '@/hooks';
 import type { BusterChatMessage } from '@/api/asset_interfaces/chat';
 import { chatQueryKeys } from '@/api/query_keys/chat';
 import { useChatUpdate } from '@/context/Chats/useChatUpdate';
-import { createNewChat, stopChat } from './requestsV2';
+import { createNewChat, stopChat, startChatFromAsset } from './requestsV2';
 
 export const useStartNewChat = () => {
   const queryClient = useQueryClient();
@@ -36,5 +36,32 @@ export const useStartNewChat = () => {
 export const useStopChat = () => {
   return useMutation({
     mutationFn: (chatId: string) => stopChat({ chatId })
+  });
+};
+
+export const useStartChatFromAsset = () => {
+  const queryClient = useQueryClient();
+
+  const mutationFn = useMemoizedFn(async (params: Parameters<typeof startChatFromAsset>[0]) => {
+    const chat = await startChatFromAsset(params);
+    const { iChat, iChatMessages } = updateChatToIChat(chat);
+    for (const messageId of iChat.message_ids) {
+      queryClient.setQueryData(
+        chatQueryKeys.chatsMessages(messageId).queryKey,
+        iChatMessages[messageId]
+      );
+    }
+    queryClient.setQueryData(chatQueryKeys.chatsGetChat(chat.id).queryKey, iChat);
+    return iChat;
+  });
+
+  return useMutation({
+    mutationFn,
+    onSuccess: (chat) => {
+      queryClient.invalidateQueries({
+        queryKey: chatQueryKeys.chatsGetList().queryKey,
+        refetchType: 'all'
+      });
+    }
   });
 };

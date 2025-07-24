@@ -11,10 +11,9 @@ type MarkdownComponentProps = {
   children: React.ReactNode;
   className?: string;
   style?: React.CSSProperties;
-} & Pick<
-  AnimatedMarkdownProps,
-  'animation' | 'animationDuration' | 'animationTimingFunction' | 'isStreamFinished'
->;
+} & Pick<AnimatedMarkdownProps, 'animation' | 'animationDuration' | 'animationTimingFunction'> & {
+    isStreamFinished: boolean;
+  };
 
 type NonAnimatedMarkdownComponentProps = Omit<
   MarkdownComponentProps,
@@ -336,7 +335,9 @@ export const CodeComponent: React.FC<
   if (isInline) {
     return (
       //do not animate the code block
-      <code style={style} className={cn(className, 'bg-item-select rounded-sm border px-1')}>
+      <code
+        style={style}
+        className={cn(className, 'bg-item-select rounded-sm border px-1 text-sm')}>
         {children}
       </code>
     );

@@ -1,7 +1,7 @@
 // chartjs-plugin-trendline.ts
 
-import type { ChartDataset, ChartType, Plugin, Point, Scale } from 'chart.js';
 import { DEFAULT_TRENDLINE_CONFIG } from '@buster/server-shared/metrics';
+import type { ChartDataset, ChartType, Plugin, Point, Scale } from 'chart.js';
 import { defaultLabelOptionConfig } from '../../../hooks/useChartSpecificOptions/labelOptionConfig';
 
 /** The three trendline modes we support */
@@ -83,10 +83,11 @@ export interface TrendlinePluginOptions {
 }
 
 declare module 'chart.js' {
+  // biome-ignore lint/correctness/noUnusedVariables: keeping this for now
   interface PluginOptionsByType<TType extends ChartType> {
     trendline?: TrendlinePluginOptions;
   }
-
+  // biome-ignore lint/correctness/noUnusedVariables: keeping this for now
   interface ChartDatasetProperties<TType extends ChartType, TData> {
     trendline?: TrendlineOptions[];
   }
@@ -177,7 +178,7 @@ class LinearFitter extends BaseFitter {
     this._intercept = null;
   }
 
-  public computeStatistics(): void {
+  public override computeStatistics(): void {
     super.computeStatistics();
     this.slope();
     this.intercept();
@@ -214,7 +215,7 @@ class LogarithmicFitter extends BaseFitter {
     }
   }
 
-  public computeStatistics(): void {
+  public override computeStatistics(): void {
     super.computeStatistics();
     this.lin.computeStatistics();
   }
@@ -241,7 +242,7 @@ class PolynomialFitter extends BaseFitter {
     this.coeffs = null; // invalidate previous fit
   }
 
-  public computeStatistics(): void {
+  public override computeStatistics(): void {
     super.computeStatistics();
     if (!this.coeffs) this.fit();
   }
@@ -255,7 +256,7 @@ class PolynomialFitter extends BaseFitter {
     for (const x of this.xs) {
       const powers = [1]; // x^0 = 1
       for (let p = 1; p <= 2 * m; p++) {
-        powers.push(powers[p - 1] * x);
+        powers.push((powers[p - 1] as number) * x);
       }
       xPowers.push(powers);
     }
@@ -268,29 +269,39 @@ class PolynomialFitter extends BaseFitter {
     for (let i = 0; i <= m; i++) {
       for (let j = 0; j <= m; j++) {
         for (let k = 0; k < this.xs.length; k++) {
-          A[i][j] += xPowers[k][i + j];
+          // @ts-ignore
+          A[i][j] += (xPowers[k] as number[])[i + j];
         }
       }
 
       for (let k = 0; k < this.xs.length; k++) {
-        b[i] += this.ys[k] * xPowers[k][i];
+        // @ts-ignore - xPowers is an array of arrays
+        b[i] += (this.ys[k] as number) * (xPowers[k] as number[])[i];
       }
     }
 
     // Gaussian elimination (in-place)
     for (let k = 0; k <= m; k++) {
       // pivot
-      const pivot = A[k][k];
+
+      const pivot = A[k]?.[k] ?? 0;
       if (Math.abs(pivot) < 1e-12) continue;
-      for (let j = k; j <= m; j++) A[k][j] /= pivot;
+      for (let j = k; j <= m; j++) {
+        // @ts-ignore - A is an array of arrays
+        A[k][j] /= pivot;
+      }
+      // @ts-ignore - b is an array
       b[k] /= pivot;
 
       // eliminate below
       for (let i = k + 1; i <= m; i++) {
+        // @ts-ignore - A is an array of arrays
         const factor = A[i][k];
         for (let j = k; j <= m; j++) {
+          // @ts-ignore - A is an array of arrays
           A[i][j] -= factor * A[k][j];
         }
+        // @ts-ignore - b is an array
         b[i] -= factor * b[k];
       }
     }
@@ -299,6 +310,7 @@ class PolynomialFitter extends BaseFitter {
     const a = Array(m + 1).fill(0);
     for (let i = m; i >= 0; i--) {
       let sum = b[i];
+      // @ts-ignore - A is an array of arrays
       for (let j = i + 1; j <= m; j++) sum -= A[i][j] * a[j];
       a[i] = sum;
     }
@@ -328,7 +340,7 @@ class ExponentialFitter extends BaseFitter {
     }
   }
 
-  public computeStatistics(): void {
+  public override computeStatistics(): void {
     super.computeStatistics();
     this.lin.computeStatistics();
   }
@@ -343,39 +355,39 @@ class AverageFitter extends BaseFitter {
   private sum = 0;
   private count = 0;
 
-  protected addPoint(x: number, y: number) {
+  protected addPoint(_x: number, y: number) {
     this.sum += y;
     this.count++;
   }
 
-  public computeStatistics(): void {
+  public override computeStatistics(): void {
     super.computeStatistics();
     this.averageY = this.count > 0 ? this.sum / this.count : 0;
   }
 
-  protected calculateValue(x: number): number {
+  protected calculateValue(_x: number): number {
     return this.averageY;
   }
 }
 
 /** Statistical fitter that returns the maximum y value */
 class MaxFitter extends BaseFitter {
-  protected addPoint(x: number, y: number) {
+  protected addPoint(_x: number, y: number) {
     this.maxY = Math.max(this.maxY, y);
   }
 
-  protected calculateValue(x: number): number {
+  protected calculateValue(_x: number): number {
     return this.maxY;
   }
 }
 
 /** Statistical fitter that returns the minimum y value */
 class MinFitter extends BaseFitter {
-  protected addPoint(x: number, y: number) {
+  protected addPoint(_x: number, y: number) {
     this.minY = Math.min(this.minY, y);
   }
 
-  protected calculateValue(x: number): number {
+  protected calculateValue(_x: number): number {
     return this.minY;
   }
 }
@@ -385,12 +397,12 @@ class MedianFitter extends BaseFitter {
   private values: number[] = [];
   private sortedValues: number[] | null = null;
 
-  protected addPoint(x: number, y: number) {
+  protected addPoint(_x: number, y: number) {
     this.values.push(y);
     this.sortedValues = null;
   }
 
-  public computeStatistics(): void {
+  public override computeStatistics(): void {
     super.computeStatistics();
     if (this.values.length === 0) {
       this.medianY = 0;
@@ -403,13 +415,13 @@ class MedianFitter extends BaseFitter {
 
     // Calculate median
     if (this.sortedValues.length % 2 === 0) {
-      this.medianY = (this.sortedValues[mid - 1] + this.sortedValues[mid]) / 2;
+      this.medianY = ((this.sortedValues[mid - 1] ?? 0) + (this.sortedValues[mid] ?? 0)) / 2;
     } else {
-      this.medianY = this.sortedValues[mid];
+      this.medianY = this.sortedValues[mid] ?? 0;
     }
   }
 
-  protected calculateValue(x: number): number {
+  protected calculateValue(_x: number): number {
     return this.medianY;
   }
 }
@@ -721,15 +733,6 @@ const addDataPointsToFitter = (
   fitter.computeStatistics();
 };
 
-const projectionDefaultType: TrendlineType[] = [
-  'average',
-  'max',
-  'min',
-  'median',
-  'linear_regression',
-  'polynomial_regression'
-];
-
 // Calculate trendline coordinates once to avoid duplication
 const calculateTrendlineCoordinates = (
   xScale: Scale,
@@ -869,9 +872,6 @@ const queueTrendlineLabel = (
 
   // Use pre-calculated values from coords
   const { minX, maxX, x1, y1, x2, y2, slope } = coords;
-
-  // Format the label text
-  const val = lbl.percentage ? `${(slope * 100).toFixed(2)}%` : slope.toFixed(2);
 
   // Handle text as either string or callback function
   let textContent: string;
@@ -1109,7 +1109,7 @@ const trendlinePlugin: Plugin<'line'> = {
             fitter.maxx !== Number.NEGATIVE_INFINITY
           ) {
             const defaultColor =
-              (firstDatasetWithTrendline.borderColor as string) ?? 'rgba(0,0,0,0.3)';
+              (firstDatasetWithTrendline?.borderColor as string) ?? 'rgba(0,0,0,0.3)';
 
             // Calculate coordinates once
             const coords = calculateTrendlineCoordinates(xScale, yScale, fitter, aggregateConfig);

@@ -1,6 +1,6 @@
+import type { ChartConfigProps, ChartType } from '@buster/server-shared/metrics';
 import { renderHook } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
-import { type ChartConfigProps, type ChartType } from '@buster/server-shared/metrics';
 import { useInteractions } from './useInteractions';
 
 describe('useInteractions', () => {

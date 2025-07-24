@@ -9,7 +9,7 @@ export const VersionPill: React.FC<{ version_number: number }> = React.memo(
     return (
       <div
         className={cn(
-          'flex h-[18px] w-fit min-w-[18px] items-center justify-center rounded-sm border bg-disabled px-0.5'
+          'bg-disabled flex h-[18px] w-fit min-w-[18px] items-center justify-center rounded-sm border px-0.5'
         )}>
         <Text variant="secondary" size="sm">
           {text}

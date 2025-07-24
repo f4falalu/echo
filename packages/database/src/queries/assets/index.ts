@@ -11,3 +11,5 @@ export {
   type DashboardFileContext,
   type DashboardFile,
 } from './dashboards';
+
+export type { DatabaseAssetType } from './assets';

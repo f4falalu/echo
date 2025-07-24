@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { AssetTypeSchema } from '../assets/asset-types.types';
 
 export const ShareRoleSchema = z.enum([
   'owner', //owner of the asset
@@ -9,7 +10,7 @@ export const ShareRoleSchema = z.enum([
 
 export const WorkspaceShareRoleSchema = z.enum([...ShareRoleSchema.options, 'none']);
 
-export const ShareAssetTypeSchema = z.enum(['metric', 'dashboard', 'collection', 'chat']);
+export const ShareAssetTypeSchema = AssetTypeSchema;
 
 export const ShareIndividualSchema = z.object({
   email: z.string(),

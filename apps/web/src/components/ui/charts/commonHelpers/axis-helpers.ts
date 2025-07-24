@@ -1,5 +1,5 @@
+import type { ChartEncodes, ChartType } from '@buster/server-shared/metrics';
 import isEmpty from 'lodash/isEmpty';
-import { type ChartEncodes, ChartType } from '@buster/server-shared/metrics';
 
 const defaultAxisCheck = (selectedAxis: ChartEncodes) => {
   if (isEmpty(selectedAxis.x) || isEmpty(selectedAxis.y)) return false;
@@ -7,19 +7,19 @@ const defaultAxisCheck = (selectedAxis: ChartEncodes) => {
 };
 
 const AxisMethodCheckRecord: Record<ChartType, (selectedAxis: ChartEncodes) => boolean> = {
-  ['line']: defaultAxisCheck,
-  ['bar']: defaultAxisCheck,
-  ['scatter']: defaultAxisCheck,
-  ['pie']: defaultAxisCheck,
-  ['combo']: defaultAxisCheck,
-  ['metric']: (selectedAxis) => true,
-  ['table']: () => true
+  line: defaultAxisCheck,
+  bar: defaultAxisCheck,
+  scatter: defaultAxisCheck,
+  pie: defaultAxisCheck,
+  combo: defaultAxisCheck,
+  metric: () => true,
+  table: () => true
 };
 
 export const doesChartHaveValidAxis = ({
-  selectedChartType,
   selectedAxis,
-  isTable
+  isTable,
+  selectedChartType
 }: {
   selectedChartType: ChartType;
   selectedAxis: ChartEncodes | undefined;

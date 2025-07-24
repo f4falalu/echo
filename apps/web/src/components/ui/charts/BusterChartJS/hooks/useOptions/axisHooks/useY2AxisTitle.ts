@@ -1,8 +1,8 @@
-import { useMemo } from 'react';
-import type { ChartConfigProps } from '@buster/server-shared/metrics';
-import { formatLabel } from '@/lib/columnFormatter';
-import { truncateWithEllipsis } from '../../../../commonHelpers/titleHelpers';
 import { AXIS_TITLE_SEPARATOR } from '@/lib/axisFormatter';
+import { formatLabel } from '@/lib/columnFormatter';
+import type { ChartConfigProps } from '@buster/server-shared/metrics';
+import { useMemo } from 'react';
+import { truncateWithEllipsis } from '../../../../commonHelpers/titleHelpers';
 
 export const useY2AxisTitle = ({
   y2Axis,

@@ -1,6 +1,6 @@
-import type { ChartTypeRegistry, TooltipItem } from 'chart.js';
-import type { ChartConfigProps } from '@buster/server-shared/metrics';
 import { formatLabel } from '@/lib/columnFormatter';
+import type { ChartConfigProps } from '@buster/server-shared/metrics';
+import type { ChartTypeRegistry, TooltipItem } from 'chart.js';
 import type { ITooltipItem } from '../../../../BusterChartTooltip/interfaces';
 
 export const scatterTooltipHelper = (
@@ -14,6 +14,8 @@ export const scatterTooltipHelper = (
     const selectedToolTipData = tooltipData[dataPointDataIndex];
 
     const title = dataPointDataset.label as string;
+
+    if (!selectedToolTipData) return [];
 
     return selectedToolTipData.map<ITooltipItem>((item) => {
       return {

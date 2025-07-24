@@ -1,10 +1,10 @@
+import {
+  type ChartType,
+  type ColumnLabelFormat,
+  DEFAULT_COLUMN_LABEL_FORMAT
+} from '@buster/server-shared/metrics';
 import { renderHook } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
-import {
-  DEFAULT_COLUMN_LABEL_FORMAT,
-  type ChartType,
-  type ColumnLabelFormat
-} from '@buster/server-shared/metrics';
 import { useDatasetOptions } from './useDatasetOptions';
 
 describe('useDatasetOptions', () => {
@@ -38,7 +38,7 @@ describe('useDatasetOptions', () => {
         barSortBy: undefined,
         pieSortBy: undefined,
         groupByMethod: undefined
-      })
+      } as unknown as any)
     );
 
     expect(result.current.yAxisKeys).toEqual(['sales']);
@@ -65,7 +65,7 @@ describe('useDatasetOptions', () => {
         barSortBy: undefined,
         pieSortBy: undefined,
         groupByMethod: undefined
-      })
+      } as unknown as any)
     );
 
     expect(result.current.datasetOptions.datasets).toHaveLength(2); // One for each y-axis field

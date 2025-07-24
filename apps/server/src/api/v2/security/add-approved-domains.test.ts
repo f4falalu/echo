@@ -31,7 +31,7 @@ describe('addApprovedDomainsHandler', () => {
     id: 'org-123',
     domains: ['existing.com'],
   });
-  const mockOrgMembership = { organizationId: 'org-123', role: 'workspace_admin' };
+  const mockOrgMembership = { organizationId: 'org-123', role: 'workspace_admin' as const };
 
   beforeEach(() => {
     vi.clearAllMocks();

@@ -263,9 +263,9 @@ export const useUnshareMetric = () => {
       queryClient.setQueryData(queryKey, (previousData: BusterMetric | undefined) => {
         if (!previousData) return previousData;
         return create(previousData, (draft: BusterMetric) => {
-          draft.individual_permissions =
-            (draft.individual_permissions?.filter((t) => !variables.data.includes(t.email)) || [])
-            .sort((a, b) => a.email.localeCompare(b.email));
+          draft.individual_permissions = (
+            draft.individual_permissions?.filter((t) => !variables.data.includes(t.email)) || []
+          ).sort((a, b) => a.email.localeCompare(b.email));
         });
       });
     },
@@ -297,12 +297,13 @@ export const useUpdateMetricShare = () => {
       queryClient.setQueryData(queryKey, (previousData: BusterMetric | undefined) => {
         if (!previousData) return previousData;
         return create(previousData, (draft: BusterMetric) => {
-          draft.individual_permissions =
-            (draft.individual_permissions?.map((t) => {
+          draft.individual_permissions = (
+            draft.individual_permissions?.map((t) => {
               const found = variables.params.users?.find((v) => v.email === t.email);
               if (found) return { ...t, ...found };
               return t;
-            }) || []).sort((a, b) => a.email.localeCompare(b.email));
+            }) || []
+          ).sort((a, b) => a.email.localeCompare(b.email));
 
           if (variables.params.publicly_accessible !== undefined) {
             draft.publicly_accessible = variables.params.publicly_accessible;

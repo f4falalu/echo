@@ -1,13 +1,13 @@
-import type { BubbleDataPoint, ScriptableContext } from 'chart.js';
 import { addOpacityToColor } from '@/lib/colors';
 import { createDayjsDate } from '@/lib/date';
 import { isDateColumnType } from '@/lib/messages';
+import { DEFAULT_CHART_CONFIG, DEFAULT_COLUMN_LABEL_FORMAT } from '@buster/server-shared/metrics';
+import type { BubbleDataPoint, ScriptableContext } from 'chart.js';
 import { formatLabelForDataset } from '../../../commonHelpers';
 import type { ChartProps } from '../../core';
 import { createTrendlineOnSeries } from './createTrendlines';
 import type { SeriesBuilderProps } from './interfaces';
 import type { LabelBuilderProps } from './useSeriesOptions';
-import { DEFAULT_CHART_CONFIG, DEFAULT_COLUMN_LABEL_FORMAT } from '@buster/server-shared/metrics';
 
 declare module 'chart.js' {
   interface BubbleDataPoint {
@@ -34,7 +34,7 @@ export const scatterSeriesBuilder_data = ({
   datasetOptions,
   trendlines
 }: SeriesBuilderProps): ChartProps<'bubble'>['data']['datasets'] => {
-  const xAxisKey = xAxisKeys[0];
+  const xAxisKey = xAxisKeys[0] || '';
   const xAxisColumnLabelFormat = columnLabelFormats[xAxisKey] || DEFAULT_COLUMN_LABEL_FORMAT;
   const isXAxisDate = isDateColumnType(xAxisColumnLabelFormat.columnType);
 
@@ -55,7 +55,7 @@ export const scatterSeriesBuilder_data = ({
     : undefined;
 
   return datasetOptions.datasets.map((dataset, datasetIndex) => {
-    const color = colors[datasetIndex % colors.length];
+    const color = colors[datasetIndex % colors.length] || '';
     let backgroundColor = colorsRecord[color]?.backgroundColor;
     let hoverBackgroundColor = colorsRecord[color]?.hoverBackgroundColor;
     let borderColor = colorsRecord[color]?.borderColor;
@@ -89,7 +89,7 @@ export const scatterSeriesBuilder_data = ({
           acc.push({
             x: getScatterXValue({
               isXAxisDate,
-              xValue: dataset.ticksForScatter?.[index][0] ?? null
+              xValue: dataset.ticksForScatter?.[index]?.[0] ?? null
             }),
             y: yData,
             originalR: dataset.sizeData?.[index] ?? 0
@@ -148,8 +148,6 @@ const computeSizeRatio = (
   return computedSize;
 };
 
-export const scatterSeriesBuilder_labels = (props: LabelBuilderProps) => {
-  const { datasetOptions, columnLabelFormats, xAxisKeys } = props;
-
+export const scatterSeriesBuilder_labels = (_props: LabelBuilderProps) => {
   return undefined;
 };

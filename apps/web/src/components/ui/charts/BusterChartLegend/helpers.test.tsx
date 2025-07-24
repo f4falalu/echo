@@ -1,5 +1,4 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import type { ChartType } from '@buster/server-shared/metrics';
 import { computeHiddenShowItems } from './helpers';
 import type { BusterChartLegendItem } from './interfaces';
 
@@ -11,7 +10,8 @@ const mockRemoveChild = vi.fn();
 
 // Mock renderToString to return a predictable width
 vi.mock('react-dom/server', () => ({
-  renderToString: vi.fn(() => '<div style="width: 100px">Mock Item</div>')
+  renderToString: vi.fn(() => '<div style="width: 100px">Mock Item</div>'),
+  renderToStaticMarkup: vi.fn(() => '<div style="width: 100px">Mock Item</div>')
 }));
 
 describe('computeHiddenShowItems', () => {

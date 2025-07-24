@@ -1,6 +1,6 @@
+import type { ChartConfigProps } from '@buster/server-shared/metrics';
 import { describe, expect, it } from 'vitest';
-import { type ChartConfigProps } from '@buster/server-shared/metrics';
-import { getPieInnerLabelTitle, InnerLabelTitleRecord } from './pieLabelHelpers';
+import { InnerLabelTitleRecord, getPieInnerLabelTitle } from './pieLabelHelpers';
 
 describe('pieLabelHelpers', () => {
   describe('InnerLabelTitleRecord', () => {
@@ -52,7 +52,7 @@ describe('pieLabelHelpers', () => {
     });
 
     it('should work with each type of aggregate', () => {
-      const testCases: Array<NonNullable<ChartConfigProps['pieInnerLabelAggregate']>> = [
+      const testCases: NonNullable<ChartConfigProps['pieInnerLabelAggregate']>[] = [
         'sum',
         'average',
         'median',
