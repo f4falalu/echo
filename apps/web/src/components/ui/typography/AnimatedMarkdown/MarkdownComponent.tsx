@@ -11,12 +11,9 @@ type MarkdownComponentProps = {
   children: React.ReactNode;
   className?: string;
   style?: React.CSSProperties;
-} & Pick<
-  AnimatedMarkdownProps,
-  'animation' | 'animationDuration' | 'animationTimingFunction'
-> & {
-  isStreamFinished: boolean;
-};
+} & Pick<AnimatedMarkdownProps, 'animation' | 'animationDuration' | 'animationTimingFunction'> & {
+    isStreamFinished: boolean;
+  };
 
 type NonAnimatedMarkdownComponentProps = Omit<
   MarkdownComponentProps,

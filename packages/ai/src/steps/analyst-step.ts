@@ -59,7 +59,7 @@ const outputSchema = z.object({
 });
 
 const DEFAULT_CACHE_OPTIONS = {
-  anthropic: { cacheControl: { type: 'ephemeral' } },
+  anthropic: { cacheControl: { type: 'ephemeral', ttl: '1hr' } },
 };
 
 /**
@@ -383,12 +383,12 @@ ${databaseContext}
           const systemMessages: CoreMessage[] = [
             {
               role: 'system',
-              content: createDatasetSystemMessage(assembledYmlContent),
+              content: createAnalystInstructionsWithoutDatasets(sqlDialectGuidance),
               providerOptions: DEFAULT_CACHE_OPTIONS,
             },
             {
               role: 'system',
-              content: createAnalystInstructionsWithoutDatasets(sqlDialectGuidance),
+              content: createDatasetSystemMessage(assembledYmlContent),
               providerOptions: DEFAULT_CACHE_OPTIONS,
             },
           ];

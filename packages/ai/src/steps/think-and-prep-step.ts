@@ -254,12 +254,12 @@ ${databaseContext}
             const systemMessages: CoreMessage[] = [
               {
                 role: 'system',
-                content: createDatasetSystemMessage(assembledYmlContent),
+                content: createThinkAndPrepInstructionsWithoutDatasets(sqlDialectGuidance),
                 providerOptions: DEFAULT_CACHE_OPTIONS,
               },
               {
                 role: 'system',
-                content: createThinkAndPrepInstructionsWithoutDatasets(sqlDialectGuidance),
+                content: createDatasetSystemMessage(assembledYmlContent),
                 providerOptions: DEFAULT_CACHE_OPTIONS,
               },
             ];
