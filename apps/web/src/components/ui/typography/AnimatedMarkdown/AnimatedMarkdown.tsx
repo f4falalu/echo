@@ -13,7 +13,7 @@ export interface AnimatedMarkdownProps {
   content: string;
   animation?: MarkdownAnimation;
   animationDuration?: number;
-  isStreamFinished: boolean;
+  isStreamFinished?: boolean;
   stripFormatting?: boolean;
   animationTimingFunction?: 'ease-in-out' | 'ease-in' | 'ease-out' | 'linear';
 }
@@ -22,7 +22,7 @@ const remarkPlugins = [remarkGfm];
 
 const AnimatedMarkdown: React.FC<AnimatedMarkdownProps> = ({
   content,
-  animation = 'fadeIn',
+  animation = 'none',
   animationDuration = 300,
   animationTimingFunction = 'ease-in-out',
   isStreamFinished = true,

@@ -14,6 +14,7 @@ import {
 import { CircleCheck, OctagonWarning } from '@/components/ui/icons';
 import { Pill } from '@/components/ui/pills/Pill';
 import { AppMarkdownStreaming } from '@/components/ui/streaming/AppMarkdownStreaming';
+import { AnimatedMarkdown } from '../../ui/typography/AnimatedMarkdown';
 
 type MessageAssumptionsProps = Pick<
   PostProcessingMessage,
@@ -151,10 +152,10 @@ const AssumptionSummary = ({
         </Title>
       </div>
       <div className="mt-2">
-        <AppMarkdownStreaming
+        <AnimatedMarkdown
           content={summary_message}
-          isStreamFinished={true}
           className="text-text-secondary"
+          animation="none"
         />
       </div>
     </div>
@@ -272,9 +273,7 @@ const AssumptionCard = ({
         <Title as={'h4'} className="text-base">
           {title}
         </Title>
-        <Paragraph size={'sm'} variant={'secondary'}>
-          {explanation}
-        </Paragraph>
+        <AnimatedMarkdown content={explanation} animation="none" className="text-text-secondary" />
       </div>
 
       <div className="flex items-center justify-between border-t px-3.5 py-2">
