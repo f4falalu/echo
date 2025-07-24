@@ -214,7 +214,9 @@ export const useDeleteChat = () => {
       data: Parameters<typeof deleteChat>[0];
       useConfirmModal?: boolean;
     }) => {
-      const method = () => deleteChat(data);
+      const method = async () => {
+        await deleteChat(data);
+      };
       if (useConfirmModal) {
         return await openConfirmModal({
           title: 'Delete Chat',
@@ -228,7 +230,8 @@ export const useDeleteChat = () => {
 
   return useMutation({
     mutationFn,
-    onSuccess() {
+    retry: false,
+    onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: chatQueryKeys.chatsGetList().queryKey,
         refetchType: 'all'

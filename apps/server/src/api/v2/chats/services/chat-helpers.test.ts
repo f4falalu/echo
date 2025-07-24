@@ -213,7 +213,7 @@ describe('handleExistingChat', () => {
 
   it('should prepend new message to maintain descending order (newest first)', async () => {
     const baseTime = new Date('2024-01-01T10:00:00Z');
-    
+
     const mockChat = {
       id: 'chat-1',
       title: 'Test Chat',
@@ -292,35 +292,40 @@ describe('handleExistingChat', () => {
     // getMessagesForChat returns existing messages in descending order (newest first)
     vi.mocked(database.getMessagesForChat).mockResolvedValue([existingMessage1, existingMessage2]);
 
-    const result = await handleExistingChat('chat-1', 'message-3', 'Third message (newest)', mockUser);
+    const result = await handleExistingChat(
+      'chat-1',
+      'message-3',
+      'Third message (newest)',
+      mockUser
+    );
 
     expect(result.chat.messages['message-3']).toBeDefined();
     expect(result.chat.messages['message-1']).toBeDefined();
     expect(result.chat.messages['message-2']).toBeDefined();
 
     expect(result.chat.message_ids).toEqual(['message-3', 'message-1', 'message-2']);
-    
+
     expect(result.chat.message_ids[0]).toBe('message-3');
-    
+
     const message3 = result.chat.messages['message-3'];
     const message1 = result.chat.messages['message-1'];
     const message2 = result.chat.messages['message-2'];
-    
+
     expect(message3).toBeDefined();
     expect(message1).toBeDefined();
     expect(message2).toBeDefined();
-    
+
     const message3Time = new Date(message3!.created_at).getTime();
     const message1Time = new Date(message1!.created_at).getTime();
     const message2Time = new Date(message2!.created_at).getTime();
-    
+
     expect(message3Time).toBeGreaterThan(message1Time);
     expect(message1Time).toBeGreaterThan(message2Time);
   });
 
   it('should handle single existing message with new message correctly', async () => {
     const baseTime = new Date('2024-01-01T10:00:00Z');
-    
+
     const mockChat = {
       id: 'chat-1',
       title: 'Test Chat',
@@ -387,13 +392,13 @@ describe('handleExistingChat', () => {
     expect(result.chat.messages['message-2']).toBeDefined();
 
     expect(result.chat.message_ids).toEqual(['message-2', 'message-1']);
-    
+
     expect(result.chat.message_ids[0]).toBe('message-2');
   });
 
   it('should handle empty existing messages with new message', async () => {
     const baseTime = new Date('2024-01-01T10:00:00Z');
-    
+
     const mockChat = {
       id: 'chat-1',
       title: 'Test Chat',
