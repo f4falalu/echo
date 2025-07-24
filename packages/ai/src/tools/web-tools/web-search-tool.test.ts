@@ -17,9 +17,7 @@ describe('webSearch tool', () => {
 
   beforeEach(async () => {
     vi.clearAllMocks();
-    const { mockFirecrawlService: mock } = vi.mocked(
-      await import('@buster/web-tools')
-    ) as any;
+    const { mockFirecrawlService: mock } = vi.mocked(await import('@buster/web-tools')) as any;
     mockFirecrawlService = mock;
   });
 

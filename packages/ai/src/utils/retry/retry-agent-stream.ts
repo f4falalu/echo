@@ -23,17 +23,19 @@ function createWorkflowAwareHealingMessage(toolName: string, context?: WorkflowC
   const { currentStep, availableTools } = context;
 
   const nextMode = currentStep === 'think-and-prep' ? 'analyst' : 'think-and-prep';
-  const transitionDescription = currentStep === 'think-and-prep' 
-    ? 'after thinking, understanding the data, and submitting your thoughts'
-    : 'after completing your analysis';
+  const transitionDescription =
+    currentStep === 'think-and-prep'
+      ? 'after thinking, understanding the data, and submitting your thoughts'
+      : 'after completing your analysis';
 
   // Use actual available tools if provided
   if (availableTools && availableTools.size > 0) {
     const currentToolList = Array.from(availableTools).sort().join(', ');
-    
-    const nextModeTools = nextMode === 'analyst' 
-      ? 'createMetrics, modifyMetrics, createDashboards, modifyDashboards, doneTool'
-      : 'sequentialThinking, executeSql, respondWithoutAssetCreation, submitThoughts, messageUserClarifyingQuestion';
+
+    const nextModeTools =
+      nextMode === 'analyst'
+        ? 'createMetrics, modifyMetrics, createDashboards, modifyDashboards, doneTool'
+        : 'sequentialThinking, executeSql, respondWithoutAssetCreation, submitThoughts, messageUserClarifyingQuestion';
 
     return `${baseMessage} For reference you are currently in ${currentStep} mode which has access to the following tools:
 ${currentToolList}
@@ -43,13 +45,15 @@ ${nextModeTools}`;
   }
 
   // Fallback to static message if tools not provided
-  const currentModeTools = currentStep === 'think-and-prep'
-    ? 'sequentialThinking, executeSql, respondWithoutAssetCreation, submitThoughts, messageUserClarifyingQuestion'
-    : 'createMetrics, modifyMetrics, createDashboards, modifyDashboards, doneTool';
-    
-  const nextModeTools = nextMode === 'analyst'
-    ? 'createMetrics, modifyMetrics, createDashboards, modifyDashboards, doneTool'
-    : 'sequentialThinking, executeSql, respondWithoutAssetCreation, submitThoughts, messageUserClarifyingQuestion';
+  const currentModeTools =
+    currentStep === 'think-and-prep'
+      ? 'sequentialThinking, executeSql, respondWithoutAssetCreation, submitThoughts, messageUserClarifyingQuestion'
+      : 'createMetrics, modifyMetrics, createDashboards, modifyDashboards, doneTool';
+
+  const nextModeTools =
+    nextMode === 'analyst'
+      ? 'createMetrics, modifyMetrics, createDashboards, modifyDashboards, doneTool'
+      : 'sequentialThinking, executeSql, respondWithoutAssetCreation, submitThoughts, messageUserClarifyingQuestion';
 
   return `${baseMessage} For reference you are currently in ${currentStep} mode which has access to the following tools:
 ${currentModeTools}
