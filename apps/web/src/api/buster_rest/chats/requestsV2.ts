@@ -2,7 +2,7 @@ import type { ChatCreateRequest, ChatWithMessages } from '@buster/server-shared/
 import mainApi, { mainApiV2 } from '../instances';
 
 export const createNewChat = async (props: ChatCreateRequest) => {
-  return mainApi.post<ChatWithMessages>('/chats', props).then((res) => res.data);
+  return mainApiV2.post<ChatWithMessages>('/chats', props).then((res) => res.data);
 };
 
 export const stopChat = async ({ chatId }: { chatId: string }) => {
@@ -12,5 +12,5 @@ export const stopChat = async ({ chatId }: { chatId: string }) => {
 export const startChatFromAsset = async (
   params: Pick<NonNullable<ChatCreateRequest>, 'asset_id' | 'asset_type' | 'prompt'>
 ): Promise<ChatWithMessages> => {
-  return mainApi.post<ChatWithMessages>('/chats', params).then((res) => res.data);
+  return mainApiV2.post<ChatWithMessages>('/chats', params).then((res) => res.data);
 };

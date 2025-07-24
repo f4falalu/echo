@@ -64,7 +64,7 @@ type BusterChatMessageResponse = z.infer<typeof BusterChatMessageResponseSchema>
 const outputSchema = ThinkAndPrepOutputSchema;
 
 const DEFAULT_CACHE_OPTIONS = {
-  anthropic: { cacheControl: { type: 'ephemeral' } },
+  anthropic: { cacheControl: { type: 'ephemeral', ttl: '1hr' } },
 };
 
 // Helper function to create the result object
