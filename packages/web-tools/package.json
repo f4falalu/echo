@@ -1,5 +1,5 @@
 {
-  "name": "@buster-tools/web-tools",
+  "name": "@buster/web-tools",
   "version": "0.1.0",
   "description": "Web scraping and research tools using Firecrawl and other services",
   "type": "module",

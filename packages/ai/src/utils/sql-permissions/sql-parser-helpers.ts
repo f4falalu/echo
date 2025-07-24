@@ -410,10 +410,9 @@ export function validateWildcardUsage(
     }
 
     if (blockedTables.length > 0) {
-      const tableList = blockedTables.join(', ');
       return {
         isValid: false,
-        error: `Wildcard usage on physical tables is not allowed: ${tableList}. Please specify explicit column names.`,
+        error: `You're not allowed to use a wildcard on physical tables, please be specific about which columns you'd like to work with`,
         blockedTables,
       };
     }

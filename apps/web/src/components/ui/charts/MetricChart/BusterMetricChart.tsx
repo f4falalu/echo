@@ -163,7 +163,7 @@ export const BusterMetricChart: React.FC<BusterMetricChartProps> = React.memo(
           {...memoizedAnimation}>
           <AnimatedTitleWrapper title={formattedHeader} type="header" />
           <div className="w-full overflow-hidden p-2 text-center">
-            <div className="truncate">{formattedValue}</div>
+            <h2 className="text-foreground truncate text-4xl font-normal!">{formattedValue}</h2>
           </div>
           <AnimatedTitleWrapper title={formattedSubHeader} type="subHeader" />
         </motion.div>
