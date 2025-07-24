@@ -6,8 +6,7 @@ vi.mock('@buster/database/connection', () => ({
 
 import { Hono } from 'hono';
 import '../../../types/hono.types';
-import { ChatError, ChatErrorCode } from '@buster/server-shared/chats';
-import type { ChatWithMessages } from '@buster/server-shared/chats';
+import { ChatError, ChatErrorCode, type ChatWithMessages } from '@buster/server-shared/chats';
 import chatRoutes from './index';
 
 // Mock dependencies
@@ -121,12 +120,12 @@ describe('POST /chats', () => {
   it('should create asset-based chat', async () => {
     const response = await makeRequest(app, {
       asset_id: '123e4567-e89b-12d3-a456-426614174004',
-      asset_type: 'metric_file',
+      asset_type: 'metric',
     });
 
     expect(response.status).toBe(200);
     expect(createChatHandler).toHaveBeenCalledWith(
-      { asset_id: '123e4567-e89b-12d3-a456-426614174004', asset_type: 'metric_file' },
+      { asset_id: '123e4567-e89b-12d3-a456-426614174004', asset_type: 'metric' },
       mockUser
     );
   });
