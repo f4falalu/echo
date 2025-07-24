@@ -10,7 +10,8 @@ export const GetDashboardTitleInputSchema = z.object({
 
 export type GetDashboardTitleInput = z.infer<typeof GetDashboardTitleInputSchema>;
 
-export async function getDashboardTitle(input: GetDashboardTitleInput): Promise<string | null> {
+// Updated return type to remove null since we now throw an error instead
+export async function getDashboardTitle(input: GetDashboardTitleInput): Promise<string> {
   const validated = GetDashboardTitleInputSchema.parse(input);
 
   const [dashboard] = await db
@@ -23,12 +24,16 @@ export async function getDashboardTitle(input: GetDashboardTitleInput): Promise<
     .where(and(eq(dashboardFiles.id, validated.assetId), isNull(dashboardFiles.deletedAt)))
     .limit(1);
 
+  // Throw error instead of returning null
   if (!dashboard) {
-    return null;
+    throw new Error(`Dashboard with ID ${validated.assetId} not found`);
   }
 
+  // Throw error for permission failure instead of returning null
   if (!dashboard.publiclyAccessible && dashboard.organizationId !== validated.organizationId) {
-    return null;
+    throw new Error(
+      `Access denied: Dashboard with ID ${validated.assetId} is not publicly accessible and does not belong to the specified organization`
+    );
   }
 
   return dashboard.name;

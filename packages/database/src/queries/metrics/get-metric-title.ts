@@ -10,7 +10,8 @@ export const GetMetricTitleInputSchema = z.object({
 
 export type GetMetricTitleInput = z.infer<typeof GetMetricTitleInputSchema>;
 
-export async function getMetricTitle(input: GetMetricTitleInput): Promise<string | null> {
+// Updated return type to remove null since we now throw an error instead
+export async function getMetricTitle(input: GetMetricTitleInput): Promise<string> {
   const validated = GetMetricTitleInputSchema.parse(input);
 
   const [metric] = await db
@@ -23,12 +24,16 @@ export async function getMetricTitle(input: GetMetricTitleInput): Promise<string
     .where(and(eq(metricFiles.id, validated.assetId), isNull(metricFiles.deletedAt)))
     .limit(1);
 
+  // Throw error instead of returning null
   if (!metric) {
-    return null;
+    throw new Error(`Metric with ID ${validated.assetId} not found`);
   }
 
+  // Throw error for permission failure instead of returning null
   if (!metric.publiclyAccessible && metric.organizationId !== validated.organizationId) {
-    return null;
+    throw new Error(
+      `Access denied: Metric with ID ${validated.assetId} is not publicly accessible and does not belong to the specified organization`
+    );
   }
 
   return metric.name;

@@ -10,7 +10,8 @@ export const GetCollectionTitleInputSchema = z.object({
 
 export type GetCollectionTitleInput = z.infer<typeof GetCollectionTitleInputSchema>;
 
-export async function getCollectionTitle(input: GetCollectionTitleInput): Promise<string | null> {
+// Updated return type to remove null since we now throw an error instead
+export async function getCollectionTitle(input: GetCollectionTitleInput): Promise<string> {
   const validated = GetCollectionTitleInputSchema.parse(input);
 
   const [collection] = await db
@@ -22,12 +23,16 @@ export async function getCollectionTitle(input: GetCollectionTitleInput): Promis
     .where(and(eq(collections.id, validated.assetId), isNull(collections.deletedAt)))
     .limit(1);
 
+  // Throw error instead of returning null
   if (!collection) {
-    return null;
+    throw new Error(`Collection with ID ${validated.assetId} not found`);
   }
 
+  // Throw error for permission failure instead of returning null
   if (collection.organizationId !== validated.organizationId) {
-    return null;
+    throw new Error(
+      `Access denied: Collection with ID ${validated.assetId} does not belong to the specified organization`
+    );
   }
 
   return collection.name;

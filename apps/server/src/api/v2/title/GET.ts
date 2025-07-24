@@ -20,24 +20,21 @@ const app = new Hono()
       const user = c.get('busterUser');
 
       const userOrg = await getUserOrganizationId(user.id);
-      if (!userOrg) {
-        throw new HTTPException(403, { message: 'User is not associated with an organization' });
-      }
 
       let title: string | null = null;
 
       switch (assetType) {
         case 'chat':
-          title = await getChatTitle({ assetId, organizationId: userOrg.organizationId });
+          title = await getChatTitle({ assetId, organizationId: userOrg?.organizationId });
           break;
         case 'metric':
-          title = await getMetricTitle({ assetId, organizationId: userOrg.organizationId });
+          title = await getMetricTitle({ assetId, organizationId: userOrg?.organizationId });
           break;
         case 'collection':
-          title = await getCollectionTitle({ assetId, organizationId: userOrg.organizationId });
+          title = await getCollectionTitle({ assetId, organizationId: userOrg?.organizationId });
           break;
         case 'dashboard':
-          title = await getDashboardTitle({ assetId, organizationId: userOrg.organizationId });
+          title = await getDashboardTitle({ assetId, organizationId: userOrg?.organizationId });
           break;
         default: {
           const _exhaustive: never = assetType;
