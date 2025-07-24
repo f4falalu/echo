@@ -336,7 +336,9 @@ export const CodeComponent: React.FC<
   if (isInline) {
     return (
       //do not animate the code block
-      <code style={style} className={cn(className, 'bg-item-select rounded-sm border px-1')}>
+      <code
+        style={style}
+        className={cn(className, 'bg-item-select rounded-sm border px-1 text-sm')}>
         {children}
       </code>
     );

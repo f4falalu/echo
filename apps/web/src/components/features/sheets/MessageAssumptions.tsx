@@ -13,7 +13,7 @@ import {
 } from '@/lib/messages/confidence-translations';
 import { CircleCheck, OctagonWarning } from '@/components/ui/icons';
 import { Pill } from '@/components/ui/pills/Pill';
-import AppMarkdownStreaming from '@/components/ui/streaming/AppMarkdownStreaming/AppMarkdownStreaming';
+import { AppMarkdownStreaming } from '@/components/ui/streaming/AppMarkdownStreaming';
 
 type MessageAssumptionsProps = Pick<
   PostProcessingMessage,
