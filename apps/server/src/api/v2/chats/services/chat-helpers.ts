@@ -257,8 +257,8 @@ export async function handleExistingChat(
     getMessagesForChat(chatId),
   ]);
 
-  // Combine messages
-  const allMessages = newMessage ? [...existingMessages, newMessage] : existingMessages;
+  // Combine messages - prepend new message to maintain descending order (newest first)
+  const allMessages = newMessage ? [newMessage, ...existingMessages] : existingMessages;
 
   // Build chat with messages
   const chatWithMessages: ChatWithMessages = buildChatWithMessages(
