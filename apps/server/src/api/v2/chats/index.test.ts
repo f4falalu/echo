@@ -1,13 +1,13 @@
+import { Hono } from 'hono';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import '../../../types/hono.types';
+import { ChatError, ChatErrorCode, type ChatWithMessages } from '@buster/server-shared/chats';
+import chatRoutes from './index';
+
 vi.mock('@buster/database/connection', () => ({
   initializePool: vi.fn().mockReturnValue({}),
   getPool: vi.fn().mockReturnValue({}),
 }));
-
-import { Hono } from 'hono';
-import '../../../types/hono.types';
-import { ChatError, ChatErrorCode, type ChatWithMessages } from '@buster/server-shared/chats';
-import chatRoutes from './index';
 
 // Mock dependencies
 vi.mock('../../../middleware/auth', () => ({

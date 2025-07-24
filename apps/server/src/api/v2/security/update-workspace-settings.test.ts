@@ -33,7 +33,7 @@ describe('updateWorkspaceSettingsHandler', () => {
     restrictNewUserInvitations: false,
     defaultRole: 'restricted_querier',
   });
-  const mockOrgMembership = { organizationId: 'org-123', role: 'workspace_admin' };
+  const mockOrgMembership = { organizationId: 'org-123', role: 'workspace_admin' as const };
   const mockDefaultDatasets = [
     { id: 'dataset-1', name: 'Sales Data' },
     { id: 'dataset-2', name: 'Customer Data' },
@@ -175,7 +175,7 @@ describe('updateWorkspaceSettingsHandler', () => {
   });
 
   it('should reject non-workspace-admin users', async () => {
-    const nonAdminMembership = { organizationId: 'org-123', role: 'data_admin' };
+    const nonAdminMembership = { organizationId: 'org-123', role: 'data_admin' as const };
     vi.mocked(securityUtils.validateUserOrganization).mockResolvedValue(nonAdminMembership);
     vi.mocked(securityUtils.checkWorkspaceAdminPermission).mockImplementation((role) => {
       if (role !== 'workspace_admin') {

@@ -125,7 +125,7 @@ describe('createChatHandler', () => {
     vi.mocked(handleAssetChat).mockResolvedValue(assetChat);
 
     const result = await createChatHandler(
-      { asset_id: 'asset-123', asset_type: 'metric_file' },
+      { asset_id: 'asset-123', asset_type: 'metric' },
       mockUser
     );
 
@@ -133,7 +133,7 @@ describe('createChatHandler', () => {
       'chat-123',
       'msg-123',
       'asset-123',
-      'metric_file',
+      'metric',
       mockUser,
       mockChat
     );
@@ -160,7 +160,7 @@ describe('createChatHandler', () => {
 
   it('should not call handleAssetChat when prompt is provided with asset', async () => {
     const result = await createChatHandler(
-      { prompt: 'Hello', asset_id: 'asset-123', asset_type: 'metric_file' },
+      { prompt: 'Hello', asset_id: 'asset-123', asset_type: 'metric' },
       mockUser
     );
 
