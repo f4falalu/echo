@@ -136,9 +136,7 @@ const useRemoveFromDashboardItem = ({
           dashboardId,
           metricIds: [metricId]
         });
-      }
-    }),
-    [dashboardId, metricId, removeMetricFromDashboard]
+      [dashboardId, metricId, removeMetricFromDashboard, isPending]
   );
 };
 
@@ -274,7 +272,7 @@ const useEditChartButton = ({
         secondaryView: 'chart-edit'
       })
     }),
-    [metricId]
+    [metricId, dashboardId, chatId]
   );
 };
 
@@ -300,7 +298,7 @@ const useViewResultsButton = ({
         page: 'results'
       })
     }),
-    [metricId]
+    [metricId, dashboardId, chatId]
   );
 };
 
@@ -326,6 +324,6 @@ const useViewSQLButton = ({
         page: 'sql'
       })
     }),
-    [metricId]
+    [metricId, dashboardId, chatId]
   );
 };

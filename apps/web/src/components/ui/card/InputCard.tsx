@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Button } from '..//buttons/Button';
+import { Button } from '../buttons/Button';
 import { InputTextArea } from '../inputs/InputTextArea';
 import { cn } from '@/lib/utils';
 import { inputHasText } from '@/lib/text';
