@@ -18,13 +18,15 @@ type FollowUpWithAssetProps = {
   buttonText?: string;
 };
 
-export const FollowUpWithAssetPopup: React.FC<FollowUpWithAssetProps> = React.memo(
+export const FollowUpWithAssetContent: React.FC<{
+  assetType: Exclude<ShareAssetType, 'chat' | 'collection'>;
+  assetId: string;
+  placeholder?: string;
+  buttonText?: string;
+}> = React.memo(
   ({
     assetType,
     assetId,
-    side = 'bottom',
-    align = 'end',
-    children,
     placeholder = 'Describe the filter you want to apply',
     buttonText = 'Apply custom filter'
   }) => {
@@ -44,23 +46,35 @@ export const FollowUpWithAssetPopup: React.FC<FollowUpWithAssetProps> = React.me
         chatId: res.id
       });
 
-      console.log(link);
-
       onChangePage(link);
     });
 
+    return (
+      <InputCard
+        placeholder={placeholder}
+        buttonText={buttonText}
+        onSubmit={onSubmit}
+        loading={isPending}
+        className="border-none"
+      />
+    );
+  }
+);
+FollowUpWithAssetContent.displayName = 'FollowUpWithAssetContent';
+
+export const FollowUpWithAssetPopup: React.FC<FollowUpWithAssetProps> = React.memo(
+  ({ assetType, assetId, side = 'bottom', align = 'end', children, placeholder, buttonText }) => {
     return (
       <Popover
         side={side}
         align={align}
         className="p-0"
         content={
-          <InputCard
+          <FollowUpWithAssetContent
+            assetType={assetType}
+            assetId={assetId}
             placeholder={placeholder}
             buttonText={buttonText}
-            onSubmit={onSubmit}
-            loading={isPending}
-            className="border-none"
           />
         }>
         <AppTooltip title="Apply custom filter">{children}</AppTooltip>

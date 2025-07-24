@@ -13,7 +13,7 @@ export const ChatListItemSchema = z.object({
   last_edited: z.string(),
   latest_file_id: z.string().nullable(),
   latest_file_type: z.enum(['metric', 'dashboard']),
-  latest_version_number: z.number().nullable(),
+  latest_version_number: z.number().optional(),
   latest_file_name: z.string().nullable(),
 });
 
