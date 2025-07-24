@@ -25,7 +25,7 @@ export const ChartHoverBarPlugin: Plugin<ChartType, ChartHoverBarPluginOptions> 
         (chartType === 'line' && chart.data.datasets.some((dataset) => dataset.type === 'bar')) //this line is for combo chart
     };
   },
-  beforeDraw: (chart, args, options) => {
+  beforeDraw: (chart, _args, options) => {
     // Early return if not a bar chart (check only once during initialization)
     if (!chart.$pluginHoverBarManager.enabled) return;
 
@@ -47,11 +47,12 @@ export const ChartHoverBarPlugin: Plugin<ChartType, ChartHoverBarPluginOptions> 
 
       if (isHorizontal) {
         const activePoint = tooltipActive[0];
-        const dataIndex = activePoint.index;
+        const dataIndex = activePoint?.index ?? 0;
         ctx.save();
         ctx.fillStyle = hoverColor;
-        const yPos = chart.scales.y.getPixelForValue(dataIndex);
-        const barHeight = chart.scales.y.getPixelForValue(1) - chart.scales.y.getPixelForValue(0);
+        const yPos = chart.scales.y?.getPixelForValue(dataIndex) ?? 0;
+        const barHeight =
+          (chart.scales.y?.getPixelForValue(1) ?? 0) - (chart.scales.y?.getPixelForValue(0) ?? 0);
         ctx.fillRect(
           chart.chartArea.left,
           yPos - barHeight / 2,
@@ -61,11 +62,11 @@ export const ChartHoverBarPlugin: Plugin<ChartType, ChartHoverBarPluginOptions> 
         ctx.restore();
       } else {
         const activePoint = tooltipActive[0];
-        const dataIndex = activePoint.index;
+        const dataIndex = activePoint?.index ?? 0;
         ctx.save();
         ctx.fillStyle = hoverColor;
-        const xPos = x.getPixelForValue(dataIndex);
-        const barWidth = x.getPixelForValue(1) - x.getPixelForValue(0);
+        const xPos = x?.getPixelForValue(dataIndex) ?? 0;
+        const barWidth = (x?.getPixelForValue(1) ?? 0) - (x?.getPixelForValue(0) ?? 0);
         ctx.fillRect(xPos - barWidth / 2, top, barWidth, bottom - top);
         ctx.restore();
       }

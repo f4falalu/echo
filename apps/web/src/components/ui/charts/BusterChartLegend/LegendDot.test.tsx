@@ -1,7 +1,7 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
-import type { ChartType } from '@buster/server-shared/metrics';
 import { LegendItemDot } from './LegendDot';
+import '@testing-library/jest-dom';
 
 describe('LegendItemDot', () => {
   const defaultProps = {
@@ -77,6 +77,7 @@ describe('LegendItemDot', () => {
     const parentClick = vi.fn();
 
     render(
+      // biome-ignore lint/a11y/useKeyWithClickEvents: <explanation>
       <div onClick={parentClick}>
         <LegendItemDot {...defaultProps} onFocusItem={onFocusItem} />
       </div>

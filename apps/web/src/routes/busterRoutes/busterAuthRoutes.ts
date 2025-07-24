@@ -9,7 +9,7 @@ export enum BusterAuthRoutes {
 }
 
 export type BusterAuthRoutesWithArgs = {
-  [BusterAuthRoutes.AUTH_LOGIN]: { 
+  [BusterAuthRoutes.AUTH_LOGIN]: {
     route: BusterAuthRoutes.AUTH_LOGIN;
     next?: string;
   };

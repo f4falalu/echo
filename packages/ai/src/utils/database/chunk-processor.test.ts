@@ -48,7 +48,7 @@ describe('ChunkProcessor', () => {
   });
 
   it('should extract response messages with correct field names', async () => {
-    const availableTools = new Set(['doneTool', 'respondWithoutAnalysis']);
+    const availableTools = new Set(['doneTool', 'respondWithoutAssetCreation']);
     const processor = new ChunkProcessor(mockMessageId, [], [], [], undefined, availableTools);
 
     // Process doneTool with final_response
@@ -61,11 +61,11 @@ describe('ChunkProcessor', () => {
       },
     } as TextStreamPart<ToolSet>);
 
-    // Process respondWithoutAnalysis with final_response
+    // Process respondWithoutAssetCreation with final_response
     await processor.processChunk({
       type: 'tool-call',
       toolCallId: 'respond-1',
-      toolName: 'respondWithoutAnalysis',
+      toolName: 'respondWithoutAssetCreation',
       args: {
         final_response: 'I cannot analyze this type of data.',
       },

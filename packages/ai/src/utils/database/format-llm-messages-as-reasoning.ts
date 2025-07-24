@@ -186,6 +186,8 @@ function formatMessageAsReasoningEntry(
 
             case 'doneTool':
             case 'done-tool':
+            case 'respondWithoutAssetCreation':
+            case 'respond-without-asset-creation':
             case 'respondWithoutAnalysis':
             case 'respond-without-analysis':
               // These are response messages, not reasoning messages
@@ -246,7 +248,7 @@ function formatMessageAsReasoningEntry(
           return reasoningMessages;
         }
         if (toolCalls.length > 0) {
-          // We had tool calls but no reasoning messages (e.g., doneTool, respondWithoutAnalysis)
+          // We had tool calls but no reasoning messages (e.g., doneTool, respondWithoutAssetCreation)
           // Return null to skip this message
           return null;
         }
@@ -407,7 +409,7 @@ export function appendToReasoning(
 
 /**
  * Extract response messages from CoreMessages
- * Specifically looks for doneTool and respondWithoutAnalysis tool calls
+ * Specifically looks for doneTool and respondWithoutAssetCreation tool calls
  */
 export function extractResponseMessages(messages: CoreMessage[]): ChatMessageResponseMessage[] {
   if (!Array.isArray(messages)) {
@@ -439,8 +441,11 @@ export function extractResponseMessages(messages: CoreMessage[]): ChatMessageRes
             console.error('Invalid response message:', error, responseMessage);
           }
         } else if (
+          // Backwards compatible with respond without analysis since that was an old tool we used before.
           toolCall.toolName === 'respondWithoutAnalysis' ||
-          toolCall.toolName === 'respond-without-analysis'
+          toolCall.toolName === 'respond-without-analysis' ||
+          toolCall.toolName === 'respondWithoutAssetCreation' ||
+          toolCall.toolName === 'respond-without-asset-creation'
         ) {
           const responseMessage: ResponseTextMessage = {
             id: toolCall.toolCallId,

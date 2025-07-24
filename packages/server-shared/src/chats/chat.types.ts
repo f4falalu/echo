@@ -1,11 +1,11 @@
 import { z } from 'zod';
+import { AssetTypeSchema } from '../assets/asset-types.types';
 import { ShareIndividualSchema } from '../share';
 import { ChatMessageSchema } from './chat-message.types';
 
-const AssetType = z.enum(['metric_file', 'dashboard_file']);
-
 // Asset Permission Role enum (matching database enum)
 export const AssetPermissionRoleSchema = z.enum(['viewer', 'editor', 'owner']);
+export const ChatAssetTypeSchema = AssetTypeSchema.exclude(['chat', 'collection']);
 
 // Main ChatWithMessages schema
 export const ChatWithMessagesSchema = z.object({
@@ -35,7 +35,7 @@ export const ChatCreateRequestSchema = z
     chat_id: z.string().optional(),
     message_id: z.string().optional(),
     asset_id: z.string().optional(),
-    asset_type: AssetType.optional(),
+    asset_type: ChatAssetTypeSchema.optional(),
     // Legacy fields for backward compatibility
     metric_id: z.string().optional(),
     dashboard_id: z.string().optional(),
@@ -51,7 +51,7 @@ export const ChatCreateHandlerRequestSchema = z.object({
   chat_id: z.string().optional(),
   message_id: z.string().optional(),
   asset_id: z.string().optional(),
-  asset_type: AssetType.optional(),
+  asset_type: ChatAssetTypeSchema.optional(),
 });
 
 // Cancel chat params schema
@@ -65,3 +65,4 @@ export type ChatWithMessages = z.infer<typeof ChatWithMessagesSchema>;
 export type ChatCreateRequest = z.infer<typeof ChatCreateRequestSchema>;
 export type ChatCreateHandlerRequest = z.infer<typeof ChatCreateHandlerRequestSchema>;
 export type CancelChatParams = z.infer<typeof CancelChatParamsSchema>;
+export type ChatAssetType = z.infer<typeof ChatAssetTypeSchema>;

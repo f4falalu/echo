@@ -1,11 +1,12 @@
 import { loadEnv } from 'vite';
 import { defineConfig } from 'vitest/config';
+import type { Plugin, ViteUserConfig } from 'vitest/config';
 
 export const baseConfig = defineConfig(async () => {
   const { default: tsconfigPaths } = await import('vite-tsconfig-paths');
 
   return {
-    plugins: [tsconfigPaths()],
+    plugins: [tsconfigPaths() as unknown as Plugin],
     test: {
       include: ['**/*.test.ts', '**/*.spec.ts'],
       exclude: ['**/node_modules/**', '**/dist/**', '**/build/**'],
@@ -20,5 +21,5 @@ export const baseConfig = defineConfig(async () => {
         },
       },
     },
-  };
+  } satisfies ViteUserConfig;
 });

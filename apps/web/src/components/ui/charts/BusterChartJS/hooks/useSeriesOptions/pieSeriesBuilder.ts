@@ -1,6 +1,6 @@
+import { JOIN_CHARACTER } from '@/lib/axisFormatter';
 import { formatLabel } from '@/lib/columnFormatter';
 import { formatLabelForDataset } from '../../../commonHelpers';
-import { JOIN_CHARACTER } from '@/lib/axisFormatter';
 import type { ChartProps } from '../../core';
 import type { SeriesBuilderProps } from './interfaces';
 import type { LabelBuilderProps } from './useSeriesOptions';
@@ -36,7 +36,7 @@ export const pieSeriesBuilder_labels = ({
   return ticks.flatMap((item) => {
     return item
       .map<string>((item, index) => {
-        const key = ticksKey[index]?.key;
+        const key = ticksKey[index]?.key || '';
         const columnLabelFormat = columnLabelFormats[key];
         return formatLabel(item, columnLabelFormat);
       })

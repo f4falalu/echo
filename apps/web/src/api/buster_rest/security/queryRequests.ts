@@ -18,7 +18,7 @@ import type {
 export const useGetWorkspaceSettings = () => {
   return useQuery({
     ...securityQueryKeys.securityGetWorkspaceSettings,
-    queryFn: getWorkspaceSettings,
+    queryFn: getWorkspaceSettings
   });
 };
 
@@ -32,7 +32,7 @@ export const useGetInviteLink = () => {
 export const useGetApprovedDomains = () => {
   return useQuery({
     ...securityQueryKeys.securityApprovedDomains,
-    queryFn: getApprovedDomains,
+    queryFn: getApprovedDomains
   });
 };
 
@@ -84,11 +84,11 @@ export const useAddApprovedDomain = () => {
         if (!prev) return prev;
         return [
           ...prev,
-          ...variables.domains.map((domain) => ({
+          ...(variables.domains.map((domain) => ({
             domain,
             created_at: new Date().toISOString()
-          })) satisfies GetApprovedDomainsResponse
-         ] satisfies GetApprovedDomainsResponse;
+          })) satisfies GetApprovedDomainsResponse)
+        ] satisfies GetApprovedDomainsResponse;
       });
     },
     onSuccess: (data) => {

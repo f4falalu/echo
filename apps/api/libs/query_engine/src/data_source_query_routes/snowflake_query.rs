@@ -1686,7 +1686,7 @@ fn convert_array_to_datatype(
 // -------------------------
 
 // Define the row limit constant here or retrieve from config
-const PROCESSING_ROW_LIMIT: usize = 1000;
+const PROCESSING_ROW_LIMIT: usize = 5000;
 
 fn prepare_query(query: &str) -> String {
     // Note: This function currently doesn't apply a LIMIT to the query.

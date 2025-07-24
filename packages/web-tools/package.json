@@ -1,9 +1,17 @@
 {
-  "name": "@buster-tools/web-tools",
+  "name": "@buster/web-tools",
   "version": "0.1.0",
   "description": "Web scraping and research tools using Firecrawl and other services",
   "type": "module",
-  "module": "src/index.ts",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
   "scripts": {
     "build": "tsc --build",
     "lint": "biome check --write",

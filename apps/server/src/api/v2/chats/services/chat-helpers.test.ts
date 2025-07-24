@@ -34,7 +34,7 @@ const mockUser = {
   avatarUrl: null,
 };
 
-const mockChat: Chat = {
+const mockChat = {
   id: 'chat-123',
   title: 'Test Chat',
   organizationId: '550e8400-e29b-41d4-a716-446655440000',
@@ -49,7 +49,12 @@ const mockChat: Chat = {
   mostRecentFileId: null,
   mostRecentFileType: null,
   mostRecentVersionNumber: null,
-};
+  slackChatAuthorization: null,
+  slackThreadTs: null,
+  slackChannelId: null,
+  workspaceSharingEnabledBy: null,
+  workspaceSharingEnabledAt: null,
+} as Chat;
 
 const mockMessage: Message = {
   id: 'msg-123',
@@ -204,6 +209,245 @@ describe('handleExistingChat', () => {
         403
       )
     );
+  });
+
+  it('should prepend new message to maintain descending order (newest first)', async () => {
+    const baseTime = new Date('2024-01-01T10:00:00Z');
+
+    const mockChat = {
+      id: 'chat-1',
+      title: 'Test Chat',
+      createdAt: baseTime.toISOString(),
+      updatedAt: baseTime.toISOString(),
+      createdBy: 'user-1',
+      updatedBy: 'user-1',
+      organizationId: 'org-1',
+      publiclyAccessible: false,
+      deletedAt: null,
+      publiclyEnabledBy: null,
+      publicExpiryDate: null,
+      mostRecentFileId: null,
+      mostRecentFileType: null,
+    } as Chat;
+
+    const existingMessage1 = {
+      id: 'message-1',
+      chatId: 'chat-1',
+      createdAt: new Date(baseTime.getTime() + 2000).toISOString(), // 2 seconds later
+      updatedAt: new Date(baseTime.getTime() + 2000).toISOString(),
+      createdBy: 'user-1',
+      requestMessage: 'Second message',
+      responseMessages: {},
+      reasoning: {},
+      title: 'Second message',
+      rawLlmMessages: {},
+      isCompleted: false,
+      deletedAt: null,
+      finalReasoningMessage: null,
+      feedback: null,
+    } as Message;
+
+    const existingMessage2 = {
+      id: 'message-2',
+      chatId: 'chat-1',
+      createdAt: baseTime.toISOString(), // Original time
+      updatedAt: baseTime.toISOString(),
+      createdBy: 'user-1',
+      requestMessage: 'First message',
+      responseMessages: {},
+      reasoning: {},
+      title: 'First message',
+      rawLlmMessages: {},
+      isCompleted: false,
+      deletedAt: null,
+      finalReasoningMessage: null,
+      feedback: null,
+    } as Message;
+
+    const newMessage = {
+      id: 'message-3',
+      chatId: 'chat-1',
+      createdAt: new Date(baseTime.getTime() + 4000).toISOString(), // 4 seconds later (newest)
+      updatedAt: new Date(baseTime.getTime() + 4000).toISOString(),
+      createdBy: 'user-1',
+      requestMessage: 'Third message (newest)',
+      responseMessages: {},
+      reasoning: {},
+      title: 'Third message (newest)',
+      rawLlmMessages: {},
+      isCompleted: false,
+      deletedAt: null,
+      finalReasoningMessage: null,
+      feedback: null,
+    } as Message;
+
+    vi.mocked(database.getChatWithDetails).mockResolvedValue({
+      chat: mockChat,
+      user: mockUser as unknown as any,
+      isFavorited: false,
+    });
+
+    vi.mocked(canUserAccessChatCached).mockResolvedValue(true);
+    vi.mocked(database.createMessage).mockResolvedValue(newMessage);
+    // getMessagesForChat returns existing messages in descending order (newest first)
+    vi.mocked(database.getMessagesForChat).mockResolvedValue([existingMessage1, existingMessage2]);
+
+    const result = await handleExistingChat(
+      'chat-1',
+      'message-3',
+      'Third message (newest)',
+      mockUser
+    );
+
+    expect(result.chat.messages['message-3']).toBeDefined();
+    expect(result.chat.messages['message-1']).toBeDefined();
+    expect(result.chat.messages['message-2']).toBeDefined();
+
+    expect(result.chat.message_ids).toEqual(['message-3', 'message-1', 'message-2']);
+
+    expect(result.chat.message_ids[0]).toBe('message-3');
+
+    const message3 = result.chat.messages['message-3'];
+    const message1 = result.chat.messages['message-1'];
+    const message2 = result.chat.messages['message-2'];
+
+    expect(message3).toBeDefined();
+    expect(message1).toBeDefined();
+    expect(message2).toBeDefined();
+
+    const message3Time = new Date(message3!.created_at).getTime();
+    const message1Time = new Date(message1!.created_at).getTime();
+    const message2Time = new Date(message2!.created_at).getTime();
+
+    expect(message3Time).toBeGreaterThan(message1Time);
+    expect(message1Time).toBeGreaterThan(message2Time);
+  });
+
+  it('should handle single existing message with new message correctly', async () => {
+    const baseTime = new Date('2024-01-01T10:00:00Z');
+
+    const mockChat = {
+      id: 'chat-1',
+      title: 'Test Chat',
+      createdAt: baseTime.toISOString(),
+      updatedAt: baseTime.toISOString(),
+      createdBy: 'user-1',
+      updatedBy: 'user-1',
+      organizationId: 'org-1',
+      publiclyAccessible: false,
+      deletedAt: null,
+      publiclyEnabledBy: null,
+      publicExpiryDate: null,
+      mostRecentFileId: null,
+      mostRecentFileType: null,
+    } as Chat;
+
+    const existingMessage = {
+      id: 'message-1',
+      chatId: 'chat-1',
+      createdAt: baseTime.toISOString(),
+      updatedAt: baseTime.toISOString(),
+      createdBy: 'user-1',
+      requestMessage: 'First message',
+      responseMessages: {},
+      reasoning: {},
+      title: 'First message',
+      rawLlmMessages: {},
+      isCompleted: false,
+      deletedAt: null,
+      finalReasoningMessage: null,
+      feedback: null,
+    } as Message;
+
+    const newMessage = {
+      id: 'message-2',
+      chatId: 'chat-1',
+      createdAt: new Date(baseTime.getTime() + 1000).toISOString(), // 1 second later
+      updatedAt: new Date(baseTime.getTime() + 1000).toISOString(),
+      createdBy: 'user-1',
+      requestMessage: 'Second message',
+      responseMessages: {},
+      reasoning: {},
+      title: 'Second message',
+      rawLlmMessages: {},
+      isCompleted: false,
+      deletedAt: null,
+      finalReasoningMessage: null,
+      feedback: null,
+    } as Message;
+
+    vi.mocked(database.getChatWithDetails).mockResolvedValue({
+      chat: mockChat,
+      user: mockUser as unknown as any,
+      isFavorited: false,
+    });
+
+    vi.mocked(canUserAccessChatCached).mockResolvedValue(true);
+    vi.mocked(database.createMessage).mockResolvedValue(newMessage);
+    vi.mocked(database.getMessagesForChat).mockResolvedValue([existingMessage]);
+
+    const result = await handleExistingChat('chat-1', 'message-2', 'Second message', mockUser);
+
+    expect(result.chat.messages['message-1']).toBeDefined();
+    expect(result.chat.messages['message-2']).toBeDefined();
+
+    expect(result.chat.message_ids).toEqual(['message-2', 'message-1']);
+
+    expect(result.chat.message_ids[0]).toBe('message-2');
+  });
+
+  it('should handle empty existing messages with new message', async () => {
+    const baseTime = new Date('2024-01-01T10:00:00Z');
+
+    const mockChat = {
+      id: 'chat-1',
+      title: 'Test Chat',
+      createdAt: baseTime.toISOString(),
+      updatedAt: baseTime.toISOString(),
+      createdBy: 'user-1',
+      updatedBy: 'user-1',
+      organizationId: 'org-1',
+      publiclyAccessible: false,
+      deletedAt: null,
+      publiclyEnabledBy: null,
+      publicExpiryDate: null,
+      mostRecentFileId: null,
+      mostRecentFileType: null,
+    } as Chat;
+
+    const newMessage = {
+      id: 'message-1',
+      chatId: 'chat-1',
+      createdAt: baseTime.toISOString(),
+      updatedAt: baseTime.toISOString(),
+      createdBy: 'user-1',
+      requestMessage: 'First message',
+      responseMessages: {},
+      reasoning: {},
+      title: 'First message',
+      rawLlmMessages: {},
+      isCompleted: false,
+      deletedAt: null,
+      finalReasoningMessage: null,
+      feedback: null,
+    } as Message;
+
+    vi.mocked(database.getChatWithDetails).mockResolvedValue({
+      chat: mockChat,
+      user: mockUser as unknown as any,
+      isFavorited: false,
+    });
+
+    vi.mocked(canUserAccessChatCached).mockResolvedValue(true);
+    vi.mocked(database.createMessage).mockResolvedValue(newMessage);
+    vi.mocked(database.getMessagesForChat).mockResolvedValue([]); // No existing messages
+
+    const result = await handleExistingChat('chat-1', 'message-1', 'First message', mockUser);
+
+    expect(result.chat.messages['message-1']).toBeDefined();
+    expect(Object.keys(result.chat.messages)).toHaveLength(1);
+
+    expect(result.chat.message_ids).toEqual(['message-1']);
   });
 });
 

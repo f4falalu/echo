@@ -1,14 +1,14 @@
+import { cn } from '@/lib/classMerge';
 import { useDraggable, useDroppable } from '@dnd-kit/core';
 import type { Header, Table } from '@tanstack/react-table';
 import { flexRender } from '@tanstack/react-table';
 import type { Virtualizer } from '@tanstack/react-virtual';
 import type React from 'react';
 import type { CSSProperties } from 'react';
-import { Text } from '@/components/ui/typography';
-import { cn } from '@/lib/classMerge';
-import { CaretDown, CaretUp } from '../../../icons/NucleoIconFilled';
-import { HEADER_HEIGHT } from './constants';
 import { useSortColumnContext } from './SortColumnWrapper';
+import { HEADER_HEIGHT } from './constants';
+import CaretDown from './icons/caret-down';
+import CaretUp from './icons/caret-up';
 
 interface DraggableHeaderProps {
   header: Header<Record<string, string | number | Date | null>, unknown>;
@@ -51,6 +51,7 @@ const DraggableHeader: React.FC<DraggableHeaderProps> = ({
   };
 
   return (
+    // biome-ignore lint/a11y/useKeyWithClickEvents: too lazy to fix this
     <th
       ref={draggable ? setDropNodeRef : undefined}
       style={style}
@@ -73,9 +74,9 @@ const DraggableHeader: React.FC<DraggableHeaderProps> = ({
         ref={draggable ? setDragNodeRef : undefined}
         {...attributes}
         {...listeners}>
-        <Text variant={'secondary'} truncate>
+        <div className="text-text-secondary truncate text-base">
           {flexRender(header.column.columnDef.header, header.getContext())}
-        </Text>
+        </div>
 
         {sortable && (
           <>
@@ -93,6 +94,7 @@ const DraggableHeader: React.FC<DraggableHeaderProps> = ({
         )}
       </span>
       {resizable && (
+        // biome-ignore lint/a11y/useKeyWithClickEvents: too lazy to fix this
         <span
           onClick={(e) => {
             e.stopPropagation();

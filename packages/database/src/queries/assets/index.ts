@@ -29,3 +29,4 @@ export {
   GetDashboardTitleInputSchema,
   type GetDashboardTitleInput,
 } from './get-dashboard-title';
+export type { DatabaseAssetType } from './assets';

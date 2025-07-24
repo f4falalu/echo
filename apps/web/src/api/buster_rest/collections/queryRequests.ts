@@ -207,9 +207,9 @@ export const useUnshareCollection = () => {
       queryClient.setQueryData(queryKey, (previousData) => {
         if (!previousData) return previousData;
         return create(previousData, (draft: BusterCollection) => {
-          draft.individual_permissions =
-            (draft.individual_permissions?.filter((t) => !variables.data.includes(t.email)) || [])
-            .sort((a, b) => a.email.localeCompare(b.email));
+          draft.individual_permissions = (
+            draft.individual_permissions?.filter((t) => !variables.data.includes(t.email)) || []
+          ).sort((a, b) => a.email.localeCompare(b.email));
         });
       });
     },
@@ -231,12 +231,13 @@ export const useUpdateCollectionShare = () => {
       queryClient.setQueryData(queryKey, (previousData) => {
         if (!previousData) return previousData;
         return create(previousData, (draft) => {
-          draft.individual_permissions =
-            (draft.individual_permissions?.map((t) => {
+          draft.individual_permissions = (
+            draft.individual_permissions?.map((t) => {
               const found = params.users?.find((v) => v.email === t.email);
               if (found) return { ...t, ...found };
               return t;
-            }) || []).sort((a, b) => a.email.localeCompare(b.email));
+            }) || []
+          ).sort((a, b) => a.email.localeCompare(b.email));
 
           if (params.publicly_accessible !== undefined) {
             draft.publicly_accessible = params.publicly_accessible;

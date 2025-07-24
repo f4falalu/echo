@@ -1,5 +1,5 @@
-import { useMemo } from 'react';
 import type { ChartType } from '@buster/server-shared/metrics';
+import { useMemo } from 'react';
 import type { DatasetOption } from './useDatasetOptions';
 
 export const useColors = ({
@@ -18,7 +18,7 @@ export const useColors = ({
   const numberOfYAxisKeys = yAxisKeys.length;
   const numberOfY2AxisKeys = y2AxisKeys.length;
   const totalNumberOfKeys = numberOfYAxisKeys + numberOfY2AxisKeys;
-  const sourceLength = datasetOptions[0].data.length;
+  const sourceLength = datasetOptions[0]?.data.length ?? 0;
   const isScatter = selectedChartType === 'scatter';
 
   const colors: string[] = useMemo(() => {
@@ -26,9 +26,11 @@ export const useColors = ({
       return colorsProp;
     }
 
-    return Array.from(
-      { length: totalNumberOfKeys * sourceLength },
-      (_, i) => colorsProp[i % colorsProp.length]
+    return (
+      Array.from(
+        { length: totalNumberOfKeys * sourceLength },
+        (_, i) => colorsProp[i % colorsProp.length] ?? ''
+      ) ?? []
     );
   }, [colorsProp, totalNumberOfKeys, isScatter]);
 

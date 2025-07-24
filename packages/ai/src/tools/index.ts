@@ -1,6 +1,6 @@
 export { doneTool } from './communication-tools/done-tool';
 export { idleTool } from './communication-tools/idle-tool';
-export { respondWithoutAnalysis } from './communication-tools/respond-without-analysis';
+export { respondWithoutAssetCreation } from './communication-tools/respond-without-asset-creation';
 export { submitThoughts } from './communication-tools/submit-thoughts-tool';
 export { messageUserClarifyingQuestion } from './communication-tools/message-user-clarifying-question';
 export { sequentialThinking } from './planning-thinking-tools/sequential-thinking-tool';
@@ -19,3 +19,4 @@ export { bashExecute } from './file-tools';
 export { deleteFiles } from './file-tools/delete-files-tool/delete-files-tool';
 export { checkOffTodoList } from './planning-thinking-tools/check-off-todo-list-tool/check-off-todo-list-tool';
 export { updateClarificationsFile } from './planning-thinking-tools/update-clarifications-file-tool/update-clarifications-file-tool';
+export { webSearch } from './web-tools/web-search-tool';

@@ -14,7 +14,7 @@ import type { RetryableError, WorkflowContext } from './types';
  * Creates a workflow-aware healing message for NoSuchToolError
  */
 function createWorkflowAwareHealingMessage(toolName: string, context?: WorkflowContext): string {
-  const baseMessage = `Tool "${toolName}" is not available in the current mode.`;
+  const baseMessage = `error: Tool "${toolName}" is not available.`;
 
   if (!context) {
     return `${baseMessage} Please use one of the available tools instead.`;
@@ -22,28 +22,44 @@ function createWorkflowAwareHealingMessage(toolName: string, context?: WorkflowC
 
   const { currentStep, availableTools } = context;
 
+  const nextMode = currentStep === 'think-and-prep' ? 'analyst' : 'think-and-prep';
+  const transitionDescription =
+    currentStep === 'think-and-prep'
+      ? 'after thinking, understanding the data, and submitting your thoughts'
+      : 'after completing your analysis';
+
   // Use actual available tools if provided
   if (availableTools && availableTools.size > 0) {
-    const toolList = Array.from(availableTools).sort().join(', ');
-    return `${baseMessage}
+    const currentToolList = Array.from(availableTools).sort().join(', ');
 
-You are currently in ${currentStep} mode. The available tools are: ${toolList}.
+    const nextModeTools =
+      nextMode === 'analyst'
+        ? 'createMetrics, modifyMetrics, createDashboards, modifyDashboards, doneTool'
+        : 'sequentialThinking, executeSql, respondWithoutAssetCreation, submitThoughts, messageUserClarifyingQuestion';
 
-Please use one of these tools to continue with your task. Make sure to use the exact tool name as listed above.`;
+    return `${baseMessage} For reference you are currently in ${currentStep} mode which has access to the following tools:
+${currentToolList}
+
+The next mode that you'll transition to ${transitionDescription} will be the ${nextMode} mode which has access to the following tools:
+${nextModeTools}`;
   }
 
   // Fallback to static message if tools not provided
-  const pipelineContext = `
+  const currentModeTools =
+    currentStep === 'think-and-prep'
+      ? 'sequentialThinking, executeSql, respondWithoutAssetCreation, submitThoughts, messageUserClarifyingQuestion'
+      : 'createMetrics, modifyMetrics, createDashboards, modifyDashboards, doneTool';
 
-This workflow has two steps:
-1. think-and-prep mode: Available tools are sequentialThinking, executeSql, respondWithoutAnalysis, submitThoughts, messageUserClarifyingQuestion
-2. analyst mode: Available tools are createMetrics, modifyMetrics, createDashboards, modifyDashboards, doneTool
+  const nextModeTools =
+    nextMode === 'analyst'
+      ? 'createMetrics, modifyMetrics, createDashboards, modifyDashboards, doneTool'
+      : 'sequentialThinking, executeSql, respondWithoutAssetCreation, submitThoughts, messageUserClarifyingQuestion';
 
-You are currently in ${currentStep} mode. Please use one of the tools available in your current mode.
+  return `${baseMessage} For reference you are currently in ${currentStep} mode which has access to the following tools:
+${currentModeTools}
 
-You should proceed with the proper tool calls in the context of the current step. There is a chance you might be a little confused about where you are in the workflow. or the tools available to you.`;
-
-  return baseMessage + pipelineContext;
+The next mode that you'll transition to ${transitionDescription} will be the ${nextMode} mode which has access to the following tools:
+${nextModeTools}`;
 }
 
 /**

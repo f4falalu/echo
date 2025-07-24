@@ -64,7 +64,7 @@ type BusterChatMessageResponse = z.infer<typeof BusterChatMessageResponseSchema>
 const outputSchema = ThinkAndPrepOutputSchema;
 
 const DEFAULT_CACHE_OPTIONS = {
-  anthropic: { cacheControl: { type: 'ephemeral' } },
+  anthropic: { cacheControl: { type: 'ephemeral', ttl: '1h' } },
 };
 
 // Helper function to create the result object
@@ -90,7 +90,7 @@ const createStepResult = (
     toolsUsed: getAllToolsUsed(conversationHistory),
     finalTool: getLastToolUsed(conversationHistory) as
       | 'submitThoughts'
-      | 'respondWithoutAnalysis'
+      | 'respondWithoutAssetCreation'
       | 'messageUserClarifyingQuestion'
       | undefined,
     text: undefined,
@@ -137,7 +137,7 @@ const thinkAndPrepExecution = async ({
   const availableTools = new Set([
     'sequentialThinking',
     'executeSql',
-    'respondWithoutAnalysis',
+    'respondWithoutAssetCreation',
     'submitThoughts',
     'messageUserClarifyingQuestion',
   ]);
@@ -254,12 +254,12 @@ ${databaseContext}
             const systemMessages: CoreMessage[] = [
               {
                 role: 'system',
-                content: createDatasetSystemMessage(assembledYmlContent),
+                content: createThinkAndPrepInstructionsWithoutDatasets(sqlDialectGuidance),
                 providerOptions: DEFAULT_CACHE_OPTIONS,
               },
               {
                 role: 'system',
-                content: createThinkAndPrepInstructionsWithoutDatasets(sqlDialectGuidance),
+                content: createDatasetSystemMessage(assembledYmlContent),
                 providerOptions: DEFAULT_CACHE_OPTIONS,
               },
             ];
@@ -279,15 +279,15 @@ ${databaseContext}
                 abortController,
                 finishingToolNames: [
                   'submitThoughts',
-                  'respondWithoutAnalysis',
+                  'respondWithoutAssetCreation',
                   'messageUserClarifyingQuestion',
                 ],
                 onFinishingTool: () => {
-                  // Set finished = true for respondWithoutAnalysis and messageUserClarifyingQuestion
+                  // Set finished = true for respondWithoutAssetCreation and messageUserClarifyingQuestion
                   // submitThoughts should abort but not finish so workflow can continue
                   const finishingToolName = chunkProcessor.getFinishingToolName();
                   if (
-                    finishingToolName === 'respondWithoutAnalysis' ||
+                    finishingToolName === 'respondWithoutAssetCreation' ||
                     finishingToolName === 'messageUserClarifyingQuestion'
                   ) {
                     finished = true;

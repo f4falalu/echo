@@ -6,7 +6,6 @@ import type { IBusterChat } from '@/api/asset_interfaces/chat/iChatInterfaces';
 import {
   useDeleteChat,
   useGetListChats,
-  useStartChatFromAsset,
   useUpdateChat,
   useUpdateChatMessageFeedback
 } from './queryRequests';
@@ -130,28 +129,6 @@ describe('Chat Query Hooks', () => {
       });
 
       expect(requests.deleteChat).toHaveBeenCalledWith({ id: 'test-chat-id' });
-    });
-  });
-
-  describe('useStartChatFromAsset', () => {
-    it('should start a new chat from asset', async () => {
-      (requests.startChatFromAsset as any).mockResolvedValueOnce(mockChat);
-
-      const { result } = renderHook(() => useStartChatFromAsset(), {
-        wrapper: createWrapper()
-      });
-
-      await act(async () => {
-        await result.current.mutateAsync({
-          asset_id: 'test-asset-id',
-          asset_type: 'dashboard'
-        });
-      });
-
-      expect(requests.startChatFromAsset).toHaveBeenCalledWith({
-        asset_id: 'test-asset-id',
-        asset_type: 'dashboard'
-      });
     });
   });
 

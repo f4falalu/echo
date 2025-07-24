@@ -59,6 +59,10 @@ import { downloadElementToImage, exportJSONToCSV } from '@/lib/exportUtils';
 import { canEdit, getIsEffectiveOwner, getIsOwner } from '@/lib/share';
 import { BusterRoutes, createBusterRoute } from '@/routes';
 import { assetParamsToRoute } from '@/lib/assets';
+import {
+  useFavoriteMetricSelectMenu,
+  useVersionHistorySelectMenu
+} from '@/components/features/metrics/ThreeDotMenu';
 
 export const ThreeDotMenuButton = React.memo(
   ({
@@ -196,48 +200,6 @@ const useDashboardSelectMenu = ({ metricId }: { metricId: string }) => {
   return dashboardDropdownItem;
 };
 
-const useVersionHistorySelectMenu = ({ metricId }: { metricId: string }) => {
-  const chatId = useChatLayoutContextSelector((x) => x.chatId);
-
-  const { data } = useGetMetric(
-    { id: metricId },
-    {
-      select: (x) => ({
-        versions: x.versions,
-        version_number: x.version_number
-      })
-    }
-  );
-  const { versions = [], version_number } = data || {};
-
-  const versionHistoryItems: DropdownItems = useListVersionDropdownItems({
-    versions,
-    selectedVersion: version_number,
-    chatId,
-    fileId: metricId,
-    fileType: 'metric',
-    useVersionHistoryMode: true
-  });
-
-  const reverseVersionHistoryItems = useMemo(() => {
-    return [...versionHistoryItems].reverse();
-  }, [versionHistoryItems]);
-
-  return useMemo(
-    () => ({
-      label: 'Version history',
-      value: 'version-history',
-      icon: <History />,
-      items: [
-        <React.Fragment key="version-history-sub-menu">
-          <DropdownContent items={reverseVersionHistoryItems} selectType="single" />
-        </React.Fragment>
-      ]
-    }),
-    [reverseVersionHistoryItems]
-  );
-};
-
 const useCollectionSelectMenu = ({ metricId }: { metricId: string }) => {
   const { mutateAsync: saveMetricToCollection } = useSaveMetricToCollections();
   const { mutateAsync: removeMetricFromCollection } = useRemoveMetricFromCollection();
@@ -321,27 +283,6 @@ const useStatusSelectMenu = ({ metricId }: { metricId: string }) => {
   );
 
   return statusDropdownItem;
-};
-
-const useFavoriteMetricSelectMenu = ({ metricId }: { metricId: string }) => {
-  const { data: name } = useGetMetric({ id: metricId }, { select: (x) => x.name });
-  const { isFavorited, onFavoriteClick } = useFavoriteStar({
-    id: metricId,
-    type: 'metric',
-    name: name || ''
-  });
-
-  const item: DropdownItem = useMemo(
-    () => ({
-      label: isFavorited ? 'Remove from favorites' : 'Add to favorites',
-      value: 'add-to-favorites',
-      icon: isFavorited ? <StarFilled /> : <Star />,
-      onClick: onFavoriteClick
-    }),
-    [isFavorited, onFavoriteClick]
-  );
-
-  return item;
 };
 
 const useEditChartSelectMenu = () => {
@@ -516,16 +457,16 @@ export const useShareMenuSelectMenu = ({ metricId }: { metricId: string }) => {
     { id: metricId },
     { select: getShareAssetConfig }
   );
-  const isOwner = getIsOwner(shareAssetConfig?.permission);
+  const isEffectiveOwner = getIsEffectiveOwner(shareAssetConfig?.permission);
 
   return useMemo(
     () => ({
       label: 'Share metric',
       value: 'share-metric',
       icon: <ShareRight />,
-      disabled: !isOwner,
+      disabled: !isEffectiveOwner,
       items:
-        isOwner && shareAssetConfig
+        isEffectiveOwner && shareAssetConfig
           ? [
               <ShareMenuContent
                 key={metricId}
@@ -536,7 +477,7 @@ export const useShareMenuSelectMenu = ({ metricId }: { metricId: string }) => {
             ]
           : undefined
     }),
-    [metricId, shareAssetConfig, isOwner]
+    [metricId, shareAssetConfig, isEffectiveOwner]
   );
 };
 

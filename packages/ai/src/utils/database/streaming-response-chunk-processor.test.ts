@@ -93,9 +93,9 @@ describe('ChunkProcessor - Response Message Streaming', () => {
     });
   });
 
-  describe('respondWithoutAnalysis streaming', () => {
+  describe('respondWithoutAssetCreation streaming', () => {
     it('should create and update response message as response streams', async () => {
-      const availableTools = new Set(['respondWithoutAnalysis']);
+      const availableTools = new Set(['respondWithoutAssetCreation']);
       const processor = new ChunkProcessor(null, [], [], [], undefined, availableTools);
       const toolCallId = 'respond-tool-1';
 
@@ -103,14 +103,14 @@ describe('ChunkProcessor - Response Message Streaming', () => {
       await processor.processChunk({
         type: 'tool-call-streaming-start',
         toolCallId,
-        toolName: 'respondWithoutAnalysis',
+        toolName: 'respondWithoutAssetCreation',
       } as TextStreamPart<never>);
 
       // Stream partial response
       await processor.processChunk({
         type: 'tool-call-delta',
         toolCallId,
-        toolName: 'respondWithoutAnalysis',
+        toolName: 'respondWithoutAssetCreation',
         argsTextDelta: '{"final_response": "Based on',
       } as TextStreamPart<never>);
 
@@ -127,7 +127,7 @@ describe('ChunkProcessor - Response Message Streaming', () => {
       await processor.processChunk({
         type: 'tool-call-delta',
         toolCallId,
-        toolName: 'respondWithoutAnalysis',
+        toolName: 'respondWithoutAssetCreation',
         argsTextDelta: ' the analysis"}',
       } as TextStreamPart<never>);
 
@@ -156,15 +156,15 @@ describe('ChunkProcessor - Response Message Streaming', () => {
       expect(processor.getReasoningHistory()).toHaveLength(0);
     });
 
-    it('should not create reasoning entries for respondWithoutAnalysis', async () => {
-      const availableTools = new Set(['respondWithoutAnalysis']);
+    it('should not create reasoning entries for respondWithoutAssetCreation', async () => {
+      const availableTools = new Set(['respondWithoutAssetCreation']);
       const processor = new ChunkProcessor(null, [], [], [], undefined, availableTools);
       const toolCallId = 'respond-tool-2';
 
       await processor.processChunk({
         type: 'tool-call',
         toolCallId,
-        toolName: 'respondWithoutAnalysis',
+        toolName: 'respondWithoutAssetCreation',
         args: {
           final_response: 'Quick response',
         },

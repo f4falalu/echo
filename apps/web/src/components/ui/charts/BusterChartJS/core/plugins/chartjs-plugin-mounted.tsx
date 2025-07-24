@@ -6,6 +6,7 @@ export interface ChartMountedPluginOptions {
 }
 
 declare module 'chart.js' {
+  // biome-ignore lint/correctness/noUnusedVariables: we need to define the plugin options
   interface PluginOptionsByType<TType extends ChartType> {
     chartMounted?: ChartMountedPluginOptions;
   }
@@ -18,12 +19,12 @@ declare module 'chart.js' {
 
 export const ChartMountedPlugin: Plugin<ChartType, ChartMountedPluginOptions> = {
   id: 'chartMounted',
-  afterInit: (chart, args, options) => {
+  afterInit: (chart, _args, options) => {
     if (!chart || !options) return;
     options?.onMounted?.(chart);
     chart.$mountedPlugin = true;
   },
-  afterRender: (chart, args, options) => {
+  afterRender: (chart, _args, options) => {
     if (chart.$initialAnimationCompleted === undefined) {
       chart.$initialAnimationCompleted = true;
     }

@@ -1,15 +1,18 @@
-import isEmpty from 'lodash/isEmpty';
-import React, { useCallback } from 'react';
-import { DEFAULT_CHART_CONFIG, type ChartConfigProps } from '@buster/server-shared/metrics';
-import { AppDataGrid } from '@/components/ui/table/AppDataGrid';
-import { useUpdateMetricChart } from '@/context/Metrics';
-import { useMemoizedFn } from '@/hooks';
+import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import { cn } from '@/lib/classMerge';
 import { formatLabel } from '@/lib/columnFormatter';
+import { type ChartConfigProps, DEFAULT_CHART_CONFIG } from '@buster/server-shared/metrics';
+import isEmpty from 'lodash/isEmpty';
+import React, { useCallback } from 'react';
+import { AppDataGrid } from '../../table/AppDataGrid';
+import type { BusterChartPropsBase } from '../BusterChart.types';
 import type { BusterTableChartConfig } from './interfaces';
-import type { BusterChartPropsBase } from '@/api/asset_interfaces/metric';
+import { useUpdateMetricChart } from '@/context/Metrics';
 
 export interface BusterTableChartProps extends BusterTableChartConfig, BusterChartPropsBase {}
+
+const DEFAULT_COLUMN_ORDER: string[] = [];
+const DEFAULT_COLUMN_WIDTHS: Record<string, number> = {};
 
 const BusterTableChartBase: React.FC<BusterTableChartProps> = ({
   className = '',
@@ -19,17 +22,18 @@ const BusterTableChartBase: React.FC<BusterTableChartProps> = ({
   columnLabelFormats = DEFAULT_CHART_CONFIG.columnLabelFormats,
   tableColumnWidths = DEFAULT_CHART_CONFIG.tableColumnWidths,
   readOnly = false,
-  onInitialAnimationEnd,
+  onInitialAnimationEnd
   //TODO
-  tableHeaderBackgroundColor,
-  tableHeaderFontColor,
-  tableColumnFontColor
+  // tableHeaderBackgroundColor,
+  //  tableHeaderFontColor,
+  //  tableColumnFontColor,
 }) => {
   const { onUpdateMetricChartConfig, onInitializeTableColumnWidths } = useUpdateMetricChart();
 
   const onChangeConfig = useMemoizedFn((config: Partial<ChartConfigProps>) => {
     if (readOnly) return;
     onUpdateMetricChartConfig({ chartConfig: config });
+
     if (
       (tableColumnWidths === null || isEmpty(tableColumnWidths)) &&
       !isEmpty(config.tableColumnWidths)
@@ -84,8 +88,8 @@ const BusterTableChartBase: React.FC<BusterTableChartProps> = ({
       className={cn('buster-table-chart', className)}
       key={data.length}
       rows={data}
-      columnOrder={tableColumnOrder || undefined}
-      columnWidths={tableColumnWidths || undefined}
+      columnOrder={tableColumnOrder || DEFAULT_COLUMN_ORDER}
+      columnWidths={tableColumnWidths || DEFAULT_COLUMN_WIDTHS}
       sortable={!readOnly}
       resizable={!readOnly}
       draggable={!readOnly}

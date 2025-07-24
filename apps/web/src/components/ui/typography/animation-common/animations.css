@@ -57,7 +57,7 @@
   to {
     color: var(--animated-md-color-to, var(--color-foreground));
   }
-} 
+}
 
 @keyframes animated-md-rotateIn {
   from {

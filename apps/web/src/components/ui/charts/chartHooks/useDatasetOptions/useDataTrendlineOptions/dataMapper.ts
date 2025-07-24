@@ -1,6 +1,6 @@
-import type { BusterChartProps } from '@/api/asset_interfaces/metric';
 import { createDayjsDate } from '@/lib/date';
 import { isDateColumnType } from '@/lib/messages';
+import type { BusterChartProps } from '../../../BusterChart.types';
 import type { DatasetOptionsWithTicks } from '../interfaces';
 
 type MappedDataResult = [number, number][]; // [x, y] pairs for regression

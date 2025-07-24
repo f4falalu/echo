@@ -3,6 +3,7 @@ import type {
   ConfirmProps as BaseConfirmProps,
   ConfirmModalProps
 } from '@/components/ui/modal/ConfirmModal';
+import { USER_CANCELLED_ERROR } from '../BusterReactQuery/queryClientConfig';
 
 interface ConfirmProps<T = unknown> extends Omit<BaseConfirmProps, 'onOk'> {
   title: string | React.ReactNode;
@@ -15,7 +16,7 @@ const defaultConfirmModalProps: ConfirmProps<unknown> = {
   title: '',
   content: '',
   onOk: () => undefined,
-  onCancel: async () => {}
+  onCancel: async () => Promise.reject(USER_CANCELLED_ERROR)
 };
 
 interface QueuedModal<T = unknown> extends Omit<ConfirmProps<T>, 'onOk' | 'onCancel'> {

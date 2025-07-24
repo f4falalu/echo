@@ -1,16 +1,22 @@
 import type { StoredValueResult } from '@buster/stored-values';
 import { generateEmbedding, searchValuesByEmbedding } from '@buster/stored-values/search';
-import { Agent, createStep } from '@mastra/core';
+import { createStep } from '@mastra/core';
 import type { RuntimeContext } from '@mastra/core/runtime-context';
+import { generateObject } from 'ai';
 import type { CoreMessage } from 'ai';
 import { wrapTraced } from 'braintrust';
 import { z } from 'zod';
 import { thinkAndPrepWorkflowInputSchema } from '../schemas/workflow-schemas';
-import { anthropicCachedModel } from '../utils/models/anthropic-cached';
+import { Haiku35 } from '../utils/models/haiku-3-5';
 import { appendToConversation, standardizeMessages } from '../utils/standardizeMessages';
 import type { AnalystRuntimeContext } from '../workflows/analyst-workflow';
 
 const inputSchema = thinkAndPrepWorkflowInputSchema;
+
+// Schema for what the LLM returns
+const llmOutputSchema = z.object({
+  values: z.array(z.string()).describe('The values that the agent will search for.'),
+});
 
 // Step output schema - what the step returns after performing the search
 export const extractValuesSearchOutputSchema = z.object({
@@ -231,12 +237,6 @@ async function searchStoredValues(
   }
 }
 
-const valuesAgent = new Agent({
-  name: 'Extract Values',
-  instructions: extractValuesInstructions,
-  model: anthropicCachedModel('claude-3-5-haiku-20241022'),
-});
-
 const extractValuesSearchStepExecution = async ({
   inputData,
   runtimeContext,
@@ -264,12 +264,19 @@ const extractValuesSearchStepExecution = async ({
     try {
       const tracedValuesExtraction = wrapTraced(
         async () => {
-          const response = await valuesAgent.generate(messages, {
-            maxSteps: 0,
-            output: extractValuesSearchOutputSchema,
+          const { object } = await generateObject({
+            model: Haiku35,
+            schema: llmOutputSchema,
+            messages: [
+              {
+                role: 'system',
+                content: extractValuesInstructions,
+              },
+              ...messages,
+            ],
           });
 
-          return response.object;
+          return object;
         },
         {
           name: 'Extract Values',

@@ -1,18 +1,18 @@
+import { useMount } from '@/hooks/useMount';
+import type { ChartType } from '@buster/server-shared/metrics';
 import type React from 'react';
 import { useMemo } from 'react';
-import type { BusterChartProps } from '@/api/asset_interfaces/metric/charts';
-import { useMount } from '@/hooks';
-import type { ChartType } from '@buster/server-shared/metrics';
+import type { BusterChartProps } from '../BusterChart.types';
 
 export const NoValidAxis: React.FC<{
   type: ChartType;
   onReady?: () => void;
   data: BusterChartProps['data'];
-}> = ({ onReady, type, data }) => {
+}> = ({ onReady, type }) => {
   const inValidChartText = useMemo(() => {
     if (!type) return 'No valid chart type';
     return 'No valid axis selected';
-  }, [type, data]);
+  }, [type]);
 
   useMount(() => {
     onReady?.();

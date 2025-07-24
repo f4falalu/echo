@@ -1,10 +1,9 @@
+import type { ColumnLabelFormat, SimplifiedColumnType } from '@buster/server-shared/metrics';
 import { renderHook } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import type { BusterChartProps } from '@/api/asset_interfaces/metric/charts';
 import { formatLabel } from '@/lib/columnFormatter';
 import { truncateWithEllipsis } from '../../../../commonHelpers/titleHelpers';
 import { useY2AxisTitle } from './useY2AxisTitle';
-import type { ColumnLabelFormat, SimplifiedColumnType } from '@buster/server-shared/metrics';
 
 // Mock the dependencies
 vi.mock('@/lib/columnFormatter', () => ({

@@ -1,6 +1,6 @@
+import type { ColumnLabelFormat } from '@buster/server-shared/metrics';
 import type { Context } from 'chartjs-plugin-datalabels';
 import { describe, expect, it } from 'vitest';
-import type { ColumnLabelFormat } from '@buster/server-shared/metrics';
 import { formatBarAndLineDataLabel } from './formatBarAndLineDataLabel';
 
 describe('formatBarAndLineDataLabel', () => {

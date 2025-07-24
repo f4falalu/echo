@@ -1,11 +1,10 @@
+import { cn } from '@/lib/classMerge';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import React from 'react';
-import type { ChartType } from '@buster/server-shared/metrics';
 import { Popover } from '@/components/ui/popover/Popover';
-import { cn } from '@/lib/classMerge';
-import type { BusterChartLegendItem, BusterChartLegendProps } from './interfaces';
 import { LegendItemDot } from './LegendDot';
 import { LegendItem } from './LegendItem';
+import type { BusterChartLegendItem, BusterChartLegendProps } from './interfaces';
 
 export const OverflowButton: React.FC<{
   legendItems: BusterChartLegendItem[];
@@ -77,6 +76,7 @@ const OverflowPopoverContent = React.memo(
           }}>
           {rowVirtualizer.getVirtualItems().map((virtualRow) => {
             const item = legendItems[virtualRow.index];
+            if (!item) return null;
             return (
               <div
                 key={item.id + item.serieName}

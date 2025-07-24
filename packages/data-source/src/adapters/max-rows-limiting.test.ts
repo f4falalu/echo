@@ -218,7 +218,6 @@ describe('MaxRows Limiting Tests', () => {
       mockStream = {
         on: vi.fn(),
         destroy: vi.fn(),
-        destroyed: false,
       };
       mockConnection = {
         execute: vi.fn(),
@@ -247,21 +246,26 @@ describe('MaxRows Limiting Tests', () => {
         (options: {
           sqlText: string;
           binds?: unknown;
-          complete: (err?: unknown, stmt?: unknown, rows?: unknown[]) => void;
+          streamResult?: boolean;
+          complete: (err?: unknown, stmt?: unknown) => void;
         }) => {
-          // The new Snowflake adapter doesn't use streaming for maxRows
-          // It returns all rows and limits in memory
-          options.complete(undefined, mockStatement, [
-            { id: 1, name: 'User 1' },
-            { id: 2, name: 'User 2' },
-          ]);
+          expect(options.streamResult).toBe(true);
+          options.complete(undefined, mockStatement);
         }
       );
 
-      const result = await adapter.query('SELECT * FROM users', undefined, 1);
+      const queryPromise = adapter.query('SELECT * FROM users', undefined, 1);
+
+      setTimeout(() => {
+        dataHandler({ id: 1, name: 'User 1' });
+        endHandler();
+      }, 0);
+
+      const result = await queryPromise;
       expect(result.rows).toHaveLength(1);
       expect(result.rows[0]).toEqual({ id: 1, name: 'User 1' });
-      expect(result.hasMoreRows).toBe(true);
+      expect(result.hasMoreRows).toBe(false); // Only 1 row was provided, not more than the limit
+      expect(mockStatement.streamRows).toHaveBeenCalledWith({ start: 0, end: 1 });
     });
   });
 

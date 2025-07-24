@@ -1,9 +1,11 @@
 'use client';
 
-import type { ChartType as ChartJSChartType, ChartOptions, Plugin, UpdateMode } from 'chart.js';
-import React, { useMemo, useState } from 'react';
+import { useMemoizedFn } from '@/hooks/useMemoizedFn';
+import { useMount } from '@/hooks/useMount';
+import { usePreviousRef } from '@/hooks/usePrevious';
 import type { ScatterAxis } from '@buster/server-shared/metrics';
-import { useMemoizedFn, useMount, usePreviousRef } from '@/hooks';
+import type { ChartType as ChartJSChartType, Plugin, UpdateMode } from 'chart.js';
+import React, { useMemo, useState } from 'react';
 import { useColors } from '../chartHooks';
 import type { BusterChartTypeComponentProps } from '../interfaces/chartComponentInterfaces';
 import {
@@ -67,10 +69,10 @@ export const BusterChartJSComponent = React.memo(
         disableTooltip,
         xAxisTimeInterval,
         numberOfDataPoints,
-        trendlines,
+        trendlines
         //TODO
-        xAxisDataZoom,
-        ...rest
+        // xAxisDataZoom,
+        // ...rest
       },
       ref
     ) => {
@@ -128,7 +130,7 @@ export const BusterChartJSComponent = React.memo(
         barGroupType
       });
 
-      const options: ChartOptions<ChartJSChartType> = useOptions({
+      const options: ChartProps<ChartJSChartType>['options'] = useOptions({
         goalLinesAnnotations,
         colors,
         selectedChartType,
@@ -187,7 +189,7 @@ export const BusterChartJSComponent = React.memo(
         return [];
       }, [selectedChartType]);
 
-      const updateMode = useMemoizedFn((params: { datasetIndex: number }): UpdateMode => {
+      const updateMode = useMemoizedFn((): UpdateMode => {
         if (!ref) return 'default';
         const areLabelsChanged = previousData?.labels !== data.labels;
         if (areLabelsChanged) return 'default'; //this will disable animation - this was 'none', I am not sure why...

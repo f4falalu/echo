@@ -1,9 +1,8 @@
-import { cva, type VariantProps } from 'class-variance-authority';
-import React, { useMemo } from 'react';
-import type { ChartType } from '@buster/server-shared/metrics';
-import { useMemoizedFn } from '@/hooks';
+import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import { cn } from '@/lib/classMerge';
-import { Target } from '../../icons';
+import { type VariantProps, cva } from 'class-variance-authority';
+import React, { useMemo } from 'react';
+import Target from '../OtherComponents/Target';
 import type { BusterChartLegendItem } from './interfaces';
 
 const itemVariants = cva(
@@ -55,7 +54,7 @@ export const LegendItemDot: React.FC<
     color: string | undefined;
     inactive: boolean;
     type: BusterChartLegendItem['type'];
-    onFocusItem?: () => void;
+    onFocusItem?: (() => void) | undefined;
   } & VariantProps<typeof itemVariants>
 > = React.memo(({ color, type, inactive, onFocusItem, size = 'default' }) => {
   const hasFocusItem = onFocusItem !== undefined;

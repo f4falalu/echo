@@ -1,7 +1,7 @@
-import type { Chart } from 'chart.js';
-import { describe, expect, it } from 'vitest';
 import type { ColumnSettings } from '@buster/server-shared/metrics';
 import type { ColumnLabelFormat, SimplifiedColumnType } from '@buster/server-shared/metrics';
+import type { Chart } from 'chart.js';
+import { describe, expect, it } from 'vitest';
 import { getLegendItems } from './getLegendItems';
 
 describe('getLegendItems', () => {
@@ -64,7 +64,7 @@ describe('getLegendItems', () => {
     expect(result).toHaveLength(2);
     expect(result[0]).toEqual({
       color: mockColors[0],
-      inactive: undefined,
+      inactive: false,
       type: 'pie',
       serieName: 'Dataset 1',
       formattedName: 'Category 1',
@@ -111,7 +111,7 @@ describe('getLegendItems', () => {
     expect(result).toHaveLength(2);
     expect(result[0]).toEqual({
       color: mockColors[0],
-      inactive: undefined,
+      inactive: false,
       type: 'bar',
       formattedName: 'Bar Data',
       id: 'Bar Data',
@@ -192,7 +192,6 @@ describe('getLegendItems', () => {
     });
 
     expect(result).toHaveLength(2);
-    expect(result[0].inactive).toBe(undefined);
     expect(result[0].id).toBe('Active Dataset');
     expect(result[1].inactive).toBe(true);
     expect(result[1].id).toBe('Inactive Dataset');
@@ -233,7 +232,7 @@ describe('getLegendItems', () => {
     // First dataset categories
     expect(result[0]).toEqual({
       color: mockColors[0],
-      inactive: undefined,
+      inactive: false,
       type: 'pie',
       serieName: 'Dataset 1',
       formattedName: 'Category A | Dataset 1',
@@ -243,7 +242,7 @@ describe('getLegendItems', () => {
     });
     expect(result[1]).toEqual({
       color: mockColors[1],
-      inactive: undefined,
+      inactive: false,
       type: 'pie',
       serieName: 'Dataset 1',
       formattedName: 'Category B | Dataset 1',

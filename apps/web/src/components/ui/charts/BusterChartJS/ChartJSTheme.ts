@@ -1,19 +1,21 @@
 'use client';
 
-import { isServer } from '@tanstack/react-query';
+import { truncateText } from '@/lib/text';
+import { isServer } from '@/lib/window';
+import { DEFAULT_CHART_THEME } from '@buster/server-shared/metrics';
+import { Chart as ChartJS } from 'chart.js';
 import {
   ArcElement,
   BarController,
   BarElement,
   BubbleController,
   CategoryScale,
-  Chart as ChartJS,
   Colors,
   DoughnutController,
   Legend,
-  LinearScale,
   LineController,
   LineElement,
+  LinearScale,
   LogarithmicScale,
   PieController,
   PointElement,
@@ -26,8 +28,6 @@ import {
 import ChartJsAnnotationPlugin from 'chartjs-plugin-annotation';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 import ChartDeferred from 'chartjs-plugin-deferred';
-import { DEFAULT_CHART_THEME } from '@buster/server-shared/metrics';
-import { truncateText } from '@/lib/text';
 import { ChartMountedPlugin } from './core/plugins';
 import ChartTrendlinePlugin from './core/plugins/chartjs-plugin-trendlines';
 import './core/plugins/chartjs-plugin-dayjs';
@@ -115,7 +115,7 @@ ChartJS.defaults.font = {
   scale.ticks.backdropColor = chartJSThemebackgroundColor;
   scale.ticks.autoSkipPadding = 4;
   scale.ticks.align = 'center';
-  scale.ticks.callback = function (value, index, values) {
+  scale.ticks.callback = function (value) {
     return truncateText(this.getLabelForValue(value as number), 18);
   };
 });

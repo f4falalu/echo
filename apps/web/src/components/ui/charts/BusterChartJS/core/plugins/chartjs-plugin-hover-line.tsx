@@ -22,7 +22,7 @@ export const ChartHoverLinePlugin: Plugin<ChartType, ChartHoverLinePluginOptions
       enabled: chartType === 'line'
     };
   },
-  beforeDraw: (chart, args, options) => {
+  beforeDraw: (chart, _args, options) => {
     if (!chart.$pluginHoverLineManager.enabled) return;
 
     const {
@@ -35,7 +35,7 @@ export const ChartHoverLinePlugin: Plugin<ChartType, ChartHoverLinePluginOptions
 
     if (tooltipActive?.length) {
       const activePoint = tooltipActive[0];
-      const x = activePoint.element.x;
+      const x = activePoint?.element.x ?? 0;
       const topY = top;
       const bottomY = bottom;
 

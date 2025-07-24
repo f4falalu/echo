@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useRef } from 'react';
-import { useSize } from '@/hooks';
+import { useSize } from '@/hooks/useSize';
 import { cn } from '@/lib/classMerge';
+import React, { useRef } from 'react';
 import { ChartWrapperProvider } from './chartHooks';
 
 const BREAKING_MIN_WIDTH = 76;

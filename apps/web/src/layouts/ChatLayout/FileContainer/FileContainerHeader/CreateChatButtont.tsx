@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
-import { useStartChatFromAsset } from '@/api/buster_rest/chats/queryRequests';
+import { useStartChatFromAsset } from '@/api/buster_rest/chats';
 import { Button } from '@/components/ui/buttons';
 import { Stars } from '@/components/ui/icons';
 import { AppTooltip } from '@/components/ui/tooltip';
@@ -9,9 +9,10 @@ import { useMemoizedFn } from '@/hooks';
 import { timeout } from '@/lib/timeout';
 import { BusterRoutes } from '@/routes';
 import { useChatLayoutContextSelector } from '../../ChatLayoutContext';
+import { ChatAssetType } from '@buster/server-shared/chats';
 
 export const CreateChatButton = React.memo(
-  ({ assetId, assetType }: { assetId: string; assetType: 'metric' | 'dashboard' }) => {
+  ({ assetId, assetType }: { assetId: string; assetType: ChatAssetType }) => {
     const [loading, setLoading] = useState(false);
     const { mutateAsync: startChatFromAsset, isPending } = useStartChatFromAsset();
     const onChangePage = useAppLayoutContextSelector((x) => x.onChangePage);
@@ -34,6 +35,8 @@ export const CreateChatButton = React.memo(
             dashboardId: assetId,
             chatId: result.id
           });
+        } else {
+          const _exhaustiveCheck: never = assetType;
         }
 
         await timeout(250); //wait for the chat to load and the file to be selected

@@ -112,7 +112,14 @@ const ThreeDotDropdown: React.FC<{
           icon: <Trash />,
           onClick: async () => {
             try {
-              await deleteCollection({ id });
+              await deleteCollection(
+                { id },
+                {
+                  onSuccess: () => {
+                    onChangePage({ route: BusterRoutes.APP_COLLECTIONS });
+                  }
+                }
+              );
               onChangePage({ route: BusterRoutes.APP_COLLECTIONS });
             } catch (error) {
               //

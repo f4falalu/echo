@@ -1,13 +1,13 @@
-import { renderHook } from '@testing-library/react';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { formatLabel } from '@/lib/columnFormatter';
-import { truncateWithEllipsis } from '../../../../commonHelpers/titleHelpers';
-import { useYAxisTitle } from './useYAxisTitle';
 import type {
   ChartEncodes,
   ColumnLabelFormat,
   SimplifiedColumnType
 } from '@buster/server-shared/metrics';
+import { renderHook } from '@testing-library/react';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { formatLabel } from '@/lib/columnFormatter';
+import { truncateWithEllipsis } from '../../../../commonHelpers/titleHelpers';
+import { useYAxisTitle } from './useYAxisTitle';
 
 // Mock the dependencies
 vi.mock('@/lib/columnFormatter', () => ({
