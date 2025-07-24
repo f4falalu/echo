@@ -181,6 +181,9 @@ importers:
 
   apps/trigger:
     dependencies:
+      '@buster-tools/web-tools':
+        specifier: workspace:*
+        version: link:../../packages/web-tools
       '@buster/access-controls':
         specifier: workspace:*
         version: link:../../packages/access-controls
