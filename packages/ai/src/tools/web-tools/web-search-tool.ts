@@ -2,7 +2,7 @@ import {
   FirecrawlService,
   type WebSearchOptions,
   type WebSearchResult,
-} from '@buster-tools/web-tools';
+} from '@buster/web-tools';
 import type { RuntimeContext } from '@mastra/core/runtime-context';
 import { createTool } from '@mastra/core/tools';
 import { wrapTraced } from 'braintrust';

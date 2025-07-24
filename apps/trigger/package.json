@@ -27,7 +27,7 @@
     "@buster/test-utils": "workspace:*",
     "@buster/typescript-config": "workspace:*",
     "@buster/vitest-config": "workspace:*",
-    "@buster-tools/web-tools": "workspace:*",
+    "@buster/web-tools": "workspace:*",
     "@mastra/core": "catalog:",
     "@trigger.dev/sdk": "catalog:",
     "ai": "catalog:",
