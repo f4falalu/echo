@@ -324,6 +324,6 @@ const useViewSQLButton = ({
         page: 'sql'
       })
     }),
-    [metricId]
+    [metricId, dashboardId, chatId]
   );
 };
