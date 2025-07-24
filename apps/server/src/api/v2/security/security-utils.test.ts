@@ -41,7 +41,7 @@ describe('security-utils', () => {
 
   describe('validateUserOrganization', () => {
     it('should return user organization when found', async () => {
-      const mockOrgMembership = { organizationId: 'org-123', role: 'member' };
+      const mockOrgMembership = { organizationId: 'org-123', role: 'viewer' as const };
       vi.mocked(getUserOrganizationId).mockResolvedValueOnce(mockOrgMembership);
 
       const result = await validateUserOrganization('user-123');

@@ -1,5 +1,13 @@
 import { ShareAssetType } from '@buster/server-shared/share';
-import { Folder5, FolderPlus, Grid, GridPlus, Messages, SquareChart } from '@/components/ui/icons';
+import {
+  Folder5,
+  FolderPlus,
+  Grid,
+  GridPlus,
+  Messages,
+  SquareChart,
+  Table
+} from '@/components/ui/icons';
 import { BusterRoutes, createBusterRoute } from '@/routes/busterRoutes';
 
 export const ASSET_ICONS = {
@@ -8,7 +16,8 @@ export const ASSET_ICONS = {
   dashboards: Grid,
   collections: Folder5,
   dashboardAdd: GridPlus,
-  collectionAdd: FolderPlus
+  collectionAdd: FolderPlus,
+  table: Table
 };
 
 export const assetTypeToIcon = (assetType: ShareAssetType) => {

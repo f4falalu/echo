@@ -34,7 +34,7 @@ const mockUser = {
   avatarUrl: null,
 };
 
-const mockChat: Chat = {
+const mockChat = {
   id: 'chat-123',
   title: 'Test Chat',
   organizationId: '550e8400-e29b-41d4-a716-446655440000',
@@ -49,7 +49,12 @@ const mockChat: Chat = {
   mostRecentFileId: null,
   mostRecentFileType: null,
   mostRecentVersionNumber: null,
-};
+  slackChatAuthorization: null,
+  slackThreadTs: null,
+  slackChannelId: null,
+  workspaceSharingEnabledBy: null,
+  workspaceSharingEnabledAt: null,
+} as Chat;
 
 const mockMessage: Message = {
   id: 'msg-123',

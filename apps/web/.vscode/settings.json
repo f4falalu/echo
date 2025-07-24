@@ -12,5 +12,21 @@
   },
   "[jsonc]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
-  }
+  },
+
+  // TypeScript import preferences - prioritize path mapping
+  "typescript.preferences.importModuleSpecifier": "shortest",
+  "typescript.preferences.importModuleSpecifierEnding": "minimal",
+  "typescript.suggest.autoImports": true,
+  "typescript.suggest.includeAutomaticOptionalChainCompletions": true,
+  "typescript.preferences.includePackageJsonAutoImports": "auto",
+
+  // Prioritize absolute paths (path mapping) over relative imports
+  "typescript.suggest.includeCompletionsForImportStatements": true,
+  "typescript.suggest.includeCompletionsWithSnippetText": true,
+
+  // When multiple import options are available, prefer the shortest path
+  // This will prefer @/ over relative paths when both are available
+  "typescript.suggest.completeFunctionCalls": true,
+  "javascript.preferences.importModuleSpecifier": "project-relative"
 }

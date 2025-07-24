@@ -7,12 +7,15 @@ import { dashboardFiles, messages, messagesToFiles, metricFiles } from '../../sc
 // Type inference from schema
 type Message = InferSelectModel<typeof messages>;
 
+const DatabaseAssetTypeSchema = z.enum(['metric_file', 'dashboard_file']);
+export type DatabaseAssetType = z.infer<typeof DatabaseAssetTypeSchema>;
+
 /**
  * Input schemas
  */
 export const GenerateAssetMessagesInputSchema = z.object({
   assetId: z.string().uuid(),
-  assetType: z.enum(['metric_file', 'dashboard_file']),
+  assetType: DatabaseAssetTypeSchema,
   userId: z.string().uuid(),
   chatId: z.string().uuid(),
 });
@@ -65,6 +68,8 @@ async function getAssetDetails(
 
     return dashboard || null;
   }
+
+  const _exhaustiveCheck: never = assetType;
 
   return null;
 }

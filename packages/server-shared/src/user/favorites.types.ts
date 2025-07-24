@@ -1,9 +1,9 @@
 import { z } from 'zod';
-import { ShareAssetTypeSchema } from '../share';
+import { AssetTypeSchema } from '../assets/asset-types.types';
 
 export const UserFavoriteSchema = z.object({
   id: z.string(),
-  asset_type: ShareAssetTypeSchema,
+  asset_type: AssetTypeSchema,
   index: z.number().optional(),
   name: z.string(),
 });
