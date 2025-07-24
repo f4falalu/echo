@@ -337,7 +337,7 @@ export const CodeComponent: React.FC<
       //do not animate the code block
       <code
         style={style}
-        className={cn(className, 'bg-item-select rounded-sm border px-1 text-sm')}>
+        className={cn(className, 'bg-item-select rounded-sm border px-1 text-[0.9em]')}>
         {children}
       </code>
     );
