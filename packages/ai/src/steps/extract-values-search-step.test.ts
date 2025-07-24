@@ -19,17 +19,16 @@ vi.mock('braintrust', () => ({
   wrapAISDKModel: vi.fn((model) => model),
 }));
 
-// Create a ref object to hold the mock generate function
-const mockGenerateRef = { current: vi.fn() };
+// Mock the AI SDK
+vi.mock('ai', () => ({
+  generateObject: vi.fn(),
+}));
 
-// Mock the Agent class from Mastra with the generate function
+// Mock Mastra
 vi.mock('@mastra/core', async () => {
   const actual = await vi.importActual('@mastra/core');
   return {
     ...actual,
-    Agent: vi.fn().mockImplementation(() => ({
-      generate: (...args: any[]) => mockGenerateRef.current(...args),
-    })),
     createStep: actual.createStep,
   };
 });
@@ -41,18 +40,17 @@ import { extractValuesSearchStep } from './extract-values-search-step';
 
 // Import the mocked functions
 import { generateEmbedding, searchValuesByEmbedding } from '@buster/stored-values/search';
+import { generateObject } from 'ai';
 
 const mockGenerateEmbedding = generateEmbedding as ReturnType<typeof vi.fn>;
 const mockSearchValuesByEmbedding = searchValuesByEmbedding as ReturnType<typeof vi.fn>;
-
-// Access the mock generate function through the ref
-const mockGenerate = mockGenerateRef.current;
+const mockGenerateObject = generateObject as ReturnType<typeof vi.fn>;
 
 describe('extractValuesSearchStep', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     // Set default mock behavior
-    mockGenerate.mockResolvedValue({
+    mockGenerateObject.mockResolvedValue({
       object: { values: [] },
     });
   });
@@ -72,7 +70,7 @@ describe('extractValuesSearchStep', () => {
       runtimeContext.set('dataSourceId', 'test-datasource-id');
 
       // Mock the LLM response for keyword extraction
-      mockGenerate.mockResolvedValue({
+      mockGenerateObject.mockResolvedValue({
         object: { values: ['Red Bull', 'California'] },
       });
 
@@ -141,7 +139,7 @@ describe('extractValuesSearchStep', () => {
       runtimeContext.set('dataSourceId', 'test-datasource-id');
 
       // Mock empty keyword extraction
-      mockGenerate.mockResolvedValue({
+      mockGenerateObject.mockResolvedValue({
         object: { values: [] },
       });
 
@@ -195,7 +193,7 @@ describe('extractValuesSearchStep', () => {
       runtimeContext.set('dataSourceId', 'test-datasource-id');
 
       // Mock successful keyword extraction
-      mockGenerate.mockResolvedValue({
+      mockGenerateObject.mockResolvedValue({
         object: { values: ['Red Bull'] },
       });
 
@@ -226,7 +224,7 @@ describe('extractValuesSearchStep', () => {
       runtimeContext.set('dataSourceId', 'test-datasource-id');
 
       // Mock LLM extraction success but embedding failure
-      mockGenerate.mockResolvedValue({
+      mockGenerateObject.mockResolvedValue({
         object: { values: ['test keyword'] },
       });
 
@@ -254,7 +252,7 @@ describe('extractValuesSearchStep', () => {
       runtimeContext.set('dataSourceId', 'test-datasource-id');
 
       // Mock successful keyword extraction
-      mockGenerate.mockResolvedValue({
+      mockGenerateObject.mockResolvedValue({
         object: { values: ['test keyword'] },
       });
 
@@ -284,7 +282,7 @@ describe('extractValuesSearchStep', () => {
       runtimeContext.set('dataSourceId', 'test-datasource-id');
 
       // Mock two keywords: one succeeds, one fails
-      mockGenerate.mockResolvedValue({
+      mockGenerateObject.mockResolvedValue({
         object: { values: ['keyword1', 'keyword2'] },
       });
 
@@ -327,7 +325,7 @@ describe('extractValuesSearchStep', () => {
       runtimeContext.set('dataSourceId', 'test-datasource-id');
 
       // Mock everything to fail
-      mockGenerate.mockRejectedValue(new Error('LLM failure'));
+      mockGenerateObject.mockRejectedValue(new Error('LLM failure'));
       mockGenerateEmbedding.mockRejectedValue(new Error('Embedding failure'));
       mockSearchValuesByEmbedding.mockRejectedValue(new Error('Database failure'));
 
@@ -378,7 +376,7 @@ describe('extractValuesSearchStep', () => {
       runtimeContext.set('dataSourceId', 'test-datasource-id');
 
       // Mock successful keyword extraction
-      mockGenerate.mockResolvedValue({
+      mockGenerateObject.mockResolvedValue({
         object: { values: ['Red Bull'] },
       });
 
@@ -437,7 +435,7 @@ describe('extractValuesSearchStep', () => {
       runtimeContext.set('dataSourceId', 'test-datasource-id');
 
       // Mock successful keyword extraction
-      mockGenerate.mockResolvedValue({
+      mockGenerateObject.mockResolvedValue({
         object: { values: ['test'] },
       });
 
