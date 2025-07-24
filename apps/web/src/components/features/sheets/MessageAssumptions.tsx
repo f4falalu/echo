@@ -13,6 +13,7 @@ import {
 } from '@/lib/messages/confidence-translations';
 import { CircleCheck, OctagonWarning } from '@/components/ui/icons';
 import { Pill } from '@/components/ui/pills/Pill';
+import { AppMarkdownStreaming } from '@/components/ui/streaming/AppMarkdownStreaming';
 
 type MessageAssumptionsProps = Pick<
   PostProcessingMessage,
@@ -149,9 +150,13 @@ const AssumptionSummary = ({
           {summary_title}
         </Title>
       </div>
-      <Paragraph className="mt-2" variant={'secondary'}>
-        {summary_message}
-      </Paragraph>
+      <div className="mt-2">
+        <AppMarkdownStreaming
+          content={summary_message}
+          isStreamFinished={true}
+          className="text-text-secondary"
+        />
+      </div>
     </div>
   );
 };
