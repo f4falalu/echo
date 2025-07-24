@@ -12,3 +12,9 @@ export {
   type CreateMessageInput,
   type Chat,
 } from './chats';
+
+export {
+  getChatTitle,
+  GetChatTitleInputSchema,
+  type GetChatTitleInput,
+} from './get-chat-title';

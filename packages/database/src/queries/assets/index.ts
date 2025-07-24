@@ -6,10 +6,4 @@ export {
   type GenerateAssetMessagesInput,
 } from './assets';
 
-export {
-  getChatDashboardFiles,
-  type DashboardFileContext,
-  type DashboardFile,
-} from './dashboards';
-
 export type { DatabaseAssetType } from './assets';
