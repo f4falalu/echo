@@ -136,7 +136,9 @@ const useRemoveFromDashboardItem = ({
           dashboardId,
           metricIds: [metricId]
         });
-      [dashboardId, metricId, removeMetricFromDashboard, isPending]
+      }
+    }),
+    [dashboardId, metricId, removeMetricFromDashboard, isPending]
   );
 };
 
