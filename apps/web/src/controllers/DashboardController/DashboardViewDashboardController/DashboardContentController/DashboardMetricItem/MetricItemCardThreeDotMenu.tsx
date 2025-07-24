@@ -298,7 +298,7 @@ const useViewResultsButton = ({
         page: 'results'
       })
     }),
-    [metricId]
+    [metricId, dashboardId, chatId]
   );
 };
 
