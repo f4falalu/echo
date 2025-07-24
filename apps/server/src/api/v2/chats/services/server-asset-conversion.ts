@@ -6,6 +6,8 @@ const chatAssetTypeToDatabaseAssetType: Record<ChatAssetType, DatabaseAssetType>
   dashboard: 'dashboard_file',
 };
 
-export const convertChatToAssetChat = (assetType: ChatAssetType): DatabaseAssetType => {
+export const convertChatAssetTypeToDatabaseAssetType = (
+  assetType: ChatAssetType
+): DatabaseAssetType => {
   return chatAssetTypeToDatabaseAssetType[assetType];
 };
