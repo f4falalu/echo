@@ -7,7 +7,7 @@ import {
   type ChatWithMessages,
 } from '@buster/server-shared/chats';
 import { tasks } from '@trigger.dev/sdk/v3';
-import { handleAssetChat } from './services/chat-helpers';
+import { handleAssetChat, handleAssetChatWithPrompt } from './services/chat-helpers';
 import { initializeChat } from './services/chat-service';
 
 /**
@@ -57,30 +57,60 @@ export async function createChatHandler(
     }
 
     // Initialize chat (new or existing)
-    const { chatId, messageId, chat } = await initializeChat(request, user, organizationId);
+    // When we have both asset and prompt, we'll skip creating the initial message
+    // since handleAssetChatWithPrompt will create both the import and prompt messages
+    const shouldCreateInitialMessage = !(request.asset_id && request.asset_type && request.prompt);
+    const modifiedRequest = shouldCreateInitialMessage
+      ? request
+      : { ...request, prompt: undefined };
+
+    const { chatId, messageId, chat } = await initializeChat(modifiedRequest, user, organizationId);
 
     // Handle asset-based chat if needed
     let finalChat: ChatWithMessages = chat;
-    if (request.asset_id && request.asset_type && !request.prompt) {
-      finalChat = await handleAssetChat(
-        chatId,
-        messageId,
-        request.asset_id,
-        request.asset_type,
-        user,
-        chat
-      );
+    let actualMessageId = messageId; // Track the actual message ID to use for triggering
+    let shouldTriggerAnalyst = true; // Flag to control whether to trigger analyst task
+
+    if (request.asset_id && request.asset_type) {
+      if (!request.prompt) {
+        // Original flow: just import the asset without a prompt
+        finalChat = await handleAssetChat(
+          chatId,
+          messageId,
+          request.asset_id,
+          request.asset_type,
+          user,
+          chat
+        );
+        // For asset-only chats, don't trigger analyst task - just return the chat with asset
+        shouldTriggerAnalyst = false;
+      } else {
+        // New flow: import asset then process the prompt
+        finalChat = await handleAssetChatWithPrompt(
+          chatId,
+          messageId,
+          request.asset_id,
+          request.asset_type,
+          request.prompt,
+          user,
+          chat
+        );
+        // For asset+prompt chats, use the last message ID (the user's prompt message)
+        const lastMessageId = finalChat.message_ids[finalChat.message_ids.length - 1];
+        if (lastMessageId) {
+          actualMessageId = lastMessageId;
+        }
+      }
     }
 
-    // Trigger background analysis if we have content
-    // This should be very fast (just queuing the job, not waiting for completion)
-    if (request.prompt || request.asset_id) {
+    // Trigger background analysis only if we have a prompt or it's not an asset-only request
+    if (shouldTriggerAnalyst && (request.prompt || !request.asset_id)) {
       try {
         // Just queue the background job - should be <100ms
         const taskHandle = await tasks.trigger(
           'analyst-agent-task',
           {
-            message_id: messageId,
+            message_id: actualMessageId,
           },
           {
             concurrencyKey: chatId, // Ensure sequential processing per chat
@@ -96,7 +126,7 @@ export async function createChatHandler(
 
         // Update the message with the trigger run ID
         const { updateMessage } = await import('@buster/database');
-        await updateMessage(messageId, {
+        await updateMessage(actualMessageId, {
           triggerRunId: taskHandle.id,
         });
 

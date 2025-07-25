@@ -7,7 +7,6 @@ import { Dropdown, type DropdownItems, type DropdownItem } from '@/components/ui
 import {
   DotsVertical,
   Trash,
-  WandSparkle,
   ShareRight,
   PenSparkle,
   SquareChartPen,
@@ -17,7 +16,6 @@ import { cn } from '@/lib/utils';
 import { ASSET_ICONS } from '@/components/features/config/assetIcons';
 import { assetParamsToRoute } from '@/lib/assets/assetParamsToRoute';
 import { useChatLayoutContextSelector } from '@/layouts/ChatLayout';
-import { FollowUpWithAssetContent } from '@/components/features/popups/FollowUpWithAsset';
 import { useGetMetric } from '@/api/buster_rest/metrics';
 import { getShareAssetConfig } from '@/components/features/ShareMenu/helpers';
 import { getIsEffectiveOwner } from '@/lib/share';
@@ -28,6 +26,7 @@ import {
   useFavoriteMetricSelectMenu,
   useVersionHistorySelectMenu
 } from '@/components/features/metrics/ThreeDotMenu';
+import { useMetricDrilldownItem } from '@/components/features/metrics/hooks/useMetricDrilldownItem';
 
 export const MetricItemCardThreeDotMenu: React.FC<{
   dashboardId: string;
@@ -50,7 +49,7 @@ const MetricItemCardThreeDotMenuPopover: React.FC<{
   const chatId = useChatLayoutContextSelector((x) => x.chatId);
   const removeFromDashboardItem = useRemoveFromDashboardItem({ dashboardId, metricId });
   const openChartItem = useOpenChartItem({ dashboardId, metricId, chatId });
-  const drilldownItem = useDrilldownItem({ metricId });
+  const drilldownItem = useMetricDrilldownItem({ metricId });
   const shareMenu = useShareMenuSelectMenu({ metricId });
   const editWithAI = useEditWithAI({ metricId, dashboardId, chatId });
   const editChartButton = useEditChartButton({ metricId, dashboardId, chatId });
@@ -164,26 +163,6 @@ const useOpenChartItem = ({
     link: route,
     linkIcon: 'arrow-external'
   };
-};
-
-const useDrilldownItem = ({ metricId }: { metricId: string }): DropdownItem => {
-  return useMemo(
-    () => ({
-      value: 'drilldown',
-      label: 'Drill down & filter',
-      items: [
-        <FollowUpWithAssetContent
-          key="drilldown-and-filter"
-          assetType="metric"
-          assetId={metricId}
-          placeholder="Describe how you want to drill down or filter..."
-          buttonText="Submit request"
-        />
-      ],
-      icon: <WandSparkle />
-    }),
-    [metricId]
-  );
 };
 
 const useShareMenuSelectMenu = ({ metricId }: { metricId: string }): DropdownItem | undefined => {

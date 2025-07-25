@@ -63,6 +63,7 @@ import {
   useFavoriteMetricSelectMenu,
   useVersionHistorySelectMenu
 } from '@/components/features/metrics/ThreeDotMenu';
+import { useMetricDrilldownItem } from '@/components/features/metrics/hooks/useMetricDrilldownItem';
 
 export const ThreeDotMenuButton = React.memo(
   ({
@@ -90,6 +91,7 @@ export const ThreeDotMenuButton = React.memo(
     const deleteMetricMenu = useDeleteMetricSelectMenu({ metricId });
     const renameMetricMenu = useRenameMetricSelectMenu({ metricId });
     const shareMenu = useShareMenuSelectMenu({ metricId });
+    const drilldownItem = useMetricDrilldownItem({ metricId });
 
     const isEditor = canEdit(permission);
     const isOwnerEffective = getIsEffectiveOwner(permission);
@@ -99,6 +101,7 @@ export const ThreeDotMenuButton = React.memo(
       () =>
         [
           chatId && openFullScreenMetric,
+          drilldownItem,
           isOwnerEffective && !isViewingOldVersion && shareMenu,
           isEditor && !isViewingOldVersion && statusSelectMenu,
           { type: 'divider' },
@@ -120,6 +123,7 @@ export const ThreeDotMenuButton = React.memo(
       [
         chatId,
         openFullScreenMetric,
+        drilldownItem,
         isEditor,
         isOwner,
         isOwnerEffective,
