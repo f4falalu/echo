@@ -101,7 +101,7 @@ export const ThreeDotMenuButton = React.memo(
       () =>
         [
           chatId && openFullScreenMetric,
-          drilldownItem,
+          // drilldownItem,
           isOwnerEffective && !isViewingOldVersion && shareMenu,
           isEditor && !isViewingOldVersion && statusSelectMenu,
           { type: 'divider' },
