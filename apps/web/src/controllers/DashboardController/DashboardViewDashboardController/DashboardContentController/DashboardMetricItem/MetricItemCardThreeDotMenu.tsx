@@ -24,9 +24,9 @@ import { useStartChatFromAsset } from '@/api/buster_rest/chats';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 import {
   useFavoriteMetricSelectMenu,
-  useVersionHistorySelectMenu
+  useVersionHistorySelectMenu,
+  useMetricDrilldownItem
 } from '@/components/features/metrics/ThreeDotMenu';
-import { useMetricDrilldownItem } from '@/components/features/metrics/hooks/useMetricDrilldownItem';
 
 export const MetricItemCardThreeDotMenu: React.FC<{
   dashboardId: string;

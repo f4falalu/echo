@@ -3,12 +3,10 @@ import { Popover, type PopoverProps } from '../../ui/popover';
 import { InputCard } from '../../ui/card/InputCard';
 import type { ShareAssetType } from '@buster/server-shared/share';
 import { useMemoizedFn } from '../../../hooks';
-import { useStartChatFromAsset } from '../../../api/buster_rest/chats';
+import { useStartChatFromAsset } from '@/api/buster_rest/chats';
 import { AppTooltip } from '../../ui/tooltip';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
-import { assetParamsToRoute } from '../../../lib/assets';
-
-type FollowUpMode = 'filter' | 'drilldown';
+import { assetParamsToRoute } from '@/lib/assets';
 
 type FollowUpWithAssetProps = {
   assetType: Exclude<ShareAssetType, 'chat' | 'collection'>;
@@ -18,7 +16,6 @@ type FollowUpWithAssetProps = {
   align?: PopoverProps['align'];
   placeholder?: string;
   buttonText?: string;
-  mode?: FollowUpMode;
 };
 
 export const FollowUpWithAssetContent: React.FC<{
@@ -26,26 +23,22 @@ export const FollowUpWithAssetContent: React.FC<{
   assetId: string;
   placeholder?: string;
   buttonText?: string;
-  mode?: FollowUpMode;
 }> = React.memo(
   ({
     assetType,
     assetId,
     placeholder = 'Describe the filter you want to apply',
-    buttonText = 'Apply custom filter',
-    mode
+    buttonText = 'Apply custom filter'
   }) => {
     const { mutateAsync: startChatFromAsset, isPending } = useStartChatFromAsset();
     const onChangePage = useAppLayoutContextSelector((x) => x.onChangePage);
 
     const transformPrompt = useMemoizedFn((userPrompt: string): string => {
-      if (!mode) return userPrompt;
-
-      if (mode === 'filter') {
+      if (assetType === 'dashboard') {
         return `Hey Buster. Please recreate this dashboard applying this filter to the metrics on the dashboard: ${userPrompt}`;
       }
 
-      if (mode === 'drilldown') {
+      if (assetType === 'metric') {
         return `Hey Buster. Can you filter or drill down into this metric based on the following request: ${userPrompt}`;
       }
 
@@ -55,12 +48,10 @@ export const FollowUpWithAssetContent: React.FC<{
     const onSubmit = useMemoizedFn(async (prompt: string) => {
       if (!prompt || !assetId || !assetType || isPending) return;
 
-      const transformedPrompt = transformPrompt(prompt);
-
       const res = await startChatFromAsset({
         asset_id: assetId,
         asset_type: assetType,
-        prompt: transformedPrompt
+        prompt: transformPrompt(prompt)
       });
       const link = assetParamsToRoute({
         assetId,
@@ -85,16 +76,7 @@ export const FollowUpWithAssetContent: React.FC<{
 FollowUpWithAssetContent.displayName = 'FollowUpWithAssetContent';
 
 export const FollowUpWithAssetPopup: React.FC<FollowUpWithAssetProps> = React.memo(
-  ({
-    assetType,
-    assetId,
-    side = 'bottom',
-    align = 'end',
-    children,
-    placeholder,
-    buttonText,
-    mode
-  }) => {
+  ({ assetType, assetId, side = 'bottom', align = 'end', children, placeholder, buttonText }) => {
     return (
       <Popover
         side={side}
@@ -106,7 +88,6 @@ export const FollowUpWithAssetPopup: React.FC<FollowUpWithAssetProps> = React.me
             assetId={assetId}
             placeholder={placeholder}
             buttonText={buttonText}
-            mode={mode}
           />
         }>
         <AppTooltip title="Apply custom filter">{children}</AppTooltip>
