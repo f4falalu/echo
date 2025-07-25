@@ -63,12 +63,7 @@ function buildMessages<T extends { id: string }>(
     }
   }
 
-  // Early return for already-correct format
-  if (parsedMessages && typeof parsedMessages === 'object' && !Array.isArray(parsedMessages)) {
-    return parsedMessages as Record<string, T>;
-  }
-
-  // Optimized array processing with pre-allocation and validation
+  // Handle array format (new format from generateAssetMessages)
   if (Array.isArray(parsedMessages)) {
     const result: Record<string, T> = {};
     for (let i = 0; i < parsedMessages.length; i++) {
@@ -78,6 +73,11 @@ function buildMessages<T extends { id: string }>(
       }
     }
     return result;
+  }
+
+  // Handle object format (legacy format with IDs as keys)
+  if (parsedMessages && typeof parsedMessages === 'object' && !Array.isArray(parsedMessages)) {
+    return parsedMessages as Record<string, T>;
   }
 
   return {};
@@ -388,6 +388,10 @@ export async function handleAssetChat(
 
     // Convert and add to chat
     for (const msg of assetMessages) {
+      // Build response messages from the database message
+      const responseMessages = buildResponseMessages(msg.responseMessages);
+      const responseMessageIds = Object.keys(responseMessages);
+
       const chatMessage: ChatMessage = {
         id: msg.id,
         created_at: msg.createdAt,
@@ -400,13 +404,13 @@ export async function handleAssetChat(
               sender_avatar: chat.created_by_avatar || undefined,
             }
           : null,
-        response_messages: {},
-        response_message_ids: [],
+        response_messages: responseMessages,
+        response_message_ids: responseMessageIds,
         reasoning_message_ids: [],
         reasoning_messages: {},
-        final_reasoning_message: null,
+        final_reasoning_message: msg.finalReasoningMessage || null,
         feedback: null,
-        is_completed: false,
+        is_completed: msg.isCompleted || false,
         post_processing_message: validateNullableJsonb(
           msg.postProcessingMessage,
           PostProcessingMessageSchema
@@ -419,6 +423,26 @@ export async function handleAssetChat(
       }
       chat.messages[msg.id] = chatMessage;
     }
+
+    // Update the chat with most recent file information and title (matching Rust behavior)
+    const fileType = chatAssetType === 'metric' ? 'metric' : 'dashboard';
+
+    // Get the asset name from the first message
+    const assetName = assetMessages[0]?.title || '';
+
+    await db
+      .update(chats)
+      .set({
+        title: assetName, // Set chat title to asset name
+        mostRecentFileId: assetId,
+        mostRecentFileType: fileType,
+        mostRecentVersionNumber: 1, // Asset imports always start at version 1
+        updatedAt: new Date().toISOString(),
+      })
+      .where(eq(chats.id, chatId));
+
+    // Update the chat object with the new title
+    chat.title = assetName;
 
     return chat;
   } catch (error) {
@@ -438,6 +462,222 @@ export async function handleAssetChat(
     });
 
     // Don't fail the entire request, just return the chat without asset messages
+    return chat;
+  }
+}
+
+/**
+ * Handle asset-based chat initialization with a prompt
+ * This creates an import message for the asset, then adds the user's prompt as a follow-up
+ */
+export async function handleAssetChatWithPrompt(
+  chatId: string,
+  _messageId: string, // Initial message ID (not used since we create two messages)
+  assetId: string,
+  chatAssetType: ChatAssetType,
+  prompt: string,
+  user: User,
+  chat: ChatWithMessages
+): Promise<ChatWithMessages> {
+  const userId = user.id;
+  try {
+    // First, use the exact same logic as handleAssetChat to import the asset
+    // This ensures we get dashboard metrics and proper formatting
+    const assetType = convertChatAssetTypeToDatabaseAssetType(chatAssetType);
+    const assetMessages = await generateAssetMessages({
+      assetId,
+      assetType,
+      userId,
+      chatId,
+    });
+
+    if (!assetMessages || assetMessages.length === 0) {
+      console.warn('No asset messages generated', {
+        assetId,
+        assetType,
+        userId,
+        chatId,
+      });
+      // Still create the user message with prompt
+      const userMessageId = crypto.randomUUID();
+      const userMessage = await createMessage({
+        messageId: userMessageId,
+        chatId,
+        content: prompt,
+        userId: user.id,
+      });
+
+      // Add to chat
+      const chatMessage: ChatMessage = {
+        id: userMessage.id,
+        created_at: userMessage.createdAt,
+        updated_at: userMessage.updatedAt,
+        request_message: {
+          request: prompt,
+          sender_id: user.id,
+          sender_name: chat.created_by_name,
+          sender_avatar: chat.created_by_avatar || undefined,
+        },
+        response_messages: {},
+        response_message_ids: [],
+        reasoning_message_ids: [],
+        reasoning_messages: {},
+        final_reasoning_message: null,
+        feedback: null,
+        is_completed: false,
+        post_processing_message: undefined,
+      };
+
+      if (!chat.message_ids.includes(userMessage.id)) {
+        chat.message_ids.push(userMessage.id);
+      }
+      chat.messages[userMessage.id] = chatMessage;
+
+      return chat;
+    }
+
+    // Add the import message to chat (exact same logic as handleAssetChat)
+    for (const msg of assetMessages) {
+      // Build response messages from the database message
+      const responseMessages = buildResponseMessages(msg.responseMessages);
+      const responseMessageIds = Object.keys(responseMessages);
+
+      const chatMessage: ChatMessage = {
+        id: msg.id,
+        created_at: msg.createdAt,
+        updated_at: msg.updatedAt,
+        request_message: msg.requestMessage
+          ? {
+              request: msg.requestMessage,
+              sender_id: msg.createdBy,
+              sender_name: chat.created_by_name,
+              sender_avatar: chat.created_by_avatar || undefined,
+            }
+          : null,
+        response_messages: responseMessages,
+        response_message_ids: responseMessageIds,
+        reasoning_message_ids: [],
+        reasoning_messages: {},
+        final_reasoning_message: msg.finalReasoningMessage || null,
+        feedback: null,
+        is_completed: msg.isCompleted || false,
+        post_processing_message: validateNullableJsonb(
+          msg.postProcessingMessage,
+          PostProcessingMessageSchema
+        ),
+      };
+
+      // Only add message ID if it doesn't already exist
+      if (!chat.message_ids.includes(msg.id)) {
+        chat.message_ids.push(msg.id);
+      }
+      chat.messages[msg.id] = chatMessage;
+    }
+
+    // Update the chat with most recent file information and title (matching handleAssetChat)
+    const fileType = chatAssetType === 'metric' ? 'metric' : 'dashboard';
+    const assetName = assetMessages[0]?.title || '';
+
+    await db
+      .update(chats)
+      .set({
+        title: assetName, // Set chat title to asset name
+        mostRecentFileId: assetId,
+        mostRecentFileType: fileType,
+        mostRecentVersionNumber: 1, // Asset imports always start at version 1
+        updatedAt: new Date().toISOString(),
+      })
+      .where(eq(chats.id, chatId));
+
+    // Update the chat object with the new title
+    chat.title = assetName;
+
+    // Then, create the user's prompt message as a follow-up
+    const userMessageId = crypto.randomUUID();
+    const userMessage = await createMessage({
+      messageId: userMessageId,
+      chatId,
+      content: prompt,
+      userId: user.id,
+    });
+
+    // Add user message to chat
+    const userChatMessage: ChatMessage = {
+      id: userMessage.id,
+      created_at: userMessage.createdAt,
+      updated_at: userMessage.updatedAt,
+      request_message: {
+        request: prompt,
+        sender_id: user.id,
+        sender_name: chat.created_by_name,
+        sender_avatar: chat.created_by_avatar || undefined,
+      },
+      response_messages: {},
+      response_message_ids: [],
+      reasoning_message_ids: [],
+      reasoning_messages: {},
+      final_reasoning_message: null,
+      feedback: null,
+      is_completed: false,
+      post_processing_message: undefined,
+    };
+
+    if (!chat.message_ids.includes(userMessage.id)) {
+      chat.message_ids.push(userMessage.id);
+    }
+    chat.messages[userMessage.id] = userChatMessage;
+
+    return chat;
+  } catch (error) {
+    console.error('Failed to handle asset chat with prompt:', {
+      chatId,
+      assetId,
+      chatAssetType,
+      userId,
+      error:
+        error instanceof Error
+          ? {
+              message: error.message,
+              stack: error.stack,
+              name: error.name,
+            }
+          : String(error),
+    });
+
+    // Don't fail the entire request, create the user message anyway
+    const userMessageId = crypto.randomUUID();
+    const userMessage = await createMessage({
+      messageId: userMessageId,
+      chatId,
+      content: prompt,
+      userId: user.id,
+    });
+
+    const chatMessage: ChatMessage = {
+      id: userMessage.id,
+      created_at: userMessage.createdAt,
+      updated_at: userMessage.updatedAt,
+      request_message: {
+        request: prompt,
+        sender_id: user.id,
+        sender_name: chat.created_by_name,
+        sender_avatar: chat.created_by_avatar || undefined,
+      },
+      response_messages: {},
+      response_message_ids: [],
+      reasoning_message_ids: [],
+      reasoning_messages: {},
+      final_reasoning_message: null,
+      feedback: null,
+      is_completed: false,
+      post_processing_message: undefined,
+    };
+
+    if (!chat.message_ids.includes(userMessage.id)) {
+      chat.message_ids.push(userMessage.id);
+    }
+    chat.messages[userMessage.id] = chatMessage;
+
     return chat;
   }
 }

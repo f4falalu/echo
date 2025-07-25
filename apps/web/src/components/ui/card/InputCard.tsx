@@ -32,6 +32,13 @@ export const InputCard: React.FC<InputCardProps> = ({
 
   const disableSubmit = !inputHasText(inputValue) || loading;
 
+  const handlePressEnter = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (!disableSubmit) {
+      e.preventDefault();
+      onSubmit?.(inputValue);
+    }
+  };
+
   const spacingClass = 'py-2.5 px-3';
 
   return (
@@ -42,6 +49,7 @@ export const InputCard: React.FC<InputCardProps> = ({
           value={inputValue}
           readOnly={loading}
           onChange={handleChange}
+          onPressEnter={handlePressEnter}
           autoResize={{
             minRows: 5,
             maxRows: 10

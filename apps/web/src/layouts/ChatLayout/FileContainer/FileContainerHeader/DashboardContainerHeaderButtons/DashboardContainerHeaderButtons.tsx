@@ -84,7 +84,7 @@ AddContentToDashboardButton.displayName = 'AddContentToDashboardButton';
 
 const FollowUpWithAssetButton = React.memo(({ dashboardId }: { dashboardId: string }) => {
   return (
-    <FollowUpWithAssetPopup assetId={dashboardId} assetType="dashboard">
+    <FollowUpWithAssetPopup assetId={dashboardId} assetType="dashboard" mode="filter">
       <Button variant="ghost" prefix={<BarsFilter />} />
     </FollowUpWithAssetPopup>
   );

@@ -15,6 +15,7 @@ vi.mock('./services/chat-service', () => ({
 
 vi.mock('./services/chat-helpers', () => ({
   handleAssetChat: vi.fn(),
+  handleAssetChatWithPrompt: vi.fn(),
 }));
 
 vi.mock('@buster/database', () => ({
@@ -41,7 +42,7 @@ vi.mock('@buster/database', () => ({
 import { getUserOrganizationId, updateMessage } from '@buster/database';
 import { tasks } from '@trigger.dev/sdk/v3';
 import { createChatHandler } from './handler';
-import { handleAssetChat } from './services/chat-helpers';
+import { handleAssetChat, handleAssetChatWithPrompt } from './services/chat-helpers';
 import { initializeChat } from './services/chat-service';
 
 describe('createChatHandler', () => {
@@ -120,8 +121,51 @@ describe('createChatHandler', () => {
     expect(result).toEqual(mockChat);
   });
 
-  it('should handle asset-based chat creation', async () => {
-    const assetChat = { ...mockChat, title: 'Asset Chat' };
+  it('should handle asset-based chat creation and NOT trigger analyst task', async () => {
+    // Asset chat should match Rust implementation exactly
+    const assetChat = {
+      ...mockChat,
+      title: 'Test Metric', // Should be the asset name
+      message_ids: ['asset-msg-123'],
+      messages: {
+        'asset-msg-123': {
+          id: 'asset-msg-123',
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+          request_message: null, // No request message per Rust implementation
+          response_messages: {
+            'text-msg-id': {
+              type: 'text' as const,
+              id: 'text-msg-id',
+              message:
+                'Test Metric has been pulled into a new chat.\n\nContinue chatting to modify or make changes to it.',
+              is_final_message: true,
+            },
+            'asset-123': {
+              type: 'file' as const,
+              id: 'asset-123',
+              file_type: 'metric' as const,
+              file_name: 'Test Metric',
+              version_number: 1,
+              filter_version_id: null,
+              metadata: [
+                {
+                  status: 'completed' as const,
+                  message: 'Pulled into new chat',
+                  timestamp: expect.any(Number),
+                },
+              ],
+            },
+          },
+          response_message_ids: ['text-msg-id', 'asset-123'],
+          reasoning_message_ids: [],
+          reasoning_messages: {},
+          final_reasoning_message: '',
+          feedback: null,
+          is_completed: true,
+        },
+      },
+    };
     vi.mocked(handleAssetChat).mockResolvedValue(assetChat);
 
     const result = await createChatHandler(
@@ -137,15 +181,8 @@ describe('createChatHandler', () => {
       mockUser,
       mockChat
     );
-    expect(tasks.trigger).toHaveBeenCalledWith(
-      'analyst-agent-task',
-      {
-        message_id: 'msg-123',
-      },
-      {
-        concurrencyKey: 'chat-123',
-      }
-    );
+    // IMPORTANT: Should NOT trigger analyst task for asset-only requests
+    expect(tasks.trigger).not.toHaveBeenCalled();
     expect(result).toEqual(assetChat);
   });
 
@@ -158,23 +195,177 @@ describe('createChatHandler', () => {
     expect(tasks.trigger).not.toHaveBeenCalled();
   });
 
-  it('should not call handleAssetChat when prompt is provided with asset', async () => {
+  it('should call handleAssetChatWithPrompt when prompt is provided with asset', async () => {
+    // Chat should start empty when we have asset+prompt
+    const emptyChat = {
+      ...mockChat,
+      message_ids: [],
+      messages: {},
+    };
+
+    // After handleAssetChatWithPrompt, we should have import message then user message
+    const chatWithPrompt = {
+      ...mockChat,
+      message_ids: ['import-msg-123', 'user-msg-123'],
+      messages: {
+        'import-msg-123': {
+          id: 'import-msg-123',
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+          request_message: null,
+          response_messages: {},
+          response_message_ids: [],
+          reasoning_message_ids: [],
+          reasoning_messages: {},
+          final_reasoning_message: null,
+          feedback: null,
+          is_completed: true,
+        },
+        'user-msg-123': {
+          id: 'user-msg-123',
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+          request_message: {
+            request: 'Hello',
+            sender_id: 'user-123',
+            sender_name: 'Test User',
+          },
+          response_messages: {},
+          response_message_ids: [],
+          reasoning_message_ids: [],
+          reasoning_messages: {},
+          final_reasoning_message: null,
+          feedback: null,
+          is_completed: false,
+        },
+      },
+    };
+
+    // Mock initializeChat to return empty chat (no initial message created)
+    vi.mocked(initializeChat).mockResolvedValue({
+      chatId: 'chat-123',
+      messageId: 'msg-123',
+      chat: emptyChat,
+    });
+
+    vi.mocked(handleAssetChatWithPrompt).mockResolvedValueOnce(chatWithPrompt);
+
     const result = await createChatHandler(
       { prompt: 'Hello', asset_id: 'asset-123', asset_type: 'metric' },
       mockUser
     );
 
+    // Verify initializeChat was called without prompt (to avoid duplicate message)
+    expect(initializeChat).toHaveBeenCalledWith(
+      { prompt: undefined, asset_id: 'asset-123', asset_type: 'metric' },
+      mockUser,
+      '550e8400-e29b-41d4-a716-446655440000'
+    );
+
     expect(handleAssetChat).not.toHaveBeenCalled();
+    expect(handleAssetChatWithPrompt).toHaveBeenCalledWith(
+      'chat-123',
+      'msg-123',
+      'asset-123',
+      'metric',
+      'Hello',
+      mockUser,
+      emptyChat
+    );
     expect(tasks.trigger).toHaveBeenCalledWith(
       'analyst-agent-task',
       {
-        message_id: 'msg-123',
+        message_id: 'user-msg-123', // Should use the last message ID (user's prompt)
       },
       {
         concurrencyKey: 'chat-123',
       }
     );
-    expect(result).toEqual(mockChat);
+    expect(result).toEqual(chatWithPrompt);
+  });
+
+  it('should ensure correct message order: import first, then user prompt', async () => {
+    const chatWithMessages = {
+      ...mockChat,
+      message_ids: ['import-msg-123', 'user-msg-123'],
+      messages: {
+        'import-msg-123': {
+          id: 'import-msg-123',
+          created_at: '2025-07-25T12:00:00.000Z',
+          updated_at: '2025-07-25T12:00:00.000Z',
+          request_message: null, // Import messages have no request
+          response_messages: {
+            'asset-123': {
+              type: 'file' as const,
+              id: 'asset-123',
+              file_type: 'metric' as const,
+              file_name: 'Test Metric',
+              version_number: 1,
+            },
+          },
+          response_message_ids: ['asset-123'],
+          reasoning_message_ids: [],
+          reasoning_messages: {},
+          final_reasoning_message: null,
+          feedback: null,
+          is_completed: true,
+        },
+        'user-msg-123': {
+          id: 'user-msg-123',
+          created_at: '2025-07-25T12:00:01.000Z', // After import
+          updated_at: '2025-07-25T12:00:01.000Z',
+          request_message: {
+            request: 'What is this metric?',
+            sender_id: 'user-123',
+            sender_name: 'Test User',
+          },
+          response_messages: {},
+          response_message_ids: [],
+          reasoning_message_ids: [],
+          reasoning_messages: {},
+          final_reasoning_message: null,
+          feedback: null,
+          is_completed: false,
+        },
+      },
+    };
+
+    vi.mocked(initializeChat).mockResolvedValue({
+      chatId: 'chat-123',
+      messageId: 'msg-123',
+      chat: { ...mockChat, message_ids: [], messages: {} }, // Empty chat
+    });
+
+    vi.mocked(handleAssetChatWithPrompt).mockResolvedValueOnce(chatWithMessages);
+
+    const result = await createChatHandler(
+      { prompt: 'What is this metric?', asset_id: 'asset-123', asset_type: 'metric' },
+      mockUser
+    );
+
+    // Verify message order is correct
+    expect(result.message_ids).toHaveLength(2);
+    expect(result.message_ids[0]).toBe('import-msg-123');
+    expect(result.message_ids[1]).toBe('user-msg-123');
+
+    // Verify import message has no request
+    const importMsg = result.messages['import-msg-123'];
+    expect(importMsg).toBeDefined();
+    expect(importMsg?.request_message).toBeNull();
+    expect(importMsg?.is_completed).toBe(true);
+
+    // Verify user message has request
+    const userMsg = result.messages['user-msg-123'];
+    expect(userMsg).toBeDefined();
+    expect(userMsg?.request_message?.request).toBe('What is this metric?');
+    expect(userMsg?.is_completed).toBe(false);
+
+    // Verify analyst task is triggered with user message ID
+    expect(tasks.trigger).toHaveBeenCalledWith(
+      'analyst-agent-task',
+      { message_id: 'user-msg-123' },
+      { concurrencyKey: 'chat-123' }
+    );
   });
 
   it('should handle trigger errors gracefully', async () => {
