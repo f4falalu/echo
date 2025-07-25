@@ -13,7 +13,7 @@
     "paths": {
       "@/*": ["src/*"],
       "@metrics/*": ["src/app/app/(primary_layout)/(chat_experience)/metrics/[metricId]/*"],
-      "@dashboards": ["src/app/app/(primary_layout)/(chat_experience)/dashboards/[dashboardId]/*"]
+      "@dashboards/*": ["src/app/app/(primary_layout)/(chat_experience)/dashboards/[dashboardId]/*"]
     },
     "plugins": [
       {
