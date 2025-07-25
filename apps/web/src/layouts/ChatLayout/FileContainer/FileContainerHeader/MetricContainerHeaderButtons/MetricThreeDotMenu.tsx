@@ -190,6 +190,7 @@ const useDashboardSelectMenu = ({ metricId }: { metricId: string }) => {
     () => ({
       label: 'Add to dashboard',
       value: 'add-to-dashboard',
+      closeOnSelect: false,
       icon: <ASSET_ICONS.dashboardAdd />,
       items: [<React.Fragment key="dashboard-sub-menu">{dashboardSubMenu}</React.Fragment>]
     }),
