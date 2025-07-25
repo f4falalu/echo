@@ -202,12 +202,11 @@ const useDashboardSelectMenu = ({ metricId }: { metricId: string }) => {
 const useCollectionSelectMenu = ({ metricId }: { metricId: string }) => {
   const { mutateAsync: saveMetricToCollection } = useSaveMetricToCollections();
   const { mutateAsync: removeMetricFromCollection } = useRemoveMetricFromCollection();
-  const { data: collections } = useGetMetric({ id: metricId }, { select: (x) => x.collections });
+  const { data: selectedCollections } = useGetMetric(
+    { id: metricId },
+    { select: (x) => x.collections?.map((x) => x.id) }
+  );
   const { openInfoMessage } = useBusterNotifications();
-
-  const selectedCollections = useMemo(() => {
-    return collections?.map((x) => x.id) || [];
-  }, [collections]);
 
   const onSaveToCollection = useMemoizedFn(async (collectionIds: string[]) => {
     await saveMetricToCollection({
@@ -228,7 +227,7 @@ const useCollectionSelectMenu = ({ metricId }: { metricId: string }) => {
   const { ModalComponent, ...dropdownProps } = useSaveToCollectionsDropdownContent({
     onSaveToCollection,
     onRemoveFromCollection,
-    selectedCollections
+    selectedCollections: selectedCollections || []
   });
 
   const CollectionSubMenu = useMemo(() => {
