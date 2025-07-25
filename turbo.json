@@ -13,7 +13,7 @@
       "dependsOn": ["@buster/database#dev"]
     },
     "lint": {
-      "dependsOn": ["^build", "^lint"]
+      "dependsOn": ["^lint"]
     },
     "typecheck": {
       "dependsOn": ["^build"]
@@ -22,7 +22,7 @@
       "dependsOn": ["^build"]
     },
     "test:unit": {
-      "dependsOn": ["^build"]
+      "dependsOn": ["^test:unit"]
     },
     "test:integration": {
       "dependsOn": ["^build"]
