@@ -745,10 +745,26 @@ export const useRemoveMetricsFromDashboard = () => {
 
   return useMutation({
     mutationFn: removeMetricFromDashboard,
-    onSuccess: (data) => {
+    onMutate: (variables) => {
+      variables.metricIds.forEach((id) => {
+        queryClient.setQueryData(metricsQueryKeys.metricsGetMetric(id, null).queryKey, (old) => {
+          if (!old) return old;
+          return create(old, (draft) => {
+            draft.dashboards = old?.dashboards?.filter((d) => d.id !== variables.dashboardId) || [];
+          });
+        });
+      });
+    },
+    onSuccess: (data, variables) => {
       if (data) {
         setLatestDashboardVersion(data.dashboard.id, data.dashboard.version_number);
       }
+
+      variables.metricIds.forEach((id) => {
+        queryClient.invalidateQueries({
+          queryKey: metricsQueryKeys.metricsGetMetric(id, null).queryKey
+        });
+      });
     }
   });
 };

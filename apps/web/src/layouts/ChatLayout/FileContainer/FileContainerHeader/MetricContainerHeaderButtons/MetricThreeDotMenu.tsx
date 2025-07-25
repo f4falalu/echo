@@ -152,6 +152,7 @@ const useDashboardSelectMenu = ({ metricId }: { metricId: string }) => {
   const { mutateAsync: saveMetricsToDashboard } = useAddMetricsToDashboard();
   const { mutateAsync: removeMetricsFromDashboard } = useRemoveMetricsFromDashboard();
   const { data: dashboards } = useGetMetric({ id: metricId }, { select: (x) => x.dashboards });
+  const { openInfoMessage } = useBusterNotifications();
 
   const onSaveToDashboard = useMemoizedFn(async (dashboardIds: string[]) => {
     await Promise.all(
@@ -159,14 +160,16 @@ const useDashboardSelectMenu = ({ metricId }: { metricId: string }) => {
         saveMetricsToDashboard({ metricIds: [metricId], dashboardId })
       )
     );
+    openInfoMessage('Metric added to dashboard');
   });
 
   const onRemoveFromDashboard = useMemoizedFn(async (dashboardIds: string[]) => {
     await Promise.all(
       dashboardIds.map((dashboardId) =>
-        removeMetricsFromDashboard({ metricIds: [metricId], dashboardId })
+        removeMetricsFromDashboard({ metricIds: [metricId], dashboardId, useConfirmModal: false })
       )
     );
+    openInfoMessage('Metric removed from dashboard');
   });
 
   const { items, footerContent, selectType, menuHeader } = useSaveToDashboardDropdownContent({
