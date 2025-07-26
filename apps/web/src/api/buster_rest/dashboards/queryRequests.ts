@@ -86,7 +86,7 @@ export const useGetDashboard = <TData = BusterDashboardResponse>(
 
 export const usePrefetchGetDashboardClient = () => {
   const queryClient = useQueryClient();
-  const queryFn = useGetDashboardAndInitializeMetrics(false);
+  const queryFn = useGetDashboardAndInitializeMetrics({ prefetchData: false });
   return useMemoizedFn((id: string, versionNumber: number) => {
     const getDashboardQueryKey = dashboardQueryKeys.dashboardGetDashboard(id, versionNumber);
     const isStale = isQueryStale(getDashboardQueryKey, queryClient);
@@ -447,7 +447,7 @@ export const useUpdateDashboardShare = () => {
 export const useAddAndRemoveMetricsFromDashboard = () => {
   const queryClient = useQueryClient();
   const { openErrorMessage, openConfirmModal } = useBusterNotifications();
-  const ensureDashboardConfig = useEnsureDashboardConfig(false);
+  const ensureDashboardConfig = useEnsureDashboardConfig({ prefetchData: false });
   const setOriginalDashboard = useOriginalDashboardStore((x) => x.setOriginalDashboard);
   const setLatestDashboardVersion = useDashboardQueryStore((x) => x.onSetLatestDashboardVersion);
 
@@ -560,7 +560,7 @@ export const useAddAndRemoveMetricsFromDashboard = () => {
 export const useAddMetricsToDashboard = () => {
   const queryClient = useQueryClient();
   const { openErrorMessage, openConfirmModal } = useBusterNotifications();
-  const ensureDashboardConfig = useEnsureDashboardConfig(false);
+  const ensureDashboardConfig = useEnsureDashboardConfig({ prefetchData: false });
   const setOriginalDashboard = useOriginalDashboardStore((x) => x.setOriginalDashboard);
   const getLatestMetricVersion = useGetLatestMetricVersionMemoized();
   const setLatestDashboardVersion = useDashboardQueryStore((x) => x.onSetLatestDashboardVersion);
@@ -653,7 +653,7 @@ export const useAddMetricsToDashboard = () => {
 export const useRemoveMetricsFromDashboard = () => {
   const { openConfirmModal, openErrorMessage } = useBusterNotifications();
   const queryClient = useQueryClient();
-  const ensureDashboardConfig = useEnsureDashboardConfig(false);
+  const ensureDashboardConfig = useEnsureDashboardConfig({ prefetchData: false });
   const setOriginalDashboard = useOriginalDashboardStore((x) => x.setOriginalDashboard);
   const getLatestMetricVersion = useGetLatestMetricVersionMemoized();
   const setLatestDashboardVersion = useDashboardQueryStore((x) => x.onSetLatestDashboardVersion);
@@ -683,7 +683,7 @@ export const useRemoveMetricsFromDashboard = () => {
           }
         }
 
-        const dashboardResponse = await ensureDashboardConfig(dashboardId);
+        const dashboardResponse = await ensureDashboardConfig(dashboardId, false);
 
         if (dashboardResponse) {
           const versionedOptions = dashboardQueryKeys.dashboardGetDashboard(
@@ -715,13 +715,7 @@ export const useRemoveMetricsFromDashboard = () => {
             ).queryKey,
             data
           );
-          queryClient.setQueryData(
-            dashboardQueryKeys.dashboardGetDashboard(
-              data.dashboard.id,
-              data.dashboard.version_number
-            ).queryKey,
-            data
-          );
+
           setOriginalDashboard(data.dashboard);
 
           return data;
@@ -745,16 +739,6 @@ export const useRemoveMetricsFromDashboard = () => {
 
   return useMutation({
     mutationFn: removeMetricFromDashboard,
-    onMutate: (variables) => {
-      variables.metricIds.forEach((id) => {
-        queryClient.setQueryData(metricsQueryKeys.metricsGetMetric(id, null).queryKey, (old) => {
-          if (!old) return old;
-          return create(old, (draft) => {
-            draft.dashboards = old?.dashboards?.filter((d) => d.id !== variables.dashboardId) || [];
-          });
-        });
-      });
-    },
     onSuccess: (data, variables) => {
       if (data) {
         setLatestDashboardVersion(data.dashboard.id, data.dashboard.version_number);
@@ -762,7 +746,8 @@ export const useRemoveMetricsFromDashboard = () => {
 
       variables.metricIds.forEach((id) => {
         queryClient.invalidateQueries({
-          queryKey: metricsQueryKeys.metricsGetMetric(id, null).queryKey
+          queryKey: metricsQueryKeys.metricsGetMetric(id, null).queryKey,
+          refetchType: 'all'
         });
       });
     }
