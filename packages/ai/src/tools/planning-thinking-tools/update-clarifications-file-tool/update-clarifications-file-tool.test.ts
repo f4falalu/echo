@@ -28,14 +28,16 @@ describe('updateClarificationsFile', () => {
     });
 
     expect(result.success).toBe(true);
-    expect(result.clarifications).toEqual({
-      issue: 'Database connection configuration',
-      context:
-        'The user mentioned they need to connect to a database but did not specify which type',
-      clarificationQuestion:
-        'Which type of database are you using? (PostgreSQL, MySQL, MongoDB, etc.)',
-    });
-    expect(result.message).toBe('Successfully added clarification question');
+    expect(result.clarifications).toEqual([
+      {
+        issue: 'Database connection configuration',
+        context:
+          'The user mentioned they need to connect to a database but did not specify which type',
+        clarificationQuestion:
+          'Which type of database are you using? (PostgreSQL, MySQL, MongoDB, etc.)',
+      },
+    ]);
+    expect(result.message).toBe('Successfully updated clarification questions');
 
     // Verify context was updated
     const savedClarification = runtimeContext.get(DocsAgentContextKeys.ClarificationQuestions);
@@ -72,11 +74,13 @@ describe('updateClarificationsFile', () => {
     });
 
     expect(result.success).toBe(true);
-    expect(result.clarifications).toEqual({
-      issue: 'Second issue',
-      context: 'Second context',
-      clarificationQuestion: 'Second question?',
-    });
+    expect(result.clarifications).toEqual([
+      {
+        issue: 'Second issue',
+        context: 'Second context',
+        clarificationQuestion: 'Second question?',
+      },
+    ]);
 
     // Verify only the second clarification is stored
     const savedClarification = runtimeContext.get(DocsAgentContextKeys.ClarificationQuestions);
@@ -107,41 +111,44 @@ describe('updateClarificationsFile', () => {
 
   it('should validate input schema', () => {
     const validInput = {
-      issue: 'Test issue',
-      context: 'Test context',
-      clarificationQuestion: 'Test question?',
+      clarifications: [
+        {
+          issue: 'Test issue',
+          context: 'Test context',
+          clarificationQuestion: 'Test question?',
+        },
+      ],
     };
     const parsed = updateClarificationsFile.inputSchema.parse(validInput);
     expect(parsed).toEqual(validInput);
 
     // Missing required fields
     expect(() => {
-      updateClarificationsFile.inputSchema.parse({
-        issue: 'Test issue',
-        context: 'Test context',
-      });
+      updateClarificationsFile.inputSchema.parse({});
     }).toThrow();
 
     expect(() => {
       updateClarificationsFile.inputSchema.parse({
-        issue: 'Test issue',
-        clarificationQuestion: 'Test question?',
-      });
-    }).toThrow();
-
-    expect(() => {
-      updateClarificationsFile.inputSchema.parse({
-        context: 'Test context',
-        clarificationQuestion: 'Test question?',
+        clarifications: [
+          {
+            issue: 'Test issue',
+            context: 'Test context',
+            // Missing clarificationQuestion
+          },
+        ],
       });
     }).toThrow();
 
     // Wrong types
     expect(() => {
       updateClarificationsFile.inputSchema.parse({
-        issue: 123,
-        context: 'Test context',
-        clarificationQuestion: 'Test question?',
+        clarifications: [
+          {
+            issue: 123, // Wrong type
+            context: 'Test context',
+            clarificationQuestion: 'Test question?',
+          },
+        ],
       });
     }).toThrow();
   });
@@ -149,12 +156,15 @@ describe('updateClarificationsFile', () => {
   it('should validate output schema', () => {
     const validOutput = {
       success: true,
-      clarification: {
-        issue: 'Test issue',
-        context: 'Test context',
-        clarificationQuestion: 'Test question?',
-      },
+      clarifications: [
+        {
+          issue: 'Test issue',
+          context: 'Test context',
+          clarificationQuestion: 'Test question?',
+        },
+      ],
       message: 'Success',
+      totalClarifications: 1,
     };
     const parsed = updateClarificationsFile.outputSchema.parse(validOutput);
     expect(parsed).toEqual(validOutput);
@@ -181,11 +191,13 @@ describe('updateClarificationsFile', () => {
     });
 
     expect(result.success).toBe(true);
-    expect(result.clarifications).toEqual({
-      issue: '',
-      context: '',
-      clarificationQuestion: '',
-    });
+    expect(result.clarifications).toEqual([
+      {
+        issue: '',
+        context: '',
+        clarificationQuestion: '',
+      },
+    ]);
   });
 
   it('should handle special characters in clarification content', async () => {
@@ -203,10 +215,12 @@ describe('updateClarificationsFile', () => {
     });
 
     expect(result.success).toBe(true);
-    expect(result.clarifications).toEqual({
-          issue: 'Issue with "quotes" and \'apostrophes\'',
-      context: 'Context with\nnewlines\tand\ttabs',
-      clarificationQuestion: 'Question with émojis 🤔 and special chars: <>?/@#$%',
-    });
+    expect(result.clarifications).toEqual([
+      {
+        issue: 'Issue with "quotes" and \'apostrophes\'',
+        context: 'Context with\nnewlines\tand\ttabs',
+        clarificationQuestion: 'Question with émojis 🤔 and special chars: <>?/@#$%',
+      },
+    ]);
   });
 });

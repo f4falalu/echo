@@ -104,26 +104,24 @@ To migrate an existing package to use the centralized environment system:
 ### 3. Ensure Type Safety
 ```bash
 # Build entire monorepo to check types
-turbo run build
+turbo run build:dry-run
 
 # Build specific package/app
-turbo run build --filter=@buster/ai
-turbo run build --filter=@buster-app/web
+turbo run build:dry-run --filter=@buster/ai
+turbo run build:dry-run --filter=@buster-app/web
 
-# Type check without building
-turbo run typecheck
-turbo run typecheck --filter=@buster/database
+# Or
+turbo run build
 ```
 
-### 4. Run Biome for Linting & Formatting
+### 4. Run Linting & Formatting
 ```bash
-# Check files with Biome
-pnpm run check path/to/file.ts
-pnpm run check packages/ai
+# Run linting (checks and auto-fixes issues)
+turbo run lint
+turbo run lint --filter=@buster/ai
 
-# Auto-fix linting, formatting, and import organization
-pnpm run check:fix path/to/file.ts
-pnpm run check:fix packages/ai
+# Filter to specific package
+turbo run lint --filter=@buster-app/web
 ```
 
 ### 5. Run Tests with Vitest
@@ -140,11 +138,8 @@ turbo run test:unit --filter=@buster/ai
 # Run integration tests ONLY for specific features/packages you're working on
 turbo run test:integration --filter=@buster/database
 
-# Run specific test file
-pnpm run test path/to/file.test.ts
-
 # Watch mode for development
-pnpm run test:watch
+turbo run test:watch
 ```
 
 ### 6. Pre-Completion Checklist
@@ -153,21 +148,30 @@ pnpm run test:watch
 # 1. Run unit tests for the entire monorepo
 turbo run test:unit
 
-# 2. Build the entire monorepo to ensure everything compiles
-turbo run build
+# 2. Build dry-run to ensure everything compiles (faster than full build)
+turbo run build:dry-run
 
 # 3. Run linting for the entire monorepo
 turbo run lint
+
+# Or run all checks simultaneously:
+turbo run build:dry-run lint test:unit
 ```
 
 **Key Testing Guidelines:**
-- **Always run unit tests, build, and lint** when working locally before considering a task complete
+- **Always run unit tests, build:dry-run, and lint** when working locally before considering a task complete
 - **Unit tests** should be run for the entire monorepo to catch any breaking changes
-- **Build** must pass for the entire monorepo to ensure type safety
+- **Build:dry-run** must pass for the entire monorepo to ensure type safety
 - **Integration tests** should only be run for specific packages/features you're working on (NOT the entire monorepo)
 - **Fix all failing tests, build errors, and lint errors** before completing any task
 - **Heavily bias toward unit tests** - they are faster and cheaper to run
 - **Mock everything you can** in unit tests for isolation and speed
+
+**Filtering Commands to Specific Packages:**
+All turbo commands support filtering to specific packages using the `--filter` flag:
+- `turbo run test:unit --filter=@buster/ai`
+- `turbo run build:dry-run --filter=@buster-app/web`
+- `turbo run lint --filter=packages/database`
 
 ## Code Quality Standards
 
@@ -262,10 +266,11 @@ export async function getWorkspaceSettingsHandler(
 
 ## Test Running Guidelines
 - When running tests, use the following Turbo commands:
-  - `turbo test:unit` for unit tests
-  - `turbo test:integration` for integration tests
-  - `turbo test` for running all tests
+  - `turbo run test:unit` for unit tests
+  - `turbo run test:integration` for integration tests
+  - `turbo run test` for running all tests
+  - Add `--filter=<package-name>` to run tests for specific packages
 
 ## Pre-Completion Workflow
-- Always run `turbo test:unit, lint, and build:dry-run` before making any pull request or finishing a feature, bugfix, etc. to ensure things make it through CI/CD
-- You can run all these checks simultaneously with `turbo build:dry-run lint test:unit`
+- Always run `turbo run test:unit`, `turbo run lint`, and `turbo run build:dry-run` before making any pull request or finishing a feature, bugfix, etc. to ensure things make it through CI/CD
+- You can run all these checks simultaneously with `turbo run build:dry-run lint test:unit`

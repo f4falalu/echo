@@ -1,32 +1,16 @@
-import type { Sandbox } from '@buster/sandbox';
 import { createWorkflow } from '@mastra/core';
 import { z } from 'zod';
-import { ClarifyingQuestionSchema } from '../../context/docs-agent-context';
+import { DocsAgentContextSchema } from '../../context/docs-agent-context';
 import { createDocsTodosStep } from '../../steps/docs-agent/create-docs-todos-step';
 import { docsAgentStep } from '../../steps/docs-agent/docs-agent-step';
 import { initializeContextStep } from '../../steps/docs-agent/initialize-context-step';
 
-// Input schema for the workflow - now accepts context values directly
+// Input schema for the workflow - matches what initialize-context-step expects
 const docsAgentWorkflowInputSchema = z.object({
   message: z.string(),
   organizationId: z.string(),
-  // Direct context values instead of nested object
-  sandbox: z.custom<Sandbox>(
-    (val) => {
-      return (
-        val &&
-        typeof val === 'object' &&
-        typeof val.execute === 'function' &&
-        typeof val.cleanup === 'function'
-      );
-    },
-    {
-      message: 'Invalid Sandbox instance',
-    }
-  ),
-  todoList: z.string().optional().default(''),
-  clarificationQuestions: z.array(ClarifyingQuestionSchema).optional(),
-  dataSourceId: z.string().uuid().optional(),
+  // Use the DocsAgentContextSchema directly to ensure exact match
+  context: DocsAgentContextSchema,
 });
 
 // Output schema for the workflow

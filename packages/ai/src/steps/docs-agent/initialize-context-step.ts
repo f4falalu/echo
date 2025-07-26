@@ -15,6 +15,7 @@ const initializeContextStepInputSchema = z.object({
 const initializeContextStepOutputSchema = z.object({
   message: z.string(),
   organizationId: z.string(),
+  contextInitialized: z.boolean(),
   // Use the DocsAgentContextSchema for the context
   context: DocsAgentContextSchema,
 });
@@ -46,6 +47,7 @@ const initializeContextExecution = async ({
   return {
     message: inputData.message,
     organizationId: inputData.organizationId,
+    contextInitialized: true,
     context: {
       sandbox: inputData.context.sandbox,
       todoList: inputData.context.todoList,

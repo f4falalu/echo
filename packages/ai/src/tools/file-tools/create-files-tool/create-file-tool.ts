@@ -3,10 +3,7 @@ import type { RuntimeContext } from '@mastra/core/runtime-context';
 import { createTool } from '@mastra/core/tools';
 import { wrapTraced } from 'braintrust';
 import { z } from 'zod';
-import {
-  type DocsAgentContext,
-  DocsAgentContextKeys,
-} from '../../../context/docs-agent-context';
+import { type DocsAgentContext, DocsAgentContextKeys } from '../../../context/docs-agent-context';
 
 const fileCreateParamsSchema = z.object({
   path: z.string().describe('The relative or absolute path to create the file at'),
