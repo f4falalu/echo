@@ -15,8 +15,9 @@
     }
   },
   "scripts": {
-    "prebuild": "tsx scripts/validate-env.ts",
+    "prebuild": "[ \"$SKIP_ENV_CHECK\" = \"true\" ] || tsx scripts/validate-env.ts",
     "build": "tsc",
+    "build:dry-run": "tsc",
     "typecheck": "tsc --noEmit",
     "dev": "tsc --watch",
     "lint": "biome check --write",
