@@ -7,6 +7,11 @@
       "dependsOn": ["^build"],
       "outputs": ["dist/**", ".next/**"]
     },
+    "build:dry-run": {
+      "dependsOn": ["^build:dry-run"],
+      "outputs": ["dist/**", ".next/**"],
+      "env": ["SKIP_ENV_CHECK"]
+    },
     "dev": {
       "cache": false,
       "persistent": true,
