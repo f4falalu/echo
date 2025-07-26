@@ -78,8 +78,9 @@ function isIgnored(path: string, gitignoreStack: GitignoreRules[]): boolean {
   return false;
 }
 
-async function findEnvFiles(dir: string, baseDir: string = dir): Promise<string[]> {
+async function findEnvAndClaudeFiles(dir: string, baseDir: string = dir): Promise<{ envFiles: string[], claudeDirs: string[] }> {
   const envFiles: string[] = [];
+  const claudeDirs: string[] = [];
   
   async function walkDir(currentDir: string, gitignoreStack: GitignoreRules[]) {
     try {
@@ -98,6 +99,13 @@ async function findEnvFiles(dir: string, baseDir: string = dir): Promise<string[
         if (entry.isDirectory()) {
           // Always skip .git directory
           if (entry.name === '.git') continue;
+          
+          // Check for .claude directory
+          if (entry.name === '.claude') {
+            claudeDirs.push(relativePath);
+            continue; // Don't recurse into .claude directories
+          }
+          
           // Check if directory is ignored
           if (isIgnored(fullPath, gitignoreStack)) {
             continue;
@@ -120,22 +128,45 @@ async function findEnvFiles(dir: string, baseDir: string = dir): Promise<string[
   }
   
   await walkDir(dir, []);
-  return envFiles;
+  return { envFiles, claudeDirs };
 }
 
-async function copyEnvFiles() {
+async function copyDirectory(sourceDir: string, targetDir: string): Promise<void> {
   try {
-    console.info(`Searching for .env files in ${SOURCE_REPO}...`);
+    await fs.mkdir(targetDir, { recursive: true });
     
-    const envFiles = await findEnvFiles(SOURCE_REPO);
+    const entries = await fs.readdir(sourceDir, { withFileTypes: true });
+    
+    for (const entry of entries) {
+      const sourcePath = join(sourceDir, entry.name);
+      const targetPath = join(targetDir, entry.name);
+      
+      if (entry.isDirectory()) {
+        await copyDirectory(sourcePath, targetPath);
+      } else {
+        const content = await fs.readFile(sourcePath, 'utf-8');
+        await fs.writeFile(targetPath, content);
+      }
+    }
+  } catch (error) {
+    throw new Error(`Failed to copy directory: ${error instanceof Error ? error.message : 'Unknown error'}`);
+  }
+}
 
-    if (envFiles.length === 0) {
-      console.warn('No .env files found in source repository');
+async function copyEnvAndClaudeFiles() {
+  try {
+    console.info(`Searching for .env files and .claude folders in ${SOURCE_REPO}...`);
+    
+    const { envFiles, claudeDirs } = await findEnvAndClaudeFiles(SOURCE_REPO);
+
+    if (envFiles.length === 0 && claudeDirs.length === 0) {
+      console.warn('No .env files or .claude folders found in source repository');
       return;
     }
 
-    console.info(`Found ${envFiles.length} .env file(s)`);
+    console.info(`Found ${envFiles.length} .env file(s) and ${claudeDirs.length} .claude folder(s)`);
 
+    // Copy .env files
     for (const envFile of envFiles) {
       const sourcePath = join(SOURCE_REPO, envFile);
       const targetPath = join(TARGET_REPO, envFile);
@@ -155,11 +186,26 @@ async function copyEnvFiles() {
       }
     }
 
-    console.info('\nDone! All .env files have been copied to the worktree.');
+    // Copy .claude directories
+    for (const claudeDir of claudeDirs) {
+      const sourcePath = join(SOURCE_REPO, claudeDir);
+      const targetPath = join(TARGET_REPO, claudeDir);
+
+      console.info(`Copying ${claudeDir}/...`);
+
+      try {
+        await copyDirectory(sourcePath, targetPath);
+        console.info(`  ✓ Copied to ${relative(TARGET_REPO, targetPath)}/`);
+      } catch (error) {
+        console.error(`  ✗ Failed to copy ${claudeDir}: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      }
+    }
+
+    console.info('\nDone! All .env files and .claude folders have been copied to the worktree.');
   } catch (error) {
     console.error('Error:', error instanceof Error ? error.message : 'Unknown error');
     process.exit(1);
   }
 }
 
-copyEnvFiles();
+copyEnvAndClaudeFiles();
