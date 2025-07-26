@@ -57,12 +57,6 @@ export const BusterReactQueryProvider = ({ children }: { children: React.ReactNo
     );
   }, []);
 
-  // const busterApiContext = useMemo(() => {
-  //   return {
-  //     honoInstance: createHonoInstance(BASE_API_URL_V2, checkTokenValidity)
-  //   };
-  // }, [checkTokenValidity]);
-
   useHotkeys(
     'meta+shift+i',
     (e) => {

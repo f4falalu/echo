@@ -4,12 +4,10 @@ export {
   createMessageFileAssociation,
   GenerateAssetMessagesInputSchema,
   type GenerateAssetMessagesInput,
+  getAssetDetailsById,
+  GetAssetDetailsInputSchema,
+  type GetAssetDetailsInput,
+  type AssetDetailsResult,
 } from './assets';
-
-export {
-  getChatDashboardFiles,
-  type DashboardFileContext,
-  type DashboardFile,
-} from './dashboards';
 
 export type { DatabaseAssetType } from './assets';

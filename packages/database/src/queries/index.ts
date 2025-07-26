@@ -5,3 +5,6 @@ export * from './assets';
 export * from './metadata';
 export * from './chats';
 export * from './organizations';
+export * from './dashboards';
+export * from './metrics';
+export * from './collections';

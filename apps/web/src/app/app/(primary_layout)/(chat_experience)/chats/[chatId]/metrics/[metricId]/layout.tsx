@@ -1,3 +1,4 @@
-import MetricLayout from '@metrics/layout';
+import MetricLayout, { generateMetadata } from '@metrics/layout';
 
 export default MetricLayout;
+export { generateMetadata };

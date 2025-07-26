@@ -1,12 +1,14 @@
 import { isServer, QueryClient } from '@tanstack/react-query';
 import type { useBusterNotifications } from '../BusterNotifications';
 import { openErrorNotification as openErrorNotificationMethod } from '../BusterNotifications';
+import {
+  ERROR_RETRY_DELAY,
+  GC_TIME,
+  PREFETCH_STALE_TIME,
+  USER_CANCELLED_ERROR
+} from './queryClientConfig';
 
 type OpenErrorNotification = ReturnType<typeof useBusterNotifications>['openErrorNotification'];
-
-const PREFETCH_STALE_TIME = 1000 * 10; // 10 seconds
-const ERROR_RETRY_DELAY = 1 * 1000; // 1 second delay after error
-const GC_TIME = 1000 * 60 * 60 * 24 * 3; // 24 hours - matches persistence duration
 
 function makeQueryClient(params?: {
   openErrorNotification?: OpenErrorNotification;
@@ -34,7 +36,7 @@ function makeQueryClient(params?: {
       },
       mutations: {
         retry: (failureCount, error) => {
-          if (params?.openErrorNotification) {
+          if (params?.openErrorNotification && error !== USER_CANCELLED_ERROR) {
             params.openErrorNotification(error);
           }
           return false;

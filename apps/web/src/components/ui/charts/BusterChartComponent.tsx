@@ -1,5 +1,6 @@
+'use client';
+
 import type React from 'react';
-import { useMemo } from 'react';
 import { BusterChartJS } from './BusterChartJS';
 import { useDatasetOptions } from './chartHooks';
 import type {
@@ -46,32 +47,18 @@ export const BusterChartComponent: React.FC<BusterChartRenderComponentProps> = (
     columnMetadata
   });
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: we are content with the current dependencies
-  const chartProps: BusterChartComponentProps = useMemo(
-    () => ({
-      ...props,
-      datasetOptions,
-      pieMinimumSlicePercentage,
-      y2AxisKeys,
-      yAxisKeys,
-      tooltipKeys,
-      hasMismatchedTooltipsAndMeasures,
-      isDownsampled,
-      numberOfDataPoints,
-      trendlines
-    }),
-    [
-      props.selectedAxis,
-      pieMinimumSlicePercentage,
-      datasetOptions,
-      y2AxisKeys,
-      yAxisKeys,
-      hasMismatchedTooltipsAndMeasures,
-      tooltipKeys,
-      isDownsampled,
-      numberOfDataPoints
-    ]
-  );
+  const chartProps: BusterChartComponentProps = {
+    ...props,
+    datasetOptions,
+    pieMinimumSlicePercentage,
+    y2AxisKeys,
+    yAxisKeys,
+    tooltipKeys,
+    hasMismatchedTooltipsAndMeasures,
+    isDownsampled,
+    numberOfDataPoints,
+    trendlines
+  };
 
   return <BusterChartJS {...chartProps} />;
 };

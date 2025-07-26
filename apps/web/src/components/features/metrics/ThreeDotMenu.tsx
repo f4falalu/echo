@@ -2,10 +2,11 @@ import React, { useMemo } from 'react';
 import { useGetMetric } from '@/api/buster_rest/metrics';
 import { useChatLayoutContextSelector } from '@/layouts/ChatLayout';
 import { DropdownContent, DropdownItems, type DropdownItem } from '@/components/ui/dropdown';
-import { History, Star } from '@/components/ui/icons';
+import { History, Star, WandSparkle } from '@/components/ui/icons';
 import { Star as StarFilled } from '@/components/ui/icons/NucleoIconFilled';
 import { useListVersionDropdownItems } from '../versionHistory/useListVersionDropdownItems';
 import { useFavoriteStar } from '../list';
+import { FollowUpWithAssetContent } from '../popups/FollowUpWithAsset';
 
 export const useVersionHistorySelectMenu = ({ metricId }: { metricId: string }): DropdownItem => {
   const chatId = useChatLayoutContextSelector((x) => x.chatId);
@@ -68,4 +69,24 @@ export const useFavoriteMetricSelectMenu = ({ metricId }: { metricId: string }) 
   );
 
   return item;
+};
+
+export const useMetricDrilldownItem = ({ metricId }: { metricId: string }): DropdownItem => {
+  return useMemo(
+    () => ({
+      value: 'drilldown',
+      label: 'Drill down & filter',
+      items: [
+        <FollowUpWithAssetContent
+          key="drilldown-and-filter"
+          assetType="metric"
+          assetId={metricId}
+          placeholder="Describe how you want to drill down or filter..."
+          buttonText="Submit request"
+        />
+      ],
+      icon: <WandSparkle />
+    }),
+    [metricId]
+  );
 };

@@ -3,10 +3,10 @@ import { Popover, type PopoverProps } from '../../ui/popover';
 import { InputCard } from '../../ui/card/InputCard';
 import type { ShareAssetType } from '@buster/server-shared/share';
 import { useMemoizedFn } from '../../../hooks';
-import { useStartChatFromAsset } from '../../../api/buster_rest/chats';
+import { useStartChatFromAsset } from '@/api/buster_rest/chats';
 import { AppTooltip } from '../../ui/tooltip';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
-import { assetParamsToRoute } from '../../../lib/assets';
+import { assetParamsToRoute } from '@/lib/assets';
 
 type FollowUpWithAssetProps = {
   assetType: Exclude<ShareAssetType, 'chat' | 'collection'>;
@@ -33,12 +33,25 @@ export const FollowUpWithAssetContent: React.FC<{
     const { mutateAsync: startChatFromAsset, isPending } = useStartChatFromAsset();
     const onChangePage = useAppLayoutContextSelector((x) => x.onChangePage);
 
+    const transformPrompt = useMemoizedFn((userPrompt: string): string => {
+      if (assetType === 'dashboard') {
+        return `Hey Buster. Please recreate this dashboard applying this filter to the metrics on the dashboard: ${userPrompt}`;
+      }
+
+      if (assetType === 'metric') {
+        return `Hey Buster. Can you filter or drill down into this metric based on the following request: ${userPrompt}`;
+      }
+
+      return userPrompt;
+    });
+
     const onSubmit = useMemoizedFn(async (prompt: string) => {
       if (!prompt || !assetId || !assetType || isPending) return;
+
       const res = await startChatFromAsset({
         asset_id: assetId,
         asset_type: assetType,
-        prompt
+        prompt: transformPrompt(prompt)
       });
       const link = assetParamsToRoute({
         assetId,

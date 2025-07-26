@@ -15,12 +15,10 @@ import {
 import { ASSET_ICONS } from '@/components/features/config/assetIcons';
 import { useSaveToCollectionsDropdownContent } from '@/components/features/dropdowns/SaveToCollectionsDropdown';
 import { useSaveToDashboardDropdownContent } from '@/components/features/dropdowns/SaveToDashboardDropdown';
-import { useFavoriteStar } from '@/components/features/list/FavoriteStar';
 import { StatusBadgeIndicator } from '@/components/features/metrics/StatusBadgeIndicator';
 import { useStatusDropdownContent } from '@/components/features/metrics/StatusBadgeIndicator/useStatusDropdownContent';
 import { getShareAssetConfig } from '@/components/features/ShareMenu/helpers';
 import { ShareMenuContent } from '@/components/features/ShareMenu/ShareMenuContent';
-import { useListVersionDropdownItems } from '@/components/features/versionHistory/useListVersionDropdownItems';
 import { Button } from '@/components/ui/buttons';
 import {
   Dropdown,
@@ -32,17 +30,14 @@ import {
   ArrowUpRight,
   Dots,
   Download4,
-  History,
   Pencil,
   ShareRight,
   SquareChart,
   SquareChartPen,
   SquareCode,
-  Star,
   Table,
   Trash
 } from '@/components/ui/icons';
-import { Star as StarFilled } from '@/components/ui/icons/NucleoIconFilled';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 import { useBusterNotifications } from '@/context/BusterNotifications';
 import { useUserConfigContextSelector } from '@/context/Users';
@@ -57,11 +52,12 @@ import {
 import { timeout } from '@/lib';
 import { downloadElementToImage, exportJSONToCSV } from '@/lib/exportUtils';
 import { canEdit, getIsEffectiveOwner, getIsOwner } from '@/lib/share';
-import { BusterRoutes, createBusterRoute } from '@/routes';
+import { BusterRoutes } from '@/routes';
 import { assetParamsToRoute } from '@/lib/assets';
 import {
   useFavoriteMetricSelectMenu,
-  useVersionHistorySelectMenu
+  useVersionHistorySelectMenu,
+  useMetricDrilldownItem
 } from '@/components/features/metrics/ThreeDotMenu';
 
 export const ThreeDotMenuButton = React.memo(
@@ -90,6 +86,7 @@ export const ThreeDotMenuButton = React.memo(
     const deleteMetricMenu = useDeleteMetricSelectMenu({ metricId });
     const renameMetricMenu = useRenameMetricSelectMenu({ metricId });
     const shareMenu = useShareMenuSelectMenu({ metricId });
+    const drilldownItem = useMetricDrilldownItem({ metricId });
 
     const isEditor = canEdit(permission);
     const isOwnerEffective = getIsEffectiveOwner(permission);
@@ -99,6 +96,7 @@ export const ThreeDotMenuButton = React.memo(
       () =>
         [
           chatId && openFullScreenMetric,
+          // drilldownItem,
           isOwnerEffective && !isViewingOldVersion && shareMenu,
           isEditor && !isViewingOldVersion && statusSelectMenu,
           { type: 'divider' },
@@ -120,6 +118,7 @@ export const ThreeDotMenuButton = React.memo(
       [
         chatId,
         openFullScreenMetric,
+        drilldownItem,
         isEditor,
         isOwner,
         isOwnerEffective,

@@ -14,8 +14,9 @@
     }
   },
   "scripts": {
-    "prebuild": "tsx scripts/validate-env.ts",
+    "prebuild": "[ \"$SKIP_ENV_CHECK\" = \"true\" ] || tsx scripts/validate-env.ts",
     "build": "tsc",
+    "build:dry-run": "tsc",
     "typecheck": "tsc --noEmit",
     "dev": "tsc --watch",
     "dev:mastra": "mastra dev --dir src",

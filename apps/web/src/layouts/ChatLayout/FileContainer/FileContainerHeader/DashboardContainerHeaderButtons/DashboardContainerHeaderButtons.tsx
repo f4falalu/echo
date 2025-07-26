@@ -38,7 +38,7 @@ export const DashboardContainerHeaderButtons: React.FC<FileContainerButtonsProps
 
     return (
       <FileButtonContainer>
-        {isShareable && <FollowUpWithAssetButton dashboardId={dashboardId} />}
+        {/* {isShareable && <FollowUpWithAssetButton dashboardId={dashboardId} />} */}
         <SaveToCollectionButton dashboardId={dashboardId} />
         {isEffectiveOwner && <ShareDashboardButton dashboardId={dashboardId} />}
         {isEditor && !isViewingOldVersion && <AddContentToDashboardButton />}

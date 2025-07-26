@@ -14,7 +14,7 @@ type Story = StoryObj<typeof AppMarkdownStreaming>;
 
 const redRisingPoemTokenArray = [
   {
-    token: '# TEST\n\n',
+    token: '\n\n# TEST\n\n',
     delayMs: 1000
   },
   // {
@@ -45,8 +45,8 @@ const redRisingPoemTokenArray = [
       '  - identity\n' +
       '```\n\n',
     delayMs: 2000
-  },
-  {
+  }
+  /*  {
     token:
       'Pierce Brown, the author of the *"Red Rising"* series, is a celebrated `American` science fiction writer known for his captivating storytelling and intricate world-building. Born on January 28, 1988, in Denver, Colorado, Brown developed a passion for writing at a young age, inspired by the works of **J.R.R. Tolkien** and **George R.R. Martin**. He pursued his `education` at *Pepperdine University*, where he honed his skills in political science and economics, which later influenced the complex socio-political landscapes in his novels. Brown\'s debut novel, *"Red Rising,"* published in 2014, quickly gained a dedicated following, praised for its gripping narrative and richly developed characters. The series, set in a dystopian future where society is divided by color-coded castes, explores themes of power, rebellion, and identity. Brown\'s ability to weave intense action with profound philosophical questions has earned him critical acclaim and a loyal fanbase. Beyond writing, Brown is known for his engaging presence on social media, where he interacts with fans and shares insights into his creative process. His work continues to resonate with readers worldwide, solidifying his place as a prominent voice in contemporary science fiction literature.',
     delayMs: 2000
@@ -67,6 +67,7 @@ const redRisingPoemTokenArray = [
     token: '## PAUSE 30 seconds\n\n',
     delayMs: 2000
   }
+    */
 ];
 
 const actualTokenArray = [
@@ -195,10 +196,15 @@ const StreamingDemo: React.FC<{ animation: MarkdownAnimation }> = ({ animation }
     ...redRisingPoemTokenArray,
     ...actualTokenArray
   ]);
+
   return (
     <div className="flex w-full space-y-4 space-x-4">
       <div className="w-1/2">
-        <AppMarkdownStreaming content={output} isStreamFinished={isStreamFinished} />
+        <AppMarkdownStreaming
+          content={output}
+          isStreamFinished={isStreamFinished}
+          animation={animation}
+        />
       </div>
       <div className="flex w-1/2 flex-col space-y-2 rounded-md border border-gray-200 p-4">
         <h1 className="bg-gray-100 p-2 text-2xl font-bold">ACTUAL OUTPUT FROM LLM</h1>
@@ -211,12 +217,15 @@ const StreamingDemo: React.FC<{ animation: MarkdownAnimation }> = ({ animation }
 };
 
 export const Default: Story = {
-  render: () => <StreamingDemo animation="fadeIn" />
+  render: () => <StreamingDemo animation="blurIn" />
 };
 
 export const NoAnimation: Story = {
   render: () => {
-    const output = [...actualTokenArray, ...redRisingPoemTokenArray]
+    const output = [
+      ...redRisingPoemTokenArray
+      //...actualTokenArray
+    ]
       .map((token) => token.token)
       .join('');
     const isStreamFinished = true;

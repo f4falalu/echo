@@ -10,11 +10,10 @@ type LLMAnimatedMarkdownProps = {
 
 export const LLMAnimatedMarkdown: React.FC<LLMAnimatedMarkdownProps> = React.memo(
   ({ blockMatch }) => {
-    const markdown = blockMatch.llmOutput;
+    const markdown = blockMatch.output;
     const {
       animation,
       stripFormatting,
-
       animationDuration,
       isStreamFinished,
       animationTimingFunction

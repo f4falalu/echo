@@ -47,7 +47,7 @@ export const MessageContainer = forwardRef<HTMLDivElement, MessageContainerProps
           ) : (
             <BusterLoadingAvatar
               loading={!isStreamFinished && !isFinishedReasoning}
-              variant={hasReasoningMessage ? 'default' : 'gray'}
+              variant={hasReasoningMessage || isStreamFinished ? 'default' : 'gray'}
             />
           )}
         </div>

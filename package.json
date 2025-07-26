@@ -4,6 +4,7 @@
   "scripts": {
     "ai:dev": "pnpm --filter @buster/ai dev",
     "build": "turbo build",
+    "build:dry-run": "SKIP_ENV_CHECK=true turbo run build:dry-run",
     "check": "biome check ${1:-.}",
     "check:fix": "biome check --write ${1:-.}",
     "ci:check": "pnpm run check && pnpm run typecheck",
