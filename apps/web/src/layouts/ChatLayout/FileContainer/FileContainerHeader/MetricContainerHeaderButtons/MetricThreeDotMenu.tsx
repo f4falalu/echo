@@ -49,7 +49,8 @@ import {
   type MetricFileViewSecondary,
   useChatLayoutContextSelector
 } from '@/layouts/ChatLayout/ChatLayoutContext';
-import { timeout } from '@/lib';
+import { timeout } from '@/lib/timeout';
+import { ensureElementExists } from '@/lib/element';
 import { downloadElementToImage, exportJSONToCSV } from '@/lib/exportUtils';
 import { canEdit, getIsEffectiveOwner, getIsOwner } from '@/lib/share';
 import { BusterRoutes } from '@/routes';
@@ -435,15 +436,27 @@ const useDeleteMetricSelectMenu = ({ metricId }: { metricId: string }) => {
 
 const useRenameMetricSelectMenu = ({ metricId }: { metricId: string }) => {
   const onSetFileView = useChatLayoutContextSelector((x) => x.onSetFileView);
+  const onChangePage = useAppLayoutContextSelector((x) => x.onChangePage);
+  const chatId = useChatLayoutContextSelector((x) => x.chatId);
+  const dashboardId = useChatLayoutContextSelector((x) => x.dashboardId);
   return useMemo(
     () => ({
       label: 'Rename metric',
       value: 'rename-metric',
       icon: <Pencil />,
       onClick: async () => {
-        onSetFileView({ fileView: 'chart' });
-        await timeout(125);
-        const input = document.getElementById(METRIC_CHART_TITLE_INPUT_ID) as HTMLInputElement;
+        const route = assetParamsToRoute({
+          type: 'metric',
+          assetId: metricId,
+          chatId,
+          dashboardId,
+          page: 'chart'
+        });
+        await onChangePage(route);
+        await timeout(100);
+        const input = await ensureElementExists(
+          () => document.getElementById(METRIC_CHART_TITLE_INPUT_ID) as HTMLInputElement
+        );
         if (input) {
           input.focus();
           input.select();
