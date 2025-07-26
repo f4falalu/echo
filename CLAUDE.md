@@ -283,3 +283,10 @@ export async function getWorkspaceSettingsHandler(
 ## Pre-Completion Workflow
 - Always run `turbo test:unit, lint, and build:dry-run` before making any pull request or finishing a feature, bugfix, etc. to ensure things make it through CI/CD
 - You can run all these checks simultaneously with `turbo build:dry-run lint test:unit`
+
+## Local Development
+
+### Local Development Details
+- The local dev app is typically running at localhost:3000
+- To get the app up and running you need to run turbo dev from root
+```
