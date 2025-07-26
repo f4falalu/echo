@@ -147,7 +147,7 @@ const useCollectionSelectMenu = ({ dashboardId }: { dashboardId: string }) => {
   const { mutateAsync: removeDashboardFromCollection } = useRemoveDashboardFromCollection();
   const { data: selectedCollections } = useGetDashboard(
     { id: dashboardId },
-    { select: (x) => x.collections?.map((x) => x.id) }
+    { select: (x) => x.collections?.map((collection) => collection.id) }
   );
   const { openInfoMessage } = useBusterNotifications();
 
