@@ -66,7 +66,7 @@ export const DashboardThreeDotMenu = React.memo(
       () =>
         [
           chatId && openFullScreenDashboard,
-          isFilter && !isViewingOldVersion && filterDashboardMenu,
+          // isFilter && !isViewingOldVersion && filterDashboardMenu,
           isEditor && !isViewingOldVersion && addContentToDashboardMenu,
           { type: 'divider' },
           isEffectiveOwner && !isViewingOldVersion && shareMenu,

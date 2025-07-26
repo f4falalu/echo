@@ -64,7 +64,7 @@ const MetricItemCardThreeDotMenuPopover: React.FC<{
         openChartItem,
         removeFromDashboardItem,
         { type: 'divider' },
-        drilldownItem,
+        // drilldownItem,
         shareMenu,
         { type: 'divider' },
         editWithAI,

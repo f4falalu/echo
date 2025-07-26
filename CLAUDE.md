@@ -32,6 +32,20 @@ This is a pnpm-based monorepo using Turborepo with the following structure:
 - `packages/supabase` - Supabase setup and configuration
 - `packages/sandbox` - Sandboxed code execution using Daytona SDK
 
+## Plan & Review
+
+### Before starting work
+- Always in plan mode to make a plan
+- After get the plan, make sure you write the plan to `.claude/tasks/TASK_NAME.md`
+- The plan should be a detailed implementation plan and the reasoning behind them, as well as tasks broken down.
+- If the task require external knowledge or certain packages, also research to get latest knowledge (Use Task tool for research)
+- Don't over plan it, always think MVP.
+- Once you write the plan, firstly ask me to review it. Do not continue until I approve the plan.
+
+### While implementing
+- You should update the plan as you work.
+- After you complete tasks in the plan, you should update and append detailed descriptions of the changes you made, so following tasks can be easily hand over to other engineers.
+
 ## Development Workflow
 
 When writing code, follow this workflow to ensure code quality:
@@ -259,10 +273,20 @@ export async function getWorkspaceSettingsHandler(
 ### Soft Delete and Upsert Practices
 - In our database, we never hard delete, we always use soft deletes with the `deleted_at` field
 - For update operations, we should almost always perform an upsert unless otherwise specified
-```
 
-**Test Running Guidelines**:
+## Test Running Guidelines
 - When running tests, use the following Turbo commands:
   - `turbo test:unit` for unit tests
   - `turbo test:integration` for integration tests
   - `turbo test` for running all tests
+
+## Pre-Completion Workflow
+- Always run `turbo test:unit, lint, and build:dry-run` before making any pull request or finishing a feature, bugfix, etc. to ensure things make it through CI/CD
+- You can run all these checks simultaneously with `turbo build:dry-run lint test:unit`
+
+## Local Development
+
+### Local Development Details
+- The local dev app is typically running at localhost:3000
+- To get the app up and running you need to run turbo dev from root
+```
