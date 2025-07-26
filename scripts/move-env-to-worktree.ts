@@ -95,17 +95,22 @@ async function findEnvFiles(dir: string, baseDir: string = dir): Promise<string[
         const fullPath = join(currentDir, entry.name);
         const relativePath = relative(baseDir, fullPath);
         
-        // Check if this path is ignored
-        if (isIgnored(fullPath, gitignoreStack)) {
-          continue;
-        }
-        
         if (entry.isDirectory()) {
           // Always skip .git directory
           if (entry.name === '.git') continue;
+          // Check if directory is ignored
+          if (isIgnored(fullPath, gitignoreStack)) {
+            continue;
+          }
           await walkDir(fullPath, gitignoreStack);
-        } else if (entry.name.startsWith('.env')) {
+        } else if (entry.name.startsWith('.env') && !entry.name.endsWith('.example')) {
+          // Always include .env files (but not .env.example), regardless of gitignore rules
           envFiles.push(relativePath);
+        } else {
+          // For non-.env files, check if they're ignored
+          if (isIgnored(fullPath, gitignoreStack)) {
+            continue;
+          }
         }
       }
     } catch (error) {
