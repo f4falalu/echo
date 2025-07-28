@@ -144,16 +144,25 @@ LIMIT 5;`
       }
     ],
     type: 'ul'
+  },
+  {
+    children: [
+      {
+        children: [{ text: 'Blockquotes and callouts' }],
+        type: 'li'
+      }
+    ],
+    type: 'ul'
+  },
+  {
+    children: [
+      {
+        text: 'This is an informational callout that helps draw attention to important information. You can use callouts to highlight tips, warnings, or key insights throughout your report.'
+      }
+    ],
+    type: 'callout',
+    variant: 'info'
   }
-  //   {
-  //     children: [
-  //       {
-  //         children: [{ text: 'Blockquotes and callouts' }],
-  //         type: 'li'
-  //       }
-  //     ],
-  //     type: 'ul'
-  //   },
   //   {
   //     children: [{ text: 'Ordered List' }],
   //     type: 'h4'
@@ -210,15 +219,6 @@ LIMIT 5;`
   //   {
   //     children: [{ text: 'Important Note' }],
   //     type: 'h4'
-  //   },
-  //   {
-  //     children: [
-  //       {
-  //         text: '💡 This is an informational callout that helps draw attention to important information. You can use callouts to highlight tips, warnings, or key insights throughout your report.'
-  //       }
-  //     ],
-  //     type: 'callout',
-  //     variant: 'info'
   //   },
   //   {
   //     children: [
