@@ -99,14 +99,9 @@ export async function findUsersByEmails(
           avatarUrl: user.avatarUrl,
         });
       } else if (options?.createIfNotExists) {
-        // Create user
-        const newUser = await findUserByEmail(email, { createIfNotExists: true });
-        if (newUser) {
-          users.push(newUser);
-          created.push(email);
-        } else {
-          notFound.push(email);
-        }
+        // TODO: Create user when createUser is available
+        // For now, treat as not found since creation is not implemented
+        notFound.push(email);
       } else {
         notFound.push(email);
       }

@@ -10,7 +10,7 @@ This package provides comprehensive access control functionality for Buster, mig
 - ✅ Cascading permissions
 - ✅ LRU caching (replacing Redis)
 - ✅ User lookup utilities
-- ⏳ Tests need to be written
+- ✅ Tests written (148 tests passing, 3 skipped)
 - ⏳ Integration with existing handlers needs to be done
 
 ### Architecture Decisions
@@ -98,7 +98,7 @@ if (!canEdit) {
 }
 
 // Invalidate cache after changes
-await createPermission({ ... });
+await createPermissionByEmail({ ... });
 invalidateUserAsset(userId, assetId, assetType);
 ```
 

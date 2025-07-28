@@ -167,8 +167,8 @@ export async function getPermissionedDatasets(
 
   // Path 5: User → org → default permission group → dataset
   const orgIds = userOrgs.map((o) => o.organizationId);
-  for (const orgId of orgIds) {
-    const defaultGroupName = `default:${orgId}`;
+  if (orgIds.length > 0) {
+    const defaultGroupNames = orgIds.map((orgId) => `default:${orgId}`);
 
     const defaultGroupDatasets = await db
       .select({ datasetId: datasetsToPermissionGroups.datasetId })
@@ -177,8 +177,8 @@ export async function getPermissionedDatasets(
         permissionGroups,
         and(
           eq(datasetsToPermissionGroups.permissionGroupId, permissionGroups.id),
-          eq(permissionGroups.name, defaultGroupName),
-          eq(permissionGroups.organizationId, orgId),
+          inArray(permissionGroups.name, defaultGroupNames),
+          inArray(permissionGroups.organizationId, orgIds),
           isNull(permissionGroups.deletedAt)
         )
       )

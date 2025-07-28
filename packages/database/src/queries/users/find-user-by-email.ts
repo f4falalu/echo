@@ -1,14 +1,14 @@
 import { eq, inArray } from 'drizzle-orm';
+import type { InferSelectModel } from 'drizzle-orm';
 import { db } from '../../connection';
 import { users } from '../../schema';
+
+type User = InferSelectModel<typeof users>;
 
 /**
  * Find a user by their email address
  * Returns null if user not found
  */
-import type { InferSelectModel } from 'drizzle-orm';
-
-type User = InferSelectModel<typeof users>;
 
 export async function findUserByEmail(email: string): Promise<User | null> {
   const [user] = await db.select().from(users).where(eq(users.email, email)).limit(1);

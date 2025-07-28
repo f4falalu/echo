@@ -3,7 +3,6 @@ import {
   type ListAssetPermissionsParams,
   type RemoveAssetPermissionParams,
   bulkCreateAssetPermissions,
-  bulkRemoveAssetPermissions,
   createAssetPermission,
   findUserByEmail,
   getUserAssetPermission,
