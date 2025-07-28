@@ -1,4 +1,4 @@
-import { and, eq, isNull, ne } from 'drizzle-orm';
+import { and, eq, isNull, sql } from 'drizzle-orm';
 import type { InferSelectModel } from 'drizzle-orm';
 import { db } from '../../connection';
 import { assetPermissions, users } from '../../schema';
@@ -126,7 +126,7 @@ export async function countAssetPermissions(
   assetType: AssetType
 ): Promise<number> {
   const result = await db
-    .select({ count: assetPermissions.identityId })
+    .select({ count: sql<number>`COUNT(*)` })
     .from(assetPermissions)
     .where(
       and(
@@ -136,5 +136,5 @@ export async function countAssetPermissions(
       )
     );
 
-  return result.length;
+  return result[0]?.count ?? 0;
 }

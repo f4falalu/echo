@@ -1,5 +1,5 @@
 import { LRUCache } from 'lru-cache';
-import type { PermissionedDataset } from '../types/dataset-permissions';
+import type { DatasetAccessPath, PermissionedDataset } from '../types/dataset-permissions';
 
 // Cache for dataset permissions - stores arrays of accessible datasets per user
 const datasetCache = new LRUCache<
@@ -15,7 +15,13 @@ const datasetCache = new LRUCache<
 });
 
 // Cache for individual dataset access checks
-const accessCache = new LRUCache<string, boolean>({
+interface CachedDatasetAccess {
+  hasAccess: boolean;
+  accessPath?: DatasetAccessPath;
+  userRole?: string;
+}
+
+const accessCache = new LRUCache<string, CachedDatasetAccess>({
   max: 5000, // Maximum 5k entries
   ttl: 30 * 1000, // 30 seconds
   updateAgeOnGet: true,
@@ -63,7 +69,10 @@ export function setCachedPermissionedDatasets(
 /**
  * Get cached dataset access check result
  */
-export function getCachedDatasetAccess(userId: string, datasetId: string): boolean | undefined {
+export function getCachedDatasetAccess(
+  userId: string,
+  datasetId: string
+): CachedDatasetAccess | undefined {
   const key = `access:${userId}:${datasetId}`;
   const cached = accessCache.get(key);
 
@@ -82,10 +91,10 @@ export function getCachedDatasetAccess(userId: string, datasetId: string): boole
 export function setCachedDatasetAccess(
   userId: string,
   datasetId: string,
-  hasAccess: boolean
+  accessResult: CachedDatasetAccess
 ): void {
   const key = `access:${userId}:${datasetId}`;
-  accessCache.set(key, hasAccess);
+  accessCache.set(key, accessResult);
 }
 
 /**

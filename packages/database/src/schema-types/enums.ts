@@ -28,4 +28,9 @@ export type IdentityType = 'user' | 'team' | 'organization';
 
 export type WorkspaceSharing = 'none' | 'can_view' | 'can_edit' | 'full_access';
 
-export type UserOrganizationRole = 'workspace_admin' | 'data_admin' | 'querier' | 'viewer';
+export type UserOrganizationRole =
+  | 'workspace_admin'
+  | 'data_admin'
+  | 'querier'
+  | 'restricted_querier'
+  | 'viewer';

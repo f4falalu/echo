@@ -28,7 +28,7 @@ export interface DatasetListResult {
 
 /**
  * Get all datasets a user has permission to access
- * Implements the 5 access paths from the Rust code
+ * Implements the 6 access paths from the Rust code
  */
 export async function getPermissionedDatasets(
   params: DatasetListParams
@@ -88,18 +88,19 @@ export async function checkDatasetAccess(params: DatasetAccessCheck): Promise<Da
   // Check cache first
   const cached = getCachedDatasetAccess(userId, datasetId);
   if (cached !== undefined) {
-    return {
-      hasAccess: cached,
-      // Note: We don't cache accessPath and userRole for simplicity
-      // If you need these, consider caching the full result object
-    };
+    return cached;
   }
 
   try {
     const result = await hasDbDatasetAccess(userId, datasetId);
 
-    // Cache the boolean result
-    setCachedDatasetAccess(userId, datasetId, result.hasAccess);
+    // Cache the full result
+    const cacheResult = {
+      hasAccess: result.hasAccess,
+      ...(result.accessPath !== undefined && { accessPath: result.accessPath }),
+      ...(result.userRole !== undefined && { userRole: result.userRole }),
+    };
+    setCachedDatasetAccess(userId, datasetId, cacheResult);
 
     const returnResult: DatasetAccessResult = {
       hasAccess: result.hasAccess,

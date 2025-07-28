@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import type { IdentityType } from './asset-permissions';
 
 // Internal types for dataset permissions
 
@@ -45,7 +46,7 @@ export interface DatasetPermission {
 export interface PermissionGroupIdentity {
   permissionGroupId: string;
   identityId: string;
-  identityType: 'user' | 'team';
+  identityType: IdentityType;
   createdAt: Date;
   updatedAt: Date;
   deletedAt: Date | null;

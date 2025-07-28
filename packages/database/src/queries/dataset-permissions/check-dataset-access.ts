@@ -26,7 +26,7 @@ export interface DatasetAccessResult {
 
 /**
  * Check if a user has access to a specific dataset
- * Implements all 5 access paths from the Rust code
+ * Implements all 6 access paths from the Rust code
  */
 export async function hasDatasetAccess(
   userId: string,
