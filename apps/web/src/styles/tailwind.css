@@ -108,12 +108,39 @@
   --color-text-danger: var(--color-danger-foreground);
   --color-text-primary: var(--color-primary);
 
+  /* shadcn migration */
+  --background: var(--color-background);
+  --foreground: var(--color-foreground);
+  --card: var(--color-background);
+  --card-foreground: var(--color-foreground);
+  --popover: var(--color-background);
+  --popover-foreground: var(--color-foreground);
+  --primary: var(--color-primary);
+  --primary-foreground: var(--color-primary);
+  --secondary: var(--color-gray-dark);
+  --muted: var(--color-gray-light);
+  --muted-foreground: var(--color-gray-dark);
+  --accent: var(--color-primary);
+  --accent-foreground: var(--color-primary);
+  --destructive: var(--color-danger-foreground);
+  --border: var(--color-border);
+  --input: var(--color-border);
+
   --spacing: 4px;
+}
+
+/* mostly used for tailwind extension */
+@theme inline {
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
 }
 
 @layer base {
   * {
-    @apply border-border outline-ring/50;
+    @apply border-border outline-ring/0;
   }
   body {
     @apply bg-background-secondary text-foreground text-base;
