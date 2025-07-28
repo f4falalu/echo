@@ -64,7 +64,7 @@ type BusterChatMessageResponse = z.infer<typeof BusterChatMessageResponseSchema>
 const outputSchema = ThinkAndPrepOutputSchema;
 
 const DEFAULT_CACHE_OPTIONS = {
-  anthropic: { cacheControl: { type: 'ephemeral' } },
+  anthropic: { cacheControl: { type: 'ephemeral', ttl: '1h' } },
 };
 
 // Helper function to create the result object
@@ -254,12 +254,12 @@ ${databaseContext}
             const systemMessages: CoreMessage[] = [
               {
                 role: 'system',
-                content: createDatasetSystemMessage(assembledYmlContent),
+                content: createThinkAndPrepInstructionsWithoutDatasets(sqlDialectGuidance),
                 providerOptions: DEFAULT_CACHE_OPTIONS,
               },
               {
                 role: 'system',
-                content: createThinkAndPrepInstructionsWithoutDatasets(sqlDialectGuidance),
+                content: createDatasetSystemMessage(assembledYmlContent),
                 providerOptions: DEFAULT_CACHE_OPTIONS,
               },
             ];

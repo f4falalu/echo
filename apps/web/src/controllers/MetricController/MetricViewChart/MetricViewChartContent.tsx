@@ -1,4 +1,6 @@
-import React, { useMemo } from 'react';
+'use client';
+
+import React from 'react';
 import type { BusterMetricData, BusterMetric } from '@/api/asset_interfaces/metric';
 import type { DataMetadata } from '@buster/server-shared/metrics';
 import { BusterChartDynamic } from '@/components/ui/charts/BusterChartDynamic';

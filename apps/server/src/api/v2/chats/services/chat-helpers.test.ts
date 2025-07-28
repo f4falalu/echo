@@ -1,296 +1,531 @@
+import type { Chat, Message, User } from '@buster/database';
+import type { ChatAssetType, ChatWithMessages } from '@buster/server-shared/chats';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-// Mock the database connection and database functions BEFORE any other imports
-vi.mock('@buster/database/connection', () => ({
-  initializePool: vi.fn(),
-  getPool: vi.fn(),
-}));
+// Mock dependencies
 vi.mock('@buster/database', () => ({
-  createMessage: vi.fn(),
   db: {
-    transaction: vi.fn((callback: any) => callback({ insert: vi.fn() })),
+    update: vi.fn().mockReturnThis(),
+    insert: vi.fn().mockReturnThis(),
+    select: vi.fn().mockReturnThis(),
+    from: vi.fn().mockReturnThis(),
+    where: vi.fn().mockReturnThis(),
+    set: vi.fn().mockReturnThis(),
+    returning: vi.fn().mockReturnThis(),
+    values: vi.fn().mockReturnThis(),
+    limit: vi.fn().mockReturnThis(),
+    transaction: vi.fn(),
   },
-  getChatWithDetails: vi.fn(),
-  getMessagesForChat: vi.fn(),
   chats: {},
   messages: {},
+  messagesToFiles: {},
+  dashboardFiles: {},
+  metricFiles: {},
+  eq: vi.fn(),
+  and: vi.fn(),
+  isNull: vi.fn(),
+  inArray: vi.fn(),
+  generateAssetMessages: vi.fn(),
+  createMessage: vi.fn(),
+  getChatWithDetails: vi.fn(),
+  getMessagesForChat: vi.fn(),
+  createMessageFileAssociation: vi.fn(),
 }));
 
-// Mock the access-controls package
 vi.mock('@buster/access-controls', () => ({
   canUserAccessChatCached: vi.fn(),
 }));
 
-import { canUserAccessChatCached } from '@buster/access-controls';
-import * as database from '@buster/database';
-import type { Chat, Message } from '@buster/database';
-import { ChatError, ChatErrorCode } from '@buster/server-shared/chats';
-import { buildChatWithMessages, handleExistingChat, handleNewChat } from './chat-helpers';
+vi.mock('./server-asset-conversion', () => ({
+  convertChatAssetTypeToDatabaseAssetType: vi.fn((type: ChatAssetType) =>
+    type === 'metric' ? 'metric_file' : 'dashboard_file'
+  ),
+}));
 
-const mockUser = {
-  id: '550e8400-e29b-41d4-a716-446655440001',
-  name: 'Test User',
-  email: 'test@example.com',
-  avatarUrl: null,
-};
+import { createMessage, db, generateAssetMessages } from '@buster/database';
+import { eq } from 'drizzle-orm';
+import { handleAssetChat, handleAssetChatWithPrompt } from './chat-helpers';
 
-const mockChat: Chat = {
-  id: 'chat-123',
-  title: 'Test Chat',
-  organizationId: '550e8400-e29b-41d4-a716-446655440000',
-  createdBy: '550e8400-e29b-41d4-a716-446655440001',
-  updatedBy: '550e8400-e29b-41d4-a716-446655440001',
-  createdAt: new Date().toISOString(),
-  updatedAt: new Date().toISOString(),
-  publiclyAccessible: false,
-  deletedAt: null,
-  publiclyEnabledBy: null,
-  publicExpiryDate: null,
-  mostRecentFileId: null,
-  mostRecentFileType: null,
-  mostRecentVersionNumber: null,
-};
-
-const mockMessage: Message = {
-  id: 'msg-123',
-  chatId: 'chat-123',
-  createdBy: 'user-123',
-  requestMessage: 'Test message',
-  responseMessages: {},
-  reasoning: {},
-  title: 'Test message',
-  rawLlmMessages: {},
-  finalReasoningMessage: null,
-  isCompleted: false,
-  createdAt: new Date().toISOString(),
-  updatedAt: new Date().toISOString(),
-  deletedAt: null,
-  feedback: null,
-  postProcessingMessage: null,
-  triggerRunId: null,
-};
-
-describe('buildChatWithMessages', () => {
-  it('should build a ChatWithMessages object from database entities', () => {
-    const result = buildChatWithMessages(mockChat, [mockMessage], mockUser, true);
-    expect(result).toMatchObject({
-      id: 'chat-123',
-      title: 'Test Chat',
-      is_favorited: true,
-      message_ids: ['msg-123'],
-      messages: {
-        'msg-123': {
-          id: 'msg-123',
-          created_at: expect.any(String),
-          updated_at: expect.any(String),
-          request_message: {
-            request: 'Test message',
-            sender_id: 'user-123',
-            sender_name: 'Test User',
-          },
-          response_messages: {},
-          response_message_ids: [],
-          reasoning_message_ids: [],
-          reasoning_messages: {},
-          final_reasoning_message: null,
-          feedback: null,
-          is_completed: false,
-        },
-      },
-      created_at: expect.any(String),
-      updated_at: expect.any(String),
-      created_by: '550e8400-e29b-41d4-a716-446655440001',
-      created_by_id: '550e8400-e29b-41d4-a716-446655440001',
-      created_by_name: 'Test User',
-      created_by_avatar: null,
-      publicly_accessible: false,
-      permission: 'owner',
-    });
-  });
-
-  it('should handle missing creator details', () => {
-    const result = buildChatWithMessages(mockChat, [], null, false);
-
-    expect(result.created_by_name).toBe('Unknown User');
-    expect(result.created_by_avatar).toBeNull();
-  });
-});
-
-describe('handleExistingChat', () => {
-  const mockUser = {
-    id: 'user-1',
-    email: 'test@example.com',
+describe('chat-helpers', () => {
+  const mockUser: User = {
+    id: 'user-123',
     name: 'Test User',
+    email: 'test@example.com',
     avatarUrl: null,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    phoneNumber: null,
+    isBusterAdmin: false,
+    isEmailVerified: true,
+    authUserId: 'auth-123',
+    deletedAt: null,
+  } as User;
+
+  const createMockChat = (): ChatWithMessages => ({
+    id: 'chat-123',
+    title: 'Test Chat',
+    is_favorited: false,
+    message_ids: [],
+    messages: {},
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+    created_by: 'user-123',
+    created_by_id: 'user-123',
+    created_by_name: 'Test User',
+    created_by_avatar: null,
+    publicly_accessible: false,
+  });
+
+  const mockMetricAssetMessage: Message = {
+    id: 'import-msg-123',
+    chatId: 'chat-123',
+    createdBy: 'user-123',
+    requestMessage: null, // No request message for asset imports
+    responseMessages: [
+      {
+        type: 'text',
+        id: 'text-msg-123',
+        message:
+          'Test Metric has been pulled into a new chat.\n\nContinue chatting to modify or make changes to it.',
+        is_final_message: true,
+      },
+      {
+        type: 'file',
+        id: 'asset-123',
+        file_type: 'metric',
+        file_name: 'Test Metric',
+        version_number: 1,
+        filter_version_id: null,
+        metadata: [
+          {
+            status: 'completed',
+            message: 'Pulled into new chat',
+            timestamp: 1234567890,
+          },
+        ],
+      },
+    ],
+    reasoning: [],
+    finalReasoningMessage: '',
+    title: 'Test Metric',
+    rawLlmMessages: [
+      {
+        role: 'user',
+        content: `I've imported the following metric:\n\nSuccessfully imported 1 metric file.\n\nFile details:\n[...]`,
+      },
+    ],
+    isCompleted: true,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    deletedAt: null,
+    feedback: null,
+    triggerRunId: null,
+    postProcessingMessage: null,
+  } as Message;
+
+  const mockDashboardAssetMessage: Message = {
+    ...mockMetricAssetMessage,
+    id: 'import-dashboard-msg-123',
+    title: 'Test Dashboard',
+    responseMessages: [
+      {
+        type: 'text',
+        id: 'text-dashboard-msg-123',
+        message:
+          'Test Dashboard has been pulled into a new chat.\n\nContinue chatting to modify or make changes to it.',
+        is_final_message: true,
+      },
+      {
+        type: 'file',
+        id: 'dashboard-123',
+        file_type: 'dashboard',
+        file_name: 'Test Dashboard',
+        version_number: 1,
+        filter_version_id: null,
+        metadata: [
+          {
+            status: 'completed',
+            message: 'Pulled into new chat',
+            timestamp: 1234567890,
+          },
+        ],
+      },
+    ],
+    rawLlmMessages: [
+      {
+        role: 'user',
+        content: `I've imported the following dashboard:\n\nSuccessfully imported 1 dashboard file with 2 additional context files.\n\nFile details:\n[...]`,
+      },
+    ],
   };
 
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  it('should handle existing chat with new message', async () => {
-    const mockChat = {
-      id: 'chat-1',
-      title: 'Test Chat',
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      createdBy: 'user-1',
-      updatedBy: 'user-1',
-      organizationId: 'org-1',
-      publiclyAccessible: false,
-      deletedAt: null,
-      publiclyEnabledBy: null,
-      publicExpiryDate: null,
-      mostRecentFileId: null,
-      mostRecentFileType: null,
-    } as Chat;
+  describe('handleAssetChat', () => {
+    it('should handle metric import correctly', async () => {
+      vi.mocked(generateAssetMessages).mockReset().mockResolvedValue([mockMetricAssetMessage]);
+      vi.mocked(db.update).mockReturnValue({
+        set: vi.fn().mockReturnValue({
+          where: vi.fn().mockResolvedValue(undefined),
+        }),
+      } as any);
 
-    const mockMessage = {
-      id: 'message-1',
-      chatId: 'chat-1',
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      createdBy: 'user-1',
-      requestMessage: 'Test message',
+      const result = await handleAssetChat(
+        'chat-123',
+        'msg-123',
+        'asset-123',
+        'metric',
+        mockUser,
+        createMockChat()
+      );
+
+      // Verify generateAssetMessages was called correctly
+      expect(generateAssetMessages).toHaveBeenCalledWith({
+        assetId: 'asset-123',
+        assetType: 'metric_file',
+        userId: 'user-123',
+        chatId: 'chat-123',
+      });
+
+      // Verify chat was updated with asset info
+      expect(db.update).toHaveBeenCalledWith(expect.anything());
+      const updateCall = vi.mocked(db.update).mock.calls[0];
+      expect(updateCall).toBeDefined();
+
+      // Verify message was added to chat
+      expect(result.message_ids).toContain('import-msg-123');
+      expect(result.messages['import-msg-123']).toBeDefined();
+
+      const importMessage = result.messages['import-msg-123'];
+      expect(importMessage?.request_message).toBeNull();
+      expect(importMessage?.is_completed).toBe(true);
+      expect(importMessage?.response_messages).toHaveProperty('text-msg-123');
+      expect(importMessage?.response_messages).toHaveProperty('asset-123');
+
+      // Verify response messages are in correct format
+      const textMessage = importMessage?.response_messages['text-msg-123'];
+      expect(textMessage).toMatchObject({
+        type: 'text',
+        id: 'text-msg-123',
+        message: expect.stringContaining('Test Metric has been pulled into a new chat'),
+        is_final_message: true,
+      });
+
+      const fileMessage = importMessage?.response_messages['asset-123'];
+      expect(fileMessage).toMatchObject({
+        type: 'file',
+        id: 'asset-123',
+        file_type: 'metric',
+        file_name: 'Test Metric',
+        version_number: 1,
+      });
+
+      // Verify chat title was updated
+      expect(result.title).toBe('Test Metric');
+    });
+
+    it('should handle dashboard import with metrics correctly', async () => {
+      vi.mocked(generateAssetMessages).mockReset().mockResolvedValue([mockDashboardAssetMessage]);
+      vi.mocked(db.update).mockReturnValue({
+        set: vi.fn().mockReturnValue({
+          where: vi.fn().mockResolvedValue(undefined),
+        }),
+      } as any);
+
+      const result = await handleAssetChat(
+        'chat-123',
+        'msg-123',
+        'dashboard-123',
+        'dashboard',
+        mockUser,
+        createMockChat()
+      );
+
+      // Verify generateAssetMessages was called correctly
+      expect(generateAssetMessages).toHaveBeenCalledWith({
+        assetId: 'dashboard-123',
+        assetType: 'dashboard_file',
+        userId: 'user-123',
+        chatId: 'chat-123',
+      });
+
+      // Verify message was added to chat
+      expect(result.message_ids).toContain('import-dashboard-msg-123');
+      expect(result.messages['import-dashboard-msg-123']).toBeDefined();
+
+      const importMessage = result.messages['import-dashboard-msg-123'];
+      expect(importMessage?.response_messages).toHaveProperty('dashboard-123');
+
+      // Verify dashboard file message
+      const fileMessage = importMessage?.response_messages['dashboard-123'];
+      expect(fileMessage).toMatchObject({
+        type: 'file',
+        id: 'dashboard-123',
+        file_type: 'dashboard',
+        file_name: 'Test Dashboard',
+        version_number: 1,
+      });
+
+      // Verify chat title was updated
+      expect(result.title).toBe('Test Dashboard');
+    });
+
+    it('should handle errors gracefully', async () => {
+      vi.mocked(generateAssetMessages).mockReset().mockRejectedValue(new Error('Database error'));
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+      const result = await handleAssetChat(
+        'chat-123',
+        'msg-123',
+        'asset-123',
+        'metric',
+        mockUser,
+        createMockChat()
+      );
+
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'Failed to handle asset chat:',
+        expect.objectContaining({
+          chatId: 'chat-123',
+          assetId: 'asset-123',
+          chatAssetType: 'metric',
+          userId: 'user-123',
+        })
+      );
+
+      // Should return original chat without modifications
+      // Note: We can't do exact comparison due to timestamp differences
+      expect(result.id).toBe('chat-123');
+      expect(result.title).toBe('Test Chat');
+      expect(result.message_ids).toEqual([]);
+      expect(result.messages).toEqual({});
+
+      consoleSpy.mockRestore();
+    });
+  });
+
+  describe('handleAssetChatWithPrompt', () => {
+    const mockUserMessage: Message = {
+      id: 'user-msg-123',
+      chatId: 'chat-123',
+      createdBy: 'user-123',
+      requestMessage: 'Tell me about this metric',
       responseMessages: {},
       reasoning: {},
-      title: 'Test message',
+      finalReasoningMessage: null,
+      title: 'Tell me about this metric',
       rawLlmMessages: {},
       isCompleted: false,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
       deletedAt: null,
-      finalReasoningMessage: null,
       feedback: null,
+      triggerRunId: null,
+      postProcessingMessage: null,
     } as Message;
 
-    vi.mocked(database.getChatWithDetails).mockResolvedValue({
-      chat: mockChat,
-      user: mockUser as unknown as any,
-      isFavorited: false,
+    it('should create import message then user prompt message', async () => {
+      // Only return the metric message for this test
+      const metricOnlyMessage = { ...mockMetricAssetMessage };
+      vi.mocked(generateAssetMessages).mockReset().mockResolvedValueOnce([metricOnlyMessage]);
+      vi.mocked(createMessage).mockResolvedValue(mockUserMessage);
+      vi.mocked(db.update).mockReturnValue({
+        set: vi.fn().mockReturnValue({
+          where: vi.fn().mockResolvedValue(undefined),
+        }),
+      } as any);
+
+      const result = await handleAssetChatWithPrompt(
+        'chat-123',
+        'msg-123',
+        'asset-123',
+        'metric',
+        'Tell me about this metric',
+        mockUser,
+        createMockChat()
+      );
+
+      // Verify generateAssetMessages was called (same as handleAssetChat)
+      expect(generateAssetMessages).toHaveBeenCalledWith({
+        assetId: 'asset-123',
+        assetType: 'metric_file',
+        userId: 'user-123',
+        chatId: 'chat-123',
+      });
+
+      // Verify createMessage was called for user prompt
+      expect(createMessage).toHaveBeenCalledWith({
+        messageId: expect.any(String),
+        chatId: 'chat-123',
+        content: 'Tell me about this metric',
+        userId: 'user-123',
+      });
+
+      // Verify both messages were added to chat in correct order
+      expect(result.message_ids).toHaveLength(2);
+      expect(result.message_ids[0]).toBe('import-msg-123');
+      expect(result.message_ids[1]).toBe('user-msg-123');
+
+      // Verify import message structure
+      const importMessage = result.messages['import-msg-123'];
+      expect(importMessage?.request_message).toBeNull();
+      expect(importMessage?.is_completed).toBe(true);
+      expect(importMessage?.response_messages).toHaveProperty('asset-123');
+
+      // Verify user message structure
+      const userMessage = result.messages['user-msg-123'];
+      expect(userMessage?.request_message).toMatchObject({
+        request: 'Tell me about this metric',
+        sender_id: 'user-123',
+        sender_name: 'Test User',
+      });
+      expect(userMessage?.is_completed).toBe(false);
+      expect(userMessage?.response_messages).toEqual({});
+
+      // Verify chat title was updated to asset name
+      expect(result.title).toBe('Test Metric');
     });
 
-    vi.mocked(canUserAccessChatCached).mockResolvedValue(true);
-    vi.mocked(database.createMessage).mockResolvedValue(mockMessage);
-    vi.mocked(database.getMessagesForChat).mockResolvedValue([mockMessage]);
+    it('should handle dashboard with prompt correctly', async () => {
+      // Only return the dashboard message for this test
+      vi.mocked(generateAssetMessages)
+        .mockReset()
+        .mockResolvedValueOnce([mockDashboardAssetMessage]);
+      vi.mocked(createMessage).mockResolvedValue({
+        ...mockUserMessage,
+        requestMessage: 'Explain this dashboard',
+      } as Message);
+      vi.mocked(db.update).mockReturnValue({
+        set: vi.fn().mockReturnValue({
+          where: vi.fn().mockResolvedValue(undefined),
+        }),
+      } as any);
 
-    const result = await handleExistingChat('chat-1', 'message-1', 'Test message', mockUser);
+      const result = await handleAssetChatWithPrompt(
+        'chat-123',
+        'msg-123',
+        'dashboard-123',
+        'dashboard',
+        'Explain this dashboard',
+        mockUser,
+        createMockChat()
+      );
 
-    expect(result.chatId).toBe('chat-1');
-    expect(result.messageId).toBe('message-1');
-    expect(result.chat.messages['message-1']).toBeDefined();
-  });
+      // Verify generateAssetMessages was called for dashboard
+      expect(generateAssetMessages).toHaveBeenCalledWith({
+        assetId: 'dashboard-123',
+        assetType: 'dashboard_file',
+        userId: 'user-123',
+        chatId: 'chat-123',
+      });
 
-  it('should throw error if chat not found', async () => {
-    vi.mocked(database.getChatWithDetails).mockResolvedValue(null);
+      // Verify both messages exist
+      expect(result.message_ids).toHaveLength(2);
+      expect(result.messages['import-dashboard-msg-123']).toBeDefined();
+      expect(result.messages['user-msg-123']).toBeDefined();
 
-    await expect(
-      handleExistingChat('chat-1', 'message-1', 'Test message', mockUser)
-    ).rejects.toThrow(new ChatError(ChatErrorCode.CHAT_NOT_FOUND, 'Chat not found', 404));
-  });
-
-  it('should throw error if permission denied', async () => {
-    vi.mocked(database.getChatWithDetails).mockResolvedValue({
-      chat: { id: 'chat-1' } as Chat,
-      user: null,
-      isFavorited: false,
-    });
-    vi.mocked(canUserAccessChatCached).mockResolvedValue(false);
-
-    await expect(
-      handleExistingChat('chat-1', 'message-1', 'Test message', mockUser)
-    ).rejects.toThrow(
-      new ChatError(
-        ChatErrorCode.PERMISSION_DENIED,
-        'You do not have permission to access this chat',
-        403
-      )
-    );
-  });
-});
-
-describe('handleNewChat', () => {
-  const mockUser = {
-    id: 'user-1',
-    email: 'test@example.com',
-    name: 'Test User',
-    avatarUrl: null,
-  };
-
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
-
-  it('should create new chat with message', async () => {
-    const mockChat = {
-      id: 'chat-1',
-      title: 'Test Chat',
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      createdBy: 'user-1',
-      updatedBy: 'user-1',
-      organizationId: 'org-1',
-      publiclyAccessible: false,
-      deletedAt: null,
-      publiclyEnabledBy: null,
-      publicExpiryDate: null,
-      mostRecentFileId: null,
-      mostRecentFileType: null,
-    } as Chat;
-
-    const mockTx = {
-      insert: vi.fn().mockReturnThis(),
-      values: vi.fn().mockReturnThis(),
-      returning: vi.fn().mockResolvedValue([mockChat]),
-    };
-
-    vi.mocked(database.db.transaction).mockImplementation((callback: any) => callback(mockTx));
-
-    const result = await handleNewChat({
-      title: 'Test Chat',
-      messageId: 'message-1',
-      prompt: 'Test message',
-      user: mockUser,
-      organizationId: 'org-1',
+      // Verify chat title is dashboard name
+      expect(result.title).toBe('Test Dashboard');
     });
 
-    expect(result.chatId).toBe('chat-1');
-    expect(result.messageId).toBe('message-1');
-  });
+    it('should handle missing asset gracefully', async () => {
+      vi.mocked(generateAssetMessages).mockReset().mockResolvedValueOnce([]);
+      vi.mocked(createMessage).mockResolvedValue(mockUserMessage);
+      const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
 
-  it('should create new chat without message', async () => {
-    const mockChat = {
-      id: 'chat-1',
-      title: 'Test Chat',
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      createdBy: 'user-1',
-      updatedBy: 'user-1',
-      organizationId: 'org-1',
-      publiclyAccessible: false,
-      deletedAt: null,
-      publiclyEnabledBy: null,
-      publicExpiryDate: null,
-      mostRecentFileId: null,
-      mostRecentFileType: null,
-    } as Chat;
+      const result = await handleAssetChatWithPrompt(
+        'chat-123',
+        'msg-123',
+        'asset-123',
+        'metric',
+        'Tell me about this metric',
+        mockUser,
+        createMockChat()
+      );
 
-    const mockTx = {
-      insert: vi.fn().mockReturnThis(),
-      values: vi.fn().mockReturnThis(),
-      returning: vi.fn().mockResolvedValue([mockChat]),
-    };
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'No asset messages generated',
+        expect.objectContaining({
+          assetId: 'asset-123',
+          assetType: 'metric_file',
+          userId: 'user-123',
+          chatId: 'chat-123',
+        })
+      );
 
-    vi.mocked(database.db.transaction).mockImplementation((callback: any) => callback(mockTx));
+      // Should still create user message
+      expect(createMessage).toHaveBeenCalled();
+      expect(result.message_ids).toContain('user-msg-123');
 
-    const result = await handleNewChat({
-      title: 'Test Chat',
-      messageId: 'message-1',
-      prompt: undefined,
-      user: mockUser,
-      organizationId: 'org-1',
+      consoleSpy.mockRestore();
     });
 
-    expect(result.chatId).toBe('chat-1');
-    expect(result.messageId).toBe('message-1');
-    expect(Object.keys(result.chat.messages)).toHaveLength(0);
+    it('should handle errors and still create user message', async () => {
+      vi.mocked(generateAssetMessages)
+        .mockReset()
+        .mockRejectedValueOnce(new Error('Database error'));
+      vi.mocked(createMessage).mockResolvedValue(mockUserMessage);
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+      const result = await handleAssetChatWithPrompt(
+        'chat-123',
+        'msg-123',
+        'asset-123',
+        'metric',
+        'Tell me about this metric',
+        mockUser,
+        createMockChat()
+      );
+
+      expect(consoleSpy).toHaveBeenCalled();
+
+      // Should still create user message despite error
+      expect(createMessage).toHaveBeenCalled();
+      expect(result.message_ids).toContain('user-msg-123');
+      expect(result.messages['user-msg-123']?.request_message?.request).toBe(
+        'Tell me about this metric'
+      );
+
+      consoleSpy.mockRestore();
+    });
+
+    it('should maintain message order when multiple messages exist', async () => {
+      const chatWithExistingMessages = {
+        ...createMockChat(),
+        message_ids: ['existing-msg-1', 'existing-msg-2'],
+        messages: {
+          'existing-msg-1': {} as any,
+          'existing-msg-2': {} as any,
+        },
+      };
+
+      vi.mocked(generateAssetMessages).mockReset().mockResolvedValueOnce([mockMetricAssetMessage]);
+      vi.mocked(createMessage).mockResolvedValue(mockUserMessage);
+      vi.mocked(db.update).mockReturnValue({
+        set: vi.fn().mockReturnValue({
+          where: vi.fn().mockResolvedValue(undefined),
+        }),
+      } as any);
+
+      const result = await handleAssetChatWithPrompt(
+        'chat-123',
+        'msg-123',
+        'asset-123',
+        'metric',
+        'Tell me about this metric',
+        mockUser,
+        chatWithExistingMessages
+      );
+
+      // Should preserve existing messages and add new ones in order
+      expect(result.message_ids).toEqual([
+        'existing-msg-1',
+        'existing-msg-2',
+        'import-msg-123',
+        'user-msg-123',
+      ]);
+    });
   });
 });

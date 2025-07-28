@@ -1,7 +1,7 @@
 import { z } from 'zod';
+import { AssetTypeSchema } from '../assets/asset-types.types';
 import { OrganizationStatusSchema } from '../organization';
 import { OrganizationRoleSchema } from '../organization/roles.types';
-import { ShareAssetTypeSchema } from '../share';
 import { createOptionalQueryArrayPreprocessor } from '../type-utilities';
 
 export const UserRequestSchema = z.object({
@@ -27,7 +27,7 @@ export type UserInviteRequest = z.infer<typeof UserInviteRequestSchema>;
 
 export const UserCreateFavoriteRequestSchema = z.object({
   id: z.string(),
-  asset_type: ShareAssetTypeSchema,
+  asset_type: AssetTypeSchema,
   index: z.number().optional(),
   name: z.string(),
 });

@@ -2,7 +2,9 @@ import { describe, expect, it } from 'vitest';
 import { ShareIndividualSchema } from '../share';
 import {
   AssetPermissionRoleSchema,
+  type ChatCreateHandlerRequest,
   ChatCreateHandlerRequestSchema,
+  type ChatCreateRequest,
   ChatCreateRequestSchema,
   ChatWithMessagesSchema,
 } from './chat.types';
@@ -249,12 +251,12 @@ describe('ChatWithMessagesSchema', () => {
 
 describe('ChatCreateRequestSchema', () => {
   it('should parse valid complete request', () => {
-    const validRequest = {
+    const validRequest: ChatCreateRequest = {
       prompt: 'Analyze revenue trends',
       chat_id: 'chat-123',
       message_id: 'msg-456',
       asset_id: 'asset-789',
-      asset_type: 'metric_file',
+      asset_type: 'metric',
       metric_id: 'legacy-metric-123',
       dashboard_id: 'legacy-dashboard-456',
     };
@@ -265,7 +267,7 @@ describe('ChatCreateRequestSchema', () => {
     if (result.success) {
       expect(result.data.prompt).toBe('Analyze revenue trends');
       expect(result.data.asset_id).toBe('asset-789');
-      expect(result.data.asset_type).toBe('metric_file');
+      expect(result.data.asset_type).toBe('metric');
     }
   });
 
@@ -310,7 +312,7 @@ describe('ChatCreateRequestSchema', () => {
   it('should allow asset_type without asset_id', () => {
     const requestWithTypeButNoId = {
       prompt: 'Test prompt',
-      asset_type: 'dashboard_file',
+      asset_type: 'dashboard',
       // asset_id is missing - should be fine
     };
 
@@ -318,33 +320,8 @@ describe('ChatCreateRequestSchema', () => {
     expect(result.success).toBe(true);
 
     if (result.success) {
-      expect(result.data.asset_type).toBe('dashboard_file');
+      expect(result.data.asset_type).toBe('dashboard');
       expect(result.data.asset_id).toBeUndefined();
-    }
-  });
-
-  it('should validate asset_type enum values', () => {
-    const validAssetTypes = ['metric_file', 'dashboard_file'];
-    const invalidAssetTypes = ['metric', 'dashboard', 'file', 'document'];
-
-    for (const assetType of validAssetTypes) {
-      const request = {
-        asset_id: 'test-id',
-        asset_type: assetType,
-      };
-
-      const result = ChatCreateRequestSchema.safeParse(request);
-      expect(result.success).toBe(true);
-    }
-
-    for (const assetType of invalidAssetTypes) {
-      const request = {
-        asset_id: 'test-id',
-        asset_type: assetType,
-      };
-
-      const result = ChatCreateRequestSchema.safeParse(request);
-      expect(result.success).toBe(false);
     }
   });
 
@@ -367,12 +344,12 @@ describe('ChatCreateRequestSchema', () => {
 
 describe('ChatCreateHandlerRequestSchema', () => {
   it('should parse valid handler request', () => {
-    const validHandlerRequest = {
+    const validHandlerRequest: ChatCreateHandlerRequest = {
       prompt: 'Handler test prompt',
       chat_id: 'chat-handler-123',
       message_id: 'msg-handler-456',
       asset_id: 'asset-handler-789',
-      asset_type: 'metric_file',
+      asset_type: 'metric',
     };
 
     const result = ChatCreateHandlerRequestSchema.safeParse(validHandlerRequest);
@@ -381,7 +358,7 @@ describe('ChatCreateHandlerRequestSchema', () => {
     if (result.success) {
       expect(result.data.prompt).toBe('Handler test prompt');
       expect(result.data.asset_id).toBe('asset-handler-789');
-      expect(result.data.asset_type).toBe('metric_file');
+      expect(result.data.asset_type).toBe('metric');
     }
   });
 
@@ -415,7 +392,7 @@ describe('ChatCreateHandlerRequestSchema', () => {
   });
 
   it('should validate asset_type enum values for handler', () => {
-    const validAssetTypes = ['metric_file', 'dashboard_file'];
+    const validAssetTypes = ['metric', 'dashboard'];
 
     for (const assetType of validAssetTypes) {
       const request = {

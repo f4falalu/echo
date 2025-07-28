@@ -15,12 +15,10 @@ import {
 import { ASSET_ICONS } from '@/components/features/config/assetIcons';
 import { useSaveToCollectionsDropdownContent } from '@/components/features/dropdowns/SaveToCollectionsDropdown';
 import { useSaveToDashboardDropdownContent } from '@/components/features/dropdowns/SaveToDashboardDropdown';
-import { useFavoriteStar } from '@/components/features/list/FavoriteStar';
 import { StatusBadgeIndicator } from '@/components/features/metrics/StatusBadgeIndicator';
 import { useStatusDropdownContent } from '@/components/features/metrics/StatusBadgeIndicator/useStatusDropdownContent';
 import { getShareAssetConfig } from '@/components/features/ShareMenu/helpers';
 import { ShareMenuContent } from '@/components/features/ShareMenu/ShareMenuContent';
-import { useListVersionDropdownItems } from '@/components/features/versionHistory/useListVersionDropdownItems';
 import { Button } from '@/components/ui/buttons';
 import {
   Dropdown,
@@ -32,17 +30,14 @@ import {
   ArrowUpRight,
   Dots,
   Download4,
-  History,
   Pencil,
   ShareRight,
   SquareChart,
   SquareChartPen,
   SquareCode,
-  Star,
   Table,
   Trash
 } from '@/components/ui/icons';
-import { Star as StarFilled } from '@/components/ui/icons/NucleoIconFilled';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 import { useBusterNotifications } from '@/context/BusterNotifications';
 import { useUserConfigContextSelector } from '@/context/Users';
@@ -54,11 +49,17 @@ import {
   type MetricFileViewSecondary,
   useChatLayoutContextSelector
 } from '@/layouts/ChatLayout/ChatLayoutContext';
-import { timeout } from '@/lib';
+import { timeout } from '@/lib/timeout';
+import { ensureElementExists } from '@/lib/element';
 import { downloadElementToImage, exportJSONToCSV } from '@/lib/exportUtils';
 import { canEdit, getIsEffectiveOwner, getIsOwner } from '@/lib/share';
-import { BusterRoutes, createBusterRoute } from '@/routes';
+import { BusterRoutes } from '@/routes';
 import { assetParamsToRoute } from '@/lib/assets';
+import {
+  useFavoriteMetricSelectMenu,
+  useVersionHistorySelectMenu,
+  useMetricDrilldownItem
+} from '@/components/features/metrics/ThreeDotMenu';
 
 export const ThreeDotMenuButton = React.memo(
   ({
@@ -86,6 +87,7 @@ export const ThreeDotMenuButton = React.memo(
     const deleteMetricMenu = useDeleteMetricSelectMenu({ metricId });
     const renameMetricMenu = useRenameMetricSelectMenu({ metricId });
     const shareMenu = useShareMenuSelectMenu({ metricId });
+    const drilldownItem = useMetricDrilldownItem({ metricId });
 
     const isEditor = canEdit(permission);
     const isOwnerEffective = getIsEffectiveOwner(permission);
@@ -95,6 +97,7 @@ export const ThreeDotMenuButton = React.memo(
       () =>
         [
           chatId && openFullScreenMetric,
+          // drilldownItem,
           isOwnerEffective && !isViewingOldVersion && shareMenu,
           isEditor && !isViewingOldVersion && statusSelectMenu,
           { type: 'divider' },
@@ -116,6 +119,7 @@ export const ThreeDotMenuButton = React.memo(
       [
         chatId,
         openFullScreenMetric,
+        drilldownItem,
         isEditor,
         isOwner,
         isOwnerEffective,
@@ -149,6 +153,7 @@ const useDashboardSelectMenu = ({ metricId }: { metricId: string }) => {
   const { mutateAsync: saveMetricsToDashboard } = useAddMetricsToDashboard();
   const { mutateAsync: removeMetricsFromDashboard } = useRemoveMetricsFromDashboard();
   const { data: dashboards } = useGetMetric({ id: metricId }, { select: (x) => x.dashboards });
+  const { openInfoMessage } = useBusterNotifications();
 
   const onSaveToDashboard = useMemoizedFn(async (dashboardIds: string[]) => {
     await Promise.all(
@@ -156,14 +161,16 @@ const useDashboardSelectMenu = ({ metricId }: { metricId: string }) => {
         saveMetricsToDashboard({ metricIds: [metricId], dashboardId })
       )
     );
+    openInfoMessage('Metric added to dashboard');
   });
 
   const onRemoveFromDashboard = useMemoizedFn(async (dashboardIds: string[]) => {
     await Promise.all(
       dashboardIds.map((dashboardId) =>
-        removeMetricsFromDashboard({ metricIds: [metricId], dashboardId })
+        removeMetricsFromDashboard({ metricIds: [metricId], dashboardId, useConfirmModal: false })
       )
     );
+    openInfoMessage('Metric removed from dashboard');
   });
 
   const { items, footerContent, selectType, menuHeader } = useSaveToDashboardDropdownContent({
@@ -187,6 +194,7 @@ const useDashboardSelectMenu = ({ metricId }: { metricId: string }) => {
     () => ({
       label: 'Add to dashboard',
       value: 'add-to-dashboard',
+      closeOnSelect: false,
       icon: <ASSET_ICONS.dashboardAdd />,
       items: [<React.Fragment key="dashboard-sub-menu">{dashboardSubMenu}</React.Fragment>]
     }),
@@ -196,57 +204,14 @@ const useDashboardSelectMenu = ({ metricId }: { metricId: string }) => {
   return dashboardDropdownItem;
 };
 
-const useVersionHistorySelectMenu = ({ metricId }: { metricId: string }) => {
-  const chatId = useChatLayoutContextSelector((x) => x.chatId);
-
-  const { data } = useGetMetric(
-    { id: metricId },
-    {
-      select: (x) => ({
-        versions: x.versions,
-        version_number: x.version_number
-      })
-    }
-  );
-  const { versions = [], version_number } = data || {};
-
-  const versionHistoryItems: DropdownItems = useListVersionDropdownItems({
-    versions,
-    selectedVersion: version_number,
-    chatId,
-    fileId: metricId,
-    fileType: 'metric',
-    useVersionHistoryMode: true
-  });
-
-  const reverseVersionHistoryItems = useMemo(() => {
-    return [...versionHistoryItems].reverse();
-  }, [versionHistoryItems]);
-
-  return useMemo(
-    () => ({
-      label: 'Version history',
-      value: 'version-history',
-      icon: <History />,
-      items: [
-        <React.Fragment key="version-history-sub-menu">
-          <DropdownContent items={reverseVersionHistoryItems} selectType="single" />
-        </React.Fragment>
-      ]
-    }),
-    [reverseVersionHistoryItems]
-  );
-};
-
 const useCollectionSelectMenu = ({ metricId }: { metricId: string }) => {
   const { mutateAsync: saveMetricToCollection } = useSaveMetricToCollections();
   const { mutateAsync: removeMetricFromCollection } = useRemoveMetricFromCollection();
-  const { data: collections } = useGetMetric({ id: metricId }, { select: (x) => x.collections });
+  const { data: selectedCollections } = useGetMetric(
+    { id: metricId },
+    { select: (x) => x.collections?.map((x) => x.id) }
+  );
   const { openInfoMessage } = useBusterNotifications();
-
-  const selectedCollections = useMemo(() => {
-    return collections?.map((x) => x.id) || [];
-  }, [collections]);
 
   const onSaveToCollection = useMemoizedFn(async (collectionIds: string[]) => {
     await saveMetricToCollection({
@@ -267,7 +232,7 @@ const useCollectionSelectMenu = ({ metricId }: { metricId: string }) => {
   const { ModalComponent, ...dropdownProps } = useSaveToCollectionsDropdownContent({
     onSaveToCollection,
     onRemoveFromCollection,
-    selectedCollections
+    selectedCollections: selectedCollections || []
   });
 
   const CollectionSubMenu = useMemo(() => {
@@ -321,27 +286,6 @@ const useStatusSelectMenu = ({ metricId }: { metricId: string }) => {
   );
 
   return statusDropdownItem;
-};
-
-const useFavoriteMetricSelectMenu = ({ metricId }: { metricId: string }) => {
-  const { data: name } = useGetMetric({ id: metricId }, { select: (x) => x.name });
-  const { isFavorited, onFavoriteClick } = useFavoriteStar({
-    id: metricId,
-    type: 'metric',
-    name: name || ''
-  });
-
-  const item: DropdownItem = useMemo(
-    () => ({
-      label: isFavorited ? 'Remove from favorites' : 'Add to favorites',
-      value: 'add-to-favorites',
-      icon: isFavorited ? <StarFilled /> : <Star />,
-      onClick: onFavoriteClick
-    }),
-    [isFavorited, onFavoriteClick]
-  );
-
-  return item;
 };
 
 const useEditChartSelectMenu = () => {
@@ -492,15 +436,27 @@ const useDeleteMetricSelectMenu = ({ metricId }: { metricId: string }) => {
 
 const useRenameMetricSelectMenu = ({ metricId }: { metricId: string }) => {
   const onSetFileView = useChatLayoutContextSelector((x) => x.onSetFileView);
+  const onChangePage = useAppLayoutContextSelector((x) => x.onChangePage);
+  const chatId = useChatLayoutContextSelector((x) => x.chatId);
+  const dashboardId = useChatLayoutContextSelector((x) => x.dashboardId);
   return useMemo(
     () => ({
       label: 'Rename metric',
       value: 'rename-metric',
       icon: <Pencil />,
       onClick: async () => {
-        onSetFileView({ fileView: 'chart' });
-        await timeout(125);
-        const input = document.getElementById(METRIC_CHART_TITLE_INPUT_ID) as HTMLInputElement;
+        const route = assetParamsToRoute({
+          type: 'metric',
+          assetId: metricId,
+          chatId,
+          dashboardId,
+          page: 'chart'
+        });
+        await onChangePage(route);
+        await timeout(100);
+        const input = await ensureElementExists(
+          () => document.getElementById(METRIC_CHART_TITLE_INPUT_ID) as HTMLInputElement
+        );
         if (input) {
           input.focus();
           input.select();
@@ -516,16 +472,16 @@ export const useShareMenuSelectMenu = ({ metricId }: { metricId: string }) => {
     { id: metricId },
     { select: getShareAssetConfig }
   );
-  const isOwner = getIsOwner(shareAssetConfig?.permission);
+  const isEffectiveOwner = getIsEffectiveOwner(shareAssetConfig?.permission);
 
   return useMemo(
     () => ({
       label: 'Share metric',
       value: 'share-metric',
       icon: <ShareRight />,
-      disabled: !isOwner,
+      disabled: !isEffectiveOwner,
       items:
-        isOwner && shareAssetConfig
+        isEffectiveOwner && shareAssetConfig
           ? [
               <ShareMenuContent
                 key={metricId}
@@ -536,7 +492,7 @@ export const useShareMenuSelectMenu = ({ metricId }: { metricId: string }) => {
             ]
           : undefined
     }),
-    [metricId, shareAssetConfig, isOwner]
+    [metricId, shareAssetConfig, isEffectiveOwner]
   );
 };
 
