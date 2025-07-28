@@ -57,8 +57,10 @@ const rgSearchExecution = wrapTraced(
         const scriptContent = await fs.readFile(scriptPath, 'utf-8');
 
         // Build command line arguments
-        // The script expects a JSON array of commands as the first argument
-        const args = [JSON.stringify(commands)];
+        // Base64 encode the JSON to avoid corruption when passing through sandbox
+        const commandsJson = JSON.stringify(commands);
+        const base64Commands = Buffer.from(commandsJson).toString('base64');
+        const args = [base64Commands];
 
         const result = await runTypescript(sandbox, scriptContent, { argv: args });
 

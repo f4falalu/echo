@@ -98,12 +98,22 @@ async function main() {
 
   let edits: FileEdit[];
   try {
-    // The first argument should be a JSON string containing the edits array
-    const firstArg = args[0];
-    if (!firstArg) {
+    // The first argument should be a JSON string containing the edits array (possibly base64 encoded)
+    let editsJson = args[0];
+    if (!editsJson) {
       throw new Error('No argument provided');
     }
-    edits = JSON.parse(firstArg);
+
+    // Try to decode from base64 if it looks like base64
+    if (editsJson && /^[A-Za-z0-9+/]+=*$/.test(editsJson) && editsJson.length % 4 === 0) {
+      try {
+        editsJson = Buffer.from(editsJson, 'base64').toString('utf-8');
+      } catch {
+        // If base64 decode fails, use as-is
+      }
+    }
+
+    edits = JSON.parse(editsJson);
 
     if (!Array.isArray(edits)) {
       throw new Error('Input must be an array of edits');

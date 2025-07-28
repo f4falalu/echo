@@ -115,12 +115,22 @@ async function main() {
   }
 
   try {
-    // Parse commands from JSON argument
-    const firstArg = args[0];
-    if (!firstArg) {
+    // Parse commands from JSON argument (possibly base64 encoded)
+    let commandsJson = args[0];
+    if (!commandsJson) {
       throw new Error('No argument provided');
     }
-    const commands: BashCommandParams[] = JSON.parse(firstArg);
+
+    // Try to decode from base64 if it looks like base64
+    if (commandsJson && /^[A-Za-z0-9+/]+=*$/.test(commandsJson) && commandsJson.length % 4 === 0) {
+      try {
+        commandsJson = Buffer.from(commandsJson, 'base64').toString('utf-8');
+      } catch {
+        // If base64 decode fails, use as-is
+      }
+    }
+
+    const commands: BashCommandParams[] = JSON.parse(commandsJson);
 
     if (!Array.isArray(commands)) {
       throw new Error('Commands must be an array');

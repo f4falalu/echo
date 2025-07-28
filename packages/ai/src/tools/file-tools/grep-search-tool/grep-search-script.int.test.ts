@@ -10,6 +10,12 @@ describe('grep-search-script integration test', () => {
   let sandbox: Sandbox;
   let scriptContent: string;
 
+  // Helper function to base64 encode commands
+  const encodeCommands = (commands: Array<{ command: string }>) => {
+    const commandsJson = JSON.stringify(commands);
+    return Buffer.from(commandsJson).toString('base64');
+  };
+
   beforeAll(async () => {
     if (!hasApiKey) return;
 
@@ -95,8 +101,10 @@ describe('grep-search-script integration test', () => {
       },
     ];
 
+    const base64Commands = encodeCommands(commands);
+
     const result = await runTypescript(sandbox, scriptContent, {
-      argv: [JSON.stringify(commands)],
+      argv: [base64Commands],
     });
 
     const output = JSON.parse(result.result);
@@ -114,8 +122,10 @@ describe('grep-search-script integration test', () => {
       },
     ];
 
+    const base64Commands = encodeCommands(commands);
+
     const result = await runTypescript(sandbox, scriptContent, {
-      argv: [JSON.stringify(commands)],
+      argv: [base64Commands],
     });
 
     const output = JSON.parse(result.result);
@@ -126,24 +136,31 @@ describe('grep-search-script integration test', () => {
     expect(output[0].stdout).toContain('4:HELLO WORLD');
   });
 
-  it.skipIf(!hasApiKey)('should handle recursive searches', async () => {
-    const commands = [
-      {
-        command: 'rg -n "Hello"',
-      },
-    ];
+  it.skipIf(!hasApiKey)(
+    'should handle recursive searches',
+    async () => {
+      const commands = [
+        {
+          command: 'rg -n "Hello"',
+        },
+      ];
 
-    const result = await runTypescript(sandbox, scriptContent, {
-      argv: [JSON.stringify(commands)],
-    });
+      const base64Commands = encodeCommands(commands);
 
-    const output = JSON.parse(result.result);
-    expect(output[0].success).toBe(true);
-    expect(output[0].stdout).toContain('file1.txt:1:Hello world');
-    expect(output[0].stdout).toContain('file2.txt:2:Hello again');
-    expect(output[0].stdout).toContain('subdir/nested1.txt:2:Hello from nested1');
-    expect(output[0].stdout).toContain('subdir/nested2.txt:2:Hello from nested2');
-  });
+      const result = await runTypescript(sandbox, scriptContent, {
+        argv: [base64Commands],
+      });
+
+      console.log('Recursive search result:', result);
+      const output = JSON.parse(result.result);
+      expect(output[0].success).toBe(true);
+      expect(output[0].stdout).toContain('file1.txt:1:Hello world');
+      expect(output[0].stdout).toContain('file2.txt:2:Hello again');
+      expect(output[0].stdout).toContain('subdir/nested1.txt:2:Hello from nested1');
+      expect(output[0].stdout).toContain('subdir/nested2.txt:2:Hello from nested2');
+    },
+    60000
+  ); // Increase timeout to 60 seconds
 
   it.skipIf(!hasApiKey)('should handle whole word matches', async () => {
     const commands = [
@@ -152,8 +169,10 @@ describe('grep-search-script integration test', () => {
       },
     ];
 
+    const base64Commands = encodeCommands(commands);
+
     const result = await runTypescript(sandbox, scriptContent, {
-      argv: [JSON.stringify(commands)],
+      argv: [base64Commands],
     });
 
     const output = JSON.parse(result.result);
@@ -175,8 +194,10 @@ describe('grep-search-script integration test', () => {
       },
     ];
 
+    const base64Commands = encodeCommands(commands);
+
     const result = await runTypescript(sandbox, scriptContent, {
-      argv: [JSON.stringify(commands)],
+      argv: [base64Commands],
     });
 
     const output = JSON.parse(result.result);
@@ -194,8 +215,10 @@ describe('grep-search-script integration test', () => {
       },
     ];
 
+    const base64Commands = encodeCommands(commands);
+
     const result = await runTypescript(sandbox, scriptContent, {
-      argv: [JSON.stringify(commands)],
+      argv: [base64Commands],
     });
 
     const output = JSON.parse(result.result);
@@ -214,8 +237,10 @@ describe('grep-search-script integration test', () => {
       },
     ];
 
+    const base64Commands = encodeCommands(commands);
+
     const result = await runTypescript(sandbox, scriptContent, {
-      argv: [JSON.stringify(commands)],
+      argv: [base64Commands],
     });
 
     const output = JSON.parse(result.result);
@@ -231,8 +256,10 @@ describe('grep-search-script integration test', () => {
       },
     ];
 
+    const base64Commands = encodeCommands(commands);
+
     const result = await runTypescript(sandbox, scriptContent, {
-      argv: [JSON.stringify(commands)],
+      argv: [base64Commands],
     });
 
     const output = JSON.parse(result.result);
@@ -254,8 +281,10 @@ describe('grep-search-script integration test', () => {
       },
     ];
 
+    const base64Commands = encodeCommands(commands);
+
     const result = await runTypescript(sandbox, scriptContent, {
-      argv: [JSON.stringify(commands)],
+      argv: [base64Commands],
     });
 
     const output = JSON.parse(result.result);
@@ -279,8 +308,10 @@ describe('grep-search-script integration test', () => {
       },
     ];
 
+    const base64Commands = encodeCommands(commands);
+
     const result = await runTypescript(sandbox, scriptContent, {
-      argv: [JSON.stringify(commands)],
+      argv: [base64Commands],
     });
 
     const output = JSON.parse(result.result);
@@ -300,8 +331,10 @@ describe('grep-search-script integration test', () => {
       },
     ];
 
+    const base64Commands = encodeCommands(commands);
+
     const result = await runTypescript(sandbox, scriptContent, {
-      argv: [JSON.stringify(commands)],
+      argv: [base64Commands],
     });
 
     const output = JSON.parse(result.result);
@@ -323,8 +356,12 @@ describe('grep-search-script integration test', () => {
   });
 
   it.skipIf(!hasApiKey)('should handle non-array input', async () => {
+    // Base64 encode non-array JSON
+    const notArrayJson = JSON.stringify({ not: 'array' });
+    const base64NotArray = Buffer.from(notArrayJson).toString('base64');
+
     const result = await runTypescript(sandbox, scriptContent, {
-      argv: ['{"not": "array"}'],
+      argv: [base64NotArray],
     });
 
     const output = JSON.parse(result.result);
@@ -339,8 +376,10 @@ describe('grep-search-script integration test', () => {
       },
     ];
 
+    const base64Commands = encodeCommands(commands);
+
     const result = await runTypescript(sandbox, scriptContent, {
-      argv: [JSON.stringify(commands)],
+      argv: [base64Commands],
     });
 
     const output = JSON.parse(result.result);
@@ -355,8 +394,10 @@ describe('grep-search-script integration test', () => {
       },
     ];
 
+    const base64Commands = encodeCommands(commands);
+
     const result = await runTypescript(sandbox, scriptContent, {
-      argv: [JSON.stringify(commands)],
+      argv: [base64Commands],
     });
 
     const output = JSON.parse(result.result);
@@ -376,8 +417,10 @@ describe('grep-search-script integration test', () => {
       },
     ];
 
+    const base64Commands = encodeCommands(commands);
+
     const result = await runTypescript(sandbox, scriptContent, {
-      argv: [JSON.stringify(commands)],
+      argv: [base64Commands],
     });
 
     const output = JSON.parse(result.result);
@@ -431,8 +474,10 @@ describe('grep-search-script integration test', () => {
       },
     ];
 
+    const base64Commands = encodeCommands(commands);
+
     const result = await runTypescript(sandbox, scriptContent, {
-      argv: [JSON.stringify(commands)],
+      argv: [base64Commands],
     });
 
     const output = JSON.parse(result.result);

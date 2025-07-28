@@ -77,12 +77,26 @@ async function main() {
 
   let fileParams: FileCreateParams[];
   try {
-    // The script expects file parameters as a JSON string in the first argument
-    const firstArg = args[0];
-    if (!firstArg) {
+    // The script expects file parameters as a JSON string in the first argument (possibly base64 encoded)
+    let fileParamsJson = args[0];
+    if (!fileParamsJson) {
       throw new Error('No argument provided');
     }
-    fileParams = JSON.parse(firstArg);
+
+    // Try to decode from base64 if it looks like base64
+    if (
+      fileParamsJson &&
+      /^[A-Za-z0-9+/]+=*$/.test(fileParamsJson) &&
+      fileParamsJson.length % 4 === 0
+    ) {
+      try {
+        fileParamsJson = Buffer.from(fileParamsJson, 'base64').toString('utf-8');
+      } catch {
+        // If base64 decode fails, use as-is
+      }
+    }
+
+    fileParams = JSON.parse(fileParamsJson);
 
     if (!Array.isArray(fileParams)) {
       throw new Error('File parameters must be an array');

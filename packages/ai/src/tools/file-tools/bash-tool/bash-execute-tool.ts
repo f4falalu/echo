@@ -50,8 +50,11 @@ const executeBashCommands = wrapTraced(
         const scriptPath = path.join(__dirname, 'bash-execute-script.ts');
         const scriptContent = await fs.readFile(scriptPath, 'utf-8');
 
-        // Pass commands as JSON string argument
-        const args = [JSON.stringify(commands)];
+        // Build command line arguments
+        // Base64 encode the JSON to avoid corruption when passing through sandbox
+        const commandsJson = JSON.stringify(commands);
+        const base64Commands = Buffer.from(commandsJson).toString('base64');
+        const args = [base64Commands];
 
         const result = await runTypescript(sandbox, scriptContent, { argv: args });
 

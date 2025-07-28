@@ -1,4 +1,6 @@
 import * as child_process from 'node:child_process';
+import * as fs from 'node:fs';
+import * as path from 'node:path';
 
 interface RgCommand {
   command: string;
@@ -10,6 +12,16 @@ interface RgResult {
   stdout?: string;
   stderr?: string;
   error?: string;
+}
+
+// Check if rg is available
+function checkRgAvailable(): boolean {
+  try {
+    child_process.execSync('which rg', { stdio: 'ignore' });
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 async function executeRgCommand(command: string): Promise<RgResult> {
@@ -65,14 +77,39 @@ async function main() {
   const args = process.argv.slice(2);
 
   // Extract commands from args
-  // Expected format: JSON array of command objects
+  // Expected format: JSON array of command objects (possibly base64 encoded)
   if (args.length === 0) {
     console.log(JSON.stringify([]));
     return;
   }
 
+  // Check if rg is available
+  if (!checkRgAvailable()) {
+    console.log(
+      JSON.stringify([
+        {
+          success: false,
+          command: 'unknown',
+          error: 'ripgrep (rg) is not installed or not available in PATH',
+        },
+      ])
+    );
+    return;
+  }
+
   try {
-    const commands = JSON.parse(args[0] || '[]');
+    let commandsJson = args[0] || '[]';
+
+    // Try to decode from base64 if it looks like base64
+    if (commandsJson && /^[A-Za-z0-9+/]+=*$/.test(commandsJson) && commandsJson.length % 4 === 0) {
+      try {
+        commandsJson = Buffer.from(commandsJson, 'base64').toString('utf-8');
+      } catch {
+        // If base64 decode fails, use as-is
+      }
+    }
+
+    const commands = JSON.parse(commandsJson);
 
     if (!Array.isArray(commands)) {
       console.log(

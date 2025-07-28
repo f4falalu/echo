@@ -67,8 +67,11 @@ const editFilesExecution = wrapTraced(
         const scriptPath = path.join(__dirname, 'edit-files-script.ts');
         const scriptContent = await fs.readFile(scriptPath, 'utf-8');
 
-        // Pass edits as JSON string argument
-        const args = [JSON.stringify(edits)];
+        // Build command line arguments
+        // Base64 encode the JSON to avoid corruption when passing through sandbox
+        const editsJson = JSON.stringify(edits);
+        const base64Edits = Buffer.from(editsJson).toString('base64');
+        const args = [base64Edits];
 
         const result = await runTypescript(sandbox, scriptContent, { argv: args });
 

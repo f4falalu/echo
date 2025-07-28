@@ -51,8 +51,11 @@ const createFilesExecution = wrapTraced(
         const scriptPath = path.join(__dirname, 'create-files-script.ts');
         const scriptContent = await fs.readFile(scriptPath, 'utf-8');
 
-        // Pass file parameters as JSON string argument
-        const args = [JSON.stringify(files)];
+        // Pass file parameters as base64-encoded JSON string argument
+        // to avoid corruption when passing through sandbox
+        const filesJson = JSON.stringify(files);
+        const base64Files = Buffer.from(filesJson).toString('base64');
+        const args = [base64Files];
 
         const result = await runTypescript(sandbox, scriptContent, { argv: args });
 
