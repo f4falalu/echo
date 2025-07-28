@@ -118,7 +118,7 @@
   --primary: var(--color-primary);
   --primary-foreground: var(--color-primary);
   --secondary: var(--color-gray-dark);
-  --muted: var(--color-gray-light);
+  --muted: var(--color-item-hover);
   --muted-foreground: var(--color-gray-dark);
   --accent: var(--color-primary);
   --accent-foreground: var(--color-primary);
@@ -131,8 +131,8 @@
 
 /* mostly used for tailwind extension */
 @theme inline {
-  --color-accent: var(--accent);
-  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--color-item-hover);
+  --color-accent-foreground: var(--foreground);
   --color-destructive: var(--destructive);
   --color-muted: var(--muted);
   --color-muted-foreground: var(--muted-foreground);
