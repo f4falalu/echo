@@ -136,15 +136,7 @@ LIMIT 5;`
     ],
     type: 'ul'
   },
-  {
-    children: [
-      {
-        children: [{ text: 'Multiple heading levels' }],
-        type: 'li'
-      }
-    ],
-    type: 'ul'
-  },
+
   {
     children: [
       {

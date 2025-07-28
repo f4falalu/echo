@@ -4,19 +4,26 @@ import * as React from 'react';
 
 import { useCalloutEmojiPicker } from '@platejs/callout/react';
 import { useEmojiDropdownMenuState } from '@platejs/emoji/react';
+import type { TElement } from 'platejs';
 import { PlateElement } from 'platejs/react';
+import type { PlateElementProps } from 'platejs/react';
 
 import { Button } from '@/components/ui/buttons';
 import { cn } from '@/lib/utils';
 
 import { EmojiPicker, EmojiPopover } from './EmojiToolbarButton';
 
+// Define the custom element type with your specific properties
+interface TCalloutElement extends TElement {
+  backgroundColor?: string;
+  icon?: string;
+}
+
 export function CalloutElement({
   attributes,
   children,
-  className,
   ...props
-}: React.ComponentProps<typeof PlateElement>) {
+}: PlateElementProps<TCalloutElement>) {
   const { emojiPickerState, isOpen, setIsOpen } = useEmojiDropdownMenuState({
     closeOnSelect: true
   });
@@ -28,8 +35,9 @@ export function CalloutElement({
 
   return (
     <PlateElement
-      className={cn('bg-muted my-1 flex rounded-sm p-4 pl-3', className)}
+      className={cn('bg-muted my-1 flex rounded-sm p-4 pl-3', attributes.className)}
       style={{
+        ...attributes.style,
         backgroundColor: props.element.backgroundColor
       }}
       attributes={{
