@@ -7,7 +7,7 @@ import { BasicBlocksKit } from './plugins/basic-blocks-kit';
 import { BaseBasicMarksKit } from './plugins/basic-markd-kit';
 import { CodeBlockKit } from './plugins/code-block-kit';
 import { CalloutKit } from './plugins/callout-kit';
-import { MyDocumentPlugin } from './plugins/test-plugin';
+import { MyTestPlugin } from './plugins/test-plugin';
 
 export const editorPlugins: AnyPluginConfig[] = [
   ...BaseBasicMarksKit,
