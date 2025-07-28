@@ -1,9 +1,9 @@
 import React, { useImperativeHandle } from 'react';
 import type { Value, AnyPluginConfig } from 'platejs';
-import { Plate, useEditorMounted, type TPlateEditor } from 'platejs/react';
+import { Plate, type TPlateEditor } from 'platejs/react';
 import { EditorContainer } from './EditorContainer';
 import { EditorContent } from './EditorContent';
-import { useEditor } from './useEditor';
+import { useReportEditor } from './useReportEditor';
 import { useMemoizedFn } from '@/hooks';
 
 interface AppReportProps {
@@ -37,7 +37,7 @@ export const AppReport = React.memo(
       ref
     ) => {
       // Initialize the editor instance using the custom useEditor hook
-      const editor = useEditor({ value, disabled });
+      const editor = useReportEditor({ value, disabled });
 
       const onReset = useMemoizedFn(() => {
         editor?.tf.reset();

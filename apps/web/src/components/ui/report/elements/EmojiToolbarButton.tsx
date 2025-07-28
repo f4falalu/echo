@@ -27,7 +27,8 @@ import {
   Xmark,
   FaceGrin,
   Clock,
-  Compass
+  Compass,
+  BallRugby
 } from '../../icons';
 
 import { Button } from '@/components/ui/buttons';
@@ -52,7 +53,9 @@ export function EmojiToolbarButton({
     <EmojiPopover
       control={
         <ToolbarButton pressed={isOpen} tooltip="Emoji" isDropdown {...props}>
-          <FaceGrin />
+          <div>
+            <FaceGrin />
+          </div>
         </ToolbarButton>
       }
       isOpen={isOpen}
@@ -492,38 +495,8 @@ const emojiCategoryIcons: Record<
   }
 > = {
   activity: {
-    outline: (
-      <svg
-        className="size-full"
-        fill="none"
-        stroke="currentColor"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth="2"
-        viewBox="0 0 24 24"
-        xmlns="http://www.w3.org/2000/svg">
-        <circle cx="12" cy="12" r="10" />
-        <path d="M2.1 13.4A10.1 10.1 0 0 0 13.4 2.1" />
-        <path d="m5 4.9 14 14.2" />
-        <path d="M21.9 10.6a10.1 10.1 0 0 0-11.3 11.3" />
-      </svg>
-    ),
-    solid: (
-      <svg
-        className="size-full"
-        fill="none"
-        stroke="currentColor"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth="2"
-        viewBox="0 0 24 24"
-        xmlns="http://www.w3.org/2000/svg">
-        <circle cx="12" cy="12" r="10" />
-        <path d="M2.1 13.4A10.1 10.1 0 0 0 13.4 2.1" />
-        <path d="m5 4.9 14 14.2" />
-        <path d="M21.9 10.6a10.1 10.1 0 0 0-11.3 11.3" />
-      </svg>
-    )
+    outline: <BallRugby />,
+    solid: <BallRugby />
   },
 
   custom: {

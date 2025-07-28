@@ -14,7 +14,7 @@ import { cn } from '@/lib/utils';
 import { EmojiPicker, EmojiPopover } from './EmojiToolbarButton';
 
 // Define the custom element type with your specific properties
-interface TCalloutElement extends TElement {
+export interface TCalloutElement extends TElement {
   backgroundColor?: string;
   icon?: string;
 }
@@ -57,7 +57,7 @@ export function CalloutElement({
                   '"Apple Color Emoji", "Segoe UI Emoji", NotoColorEmoji, "Noto Color Emoji", "Segoe UI Symbol", "Android Emoji", EmojiSymbols'
               }}
               contentEditable={false}>
-              {props.element.icon || '💡'}
+              {(props.element.icon as any) || '💡'}
             </Button>
           }>
           <EmojiPicker {...emojiPickerState} {...calloutProps} />

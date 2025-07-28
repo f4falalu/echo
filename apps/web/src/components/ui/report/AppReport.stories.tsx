@@ -149,11 +149,12 @@ LIMIT 5;`
   {
     children: [
       {
+        // Set the icon to a dance emoji to visually enhance the callout
+        icon: '💃',
         text: 'This is an informational callout that helps draw attention to important information. You can use callouts to highlight tips, warnings, or key insights throughout your report.'
       }
     ],
-    type: 'callout',
-    variant: 'info'
+    type: 'callout'
   }
   //   {
   //     children: [{ text: 'Ordered List' }],

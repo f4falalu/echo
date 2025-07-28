@@ -28,6 +28,7 @@
     "node": ">=22.0.0"
   },
   "dependencies": {
+    "@ariakit/react": "^0.4.17",
     "@buster/server-shared": "workspace:*",
     "@buster/typescript-config": "workspace:*",
     "@dnd-kit/core": "^6.3.1",
@@ -48,6 +49,7 @@
     "@platejs/callout": "^49.0.0",
     "@platejs/caption": "^49.0.0",
     "@platejs/code-block": "^49.0.0",
+    "@platejs/combobox": "^49.0.0",
     "@platejs/dnd": "^49.1.7",
     "@platejs/emoji": "^49.0.0",
     "@platejs/layout": "^49.0.0",
