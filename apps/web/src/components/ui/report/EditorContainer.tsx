@@ -26,13 +26,16 @@ const editorContainerVariants = cva('relative cursor-text h-full p-4', {
 export function EditorContainer({
   className,
   variant,
-  readonly,
   disabled,
+  readonly,
   ...props
 }: React.ComponentProps<'div'> &
   VariantProps<typeof editorContainerVariants> &
   EditorContainerProps) {
   return (
-    <PlateContainer className={cn(editorContainerVariants({ variant }), className)} {...props} />
+    <PlateContainer
+      className={cn(editorContainerVariants({ variant, readonly }), className)}
+      {...props}
+    />
   );
 }

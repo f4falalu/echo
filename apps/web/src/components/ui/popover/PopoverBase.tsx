@@ -8,9 +8,9 @@ import { cn } from '@/lib/utils';
 
 export type PopoverTriggerType = 'click' | 'hover';
 
-const Popover = PopoverPrimitive.Root;
+const PopoverBase = PopoverPrimitive.Root;
 
-interface PopoverProps extends React.ComponentPropsWithoutRef<typeof Popover> {
+interface PopoverProps extends React.ComponentPropsWithoutRef<typeof PopoverBase> {
   trigger?: PopoverTriggerType;
   children: React.ReactNode;
   open?: boolean;
@@ -42,9 +42,9 @@ const PopoverRoot: React.FC<PopoverProps> = ({ children, trigger = 'click', ...p
     );
 
   return (
-    <Popover {...props} open={trigger === 'hover' ? isOpen : undefined}>
+    <PopoverBase {...props} open={trigger === 'hover' ? isOpen : undefined}>
       {content}
-    </Popover>
+    </PopoverBase>
   );
 };
 
@@ -88,4 +88,4 @@ const PopoverContent = React.forwardRef<
 ));
 PopoverContent.displayName = PopoverPrimitive.Content.displayName;
 
-export { PopoverRoot, PopoverTrigger, PopoverContent };
+export { PopoverBase, PopoverRoot, PopoverTrigger, PopoverContent };

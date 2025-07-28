@@ -247,94 +247,112 @@ importers:
         version: link:../../packages/typescript-config
       '@dnd-kit/core':
         specifier: ^6.3.1
-        version: 6.3.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 6.3.1(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)
       '@dnd-kit/modifiers':
         specifier: ^9.0.0
-        version: 9.0.0(@dnd-kit/core@6.3.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react@18.3.1)
+        version: 9.0.0(@dnd-kit/core@6.3.1(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)
       '@dnd-kit/sortable':
         specifier: ^10.0.0
-        version: 10.0.0(@dnd-kit/core@6.3.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react@18.3.1)
+        version: 10.0.0(@dnd-kit/core@6.3.1(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)
       '@dnd-kit/utilities':
         specifier: ^3.2.2
-        version: 3.2.2(react@18.3.1)
+        version: 3.2.2(react@apps+web+@platejs+emoji+react)
       '@electric-sql/client':
         specifier: ^1.0.7
         version: 1.0.7
       '@electric-sql/react':
         specifier: ^1.0.7
-        version: 1.0.7(react@18.3.1)
+        version: 1.0.7(react@apps+web+@platejs+emoji+react)
+      '@emoji-mart/data':
+        specifier: ^1.2.1
+        version: 1.2.1
       '@llm-ui/code':
         specifier: ^0.13.3
-        version: 0.13.3(react@18.3.1)(shiki@3.8.1)
+        version: 0.13.3(react@apps+web+@platejs+emoji+react)(shiki@3.8.1)
       '@llm-ui/markdown':
         specifier: ^0.13.3
-        version: 0.13.3(react@18.3.1)
+        version: 0.13.3(react@apps+web+@platejs+emoji+react)
       '@llm-ui/react':
         specifier: ^0.13.3
-        version: 0.13.3(react@18.3.1)
+        version: 0.13.3(react@apps+web+@platejs+emoji+react)
       '@monaco-editor/react':
         specifier: ^4.7.0
-        version: 4.7.0(monaco-editor@0.52.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 4.7.0(monaco-editor@0.52.2)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)
+      '@platejs/autoformat':
+        specifier: ^49.0.0
+        version: 49.0.0(platejs@49.1.13(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@apps+web+@platejs+emoji+react)))(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)
       '@platejs/basic-nodes':
         specifier: ^49.0.0
-        version: 49.0.0(platejs@49.1.13(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 49.0.0(platejs@49.1.13(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@apps+web+@platejs+emoji+react)))(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)
+      '@platejs/callout':
+        specifier: ^49.0.0
+        version: 49.0.0(platejs@49.1.13(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@apps+web+@platejs+emoji+react)))(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)
+      '@platejs/code-block':
+        specifier: ^49.0.0
+        version: 49.0.0(platejs@49.1.13(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@apps+web+@platejs+emoji+react)))(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)
+      '@platejs/emoji':
+        specifier: ^49.0.0
+        version: 49.0.0(@emoji-mart/data@1.2.1)(platejs@49.1.13(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@apps+web+@platejs+emoji+react)))(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)
       '@posthog/nextjs-config':
         specifier: ^1.0.2
-        version: 1.0.2(next@14.2.30(@babel/core@7.28.0)(@opentelemetry/api@1.9.0)(@playwright/test@1.54.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.89.2))
+        version: 1.0.2(next@14.2.30(@babel/core@7.28.0)(@opentelemetry/api@1.9.0)(@playwright/test@1.54.1)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)(sass@1.89.2))
       '@radix-ui/react-avatar':
         specifier: ^1.1.10
-        version: 1.1.10(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 1.1.10(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)
       '@radix-ui/react-checkbox':
         specifier: ^1.3.2
-        version: 1.3.2(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 1.3.2(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)
       '@radix-ui/react-collapsible':
         specifier: ^1.1.11
-        version: 1.1.11(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 1.1.11(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)
       '@radix-ui/react-context-menu':
         specifier: ^2.2.15
-        version: 2.2.15(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 2.2.15(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)
       '@radix-ui/react-dialog':
         specifier: ^1.1.14
-        version: 1.1.14(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 1.1.14(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)
       '@radix-ui/react-dropdown-menu':
         specifier: ^2.1.15
-        version: 2.1.15(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 2.1.15(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)
       '@radix-ui/react-label':
         specifier: ^2.1.7
-        version: 2.1.7(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 2.1.7(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-menubar':
+        specifier: ^1.1.15
+        version: 1.1.15(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)
       '@radix-ui/react-popover':
         specifier: ^1.1.14
-        version: 1.1.14(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 1.1.14(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)
       '@radix-ui/react-scroll-area':
         specifier: ^1.2.9
-        version: 1.2.9(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 1.2.9(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)
       '@radix-ui/react-select':
         specifier: ^2.2.5
-        version: 2.2.5(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 2.2.5(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)
       '@radix-ui/react-separator':
         specifier: ^1.1.7
-        version: 1.1.7(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 1.1.7(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)
       '@radix-ui/react-slider':
         specifier: ^1.3.5
-        version: 1.3.5(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 1.3.5(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)
       '@radix-ui/react-slot':
         specifier: ^1.2.3
-        version: 1.2.3(@types/react@18.3.23)(react@18.3.1)
+        version: 1.2.3(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)
       '@radix-ui/react-switch':
         specifier: ^1.2.5
-        version: 1.2.5(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 1.2.5(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)
       '@radix-ui/react-tabs':
         specifier: ^1.1.12
-        version: 1.1.12(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 1.1.12(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)
       '@radix-ui/react-toolbar':
         specifier: ^1.1.10
-        version: 1.1.10(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 1.1.10(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)
       '@radix-ui/react-tooltip':
         specifier: ^1.2.7
-        version: 1.2.7(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 1.2.7(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)
       '@radix-ui/react-visually-hidden':
         specifier: ^1.2.3
-        version: 1.2.3(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 1.2.3(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)
       '@shikijs/langs':
         specifier: ^3.8.1
         version: 3.8.1
@@ -352,22 +370,22 @@ importers:
         version: 5.83.0
       '@tanstack/react-form':
         specifier: ^1.14.2
-        version: 1.14.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 1.14.2(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)
       '@tanstack/react-query':
         specifier: ^5.83.0
-        version: 5.83.0(react@18.3.1)
+        version: 5.83.0(react@apps+web+@platejs+emoji+react)
       '@tanstack/react-query-devtools':
         specifier: ^5.83.0
-        version: 5.83.0(@tanstack/react-query@5.83.0(react@18.3.1))(react@18.3.1)
+        version: 5.83.0(@tanstack/react-query@5.83.0(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)
       '@tanstack/react-query-persist-client':
         specifier: ^5.83.0
-        version: 5.83.0(@tanstack/react-query@5.83.0(react@18.3.1))(react@18.3.1)
+        version: 5.83.0(@tanstack/react-query@5.83.0(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)
       '@tanstack/react-table':
         specifier: ^8.21.3
-        version: 8.21.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 8.21.3(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)
       '@tanstack/react-virtual':
         specifier: ^3.13.12
-        version: 3.13.12(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 3.13.12(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)
       axios:
         specifier: ^1.11.0
         version: 1.11.0
@@ -397,7 +415,7 @@ importers:
         version: 2.1.1
       cmdk:
         specifier: ^1.1.1
-        version: 1.1.1(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 1.1.1(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)
       dayjs:
         specifier: ^1.11.13
         version: 1.11.13
@@ -412,7 +430,7 @@ importers:
         version: 11.1.0
       framer-motion:
         specifier: ^12.23.6
-        version: 12.23.6(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 12.23.6(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)
       hono:
         specifier: 'catalog:'
         version: 4.8.4
@@ -431,6 +449,9 @@ importers:
       lodash:
         specifier: ^4.17.21
         version: 4.17.21
+      lowlight:
+        specifier: ^3.3.0
+        version: 3.3.0
       monaco-editor:
         specifier: ^0.52.2
         version: 0.52.2
@@ -445,16 +466,16 @@ importers:
         version: 1.2.0
       next:
         specifier: 14.2.30
-        version: 14.2.30(@babel/core@7.28.0)(@opentelemetry/api@1.9.0)(@playwright/test@1.54.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.89.2)
+        version: 14.2.30(@babel/core@7.28.0)(@opentelemetry/api@1.9.0)(@playwright/test@1.54.1)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)(sass@1.89.2)
       next-themes:
         specifier: ^0.4.6
-        version: 0.4.6(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 0.4.6(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)
       papaparse:
         specifier: ^5.5.3
         version: 5.5.3
       platejs:
         specifier: ^49.1.13
-        version: 49.1.13(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1))
+        version: 49.1.13(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@apps+web+@platejs+emoji+react))
       pluralize:
         specifier: ^8.0.0
         version: 8.0.0
@@ -462,26 +483,26 @@ importers:
         specifier: ^1.257.2
         version: 1.257.2
       react:
-        specifier: ^18.3.1
-        version: 18.3.1
+        specifier: link:@platejs/emoji/react
+        version: link:@platejs/emoji/react
       react-color:
         specifier: ^2.19.3
-        version: 2.19.3(react@18.3.1)
+        version: 2.19.3(react@apps+web+@platejs+emoji+react)
       react-colorful:
         specifier: ^5.6.1
-        version: 5.6.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 5.6.1(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)
       react-day-picker:
         specifier: 8.10.1
-        version: 8.10.1(date-fns@3.6.0)(react@18.3.1)
+        version: 8.10.1(date-fns@3.6.0)(react@apps+web+@platejs+emoji+react)
       react-dom:
         specifier: ^18.3.1
-        version: 18.3.1(react@18.3.1)
+        version: 18.3.1(react@apps+web+@platejs+emoji+react)
       react-hotkeys-hook:
         specifier: ^5.1.0
-        version: 5.1.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 5.1.0(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)
       react-markdown:
         specifier: ^10.1.0
-        version: 10.1.0(@types/react@18.3.23)(react@18.3.1)
+        version: 10.1.0(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)
       rehype-raw:
         specifier: ^7.0.0
         version: 7.0.0
@@ -496,13 +517,13 @@ importers:
         version: 3.8.1
       sonner:
         specifier: ^2.0.6
-        version: 2.0.6(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 2.0.6(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)
       tailwind-merge:
         specifier: ^3.3.1
         version: 3.3.1
       tailwind-scrollbar:
         specifier: ^4.0.2
-        version: 4.0.2(react@18.3.1)(tailwindcss@4.1.11)
+        version: 4.0.2(react@apps+web+@platejs+emoji+react)(tailwindcss@4.1.11)
       tailwindcss:
         specifier: 4.1.11
         version: 4.1.11
@@ -511,7 +532,7 @@ importers:
         version: 1.0.7(tailwindcss@4.1.11)
       use-context-selector:
         specifier: ^2.0.0
-        version: 2.0.0(react@18.3.1)(scheduler@0.23.2)
+        version: 2.0.0(react@apps+web+@platejs+emoji+react)(scheduler@0.23.2)
       utility-types:
         specifier: ^3.11.0
         version: 3.11.0
@@ -520,7 +541,7 @@ importers:
         version: 11.1.0
       virtua:
         specifier: ^0.41.5
-        version: 0.41.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(svelte@5.34.9)(vue@3.5.17(typescript@5.8.3))
+        version: 0.41.5(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)(svelte@5.34.9)(vue@3.5.17(typescript@5.8.3))
       vite:
         specifier: 'catalog:'
         version: 7.0.5(@types/node@24.0.10)(jiti@2.4.2)(lightningcss@1.30.1)(sass@1.89.2)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.0)
@@ -532,11 +553,11 @@ importers:
         version: 3.25.1
       zustand:
         specifier: ^5.0.6
-        version: 5.0.6(@types/react@18.3.23)(immer@10.1.1)(react@18.3.1)(use-sync-external-store@1.5.0(react@18.3.1))
+        version: 5.0.6(@types/react@18.3.23)(immer@10.1.1)(react@apps+web+@platejs+emoji+react)(use-sync-external-store@1.5.0(react@apps+web+@platejs+emoji+react))
     devDependencies:
       '@chromatic-com/storybook':
         specifier: ^3.2.6
-        version: 3.2.7(react@18.3.1)(storybook@8.6.14(prettier@3.6.2))
+        version: 3.2.7(react@apps+web+@platejs+emoji+react)(storybook@8.6.14(prettier@3.6.2))
       '@faker-js/faker':
         specifier: ^9.9.0
         version: 9.9.0
@@ -560,13 +581,13 @@ importers:
         version: 8.6.14(storybook@8.6.14(prettier@3.6.2))
       '@storybook/blocks':
         specifier: ^8.6.14
-        version: 8.6.14(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(storybook@8.6.14(prettier@3.6.2))
+        version: 8.6.14(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)(storybook@8.6.14(prettier@3.6.2))
       '@storybook/nextjs':
         specifier: ^8.6.14
-        version: 8.6.14(esbuild@0.25.5)(next@14.2.30(@babel/core@7.28.0)(@opentelemetry/api@1.9.0)(@playwright/test@1.54.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.89.2))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.89.2)(storybook@8.6.14(prettier@3.6.2))(type-fest@4.41.0)(typescript@5.8.3)(webpack-hot-middleware@2.26.1)(webpack@5.99.9(esbuild@0.25.5))
+        version: 8.6.14(esbuild@0.25.5)(next@14.2.30(@babel/core@7.28.0)(@opentelemetry/api@1.9.0)(@playwright/test@1.54.1)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)(sass@1.89.2))(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)(sass@1.89.2)(storybook@8.6.14(prettier@3.6.2))(type-fest@4.41.0)(typescript@5.8.3)(webpack-hot-middleware@2.26.1)(webpack@5.99.9(esbuild@0.25.5))
       '@storybook/react':
         specifier: ^8.6.14
-        version: 8.6.14(@storybook/test@8.6.14(storybook@8.6.14(prettier@3.6.2)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(storybook@8.6.14(prettier@3.6.2))(typescript@5.8.3)
+        version: 8.6.14(@storybook/test@8.6.14(storybook@8.6.14(prettier@3.6.2)))(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)(storybook@8.6.14(prettier@3.6.2))(typescript@5.8.3)
       '@storybook/test':
         specifier: ^8.6.14
         version: 8.6.14(storybook@8.6.14(prettier@3.6.2))
@@ -578,7 +599,7 @@ importers:
         version: 6.6.3
       '@testing-library/react':
         specifier: ^16.3.0
-        version: 16.3.0(@testing-library/dom@10.4.0)(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 16.3.0(@testing-library/dom@10.4.0)(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)
       '@types/canvas-confetti':
         specifier: ^1.9.0
         version: 1.9.0
@@ -2168,6 +2189,9 @@ packages:
   '@emnapi/wasi-threads@1.0.2':
     resolution: {integrity: sha512-5n3nTJblwRi8LlXkJ9eBzu+kZR8Yxcc7ubakyQTFzPMtIhFpUBRbsnc2Dv88IZDIbCDlBiWrknhB4Lsz7mg6BA==}
 
+  '@emoji-mart/data@1.2.1':
+    resolution: {integrity: sha512-no2pQMWiBy6gpBEiqGeU77/bFejDqUTRY7KX+0+iur13op3bqUsXdnwoZs6Xb1zbv0gAj5VvS1PWoUUckSr5Dw==}
+
   '@esbuild-kit/core-utils@3.3.2':
     resolution: {integrity: sha512-sPRAnw9CdSsRmEtnsl2WXWdyquogVpB3yZ3dgwJfe8zrOzTsV7cJvmwrKVa+0ma5BoiGJ+BoqkMvawbayKUsqQ==}
     deprecated: 'Merged into tsx: https://tsx.is'
@@ -3667,8 +3691,36 @@ packages:
     resolution: {integrity: sha512-+1VkjdD0QBLPodGrJUeqarH8VAIvQODIbwh9XpP5Syisf7YoQgsJKPNFoqqLQlu+VQ/tVSshMR6loPMn8U+dPg==}
     engines: {node: '>=14'}
 
+  '@platejs/autoformat@49.0.0':
+    resolution: {integrity: sha512-KxgxyGhJQxoZ+jovshILRTu9sI4xo2paEMQnQjuH1egFuMkwa7ULyjW6g3JvaH3KicmB0fijqwkZwAZXNrJsRg==}
+    peerDependencies:
+      platejs: '>=49.0.0'
+      react: '>=18.0.0'
+      react-dom: '>=18.0.0'
+
   '@platejs/basic-nodes@49.0.0':
     resolution: {integrity: sha512-l7MbW1Oy2uyRRYOiWVGxTNs8nIvBM/EWjZZFEmtOZcpzXrSY6c3cZd0KAA6u0Z+NLLbLABLJNxuYFBZ5ARvBsg==}
+    peerDependencies:
+      platejs: '>=49.0.0'
+      react: '>=18.0.0'
+      react-dom: '>=18.0.0'
+
+  '@platejs/callout@49.0.0':
+    resolution: {integrity: sha512-8Juxp1pfcUfPj9DQdibFgoimZdeexbYgOEMmASY9UVOxbXNYNdn/l/IdlZfQFrWXYdA5Hlfqj6bMAm0Yl85QhA==}
+    peerDependencies:
+      platejs: '>=49.0.0'
+      react: '>=18.0.0'
+      react-dom: '>=18.0.0'
+
+  '@platejs/code-block@49.0.0':
+    resolution: {integrity: sha512-yDkJBGoCFHvWhhSnzgET2hyD+5+zBj4uCkO4qZpeNsncshBwJuADnSLUcPc6B4Xf6FC5rHDaIYL+889YykrlEA==}
+    peerDependencies:
+      platejs: '>=49.0.0'
+      react: '>=18.0.0'
+      react-dom: '>=18.0.0'
+
+  '@platejs/combobox@49.0.0':
+    resolution: {integrity: sha512-u+fPxYU4fo4g1hfY69fRuKzwmznx3DdyABN233dDwXzmBHQceWCwK5wEjMSr/1EU5TqVqKZyXeTkzYUDo/leSg==}
     peerDependencies:
       platejs: '>=49.0.0'
       react: '>=18.0.0'
@@ -3677,6 +3729,14 @@ packages:
   '@platejs/core@49.1.13':
     resolution: {integrity: sha512-4ktvZSpj2ffhsZGLq7RWeCJRmHVLvlZU6KNGQVPp53JxqEd7tskU+N55+yu/j0fYzHz/+E43ZuKKNAs+ozd6/w==}
     peerDependencies:
+      react: '>=18.0.0'
+      react-dom: '>=18.0.0'
+
+  '@platejs/emoji@49.0.0':
+    resolution: {integrity: sha512-n9ARKeK6mfc8yzqk0AXuD3KrcBHk7FY3ClrEk4d8GYkz7iriMfDMd1fHSzC5uaDM/jSFmzaUszhlMaVhB8s95A==}
+    peerDependencies:
+      '@emoji-mart/data': '>=1.2.0'
+      platejs: '>=49.0.0'
       react: '>=18.0.0'
       react-dom: '>=18.0.0'
 
@@ -3960,6 +4020,19 @@ packages:
 
   '@radix-ui/react-menu@2.1.15':
     resolution: {integrity: sha512-tVlmA3Vb9n8SZSd+YSbuFR66l87Wiy4du+YE+0hzKQEANA+7cWKH1WgqcEX4pXqxUFQKrWQGHdvEfw00TjFiew==}
+    peerDependencies:
+      '@types/react': '*'
+      '@types/react-dom': '*'
+      react: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
+      react-dom: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+      '@types/react-dom':
+        optional: true
+
+  '@radix-ui/react-menubar@1.1.15':
+    resolution: {integrity: sha512-Z71C7LGD+YDYo3TV81paUs8f3Zbmkvg6VLRQpKYfzioOE6n7fOhA3ApK/V/2Odolxjoc4ENk8AYCjohCNayd5A==}
     peerDependencies:
       '@types/react': '*'
       '@types/react-dom': '*'
@@ -7854,6 +7927,10 @@ packages:
   help-me@5.0.0:
     resolution: {integrity: sha512-7xgomUX6ADmcYzFik0HzAxh/73YlKR9bmFzf51CZwR+b6YtzU2m0u49hQCqV6SvlqIqsaxovfwdvbnsw3b/zpg==}
 
+  highlight.js@11.11.1:
+    resolution: {integrity: sha512-Xwwo44whKBVCYoliBQwaPvtd/2tYFkRQtXDWj1nackaV2JPXx3L0+Jvd8/qCJ2p+ML0/XVkJ2q+Mr+UVdpJK5w==}
+    engines: {node: '>=12.0.0'}
+
   hmac-drbg@1.0.1:
     resolution: {integrity: sha512-Tti3gMqLdZfhOQY1Mzf/AanLiqh1WTiJgEj26ZuYQ9fbkLomzGchCws4FyrSd4VkpBfiNhaE1On+lOz894jvXg==}
 
@@ -8714,6 +8791,9 @@ packages:
 
   lower-case@2.0.2:
     resolution: {integrity: sha512-7fm3l3NAF9WfN6W3JOmf5drwpVqX78JtoGJ3A6W0a6ZnldM41w2fV5D490psKFTpMds8TJse/eHLFFsNHHjHgg==}
+
+  lowlight@3.3.0:
+    resolution: {integrity: sha512-0JNhgFoPvP6U6lE/UdVsSq99tn6DhjjpAj5MxG49ewd2mOBVtwWYIT8ClyABhq198aXXODMU6Ox8DrGy/CpTZQ==}
 
   lru-cache@10.4.3:
     resolution: {integrity: sha512-JNAzZcXrCt42VGLuYz0zfAzDfAvJWW6AfYlDBQyDV5DClI2m5sAmK+OIO7s59XfsRsWHp02jAJrRadPRGTt6SQ==}
@@ -13603,12 +13683,12 @@ snapshots:
       '@types/tough-cookie': 4.0.5
       tough-cookie: 4.1.4
 
-  '@chromatic-com/storybook@3.2.7(react@18.3.1)(storybook@8.6.14(prettier@3.6.2))':
+  '@chromatic-com/storybook@3.2.7(react@apps+web+@platejs+emoji+react)(storybook@8.6.14(prettier@3.6.2))':
     dependencies:
       chromatic: 11.29.0
       filesize: 10.1.6
       jsonfile: 6.1.0
-      react-confetti: 6.4.0(react@18.3.1)
+      react-confetti: 6.4.0(react@apps+web+@platejs+emoji+react)
       storybook: 8.6.14(prettier@3.6.2)
       strip-ansi: 7.1.0
     transitivePeerDependencies:
@@ -13669,36 +13749,36 @@ snapshots:
 
   '@discoveryjs/json-ext@0.5.7': {}
 
-  '@dnd-kit/accessibility@3.1.1(react@18.3.1)':
+  '@dnd-kit/accessibility@3.1.1(react@apps+web+@platejs+emoji+react)':
     dependencies:
-      react: 18.3.1
+      react: link:apps/web/@platejs/emoji/react
       tslib: 2.8.1
 
-  '@dnd-kit/core@6.3.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@dnd-kit/core@6.3.1(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)':
     dependencies:
-      '@dnd-kit/accessibility': 3.1.1(react@18.3.1)
-      '@dnd-kit/utilities': 3.2.2(react@18.3.1)
-      react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
+      '@dnd-kit/accessibility': 3.1.1(react@apps+web+@platejs+emoji+react)
+      '@dnd-kit/utilities': 3.2.2(react@apps+web+@platejs+emoji+react)
+      react: link:apps/web/@platejs/emoji/react
+      react-dom: 18.3.1(react@apps+web+@platejs+emoji+react)
       tslib: 2.8.1
 
-  '@dnd-kit/modifiers@9.0.0(@dnd-kit/core@6.3.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react@18.3.1)':
+  '@dnd-kit/modifiers@9.0.0(@dnd-kit/core@6.3.1(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)':
     dependencies:
-      '@dnd-kit/core': 6.3.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@dnd-kit/utilities': 3.2.2(react@18.3.1)
-      react: 18.3.1
+      '@dnd-kit/core': 6.3.1(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)
+      '@dnd-kit/utilities': 3.2.2(react@apps+web+@platejs+emoji+react)
+      react: link:apps/web/@platejs/emoji/react
       tslib: 2.8.1
 
-  '@dnd-kit/sortable@10.0.0(@dnd-kit/core@6.3.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react@18.3.1)':
+  '@dnd-kit/sortable@10.0.0(@dnd-kit/core@6.3.1(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)':
     dependencies:
-      '@dnd-kit/core': 6.3.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@dnd-kit/utilities': 3.2.2(react@18.3.1)
-      react: 18.3.1
+      '@dnd-kit/core': 6.3.1(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)
+      '@dnd-kit/utilities': 3.2.2(react@apps+web+@platejs+emoji+react)
+      react: link:apps/web/@platejs/emoji/react
       tslib: 2.8.1
 
-  '@dnd-kit/utilities@3.2.2(react@18.3.1)':
+  '@dnd-kit/utilities@3.2.2(react@apps+web+@platejs+emoji+react)':
     dependencies:
-      react: 18.3.1
+      react: link:apps/web/@platejs/emoji/react
       tslib: 2.8.1
 
   '@drizzle-team/brocli@0.10.2': {}
@@ -13721,12 +13801,12 @@ snapshots:
     optionalDependencies:
       '@rollup/rollup-darwin-arm64': 4.44.2
 
-  '@electric-sql/react@1.0.7(react@18.3.1)':
+  '@electric-sql/react@1.0.7(react@apps+web+@platejs+emoji+react)':
     dependencies:
       '@electric-sql/client': 1.0.7
-      use-sync-external-store: 1.5.0(react@18.3.1)
+      use-sync-external-store: 1.5.0(react@apps+web+@platejs+emoji+react)
     optionalDependencies:
-      react: 18.3.1
+      react: link:apps/web/@platejs/emoji/react
 
   '@emnapi/core@1.4.3':
     dependencies:
@@ -13743,6 +13823,8 @@ snapshots:
     dependencies:
       tslib: 2.8.1
     optional: true
+
+  '@emoji-mart/data@1.2.1': {}
 
   '@esbuild-kit/core-utils@3.3.2':
     dependencies:
@@ -13929,11 +14011,11 @@ snapshots:
       '@floating-ui/core': 1.7.2
       '@floating-ui/utils': 0.2.10
 
-  '@floating-ui/react-dom@2.1.4(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@floating-ui/react-dom@2.1.4(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)':
     dependencies:
       '@floating-ui/dom': 1.7.2
-      react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
+      react: link:apps/web/@platejs/emoji/react
+      react-dom: 18.3.1(react@apps+web+@platejs+emoji+react)
 
   '@floating-ui/utils@0.2.10': {}
 
@@ -14040,9 +14122,9 @@ snapshots:
 
   '@iarna/toml@2.2.5': {}
 
-  '@icons/material@0.2.4(react@18.3.1)':
+  '@icons/material@0.2.4(react@apps+web+@platejs+emoji+react)':
     dependencies:
-      react: 18.3.1
+      react: link:apps/web/@platejs/emoji/react
 
   '@img/sharp-darwin-arm64@0.33.5':
     optionalDependencies:
@@ -14244,34 +14326,34 @@ snapshots:
 
   '@kwsites/promise-deferred@1.1.1': {}
 
-  '@llm-ui/code@0.13.3(react@18.3.1)(shiki@3.8.1)':
+  '@llm-ui/code@0.13.3(react@apps+web+@platejs+emoji+react)(shiki@3.8.1)':
     dependencies:
-      '@llm-ui/react': 0.13.3(react@18.3.1)
-      '@llm-ui/shared': 0.13.3(react@18.3.1)
-      react: 18.3.1
+      '@llm-ui/react': 0.13.3(react@apps+web+@platejs+emoji+react)
+      '@llm-ui/shared': 0.13.3(react@apps+web+@platejs+emoji+react)
+      react: link:apps/web/@platejs/emoji/react
       shiki: 3.8.1
 
-  '@llm-ui/markdown@0.13.3(react@18.3.1)':
+  '@llm-ui/markdown@0.13.3(react@apps+web+@platejs+emoji+react)':
     dependencies:
-      '@llm-ui/react': 0.13.3(react@18.3.1)
+      '@llm-ui/react': 0.13.3(react@apps+web+@platejs+emoji+react)
       mdast-util-from-markdown: 2.0.2
       mdast-util-gfm: 3.1.0
       mdast-util-to-markdown: 2.1.2
       micromark-extension-gfm: 3.0.0
-      react: 18.3.1
+      react: link:apps/web/@platejs/emoji/react
       remeda: 1.61.0
       unist-util-visit: 5.0.0
     transitivePeerDependencies:
       - supports-color
 
-  '@llm-ui/react@0.13.3(react@18.3.1)':
+  '@llm-ui/react@0.13.3(react@apps+web+@platejs+emoji+react)':
     dependencies:
-      react: 18.3.1
+      react: link:apps/web/@platejs/emoji/react
       remeda: 1.61.0
 
-  '@llm-ui/shared@0.13.3(react@18.3.1)':
+  '@llm-ui/shared@0.13.3(react@apps+web+@platejs+emoji+react)':
     dependencies:
-      '@llm-ui/react': 0.13.3(react@18.3.1)
+      '@llm-ui/react': 0.13.3(react@apps+web+@platejs+emoji+react)
     transitivePeerDependencies:
       - react
 
@@ -14363,12 +14445,12 @@ snapshots:
     dependencies:
       state-local: 1.0.7
 
-  '@monaco-editor/react@4.7.0(monaco-editor@0.52.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@monaco-editor/react@4.7.0(monaco-editor@0.52.2)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)':
     dependencies:
       '@monaco-editor/loader': 1.5.0
       monaco-editor: 0.52.2
-      react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
+      react: link:apps/web/@platejs/emoji/react
+      react-dom: 18.3.1(react@apps+web+@platejs+emoji+react)
 
   '@mswjs/interceptors@0.39.2':
     dependencies:
@@ -15402,34 +15484,59 @@ snapshots:
   '@pkgjs/parseargs@0.11.0':
     optional: true
 
-  '@platejs/basic-nodes@49.0.0(platejs@49.1.13(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@platejs/autoformat@49.0.0(platejs@49.1.13(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@apps+web+@platejs+emoji+react)))(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)':
     dependencies:
-      platejs: 49.1.13(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1))
-      react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
+      lodash: 4.17.21
+      platejs: 49.1.13(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@apps+web+@platejs+emoji+react))
+      react: link:apps/web/@platejs/emoji/react
+      react-dom: 18.3.1(react@apps+web+@platejs+emoji+react)
 
-  '@platejs/core@49.1.13(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1))':
+  '@platejs/basic-nodes@49.0.0(platejs@49.1.13(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@apps+web+@platejs+emoji+react)))(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)':
+    dependencies:
+      platejs: 49.1.13(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@apps+web+@platejs+emoji+react))
+      react: link:apps/web/@platejs/emoji/react
+      react-dom: 18.3.1(react@apps+web+@platejs+emoji+react)
+
+  '@platejs/callout@49.0.0(platejs@49.1.13(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@apps+web+@platejs+emoji+react)))(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)':
+    dependencies:
+      platejs: 49.1.13(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@apps+web+@platejs+emoji+react))
+      react: link:apps/web/@platejs/emoji/react
+      react-dom: 18.3.1(react@apps+web+@platejs+emoji+react)
+
+  '@platejs/code-block@49.0.0(platejs@49.1.13(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@apps+web+@platejs+emoji+react)))(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)':
+    dependencies:
+      platejs: 49.1.13(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@apps+web+@platejs+emoji+react))
+      react: link:apps/web/@platejs/emoji/react
+      react-dom: 18.3.1(react@apps+web+@platejs+emoji+react)
+
+  '@platejs/combobox@49.0.0(platejs@49.1.13(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@apps+web+@platejs+emoji+react)))(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)':
+    dependencies:
+      platejs: 49.1.13(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@apps+web+@platejs+emoji+react))
+      react: link:apps/web/@platejs/emoji/react
+      react-dom: 18.3.1(react@apps+web+@platejs+emoji+react)
+
+  '@platejs/core@49.1.13(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@apps+web+@platejs+emoji+react))':
     dependencies:
       '@platejs/slate': 49.1.13
-      '@udecode/react-hotkeys': 37.0.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@udecode/react-utils': 49.0.15(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@udecode/react-hotkeys': 37.0.0(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)
+      '@udecode/react-utils': 49.0.15(@types/react@18.3.23)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)
       '@udecode/utils': 47.2.7
       clsx: 2.1.1
       html-entities: 2.6.0
       is-hotkey: 0.2.0
-      jotai: 2.8.4(@types/react@18.3.23)(react@18.3.1)
-      jotai-optics: 0.4.0(jotai@2.8.4(@types/react@18.3.23)(react@18.3.1))(optics-ts@2.4.1)
-      jotai-x: 2.3.3(@types/react@18.3.23)(jotai@2.8.4(@types/react@18.3.23)(react@18.3.1))(react@18.3.1)
+      jotai: 2.8.4(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)
+      jotai-optics: 0.4.0(jotai@2.8.4(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react))(optics-ts@2.4.1)
+      jotai-x: 2.3.3(@types/react@18.3.23)(jotai@2.8.4(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)
       lodash: 4.17.21
       nanoid: 5.1.5
       optics-ts: 2.4.1
-      react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
+      react: link:apps/web/@platejs/emoji/react
+      react-dom: 18.3.1(react@apps+web+@platejs+emoji+react)
       slate-hyperscript: 0.100.0(slate@0.117.0)
-      slate-react: 0.117.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)
-      use-deep-compare: 1.3.0(react@18.3.1)
-      zustand: 5.0.6(@types/react@18.3.23)(immer@10.1.1)(react@18.3.1)(use-sync-external-store@1.5.0(react@18.3.1))
-      zustand-x: 6.1.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(zustand@5.0.6(@types/react@18.3.23)(immer@10.1.1)(react@18.3.1)(use-sync-external-store@1.5.0(react@18.3.1)))
+      slate-react: 0.117.1(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)
+      use-deep-compare: 1.3.0(react@apps+web+@platejs+emoji+react)
+      zustand: 5.0.6(@types/react@18.3.23)(immer@10.1.1)(react@apps+web+@platejs+emoji+react)(use-sync-external-store@1.5.0(react@apps+web+@platejs+emoji+react))
+      zustand-x: 6.1.0(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)(scheduler@0.23.2)(zustand@5.0.6(@types/react@18.3.23)(immer@10.1.1)(react@apps+web+@platejs+emoji+react)(use-sync-external-store@1.5.0(react@apps+web+@platejs+emoji+react)))
     transitivePeerDependencies:
       - '@types/react'
       - immer
@@ -15439,6 +15546,14 @@ snapshots:
       - slate-dom
       - use-sync-external-store
 
+  '@platejs/emoji@49.0.0(@emoji-mart/data@1.2.1)(platejs@49.1.13(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@apps+web+@platejs+emoji+react)))(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)':
+    dependencies:
+      '@emoji-mart/data': 1.2.1
+      '@platejs/combobox': 49.0.0(platejs@49.1.13(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@apps+web+@platejs+emoji+react)))(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)
+      platejs: 49.1.13(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@apps+web+@platejs+emoji+react))
+      react: link:apps/web/@platejs/emoji/react
+      react-dom: 18.3.1(react@apps+web+@platejs+emoji+react)
+
   '@platejs/slate@49.1.13':
     dependencies:
       '@udecode/utils': 47.2.7
@@ -15447,16 +15562,16 @@ snapshots:
       slate: 0.117.0
       slate-dom: 0.116.0(slate@0.117.0)
 
-  '@platejs/utils@49.1.13(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1))':
+  '@platejs/utils@49.1.13(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@apps+web+@platejs+emoji+react))':
     dependencies:
-      '@platejs/core': 49.1.13(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1))
+      '@platejs/core': 49.1.13(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@apps+web+@platejs+emoji+react))
       '@platejs/slate': 49.1.13
-      '@udecode/react-utils': 49.0.15(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@udecode/react-utils': 49.0.15(@types/react@18.3.23)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)
       '@udecode/utils': 47.2.7
       clsx: 2.1.1
       lodash: 4.17.21
-      react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
+      react: link:apps/web/@platejs/emoji/react
+      react-dom: 18.3.1(react@apps+web+@platejs+emoji+react)
     transitivePeerDependencies:
       - '@types/react'
       - immer
@@ -15497,10 +15612,10 @@ snapshots:
     transitivePeerDependencies:
       - debug
 
-  '@posthog/nextjs-config@1.0.2(next@14.2.30(@babel/core@7.28.0)(@opentelemetry/api@1.9.0)(@playwright/test@1.54.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.89.2))':
+  '@posthog/nextjs-config@1.0.2(next@14.2.30(@babel/core@7.28.0)(@opentelemetry/api@1.9.0)(@playwright/test@1.54.1)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)(sass@1.89.2))':
     dependencies:
       '@posthog/cli': 0.3.5
-      next: 14.2.30(@babel/core@7.28.0)(@opentelemetry/api@1.9.0)(@playwright/test@1.54.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.89.2)
+      next: 14.2.30(@babel/core@7.28.0)(@opentelemetry/api@1.9.0)(@playwright/test@1.54.1)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)(sass@1.89.2)
     transitivePeerDependencies:
       - debug
 
@@ -15531,539 +15646,557 @@ snapshots:
 
   '@radix-ui/primitive@1.1.2': {}
 
-  '@radix-ui/react-arrow@1.1.7(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@radix-ui/react-arrow@1.1.7(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)':
     dependencies:
-      '@radix-ui/react-primitive': 2.1.3(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
+      '@radix-ui/react-primitive': 2.1.3(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)
+      react: link:apps/web/@platejs/emoji/react
+      react-dom: 18.3.1(react@apps+web+@platejs+emoji+react)
     optionalDependencies:
       '@types/react': 18.3.23
       '@types/react-dom': 18.3.7(@types/react@18.3.23)
 
-  '@radix-ui/react-avatar@1.1.10(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@radix-ui/react-avatar@1.1.10(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)':
     dependencies:
-      '@radix-ui/react-context': 1.1.2(@types/react@18.3.23)(react@18.3.1)
-      '@radix-ui/react-primitive': 2.1.3(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@radix-ui/react-use-callback-ref': 1.1.1(@types/react@18.3.23)(react@18.3.1)
-      '@radix-ui/react-use-is-hydrated': 0.1.0(@types/react@18.3.23)(react@18.3.1)
-      '@radix-ui/react-use-layout-effect': 1.1.1(@types/react@18.3.23)(react@18.3.1)
-      react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
+      '@radix-ui/react-context': 1.1.2(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-primitive': 2.1.3(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-use-callback-ref': 1.1.1(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-use-is-hydrated': 0.1.0(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-use-layout-effect': 1.1.1(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)
+      react: link:apps/web/@platejs/emoji/react
+      react-dom: 18.3.1(react@apps+web+@platejs+emoji+react)
     optionalDependencies:
       '@types/react': 18.3.23
       '@types/react-dom': 18.3.7(@types/react@18.3.23)
 
-  '@radix-ui/react-checkbox@1.3.2(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@radix-ui/react-checkbox@1.3.2(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)':
     dependencies:
       '@radix-ui/primitive': 1.1.2
-      '@radix-ui/react-compose-refs': 1.1.2(@types/react@18.3.23)(react@18.3.1)
-      '@radix-ui/react-context': 1.1.2(@types/react@18.3.23)(react@18.3.1)
-      '@radix-ui/react-presence': 1.1.4(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@radix-ui/react-primitive': 2.1.3(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@radix-ui/react-use-controllable-state': 1.2.2(@types/react@18.3.23)(react@18.3.1)
-      '@radix-ui/react-use-previous': 1.1.1(@types/react@18.3.23)(react@18.3.1)
-      '@radix-ui/react-use-size': 1.1.1(@types/react@18.3.23)(react@18.3.1)
-      react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
+      '@radix-ui/react-compose-refs': 1.1.2(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-context': 1.1.2(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-presence': 1.1.4(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-primitive': 2.1.3(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-use-controllable-state': 1.2.2(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-use-previous': 1.1.1(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-use-size': 1.1.1(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)
+      react: link:apps/web/@platejs/emoji/react
+      react-dom: 18.3.1(react@apps+web+@platejs+emoji+react)
     optionalDependencies:
       '@types/react': 18.3.23
       '@types/react-dom': 18.3.7(@types/react@18.3.23)
 
-  '@radix-ui/react-collapsible@1.1.11(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@radix-ui/react-collapsible@1.1.11(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)':
     dependencies:
       '@radix-ui/primitive': 1.1.2
-      '@radix-ui/react-compose-refs': 1.1.2(@types/react@18.3.23)(react@18.3.1)
-      '@radix-ui/react-context': 1.1.2(@types/react@18.3.23)(react@18.3.1)
-      '@radix-ui/react-id': 1.1.1(@types/react@18.3.23)(react@18.3.1)
-      '@radix-ui/react-presence': 1.1.4(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@radix-ui/react-primitive': 2.1.3(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@radix-ui/react-use-controllable-state': 1.2.2(@types/react@18.3.23)(react@18.3.1)
-      '@radix-ui/react-use-layout-effect': 1.1.1(@types/react@18.3.23)(react@18.3.1)
-      react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
+      '@radix-ui/react-compose-refs': 1.1.2(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-context': 1.1.2(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-id': 1.1.1(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-presence': 1.1.4(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-primitive': 2.1.3(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-use-controllable-state': 1.2.2(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-use-layout-effect': 1.1.1(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)
+      react: link:apps/web/@platejs/emoji/react
+      react-dom: 18.3.1(react@apps+web+@platejs+emoji+react)
     optionalDependencies:
       '@types/react': 18.3.23
       '@types/react-dom': 18.3.7(@types/react@18.3.23)
 
-  '@radix-ui/react-collection@1.1.7(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@radix-ui/react-collection@1.1.7(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)':
     dependencies:
-      '@radix-ui/react-compose-refs': 1.1.2(@types/react@18.3.23)(react@18.3.1)
-      '@radix-ui/react-context': 1.1.2(@types/react@18.3.23)(react@18.3.1)
-      '@radix-ui/react-primitive': 2.1.3(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@radix-ui/react-slot': 1.2.3(@types/react@18.3.23)(react@18.3.1)
-      react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
+      '@radix-ui/react-compose-refs': 1.1.2(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-context': 1.1.2(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-primitive': 2.1.3(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-slot': 1.2.3(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)
+      react: link:apps/web/@platejs/emoji/react
+      react-dom: 18.3.1(react@apps+web+@platejs+emoji+react)
     optionalDependencies:
       '@types/react': 18.3.23
       '@types/react-dom': 18.3.7(@types/react@18.3.23)
 
-  '@radix-ui/react-compose-refs@1.1.2(@types/react@18.3.23)(react@18.3.1)':
+  '@radix-ui/react-compose-refs@1.1.2(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)':
     dependencies:
-      react: 18.3.1
+      react: link:apps/web/@platejs/emoji/react
     optionalDependencies:
       '@types/react': 18.3.23
 
-  '@radix-ui/react-context-menu@2.2.15(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@radix-ui/react-context-menu@2.2.15(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)':
     dependencies:
       '@radix-ui/primitive': 1.1.2
-      '@radix-ui/react-context': 1.1.2(@types/react@18.3.23)(react@18.3.1)
-      '@radix-ui/react-menu': 2.1.15(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@radix-ui/react-primitive': 2.1.3(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@radix-ui/react-use-callback-ref': 1.1.1(@types/react@18.3.23)(react@18.3.1)
-      '@radix-ui/react-use-controllable-state': 1.2.2(@types/react@18.3.23)(react@18.3.1)
-      react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
+      '@radix-ui/react-context': 1.1.2(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-menu': 2.1.15(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-primitive': 2.1.3(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-use-callback-ref': 1.1.1(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-use-controllable-state': 1.2.2(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)
+      react: link:apps/web/@platejs/emoji/react
+      react-dom: 18.3.1(react@apps+web+@platejs+emoji+react)
     optionalDependencies:
       '@types/react': 18.3.23
       '@types/react-dom': 18.3.7(@types/react@18.3.23)
 
-  '@radix-ui/react-context@1.1.2(@types/react@18.3.23)(react@18.3.1)':
+  '@radix-ui/react-context@1.1.2(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)':
     dependencies:
-      react: 18.3.1
+      react: link:apps/web/@platejs/emoji/react
     optionalDependencies:
       '@types/react': 18.3.23
 
-  '@radix-ui/react-dialog@1.1.14(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@radix-ui/react-dialog@1.1.14(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)':
     dependencies:
       '@radix-ui/primitive': 1.1.2
-      '@radix-ui/react-compose-refs': 1.1.2(@types/react@18.3.23)(react@18.3.1)
-      '@radix-ui/react-context': 1.1.2(@types/react@18.3.23)(react@18.3.1)
-      '@radix-ui/react-dismissable-layer': 1.1.10(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@radix-ui/react-focus-guards': 1.1.2(@types/react@18.3.23)(react@18.3.1)
-      '@radix-ui/react-focus-scope': 1.1.7(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@radix-ui/react-id': 1.1.1(@types/react@18.3.23)(react@18.3.1)
-      '@radix-ui/react-portal': 1.1.9(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@radix-ui/react-presence': 1.1.4(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@radix-ui/react-primitive': 2.1.3(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@radix-ui/react-slot': 1.2.3(@types/react@18.3.23)(react@18.3.1)
-      '@radix-ui/react-use-controllable-state': 1.2.2(@types/react@18.3.23)(react@18.3.1)
+      '@radix-ui/react-compose-refs': 1.1.2(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-context': 1.1.2(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-dismissable-layer': 1.1.10(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-focus-guards': 1.1.2(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-focus-scope': 1.1.7(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-id': 1.1.1(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-portal': 1.1.9(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-presence': 1.1.4(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-primitive': 2.1.3(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-slot': 1.2.3(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-use-controllable-state': 1.2.2(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)
       aria-hidden: 1.2.6
-      react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
-      react-remove-scroll: 2.7.1(@types/react@18.3.23)(react@18.3.1)
+      react: link:apps/web/@platejs/emoji/react
+      react-dom: 18.3.1(react@apps+web+@platejs+emoji+react)
+      react-remove-scroll: 2.7.1(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)
     optionalDependencies:
       '@types/react': 18.3.23
       '@types/react-dom': 18.3.7(@types/react@18.3.23)
 
-  '@radix-ui/react-direction@1.1.1(@types/react@18.3.23)(react@18.3.1)':
+  '@radix-ui/react-direction@1.1.1(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)':
     dependencies:
-      react: 18.3.1
+      react: link:apps/web/@platejs/emoji/react
     optionalDependencies:
       '@types/react': 18.3.23
 
-  '@radix-ui/react-dismissable-layer@1.1.10(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@radix-ui/react-dismissable-layer@1.1.10(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)':
     dependencies:
       '@radix-ui/primitive': 1.1.2
-      '@radix-ui/react-compose-refs': 1.1.2(@types/react@18.3.23)(react@18.3.1)
-      '@radix-ui/react-primitive': 2.1.3(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@radix-ui/react-use-callback-ref': 1.1.1(@types/react@18.3.23)(react@18.3.1)
-      '@radix-ui/react-use-escape-keydown': 1.1.1(@types/react@18.3.23)(react@18.3.1)
-      react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
+      '@radix-ui/react-compose-refs': 1.1.2(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-primitive': 2.1.3(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-use-callback-ref': 1.1.1(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-use-escape-keydown': 1.1.1(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)
+      react: link:apps/web/@platejs/emoji/react
+      react-dom: 18.3.1(react@apps+web+@platejs+emoji+react)
     optionalDependencies:
       '@types/react': 18.3.23
       '@types/react-dom': 18.3.7(@types/react@18.3.23)
 
-  '@radix-ui/react-dropdown-menu@2.1.15(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@radix-ui/react-dropdown-menu@2.1.15(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)':
     dependencies:
       '@radix-ui/primitive': 1.1.2
-      '@radix-ui/react-compose-refs': 1.1.2(@types/react@18.3.23)(react@18.3.1)
-      '@radix-ui/react-context': 1.1.2(@types/react@18.3.23)(react@18.3.1)
-      '@radix-ui/react-id': 1.1.1(@types/react@18.3.23)(react@18.3.1)
-      '@radix-ui/react-menu': 2.1.15(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@radix-ui/react-primitive': 2.1.3(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@radix-ui/react-use-controllable-state': 1.2.2(@types/react@18.3.23)(react@18.3.1)
-      react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
+      '@radix-ui/react-compose-refs': 1.1.2(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-context': 1.1.2(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-id': 1.1.1(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-menu': 2.1.15(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-primitive': 2.1.3(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-use-controllable-state': 1.2.2(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)
+      react: link:apps/web/@platejs/emoji/react
+      react-dom: 18.3.1(react@apps+web+@platejs+emoji+react)
     optionalDependencies:
       '@types/react': 18.3.23
       '@types/react-dom': 18.3.7(@types/react@18.3.23)
 
-  '@radix-ui/react-focus-guards@1.1.2(@types/react@18.3.23)(react@18.3.1)':
+  '@radix-ui/react-focus-guards@1.1.2(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)':
     dependencies:
-      react: 18.3.1
+      react: link:apps/web/@platejs/emoji/react
     optionalDependencies:
       '@types/react': 18.3.23
 
-  '@radix-ui/react-focus-scope@1.1.7(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@radix-ui/react-focus-scope@1.1.7(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)':
     dependencies:
-      '@radix-ui/react-compose-refs': 1.1.2(@types/react@18.3.23)(react@18.3.1)
-      '@radix-ui/react-primitive': 2.1.3(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@radix-ui/react-use-callback-ref': 1.1.1(@types/react@18.3.23)(react@18.3.1)
-      react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
-    optionalDependencies:
-      '@types/react': 18.3.23
-      '@types/react-dom': 18.3.7(@types/react@18.3.23)
-
-  '@radix-ui/react-id@1.1.1(@types/react@18.3.23)(react@18.3.1)':
-    dependencies:
-      '@radix-ui/react-use-layout-effect': 1.1.1(@types/react@18.3.23)(react@18.3.1)
-      react: 18.3.1
-    optionalDependencies:
-      '@types/react': 18.3.23
-
-  '@radix-ui/react-label@2.1.7(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
-    dependencies:
-      '@radix-ui/react-primitive': 2.1.3(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
+      '@radix-ui/react-compose-refs': 1.1.2(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-primitive': 2.1.3(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-use-callback-ref': 1.1.1(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)
+      react: link:apps/web/@platejs/emoji/react
+      react-dom: 18.3.1(react@apps+web+@platejs+emoji+react)
     optionalDependencies:
       '@types/react': 18.3.23
       '@types/react-dom': 18.3.7(@types/react@18.3.23)
 
-  '@radix-ui/react-menu@2.1.15(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@radix-ui/react-id@1.1.1(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)':
+    dependencies:
+      '@radix-ui/react-use-layout-effect': 1.1.1(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)
+      react: link:apps/web/@platejs/emoji/react
+    optionalDependencies:
+      '@types/react': 18.3.23
+
+  '@radix-ui/react-label@2.1.7(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)':
+    dependencies:
+      '@radix-ui/react-primitive': 2.1.3(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)
+      react: link:apps/web/@platejs/emoji/react
+      react-dom: 18.3.1(react@apps+web+@platejs+emoji+react)
+    optionalDependencies:
+      '@types/react': 18.3.23
+      '@types/react-dom': 18.3.7(@types/react@18.3.23)
+
+  '@radix-ui/react-menu@2.1.15(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)':
     dependencies:
       '@radix-ui/primitive': 1.1.2
-      '@radix-ui/react-collection': 1.1.7(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@radix-ui/react-compose-refs': 1.1.2(@types/react@18.3.23)(react@18.3.1)
-      '@radix-ui/react-context': 1.1.2(@types/react@18.3.23)(react@18.3.1)
-      '@radix-ui/react-direction': 1.1.1(@types/react@18.3.23)(react@18.3.1)
-      '@radix-ui/react-dismissable-layer': 1.1.10(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@radix-ui/react-focus-guards': 1.1.2(@types/react@18.3.23)(react@18.3.1)
-      '@radix-ui/react-focus-scope': 1.1.7(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@radix-ui/react-id': 1.1.1(@types/react@18.3.23)(react@18.3.1)
-      '@radix-ui/react-popper': 1.2.7(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@radix-ui/react-portal': 1.1.9(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@radix-ui/react-presence': 1.1.4(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@radix-ui/react-primitive': 2.1.3(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@radix-ui/react-roving-focus': 1.1.10(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@radix-ui/react-slot': 1.2.3(@types/react@18.3.23)(react@18.3.1)
-      '@radix-ui/react-use-callback-ref': 1.1.1(@types/react@18.3.23)(react@18.3.1)
+      '@radix-ui/react-collection': 1.1.7(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-compose-refs': 1.1.2(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-context': 1.1.2(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-direction': 1.1.1(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-dismissable-layer': 1.1.10(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-focus-guards': 1.1.2(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-focus-scope': 1.1.7(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-id': 1.1.1(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-popper': 1.2.7(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-portal': 1.1.9(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-presence': 1.1.4(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-primitive': 2.1.3(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-roving-focus': 1.1.10(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-slot': 1.2.3(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-use-callback-ref': 1.1.1(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)
       aria-hidden: 1.2.6
-      react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
-      react-remove-scroll: 2.7.1(@types/react@18.3.23)(react@18.3.1)
+      react: link:apps/web/@platejs/emoji/react
+      react-dom: 18.3.1(react@apps+web+@platejs+emoji+react)
+      react-remove-scroll: 2.7.1(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)
     optionalDependencies:
       '@types/react': 18.3.23
       '@types/react-dom': 18.3.7(@types/react@18.3.23)
 
-  '@radix-ui/react-popover@1.1.14(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@radix-ui/react-menubar@1.1.15(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)':
     dependencies:
       '@radix-ui/primitive': 1.1.2
-      '@radix-ui/react-compose-refs': 1.1.2(@types/react@18.3.23)(react@18.3.1)
-      '@radix-ui/react-context': 1.1.2(@types/react@18.3.23)(react@18.3.1)
-      '@radix-ui/react-dismissable-layer': 1.1.10(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@radix-ui/react-focus-guards': 1.1.2(@types/react@18.3.23)(react@18.3.1)
-      '@radix-ui/react-focus-scope': 1.1.7(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@radix-ui/react-id': 1.1.1(@types/react@18.3.23)(react@18.3.1)
-      '@radix-ui/react-popper': 1.2.7(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@radix-ui/react-portal': 1.1.9(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@radix-ui/react-presence': 1.1.4(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@radix-ui/react-primitive': 2.1.3(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@radix-ui/react-slot': 1.2.3(@types/react@18.3.23)(react@18.3.1)
-      '@radix-ui/react-use-controllable-state': 1.2.2(@types/react@18.3.23)(react@18.3.1)
-      aria-hidden: 1.2.6
-      react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
-      react-remove-scroll: 2.7.1(@types/react@18.3.23)(react@18.3.1)
+      '@radix-ui/react-collection': 1.1.7(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-compose-refs': 1.1.2(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-context': 1.1.2(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-direction': 1.1.1(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-id': 1.1.1(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-menu': 2.1.15(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-primitive': 2.1.3(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-roving-focus': 1.1.10(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-use-controllable-state': 1.2.2(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)
+      react: link:apps/web/@platejs/emoji/react
+      react-dom: 18.3.1(react@apps+web+@platejs+emoji+react)
     optionalDependencies:
       '@types/react': 18.3.23
       '@types/react-dom': 18.3.7(@types/react@18.3.23)
 
-  '@radix-ui/react-popper@1.2.7(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@radix-ui/react-popover@1.1.14(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)':
     dependencies:
-      '@floating-ui/react-dom': 2.1.4(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@radix-ui/react-arrow': 1.1.7(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@radix-ui/react-compose-refs': 1.1.2(@types/react@18.3.23)(react@18.3.1)
-      '@radix-ui/react-context': 1.1.2(@types/react@18.3.23)(react@18.3.1)
-      '@radix-ui/react-primitive': 2.1.3(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@radix-ui/react-use-callback-ref': 1.1.1(@types/react@18.3.23)(react@18.3.1)
-      '@radix-ui/react-use-layout-effect': 1.1.1(@types/react@18.3.23)(react@18.3.1)
-      '@radix-ui/react-use-rect': 1.1.1(@types/react@18.3.23)(react@18.3.1)
-      '@radix-ui/react-use-size': 1.1.1(@types/react@18.3.23)(react@18.3.1)
+      '@radix-ui/primitive': 1.1.2
+      '@radix-ui/react-compose-refs': 1.1.2(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-context': 1.1.2(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-dismissable-layer': 1.1.10(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-focus-guards': 1.1.2(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-focus-scope': 1.1.7(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-id': 1.1.1(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-popper': 1.2.7(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-portal': 1.1.9(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-presence': 1.1.4(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-primitive': 2.1.3(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-slot': 1.2.3(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-use-controllable-state': 1.2.2(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)
+      aria-hidden: 1.2.6
+      react: link:apps/web/@platejs/emoji/react
+      react-dom: 18.3.1(react@apps+web+@platejs+emoji+react)
+      react-remove-scroll: 2.7.1(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)
+    optionalDependencies:
+      '@types/react': 18.3.23
+      '@types/react-dom': 18.3.7(@types/react@18.3.23)
+
+  '@radix-ui/react-popper@1.2.7(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)':
+    dependencies:
+      '@floating-ui/react-dom': 2.1.4(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-arrow': 1.1.7(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-compose-refs': 1.1.2(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-context': 1.1.2(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-primitive': 2.1.3(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-use-callback-ref': 1.1.1(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-use-layout-effect': 1.1.1(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-use-rect': 1.1.1(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-use-size': 1.1.1(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)
       '@radix-ui/rect': 1.1.1
-      react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
+      react: link:apps/web/@platejs/emoji/react
+      react-dom: 18.3.1(react@apps+web+@platejs+emoji+react)
     optionalDependencies:
       '@types/react': 18.3.23
       '@types/react-dom': 18.3.7(@types/react@18.3.23)
 
-  '@radix-ui/react-portal@1.1.9(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@radix-ui/react-portal@1.1.9(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)':
     dependencies:
-      '@radix-ui/react-primitive': 2.1.3(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@radix-ui/react-use-layout-effect': 1.1.1(@types/react@18.3.23)(react@18.3.1)
-      react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
+      '@radix-ui/react-primitive': 2.1.3(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-use-layout-effect': 1.1.1(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)
+      react: link:apps/web/@platejs/emoji/react
+      react-dom: 18.3.1(react@apps+web+@platejs+emoji+react)
     optionalDependencies:
       '@types/react': 18.3.23
       '@types/react-dom': 18.3.7(@types/react@18.3.23)
 
-  '@radix-ui/react-presence@1.1.4(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@radix-ui/react-presence@1.1.4(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)':
     dependencies:
-      '@radix-ui/react-compose-refs': 1.1.2(@types/react@18.3.23)(react@18.3.1)
-      '@radix-ui/react-use-layout-effect': 1.1.1(@types/react@18.3.23)(react@18.3.1)
-      react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
+      '@radix-ui/react-compose-refs': 1.1.2(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-use-layout-effect': 1.1.1(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)
+      react: link:apps/web/@platejs/emoji/react
+      react-dom: 18.3.1(react@apps+web+@platejs+emoji+react)
     optionalDependencies:
       '@types/react': 18.3.23
       '@types/react-dom': 18.3.7(@types/react@18.3.23)
 
-  '@radix-ui/react-primitive@2.1.3(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@radix-ui/react-primitive@2.1.3(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)':
     dependencies:
-      '@radix-ui/react-slot': 1.2.3(@types/react@18.3.23)(react@18.3.1)
-      react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
+      '@radix-ui/react-slot': 1.2.3(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)
+      react: link:apps/web/@platejs/emoji/react
+      react-dom: 18.3.1(react@apps+web+@platejs+emoji+react)
     optionalDependencies:
       '@types/react': 18.3.23
       '@types/react-dom': 18.3.7(@types/react@18.3.23)
 
-  '@radix-ui/react-roving-focus@1.1.10(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@radix-ui/react-roving-focus@1.1.10(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)':
     dependencies:
       '@radix-ui/primitive': 1.1.2
-      '@radix-ui/react-collection': 1.1.7(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@radix-ui/react-compose-refs': 1.1.2(@types/react@18.3.23)(react@18.3.1)
-      '@radix-ui/react-context': 1.1.2(@types/react@18.3.23)(react@18.3.1)
-      '@radix-ui/react-direction': 1.1.1(@types/react@18.3.23)(react@18.3.1)
-      '@radix-ui/react-id': 1.1.1(@types/react@18.3.23)(react@18.3.1)
-      '@radix-ui/react-primitive': 2.1.3(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@radix-ui/react-use-callback-ref': 1.1.1(@types/react@18.3.23)(react@18.3.1)
-      '@radix-ui/react-use-controllable-state': 1.2.2(@types/react@18.3.23)(react@18.3.1)
-      react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
+      '@radix-ui/react-collection': 1.1.7(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-compose-refs': 1.1.2(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-context': 1.1.2(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-direction': 1.1.1(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-id': 1.1.1(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-primitive': 2.1.3(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-use-callback-ref': 1.1.1(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-use-controllable-state': 1.2.2(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)
+      react: link:apps/web/@platejs/emoji/react
+      react-dom: 18.3.1(react@apps+web+@platejs+emoji+react)
     optionalDependencies:
       '@types/react': 18.3.23
       '@types/react-dom': 18.3.7(@types/react@18.3.23)
 
-  '@radix-ui/react-scroll-area@1.2.9(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@radix-ui/react-scroll-area@1.2.9(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)':
     dependencies:
       '@radix-ui/number': 1.1.1
       '@radix-ui/primitive': 1.1.2
-      '@radix-ui/react-compose-refs': 1.1.2(@types/react@18.3.23)(react@18.3.1)
-      '@radix-ui/react-context': 1.1.2(@types/react@18.3.23)(react@18.3.1)
-      '@radix-ui/react-direction': 1.1.1(@types/react@18.3.23)(react@18.3.1)
-      '@radix-ui/react-presence': 1.1.4(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@radix-ui/react-primitive': 2.1.3(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@radix-ui/react-use-callback-ref': 1.1.1(@types/react@18.3.23)(react@18.3.1)
-      '@radix-ui/react-use-layout-effect': 1.1.1(@types/react@18.3.23)(react@18.3.1)
-      react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
+      '@radix-ui/react-compose-refs': 1.1.2(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-context': 1.1.2(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-direction': 1.1.1(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-presence': 1.1.4(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-primitive': 2.1.3(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-use-callback-ref': 1.1.1(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-use-layout-effect': 1.1.1(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)
+      react: link:apps/web/@platejs/emoji/react
+      react-dom: 18.3.1(react@apps+web+@platejs+emoji+react)
     optionalDependencies:
       '@types/react': 18.3.23
       '@types/react-dom': 18.3.7(@types/react@18.3.23)
 
-  '@radix-ui/react-select@2.2.5(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@radix-ui/react-select@2.2.5(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)':
     dependencies:
       '@radix-ui/number': 1.1.1
       '@radix-ui/primitive': 1.1.2
-      '@radix-ui/react-collection': 1.1.7(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@radix-ui/react-compose-refs': 1.1.2(@types/react@18.3.23)(react@18.3.1)
-      '@radix-ui/react-context': 1.1.2(@types/react@18.3.23)(react@18.3.1)
-      '@radix-ui/react-direction': 1.1.1(@types/react@18.3.23)(react@18.3.1)
-      '@radix-ui/react-dismissable-layer': 1.1.10(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@radix-ui/react-focus-guards': 1.1.2(@types/react@18.3.23)(react@18.3.1)
-      '@radix-ui/react-focus-scope': 1.1.7(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@radix-ui/react-id': 1.1.1(@types/react@18.3.23)(react@18.3.1)
-      '@radix-ui/react-popper': 1.2.7(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@radix-ui/react-portal': 1.1.9(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@radix-ui/react-primitive': 2.1.3(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@radix-ui/react-slot': 1.2.3(@types/react@18.3.23)(react@18.3.1)
-      '@radix-ui/react-use-callback-ref': 1.1.1(@types/react@18.3.23)(react@18.3.1)
-      '@radix-ui/react-use-controllable-state': 1.2.2(@types/react@18.3.23)(react@18.3.1)
-      '@radix-ui/react-use-layout-effect': 1.1.1(@types/react@18.3.23)(react@18.3.1)
-      '@radix-ui/react-use-previous': 1.1.1(@types/react@18.3.23)(react@18.3.1)
-      '@radix-ui/react-visually-hidden': 1.2.3(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@radix-ui/react-collection': 1.1.7(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-compose-refs': 1.1.2(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-context': 1.1.2(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-direction': 1.1.1(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-dismissable-layer': 1.1.10(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-focus-guards': 1.1.2(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-focus-scope': 1.1.7(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-id': 1.1.1(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-popper': 1.2.7(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-portal': 1.1.9(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-primitive': 2.1.3(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-slot': 1.2.3(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-use-callback-ref': 1.1.1(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-use-controllable-state': 1.2.2(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-use-layout-effect': 1.1.1(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-use-previous': 1.1.1(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-visually-hidden': 1.2.3(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)
       aria-hidden: 1.2.6
-      react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
-      react-remove-scroll: 2.7.1(@types/react@18.3.23)(react@18.3.1)
+      react: link:apps/web/@platejs/emoji/react
+      react-dom: 18.3.1(react@apps+web+@platejs+emoji+react)
+      react-remove-scroll: 2.7.1(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)
     optionalDependencies:
       '@types/react': 18.3.23
       '@types/react-dom': 18.3.7(@types/react@18.3.23)
 
-  '@radix-ui/react-separator@1.1.7(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@radix-ui/react-separator@1.1.7(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)':
     dependencies:
-      '@radix-ui/react-primitive': 2.1.3(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
+      '@radix-ui/react-primitive': 2.1.3(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)
+      react: link:apps/web/@platejs/emoji/react
+      react-dom: 18.3.1(react@apps+web+@platejs+emoji+react)
     optionalDependencies:
       '@types/react': 18.3.23
       '@types/react-dom': 18.3.7(@types/react@18.3.23)
 
-  '@radix-ui/react-slider@1.3.5(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@radix-ui/react-slider@1.3.5(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)':
     dependencies:
       '@radix-ui/number': 1.1.1
       '@radix-ui/primitive': 1.1.2
-      '@radix-ui/react-collection': 1.1.7(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@radix-ui/react-compose-refs': 1.1.2(@types/react@18.3.23)(react@18.3.1)
-      '@radix-ui/react-context': 1.1.2(@types/react@18.3.23)(react@18.3.1)
-      '@radix-ui/react-direction': 1.1.1(@types/react@18.3.23)(react@18.3.1)
-      '@radix-ui/react-primitive': 2.1.3(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@radix-ui/react-use-controllable-state': 1.2.2(@types/react@18.3.23)(react@18.3.1)
-      '@radix-ui/react-use-layout-effect': 1.1.1(@types/react@18.3.23)(react@18.3.1)
-      '@radix-ui/react-use-previous': 1.1.1(@types/react@18.3.23)(react@18.3.1)
-      '@radix-ui/react-use-size': 1.1.1(@types/react@18.3.23)(react@18.3.1)
-      react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
+      '@radix-ui/react-collection': 1.1.7(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-compose-refs': 1.1.2(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-context': 1.1.2(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-direction': 1.1.1(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-primitive': 2.1.3(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-use-controllable-state': 1.2.2(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-use-layout-effect': 1.1.1(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-use-previous': 1.1.1(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-use-size': 1.1.1(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)
+      react: link:apps/web/@platejs/emoji/react
+      react-dom: 18.3.1(react@apps+web+@platejs+emoji+react)
     optionalDependencies:
       '@types/react': 18.3.23
       '@types/react-dom': 18.3.7(@types/react@18.3.23)
 
-  '@radix-ui/react-slot@1.2.3(@types/react@18.3.23)(react@18.3.1)':
+  '@radix-ui/react-slot@1.2.3(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)':
     dependencies:
-      '@radix-ui/react-compose-refs': 1.1.2(@types/react@18.3.23)(react@18.3.1)
-      react: 18.3.1
+      '@radix-ui/react-compose-refs': 1.1.2(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)
+      react: link:apps/web/@platejs/emoji/react
     optionalDependencies:
       '@types/react': 18.3.23
 
-  '@radix-ui/react-switch@1.2.5(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@radix-ui/react-switch@1.2.5(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)':
     dependencies:
       '@radix-ui/primitive': 1.1.2
-      '@radix-ui/react-compose-refs': 1.1.2(@types/react@18.3.23)(react@18.3.1)
-      '@radix-ui/react-context': 1.1.2(@types/react@18.3.23)(react@18.3.1)
-      '@radix-ui/react-primitive': 2.1.3(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@radix-ui/react-use-controllable-state': 1.2.2(@types/react@18.3.23)(react@18.3.1)
-      '@radix-ui/react-use-previous': 1.1.1(@types/react@18.3.23)(react@18.3.1)
-      '@radix-ui/react-use-size': 1.1.1(@types/react@18.3.23)(react@18.3.1)
-      react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
+      '@radix-ui/react-compose-refs': 1.1.2(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-context': 1.1.2(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-primitive': 2.1.3(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-use-controllable-state': 1.2.2(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-use-previous': 1.1.1(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-use-size': 1.1.1(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)
+      react: link:apps/web/@platejs/emoji/react
+      react-dom: 18.3.1(react@apps+web+@platejs+emoji+react)
     optionalDependencies:
       '@types/react': 18.3.23
       '@types/react-dom': 18.3.7(@types/react@18.3.23)
 
-  '@radix-ui/react-tabs@1.1.12(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@radix-ui/react-tabs@1.1.12(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)':
     dependencies:
       '@radix-ui/primitive': 1.1.2
-      '@radix-ui/react-context': 1.1.2(@types/react@18.3.23)(react@18.3.1)
-      '@radix-ui/react-direction': 1.1.1(@types/react@18.3.23)(react@18.3.1)
-      '@radix-ui/react-id': 1.1.1(@types/react@18.3.23)(react@18.3.1)
-      '@radix-ui/react-presence': 1.1.4(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@radix-ui/react-primitive': 2.1.3(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@radix-ui/react-roving-focus': 1.1.10(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@radix-ui/react-use-controllable-state': 1.2.2(@types/react@18.3.23)(react@18.3.1)
-      react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
+      '@radix-ui/react-context': 1.1.2(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-direction': 1.1.1(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-id': 1.1.1(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-presence': 1.1.4(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-primitive': 2.1.3(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-roving-focus': 1.1.10(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-use-controllable-state': 1.2.2(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)
+      react: link:apps/web/@platejs/emoji/react
+      react-dom: 18.3.1(react@apps+web+@platejs+emoji+react)
     optionalDependencies:
       '@types/react': 18.3.23
       '@types/react-dom': 18.3.7(@types/react@18.3.23)
 
-  '@radix-ui/react-toggle-group@1.1.10(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@radix-ui/react-toggle-group@1.1.10(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)':
     dependencies:
       '@radix-ui/primitive': 1.1.2
-      '@radix-ui/react-context': 1.1.2(@types/react@18.3.23)(react@18.3.1)
-      '@radix-ui/react-direction': 1.1.1(@types/react@18.3.23)(react@18.3.1)
-      '@radix-ui/react-primitive': 2.1.3(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@radix-ui/react-roving-focus': 1.1.10(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@radix-ui/react-toggle': 1.1.9(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@radix-ui/react-use-controllable-state': 1.2.2(@types/react@18.3.23)(react@18.3.1)
-      react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
+      '@radix-ui/react-context': 1.1.2(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-direction': 1.1.1(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-primitive': 2.1.3(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-roving-focus': 1.1.10(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-toggle': 1.1.9(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-use-controllable-state': 1.2.2(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)
+      react: link:apps/web/@platejs/emoji/react
+      react-dom: 18.3.1(react@apps+web+@platejs+emoji+react)
     optionalDependencies:
       '@types/react': 18.3.23
       '@types/react-dom': 18.3.7(@types/react@18.3.23)
 
-  '@radix-ui/react-toggle@1.1.9(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@radix-ui/react-toggle@1.1.9(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)':
     dependencies:
       '@radix-ui/primitive': 1.1.2
-      '@radix-ui/react-primitive': 2.1.3(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@radix-ui/react-use-controllable-state': 1.2.2(@types/react@18.3.23)(react@18.3.1)
-      react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
+      '@radix-ui/react-primitive': 2.1.3(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-use-controllable-state': 1.2.2(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)
+      react: link:apps/web/@platejs/emoji/react
+      react-dom: 18.3.1(react@apps+web+@platejs+emoji+react)
     optionalDependencies:
       '@types/react': 18.3.23
       '@types/react-dom': 18.3.7(@types/react@18.3.23)
 
-  '@radix-ui/react-toolbar@1.1.10(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@radix-ui/react-toolbar@1.1.10(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)':
     dependencies:
       '@radix-ui/primitive': 1.1.2
-      '@radix-ui/react-context': 1.1.2(@types/react@18.3.23)(react@18.3.1)
-      '@radix-ui/react-direction': 1.1.1(@types/react@18.3.23)(react@18.3.1)
-      '@radix-ui/react-primitive': 2.1.3(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@radix-ui/react-roving-focus': 1.1.10(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@radix-ui/react-separator': 1.1.7(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@radix-ui/react-toggle-group': 1.1.10(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
+      '@radix-ui/react-context': 1.1.2(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-direction': 1.1.1(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-primitive': 2.1.3(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-roving-focus': 1.1.10(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-separator': 1.1.7(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-toggle-group': 1.1.10(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)
+      react: link:apps/web/@platejs/emoji/react
+      react-dom: 18.3.1(react@apps+web+@platejs+emoji+react)
     optionalDependencies:
       '@types/react': 18.3.23
       '@types/react-dom': 18.3.7(@types/react@18.3.23)
 
-  '@radix-ui/react-tooltip@1.2.7(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@radix-ui/react-tooltip@1.2.7(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)':
     dependencies:
       '@radix-ui/primitive': 1.1.2
-      '@radix-ui/react-compose-refs': 1.1.2(@types/react@18.3.23)(react@18.3.1)
-      '@radix-ui/react-context': 1.1.2(@types/react@18.3.23)(react@18.3.1)
-      '@radix-ui/react-dismissable-layer': 1.1.10(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@radix-ui/react-id': 1.1.1(@types/react@18.3.23)(react@18.3.1)
-      '@radix-ui/react-popper': 1.2.7(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@radix-ui/react-portal': 1.1.9(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@radix-ui/react-presence': 1.1.4(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@radix-ui/react-primitive': 2.1.3(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@radix-ui/react-slot': 1.2.3(@types/react@18.3.23)(react@18.3.1)
-      '@radix-ui/react-use-controllable-state': 1.2.2(@types/react@18.3.23)(react@18.3.1)
-      '@radix-ui/react-visually-hidden': 1.2.3(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
+      '@radix-ui/react-compose-refs': 1.1.2(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-context': 1.1.2(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-dismissable-layer': 1.1.10(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-id': 1.1.1(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-popper': 1.2.7(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-portal': 1.1.9(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-presence': 1.1.4(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-primitive': 2.1.3(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-slot': 1.2.3(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-use-controllable-state': 1.2.2(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-visually-hidden': 1.2.3(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)
+      react: link:apps/web/@platejs/emoji/react
+      react-dom: 18.3.1(react@apps+web+@platejs+emoji+react)
     optionalDependencies:
       '@types/react': 18.3.23
       '@types/react-dom': 18.3.7(@types/react@18.3.23)
 
-  '@radix-ui/react-use-callback-ref@1.1.1(@types/react@18.3.23)(react@18.3.1)':
+  '@radix-ui/react-use-callback-ref@1.1.1(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)':
     dependencies:
-      react: 18.3.1
+      react: link:apps/web/@platejs/emoji/react
     optionalDependencies:
       '@types/react': 18.3.23
 
-  '@radix-ui/react-use-controllable-state@1.2.2(@types/react@18.3.23)(react@18.3.1)':
+  '@radix-ui/react-use-controllable-state@1.2.2(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)':
     dependencies:
-      '@radix-ui/react-use-effect-event': 0.0.2(@types/react@18.3.23)(react@18.3.1)
-      '@radix-ui/react-use-layout-effect': 1.1.1(@types/react@18.3.23)(react@18.3.1)
-      react: 18.3.1
+      '@radix-ui/react-use-effect-event': 0.0.2(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-use-layout-effect': 1.1.1(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)
+      react: link:apps/web/@platejs/emoji/react
     optionalDependencies:
       '@types/react': 18.3.23
 
-  '@radix-ui/react-use-effect-event@0.0.2(@types/react@18.3.23)(react@18.3.1)':
+  '@radix-ui/react-use-effect-event@0.0.2(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)':
     dependencies:
-      '@radix-ui/react-use-layout-effect': 1.1.1(@types/react@18.3.23)(react@18.3.1)
-      react: 18.3.1
+      '@radix-ui/react-use-layout-effect': 1.1.1(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)
+      react: link:apps/web/@platejs/emoji/react
     optionalDependencies:
       '@types/react': 18.3.23
 
-  '@radix-ui/react-use-escape-keydown@1.1.1(@types/react@18.3.23)(react@18.3.1)':
+  '@radix-ui/react-use-escape-keydown@1.1.1(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)':
     dependencies:
-      '@radix-ui/react-use-callback-ref': 1.1.1(@types/react@18.3.23)(react@18.3.1)
-      react: 18.3.1
+      '@radix-ui/react-use-callback-ref': 1.1.1(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)
+      react: link:apps/web/@platejs/emoji/react
     optionalDependencies:
       '@types/react': 18.3.23
 
-  '@radix-ui/react-use-is-hydrated@0.1.0(@types/react@18.3.23)(react@18.3.1)':
+  '@radix-ui/react-use-is-hydrated@0.1.0(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)':
     dependencies:
-      react: 18.3.1
-      use-sync-external-store: 1.5.0(react@18.3.1)
+      react: link:apps/web/@platejs/emoji/react
+      use-sync-external-store: 1.5.0(react@apps+web+@platejs+emoji+react)
     optionalDependencies:
       '@types/react': 18.3.23
 
-  '@radix-ui/react-use-layout-effect@1.1.1(@types/react@18.3.23)(react@18.3.1)':
+  '@radix-ui/react-use-layout-effect@1.1.1(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)':
     dependencies:
-      react: 18.3.1
+      react: link:apps/web/@platejs/emoji/react
     optionalDependencies:
       '@types/react': 18.3.23
 
-  '@radix-ui/react-use-previous@1.1.1(@types/react@18.3.23)(react@18.3.1)':
+  '@radix-ui/react-use-previous@1.1.1(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)':
     dependencies:
-      react: 18.3.1
+      react: link:apps/web/@platejs/emoji/react
     optionalDependencies:
       '@types/react': 18.3.23
 
-  '@radix-ui/react-use-rect@1.1.1(@types/react@18.3.23)(react@18.3.1)':
+  '@radix-ui/react-use-rect@1.1.1(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)':
     dependencies:
       '@radix-ui/rect': 1.1.1
-      react: 18.3.1
+      react: link:apps/web/@platejs/emoji/react
     optionalDependencies:
       '@types/react': 18.3.23
 
-  '@radix-ui/react-use-size@1.1.1(@types/react@18.3.23)(react@18.3.1)':
+  '@radix-ui/react-use-size@1.1.1(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)':
     dependencies:
-      '@radix-ui/react-use-layout-effect': 1.1.1(@types/react@18.3.23)(react@18.3.1)
-      react: 18.3.1
+      '@radix-ui/react-use-layout-effect': 1.1.1(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)
+      react: link:apps/web/@platejs/emoji/react
     optionalDependencies:
       '@types/react': 18.3.23
 
-  '@radix-ui/react-visually-hidden@1.2.3(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@radix-ui/react-visually-hidden@1.2.3(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)':
     dependencies:
-      '@radix-ui/react-primitive': 2.1.3(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
+      '@radix-ui/react-primitive': 2.1.3(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)
+      react: link:apps/web/@platejs/emoji/react
+      react-dom: 18.3.1(react@apps+web+@platejs+emoji+react)
     optionalDependencies:
       '@types/react': 18.3.23
       '@types/react-dom': 18.3.7(@types/react@18.3.23)
@@ -16674,9 +16807,9 @@ snapshots:
   '@storybook/addon-docs@8.6.14(@types/react@18.3.23)(storybook@8.6.14(prettier@3.6.2))':
     dependencies:
       '@mdx-js/react': 3.1.0(@types/react@18.3.23)(react@18.3.1)
-      '@storybook/blocks': 8.6.14(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(storybook@8.6.14(prettier@3.6.2))
+      '@storybook/blocks': 8.6.14(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@18.3.1)(storybook@8.6.14(prettier@3.6.2))
       '@storybook/csf-plugin': 8.6.14(storybook@8.6.14(prettier@3.6.2))
-      '@storybook/react-dom-shim': 8.6.14(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(storybook@8.6.14(prettier@3.6.2))
+      '@storybook/react-dom-shim': 8.6.14(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@18.3.1)(storybook@8.6.14(prettier@3.6.2))
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
       storybook: 8.6.14(prettier@3.6.2)
@@ -16735,14 +16868,23 @@ snapshots:
       memoizerific: 1.11.3
       storybook: 8.6.14(prettier@3.6.2)
 
-  '@storybook/blocks@8.6.14(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(storybook@8.6.14(prettier@3.6.2))':
+  '@storybook/blocks@8.6.14(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@18.3.1)(storybook@8.6.14(prettier@3.6.2))':
     dependencies:
-      '@storybook/icons': 1.4.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@storybook/icons': 1.4.0(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@18.3.1)
       storybook: 8.6.14(prettier@3.6.2)
       ts-dedent: 2.2.0
     optionalDependencies:
       react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
+      react-dom: 18.3.1(react@apps+web+@platejs+emoji+react)
+
+  '@storybook/blocks@8.6.14(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)(storybook@8.6.14(prettier@3.6.2))':
+    dependencies:
+      '@storybook/icons': 1.4.0(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)
+      storybook: 8.6.14(prettier@3.6.2)
+      ts-dedent: 2.2.0
+    optionalDependencies:
+      react: link:apps/web/@platejs/emoji/react
+      react-dom: 18.3.1(react@apps+web+@platejs+emoji+react)
 
   '@storybook/builder-webpack5@8.6.14(esbuild@0.25.5)(storybook@8.6.14(prettier@3.6.2))(typescript@5.8.3)':
     dependencies:
@@ -16821,10 +16963,15 @@ snapshots:
 
   '@storybook/global@5.0.0': {}
 
-  '@storybook/icons@1.4.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@storybook/icons@1.4.0(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@18.3.1)':
     dependencies:
       react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
+      react-dom: 18.3.1(react@apps+web+@platejs+emoji+react)
+
+  '@storybook/icons@1.4.0(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)':
+    dependencies:
+      react: link:apps/web/@platejs/emoji/react
+      react-dom: 18.3.1(react@apps+web+@platejs+emoji+react)
 
   '@storybook/instrumenter@8.6.14(storybook@8.6.14(prettier@3.6.2))':
     dependencies:
@@ -16836,7 +16983,7 @@ snapshots:
     dependencies:
       storybook: 8.6.14(prettier@3.6.2)
 
-  '@storybook/nextjs@8.6.14(esbuild@0.25.5)(next@14.2.30(@babel/core@7.28.0)(@opentelemetry/api@1.9.0)(@playwright/test@1.54.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.89.2))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.89.2)(storybook@8.6.14(prettier@3.6.2))(type-fest@4.41.0)(typescript@5.8.3)(webpack-hot-middleware@2.26.1)(webpack@5.99.9(esbuild@0.25.5))':
+  '@storybook/nextjs@8.6.14(esbuild@0.25.5)(next@14.2.30(@babel/core@7.28.0)(@opentelemetry/api@1.9.0)(@playwright/test@1.54.1)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)(sass@1.89.2))(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)(sass@1.89.2)(storybook@8.6.14(prettier@3.6.2))(type-fest@4.41.0)(typescript@5.8.3)(webpack-hot-middleware@2.26.1)(webpack@5.99.9(esbuild@0.25.5))':
     dependencies:
       '@babel/core': 7.28.0
       '@babel/plugin-syntax-bigint': 7.8.3(@babel/core@7.28.0)
@@ -16853,8 +17000,8 @@ snapshots:
       '@babel/runtime': 7.27.6
       '@pmmmwh/react-refresh-webpack-plugin': 0.5.17(react-refresh@0.14.2)(type-fest@4.41.0)(webpack-hot-middleware@2.26.1)(webpack@5.99.9(esbuild@0.25.5))
       '@storybook/builder-webpack5': 8.6.14(esbuild@0.25.5)(storybook@8.6.14(prettier@3.6.2))(typescript@5.8.3)
-      '@storybook/preset-react-webpack': 8.6.14(@storybook/test@8.6.14(storybook@8.6.14(prettier@3.6.2)))(esbuild@0.25.5)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(storybook@8.6.14(prettier@3.6.2))(typescript@5.8.3)
-      '@storybook/react': 8.6.14(@storybook/test@8.6.14(storybook@8.6.14(prettier@3.6.2)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(storybook@8.6.14(prettier@3.6.2))(typescript@5.8.3)
+      '@storybook/preset-react-webpack': 8.6.14(@storybook/test@8.6.14(storybook@8.6.14(prettier@3.6.2)))(esbuild@0.25.5)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)(storybook@8.6.14(prettier@3.6.2))(typescript@5.8.3)
+      '@storybook/react': 8.6.14(@storybook/test@8.6.14(storybook@8.6.14(prettier@3.6.2)))(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)(storybook@8.6.14(prettier@3.6.2))(typescript@5.8.3)
       '@storybook/test': 8.6.14(storybook@8.6.14(prettier@3.6.2))
       '@types/semver': 7.7.0
       babel-loader: 9.2.1(@babel/core@7.28.0)(webpack@5.99.9(esbuild@0.25.5))
@@ -16862,20 +17009,20 @@ snapshots:
       find-up: 5.0.0
       image-size: 1.2.1
       loader-utils: 3.3.1
-      next: 14.2.30(@babel/core@7.28.0)(@opentelemetry/api@1.9.0)(@playwright/test@1.54.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.89.2)
+      next: 14.2.30(@babel/core@7.28.0)(@opentelemetry/api@1.9.0)(@playwright/test@1.54.1)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)(sass@1.89.2)
       node-polyfill-webpack-plugin: 2.0.1(webpack@5.99.9(esbuild@0.25.5))
       pnp-webpack-plugin: 1.7.0(typescript@5.8.3)
       postcss: 8.5.6
       postcss-loader: 8.1.1(postcss@8.5.6)(typescript@5.8.3)(webpack@5.99.9(esbuild@0.25.5))
-      react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
+      react: link:apps/web/@platejs/emoji/react
+      react-dom: 18.3.1(react@apps+web+@platejs+emoji+react)
       react-refresh: 0.14.2
       resolve-url-loader: 5.0.0
       sass-loader: 14.2.1(sass@1.89.2)(webpack@5.99.9(esbuild@0.25.5))
       semver: 7.7.2
       storybook: 8.6.14(prettier@3.6.2)
       style-loader: 3.3.4(webpack@5.99.9(esbuild@0.25.5))
-      styled-jsx: 5.1.7(@babel/core@7.28.0)(react@18.3.1)
+      styled-jsx: 5.1.7(@babel/core@7.28.0)(react@apps+web+@platejs+emoji+react)
       ts-dedent: 2.2.0
       tsconfig-paths: 4.2.0
       tsconfig-paths-webpack-plugin: 4.2.0
@@ -16901,17 +17048,17 @@ snapshots:
       - webpack-hot-middleware
       - webpack-plugin-serve
 
-  '@storybook/preset-react-webpack@8.6.14(@storybook/test@8.6.14(storybook@8.6.14(prettier@3.6.2)))(esbuild@0.25.5)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(storybook@8.6.14(prettier@3.6.2))(typescript@5.8.3)':
+  '@storybook/preset-react-webpack@8.6.14(@storybook/test@8.6.14(storybook@8.6.14(prettier@3.6.2)))(esbuild@0.25.5)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)(storybook@8.6.14(prettier@3.6.2))(typescript@5.8.3)':
     dependencies:
       '@storybook/core-webpack': 8.6.14(storybook@8.6.14(prettier@3.6.2))
-      '@storybook/react': 8.6.14(@storybook/test@8.6.14(storybook@8.6.14(prettier@3.6.2)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(storybook@8.6.14(prettier@3.6.2))(typescript@5.8.3)
+      '@storybook/react': 8.6.14(@storybook/test@8.6.14(storybook@8.6.14(prettier@3.6.2)))(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)(storybook@8.6.14(prettier@3.6.2))(typescript@5.8.3)
       '@storybook/react-docgen-typescript-plugin': 1.0.6--canary.9.0c3f3b7.0(typescript@5.8.3)(webpack@5.99.9(esbuild@0.25.5))
       '@types/semver': 7.7.0
       find-up: 5.0.0
       magic-string: 0.30.17
-      react: 18.3.1
+      react: link:apps/web/@platejs/emoji/react
       react-docgen: 7.1.1
-      react-dom: 18.3.1(react@18.3.1)
+      react-dom: 18.3.1(react@apps+web+@platejs+emoji+react)
       resolve: 1.22.10
       semver: 7.7.2
       storybook: 8.6.14(prettier@3.6.2)
@@ -16945,22 +17092,28 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@storybook/react-dom-shim@8.6.14(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(storybook@8.6.14(prettier@3.6.2))':
+  '@storybook/react-dom-shim@8.6.14(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@18.3.1)(storybook@8.6.14(prettier@3.6.2))':
     dependencies:
       react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
+      react-dom: 18.3.1(react@apps+web+@platejs+emoji+react)
       storybook: 8.6.14(prettier@3.6.2)
 
-  '@storybook/react@8.6.14(@storybook/test@8.6.14(storybook@8.6.14(prettier@3.6.2)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(storybook@8.6.14(prettier@3.6.2))(typescript@5.8.3)':
+  '@storybook/react-dom-shim@8.6.14(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)(storybook@8.6.14(prettier@3.6.2))':
+    dependencies:
+      react: link:apps/web/@platejs/emoji/react
+      react-dom: 18.3.1(react@apps+web+@platejs+emoji+react)
+      storybook: 8.6.14(prettier@3.6.2)
+
+  '@storybook/react@8.6.14(@storybook/test@8.6.14(storybook@8.6.14(prettier@3.6.2)))(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)(storybook@8.6.14(prettier@3.6.2))(typescript@5.8.3)':
     dependencies:
       '@storybook/components': 8.6.14(storybook@8.6.14(prettier@3.6.2))
       '@storybook/global': 5.0.0
       '@storybook/manager-api': 8.6.14(storybook@8.6.14(prettier@3.6.2))
       '@storybook/preview-api': 8.6.14(storybook@8.6.14(prettier@3.6.2))
-      '@storybook/react-dom-shim': 8.6.14(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(storybook@8.6.14(prettier@3.6.2))
+      '@storybook/react-dom-shim': 8.6.14(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)(storybook@8.6.14(prettier@3.6.2))
       '@storybook/theming': 8.6.14(storybook@8.6.14(prettier@3.6.2))
-      react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
+      react: link:apps/web/@platejs/emoji/react
+      react-dom: 18.3.1(react@apps+web+@platejs+emoji+react)
       storybook: 8.6.14(prettier@3.6.2)
     optionalDependencies:
       '@storybook/test': 8.6.14(storybook@8.6.14(prettier@3.6.2))
@@ -17129,51 +17282,51 @@ snapshots:
       '@tanstack/query-core': 5.83.0
       '@tanstack/query-persist-client-core': 5.83.0
 
-  '@tanstack/react-form@1.14.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@tanstack/react-form@1.14.2(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)':
     dependencies:
       '@tanstack/form-core': 1.14.2
-      '@tanstack/react-store': 0.7.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@tanstack/react-store': 0.7.3(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)
       decode-formdata: 0.9.0
       devalue: 5.1.1
-      react: 18.3.1
+      react: link:apps/web/@platejs/emoji/react
     transitivePeerDependencies:
       - react-dom
 
-  '@tanstack/react-query-devtools@5.83.0(@tanstack/react-query@5.83.0(react@18.3.1))(react@18.3.1)':
+  '@tanstack/react-query-devtools@5.83.0(@tanstack/react-query@5.83.0(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)':
     dependencies:
       '@tanstack/query-devtools': 5.81.2
-      '@tanstack/react-query': 5.83.0(react@18.3.1)
-      react: 18.3.1
+      '@tanstack/react-query': 5.83.0(react@apps+web+@platejs+emoji+react)
+      react: link:apps/web/@platejs/emoji/react
 
-  '@tanstack/react-query-persist-client@5.83.0(@tanstack/react-query@5.83.0(react@18.3.1))(react@18.3.1)':
+  '@tanstack/react-query-persist-client@5.83.0(@tanstack/react-query@5.83.0(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)':
     dependencies:
       '@tanstack/query-persist-client-core': 5.83.0
-      '@tanstack/react-query': 5.83.0(react@18.3.1)
-      react: 18.3.1
+      '@tanstack/react-query': 5.83.0(react@apps+web+@platejs+emoji+react)
+      react: link:apps/web/@platejs/emoji/react
 
-  '@tanstack/react-query@5.83.0(react@18.3.1)':
+  '@tanstack/react-query@5.83.0(react@apps+web+@platejs+emoji+react)':
     dependencies:
       '@tanstack/query-core': 5.83.0
-      react: 18.3.1
+      react: link:apps/web/@platejs/emoji/react
 
-  '@tanstack/react-store@0.7.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@tanstack/react-store@0.7.3(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)':
     dependencies:
       '@tanstack/store': 0.7.2
-      react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
-      use-sync-external-store: 1.5.0(react@18.3.1)
+      react: link:apps/web/@platejs/emoji/react
+      react-dom: 18.3.1(react@apps+web+@platejs+emoji+react)
+      use-sync-external-store: 1.5.0(react@apps+web+@platejs+emoji+react)
 
-  '@tanstack/react-table@8.21.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@tanstack/react-table@8.21.3(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)':
     dependencies:
       '@tanstack/table-core': 8.21.3
-      react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
+      react: link:apps/web/@platejs/emoji/react
+      react-dom: 18.3.1(react@apps+web+@platejs+emoji+react)
 
-  '@tanstack/react-virtual@3.13.12(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@tanstack/react-virtual@3.13.12(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)':
     dependencies:
       '@tanstack/virtual-core': 3.13.12
-      react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
+      react: link:apps/web/@platejs/emoji/react
+      react-dom: 18.3.1(react@apps+web+@platejs+emoji+react)
 
   '@tanstack/store@0.7.2': {}
 
@@ -17222,12 +17375,12 @@ snapshots:
       lodash: 4.17.21
       redent: 3.0.0
 
-  '@testing-library/react@16.3.0(@testing-library/dom@10.4.0)(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@testing-library/react@16.3.0(@testing-library/dom@10.4.0)(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)':
     dependencies:
       '@babel/runtime': 7.27.6
       '@testing-library/dom': 10.4.0
-      react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
+      react: link:apps/web/@platejs/emoji/react
+      react-dom: 18.3.1(react@apps+web+@platejs+emoji+react)
     optionalDependencies:
       '@types/react': 18.3.23
       '@types/react-dom': 18.3.7(@types/react@18.3.23)
@@ -17699,18 +17852,18 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@udecode/react-hotkeys@37.0.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@udecode/react-hotkeys@37.0.0(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)':
     dependencies:
-      react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
+      react: link:apps/web/@platejs/emoji/react
+      react-dom: 18.3.1(react@apps+web+@platejs+emoji+react)
 
-  '@udecode/react-utils@49.0.15(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@udecode/react-utils@49.0.15(@types/react@18.3.23)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)':
     dependencies:
-      '@radix-ui/react-slot': 1.2.3(@types/react@18.3.23)(react@18.3.1)
+      '@radix-ui/react-slot': 1.2.3(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)
       '@udecode/utils': 47.2.7
       clsx: 2.1.1
-      react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
+      react: link:apps/web/@platejs/emoji/react
+      react-dom: 18.3.1(react@apps+web+@platejs+emoji+react)
     transitivePeerDependencies:
       - '@types/react'
 
@@ -18796,14 +18949,14 @@ snapshots:
 
   clsx@2.1.1: {}
 
-  cmdk@1.1.1(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
+  cmdk@1.1.1(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react):
     dependencies:
-      '@radix-ui/react-compose-refs': 1.1.2(@types/react@18.3.23)(react@18.3.1)
-      '@radix-ui/react-dialog': 1.1.14(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@radix-ui/react-id': 1.1.1(@types/react@18.3.23)(react@18.3.1)
-      '@radix-ui/react-primitive': 2.1.3(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
+      '@radix-ui/react-compose-refs': 1.1.2(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-dialog': 1.1.14(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-id': 1.1.1(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)
+      '@radix-ui/react-primitive': 2.1.3(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)
+      react: link:apps/web/@platejs/emoji/react
+      react-dom: 18.3.1(react@apps+web+@platejs+emoji+react)
     transitivePeerDependencies:
       - '@types/react'
       - '@types/react-dom'
@@ -20117,14 +20270,14 @@ snapshots:
 
   forwarded@0.2.0: {}
 
-  framer-motion@12.23.6(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
+  framer-motion@12.23.6(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react):
     dependencies:
       motion-dom: 12.23.6
       motion-utils: 12.23.6
       tslib: 2.8.1
     optionalDependencies:
-      react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
+      react: link:apps/web/@platejs/emoji/react
+      react-dom: 18.3.1(react@apps+web+@platejs+emoji+react)
 
   fresh@0.5.2: {}
 
@@ -20492,6 +20645,8 @@ snapshots:
   headers-polyfill@4.0.3: {}
 
   help-me@5.0.0: {}
+
+  highlight.js@11.11.1: {}
 
   hmac-drbg@1.0.1:
     dependencies:
@@ -20955,22 +21110,22 @@ snapshots:
 
   jose@5.10.0: {}
 
-  jotai-optics@0.4.0(jotai@2.8.4(@types/react@18.3.23)(react@18.3.1))(optics-ts@2.4.1):
+  jotai-optics@0.4.0(jotai@2.8.4(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react))(optics-ts@2.4.1):
     dependencies:
-      jotai: 2.8.4(@types/react@18.3.23)(react@18.3.1)
+      jotai: 2.8.4(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)
       optics-ts: 2.4.1
 
-  jotai-x@2.3.3(@types/react@18.3.23)(jotai@2.8.4(@types/react@18.3.23)(react@18.3.1))(react@18.3.1):
+  jotai-x@2.3.3(@types/react@18.3.23)(jotai@2.8.4(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react):
     dependencies:
-      jotai: 2.8.4(@types/react@18.3.23)(react@18.3.1)
+      jotai: 2.8.4(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)
     optionalDependencies:
       '@types/react': 18.3.23
-      react: 18.3.1
+      react: link:apps/web/@platejs/emoji/react
 
-  jotai@2.8.4(@types/react@18.3.23)(react@18.3.1):
+  jotai@2.8.4(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react):
     optionalDependencies:
       '@types/react': 18.3.23
-      react: 18.3.1
+      react: link:apps/web/@platejs/emoji/react
 
   joycon@3.1.1: {}
 
@@ -21279,6 +21434,12 @@ snapshots:
   lower-case@2.0.2:
     dependencies:
       tslib: 2.8.1
+
+  lowlight@3.3.0:
+    dependencies:
+      '@types/hast': 3.0.4
+      devlop: 1.1.0
+      highlight.js: 11.11.1
 
   lru-cache@10.4.3: {}
 
@@ -21967,12 +22128,12 @@ snapshots:
 
   neo-async@2.6.2: {}
 
-  next-themes@0.4.6(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
+  next-themes@0.4.6(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react):
     dependencies:
-      react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
+      react: link:apps/web/@platejs/emoji/react
+      react-dom: 18.3.1(react@apps+web+@platejs+emoji+react)
 
-  next@14.2.30(@babel/core@7.28.0)(@opentelemetry/api@1.9.0)(@playwright/test@1.54.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.89.2):
+  next@14.2.30(@babel/core@7.28.0)(@opentelemetry/api@1.9.0)(@playwright/test@1.54.1)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)(sass@1.89.2):
     dependencies:
       '@next/env': 14.2.30
       '@swc/helpers': 0.5.5
@@ -21980,9 +22141,9 @@ snapshots:
       caniuse-lite: 1.0.30001727
       graceful-fs: 4.2.11
       postcss: 8.4.31
-      react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
-      styled-jsx: 5.1.1(@babel/core@7.28.0)(react@18.3.1)
+      react: link:apps/web/@platejs/emoji/react
+      react-dom: 18.3.1(react@apps+web+@platejs+emoji+react)
+      styled-jsx: 5.1.1(@babel/core@7.28.0)(react@apps+web+@platejs+emoji+react)
     optionalDependencies:
       '@next/swc-darwin-arm64': 14.2.30
       '@next/swc-darwin-x64': 14.2.30
@@ -22492,16 +22653,16 @@ snapshots:
       mlly: 1.7.4
       pathe: 2.0.3
 
-  platejs@49.1.13(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)):
+  platejs@49.1.13(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@apps+web+@platejs+emoji+react)):
     dependencies:
-      '@platejs/core': 49.1.13(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1))
+      '@platejs/core': 49.1.13(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@apps+web+@platejs+emoji+react))
       '@platejs/slate': 49.1.13
-      '@platejs/utils': 49.1.13(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1))
-      '@udecode/react-hotkeys': 37.0.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@udecode/react-utils': 49.0.15(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@platejs/utils': 49.1.13(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@apps+web+@platejs+emoji+react))
+      '@udecode/react-hotkeys': 37.0.0(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)
+      '@udecode/react-utils': 49.0.15(@types/react@18.3.23)(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)
       '@udecode/utils': 47.2.7
-      react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
+      react: link:apps/web/@platejs/emoji/react
+      react-dom: 18.3.1(react@apps+web+@platejs+emoji+react)
     transitivePeerDependencies:
       - '@types/react'
       - immer
@@ -22657,11 +22818,11 @@ snapshots:
       ansi-styles: 5.2.0
       react-is: 18.3.1
 
-  prism-react-renderer@2.4.1(react@18.3.1):
+  prism-react-renderer@2.4.1(react@apps+web+@platejs+emoji+react):
     dependencies:
       '@types/prismjs': 1.26.5
       clsx: 2.1.1
-      react: 18.3.1
+      react: link:apps/web/@platejs/emoji/react
 
   process-nextick-args@2.0.1: {}
 
@@ -22782,31 +22943,31 @@ snapshots:
       iconv-lite: 0.4.24
       unpipe: 1.0.0
 
-  react-color@2.19.3(react@18.3.1):
+  react-color@2.19.3(react@apps+web+@platejs+emoji+react):
     dependencies:
-      '@icons/material': 0.2.4(react@18.3.1)
+      '@icons/material': 0.2.4(react@apps+web+@platejs+emoji+react)
       lodash: 4.17.21
       lodash-es: 4.17.21
       material-colors: 1.2.6
       prop-types: 15.8.1
-      react: 18.3.1
-      reactcss: 1.2.3(react@18.3.1)
+      react: link:apps/web/@platejs/emoji/react
+      reactcss: 1.2.3(react@apps+web+@platejs+emoji+react)
       tinycolor2: 1.6.0
 
-  react-colorful@5.6.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
+  react-colorful@5.6.1(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react):
     dependencies:
-      react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
+      react: link:apps/web/@platejs/emoji/react
+      react-dom: 18.3.1(react@apps+web+@platejs+emoji+react)
 
-  react-confetti@6.4.0(react@18.3.1):
+  react-confetti@6.4.0(react@apps+web+@platejs+emoji+react):
     dependencies:
-      react: 18.3.1
+      react: link:apps/web/@platejs/emoji/react
       tween-functions: 1.2.0
 
-  react-day-picker@8.10.1(date-fns@3.6.0)(react@18.3.1):
+  react-day-picker@8.10.1(date-fns@3.6.0)(react@apps+web+@platejs+emoji+react):
     dependencies:
       date-fns: 3.6.0
-      react: 18.3.1
+      react: link:apps/web/@platejs/emoji/react
 
   react-docgen-typescript@2.4.0(typescript@5.8.3):
     dependencies:
@@ -22833,10 +22994,16 @@ snapshots:
       react: 18.3.1
       scheduler: 0.23.2
 
-  react-hotkeys-hook@5.1.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
+  react-dom@18.3.1(react@apps+web+@platejs+emoji+react):
     dependencies:
-      react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
+      loose-envify: 1.4.0
+      react: link:apps/web/@platejs/emoji/react
+      scheduler: 0.23.2
+
+  react-hotkeys-hook@5.1.0(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react):
+    dependencies:
+      react: link:apps/web/@platejs/emoji/react
+      react-dom: 18.3.1(react@apps+web+@platejs+emoji+react)
 
   react-is@16.13.1: {}
 
@@ -22844,7 +23011,7 @@ snapshots:
 
   react-is@18.3.1: {}
 
-  react-markdown@10.1.0(@types/react@18.3.23)(react@18.3.1):
+  react-markdown@10.1.0(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react):
     dependencies:
       '@types/hast': 3.0.4
       '@types/mdast': 4.0.4
@@ -22853,7 +23020,7 @@ snapshots:
       hast-util-to-jsx-runtime: 2.3.6
       html-url-attributes: 3.0.1
       mdast-util-to-hast: 13.2.0
-      react: 18.3.1
+      react: link:apps/web/@platejs/emoji/react
       remark-parse: 11.0.0
       remark-rehype: 11.1.2
       unified: 11.0.5
@@ -22864,50 +23031,50 @@ snapshots:
 
   react-refresh@0.14.2: {}
 
-  react-remove-scroll-bar@2.3.8(@types/react@18.3.23)(react@18.3.1):
+  react-remove-scroll-bar@2.3.8(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react):
     dependencies:
-      react: 18.3.1
-      react-style-singleton: 2.2.3(@types/react@18.3.23)(react@18.3.1)
+      react: link:apps/web/@platejs/emoji/react
+      react-style-singleton: 2.2.3(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)
       tslib: 2.8.1
     optionalDependencies:
       '@types/react': 18.3.23
 
-  react-remove-scroll@2.7.1(@types/react@18.3.23)(react@18.3.1):
+  react-remove-scroll@2.7.1(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react):
     dependencies:
-      react: 18.3.1
-      react-remove-scroll-bar: 2.3.8(@types/react@18.3.23)(react@18.3.1)
-      react-style-singleton: 2.2.3(@types/react@18.3.23)(react@18.3.1)
+      react: link:apps/web/@platejs/emoji/react
+      react-remove-scroll-bar: 2.3.8(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)
+      react-style-singleton: 2.2.3(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)
       tslib: 2.8.1
-      use-callback-ref: 1.3.3(@types/react@18.3.23)(react@18.3.1)
-      use-sidecar: 1.1.3(@types/react@18.3.23)(react@18.3.1)
+      use-callback-ref: 1.3.3(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)
+      use-sidecar: 1.1.3(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react)
     optionalDependencies:
       '@types/react': 18.3.23
 
-  react-style-singleton@2.2.3(@types/react@18.3.23)(react@18.3.1):
+  react-style-singleton@2.2.3(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react):
     dependencies:
       get-nonce: 1.0.1
-      react: 18.3.1
+      react: link:apps/web/@platejs/emoji/react
       tslib: 2.8.1
     optionalDependencies:
       '@types/react': 18.3.23
 
-  react-tracked@1.7.14(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2):
+  react-tracked@1.7.14(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)(scheduler@0.23.2):
     dependencies:
       proxy-compare: 2.6.0
-      react: 18.3.1
+      react: link:apps/web/@platejs/emoji/react
       scheduler: 0.23.2
-      use-context-selector: 1.4.4(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)
+      use-context-selector: 1.4.4(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)(scheduler@0.23.2)
     optionalDependencies:
-      react-dom: 18.3.1(react@18.3.1)
+      react-dom: 18.3.1(react@apps+web+@platejs+emoji+react)
 
   react@18.3.1:
     dependencies:
       loose-envify: 1.4.0
 
-  reactcss@1.2.3(react@18.3.1):
+  reactcss@1.2.3(react@apps+web+@platejs+emoji+react):
     dependencies:
       lodash: 4.17.21
-      react: 18.3.1
+      react: link:apps/web/@platejs/emoji/react
 
   readable-stream@2.3.8:
     dependencies:
@@ -23454,14 +23621,14 @@ snapshots:
       is-plain-object: 5.0.0
       slate: 0.117.0
 
-  slate-react@0.117.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0):
+  slate-react@0.117.1(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0):
     dependencies:
       '@juggle/resize-observer': 3.4.0
       direction: 1.0.4
       is-hotkey: 0.2.0
       lodash: 4.17.21
-      react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
+      react: link:apps/web/@platejs/emoji/react
+      react-dom: 18.3.1(react@apps+web+@platejs+emoji+react)
       scroll-into-view-if-needed: 3.1.0
       slate: 0.117.0
       slate-dom: 0.116.0(slate@0.117.0)
@@ -23568,10 +23735,10 @@ snapshots:
     dependencies:
       atomic-sleep: 1.0.0
 
-  sonner@2.0.6(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
+  sonner@2.0.6(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react):
     dependencies:
-      react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
+      react: link:apps/web/@platejs/emoji/react
+      react-dom: 18.3.1(react@apps+web+@platejs+emoji+react)
 
   source-map-js@1.2.1: {}
 
@@ -23790,17 +23957,17 @@ snapshots:
     dependencies:
       inline-style-parser: 0.2.4
 
-  styled-jsx@5.1.1(@babel/core@7.28.0)(react@18.3.1):
+  styled-jsx@5.1.1(@babel/core@7.28.0)(react@apps+web+@platejs+emoji+react):
     dependencies:
       client-only: 0.0.1
-      react: 18.3.1
+      react: link:apps/web/@platejs/emoji/react
     optionalDependencies:
       '@babel/core': 7.28.0
 
-  styled-jsx@5.1.7(@babel/core@7.28.0)(react@18.3.1):
+  styled-jsx@5.1.7(@babel/core@7.28.0)(react@apps+web+@platejs+emoji+react):
     dependencies:
       client-only: 0.0.1
-      react: 18.3.1
+      react: link:apps/web/@platejs/emoji/react
     optionalDependencies:
       '@babel/core': 7.28.0
 
@@ -23863,9 +24030,9 @@ snapshots:
 
   tailwind-merge@3.3.1: {}
 
-  tailwind-scrollbar@4.0.2(react@18.3.1)(tailwindcss@4.1.11):
+  tailwind-scrollbar@4.0.2(react@apps+web+@platejs+emoji+react)(tailwindcss@4.1.11):
     dependencies:
-      prism-react-renderer: 2.4.1(react@18.3.1)
+      prism-react-renderer: 2.4.1(react@apps+web+@platejs+emoji+react)
       tailwindcss: 4.1.11
     transitivePeerDependencies:
       - react
@@ -24365,45 +24532,49 @@ snapshots:
       punycode: 1.4.1
       qs: 6.14.0
 
-  use-callback-ref@1.3.3(@types/react@18.3.23)(react@18.3.1):
+  use-callback-ref@1.3.3(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react):
     dependencies:
-      react: 18.3.1
+      react: link:apps/web/@platejs/emoji/react
       tslib: 2.8.1
     optionalDependencies:
       '@types/react': 18.3.23
 
-  use-context-selector@1.4.4(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2):
+  use-context-selector@1.4.4(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)(scheduler@0.23.2):
     dependencies:
-      react: 18.3.1
+      react: link:apps/web/@platejs/emoji/react
       scheduler: 0.23.2
     optionalDependencies:
-      react-dom: 18.3.1(react@18.3.1)
+      react-dom: 18.3.1(react@apps+web+@platejs+emoji+react)
 
-  use-context-selector@2.0.0(react@18.3.1)(scheduler@0.23.2):
+  use-context-selector@2.0.0(react@apps+web+@platejs+emoji+react)(scheduler@0.23.2):
     dependencies:
-      react: 18.3.1
+      react: link:apps/web/@platejs/emoji/react
       scheduler: 0.23.2
 
-  use-deep-compare@1.3.0(react@18.3.1):
+  use-deep-compare@1.3.0(react@apps+web+@platejs+emoji+react):
     dependencies:
       dequal: 2.0.3
-      react: 18.3.1
+      react: link:apps/web/@platejs/emoji/react
 
-  use-sidecar@1.1.3(@types/react@18.3.23)(react@18.3.1):
+  use-sidecar@1.1.3(@types/react@18.3.23)(react@apps+web+@platejs+emoji+react):
     dependencies:
       detect-node-es: 1.1.0
-      react: 18.3.1
+      react: link:apps/web/@platejs/emoji/react
       tslib: 2.8.1
     optionalDependencies:
       '@types/react': 18.3.23
 
-  use-sync-external-store@1.4.0(react@18.3.1):
+  use-sync-external-store@1.4.0(react@apps+web+@platejs+emoji+react):
     dependencies:
-      react: 18.3.1
+      react: link:apps/web/@platejs/emoji/react
 
   use-sync-external-store@1.5.0(react@18.3.1):
     dependencies:
       react: 18.3.1
+
+  use-sync-external-store@1.5.0(react@apps+web+@platejs+emoji+react):
+    dependencies:
+      react: link:apps/web/@platejs/emoji/react
 
   util-deprecate@1.0.2: {}
 
@@ -24448,10 +24619,10 @@ snapshots:
       '@types/unist': 3.0.3
       vfile-message: 4.0.2
 
-  virtua@0.41.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(svelte@5.34.9)(vue@3.5.17(typescript@5.8.3)):
+  virtua@0.41.5(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)(svelte@5.34.9)(vue@3.5.17(typescript@5.8.3)):
     optionalDependencies:
-      react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
+      react: link:apps/web/@platejs/emoji/react
+      react-dom: 18.3.1(react@apps+web+@platejs+emoji+react)
       svelte: 5.34.9
       vue: 3.5.17(typescript@5.8.3)
 
@@ -25002,25 +25173,25 @@ snapshots:
 
   zod@3.25.1: {}
 
-  zustand-x@6.1.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(zustand@5.0.6(@types/react@18.3.23)(immer@10.1.1)(react@18.3.1)(use-sync-external-store@1.5.0(react@18.3.1))):
+  zustand-x@6.1.0(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)(scheduler@0.23.2)(zustand@5.0.6(@types/react@18.3.23)(immer@10.1.1)(react@apps+web+@platejs+emoji+react)(use-sync-external-store@1.5.0(react@apps+web+@platejs+emoji+react))):
     dependencies:
       immer: 10.1.1
       lodash.mapvalues: 4.6.0
       mutative: 1.1.0
-      react-tracked: 1.7.14(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)
-      use-sync-external-store: 1.4.0(react@18.3.1)
-      zustand: 5.0.6(@types/react@18.3.23)(immer@10.1.1)(react@18.3.1)(use-sync-external-store@1.5.0(react@18.3.1))
+      react-tracked: 1.7.14(react-dom@18.3.1(react@apps+web+@platejs+emoji+react))(react@apps+web+@platejs+emoji+react)(scheduler@0.23.2)
+      use-sync-external-store: 1.4.0(react@apps+web+@platejs+emoji+react)
+      zustand: 5.0.6(@types/react@18.3.23)(immer@10.1.1)(react@apps+web+@platejs+emoji+react)(use-sync-external-store@1.5.0(react@apps+web+@platejs+emoji+react))
     transitivePeerDependencies:
       - react
       - react-dom
       - react-native
       - scheduler
 
-  zustand@5.0.6(@types/react@18.3.23)(immer@10.1.1)(react@18.3.1)(use-sync-external-store@1.5.0(react@18.3.1)):
+  zustand@5.0.6(@types/react@18.3.23)(immer@10.1.1)(react@apps+web+@platejs+emoji+react)(use-sync-external-store@1.5.0(react@apps+web+@platejs+emoji+react)):
     optionalDependencies:
       '@types/react': 18.3.23
       immer: 10.1.1
-      react: 18.3.1
-      use-sync-external-store: 1.5.0(react@18.3.1)
+      react: link:apps/web/@platejs/emoji/react
+      use-sync-external-store: 1.5.0(react@apps+web+@platejs+emoji+react)
 
   zwitch@2.0.4: {}

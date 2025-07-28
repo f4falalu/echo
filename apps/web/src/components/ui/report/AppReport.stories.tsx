@@ -23,7 +23,7 @@ const meta: Meta<typeof AppReport> = {
       control: { type: 'select' },
       options: ['default']
     },
-    readonly: {
+    readOnly: {
       control: { type: 'boolean' }
     },
     placeholder: {
@@ -38,27 +38,28 @@ const meta: Meta<typeof AppReport> = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-// Example value structure for Plate.js
-const exampleValue: Value = [
+const initialValue: Value = [
   {
-    id: '1',
-    type: 'p',
-    children: [
-      {
-        text: 'This is an example report with some content. You can edit this text if readonly is set to false.'
-      }
-    ]
+    children: [{ text: 'Title' }],
+    type: 'h3'
   },
   {
-    id: '2',
-    type: 'p',
-    children: [{ text: 'This component uses Plate.js for rich text editing capabilities.' }]
+    children: [{ text: 'This is a quote.' }],
+    type: 'blockquote'
+  },
+  {
+    children: [
+      { text: 'With some ' },
+      { bold: true, text: 'bold' },
+      { text: ' text for emphasis!' }
+    ],
+    type: 'p'
   }
 ];
 
 export const Default: Story = {
   args: {
-    value: exampleValue,
+    value: initialValue,
     placeholder: 'Start typing your report...',
     readonly: false,
     variant: 'default'
