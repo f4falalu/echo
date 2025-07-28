@@ -122,7 +122,7 @@ describe('docs-agent-workflow', () => {
         // For now, we're just checking that the workflow runs without errors
         // The mock sandbox doesn't actually create files, but the agent should attempt to
       }
-    }, 90000); // Increase timeout to 90 seconds
+    }, 300000); // Increase timeout to 5 minutes
 
     it('should handle pre-populated todo list', async () => {
       testSandbox = await createIntegrationTestSandbox();

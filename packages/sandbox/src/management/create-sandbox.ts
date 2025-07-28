@@ -21,7 +21,7 @@ export async function createSandbox(options: CreateSandboxOptions = {}) {
   const env = envSchema.parse(process.env);
 
   // Initialize the Daytona client
-  const daytona = new Daytona({ apiKey: env.DAYTONA_API_KEY });
+  const daytona = new Daytona({ apiKey: env.DAYTONA_API_KEY, target: 'us' });
 
   // Create the Sandbox instance
   const sandbox = await daytona.create({
