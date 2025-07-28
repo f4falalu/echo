@@ -51,7 +51,11 @@ describe('read-files-script', () => {
   it('should return empty array when no files provided', async () => {
     await runScript([]);
 
-    expect(consoleLogSpy).toHaveBeenCalledWith(JSON.stringify([]));
+    expect(consoleLogSpy).toHaveBeenCalledWith(JSON.stringify([{
+      success: false,
+      filePath: '',
+      error: 'No file paths provided'
+    }]));
   });
 
   it('should read a single file successfully', async () => {

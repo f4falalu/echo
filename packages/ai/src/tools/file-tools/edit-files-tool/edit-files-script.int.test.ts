@@ -178,16 +178,16 @@ describe('edit-files-script integration', () => {
       const result = await runScript([]);
 
       expect(result.code).toBe(1);
-      const error = JSON.parse(result.stderr);
-      expect(error.error).toContain('No arguments provided');
+      const error = JSON.parse(result.stdout || result.stderr);
+      expect(error[0].error).toContain('No arguments provided');
     });
 
     it('should error on invalid JSON', async () => {
       const result = await runScript(['not valid json']);
 
       expect(result.code).toBe(1);
-      const error = JSON.parse(result.stderr);
-      expect(error.error).toContain('Failed to parse edits');
+      const error = JSON.parse(result.stdout || result.stderr);
+      expect(error[0].error).toContain('Failed to parse arguments');
     });
 
     it('should error when file not found', async () => {
@@ -296,8 +296,10 @@ describe('edit-files-script integration', () => {
       const result = await runScript([JSON.stringify(edits)]);
 
       expect(result.code).toBe(1);
-      const error = JSON.parse(result.stderr);
-      expect(error.error).toContain('Each edit must have filePath, findString, and replaceString');
+      const error = JSON.parse(result.stdout || result.stderr);
+      expect(error[0].error).toContain(
+        'Each edit must have filePath, findString, and replaceString'
+      );
     });
 
     it('should handle permission errors', async () => {

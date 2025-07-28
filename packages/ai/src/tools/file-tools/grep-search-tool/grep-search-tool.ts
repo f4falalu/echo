@@ -7,89 +7,44 @@ import { wrapTraced } from 'braintrust';
 import { z } from 'zod';
 import { type DocsAgentContext, DocsAgentContextKeys } from '../../../context/docs-agent-context';
 
-const grepSearchConfigSchema = z.object({
-  path: z.string().describe('File or directory path to search'),
-  pattern: z.string().describe('Search pattern'),
-  recursive: z.boolean().optional().describe('Recursive search (-r)'),
-  ignoreCase: z.boolean().optional().describe('Case-insensitive search (-i)'),
-  invertMatch: z.boolean().optional().describe('Invert matches (-v)'),
-  lineNumbers: z.boolean().optional().describe('Show line numbers (-n)'),
-  wordMatch: z.boolean().optional().describe('Match whole words only (-w)'),
-  fixedStrings: z.boolean().optional().describe('Treat pattern as fixed string (-F)'),
-  maxCount: z.number().optional().describe('Maximum number of matches (-m)'),
+const rgCommandSchema = z.object({
+  command: z.string().describe('The full ripgrep (rg) command to execute'),
 });
 
-const grepSearchInputSchema = z.object({
-  searches: z.array(grepSearchConfigSchema).min(1).describe('Array of search configurations'),
+const rgSearchInputSchema = z.object({
+  commands: z.array(rgCommandSchema).min(1).describe('Array of ripgrep commands to execute'),
 });
 
-const grepMatchSchema = z.object({
-  file: z.string().describe('File path where match was found'),
-  lineNumber: z.number().optional().describe('Line number of the match'),
-  content: z.string().describe('Matched line content'),
+const rgResultSchema = z.object({
+  success: z.boolean().describe('Whether the command executed successfully'),
+  command: z.string().describe('The command that was executed'),
+  stdout: z.string().optional().describe('Standard output from the command'),
+  stderr: z.string().optional().describe('Standard error from the command'),
+  error: z.string().optional().describe('Error message if command failed'),
 });
 
-const grepSearchResultSchema = z.object({
-  path: z.string().describe('Search path'),
-  pattern: z.string().describe('Search pattern'),
-  matches: z.array(grepMatchSchema).describe('Array of matches found'),
-  matchCount: z.number().describe('Total number of matches'),
-});
-
-const grepSearchFailureSchema = z.object({
-  path: z.string().describe('Search path that failed'),
-  pattern: z.string().describe('Search pattern'),
-  error: z.string().describe('Error message'),
-});
-
-const grepSearchOutputSchema = z.object({
+const rgSearchOutputSchema = z.object({
   message: z.string().describe('Summary message'),
   duration: z.number().describe('Duration of operation in milliseconds'),
-  successful_searches: z.array(grepSearchResultSchema).describe('Successful searches with matches'),
-  failed_searches: z.array(grepSearchFailureSchema).describe('Failed searches with error messages'),
+  results: z.array(rgResultSchema).describe('Results from each command'),
 });
 
-export type GrepSearchConfig = {
-  path: string;
-  pattern: string;
-  recursive?: boolean;
-  ignoreCase?: boolean;
-  invertMatch?: boolean;
-  lineNumbers?: boolean;
-  wordMatch?: boolean;
-  fixedStrings?: boolean;
-  maxCount?: number;
-};
-export type GrepSearchInput = z.infer<typeof grepSearchInputSchema>;
-export type GrepSearchOutput = z.infer<typeof grepSearchOutputSchema>;
+export type RgSearchInput = z.infer<typeof rgSearchInputSchema>;
+export type RgSearchOutput = z.infer<typeof rgSearchOutputSchema>;
 
-const grepSearchExecution = wrapTraced(
+const rgSearchExecution = wrapTraced(
   async (
-    params: z.infer<typeof grepSearchInputSchema>,
+    params: z.infer<typeof rgSearchInputSchema>,
     runtimeContext: RuntimeContext<DocsAgentContext>
-  ): Promise<z.infer<typeof grepSearchOutputSchema>> => {
-    const { searches: rawSearches } = params;
-
-    // Apply defaults to searches
-    const searches = rawSearches.map((search) => ({
-      path: search.path,
-      pattern: search.pattern,
-      recursive: search.recursive ?? false,
-      ignoreCase: search.ignoreCase ?? false,
-      invertMatch: search.invertMatch ?? false,
-      lineNumbers: search.lineNumbers ?? true,
-      wordMatch: search.wordMatch ?? false,
-      fixedStrings: search.fixedStrings ?? false,
-      ...(search.maxCount !== undefined && { maxCount: search.maxCount }),
-    }));
+  ): Promise<z.infer<typeof rgSearchOutputSchema>> => {
+    const { commands } = params;
     const startTime = Date.now();
 
-    if (!rawSearches || rawSearches.length === 0) {
+    if (!commands || commands.length === 0) {
       return {
-        message: 'No searches provided',
+        message: 'No commands provided',
         duration: Date.now() - startTime,
-        successful_searches: [],
-        failed_searches: [],
+        results: [],
       };
     }
 
@@ -102,8 +57,8 @@ const grepSearchExecution = wrapTraced(
         const scriptContent = await fs.readFile(scriptPath, 'utf-8');
 
         // Build command line arguments
-        // The script expects a JSON array of searches as the first argument
-        const args = [JSON.stringify(searches)];
+        // The script expects a JSON array of commands as the first argument
+        const args = [JSON.stringify(commands)];
 
         const result = await runTypescript(sandbox, scriptContent, { argv: args });
 
@@ -114,16 +69,15 @@ const grepSearchExecution = wrapTraced(
           throw new Error(`Sandbox execution failed: ${result.stderr || 'Unknown error'}`);
         }
 
-        let grepResults: Array<{
+        let rgResults: Array<{
           success: boolean;
-          path: string;
-          pattern: string;
-          matches?: Array<{ file: string; lineNumber?: number; content: string }>;
-          matchCount?: number;
+          command: string;
+          stdout?: string;
+          stderr?: string;
           error?: string;
         }>;
         try {
-          grepResults = JSON.parse(result.result.trim());
+          rgResults = JSON.parse(result.result.trim());
         } catch (parseError) {
           console.error('Failed to parse sandbox output:', result.result);
           throw new Error(
@@ -131,76 +85,53 @@ const grepSearchExecution = wrapTraced(
           );
         }
 
-        const successfulSearches: z.infer<typeof grepSearchResultSchema>[] = [];
-        const failedSearches: z.infer<typeof grepSearchFailureSchema>[] = [];
-
-        for (const searchResult of grepResults) {
-          if (searchResult.success) {
-            successfulSearches.push({
-              path: searchResult.path,
-              pattern: searchResult.pattern,
-              matches: searchResult.matches || [],
-              matchCount: searchResult.matchCount || 0,
-            });
-          } else {
-            failedSearches.push({
-              path: searchResult.path,
-              pattern: searchResult.pattern,
-              error: searchResult.error || 'Unknown error',
-            });
-          }
-        }
-
         return {
-          message: `Completed ${successfulSearches.length} searches successfully, ${failedSearches.length} failed`,
+          message: `Executed ${rgResults.length} ripgrep commands`,
           duration: Date.now() - startTime,
-          successful_searches: successfulSearches,
-          failed_searches: failedSearches,
+          results: rgResults,
         };
       }
 
-      // When not in sandbox, we can't use the grep command
-      // Return an error for each search
+      // When not in sandbox, we can't use the rg command
+      // Return an error for each command
       return {
-        message: 'Grep searches require sandbox environment',
+        message: 'Ripgrep commands require sandbox environment',
         duration: Date.now() - startTime,
-        successful_searches: [],
-        failed_searches: searches.map((search) => ({
-          path: search.path,
-          pattern: search.pattern,
-          error: 'grep command requires sandbox environment',
+        results: commands.map((cmd) => ({
+          success: false,
+          command: cmd.command,
+          error: 'ripgrep command requires sandbox environment',
         })),
       };
     } catch (error) {
       return {
         message: 'Execution error occurred',
         duration: Date.now() - startTime,
-        successful_searches: [],
-        failed_searches: searches.map((search) => ({
-          path: search.path,
-          pattern: search.pattern,
+        results: commands.map((cmd) => ({
+          success: false,
+          command: cmd.command,
           error: `Execution error: ${error instanceof Error ? error.message : 'Unknown error'}`,
         })),
       };
     }
   },
-  { name: 'grep-search' }
+  { name: 'rg-search' }
 );
 
 export const grepSearch = createTool({
   id: 'grep_search',
   description:
-    'Performs grep-like searches on files and directories with pattern matching. Supports various grep options like recursive search, case-insensitive matching, line numbers, and more. Can handle bulk searches efficiently.',
-  inputSchema: grepSearchInputSchema,
-  outputSchema: grepSearchOutputSchema,
+    'Executes ripgrep (rg) commands to search files and directories. Accepts raw rg commands with any flags and options. Returns the stdout/stderr output from each command.',
+  inputSchema: rgSearchInputSchema,
+  outputSchema: rgSearchOutputSchema,
   execute: async ({
     context,
     runtimeContext,
   }: {
-    context: z.infer<typeof grepSearchInputSchema>;
+    context: z.infer<typeof rgSearchInputSchema>;
     runtimeContext: RuntimeContext<DocsAgentContext>;
   }) => {
-    return await grepSearchExecution(context, runtimeContext);
+    return await rgSearchExecution(context, runtimeContext);
   },
 });
 

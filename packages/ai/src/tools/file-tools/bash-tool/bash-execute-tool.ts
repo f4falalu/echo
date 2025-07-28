@@ -62,7 +62,7 @@ const executeBashCommands = wrapTraced(
 
           // Try to parse error response from script
           try {
-            const errorResponse = JSON.parse(result.result || result.stderr);
+            const errorResponse = JSON.parse(result.result || result.stderr || '{}');
             if (errorResponse.success === false && errorResponse.error) {
               throw new Error(errorResponse.error);
             }

@@ -63,6 +63,11 @@ const createFilesExecution = wrapTraced(
           throw new Error(`Sandbox execution failed: ${result.stderr || 'Unknown error'}`);
         }
 
+        // Debug logging to see what we're getting
+        console.info('Raw sandbox result:', result.result);
+        console.info('Trimmed result:', result.result.trim());
+        console.info('Result type:', typeof result.result);
+
         let fileResults: Array<{
           success: boolean;
           filePath: string;
@@ -70,6 +75,12 @@ const createFilesExecution = wrapTraced(
         }>;
         try {
           fileResults = JSON.parse(result.result.trim());
+
+          // Additional validation
+          if (!Array.isArray(fileResults)) {
+            console.error('Parsed result is not an array:', fileResults);
+            throw new Error('Parsed result is not an array');
+          }
         } catch (parseError) {
           console.error('Failed to parse sandbox output:', result.result);
           throw new Error(
@@ -77,21 +88,29 @@ const createFilesExecution = wrapTraced(
           );
         }
 
-        return {
-          results: fileResults.map((fileResult) => {
-            if (fileResult.success) {
+        try {
+          return {
+            results: fileResults.map((fileResult) => {
+              if (fileResult.success) {
+                return {
+                  status: 'success' as const,
+                  filePath: fileResult.filePath,
+                };
+              }
               return {
-                status: 'success' as const,
+                status: 'error' as const,
                 filePath: fileResult.filePath,
+                errorMessage: fileResult.error || 'Unknown error',
               };
-            }
-            return {
-              status: 'error' as const,
-              filePath: fileResult.filePath,
-              errorMessage: fileResult.error || 'Unknown error',
-            };
-          }),
-        };
+            }),
+          };
+        } catch (mapError) {
+          console.error('Error mapping fileResults:', fileResults);
+          console.error('Map error:', mapError);
+          throw new Error(
+            `Failed to map results: ${mapError instanceof Error ? mapError.message : 'Unknown error'}`
+          );
+        }
       }
 
       // When not in sandbox, we can't create files

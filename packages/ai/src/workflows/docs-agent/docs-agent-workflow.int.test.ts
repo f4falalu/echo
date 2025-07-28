@@ -31,7 +31,7 @@ describe('docs-agent-workflow', () => {
     if (process.env.BRAINTRUST_KEY) {
       braintrustLogger = initLogger({
         apiKey: process.env.BRAINTRUST_KEY,
-        projectName: process.env.ENVIRONMENT,
+        projectName: 'DOCS-AGENT',
       });
     }
   });

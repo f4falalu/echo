@@ -8,29 +8,6 @@ describe('grep-search-tool integration test', () => {
   const hasApiKey = !!process.env.DAYTONA_API_KEY;
   let sandbox: Sandbox;
 
-  // Helper function to create a search config with defaults
-  const createSearchConfig = (config: {
-    path: string;
-    pattern: string;
-    recursive?: boolean;
-    ignoreCase?: boolean;
-    invertMatch?: boolean;
-    lineNumbers?: boolean;
-    wordMatch?: boolean;
-    fixedStrings?: boolean;
-    maxCount?: number;
-  }) => ({
-    path: config.path,
-    pattern: config.pattern,
-    recursive: config.recursive ?? false,
-    ignoreCase: config.ignoreCase ?? false,
-    invertMatch: config.invertMatch ?? false,
-    lineNumbers: config.lineNumbers ?? true,
-    wordMatch: config.wordMatch ?? false,
-    fixedStrings: config.fixedStrings ?? false,
-    ...(config.maxCount !== undefined && { maxCount: config.maxCount }),
-  });
-
   beforeAll(async () => {
     if (!hasApiKey) return;
 
@@ -47,7 +24,7 @@ describe('grep-search-tool integration test', () => {
     }
   });
 
-  it.skipIf(!hasApiKey)('should perform grep searches in sandbox environment', async () => {
+  it.skipIf(!hasApiKey)('should execute ripgrep commands in sandbox environment', async () => {
     // First, create test files with searchable content
     const createFilesCode = `
       const fs = require('fs');
@@ -67,54 +44,33 @@ describe('grep-search-tool integration test', () => {
 
     const result = await grepSearch.execute({
       context: {
-        searches: [
+        commands: [
           {
-            path: 'test1.txt',
-            pattern: 'test',
-            recursive: false,
-            ignoreCase: false,
-            invertMatch: false,
-            lineNumbers: true,
-            wordMatch: false,
-            fixedStrings: false,
+            command: 'rg -n "test" test1.txt',
           },
           {
-            path: '.',
-            pattern: 'Hello',
-            recursive: true,
-            ignoreCase: false,
-            invertMatch: false,
-            lineNumbers: true,
-            wordMatch: false,
-            fixedStrings: false,
+            command: 'rg -n "Hello"',
           },
         ],
       },
       runtimeContext,
     });
 
-    expect(result.successful_searches).toHaveLength(2);
-    expect(result.failed_searches).toHaveLength(0);
+    expect(result.results).toHaveLength(2);
 
-    // Check first search results
-    const firstSearch = result.successful_searches[0];
-    expect(firstSearch?.path).toBe('test1.txt');
-    expect(firstSearch?.pattern).toBe('test');
-    expect(firstSearch?.matchCount).toBe(1);
-    expect(firstSearch?.matches[0]).toMatchObject({
-      file: 'test1.txt',
-      lineNumber: 2,
-      content: 'This is a test file',
-    });
+    // Check first command results
+    const firstResult = result.results[0];
+    expect(firstResult?.success).toBe(true);
+    expect(firstResult?.command).toBe('rg -n "test" test1.txt');
+    expect(firstResult?.stdout).toContain('2:This is a test file');
 
-    // Check second search results (recursive)
-    const secondSearch = result.successful_searches[1];
-    expect(secondSearch?.path).toBe('.');
-    expect(secondSearch?.pattern).toBe('Hello');
-    expect(secondSearch?.matchCount).toBeGreaterThan(0);
-    expect(secondSearch?.matches.some((m) => m.file.includes('test1.txt'))).toBe(true);
-    expect(secondSearch?.matches.some((m) => m.file.includes('test2.txt'))).toBe(true);
-    expect(secondSearch?.matches.some((m) => m.file.includes('subdir/test3.txt'))).toBe(true);
+    // Check second command results (searches all files)
+    const secondResult = result.results[1];
+    expect(secondResult?.success).toBe(true);
+    expect(secondResult?.command).toBe('rg -n "Hello"');
+    expect(secondResult?.stdout).toContain('test1.txt:1:Hello world');
+    expect(secondResult?.stdout).toContain('test2.txt:2:Hello again');
+    expect(secondResult?.stdout).toContain('subdir/test3.txt:2:Hello from subdirectory');
   });
 
   it.skipIf(!hasApiKey)('should handle case-insensitive searches', async () => {
@@ -132,26 +88,21 @@ describe('grep-search-tool integration test', () => {
 
     const result = await grepSearch.execute({
       context: {
-        searches: [
+        commands: [
           {
-            path: 'case-test.txt',
-            pattern: 'hello',
-            recursive: false,
-            ignoreCase: true,
-            invertMatch: false,
-            lineNumbers: true,
-            wordMatch: false,
-            fixedStrings: false,
+            command: 'rg -i -n "hello" case-test.txt',
           },
         ],
       },
       runtimeContext,
     });
 
-    expect(result.successful_searches).toHaveLength(1);
-    const search = result.successful_searches[0];
-    expect(search?.matchCount).toBe(3); // Should match all three lines
-    expect(search?.matches.map((m) => m.lineNumber)).toEqual([1, 2, 3]);
+    expect(result.results).toHaveLength(1);
+    const search = result.results[0];
+    expect(search?.success).toBe(true);
+    expect(search?.stdout).toContain('1:HELLO World');
+    expect(search?.stdout).toContain('2:hello world');
+    expect(search?.stdout).toContain('3:HeLLo WoRLd');
   });
 
   it.skipIf(!hasApiKey)('should handle whole word matches', async () => {
@@ -169,22 +120,21 @@ describe('grep-search-tool integration test', () => {
 
     const result = await grepSearch.execute({
       context: {
-        searches: [
-          createSearchConfig({
-            path: 'word-test.txt',
-            pattern: 'test',
-            wordMatch: true,
-          }),
+        commands: [
+          {
+            command: 'rg -w -n "test" word-test.txt',
+          },
         ],
       },
       runtimeContext,
     });
 
-    expect(result.successful_searches).toHaveLength(1);
-    const search = result.successful_searches[0];
-    expect(search?.matchCount).toBe(2); // Should only match "test" as whole word
-    expect(search?.matches[0]?.content).toBe('test testing');
-    expect(search?.matches[1]?.content).toBe('test');
+    expect(result.results).toHaveLength(1);
+    const search = result.results[0];
+    expect(search?.success).toBe(true);
+    expect(search?.stdout).toContain('1:test testing');
+    expect(search?.stdout).toContain('3:test');
+    expect(search?.stdout).not.toContain('tester'); // Should not match partial words
   });
 
   it.skipIf(!hasApiKey)('should handle fixed string searches (literal)', async () => {
@@ -202,32 +152,26 @@ describe('grep-search-tool integration test', () => {
 
     const result = await grepSearch.execute({
       context: {
-        searches: [
+        commands: [
           {
-            path: 'regex-test.txt',
-            pattern: '$10.99',
-            fixedStrings: true,
-          },
-          {
-            path: 'regex-test.txt',
-            pattern: 'test.*',
-            fixedStrings: true,
+            command: 'rg -F -n "$10.99" regex-test.txt',
           },
         ],
       },
       runtimeContext,
     });
 
-    expect(result.successful_searches).toHaveLength(2);
-    expect(result.successful_searches[0]?.matchCount).toBe(1);
-    expect(result.successful_searches[1]?.matchCount).toBe(1);
+    expect(result.results).toHaveLength(1);
+    const search = result.results[0];
+    expect(search?.success).toBe(true);
+    expect(search?.stdout).toContain('1:Price: $10.99');
   });
 
   it.skipIf(!hasApiKey)('should handle inverted matches', async () => {
     // Create a test file
     const createFileCode = `
       const fs = require('fs');
-      fs.writeFileSync('invert-test.txt', 'Line with test\\nLine without\\nAnother test line\\nNo match here');
+      fs.writeFileSync('invert-test.txt', 'line with test\\nline without\\nanother test line\\nno match here');
       console.log('File created');
     `;
 
@@ -238,31 +182,27 @@ describe('grep-search-tool integration test', () => {
 
     const result = await grepSearch.execute({
       context: {
-        searches: [
+        commands: [
           {
-            path: 'invert-test.txt',
-            pattern: 'test',
-            invertMatch: true,
-            lineNumbers: true,
+            command: 'rg -v -n "test" invert-test.txt',
           },
         ],
       },
       runtimeContext,
     });
 
-    expect(result.successful_searches).toHaveLength(1);
-    const search = result.successful_searches[0];
-    expect(search?.matchCount).toBe(2); // Lines without "test"
-    expect(search?.matches[0]?.content).toBe('Line without');
-    expect(search?.matches[1]?.content).toBe('No match here');
+    expect(result.results).toHaveLength(1);
+    const search = result.results[0];
+    expect(search?.success).toBe(true);
+    expect(search?.stdout).toContain('2:line without');
+    expect(search?.stdout).toContain('4:no match here');
   });
 
-  it.skipIf(!hasApiKey)('should handle max count limit', async () => {
-    // Create a test file with many matches
+  it.skipIf(!hasApiKey)('should handle max count option', async () => {
+    // Create a test file with multiple matches
     const createFileCode = `
       const fs = require('fs');
-      const content = Array(10).fill('match line').join('\\n');
-      fs.writeFileSync('maxcount-test.txt', content);
+      fs.writeFileSync('many-matches.txt', 'test 1\\ntest 2\\ntest 3\\ntest 4\\ntest 5');
       console.log('File created');
     `;
 
@@ -273,47 +213,186 @@ describe('grep-search-tool integration test', () => {
 
     const result = await grepSearch.execute({
       context: {
-        searches: [
+        commands: [
           {
-            path: 'maxcount-test.txt',
-            pattern: 'match',
-            maxCount: 3,
-            lineNumbers: true,
+            command: 'rg -m 3 -n "test" many-matches.txt',
           },
         ],
       },
       runtimeContext,
     });
 
-    expect(result.successful_searches).toHaveLength(1);
-    const search = result.successful_searches[0];
-    expect(search?.matchCount).toBe(3); // Limited by maxCount
+    expect(result.results).toHaveLength(1);
+    const search = result.results[0];
+    expect(search?.success).toBe(true);
+    const lines = search?.stdout?.trim().split('\n') || [];
+    expect(lines).toHaveLength(3); // Should only return 3 matches
   });
 
-  it.skipIf(!hasApiKey)('should handle path not found errors', async () => {
+  it.skipIf(!hasApiKey)('should handle no matches found', async () => {
+    // Create a test file with no matching content
+    const createFileCode = `
+      const fs = require('fs');
+      fs.writeFileSync('no-match.txt', 'This file has no matches\\nNothing to find here');
+      console.log('File created');
+    `;
+
+    await sandbox.process.codeRun(createFileCode);
+
     const runtimeContext = new RuntimeContext();
     runtimeContext.set(DocsAgentContextKeys.Sandbox, sandbox);
 
     const result = await grepSearch.execute({
       context: {
-        searches: [
+        commands: [
           {
-            path: 'nonexistent.txt',
-            pattern: 'test',
-          },
-          {
-            path: 'nonexistent-dir',
-            pattern: 'test',
-            recursive: true,
+            command: 'rg -n "nonexistent" no-match.txt',
           },
         ],
       },
       runtimeContext,
     });
 
-    expect(result.successful_searches).toHaveLength(0);
-    expect(result.failed_searches).toHaveLength(2);
-    expect(result.failed_searches[0]?.error).toContain('Path does not exist');
-    expect(result.failed_searches[1]?.error).toContain('Path does not exist');
+    expect(result.results).toHaveLength(1);
+    const search = result.results[0];
+    expect(search?.success).toBe(true); // Exit code 1 is treated as success for rg
+    expect(search?.stdout).toBe('');
+  });
+
+  it.skipIf(!hasApiKey)('should handle multiple commands', async () => {
+    // Create test files
+    const createFilesCode = `
+      const fs = require('fs');
+      fs.writeFileSync('file1.txt', 'First file with test');
+      fs.writeFileSync('file2.txt', 'Second file with test');
+      console.log('Files created');
+    `;
+
+    await sandbox.process.codeRun(createFilesCode);
+
+    const runtimeContext = new RuntimeContext();
+    runtimeContext.set(DocsAgentContextKeys.Sandbox, sandbox);
+
+    const result = await grepSearch.execute({
+      context: {
+        commands: [
+          {
+            command: 'rg -n "test" file1.txt',
+          },
+          {
+            command: 'rg -n "test" file2.txt',
+          },
+          {
+            command: 'rg -n "nonexistent" file1.txt',
+          },
+        ],
+      },
+      runtimeContext,
+    });
+
+    expect(result.results).toHaveLength(3);
+    expect(result.results[0]?.stdout).toContain('First file with test');
+    expect(result.results[1]?.stdout).toContain('Second file with test');
+    expect(result.results[2]?.stdout).toBe(''); // No match
+  });
+
+  it.skipIf(!hasApiKey)('should handle file not found error', async () => {
+    const runtimeContext = new RuntimeContext();
+    runtimeContext.set(DocsAgentContextKeys.Sandbox, sandbox);
+
+    const result = await grepSearch.execute({
+      context: {
+        commands: [
+          {
+            command: 'rg "test" /nonexistent/path/file.txt',
+          },
+        ],
+      },
+      runtimeContext,
+    });
+
+    expect(result.results).toHaveLength(1);
+    const search = result.results[0];
+    expect(search?.success).toBe(false);
+    expect(search?.error).toBeDefined();
+    expect(search?.stderr).toBeDefined();
+  });
+
+  it.skipIf(!hasApiKey)('should handle complex rg commands with multiple flags', async () => {
+    // Create test files
+    const createFilesCode = `
+      const fs = require('fs');
+      fs.mkdirSync('src', { recursive: true });
+      fs.writeFileSync('src/main.ts', 'TODO: implement feature\\nconsole.log("test");');
+      fs.writeFileSync('src/utils.ts', 'TODO: fix bug\\nexport function test() {}');
+      fs.writeFileSync('src/readme.md', 'TODO: update docs');
+      console.log('Files created');
+    `;
+
+    await sandbox.process.codeRun(createFilesCode);
+
+    const runtimeContext = new RuntimeContext();
+    runtimeContext.set(DocsAgentContextKeys.Sandbox, sandbox);
+
+    const result = await grepSearch.execute({
+      context: {
+        commands: [
+          {
+            command: 'rg --type ts --color never -n "TODO" src/',
+          },
+        ],
+      },
+      runtimeContext,
+    });
+
+    expect(result.results).toHaveLength(1);
+    const search = result.results[0];
+    expect(search?.success).toBe(true);
+    expect(search?.stdout).toContain('src/main.ts:1:TODO: implement feature');
+    expect(search?.stdout).toContain('src/utils.ts:1:TODO: fix bug');
+    expect(search?.stdout).not.toContain('readme.md'); // Should not match .md files
+  });
+
+  it.skipIf(!hasApiKey)('should handle JSON output from rg', async () => {
+    // Create a test file
+    const createFileCode = `
+      const fs = require('fs');
+      fs.writeFileSync('json-test.txt', 'Line with test\\nAnother line');
+      console.log('File created');
+    `;
+
+    await sandbox.process.codeRun(createFileCode);
+
+    const runtimeContext = new RuntimeContext();
+    runtimeContext.set(DocsAgentContextKeys.Sandbox, sandbox);
+
+    const result = await grepSearch.execute({
+      context: {
+        commands: [
+          {
+            command: 'rg --json "test" json-test.txt',
+          },
+        ],
+      },
+      runtimeContext,
+    });
+
+    expect(result.results).toHaveLength(1);
+    const search = result.results[0];
+    expect(search?.success).toBe(true);
+
+    // Parse JSON output
+    const jsonLines = search?.stdout?.trim().split('\n') || [];
+    expect(jsonLines.length).toBeGreaterThan(0);
+
+    const firstLine = JSON.parse(jsonLines[0] || '{}');
+    expect(firstLine.type).toBe('begin');
+
+    // Find the match line
+    const matchLine = jsonLines.find((line) => {
+      const parsed = JSON.parse(line);
+      return parsed.type === 'match';
+    });
+    expect(matchLine).toBeDefined();
   });
 });

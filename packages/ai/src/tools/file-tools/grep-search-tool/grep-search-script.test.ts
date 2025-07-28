@@ -1,22 +1,14 @@
+import * as child_process from 'node:child_process';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-// Mock the modules before import
+// Mock the modules
 vi.mock('node:child_process', () => ({
   exec: vi.fn(),
 }));
 
-vi.mock('node:fs/promises', () => ({
-  access: vi.fn(),
-}));
-
-// Import modules after mocking
-import * as child_process from 'node:child_process';
-import * as fs from 'node:fs/promises';
-
 const mockChildProcess = vi.mocked(child_process);
-const mockFs = vi.mocked(fs);
 
-describe('grep-search-script', () => {
+describe('rg-search-script', () => {
   let originalArgv: string[];
   let consoleLogSpy: any;
   let consoleErrorSpy: any;
@@ -42,8 +34,8 @@ describe('grep-search-script', () => {
     vi.resetModules();
   });
 
-  async function runScript(searches: any[]) {
-    process.argv = ['node', 'grep-search-script.ts', JSON.stringify(searches)];
+  async function runScript(commands: any[]) {
+    process.argv = ['node', 'grep-search-script.ts', JSON.stringify(commands)];
 
     // Clear module cache and reimport
     vi.resetModules();
@@ -63,8 +55,7 @@ describe('grep-search-script', () => {
     expect(consoleLogSpy).toHaveBeenCalledWith(JSON.stringify([]));
   });
 
-  it('should search for patterns in files', async () => {
-    mockFs.access.mockResolvedValue(undefined);
+  it('should execute ripgrep commands and return stdout', async () => {
     mockChildProcess.exec.mockImplementation((command, options, callback) => {
       const cb = callback as (error: null, stdout: string, stderr: string) => void;
       cb(null, '2:This is a test line\n4:Another test here\n', '');
@@ -73,10 +64,7 @@ describe('grep-search-script', () => {
 
     await runScript([
       {
-        path: 'test.txt',
-        pattern: 'test',
-        recursive: false,
-        lineNumbers: true,
+        command: 'rg -n "test" test.txt',
       },
     ]);
 
@@ -84,18 +72,13 @@ describe('grep-search-script', () => {
     expect(output).toHaveLength(1);
     expect(output[0]).toEqual({
       success: true,
-      path: 'test.txt',
-      pattern: 'test',
-      matches: [
-        { file: 'test.txt', lineNumber: 2, content: 'This is a test line' },
-        { file: 'test.txt', lineNumber: 4, content: 'Another test here' },
-      ],
-      matchCount: 2,
+      command: 'rg -n "test" test.txt',
+      stdout: '2:This is a test line\n4:Another test here\n',
+      stderr: '',
     });
   });
 
-  it('should handle recursive searches', async () => {
-    mockFs.access.mockResolvedValue(undefined);
+  it('should handle recursive searches with rg', async () => {
     mockChildProcess.exec.mockImplementation((command, options, callback) => {
       const cb = callback as (error: null, stdout: string, stderr: string) => void;
       cb(null, 'dir/file1.txt:3:Match in file1\ndir/file2.txt:1:Match in file2\n', '');
@@ -104,25 +87,21 @@ describe('grep-search-script', () => {
 
     await runScript([
       {
-        path: 'dir',
-        pattern: 'Match',
-        recursive: true,
-        lineNumbers: true,
+        command: 'rg -n "Match" dir',
       },
     ]);
 
     const output = JSON.parse(consoleLogSpy.mock.calls[0][0]);
-    expect(output[0].matches).toEqual([
-      { file: 'dir/file1.txt', lineNumber: 3, content: 'Match in file1' },
-      { file: 'dir/file2.txt', lineNumber: 1, content: 'Match in file2' },
-    ]);
+    expect(output[0]).toEqual({
+      success: true,
+      command: 'rg -n "Match" dir',
+      stdout: 'dir/file1.txt:3:Match in file1\ndir/file2.txt:1:Match in file2\n',
+      stderr: '',
+    });
   });
 
-  it('should handle case-insensitive searches', async () => {
-    mockFs.access.mockResolvedValue(undefined);
-    let capturedCommand = '';
+  it('should handle case-insensitive searches with rg', async () => {
     mockChildProcess.exec.mockImplementation((command, options, callback) => {
-      capturedCommand = command;
       const cb = callback as (error: null, stdout: string, stderr: string) => void;
       cb(null, '1:HELLO world\n2:hello WORLD\n', '');
       return {} as any;
@@ -130,23 +109,21 @@ describe('grep-search-script', () => {
 
     await runScript([
       {
-        path: 'case.txt',
-        pattern: 'hello',
-        ignoreCase: true,
-        lineNumbers: true,
+        command: 'rg -i -n "hello" case.txt',
       },
     ]);
 
-    expect(capturedCommand).toContain('-i');
     const output = JSON.parse(consoleLogSpy.mock.calls[0][0]);
-    expect(output[0].matchCount).toBe(2);
+    expect(output[0]).toEqual({
+      success: true,
+      command: 'rg -i -n "hello" case.txt',
+      stdout: '1:HELLO world\n2:hello WORLD\n',
+      stderr: '',
+    });
   });
 
-  it('should handle word match option', async () => {
-    mockFs.access.mockResolvedValue(undefined);
-    let capturedCommand = '';
+  it('should handle word match option with rg', async () => {
     mockChildProcess.exec.mockImplementation((command, options, callback) => {
-      capturedCommand = command;
       const cb = callback as (error: null, stdout: string, stderr: string) => void;
       cb(null, '1:test word\n3:word test word\n', '');
       return {} as any;
@@ -154,21 +131,21 @@ describe('grep-search-script', () => {
 
     await runScript([
       {
-        path: 'word.txt',
-        pattern: 'test',
-        wordMatch: true,
-        lineNumbers: true,
+        command: 'rg -w -n "test" word.txt',
       },
     ]);
 
-    expect(capturedCommand).toContain('-w');
+    const output = JSON.parse(consoleLogSpy.mock.calls[0][0]);
+    expect(output[0]).toEqual({
+      success: true,
+      command: 'rg -w -n "test" word.txt',
+      stdout: '1:test word\n3:word test word\n',
+      stderr: '',
+    });
   });
 
-  it('should handle fixed strings option', async () => {
-    mockFs.access.mockResolvedValue(undefined);
-    let capturedCommand = '';
+  it('should handle fixed strings option with rg', async () => {
     mockChildProcess.exec.mockImplementation((command, options, callback) => {
-      capturedCommand = command;
       const cb = callback as (error: null, stdout: string, stderr: string) => void;
       cb(null, '1:Price is $10.99\n', '');
       return {} as any;
@@ -176,21 +153,21 @@ describe('grep-search-script', () => {
 
     await runScript([
       {
-        path: 'price.txt',
-        pattern: '$10.99',
-        fixedStrings: true,
-        lineNumbers: true,
+        command: 'rg -F -n "$10.99" price.txt',
       },
     ]);
 
-    expect(capturedCommand).toContain('-F');
+    const output = JSON.parse(consoleLogSpy.mock.calls[0][0]);
+    expect(output[0]).toEqual({
+      success: true,
+      command: 'rg -F -n "$10.99" price.txt',
+      stdout: '1:Price is $10.99\n',
+      stderr: '',
+    });
   });
 
-  it('should handle inverted matches', async () => {
-    mockFs.access.mockResolvedValue(undefined);
-    let capturedCommand = '';
+  it('should handle inverted matches with rg', async () => {
     mockChildProcess.exec.mockImplementation((command, options, callback) => {
-      capturedCommand = command;
       const cb = callback as (error: null, stdout: string, stderr: string) => void;
       cb(null, '2:Line without pattern\n4:Another line without\n', '');
       return {} as any;
@@ -198,21 +175,21 @@ describe('grep-search-script', () => {
 
     await runScript([
       {
-        path: 'invert.txt',
-        pattern: 'test',
-        invertMatch: true,
-        lineNumbers: true,
+        command: 'rg -v -n "test" invert.txt',
       },
     ]);
 
-    expect(capturedCommand).toContain('-v');
+    const output = JSON.parse(consoleLogSpy.mock.calls[0][0]);
+    expect(output[0]).toEqual({
+      success: true,
+      command: 'rg -v -n "test" invert.txt',
+      stdout: '2:Line without pattern\n4:Another line without\n',
+      stderr: '',
+    });
   });
 
-  it('should handle max count option', async () => {
-    mockFs.access.mockResolvedValue(undefined);
-    let capturedCommand = '';
+  it('should handle max count option with rg', async () => {
     mockChildProcess.exec.mockImplementation((command, options, callback) => {
-      capturedCommand = command;
       const cb = callback as (error: null, stdout: string, stderr: string) => void;
       cb(null, '1:Match 1\n2:Match 2\n3:Match 3\n', '');
       return {} as any;
@@ -220,18 +197,20 @@ describe('grep-search-script', () => {
 
     await runScript([
       {
-        path: 'max.txt',
-        pattern: 'Match',
-        maxCount: 3,
-        lineNumbers: true,
+        command: 'rg -m 3 -n "Match" max.txt',
       },
     ]);
 
-    expect(capturedCommand).toContain('-m 3');
+    const output = JSON.parse(consoleLogSpy.mock.calls[0][0]);
+    expect(output[0]).toEqual({
+      success: true,
+      command: 'rg -m 3 -n "Match" max.txt',
+      stdout: '1:Match 1\n2:Match 2\n3:Match 3\n',
+      stderr: '',
+    });
   });
 
   it('should handle no matches found (exit code 1)', async () => {
-    mockFs.access.mockResolvedValue(undefined);
     mockChildProcess.exec.mockImplementation((command, options, callback) => {
       const cb = callback as (error: any, stdout: string, stderr: string) => void;
       const error = new Error('Command failed') as any;
@@ -242,90 +221,20 @@ describe('grep-search-script', () => {
 
     await runScript([
       {
-        path: 'nomatch.txt',
-        pattern: 'nonexistent',
-        lineNumbers: true,
+        command: 'rg -n "nonexistent" nomatch.txt',
       },
     ]);
 
     const output = JSON.parse(consoleLogSpy.mock.calls[0][0]);
     expect(output[0]).toEqual({
       success: true,
-      path: 'nomatch.txt',
-      pattern: 'nonexistent',
-      matches: [],
-      matchCount: 0,
+      command: 'rg -n "nonexistent" nomatch.txt',
+      stdout: '',
+      stderr: '',
     });
   });
 
-  it('should handle path not found error', async () => {
-    mockFs.access.mockRejectedValue(new Error('ENOENT'));
-
-    await runScript([
-      {
-        path: '/nonexistent/path',
-        pattern: 'test',
-      },
-    ]);
-
-    const output = JSON.parse(consoleLogSpy.mock.calls[0][0]);
-    expect(output[0]).toEqual({
-      success: false,
-      path: '/nonexistent/path',
-      pattern: 'test',
-      error: 'Path does not exist: /nonexistent/path',
-    });
-  });
-
-  it('should handle Windows platform', async () => {
-    mockFs.access.mockResolvedValue(undefined);
-    const originalPlatform = process.platform;
-    Object.defineProperty(process, 'platform', { value: 'win32' });
-
-    await runScript([
-      {
-        path: 'test.txt',
-        pattern: 'test',
-      },
-    ]);
-
-    const output = JSON.parse(consoleLogSpy.mock.calls[0][0]);
-    expect(output[0]).toEqual({
-      success: false,
-      path: 'test.txt',
-      pattern: 'test',
-      error: 'grep command not available on Windows platform',
-    });
-
-    Object.defineProperty(process, 'platform', { value: originalPlatform });
-  });
-
-  it('should handle command execution error', async () => {
-    mockFs.access.mockResolvedValue(undefined);
-    mockChildProcess.exec.mockImplementation((command, options, callback) => {
-      const cb = callback as (error: Error, stdout: string, stderr: string) => void;
-      cb(new Error('Permission denied'), '', 'grep: cannot access');
-      return {} as any;
-    });
-
-    await runScript([
-      {
-        path: 'test.txt',
-        pattern: 'test',
-      },
-    ]);
-
-    const output = JSON.parse(consoleLogSpy.mock.calls[0][0]);
-    expect(output[0]).toEqual({
-      success: false,
-      path: 'test.txt',
-      pattern: 'test',
-      error: 'Command failed: grep: cannot access',
-    });
-  });
-
-  it('should handle multiple searches', async () => {
-    mockFs.access.mockResolvedValue(undefined);
+  it('should handle multiple commands', async () => {
     mockChildProcess.exec.mockImplementation((command, options, callback) => {
       const cb = callback as (error: null, stdout: string, stderr: string) => void;
       if (command.includes('file1.txt')) {
@@ -338,24 +247,20 @@ describe('grep-search-script', () => {
 
     await runScript([
       {
-        path: 'file1.txt',
-        pattern: 'Match',
-        lineNumbers: true,
+        command: 'rg -n "Match" file1.txt',
       },
       {
-        path: 'file2.txt',
-        pattern: 'Match',
-        lineNumbers: true,
+        command: 'rg -n "Match" file2.txt',
       },
     ]);
 
     const output = JSON.parse(consoleLogSpy.mock.calls[0][0]);
     expect(output).toHaveLength(2);
-    expect(output[0].matches[0].content).toBe('Match in file1');
-    expect(output[1].matches[0].content).toBe('Match in file2');
+    expect(output[0].stdout).toBe('1:Match in file1\n');
+    expect(output[1].stdout).toBe('2:Match in file2\n');
   });
 
-  it('should handle invalid input', async () => {
+  it('should handle invalid JSON input', async () => {
     process.argv = ['node', 'grep-search-script.ts', 'not-json'];
 
     vi.resetModules();
@@ -376,11 +281,10 @@ describe('grep-search-script', () => {
 
     const output = JSON.parse(consoleLogSpy.mock.calls[0][0]);
     expect(output[0].success).toBe(false);
-    expect(output[0].error).toBe('Invalid input: expected array of searches');
+    expect(output[0].error).toBe('Invalid input: expected array of commands');
   });
 
-  it('should properly escape special characters in patterns', async () => {
-    mockFs.access.mockResolvedValue(undefined);
+  it('should execute commands with special characters as-is', async () => {
     let capturedCommand = '';
     mockChildProcess.exec.mockImplementation((command, options, callback) => {
       capturedCommand = command;
@@ -391,18 +295,15 @@ describe('grep-search-script', () => {
 
     await runScript([
       {
-        path: 'special.txt',
-        pattern: 'Pattern with "quotes"',
-        lineNumbers: true,
+        command: 'rg -n "Pattern with \\"quotes\\"" special.txt',
       },
     ]);
 
-    // Check that quotes are properly escaped in the command
-    expect(capturedCommand).toContain('\\"');
+    // Check that the command is passed as-is
+    expect(capturedCommand).toBe('rg -n "Pattern with \\"quotes\\"" special.txt');
   });
 
-  it('should handle searches without line numbers', async () => {
-    mockFs.access.mockResolvedValue(undefined);
+  it('should handle output without line numbers', async () => {
     mockChildProcess.exec.mockImplementation((command, options, callback) => {
       const cb = callback as (error: null, stdout: string, stderr: string) => void;
       // Without line numbers, output is just the content
@@ -412,40 +313,49 @@ describe('grep-search-script', () => {
 
     await runScript([
       {
-        path: 'test.txt',
-        pattern: 'test',
-        lineNumbers: false,
+        command: 'rg "test" test.txt',
       },
     ]);
 
     const output = JSON.parse(consoleLogSpy.mock.calls[0][0]);
-    expect(output[0].matches).toEqual([
-      { file: 'test.txt', content: 'This is a test line' },
-      { file: 'test.txt', content: 'Another test here' },
-    ]);
+    expect(output[0]).toEqual({
+      success: true,
+      command: 'rg "test" test.txt',
+      stdout: 'This is a test line\nAnother test here\n',
+      stderr: '',
+    });
   });
 
-  it('should handle recursive searches without line numbers', async () => {
-    mockFs.access.mockResolvedValue(undefined);
+  it('should handle JSON output from rg', async () => {
     mockChildProcess.exec.mockImplementation((command, options, callback) => {
       const cb = callback as (error: null, stdout: string, stderr: string) => void;
-      cb(null, 'dir/file1.txt:Match in file1\ndir/file2.txt:Match in file2\n', '');
+      const jsonOutput = JSON.stringify([
+        {
+          type: 'match',
+          data: { path: { text: 'file.txt' }, lines: { text: 'match' }, line_number: 1 },
+        },
+      ]);
+      cb(null, jsonOutput, '');
       return {} as any;
     });
 
     await runScript([
       {
-        path: 'dir',
-        pattern: 'Match',
-        recursive: true,
-        lineNumbers: false,
+        command: 'rg --json "test" dir',
       },
     ]);
 
     const output = JSON.parse(consoleLogSpy.mock.calls[0][0]);
-    expect(output[0].matches).toEqual([
-      { file: 'dir/file1.txt', content: 'Match in file1' },
-      { file: 'dir/file2.txt', content: 'Match in file2' },
-    ]);
+    expect(output[0]).toEqual({
+      success: true,
+      command: 'rg --json "test" dir',
+      stdout: JSON.stringify([
+        {
+          type: 'match',
+          data: { path: { text: 'file.txt' }, lines: { text: 'match' }, line_number: 1 },
+        },
+      ]),
+      stderr: '',
+    });
   });
 });

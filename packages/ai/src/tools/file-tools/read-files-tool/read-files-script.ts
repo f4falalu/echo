@@ -9,51 +9,56 @@ interface FileReadResult {
   truncated?: boolean;
 }
 
-async function readSingleFile(filePath: string): Promise<FileReadResult> {
-  try {
-    const resolvedPath = path.isAbsolute(filePath) ? filePath : path.join(process.cwd(), filePath);
+async function readFiles(filePaths: string[]): Promise<FileReadResult[]> {
+  const results: FileReadResult[] = [];
 
+  // Process files sequentially to avoid race conditions
+  for (const filePath of filePaths) {
     try {
-      await fs.access(resolvedPath);
-    } catch {
-      return {
+      const resolvedPath = path.isAbsolute(filePath)
+        ? filePath
+        : path.join(process.cwd(), filePath);
+
+      try {
+        await fs.access(resolvedPath);
+      } catch {
+        results.push({
+          success: false,
+          filePath,
+          error: 'File not found',
+        });
+        continue;
+      }
+
+      const content = await fs.readFile(resolvedPath, 'utf-8');
+      const lines = content.split('\n');
+
+      if (lines.length > 1000) {
+        const truncatedContent = lines.slice(0, 1000).join('\n');
+        results.push({
+          success: true,
+          filePath,
+          content: truncatedContent,
+          truncated: true,
+        });
+      } else {
+        results.push({
+          success: true,
+          filePath,
+          content,
+          truncated: false,
+        });
+      }
+    } catch (error) {
+      results.push({
         success: false,
         filePath,
-        error: 'File not found',
-      };
+        error: error instanceof Error ? error.message : 'Unknown error occurred',
+      });
     }
-
-    const content = await fs.readFile(resolvedPath, 'utf-8');
-    const lines = content.split('\n');
-
-    if (lines.length > 1000) {
-      const truncatedContent = lines.slice(0, 1000).join('\n');
-      return {
-        success: true,
-        filePath,
-        content: truncatedContent,
-        truncated: true,
-      };
-    }
-
-    return {
-      success: true,
-      filePath,
-      content,
-      truncated: false,
-    };
-  } catch (error) {
-    return {
-      success: false,
-      filePath,
-      error: error instanceof Error ? error.message : 'Unknown error occurred',
-    };
   }
-}
 
-async function readFilesSafely(filePaths: string[]): Promise<FileReadResult[]> {
-  const fileReadPromises = filePaths.map((filePath) => readSingleFile(filePath));
-  return Promise.all(fileReadPromises);
+  return results;
 }
 
 // Script execution
@@ -64,13 +69,21 @@ async function main() {
   // All arguments are file paths
   const filePaths = args;
 
-  // Default to empty array if no paths provided
+  // Return error if no paths provided
   if (filePaths.length === 0) {
-    console.log(JSON.stringify([]));
-    return;
+    console.log(
+      JSON.stringify([
+        {
+          success: false,
+          filePath: '',
+          error: 'No file paths provided',
+        },
+      ])
+    );
+    process.exit(1);
   }
 
-  const results = await readFilesSafely(filePaths);
+  const results = await readFiles(filePaths);
 
   // Output as JSON to stdout
   console.log(JSON.stringify(results));
@@ -78,11 +91,14 @@ async function main() {
 
 // Run the script
 main().catch((error) => {
-  console.error(
-    JSON.stringify({
-      success: false,
-      error: error.message || 'Unknown error occurred',
-    })
+  console.log(
+    JSON.stringify([
+      {
+        success: false,
+        filePath: '',
+        error: `Unexpected error: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      },
+    ])
   );
   process.exit(1);
 });

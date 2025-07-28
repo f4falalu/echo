@@ -66,24 +66,24 @@ describe('delete-files-script', () => {
 
       // Should handle errors in main().catch
       expect(scriptContent).toContain('process.exit(1)');
-      expect(scriptContent).toContain('console.error');
+      // Script outputs errors as JSON to stdout, not console.error
+      expect(scriptContent).toContain('main().catch');
+      expect(scriptContent).toContain('Unexpected error:');
     });
   });
 
-  describe('deleteFilesSafely function structure', () => {
-    it('should contain deleteFilesSafely function', async () => {
+  describe('deleteFiles function structure', () => {
+    it('should contain deleteFiles function', async () => {
       const scriptContent = await fs.readFile(scriptPath, 'utf-8');
 
-      expect(scriptContent).toContain('async function deleteFilesSafely');
-      expect(scriptContent).toContain('Promise.all');
+      expect(scriptContent).toContain('async function deleteFiles');
+      expect(scriptContent).not.toContain('Promise.all');
     });
-  });
 
-  describe('deleteSingleFile function structure', () => {
     it('should contain proper file deletion logic', async () => {
       const scriptContent = await fs.readFile(scriptPath, 'utf-8');
 
-      expect(scriptContent).toContain('async function deleteSingleFile');
+      expect(scriptContent).toContain('async function deleteFiles');
       expect(scriptContent).toContain('fs.access');
       expect(scriptContent).toContain('fs.stat');
       expect(scriptContent).toContain('fs.unlink');

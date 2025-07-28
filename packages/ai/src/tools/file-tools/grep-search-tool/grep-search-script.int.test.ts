@@ -81,313 +81,243 @@ describe('grep-search-script integration test', () => {
     }
   });
 
-  it.skipIf(!hasApiKey)('should return empty array when no searches provided', async () => {
+  it.skipIf(!hasApiKey)('should return empty array when no commands provided', async () => {
     const result = await runTypescript(sandbox, scriptContent);
     const output = JSON.parse(result.result);
 
     expect(output).toEqual([]);
   });
 
-  it.skipIf(!hasApiKey)('should search for patterns in single file', async () => {
-    const searches = [
+  it.skipIf(!hasApiKey)('should execute rg commands in single file', async () => {
+    const commands = [
       {
-        path: 'file1.txt',
-        pattern: 'test',
-        recursive: false,
-        lineNumbers: true,
+        command: 'rg -n "test" file1.txt',
       },
     ];
 
     const result = await runTypescript(sandbox, scriptContent, {
-      argv: [JSON.stringify(searches)],
+      argv: [JSON.stringify(commands)],
     });
-    const output = JSON.parse(result.result);
 
+    const output = JSON.parse(result.result);
     expect(output).toHaveLength(1);
     expect(output[0].success).toBe(true);
-    expect(output[0].path).toBe('file1.txt');
-    expect(output[0].pattern).toBe('test');
-    expect(output[0].matchCount).toBe(2);
-    expect(output[0].matches).toHaveLength(2);
-    expect(output[0].matches[0]).toEqual({
-      file: 'file1.txt',
-      lineNumber: 2,
-      content: 'This is a test file',
-    });
-    expect(output[0].matches[1]).toEqual({
-      file: 'file1.txt',
-      lineNumber: 4,
-      content: 'Another test line',
-    });
+    expect(output[0].command).toBe('rg -n "test" file1.txt');
+    expect(output[0].stdout).toContain('2:This is a test file');
+    expect(output[0].stdout).toContain('4:Another test line');
   });
 
   it.skipIf(!hasApiKey)('should handle case-insensitive searches', async () => {
-    const searches = [
+    const commands = [
       {
-        path: 'case-test.txt',
-        pattern: 'hello',
-        ignoreCase: true,
-        lineNumbers: true,
+        command: 'rg -i -n "hello" case-test.txt',
       },
     ];
 
     const result = await runTypescript(sandbox, scriptContent, {
-      argv: [JSON.stringify(searches)],
+      argv: [JSON.stringify(commands)],
     });
-    const output = JSON.parse(result.result);
 
+    const output = JSON.parse(result.result);
     expect(output[0].success).toBe(true);
-    expect(output[0].matchCount).toBe(4); // All lines match
-    expect(output[0].matches.map((m: any) => m.lineNumber)).toEqual([1, 2, 3, 4]);
+    expect(output[0].stdout).toContain('1:HELLO World');
+    expect(output[0].stdout).toContain('2:hello world');
+    expect(output[0].stdout).toContain('3:HeLLo WoRLd');
+    expect(output[0].stdout).toContain('4:HELLO WORLD');
   });
 
   it.skipIf(!hasApiKey)('should handle recursive searches', async () => {
-    const searches = [
+    const commands = [
       {
-        path: '.',
-        pattern: 'Hello',
-        recursive: true,
-        lineNumbers: true,
+        command: 'rg -n "Hello"',
       },
     ];
 
     const result = await runTypescript(sandbox, scriptContent, {
-      argv: [JSON.stringify(searches)],
+      argv: [JSON.stringify(commands)],
     });
+
     const output = JSON.parse(result.result);
-
     expect(output[0].success).toBe(true);
-    expect(output[0].matchCount).toBeGreaterThan(0);
-
-    // Check that matches come from multiple files
-    const fileNames = output[0].matches.map((m: any) => m.file);
-    const uniqueFiles = [...new Set(fileNames)];
-    expect(uniqueFiles.length).toBeGreaterThan(1);
-
-    // Should find matches in main files and subdirectory
-    expect(fileNames.some((f: string) => f === './file1.txt')).toBe(true);
-    expect(fileNames.some((f: string) => f === './file2.txt')).toBe(true);
-    expect(fileNames.some((f: string) => f.includes('subdir/'))).toBe(true);
+    expect(output[0].stdout).toContain('file1.txt:1:Hello world');
+    expect(output[0].stdout).toContain('file2.txt:2:Hello again');
+    expect(output[0].stdout).toContain('subdir/nested1.txt:2:Hello from nested1');
+    expect(output[0].stdout).toContain('subdir/nested2.txt:2:Hello from nested2');
   });
 
   it.skipIf(!hasApiKey)('should handle whole word matches', async () => {
-    const searches = [
+    const commands = [
       {
-        path: 'word-test.txt',
-        pattern: 'test',
-        wordMatch: true,
-        lineNumbers: true,
+        command: 'rg -w -n "test" word-test.txt',
       },
     ];
 
     const result = await runTypescript(sandbox, scriptContent, {
-      argv: [JSON.stringify(searches)],
+      argv: [JSON.stringify(commands)],
     });
-    const output = JSON.parse(result.result);
 
+    const output = JSON.parse(result.result);
     expect(output[0].success).toBe(true);
-    expect(output[0].matchCount).toBe(3); // Should match "test" as whole word, not "testing", "tested", or "tester"
-    expect(output[0].matches[0].content).toBe('test testing tested');
-    expect(output[0].matches[1].content).toBe('word test word');
-    expect(output[0].matches[2].content).toBe('test');
+    expect(output[0].stdout).toContain('1:test testing tested');
+    expect(output[0].stdout).toContain('2:word test word');
+    expect(output[0].stdout).toContain('4:test');
+    // Should not match "tester" as it's not a whole word
+    expect(output[0].stdout).not.toContain('3:tester test');
   });
 
   it.skipIf(!hasApiKey)('should handle fixed string searches (literal)', async () => {
-    const searches = [
+    const commands = [
       {
-        path: 'special-chars.txt',
-        pattern: '$10.99',
-        fixedStrings: true,
-        lineNumbers: true,
+        command: 'rg -F -n "$10.99" special-chars.txt',
       },
       {
-        path: 'special-chars.txt',
-        pattern: 'test.*',
-        fixedStrings: true,
-        lineNumbers: true,
+        command: 'rg -F -n "test.*" special-chars.txt',
       },
     ];
 
     const result = await runTypescript(sandbox, scriptContent, {
-      argv: [JSON.stringify(searches)],
+      argv: [JSON.stringify(commands)],
     });
-    const output = JSON.parse(result.result);
 
+    const output = JSON.parse(result.result);
     expect(output).toHaveLength(2);
     expect(output[0].success).toBe(true);
-    expect(output[0].matchCount).toBe(1);
-    expect(output[0].matches[0].content).toBe('Price: $10.99');
-
+    expect(output[0].stdout).toContain('1:Price: $10.99');
     expect(output[1].success).toBe(true);
-    expect(output[1].matchCount).toBe(1);
-    expect(output[1].matches[0].content).toBe('Pattern: test.*');
+    expect(output[1].stdout).toContain('2:Pattern: test.*');
   });
 
   it.skipIf(!hasApiKey)('should handle inverted matches', async () => {
-    const searches = [
+    const commands = [
       {
-        path: 'invert-test.txt',
-        pattern: 'test',
-        invertMatch: true,
-        lineNumbers: true,
+        command: 'rg -v -n "test" invert-test.txt',
       },
     ];
 
     const result = await runTypescript(sandbox, scriptContent, {
-      argv: [JSON.stringify(searches)],
+      argv: [JSON.stringify(commands)],
     });
-    const output = JSON.parse(result.result);
 
+    const output = JSON.parse(result.result);
     expect(output[0].success).toBe(true);
-    expect(output[0].matchCount).toBe(2); // Lines without "test"
-    expect(output[0].matches[0]).toEqual({
-      file: 'invert-test.txt',
-      lineNumber: 2,
-      content: 'Line without pattern',
-    });
-    expect(output[0].matches[1]).toEqual({
-      file: 'invert-test.txt',
-      lineNumber: 4,
-      content: 'No match here',
-    });
+    expect(output[0].stdout).toContain('2:Line without pattern');
+    expect(output[0].stdout).toContain('4:No match here');
+    // Should not include lines with "test"
+    expect(output[0].stdout).not.toContain('1:Line with test');
+    expect(output[0].stdout).not.toContain('3:Another test line');
   });
 
   it.skipIf(!hasApiKey)('should handle max count limit', async () => {
-    const searches = [
+    const commands = [
       {
-        path: 'many-matches.txt',
-        pattern: 'match',
-        maxCount: 3,
-        lineNumbers: true,
+        command: 'rg -m 3 -n "match" many-matches.txt',
       },
     ];
 
     const result = await runTypescript(sandbox, scriptContent, {
-      argv: [JSON.stringify(searches)],
+      argv: [JSON.stringify(commands)],
     });
-    const output = JSON.parse(result.result);
 
+    const output = JSON.parse(result.result);
     expect(output[0].success).toBe(true);
-    expect(output[0].matchCount).toBe(3); // Limited by maxCount
-    expect(output[0].matches).toHaveLength(3);
+    const lines = output[0].stdout.trim().split('\n');
+    expect(lines).toHaveLength(3); // Should only return 3 matches
   });
 
   it.skipIf(!hasApiKey)('should handle no matches found', async () => {
-    const searches = [
+    const commands = [
       {
-        path: 'file1.txt',
-        pattern: 'nonexistent',
-        lineNumbers: true,
+        command: 'rg -n "nonexistent" file1.txt',
       },
     ];
 
     const result = await runTypescript(sandbox, scriptContent, {
-      argv: [JSON.stringify(searches)],
+      argv: [JSON.stringify(commands)],
     });
-    const output = JSON.parse(result.result);
 
+    const output = JSON.parse(result.result);
     expect(output[0]).toEqual({
       success: true,
-      path: 'file1.txt',
-      pattern: 'nonexistent',
-      matches: [],
-      matchCount: 0,
+      command: 'rg -n "nonexistent" file1.txt',
+      stdout: '',
+      stderr: '',
     });
   });
 
-  it.skipIf(!hasApiKey)('should handle path not found errors', async () => {
-    const searches = [
+  it.skipIf(!hasApiKey)('should handle file not found errors', async () => {
+    const commands = [
       {
-        path: 'nonexistent.txt',
-        pattern: 'test',
+        command: 'rg "test" /nonexistent/file.txt',
       },
       {
-        path: 'nonexistent-dir',
-        pattern: 'test',
-        recursive: true,
+        command: 'rg "test" another-missing.txt',
       },
     ];
 
     const result = await runTypescript(sandbox, scriptContent, {
-      argv: [JSON.stringify(searches)],
+      argv: [JSON.stringify(commands)],
     });
-    const output = JSON.parse(result.result);
 
+    const output = JSON.parse(result.result);
     expect(output).toHaveLength(2);
     expect(output[0].success).toBe(false);
-    expect(output[0].error).toBe('Path does not exist: nonexistent.txt');
+    expect(output[0].error).toBeDefined();
     expect(output[1].success).toBe(false);
-    expect(output[1].error).toBe('Path does not exist: nonexistent-dir');
+    expect(output[1].error).toBeDefined();
   });
 
-  it.skipIf(!hasApiKey)('should handle multiple searches', async () => {
-    const searches = [
+  it.skipIf(!hasApiKey)('should handle multiple commands', async () => {
+    const commands = [
       {
-        path: 'file1.txt',
-        pattern: 'Hello',
-        lineNumbers: true,
+        command: 'rg -n "test" file1.txt',
       },
       {
-        path: 'file2.txt',
-        pattern: 'Hello',
-        lineNumbers: true,
+        command: 'rg -n "Hello" file2.txt',
       },
       {
-        path: 'case-test.txt',
-        pattern: 'HELLO',
-        lineNumbers: true,
+        command: 'rg -n "nonexistent" file1.txt',
       },
     ];
 
     const result = await runTypescript(sandbox, scriptContent, {
-      argv: [JSON.stringify(searches)],
+      argv: [JSON.stringify(commands)],
     });
+
     const output = JSON.parse(result.result);
-
     expect(output).toHaveLength(3);
-
     expect(output[0].success).toBe(true);
-    expect(output[0].path).toBe('file1.txt');
-    expect(output[0].matchCount).toBe(1);
-
+    expect(output[0].stdout).toContain('test');
     expect(output[1].success).toBe(true);
-    expect(output[1].path).toBe('file2.txt');
-    expect(output[1].matchCount).toBe(1);
-
+    expect(output[1].stdout).toContain('Hello');
     expect(output[2].success).toBe(true);
-    expect(output[2].path).toBe('case-test.txt');
-    expect(output[2].matchCount).toBe(2); // "HELLO World" and "HELLO WORLD"
+    expect(output[2].stdout).toBe(''); // No matches
   });
 
   it.skipIf(!hasApiKey)('should handle searches without line numbers', async () => {
-    const searches = [
+    const commands = [
       {
-        path: 'file1.txt',
-        pattern: 'test',
-        lineNumbers: false,
+        command: 'rg "test" file1.txt',
       },
     ];
 
     const result = await runTypescript(sandbox, scriptContent, {
-      argv: [JSON.stringify(searches)],
+      argv: [JSON.stringify(commands)],
     });
-    const output = JSON.parse(result.result);
 
+    const output = JSON.parse(result.result);
     expect(output[0].success).toBe(true);
-    expect(output[0].matches).toHaveLength(2);
-    // Without line numbers, matches shouldn't have lineNumber property
-    expect(output[0].matches[0].lineNumber).toBeUndefined();
-    expect(output[0].matches[0].content).toBe('This is a test file');
-    expect(output[0].matches[1].content).toBe('Another test line');
+    expect(output[0].stdout).toContain('This is a test file');
+    expect(output[0].stdout).toContain('Another test line');
+    // Should not contain line numbers
+    expect(output[0].stdout).not.toMatch(/^\d+:/m);
   });
 
   it.skipIf(!hasApiKey)('should handle invalid input gracefully', async () => {
     const result = await runTypescript(sandbox, scriptContent, {
       argv: ['not-json'],
     });
-    const output = JSON.parse(result.result);
 
-    expect(output).toHaveLength(1);
+    const output = JSON.parse(result.result);
     expect(output[0].success).toBe(false);
     expect(output[0].error).toContain('Failed to parse input');
   });
@@ -396,70 +326,120 @@ describe('grep-search-script integration test', () => {
     const result = await runTypescript(sandbox, scriptContent, {
       argv: ['{"not": "array"}'],
     });
-    const output = JSON.parse(result.result);
 
-    expect(output).toHaveLength(1);
+    const output = JSON.parse(result.result);
     expect(output[0].success).toBe(false);
-    expect(output[0].error).toBe('Invalid input: expected array of searches');
+    expect(output[0].error).toBe('Invalid input: expected array of commands');
   });
 
   it.skipIf(!hasApiKey)('should handle absolute paths', async () => {
-    // First get the current working directory in the sandbox
-    const pwdScript = `console.log(process.cwd())`;
-    const pwdResult = await runTypescript(sandbox, pwdScript);
-    const cwd = pwdResult.result.trim();
-
-    const absolutePath = `${cwd}/file1.txt`;
-
-    const searches = [
+    const commands = [
       {
-        path: absolutePath,
-        pattern: 'test',
-        lineNumbers: true,
+        command: 'rg -n "test" /file1.txt',
       },
     ];
 
     const result = await runTypescript(sandbox, scriptContent, {
-      argv: [JSON.stringify(searches)],
+      argv: [JSON.stringify(commands)],
     });
-    const output = JSON.parse(result.result);
 
+    const output = JSON.parse(result.result);
     expect(output[0].success).toBe(true);
-    expect(output[0].path).toBe(absolutePath);
-    expect(output[0].matchCount).toBe(2);
+    expect(output[0].stdout).toContain('test');
   });
 
-  it.skipIf(!hasApiKey)('should handle all options combined', async () => {
-    // Create a specific test file for this case
-    const testContent = `TEST line 1
-test line 2
-TEST line 3
-not matching line
-test line 5
-TEST line 6`;
-
-    await addFiles(sandbox, [
-      { path: 'combined-test.txt', content: testContent, destination: 'combined-test.txt' },
-    ]);
-
-    const searches = [
+  it.skipIf(!hasApiKey)('should handle complex rg commands', async () => {
+    const commands = [
       {
-        path: 'combined-test.txt',
-        pattern: 'test',
-        ignoreCase: true,
-        wordMatch: true,
-        lineNumbers: true,
-        maxCount: 4,
+        command: 'rg -i -v -m 5 -n "test" file2.txt',
       },
     ];
 
     const result = await runTypescript(sandbox, scriptContent, {
-      argv: [JSON.stringify(searches)],
+      argv: [JSON.stringify(commands)],
     });
-    const output = JSON.parse(result.result);
 
+    const output = JSON.parse(result.result);
     expect(output[0].success).toBe(true);
-    expect(output[0].matchCount).toBe(4); // Limited by maxCount
-    // Should match both "test" and "TEST" (case insensitive) as whole words
+    // Should return lines that don't contain "test" (case-insensitive)
+    expect(output[0].stdout).toContain('1:Different content');
+    expect(output[0].stdout).toContain('2:Hello again');
+    expect(output[0].stdout).toContain('3:Final line');
+    // Should not contain line 4 with "Test content here"
+    expect(output[0].stdout).not.toContain('4:Test content here');
+  });
+
+  it.skipIf(!hasApiKey)('should handle JSON output from rg', async () => {
+    const commands = [
+      {
+        command: 'rg --json "test" file1.txt',
+      },
+    ];
+
+    const result = await runTypescript(sandbox, scriptContent, {
+      argv: [JSON.stringify(commands)],
+    });
+
+    const output = JSON.parse(result.result);
+    expect(output[0].success).toBe(true);
+
+    // The stdout should contain JSON lines
+    const jsonLines = output[0].stdout.trim().split('\n');
+    expect(jsonLines.length).toBeGreaterThan(0);
+
+    // Parse and check the first line
+    const firstLine = JSON.parse(jsonLines[0]);
+    expect(firstLine.type).toBe('begin');
+
+    // Find match lines
+    const matchLines = jsonLines.filter((line: string) => {
+      try {
+        const parsed = JSON.parse(line);
+        return parsed.type === 'match';
+      } catch {
+        return false;
+      }
+    });
+    expect(matchLines.length).toBeGreaterThan(0);
+  });
+
+  it.skipIf(!hasApiKey)('should handle type-specific searches', async () => {
+    // Create some TypeScript files
+    const tsFiles = [
+      {
+        path: 'code.ts',
+        content: 'TODO: implement feature\nconst test = 123;',
+        destination: 'code.ts',
+      },
+      {
+        path: 'test.js',
+        content: 'TODO: fix bug\nfunction test() {}',
+        destination: 'test.js',
+      },
+      {
+        path: 'readme.md',
+        content: 'TODO: update docs',
+        destination: 'readme.md',
+      },
+    ];
+
+    await addFiles(sandbox, tsFiles);
+
+    const commands = [
+      {
+        command: 'rg --type ts -n "TODO"',
+      },
+    ];
+
+    const result = await runTypescript(sandbox, scriptContent, {
+      argv: [JSON.stringify(commands)],
+    });
+
+    const output = JSON.parse(result.result);
+    expect(output[0].success).toBe(true);
+    expect(output[0].stdout).toContain('code.ts:1:TODO: implement feature');
+    // Should not include .js or .md files
+    expect(output[0].stdout).not.toContain('test.js');
+    expect(output[0].stdout).not.toContain('readme.md');
   });
 });

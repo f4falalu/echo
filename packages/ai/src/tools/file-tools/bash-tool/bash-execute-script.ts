@@ -9,10 +9,10 @@ interface BashCommandParams {
 interface BashExecuteResult {
   command: string;
   stdout: string;
-  stderr?: string;
+  stderr?: string | undefined;
   exitCode: number;
   success: boolean;
-  error?: string;
+  error?: string | undefined;
 }
 
 function executeSingleBashCommand(
@@ -116,7 +116,11 @@ async function main() {
 
   try {
     // Parse commands from JSON argument
-    const commands: BashCommandParams[] = JSON.parse(args[0]);
+    const firstArg = args[0];
+    if (!firstArg) {
+      throw new Error('No argument provided');
+    }
+    const commands: BashCommandParams[] = JSON.parse(firstArg);
 
     if (!Array.isArray(commands)) {
       throw new Error('Commands must be an array');

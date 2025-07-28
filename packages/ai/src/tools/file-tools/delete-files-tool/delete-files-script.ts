@@ -7,48 +7,54 @@ interface DeleteResult {
   error?: string;
 }
 
-async function deleteSingleFile(filePath: string): Promise<DeleteResult> {
-  try {
-    const resolvedPath = path.isAbsolute(filePath) ? filePath : path.join(process.cwd(), filePath);
+async function deleteFiles(paths: string[]): Promise<DeleteResult[]> {
+  const results: DeleteResult[] = [];
 
+  // Process files sequentially to avoid race conditions
+  for (const filePath of paths) {
     try {
-      await fs.access(resolvedPath);
-    } catch {
-      return {
+      const resolvedPath = path.isAbsolute(filePath)
+        ? filePath
+        : path.join(process.cwd(), filePath);
+
+      try {
+        await fs.access(resolvedPath);
+      } catch {
+        results.push({
+          success: false,
+          path: filePath,
+          error: 'File not found',
+        });
+        continue;
+      }
+
+      // Check if it's a directory
+      const stats = await fs.stat(resolvedPath);
+      if (stats.isDirectory()) {
+        results.push({
+          success: false,
+          path: filePath,
+          error: 'Cannot delete directories with this tool',
+        });
+        continue;
+      }
+
+      await fs.unlink(resolvedPath);
+
+      results.push({
+        success: true,
+        path: filePath,
+      });
+    } catch (error) {
+      results.push({
         success: false,
         path: filePath,
-        error: 'File not found',
-      };
+        error: error instanceof Error ? error.message : 'Unknown error occurred',
+      });
     }
-
-    // Check if it's a directory
-    const stats = await fs.stat(resolvedPath);
-    if (stats.isDirectory()) {
-      return {
-        success: false,
-        path: filePath,
-        error: 'Cannot delete directories with this tool',
-      };
-    }
-
-    await fs.unlink(resolvedPath);
-
-    return {
-      success: true,
-      path: filePath,
-    };
-  } catch (error) {
-    return {
-      success: false,
-      path: filePath,
-      error: error instanceof Error ? error.message : 'Unknown error occurred',
-    };
   }
-}
 
-async function deleteFilesSafely(paths: string[]): Promise<DeleteResult[]> {
-  const deletePromises = paths.map((filePath) => deleteSingleFile(filePath));
-  return Promise.all(deletePromises);
+  return results;
 }
 
 // Script execution
@@ -57,14 +63,22 @@ async function main() {
   const args = process.argv.slice(2);
 
   if (args.length === 0) {
-    console.log(JSON.stringify([]));
-    return;
+    console.log(
+      JSON.stringify([
+        {
+          success: false,
+          path: '',
+          error: 'No file paths provided',
+        },
+      ])
+    );
+    process.exit(1);
   }
 
   // All arguments are file paths to delete
   const paths = args;
 
-  const results = await deleteFilesSafely(paths);
+  const results = await deleteFiles(paths);
 
   // Output as JSON to stdout
   console.log(JSON.stringify(results));
@@ -72,11 +86,14 @@ async function main() {
 
 // Run the script
 main().catch((error) => {
-  console.error(
-    JSON.stringify({
-      success: false,
-      error: error.message || 'Unknown error occurred',
-    })
+  console.log(
+    JSON.stringify([
+      {
+        success: false,
+        path: '',
+        error: `Unexpected error: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      },
+    ])
   );
   process.exit(1);
 });

@@ -12,40 +12,49 @@ interface FileCreateResult {
   error?: string;
 }
 
-async function createSingleFile(fileParams: FileCreateParams): Promise<FileCreateResult> {
-  try {
-    const { path: filePath, content } = fileParams;
-    const resolvedPath = path.isAbsolute(filePath) ? filePath : path.join(process.cwd(), filePath);
+async function createFiles(fileParams: FileCreateParams[]): Promise<FileCreateResult[]> {
+  const results: FileCreateResult[] = [];
+  const createdDirs = new Set<string>();
 
-    const dirPath = path.dirname(resolvedPath);
+  // Process files sequentially to avoid race conditions
+  for (const { path: filePath, content } of fileParams) {
     try {
-      await fs.mkdir(dirPath, { recursive: true });
+      const resolvedPath = path.isAbsolute(filePath)
+        ? filePath
+        : path.join(process.cwd(), filePath);
+      const dirPath = path.dirname(resolvedPath);
+
+      // Only create directory if we haven't already created it
+      if (!createdDirs.has(dirPath)) {
+        try {
+          await fs.mkdir(dirPath, { recursive: true });
+          createdDirs.add(dirPath);
+        } catch (error) {
+          results.push({
+            success: false,
+            filePath,
+            error: `Failed to create directory: ${error instanceof Error ? error.message : 'Unknown error'}`,
+          });
+          continue;
+        }
+      }
+
+      await fs.writeFile(resolvedPath, content, 'utf-8');
+
+      results.push({
+        success: true,
+        filePath,
+      });
     } catch (error) {
-      return {
+      results.push({
         success: false,
         filePath,
-        error: `Failed to create directory: ${error instanceof Error ? error.message : 'Unknown error'}`,
-      };
+        error: error instanceof Error ? error.message : 'Unknown error occurred',
+      });
     }
-
-    await fs.writeFile(resolvedPath, content, 'utf-8');
-
-    return {
-      success: true,
-      filePath,
-    };
-  } catch (error) {
-    return {
-      success: false,
-      filePath: fileParams.path,
-      error: error instanceof Error ? error.message : 'Unknown error occurred',
-    };
   }
-}
 
-async function createFilesSafely(fileParams: FileCreateParams[]): Promise<FileCreateResult[]> {
-  const fileCreatePromises = fileParams.map((params) => createSingleFile(params));
-  return Promise.all(fileCreatePromises);
+  return results;
 }
 
 // Script execution
@@ -54,11 +63,14 @@ async function main() {
   const args = process.argv.slice(2);
 
   if (args.length === 0) {
-    console.error(
-      JSON.stringify({
-        success: false,
-        error: 'No file parameters provided',
-      })
+    console.log(
+      JSON.stringify([
+        {
+          success: false,
+          filePath: '',
+          error: 'No arguments provided to script',
+        },
+      ])
     );
     process.exit(1);
   }
@@ -66,7 +78,11 @@ async function main() {
   let fileParams: FileCreateParams[];
   try {
     // The script expects file parameters as a JSON string in the first argument
-    fileParams = JSON.parse(args[0]);
+    const firstArg = args[0];
+    if (!firstArg) {
+      throw new Error('No argument provided');
+    }
+    fileParams = JSON.parse(firstArg);
 
     if (!Array.isArray(fileParams)) {
       throw new Error('File parameters must be an array');
@@ -82,16 +98,20 @@ async function main() {
       }
     }
   } catch (error) {
-    console.error(
-      JSON.stringify({
-        success: false,
-        error: `Invalid file parameters: ${error instanceof Error ? error.message : 'Unknown error'}`,
-      })
+    // Return error information instead of empty array
+    console.log(
+      JSON.stringify([
+        {
+          success: false,
+          filePath: '',
+          error: `Failed to parse arguments: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        },
+      ])
     );
     process.exit(1);
   }
 
-  const results = await createFilesSafely(fileParams);
+  const results = await createFiles(fileParams);
 
   // Output as JSON to stdout
   console.log(JSON.stringify(results));
@@ -99,11 +119,15 @@ async function main() {
 
 // Run the script
 main().catch((error) => {
-  console.error(
-    JSON.stringify({
-      success: false,
-      error: error.message || 'Unknown error occurred',
-    })
+  // Return error information for unexpected errors
+  console.log(
+    JSON.stringify([
+      {
+        success: false,
+        filePath: '',
+        error: `Unexpected error: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      },
+    ])
   );
   process.exit(1);
 });

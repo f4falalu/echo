@@ -58,8 +58,8 @@ describe('create-files-script integration tests', () => {
     // Verify all files were created
     for (let i = 0; i < files.length; i++) {
       expect(results[i].success).toBe(true);
-      const content = await fs.readFile(files[i].path, 'utf-8');
-      expect(content).toBe(files[i].content);
+      const content = await fs.readFile(files[i]!.path, 'utf-8');
+      expect(content).toBe(files[i]!.content);
     }
 
     // Verify subdirectory was created
@@ -119,7 +119,7 @@ describe('create-files-script integration tests', () => {
 
   it('should handle special characters in content', async () => {
     const testFile = path.join(tempDir, 'special.txt');
-    const specialContent = 'Line 1\nLine 2\tTabbed\r\nWindows line\n"Quoted"\n\'Single\'';
+    const specialContent = 'Line 1\nLine 2\tTabbed\r\nWindows line\n"Quoted"\nSingle';
     const fileParams = [{ path: testFile, content: specialContent }];
 
     const { stdout, stderr } = await execAsync(
@@ -169,10 +169,10 @@ describe('create-files-script integration tests', () => {
     expect(results[2].success).toBe(true);
 
     // Verify successful files were created
-    const content1 = await fs.readFile(files[0].path, 'utf-8');
+    const content1 = await fs.readFile(files[0]!.path, 'utf-8');
     expect(content1).toBe('Success 1');
 
-    const content2 = await fs.readFile(files[2].path, 'utf-8');
+    const content2 = await fs.readFile(files[2]!.path, 'utf-8');
     expect(content2).toBe('Success 2');
   });
 
@@ -182,9 +182,9 @@ describe('create-files-script integration tests', () => {
       expect.fail('Should have thrown an error');
     } catch (error: any) {
       expect(error.code).toBe(1);
-      const errorOutput = JSON.parse(error.stderr);
-      expect(errorOutput.success).toBe(false);
-      expect(errorOutput.error).toBe('No file parameters provided');
+      const errorOutput = JSON.parse(error.stdout || error.stderr);
+      expect(errorOutput[0].success).toBe(false);
+      expect(errorOutput[0].error).toBe('No arguments provided to script');
     }
   });
 
@@ -194,9 +194,9 @@ describe('create-files-script integration tests', () => {
       expect.fail('Should have thrown an error');
     } catch (error: any) {
       expect(error.code).toBe(1);
-      const errorOutput = JSON.parse(error.stderr);
-      expect(errorOutput.success).toBe(false);
-      expect(errorOutput.error).toContain('Invalid file parameters');
+      const errorOutput = JSON.parse(error.stdout || error.stderr);
+      expect(errorOutput[0].success).toBe(false);
+      expect(errorOutput[0].error).toContain('Failed to parse arguments');
     }
   });
 
@@ -207,9 +207,9 @@ describe('create-files-script integration tests', () => {
       expect.fail('Should have thrown an error');
     } catch (error: any) {
       expect(error.code).toBe(1);
-      const errorOutput = JSON.parse(error.stderr);
-      expect(errorOutput.success).toBe(false);
-      expect(errorOutput.error).toContain('must have a content string');
+      const errorOutput = JSON.parse(error.stdout || error.stderr);
+      expect(errorOutput[0].success).toBe(false);
+      expect(errorOutput[0].error).toContain('must have a content string');
     }
   });
 

@@ -8,19 +8,8 @@ export default defineConfig(async (env) => {
     ...base,
     test: {
       ...base.test,
-      // Run tests sequentially for streaming tests to avoid memory issues
-      pool: 'forks',
-      poolOptions: {
-        forks: {
-          maxForks: 1,
-          minForks: 1,
-          singleFork: true,
-        },
-      },
       // Increase timeout for streaming tests
       testTimeout: 30000,
-      // Isolate tests that use ReadableStreams
-      isolate: true,
     },
   };
 });
