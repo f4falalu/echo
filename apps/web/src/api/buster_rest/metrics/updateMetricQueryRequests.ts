@@ -142,6 +142,7 @@ export const useSaveMetricToCollections = () => {
   const queryClient = useQueryClient();
   const { data: userFavorites, refetch: refreshFavoritesList } = useGetUserFavorites();
   const { mutateAsync: addAssetToCollection } = useAddAssetToCollection();
+  const getLatestMetricVersion = useGetLatestMetricVersionMemoized();
 
   const saveMetricToCollection = useMemoizedFn(
     async ({ metricIds, collectionIds }: { metricIds: string[]; collectionIds: string[] }) => {
@@ -160,15 +161,22 @@ export const useSaveMetricToCollections = () => {
     mutationFn: saveMetricToCollection,
     onMutate: ({ metricIds, collectionIds }) => {
       metricIds.forEach((id) => {
+        const latestVersionNumber = getLatestMetricVersion(id);
         queryClient.setQueryData(
-          metricsQueryKeys.metricsGetMetric(id, null).queryKey,
+          metricsQueryKeys.metricsGetMetric(id, latestVersionNumber).queryKey,
           (oldData) => {
             if (!oldData) return oldData;
             const newData: BusterMetric = create(oldData, (draft) => {
-              draft.collections = [
-                ...(draft.collections || []),
-                ...collectionIds.map((id) => ({ id, name: '' }))
-              ];
+              // Add new collections, then deduplicate by collection id
+              const existingCollections = draft.collections || [];
+              const newCollections = collectionIds.map((id) => ({ id, name: '' }));
+              // Merge and deduplicate by id
+              const merged = [...existingCollections, ...newCollections];
+              const deduped = merged.filter(
+                (col, idx, arr) => arr.findIndex((c) => c.id === col.id) === idx
+              );
+
+              draft.collections = deduped;
             });
             return newData;
           }
@@ -199,6 +207,7 @@ export const useSaveMetricToCollections = () => {
 export const useRemoveMetricFromCollection = () => {
   const { data: userFavorites, refetch: refreshFavoritesList } = useGetUserFavorites();
   const { mutateAsync: removeAssetFromCollection } = useRemoveAssetFromCollection();
+  const getLatestMetricVersion = useGetLatestMetricVersionMemoized();
   const queryClient = useQueryClient();
 
   const removeMetricFromCollection = useMemoizedFn(
@@ -218,8 +227,9 @@ export const useRemoveMetricFromCollection = () => {
     mutationFn: removeMetricFromCollection,
     onMutate: ({ metricIds, collectionIds }) => {
       metricIds.forEach((id) => {
+        const latestVersionNumber = getLatestMetricVersion(id);
         queryClient.setQueryData(
-          metricsQueryKeys.metricsGetMetric(id, null).queryKey,
+          metricsQueryKeys.metricsGetMetric(id, latestVersionNumber).queryKey,
           (oldData) => {
             if (!oldData) return oldData;
             const newData: BusterMetric = create(oldData, (draft) => {
