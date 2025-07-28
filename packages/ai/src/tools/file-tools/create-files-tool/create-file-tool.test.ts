@@ -1,3 +1,5 @@
+import * as fs from 'node:fs/promises';
+import * as path from 'node:path';
 import { RuntimeContext } from '@mastra/core/runtime-context';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { z } from 'zod';
@@ -8,17 +10,14 @@ vi.mock('@buster/sandbox', () => ({
   runTypescript: vi.fn(),
 }));
 
-vi.mock('./create-file-functions', () => ({
-  generateFileCreateCode: vi.fn(),
-  createFilesSafely: vi.fn(),
+vi.mock('node:fs/promises', () => ({
+  readFile: vi.fn(),
 }));
 
 import { runTypescript } from '@buster/sandbox';
-import { createFilesSafely, generateFileCreateCode } from './create-file-functions';
 
 const mockRunTypescript = vi.mocked(runTypescript);
-const mockGenerateFileCreateCode = vi.mocked(generateFileCreateCode);
-const mockCreateFilesSafely = vi.mocked(createFilesSafely);
+const mockFs = vi.mocked(fs);
 
 describe('create-file-tool', () => {
   let runtimeContext: RuntimeContext<DocsAgentContext>;
@@ -69,14 +68,14 @@ describe('create-file-tool', () => {
         files: [{ path: '/test/file.txt', content: 'test content' }],
       };
 
-      const mockCode = 'generated typescript code';
+      const mockScriptContent = 'mock script content';
       const mockSandboxResult = {
         result: JSON.stringify([{ success: true, filePath: '/test/file.txt' }]),
         exitCode: 0,
         stderr: '',
       };
 
-      mockGenerateFileCreateCode.mockReturnValue(mockCode);
+      mockFs.readFile.mockResolvedValue(mockScriptContent);
       mockRunTypescript.mockResolvedValue(mockSandboxResult);
 
       const result = await createFiles.execute({
@@ -84,8 +83,13 @@ describe('create-file-tool', () => {
         runtimeContext,
       });
 
-      expect(mockGenerateFileCreateCode).toHaveBeenCalledWith(input.files);
-      expect(mockRunTypescript).toHaveBeenCalledWith(mockSandbox, mockCode);
+      expect(mockFs.readFile).toHaveBeenCalledWith(
+        path.join(__dirname, 'create-files-script.ts'),
+        'utf-8'
+      );
+      expect(mockRunTypescript).toHaveBeenCalledWith(mockSandbox, mockScriptContent, {
+        argv: [JSON.stringify(input.files)],
+      });
       expect(result.results).toHaveLength(1);
       expect(result.results[0]).toEqual({
         status: 'success',
@@ -93,25 +97,21 @@ describe('create-file-tool', () => {
       });
     });
 
-    it('should fallback to local execution when sandbox not available', async () => {
+    it('should return error when sandbox not available', async () => {
       const input = {
         files: [{ path: '/test/file.txt', content: 'test content' }],
       };
-
-      const mockLocalResult = [{ success: true, filePath: '/test/file.txt' }];
-
-      mockCreateFilesSafely.mockResolvedValue(mockLocalResult);
 
       const result = await createFiles.execute({
         context: input,
         runtimeContext,
       });
 
-      expect(mockCreateFilesSafely).toHaveBeenCalledWith(input.files);
       expect(result.results).toHaveLength(1);
       expect(result.results[0]).toEqual({
-        status: 'success',
+        status: 'error',
         filePath: '/test/file.txt',
+        errorMessage: 'File creation requires sandbox environment',
       });
     });
 
@@ -123,14 +123,14 @@ describe('create-file-tool', () => {
         files: [{ path: '/test/file.txt', content: 'test content' }],
       };
 
-      const mockCode = 'generated typescript code';
+      const mockScriptContent = 'mock script content';
       const mockSandboxResult = {
         result: 'error output',
         exitCode: 1,
         stderr: 'Execution failed',
       };
 
-      mockGenerateFileCreateCode.mockReturnValue(mockCode);
+      mockFs.readFile.mockResolvedValue(mockScriptContent);
       mockRunTypescript.mockResolvedValue(mockSandboxResult);
 
       const result = await createFiles.execute({
@@ -147,6 +147,9 @@ describe('create-file-tool', () => {
     });
 
     it('should handle mixed success and error results', async () => {
+      const mockSandbox = { process: { codeRun: vi.fn() } };
+      runtimeContext.set(DocsAgentContextKeys.Sandbox, mockSandbox as any);
+
       const input = {
         files: [
           { path: '/test/file1.txt', content: 'content1' },
@@ -154,12 +157,18 @@ describe('create-file-tool', () => {
         ],
       };
 
-      const mockLocalResult = [
-        { success: true, filePath: '/test/file1.txt' },
-        { success: false, filePath: '/test/file2.txt', error: 'Permission denied' },
-      ];
+      const mockScriptContent = 'mock script content';
+      const mockSandboxResult = {
+        result: JSON.stringify([
+          { success: true, filePath: '/test/file1.txt' },
+          { success: false, filePath: '/test/file2.txt', error: 'Permission denied' },
+        ]),
+        exitCode: 0,
+        stderr: '',
+      };
 
-      mockCreateFilesSafely.mockResolvedValue(mockLocalResult);
+      mockFs.readFile.mockResolvedValue(mockScriptContent);
+      mockRunTypescript.mockResolvedValue(mockSandboxResult);
 
       const result = await createFiles.execute({
         context: input,
@@ -197,14 +206,14 @@ describe('create-file-tool', () => {
         files: [{ path: '/test/file.txt', content: 'test content' }],
       };
 
-      const mockCode = 'generated typescript code';
+      const mockScriptContent = 'mock script content';
       const mockSandboxResult = {
         result: 'invalid json output',
         exitCode: 0,
         stderr: '',
       };
 
-      mockGenerateFileCreateCode.mockReturnValue(mockCode);
+      mockFs.readFile.mockResolvedValue(mockScriptContent);
       mockRunTypescript.mockResolvedValue(mockSandboxResult);
 
       const result = await createFiles.execute({
@@ -219,5 +228,63 @@ describe('create-file-tool', () => {
         errorMessage: expect.stringContaining('Failed to parse sandbox output'),
       });
     });
+
+    it('should handle file read errors', async () => {
+      const mockSandbox = { process: { codeRun: vi.fn() } };
+      runtimeContext.set(DocsAgentContextKeys.Sandbox, mockSandbox as any);
+
+      const input = {
+        files: [{ path: '/test/file.txt', content: 'test content' }],
+      };
+
+      mockFs.readFile.mockRejectedValue(new Error('Script not found'));
+
+      const result = await createFiles.execute({
+        context: input,
+        runtimeContext,
+      });
+
+      expect(result.results).toHaveLength(1);
+      expect(result.results[0]).toEqual({
+        status: 'error',
+        filePath: '/test/file.txt',
+        errorMessage: 'Execution error: Script not found',
+      });
+    });
+
+    it('should pass file parameters as JSON string argument', async () => {
+      const mockSandbox = { process: { codeRun: vi.fn() } };
+      runtimeContext.set(DocsAgentContextKeys.Sandbox, mockSandbox as any);
+
+      const input = {
+        files: [
+          { path: '/test/file1.txt', content: 'content1' },
+          { path: '/test/file2.txt', content: 'content2' },
+        ],
+      };
+
+      const mockScriptContent = 'mock script content';
+      const mockSandboxResult = {
+        result: JSON.stringify([
+          { success: true, filePath: '/test/file1.txt' },
+          { success: true, filePath: '/test/file2.txt' },
+        ]),
+        exitCode: 0,
+        stderr: '',
+      };
+
+      mockFs.readFile.mockResolvedValue(mockScriptContent);
+      mockRunTypescript.mockResolvedValue(mockSandboxResult);
+
+      await createFiles.execute({
+        context: input,
+        runtimeContext,
+      });
+
+      expect(mockRunTypescript).toHaveBeenCalledWith(mockSandbox, mockScriptContent, {
+        argv: [JSON.stringify(input.files)],
+      });
+    });
   });
 });
+

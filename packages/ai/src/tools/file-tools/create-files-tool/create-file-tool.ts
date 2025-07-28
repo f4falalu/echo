@@ -1,3 +1,5 @@
+import * as fs from 'node:fs/promises';
+import * as path from 'node:path';
 import { runTypescript } from '@buster/sandbox';
 import type { RuntimeContext } from '@mastra/core/runtime-context';
 import { createTool } from '@mastra/core/tools';
@@ -42,23 +44,25 @@ const createFilesExecution = wrapTraced(
     }
 
     try {
-      // Check if sandbox is available in runtime context
       const sandbox = runtimeContext.get(DocsAgentContextKeys.Sandbox);
 
       if (sandbox) {
-        // Execute in sandbox
-        const { generateFileCreateCode } = await import('./create-file-functions');
-        const code = generateFileCreateCode(files);
-        const result = await runTypescript(sandbox, code);
+        // Read the create-files-script.ts content
+        const scriptPath = path.join(__dirname, 'create-files-script.ts');
+        const scriptContent = await fs.readFile(scriptPath, 'utf-8');
+
+        // Pass file parameters as JSON string argument
+        const args = [JSON.stringify(files)];
+
+        const result = await runTypescript(sandbox, scriptContent, { argv: args });
 
         if (result.exitCode !== 0) {
           console.error('Sandbox execution failed. Exit code:', result.exitCode);
           console.error('Stderr:', result.stderr);
-          console.error('Stdout:', result.result);
+          console.error('Result:', result.result);
           throw new Error(`Sandbox execution failed: ${result.stderr || 'Unknown error'}`);
         }
 
-        // Parse the JSON output from sandbox
         let fileResults: Array<{
           success: boolean;
           filePath: string;
@@ -90,24 +94,14 @@ const createFilesExecution = wrapTraced(
         };
       }
 
-      // Fallback to local execution
-      const { createFilesSafely } = await import('./create-file-functions');
-      const fileResults = await createFilesSafely(files);
-
+      // When not in sandbox, we can't create files
+      // Return an error for each file
       return {
-        results: fileResults.map((fileResult) => {
-          if (fileResult.success) {
-            return {
-              status: 'success' as const,
-              filePath: fileResult.filePath,
-            };
-          }
-          return {
-            status: 'error' as const,
-            filePath: fileResult.filePath,
-            errorMessage: fileResult.error || 'Unknown error',
-          };
-        }),
+        results: files.map((file) => ({
+          status: 'error' as const,
+          filePath: file.path,
+          errorMessage: 'File creation requires sandbox environment',
+        })),
       };
     } catch (error) {
       return {
@@ -139,3 +133,4 @@ export const createFiles = createTool({
 });
 
 export default createFiles;
+
