@@ -1,5 +1,5 @@
 import type { Sandbox } from '@buster/sandbox';
-import { createStep } from '@mastra/core';
+import { type CoreMessage, createStep } from '@mastra/core';
 import type { RuntimeContext } from '@mastra/core/runtime-context';
 import { z } from 'zod';
 import { docsAgent } from '../../agents/docs-agent/docs-agent';
@@ -14,6 +14,7 @@ const docsAgentStepInputSchema = z.object({
   message: z.string(),
   organizationId: z.string(),
   context: DocsAgentContextSchema,
+  repositoryTree: z.string().describe('The tree structure of the repository'),
 });
 
 const docsAgentStepOutputSchema = z.object({
@@ -36,6 +37,10 @@ const docsAgentStepOutputSchema = z.object({
     })
     .optional(),
 });
+
+const DEFAULT_CACHE_OPTIONS = {
+  anthropic: { cacheControl: { type: 'ephemeral', ttl: '1h' } },
+};
 
 const docsAgentExecution = async ({
   inputData,
@@ -70,10 +75,30 @@ const docsAgentExecution = async ({
   try {
     // Get the docs agent instructions with the current date
     const instructions = getDocsInstructions();
+    const repositoryStructure = `<repository-structure>\n${inputData.repositoryTree}\n</repository-structure>`;
+    const userMessage = `${inputData.message}`;
+    const todoMessage = `<todo-list>\n${todoList}\n</todo-list>`;
 
-    // Prepare the initial messages
-    const initialMessage = `${inputData.message}\n\n---\n\nTODO LIST:\n${todoList}`;
-    const messages = standardizeMessages(initialMessage);
+    const messages = [
+      {
+        role: 'system',
+        content: instructions,
+        providerOptions: DEFAULT_CACHE_OPTIONS,
+      } as CoreMessage,
+      {
+        role: 'system',
+        content: repositoryStructure,
+        providerOptions: DEFAULT_CACHE_OPTIONS,
+      } as CoreMessage,
+      {
+        role: 'user',
+        content: userMessage,
+      } as CoreMessage,
+      {
+        role: 'user',
+        content: todoMessage,
+      } as CoreMessage,
+    ];
 
     // Execute the docs agent
     const result = await docsAgent.stream(messages, {
@@ -105,18 +130,25 @@ const docsAgentExecution = async ({
       }
 
       if (chunk.type === 'step-finish') {
-        console.log(`[DocsAgent] Step ${stepCount} finished. Last text: ${lastTextContent.slice(0, 200)}...`);
+        console.log(
+          `[DocsAgent] Step ${stepCount} finished. Last text: ${lastTextContent.slice(0, 200)}...`
+        );
         lastTextContent = '';
       }
 
       // Track tool usage
       if (chunk.type === 'tool-call') {
-        console.log(`[DocsAgent] Tool call: ${chunk.toolName} with args:`, JSON.stringify(chunk.args).slice(0, 200));
+        console.log(
+          `[DocsAgent] Tool call: ${chunk.toolName} with args:`,
+          JSON.stringify(chunk.args).slice(0, 200)
+        );
         toolsUsed.add(chunk.toolName);
 
         // Track specific tool outcomes
         if (chunk.toolName === 'createFiles' || chunk.toolName === 'editFiles') {
-          console.log(`[DocsAgent] Tool ${chunk.toolName} called - marking documentationCreated = true`);
+          console.log(
+            `[DocsAgent] Tool ${chunk.toolName} called - marking documentationCreated = true`
+          );
           documentationCreated = true;
           filesCreated++;
         }

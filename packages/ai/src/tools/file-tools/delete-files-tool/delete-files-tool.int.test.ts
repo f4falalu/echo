@@ -45,16 +45,26 @@ describe('delete-files-tool integration test', () => {
 
     const result = await deleteFiles.execute({
       context: {
-        files: [{ path: 'delete1.txt' }, { path: 'delete2.txt' }, { path: 'subdir/delete3.txt' }],
+        paths: ['delete1.txt', 'delete2.txt', 'subdir/delete3.txt'],
       },
       runtimeContext,
     });
 
-    expect(result.successes).toHaveLength(3);
-    expect(result.successes).toContain('delete1.txt');
-    expect(result.successes).toContain('delete2.txt');
-    expect(result.successes).toContain('subdir/delete3.txt');
-    expect(result.failures).toHaveLength(0);
+    expect(result.results).toHaveLength(3);
+    expect(result.results).toEqual([
+      {
+        status: 'success',
+        path: 'delete1.txt',
+      },
+      {
+        status: 'success',
+        path: 'delete2.txt',
+      },
+      {
+        status: 'success',
+        path: 'subdir/delete3.txt',
+      },
+    ]);
 
     // Verify files were actually deleted
     const verifyCode = `
@@ -81,21 +91,24 @@ describe('delete-files-tool integration test', () => {
 
     const result = await deleteFiles.execute({
       context: {
-        files: [{ path: 'nonexistent1.txt' }, { path: 'nonexistent2.txt' }],
+        paths: ['nonexistent1.txt', 'nonexistent2.txt'],
       },
       runtimeContext,
     });
 
-    expect(result.successes).toHaveLength(0);
-    expect(result.failures).toHaveLength(2);
-    expect(result.failures[0]).toEqual({
-      path: 'nonexistent1.txt',
-      error: 'File not found',
-    });
-    expect(result.failures[1]).toEqual({
-      path: 'nonexistent2.txt',
-      error: 'File not found',
-    });
+    expect(result.results).toHaveLength(2);
+    expect(result.results).toEqual([
+      {
+        status: 'error',
+        path: 'nonexistent1.txt',
+        error_message: 'File not found',
+      },
+      {
+        status: 'error',
+        path: 'nonexistent2.txt',
+        error_message: 'File not found',
+      },
+    ]);
   });
 
   it.skipIf(!hasApiKey)('should handle mixed success and failure', async () => {
@@ -114,19 +127,27 @@ describe('delete-files-tool integration test', () => {
 
     const result = await deleteFiles.execute({
       context: {
-        files: [{ path: 'exists1.txt' }, { path: 'does-not-exist.txt' }, { path: 'exists2.txt' }],
+        paths: ['exists1.txt', 'does-not-exist.txt', 'exists2.txt'],
       },
       runtimeContext,
     });
 
-    expect(result.successes).toHaveLength(2);
-    expect(result.successes).toContain('exists1.txt');
-    expect(result.successes).toContain('exists2.txt');
-    expect(result.failures).toHaveLength(1);
-    expect(result.failures[0]).toEqual({
-      path: 'does-not-exist.txt',
-      error: 'File not found',
-    });
+    expect(result.results).toHaveLength(3);
+    expect(result.results).toEqual([
+      {
+        status: 'success',
+        path: 'exists1.txt',
+      },
+      {
+        status: 'error',
+        path: 'does-not-exist.txt',
+        error_message: 'File not found',
+      },
+      {
+        status: 'success',
+        path: 'exists2.txt',
+      },
+    ]);
   });
 
   it.skipIf(!hasApiKey)('should handle absolute paths', async () => {
@@ -144,14 +165,18 @@ describe('delete-files-tool integration test', () => {
 
     const result = await deleteFiles.execute({
       context: {
-        files: [{ path: '/tmp/absolute-delete-test.txt' }],
+        paths: ['/tmp/absolute-delete-test.txt'],
       },
       runtimeContext,
     });
 
-    expect(result.successes).toHaveLength(1);
-    expect(result.successes).toContain('/tmp/absolute-delete-test.txt');
-    expect(result.failures).toHaveLength(0);
+    expect(result.results).toHaveLength(1);
+    expect(result.results).toEqual([
+      {
+        status: 'success',
+        path: '/tmp/absolute-delete-test.txt',
+      },
+    ]);
 
     // Verify file was deleted
     const verifyCode = `
@@ -164,6 +189,49 @@ describe('delete-files-tool integration test', () => {
     expect(JSON.parse(verifyResult.result)).toBe(false);
   });
 
+  it.skipIf(!hasApiKey)('should prevent deletion of directories', async () => {
+    // Create a directory
+    const createDirCode = `
+      const fs = require('fs');
+      fs.mkdirSync('test-directory', { recursive: true });
+      console.log('Directory created');
+    `;
+
+    await sandbox.process.codeRun(createDirCode);
+
+    const runtimeContext = new RuntimeContext();
+    runtimeContext.set(DocsAgentContextKeys.Sandbox, sandbox);
+
+    const result = await deleteFiles.execute({
+      context: {
+        paths: ['test-directory'],
+      },
+      runtimeContext,
+    });
+
+    expect(result.results).toHaveLength(1);
+    expect(result.results).toEqual([
+      {
+        status: 'error',
+        path: 'test-directory',
+        error_message: 'Cannot delete directories with this tool',
+      },
+    ]);
+
+    // Verify directory still exists
+    const verifyCode = `
+      const fs = require('fs');
+      const exists = fs.existsSync('test-directory');
+      const isDir = exists && fs.statSync('test-directory').isDirectory();
+      console.log(JSON.stringify({ exists, isDir }));
+    `;
+
+    const verifyResult = await sandbox.process.codeRun(verifyCode);
+    const status = JSON.parse(verifyResult.result);
+    expect(status.exists).toBe(true);
+    expect(status.isDir).toBe(true);
+  });
+
   it.skipIf(!hasApiKey)('should handle permission errors gracefully', async () => {
     const runtimeContext = new RuntimeContext();
     runtimeContext.set(DocsAgentContextKeys.Sandbox, sandbox);
@@ -171,18 +239,62 @@ describe('delete-files-tool integration test', () => {
     // Try to delete a system file (should fail with permission error)
     const result = await deleteFiles.execute({
       context: {
-        files: [
-          { path: '/etc/passwd' }, // System file, should not be deletable
-          { path: 'regular-file.txt' }, // Non-existent file
+        paths: [
+          '/etc/passwd', // System file, should not be deletable
+          'regular-file.txt', // Non-existent file
         ],
       },
       runtimeContext,
     });
 
-    expect(result.successes).toHaveLength(0);
-    expect(result.failures).toHaveLength(2);
+    expect(result.results).toHaveLength(2);
+
     // Both should fail, but for different reasons
-    expect(result.failures.some((f) => f.path === '/etc/passwd')).toBe(true);
-    expect(result.failures.some((f) => f.path === 'regular-file.txt')).toBe(true);
+    const passwdResult = result.results.find((r) => r.path === '/etc/passwd');
+    expect(passwdResult?.status).toBe('error');
+    expect(passwdResult?.error_message).toBeDefined();
+
+    const regularFileResult = result.results.find((r) => r.path === 'regular-file.txt');
+    expect(regularFileResult?.status).toBe('error');
+    expect(regularFileResult?.error_message).toBe('File not found');
+  });
+
+  it.skipIf(!hasApiKey)('should handle files with spaces in names', async () => {
+    // Create a file with spaces in the name
+    const createFileCode = `
+      const fs = require('fs');
+      fs.writeFileSync('file with spaces.txt', 'Content with spaces');
+      console.log('File created');
+    `;
+
+    await sandbox.process.codeRun(createFileCode);
+
+    const runtimeContext = new RuntimeContext();
+    runtimeContext.set(DocsAgentContextKeys.Sandbox, sandbox);
+
+    const result = await deleteFiles.execute({
+      context: {
+        paths: ['file with spaces.txt'],
+      },
+      runtimeContext,
+    });
+
+    expect(result.results).toHaveLength(1);
+    expect(result.results).toEqual([
+      {
+        status: 'success',
+        path: 'file with spaces.txt',
+      },
+    ]);
+
+    // Verify file was deleted
+    const verifyCode = `
+      const fs = require('fs');
+      const exists = fs.existsSync('file with spaces.txt');
+      console.log(JSON.stringify(exists));
+    `;
+
+    const verifyResult = await sandbox.process.codeRun(verifyCode);
+    expect(JSON.parse(verifyResult.result)).toBe(false);
   });
 });

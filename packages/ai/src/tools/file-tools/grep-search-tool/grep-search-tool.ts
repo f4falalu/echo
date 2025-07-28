@@ -1,3 +1,5 @@
+import * as fs from 'node:fs/promises';
+import * as path from 'node:path';
 import { runTypescript } from '@buster/sandbox';
 import type { RuntimeContext } from '@mastra/core/runtime-context';
 import { createTool } from '@mastra/core/tools';
@@ -5,50 +7,17 @@ import { wrapTraced } from 'braintrust';
 import { z } from 'zod';
 import { type DocsAgentContext, DocsAgentContextKeys } from '../../../context/docs-agent-context';
 
-const grepSearchConfigSchema = z
-  .object({
-    path: z.string().describe('File or directory path to search'),
-    pattern: z.string().describe('Search pattern'),
-    recursive: z.boolean().optional().default(false).describe('Recursive search (-r)'),
-    ignoreCase: z.boolean().optional().default(false).describe('Case-insensitive search (-i)'),
-    invertMatch: z.boolean().optional().default(false).describe('Invert matches (-v)'),
-    lineNumbers: z.boolean().optional().default(true).describe('Show line numbers (-n)'),
-    wordMatch: z.boolean().optional().default(false).describe('Match whole words only (-w)'),
-    fixedStrings: z
-      .boolean()
-      .optional()
-      .default(false)
-      .describe('Treat pattern as fixed string (-F)'),
-    maxCount: z.number().optional().describe('Maximum number of matches (-m)'),
-  })
-  .transform((data) => {
-    const result: {
-      path: string;
-      pattern: string;
-      recursive: boolean;
-      ignoreCase: boolean;
-      invertMatch: boolean;
-      lineNumbers: boolean;
-      wordMatch: boolean;
-      fixedStrings: boolean;
-      maxCount?: number;
-    } = {
-      path: data.path,
-      pattern: data.pattern,
-      recursive: data.recursive ?? false,
-      ignoreCase: data.ignoreCase ?? false,
-      invertMatch: data.invertMatch ?? false,
-      lineNumbers: data.lineNumbers ?? true,
-      wordMatch: data.wordMatch ?? false,
-      fixedStrings: data.fixedStrings ?? false,
-    };
-
-    if (data.maxCount !== undefined) {
-      result.maxCount = data.maxCount;
-    }
-
-    return result;
-  });
+const grepSearchConfigSchema = z.object({
+  path: z.string().describe('File or directory path to search'),
+  pattern: z.string().describe('Search pattern'),
+  recursive: z.boolean().optional().describe('Recursive search (-r)'),
+  ignoreCase: z.boolean().optional().describe('Case-insensitive search (-i)'),
+  invertMatch: z.boolean().optional().describe('Invert matches (-v)'),
+  lineNumbers: z.boolean().optional().describe('Show line numbers (-n)'),
+  wordMatch: z.boolean().optional().describe('Match whole words only (-w)'),
+  fixedStrings: z.boolean().optional().describe('Treat pattern as fixed string (-F)'),
+  maxCount: z.number().optional().describe('Maximum number of matches (-m)'),
+});
 
 const grepSearchInputSchema = z.object({
   searches: z.array(grepSearchConfigSchema).min(1).describe('Array of search configurations'),
@@ -80,7 +49,17 @@ const grepSearchOutputSchema = z.object({
   failed_searches: z.array(grepSearchFailureSchema).describe('Failed searches with error messages'),
 });
 
-export type GrepSearchConfig = z.infer<typeof grepSearchConfigSchema>;
+export type GrepSearchConfig = {
+  path: string;
+  pattern: string;
+  recursive?: boolean;
+  ignoreCase?: boolean;
+  invertMatch?: boolean;
+  lineNumbers?: boolean;
+  wordMatch?: boolean;
+  fixedStrings?: boolean;
+  maxCount?: number;
+};
 export type GrepSearchInput = z.infer<typeof grepSearchInputSchema>;
 export type GrepSearchOutput = z.infer<typeof grepSearchOutputSchema>;
 
@@ -91,7 +70,18 @@ const grepSearchExecution = wrapTraced(
   ): Promise<z.infer<typeof grepSearchOutputSchema>> => {
     const { searches: rawSearches } = params;
 
-    const searches = rawSearches;
+    // Apply defaults to searches
+    const searches = rawSearches.map((search) => ({
+      path: search.path,
+      pattern: search.pattern,
+      recursive: search.recursive ?? false,
+      ignoreCase: search.ignoreCase ?? false,
+      invertMatch: search.invertMatch ?? false,
+      lineNumbers: search.lineNumbers ?? true,
+      wordMatch: search.wordMatch ?? false,
+      fixedStrings: search.fixedStrings ?? false,
+      ...(search.maxCount !== undefined && { maxCount: search.maxCount }),
+    }));
     const startTime = Date.now();
 
     if (!rawSearches || rawSearches.length === 0) {
@@ -107,18 +97,24 @@ const grepSearchExecution = wrapTraced(
       const sandbox = runtimeContext.get(DocsAgentContextKeys.Sandbox);
 
       if (sandbox) {
-        const { generateGrepSearchCode } = await import('./grep-search');
-        const code = generateGrepSearchCode(searches);
-        const result = await runTypescript(sandbox, code);
+        // Read the grep-search-script.ts content
+        const scriptPath = path.join(__dirname, 'grep-search-script.ts');
+        const scriptContent = await fs.readFile(scriptPath, 'utf-8');
+
+        // Build command line arguments
+        // The script expects a JSON array of searches as the first argument
+        const args = [JSON.stringify(searches)];
+
+        const result = await runTypescript(sandbox, scriptContent, { argv: args });
 
         if (result.exitCode !== 0) {
           console.error('Sandbox execution failed. Exit code:', result.exitCode);
           console.error('Stderr:', result.stderr);
-          console.error('Stdout:', result.result);
+          console.error('Result:', result.result);
           throw new Error(`Sandbox execution failed: ${result.stderr || 'Unknown error'}`);
         }
 
-        let searchResults: Array<{
+        let grepResults: Array<{
           success: boolean;
           path: string;
           pattern: string;
@@ -127,7 +123,7 @@ const grepSearchExecution = wrapTraced(
           error?: string;
         }>;
         try {
-          searchResults = JSON.parse(result.result.trim());
+          grepResults = JSON.parse(result.result.trim());
         } catch (parseError) {
           console.error('Failed to parse sandbox output:', result.result);
           throw new Error(
@@ -138,7 +134,7 @@ const grepSearchExecution = wrapTraced(
         const successfulSearches: z.infer<typeof grepSearchResultSchema>[] = [];
         const failedSearches: z.infer<typeof grepSearchFailureSchema>[] = [];
 
-        for (const searchResult of searchResults) {
+        for (const searchResult of grepResults) {
           if (searchResult.success) {
             successfulSearches.push({
               path: searchResult.path,
@@ -163,14 +159,17 @@ const grepSearchExecution = wrapTraced(
         };
       }
 
-      const { executeGrepSearchesLocally } = await import('./grep-search');
-      const localResults = await executeGrepSearchesLocally(searches);
-
+      // When not in sandbox, we can't use the grep command
+      // Return an error for each search
       return {
-        message: `Completed ${localResults.successful_searches.length} searches successfully, ${localResults.failed_searches.length} failed`,
+        message: 'Grep searches require sandbox environment',
         duration: Date.now() - startTime,
-        successful_searches: localResults.successful_searches,
-        failed_searches: localResults.failed_searches,
+        successful_searches: [],
+        failed_searches: searches.map((search) => ({
+          path: search.path,
+          pattern: search.pattern,
+          error: 'grep command requires sandbox environment',
+        })),
       };
     } catch (error) {
       return {

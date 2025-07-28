@@ -110,7 +110,7 @@ describe('docs-agent-workflow', () => {
         expect(result.result).toBeDefined();
         expect(result.result.todos).toBeDefined();
         expect(result.result.todoList).toBeDefined();
-        
+
         // Log what actually happened for debugging
         console.log('Workflow completed with:', {
           documentationCreated: result.result.documentationCreated,
@@ -118,7 +118,7 @@ describe('docs-agent-workflow', () => {
           toolsUsed: result.result.metadata?.toolsUsed,
           finished: result.result.finished,
         });
-        
+
         // For now, we're just checking that the workflow runs without errors
         // The mock sandbox doesn't actually create files, but the agent should attempt to
       }

@@ -230,4 +230,3 @@ describe('create-files-script integration tests', () => {
     expect(content).toBe('Deep content');
   });
 });
-

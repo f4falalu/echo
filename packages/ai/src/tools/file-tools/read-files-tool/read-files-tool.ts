@@ -1,10 +1,11 @@
+import * as fs from 'node:fs/promises';
+import * as path from 'node:path';
 import { runTypescript } from '@buster/sandbox';
 import type { RuntimeContext } from '@mastra/core/runtime-context';
 import { createTool } from '@mastra/core/tools';
 import { wrapTraced } from 'braintrust';
 import { z } from 'zod';
 import { type DocsAgentContext, DocsAgentContextKeys } from '../../../context/docs-agent-context';
-import type { AnalystRuntimeContext } from '../../../schemas/workflow-schemas';
 
 const readFilesInputSchema = z.object({
   files: z
@@ -46,23 +47,25 @@ const readFilesExecution = wrapTraced(
     }
 
     try {
-      // Check if sandbox is available in runtime context
       const sandbox = runtimeContext.get(DocsAgentContextKeys.Sandbox);
 
       if (sandbox) {
-        // Execute in sandbox
-        const { generateFileReadCode } = await import('./read-files');
-        const code = generateFileReadCode(files);
-        const result = await runTypescript(sandbox, code);
+        // Read the read-files-script.ts content
+        const scriptPath = path.join(__dirname, 'read-files-script.ts');
+        const scriptContent = await fs.readFile(scriptPath, 'utf-8');
+
+        // Build command line arguments - all arguments are file paths
+        const args = [...files];
+
+        const result = await runTypescript(sandbox, scriptContent, { argv: args });
 
         if (result.exitCode !== 0) {
           console.error('Sandbox execution failed. Exit code:', result.exitCode);
           console.error('Stderr:', result.stderr);
-          console.error('Stdout:', result.result);
+          console.error('Result:', result.result);
           throw new Error(`Sandbox execution failed: ${result.stderr || 'Unknown error'}`);
         }
 
-        // Parse the JSON output from sandbox
         let fileResults: Array<{
           success: boolean;
           filePath: string;
@@ -97,26 +100,15 @@ const readFilesExecution = wrapTraced(
           }),
         };
       }
-      // Fallback to local execution
-      const { readFilesSafely } = await import('./read-files');
-      const fileResults = await readFilesSafely(files);
 
+      // When not in sandbox, we can't read files
+      // Return an error for each file
       return {
-        results: fileResults.map((fileResult) => {
-          if (fileResult.success) {
-            return {
-              status: 'success' as const,
-              file_path: fileResult.filePath,
-              content: fileResult.content || '',
-              truncated: fileResult.truncated || false,
-            };
-          }
-          return {
-            status: 'error' as const,
-            file_path: fileResult.filePath,
-            error_message: fileResult.error || 'Unknown error',
-          };
-        }),
+        results: files.map((filePath) => ({
+          status: 'error' as const,
+          file_path: filePath,
+          error_message: 'File reading requires sandbox environment',
+        })),
       };
     } catch (error) {
       return {

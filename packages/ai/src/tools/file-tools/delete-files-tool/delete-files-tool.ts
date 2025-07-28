@@ -1,3 +1,5 @@
+import * as fs from 'node:fs/promises';
+import * as path from 'node:path';
 import { runTypescript } from '@buster/sandbox';
 import type { RuntimeContext } from '@mastra/core/runtime-context';
 import { createTool } from '@mastra/core/tools';
@@ -6,22 +8,26 @@ import { z } from 'zod';
 import { type DocsAgentContext, DocsAgentContextKeys } from '../../../context/docs-agent-context';
 
 const deleteFilesInputSchema = z.object({
-  files: z
-    .array(
-      z.object({
-        path: z.string().describe('File path to delete (absolute or relative)'),
-      })
-    )
-    .describe('Array of file deletion operations to perform'),
+  paths: z
+    .array(z.string())
+    .describe(
+      'Array of file paths to delete. Can be absolute paths (e.g., /path/to/file.txt) or relative paths (e.g., ./relative/file.txt). Only files can be deleted, not directories.'
+    ),
 });
 
 const deleteFilesOutputSchema = z.object({
-  successes: z.array(z.string()),
-  failures: z.array(
-    z.object({
-      path: z.string(),
-      error: z.string(),
-    })
+  results: z.array(
+    z.discriminatedUnion('status', [
+      z.object({
+        status: z.literal('success'),
+        path: z.string(),
+      }),
+      z.object({
+        status: z.literal('error'),
+        path: z.string(),
+        error_message: z.string(),
+      }),
+    ])
   ),
 });
 
@@ -30,34 +36,37 @@ const deleteFilesExecution = wrapTraced(
     params: z.infer<typeof deleteFilesInputSchema>,
     runtimeContext: RuntimeContext<DocsAgentContext>
   ): Promise<z.infer<typeof deleteFilesOutputSchema>> => {
-    const { files } = params;
+    const { paths } = params;
 
-    if (!files || files.length === 0) {
-      return { successes: [], failures: [] };
+    if (!paths || paths.length === 0) {
+      return { results: [] };
     }
 
     try {
       const sandbox = runtimeContext.get(DocsAgentContextKeys.Sandbox);
 
       if (sandbox) {
-        const { generateFileDeleteCode } = await import('./delete-files-functions');
-        const code = generateFileDeleteCode(files);
-        const result = await runTypescript(sandbox, code);
+        // Read the delete-files-script.ts content
+        const scriptPath = path.join(__dirname, 'delete-files-script.ts');
+        const scriptContent = await fs.readFile(scriptPath, 'utf-8');
+
+        // Pass paths as command line arguments
+        const result = await runTypescript(sandbox, scriptContent, { argv: paths });
 
         if (result.exitCode !== 0) {
           console.error('Sandbox execution failed. Exit code:', result.exitCode);
           console.error('Stderr:', result.stderr);
-          console.error('Stdout:', result.result);
+          console.error('Result:', result.result);
           throw new Error(`Sandbox execution failed: ${result.stderr || 'Unknown error'}`);
         }
 
-        let fileResults: Array<{
+        let deleteResults: Array<{
           success: boolean;
-          filePath: string;
+          path: string;
           error?: string;
         }>;
         try {
-          fileResults = JSON.parse(result.result.trim());
+          deleteResults = JSON.parse(result.result.trim());
         } catch (parseError) {
           console.error('Failed to parse sandbox output:', result.result);
           throw new Error(
@@ -65,47 +74,38 @@ const deleteFilesExecution = wrapTraced(
           );
         }
 
-        const successes: string[] = [];
-        const failures: Array<{ path: string; error: string }> = [];
-
-        for (const fileResult of fileResults) {
-          if (fileResult.success) {
-            successes.push(fileResult.filePath);
-          } else {
-            failures.push({
-              path: fileResult.filePath,
-              error: fileResult.error || 'Unknown error',
-            });
-          }
-        }
-
-        return { successes, failures };
+        return {
+          results: deleteResults.map((deleteResult) => {
+            if (deleteResult.success) {
+              return {
+                status: 'success' as const,
+                path: deleteResult.path,
+              };
+            }
+            return {
+              status: 'error' as const,
+              path: deleteResult.path,
+              error_message: deleteResult.error || 'Unknown error',
+            };
+          }),
+        };
       }
 
-      const { deleteFilesSafely } = await import('./delete-files-functions');
-      const fileResults = await deleteFilesSafely(files);
-
-      const successes: string[] = [];
-      const failures: Array<{ path: string; error: string }> = [];
-
-      for (const fileResult of fileResults) {
-        if (fileResult.success) {
-          successes.push(fileResult.filePath);
-        } else {
-          failures.push({
-            path: fileResult.filePath,
-            error: fileResult.error || 'Unknown error',
-          });
-        }
-      }
-
-      return { successes, failures };
+      // When not in sandbox, we can't delete files
+      // Return an error for each path
+      return {
+        results: paths.map((targetPath) => ({
+          status: 'error' as const,
+          path: targetPath,
+          error_message: 'File deletion requires sandbox environment',
+        })),
+      };
     } catch (error) {
       return {
-        successes: [],
-        failures: files.map((file) => ({
-          path: file.path,
-          error: `Execution error: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        results: paths.map((targetPath) => ({
+          status: 'error' as const,
+          path: targetPath,
+          error_message: `Execution error: ${error instanceof Error ? error.message : 'Unknown error'}`,
         })),
       };
     }
@@ -114,8 +114,8 @@ const deleteFilesExecution = wrapTraced(
 );
 
 export const deleteFiles = createTool({
-  id: 'delete_files',
-  description: `Deletes files at the specified paths. Supports both absolute and relative file paths. Handles errors gracefully by continuing to process other files even if some fail. Returns both successful deletions and failed operations with detailed error messages. Does not fail the entire operation when individual file deletions fail.`,
+  id: 'delete-files',
+  description: `Deletes files at the specified paths. Accepts both absolute and relative file paths and can handle bulk operations through an array of paths. Only files can be deleted, not directories. Returns structured JSON with deletion results including success status and any error messages. Handles errors gracefully by continuing to process other files even if some fail.`,
   inputSchema: deleteFilesInputSchema,
   outputSchema: deleteFilesOutputSchema,
   execute: async ({

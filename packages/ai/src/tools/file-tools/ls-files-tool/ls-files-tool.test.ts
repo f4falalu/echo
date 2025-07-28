@@ -3,16 +3,14 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { DocsAgentContextKeys } from '../../../context/docs-agent-context';
 
 const mockRunTypescript = vi.fn();
-const mockLsFilesSafely = vi.fn();
-const mockGenerateLsCode = vi.fn();
+const mockReadFile = vi.fn();
 
 vi.mock('@buster/sandbox', () => ({
   runTypescript: (...args: any[]) => mockRunTypescript(...args),
 }));
 
-vi.mock('./ls-files-impl', () => ({
-  lsFilesSafely: (...args: any[]) => mockLsFilesSafely(...args),
-  generateLsCode: (...args: any[]) => mockGenerateLsCode(...args),
+vi.mock('node:fs/promises', () => ({
+  readFile: (...args: any[]) => mockReadFile(...args),
 }));
 
 import { lsFiles } from './ls-files-tool';
@@ -72,7 +70,7 @@ describe('ls-files-tool', () => {
       const mockSandbox = { process: { codeRun: vi.fn() } };
       runtimeContext.set(DocsAgentContextKeys.Sandbox, mockSandbox);
 
-      mockGenerateLsCode.mockReturnValue('generated code');
+      mockReadFile.mockResolvedValue('script content');
       mockRunTypescript.mockResolvedValue({
         result: JSON.stringify([
           {
@@ -89,36 +87,33 @@ describe('ls-files-tool', () => {
         runtimeContext,
       });
 
-      expect(mockGenerateLsCode).toHaveBeenCalledWith(['/test/path'], undefined);
-      expect(mockRunTypescript).toHaveBeenCalledWith(mockSandbox, 'generated code');
+      expect(mockReadFile).toHaveBeenCalled();
+      expect(mockRunTypescript).toHaveBeenCalledWith(mockSandbox, 'script content', {
+        argv: ['/test/path'],
+      });
       expect(result.results).toHaveLength(1);
       expect(result.results[0]?.status).toBe('success');
     });
 
-    it('should execute locally when sandbox not available', async () => {
-      mockLsFilesSafely.mockResolvedValue([
-        {
-          success: true,
-          path: '/test/path',
-          entries: [{ name: 'file.txt', type: 'file' }],
-        },
-      ]);
-
+    it('should return error when sandbox not available', async () => {
+      // Don't set sandbox in runtime context
       const result = await lsFiles.execute({
         context: { paths: ['/test/path'] },
         runtimeContext,
       });
 
-      expect(mockLsFilesSafely).toHaveBeenCalledWith(['/test/path'], undefined);
       expect(result.results).toHaveLength(1);
-      expect(result.results[0]?.status).toBe('success');
+      expect(result.results[0]?.status).toBe('error');
+      if (result.results[0]?.status === 'error') {
+        expect(result.results[0].error_message).toBe('ls command requires sandbox environment');
+      }
     });
 
     it('should handle sandbox execution failure', async () => {
       const mockSandbox = { process: { codeRun: vi.fn() } };
       runtimeContext.set(DocsAgentContextKeys.Sandbox, mockSandbox);
 
-      mockGenerateLsCode.mockReturnValue('generated code');
+      mockReadFile.mockResolvedValue('script content');
       mockRunTypescript.mockResolvedValue({
         result: '',
         exitCode: 1,
@@ -147,18 +142,25 @@ describe('ls-files-tool', () => {
     });
 
     it('should handle mixed success and error results', async () => {
-      mockLsFilesSafely.mockResolvedValue([
-        {
-          success: true,
-          path: '/good/path',
-          entries: [{ name: 'file.txt', type: 'file' }],
-        },
-        {
-          success: false,
-          path: '/bad/path',
-          error: 'Path not found',
-        },
-      ]);
+      const mockSandbox = { process: { codeRun: vi.fn() } };
+      runtimeContext.set(DocsAgentContextKeys.Sandbox, mockSandbox);
+
+      mockReadFile.mockResolvedValue('script content');
+      mockRunTypescript.mockResolvedValue({
+        result: JSON.stringify([
+          {
+            success: true,
+            path: '/good/path',
+            entries: [{ name: 'file.txt', type: 'file' }],
+          },
+          {
+            success: false,
+            path: '/bad/path',
+            error: 'Path not found',
+          },
+        ]),
+        exitCode: 0,
+      });
 
       const result = await lsFiles.execute({
         context: { paths: ['/good/path', '/bad/path'] },

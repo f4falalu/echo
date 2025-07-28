@@ -203,16 +203,16 @@ describe('grep-search-tool integration test', () => {
     const result = await grepSearch.execute({
       context: {
         searches: [
-          createSearchConfig({
+          {
             path: 'regex-test.txt',
             pattern: '$10.99',
             fixedStrings: true,
-          }),
-          createSearchConfig({
+          },
+          {
             path: 'regex-test.txt',
             pattern: 'test.*',
             fixedStrings: true,
-          }),
+          },
         ],
       },
       runtimeContext,

@@ -37,8 +37,8 @@ export async function createTestSandbox(
 
   // Upload files to sandbox
   console.log(`[TestSandbox] Uploading ${allFiles.length} files to ${baseDir} directory`);
-  console.log('[TestSandbox] Files being uploaded:', allFiles.map(f => f.path).slice(0, 10));
-  
+  console.log('[TestSandbox] Files being uploaded:', allFiles.map((f) => f.path).slice(0, 10));
+
   const uploadResult = await addFiles(sandbox, allFiles, {
     baseDestination: baseDir,
     overwrite: true,
@@ -49,7 +49,7 @@ export async function createTestSandbox(
       `Failed to upload files to sandbox: ${JSON.stringify(uploadResult.failedFiles)}`
     );
   }
-  
+
   console.log(`[TestSandbox] Successfully uploaded files to ${baseDir}`);
   console.log('[TestSandbox] Uploaded files count:', uploadResult.uploadedFiles.length);
 
@@ -94,8 +94,8 @@ export async function createIntegrationTestSandbox(
 
   // Upload files to sandbox
   console.log(`[TestSandbox] Uploading ${allFiles.length} files to ${baseDir} directory`);
-  console.log('[TestSandbox] Files being uploaded:', allFiles.map(f => f.path).slice(0, 10));
-  
+  console.log('[TestSandbox] Files being uploaded:', allFiles.map((f) => f.path).slice(0, 10));
+
   const uploadResult = await addFiles(sandbox, allFiles, {
     baseDestination: baseDir,
     overwrite: true,
@@ -106,7 +106,7 @@ export async function createIntegrationTestSandbox(
       `Failed to upload files to sandbox: ${JSON.stringify(uploadResult.failedFiles)}`
     );
   }
-  
+
   console.log(`[TestSandbox] Successfully uploaded files to ${baseDir}`);
   console.log('[TestSandbox] Uploaded files count:', uploadResult.uploadedFiles.length);
 

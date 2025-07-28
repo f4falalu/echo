@@ -1,3 +1,5 @@
+import * as fs from 'node:fs/promises';
+import * as path from 'node:path';
 import { runTypescript } from '@buster/sandbox';
 import type { RuntimeContext } from '@mastra/core/runtime-context';
 import { createTool } from '@mastra/core/tools';
@@ -44,14 +46,30 @@ const executeBashCommands = wrapTraced(
       const sandbox = runtimeContext.get(DocsAgentContextKeys.Sandbox);
 
       if (sandbox) {
-        const { generateBashExecuteCode } = await import('./bash-execute-functions');
-        const code = generateBashExecuteCode(commands);
-        const result = await runTypescript(sandbox, code);
+        // Read the bash-execute-script.ts content
+        const scriptPath = path.join(__dirname, 'bash-execute-script.ts');
+        const scriptContent = await fs.readFile(scriptPath, 'utf-8');
+
+        // Pass commands as JSON string argument
+        const args = [JSON.stringify(commands)];
+
+        const result = await runTypescript(sandbox, scriptContent, { argv: args });
 
         if (result.exitCode !== 0) {
           console.error('Sandbox execution failed. Exit code:', result.exitCode);
           console.error('Stderr:', result.stderr);
-          console.error('Stdout:', result.result);
+          console.error('Result:', result.result);
+
+          // Try to parse error response from script
+          try {
+            const errorResponse = JSON.parse(result.result || result.stderr);
+            if (errorResponse.success === false && errorResponse.error) {
+              throw new Error(errorResponse.error);
+            }
+          } catch {
+            // If parsing fails or it's not the expected error format, use generic error
+          }
+
           throw new Error(`Sandbox execution failed: ${result.stderr || 'Unknown error'}`);
         }
 
@@ -75,9 +93,18 @@ const executeBashCommands = wrapTraced(
         return { results: bashResults };
       }
 
-      const { executeBashCommandsSafely } = await import('./bash-execute-functions');
-      const bashResults = await executeBashCommandsSafely(commands);
-      return { results: bashResults };
+      // When not in sandbox, we can't execute bash commands
+      // Return an error for each command
+      return {
+        results: commands.map((cmd) => ({
+          command: cmd.command,
+          stdout: '',
+          stderr: undefined,
+          exitCode: 1,
+          success: false,
+          error: 'Bash execution requires sandbox environment',
+        })),
+      };
     } catch (error) {
       return {
         results: commands.map((cmd) => ({
@@ -111,3 +138,5 @@ IMPORTANT: The 'commands' field must be an array of command objects: [{command: 
     return await executeBashCommands(context, runtimeContext);
   },
 });
+
+export default executeBash;

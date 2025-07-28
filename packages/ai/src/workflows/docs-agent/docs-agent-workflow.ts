@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { DocsAgentContextSchema } from '../../context/docs-agent-context';
 import { createDocsTodosStep } from '../../steps/docs-agent/create-docs-todos-step';
 import { docsAgentStep } from '../../steps/docs-agent/docs-agent-step';
+import { getRepositoryTreeStep } from '../../steps/docs-agent/get-repository-tree-step';
 import { initializeContextStep } from '../../steps/docs-agent/initialize-context-step';
 
 // Input schema for the workflow - matches what initialize-context-step expects
@@ -40,9 +41,10 @@ const docsAgentWorkflow = createWorkflow({
   id: 'docs-agent-workflow',
   inputSchema: docsAgentWorkflowInputSchema,
   outputSchema: docsAgentWorkflowOutputSchema,
-  steps: [initializeContextStep, createDocsTodosStep, docsAgentStep],
+  steps: [initializeContextStep, getRepositoryTreeStep, createDocsTodosStep, docsAgentStep],
 })
   .then(initializeContextStep) // First step: initialize runtime context
+  .then(getRepositoryTreeStep) // Get repository tree structure
   .then(createDocsTodosStep) // Then create todos
   .then(docsAgentStep) // Finally run the agent
   .commit();

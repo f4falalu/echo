@@ -117,14 +117,14 @@ describe('read-files-tool integration test', () => {
     });
   });
 
-  it('should fall back to local execution when no sandbox is available', async () => {
+  it('should return error when no sandbox is available', async () => {
     // Create runtime context without sandbox
     const runtimeContext = new RuntimeContext();
 
-    // This will use local file system
+    // This should return error since sandbox is required
     const result = await readFiles.execute({
       context: {
-        files: ['nonexistent-local.txt'],
+        files: ['test.txt'],
       },
       runtimeContext,
     });
@@ -132,8 +132,8 @@ describe('read-files-tool integration test', () => {
     expect(result.results).toHaveLength(1);
     expect(result.results[0]).toEqual({
       status: 'error',
-      file_path: 'nonexistent-local.txt',
-      error_message: 'File not found',
+      file_path: 'test.txt',
+      error_message: 'File reading requires sandbox environment',
     });
   });
 });

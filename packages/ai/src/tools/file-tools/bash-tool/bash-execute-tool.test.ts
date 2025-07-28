@@ -1,3 +1,5 @@
+import * as fs from 'node:fs/promises';
+import * as path from 'node:path';
 import { RuntimeContext } from '@mastra/core/runtime-context';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { type DocsAgentContext, DocsAgentContextKeys } from '../../../context/docs-agent-context';
@@ -7,17 +9,14 @@ vi.mock('@buster/sandbox', () => ({
   runTypescript: vi.fn(),
 }));
 
-vi.mock('./bash-execute-functions', () => ({
-  generateBashExecuteCode: vi.fn(),
-  executeBashCommandsSafely: vi.fn(),
+vi.mock('node:fs/promises', () => ({
+  readFile: vi.fn(),
 }));
 
 import { runTypescript } from '@buster/sandbox';
-import { executeBashCommandsSafely, generateBashExecuteCode } from './bash-execute-functions';
 
 const mockRunTypescript = vi.mocked(runTypescript);
-const mockGenerateBashExecuteCode = vi.mocked(generateBashExecuteCode);
-const mockExecuteBashCommandsSafely = vi.mocked(executeBashCommandsSafely);
+const mockReadFile = vi.mocked(fs.readFile);
 
 describe('bash-execute-tool', () => {
   let runtimeContext: RuntimeContext<DocsAgentContext>;
@@ -25,6 +24,9 @@ describe('bash-execute-tool', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     runtimeContext = new RuntimeContext<DocsAgentContext>();
+
+    // Mock the script content
+    mockReadFile.mockResolvedValue('mock script content');
   });
 
   afterEach(() => {
@@ -58,7 +60,6 @@ describe('bash-execute-tool', () => {
         commands: [{ command: 'echo "hello"' }],
       };
 
-      const mockCode = 'generated typescript code';
       const mockSandboxResult = {
         result: JSON.stringify([
           {
@@ -74,7 +75,6 @@ describe('bash-execute-tool', () => {
         stderr: '',
       };
 
-      mockGenerateBashExecuteCode.mockReturnValue(mockCode);
       mockRunTypescript.mockResolvedValue(mockSandboxResult);
 
       const result = await executeBash.execute({
@@ -82,8 +82,13 @@ describe('bash-execute-tool', () => {
         runtimeContext,
       });
 
-      expect(mockGenerateBashExecuteCode).toHaveBeenCalledWith(input.commands);
-      expect(mockRunTypescript).toHaveBeenCalledWith(mockSandbox, mockCode);
+      expect(mockReadFile).toHaveBeenCalledWith(
+        path.join(__dirname, 'bash-execute-script.ts'),
+        'utf-8'
+      );
+      expect(mockRunTypescript).toHaveBeenCalledWith(mockSandbox, 'mock script content', {
+        argv: [JSON.stringify(input.commands)],
+      });
       expect(result.results).toHaveLength(1);
       expect(result.results[0]).toEqual({
         command: 'echo "hello"',
@@ -95,31 +100,25 @@ describe('bash-execute-tool', () => {
       });
     });
 
-    it('should fallback to local execution when sandbox not available', async () => {
+    it('should return error when sandbox not available', async () => {
       const input = {
         commands: [{ command: 'echo "hello"' }],
       };
-
-      const mockLocalResults = [
-        {
-          command: 'echo "hello"',
-          stdout: 'hello',
-          stderr: undefined,
-          exitCode: 0,
-          success: true,
-          error: undefined,
-        },
-      ];
-
-      mockExecuteBashCommandsSafely.mockResolvedValue(mockLocalResults);
 
       const result = await executeBash.execute({
         context: input,
         runtimeContext,
       });
 
-      expect(mockExecuteBashCommandsSafely).toHaveBeenCalledWith(input.commands);
-      expect(result.results).toEqual(mockLocalResults);
+      expect(result.results).toHaveLength(1);
+      expect(result.results[0]).toEqual({
+        command: 'echo "hello"',
+        stdout: '',
+        stderr: undefined,
+        exitCode: 1,
+        success: false,
+        error: 'Bash execution requires sandbox environment',
+      });
     });
 
     it('should handle sandbox execution errors', async () => {
@@ -130,14 +129,12 @@ describe('bash-execute-tool', () => {
         commands: [{ command: 'echo "hello"' }],
       };
 
-      const mockCode = 'generated typescript code';
       const mockSandboxResult = {
         result: 'error output',
         exitCode: 1,
         stderr: 'Execution failed',
       };
 
-      mockGenerateBashExecuteCode.mockReturnValue(mockCode);
       mockRunTypescript.mockResolvedValue(mockSandboxResult);
 
       const result = await executeBash.execute({
@@ -156,12 +153,52 @@ describe('bash-execute-tool', () => {
       });
     });
 
-    it('should handle execution errors', async () => {
+    it('should handle error response from script', async () => {
+      const mockSandbox = { process: { codeRun: vi.fn() } };
+      runtimeContext.set(DocsAgentContextKeys.Sandbox, mockSandbox as any);
+
       const input = {
         commands: [{ command: 'echo "hello"' }],
       };
 
-      mockExecuteBashCommandsSafely.mockRejectedValue(new Error('Execution failed'));
+      // When the script itself fails, it outputs an error JSON
+      const mockSandboxResult = {
+        result: '',
+        exitCode: 1,
+        stderr: JSON.stringify({
+          success: false,
+          error: 'Custom error from script',
+        }),
+      };
+
+      mockRunTypescript.mockResolvedValue(mockSandboxResult);
+
+      const result = await executeBash.execute({
+        context: input,
+        runtimeContext,
+      });
+
+      expect(result.results).toHaveLength(1);
+      expect(result.results[0]).toEqual({
+        command: 'echo "hello"',
+        stdout: '',
+        stderr: undefined,
+        exitCode: 1,
+        success: false,
+        error:
+          'Execution error: Sandbox execution failed: {"success":false,"error":"Custom error from script"}',
+      });
+    });
+
+    it('should handle file read errors', async () => {
+      const mockSandbox = { process: { codeRun: vi.fn() } };
+      runtimeContext.set(DocsAgentContextKeys.Sandbox, mockSandbox as any);
+
+      const input = {
+        commands: [{ command: 'echo "hello"' }],
+      };
+
+      mockReadFile.mockRejectedValue(new Error('File read failed'));
 
       const result = await executeBash.execute({
         context: input,
@@ -170,7 +207,7 @@ describe('bash-execute-tool', () => {
 
       expect(result.results).toHaveLength(1);
       expect(result.results[0]?.success).toBe(false);
-      expect(result.results[0]?.error).toContain('Execution error');
+      expect(result.results[0]?.error).toContain('File read failed');
     });
 
     it('should handle empty commands array', async () => {
@@ -192,14 +229,12 @@ describe('bash-execute-tool', () => {
         commands: [{ command: 'echo "hello"' }],
       };
 
-      const mockCode = 'generated typescript code';
       const mockSandboxResult = {
         result: 'invalid json output',
         exitCode: 0,
         stderr: '',
       };
 
-      mockGenerateBashExecuteCode.mockReturnValue(mockCode);
       mockRunTypescript.mockResolvedValue(mockSandboxResult);
 
       const result = await executeBash.execute({
@@ -216,6 +251,56 @@ describe('bash-execute-tool', () => {
         success: false,
         error: expect.stringContaining('Failed to parse sandbox output'),
       });
+    });
+
+    it('should handle multiple commands', async () => {
+      const mockSandbox = { process: { codeRun: vi.fn() } };
+      runtimeContext.set(DocsAgentContextKeys.Sandbox, mockSandbox as any);
+
+      const input = {
+        commands: [
+          { command: 'echo "first"', description: 'First command' },
+          { command: 'echo "second"', timeout: 1000 },
+          { command: 'ls -la' },
+        ],
+      };
+
+      const mockSandboxResult = {
+        result: JSON.stringify([
+          {
+            command: 'echo "first"',
+            stdout: 'first',
+            exitCode: 0,
+            success: true,
+          },
+          {
+            command: 'echo "second"',
+            stdout: 'second',
+            exitCode: 0,
+            success: true,
+          },
+          {
+            command: 'ls -la',
+            stdout: 'file list output',
+            exitCode: 0,
+            success: true,
+          },
+        ]),
+        exitCode: 0,
+        stderr: '',
+      };
+
+      mockRunTypescript.mockResolvedValue(mockSandboxResult);
+
+      const result = await executeBash.execute({
+        context: input,
+        runtimeContext,
+      });
+
+      expect(result.results).toHaveLength(3);
+      expect(result.results[0].stdout).toBe('first');
+      expect(result.results[1].stdout).toBe('second');
+      expect(result.results[2].stdout).toBe('file list output');
     });
   });
 });

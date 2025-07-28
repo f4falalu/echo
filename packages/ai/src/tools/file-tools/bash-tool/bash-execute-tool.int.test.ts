@@ -39,8 +39,8 @@ describe('bash-execute-tool integration test', () => {
       runtimeContext,
     });
 
-        expect(result.results).toHaveLength(3);
-    
+    expect(result.results).toHaveLength(3);
+
     // Check pwd command
     expect(result.results[0]).toMatchObject({
       command: 'pwd',
@@ -80,15 +80,15 @@ describe('bash-execute-tool integration test', () => {
       runtimeContext,
     });
 
-        expect(result.results).toHaveLength(2);
-    
+    expect(result.results).toHaveLength(2);
+
     // First command should fail
     expect(result.results[0]).toMatchObject({
       command: 'nonexistentcommand',
       success: false,
     });
     expect(result.results[0]?.error).toBeTruthy();
-    
+
     // Second command should return exit code 1
     expect(result.results[1]).toMatchObject({
       command: 'exit 1',
@@ -113,20 +113,20 @@ describe('bash-execute-tool integration test', () => {
       runtimeContext,
     });
 
-        expect(result.results).toHaveLength(4);
-    
+    expect(result.results).toHaveLength(4);
+
     // Create file should succeed
     expect(result.results[0]?.success).toBe(true);
-    
+
     // Read file should show content
     expect(result.results[1]).toMatchObject({
       success: true,
       stdout: 'test content',
     });
-    
+
     // Remove file should succeed
     expect(result.results[2]?.success).toBe(true);
-    
+
     // Try to read removed file should fail
     expect(result.results[3]?.success).toBe(false);
   });

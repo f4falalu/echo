@@ -1,10 +1,11 @@
+import * as fs from 'node:fs/promises';
+import * as path from 'node:path';
 import { runTypescript } from '@buster/sandbox';
 import type { RuntimeContext } from '@mastra/core/runtime-context';
 import { createTool } from '@mastra/core/tools';
 import { wrapTraced } from 'braintrust';
 import { z } from 'zod';
 import { type DocsAgentContext, DocsAgentContextKeys } from '../../../context/docs-agent-context';
-import type { LsOptions } from './ls-files-impl';
 
 const lsOptionsSchema = z.object({
   detailed: z
@@ -75,14 +76,35 @@ const lsFilesExecution = wrapTraced(
       const sandbox = runtimeContext.get(DocsAgentContextKeys.Sandbox);
 
       if (sandbox) {
-        const { generateLsCode } = await import('./ls-files-impl');
-        const code = generateLsCode(paths, options as LsOptions);
-        const result = await runTypescript(sandbox, code);
+        // Read the ls-files-script.ts content
+        const scriptPath = path.join(__dirname, 'ls-files-script.ts');
+        const scriptContent = await fs.readFile(scriptPath, 'utf-8');
+
+        // Build command line arguments
+        const args: string[] = [];
+
+        // Add option flags
+        if (options) {
+          const flags: string[] = [];
+          if (options.detailed) flags.push('l');
+          if (options.all) flags.push('a');
+          if (options.recursive) flags.push('R');
+          if (options.humanReadable) flags.push('h');
+
+          if (flags.length > 0) {
+            args.push(`-${flags.join('')}`);
+          }
+        }
+
+        // Add paths
+        args.push(...paths);
+
+        const result = await runTypescript(sandbox, scriptContent, { argv: args });
 
         if (result.exitCode !== 0) {
           console.error('Sandbox execution failed. Exit code:', result.exitCode);
           console.error('Stderr:', result.stderr);
-          console.error('Stdout:', result.result);
+          console.error('Result:', result.result);
           throw new Error(`Sandbox execution failed: ${result.stderr || 'Unknown error'}`);
         }
 
@@ -135,38 +157,20 @@ const lsFilesExecution = wrapTraced(
         };
       }
 
-      const { lsFilesSafely } = await import('./ls-files-impl');
-      const lsResults = await lsFilesSafely(paths, options as LsOptions);
-
+      // When not in sandbox, we can't use the ls command
+      // Return an error for each path
       return {
-        results: lsResults.map((lsResult) => {
-          if (lsResult.success) {
-            return {
-              status: 'success' as const,
-              path: lsResult.path,
-              entries: (lsResult.entries || []).map((entry) => ({
-                name: entry.name,
-                type: entry.type,
-                size: entry.size,
-                permissions: entry.permissions,
-                modified: entry.modified,
-                owner: entry.owner,
-                group: entry.group,
-              })),
-            };
-          }
-          return {
-            status: 'error' as const,
-            path: lsResult.path,
-            error_message: lsResult.error || 'Unknown error',
-          };
-        }),
+        results: paths.map((targetPath) => ({
+          status: 'error' as const,
+          path: targetPath,
+          error_message: 'ls command requires sandbox environment',
+        })),
       };
     } catch (error) {
       return {
-        results: paths.map((path) => ({
+        results: paths.map((targetPath) => ({
           status: 'error' as const,
-          path,
+          path: targetPath,
           error_message: `Execution error: ${error instanceof Error ? error.message : 'Unknown error'}`,
         })),
       };

@@ -184,7 +184,7 @@ export function createMockSandbox(): Sandbox {
 
             // Extract paths from the code
             const pathsMatch = code.match(/const paths = (\[.*?\]);/s);
-            if (pathsMatch) {
+            if (pathsMatch?.[1]) {
               const paths = JSON.parse(pathsMatch[1]);
 
               for (const requestedPath of paths) {

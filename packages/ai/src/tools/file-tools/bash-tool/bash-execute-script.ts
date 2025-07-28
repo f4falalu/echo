@@ -1,21 +1,21 @@
-import { spawn } from 'node:child_process';
+import * as child_process from 'node:child_process';
 
-export interface BashCommandParams {
+interface BashCommandParams {
   command: string;
-  description?: string | undefined;
-  timeout?: number | undefined;
+  description?: string;
+  timeout?: number;
 }
 
-export interface BashExecuteResult {
+interface BashExecuteResult {
   command: string;
   stdout: string;
-  stderr?: string | undefined;
+  stderr?: string;
   exitCode: number;
   success: boolean;
-  error?: string | undefined;
+  error?: string;
 }
 
-async function executeSingleBashCommand(
+function executeSingleBashCommand(
   command: string,
   timeout?: number
 ): Promise<{
@@ -24,7 +24,7 @@ async function executeSingleBashCommand(
   exitCode: number;
 }> {
   return new Promise((resolve, reject) => {
-    const child = spawn('bash', ['-c', command], {
+    const child = child_process.spawn('bash', ['-c', command], {
       stdio: ['pipe', 'pipe', 'pipe'],
     });
 
@@ -67,7 +67,7 @@ async function executeSingleBashCommand(
   });
 }
 
-export async function executeBashCommandsSafely(
+async function executeBashCommandsSafely(
   commands: BashCommandParams[]
 ): Promise<BashExecuteResult[]> {
   const results: BashExecuteResult[] = [];
@@ -99,46 +99,52 @@ export async function executeBashCommandsSafely(
   return results;
 }
 
-export function generateBashExecuteCode(commands: BashCommandParams[]): string {
-  return `
-const { spawnSync } = require('child_process');
+// Script execution
+async function main() {
+  // Parse command line arguments
+  const args = process.argv.slice(2);
 
-function executeSingleBashCommand(command, timeout) {
+  if (args.length === 0) {
+    console.error(
+      JSON.stringify({
+        success: false,
+        error: 'No commands provided. Expected JSON string as argument.',
+      })
+    );
+    process.exit(1);
+  }
+
   try {
-    const options = {
-      shell: '/bin/bash',
-      encoding: 'utf8',
-      timeout: timeout || undefined,
-    };
+    // Parse commands from JSON argument
+    const commands: BashCommandParams[] = JSON.parse(args[0]);
 
-    const result = spawnSync('bash', ['-c', command], options);
-    
-    return {
-      command,
-      stdout: result.stdout ? result.stdout.trim() : '',
-      stderr: result.stderr ? result.stderr.trim() : undefined,
-      exitCode: result.status !== null ? result.status : 1,
-      success: result.status === 0,
-      error: result.status !== 0 ? (result.stderr ? result.stderr.trim() : 'Command failed') : undefined,
-    };
+    if (!Array.isArray(commands)) {
+      throw new Error('Commands must be an array');
+    }
+
+    // Execute commands
+    const results = await executeBashCommandsSafely(commands);
+
+    // Output as JSON to stdout
+    console.log(JSON.stringify(results));
   } catch (error) {
-    return {
-      command,
-      stdout: '',
-      stderr: undefined,
-      exitCode: 1,
-      success: false,
-      error: error instanceof Error ? error.message : 'Unknown execution error',
-    };
+    console.error(
+      JSON.stringify({
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error occurred',
+      })
+    );
+    process.exit(1);
   }
 }
 
-function executeBashCommandsConcurrently(commands) {
-  return commands.map((cmd) => executeSingleBashCommand(cmd.command, cmd.timeout));
-}
-
-const commands = ${JSON.stringify(commands)};
-const results = executeBashCommandsConcurrently(commands);
-console.log(JSON.stringify(results));
-  `.trim();
-}
+// Run the script
+main().catch((error) => {
+  console.error(
+    JSON.stringify({
+      success: false,
+      error: error.message || 'Unknown error occurred',
+    })
+  );
+  process.exit(1);
+});

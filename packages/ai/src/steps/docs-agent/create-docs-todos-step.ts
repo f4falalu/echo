@@ -12,6 +12,7 @@ const createDocsTodosStepInputSchema = z.object({
   organizationId: z.string(),
   contextInitialized: z.boolean(),
   context: DocsAgentContextSchema,
+  repositoryTree: z.string().describe('The tree structure of the repository'),
 });
 
 const createDocsTodosStepOutputSchema = z.object({
@@ -21,6 +22,7 @@ const createDocsTodosStepOutputSchema = z.object({
   message: z.string(),
   organizationId: z.string(),
   context: DocsAgentContextSchema,
+  repositoryTree: z.string().describe('The tree structure of the repository'),
 });
 
 const DEFAULT_OPTIONS = {
@@ -238,8 +240,12 @@ const createDocsTodosExecution = async ({
   runtimeContext: RuntimeContext;
 }): Promise<z.infer<typeof createDocsTodosStepOutputSchema>> => {
   try {
-    // Prepare messages for the agent
-    const messages = standardizeMessages(inputData.message);
+    // Prepare messages for the agent, including repository tree if available
+    let messageContent = inputData.message;
+    if (inputData.repositoryTree) {
+      messageContent = `${inputData.message}\n\n---\n\nREPOSITORY STRUCTURE:\n\`\`\`\n${inputData.repositoryTree}\n\`\`\``;
+    }
+    const messages = standardizeMessages(messageContent);
 
     // Generate todos using the agent
     const result = await docsAgentTodos.generate(messages, {

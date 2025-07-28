@@ -1,3 +1,5 @@
+import * as fs from 'node:fs/promises';
+import * as path from 'node:path';
 import { runTypescript } from '@buster/sandbox';
 import type { RuntimeContext } from '@mastra/core/runtime-context';
 import { createTool } from '@mastra/core/tools';
@@ -61,12 +63,19 @@ const editFilesExecution = wrapTraced(
       const sandbox = runtimeContext.get(DocsAgentContextKeys.Sandbox);
 
       if (sandbox) {
-        const { generateFileEditCode } = await import('./edit-files');
-        const code = generateFileEditCode(edits);
-        const result = await runTypescript(sandbox, code);
+        // Read the edit-files-script.ts content
+        const scriptPath = path.join(__dirname, 'edit-files-script.ts');
+        const scriptContent = await fs.readFile(scriptPath, 'utf-8');
+
+        // Pass edits as JSON string argument
+        const args = [JSON.stringify(edits)];
+
+        const result = await runTypescript(sandbox, scriptContent, { argv: args });
 
         if (result.exitCode !== 0) {
-          console.error('Sandbox execution failed:', result.stderr);
+          console.error('Sandbox execution failed. Exit code:', result.exitCode);
+          console.error('Stderr:', result.stderr);
+          console.error('Result:', result.result);
           throw new Error(`Sandbox execution failed: ${result.stderr || 'Unknown error'}`);
         }
 
@@ -76,7 +85,6 @@ const editFilesExecution = wrapTraced(
           message?: string;
           error?: string;
         }>;
-
         try {
           fileResults = JSON.parse(result.result.trim());
         } catch (parseError) {
@@ -112,31 +120,18 @@ const editFilesExecution = wrapTraced(
         };
       }
 
-      const { editFilesSafely } = await import('./edit-files');
-      const fileResults = await editFilesSafely(edits);
-
-      const successful = fileResults.filter((r) => r.success).length;
-      const failed = fileResults.length - successful;
-
+      // When not in sandbox, we can't edit files
+      // Return an error for each edit
       return {
-        results: fileResults.map((fileResult) => {
-          if (fileResult.success) {
-            return {
-              status: 'success' as const,
-              file_path: fileResult.filePath,
-              message: fileResult.message || 'File edited successfully',
-            };
-          }
-          return {
-            status: 'error' as const,
-            file_path: fileResult.filePath,
-            error_message: fileResult.error || 'Unknown error',
-          };
-        }),
+        results: edits.map((edit) => ({
+          status: 'error' as const,
+          file_path: edit.filePath,
+          error_message: 'File editing requires sandbox environment',
+        })),
         summary: {
-          total: fileResults.length,
-          successful,
-          failed,
+          total: edits.length,
+          successful: 0,
+          failed: edits.length,
         },
       };
     } catch (error) {
