@@ -154,6 +154,203 @@ const initialValue: Value = [
       }
     ],
     type: 'callout'
+  },
+  {
+    children: [{ text: 'Text Alignment Examples' }],
+    type: 'h3'
+  },
+  {
+    children: [
+      {
+        text: 'This paragraph is left-aligned (default). Lorem ipsum dolor sit amet, consectetur adipiscing elit.'
+      }
+    ],
+    type: 'p',
+    align: 'left'
+  },
+  {
+    children: [
+      {
+        text: 'This paragraph is center-aligned. Lorem ipsum dolor sit amet, consectetur adipiscing elit.'
+      }
+    ],
+    type: 'p',
+    align: 'center'
+  },
+  {
+    children: [
+      {
+        text: 'This paragraph is right-aligned. Lorem ipsum dolor sit amet, consectetur adipiscing elit.'
+      }
+    ],
+    type: 'p',
+    align: 'right'
+  },
+  {
+    children: [
+      {
+        text: 'This paragraph is justified. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.'
+      }
+    ],
+    type: 'p',
+    align: 'justify'
+  },
+  {
+    children: [{ text: 'Alignment with Formatted Text' }],
+    type: 'h4'
+  },
+  {
+    children: [
+      { text: 'This ' },
+      { bold: true, text: 'center-aligned' },
+      { text: ' paragraph contains ' },
+      { italic: true, text: 'various formatting' },
+      { text: ' to demonstrate that alignment works with styled text.' }
+    ],
+    type: 'p',
+    align: 'center'
+  },
+  {
+    children: [{ text: 'This is a centered heading' }],
+    type: 'h3',
+    align: 'center'
+  },
+  {
+    children: [
+      {
+        text: 'This blockquote is right-aligned to show that alignment works with different block types.'
+      }
+    ],
+    type: 'blockquote',
+    align: 'right'
+  },
+  {
+    children: [{ text: 'Table Example' }],
+    type: 'h3'
+  },
+  {
+    children: [{ text: 'Here is a sample table with different alignments:' }],
+    type: 'p'
+  },
+  {
+    type: 'table',
+    children: [
+      {
+        type: 'tr',
+        children: [
+          {
+            type: 'th',
+            children: [{ text: 'Product' }]
+          },
+          {
+            type: 'th',
+            children: [{ text: 'Price' }],
+            align: 'center'
+          },
+          {
+            type: 'th',
+            children: [{ text: 'Stock' }],
+            align: 'center'
+          },
+          {
+            type: 'th',
+            children: [{ text: 'Description' }]
+          }
+        ]
+      },
+      {
+        type: 'tr',
+        children: [
+          {
+            type: 'td',
+            children: [{ text: 'Laptop Pro' }]
+          },
+          {
+            type: 'td',
+            children: [{ text: '$1,299.99' }],
+            align: 'right'
+          },
+          {
+            type: 'td',
+            children: [{ text: '15' }],
+            align: 'center'
+          },
+          {
+            type: 'td',
+            children: [{ text: 'High-performance laptop with 16GB RAM' }]
+          }
+        ]
+      },
+      {
+        type: 'tr',
+        children: [
+          {
+            type: 'td',
+            children: [{ text: 'Wireless Mouse' }]
+          },
+          {
+            type: 'td',
+            children: [{ text: '$29.99' }],
+            align: 'right'
+          },
+          {
+            type: 'td',
+            children: [{ text: '142' }],
+            align: 'center'
+          },
+          {
+            type: 'td',
+            children: [{ text: 'Ergonomic design with long battery life' }]
+          }
+        ]
+      },
+      {
+        type: 'tr',
+        children: [
+          {
+            type: 'td',
+            children: [{ text: 'USB-C Hub' }]
+          },
+          {
+            type: 'td',
+            children: [{ text: '$49.99' }],
+            align: 'right'
+          },
+          {
+            type: 'td',
+            children: [{ text: '0' }],
+            align: 'center'
+          },
+          {
+            type: 'td',
+            children: [{ text: 'Out of stock - ' }, { text: 'Coming soon!', italic: true }]
+          }
+        ]
+      },
+      {
+        type: 'tr',
+        children: [
+          {
+            type: 'td',
+            children: [{ text: 'Mechanical Keyboard', bold: true }]
+          },
+          {
+            type: 'td',
+            children: [{ text: '$159.99' }],
+            align: 'right'
+          },
+          {
+            type: 'td',
+            children: [{ text: '28' }],
+            align: 'center'
+          },
+          {
+            type: 'td',
+            children: [{ text: 'RGB backlit with Cherry MX switches' }]
+          }
+        ]
+      }
+    ]
   }
   //   {
   //     children: [{ text: 'Ordered List' }],
