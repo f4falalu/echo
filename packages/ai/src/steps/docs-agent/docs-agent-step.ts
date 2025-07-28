@@ -79,6 +79,7 @@ const docsAgentExecution = async ({
     const result = await docsAgent.stream(messages, {
       instructions,
       runtimeContext,
+      toolChoice: 'required',
       maxSteps: 50, // Allow more steps for complex documentation tasks
     });
 
@@ -88,14 +89,34 @@ const docsAgentExecution = async ({
     let filesCreated = 0;
     const toolsUsed = new Set<string>();
     let finished = false;
+    let stepCount = 0;
+    let lastTextContent = '';
 
     for await (const chunk of result.fullStream) {
+      // Track step count
+      if (chunk.type === 'step-start') {
+        stepCount++;
+        console.log(`[DocsAgent] Step ${stepCount} started`);
+      }
+
+      // Log text chunks to see what the agent is thinking
+      if (chunk.type === 'text-delta' && chunk.textDelta) {
+        lastTextContent += chunk.textDelta;
+      }
+
+      if (chunk.type === 'step-finish') {
+        console.log(`[DocsAgent] Step ${stepCount} finished. Last text: ${lastTextContent.slice(0, 200)}...`);
+        lastTextContent = '';
+      }
+
       // Track tool usage
       if (chunk.type === 'tool-call') {
+        console.log(`[DocsAgent] Tool call: ${chunk.toolName} with args:`, JSON.stringify(chunk.args).slice(0, 200));
         toolsUsed.add(chunk.toolName);
 
         // Track specific tool outcomes
         if (chunk.toolName === 'createFiles' || chunk.toolName === 'editFiles') {
+          console.log(`[DocsAgent] Tool ${chunk.toolName} called - marking documentationCreated = true`);
           documentationCreated = true;
           filesCreated++;
         }
@@ -126,6 +147,13 @@ const docsAgentExecution = async ({
 
     // Get the final todo list state
     const finalTodoList = runtimeContext.get(DocsAgentContextKeys.TodoList) as string;
+
+    console.log('[DocsAgent] Final results:', {
+      documentationCreated,
+      filesCreated,
+      toolsUsed: Array.from(toolsUsed),
+      finished,
+    });
 
     return {
       todos: inputData.todos.split('\n').filter((line) => line.trim()),

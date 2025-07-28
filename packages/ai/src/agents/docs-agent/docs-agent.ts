@@ -9,6 +9,7 @@ import {
   executeSqlDocsAgent,
   grepSearch,
   idleTool,
+  lsFiles,
   readFiles,
   sequentialThinking,
   updateClarificationsFile,
@@ -17,7 +18,7 @@ import {
 import { Sonnet4 } from '../../utils/models/sonnet-4';
 
 const DEFAULT_OPTIONS = {
-  maxSteps: 18,
+  maxSteps: 30,
   temperature: 0,
   maxTokens: 10000,
   providerOptions: {
@@ -38,6 +39,7 @@ export const docsAgent = new Agent({
     editFiles,
     createFiles,
     deleteFiles,
+    lsFiles,
     executeSql: executeSqlDocsAgent, // Use the docs-specific SQL tool that operates as a
     bashExecute,
     updateClarificationsFile,

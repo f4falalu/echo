@@ -26,7 +26,7 @@ const createDocsTodosStepOutputSchema = z.object({
 const DEFAULT_OPTIONS = {
   maxSteps: 1,
   temperature: 0,
-  maxTokens: 300,
+  maxTokens: 3000,
 };
 
 const CREATE_TODO_LIST_PROMPT = `### Overview
@@ -81,6 +81,21 @@ You have access to various tools to complete tasks. Adhere to these rules:
    - Items should be precise, imperative, and emphasize thoroughness.
    - Include confirmation items at phase ends.
 ---
+
+### How to Use the createTodoList Tool
+**IMPORTANT**: When you are ready to create the TODO list, you must call the createTodoList tool with a single parameter called "todos" that contains your entire markdown-formatted TODO list as a string. The markdown should follow the exact format shown in the examples below.
+
+For simple requests like "Document all models", create a basic TODO list:
+\`\`\`
+# DBT Documentation Todo
+
+## Phase 1: Document Models
+- [ ] Review all models in the project
+- [ ] Add descriptions to each model
+- [ ] Document all columns
+- [ ] Create relationships where applicable
+- [ ] Push changes and create pull request
+\`\`\`
 
 ### Examples
 #### User Request: "can you update the docs to clarify that deal amount fields in ‘customers’ table actually originate from HubSpot and the closed won amount field should be used when calculating the primary deal value"
@@ -238,31 +253,16 @@ const createDocsTodosExecution = async ({
     // Extract todos from the result
     let todosString = '';
 
-    // The createTodoList tool creates a file with the todos
-    // We need to look through the tool results to find the file content
+    // Look for the todos in the tool call arguments
     if (result.toolCalls && Array.isArray(result.toolCalls)) {
       for (const toolCall of result.toolCalls) {
-        if (toolCall.toolName === 'createTodoList') {
-          // The tool creates a file, so we need to look at the result
-          const toolResults = result.toolResults || [];
-          for (const toolResult of toolResults) {
-            if (toolResult.toolCallId === toolCall.toolCallId) {
-              // Extract the file content from the result
-              if (toolResult.result && typeof toolResult.result === 'object') {
-                const resultObj = toolResult.result as Record<string, unknown>;
-                const fileObj = resultObj.file as Record<string, unknown> | undefined;
-                if (fileObj?.text && typeof fileObj.text === 'string') {
-                  todosString = fileObj.text;
-                } else if (resultObj.text && typeof resultObj.text === 'string') {
-                  todosString = resultObj.text;
-                } else if (typeof resultObj === 'string') {
-                  todosString = resultObj;
-                }
-              }
-              break;
-            }
+        if (toolCall.toolName === 'createTodoList' && toolCall.args) {
+          // The todos are in the args passed to the tool
+          const args = toolCall.args as Record<string, unknown>;
+          if (args.todos && typeof args.todos === 'string') {
+            todosString = args.todos;
+            break;
           }
-          break;
         }
       }
     }

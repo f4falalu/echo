@@ -24,12 +24,7 @@ export type MessageUserClarifyingQuestion = z.infer<typeof ClarifyingQuestionSch
 export const DocsAgentContextSchema = z.object({
   [DocsAgentContextKeys.Sandbox]: z.custom<Sandbox>(
     (val) => {
-      return (
-        val &&
-        typeof val === 'object' &&
-        typeof val.execute === 'function' &&
-        typeof val.cleanup === 'function'
-      );
+      return val && typeof val === 'object' && 'id' in val && 'fs' in val;
     },
     {
       message: 'Invalid Sandbox instance',

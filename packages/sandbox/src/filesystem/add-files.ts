@@ -145,7 +145,7 @@ export async function uploadMultipleFiles(
           : file.content
         : await fs.readFile(file.path);
 
-      const destination = file.destination || path.basename(file.path);
+      const destination = file.destination || file.path;
       const destPath = options?.baseDestination
         ? joinPaths(options.baseDestination, destination)
         : destination;
@@ -322,7 +322,7 @@ export async function addFiles(
       return uploadSingleFile(
         sandbox,
         fileInput.path,
-        fileInput.destination || path.basename(fileInput.path),
+        fileInput.destination || fileInput.path,
         options
       );
     }

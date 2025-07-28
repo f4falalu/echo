@@ -292,6 +292,17 @@ export async function getWorkspaceSettingsHandler(
   - `turbo run test` for running all tests
   - Add `--filter=<package-name>` to run tests for specific packages
 
+### Database Access for Integration Testing
+- **Direct database queries** - You can run queries against the local database using `psql` with the following connection:
+  ```bash
+  DATABASE_URL="postgresql://postgres:postgres@127.0.0.1:54322/postgres"
+  ```
+- **Usage example**:
+  ```bash
+  psql "postgresql://postgres:postgres@127.0.0.1:54322/postgres" -c "SELECT * FROM users LIMIT 5;"
+  ```
+- **Purpose** - This is primarily for writing and iterating on integration tests to verify database state and test query behavior
+
 ## Pre-Completion Workflow
 - Always run `turbo run test:unit`, `turbo run lint`, and `turbo run build:dry-run` before making any pull request or finishing a feature, bugfix, etc. to ensure things make it through CI/CD
 - You can run all these checks simultaneously with `turbo run build:dry-run lint test:unit`

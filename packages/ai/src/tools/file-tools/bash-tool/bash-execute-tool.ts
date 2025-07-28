@@ -12,9 +12,7 @@ const bashCommandSchema = z.object({
 });
 
 const inputSchema = z.object({
-  commands: z
-    .union([bashCommandSchema, z.array(bashCommandSchema)])
-    .describe('Single command or array of bash commands to execute'),
+  commands: z.array(bashCommandSchema),
 });
 
 const outputSchema = z.object({
@@ -98,7 +96,9 @@ const executeBashCommands = wrapTraced(
 
 export const executeBash = createTool({
   id: 'execute-bash',
-  description: 'Executes bash commands and captures stdout, stderr, and exit codes',
+  description: `Executes bash commands and captures stdout, stderr, and exit codes.
+
+IMPORTANT: The 'commands' field must be an array of command objects: [{command: "pwd", description: "Print working directory"}, {command: "ls", description: "List files"}]`,
   inputSchema,
   outputSchema,
   execute: async ({
