@@ -80,9 +80,9 @@ export interface AssetPermissionWithUser {
 // Permission level comparison helper
 export const permissionLevelOrder = {
   owner: 6,
-  viewer: 5, // viewer has full read access
-  full_access: 4,
-  can_edit: 3,
+  full_access: 5,
+  can_edit: 4,
+  viewer: 3, // viewer has full read access
   can_filter: 2,
   can_view: 1,
 } as const;

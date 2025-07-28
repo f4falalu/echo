@@ -1,4 +1,4 @@
-import { and, eq, inArray, isNull, or } from 'drizzle-orm';
+import { and, eq, gt, inArray, isNull, or } from 'drizzle-orm';
 import { db } from '../../connection';
 import {
   assetPermissions,
@@ -48,8 +48,7 @@ export async function checkAssetPermission(
           isNull(usersToOrganizations.deletedAt),
           or(
             eq(usersToOrganizations.role, 'workspace_admin'),
-            eq(usersToOrganizations.role, 'data_admin'),
-            eq(usersToOrganizations.role, 'querier')
+            eq(usersToOrganizations.role, 'data_admin')
           )
         )
       )
@@ -148,10 +147,18 @@ export async function checkMetricDashboardAccess(
 
   // Check if user has access to any of these dashboards
   for (const { dashboardId } of dashboards) {
+    // Need to get organizationId for the dashboard
+    const [dashboardData] = await db
+      .select({ organizationId: dashboardFiles.organizationId })
+      .from(dashboardFiles)
+      .where(eq(dashboardFiles.id, dashboardId))
+      .limit(1);
+
     const access = await checkAssetPermission({
       userId,
       assetId: dashboardId,
       assetType: 'dashboard_file' as const,
+      ...(dashboardData?.organizationId && { organizationId: dashboardData.organizationId }),
     });
 
     if (access.hasAccess) {
@@ -166,7 +173,10 @@ export async function checkMetricDashboardAccess(
         and(
           eq(dashboardFiles.id, dashboardId),
           eq(dashboardFiles.publiclyAccessible, true),
-          isNull(dashboardFiles.publicExpiryDate)
+          or(
+            isNull(dashboardFiles.publicExpiryDate),
+            gt(dashboardFiles.publicExpiryDate, new Date().toISOString())
+          )
         )
       )
       .limit(1);
@@ -185,7 +195,8 @@ export async function checkMetricDashboardAccess(
 export async function checkAssetCollectionAccess(
   userId: string,
   assetId: string,
-  assetType: 'dashboard' | 'thread' | 'chat' | 'metric_file' | 'dashboard_file' | 'collection'
+  assetType: 'dashboard' | 'thread' | 'chat' | 'metric_file' | 'dashboard_file' | 'collection',
+  visitedCollections: Set<string> = new Set()
 ): Promise<boolean> {
   // Get all collections containing this asset
   const assetCollections = await db
@@ -207,6 +218,11 @@ export async function checkAssetCollectionAccess(
 
   // Check if user has access to any of these collections
   for (const { collectionId } of assetCollections) {
+    // Skip if we've already visited this collection (cycle detection)
+    if (visitedCollections.has(collectionId)) {
+      continue;
+    }
+
     const access = await checkAssetPermission({
       userId,
       assetId: collectionId,
@@ -215,6 +231,20 @@ export async function checkAssetCollectionAccess(
 
     if (access.hasAccess) {
       return true;
+    }
+
+    // If this collection might contain other collections, check recursively
+    if (assetType === 'collection') {
+      visitedCollections.add(assetId);
+      const hasNestedAccess = await checkAssetCollectionAccess(
+        userId,
+        collectionId,
+        'collection',
+        visitedCollections
+      );
+      if (hasNestedAccess) {
+        return true;
+      }
     }
   }
 

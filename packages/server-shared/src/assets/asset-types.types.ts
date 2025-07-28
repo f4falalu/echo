@@ -1,14 +1,12 @@
 import { z } from 'zod';
 
 export const AssetTypeSchema = z.enum([
-  'dashboard',
   'thread',
   'chat',
   'metric_file',
   'dashboard_file',
   'collection',
   'data_source',
-  'metric',
   'filter',
   'dataset',
   'tool',

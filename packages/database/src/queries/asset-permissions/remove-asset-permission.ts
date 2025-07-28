@@ -1,4 +1,4 @@
-import { and, eq, isNull } from 'drizzle-orm';
+import { and, eq, inArray, isNull } from 'drizzle-orm';
 import type { InferSelectModel } from 'drizzle-orm';
 import { db } from '../../connection';
 import { assetPermissions } from '../../schema';
@@ -79,6 +79,7 @@ export async function bulkRemoveAssetPermissions(
         eq(assetPermissions.assetId, assetId),
         eq(assetPermissions.assetType, assetType),
         eq(assetPermissions.identityType, identityType),
+        inArray(assetPermissions.identityId, identityIds),
         isNull(assetPermissions.deletedAt)
       )
     )
