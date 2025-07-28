@@ -51,14 +51,15 @@ export function CalloutElement({
           control={
             <Button
               variant="ghost"
-              className="hover:bg-muted-foreground/15 size-6 p-1 text-[18px] select-none"
+              size="tall"
+              className="hover:bg-muted-foreground/15 size-6 max-h-none p-1 text-[18px] select-none"
               style={{
                 fontFamily:
                   '"Apple Color Emoji", "Segoe UI Emoji", NotoColorEmoji, "Noto Color Emoji", "Segoe UI Symbol", "Android Emoji", EmojiSymbols'
               }}
-              contentEditable={false}>
-              {(props.element.icon as any) || '💡'}
-            </Button>
+              prefix={<div className="text-lg">{(props.element.icon || '💡').trim()}</div>}
+              contentEditable={false}
+            />
           }>
           <EmojiPicker {...emojiPickerState} {...calloutProps} />
         </EmojiPopover>

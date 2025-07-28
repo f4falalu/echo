@@ -98,14 +98,13 @@ const initialValue: Value = [
     type: 'h4'
   },
   {
+    // Break up the SQL code block into individual code_line elements for each line
     children: [
-      {
-        text: `SELECT id, name
-FROM users
-WHERE active = true
-ORDER BY created_at DESC
-LIMIT 5;`
-      }
+      { children: [{ text: 'SELECT id, name' }], type: 'code_line' },
+      { children: [{ text: 'FROM users' }], type: 'code_line' },
+      { children: [{ text: 'WHERE active = true' }], type: 'code_line' },
+      { children: [{ text: 'ORDER BY created_at DESC' }], type: 'code_line' },
+      { children: [{ text: 'LIMIT 5;' }], type: 'code_line' }
     ],
     type: 'code_block',
     lang: 'sql'

@@ -238,7 +238,7 @@ function EmojiPickerContent({
   const getRowWidth = settings.perLine.value * settings.buttonSize.value;
 
   const isCategoryVisible = React.useCallback(
-    (categoryId: any) => {
+    (categoryId: EmojiCategoryList) => {
       return visibleCategories.has(categoryId) ? visibleCategories.get(categoryId) : false;
     },
     [visibleCategories]
@@ -460,11 +460,9 @@ function EmojiPickerNavigation({
             .map(({ id }) => (
               <TooltipBase key={id}>
                 <TooltipTrigger asChild>
-                  <Button
-                    size="small"
-                    variant="ghost"
+                  <button
                     className={cn(
-                      'text-muted-foreground hover:bg-muted hover:text-muted-foreground h-fit !max-h-fit rounded-full fill-current p-1.5',
+                      'text-muted-foreground hover:bg-muted hover:text-muted-foreground flex min-h-5 items-center justify-center rounded-full fill-current p-1.5',
                       id === focusedCategory &&
                         'bg-accent text-accent-foreground pointer-events-none fill-current'
                     )}
@@ -473,10 +471,10 @@ function EmojiPickerNavigation({
                     }}
                     aria-label={i18n.categories[id]}
                     type="button">
-                    <div className="inline-flex size-5 min-h-5 items-center justify-center text-lg">
+                    <div className="inline-flex size-5 items-center justify-center text-lg">
                       {icons.categories[id].outline}
                     </div>
-                  </Button>
+                  </button>
                 </TooltipTrigger>
                 <TooltipContent side="bottom">{i18n.categories[id]}</TooltipContent>
               </TooltipBase>
