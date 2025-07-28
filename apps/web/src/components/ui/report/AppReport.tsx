@@ -1,5 +1,6 @@
 import React, { useImperativeHandle } from 'react';
 import type { Value, AnyPluginConfig } from 'platejs';
+import type { ReportTypes } from './types/plate-types';
 import { Plate, type TPlateEditor } from 'platejs/react';
 import { EditorContainer } from './EditorContainer';
 import { EditorContent } from './EditorContent';
@@ -7,6 +8,7 @@ import { useReportEditor } from './useReportEditor';
 import { useMemoizedFn } from '@/hooks';
 
 interface AppReportProps {
+  // We accept the generic Value type but recommend using ReportTypes.Value for type safety
   value: Value;
   placeholder?: string;
   readOnly?: boolean;
