@@ -1,6 +1,6 @@
 import React, { useImperativeHandle } from 'react';
 import type { Value, AnyPluginConfig } from 'platejs';
-import { Plate, type TPlateEditor } from 'platejs/react';
+import { Plate, useEditorMounted, type TPlateEditor } from 'platejs/react';
 import { EditorContainer } from './EditorContainer';
 import { EditorContent } from './EditorContent';
 import { useEditor } from './useEditor';
@@ -45,6 +45,8 @@ export const AppReport = React.memo(
 
       // Optionally expose the editor instance to the parent via ref
       useImperativeHandle(ref, () => ({ editor, onReset }), [editor]);
+
+      if (!editor) return null;
 
       return (
         <Plate editor={editor} readOnly={readOnly}>
