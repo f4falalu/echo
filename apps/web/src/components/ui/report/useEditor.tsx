@@ -1,38 +1,20 @@
 import { AnyPluginConfig, type Value } from 'platejs';
-import { KEYS } from 'platejs';
-import { AutoformatPlugin } from '@platejs/autoformat';
-
 import { usePlateEditor } from 'platejs/react';
 import { BasicBlocksKit } from './plugins/basic-blocks-kit';
-import { BaseBasicMarksKit } from './plugins/basic-markd-kit';
+import { BasicMarksKit } from './plugins/basic-markd-kit';
 import { CodeBlockKit } from './plugins/code-block-kit';
 import { CalloutKit } from './plugins/callout-kit';
 import { MyTestPlugin } from './plugins/test-plugin';
+import { AlignKit } from './plugins/align-kit';
+import { AutoformatKit } from './plugins/autoformat-kit';
 
 export const editorPlugins: AnyPluginConfig[] = [
-  ...BaseBasicMarksKit,
+  ...BasicMarksKit,
   ...BasicBlocksKit,
   ...CodeBlockKit,
   ...CalloutKit,
-  AutoformatPlugin.configure({
-    options: {
-      rules: [
-        // Horizontal Rule
-        {
-          mode: 'block',
-          type: KEYS.hr,
-          match: ['---', '—-', '___ '],
-          format: (editor) => {
-            editor.tf.setNodes({ type: KEYS.hr });
-            editor.tf.insertNodes({
-              children: [{ text: '' }],
-              type: KEYS.p
-            });
-          }
-        }
-      ]
-    }
-  })
+  ...AlignKit,
+  ...AutoformatKit
 ];
 
 export const useEditor = ({ value, disabled }: { value: Value; disabled: boolean }) => {

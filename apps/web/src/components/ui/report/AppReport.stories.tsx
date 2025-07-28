@@ -78,7 +78,7 @@ const initialValue: Value = [
     type: 'p'
   },
   {
-    children: [{ text: 'Code Block Example' }],
+    children: [{ text: 'JavaScript Block Example' }],
     type: 'h4'
   },
   {
@@ -94,6 +94,10 @@ const initialValue: Value = [
     type: 'code_block'
   },
   {
+    children: [{ text: 'SQL Example' }],
+    type: 'h4'
+  },
+  {
     children: [
       {
         text: `SELECT id, name
@@ -107,60 +111,40 @@ LIMIT 5;`
     lang: 'sql'
   },
   {
+    children: [{ text: 'Unordered List' }],
+    type: 'h4'
+  },
+  {
+    children: [{ text: 'Features of this editor:' }],
+    type: 'p'
+  },
+  {
     children: [
       {
-        text: `function calculateTotal(items) {
-  let total = 0;
-  for (const item of items) {
-    total += item.price;
-  }
-  return total;
-}
-
-function calculateAverage(items) {
-  if (items.length === 0) return 0;
-  return calculateTotal(items) / items.length;
-}`
+        children: [{ text: 'Rich text formatting (bold, italic, underline)' }],
+        type: 'li'
       }
     ],
-    type: 'code_block',
-    lang: 'javascript'
+    type: 'ul'
+  },
+  {
+    children: [
+      {
+        children: [{ text: 'Code blocks with syntax highlighting' }],
+        type: 'li'
+      }
+    ],
+    type: 'ul'
+  },
+  {
+    children: [
+      {
+        children: [{ text: 'Multiple heading levels' }],
+        type: 'li'
+      }
+    ],
+    type: 'ul'
   }
-  //   {
-  //     children: [{ text: 'Unordered List' }],
-  //     type: 'h4'
-  //   },
-  //   {
-  //     children: [{ text: 'Features of this editor:' }],
-  //     type: 'p'
-  //   },
-  //   {
-  //     children: [
-  //       {
-  //         children: [{ text: 'Rich text formatting (bold, italic, underline)' }],
-  //         type: 'li'
-  //       }
-  //     ],
-  //     type: 'ul'
-  //   },
-  //   {
-  //     children: [
-  //       {
-  //         children: [{ text: 'Code blocks with syntax highlighting' }],
-  //         type: 'li'
-  //       }
-  //     ],
-  //     type: 'ul'
-  //   },
-  //   {
-  //     children: [
-  //       {
-  //         children: [{ text: 'Multiple heading levels' }],
-  //         type: 'li'
-  //       }
-  //     ],
-  //     type: 'ul'
-  //   },
   //   {
   //     children: [
   //       {
