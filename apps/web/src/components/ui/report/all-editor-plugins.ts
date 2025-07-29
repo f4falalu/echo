@@ -19,7 +19,6 @@ import { FontKit } from './plugins/font-kit';
 import { LineHeightKit } from './plugins/line-height-kit';
 import { LinkKit } from './plugins/link-kit';
 import { ListKit } from './plugins/list-kit';
-import { MarkdownKit } from './plugins/markdown-kit';
 import { MathKit } from './plugins/math-kit';
 import { MediaKit } from './plugins/media-kit';
 import { SlashKit } from './plugins/slash-kit';
@@ -27,6 +26,7 @@ import { TableKit } from './plugins/table-kit';
 import { TocKit } from './plugins/toc-kit';
 import { ToggleKit } from './plugins/toggle-kit';
 import { DndKit } from './plugins/dnd-kit-new';
+import { MarkdownPlugin } from '@buster/server-shared/lib/report';
 
 export const AllEditorPlugins: AnyPluginConfig[] = [
   // Core functionality (must be first)
@@ -67,8 +67,8 @@ export const AllEditorPlugins: AnyPluginConfig[] = [
   TrailingBlockPlugin,
 
   // //Parsers
-  ...MarkdownKit,
   // //UI
+  MarkdownPlugin,
   ...BlockPlaceholderKit,
   ...FloatingToolbarKit
 ];

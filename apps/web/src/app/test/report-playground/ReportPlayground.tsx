@@ -18,7 +18,7 @@ interface ValidationStatusProps {
   isLoading: boolean;
   error: unknown;
   isFetched: boolean;
-  data: { parsedMarkdown: ReportElements } | undefined;
+  data: { elements: ReportElements } | undefined;
 }
 
 const ValidationStatus: React.FC<ValidationStatusProps> = ({
@@ -100,7 +100,7 @@ export const ReportPlayground: React.FC = () => {
     queryKey: ['report-playground', markdown],
     queryFn: () => {
       return mainApiV2
-        .post<{ parsedMarkdown: ReportElements }>('/temp/validate-markdown', { markdown })
+        .post<{ elements: ReportElements }>('/temp/validate-markdown', { markdown })
         .then((res) => {
           setHasBeenSuccessFullAtLeastOnce(true);
           return res.data;
@@ -119,9 +119,7 @@ export const ReportPlayground: React.FC = () => {
     { wait: 150 }
   );
 
-  const usedValue: ReportElements = hasBeenSuccessFullAtLeastOnce
-    ? data?.parsedMarkdown || []
-    : value;
+  const usedValue: ReportElements = hasBeenSuccessFullAtLeastOnce ? data?.elements || [] : value;
 
   return (
     <div className="grid max-h-screen min-h-screen grid-cols-[400px_1fr] gap-5 rounded border p-7">
@@ -138,7 +136,7 @@ export const ReportPlayground: React.FC = () => {
             <div className="flex h-full flex-col">
               <h3 className="mb-2 text-sm font-medium text-gray-700">Successful Response:</h3>
               <pre className="flex-1 overflow-auto rounded border bg-gray-50 p-3 font-mono text-xs">
-                {JSON.stringify(data.parsedMarkdown, null, 2)}
+                {JSON.stringify(data.elements, null, 2)}
               </pre>
             </div>
           </div>

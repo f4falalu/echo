@@ -153,7 +153,6 @@
     "react-textarea-autosize": "^8.5.9",
     "rehype-raw": "^7.0.0",
     "remark-gfm": "catalog:",
-    "remark-math": "^6.0.0",
     "sass": "^1.89.2",
     "shiki": "^3.8.1",
     "sonner": "^2.0.6",

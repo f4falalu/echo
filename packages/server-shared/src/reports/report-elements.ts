@@ -175,7 +175,10 @@ export const CalloutElementSchema = z
   .object({
     type: z.literal('callout'),
     variant: z.enum(['info', 'warning', 'error', 'success', 'tip', 'note']).optional(),
-    icon: z.string().length(1, 'Icon must be a single character').optional(),
+    icon: z
+      .string()
+      .regex(/^\p{Emoji}$/u, 'Icon must be a single emoji')
+      .optional(),
     backgroundColor: z.string().optional(),
     children: z.array(z.union([TextSchema, ParagraphElementSchema])),
   })
