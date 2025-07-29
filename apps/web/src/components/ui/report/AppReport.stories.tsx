@@ -74,6 +74,10 @@ const sampleValue = [
     type: 'code_block',
     lang: 'javascript',
     children: [{ text: 'const greeting = "Hello, World!";\nconsole.log(greeting);' }]
+  },
+  {
+    type: 'h1',
+    children: [{ text: 'Hello' }]
   }
 ] satisfies ReportElement[];
 
@@ -90,39 +94,5 @@ export const ReadOnly: Story = {
   args: {
     value: plateValue,
     readOnly: true
-  }
-};
-
-export const Disabled: Story = {
-  args: {
-    value: plateValue,
-    disabled: true
-  }
-};
-
-export const Empty: Story = {
-  args: {
-    value: []
-  }
-};
-
-// Example with inline type checking - this shows how to get compile-time errors for invalid types
-export const TypeSafeExample: Story = {
-  args: {
-    value: [
-      {
-        type: 'h1',
-        children: [{ text: 'Type Safe Example' }]
-      },
-      {
-        type: 'p',
-        children: [{ text: 'This value is type-checked at compile time' }]
-      }
-      // Try uncommenting this to see the type error:
-      // {
-      //   type: 'xxxh3', // TypeScript error: Type '"xxxh3"' is not assignable
-      //   children: [{ text: 'This will error' }]
-      // },
-    ]
   }
 };
