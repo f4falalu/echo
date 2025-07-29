@@ -14,6 +14,7 @@ import { BasicBlocksKit } from './plugins/basic-blocks-kit';
 import { BasicMarksKit } from './plugins/basic-markd-kit';
 import { BlockMenuKit } from './plugins/block-menu-kit';
 import { BlockPlaceholderKit } from './plugins/block-placeholder-kit';
+import { BlockSelectionKit } from './plugins/block-selection-kit';
 import { CalloutKit } from './plugins/callout-kit';
 import { CodeBlockKit } from './plugins/code-block-kit';
 import { ColumnKit } from './plugins/column-kit';
@@ -34,13 +35,18 @@ import { DndKit } from './plugins/dnd-kit';
 import { FloatingToolbarKit } from './plugins/floating-toolbar-kit';
 import { ExitBreakKit } from './plugins/exit-break-kit';
 import { MarkdownKit } from './plugins/markdown-kit';
+import { ListKit } from './plugins/list-kit';
+import { LineHeightKit } from './plugins/line-height-kit';
 
 export const editorPlugins: AnyPluginConfig[] = [
+  // Core functionality (must be first)
+  ...BlockSelectionKit, // Required for drag and drop
+  ...DndKit, // Drag and drop functionality
+
   // Elements
   ...BasicBlocksKit,
   ...CodeBlockKit,
   ...CalloutKit,
-  ...AlignKit,
   ...TableKit,
   ...ToggleKit,
   ...TocKit,
@@ -54,25 +60,27 @@ export const editorPlugins: AnyPluginConfig[] = [
   ...BasicMarksKit,
   ...FontKit,
 
+  //Block Styles
+  ...AlignKit,
+  ...ListKit,
+  ...LineHeightKit,
+
   // Editing
   ...SlashKit,
-  ...SuggestionKit,
   ...AutoformatKit,
-  ...BlockMenuKit,
   ...CursorOverlayKit,
+  ...BlockMenuKit,
   ...DndKit,
-  ...FloatingToolbarKit,
   ...EmojiKit,
   ...ExitBreakKit,
-
   TrailingBlockPlugin,
+
+  //Parsers
+  ...MarkdownKit,
 
   //UI
   ...BlockPlaceholderKit,
-  ...FloatingToolbarKit,
-
-  //Markdown
-  ...MarkdownKit
+  ...FloatingToolbarKit
 ];
 
 export const useReportEditor = ({

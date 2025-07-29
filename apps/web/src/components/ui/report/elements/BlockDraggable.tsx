@@ -23,9 +23,7 @@ import { cn } from '@/lib/utils';
 
 const UNDRAGGABLE_KEYS = [KEYS.column, KEYS.tr, KEYS.td];
 
-export const BlockDraggable: RenderNodeWrapper = (props) => {
-  const { editor, element, path } = props;
-
+export const BlockDraggable: RenderNodeWrapper = ({ editor, element, path }) => {
   const enabled = React.useMemo(() => {
     if (path.length === 1 && !isType(editor, element, UNDRAGGABLE_KEYS)) {
       return true;
@@ -60,6 +58,7 @@ export const BlockDraggable: RenderNodeWrapper = (props) => {
 
   if (!enabled) return;
 
+  // Return a function that renders the Draggable component
   return (props) => <Draggable {...props} />;
 };
 
@@ -201,7 +200,7 @@ const DropLine = React.memo(function DropLine({
       className={cn(
         'slate-dropLine',
         'absolute inset-x-0 h-0.5 opacity-100 transition-opacity',
-        'bg-brand/50',
+        'bg-primary/50',
         dropLine === 'top' && '-top-px',
         dropLine === 'bottom' && '-bottom-px',
         className
