@@ -8,7 +8,11 @@ import {
   TextItalic,
   TextStrikethrough,
   TextUnderline,
-  WandSparkle
+  WandSparkle,
+  ArrowUpToLine,
+  TextColor2,
+  BucketPaint,
+  TextHighlight2
 } from '@/components/ui/icons';
 import { KEYS } from 'platejs';
 import { useEditorReadOnly } from 'platejs/react';
@@ -23,6 +27,24 @@ import { SuggestionToolbarButton } from './SuggestionToolbarButton';
 import { ToolbarGroup } from './Toolbar';
 import { TurnIntoToolbarButton } from './TurnIntoToolbarButton';
 import { UndoToolbarButton, RedoToolbarButton } from './UndoToolbarButton';
+import { ExportToolbarButton } from './ExportToolbarButton';
+import { ImportToolbarButton } from './ImportToolbarButton';
+import { InsertToolbarButton } from './InsertToolbarButton';
+import { FontSizeToolbarButton } from './FontSizeToolbarButton';
+import { FontColorToolbarButton } from './FontColorToolbarButton';
+import { AlignToolbarButton } from './AlignToolbarButton';
+import {
+  BulletedListToolbarButton,
+  NumberedListToolbarButton,
+  TodoListToolbarButton
+} from './ListToolbarButton';
+import { ToggleToolbarButton } from './ToggleToolbarButton';
+import { TableToolbarButton } from './TableToolbarButton';
+import { EmojiToolbarButton } from './EmojiToolbarButton';
+import { MediaToolbarButton } from './MediaToolbarButton';
+import { LineHeightToolbarButton } from './LineHeightToolbarButton';
+import { IndentToolbarButton, OutdentToolbarButton } from './IndentToolbarButton';
+import { ModeToolbarButton } from './ModeToolbarButton';
 
 export function FixedToolbarButtons() {
   const readOnly = useEditorReadOnly();
@@ -58,31 +80,31 @@ export function FixedToolbarButtons() {
 
           <ToolbarGroup>
             <MarkToolbarButton nodeType={KEYS.bold} tooltip="Bold (⌘+B)">
-              <BoldIcon />
+              <TextBold />
             </MarkToolbarButton>
 
             <MarkToolbarButton nodeType={KEYS.italic} tooltip="Italic (⌘+I)">
-              <ItalicIcon />
+              <TextItalic />
             </MarkToolbarButton>
 
             <MarkToolbarButton nodeType={KEYS.underline} tooltip="Underline (⌘+U)">
-              <UnderlineIcon />
+              <TextUnderline />
             </MarkToolbarButton>
 
             <MarkToolbarButton nodeType={KEYS.strikethrough} tooltip="Strikethrough (⌘+⇧+M)">
-              <StrikethroughIcon />
+              <TextStrikethrough />
             </MarkToolbarButton>
 
             <MarkToolbarButton nodeType={KEYS.code} tooltip="Code (⌘+E)">
-              <Code2Icon />
+              <Code2 />
             </MarkToolbarButton>
 
             <FontColorToolbarButton nodeType={KEYS.color} tooltip="Text color">
-              <BaselineIcon />
+              <TextColor2 />
             </FontColorToolbarButton>
 
             <FontColorToolbarButton nodeType={KEYS.backgroundColor} tooltip="Background color">
-              <PaintBucketIcon />
+              <BucketPaint />
             </FontColorToolbarButton>
           </ToolbarGroup>
 
@@ -124,7 +146,7 @@ export function FixedToolbarButtons() {
 
       <ToolbarGroup>
         <MarkToolbarButton nodeType={KEYS.highlight} tooltip="Highlight">
-          <HighlighterIcon />
+          <TextHighlight2 />
         </MarkToolbarButton>
         <CommentToolbarButton />
       </ToolbarGroup>

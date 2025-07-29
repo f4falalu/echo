@@ -31,7 +31,7 @@ import { BasicMarksKit } from '../plugins/basic-marks-kit';
 import { type TDiscussion, discussionPlugin } from '../plugins/discussion-kit';
 
 import { EditorContainer } from '../EditorContainer';
-import { EditorContent as Editor } from '../Editor';
+import { Editor } from '../Editor';
 
 export interface TComment {
   id: string;
