@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { AppReport } from './AppReport';
-import type { StrictValue, TReportElement } from './types/plate-types';
 import type { Value } from 'platejs';
+import { ReportElement } from '@buster/server-shared/reports';
 
 const meta = {
   title: 'UI/report/AppReport',
@@ -34,7 +34,8 @@ const sampleValue = [
       { text: 'bold text', bold: true },
       { text: ' and ' },
       { text: 'italic text', italic: true },
-      { text: '.' }
+      { text: '.' },
+      { text: 'hilight', highlight: true }
     ]
   },
   {
@@ -74,10 +75,10 @@ const sampleValue = [
     lang: 'javascript',
     children: [{ text: 'const greeting = "Hello, World!";\nconsole.log(greeting);' }]
   }
-] satisfies StrictValue;
+] satisfies ReportElement[];
 
 // Cast to Value for platejs compatibility
-const plateValue = sampleValue as Value;
+const plateValue = sampleValue;
 
 export const Default: Story = {
   args: {
@@ -122,30 +123,6 @@ export const TypeSafeExample: Story = {
       //   type: 'xxxh3', // TypeScript error: Type '"xxxh3"' is not assignable
       //   children: [{ text: 'This will error' }]
       // },
-    ] satisfies StrictValue as Value
-  }
-};
-
-// Helper function to create type-safe elements
-export const createTypedValue = (elements: StrictValue): Value => {
-  return elements as Value;
-};
-
-// Example showing type safety with element creation
-const createTypedElement = (type: TReportElement['type']): TReportElement => {
-  switch (type) {
-    case 'h1':
-    case 'h2':
-    case 'h3':
-    case 'h4':
-    case 'h5':
-    case 'h6':
-      return { type, children: [{ text: `Heading ${type}` }] };
-    case 'p':
-      return { type: 'p', children: [{ text: 'Paragraph' }] };
-    case 'callout':
-      return { type: 'callout', variant: 'info', children: [{ text: 'Callout' }] };
-    default:
-      return { type: 'p', children: [{ text: 'Default' }] };
+    ]
   }
 };

@@ -68,6 +68,10 @@
     "./title": {
       "types": "./dist/title/index.d.ts",
       "default": "./dist/title/index.js"
+    },
+    "./reports": {
+      "types": "./dist/reports/index.d.ts",
+      "default": "./dist/reports/index.js"
     }
   },
   "dependencies": {

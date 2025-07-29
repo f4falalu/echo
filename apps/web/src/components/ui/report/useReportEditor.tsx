@@ -1,5 +1,11 @@
 import { AnyPluginConfig, type Value } from 'platejs';
-import { useEditorRef, usePlateEditor, type TPlateEditor } from 'platejs/react';
+import {
+  useEditorRef,
+  usePlateEditor,
+  type PlateEditor,
+  type TPlateEditor,
+  type WithPlateOptions
+} from 'platejs/react';
 
 // Plugin imports sorted alphabetically for clarity and maintainability
 import { AlignKit } from './plugins/align-kit';
@@ -34,11 +40,20 @@ export const editorPlugins: AnyPluginConfig[] = [
   ...BlockPlaceholderKit
 ];
 
-export const useReportEditor = ({ value, disabled }: { value: Value; disabled: boolean }) => {
+export const useReportEditor = ({
+  value,
+  disabled,
+  onReady
+}: {
+  value: Value;
+  disabled: boolean;
+  onReady?: (ctx: WithPlateOptions) => void;
+}) => {
   return usePlateEditor({
     plugins: editorPlugins,
     value,
-    enabled: !disabled
+    readOnly: disabled,
+    onReady
   });
 };
 
