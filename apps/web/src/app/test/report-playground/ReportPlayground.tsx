@@ -18,7 +18,7 @@ interface ValidationStatusProps {
   isLoading: boolean;
   error: unknown;
   isFetched: boolean;
-  data: unknown;
+  data: { parsedMarkdown: ReportElements } | undefined;
 }
 
 const ValidationStatus: React.FC<ValidationStatusProps> = ({
@@ -94,36 +94,58 @@ const ValidationStatus: React.FC<ValidationStatusProps> = ({
 
 export const ReportPlayground: React.FC = () => {
   const [markdown, setMarkdown] = useState<string>('');
+  const [hasBeenSuccessFullAtLeastOnce, setHasBeenSuccessFullAtLeastOnce] = useState(false);
 
   const { data, refetch, isLoading, isFetched, error } = useQuery({
     queryKey: ['report-playground', markdown],
     queryFn: () => {
-      return mainApiV2.post('/temp/validate-markdown', { markdown }).then((res) => res.data);
+      return mainApiV2
+        .post<{ parsedMarkdown: ReportElements }>('/temp/validate-markdown', { markdown })
+        .then((res) => {
+          setHasBeenSuccessFullAtLeastOnce(true);
+          return res.data;
+        });
     },
     enabled: false
   });
 
   useDebounceEffect(
     () => {
-      refetch();
+      if (markdown.length > 0) {
+        refetch();
+      }
     },
     [markdown, refetch],
-    { wait: 250 }
+    { wait: 200 }
   );
+
+  const usedValue: ReportElements = hasBeenSuccessFullAtLeastOnce
+    ? data?.parsedMarkdown || []
+    : value;
 
   return (
     <div className="grid max-h-screen min-h-screen grid-cols-[400px_1fr] gap-5 rounded border p-7">
       <div className="flex h-full flex-col space-y-5">
         <InputTextArea
-          className="h-full"
+          className="flex-1 resize-none"
           placeholder="Put markdown here"
           value={markdown}
           onChange={(e) => setMarkdown(e.target.value)}
         />
         <ValidationStatus isLoading={isLoading} error={error} isFetched={isFetched} data={data} />
+        {data && (
+          <div className="max-h-[30vh] min-h-0 flex-1">
+            <div className="flex h-full flex-col">
+              <h3 className="mb-2 text-sm font-medium text-gray-700">Successful Response:</h3>
+              <pre className="flex-1 overflow-auto rounded border bg-gray-50 p-3 font-mono text-xs">
+                {JSON.stringify(data.parsedMarkdown, null, 2)}
+              </pre>
+            </div>
+          </div>
+        )}
       </div>
       <div className="bg-background h-full max-h-[calc(100vh-56px)] overflow-y-auto rounded border shadow">
-        <ReportEditor value={value} readOnly={false} />
+        <ReportEditor value={usedValue} readOnly={false} />
       </div>
     </div>
   );
