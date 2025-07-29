@@ -17,6 +17,7 @@ import {
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
 import {
+  Tooltip,
   TooltipBase,
   TooltipContent,
   TooltipProvider,
@@ -333,14 +334,7 @@ function ColorDropdownMenuItem({
     />
   );
 
-  return name ? (
-    <TooltipBase>
-      <TooltipTrigger>{content}</TooltipTrigger>
-      <TooltipContent className="mb-1 capitalize">{name}</TooltipContent>
-    </TooltipBase>
-  ) : (
-    content
-  );
+  return name ? <Tooltip title={name}>{content}</Tooltip> : content;
 }
 
 export function ColorDropdownMenuItems({

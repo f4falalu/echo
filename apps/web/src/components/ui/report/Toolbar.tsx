@@ -236,32 +236,35 @@ export function ToolbarSplitButtonSecondary({
   );
 }
 
-export function ToolbarToggleItem({
-  className,
-  size = 'sm',
-  variant,
-  ...props
-}: React.ComponentProps<typeof ToolbarPrimitive.ToggleItem> &
-  VariantProps<typeof toolbarButtonVariants>) {
+export const ToolbarToggleItem = React.forwardRef<
+  React.ElementRef<typeof ToolbarPrimitive.ToggleItem>,
+  React.ComponentProps<typeof ToolbarPrimitive.ToggleItem> &
+    VariantProps<typeof toolbarButtonVariants>
+>(function ToolbarToggleItem({ className, size = 'sm', variant, ...props }, ref) {
   return (
     <ToolbarPrimitive.ToggleItem
+      ref={ref}
       className={cn(toolbarButtonVariants({ size, variant }), className)}
       {...props}
     />
   );
-}
+});
 
-export function ToolbarGroup({ children, className }: React.ComponentProps<'div'>) {
-  return (
-    <div className={cn('group/toolbar-group', 'relative hidden has-[button]:flex', className)}>
-      <div className="flex items-center">{children}</div>
+export const ToolbarGroup = React.forwardRef<HTMLDivElement, React.ComponentProps<'div'>>(
+  function ToolbarGroup({ children, className }, ref) {
+    return (
+      <div
+        ref={ref}
+        className={cn('group/toolbar-group', 'relative hidden has-[button]:flex', className)}>
+        <div className="flex items-center">{children}</div>
 
-      <div className="mx-1.5 py-0.5 group-last/toolbar-group:hidden!">
-        <Separator orientation="vertical" />
+        <div className="mx-1.5 py-0.5 group-last/toolbar-group:hidden!">
+          <Separator orientation="vertical" />
+        </div>
       </div>
-    </div>
-  );
-}
+    );
+  }
+);
 
 type TooltipProps<T extends React.ElementType> = {
   tooltip?: React.ReactNode;

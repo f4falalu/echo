@@ -27,6 +27,7 @@ import { Button } from '@/components/ui/buttons';
 import { PopoverBase, PopoverContent, PopoverAnchor } from '@/components/ui/popover';
 import { Separator } from '@/components/ui/separator';
 import {
+  Tooltip,
   TooltipBase,
   TooltipContent,
   TooltipProvider,
@@ -86,22 +87,13 @@ export const ColumnElement = withHOC(
 const ColumnDragHandle = React.memo(function ColumnDragHandle() {
   return (
     <TooltipProvider>
-      <TooltipBase>
-        <TooltipTrigger asChild>
-          <Button variant="ghost" className="h-5 !px-1">
-            <div
-              className="text-icon-color"
-              onClick={(event) => {
-                event.stopPropagation();
-                event.preventDefault();
-              }}>
-              <GripDots />
-            </div>
-          </Button>
-        </TooltipTrigger>
-
-        <TooltipContent>Drag to move column</TooltipContent>
-      </TooltipBase>
+      <Tooltip title="Drag to move column">
+        <Button
+          variant="ghost"
+          className="h-5 !px-1"
+          onClick={(e) => e.stopPropagation()}
+          prefix={<GripDots />}></Button>
+      </Tooltip>
     </TooltipProvider>
   );
 });

@@ -33,6 +33,7 @@ import {
 
 import { Button } from '@/components/ui/buttons';
 import {
+  Tooltip,
   TooltipBase,
   TooltipContent,
   TooltipProvider,
@@ -458,26 +459,23 @@ function EmojiPickerNavigation({
             .getGrid()
             .sections()
             .map(({ id }) => (
-              <TooltipBase key={id}>
-                <TooltipTrigger asChild>
-                  <button
-                    className={cn(
-                      'text-muted-foreground hover:bg-muted hover:text-muted-foreground flex min-h-5 items-center justify-center rounded-full fill-current p-1.5',
-                      id === focusedCategory &&
-                        'bg-accent text-accent-foreground pointer-events-none fill-current'
-                    )}
-                    onClick={() => {
-                      onClick(id);
-                    }}
-                    aria-label={i18n.categories[id]}
-                    type="button">
-                    <div className="inline-flex size-5 items-center justify-center text-lg">
-                      {icons.categories[id].outline}
-                    </div>
-                  </button>
-                </TooltipTrigger>
-                <TooltipContent side="bottom">{i18n.categories[id]}</TooltipContent>
-              </TooltipBase>
+              <Tooltip key={id} title={i18n.categories[id]}>
+                <button
+                  className={cn(
+                    'text-muted-foreground hover:bg-muted hover:text-muted-foreground flex min-h-5 items-center justify-center rounded-full fill-current p-1.5',
+                    id === focusedCategory &&
+                      'bg-accent text-accent-foreground pointer-events-none fill-current'
+                  )}
+                  onClick={() => {
+                    onClick(id);
+                  }}
+                  aria-label={i18n.categories[id]}
+                  type="button">
+                  <div className="inline-flex size-5 items-center justify-center text-lg">
+                    {icons.categories[id].outline}
+                  </div>
+                </button>
+              </Tooltip>
             ))}
         </div>
       </nav>

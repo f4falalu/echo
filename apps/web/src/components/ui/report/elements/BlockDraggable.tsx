@@ -19,7 +19,7 @@ import {
 import { useSelected } from 'platejs/react';
 
 import { Button } from '@/components/ui/buttons';
-import { TooltipBase, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { Tooltip, TooltipBase, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
 import { expandListItemsWithChildren } from '@platejs/list';
 
@@ -185,54 +185,51 @@ const DragHandle = React.memo(function DragHandle({
   const editor = useEditorRef();
   const element = useElement();
   return (
-    <TooltipBase>
-      <TooltipTrigger asChild>
-        <div
-          className="flex size-full items-center justify-center"
-          onClick={() => {
-            editor.getApi(BlockSelectionPlugin).blockSelection.set(element.id as string);
-          }}
-          onMouseDown={(e) => {
-            resetPreview();
-            if (e.button !== 0 || e.shiftKey) return; // Only left mouse button
-            const elements = createDragPreviewElements(editor, {
-              currentBlock: element
+    <Tooltip title="Drag to move">
+      <div
+        className="flex size-full items-center justify-center"
+        onClick={() => {
+          editor.getApi(BlockSelectionPlugin).blockSelection.set(element.id as string);
+        }}
+        onMouseDown={(e) => {
+          resetPreview();
+          if (e.button !== 0 || e.shiftKey) return; // Only left mouse button
+          const elements = createDragPreviewElements(editor, {
+            currentBlock: element
+          });
+          previewRef.current?.append(...elements);
+          previewRef.current?.classList.remove('hidden');
+          editor.setOption(DndPlugin, 'multiplePreviewRef', previewRef);
+        }}
+        onMouseEnter={() => {
+          if (isDragging) return;
+          const blockSelection = editor
+            .getApi(BlockSelectionPlugin)
+            .blockSelection.getNodes({ sort: true });
+          const selectedBlocks =
+            blockSelection.length > 0 ? blockSelection : editor.api.blocks({ mode: 'highest' });
+          // Process selection to include list children
+          const processedBlocks = expandListItemsWithChildren(editor, selectedBlocks);
+          const ids = processedBlocks.map((block) => block[0].id as string);
+          if (ids.length > 1 && ids.includes(element.id as string)) {
+            const previewTop = calculatePreviewTop(editor, {
+              blocks: processedBlocks.map((block) => block[0]),
+              element
             });
-            previewRef.current?.append(...elements);
-            previewRef.current?.classList.remove('hidden');
-            editor.setOption(DndPlugin, 'multiplePreviewRef', previewRef);
-          }}
-          onMouseEnter={() => {
-            if (isDragging) return;
-            const blockSelection = editor
-              .getApi(BlockSelectionPlugin)
-              .blockSelection.getNodes({ sort: true });
-            const selectedBlocks =
-              blockSelection.length > 0 ? blockSelection : editor.api.blocks({ mode: 'highest' });
-            // Process selection to include list children
-            const processedBlocks = expandListItemsWithChildren(editor, selectedBlocks);
-            const ids = processedBlocks.map((block) => block[0].id as string);
-            if (ids.length > 1 && ids.includes(element.id as string)) {
-              const previewTop = calculatePreviewTop(editor, {
-                blocks: processedBlocks.map((block) => block[0]),
-                element
-              });
-              setPreviewTop(previewTop);
-            } else {
-              setPreviewTop(0);
-            }
-          }}
-          onMouseUp={() => {
-            resetPreview();
-          }}
-          role="button">
-          <div className="text-muted-foreground">
-            <GripDotsVertical />
-          </div>
+            setPreviewTop(previewTop);
+          } else {
+            setPreviewTop(0);
+          }
+        }}
+        onMouseUp={() => {
+          resetPreview();
+        }}
+        role="button">
+        <div className="text-muted-foreground">
+          <GripDotsVertical />
         </div>
-      </TooltipTrigger>
-      <TooltipContent>Drag to move</TooltipContent>
-    </TooltipBase>
+      </div>
+    </Tooltip>
   );
 });
 const DropLine = React.memo(function DropLine({
