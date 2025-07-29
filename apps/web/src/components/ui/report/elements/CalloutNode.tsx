@@ -29,7 +29,7 @@ export function CalloutElement({
 
   return (
     <PlateElement
-      className={cn('bg-muted my-1 flex rounded-sm p-4 pl-3', attributes.className)}
+      className={cn('bg-muted flex rounded-sm p-4 pl-3', attributes.className)}
       style={{
         ...attributes.style,
         backgroundColor: props.element.backgroundColor
@@ -57,7 +57,7 @@ export function CalloutElement({
           }>
           <EmojiPicker {...emojiPickerState} {...calloutProps} />
         </EmojiPopover>
-        <div className="w-full">{children}</div>
+        <div className="mt-1.5 w-full">{children}</div>
       </div>
     </PlateElement>
   );

@@ -4,8 +4,8 @@ import * as React from 'react';
 
 import { DndPlugin, useDraggable, useDropLine } from '@platejs/dnd';
 import { BlockSelectionPlugin } from '@platejs/selection/react';
-import { GripDotsVertical } from '@/components/ui/icons';
-import { getPluginByType, isType, KEYS, type TElement } from 'platejs';
+import { GripDotsVertical, Plus } from '@/components/ui/icons';
+import { getPluginByType, isType, KEYS, type SlateRenderNodeProps, type TElement } from 'platejs';
 import {
   type PlateEditor,
   type PlateElementProps,
@@ -109,23 +109,27 @@ function Draggable(props: PlateElementProps) {
           <div className={cn('slate-blockToolbarWrapper', 'flex h-[1.5em]', isInColumn && 'h-4')}>
             <div
               className={cn(
-                'slate-blockToolbar relative w-4.5',
-                'pointer-events-auto mr-1 flex items-center',
+                'slate-blockToolbar pointer-events-auto relative mr-1 flex w-12 items-center',
                 isInColumn && 'mr-1.5'
               )}>
+              <AddNewBlockButton
+                style={{ top: `${dragButtonTop + 3}px` }}
+                className="absolute left-0"
+              />
               <Button
                 ref={handleRef}
                 variant="ghost"
-                className="absolute -left-0 h-6 w-full p-0"
+                className="absolute right-0"
                 style={{ top: `${dragButtonTop + 3}px` }}
-                data-plate-prevent-deselect>
-                <DragHandle
-                  isDragging={isDragging}
-                  previewRef={previewRef}
-                  resetPreview={resetPreview}
-                  setPreviewTop={setPreviewTop}
-                />
-              </Button>
+                data-plate-prevent-deselect
+                prefix={
+                  <DragHandle
+                    isDragging={isDragging}
+                    previewRef={previewRef}
+                    resetPreview={resetPreview}
+                    setPreviewTop={setPreviewTop}
+                  />
+                }></Button>
             </div>
           </div>
         </Gutter>
@@ -148,6 +152,59 @@ function Draggable(props: PlateElementProps) {
     </div>
   );
 }
+
+function AddNewBlockButton({
+  style,
+  className
+}: {
+  style: React.CSSProperties;
+  className: string;
+}) {
+  const editor = useEditorRef();
+  const path = usePath();
+
+  const handleClick = (event: React.MouseEvent) => {
+    // build the insertion point based on modifier key
+    const parentPath = path.slice(0, -1);
+    const currentIndex = path[path.length - 1];
+
+    // Option/Alt key adds before, regular click adds after
+    const insertIndex = event.altKey ? currentIndex : currentIndex + 1;
+
+    editor.tf.insertNodes(
+      { type: 'p', children: [{ text: '' }] },
+      { at: [...parentPath, insertIndex] }
+    );
+
+    setTimeout(() => {
+      // Calculate the path to the start of the new paragraph's text
+      const newNodePath = [...parentPath, insertIndex];
+      const textPath = [...newNodePath, 0]; // Path to the first text node
+
+      // Set the selection to the start of the new paragraph
+      editor.tf.select({
+        anchor: { path: textPath, offset: 0 },
+        focus: { path: textPath, offset: 0 }
+      });
+
+      // Ensure the editor is focused
+      editor.tf.focus();
+    }, 25);
+  };
+
+  return (
+    <Tooltip title="Add new block">
+      <Button
+        onClick={handleClick}
+        variant="ghost"
+        className={cn(className)}
+        prefix={<Plus />}
+        style={style}
+      />
+    </Tooltip>
+  );
+}
+
 function Gutter({ children, className, ...props }: React.ComponentProps<'div'>) {
   const editor = useEditorRef();
   const element = useElement();

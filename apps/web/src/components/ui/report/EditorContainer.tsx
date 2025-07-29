@@ -16,7 +16,7 @@ const editorContainerVariants = cva('relative cursor-text h-full p-4', {
       comment: 'bg-background/50'
     },
     readonly: {
-      true: 'cursor-not-allowed'
+      true: 'cursor-text'
     }
   },
   defaultVariants: {
