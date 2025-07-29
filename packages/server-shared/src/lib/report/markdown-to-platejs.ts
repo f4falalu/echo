@@ -1,4 +1,3 @@
-import { ReportElementsSchema } from '@buster/server-shared/reports';
 import { AutoformatPlugin } from '@platejs/autoformat';
 import {
   BaseBasicBlocksPlugin,
@@ -22,10 +21,9 @@ import {
   BaseSuperscriptPlugin,
   BaseUnderlinePlugin,
 } from '@platejs/basic-nodes';
-import { MarkdownPlugin, remarkMdx, remarkMention } from '@platejs/markdown';
 import { createSlateEditor } from 'platejs';
-import remarkGfm from 'remark-gfm';
-import { z } from 'zod';
+import { ReportElementsSchema } from '../../reports/report-elements';
+import { MarkdownPlugin } from './MarkdownPlugin';
 
 const serverNode = [
   BaseBoldPlugin,
@@ -49,11 +47,7 @@ const serverNode = [
   BaseSuperscriptPlugin,
   BaseUnderlinePlugin,
   AutoformatPlugin,
-  MarkdownPlugin.configure({
-    options: {
-      remarkPlugins: [remarkGfm, remarkMdx, remarkMention],
-    },
-  }),
+  MarkdownPlugin,
 ];
 
 const SERVER_EDITOR = createSlateEditor({
@@ -65,5 +59,10 @@ export const markdownToPlatejs = async (markdown: string) => {
 
   const safeParsedElements = ReportElementsSchema.safeParse(descendants);
 
-  return safeParsedElements.data;
+  return {
+    error: safeParsedElements.error,
+    elements: safeParsedElements.data,
+    descendants,
+    markdown,
+  };
 };

@@ -223,6 +223,530 @@ describe('ReportNodeSchema', () => {
 
     expect(result.success).toBe(true);
   });
+
+  test('callout test', () => {
+    const baseTest: ReportElements = [
+      {
+        children: [
+          {
+            text: 'Welcome to the Plate Playground!',
+          },
+        ],
+        type: 'h1',
+      },
+      {
+        children: [
+          {
+            text: 'Experience a modern rich-text editor built with ',
+          },
+          {
+            children: [
+              {
+                text: 'Slate',
+              },
+            ],
+            type: 'a',
+            url: 'https://slatejs.org',
+          },
+          {
+            text: ' and ',
+          },
+          {
+            children: [
+              {
+                text: 'React',
+              },
+            ],
+            type: 'a',
+            url: 'https://reactjs.org',
+          },
+          {
+            text: ". This playground showcases just a part of Plate's capabilities. ",
+          },
+          {
+            children: [
+              {
+                text: 'Explore the documentation',
+              },
+            ],
+            type: 'a',
+            url: '/docs',
+          },
+          {
+            text: ' to discover more.',
+          },
+        ],
+        type: 'p',
+      },
+      {
+        children: [
+          {
+            text: 'Collaborative Editing',
+          },
+        ],
+        type: 'h2',
+      },
+      {
+        children: [
+          {
+            text: 'Review and refine content seamlessly. Use ',
+          },
+          {
+            children: [
+              {
+                text: '',
+              },
+            ],
+            type: 'a',
+            url: '/docs/suggestion',
+          },
+          {
+            text: ' or to . Discuss changes using ',
+          },
+          {
+            children: [
+              {
+                text: 'comments',
+              },
+            ],
+            type: 'a',
+            url: '/docs/comment',
+          },
+          {
+            text: ' on many text segments. You can even have  annotations!',
+          },
+        ],
+        type: 'p',
+      },
+      {
+        children: [
+          {
+            text: 'AI-Powered Editing',
+          },
+        ],
+        type: 'h2',
+      },
+      {
+        children: [
+          {
+            text: 'Boost your productivity with integrated ',
+          },
+          {
+            children: [
+              {
+                text: 'AI SDK',
+              },
+            ],
+            type: 'a',
+            url: '/docs/ai',
+          },
+          {
+            text: '. Press ',
+          },
+          {
+            kbd: true,
+            text: '⌘+J',
+          },
+          {
+            text: ' or ',
+          },
+          {
+            kbd: true,
+            text: 'Space',
+          },
+          {
+            text: ' in an empty line to:',
+          },
+        ],
+        type: 'p',
+      },
+      {
+        children: [
+          {
+            children: [
+              {
+                children: [
+                  {
+                    text: 'Generate content (continue writing, summarize, explain)',
+                  },
+                ],
+                type: 'lic',
+              },
+            ],
+            type: 'li',
+          },
+          {
+            children: [
+              {
+                children: [
+                  {
+                    text: 'Edit existing text (improve, fix grammar, change tone)',
+                  },
+                ],
+                type: 'lic',
+              },
+            ],
+            type: 'li',
+          },
+        ],
+        type: 'ul',
+      },
+      {
+        children: [
+          {
+            text: 'Rich Content Editing',
+          },
+        ],
+        type: 'h2',
+      },
+      {
+        children: [
+          {
+            text: 'Structure your content with ',
+          },
+          {
+            children: [
+              {
+                text: 'headings',
+              },
+            ],
+            type: 'a',
+            url: '/docs/heading',
+          },
+          {
+            text: ', ',
+          },
+          {
+            children: [
+              {
+                text: 'lists',
+              },
+            ],
+            type: 'a',
+            url: '/docs/list',
+          },
+          {
+            text: ', and ',
+          },
+          {
+            children: [
+              {
+                text: 'quotes',
+              },
+            ],
+            type: 'a',
+            url: '/docs/blockquote',
+          },
+          {
+            text: '. Apply ',
+          },
+          {
+            children: [
+              {
+                text: 'marks',
+              },
+            ],
+            type: 'a',
+            url: '/docs/basic-marks',
+          },
+          {
+            text: ' like ',
+          },
+          {
+            bold: true,
+            text: 'bold',
+          },
+          {
+            text: ', ',
+          },
+          {
+            italic: true,
+            text: 'italic',
+          },
+          {
+            text: ', ',
+          },
+          {
+            underline: true,
+            text: 'underline',
+          },
+          {
+            text: ', ',
+          },
+          {
+            strikethrough: true,
+            text: 'strikethrough',
+          },
+          {
+            text: ', and ',
+          },
+          {
+            code: true,
+            text: 'code',
+          },
+          {
+            text: '. Use ',
+          },
+          {
+            children: [
+              {
+                text: 'autoformatting',
+              },
+            ],
+            type: 'a',
+            url: '/docs/autoformat',
+          },
+          {
+            text: ' for ',
+          },
+          {
+            children: [
+              {
+                text: 'Markdown',
+              },
+            ],
+            type: 'a',
+            url: '/docs/markdown',
+          },
+          {
+            text: '-like shortcuts (e.g., ',
+          },
+          {
+            kbd: true,
+            text: '*',
+          },
+          {
+            text: '  for lists, ',
+          },
+          {
+            kbd: true,
+            text: '#',
+          },
+          {
+            text: '  for H1).',
+          },
+        ],
+        type: 'p',
+      },
+      {
+        children: [
+          {
+            text: 'Blockquotes are great for highlighting important information.',
+          },
+        ],
+        type: 'blockquote',
+      },
+      {
+        children: [
+          {
+            children: [
+              {
+                text: 'function hello() { ',
+              },
+            ],
+            type: 'code_line',
+          },
+          {
+            children: [
+              {
+                text: "  console.info('Code blocks are supported!');",
+              },
+            ],
+            type: 'code_line',
+          },
+          {
+            children: [
+              {
+                text: '}',
+              },
+            ],
+            type: 'code_line',
+          },
+        ],
+        lang: 'javascript',
+        type: 'code_block',
+      },
+      {
+        children: [
+          {
+            text: 'Create ',
+          },
+          {
+            children: [
+              {
+                text: 'links',
+              },
+            ],
+            type: 'a',
+            url: '/docs/link',
+          },
+          {
+            text: ', ',
+          },
+          {
+            children: [
+              {
+                children: [
+                  {
+                    text: '',
+                  },
+                ],
+                type: 'mention',
+                value: 'mention',
+              },
+            ],
+            type: 'a',
+            url: '/docs/mention',
+          },
+          {
+            text: ' users like ',
+          },
+          {
+            children: [
+              {
+                text: '',
+              },
+            ],
+            type: 'mention',
+            value: 'Alice',
+            key: 'Alice',
+          },
+          {
+            text: ', or insert ',
+          },
+          {
+            children: [
+              {
+                text: 'emojis',
+              },
+            ],
+            type: 'a',
+            url: '/docs/emoji',
+          },
+          {
+            text: ' ✨. Use the ',
+          },
+          {
+            children: [
+              {
+                text: 'slash command',
+              },
+            ],
+            type: 'a',
+            url: '/docs/slash-command',
+          },
+          {
+            text: ' (/) for quick access to elements.',
+          },
+        ],
+        type: 'p',
+      },
+      {
+        children: [
+          {
+            text: '',
+          },
+        ],
+        type: 'p',
+      },
+      {
+        children: [
+          {
+            children: [
+              {
+                children: [
+                  {
+                    text: 'Check',
+                  },
+                ],
+                type: 'lic',
+              },
+            ],
+            type: 'li',
+          },
+          {
+            children: [
+              {
+                children: [
+                  {
+                    text: 'Check 2',
+                  },
+                ],
+                type: 'lic',
+              },
+            ],
+            type: 'li',
+          },
+          {
+            children: [
+              {
+                children: [
+                  {
+                    text: 'Check 3',
+                  },
+                ],
+                type: 'lic',
+              },
+            ],
+            type: 'li',
+          },
+        ],
+        type: 'ul',
+      },
+      {
+        children: [
+          {
+            text: '',
+          },
+        ],
+        type: 'p',
+      },
+      {
+        children: [
+          {
+            children: [
+              {
+                text: 'This is a good callout',
+              },
+            ],
+            type: 'p',
+          },
+        ],
+        type: 'callout',
+      },
+    ];
+  });
+
+  test('callout test 2', () => {
+    const baseTest: ReportElements = [
+      {
+        type: 'callout',
+        icon: '💡',
+        children: [
+          {
+            children: [
+              {
+                text: 'This is a good callout',
+              },
+            ],
+            type: 'p',
+          },
+        ],
+      },
+      {
+        children: [
+          {
+            text: 'asffdddxx',
+          },
+        ],
+        type: 'p',
+      },
+    ];
+
+    const result = ReportElementsSchema.safeParse(baseTest);
+    console.log(result.error?.errors);
+    expect(result.success).toBe(true);
+  });
 });
 
 describe('ListItemSchema', () => {
