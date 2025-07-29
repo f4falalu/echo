@@ -46,12 +46,54 @@ const deleteFilesExecution = wrapTraced(
       const sandbox = runtimeContext.get(DocsAgentContextKeys.Sandbox);
 
       if (sandbox) {
-        // Read the delete-files-script.ts content
-        const scriptPath = path.join(__dirname, 'delete-files-script.ts');
-        const scriptContent = await fs.readFile(scriptPath, 'utf-8');
+        // Generate CommonJS code for sandbox execution
+        const pathsJson = JSON.stringify(paths);
+        const sandboxCode = `
+const fs = require('fs');
+const path = require('path');
 
-        // Pass paths as command line arguments
-        const result = await runTypescript(sandbox, scriptContent, { argv: paths });
+const pathsJson = ${JSON.stringify(pathsJson)};
+const paths = JSON.parse(pathsJson);
+const results = [];
+
+// Process paths
+for (const filePath of paths) {
+  try {
+    const resolvedPath = path.isAbsolute(filePath) 
+      ? filePath 
+      : path.join(process.cwd(), filePath);
+      
+    // Check if it's a directory
+    const stats = fs.statSync(resolvedPath);
+    if (stats.isDirectory()) {
+      results.push({
+        success: false,
+        path: filePath,
+        error: 'Cannot delete directories with this tool'
+      });
+      continue;
+    }
+    
+    // Delete the file
+    fs.unlinkSync(resolvedPath);
+    
+    results.push({
+      success: true,
+      path: filePath
+    });
+  } catch (error) {
+    results.push({
+      success: false,
+      path: filePath,
+      error: (error as any).code === 'ENOENT' ? 'File not found' : (error instanceof Error ? error.message : String(error))
+    });
+  }
+}
+
+console.log(JSON.stringify(results));
+`;
+
+        const result = await runTypescript(sandbox, sandboxCode);
 
         if (result.exitCode !== 0) {
           console.error('Sandbox execution failed. Exit code:', result.exitCode);

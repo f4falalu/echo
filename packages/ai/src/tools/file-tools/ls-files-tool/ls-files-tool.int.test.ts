@@ -1,7 +1,7 @@
 import { createSandbox } from '@buster/sandbox';
 import { addFiles } from '@buster/sandbox';
 import { RuntimeContext } from '@mastra/core/runtime-context';
-import { describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { z } from 'zod';
 import { DocsAgentContextKeys } from '../../../context/docs-agent-context';
 import { lsFiles } from './ls-files-tool';
@@ -17,478 +17,505 @@ type LsEntry = {
   group?: string | undefined;
 };
 
-describe('ls-files-tool integration test', () => {
+describe.sequential('ls-files-tool integration test', () => {
   const hasApiKey = !!process.env.DAYTONA_API_KEY;
+  let sharedSandbox: any;
 
-  async function createTestSandbox() {
-    return await createSandbox({
-      language: 'typescript',
-    });
+  beforeAll(async () => {
+    if (hasApiKey) {
+      sharedSandbox = await createSandbox({
+        language: 'typescript',
+      });
+    }
+  }, 120000);
+
+  afterAll(async () => {
+    if (sharedSandbox) {
+      await sharedSandbox.delete();
+    }
+  }, 65000);
+
+  function getTestDir() {
+    return `test-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
   }
 
   describe('with sandbox', () => {
-    (hasApiKey ? it.concurrent : it.concurrent.skip)(
+    (hasApiKey ? it : it.skip)(
       'should list files in current directory',
       async () => {
-        const sandbox = await createTestSandbox();
-        try {
-          // Create test files and directories in sandbox using addFiles
-          const testFiles = [
-            { path: 'file1.txt', content: 'Content 1', destination: 'file1.txt' },
-            { path: 'file2.txt', content: 'Content 2', destination: 'file2.txt' },
-            { path: '.hidden', content: 'Hidden file', destination: '.hidden' },
-            {
-              path: 'subdir1/nested1.txt',
-              content: 'Nested content 1',
-              destination: 'subdir1/nested1.txt',
-            },
-            {
-              path: 'subdir1/nested2.txt',
-              content: 'Nested content 2',
-              destination: 'subdir1/nested2.txt',
-            },
-            {
-              path: 'subdir2/another.txt',
-              content: 'Another file',
-              destination: 'subdir2/another.txt',
-            },
-            {
-              path: 'deep/level1/file1.txt',
-              content: 'Level 1 file',
-              destination: 'deep/level1/file1.txt',
-            },
-            {
-              path: 'deep/level1/level2/file2.txt',
-              content: 'Level 2 file',
-              destination: 'deep/level1/level2/file2.txt',
-            },
-          ];
+        const testDir = getTestDir();
 
-          await addFiles(sandbox, testFiles);
+        // Create test directory structure
+        const createDirCode = `
+          const fs = require('fs');
+          fs.mkdirSync('${testDir}', { recursive: true });
+        `;
+        await sharedSandbox.process.codeRun(createDirCode);
 
-          const runtimeContext = new RuntimeContext();
-          runtimeContext.set(DocsAgentContextKeys.Sandbox, sandbox);
+        // Create test files and directories in sandbox using addFiles
+        const testFiles = [
+          { path: 'file1.txt', content: 'Content 1', destination: `${testDir}/file1.txt` },
+          { path: 'file2.txt', content: 'Content 2', destination: `${testDir}/file2.txt` },
+          { path: '.hidden', content: 'Hidden file', destination: `${testDir}/.hidden` },
+          {
+            path: 'subdir1/nested1.txt',
+            content: 'Nested content 1',
+            destination: `${testDir}/subdir1/nested1.txt`,
+          },
+          {
+            path: 'subdir1/nested2.txt',
+            content: 'Nested content 2',
+            destination: `${testDir}/subdir1/nested2.txt`,
+          },
+          {
+            path: 'subdir2/another.txt',
+            content: 'Another file',
+            destination: `${testDir}/subdir2/another.txt`,
+          },
+          {
+            path: 'deep/level1/file1.txt',
+            content: 'Level 1 file',
+            destination: `${testDir}/deep/level1/file1.txt`,
+          },
+          {
+            path: 'deep/level1/level2/file2.txt',
+            content: 'Level 2 file',
+            destination: `${testDir}/deep/level1/level2/file2.txt`,
+          },
+        ];
 
-          const result = await lsFiles.execute({
-            context: {
-              paths: ['.'],
-            },
-            runtimeContext,
-          });
+        await addFiles(sharedSandbox, testFiles);
 
-          expect(result.results).toHaveLength(1);
-          expect(result.results[0]?.status).toBe('success');
+        const runtimeContext = new RuntimeContext();
+        runtimeContext.set(DocsAgentContextKeys.Sandbox, sharedSandbox);
 
-          if (result.results[0]?.status === 'success') {
-            const entries = result.results[0].entries;
-            expect(entries.some((e: LsEntry) => e.name === 'file1.txt' && e.type === 'file')).toBe(
-              true
-            );
-            expect(entries.some((e: LsEntry) => e.name === 'file2.txt' && e.type === 'file')).toBe(
-              true
-            );
-            expect(
-              entries.some((e: LsEntry) => e.name === 'subdir1' && e.type === 'directory')
-            ).toBe(true);
-            expect(
-              entries.some((e: LsEntry) => e.name === 'subdir2' && e.type === 'directory')
-            ).toBe(true);
-            expect(entries.some((e: LsEntry) => e.name === '.hidden')).toBe(false); // Hidden by default
-          }
-        } finally {
-          await sandbox.delete();
+        const result = await lsFiles.execute({
+          context: {
+            paths: [`${testDir}`],
+          },
+          runtimeContext,
+        });
+
+        expect(result.results).toHaveLength(1);
+        expect(result.results[0]?.status).toBe('success');
+
+        if (result.results[0]?.status === 'success') {
+          const entries = result.results[0].entries;
+          expect(entries.some((e: LsEntry) => e.name === 'file1.txt' && e.type === 'file')).toBe(
+            true
+          );
+          expect(entries.some((e: LsEntry) => e.name === 'file2.txt' && e.type === 'file')).toBe(
+            true
+          );
+          expect(entries.some((e: LsEntry) => e.name === 'subdir1' && e.type === 'directory')).toBe(
+            true
+          );
+          expect(entries.some((e: LsEntry) => e.name === 'subdir2' && e.type === 'directory')).toBe(
+            true
+          );
+          expect(entries.some((e: LsEntry) => e.name === '.hidden')).toBe(false); // Hidden by default
         }
       },
       65000
     );
 
-    (hasApiKey ? it.concurrent : it.concurrent.skip)(
+    (hasApiKey ? it : it.skip)(
       'should list files with detailed information',
       async () => {
-        const sandbox = await createTestSandbox();
-        try {
-          // Create test files and directories in sandbox using addFiles
-          const testFiles = [
-            { path: 'file1.txt', content: 'Content 1', destination: 'file1.txt' },
-            { path: 'file2.txt', content: 'Content 2', destination: 'file2.txt' },
-            { path: '.hidden', content: 'Hidden file', destination: '.hidden' },
-            {
-              path: 'subdir1/nested1.txt',
-              content: 'Nested content 1',
-              destination: 'subdir1/nested1.txt',
-            },
-            {
-              path: 'subdir1/nested2.txt',
-              content: 'Nested content 2',
-              destination: 'subdir1/nested2.txt',
-            },
-            {
-              path: 'subdir2/another.txt',
-              content: 'Another file',
-              destination: 'subdir2/another.txt',
-            },
-            {
-              path: 'deep/level1/file1.txt',
-              content: 'Level 1 file',
-              destination: 'deep/level1/file1.txt',
-            },
-            {
-              path: 'deep/level1/level2/file2.txt',
-              content: 'Level 2 file',
-              destination: 'deep/level1/level2/file2.txt',
-            },
-          ];
+        const testDir = getTestDir();
 
-          await addFiles(sandbox, testFiles);
+        // Create test directory structure
+        const createDirCode = `
+          const fs = require('fs');
+          fs.mkdirSync('${testDir}', { recursive: true });
+        `;
+        await sharedSandbox.process.codeRun(createDirCode);
 
-          const runtimeContext = new RuntimeContext();
-          runtimeContext.set(DocsAgentContextKeys.Sandbox, sandbox);
+        // Create test files and directories in sandbox using addFiles
+        const testFiles = [
+          { path: 'file1.txt', content: 'Content 1', destination: `${testDir}/file1.txt` },
+          { path: 'file2.txt', content: 'Content 2', destination: `${testDir}/file2.txt` },
+          { path: '.hidden', content: 'Hidden file', destination: `${testDir}/.hidden` },
+          {
+            path: 'subdir1/nested1.txt',
+            content: 'Nested content 1',
+            destination: `${testDir}/subdir1/nested1.txt`,
+          },
+          {
+            path: 'subdir1/nested2.txt',
+            content: 'Nested content 2',
+            destination: `${testDir}/subdir1/nested2.txt`,
+          },
+          {
+            path: 'subdir2/another.txt',
+            content: 'Another file',
+            destination: `${testDir}/subdir2/another.txt`,
+          },
+          {
+            path: 'deep/level1/file1.txt',
+            content: 'Level 1 file',
+            destination: `${testDir}/deep/level1/file1.txt`,
+          },
+          {
+            path: 'deep/level1/level2/file2.txt',
+            content: 'Level 2 file',
+            destination: `${testDir}/deep/level1/level2/file2.txt`,
+          },
+        ];
 
-          const result = await lsFiles.execute({
-            context: {
-              paths: ['.'],
-              options: {
-                detailed: true,
-              },
+        await addFiles(sharedSandbox, testFiles);
+
+        const runtimeContext = new RuntimeContext();
+        runtimeContext.set(DocsAgentContextKeys.Sandbox, sharedSandbox);
+
+        const result = await lsFiles.execute({
+          context: {
+            paths: [`${testDir}`],
+            options: {
+              detailed: true,
             },
-            runtimeContext,
-          });
+          },
+          runtimeContext,
+        });
 
-          expect(result.results[0]?.status).toBe('success');
+        expect(result.results[0]?.status).toBe('success');
 
-          if (result.results[0]?.status === 'success') {
-            const entries = result.results[0].entries;
-            const file1 = entries.find((e: LsEntry) => e.name === 'file1.txt');
-            expect(file1).toBeDefined();
-            expect(file1?.permissions).toBeDefined();
-            expect(file1?.size).toBeDefined();
-            expect(file1?.modified).toBeDefined();
-            expect(file1?.owner).toBeDefined();
-            expect(file1?.group).toBeDefined();
-          }
-        } finally {
-          await sandbox.delete();
+        if (result.results[0]?.status === 'success') {
+          const entries = result.results[0].entries;
+          const file1 = entries.find((e: LsEntry) => e.name === 'file1.txt');
+          expect(file1).toBeDefined();
+          expect(file1?.permissions).toBeDefined();
+          expect(file1?.size).toBeDefined();
+          expect(file1?.modified).toBeDefined();
+          expect(file1?.owner).toBeDefined();
+          expect(file1?.group).toBeDefined();
         }
       },
       65000
     );
 
-    (hasApiKey ? it.concurrent : it.concurrent.skip)(
+    (hasApiKey ? it : it.skip)(
       'should show hidden files with all option',
       async () => {
-        const sandbox = await createTestSandbox();
-        try {
-          // Create test files and directories in sandbox using addFiles
-          const testFiles = [
-            { path: 'file1.txt', content: 'Content 1', destination: 'file1.txt' },
-            { path: 'file2.txt', content: 'Content 2', destination: 'file2.txt' },
-            { path: '.hidden', content: 'Hidden file', destination: '.hidden' },
-            {
-              path: 'subdir1/nested1.txt',
-              content: 'Nested content 1',
-              destination: 'subdir1/nested1.txt',
-            },
-            {
-              path: 'subdir1/nested2.txt',
-              content: 'Nested content 2',
-              destination: 'subdir1/nested2.txt',
-            },
-            {
-              path: 'subdir2/another.txt',
-              content: 'Another file',
-              destination: 'subdir2/another.txt',
-            },
-            {
-              path: 'deep/level1/file1.txt',
-              content: 'Level 1 file',
-              destination: 'deep/level1/file1.txt',
-            },
-            {
-              path: 'deep/level1/level2/file2.txt',
-              content: 'Level 2 file',
-              destination: 'deep/level1/level2/file2.txt',
-            },
-          ];
+        const testDir = getTestDir();
 
-          await addFiles(sandbox, testFiles);
+        // Create test directory structure
+        const createDirCode = `
+          const fs = require('fs');
+          fs.mkdirSync('${testDir}', { recursive: true });
+        `;
+        await sharedSandbox.process.codeRun(createDirCode);
 
-          const runtimeContext = new RuntimeContext();
-          runtimeContext.set(DocsAgentContextKeys.Sandbox, sandbox);
+        // Create test files and directories in sandbox using addFiles
+        const testFiles = [
+          { path: 'file1.txt', content: 'Content 1', destination: `${testDir}/file1.txt` },
+          { path: 'file2.txt', content: 'Content 2', destination: `${testDir}/file2.txt` },
+          { path: '.hidden', content: 'Hidden file', destination: `${testDir}/.hidden` },
+          {
+            path: 'subdir1/nested1.txt',
+            content: 'Nested content 1',
+            destination: `${testDir}/subdir1/nested1.txt`,
+          },
+          {
+            path: 'subdir1/nested2.txt',
+            content: 'Nested content 2',
+            destination: `${testDir}/subdir1/nested2.txt`,
+          },
+          {
+            path: 'subdir2/another.txt',
+            content: 'Another file',
+            destination: `${testDir}/subdir2/another.txt`,
+          },
+          {
+            path: 'deep/level1/file1.txt',
+            content: 'Level 1 file',
+            destination: `${testDir}/deep/level1/file1.txt`,
+          },
+          {
+            path: 'deep/level1/level2/file2.txt',
+            content: 'Level 2 file',
+            destination: `${testDir}/deep/level1/level2/file2.txt`,
+          },
+        ];
 
-          const result = await lsFiles.execute({
-            context: {
-              paths: ['.'],
-              options: {
-                all: true,
-              },
+        await addFiles(sharedSandbox, testFiles);
+
+        const runtimeContext = new RuntimeContext();
+        runtimeContext.set(DocsAgentContextKeys.Sandbox, sharedSandbox);
+
+        const result = await lsFiles.execute({
+          context: {
+            paths: [`${testDir}`],
+            options: {
+              all: true,
             },
-            runtimeContext,
-          });
+          },
+          runtimeContext,
+        });
 
-          expect(result.results[0]?.status).toBe('success');
+        expect(result.results[0]?.status).toBe('success');
 
-          if (result.results[0]?.status === 'success') {
-            const entries = result.results[0].entries;
-            expect(entries.some((e: LsEntry) => e.name === '.hidden')).toBe(true);
-            expect(entries.some((e: LsEntry) => e.name === '.')).toBe(true);
-            expect(entries.some((e: LsEntry) => e.name === '..')).toBe(true);
-          }
-        } finally {
-          await sandbox.delete();
+        if (result.results[0]?.status === 'success') {
+          const entries = result.results[0].entries;
+          expect(entries.some((e: LsEntry) => e.name === '.hidden')).toBe(true);
+          expect(entries.some((e: LsEntry) => e.name === '.')).toBe(true);
+          expect(entries.some((e: LsEntry) => e.name === '..')).toBe(true);
         }
       },
       65000
     );
 
-    (hasApiKey ? it.concurrent : it.concurrent.skip)(
+    (hasApiKey ? it : it.skip)(
       'should handle multiple paths',
       async () => {
-        const sandbox = await createTestSandbox();
-        try {
-          // Create test files and directories in sandbox using addFiles
-          const testFiles = [
-            { path: 'file1.txt', content: 'Content 1', destination: 'file1.txt' },
-            { path: 'file2.txt', content: 'Content 2', destination: 'file2.txt' },
-            { path: '.hidden', content: 'Hidden file', destination: '.hidden' },
-            {
-              path: 'subdir1/nested1.txt',
-              content: 'Nested content 1',
-              destination: 'subdir1/nested1.txt',
-            },
-            {
-              path: 'subdir1/nested2.txt',
-              content: 'Nested content 2',
-              destination: 'subdir1/nested2.txt',
-            },
-            {
-              path: 'subdir2/another.txt',
-              content: 'Another file',
-              destination: 'subdir2/another.txt',
-            },
-            {
-              path: 'deep/level1/file1.txt',
-              content: 'Level 1 file',
-              destination: 'deep/level1/file1.txt',
-            },
-            {
-              path: 'deep/level1/level2/file2.txt',
-              content: 'Level 2 file',
-              destination: 'deep/level1/level2/file2.txt',
-            },
-          ];
+        const testDir = getTestDir();
 
-          await addFiles(sandbox, testFiles);
+        // Create test directory structure
+        const createDirCode = `
+          const fs = require('fs');
+          fs.mkdirSync('${testDir}', { recursive: true });
+        `;
+        await sharedSandbox.process.codeRun(createDirCode);
 
-          const runtimeContext = new RuntimeContext();
-          runtimeContext.set(DocsAgentContextKeys.Sandbox, sandbox);
+        // Create test files and directories in sandbox using addFiles
+        const testFiles = [
+          { path: 'file1.txt', content: 'Content 1', destination: `${testDir}/file1.txt` },
+          { path: 'file2.txt', content: 'Content 2', destination: `${testDir}/file2.txt` },
+          { path: '.hidden', content: 'Hidden file', destination: `${testDir}/.hidden` },
+          {
+            path: 'subdir1/nested1.txt',
+            content: 'Nested content 1',
+            destination: `${testDir}/subdir1/nested1.txt`,
+          },
+          {
+            path: 'subdir1/nested2.txt',
+            content: 'Nested content 2',
+            destination: `${testDir}/subdir1/nested2.txt`,
+          },
+          {
+            path: 'subdir2/another.txt',
+            content: 'Another file',
+            destination: `${testDir}/subdir2/another.txt`,
+          },
+          {
+            path: 'deep/level1/file1.txt',
+            content: 'Level 1 file',
+            destination: `${testDir}/deep/level1/file1.txt`,
+          },
+          {
+            path: 'deep/level1/level2/file2.txt',
+            content: 'Level 2 file',
+            destination: `${testDir}/deep/level1/level2/file2.txt`,
+          },
+        ];
 
-          const result = await lsFiles.execute({
-            context: {
-              paths: ['subdir1', 'subdir2'],
-            },
-            runtimeContext,
-          });
+        await addFiles(sharedSandbox, testFiles);
 
-          expect(result.results).toHaveLength(2);
+        const runtimeContext = new RuntimeContext();
+        runtimeContext.set(DocsAgentContextKeys.Sandbox, sharedSandbox);
 
-          // Check subdir1
-          expect(result.results[0]?.status).toBe('success');
-          if (result.results[0]?.status === 'success') {
-            const entries = result.results[0].entries;
-            expect(entries.some((e) => e.name === 'nested1.txt')).toBe(true);
-            expect(entries.some((e) => e.name === 'nested2.txt')).toBe(true);
-          }
+        const result = await lsFiles.execute({
+          context: {
+            paths: [`${testDir}/subdir1`, `${testDir}/subdir2`],
+          },
+          runtimeContext,
+        });
 
-          // Check subdir2
-          expect(result.results[1]?.status).toBe('success');
-          if (result.results[1]?.status === 'success') {
-            const entries = result.results[1].entries;
-            expect(entries.some((e) => e.name === 'another.txt')).toBe(true);
-          }
-        } finally {
-          await sandbox.delete();
+        expect(result.results).toHaveLength(2);
+
+        // Check subdir1
+        expect(result.results[0]?.status).toBe('success');
+        if (result.results[0]?.status === 'success') {
+          const entries = result.results[0].entries;
+          expect(entries.some((e) => e.name === 'nested1.txt')).toBe(true);
+          expect(entries.some((e) => e.name === 'nested2.txt')).toBe(true);
+        }
+
+        // Check subdir2
+        expect(result.results[1]?.status).toBe('success');
+        if (result.results[1]?.status === 'success') {
+          const entries = result.results[1].entries;
+          expect(entries.some((e) => e.name === 'another.txt')).toBe(true);
         }
       },
       65000
     );
 
-    (hasApiKey ? it.concurrent : it.concurrent.skip)(
+    (hasApiKey ? it : it.skip)(
       'should handle non-existent paths',
       async () => {
-        const sandbox = await createTestSandbox();
-        try {
-          const runtimeContext = new RuntimeContext();
-          runtimeContext.set(DocsAgentContextKeys.Sandbox, sandbox);
+        const runtimeContext = new RuntimeContext();
+        runtimeContext.set(DocsAgentContextKeys.Sandbox, sharedSandbox);
 
-          const result = await lsFiles.execute({
-            context: {
-              paths: ['nonexistent-dir', 'also-nonexistent'],
-            },
-            runtimeContext,
-          });
+        const result = await lsFiles.execute({
+          context: {
+            paths: ['nonexistent-dir', 'also-nonexistent'],
+          },
+          runtimeContext,
+        });
 
-          expect(result.results).toHaveLength(2);
-          expect(result.results[0]?.status).toBe('error');
-          expect(result.results[1]?.status).toBe('error');
+        expect(result.results).toHaveLength(2);
+        expect(result.results[0]?.status).toBe('error');
+        expect(result.results[1]?.status).toBe('error');
 
-          if (result.results[0]?.status === 'error') {
-            expect(result.results[0].error_message).toBe('Path not found');
-          }
-        } finally {
-          await sandbox.delete();
+        if (result.results[0]?.status === 'error') {
+          expect(result.results[0].error_message).toBe('Path not found');
         }
       },
       65000
     );
 
-    (hasApiKey ? it.concurrent : it.concurrent.skip)(
+    (hasApiKey ? it : it.skip)(
       'should handle mixed success and failure',
       async () => {
-        const sandbox = await createTestSandbox();
-        try {
-          // Create test files and directories in sandbox using addFiles
-          const testFiles = [
-            { path: 'file1.txt', content: 'Content 1', destination: 'file1.txt' },
-            { path: 'file2.txt', content: 'Content 2', destination: 'file2.txt' },
-            { path: '.hidden', content: 'Hidden file', destination: '.hidden' },
-            {
-              path: 'subdir1/nested1.txt',
-              content: 'Nested content 1',
-              destination: 'subdir1/nested1.txt',
-            },
-            {
-              path: 'subdir1/nested2.txt',
-              content: 'Nested content 2',
-              destination: 'subdir1/nested2.txt',
-            },
-            {
-              path: 'subdir2/another.txt',
-              content: 'Another file',
-              destination: 'subdir2/another.txt',
-            },
-            {
-              path: 'deep/level1/file1.txt',
-              content: 'Level 1 file',
-              destination: 'deep/level1/file1.txt',
-            },
-            {
-              path: 'deep/level1/level2/file2.txt',
-              content: 'Level 2 file',
-              destination: 'deep/level1/level2/file2.txt',
-            },
-          ];
+        const testDir = getTestDir();
 
-          await addFiles(sandbox, testFiles);
+        // Create test directory structure
+        const createDirCode = `
+          const fs = require('fs');
+          fs.mkdirSync('${testDir}', { recursive: true });
+        `;
+        await sharedSandbox.process.codeRun(createDirCode);
 
-          const runtimeContext = new RuntimeContext();
-          runtimeContext.set(DocsAgentContextKeys.Sandbox, sandbox);
+        // Create test files and directories in sandbox using addFiles
+        const testFiles = [
+          { path: 'file1.txt', content: 'Content 1', destination: `${testDir}/file1.txt` },
+          { path: 'file2.txt', content: 'Content 2', destination: `${testDir}/file2.txt` },
+          { path: '.hidden', content: 'Hidden file', destination: `${testDir}/.hidden` },
+          {
+            path: 'subdir1/nested1.txt',
+            content: 'Nested content 1',
+            destination: `${testDir}/subdir1/nested1.txt`,
+          },
+          {
+            path: 'subdir1/nested2.txt',
+            content: 'Nested content 2',
+            destination: `${testDir}/subdir1/nested2.txt`,
+          },
+          {
+            path: 'subdir2/another.txt',
+            content: 'Another file',
+            destination: `${testDir}/subdir2/another.txt`,
+          },
+          {
+            path: 'deep/level1/file1.txt',
+            content: 'Level 1 file',
+            destination: `${testDir}/deep/level1/file1.txt`,
+          },
+          {
+            path: 'deep/level1/level2/file2.txt',
+            content: 'Level 2 file',
+            destination: `${testDir}/deep/level1/level2/file2.txt`,
+          },
+        ];
 
-          const result = await lsFiles.execute({
-            context: {
-              paths: ['subdir1', 'nonexistent', '.'],
-            },
-            runtimeContext,
-          });
+        await addFiles(sharedSandbox, testFiles);
 
-          expect(result.results).toHaveLength(3);
-          expect(result.results[0]?.status).toBe('success'); // subdir1 exists
-          expect(result.results[1]?.status).toBe('error'); // nonexistent
-          expect(result.results[2]?.status).toBe('success'); // current dir exists
-        } finally {
-          await sandbox.delete();
-        }
+        const runtimeContext = new RuntimeContext();
+        runtimeContext.set(DocsAgentContextKeys.Sandbox, sharedSandbox);
+
+        const result = await lsFiles.execute({
+          context: {
+            paths: [`${testDir}/subdir1`, 'nonexistent', `${testDir}`],
+          },
+          runtimeContext,
+        });
+
+        expect(result.results).toHaveLength(3);
+        expect(result.results[0]?.status).toBe('success'); // subdir1 exists
+        expect(result.results[1]?.status).toBe('error'); // nonexistent
+        expect(result.results[2]?.status).toBe('success'); // current dir exists
       },
       65000
     );
 
-    (hasApiKey ? it.concurrent : it.concurrent.skip)(
+    (hasApiKey ? it : it.skip)(
       'should handle all options combined',
       async () => {
-        const sandbox = await createTestSandbox();
-        try {
-          // Create test files and directories in sandbox using addFiles
-          const testFiles = [
-            { path: 'file1.txt', content: 'Content 1', destination: 'file1.txt' },
-            { path: 'file2.txt', content: 'Content 2', destination: 'file2.txt' },
-            { path: '.hidden', content: 'Hidden file', destination: '.hidden' },
-            {
-              path: 'subdir1/nested1.txt',
-              content: 'Nested content 1',
-              destination: 'subdir1/nested1.txt',
-            },
-            {
-              path: 'subdir1/nested2.txt',
-              content: 'Nested content 2',
-              destination: 'subdir1/nested2.txt',
-            },
-            {
-              path: 'subdir2/another.txt',
-              content: 'Another file',
-              destination: 'subdir2/another.txt',
-            },
-            {
-              path: 'deep/level1/file1.txt',
-              content: 'Level 1 file',
-              destination: 'deep/level1/file1.txt',
-            },
-            {
-              path: 'deep/level1/level2/file2.txt',
-              content: 'Level 2 file',
-              destination: 'deep/level1/level2/file2.txt',
-            },
-          ];
+        const testDir = getTestDir();
 
-          await addFiles(sandbox, testFiles);
+        // Create test directory structure
+        const createDirCode = `
+          const fs = require('fs');
+          fs.mkdirSync('${testDir}', { recursive: true });
+        `;
+        await sharedSandbox.process.codeRun(createDirCode);
 
-          const runtimeContext = new RuntimeContext();
-          runtimeContext.set(DocsAgentContextKeys.Sandbox, sandbox);
+        // Create test files and directories in sandbox using addFiles
+        const testFiles = [
+          { path: 'file1.txt', content: 'Content 1', destination: `${testDir}/file1.txt` },
+          { path: 'file2.txt', content: 'Content 2', destination: `${testDir}/file2.txt` },
+          { path: '.hidden', content: 'Hidden file', destination: `${testDir}/.hidden` },
+          {
+            path: 'subdir1/nested1.txt',
+            content: 'Nested content 1',
+            destination: `${testDir}/subdir1/nested1.txt`,
+          },
+          {
+            path: 'subdir1/nested2.txt',
+            content: 'Nested content 2',
+            destination: `${testDir}/subdir1/nested2.txt`,
+          },
+          {
+            path: 'subdir2/another.txt',
+            content: 'Another file',
+            destination: `${testDir}/subdir2/another.txt`,
+          },
+          {
+            path: 'deep/level1/file1.txt',
+            content: 'Level 1 file',
+            destination: `${testDir}/deep/level1/file1.txt`,
+          },
+          {
+            path: 'deep/level1/level2/file2.txt',
+            content: 'Level 2 file',
+            destination: `${testDir}/deep/level1/level2/file2.txt`,
+          },
+        ];
 
-          const result = await lsFiles.execute({
-            context: {
-              paths: ['.'],
-              options: {
-                detailed: true,
-                all: true,
-                recursive: true,
-                humanReadable: true,
-              },
+        await addFiles(sharedSandbox, testFiles);
+
+        const runtimeContext = new RuntimeContext();
+        runtimeContext.set(DocsAgentContextKeys.Sandbox, sharedSandbox);
+
+        const result = await lsFiles.execute({
+          context: {
+            paths: [`${testDir}`],
+            options: {
+              detailed: true,
+              all: true,
+              recursive: true,
+              humanReadable: true,
             },
-            runtimeContext,
-          });
+          },
+          runtimeContext,
+        });
 
-          expect(result.results[0]?.status).toBe('success');
+        expect(result.results[0]?.status).toBe('success');
 
-          if (result.results[0]?.status === 'success') {
-            const entries = result.results[0].entries;
-            expect(entries.some((e: LsEntry) => e.name === '.')).toBe(true); // -a shows hidden
-            expect(entries[0]?.permissions).toBeDefined(); // -l shows details
-          }
-        } finally {
-          await sandbox.delete();
+        if (result.results[0]?.status === 'success') {
+          const entries = result.results[0].entries;
+          expect(entries.some((e: LsEntry) => e.name === '.')).toBe(true); // -a shows hidden
+          expect(entries[0]?.permissions).toBeDefined(); // -l shows details
         }
       },
       65000
     );
 
-    (hasApiKey ? it.concurrent : it.concurrent.skip)(
+    (hasApiKey ? it : it.skip)(
       'should handle empty paths array',
       async () => {
-        const sandbox = await createTestSandbox();
-        try {
-          const runtimeContext = new RuntimeContext();
-          runtimeContext.set(DocsAgentContextKeys.Sandbox, sandbox);
+        const runtimeContext = new RuntimeContext();
+        runtimeContext.set(DocsAgentContextKeys.Sandbox, sharedSandbox);
 
-          const result = await lsFiles.execute({
-            context: {
-              paths: [],
-            },
-            runtimeContext,
-          });
+        const result = await lsFiles.execute({
+          context: {
+            paths: [],
+          },
+          runtimeContext,
+        });
 
-          expect(result.results).toHaveLength(0);
-        } finally {
-          await sandbox.delete();
-        }
+        expect(result.results).toHaveLength(0);
       },
       65000
     );

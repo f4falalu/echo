@@ -18,8 +18,9 @@ describe('docs-agent-workflow with mock sandbox', () => {
       const workflow = docsAgentWorkflow as any;
       // The workflow has a steps object with the step definitions
       const stepKeys = Object.keys(workflow.steps);
-      expect(stepKeys).toHaveLength(3);
+      expect(stepKeys).toHaveLength(4);
       expect(stepKeys).toContain('initialize-context');
+      expect(stepKeys).toContain('get-repository-tree');
       expect(stepKeys).toContain('create-docs-todos');
       expect(stepKeys).toContain('docs-agent');
     });

@@ -50,14 +50,50 @@ const readFilesExecution = wrapTraced(
       const sandbox = runtimeContext.get(DocsAgentContextKeys.Sandbox);
 
       if (sandbox) {
-        // Read the read-files-script.ts content
-        const scriptPath = path.join(__dirname, 'read-files-script.ts');
-        const scriptContent = await fs.readFile(scriptPath, 'utf-8');
+        // Generate CommonJS code for sandbox execution
+        const filesJson = JSON.stringify(files);
+        const sandboxCode = `
+const fs = require('fs');
+const path = require('path');
 
-        // Build command line arguments - all arguments are file paths
-        const args = [...files];
+const filesJson = ${JSON.stringify(filesJson)};
+const files = JSON.parse(filesJson);
+const results = [];
+const MAX_LINES = 1000;
 
-        const result = await runTypescript(sandbox, scriptContent, { argv: args });
+// Process files
+for (const filePath of files) {
+  try {
+    const resolvedPath = path.isAbsolute(filePath) 
+      ? filePath 
+      : path.join(process.cwd(), filePath);
+      
+    const content = fs.readFileSync(resolvedPath, 'utf-8');
+    const lines = content.split('\\n');
+    const truncated = lines.length > MAX_LINES;
+    const truncatedContent = truncated 
+      ? lines.slice(0, MAX_LINES).join('\\n')
+      : content;
+    
+    results.push({
+      success: true,
+      filePath: filePath,
+      content: truncatedContent,
+      truncated: truncated
+    });
+  } catch (error) {
+    results.push({
+      success: false,
+      filePath: filePath,
+      error: (error as any).code === 'ENOENT' ? 'File not found' : (error instanceof Error ? error.message : String(error))
+    });
+  }
+}
+
+console.log(JSON.stringify(results));
+`;
+
+        const result = await runTypescript(sandbox, sandboxCode);
 
         if (result.exitCode !== 0) {
           console.error('Sandbox execution failed. Exit code:', result.exitCode);

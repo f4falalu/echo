@@ -63,17 +63,82 @@ const editFilesExecution = wrapTraced(
       const sandbox = runtimeContext.get(DocsAgentContextKeys.Sandbox);
 
       if (sandbox) {
-        // Read the edit-files-script.ts content
-        const scriptPath = path.join(__dirname, 'edit-files-script.ts');
-        const scriptContent = await fs.readFile(scriptPath, 'utf-8');
-
-        // Build command line arguments
-        // Base64 encode the JSON to avoid corruption when passing through sandbox
+        // Generate CommonJS code for sandbox execution
         const editsJson = JSON.stringify(edits);
-        const base64Edits = Buffer.from(editsJson).toString('base64');
-        const args = [base64Edits];
+        const sandboxCode = `
+const fs = require('fs');
+const path = require('path');
 
-        const result = await runTypescript(sandbox, scriptContent, { argv: args });
+const editsJson = ${JSON.stringify(editsJson)};
+const edits = JSON.parse(editsJson);
+const results = [];
+
+// Process edits
+for (const edit of edits) {
+  try {
+    const resolvedPath = path.isAbsolute(edit.filePath) 
+      ? edit.filePath 
+      : path.join(process.cwd(), edit.filePath);
+      
+    // Read the file
+    let content;
+    try {
+      content = fs.readFileSync(resolvedPath, 'utf-8');
+    } catch (error) {
+      if ((error as any).code === 'ENOENT') {
+        results.push({
+          success: false,
+          filePath: edit.filePath,
+          error: 'File not found'
+        });
+        continue;
+      }
+      throw error;
+    }
+    
+    // Check if find string exists
+    const occurrences = content.split(edit.findString).length - 1;
+    
+    if (occurrences === 0) {
+      results.push({
+        success: false,
+        filePath: edit.filePath,
+        error: 'Find string not found in file: "' + edit.findString + '"'
+      });
+      continue;
+    }
+    
+    if (occurrences > 1) {
+      results.push({
+        success: false,
+        filePath: edit.filePath,
+        error: 'Find string "' + edit.findString + '" appears ' + occurrences + ' times. Please use a more specific string that appears only once.'
+      });
+      continue;
+    }
+    
+    // Replace the string
+    const newContent = content.replace(edit.findString, edit.replaceString);
+    fs.writeFileSync(resolvedPath, newContent, 'utf-8');
+    
+    results.push({
+      success: true,
+      filePath: edit.filePath,
+      message: 'Successfully replaced "' + edit.findString + '" with "' + edit.replaceString + '" in ' + edit.filePath
+    });
+  } catch (error) {
+    results.push({
+      success: false,
+      filePath: edit.filePath,
+      error: (error instanceof Error ? error.message : String(error)) || 'Unknown error'
+    });
+  }
+}
+
+console.log(JSON.stringify(results));
+`;
+
+        const result = await runTypescript(sandbox, sandboxCode);
 
         if (result.exitCode !== 0) {
           console.error('Sandbox execution failed. Exit code:', result.exitCode);

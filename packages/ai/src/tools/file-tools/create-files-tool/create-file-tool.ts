@@ -47,17 +47,59 @@ const createFilesExecution = wrapTraced(
       const sandbox = runtimeContext.get(DocsAgentContextKeys.Sandbox);
 
       if (sandbox) {
-        // Read the create-files-script.ts content
-        const scriptPath = path.join(__dirname, 'create-files-script.ts');
-        const scriptContent = await fs.readFile(scriptPath, 'utf-8');
-
-        // Pass file parameters as base64-encoded JSON string argument
-        // to avoid corruption when passing through sandbox
+        // Generate CommonJS code for sandbox execution
         const filesJson = JSON.stringify(files);
-        const base64Files = Buffer.from(filesJson).toString('base64');
-        const args = [base64Files];
+        const sandboxCode = `
+const fs = require('fs');
+const path = require('path');
 
-        const result = await runTypescript(sandbox, scriptContent, { argv: args });
+const filesJson = ${JSON.stringify(filesJson)};
+const files = JSON.parse(filesJson);
+const results = [];
+const createdDirs = new Set();
+
+// Process files sequentially
+for (const file of files) {
+  try {
+    const resolvedPath = path.isAbsolute(file.path) 
+      ? file.path 
+      : path.join(process.cwd(), file.path);
+    const dirPath = path.dirname(resolvedPath);
+
+    // Only create directory if we haven't already created it
+    if (!createdDirs.has(dirPath)) {
+      try {
+        fs.mkdirSync(dirPath, { recursive: true });
+        createdDirs.add(dirPath);
+      } catch (error) {
+        results.push({
+          success: false,
+          filePath: file.path,
+          error: 'Failed to create directory: ' + (error instanceof Error ? error.message : String(error))
+        });
+        continue;
+      }
+    }
+
+    fs.writeFileSync(resolvedPath, file.content, 'utf-8');
+    
+    results.push({
+      success: true,
+      filePath: file.path
+    });
+  } catch (error) {
+    results.push({
+      success: false,
+      filePath: file.path,
+      error: (error instanceof Error ? error.message : String(error)) || 'Unknown error'
+    });
+  }
+}
+
+console.log(JSON.stringify(results));
+`;
+
+        const result = await runTypescript(sandbox, sandboxCode);
 
         if (result.exitCode !== 0) {
           console.error('Sandbox execution failed. Exit code:', result.exitCode);

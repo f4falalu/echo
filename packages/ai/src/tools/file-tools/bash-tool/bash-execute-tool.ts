@@ -46,17 +46,109 @@ const executeBashCommands = wrapTraced(
       const sandbox = runtimeContext.get(DocsAgentContextKeys.Sandbox);
 
       if (sandbox) {
-        // Read the bash-execute-script.ts content
-        const scriptPath = path.join(__dirname, 'bash-execute-script.ts');
-        const scriptContent = await fs.readFile(scriptPath, 'utf-8');
-
-        // Build command line arguments
-        // Base64 encode the JSON to avoid corruption when passing through sandbox
+        // Generate CommonJS code for sandbox execution
         const commandsJson = JSON.stringify(commands);
-        const base64Commands = Buffer.from(commandsJson).toString('base64');
-        const args = [base64Commands];
+        const sandboxCode = `
+const { spawn } = require('child_process');
 
-        const result = await runTypescript(sandbox, scriptContent, { argv: args });
+const commandsJson = ${JSON.stringify(commandsJson)};
+const commands: any[] = JSON.parse(commandsJson);
+const results: any[] = [];
+
+function executeSingleCommand(command: string, timeout?: number) {
+  return new Promise((resolve: any) => {
+    const child = spawn('bash', ['-c', command], {
+      stdio: ['pipe', 'pipe', 'pipe']
+    });
+    
+    let stdout: string = '';
+    let stderr: string = '';
+    let timeoutId: any;
+    
+    if (timeout) {
+      timeoutId = setTimeout(() => {
+        child.kill('SIGTERM');
+        resolve({
+          stdout: stdout.trim(),
+          stderr: stderr.trim(),
+          exitCode: -1,
+          timedOut: true
+        });
+      }, timeout);
+    }
+    
+    child.stdout.on('data', (data: any) => {
+      stdout += data.toString();
+    });
+    
+    child.stderr.on('data', (data: any) => {
+      stderr += data.toString();
+    });
+    
+    child.on('close', (code: number | null) => {
+      if (timeoutId) clearTimeout(timeoutId);
+      resolve({
+        stdout: stdout.trim(),
+        stderr: stderr.trim(),
+        exitCode: code || 0,
+        timedOut: false
+      });
+    });
+    
+    child.on('error', (error: any) => {
+      if (timeoutId) clearTimeout(timeoutId);
+      resolve({
+        stdout: stdout.trim(),
+        stderr: stderr.trim(),
+        exitCode: -1,
+        error: error.message,
+        timedOut: false
+      });
+    });
+  });
+}
+
+async function executeCommands() {
+  for (const cmd of commands) {
+    const result: any = await executeSingleCommand(cmd.command, cmd.timeout);
+    
+    if (result.timedOut) {
+      results.push({
+        command: cmd.command,
+        stdout: result.stdout,
+        stderr: result.stderr,
+        exitCode: result.exitCode,
+        success: false,
+        error: 'Command timed out after ' + cmd.timeout + 'ms'
+      });
+    } else if (result.error) {
+      results.push({
+        command: cmd.command,
+        stdout: result.stdout,
+        stderr: result.stderr,
+        exitCode: result.exitCode,
+        success: false,
+        error: result.error
+      });
+    } else {
+      results.push({
+        command: cmd.command,
+        stdout: result.stdout,
+        stderr: result.stderr || undefined,
+        exitCode: result.exitCode,
+        success: result.exitCode === 0,
+        error: result.exitCode !== 0 ? result.stderr || 'Command failed' : undefined
+      });
+    }
+  }
+  
+  console.log(JSON.stringify(results));
+}
+
+executeCommands();
+`;
+
+        const result = await runTypescript(sandbox, sandboxCode);
 
         if (result.exitCode !== 0) {
           console.error('Sandbox execution failed. Exit code:', result.exitCode);

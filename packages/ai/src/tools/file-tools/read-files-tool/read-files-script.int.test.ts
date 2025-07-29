@@ -42,6 +42,11 @@ describe('read-files-script integration test', () => {
         content: 'Unicode: 你好世界 🌍 émojis',
         destination: 'unicode.txt',
       },
+      {
+        path: 'empty.txt',
+        content: '',
+        destination: 'empty.txt',
+      },
     ];
 
     // Create a large file with more than 1000 lines
@@ -70,7 +75,7 @@ describe('read-files-script integration test', () => {
       {
         success: false,
         filePath: '',
-        error: 'No file paths provided',
+        error: 'No arguments provided',
       },
     ]);
   });
@@ -280,7 +285,7 @@ describe('read-files-script integration test', () => {
     ]);
 
     const result = await runTypescript(sandbox, scriptContent, {
-      argv: ['file with spaces.txt'],
+      argv: [JSON.stringify(['file with spaces.txt'])],
     });
     const output = JSON.parse(result.result);
 

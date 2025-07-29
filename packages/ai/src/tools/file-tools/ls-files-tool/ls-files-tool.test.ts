@@ -70,7 +70,6 @@ describe('ls-files-tool', () => {
       const mockSandbox = { process: { codeRun: vi.fn() } };
       runtimeContext.set(DocsAgentContextKeys.Sandbox, mockSandbox);
 
-      mockReadFile.mockResolvedValue('script content');
       mockRunTypescript.mockResolvedValue({
         result: JSON.stringify([
           {
@@ -87,10 +86,11 @@ describe('ls-files-tool', () => {
         runtimeContext,
       });
 
-      expect(mockReadFile).toHaveBeenCalled();
-      expect(mockRunTypescript).toHaveBeenCalledWith(mockSandbox, 'script content', {
-        argv: ['/test/path'],
-      });
+      expect(mockRunTypescript).toHaveBeenCalled();
+      const call = mockRunTypescript.mock.calls[0];
+      expect(call?.[0]).toBe(mockSandbox);
+      expect(call?.[1]).toContain('const pathsJson =');
+      expect(call?.[1]).toContain("const fs = require('fs')");
       expect(result.results).toHaveLength(1);
       expect(result.results[0]?.status).toBe('success');
     });
@@ -113,7 +113,6 @@ describe('ls-files-tool', () => {
       const mockSandbox = { process: { codeRun: vi.fn() } };
       runtimeContext.set(DocsAgentContextKeys.Sandbox, mockSandbox);
 
-      mockReadFile.mockResolvedValue('script content');
       mockRunTypescript.mockResolvedValue({
         result: '',
         exitCode: 1,
@@ -145,7 +144,6 @@ describe('ls-files-tool', () => {
       const mockSandbox = { process: { codeRun: vi.fn() } };
       runtimeContext.set(DocsAgentContextKeys.Sandbox, mockSandbox);
 
-      mockReadFile.mockResolvedValue('script content');
       mockRunTypescript.mockResolvedValue({
         result: JSON.stringify([
           {

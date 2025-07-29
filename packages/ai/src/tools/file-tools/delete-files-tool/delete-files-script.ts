@@ -17,19 +17,25 @@ async function deleteFiles(paths: string[]): Promise<DeleteResult[]> {
         ? filePath
         : path.join(process.cwd(), filePath);
 
+      // Check if file exists and get its stats
+      let stats: Awaited<ReturnType<typeof fs.stat>>;
       try {
-        await fs.access(resolvedPath);
-      } catch {
+        stats = await fs.stat(resolvedPath);
+      } catch (error) {
+        let errorMessage = 'File not found';
+        if (error instanceof Error && 'code' in error && error.code) {
+          errorMessage =
+            error.code === 'ENOENT' ? 'File not found' : `${error.code}: ${error.message}`;
+        }
         results.push({
           success: false,
           path: filePath,
-          error: 'File not found',
+          error: errorMessage,
         });
         continue;
       }
 
       // Check if it's a directory
-      const stats = await fs.stat(resolvedPath);
       if (stats.isDirectory()) {
         results.push({
           success: false,
@@ -46,10 +52,18 @@ async function deleteFiles(paths: string[]): Promise<DeleteResult[]> {
         path: filePath,
       });
     } catch (error) {
+      let errorMessage = 'Unknown error occurred';
+      if (error instanceof Error) {
+        errorMessage = error.message;
+        // Preserve error code in message if available
+        if ('code' in error && error.code) {
+          errorMessage = `${error.code}: ${error.message}`;
+        }
+      }
       results.push({
         success: false,
         path: filePath,
-        error: error instanceof Error ? error.message : 'Unknown error occurred',
+        error: errorMessage,
       });
     }
   }
@@ -63,20 +77,25 @@ async function main() {
   const args = process.argv.slice(2);
 
   if (args.length === 0) {
-    console.log(
-      JSON.stringify([
-        {
-          success: false,
-          path: '',
-          error: 'No file paths provided',
-        },
-      ])
-    );
-    process.exit(1);
+    console.log(JSON.stringify([]));
+    process.exit(0);
   }
 
-  // All arguments are file paths to delete
-  const paths = args;
+  let paths: string[];
+  try {
+    // First try to parse as JSON (from tool)
+    const firstArg = args[0];
+    if (!firstArg) {
+      throw new Error('No argument provided');
+    }
+    paths = JSON.parse(firstArg);
+    if (!Array.isArray(paths)) {
+      throw new Error('Invalid input');
+    }
+  } catch {
+    // Fall back to treating all arguments as paths (from integration tests)
+    paths = args;
+  }
 
   const results = await deleteFiles(paths);
 

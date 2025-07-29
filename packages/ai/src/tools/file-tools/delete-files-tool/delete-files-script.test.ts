@@ -1,130 +1,206 @@
 import * as child_process from 'node:child_process';
 import * as fs from 'node:fs/promises';
+import * as os from 'node:os';
 import * as path from 'node:path';
 import { promisify } from 'node:util';
-import { describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 const exec = promisify(child_process.exec);
 
 describe('delete-files-script', () => {
   const scriptPath = path.join(__dirname, 'delete-files-script.ts');
+  let tempDir: string;
 
-  async function runScript(args: string[]): Promise<any> {
-    const { stdout, stderr } = await exec(
-      `node -r esbuild-register ${scriptPath} ${args.join(' ')}`
-    );
-    if (stderr) {
-      throw new Error(stderr);
+  beforeEach(async () => {
+    // Create a temporary directory for test files
+    tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'delete-files-test-'));
+  });
+
+  afterEach(async () => {
+    // Clean up temporary directory
+    try {
+      await fs.rm(tempDir, { recursive: true, force: true });
+    } catch (error) {
+      // Ignore cleanup errors
     }
-    return JSON.parse(stdout);
+  });
+
+  async function runScript(
+    args: string[]
+  ): Promise<{ stdout: string; stderr: string; error?: any }> {
+    try {
+      // Properly escape arguments for shell
+      const escapedArgs = args.map((arg) => {
+        // If it contains special characters, wrap in single quotes
+        if (arg.includes(' ') || arg.includes('"') || arg.includes('[') || arg.includes(']')) {
+          return `'${arg.replace(/'/g, "'\"'\"'")}'`;
+        }
+        return arg;
+      });
+      const { stdout, stderr } = await exec(`npx tsx ${scriptPath} ${escapedArgs.join(' ')}`);
+      return { stdout, stderr };
+    } catch (error: any) {
+      // If the command exits with non-zero code, exec throws
+      // But we can still access stdout/stderr from the error
+      return { stdout: error.stdout || '', stderr: error.stderr || '', error };
+    }
   }
 
-  describe('deleteSingleFile', () => {
-    it('executes the script and returns results', async () => {
-      // This is more of a functional test to ensure the script structure is correct
-      // The actual file operations are tested in integration tests
-      expect(scriptPath).toBeDefined();
+  describe('functional tests', () => {
+    it('should successfully delete a single file', async () => {
+      // Create a test file
+      const testFile = path.join(tempDir, 'test.txt');
+      await fs.writeFile(testFile, 'test content');
 
-      // Verify the script file exists
-      await expect(fs.access(scriptPath)).resolves.not.toThrow();
-    });
-  });
+      // Run the script
+      const { stdout } = await runScript([testFile]);
+      const results = JSON.parse(stdout);
 
-  describe('script structure', () => {
-    it('should export no functions (is a script)', async () => {
-      const scriptContent = await fs.readFile(scriptPath, 'utf-8');
+      expect(results).toEqual([
+        {
+          success: true,
+          path: testFile,
+        },
+      ]);
 
-      // The script should not export any functions
-      expect(scriptContent).not.toContain('export function');
-      expect(scriptContent).not.toContain('export async function');
-      expect(scriptContent).not.toContain('export const');
-
-      // It should have a main function that runs automatically
-      expect(scriptContent).toContain('async function main()');
-      expect(scriptContent).toContain('main().catch');
+      // Verify file was deleted
+      await expect(fs.access(testFile)).rejects.toThrow();
     });
 
-    it('should handle command line arguments', async () => {
-      const scriptContent = await fs.readFile(scriptPath, 'utf-8');
+    it('should handle non-existent file', async () => {
+      const nonExistentFile = path.join(tempDir, 'nonexistent.txt');
 
-      // Should parse process.argv
-      expect(scriptContent).toContain('process.argv.slice(2)');
+      // Run the script
+      const { stdout } = await runScript([nonExistentFile]);
+      const results = JSON.parse(stdout);
 
-      // Should handle file paths as arguments
-      expect(scriptContent).toContain('const paths = args');
+      expect(results).toEqual([
+        {
+          success: false,
+          path: nonExistentFile,
+          error: 'File not found',
+        },
+      ]);
     });
 
-    it('should output JSON to stdout', async () => {
-      const scriptContent = await fs.readFile(scriptPath, 'utf-8');
+    it('should handle multiple files', async () => {
+      // Create test files
+      const file1 = path.join(tempDir, 'file1.txt');
+      const file2 = path.join(tempDir, 'file2.txt');
+      const file3 = path.join(tempDir, 'file3.txt');
 
-      // Should use console.log for output
-      expect(scriptContent).toContain('console.log(JSON.stringify(results))');
+      await fs.writeFile(file1, 'content1');
+      await fs.writeFile(file2, 'content2');
+      await fs.writeFile(file3, 'content3');
+
+      // Run the script
+      const { stdout } = await runScript([file1, file2, file3]);
+      const results = JSON.parse(stdout);
+
+      expect(results).toHaveLength(3);
+      expect(results.every((r: any) => r.success)).toBe(true);
+
+      // Verify all files were deleted
+      await expect(fs.access(file1)).rejects.toThrow();
+      await expect(fs.access(file2)).rejects.toThrow();
+      await expect(fs.access(file3)).rejects.toThrow();
     });
 
-    it('should handle errors with proper exit code', async () => {
-      const scriptContent = await fs.readFile(scriptPath, 'utf-8');
+    it('should handle JSON array input', async () => {
+      // Create test files
+      const file1 = path.join(tempDir, 'file1.txt');
+      const file2 = path.join(tempDir, 'file2.txt');
 
-      // Should handle errors in main().catch
-      expect(scriptContent).toContain('process.exit(1)');
-      // Script outputs errors as JSON to stdout, not console.error
-      expect(scriptContent).toContain('main().catch');
-      expect(scriptContent).toContain('Unexpected error:');
-    });
-  });
+      await fs.writeFile(file1, 'content1');
+      await fs.writeFile(file2, 'content2');
 
-  describe('deleteFiles function structure', () => {
-    it('should contain deleteFiles function', async () => {
-      const scriptContent = await fs.readFile(scriptPath, 'utf-8');
+      // Run the script with JSON array
+      const { stdout } = await runScript([JSON.stringify([file1, file2])]);
+      const results = JSON.parse(stdout);
 
-      expect(scriptContent).toContain('async function deleteFiles');
-      expect(scriptContent).not.toContain('Promise.all');
-    });
+      expect(results).toHaveLength(2);
+      expect(results.every((r: any) => r.success)).toBe(true);
 
-    it('should contain proper file deletion logic', async () => {
-      const scriptContent = await fs.readFile(scriptPath, 'utf-8');
-
-      expect(scriptContent).toContain('async function deleteFiles');
-      expect(scriptContent).toContain('fs.access');
-      expect(scriptContent).toContain('fs.stat');
-      expect(scriptContent).toContain('fs.unlink');
-      expect(scriptContent).toContain('isDirectory()');
-    });
-
-    it('should handle both absolute and relative paths', async () => {
-      const scriptContent = await fs.readFile(scriptPath, 'utf-8');
-
-      expect(scriptContent).toContain('path.isAbsolute');
-      expect(scriptContent).toContain('path.join(process.cwd()');
-    });
-
-    it('should return proper result structure', async () => {
-      const scriptContent = await fs.readFile(scriptPath, 'utf-8');
-
-      // Should return success/path/error structure
-      expect(scriptContent).toContain('success: true');
-      expect(scriptContent).toContain('success: false');
-      expect(scriptContent).toContain('path:');
-      expect(scriptContent).toContain('error:');
-    });
-  });
-
-  describe('error handling', () => {
-    it('should handle file not found errors', async () => {
-      const scriptContent = await fs.readFile(scriptPath, 'utf-8');
-
-      expect(scriptContent).toContain('File not found');
+      // Verify files were deleted
+      await expect(fs.access(file1)).rejects.toThrow();
+      await expect(fs.access(file2)).rejects.toThrow();
     });
 
     it('should prevent directory deletion', async () => {
-      const scriptContent = await fs.readFile(scriptPath, 'utf-8');
+      // Create a test directory
+      const testDir = path.join(tempDir, 'testdir');
+      await fs.mkdir(testDir);
 
-      expect(scriptContent).toContain('Cannot delete directories with this tool');
+      // Run the script
+      const { stdout } = await runScript([testDir]);
+      const results = JSON.parse(stdout);
+
+      expect(results).toEqual([
+        {
+          success: false,
+          path: testDir,
+          error: 'Cannot delete directories with this tool',
+        },
+      ]);
+
+      // Verify directory still exists
+      const stats = await fs.stat(testDir);
+      expect(stats.isDirectory()).toBe(true);
     });
 
-    it('should handle unknown errors', async () => {
-      const scriptContent = await fs.readFile(scriptPath, 'utf-8');
+    it('should handle relative paths', async () => {
+      const originalCwd = process.cwd();
+      try {
+        // Change to temp directory
+        process.chdir(tempDir);
 
-      expect(scriptContent).toContain('Unknown error occurred');
+        // Create a test file
+        await fs.writeFile('relative.txt', 'content');
+
+        // Run the script with relative path
+        const { stdout } = await runScript(['relative.txt']);
+        const results = JSON.parse(stdout);
+
+        expect(results).toEqual([
+          {
+            success: true,
+            path: 'relative.txt',
+          },
+        ]);
+
+        // Verify file was deleted
+        await expect(fs.access('relative.txt')).rejects.toThrow();
+      } finally {
+        process.chdir(originalCwd);
+      }
+    });
+
+    it('should handle no arguments', async () => {
+      const { stdout, error } = await runScript([]);
+      expect(error).toBeUndefined(); // Script exits with code 0
+      const results = JSON.parse(stdout);
+
+      expect(results).toEqual([]);
+    });
+
+    it('should handle files with spaces in names', async () => {
+      // Create a file with spaces
+      const testFile = path.join(tempDir, 'file with spaces.txt');
+      await fs.writeFile(testFile, 'content');
+
+      // Run the script - escaping is handled by runScript
+      const { stdout } = await runScript([testFile]);
+      const results = JSON.parse(stdout);
+
+      expect(results).toEqual([
+        {
+          success: true,
+          path: testFile,
+        },
+      ]);
+
+      // Verify file was deleted
+      await expect(fs.access(testFile)).rejects.toThrow();
     });
   });
 });

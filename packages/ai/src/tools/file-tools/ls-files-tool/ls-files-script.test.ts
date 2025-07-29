@@ -1,218 +1,296 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-
-// Mock the modules before import
-vi.mock('node:child_process', () => ({
-  exec: vi.fn(),
-}));
-
-vi.mock('node:fs/promises', () => ({
-  access: vi.fn(),
-}));
-
-// Import modules after mocking
 import * as child_process from 'node:child_process';
 import * as fs from 'node:fs/promises';
+import * as os from 'node:os';
+import * as path from 'node:path';
+import { promisify } from 'node:util';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
-const mockChildProcess = vi.mocked(child_process);
-const mockFs = vi.mocked(fs);
+const exec = promisify(child_process.exec);
 
 describe('ls-files-script', () => {
-  let originalArgv: string[];
-  let consoleLogSpy: any;
-  let consoleErrorSpy: any;
-  let processExitSpy: any;
+  const scriptPath = path.join(__dirname, 'ls-files-script.ts');
+  let tempDir: string;
 
-  beforeEach(() => {
-    vi.clearAllMocks();
-    originalArgv = process.argv;
-    consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
-    consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-    processExitSpy = vi
-      .spyOn(process, 'exit')
-      .mockImplementation((code?: string | number | null | undefined) => {
-        throw new Error(`Process exit with code ${code}`);
-      });
+  beforeEach(async () => {
+    // Create a temporary directory for test files
+    tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'ls-files-test-'));
   });
 
-  afterEach(() => {
-    process.argv = originalArgv;
-    consoleLogSpy.mockRestore();
-    consoleErrorSpy.mockRestore();
-    processExitSpy.mockRestore();
-    vi.resetModules();
+  afterEach(async () => {
+    // Clean up temporary directory
+    try {
+      await fs.rm(tempDir, { recursive: true, force: true });
+    } catch (error) {
+      // Ignore cleanup errors
+    }
   });
 
-  async function runScript(args: string[]) {
-    process.argv = ['node', 'ls-files-script.ts', ...args];
-
-    // Dynamically import and wait for execution
-    const module = await import(`./ls-files-script?t=${Date.now()}`);
-
-    // Give the async main() time to complete
-    await new Promise((resolve) => setTimeout(resolve, 10));
+  async function runScript(args: string[]): Promise<{ stdout: string; stderr: string }> {
+    // Properly escape arguments for shell
+    const escapedArgs = args.map((arg) => {
+      // If it contains special characters, wrap in single quotes
+      if (arg.includes(' ') || arg.includes('"') || arg.includes('[') || arg.includes(']')) {
+        return `'${arg.replace(/'/g, "'\"'\"'")}'`;
+      }
+      return arg;
+    });
+    const { stdout, stderr } = await exec(`npx tsx ${scriptPath} ${escapedArgs.join(' ')}`);
+    return { stdout, stderr };
   }
 
-  it('should list current directory when no arguments provided', async () => {
-    mockFs.access.mockResolvedValue(undefined);
-    mockChildProcess.exec.mockImplementation((command, callback) => {
-      const cb = callback as (error: null, stdout: string, stderr: string) => void;
-      // With -F flag, files are listed without suffix, directories with /
-      cb(null, 'file1.txt\nfile2.txt\nsubdir/\n', '');
-      return {} as any;
-    });
+  describe('functional tests', () => {
+    it.skipIf(process.platform === 'win32')(
+      'should list current directory when no arguments provided',
+      async () => {
+        // Create some test files and directories
+        await fs.writeFile(path.join(tempDir, 'file1.txt'), 'content1');
+        await fs.writeFile(path.join(tempDir, 'file2.txt'), 'content2');
+        await fs.mkdir(path.join(tempDir, 'subdir'));
 
-    await runScript([]);
+        // Change to temp directory
+        const originalCwd = process.cwd();
+        process.chdir(tempDir);
 
-    expect(consoleLogSpy).toHaveBeenCalledWith(
-      JSON.stringify([
-        {
-          success: true,
-          path: '.',
-          entries: [
-            { name: 'file1.txt', type: 'file' },
-            { name: 'file2.txt', type: 'file' },
-            { name: 'subdir', type: 'directory' },
-          ],
-        },
-      ])
-    );
-  });
+        try {
+          const { stdout } = await runScript([]);
+          const results = JSON.parse(stdout);
 
-  it('should handle multiple paths', async () => {
-    mockFs.access.mockResolvedValue(undefined);
-    mockChildProcess.exec.mockImplementation((command, callback) => {
-      const cb = callback as (error: null, stdout: string, stderr: string) => void;
-      if (command.includes('path1')) {
-        cb(null, 'file1.txt\ndir1/\n', '');
-      } else if (command.includes('path2')) {
-        cb(null, 'file2.txt\ndir2/\n', '');
+          expect(results).toHaveLength(1);
+          expect(results[0].success).toBe(true);
+          expect(results[0].path).toBe('.');
+          expect(results[0].entries).toBeDefined();
+
+          const names = results[0].entries.map((e: any) => e.name).sort();
+          expect(names).toContain('file1.txt');
+          expect(names).toContain('file2.txt');
+          expect(names).toContain('subdir');
+        } finally {
+          process.chdir(originalCwd);
+        }
       }
-      return {} as any;
+    );
+
+    it.skipIf(process.platform === 'win32')('should list specific directory', async () => {
+      // Create test structure
+      const subDir = path.join(tempDir, 'testdir');
+      await fs.mkdir(subDir);
+      await fs.writeFile(path.join(subDir, 'test1.txt'), 'test content');
+      await fs.writeFile(path.join(subDir, 'test2.txt'), 'test content');
+
+      const { stdout } = await runScript([subDir]);
+      const results = JSON.parse(stdout);
+
+      expect(results).toHaveLength(1);
+      expect(results[0].success).toBe(true);
+      expect(results[0].path).toBe(subDir);
+      expect(results[0].entries).toHaveLength(2);
+      expect(results[0].entries[0].type).toBe('file');
+      expect(results[0].entries[1].type).toBe('file');
     });
 
-    await runScript(['path1', 'path2']);
+    it.skipIf(process.platform === 'win32')('should handle multiple paths', async () => {
+      // Create test directories
+      const dir1 = path.join(tempDir, 'dir1');
+      const dir2 = path.join(tempDir, 'dir2');
+      await fs.mkdir(dir1);
+      await fs.mkdir(dir2);
+      await fs.writeFile(path.join(dir1, 'file1.txt'), 'content');
+      await fs.writeFile(path.join(dir2, 'file2.txt'), 'content');
 
-    const output = JSON.parse(consoleLogSpy.mock.calls[0][0]);
-    expect(output).toHaveLength(2);
-    expect(output[0].path).toBe('path1');
-    expect(output[1].path).toBe('path2');
-  });
+      const { stdout } = await runScript([dir1, dir2]);
+      const results = JSON.parse(stdout);
 
-  it('should parse flags correctly', async () => {
-    mockFs.access.mockResolvedValue(undefined);
-    let capturedCommand = '';
-    mockChildProcess.exec.mockImplementation((command, callback) => {
-      capturedCommand = command;
-      const cb = callback as (error: null, stdout: string, stderr: string) => void;
-      cb(null, 'file.txt\n', '');
-      return {} as any;
+      expect(results).toHaveLength(2);
+      expect(results[0].success).toBe(true);
+      expect(results[0].path).toBe(dir1);
+      expect(results[1].success).toBe(true);
+      expect(results[1].path).toBe(dir2);
     });
 
-    await runScript(['-la', 'test-dir']);
+    it.skipIf(process.platform === 'win32')('should parse flags correctly', async () => {
+      // Create hidden file
+      await fs.writeFile(path.join(tempDir, '.hidden'), 'hidden content');
+      await fs.writeFile(path.join(tempDir, 'visible.txt'), 'visible content');
 
-    expect(capturedCommand).toContain('-la');
-    expect(capturedCommand).toContain('test-dir"');
-  });
+      const { stdout } = await runScript(['-a', tempDir]);
+      const results = JSON.parse(stdout);
 
-  it('should handle detailed output parsing', async () => {
-    mockFs.access.mockResolvedValue(undefined);
-    mockChildProcess.exec.mockImplementation((command, callback) => {
-      const cb = callback as (error: null, stdout: string, stderr: string) => void;
-      const detailedOutput = `total 8
--rw-r--r-- 1 user group 1024 Jan 15 10:30 file1.txt
-drwxr-xr-x 2 user group 4096 Jan 15 10:31 directory1`;
-      cb(null, detailedOutput, '');
-      return {} as any;
+      expect(results[0].success).toBe(true);
+      const names = results[0].entries.map((e: any) => e.name);
+      expect(names).toContain('.hidden');
+      expect(names).toContain('visible.txt');
     });
 
-    await runScript(['-l', '.']);
+    it.skipIf(process.platform === 'win32')(
+      'should handle detailed output with -l flag',
+      async () => {
+        // Create test file
+        await fs.writeFile(path.join(tempDir, 'test.txt'), 'test content');
 
-    const output = JSON.parse(consoleLogSpy.mock.calls[0][0]);
-    expect(output[0].entries[0]).toEqual({
-      name: 'file1.txt',
-      type: 'file',
-      size: '1024',
-      permissions: '-rw-r--r--',
-      modified: 'Jan 15 10:30',
-      owner: 'user',
-      group: 'group',
-    });
-  });
+        const { stdout } = await runScript(['-l', tempDir]);
+        const results = JSON.parse(stdout);
 
-  it('should handle path not found error', async () => {
-    mockFs.access.mockRejectedValue(new Error('ENOENT'));
+        expect(results[0].success).toBe(true);
+        expect(results[0].entries).toBeDefined();
 
-    await runScript(['/nonexistent/path']);
+        const fileEntry = results[0].entries.find((e: any) => e.name === 'test.txt');
+        expect(fileEntry).toBeDefined();
+        expect(fileEntry.permissions).toBeDefined();
+        expect(fileEntry.size).toBeDefined();
+        expect(fileEntry.owner).toBeDefined();
+        expect(fileEntry.group).toBeDefined();
+        expect(fileEntry.modified).toBeDefined();
+      }
+    );
 
-    const output = JSON.parse(consoleLogSpy.mock.calls[0][0]);
-    expect(output[0]).toEqual({
-      success: false,
-      path: '/nonexistent/path',
-      error: 'Path not found',
-    });
-  });
+    it.skipIf(process.platform === 'win32')('should identify file types correctly', async () => {
+      // Create different types
+      await fs.writeFile(path.join(tempDir, 'regular.txt'), 'content');
+      await fs.mkdir(path.join(tempDir, 'directory'));
 
-  it('should handle Windows platform', async () => {
-    mockFs.access.mockResolvedValue(undefined);
-    const originalPlatform = process.platform;
-    Object.defineProperty(process, 'platform', { value: 'win32' });
+      // Create a symlink (if supported)
+      try {
+        await fs.symlink(path.join(tempDir, 'regular.txt'), path.join(tempDir, 'symlink.txt'));
+      } catch {
+        // Symlinks might not be supported on all systems
+      }
 
-    await runScript(['/test/path']);
+      const { stdout } = await runScript([tempDir]);
+      const results = JSON.parse(stdout);
 
-    const output = JSON.parse(consoleLogSpy.mock.calls[0][0]);
-    expect(output[0]).toEqual({
-      success: false,
-      path: '/test/path',
-      error: 'ls command not available on Windows platform',
-    });
+      expect(results[0].success).toBe(true);
 
-    Object.defineProperty(process, 'platform', { value: originalPlatform });
-  });
+      const regularFile = results[0].entries.find((e: any) => e.name === 'regular.txt');
+      expect(regularFile?.type).toBe('file');
 
-  it('should handle command execution error', async () => {
-    mockFs.access.mockResolvedValue(undefined);
-    mockChildProcess.exec.mockImplementation((command, callback) => {
-      const cb = callback as (error: Error, stdout: string, stderr: string) => void;
-      cb(new Error('Permission denied'), '', 'ls: cannot access');
-      return {} as any;
+      const directory = results[0].entries.find((e: any) => e.name === 'directory');
+      expect(directory?.type).toBe('directory');
     });
 
-    await runScript(['/test/path']);
+    it('should handle path not found error', async () => {
+      const nonExistentPath = path.join(tempDir, 'nonexistent');
 
-    const output = JSON.parse(consoleLogSpy.mock.calls[0][0]);
-    expect(output[0]).toEqual({
-      success: false,
-      path: '/test/path',
-      error: 'Command failed: ls: cannot access',
-    });
-  });
+      const { stdout } = await runScript([nonExistentPath]);
+      const results = JSON.parse(stdout);
 
-  it('should handle errors during script execution', async () => {
-    // Create an error that will be thrown during lsSinglePath
-    mockFs.access.mockRejectedValue(new Error('ENOENT'));
-    mockChildProcess.exec.mockImplementation((command, callback) => {
-      // This shouldn't be called since access fails, but throw an error if it is
-      throw new Error('Unexpected exec call');
+      expect(results).toHaveLength(1);
+      expect(results[0]).toEqual({
+        success: false,
+        path: nonExistentPath,
+        error: 'Path not found',
+      });
     });
 
-    try {
-      await runScript(['/nonexistent']);
-    } catch (error) {
-      // Expected to possibly throw due to process.exit or module errors
-    }
+    it('should handle Windows platform', async () => {
+      if (process.platform !== 'win32') {
+        return;
+      }
 
-    // Give time for async error handling
-    await new Promise((resolve) => setTimeout(resolve, 100));
+      const { stdout } = await runScript([tempDir]);
+      const results = JSON.parse(stdout);
 
-    // The test expects an error to be caught by the main().catch() handler
-    // But in this case, the path not found is handled gracefully
-    // Let's check if the result was logged instead
-    expect(consoleLogSpy).toHaveBeenCalled();
-    const output = consoleLogSpy.mock.calls[0]?.[0];
-    if (output) {
-      const parsed = JSON.parse(output);
-      expect(parsed[0].success).toBe(false);
-      expect(parsed[0].error).toBe('Path not found');
-    }
+      expect(results[0]).toEqual({
+        success: false,
+        path: tempDir,
+        error: 'ls command not available on Windows platform',
+      });
+    });
+
+    it.skipIf(process.platform === 'win32')('should handle relative paths', async () => {
+      const originalCwd = process.cwd();
+      try {
+        // Change to temp directory
+        process.chdir(tempDir);
+
+        // Create a subdirectory with files
+        await fs.mkdir('subdir');
+        await fs.writeFile('subdir/file.txt', 'content');
+
+        const { stdout } = await runScript(['subdir']);
+        const results = JSON.parse(stdout);
+
+        expect(results[0].success).toBe(true);
+        expect(results[0].path).toBe('subdir');
+        expect(results[0].entries).toHaveLength(1);
+        expect(results[0].entries[0].name).toBe('file.txt');
+      } finally {
+        process.chdir(originalCwd);
+      }
+    });
+
+    it.skipIf(process.platform === 'win32')('should handle combined flags', async () => {
+      // Create hidden files and directories
+      await fs.writeFile(path.join(tempDir, '.hidden.txt'), 'hidden');
+      await fs.writeFile(path.join(tempDir, 'visible.txt'), 'visible');
+      await fs.mkdir(path.join(tempDir, '.hiddendir'));
+
+      const { stdout } = await runScript(['-la', tempDir]);
+      const results = JSON.parse(stdout);
+
+      expect(results[0].success).toBe(true);
+      expect(results[0].entries).toBeDefined();
+
+      // Should have detailed output with all files including hidden
+      const hiddenFile = results[0].entries.find((e: any) => e.name === '.hidden.txt');
+      expect(hiddenFile).toBeDefined();
+      expect(hiddenFile.permissions).toBeDefined();
+
+      const hiddenDir = results[0].entries.find((e: any) => e.name === '.hiddendir');
+      expect(hiddenDir).toBeDefined();
+      expect(hiddenDir.type).toBe('directory');
+    });
+
+    it.skipIf(process.platform === 'win32')('should handle empty directories', async () => {
+      const emptyDir = path.join(tempDir, 'empty');
+      await fs.mkdir(emptyDir);
+
+      const { stdout } = await runScript([emptyDir]);
+      const results = JSON.parse(stdout);
+
+      expect(results[0].success).toBe(true);
+      expect(results[0].entries).toEqual([]);
+    });
+
+    it.skipIf(process.platform === 'win32')(
+      'should handle special characters in filenames',
+      async () => {
+        // Create files with special characters
+        await fs.writeFile(path.join(tempDir, 'file with spaces.txt'), 'content');
+        await fs.writeFile(path.join(tempDir, 'file-with-dashes.txt'), 'content');
+        await fs.writeFile(path.join(tempDir, 'file_with_underscores.txt'), 'content');
+
+        const { stdout } = await runScript([tempDir]);
+        const results = JSON.parse(stdout);
+
+        expect(results[0].success).toBe(true);
+        const names = results[0].entries.map((e: any) => e.name);
+        expect(names).toContain('file with spaces.txt');
+        expect(names).toContain('file-with-dashes.txt');
+        expect(names).toContain('file_with_underscores.txt');
+      }
+    );
+
+    it.skipIf(process.platform === 'win32')(
+      'should handle permission denied gracefully',
+      async () => {
+        // Create a directory with restricted permissions
+        const restrictedDir = path.join(tempDir, 'restricted');
+        await fs.mkdir(restrictedDir);
+
+        try {
+          // Try to restrict permissions (may not work on all systems)
+          await fs.chmod(restrictedDir, 0o000);
+
+          const { stdout } = await runScript([restrictedDir]);
+          const results = JSON.parse(stdout);
+
+          expect(results[0].success).toBe(false);
+          expect(results[0].error).toBeTruthy();
+        } finally {
+          // Restore permissions for cleanup
+          await fs.chmod(restrictedDir, 0o755);
+        }
+      }
+    );
   });
 });

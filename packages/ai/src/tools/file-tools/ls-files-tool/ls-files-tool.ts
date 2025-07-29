@@ -76,30 +76,107 @@ const lsFilesExecution = wrapTraced(
       const sandbox = runtimeContext.get(DocsAgentContextKeys.Sandbox);
 
       if (sandbox) {
-        // Read the ls-files-script.ts content
-        const scriptPath = path.join(__dirname, 'ls-files-script.ts');
-        const scriptContent = await fs.readFile(scriptPath, 'utf-8');
+        // Generate CommonJS code for sandbox execution
+        const pathsJson = JSON.stringify(paths);
+        const optionsJson = JSON.stringify(options || {});
+        const sandboxCode = `
+const fs = require('fs');
+const path = require('path');
+const { execSync } = require('child_process');
 
-        // Build command line arguments
-        const args: string[] = [];
+const pathsJson = ${JSON.stringify(pathsJson)};
+const optionsJson = ${JSON.stringify(optionsJson)};
+const paths = JSON.parse(pathsJson);
+const options = JSON.parse(optionsJson);
 
-        // Add option flags
-        if (options) {
-          const flags: string[] = [];
-          if (options.detailed) flags.push('l');
-          if (options.all) flags.push('a');
-          if (options.recursive) flags.push('R');
-          if (options.humanReadable) flags.push('h');
+const results = [];
 
-          if (flags.length > 0) {
-            args.push(`-${flags.join('')}`);
-          }
-        }
+// Build ls command flags
+let flags = '';
+if (options.detailed) flags += 'l';
+if (options.all) flags += 'a';
+if (options.recursive) flags += 'R';
+if (options.humanReadable) flags += 'h';
 
-        // Add paths
-        args.push(...paths);
+const lsOptions = flags ? '-' + flags : '';
 
-        const result = await runTypescript(sandbox, scriptContent, { argv: args });
+// Process each path
+for (const targetPath of paths) {
+  try {
+    const resolvedPath = path.isAbsolute(targetPath) 
+      ? targetPath 
+      : path.join(process.cwd(), targetPath);
+    
+    // Build ls command
+    const cmd = ['ls', lsOptions, resolvedPath].filter(Boolean).join(' ');
+    
+    // Execute ls command
+    let output;
+    try {
+      output = execSync(cmd, { encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] });
+    } catch (execError: any) {
+      // Handle command execution errors
+      results.push({
+        status: 'error',
+        path: targetPath,
+        error_message: execError.stderr ? execError.stderr.trim() : execError.message || 'Command failed'
+      });
+      continue;
+    }
+    const lines = output.trim().split('\\n');
+    
+    if (options.detailed) {
+      // Parse detailed output
+      const entries = [];
+      for (const line of lines) {
+        if (!line.trim() || line.startsWith('total')) continue;
+        
+        // Parse ls -l output
+        const parts = line.split(/\\s+/);
+        if (parts.length < 9) continue;
+        
+        entries.push({
+          name: parts.slice(8).join(' '),
+          type: parts[0].startsWith('d') ? 'directory' : 'file',
+          permissions: parts[0],
+          size: parseInt(parts[4]) || 0,
+          owner: parts[2],
+          group: parts[3],
+          modifiedDate: parts.slice(5, 8).join(' ')
+        });
+      }
+      
+      results.push({
+        status: 'success',
+        path: targetPath,
+        entries: entries
+      });
+    } else {
+      // Simple output
+      results.push({
+        status: 'success',
+        path: targetPath,
+        entries: lines.map(function(name: any) {
+          return {
+            name: name,
+            type: 'unknown'
+          };
+        })
+      });
+    }
+  } catch (error) {
+    results.push({
+      status: 'error',
+      path: targetPath,
+      error_message: (error instanceof Error ? error.message : String(error)) || 'Unknown error'
+    });
+  }
+}
+
+console.log(JSON.stringify(results));
+`;
+
+        const result = await runTypescript(sandbox, sandboxCode);
 
         if (result.exitCode !== 0) {
           console.error('Sandbox execution failed. Exit code:', result.exitCode);

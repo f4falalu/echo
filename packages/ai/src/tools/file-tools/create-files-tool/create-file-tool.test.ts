@@ -1,5 +1,3 @@
-import * as fs from 'node:fs/promises';
-import * as path from 'node:path';
 import { RuntimeContext } from '@mastra/core/runtime-context';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { z } from 'zod';
@@ -10,14 +8,11 @@ vi.mock('@buster/sandbox', () => ({
   runTypescript: vi.fn(),
 }));
 
-vi.mock('node:fs/promises', () => ({
-  readFile: vi.fn(),
-}));
+// No longer mocking fs since we generate code inline
 
 import { runTypescript } from '@buster/sandbox';
 
 const mockRunTypescript = vi.mocked(runTypescript);
-const mockFs = vi.mocked(fs);
 
 describe('create-file-tool', () => {
   let runtimeContext: RuntimeContext<DocsAgentContext>;
@@ -68,14 +63,12 @@ describe('create-file-tool', () => {
         files: [{ path: '/test/file.txt', content: 'test content' }],
       };
 
-      const mockScriptContent = 'mock script content';
       const mockSandboxResult = {
         result: JSON.stringify([{ success: true, filePath: '/test/file.txt' }]),
         exitCode: 0,
         stderr: '',
       };
 
-      mockFs.readFile.mockResolvedValue(mockScriptContent);
       mockRunTypescript.mockResolvedValue(mockSandboxResult);
 
       const result = await createFiles.execute({
@@ -83,13 +76,12 @@ describe('create-file-tool', () => {
         runtimeContext,
       });
 
-      expect(mockFs.readFile).toHaveBeenCalledWith(
-        path.join(__dirname, 'create-files-script.ts'),
-        'utf-8'
-      );
-      expect(mockRunTypescript).toHaveBeenCalledWith(mockSandbox, mockScriptContent, {
-        argv: [JSON.stringify(input.files)],
-      });
+      // Verify runTypescript was called (we can't check exact code since it's generated)
+      expect(mockRunTypescript).toHaveBeenCalled();
+      const call = mockRunTypescript.mock.calls[0];
+      expect(call?.[0]).toBe(mockSandbox);
+      expect(call?.[1]).toContain('const filesJson =');
+      expect(call?.[1]).toContain('fs.mkdirSync');
       expect(result.results).toHaveLength(1);
       expect(result.results[0]).toEqual({
         status: 'success',
@@ -123,14 +115,12 @@ describe('create-file-tool', () => {
         files: [{ path: '/test/file.txt', content: 'test content' }],
       };
 
-      const mockScriptContent = 'mock script content';
       const mockSandboxResult = {
         result: 'error output',
         exitCode: 1,
         stderr: 'Execution failed',
       };
 
-      mockFs.readFile.mockResolvedValue(mockScriptContent);
       mockRunTypescript.mockResolvedValue(mockSandboxResult);
 
       const result = await createFiles.execute({
@@ -157,7 +147,6 @@ describe('create-file-tool', () => {
         ],
       };
 
-      const mockScriptContent = 'mock script content';
       const mockSandboxResult = {
         result: JSON.stringify([
           { success: true, filePath: '/test/file1.txt' },
@@ -167,7 +156,6 @@ describe('create-file-tool', () => {
         stderr: '',
       };
 
-      mockFs.readFile.mockResolvedValue(mockScriptContent);
       mockRunTypescript.mockResolvedValue(mockSandboxResult);
 
       const result = await createFiles.execute({
@@ -206,14 +194,12 @@ describe('create-file-tool', () => {
         files: [{ path: '/test/file.txt', content: 'test content' }],
       };
 
-      const mockScriptContent = 'mock script content';
       const mockSandboxResult = {
         result: 'invalid json output',
         exitCode: 0,
         stderr: '',
       };
 
-      mockFs.readFile.mockResolvedValue(mockScriptContent);
       mockRunTypescript.mockResolvedValue(mockSandboxResult);
 
       const result = await createFiles.execute({
@@ -237,7 +223,7 @@ describe('create-file-tool', () => {
         files: [{ path: '/test/file.txt', content: 'test content' }],
       };
 
-      mockFs.readFile.mockRejectedValue(new Error('Script not found'));
+      mockRunTypescript.mockRejectedValue(new Error('Script not found'));
 
       const result = await createFiles.execute({
         context: input,
@@ -263,7 +249,6 @@ describe('create-file-tool', () => {
         ],
       };
 
-      const mockScriptContent = 'mock script content';
       const mockSandboxResult = {
         result: JSON.stringify([
           { success: true, filePath: '/test/file1.txt' },
@@ -273,7 +258,6 @@ describe('create-file-tool', () => {
         stderr: '',
       };
 
-      mockFs.readFile.mockResolvedValue(mockScriptContent);
       mockRunTypescript.mockResolvedValue(mockSandboxResult);
 
       await createFiles.execute({
@@ -281,9 +265,14 @@ describe('create-file-tool', () => {
         runtimeContext,
       });
 
-      expect(mockRunTypescript).toHaveBeenCalledWith(mockSandbox, mockScriptContent, {
-        argv: [JSON.stringify(input.files)],
-      });
+      // Verify that runTypescript was called with generated code
+      expect(mockRunTypescript).toHaveBeenCalled();
+      const call = mockRunTypescript.mock.calls[0];
+      expect(call?.[0]).toBe(mockSandbox);
+      expect(call?.[1]).toContain('const filesJson =');
+      // Verify the generated code contains the JSON-encoded files
+      const expectedJson = JSON.stringify(JSON.stringify(input.files));
+      expect(call?.[1]).toContain(expectedJson);
     });
   });
 });

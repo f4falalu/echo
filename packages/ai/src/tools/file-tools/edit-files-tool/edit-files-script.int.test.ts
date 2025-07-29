@@ -1,8 +1,11 @@
-import { spawn } from 'node:child_process';
+import { exec } from 'node:child_process';
 import * as fs from 'node:fs/promises';
 import * as os from 'node:os';
 import * as path from 'node:path';
+import { promisify } from 'node:util';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+
+const execAsync = promisify(exec);
 
 describe('edit-files-script integration', () => {
   let tempDir: string;
@@ -16,29 +19,30 @@ describe('edit-files-script integration', () => {
     await fs.rm(tempDir, { recursive: true, force: true });
   });
 
-  function runScript(args: string[]): Promise<{ stdout: string; stderr: string; code: number }> {
-    return new Promise((resolve) => {
-      const scriptPath = path.join(__dirname, 'edit-files-script.ts');
-      const child = spawn('tsx', [scriptPath, ...args], {
-        cwd: tempDir,
-        env: { ...process.env },
-      });
+  async function runScript(args: string): Promise<{ stdout: string; stderr: string; code: number }> {
+    try {
+      const { stdout, stderr } = await execAsync(
+        `npx tsx ${path.join(__dirname, 'edit-files-script.ts')} ${args}`,
+        { 
+          cwd: tempDir,
+          env: { ...process.env, npm_config_loglevel: 'error' } 
+        }
+      );
 
-      let stdout = '';
-      let stderr = '';
+      // Filter out npm warnings
+      const cleanStderr = stderr
+        .split('\n')
+        .filter((line) => !line.includes('npm warn') && line.trim() !== '')
+        .join('\n');
 
-      child.stdout.on('data', (data) => {
-        stdout += data.toString();
-      });
-
-      child.stderr.on('data', (data) => {
-        stderr += data.toString();
-      });
-
-      child.on('close', (code) => {
-        resolve({ stdout: stdout.trim(), stderr: stderr.trim(), code: code || 0 });
-      });
-    });
+      return { stdout: stdout.trim(), stderr: cleanStderr, code: 0 };
+    } catch (error: any) {
+      return { 
+        stdout: error.stdout?.trim() || '', 
+        stderr: error.stderr?.trim() || '', 
+        code: error.code || 1 
+      };
+    }
   }
 
   describe('successful operations', () => {
@@ -54,7 +58,7 @@ describe('edit-files-script integration', () => {
         },
       ];
 
-      const result = await runScript([JSON.stringify(edits)]);
+      const result = await runScript(`'${JSON.stringify(edits)}'`);
 
       expect(result.code).toBe(0);
       const results = JSON.parse(result.stdout);
@@ -89,7 +93,7 @@ describe('edit-files-script integration', () => {
         },
       ];
 
-      const result = await runScript([JSON.stringify(edits)]);
+      const result = await runScript(`'${JSON.stringify(edits)}'`);
 
       expect(result.code).toBe(0);
       const results = JSON.parse(result.stdout);
@@ -118,7 +122,7 @@ describe('edit-files-script integration', () => {
         },
       ];
 
-      const result = await runScript([JSON.stringify(edits)]);
+      const result = await runScript(`'${JSON.stringify(edits)}'`);
 
       expect(result.code).toBe(0);
       const results = JSON.parse(result.stdout);
@@ -140,7 +144,7 @@ describe('edit-files-script integration', () => {
         },
       ];
 
-      const result = await runScript([JSON.stringify(edits)]);
+      const result = await runScript(`'${JSON.stringify(edits)}'`);
 
       expect(result.code).toBe(0);
       const results = JSON.parse(result.stdout);
@@ -162,7 +166,7 @@ describe('edit-files-script integration', () => {
         },
       ];
 
-      const result = await runScript([JSON.stringify(edits)]);
+      const result = await runScript(`'${JSON.stringify(edits)}'`);
 
       expect(result.code).toBe(0);
       const results = JSON.parse(result.stdout);
@@ -175,7 +179,7 @@ describe('edit-files-script integration', () => {
 
   describe('error handling', () => {
     it('should error when no arguments provided', async () => {
-      const result = await runScript([]);
+      const result = await runScript('');
 
       expect(result.code).toBe(1);
       const error = JSON.parse(result.stdout || result.stderr);
@@ -183,7 +187,7 @@ describe('edit-files-script integration', () => {
     });
 
     it('should error on invalid JSON', async () => {
-      const result = await runScript(['not valid json']);
+      const result = await runScript(`'not valid json'`);
 
       expect(result.code).toBe(1);
       const error = JSON.parse(result.stdout || result.stderr);
@@ -199,7 +203,7 @@ describe('edit-files-script integration', () => {
         },
       ];
 
-      const result = await runScript([JSON.stringify(edits)]);
+      const result = await runScript(`'${JSON.stringify(edits)}'`);
 
       expect(result.code).toBe(0); // Script succeeds, individual edit fails
       const results = JSON.parse(result.stdout);
@@ -221,7 +225,7 @@ describe('edit-files-script integration', () => {
         },
       ];
 
-      const result = await runScript([JSON.stringify(edits)]);
+      const result = await runScript(`'${JSON.stringify(edits)}'`);
 
       expect(result.code).toBe(0);
       const results = JSON.parse(result.stdout);
@@ -243,7 +247,7 @@ describe('edit-files-script integration', () => {
         },
       ];
 
-      const result = await runScript([JSON.stringify(edits)]);
+      const result = await runScript(`'${JSON.stringify(edits)}'`);
 
       expect(result.code).toBe(0);
       const results = JSON.parse(result.stdout);
@@ -272,7 +276,7 @@ describe('edit-files-script integration', () => {
         },
       ];
 
-      const result = await runScript([JSON.stringify(edits)]);
+      const result = await runScript(`'${JSON.stringify(edits)}'`);
 
       expect(result.code).toBe(0);
       const results = JSON.parse(result.stdout);
@@ -293,7 +297,7 @@ describe('edit-files-script integration', () => {
         },
       ];
 
-      const result = await runScript([JSON.stringify(edits)]);
+      const result = await runScript(`'${JSON.stringify(edits)}'`);
 
       expect(result.code).toBe(1);
       const error = JSON.parse(result.stdout || result.stderr);
@@ -315,7 +319,7 @@ describe('edit-files-script integration', () => {
         },
       ];
 
-      const result = await runScript([JSON.stringify(edits)]);
+      const result = await runScript(`'${JSON.stringify(edits)}'`);
 
       expect(result.code).toBe(0);
       const results = JSON.parse(result.stdout);
@@ -340,7 +344,7 @@ describe('edit-files-script integration', () => {
         });
       }
 
-      const result = await runScript([JSON.stringify(edits)]);
+      const result = await runScript(`'${JSON.stringify(edits)}'`);
 
       expect(result.code).toBe(0);
       const results = JSON.parse(result.stdout);

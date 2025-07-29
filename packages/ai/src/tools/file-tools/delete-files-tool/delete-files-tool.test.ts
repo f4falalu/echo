@@ -62,14 +62,12 @@ describe('delete-files-tool', () => {
         paths: ['/test/file.txt'],
       };
 
-      const mockScriptContent = 'mock script content';
       const mockSandboxResult = {
         result: JSON.stringify([{ success: true, path: '/test/file.txt' }]),
         exitCode: 0,
         stderr: '',
       };
 
-      mockReadFile.mockResolvedValue(mockScriptContent);
       mockRunTypescript.mockResolvedValue(mockSandboxResult);
 
       const result = await deleteFiles.execute({
@@ -77,13 +75,11 @@ describe('delete-files-tool', () => {
         runtimeContext,
       });
 
-      expect(mockReadFile).toHaveBeenCalledWith(
-        path.join(__dirname, 'delete-files-script.ts'),
-        'utf-8'
-      );
-      expect(mockRunTypescript).toHaveBeenCalledWith(mockSandbox, mockScriptContent, {
-        argv: input.paths,
-      });
+      expect(mockRunTypescript).toHaveBeenCalled();
+      const call = mockRunTypescript.mock.calls[0];
+      expect(call?.[0]).toBe(mockSandbox);
+      expect(call?.[1]).toContain('const pathsJson =');
+      expect(call?.[1]).toContain('fs.unlinkSync(resolvedPath);');
       expect(result.results).toEqual([
         {
           status: 'success',
@@ -119,14 +115,12 @@ describe('delete-files-tool', () => {
         paths: ['/test/file.txt'],
       };
 
-      const mockScriptContent = 'mock script content';
       const mockSandboxResult = {
         result: 'error output',
         exitCode: 1,
         stderr: 'Execution failed',
       };
 
-      mockReadFile.mockResolvedValue(mockScriptContent);
       mockRunTypescript.mockResolvedValue(mockSandboxResult);
 
       const result = await deleteFiles.execute({
@@ -151,7 +145,6 @@ describe('delete-files-tool', () => {
         paths: ['/test/file1.txt', '/test/file2.txt'],
       };
 
-      const mockScriptContent = 'mock script content';
       const mockSandboxResult = {
         result: JSON.stringify([
           { success: true, path: '/test/file1.txt' },
@@ -161,7 +154,6 @@ describe('delete-files-tool', () => {
         stderr: '',
       };
 
-      mockReadFile.mockResolvedValue(mockScriptContent);
       mockRunTypescript.mockResolvedValue(mockSandboxResult);
 
       const result = await deleteFiles.execute({
@@ -201,14 +193,12 @@ describe('delete-files-tool', () => {
         paths: ['/test/file.txt'],
       };
 
-      const mockScriptContent = 'mock script content';
       const mockSandboxResult = {
         result: 'invalid json output',
         exitCode: 0,
         stderr: '',
       };
 
-      mockReadFile.mockResolvedValue(mockScriptContent);
       mockRunTypescript.mockResolvedValue(mockSandboxResult);
 
       const result = await deleteFiles.execute({
@@ -233,7 +223,6 @@ describe('delete-files-tool', () => {
         paths: ['/test/file1.txt', '/test/file2.txt', '/test/file3.txt'],
       };
 
-      const mockScriptContent = 'mock script content';
       const mockSandboxResult = {
         result: JSON.stringify([
           { success: true, path: '/test/file1.txt' },
@@ -244,7 +233,6 @@ describe('delete-files-tool', () => {
         stderr: '',
       };
 
-      mockReadFile.mockResolvedValue(mockScriptContent);
       mockRunTypescript.mockResolvedValue(mockSandboxResult);
 
       const result = await deleteFiles.execute({
@@ -277,7 +265,7 @@ describe('delete-files-tool', () => {
         paths: ['/test/file.txt'],
       };
 
-      mockReadFile.mockRejectedValue(new Error('Failed to read script file'));
+      mockRunTypescript.mockRejectedValue(new Error('Failed to read script file'));
 
       const result = await deleteFiles.execute({
         context: input,

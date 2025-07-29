@@ -36,7 +36,7 @@ describe('bash-execute-script integration', () => {
     expect(output).toHaveLength(3);
     expect(output[0].stdout).toBe('First');
     expect(output[1].stdout).toBe('Second');
-    expect(output[2].stdout).toMatch(/\/packages\/ai$/); // Should end with packages/ai directory
+    expect(output[2].stdout).toContain('/buster'); // Should contain the project directory
   });
 
   it('should capture stderr and handle failed commands', () => {

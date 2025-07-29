@@ -52,17 +52,46 @@ const rgSearchExecution = wrapTraced(
       const sandbox = runtimeContext.get(DocsAgentContextKeys.Sandbox);
 
       if (sandbox) {
-        // Read the grep-search-script.ts content
-        const scriptPath = path.join(__dirname, 'grep-search-script.ts');
-        const scriptContent = await fs.readFile(scriptPath, 'utf-8');
-
-        // Build command line arguments
-        // Base64 encode the JSON to avoid corruption when passing through sandbox
+        // Generate CommonJS code for sandbox execution
         const commandsJson = JSON.stringify(commands);
-        const base64Commands = Buffer.from(commandsJson).toString('base64');
-        const args = [base64Commands];
+        const sandboxCode = `
+const { execSync } = require('child_process');
 
-        const result = await runTypescript(sandbox, scriptContent, { argv: args });
+const commandsJson = ${JSON.stringify(commandsJson)};
+const commands = JSON.parse(commandsJson);
+const results = [];
+
+// Process commands
+for (const cmd of commands) {
+  try {
+    // Execute the command
+    const output = execSync(cmd.command, { 
+      encoding: 'utf-8',
+      stdio: ['pipe', 'pipe', 'pipe']
+    });
+    
+    results.push({
+      success: true,
+      command: cmd.command,
+      stdout: output.trim(),
+      stderr: ''
+    });
+  } catch (error) {
+    // Command failed but we still capture output
+    results.push({
+      success: false,
+      command: cmd.command,
+      stdout: (error as any).stdout ? (error as any).stdout.toString().trim() : '',
+      stderr: (error as any).stderr ? (error as any).stderr.toString().trim() : '',
+      error: (error instanceof Error ? error.message : String(error)) || 'Command failed'
+    });
+  }
+}
+
+console.log(JSON.stringify(results));
+`;
+
+        const result = await runTypescript(sandbox, sandboxCode);
 
         if (result.exitCode !== 0) {
           console.error('Sandbox execution failed. Exit code:', result.exitCode);

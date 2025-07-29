@@ -66,21 +66,33 @@ async function main() {
   // Parse command line arguments
   const args = process.argv.slice(2);
 
-  // All arguments are file paths
-  const filePaths = args;
-
-  // Return error if no paths provided
-  if (filePaths.length === 0) {
+  if (args.length === 0) {
     console.log(
       JSON.stringify([
         {
           success: false,
           filePath: '',
-          error: 'No file paths provided',
+          error: 'No arguments provided',
         },
       ])
     );
     process.exit(1);
+  }
+
+  let filePaths: string[];
+  try {
+    // First try to parse as JSON (from tool)
+    const firstArg = args[0];
+    if (!firstArg) {
+      throw new Error('No argument provided');
+    }
+    filePaths = JSON.parse(firstArg);
+    if (!Array.isArray(filePaths)) {
+      throw new Error('Invalid input');
+    }
+  } catch {
+    // Fall back to treating all arguments as paths (from integration tests)
+    filePaths = args;
   }
 
   const results = await readFiles(filePaths);

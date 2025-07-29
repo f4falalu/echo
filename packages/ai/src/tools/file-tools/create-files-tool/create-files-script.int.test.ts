@@ -7,6 +7,22 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 const execAsync = promisify(exec);
 
+// Helper to execute script with clean stderr
+async function runScript(args: string) {
+  const { stdout, stderr } = await execAsync(
+    `npx tsx ${path.join(__dirname, 'create-files-script.ts')} ${args}`,
+    { env: { ...process.env, npm_config_loglevel: 'error' } }
+  );
+
+  // Filter out npm warnings
+  const cleanStderr = stderr
+    .split('\n')
+    .filter((line) => !line.includes('npm warn') && line.trim() !== '')
+    .join('\n');
+
+  return { stdout, stderr: cleanStderr };
+}
+
 describe('create-files-script integration tests', () => {
   let tempDir: string;
   const scriptPath = path.join(__dirname, 'create-files-script.ts');
@@ -25,9 +41,7 @@ describe('create-files-script integration tests', () => {
     const testFile = path.join(tempDir, 'test.txt');
     const fileParams = [{ path: testFile, content: 'Hello, World!' }];
 
-    const { stdout, stderr } = await execAsync(
-      `npx tsx ${scriptPath} '${JSON.stringify(fileParams)}'`
-    );
+    const { stdout, stderr } = await runScript(`'${JSON.stringify(fileParams)}'`);
 
     expect(stderr).toBe('');
     const results = JSON.parse(stdout);
@@ -49,7 +63,7 @@ describe('create-files-script integration tests', () => {
       { path: path.join(tempDir, 'subdir', 'file3.txt'), content: 'Content 3' },
     ];
 
-    const { stdout, stderr } = await execAsync(`npx tsx ${scriptPath} '${JSON.stringify(files)}'`);
+    const { stdout, stderr } = await runScript(`'${JSON.stringify(files)}'`);
 
     expect(stderr).toBe('');
     const results = JSON.parse(stdout);
@@ -77,9 +91,7 @@ describe('create-files-script integration tests', () => {
         { path: './subdir/nested.txt', content: 'Nested content' },
       ];
 
-      const { stdout, stderr } = await execAsync(
-        `npx tsx ${scriptPath} '${JSON.stringify(fileParams)}'`
-      );
+      const { stdout, stderr } = await runScript(`'${JSON.stringify(fileParams)}'`);
 
       expect(stderr).toBe('');
       const results = JSON.parse(stdout);
@@ -104,9 +116,7 @@ describe('create-files-script integration tests', () => {
 
     const fileParams = [{ path: testFile, content: 'New content' }];
 
-    const { stdout, stderr } = await execAsync(
-      `npx tsx ${scriptPath} '${JSON.stringify(fileParams)}'`
-    );
+    const { stdout, stderr } = await runScript(`'${JSON.stringify(fileParams)}'`);
 
     expect(stderr).toBe('');
     const results = JSON.parse(stdout);
@@ -122,9 +132,7 @@ describe('create-files-script integration tests', () => {
     const specialContent = 'Line 1\nLine 2\tTabbed\r\nWindows line\n"Quoted"\nSingle';
     const fileParams = [{ path: testFile, content: specialContent }];
 
-    const { stdout, stderr } = await execAsync(
-      `npx tsx ${scriptPath} '${JSON.stringify(fileParams)}'`
-    );
+    const { stdout, stderr } = await runScript(`'${JSON.stringify(fileParams)}'`);
 
     expect(stderr).toBe('');
     const results = JSON.parse(stdout);
@@ -140,9 +148,7 @@ describe('create-files-script integration tests', () => {
     const invalidPath = '/this/path/should/not/exist/file.txt';
     const fileParams = [{ path: invalidPath, content: 'Content' }];
 
-    const { stdout, stderr } = await execAsync(
-      `npx tsx ${scriptPath} '${JSON.stringify(fileParams)}'`
-    );
+    const { stdout, stderr } = await runScript(`'${JSON.stringify(fileParams)}'`);
 
     expect(stderr).toBe('');
     const results = JSON.parse(stdout);
@@ -158,7 +164,7 @@ describe('create-files-script integration tests', () => {
       { path: path.join(tempDir, 'success2.txt'), content: 'Success 2' },
     ];
 
-    const { stdout, stderr } = await execAsync(`npx tsx ${scriptPath} '${JSON.stringify(files)}'`);
+    const { stdout, stderr } = await runScript(`'${JSON.stringify(files)}'`);
 
     expect(stderr).toBe('');
     const results = JSON.parse(stdout);
@@ -178,7 +184,9 @@ describe('create-files-script integration tests', () => {
 
   it('should error when no arguments provided', async () => {
     try {
-      await execAsync(`npx tsx ${scriptPath}`);
+      const { stdout, stderr } = await execAsync(`npx tsx ${scriptPath}`, {
+        env: { ...process.env, npm_config_loglevel: 'error' },
+      });
       expect.fail('Should have thrown an error');
     } catch (error: any) {
       expect(error.code).toBe(1);
@@ -190,7 +198,9 @@ describe('create-files-script integration tests', () => {
 
   it('should error with invalid JSON', async () => {
     try {
-      await execAsync(`npx tsx ${scriptPath} 'not valid json'`);
+      const { stdout, stderr } = await execAsync(`npx tsx ${scriptPath} 'not valid json'`, {
+        env: { ...process.env, npm_config_loglevel: 'error' },
+      });
       expect.fail('Should have thrown an error');
     } catch (error: any) {
       expect(error.code).toBe(1);
@@ -203,7 +213,10 @@ describe('create-files-script integration tests', () => {
   it('should error with invalid parameter structure', async () => {
     try {
       const invalidParams = [{ path: '/test/file.txt' }]; // missing content
-      await execAsync(`npx tsx ${scriptPath} '${JSON.stringify(invalidParams)}'`);
+      const { stdout, stderr } = await execAsync(
+        `npx tsx ${scriptPath} '${JSON.stringify(invalidParams)}'`,
+        { env: { ...process.env, npm_config_loglevel: 'error' } }
+      );
       expect.fail('Should have thrown an error');
     } catch (error: any) {
       expect(error.code).toBe(1);
@@ -217,9 +230,7 @@ describe('create-files-script integration tests', () => {
     const deepPath = path.join(tempDir, 'a', 'b', 'c', 'd', 'e', 'file.txt');
     const fileParams = [{ path: deepPath, content: 'Deep content' }];
 
-    const { stdout, stderr } = await execAsync(
-      `npx tsx ${scriptPath} '${JSON.stringify(fileParams)}'`
-    );
+    const { stdout, stderr } = await runScript(`'${JSON.stringify(fileParams)}'`);
 
     expect(stderr).toBe('');
     const results = JSON.parse(stdout);

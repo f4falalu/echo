@@ -26,8 +26,15 @@ describe('delete-files-script integration tests', () => {
   });
 
   async function runScript(args: string[]): Promise<{ stdout: string; stderr: string }> {
-    const { stdout, stderr } = await exec(`npx tsx ${scriptPath} ${args.join(' ')}`);
-    return { stdout, stderr };
+    const { stdout, stderr } = await exec(`npx tsx ${scriptPath} ${args.join(' ')}`, {
+      env: { ...process.env, npm_config_loglevel: 'error' },
+    });
+    // Filter out npm warnings
+    const cleanStderr = stderr
+      .split('\n')
+      .filter((line) => !line.includes('npm warn') && line.trim() !== '')
+      .join('\n');
+    return { stdout, stderr: cleanStderr };
   }
 
   describe('single file deletion', () => {
