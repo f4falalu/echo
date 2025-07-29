@@ -88,7 +88,7 @@ export const suggestionPlugin = toTPlatePlugin<SuggestionConfig>(
 
 const suggestionLineBreakPlugin = createPlatePlugin({
   key: 'suggestionLineBreak',
-  render: { belowNodes: SuggestionLineBreak as any }
+  render: { belowNodes: SuggestionLineBreak }
 });
 
 export const SuggestionKit = [suggestionPlugin, suggestionLineBreakPlugin];

@@ -419,13 +419,13 @@ export function TableRowElement(props: PlateElementProps<TTableRowElement>) {
   );
 }
 
-function RowDragHandle({ dragRef }: { dragRef: React.Ref<any> }) {
+function RowDragHandle({ dragRef }: { dragRef: React.Ref<HTMLElement | HTMLButtonElement> }) {
   const editor = useEditorRef();
   const element = useElement();
 
   return (
     <Button
-      ref={dragRef}
+      ref={dragRef as React.Ref<HTMLButtonElement>}
       variant="outlined"
       className={cn(
         'absolute top-1/2 left-0 z-51 h-6 w-4 -translate-y-1/2 p-0 focus-visible:ring-0 focus-visible:ring-offset-0',
@@ -539,7 +539,7 @@ export function TableCellElement({
                 className={cn(
                   'bg-ring absolute top-0 z-30 hidden h-full w-1',
                   'right-[-1.5px]',
-                  columnResizeVariants({ colIndex: colIndex as any })
+                  columnResizeVariants({ colIndex: colIndex as 1 })
                 )}
               />
               {colIndex === 0 && (

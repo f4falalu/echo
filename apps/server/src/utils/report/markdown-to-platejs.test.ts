@@ -1,5 +1,5 @@
+import { describe, expect, it } from 'vitest';
 import { markdownToPlatejs } from './markdown-to-platejs';
-import { describe, it, expect } from 'vitest';
 
 describe('markdownToPlatejs', () => {
   it('should convert elaborate markdown to platejs', async () => {

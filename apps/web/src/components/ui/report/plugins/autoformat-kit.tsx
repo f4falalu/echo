@@ -9,7 +9,7 @@ import {
   autoformatMath,
   AutoformatPlugin,
   autoformatPunctuation,
-  autoformatSmartQuotes,
+  autoformatSmartQuotes
 } from '@platejs/autoformat';
 import { insertEmptyCodeBlock } from '@platejs/code-block';
 import { toggleList } from '@platejs/list';
@@ -19,110 +19,110 @@ const autoformatMarks: AutoformatRule[] = [
   {
     match: '***',
     mode: 'mark',
-    type: [KEYS.bold, KEYS.italic],
+    type: [KEYS.bold, KEYS.italic]
   },
   {
     match: '__*',
     mode: 'mark',
-    type: [KEYS.underline, KEYS.italic],
+    type: [KEYS.underline, KEYS.italic]
   },
   {
     match: '__**',
     mode: 'mark',
-    type: [KEYS.underline, KEYS.bold],
+    type: [KEYS.underline, KEYS.bold]
   },
   {
     match: '___***',
     mode: 'mark',
-    type: [KEYS.underline, KEYS.bold, KEYS.italic],
+    type: [KEYS.underline, KEYS.bold, KEYS.italic]
   },
   {
     match: '**',
     mode: 'mark',
-    type: KEYS.bold,
+    type: KEYS.bold
   },
   {
     match: '__',
     mode: 'mark',
-    type: KEYS.underline,
+    type: KEYS.underline
   },
   {
     match: '*',
     mode: 'mark',
-    type: KEYS.italic,
+    type: KEYS.italic
   },
   {
     match: '_',
     mode: 'mark',
-    type: KEYS.italic,
+    type: KEYS.italic
   },
   {
     match: '~~',
     mode: 'mark',
-    type: KEYS.strikethrough,
+    type: KEYS.strikethrough
   },
   {
     match: '^',
     mode: 'mark',
-    type: KEYS.sup,
+    type: KEYS.sup
   },
   {
     match: '~',
     mode: 'mark',
-    type: KEYS.sub,
+    type: KEYS.sub
   },
   {
     match: '==',
     mode: 'mark',
-    type: KEYS.highlight,
+    type: KEYS.highlight
   },
   {
     match: '≡',
     mode: 'mark',
-    type: KEYS.highlight,
+    type: KEYS.highlight
   },
   {
     match: '`',
     mode: 'mark',
-    type: KEYS.code,
-  },
+    type: KEYS.code
+  }
 ];
 
 const autoformatBlocks: AutoformatRule[] = [
   {
     match: '# ',
     mode: 'block',
-    type: KEYS.h1,
+    type: KEYS.h1
   },
   {
     match: '## ',
     mode: 'block',
-    type: KEYS.h2,
+    type: KEYS.h2
   },
   {
     match: '### ',
     mode: 'block',
-    type: KEYS.h3,
+    type: KEYS.h3
   },
   {
     match: '#### ',
     mode: 'block',
-    type: KEYS.h4,
+    type: KEYS.h4
   },
   {
     match: '##### ',
     mode: 'block',
-    type: KEYS.h5,
+    type: KEYS.h5
   },
   {
     match: '###### ',
     mode: 'block',
-    type: KEYS.h6,
+    type: KEYS.h6
   },
   {
     match: '> ',
     mode: 'block',
-    type: KEYS.blockquote,
+    type: KEYS.blockquote
   },
   {
     match: '```',
@@ -131,9 +131,9 @@ const autoformatBlocks: AutoformatRule[] = [
     format: (editor) => {
       insertEmptyCodeBlock(editor, {
         defaultType: KEYS.p,
-        insertNodesOptions: { select: true },
+        insertNodesOptions: { select: true }
       });
-    },
+    }
   },
   // {
   //   match: '+ ',
@@ -149,10 +149,10 @@ const autoformatBlocks: AutoformatRule[] = [
       editor.tf.setNodes({ type: KEYS.hr });
       editor.tf.insertNodes({
         children: [{ text: '' }],
-        type: KEYS.p,
+        type: KEYS.p
       });
-    },
-  },
+    }
+  }
 ];
 
 const autoformatLists: AutoformatRule[] = [
@@ -162,9 +162,9 @@ const autoformatLists: AutoformatRule[] = [
     type: 'list',
     format: (editor) => {
       toggleList(editor, {
-        listStyleType: KEYS.ul,
+        listStyleType: KEYS.ul
       });
-    },
+    }
   },
   {
     match: [String.raw`^\d+\.$ `, String.raw`^\d+\)$ `],
@@ -174,9 +174,9 @@ const autoformatLists: AutoformatRule[] = [
     format: (editor, { matchString }) => {
       toggleList(editor, {
         listRestartPolite: Number(matchString) || 1,
-        listStyleType: KEYS.ol,
+        listStyleType: KEYS.ol
       });
-    },
+    }
   },
   {
     match: ['[] '],
@@ -184,13 +184,13 @@ const autoformatLists: AutoformatRule[] = [
     type: 'list',
     format: (editor) => {
       toggleList(editor, {
-        listStyleType: KEYS.listTodo,
+        listStyleType: KEYS.listTodo
       });
       editor.tf.setNodes({
         checked: false,
-        listStyleType: KEYS.listTodo,
+        listStyleType: KEYS.listTodo
       });
-    },
+    }
   },
   {
     match: ['[x] '],
@@ -198,14 +198,14 @@ const autoformatLists: AutoformatRule[] = [
     type: 'list',
     format: (editor) => {
       toggleList(editor, {
-        listStyleType: KEYS.listTodo,
+        listStyleType: KEYS.listTodo
       });
       editor.tf.setNodes({
         checked: true,
-        listStyleType: KEYS.listTodo,
+        listStyleType: KEYS.listTodo
       });
-    },
-  },
+    }
+  }
 ];
 
 export const AutoformatKit = [
@@ -221,16 +221,16 @@ export const AutoformatKit = [
         ...autoformatLegalHtml,
         ...autoformatArrow,
         ...autoformatMath,
-        ...autoformatLists,
+        ...autoformatLists
       ].map(
         (rule): AutoformatRule => ({
           ...rule,
           query: (editor) =>
             !editor.api.some({
-              match: { type: editor.getType(KEYS.codeBlock) },
-            }),
+              match: { type: editor.getType(KEYS.codeBlock) }
+            })
         })
-      ),
-    },
-  }),
+      )
+    }
+  })
 ];

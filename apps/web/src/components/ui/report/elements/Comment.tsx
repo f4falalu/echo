@@ -8,7 +8,7 @@ import { getCommentKey, getDraftCommentKey } from '@platejs/comment';
 import { CommentPlugin, useCommentId } from '@platejs/comment/react';
 import dayjs from 'dayjs';
 import { ArrowUp, Check, Dots, Pencil, Trash, Xmark } from '@/components/ui/icons';
-import { type Value, KEYS, nanoid, NodeApi } from 'platejs';
+import { type TElement, type Value, KEYS, nanoid, NodeApi } from 'platejs';
 import {
   Plate,
   useEditorPlugin,
@@ -363,7 +363,7 @@ function CommentMoreDropdown(props: {
 
 const useCommentEditor = (
   options: Omit<CreatePlateEditorOptions, 'plugins'> = {},
-  deps: any[] = []
+  deps: Value[] = []
 ) => {
   const commentEditor = usePlateEditor(
     {

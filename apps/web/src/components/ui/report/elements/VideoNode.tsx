@@ -96,7 +96,7 @@ export const VideoElement = withHOC(
                     src={unsafeUrl as string}
                     width="100%"
                     controls
-                    onError={(error: any) => console.error(error)}
+                    onError={(error) => console.error(error)}
                   />
                 </div>
               )}

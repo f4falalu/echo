@@ -64,7 +64,7 @@ export const PlaceholderElement = withHOC(
     const { openFilePicker } = useFilePicker({
       accept: currentContent.accept,
       multiple: true,
-      onFilesSelected: (data: { plainFiles?: File[]; errors?: any[] }) => {
+      onFilesSelected: (data: { plainFiles?: File[]; errors?: [] }) => {
         if (!data.plainFiles || data.plainFiles.length === 0) return;
 
         const updatedFiles = data.plainFiles;
@@ -204,6 +204,7 @@ export function ImageProgress({
 
   return (
     <div className={cn('relative', className)} contentEditable={false}>
+      {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         ref={imageRef as React.RefObject<HTMLImageElement>}
         className="h-auto w-full rounded-sm object-cover"

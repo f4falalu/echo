@@ -15,8 +15,7 @@ export const useIsTouchDevice = (): boolean => {
       // Multiple detection methods for better accuracy
       const hasTouchStart = 'ontouchstart' in window;
       const hasMaxTouchPoints = navigator.maxTouchPoints && navigator.maxTouchPoints > 0;
-      const hasMsMaxTouchPoints =
-        (navigator as any).msMaxTouchPoints && (navigator as any).msMaxTouchPoints > 0;
+      const hasMsMaxTouchPoints = navigator.maxTouchPoints && navigator.maxTouchPoints > 0;
 
       // Match media query for touch devices
       const hasCoarsePointer = window.matchMedia && window.matchMedia('(pointer: coarse)').matches;

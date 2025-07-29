@@ -9,11 +9,11 @@ export const BlockPlaceholderKit = [
       className:
         'before:absolute before:cursor-text before:opacity-30 before:content-[attr(placeholder)]',
       placeholders: {
-        [KEYS.p]: 'Type something...',
+        [KEYS.p]: 'Type something...'
       },
       query: ({ path }) => {
         return path.length === 1;
-      },
-    },
-  }),
+      }
+    }
+  })
 ];

@@ -270,7 +270,7 @@ type TooltipProps<T extends React.ElementType> = {
 } & React.ComponentProps<T>;
 
 function withTooltip<T extends React.ElementType>(Component: T) {
-  const ExtendComponent = React.forwardRef<any, TooltipProps<T>>(
+  const ExtendComponent = React.forwardRef<HTMLElement, TooltipProps<T>>(
     ({ tooltip, tooltipContentProps, tooltipProps, tooltipTriggerProps, ...props }, ref) => {
       const [mounted, setMounted] = React.useState(false);
 
