@@ -4,7 +4,7 @@ import { cva, type VariantProps } from 'class-variance-authority';
 
 interface EditorContainerProps {
   className?: string;
-  variant?: 'default';
+  variant?: 'default' | 'comment';
   readonly?: boolean;
   disabled?: boolean;
 }
@@ -12,7 +12,8 @@ interface EditorContainerProps {
 const editorContainerVariants = cva('relative cursor-text h-full p-4', {
   variants: {
     variant: {
-      default: 'bg-background'
+      default: 'bg-background',
+      comment: 'bg-background/50'
     },
     readonly: {
       true: 'cursor-not-allowed'

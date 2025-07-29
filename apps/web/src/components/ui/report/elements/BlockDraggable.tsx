@@ -18,7 +18,7 @@ import {
 import { useSelected } from 'platejs/react';
 
 import { Button } from '@/components/ui/buttons';
-import { Tooltip, TooltipBase, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { TooltipBase, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
 
 const UNDRAGGABLE_KEYS = [KEYS.column, KEYS.tr, KEYS.td];
@@ -177,7 +177,7 @@ const DragHandle = React.memo(function DragHandle() {
             editor.getApi(BlockSelectionPlugin).blockSelection.set(element.id as string);
           }}
           role="button">
-          <div className="text-muted-foreground size-4">
+          <div className="text-muted-foreground flex size-full items-center justify-center">
             <GripDotsVertical />
           </div>
         </div>

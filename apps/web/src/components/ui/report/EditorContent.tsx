@@ -5,7 +5,8 @@ import { cva } from 'class-variance-authority';
 const editorContentVariants = cva('pb-42', {
   variants: {
     variant: {
-      default: 'bg-background'
+      default: 'bg-background',
+      comment: 'bg-background/50'
     }
   }
 });
@@ -16,7 +17,7 @@ export function EditorContent({
   disabled,
   variant,
   ...props
-}: React.ComponentProps<typeof PlateContent> & { variant?: 'default' }) {
+}: React.ComponentProps<typeof PlateContent> & { variant?: 'default' | 'comment' }) {
   return (
     <PlateContent
       {...props}

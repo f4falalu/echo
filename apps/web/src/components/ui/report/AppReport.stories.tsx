@@ -6,10 +6,14 @@ import { ReportElement } from '@buster/server-shared/reports';
 const meta = {
   title: 'UI/report/AppReport',
   component: AppReport,
-  parameters: {
-    layout: 'centered'
-  },
   tags: ['autodocs'],
+  decorators: [
+    (Story) => (
+      <div className="border p-10">
+        <Story />
+      </div>
+    )
+  ],
   args: {
     placeholder: 'Start typing...',
     readOnly: false,

@@ -1,4 +1,4 @@
-import { AnyPluginConfig, type Value } from 'platejs';
+import { AnyPluginConfig, TrailingBlockPlugin, type Value } from 'platejs';
 import {
   useEditorRef,
   usePlateEditor,
@@ -28,15 +28,18 @@ import { DateKit } from './plugins/date-kit';
 import { LinkKit } from './plugins/link-kit';
 import { FontKit } from './plugins/font-kit';
 import { SlashKit } from './plugins/slash-kit';
+import { SuggestionKit } from './plugins/suggestion-kit';
 import { CursorOverlayKit } from './plugins/cursor-overlay-kit';
+import { DndKit } from './plugins/dnd-kit';
+import { FloatingToolbarKit } from './plugins/floating-toolbar-kit';
+import { ExitBreakKit } from './plugins/exit-break-kit';
+import { MarkdownKit } from './plugins/markdown-kit';
 
 export const editorPlugins: AnyPluginConfig[] = [
   // Elements
-
   ...BasicBlocksKit,
   ...CodeBlockKit,
   ...CalloutKit,
-  ...EmojiKit,
   ...AlignKit,
   ...TableKit,
   ...ToggleKit,
@@ -53,12 +56,23 @@ export const editorPlugins: AnyPluginConfig[] = [
 
   // Editing
   ...SlashKit,
+  ...SuggestionKit,
   ...AutoformatKit,
   ...BlockMenuKit,
   ...CursorOverlayKit,
+  ...DndKit,
+  ...FloatingToolbarKit,
+  ...EmojiKit,
+  ...ExitBreakKit,
+
+  TrailingBlockPlugin,
 
   //UI
-  ...BlockPlaceholderKit
+  ...BlockPlaceholderKit,
+  ...FloatingToolbarKit,
+
+  //Markdown
+  ...MarkdownKit
 ];
 
 export const useReportEditor = ({

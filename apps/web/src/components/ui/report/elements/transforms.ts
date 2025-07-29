@@ -76,9 +76,16 @@ export const insertBlock = (editor: PlateEditor, type: string) => {
       });
     }
     if (getBlockType(block[0]) !== type) {
-      editor.getApi(SuggestionPlugin).suggestion.withoutSuggestions(() => {
+      // Check if SuggestionPlugin is available before using it
+      const suggestionApi = editor.getApi(SuggestionPlugin);
+      if (suggestionApi?.suggestion?.withoutSuggestions) {
+        suggestionApi.suggestion.withoutSuggestions(() => {
+          editor.tf.removeNodes({ previousEmptyBlock: true });
+        });
+      } else {
+        // Fallback: remove nodes without suggestion wrapper
         editor.tf.removeNodes({ previousEmptyBlock: true });
-      });
+      }
     }
   });
 };
