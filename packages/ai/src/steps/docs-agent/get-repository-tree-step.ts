@@ -43,6 +43,10 @@ const getRepositoryTreeExecution = async ({
 
     console.info('[GetRepositoryTree] Generating repository tree structure');
 
+    // Get current working directory
+    const pwdResult = await sandbox.process.executeCommand('pwd');
+    const currentDir = pwdResult.result.trim();
+
     // Get the tree structure with gitignore option enabled
     const treeResult = await getRepositoryTree(sandbox, '.', {
       gitignore: true,
@@ -57,18 +61,22 @@ const getRepositoryTreeExecution = async ({
       };
     }
 
+    // Prepend current directory info to tree output
+    const treeWithLocation = `<YOU ARE HERE: ${currentDir}>\n\n${treeResult.output}`;
+
     console.info('[GetRepositoryTree] Tree structure generated successfully', {
       outputLength: treeResult.output.length,
       command: treeResult.command,
+      currentDirectory: currentDir,
     });
 
     // Store the tree in runtime context for potential use by other steps
-    runtimeContext.set('repositoryTree', treeResult.output);
+    runtimeContext.set('repositoryTree', treeWithLocation);
 
     // Return the data with the tree structure added
     return {
       ...inputData,
-      repositoryTree: treeResult.output,
+      repositoryTree: treeWithLocation,
     };
   } catch (error) {
     console.error('[GetRepositoryTree] Error generating repository tree:', error);
