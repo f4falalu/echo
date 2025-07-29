@@ -46,7 +46,7 @@ function Cursor({
             key={i}
             className={cn(
               'pointer-events-none absolute z-10',
-              id === 'selection' && 'bg-brand/25',
+              id === 'selection' && 'bg-brand/15',
               id === 'selection' && isCursor && 'bg-primary'
             )}
             style={{

@@ -175,7 +175,7 @@ export function BlockSuggestionCard({
               <div className="flex flex-col gap-2">
                 {suggestionText2Array(suggestion.newText!).map((text, index) => (
                   <React.Fragment key={index}>
-                    <div key={index} className="text-brand/80 flex items-start gap-2">
+                    <div key={index} className="text-brand/60 flex items-start gap-2">
                       <span className="text-sm">with:</span>
                       <span className="text-sm">{text || 'line breaks'}</span>
                     </div>

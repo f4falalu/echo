@@ -13,20 +13,23 @@ import {
   DropdownMenuSeparator
 } from '@/components/ui/dropdown-menu';
 import { Separator } from '@/components/ui/separator';
-import { Tooltip, TooltipTrigger } from '@/components/ui/tooltip';
+import { TooltipBase, TooltipTrigger } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
 
-export function Toolbar({
-  className,
-  ...props
-}: React.ComponentProps<typeof ToolbarPrimitive.Root>) {
+export const Toolbar = React.forwardRef<
+  HTMLDivElement,
+  React.ComponentProps<typeof ToolbarPrimitive.Root>
+>(function Toolbar({ className, ...props }, ref) {
   return (
     <ToolbarPrimitive.Root
+      ref={ref}
       className={cn('relative flex items-center select-none', className)}
       {...props}
     />
   );
-}
+});
+
+Toolbar.displayName = 'Toolbar';
 
 export function ToolbarToggleGroup({
   className,
@@ -266,40 +269,45 @@ export function ToolbarGroup({ children, className }: React.ComponentProps<'div'
 type TooltipProps<T extends React.ElementType> = {
   tooltip?: React.ReactNode;
   tooltipContentProps?: Omit<React.ComponentPropsWithoutRef<typeof TooltipContent>, 'children'>;
-  tooltipProps?: Omit<React.ComponentPropsWithoutRef<typeof Tooltip>, 'children'>;
+  tooltipProps?: Omit<React.ComponentPropsWithoutRef<typeof TooltipBase>, 'children'>;
   tooltipTriggerProps?: React.ComponentPropsWithoutRef<typeof TooltipTrigger>;
 } & React.ComponentProps<T>;
 
 function withTooltip<T extends React.ElementType>(Component: T) {
-  return function ExtendComponent({
-    tooltip,
-    tooltipContentProps,
-    tooltipProps,
-    tooltipTriggerProps,
-    ...props
-  }: TooltipProps<T>) {
-    const [mounted, setMounted] = React.useState(false);
+  const ExtendComponent = React.forwardRef<any, TooltipProps<T>>(
+    ({ tooltip, tooltipContentProps, tooltipProps, tooltipTriggerProps, ...props }, ref) => {
+      const [mounted, setMounted] = React.useState(false);
 
-    React.useEffect(() => {
-      setMounted(true);
-    }, []);
+      React.useEffect(() => {
+        setMounted(true);
+      }, []);
 
-    const component = <Component {...(props as React.ComponentProps<T>)} />;
+      const componentProps = {
+        ...props,
+        ref
+      };
 
-    if (tooltip && mounted) {
-      return (
-        <Tooltip {...tooltipProps}>
-          <TooltipTrigger asChild {...tooltipTriggerProps}>
-            {component}
-          </TooltipTrigger>
+      const component = React.createElement(Component, componentProps);
 
-          <TooltipContent {...tooltipContentProps}>{tooltip}</TooltipContent>
-        </Tooltip>
-      );
+      if (tooltip && mounted) {
+        return (
+          <TooltipBase {...tooltipProps}>
+            <TooltipTrigger asChild {...tooltipTriggerProps}>
+              {component}
+            </TooltipTrigger>
+
+            <TooltipContent {...tooltipContentProps}>{tooltip}</TooltipContent>
+          </TooltipBase>
+        );
+      }
+
+      return component;
     }
+  );
 
-    return component;
-  };
+  ExtendComponent.displayName = `withTooltip`;
+
+  return ExtendComponent;
 }
 
 function TooltipContent({
