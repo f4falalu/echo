@@ -4,23 +4,125 @@ import React, { useState } from 'react';
 import dynamic from 'next/dynamic';
 import { InputTextArea } from '@/components/ui/inputs/InputTextArea';
 import type { ReportElements } from '@buster/server-shared/reports';
+import { useQuery } from '@tanstack/react-query';
+import { mainApiV2 } from '@/api/buster_rest/instances';
+import { useDebounceEffect } from '@/hooks';
 
 const ReportEditor = dynamic(
   () => import('@/components/ui/report/ReportEditor').then((mod) => mod.ReportEditor),
   { ssr: false, loading: () => <div className="p-5 text-red-500">Loading...</div> }
 );
 
+// Status indicator component with dynamic backgrounds
+interface ValidationStatusProps {
+  isLoading: boolean;
+  error: unknown;
+  isFetched: boolean;
+  data: unknown;
+}
+
+const ValidationStatus: React.FC<ValidationStatusProps> = ({
+  isLoading,
+  error,
+  isFetched,
+  data
+}) => {
+  // Determine status and styling
+  const getStatusConfig = () => {
+    if (isLoading) {
+      return {
+        bgClass: 'bg-blue-50 border-blue-200',
+        textClass: 'text-blue-700',
+        iconBg: 'bg-blue-600',
+        icon: (
+          <div className="h-4 w-4 animate-spin rounded-full border-2 border-blue-600 border-t-transparent"></div>
+        ),
+        message: 'Validating markdown...'
+      };
+    }
+
+    if (error && !isLoading) {
+      return {
+        bgClass: 'bg-red-50 border-red-200',
+        textClass: 'text-red-700',
+        iconBg: 'bg-red-600',
+        icon: (
+          <div className="flex h-4 w-4 items-center justify-center rounded-full bg-red-600">
+            <span className="text-xs text-white">✕</span>
+          </div>
+        ),
+        message: `Validation failed: ${error instanceof Error ? error.message : error || 'Unknown error'}`
+      };
+    }
+
+    if (isFetched && !error && !isLoading && data) {
+      return {
+        bgClass: 'bg-green-50 border-green-400',
+        textClass: 'text-green-700',
+        iconBg: 'bg-green-600',
+        icon: (
+          <div className="flex h-4 w-4 items-center justify-center rounded-full bg-green-600">
+            <span className="text-xs text-white">✓</span>
+          </div>
+        ),
+        message: 'Markdown validated successfully'
+      };
+    }
+
+    // Default/ready state
+    return {
+      bgClass: 'bg-gray-50 border-gray-200',
+      textClass: 'text-gray-600',
+      iconBg: 'bg-gray-400',
+      icon: <div className="h-4 w-4 rounded-full bg-gray-400"></div>,
+      message: 'Ready to validate'
+    };
+  };
+
+  const config = getStatusConfig();
+
+  return (
+    <div
+      className={`flex min-h-20 items-center justify-center rounded border p-4 transition-colors duration-200 ${config.bgClass}`}>
+      <div className={`flex items-center space-x-2 ${config.textClass}`}>
+        {config.icon}
+        <span className="text-sm font-medium">{config.message}</span>
+      </div>
+    </div>
+  );
+};
+
 export const ReportPlayground: React.FC = () => {
   const [markdown, setMarkdown] = useState<string>('');
 
+  const { data, refetch, isLoading, isFetched, error } = useQuery({
+    queryKey: ['report-playground', markdown],
+    queryFn: () => {
+      return mainApiV2.post('/temp/validate-markdown', { markdown }).then((res) => res.data);
+    },
+    enabled: false
+  });
+
+  useDebounceEffect(
+    () => {
+      refetch();
+    },
+    [markdown, refetch],
+    { wait: 250 }
+  );
+
   return (
-    <div className="grid min-h-screen grid-cols-[400px_1fr] gap-5 rounded border p-7">
-      <InputTextArea
-        placeholder="Put markdown here"
-        value={markdown}
-        onChange={(e) => setMarkdown(e.target.value)}
-      />
-      <div className="bg-background h-full overflow-hidden rounded border shadow">
+    <div className="grid max-h-screen min-h-screen grid-cols-[400px_1fr] gap-5 rounded border p-7">
+      <div className="flex h-full flex-col space-y-5">
+        <InputTextArea
+          className="h-full"
+          placeholder="Put markdown here"
+          value={markdown}
+          onChange={(e) => setMarkdown(e.target.value)}
+        />
+        <ValidationStatus isLoading={isLoading} error={error} isFetched={isFetched} data={data} />
+      </div>
+      <div className="bg-background h-full max-h-[calc(100vh-56px)] overflow-y-auto rounded border shadow">
         <ReportEditor value={value} readOnly={false} />
       </div>
     </div>
