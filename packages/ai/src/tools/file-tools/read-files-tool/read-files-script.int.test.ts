@@ -66,11 +66,13 @@ describe('read-files-script integration test', () => {
     const result = await runTypescript(sandbox, scriptContent);
     const output = JSON.parse(result.result);
 
-    expect(output).toEqual([{
-      success: false,
-      filePath: '',
-      error: 'No file paths provided'
-    }]);
+    expect(output).toEqual([
+      {
+        success: false,
+        filePath: '',
+        error: 'No file paths provided',
+      },
+    ]);
   });
 
   it.skipIf(!hasApiKey)('should read a single file successfully', async () => {
