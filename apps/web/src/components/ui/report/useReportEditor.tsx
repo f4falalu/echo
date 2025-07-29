@@ -20,17 +20,34 @@ import { ColumnKit } from './plugins/column-kit';
 import { MyTestPlugin } from './plugins/test-plugin';
 import { EmojiKit } from './plugins/emoji-kit';
 import { TableKit } from './plugins/table-kit';
+import { ToggleKit } from './plugins/toggle-kit';
+import { TocKit } from './plugins/toc-kit';
+import { MediaKit } from './plugins/media-kit';
+import { MathKit } from './plugins/math-kit';
+import { DateKit } from './plugins/date-kit';
+import { LinkKit } from './plugins/link-kit';
+import { FontKit } from './plugins/font-kit';
 
 export const editorPlugins: AnyPluginConfig[] = [
   // Elements
-  ...BasicMarksKit,
+
   ...BasicBlocksKit,
   ...CodeBlockKit,
   ...CalloutKit,
   ...EmojiKit,
   ...AlignKit,
   ...TableKit,
-  // ...ColumnKit
+  ...ToggleKit,
+  ...TocKit,
+  ...MediaKit,
+  ...MathKit,
+  ...DateKit,
+  ...ColumnKit,
+  ...LinkKit,
+
+  //Marks
+  ...BasicMarksKit,
+  ...FontKit,
 
   // Editing
   ...AutoformatKit,

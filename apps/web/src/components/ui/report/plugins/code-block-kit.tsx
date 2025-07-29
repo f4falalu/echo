@@ -2,9 +2,7 @@
 
 import { CodeBlockPlugin, CodeLinePlugin, CodeSyntaxPlugin } from '@platejs/code-block/react';
 import { createLowlight } from 'lowlight';
-import { KEYS, type AnyPluginConfig } from 'platejs';
-
-import { ExitBreakRule } from '@udecode/plate-break';
+import { type AnyPluginConfig } from 'platejs';
 
 import { CodeBlockElement, CodeLineElement, CodeSyntaxLeaf } from '../elements/CodeBlockNode';
 import sql from 'highlight.js/lib/languages/sql';

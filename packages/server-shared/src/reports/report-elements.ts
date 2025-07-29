@@ -1,7 +1,11 @@
 import { z } from 'zod';
 
 const AttributesSchema = z.object({
-  align: z.enum(['left', 'center', 'right']).optional(),
+  attributes: z
+    .object({
+      align: z.enum(['left', 'center', 'right']).optional(),
+    })
+    .optional(),
 });
 
 export const TextSchema = z.object({
@@ -78,20 +82,6 @@ export const HRElement = z.object({
   children: z.array(TextSchema).default([]),
 });
 
-export const TableElement = z
-  .object({
-    type: z.literal('table'),
-    children: z.array(TextSchema).default([]),
-  })
-  .merge(AttributesSchema);
-
-export const TableRowElement = z
-  .object({
-    type: z.literal('tr'),
-    children: z.array(TextSchema).default([]),
-  })
-  .merge(AttributesSchema);
-
 const TableCellTypeEnum = z.enum(['td', 'th']);
 const ListTypeEnum = z.enum(['ul', 'ol']);
 
@@ -100,8 +90,22 @@ export const TableCellElement = z.object({
   type: TableCellTypeEnum,
   colSpan: z.number().optional(),
   rowSpan: z.number().optional(),
-  children: z.array(TextSchema).default([]),
+  children: z.array(z.union([TextSchema, ParagraphElement])).default([]),
 });
+
+export const TableRowElement = z
+  .object({
+    type: z.literal('tr'),
+    children: z.array(z.union([TextSchema, ParagraphElement, TableCellElement])).default([]),
+  })
+  .merge(AttributesSchema);
+
+export const TableElement = z
+  .object({
+    type: z.literal('table'),
+    children: z.array(TableRowElement, TableCellElement).default([]),
+  })
+  .merge(AttributesSchema);
 
 export const EmojiElement = z.object({
   type: z.literal('emoji'),
