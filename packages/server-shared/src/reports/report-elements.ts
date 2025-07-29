@@ -177,7 +177,7 @@ export const CalloutElementSchema = z
     variant: z.enum(['info', 'warning', 'error', 'success', 'tip', 'note']).optional(),
     icon: z.string().length(1, 'Icon must be a single character').optional(),
     backgroundColor: z.string().optional(),
-    children: z.array(SimpleTextSchema),
+    children: z.array(z.union([TextSchema, ParagraphElementSchema])),
   })
   .merge(AttributesSchema);
 
