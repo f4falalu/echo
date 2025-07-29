@@ -35,7 +35,7 @@ Create [links](/docs/link), [@mention](/docs/mention) users like [Alice](mention
 
 ​
 
-<callout>
+<callout icon="💡">
   This is a good callout
 </callout>
 
