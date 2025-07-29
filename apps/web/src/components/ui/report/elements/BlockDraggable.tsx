@@ -5,7 +5,7 @@ import * as React from 'react';
 import { DndPlugin, useDraggable, useDropLine } from '@platejs/dnd';
 import { BlockSelectionPlugin } from '@platejs/selection/react';
 import { GripDotsVertical } from '@/components/ui/icons';
-import { getContainerTypes, getPluginByType, isType, KEYS, type TElement } from 'platejs';
+import { getPluginByType, isType, KEYS, type TElement } from 'platejs';
 import {
   type PlateEditor,
   type PlateElementProps,

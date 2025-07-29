@@ -46,10 +46,17 @@ export const BlockquoteElement = z
   })
   .merge(AttributesSchema);
 
+const CodeLineElement = z.object({
+  type: z.literal('code_line'),
+  children: z.array(SimpleTextSchema),
+});
+
 export const CodeBlockElement = z.object({
   type: z.literal('code_block'),
-  lang: z.enum(['sql', 'yaml', 'javascript', 'typescript', 'python', 'bash', 'json']),
-  children: z.array(SimpleTextSchema),
+  lang: z
+    .enum(['sql', 'yaml', 'javascript', 'typescript', 'python', 'bash', 'json'])
+    .default('sql'),
+  children: z.array(CodeLineElement),
 });
 
 export const CalloutElement = z

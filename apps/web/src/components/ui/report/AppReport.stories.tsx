@@ -1,6 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { AppReport } from './AppReport';
-import type { Value } from 'platejs';
 import { ReportElement } from '@buster/server-shared/reports';
 
 const meta = {
@@ -77,8 +76,34 @@ const sampleValue = [
   {
     type: 'code_block',
     lang: 'javascript',
-    children: [{ text: 'const greeting = "Hello, World!";\nconsole.log(greeting);' }]
+    children: [
+      {
+        type: 'code_line',
+        children: [{ text: 'const greeting = "Hello, World!";' }]
+      },
+      {
+        type: 'code_line',
+        children: [{ text: 'console.log(greeting);' }]
+      },
+      {
+        type: 'code_line',
+        children: [{ text: '}' }]
+      }
+    ]
   },
+  {
+    children: [
+      { children: [{ text: 'function hello() {' }], type: 'code_line' },
+      {
+        children: [{ text: "  console.info('Code blocks are supported!');" }],
+        type: 'code_line'
+      },
+      { children: [{ text: '}' }], type: 'code_line' }
+    ],
+    lang: 'javascript',
+    type: 'code_block'
+  },
+
   {
     type: 'h1',
     children: [{ text: 'Hello' }]
