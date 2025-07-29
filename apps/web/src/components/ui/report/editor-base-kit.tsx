@@ -10,13 +10,13 @@ import { FontKit } from './plugins/font-kit';
 import { LineHeightKit } from './plugins/line-height-kit';
 import { LinkKit } from './plugins/link-kit';
 import { ListKit } from './plugins/list-kit';
-import { MarkdownKit } from './plugins/markdown-kit';
 import { MathKit } from './plugins/math-kit';
 import { MediaKit } from './plugins/media-kit';
 import { SuggestionKit } from './plugins/suggestion-kit';
 import { TableKit } from './plugins/table-kit';
 import { TocKit } from './plugins/toc-kit';
 import { ToggleKit } from './plugins/toggle-kit';
+import { MarkdownPlugin } from '@buster/server-shared/lib/report';
 
 export const BaseEditorKit = [
   ...BasicBlocksKit,
@@ -24,7 +24,6 @@ export const BaseEditorKit = [
   ...TableKit,
   ...ToggleKit,
   ...TocKit,
-  // ...MediaKit,
   ...CalloutKit,
   ...ColumnKit,
   ...MathKit,
@@ -37,5 +36,6 @@ export const BaseEditorKit = [
   ...LineHeightKit,
   ...CommentKit,
   ...SuggestionKit,
-  ...MarkdownKit
+  MarkdownPlugin
+  // ...MediaKit,
 ];
