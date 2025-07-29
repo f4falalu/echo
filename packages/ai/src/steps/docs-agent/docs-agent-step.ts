@@ -62,6 +62,16 @@ const docsAgentExecution = async ({
   const dataSourceId = runtimeContext.get('dataSourceId') as string;
   const dataSourceSyntax = runtimeContext.get('dataSourceSyntax') as string;
 
+  // Create abort controller for handling idle tool
+  const abortController = new AbortController();
+
+  // Initialize tracking variables outside try block
+  let documentationCreated = false;
+  let clarificationNeeded = false;
+  let filesCreated = 0;
+  const toolsUsed = new Set<string>();
+  let finished = false;
+
   console.info('[DocsAgent] Starting docs agent execution', {
     hasSandbox: !!sandbox,
     todoListLength: todoList?.length || 0,
@@ -106,18 +116,19 @@ const docsAgentExecution = async ({
       runtimeContext,
       toolChoice: 'required',
       maxSteps: 50, // Allow more steps for complex documentation tasks
+      abortSignal: abortController.signal, // Add abort signal
     });
 
     // Process the stream to extract results
-    let documentationCreated = false;
-    let clarificationNeeded = false;
-    let filesCreated = 0;
-    const toolsUsed = new Set<string>();
-    let finished = false;
     let stepCount = 0;
     let lastTextContent = '';
 
     for await (const chunk of result.fullStream) {
+      // Check if aborted
+      if (abortController.signal.aborted) {
+        break;
+      }
+
       // Track step count
       if (chunk.type === 'step-start') {
         stepCount++;
@@ -158,7 +169,9 @@ const docsAgentExecution = async ({
         }
 
         if (chunk.toolName === 'idleTool') {
+          console.log('[DocsAgent] Idle tool called - aborting stream');
           finished = true;
+          abortController.abort();
         }
       }
 
@@ -199,6 +212,26 @@ const docsAgentExecution = async ({
       },
     };
   } catch (error) {
+    // Handle abort error gracefully
+    if (error instanceof Error && error.name === 'AbortError') {
+      console.info('[DocsAgent] Stream aborted successfully (idle tool called)');
+
+      // Get the final todo list state
+      const finalTodoList = runtimeContext.get(DocsAgentContextKeys.TodoList) as string;
+
+      return {
+        todos: inputData.todos.split('\n').filter((line) => line.trim()),
+        todoList: finalTodoList || inputData.todoList,
+        documentationCreated,
+        clarificationNeeded,
+        finished: true,
+        metadata: {
+          filesCreated,
+          toolsUsed: Array.from(toolsUsed),
+        },
+      };
+    }
+
     console.error('[DocsAgent] Error executing docs agent:', error);
     throw new Error(
       `Docs agent execution failed: ${error instanceof Error ? error.message : 'Unknown error'}`

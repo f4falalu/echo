@@ -27,11 +27,10 @@ describe('tree-script', () => {
     originalArgv = process.argv;
     consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
     consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-    processExitSpy = vi
-      .spyOn(process, 'exit')
-      .mockImplementation((code?: string | number | null | undefined) => {
-        throw new Error(`Process exit with code ${code}`);
-      });
+    processExitSpy = vi.spyOn(process, 'exit').mockImplementation(() => {
+      // Don't throw an error, just return undefined
+      return undefined as never;
+    });
   });
 
   afterEach(() => {
@@ -53,16 +52,10 @@ describe('tree-script', () => {
 
     process.argv = ['node', 'tree-script.ts', ...processedArgs];
 
-    try {
-      // Dynamically import and wait for execution
-      await import(`./tree-script?t=${Date.now()}`);
-      // Give the async main() time to complete
-      await new Promise((resolve) => setTimeout(resolve, 10));
-    } catch (error) {
-      // Swallow the error - this is expected when process.exit is called
-      // Give time for console output to be captured
-      await new Promise((resolve) => setTimeout(resolve, 10));
-    }
+    // Dynamically import and wait for execution
+    await import(`./tree-script?t=${Date.now()}`);
+    // Give the async main() time to complete
+    await new Promise((resolve) => setTimeout(resolve, 50));
   }
 
   it('should error when no arguments provided', async () => {

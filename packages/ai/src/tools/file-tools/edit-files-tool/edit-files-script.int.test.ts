@@ -19,13 +19,15 @@ describe('edit-files-script integration', () => {
     await fs.rm(tempDir, { recursive: true, force: true });
   });
 
-  async function runScript(args: string): Promise<{ stdout: string; stderr: string; code: number }> {
+  async function runScript(
+    args: string
+  ): Promise<{ stdout: string; stderr: string; code: number }> {
     try {
       const { stdout, stderr } = await execAsync(
         `npx tsx ${path.join(__dirname, 'edit-files-script.ts')} ${args}`,
-        { 
+        {
           cwd: tempDir,
-          env: { ...process.env, npm_config_loglevel: 'error' } 
+          env: { ...process.env, npm_config_loglevel: 'error' },
         }
       );
 
@@ -37,10 +39,10 @@ describe('edit-files-script integration', () => {
 
       return { stdout: stdout.trim(), stderr: cleanStderr, code: 0 };
     } catch (error: any) {
-      return { 
-        stdout: error.stdout?.trim() || '', 
-        stderr: error.stderr?.trim() || '', 
-        code: error.code || 1 
+      return {
+        stdout: error.stdout?.trim() || '',
+        stderr: error.stderr?.trim() || '',
+        code: error.code || 1,
       };
     }
   }
