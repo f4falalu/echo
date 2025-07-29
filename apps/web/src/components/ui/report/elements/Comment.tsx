@@ -27,11 +27,11 @@ import {
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
 import { cn } from '@/lib/utils';
-import { BasicMarksKit } from '../plugins/basic-markd-kit';
+import { BasicMarksKit } from '../plugins/basic-marks-kit';
 import { type TDiscussion, discussionPlugin } from '../plugins/discussion-kit';
 
 import { EditorContainer } from '../EditorContainer';
-import { EditorContent as Editor } from '../EditorContent';
+import { EditorContent as Editor } from '../Editor';
 
 export interface TComment {
   id: string;

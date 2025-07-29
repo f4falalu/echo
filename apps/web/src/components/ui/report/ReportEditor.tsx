@@ -2,7 +2,7 @@ import React, { useImperativeHandle } from 'react';
 import type { Value, AnyPluginConfig } from 'platejs';
 import { Plate, type TPlateEditor } from 'platejs/react';
 import { EditorContainer } from './EditorContainer';
-import { EditorContent } from './EditorContent';
+import { Editor } from './Editor';
 import { useReportEditor } from './useReportEditor';
 import { useMemoizedFn } from '@/hooks';
 import { ReportElements } from '@buster/server-shared/reports';
@@ -52,26 +52,12 @@ export const ReportEditor = React.memo(
 
       return (
         <Plate editor={editor} readOnly={readOnly}>
-          {/* 
-            Toolbar is commented out for now. Uncomment and implement as needed.
-            <FixedToolbar className="justify-start rounded-t-lg">
-              <MarkToolbarButton nodeType="bold" tooltip="Bold (⌘+B)">
-                B
-              </MarkToolbarButton>
-              <MarkToolbarButton nodeType="italic" tooltip="Italic (⌘+I)">
-                I
-              </MarkToolbarButton>
-              <MarkToolbarButton nodeType="underline" tooltip="Underline (⌘+U)">
-                U
-              </MarkToolbarButton>
-            </FixedToolbar> 
-          */}
           <EditorContainer
             variant={variant}
             readonly={readOnly}
             disabled={disabled}
             className={className}>
-            <EditorContent style={style} placeholder={placeholder} disabled={disabled} />
+            <Editor style={style} placeholder={placeholder} disabled={disabled} />
           </EditorContainer>
         </Plate>
       );
