@@ -10,9 +10,7 @@ import {
   type PlateLeafProps,
   PlateElement,
   PlateLeaf,
-  useFocused,
-  useSelected,
-  useComposing
+  useSelected
 } from 'platejs/react';
 import { useEditorRef, useElement, useReadOnly } from 'platejs/react';
 import { Button } from '@/components/ui/buttons';
@@ -33,19 +31,13 @@ This is used for code blocks.
 export function CodeBlockElement(props: PlateElementProps<TCodeBlockElement>) {
   const { editor, element } = props;
 
-  const nodeSelected = useSelected();
-
   return (
     <PlateElement
       className={cn(
         'py-1 **:[.hljs-addition]:bg-[#f0fff4] **:[.hljs-addition]:text-[#22863a] **:[.hljs-attr,.hljs-attribute,.hljs-literal,.hljs-meta,.hljs-number,.hljs-operator,.hljs-selector-attr,.hljs-selector-class,.hljs-selector-id,.hljs-variable]:text-[#005cc5] **:[.hljs-built_in,.hljs-symbol]:text-[#e36209] **:[.hljs-bullet]:text-[#735c0f] **:[.hljs-comment,.hljs-code,.hljs-formula]:text-[#6a737d] **:[.hljs-deletion]:bg-[#ffeef0] **:[.hljs-deletion]:text-[#b31d28] **:[.hljs-emphasis]:italic **:[.hljs-keyword,.hljs-doctag,.hljs-template-tag,.hljs-template-variable,.hljs-type,.hljs-variable.language_]:text-[#d73a49] **:[.hljs-name,.hljs-quote,.hljs-selector-tag,.hljs-selector-pseudo]:text-[#22863a] **:[.hljs-regexp,.hljs-string,.hljs-meta_.hljs-string]:text-[#032f62] **:[.hljs-section]:font-bold **:[.hljs-section]:text-[#005cc5] **:[.hljs-strong]:font-bold **:[.hljs-title,.hljs-title.class_,.hljs-title.class_.inherited__,.hljs-title.function_]:text-[#6f42c1]'
       )}
       {...props}>
-      <div
-        className={cn(
-          'bg-muted/50 relative rounded-md transition-all duration-100',
-          nodeSelected && 'ring-border ring-1'
-        )}>
+      <div className={cn('bg-muted/50 relative rounded-md transition-all duration-100')}>
         <pre className="overflow-x-auto p-8 pr-4 font-mono text-sm leading-[normal] [tab-size:2] print:break-inside-avoid">
           <code>{props.children}</code>
         </pre>
@@ -55,6 +47,7 @@ export function CodeBlockElement(props: PlateElementProps<TCodeBlockElement>) {
           contentEditable={false}>
           {isLangSupported(element.lang) && (
             <Button
+              variant="ghost"
               className="size-6 text-xs"
               onClick={() => formatCodeBlock(editor, { element })}
               title="Format code"
@@ -92,7 +85,7 @@ function CodeBlockCombobox() {
   return (
     <PopoverBase open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <Button aria-expanded={open} role="combobox">
+        <Button variant="ghost" aria-expanded={open} role="combobox">
           {languages.find((language) => language.value === value)?.label ?? 'Plain Text'}
         </Button>
       </PopoverTrigger>
@@ -105,7 +98,7 @@ function CodeBlockCombobox() {
             placeholder="Search language..."
           />
           <CommandEmpty>No language found.</CommandEmpty>
-          <CommandList className="h-[344px] overflow-y-auto">
+          <CommandList className="overflow-y-auto">
             <CommandGroup>
               {items.map((language) => (
                 <CommandItem
@@ -145,6 +138,7 @@ function CopyButton({
 
   return (
     <Button
+      variant="ghost"
       prefix={hasCopied ? <Check /> : <Copy2 />}
       onClick={() => {
         void navigator.clipboard.writeText(typeof value === 'function' ? value() : value);
@@ -166,7 +160,7 @@ export function CodeSyntaxLeaf(props: PlateLeafProps<TCodeSyntaxLeaf>) {
 }
 
 const languages: { label: string; value: string }[] = [
-  { label: 'Auto', value: 'auto' },
+  // { label: 'Auto', value: 'auto' },
   { label: 'Plain Text', value: 'plaintext' },
   // { label: 'ABAP', value: 'abap' },
   // { label: 'Agda', value: 'agda' },

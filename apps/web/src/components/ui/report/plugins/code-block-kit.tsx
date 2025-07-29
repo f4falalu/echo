@@ -17,20 +17,11 @@ lowlight.register('yaml', yaml);
 lowlight.register('javascript', javascript);
 lowlight.register('typescript', typescript);
 
-export const CodeBlockKit: AnyPluginConfig[] = [
+export const CodeBlockKit = [
   CodeBlockPlugin.configure({
-    node: {
-      component: CodeBlockElement
-      // Removed isVoid: true as it prevents content from displaying
-    },
+    node: { component: CodeBlockElement },
     options: { lowlight, defaultLanguage: 'sql' },
-    rules: {
-      // When pressing Enter at the end of a code block, create a paragraph
-      break: { empty: 'reset' }
-    },
-    shortcuts: {
-      toggle: { keys: 'mod+alt+8' }
-    }
+    shortcuts: { toggle: { keys: 'mod+alt+8' } }
   }),
   CodeLinePlugin.withComponent(CodeLineElement),
   CodeSyntaxPlugin.withComponent(CodeSyntaxLeaf)
