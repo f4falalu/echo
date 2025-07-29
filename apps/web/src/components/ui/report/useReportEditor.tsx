@@ -2,12 +2,12 @@ import { AnyPluginConfig, TrailingBlockPlugin, type Value } from 'platejs';
 import {
   useEditorRef,
   usePlateEditor,
-  type PlateEditor,
   type TPlateEditor,
   type WithPlateOptions
 } from 'platejs/react';
 
 // Plugin imports sorted alphabetically for clarity and maintainability
+import { AIKit } from './plugins/ai-kit';
 import { AlignKit } from './plugins/align-kit';
 import { AutoformatKit } from './plugins/autoformat-kit';
 import { BasicBlocksKit } from './plugins/basic-blocks-kit';
@@ -18,28 +18,30 @@ import { BlockSelectionKit } from './plugins/block-selection-kit';
 import { CalloutKit } from './plugins/callout-kit';
 import { CodeBlockKit } from './plugins/code-block-kit';
 import { ColumnKit } from './plugins/column-kit';
-import { MyTestPlugin } from './plugins/test-plugin';
-import { EmojiKit } from './plugins/emoji-kit';
-import { TableKit } from './plugins/table-kit';
-import { ToggleKit } from './plugins/toggle-kit';
-import { TocKit } from './plugins/toc-kit';
-import { MediaKit } from './plugins/media-kit';
-import { MathKit } from './plugins/math-kit';
+import { CommentKit } from './plugins/comment-kit';
+import { CursorOverlayKit } from './plugins/cursor-overlay-kit';
 import { DateKit } from './plugins/date-kit';
-import { LinkKit } from './plugins/link-kit';
+import { DndKit } from './plugins/dnd-kit-new';
+import { EmojiKit } from './plugins/emoji-kit';
+import { ExitBreakKit } from './plugins/exit-break-kit';
+import { FloatingToolbarKit } from './plugins/floating-toolbar-kit';
 import { FontKit } from './plugins/font-kit';
+import { LineHeightKit } from './plugins/line-height-kit';
+import { LinkKit } from './plugins/link-kit';
+import { ListKit } from './plugins/list-kit';
+import { MarkdownKit } from './plugins/markdown-kit';
+import { MathKit } from './plugins/math-kit';
+import { MediaKit } from './plugins/media-kit';
+import { MyTestPlugin } from './plugins/test-plugin';
 import { SlashKit } from './plugins/slash-kit';
 import { SuggestionKit } from './plugins/suggestion-kit';
-import { CursorOverlayKit } from './plugins/cursor-overlay-kit';
-import { DndKit } from './plugins/dnd-kit';
-import { FloatingToolbarKit } from './plugins/floating-toolbar-kit';
-import { ExitBreakKit } from './plugins/exit-break-kit';
-import { MarkdownKit } from './plugins/markdown-kit';
-import { ListKit } from './plugins/list-kit';
-import { LineHeightKit } from './plugins/line-height-kit';
+import { TableKit } from './plugins/table-kit';
+import { TocKit } from './plugins/toc-kit';
+import { ToggleKit } from './plugins/toggle-kit';
 
 export const editorPlugins: AnyPluginConfig[] = [
   // Core functionality (must be first)
+  ...AIKit,
   ...BlockSelectionKit, // Required for drag and drop
   ...DndKit, // Drag and drop functionality
 
