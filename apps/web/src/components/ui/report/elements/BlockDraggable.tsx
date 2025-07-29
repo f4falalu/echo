@@ -5,7 +5,7 @@ import * as React from 'react';
 import { DndPlugin, useDraggable, useDropLine } from '@platejs/dnd';
 import { BlockSelectionPlugin } from '@platejs/selection/react';
 import { GripDotsVertical, Plus } from '@/components/ui/icons';
-import { getPluginByType, isType, KEYS, type SlateRenderNodeProps, type TElement } from 'platejs';
+import { getPluginByType, isType, KEYS, type TElement } from 'platejs';
 import {
   type PlateEditor,
   type PlateElementProps,
@@ -19,7 +19,7 @@ import {
 import { useSelected } from 'platejs/react';
 
 import { Button } from '@/components/ui/buttons';
-import { Tooltip, TooltipBase, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { Tooltip } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
 import { expandListItemsWithChildren } from '@platejs/list';
 
@@ -95,7 +95,9 @@ function Draggable(props: PlateElementProps) {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isDragging]);
+
   const [dragButtonTop, setDragButtonTop] = React.useState(0);
+
   return (
     <div
       className={cn(
@@ -109,20 +111,20 @@ function Draggable(props: PlateElementProps) {
       }}>
       {!isInTable && (
         <Gutter>
-          <div className={cn('slate-blockToolbarWrapper', 'flex h-[1.5em]', isInColumn && 'h-4')}>
+          <div className={cn('slate-blockToolbarWrapper', 'flex', isInColumn && 'h-4')}>
             <div
               className={cn(
-                'slate-blockToolbar pointer-events-auto relative mr-1 flex w-12 items-center',
-                isInColumn && 'mr-1.5'
+                'slate-blockToolbar pointer-events-auto relative mr-1 flex w-13 items-center',
+                isInColumn && 'mr-1.5',
+                'flex items-center justify-center space-x-0.5'
               )}>
               <AddNewBlockButton
                 style={{ top: `${dragButtonTop + 3}px` }}
-                className="absolute left-0"
+                isDragging={isDragging}
               />
               <Button
                 ref={handleRef}
                 variant="ghost"
-                className="absolute right-0"
                 style={{ top: `${dragButtonTop + 3}px` }}
                 data-plate-prevent-deselect
                 prefix={
@@ -139,13 +141,19 @@ function Draggable(props: PlateElementProps) {
       )}
       <div
         ref={previewRef as React.RefObject<HTMLDivElement>}
-        className={cn('absolute -left-0 hidden w-full')}
+        className={cn(
+          'absolute -left-0 hidden w-full overflow-hidden',
+          isDragging && 'overflow-hidden rounded-full bg-red-500 opacity-20'
+        )}
         style={{ top: `${-previewTop}px` }}
         contentEditable={false}
       />
       <div
         ref={nodeRef as React.RefObject<HTMLDivElement>}
-        className="slate-blockWrapper flow-root"
+        className={cn(
+          'slate-blockWrapper flow-root',
+          isDragging && 'bg-primary/25 overflow-hidden rounded opacity-50'
+        )}
         onContextMenu={(event) =>
           editor.getApi(BlockSelectionPlugin).blockSelection.addOnContextMenu({ element, event })
         }>
@@ -153,58 +161,6 @@ function Draggable(props: PlateElementProps) {
         <DropLine />
       </div>
     </div>
-  );
-}
-
-function AddNewBlockButton({
-  style,
-  className
-}: {
-  style: React.CSSProperties;
-  className: string;
-}) {
-  const editor = useEditorRef();
-  const path = usePath();
-
-  const handleClick = (event: React.MouseEvent) => {
-    // build the insertion point based on modifier key
-    const parentPath = path.slice(0, -1);
-    const currentIndex = path[path.length - 1];
-
-    // Option/Alt key adds before, regular click adds after
-    const insertIndex = event.altKey ? currentIndex : currentIndex + 1;
-
-    editor.tf.insertNodes(
-      { type: 'p', children: [{ text: '' }] },
-      { at: [...parentPath, insertIndex] }
-    );
-
-    setTimeout(() => {
-      // Calculate the path to the start of the new paragraph's text
-      const newNodePath = [...parentPath, insertIndex];
-      const textPath = [...newNodePath, 0]; // Path to the first text node
-
-      // Set the selection to the start of the new paragraph
-      editor.tf.select({
-        anchor: { path: textPath, offset: 0 },
-        focus: { path: textPath, offset: 0 }
-      });
-
-      // Ensure the editor is focused
-      editor.tf.focus();
-    }, 25);
-  };
-
-  return (
-    <Tooltip title="Add new block">
-      <Button
-        onClick={handleClick}
-        variant="ghost"
-        className={cn(className)}
-        prefix={<Plus />}
-        style={style}
-      />
-    </Tooltip>
   );
 }
 
@@ -231,6 +187,7 @@ function Gutter({ children, className, ...props }: React.ComponentProps<'div'>) 
     </div>
   );
 }
+
 const DragHandle = React.memo(function DragHandle({
   isDragging,
   previewRef,
@@ -245,7 +202,7 @@ const DragHandle = React.memo(function DragHandle({
   const editor = useEditorRef();
   const element = useElement();
   return (
-    <Tooltip title="Drag to move">
+    <Tooltip title={isDragging ? '' : 'Drag to move'}>
       <div
         className="flex size-full items-center justify-center"
         onClick={() => {
@@ -292,6 +249,9 @@ const DragHandle = React.memo(function DragHandle({
     </Tooltip>
   );
 });
+
+DragHandle.displayName = 'DragHandle';
+
 const DropLine = React.memo(function DropLine({
   className,
   ...props
@@ -313,6 +273,65 @@ const DropLine = React.memo(function DropLine({
     />
   );
 });
+
+DropLine.displayName = 'DropLine';
+
+const AddNewBlockButton = React.memo(function AddNewBlockButton({
+  style,
+  className,
+  isDragging
+}: {
+  style: React.CSSProperties;
+  className?: string;
+  isDragging: boolean;
+}) {
+  const editor = useEditorRef();
+  const path = usePath();
+
+  const handleClick = (event: React.MouseEvent) => {
+    // build the insertion point based on modifier key
+    const parentPath = path.slice(0, -1);
+    const currentIndex = path[path.length - 1];
+
+    // Option/Alt key adds before, regular click adds after
+    const insertIndex = event.altKey ? currentIndex : currentIndex + 1;
+
+    editor.tf.insertNodes(
+      { type: 'p', children: [{ text: '' }] },
+      { at: [...parentPath, insertIndex] }
+    );
+
+    setTimeout(() => {
+      // Calculate the path to the start of the new paragraph's text
+      const newNodePath = [...parentPath, insertIndex];
+      const textPath = [...newNodePath, 0]; // Path to the first text node
+
+      // Set the selection to the start of the new paragraph
+      editor.tf.select({
+        anchor: { path: textPath, offset: 0 },
+        focus: { path: textPath, offset: 0 }
+      });
+
+      // Ensure the editor is focused
+      editor.tf.focus();
+    }, 25);
+  };
+
+  return (
+    <Tooltip title={isDragging ? '' : 'Add new block'}>
+      <Button
+        onClick={handleClick}
+        variant="ghost"
+        className={cn(className)}
+        prefix={<Plus />}
+        style={style}
+      />
+    </Tooltip>
+  );
+});
+
+AddNewBlockButton.displayName = 'AddNewBlockButton';
+
 const createDragPreviewElements = (
   editor: PlateEditor,
   { currentBlock }: { currentBlock: TElement }

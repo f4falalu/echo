@@ -7,7 +7,7 @@ import { useReportEditor } from './useReportEditor';
 import { useMemoizedFn } from '@/hooks';
 import { ReportElements } from '@buster/server-shared/reports';
 
-interface AppReportProps {
+interface ReportEditorProps {
   // We accept the generic Value type but recommend using ReportTypes.Value for type safety
   value: ReportElements;
   placeholder?: string;
@@ -24,8 +24,8 @@ interface AppReportRef {
 }
 
 // AppReport is a functional component wrapped in forwardRef to allow parent components to access the underlying editor instance if needed.
-export const AppReport = React.memo(
-  React.forwardRef<AppReportRef, AppReportProps>(
+export const ReportEditor = React.memo(
+  React.forwardRef<AppReportRef, ReportEditorProps>(
     (
       {
         value,
@@ -79,4 +79,4 @@ export const AppReport = React.memo(
   )
 );
 
-AppReport.displayName = 'AppReport';
+ReportEditor.displayName = 'ReportEditor';

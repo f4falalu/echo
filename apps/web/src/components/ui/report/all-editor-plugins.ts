@@ -41,13 +41,13 @@ export const AllEditorPlugins: AnyPluginConfig[] = [
   ...TableKit,
   ...ToggleKit,
   ...TocKit,
-  ...MediaKit,
+  // ...MediaKit,
   ...MathKit,
   ...DateKit,
   ...ColumnKit,
   ...LinkKit,
 
-  //Marks
+  // //Marks
   ...BasicMarksKit,
   ...FontKit,
 
@@ -66,10 +66,9 @@ export const AllEditorPlugins: AnyPluginConfig[] = [
   ...ExitBreakKit,
   TrailingBlockPlugin,
 
-  //Parsers
+  // //Parsers
   ...MarkdownKit,
-
-  //UI
+  // //UI
   ...BlockPlaceholderKit,
   ...FloatingToolbarKit
 ];

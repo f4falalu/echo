@@ -14,6 +14,9 @@ export const TextSchema = z.object({
   italic: z.boolean().optional(),
   underline: z.boolean().optional(),
   highlight: z.boolean().optional(),
+  kbd: z.boolean().optional(),
+  strikethrough: z.boolean().optional(),
+  code: z.boolean().optional(),
 });
 
 export const SimpleTextSchema = z.object({
@@ -40,7 +43,7 @@ export const HeaderElementSchema = z
     type: z.enum(['h1', 'h2', 'h3', 'h4', 'h5', 'h6']),
     level: z.number().int().min(1).max(6).optional(),
     // children is required for platejs elements; each child is a text node or another element
-    children: z.array(TextSchema),
+    children: z.array(z.union([TextSchema, SimpleTextSchema])),
   })
   .merge(AttributesSchema);
 
@@ -48,6 +51,8 @@ export const ParagraphElementSchema = z
   .object({
     // Only allow the value 'p' for the type field using z.literal
     type: z.literal('p'),
+    listStyleType: z.enum(['disc', 'circle', 'square']).optional(),
+    indent: z.number().int().min(0).optional(),
     children: z.array(z.union([TextSchema, AnchorSchema, MentionSchema])),
   })
   .merge(AttributesSchema);
@@ -55,13 +60,15 @@ export const ParagraphElementSchema = z
 export const BlockquoteElementSchema = z
   .object({
     type: z.literal('blockquote'),
-    children: z.array(TextSchema),
+    children: z.array(z.union([TextSchema, ParagraphElementSchema, HeaderElementSchema])),
   })
   .merge(AttributesSchema);
 
 export const FileElementSchema = z.object({
   type: z.literal('file'),
   url: z.string(),
+  name: z.string(),
+  isUpload: z.boolean().optional(),
   children: z.array(TextSchema),
 });
 
@@ -92,7 +99,15 @@ export const CalloutElementSchema = z
 export const ColumnElementSchema = z.object({
   type: z.literal('column'),
   width: z.union([z.string(), z.number()]).optional(),
-  children: z.array(TextSchema),
+  children: z.array(
+    z.union([
+      TextSchema,
+      ParagraphElementSchema,
+      HeaderElementSchema,
+      BlockquoteElementSchema,
+      CodeBlockElementSchema,
+    ])
+  ),
 });
 
 export const ColumnGroupElementSchema = z.object({
@@ -171,10 +186,10 @@ export const ImageElementSchema = z
     type: z.literal('img'),
     url: z.string(),
     alt: z.string().optional(),
-    width: z.number().optional(),
+    width: z.union([z.number(), z.string().regex(/^(?:\d+px|\d+%)$/)]).optional(),
     height: z.number().optional(),
     children: z.array(TextSchema).default([]),
-    caption: z.array(TextSchema).default([]),
+    caption: z.array(z.union([TextSchema, ParagraphElementSchema])).default([]),
   })
   .merge(AttributesSchema);
 

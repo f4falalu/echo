@@ -42,7 +42,7 @@ import {
   Plus,
   Minus
 } from '@/components/ui/icons';
-import { type NodeEntry, type SlateEditor, isHotkey, NodeApi } from 'platejs';
+import { type SlateEditor, isHotkey, NodeApi } from 'platejs';
 import { useEditorPlugin, useHotkeys, usePluginOption } from 'platejs/react';
 import { type PlateEditor, useEditorRef } from 'platejs/react';
 

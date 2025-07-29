@@ -9,7 +9,7 @@ interface EditorContainerProps {
   disabled?: boolean;
 }
 
-const editorContainerVariants = cva('relative cursor-text h-full p-4', {
+const editorContainerVariants = cva('relative cursor-text h-full pr-16 pl-18 py-8', {
   variants: {
     variant: {
       default: 'bg-background',
@@ -20,7 +20,8 @@ const editorContainerVariants = cva('relative cursor-text h-full p-4', {
     }
   },
   defaultVariants: {
-    variant: 'default'
+    variant: 'default',
+    readonly: false
   }
 });
 

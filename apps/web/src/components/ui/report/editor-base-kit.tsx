@@ -24,7 +24,7 @@ export const BaseEditorKit = [
   ...TableKit,
   ...ToggleKit,
   ...TocKit,
-  ...MediaKit,
+  // ...MediaKit,
   ...CalloutKit,
   ...ColumnKit,
   ...MathKit,

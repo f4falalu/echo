@@ -84,10 +84,10 @@ export const aiChatPlugin = AIChatPlugin.extend({
 });
 
 export const AIKit = [
-  ...CursorOverlayKit,
-  ...MarkdownKit,
-  AIPlugin.withComponent(AILeaf),
-  aiChatPlugin
+  // ...CursorOverlayKit,
+  // ...MarkdownKit,
+  // AIPlugin.withComponent(AILeaf),
+  // aiChatPlugin
 ];
 
 const systemCommon = `\

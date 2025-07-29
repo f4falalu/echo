@@ -1,10 +1,10 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { AppReport } from './AppReport';
+import { ReportEditor } from './ReportEditor';
 import { ReportElement } from '@buster/server-shared/reports';
 
 const meta = {
-  title: 'UI/report/AppReport',
-  component: AppReport,
+  title: 'UI/report/ReportEditor',
+  component: ReportEditor,
   tags: ['autodocs'],
   decorators: [
     (Story) => (
@@ -19,7 +19,7 @@ const meta = {
     disabled: false,
     variant: 'default'
   }
-} satisfies Meta<typeof AppReport>;
+} satisfies Meta<typeof ReportEditor>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
