@@ -3,7 +3,9 @@ import { Agent } from '@mastra/core';
 import {
   createDashboards,
   createMetrics,
+  createReports,
   doneTool,
+  editReports,
   modifyDashboards,
   modifyMetrics,
 } from '../../tools';
@@ -29,6 +31,8 @@ export const analystAgent = new Agent({
     modifyMetrics,
     createDashboards,
     modifyDashboards,
+    createReports,
+    editReports,
     doneTool,
   },
   defaultGenerateOptions: DEFAULT_OPTIONS,
