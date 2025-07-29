@@ -30,5 +30,3 @@ export * from './useWindowWidth';
 export * from './useLocalStorageState';
 export * from './useSessionStorageState';
 export * from './useDocumentTitle';
-
-export * from './useUploadFile';
