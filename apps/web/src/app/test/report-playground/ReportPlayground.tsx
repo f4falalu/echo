@@ -83,7 +83,7 @@ const ValidationStatus: React.FC<ValidationStatusProps> = ({
 
   return (
     <div
-      className={`flex min-h-20 items-center justify-center rounded border p-4 transition-colors duration-200 ${config.bgClass}`}>
+      className={`flex min-h-8 items-center justify-center rounded border p-4 transition-colors duration-200 ${config.bgClass}`}>
       <div className={`flex items-center space-x-2 ${config.textClass}`}>
         {config.icon}
         <span className="text-sm font-medium">{config.message}</span>
@@ -116,7 +116,7 @@ export const ReportPlayground: React.FC = () => {
       }
     },
     [markdown, refetch],
-    { wait: 200 }
+    { wait: 150 }
   );
 
   const usedValue: ReportElements = hasBeenSuccessFullAtLeastOnce
@@ -134,7 +134,7 @@ export const ReportPlayground: React.FC = () => {
         />
         <ValidationStatus isLoading={isLoading} error={error} isFetched={isFetched} data={data} />
         {data && (
-          <div className="max-h-[30vh] min-h-0 flex-1">
+          <div className="max-h-[28vh] min-h-0 flex-1">
             <div className="flex h-full flex-col">
               <h3 className="mb-2 text-sm font-medium text-gray-700">Successful Response:</h3>
               <pre className="flex-1 overflow-auto rounded border bg-gray-50 p-3 font-mono text-xs">

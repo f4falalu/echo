@@ -39,7 +39,7 @@ export const ReportEditor = React.memo(
       ref
     ) => {
       // Initialize the editor instance using the custom useEditor hook
-      const editor = useReportEditor({ value, disabled });
+      const editor = useReportEditor({ value, disabled }, [value]);
 
       const onReset = useMemoizedFn(() => {
         editor?.tf.reset();
