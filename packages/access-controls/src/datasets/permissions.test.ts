@@ -146,7 +146,11 @@ describe('Dataset Permissions', () => {
     });
 
     it('should return cached access result if available', async () => {
-      mockGetCachedDatasetAccess.mockReturnValue(true);
+      mockGetCachedDatasetAccess.mockReturnValue({
+        hasAccess: true,
+        accessPath: 'direct_user',
+        userRole: 'data_admin',
+      });
 
       const result = await checkDatasetAccess({
         userId: 'user123',
@@ -155,6 +159,8 @@ describe('Dataset Permissions', () => {
 
       expect(result).toEqual({
         hasAccess: true,
+        accessPath: 'direct_user',
+        userRole: 'data_admin',
       });
       expect(mockHasDatasetAccess).not.toHaveBeenCalled();
     });
@@ -176,7 +182,11 @@ describe('Dataset Permissions', () => {
         accessPath: 'direct_user',
         userRole: 'data_admin',
       });
-      expect(mockSetCachedDatasetAccess).toHaveBeenCalledWith('user123', 'ds123', true);
+      expect(mockSetCachedDatasetAccess).toHaveBeenCalledWith('user123', 'ds123', {
+        hasAccess: true,
+        accessPath: 'direct_user',
+        userRole: 'data_admin',
+      });
     });
 
     it('should cache false results', async () => {
@@ -192,7 +202,9 @@ describe('Dataset Permissions', () => {
       });
 
       expect(result.hasAccess).toBe(false);
-      expect(mockSetCachedDatasetAccess).toHaveBeenCalledWith('user123', 'ds123', false);
+      expect(mockSetCachedDatasetAccess).toHaveBeenCalledWith('user123', 'ds123', {
+        hasAccess: false,
+      });
     });
 
     it('should handle errors', async () => {
