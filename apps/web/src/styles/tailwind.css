@@ -125,6 +125,7 @@
   --destructive: var(--color-danger-foreground);
   --border: var(--color-border);
   --input: var(--color-border);
+  --brand: var(--color-primary);
 
   --spacing: 4px;
 }
@@ -136,6 +137,7 @@
   --color-destructive: var(--destructive);
   --color-muted: var(--muted);
   --color-muted-foreground: var(--muted-foreground);
+  --color-brand: var(--brand);
 }
 
 @layer base {
