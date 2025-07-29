@@ -20,6 +20,19 @@ export const SimpleTextSchema = z.object({
   text: z.string(),
 });
 
+export const MentionSchema = z.object({
+  type: z.literal('mention'),
+  value: z.string(),
+  children: z.array(TextSchema),
+  key: z.string().optional(),
+});
+
+export const AnchorSchema = z.object({
+  type: z.literal('a'),
+  url: z.string(),
+  children: z.array(z.union([TextSchema, MentionSchema])),
+});
+
 // Zod schema for a Heading element in the report editor
 // This matches the THeadingElement type from plate-types.d.ts
 export const HeaderElementSchema = z
@@ -31,27 +44,33 @@ export const HeaderElementSchema = z
   })
   .merge(AttributesSchema);
 
-export const ParagraphElement = z
+export const ParagraphElementSchema = z
   .object({
     // Only allow the value 'p' for the type field using z.literal
     type: z.literal('p'),
-    children: z.array(TextSchema),
+    children: z.array(z.union([TextSchema, AnchorSchema, MentionSchema])),
   })
   .merge(AttributesSchema);
 
-export const BlockquoteElement = z
+export const BlockquoteElementSchema = z
   .object({
     type: z.literal('blockquote'),
     children: z.array(TextSchema),
   })
   .merge(AttributesSchema);
 
+export const FileElementSchema = z.object({
+  type: z.literal('file'),
+  url: z.string(),
+  children: z.array(TextSchema),
+});
+
 const CodeLineElement = z.object({
   type: z.literal('code_line'),
   children: z.array(SimpleTextSchema),
 });
 
-export const CodeBlockElement = z.object({
+export const CodeBlockElementSchema = z.object({
   type: z.literal('code_block'),
   lang: z
     .enum(['sql', 'yaml', 'javascript', 'typescript', 'python', 'bash', 'json'])
@@ -59,32 +78,29 @@ export const CodeBlockElement = z.object({
   children: z.array(CodeLineElement),
 });
 
-export const CalloutElement = z
+export const CalloutElementSchema = z
   .object({
     type: z.literal('callout'),
     // Add an optional variant field to the CalloutElement schema
     variant: z.enum(['info', 'warning', 'error', 'success', 'tip', 'note']).optional(),
-    icon: z
-      .string()
-      .regex(/^[\u{1F600}-\u{1F64F}]$/u, 'Invalid emoji')
-      .optional(),
+    icon: z.string().length(1, 'Icon must be a single character').optional(),
     backgroundColor: z.string().optional(),
     children: z.array(SimpleTextSchema),
   })
   .merge(AttributesSchema);
 
-export const ColumnElement = z.object({
+export const ColumnElementSchema = z.object({
   type: z.literal('column'),
   width: z.union([z.string(), z.number()]).optional(),
   children: z.array(TextSchema),
 });
 
-export const ColumnGroupElement = z.object({
+export const ColumnGroupElementSchema = z.object({
   type: z.literal('column_group'),
-  children: z.array(ColumnElement),
+  children: z.array(ColumnElementSchema),
 });
 
-export const HRElement = z.object({
+export const HRElementSchema = z.object({
   type: z.literal('hr'),
   children: z.array(TextSchema).default([]),
 });
@@ -93,92 +109,124 @@ const TableCellTypeEnum = z.enum(['td', 'th']);
 const ListTypeEnum = z.enum(['ul', 'ol']);
 
 // Update the schemas to use the Zod enums
-export const TableCellElement = z.object({
+export const TableCellElementSchema = z.object({
   type: TableCellTypeEnum,
   colSpan: z.number().optional(),
   rowSpan: z.number().optional(),
-  children: z.array(z.union([TextSchema, ParagraphElement])).default([]),
+  children: z.array(z.union([TextSchema, ParagraphElementSchema])).default([]),
 });
 
-export const TableRowElement = z
+export const TableRowElementSchema = z
   .object({
     type: z.literal('tr'),
-    children: z.array(z.union([TextSchema, ParagraphElement, TableCellElement])).default([]),
+    children: z
+      .array(z.union([TextSchema, ParagraphElementSchema, TableCellElementSchema]))
+      .default([]),
   })
   .merge(AttributesSchema);
 
-export const TableElement = z
+export const TableElementSchema = z
   .object({
     type: z.literal('table'),
-    children: z.array(TableRowElement, TableCellElement).default([]),
+    children: z.array(TableRowElementSchema, TableCellElementSchema).default([]),
   })
   .merge(AttributesSchema);
 
-export const EmojiElement = z.object({
+export const EmojiElementSchema = z.object({
   type: z.literal('emoji'),
   emoji: z.string().optional(),
   code: z.string().optional(),
   children: z.array(TextSchema).default([]),
 });
 
-export const ListElement = z
+// Use z.lazy for recursive schema definition - allows NestedListElement to contain other NestedListElements
+const NestedListElementSchema = z.object({
+  type: z.enum(['li', 'lic', 'lii']),
+  children: z.array(z.union([TextSchema, ParagraphElementSchema])).default([]),
+});
+
+export const ListElementSchema = z
   .object({
     type: ListTypeEnum,
     start: z.number().optional(),
     children: z.array(
       z.object({
         type: z.literal('li'),
-        children: z.array(TextSchema).default([]),
+        children: z
+          .array(z.union([TextSchema, ParagraphElementSchema, NestedListElementSchema]))
+          .default([]),
       })
     ),
   })
   .merge(AttributesSchema);
 
-export const ListItemElement = z.object({
+export const ListItemElementSchema = z.object({
   type: z.literal('li'),
   checked: z.boolean().optional(),
   children: z.array(TextSchema).default([]),
 });
 
-export const ImageElement = z
+export const ImageElementSchema = z
   .object({
-    type: z.literal('image'),
-    src: z.string(),
+    type: z.literal('img'),
+    url: z.string(),
     alt: z.string().optional(),
     width: z.number().optional(),
     height: z.number().optional(),
     children: z.array(TextSchema).default([]),
+    caption: z.array(TextSchema).default([]),
   })
   .merge(AttributesSchema);
 
+export const AudioElementSchema = z.object({
+  type: z.literal('audio'),
+  url: z.string(),
+  children: z.array(TextSchema).default([]),
+});
+
+export const TocElementSchema = z.object({
+  type: z.literal('toc'),
+  children: z.array(TextSchema).default([]),
+});
+
 export const ReportElementSchema = z.discriminatedUnion('type', [
   HeaderElementSchema,
-  ParagraphElement,
-  BlockquoteElement,
-  CodeBlockElement,
-  CalloutElement,
-  ColumnElement,
-  ColumnGroupElement,
-  HRElement,
-  TableElement,
-  TableRowElement,
-  TableCellElement,
-  EmojiElement,
-  ListElement,
-  ListItemElement,
-  ImageElement,
+  ParagraphElementSchema,
+  BlockquoteElementSchema,
+  CodeBlockElementSchema,
+  CalloutElementSchema,
+  ColumnElementSchema,
+  ColumnGroupElementSchema,
+  HRElementSchema,
+  TocElementSchema,
+  TableElementSchema,
+  TableRowElementSchema,
+  TableCellElementSchema,
+  EmojiElementSchema,
+  ListElementSchema,
+  ListItemElementSchema,
+  ImageElementSchema,
+  AnchorSchema,
+  AudioElementSchema,
+  FileElementSchema,
 ]);
 
-export const ReportElements = ReportElementSchema.array();
+export const ReportElementsSchema = z.array(ReportElementSchema);
 
 export type ReportElement = z.infer<typeof ReportElementSchema>;
-export type ReportElements = z.infer<typeof ReportElements>;
+export type ReportElements = z.infer<typeof ReportElementsSchema>;
 export type TextElement = z.infer<typeof TextSchema>;
 export type HeaderElement = z.infer<typeof HeaderElementSchema>;
-export type ParagraphElement = z.infer<typeof ParagraphElement>;
-export type BlockquoteElement = z.infer<typeof BlockquoteElement>;
-export type CodeBlockElement = z.infer<typeof CodeBlockElement>;
-export type CalloutElement = z.infer<typeof CalloutElement>;
-export type ColumnElement = z.infer<typeof ColumnElement>;
-export type ColumnGroupElement = z.infer<typeof ColumnGroupElement>;
-export type HRElement = z.infer<typeof HRElement>;
+export type ParagraphElement = z.infer<typeof ParagraphElementSchema>;
+export type BlockquoteElement = z.infer<typeof BlockquoteElementSchema>;
+export type CodeBlockElement = z.infer<typeof CodeBlockElementSchema>;
+export type CalloutElement = z.infer<typeof CalloutElementSchema>;
+export type ColumnElement = z.infer<typeof ColumnElementSchema>;
+export type ColumnGroupElement = z.infer<typeof ColumnGroupElementSchema>;
+export type HRElement = z.infer<typeof HRElementSchema>;
+export type ListElement = z.infer<typeof ListElementSchema>;
+export type ListItemElement = z.infer<typeof ListItemElementSchema>;
+export type ImageElement = z.infer<typeof ImageElementSchema>;
+export type AnchorElement = z.infer<typeof AnchorSchema>;
+export type FileElement = z.infer<typeof FileElementSchema>;
+export type AudioElement = z.infer<typeof AudioElementSchema>;
