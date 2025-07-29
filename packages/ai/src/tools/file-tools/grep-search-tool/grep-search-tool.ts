@@ -1,18 +1,11 @@
-import * as fs from 'node:fs/promises';
-import * as path from 'node:path';
-import { runTypescript } from '@buster/sandbox';
 import type { RuntimeContext } from '@mastra/core/runtime-context';
 import { createTool } from '@mastra/core/tools';
 import { wrapTraced } from 'braintrust';
 import { z } from 'zod';
 import { type DocsAgentContext, DocsAgentContextKeys } from '../../../context/docs-agent-context';
 
-const rgCommandSchema = z.object({
-  command: z.string().describe('The full ripgrep (rg) command to execute'),
-});
-
 const rgSearchInputSchema = z.object({
-  commands: z.array(rgCommandSchema).min(1).describe('Array of ripgrep commands to execute'),
+  commands: z.array(z.string()).min(1).describe('Array of ripgrep (rg) commands to execute'),
 });
 
 const rgResultSchema = z.object({
@@ -52,69 +45,38 @@ const rgSearchExecution = wrapTraced(
       const sandbox = runtimeContext.get(DocsAgentContextKeys.Sandbox);
 
       if (sandbox) {
-        // Generate CommonJS code for sandbox execution
-        const commandsJson = JSON.stringify(commands);
-        const sandboxCode = `
-const { execSync } = require('child_process');
+        // Execute all commands concurrently
+        const resultPromises = commands.map(async (command) => {
+          try {
+            const result = await sandbox.process.executeCommand(command);
 
-const commandsJson = ${JSON.stringify(commandsJson)};
-const commands = JSON.parse(commandsJson);
-const results = [];
+            // Exit code 1 means no matches found, which is not an error for rg
+            if (result.exitCode === 0 || result.exitCode === 1) {
+              return {
+                success: true,
+                command: command,
+                stdout: result.result || '',
+                stderr: '',
+              };
+            }
 
-// Process commands
-for (const cmd of commands) {
-  try {
-    // Execute the command
-    const output = execSync(cmd.command, { 
-      encoding: 'utf-8',
-      stdio: ['pipe', 'pipe', 'pipe']
-    });
-    
-    results.push({
-      success: true,
-      command: cmd.command,
-      stdout: output.trim(),
-      stderr: ''
-    });
-  } catch (error) {
-    // Command failed but we still capture output
-    results.push({
-      success: false,
-      command: cmd.command,
-      stdout: (error as any).stdout ? (error as any).stdout.toString().trim() : '',
-      stderr: (error as any).stderr ? (error as any).stderr.toString().trim() : '',
-      error: (error instanceof Error ? error.message : String(error)) || 'Command failed'
-    });
-  }
-}
+            return {
+              success: false,
+              command: command,
+              stdout: '',
+              stderr: result.result || '',
+              error: `Command failed with exit code ${result.exitCode}`,
+            };
+          } catch (error) {
+            return {
+              success: false,
+              command: command,
+              error: `Execution error: ${error instanceof Error ? error.message : 'Unknown error'}`,
+            };
+          }
+        });
 
-console.log(JSON.stringify(results));
-`;
-
-        const result = await runTypescript(sandbox, sandboxCode);
-
-        if (result.exitCode !== 0) {
-          console.error('Sandbox execution failed. Exit code:', result.exitCode);
-          console.error('Stderr:', result.stderr);
-          console.error('Result:', result.result);
-          throw new Error(`Sandbox execution failed: ${result.stderr || 'Unknown error'}`);
-        }
-
-        let rgResults: Array<{
-          success: boolean;
-          command: string;
-          stdout?: string;
-          stderr?: string;
-          error?: string;
-        }>;
-        try {
-          rgResults = JSON.parse(result.result.trim());
-        } catch (parseError) {
-          console.error('Failed to parse sandbox output:', result.result);
-          throw new Error(
-            `Failed to parse sandbox output: ${parseError instanceof Error ? parseError.message : 'Unknown parse error'}`
-          );
-        }
+        const rgResults = await Promise.all(resultPromises);
 
         return {
           message: `Executed ${rgResults.length} ripgrep commands`,
@@ -130,7 +92,7 @@ console.log(JSON.stringify(results));
         duration: Date.now() - startTime,
         results: commands.map((cmd) => ({
           success: false,
-          command: cmd.command,
+          command: cmd,
           error: 'ripgrep command requires sandbox environment',
         })),
       };
@@ -140,7 +102,7 @@ console.log(JSON.stringify(results));
         duration: Date.now() - startTime,
         results: commands.map((cmd) => ({
           success: false,
-          command: cmd.command,
+          command: cmd,
           error: `Execution error: ${error instanceof Error ? error.message : 'Unknown error'}`,
         })),
       };

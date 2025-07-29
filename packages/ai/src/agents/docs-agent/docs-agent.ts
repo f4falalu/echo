@@ -9,7 +9,7 @@ import {
   executeSqlDocsAgent,
   grepSearch,
   idleTool,
-  lsFiles,
+  listFiles,
   readFiles,
   sequentialThinking,
   updateClarificationsFile,
@@ -39,7 +39,7 @@ export const docsAgent = new Agent({
     editFiles,
     createFiles,
     deleteFiles,
-    lsFiles,
+    listFiles,
     executeSql: executeSqlDocsAgent, // Use the docs-specific SQL tool that operates as a
     bashExecute,
     updateClarificationsFile,

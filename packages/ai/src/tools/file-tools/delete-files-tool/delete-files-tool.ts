@@ -1,6 +1,3 @@
-import * as fs from 'node:fs/promises';
-import * as path from 'node:path';
-import { runTypescript } from '@buster/sandbox';
 import type { RuntimeContext } from '@mastra/core/runtime-context';
 import { createTool } from '@mastra/core/tools';
 import { wrapTraced } from 'braintrust';
@@ -46,91 +43,77 @@ const deleteFilesExecution = wrapTraced(
       const sandbox = runtimeContext.get(DocsAgentContextKeys.Sandbox);
 
       if (sandbox) {
-        // Generate CommonJS code for sandbox execution
-        const pathsJson = JSON.stringify(paths);
-        const sandboxCode = `
-const fs = require('fs');
-const path = require('path');
+        const results: Array<
+          | { status: 'success'; path: string }
+          | { status: 'error'; path: string; error_message: string }
+        > = [];
 
-const pathsJson = ${JSON.stringify(pathsJson)};
-const paths = JSON.parse(pathsJson);
-const results = [];
+        // Process each file path
+        for (const filePath of paths) {
+          try {
+            // First check if it's a directory
+            const testResult = await sandbox.process.codeRun(`
+              const fs = require('fs');
+              
+              try {
+                const stats = fs.statSync('${filePath.replace(/'/g, "\\'")}');
+                console.log(JSON.stringify({ isDirectory: stats.isDirectory() }));
+              } catch (error) {
+                console.log(JSON.stringify({ error: error.code || error.message }));
+                process.exit(1);
+              }
+            `);
 
-// Process paths
-for (const filePath of paths) {
-  try {
-    const resolvedPath = path.isAbsolute(filePath) 
-      ? filePath 
-      : path.join(process.cwd(), filePath);
-      
-    // Check if it's a directory
-    const stats = fs.statSync(resolvedPath);
-    if (stats.isDirectory()) {
-      results.push({
-        success: false,
-        path: filePath,
-        error: 'Cannot delete directories with this tool'
-      });
-      continue;
-    }
-    
-    // Delete the file
-    fs.unlinkSync(resolvedPath);
-    
-    results.push({
-      success: true,
-      path: filePath
-    });
-  } catch (error) {
-    results.push({
-      success: false,
-      path: filePath,
-      error: (error as any).code === 'ENOENT' ? 'File not found' : (error instanceof Error ? error.message : String(error))
-    });
-  }
-}
-
-console.log(JSON.stringify(results));
-`;
-
-        const result = await runTypescript(sandbox, sandboxCode);
-
-        if (result.exitCode !== 0) {
-          console.error('Sandbox execution failed. Exit code:', result.exitCode);
-          console.error('Stderr:', result.stderr);
-          console.error('Result:', result.result);
-          throw new Error(`Sandbox execution failed: ${result.stderr || 'Unknown error'}`);
-        }
-
-        let deleteResults: Array<{
-          success: boolean;
-          path: string;
-          error?: string;
-        }>;
-        try {
-          deleteResults = JSON.parse(result.result.trim());
-        } catch (parseError) {
-          console.error('Failed to parse sandbox output:', result.result);
-          throw new Error(
-            `Failed to parse sandbox output: ${parseError instanceof Error ? parseError.message : 'Unknown parse error'}`
-          );
-        }
-
-        return {
-          results: deleteResults.map((deleteResult) => {
-            if (deleteResult.success) {
-              return {
-                status: 'success' as const,
-                path: deleteResult.path,
-              };
+            if (testResult.exitCode === 0) {
+              const testData = JSON.parse(testResult.result.trim());
+              if (testData.isDirectory) {
+                results.push({
+                  status: 'error',
+                  path: filePath,
+                  error_message: 'Cannot delete directories with this tool',
+                });
+                continue;
+              }
             }
-            return {
-              status: 'error' as const,
-              path: deleteResult.path,
-              error_message: deleteResult.error || 'Unknown error',
-            };
-          }),
-        };
+
+            // Use rm command to delete the file
+            const deleteResult = await sandbox.process.codeRun(`
+              const { execSync } = require('child_process');
+              
+              try {
+                execSync('rm "${filePath.replace(/"/g, '\\"')}"', { encoding: 'utf8' });
+                console.log('SUCCESS');
+              } catch (error) {
+                console.error('ERROR:', error.message);
+                process.exit(1);
+              }
+            `);
+
+            if (deleteResult.exitCode === 0) {
+              results.push({
+                status: 'success',
+                path: filePath,
+              });
+            } else {
+              const errorMessage = deleteResult.result || 'Unknown error';
+              results.push({
+                status: 'error',
+                path: filePath,
+                error_message: errorMessage.includes('No such file')
+                  ? 'File not found'
+                  : errorMessage,
+              });
+            }
+          } catch (error) {
+            results.push({
+              status: 'error',
+              path: filePath,
+              error_message: error instanceof Error ? error.message : 'Unknown error',
+            });
+          }
+        }
+
+        return { results };
       }
 
       // When not in sandbox, we can't delete files

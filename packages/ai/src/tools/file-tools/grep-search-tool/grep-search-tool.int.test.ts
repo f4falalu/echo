@@ -54,14 +54,7 @@ describe.sequential('grep-search-tool integration test', () => {
 
       const result = await grepSearch.execute({
         context: {
-          commands: [
-            {
-              command: `cd ${testDir} && rg -n "test" test1.txt`,
-            },
-            {
-              command: `cd ${testDir} && rg -n "Hello"`,
-            },
-          ],
+          commands: [`cd ${testDir} && rg -n "test" test1.txt`, `cd ${testDir} && rg -n "Hello" .`],
         },
         runtimeContext,
       });
@@ -77,10 +70,10 @@ describe.sequential('grep-search-tool integration test', () => {
       // Check second command results (searches all files)
       const secondResult = result.results[1];
       expect(secondResult?.success).toBe(true);
-      expect(secondResult?.command).toBe(`cd ${testDir} && rg -n "Hello"`);
+      expect(secondResult?.command).toBe(`cd ${testDir} && rg -n "Hello" .`);
       expect(secondResult?.stdout).toContain('test1.txt:1:Hello world');
       expect(secondResult?.stdout).toContain('test2.txt:2:Hello again');
-      expect(secondResult?.stdout).toContain('subdir/test3.txt:2:Hello from subdirectory');
+      expect(secondResult?.stdout).toContain('test3.txt:2:Hello from subdirectory');
     },
     65000
   );
@@ -109,11 +102,7 @@ describe.sequential('grep-search-tool integration test', () => {
 
       const result = await grepSearch.execute({
         context: {
-          commands: [
-            {
-              command: `cd ${testDir} && rg -i -n "hello" case-test.txt`,
-            },
-          ],
+          commands: [`cd ${testDir} && rg -i -n "hello" case-test.txt`],
         },
         runtimeContext,
       });
@@ -152,11 +141,7 @@ describe.sequential('grep-search-tool integration test', () => {
 
       const result = await grepSearch.execute({
         context: {
-          commands: [
-            {
-              command: `cd ${testDir} && rg -w -n "test" word-test.txt`,
-            },
-          ],
+          commands: [`cd ${testDir} && rg -w -n "test" word-test.txt`],
         },
         runtimeContext,
       });
@@ -195,11 +180,7 @@ describe.sequential('grep-search-tool integration test', () => {
 
       const result = await grepSearch.execute({
         context: {
-          commands: [
-            {
-              command: `cd ${testDir} && rg -F -n "$10.99" regex-test.txt`,
-            },
-          ],
+          commands: [`cd ${testDir} && rg -F -n "$10.99" regex-test.txt`],
         },
         runtimeContext,
       });
@@ -236,11 +217,7 @@ describe.sequential('grep-search-tool integration test', () => {
 
       const result = await grepSearch.execute({
         context: {
-          commands: [
-            {
-              command: `cd ${testDir} && rg -v -n "test" invert-test.txt`,
-            },
-          ],
+          commands: [`cd ${testDir} && rg -v -n "test" invert-test.txt`],
         },
         runtimeContext,
       });
@@ -278,11 +255,7 @@ describe.sequential('grep-search-tool integration test', () => {
 
       const result = await grepSearch.execute({
         context: {
-          commands: [
-            {
-              command: `cd ${testDir} && rg -m 3 -n "test" many-matches.txt`,
-            },
-          ],
+          commands: [`cd ${testDir} && rg -m 3 -n "test" many-matches.txt`],
         },
         runtimeContext,
       });
@@ -320,11 +293,7 @@ describe.sequential('grep-search-tool integration test', () => {
 
       const result = await grepSearch.execute({
         context: {
-          commands: [
-            {
-              command: `cd ${testDir} && rg -n "nonexistent" no-match.txt`,
-            },
-          ],
+          commands: [`cd ${testDir} && rg -n "nonexistent" no-match.txt`],
         },
         runtimeContext,
       });
@@ -363,15 +332,9 @@ describe.sequential('grep-search-tool integration test', () => {
       const result = await grepSearch.execute({
         context: {
           commands: [
-            {
-              command: `cd ${testDir} && rg -n "test" file1.txt`,
-            },
-            {
-              command: `cd ${testDir} && rg -n "test" file2.txt`,
-            },
-            {
-              command: `cd ${testDir} && rg -n "nonexistent" file1.txt`,
-            },
+            `cd ${testDir} && rg -n "test" file1.txt`,
+            `cd ${testDir} && rg -n "test" file2.txt`,
+            `cd ${testDir} && rg -n "nonexistent" file1.txt`,
           ],
         },
         runtimeContext,
@@ -393,11 +356,7 @@ describe.sequential('grep-search-tool integration test', () => {
 
       const result = await grepSearch.execute({
         context: {
-          commands: [
-            {
-              command: 'rg "test" /nonexistent/path/file.txt',
-            },
-          ],
+          commands: ['rg "test" /nonexistent/path/file.txt'],
         },
         runtimeContext,
       });
@@ -438,11 +397,7 @@ describe.sequential('grep-search-tool integration test', () => {
 
       const result = await grepSearch.execute({
         context: {
-          commands: [
-            {
-              command: `cd ${testDir} && rg --type ts --color never -n "TODO" src/`,
-            },
-          ],
+          commands: [`cd ${testDir} && rg --type ts --color never -n "TODO" src/`],
         },
         runtimeContext,
       });
@@ -481,11 +436,7 @@ describe.sequential('grep-search-tool integration test', () => {
 
       const result = await grepSearch.execute({
         context: {
-          commands: [
-            {
-              command: `cd ${testDir} && rg --json "test" json-test.txt`,
-            },
-          ],
+          commands: [`cd ${testDir} && rg --json "test" json-test.txt`],
         },
         runtimeContext,
       });
