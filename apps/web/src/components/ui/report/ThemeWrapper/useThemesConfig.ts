@@ -13,5 +13,5 @@ export function useThemesConfig() {
   const activeTheme = useThemesConfigStore((state) => state.activeTheme);
   const setActiveTheme = useThemesConfigStore((state) => state.setActiveTheme);
 
-  return { activeTheme, setActiveTheme };
+  return { activeTheme, setActiveTheme, allThemes: THEMES };
 }

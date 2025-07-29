@@ -59,7 +59,7 @@ export const ReportEditor = React.memo(
               variant={variant}
               readonly={readOnly}
               disabled={disabled}
-              className={cn('pb-[20vh]', className)}>
+              className={cn('pb-[15vh]', className)}>
               <Editor style={style} placeholder={placeholder} disabled={disabled} />
             </EditorContainer>
           </Plate>
