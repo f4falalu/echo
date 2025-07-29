@@ -1,0 +1,69 @@
+import { ReportElementsSchema } from '@buster/server-shared/reports';
+import { AutoformatPlugin } from '@platejs/autoformat';
+import {
+  BaseBasicBlocksPlugin,
+  BaseBasicMarksPlugin,
+  BaseBlockquotePlugin,
+  BaseBoldPlugin,
+  BaseCodePlugin,
+  BaseH1Plugin,
+  BaseH2Plugin,
+  BaseH3Plugin,
+  BaseH4Plugin,
+  BaseH5Plugin,
+  BaseH6Plugin,
+  BaseHeadingPlugin,
+  BaseHighlightPlugin,
+  BaseHorizontalRulePlugin,
+  BaseItalicPlugin,
+  BaseKbdPlugin,
+  BaseStrikethroughPlugin,
+  BaseSubscriptPlugin,
+  BaseSuperscriptPlugin,
+  BaseUnderlinePlugin,
+} from '@platejs/basic-nodes';
+import { MarkdownPlugin, remarkMdx, remarkMention } from '@platejs/markdown';
+import { createSlateEditor } from 'platejs';
+import remarkGfm from 'remark-gfm';
+import { z } from 'zod';
+
+const serverNode = [
+  BaseBoldPlugin,
+  BaseItalicPlugin,
+  BaseH1Plugin,
+  BaseH2Plugin,
+  BaseH3Plugin,
+  BaseH4Plugin,
+  BaseH5Plugin,
+  BaseH6Plugin,
+  BaseBasicBlocksPlugin,
+  BaseBasicMarksPlugin,
+  BaseBlockquotePlugin,
+  BaseCodePlugin,
+  BaseHeadingPlugin,
+  BaseHighlightPlugin,
+  BaseHorizontalRulePlugin,
+  BaseKbdPlugin,
+  BaseStrikethroughPlugin,
+  BaseSubscriptPlugin,
+  BaseSuperscriptPlugin,
+  BaseUnderlinePlugin,
+  AutoformatPlugin,
+  MarkdownPlugin.configure({
+    options: {
+      remarkPlugins: [remarkGfm, remarkMdx, remarkMention],
+    },
+  }),
+];
+
+const SERVER_EDITOR = createSlateEditor({
+  plugins: serverNode,
+});
+
+export const markdownToPlatejs = async (markdown: string) => {
+  const descendants = SERVER_EDITOR.api.markdown.deserialize(markdown);
+
+  const safeParsedElements = ReportElementsSchema.safeParse(descendants);
+
+  return safeParsedElements.data;
+};
