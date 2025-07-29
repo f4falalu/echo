@@ -1,32 +1,23 @@
-import { type Sandbox, createSandbox } from '@buster/sandbox';
+import { createSandbox } from '@buster/sandbox';
 import { RuntimeContext } from '@mastra/core/runtime-context';
-import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { DocsAgentContextKeys } from '../../../context/docs-agent-context';
 import { executeBash } from './bash-execute-tool';
 
 describe('bash-execute-tool integration test', () => {
   const hasApiKey = !!process.env.DAYTONA_API_KEY;
-  let sandbox: Sandbox;
 
-  beforeAll(async () => {
-    if (!hasApiKey) return;
-
-    // Create a sandbox for the tests
-    sandbox = await createSandbox({
+  async function createTestSandbox() {
+    return await createSandbox({
       language: 'typescript',
     });
-  }, 60000); // 60 second timeout for sandbox creation
+  }
 
-  afterAll(async () => {
-    // Clean up the sandbox
-    if (sandbox) {
-      await sandbox.delete();
-    }
-  });
-
-  it.skipIf(!hasApiKey)('should execute bash commands in sandbox environment', async () => {
-    const runtimeContext = new RuntimeContext();
-    runtimeContext.set(DocsAgentContextKeys.Sandbox, sandbox);
+  it.concurrent.skipIf(!hasApiKey)('should execute bash commands in sandbox environment', async () => {
+    const sandbox = await createTestSandbox();
+    try {
+      const runtimeContext = new RuntimeContext();
+      runtimeContext.set(DocsAgentContextKeys.Sandbox, sandbox);
 
     const result = await executeBash.execute({
       context: {
@@ -64,11 +55,16 @@ describe('bash-execute-tool integration test', () => {
       exitCode: 0,
     });
     expect(result.results[2]?.stdout).toBeTruthy();
+    } finally {
+      await sandbox.delete();
+    }
   });
 
-  it.skipIf(!hasApiKey)('should handle command failures in sandbox', async () => {
-    const runtimeContext = new RuntimeContext();
-    runtimeContext.set(DocsAgentContextKeys.Sandbox, sandbox);
+  it.concurrent.skipIf(!hasApiKey)('should handle command failures in sandbox', async () => {
+    const sandbox = await createTestSandbox();
+    try {
+      const runtimeContext = new RuntimeContext();
+      runtimeContext.set(DocsAgentContextKeys.Sandbox, sandbox);
 
     const result = await executeBash.execute({
       context: {
@@ -95,19 +91,25 @@ describe('bash-execute-tool integration test', () => {
       success: false,
       exitCode: 1,
     });
+    } finally {
+      await sandbox.delete();
+    }
   });
 
-  it.skipIf(!hasApiKey)('should handle file operations via bash', async () => {
-    const runtimeContext = new RuntimeContext();
-    runtimeContext.set(DocsAgentContextKeys.Sandbox, sandbox);
+  it.concurrent.skipIf(!hasApiKey)('should handle file operations via bash', async () => {
+    const sandbox = await createTestSandbox();
+    try {
+      const runtimeContext = new RuntimeContext();
+      runtimeContext.set(DocsAgentContextKeys.Sandbox, sandbox);
 
+    const testFile = `test-bash-${Date.now()}.txt`;
     const result = await executeBash.execute({
       context: {
         commands: [
-          { command: 'echo "test content" > test.txt', description: 'Create file' },
-          { command: 'cat test.txt', description: 'Read file' },
-          { command: 'rm test.txt', description: 'Remove file' },
-          { command: 'cat test.txt', description: 'Try to read removed file' },
+          { command: `echo "test content" > ${testFile}`, description: 'Create file' },
+          { command: `cat ${testFile}`, description: 'Read file' },
+          { command: `rm ${testFile}`, description: 'Remove file' },
+          { command: `cat ${testFile}`, description: 'Try to read removed file' },
         ],
       },
       runtimeContext,
@@ -129,11 +131,16 @@ describe('bash-execute-tool integration test', () => {
 
     // Try to read removed file should fail
     expect(result.results[3]?.success).toBe(false);
+    } finally {
+      await sandbox.delete();
+    }
   });
 
-  it.skipIf(!hasApiKey)('should respect command timeout', async () => {
-    const runtimeContext = new RuntimeContext();
-    runtimeContext.set(DocsAgentContextKeys.Sandbox, sandbox);
+  it.concurrent.skipIf(!hasApiKey)('should respect command timeout', async () => {
+    const sandbox = await createTestSandbox();
+    try {
+      const runtimeContext = new RuntimeContext();
+      runtimeContext.set(DocsAgentContextKeys.Sandbox, sandbox);
 
     const result = await executeBash.execute({
       context: {
@@ -147,5 +154,8 @@ describe('bash-execute-tool integration test', () => {
     expect(result.results).toHaveLength(1);
     expect(result.results[0]?.success).toBe(false);
     expect(result.results[0]?.error).toContain('timed out');
-  });
+    } finally {
+      await sandbox.delete();
+    }
+  }, 65000); // Increase timeout for this test since it creates a sandbox
 });

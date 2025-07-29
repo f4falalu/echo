@@ -1,32 +1,23 @@
-import { type Sandbox, createSandbox } from '@buster/sandbox';
+import { createSandbox } from '@buster/sandbox';
 import { RuntimeContext } from '@mastra/core/runtime-context';
-import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { DocsAgentContextKeys } from '../../../context/docs-agent-context';
 import { createFiles } from './create-file-tool';
 
 describe('create-file-tool integration test', () => {
   const hasApiKey = !!process.env.DAYTONA_API_KEY;
-  let sandbox: Sandbox;
 
-  beforeAll(async () => {
-    if (!hasApiKey) return;
-
-    // Create a sandbox for the tests
-    sandbox = await createSandbox({
+  async function createTestSandbox() {
+    return await createSandbox({
       language: 'typescript',
     });
-  }, 60000); // 60 second timeout for sandbox creation
+  }
 
-  afterAll(async () => {
-    // Clean up the sandbox
-    if (sandbox) {
-      await sandbox.delete();
-    }
-  });
-
-  it.skipIf(!hasApiKey)('should create files in sandbox environment', async () => {
-    const runtimeContext = new RuntimeContext();
-    runtimeContext.set(DocsAgentContextKeys.Sandbox, sandbox);
+  it.concurrent.skipIf(!hasApiKey)('should create files in sandbox environment', async () => {
+    const sandbox = await createTestSandbox();
+    try {
+      const runtimeContext = new RuntimeContext();
+      runtimeContext.set(DocsAgentContextKeys.Sandbox, sandbox);
 
     const result = await createFiles.execute({
       context: {
@@ -74,11 +65,16 @@ describe('create-file-tool integration test', () => {
     expect(fileContents['test1.txt']).toBe('Hello from test1');
     expect(fileContents['test2.txt']).toBe('Hello from test2');
     expect(fileContents['subdir/test3.txt']).toBe('Hello from subdirectory');
-  });
+    } finally {
+      await sandbox.delete();
+    }
+  }, 65000);
 
-  it.skipIf(!hasApiKey)('should handle absolute paths in sandbox', async () => {
-    const runtimeContext = new RuntimeContext();
-    runtimeContext.set(DocsAgentContextKeys.Sandbox, sandbox);
+  it.concurrent.skipIf(!hasApiKey)('should handle absolute paths in sandbox', async () => {
+    const sandbox = await createTestSandbox();
+    try {
+      const runtimeContext = new RuntimeContext();
+      runtimeContext.set(DocsAgentContextKeys.Sandbox, sandbox);
 
     const result = await createFiles.execute({
       context: {
@@ -108,11 +104,16 @@ describe('create-file-tool integration test', () => {
     const verification = JSON.parse(verifyResult.result);
     expect(verification.success).toBe(true);
     expect(verification.content).toBe('Absolute path content');
-  });
+    } finally {
+      await sandbox.delete();
+    }
+  }, 65000);
 
-  it.skipIf(!hasApiKey)('should overwrite existing files', async () => {
-    const runtimeContext = new RuntimeContext();
-    runtimeContext.set(DocsAgentContextKeys.Sandbox, sandbox);
+  it.concurrent.skipIf(!hasApiKey)('should overwrite existing files', async () => {
+    const sandbox = await createTestSandbox();
+    try {
+      const runtimeContext = new RuntimeContext();
+      runtimeContext.set(DocsAgentContextKeys.Sandbox, sandbox);
 
     // First create a file
     await createFiles.execute({
@@ -145,11 +146,16 @@ describe('create-file-tool integration test', () => {
 
     const verifyResult = await sandbox.process.codeRun(verifyCode);
     expect(JSON.parse(verifyResult.result)).toBe('New content');
-  });
+    } finally {
+      await sandbox.delete();
+    }
+  }, 65000);
 
-  it.skipIf(!hasApiKey)('should handle special characters in content', async () => {
-    const runtimeContext = new RuntimeContext();
-    runtimeContext.set(DocsAgentContextKeys.Sandbox, sandbox);
+  it.concurrent.skipIf(!hasApiKey)('should handle special characters in content', async () => {
+    const sandbox = await createTestSandbox();
+    try {
+      const runtimeContext = new RuntimeContext();
+      runtimeContext.set(DocsAgentContextKeys.Sandbox, sandbox);
 
     const specialContent = 'Line 1\nLine 2\tTabbed\n"Quoted"\n\'Single quoted\'';
 
@@ -174,11 +180,16 @@ describe('create-file-tool integration test', () => {
 
     const verifyResult = await sandbox.process.codeRun(verifyCode);
     expect(JSON.parse(verifyResult.result)).toBe(specialContent);
-  });
+    } finally {
+      await sandbox.delete();
+    }
+  }, 65000);
 
-  it.skipIf(!hasApiKey)('should handle permission errors gracefully', async () => {
-    const runtimeContext = new RuntimeContext();
-    runtimeContext.set(DocsAgentContextKeys.Sandbox, sandbox);
+  it.concurrent.skipIf(!hasApiKey)('should handle permission errors gracefully', async () => {
+    const sandbox = await createTestSandbox();
+    try {
+      const runtimeContext = new RuntimeContext();
+      runtimeContext.set(DocsAgentContextKeys.Sandbox, sandbox);
 
     // Try to create a file in a restricted directory
     const result = await createFiles.execute({
