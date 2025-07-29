@@ -64,9 +64,6 @@ export const markdownToPlatejs = async (markdown: string) => {
   const descendants = SERVER_EDITOR.api.markdown.deserialize(markdown);
 
   const safeParsedElements = ReportElementsSchema.safeParse(descendants);
-  if (!safeParsedElements.success) {
-    throw new Error('Failed to parse markdown to platejs');
-  }
 
   return safeParsedElements.data;
 };
