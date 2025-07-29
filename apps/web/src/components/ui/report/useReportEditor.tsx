@@ -27,6 +27,8 @@ import { MathKit } from './plugins/math-kit';
 import { DateKit } from './plugins/date-kit';
 import { LinkKit } from './plugins/link-kit';
 import { FontKit } from './plugins/font-kit';
+import { SlashKit } from './plugins/slash-kit';
+import { CursorOverlayKit } from './plugins/cursor-overlay-kit';
 
 export const editorPlugins: AnyPluginConfig[] = [
   // Elements
@@ -50,8 +52,10 @@ export const editorPlugins: AnyPluginConfig[] = [
   ...FontKit,
 
   // Editing
+  ...SlashKit,
   ...AutoformatKit,
   ...BlockMenuKit,
+  ...CursorOverlayKit,
 
   //UI
   ...BlockPlaceholderKit

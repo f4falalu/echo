@@ -62,6 +62,8 @@
     "@platejs/media": "^49.0.0",
     "@platejs/resizable": "^49.0.0",
     "@platejs/selection": "^49.1.12",
+    "@platejs/slash-command": "^49.0.0",
+    "@platejs/suggestion": "^49.0.0",
     "@platejs/table": "^49.1.13",
     "@platejs/toc": "^49.0.0",
     "@platejs/toggle": "^49.0.0",
