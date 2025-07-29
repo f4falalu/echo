@@ -7,6 +7,7 @@ import { useReportEditor } from './useReportEditor';
 import { useMemoizedFn } from '@/hooks';
 import { ReportElements } from '@buster/server-shared/reports';
 import { cn } from '@/lib/utils';
+import { ThemeWrapper } from './ThemeWrapper/ThemeWrapper';
 
 interface ReportEditorProps {
   // We accept the generic Value type but recommend using ReportTypes.Value for type safety
@@ -52,15 +53,17 @@ export const ReportEditor = React.memo(
       if (!editor) return null;
 
       return (
-        <Plate editor={editor} readOnly={readOnly}>
-          <EditorContainer
-            variant={variant}
-            readonly={readOnly}
-            disabled={disabled}
-            className={cn('pb-[20vh]', className)}>
-            <Editor style={style} placeholder={placeholder} disabled={disabled} />
-          </EditorContainer>
-        </Plate>
+        <ThemeWrapper>
+          <Plate editor={editor} readOnly={readOnly}>
+            <EditorContainer
+              variant={variant}
+              readonly={readOnly}
+              disabled={disabled}
+              className={cn('pb-[20vh]', className)}>
+              <Editor style={style} placeholder={placeholder} disabled={disabled} />
+            </EditorContainer>
+          </Plate>
+        </ThemeWrapper>
       );
     }
   )
