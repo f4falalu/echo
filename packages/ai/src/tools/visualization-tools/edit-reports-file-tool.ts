@@ -28,7 +28,7 @@ const editReportsFile = wrapTraced(
   async (params: EditReportsParams): Promise<EditReportsOutput> => {
     // Dummy implementation - simulate applying edits
     let simulatedCode = '// Existing report code';
-    
+
     // Simulate applying each edit
     for (const edit of params.edits) {
       if (edit.code_to_replace === '') {
@@ -39,7 +39,7 @@ const editReportsFile = wrapTraced(
         simulatedCode = simulatedCode.replace(edit.code_to_replace, edit.code);
       }
     }
-    
+
     return {
       success: true,
       message: `Successfully edited report: ${params.name}`,
@@ -60,12 +60,16 @@ export const editReports = createTool({
   inputSchema: z.object({
     id: z.string().describe('The ID of the report to edit'),
     name: z.string().describe('The updated name of the report'),
-    edits: z.array(
-      z.object({
-        code_to_replace: z.string().describe('Code to replace. If empty, appends to existing code'),
-        code: z.string().describe('The new code to insert or replace with'),
-      })
-    ).describe('Array of edit operations to apply'),
+    edits: z
+      .array(
+        z.object({
+          code_to_replace: z
+            .string()
+            .describe('Markdown code to replace. If empty, appends to existing code'),
+          code: z.string().describe('The new markdown code to insert or replace with'),
+        })
+      )
+      .describe('Array of edit operations to apply'),
   }),
   outputSchema: z.object({
     success: z.boolean(),
