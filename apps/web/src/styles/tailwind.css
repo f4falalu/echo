@@ -5,6 +5,7 @@
 @import './tailwindAnimations.css';
 @plugin 'tailwind-scrollbar';
 @plugin 'tailwind-scrollbar-hide';
+@import 'shadcn-prose';
 
 @custom-variant dark (&:is(.dark *));
 
