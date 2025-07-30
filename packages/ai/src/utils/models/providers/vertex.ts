@@ -1,10 +1,10 @@
 import { createVertexAnthropic } from '@ai-sdk/google-vertex/anthropic';
-import type { LanguageModelV1 } from '@ai-sdk/provider';
+import type { LanguageModelV2 } from '@ai-sdk/provider';
 import { wrapAISDKModel } from 'braintrust';
 
-export const vertexModel = (modelId: string): LanguageModelV1 => {
+export const vertexModel = (modelId: string): LanguageModelV2 => {
   // Create a proxy that validates credentials on first use
-  let actualModel: LanguageModelV1 | null = null;
+  let actualModel: LanguageModelV2 | null = null;
 
   const getActualModel = () => {
     if (!actualModel) {
@@ -77,7 +77,7 @@ export const vertexModel = (modelId: string): LanguageModelV1 => {
   };
 
   // Create a proxy that delegates all calls to the actual model
-  return new Proxy({} as LanguageModelV1, {
+  return new Proxy({} as LanguageModelV2, {
     get(_target, prop) {
       const model = getActualModel();
       return Reflect.get(model, prop);

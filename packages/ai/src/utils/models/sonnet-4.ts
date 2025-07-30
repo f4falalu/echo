@@ -1,4 +1,4 @@
-import type { LanguageModelV1 } from '@ai-sdk/provider';
+import type { LanguageModelV2 } from '@ai-sdk/provider';
 import { createFallback } from './ai-fallback';
 import { anthropicModel } from './providers/anthropic';
 import { vertexModel } from './providers/vertex';
@@ -12,7 +12,7 @@ function initializeSonnet4() {
   }
 
   // Build models array based on available credentials
-  const models: LanguageModelV1[] = [];
+  const models: LanguageModelV2[] = [];
 
   // Only include Anthropic if API key is available
   if (process.env.ANTHROPIC_API_KEY) {

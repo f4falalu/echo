@@ -1,14 +1,16 @@
 import type {
-  LanguageModelV1,
-  LanguageModelV1CallOptions,
-  LanguageModelV1CallWarning,
-  LanguageModelV1FinishReason,
-  LanguageModelV1FunctionToolCall,
-  LanguageModelV1StreamPart,
+  LanguageModelV2,
+  LanguageModelV2CallOptions,
+  LanguageModelV2CallWarning,
+  LanguageModelV2Content,
+  LanguageModelV2FinishReason,
+  LanguageModelV2StreamPart,
+  LanguageModelV2Usage,
+  SharedV2ProviderMetadata,
 } from '@ai-sdk/provider';
 
 interface Settings {
-  models: LanguageModelV1[];
+  models: LanguageModelV2[];
   retryAfterOutput?: boolean;
   modelResetInterval?: number;
   shouldRetryThisError?: (error: Error) => boolean;
@@ -49,15 +51,15 @@ const retryableErrors = [
   '504', // Gateway Timeout
 ];
 
-function defaultShouldRetryThisError(error: unknown): boolean {
-  const statusCode = (error as { statusCode?: number })?.statusCode;
+function defaultShouldRetryThisError(error: any): boolean {
+  const statusCode = error?.['statusCode'];
 
   if (statusCode && (retryableStatusCodes.includes(statusCode) || statusCode > 500)) {
     return true;
   }
 
-  if (error && typeof error === 'object' && 'message' in error) {
-    const errorString = (error as Error).message.toLowerCase() || '';
+  if (error?.message) {
+    const errorString = error.message.toLowerCase() || '';
     return retryableErrors.some((errType) => errorString.includes(errType));
   }
   if (error && typeof error === 'object') {
@@ -67,38 +69,34 @@ function defaultShouldRetryThisError(error: unknown): boolean {
   return false;
 }
 
-export class FallbackModel implements LanguageModelV1 {
-  readonly specificationVersion = 'v1' as const;
+export class FallbackModel implements LanguageModelV2 {
+  readonly specificationVersion = 'v2';
+
+  get supportedUrls(): Record<string, RegExp[]> | PromiseLike<Record<string, RegExp[]>> {
+    return this.settings.models[this.currentModelIndex].supportedUrls;
+  }
 
   get modelId(): string {
-    const currentModel = this.settings.models[this.currentModelIndex];
-    return currentModel ? currentModel.modelId : 'fallback-model';
+    return this.settings.models[this.currentModelIndex].modelId;
   }
-
-  get provider(): string {
-    const currentModel = this.settings.models[this.currentModelIndex];
-    return currentModel ? currentModel.provider : 'fallback';
-  }
-
-  get defaultObjectGenerationMode(): 'json' | 'tool' | undefined {
-    const currentModel = this.settings.models[this.currentModelIndex];
-    return currentModel?.defaultObjectGenerationMode;
-  }
-
   readonly settings: Settings;
+
   currentModelIndex = 0;
   private lastModelReset: number = Date.now();
   private readonly modelResetInterval: number;
   retryAfterOutput: boolean;
-
   constructor(settings: Settings) {
     this.settings = settings;
     this.modelResetInterval = settings.modelResetInterval ?? 3 * 60 * 1000; // Default 3 minutes in ms
-    this.retryAfterOutput = settings.retryAfterOutput ?? false;
+    this.retryAfterOutput = settings.retryAfterOutput ?? true;
 
     if (!this.settings.models[this.currentModelIndex]) {
       throw new Error('No models available in settings');
     }
+  }
+
+  get provider(): string {
+    return this.settings.models[this.currentModelIndex].provider;
   }
 
   private checkAndResetModel() {
@@ -115,16 +113,13 @@ export class FallbackModel implements LanguageModelV1 {
 
   private async retry<T>(fn: () => PromiseLike<T>): Promise<T> {
     let lastError: Error | undefined;
-    let attempts = 0;
-    const maxAttempts = this.settings.models.length;
+    const initialModel = this.currentModelIndex;
 
-    while (attempts < maxAttempts) {
+    do {
       try {
         return await fn();
       } catch (error) {
         lastError = error as Error;
-        attempts++;
-
         // Only retry if it's a server/capacity error
         const shouldRetry = this.settings.shouldRetryThisError || defaultShouldRetryThisError;
         if (!shouldRetry(lastError)) {
@@ -134,88 +129,78 @@ export class FallbackModel implements LanguageModelV1 {
         if (this.settings.onError) {
           await this.settings.onError(lastError, this.modelId);
         }
+        this.switchToNextModel();
 
         // If we've tried all models, throw the last error
-        if (attempts >= maxAttempts) {
+        if (this.currentModelIndex === initialModel) {
           throw lastError;
         }
-
-        this.switchToNextModel();
       }
-    }
-
-    // This should never be reached
-    throw lastError || new Error('Unexpected retry state');
+    } while (true);
   }
 
-  doGenerate(
-    options: LanguageModelV1CallOptions
-  ): PromiseLike<Awaited<ReturnType<LanguageModelV1['doGenerate']>>> {
+  doGenerate(options: LanguageModelV2CallOptions): PromiseLike<{
+    content: LanguageModelV2Content[];
+    finishReason: LanguageModelV2FinishReason;
+    usage: LanguageModelV2Usage;
+    providerMetadata?: SharedV2ProviderMetadata;
+    request?: { body?: unknown };
+    response?: {
+      headers?: Record<string, string>;
+      id?: string;
+      timestamp?: Date;
+      modelId?: string;
+    };
+    warnings: LanguageModelV2CallWarning[];
+  }> {
     this.checkAndResetModel();
-    return this.retry(() => {
-      const currentModel = this.settings.models[this.currentModelIndex];
-      if (!currentModel) {
-        throw new Error('No model available');
-      }
-      return currentModel.doGenerate(options);
-    });
+    return this.retry(() => this.settings.models[this.currentModelIndex].doGenerate(options));
   }
 
-  doStream(
-    options: LanguageModelV1CallOptions
-  ): PromiseLike<Awaited<ReturnType<LanguageModelV1['doStream']>>> {
+  doStream(options: LanguageModelV2CallOptions): PromiseLike<{
+    stream: ReadableStream<LanguageModelV2StreamPart>;
+    request?: { body?: unknown };
+    response?: { headers?: Record<string, string> };
+  }> {
     this.checkAndResetModel();
     const self = this;
+    const shouldRetry = this.settings.shouldRetryThisError || defaultShouldRetryThisError;
     return this.retry(async () => {
-      const currentModel = self.settings.models[self.currentModelIndex];
-      if (!currentModel) {
-        throw new Error('No model available');
-      }
-      const result = await currentModel.doStream(options);
+      const result = await self.settings.models[this.currentModelIndex].doStream(options);
 
       let hasStreamedAny = false;
-      let streamRetryAttempts = 0;
-      const maxStreamRetries = self.settings.models.length - 1; // -1 because we already tried one
-
       // Wrap the stream to handle errors and switch providers if needed
-      const wrappedStream = new ReadableStream<LanguageModelV1StreamPart>({
+      const wrappedStream = new ReadableStream<LanguageModelV2StreamPart>({
         async start(controller) {
           try {
             const reader = result.stream.getReader();
 
             while (true) {
-              const { done, value } = await reader.read();
+              const result = await reader.read();
+
+              const { done, value } = result;
+              if (!hasStreamedAny && value && typeof value === 'object' && 'error' in value) {
+                const error = value.error as any;
+                if (shouldRetry(error)) {
+                  throw error;
+                }
+              }
+
               if (done) break;
               controller.enqueue(value);
-              hasStreamedAny = true;
+
+              if (value?.type !== 'stream-start') {
+                hasStreamedAny = true;
+              }
             }
             controller.close();
           } catch (error) {
-            // Check if this is an intentional abort (not a retry scenario)
-            if (error instanceof Error && error.name === 'AbortError') {
-              // Don't retry on intentional aborts, just close the controller
-              controller.close();
-              return;
-            }
-
             if (self.settings.onError) {
               await self.settings.onError(error as Error, self.modelId);
             }
-
-            // Check if we should retry this error
-            const shouldRetry = self.settings.shouldRetryThisError || defaultShouldRetryThisError;
-            if (!shouldRetry(error as Error)) {
-              controller.error(error);
-              return;
-            }
-
-            if (
-              (!hasStreamedAny || self.retryAfterOutput) &&
-              streamRetryAttempts < maxStreamRetries
-            ) {
-              // If nothing was streamed yet and we haven't exhausted retries, switch models and retry
+            if (!hasStreamedAny || self.retryAfterOutput) {
+              // If nothing was streamed yet, switch models and retry
               self.switchToNextModel();
-              streamRetryAttempts++;
               try {
                 const nextResult = await self.doStream(options);
                 const nextReader = nextResult.stream.getReader();
@@ -238,6 +223,8 @@ export class FallbackModel implements LanguageModelV1 {
       return {
         ...result,
         stream: wrappedStream,
+        request: result.request,
+        response: result.response,
       };
     });
   }
