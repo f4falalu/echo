@@ -83,6 +83,18 @@ const docsAgentExecution = async ({
   });
 
   try {
+    // Get current working directory from sandbox
+    let cwdMessage = '';
+    if (sandbox) {
+      try {
+        const pwdResult = await sandbox.process.executeCommand('pwd');
+        const currentDir = pwdResult.result.trim();
+        cwdMessage = `cwd: ${currentDir}`;
+      } catch (error) {
+        console.warn('[DocsAgent] Failed to get current working directory:', error);
+      }
+    }
+
     // Get the docs agent instructions with the current date
     const instructions = getDocsInstructions();
     const repositoryStructure = `<repository-structure>\n${inputData.repositoryTree}\n</repository-structure>`;
@@ -109,6 +121,14 @@ const docsAgentExecution = async ({
         content: todoMessage,
       } as CoreMessage,
     ];
+
+    // Add cwd message if available (after todo list)
+    if (cwdMessage) {
+      messages.push({
+        role: 'user',
+        content: cwdMessage,
+      } as CoreMessage);
+    }
 
     // Execute the docs agent
     const result = await docsAgent.stream(messages, {

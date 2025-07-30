@@ -48,23 +48,28 @@ const rgSearchExecution = wrapTraced(
         // Execute all commands concurrently
         const resultPromises = commands.map(async (command) => {
           try {
+            // Use executeCommand like bash-tool does
             const result = await sandbox.process.executeCommand(command);
 
-            // Exit code 1 means no matches found, which is not an error for rg
-            if (result.exitCode === 0 || result.exitCode === 1) {
+            // The sandbox returns the full output in result.result
+            const output = (result.result || '').trim();
+
+            // For ripgrep, exit code 1 means no matches found, which is not an error
+            const isRgNoMatchesFound = result.exitCode === 1 && command.includes('rg ');
+
+            if (result.exitCode === 0 || isRgNoMatchesFound) {
               return {
                 success: true,
                 command: command,
-                stdout: result.result || '',
+                stdout: output,
                 stderr: '',
               };
             }
-
             return {
               success: false,
               command: command,
               stdout: '',
-              stderr: result.result || '',
+              stderr: output,
               error: `Command failed with exit code ${result.exitCode}`,
             };
           } catch (error) {
