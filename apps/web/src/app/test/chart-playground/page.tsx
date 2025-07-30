@@ -16,6 +16,7 @@ import type { RunSQLResponse } from '@/api/asset_interfaces';
 import { useMemoizedFn } from '@/hooks';
 import { Button } from '@/components/ui/buttons';
 import { Input } from '@/components/ui/inputs';
+import { AppSplitter } from '@/components/ui/layouts/AppSplitter';
 
 type YamlifiedConfig = {
   sql: string;
@@ -108,133 +109,152 @@ export default function ChartPlayground() {
     }
   );
 
-  return (
-    <div className="grid h-screen grid-cols-[2fr_3fr] gap-4 p-4">
-      <div className="bg-background flex h-full w-full flex-col space-y-4 overflow-hidden rounded-lg border p-4">
-        <div className="h-full w-full overflow-hidden">
-          <AppCodeEditor value={config} onChange={setConfig} />
-        </div>
-        <div className="flex flex-col space-y-2">
-          <div className="flex items-center space-x-1">
-            <label className="w-fit min-w-28 text-sm font-medium">Data Source ID</label>
-            <Input value={dataSourceId || ''} onChange={(e) => setDataSourceId(e.target.value)} />
-          </div>
-          <Button block onClick={runSQL} loading={isRunningSQL} disabled={!hasSQL}>
-            <div className="flex items-center justify-center gap-2">
-              <span>Run SQL</span>
-              <span className="rounded bg-black/10 px-1.5 py-0.5 text-xs opacity-70">⌘↵</span>
-            </div>
-          </Button>
-        </div>
+  // Define the left panel content (code editor and controls)
+  const leftPanelContent = (
+    <div className="bg-background flex h-full w-full flex-col space-y-4 overflow-hidden rounded-lg border p-4">
+      <div className="h-full w-full overflow-hidden">
+        <AppCodeEditor value={config} onChange={setConfig} />
       </div>
-
-      {/* Second column - 40% width */}
-      <div className="bg-background flex h-full flex-col overflow-hidden rounded-lg border shadow-sm">
-        {/* Header */}
-        <div className="bg-muted/30 border-b px-6 py-4">
-          <h3 className="text-foreground text-lg font-semibold">Chart Preview</h3>
+      <div className="flex flex-col space-y-2">
+        <div className="flex items-center space-x-1">
+          <label className="w-fit min-w-28 text-sm font-medium">Data Source ID</label>
+          <Input value={dataSourceId || ''} onChange={(e) => setDataSourceId(e.target.value)} />
         </div>
-
-        {/* Content Area */}
-        <div className="flex-1 space-y-6 overflow-y-auto p-6">
-          {/* Error States */}
-          {chartConfigError && (
-            <div className="rounded-md border border-red-200 bg-red-50 p-4">
-              <div className="mb-3 flex items-center space-x-2">
-                <div className="h-4 w-4 flex-shrink-0 rounded-full bg-red-400"></div>
-                <h4 className="text-sm font-semibold text-red-800">Chart Configuration Error</h4>
-              </div>
-              <pre className="overflow-x-auto rounded bg-red-100 p-3 text-xs whitespace-pre-wrap text-red-700">
-                {JSON.stringify(chartConfigError as Object, null, 2)}
-              </pre>
-            </div>
-          )}
-
-          {runSQLError && (
-            <div className="rounded-md border border-red-200 bg-red-50 p-4">
-              <div className="mb-3 flex items-center space-x-2">
-                <div className="h-4 w-4 flex-shrink-0 rounded-full bg-red-400"></div>
-                <h4 className="text-sm font-semibold text-red-800">SQL Execution Error</h4>
-              </div>
-              <pre className="overflow-x-auto rounded bg-red-100 p-3 text-xs whitespace-pre-wrap text-red-700">
-                {JSON.stringify(runSQLError as Object, null, 2)}
-              </pre>
-            </div>
-          )}
-
-          {/* Loading State */}
-          {isRunningSQL && (
-            <div className="rounded-md border border-blue-200 bg-blue-50 p-4">
-              <div className="flex items-center space-x-3">
-                <div className="h-5 w-5 flex-shrink-0 animate-spin rounded-full border-2 border-blue-400 border-t-transparent"></div>
-                <div>
-                  <h4 className="text-sm font-semibold text-blue-800">Executing SQL Query</h4>
-                  <p className="mt-1 text-xs text-blue-600">
-                    Please wait while we process your query...
-                  </p>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Checklist */}
-          {!(chartConfig && data && hasRunSQL && dataSourceId) && (
-            <div className="rounded-md border border-amber-200 bg-amber-50 p-4">
-              <div className="mb-4 flex items-center space-x-2">
-                <div className="h-4 w-4 flex-shrink-0 rounded-full bg-amber-400"></div>
-                <h4 className="text-sm font-semibold text-amber-800">Setup Checklist</h4>
-              </div>
-              <ul className="space-y-2">
-                <li className="flex items-center space-x-3">
-                  <div
-                    className={`h-2 w-2 flex-shrink-0 rounded-full ${chartConfig ? 'bg-green-400' : 'bg-yellow-300'}`}></div>
-                  <span
-                    className={`text-sm ${chartConfig ? 'text-green-700 line-through' : 'text-amber-700'}`}>
-                    Chart configuration is {chartConfig ? 'ready' : 'missing'}
-                  </span>
-                </li>
-                <li className="flex items-center space-x-3">
-                  <div
-                    className={`h-2 w-2 flex-shrink-0 rounded-full ${data.length > 0 ? 'bg-green-400' : 'bg-yellow-300'}`}></div>
-                  <span
-                    className={`text-sm ${data.length > 0 ? 'text-green-700 line-through' : 'text-amber-700'}`}>
-                    Data is {data.length > 0 ? 'available' : 'not available'}
-                  </span>
-                </li>
-                <li className="flex items-center space-x-3">
-                  <div
-                    className={`h-2 w-2 flex-shrink-0 rounded-full ${hasRunSQL ? 'bg-green-400' : 'bg-yellow-300'}`}></div>
-                  <span
-                    className={`text-sm ${hasRunSQL ? 'text-green-700 line-through' : 'text-amber-700'}`}>
-                    SQL has {hasRunSQL ? 'been executed' : 'not been run'}
-                  </span>
-                </li>
-                <li className="flex items-center space-x-3">
-                  <div
-                    className={`h-2 w-2 flex-shrink-0 rounded-full ${dataSourceId ? 'bg-green-400' : 'bg-yellow-300'}`}></div>
-                  <span
-                    className={`text-sm ${dataSourceId ? 'text-green-700 line-through' : 'text-amber-700'}`}>
-                    Data Source ID is {dataSourceId ? 'set' : 'not set'}
-                  </span>
-                </li>
-              </ul>
-            </div>
-          )}
-
-          {/* Chart Display */}
-          {chartConfig && data && hasRunSQL && dataSourceId && (
-            <div className="rounded-md border bg-gradient-to-br from-green-50 to-blue-50 p-6">
-              <div className="mb-4 flex items-center space-x-2">
-                <div className="h-3 w-3 flex-shrink-0 animate-pulse rounded-full bg-green-500"></div>
-                <h4 className="text-sm font-semibold text-green-800">Chart Ready</h4>
-              </div>
-              <div className="rounded-lg bg-white p-4 shadow-sm">
-                <BusterChart {...chartConfig} data={data} columnMetadata={columnMetadata} />
-              </div>
-            </div>
-          )}
-        </div>
+        <Button block onClick={runSQL} loading={isRunningSQL} disabled={!hasSQL}>
+          <div className="flex items-center justify-center gap-2">
+            <span>Run SQL</span>
+            <span className="rounded bg-black/10 px-1.5 py-0.5 text-xs opacity-70">⌘↵</span>
+          </div>
+        </Button>
       </div>
     </div>
   );
+
+  // Define the right panel content (chart preview)
+  const rightPanelContent = (
+    <div className="bg-background flex h-full flex-col overflow-hidden rounded-lg border shadow-sm">
+      {/* Header */}
+      <div className="bg-muted/30 border-b px-6 py-4">
+        <h3 className="text-foreground text-lg font-semibold">Chart Preview</h3>
+      </div>
+
+      {/* Content Area */}
+      <div className="flex-1 space-y-6 overflow-y-auto p-6">
+        {/* Error States */}
+        {chartConfigError && (
+          <div className="rounded-md border border-red-200 bg-red-50 p-4">
+            <div className="mb-3 flex items-center space-x-2">
+              <div className="h-4 w-4 flex-shrink-0 rounded-full bg-red-400"></div>
+              <h4 className="text-sm font-semibold text-red-800">Chart Configuration Error</h4>
+            </div>
+            <pre className="overflow-x-auto rounded bg-red-100 p-3 text-xs whitespace-pre-wrap text-red-700">
+              {JSON.stringify(chartConfigError || {}, null, 2)}
+            </pre>
+          </div>
+        )}
+
+        {runSQLError && (
+          <div className="rounded-md border border-red-200 bg-red-50 p-4">
+            <div className="mb-3 flex items-center space-x-2">
+              <div className="h-4 w-4 flex-shrink-0 rounded-full bg-red-400"></div>
+              <h4 className="text-sm font-semibold text-red-800">SQL Execution Error</h4>
+            </div>
+            <pre className="overflow-x-auto rounded bg-red-100 p-3 text-xs whitespace-pre-wrap text-red-700">
+              {JSON.stringify(runSQLError || {}, null, 2)}
+            </pre>
+          </div>
+        )}
+
+        {/* Loading State */}
+        {isRunningSQL && (
+          <div className="rounded-md border border-blue-200 bg-blue-50 p-4">
+            <div className="flex items-center space-x-3">
+              <div className="h-5 w-5 flex-shrink-0 animate-spin rounded-full border-2 border-blue-400 border-t-transparent"></div>
+              <div>
+                <h4 className="text-sm font-semibold text-blue-800">Executing SQL Query</h4>
+                <p className="mt-1 text-xs text-blue-600">
+                  Please wait while we process your query...
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Checklist */}
+        {!(chartConfig && data && hasRunSQL && dataSourceId) && (
+          <div className="rounded-md border border-amber-200 bg-amber-50 p-4">
+            <div className="mb-4 flex items-center space-x-2">
+              <div className="h-4 w-4 flex-shrink-0 rounded-full bg-amber-400"></div>
+              <h4 className="text-sm font-semibold text-amber-800">Setup Checklist</h4>
+            </div>
+            <ul className="space-y-2">
+              <li className="flex items-center space-x-3">
+                <div
+                  className={`h-2 w-2 flex-shrink-0 rounded-full ${chartConfig ? 'bg-green-400' : 'bg-yellow-300'}`}></div>
+                <span
+                  className={`text-sm ${chartConfig ? 'text-green-700 line-through' : 'text-amber-700'}`}>
+                  Chart configuration is {chartConfig ? 'ready' : 'missing'}
+                </span>
+              </li>
+              <li className="flex items-center space-x-3">
+                <div
+                  className={`h-2 w-2 flex-shrink-0 rounded-full ${data.length > 0 ? 'bg-green-400' : 'bg-yellow-300'}`}></div>
+                <span
+                  className={`text-sm ${data.length > 0 ? 'text-green-700 line-through' : 'text-amber-700'}`}>
+                  Data is {data.length > 0 ? 'available' : 'not available'}
+                </span>
+              </li>
+              <li className="flex items-center space-x-3">
+                <div
+                  className={`h-2 w-2 flex-shrink-0 rounded-full ${hasRunSQL ? 'bg-green-400' : 'bg-yellow-300'}`}></div>
+                <span
+                  className={`text-sm ${hasRunSQL ? 'text-green-700 line-through' : 'text-amber-700'}`}>
+                  SQL has {hasRunSQL ? 'been executed' : 'not been run'}
+                </span>
+              </li>
+              <li className="flex items-center space-x-3">
+                <div
+                  className={`h-2 w-2 flex-shrink-0 rounded-full ${dataSourceId ? 'bg-green-400' : 'bg-yellow-300'}`}></div>
+                <span
+                  className={`text-sm ${dataSourceId ? 'text-green-700 line-through' : 'text-amber-700'}`}>
+                  Data Source ID is {dataSourceId ? 'set' : 'not set'}
+                </span>
+              </li>
+            </ul>
+          </div>
+        )}
+
+        {/* Chart Display */}
+        {chartConfig && data && hasRunSQL && dataSourceId && (
+          <div className="rounded-md border bg-gradient-to-br from-green-50 to-blue-50 p-6">
+            <div className="mb-4 flex items-center space-x-2">
+              <div className="h-3 w-3 flex-shrink-0 animate-pulse rounded-full bg-green-500"></div>
+              <h4 className="text-sm font-semibold text-green-800">Chart Ready</h4>
+            </div>
+            <div className="rounded-lg bg-white p-4 shadow-sm">
+              <BusterChart {...chartConfig} data={data} columnMetadata={columnMetadata} />
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="h-screen w-screen p-4">
+      <AppSplitter
+        autoSaveId="chart-playground"
+        splitterClassName="mx-2"
+        defaultLayout={DEFAULT_LAYOUT}
+        className="h-full w-full"
+        leftPanelMinSize="200px"
+        rightPanelMinSize="200px"
+        leftChildren={leftPanelContent}
+        rightChildren={rightPanelContent}
+        preserveSide="left"
+      />
+    </div>
+  );
 }
+
+const DEFAULT_LAYOUT = ['40%', 'auto'];
