@@ -275,7 +275,7 @@ function withTooltip<T extends React.ElementType>(Component: T) {
     tooltip,
     tooltipContentProps,
     tooltipProps,
-    tooltipTriggerProps,
+    ref,
     ...props
   }: TooltipProps<T>) {
     const [mounted, setMounted] = React.useState(false);
@@ -287,15 +287,7 @@ function withTooltip<T extends React.ElementType>(Component: T) {
     const component = <Component {...(props as React.ComponentProps<T>)} />;
 
     if (tooltip && mounted) {
-      return (
-        <Tooltip {...tooltipProps}>
-          <TooltipTrigger asChild {...tooltipTriggerProps}>
-            {component}
-          </TooltipTrigger>
-
-          <TooltipContent {...tooltipContentProps}>{tooltip}</TooltipContent>
-        </Tooltip>
-      );
+      return <Tooltip title={tooltip}>{component}</Tooltip>;
     }
 
     return component;

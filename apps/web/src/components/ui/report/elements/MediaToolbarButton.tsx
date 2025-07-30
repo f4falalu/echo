@@ -5,7 +5,7 @@ import * as React from 'react';
 import type { DropdownMenuProps } from '@radix-ui/react-dropdown-menu';
 
 import { PlaceholderPlugin } from '@platejs/media/react';
-import { VolumeUp, FileCloud, Film, Image, Link } from '@/components/ui/icons';
+import { VolumeUp, FileCloud, Film, Image as ImageIcon, Link } from '@/components/ui/icons';
 import { isUrl, KEYS } from 'platejs';
 import { useEditorRef } from 'platejs/react';
 import { toast } from 'sonner';
@@ -69,7 +69,7 @@ const MEDIA_CONFIG: Record<
     accept: ['image/*'],
     icon: (
       <div className="size-4">
-        <Image />
+        <ImageIcon />
       </div>
     ),
     title: 'Insert Image',
