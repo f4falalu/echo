@@ -26,9 +26,7 @@ export const MediaKit = [
     render: { afterEditable: MediaPreviewDialog, node: ImageElement }
   }),
   MediaEmbedPlugin.withComponent(MediaEmbedElement),
-  VideoPlugin.withComponent(VideoElement),
-  AudioPlugin.withComponent(AudioElement),
-  FilePlugin.withComponent(FileElement),
+
   PlaceholderPlugin.configure({
     options: { disableEmptyPlaceholder: true },
     render: { afterEditable: MediaUploadToast, node: PlaceholderElement }
@@ -40,4 +38,7 @@ export const MediaKit = [
       }
     }
   })
+  // VideoPlugin.withComponent(VideoElement),
+  // AudioPlugin.withComponent(AudioElement),
+  // FilePlugin.withComponent(FileElement),
 ];

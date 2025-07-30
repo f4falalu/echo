@@ -47,7 +47,7 @@ export const AllEditorPlugins: AnyPluginConfig[] = [
   ...TableKit,
   ...ToggleKit,
   ...TocKit,
-  // ...MediaKit,
+  ...MediaKit,
   ...MathKit,
   ...DateKit,
   ...ColumnKit,
