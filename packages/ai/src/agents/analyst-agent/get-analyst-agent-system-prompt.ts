@@ -29,7 +29,7 @@ function loadAndProcessPrompt(params: AnalystTemplateParams): string {
 /**
  * Export the template function for use in step files
  */
-export const getAnalystInstructions = (sqlDialectGuidance: string): string => {
+export const getAnalystAgentSystemPrompt = (sqlDialectGuidance: string): string => {
   if (!sqlDialectGuidance.trim()) {
     throw new Error('SQL dialect guidance is required');
   }

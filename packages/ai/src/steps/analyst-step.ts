@@ -10,7 +10,7 @@ import type {
   ChatMessageResponseMessage,
 } from '@buster/server-shared/chats';
 import { analystAgent } from '../agents/analyst-agent/analyst-agent';
-import { createAnalystInstructionsWithoutDatasets } from '../agents/analyst-agent/analyst-agent-instructions';
+import { createAnalystInstructionsWithoutDatasets } from '../agents/analyst-agent/get-analyst-agent-system-prompt';
 import { getSqlDialectGuidance } from '../agents/shared/sql-dialect-guidance';
 import { ChunkProcessor } from '../utils/database/chunk-processor';
 import {

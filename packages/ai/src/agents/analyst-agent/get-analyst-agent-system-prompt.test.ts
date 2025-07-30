@@ -1,7 +1,7 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { getAnalystInstructions } from './analyst-agent-instructions';
+import { getAnalystAgentSystemPrompt } from './get-analyst-agent-system-prompt';
 
 describe('Analyst Agent Instructions', () => {
   it('should validate template file contains expected variables', () => {
