@@ -524,14 +524,15 @@ const _THEMES = {
 } as const;
 
 Object.entries(_THEMES).forEach(([key, theme]) => {
-  (_THEMES as any)[key] = {
+  // @ts-expect-error - key is a string
+  _THEMES[key] = {
     ...theme,
     dark: themeColorsToCssVariables(theme.dark),
     light: themeColorsToCssVariables(theme.light)
   };
 });
 
-export const THEMES: Record<ThemeId, Theme> = _THEMES as any;
+export const THEMES: Record<ThemeId, Theme> = _THEMES;
 
 export function themeColorsToCssVariables(colors: Record<string, string>): Record<string, string> {
   const cssVars = colors
