@@ -1,4 +1,4 @@
-import { type ModelMessage, streamText } from 'ai';
+import { type ModelMessage, hasToolCall, stepCountIs, streamText } from 'ai';
 import { wrapTraced } from 'braintrust';
 import z from 'zod';
 import {
@@ -11,20 +11,11 @@ import {
 import { Sonnet4 } from '../../utils/models/sonnet-4';
 import { getAnalystAgentSystemPrompt } from './get-analyst-agent-system-prompt';
 
-const DEFAULT_OPTIONS = {
-  maxSteps: 18,
-  temperature: 0,
-  maxTokens: 10000,
-  providerOptions: {
-    anthropic: {
-      disableParallelToolCalls: true,
-    },
-  },
-};
-
 const DEFAULT_CACHE_OPTIONS = {
   anthropic: { cacheControl: { type: 'ephemeral', ttl: '1h' } },
 };
+
+const STOP_CONDITIONS = [stepCountIs(18), hasToolCall('doneTool')];
 
 const AnalystAgentSchema = z.object({
   sql_dialect_guidance: z.string().describe('The SQL dialect guidance for the analyst agent.'),
@@ -38,8 +29,6 @@ const AnalystStreamSchema = z.object({
 
 export type AnalystAgentSchema = z.infer<typeof AnalystAgentSchema>;
 export type AnalystStreamSchema = z.infer<typeof AnalystStreamSchema>;
-
-
 
 export function createAnalystAgent(analystAgentSchema: AnalystAgentSchema) {
   const steps: never[] = [];
@@ -57,8 +46,10 @@ export function createAnalystAgent(analystAgentSchema: AnalystAgentSchema) {
           model: Sonnet4,
           tools: { createMetrics, modifyMetrics, createDashboards, modifyDashboards, doneTool },
           messages: [systemMessage, ...messages],
-          stopWhen:  
-          ...DEFAULT_OPTIONS,
+          stopWhen: STOP_CONDITIONS,
+          toolChoice: 'required',
+          maxOutputTokens: 10000,
+          temperature: 0,
         }),
       {
         name: 'Analyst Agent',

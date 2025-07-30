@@ -38,7 +38,7 @@ export class MockLanguageModelV2 implements LanguageModelV2 {
   readonly modelId: string;
   readonly provider: string;
   readonly supportedUrls: Record<string, RegExp[]> = {};
-  
+
   private settings: MockSettings;
 
   constructor(settings: MockSettings = {}) {
@@ -51,7 +51,7 @@ export class MockLanguageModelV2 implements LanguageModelV2 {
     if (this.settings.doGenerate) {
       return this.settings.doGenerate(options);
     }
-    
+
     return {
       content: [{ type: 'text' as const, text: 'mock response' }],
       finishReason: 'stop' as LanguageModelV2FinishReason,
@@ -64,17 +64,21 @@ export class MockLanguageModelV2 implements LanguageModelV2 {
     if (this.settings.doStream) {
       return this.settings.doStream(options);
     }
-    
+
     const stream = new ReadableStream<LanguageModelV2StreamPart>({
       start(controller) {
         controller.enqueue({ type: 'stream-start', warnings: [] });
         controller.enqueue({ type: 'text-delta', textDelta: 'mock stream response' });
-        controller.enqueue({ type: 'finish', finishReason: 'stop', usage: { inputTokens: 10, outputTokens: 5 } });
+        controller.enqueue({
+          type: 'finish',
+          finishReason: 'stop',
+          usage: { inputTokens: 10, outputTokens: 5 },
+        });
         controller.close();
       },
     });
-    
-    return { 
+
+    return {
       stream,
       rawCall: { rawPrompt: '', rawSettings: {} },
     };
