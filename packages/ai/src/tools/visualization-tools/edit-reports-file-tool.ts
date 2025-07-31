@@ -1,3 +1,4 @@
+import type { RuntimeContext } from '@mastra/core/runtime-context';
 import { createTool } from '@mastra/core/tools';
 import { wrapTraced } from 'braintrust';
 import { z } from 'zod';
@@ -25,9 +26,15 @@ interface EditReportsOutput {
 
 // Main edit reports function
 const editReportsFile = wrapTraced(
-  async (params: EditReportsParams): Promise<EditReportsOutput> => {
+  async ({
+    params,
+    runtimeContext,
+  }: {
+    params: EditReportsParams;
+    runtimeContext: RuntimeContext;
+  }): Promise<EditReportsOutput> => {
     // Dummy implementation - simulate applying edits
-    let simulatedCode = '// Existing report code';
+    let simulatedCode = runtimeContext.get(params.id) as string;
 
     // Simulate applying each edit
     for (const edit of params.edits) {
@@ -39,6 +46,8 @@ const editReportsFile = wrapTraced(
         simulatedCode = simulatedCode.replace(edit.code_to_replace, edit.code);
       }
     }
+
+    runtimeContext.set(params.id, simulatedCode);
 
     return {
       success: true,
@@ -80,7 +89,10 @@ export const editReports = createTool({
       code: z.string(),
     }),
   }),
-  execute: async ({ context }) => {
-    return await editReportsFile(context as EditReportsParams);
+  execute: async ({ context, runtimeContext }) => {
+    return await editReportsFile({
+      params: context as EditReportsParams,
+      runtimeContext,
+    });
   },
 });
