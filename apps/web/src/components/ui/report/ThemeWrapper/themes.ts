@@ -1,3 +1,44 @@
+const BASE_THEME = {
+  '--spacing': '0.25rem',
+  '--breakpoint-xl': '80rem',
+  '--breakpoint-2xl': '96rem',
+  '--container-sm': '24rem',
+  '--container-lg': '32rem',
+  '--container-2xl': '42rem',
+  '--container-3xl': '48rem',
+  '--text-xs': '0.75rem',
+  '--text-xs--line-height': 'calc(1 / 0.75)',
+  '--text-sm': '0.875rem',
+  '--text-sm--line-height': 'calc(1.25 / 0.875)',
+  '--text-base': '1rem',
+  '--text-base--line-height': 'calc(1.5 / 1)',
+  '--text-lg': '1.125rem',
+  '--text-lg--line-height': 'calc(1.75 / 1.125)',
+  '--text-xl': '1.25rem',
+  '--text-xl--line-height': 'calc(1.75 / 1.25)',
+  '--text-2xl': '1.5rem',
+  '--text-2xl--line-height': 'calc(2 / 1.5)',
+  '--text-3xl': '1.875rem',
+  '--text-3xl--line-height': 'calc(2.25 / 1.875)',
+  '--text-4xl': '2.25rem',
+  '--text-4xl--line-height': 'calc(2.5 / 2.25)',
+  '--text-5xl': '3rem',
+  '--text-5xl--line-height': '1',
+  '--font-weight-light': '300',
+  '--font-weight-normal': '400',
+  '--font-weight-medium': '500',
+  '--font-weight-semibold': '600',
+  '--font-weight-bold': '700',
+  '--font-weight-extrabold': '800',
+  '--tracking-tighter': '-0.05em',
+  '--tracking-tight': '-0.025em',
+  '--tracking-widest': '0.1em',
+  '--leading-tight': '1.25',
+  '--leading-normal': '1.5',
+  '--leading-relaxed': '1.625',
+  '--leading-loose': '2'
+};
+
 const _THEMES = {
   ayu: {
     id: 'ayu',
@@ -526,6 +567,7 @@ const _THEMES = {
 Object.entries(_THEMES).forEach(([key, theme]) => {
   // @ts-expect-error - key is a string
   _THEMES[key] = {
+    ...BASE_THEME,
     ...theme,
     dark: themeColorsToCssVariables(theme.dark),
     light: themeColorsToCssVariables(theme.light)

@@ -11,6 +11,8 @@ export function ThemesStyle() {
     return null;
   }
 
+  console.log(activeTheme);
+
   return (
     <style>
       {`
