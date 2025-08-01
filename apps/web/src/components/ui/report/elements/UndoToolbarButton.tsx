@@ -5,7 +5,7 @@ import * as React from 'react';
 import { useEditorRef, useEditorSelector } from 'platejs/react';
 import { Redo, Undo } from '@/components/ui/icons';
 
-import { ToolbarButton } from './Toolbar';
+import { ToolbarButton } from '@/components/ui/toolbar/Toolbar';
 
 export function RedoToolbarButton(props: React.ComponentProps<typeof ToolbarButton>) {
   const editor = useEditorRef();

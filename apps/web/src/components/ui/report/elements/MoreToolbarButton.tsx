@@ -16,7 +16,7 @@ import {
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
 
-import { ToolbarButton } from './Toolbar';
+import { ToolbarButton } from '@/components/ui/toolbar/Toolbar';
 
 export function MoreToolbarButton(props: DropdownMenuProps) {
   const editor = useEditorRef();

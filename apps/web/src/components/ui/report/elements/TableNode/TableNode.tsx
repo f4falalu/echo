@@ -94,7 +94,12 @@ import {
   BorderRightIcon,
   BorderTopIcon
 } from './TableIcons';
-import { Toolbar, ToolbarButton, ToolbarGroup, ToolbarMenuGroup } from '../../Toolbar';
+import {
+  Toolbar,
+  ToolbarButton,
+  ToolbarGroup,
+  ToolbarMenuGroup
+} from '@/components/ui/toolbar/Toolbar';
 export const TableElement = withHOC(
   TableProvider,
   function TableElement({ children, ...props }: PlateElementProps<TTableElement>) {

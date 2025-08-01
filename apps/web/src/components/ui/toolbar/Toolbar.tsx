@@ -263,62 +263,6 @@ export function ToolbarGroup({ children, className }: React.ComponentProps<'div'
   );
 }
 
-type TooltipProps<T extends React.ElementType> = {
-  tooltip?: React.ReactNode;
-  tooltipContentProps?: Omit<React.ComponentPropsWithoutRef<typeof TooltipContent>, 'children'>;
-  tooltipProps?: Omit<React.ComponentPropsWithoutRef<typeof Tooltip>, 'children'>;
-  tooltipTriggerProps?: React.ComponentPropsWithoutRef<typeof TooltipTrigger>;
-} & React.ComponentProps<T>;
-
-function withTooltip<T extends React.ElementType>(Component: T) {
-  return function ExtendComponent({
-    tooltip,
-    tooltipContentProps,
-    tooltipProps,
-    ref,
-    ...props
-  }: TooltipProps<T>) {
-    const [mounted, setMounted] = React.useState(false);
-
-    React.useEffect(() => {
-      setMounted(true);
-    }, []);
-
-    const component = <Component {...(props as React.ComponentProps<T>)} />;
-
-    if (tooltip && mounted) {
-      return <Tooltip title={tooltip}>{component}</Tooltip>;
-    }
-
-    return component;
-  };
-}
-
-function TooltipContent({
-  children,
-  className,
-  // CHANGE
-  sideOffset = 4,
-  ...props
-}: React.ComponentProps<typeof TooltipPrimitive.Content>) {
-  return (
-    <TooltipPrimitive.Portal>
-      <TooltipPrimitive.Content
-        className={cn(
-          'bg-primary text-primary-foreground z-50 w-fit origin-(--radix-tooltip-content-transform-origin) rounded-md px-3 py-1.5 text-xs text-balance',
-          className
-        )}
-        data-slot="tooltip-content"
-        sideOffset={sideOffset}
-        {...props}>
-        {children}
-        {/* CHANGE */}
-        {/* <TooltipPrimitive.Arrow className="z-50 size-2.5 translate-y-[calc(-50%_-_2px)] rotate-45 rounded-[2px] bg-primary fill-primary" /> */}
-      </TooltipPrimitive.Content>
-    </TooltipPrimitive.Portal>
-  );
-}
-
 export function ToolbarMenuGroup({
   children,
   className,
@@ -349,5 +293,66 @@ export function ToolbarMenuGroup({
         {children}
       </DropdownMenuRadioGroup>
     </>
+  );
+}
+
+type TooltipProps<T extends React.ElementType> = {
+  tooltip?: React.ReactNode;
+  tooltipContentProps?: Omit<React.ComponentPropsWithoutRef<typeof TooltipContent>, 'children'>;
+  tooltipProps?: Omit<React.ComponentPropsWithoutRef<typeof Tooltip>, 'children'>;
+  tooltipTriggerProps?: React.ComponentPropsWithoutRef<typeof TooltipTrigger>;
+} & React.ComponentProps<T>;
+
+function withTooltip<T extends React.ElementType>(Component: T) {
+  return function ExtendComponent({
+    tooltip,
+    tooltipContentProps,
+    tooltipProps,
+    ref,
+    ...props
+  }: TooltipProps<T>) {
+    const [mounted, setMounted] = React.useState(false);
+
+    React.useEffect(() => {
+      setMounted(true);
+    }, []);
+
+    console.log('here');
+
+    const component = <Component {...(props as React.ComponentProps<T>)} />;
+
+    if (tooltip && mounted) {
+      return <>asdf</>;
+      return <Tooltip title={tooltip}>{component}</Tooltip>;
+    }
+
+    return <></>;
+
+    return component;
+  };
+}
+
+function TooltipContent({
+  children,
+  className,
+  // CHANGE
+  sideOffset = 4,
+  ...props
+}: React.ComponentProps<typeof TooltipPrimitive.Content>) {
+  return (
+    <TooltipPrimitive.Portal>
+      <TooltipPrimitive.Content
+        className={cn(
+          'bg-primary text-primary-foreground z-50 w-fit origin-(--radix-tooltip-content-transform-origin) rounded-md px-3 py-1.5 text-xs text-balance',
+          className
+        )}
+        data-slot="tooltip-content"
+        sideOffset={sideOffset}
+        {...props}>
+        {children}
+        {/* CHANGE */}
+        {/* <TooltipPrimitive.Arrow className="z-50 size-2.5 translate-y-[calc(-50%_-_2px)] rotate-45 rounded-[2px] bg-primary fill-primary" /> */}
+      </TooltipPrimitive.Content>
+    </TooltipPrimitive.Portal>
   );
 }

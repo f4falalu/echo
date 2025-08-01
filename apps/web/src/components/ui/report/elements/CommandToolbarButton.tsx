@@ -7,7 +7,7 @@ import { MessagePen } from '@/components/ui/icons';
 import { useEditorRef } from 'platejs/react';
 import { commentPlugin } from '../plugins/comment-kit';
 
-import { ToolbarButton } from './Toolbar';
+import { ToolbarButton } from '@/components/ui/toolbar/Toolbar';
 
 export function CommentToolbarButton() {
   const editor = useEditorRef();

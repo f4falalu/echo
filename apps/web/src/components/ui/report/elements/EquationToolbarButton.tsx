@@ -6,7 +6,7 @@ import { insertInlineEquation } from '@platejs/math';
 import { Equation } from '@/components/ui/icons';
 import { useEditorRef } from 'platejs/react';
 
-import { ToolbarButton } from './Toolbar';
+import { ToolbarButton } from '@/components/ui/toolbar/Toolbar';
 
 export function InlineEquationToolbarButton(props: React.ComponentProps<typeof ToolbarButton>) {
   const editor = useEditorRef();
