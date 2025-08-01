@@ -20,7 +20,7 @@ import {
   ToolbarSplitButton,
   ToolbarSplitButtonPrimary,
   ToolbarSplitButtonSecondary
-} from './Toolbar';
+} from '@/components/ui/toolbar/Toolbar';
 
 export function BulletedListToolbarButton() {
   const editor = useEditorRef();

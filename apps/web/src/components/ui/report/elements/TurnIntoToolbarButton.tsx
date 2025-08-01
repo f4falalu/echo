@@ -34,7 +34,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { getBlockType, setBlockType } from './transforms';
 
-import { ToolbarButton, ToolbarMenuGroup } from './Toolbar';
+import { ToolbarButton, ToolbarMenuGroup } from '@/components/ui/toolbar/Toolbar';
 
 const turnIntoItems = [
   {

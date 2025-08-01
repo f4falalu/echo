@@ -24,7 +24,7 @@ import { LinkToolbarButton } from './LinkToolbarButton';
 import { MarkToolbarButton } from './MarktoolbarButton';
 import { MoreToolbarButton } from './MoreToolbarButton';
 import { SuggestionToolbarButton } from './SuggestionToolbarButton';
-import { ToolbarGroup } from './Toolbar';
+import { ToolbarGroup } from '@/components/ui/toolbar/Toolbar';
 import { TurnIntoToolbarButton } from './TurnIntoToolbarButton';
 import { UndoToolbarButton, RedoToolbarButton } from './UndoToolbarButton';
 import { ExportToolbarButton } from './ExportToolbarButton';
