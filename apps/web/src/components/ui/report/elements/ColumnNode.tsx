@@ -71,7 +71,7 @@ export const ColumnElement = withHOC(
           <div
             className={cn(
               'relative h-full border border-transparent p-1.5',
-              !readOnly && 'border-border rounded-lg border-dashed',
+              !readOnly && 'border-border rounded-md border-dashed',
               isDragging && 'opacity-50'
             )}>
             {props.children}
