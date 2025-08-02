@@ -19,7 +19,6 @@ import {
 
 import { EditorStatic } from './EditorStatic';
 import { ToolbarButton } from '@/components/ui/toolbar/Toolbar';
-import { BaseEditorKit } from '../editor-base-kit';
 
 const siteUrl = 'https://platejs.org';
 
@@ -94,6 +93,8 @@ export function ExportToolbarButton({ children, ...props }: DropdownMenuProps) {
   };
 
   const exportToHtml = async () => {
+    const BaseEditorKit = await import('../editor-base-kit').then((module) => module.BaseEditorKit);
+
     const editorStatic = createSlateEditor({
       plugins: BaseEditorKit,
       value: editor.children
