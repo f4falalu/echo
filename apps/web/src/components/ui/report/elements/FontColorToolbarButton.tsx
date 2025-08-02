@@ -26,7 +26,7 @@ import {
 import { cn } from '@/lib/utils';
 
 import { ToolbarButton, ToolbarMenuGroup } from '@/components/ui/toolbar/Toolbar';
-import { DEFAULT_THEME_STYLE } from '../ThemeWrapper/themes';
+import { THEME_RESET_STYLE } from '@/styles/theme-reset';
 
 export function FontColorToolbarButton({
   children,
@@ -106,7 +106,7 @@ export function FontColorToolbarButton({
         </ToolbarButton>
       </DropdownMenuTrigger>
 
-      <DropdownMenuContent align="start" style={DEFAULT_THEME_STYLE}>
+      <DropdownMenuContent align="start" style={THEME_RESET_STYLE}>
         <ColorPicker
           color={selectedColor || color}
           clearColor={clearColor}

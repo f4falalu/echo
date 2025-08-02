@@ -39,6 +39,7 @@ import {
 import { insertBlock, insertInlineElement } from './transforms';
 
 import { ToolbarButton, ToolbarMenuGroup } from '@/components/ui/toolbar/Toolbar';
+import { THEME_RESET_STYLE } from '@/styles/theme-reset';
 
 type Group = {
   group: string;
@@ -223,6 +224,7 @@ export function InsertToolbarButton(props: DropdownMenuProps) {
 
       <DropdownMenuContent
         className="flex max-h-[500px] min-w-0 flex-col overflow-y-auto"
+        style={THEME_RESET_STYLE}
         align="start">
         {groups.map(({ group, items: nestedItems }) => (
           <ToolbarMenuGroup key={group} label={group}>

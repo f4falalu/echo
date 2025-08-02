@@ -32,7 +32,7 @@ import { type TDiscussion, discussionPlugin } from '../plugins/discussion-kit';
 
 import { EditorContainer } from '../EditorContainer';
 import { Editor } from '../Editor';
-import { DEFAULT_THEME_STYLE } from '../ThemeWrapper/themes';
+import { THEME_RESET_STYLE } from '@/styles/theme-reset';
 
 export interface TComment {
   id: string;
@@ -335,7 +335,7 @@ function CommentMoreDropdown(props: {
       </DropdownMenuTrigger>
       <DropdownMenuContent
         className="w-48"
-        style={DEFAULT_THEME_STYLE}
+        style={THEME_RESET_STYLE}
         onCloseAutoFocus={(e) => {
           if (selectedEditCommentRef.current) {
             onCloseAutoFocus?.();

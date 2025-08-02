@@ -45,7 +45,7 @@ import {
 import { cn } from '@/lib/utils';
 
 import { ToolbarButton } from '@/components/ui/toolbar/Toolbar';
-import { DEFAULT_THEME_STYLE } from '../ThemeWrapper/themes';
+import { THEME_RESET_STYLE } from '@/styles/theme-reset';
 
 export function TableToolbarButton(props: DropdownMenuProps) {
   const tableSelected = useEditorSelector(
@@ -68,7 +68,7 @@ export function TableToolbarButton(props: DropdownMenuProps) {
       <DropdownMenuContent
         className="flex w-[180px] min-w-0 flex-col"
         align="start"
-        style={DEFAULT_THEME_STYLE}>
+        style={THEME_RESET_STYLE}>
         <DropdownMenuGroup>
           <DropdownMenuSub>
             <DropdownMenuSubTrigger className="gap-2 data-[disabled]:pointer-events-none data-[disabled]:opacity-50">

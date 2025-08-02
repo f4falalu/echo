@@ -100,7 +100,7 @@ import {
   ToolbarGroup,
   ToolbarMenuGroup
 } from '@/components/ui/toolbar/Toolbar';
-import { DEFAULT_THEME_STYLE } from '../../ThemeWrapper/themes';
+import { THEME_RESET_STYLE } from '@/styles/theme-reset';
 export const TableElement = withHOC(
   TableProvider,
   function TableElement({ children, ...props }: PlateElementProps<TTableElement>) {
@@ -281,7 +281,7 @@ function TableBordersDropdownMenuContent(
   return (
     <DropdownMenuContent
       className="min-w-[220px]"
-      style={DEFAULT_THEME_STYLE}
+      style={THEME_RESET_STYLE}
       onCloseAutoFocus={(e) => {
         e.preventDefault();
         editor.tf.focus();

@@ -23,6 +23,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 
 import { ToolbarButton } from '@/components/ui/toolbar/Toolbar';
+import { THEME_RESET_STYLE } from '@/styles/theme-reset';
 
 const items = [
   {
@@ -62,7 +63,7 @@ export function AlignToolbarButton(props: DropdownMenuProps) {
         </ToolbarButton>
       </DropdownMenuTrigger>
 
-      <DropdownMenuContent className="min-w-0" align="start">
+      <DropdownMenuContent className="min-w-0" align="start" style={THEME_RESET_STYLE}>
         <DropdownMenuRadioGroup
           value={value}
           onValueChange={(value) => {

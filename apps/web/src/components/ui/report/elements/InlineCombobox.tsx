@@ -27,7 +27,7 @@ import { cva } from 'class-variance-authority';
 import { useComposedRef, useEditorRef } from 'platejs/react';
 
 import { cn } from '@/lib/utils';
-import { DEFAULT_THEME_STYLE, FONT_BASE_THEME } from '../ThemeWrapper/themes';
+import { THEME_RESET_STYLE } from '@/styles/theme-reset';
 
 type FilterFn = (
   item: { value: string; group?: string; keywords?: string[]; label?: string },
@@ -238,7 +238,7 @@ const InlineComboboxContent: typeof ComboboxPopover = ({ className, style, ...pr
           className
         )}
         {...props}
-        style={{ ...DEFAULT_THEME_STYLE, ...style }}
+        style={{ ...THEME_RESET_STYLE, ...style }}
       />
     </Portal>
   );

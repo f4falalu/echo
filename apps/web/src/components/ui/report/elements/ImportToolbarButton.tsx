@@ -19,7 +19,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 
 import { ToolbarButton } from '@/components/ui/toolbar/Toolbar';
-import { DEFAULT_THEME_STYLE } from '../ThemeWrapper/themes';
+import { THEME_RESET_STYLE } from '@/styles/theme-reset';
 
 type ImportType = 'html' | 'markdown';
 
@@ -78,7 +78,7 @@ export function ImportToolbarButton(props: DropdownMenuProps) {
         </ToolbarButton>
       </DropdownMenuTrigger>
 
-      <DropdownMenuContent align="start" style={DEFAULT_THEME_STYLE}>
+      <DropdownMenuContent align="start" style={THEME_RESET_STYLE}>
         <DropdownMenuGroup>
           <DropdownMenuItem
             onSelect={() => {

@@ -16,7 +16,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 
 import { ToolbarButton } from '@/components/ui/toolbar/Toolbar';
-import { DEFAULT_THEME_STYLE } from '../ThemeWrapper/themes';
+import { THEME_RESET_STYLE } from '@/styles/theme-reset';
 
 export function ModeToolbarButton(props: DropdownMenuProps) {
   const editor = useEditorRef();
@@ -55,7 +55,7 @@ export function ModeToolbarButton(props: DropdownMenuProps) {
         </ToolbarButton>
       </DropdownMenuTrigger>
 
-      <DropdownMenuContent className="min-w-[180px]" align="start" style={DEFAULT_THEME_STYLE}>
+      <DropdownMenuContent className="min-w-[180px]" align="start" style={THEME_RESET_STYLE}>
         <DropdownMenuRadioGroup
           value={value}
           onValueChange={(newValue) => {

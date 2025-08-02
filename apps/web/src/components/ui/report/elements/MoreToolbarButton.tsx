@@ -17,7 +17,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 
 import { ToolbarButton } from '@/components/ui/toolbar/Toolbar';
-import { DEFAULT_THEME_STYLE } from '../ThemeWrapper/themes';
+import { THEME_RESET_STYLE } from '@/styles/theme-reset';
 
 export function MoreToolbarButton(props: DropdownMenuProps) {
   const editor = useEditorRef();
@@ -34,7 +34,7 @@ export function MoreToolbarButton(props: DropdownMenuProps) {
       <DropdownMenuContent
         className="ignore-click-outside/toolbar flex max-h-[500px] min-w-[180px] flex-col overflow-y-auto"
         align="start"
-        style={DEFAULT_THEME_STYLE}>
+        style={THEME_RESET_STYLE}>
         <DropdownMenuGroup>
           <DropdownMenuItem
             onSelect={() => {

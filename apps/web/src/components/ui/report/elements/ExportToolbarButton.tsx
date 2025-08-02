@@ -19,7 +19,7 @@ import {
 import { EditorStatic } from './EditorStatic';
 import { ToolbarButton } from '@/components/ui/toolbar/Toolbar';
 import { useBusterNotifications } from '@/context/BusterNotifications';
-import { DEFAULT_THEME_STYLE } from '../ThemeWrapper/themes';
+import { THEME_RESET_STYLE } from '@/styles/theme-reset';
 
 export function ExportToolbarButton({ children, ...props }: DropdownMenuProps) {
   const editor = useEditorRef();
@@ -194,7 +194,7 @@ export function ExportToolbarButton({ children, ...props }: DropdownMenuProps) {
         </ToolbarButton>
       </DropdownMenuTrigger>
 
-      <DropdownMenuContent align="start" style={DEFAULT_THEME_STYLE}>
+      <DropdownMenuContent align="start" style={THEME_RESET_STYLE}>
         <DropdownMenuGroup>
           <DropdownMenuItem onSelect={exportToHtml}>Export as HTML</DropdownMenuItem>
           <DropdownMenuItem onSelect={exportToPdf}>Export as PDF</DropdownMenuItem>
