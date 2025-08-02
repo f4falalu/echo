@@ -44,7 +44,8 @@ import {
   BucketPaint2,
   SquareLayoutGrid4,
   Trash2,
-  Xmark
+  Xmark,
+  SquareLayoutGrid
 } from '@/components/ui/icons';
 import {
   type TElement,
@@ -183,7 +184,7 @@ function TableFloatingToolbar({ children, ...props }: React.ComponentProps<typeo
             <DropdownMenu modal={false}>
               <DropdownMenuTrigger>
                 <ToolbarButton tooltip="Cell borders">
-                  <Grid2X2 />
+                  <SquareLayoutGrid />
                 </ToolbarButton>
               </DropdownMenuTrigger>
 
@@ -264,9 +265,12 @@ function TableFloatingToolbar({ children, ...props }: React.ComponentProps<typeo
   );
 }
 
-function TableBordersDropdownMenuContent(
-  props: React.ComponentProps<typeof DropdownMenuPrimitive.Content>
-) {
+// TableBordersDropdownMenuContent is now a forwardRef functional component
+const TableBordersDropdownMenuContent = React.forwardRef<
+  React.ElementRef<typeof DropdownMenuPrimitive.Content>,
+  React.ComponentProps<typeof DropdownMenuPrimitive.Content>
+>(function TableBordersDropdownMenuContent(props, ref) {
+  // Get the current editor instance
   const editor = useEditorRef();
   const {
     getOnSelectTableBorder,
@@ -333,7 +337,7 @@ function TableBordersDropdownMenuContent(
       </DropdownMenuGroup>
     </DropdownMenuContent>
   );
-}
+});
 
 function ColorDropdownMenu({ children, tooltip }: { children: React.ReactNode; tooltip: string }) {
   const [open, setOpen] = React.useState(false);
