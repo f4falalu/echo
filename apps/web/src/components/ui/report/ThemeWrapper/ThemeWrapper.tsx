@@ -10,16 +10,18 @@ interface ThemeWrapperProps extends React.ComponentProps<'div'> {
 
 export function ThemeWrapper({ children, className, defaultTheme }: ThemeWrapperProps) {
   return (
-    <div
-      className={cn(
-        // `theme-${defaultTheme || config.theme}`,
-        'themes-wrapper',
-        'w-full',
-        className
-      )}>
-      <ThemesStyle />
+    <>
+      <div
+        className={cn(
+          // `theme-${defaultTheme || config.theme}`,
+          'themes-wrapper',
+          'w-full',
+          className
+        )}>
+        {children}
+      </div>
 
-      {children}
-    </div>
+      <ThemesStyle />
+    </>
   );
 }

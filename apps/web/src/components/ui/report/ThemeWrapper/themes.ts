@@ -1,4 +1,4 @@
-const BASE_THEME = {
+export const BASE_THEME = {
   '--spacing': '0.25rem',
   '--breakpoint-xl': '80rem',
   '--breakpoint-2xl': '96rem',
@@ -567,7 +567,6 @@ const _THEMES = {
 Object.entries(_THEMES).forEach(([key, theme]) => {
   // @ts-expect-error - key is a string
   _THEMES[key] = {
-    ...BASE_THEME,
     ...theme,
     dark: themeColorsToCssVariables(theme.dark),
     light: themeColorsToCssVariables(theme.light)
@@ -595,7 +594,7 @@ export function themeColorsToCssVariables(colors: Record<string, string>): Recor
   //     `${cssVars["--primary"]} / ${100 - key * 20}%`
   // }
 
-  return cssVars;
+  return { ...cssVars, ...BASE_THEME };
 }
 
 export function themeColorNameToCssVariable(name: string) {

@@ -2,26 +2,30 @@
 
 import { useMounted } from '@/hooks/useMount';
 import { useThemesConfig } from './useThemesConfig';
+import React from 'react';
 
-export function ThemesStyle() {
-  const { activeTheme } = useThemesConfig();
+export const ThemesStyle = React.memo(() => {
+  const { activeTheme, BASE_THEME } = useThemesConfig();
   const mounted = useMounted();
 
   if (!activeTheme || !mounted) {
     return null;
   }
 
-  console.log(activeTheme);
-
   return (
     <style>
       {`
 .themes-wrapper,
 [data-chart] {
+  background-color: red;
+
   ${Object.entries(activeTheme.light)
     .map(([key, value]) => `${key}: hsl(${value});`)
     .join('\n')}
- 
+
+  ${Object.entries(BASE_THEME)
+    .map(([key, value]) => `${key}: ${value};`)
+    .join('\n')}
 }
 
 .dark .themes-wrapper,
@@ -34,4 +38,6 @@ export function ThemesStyle() {
   `}
     </style>
   );
-}
+});
+
+ThemesStyle.displayName = 'ThemesStyle';
