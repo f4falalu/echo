@@ -127,31 +127,29 @@ function Draggable(props: PlateElementProps) {
       }}>
       {!isInTable && (
         <Gutter>
-          <div className={cn('slate-blockToolbarWrapper', 'flex', isInColumn && 'h-4')}>
+          <div className={cn('slate-blockToolbarWrapper flex', isInColumn && 'h-4')}>
             <div
               className={cn(
                 'slate-blockToolbar pointer-events-auto relative mr-1 flex w-13 items-center justify-center space-x-0.5',
                 isInColumn && 'mr-1.5',
                 'mr-1 flex items-center'
               )}>
-              <AddNewBlockButton
-                style={{ top: `${dragButtonTop + 3}px` }}
-                isDragging={isDragging}
-              />
-              <Button
-                ref={handleRef}
-                variant="ghost"
-                style={{ top: `${dragButtonTop + 3}px` }}
-                data-plate-prevent-deselect
-                prefix={
-                  <DragHandle
-                    isDragging={isDragging}
-                    previewRef={previewRef}
-                    resetPreview={resetPreview}
-                    setPreviewTop={setPreviewTop}
-                  />
-                }
-              />
+              <div className="absolute top-0 left-0" style={{ top: `${dragButtonTop + 6}px` }}>
+                <AddNewBlockButton isDragging={isDragging} />
+                <Button
+                  ref={handleRef}
+                  variant="ghost"
+                  data-plate-prevent-deselect
+                  prefix={
+                    <DragHandle
+                      isDragging={isDragging}
+                      previewRef={previewRef}
+                      resetPreview={resetPreview}
+                      setPreviewTop={setPreviewTop}
+                    />
+                  }
+                />
+              </div>
             </div>
           </div>
         </Gutter>
@@ -472,7 +470,7 @@ const AddNewBlockButton = React.memo(function AddNewBlockButton({
   className,
   isDragging
 }: {
-  style: React.CSSProperties;
+  style?: React.CSSProperties;
   className?: string;
   isDragging: boolean;
 }) {

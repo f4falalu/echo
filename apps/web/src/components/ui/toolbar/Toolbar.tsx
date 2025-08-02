@@ -16,53 +16,77 @@ import { Separator } from '@/components/ui/separator';
 import { Tooltip, TooltipTrigger } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
 
-export const Toolbar = ({
-  className,
-  ...props
-}: React.ComponentProps<typeof ToolbarPrimitive.Root>) => {
+export const Toolbar = React.forwardRef<
+  React.ElementRef<typeof ToolbarPrimitive.Root>,
+  React.ComponentProps<typeof ToolbarPrimitive.Root>
+>(({ className, ...props }, ref) => {
   return (
     <ToolbarPrimitive.Root
       className={cn('relative flex items-center select-none', className)}
       {...props}
+      ref={ref}
     />
   );
-};
+});
 
-export const ToolbarToggleGroup = ({
-  className,
-  ...props
-}: React.ComponentProps<typeof ToolbarPrimitive.ToolbarToggleGroup>) => {
+Toolbar.displayName = 'Toolbar';
+
+/**
+ * ToolbarToggleGroup component
+ * Wraps Radix ToolbarToggleGroup with forwardRef for ref forwarding.
+ */
+export const ToolbarToggleGroup = React.forwardRef<
+  React.ElementRef<typeof ToolbarPrimitive.ToolbarToggleGroup>,
+  React.ComponentProps<typeof ToolbarPrimitive.ToolbarToggleGroup>
+>(({ className, ...props }, ref) => {
   return (
     <ToolbarPrimitive.ToolbarToggleGroup
       className={cn('flex items-center', className)}
       {...props}
+      ref={ref}
     />
   );
-};
+});
 
-export const ToolbarLink = ({
-  className,
-  ...props
-}: React.ComponentProps<typeof ToolbarPrimitive.Link>) => {
+ToolbarToggleGroup.displayName = 'ToolbarToggleGroup';
+
+/**
+ * ToolbarLink component
+ * Wraps Radix ToolbarPrimitive.Link with forwardRef for ref forwarding.
+ */
+export const ToolbarLink = React.forwardRef<
+  React.ElementRef<typeof ToolbarPrimitive.Link>,
+  React.ComponentProps<typeof ToolbarPrimitive.Link>
+>(({ className, ...props }, ref) => {
   return (
     <ToolbarPrimitive.Link
       className={cn('font-medium underline underline-offset-4', className)}
       {...props}
+      ref={ref}
     />
   );
-};
+});
 
-export const ToolbarSeparator = ({
-  className,
-  ...props
-}: React.ComponentProps<typeof ToolbarPrimitive.Separator>) => {
+ToolbarLink.displayName = 'ToolbarLink';
+
+/**
+ * ToolbarSeparator component
+ * Wraps Radix ToolbarPrimitive.Separator with forwardRef for ref forwarding.
+ */
+export const ToolbarSeparator = React.forwardRef<
+  React.ElementRef<typeof ToolbarPrimitive.Separator>,
+  React.ComponentProps<typeof ToolbarPrimitive.Separator>
+>(({ className, ...props }, ref) => {
   return (
     <ToolbarPrimitive.Separator
       className={cn('bg-border mx-2 my-1 w-px shrink-0', className)}
       {...props}
+      ref={ref}
     />
   );
-};
+});
+
+ToolbarSeparator.displayName = 'ToolbarSeparator';
 
 // From toggleVariants
 const toolbarButtonVariants = cva(
