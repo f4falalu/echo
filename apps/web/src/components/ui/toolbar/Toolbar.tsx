@@ -13,7 +13,7 @@ import {
   DropdownMenuSeparator
 } from '@/components/ui/dropdown-menu';
 import { Separator } from '@/components/ui/separator';
-import { Tooltip, TooltipTrigger } from '@/components/ui/tooltip';
+import { Tooltip } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
 
 export const Toolbar = React.forwardRef<
@@ -210,6 +210,8 @@ export const ToolbarSplitButtonSecondary = React.forwardRef<
   );
 });
 
+ToolbarSplitButtonSecondary.displayName = 'ToolbarSplitButtonSecondary';
+
 export const ToolbarToggleItem = React.forwardRef<
   React.ElementRef<typeof ToolbarPrimitive.ToggleItem>,
   React.ComponentProps<typeof ToolbarPrimitive.ToggleItem> &
@@ -222,6 +224,8 @@ export const ToolbarToggleItem = React.forwardRef<
     />
   );
 });
+
+ToolbarToggleItem.displayName = 'ToolbarToggleItem';
 
 export const ToolbarGroup = ({ children, className }: React.ComponentProps<'div'>) => {
   return (
@@ -363,3 +367,5 @@ export const ToolbarButton = React.forwardRef<
     </WithTooltip>
   );
 });
+
+ToolbarButton.displayName = 'ToolbarButton';

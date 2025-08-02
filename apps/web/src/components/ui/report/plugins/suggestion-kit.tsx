@@ -8,7 +8,7 @@ import {
   isSlateElement,
   isSlateString
 } from 'platejs';
-import { toTPlatePlugin } from 'platejs/react';
+import { toTPlatePlugin, type RenderNodeWrapper } from 'platejs/react';
 
 import { BlockSuggestion } from '../elements/BlockSuggestion';
 import { SuggestionLeaf, SuggestionLineBreak } from '../elements/SuggestionNode';
@@ -77,7 +77,8 @@ export const suggestionPlugin = toTPlatePlugin<SuggestionConfig>(
     }
   },
   render: {
-    belowNodes: SuggestionLineBreak as any,
+    // @ts-expect-error - TODO: fix this
+    belowNodes: SuggestionLineBreak,
     node: SuggestionLeaf,
     belowRootNodes: ({ api, element }) => {
       if (!api.suggestion!.isBlockSuggestion(element)) {

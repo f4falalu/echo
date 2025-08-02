@@ -1,17 +1,21 @@
 import * as React from 'react';
 
-import type { SlateElementProps } from 'platejs';
+import type { SlateElementProps, TCalloutElement } from 'platejs';
 
 import { SlateElement } from 'platejs';
 
 import { cn } from '@/lib/utils';
 
-export function CalloutElementStatic({ children, className, ...props }: SlateElementProps) {
+export function CalloutElementStatic({
+  children,
+  className,
+  ...props
+}: SlateElementProps<TCalloutElement>) {
   return (
     <SlateElement
       className={cn('bg-muted my-1 flex rounded-sm p-4 pl-3', className)}
       style={{
-        backgroundColor: props.element.backgroundColor as any
+        backgroundColor: props.element.backgroundColor as string
       }}
       {...props}>
       <div className="flex w-full gap-2 rounded-md">
@@ -21,7 +25,7 @@ export function CalloutElementStatic({ children, className, ...props }: SlateEle
             fontFamily:
               '"Apple Color Emoji", "Segoe UI Emoji", NotoColorEmoji, "Noto Color Emoji", "Segoe UI Symbol", "Android Emoji", EmojiSymbols'
           }}>
-          <span data-plate-prevent-deserialization>{(props.element.icon as any) || '💡'}</span>
+          <span data-plate-prevent-deserialization>{props.element.icon || '💡'}</span>
         </div>
         <div className="w-full">{children}</div>
       </div>

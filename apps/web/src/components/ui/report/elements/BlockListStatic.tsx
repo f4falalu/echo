@@ -1,6 +1,11 @@
 import * as React from 'react';
 
-import type { RenderStaticNodeWrapper, SlateRenderElementProps, TListElement } from 'platejs';
+import type {
+  RenderStaticNodeWrapper,
+  RenderStaticNodeWrapperProps,
+  SlateRenderElementProps,
+  TListElement
+} from 'platejs';
 
 import { isOrderedList } from '@platejs/list';
 import { Check } from '@/components/ui/icons';
@@ -23,7 +28,7 @@ const config: Record<
 export const BlockListStatic: RenderStaticNodeWrapper = (props) => {
   if (!props.element.listStyleType) return;
 
-  return (props) => <List {...props} />;
+  return List;
 };
 
 function List(props: SlateRenderElementProps) {
