@@ -335,6 +335,13 @@ export const MediaEmbedElementSchema = z.object({
   caption: z.array(z.union([TextSchema, ParagraphElementSchema])).default([]),
 });
 
+export const EquationElementSchema = z.object({
+  type: z.literal('equation'),
+  id: z.string().optional(),
+  texExpression: z.string(),
+  children: z.array(SimpleTextSchema).default([]),
+});
+
 /**
  * Composite Schemas
  * -----------------
@@ -365,6 +372,7 @@ export const ReportElementSchema = z.discriminatedUnion('type', [
   MetricElementSchema,
   ToggleElementSchema,
   MediaEmbedElementSchema,
+  EquationElementSchema,
 ]);
 
 // Array of report elements for complete documents

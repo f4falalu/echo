@@ -89,6 +89,7 @@ function Draggable(props: PlateElementProps) {
 
   const isInColumn = path.length === 3;
   const isInTable = path.length === 4;
+  const showAddNewBlockButton = !isInColumn && !isInTable;
 
   const [previewTop, setPreviewTop] = React.useState(0);
 
@@ -133,11 +134,13 @@ function Draggable(props: PlateElementProps) {
             <div
               className={cn(
                 'slate-blockToolbar pointer-events-auto relative mr-1 flex w-13 items-center justify-center space-x-0.5',
-                isInColumn && 'mr-1.5',
+                isInColumn && 'mr-1.5 w-8!',
                 'mr-1 flex items-center'
               )}>
               <div className="absolute top-0 left-0" style={{ top: `${dragButtonTop + 6}px` }}>
-                <AddNewBlockButton isDragging={isDragging} element={element} editor={editor} />
+                {showAddNewBlockButton && (
+                  <AddNewBlockButton isDragging={isDragging} element={element} editor={editor} />
+                )}
                 <Button
                   ref={handleRef}
                   variant="ghost"
@@ -148,6 +151,7 @@ function Draggable(props: PlateElementProps) {
                       previewRef={previewRef}
                       resetPreview={resetPreview}
                       setPreviewTop={setPreviewTop}
+                      isColumn={isInColumn}
                     />
                   }
                 />
@@ -211,10 +215,12 @@ function Gutter({ children, className, ...props }: React.ComponentProps<'div'>) 
 const DragHandle = function DragHandle({
   isDragging,
   previewRef,
+  isColumn,
   resetPreview,
   setPreviewTop
 }: {
   isDragging: boolean;
+  isColumn: boolean;
   previewRef: React.RefObject<HTMLDivElement | null>;
   resetPreview: () => void;
   setPreviewTop: (top: number) => void;
@@ -223,7 +229,7 @@ const DragHandle = function DragHandle({
   const element = useElement();
 
   return (
-    <Tooltip title={isDragging ? '' : 'Drag to move'}>
+    <Tooltip title={isDragging ? '' : isColumn ? 'Drag to move column' : 'Drag to move'}>
       <div
         className="flex size-full items-center justify-center"
         onClick={() => {

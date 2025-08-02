@@ -202,6 +202,16 @@ const value: ReportElements = [
   {
     children: [
       {
+        text: ''
+      }
+    ],
+    texExpression: '\\frac{-b \\pm \\sqrt{b^2 - 4ac}}{2a}',
+    type: 'equation',
+    id: 'vhevwY_QDV'
+  },
+  {
+    children: [
+      {
         text: 'Experience a modern rich-text editor built with '
       },
       {

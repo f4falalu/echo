@@ -52,7 +52,7 @@ export const ColumnElement = withHOC(
 
     return (
       <div className="group/column relative" style={{ width: width ?? '100%' }}>
-        {!readOnly && !isSelectionAreaVisible && (
+        {/* {!readOnly && !isSelectionAreaVisible && (
           <div
             ref={handleRef}
             className={cn(
@@ -62,7 +62,7 @@ export const ColumnElement = withHOC(
             )}>
             <ColumnDragHandle />
           </div>
-        )}
+        )} */}
 
         <PlateElement
           {...props}

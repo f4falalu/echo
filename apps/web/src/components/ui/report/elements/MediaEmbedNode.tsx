@@ -235,7 +235,6 @@ export const MediaEmbedPlaceholder = (props: PlateElementProps<TMediaEmbedElemen
 
             <div className="text-muted-foreground text-sm whitespace-nowrap">Add a media embed</div>
           </div>
-          {props.children}
         </PopoverAnchor>
 
         <PopoverContent
@@ -266,6 +265,8 @@ export const MediaEmbedPlaceholder = (props: PlateElementProps<TMediaEmbedElemen
           </div>
         </PopoverContent>
       </PopoverBase>
+
+      {props.children}
     </PlateElement>
   );
 };
