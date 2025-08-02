@@ -5,7 +5,6 @@ import * as React from 'react';
 import type { DropdownMenuProps } from '@radix-ui/react-dropdown-menu';
 
 import { MarkdownPlugin } from '@platejs/markdown';
-import { ArrowDownFromLine } from '../../icons';
 import { createSlateEditor, serializeHtml } from 'platejs';
 import { useEditorRef } from 'platejs/react';
 
@@ -21,8 +20,6 @@ import { EditorStatic } from './EditorStatic';
 import { ToolbarButton } from '@/components/ui/toolbar/Toolbar';
 import { useBusterNotifications } from '@/context/BusterNotifications';
 
-const siteUrl = 'https://platejs.org';
-
 export function ExportToolbarButton({ children, ...props }: DropdownMenuProps) {
   const editor = useEditorRef();
   const [open, setOpen] = React.useState(false);
@@ -34,15 +31,32 @@ export function ExportToolbarButton({ children, ...props }: DropdownMenuProps) {
     const style = document.createElement('style');
     document.head.append(style);
 
-    const canvas = await html2canvas(editor.api.toDOMNode(editor)!, {
+    // Standard width for consistent PDF output (equivalent to A4 width with margins)
+    const standardWidth = '850px';
+
+    const node = editor.api.toDOMNode(editor)!;
+
+    if (!node) {
+      throw new Error('Editor not found');
+    }
+
+    const canvas = await html2canvas(node, {
       onclone: (document: Document) => {
         const editorElement = document.querySelector('[contenteditable="true"]');
         if (editorElement) {
+          // Force consistent width for the editor element
+          const existingStyle = editorElement.getAttribute('style') || '';
+          editorElement.setAttribute(
+            'style',
+            `${existingStyle}; width: ${standardWidth} !important; max-width: ${standardWidth} !important; min-width: ${standardWidth} !important;`
+          );
+
+          // Apply consistent font family to all elements
           Array.from(editorElement.querySelectorAll('*')).forEach((element) => {
-            const existingStyle = element.getAttribute('style') || '';
+            const elementStyle = element.getAttribute('style') || '';
             element.setAttribute(
               'style',
-              `${existingStyle}; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important`
+              `${elementStyle}; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important`
             );
           });
         }
@@ -75,35 +89,15 @@ export function ExportToolbarButton({ children, ...props }: DropdownMenuProps) {
       const canvas = await getCanvas();
       const PDFLib = await import('pdf-lib');
       const pdfDoc = await PDFLib.PDFDocument.create();
-
-      // Standard A4 dimensions in points (595 x 842)
-      const standardWidth = 595;
-      const standardHeight = 842;
-
-      // Calculate scaling to fit content within standard width with margins
-      const margin = 40; // 40 points margin on each side
-      const availableWidth = standardWidth - margin * 2;
-      const scaleFactor = Math.min(availableWidth / canvas.width, 1); // Don't scale up, only down
-
-      const scaledWidth = canvas.width * scaleFactor;
-      const scaledHeight = canvas.height * scaleFactor;
-
-      // Calculate required page height based on scaled content
-      const requiredHeight = Math.max(standardHeight, scaledHeight + margin * 2);
-
-      const page = pdfDoc.addPage([standardWidth, requiredHeight]);
+      const page = pdfDoc.addPage([canvas.width, canvas.height]);
       const imageEmbed = await pdfDoc.embedPng(canvas.toDataURL('PNG'));
-
-      // Center the content horizontally within the standard width
-      const xPosition = (standardWidth - scaledWidth) / 2;
-
+      const { height, width } = imageEmbed.scale(1);
       page.drawImage(imageEmbed, {
-        height: scaledHeight,
-        width: scaledWidth,
-        x: xPosition,
-        y: requiredHeight - scaledHeight - margin // Position from top with margin
+        height,
+        width,
+        x: 0,
+        y: 0
       });
-
       const pdfBase64 = await pdfDoc.saveAsBase64({ dataUri: true });
 
       await downloadFile(pdfBase64, 'plate.pdf');
@@ -139,6 +133,7 @@ export function ExportToolbarButton({ children, ...props }: DropdownMenuProps) {
         props: { style: { padding: '0 calc(50% - 350px)', paddingBottom: '' } }
       });
 
+      const siteUrl = 'https://platejs.org';
       const tailwindCss = `<link rel="stylesheet" href="${siteUrl}/tailwind.css">`;
       const katexCss = `<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.18/dist/katex.css" integrity="sha384-9PvLvaiSKCPkFKB1ZsEoTjgnJn+O3KvEwtsz37/XrkYft3DTk2gHdYvd9oWgW3tV" crossorigin="anonymous">`;
 
