@@ -326,6 +326,15 @@ export const MetricElementSchema = z.object({
   caption: z.array(z.union([TextSchema, ParagraphElementSchema])).default([]),
 });
 
+export const MediaEmbedElementSchema = z.object({
+  type: z.literal('media_embed'),
+  id: z.string().optional(),
+  url: z.string(),
+  width: z.union([z.number(), z.string().regex(/^(?:\d+px|\d+%)$/)]).optional(),
+  children: z.array(SimpleTextSchema).default([]),
+  caption: z.array(z.union([TextSchema, ParagraphElementSchema])).default([]),
+});
+
 /**
  * Composite Schemas
  * -----------------
@@ -355,6 +364,7 @@ export const ReportElementSchema = z.discriminatedUnion('type', [
   FileElementSchema,
   MetricElementSchema,
   ToggleElementSchema,
+  MediaEmbedElementSchema,
 ]);
 
 // Array of report elements for complete documents
