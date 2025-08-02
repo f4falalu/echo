@@ -209,6 +209,83 @@ const value: ReportElements = [
     type: 'p'
   },
 
+  {
+    children: [{ text: 'Getting Started with Numbered Lists' }],
+    type: 'h2'
+  },
+  {
+    children: [{ text: 'Here are the steps to create amazing content with Plate:' }],
+    type: 'p'
+  },
+  {
+    children: [{ text: 'Set up your Plate editor with the desired plugins' }],
+    indent: 1,
+    listStyleType: 'decimal',
+    type: 'p'
+  },
+  {
+    children: [{ text: 'Configure your editor theme and styling' }],
+    indent: 1,
+    listStyleType: 'decimal',
+    type: 'p'
+  },
+  {
+    children: [{ text: 'Start typing and explore the rich formatting options' }],
+    indent: 1,
+    listStyleType: 'decimal',
+    type: 'p'
+  },
+  {
+    children: [{ text: 'Use keyboard shortcuts for faster editing' }],
+    indent: 1,
+    listStyleType: 'decimal',
+    type: 'p'
+  },
+  {
+    children: [{ text: 'Share your content with the world!' }],
+    indent: 1,
+    listStyleType: 'decimal',
+    type: 'p'
+  },
+  {
+    children: [
+      {
+        text: 'You can also create nested numbered lists by increasing the indent level:'
+      }
+    ],
+    type: 'p'
+  },
+  {
+    children: [{ text: 'Main topic one' }],
+    indent: 1,
+    listStyleType: 'decimal',
+    type: 'p'
+  },
+  {
+    children: [{ text: 'Subtopic A' }],
+    indent: 2,
+    listStyleType: 'decimal',
+    type: 'p'
+  },
+  {
+    children: [{ text: 'Subtopic B' }],
+    indent: 2,
+    listStyleType: 'decimal',
+    type: 'p'
+  },
+  {
+    children: [{ text: 'Main topic two' }],
+    indent: 1,
+    listStyleType: 'decimal',
+    type: 'p'
+  },
+  {
+    children: [{ text: 'Another subtopic' }],
+    indent: 2,
+    listStyleType: 'decimal',
+    type: 'p'
+  },
+
   // {
   //   children: [
   //     {

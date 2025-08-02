@@ -2,7 +2,6 @@
 
 import { useMounted } from '@/hooks/useMount';
 import { useThemesConfig } from './useThemesConfig';
-import { DEFAULT_COLOR_THEME, FONT_BASE_THEME } from './themes';
 import React from 'react';
 
 export const ThemesStyle = React.memo(() => {

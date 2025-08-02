@@ -76,7 +76,9 @@ export const HeaderElementSchema = z
 export const ParagraphElementSchema = z
   .object({
     type: z.literal('p'),
-    listStyleType: z.enum(['disc', 'circle', 'square']).optional(),
+    listStyleType: z
+      .enum(['disc', 'circle', 'square', 'decimal', 'decimal-leading-zero'])
+      .optional(),
     indent: z.number().int().min(0).optional(),
     children: z.array(z.union([TextSchema, AnchorSchema, MentionSchema])),
   })
