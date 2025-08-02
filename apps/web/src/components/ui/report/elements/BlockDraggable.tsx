@@ -20,7 +20,7 @@ import {
 import { useSelected } from 'platejs/react';
 
 import { Button } from '@/components/ui/buttons';
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { Tooltip } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
 
 const UNDRAGGABLE_KEYS = [KEYS.column, KEYS.tr, KEYS.td];
@@ -332,8 +332,8 @@ const createDragPreviewElements = (
   const ids: string[] = [];
 
   /**
-   * Remove data attributes from the element to avoid recognized as slate
-   * elements incorrectly.
+   * Remove data attributes and tooltip elements from the element to avoid recognized as slate
+   * elements incorrectly and to exclude tooltips from drag preview.
    */
   const removeDataAttributes = (element: HTMLElement) => {
     Array.from(element.attributes).forEach((attr) => {
