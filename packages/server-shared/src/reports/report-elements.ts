@@ -32,6 +32,10 @@ export const TextSchema = z
     kbd: z.boolean().optional(),
     strikethrough: z.boolean().optional(),
     code: z.boolean().optional(),
+    fontSize: z
+      .string()
+      .regex(/^(?:\d+px)$/)
+      .optional(),
   })
   .merge(AttributesSchema);
 

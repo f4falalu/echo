@@ -270,7 +270,29 @@ const value: ReportElements = [
         url: '/docs'
       },
       {
-        text: ' to discover more.'
+        fontSize: '20px',
+        text: 'to disc',
+        bold: true,
+        italic: true,
+        underline: true,
+        strikethrough: true
+      },
+      {
+        text: 'asdfsdf',
+        fontSize: '20px',
+        bold: true,
+        italic: true,
+        underline: true,
+        strikethrough: true,
+        code: true
+      },
+      {
+        fontSize: '20px',
+        bold: true,
+        italic: true,
+        underline: true,
+        strikethrough: true,
+        text: 'over more'
       }
     ],
     type: 'p',
