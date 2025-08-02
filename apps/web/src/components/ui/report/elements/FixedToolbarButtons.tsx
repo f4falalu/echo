@@ -144,16 +144,18 @@ export const FixedToolbarButtons = React.memo(() => {
 
       <div className="grow" />
 
-      <ToolbarGroup>
-        <MarkToolbarButton nodeType={KEYS.highlight} tooltip="Highlight">
-          <TextHighlight2 />
-        </MarkToolbarButton>
-        {/* <CommentToolbarButton /> */}
-      </ToolbarGroup>
+      {/* <ToolbarGroup> */}
+      <MarkToolbarButton nodeType={KEYS.highlight} tooltip="Highlight">
+        <TextHighlight2 />
+      </MarkToolbarButton>
+      {/* <CommentToolbarButton /> */}
+      {/* </ToolbarGroup> */}
 
       {/* <ToolbarGroup>
         <ModeToolbarButton />
       </ToolbarGroup> */}
+
+      <div className="min-w-1" />
     </div>
   );
 });

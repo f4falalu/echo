@@ -192,12 +192,14 @@ const value: ReportElements = [
   {
     children: [
       {
-        text: 'Welcome to the Plate Playground!'
+        text: 'Welcome to the Plate Playground!',
+        highlight: true
       }
     ],
     type: 'h1',
     align: 'center',
-    id: '39ZlrKsOyn'
+    id: '39ZlrKsOyn',
+    lineHeight: 3
   },
   {
     type: 'p',

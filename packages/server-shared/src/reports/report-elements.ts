@@ -9,6 +9,7 @@ const AttributesSchema = z.object({
   id: z.string().optional(),
   indent: z.number().int().min(0).optional(),
   align: z.enum(['left', 'center', 'right']).optional(),
+  lineHeight: z.number().optional(),
   attributes: z
     .object({
       align: z.enum(['left', 'center', 'right']).optional(), //yes in both places
@@ -108,7 +109,7 @@ const ListStylesAttributesSchema = z.object({
   listRestart: z.boolean().optional(),
   listRestartPolite: z.boolean().optional(),
   listStart: z.number().int().min(0).optional(),
-  indent: z.number().int().min(0).optional(),
+  indent: z.number().int().min(0).max(20).optional(),
   checked: z.boolean().optional(), //used with todo list style
 });
 
