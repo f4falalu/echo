@@ -364,5 +364,9 @@ export const ToolbarButton = React.forwardRef<
       </ToolbarPrimitive.Button>
     );
 
-  return <WithTooltip tooltip={tooltip}>{ButtonComponent}</WithTooltip>;
+  return (
+    <WithTooltip tooltip={tooltip}>
+      <span>{ButtonComponent}</span>
+    </WithTooltip>
+  );
 });

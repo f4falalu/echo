@@ -145,11 +145,13 @@ export function ExportToolbarButton({ children, ...props }: DropdownMenuProps) {
   };
 
   return (
-    <DropdownMenu open={true} onOpenChange={setOpen} modal={false}>
+    <DropdownMenu open={open} onOpenChange={setOpen} modal={false}>
       <DropdownMenuTrigger asChild>
-        <ToolbarButton pressed={open} tooltip="Export" isDropdown>
-          {children}
-        </ToolbarButton>
+        <div>
+          <ToolbarButton pressed={open} tooltip="Export" isDropdown>
+            {children}
+          </ToolbarButton>
+        </div>
       </DropdownMenuTrigger>
 
       <DropdownMenuContent className="swagger" align="start">
