@@ -3,7 +3,7 @@
 import * as React from 'react';
 
 import { useEditorRef, useEditorSelector } from 'platejs/react';
-import { Redo, Undo } from '@/components/ui/icons';
+import { NodeTypeIcons } from '../config/icons';
 
 import { ToolbarButton } from '@/components/ui/toolbar/Toolbar';
 
@@ -18,7 +18,7 @@ export function RedoToolbarButton(props: React.ComponentProps<typeof ToolbarButt
       onClick={() => editor.redo()}
       onMouseDown={(e) => e.preventDefault()}
       tooltip="Redo">
-      <Redo />
+      <NodeTypeIcons.redo />
     </ToolbarButton>
   );
 }
@@ -34,7 +34,7 @@ export function UndoToolbarButton(props: React.ComponentProps<typeof ToolbarButt
       onClick={() => editor.undo()}
       onMouseDown={(e) => e.preventDefault()}
       tooltip="Undo">
-      <Undo />
+      <NodeTypeIcons.undo />
     </ToolbarButton>
   );
 }

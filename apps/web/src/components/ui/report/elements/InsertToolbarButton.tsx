@@ -4,29 +4,8 @@ import * as React from 'react';
 
 import type { DropdownMenuProps } from '@radix-ui/react-dropdown-menu';
 
-import {
-  Calendar,
-  ChevronRight,
-  GridLayoutCols3,
-  FileCloud,
-  Film,
-  Heading1,
-  Heading2,
-  Heading3,
-  Image as ImageIcon,
-  Link2,
-  UnorderedList,
-  OrderedList,
-  Minus,
-  Pilcrow,
-  Plus,
-  Quote,
-  Equation,
-  ShapeSquare,
-  Table,
-  Book2,
-  Code2
-} from '@/components/ui/icons';
+import { ChevronRight, Minus, Plus } from '@/components/ui/icons';
+import { NodeTypeIcons } from '../config/icons';
 import { KEYS } from 'platejs';
 import { type PlateEditor, useEditorRef } from 'platejs/react';
 
@@ -59,37 +38,37 @@ const groups: Group[] = [
     group: 'Basic blocks',
     items: [
       {
-        icon: <Pilcrow />,
+        icon: <NodeTypeIcons.paragraph />,
         label: 'Paragraph',
         value: KEYS.p
       },
       {
-        icon: <Heading1 />,
+        icon: <NodeTypeIcons.h1 />,
         label: 'Heading 1',
         value: 'h1'
       },
       {
-        icon: <Heading2 />,
+        icon: <NodeTypeIcons.h2 />,
         label: 'Heading 2',
         value: 'h2'
       },
       {
-        icon: <Heading3 />,
+        icon: <NodeTypeIcons.h3 />,
         label: 'Heading 3',
         value: 'h3'
       },
       {
-        icon: <Table />,
+        icon: <NodeTypeIcons.table />,
         label: 'Table',
         value: KEYS.table
       },
       {
-        icon: <Code2 />,
+        icon: <NodeTypeIcons.code />,
         label: 'Code',
         value: KEYS.codeBlock
       },
       {
-        icon: <Quote />,
+        icon: <NodeTypeIcons.quote />,
         label: 'Quote',
         value: KEYS.blockquote
       },
@@ -109,22 +88,22 @@ const groups: Group[] = [
     group: 'Lists',
     items: [
       {
-        icon: <UnorderedList />,
+        icon: <NodeTypeIcons.bulletedList />,
         label: 'Bulleted list',
         value: KEYS.ul
       },
       {
-        icon: <OrderedList />,
+        icon: <NodeTypeIcons.numberedList />,
         label: 'Numbered list',
         value: KEYS.ol
       },
       {
-        icon: <ShapeSquare />,
+        icon: <NodeTypeIcons.shape />,
         label: 'To-do list',
         value: KEYS.listTodo
       },
       {
-        icon: <ChevronRight />,
+        icon: <NodeTypeIcons.toggle />,
         label: 'Toggle list',
         value: KEYS.toggle
       }
@@ -139,12 +118,12 @@ const groups: Group[] = [
     group: 'Media',
     items: [
       {
-        icon: <ImageIcon />,
+        icon: <NodeTypeIcons.image />,
         label: 'Image',
         value: KEYS.img
       },
       {
-        icon: <Film />,
+        icon: <NodeTypeIcons.embed />,
         label: 'Embed',
         value: KEYS.mediaEmbed
       }
@@ -159,18 +138,18 @@ const groups: Group[] = [
     group: 'Advanced blocks',
     items: [
       {
-        icon: <Book2 />,
+        icon: <NodeTypeIcons.tableOfContents />,
         label: 'Table of contents',
         value: KEYS.toc
       },
       {
-        icon: <GridLayoutCols3 />,
+        icon: <NodeTypeIcons.columnsThree />,
         label: '3 columns',
         value: 'action_three_columns'
       },
       {
         focusEditor: false,
-        icon: <Equation />,
+        icon: <NodeTypeIcons.equation />,
         label: 'Equation',
         value: KEYS.equation
       }
@@ -185,19 +164,19 @@ const groups: Group[] = [
     group: 'Inline',
     items: [
       {
-        icon: <Link2 />,
+        icon: <NodeTypeIcons.link />,
         label: 'Link',
         value: KEYS.link
       },
       {
         focusEditor: true,
-        icon: <Calendar />,
+        icon: <NodeTypeIcons.calendar />,
         label: 'Date',
         value: KEYS.date
       },
       {
         focusEditor: false,
-        icon: <Equation />,
+        icon: <NodeTypeIcons.equation />,
         label: 'Inline Equation',
         value: KEYS.inlineEquation
       }

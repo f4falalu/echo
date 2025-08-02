@@ -3,7 +3,7 @@
 import * as React from 'react';
 
 import { useToggleToolbarButton, useToggleToolbarButtonState } from '@platejs/toggle/react';
-import { ChevronRight } from '@/components/ui/icons';
+import { NodeTypeIcons } from '../config/icons';
 
 import { ToolbarButton } from '@/components/ui/toolbar/Toolbar';
 
@@ -13,7 +13,7 @@ export function ToggleToolbarButton(props: React.ComponentProps<typeof ToolbarBu
 
   return (
     <ToolbarButton {...props} {...buttonProps} tooltip="Toggle">
-      <ChevronRight />
+      <NodeTypeIcons.toggle />
     </ToolbarButton>
   );
 }
