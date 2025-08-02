@@ -143,55 +143,6 @@ type ToolbarButtonProps = {
 } & Omit<React.ComponentPropsWithRef<typeof ToolbarToggleItem>, 'asChild' | 'value'> &
   VariantProps<typeof toolbarButtonVariants>;
 
-export const ToolbarButton = React.forwardRef<
-  React.ElementRef<typeof ToolbarToggleItem>,
-  ToolbarButtonProps
->(({ children, className, isDropdown, pressed, size = 'sm', variant, tooltip, ...props }, ref) => {
-  return typeof pressed === 'boolean' ? (
-    <ToolbarToggleGroup disabled={props.disabled} value="single" type="single">
-      <ToolbarToggleItem
-        ref={ref}
-        className={cn(
-          toolbarButtonVariants({
-            size,
-            variant
-          }),
-          isDropdown && 'justify-between gap-1 pr-1',
-          className
-        )}
-        value={pressed ? 'single' : ''}
-        {...props}>
-        {isDropdown ? (
-          <>
-            <div className="flex flex-1 items-center gap-2 whitespace-nowrap">{children}</div>
-            <div className="text-muted-foreground size-3.5">
-              <ChevronDown data-icon />
-            </div>
-          </>
-        ) : (
-          children
-        )}
-      </ToolbarToggleItem>
-    </ToolbarToggleGroup>
-  ) : (
-    <ToolbarPrimitive.Button
-      ref={ref as React.Ref<React.ElementRef<typeof ToolbarPrimitive.Button>>}
-      className={cn(
-        toolbarButtonVariants({
-          size,
-          variant
-        }),
-        isDropdown && 'pr-1',
-        className
-      )}
-      {...props}>
-      {children}
-    </ToolbarPrimitive.Button>
-  );
-});
-
-ToolbarButton.displayName = 'ToolbarButton';
-
 export const ToolbarSplitButton = ({
   className,
   ...props
@@ -324,27 +275,21 @@ type TooltipProps<T extends React.ElementType> = {
   tooltipTriggerProps?: React.ComponentPropsWithoutRef<typeof TooltipTrigger>;
 } & React.ComponentProps<T>;
 
-const withTooltip = <T extends React.ElementType>(Component: T) => {
-  return ({ tooltip, tooltipContentProps, tooltipProps, ref, ...props }: TooltipProps<T>) => {
-    const [mounted, setMounted] = React.useState(false);
+const WithTooltip: React.FC<{ children: React.ReactNode; tooltip?: React.ReactNode }> = ({
+  children,
+  tooltip
+}) => {
+  const [mounted, setMounted] = React.useState(false);
 
-    React.useEffect(() => {
-      setMounted(true);
-    }, []);
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
 
-    console.log('here');
+  if (tooltip && mounted) {
+    return <Tooltip title={tooltip}>{children}</Tooltip>;
+  }
 
-    const component = <Component {...(props as React.ComponentProps<T>)} />;
-
-    if (tooltip && mounted) {
-      return <>asdf</>;
-      return <Tooltip title={tooltip}>{component}</Tooltip>;
-    }
-
-    return <></>;
-
-    return component;
-  };
+  return children;
 };
 
 const TooltipContent = ({
@@ -371,3 +316,53 @@ const TooltipContent = ({
     </TooltipPrimitive.Portal>
   );
 };
+
+export const ToolbarButton = React.forwardRef<
+  React.ElementRef<typeof ToolbarToggleItem>,
+  ToolbarButtonProps
+>(({ children, className, isDropdown, pressed, size = 'sm', variant, tooltip, ...props }, ref) => {
+  const ButtonComponent =
+    typeof pressed === 'boolean' ? (
+      <ToolbarToggleGroup disabled={props.disabled} value="single" type="single">
+        <ToolbarToggleItem
+          ref={ref}
+          className={cn(
+            toolbarButtonVariants({
+              size,
+              variant
+            }),
+            isDropdown && 'justify-between gap-1 pr-1',
+            className
+          )}
+          value={pressed ? 'single' : ''}
+          {...props}>
+          {isDropdown ? (
+            <>
+              <div className="flex flex-1 items-center gap-2 whitespace-nowrap">{children}</div>
+              <div className="text-muted-foreground size-3.5">
+                <ChevronDown data-icon />
+              </div>
+            </>
+          ) : (
+            children
+          )}
+        </ToolbarToggleItem>
+      </ToolbarToggleGroup>
+    ) : (
+      <ToolbarPrimitive.Button
+        ref={ref as React.Ref<React.ElementRef<typeof ToolbarPrimitive.Button>>}
+        className={cn(
+          toolbarButtonVariants({
+            size,
+            variant
+          }),
+          isDropdown && 'pr-1',
+          className
+        )}
+        {...props}>
+        {children}
+      </ToolbarPrimitive.Button>
+    );
+
+  return <WithTooltip tooltip={tooltip}>{ButtonComponent}</WithTooltip>;
+});
