@@ -17,6 +17,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 
 import { ToolbarButton } from '@/components/ui/toolbar/Toolbar';
+import { DEFAULT_THEME_STYLE } from '../ThemeWrapper/themes';
 
 export function MoreToolbarButton(props: DropdownMenuProps) {
   const editor = useEditorRef();
@@ -24,7 +25,7 @@ export function MoreToolbarButton(props: DropdownMenuProps) {
 
   return (
     <DropdownMenu open={open} onOpenChange={setOpen} modal={false} {...props}>
-      <DropdownMenuTrigger asChild>
+      <DropdownMenuTrigger>
         <ToolbarButton pressed={open} tooltip="Insert">
           <Dots />
         </ToolbarButton>
@@ -32,7 +33,8 @@ export function MoreToolbarButton(props: DropdownMenuProps) {
 
       <DropdownMenuContent
         className="ignore-click-outside/toolbar flex max-h-[500px] min-w-[180px] flex-col overflow-y-auto"
-        align="start">
+        align="start"
+        style={DEFAULT_THEME_STYLE}>
         <DropdownMenuGroup>
           <DropdownMenuItem
             onSelect={() => {

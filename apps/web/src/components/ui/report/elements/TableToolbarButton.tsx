@@ -45,6 +45,7 @@ import {
 import { cn } from '@/lib/utils';
 
 import { ToolbarButton } from '@/components/ui/toolbar/Toolbar';
+import { DEFAULT_THEME_STYLE } from '../ThemeWrapper/themes';
 
 export function TableToolbarButton(props: DropdownMenuProps) {
   const tableSelected = useEditorSelector(
@@ -58,13 +59,16 @@ export function TableToolbarButton(props: DropdownMenuProps) {
 
   return (
     <DropdownMenu open={open} onOpenChange={setOpen} modal={false} {...props}>
-      <DropdownMenuTrigger asChild>
+      <DropdownMenuTrigger>
         <ToolbarButton pressed={open} tooltip="Table" isDropdown>
           <Table />
         </ToolbarButton>
       </DropdownMenuTrigger>
 
-      <DropdownMenuContent className="flex w-[180px] min-w-0 flex-col" align="start">
+      <DropdownMenuContent
+        className="flex w-[180px] min-w-0 flex-col"
+        align="start"
+        style={DEFAULT_THEME_STYLE}>
         <DropdownMenuGroup>
           <DropdownMenuSub>
             <DropdownMenuSubTrigger className="gap-2 data-[disabled]:pointer-events-none data-[disabled]:opacity-50">

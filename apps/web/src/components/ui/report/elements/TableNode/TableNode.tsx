@@ -100,6 +100,7 @@ import {
   ToolbarGroup,
   ToolbarMenuGroup
 } from '@/components/ui/toolbar/Toolbar';
+import { DEFAULT_THEME_STYLE } from '../../ThemeWrapper/themes';
 export const TableElement = withHOC(
   TableProvider,
   function TableElement({ children, ...props }: PlateElementProps<TTableElement>) {
@@ -180,7 +181,7 @@ function TableFloatingToolbar({ children, ...props }: React.ComponentProps<typeo
             )}
 
             <DropdownMenu modal={false}>
-              <DropdownMenuTrigger asChild>
+              <DropdownMenuTrigger>
                 <ToolbarButton tooltip="Cell borders">
                   <Grid2X2 />
                 </ToolbarButton>
@@ -280,6 +281,7 @@ function TableBordersDropdownMenuContent(
   return (
     <DropdownMenuContent
       className="min-w-[220px]"
+      style={DEFAULT_THEME_STYLE}
       onCloseAutoFocus={(e) => {
         e.preventDefault();
         editor.tf.focus();
@@ -357,7 +359,7 @@ function ColorDropdownMenu({ children, tooltip }: { children: React.ReactNode; t
 
   return (
     <DropdownMenu open={open} onOpenChange={setOpen} modal={false}>
-      <DropdownMenuTrigger asChild>
+      <DropdownMenuTrigger>
         <ToolbarButton tooltip={tooltip}>{children}</ToolbarButton>
       </DropdownMenuTrigger>
 

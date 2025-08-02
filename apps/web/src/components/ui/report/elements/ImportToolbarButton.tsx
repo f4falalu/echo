@@ -19,6 +19,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 
 import { ToolbarButton } from '@/components/ui/toolbar/Toolbar';
+import { DEFAULT_THEME_STYLE } from '../ThemeWrapper/themes';
 
 type ImportType = 'html' | 'markdown';
 
@@ -69,7 +70,7 @@ export function ImportToolbarButton(props: DropdownMenuProps) {
 
   return (
     <DropdownMenu open={open} onOpenChange={setOpen} modal={false} {...props}>
-      <DropdownMenuTrigger asChild>
+      <DropdownMenuTrigger>
         <ToolbarButton pressed={open} tooltip="Import" isDropdown>
           <div className="size-4">
             <ArrowUpToLine />
@@ -77,7 +78,7 @@ export function ImportToolbarButton(props: DropdownMenuProps) {
         </ToolbarButton>
       </DropdownMenuTrigger>
 
-      <DropdownMenuContent align="start">
+      <DropdownMenuContent align="start" style={DEFAULT_THEME_STYLE}>
         <DropdownMenuGroup>
           <DropdownMenuItem
             onSelect={() => {

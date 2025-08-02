@@ -268,13 +268,6 @@ export const ToolbarMenuGroup = ({
   );
 };
 
-type TooltipProps<T extends React.ElementType> = {
-  tooltip?: React.ReactNode;
-  tooltipContentProps?: Omit<React.ComponentPropsWithoutRef<typeof TooltipContent>, 'children'>;
-  tooltipProps?: Omit<React.ComponentPropsWithoutRef<typeof Tooltip>, 'children'>;
-  tooltipTriggerProps?: React.ComponentPropsWithoutRef<typeof TooltipTrigger>;
-} & React.ComponentProps<T>;
-
 const WithTooltip: React.FC<{ children: React.ReactNode; tooltip?: React.ReactNode }> = ({
   children,
   tooltip

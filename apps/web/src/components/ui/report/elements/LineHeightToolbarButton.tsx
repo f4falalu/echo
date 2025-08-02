@@ -33,7 +33,7 @@ export function LineHeightToolbarButton(props: DropdownMenuProps) {
 
   return (
     <DropdownMenu open={open} onOpenChange={setOpen} modal={false} {...props}>
-      <DropdownMenuTrigger asChild>
+      <DropdownMenuTrigger>
         <ToolbarButton pressed={open} tooltip="Line height" isDropdown>
           <div className="size-4">
             <TextTool2 />

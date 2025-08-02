@@ -21,6 +21,7 @@ import {
   ToolbarSplitButtonPrimary,
   ToolbarSplitButtonSecondary
 } from '@/components/ui/toolbar/Toolbar';
+import { DEFAULT_THEME_STYLE } from '../ThemeWrapper/themes';
 
 export function BulletedListToolbarButton() {
   const editor = useEditorRef();
@@ -47,11 +48,11 @@ export function BulletedListToolbarButton() {
       </ToolbarSplitButtonPrimary>
 
       <DropdownMenu open={open} onOpenChange={setOpen} modal={false}>
-        <DropdownMenuTrigger asChild>
+        <DropdownMenuTrigger>
           <ToolbarSplitButtonSecondary />
         </DropdownMenuTrigger>
 
-        <DropdownMenuContent align="start" alignOffset={-32}>
+        <DropdownMenuContent align="start" alignOffset={-32} style={DEFAULT_THEME_STYLE}>
           <DropdownMenuGroup>
             <DropdownMenuItem
               onClick={() =>
@@ -125,7 +126,7 @@ export function NumberedListToolbarButton() {
       </ToolbarSplitButtonPrimary>
 
       <DropdownMenu open={open} onOpenChange={setOpen} modal={false}>
-        <DropdownMenuTrigger asChild>
+        <DropdownMenuTrigger>
           <ToolbarSplitButtonSecondary />
         </DropdownMenuTrigger>
 

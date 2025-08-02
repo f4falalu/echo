@@ -19,6 +19,7 @@ import {
 import { EditorStatic } from './EditorStatic';
 import { ToolbarButton } from '@/components/ui/toolbar/Toolbar';
 import { useBusterNotifications } from '@/context/BusterNotifications';
+import { DEFAULT_THEME_STYLE } from '../ThemeWrapper/themes';
 
 export function ExportToolbarButton({ children, ...props }: DropdownMenuProps) {
   const editor = useEditorRef();
@@ -187,15 +188,13 @@ export function ExportToolbarButton({ children, ...props }: DropdownMenuProps) {
 
   return (
     <DropdownMenu open={open} onOpenChange={setOpen} modal={false}>
-      <DropdownMenuTrigger asChild>
-        <div>
-          <ToolbarButton pressed={open} tooltip="Export" isDropdown>
-            {children}
-          </ToolbarButton>
-        </div>
+      <DropdownMenuTrigger>
+        <ToolbarButton pressed={open} tooltip="Export" isDropdown>
+          {children}
+        </ToolbarButton>
       </DropdownMenuTrigger>
 
-      <DropdownMenuContent className="swagger" align="start">
+      <DropdownMenuContent align="start" style={DEFAULT_THEME_STYLE}>
         <DropdownMenuGroup>
           <DropdownMenuItem onSelect={exportToHtml}>Export as HTML</DropdownMenuItem>
           <DropdownMenuItem onSelect={exportToPdf}>Export as PDF</DropdownMenuItem>

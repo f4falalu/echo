@@ -26,6 +26,7 @@ import {
 import { cn } from '@/lib/utils';
 
 import { ToolbarButton, ToolbarMenuGroup } from '@/components/ui/toolbar/Toolbar';
+import { DEFAULT_THEME_STYLE } from '../ThemeWrapper/themes';
 
 export function FontColorToolbarButton({
   children,
@@ -99,13 +100,13 @@ export function FontColorToolbarButton({
         setOpen(value);
       }}
       modal={false}>
-      <DropdownMenuTrigger asChild>
+      <DropdownMenuTrigger>
         <ToolbarButton pressed={open} tooltip={tooltip}>
           {children}
         </ToolbarButton>
       </DropdownMenuTrigger>
 
-      <DropdownMenuContent align="start">
+      <DropdownMenuContent align="start" style={DEFAULT_THEME_STYLE}>
         <ColorPicker
           color={selectedColor || color}
           clearColor={clearColor}
