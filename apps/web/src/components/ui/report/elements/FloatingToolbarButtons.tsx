@@ -38,12 +38,12 @@ export function FloatingToolbarButtons() {
     <>
       {!readOnly && (
         <>
-          <ToolbarGroup>
+          {/* <ToolbarGroup>
             <AIToolbarButton tooltip="AI commands">
               <WandSparkle />
               Ask AI
             </AIToolbarButton>
-          </ToolbarGroup>
+          </ToolbarGroup> */}
 
           <ToolbarGroup>
             <TurnIntoToolbarButton />
@@ -76,8 +76,8 @@ export function FloatingToolbarButtons() {
       )}
 
       <ToolbarGroup>
-        <CommentToolbarButton />
-        <SuggestionToolbarButton />
+        {/* <CommentToolbarButton />
+        <SuggestionToolbarButton /> */}
 
         {!readOnly && <MoreToolbarButton />}
       </ToolbarGroup>
