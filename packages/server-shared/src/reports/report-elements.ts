@@ -8,9 +8,10 @@ import { z } from 'zod';
 const AttributesSchema = z.object({
   id: z.string().optional(),
   indent: z.number().int().min(0).optional(),
+  align: z.enum(['left', 'center', 'right']).optional(),
   attributes: z
     .object({
-      align: z.enum(['left', 'center', 'right']).optional(),
+      align: z.enum(['left', 'center', 'right']).optional(), //yes in both places
     })
     .optional(),
 });
@@ -91,7 +92,18 @@ export const HeaderElementSchema = z
 
 const ListStylesAttributesSchema = z.object({
   listStyleType: z
-    .enum(['disc', 'circle', 'square', 'decimal', 'decimal-leading-zero', 'todo'])
+    .enum([
+      'disc',
+      'circle',
+      'square',
+      'decimal',
+      'decimal-leading-zero',
+      'todo',
+      'lower-alpha',
+      'upper-alpha',
+      'lower-roman',
+      'upper-roman',
+    ])
     .optional(),
   listRestart: z.boolean().optional(),
   listRestartPolite: z.boolean().optional(),

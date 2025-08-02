@@ -182,6 +182,260 @@ describe('ListItemSchema', () => {
     const result = ListElementSchema.safeParse(baseTest);
     expect(result.success).toBe(true);
   });
+
+  test('differenet list styles', () => {
+    const baseTest: ReportElements = [
+      {
+        children: [
+          {
+            text: 'Decimal ',
+          },
+        ],
+        type: 'p',
+        id: '3YYOJpN8LK',
+        indent: 1,
+        listStyleType: 'decimal',
+      },
+      {
+        type: 'p',
+        id: '79riCzyTlg',
+        indent: 1,
+        listStyleType: 'decimal',
+        children: [
+          {
+            text: 'Decimal 2',
+          },
+        ],
+        listStart: 2,
+      },
+      {
+        type: 'p',
+        id: 'S0g6USf2H8',
+        children: [
+          {
+            text: '',
+          },
+        ],
+      },
+      {
+        type: 'p',
+        id: 'u5gpIWccia',
+        children: [
+          {
+            text: 'Lower alpha',
+          },
+        ],
+        indent: 1,
+        listStyleType: 'lower-alpha',
+      },
+      {
+        type: 'p',
+        id: 'kqAlPFNlxm',
+        indent: 1,
+        listStyleType: 'lower-alpha',
+        children: [
+          {
+            text: 'Lower alpha 2',
+          },
+        ],
+        listStart: 2,
+      },
+      {
+        type: 'p',
+        id: 'FpKTy67fSe',
+        children: [
+          {
+            text: '',
+          },
+        ],
+      },
+      {
+        type: 'p',
+        id: 'Q9IhNy4v1P',
+        children: [
+          {
+            text: 'Upper alpha',
+          },
+        ],
+        indent: 1,
+        listStyleType: 'upper-alpha',
+      },
+      {
+        type: 'p',
+        id: 'uTpmN8tuLQ',
+        indent: 1,
+        listStyleType: 'upper-alpha',
+        children: [
+          {
+            text: 'Uppser alpha 2',
+          },
+        ],
+        listStart: 2,
+      },
+      {
+        type: 'p',
+        id: 'mGtpDo24fW',
+        children: [
+          {
+            text: '',
+          },
+        ],
+      },
+      {
+        type: 'p',
+        id: '2wPv-hdrig',
+        children: [
+          {
+            text: 'Lower roman 1',
+          },
+        ],
+        indent: 1,
+        listStyleType: 'lower-roman',
+      },
+      {
+        type: 'p',
+        id: '3YdelYeIkE',
+        indent: 1,
+        listStyleType: 'lower-roman',
+        children: [
+          {
+            text: 'Lower roman 2',
+          },
+        ],
+        listStart: 2,
+      },
+      {
+        type: 'p',
+        id: 'A3THltd5v8',
+        children: [
+          {
+            text: '',
+          },
+        ],
+      },
+      {
+        type: 'p',
+        id: 'jZmbpgMBG2',
+        children: [
+          {
+            text: 'Upper Roman 1',
+          },
+        ],
+        indent: 1,
+        listStyleType: 'upper-roman',
+      },
+      {
+        type: 'p',
+        id: 'rOwdBqKgeU',
+        indent: 1,
+        listStyleType: 'upper-roman',
+        children: [
+          {
+            text: 'Upper Roman 2',
+          },
+        ],
+        listStart: 2,
+      },
+    ];
+
+    const result = ReportElementsSchema.safeParse(baseTest);
+    expect(result.success).toBe(true);
+  });
+
+  test('should parse list item schema with list style type', () => {
+    const baseTest: ReportElements = [
+      {
+        children: [
+          {
+            text: 'asdf',
+          },
+        ],
+        type: 'p',
+        id: 'nslEPNxgnO',
+        indent: 1,
+        listStyleType: 'circle',
+      },
+      {
+        type: 'p',
+        id: 'sIkKvZR3i_',
+        indent: 1,
+        listStyleType: 'circle',
+        children: [
+          {
+            text: 'asdf1',
+          },
+        ],
+        listStart: 2,
+      },
+      {
+        type: 'p',
+        id: 'z3zE4tPDBp',
+        children: [
+          {
+            text: '',
+          },
+        ],
+      },
+      {
+        type: 'p',
+        id: 'N4shg8ES91',
+        children: [
+          {
+            text: 'default',
+          },
+        ],
+        indent: 1,
+        listStyleType: 'disc',
+      },
+      {
+        type: 'p',
+        id: 'Y3SPzqcF4l',
+        indent: 1,
+        listStyleType: 'disc',
+        children: [
+          {
+            text: 'deaful 2',
+          },
+        ],
+        listStart: 2,
+      },
+      {
+        type: 'p',
+        id: 'bRWXcnwOQr',
+        children: [
+          {
+            text: '',
+          },
+        ],
+      },
+      {
+        type: 'p',
+        id: 'zRKomGeMrl',
+        children: [
+          {
+            text: 'square 1',
+          },
+        ],
+        indent: 1,
+        listStyleType: 'square',
+      },
+      {
+        type: 'p',
+        id: 'LTVqwQQGDW',
+        indent: 1,
+        listStyleType: 'square',
+        children: [
+          {
+            text: 'square 2',
+          },
+        ],
+        listStart: 2,
+      },
+    ];
+
+    const result = ReportElementsSchema.safeParse(baseTest);
+    expect(result.success).toBe(true);
+  });
 });
 
 describe('ImageSchema', () => {

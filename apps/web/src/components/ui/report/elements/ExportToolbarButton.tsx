@@ -194,7 +194,7 @@ export function ExportToolbarButton({ children, ...props }: DropdownMenuProps) {
         </ToolbarButton>
       </DropdownMenuTrigger>
 
-      <DropdownMenuContent align="start" style={THEME_RESET_STYLE}>
+      <DropdownMenuContent align="start">
         <DropdownMenuGroup>
           <DropdownMenuItem onSelect={exportToHtml}>Export as HTML</DropdownMenuItem>
           <DropdownMenuItem onSelect={exportToPdf}>Export as PDF</DropdownMenuItem>

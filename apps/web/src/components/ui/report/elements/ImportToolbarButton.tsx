@@ -81,7 +81,7 @@ export function ImportToolbarButton(props: DropdownMenuProps) {
         </ToolbarButton>
       </DropdownMenuTrigger>
 
-      <DropdownMenuContent align="start" style={THEME_RESET_STYLE}>
+      <DropdownMenuContent align="start">
         <DropdownMenuGroup>
           <DropdownMenuItem
             onSelect={() => {

@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState } from 'react';
-import dynamic from 'next/dynamic';
 import { InputTextArea } from '@/components/ui/inputs/InputTextArea';
 import type { ReportElements } from '@buster/server-shared/reports';
 import { useQuery } from '@tanstack/react-query';
@@ -197,7 +196,20 @@ const value: ReportElements = [
       }
     ],
     type: 'h1',
+    align: 'center',
     id: '39ZlrKsOyn'
+  },
+  {
+    type: 'p',
+    id: 'k5Id6hcBYM',
+    children: [
+      {
+        text: 'This is a todo list'
+      }
+    ],
+    indent: 1,
+    checked: true,
+    listStyleType: 'todo'
   },
   {
     type: 'p',

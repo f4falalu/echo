@@ -128,11 +128,7 @@ export function MediaToolbarButton({
             <ToolbarSplitButtonSecondary />
           </DropdownMenuTrigger>
 
-          <DropdownMenuContent
-            onClick={(e) => e.stopPropagation()}
-            align="start"
-            alignOffset={-32}
-            style={THEME_RESET_STYLE}>
+          <DropdownMenuContent onClick={(e) => e.stopPropagation()} align="start" alignOffset={-32}>
             <DropdownMenuGroup>
               <DropdownMenuItem onSelect={() => openFilePicker()}>
                 {currentConfig.icon}

@@ -52,7 +52,7 @@ export function BulletedListToolbarButton() {
           <ToolbarSplitButtonSecondary />
         </DropdownMenuTrigger>
 
-        <DropdownMenuContent align="start" alignOffset={-32} style={THEME_RESET_STYLE}>
+        <DropdownMenuContent align="start" alignOffset={-32}>
           <DropdownMenuGroup>
             <DropdownMenuItem
               onClick={() =>

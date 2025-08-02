@@ -271,7 +271,6 @@ const TableBordersDropdownMenuContent = React.forwardRef<
   return (
     <DropdownMenuContent
       className="min-w-[220px]"
-      style={THEME_RESET_STYLE}
       onCloseAutoFocus={(e) => {
         e.preventDefault();
         editor.tf.focus();
