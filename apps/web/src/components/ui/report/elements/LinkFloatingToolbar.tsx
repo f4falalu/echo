@@ -158,6 +158,11 @@ const LinkEditPopoverContent = ({
 
   const inputClassName = linkInputVariants();
 
+  const realTimeUpdate = (e: React.ChangeEvent<HTMLInputElement>) => {
+    console.log(e.target.value);
+    textInputProps.onChange(e);
+  };
+
   return (
     <div className="flex w-[330px] flex-col" {...inputProps}>
       <div className="flex items-center">
@@ -182,6 +187,7 @@ const LinkEditPopoverContent = ({
           placeholder="Text to display"
           data-plate-focus
           {...textInputProps}
+          onChange={realTimeUpdate}
         />
       </div>
     </div>

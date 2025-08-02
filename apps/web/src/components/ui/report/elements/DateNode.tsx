@@ -68,6 +68,11 @@ export function DateElement(props: PlateElementProps<TDateElement>) {
         <PopoverContent className="w-auto p-0">
           <Calendar
             selected={new Date(element.date as string)}
+            disabled={(date) => {
+              console.log(date);
+              return false;
+            }}
+            disableNavigation={false}
             onSelect={(date) => {
               if (!date) return;
 

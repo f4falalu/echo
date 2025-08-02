@@ -63,6 +63,13 @@ export const AnchorSchema = z.object({
   children: z.array(z.union([TextSchema, MentionSchema])),
 });
 
+const DateSchema = z.object({
+  type: z.literal('date'),
+  date: z.string(),
+  children: z.array(TextSchema),
+  id: z.string().optional(),
+});
+
 /**
  * Block Elements
  * --------------
@@ -93,7 +100,7 @@ const ListStylesAttributesSchema = z.object({
 export const ParagraphElementSchema = z
   .object({
     type: z.literal('p'),
-    children: z.array(z.union([TextSchema, AnchorSchema, MentionSchema])),
+    children: z.array(z.union([TextSchema, AnchorSchema, MentionSchema, DateSchema])),
   })
   .merge(AttributesSchema)
   .merge(ListStylesAttributesSchema);
