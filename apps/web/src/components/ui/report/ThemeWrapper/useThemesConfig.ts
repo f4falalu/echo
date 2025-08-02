@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { THEMES, BASE_THEME, type Theme } from './themes';
+import { THEMES, FONT_BASE_THEME, type Theme } from './themes';
 
 const useThemesConfigStore = create<{
   activeTheme: Theme;
@@ -13,5 +13,5 @@ export function useThemesConfig() {
   const activeTheme = useThemesConfigStore((state) => state.activeTheme);
   const setActiveTheme = useThemesConfigStore((state) => state.setActiveTheme);
 
-  return { activeTheme, setActiveTheme, allThemes: THEMES, BASE_THEME };
+  return { activeTheme, setActiveTheme, allThemes: THEMES, FONT_BASE_THEME };
 }

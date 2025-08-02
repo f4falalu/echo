@@ -3,21 +3,21 @@
 import { cn } from '@/lib/utils';
 
 import { ThemesStyle } from './ThemeStyles';
+import { FONT_BASE_THEME, DEFAULT_COLOR_THEME } from './themes';
 
 interface ThemeWrapperProps extends React.ComponentProps<'div'> {
   defaultTheme?: string;
 }
 
+const DEFAULT_THEME_STYLE = {
+  ...DEFAULT_COLOR_THEME,
+  ...FONT_BASE_THEME
+} as React.CSSProperties;
+
 export function ThemeWrapper({ children, className, defaultTheme }: ThemeWrapperProps) {
   return (
     <>
-      <div
-        className={cn(
-          // `theme-${defaultTheme || config.theme}`,
-          'themes-wrapper',
-          'w-full',
-          className
-        )}>
+      <div style={DEFAULT_THEME_STYLE} className={cn('themes-wrapper w-full', className)}>
         {children}
       </div>
 

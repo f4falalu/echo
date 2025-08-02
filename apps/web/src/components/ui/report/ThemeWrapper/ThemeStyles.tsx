@@ -2,10 +2,11 @@
 
 import { useMounted } from '@/hooks/useMount';
 import { useThemesConfig } from './useThemesConfig';
+import { DEFAULT_COLOR_THEME, FONT_BASE_THEME } from './themes';
 import React from 'react';
 
 export const ThemesStyle = React.memo(() => {
-  const { activeTheme, BASE_THEME } = useThemesConfig();
+  const { activeTheme, FONT_BASE_THEME } = useThemesConfig();
   const mounted = useMounted();
 
   if (!activeTheme || !mounted) {
@@ -21,10 +22,6 @@ export const ThemesStyle = React.memo(() => {
 
   ${Object.entries(activeTheme.light)
     .map(([key, value]) => `${key}: hsl(${value});`)
-    .join('\n')}
-
-  ${Object.entries(BASE_THEME)
-    .map(([key, value]) => `${key}: ${value};`)
     .join('\n')}
 }
 
