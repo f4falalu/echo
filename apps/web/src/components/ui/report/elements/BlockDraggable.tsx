@@ -5,8 +5,8 @@ import * as React from 'react';
 import { DndPlugin, useDraggable, useDropLine } from '@platejs/dnd';
 import { expandListItemsWithChildren } from '@platejs/list';
 import { BlockSelectionPlugin } from '@platejs/selection/react';
-import { GripDots, Plus } from '@/components/ui/icons';
 import { type Path, type TElement, getPluginByType, isType, KEYS } from 'platejs';
+import { GripDotsVertical, Plus } from '@/components/ui/icons';
 import {
   type PlateEditor,
   type PlateElementProps,
@@ -276,7 +276,7 @@ const DragHandle = function DragHandle({
         }}
         role="button">
         <div className="text-muted-foreground flex items-center justify-center">
-          <GripDots />
+          <GripDotsVertical />
         </div>
       </div>
     </Tooltip>
