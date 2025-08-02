@@ -8,9 +8,9 @@ export const BaseAlignKit = [
         defaultNodeValue: 'start',
         nodeKey: 'align',
         styleKey: 'textAlign',
-        validNodeValues: ['start', 'left', 'center', 'right', 'end', 'justify'],
+        validNodeValues: ['start', 'left', 'center', 'right', 'end', 'justify']
       },
-      targetPlugins: [...KEYS.heading, KEYS.p, KEYS.img, KEYS.mediaEmbed],
-    },
-  }),
+      targetPlugins: [...KEYS.heading, KEYS.p, KEYS.img, KEYS.mediaEmbed]
+    }
+  })
 ];

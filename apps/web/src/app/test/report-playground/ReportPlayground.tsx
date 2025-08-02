@@ -11,7 +11,7 @@ import { useThemesConfig } from '@/components/ui/report/ThemeWrapper/useThemesCo
 import { cn } from '@/lib/utils';
 import { Tooltip } from '@/components/ui/tooltip';
 
-import DynamicReportEditor from '@/components/ui/report/DynamticEditor';
+import DynamicReportEditor from '@/components/ui/report/DynamicReportEditor';
 
 // Status indicator component with dynamic backgrounds
 

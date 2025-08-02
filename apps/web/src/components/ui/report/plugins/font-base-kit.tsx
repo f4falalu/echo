@@ -4,17 +4,17 @@ import {
   BaseFontBackgroundColorPlugin,
   BaseFontColorPlugin,
   BaseFontFamilyPlugin,
-  BaseFontSizePlugin,
+  BaseFontSizePlugin
 } from '@platejs/basic-styles';
 import { KEYS } from 'platejs';
 
 const options = {
-  inject: { targetPlugins: [KEYS.p] },
+  inject: { targetPlugins: [KEYS.p] }
 } satisfies SlatePluginConfig;
 
 export const BaseFontKit = [
   BaseFontColorPlugin.configure(options),
   BaseFontBackgroundColorPlugin.configure(options),
   BaseFontSizePlugin.configure(options),
-  BaseFontFamilyPlugin.configure(options),
+  BaseFontFamilyPlugin.configure(options)
 ];
