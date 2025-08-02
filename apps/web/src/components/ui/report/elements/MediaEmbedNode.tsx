@@ -9,7 +9,14 @@ import type { PlateElementProps } from 'platejs/react';
 import { parseTwitterUrl, parseVideoUrl } from '@platejs/media';
 import { MediaEmbedPlugin, useMediaState } from '@platejs/media/react';
 import { ResizableProvider, useResizableValue } from '@platejs/resizable';
-import { PlateElement, useFocused, useReadOnly, useSelected, withHOC } from 'platejs/react';
+import {
+  PlateElement,
+  useEditorRef,
+  useFocused,
+  useReadOnly,
+  useSelected,
+  withHOC
+} from 'platejs/react';
 
 import { cn } from '@/lib/utils';
 
@@ -18,10 +25,13 @@ import { MediaToolbar } from './MediaToolbar';
 import { mediaResizeHandleVariants, Resizable, ResizeHandle } from './ResizeHandle';
 import { Code3 } from '../../icons';
 import { PopoverAnchor, PopoverBase, PopoverContent } from '../../popover';
-import { useEffect, useState } from 'react';
-import { Title } from '../../typography';
+import { Title, Text } from '../../typography';
 import { Input } from '../../inputs';
 import { Button } from '../../buttons';
+import { Separator } from '../../separator';
+import { useBusterNotifications } from '@/context/BusterNotifications';
+import { useEffect } from 'react';
+import { useMount } from '@/hooks';
 
 export const MediaEmbedElement = withHOC(
   ResizableProvider,
@@ -129,12 +139,32 @@ export const MediaEmbedPlaceholder = (props: PlateElementProps<TMediaEmbedElemen
   const readOnly = useReadOnly();
   const selected = useSelected();
   const focused = useFocused();
+  const editor = useEditorRef();
+  const inputRef = React.useRef<HTMLInputElement>(null);
+  const { openInfoMessage } = useBusterNotifications();
+  const [forceOpen, setForceOpen] = React.useState(false);
 
   const isFocused = focused && selected && !readOnly;
 
+  const onAddMedia = () => {
+    const url = inputRef.current?.value;
+    if (!url) {
+      openInfoMessage('Please enter a valid URL');
+      return;
+    }
+
+    setForceOpen(false);
+  };
+
+  useEffect(() => {
+    if (isFocused) {
+      setForceOpen(true);
+    }
+  }, [isFocused]);
+
   return (
     <PlateElement className="media-embed py-2.5" {...props}>
-      <PopoverBase open={isFocused}>
+      <PopoverBase open={forceOpen} onOpenChange={setForceOpen}>
         <PopoverAnchor>
           <div
             className={cn(
@@ -151,16 +181,32 @@ export const MediaEmbedPlaceholder = (props: PlateElementProps<TMediaEmbedElemen
         </PopoverAnchor>
 
         <PopoverContent
-          className="w-[250px] p-0"
+          className="flex w-[300px] flex-col px-0 py-2"
           onOpenAutoFocus={(e) => {
             console.log('onOpenAutoFocus', e);
             e.preventDefault();
+          }}
+          onCloseAutoFocus={(e) => {
+            console.log('onCloseAutoFocus', e);
+            e.preventDefault();
           }}>
-          <Title as="h4">Add a media embed</Title>
-          <div className="bg-gray-light h-0.5 w-full" />
+          <div className="px-3">
+            <Text>Add an embed link</Text>
+          </div>
 
-          <Input placeholder="Enter a URL" />
-          <Button block>Add media</Button>
+          <Separator className="my-2" />
+
+          <div className="flex flex-col space-y-2 px-3">
+            <Input
+              placeholder="Paste the link"
+              autoFocus
+              onPressEnter={onAddMedia}
+              ref={inputRef}
+            />
+            <Button block variant={'black'} onClick={onAddMedia}>
+              Add media
+            </Button>
+          </div>
         </PopoverContent>
       </PopoverBase>
     </PlateElement>

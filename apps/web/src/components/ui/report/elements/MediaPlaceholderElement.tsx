@@ -13,6 +13,7 @@ import { useFilePicker } from 'use-file-picker';
 
 import { cn } from '@/lib/utils';
 import { useUploadFile } from '@/hooks/useUploadFile';
+import type { SelectedFilesOrErrors } from 'use-file-picker/types';
 
 const CONTENT: Record<
   string,
@@ -69,15 +70,12 @@ export const PlaceholderElement = withHOC(
     const { openFilePicker } = useFilePicker({
       accept: currentContent.accept,
       multiple: true,
-      onFilesSelected: (data: { plainFiles?: File[]; errors?: [] }) => {
+      onFilesSelected: (data: SelectedFilesOrErrors<unknown, unknown>) => {
         if (!data.plainFiles || data.plainFiles.length === 0) return;
-
         const updatedFiles = data.plainFiles;
         const firstFile = updatedFiles[0];
         const restFiles = updatedFiles.slice(1);
-
         replaceCurrentPlaceholder(firstFile);
-
         if (restFiles.length > 0) {
           // Convert File[] to FileList
           const dataTransfer = new DataTransfer();
