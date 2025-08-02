@@ -59,6 +59,8 @@ export function ExportToolbarButton({ children, ...props }: DropdownMenuProps) {
               `${elementStyle}; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important`
             );
           });
+        } else {
+          throw new Error('Editor element not found');
         }
       }
     });
