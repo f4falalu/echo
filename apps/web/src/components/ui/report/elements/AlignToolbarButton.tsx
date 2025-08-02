@@ -63,7 +63,7 @@ export function AlignToolbarButton(props: DropdownMenuProps) {
         </ToolbarButton>
       </DropdownMenuTrigger>
 
-      <DropdownMenuContent className="min-w-0" align="start" style={THEME_RESET_STYLE}>
+      <DropdownMenuContent className="min-w-0" align="start">
         <DropdownMenuRadioGroup
           value={value}
           onValueChange={(value) => {

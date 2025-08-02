@@ -16,17 +16,13 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
-import {
-  Tooltip,
-  TooltipBase,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger
-} from '@/components/ui/tooltip';
+import { Tooltip } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
 
 import { ToolbarButton, ToolbarMenuGroup } from '@/components/ui/toolbar/Toolbar';
-import { THEME_RESET_STYLE } from '@/styles/theme-reset';
+import { useGetOrganizationUsers } from '@/api/buster_rest/organizations';
+import { useGetPalettes } from '@/context-hooks/usePalettes';
+import { isBrightColor } from '@/lib/colors';
 
 export function FontColorToolbarButton({
   children,
@@ -37,6 +33,7 @@ export function FontColorToolbarButton({
   tooltip?: string;
 } & DropdownMenuProps) {
   const editor = useEditorRef();
+  const { organizationPalettes } = useGetPalettes();
 
   const selectionDefined = useEditorSelector((editor) => !!editor.selection, []);
 
@@ -44,6 +41,17 @@ export function FontColorToolbarButton({
 
   const [selectedColor, setSelectedColor] = React.useState<string>();
   const [open, setOpen] = React.useState(false);
+
+  const customColors: TColor[] = React.useMemo(() => {
+    const dedupedColors = new Set(organizationPalettes.flatMap((palette) => palette.colors));
+    return Array.from(dedupedColors).map((color) => {
+      return {
+        isBrightColor: isBrightColor(color),
+        name: color,
+        value: color
+      };
+    });
+  }, [organizationPalettes]);
 
   const onToggle = React.useCallback(
     (value = !open) => {
@@ -93,6 +101,8 @@ export function FontColorToolbarButton({
     }
   }, [color, selectionDefined]);
 
+  console.log(customColors, organizationPalettes);
+
   return (
     <DropdownMenu
       open={open}
@@ -106,12 +116,12 @@ export function FontColorToolbarButton({
         </ToolbarButton>
       </DropdownMenuTrigger>
 
-      <DropdownMenuContent align="start" style={THEME_RESET_STYLE}>
+      <DropdownMenuContent align="start">
         <ColorPicker
           color={selectedColor || color}
           clearColor={clearColor}
           colors={DEFAULT_COLORS}
-          customColors={DEFAULT_CUSTOM_COLORS}
+          customColors={customColors}
           updateColor={updateColorAndClose}
           updateCustomColor={updateColor}
         />
@@ -131,25 +141,29 @@ function PureColorPicker({
   ...props
 }: React.ComponentProps<'div'> & {
   colors: TColor[];
-  customColors: TColor[];
+  customColors: TColor[] | undefined;
   clearColor: () => void;
   updateColor: (color: string) => void;
   updateCustomColor: (color: string) => void;
   color?: string;
 }) {
+  const hasCustomColors: boolean = !!customColors && customColors?.length > 0;
+
   return (
     <div className={cn('flex flex-col', className)} {...props}>
-      <ToolbarMenuGroup label="Custom Colors">
-        <ColorCustom
-          color={color}
-          className="px-2"
-          colors={colors}
-          customColors={customColors}
-          updateColor={updateColor}
-          updateCustomColor={updateCustomColor}
-        />
-      </ToolbarMenuGroup>
-      <ToolbarMenuGroup label="Default Colors">
+      {hasCustomColors && (
+        <ToolbarMenuGroup label="Organization colors">
+          <ColorCustom
+            color={color}
+            className="px-2"
+            colors={colors}
+            customColors={customColors || []}
+            updateColor={updateColor}
+            updateCustomColor={updateCustomColor}
+          />
+        </ToolbarMenuGroup>
+      )}
+      <ToolbarMenuGroup label="Default colors">
         <ColorDropdownMenuItems
           color={color}
           className="px-2"
@@ -232,7 +246,7 @@ function ColorCustom({
   return (
     <div className={cn('relative flex flex-col gap-4', className)} {...props}>
       <ColorDropdownMenuItems color={color} colors={computedColors} updateColor={updateColor}>
-        <ColorInput
+        {/* <ColorInput
           value={value}
           onChange={(e) => {
             setValue(e.target.value);
@@ -254,7 +268,7 @@ function ColorCustom({
               <Plus />
             </div>
           </DropdownMenuItem>
-        </ColorInput>
+        </ColorInput> */}
       </ColorDropdownMenuItems>
     </div>
   );
@@ -317,11 +331,7 @@ function ColorDropdownMenuItem({
   const content = (
     <DropdownMenuItem
       className={cn(
-        buttonVariants({
-          size: 'small',
-          variant: 'outlined'
-        }),
-        'border-muted my-1 flex size-6 items-center justify-center rounded-full border border-solid p-0 transition-all hover:scale-125',
+        'border-muted my-1 flex size-6 cursor-pointer items-center justify-center rounded-full border border-solid p-0 transition-all hover:scale-125 hover:shadow',
         !isBrightColor && 'border-transparent',
         isSelected && 'border-primary border-2',
         className
@@ -353,19 +363,17 @@ export function ColorDropdownMenuItems({
     <div
       className={cn('grid grid-cols-[repeat(10,1fr)] place-items-center gap-x-1', className)}
       {...props}>
-      <TooltipProvider>
-        {colors.map(({ isBrightColor, name, value }) => (
-          <ColorDropdownMenuItem
-            name={name}
-            key={name ?? value}
-            value={value}
-            isBrightColor={isBrightColor}
-            isSelected={color === value}
-            updateColor={updateColor}
-          />
-        ))}
-        {props.children}
-      </TooltipProvider>
+      {colors.map(({ isBrightColor, name, value }) => (
+        <ColorDropdownMenuItem
+          name={name}
+          key={name ?? value}
+          value={value}
+          isBrightColor={isBrightColor}
+          isSelected={color === value}
+          updateColor={updateColor}
+        />
+      ))}
+      {props.children}
     </div>
   );
 }
@@ -771,34 +779,6 @@ export const DEFAULT_COLORS = [
     isBrightColor: false,
     name: 'dark purple 3',
     value: '#1F124D'
-  },
-  {
-    isBrightColor: false,
-    name: 'dark magenta 3',
-    value: '#4C1130'
-  }
-];
-
-const DEFAULT_CUSTOM_COLORS = [
-  {
-    isBrightColor: false,
-    name: 'dark orange 3',
-    value: '#783F04'
-  },
-  {
-    isBrightColor: false,
-    name: 'dark grey 3',
-    value: '#666666'
-  },
-  {
-    isBrightColor: false,
-    name: 'dark grey 2',
-    value: '#999999'
-  },
-  {
-    isBrightColor: false,
-    name: 'light cornflower blue 1',
-    value: '#6C9EEB'
   },
   {
     isBrightColor: false,

@@ -36,6 +36,7 @@ import {
   ToolbarSplitButtonSecondary
 } from '@/components/ui/toolbar/Toolbar';
 import { THEME_RESET_STYLE } from '@/styles/theme-reset';
+import type { SelectedFilesOrErrors } from 'use-file-picker/types';
 
 const MEDIA_CONFIG: Record<
   string,
@@ -101,8 +102,9 @@ export function MediaToolbarButton({
   const { openFilePicker } = useFilePicker({
     accept: currentConfig.accept,
     multiple: true,
-    onFilesSelected: ({ plainFiles: updatedFiles }) => {
-      editor.getTransforms(PlaceholderPlugin).insert.media(updatedFiles);
+    onFilesSelected: ({ plainFiles: updatedFiles }: SelectedFilesOrErrors<unknown, unknown>) => {
+      if (!updatedFiles) return;
+      editor.getTransforms(PlaceholderPlugin).insert.media(updatedFiles as unknown as FileList);
     }
   });
 
@@ -126,11 +128,7 @@ export function MediaToolbarButton({
             <ToolbarSplitButtonSecondary />
           </DropdownMenuTrigger>
 
-          <DropdownMenuContent
-            onClick={(e) => e.stopPropagation()}
-            align="start"
-            alignOffset={-32}
-            style={THEME_RESET_STYLE}>
+          <DropdownMenuContent onClick={(e) => e.stopPropagation()} align="start" alignOffset={-32}>
             <DropdownMenuGroup>
               <DropdownMenuItem onSelect={() => openFilePicker()}>
                 {currentConfig.icon}

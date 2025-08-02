@@ -335,7 +335,6 @@ function CommentMoreDropdown(props: {
       </DropdownMenuTrigger>
       <DropdownMenuContent
         className="w-48"
-        style={THEME_RESET_STYLE}
         onCloseAutoFocus={(e) => {
           if (selectedEditCommentRef.current) {
             onCloseAutoFocus?.();

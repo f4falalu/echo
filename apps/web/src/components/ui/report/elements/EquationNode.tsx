@@ -23,6 +23,7 @@ import {
 import { Button } from '@/components/ui/buttons';
 import { PopoverBase, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
+import { Separator } from '../../separator';
 
 export function EquationElement(props: PlateElementProps<TEquationElement>) {
   const selected = useSelected();
@@ -61,7 +62,7 @@ export function EquationElement(props: PlateElementProps<TEquationElement>) {
               <span ref={katexRef} />
             ) : (
               <div className="text-muted-foreground flex h-7 w-full items-center gap-2 text-sm whitespace-nowrap">
-                <div className="text-muted-foreground/80 size-6">
+                <div className="text-muted-foreground/80 size-6 text-xl">
                   <MathFunction />
                 </div>
                 <div>Add a Tex equation</div>
@@ -197,21 +198,27 @@ const EquationPopoverContent = ({
 
   return (
     <PopoverContent
-      className="flex gap-2"
+      className="flex w-[300px] flex-col p-0 py-2"
       onEscapeKeyDown={(e) => {
         e.preventDefault();
       }}
       contentEditable={false}>
-      <EquationInput
-        className={cn('max-h-[50vh] grow resize-none p-2 text-sm', className)}
-        state={{ isInline, open, onClose }}
-        autoFocus
-        {...props}
-      />
+      <div className="px-2">
+        <EquationInput
+          className={cn('max-h-[50vh] w-full grow resize-none p-2 text-sm', className)}
+          state={{ isInline, open, onClose }}
+          autoFocus
+          {...props}
+        />
+      </div>
 
-      <Button variant="outlined" className="px-3" suffix={<RectArrowDownLeft />} onClick={onClose}>
-        Done
-      </Button>
+      <Separator className="my-2" />
+
+      <div className="px-2">
+        <Button variant="outlined" block onClick={onClose}>
+          Done
+        </Button>
+      </div>
     </PopoverContent>
   );
 };

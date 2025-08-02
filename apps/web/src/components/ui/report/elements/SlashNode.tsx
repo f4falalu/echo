@@ -24,7 +24,8 @@ import {
   Table,
   SearchContent,
   ListTodo,
-  GridLayoutCols3
+  GridLayoutCols3,
+  SelectDropdown
 } from '@/components/ui/icons';
 import { type TComboboxInputElement, KEYS } from 'platejs';
 import { PlateElement } from 'platejs/react';
@@ -124,7 +125,7 @@ const groups: Group[] = [
       {
         icon: <Code2 />,
         keywords: ['```'],
-        label: 'Code Block',
+        label: 'Code block',
         value: KEYS.codeBlock
       },
       {

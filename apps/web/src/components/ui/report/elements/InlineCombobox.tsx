@@ -340,7 +340,7 @@ function InlineComboboxGroupLabel({
   return (
     <ComboboxGroupLabel
       {...props}
-      className={cn('text-muted-foreground mt-1.5 mb-2 px-3 text-xs font-medium', className)}
+      className={cn('text-muted-foreground font-base mt-1.5 mb-2 px-3 text-xs', className)}
     />
   );
 }

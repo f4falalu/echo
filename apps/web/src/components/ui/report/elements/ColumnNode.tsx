@@ -52,7 +52,7 @@ export const ColumnElement = withHOC(
 
     return (
       <div className="group/column relative" style={{ width: width ?? '100%' }}>
-        {!readOnly && !isSelectionAreaVisible && (
+        {/* {!readOnly && !isSelectionAreaVisible && (
           <div
             ref={handleRef}
             className={cn(
@@ -62,7 +62,7 @@ export const ColumnElement = withHOC(
             )}>
             <ColumnDragHandle />
           </div>
-        )}
+        )} */}
 
         <PlateElement
           {...props}
@@ -71,7 +71,7 @@ export const ColumnElement = withHOC(
           <div
             className={cn(
               'relative h-full border border-transparent p-1.5',
-              !readOnly && 'border-border rounded-lg border-dashed',
+              !readOnly && 'border-border rounded-md border-dashed',
               isDragging && 'opacity-50'
             )}>
             {props.children}
@@ -86,15 +86,13 @@ export const ColumnElement = withHOC(
 
 const ColumnDragHandle = React.memo(function ColumnDragHandle() {
   return (
-    <TooltipProvider>
-      <Tooltip title="Drag to move column">
-        <Button
-          variant="ghost"
-          className="h-5 !px-1"
-          onClick={(e) => e.stopPropagation()}
-          prefix={<GripDotsVertical />}></Button>
-      </Tooltip>
-    </TooltipProvider>
+    <Tooltip title="Drag to move column">
+      <Button
+        variant="ghost"
+        className="h-5 !px-1"
+        onClick={(e) => e.stopPropagation()}
+        prefix={<GripDotsVertical />}></Button>
+    </Tooltip>
   );
 });
 

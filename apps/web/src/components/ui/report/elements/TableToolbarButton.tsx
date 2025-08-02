@@ -65,10 +65,7 @@ export function TableToolbarButton(props: DropdownMenuProps) {
         </ToolbarButton>
       </DropdownMenuTrigger>
 
-      <DropdownMenuContent
-        className="flex w-[180px] min-w-0 flex-col"
-        align="start"
-        style={THEME_RESET_STYLE}>
+      <DropdownMenuContent className="flex w-[180px] min-w-0 flex-col" align="start">
         <DropdownMenuGroup>
           <DropdownMenuSub>
             <DropdownMenuSubTrigger className="gap-2 data-[disabled]:pointer-events-none data-[disabled]:opacity-50">

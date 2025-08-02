@@ -20,6 +20,7 @@ import {
 
 import { ToolbarButton } from '@/components/ui/toolbar/Toolbar';
 import { THEME_RESET_STYLE } from '@/styles/theme-reset';
+import type { SelectedFilesOrErrors } from 'use-file-picker/types';
 
 type ImportType = 'html' | 'markdown';
 
@@ -47,7 +48,8 @@ export function ImportToolbarButton(props: DropdownMenuProps) {
   const { openFilePicker: openMdFilePicker } = useFilePicker({
     accept: ['.md', '.mdx'],
     multiple: false,
-    onFilesSelected: async ({ plainFiles }) => {
+    onFilesSelected: async ({ plainFiles }: SelectedFilesOrErrors<unknown, unknown>) => {
+      if (!plainFiles) return;
       const text = await plainFiles[0].text();
 
       const nodes = getFileNodes(text, 'markdown');
@@ -59,7 +61,8 @@ export function ImportToolbarButton(props: DropdownMenuProps) {
   const { openFilePicker: openHtmlFilePicker } = useFilePicker({
     accept: ['text/html'],
     multiple: false,
-    onFilesSelected: async ({ plainFiles }) => {
+    onFilesSelected: async ({ plainFiles }: SelectedFilesOrErrors<unknown, unknown>) => {
+      if (!plainFiles) return;
       const text = await plainFiles[0].text();
 
       const nodes = getFileNodes(text, 'html');
@@ -78,7 +81,7 @@ export function ImportToolbarButton(props: DropdownMenuProps) {
         </ToolbarButton>
       </DropdownMenuTrigger>
 
-      <DropdownMenuContent align="start" style={THEME_RESET_STYLE}>
+      <DropdownMenuContent align="start">
         <DropdownMenuGroup>
           <DropdownMenuItem
             onSelect={() => {

@@ -90,7 +90,7 @@ ToolbarSeparator.displayName = 'ToolbarSeparator';
 
 // From toggleVariants
 const toolbarButtonVariants = cva(
-  "inline-flex cursor-pointer items-center justify-center gap-2 rounded-md text-sm font-medium whitespace-nowrap transition-[color,box-shadow] outline-none hover:bg-muted hover:text-muted-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 aria-checked:bg-accent aria-checked:text-accent-foreground aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+  'inline-flex cursor-pointer items-center justify-center gap-2 rounded-md text-sm font-medium whitespace-nowrap transition-[color,box-shadow] outline-none hover:bg-muted hover:text-muted-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 aria-checked:bg-accent aria-checked:text-accent-foreground aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 ',
   {
     defaultVariants: {
       size: 'default',
@@ -113,7 +113,7 @@ const toolbarButtonVariants = cva(
 
 const dropdownArrowVariants = cva(
   cn(
-    'inline-flex items-center justify-center rounded-r-md text-sm font-medium text-foreground transition-colors disabled:pointer-events-none disabled:opacity-50'
+    'inline-flex cursor-pointer items-center justify-center rounded-r-md text-sm font-medium text-foreground transition-colors disabled:pointer-events-none disabled:opacity-50'
   ),
   {
     defaultVariants: {
@@ -203,7 +203,7 @@ export const ToolbarSplitButtonSecondary = React.forwardRef<
       onClick={(e) => e.stopPropagation()}
       role="button"
       {...props}>
-      <div className="text-muted-foreground size-3.5">
+      <div className="text-muted-foreground text-sm">
         <ChevronDown data-icon />
       </div>
     </span>
@@ -262,7 +262,7 @@ export const ToolbarMenuGroup = ({
           className
         )}>
         {label && (
-          <DropdownMenuLabel className="text-muted-foreground text-xs font-semibold select-none">
+          <DropdownMenuLabel className="text-muted-foreground font-base text-xs select-none">
             {label}
           </DropdownMenuLabel>
         )}
@@ -287,31 +287,6 @@ const WithTooltip: React.FC<{ children: React.ReactNode; tooltip?: React.ReactNo
   }
 
   return children;
-};
-
-const TooltipContent = ({
-  children,
-  className,
-  // CHANGE
-  sideOffset = 4,
-  ...props
-}: React.ComponentProps<typeof TooltipPrimitive.Content>) => {
-  return (
-    <TooltipPrimitive.Portal>
-      <TooltipPrimitive.Content
-        className={cn(
-          'bg-primary text-primary-foreground z-50 w-fit origin-(--radix-tooltip-content-transform-origin) rounded-md px-3 py-1.5 text-xs text-balance',
-          className
-        )}
-        data-slot="tooltip-content"
-        sideOffset={sideOffset}
-        {...props}>
-        {children}
-        {/* CHANGE */}
-        {/* <TooltipPrimitive.Arrow className="z-50 size-2.5 translate-y-[calc(-50%_-_2px)] rotate-45 rounded-[2px] bg-primary fill-primary" /> */}
-      </TooltipPrimitive.Content>
-    </TooltipPrimitive.Portal>
-  );
 };
 
 export const ToolbarButton = React.forwardRef<

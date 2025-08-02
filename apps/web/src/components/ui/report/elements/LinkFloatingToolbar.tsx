@@ -24,15 +24,15 @@ import {
   usePluginOption
 } from 'platejs/react';
 
-import { buttonVariants } from '@/components/ui/buttons';
+import { Button } from '@/components/ui/buttons';
 import { Separator } from '@/components/ui/separator';
 
 const popoverVariants = cva(
-  'z-50 w-auto rounded-md border bg-popover p-1 text-popover-foreground shadow-md outline-hidden'
+  'z-50 w-auto rounded border bg-popover p-1 text-popover-foreground shadow-md outline-hidden'
 );
 
-const inputVariants = cva(
-  'flex h-[28px] w-full rounded-md border-none bg-transparent px-1.5 py-1 text-base placeholder:text-muted-foreground focus-visible:ring-transparent focus-visible:outline-none md:text-sm'
+const linkInputVariants = cva(
+  'flex h-[28px] w-full rounded border-none bg-transparent px-1.5 py-1 text-base placeholder:text-muted-foreground focus-visible:ring-transparent focus-visible:outline-none md:text-sm'
 );
 
 export function LinkFloatingToolbar({ state }: { state?: LinkFloatingToolbarState }) {
@@ -79,71 +79,26 @@ export function LinkFloatingToolbar({ state }: { state?: LinkFloatingToolbarStat
     ref: editRef,
     unlinkButtonProps
   } = useFloatingLinkEdit(editState);
-  const inputProps = useFormInputProps({
-    preventDefaultOnEnterKeydown: true
-  });
 
   if (hidden) return null;
 
-  const input = (
-    <div className="flex w-[330px] flex-col" {...inputProps}>
-      <div className="flex items-center">
-        <div className="text-muted-foreground flex items-center pr-1 pl-2">
-          <div className="size-4">
-            <Link />
-          </div>
-        </div>
-
-        <FloatingLinkUrlInput
-          className={inputVariants()}
-          placeholder="Paste link"
-          data-plate-focus
-        />
-      </div>
-      <Separator className="my-1" />
-      <div className="flex items-center">
-        <div className="text-muted-foreground flex items-center pr-1 pl-2">
-          <div className="size-4"></div>
-          <TextA />
-        </div>
-      </div>
-      <input
-        className={inputVariants()}
-        placeholder="Text to display"
-        data-plate-focus
-        {...textInputProps}
-      />
-    </div>
-  );
+  const input = <LinkEditPopoverContent textInputProps={textInputProps} />;
 
   const editContent = editState.isEditing ? (
     input
   ) : (
-    <div className="box-content flex items-center">
-      <button
-        className={buttonVariants({ size: 'small', variant: 'ghost' })}
-        type="button"
-        {...editButtonProps}>
+    <div className="box-content flex items-center space-x-0">
+      <Button variant={'ghost'} size={'default'} {...editButtonProps}>
         Edit link
-      </button>
-
-      <Separator orientation="vertical" />
+      </Button>
 
       <LinkOpenButton />
 
-      <Separator orientation="vertical" />
-
-      <button
-        className={buttonVariants({
-          size: 'small',
-          variant: 'ghost'
-        })}
-        type="button"
-        {...unlinkButtonProps}>
-        <div className="size-4.5">
-          <Link5Slash />
-        </div>
-      </button>
+      <Button
+        variant={'ghost'}
+        size={'default'}
+        prefix={<Link5Slash />}
+        {...unlinkButtonProps}></Button>
     </div>
   );
 
@@ -182,18 +137,59 @@ function LinkOpenButton() {
   return (
     <a
       {...attributes}
-      className={buttonVariants({
-        size: 'small',
-        variant: 'ghost'
-      })}
       onMouseOver={(e) => {
         e.stopPropagation();
       }}
       aria-label="Open link in a new tab"
       target="_blank">
-      <div className="size-4.5">
-        <ExternalLink />
-      </div>
+      <Button variant={'ghost'} size={'default'} prefix={<ExternalLink />}></Button>
     </a>
   );
 }
+
+const LinkEditPopoverContent = ({
+  textInputProps
+}: {
+  textInputProps: ReturnType<typeof useFloatingLinkInsert>['textInputProps'];
+}) => {
+  const inputProps = useFormInputProps({
+    preventDefaultOnEnterKeydown: true
+  });
+
+  const inputClassName = linkInputVariants();
+
+  const realTimeUpdate = (e: React.ChangeEvent<HTMLInputElement>) => {
+    console.log(e.target.value);
+    textInputProps.onChange(e);
+  };
+
+  return (
+    <div className="flex w-[330px] flex-col" {...inputProps}>
+      <div className="flex items-center">
+        <div className="text-muted-foreground flex items-center pr-1 pl-2">
+          <Link />
+        </div>
+
+        <FloatingLinkUrlInput
+          className={inputClassName}
+          placeholder="Paste link"
+          data-plate-focus
+        />
+      </div>
+      <Separator className="my-1" />
+      <div className="flex items-center">
+        <div className="text-muted-foreground flex items-center pr-1 pl-2">
+          <TextA />
+        </div>
+
+        <input
+          className={inputClassName}
+          placeholder="Text to display"
+          data-plate-focus
+          {...textInputProps}
+          onChange={realTimeUpdate}
+        />
+      </div>
+    </div>
+  );
+};

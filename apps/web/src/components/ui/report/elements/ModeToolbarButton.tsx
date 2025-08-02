@@ -55,7 +55,7 @@ export function ModeToolbarButton(props: DropdownMenuProps) {
         </ToolbarButton>
       </DropdownMenuTrigger>
 
-      <DropdownMenuContent className="min-w-[180px]" align="start" style={THEME_RESET_STYLE}>
+      <DropdownMenuContent className="min-w-[180px]" align="start">
         <DropdownMenuRadioGroup
           value={value}
           onValueChange={(newValue) => {

@@ -18,20 +18,6 @@ import {
 } from '@platejs/table/react';
 import { PopoverAnchor } from '@radix-ui/react-popover';
 import { cva } from 'class-variance-authority';
-// import {
-//   ArrowDown,
-//   ArrowLeft,
-//   ArrowRight,
-//   ArrowUp,
-//   CombineIcon,
-//   EraserIcon,
-//   Grid2X2Icon,
-//   GripVertical,
-//   PaintBucketIcon,
-//   SquareSplitHorizontalIcon,
-//   Trash2Icon,
-//   XIcon
-// } from 'lucide-react';
 import {
   ArrowDown,
   ArrowLeft,
@@ -41,10 +27,11 @@ import {
   Eraser,
   Grid2X2,
   GripDotsVertical,
-  BucketPaint,
+  BucketPaint2,
   SquareLayoutGrid4,
   Trash2,
-  Xmark
+  Xmark,
+  SquareLayoutGrid
 } from '@/components/ui/icons';
 import {
   type TElement,
@@ -161,7 +148,7 @@ function TableFloatingToolbar({ children, ...props }: React.ComponentProps<typeo
           contentEditable={false}>
           <ToolbarGroup>
             <ColorDropdownMenu tooltip="Background color">
-              <BucketPaint />
+              <BucketPaint2 />
             </ColorDropdownMenu>
             {canMerge && (
               <ToolbarButton
@@ -183,7 +170,7 @@ function TableFloatingToolbar({ children, ...props }: React.ComponentProps<typeo
             <DropdownMenu modal={false}>
               <DropdownMenuTrigger>
                 <ToolbarButton tooltip="Cell borders">
-                  <Grid2X2 />
+                  <SquareLayoutGrid />
                 </ToolbarButton>
               </DropdownMenuTrigger>
 
@@ -264,9 +251,12 @@ function TableFloatingToolbar({ children, ...props }: React.ComponentProps<typeo
   );
 }
 
-function TableBordersDropdownMenuContent(
-  props: React.ComponentProps<typeof DropdownMenuPrimitive.Content>
-) {
+// TableBordersDropdownMenuContent is now a forwardRef functional component
+const TableBordersDropdownMenuContent = React.forwardRef<
+  React.ElementRef<typeof DropdownMenuPrimitive.Content>,
+  React.ComponentProps<typeof DropdownMenuPrimitive.Content>
+>(function TableBordersDropdownMenuContent(props, ref) {
+  // Get the current editor instance
   const editor = useEditorRef();
   const {
     getOnSelectTableBorder,
@@ -281,7 +271,6 @@ function TableBordersDropdownMenuContent(
   return (
     <DropdownMenuContent
       className="min-w-[220px]"
-      style={THEME_RESET_STYLE}
       onCloseAutoFocus={(e) => {
         e.preventDefault();
         editor.tf.focus();
@@ -333,7 +322,7 @@ function TableBordersDropdownMenuContent(
       </DropdownMenuGroup>
     </DropdownMenuContent>
   );
-}
+});
 
 function ColorDropdownMenu({ children, tooltip }: { children: React.ReactNode; tooltip: string }) {
   const [open, setOpen] = React.useState(false);
@@ -414,12 +403,12 @@ export function TableRowElement(props: PlateElementProps<TTableRowElement>) {
         ...props.attributes,
         'data-selected': selected ? 'true' : undefined
       }}>
-      {hasControls && (
+      {/* {hasControls && (
         <td className="w-2 select-none" contentEditable={false}>
           <RowDragHandle dragRef={handleRef} />
           <RowDropLine />
         </td>
-      )}
+      )} */}
 
       {props.children}
     </PlateElement>
@@ -433,19 +422,16 @@ function RowDragHandle({ dragRef }: { dragRef: React.Ref<HTMLElement | HTMLButto
   return (
     <Button
       ref={dragRef as React.Ref<HTMLButtonElement>}
-      variant="outlined"
       className={cn(
         'absolute top-1/2 left-0 z-51 h-6 w-4 -translate-y-1/2 p-0 focus-visible:ring-0 focus-visible:ring-offset-0',
-        'cursor-grab active:cursor-grabbing',
+        'cursor-grab! active:cursor-grabbing!',
         'opacity-0 transition-opacity duration-100 group-hover/row:opacity-100 group-has-data-[resizing="true"]/row:opacity-0'
       )}
       onClick={() => {
         editor.tf.select(element);
-      }}>
-      <div className="text-muted-foreground size-4">
-        <GripDotsVertical />
-      </div>
-    </Button>
+      }}
+      prefix={<GripDotsVertical />}
+    />
   );
 }
 

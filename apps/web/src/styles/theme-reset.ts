@@ -1,10 +1,10 @@
 import React from 'react';
 
 export const FONT_BASE_THEME = {
-  '--font-heading': 'ui-sans-serif, -apple-system, BlinkMacSystemFont',
-  '--font-sans': 'ui-sans-serif, -apple-system, BlinkMacSystemFont',
-  '--font-mono':
-    'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace',
+  // '--font-heading': 'ui-sans-serif, -apple-system, BlinkMacSystemFont',
+  // '--font-sans': 'ui-sans-serif, -apple-system, BlinkMacSystemFont',
+  // '--font-mono':
+  //   'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace',
   '--spacing': '0.25rem',
   '--breakpoint-xl': '80rem',
   '--breakpoint-2xl': '96rem',
@@ -89,7 +89,8 @@ export const THEME_RESET_COLORS = {
     'popover-foreground': '240 10% 3.9%',
     primary: '240 5.9% 10%',
     'primary-foreground': '0 0% 98%',
-    ring: '240 10% 3.9%',
+    // Set ring to a super light gray (almost white)
+    ring: '0 0% 96%',
     secondary: '240 4.8% 95.9%',
     'secondary-foreground': '240 5.9% 10%'
   },
