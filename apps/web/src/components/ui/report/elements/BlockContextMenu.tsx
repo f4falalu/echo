@@ -22,6 +22,7 @@ import {
   ContextMenuTrigger
 } from '@/components/ui/context-menu';
 import { useIsTouchDevice } from '@/hooks/useIsTouchDevice';
+import { DEFAULT_THEME_STYLE } from '../ThemeWrapper/themes';
 
 type Value = 'askAI' | null;
 
@@ -91,6 +92,7 @@ export function BlockContextMenu({ children }: { children: React.ReactNode }) {
       </ContextMenuTrigger>
       <ContextMenuContent
         className="w-64"
+        style={DEFAULT_THEME_STYLE}
         onCloseAutoFocus={(e) => {
           e.preventDefault();
           editor.getApi(BlockSelectionPlugin).blockSelection.focus();
