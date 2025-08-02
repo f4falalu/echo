@@ -71,7 +71,7 @@ export const ReportPlayground: React.FC = () => {
 
         <ThemePicker />
       </div>
-      <div className="bg-background h-full max-h-[calc(100vh-56px)] overflow-y-auto rounded border shadow">
+      <div className="bg-background h-full max-h-[calc(100vh-56px)] overflow-hidden rounded border shadow">
         <DynamicReportEditor value={usedValue} readOnly={false} onValueChange={logValueChanges} />
       </div>
     </div>

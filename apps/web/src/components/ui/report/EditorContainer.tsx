@@ -50,7 +50,7 @@ export function EditorContainer({
   return (
     <PlateContainer
       className={cn(
-        'ignore-click-outside/toolbar',
+        'ignore-click-outside/toolbar overflow-y-auto',
         editorContainerVariants({ variant, readonly }),
         className
       )}

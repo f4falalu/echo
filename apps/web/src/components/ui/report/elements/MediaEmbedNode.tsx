@@ -6,13 +6,7 @@ import LiteYouTubeEmbed from 'react-lite-youtube-embed';
 import type { TMediaEmbedElement } from 'platejs';
 import type { PlateElementProps } from 'platejs/react';
 
-import {
-  parseTwitterUrl,
-  parseVideoUrl,
-  parseIframeUrl,
-  parseMediaUrl,
-  type EmbedUrlParser
-} from '@platejs/media';
+import { parseTwitterUrl, parseVideoUrl, type EmbedUrlParser } from '@platejs/media';
 import { MediaEmbedPlugin, useMediaState } from '@platejs/media/react';
 import { ResizableProvider, useResizableValue } from '@platejs/resizable';
 import {

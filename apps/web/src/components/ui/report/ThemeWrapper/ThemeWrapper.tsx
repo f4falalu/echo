@@ -12,7 +12,9 @@ interface ThemeWrapperProps extends React.ComponentProps<'div'> {
 export function ThemeWrapper({ children, className, defaultTheme }: ThemeWrapperProps) {
   return (
     <>
-      <div style={THEME_RESET_STYLE} className={cn('themes-wrapper w-full antialiased', className)}>
+      <div
+        style={THEME_RESET_STYLE}
+        className={cn('themes-wrapper h-full w-full overflow-hidden antialiased', className)}>
         {children}
       </div>
 
