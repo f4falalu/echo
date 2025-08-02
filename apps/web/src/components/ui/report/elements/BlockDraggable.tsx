@@ -6,7 +6,7 @@ import { DndPlugin, useDraggable, useDropLine } from '@platejs/dnd';
 import { expandListItemsWithChildren } from '@platejs/list';
 import { BlockSelectionPlugin } from '@platejs/selection/react';
 import { GripDots, Plus } from '@/components/ui/icons';
-import { type TElement, getPluginByType, isType, KEYS } from 'platejs';
+import { type Path, type TElement, getPluginByType, isType, KEYS } from 'platejs';
 import {
   type PlateEditor,
   type PlateElementProps,
@@ -22,6 +22,8 @@ import { useSelected } from 'platejs/react';
 import { Button } from '@/components/ui/buttons';
 import { Tooltip } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
+import { useMemoizedFn } from '@/hooks/useMemoizedFn';
+import { insertBlock } from './transforms';
 
 const UNDRAGGABLE_KEYS = [KEYS.column, KEYS.tr, KEYS.td];
 
@@ -135,7 +137,12 @@ function Draggable(props: PlateElementProps) {
                 'mr-1 flex items-center'
               )}>
               <div className="absolute top-0 left-0" style={{ top: `${dragButtonTop + 6}px` }}>
-                <AddNewBlockButton isDragging={isDragging} />
+                <AddNewBlockButton
+                  isDragging={isDragging}
+                  path={path}
+                  element={element}
+                  editor={editor}
+                />
                 <Button
                   ref={handleRef}
                   variant="ghost"
@@ -465,46 +472,31 @@ const calcDragButtonTop = (editor: PlateEditor, element: TElement): number => {
   return currentMarginTop;
 };
 
-const AddNewBlockButton = React.memo(function AddNewBlockButton({
+const AddNewBlockButton = function AddNewBlockButton({
   style,
   className,
-  isDragging
+  isDragging,
+  path,
+  element,
+  editor
 }: {
   style?: React.CSSProperties;
   className?: string;
   isDragging: boolean;
+  path: Path;
+  element: TElement;
+  editor: PlateEditor;
 }) {
-  const editor = useEditorRef();
-  const path = usePath();
+  const handleClick = useMemoizedFn((event: React.MouseEvent) => {
+    // Focus the editor first
+    editor.tf.focus();
 
-  const handleClick = (event: React.MouseEvent) => {
-    // build the insertion point based on modifier key
-    const parentPath = path.slice(0, -1);
-    const currentIndex = path[path.length - 1];
+    // Select the current block to ensure proper context
+    editor.tf.select(path);
 
-    // Option/Alt key adds before, regular click adds after
-    const insertIndex = event.altKey ? currentIndex : currentIndex + 1;
-
-    editor.tf.insertNodes(
-      { type: 'p', children: [{ text: '' }] },
-      { at: [...parentPath, insertIndex] }
-    );
-
-    setTimeout(() => {
-      // Calculate the path to the start of the new paragraph's text
-      const newNodePath = [...parentPath, insertIndex];
-      const textPath = [...newNodePath, 0]; // Path to the first text node
-
-      // Set the selection to the start of the new paragraph
-      editor.tf.select({
-        anchor: { path: textPath, offset: 0 },
-        focus: { path: textPath, offset: 0 }
-      });
-
-      // Ensure the editor is focused
-      editor.tf.focus();
-    }, 25);
-  };
+    // Use the insertBlock function which handles positioning automatically
+    insertBlock(editor, KEYS.p);
+  });
 
   return (
     <Tooltip title={isDragging ? '' : 'Add new block'}>
@@ -517,6 +509,6 @@ const AddNewBlockButton = React.memo(function AddNewBlockButton({
       />
     </Tooltip>
   );
-});
+};
 
 AddNewBlockButton.displayName = 'AddNewBlockButton';
