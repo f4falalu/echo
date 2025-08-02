@@ -94,6 +94,14 @@ export const DEFAULT_COLOR_THEME = {
   name: 'Default'
 } as const;
 
+export const DEFAULT_THEME_STYLE = {
+  ...DEFAULT_COLOR_THEME,
+  ...FONT_BASE_THEME,
+  fontFamily: 'var(--font-sans), "Inter", sans-serif',
+  fontSynthesisWeight: 'normal' as 'none',
+  fontVariationSettings: 'normal'
+} as React.CSSProperties;
+
 const _THEMES = {
   ayu: {
     id: 'ayu',

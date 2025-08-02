@@ -5,7 +5,7 @@ import { useThemesConfig } from './useThemesConfig';
 import React from 'react';
 
 export const ThemesStyle = React.memo(() => {
-  const { activeTheme, FONT_BASE_THEME } = useThemesConfig();
+  const { activeTheme } = useThemesConfig();
   const mounted = useMounted();
 
   if (!activeTheme || !mounted) {

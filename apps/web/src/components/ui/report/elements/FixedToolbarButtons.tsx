@@ -46,7 +46,7 @@ import { LineHeightToolbarButton } from './LineHeightToolbarButton';
 import { IndentToolbarButton, OutdentToolbarButton } from './IndentToolbarButton';
 import { ModeToolbarButton } from './ModeToolbarButton';
 
-export function FixedToolbarButtons() {
+export const FixedToolbarButtons = React.memo(() => {
   const readOnly = useEditorReadOnly();
 
   return (
@@ -110,7 +110,6 @@ export function FixedToolbarButtons() {
 
           <ToolbarGroup>
             <AlignToolbarButton />
-
             <NumberedListToolbarButton />
             <BulletedListToolbarButton />
             <TodoListToolbarButton />
@@ -120,15 +119,15 @@ export function FixedToolbarButtons() {
           <ToolbarGroup>
             <LinkToolbarButton />
             <TableToolbarButton />
-            <EmojiToolbarButton />
+            {/* <EmojiToolbarButton /> */}
           </ToolbarGroup>
 
-          <ToolbarGroup>
+          {/* <ToolbarGroup>
             <MediaToolbarButton nodeType={KEYS.img} />
             <MediaToolbarButton nodeType={KEYS.video} />
             <MediaToolbarButton nodeType={KEYS.audio} />
             <MediaToolbarButton nodeType={KEYS.file} />
-          </ToolbarGroup>
+          </ToolbarGroup> */}
 
           <ToolbarGroup>
             <LineHeightToolbarButton />
@@ -136,9 +135,9 @@ export function FixedToolbarButtons() {
             <IndentToolbarButton />
           </ToolbarGroup>
 
-          <ToolbarGroup>
+          {/* <ToolbarGroup>
             <MoreToolbarButton />
-          </ToolbarGroup>
+          </ToolbarGroup> */}
         </>
       )}
 
@@ -148,12 +147,14 @@ export function FixedToolbarButtons() {
         <MarkToolbarButton nodeType={KEYS.highlight} tooltip="Highlight">
           <TextHighlight2 />
         </MarkToolbarButton>
-        <CommentToolbarButton />
+        {/* <CommentToolbarButton /> */}
       </ToolbarGroup>
 
-      <ToolbarGroup>
+      {/* <ToolbarGroup>
         <ModeToolbarButton />
-      </ToolbarGroup>
+      </ToolbarGroup> */}
     </div>
   );
-}
+});
+
+FixedToolbarButtons.displayName = 'FixedToolbarButtons';
