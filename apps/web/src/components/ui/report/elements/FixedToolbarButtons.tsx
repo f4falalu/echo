@@ -11,7 +11,7 @@ import {
   WandSparkle,
   ArrowUpToLine,
   TextColor2,
-  BucketPaint,
+  BucketPaint2,
   TextHighlight2,
   ArrowDownFromLine
 } from '@/components/ui/icons';
@@ -105,7 +105,7 @@ export const FixedToolbarButtons = React.memo(() => {
             </FontColorToolbarButton>
 
             <FontColorToolbarButton nodeType={KEYS.backgroundColor} tooltip="Background color">
-              <BucketPaint />
+              <BucketPaint2 />
             </FontColorToolbarButton>
           </ToolbarGroup>
 

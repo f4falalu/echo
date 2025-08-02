@@ -452,34 +452,32 @@ function EmojiPickerNavigation({
   onClick: (id: EmojiCategoryList) => void;
 } & Pick<UseEmojiPickerType, 'emojiLibrary' | 'focusedCategory' | 'i18n' | 'icons'>) {
   return (
-    <TooltipProvider delayDuration={500}>
-      <nav id="emoji-nav" className="border-b-border mb-2.5 border-0 border-b border-solid p-1.5">
-        <div className="relative flex items-center justify-evenly">
-          {emojiLibrary
-            .getGrid()
-            .sections()
-            .map(({ id }) => (
-              <Tooltip key={id} title={i18n.categories[id]}>
-                <button
-                  className={cn(
-                    'text-muted-foreground hover:bg-muted hover:text-muted-foreground flex min-h-5 items-center justify-center rounded-full fill-current p-1.5',
-                    id === focusedCategory &&
-                      'bg-accent text-accent-foreground pointer-events-none fill-current'
-                  )}
-                  onClick={() => {
-                    onClick(id);
-                  }}
-                  aria-label={i18n.categories[id]}
-                  type="button">
-                  <div className="inline-flex size-5 items-center justify-center text-lg">
-                    {icons.categories[id].outline}
-                  </div>
-                </button>
-              </Tooltip>
-            ))}
-        </div>
-      </nav>
-    </TooltipProvider>
+    <nav id="emoji-nav" className="border-b-border mb-2.5 border-0 border-b border-solid p-1.5">
+      <div className="relative flex items-center justify-evenly">
+        {emojiLibrary
+          .getGrid()
+          .sections()
+          .map(({ id }) => (
+            <Tooltip key={id} title={i18n.categories[id]}>
+              <button
+                className={cn(
+                  'text-muted-foreground hover:bg-muted hover:text-muted-foreground flex min-h-5 items-center justify-center rounded-full fill-current p-1.5',
+                  id === focusedCategory &&
+                    'bg-accent text-accent-foreground pointer-events-none fill-current'
+                )}
+                onClick={() => {
+                  onClick(id);
+                }}
+                aria-label={i18n.categories[id]}
+                type="button">
+                <div className="inline-flex size-5 items-center justify-center text-lg">
+                  {icons.categories[id].outline}
+                </div>
+              </button>
+            </Tooltip>
+          ))}
+      </div>
+    </nav>
   );
 }
 

@@ -86,15 +86,13 @@ export const ColumnElement = withHOC(
 
 const ColumnDragHandle = React.memo(function ColumnDragHandle() {
   return (
-    <TooltipProvider>
-      <Tooltip title="Drag to move column">
-        <Button
-          variant="ghost"
-          className="h-5 !px-1"
-          onClick={(e) => e.stopPropagation()}
-          prefix={<GripDotsVertical />}></Button>
-      </Tooltip>
-    </TooltipProvider>
+    <Tooltip title="Drag to move column">
+      <Button
+        variant="ghost"
+        className="h-5 !px-1"
+        onClick={(e) => e.stopPropagation()}
+        prefix={<GripDotsVertical />}></Button>
+    </Tooltip>
   );
 });
 

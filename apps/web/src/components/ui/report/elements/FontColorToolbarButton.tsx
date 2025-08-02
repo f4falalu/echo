@@ -317,11 +317,7 @@ function ColorDropdownMenuItem({
   const content = (
     <DropdownMenuItem
       className={cn(
-        buttonVariants({
-          size: 'small',
-          variant: 'outlined'
-        }),
-        'border-muted my-1 flex size-6 items-center justify-center rounded-full border border-solid p-0 transition-all hover:scale-125',
+        'border-muted my-1 flex size-6 cursor-pointer items-center justify-center rounded-full border border-solid p-0 transition-all hover:scale-125 hover:shadow',
         !isBrightColor && 'border-transparent',
         isSelected && 'border-primary border-2',
         className
@@ -353,19 +349,17 @@ export function ColorDropdownMenuItems({
     <div
       className={cn('grid grid-cols-[repeat(10,1fr)] place-items-center gap-x-1', className)}
       {...props}>
-      <TooltipProvider>
-        {colors.map(({ isBrightColor, name, value }) => (
-          <ColorDropdownMenuItem
-            name={name}
-            key={name ?? value}
-            value={value}
-            isBrightColor={isBrightColor}
-            isSelected={color === value}
-            updateColor={updateColor}
-          />
-        ))}
-        {props.children}
-      </TooltipProvider>
+      {colors.map(({ isBrightColor, name, value }) => (
+        <ColorDropdownMenuItem
+          name={name}
+          key={name ?? value}
+          value={value}
+          isBrightColor={isBrightColor}
+          isSelected={color === value}
+          updateColor={updateColor}
+        />
+      ))}
+      {props.children}
     </div>
   );
 }

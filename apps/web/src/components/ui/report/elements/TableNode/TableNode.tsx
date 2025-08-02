@@ -41,7 +41,7 @@ import {
   Eraser,
   Grid2X2,
   GripDotsVertical,
-  BucketPaint,
+  BucketPaint2,
   SquareLayoutGrid4,
   Trash2,
   Xmark
@@ -161,7 +161,7 @@ function TableFloatingToolbar({ children, ...props }: React.ComponentProps<typeo
           contentEditable={false}>
           <ToolbarGroup>
             <ColorDropdownMenu tooltip="Background color">
-              <BucketPaint />
+              <BucketPaint2 />
             </ColorDropdownMenu>
             {canMerge && (
               <ToolbarButton
