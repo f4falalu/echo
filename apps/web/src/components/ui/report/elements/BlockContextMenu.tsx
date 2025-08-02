@@ -24,23 +24,6 @@ import {
 import { useIsTouchDevice } from '@/hooks/useIsTouchDevice';
 
 type Value = 'askAI' | null;
-/**
- * BlockContextMenu provides a right-click context menu for selected blocks in the Plate.js editor.
- *
- * Features:
- * - Ask AI: Trigger AI chat for the selected block
- * - Delete: Remove the selected block(s)
- * - Duplicate: Create a copy of the selected block(s)
- * - Turn into: Convert block type (paragraph, headings, blockquote)
- * - Indent/Outdent: Adjust block indentation
- * - Align: Set text alignment (left, center, right)
- *
- * The menu is automatically disabled on touch devices and in read-only mode.
- * Block selection is maintained during menu interactions.
- *
- * @param children - The child elements to wrap with the context menu trigger
- * @returns A context menu component wrapped around the provided children
- */
 
 export function BlockContextMenu({ children }: { children: React.ReactNode }) {
   const { api, editor } = useEditorPlugin(BlockMenuPlugin);
@@ -92,8 +75,10 @@ export function BlockContextMenu({ children }: { children: React.ReactNode }) {
         asChild
         onContextMenu={(event) => {
           const dataset = (event.target as HTMLElement).dataset;
-
-          const disabled = dataset?.slateEditor === 'true' || readOnly;
+          const disabled =
+            dataset?.slateEditor === 'true' ||
+            readOnly ||
+            dataset?.plateOpenContextMenu === 'false';
 
           if (disabled) return event.preventDefault();
 
