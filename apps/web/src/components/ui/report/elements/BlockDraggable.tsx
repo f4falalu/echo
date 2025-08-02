@@ -5,8 +5,8 @@ import * as React from 'react';
 import { DndPlugin, useDraggable, useDropLine } from '@platejs/dnd';
 import { expandListItemsWithChildren } from '@platejs/list';
 import { BlockSelectionPlugin } from '@platejs/selection/react';
-import { GripDots, GripDotsVertical, Plus } from '@/components/ui/icons';
-import { type TElement, getPluginByType, isType, KEYS } from 'platejs';
+import { type Path, type TElement, getPluginByType, isType, KEYS } from 'platejs';
+import { GripDotsVertical, Plus } from '@/components/ui/icons';
 import {
   type PlateEditor,
   type PlateElementProps,
@@ -20,8 +20,10 @@ import {
 import { useSelected } from 'platejs/react';
 
 import { Button } from '@/components/ui/buttons';
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { Tooltip } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
+import { useMemoizedFn } from '@/hooks/useMemoizedFn';
+import { insertBlock } from './transforms';
 
 const UNDRAGGABLE_KEYS = [KEYS.column, KEYS.tr, KEYS.td];
 
@@ -127,31 +129,29 @@ function Draggable(props: PlateElementProps) {
       }}>
       {!isInTable && (
         <Gutter>
-          <div className={cn('slate-blockToolbarWrapper', 'flex', isInColumn && 'h-4')}>
+          <div className={cn('slate-blockToolbarWrapper flex', isInColumn && 'h-4')}>
             <div
               className={cn(
                 'slate-blockToolbar pointer-events-auto relative mr-1 flex w-13 items-center justify-center space-x-0.5',
                 isInColumn && 'mr-1.5',
                 'mr-1 flex items-center'
               )}>
-              <AddNewBlockButton
-                style={{ top: `${dragButtonTop + 3}px` }}
-                isDragging={isDragging}
-              />
-              <Button
-                ref={handleRef}
-                variant="ghost"
-                style={{ top: `${dragButtonTop + 3}px` }}
-                data-plate-prevent-deselect
-                prefix={
-                  <DragHandle
-                    isDragging={isDragging}
-                    previewRef={previewRef}
-                    resetPreview={resetPreview}
-                    setPreviewTop={setPreviewTop}
-                  />
-                }
-              />
+              <div className="absolute top-0 left-0" style={{ top: `${dragButtonTop + 6}px` }}>
+                <AddNewBlockButton isDragging={isDragging} element={element} editor={editor} />
+                <Button
+                  ref={handleRef}
+                  variant="ghost"
+                  data-plate-prevent-deselect
+                  prefix={
+                    <DragHandle
+                      isDragging={isDragging}
+                      previewRef={previewRef}
+                      resetPreview={resetPreview}
+                      setPreviewTop={setPreviewTop}
+                    />
+                  }
+                />
+              </div>
             </div>
           </div>
         </Gutter>
@@ -208,7 +208,7 @@ function Gutter({ children, className, ...props }: React.ComponentProps<'div'>) 
   );
 }
 
-const DragHandle = React.memo(function DragHandle({
+const DragHandle = function DragHandle({
   isDragging,
   previewRef,
   resetPreview,
@@ -281,7 +281,7 @@ const DragHandle = React.memo(function DragHandle({
       </div>
     </Tooltip>
   );
-});
+};
 
 const DropLine = React.memo(function DropLine({
   className,
@@ -334,8 +334,8 @@ const createDragPreviewElements = (
   const ids: string[] = [];
 
   /**
-   * Remove data attributes from the element to avoid recognized as slate
-   * elements incorrectly.
+   * Remove data attributes and tooltip elements from the element to avoid recognized as slate
+   * elements incorrectly and to exclude tooltips from drag preview.
    */
   const removeDataAttributes = (element: HTMLElement) => {
     Array.from(element.attributes).forEach((attr) => {
@@ -467,46 +467,37 @@ const calcDragButtonTop = (editor: PlateEditor, element: TElement): number => {
   return currentMarginTop;
 };
 
-const AddNewBlockButton = React.memo(function AddNewBlockButton({
+const AddNewBlockButton = function AddNewBlockButton({
   style,
   className,
-  isDragging
+  isDragging,
+  element,
+  editor
 }: {
-  style: React.CSSProperties;
+  style?: React.CSSProperties;
   className?: string;
   isDragging: boolean;
+  element: TElement;
+  editor: PlateEditor;
 }) {
-  const editor = useEditorRef();
-  const path = usePath();
+  const handleClick = useMemoizedFn((event: React.MouseEvent) => {
+    // Find the current path of this element dynamically at click time
+    const currentPath = editor.api.findPath(element);
 
-  const handleClick = (event: React.MouseEvent) => {
-    // build the insertion point based on modifier key
-    const parentPath = path.slice(0, -1);
-    const currentIndex = path[path.length - 1];
+    if (!currentPath) {
+      console.warn('Could not find current path for element');
+      return;
+    }
 
-    // Option/Alt key adds before, regular click adds after
-    const insertIndex = event.altKey ? currentIndex : currentIndex + 1;
+    // Focus the editor first
+    editor.tf.focus();
 
-    editor.tf.insertNodes(
-      { type: 'p', children: [{ text: '' }] },
-      { at: [...parentPath, insertIndex] }
-    );
+    // Select the current block to ensure proper context - use dynamically found path
+    editor.tf.select(currentPath);
 
-    setTimeout(() => {
-      // Calculate the path to the start of the new paragraph's text
-      const newNodePath = [...parentPath, insertIndex];
-      const textPath = [...newNodePath, 0]; // Path to the first text node
-
-      // Set the selection to the start of the new paragraph
-      editor.tf.select({
-        anchor: { path: textPath, offset: 0 },
-        focus: { path: textPath, offset: 0 }
-      });
-
-      // Ensure the editor is focused
-      editor.tf.focus();
-    }, 25);
-  };
+    // Use the insertBlock function which handles positioning automatically
+    insertBlock(editor, KEYS.p);
+  });
 
   return (
     <Tooltip title={isDragging ? '' : 'Add new block'}>
@@ -519,6 +510,6 @@ const AddNewBlockButton = React.memo(function AddNewBlockButton({
       />
     </Tooltip>
   );
-});
+};
 
 AddNewBlockButton.displayName = 'AddNewBlockButton';

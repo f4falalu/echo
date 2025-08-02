@@ -12,7 +12,8 @@ import {
   ArrowUpToLine,
   TextColor2,
   BucketPaint,
-  TextHighlight2
+  TextHighlight2,
+  ArrowDownFromLine
 } from '@/components/ui/icons';
 import { KEYS } from 'platejs';
 import { useEditorReadOnly } from 'platejs/react';
@@ -24,7 +25,7 @@ import { LinkToolbarButton } from './LinkToolbarButton';
 import { MarkToolbarButton } from './MarktoolbarButton';
 import { MoreToolbarButton } from './MoreToolbarButton';
 import { SuggestionToolbarButton } from './SuggestionToolbarButton';
-import { ToolbarGroup } from './Toolbar';
+import { ToolbarGroup } from '@/components/ui/toolbar/Toolbar';
 import { TurnIntoToolbarButton } from './TurnIntoToolbarButton';
 import { UndoToolbarButton, RedoToolbarButton } from './UndoToolbarButton';
 import { ExportToolbarButton } from './ExportToolbarButton';
@@ -46,7 +47,7 @@ import { LineHeightToolbarButton } from './LineHeightToolbarButton';
 import { IndentToolbarButton, OutdentToolbarButton } from './IndentToolbarButton';
 import { ModeToolbarButton } from './ModeToolbarButton';
 
-export function FixedToolbarButtons() {
+export const FixedToolbarButtons = React.memo(() => {
   const readOnly = useEditorReadOnly();
 
   return (
@@ -58,15 +59,15 @@ export function FixedToolbarButtons() {
             <RedoToolbarButton />
           </ToolbarGroup>
 
-          <ToolbarGroup>
+          {/* <ToolbarGroup>
             <AIToolbarButton tooltip="AI commands">
               <WandSparkle />
             </AIToolbarButton>
-          </ToolbarGroup>
+          </ToolbarGroup> */}
 
           <ToolbarGroup>
             <ExportToolbarButton>
-              <ArrowUpToLine />
+              <ArrowDownFromLine />
             </ExportToolbarButton>
 
             <ImportToolbarButton />
@@ -110,7 +111,6 @@ export function FixedToolbarButtons() {
 
           <ToolbarGroup>
             <AlignToolbarButton />
-
             <NumberedListToolbarButton />
             <BulletedListToolbarButton />
             <TodoListToolbarButton />
@@ -120,15 +120,15 @@ export function FixedToolbarButtons() {
           <ToolbarGroup>
             <LinkToolbarButton />
             <TableToolbarButton />
-            <EmojiToolbarButton />
+            {/* <EmojiToolbarButton /> */}
           </ToolbarGroup>
 
-          <ToolbarGroup>
+          {/* <ToolbarGroup>
             <MediaToolbarButton nodeType={KEYS.img} />
             <MediaToolbarButton nodeType={KEYS.video} />
             <MediaToolbarButton nodeType={KEYS.audio} />
             <MediaToolbarButton nodeType={KEYS.file} />
-          </ToolbarGroup>
+          </ToolbarGroup> */}
 
           <ToolbarGroup>
             <LineHeightToolbarButton />
@@ -136,9 +136,9 @@ export function FixedToolbarButtons() {
             <IndentToolbarButton />
           </ToolbarGroup>
 
-          <ToolbarGroup>
+          {/* <ToolbarGroup>
             <MoreToolbarButton />
-          </ToolbarGroup>
+          </ToolbarGroup> */}
         </>
       )}
 
@@ -148,12 +148,14 @@ export function FixedToolbarButtons() {
         <MarkToolbarButton nodeType={KEYS.highlight} tooltip="Highlight">
           <TextHighlight2 />
         </MarkToolbarButton>
-        <CommentToolbarButton />
+        {/* <CommentToolbarButton /> */}
       </ToolbarGroup>
 
-      <ToolbarGroup>
+      {/* <ToolbarGroup>
         <ModeToolbarButton />
-      </ToolbarGroup>
+      </ToolbarGroup> */}
     </div>
   );
-}
+});
+
+FixedToolbarButtons.displayName = 'FixedToolbarButtons';

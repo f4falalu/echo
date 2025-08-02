@@ -5,7 +5,7 @@ import * as React from 'react';
 import { useToggleToolbarButton, useToggleToolbarButtonState } from '@platejs/toggle/react';
 import { DescendingSorting } from '@/components/ui/icons';
 
-import { ToolbarButton } from './Toolbar';
+import { ToolbarButton } from '@/components/ui/toolbar/Toolbar';
 
 export function ToggleToolbarButton(props: React.ComponentProps<typeof ToolbarButton>) {
   const state = useToggleToolbarButtonState();

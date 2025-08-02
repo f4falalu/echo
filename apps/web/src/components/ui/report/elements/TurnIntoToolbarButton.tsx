@@ -34,7 +34,8 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { getBlockType, setBlockType } from './transforms';
 
-import { ToolbarButton, ToolbarMenuGroup } from './Toolbar';
+import { ToolbarButton, ToolbarMenuGroup } from '@/components/ui/toolbar/Toolbar';
+import { THEME_RESET_STYLE } from '@/styles/theme-reset';
 
 const turnIntoItems = [
   {
@@ -137,7 +138,7 @@ export function TurnIntoToolbarButton(props: DropdownMenuProps) {
 
   return (
     <DropdownMenu open={open} onOpenChange={setOpen} modal={false} {...props}>
-      <DropdownMenuTrigger asChild>
+      <DropdownMenuTrigger>
         <ToolbarButton className="min-w-[125px]" pressed={open} tooltip="Turn into" isDropdown>
           {selectedItem.label}
         </ToolbarButton>
@@ -145,6 +146,7 @@ export function TurnIntoToolbarButton(props: DropdownMenuProps) {
 
       <DropdownMenuContent
         className="ignore-click-outside/toolbar min-w-0"
+        style={THEME_RESET_STYLE}
         onCloseAutoFocus={(e) => {
           e.preventDefault();
           editor.tf.focus();

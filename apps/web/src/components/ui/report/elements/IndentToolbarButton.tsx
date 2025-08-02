@@ -5,7 +5,7 @@ import * as React from 'react';
 import { useIndentButton, useOutdentButton } from '@platejs/indent/react';
 import { IndentIncrease, IndentDecrease } from '@/components/ui/icons';
 
-import { ToolbarButton } from './Toolbar';
+import { ToolbarButton } from '@/components/ui/toolbar/Toolbar';
 
 export function IndentToolbarButton(props: React.ComponentProps<typeof ToolbarButton>) {
   const { props: buttonProps } = useIndentButton();

@@ -5,7 +5,7 @@ import * as React from 'react';
 import { useLinkToolbarButton, useLinkToolbarButtonState } from '@platejs/link/react';
 import { Link } from '@/components/ui/icons';
 
-import { ToolbarButton } from './Toolbar';
+import { ToolbarButton } from '@/components/ui/toolbar/Toolbar';
 
 export function LinkToolbarButton(props: React.ComponentProps<typeof ToolbarButton>) {
   const state = useLinkToolbarButtonState();

@@ -18,7 +18,8 @@ import {
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
 
-import { ToolbarButton } from './Toolbar';
+import { ToolbarButton } from '@/components/ui/toolbar/Toolbar';
+import { THEME_RESET_STYLE } from '@/styles/theme-reset';
 
 type ImportType = 'html' | 'markdown';
 
@@ -69,7 +70,7 @@ export function ImportToolbarButton(props: DropdownMenuProps) {
 
   return (
     <DropdownMenu open={open} onOpenChange={setOpen} modal={false} {...props}>
-      <DropdownMenuTrigger asChild>
+      <DropdownMenuTrigger>
         <ToolbarButton pressed={open} tooltip="Import" isDropdown>
           <div className="size-4">
             <ArrowUpToLine />
@@ -77,7 +78,7 @@ export function ImportToolbarButton(props: DropdownMenuProps) {
         </ToolbarButton>
       </DropdownMenuTrigger>
 
-      <DropdownMenuContent align="start">
+      <DropdownMenuContent align="start" style={THEME_RESET_STYLE}>
         <DropdownMenuGroup>
           <DropdownMenuItem
             onSelect={() => {

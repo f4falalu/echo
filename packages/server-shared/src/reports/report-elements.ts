@@ -6,6 +6,8 @@ import { z } from 'zod';
  * Shared optional attributes for alignment and other element-specific settings.
  */
 const AttributesSchema = z.object({
+  id: z.string().optional(),
+  indent: z.number().int().min(0).optional(),
   attributes: z
     .object({
       align: z.enum(['left', 'center', 'right']).optional(),
@@ -20,21 +22,25 @@ const AttributesSchema = z.object({
  */
 
 // Basic text node with formatting flags
-export const TextSchema = z.object({
-  text: z.string(),
-  bold: z.boolean().optional(),
-  italic: z.boolean().optional(),
-  underline: z.boolean().optional(),
-  highlight: z.boolean().optional(),
-  kbd: z.boolean().optional(),
-  strikethrough: z.boolean().optional(),
-  code: z.boolean().optional(),
-});
+export const TextSchema = z
+  .object({
+    text: z.string(),
+    bold: z.boolean().optional(),
+    italic: z.boolean().optional(),
+    underline: z.boolean().optional(),
+    highlight: z.boolean().optional(),
+    kbd: z.boolean().optional(),
+    strikethrough: z.boolean().optional(),
+    code: z.boolean().optional(),
+  })
+  .merge(AttributesSchema);
 
 // Simplified text node (plain text without formatting)
-export const SimpleTextSchema = z.object({
-  text: z.string(),
-});
+export const SimpleTextSchema = z
+  .object({
+    text: z.string(),
+  })
+  .merge(AttributesSchema);
 
 /**
  * Inline Elements
@@ -76,7 +82,13 @@ export const HeaderElementSchema = z
 export const ParagraphElementSchema = z
   .object({
     type: z.literal('p'),
-    listStyleType: z.enum(['disc', 'circle', 'square']).optional(),
+    listStyleType: z
+      .enum(['disc', 'circle', 'square', 'decimal', 'decimal-leading-zero'])
+      .optional(),
+    listRestart: z.boolean().optional(),
+    listRestartPolite: z.boolean().optional(),
+    listStart: z.number().int().min(0).optional(),
+
     indent: z.number().int().min(0).optional(),
     children: z.array(z.union([TextSchema, AnchorSchema, MentionSchema])),
   })
@@ -112,6 +124,7 @@ export const ImageElementSchema = z
     height: z.number().optional(),
     children: z.array(TextSchema).default([]),
     caption: z.array(z.union([TextSchema, ParagraphElementSchema])).default([]),
+    id: z.string().optional(),
   })
   .merge(AttributesSchema);
 
@@ -121,6 +134,7 @@ export const EmojiElementSchema = z.object({
   emoji: z.string().optional(),
   code: z.string().optional(),
   children: z.array(TextSchema).default([]),
+  id: z.string().optional(),
 });
 
 // Audio element
@@ -128,6 +142,7 @@ export const AudioElementSchema = z.object({
   type: z.literal('audio'),
   url: z.string(),
   children: z.array(TextSchema).default([]),
+  id: z.string().optional(),
 });
 
 // File element for attachments or uploads
@@ -137,12 +152,14 @@ export const FileElementSchema = z.object({
   name: z.string(),
   isUpload: z.boolean().optional(),
   children: z.array(TextSchema),
+  id: z.string().optional(),
 });
 
 // Table of Contents element
 export const TocElementSchema = z.object({
   type: z.literal('toc'),
   children: z.array(TextSchema).default([]),
+  id: z.string().optional(),
 });
 
 /**
@@ -155,16 +172,33 @@ export const TocElementSchema = z.object({
 const CodeLineElementSchema = z.object({
   type: z.literal('code_line'),
   children: z.array(SimpleTextSchema),
+  id: z.string().optional(),
 });
 
 // Code block element with language selection
-export const CodeBlockElementSchema = z.object({
-  type: z.literal('code_block'),
-  lang: z
-    .enum(['sql', 'yaml', 'javascript', 'typescript', 'python', 'bash', 'json'])
-    .default('sql'),
-  children: z.array(CodeLineElementSchema),
-});
+export const CodeBlockElementSchema = z
+  .object({
+    type: z.literal('code_block'),
+    lang: z
+      .enum(['sql', 'yaml', 'javascript', 'typescript', 'python', 'bash', 'json'])
+      .default('sql'),
+    children: z.array(CodeLineElementSchema),
+  })
+  .merge(AttributesSchema);
+
+const NestedToggleElementSchema = z
+  .object({
+    type: z.literal('toggle'),
+    children: z.array(z.union([TextSchema, ParagraphElementSchema])),
+  })
+  .merge(AttributesSchema);
+
+export const ToggleElementSchema = z
+  .object({
+    type: z.literal('toggle'),
+    children: z.array(z.union([TextSchema, ParagraphElementSchema, NestedToggleElementSchema])),
+  })
+  .merge(AttributesSchema);
 
 /**
  * Callout Element
@@ -193,6 +227,7 @@ export const CalloutElementSchema = z
 // Column within a column group
 export const ColumnElementSchema = z.object({
   type: z.literal('column'),
+  id: z.string().optional(),
   width: z.union([z.string(), z.number()]).optional(),
   children: z.array(
     z.union([
@@ -209,6 +244,7 @@ export const ColumnElementSchema = z.object({
 export const ColumnGroupElementSchema = z.object({
   type: z.literal('column_group'),
   children: z.array(ColumnElementSchema),
+  id: z.string().optional(),
 });
 
 // Table cell types: data cell or header cell
@@ -314,6 +350,7 @@ export const ReportElementSchema = z.discriminatedUnion('type', [
   AudioElementSchema,
   FileElementSchema,
   MetricElementSchema,
+  ToggleElementSchema,
 ]);
 
 // Array of report elements for complete documents

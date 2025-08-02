@@ -16,9 +16,9 @@ import { MediaEmbedElement } from '../elements/MediaEmbedNode';
 import { FileElement } from '../elements/MediaFileNode';
 import { ImageElement } from '../elements/MediaImageNode';
 import { PlaceholderElement } from '../elements/MediaPlaceholderElement';
-import { MediaUploadToast } from '../elements/MediaUploadToast';
-import { VideoElement } from '../elements/VideoNode';
 import { MediaPreviewDialog } from '../elements/MediaPreviewDialog';
+import { MediaUploadToast } from '../elements/MediaUploadToast';
+import { VideoElement } from '../elements/MediaVideoNode';
 
 export const MediaKit = [
   ImagePlugin.configure({
@@ -26,7 +26,9 @@ export const MediaKit = [
     render: { afterEditable: MediaPreviewDialog, node: ImageElement }
   }),
   MediaEmbedPlugin.withComponent(MediaEmbedElement),
-
+  // VideoPlugin.withComponent(VideoElement),
+  // AudioPlugin.withComponent(AudioElement),
+  // FilePlugin.withComponent(FileElement),
   PlaceholderPlugin.configure({
     options: { disableEmptyPlaceholder: true },
     render: { afterEditable: MediaUploadToast, node: PlaceholderElement }
@@ -38,7 +40,4 @@ export const MediaKit = [
       }
     }
   })
-  // VideoPlugin.withComponent(VideoElement),
-  // AudioPlugin.withComponent(AudioElement),
-  // FilePlugin.withComponent(FileElement),
 ];

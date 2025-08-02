@@ -3,6 +3,7 @@
 import { cn } from '@/lib/utils';
 
 import { ThemesStyle } from './ThemeStyles';
+import { THEME_RESET_STYLE } from '@/styles/theme-reset';
 
 interface ThemeWrapperProps extends React.ComponentProps<'div'> {
   defaultTheme?: string;
@@ -10,16 +11,12 @@ interface ThemeWrapperProps extends React.ComponentProps<'div'> {
 
 export function ThemeWrapper({ children, className, defaultTheme }: ThemeWrapperProps) {
   return (
-    <div
-      className={cn(
-        // `theme-${defaultTheme || config.theme}`,
-        'themes-wrapper',
-        'w-full',
-        className
-      )}>
-      <ThemesStyle />
+    <>
+      <div style={THEME_RESET_STYLE} className={cn('themes-wrapper w-full antialiased', className)}>
+        {children}
+      </div>
 
-      {children}
-    </div>
+      <ThemesStyle />
+    </>
   );
 }

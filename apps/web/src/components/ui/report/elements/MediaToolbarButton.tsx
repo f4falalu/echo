@@ -34,7 +34,8 @@ import {
   ToolbarSplitButton,
   ToolbarSplitButtonPrimary,
   ToolbarSplitButtonSecondary
-} from './Toolbar';
+} from '@/components/ui/toolbar/Toolbar';
+import { THEME_RESET_STYLE } from '@/styles/theme-reset';
 
 const MEDIA_CONFIG: Record<
   string,
@@ -121,11 +122,15 @@ export function MediaToolbarButton({
         <ToolbarSplitButtonPrimary>{currentConfig.icon}</ToolbarSplitButtonPrimary>
 
         <DropdownMenu open={open} onOpenChange={setOpen} modal={false} {...props}>
-          <DropdownMenuTrigger asChild>
+          <DropdownMenuTrigger>
             <ToolbarSplitButtonSecondary />
           </DropdownMenuTrigger>
 
-          <DropdownMenuContent onClick={(e) => e.stopPropagation()} align="start" alignOffset={-32}>
+          <DropdownMenuContent
+            onClick={(e) => e.stopPropagation()}
+            align="start"
+            alignOffset={-32}
+            style={THEME_RESET_STYLE}>
             <DropdownMenuGroup>
               <DropdownMenuItem onSelect={() => openFilePicker()}>
                 {currentConfig.icon}

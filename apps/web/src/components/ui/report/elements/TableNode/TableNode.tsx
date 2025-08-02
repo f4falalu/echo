@@ -94,7 +94,13 @@ import {
   BorderRightIcon,
   BorderTopIcon
 } from './TableIcons';
-import { Toolbar, ToolbarButton, ToolbarGroup, ToolbarMenuGroup } from '../../Toolbar';
+import {
+  Toolbar,
+  ToolbarButton,
+  ToolbarGroup,
+  ToolbarMenuGroup
+} from '@/components/ui/toolbar/Toolbar';
+import { THEME_RESET_STYLE } from '@/styles/theme-reset';
 export const TableElement = withHOC(
   TableProvider,
   function TableElement({ children, ...props }: PlateElementProps<TTableElement>) {
@@ -175,7 +181,7 @@ function TableFloatingToolbar({ children, ...props }: React.ComponentProps<typeo
             )}
 
             <DropdownMenu modal={false}>
-              <DropdownMenuTrigger asChild>
+              <DropdownMenuTrigger>
                 <ToolbarButton tooltip="Cell borders">
                   <Grid2X2 />
                 </ToolbarButton>
@@ -275,6 +281,7 @@ function TableBordersDropdownMenuContent(
   return (
     <DropdownMenuContent
       className="min-w-[220px]"
+      style={THEME_RESET_STYLE}
       onCloseAutoFocus={(e) => {
         e.preventDefault();
         editor.tf.focus();
@@ -352,7 +359,7 @@ function ColorDropdownMenu({ children, tooltip }: { children: React.ReactNode; t
 
   return (
     <DropdownMenu open={open} onOpenChange={setOpen} modal={false}>
-      <DropdownMenuTrigger asChild>
+      <DropdownMenuTrigger>
         <ToolbarButton tooltip={tooltip}>{children}</ToolbarButton>
       </DropdownMenuTrigger>
 

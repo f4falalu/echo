@@ -38,7 +38,8 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { insertBlock, insertInlineElement } from './transforms';
 
-import { ToolbarButton, ToolbarMenuGroup } from './Toolbar';
+import { ToolbarButton, ToolbarMenuGroup } from '@/components/ui/toolbar/Toolbar';
+import { THEME_RESET_STYLE } from '@/styles/theme-reset';
 
 type Group = {
   group: string;
@@ -215,7 +216,7 @@ export function InsertToolbarButton(props: DropdownMenuProps) {
 
   return (
     <DropdownMenu open={open} onOpenChange={setOpen} modal={false} {...props}>
-      <DropdownMenuTrigger asChild>
+      <DropdownMenuTrigger>
         <ToolbarButton pressed={open} tooltip="Insert" isDropdown>
           <Plus />
         </ToolbarButton>
@@ -223,6 +224,7 @@ export function InsertToolbarButton(props: DropdownMenuProps) {
 
       <DropdownMenuContent
         className="flex max-h-[500px] min-w-0 flex-col overflow-y-auto"
+        style={THEME_RESET_STYLE}
         align="start">
         {groups.map(({ group, items: nestedItems }) => (
           <ToolbarMenuGroup key={group} label={group}>
