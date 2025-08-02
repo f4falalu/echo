@@ -18,20 +18,6 @@ import {
 } from '@platejs/table/react';
 import { PopoverAnchor } from '@radix-ui/react-popover';
 import { cva } from 'class-variance-authority';
-// import {
-//   ArrowDown,
-//   ArrowLeft,
-//   ArrowRight,
-//   ArrowUp,
-//   CombineIcon,
-//   EraserIcon,
-//   Grid2X2Icon,
-//   GripVertical,
-//   PaintBucketIcon,
-//   SquareSplitHorizontalIcon,
-//   Trash2Icon,
-//   XIcon
-// } from 'lucide-react';
 import {
   ArrowDown,
   ArrowLeft,

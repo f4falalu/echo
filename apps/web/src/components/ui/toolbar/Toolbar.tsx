@@ -262,7 +262,7 @@ export const ToolbarMenuGroup = ({
           className
         )}>
         {label && (
-          <DropdownMenuLabel className="text-muted-foreground text-xs font-semibold select-none">
+          <DropdownMenuLabel className="text-muted-foreground font-base text-xs select-none">
             {label}
           </DropdownMenuLabel>
         )}

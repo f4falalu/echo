@@ -41,6 +41,11 @@ const CONTENT: Record<
     accept: ['video/*'],
     content: 'Add a video',
     icon: <FilmPlay />
+  },
+  [KEYS.mediaEmbed]: {
+    accept: ['*'],
+    content: 'Add a media embed',
+    icon: <FilmPlay />
   }
 };
 

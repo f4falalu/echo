@@ -78,21 +78,25 @@ export const HeaderElementSchema = z
   })
   .merge(AttributesSchema);
 
+const ListStylesAttributesSchema = z.object({
+  listStyleType: z
+    .enum(['disc', 'circle', 'square', 'decimal', 'decimal-leading-zero', 'todo'])
+    .optional(),
+  listRestart: z.boolean().optional(),
+  listRestartPolite: z.boolean().optional(),
+  listStart: z.number().int().min(0).optional(),
+  indent: z.number().int().min(0).optional(),
+  checked: z.boolean().optional(), //used with todo list style
+});
+
 // Paragraph element with optional list styling and indentation
 export const ParagraphElementSchema = z
   .object({
     type: z.literal('p'),
-    listStyleType: z
-      .enum(['disc', 'circle', 'square', 'decimal', 'decimal-leading-zero'])
-      .optional(),
-    listRestart: z.boolean().optional(),
-    listRestartPolite: z.boolean().optional(),
-    listStart: z.number().int().min(0).optional(),
-
-    indent: z.number().int().min(0).optional(),
     children: z.array(z.union([TextSchema, AnchorSchema, MentionSchema])),
   })
-  .merge(AttributesSchema);
+  .merge(AttributesSchema)
+  .merge(ListStylesAttributesSchema);
 
 // Blockquote element
 export const BlockquoteElementSchema = z

@@ -46,7 +46,7 @@ export function CodeBlockElement(props: PlateElementProps<TCodeBlockElement>) {
           {isLangSupported(element.lang) && (
             <Button
               variant="ghost"
-              className="size-6 text-xs"
+              size={'small'}
               onClick={() => formatCodeBlock(editor, { element })}
               title="Format code"
               prefix={<BracketsCurly />}></Button>
@@ -61,7 +61,7 @@ export function CodeBlockElement(props: PlateElementProps<TCodeBlockElement>) {
   );
 }
 
-function CodeBlockCombobox() {
+const CodeBlockCombobox = React.memo(() => {
   const [open, setOpen] = React.useState(false);
   const readOnly = useReadOnly();
   const editor = useEditorRef();
@@ -83,8 +83,8 @@ function CodeBlockCombobox() {
   return (
     <PopoverBase open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <Button variant="ghost" aria-expanded={open} role="combobox">
-          {languages.find((language) => language.value === value)?.label ?? 'Plain Text'}
+        <Button variant="ghost" size={'small'} aria-expanded={open} role="combobox">
+          {languages.find((language) => language.value === value)?.label ?? 'Plain text'}
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-[200px] p-0" onCloseAutoFocus={() => setSearchValue('')}>
@@ -120,7 +120,9 @@ function CodeBlockCombobox() {
       </PopoverContent>
     </PopoverBase>
   );
-}
+});
+
+CodeBlockCombobox.displayName = 'CodeBlockCombobox';
 
 function CopyButton({
   value,
@@ -137,6 +139,7 @@ function CopyButton({
   return (
     <Button
       variant="ghost"
+      size={'small'}
       prefix={hasCopied ? <Check /> : <Copy2 />}
       onClick={() => {
         void navigator.clipboard.writeText(typeof value === 'function' ? value() : value);
@@ -159,7 +162,7 @@ export function CodeSyntaxLeaf(props: PlateLeafProps<TCodeSyntaxLeaf>) {
 
 const languages: { label: string; value: string }[] = [
   // { label: 'Auto', value: 'auto' },
-  { label: 'Plain Text', value: 'plaintext' },
+  { label: 'Plain text', value: 'plaintext' },
   // { label: 'ABAP', value: 'abap' },
   // { label: 'Agda', value: 'agda' },
   // { label: 'Arduino', value: 'arduino' },

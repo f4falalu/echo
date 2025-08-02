@@ -42,6 +42,10 @@ export const ReportPlayground: React.FC = () => {
     { wait: 150 }
   );
 
+  const logValueChanges = (value: ReportElements) => {
+    console.log('value', value);
+  };
+
   const usedValue: ReportElements = hasBeenSuccessFullAtLeastOnce ? data?.elements || [] : value;
 
   return (
@@ -68,7 +72,7 @@ export const ReportPlayground: React.FC = () => {
         <ThemePicker />
       </div>
       <div className="bg-background h-full max-h-[calc(100vh-56px)] overflow-y-auto rounded border shadow">
-        <DynamicReportEditor value={usedValue} readOnly={false} />
+        <DynamicReportEditor value={usedValue} readOnly={false} onValueChange={logValueChanges} />
       </div>
     </div>
   );

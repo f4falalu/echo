@@ -9,13 +9,19 @@ import type { PlateElementProps } from 'platejs/react';
 import { parseTwitterUrl, parseVideoUrl } from '@platejs/media';
 import { MediaEmbedPlugin, useMediaState } from '@platejs/media/react';
 import { ResizableProvider, useResizableValue } from '@platejs/resizable';
-import { PlateElement, withHOC } from 'platejs/react';
+import { PlateElement, useFocused, useReadOnly, useSelected, withHOC } from 'platejs/react';
 
 import { cn } from '@/lib/utils';
 
 import { Caption, CaptionTextarea } from './CaptionNode';
 import { MediaToolbar } from './MediaToolbar';
 import { mediaResizeHandleVariants, Resizable, ResizeHandle } from './ResizeHandle';
+import { Code3 } from '../../icons';
+import { PopoverAnchor, PopoverBase, PopoverContent } from '../../popover';
+import { useEffect, useState } from 'react';
+import { Title } from '../../typography';
+import { Input } from '../../inputs';
+import { Button } from '../../buttons';
 
 export const MediaEmbedElement = withHOC(
   ResizableProvider,
@@ -34,10 +40,15 @@ export const MediaEmbedElement = withHOC(
     });
     const width = useResizableValue('width');
     const provider = embed?.provider;
+    const hasElement = !!embed?.url;
+
+    if (!hasElement) {
+      return <MediaEmbedPlaceholder {...props} />;
+    }
 
     return (
       <MediaToolbar plugin={MediaEmbedPlugin}>
-        <PlateElement className="py-2.5" {...props}>
+        <PlateElement className="media-embed py-2.5" {...props}>
           <figure className="group relative m-0 w-full cursor-default" contentEditable={false}>
             <Resizable
               align={align}
@@ -113,3 +124,45 @@ export const MediaEmbedElement = withHOC(
     );
   }
 );
+
+export const MediaEmbedPlaceholder = (props: PlateElementProps<TMediaEmbedElement>) => {
+  const readOnly = useReadOnly();
+  const selected = useSelected();
+  const focused = useFocused();
+
+  const isFocused = focused && selected && !readOnly;
+
+  return (
+    <PlateElement className="media-embed py-2.5" {...props}>
+      <PopoverBase open={isFocused}>
+        <PopoverAnchor>
+          <div
+            className={cn(
+              'bg-muted hover:bg-primary/10 flex cursor-pointer items-center rounded-sm p-3 pr-9 select-none'
+            )}
+            contentEditable={false}>
+            <div className="text-muted-foreground/80 relative mr-3 flex [&_svg]:size-6">
+              <Code3 />
+            </div>
+
+            <div className="text-muted-foreground text-sm whitespace-nowrap">Add a media embed</div>
+          </div>
+          {props.children}
+        </PopoverAnchor>
+
+        <PopoverContent
+          className="w-[250px] p-0"
+          onOpenAutoFocus={(e) => {
+            console.log('onOpenAutoFocus', e);
+            e.preventDefault();
+          }}>
+          <Title as="h4">Add a media embed</Title>
+          <div className="bg-gray-light h-0.5 w-full" />
+
+          <Input placeholder="Enter a URL" />
+          <Button block>Add media</Button>
+        </PopoverContent>
+      </PopoverBase>
+    </PlateElement>
+  );
+};
