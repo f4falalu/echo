@@ -39,6 +39,7 @@ import { Separator } from '../../separator';
 import { useBusterNotifications } from '@/context/BusterNotifications';
 import { useEffect } from 'react';
 import { useClickAway } from '@/hooks/useClickAway';
+import { isUrlFromAcceptedDomain } from '@/lib/url';
 
 const parseGenericUrl: EmbedUrlParser = (url: string) => {
   return {
@@ -48,6 +49,13 @@ const parseGenericUrl: EmbedUrlParser = (url: string) => {
 };
 
 const urlParsers: EmbedUrlParser[] = [parseTwitterUrl, parseVideoUrl, parseGenericUrl];
+const ACCEPTED_DOMAINS = [
+  process.env.NEXT_PUBLIC_URL,
+  'twitter.com',
+  'x.com',
+  'youtube.com',
+  'vimeo.com'
+];
 
 export const MediaEmbedElement = withHOC(
   ResizableProvider,
@@ -183,6 +191,16 @@ export const MediaEmbedPlaceholder = (props: PlateElementProps<TMediaEmbedElemen
     const url = inputRef.current?.value;
     if (!url) {
       openInfoMessage('Please enter a valid URL');
+      return;
+    }
+
+    // Check if the URL is from an accepted domain
+    const isAccepted = isUrlFromAcceptedDomain(url);
+
+    if (!isAccepted) {
+      openInfoMessage(
+        `Please enter a valid URL from an accepted domain: ${ACCEPTED_DOMAINS.join(', ')}`
+      );
       return;
     }
 

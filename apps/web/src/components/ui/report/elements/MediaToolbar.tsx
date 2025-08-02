@@ -83,18 +83,15 @@ export function MediaToolbar({
           </div>
         ) : (
           <div className="box-content flex items-center">
-            <FloatingMediaPrimitive.EditButton
-              className={buttonVariants({ size: 'small', variant: 'ghost' })}>
+            <FloatingMediaPrimitive.EditButton className={buttonVariants({ variant: 'ghost' })}>
               Edit link
             </FloatingMediaPrimitive.EditButton>
 
-            <CaptionButton size="small" variant="ghost">
-              Caption
-            </CaptionButton>
+            <CaptionButton variant="ghost">Caption</CaptionButton>
 
             <Separator orientation="vertical" className="mx-1 h-6" />
 
-            <Button size="small" prefix={<Trash2 />} variant="ghost" {...buttonProps}></Button>
+            <Button prefix={<Trash2 />} variant="ghost" {...buttonProps}></Button>
           </div>
         )}
       </PopoverContent>
