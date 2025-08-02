@@ -137,12 +137,7 @@ function Draggable(props: PlateElementProps) {
                 'mr-1 flex items-center'
               )}>
               <div className="absolute top-0 left-0" style={{ top: `${dragButtonTop + 6}px` }}>
-                <AddNewBlockButton
-                  isDragging={isDragging}
-                  path={path}
-                  element={element}
-                  editor={editor}
-                />
+                <AddNewBlockButton isDragging={isDragging} element={element} editor={editor} />
                 <Button
                   ref={handleRef}
                   variant="ghost"
@@ -213,7 +208,7 @@ function Gutter({ children, className, ...props }: React.ComponentProps<'div'>) 
   );
 }
 
-const DragHandle = React.memo(function DragHandle({
+const DragHandle = function DragHandle({
   isDragging,
   previewRef,
   resetPreview,
@@ -286,7 +281,7 @@ const DragHandle = React.memo(function DragHandle({
       </div>
     </Tooltip>
   );
-});
+};
 
 const DropLine = React.memo(function DropLine({
   className,
@@ -476,23 +471,29 @@ const AddNewBlockButton = function AddNewBlockButton({
   style,
   className,
   isDragging,
-  path,
   element,
   editor
 }: {
   style?: React.CSSProperties;
   className?: string;
   isDragging: boolean;
-  path: Path;
   element: TElement;
   editor: PlateEditor;
 }) {
   const handleClick = useMemoizedFn((event: React.MouseEvent) => {
+    // Find the current path of this element dynamically at click time
+    const currentPath = editor.api.findPath(element);
+
+    if (!currentPath) {
+      console.warn('Could not find current path for element');
+      return;
+    }
+
     // Focus the editor first
     editor.tf.focus();
 
-    // Select the current block to ensure proper context
-    editor.tf.select(path);
+    // Select the current block to ensure proper context - use dynamically found path
+    editor.tf.select(currentPath);
 
     // Use the insertBlock function which handles positioning automatically
     insertBlock(editor, KEYS.p);
