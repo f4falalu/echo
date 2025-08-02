@@ -12,7 +12,8 @@ import {
   ArrowUpToLine,
   TextColor2,
   BucketPaint,
-  TextHighlight2
+  TextHighlight2,
+  ArrowDownFromLine
 } from '@/components/ui/icons';
 import { KEYS } from 'platejs';
 import { useEditorReadOnly } from 'platejs/react';
@@ -66,7 +67,7 @@ export const FixedToolbarButtons = React.memo(() => {
 
           <ToolbarGroup>
             <ExportToolbarButton>
-              <ArrowUpToLine />
+              <ArrowDownFromLine />
             </ExportToolbarButton>
 
             <ImportToolbarButton />

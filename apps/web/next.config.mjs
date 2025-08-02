@@ -37,6 +37,7 @@ const createCspHeader = (isEmbed = false) => {
     (() => {
       const connectSources = [
         "'self'",
+        'data:', // Allow data URLs for PDF exports and other data URI downloads
         localDomains,
         'https://*.vercel.app',
         'https://*.supabase.co',
