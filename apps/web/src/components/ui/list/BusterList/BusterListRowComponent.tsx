@@ -12,104 +12,101 @@ import type {
   BusterListRowItem
 } from './interfaces';
 
-export const BusterListRowComponent = <T = unknown,>() =>
-  React.memo(
-    React.forwardRef<
-      HTMLDivElement,
+interface BusterListRowComponentProps<T> {
+  row: BusterListRow;
+  columns: BusterListColumn<T>[];
+  checked: boolean;
+  onSelectChange?: (v: boolean, id: string, e: React.MouseEvent) => void;
+  onContextMenuClick?: (e: React.MouseEvent<HTMLDivElement>, id: string) => void;
+  style?: React.CSSProperties;
+  hideLastRowBorder: NonNullable<BusterListProps['hideLastRowBorder']>;
+  useRowClickSelectChange: boolean;
+  rowClassName?: string;
+  isLastChild: boolean;
+}
+
+export const BusterListRowComponent = React.memo(
+  React.forwardRef(
+    <T,>(
       {
-        row: BusterListRow;
-        columns: BusterListColumn<T>[];
-        checked: boolean;
-        onSelectChange?: (v: boolean, id: string, e: React.MouseEvent) => void;
-        onContextMenuClick?: (e: React.MouseEvent<HTMLDivElement>, id: string) => void;
-        style?: React.CSSProperties;
-        hideLastRowBorder: NonNullable<BusterListProps['hideLastRowBorder']>;
-        useRowClickSelectChange: boolean;
-        rowClassName?: string;
-        isLastChild: boolean;
-      }
-    >(
-      (
-        {
-          style,
-          hideLastRowBorder,
-          row,
-          columns,
-          onSelectChange,
-          checked,
-          onContextMenuClick,
-          rowClassName = '',
-          isLastChild,
-          useRowClickSelectChange
-        },
-        ref
-      ) => {
-        const link = row.link;
+        style,
+        hideLastRowBorder,
+        row,
+        columns,
+        onSelectChange,
+        checked,
+        onContextMenuClick,
+        rowClassName = '',
+        isLastChild,
+        useRowClickSelectChange
+      }: BusterListRowComponentProps<T>,
+      ref: React.ForwardedRef<HTMLDivElement>
+    ) => {
+      const link = row.link;
 
-        const onContextMenu = useMemoizedFn((e: React.MouseEvent<HTMLDivElement>) => {
-          onContextMenuClick?.(e, row.id);
-        });
+      const onContextMenu = useMemoizedFn((e: React.MouseEvent<HTMLDivElement>) => {
+        onContextMenuClick?.(e, row.id);
+      });
 
-        const onChange = useMemoizedFn((newChecked: boolean, e: React.MouseEvent) => {
-          onSelectChange?.(newChecked, row.id, e);
-        });
+      const onChange = useMemoizedFn((newChecked: boolean, e: React.MouseEvent) => {
+        onSelectChange?.(newChecked, row.id, e);
+      });
 
-        const onContainerClick = useMemoizedFn((e: React.MouseEvent) => {
-          if (useRowClickSelectChange) {
-            onChange(!checked, e);
-          }
-          row.onClick?.();
-        });
+      const onContainerClick = useMemoizedFn((e: React.MouseEvent) => {
+        if (useRowClickSelectChange) {
+          onChange(!checked, e);
+        }
+        row.onClick?.();
+      });
 
-        const rowStyles = {
-          height: `${HEIGHT_OF_ROW}px`,
-          minHeight: `${HEIGHT_OF_ROW}px`,
-          ...style
-        };
+      const rowStyles = {
+        height: `${HEIGHT_OF_ROW}px`,
+        minHeight: `${HEIGHT_OF_ROW}px`,
+        ...style
+      };
 
-        return (
-          <LinkWrapper href={link}>
-            <div
-              onClick={onContainerClick}
-              style={rowStyles}
-              onContextMenu={onContextMenu}
-              data-testid={row.dataTestId}
-              className={cn(
-                'border-border flex items-center border-b pr-6',
-                checked ? 'bg-primary-background hover:bg-primary-background-hover' : '',
-                isLastChild && hideLastRowBorder ? 'border-b-0!' : '',
-                !onSelectChange ? 'pl-3.5' : '',
-                link || row.onClick || (onSelectChange && useRowClickSelectChange)
-                  ? 'hover:bg-item-hover cursor-pointer'
-                  : '',
-                rowClassName,
-                'group'
-              )}
-              ref={ref}>
-              {onSelectChange ? (
-                <CheckboxColumn
-                  checkStatus={checked ? 'checked' : 'unchecked'}
-                  onChange={onChange}
-                />
-              ) : null}
-              {columns.map((column, columnIndex) => (
-                <BusterListCellComponent
-                  key={String(column.dataIndex)}
-                  data={get(row.data, column.dataIndex)}
-                  row={row}
-                  render={column.render as any}
-                  isFirstCell={columnIndex === 0}
-                  isLastCell={columnIndex === columns.length - 1}
-                  width={column.width}
-                  onSelectChange={onSelectChange}
-                />
-              ))}
-            </div>
-          </LinkWrapper>
-        );
-      }
-    )
-  );
+      return (
+        <LinkWrapper href={link}>
+          <div
+            onClick={onContainerClick}
+            style={rowStyles}
+            onContextMenu={onContextMenu}
+            data-testid={row.dataTestId}
+            className={cn(
+              'border-border flex items-center border-b pr-6',
+              checked ? 'bg-primary-background hover:bg-primary-background-hover' : '',
+              isLastChild && hideLastRowBorder ? 'border-b-0!' : '',
+              !onSelectChange ? 'pl-3.5' : '',
+              link || row.onClick || (onSelectChange && useRowClickSelectChange)
+                ? 'hover:bg-item-hover cursor-pointer'
+                : '',
+              rowClassName,
+              'group'
+            )}
+            ref={ref}>
+            {onSelectChange ? (
+              <CheckboxColumn checkStatus={checked ? 'checked' : 'unchecked'} onChange={onChange} />
+            ) : null}
+            {columns.map((column, columnIndex) => (
+              <BusterListCellComponent
+                key={String(column.dataIndex)}
+                data={get(row.data, column.dataIndex)}
+                row={row}
+                render={column.render as any}
+                isFirstCell={columnIndex === 0}
+                isLastCell={columnIndex === columns.length - 1}
+                width={column.width}
+                onSelectChange={onSelectChange}
+              />
+            ))}
+          </div>
+        </LinkWrapper>
+      );
+    }
+  )
+) as any as <T = unknown>(
+  props: BusterListRowComponentProps<T> & React.RefAttributes<HTMLDivElement>
+) => React.ReactElement | null;
 
 const BusterListCellComponent: React.FC<{
   data: string | number | React.ReactNode;

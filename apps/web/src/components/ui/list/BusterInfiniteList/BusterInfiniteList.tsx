@@ -29,9 +29,6 @@ function BusterInfiniteListComponent<T = any>({
   rowClassName = '',
   scrollEndThreshold = 48 // Default threshold of 200px
 }: BusterInfiniteListProps<T>) {
-  const Header = BusterListHeader<T>();
-  const RowSelector = BusterListRowComponentSelector<T>();
-
   const containerRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const lastChildIndex = useMemo(() => {
@@ -139,7 +136,7 @@ function BusterInfiniteListComponent<T = any>({
   return (
     <div ref={containerRef} className="infinite-list-container relative">
       {showHeader && !showEmptyState && (
-        <Header
+        <BusterListHeader<T>
           columns={columns}
           onGlobalSelectChange={onSelectChange ? onGlobalSelectChange : undefined}
           globalCheckStatus={globalCheckStatus}
@@ -153,7 +150,7 @@ function BusterInfiniteListComponent<T = any>({
         rows
           .filter((row) => !row.hidden)
           .map((row, index) => (
-            <RowSelector
+            <BusterListRowComponentSelector<T>
               key={row.id}
               row={row}
               id={row.id}

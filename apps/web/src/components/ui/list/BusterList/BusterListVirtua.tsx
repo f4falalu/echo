@@ -23,9 +23,6 @@ function BusterListVirtuaComponent<T = any>({
   rowClassName = '',
   hideLastRowBorder = false
 }: BusterListProps<T>) {
-  const Header = BusterListHeader<T>();
-  const RowSelector = BusterListRowComponentSelector<T>();
-
   const showEmptyState = (!rows || rows.length === 0) && !!emptyState;
   const lastChildIndex = rows.length - 1;
   const lastSelectedIdRef = useRef<string | null>(null);
@@ -126,7 +123,7 @@ function BusterListVirtuaComponent<T = any>({
     <WrapperNode {...wrapperNodeProps}>
       <div className="list-container relative flex h-full w-full flex-col overflow-hidden">
         {showHeader && !showEmptyState && (
-          <Header
+          <BusterListHeader<T>
             columns={columns}
             onGlobalSelectChange={onSelectChange ? onGlobalSelectChange : undefined}
             globalCheckStatus={globalCheckStatus}
@@ -140,7 +137,7 @@ function BusterListVirtuaComponent<T = any>({
           <VList overscan={10}>
             {rows.map((row, index) => (
               <div key={row.id + index.toString()} style={{ height: itemSize(index) }}>
-                <RowSelector
+                <BusterListRowComponentSelector<T>
                   row={row}
                   id={row.id}
                   isLastChild={index === lastChildIndex}
