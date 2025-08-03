@@ -39,9 +39,12 @@ async function updateReportHandler(
     throw new HTTPException(404, { message: 'Report not found' });
   }
 
-  const updatedReport = {
+  const updatedReport: UpdateReportResponse = {
     ...existingReport,
-    ...request,
+    ...(request.name !== undefined && { name: request.name }),
+    ...(request.description !== undefined && { description: request.description }),
+    ...(request.publicly_accessible !== undefined && { publicly_accessible: request.publicly_accessible }),
+    ...(request.content !== undefined && { content: request.content }),
     updated_at: new Date().toISOString()
   };
 
@@ -51,6 +54,9 @@ async function updateReportHandler(
 const app = new Hono()
   .put('/', zValidator('json', UpdateReportRequestSchema), async (c) => {
     const reportId = c.req.param('id');
+    if (!reportId) {
+      throw new HTTPException(400, { message: 'Report ID is required' });
+    }
     const request = c.req.valid('json');
     const user = c.get('busterUser');
     
