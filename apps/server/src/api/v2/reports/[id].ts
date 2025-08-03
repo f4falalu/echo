@@ -14,7 +14,7 @@ async function updateReportHandler(
   request: UpdateReportRequest,
   user: User
 ): Promise<UpdateReportResponse> {
-  const existingReport = {
+  const existingReport: ReportResponse = {
     id: reportId,
     name: 'Sales Analysis Q4',
     file_name: 'sales_analysis_q4.md',
@@ -40,9 +40,9 @@ async function updateReportHandler(
     throw new HTTPException(404, { message: 'Report not found' });
   }
 
-  const updatedReport = {
+  const updatedReport: UpdateReportResponse = {
     ...existingReport,
-    ...request,
+    ...(request as Partial<ReportResponse>),
     updated_at: new Date().toISOString(),
   };
 

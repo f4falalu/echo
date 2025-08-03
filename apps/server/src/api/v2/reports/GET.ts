@@ -77,7 +77,8 @@ async function getReportsListHandler(
   ];
 
   const { page, page_size } = request;
-  const startIndex = page * page_size;
+  // Page is 1-based, so we need to subtract 1 for array indexing
+  const startIndex = (page - 1) * page_size;
   const endIndex = startIndex + page_size;
   const paginatedReports = stubbedReports.slice(startIndex, endIndex);
 
@@ -99,6 +100,7 @@ const app = new Hono().get('/', zValidator('query', GetReportsListRequestSchema)
   const user = c.get('busterUser');
 
   const response = await getReportsListHandler(request, user);
+
   return c.json(response);
 });
 
