@@ -5,30 +5,10 @@ import * as React from 'react';
 import type { PlateEditor, PlateElementProps } from 'platejs/react';
 
 import { AIChatPlugin } from '@platejs/ai/react';
-import {
-  Calendar,
-  ChevronRight,
-  Code2,
-  TextColumns,
-  Heading1,
-  Heading2,
-  Heading3,
-  Lightbulb,
-  OrderedList,
-  BulletList,
-  Pilcrow,
-  Quote,
-  Equation,
-  Sparkle2,
-  ShapeSquare,
-  Table,
-  SearchContent,
-  ListTodo,
-  GridLayoutCols3,
-  SelectDropdown
-} from '@/components/ui/icons';
 import { type TComboboxInputElement, KEYS } from 'platejs';
 import { PlateElement } from 'platejs/react';
+import { NodeTypeIcons } from '../config/icons';
+import { NodeTypeLabels, MenuGroupLabels } from '../config/labels';
 
 import { insertBlock, insertInlineElement } from './transforms';
 
@@ -53,8 +33,9 @@ interface Item {
   onSelect: (editor: PlateEditor, value: string) => void;
   className?: string;
   focusEditor?: boolean;
-  keywords?: string[];
+  keywords?: readonly string[];
   label?: string;
+  description?: string;
 }
 
 const groups: Group[] = [
@@ -63,7 +44,9 @@ const groups: Group[] = [
     items: [
       {
         focusEditor: false,
-        icon: <Sparkle2 />,
+        icon: <NodeTypeIcons.sparkleAI />,
+        label: NodeTypeLabels.aiChat.label,
+        keywords: NodeTypeLabels.aiChat.keywords,
         value: 'AI',
         onSelect: (editor) => {
           editor.getApi(AIChatPlugin).aiChat.show();
@@ -72,78 +55,79 @@ const groups: Group[] = [
     ]
   },
   {
-    group: 'Basic blocks',
+    group: MenuGroupLabels.basicBlocks,
     items: [
       {
-        icon: <Pilcrow />,
-        keywords: ['paragraph'],
-        label: 'Text',
+        icon: <NodeTypeIcons.paragraph />,
+        keywords: NodeTypeLabels.paragraph.keywords,
+        label: NodeTypeLabels.paragraph.label,
         value: KEYS.p
       },
       {
-        icon: <Heading1 />,
-        keywords: ['title', 'h1'],
-        label: 'Heading 1',
+        icon: <NodeTypeIcons.h1 />,
+        keywords: NodeTypeLabels.h1.keywords,
+        label: NodeTypeLabels.h1.label,
         value: KEYS.h1
       },
       {
-        icon: <Heading2 />,
-        keywords: ['subtitle', 'h2'],
-        label: 'Heading 2',
+        icon: <NodeTypeIcons.h2 />,
+        keywords: NodeTypeLabels.h2.keywords,
+        label: NodeTypeLabels.h2.label,
         value: KEYS.h2
       },
       {
-        icon: <Heading3 />,
-        keywords: ['subtitle', 'h3'],
-        label: 'Heading 3',
+        icon: <NodeTypeIcons.h3 />,
+        keywords: NodeTypeLabels.h3.keywords,
+        label: NodeTypeLabels.h3.label,
         value: KEYS.h3
       },
       {
-        icon: <BulletList />,
-        keywords: ['unordered', 'ul', '-'],
-        label: 'Bulleted list',
+        icon: <NodeTypeIcons.bulletedList />,
+        keywords: NodeTypeLabels.bulletedList.keywords,
+        label: NodeTypeLabels.bulletedList.label,
         value: KEYS.ul
       },
       {
-        icon: <OrderedList />,
-        keywords: ['ordered', 'ol', '1'],
-        label: 'Numbered list',
+        icon: <NodeTypeIcons.numberedList />,
+        keywords: NodeTypeLabels.numberedList.keywords,
+        label: NodeTypeLabels.numberedList.label,
         value: KEYS.ol
       },
       {
-        icon: <ListTodo />,
-        keywords: ['checklist', 'task', 'checkbox', '[]'],
-        label: 'To-do list',
+        icon: <NodeTypeIcons.todoList />,
+        keywords: NodeTypeLabels.todoList.keywords,
+        label: NodeTypeLabels.todoList.label,
         value: KEYS.listTodo
       },
       {
-        icon: <ChevronRight />,
-        keywords: ['collapsible', 'expandable'],
-        label: 'Toggle',
+        icon: <NodeTypeIcons.toggle />,
+        keywords: NodeTypeLabels.toggleList.keywords,
+        label: NodeTypeLabels.toggleList.label,
         value: KEYS.toggle
       },
       {
-        icon: <Code2 />,
-        keywords: ['```'],
-        label: 'Code block',
+        icon: <NodeTypeIcons.code />,
+        keywords: NodeTypeLabels.codeBlock.keywords,
+        label: NodeTypeLabels.codeBlock.label,
         value: KEYS.codeBlock
       },
       {
-        icon: <Table />,
-        label: 'Table',
+        icon: <NodeTypeIcons.table />,
+        keywords: NodeTypeLabels.table.keywords,
+        label: NodeTypeLabels.table.label,
         value: KEYS.table
       },
       {
-        icon: <Quote />,
-        keywords: ['citation', 'blockquote', 'quote', '>'],
-        label: 'Blockquote',
+        icon: <NodeTypeIcons.quote />,
+        keywords: NodeTypeLabels.blockquote.keywords,
+        label: NodeTypeLabels.blockquote.label,
         value: KEYS.blockquote
       },
       {
         description: 'Insert a highlighted block.',
-        icon: <Lightbulb />,
-        keywords: ['note'],
-        label: 'Callout',
+        icon: <NodeTypeIcons.callout />,
+        keywords: NodeTypeLabels.callout.keywords,
+        label: NodeTypeLabels.callout.label,
         value: KEYS.callout
       }
     ].map((item) => ({
@@ -154,23 +138,25 @@ const groups: Group[] = [
     }))
   },
   {
-    group: 'Advanced blocks',
+    group: MenuGroupLabels.advancedBlocks,
     items: [
       {
-        icon: <SearchContent />,
-        keywords: ['toc'],
-        label: 'Table of contents',
+        icon: <NodeTypeIcons.searchContent />,
+        keywords: NodeTypeLabels.tableOfContents.keywords,
+        label: NodeTypeLabels.tableOfContents.label,
         value: KEYS.toc
       },
       {
-        icon: <GridLayoutCols3 />,
-        label: '3 columns',
+        icon: <NodeTypeIcons.columnsThree />,
+        keywords: NodeTypeLabels.columnsThree.keywords,
+        label: NodeTypeLabels.columnsThree.label,
         value: 'action_three_columns'
       },
       {
         focusEditor: false,
-        icon: <Equation />,
-        label: 'Equation',
+        icon: <NodeTypeIcons.equation />,
+        keywords: NodeTypeLabels.equation.keywords,
+        label: NodeTypeLabels.equation.label,
         value: KEYS.equation
       }
     ].map((item) => ({
@@ -181,19 +167,20 @@ const groups: Group[] = [
     }))
   },
   {
-    group: 'Inline',
+    group: MenuGroupLabels.inline,
     items: [
       {
         focusEditor: true,
-        icon: <Calendar />,
-        keywords: ['time'],
-        label: 'Date',
+        icon: <NodeTypeIcons.calendar />,
+        keywords: NodeTypeLabels.date.keywords,
+        label: NodeTypeLabels.date.label,
         value: KEYS.date
       },
       {
         focusEditor: false,
-        icon: <Equation />,
-        label: 'Inline Equation',
+        icon: <NodeTypeIcons.equation />,
+        keywords: NodeTypeLabels.inlineEquation.keywords,
+        label: NodeTypeLabels.inlineEquation.label,
         value: KEYS.inlineEquation
       }
     ].map((item) => ({
@@ -228,7 +215,7 @@ export function SlashInputElement(props: PlateElementProps<TComboboxInputElement
                   label={label}
                   focusEditor={focusEditor}
                   group={group}
-                  keywords={keywords}>
+                  keywords={keywords ? [...keywords] : undefined}>
                   <div className="text-muted-foreground mr-2">{icon}</div>
                   {label ?? value}
                 </InlineComboboxItem>

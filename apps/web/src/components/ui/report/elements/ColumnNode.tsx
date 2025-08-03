@@ -11,7 +11,8 @@ import { useDebouncePopoverOpen } from '@platejs/layout/react';
 import { ResizableProvider } from '@platejs/resizable';
 import { BlockSelectionPlugin } from '@platejs/selection/react';
 import { useComposedRef } from '@udecode/cn';
-import { GripDotsVertical, Trash } from '@/components/ui/icons';
+import { Trash } from '@/components/ui/icons';
+import { NodeTypeIcons } from '../config/icons';
 import { PathApi } from 'platejs';
 import {
   PlateElement,
@@ -91,7 +92,7 @@ const ColumnDragHandle = React.memo(function ColumnDragHandle() {
         variant="ghost"
         className="h-5 !px-1"
         onClick={(e) => e.stopPropagation()}
-        prefix={<GripDotsVertical />}></Button>
+        prefix={<NodeTypeIcons.gripVertical />}></Button>
     </Tooltip>
   );
 });

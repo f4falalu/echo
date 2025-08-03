@@ -1,5 +1,7 @@
 'use client';
 
+import { createLabel } from '../config/labels';
+
 import * as React from 'react';
 
 import { SuggestionPlugin } from '@platejs/suggestion/react';
@@ -16,7 +18,6 @@ import {
 } from '@/components/ui/dropdown-menu';
 
 import { ToolbarButton } from '@/components/ui/toolbar/Toolbar';
-import { THEME_RESET_STYLE } from '@/styles/theme-reset';
 
 export function ModeToolbarButton(props: DropdownMenuProps) {
   const editor = useEditorRef();
@@ -49,7 +50,7 @@ export function ModeToolbarButton(props: DropdownMenuProps) {
   return (
     <DropdownMenu open={open} onOpenChange={setOpen} modal={false} {...props}>
       <DropdownMenuTrigger>
-        <ToolbarButton pressed={open} tooltip="Editing mode" isDropdown>
+        <ToolbarButton pressed={open} tooltip={createLabel('mode')} isDropdown>
           {item[value].icon}
           <span className="hidden lg:inline">{item[value].label}</span>
         </ToolbarButton>

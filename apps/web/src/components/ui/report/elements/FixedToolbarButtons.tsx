@@ -2,19 +2,8 @@
 
 import * as React from 'react';
 
-import {
-  TextBold,
-  Code2,
-  TextItalic,
-  TextStrikethrough,
-  TextUnderline,
-  WandSparkle,
-  ArrowUpToLine,
-  TextColor2,
-  BucketPaint2,
-  TextHighlight2,
-  ArrowDownFromLine
-} from '@/components/ui/icons';
+import { NodeTypeIcons } from '../config/icons';
+import { createLabel } from '../config/labels';
 import { KEYS } from 'platejs';
 import { useEditorReadOnly } from 'platejs/react';
 
@@ -67,7 +56,7 @@ export const FixedToolbarButtons = React.memo(() => {
 
           <ToolbarGroup>
             <ExportToolbarButton>
-              <ArrowDownFromLine />
+              <NodeTypeIcons.export />
             </ExportToolbarButton>
 
             <ImportToolbarButton />
@@ -80,32 +69,34 @@ export const FixedToolbarButtons = React.memo(() => {
           </ToolbarGroup>
 
           <ToolbarGroup>
-            <MarkToolbarButton nodeType={KEYS.bold} tooltip="Bold (⌘+B)">
-              <TextBold />
+            <MarkToolbarButton nodeType={KEYS.bold} tooltip={createLabel('bold')}>
+              <NodeTypeIcons.bold />
             </MarkToolbarButton>
 
-            <MarkToolbarButton nodeType={KEYS.italic} tooltip="Italic (⌘+I)">
-              <TextItalic />
+            <MarkToolbarButton nodeType={KEYS.italic} tooltip={createLabel('italic')}>
+              <NodeTypeIcons.italic />
             </MarkToolbarButton>
 
-            <MarkToolbarButton nodeType={KEYS.underline} tooltip="Underline (⌘+U)">
-              <TextUnderline />
+            <MarkToolbarButton nodeType={KEYS.underline} tooltip={createLabel('underline')}>
+              <NodeTypeIcons.underline />
             </MarkToolbarButton>
 
-            <MarkToolbarButton nodeType={KEYS.strikethrough} tooltip="Strikethrough (⌘+⇧+M)">
-              <TextStrikethrough />
+            <MarkToolbarButton nodeType={KEYS.strikethrough} tooltip={createLabel('strikethrough')}>
+              <NodeTypeIcons.strikethrough />
             </MarkToolbarButton>
 
-            <MarkToolbarButton nodeType={KEYS.code} tooltip="Code (⌘+E)">
-              <Code2 />
+            <MarkToolbarButton nodeType={KEYS.code} tooltip={createLabel('code')}>
+              <NodeTypeIcons.code />
             </MarkToolbarButton>
 
-            <FontColorToolbarButton nodeType={KEYS.color} tooltip="Text color">
-              <TextColor2 />
+            <FontColorToolbarButton nodeType={KEYS.color} tooltip={createLabel('textColor')}>
+              <NodeTypeIcons.textColor />
             </FontColorToolbarButton>
 
-            <FontColorToolbarButton nodeType={KEYS.backgroundColor} tooltip="Background color">
-              <BucketPaint2 />
+            <FontColorToolbarButton
+              nodeType={KEYS.backgroundColor}
+              tooltip={createLabel('backgroundColor')}>
+              <NodeTypeIcons.backgroundColor />
             </FontColorToolbarButton>
           </ToolbarGroup>
 
@@ -120,7 +111,7 @@ export const FixedToolbarButtons = React.memo(() => {
           <ToolbarGroup>
             <LinkToolbarButton />
             <TableToolbarButton />
-            {/* <EmojiToolbarButton /> */}
+            <EmojiToolbarButton />
           </ToolbarGroup>
 
           {/* <ToolbarGroup>
@@ -145,8 +136,8 @@ export const FixedToolbarButtons = React.memo(() => {
       <div className="grow" />
 
       {/* <ToolbarGroup> */}
-      <MarkToolbarButton nodeType={KEYS.highlight} tooltip="Highlight">
-        <TextHighlight2 />
+      <MarkToolbarButton nodeType={KEYS.highlight} tooltip={createLabel('highlight')}>
+        <NodeTypeIcons.highlight />
       </MarkToolbarButton>
       {/* <CommentToolbarButton /> */}
       {/* </ToolbarGroup> */}

@@ -6,10 +6,11 @@ import type { TPlaceholderElement } from 'platejs';
 import type { PlateElementProps } from 'platejs/react';
 
 import { PlaceholderPlugin, PlaceholderProvider, updateUploadHistory } from '@platejs/media/react';
-import { VolumeUp, Upload, FilmPlay, ImageSparkle, Loader } from '@/components/ui/icons';
 import { KEYS } from 'platejs';
 import { PlateElement, useEditorPlugin, withHOC } from 'platejs/react';
 import { useFilePicker } from 'use-file-picker';
+import { NodeTypeIcons } from '../config/icons';
+import { NodeTypeLabels } from '../config/labels';
 
 import { cn } from '@/lib/utils';
 import { useUploadFile } from '@/hooks/useUploadFile';
@@ -25,28 +26,28 @@ const CONTENT: Record<
 > = {
   [KEYS.audio]: {
     accept: ['audio/*'],
-    content: 'Add an audio file',
-    icon: <VolumeUp />
+    content: NodeTypeLabels.addAudioFile.label,
+    icon: <NodeTypeIcons.audio />
   },
   [KEYS.file]: {
     accept: ['*'],
-    content: 'Add a file',
-    icon: <Upload />
+    content: NodeTypeLabels.addFile.label,
+    icon: <NodeTypeIcons.upload />
   },
   [KEYS.img]: {
     accept: ['image/*'],
-    content: 'Add an image',
-    icon: <ImageSparkle />
+    content: NodeTypeLabels.addImage.label,
+    icon: <NodeTypeIcons.imageSparkle />
   },
   [KEYS.video]: {
     accept: ['video/*'],
-    content: 'Add a video',
-    icon: <FilmPlay />
+    content: NodeTypeLabels.addVideo.label,
+    icon: <NodeTypeIcons.filmPlay />
   },
   [KEYS.mediaEmbed]: {
     accept: ['*'],
-    content: 'Add a media embed',
-    icon: <FilmPlay />
+    content: NodeTypeLabels.addMediaEmbed.label,
+    icon: <NodeTypeIcons.filmPlay />
   }
 };
 
@@ -159,7 +160,7 @@ export const PlaceholderElement = withHOC(
                   <div>–</div>
                   <div className="flex items-center">
                     <div className="text-muted-foreground mr-1 size-3.5 animate-spin">
-                      <Loader />
+                      <NodeTypeIcons.loader />
                     </div>
                     {progress ?? 0}%
                   </div>
@@ -217,7 +218,7 @@ export function ImageProgress({
       {progress < 100 && (
         <div className="absolute right-1 bottom-1 flex items-center space-x-2 rounded-full bg-black/50 px-1 py-0.5">
           <div className="text-muted-foreground size-3.5 animate-spin">
-            <Loader />
+            <NodeTypeIcons.loader />
           </div>
           <span className="text-xs font-medium text-white">{Math.round(progress)}%</span>
         </div>

@@ -15,8 +15,8 @@ import {
   useFloatingLinkInsertState
 } from '@platejs/link/react';
 import { cva } from 'class-variance-authority';
-import { ExternalLink, Link, TextA, Link5Slash } from '@/components/ui/icons';
 import { KEYS } from 'platejs';
+import { NodeTypeIcons } from '../config/icons';
 import {
   useEditorRef,
   useEditorSelection,
@@ -97,7 +97,7 @@ export function LinkFloatingToolbar({ state }: { state?: LinkFloatingToolbarStat
       <Button
         variant={'ghost'}
         size={'default'}
-        prefix={<Link5Slash />}
+        prefix={<NodeTypeIcons.unlink />}
         {...unlinkButtonProps}></Button>
     </div>
   );
@@ -142,7 +142,7 @@ function LinkOpenButton() {
       }}
       aria-label="Open link in a new tab"
       target="_blank">
-      <Button variant={'ghost'} size={'default'} prefix={<ExternalLink />}></Button>
+      <Button variant={'ghost'} size={'default'} prefix={<NodeTypeIcons.externalLink />}></Button>
     </a>
   );
 }
@@ -158,16 +158,11 @@ const LinkEditPopoverContent = ({
 
   const inputClassName = linkInputVariants();
 
-  const realTimeUpdate = (e: React.ChangeEvent<HTMLInputElement>) => {
-    console.log(e.target.value);
-    textInputProps.onChange(e);
-  };
-
   return (
     <div className="flex w-[330px] flex-col" {...inputProps}>
       <div className="flex items-center">
         <div className="text-muted-foreground flex items-center pr-1 pl-2">
-          <Link />
+          <NodeTypeIcons.linkIcon />
         </div>
 
         <FloatingLinkUrlInput
@@ -179,7 +174,7 @@ const LinkEditPopoverContent = ({
       <Separator className="my-1" />
       <div className="flex items-center">
         <div className="text-muted-foreground flex items-center pr-1 pl-2">
-          <TextA />
+          <NodeTypeIcons.textLink />
         </div>
 
         <input
@@ -187,7 +182,6 @@ const LinkEditPopoverContent = ({
           placeholder="Text to display"
           data-plate-focus
           {...textInputProps}
-          onChange={realTimeUpdate}
         />
       </div>
     </div>

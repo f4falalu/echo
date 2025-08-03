@@ -7,6 +7,7 @@ import type { DropdownMenuProps } from '@radix-ui/react-dropdown-menu';
 import { MarkdownPlugin } from '@platejs/markdown';
 import { createSlateEditor, serializeHtml } from 'platejs';
 import { useEditorRef } from 'platejs/react';
+import { createLabel, NodeTypeLabels } from '../config/labels';
 
 import {
   DropdownMenu,
@@ -19,7 +20,6 @@ import {
 import { EditorStatic } from './EditorStatic';
 import { ToolbarButton } from '@/components/ui/toolbar/Toolbar';
 import { useBusterNotifications } from '@/context/BusterNotifications';
-import { THEME_RESET_STYLE } from '@/styles/theme-reset';
 
 export function ExportToolbarButton({ children, ...props }: DropdownMenuProps) {
   const editor = useEditorRef();
@@ -104,9 +104,9 @@ export function ExportToolbarButton({ children, ...props }: DropdownMenuProps) {
       const pdfBase64 = await pdfDoc.saveAsBase64({ dataUri: true });
 
       await downloadFile(pdfBase64, 'plate.pdf');
-      openInfoMessage('PDF exported successfully');
+      openInfoMessage(NodeTypeLabels.pdfExportedSuccessfully.label);
     } catch (error) {
-      openErrorMessage('Failed to export PDF');
+      openErrorMessage(NodeTypeLabels.failedToExportPdf.label);
     }
   };
 
@@ -114,9 +114,9 @@ export function ExportToolbarButton({ children, ...props }: DropdownMenuProps) {
     try {
       const canvas = await getCanvas();
       await downloadFile(canvas.toDataURL('image/png'), 'plate.png');
-      openInfoMessage('Image exported successfully');
+      openInfoMessage(NodeTypeLabels.imageExportedSuccessfully.label);
     } catch (error) {
-      openErrorMessage('Failed to export image');
+      openErrorMessage(NodeTypeLabels.failedToExportImage.label);
     }
   };
 
@@ -169,9 +169,9 @@ export function ExportToolbarButton({ children, ...props }: DropdownMenuProps) {
       const url = `data:text/html;charset=utf-8,${encodeURIComponent(html)}`;
 
       await downloadFile(url, 'plate.html');
-      openInfoMessage('HTML exported successfully');
+      openInfoMessage(NodeTypeLabels.htmlExportedSuccessfully.label);
     } catch (error) {
-      openErrorMessage('Failed to export HTML');
+      openErrorMessage(NodeTypeLabels.failedToExportHtml.label);
     }
   };
 
@@ -180,26 +180,34 @@ export function ExportToolbarButton({ children, ...props }: DropdownMenuProps) {
       const md = editor.getApi(MarkdownPlugin).markdown.serialize();
       const url = `data:text/markdown;charset=utf-8,${encodeURIComponent(md)}`;
       await downloadFile(url, 'plate.md');
-      openInfoMessage('Markdown exported successfully');
+      openInfoMessage(NodeTypeLabels.markdownExportedSuccessfully.label);
     } catch (error) {
-      openErrorMessage('Failed to export Markdown');
+      openErrorMessage(NodeTypeLabels.failedToExportMarkdown.label);
     }
   };
 
   return (
     <DropdownMenu open={open} onOpenChange={setOpen} modal={false}>
       <DropdownMenuTrigger>
-        <ToolbarButton pressed={open} tooltip="Export" isDropdown>
+        <ToolbarButton pressed={open} tooltip={createLabel('export')} isDropdown>
           {children}
         </ToolbarButton>
       </DropdownMenuTrigger>
 
       <DropdownMenuContent align="start">
         <DropdownMenuGroup>
-          <DropdownMenuItem onSelect={exportToHtml}>Export as HTML</DropdownMenuItem>
-          <DropdownMenuItem onSelect={exportToPdf}>Export as PDF</DropdownMenuItem>
-          <DropdownMenuItem onSelect={exportToImage}>Export as Image</DropdownMenuItem>
-          <DropdownMenuItem onSelect={exportToMarkdown}>Export as Markdown</DropdownMenuItem>
+          <DropdownMenuItem onSelect={exportToHtml}>
+            {NodeTypeLabels.exportAsHtml.label}
+          </DropdownMenuItem>
+          <DropdownMenuItem onSelect={exportToPdf}>
+            {NodeTypeLabels.exportAsPdf.label}
+          </DropdownMenuItem>
+          <DropdownMenuItem onSelect={exportToImage}>
+            {NodeTypeLabels.exportAsImage.label}
+          </DropdownMenuItem>
+          <DropdownMenuItem onSelect={exportToMarkdown}>
+            {NodeTypeLabels.exportAsMarkdown.label}
+          </DropdownMenuItem>
         </DropdownMenuGroup>
       </DropdownMenuContent>
     </DropdownMenu>
