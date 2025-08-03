@@ -5,14 +5,15 @@ import { CheckboxColumn } from './CheckboxColumn';
 import { HEIGHT_OF_HEADER } from './config';
 import type { BusterListColumn } from './interfaces';
 
-export const BusterListHeader: React.FC<{
-  columns: BusterListColumn[];
-  onGlobalSelectChange?: (v: boolean) => void;
-  globalCheckStatus?: 'checked' | 'unchecked' | 'indeterminate';
-  showSelectAll?: boolean;
-  rowsLength: number;
-  rowClassName: string;
-}> = React.memo(
+export const BusterListHeader =
+  <T = unknown,>(): React.FC<{
+    columns: BusterListColumn<T>[];
+    onGlobalSelectChange?: (v: boolean) => void;
+    globalCheckStatus?: 'checked' | 'unchecked' | 'indeterminate';
+    showSelectAll?: boolean;
+    rowsLength: number;
+    rowClassName: string;
+  }> =>
   ({
     columns,
     rowClassName,
@@ -53,7 +54,7 @@ export const BusterListHeader: React.FC<{
         {columns.map((column, index) => (
           <div
             className="header-cell flex h-full items-center p-0"
-            key={column.dataIndex}
+            key={String(column.dataIndex)}
             style={{
               width: column.width || '100%',
               flex: column.width ? 'none' : 1,
@@ -70,6 +71,4 @@ export const BusterListHeader: React.FC<{
         ))}
       </div>
     );
-  }
-);
-BusterListHeader.displayName = 'BusterListHeader';
+  };

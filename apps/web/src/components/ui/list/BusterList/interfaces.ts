@@ -1,6 +1,6 @@
 import type React from 'react';
 import type { ContextMenuProps } from '../../context-menu/ContextMenu';
-export interface BusterListProps<T = any> {
+export interface BusterListProps<T = unknown> {
   columns: BusterListColumn<T>[];
   hideLastRowBorder?: boolean;
   rows: BusterListRow[];
@@ -14,7 +14,7 @@ export interface BusterListProps<T = any> {
   rowClassName?: string;
 }
 
-export type BusterListColumn<T> = {
+export type BusterListColumn<T = unknown> = {
   [K in keyof T]: {
     dataIndex: K;
     title: string;
