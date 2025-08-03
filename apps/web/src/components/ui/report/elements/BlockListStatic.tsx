@@ -1,11 +1,6 @@
 import * as React from 'react';
 
-import type {
-  RenderStaticNodeWrapper,
-  RenderStaticNodeWrapperProps,
-  SlateRenderElementProps,
-  TListElement
-} from 'platejs';
+import type { RenderStaticNodeWrapper, SlateRenderElementProps, TListElement } from 'platejs';
 
 import { isOrderedList } from '@platejs/list';
 import { Check } from '@/components/ui/icons';

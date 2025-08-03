@@ -5,6 +5,7 @@ import * as React from 'react';
 import { ListStyleType, someList, toggleList } from '@platejs/list';
 import { useIndentTodoToolBarButton, useIndentTodoToolBarButtonState } from '@platejs/list/react';
 import { NodeTypeIcons } from '../config/icons';
+import { createLabel } from '../config/labels';
 import { useEditorRef, useEditorSelector } from 'platejs/react';
 
 import {
@@ -21,7 +22,6 @@ import {
   ToolbarSplitButtonPrimary,
   ToolbarSplitButtonSecondary
 } from '@/components/ui/toolbar/Toolbar';
-import { THEME_RESET_STYLE } from '@/styles/theme-reset';
 
 export function BulletedListToolbarButton() {
   const editor = useEditorRef();
@@ -184,7 +184,7 @@ export function TodoListToolbarButton(props: React.ComponentProps<typeof Toolbar
   const { props: buttonProps } = useIndentTodoToolBarButton(state);
 
   return (
-    <ToolbarButton {...props} {...buttonProps} tooltip="Todo">
+    <ToolbarButton {...props} {...buttonProps} tooltip={createLabel('todo')}>
       <div className="size-4">
         <NodeTypeIcons.todoList />
       </div>

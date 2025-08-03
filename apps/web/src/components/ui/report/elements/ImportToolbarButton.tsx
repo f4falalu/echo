@@ -5,10 +5,11 @@ import * as React from 'react';
 import type { DropdownMenuProps } from '@radix-ui/react-dropdown-menu';
 
 import { MarkdownPlugin } from '@platejs/markdown';
-import { ArrowUpToLine } from '@/components/ui/icons';
 import { getEditorDOMFromHtmlString } from 'platejs';
 import { useEditorRef } from 'platejs/react';
 import { useFilePicker } from 'use-file-picker';
+import { NodeTypeIcons } from '../config/icons';
+import { createLabel, NodeTypeLabels } from '../config/labels';
 
 import {
   DropdownMenu,
@@ -19,7 +20,6 @@ import {
 } from '@/components/ui/dropdown-menu';
 
 import { ToolbarButton } from '@/components/ui/toolbar/Toolbar';
-import { THEME_RESET_STYLE } from '@/styles/theme-reset';
 import type { SelectedFilesOrErrors } from 'use-file-picker/types';
 
 type ImportType = 'html' | 'markdown';
@@ -74,9 +74,9 @@ export function ImportToolbarButton(props: DropdownMenuProps) {
   return (
     <DropdownMenu open={open} onOpenChange={setOpen} modal={false} {...props}>
       <DropdownMenuTrigger>
-        <ToolbarButton pressed={open} tooltip="Import" isDropdown>
+        <ToolbarButton pressed={open} tooltip={createLabel('import')} isDropdown>
           <div className="size-4">
-            <ArrowUpToLine />
+            <NodeTypeIcons.import />
           </div>
         </ToolbarButton>
       </DropdownMenuTrigger>
@@ -87,14 +87,14 @@ export function ImportToolbarButton(props: DropdownMenuProps) {
             onSelect={() => {
               openHtmlFilePicker();
             }}>
-            Import from HTML
+            {NodeTypeLabels.importFromHtml.label}
           </DropdownMenuItem>
 
           <DropdownMenuItem
             onSelect={() => {
               openMdFilePicker();
             }}>
-            Import from Markdown
+            {NodeTypeLabels.importFromMarkdown.label}
           </DropdownMenuItem>
         </DropdownMenuGroup>
       </DropdownMenuContent>

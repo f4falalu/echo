@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import { NodeTypeIcons } from '../config/icons';
+import { createLabel } from '../config/labels';
 import { KEYS } from 'platejs';
 import { useEditorReadOnly } from 'platejs/react';
 
@@ -32,23 +33,23 @@ export function FloatingToolbarButtons() {
           <ToolbarGroup>
             <TurnIntoToolbarButton />
 
-            <MarkToolbarButton nodeType={KEYS.bold} tooltip="Bold (⌘+B)">
+            <MarkToolbarButton nodeType={KEYS.bold} tooltip={createLabel('bold')}>
               <NodeTypeIcons.bold />
             </MarkToolbarButton>
 
-            <MarkToolbarButton nodeType={KEYS.italic} tooltip="Italic (⌘+I)">
+            <MarkToolbarButton nodeType={KEYS.italic} tooltip={createLabel('italic')}>
               <NodeTypeIcons.italic />
             </MarkToolbarButton>
 
-            <MarkToolbarButton nodeType={KEYS.underline} tooltip="Underline (⌘+U)">
+            <MarkToolbarButton nodeType={KEYS.underline} tooltip={createLabel('underline')}>
               <NodeTypeIcons.underline />
             </MarkToolbarButton>
 
-            <MarkToolbarButton nodeType={KEYS.strikethrough} tooltip="Strikethrough (⌘+⇧+M)">
+            <MarkToolbarButton nodeType={KEYS.strikethrough} tooltip={createLabel('strikethrough')}>
               <NodeTypeIcons.strikethrough />
             </MarkToolbarButton>
 
-            <MarkToolbarButton nodeType={KEYS.code} tooltip="Code (⌘+E)">
+            <MarkToolbarButton nodeType={KEYS.code} tooltip={createLabel('code')}>
               <NodeTypeIcons.code />
             </MarkToolbarButton>
 

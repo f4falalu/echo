@@ -11,8 +11,6 @@ import {
   useImagePreviewValue
 } from '@platejs/media/react';
 import { cva } from 'class-variance-authority';
-import { Link } from '@/components/ui/icons';
-import { Trash2 } from '@/components/ui/icons';
 import {
   useEditorRef,
   useEditorSelector,
@@ -21,6 +19,8 @@ import {
   useRemoveNodeButton,
   useSelected
 } from 'platejs/react';
+import { NodeTypeIcons } from '../config/icons';
+import { NodeTypeLabels } from '../config/labels';
 
 import { Button, buttonVariants } from '@/components/ui/buttons';
 import { PopoverBase, PopoverAnchor, PopoverContent } from '@/components/ui/popover';
@@ -70,13 +70,13 @@ export function MediaToolbar({
             <div className="flex items-center">
               <div className="text-muted-foreground flex items-center pr-1 pl-2">
                 <div className="size-4">
-                  <Link />
+                  <NodeTypeIcons.linkIcon />
                 </div>
               </div>
 
               <FloatingMediaPrimitive.UrlInput
                 className={inputVariants()}
-                placeholder="Paste the embed link..."
+                placeholder={NodeTypeLabels.pasteEmbedLink.label}
                 options={{ plugin }}
               />
             </div>
@@ -84,14 +84,14 @@ export function MediaToolbar({
         ) : (
           <div className="box-content flex items-center">
             <FloatingMediaPrimitive.EditButton className={buttonVariants({ variant: 'ghost' })}>
-              Edit link
+              {NodeTypeLabels.editLink.label}
             </FloatingMediaPrimitive.EditButton>
 
-            <CaptionButton variant="ghost">Caption</CaptionButton>
+            <CaptionButton variant="ghost">{NodeTypeLabels.caption.label}</CaptionButton>
 
             <Separator orientation="vertical" className="mx-1 h-6" />
 
-            <Button prefix={<Trash2 />} variant="ghost" {...buttonProps}></Button>
+            <Button prefix={<NodeTypeIcons.trash />} variant="ghost" {...buttonProps}></Button>
           </div>
         )}
       </PopoverContent>

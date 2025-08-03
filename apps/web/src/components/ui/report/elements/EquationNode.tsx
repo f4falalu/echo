@@ -8,7 +8,6 @@ import type { PlateElementProps } from 'platejs/react';
 
 import { useEquationElement, useEquationInput } from '@platejs/math/react';
 import { BlockSelectionPlugin } from '@platejs/selection/react';
-import { RectArrowDownLeft, MathFunction } from '@/components/ui/icons';
 
 import {
   createPrimitiveComponent,
@@ -19,6 +18,8 @@ import {
   useReadOnly,
   useSelected
 } from 'platejs/react';
+import { NodeTypeIcons } from '../config/icons';
+import { NodeTypeLabels } from '../config/labels';
 
 import { Button } from '@/components/ui/buttons';
 import { PopoverBase, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -63,9 +64,9 @@ export function EquationElement(props: PlateElementProps<TEquationElement>) {
             ) : (
               <div className="text-muted-foreground flex h-7 w-full items-center gap-2 text-sm whitespace-nowrap">
                 <div className="text-muted-foreground/80 size-6 text-xl">
-                  <MathFunction />
+                  <NodeTypeIcons.mathFunction />
                 </div>
-                <div>Add a Tex equation</div>
+                <div>{NodeTypeLabels.addTexEquation.label}</div>
               </div>
             )}
           </div>
@@ -137,9 +138,9 @@ export function InlineEquationElement(props: PlateElementProps<TEquationElement>
             {element.texExpression.length === 0 && (
               <span>
                 <div className="mr-1 inline-block h-[19px] w-4 py-[1.5px] align-text-bottom">
-                  <MathFunction />
+                  <NodeTypeIcons.mathFunction />
                 </div>
-                New equation
+                {NodeTypeLabels.newEquation.label}
               </span>
             )}
           </div>
@@ -216,7 +217,7 @@ const EquationPopoverContent = ({
 
       <div className="px-2">
         <Button variant="outlined" block onClick={onClose}>
-          Done
+          {NodeTypeLabels.done.label}
         </Button>
       </div>
     </PopoverContent>

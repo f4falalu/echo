@@ -21,7 +21,6 @@ import {
   // Lists
   UnorderedList,
   OrderedList,
-  ListTodo,
   SquareCode,
 
   // Structure
@@ -41,27 +40,60 @@ import {
   Ungroup,
   Trash2,
   Xmark,
+  Merge3,
+  Eraser,
+  Grid2X2,
+  SquareLayoutGrid4,
+  SquareLayoutGrid,
 
   // Media
   Image as ImageIcon,
   Film,
   FileCloud,
+  VolumeUp,
+  FilmPlay,
+  ImageSparkle,
+  Loader,
 
   // Actions
   WandSparkle,
   ArrowDownFromLine,
   ArrowUpFromLine,
+  ArrowUpToLine,
   Link2,
   Plus,
   Minus,
   Undo,
   Redo,
+  GripDotsVertical,
+  ExternalLink,
+  Link,
+  TextA,
+  Link5Slash,
+  Dots,
+  Download,
+  Keyboard,
+  Subscript,
+  Superscript,
+  Check,
+  Copy2,
+  BracketsCurly,
+  Upload,
 
   // Tools
   Equation,
   Calendar,
   ShapeSquare,
   Book2,
+  Sparkle2,
+  SearchContent,
+  BulletList,
+  ListTodo,
+  SelectDropdown,
+  TextColumns,
+  IndentIncrease,
+  IndentDecrease,
+  TextTool2,
 
   // Emoji
   FaceGrin,
@@ -74,7 +106,17 @@ import {
   Star,
   Clock,
   Compass,
-  BallRugby
+  BallRugby,
+
+  // Alignment
+  TextAlignLeft,
+  TextAlignCenter,
+  TextAlignRight,
+  TextAlignJustify,
+
+  // Math
+  MathFunction,
+  RectArrowDownLeft
 } from '@/components/ui/icons';
 
 export const NodeTypeIcons = {
@@ -119,12 +161,22 @@ export const NodeTypeIcons = {
   tableUngroup: Ungroup,
   tableDelete: Trash2,
   tableRemove: Xmark,
+  tableMergeCells: Merge3,
+  tableEraser: Eraser,
+  tableInsertGrid: Grid2X2,
+  tableSplitCell: SquareLayoutGrid4,
+  tableBorders: SquareLayoutGrid,
 
   // Media
   image: ImageIcon,
   video: Film,
-  embed: Film,
+  embed: Code2,
   file: FileCloud,
+  audio: VolumeUp,
+  upload: Upload,
+  filmPlay: FilmPlay,
+  imageSparkle: ImageSparkle,
+  loader: Loader,
 
   // Actions
   ai: WandSparkle,
@@ -135,6 +187,22 @@ export const NodeTypeIcons = {
   remove: Minus,
   undo: Undo,
   redo: Redo,
+  gripVertical: GripDotsVertical,
+  externalLink: ExternalLink,
+  linkIcon: Link,
+  textLink: TextA,
+  unlink: Link5Slash,
+  moreHorizontal: Dots,
+  keyboard: Keyboard,
+  subscript: Subscript,
+  superscript: Superscript,
+  trash: Trash2,
+  check: Check,
+  copy: Copy2,
+  formatCode: BracketsCurly,
+  indent: IndentIncrease,
+  outdent: IndentDecrease,
+  download: Download,
 
   // Tools
   equation: Equation,
@@ -142,6 +210,13 @@ export const NodeTypeIcons = {
   shape: ShapeSquare,
   tableOfContents: Book2,
   codeBlock: Code,
+  sparkleAI: Sparkle2,
+  searchContent: SearchContent,
+  bulletList: BulletList,
+  checkListSquare: SquareCode,
+  selectDropdown: SelectDropdown,
+  textColumns: TextColumns,
+  callout: Lightbulb,
 
   // Emoji
   emoji: FaceGrin,
@@ -154,5 +229,22 @@ export const NodeTypeIcons = {
   emojiStar: Star,
   emojiClock: Clock,
   emojiCompass: Compass,
-  emojiBall: BallRugby
+  emojiBall: BallRugby,
+
+  // Alignment
+  alignLeft: TextAlignLeft,
+  alignCenter: TextAlignCenter,
+  alignRight: TextAlignRight,
+  alignJustify: TextAlignJustify,
+
+  // Math
+  mathFunction: MathFunction,
+
+  // Layout
+  lineHeight: TextTool2,
+
+  // Navigation
+  arrowLeft: ArrowLeft,
+  arrowRight: ArrowRight,
+  close: Xmark
 } as const;

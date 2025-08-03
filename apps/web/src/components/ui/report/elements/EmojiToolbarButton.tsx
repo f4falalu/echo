@@ -17,16 +17,11 @@ import {
 } from '@platejs/emoji/react';
 import * as Popover from '@radix-ui/react-popover';
 import { NodeTypeIcons } from '../config/icons';
-import { Xmark } from '../../icons';
+import { createLabel } from '../config/labels';
+import { Xmark } from '@/components/ui/icons';
 
 import { Button } from '@/components/ui/buttons';
-import {
-  Tooltip,
-  TooltipBase,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger
-} from '@/components/ui/tooltip';
+import { Tooltip } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
 import { ToolbarButton } from '@/components/ui/toolbar';
 
@@ -41,7 +36,7 @@ export function EmojiToolbarButton({
   return (
     <EmojiPopover
       control={
-        <ToolbarButton pressed={isOpen} tooltip="Emoji" isDropdown {...props}>
+        <ToolbarButton pressed={isOpen} tooltip={createLabel('emoji')} isDropdown {...props}>
           <div>
             <NodeTypeIcons.emoji />
           </div>

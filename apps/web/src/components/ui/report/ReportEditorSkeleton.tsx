@@ -1,6 +1,6 @@
 import { cn } from '@/lib/classMerge';
 
-import ChartStackedBar from '../icons/NucleoIconFilled/chart-line-2';
+import ChartStackedBar from '@/components/ui/icons/NucleoIconFilled/chart-line-2';
 
 export type SkeletonElement =
   | 'toolbar'

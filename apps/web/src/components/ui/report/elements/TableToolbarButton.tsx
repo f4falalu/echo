@@ -18,6 +18,7 @@ import { TablePlugin, useTableMergeState } from '@platejs/table/react';
 //   XIcon
 // } from 'lucide-react';
 import { NodeTypeIcons } from '../config/icons';
+import { createLabel } from '../config/labels';
 import { KEYS } from 'platejs';
 import { useEditorPlugin, useEditorSelector } from 'platejs/react';
 
@@ -34,7 +35,6 @@ import {
 import { cn } from '@/lib/utils';
 
 import { ToolbarButton } from '@/components/ui/toolbar/Toolbar';
-import { THEME_RESET_STYLE } from '@/styles/theme-reset';
 
 export function TableToolbarButton(props: DropdownMenuProps) {
   const tableSelected = useEditorSelector(
@@ -49,7 +49,7 @@ export function TableToolbarButton(props: DropdownMenuProps) {
   return (
     <DropdownMenu open={open} onOpenChange={setOpen} modal={false} {...props}>
       <DropdownMenuTrigger>
-        <ToolbarButton pressed={open} tooltip="Table" isDropdown>
+        <ToolbarButton pressed={open} tooltip={createLabel('table')} isDropdown>
           <NodeTypeIcons.table />
         </ToolbarButton>
       </DropdownMenuTrigger>

@@ -3,6 +3,7 @@
 import * as React from 'react';
 
 import { NodeTypeIcons } from '../config/icons';
+import { createLabel } from '../config/labels';
 import { KEYS } from 'platejs';
 import { useEditorReadOnly } from 'platejs/react';
 
@@ -68,31 +69,33 @@ export const FixedToolbarButtons = React.memo(() => {
           </ToolbarGroup>
 
           <ToolbarGroup>
-            <MarkToolbarButton nodeType={KEYS.bold} tooltip="Bold (⌘+B)">
+            <MarkToolbarButton nodeType={KEYS.bold} tooltip={createLabel('bold')}>
               <NodeTypeIcons.bold />
             </MarkToolbarButton>
 
-            <MarkToolbarButton nodeType={KEYS.italic} tooltip="Italic (⌘+I)">
+            <MarkToolbarButton nodeType={KEYS.italic} tooltip={createLabel('italic')}>
               <NodeTypeIcons.italic />
             </MarkToolbarButton>
 
-            <MarkToolbarButton nodeType={KEYS.underline} tooltip="Underline (⌘+U)">
+            <MarkToolbarButton nodeType={KEYS.underline} tooltip={createLabel('underline')}>
               <NodeTypeIcons.underline />
             </MarkToolbarButton>
 
-            <MarkToolbarButton nodeType={KEYS.strikethrough} tooltip="Strikethrough (⌘+⇧+M)">
+            <MarkToolbarButton nodeType={KEYS.strikethrough} tooltip={createLabel('strikethrough')}>
               <NodeTypeIcons.strikethrough />
             </MarkToolbarButton>
 
-            <MarkToolbarButton nodeType={KEYS.code} tooltip="Code (⌘+E)">
+            <MarkToolbarButton nodeType={KEYS.code} tooltip={createLabel('code')}>
               <NodeTypeIcons.code />
             </MarkToolbarButton>
 
-            <FontColorToolbarButton nodeType={KEYS.color} tooltip="Text color">
+            <FontColorToolbarButton nodeType={KEYS.color} tooltip={createLabel('textColor')}>
               <NodeTypeIcons.textColor />
             </FontColorToolbarButton>
 
-            <FontColorToolbarButton nodeType={KEYS.backgroundColor} tooltip="Background color">
+            <FontColorToolbarButton
+              nodeType={KEYS.backgroundColor}
+              tooltip={createLabel('backgroundColor')}>
               <NodeTypeIcons.backgroundColor />
             </FontColorToolbarButton>
           </ToolbarGroup>
@@ -133,7 +136,7 @@ export const FixedToolbarButtons = React.memo(() => {
       <div className="grow" />
 
       {/* <ToolbarGroup> */}
-      <MarkToolbarButton nodeType={KEYS.highlight} tooltip="Highlight">
+      <MarkToolbarButton nodeType={KEYS.highlight} tooltip={createLabel('highlight')}>
         <NodeTypeIcons.highlight />
       </MarkToolbarButton>
       {/* <CommentToolbarButton /> */}

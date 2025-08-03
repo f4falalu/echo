@@ -4,8 +4,9 @@ import * as React from 'react';
 
 import type { DropdownMenuProps } from '@radix-ui/react-dropdown-menu';
 
-import { ChevronRight, Minus, Plus } from '@/components/ui/icons';
+import { Minus, Plus } from '@/components/ui/icons';
 import { NodeTypeIcons } from '../config/icons';
+import { createLabel, NodeTypeLabels, MenuGroupLabels } from '../config/labels';
 import { KEYS } from 'platejs';
 import { type PlateEditor, useEditorRef } from 'platejs/react';
 
@@ -18,7 +19,6 @@ import {
 import { insertBlock, insertInlineElement } from './transforms';
 
 import { ToolbarButton, ToolbarMenuGroup } from '@/components/ui/toolbar/Toolbar';
-import { THEME_RESET_STYLE } from '@/styles/theme-reset';
 
 type Group = {
   group: string;
@@ -35,46 +35,46 @@ interface Item {
 
 const groups: Group[] = [
   {
-    group: 'Basic blocks',
+    group: MenuGroupLabels.basicBlocks,
     items: [
       {
         icon: <NodeTypeIcons.paragraph />,
-        label: 'Paragraph',
+        label: NodeTypeLabels.paragraph.label,
         value: KEYS.p
       },
       {
         icon: <NodeTypeIcons.h1 />,
-        label: 'Heading 1',
+        label: NodeTypeLabels.h1.label,
         value: 'h1'
       },
       {
         icon: <NodeTypeIcons.h2 />,
-        label: 'Heading 2',
+        label: NodeTypeLabels.h2.label,
         value: 'h2'
       },
       {
         icon: <NodeTypeIcons.h3 />,
-        label: 'Heading 3',
+        label: NodeTypeLabels.h3.label,
         value: 'h3'
       },
       {
         icon: <NodeTypeIcons.table />,
-        label: 'Table',
+        label: NodeTypeLabels.table.label,
         value: KEYS.table
       },
       {
         icon: <NodeTypeIcons.code />,
-        label: 'Code',
+        label: NodeTypeLabels.codeBlock.label,
         value: KEYS.codeBlock
       },
       {
         icon: <NodeTypeIcons.quote />,
-        label: 'Quote',
+        label: NodeTypeLabels.blockquote.label,
         value: KEYS.blockquote
       },
       {
         icon: <Minus />,
-        label: 'Divider',
+        label: NodeTypeLabels.divider.label,
         value: KEYS.hr
       }
     ].map((item) => ({
@@ -85,26 +85,26 @@ const groups: Group[] = [
     }))
   },
   {
-    group: 'Lists',
+    group: MenuGroupLabels.lists,
     items: [
       {
         icon: <NodeTypeIcons.bulletedList />,
-        label: 'Bulleted list',
+        label: NodeTypeLabels.bulletedList.label,
         value: KEYS.ul
       },
       {
         icon: <NodeTypeIcons.numberedList />,
-        label: 'Numbered list',
+        label: NodeTypeLabels.numberedList.label,
         value: KEYS.ol
       },
       {
         icon: <NodeTypeIcons.shape />,
-        label: 'To-do list',
+        label: NodeTypeLabels.todoList.label,
         value: KEYS.listTodo
       },
       {
         icon: <NodeTypeIcons.toggle />,
-        label: 'Toggle list',
+        label: NodeTypeLabels.toggleList.label,
         value: KEYS.toggle
       }
     ].map((item) => ({
@@ -115,16 +115,16 @@ const groups: Group[] = [
     }))
   },
   {
-    group: 'Media',
+    group: MenuGroupLabels.media,
     items: [
       {
         icon: <NodeTypeIcons.image />,
-        label: 'Image',
+        label: NodeTypeLabels.image.label,
         value: KEYS.img
       },
       {
         icon: <NodeTypeIcons.embed />,
-        label: 'Embed',
+        label: NodeTypeLabels.embed.label,
         value: KEYS.mediaEmbed
       }
     ].map((item) => ({
@@ -135,22 +135,22 @@ const groups: Group[] = [
     }))
   },
   {
-    group: 'Advanced blocks',
+    group: MenuGroupLabels.advancedBlocks,
     items: [
       {
         icon: <NodeTypeIcons.tableOfContents />,
-        label: 'Table of contents',
+        label: NodeTypeLabels.tableOfContents.label,
         value: KEYS.toc
       },
       {
         icon: <NodeTypeIcons.columnsThree />,
-        label: '3 columns',
+        label: NodeTypeLabels.columnsThree.label,
         value: 'action_three_columns'
       },
       {
         focusEditor: false,
         icon: <NodeTypeIcons.equation />,
-        label: 'Equation',
+        label: NodeTypeLabels.equation.label,
         value: KEYS.equation
       }
     ].map((item) => ({
@@ -161,23 +161,23 @@ const groups: Group[] = [
     }))
   },
   {
-    group: 'Inline',
+    group: MenuGroupLabels.inline,
     items: [
       {
         icon: <NodeTypeIcons.link />,
-        label: 'Link',
+        label: NodeTypeLabels.link.label,
         value: KEYS.link
       },
       {
         focusEditor: true,
         icon: <NodeTypeIcons.calendar />,
-        label: 'Date',
+        label: NodeTypeLabels.date.label,
         value: KEYS.date
       },
       {
         focusEditor: false,
         icon: <NodeTypeIcons.equation />,
-        label: 'Inline Equation',
+        label: NodeTypeLabels.inlineEquation.label,
         value: KEYS.inlineEquation
       }
     ].map((item) => ({
@@ -196,7 +196,7 @@ export function InsertToolbarButton(props: DropdownMenuProps) {
   return (
     <DropdownMenu open={open} onOpenChange={setOpen} modal={false} {...props}>
       <DropdownMenuTrigger>
-        <ToolbarButton pressed={open} tooltip="Insert" isDropdown>
+        <ToolbarButton pressed={open} tooltip={createLabel('insert')} isDropdown>
           <Plus />
         </ToolbarButton>
       </DropdownMenuTrigger>
