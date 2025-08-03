@@ -14,16 +14,18 @@ export interface BusterListProps<T = any> {
   rowClassName?: string;
 }
 
-export interface BusterListColumn<T = any> {
-  dataIndex: keyof T;
-  title: string;
-  width?: number;
-  minWidth?: number;
-  align?: 'left' | 'center' | 'right'; //TODO
-  render?: (value: T[keyof T], record: T) => React.JSX.Element | string | React.ReactNode;
-  headerRender?: (title: string) => React.ReactNode;
-  ellipsis?: boolean;
-}
+export type BusterListColumn<T> = {
+  [K in keyof T]: {
+    dataIndex: K;
+    title: string;
+    width?: number;
+    minWidth?: number;
+    align?: 'left' | 'center' | 'right';
+    render?: (value: T[K], record: T) => React.JSX.Element | string | React.ReactNode;
+    headerRender?: (title: string) => React.ReactNode;
+    ellipsis?: boolean;
+  };
+}[keyof T];
 
 export type BusterListRow = BusterListRowItem;
 export interface BusterListRowItem {

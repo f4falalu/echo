@@ -60,7 +60,7 @@ export const ReportItemsContainer: React.FC<{
       {
         dataIndex: 'name',
         title: 'Name',
-        render: (name, record) => <TitleCell name={record.name} chatId={record?.id} />
+        render: (name, record) => <TitleCell name={name} chatId={record?.id} />
       },
       {
         dataIndex: 'last_edited',
