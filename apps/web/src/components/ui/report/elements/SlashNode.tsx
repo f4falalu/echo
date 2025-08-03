@@ -39,21 +39,21 @@ interface Item {
 }
 
 const groups: Group[] = [
-  {
-    group: 'AI',
-    items: [
-      {
-        focusEditor: false,
-        icon: <NodeTypeIcons.sparkleAI />,
-        label: NodeTypeLabels.aiChat.label,
-        keywords: NodeTypeLabels.aiChat.keywords,
-        value: 'AI',
-        onSelect: (editor) => {
-          editor.getApi(AIChatPlugin).aiChat.show();
-        }
-      }
-    ]
-  },
+  // {
+  //   group: 'AI',
+  //   items: [
+  //     {
+  //       focusEditor: false,
+  //       icon: <NodeTypeIcons.sparkleAI />,
+  //       label: NodeTypeLabels.aiChat.label,
+  //       keywords: NodeTypeLabels.aiChat.keywords,
+  //       value: 'AI',
+  //       onSelect: (editor) => {
+  //         editor.getApi(AIChatPlugin).aiChat.show();
+  //       }
+  //     }
+  //   ]
+  // },
   {
     group: MenuGroupLabels.basicBlocks,
     items: [

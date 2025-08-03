@@ -76,6 +76,11 @@ const groups: Group[] = [
         icon: <Minus />,
         label: NodeTypeLabels.divider.label,
         value: KEYS.hr
+      },
+      {
+        icon: <NodeTypeIcons.callout />,
+        label: NodeTypeLabels.callout.label,
+        value: KEYS.callout
       }
     ].map((item) => ({
       ...item,
