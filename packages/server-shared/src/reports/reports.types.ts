@@ -1,7 +1,7 @@
 import { z } from 'zod';
-import { ReportElementsSchema } from './report-elements';
+import type { ReportElements } from './report-elements';
 
-const BaseReportSchema = z.object({
+export const ReportSchema = z.object({
   id: z.string(),
   name: z.string(),
   file_name: z.string(),
@@ -11,10 +11,7 @@ const BaseReportSchema = z.object({
   updated_at: z.string(),
   deleted_at: z.string().nullable(),
   publicly_accessible: z.boolean(),
-});
-
-export const ReportSchema = BaseReportSchema.extend({
-  content: ReportElementsSchema,
+  content: z.any() as z.ZodType<ReportElements>,
 });
 
 export type Report = z.infer<typeof ReportSchema>;
