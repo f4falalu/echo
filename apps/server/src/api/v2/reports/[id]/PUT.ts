@@ -1,9 +1,5 @@
 import type { User } from '@buster/database';
-import type {
-  ReportResponse,
-  UpdateReportRequest,
-  UpdateReportResponse,
-} from '@buster/server-shared/reports';
+import type { UpdateReportRequest, UpdateReportResponse } from '@buster/server-shared/reports';
 import { UpdateReportRequestSchema } from '@buster/server-shared/reports';
 import { zValidator } from '@hono/zod-validator';
 import { Hono } from 'hono';
@@ -14,7 +10,7 @@ async function updateReportHandler(
   request: UpdateReportRequest,
   user: User
 ): Promise<UpdateReportResponse> {
-  const existingReport: ReportResponse = {
+  const existingReport: UpdateReportResponse = {
     id: reportId,
     name: 'Sales Analysis Q4',
     file_name: 'sales_analysis_q4.md',
@@ -42,7 +38,7 @@ async function updateReportHandler(
 
   const updatedReport: UpdateReportResponse = {
     ...existingReport,
-    ...(request as Partial<ReportResponse>),
+    ...(request as Partial<UpdateReportResponse>),
     updated_at: new Date().toISOString(),
   };
 

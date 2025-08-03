@@ -2,7 +2,16 @@ import { z } from 'zod';
 import type { ReportElement, ReportElements } from './report-elements';
 import { ReportElementSchema } from './report-elements';
 
-const ReportResponseSchema: z.ZodType<{
+export const ReportListItemSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  file_name: z.string(),
+  description: z.string(),
+  created_by: z.string(),
+  updated_at: z.string(),
+});
+
+export const ReportIndividualResponseSchema: z.ZodType<{
   id: string;
   name: string;
   file_name: string;
@@ -26,7 +35,5 @@ const ReportResponseSchema: z.ZodType<{
   content: z.array(ReportElementSchema) as z.ZodType<ReportElements>,
 });
 
-// Export base schema for operations like .pick()
-export { ReportResponseSchema };
-
-export type ReportResponse = z.infer<typeof ReportResponseSchema>;
+export type ReportListItem = z.infer<typeof ReportListItemSchema>;
+export type ReportIndividualResponse = z.infer<typeof ReportIndividualResponseSchema>;

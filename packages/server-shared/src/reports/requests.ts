@@ -2,7 +2,6 @@ import { z } from 'zod';
 import { PaginatedRequestSchema } from '../type-utilities/pagination';
 import type { ReportElement, ReportElements } from './report-elements';
 import { ReportElementSchema } from './report-elements';
-import { ReportResponseSchema } from './reports.types';
 
 export const GetReportsListRequestSchema = PaginatedRequestSchema;
 
