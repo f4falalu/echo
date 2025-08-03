@@ -194,7 +194,7 @@ export const NodeTypeLabels = {
     keywords: []
   },
   equation: {
-    label: 'Mark as equation',
+    label: 'Equation',
     keyboard: undefined,
     keywords: []
   },

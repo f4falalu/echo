@@ -99,8 +99,6 @@ export function FontColorToolbarButton({
     }
   }, [color, selectionDefined]);
 
-  console.log(customColors, organizationPalettes);
-
   return (
     <DropdownMenu
       open={open}
