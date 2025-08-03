@@ -15,9 +15,9 @@ function gridLayoutCols3(props: iconProps) {
           transform="rotate(90 9 9)"
           fill="none"
           stroke="#212121"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          stroke-width="1.5"></rect>
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth="1.5"></rect>
         <rect
           x="8.25"
           y="7.75"
@@ -28,9 +28,9 @@ function gridLayoutCols3(props: iconProps) {
           transform="rotate(90 14.5 9)"
           fill="none"
           stroke="#212121"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          stroke-width="1.5"></rect>
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth="1.5"></rect>
         <rect
           x="-2.75"
           y="7.75"
@@ -41,9 +41,9 @@ function gridLayoutCols3(props: iconProps) {
           transform="rotate(90 3.5 9)"
           fill="none"
           stroke="#212121"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          stroke-width="1.5"></rect>
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth="1.5"></rect>
       </g>
     </svg>
   );
