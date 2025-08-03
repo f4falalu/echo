@@ -124,6 +124,21 @@ export const NodeTypeLabels = {
     keyboard: '⌘+⇧+Z',
     keywords: []
   },
+  delete: {
+    label: 'Delete',
+    keyboard: '⌘+⌫',
+    keywords: []
+  },
+  duplicate: {
+    label: 'Duplicate',
+    keyboard: undefined,
+    keywords: []
+  },
+  askAI: {
+    label: 'Ask AI',
+    keyboard: undefined,
+    keywords: []
+  },
   link: {
     label: 'Link',
     keyboard: '⌘+K',
@@ -161,13 +176,18 @@ export const NodeTypeLabels = {
     keyboard: undefined,
     keywords: []
   },
-  insert: {
-    label: 'Insert',
+  align: {
+    label: 'Align',
     keyboard: undefined,
     keywords: []
   },
-  align: {
-    label: 'Align',
+  indentation: {
+    label: 'Indentation',
+    keyboard: undefined,
+    keywords: ['indent', 'outdent']
+  },
+  insert: {
+    label: 'Insert',
     keyboard: undefined,
     keywords: []
   },
