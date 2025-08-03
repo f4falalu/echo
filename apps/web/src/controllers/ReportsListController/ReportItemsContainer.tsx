@@ -14,12 +14,6 @@ import { BusterRoutes, createBusterRoute } from '@/routes';
 import { ReportSelectedOptionPopup } from './ReportItemsSelectedPopup';
 import type { ReportListItem } from '@buster/server-shared/reports';
 
-// Extended type that includes additional fields used in the UI
-interface ReportListItemWithExtras extends ReportListItem {
-  created_by_name?: string;
-  created_by_avatar?: string | null;
-}
-
 export const ReportItemsContainer: React.FC<{
   reports: ReportListItem[];
   className?: string;
@@ -61,7 +55,7 @@ export const ReportItemsContainer: React.FC<{
     });
   }, [reportsRecord]);
 
-  const columns: BusterListColumn<ReportListItemWithExtras>[] = useMemo(
+  const columns: BusterListColumn<ReportListItem>[] = useMemo(
     () => [
       {
         dataIndex: 'name',
