@@ -60,7 +60,7 @@ export const MetricItemsContainer: React.FC<{
     });
   }, [logsRecord]);
 
-  const columns: BusterListColumn[] = useMemo(
+  const columns: BusterListColumn<BusterMetricListItem>[] = useMemo(
     () => [
       {
         dataIndex: 'name',

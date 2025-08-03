@@ -18,7 +18,7 @@ import { formatDate } from '@/lib';
 import { BusterRoutes, createBusterRoute } from '@/routes';
 import { DashboardSelectedOptionPopup } from './DashboardSelectedPopup';
 
-const columns: BusterListColumn[] = [
+const columns: BusterListColumn<BusterDashboardListItem>[] = [
   {
     dataIndex: 'name',
     title: 'Title',
@@ -51,7 +51,7 @@ const columns: BusterListColumn[] = [
     render: (data) => formatDate({ date: data, format: 'lll' })
   },
   {
-    dataIndex: 'sharing',
+    dataIndex: 'status',
     title: 'Sharing',
     width: 65,
     render: (_, data) => getShareStatus(data)

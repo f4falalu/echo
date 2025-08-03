@@ -31,7 +31,7 @@ export const UserPermissionGroupsListContainer: React.FC<{
     await updateUserPermissionGroups([params]);
   });
 
-  const columns: BusterListColumn[] = useMemo(
+  const columns: BusterListColumn<BusterUserPermissionGroup>[] = useMemo(
     () => [
       {
         title: 'Name',

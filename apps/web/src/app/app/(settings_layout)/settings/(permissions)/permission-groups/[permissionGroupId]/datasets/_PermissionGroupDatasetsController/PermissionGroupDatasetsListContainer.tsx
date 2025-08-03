@@ -32,7 +32,7 @@ export const PermissionGroupDatasetsListContainer: React.FC<{
     });
   });
 
-  const columns: BusterListColumn[] = useMemo(
+  const columns: BusterListColumn<GetPermissionGroupDatasetsResponse>[] = useMemo(
     () => [
       {
         title: 'Name',
@@ -42,11 +42,11 @@ export const PermissionGroupDatasetsListContainer: React.FC<{
         title: 'Assigned',
         dataIndex: 'assigned',
         width: 130 + 85,
-        render: (assigned: boolean, permissionGroup: GetPermissionGroupUsersResponse) => {
+        render: (assigned, dataset: GetPermissionGroupDatasetsResponse) => {
           return (
             <div className="flex justify-end">
               <PermissionAssignedCell
-                id={permissionGroup.id}
+                id={dataset.id}
                 assigned={assigned}
                 text="assigned"
                 onSelect={onSelectAssigned}

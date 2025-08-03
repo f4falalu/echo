@@ -32,7 +32,7 @@ export const DatasetGroupPermissionGroupsListContainer: React.FC<{
     });
   });
 
-  const columns: BusterListColumn[] = useMemo(
+  const columns: BusterListColumn<GetPermissionGroupDatasetGroupsResponse>[] = useMemo(
     () => [
       {
         title: 'Name',

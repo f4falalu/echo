@@ -32,7 +32,7 @@ export const DatasetGroupDatasetsListContainer: React.FC<{
     });
   });
 
-  const columns: BusterListColumn[] = useMemo(
+  const columns: BusterListColumn<GetDatasetGroupDatasetsResponse>[] = useMemo(
     () => [
       {
         title: 'Name',

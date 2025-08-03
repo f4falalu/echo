@@ -12,7 +12,7 @@ import { Text } from '@/components/ui/typography';
 
 export const UserDatasetListContainer = React.memo(
   ({ filteredDatasets }: { filteredDatasets: OrganizationUserDataset[] }) => {
-    const columns: BusterListColumn[] = useMemo(
+    const columns: BusterListColumn<OrganizationUserDataset>[] = useMemo(
       () => [
         {
           title: 'Name',

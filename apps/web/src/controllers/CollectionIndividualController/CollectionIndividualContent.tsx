@@ -63,11 +63,11 @@ export const CollectionIndividualContent: React.FC<{
 });
 CollectionIndividualContent.displayName = 'CollectionIndividualContent';
 
-const columns: BusterListColumn[] = [
+const columns: BusterListColumn<BusterCollectionItemAsset>[] = [
   {
     dataIndex: 'name',
     title: 'Title',
-    render: ({ asset_type, name }) => {
+    render: (_, { asset_type, name }) => {
       const Icon = CollectionIconRecord[asset_type];
       return (
         <div className="flex w-full items-center space-x-2 overflow-hidden">
@@ -95,7 +95,7 @@ const columns: BusterListColumn[] = [
     dataIndex: 'created_by',
     title: 'Owner',
     width: 50,
-    render: (created_by: BusterCollectionListItem['owner']) => {
+    render: (_, { created_by }) => {
       return (
         <Avatar image={created_by?.avatar_url || undefined} name={created_by?.name} size={18} />
       );

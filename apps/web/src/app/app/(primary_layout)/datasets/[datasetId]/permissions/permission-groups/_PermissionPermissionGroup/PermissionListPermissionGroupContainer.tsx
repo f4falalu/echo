@@ -31,7 +31,7 @@ export const PermissionListPermissionGroupContainer: React.FC<{
     });
   });
 
-  const columns: BusterListColumn[] = useMemo(
+  const columns: BusterListColumn<ListPermissionGroupsResponse>[] = useMemo(
     () => [
       {
         title: 'Name',

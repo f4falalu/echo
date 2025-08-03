@@ -31,7 +31,7 @@ export const UserTeamsListContainer: React.FC<{
     await updateUserTeams([params]);
   });
 
-  const columns: BusterListColumn[] = useMemo(
+  const columns: BusterListColumn<BusterUserTeamListItem>[] = useMemo(
     () => [
       {
         title: 'Name',
@@ -39,9 +39,9 @@ export const UserTeamsListContainer: React.FC<{
       },
       {
         title: 'Role',
-        dataIndex: 'assigned',
+        dataIndex: 'role',
         width: 285,
-        render: (assigned: boolean, permissionGroup: BusterUserTeamListItem) => {
+        render: (_, permissionGroup) => {
           const { user_count, id, role } = permissionGroup;
           return (
             <div className="flex justify-end">

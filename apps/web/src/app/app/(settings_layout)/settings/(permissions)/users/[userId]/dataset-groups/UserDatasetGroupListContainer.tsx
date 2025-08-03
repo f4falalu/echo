@@ -31,7 +31,7 @@ export const UserDatasetGroupListContainer: React.FC<{
     await updateUserDatasetGroups([params]);
   });
 
-  const columns: BusterListColumn[] = useMemo(
+  const columns: BusterListColumn<BusterUserDatasetGroup>[] = useMemo(
     () => [
       {
         title: 'Name',

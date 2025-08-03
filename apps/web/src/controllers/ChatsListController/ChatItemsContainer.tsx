@@ -66,10 +66,10 @@ export const ChatItemsContainer: React.FC<{
     });
   }, [logsRecord]);
 
-  const columns: BusterListColumn[] = useMemo(
+  const columns: BusterListColumn<ChatListItem>[] = useMemo(
     () => [
       {
-        dataIndex: 'name',
+        dataIndex: 'title',
         title: 'Name',
         render: (name, record) => <TitleCell name={name} chatId={record?.id} />
       },

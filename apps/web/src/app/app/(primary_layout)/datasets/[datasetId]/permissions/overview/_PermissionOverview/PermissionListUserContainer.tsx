@@ -19,7 +19,7 @@ export const PermissionListUserContainer: React.FC<{
 }> = React.memo(({ className = '', filteredUsers }) => {
   const numberOfUsers = filteredUsers.length;
 
-  const columns: BusterListColumn[] = useMemo(
+  const columns: BusterListColumn<DatasetPermissionOverviewUser>[] = useMemo(
     () => [
       {
         title: 'Name',

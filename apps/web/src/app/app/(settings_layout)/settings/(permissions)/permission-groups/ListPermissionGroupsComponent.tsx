@@ -13,7 +13,7 @@ export const ListPermissionGroupsComponent: React.FC<{
   permissionGroups: ListPermissionGroupsResponse[];
   isFetched: boolean;
 }> = React.memo(({ permissionGroups, isFetched }) => {
-  const columns: BusterListColumn[] = useMemo(
+  const columns: BusterListColumn<ListPermissionGroupsResponse>[] = useMemo(
     () => [
       {
         title: 'Title',

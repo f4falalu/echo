@@ -18,7 +18,7 @@ export const ListUsersComponent: React.FC<{
   users: OrganizationUser[];
   isFetched: boolean;
 }> = React.memo(({ users, isFetched }) => {
-  const columns: BusterListColumn[] = useMemo(
+  const columns: BusterListColumn<OrganizationUser>[] = useMemo(
     () => [
       {
         title: 'Name',

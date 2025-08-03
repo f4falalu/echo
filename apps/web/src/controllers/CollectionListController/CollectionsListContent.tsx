@@ -52,7 +52,7 @@ export const CollectionsListContent: React.FC<{
 );
 CollectionsListContent.displayName = 'CollectionsListContent';
 
-const columns: BusterListColumn[] = [
+const columns: BusterListColumn<BusterCollectionListItem>[] = [
   {
     dataIndex: 'name',
     title: 'Title',

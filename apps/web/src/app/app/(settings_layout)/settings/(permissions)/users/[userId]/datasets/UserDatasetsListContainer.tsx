@@ -28,7 +28,7 @@ export const UserDatasetsListContainer: React.FC<{
     await updateUserDatasets([params]);
   });
 
-  const columns: BusterListColumn[] = useMemo(
+  const columns: BusterListColumn<BusterUserPermissionGroup>[] = useMemo(
     () => [
       {
         title: 'Name',
@@ -38,7 +38,7 @@ export const UserDatasetsListContainer: React.FC<{
         title: 'Assigned',
         dataIndex: 'assigned',
         width: 130,
-        render: (assigned: boolean, permissionGroup: BusterUserPermissionGroup) => {
+        render: (assigned, permissionGroup: BusterUserPermissionGroup) => {
           return (
             <div className="flex justify-end">
               <PermissionAssignedCell
