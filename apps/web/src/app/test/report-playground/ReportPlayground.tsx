@@ -202,6 +202,16 @@ const value: ReportElements = [
     lineHeight: 3
   },
   {
+    children: [
+      {
+        text: 'sdfasdf'
+      }
+    ],
+    icon: '😄',
+    type: 'callout',
+    id: 'KQ0_YKgdqy'
+  },
+  {
     type: 'p',
     id: 'k5Id6hcBYM',
     children: [
