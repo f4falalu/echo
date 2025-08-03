@@ -65,18 +65,19 @@ export const prefetchGetReportsList = async (
 /**
  * Hook to get an individual report by ID
  */
-export const useGetReportById = (
-  reportId: string,
+export const useGetReport = (
+  reportId: string | undefined,
   options?: Omit<UseQueryOptions<GetReportIndividualResponse, RustApiError>, 'queryKey' | 'queryFn'>
 ) => {
   const queryFn = useMemoizedFn(() => {
-    return getReportById(reportId);
+    return getReportById(reportId!);
   });
 
   return useQuery({
-    ...queryKeys.reportsGetById(reportId),
+    ...queryKeys.reportsGetById(reportId!),
     queryFn,
     enabled: !!reportId,
+    select: options?.select,
     ...options
   });
 };

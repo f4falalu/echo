@@ -11,7 +11,7 @@ import { useDocumentTitle } from '@/hooks';
 
 export type AppAssetCheckLayoutProps = {
   assetId: string;
-  type: 'metric' | 'dashboard' | 'collection';
+  type: 'metric' | 'dashboard' | 'collection' | 'report';
   versionNumber?: number;
 };
 

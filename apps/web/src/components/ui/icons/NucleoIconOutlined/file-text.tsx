@@ -3,7 +3,7 @@ import React from 'react';
 
 export default function FileText() {
   return (
-    <svg xmlns="http://www.w3.org/2000/svg" height="1em" width="1em" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24">
       <title>file-text</title>
       <g fill="currentColor" strokeLinejoin="miter" strokeLinecap="butt">
         <path

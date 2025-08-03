@@ -1,10 +1,7 @@
 'use client';
 
 import React, { useMemo, useState } from 'react';
-import type {
-  GetDatasetGroupDatasetsResponse,
-  GetPermissionGroupUsersResponse
-} from '@/api/asset_interfaces';
+import type { GetDatasetGroupDatasetsResponse } from '@/api/asset_interfaces';
 import { useUpdateDatasetGroupDatasets } from '@/api/buster_rest/dataset_groups';
 import { PermissionAssignedCell } from '@/components/features/PermissionComponents';
 import {
@@ -42,7 +39,7 @@ export const DatasetGroupDatasetsListContainer: React.FC<{
         title: 'Assigned',
         dataIndex: 'assigned',
         width: 130 + 85,
-        render: (assigned, permissionGroup: GetPermissionGroupUsersResponse) => {
+        render: (assigned, permissionGroup) => {
           return (
             <div className="flex justify-end">
               <PermissionAssignedCell
