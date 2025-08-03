@@ -1,5 +1,9 @@
 import type { User } from '@buster/database';
-import type { GetReportsListRequest, GetReportsListResponse } from '@buster/server-shared/reports';
+import type {
+  GetReportsListRequest,
+  GetReportsListResponse,
+  ReportResponse,
+} from '@buster/server-shared/reports';
 import { GetReportsListRequestSchema } from '@buster/server-shared/reports';
 import { zValidator } from '@hono/zod-validator';
 import { Hono } from 'hono';
@@ -8,7 +12,7 @@ async function getReportsListHandler(
   request: GetReportsListRequest,
   user: User
 ): Promise<GetReportsListResponse> {
-  const stubbedReports = [
+  const stubbedReports: ReportResponse[] = [
     {
       id: 'report-1',
       name: 'Sales Analysis Q4',
@@ -77,7 +81,7 @@ async function getReportsListHandler(
   const endIndex = startIndex + page_size;
   const paginatedReports = stubbedReports.slice(startIndex, endIndex);
 
-  return {
+  const result: GetReportsListResponse = {
     data: paginatedReports,
     pagination: {
       page,
@@ -86,6 +90,8 @@ async function getReportsListHandler(
       total_pages: Math.ceil(stubbedReports.length / page_size),
     },
   };
+
+  return result;
 }
 
 const app = new Hono().get('/', zValidator('query', GetReportsListRequestSchema), async (c) => {

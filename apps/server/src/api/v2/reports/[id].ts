@@ -1,5 +1,9 @@
 import type { User } from '@buster/database';
-import type { UpdateReportRequest, UpdateReportResponse } from '@buster/server-shared/reports';
+import type {
+  ReportResponse,
+  UpdateReportRequest,
+  UpdateReportResponse,
+} from '@buster/server-shared/reports';
 import { UpdateReportRequestSchema } from '@buster/server-shared/reports';
 import { zValidator } from '@hono/zod-validator';
 import { Hono } from 'hono';

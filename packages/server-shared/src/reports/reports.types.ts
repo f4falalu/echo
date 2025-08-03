@@ -1,9 +1,8 @@
 import { z } from 'zod';
-import type { ReportElement } from './report-elements';
+import type { ReportElement, ReportElements } from './report-elements';
 import { ReportElementSchema } from './report-elements';
 
-// Define the type explicitly
-export type ReportResponse = {
+const ReportResponseSchema: z.ZodType<{
   id: string;
   name: string;
   file_name: string;
@@ -14,10 +13,7 @@ export type ReportResponse = {
   deleted_at: string | null;
   publicly_accessible: boolean;
   content: ReportElement[];
-};
-
-// Create schema with explicit type annotation
-export const ReportResponseSchema = z.object({
+}> = z.object({
   id: z.string(),
   name: z.string(),
   file_name: z.string(),
@@ -27,5 +23,10 @@ export const ReportResponseSchema = z.object({
   updated_at: z.string(),
   deleted_at: z.string().nullable(),
   publicly_accessible: z.boolean(),
-  content: z.lazy(() => z.array(ReportElementSchema)), // Now using the actual schema
-}) as z.ZodType<ReportResponse>;
+  content: z.array(ReportElementSchema) as z.ZodType<ReportElements>,
+});
+
+// Export base schema for operations like .pick()
+export { ReportResponseSchema };
+
+export type ReportResponse = z.infer<typeof ReportResponseSchema>;
