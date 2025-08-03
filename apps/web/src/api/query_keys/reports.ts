@@ -13,7 +13,7 @@ const reportsGetList = (filters?: GetReportsListRequest) =>
     initialDataUpdatedAt: 0
   });
 
-const reportsGetById = (reportId: string) =>
+const reportsGetReport = (reportId: string) =>
   queryOptions<GetReportIndividualResponse>({
     queryKey: ['reports', 'get', reportId] as const,
     staleTime: 60 * 1000 // 60 seconds
@@ -21,5 +21,5 @@ const reportsGetById = (reportId: string) =>
 
 export const reportsQueryKeys = {
   reportsGetList,
-  reportsGetById
+  reportsGetReport
 };

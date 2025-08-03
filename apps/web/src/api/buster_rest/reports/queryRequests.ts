@@ -65,16 +65,19 @@ export const prefetchGetReportsList = async (
 /**
  * Hook to get an individual report by ID
  */
-export const useGetReport = (
+export const useGetReport = <T = GetReportIndividualResponse>(
   reportId: string | undefined,
-  options?: Omit<UseQueryOptions<GetReportIndividualResponse, RustApiError>, 'queryKey' | 'queryFn'>
+  options?: Omit<
+    UseQueryOptions<GetReportIndividualResponse, RustApiError, T>,
+    'queryKey' | 'queryFn'
+  >
 ) => {
   const queryFn = useMemoizedFn(() => {
     return getReportById(reportId!);
   });
 
   return useQuery({
-    ...queryKeys.reportsGetById(reportId!),
+    ...queryKeys.reportsGetReport(reportId!),
     queryFn,
     enabled: !!reportId,
     select: options?.select,
@@ -89,7 +92,7 @@ export const prefetchGetReportById = async (reportId: string, queryClientProp?: 
   const queryClient = queryClientProp || new QueryClient();
 
   await queryClient.prefetchQuery({
-    ...queryKeys.reportsGetById(reportId),
+    ...queryKeys.reportsGetReport(reportId),
     queryFn: () => getReportById_server(reportId)
   });
 
@@ -112,18 +115,18 @@ export const useUpdateReport = () => {
     onMutate: async ({ reportId, data }) => {
       // Cancel any outgoing refetches
       await queryClient.cancelQueries({
-        queryKey: queryKeys.reportsGetById(reportId).queryKey
+        queryKey: queryKeys.reportsGetReport(reportId).queryKey
       });
 
       // Snapshot the previous value
       const previousReport = queryClient.getQueryData<GetReportIndividualResponse>(
-        queryKeys.reportsGetById(reportId).queryKey
+        queryKeys.reportsGetReport(reportId).queryKey
       );
 
       // Optimistically update the individual report
       if (previousReport) {
         queryClient.setQueryData(
-          queryKeys.reportsGetById(reportId).queryKey,
+          queryKeys.reportsGetReport(reportId).queryKey,
           create(previousReport, (draft) => {
             if (data.name !== undefined) draft.name = data.name;
             if (data.description !== undefined) draft.description = data.description;
@@ -141,14 +144,14 @@ export const useUpdateReport = () => {
       // If the mutation fails, use the context to roll back
       if (context?.previousReport) {
         queryClient.setQueryData(
-          queryKeys.reportsGetById(reportId).queryKey,
+          queryKeys.reportsGetReport(reportId).queryKey,
           context.previousReport
         );
       }
     },
     onSuccess: (data, { reportId, data: updateData }) => {
       // Update the individual report cache with server response
-      queryClient.setQueryData(queryKeys.reportsGetById(reportId).queryKey, data);
+      queryClient.setQueryData(queryKeys.reportsGetReport(reportId).queryKey, data);
 
       const nameChanged = updateData.name !== undefined && updateData.name !== data.name;
 

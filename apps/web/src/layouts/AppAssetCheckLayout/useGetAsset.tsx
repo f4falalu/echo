@@ -167,6 +167,9 @@ export const useGetAsset = (
           isError: reportIsError,
           showLoader: !reportIsFetched && !reportIsError
         };
+      case 'chat':
+        // Chat type is not supported in this hook
+        return { isFetched: true, error: null, isError: false, showLoader: false };
       default: {
         const exhaustiveCheck: never = props.type;
         return { isFetched: false, error: null, isError: false, showLoader: false };
@@ -182,15 +185,28 @@ export const useGetAsset = (
     dashboardIsError,
     collectionIsFetched,
     collectionError,
-    collectionIsError
+    collectionIsError,
+    reportIsFetched,
+    reportError,
+    reportIsError
   ]);
 
   const title = useMemo(() => {
     if (isMetric) return metricTitle;
     if (isDashboard) return dashboardTitle;
     if (isCollection) return collectionTitle;
+    if (isReport) return reportTitle;
     return undefined;
-  }, [isMetric, isDashboard, isCollection, metricTitle, dashboardTitle, collectionTitle]);
+  }, [
+    isMetric,
+    isDashboard,
+    isCollection,
+    isReport,
+    metricTitle,
+    dashboardTitle,
+    collectionTitle,
+    reportTitle
+  ]);
 
   const { hasAccess, passwordRequired, isPublic } = getAssetAccess(currentQuery.error);
 
