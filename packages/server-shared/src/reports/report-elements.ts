@@ -10,6 +10,8 @@ const AttributesSchema = z.object({
   indent: z.number().int().min(0).optional(),
   align: z.enum(['left', 'center', 'right']).optional(),
   lineHeight: z.number().optional(),
+  subscript: z.boolean().optional(),
+  superscript: z.boolean().optional(),
   attributes: z
     .object({
       align: z.enum(['left', 'center', 'right']).optional(), //yes in both places

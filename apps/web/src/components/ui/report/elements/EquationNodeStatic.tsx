@@ -3,8 +3,8 @@ import * as React from 'react';
 import type { SlateElementProps, TEquationElement } from 'platejs';
 
 import { getEquationHtml } from '@platejs/math';
-import { Equation } from '@/components/ui/icons';
 import { SlateElement } from 'platejs';
+import { NodeTypeIcons } from '../config/icons';
 
 import { cn } from '@/lib/utils';
 
@@ -42,7 +42,7 @@ export function EquationElementStatic(props: SlateElementProps<TEquationElement>
         ) : (
           <div className="text-muted-foreground flex h-7 w-full items-center gap-2 text-sm whitespace-nowrap">
             <div className="text-muted-foreground/80 size-6">
-              <Equation />
+              <NodeTypeIcons.equation />
             </div>
             <div>Add a Tex equation</div>
           </div>

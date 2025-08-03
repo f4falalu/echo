@@ -6,10 +6,9 @@ import type { DropdownMenuItemProps, DropdownMenuProps } from '@radix-ui/react-d
 
 import { useComposedRef } from '@udecode/cn';
 import debounce from 'lodash/debounce.js';
-import { Eraser, Plus } from '../../icons';
+import { Eraser } from '@/components/ui/icons';
 import { useEditorRef, useEditorSelector } from 'platejs/react';
 
-import { buttonVariants } from '@/components/ui/buttons';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -20,7 +19,6 @@ import { Tooltip } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
 
 import { ToolbarButton, ToolbarMenuGroup } from '@/components/ui/toolbar/Toolbar';
-import { useGetOrganizationUsers } from '@/api/buster_rest/organizations';
 import { useGetPalettes } from '@/context-hooks/usePalettes';
 import { isBrightColor } from '@/lib/colors';
 
@@ -100,8 +98,6 @@ export function FontColorToolbarButton({
       setSelectedColor(color);
     }
   }, [color, selectionDefined]);
-
-  console.log(customColors, organizationPalettes);
 
   return (
     <DropdownMenu

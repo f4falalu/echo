@@ -32,7 +32,6 @@ import { type TDiscussion, discussionPlugin } from '../plugins/discussion-kit';
 
 import { EditorContainer } from '../EditorContainer';
 import { Editor } from '../Editor';
-import { THEME_RESET_STYLE } from '@/styles/theme-reset';
 
 export interface TComment {
   id: string;
