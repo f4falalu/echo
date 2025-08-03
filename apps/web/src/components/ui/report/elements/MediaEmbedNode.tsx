@@ -24,7 +24,6 @@ import { cn } from '@/lib/utils';
 import { Caption, CaptionTextarea } from './CaptionNode';
 import { MediaToolbar } from './MediaToolbar';
 import { mediaResizeHandleVariants, Resizable, ResizeHandle } from './ResizeHandle';
-import { Code3 } from '../../icons';
 import { PopoverAnchor, PopoverBase, PopoverContent } from '../../popover';
 import { Text } from '../../typography';
 import { Input } from '../../inputs';
@@ -34,6 +33,7 @@ import { useBusterNotifications } from '@/context/BusterNotifications';
 import { useEffect } from 'react';
 import { useClickAway } from '@/hooks/useClickAway';
 import { isUrlFromAcceptedDomain } from '@/lib/url';
+import { NodeTypeIcons } from '../config/icons';
 
 const parseGenericUrl: EmbedUrlParser = (url: string) => {
   return {
@@ -230,7 +230,7 @@ export const MediaEmbedPlaceholder = (props: PlateElementProps<TMediaEmbedElemen
             )}
             contentEditable={false}>
             <div className="text-muted-foreground/80 relative mr-3 flex [&_svg]:size-6">
-              <Code3 />
+              <NodeTypeIcons.embed />
             </div>
 
             <div className="text-muted-foreground text-sm whitespace-nowrap">Add a media embed</div>

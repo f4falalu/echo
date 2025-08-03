@@ -16,29 +16,12 @@ import {
   useEmojiDropdownMenuState
 } from '@platejs/emoji/react';
 import * as Popover from '@radix-ui/react-popover';
-import {
-  Apple,
-  Flag,
-  Magnifier,
-  Leaf,
-  Lightbulb,
-  Music,
-  Star,
-  Xmark,
-  FaceGrin,
-  Clock,
-  Compass,
-  BallRugby
-} from '../../icons';
+import { NodeTypeIcons } from '../config/icons';
+import { createLabel } from '../config/labels';
+import { Xmark } from '@/components/ui/icons';
 
 import { Button } from '@/components/ui/buttons';
-import {
-  Tooltip,
-  TooltipBase,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger
-} from '@/components/ui/tooltip';
+import { Tooltip } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
 import { ToolbarButton } from '@/components/ui/toolbar';
 
@@ -53,9 +36,9 @@ export function EmojiToolbarButton({
   return (
     <EmojiPopover
       control={
-        <ToolbarButton pressed={isOpen} tooltip="Emoji" isDropdown {...props}>
+        <ToolbarButton pressed={isOpen} tooltip={createLabel('emoji')} isDropdown {...props}>
           <div>
-            <FaceGrin />
+            <NodeTypeIcons.emoji />
           </div>
         </ToolbarButton>
       }
@@ -489,57 +472,57 @@ const emojiCategoryIcons: Record<
   }
 > = {
   activity: {
-    outline: <BallRugby />,
-    solid: <BallRugby />
+    outline: <NodeTypeIcons.emojiBall />,
+    solid: <NodeTypeIcons.emojiBall />
   },
 
   custom: {
-    outline: <Star />,
-    solid: <Star />
+    outline: <NodeTypeIcons.emojiStar />,
+    solid: <NodeTypeIcons.emojiStar />
   },
 
   flags: {
-    outline: <Flag />,
-    solid: <Flag />
+    outline: <NodeTypeIcons.emojiFlag />,
+    solid: <NodeTypeIcons.emojiFlag />
   },
 
   foods: {
-    outline: <Apple />,
-    solid: <Apple />
+    outline: <NodeTypeIcons.emojiApple />,
+    solid: <NodeTypeIcons.emojiApple />
   },
 
   frequent: {
-    outline: <Clock />,
-    solid: <Clock />
+    outline: <NodeTypeIcons.emojiClock />,
+    solid: <NodeTypeIcons.emojiClock />
   },
 
   nature: {
-    outline: <Leaf />,
-    solid: <Leaf />
+    outline: <NodeTypeIcons.emojiLeaf />,
+    solid: <NodeTypeIcons.emojiLeaf />
   },
 
   objects: {
-    outline: <Lightbulb />,
-    solid: <Lightbulb />
+    outline: <NodeTypeIcons.emojiLightbulb />,
+    solid: <NodeTypeIcons.emojiLightbulb />
   },
 
   people: {
-    outline: <FaceGrin />,
-    solid: <FaceGrin />
+    outline: <NodeTypeIcons.emoji />,
+    solid: <NodeTypeIcons.emoji />
   },
 
   places: {
-    outline: <Compass />,
-    solid: <Compass />
+    outline: <NodeTypeIcons.emojiCompass />,
+    solid: <NodeTypeIcons.emojiCompass />
   },
 
   symbols: {
-    outline: <Music />,
-    solid: <Music />
+    outline: <NodeTypeIcons.emojiMusic />,
+    solid: <NodeTypeIcons.emojiMusic />
   }
 };
 
 const emojiSearchIcons = {
   delete: <Xmark />,
-  loupe: <Magnifier />
+  loupe: <NodeTypeIcons.emojiSearch />
 };

@@ -206,7 +206,8 @@ const value: ReportElements = [
     id: 'k5Id6hcBYM',
     children: [
       {
-        text: 'This is a todo list'
+        text: 'This is a todo list',
+        subscript: false
       }
     ],
     indent: 1,
