@@ -50,6 +50,10 @@ export const SimpleTextSchema = z
   })
   .merge(AttributesSchema);
 
+export const VoidTextSchema = z.object({
+  text: z.literal(''),
+});
+
 /**
  * Inline Elements
  * ---------------
@@ -74,7 +78,7 @@ export const AnchorSchema = z.object({
 const DateSchema = z.object({
   type: z.literal('date'),
   date: z.string(),
-  children: z.array(TextSchema),
+  children: z.array(VoidTextSchema),
   id: z.string().optional(),
 });
 
@@ -152,7 +156,7 @@ export const ImageElementSchema = z
     alt: z.string().optional(),
     width: z.union([z.number(), z.string().regex(/^(?:\d+px|\d+%)$/)]).optional(),
     height: z.number().optional(),
-    children: z.array(TextSchema).default([]),
+    children: z.array(VoidTextSchema).default([]),
     caption: z.array(z.union([TextSchema, ParagraphElementSchema])).default([]),
     id: z.string().optional(),
   })
@@ -163,7 +167,7 @@ export const EmojiElementSchema = z.object({
   type: z.literal('emoji'),
   emoji: z.string().optional(),
   code: z.string().optional(),
-  children: z.array(TextSchema).default([]),
+  children: z.array(VoidTextSchema).default([]),
   id: z.string().optional(),
 });
 
@@ -171,7 +175,7 @@ export const EmojiElementSchema = z.object({
 export const AudioElementSchema = z.object({
   type: z.literal('audio'),
   url: z.string(),
-  children: z.array(TextSchema).default([]),
+  children: z.array(VoidTextSchema).default([]),
   id: z.string().optional(),
 });
 
@@ -181,14 +185,14 @@ export const FileElementSchema = z.object({
   url: z.string(),
   name: z.string(),
   isUpload: z.boolean().optional(),
-  children: z.array(TextSchema),
+  children: z.array(VoidTextSchema),
   id: z.string().optional(),
 });
 
 // Table of Contents element
 export const TocElementSchema = z.object({
   type: z.literal('toc'),
-  children: z.array(TextSchema).default([]),
+  children: z.array(VoidTextSchema).default([]),
   id: z.string().optional(),
 });
 
@@ -345,10 +349,21 @@ export const ListItemElementSchema = z.object({
   children: z.array(TextSchema).default([]),
 });
 
+// Equation element
+
+export const EquationElementSchema = z.object({
+  type: z.literal('equation'),
+  id: z.string().optional(),
+  texExpression: z.string(),
+  children: z.array(VoidTextSchema).default([]),
+});
+
+// CUSTOM ELEMENTS
+
 export const MetricElementSchema = z.object({
   type: z.literal('metric'),
   metricId: z.string(),
-  children: z.array(SimpleTextSchema).default([]),
+  children: z.array(VoidTextSchema).default([]),
   caption: z.array(z.union([TextSchema, ParagraphElementSchema])).default([]),
 });
 
@@ -357,15 +372,8 @@ export const MediaEmbedElementSchema = z.object({
   id: z.string().optional(),
   url: z.string(),
   width: z.union([z.number(), z.string().regex(/^(?:\d+px|\d+%)$/)]).optional(),
-  children: z.array(SimpleTextSchema).default([]),
+  children: z.array(VoidTextSchema).default([]),
   caption: z.array(z.union([TextSchema, ParagraphElementSchema])).default([]),
-});
-
-export const EquationElementSchema = z.object({
-  type: z.literal('equation'),
-  id: z.string().optional(),
-  texExpression: z.string(),
-  children: z.array(SimpleTextSchema).default([]),
 });
 
 /**
@@ -404,11 +412,6 @@ export const ReportElementSchema = z.discriminatedUnion('type', [
 // Array of report elements for complete documents
 export const ReportElementsSchema = z.array(ReportElementSchema);
 
-/**
- * Exported TypeScript Types
- * -------------------------
- * Inferred types from Zod schemas for type-safe usage.
- */
 export type TextElement = z.infer<typeof TextSchema>;
 export type SimpleTextElement = z.infer<typeof SimpleTextSchema>;
 export type MentionElement = z.infer<typeof MentionSchema>;
