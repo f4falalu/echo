@@ -14,6 +14,12 @@ import { BusterRoutes, createBusterRoute } from '@/routes';
 import { ReportSelectedOptionPopup } from './ReportItemsSelectedPopup';
 import type { ReportListItem } from '@buster/server-shared/reports';
 
+// Extended type that includes additional fields used in the UI
+interface ReportListItemWithExtras extends ReportListItem {
+  created_by_name?: string;
+  created_by_avatar?: string | null;
+}
+
 export const ReportItemsContainer: React.FC<{
   reports: ReportListItem[];
   className?: string;
@@ -55,25 +61,24 @@ export const ReportItemsContainer: React.FC<{
     });
   }, [reportsRecord]);
 
-  const columns: BusterListColumn[] = useMemo(
+  const columns: BusterListColumn<ReportListItemWithExtras>[] = useMemo(
     () => [
       {
         dataIndex: 'name',
         title: 'Name',
-        render: (name, record: ReportListItem) => (
-          <TitleCell name={record.name} chatId={record?.id} />
-        )
+        render: (name, record) => <TitleCell name={record.name} chatId={record?.id} />
       },
       {
         dataIndex: 'last_edited',
         title: 'Last updated',
         width: 132,
         render: (v) => {
-          if (renderedDates.current[v]) {
-            return renderedDates.current[v];
+          const dateString = String(v);
+          if (renderedDates.current[dateString]) {
+            return renderedDates.current[dateString];
           }
-          const date = formatDate({ date: v, format: 'lll' });
-          renderedDates.current[v] = date;
+          const date = formatDate({ date: dateString, format: 'lll' });
+          renderedDates.current[dateString] = date;
           return date;
         }
       },
@@ -81,20 +86,21 @@ export const ReportItemsContainer: React.FC<{
         dataIndex: 'is_shared',
         title: 'Sharing',
         width: 65,
-        render: (v, record: ReportListItem) => getShareStatus({ is_shared: record.is_shared })
+        render: (v, record) => getShareStatus({ is_shared: record.is_shared })
       },
       {
         dataIndex: 'created_by_name',
         title: 'Owner',
         width: 45,
         render: (name, record) => {
-          if (renderedOwners.current[name]) {
-            return renderedOwners.current[name];
+          const nameString = String(name || '');
+          if (renderedOwners.current[nameString]) {
+            return renderedOwners.current[nameString];
           }
           const avatarCell = (
-            <OwnerCell name={name} image={record?.created_by_avatar || undefined} />
+            <OwnerCell name={nameString} image={record?.created_by_avatar || undefined} />
           );
-          renderedOwners.current[name] = avatarCell;
+          renderedOwners.current[nameString] = avatarCell;
           return avatarCell;
         }
       }

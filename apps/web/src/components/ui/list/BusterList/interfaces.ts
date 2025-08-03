@@ -1,7 +1,7 @@
 import type React from 'react';
 import type { ContextMenuProps } from '../../context-menu/ContextMenu';
-export interface BusterListProps {
-  columns: BusterListColumn[];
+export interface BusterListProps<T = any> {
+  columns: BusterListColumn<T>[];
   hideLastRowBorder?: boolean;
   rows: BusterListRow[];
   onSelectChange?: (selectedRowKeys: string[]) => void;
@@ -14,18 +14,13 @@ export interface BusterListProps {
   rowClassName?: string;
 }
 
-export interface BusterListColumn {
-  dataIndex: string;
+export interface BusterListColumn<T = any> {
+  dataIndex: keyof T;
   title: string;
   width?: number;
   minWidth?: number;
   align?: 'left' | 'center' | 'right'; //TODO
-  render?: (
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- This really could be anything...
-    value: string | number | boolean | null | undefined | any,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- This really could be anything...
-    record: any
-  ) => React.JSX.Element | string | React.ReactNode;
+  render?: (value: T[keyof T], record: T) => React.JSX.Element | string | React.ReactNode;
   headerRender?: (title: string) => React.ReactNode;
   ellipsis?: boolean;
 }
