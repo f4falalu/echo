@@ -203,6 +203,7 @@ export const NodeTypeIcons = {
   indent: IndentIncrease,
   outdent: IndentDecrease,
   download: Download,
+  turnInto: Pilcrow,
 
   // Tools
   equation: Equation,

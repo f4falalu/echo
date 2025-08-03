@@ -19,6 +19,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 
 import { ToolbarButton } from '@/components/ui/toolbar/Toolbar';
+import { Tooltip } from '../../tooltip';
 
 const items = [
   {
@@ -69,13 +70,15 @@ export function AlignToolbarButton(props: DropdownMenuProps) {
             tf.textAlign.setNodes(value as Alignment);
             editor.tf.focus();
           }}>
-          {items.map(({ icon: Icon, value: itemValue }) => (
-            <DropdownMenuRadioItem
-              key={itemValue}
-              className="data-[state=checked]:bg-accent pl-2 *:first:[span]:hidden"
-              value={itemValue}>
-              <Icon />
-            </DropdownMenuRadioItem>
+          {items.map(({ icon: Icon, label, value: itemValue }) => (
+            <Tooltip key={itemValue} title={label} side="left">
+              <DropdownMenuRadioItem
+                key={itemValue}
+                className="data-[state=checked]:bg-accent pl-2 *:first:[span]:hidden"
+                value={itemValue}>
+                <Icon />
+              </DropdownMenuRadioItem>
+            </Tooltip>
           ))}
         </DropdownMenuRadioGroup>
       </DropdownMenuContent>
