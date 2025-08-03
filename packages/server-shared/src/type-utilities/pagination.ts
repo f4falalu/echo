@@ -16,3 +16,8 @@ export const PaginatedResponseSchema = <T>(schema: z.ZodType<T>) =>
   });
 
 export type PaginatedResponse<T> = z.infer<ReturnType<typeof PaginatedResponseSchema<T>>>;
+
+export const PaginatedRequestSchema = z.object({
+  page: z.number(),
+  page_size: z.number(),
+});

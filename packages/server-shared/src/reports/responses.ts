@@ -1,9 +1,9 @@
-import { z } from 'zod';
+import type { z } from 'zod';
 import { PaginatedResponseSchema } from '../type-utilities/pagination';
-import { ReportSchema, type Report } from './reports.types';
+import { ReportResponseSchema } from './reports.types';
 
-export const GetReportsListResponseSchema = PaginatedResponseSchema(ReportSchema);
-export const UpdateReportResponseSchema = ReportSchema;
+export const GetReportsListResponseSchema = PaginatedResponseSchema(ReportResponseSchema);
+export const UpdateReportResponseSchema = ReportResponseSchema;
 
 export type GetReportsListResponse = z.infer<typeof GetReportsListResponseSchema>;
-export type UpdateReportResponse = Report;
+export type UpdateReportResponse = z.infer<typeof UpdateReportResponseSchema>;

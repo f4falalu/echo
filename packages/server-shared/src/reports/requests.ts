@@ -1,17 +1,17 @@
-import { z } from 'zod';
+import type { z } from 'zod';
+import { PaginatedRequestSchema } from '../type-utilities/pagination';
 import type { ReportElements } from './report-elements';
+import { ReportResponseSchema } from './reports.types';
 
-export const GetReportsListRequestSchema = z.object({
-  page_token: z.number().optional().default(0),
-  page_size: z.number().optional().default(50),
-});
+export const GetReportsListRequestSchema = PaginatedRequestSchema;
 
-export const UpdateReportRequestSchema = z.object({
-  name: z.string().optional(),
-  description: z.string().optional(),
-  publicly_accessible: z.boolean().optional(),
-  content: z.any().optional() as z.ZodOptional<z.ZodType<ReportElements>>,
-});
+// UpdateReportRequestSchema uses zod's .pick to select updatable fields from ReportResponseSchema
+export const UpdateReportRequestSchema = ReportResponseSchema.pick({
+  name: true,
+  description: true,
+  publicly_accessible: true,
+  content: true,
+}).partial();
 
 export type GetReportsListRequest = z.infer<typeof GetReportsListRequestSchema>;
 export type UpdateReportRequest = z.infer<typeof UpdateReportRequestSchema>;

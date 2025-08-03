@@ -1,8 +1,5 @@
 import type { User } from '@buster/database';
-import type { 
-  GetReportsListRequest,
-  GetReportsListResponse 
-} from '@buster/server-shared/reports';
+import type { GetReportsListRequest, GetReportsListResponse } from '@buster/server-shared/reports';
 import { GetReportsListRequestSchema } from '@buster/server-shared/reports';
 import { zValidator } from '@hono/zod-validator';
 import { Hono } from 'hono';
@@ -25,16 +22,16 @@ async function getReportsListHandler(
       content: [
         {
           type: 'h1' as const,
-          children: [{ text: 'Sales Analysis Q4' }]
+          children: [{ text: 'Sales Analysis Q4' }],
         },
         {
           type: 'p' as const,
-          children: [{ text: 'This report analyzes our Q4 sales performance.' }]
-        }
-      ]
+          children: [{ text: 'This report analyzes our Q4 sales performance.' }],
+        },
+      ],
     },
     {
-      id: 'report-2', 
+      id: 'report-2',
       name: 'Customer Metrics Dashboard',
       file_name: 'customer_metrics.md',
       description: 'Key customer engagement metrics',
@@ -46,9 +43,9 @@ async function getReportsListHandler(
       content: [
         {
           type: 'h1' as const,
-          children: [{ text: 'Customer Metrics' }]
-        }
-      ]
+          children: [{ text: 'Customer Metrics' }],
+        },
+      ],
     },
     {
       id: 'report-3',
@@ -63,39 +60,40 @@ async function getReportsListHandler(
       content: [
         {
           type: 'h1' as const,
-          children: [{ text: 'Marketing Campaign Results' }]
+          children: [{ text: 'Marketing Campaign Results' }],
         },
         {
           type: 'p' as const,
-          children: [{ text: 'Overview of our recent marketing initiatives and their performance.' }]
-        }
-      ]
-    }
+          children: [
+            { text: 'Overview of our recent marketing initiatives and their performance.' },
+          ],
+        },
+      ],
+    },
   ];
 
-  const { page_token, page_size } = request;
-  const startIndex = page_token * page_size;
+  const { page, page_size } = request;
+  const startIndex = page * page_size;
   const endIndex = startIndex + page_size;
   const paginatedReports = stubbedReports.slice(startIndex, endIndex);
 
   return {
     data: paginatedReports,
     pagination: {
-      page: page_token,
-      page_size: page_size,
+      page,
+      page_size,
       total: stubbedReports.length,
-      total_pages: Math.ceil(stubbedReports.length / page_size)
-    }
+      total_pages: Math.ceil(stubbedReports.length / page_size),
+    },
   };
 }
 
-const app = new Hono()
-  .get('/', zValidator('query', GetReportsListRequestSchema), async (c) => {
-    const request = c.req.valid('query');
-    const user = c.get('busterUser');
-    
-    const response = await getReportsListHandler(request, user);
-    return c.json(response);
-  });
+const app = new Hono().get('/', zValidator('query', GetReportsListRequestSchema), async (c) => {
+  const request = c.req.valid('query');
+  const user = c.get('busterUser');
+
+  const response = await getReportsListHandler(request, user);
+  return c.json(response);
+});
 
 export default app;
