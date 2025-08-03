@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { ReportElementsSchema } from './report-elements';
 
-export const ReportSchema = z.object({
+const BaseReportSchema = z.object({
   id: z.string(),
   name: z.string(),
   file_name: z.string(),
@@ -11,6 +11,9 @@ export const ReportSchema = z.object({
   updated_at: z.string(),
   deleted_at: z.string().nullable(),
   publicly_accessible: z.boolean(),
+});
+
+export const ReportSchema = BaseReportSchema.extend({
   content: ReportElementsSchema,
 });
 

@@ -6,10 +6,13 @@ export const GetReportsListRequestSchema = z.object({
   page_size: z.number().optional().default(50),
 });
 
-export const UpdateReportRequestSchema = z.object({
+const BaseUpdateRequestSchema = z.object({
   name: z.string().optional(),
   description: z.string().optional(),
   publicly_accessible: z.boolean().optional(),
+});
+
+export const UpdateReportRequestSchema = BaseUpdateRequestSchema.extend({
   content: ReportElementsSchema.optional(),
 });
 
