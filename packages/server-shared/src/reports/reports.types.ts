@@ -8,7 +8,8 @@ export const ReportListItemSchema = z.object({
   file_name: z.string(),
   description: z.string(),
   created_by: z.string(),
-  updated_at: z.string(),
+  last_edited: z.string(),
+  is_shared: z.boolean(),
 });
 
 export const ReportIndividualResponseSchema: z.ZodType<{
