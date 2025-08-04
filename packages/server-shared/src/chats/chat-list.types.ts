@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 export const ChatListItemSchema = z.object({
   id: z.string(),
-  title: z.string(),
+  name: z.string(),
   is_favorited: z.boolean(),
   updated_at: z.string(),
   created_at: z.string(),

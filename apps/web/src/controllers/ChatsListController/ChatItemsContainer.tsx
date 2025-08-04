@@ -54,23 +54,7 @@ export const ChatItemsContainer: React.FC<{
 
       const additionalItem: BusterListRowItem<ChatListItem> = {
         id: key,
-        data: {
-          title: makeHumanReadble(key),
-          is_favorited: false,
-          updated_at: '',
-          created_at: '',
-          created_by: '',
-          created_by_id: '',
-          created_by_name: '',
-          created_by_avatar: null,
-          last_edited: '',
-          latest_file_id: '',
-          latest_version_number: 0,
-          latest_file_name: '',
-          latest_file_type: 'metric' as const,
-          is_shared: false,
-          id: key
-        },
+        data: null,
         rowSection: {
           title: makeHumanReadble(key),
           secondaryTitle: String(records.length)
@@ -84,7 +68,7 @@ export const ChatItemsContainer: React.FC<{
   const columns: BusterListColumn<ChatListItem>[] = useMemo(
     () => [
       {
-        dataIndex: 'title',
+        dataIndex: 'name',
         title: 'Name',
         render: (name, record) => <TitleCell name={name} chatId={record?.id} />
       },
