@@ -57,7 +57,7 @@ export const AppAssetCheckLayout: React.FC<
     return assetTitle;
   }, [chatTitle, assetTitle]);
 
-  useDocumentTitle(title);
+  useDocumentTitle(title); //TODO we can probably remove this
 
   return (
     <>
