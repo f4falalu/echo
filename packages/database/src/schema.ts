@@ -19,7 +19,7 @@ import {
   uuid,
   varchar,
 } from 'drizzle-orm/pg-core';
-import type { OrganizationColorPalettes } from './schema-types';
+import type { OrganizationColorPalettes, ReportElements } from './schema-types';
 
 export const assetPermissionRoleEnum = pgEnum('asset_permission_role_enum', [
   'owner',
@@ -993,7 +993,7 @@ export const reportFiles = pgTable(
   {
     id: uuid().defaultRandom().primaryKey().notNull(),
     name: varchar().notNull(),
-    content: jsonb().notNull(),
+    content: jsonb('content').$type<ReportElements>().notNull(),
     organizationId: uuid('organization_id').notNull(),
     createdBy: uuid('created_by').notNull(),
     createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' })
@@ -1009,7 +1009,19 @@ export const reportFiles = pgTable(
       withTimezone: true,
       mode: 'string',
     }),
-    versionHistory: jsonb('version_history').default({}).notNull(),
+    versionHistory: jsonb('version_history')
+      .$type<
+        Record<
+          string, //version number as a string
+          {
+            content: ReportElements;
+            updated_at: string;
+            version_number: number;
+          }
+        >
+      >()
+      .default({})
+      .notNull(),
     publicPassword: text('public_password'),
     workspaceSharing: workspaceSharingEnum('workspace_sharing').default('none').notNull(),
     workspaceSharingEnabledBy: uuid('workspace_sharing_enabled_by'),

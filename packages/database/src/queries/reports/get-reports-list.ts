@@ -22,9 +22,12 @@ export const GetReportsListInputSchema = z.object({
 
 export type GetReportsListInput = z.infer<typeof GetReportsListInputSchema>;
 
-type ReportListItemBase = Omit<InferSelectModel<typeof reportFiles>, 'content'>;
-
-export type ReportListItem = ReportListItemBase & {
+export type ReportListItem = {
+  id: string;
+  name: string;
+  created_at: string;
+  updated_at: string;
+  publicly_accessible: boolean;
   created_by_id: string;
   created_by_name: string | null;
   created_by_avatar: string | null;
@@ -86,19 +89,9 @@ export async function getReportsList(
       .select({
         id: reportFiles.id,
         name: reportFiles.name,
-        organizationId: reportFiles.organizationId,
-        createdBy: reportFiles.createdBy,
-        createdAt: reportFiles.createdAt,
-        updatedAt: reportFiles.updatedAt,
-        deletedAt: reportFiles.deletedAt,
-        publiclyAccessible: reportFiles.publiclyAccessible,
-        publiclyEnabledBy: reportFiles.publiclyEnabledBy,
-        publicExpiryDate: reportFiles.publicExpiryDate,
-        versionHistory: reportFiles.versionHistory,
-        publicPassword: reportFiles.publicPassword,
-        workspaceSharing: reportFiles.workspaceSharing,
-        workspaceSharingEnabledBy: reportFiles.workspaceSharingEnabledBy,
-        workspaceSharingEnabledAt: reportFiles.workspaceSharingEnabledAt,
+        publicly_accessible: reportFiles.publiclyAccessible,
+        created_at: reportFiles.createdAt,
+        updated_at: reportFiles.updatedAt,
         // User metadata
         created_by_id: users.id,
         created_by_name: users.name,

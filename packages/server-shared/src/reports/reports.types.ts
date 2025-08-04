@@ -1,17 +1,15 @@
+import type { ReportElement, ReportElements } from '@buster/database';
+import { ReportElementSchema } from '@buster/database';
 import { z } from 'zod';
-import type { ReportElement, ReportElements } from './report-elements';
-import { ReportElementSchema } from './report-elements';
 
 export const ReportListItemSchema = z.object({
   id: z.string(),
   name: z.string(),
-  file_name: z.string(),
-  description: z.string(),
   created_by_id: z.string(),
   created_by_name: z.string().nullable(),
   created_by_avatar: z.string().nullable(),
-  last_edited: z.string(),
-  is_shared: z.boolean(),
+  updated_at: z.string(),
+  publicly_accessible: z.boolean(),
 });
 
 export const ReportIndividualResponseSchema: z.ZodType<{

@@ -1,4 +1,4 @@
-import type { ReportElement } from './report-elements';
+import type { ReportElement } from '../../../database/src/schema-types/report-elements';
 
 export const SAMPLE_REPORT_ELEMENTS = [
   {

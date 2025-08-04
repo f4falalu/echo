@@ -22,7 +22,7 @@ import {
   BaseUnderlinePlugin,
 } from '@platejs/basic-nodes';
 import { createSlateEditor } from 'platejs';
-import { ReportElementsSchema } from '../../reports/report-elements';
+import { ReportElementsSchema } from '../../../../database/src/schema-types/report-elements';
 import { MarkdownPlugin } from './MarkdownPlugin';
 
 const serverNode = [

@@ -9,15 +9,9 @@ export const GetReportInputSchema = z.object({
   userId: z.string().uuid('User ID must be a valid UUID'),
 });
 
-export type GetReportInput = z.infer<typeof GetReportInputSchema>;
+type GetReportInput = z.infer<typeof GetReportInputSchema>;
 
-type Report = InferSelectModel<typeof reportFiles> & {
-  created_by_id: string;
-  created_by_name: string | null;
-  created_by_avatar: string | null;
-};
-
-export async function getReport(input: GetReportInput): Promise<Report> {
+export async function getReport(input: GetReportInput) {
   const validated = GetReportInputSchema.parse(input);
 
   const { reportId, userId } = validated;
@@ -36,19 +30,13 @@ export async function getReport(input: GetReportInput): Promise<Report> {
       id: reportFiles.id,
       name: reportFiles.name,
       content: reportFiles.content,
-      organizationId: reportFiles.organizationId,
-      createdBy: reportFiles.createdBy,
-      createdAt: reportFiles.createdAt,
-      updatedAt: reportFiles.updatedAt,
-      deletedAt: reportFiles.deletedAt,
-      publiclyAccessible: reportFiles.publiclyAccessible,
-      publiclyEnabledBy: reportFiles.publiclyEnabledBy,
-      publicExpiryDate: reportFiles.publicExpiryDate,
-      versionHistory: reportFiles.versionHistory,
-      publicPassword: reportFiles.publicPassword,
-      workspaceSharing: reportFiles.workspaceSharing,
-      workspaceSharingEnabledBy: reportFiles.workspaceSharingEnabledBy,
-      workspaceSharingEnabledAt: reportFiles.workspaceSharingEnabledAt,
+      created_at: reportFiles.createdAt,
+      updated_at: reportFiles.updatedAt,
+      publicly_accessible: reportFiles.publiclyAccessible,
+      public_expiry_date: reportFiles.publicExpiryDate,
+      version_history: reportFiles.versionHistory,
+      public_password: reportFiles.publicPassword,
+      workspace_sharing: reportFiles.workspaceSharing,
       // User metadata
       created_by_id: users.id,
       created_by_name: users.name,
