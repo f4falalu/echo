@@ -15,6 +15,7 @@ import { formatDate } from '@/lib';
 import { ASSET_ICONS } from '../config/assetIcons';
 import type { BusterSearchResult } from '@/api/asset_interfaces/search';
 import type { BusterListRowItem } from '@/components/ui/list/BusterList';
+import type { ShareAssetType } from '@buster/server-shared/share';
 
 export const AddToCollectionModal: React.FC<{
   open: boolean;
@@ -77,15 +78,19 @@ export const AddToCollectionModal: React.FC<{
   }, [searchResults]);
 
   const handleAddAndRemoveMetrics = useMemoizedFn(async () => {
-    const keyedAssets = rows.reduce<Record<string, { type: 'metric' | 'dashboard'; id: string }>>(
-      (acc, asset) => {
-        acc[asset.id] = { type: asset.data?.type as 'metric' | 'dashboard', id: asset.id };
-        return acc;
-      },
-      {}
-    );
+    const keyedAssets = rows.reduce<
+      Record<string, { type: Exclude<ShareAssetType, 'collection' | 'chat'>; id: string }>
+    >((acc, asset) => {
+      if (asset.data?.type && asset.data?.type !== 'collection' && asset.data?.type !== 'chat') {
+        acc[asset.id] = { type: asset.data?.type, id: asset.id };
+      }
+      return acc;
+    }, {});
 
-    const assets = selectedAssets.map<{ type: 'metric' | 'dashboard'; id: string }>((asset) => ({
+    const assets = selectedAssets.map<{
+      type: Exclude<ShareAssetType, 'collection' | 'chat'>;
+      id: string;
+    }>((asset) => ({
       id: asset,
       type: keyedAssets[asset].type
     }));
