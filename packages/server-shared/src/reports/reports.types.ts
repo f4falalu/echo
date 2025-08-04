@@ -7,8 +7,11 @@ export const ReportListItemSchema = z.object({
   name: z.string(),
   file_name: z.string(),
   description: z.string(),
-  created_by: z.string(),
-  updated_at: z.string(),
+  created_by_id: z.string(),
+  created_by_name: z.string().nullable(),
+  created_by_avatar: z.string().nullable(),
+  last_edited: z.string(),
+  is_shared: z.boolean(),
 });
 
 export const ReportIndividualResponseSchema: z.ZodType<{
