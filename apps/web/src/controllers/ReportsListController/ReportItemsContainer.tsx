@@ -4,7 +4,7 @@ import React, { memo, useMemo, useRef, useState } from 'react';
 import { FavoriteStar } from '@/components/features/list';
 import { getShareStatus } from '@/components/features/metrics/StatusBadgeIndicator';
 import { Avatar } from '@/components/ui/avatar';
-import type { BusterListColumn, BusterListRow } from '@/components/ui/list';
+import type { BusterListColumn, BusterListRowItem } from '@/components/ui/list';
 import { BusterList, ListEmptyStateWithButton } from '@/components/ui/list';
 import { useCreateListByDate } from '@/components/ui/list/useCreateListByDate';
 import { Text } from '@/components/ui/typography';
@@ -30,29 +30,31 @@ export const ReportItemsContainer: React.FC<{
 
   const reportsRecord = useCreateListByDate({ data: reports });
 
-  const reportsByDate: BusterListRow[] = useMemo(() => {
-    return Object.entries(reportsRecord).flatMap(([key, reports]) => {
-      const records = reports.map((report) => ({
-        id: report.id,
-        data: report,
-        link: createBusterRoute({ route: BusterRoutes.APP_REPORTS_ID, reportId: report.id })
-      }));
-      const hasRecords = records.length > 0;
+  const reportsByDate: BusterListRowItem<ReportListItem>[] = useMemo(() => {
+    return Object.entries(reportsRecord).flatMap<BusterListRowItem<ReportListItem>>(
+      ([key, reports]) => {
+        const records = reports.map((report) => ({
+          id: report.id,
+          data: report,
+          link: createBusterRoute({ route: BusterRoutes.APP_REPORTS_ID, reportId: report.id })
+        }));
+        const hasRecords = records.length > 0;
 
-      if (!hasRecords) return [];
+        if (!hasRecords) return [];
 
-      return [
-        {
-          id: key,
-          data: {},
-          rowSection: {
-            title: makeHumanReadble(key),
-            secondaryTitle: String(records.length)
-          }
-        },
-        ...records
-      ];
-    });
+        return [
+          {
+            id: key,
+            data: null,
+            rowSection: {
+              title: makeHumanReadble(key),
+              secondaryTitle: String(records.length)
+            }
+          },
+          ...records
+        ];
+      }
+    );
   }, [reportsRecord]);
 
   const columns: BusterListColumn<ReportListItem>[] = useMemo(

@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import React, { useMemo } from 'react';
 import type { ContextMenuProps } from '../../context-menu/ContextMenu';
 import { BusterList } from './index';
-import type { BusterListColumn, BusterListRow } from './interfaces';
+import type { BusterListColumn, BusterListRowItem } from './interfaces';
 
 const meta: Meta<typeof BusterList> = {
   title: 'UI/List/BusterList',
@@ -67,8 +67,8 @@ const sampleColumns: BusterListColumn<SampleData>[] = [
 ];
 
 // Generate sample rows using faker
-const generateSampleRows = (count: number): BusterListRow[] => {
-  const rows: BusterListRow[] = [];
+const generateSampleRows = (count: number): BusterListRowItem<SampleData>[] => {
+  const rows: BusterListRowItem<SampleData>[] = [];
 
   // Generate regular rows
   for (let i = 0; i < count; i++) {
@@ -109,7 +109,7 @@ const generateSampleRows = (count: number): BusterListRow[] => {
 };
 
 // Generate sample rows
-const sampleRows = generateSampleRows(5);
+const sampleRows: BusterListRowItem<SampleData>[] = generateSampleRows(5);
 
 const sampleContextMenu: ContextMenuProps = {
   items: [

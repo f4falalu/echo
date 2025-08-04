@@ -1,17 +1,17 @@
 import React from 'react';
 import { BusterListRowComponent } from './BusterListRowComponent';
 import { BusterListSectionComponent } from './BusterListSectionComponent';
-import type { BusterListColumn, BusterListProps, BusterListRow } from './interfaces';
+import type { BusterListColumn, BusterListProps, BusterListRowItem } from './interfaces';
 
-interface BusterListRowComponentSelectorProps<T> {
-  row: BusterListRow;
+interface BusterListRowComponentSelectorProps<T = unknown> {
+  row: BusterListRowItem<T>;
   columns: BusterListColumn<T>[];
   id: string;
   onSelectChange?: (v: boolean, id: string, e: React.MouseEvent) => void;
   onSelectSectionChange?: (v: boolean, id: string) => void;
   onContextMenuClick?: (e: React.MouseEvent<HTMLDivElement>, id: string) => void;
   selectedRowKeys?: string[];
-  rows: BusterListRow[];
+  rows: BusterListRowItem[];
   style?: React.CSSProperties;
   hideLastRowBorder: NonNullable<BusterListProps['hideLastRowBorder']>;
   rowClassName?: string;
@@ -19,7 +19,7 @@ interface BusterListRowComponentSelectorProps<T> {
   useRowClickSelectChange?: boolean;
 }
 
-export const BusterListRowComponentSelector = React.forwardRef(
+const BusterListRowComponentSelectorInner = React.forwardRef(
   <T,>(
     {
       style,
@@ -56,7 +56,7 @@ export const BusterListRowComponentSelector = React.forwardRef(
     }
 
     return (
-      <BusterListRowComponent<T>
+      <BusterListRowComponent
         style={style}
         row={row}
         columns={columns}
@@ -72,6 +72,13 @@ export const BusterListRowComponentSelector = React.forwardRef(
       />
     );
   }
-) as any as <T = unknown>(
+);
+
+BusterListRowComponentSelectorInner.displayName = 'BusterListRowComponentSelectorInner';
+
+// Type assertion through unknown is safer than any
+export const BusterListRowComponentSelector = BusterListRowComponentSelectorInner as (<T>(
   props: BusterListRowComponentSelectorProps<T> & React.RefAttributes<HTMLDivElement>
-) => React.ReactElement | null;
+) => React.ReactElement | null) & { displayName?: string };
+
+BusterListRowComponentSelector.displayName = 'BusterListRowComponentSelector';

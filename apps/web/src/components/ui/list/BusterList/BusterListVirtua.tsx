@@ -10,7 +10,7 @@ import { HEIGHT_OF_ROW, HEIGHT_OF_SECTION_ROW } from './config';
 import { getAllIdsInSection } from './helpers';
 import type { BusterListProps } from './interfaces';
 
-function BusterListVirtuaComponent<T = any>({
+function BusterListVirtuaComponent<T = unknown>({
   columns,
   rows,
   selectedRowKeys,

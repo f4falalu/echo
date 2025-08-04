@@ -23,19 +23,22 @@ export const ListPermissionGroupsComponent: React.FC<{
     []
   );
 
-  const permissionGroupsRows: BusterListRowItem[] = useMemo(() => {
-    return permissionGroups.reduce<BusterListRowItem[]>((acc, permissionGroup) => {
-      const rowItem: BusterListRowItem = {
-        id: permissionGroup.id,
-        data: permissionGroup,
-        link: createBusterRoute({
-          route: BusterRoutes.SETTINGS_PERMISSION_GROUPS_ID_USERS,
-          permissionGroupId: permissionGroup.id
-        })
-      };
-      acc.push(rowItem);
-      return acc;
-    }, []);
+  const permissionGroupsRows: BusterListRowItem<ListPermissionGroupsResponse>[] = useMemo(() => {
+    return permissionGroups.reduce<BusterListRowItem<ListPermissionGroupsResponse>[]>(
+      (acc, permissionGroup) => {
+        const rowItem: BusterListRowItem<ListPermissionGroupsResponse> = {
+          id: permissionGroup.id,
+          data: permissionGroup,
+          link: createBusterRoute({
+            route: BusterRoutes.SETTINGS_PERMISSION_GROUPS_ID_USERS,
+            permissionGroupId: permissionGroup.id
+          })
+        };
+        acc.push(rowItem);
+        return acc;
+      },
+      []
+    );
   }, [permissionGroups]);
 
   return (

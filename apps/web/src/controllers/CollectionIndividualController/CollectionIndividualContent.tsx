@@ -1,19 +1,14 @@
 'use client';
 
 import React, { useMemo, useState } from 'react';
-import type {
-  BusterCollection,
-  BusterCollectionItemAsset,
-  BusterCollectionListItem
-} from '@/api/asset_interfaces';
-import { ShareAssetType } from '@buster/server-shared/share';
+import type { BusterCollection, BusterCollectionItemAsset } from '@/api/asset_interfaces';
 import { ASSET_ICONS } from '@/components/features/config/assetIcons';
 import { AddToCollectionModal } from '@/components/features/modal/AddToCollectionModal';
 import { Avatar } from '@/components/ui/avatar';
 import {
   BusterList,
   type BusterListColumn,
-  type BusterListRow,
+  type BusterListRowItem,
   ListEmptyStateWithButton
 } from '@/components/ui/list';
 import { Text } from '@/components/ui/typography';
@@ -112,13 +107,14 @@ const CollectionList: React.FC<{
 }> = React.memo(({ setOpenAddTypeModal, selectedCollection, assetList, loadedAsset }) => {
   const [selectedRowKeys, setSelectedRowKeys] = useState<string[]>([]);
 
-  const items: BusterListRow[] = useMemo(() => {
+  const items: BusterListRowItem<BusterCollectionItemAsset>[] = useMemo(() => {
     return assetList.map((asset) => ({
       id: asset.id,
       link: createAssetLink(asset, selectedCollection.id),
       data: {
         ...asset,
-        name: { name: asset.name || `New ${asset.asset_type}`, asset_type: asset.asset_type }
+        name: asset.name || `New ${asset.asset_type}`,
+        asset_type: asset.asset_type
       }
     }));
   }, [assetList, selectedCollection.id]);

@@ -7,7 +7,7 @@ import { Avatar } from '@/components/ui/avatar';
 import {
   BusterList,
   type BusterListColumn,
-  type BusterListRow,
+  type BusterListRowItem,
   ListEmptyStateWithButton
 } from '@/components/ui/list';
 import { useUserConfigContextSelector } from '@/context/Users';
@@ -49,7 +49,7 @@ export const TermsListController: React.FC<{
 
   const [selectedTermIds, setSelectedTermIds] = useState<string[]>([]);
 
-  const rows: BusterListRow[] = useMemo(() => {
+  const rows: BusterListRowItem<BusterTermListItem>[] = useMemo(() => {
     return termsList.map((term) => ({
       id: term.id,
       data: term,

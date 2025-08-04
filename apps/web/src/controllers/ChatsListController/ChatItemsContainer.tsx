@@ -5,7 +5,7 @@ import type { ChatListItem } from '@buster/server-shared/chats';
 import { FavoriteStar } from '@/components/features/list';
 import { getShareStatus } from '@/components/features/metrics/StatusBadgeIndicator';
 import { Avatar } from '@/components/ui/avatar';
-import type { BusterListColumn, BusterListRow } from '@/components/ui/list';
+import type { BusterListColumn, BusterListRowItem } from '@/components/ui/list';
 import { BusterList, ListEmptyStateWithButton } from '@/components/ui/list';
 import { useCreateListByDate } from '@/components/ui/list/useCreateListByDate';
 import { Text } from '@/components/ui/typography';
@@ -41,9 +41,9 @@ export const ChatItemsContainer: React.FC<{
     });
   });
 
-  const chatsByDate: BusterListRow[] = useMemo(() => {
-    return Object.entries(logsRecord).flatMap(([key, chats]) => {
-      const records = chats.map((chat) => ({
+  const chatsByDate: BusterListRowItem<ChatListItem>[] = useMemo(() => {
+    return Object.entries(logsRecord).flatMap<BusterListRowItem<ChatListItem>>(([key, chats]) => {
+      const records = chats.map<BusterListRowItem<ChatListItem>>((chat) => ({
         id: chat.id,
         data: chat,
         link: getLink(chat)
@@ -52,17 +52,32 @@ export const ChatItemsContainer: React.FC<{
 
       if (!hasRecords) return [];
 
-      return [
-        {
-          id: key,
-          data: {},
-          rowSection: {
-            title: makeHumanReadble(key),
-            secondaryTitle: String(records.length)
-          }
+      const additionalItem: BusterListRowItem<ChatListItem> = {
+        id: key,
+        data: {
+          title: makeHumanReadble(key),
+          is_favorited: false,
+          updated_at: '',
+          created_at: '',
+          created_by: '',
+          created_by_id: '',
+          created_by_name: '',
+          created_by_avatar: null,
+          last_edited: '',
+          latest_file_id: '',
+          latest_version_number: 0,
+          latest_file_name: '',
+          latest_file_type: 'metric' as const,
+          is_shared: false,
+          id: key
         },
-        ...records
-      ];
+        rowSection: {
+          title: makeHumanReadble(key),
+          secondaryTitle: String(records.length)
+        }
+      };
+
+      return [additionalItem, ...records];
     });
   }, [logsRecord]);
 
@@ -113,7 +128,7 @@ export const ChatItemsContainer: React.FC<{
 
   return (
     <>
-      <BusterList
+      <BusterList<ChatListItem>
         rows={chatsByDate}
         columns={columns}
         onSelectChange={onSelectChange}

@@ -58,14 +58,14 @@ export const DatasetGroupDatasetsListContainer: React.FC<{
 
   const { cannotQueryPermissionUsers, canQueryPermissionUsers } = useMemo(() => {
     const result: {
-      cannotQueryPermissionUsers: BusterListRowItem[];
-      canQueryPermissionUsers: BusterListRowItem[];
+      cannotQueryPermissionUsers: BusterListRowItem<GetDatasetGroupDatasetsResponse>[];
+      canQueryPermissionUsers: BusterListRowItem<GetDatasetGroupDatasetsResponse>[];
     } = filteredDatasets.reduce<{
-      cannotQueryPermissionUsers: BusterListRowItem[];
-      canQueryPermissionUsers: BusterListRowItem[];
+      cannotQueryPermissionUsers: BusterListRowItem<GetDatasetGroupDatasetsResponse>[];
+      canQueryPermissionUsers: BusterListRowItem<GetDatasetGroupDatasetsResponse>[];
     }>(
       (acc, dataset) => {
-        const datasetItem: BusterListRowItem = {
+        const datasetItem: BusterListRowItem<GetDatasetGroupDatasetsResponse> = {
           id: dataset.id,
           data: dataset,
           link: createBusterRoute({
@@ -81,18 +81,18 @@ export const DatasetGroupDatasetsListContainer: React.FC<{
         return acc;
       },
       {
-        cannotQueryPermissionUsers: [] as BusterListRowItem[],
-        canQueryPermissionUsers: [] as BusterListRowItem[]
+        cannotQueryPermissionUsers: [],
+        canQueryPermissionUsers: []
       }
     );
     return result;
   }, [filteredDatasets]);
 
-  const rows = useMemo(
+  const rows: BusterListRowItem<GetDatasetGroupDatasetsResponse>[] = useMemo(
     () => [
       {
         id: 'header-assigned',
-        data: {},
+        data: null,
         hidden: canQueryPermissionUsers.length === 0,
         rowSection: {
           title: 'Assigned',
@@ -102,7 +102,7 @@ export const DatasetGroupDatasetsListContainer: React.FC<{
       ...canQueryPermissionUsers,
       {
         id: 'header-not-assigned',
-        data: {},
+        data: null,
         hidden: cannotQueryPermissionUsers.length === 0,
         rowSection: {
           title: 'Not assigned',

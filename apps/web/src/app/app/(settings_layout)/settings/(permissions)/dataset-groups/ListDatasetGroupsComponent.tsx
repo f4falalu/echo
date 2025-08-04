@@ -23,7 +23,7 @@ export const ListDatasetGroupsComponent: React.FC<{
     []
   );
 
-  const datasetGroupsRows: BusterListRowItem[] = useMemo(() => {
+  const datasetGroupsRows: BusterListRowItem<DatasetGroup>[] = useMemo(() => {
     return datasetGroups.map((datasetGroup) => ({
       id: datasetGroup.id,
       data: datasetGroup,

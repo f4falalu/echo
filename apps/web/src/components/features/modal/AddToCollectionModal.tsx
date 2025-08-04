@@ -13,6 +13,8 @@ import { Text } from '@/components/ui/typography';
 import { useDebounce, useMemoizedFn } from '@/hooks';
 import { formatDate } from '@/lib';
 import { ASSET_ICONS } from '../config/assetIcons';
+import type { BusterSearchResult } from '@/api/asset_interfaces/search';
+import type { BusterListRowItem } from '@/components/ui/list/BusterList';
 
 export const AddToCollectionModal: React.FC<{
   open: boolean;
@@ -33,12 +35,12 @@ export const AddToCollectionModal: React.FC<{
 
   const [selectedAssets, setSelectedAssets] = useState<string[]>([]);
 
-  const columns = useMemo<InputSelectModalProps['columns']>(
+  const columns = useMemo<InputSelectModalProps<BusterSearchResult>['columns']>(
     () => [
       {
         title: 'Name',
         dataIndex: 'name',
-        render: (name, data: { type: 'metric' | 'dashboard' }) => {
+        render: (name, data) => {
           const Icon = data.type === 'metric' ? ASSET_ICONS.metrics : ASSET_ICONS.dashboards;
           return (
             <div className="flex items-center gap-1.5">
@@ -54,7 +56,7 @@ export const AddToCollectionModal: React.FC<{
         title: 'Updated',
         dataIndex: 'updated_at',
         width: 140,
-        render: (value: string, x) => {
+        render: (value: string) => {
           return formatDate({
             date: value,
             format: 'lll'
@@ -65,11 +67,11 @@ export const AddToCollectionModal: React.FC<{
     []
   );
 
-  const rows = useMemo(() => {
+  const rows: BusterListRowItem<BusterSearchResult>[] = useMemo(() => {
     return (
       searchResults?.map((asset) => ({
         id: asset.id,
-        data: { name: asset.name, type: asset.type, updated_at: asset.updated_at }
+        data: asset
       })) || []
     );
   }, [searchResults]);
@@ -77,7 +79,7 @@ export const AddToCollectionModal: React.FC<{
   const handleAddAndRemoveMetrics = useMemoizedFn(async () => {
     const keyedAssets = rows.reduce<Record<string, { type: 'metric' | 'dashboard'; id: string }>>(
       (acc, asset) => {
-        acc[asset.id] = { type: asset.data.type as 'metric' | 'dashboard', id: asset.id };
+        acc[asset.id] = { type: asset.data?.type as 'metric' | 'dashboard', id: asset.id };
         return acc;
       },
       {}

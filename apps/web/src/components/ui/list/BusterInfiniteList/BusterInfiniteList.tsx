@@ -7,13 +7,13 @@ import { BusterListRowComponentSelector } from '../BusterList/BusterListRowCompo
 import { getAllIdsInSection } from '../BusterList/helpers';
 import { EmptyStateList } from '../EmptyStateList';
 
-export interface BusterInfiniteListProps<T = any> extends BusterListProps<T> {
+export interface BusterInfiniteListProps<T = unknown> extends BusterListProps<T> {
   onScrollEnd?: () => void;
   scrollEndThreshold?: number;
   loadingNewContent?: React.ReactNode;
 }
 
-function BusterInfiniteListComponent<T = any>({
+function BusterInfiniteListComponent<T = unknown>({
   columns,
   rows,
   selectedRowKeys,
@@ -172,6 +172,6 @@ function BusterInfiniteListComponent<T = any>({
   );
 }
 
-export const BusterInfiniteList = React.memo(BusterInfiniteListComponent) as <T = any>(
+export const BusterInfiniteList = React.memo(BusterInfiniteListComponent) as <T = unknown>(
   props: BusterInfiniteListProps<T>
 ) => React.ReactElement;

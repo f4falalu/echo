@@ -8,7 +8,7 @@ export const ReportListItemSchema = z.object({
   file_name: z.string(),
   description: z.string(),
   created_by_id: z.string(),
-  created_by_name: z.string(),
+  created_by_name: z.string().nullable(),
   created_by_avatar: z.string().nullable(),
   last_edited: z.string(),
   is_shared: z.boolean(),

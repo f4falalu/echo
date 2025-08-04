@@ -7,7 +7,7 @@ import { ArrowUpRight } from '@/components/ui/icons';
 import {
   BusterList,
   type BusterListColumn,
-  type BusterListRow,
+  type BusterListRowItem,
   ListEmptyStateWithButton
 } from '@/components/ui/list';
 import { useMemoizedFn } from '@/hooks';
@@ -64,7 +64,7 @@ export const DatasetListContent: React.FC<{
 }> = React.memo(({ datasetsList, isFetchedDatasets, isAdmin, setOpenNewDatasetModal }) => {
   const [selectedRowKeys, setSelectedRowKeys] = useState<string[]>([]);
 
-  const rows: BusterListRow[] = useMemo(() => {
+  const rows: BusterListRowItem<BusterDatasetListItem>[] = useMemo(() => {
     return datasetsList.map((dataset) => {
       return {
         id: dataset.id,

@@ -9,7 +9,7 @@ import { Avatar } from '@/components/ui/avatar';
 import {
   BusterList,
   type BusterListColumn,
-  type BusterListRow,
+  type BusterListRowItem,
   ListEmptyStateWithButton
 } from '@/components/ui/list';
 import { Text } from '@/components/ui/typography';
@@ -82,7 +82,7 @@ export const DashboardListContent: React.FC<{
   }) => {
     const [selectedDashboardIds, setSelectedDashboardIds] = useState<string[]>([]);
 
-    const rows: BusterListRow[] = useMemo(() => {
+    const rows: BusterListRowItem<BusterDashboardListItem>[] = useMemo(() => {
       return dashboardsList.map((dashboard) => {
         return {
           id: dashboard.id,
