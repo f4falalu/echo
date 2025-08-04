@@ -80,10 +80,11 @@ export async function getReport(input: GetReportInput) {
   // Individual permissions query - get users with direct permissions to this report
   const individualPermissionsQuery = db
     .select({
+      id: users.id,
       role: assetPermissions.role,
       email: users.email,
       name: users.name,
-      avatarUrl: users.avatarUrl,
+      avatar_url: users.avatarUrl,
     })
     .from(assetPermissions)
     .innerJoin(users, eq(users.id, assetPermissions.identityId))

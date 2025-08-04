@@ -35,7 +35,11 @@ export type ReportListItem = {
 
 /**
  * Get paginated list of reports for the user's organization
- * with optional filtering by name, dates, and public accessibility
+ * with optional filtering by name, dates, and public accessibility.
+ *
+ * Security note: When deleted date filters (deleted_after/deleted_before) are provided,
+ * this function returns only deleted reports within that date range.
+ * Otherwise, it returns only non-deleted reports.
  */
 export async function getReportsList(
   input: GetReportsListInput
@@ -64,20 +68,27 @@ export async function getReportsList(
   const { organizationId } = userOrg;
 
   // Build dynamic where conditions
-  // Only include the isNull check if no deleted date filters are provided
+  // Check if deleted date filters are provided
   const hasDeletedFilters = deleted_after !== undefined || deleted_before !== undefined;
 
   const whereConditions = and(
     eq(reportFiles.organizationId, organizationId),
-    // Only exclude deleted reports if no deleted date filters are provided
-    !hasDeletedFilters ? isNull(reportFiles.deletedAt) : undefined,
+    // Security fix: Always apply proper deletion filtering
+    // If deleted date filters are provided, show only deleted reports in that range
+    // Otherwise, show only non-deleted reports
+    hasDeletedFilters
+      ? and(
+          // Show only deleted reports within the specified date range
+          deleted_after ? gte(reportFiles.deletedAt, deleted_after) : undefined,
+          deleted_before ? lte(reportFiles.deletedAt, deleted_before) : undefined
+        )
+      : // Show only non-deleted reports
+        isNull(reportFiles.deletedAt),
     name ? like(reportFiles.name, `%${name}%`) : undefined,
     created_after ? gte(reportFiles.createdAt, created_after) : undefined,
     created_before ? lte(reportFiles.createdAt, created_before) : undefined,
     updated_after ? gte(reportFiles.updatedAt, updated_after) : undefined,
     updated_before ? lte(reportFiles.updatedAt, updated_before) : undefined,
-    deleted_after ? gte(reportFiles.deletedAt, deleted_after) : undefined,
-    deleted_before ? lte(reportFiles.deletedAt, deleted_before) : undefined,
     publicly_accessible !== undefined
       ? eq(reportFiles.publiclyAccessible, publicly_accessible)
       : undefined
