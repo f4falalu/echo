@@ -1,7 +1,7 @@
-import { type InferSelectModel, and, eq, isNull } from 'drizzle-orm';
+import { and, eq, isNull } from 'drizzle-orm';
 import { z } from 'zod';
 import { db } from '../../connection';
-import { reportFiles, users } from '../../schema';
+import { assetPermissions, collections, collectionsToAssets, reportFiles, users } from '../../schema';
 import { getUserOrganizationId } from '../organizations';
 
 export const GetReportInputSchema = z.object({
@@ -24,7 +24,25 @@ export async function getReport(input: GetReportInput) {
 
   const { organizationId } = userOrg;
 
-  const [reportData] = await db
+  const reportCollectionsQuery = db
+    .select({
+      id: collections.id,
+      name: collections.name,
+      description: collections.description,
+    })
+    .from(collectionsToAssets)
+    .innerJoin(collections, eq(collectionsToAssets.collectionId, collections.id))
+    .where(
+      and(
+        eq(collectionsToAssets.assetId, reportId),
+        eq(collectionsToAssets.assetType, 'report_file'),
+        isNull(collectionsToAssets.deletedAt),
+        isNull(collections.deletedAt),
+        eq(collections.organizationId, organizationId)
+      )
+    );
+
+  const reportDataQuery = await db
     .select({
       // All reportFiles columns
       id: reportFiles.id,
@@ -53,6 +71,32 @@ export async function getReport(input: GetReportInput) {
     )
     .limit(1);
 
+  // Individual permissions query - get users with direct permissions to this report
+  const individualPermissionsQuery = db
+    .select({
+      role: assetPermissions.role,
+      email: users.email,
+      name: users.name,
+      avatarUrl: users.avatarUrl,
+    })
+    .from(assetPermissions)
+    .innerJoin(users, eq(users.id, assetPermissions.identityId))
+    .where(
+      and(
+        eq(assetPermissions.assetId, reportId),
+        eq(assetPermissions.assetType, 'report_file'),
+        eq(assetPermissions.identityType, 'user'),
+        isNull(assetPermissions.deletedAt)
+      )
+    );
+
+  const [reportDataResult, reportCollectionsResult, individualPermissionsResult] = await Promise.all([
+    reportDataQuery,
+    reportCollectionsQuery,
+    individualPermissionsQuery,
+  ]);
+  const reportData = reportDataResult[0];
+
   if (!reportData) {
     throw new Error('Report not found');
   }
@@ -66,10 +110,13 @@ export async function getReport(input: GetReportInput) {
     }))
     .sort((a, b) => a.version_number - b.version_number);
 
+  // Get collections associated with this report
+
   const report = {
     ...reportData,
     version_number: versionHistoryArray[versionHistoryArray.length - 1]?.version_number ?? 1,
     version_history: versionHistoryArray,
+    collections: reportCollectionsResult,
   };
 
   return report;
