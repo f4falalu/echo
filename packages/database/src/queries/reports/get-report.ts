@@ -24,7 +24,7 @@ export async function getReport(input: GetReportInput) {
 
   const { organizationId } = userOrg;
 
-  const [report] = await db
+  const [reportData] = await db
     .select({
       // All reportFiles columns
       id: reportFiles.id,
@@ -53,9 +53,24 @@ export async function getReport(input: GetReportInput) {
     )
     .limit(1);
 
-  if (!report) {
+  if (!reportData) {
     throw new Error('Report not found');
   }
+
+  // Transform version_history from Record to array of { version_number, updated_at }
+  // Convert version_history object to array and sort by version_number ascending
+  const versionHistoryArray = Object.values(reportData.version_history)
+    .map((version) => ({
+      version_number: version.version_number,
+      updated_at: version.updated_at,
+    }))
+    .sort((a, b) => a.version_number - b.version_number);
+
+  const report = {
+    ...reportData,
+    version_number: versionHistoryArray[versionHistoryArray.length - 1]?.version_number ?? 1,
+    version_history: versionHistoryArray,
+  };
 
   return report;
 }
