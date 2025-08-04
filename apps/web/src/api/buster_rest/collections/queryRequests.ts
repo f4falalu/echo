@@ -310,7 +310,7 @@ export const useAddAndRemoveAssetsFromCollection = () => {
     async (variables: {
       collectionId: string;
       assets: {
-        type: Exclude<ShareAssetType, 'collection' | 'chat'>;
+        type: Exclude<ShareAssetType, 'collection'>;
         id: string;
       }[];
     }) => {
@@ -331,7 +331,7 @@ export const useAddAndRemoveAssetsFromCollection = () => {
         currentCollection.assets
           ?.filter((a) => !variables.assets.some((b) => b.id === a.id))
           .map((a) => ({
-            type: a.asset_type as Exclude<ShareAssetType, 'collection' | 'chat'>,
+            type: a.asset_type as Exclude<ShareAssetType, 'collection'>,
             id: a.id
           })) || [];
       const addedAssets = variables.assets.filter(

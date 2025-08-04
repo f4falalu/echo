@@ -79,16 +79,16 @@ export const AddToCollectionModal: React.FC<{
 
   const handleAddAndRemoveMetrics = useMemoizedFn(async () => {
     const keyedAssets = rows.reduce<
-      Record<string, { type: Exclude<ShareAssetType, 'collection' | 'chat'>; id: string }>
+      Record<string, { type: Exclude<ShareAssetType, 'collection'>; id: string }>
     >((acc, asset) => {
-      if (asset.data?.type && asset.data?.type !== 'collection' && asset.data?.type !== 'chat') {
+      if (asset.data?.type && asset.data?.type !== 'collection') {
         acc[asset.id] = { type: asset.data?.type, id: asset.id };
       }
       return acc;
     }, {});
 
     const assets = selectedAssets.map<{
-      type: Exclude<ShareAssetType, 'collection' | 'chat'>;
+      type: Exclude<ShareAssetType, 'collection'>;
       id: string;
     }>((asset) => ({
       id: asset,
