@@ -168,7 +168,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 
     return (
       <Comp
-        className={buttonVariants({ variant, size, iconButton, rounding, block, className })}
+        className={cn(buttonVariants({ variant, size, iconButton, rounding, block, className }))}
         onClick={onClick}
         ref={ref}
         disabled={disabled}
