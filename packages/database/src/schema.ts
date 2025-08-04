@@ -470,7 +470,7 @@ export const assetSearch = pgTable(
   {
     id: uuid().defaultRandom().primaryKey().notNull(),
     assetId: uuid('asset_id').notNull(),
-    assetType: text('asset_type').notNull(),
+    assetType: assetTypeEnum('asset_type').notNull(),
     content: text().notNull(),
     organizationId: uuid('organization_id').notNull(),
     createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' })

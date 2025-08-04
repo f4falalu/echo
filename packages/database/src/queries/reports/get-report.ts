@@ -1,7 +1,13 @@
 import { and, eq, isNull } from 'drizzle-orm';
 import { z } from 'zod';
 import { db } from '../../connection';
-import { assetPermissions, collections, collectionsToAssets, reportFiles, users } from '../../schema';
+import {
+  assetPermissions,
+  collections,
+  collectionsToAssets,
+  reportFiles,
+  users,
+} from '../../schema';
 import { getUserOrganizationId } from '../organizations';
 
 export const GetReportInputSchema = z.object({
@@ -90,11 +96,8 @@ export async function getReport(input: GetReportInput) {
       )
     );
 
-  const [reportDataResult, reportCollectionsResult, individualPermissionsResult] = await Promise.all([
-    reportDataQuery,
-    reportCollectionsQuery,
-    individualPermissionsQuery,
-  ]);
+  const [reportDataResult, reportCollectionsResult, individualPermissionsResult] =
+    await Promise.all([reportDataQuery, reportCollectionsQuery, individualPermissionsQuery]);
   const reportData = reportDataResult[0];
 
   if (!reportData) {
@@ -117,6 +120,7 @@ export async function getReport(input: GetReportInput) {
     version_number: versionHistoryArray[versionHistoryArray.length - 1]?.version_number ?? 1,
     version_history: versionHistoryArray,
     collections: reportCollectionsResult,
+    individual_permissions: individualPermissionsResult,
   };
 
   return report;

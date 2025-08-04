@@ -603,6 +603,13 @@
       "when": 1754337436368,
       "tag": "0085_create_report_table",
       "breakpoints": true
+    },
+    {
+      "idx": 86,
+      "version": "7",
+      "when": 1754342648525,
+      "tag": "0086_report_table_enum_update",
+      "breakpoints": true
     }
   ]
 }
