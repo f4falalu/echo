@@ -1,4 +1,4 @@
-const routerInstructions = `
+const _routerInstructions = `
     You are a router that decides between two modes for processing user queries in a data analysis LLM: Standard and Investigation.
 
     Standard mode is the default. Use it for common questions, building charts/dashboards, narrative reports with minor analysis, single metrics, specific reports, or when the query isn't a deep research question. It handles lightweight tasks and some analysis, but not iterative deep dives.

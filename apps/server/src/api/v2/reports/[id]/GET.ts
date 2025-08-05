@@ -1,5 +1,6 @@
 import { getReport } from '@buster/database';
 import type { GetReportIndividualResponse } from '@buster/server-shared/reports';
+import { markdownToPlatejs } from '@buster/server-utils/report';
 import { Hono } from 'hono';
 import { HTTPException } from 'hono/http-exception';
 import { standardErrorHandler } from '../../../../utils/response';
@@ -10,7 +11,21 @@ export async function getReportHandler(
 ): Promise<GetReportIndividualResponse> {
   const report = await getReport({ reportId, userId: user.id });
 
-  const response: GetReportIndividualResponse = report;
+  const platejsResult = await markdownToPlatejs(report.content);
+
+  if (platejsResult.error) {
+    console.error('Error converting markdown to PlateJS:', platejsResult.error);
+    throw new HTTPException(500, {
+      message: 'Error converting markdown to PlateJS',
+    });
+  }
+
+  const content = platejsResult.elements ?? [];
+
+  const response: GetReportIndividualResponse = {
+    ...report,
+    content,
+  };
 
   return response;
 }

@@ -1,4 +1,4 @@
-import { ReportElementsSchema } from '@buster/database';
+import { type ReportElements, ReportElementsSchema } from '@buster/database';
 import { AutoformatPlugin } from '@platejs/autoformat';
 import {
   BaseBasicBlocksPlugin,

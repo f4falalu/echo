@@ -6,9 +6,9 @@ import type { CoreMessage } from 'ai';
 import { wrapTraced } from 'braintrust';
 import { z } from 'zod';
 import { getSqlDialectGuidance } from '../agents/shared/sql-dialect-guidance';
+import { createThinkAndPrepInstructionsWithoutDatasets as createInvestigationInstructionsWithoutDatasets } from '../agents/think-and-prep-agent/investigation-instructions';
 import { thinkAndPrepAgent } from '../agents/think-and-prep-agent/think-and-prep-agent';
 import { createThinkAndPrepInstructionsWithoutDatasets } from '../agents/think-and-prep-agent/think-and-prep-instructions';
-import { createThinkAndPrepInstructionsWithoutDatasets as createInvestigationInstructionsWithoutDatasets } from '../agents/think-and-prep-agent/investigation-instructions';
 import type { thinkAndPrepWorkflowInputSchema } from '../schemas/workflow-schemas';
 import { ChunkProcessor } from '../utils/database/chunk-processor';
 import {
@@ -270,17 +270,18 @@ ${databaseContext}
           async () => {
             // Get the analysis type from the router step
             const analysisType = inputData['analysis-type-router'].analysisType.choice;
-            
+
             console.info('Think and Prep: Using analysis type', {
               analysisType,
               reasoning: inputData['analysis-type-router'].analysisType.reasoning,
             });
-            
+
             // Select the appropriate instructions based on analysis type
-            const instructions = analysisType === 'investigation'
-              ? createInvestigationInstructionsWithoutDatasets(sqlDialectGuidance)
-              : createThinkAndPrepInstructionsWithoutDatasets(sqlDialectGuidance);
-            
+            const instructions =
+              analysisType === 'investigation'
+                ? createInvestigationInstructionsWithoutDatasets(sqlDialectGuidance)
+                : createThinkAndPrepInstructionsWithoutDatasets(sqlDialectGuidance);
+
             // Create system messages with dataset context and instructions
             const systemMessages: CoreMessage[] = [
               {
