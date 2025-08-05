@@ -5,6 +5,7 @@ import { db } from '../../connection';
 import { reportFiles } from '../../schema';
 import { workspaceSharingEnum } from '../../schema';
 import { ReportElementSchema, type ReportElements } from '../../schema-types';
+import { getReport } from './get-report';
 
 // Type for updating reportFiles - excludes read-only fields
 type UpdateReportData = Partial<
@@ -13,6 +14,7 @@ type UpdateReportData = Partial<
     'id' | 'organizationId' | 'createdBy' | 'createdAt' | 'deletedAt'
   >
 >;
+type VersionHistoryItem = (typeof reportFiles.$inferSelect)['versionHistory']['string'];
 
 const WorkspaceSharingSchema = z.enum(workspaceSharingEnum.enumValues);
 
@@ -38,7 +40,10 @@ type UpdateReportInput = z.infer<typeof UpdateReportInputSchema>;
  * Only updates fields that are provided in the input
  * Always updates the updatedAt timestamp
  */
-export const updateReport = async (params: UpdateReportInput): Promise<void> => {
+export const updateReport = async (
+  params: UpdateReportInput,
+  updateVersion: boolean
+): Promise<void> => {
   // Validate and destructure input
   const {
     reportId,
@@ -91,6 +96,33 @@ export const updateReport = async (params: UpdateReportInput): Promise<void> => 
         updateData.workspaceSharingEnabledBy = null;
         updateData.workspaceSharingEnabledAt = null;
       }
+    }
+
+    if (updateVersion) {
+      const currentDataResult = await db
+        .select()
+        .from(reportFiles)
+        .where(eq(reportFiles.id, reportId));
+      const currentData = currentDataResult[0];
+      if (!currentData) {
+        throw new Error('Report not found');
+      }
+
+      const lastVersion =
+        Object.values(currentData.versionHistory).reduce((acc, curr) => {
+          return acc + curr.version_number;
+        }, 0) ?? 1;
+
+      currentData.versionHistory = {
+        ...currentData.versionHistory,
+        [lastVersion + 1]: {
+          content: content ?? currentData.content,
+          updated_at: new Date().toISOString(),
+          version_number: lastVersion + 1,
+        } satisfies VersionHistoryItem,
+      };
+
+      updateData.versionHistory = currentData.versionHistory;
     }
 
     // Update report in database

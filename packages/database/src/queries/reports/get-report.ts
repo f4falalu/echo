@@ -114,6 +114,14 @@ export async function getReport(input: GetReportInput) {
     }))
     .sort((a, b) => a.version_number - b.version_number);
 
+  //fallback for old reports
+  if (versionHistoryArray.length === 0) {
+    versionHistoryArray.push({
+      version_number: 1,
+      updated_at: reportData.created_at,
+    });
+  }
+
   // Get collections associated with this report
 
   const report = {
