@@ -7,6 +7,7 @@ import { useReportEditor } from './useReportEditor';
 import { useMemoizedFn } from '@/hooks';
 import { ReportElements } from '@buster/server-shared/reports';
 import { cn } from '@/lib/utils';
+import { ThemeWrapper } from './ThemeWrapper/ThemeWrapper';
 
 interface ReportEditorProps {
   // We accept the generic Value type but recommend using ReportTypes.Value for type safety
@@ -17,6 +18,8 @@ interface ReportEditorProps {
   className?: string;
   disabled?: boolean;
   style?: React.CSSProperties;
+  onValueChange?: (value: ReportElements) => void;
+  useFixedToolbarKit?: boolean;
 }
 
 interface AppReportRef {
@@ -31,16 +34,18 @@ export const ReportEditor = React.memo(
       {
         value,
         placeholder,
+        onValueChange,
         variant = 'default',
         className,
         style,
+        useFixedToolbarKit = false,
         readOnly = false,
         disabled = false
       },
       ref
     ) => {
       // Initialize the editor instance using the custom useEditor hook
-      const editor = useReportEditor({ value, disabled }, [value]);
+      const editor = useReportEditor({ value, disabled, useFixedToolbarKit }, [value]);
 
       const onReset = useMemoizedFn(() => {
         editor?.tf.reset();
@@ -49,18 +54,26 @@ export const ReportEditor = React.memo(
       // Optionally expose the editor instance to the parent via ref
       useImperativeHandle(ref, () => ({ editor, onReset }), [editor]);
 
+      const onValueChangePreflight = useMemoizedFn(
+        ({ value, editor }: { value: Value; editor: TPlateEditor<Value, AnyPluginConfig> }) => {
+          onValueChange?.(value as ReportElements);
+        }
+      );
+
       if (!editor) return null;
 
       return (
-        <Plate editor={editor} readOnly={readOnly}>
-          <EditorContainer
-            variant={variant}
-            readonly={readOnly}
-            disabled={disabled}
-            className={cn('pb-[20vh]', className)}>
-            <Editor style={style} placeholder={placeholder} disabled={disabled} />
-          </EditorContainer>
-        </Plate>
+        <ThemeWrapper>
+          <Plate editor={editor} readOnly={readOnly} onValueChange={onValueChangePreflight}>
+            <EditorContainer
+              variant={variant}
+              readonly={readOnly}
+              disabled={disabled}
+              className={cn('pb-[15vh]', className)}>
+              <Editor style={style} placeholder={placeholder} disabled={disabled} />
+            </EditorContainer>
+          </Plate>
+        </ThemeWrapper>
       );
     }
   )
