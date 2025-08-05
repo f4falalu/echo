@@ -1,3 +1,4 @@
+import type { RuntimeContext } from '@mastra/core/runtime-context';
 import { createTool } from '@mastra/core/tools';
 import { wrapTraced } from 'braintrust';
 import { z } from 'zod';
@@ -19,9 +20,17 @@ interface CreateReportsOutput {
 
 // Main create reports function
 const createReportsFile = wrapTraced(
-  async (params: CreateReportsParams): Promise<CreateReportsOutput> => {
+  async ({
+    params,
+    runtimeContext,
+  }: {
+    params: CreateReportsParams;
+    runtimeContext: RuntimeContext;
+  }): Promise<CreateReportsOutput> => {
     // Dummy implementation - just return success
     const dummyId = `report_${Date.now()}`;
+
+    runtimeContext.set(dummyId, params.code);
 
     return {
       success: true,
@@ -39,10 +48,10 @@ const createReportsFile = wrapTraced(
 // Export the tool
 export const createReports = createTool({
   id: 'create-reports',
-  description: 'Create a new report with PLATE.js content',
+  description: 'Create a new report with markdown content',
   inputSchema: z.object({
     name: z.string().describe('The name of the report'),
-    code: z.string().describe('The PLATE.js code for the report'),
+    code: z.string().describe('The markdown code for the report'),
   }),
   outputSchema: z.object({
     success: z.boolean(),
@@ -53,7 +62,10 @@ export const createReports = createTool({
       code: z.string(),
     }),
   }),
-  execute: async ({ context }) => {
-    return await createReportsFile(context as CreateReportsParams);
+  execute: async ({ context, runtimeContext }) => {
+    return await createReportsFile({
+      params: context as CreateReportsParams,
+      runtimeContext,
+    });
   },
 });
