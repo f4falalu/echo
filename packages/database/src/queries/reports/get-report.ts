@@ -127,7 +127,7 @@ export async function getReport(input: GetReportInput) {
   const report = {
     ...reportData,
     version_number: versionHistoryArray[versionHistoryArray.length - 1]?.version_number ?? 1,
-    version_history: versionHistoryArray,
+    versions: versionHistoryArray,
     collections: reportCollectionsResult,
     individual_permissions: individualPermissionsResult,
   };
