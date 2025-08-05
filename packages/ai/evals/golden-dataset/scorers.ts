@@ -266,10 +266,10 @@ export const timeFrameIsString = ({ output }: { output: any }) => {
 
         // Extract timeFrame from YML content
         const timeFrameMatch = ymlContent.match(/timeFrame:\s*([^\n]+)/);
-        if (timeFrameMatch && timeFrameMatch[1]) {
+        if (timeFrameMatch?.[1]) {
           const timeFrame = timeFrameMatch[1].trim();
           // Check if timeFrame is a number (invalid)
-          if (!isNaN(Number(timeFrame))) {
+          if (!Number.isNaN(Number(timeFrame))) {
             return 0; // Fail if timeFrame is a number
           }
         } else {
