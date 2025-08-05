@@ -1,5 +1,4 @@
 import { Hono } from 'hono';
-import { requireAuth } from '../../../../middleware/auth';
 import GET from './GET';
 import PUT from './PUT';
 import SHARING from './sharing';

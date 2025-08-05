@@ -38,6 +38,7 @@ export const assetTypeEnum = pgEnum('asset_type_enum', [
   'dashboard_file',
   'report_file',
 ]);
+// Asset type enum removed - now using text for all asset_type columns
 export const dataSourceOnboardingStatusEnum = pgEnum('data_source_onboarding_status_enum', [
   'notStarted',
   'inProgress',
@@ -470,7 +471,8 @@ export const assetSearch = pgTable(
   {
     id: uuid().defaultRandom().primaryKey().notNull(),
     assetId: uuid('asset_id').notNull(),
-    assetType: assetTypeEnum('asset_type').notNull(),
+    // The assetType column is a plain string (text), not an enum.
+    assetType: text('asset_type').notNull(),
     content: text().notNull(),
     organizationId: uuid('organization_id').notNull(),
     createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' })
@@ -932,7 +934,7 @@ export const dashboardFiles = pgTable(
     id: uuid().defaultRandom().primaryKey().notNull(),
     name: varchar().notNull(),
     fileName: varchar('file_name').notNull(),
-    content: jsonb().notNull(),
+    content: jsonb().notNull().default([]),
     filter: varchar(),
     organizationId: uuid('organization_id').notNull(),
     createdBy: uuid('created_by').notNull(),
@@ -1058,6 +1060,11 @@ export const reportFiles = pgTable(
       columns: [table.workspaceSharingEnabledBy],
       foreignColumns: [users.id],
       name: 'report_files_workspace_sharing_enabled_by_fkey',
+    }).onUpdate('cascade'),
+    foreignKey({
+      columns: [table.organizationId],
+      foreignColumns: [organizations.id],
+      name: 'report_files_organization_id_fkey',
     }).onUpdate('cascade'),
   ]
 );

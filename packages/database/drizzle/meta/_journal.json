@@ -610,6 +610,13 @@
       "when": 1754342648525,
       "tag": "0086_report_table_enum_update",
       "breakpoints": true
+    },
+    {
+      "idx": 87,
+      "version": "7",
+      "when": 1754359807604,
+      "tag": "0087_create_report_table_foreign_keys",
+      "breakpoints": true
     }
   ]
 }
