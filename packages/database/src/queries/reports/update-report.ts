@@ -5,14 +5,10 @@ import { db } from '../../connection';
 import { reportFiles } from '../../schema';
 import { workspaceSharingEnum } from '../../schema';
 import { ReportElementSchema, type ReportElements } from '../../schema-types';
-import { getReport } from './get-report';
 
 // Type for updating reportFiles - excludes read-only fields
 type UpdateReportData = Partial<
-  Omit<
-    typeof reportFiles.$inferInsert,
-    'id' | 'organizationId' | 'createdBy' | 'createdAt' | 'deletedAt'
-  >
+  Omit<typeof reportFiles.$inferInsert, 'id' | 'createdBy' | 'createdAt' | 'deletedAt'>
 >;
 type VersionHistoryItem = (typeof reportFiles.$inferSelect)['versionHistory']['string'];
 
@@ -21,7 +17,6 @@ const WorkspaceSharingSchema = z.enum(workspaceSharingEnum.enumValues);
 // Input validation schema for updating a report
 const UpdateReportInputSchema = z.object({
   reportId: z.string().uuid('Report ID must be a valid UUID'),
-  organizationId: z.string().uuid('Organization ID must be a valid UUID'),
   userId: z.string().uuid('User ID must be a valid UUID'),
   name: z.string().optional(),
   publicly_accessible: z.boolean().optional(),
@@ -47,7 +42,6 @@ export const updateReport = async (
   // Validate and destructure input
   const {
     reportId,
-    organizationId,
     userId,
     name,
     publicly_accessible,
@@ -129,17 +123,10 @@ export const updateReport = async (
     await db
       .update(reportFiles)
       .set(updateData)
-      .where(
-        and(
-          eq(reportFiles.id, reportId),
-          eq(reportFiles.organizationId, organizationId),
-          isNull(reportFiles.deletedAt)
-        )
-      );
+      .where(and(eq(reportFiles.id, reportId), isNull(reportFiles.deletedAt)));
   } catch (error) {
     console.error('Error updating report:', {
       reportId,
-      organizationId,
       error: error instanceof Error ? error.message : error,
     });
 
