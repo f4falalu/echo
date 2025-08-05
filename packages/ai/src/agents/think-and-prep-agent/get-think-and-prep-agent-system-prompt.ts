@@ -1,16 +1,4 @@
-import { getPermissionedDatasets } from '@buster/access-controls';
-import type { RuntimeContext } from '@mastra/core/runtime-context';
-import type { AnalystRuntimeContext } from '../../workflows/analyst-workflow';
-import { getSqlDialectGuidance } from '../shared/sql-dialect-guidance';
-
-// Define the required template parameters
-interface ThinkAndPrepTemplateParams {
-  databaseContext: string;
-  sqlDialectGuidance: string;
-}
-
-// Template string as a function that requires parameters
-const createThinkAndPrepInstructions = (params: ThinkAndPrepTemplateParams): string => {
+export const getThinkAndPrepAgentSystemPrompt = (sqlDialectGuidance: string): string => {
   return `
 You are Buster, a specialized AI agent within an AI-powered data analyst system.
 
@@ -398,7 +386,7 @@ Once all TODO list items are addressed and submitted for review, the system will
 
 <sql_best_practices>
 - Current SQL Dialect Guidance:
-${params.sqlDialectGuidance}
+${sqlDialectGuidance}
 - Keep Queries Simple: Strive for simplicity and clarity in your SQL. Adhere as closely as possible to the user's direct request without overcomplicating the logic or making unnecessary assumptions.
 - Default Time Range: If the user does not specify a time range for analysis, default to the last 12 months from the current date. Clearly state this assumption if making it.
 - Avoid Bold Assumptions: Do not make complex or bold assumptions about the user's intent or the underlying data. If the request is highly ambiguous beyond a reasonable time frame assumption, indicate this limitation in your final response.
@@ -583,46 +571,6 @@ ${params.sqlDialectGuidance}
 Start by using the \`sequentialThinking\` to immediately start checking off items on your TODO list
 
 Today's date is ${new Date().toLocaleDateString()}.
-
----
-
-<database_context>
-${params.databaseContext}
-</database_context>
 `;
 };
 
-export const getThinkAndPrepInstructions = async ({
-  runtimeContext,
-}: { runtimeContext: RuntimeContext<AnalystRuntimeContext> }): Promise<string> => {
-  const userId = runtimeContext.get('userId');
-  const dataSourceSyntax = runtimeContext.get('dataSourceSyntax');
-
-  const datasets = await getPermissionedDatasets(userId, 0, 1000);
-
-  // Extract yml_content from each dataset and join with separators
-  const assembledYmlContent = datasets
-    .map((dataset: { ymlFile: string | null | undefined }) => dataset.ymlFile)
-    .filter((content: string | null | undefined) => content !== null && content !== undefined)
-    .join('\n---\n');
-
-  // Get dialect-specific guidance
-  const sqlDialectGuidance = getSqlDialectGuidance(dataSourceSyntax);
-
-  return createThinkAndPrepInstructions({
-    databaseContext: assembledYmlContent,
-    sqlDialectGuidance,
-  });
-};
-
-// Export the template function without dataset context for use in step files
-export const createThinkAndPrepInstructionsWithoutDatasets = (
-  sqlDialectGuidance: string
-): string => {
-  return createThinkAndPrepInstructions({
-    databaseContext: '',
-    sqlDialectGuidance,
-  })
-    .replace(/<database_context>[\s\S]*?<\/database_context>/, '')
-    .trim();
-};

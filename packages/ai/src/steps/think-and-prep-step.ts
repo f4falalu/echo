@@ -6,8 +6,8 @@ import type { CoreMessage } from 'ai';
 import { wrapTraced } from 'braintrust';
 import { z } from 'zod';
 import { getSqlDialectGuidance } from '../agents/shared/sql-dialect-guidance';
-import { thinkAndPrepAgent } from '../agents/think-and-prep-agent/think-and-prep-agent';
-import { createThinkAndPrepInstructionsWithoutDatasets } from '../agents/think-and-prep-agent/think-and-prep-instructions';
+import { createThinkAndPrepAgent } from '../agents/think-and-prep-agent/think-and-prep-agent';
+import { getThinkAndPrepAgentSystemPrompt } from '../agents/think-and-prep-agent/get-think-and-prep-agent-system-prompt';
 import type { thinkAndPrepWorkflowInputSchema } from '../schemas/workflow-schemas';
 import { ChunkProcessor } from '../utils/database/chunk-processor';
 import {
@@ -248,60 +248,48 @@ ${databaseContext}
           ),
         });
 
+        // Create the agent instance
+        const thinkAndPrepAgent = createThinkAndPrepAgent({
+          sql_dialect_guidance: sqlDialectGuidance,
+        });
+
         const wrappedStream = wrapTraced(
           async () => {
-            // Create system messages with dataset context and instructions
-            const systemMessages: CoreMessage[] = [
-              {
-                role: 'system',
-                content: createThinkAndPrepInstructionsWithoutDatasets(sqlDialectGuidance),
-                providerOptions: DEFAULT_CACHE_OPTIONS,
-              },
-              {
-                role: 'system',
-                content: createDatasetSystemMessage(assembledYmlContent),
-                providerOptions: DEFAULT_CACHE_OPTIONS,
-              },
-            ];
+            // Create dataset system message
+            const datasetSystemMessage: CoreMessage = {
+              role: 'system',
+              content: createDatasetSystemMessage(assembledYmlContent),
+              providerOptions: DEFAULT_CACHE_OPTIONS,
+            };
 
-            // Combine system messages with conversation messages
-            const messagesWithSystem = [...systemMessages, ...messages];
+            // Combine dataset system message with conversation messages
+            const messagesWithDataset = [datasetSystemMessage, ...messages];
 
-            // Create stream directly without retryableAgentStreamWithHealing
-            const stream = await thinkAndPrepAgent.stream(messagesWithSystem, {
-              toolCallStreaming: true,
-              runtimeContext,
-              maxRetries: 5,
-              abortSignal: abortController.signal,
-              toolChoice: 'required',
-              onChunk: createOnChunkHandler({
-                chunkProcessor,
-                abortController,
-                finishingToolNames: [
-                  'submitThoughts',
-                  'respondWithoutAssetCreation',
-                  'messageUserClarifyingQuestion',
-                ],
-                onFinishingTool: () => {
-                  // Set finished = true for respondWithoutAssetCreation and messageUserClarifyingQuestion
-                  // submitThoughts should abort but not finish so workflow can continue
-                  const finishingToolName = chunkProcessor.getFinishingToolName();
-                  if (
-                    finishingToolName === 'respondWithoutAssetCreation' ||
-                    finishingToolName === 'messageUserClarifyingQuestion'
-                  ) {
-                    finished = true;
-                  }
-                },
-              }),
-              onError: createRetryOnErrorHandler({
-                retryCount,
-                maxRetries,
-                workflowContext: {
-                  currentStep: 'think-and-prep',
-                  availableTools,
-                },
-              }),
+            // Create stream using the new agent pattern
+            const stream = await thinkAndPrepAgent.stream({
+              messages: messagesWithDataset,
+            });
+
+            // Handle streaming with chunk processor
+            stream.onChunk = createOnChunkHandler({
+              chunkProcessor,
+              abortController,
+              finishingToolNames: [
+                'submitThoughts',
+                'respondWithoutAssetCreation',
+                'messageUserClarifyingQuestion',
+              ],
+              onFinishingTool: () => {
+                // Set finished = true for respondWithoutAssetCreation and messageUserClarifyingQuestion
+                // submitThoughts should abort but not finish so workflow can continue
+                const finishingToolName = chunkProcessor.getFinishingToolName();
+                if (
+                  finishingToolName === 'respondWithoutAssetCreation' ||
+                  finishingToolName === 'messageUserClarifyingQuestion'
+                ) {
+                  finished = true;
+                }
+              },
             });
 
             return stream;
