@@ -19,6 +19,7 @@ interface ReportEditorProps {
   disabled?: boolean;
   style?: React.CSSProperties;
   onValueChange?: (value: ReportElements) => void;
+  useFixedToolbarKit?: boolean;
 }
 
 interface AppReportRef {
@@ -37,13 +38,14 @@ export const ReportEditor = React.memo(
         variant = 'default',
         className,
         style,
+        useFixedToolbarKit = false,
         readOnly = false,
         disabled = false
       },
       ref
     ) => {
       // Initialize the editor instance using the custom useEditor hook
-      const editor = useReportEditor({ value, disabled }, [value]);
+      const editor = useReportEditor({ value, disabled, useFixedToolbarKit }, [value]);
 
       const onReset = useMemoizedFn(() => {
         editor?.tf.reset();

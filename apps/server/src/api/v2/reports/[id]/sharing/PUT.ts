@@ -28,7 +28,6 @@ async function updateReportShareHandler(
   await updateReport(
     {
       reportId,
-      organizationId: user.organizationId,
       userId: user.id,
       publicly_accessible,
       public_expiry_date,

@@ -6,7 +6,6 @@ import type { ReportElements } from '@buster/server-shared/reports';
 import { useQuery } from '@tanstack/react-query';
 import { mainApiV2 } from '@/api/buster_rest/instances';
 import { useDebounceEffect } from '@/hooks';
-import { useThemesConfig } from '@/components/ui/report/ThemeWrapper/useThemesConfig';
 import { cn } from '@/lib/utils';
 import { Tooltip } from '@/components/ui/tooltip';
 
@@ -67,11 +66,14 @@ export const ReportPlayground: React.FC = () => {
             </div>
           </div>
         )}
-
-        <ThemePicker />
       </div>
       <div className="bg-background h-full max-h-[calc(100vh-56px)] overflow-hidden rounded border shadow">
-        <DynamicReportEditor value={usedValue} readOnly={false} onValueChange={logValueChanges} />
+        <DynamicReportEditor
+          value={usedValue}
+          useFixedToolbarKit={true}
+          readOnly={false}
+          onValueChange={logValueChanges}
+        />
       </div>
     </div>
   );
@@ -154,39 +156,6 @@ const ValidationStatus: React.FC<ValidationStatusProps> = ({
     </div>
   );
 };
-
-const ThemePicker = React.memo(() => {
-  const { activeTheme, setActiveTheme, allThemes } = useThemesConfig();
-
-  const themesList = Object.values(allThemes);
-
-  return (
-    <div className="bg-background flex gap-x-2 overflow-x-auto rounded border p-2">
-      {themesList.map((theme) => {
-        const firstThreeColors = Object.values(theme.light).slice(0, 3);
-
-        const isActive = activeTheme.id === theme.id;
-        return (
-          <Tooltip key={theme.id} title={theme.id}>
-            <div
-              className={cn(
-                'min-h-7 min-w-7 cursor-pointer rounded-full border transition-all duration-200 hover:scale-110',
-                isActive && 'border-primary shadow-2xl'
-              )}
-              style={{
-                background: `linear-gradient(0deg, hsl(${firstThreeColors[0]}) 0%, hsl(${firstThreeColors[0]}) 33%, hsl(${firstThreeColors[1]}) 33%, hsl(${firstThreeColors[1]}) 66%, hsl(${firstThreeColors[2]}) 66%, hsl(${firstThreeColors[2]}) 100%)`
-              }}
-              onClick={() => setActiveTheme(theme)}
-              title={theme.id}
-            />
-          </Tooltip>
-        );
-      })}
-    </div>
-  );
-});
-
-ThemePicker.displayName = 'ThemePicker';
 
 const value: ReportElements = [
   {

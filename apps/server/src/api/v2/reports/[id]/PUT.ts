@@ -35,7 +35,6 @@ async function updateReportHandler(
   await updateReport(
     {
       reportId,
-      organizationId: userOrg.organizationId,
       userId: user.id,
       name,
       content,
