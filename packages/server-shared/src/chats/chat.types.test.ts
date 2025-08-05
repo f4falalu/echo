@@ -36,7 +36,7 @@ describe('ShareIndividualSchema', () => {
   it('should parse valid individual sharing configuration', () => {
     const validIndividual = {
       email: 'user@example.com',
-      role: 'canEdit', // Changed from 'editor' to match ShareRoleSchema
+      role: 'can_edit', // Changed from 'editor' to match ShareRoleSchema
       name: 'John Doe',
     };
 
@@ -45,7 +45,7 @@ describe('ShareIndividualSchema', () => {
 
     if (result.success) {
       expect(result.data.email).toBe('user@example.com');
-      expect(result.data.role).toBe('canEdit');
+      expect(result.data.role).toBe('can_edit');
       expect(result.data.name).toBe('John Doe');
     }
   });
@@ -195,7 +195,7 @@ describe('ChatWithMessagesSchema', () => {
       individual_permissions: [
         {
           email: 'invalid-email', // Not actually invalid - ShareIndividualSchema accepts any string
-          role: 'canEdit', // Changed from 'editor' to match ShareRoleSchema
+          role: 'can_edit', // Changed from 'editor' to match ShareRoleSchema
         },
       ],
       publicly_accessible: false,

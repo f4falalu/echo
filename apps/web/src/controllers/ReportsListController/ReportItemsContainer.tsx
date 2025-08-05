@@ -28,7 +28,7 @@ export const ReportItemsContainer: React.FC<{
   });
   const hasSelected = selectedRowKeys.length > 0;
 
-  const reportsRecord = useCreateListByDate({ data: reports });
+  const reportsRecord = useCreateListByDate({ data: reports, dateKey: 'updated_at' });
 
   const reportsByDate: BusterListRowItem<ReportListItem>[] = useMemo(() => {
     return Object.entries(reportsRecord).flatMap<BusterListRowItem<ReportListItem>>(
@@ -65,7 +65,7 @@ export const ReportItemsContainer: React.FC<{
         render: (name, record) => <TitleCell name={name} chatId={record?.id} />
       },
       {
-        dataIndex: 'last_edited',
+        dataIndex: 'updated_at',
         title: 'Last updated',
         width: 132,
         render: (v) => {
@@ -79,10 +79,10 @@ export const ReportItemsContainer: React.FC<{
         }
       },
       {
-        dataIndex: 'is_shared',
+        dataIndex: 'publicly_accessible',
         title: 'Sharing',
         width: 65,
-        render: (v, record) => getShareStatus({ is_shared: record.is_shared })
+        render: (v, record) => getShareStatus({ is_shared: record.publicly_accessible })
       },
       {
         dataIndex: 'created_by_name',

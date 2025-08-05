@@ -74,8 +74,9 @@ describe('ShareIndividualSchema', () => {
   it('should parse valid individual sharing configuration', () => {
     const validIndividual = {
       email: 'user@example.com',
-      role: 'canEdit',
+      role: 'can_edit',
       name: 'John Doe',
+      avatar_url: null,
     };
 
     const result = ShareIndividualSchema.safeParse(validIndividual);
@@ -83,7 +84,7 @@ describe('ShareIndividualSchema', () => {
 
     if (result.success) {
       expect(result.data.email).toBe('user@example.com');
-      expect(result.data.role).toBe('canEdit');
+      expect(result.data.role).toBe('can_edit');
       expect(result.data.name).toBe('John Doe');
     }
   });
@@ -92,6 +93,7 @@ describe('ShareIndividualSchema', () => {
     const individualWithoutName = {
       email: 'test@example.com',
       role: 'can_view',
+      avatar_url: null,
     };
 
     const result = ShareIndividualSchema.safeParse(individualWithoutName);
@@ -131,7 +133,7 @@ describe('ShareIndividualSchema', () => {
 
   it('should require email and role fields', () => {
     const missingEmail = {
-      role: 'canEdit',
+      role: 'can_edit',
       name: 'John Doe',
     };
 
@@ -172,7 +174,7 @@ describe('ShareConfigSchema', () => {
       individual_permissions: [
         {
           email: 'user1@example.com',
-          role: 'canEdit',
+          role: 'can_edit',
           name: 'User One',
         },
         {
@@ -195,7 +197,7 @@ describe('ShareConfigSchema', () => {
     if (result.success) {
       expect(result.data.individual_permissions).toHaveLength(2);
       expect(result.data.individual_permissions?.[0]?.email).toBe('user1@example.com');
-      expect(result.data.individual_permissions?.[0]?.role).toBe('canEdit');
+      expect(result.data.individual_permissions?.[0]?.role).toBe('can_edit');
       expect(result.data.publicly_accessible).toBe(true);
       expect(result.data.permission).toBe('owner');
     }
@@ -334,7 +336,7 @@ describe('ShareConfigSchema', () => {
       individual_permissions: [
         {
           email: 'invalid-email', // Invalid email format
-          role: 'canEdit',
+          role: 'can_edit',
         },
       ],
       public_expiry_date: null,
