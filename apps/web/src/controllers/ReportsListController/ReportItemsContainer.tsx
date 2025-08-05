@@ -136,7 +136,7 @@ const EmptyState: React.FC<{
   return (
     <ListEmptyStateWithButton
       title={"You don't have any reports yet."}
-      description={'As soon as you create a report, it will start to appear here.'}
+      description={'As soon as you create a report (via a chat), it will start to appear here.'}
       buttonText="New chat"
       linkButton={createBusterRoute({ route: BusterRoutes.APP_HOME })}
     />
