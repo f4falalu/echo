@@ -50,7 +50,7 @@ const ReportSegments: React.FC<FileContainerSegmentProps> = React.memo(
             chatId,
             assetId: reportId,
             type: 'report',
-            page: 'files'
+            page: 'file'
           })
         }
       ];

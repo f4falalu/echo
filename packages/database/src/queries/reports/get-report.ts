@@ -8,7 +8,8 @@ import {
   reportFiles,
   users,
 } from '../../schema';
-import { getUserOrganizationId } from '../organizations';
+import { getAssetPermission } from '../assets';
+import { getOrganizationMemberCount, getUserOrganizationId } from '../organizations';
 
 export const GetReportInputSchema = z.object({
   reportId: z.string().uuid('Report ID must be a valid UUID'),
@@ -60,6 +61,7 @@ export async function getReport(input: GetReportInput) {
       public_expiry_date: reportFiles.publicExpiryDate,
       version_history: reportFiles.versionHistory,
       public_password: reportFiles.publicPassword,
+      public_enabled_by: reportFiles.publiclyEnabledBy,
       workspace_sharing: reportFiles.workspaceSharing,
       // User metadata
       created_by_id: users.id,
@@ -97,8 +99,20 @@ export async function getReport(input: GetReportInput) {
       )
     );
 
-  const [reportDataResult, reportCollectionsResult, individualPermissionsResult] =
-    await Promise.all([reportDataQuery, reportCollectionsQuery, individualPermissionsQuery]);
+  // Get workspace member count and user's permission for this report
+  const [
+    reportDataResult,
+    reportCollectionsResult,
+    individualPermissionsResult,
+    workspaceMemberCount,
+    userPermission,
+  ] = await Promise.all([
+    reportDataQuery,
+    reportCollectionsQuery,
+    individualPermissionsQuery,
+    getOrganizationMemberCount(organizationId),
+    getAssetPermission(userId, reportId, 'report_file'),
+  ]);
   const reportData = reportDataResult[0];
 
   if (!reportData) {
@@ -130,6 +144,8 @@ export async function getReport(input: GetReportInput) {
     versions: versionHistoryArray,
     collections: reportCollectionsResult,
     individual_permissions: individualPermissionsResult,
+    permission: userPermission ?? 'can_view',
+    workspace_member_count: workspaceMemberCount,
   };
 
   return report;

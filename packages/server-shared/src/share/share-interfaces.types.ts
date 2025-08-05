@@ -37,7 +37,7 @@ export const ShareAssetTypeSchema = AssetTypeSchema;
 export const ShareIndividualSchema = z.object({
   email: z.string(),
   role: ShareRoleSchema,
-  name: z.string().optional(),
+  name: z.string().nullable().optional(),
   avatar_url: z.string().nullable().optional(),
 });
 

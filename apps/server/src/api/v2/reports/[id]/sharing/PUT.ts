@@ -25,15 +25,18 @@ async function updateReportShareHandler(
     //DALLIN: Check if user has permission to edit settings
   }
 
-  await updateReport({
-    reportId,
-    organizationId: user.organizationId,
-    userId: user.id,
-    publicly_accessible,
-    public_expiry_date,
-    public_password,
-    workspace_sharing,
-  });
+  await updateReport(
+    {
+      reportId,
+      organizationId: user.organizationId,
+      userId: user.id,
+      publicly_accessible,
+      public_expiry_date,
+      public_password,
+      workspace_sharing,
+    },
+    false
+  );
 
   const updatedReport: UpdateReportResponse = await getReportHandler(reportId, user);
 
