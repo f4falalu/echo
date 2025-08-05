@@ -1,7 +1,7 @@
 import type { ReportElements } from '@buster/database';
 import { z } from 'zod';
 import { AssetCollectionsSchema } from '../collections/shared-asset-collections';
-import { IndividualPermissionsSchema } from '../shared-permissions';
+import { IndividualPermissionsSchema } from '../share';
 import { VersionsSchema } from '../version-shared';
 
 export const ReportListItemSchema = z.object({
