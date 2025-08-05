@@ -8,6 +8,7 @@ import { thinkAndPrepWorkflowInputSchema } from '../../../schemas/workflow-schem
 import { Haiku35 } from '../../../utils/models/haiku-3-5';
 import { appendToConversation, standardizeMessages } from '../../../utils/standardizeMessages';
 import type { AnalystRuntimeContext } from '../../../workflows/analyst-workflow';
+import { formatAnalysisTypeRouterPrompt } from './format-analysis-type-router-prompt';
 
 const inputSchema = thinkAndPrepWorkflowInputSchema;
 
@@ -36,25 +37,8 @@ const outputSchema = z.object({
     .optional(),
 });
 
-const analysisTypeRouterInstructions = `You are an analysis type router that determines whether a user's query requires:
-
-1. **Standard Analysis**: Straightforward data queries with clear requirements like:
-   - Lists of records with specific filters
-   - Reports with defined criteria
-   - Simple aggregations or calculations
-   - Clear data extraction requests
-
-2. **Investigation Analysis**: Complex queries requiring research or exploration like:
-   - Questions needing deep data investigation
-   - Queries requiring iterative discovery
-   - Complex analytical problems
-   - Research-oriented questions
-
-Analyze the user's query and determine the appropriate analysis type.`;
-
 const execution = async ({
   inputData,
-  runtimeContext,
 }: {
   inputData: z.infer<typeof inputSchema>;
   runtimeContext: RuntimeContext<AnalystRuntimeContext>;
@@ -74,6 +58,12 @@ const execution = async ({
       messages = standardizeMessages(prompt);
     }
 
+    // Format the prompt using the helper function
+    const systemPrompt = formatAnalysisTypeRouterPrompt({
+      userPrompt: prompt,
+      ...(conversationHistory && { conversationHistory: conversationHistory as CoreMessage[] }),
+    });
+
     // Generate the analysis type decision
     const tracedAnalysisType = wrapTraced(
       async () => {
@@ -83,7 +73,7 @@ const execution = async ({
           messages: [
             {
               role: 'system',
-              content: analysisTypeRouterInstructions,
+              content: systemPrompt,
             },
             ...messages,
           ],
