@@ -4,7 +4,7 @@ export type ReportRouteParams = {
   assetId: string;
   chatId?: string;
   type: 'report';
-  page?: 'report' | 'files' | undefined;
+  page?: 'report' | 'file' | undefined;
   secondaryView?: undefined;
   reportVersionNumber?: number;
 };
@@ -16,7 +16,7 @@ export const createReportRoute = ({
   page = 'report'
 }: Omit<ReportRouteParams, 'type'>) => {
   // Handle file page routes with version numbers
-  if (page === 'files') {
+  if (page === 'file') {
     if (chatId) {
       // Chat context file route
       return createBusterRoute({

@@ -29,16 +29,19 @@ async function updateReportHandler(
     throw new HTTPException(403, { message: 'User does not have permission to edit asset' });
   }
 
-  const { name, content } = request;
+  const { name, content, update_version = false } = request;
 
   // Update the report in the database
-  await updateReport({
-    reportId,
-    organizationId: userOrg.organizationId,
-    userId: user.id,
-    name,
-    content,
-  });
+  await updateReport(
+    {
+      reportId,
+      organizationId: userOrg.organizationId,
+      userId: user.id,
+      name,
+      content,
+    },
+    update_version
+  );
 
   // Get and return the updated report
   const updatedReport: UpdateReportResponse = await getReportHandler(reportId, user);

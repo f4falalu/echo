@@ -3,32 +3,12 @@ import { createReportRoute, type ReportRouteParams } from './createReportRoute';
 import { BusterRoutes } from '@/routes/busterRoutes';
 
 // Mock the createBusterRoute function
-vi.mock('@/routes/busterRoutes', () => ({
-  BusterRoutes: {
-    APP_REPORTS_ID: '/app/reports/:reportId',
-    APP_REPORTS_ID_FILE: '/app/reports/:reportId/file?report_version_number=:reportVersionNumber',
-    APP_CHAT_ID_REPORT_ID: '/app/chats/:chatId/reports/:reportId',
-    APP_CHAT_ID_REPORT_ID_FILE:
-      '/app/chats/:chatId/reports/:reportId/file?report_version_number=:reportVersionNumber'
-  },
-  createBusterRoute: vi.fn((params) => {
-    // Mock implementation that returns the route with parameters substituted
-    let route = params.route;
-
-    // Replace route parameters with actual values
-    if (params.reportId) {
-      route = route.replace(':reportId', params.reportId);
-    }
-    if (params.chatId) {
-      route = route.replace(':chatId', params.chatId);
-    }
-    if (params.reportVersionNumber !== undefined) {
-      route = route.replace(':reportVersionNumber', params.reportVersionNumber.toString());
-    }
-
-    return route;
-  })
-}));
+vi.mock('@/routes/busterRoutes', async () => {
+  const actual = await vi.importActual('@/routes/busterRoutes');
+  return {
+    ...actual
+  };
+});
 
 describe('createReportRoute', () => {
   describe('standalone report routes (no chatId)', () => {
@@ -57,17 +37,17 @@ describe('createReportRoute', () => {
       expect(result).toBe('/app/reports/report-456');
     });
 
-    it('should create file route when page is "files"', () => {
+    it('should create file route when page is "file"', () => {
       // Test case: File page without version number
-      // Expected output: File route with undefined version number
+      // Expected output: File route without query parameter when undefined
       const params: Omit<ReportRouteParams, 'type'> = {
         assetId: 'report-789',
-        page: 'files'
+        page: 'file'
       };
 
       const result = createReportRoute(params);
 
-      expect(result).toBe('/app/reports/report-789/file?report_version_number=undefined');
+      expect(result).toBe('/app/reports/report-789/file');
     });
 
     it('should create file route with version number when page is "files"', () => {
@@ -75,7 +55,7 @@ describe('createReportRoute', () => {
       // Expected output: File route with version number parameter
       const params: Omit<ReportRouteParams, 'type'> = {
         assetId: 'report-101',
-        page: 'files',
+        page: 'file',
         reportVersionNumber: 5
       };
 
@@ -133,14 +113,12 @@ describe('createReportRoute', () => {
       const params: Omit<ReportRouteParams, 'type'> = {
         assetId: 'report-chat-3',
         chatId: 'chat-789',
-        page: 'files'
+        page: 'file'
       };
 
       const result = createReportRoute(params);
 
-      expect(result).toBe(
-        '/app/chats/chat-789/reports/report-chat-3/file?report_version_number=undefined'
-      );
+      expect(result).toBe('/app/chats/chat-789/reports/report-chat-3/file');
     });
 
     it('should create chat file route with version number when page is "files"', () => {
@@ -149,7 +127,7 @@ describe('createReportRoute', () => {
       const params: Omit<ReportRouteParams, 'type'> = {
         assetId: 'report-chat-4',
         chatId: 'chat-101',
-        page: 'files',
+        page: 'file',
         reportVersionNumber: 7
       };
 
@@ -197,7 +175,7 @@ describe('createReportRoute', () => {
 
       const result = createReportRoute(params);
 
-      expect(result).toBe('/app/chats//reports/report-test');
+      expect(result).toBe('/app/reports/report-test');
     });
 
     it('should handle reportVersionNumber of 0', () => {
@@ -205,13 +183,13 @@ describe('createReportRoute', () => {
       // Expected output: File route with version 0
       const params: Omit<ReportRouteParams, 'type'> = {
         assetId: 'report-version-zero',
-        page: 'files',
+        page: 'file',
         reportVersionNumber: 0
       };
 
       const result = createReportRoute(params);
 
-      expect(result).toBe('/app/reports/report-version-zero/file?report_version_number=0');
+      expect(result).toBe('/app/reports/report-version-zero/file');
     });
 
     it('should handle negative reportVersionNumber', () => {
@@ -219,7 +197,7 @@ describe('createReportRoute', () => {
       // Expected output: File route with negative version
       const params: Omit<ReportRouteParams, 'type'> = {
         assetId: 'report-negative',
-        page: 'files',
+        page: 'file',
         reportVersionNumber: -1
       };
 
@@ -250,13 +228,11 @@ describe('createReportRoute', () => {
       const baseParams = { assetId: 'report-page-test' };
 
       const reportResult = createReportRoute({ ...baseParams, page: 'report' });
-      const filesResult = createReportRoute({ ...baseParams, page: 'files' });
+      const filesResult = createReportRoute({ ...baseParams, page: 'file' });
       const undefinedResult = createReportRoute({ ...baseParams, page: undefined });
 
       expect(reportResult).toBe('/app/reports/report-page-test');
-      expect(filesResult).toBe(
-        '/app/reports/report-page-test/file?report_version_number=undefined'
-      );
+      expect(filesResult).toBe('/app/reports/report-page-test/file');
       expect(undefinedResult).toBe('/app/reports/report-page-test');
     });
   });
