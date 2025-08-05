@@ -50,6 +50,9 @@ export const getReportById_server = async (reportId: string) => {
 /**
  * Update a report
  */
-export const updateReport = async (reportId: string, data: UpdateReportRequest) => {
+export const updateReport = async ({
+  reportId,
+  ...data
+}: UpdateReportRequest & { reportId: string }) => {
   return mainApiV2.put<UpdateReportResponse>(`/reports/${reportId}`, data).then((res) => res.data);
 };

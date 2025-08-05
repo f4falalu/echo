@@ -11,7 +11,7 @@ import { queryKeys } from '@/api/query_keys';
 import type { RustApiError } from '../errors';
 import type {
   GetReportIndividualResponse,
-  UpdateReportRequest,
+  GetReportsListResponse,
   UpdateReportResponse
 } from '@buster/server-shared/reports';
 import {
@@ -21,6 +21,7 @@ import {
   getReportById_server,
   updateReport
 } from './requests';
+import { useDebounceFn } from '@/hooks/useDebounce';
 
 /**
  * Hook to get a list of reports
@@ -56,6 +57,20 @@ export const prefetchGetReportsList = async (
   await queryClient.prefetchQuery({
     ...queryKeys.reportsGetList(params),
     queryFn: () => getReportsList_server(params)
+  });
+
+  return queryClient;
+};
+
+export const prefetchGetReportsListClient = async (
+  params?: Parameters<typeof getReportsList>[0],
+  queryClientProp?: QueryClient
+) => {
+  const queryClient = queryClientProp || new QueryClient();
+
+  await queryClient.prefetchQuery({
+    ...queryKeys.reportsGetList(params),
+    queryFn: () => getReportsList(params)
   });
 
   return queryClient;
@@ -107,11 +122,11 @@ export const useUpdateReport = () => {
   return useMutation<
     UpdateReportResponse,
     RustApiError,
-    { reportId: string; data: UpdateReportRequest },
+    Parameters<typeof updateReport>[0],
     { previousReport?: GetReportIndividualResponse }
   >({
-    mutationFn: ({ reportId, data }) => updateReport(reportId, data),
-    onMutate: async ({ reportId, data }) => {
+    mutationFn: updateReport,
+    onMutate: async ({ reportId, ...data }) => {
       // Cancel any outgoing refetches
       await queryClient.cancelQueries({
         queryKey: queryKeys.reportsGetReport(reportId).queryKey
@@ -145,18 +160,32 @@ export const useUpdateReport = () => {
         );
       }
     },
-    onSuccess: (data, { reportId, data: updateData }) => {
+    onSuccess: (data, { reportId, ...updateData }, ctx) => {
       // Update the individual report cache with server response
       queryClient.setQueryData(queryKeys.reportsGetReport(reportId).queryKey, data);
 
-      const nameChanged = updateData.name !== undefined && updateData.name !== data.name;
+      const nameChanged =
+        updateData.name !== undefined &&
+        ctx?.previousReport?.name !== undefined &&
+        updateData.name !== ctx?.previousReport?.name;
 
       // Invalidate the list cache to ensure it's fresh
       if (nameChanged) {
-        queryClient.invalidateQueries({
-          queryKey: queryKeys.reportsGetList().queryKey,
-          refetchType: 'all'
+        const listQueryKey = queryKeys.reportsGetList().queryKey;
+        const hasActiveQuery = queryClient.getQueryCache().find({
+          queryKey: listQueryKey,
+          exact: true,
+          type: 'active'
         });
+
+        if (hasActiveQuery) {
+          queryClient.invalidateQueries({
+            queryKey: listQueryKey,
+            refetchType: 'all'
+          });
+        } else {
+          prefetchGetReportsListClient();
+        }
       }
     }
   });
