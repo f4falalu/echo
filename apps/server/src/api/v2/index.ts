@@ -5,9 +5,11 @@ import chatsRoutes from './chats';
 import dictionariesRoutes from './dictionaries';
 import electricShapeRoutes from './electric-shape';
 import organizationRoutes from './organization';
+import reportsRoutes from './reports';
 import securityRoutes from './security';
 import slackRoutes from './slack';
 import supportRoutes from './support';
+import tempRoutes from './temp';
 import titleRoutes from './title';
 import userRoutes from './users';
 
@@ -21,6 +23,8 @@ const app = new Hono()
   .route('/security', securityRoutes)
   .route('/organizations', organizationRoutes)
   .route('/dictionaries', dictionariesRoutes)
-  .route('/title', titleRoutes);
+  .route('/title', titleRoutes)
+  .route('/temp', tempRoutes)
+  .route('/reports', reportsRoutes);
 
 export default app;
