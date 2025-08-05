@@ -8,6 +8,7 @@ import { Minus } from '@/components/ui/icons';
 import { NodeTypeIcons } from './icons';
 import { NodeTypeLabels, MenuGroupLabels } from './labels';
 import { insertBlock, insertInlineElement } from '../elements/transforms';
+import { CUSTOM_KEYS } from './keys';
 
 // Shared types for menu items
 export interface MenuItem {
@@ -106,6 +107,21 @@ export const menuGroups: MenuGroup[] = [
         insertBlock(editor, value);
       }
     }))
+  },
+  {
+    group: 'Metrics and charts',
+    items: [
+      {
+        icon: <NodeTypeIcons.metric />,
+        keywords: NodeTypeLabels.metric.keywords,
+        label: NodeTypeLabels.metric.label,
+        value: CUSTOM_KEYS.metric,
+        onSelect: (editor, value) => {
+          alert('TODO: Add metric');
+          //  insertBlock(editor, value);
+        }
+      }
+    ]
   },
   {
     group: MenuGroupLabels.lists,

@@ -364,7 +364,10 @@ export const MetricElementSchema = z.object({
   type: z.literal('metric'),
   metricId: z.string(),
   children: z.array(VoidTextSchema).default([]),
-  caption: z.array(z.union([TextSchema, ParagraphElementSchema])).default([]),
+  caption: z
+    .array(z.union([TextSchema, ParagraphElementSchema]))
+    .default([])
+    .optional(),
 });
 
 export const MediaEmbedElementSchema = z.object({

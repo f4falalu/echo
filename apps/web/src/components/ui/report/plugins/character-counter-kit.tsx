@@ -19,21 +19,7 @@ const countCharactersInNodes = (nodes: (TNode | Descendant)[]): number => {
   return count;
 };
 
-export const CharacterCounterPlugin = createPlatePlugin<
-  'characterCounter',
-  {
-    maxLength: number;
-    showWarning: boolean;
-    warningThreshold: number;
-  },
-  {},
-  {},
-  {
-    maxLength: number;
-    showWarning: boolean;
-    warningThreshold: number;
-  }
->({
+export const CharacterCounterPlugin = createPlatePlugin({
   key: 'characterCounter',
   options: {
     maxLength: 40,
@@ -123,7 +109,6 @@ export const CharacterCounterPlugin = createPlatePlugin<
         </PlateElement>
       );
     },
-
     isElement: true
   }
 });

@@ -131,9 +131,9 @@ const useSupabaseContextInternal = ({
   };
 };
 
-const SupabaseContext = createContext<ReturnType<typeof useSupabaseContextInternal>>(
-  {} as ReturnType<typeof useSupabaseContextInternal>
-);
+const SupabaseContext = createContext<ReturnType<typeof useSupabaseContextInternal>>({
+  isAnonymousUser: true
+} as ReturnType<typeof useSupabaseContextInternal>);
 
 export const SupabaseContextProvider: React.FC<
   PropsWithChildren<{

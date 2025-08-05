@@ -12,7 +12,7 @@ import {
 import { KEYS } from 'platejs';
 
 import { AudioElement } from '../elements/AudioNode';
-import { MediaEmbedElement, MediaEmbedPlaceholder } from '../elements/MediaEmbedNode';
+import { MediaEmbedElement } from '../elements/MediaEmbedNode';
 import { FileElement } from '../elements/MediaFileNode';
 import { ImageElement } from '../elements/MediaImageNode';
 import { PlaceholderElement } from '../elements/MediaPlaceholderElement';
