@@ -1,6 +1,12 @@
-import { O } from 'node_modules/@faker-js/faker/dist/airline-CLphikKp';
-import { createTSlatePlugin, type PluginConfig, type TElement } from 'platejs';
-import { createPlatePlugin, type PlateElementProps } from 'platejs/react';
+import {
+  createTSlatePlugin,
+  type PluginConfig,
+  type TElement,
+  Node as PlateNode,
+  TNode
+} from 'platejs';
+import { createPlatePlugin, type PlateElementProps, useEditorRef } from 'platejs/react';
+import { useMemo } from 'react';
 
 export type BannerConfig = PluginConfig<
   'banner',
@@ -16,12 +22,7 @@ export type BannerConfig = PluginConfig<
 
 export const BannerPlugin = createTSlatePlugin<BannerConfig>({
   key: 'banner', // unique plugin key
-  api: {
-    swag: () => {
-      alert('swag');
-    }
-  },
-
+  api: {},
   render: {
     // this will render *before* the actual <Editable> content
     beforeEditable: () => (
@@ -85,60 +86,3 @@ export const BannerPlugin = createTSlatePlugin<BannerConfig>({
     // }
   }
 });
-
-export const CharacterCounterPlugin = createPlatePlugin<
-  'characterCounter',
-  {
-    maxLength: number;
-    showWarning: boolean;
-    warningThreshold: number;
-  },
-  {
-    swag: () => {};
-  },
-  {},
-  {
-    maxLength: number;
-    showWarning: boolean;
-    warningThreshold: number;
-  }
->({
-  key: 'characterCounter',
-  options: {
-    maxLength: 280,
-    showWarning: true,
-    warningThreshold: 0.9
-  },
-  handlers: {
-    onChange: ({ editor }) => {
-      console.log('onChange', editor);
-    },
-    onKeyDown: ({ editor, event }) => {
-      console.log('onKeyDown', editor, event);
-    }
-  },
-  node: {
-    component: ({ element, children, ...rest }: CharacterElementCounterProps) => {
-      const options = rest.getOptions();
-      const { maxLength, showWarning, warningThreshold } = options;
-
-      console.log('swag', options);
-      console.log('swag2', rest);
-
-      return <div className="rounded-md bg-purple-100 p-2 text-black">{children}</div>;
-    },
-    isElement: true
-  }
-});
-
-type CharacterElementCounterProps = PlateElementProps<
-  TElement,
-  PluginConfig<
-    'characterCounter',
-    {
-      maxLength: number;
-      showWarning: boolean;
-      warningThreshold: number;
-    }
-  >
->;
