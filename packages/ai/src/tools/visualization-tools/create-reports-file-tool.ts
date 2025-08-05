@@ -22,7 +22,7 @@ const createReportsFile = wrapTraced(
   async (params: CreateReportsParams): Promise<CreateReportsOutput> => {
     // Dummy implementation - just return success
     const dummyId = `report_${Date.now()}`;
-    
+
     return {
       success: true,
       message: `Successfully created report: ${params.name}`,

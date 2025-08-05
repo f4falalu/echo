@@ -1,69 +1,80 @@
-import { createWorkflow } from '@mastra/core';
-import { z } from 'zod';
+import { createWorkflow } from "@mastra/core";
+import { z } from "zod";
 import {
-  type AnalystRuntimeContext,
-  AnalystRuntimeContextSchema,
-  thinkAndPrepWorkflowInputSchema,
-} from '../schemas/workflow-schemas';
+	type AnalystRuntimeContext,
+	AnalystRuntimeContextSchema,
+	thinkAndPrepWorkflowInputSchema,
+} from "../schemas/workflow-schemas";
 
 // Re-export for backward compatibility
-export { thinkAndPrepWorkflowInputSchema, AnalystRuntimeContextSchema, type AnalystRuntimeContext };
-import { analystStep } from '../steps/analyst-step';
-import { createTodosStep } from '../steps/create-todos-step';
-import { extractValuesSearchStep } from '../steps/extract-values-search-step';
-import { formatOutputStep } from '../steps/format-output-step';
-import { generateChatTitleStep } from '../steps/generate-chat-title-step';
-import { markMessageCompleteStep } from '../steps/mark-message-complete-step';
-import { thinkAndPrepStep } from '../steps/think-and-prep-step';
+export {
+	thinkAndPrepWorkflowInputSchema,
+	AnalystRuntimeContextSchema,
+	type AnalystRuntimeContext,
+};
+
+import { analysisTypeRouterStep } from "../steps/analyst-agent/analysis-type-router-step/analysis-type-router-step";
+import { analystStep } from "../steps/analyst-step";
+import { createTodosStep } from "../steps/create-todos-step";
+import { extractValuesSearchStep } from "../steps/extract-values-search-step";
+import { formatOutputStep } from "../steps/format-output-step";
+import { generateChatTitleStep } from "../steps/generate-chat-title-step";
+import { markMessageCompleteStep } from "../steps/mark-message-complete-step";
+import { thinkAndPrepStep } from "../steps/think-and-prep-step";
 import {
-  MessageHistorySchema,
-  ReasoningHistorySchema,
-  ResponseHistorySchema,
-  StepFinishDataSchema,
-} from '../utils/memory/types';
+	MessageHistorySchema,
+	ReasoningHistorySchema,
+	ResponseHistorySchema,
+	StepFinishDataSchema,
+} from "../utils/memory/types";
 
 // Metadata schema for output
 const WorkflowMetadataSchema = z.object({
-  toolsUsed: z.array(z.string()).optional(),
-  finalTool: z.string().optional(),
-  text: z.string().optional(),
-  reasoning: z.string().optional(),
-  doneTool: z.boolean().optional(),
-  filesCreated: z.number().optional(),
-  filesReturned: z.number().optional(),
+	toolsUsed: z.array(z.string()).optional(),
+	finalTool: z.string().optional(),
+	text: z.string().optional(),
+	reasoning: z.string().optional(),
+	doneTool: z.boolean().optional(),
+	filesCreated: z.number().optional(),
+	filesReturned: z.number().optional(),
 });
 
 const outputSchema = z.object({
-  title: z.string().optional(),
-  todos: z.array(z.string()).optional(),
-  values: z.array(z.string()).optional(),
-  conversationHistory: MessageHistorySchema.optional(),
-  finished: z.boolean().optional(),
-  stepData: StepFinishDataSchema.optional(),
-  reasoningHistory: ReasoningHistorySchema, // Add reasoning history
-  responseHistory: ResponseHistorySchema, // Add response history
-  metadata: WorkflowMetadataSchema.optional(),
+	title: z.string().optional(),
+	todos: z.array(z.string()).optional(),
+	values: z.array(z.string()).optional(),
+	conversationHistory: MessageHistorySchema.optional(),
+	finished: z.boolean().optional(),
+	stepData: StepFinishDataSchema.optional(),
+	reasoningHistory: ReasoningHistorySchema, // Add reasoning history
+	responseHistory: ResponseHistorySchema, // Add response history
+	metadata: WorkflowMetadataSchema.optional(),
 });
 
 const analystWorkflow = createWorkflow({
-  id: 'analyst-workflow',
-  inputSchema: thinkAndPrepWorkflowInputSchema,
-  outputSchema,
-  steps: [
-    generateChatTitleStep,
-    extractValuesSearchStep,
-    createTodosStep,
-    thinkAndPrepStep,
-    analystStep,
-    markMessageCompleteStep,
-    formatOutputStep,
-  ],
+	id: "analyst-workflow",
+	inputSchema: thinkAndPrepWorkflowInputSchema,
+	outputSchema,
+	steps: [
+		generateChatTitleStep,
+		extractValuesSearchStep,
+		createTodosStep,
+		thinkAndPrepStep,
+		analystStep,
+		markMessageCompleteStep,
+		formatOutputStep,
+	],
 })
-  .parallel([generateChatTitleStep, extractValuesSearchStep, createTodosStep])
-  .then(thinkAndPrepStep)
-  .then(analystStep) // Always run analyst step - it will pass through if finished
-  .then(markMessageCompleteStep)
-  .then(formatOutputStep)
-  .commit();
+	.parallel([
+		generateChatTitleStep,
+		extractValuesSearchStep,
+		createTodosStep,
+		analysisTypeRouterStep,
+	])
+	.then(thinkAndPrepStep)
+	.then(analystStep) // Always run analyst step - it will pass through if finished
+	.then(markMessageCompleteStep)
+	.then(formatOutputStep)
+	.commit();
 
 export default analystWorkflow;

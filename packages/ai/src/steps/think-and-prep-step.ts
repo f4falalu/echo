@@ -28,6 +28,23 @@ const inputSchema = z.object({
   'create-todos': createTodosOutputSchema,
   'extract-values-search': extractValuesSearchOutputSchema,
   'generate-chat-title': generateChatTitleOutputSchema,
+  'analysis-type-router': z.object({
+    analysisType: z.object({
+      choice: z.enum(['standard', 'investigation']),
+      reasoning: z.string(),
+    }),
+    conversationHistory: z.array(z.any()),
+    dashboardFiles: z
+      .array(
+        z.object({
+          id: z.string(),
+          name: z.string(),
+          versionNumber: z.number(),
+          metricIds: z.array(z.string()),
+        })
+      )
+      .optional(),
+  }),
   // Include original workflow inputs to maintain access to prompt and conversationHistory
   prompt: z.string(),
   conversationHistory: z.array(z.any()).optional(),
