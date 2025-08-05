@@ -335,10 +335,6 @@ export const WithCustomKit: Story = {
         children: [{ text: 'Hello' }]
       },
       {
-        type: 'banner',
-        children: [{ text: 'Hello' }]
-      },
-      {
         type: 'characterCounter',
         children: [{ text: 'Character Counter' }]
       }

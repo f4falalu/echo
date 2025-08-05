@@ -357,7 +357,12 @@ const createDragPreviewElements = (
   };
 
   const resolveElement = (node: TElement, index: number) => {
-    const domNode = editor.api.toDOMNode(node)!;
+    const domNode = editor.api.toDOMNode(node);
+
+    if (!domNode) {
+      console.warn('domNode not found', node);
+      return;
+    }
     const newDomNode = domNode.cloneNode(true) as HTMLElement;
 
     // Apply visual compensation for horizontal scroll

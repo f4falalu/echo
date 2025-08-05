@@ -1,5 +1,5 @@
 import type { Descendant, PluginConfig, TElement, TNode } from 'platejs';
-import { createPlatePlugin, type PlateElementProps } from 'platejs/react';
+import { createPlatePlugin, PlateElement, type PlateElementProps } from 'platejs/react';
 import { useMemo } from 'react';
 
 // Helper function to recursively count characters in editor nodes
@@ -41,7 +41,7 @@ export const CharacterCounterPlugin = createPlatePlugin<
     warningThreshold: 0.9
   },
   handlers: {
-    onKeyDown: ({ editor, event, ...rest }) => {
+    onKeyDown: ({ editor, event }) => {
       const options = editor.getOptions(CharacterCounterPlugin);
       const { maxLength } = options;
 
@@ -88,7 +88,8 @@ export const CharacterCounterPlugin = createPlatePlugin<
     }
   },
   node: {
-    component: ({ element, children, getOptions }: CharacterElementCounterProps) => {
+    component: ({ attributes, children, ...props }: CharacterElementCounterProps) => {
+      const { getOptions, element } = props;
       const options = getOptions();
       const { maxLength, showWarning, warningThreshold } = options;
 
@@ -103,7 +104,13 @@ export const CharacterCounterPlugin = createPlatePlugin<
       const isOverLimit = characterLength > maxLength;
 
       return (
-        <div className="rounded-md bg-purple-100 p-2 text-black">
+        <PlateElement
+          className="rounded-md bg-purple-100 p-2 text-black"
+          attributes={{
+            ...attributes,
+            'data-plate-open-context-menu': true
+          }}
+          {...props}>
           <div className="mb-2 text-sm" contentEditable={false}>
             Character count: {characterLength} / {maxLength}
             {showWarning && isOverWarning && (
@@ -113,9 +120,10 @@ export const CharacterCounterPlugin = createPlatePlugin<
             )}
           </div>
           {children}
-        </div>
+        </PlateElement>
       );
     },
+
     isElement: true
   }
 });
