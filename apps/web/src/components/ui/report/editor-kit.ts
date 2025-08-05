@@ -36,6 +36,7 @@ import { SuggestionKit } from './plugins/suggestion-kit';
 import { TableKit } from './plugins/table-kit';
 import { TocKit } from './plugins/toc-kit';
 import { ToggleKit } from './plugins/toggle-kit';
+import { BusterStreamKit } from './plugins/buster-stream-kit';
 
 export const EditorKit = [
   ...AIKit,
@@ -77,6 +78,9 @@ export const EditorKit = [
   ...EmojiKit,
   ...ExitBreakKit,
   TrailingBlockPlugin,
+
+  // Custom
+  ...BusterStreamKit,
 
   // Parsers
   ...DocxKit,

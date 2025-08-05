@@ -1,18 +1,14 @@
 'use client';
 
-import {
-  prefetchGetReportsListClient,
-  useGetReport,
-  useGetReportsList,
-  useUpdateReport
-} from '@/api/buster_rest/reports';
+import { useGetReport, useUpdateReport } from '@/api/buster_rest/reports';
 import { cn } from '@/lib/utils';
-import React from 'react';
+import React, { useRef } from 'react';
 import { ReportPageHeader } from './ReportPageHeader';
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import { useDebounceFn } from '@/hooks/useDebounce';
-import { ReportEditor } from '@/components/ui/report/ReportEditor';
 import type { ReportElements } from '@buster/server-shared/reports';
+import DynamicReportEditor from '@/components/ui/report/DynamicReportEditor';
+import type { AppReportRef, IReportEditor } from '@/components/ui/report/ReportEditor';
 
 export const ReportPageController: React.FC<{
   reportId: string;
@@ -20,6 +16,7 @@ export const ReportPageController: React.FC<{
   className?: string;
 }> = ({ reportId, readOnly = false, className = '' }) => {
   const { data: report } = useGetReport({ reportId, versionNumber: undefined });
+  const editor = useRef<AppReportRef>(null);
 
   const content: ReportElements = report?.content || [];
 
@@ -32,7 +29,7 @@ export const ReportPageController: React.FC<{
   const { run: debouncedUpdateReport } = useDebounceFn(updateReport, { wait: 300 });
 
   const onChangeContent = useMemoizedFn((content: ReportElements) => {
-    updateReport({ reportId, content });
+    debouncedUpdateReport({ reportId, content });
   });
 
   return (
@@ -43,7 +40,8 @@ export const ReportPageController: React.FC<{
         onChangeName={onChangeName}
       />
 
-      <ReportEditor
+      <DynamicReportEditor
+        ref={editor}
         value={content}
         onValueChange={onChangeContent}
         readOnly={readOnly}

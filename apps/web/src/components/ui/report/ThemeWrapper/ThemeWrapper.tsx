@@ -28,7 +28,20 @@ interface ThemeWrapperProps extends React.ComponentProps<'div'> {
  * The EDITOR_THEME combines light theme colors with reset styles to create
  * a clean, controlled environment for report content.
  */
-const EDITOR_THEME = { ...THEME_RESET_COLORS.light, ...THEME_RESET_STYLE };
+
+// ${Object.entries(themesConfig.activeTheme.light)
+//   .map(([key, value]) => `${key}: hsl(${value});`)
+//   .join('\n')}
+
+const CSS_VARIABLES_THEME = Object.entries(THEME_RESET_COLORS.light).reduce(
+  (acc, [key, value]) => {
+    acc[`--${key}`] = `hsl(${value})`;
+    return acc;
+  },
+  {} as Record<string, string>
+);
+
+const EDITOR_THEME = { ...CSS_VARIABLES_THEME, ...THEME_RESET_STYLE };
 
 export function ThemeWrapper({ children, className, defaultTheme }: ThemeWrapperProps) {
   return (

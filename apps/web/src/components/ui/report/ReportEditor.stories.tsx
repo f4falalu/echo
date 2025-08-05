@@ -326,3 +326,23 @@ export const ReadOnly: Story = {
     readOnly: true
   }
 };
+
+export const WithCustomKit: Story = {
+  args: {
+    value: [
+      {
+        type: 'h1',
+        children: [{ text: 'Hello' }]
+      },
+      {
+        type: 'banner',
+        children: [{ text: 'Hello' }]
+      },
+      {
+        type: 'characterCounter',
+        children: [{ text: 'Character Counter' }]
+      }
+    ],
+    useFixedToolbarKit: true
+  }
+};
