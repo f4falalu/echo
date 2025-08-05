@@ -6,6 +6,14 @@ import { reportFiles } from '../../schema';
 import { workspaceSharingEnum } from '../../schema';
 import { ReportElementSchema, type ReportElements } from '../../schema-types';
 
+// Type for updating reportFiles - excludes read-only fields
+type UpdateReportData = Partial<
+  Omit<
+    typeof reportFiles.$inferInsert,
+    'id' | 'organizationId' | 'createdBy' | 'createdAt' | 'deletedAt'
+  >
+>;
+
 const WorkspaceSharingSchema = z.enum(workspaceSharingEnum.enumValues);
 
 // Input validation schema for updating a report
@@ -18,8 +26,8 @@ const UpdateReportInputSchema = z.object({
   content: z.lazy(() => z.array(ReportElementSchema)).optional() as z.ZodOptional<
     z.ZodType<ReportElements>
   >,
-  public_expiry_date: z.string().optional(),
-  public_password: z.string().optional(),
+  public_expiry_date: z.string().nullable().optional(),
+  public_password: z.string().nullable().optional(),
   workspace_sharing: WorkspaceSharingSchema.optional(),
 });
 
@@ -46,18 +54,7 @@ export const updateReport = async (params: UpdateReportInput): Promise<void> => 
 
   try {
     // Build update data - only include fields that are provided
-    const updateData: {
-      updatedAt: string;
-      name?: string;
-      publiclyAccessible?: boolean;
-      publiclyEnabledBy?: string | null;
-      content?: ReportElements;
-      publicExpiryDate?: string;
-      publicPassword?: string;
-      workspaceSharing?: 'none' | 'can_view' | 'can_edit' | 'full_access';
-      workspaceSharingEnabledBy?: string | null;
-      workspaceSharingEnabledAt?: string | null;
-    } = {
+    const updateData: UpdateReportData = {
       updatedAt: new Date().toISOString(),
     };
 

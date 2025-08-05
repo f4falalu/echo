@@ -53,7 +53,7 @@ describe('ShareIndividualSchema', () => {
   it('should handle optional name field', () => {
     const individualWithoutName = {
       email: 'test@example.com',
-      role: 'canView', // Changed from 'viewer' to match ShareRoleSchema
+      role: 'can_view', // Changed from 'viewer' to match ShareRoleSchema
     };
 
     const result = ShareIndividualSchema.safeParse(individualWithoutName);
@@ -61,7 +61,7 @@ describe('ShareIndividualSchema', () => {
 
     if (result.success) {
       expect(result.data.email).toBe('test@example.com');
-      expect(result.data.role).toBe('canView');
+      expect(result.data.role).toBe('can_view');
       expect(result.data.name).toBeUndefined();
     }
   });
@@ -72,7 +72,7 @@ describe('ShareIndividualSchema', () => {
     for (const email of invalidEmails) {
       const individual = {
         email,
-        role: 'canView', // Changed from 'viewer' to match ShareRoleSchema
+        role: 'can_view', // Changed from 'viewer' to match ShareRoleSchema
       };
 
       const result = ShareIndividualSchema.safeParse(individual);

@@ -15,8 +15,8 @@ export type SharePostRequest = z.infer<typeof SharePostRequestSchema>;
 //Used for updating share permissions for a report, collection, or metric
 export const ShareUpdateRequestSchema = z.object({
   publicly_accessible: z.boolean().optional(),
-  public_expiry_date: z.string().optional(),
-  public_password: z.string().optional(),
+  public_expiry_date: z.string().nullable().optional(),
+  public_password: z.string().nullable().optional(),
   workspace_sharing: WorkspaceShareRoleSchema.optional(),
   users: z
     .array(

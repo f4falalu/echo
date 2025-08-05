@@ -91,7 +91,7 @@ describe('ShareIndividualSchema', () => {
   it('should handle optional name field', () => {
     const individualWithoutName = {
       email: 'test@example.com',
-      role: 'canView',
+      role: 'can_view',
     };
 
     const result = ShareIndividualSchema.safeParse(individualWithoutName);
@@ -99,7 +99,7 @@ describe('ShareIndividualSchema', () => {
 
     if (result.success) {
       expect(result.data.email).toBe('test@example.com');
-      expect(result.data.role).toBe('canView');
+      expect(result.data.role).toBe('can_view');
       expect(result.data.name).toBeUndefined();
     }
   });
@@ -110,7 +110,7 @@ describe('ShareIndividualSchema', () => {
     for (const email of invalidEmails) {
       const individual = {
         email,
-        role: 'canView',
+        role: 'can_view',
       };
 
       const result = ShareIndividualSchema.safeParse(individual);
@@ -177,7 +177,7 @@ describe('ShareConfigSchema', () => {
         },
         {
           email: 'user2@example.com',
-          role: 'canView',
+          role: 'can_view',
         },
       ],
       public_expiry_date: '2024-12-31T23:59:59Z',
@@ -208,7 +208,7 @@ describe('ShareConfigSchema', () => {
       public_enabled_by: null,
       publicly_accessible: false,
       public_password: null,
-      permission: 'canView',
+      permission: 'can_view',
       workspace_sharing: null,
       workspace_member_count: null,
     };
@@ -222,7 +222,7 @@ describe('ShareConfigSchema', () => {
       expect(result.data.public_enabled_by).toBeNull();
       expect(result.data.publicly_accessible).toBe(false);
       expect(result.data.public_password).toBeNull();
-      expect(result.data.permission).toBe('canView');
+      expect(result.data.permission).toBe('can_view');
     }
   });
 

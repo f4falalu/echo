@@ -33,7 +33,7 @@ export const ReportItemsContainer: React.FC<{
   const reportsByDate: BusterListRowItem<ReportListItem>[] = useMemo(() => {
     return Object.entries(reportsRecord).flatMap<BusterListRowItem<ReportListItem>>(
       ([key, reports]) => {
-        const records = reports.map((report) => ({
+        const records = reports.map<BusterListRowItem<ReportListItem>>((report) => ({
           id: report.id,
           data: report,
           link: createBusterRoute({ route: BusterRoutes.APP_REPORTS_ID, reportId: report.id })

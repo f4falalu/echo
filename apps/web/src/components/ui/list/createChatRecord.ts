@@ -1,12 +1,15 @@
 import { getNow, isDateAfter, isDateBefore, isDateSame } from '@/lib/date';
 
-type ListItem = {
+type ListItem<K extends string = 'last_edited'> = {
   id: string;
-  last_edited: string;
-};
+} & Record<K, string>;
 
-export const createChatRecord = <T extends ListItem>(
-  data: T[]
+export const createChatRecord = <
+  T extends Record<string, any>,
+  K extends keyof T
+>(
+  data: T[],
+  dateKey: K & (T[K] extends string ? K : never) = 'last_edited' as K
 ): {
   TODAY: T[];
   YESTERDAY: T[];
