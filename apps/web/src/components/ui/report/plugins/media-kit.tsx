@@ -20,6 +20,7 @@ import { MediaPreviewDialog } from '../elements/MediaPreviewDialog';
 import { MediaUploadToast } from '../elements/MediaUploadToast';
 import { VideoElement } from '../elements/MediaVideoNode';
 import { MediaPluginOptions } from '@platejs/media';
+import { CUSTOM_KEYS } from '../config/keys';
 
 export const MediaKit = [
   ImagePlugin.configure({
@@ -42,7 +43,7 @@ export const MediaKit = [
   CaptionPlugin.configure({
     options: {
       query: {
-        allow: [KEYS.img, KEYS.video, KEYS.audio, KEYS.file, KEYS.mediaEmbed]
+        allow: [KEYS.img, KEYS.video, KEYS.audio, KEYS.file, KEYS.mediaEmbed, CUSTOM_KEYS.metric]
       }
     }
   })
