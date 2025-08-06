@@ -1,7 +1,6 @@
 import type { LanguageModelV2ToolCall } from '@ai-sdk/provider';
 import { generateObject } from 'ai';
 import type { ToolSet } from 'ai';
-import type { z } from 'zod';
 import { Haiku35 } from '../models/haiku-3-5';
 
 interface ToolCallWithArgs extends LanguageModelV2ToolCall {
