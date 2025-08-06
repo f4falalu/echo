@@ -14,7 +14,7 @@ catalog:
   "@supabase/supabase-js": "^2.50.0"
   "@trigger.dev/build": "^4.0.0-v4-beta.25"
   "@trigger.dev/sdk": "^4.0.0-v4-beta.25"
-  ai: "beta"
+  ai: "^5.0.5"
   axios: "^1.10.0"
   "braintrust": "^0.0.209"
   dotenv: "^17.2.0"

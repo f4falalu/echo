@@ -3,8 +3,11 @@ import { type CoreMessage, createStep } from '@mastra/core';
 import type { RuntimeContext } from '@mastra/core/runtime-context';
 import { z } from 'zod';
 import { createDocsAgent } from '../../agents/docs-agent/docs-agent';
-import { DocsAgentContextKeys, DocsAgentContextSchema } from '../../context/docs-agent-context';
-import type { MessageUserClarifyingQuestion } from '../../context/docs-agent-context';
+import {
+  DocsAgentContextKeys,
+  DocsAgentContextSchema,
+} from '../../agents/docs-agent/docs-agent-context';
+import type { MessageUserClarifyingQuestion } from '../../agents/docs-agent/docs-agent-context';
 import { standardizeMessages } from '../../utils/standardizeMessages';
 
 const docsAgentStepInputSchema = z.object({

@@ -6,7 +6,7 @@ import {
   ClarifyingQuestionSchema,
   type DocsAgentContext,
   type MessageUserClarifyingQuestion,
-} from '../../../context/docs-agent-context';
+} from '../../../agents/docs-agent/docs-agent-context';
 
 const updateClarificationsInputSchema = z.object({
   clarifications: z

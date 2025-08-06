@@ -7,6 +7,7 @@ import { wrapTraced } from 'braintrust';
 import { inArray } from 'drizzle-orm';
 import * as yaml from 'yaml';
 import { z } from 'zod';
+import type { AnalystAgentOptions } from '../../agents/analyst-agent/analyst-agent';
 import { getWorkflowDataSourceManager } from '../../utils/data-source-manager';
 import { createPermissionErrorMessage, validateSqlPermissions } from '../../utils/sql-permissions';
 import type { AnalystRuntimeContext } from '../../workflows/analyst-workflow';
@@ -958,10 +959,10 @@ definitions:
       })
     ),
   }),
-  execute: async ({ context, runtimeContext }) => {
+  execute: async (input, { context: AnalystAgentOptions }) => {
     return await createMetricFiles(
-      context as CreateMetricFilesParams,
-      runtimeContext as RuntimeContext<AnalystRuntimeContext>
+      input as CreateMetricFilesParams,
+      context as AnalystAgentOptions
     );
   },
 });
@@ -1489,109 +1490,4 @@ function generateResultMessage(
   }
 
   return `${successMsg}Failed to create ${failures.length} metric files:\n${failures.join('\n')}`;
-}
-
-/**
- * Optimistic parsing function for streaming create-metrics-file tool arguments
- * Extracts the files array as it's being built incrementally
- */
-export function parseStreamingArgs(
-  accumulatedText: string
-): Partial<{ files: Array<{ name: string; yml_content: string }> }> | null {
-  // Validate input type
-  if (typeof accumulatedText !== 'string') {
-    throw new Error(`parseStreamingArgs expects string input, got ${typeof accumulatedText}`);
-  }
-
-  try {
-    // First try to parse as complete JSON
-    const parsed = JSON.parse(accumulatedText);
-    return {
-      files: parsed.files || undefined,
-    };
-  } catch (error) {
-    // Only catch JSON parse errors - let other errors bubble up
-    if (error instanceof SyntaxError) {
-      // If JSON is incomplete, try to extract and reconstruct the files array
-      const filesMatch = accumulatedText.match(/"files"\s*:\s*\[(.*)/s);
-      if (filesMatch && filesMatch[1] !== undefined) {
-        const arrayContent = filesMatch[1];
-
-        try {
-          // Try to parse the array content by adding closing bracket
-          const testArray = `[${arrayContent}]`;
-          const parsed = JSON.parse(testArray);
-          return { files: parsed };
-        } catch {
-          // If that fails, try to extract file objects (both complete and incomplete)
-          const files: Array<{ name: string; yml_content: string }> = [];
-
-          // First, try to match complete file objects
-          const completeFileMatches = arrayContent.matchAll(
-            /\{\s*"name"\s*:\s*"([^"]*?)"\s*,\s*"yml_content"\s*:\s*"((?:[^"\\]|\\.)*)"\s*\}/g
-          );
-
-          for (const match of completeFileMatches) {
-            if (match[1] !== undefined && match[2] !== undefined) {
-              let ymlContent = match[2]
-                .replace(/\\"/g, '"')
-                .replace(/\\n/g, '\n')
-                .replace(/\\\\/g, '\\');
-
-              // Ensure timeFrame is properly quoted
-              ymlContent = ensureTimeFrameQuoted(ymlContent);
-
-              files.push({
-                name: match[1],
-                yml_content: ymlContent,
-              });
-            }
-          }
-
-          // If no complete files found, try to extract partial file objects
-          if (files.length === 0) {
-            // Try to match incomplete file objects that have at least name and partial yml_content
-            const incompleteFileMatch = arrayContent.match(
-              /\{\s*"name"\s*:\s*"([^"]*?)"\s*,\s*"yml_content"\s*:\s*"((?:[^"\\]|\\.)*)/
-            );
-
-            if (
-              incompleteFileMatch &&
-              incompleteFileMatch[1] !== undefined &&
-              incompleteFileMatch[2] !== undefined
-            ) {
-              const name = incompleteFileMatch[1];
-              let ymlContent = incompleteFileMatch[2]
-                .replace(/\\"/g, '"')
-                .replace(/\\n/g, '\n')
-                .replace(/\\\\/g, '\\');
-
-              // Ensure timeFrame is properly quoted
-              ymlContent = ensureTimeFrameQuoted(ymlContent);
-
-              files.push({
-                name,
-                yml_content: ymlContent,
-              });
-            }
-          }
-
-          return { files };
-        }
-      }
-
-      // Check if we at least have the start of the files field
-      const partialMatch = accumulatedText.match(/"files"\s*:\s*\[/);
-      if (partialMatch) {
-        return { files: [] };
-      }
-
-      return null;
-    }
-
-    // Unexpected error - re-throw with context
-    throw new Error(
-      `Unexpected error in parseStreamingArgs: ${error instanceof Error ? error.message : 'Unknown error'}`
-    );
-  }
 }

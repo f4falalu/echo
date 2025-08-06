@@ -2,7 +2,10 @@ import type { RuntimeContext } from '@mastra/core/runtime-context';
 import { createTool } from '@mastra/core/tools';
 import { wrapTraced } from 'braintrust';
 import { z } from 'zod';
-import { type DocsAgentContext, DocsAgentContextKey } from '../../../context/docs-agent-context';
+import {
+  type DocsAgentContext,
+  DocsAgentContextKey,
+} from '../../../agents/docs-agent/docs-agent-context';
 
 const checkOffTodoListInputSchema = z.object({
   todoItems: z.array(z.string()).describe('An array of todo item texts to check off in the list'),

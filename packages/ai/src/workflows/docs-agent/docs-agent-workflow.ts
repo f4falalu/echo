@@ -1,6 +1,6 @@
 import { createWorkflow } from '@mastra/core';
 import { z } from 'zod';
-import { DocsAgentContextSchema } from '../../context/docs-agent-context';
+import { DocsAgentContextSchema } from '../../agents/docs-agent/docs-agent-context';
 import { createDocsTodosStep } from '../../steps/docs-agent/create-docs-todos-step';
 import { docsAgentStep } from '../../steps/docs-agent/docs-agent-step';
 import { getRepositoryTreeStep } from '../../steps/docs-agent/get-repository-tree-step';

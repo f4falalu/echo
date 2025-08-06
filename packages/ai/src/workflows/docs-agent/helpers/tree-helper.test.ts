@@ -2,7 +2,7 @@ import * as fs from 'node:fs/promises';
 import { runTypescript } from '@buster/sandbox';
 import { RuntimeContext } from '@mastra/core/runtime-context';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { DocsAgentContextKeys } from '../../../context/docs-agent-context';
+import { DocsAgentContextKeys } from '../../../agents/docs-agent/docs-agent-context';
 import { getRepositoryTree, getRepositoryTreeFromContext } from './tree-helper';
 
 vi.mock('node:fs/promises');

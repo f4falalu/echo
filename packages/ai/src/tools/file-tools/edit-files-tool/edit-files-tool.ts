@@ -5,7 +5,10 @@ import type { RuntimeContext } from '@mastra/core/runtime-context';
 import { createTool } from '@mastra/core/tools';
 import { wrapTraced } from 'braintrust';
 import { z } from 'zod';
-import { type DocsAgentContext, DocsAgentContextKeys } from '../../../context/docs-agent-context';
+import {
+  type DocsAgentContext,
+  DocsAgentContextKeys,
+} from '../../../agents/docs-agent/docs-agent-context';
 
 const editFileParamsSchema = z.object({
   filePath: z.string().describe('Relative or absolute path to the file'),

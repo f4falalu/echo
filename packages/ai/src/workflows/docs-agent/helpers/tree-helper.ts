@@ -4,7 +4,10 @@ import { fileURLToPath } from 'node:url';
 import { runTypescript } from '@buster/sandbox';
 import type { Sandbox } from '@buster/sandbox';
 import type { RuntimeContext } from '@mastra/core/runtime-context';
-import { type DocsAgentContext, DocsAgentContextKeys } from '../../../context/docs-agent-context';
+import {
+  type DocsAgentContext,
+  DocsAgentContextKeys,
+} from '../../../agents/docs-agent/docs-agent-context';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);

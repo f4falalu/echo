@@ -1,5 +1,5 @@
 import type { Sandbox } from '@buster/sandbox';
-import type { DocsAgentContext } from '../../../context/docs-agent-context';
+import type { DocsAgentContext } from '../../../agents/docs-agent/docs-agent-context';
 
 export interface CreateTestContextOptions {
   sandbox: Sandbox;

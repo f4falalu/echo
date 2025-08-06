@@ -1,6 +1,6 @@
 import { RuntimeContext } from '@mastra/core/runtime-context';
 import { beforeEach, describe, expect, it } from 'vitest';
-import type { DocsAgentContext } from '../../../context/docs-agent-context';
+import type { DocsAgentContext } from '../../../agents/docs-agent/docs-agent-context';
 import { checkOffTodoList } from './check-off-todo-list-tool';
 
 describe('checkOffTodoList', () => {

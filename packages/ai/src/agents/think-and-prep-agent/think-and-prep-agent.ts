@@ -16,7 +16,7 @@ const DEFAULT_CACHE_OPTIONS = {
 };
 
 const STOP_CONDITIONS = [
-  stepCountIs(18),
+  stepCountIs(25),
   hasToolCall('submitThoughts'),
   hasToolCall('respondWithoutAssetCreation'),
   hasToolCall('messageUserClarifyingQuestion'),

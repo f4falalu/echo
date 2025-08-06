@@ -2,7 +2,10 @@ import type { RuntimeContext } from '@mastra/core/runtime-context';
 import { createTool } from '@mastra/core/tools';
 import { wrapTraced } from 'braintrust';
 import { z } from 'zod';
-import { type DocsAgentContext, DocsAgentContextKeys } from '../../../context/docs-agent-context';
+import {
+  type DocsAgentContext,
+  DocsAgentContextKeys,
+} from '../../../agents/docs-agent/docs-agent-context';
 
 const listFilesOptionsSchema = z.object({
   depth: z

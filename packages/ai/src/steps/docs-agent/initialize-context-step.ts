@@ -2,7 +2,10 @@ import type { Sandbox } from '@buster/sandbox';
 import { createStep } from '@mastra/core';
 import type { RuntimeContext } from '@mastra/core/runtime-context';
 import { z } from 'zod';
-import { DocsAgentContextKeys, DocsAgentContextSchema } from '../../context/docs-agent-context';
+import {
+  DocsAgentContextKeys,
+  DocsAgentContextSchema,
+} from '../../agents/docs-agent/docs-agent-context';
 
 // Input schema matches the workflow input schema
 const initializeContextStepInputSchema = z.object({

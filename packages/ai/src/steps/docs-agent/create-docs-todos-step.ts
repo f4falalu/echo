@@ -2,7 +2,10 @@ import type { Sandbox } from '@buster/sandbox';
 import { Agent, createStep } from '@mastra/core';
 import type { RuntimeContext } from '@mastra/core/runtime-context';
 import { z } from 'zod';
-import { DocsAgentContextKeys, DocsAgentContextSchema } from '../../context/docs-agent-context';
+import {
+  DocsAgentContextKeys,
+  DocsAgentContextSchema,
+} from '../../agents/docs-agent/docs-agent-context';
 import { createTodoList } from '../../tools/planning-thinking-tools/create-todo-item-tool';
 import { Sonnet4 } from '../../utils/models/sonnet-4';
 import { standardizeMessages } from '../../utils/standardizeMessages';

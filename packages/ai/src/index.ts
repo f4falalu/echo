@@ -5,7 +5,7 @@ export { createThinkAndPrepAgent } from './agents/think-and-prep-agent/think-and
 // Export workflows
 export {
   default as analystWorkflow,
-  type AnalystRuntimeContext,
+  type AnalystAgentContext,
 } from './workflows/analyst-workflow';
 
 // Export schemas

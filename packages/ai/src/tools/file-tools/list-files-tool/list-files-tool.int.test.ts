@@ -2,7 +2,7 @@ import { createSandbox } from '@buster/sandbox';
 import { addFiles } from '@buster/sandbox';
 import { RuntimeContext } from '@mastra/core/runtime-context';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { DocsAgentContextKeys } from '../../../context/docs-agent-context';
+import { DocsAgentContextKeys } from '../../../agents/docs-agent/docs-agent-context';
 import { listFiles } from './list-files-tool';
 
 describe.sequential('list-files-tool integration test', () => {

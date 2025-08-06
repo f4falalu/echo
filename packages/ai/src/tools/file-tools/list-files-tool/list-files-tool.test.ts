@@ -1,6 +1,6 @@
 import { RuntimeContext } from '@mastra/core/runtime-context';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { DocsAgentContextKeys } from '../../../context/docs-agent-context';
+import { DocsAgentContextKeys } from '../../../agents/docs-agent/docs-agent-context';
 import { listFiles } from './list-files-tool';
 
 describe('list-files-tool', () => {

@@ -1,7 +1,7 @@
 import { createSandbox } from '@buster/sandbox';
 import { RuntimeContext } from '@mastra/core/runtime-context';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { DocsAgentContextKeys } from '../../../context/docs-agent-context';
+import { DocsAgentContextKeys } from '../../../agents/docs-agent/docs-agent-context';
 import { executeBash } from './bash-execute-tool';
 
 describe.sequential('bash-execute-tool integration test', () => {

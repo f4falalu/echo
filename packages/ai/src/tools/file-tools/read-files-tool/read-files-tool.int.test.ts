@@ -1,7 +1,7 @@
 import { createSandbox } from '@buster/sandbox';
 import { RuntimeContext } from '@mastra/core/runtime-context';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { DocsAgentContextKeys } from '../../../context/docs-agent-context';
+import { DocsAgentContextKeys } from '../../../agents/docs-agent/docs-agent-context';
 import { readFiles } from './read-files-tool';
 
 describe.sequential('read-files-tool integration test', () => {

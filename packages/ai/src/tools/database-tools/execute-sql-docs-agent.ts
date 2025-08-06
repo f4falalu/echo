@@ -3,7 +3,7 @@ import type { RuntimeContext } from '@mastra/core/runtime-context';
 import { createTool } from '@mastra/core/tools';
 import { wrapTraced } from 'braintrust';
 import { z } from 'zod';
-import type { DocsAgentContext } from '../../context/docs-agent-context';
+import type { DocsAgentContext } from '../../agents/docs-agent/docs-agent-context';
 import { getWorkflowDataSourceManager } from '../../utils/data-source-manager';
 import { checkQueryIsReadOnly } from '../../utils/sql-permissions/sql-parser-helpers';
 

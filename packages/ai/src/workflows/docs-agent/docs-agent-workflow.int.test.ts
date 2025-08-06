@@ -2,7 +2,7 @@ import type { Sandbox } from '@buster/sandbox';
 import { currentSpan, initLogger, wrapTraced } from 'braintrust';
 import type { Logger as BraintrustLogger } from 'braintrust';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import type { DocsAgentContext } from '../../context/docs-agent-context';
+import type { DocsAgentContext } from '../../agents/docs-agent/docs-agent-context';
 import docsAgentWorkflow from './docs-agent-workflow';
 import {
   TEST_MESSAGES,

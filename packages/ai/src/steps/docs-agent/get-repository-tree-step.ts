@@ -2,7 +2,10 @@ import type { Sandbox } from '@buster/sandbox';
 import { createStep } from '@mastra/core';
 import type { RuntimeContext } from '@mastra/core/runtime-context';
 import { z } from 'zod';
-import { DocsAgentContextKeys, DocsAgentContextSchema } from '../../context/docs-agent-context';
+import {
+  DocsAgentContextKeys,
+  DocsAgentContextSchema,
+} from '../../agents/docs-agent/docs-agent-context';
 import { getRepositoryTree } from '../../workflows/docs-agent/helpers/tree-helper';
 
 // Input schema - receives data from initialize-context step

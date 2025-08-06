@@ -1,7 +1,10 @@
 import { RuntimeContext } from '@mastra/core/runtime-context';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { z } from 'zod';
-import { type DocsAgentContext, DocsAgentContextKeys } from '../../../context/docs-agent-context';
+import {
+  type DocsAgentContext,
+  DocsAgentContextKeys,
+} from '../../../agents/docs-agent/docs-agent-context';
 import { createFiles } from './create-file-tool';
 
 vi.mock('@buster/sandbox', () => ({

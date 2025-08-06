@@ -5,7 +5,7 @@ import * as path from 'node:path';
  * Template parameters for the analyst agent prompt
  */
 export interface AnalystTemplateParams {
-  sqlDialectGuidance: string;
+  dataSourceSyntax: string;
   date: string;
 }
 
@@ -19,7 +19,7 @@ function loadAndProcessPrompt(params: AnalystTemplateParams): string {
     const content = fs.readFileSync(promptPath, 'utf-8');
 
     return content
-      .replace(/\{\{sql_dialect_guidance\}\}/g, params.sqlDialectGuidance)
+      .replace(/\{\{sql_dialect_guidance\}\}/g, params.dataSourceSyntax)
       .replace(/\{\{date\}\}/g, params.date);
   } catch (error) {
     throw new Error(`Failed to load prompt template: ${String(error)}`);
@@ -29,15 +29,15 @@ function loadAndProcessPrompt(params: AnalystTemplateParams): string {
 /**
  * Export the template function for use in step files
  */
-export const getAnalystAgentSystemPrompt = (sqlDialectGuidance: string): string => {
-  if (!sqlDialectGuidance.trim()) {
+export const getAnalystAgentSystemPrompt = (dataSourceSyntax: string): string => {
+  if (!dataSourceSyntax.trim()) {
     throw new Error('SQL dialect guidance is required');
   }
 
   const currentDate = new Date().toISOString();
 
   return loadAndProcessPrompt({
-    sqlDialectGuidance,
+    dataSourceSyntax,
     date: currentDate,
   });
 };
