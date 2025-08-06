@@ -17,6 +17,7 @@ import {
   webSearch,
 } from '../../tools';
 import { Sonnet4 } from '../../utils/models/sonnet-4';
+import { healToolWithLlm } from '../../utils/tool-call-repair';
 import { getDocsAgentSystemPrompt } from './get-docs-agent-system-prompt';
 
 const DEFAULT_CACHE_OPTIONS = {
@@ -27,6 +28,11 @@ const STOP_CONDITIONS = [stepCountIs(50), hasToolCall('idleTool')];
 
 const DocsAgentOptionsSchema = z.object({
   folder_structure: z.string().describe('The file structure of the dbt repository'),
+  userId: z.string(),
+  chatId: z.string(),
+  dataSourceId: z.string(),
+  organizationId: z.string(),
+  messageId: z.string().optional(),
 });
 
 const DocsStreamOptionsSchema = z.object({
@@ -36,12 +42,12 @@ const DocsStreamOptionsSchema = z.object({
 export type DocsAgentOptions = z.infer<typeof DocsAgentOptionsSchema>;
 export type DocsStreamOptions = z.infer<typeof DocsStreamOptionsSchema>;
 
-export function createDocsAgent(options: DocsAgentOptions) {
+export function createDocsAgent(docsAgentOptions: DocsAgentOptions) {
   const steps: never[] = [];
 
   const systemMessage = {
     role: 'system',
-    content: getDocsAgentSystemPrompt(options.folder_structure),
+    content: getDocsAgentSystemPrompt(docsAgentOptions.folder_structure),
     providerOptions: DEFAULT_CACHE_OPTIONS,
   } as ModelMessage;
 
@@ -70,6 +76,8 @@ export function createDocsAgent(options: DocsAgentOptions) {
           toolChoice: 'required',
           maxOutputTokens: 10000,
           temperature: 0,
+          experimental_context: docsAgentOptions,
+          experimental_repairToolCall: healToolWithLlm,
         }),
       {
         name: 'Docs Agent',

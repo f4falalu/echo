@@ -93,9 +93,14 @@ const docsAgentExecution = async ({
       }
     }
 
-    // Create the docs agent with folder structure
+    // Create the docs agent with folder structure and context
     const docsAgent = createDocsAgent({
       folder_structure: inputData.repositoryTree,
+      userId: organizationId, // Using organizationId as userId for now
+      chatId: workflowStartTime?.toString() || 'unknown', // Using workflowStartTime as chatId
+      dataSourceId: dataSourceId || '',
+      organizationId: organizationId || '',
+      messageId: undefined, // Optional field
     });
 
     const userMessage = `${inputData.message}`;

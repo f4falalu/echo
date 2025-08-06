@@ -5,7 +5,6 @@ import { z } from 'zod';
 import type { AnalystAgentOptions } from '../../agents/analyst-agent/analyst-agent';
 import { getWorkflowDataSourceManager } from '../../utils/data-source-manager';
 import { createPermissionErrorMessage, validateSqlPermissions } from '../../utils/sql-permissions';
-import type { AnalystRuntimeContext } from '../../workflows/analyst-workflow';
 
 const executeSqlStatementInputSchema = z.object({
   statements: z.array(z.string()).describe(
@@ -19,6 +18,14 @@ const executeSqlStatementInputSchema = z.object({
       Queries without these requirements will fail to execute.`
   ),
 });
+
+const executeSqlContextSchema = z.object({
+  dataSourceId: z.string().describe('ID of the data source to execute SQL against'),
+  userId: z.string().describe('ID of the user executing the SQL'),
+  dataSourceSyntax: z.string().describe('SQL syntax variant for the data source'),
+});
+
+type ExecuteSqlContext = z.infer<typeof executeSqlContextSchema>;
 
 /**
  * Processes a single column value for truncation
@@ -89,7 +96,7 @@ const executeSqlStatementOutputSchema = z.object({
 const executeSqlStatement = wrapTraced(
   async (
     params: z.infer<typeof executeSqlStatementInputSchema>,
-    context: AnalystAgentOptions
+    context: ExecuteSqlContext
   ): Promise<z.infer<typeof executeSqlStatementOutputSchema>> => {
     let { statements } = params;
 
@@ -271,7 +278,7 @@ const executeSqlStatement = wrapTraced(
 async function executeSingleStatement(
   sqlStatement: string,
   dataSource: DataSource,
-  runtimeContext: AnalystAgentOptions
+  context: ExecuteSqlContext
 ): Promise<{
   success: boolean;
   data?: Record<string, unknown>[];
@@ -287,12 +294,12 @@ async function executeSingleStatement(
   }
 
   // Validate permissions before execution
-  const userId = runtimeContext.userId;
+  const userId = context.userId;
   if (!userId) {
     return { success: false, error: 'User authentication required for SQL execution' };
   }
 
-  const dataSourceSyntax = runtimeContext.dataSourceSyntax;
+  const dataSourceSyntax = context.dataSourceSyntax;
   const permissionResult = await validateSqlPermissions(sqlStatement, userId, dataSourceSyntax);
   if (!permissionResult.isAuthorized) {
     return {
@@ -394,7 +401,15 @@ export const executeSql = tool({
   inputSchema: executeSqlStatementInputSchema,
   outputSchema: executeSqlStatementOutputSchema,
   execute: async (input, { experimental_context: context }) => {
-    return await executeSqlStatement(input, context as AnalystAgentOptions);
+    const rawContext = context as AnalystAgentOptions;
+
+    const executeSqlContext = executeSqlContextSchema.parse({
+      dataSourceId: rawContext.dataSourceId,
+      userId: rawContext.userId,
+      dataSourceSyntax: rawContext.dataSourceSyntax,
+    });
+
+    return await executeSqlStatement(input, executeSqlContext);
   },
 });
 

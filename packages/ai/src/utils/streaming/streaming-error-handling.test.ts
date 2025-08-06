@@ -2,12 +2,11 @@ import { describe, expect, test } from 'vitest';
 import { parseStreamingArgs as parseIdleArgs } from '../../tools/communication-tools/idle-tool';
 // Note: Some tools have been converted to AI SDK v5 and no longer have parseStreamingArgs
 // Only test tools that still have the parseStreamingArgs function
-import { parseStreamingArgs as parseExecuteSqlDocsAgentArgs } from '../../tools/database-tools/execute-sql-docs-agent';
+// execute-sql-docs-agent has been converted to AI SDK v5 and no longer has parseStreamingArgs
 
 describe('Streaming Parser Error Handling', () => {
   const parsers = [
     // Only test tools that still have parseStreamingArgs function
-    { name: 'execute-sql-docs-agent', parser: parseExecuteSqlDocsAgentArgs },
     { name: 'idle-tool', parser: parseIdleArgs },
   ];
 
@@ -73,12 +72,6 @@ describe('Streaming Parser Error Handling', () => {
   });
 
   describe('Successful Parsing (Should Work)', () => {
-    test('execute-sql-docs-agent should parse valid complete JSON', () => {
-      const validJson = '{"statements": ["SELECT * FROM test"]}';
-      const result = parseExecuteSqlDocsAgentArgs(validJson);
-      expect(result).toEqual({ statements: ['SELECT * FROM test'] });
-    });
-
     test('idle-tool should parse valid complete JSON', () => {
       const validJson = '{"final_response": "Test response"}';
       const result = parseIdleArgs(validJson);
