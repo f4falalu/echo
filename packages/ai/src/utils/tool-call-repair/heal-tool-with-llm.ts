@@ -1,6 +1,6 @@
 import type { LanguageModelV2ToolCall } from '@ai-sdk/provider';
 import { generateObject } from 'ai';
-import type { ToolSet } from 'ai';
+import { type InvalidToolInputError, NoSuchToolError, type ToolSet } from 'ai';
 import { Haiku35 } from '../models/haiku-3-5';
 
 interface ToolCallWithArgs extends LanguageModelV2ToolCall {
@@ -10,11 +10,17 @@ interface ToolCallWithArgs extends LanguageModelV2ToolCall {
 export async function healToolWithLlm({
   toolCall,
   tools,
+  error,
 }: {
   toolCall: LanguageModelV2ToolCall;
   tools: ToolSet;
+  error: NoSuchToolError | InvalidToolInputError;
 }) {
   try {
+    if (error instanceof NoSuchToolError) {
+      return null;
+    }
+
     const tool = tools[toolCall.toolName as keyof typeof tools];
 
     if (!tool) {

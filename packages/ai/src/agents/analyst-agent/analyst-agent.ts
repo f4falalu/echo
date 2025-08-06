@@ -1,4 +1,4 @@
-import { type ModelMessage, hasToolCall, stepCountIs, streamText } from 'ai';
+import { type ModelMessage, NoSuchToolError, hasToolCall, stepCountIs, streamText } from 'ai';
 import { wrapTraced } from 'braintrust';
 import z from 'zod';
 import {
@@ -9,7 +9,7 @@ import {
   modifyMetrics,
 } from '../../tools';
 import { Sonnet4 } from '../../utils/models/sonnet-4';
-import { healToolWithLlm } from '../../utils/tool-call-repair';
+import { createNoSuchToolHealingMessage, healToolWithLlm } from '../../utils/tool-call-repair';
 import { getAnalystAgentSystemPrompt } from './get-analyst-agent-system-prompt';
 
 const DEFAULT_CACHE_OPTIONS = {
@@ -46,29 +46,64 @@ export function createAnalystAgent(analystAgentOptions: AnalystAgentOptions) {
   } as ModelMessage;
 
   async function stream({ messages }: AnalystStreamOptions) {
-    return wrapTraced(
-      () =>
-        streamText({
-          model: Sonnet4,
-          tools: {
-            createMetrics,
-            modifyMetrics,
-            createDashboards,
-            modifyDashboards,
-            doneTool,
-          },
-          messages: [systemMessage, ...messages],
-          stopWhen: STOP_CONDITIONS,
-          toolChoice: 'required',
-          maxOutputTokens: 10000,
-          temperature: 0,
-          experimental_context: analystAgentOptions,
-          experimental_repairToolCall: healToolWithLlm,
-        }),
-      {
-        name: 'Analyst Agent',
+    const maxRetries = 2;
+    let attempt = 0;
+    const currentMessages = [...messages];
+
+    while (attempt <= maxRetries) {
+      try {
+        return wrapTraced(
+          () =>
+            streamText({
+              model: Sonnet4,
+              tools: {
+                createMetrics,
+                modifyMetrics,
+                createDashboards,
+                modifyDashboards,
+                doneTool,
+              },
+              messages: [systemMessage, ...currentMessages],
+              stopWhen: STOP_CONDITIONS,
+              toolChoice: 'required',
+              maxOutputTokens: 10000,
+              temperature: 0,
+              experimental_context: analystAgentOptions,
+              experimental_repairToolCall: healToolWithLlm,
+            }),
+          {
+            name: 'Analyst Agent',
+          }
+        )();
+      } catch (error) {
+        attempt++;
+
+        // Only retry for NoSuchToolError
+        if (!NoSuchToolError.isInstance(error) || attempt > maxRetries) {
+          console.error('Error in analyst agent:', error);
+          throw error;
+        }
+
+        // Add healing message and retry
+        const healingMessage = createNoSuchToolHealingMessage(
+          error,
+          `createMetrics, modifyMetrics, createDashboards, modifyDashboards, createReports, modifyReports, doneTool are the tools that are available to you at this moment.
+          
+          The previous phase of the workflow was the think and prep phase that has access to the following tools:
+          sequentialThinking, executeSql, respondWithoutAssetCreation, submitThoughts, messageUserClarifyingQuestion
+          
+          However, you don't have access to any of those tools at this moment. 
+          `
+        );
+        currentMessages.push(healingMessage);
+
+        console.info(
+          `Retrying analyst agent after NoSuchToolError (attempt ${attempt}/${maxRetries})`
+        );
       }
-    )();
+    }
+
+    throw new Error('Max retry attempts exceeded');
   }
 
   async function getSteps() {
