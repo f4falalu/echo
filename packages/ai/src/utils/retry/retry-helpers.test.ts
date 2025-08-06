@@ -453,31 +453,6 @@ describe('retry-helpers', () => {
   });
 
   describe('handleRetryWithHealing', () => {
-    it('should handle network errors without healing', async () => {
-      const consoleInfoSpy = vi.spyOn(console, 'info').mockImplementation(() => {});
-
-      const retryableError: RetryableError = {
-        type: 'network-timeout',
-        healingMessage: { role: 'user', content: 'Network error' },
-        originalError: new Error('ETIMEDOUT'),
-      };
-
-      const messages: CoreMessage[] = [
-        { role: 'user', content: 'Analyze data' },
-        { role: 'assistant', content: 'Processing...' },
-      ];
-
-      const result = await handleRetryWithHealing(retryableError, messages, 2, {
-        currentStep: 'analyst',
-      });
-
-      expect(result.shouldContinueWithoutHealing).toBe(true);
-      expect(result.healedMessages).toEqual(messages); // Messages unchanged
-      expect(result.backoffDelay).toBeGreaterThan(4000); // 2^2 * 1000 * 2 (multiplier)
-
-      consoleInfoSpy.mockRestore();
-    });
-
     it('should handle empty response by removing message', async () => {
       const consoleInfoSpy = vi.spyOn(console, 'info').mockImplementation(() => {});
 
@@ -496,7 +471,6 @@ describe('retry-helpers', () => {
         currentStep: 'think-and-prep',
       });
 
-      expect(result.shouldContinueWithoutHealing).toBe(false);
       expect(result.healedMessages).toHaveLength(2);
       expect(result.healedMessages[0]?.content).toBe('Tell me about revenue');
       expect(result.healedMessages[1]?.content).toBe('Please continue with your preparation.');
@@ -546,32 +520,10 @@ describe('retry-helpers', () => {
         currentStep: 'analyst',
       });
 
-      expect(result.shouldContinueWithoutHealing).toBe(false);
       expect(result.healedMessages).toHaveLength(3);
       expect(result.healedMessages[2]?.role).toBe('tool');
       expect((result.healedMessages[2]?.content[0] as any).toolCallId).toBe('call123');
       expect(result.backoffDelay).toBe(1000); // 2^0 * 1000
-
-      consoleInfoSpy.mockRestore();
-    });
-
-    it('should handle rate limit with increased backoff', async () => {
-      const consoleInfoSpy = vi.spyOn(console, 'info').mockImplementation(() => {});
-
-      const retryableError: RetryableError = {
-        type: 'rate-limit',
-        healingMessage: { role: 'user', content: 'Rate limited' },
-        originalError: new Error('429 Too Many Requests'),
-      };
-
-      const messages: CoreMessage[] = [{ role: 'user', content: 'Query' }];
-
-      const result = await handleRetryWithHealing(retryableError, messages, 3, {
-        currentStep: 'analyst',
-      });
-
-      expect(result.shouldContinueWithoutHealing).toBe(true);
-      expect(result.backoffDelay).toBe(24000); // 2^3 * 1000 * 3 (rate limit multiplier)
 
       consoleInfoSpy.mockRestore();
     });

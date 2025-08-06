@@ -538,7 +538,8 @@ test('handles rate limit errors', async () => {
     prompt: [],
   });
 
-  expect(attempts).toBe(1);
+  // With retry-before-switch, model1 will be tried twice (default maxRetriesPerModel is 2)
+  expect(attempts).toBe(2);
   expect(result.content[0]).toEqual({ type: 'text', text: 'Response from available model' });
   expect(fallback.currentModelIndex).toBe(1);
 });
@@ -567,4 +568,369 @@ test('constructor throws error when no models provided', () => {
   expect(() => {
     createFallback({ models: [] });
   }).toThrow('No models available in settings');
+});
+
+test('retries same model before switching on network error', async () => {
+  let model1Attempts = 0;
+  let model2Attempts = 0;
+
+  const model1 = new MockLanguageModelV2({
+    modelId: 'model-1',
+    doGenerate: async () => {
+      model1Attempts++;
+      if (model1Attempts <= 2) {
+        const error = new Error('Service temporarily unavailable');
+        (error as any).statusCode = 503;
+        throw error;
+      }
+      return {
+        content: [{ type: 'text', text: 'Success from model 1' }],
+        finishReason: 'stop' as const,
+        usage: { inputTokens: 10, outputTokens: 5, totalTokens: 15 },
+        warnings: [],
+      };
+    },
+  });
+
+  const model2 = new MockLanguageModelV2({
+    modelId: 'model-2',
+    doGenerate: async () => {
+      model2Attempts++;
+      return {
+        content: [{ type: 'text', text: 'Success from model 2' }],
+        finishReason: 'stop' as const,
+        usage: { inputTokens: 10, outputTokens: 5, totalTokens: 15 },
+        warnings: [],
+      };
+    },
+  });
+
+  const fallback = createFallback({
+    models: [model1, model2],
+    maxRetriesPerModel: 3,
+  });
+
+  const result = await fallback.doGenerate({
+    prompt: [],
+  });
+
+  // Should retry model 1 three times, then succeed on the third attempt
+  expect(model1Attempts).toBe(3);
+  expect(model2Attempts).toBe(0); // Should not reach model 2
+  expect(result.content[0]).toEqual({ type: 'text', text: 'Success from model 1' });
+  expect(fallback.currentModelIndex).toBe(0); // Still on model 1
+});
+
+test('switches to next model after exhausting retries', async () => {
+  let model1Attempts = 0;
+  const onError = vi.fn();
+
+  const model1 = new MockLanguageModelV2({
+    modelId: 'model-1',
+    doGenerate: async () => {
+      model1Attempts++;
+      const error = new Error('Rate limit exceeded');
+      (error as any).statusCode = 429;
+      throw error;
+    },
+  });
+
+  const model2 = new MockLanguageModelV2({
+    modelId: 'model-2',
+    doGenerate: async () => ({
+      content: [{ type: 'text', text: 'Success from model 2' }],
+      finishReason: 'stop' as const,
+      usage: { inputTokens: 10, outputTokens: 5, totalTokens: 15 },
+      warnings: [],
+    }),
+  });
+
+  const fallback = createFallback({
+    models: [model1, model2],
+    maxRetriesPerModel: 2,
+    onError,
+  });
+
+  const result = await fallback.doGenerate({
+    prompt: [],
+  });
+
+  // Should try model 1 twice, then switch to model 2
+  expect(model1Attempts).toBe(2);
+  expect(result.content[0]).toEqual({ type: 'text', text: 'Success from model 2' });
+  expect(fallback.currentModelIndex).toBe(1);
+  expect(onError).toHaveBeenCalledTimes(2);
+});
+
+test('applies exponential backoff between retries', async () => {
+  let model1Attempts = 0;
+  const timestamps: number[] = [];
+
+  const model1 = new MockLanguageModelV2({
+    modelId: 'model-1',
+    doGenerate: async () => {
+      model1Attempts++;
+      timestamps.push(Date.now());
+      if (model1Attempts < 3) {
+        const error = new Error('Server error');
+        (error as any).statusCode = 500;
+        throw error;
+      }
+      return {
+        content: [{ type: 'text', text: 'Success' }],
+        finishReason: 'stop' as const,
+        usage: { inputTokens: 10, outputTokens: 5, totalTokens: 15 },
+        warnings: [],
+      };
+    },
+  });
+
+  const fallback = createFallback({
+    models: [model1],
+    maxRetriesPerModel: 3,
+  });
+
+  const start = Date.now();
+  await fallback.doGenerate({
+    prompt: [],
+  });
+
+  expect(model1Attempts).toBe(3);
+
+  // Check that delays increase (exponential backoff)
+  if (timestamps.length >= 3) {
+    const delay1 = timestamps[1]! - timestamps[0]!;
+    const delay2 = timestamps[2]! - timestamps[1]!;
+
+    // Second delay should be roughly double the first (allowing for some variance)
+    expect(delay2).toBeGreaterThanOrEqual(delay1 * 1.5);
+  }
+});
+
+test('respects maxRetriesPerModel setting', async () => {
+  let model1Attempts = 0;
+
+  const model1 = new MockLanguageModelV2({
+    modelId: 'model-1',
+    doGenerate: async () => {
+      model1Attempts++;
+      const error = new Error('Timeout');
+      throw error;
+    },
+  });
+
+  const model2 = new MockLanguageModelV2({
+    modelId: 'model-2',
+    doGenerate: async () => ({
+      content: [{ type: 'text', text: 'Model 2 response' }],
+      finishReason: 'stop' as const,
+      usage: { inputTokens: 10, outputTokens: 5, totalTokens: 15 },
+      warnings: [],
+    }),
+  });
+
+  const fallback = createFallback({
+    models: [model1, model2],
+    maxRetriesPerModel: 5,
+  });
+
+  const result = await fallback.doGenerate({
+    prompt: [],
+  });
+
+  expect(model1Attempts).toBe(5); // Should retry exactly 5 times
+  expect(result.content[0]).toEqual({ type: 'text', text: 'Model 2 response' });
+});
+
+test('does not retry non-retryable errors', async () => {
+  let model1Attempts = 0;
+  const onError = vi.fn();
+
+  const model1 = new MockLanguageModelV2({
+    modelId: 'model-1',
+    doGenerate: async () => {
+      model1Attempts++;
+      throw new Error('Invalid request format');
+    },
+  });
+
+  const model2 = new MockLanguageModelV2({
+    modelId: 'model-2',
+    doGenerate: async () => ({
+      content: [{ type: 'text', text: 'Should not reach here' }],
+      finishReason: 'stop' as const,
+      usage: { inputTokens: 10, outputTokens: 5, totalTokens: 15 },
+      warnings: [],
+    }),
+  });
+
+  const fallback = createFallback({
+    models: [model1, model2],
+    maxRetriesPerModel: 3,
+    shouldRetryThisError: (error) => {
+      // Only retry server errors
+      return (error as any).statusCode >= 500;
+    },
+    onError,
+  });
+
+  await expect(
+    fallback.doGenerate({
+      prompt: [],
+    })
+  ).rejects.toThrow('Invalid request format');
+
+  expect(model1Attempts).toBe(1); // Should not retry
+  expect(onError).not.toHaveBeenCalled();
+});
+
+test('prevents infinite recursion when all models fail in doStream', async () => {
+  const model1 = new MockLanguageModelV2({
+    modelId: 'stream-fail-1',
+    doStream: async () => ({
+      stream: new ReadableStream<LanguageModelV2StreamPart>({
+        start(controller) {
+          controller.error(new Error('Model 1 connection failed'));
+        },
+      }),
+      rawCall: { rawPrompt: '', rawSettings: {} },
+    }),
+  });
+
+  const model2 = new MockLanguageModelV2({
+    modelId: 'stream-fail-2',
+    doStream: async () => ({
+      stream: new ReadableStream<LanguageModelV2StreamPart>({
+        start(controller) {
+          controller.error(new Error('Model 2 connection failed'));
+        },
+      }),
+      rawCall: { rawPrompt: '', rawSettings: {} },
+    }),
+  });
+
+  const fallback = createFallback({
+    models: [model1, model2],
+    retryAfterOutput: true,
+  });
+
+  const result = await fallback.doStream({
+    prompt: [],
+  });
+
+  const reader = result.stream.getReader();
+
+  // Should error out after trying both models, not infinite loop
+  await expect(
+    (async () => {
+      while (true) {
+        const { done } = await reader.read();
+        if (done) break;
+      }
+    })()
+  ).rejects.toThrow();
+
+  // Should be on model 2 after trying both
+  expect(fallback.currentModelIndex).toBe(1);
+});
+
+test('onError callback failure does not break retry logic', async () => {
+  let model1Attempts = 0;
+  let model2Called = false;
+  const onErrorCalls: string[] = [];
+
+  const model1 = new MockLanguageModelV2({
+    modelId: 'model-1',
+    doGenerate: async () => {
+      model1Attempts++;
+      const error = new Error('Service unavailable');
+      (error as any).statusCode = 503;
+      throw error;
+    },
+  });
+
+  const model2 = new MockLanguageModelV2({
+    modelId: 'model-2',
+    doGenerate: async () => {
+      model2Called = true;
+      return {
+        content: [{ type: 'text', text: 'Success from model 2' }],
+        finishReason: 'stop' as const,
+        usage: { inputTokens: 10, outputTokens: 5, totalTokens: 15 },
+        warnings: [],
+      };
+    },
+  });
+
+  const fallback = createFallback({
+    models: [model1, model2],
+    maxRetriesPerModel: 2,
+    onError: async (error, modelId) => {
+      onErrorCalls.push(modelId);
+      // This throws an error - should not break retry logic
+      throw new Error('onError callback failed!');
+    },
+  });
+
+  const result = await fallback.doGenerate({
+    prompt: [],
+  });
+
+  // Should still retry and switch models despite onError throwing
+  expect(model1Attempts).toBe(2);
+  expect(model2Called).toBe(true);
+  expect(result.content[0]).toEqual({ type: 'text', text: 'Success from model 2' });
+  expect(onErrorCalls).toEqual(['model-1', 'model-1']); // Called twice for model-1
+});
+
+test('retries network errors in doStream', async () => {
+  let model1Attempts = 0;
+
+  const model1 = new MockLanguageModelV2({
+    modelId: 'stream-model-1',
+    doStream: async () => {
+      model1Attempts++;
+      if (model1Attempts < 2) {
+        const error = new Error('Gateway timeout');
+        (error as any).statusCode = 504;
+        throw error;
+      }
+      return {
+        stream: new ReadableStream<LanguageModelV2StreamPart>({
+          start(controller) {
+            controller.enqueue({ type: 'stream-start', warnings: [] });
+            controller.enqueue({ type: 'text-delta', id: '1', delta: 'Retry succeeded' });
+            controller.enqueue({
+              type: 'finish',
+              finishReason: 'stop',
+              usage: { inputTokens: 10, outputTokens: 5, totalTokens: 15 },
+            });
+            controller.close();
+          },
+        }),
+        rawCall: { rawPrompt: '', rawSettings: {} },
+      };
+    },
+  });
+
+  const fallback = createFallback({
+    models: [model1],
+    maxRetriesPerModel: 2,
+  });
+
+  const result = await fallback.doStream({
+    prompt: [],
+  });
+
+  const reader = result.stream.getReader();
+  const chunks: LanguageModelV2StreamPart[] = [];
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    chunks.push(value);
+  }
+
+  expect(model1Attempts).toBe(2);
+  expect(chunks.some((c) => c.type === 'text-delta' && c.delta === 'Retry succeeded')).toBe(true);
 });

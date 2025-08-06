@@ -10,13 +10,11 @@ export {
   logRetryInfo,
   logMessagesAfterHealing,
   handleRetryWithHealing,
-  cleanupIncompleteToolCalls,
 } from './retry-helpers';
 export {
   determineHealingStrategy,
   removeLastAssistantMessage,
   applyHealingStrategy,
-  shouldRetryWithoutHealing,
   getErrorExplanationForUser,
 } from './healing-strategies';
 export type { HealingStrategy } from './healing-strategies';

@@ -5,7 +5,6 @@ import {
   determineHealingStrategy,
   getErrorExplanationForUser,
   removeLastAssistantMessage,
-  shouldRetryWithoutHealing,
 } from './healing-strategies';
 import type { RetryableError } from './types';
 
@@ -59,34 +58,6 @@ describe('healing-strategies', () => {
 
       expect(strategy.shouldRemoveLastAssistantMessage).toBe(true);
       expect(strategy.healingMessage?.content).toBe('Please continue with your analysis.');
-    });
-
-    it('should retry without healing for network errors', () => {
-      const networkError: RetryableError = {
-        type: 'network-timeout',
-        originalError: new Error('Network timeout'),
-        healingMessage: { role: 'user', content: 'Network error' },
-      };
-
-      const strategy = determineHealingStrategy(networkError);
-
-      expect(strategy.shouldRemoveLastAssistantMessage).toBe(false);
-      expect(strategy.healingMessage).toBeNull();
-      expect(strategy.backoffMultiplier).toBe(2);
-    });
-
-    it('should have longer backoff for rate limit errors', () => {
-      const rateLimitError: RetryableError = {
-        type: 'rate-limit',
-        originalError: new Error('Rate limited'),
-        healingMessage: { role: 'user', content: 'Rate limit' },
-      };
-
-      const strategy = determineHealingStrategy(rateLimitError);
-
-      expect(strategy.shouldRemoveLastAssistantMessage).toBe(false);
-      expect(strategy.healingMessage).toBeNull();
-      expect(strategy.backoffMultiplier).toBe(3);
     });
   });
 
@@ -222,21 +193,6 @@ describe('healing-strategies', () => {
     });
   });
 
-  describe('shouldRetryWithoutHealing', () => {
-    it('should return true for network/server errors', () => {
-      expect(shouldRetryWithoutHealing('network-timeout')).toBe(true);
-      expect(shouldRetryWithoutHealing('server-error')).toBe(true);
-      expect(shouldRetryWithoutHealing('rate-limit')).toBe(true);
-    });
-
-    it('should return false for other error types', () => {
-      expect(shouldRetryWithoutHealing('no-such-tool')).toBe(false);
-      expect(shouldRetryWithoutHealing('empty-response')).toBe(false);
-      expect(shouldRetryWithoutHealing('json-parse-error')).toBe(false);
-      expect(shouldRetryWithoutHealing('invalid-tool-arguments')).toBe(false);
-    });
-  });
-
   describe('getErrorExplanationForUser', () => {
     it('should provide explanations for specific error types', () => {
       const emptyError: RetryableError = {
@@ -268,12 +224,12 @@ describe('healing-strategies', () => {
     });
 
     it('should return null for errors without explanations', () => {
-      const networkError: RetryableError = {
-        type: 'network-timeout',
+      const unknownError: RetryableError = {
+        type: 'unknown-error',
         originalError: new Error(),
         healingMessage: { role: 'user', content: '' },
       };
-      expect(getErrorExplanationForUser(networkError)).toBeNull();
+      expect(getErrorExplanationForUser(unknownError)).toBeNull();
     });
   });
 });

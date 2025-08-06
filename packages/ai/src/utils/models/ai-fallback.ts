@@ -17,6 +17,7 @@ interface Settings {
   models: LanguageModelV2[];
   retryAfterOutput?: boolean;
   modelResetInterval?: number;
+  maxRetriesPerModel?: number;
   shouldRetryThisError?: (error: RetryableError) => boolean;
   onError?: (error: RetryableError, modelId: string) => void | Promise<void>;
 }
@@ -56,21 +57,35 @@ const retryableErrors = [
 ];
 
 function defaultShouldRetryThisError(error: RetryableError): boolean {
-  const statusCode = error?.statusCode;
+  // Handle null/undefined errors
+  if (!error) return false;
 
-  if (statusCode && (retryableStatusCodes.includes(statusCode) || statusCode > 500)) {
+  const statusCode = error.statusCode;
+
+  if (statusCode && (retryableStatusCodes.includes(statusCode) || statusCode >= 500)) {
     return true;
   }
 
-  if (error?.message) {
-    const errorString = error.message.toLowerCase() || '';
+  if (error.message) {
+    const errorString = error.message.toLowerCase();
     return retryableErrors.some((errType) => errorString.includes(errType));
   }
-  if (error && typeof error === 'object') {
-    const errorString = JSON.stringify(error).toLowerCase() || '';
-    return retryableErrors.some((errType) => errorString.includes(errType));
+
+  // Check error object properties for retryable patterns
+  if (typeof error === 'object') {
+    try {
+      const errorString = JSON.stringify(error).toLowerCase();
+      return retryableErrors.some((errType) => errorString.includes(errType));
+    } catch {
+      // JSON.stringify can throw on circular references
+      return false;
+    }
   }
   return false;
+}
+
+function simpleBackoff(attempt: number): number {
+  return Math.min(1000 * 2 ** attempt, 10000); // 1s, 2s, 4s, 8s, max 10s
 }
 
 export class FallbackModel implements LanguageModelV2 {
@@ -112,8 +127,12 @@ export class FallbackModel implements LanguageModelV2 {
   }
 
   private checkAndResetModel() {
+    // Only reset if we're not already on the primary model
+    if (this.currentModelIndex === 0) return;
+
     const now = Date.now();
-    if (now - this.lastModelReset >= this.modelResetInterval && this.currentModelIndex !== 0) {
+    if (now - this.lastModelReset >= this.modelResetInterval) {
+      // Reset to primary model
       this.currentModelIndex = 0;
       this.lastModelReset = now;
     }
@@ -126,27 +145,45 @@ export class FallbackModel implements LanguageModelV2 {
   private async retry<T>(fn: () => PromiseLike<T>): Promise<T> {
     let lastError: RetryableError | undefined;
     const initialModel = this.currentModelIndex;
+    const maxRetriesPerModel = this.settings.maxRetriesPerModel ?? 2;
 
     do {
-      try {
-        return await fn();
-      } catch (error) {
-        lastError = error as RetryableError;
-        // Only retry if it's a server/capacity error
-        const shouldRetry = this.settings.shouldRetryThisError || defaultShouldRetryThisError;
-        if (!shouldRetry(lastError)) {
-          throw lastError;
-        }
+      let modelRetryCount = 0;
 
-        if (this.settings.onError) {
-          await this.settings.onError(lastError, this.modelId);
-        }
-        this.switchToNextModel();
+      // Retry current model up to maxRetriesPerModel times
+      while (modelRetryCount < maxRetriesPerModel) {
+        try {
+          return await fn();
+        } catch (error) {
+          lastError = error as RetryableError;
+          const shouldRetry = this.settings.shouldRetryThisError || defaultShouldRetryThisError;
 
-        // If we've tried all models, throw the last error
-        if (this.currentModelIndex === initialModel) {
-          throw lastError;
+          if (!shouldRetry(lastError)) {
+            throw lastError; // Non-retryable error
+          }
+
+          if (this.settings.onError) {
+            try {
+              await this.settings.onError(lastError, this.modelId);
+            } catch {
+              // Don't let onError callback failures break the retry logic
+            }
+          }
+
+          modelRetryCount++;
+
+          if (modelRetryCount < maxRetriesPerModel) {
+            // Wait before retrying same model
+            await new Promise((resolve) => setTimeout(resolve, simpleBackoff(modelRetryCount - 1)));
+          }
         }
+      }
+
+      // All retries for this model exhausted, switch to next model
+      this.switchToNextModel();
+
+      if (this.currentModelIndex === initialModel) {
+        throw lastError; // Tried all models
       }
     } while (this.currentModelIndex !== initialModel);
 
@@ -211,13 +248,26 @@ export class FallbackModel implements LanguageModelV2 {
             controller.close();
           } catch (error) {
             if (self.settings.onError) {
-              await self.settings.onError(error as RetryableError, self.modelId);
+              try {
+                await self.settings.onError(error as RetryableError, self.modelId);
+              } catch {
+                // Don't let onError callback failures break the retry logic
+              }
             }
             if (!hasStreamedAny || self.retryAfterOutput) {
               // If nothing was streamed yet, switch models and retry
               self.switchToNextModel();
+
+              // Prevent infinite recursion - if we've tried all models, fail
+              if (self.currentModelIndex === 0) {
+                controller.error(error);
+                return;
+              }
+
               try {
-                const nextResult = await self.doStream(options);
+                // Get the next model directly instead of recursive call
+                const nextModel = self.getCurrentModel();
+                const nextResult = await nextModel.doStream(options);
                 const nextReader = nextResult.stream.getReader();
                 while (true) {
                   const { done, value } = await nextReader.read();

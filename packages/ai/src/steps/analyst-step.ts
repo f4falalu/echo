@@ -464,20 +464,18 @@ ${databaseContext}
         const currentMessages = chunkProcessor.getAccumulatedMessages();
 
         // Handle the retry with healing
-        const { healedMessages, shouldContinueWithoutHealing, backoffDelay } =
-          await handleRetryWithHealing(retryableError, currentMessages, retryCount, {
+        const { healedMessages, backoffDelay } = await handleRetryWithHealing(
+          retryableError,
+          currentMessages,
+          retryCount,
+          {
             currentStep: 'analyst',
             availableTools,
-          });
+          }
+        );
 
         // Wait before retrying
         await new Promise((resolve) => setTimeout(resolve, backoffDelay));
-
-        // If it's a network error, just increment and continue
-        if (shouldContinueWithoutHealing) {
-          retryCount++;
-          continue;
-        }
 
         // Update messages for the retry (without system messages)
         messages = healedMessages;

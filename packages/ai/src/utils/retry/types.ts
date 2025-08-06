@@ -7,17 +7,13 @@ export interface RetryableError {
     | 'no-such-tool'
     | 'invalid-tool-arguments'
     | 'empty-response'
-    | 'rate-limit'
-    | 'server-error'
-    | 'overloaded-error'
-    | 'network-timeout'
     | 'stream-interruption'
     | 'json-parse-error'
     | 'content-policy'
     | 'unknown-error';
   originalError?: Error | unknown;
   healingMessage: CoreMessage;
-  requiresMessageCleanup?: boolean; // New optional flag for 529 errors
+  requiresMessageCleanup?: boolean;
 }
 
 /**

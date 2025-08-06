@@ -1,9 +1,6 @@
 import type { CoreMessage } from 'ai';
 import type { RetryableError, WorkflowContext } from './types';
 
-// Network error types that should trigger immediate retry without healing
-const NETWORK_ERROR_TYPES = ['network-timeout', 'server-error', 'rate-limit'] as const;
-
 export interface HealingStrategy {
   shouldRemoveLastAssistantMessage: boolean;
   healingMessage: CoreMessage | null;
@@ -42,31 +39,6 @@ export function determineHealingStrategy(
         },
       };
     }
-
-    // 529 Overloaded errors - special handling, cleanup is done separately
-    case 'overloaded-error':
-      return {
-        shouldRemoveLastAssistantMessage: false,
-        healingMessage: null, // No healing message needed, cleanup handles it
-        backoffMultiplier: 2, // Longer backoff for overload
-      };
-
-    // Network/server errors - just retry with backoff
-    case 'network-timeout':
-    case 'server-error':
-      return {
-        shouldRemoveLastAssistantMessage: false,
-        healingMessage: null, // No healing message needed, just retry
-        backoffMultiplier: 2, // Longer backoff for network issues
-      };
-
-    // Rate limiting - wait longer before retry
-    case 'rate-limit':
-      return {
-        shouldRemoveLastAssistantMessage: false,
-        healingMessage: null, // No healing message needed
-        backoffMultiplier: 3, // Even longer backoff for rate limits
-      };
 
     // Unknown errors - generic healing
     default:
@@ -161,14 +133,6 @@ export function applyHealingStrategy(
   }
 
   return updatedMessages;
-}
-
-/**
- * Checks if an error type should trigger immediate retry without healing
- * These are typically transient network/server errors
- */
-export function shouldRetryWithoutHealing(errorType: string): boolean {
-  return NETWORK_ERROR_TYPES.includes(errorType as (typeof NETWORK_ERROR_TYPES)[number]);
 }
 
 /**

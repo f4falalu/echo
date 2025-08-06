@@ -1,5 +1,4 @@
 import {
-  APICallError,
   EmptyResponseBodyError,
   InvalidToolArgumentsError,
   JSONParseError,
@@ -178,97 +177,8 @@ export function detectRetryableError(
     };
   }
 
-  // Handle API call errors (network, rate limits, server errors)
-  if (APICallError.isInstance(error)) {
-    // Extract response details if available
-    let responseDetails = '';
-    if ('responseBody' in error && error.responseBody) {
-      const body =
-        typeof error.responseBody === 'string'
-          ? error.responseBody
-          : JSON.stringify(error.responseBody);
-      responseDetails = ` Details: ${body.substring(0, 200)}`;
-    }
-
-    // Rate limit errors
-    if (error.statusCode === 429) {
-      // Check for retry-after header
-      let retryAfter = '';
-      if (
-        'responseHeaders' in error &&
-        error.responseHeaders &&
-        typeof error.responseHeaders === 'object'
-      ) {
-        const headers = error.responseHeaders as Record<string, string | string[]>;
-        const retryAfterHeader = headers['retry-after'] || headers['Retry-After'];
-        if (retryAfterHeader) {
-          retryAfter = ` Please wait ${retryAfterHeader} seconds before retrying.`;
-        }
-      }
-
-      return {
-        type: 'rate-limit',
-        originalError: error,
-        healingMessage: {
-          role: 'user',
-          content: `Rate limit reached.${retryAfter}${responseDetails} I'll retry automatically after a delay.`,
-        },
-      };
-    }
-
-    // Server errors (5xx)
-    if (error.statusCode && error.statusCode >= 500 && error.statusCode < 600) {
-      // Special handling for 529 overloaded errors
-      if (error.statusCode === 529) {
-        return {
-          type: 'overloaded-error',
-          originalError: error,
-          healingMessage: {
-            role: 'user',
-            content: `Server overloaded (529). Retrying after cleanup...`,
-          },
-          requiresMessageCleanup: true, // New flag
-        };
-      }
-
-      return {
-        type: 'server-error',
-        originalError: error,
-        healingMessage: {
-          role: 'user',
-          content: `Server error (${error.statusCode}): The service is temporarily unavailable.${responseDetails} Retrying...`,
-        },
-      };
-    }
-
-    // Network timeout (often no status code)
-    if (!error.statusCode || error.cause) {
-      const timeoutInfo = error.cause instanceof Error ? ` (${error.cause.message})` : '';
-      return {
-        type: 'network-timeout',
-        originalError: error,
-        healingMessage: {
-          role: 'user',
-          content: `Network connection error${timeoutInfo}. Please retry. If this persists, check your internet connection.`,
-        },
-      };
-    }
-  }
-
-  // Also check for errors with APICallError name pattern but not instance
-  if (error instanceof Error && error.name === 'APICallError') {
-    const statusCode = 'statusCode' in error ? (error as APICallError).statusCode : undefined;
-    if (statusCode === 503) {
-      return {
-        type: 'server-error',
-        originalError: error,
-        healingMessage: {
-          role: 'user',
-          content: 'Server temporarily unavailable, retrying...',
-        },
-      };
-    }
-  }
+  // Network errors are now handled by ai-fallback.ts
+  // We only handle application-level errors here
 
   // Handle empty response body errors
   if (EmptyResponseBodyError.isInstance(error)) {
