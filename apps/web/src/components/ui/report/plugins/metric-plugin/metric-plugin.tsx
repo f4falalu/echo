@@ -1,16 +1,14 @@
 import { createPlatePlugin } from 'platejs/react';
 import { MetricElement } from '../../elements/MetricElement/MetricElement';
 import { CUSTOM_KEYS } from '../../config/keys';
-import type { TElement } from 'platejs';
+import type { Path, SetNodesOptions, TElement } from 'platejs';
 
 export type MetricPluginOptions = {
-  openAddMetricModal: boolean;
+  openMetricModal: boolean;
 };
 
 export type MetricPluginApi = {
-  openAddMetricModal: () => void;
-  closeAddMetricModal: () => void;
-  updateMetric: (metricId: string) => void;
+  // the methods are defined in the extendApi function
 };
 
 export type TMetricElement = TElement & {
@@ -27,23 +25,25 @@ export const MetricPlugin = createPlatePlugin<
 >({
   key: CUSTOM_KEYS.metric,
   options: {
-    openAddMetricModal: false
+    openMetricModal: false
   },
   node: {
     type: CUSTOM_KEYS.metric,
-    isElement: true,
-    component: MetricElement
+    isElement: true
   }
-}).extendApi(({ setOption, plugin, editor, tf, ...rest }) => {
-  return {
-    openAddMetricModal: () => {
-      setOption('openAddMetricModal', true);
-    },
-    closeAddMetricModal: () => {
-      setOption('openAddMetricModal', false);
-    },
-    updateMetric: (metricId: string) => {
-      tf.setNodes<TMetricElement>({ metricId });
-    }
-  };
-});
+})
+  .extendApi(({ setOption, plugin, editor, tf, ...rest }) => {
+    return {
+      openAddMetricModal: () => {
+        setOption('openMetricModal', true);
+      },
+      closeAddMetricModal: () => {
+        setOption('openMetricModal', false);
+      },
+      updateMetric: (metricId: string, options?: SetNodesOptions<TMetricElement[]>) => {
+        tf.setNodes<TMetricElement>({ metricId }, options);
+        console.log('updated metric', metricId);
+      }
+    };
+  })
+  .withComponent(MetricElement);

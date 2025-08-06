@@ -371,15 +371,21 @@ export const WithCustomKit: Story = {
       {
         type: 'metric',
         children: [{ text: '' }],
-        metricId: '123'
+        metricId: ''
       },
       {
-        type: 'characterCounter',
+        type: 'characterCounter' as 'p',
         children: [{ text: 'This is my character counter' }]
       },
       {
         type: 'p',
         children: [{ text: 'paragraph test' }]
+      },
+      {
+        type: 'metric',
+        children: [{ text: '' }],
+        metricId: '1234',
+        caption: [{ text: 'This is a caption' }]
       }
     ],
     useFixedToolbarKit: true

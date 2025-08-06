@@ -13,10 +13,18 @@ export const AddMetricModal: React.FC<{
   open: boolean;
   selectedMetrics: { id: string; name: string }[];
   loading: boolean;
+  selectionMode?: 'single' | 'multiple';
   onClose: () => void;
   onAddMetrics: (metrics: { id: string; name: string }[]) => Promise<void>;
 }> = React.memo(
-  ({ open, selectedMetrics: selectedMetricsProp, loading, onAddMetrics, onClose }) => {
+  ({
+    open,
+    selectionMode = 'multiple',
+    selectedMetrics: selectedMetricsProp,
+    loading,
+    onAddMetrics,
+    onClose
+  }) => {
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedMetrics, setSelectedMetrics] = useState<{ id: string; name: string }[]>([]);
     const debouncedSearchTerm = useDebounce(searchTerm, { wait: 175 });
@@ -69,7 +77,14 @@ export const AddMetricModal: React.FC<{
     });
 
     const onSelectChange = useMemoizedFn((items: string[]) => {
-      const itemsWithName = items.map((id) => {
+      // Handle single selection mode - only allow one item to be selected
+      let finalItems = items;
+      if (selectionMode === 'single' && items.length > 1) {
+        // Take only the last selected item (the most recent selection)
+        finalItems = [items[items.length - 1]];
+      }
+
+      const itemsWithName = finalItems.map((id) => {
         const item = rows.find((row) => row.id === id);
         return {
           id: id,
@@ -117,15 +132,15 @@ export const AddMetricModal: React.FC<{
       }
 
       if (hasRemovedItems) {
-        return 'Remove metrics';
+        return selectionMode === 'single' ? 'Remove metric' : 'Remove metrics';
       }
 
       if (hasAddedItems) {
-        return 'Add metrics';
+        return selectionMode === 'single' ? 'Add metric' : 'Add metrics';
       }
 
       return 'Update dashboard';
-    }, [loading, removedMetricCount, addedMetricCount]);
+    }, [loading, removedMetricCount, addedMetricCount, selectionMode]);
 
     const primaryButtonTooltipText = useMemo(() => {
       if (loading) {
@@ -156,7 +171,7 @@ export const AddMetricModal: React.FC<{
         left:
           selectedMetrics.length > 0 ? (
             <Button variant="ghost" onClick={() => setSelectedMetrics([])}>
-              Clear selected
+              {selectionMode === 'single' ? 'Clear selection' : 'Clear selected'}
             </Button>
           ) : undefined,
         secondaryButton: {
@@ -175,7 +190,9 @@ export const AddMetricModal: React.FC<{
       primaryButtonTooltipText,
       primaryButtonText,
       isSelectedChanged,
-      handleAddAndRemoveMetrics
+      handleAddAndRemoveMetrics,
+      selectionMode,
+      onClose
     ]);
 
     useLayoutEffect(() => {
@@ -197,6 +214,7 @@ export const AddMetricModal: React.FC<{
         emptyState={emptyState}
         searchText={searchTerm}
         handleSearchChange={setSearchTerm}
+        showSelectAll={selectionMode === 'multiple'}
       />
     );
   }

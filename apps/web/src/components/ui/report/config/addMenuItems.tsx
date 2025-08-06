@@ -117,8 +117,7 @@ export const menuGroups: MenuGroup[] = [
         label: NodeTypeLabels.metric.label,
         value: CUSTOM_KEYS.metric,
         onSelect: (editor, value) => {
-          alert('TODO: Add metric');
-          //  insertBlock(editor, value);
+          insertBlock(editor, CUSTOM_KEYS.metric);
         }
       }
     ]

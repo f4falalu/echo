@@ -1,37 +1,22 @@
 'use client';
 
-import type { PluginConfig, TElement } from 'platejs';
-import {
-  PlateElement,
-  type PlateElementProps,
-  withHOC,
-  useFocused,
-  useSelected
-} from 'platejs/react';
+import { PlateElement, type PlateElementProps, withHOC } from 'platejs/react';
 import { ResizableProvider, useResizableValue } from '@platejs/resizable';
-import { cn } from '@/lib/utils';
 import { MetricEmbedPlaceholder } from './MetricPlaceholder';
 import { Caption, CaptionTextarea } from '../CaptionNode';
 import { mediaResizeHandleVariants, Resizable, ResizeHandle } from '../ResizeHandle';
-import { useEffect, useState } from 'react';
-import { PlaceholderContainer } from '../PlaceholderContainer';
-import { MetricPlugin, type TMetricElement } from '../../plugins/metric-plugin';
+import { type TMetricElement } from '../../plugins/metric-plugin';
 
 type MetricElementProps = PlateElementProps<TMetricElement>;
 
 export const MetricElement = withHOC(
   ResizableProvider,
   function MetricElement({ children, ...props }: MetricElementProps) {
-    const [openModal, setOpenModal] = useState(false);
-    const { openAddMetricModal } = props.editor.getPlugin(MetricPlugin).options;
-
-    const metricId = '';
-
     const width = useResizableValue('width');
     const align = 'center'; // Default align for metrics
+    const metricId = props.element.metricId;
 
     const { attributes, ...elementProps } = props;
-    const { plugin } = props;
 
     const content = metricId ? (
       <figure className="group relative m-0 w-full cursor-default" contentEditable={false}>
@@ -48,9 +33,9 @@ export const MetricElement = withHOC(
           />
 
           {/* Metric content placeholder - replace with actual metric rendering */}
-          <PlaceholderContainer>
-            <div className="text-sm text-gray-500">Metric: {metricId}</div>
-          </PlaceholderContainer>
+          <div className="min-h-40 rounded bg-red-100 p-4">
+            <div className="text-sm text-red-500">Metric: {metricId}</div>
+          </div>
 
           <ResizeHandle
             className={mediaResizeHandleVariants({ direction: 'right' })}
@@ -65,12 +50,6 @@ export const MetricElement = withHOC(
     ) : (
       <MetricEmbedPlaceholder />
     );
-
-    useEffect(() => {
-      if (openAddMetricModal) {
-        setOpenModal(true);
-      }
-    }, [openAddMetricModal]);
 
     return (
       <PlateElement
