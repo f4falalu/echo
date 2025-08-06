@@ -9,6 +9,7 @@ import {
   modifyMetrics,
 } from '../../tools';
 import { Sonnet4 } from '../../utils/models/sonnet-4';
+import { repairToolCall } from '../../utils/tool-call-repair';
 import { getAnalystAgentSystemPrompt } from './get-analyst-agent-system-prompt';
 
 const DEFAULT_CACHE_OPTIONS = {
@@ -62,6 +63,7 @@ export function createAnalystAgent(analystAgentOptions: AnalystAgentOptions) {
           maxOutputTokens: 10000,
           temperature: 0,
           experimental_context: analystAgentOptions,
+          experimental_repairToolCall: repairToolCall,
         }),
       {
         name: 'Analyst Agent',

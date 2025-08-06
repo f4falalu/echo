@@ -1,8 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import type { DataSource } from '@buster/data-source';
 import { assetPermissions, db, metricFiles } from '@buster/database';
-import type { RuntimeContext } from '@mastra/core/runtime-context';
-import { createTool } from '@mastra/core/tools';
+import { tool } from 'ai';
 import { wrapTraced } from 'braintrust';
 import { inArray } from 'drizzle-orm';
 import * as yaml from 'yaml';
@@ -10,7 +9,6 @@ import { z } from 'zod';
 import type { AnalystAgentOptions } from '../../agents/analyst-agent/analyst-agent';
 import { getWorkflowDataSourceManager } from '../../utils/data-source-manager';
 import { createPermissionErrorMessage, validateSqlPermissions } from '../../utils/sql-permissions';
-import type { AnalystRuntimeContext } from '../../workflows/analyst-workflow';
 import { validateAndAdjustBarLineAxes } from './bar-line-axis-validator';
 import { trackFileAssociations } from './file-tracking-helper';
 import { createInitialMetricVersionHistory, validateMetricYml } from './version-history-helpers';
@@ -270,8 +268,7 @@ interface CreateMetricFilesOutput {
 }
 
 // Tool implementation with complete schema included
-export const createMetrics = createTool({
-  id: 'create-metrics-file',
+export const createMetrics = tool({
   description: `Creates metric configuration files with YAML content following the metric schema specification. Before using this tool, carefully consider the appropriate visualization type (bar, line, scatter, pie, combo, metric, table) and its specific configuration requirements. Each visualization has unique axis settings, formatting options, and data structure needs that must be thoroughly planned to create effective metrics. **This tool supports creating multiple metrics in a single call; prefer using bulk creation over creating metrics one by one.**
 
 Only utilize the required/default fields unless the user specifically requests that optional fields be added.
@@ -959,7 +956,7 @@ definitions:
       })
     ),
   }),
-  execute: async (input, { context: AnalystAgentOptions }) => {
+  execute: async (input, { experimental_context: context }) => {
     return await createMetricFiles(
       input as CreateMetricFilesParams,
       context as AnalystAgentOptions
@@ -970,7 +967,7 @@ definitions:
 const createMetricFiles = wrapTraced(
   async (
     params: CreateMetricFilesParams,
-    runtimeContext: RuntimeContext<AnalystRuntimeContext>
+    context: AnalystAgentOptions
   ): Promise<CreateMetricFilesOutput> => {
     const startTime = Date.now();
     const { files } = params;
@@ -979,17 +976,14 @@ const createMetricFiles = wrapTraced(
     const failedFiles: FailedFileCreation[] = [];
 
     // Extract context values
-    const dataSourceId = runtimeContext?.get('dataSourceId') as string;
-    const dataSourceSyntax = (runtimeContext?.get('dataSourceSyntax') || 'generic') as string;
-    const userId = runtimeContext?.get('userId') as string;
-    const organizationId = runtimeContext?.get('organizationId') as string;
-    const workflowStartTime = runtimeContext?.get('workflowStartTime') as number | undefined;
-    const messageId = runtimeContext?.get('messageId') as string | undefined;
+    const dataSourceId = context.dataSourceId;
+    const dataSourceSyntax = context.dataSourceSyntax || 'generic';
+    const userId = context.userId;
+    const organizationId = context.organizationId;
+    const messageId = context.messageId;
 
-    // Generate a unique workflow ID using start time and data source
-    const workflowId = workflowStartTime
-      ? `workflow-${workflowStartTime}-${dataSourceId}`
-      : `workflow-${Date.now()}-${dataSourceId}`;
+    // Generate a unique workflow ID using data source
+    const workflowId = `workflow-${Date.now()}-${dataSourceId}`;
 
     if (!dataSourceId) {
       return {

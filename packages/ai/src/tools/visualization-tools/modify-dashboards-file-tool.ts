@@ -1,11 +1,10 @@
 import { dashboardFiles, db, metricFiles, metricFilesToDashboardFiles } from '@buster/database';
-import type { RuntimeContext } from '@mastra/core/runtime-context';
-import { createTool } from '@mastra/core/tools';
+import { tool } from 'ai';
 import { wrapTraced } from 'braintrust';
 import { and, eq, inArray, isNull } from 'drizzle-orm';
 import * as yaml from 'yaml';
 import { z } from 'zod';
-import type { AnalystRuntimeContext } from '../../workflows/analyst-workflow';
+import type { AnalystAgentOptions } from '../../agents/analyst-agent/analyst-agent';
 import { trackFileAssociations } from './file-tracking-helper';
 import { addDashboardVersionToHistory, getLatestVersionNumber } from './version-history-helpers';
 import type { DashboardYml, VersionHistory } from './version-history-types';
@@ -265,16 +264,13 @@ async function processDashboardFileUpdate(
 
 // Main modify dashboard files function
 const modifyDashboardFiles = wrapTraced(
-  async (
-    params: UpdateFilesParams,
-    runtimeContext: RuntimeContext<AnalystRuntimeContext>
-  ): Promise<ModifyFilesOutput> => {
+  async (params: UpdateFilesParams, context: AnalystAgentOptions): Promise<ModifyFilesOutput> => {
     const startTime = Date.now();
 
-    // Get runtime context values (for logging/tracking)
-    const userId = runtimeContext?.get('userId') as string;
-    const organizationId = runtimeContext?.get('organizationId') as string;
-    const messageId = runtimeContext?.get('messageId') as string | undefined;
+    // Get context values (for logging/tracking)
+    const userId = context.userId;
+    const organizationId = context.organizationId;
+    const messageId = context.messageId;
 
     if (!userId) {
       throw new Error('User ID not found in runtime context');
@@ -536,17 +532,13 @@ const outputSchema = z.object({
 });
 
 // Export the tool
-export const modifyDashboards = createTool({
-  id: 'modify-dashboards-file',
+export const modifyDashboards = tool({
   description:
     'Updates existing dashboard configuration files with new YAML content. Provide the complete YAML content for each dashboard, replacing the entire existing file. This tool is ideal for bulk modifications when you need to update multiple dashboards simultaneously. The system will preserve version history and perform all necessary validations on the new content. For each dashboard, you need its UUID and the complete updated YAML content.',
   inputSchema,
   outputSchema,
-  execute: async ({ context, runtimeContext }) => {
-    return await modifyDashboardFiles(
-      context as UpdateFilesParams,
-      runtimeContext as RuntimeContext<AnalystRuntimeContext>
-    );
+  execute: async (input, { experimental_context: context }) => {
+    return await modifyDashboardFiles(input as UpdateFilesParams, context as AnalystAgentOptions);
   },
 });
 

@@ -54,7 +54,7 @@ describe('Workflow Message Accumulation Integration', () => {
       type: 'tool-call',
       toolCallId: 'toolu_01LTwRTpgZB7BcbemexP1EUp',
       toolName: 'sequentialThinking',
-      args: {
+      input: {
         thought:
           'Let me work through the TODO list items to prepare for analyzing the top 5 accessory products by revenue this month.',
         isRevision: false,
@@ -70,7 +70,7 @@ describe('Workflow Message Accumulation Integration', () => {
       type: 'tool-result',
       toolCallId: 'toolu_01LTwRTpgZB7BcbemexP1EUp',
       toolName: 'sequentialThinking',
-      result: {
+      output: {
         success: true,
       },
     } as unknown as TextStreamPart<ToolSet>);
@@ -105,7 +105,7 @@ describe('Workflow Message Accumulation Integration', () => {
       type: 'tool-call',
       toolCallId: 'toolu_012HZ18nq4zQSYfHtokgXLGz',
       toolName: 'executeSql',
-      args: {
+      input: {
         statements: [
           'SELECT DISTINCT name FROM ont_ont.product_category LIMIT 25',
           "SELECT DISTINCT name FROM ont_ont.product_subcategory WHERE name ILIKE '%accessor%' LIMIT 25",
@@ -168,6 +168,8 @@ describe('Workflow Message Accumulation Integration', () => {
       // Each step adds a message
       await processor.processChunk({
         type: 'text-delta',
+        id: 'text-id',
+        text: `Response from ${stepName}`,
         textDelta: `Response from ${stepName}`,
       } as TextStreamPart<ToolSet>);
 

@@ -3,13 +3,11 @@ import { parseStreamingArgs as parseIdleArgs } from '../../tools/communication-t
 // Note: Some tools have been converted to AI SDK v5 and no longer have parseStreamingArgs
 // Only test tools that still have the parseStreamingArgs function
 import { parseStreamingArgs as parseExecuteSqlDocsAgentArgs } from '../../tools/database-tools/execute-sql-docs-agent';
-import { parseStreamingArgs as parseCreateMetricsArgs } from '../../tools/visualization-tools/create-metrics-file-tool';
 
 describe('Streaming Parser Error Handling', () => {
   const parsers = [
     // Only test tools that still have parseStreamingArgs function
     { name: 'execute-sql-docs-agent', parser: parseExecuteSqlDocsAgentArgs },
-    { name: 'create-metrics-file', parser: parseCreateMetricsArgs },
     { name: 'idle-tool', parser: parseIdleArgs },
   ];
 
@@ -79,12 +77,6 @@ describe('Streaming Parser Error Handling', () => {
       const validJson = '{"statements": ["SELECT * FROM test"]}';
       const result = parseExecuteSqlDocsAgentArgs(validJson);
       expect(result).toEqual({ statements: ['SELECT * FROM test'] });
-    });
-
-    test('create-metrics-file should parse valid complete JSON', () => {
-      const validJson = '{"files": [{"name": "test", "yml_content": "content"}]}';
-      const result = parseCreateMetricsArgs(validJson);
-      expect(result).toEqual({ files: [{ name: 'test', yml_content: 'content' }] });
     });
 
     test('idle-tool should parse valid complete JSON', () => {

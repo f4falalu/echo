@@ -10,14 +10,14 @@ function createMessageKey(msg: CoreMessage): string {
   if (msg.role === 'assistant' && Array.isArray(msg.content)) {
     const toolCallIds = msg.content
       .filter(
-        (c): c is { type: 'tool-call'; toolCallId: string; toolName: string; args: unknown } =>
+        (c): c is { type: 'tool-call'; toolCallId: string; toolName: string; input: unknown } =>
           typeof c === 'object' &&
           c !== null &&
           'type' in c &&
           c.type === 'tool-call' &&
           'toolCallId' in c &&
           'toolName' in c &&
-          'args' in c
+          'input' in c
       )
       .map((c) => c.toolCallId)
       .filter((id): id is string => id !== undefined)
@@ -39,7 +39,7 @@ function createMessageKey(msg: CoreMessage): string {
   if (msg.role === 'tool' && Array.isArray(msg.content)) {
     const toolResultIds = msg.content
       .filter(
-        (c): c is { type: 'tool-result'; toolCallId: string; toolName: string; result: unknown } =>
+        (c): c is { type: 'tool-result'; toolCallId: string; toolName: string; output: unknown } =>
           typeof c === 'object' &&
           c !== null &&
           'type' in c &&
@@ -103,7 +103,7 @@ describe('Message Deduplication Performance', () => {
           type: 'tool-call',
           toolCallId: 'call_123',
           toolName: 'createMetrics',
-          args: {
+          input: {
             files: [
               {
                 name: 'revenue.yml',
@@ -132,7 +132,7 @@ describe('Message Deduplication Performance', () => {
             type: 'tool-call',
             toolCallId: 'call_123',
             toolName: 'createMetrics',
-            args: { files: [] },
+            input: { files: [] },
           },
         ],
       },
@@ -143,7 +143,7 @@ describe('Message Deduplication Performance', () => {
             type: 'tool-call',
             toolCallId: 'call_123',
             toolName: 'createMetrics',
-            args: { files: [] },
+            input: { files: [] },
           },
         ],
       },
@@ -154,7 +154,7 @@ describe('Message Deduplication Performance', () => {
             type: 'tool-call',
             toolCallId: 'call_456',
             toolName: 'createDashboards',
-            args: { files: [] },
+            input: { files: [] },
           },
         ],
       },
@@ -175,7 +175,7 @@ describe('Message Deduplication Performance', () => {
             type: 'tool-result',
             toolCallId: 'call_123',
             toolName: 'createMetrics',
-            result: { success: true },
+            output: true,
           },
         ],
       },
@@ -186,7 +186,7 @@ describe('Message Deduplication Performance', () => {
             type: 'tool-result',
             toolCallId: 'call_123',
             toolName: 'createMetrics',
-            result: { success: true },
+            output: true,
           },
         ],
       },
@@ -265,7 +265,7 @@ describe('Message Deduplication Performance', () => {
               type: 'tool-call',
               toolCallId: `call_${Math.floor(i / 5)}`,
               toolName: 'createMetrics',
-              args: { files: [] },
+              input: { files: [] },
             },
           ],
         });
@@ -277,7 +277,7 @@ describe('Message Deduplication Performance', () => {
               type: 'tool-result',
               toolCallId: `call_${Math.floor(i / 5)}`,
               toolName: 'createMetrics',
-              result: { success: true },
+              output: true,
             },
           ],
         });
@@ -302,7 +302,7 @@ describe('Message Deduplication Performance', () => {
             type: 'tool-call',
             toolCallId: 'call_789',
             toolName: 'executeSql',
-            args: { sql: 'SELECT * FROM users' },
+            input: { sql: 'SELECT * FROM users' },
           },
         ],
       },
@@ -314,7 +314,7 @@ describe('Message Deduplication Performance', () => {
             type: 'tool-call',
             toolCallId: 'call_789',
             toolName: 'executeSql',
-            args: { sql: 'SELECT * FROM users' },
+            input: { sql: 'SELECT * FROM users' },
           },
         ],
       },

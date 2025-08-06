@@ -69,7 +69,7 @@ describe('Workflow Message Deduplication', () => {
         role: 'assistant',
         content: [
           {
-            args: {
+            input: {
               thought: 'Let me work through the TODO list items to prepare for this analysis:...',
               isRevision: false,
               thoughtNumber: 1,
@@ -88,7 +88,7 @@ describe('Workflow Message Deduplication', () => {
         content: [
           {
             type: 'tool-result',
-            result: { success: true },
+            output: { success: true },
             toolName: 'sequentialThinking',
             toolCallId: 'toolu_01Mvn2dPmMEDzYbsM98pPtaC',
           },
@@ -99,7 +99,7 @@ describe('Workflow Message Deduplication', () => {
         role: 'assistant',
         content: [
           {
-            args: {
+            input: {
               thought: 'Let me work through the TODO list items to prepare for this analysis:...',
               isRevision: false,
               thoughtNumber: 1,
@@ -118,7 +118,7 @@ describe('Workflow Message Deduplication', () => {
         role: 'assistant',
         content: [
           {
-            args: {
+            input: {
               statements: [
                 'SELECT DISTINCT name FROM ont_ont.product_category ORDER BY name',
                 'SELECT DISTINCT name FROM ont_ont.product_subcategory ORDER BY name LIMIT 25',
@@ -137,7 +137,7 @@ describe('Workflow Message Deduplication', () => {
         content: [
           {
             type: 'tool-result',
-            result: {
+            output: {
               /* results */
             },
             toolName: 'executeSql',
@@ -150,7 +150,7 @@ describe('Workflow Message Deduplication', () => {
         role: 'assistant',
         content: [
           {
-            args: {
+            input: {
               statements: [
                 'SELECT DISTINCT name FROM ont_ont.product_category ORDER BY name',
                 'SELECT DISTINCT name FROM ont_ont.product_subcategory ORDER BY name LIMIT 25',
@@ -246,7 +246,7 @@ describe('Workflow Message Deduplication', () => {
             type: 'tool-call',
             toolCallId: 'test123',
             toolName: 'test',
-            args: {},
+            input: {},
           },
         ],
       },
@@ -257,7 +257,7 @@ describe('Workflow Message Deduplication', () => {
             type: 'tool-call',
             toolCallId: 'test123', // Same ID = duplicate
             toolName: 'test',
-            args: {},
+            input: {},
           },
         ],
       },

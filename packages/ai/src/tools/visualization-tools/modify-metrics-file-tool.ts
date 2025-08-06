@@ -1,15 +1,14 @@
 import type { DataSource } from '@buster/data-source';
 import { db } from '@buster/database';
 import { metricFiles } from '@buster/database';
-import type { RuntimeContext } from '@mastra/core/runtime-context';
-import { createTool } from '@mastra/core/tools';
+import { tool } from 'ai';
 import { wrapTraced } from 'braintrust';
 import { eq, inArray } from 'drizzle-orm';
 import * as yaml from 'yaml';
 import { z } from 'zod';
+import type { AnalystAgentOptions } from '../../agents/analyst-agent/analyst-agent';
 import { getWorkflowDataSourceManager } from '../../utils/data-source-manager';
 import { createPermissionErrorMessage, validateSqlPermissions } from '../../utils/sql-permissions';
-import type { AnalystRuntimeContext } from '../../workflows/analyst-workflow';
 import { validateAndAdjustBarLineAxes } from './bar-line-axis-validator';
 import { trackFileAssociations } from './file-tracking-helper';
 import {
@@ -630,24 +629,18 @@ async function processMetricFileUpdate(
 
 // Main modify metrics function
 const modifyMetricFiles = wrapTraced(
-  async (
-    params: UpdateFilesParams,
-    runtimeContext: RuntimeContext<AnalystRuntimeContext>
-  ): Promise<ModifyFilesOutput> => {
+  async (params: UpdateFilesParams, context: AnalystAgentOptions): Promise<ModifyFilesOutput> => {
     const startTime = Date.now();
 
-    // Get runtime context values
-    const dataSourceId = runtimeContext?.get('dataSourceId') as string;
-    const userId = runtimeContext?.get('userId') as string;
-    const organizationId = runtimeContext?.get('organizationId') as string;
-    const workflowStartTime = runtimeContext?.get('workflowStartTime') as number | undefined;
-    const messageId = runtimeContext?.get('messageId') as string | undefined;
-    const dataSourceSyntax = runtimeContext?.get('dataSourceSyntax') as string | undefined;
+    // Get context values
+    const dataSourceId = context.dataSourceId;
+    const userId = context.userId;
+    const organizationId = context.organizationId;
+    const messageId = context.messageId;
+    const dataSourceSyntax = context.dataSourceSyntax;
 
-    // Generate a unique workflow ID using start time and data source
-    const workflowId = workflowStartTime
-      ? `workflow-${workflowStartTime}-${dataSourceId}`
-      : `workflow-${Date.now()}-${dataSourceId}`;
+    // Generate a unique workflow ID using data source
+    const workflowId = `workflow-${Date.now()}-${dataSourceId}`;
 
     if (!dataSourceId) {
       return {
@@ -915,8 +908,7 @@ const outputSchema = z.object({
 });
 
 // Export the tool
-export const modifyMetrics = createTool({
-  id: 'modify-metrics-file',
+export const modifyMetrics = tool({
   description: `Updates existing metric configuration files with new YAML content. Provide the complete YAML content for each metric, replacing the entire existing file. This tool is ideal for bulk modifications when you need to update multiple metrics simultaneously. The system will preserve version history and perform all necessary validations on the new content. For each metric, you need its UUID and the complete updated YAML content. **Prefer modifying metrics in bulk using this tool rather than one by one.**
 
 Only utilize the required/default fields unless the user specifically requests that optional fields be added.
@@ -1563,11 +1555,8 @@ definitions:
 7. **Date formatting rules** that match xAxisTimeInterval settings`,
   inputSchema,
   outputSchema,
-  execute: async ({ context, runtimeContext }) => {
-    return await modifyMetricFiles(
-      context as UpdateFilesParams,
-      runtimeContext as RuntimeContext<AnalystRuntimeContext>
-    );
+  execute: async (input, { experimental_context: context }) => {
+    return await modifyMetricFiles(input as UpdateFilesParams, context as AnalystAgentOptions);
   },
 });
 

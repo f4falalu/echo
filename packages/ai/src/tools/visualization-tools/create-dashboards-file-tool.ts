@@ -6,13 +6,12 @@ import {
   metricFiles,
   metricFilesToDashboardFiles,
 } from '@buster/database';
-import type { RuntimeContext } from '@mastra/core/runtime-context';
-import { createTool } from '@mastra/core/tools';
+import { tool } from 'ai';
 import { wrapTraced } from 'braintrust';
 import { inArray } from 'drizzle-orm';
 import * as yaml from 'yaml';
 import { z } from 'zod';
-import type { AnalystRuntimeContext } from '../../workflows/analyst-workflow';
+import type { AnalystAgentOptions } from '../../agents/analyst-agent/analyst-agent';
 import { trackFileAssociations } from './file-tracking-helper';
 import { createInitialDashboardVersionHistory } from './version-history-helpers';
 import type { DashboardYml } from './version-history-types';
@@ -282,14 +281,14 @@ async function processDashboardFile(file: DashboardFileParams): Promise<{
 const createDashboardFiles = wrapTraced(
   async (
     params: CreateDashboardFilesParams,
-    runtimeContext: RuntimeContext<AnalystRuntimeContext>
+    context: AnalystAgentOptions
   ): Promise<CreateDashboardFilesOutput> => {
     const startTime = Date.now();
 
-    // Get runtime context values
-    const userId = runtimeContext?.get('userId') as string;
-    const organizationId = runtimeContext?.get('organizationId') as string;
-    const messageId = runtimeContext?.get('messageId') as string | undefined;
+    // Get context values
+    const userId = context.userId;
+    const organizationId = context.organizationId;
+    const messageId = context.messageId;
 
     if (!userId) {
       return {
@@ -516,8 +515,7 @@ function generateResultMessage(
 }
 
 // Export the tool with complete schema included
-export const createDashboards = createTool({
-  id: 'create-dashboards-file',
+export const createDashboards = tool({
   description: `Creates dashboard configuration files with YAML content following the dashboard schema specification. Before using this tool, carefully consider the dashboard layout, metric references, and row organization. Each dashboard references existing metrics by their UUIDs and organizes them into rows with specific column layouts. **This tool supports creating multiple dashboards in a single call; prefer using bulk creation over creating dashboards one by one.**
 
 ## COMPLETE DASHBOARD YAML SCHEMA
@@ -688,10 +686,10 @@ rows:
       })
     ),
   }),
-  execute: async ({ context, runtimeContext }) => {
+  execute: async (input, { experimental_context: context }) => {
     return await createDashboardFiles(
-      context as CreateDashboardFilesParams,
-      runtimeContext as RuntimeContext<AnalystRuntimeContext>
+      input as CreateDashboardFilesParams,
+      context as AnalystAgentOptions
     );
   },
 });
