@@ -8,7 +8,12 @@ describe('Analyst Agent Integration Tests', () => {
 
     try {
       const analystAgent = createAnalystAgent({
-        sql_dialect_guidance: 'postgresql',
+        userId: '123',
+        chatId: '123',
+        dataSourceId: '123',
+        dataSourceSyntax: 'postgresql',
+        organizationId: '123',
+        messageId: '123',
       });
 
       const streamResult = await analystAgent.stream({

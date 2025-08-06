@@ -1,9 +1,14 @@
 import { type ModelMessage, hasToolCall, stepCountIs, streamText } from 'ai';
 import { wrapTraced } from 'braintrust';
 import z from 'zod';
-import { createAnalystTools } from '../../tools/tool-factories';
+import {
+  createDashboards,
+  createMetrics,
+  doneTool,
+  modifyDashboards,
+  modifyMetrics,
+} from '../../tools';
 import { Sonnet4 } from '../../utils/models/sonnet-4';
-import { injectAgentContext } from '../helpers/context/agent-context-injection';
 import { getAnalystAgentSystemPrompt } from './get-analyst-agent-system-prompt';
 
 const DEFAULT_CACHE_OPTIONS = {
@@ -39,15 +44,18 @@ export function createAnalystAgent(analystAgentOptions: AnalystAgentOptions) {
     providerOptions: DEFAULT_CACHE_OPTIONS,
   } as ModelMessage;
 
-  // Create tools with session context baked in
-  const tools = createAnalystTools(analystAgentOptions);
-
   async function stream({ messages }: AnalystStreamOptions) {
     return wrapTraced(
       () =>
         streamText({
           model: Sonnet4,
-          tools,
+          tools: {
+            createMetrics,
+            modifyMetrics,
+            createDashboards,
+            modifyDashboards,
+            doneTool,
+          },
           messages: [systemMessage, ...messages],
           stopWhen: STOP_CONDITIONS,
           toolChoice: 'required',

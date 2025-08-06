@@ -193,12 +193,9 @@ const executeSqlStatement = wrapTraced(
     }
 
     const dataSourceId = context.dataSourceId;
-    const workflowStartTime = context.get('workflowStartTime') as number | undefined;
 
     // Generate a unique workflow ID using start time and data source
-    const workflowId = workflowStartTime
-      ? `workflow-${workflowStartTime}-${dataSourceId}`
-      : `workflow-${Date.now()}-${dataSourceId}`;
+    const workflowId = `workflow-${Date.now()}-${dataSourceId}`;
 
     // Get data source from workflow manager (reuses existing connections)
     const manager = getWorkflowDataSourceManager(workflowId);
@@ -211,7 +208,7 @@ const executeSqlStatement = wrapTraced(
         withRateLimit(
           'sql-execution',
           async () => {
-            const result = await executeSingleStatement(sqlStatement, dataSource, runtimeContext);
+            const result = await executeSingleStatement(sqlStatement, dataSource, context);
             return { sql: sqlStatement, result };
           },
           {
@@ -274,7 +271,7 @@ const executeSqlStatement = wrapTraced(
 async function executeSingleStatement(
   sqlStatement: string,
   dataSource: DataSource,
-  runtimeContext: RuntimeContext<AnalystRuntimeContext>
+  runtimeContext: AnalystAgentOptions
 ): Promise<{
   success: boolean;
   data?: Record<string, unknown>[];
@@ -290,12 +287,12 @@ async function executeSingleStatement(
   }
 
   // Validate permissions before execution
-  const userId = runtimeContext.get('userId');
+  const userId = runtimeContext.userId;
   if (!userId) {
     return { success: false, error: 'User authentication required for SQL execution' };
   }
 
-  const dataSourceSyntax = runtimeContext.get('dataSourceSyntax');
+  const dataSourceSyntax = runtimeContext.dataSourceSyntax;
   const permissionResult = await validateSqlPermissions(sqlStatement, userId, dataSourceSyntax);
   if (!permissionResult.isAuthorized) {
     return {
