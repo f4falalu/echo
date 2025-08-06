@@ -14,6 +14,7 @@ export type MetricPluginApi = {
 export type TMetricElement = TElement & {
   type: typeof CUSTOM_KEYS.metric;
   metricId: string;
+  metricVersionNumber: number | undefined;
   children: [{ text: '' }];
 };
 
@@ -29,7 +30,8 @@ export const MetricPlugin = createPlatePlugin<
   },
   node: {
     type: CUSTOM_KEYS.metric,
-    isElement: true
+    isElement: true,
+    isVoid: true
   }
 })
   .extendApi(({ setOption, plugin, editor, tf, ...rest }) => {

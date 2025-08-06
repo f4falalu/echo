@@ -14,11 +14,13 @@ export const AddMetricModal: React.FC<{
   selectedMetrics: { id: string; name: string }[];
   loading: boolean;
   selectionMode?: 'single' | 'multiple';
+  saveButtonText: string;
   onClose: () => void;
   onAddMetrics: (metrics: { id: string; name: string }[]) => Promise<void>;
 }> = React.memo(
   ({
     open,
+    saveButtonText,
     selectionMode = 'multiple',
     selectedMetrics: selectedMetricsProp,
     loading,
@@ -128,7 +130,7 @@ export const AddMetricModal: React.FC<{
       const hasAddedItems = addedMetricCount > 0;
 
       if (hasRemovedItems && hasAddedItems) {
-        return 'Update dashboard';
+        return saveButtonText;
       }
 
       if (hasRemovedItems) {
@@ -139,8 +141,8 @@ export const AddMetricModal: React.FC<{
         return selectionMode === 'single' ? 'Add metric' : 'Add metrics';
       }
 
-      return 'Update dashboard';
-    }, [loading, removedMetricCount, addedMetricCount, selectionMode]);
+      return saveButtonText;
+    }, [loading, removedMetricCount, addedMetricCount, selectionMode, saveButtonText]);
 
     const primaryButtonTooltipText = useMemo(() => {
       if (loading) {

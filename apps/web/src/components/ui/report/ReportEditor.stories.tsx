@@ -386,6 +386,12 @@ export const WithCustomKit: Story = {
         children: [{ text: '' }],
         metricId: '1234',
         caption: [{ text: 'This is a caption' }]
+      },
+      {
+        type: 'img',
+        children: [{ text: '' }],
+        url: 'https://picsum.photos/200/200',
+        caption: [{ text: 'This is a caption' }]
       }
     ],
     useFixedToolbarKit: true

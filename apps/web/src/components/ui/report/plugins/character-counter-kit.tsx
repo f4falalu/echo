@@ -1,5 +1,11 @@
+import { cn } from '@/lib/classMerge';
 import type { Descendant, PluginConfig, TElement, TNode } from 'platejs';
-import { createPlatePlugin, PlateElement, type PlateElementProps } from 'platejs/react';
+import {
+  createPlatePlugin,
+  PlateElement,
+  useSelected,
+  type PlateElementProps
+} from 'platejs/react';
 import { useMemo } from 'react';
 
 // Helper function to recursively count characters in editor nodes
@@ -77,6 +83,7 @@ export const CharacterCounterPlugin = createPlatePlugin({
     component: ({ attributes, children, ...props }: CharacterElementCounterProps) => {
       const { getOptions, element } = props;
       const options = getOptions();
+      const selected = useSelected();
       const { maxLength, showWarning, warningThreshold } = options;
 
       // Get the character length of only this component's content
@@ -91,7 +98,10 @@ export const CharacterCounterPlugin = createPlatePlugin({
 
       return (
         <PlateElement
-          className="rounded-md bg-purple-100 p-2 text-black"
+          className={cn(
+            'rounded-md bg-purple-100 p-2 text-black',
+            selected && 'ring-ring rounded bg-red-200 ring-2 ring-offset-2'
+          )}
           attributes={{
             ...attributes,
             'data-plate-open-context-menu': true

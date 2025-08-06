@@ -31,6 +31,7 @@ export const AddToDashboardModal: React.FC<{
       loading={!isFetchedDashboard}
       onAddMetrics={handleAddAndRemoveMetrics}
       onClose={onClose}
+      saveButtonText="Update dashboard"
     />
   );
 });

@@ -129,6 +129,7 @@ const MemoizedAddMetricModal = React.memo(
         onClose={onCloseAddMetricModal}
         onAddMetrics={onAddMetric}
         selectionMode="single"
+        saveButtonText="Add metric"
       />
     );
   }

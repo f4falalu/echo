@@ -2,12 +2,15 @@
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import React, { useContext } from 'react';
-import type { BusterMetric } from '@/api/asset_interfaces';
-import { SortableItemContext } from '@/components/ui/grid/_BusterSortableItemDragContainer';
+import React from 'react';
+import type { BusterMetric } from '@/api/asset_interfaces/metric/interfaces';
 import { Text, Title } from '@/components/ui/typography';
 import { useMount } from '@/hooks/useMount';
-import { MetricItemCardThreeDotMenu } from './MetricItemCardThreeDotMenu';
+import type { DraggableAttributes, DraggableSyntheticListeners } from '@dnd-kit/core';
+import type { DropdownItems } from '../dropdown';
+import { MetricCardThreeMenuContainer } from './MetricCardThreeMenuContainer';
+import { DotsVertical } from '../icons';
+import { Button } from '../buttons';
 
 export const MetricTitle: React.FC<{
   name: BusterMetric['name'];
@@ -15,30 +18,27 @@ export const MetricTitle: React.FC<{
   description?: BusterMetric['description'];
   metricLink: string;
   isDragOverlay: boolean;
-  metricId: string;
-  dashboardId: string;
   readOnly?: boolean;
+  threeDotMenuItems: DropdownItems;
 }> = React.memo(
   ({
-    metricId,
     readOnly = true,
-    dashboardId,
     name,
     description,
     isDragOverlay,
     metricLink,
-    timeFrame
+    timeFrame,
+    threeDotMenuItems
   }) => {
     const router = useRouter();
-    const { attributes, listeners } = useContext(SortableItemContext);
 
     useMount(() => {
       if (metricLink) router.prefetch(metricLink);
     });
 
     return (
-      <Link className="flex" href={metricLink} prefetch {...attributes} {...listeners}>
-        <div className={'flex cursor-pointer flex-col space-y-0.5 overflow-hidden'}>
+      <>
+        <div className={'flex h-full cursor-pointer flex-col space-y-0.5 overflow-hidden'}>
           <div className="flex w-full justify-between space-x-0.5 overflow-hidden">
             <Title
               as="h4"
@@ -65,9 +65,11 @@ export const MetricTitle: React.FC<{
         </div>
 
         {isDragOverlay || readOnly ? null : (
-          <MetricItemCardThreeDotMenu dashboardId={dashboardId} metricId={metricId} />
+          <MetricCardThreeMenuContainer dropdownItems={threeDotMenuItems}>
+            <Button variant="ghost" className="bg-item-hover!" prefix={<DotsVertical />} />
+          </MetricCardThreeMenuContainer>
         )}
-      </Link>
+      </>
     );
   }
 );

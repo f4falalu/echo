@@ -1,23 +1,46 @@
 'use client';
 
-import { PlateElement, type PlateElementProps, withHOC } from 'platejs/react';
+import {
+  PlateElement,
+  type PlateElementProps,
+  useEditorRef,
+  useElement,
+  useFocused,
+  useReadOnly,
+  useSelected,
+  withHOC
+} from 'platejs/react';
 import { ResizableProvider, useResizableValue } from '@platejs/resizable';
 import { MetricEmbedPlaceholder } from './MetricPlaceholder';
 import { Caption, CaptionTextarea } from '../CaptionNode';
 import { mediaResizeHandleVariants, Resizable, ResizeHandle } from '../ResizeHandle';
 import { type TMetricElement } from '../../plugins/metric-plugin';
-import React from 'react';
+import React, { useMemo, useRef, type PropsWithChildren } from 'react';
+import { useSize } from '@/hooks/useSize';
+import { MetricContent } from './MetricContent';
+import { cn } from '@/lib/classMerge';
+import { useDraggable } from '@platejs/dnd';
 
 type MetricElementProps = PlateElementProps<TMetricElement>;
 
 export const MetricElement = withHOC(
   ResizableProvider,
-  function MetricElement({ children, ...props }: MetricElementProps) {
+  function MetricElement({ attributes, children, ...props }: MetricElementProps) {
     const metricId = props.element.metricId;
+    const metricVersionNumber = props.element.metricVersionNumber;
+    const readOnly = useReadOnly();
 
-    const { attributes, ...elementProps } = props;
-
-    const content = metricId ? <MetricContent metricId={metricId} /> : <MetricEmbedPlaceholder />;
+    const content = metricId ? (
+      <MetricResizeContainer>
+        <MetricContent
+          metricId={metricId}
+          metricVersionNumber={metricVersionNumber}
+          readOnly={readOnly}
+        />
+      </MetricResizeContainer>
+    ) : (
+      <MetricEmbedPlaceholder />
+    );
 
     return (
       <PlateElement
@@ -26,23 +49,50 @@ export const MetricElement = withHOC(
           ...attributes,
           'data-plate-open-context-menu': true
         }}
-        {...elementProps}>
+        {...props}>
         {content}
+        {children}
       </PlateElement>
     );
   }
 );
 
-const MetricContent = React.memo(({ metricId }: { metricId: string }) => {
+const MetricResizeContainer: React.FC<PropsWithChildren> = ({ children }) => {
   const width = useResizableValue('width');
+  const ref = useRef<HTMLDivElement>(null);
+  const element = useElement();
+  const editor = useEditorRef();
+  const editorWidth = useSize(ref)?.width ?? 400;
+  const isSelected = useSelected();
+  const isFocused = useFocused();
+  const { isDragging, handleRef } = useDraggable({
+    element: element
+  });
   const align = 'center'; // Default align for metrics
+
+  const selectNode = () => {
+    editor?.tf.select(element);
+  };
+
+  const height = useMemo(() => {
+    const ratio = 9 / 16;
+    if (typeof width !== 'number') return (editorWidth ?? 400) * ratio;
+    return width * ratio;
+  }, [width, editorWidth]);
+
   return (
-    <figure className="group relative m-0 w-full cursor-default" contentEditable={false}>
+    <figure
+      onClick={selectNode}
+      ref={ref}
+      contentEditable={false}
+      className={cn(
+        'group relative m-0 my-1.5 w-full cursor-default',
+        isSelected && 'bg-item-hover/50 ring-ring rounded ring-2 ring-offset-4'
+      )}>
       <Resizable
         align={align}
         options={{
           align,
-          maxWidth: '100%',
           minWidth: 350
         }}>
         <ResizeHandle
@@ -50,9 +100,11 @@ const MetricContent = React.memo(({ metricId }: { metricId: string }) => {
           options={{ direction: 'left' }}
         />
 
-        {/* Metric content placeholder - replace with actual metric rendering */}
-        <div className="min-h-60 rounded bg-red-100 p-4">
-          <div className="text-sm text-red-500">Metric: {metricId}</div>
+        <div
+          ref={handleRef}
+          className={cn('min-h-64', isDragging && 'cursor-grabbing opacity-50')}
+          style={{ height }}>
+          {children}
         </div>
 
         <ResizeHandle
@@ -66,4 +118,4 @@ const MetricContent = React.memo(({ metricId }: { metricId: string }) => {
       </Caption>
     </figure>
   );
-});
+};
