@@ -18,16 +18,7 @@ import { Separator } from '@/components/ui/separator';
 import { Input } from '@/components/ui/inputs';
 import { Button } from '@/components/ui/buttons/Button';
 
-type MetricEmbedPlaceholderProps = PlateElementProps<
-  TElement,
-  PluginConfig<'metric', { metricId: string }>
->;
-
-export const MetricEmbedPlaceholder = ({
-  attributes,
-  children,
-  ...props
-}: MetricEmbedPlaceholderProps) => {
+export const MetricEmbedPlaceholder: React.FC<{ metricId: string }> = ({ ...props }) => {
   const [openModal, setOpenModal] = React.useState(false);
   const readOnly = useReadOnly();
   const selected = useSelected();
@@ -123,8 +114,6 @@ export const MetricEmbedPlaceholder = ({
           </div>
         </PopoverContent>
       </PopoverBase>
-
-      <span contentEditable={false}>{children}</span>
     </div>
   );
 };
