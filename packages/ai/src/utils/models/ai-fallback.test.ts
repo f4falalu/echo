@@ -19,11 +19,11 @@ test('doStream switches models on error', async () => {
       stream: new ReadableStream<LanguageModelV2StreamPart>({
         start(controller) {
           controller.enqueue({ type: 'stream-start', warnings: [] });
-          controller.enqueue({ type: 'text-delta', textDelta: 'Hello from fallback' });
+          controller.enqueue({ type: 'text-delta', id: '1', delta: 'Hello from fallback' });
           controller.enqueue({
             type: 'finish',
             finishReason: 'stop',
-            usage: { inputTokens: 10, outputTokens: 5 },
+            usage: { inputTokens: 10, outputTokens: 5, totalTokens: 15 },
           });
           controller.close();
         },
@@ -38,8 +38,7 @@ test('doStream switches models on error', async () => {
   });
 
   const result = await fallback.doStream({
-    prompt: { system: 'test', messages: [] },
-    mode: { type: 'regular' },
+    prompt: [],
   });
 
   // Read the stream
@@ -53,9 +52,9 @@ test('doStream switches models on error', async () => {
   }
 
   expect(chunks).toHaveLength(3);
-  expect(chunks[0].type).toBe('stream-start');
-  expect(chunks[1]).toEqual({ type: 'text-delta', textDelta: 'Hello from fallback' });
-  expect(chunks[2].type).toBe('finish');
+  expect(chunks[0]!.type).toBe('stream-start');
+  expect(chunks[1]).toEqual({ type: 'text-delta', id: '1', delta: 'Hello from fallback' });
+  expect(chunks[2]!.type).toBe('finish');
 
   expect(fallback.currentModelIndex).toBe(1);
   expect(onError).toHaveBeenCalledWith(
@@ -85,11 +84,11 @@ test('doStream handles error during streaming', async () => {
       stream: new ReadableStream<LanguageModelV2StreamPart>({
         start(controller) {
           controller.enqueue({ type: 'stream-start', warnings: [] });
-          controller.enqueue({ type: 'text-delta', textDelta: 'Fallback response' });
+          controller.enqueue({ type: 'text-delta', id: '1', delta: 'Fallback response' });
           controller.enqueue({
             type: 'finish',
             finishReason: 'stop',
-            usage: { inputTokens: 10, outputTokens: 5 },
+            usage: { inputTokens: 10, outputTokens: 5, totalTokens: 15 },
           });
           controller.close();
         },
@@ -104,8 +103,7 @@ test('doStream handles error during streaming', async () => {
   });
 
   const result = await fallback.doStream({
-    prompt: { system: 'test', messages: [] },
-    mode: { type: 'regular' },
+    prompt: [],
   });
 
   // Read the stream
@@ -118,9 +116,7 @@ test('doStream handles error during streaming', async () => {
     chunks.push(value);
   }
 
-  expect(chunks.some((c) => c.type === 'text-delta' && c.textDelta === 'Fallback response')).toBe(
-    true
-  );
+  expect(chunks.some((c) => c.type === 'text-delta' && c.delta === 'Fallback response')).toBe(true);
   expect(fallback.currentModelIndex).toBe(1);
 });
 
@@ -133,7 +129,7 @@ test('doStream with partial output and retryAfterOutput=true', async () => {
       stream: new ReadableStream<LanguageModelV2StreamPart>({
         start(controller) {
           controller.enqueue({ type: 'stream-start', warnings: [] });
-          controller.enqueue({ type: 'text-delta', textDelta: 'Partial output' });
+          controller.enqueue({ type: 'text-delta', id: '1', delta: 'Partial output' });
           controller.error(new Error('Stream interrupted'));
         },
       }),
@@ -147,11 +143,11 @@ test('doStream with partial output and retryAfterOutput=true', async () => {
       stream: new ReadableStream<LanguageModelV2StreamPart>({
         start(controller) {
           controller.enqueue({ type: 'stream-start', warnings: [] });
-          controller.enqueue({ type: 'text-delta', textDelta: 'Fallback continuation' });
+          controller.enqueue({ type: 'text-delta', id: '1', delta: 'Fallback continuation' });
           controller.enqueue({
             type: 'finish',
             finishReason: 'stop',
-            usage: { inputTokens: 10, outputTokens: 5 },
+            usage: { inputTokens: 10, outputTokens: 5, totalTokens: 15 },
           });
           controller.close();
         },
@@ -167,8 +163,7 @@ test('doStream with partial output and retryAfterOutput=true', async () => {
   });
 
   const result = await fallback.doStream({
-    prompt: { system: 'test', messages: [] },
-    mode: { type: 'regular' },
+    prompt: [],
   });
 
   // Read the stream
@@ -185,7 +180,7 @@ test('doStream with partial output and retryAfterOutput=true', async () => {
   // The partial output from the failed model is lost
   const textChunks = chunks.filter((c) => c.type === 'text-delta');
   expect(textChunks).toHaveLength(1);
-  expect(textChunks[0].textDelta).toBe('Fallback continuation');
+  expect(textChunks[0]!.delta).toBe('Fallback continuation');
 
   // Should switch models after error
   expect(fallback.currentModelIndex).toBe(1);
@@ -218,11 +213,11 @@ test('doStream handles error in stream part', async () => {
       stream: new ReadableStream<LanguageModelV2StreamPart>({
         start(controller) {
           controller.enqueue({ type: 'stream-start', warnings: [] });
-          controller.enqueue({ type: 'text-delta', textDelta: 'Success' });
+          controller.enqueue({ type: 'text-delta', id: '1', delta: 'Success' });
           controller.enqueue({
             type: 'finish',
             finishReason: 'stop',
-            usage: { inputTokens: 10, outputTokens: 5 },
+            usage: { inputTokens: 10, outputTokens: 5, totalTokens: 15 },
           });
           controller.close();
         },
@@ -240,8 +235,7 @@ test('doStream handles error in stream part', async () => {
   });
 
   const result = await fallback.doStream({
-    prompt: { system: 'test', messages: [] },
-    mode: { type: 'regular' },
+    prompt: [],
   });
 
   // Read the stream
@@ -255,7 +249,7 @@ test('doStream handles error in stream part', async () => {
   }
 
   // Should have switched to model 2 and gotten success
-  expect(chunks.some((c) => c.type === 'text-delta' && c.textDelta === 'Success')).toBe(true);
+  expect(chunks.some((c) => c.type === 'text-delta' && c.delta === 'Success')).toBe(true);
   expect(encounteredErrors).toHaveLength(1);
   expect(encounteredErrors[0]).toBe('Overloaded');
   expect(fallback.currentModelIndex).toBe(1);
@@ -276,7 +270,7 @@ test('doGenerate switches models on error', async () => {
     doGenerate: async () => ({
       content: [{ type: 'text', text: 'Response from fallback model' }],
       finishReason: 'stop' as const,
-      usage: { inputTokens: 10, outputTokens: 5 },
+      usage: { inputTokens: 10, outputTokens: 5, totalTokens: 15 },
       warnings: [],
     }),
   });
@@ -289,8 +283,7 @@ test('doGenerate switches models on error', async () => {
   expect(fallback.modelId).toBe('failing-model');
 
   const result = await fallback.doGenerate({
-    prompt: { system: 'test', messages: [] },
-    mode: { type: 'regular' },
+    prompt: [],
   });
 
   expect(result.content[0]).toEqual({ type: 'text', text: 'Response from fallback model' });
@@ -322,7 +315,7 @@ test('cycles through all models until one works', async () => {
     doGenerate: async () => ({
       content: [{ type: 'text', text: 'Success from model 3' }],
       finishReason: 'stop' as const,
-      usage: { inputTokens: 10, outputTokens: 5 },
+      usage: { inputTokens: 10, outputTokens: 5, totalTokens: 15 },
       warnings: [],
     }),
   });
@@ -332,8 +325,7 @@ test('cycles through all models until one works', async () => {
   });
 
   const result = await fallback.doGenerate({
-    prompt: { system: 'test', messages: [] },
-    mode: { type: 'regular' },
+    prompt: [],
   });
 
   expect(result.content[0]).toEqual({ type: 'text', text: 'Success from model 3' });
@@ -362,8 +354,7 @@ test('throws error when all models fail', async () => {
 
   await expect(
     fallback.doGenerate({
-      prompt: { system: 'test', messages: [] },
-      mode: { type: 'regular' },
+      prompt: [],
     })
   ).rejects.toThrow('Model 2 capacity reached');
 
@@ -391,8 +382,7 @@ test('model reset interval resets to first model', async () => {
 
   // Trigger reset check
   await fallback.doGenerate({
-    prompt: { system: 'test', messages: [] },
-    mode: { type: 'regular' },
+    prompt: [],
   });
 
   expect(fallback.currentModelIndex).toBe(0);
@@ -419,7 +409,7 @@ test('shouldRetryThisError callback controls retry behavior', async () => {
     doGenerate: async () => ({
       content: [{ type: 'text', text: 'Should not reach here' }],
       finishReason: 'stop' as const,
-      usage: { inputTokens: 10, outputTokens: 5 },
+      usage: { inputTokens: 10, outputTokens: 5, totalTokens: 15 },
       warnings: [],
     }),
   });
@@ -432,8 +422,7 @@ test('shouldRetryThisError callback controls retry behavior', async () => {
   // Should not retry because error doesn't match
   await expect(
     fallback.doGenerate({
-      prompt: { system: 'test', messages: [] },
-      mode: { type: 'regular' },
+      prompt: [],
     })
   ).rejects.toThrow('specific-error-that-should-not-retry');
 
@@ -460,7 +449,7 @@ test('handles non-existent model error', async () => {
     doGenerate: async () => ({
       content: [{ type: 'text', text: 'Fallback response' }],
       finishReason: 'stop' as const,
-      usage: { inputTokens: 10, outputTokens: 5 },
+      usage: { inputTokens: 10, outputTokens: 5, totalTokens: 15 },
       warnings: [],
     }),
   });
@@ -475,8 +464,7 @@ test('handles non-existent model error', async () => {
   });
 
   const result = await fallback.doGenerate({
-    prompt: { system: 'test', messages: [] },
-    mode: { type: 'regular' },
+    prompt: [],
   });
 
   expect(result.content[0]).toEqual({ type: 'text', text: 'Fallback response' });
@@ -502,7 +490,7 @@ test('handles API key errors', async () => {
     doGenerate: async () => ({
       content: [{ type: 'text', text: 'Success with correct key' }],
       finishReason: 'stop' as const,
-      usage: { inputTokens: 10, outputTokens: 5 },
+      usage: { inputTokens: 10, outputTokens: 5, totalTokens: 15 },
       warnings: [],
     }),
   });
@@ -512,8 +500,7 @@ test('handles API key errors', async () => {
   });
 
   const result = await fallback.doGenerate({
-    prompt: { system: 'test', messages: [] },
-    mode: { type: 'regular' },
+    prompt: [],
   });
 
   expect(result.content[0]).toEqual({ type: 'text', text: 'Success with correct key' });
@@ -538,7 +525,7 @@ test('handles rate limit errors', async () => {
     doGenerate: async () => ({
       content: [{ type: 'text', text: 'Response from available model' }],
       finishReason: 'stop' as const,
-      usage: { inputTokens: 10, outputTokens: 5 },
+      usage: { inputTokens: 10, outputTokens: 5, totalTokens: 15 },
       warnings: [],
     }),
   });
@@ -548,8 +535,7 @@ test('handles rate limit errors', async () => {
   });
 
   const result = await fallback.doGenerate({
-    prompt: { system: 'test', messages: [] },
-    mode: { type: 'regular' },
+    prompt: [],
   });
 
   expect(attempts).toBe(1);
