@@ -12,13 +12,19 @@ export const repairToolCall = async ({
   tools: ToolSet;
   error: NoSuchToolError | InvalidToolInputError;
 }) => {
-  if (error instanceof NoSuchToolError) {
-    return null; // TODO: Implement repair tool response for unknown tools
-  }
+  try {
+    if (error instanceof NoSuchToolError) {
+      return null; // TODO: Implement repair tool response for unknown tools
+    }
 
-  if (error instanceof InvalidToolInputError) {
-    return healToolWithLlm({ toolCall, tools });
-  }
+    if (error instanceof InvalidToolInputError) {
+      return healToolWithLlm({ toolCall, tools });
+    }
 
-  return null; // TODO: Generic error handling try again?
+    return null; // TODO: Generic error handling try again?
+  } catch (healError) {
+    console.error('Failed to repair tool call:', healError);
+    // Return null to indicate repair failed
+    return null;
+  }
 };
