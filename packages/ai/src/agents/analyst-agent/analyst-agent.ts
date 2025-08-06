@@ -53,7 +53,7 @@ export function createAnalystAgent(analystAgentOptions: AnalystAgentOptions) {
           toolChoice: 'required',
           maxOutputTokens: 10000,
           temperature: 0,
-          // No longer need experimental_context since it's baked into tools
+          experimental_context: analystAgentOptions,
         }),
       {
         name: 'Analyst Agent',

@@ -2,6 +2,7 @@ import { type DataSource, withRateLimit } from '@buster/data-source';
 import { tool } from 'ai';
 import { wrapTraced } from 'braintrust';
 import { z } from 'zod';
+import type { AnalystAgentOptions } from '../../agents/analyst-agent/analyst-agent';
 import { getWorkflowDataSourceManager } from '../../utils/data-source-manager';
 import { createPermissionErrorMessage, validateSqlPermissions } from '../../utils/sql-permissions';
 import type { AnalystRuntimeContext } from '../../workflows/analyst-workflow';
@@ -87,7 +88,8 @@ const executeSqlStatementOutputSchema = z.object({
 
 const executeSqlStatement = wrapTraced(
   async (
-    params: z.infer<typeof executeSqlStatementInputSchema>
+    params: z.infer<typeof executeSqlStatementInputSchema>,
+    context: AnalystAgentOptions
   ): Promise<z.infer<typeof executeSqlStatementOutputSchema>> => {
     let { statements } = params;
 
@@ -190,8 +192,8 @@ const executeSqlStatement = wrapTraced(
       };
     }
 
-    const dataSourceId = runtimeContext.get('dataSourceId');
-    const workflowStartTime = runtimeContext.get('workflowStartTime') as number | undefined;
+    const dataSourceId = context.dataSourceId;
+    const workflowStartTime = context.get('workflowStartTime') as number | undefined;
 
     // Generate a unique workflow ID using start time and data source
     const workflowId = workflowStartTime
@@ -394,8 +396,8 @@ export const executeSql = tool({
     Otherwise the queries wont run successfully.`,
   inputSchema: executeSqlStatementInputSchema,
   outputSchema: executeSqlStatementOutputSchema,
-  execute: async (input) => {
-    return await executeSqlStatement(input);
+  execute: async (input, { experimental_context: context }) => {
+    return await executeSqlStatement(input, context as AnalystAgentOptions);
   },
 });
 
