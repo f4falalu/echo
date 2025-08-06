@@ -1,20 +1,9 @@
-import { createTool } from '@mastra/core/tools';
+import { tool } from 'ai';
 import { wrapTraced } from 'braintrust';
 import { z } from 'zod';
 
-// Core interfaces for Sequential Thinking
-interface SequentialThinkingParams {
-  thought: string;
-  nextThoughtNeeded: boolean;
-  thoughtNumber: number;
-}
-
-interface SequentialThinkingOutput {
-  success: boolean;
-}
-
 // Zod schema for input validation
-const sequentialThinkingSchema = z.object({
+const SequentialThinkingInputSchema = z.object({
   thought: z
     .string()
     .min(1)
@@ -25,73 +14,15 @@ const sequentialThinkingSchema = z.object({
   thoughtNumber: z.number().int().positive().describe('Current number in sequence.'),
 });
 
-/**
- * Optimistic parsing function for streaming sequential-thinking tool arguments
- * Extracts key fields as they're being built incrementally
- */
-export function parseStreamingArgs(
-  accumulatedText: string
-): Partial<z.infer<typeof sequentialThinkingSchema>> | null {
-  // Validate input type
-  if (typeof accumulatedText !== 'string') {
-    throw new Error(`parseStreamingArgs expects string input, got ${typeof accumulatedText}`);
-  }
+const SequentialThinkingOutputSchema = z.object({
+  success: z.boolean().describe('Whether the thinking step was processed successfully'),
+});
 
-  try {
-    // First try to parse as complete JSON
-    const parsed = JSON.parse(accumulatedText);
-    const result: Partial<z.infer<typeof sequentialThinkingSchema>> = {};
-
-    // Only include fields that are actually present
-    if (parsed.thought !== undefined) result.thought = parsed.thought;
-    if (parsed.nextThoughtNeeded !== undefined) result.nextThoughtNeeded = parsed.nextThoughtNeeded;
-    if (parsed.thoughtNumber !== undefined) result.thoughtNumber = parsed.thoughtNumber;
-
-    return result;
-  } catch (error) {
-    // Only catch JSON parse errors - let other errors bubble up
-    if (error instanceof SyntaxError) {
-      // If JSON is incomplete, try to extract partial fields
-      const result: Partial<z.infer<typeof sequentialThinkingSchema>> = {};
-
-      // Extract thought field (main text content)
-      const thoughtMatch = accumulatedText.match(/"thought"\s*:\s*"((?:[^"\\]|\\.)*)"/);
-      if (thoughtMatch && thoughtMatch[1] !== undefined) {
-        result.thought = thoughtMatch[1].replace(/\\"/g, '"').replace(/\\\\/g, '\\');
-      } else {
-        // Try to extract incomplete thought string
-        const partialThoughtMatch = accumulatedText.match(/"thought"\s*:\s*"((?:[^"\\]|\\.*)*)/);
-        if (partialThoughtMatch && partialThoughtMatch[1] !== undefined) {
-          result.thought = partialThoughtMatch[1].replace(/\\"/g, '"').replace(/\\\\/g, '\\');
-        }
-      }
-
-      // Extract boolean fields
-      const nextThoughtMatch = accumulatedText.match(/"nextThoughtNeeded"\s*:\s*(true|false)/);
-      if (nextThoughtMatch) {
-        result.nextThoughtNeeded = nextThoughtMatch[1] === 'true';
-      }
-
-      // Extract number fields
-      const thoughtNumberMatch = accumulatedText.match(/"thoughtNumber"\s*:\s*(\d+)/);
-      if (thoughtNumberMatch && thoughtNumberMatch[1] !== undefined) {
-        result.thoughtNumber = Number.parseInt(thoughtNumberMatch[1], 10);
-      }
-
-      // Return result if we found at least one field
-      return Object.keys(result).length > 0 ? result : null;
-    }
-
-    // Unexpected error - re-throw with context
-    throw new Error(
-      `Unexpected error in parseStreamingArgs: ${error instanceof Error ? error.message : 'Unknown error'}`
-    );
-  }
-}
+type SequentialThinkingInput = z.infer<typeof SequentialThinkingInputSchema>;
+type SequentialThinkingOutput = z.infer<typeof SequentialThinkingOutputSchema>;
 
 // Tool implementation
-export const sequentialThinking = createTool({
-  id: 'sequential-thinking',
+export const sequentialThinking = tool({
   description: `A detailed tool for dynamic and reflective problem-solving through thoughts.
 This tool helps analyze problems through a flexible thinking process that can adapt and evolve.
 Each thought can build on, question, or revise previous insights as understanding deepens.
@@ -122,17 +53,15 @@ Each thought can build on, question, or revise previous insights as understandin
 6. Repeat the process until satisfied with the solution
 7. Provide a single, ideally correct answer as the final output
 8. Only set nextThoughtNeeded to false when truly done and a satisfactory answer is reached`,
-  inputSchema: sequentialThinkingSchema,
-  outputSchema: z.object({
-    success: z.boolean().describe('Whether the thinking step was processed successfully'),
-  }),
-  execute: async ({ context }) => {
-    return await processSequentialThinking(context as SequentialThinkingParams);
+  inputSchema: SequentialThinkingInputSchema,
+  outputSchema: SequentialThinkingOutputSchema,
+  execute: async (input) => {
+    return await processSequentialThinking(input);
   },
 });
 
 const processSequentialThinking = wrapTraced(
-  async (params: SequentialThinkingParams): Promise<SequentialThinkingOutput> => {
+  async (params: SequentialThinkingInput): Promise<SequentialThinkingOutput> => {
     try {
       // Process the thought with validated context
       await processThought(params);
@@ -158,7 +87,7 @@ const processSequentialThinking = wrapTraced(
   { name: 'sequential-thinking' }
 );
 
-async function processThought(params: SequentialThinkingParams): Promise<SequentialThinkingParams> {
+async function processThought(params: SequentialThinkingInput): Promise<SequentialThinkingInput> {
   return {
     thought: params.thought.trim(),
     nextThoughtNeeded: params.nextThoughtNeeded,

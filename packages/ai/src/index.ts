@@ -1,20 +1,6 @@
-import { Mastra } from '@mastra/core/mastra';
-import { PinoLogger } from '@mastra/loggers';
-import { analystAgent } from './agents/analyst-agent/analyst-agent';
-import analystWorkflow from './workflows/analyst-workflow';
-
-export const mastra: Mastra = new Mastra({
-  workflows: { analystWorkflow },
-  agents: { analystAgent },
-  logger: new PinoLogger({
-    name: 'Mastra',
-    level: 'info',
-  }),
-});
-
 // Export agents
-export { analystAgent } from './agents/analyst-agent/analyst-agent';
-export { thinkAndPrepAgent } from './agents/think-and-prep-agent/think-and-prep-agent';
+export { createAnalystAgent } from './agents/analyst-agent/analyst-agent';
+export { createThinkAndPrepAgent } from './agents/think-and-prep-agent/think-and-prep-agent';
 
 // Export workflows
 export {

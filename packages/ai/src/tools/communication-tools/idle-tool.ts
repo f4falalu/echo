@@ -1,9 +1,9 @@
-import { createTool } from '@mastra/core/tools';
+import { tool } from 'ai';
 import { wrapTraced } from 'braintrust';
 import { z } from 'zod';
 
 // Input/Output schemas
-const idleInputSchema = z.object({
+const IdleInputSchema = z.object({
   final_response: z
     .string()
     .min(1, 'Final response is required')
@@ -12,7 +12,7 @@ const idleInputSchema = z.object({
     ),
 });
 
-export type IdleToolExecuteInput = z.infer<typeof idleInputSchema>;
+export type IdleToolExecuteInput = z.infer<typeof IdleInputSchema>;
 
 /**
  * Optimistic parsing function for streaming idle tool arguments
@@ -20,7 +20,7 @@ export type IdleToolExecuteInput = z.infer<typeof idleInputSchema>;
  */
 export function parseStreamingArgs(
   accumulatedText: string
-): Partial<z.infer<typeof idleInputSchema>> | null {
+): Partial<z.infer<typeof IdleInputSchema>> | null {
   // Validate input type
   if (typeof accumulatedText !== 'string') {
     throw new Error(`parseStreamingArgs expects string input, got ${typeof accumulatedText}`);
@@ -65,34 +65,34 @@ export function parseStreamingArgs(
   }
 }
 
-const idleOutputSchema = z.object({
+const IdleOutputSchema = z.object({
   success: z.boolean().describe('Whether the operation was successful'),
 });
 
-type IdleOutput = z.infer<typeof idleOutputSchema>;
+type IdleInput = z.infer<typeof IdleInputSchema>;
+type IdleOutput = z.infer<typeof IdleOutputSchema>;
 
-async function processIdle(_input: IdleToolExecuteInput): Promise<IdleOutput> {
+async function processIdle(_input: IdleInput): Promise<IdleOutput> {
   return {
     success: true,
   };
 }
 
 const executeIdle = wrapTraced(
-  async (input: IdleToolExecuteInput): Promise<z.infer<typeof idleOutputSchema>> => {
+  async (input: IdleInput): Promise<IdleOutput> => {
     return await processIdle(input);
   },
   { name: 'idle-tool' }
 );
 
 // Export the tool
-export const idleTool = createTool({
-  id: 'idle',
+export const idleTool = tool({
   description:
     "Marks all remaining unfinished tasks as complete, sends a final response to the user, and enters an idle state. Use this when current work is finished but the agent should remain available for future tasks. This must be in markdown format and not use the '•' bullet character.",
-  inputSchema: idleInputSchema,
-  outputSchema: idleOutputSchema,
-  execute: async ({ context }) => {
-    return await executeIdle(context as IdleToolExecuteInput);
+  inputSchema: IdleInputSchema,
+  outputSchema: IdleOutputSchema,
+  execute: async (input) => {
+    return await executeIdle(input);
   },
 });
 

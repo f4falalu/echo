@@ -6,8 +6,8 @@ import type { CoreMessage } from 'ai';
 import { wrapTraced } from 'braintrust';
 import { z } from 'zod';
 import { getSqlDialectGuidance } from '../agents/shared/sql-dialect-guidance';
-import { createThinkAndPrepAgent } from '../agents/think-and-prep-agent/think-and-prep-agent';
 import { getThinkAndPrepAgentSystemPrompt } from '../agents/think-and-prep-agent/get-think-and-prep-agent-system-prompt';
+import { createThinkAndPrepAgent } from '../agents/think-and-prep-agent/think-and-prep-agent';
 import type { thinkAndPrepWorkflowInputSchema } from '../schemas/workflow-schemas';
 import { ChunkProcessor } from '../utils/database/chunk-processor';
 import {

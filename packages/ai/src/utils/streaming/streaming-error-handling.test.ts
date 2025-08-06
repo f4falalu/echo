@@ -1,17 +1,16 @@
 import { describe, expect, test } from 'vitest';
-import { parseStreamingArgs as parseDoneArgs } from '../../tools/communication-tools/done-tool';
-import { parseStreamingArgs as parseRespondWithoutAssetCreationArgs } from '../../tools/communication-tools/respond-without-asset-creation';
-import { parseStreamingArgs as parseExecuteSqlArgs } from '../../tools/database-tools/execute-sql';
-import { parseStreamingArgs as parseSequentialArgs } from '../../tools/planning-thinking-tools/sequential-thinking-tool';
+import { parseStreamingArgs as parseIdleArgs } from '../../tools/communication-tools/idle-tool';
+// Note: Some tools have been converted to AI SDK v5 and no longer have parseStreamingArgs
+// Only test tools that still have the parseStreamingArgs function
+import { parseStreamingArgs as parseExecuteSqlDocsAgentArgs } from '../../tools/database-tools/execute-sql-docs-agent';
 import { parseStreamingArgs as parseCreateMetricsArgs } from '../../tools/visualization-tools/create-metrics-file-tool';
 
 describe('Streaming Parser Error Handling', () => {
   const parsers = [
-    { name: 'done-tool', parser: parseDoneArgs },
-    { name: 'respond-without-asset-creation', parser: parseRespondWithoutAssetCreationArgs },
-    { name: 'sequential-thinking', parser: parseSequentialArgs },
-    { name: 'execute-sql', parser: parseExecuteSqlArgs },
+    // Only test tools that still have parseStreamingArgs function
+    { name: 'execute-sql-docs-agent', parser: parseExecuteSqlDocsAgentArgs },
     { name: 'create-metrics-file', parser: parseCreateMetricsArgs },
+    { name: 'idle-tool', parser: parseIdleArgs },
   ];
 
   describe('Input Type Validation', () => {
@@ -76,27 +75,9 @@ describe('Streaming Parser Error Handling', () => {
   });
 
   describe('Successful Parsing (Should Work)', () => {
-    test('done-tool should parse valid complete JSON', () => {
-      const validJson = '{"final_response": "Test response"}';
-      const result = parseDoneArgs(validJson);
-      expect(result).toEqual({ final_response: 'Test response' });
-    });
-
-    test('respond-without-asset-creation should parse valid complete JSON', () => {
-      const validJson = '{"final_response": "Test response"}';
-      const result = parseRespondWithoutAssetCreationArgs(validJson);
-      expect(result).toEqual({ final_response: 'Test response' });
-    });
-
-    test('sequential-thinking should parse valid complete JSON', () => {
-      const validJson = '{"thought": "Test thought", "nextThoughtNeeded": true}';
-      const result = parseSequentialArgs(validJson);
-      expect(result).toEqual({ thought: 'Test thought', nextThoughtNeeded: true });
-    });
-
-    test('execute-sql should parse valid complete JSON', () => {
+    test('execute-sql-docs-agent should parse valid complete JSON', () => {
       const validJson = '{"statements": ["SELECT * FROM test"]}';
-      const result = parseExecuteSqlArgs(validJson);
+      const result = parseExecuteSqlDocsAgentArgs(validJson);
       expect(result).toEqual({ statements: ['SELECT * FROM test'] });
     });
 
@@ -104,6 +85,12 @@ describe('Streaming Parser Error Handling', () => {
       const validJson = '{"files": [{"name": "test", "yml_content": "content"}]}';
       const result = parseCreateMetricsArgs(validJson);
       expect(result).toEqual({ files: [{ name: 'test', yml_content: 'content' }] });
+    });
+
+    test('idle-tool should parse valid complete JSON', () => {
+      const validJson = '{"final_response": "Test response"}';
+      const result = parseIdleArgs(validJson);
+      expect(result).toEqual({ final_response: 'Test response' });
     });
   });
 });

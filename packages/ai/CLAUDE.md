@@ -34,6 +34,10 @@ bun run typecheck packages/ai # Run TypeScript type checking
 
 This package implements AI agents and tools using the Mastra framework, integrated with observability through Braintrust. The codebase follows a modular pattern designed for building complex multi-agent workflows.
 
+**AI SDK Version**: This package uses Vercel AI SDK v5. For documentation, usage examples, and reference:
+- Documentation: https://ai-sdk.dev/llms.txt
+- Migration guides, API references, and examples available at the documentation URL
+
 ## Folder Structure & Patterns
 
 ### Source Code (`src/`)

@@ -2,8 +2,7 @@ import type { Sandbox } from '@buster/sandbox';
 import { type CoreMessage, createStep } from '@mastra/core';
 import type { RuntimeContext } from '@mastra/core/runtime-context';
 import { z } from 'zod';
-import { docsAgent } from '../../agents/docs-agent/docs-agent';
-import { getDocsInstructions } from '../../agents/docs-agent/docs-agent-instructions';
+import { createDocsAgent } from '../../agents/docs-agent/docs-agent';
 import { DocsAgentContextKeys, DocsAgentContextSchema } from '../../context/docs-agent-context';
 import type { MessageUserClarifyingQuestion } from '../../context/docs-agent-context';
 import { standardizeMessages } from '../../utils/standardizeMessages';
@@ -37,10 +36,6 @@ const docsAgentStepOutputSchema = z.object({
     })
     .optional(),
 });
-
-const DEFAULT_CACHE_OPTIONS = {
-  anthropic: { cacheControl: { type: 'ephemeral', ttl: '1h' } },
-};
 
 const docsAgentExecution = async ({
   inputData,
@@ -95,23 +90,15 @@ const docsAgentExecution = async ({
       }
     }
 
-    // Get the docs agent instructions with the current date
-    const instructions = getDocsInstructions();
-    const repositoryStructure = `<repository-structure>\n${inputData.repositoryTree}\n</repository-structure>`;
+    // Create the docs agent with folder structure
+    const docsAgent = createDocsAgent({
+      folder_structure: inputData.repositoryTree,
+    });
+
     const userMessage = `${inputData.message}`;
     const todoMessage = `<todo-list>\n${todoList}\n</todo-list>`;
 
     const messages = [
-      {
-        role: 'system',
-        content: instructions,
-        providerOptions: DEFAULT_CACHE_OPTIONS,
-      } as CoreMessage,
-      {
-        role: 'system',
-        content: repositoryStructure,
-        providerOptions: DEFAULT_CACHE_OPTIONS,
-      } as CoreMessage,
       {
         role: 'user',
         content: userMessage,
@@ -131,13 +118,7 @@ const docsAgentExecution = async ({
     }
 
     // Execute the docs agent
-    const result = await docsAgent.stream(messages, {
-      instructions,
-      runtimeContext,
-      toolChoice: 'required',
-      maxSteps: 50, // Allow more steps for complex documentation tasks
-      abortSignal: abortController.signal, // Add abort signal
-    });
+    const result = await docsAgent.stream({ messages });
 
     // Process the stream to extract results
     let stepCount = 0;

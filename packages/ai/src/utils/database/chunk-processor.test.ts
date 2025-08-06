@@ -146,38 +146,6 @@ describe('ChunkProcessor', () => {
       message: 'New thought',
     });
   });
-
-  // Note: TODO list extraction is handled by formatLlmMessagesAsReasoning, not ChunkProcessor
-  // ChunkProcessor only handles streaming tool calls from the AI
-  it.skip('should handle todo list messages as special case', async () => {
-    const availableTools = new Set(['sequentialThinking', 'doneTool']);
-    const processor = new ChunkProcessor(mockMessageId, [], [], [], undefined, availableTools);
-
-    const todoMessage: CoreMessage = {
-      role: 'user',
-      content: `Here's what we need to do:
-<todo_list>
-1. Analyze the data
-2. Create visualizations
-3. Generate report
-</todo_list>`,
-    };
-
-    processor.setInitialMessages([todoMessage]);
-
-    // Trigger processing
-    await processor.processChunk({ type: 'finish' } as TextStreamPart<ToolSet>);
-
-    const reasoning = processor.getReasoningHistory();
-
-    // Should include the todo list as a file
-    expect(reasoning).toHaveLength(1);
-    expect(reasoning[0]).toMatchObject({
-      type: 'files',
-      title: 'TODO List',
-      status: 'completed',
-    });
-  });
 });
 
 describe('ChunkProcessor - Cross-Step Message Accumulation', () => {

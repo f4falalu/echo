@@ -1,4 +1,4 @@
-import { createTool } from '@mastra/core/tools';
+import { tool } from 'ai';
 import { wrapTraced } from 'braintrust';
 import { z } from 'zod';
 
@@ -23,8 +23,7 @@ const executeSubmitThoughts = wrapTraced(
 );
 
 // Export the tool
-export const submitThoughts = createTool({
-  id: 'submitThoughtsTool',
+export const submitThoughts = tool({
   description:
     'Confirms that the agent has finished thinking through all of its steps and is ready to move on to the next phase of the workflow. This is a signal tool with no input or output parameters.',
   inputSchema: submitThoughtsInputSchema,
@@ -33,5 +32,3 @@ export const submitThoughts = createTool({
     return await executeSubmitThoughts();
   },
 });
-
-export default submitThoughts;

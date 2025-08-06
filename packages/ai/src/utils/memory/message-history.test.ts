@@ -7,8 +7,6 @@ import {
   getConversationSummary,
   getLastToolUsed,
   isToolCallOnlyMessage,
-  properlyInterleaveMessages,
-  unbundleMessages,
 } from './message-history';
 
 describe('Message History Utilities', () => {
@@ -81,7 +79,7 @@ describe('Message History Utilities', () => {
       expect(validateArrayAccess(processed, 4, 'processed messages')?.role).toBe('tool');
     });
 
-    test('should unbundle messages that have mixed content', () => {
+    test.skip('should unbundle messages that have mixed content - removed unbundleMessages', () => {
       const bundledMessages: CoreMessage[] = [
         {
           role: 'user',
@@ -613,7 +611,7 @@ describe('Message History Utilities', () => {
     });
   });
 
-  describe('properlyInterleaveMessages', () => {
+  describe.skip('properlyInterleaveMessages - removed function', () => {
     test('should interleave bundled tool calls with their results', () => {
       const bundled: CoreMessage[] = [
         { role: 'user', content: 'Test' },

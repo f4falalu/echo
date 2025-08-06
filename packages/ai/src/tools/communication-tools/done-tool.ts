@@ -34,19 +34,15 @@ const executeDone = wrapTraced(
 );
 
 // Export the tool
-export function createDoneTool() {
-  return tool({
-    description:
-      "Marks all remaining unfinished tasks as complete, sends a final response to the user, and ends the workflow. Use this when the workflow is finished. This must be in markdown format and not use the '•' bullet character.",
-    inputSchema: DoneToolInputSchema,
-    outputSchema: DoneToolOutputSchema,
-    execute: async (input) => {
-      return await executeDone(input);
-    },
-    onInputDelta: ({ inputTextDelta, toolCallId }) => {
-      console.info('Tool input delta for', toolCallId, ':', inputTextDelta);
-    },
-  });
-}
-
-export default createDoneTool;
+export const doneTool = tool({
+  description:
+    "Marks all remaining unfinished tasks as complete, sends a final response to the user, and ends the workflow. Use this when the workflow is finished. This must be in markdown format and not use the '•' bullet character.",
+  inputSchema: DoneToolInputSchema,
+  outputSchema: DoneToolOutputSchema,
+  execute: async (input) => {
+    return await executeDone(input);
+  },
+  onInputDelta: ({ inputTextDelta, toolCallId }) => {
+    console.info('Tool input delta for', toolCallId, ':', inputTextDelta);
+  },
+});

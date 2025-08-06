@@ -149,23 +149,6 @@ export function convertToolCallToMessage(
       }
     }
 
-    // Deprecated: Here for backwards compatibility
-    case 'respondWithoutAnalysis':
-    case 'respond-without-analysis': {
-      // Respond Without Analysis generates a response message
-      try {
-        const parsed = RespondWithoutAssetCreationResultSchema.parse(toolResult);
-        const responseMessage: Extract<ChatMessageResponseMessage, { type: 'text' }> = {
-          id: toolId,
-          type: 'text',
-          message: parsed.message,
-        };
-        return { type: 'response', message: responseMessage };
-      } catch (_error) {
-        return null;
-      }
-    }
-
     case 'sequentialThinking':
     case 'sequential-thinking': {
       // Sequential thinking generates a reasoning text message

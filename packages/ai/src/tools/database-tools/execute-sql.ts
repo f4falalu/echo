@@ -1,6 +1,5 @@
 import { type DataSource, withRateLimit } from '@buster/data-source';
-import type { RuntimeContext } from '@mastra/core/runtime-context';
-import { createTool } from '@mastra/core/tools';
+import { tool } from 'ai';
 import { wrapTraced } from 'braintrust';
 import { z } from 'zod';
 import { getWorkflowDataSourceManager } from '../../utils/data-source-manager';
@@ -66,81 +65,8 @@ function truncateQueryResults(
   });
 }
 
-/**
- * Optimistic parsing function for streaming execute-sql tool arguments
- * Extracts the statements array as it's being built incrementally
- */
-export function parseStreamingArgs(
-  accumulatedText: string
-): Partial<z.infer<typeof executeSqlStatementInputSchema>> | null {
-  // Validate input type
-  if (typeof accumulatedText !== 'string') {
-    throw new Error(`parseStreamingArgs expects string input, got ${typeof accumulatedText}`);
-  }
-
-  try {
-    // First try to parse as complete JSON
-    const parsed = JSON.parse(accumulatedText);
-
-    // Ensure statements is an array if present
-    if (parsed.statements !== undefined && !Array.isArray(parsed.statements)) {
-      console.warn('[execute-sql parseStreamingArgs] statements is not an array:', {
-        type: typeof parsed.statements,
-        value: parsed.statements,
-      });
-      return null; // Return null to indicate invalid parse
-    }
-
-    return {
-      statements: parsed.statements || undefined,
-    };
-  } catch (error) {
-    // Only catch JSON parse errors - let other errors bubble up
-    if (error instanceof SyntaxError) {
-      // JSON parsing failed - try regex extraction for partial content
-      // If JSON is incomplete, try to extract and reconstruct the statements array
-      const statementsMatch = accumulatedText.match(/"statements"\s*:\s*\[(.*)/s);
-      if (statementsMatch && statementsMatch[1] !== undefined) {
-        const arrayContent = statementsMatch[1];
-
-        try {
-          // Try to parse the array content by adding closing bracket
-          const testArray = `[${arrayContent}]`;
-          const parsed = JSON.parse(testArray);
-          return { statements: parsed };
-        } catch {
-          // If that fails, try to extract individual statement strings that are complete
-          const statements: string[] = [];
-
-          // Match complete string statements within the array
-          const statementMatches = arrayContent.matchAll(/"((?:[^"\\]|\\.)*)"/g);
-
-          for (const match of statementMatches) {
-            if (match[1] !== undefined) {
-              const statement = match[1].replace(/\\"/g, '"').replace(/\\\\/g, '\\');
-              statements.push(statement);
-            }
-          }
-
-          return { statements };
-        }
-      }
-
-      // Check if we at least have the start of the statements field
-      const partialMatch = accumulatedText.match(/"statements"\s*:\s*\[/);
-      if (partialMatch) {
-        return { statements: [] };
-      }
-
-      return null;
-    }
-
-    // Unexpected error - re-throw with context
-    throw new Error(
-      `Unexpected error in parseStreamingArgs: ${error instanceof Error ? error.message : 'Unknown error'}`
-    );
-  }
-}
+// Remove parseStreamingArgs as it's no longer needed with AI SDK v5
+// The SDK handles streaming parsing internally
 
 const executeSqlStatementOutputSchema = z.object({
   results: z.array(
@@ -161,8 +87,7 @@ const executeSqlStatementOutputSchema = z.object({
 
 const executeSqlStatement = wrapTraced(
   async (
-    params: z.infer<typeof executeSqlStatementInputSchema>,
-    runtimeContext: RuntimeContext<AnalystRuntimeContext>
+    params: z.infer<typeof executeSqlStatementInputSchema>
   ): Promise<z.infer<typeof executeSqlStatementOutputSchema>> => {
     let { statements } = params;
 
@@ -461,8 +386,7 @@ async function executeSingleStatement(
 }
 
 // Export the tool
-export const executeSql = createTool({
-  id: 'execute-sql',
+export const executeSql = tool({
   description: `Use this to run lightweight, validation queries to understand values in columns, date ranges, etc. 
     Please limit your queries to 50 rows for performance.
     Query results will be limited to 50 rows for performance. 
@@ -470,14 +394,8 @@ export const executeSql = createTool({
     Otherwise the queries wont run successfully.`,
   inputSchema: executeSqlStatementInputSchema,
   outputSchema: executeSqlStatementOutputSchema,
-  execute: async ({
-    context,
-    runtimeContext,
-  }: {
-    context: z.infer<typeof executeSqlStatementInputSchema>;
-    runtimeContext: RuntimeContext<AnalystRuntimeContext>;
-  }) => {
-    return await executeSqlStatement(context, runtimeContext);
+  execute: async (input) => {
+    return await executeSqlStatement(input);
   },
 });
 

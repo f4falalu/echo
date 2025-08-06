@@ -6,7 +6,6 @@
 
 // Message and memory utilities
 export * from './memory';
-export * from './convertToCoreMessages';
 export * from './standardizeMessages';
 
 // Model utilities

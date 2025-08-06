@@ -1,15 +1,15 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { getAnalystAgentSystemPrompt } from './get-analyst-agent-system-prompt';
+import { getDocsAgentSystemPrompt } from './get-docs-agent-system-prompt';
 
-describe('Analyst Agent Instructions', () => {
+describe('Docs Agent Instructions', () => {
   it('should validate template file contains expected variables', () => {
-    const promptPath = path.join(__dirname, 'analyst-agent-prompt.txt');
+    const promptPath = path.join(__dirname, 'docs-agent-prompt.txt');
     const content = fs.readFileSync(promptPath, 'utf-8');
 
     // Expected template variables
-    const expectedVariables = ['sql_dialect_guidance', 'date'];
+    const expectedVariables = ['folder_structure', 'date'];
 
     // Find all template variables in the file
     const templateVariablePattern = /\{\{([^}]+)\}\}/g;
@@ -39,43 +39,50 @@ describe('Analyst Agent Instructions', () => {
   });
 
   it('should load and process the prompt template correctly', () => {
-    const sqlDialectGuidance = 'Test SQL guidance for PostgreSQL';
-    const result = getAnalystAgentSystemPrompt(sqlDialectGuidance);
+    const folderStructure = `
+- src/
+  - models/
+    - users.yml
+    - orders.yml
+`;
+    const result = getDocsAgentSystemPrompt(folderStructure);
 
     expect(result).toBeDefined();
     expect(typeof result).toBe('string');
     expect(result.length).toBeGreaterThan(0);
 
-    // Should contain the SQL guidance we provided
-    expect(result).toContain(sqlDialectGuidance);
+    // Should contain the folder structure we provided
+    expect(result).toContain(folderStructure);
 
     // Should not contain any unreplaced template variables
-    expect(result).not.toMatch(/\{\{sql_dialect_guidance\}\}/);
+    expect(result).not.toMatch(/\{\{folder_structure\}\}/);
     expect(result).not.toMatch(/\{\{date\}\}/);
 
-    // Should contain the current date in YYYY-MM-DD format
-    const currentDate = new Date().toISOString().split('T')[0];
-    expect(result).toContain(currentDate);
+    // Should contain a valid ISO date string
+    const isoDatePattern = /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/;
+    expect(result).toMatch(isoDatePattern);
   });
 
   it('should contain expected sections from the prompt template', () => {
-    const result = getAnalystAgentSystemPrompt('Test guidance');
+    const result = getDocsAgentSystemPrompt('Test folder structure');
 
     // Check for key sections that should be in the prompt
     expect(result).toContain('<intro>');
-    expect(result).toContain('<analysis_mode_capability>');
-    expect(result).toContain('<sql_best_practices>');
-    expect(result).toContain('<visualization_and_charting_guidelines>');
-    expect(result).toContain('You are a Buster');
+    expect(result).toContain('<event_stream>');
+    expect(result).toContain('<agent_loop>');
+    expect(result).toContain('<tools>');
+    expect(result).toContain('<repository_structure>');
+    expect(result).toContain('<system_limitations>');
+    expect(result).toContain('You are Buster');
   });
 
-  it('should throw an error for empty SQL dialect guidance', () => {
+  it('should throw an error for empty folder structure', () => {
     expect(() => {
-      getAnalystAgentSystemPrompt('');
-    }).toThrow('SQL dialect guidance is required');
+      getDocsAgentSystemPrompt('');
+    }).toThrow('Folder structure is required');
 
     expect(() => {
-      getAnalystAgentSystemPrompt('   '); // whitespace only
-    }).toThrow('SQL dialect guidance is required');
+      getDocsAgentSystemPrompt('   '); // whitespace only
+    }).toThrow('Folder structure is required');
   });
 });
