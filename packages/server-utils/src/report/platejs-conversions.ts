@@ -3,16 +3,22 @@ import type { Descendant } from 'platejs';
 import { SERVER_EDITOR } from './server-editor';
 
 export const markdownToPlatejs = async (markdown: string) => {
-  const descendants = SERVER_EDITOR.api.markdown.deserialize(markdown);
+  try {
+    const descendants = SERVER_EDITOR.api.markdown.deserialize(markdown);
 
-  const safeParsedElements = ReportElementsSchema.safeParse(descendants);
+    const safeParsedElements = ReportElementsSchema.safeParse(descendants);
 
-  return {
-    error: safeParsedElements.error,
-    elements: safeParsedElements.data,
-    descendants,
-    markdown,
-  };
+    return {
+      error: safeParsedElements.error,
+      elements: safeParsedElements.data,
+    };
+  } catch (error) {
+    console.error('Error converting markdown to PlateJS:', error);
+    return {
+      error: error as Error,
+      elements: [],
+    };
+  }
 };
 
 export const platejsToMarkdown = async (elements: ReportElements): Promise<string> => {

@@ -9,15 +9,14 @@ export async function getReportHandler(
   reportId: string,
   user: { id: string }
 ): Promise<GetReportIndividualResponse> {
-  const report = await getReport({ reportId, userId: user.id });
-
   try {
+    const report = await getReport({ reportId, userId: user.id });
+
     const platejsResult = await markdownToPlatejs(report.content);
 
     if (platejsResult.error) {
-      console.error('Error converting markdown to PlateJS:', platejsResult.error);
       throw new HTTPException(500, {
-        message: 'Error converting markdown to PlateJS',
+        message: `Error converting markdown to PlateJS: ${platejsResult.error.message}`,
       });
     }
 
@@ -30,9 +29,9 @@ export async function getReportHandler(
 
     return response;
   } catch (error) {
-    console.error('Error converting markdown to PlateJS:', error);
+    console.error('Error getting report:', error);
     throw new HTTPException(500, {
-      message: 'Error converting markdown',
+      message: `Error getting report: ${error instanceof Error ? error.message : 'Unknown error'}`,
     });
   }
 }
