@@ -1,9 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/nextjs';
 import { NewChatWarning } from './NewChatWarning';
-import { z } from 'zod/v4';
 import type { OrganizationRole } from '@buster/server-shared/organization';
 
-const OrganizationRoleSchema: Record<OrganizationRole, string> = {
+const OrganizationRoleSchema: Record<OrganizationRole, OrganizationRole> = {
   data_admin: 'data_admin',
   workspace_admin: 'workspace_admin',
   querier: 'querier',
