@@ -1,11 +1,10 @@
 'use client';
 
-import React, { useMemo } from 'react';
+import React, { useMemo,useContext } from 'react';
 import { useMemoizedFn } from '@/hooks';
 import { useDashboardMetric } from './useDashboardMetric';
 import { assetParamsToRoute } from '@/lib/assets';
 import { MetricCard } from '@/components/ui/metric';
-import { useContext } from 'use-context-selector';
 import { SortableItemContext } from '@/components/ui/grid/SortableItemContext';
 import { useMetricCardThreeDotMenuItems } from './metricCardThreeDotMenuItems';
 
