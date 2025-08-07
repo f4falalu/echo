@@ -7,10 +7,11 @@ import { hasFailureIndicators, hasFileFailureIndicators } from './database/types
 // File tracking types
 export interface ExtractedFile {
   id: string;
-  fileType: 'metric' | 'dashboard';
+  fileType: 'metric' | 'dashboard' | 'report';
   fileName: string;
   status: 'completed' | 'failed' | 'loading';
   ymlContent?: string;
+  markdownContent?: string; // For reports
   operation?: 'created' | 'modified' | undefined; // Track if file was created or modified
   versionNumber?: number | undefined; // Version number from the file operation
   containedInDashboards?: string[]; // Dashboard IDs that contain this metric (for metrics only)
@@ -53,15 +54,23 @@ export function extractFilesFromReasoning(
           file.file_name &&
           !hasFileFailureIndicators(file)
         ) {
-          files.push({
+          const extractedFile: ExtractedFile = {
             id: fileId,
-            fileType: file.file_type as 'metric' | 'dashboard',
+            fileType: file.file_type as 'metric' | 'dashboard' | 'report',
             fileName: file.file_name,
             status: 'completed',
-            ymlContent: file.file?.text || '',
             operation: operation || undefined,
             versionNumber: file.version_number || undefined,
-          });
+          };
+
+          // Add appropriate content based on file type
+          if (file.file_type === 'report') {
+            extractedFile.markdownContent = file.file?.text || '';
+          } else {
+            extractedFile.ymlContent = file.file?.text || '';
+          }
+
+          files.push(extractedFile);
         } else {
           // Log why file was rejected for debugging
           console.warn(`Rejecting file for response: ${fileId}`, {
@@ -268,14 +277,17 @@ export function selectFilesForResponse(
     });
   }
 
-  // Separate dashboards and metrics
+  // Separate dashboards, metrics, and reports
   const dashboards = files.filter((f) => f.fileType === 'dashboard');
   const metrics = files.filter((f) => f.fileType === 'metric');
+  const reports = files.filter((f) => f.fileType === 'report');
 
   console.info('[File Selection] File breakdown:', {
     dashboards: dashboards.length,
     metrics: metrics.length,
+    reports: reports.length,
     modifiedMetrics: metrics.filter((m) => m.operation === 'modified').length,
+    modifiedReports: reports.filter((r) => r.operation === 'modified').length,
   });
 
   // Track which dashboards need to be included due to modified metrics
@@ -374,7 +386,10 @@ export function selectFilesForResponse(
   const otherDashboards = dashboards.filter((d) => !dashboardsToInclude.has(d.id));
   selectedFiles.push(...otherDashboards);
 
-  // 4. Determine which metrics to include
+  // 4. Always include all reports (reports are standalone documents)
+  selectedFiles.push(...reports);
+
+  // 5. Determine which metrics to include
   if (selectedFiles.length > 0) {
     // Check if we have any dashboards in the selection
     const hasDashboards = selectedFiles.some((f) => f.fileType === 'dashboard');
@@ -465,7 +480,7 @@ export function createFileResponseMessages(files: ExtractedFile[]): ChatMessageR
     metadata: [
       {
         status: 'completed' as const,
-        message: `${file.fileType === 'dashboard' ? 'Dashboard' : 'Metric'} ${file.operation || 'created'} successfully`,
+        message: `${file.fileType === 'dashboard' ? 'Dashboard' : file.fileType === 'report' ? 'Report' : 'Metric'} ${file.operation || 'created'} successfully`,
         timestamp: Date.now(),
       },
     ],

@@ -31,6 +31,7 @@
     "eval:golden": "npx braintrust eval evals/golden-dataset",
     "eval:charting": "npx braintrust eval evals/agents/analyst-agent/chart-formatting",
     "eval:tool-order": "npx braintrust eval evals/agents/analyst-agent/tool-order",
+    "eval:reports": "npx braintrust eval evals/agents/analyst-agent/report-builder",
     "braintrust:push": "npx braintrust push evals/agents/analyst-agent/metrics/test_scorers.ts",
     "braintrust:push:metric:staged": "npx braintrust push evals/agents/analyst-agent/metrics/staged_scorers.ts",
     "braintrust:push:chart:staged": "npx braintrust push evals/agents/analyst-agent/chart-formatting/staged-scorers.ts",
