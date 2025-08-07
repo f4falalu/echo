@@ -13,12 +13,13 @@ const llmOutputSchema = z.object({
 const generateChatTitleInstructions = `
 I am a chat title generator that is responsible for generating a title for the chat.
 
-The title should be 3-8 words, capturing the main topic or intent of the conversation. With an emphasis on the user's question and most recent converstaion topic.
+The title should be 3-8 words, capturing the main topic or intent of the conversation. 
+With an emphasis on the user's question and most recent converstaion topic.
 `;
 
 export interface GenerateChatTitleParams {
   prompt: string;
-  conversationHistory?: CoreMessage[];
+  conversationHistory?: ModelMessage[];
   chatId?: string;
   messageId?: string;
 }
@@ -35,14 +36,24 @@ export async function generateChatTitle({
 }: GenerateChatTitleParams): Promise<GenerateChatTitleResult> {
   try {
     // Prepare messages for the LLM
-    let messages: CoreMessage[];
+    const messages: ModelMessage[] = [];
+
+    // Add system message
+    messages.push({
+      role: 'system',
+      content: generateChatTitleInstructions,
+    });
+
+    // Add conversation history if available
     if (conversationHistory && conversationHistory.length > 0) {
-      // Use conversation history as context + append new user message
-      messages = appendToConversation(conversationHistory, prompt);
-    } else {
-      // Otherwise, use just the prompt
-      messages = standardizeMessages(prompt);
+      messages.push(...conversationHistory);
     }
+
+    // Add the current user prompt
+    messages.push({
+      role: 'user',
+      content: prompt,
+    });
 
     let title: { title: string };
 
@@ -52,13 +63,7 @@ export async function generateChatTitle({
           const { object } = await generateObject({
             model: Haiku35,
             schema: llmOutputSchema,
-            messages: [
-              {
-                role: 'system',
-                content: generateChatTitleInstructions,
-              },
-              ...messages,
-            ],
+            messages,
           });
 
           return object;
@@ -68,7 +73,8 @@ export async function generateChatTitle({
         }
       );
 
-      title = await tracedChatTitle();
+      const result = await tracedChatTitle();
+      title = { title: result.title ?? 'New Analysis' };
     } catch (llmError) {
       // Handle LLM generation errors specifically
       console.warn('[GenerateChatTitle] LLM failed to generate valid response:', {
