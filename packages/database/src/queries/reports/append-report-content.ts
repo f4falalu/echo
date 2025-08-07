@@ -26,6 +26,7 @@ export const appendReportContent = async (
     const result = await db
       .update(reportFiles)
       .set({
+        // From Nate: I was just thinking we do not KNOW if this is valid markdown...
         content: sql`${reportFiles.content} || ${content}`,
         updatedAt: new Date().toISOString(),
       })

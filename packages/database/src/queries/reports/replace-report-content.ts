@@ -20,6 +20,7 @@ type ReplaceReportContentInput = z.infer<typeof ReplaceReportContentInputSchema>
 export const replaceReportContent = async (
   params: ReplaceReportContentInput
 ): Promise<{ content: string }> => {
+  // From Nate: I was just thinking we do not KNOW if this is valid markdown...
   const { reportId, findString, replaceString } = ReplaceReportContentInputSchema.parse(params);
 
   try {
