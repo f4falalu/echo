@@ -7,6 +7,7 @@ import {
   modifyDashboards,
   modifyMetrics,
 } from '../../tools';
+import { GPT5 } from '../../utils';
 import { Sonnet4 } from '../../utils/models/sonnet-4';
 
 const DEFAULT_OPTIONS = {
@@ -17,13 +18,17 @@ const DEFAULT_OPTIONS = {
     anthropic: {
       disableParallelToolCalls: true,
     },
+    openai: {
+      parallelToolCalls: false,
+      reasoningEffort: 'minimal',
+    },
   },
 };
 
 export const analystAgent = new Agent({
   name: 'Analyst Agent',
   instructions: '', // We control the system messages in the step at stream instantiation
-  model: Sonnet4,
+  model: GPT5,
   tools: {
     createMetrics,
     modifyMetrics,
