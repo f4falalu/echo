@@ -7,7 +7,7 @@ import { assetParamsToRoute } from '@/lib/assets';
 import { MetricCard } from '@/components/ui/metric';
 import { useContext } from 'use-context-selector';
 import { SortableItemContext } from '@/components/ui/grid/SortableItemContext';
-import { metricCardThreeDotMenuItems } from './metricCardThreeDotMenuItems';
+import { useMetricCardThreeDotMenuItems } from './metricCardThreeDotMenuItems';
 
 const DashboardMetricItemBase: React.FC<{
   metricId: string;
@@ -63,9 +63,7 @@ const DashboardMetricItemBase: React.FC<{
     });
   }, [metricId, chatId, dashboardId]);
 
-  const threeDotMenuItems = useMemo(() => {
-    return metricCardThreeDotMenuItems({ dashboardId, metricId });
-  }, [dashboardId, metricId]);
+  const threeDotMenuItems = useMetricCardThreeDotMenuItems({ dashboardId, metricId });
 
   const onInitialAnimationEndPreflight = useMemoizedFn(() => {
     setInitialAnimationEnded(metricId);

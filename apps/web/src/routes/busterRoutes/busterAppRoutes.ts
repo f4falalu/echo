@@ -252,6 +252,15 @@ export type BusterAppRoutesWithArgs = {
     metricVersionNumber?: number;
     reportVersionNumber?: number;
   };
+  [BusterAppRoutes.APP_CHAT_ID_REPORT_ID_METRIC_ID_RESULTS]: {
+    route: BusterAppRoutes.APP_CHAT_ID_REPORT_ID_METRIC_ID_RESULTS;
+    chatId: string;
+    reportId: string;
+    metricId: string;
+    metricVersionNumber?: number;
+    reportVersionNumber?: number;
+    secondaryView?: MetricFileViewSecondary;
+  };
   [BusterAppRoutes.APP_CHAT_ID_DATASET_ID]: {
     route: BusterAppRoutes.APP_CHAT_ID_DATASET_ID;
     chatId: string;

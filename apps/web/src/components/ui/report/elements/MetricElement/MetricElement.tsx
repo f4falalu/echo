@@ -86,8 +86,8 @@ const MetricResizeContainer: React.FC<PropsWithChildren> = ({ children }) => {
       ref={ref}
       contentEditable={false}
       className={cn(
-        'group relative m-0 my-1.5 w-full cursor-default',
-        isSelected && 'bg-item-hover/50 ring-ring rounded ring-2 ring-offset-4'
+        'group relative m-0 my-1.5 w-full cursor-default transition-all',
+        isSelected && 'bg-item-hover/10 ring-ring rounded ring-2 ring-offset-4'
       )}>
       <Resizable
         align={align}

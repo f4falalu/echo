@@ -1,18 +1,9 @@
 'use client';
 
-import React, { useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 import { useRemoveMetricsFromDashboard } from '@/api/buster_rest/dashboards';
-import { Button } from '@/components/ui/buttons';
-import { Dropdown, type DropdownItems, type DropdownItem } from '@/components/ui/dropdown';
-import {
-  DotsVertical,
-  Trash,
-  ShareRight,
-  PenSparkle,
-  SquareChartPen,
-  Code
-} from '@/components/ui/icons';
-import { cn } from '@/lib/utils';
+import { type DropdownItems, type DropdownItem } from '@/components/ui/dropdown';
+import { Trash, ShareRight, PenSparkle, SquareChartPen, Code } from '@/components/ui/icons';
 import { ASSET_ICONS } from '@/components/features/config/assetIcons';
 import { assetParamsToRoute } from '@/lib/assets/assetParamsToRoute';
 import { useChatLayoutContextSelector } from '@/layouts/ChatLayout';
@@ -28,7 +19,7 @@ import {
   useMetricDrilldownItem
 } from '@/components/features/metrics/ThreeDotMenu';
 
-export const metricCardThreeDotMenuItems = ({
+export const useMetricCardThreeDotMenuItems = ({
   dashboardId,
   metricId
 }: {

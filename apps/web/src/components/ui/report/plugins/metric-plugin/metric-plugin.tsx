@@ -7,6 +7,7 @@ export type MetricPluginOptions = {
   openMetricModal: boolean;
 };
 
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export type MetricPluginApi = {
   // the methods are defined in the extendApi function
 };

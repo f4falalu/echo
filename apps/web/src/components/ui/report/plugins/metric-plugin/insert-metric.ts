@@ -8,6 +8,7 @@ export const insertMetric = (editor: PlateEditor, options?: InsertNodesOptions) 
     {
       type: CUSTOM_KEYS.metric,
       metricId: '',
+      metricVersionNumber: undefined,
       children: [{ text: '' }]
     },
     { select: true, ...options }

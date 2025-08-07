@@ -1,16 +1,6 @@
 import { type PluginConfig, createTSlatePlugin } from 'platejs';
 
-export type BannerConfig = PluginConfig<
-  'banner',
-  //api
-  {},
-  //options
-  {},
-  //selectors
-  {},
-  //transforms
-  {}
->;
+export type BannerConfig = PluginConfig<'banner'>;
 
 export const BannerPlugin = createTSlatePlugin<BannerConfig>({
   key: 'banner', // unique plugin key

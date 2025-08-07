@@ -51,10 +51,7 @@ export const MetricEmbedPlaceholder: React.FC = () => {
         <div
           onClick={onOpenAddMetricModal}
           className={cn(
-            'bg-muted hover:bg-primary/10 flex cursor-pointer items-center rounded-sm p-3 pr-9 select-none',
-            {
-              'shadow-md': focused && selected
-            }
+            'bg-muted hover:bg-primary/10 flex cursor-pointer items-center rounded-sm p-3 pr-9 select-none'
           )}
           contentEditable={false}>
           <div className="text-muted-foreground/80 relative mr-3 flex [&_svg]:size-6">
@@ -134,3 +131,5 @@ const MemoizedAddMetricModal = React.memo(
     );
   }
 );
+
+MemoizedAddMetricModal.displayName = 'MemoizedAddMetricModal';

@@ -25,6 +25,50 @@ const countCharactersInNodes = (nodes: (TNode | Descendant)[]): number => {
   return count;
 };
 
+const CharacterCounterElement = ({
+  attributes,
+  children,
+  ...props
+}: CharacterElementCounterProps) => {
+  const { getOptions, element } = props;
+  const options = getOptions();
+  const selected = useSelected();
+  const { maxLength, showWarning, warningThreshold } = options;
+
+  // Get the character length of only this component's content
+  const characterLength = useMemo(() => {
+    return countCharactersInNodes(element.children);
+  }, [element.children]);
+
+  // Calculate warning state
+  const warningLength = maxLength * warningThreshold;
+  const isOverWarning = characterLength >= warningLength;
+  const isOverLimit = characterLength > maxLength;
+
+  return (
+    <PlateElement
+      className={cn(
+        'rounded-md bg-purple-100 p-2 text-black',
+        selected && 'ring-ring rounded bg-red-200 ring-2 ring-offset-2'
+      )}
+      attributes={{
+        ...attributes,
+        'data-plate-open-context-menu': true
+      }}
+      {...props}>
+      <div className="mb-2 text-sm" contentEditable={false}>
+        Character count: {characterLength} / {maxLength}
+        {showWarning && isOverWarning && (
+          <span className={`ml-2 ${isOverLimit ? 'text-red-600' : 'text-yellow-600'}`}>
+            {isOverLimit ? '⚠️ Limit exceeded!' : '⚠️ Approaching limit'}
+          </span>
+        )}
+      </div>
+      {children}
+    </PlateElement>
+  );
+};
+
 export const CharacterCounterPlugin = createPlatePlugin({
   key: 'characterCounter',
   options: {
@@ -80,45 +124,7 @@ export const CharacterCounterPlugin = createPlatePlugin({
     }
   },
   node: {
-    component: ({ attributes, children, ...props }: CharacterElementCounterProps) => {
-      const { getOptions, element } = props;
-      const options = getOptions();
-      const selected = useSelected();
-      const { maxLength, showWarning, warningThreshold } = options;
-
-      // Get the character length of only this component's content
-      const characterLength = useMemo(() => {
-        return countCharactersInNodes(element.children);
-      }, [element.children]);
-
-      // Calculate warning state
-      const warningLength = maxLength * warningThreshold;
-      const isOverWarning = characterLength >= warningLength;
-      const isOverLimit = characterLength > maxLength;
-
-      return (
-        <PlateElement
-          className={cn(
-            'rounded-md bg-purple-100 p-2 text-black',
-            selected && 'ring-ring rounded bg-red-200 ring-2 ring-offset-2'
-          )}
-          attributes={{
-            ...attributes,
-            'data-plate-open-context-menu': true
-          }}
-          {...props}>
-          <div className="mb-2 text-sm" contentEditable={false}>
-            Character count: {characterLength} / {maxLength}
-            {showWarning && isOverWarning && (
-              <span className={`ml-2 ${isOverLimit ? 'text-red-600' : 'text-yellow-600'}`}>
-                {isOverLimit ? '⚠️ Limit exceeded!' : '⚠️ Approaching limit'}
-              </span>
-            )}
-          </div>
-          {children}
-        </PlateElement>
-      );
-    },
+    component: CharacterCounterElement,
     isElement: true
   }
 });

@@ -1,8 +1,15 @@
 import React, { useMemo } from 'react';
 import type { DropdownItem, DropdownItems } from '@/components/ui/dropdown';
-import { Trash } from '@/components/ui/icons';
+import { Code, SquareChartPen, Table, Trash } from '@/components/ui/icons';
 import { assetParamsToRoute } from '@/lib/assets/assetParamsToRoute';
-import { ASSET_ICONS } from '@/components/features/config/assetIcons';
+import { ArrowUpRight } from '@/components/ui/icons';
+import { useEditorRef, useElement, type PlateEditor } from 'platejs/react';
+import type { TElement } from 'platejs';
+import {
+  useDownloadMetricDataCSV,
+  useDownloadPNGSelectMenu,
+  useRenameMetricOnPage
+} from '@/context/Metrics/metricDropdownItems';
 
 export const useMetricContentThreeDotMenuItems = ({
   metricId,
@@ -17,6 +24,9 @@ export const useMetricContentThreeDotMenuItems = ({
   reportVersionNumber: number | undefined;
   reportId: string;
 }): DropdownItems => {
+  const editor = useEditorRef();
+  const element = useElement();
+
   const openChartItem = useOpenChartItem({
     reportId,
     metricId,
@@ -24,8 +34,42 @@ export const useMetricContentThreeDotMenuItems = ({
     reportVersionNumber,
     metricVersionNumber
   });
+  const removeFromReportItem = useRemoveFromReportItem({
+    editor,
+    element
+  });
+  const navigateToMetricItem = useNavigatetoMetricItem({
+    reportId,
+    metricId,
+    chatId,
+    reportVersionNumber,
+    metricVersionNumber
+  });
+  const downloadCSV = useDownloadMetricDataCSV({ metricId, metricVersionNumber });
+  const downloadPNG = useDownloadPNGSelectMenu({ metricId, metricVersionNumber });
+  const renameMetric = useRenameMetricOnPage({ metricId, metricVersionNumber });
 
-  return [openChartItem, { type: 'divider' }];
+  return useMemo(
+    () => [
+      openChartItem,
+      removeFromReportItem,
+      { type: 'divider' },
+      ...navigateToMetricItem,
+      { type: 'divider' },
+      downloadCSV,
+      downloadPNG,
+      { type: 'divider' },
+      renameMetric
+    ],
+    [
+      openChartItem,
+      removeFromReportItem,
+      navigateToMetricItem,
+      downloadCSV,
+      downloadPNG,
+      renameMetric
+    ]
+  );
 };
 
 const useOpenChartItem = ({
@@ -54,20 +98,20 @@ const useOpenChartItem = ({
     () => ({
       value: 'open-chart',
       label: 'Open chart',
-      icon: <ASSET_ICONS.metrics />,
+      icon: <ArrowUpRight />,
       link: route,
-      linkIcon: 'arrow-external'
+      linkIcon: 'arrow-right'
     }),
     [route]
   );
 };
 
 const useRemoveFromReportItem = ({
-  reportId,
-  metricId
+  editor,
+  element
 }: {
-  reportId: string;
-  metricId: string;
+  editor: PlateEditor;
+  element: TElement;
 }): DropdownItem => {
   return useMemo(
     () => ({
@@ -75,9 +119,56 @@ const useRemoveFromReportItem = ({
       label: 'Remove from report',
       icon: <Trash />,
       onClick: () => {
-        console.log('remove from report');
+        const path = editor.api.findPath(element);
+        editor.tf.removeNodes({ at: path });
       }
     }),
     []
   );
+};
+
+const useNavigatetoMetricItem = ({
+  reportId,
+  metricId,
+  chatId,
+  reportVersionNumber,
+  metricVersionNumber
+}: {
+  reportId: string;
+  metricId: string;
+  metricVersionNumber: number | undefined;
+  chatId: string | undefined;
+  reportVersionNumber: number | undefined;
+}): DropdownItem[] => {
+  return useMemo(() => {
+    const baseParams = {
+      assetId: metricId,
+      type: 'metric' as const,
+      reportVersionNumber,
+      metricVersionNumber,
+      reportId,
+      chatId
+    };
+
+    const editChartRoute = assetParamsToRoute({
+      ...baseParams,
+      page: 'chart'
+    });
+
+    const resultsChartRoute = assetParamsToRoute({
+      ...baseParams,
+      page: 'results'
+    });
+
+    const sqlChartRoute = assetParamsToRoute({
+      ...baseParams,
+      page: 'sql'
+    });
+
+    return [
+      { value: 'edit-chart', label: 'Edit chart', icon: <SquareChartPen />, link: editChartRoute },
+      { value: 'results-chart', label: 'Results chart', icon: <Table />, link: resultsChartRoute },
+      { value: 'sql-chart', label: 'SQL chart', icon: <Code />, link: sqlChartRoute }
+    ];
+  }, [reportId, metricId, chatId, reportVersionNumber, metricVersionNumber]);
 };
