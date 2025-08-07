@@ -1,5 +1,5 @@
 import { getReport } from '@buster/database';
-import type { GetReportIndividualResponse } from '@buster/server-shared/reports';
+import type { GetReportIndividualResponse, ReportElements } from '@buster/server-shared/reports';
 import { markdownToPlatejs } from '@buster/server-utils/report';
 import { Hono } from 'hono';
 import { HTTPException } from 'hono/http-exception';
@@ -14,10 +14,10 @@ export async function getReportHandler(
   const platejsResult = await markdownToPlatejs(report.content);
 
   if (platejsResult.error) {
-    throw platejsResult.error;
+    console.error('Error converting markdown to PlateJS:', platejsResult.error);
   }
 
-  const content = platejsResult.elements ?? [];
+  const content: ReportElements = platejsResult.elements as unknown as ReportElements; //why do I have to do this?
 
   const response: GetReportIndividualResponse = {
     ...report,

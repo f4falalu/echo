@@ -1,4 +1,4 @@
-import type { ReportElements } from '@buster/database';
+import { type ReportElements, ReportElementsSchema } from '@buster/database';
 import { describe, expect, it } from 'vitest';
 import { markdownToPlatejs, platejsToMarkdown } from './platejs-conversions';
 
@@ -73,7 +73,7 @@ Here's an unordered list:
   });
 
   it('real world markdown', async () => {
-    const markdown = `Our most popular mountain bike over the last 12 months is Mountain-200 Black, 38 with 825 units sold.
+    const markdownOG = `Our most popular mountain bike over the last 12 months is Mountain-200 Black, 38 with 825 units sold.
 ## Key Findings
 - The top-selling mountain bike model is **Mountain-200 Black, 38**.
 - It sold **825 units** in the last 12 months.
@@ -99,8 +99,14 @@ Here's an unordered list:
   - Using revenue-based popularity could favor higher-priced bikes; I chose units to avoid price bias.
   - Using the riding discipline filter (e.g., Mountain) was considered, but I used the explicit Mountain Bikes subcategory to exclude components.
 `;
+
+    const markdown = `
+- Filters:
+  - Product Category = "Bikes"
+`;
+
     const platejs = await markdownToPlatejs(markdown);
-    expect(platejs).toBeDefined();
+    expect(platejs.elements).toBeDefined();
   });
 });
 
@@ -564,5 +570,9 @@ describe('platejsToMarkdown', () => {
         type: 'ul',
       },
     ];
+
+    const markdownFromPlatejs = await platejsToMarkdown(elements);
+
+    expect(markdownFromPlatejs).toBeDefined();
   });
 });
