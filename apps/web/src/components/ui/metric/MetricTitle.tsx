@@ -20,57 +20,55 @@ export const MetricTitle: React.FC<{
   isDragOverlay: boolean;
   readOnly?: boolean;
   threeDotMenuItems: DropdownItems;
-}> = React.memo(
-  ({
-    readOnly = true,
-    name,
-    description,
-    isDragOverlay,
-    metricLink,
-    timeFrame,
-    threeDotMenuItems
-  }) => {
-    const router = useRouter();
+}> = ({
+  readOnly = true,
+  name,
+  description,
+  isDragOverlay,
+  metricLink,
+  timeFrame,
+  threeDotMenuItems
+}) => {
+  const router = useRouter();
 
-    useMount(() => {
-      if (metricLink) router.prefetch(metricLink);
-    });
+  useMount(() => {
+    if (metricLink) router.prefetch(metricLink);
+  });
 
-    return (
-      <>
-        <div className={'flex h-full cursor-pointer flex-col space-y-0.5 overflow-hidden'}>
-          <div className="flex w-full justify-between space-x-0.5 overflow-hidden">
-            <Title
-              as="h4"
-              truncate
-              className="text-md! whitespace-nowrap"
-              style={{ fontSize: '14px' }}>
-              {`${name}`}
-            </Title>
-          </div>
-
-          <div className="flex w-full items-center overflow-hidden">
-            <Text
-              className={`w-full ${timeFrame || description ? 'visible' : 'hidden'}`}
-              size="sm"
-              variant="secondary"
-              truncate={true}>
-              {timeFrame || '_'}
-
-              {description && timeFrame && ' • '}
-
-              {description}
-            </Text>
-          </div>
+  return (
+    <div className="group flex h-full min-h-0 w-full flex-1 flex-nowrap space-x-0.5">
+      <div className={'flex h-full flex-1 cursor-pointer flex-col space-y-0.5 overflow-hidden'}>
+        <div className="flex w-full justify-between space-x-0.5 overflow-hidden">
+          <Title
+            as="h4"
+            truncate
+            className="text-md! whitespace-nowrap"
+            style={{ fontSize: '14px' }}>
+            {`${name}`}
+          </Title>
         </div>
 
-        {isDragOverlay || readOnly ? null : (
-          <MetricCardThreeMenuContainer dropdownItems={threeDotMenuItems}>
-            <Button variant="ghost" className="bg-item-hover!" prefix={<DotsVertical />} />
-          </MetricCardThreeMenuContainer>
-        )}
-      </>
-    );
-  }
-);
+        <div className="flex w-full items-center overflow-hidden">
+          <Text
+            className={`w-full ${timeFrame || description ? 'visible' : 'hidden'}`}
+            size="sm"
+            variant="secondary"
+            truncate={true}>
+            {timeFrame || '_'}
+
+            {description && timeFrame && ' • '}
+
+            {description}
+          </Text>
+        </div>
+      </div>
+
+      {isDragOverlay || readOnly ? null : (
+        <MetricCardThreeMenuContainer dropdownItems={threeDotMenuItems}>
+          <Button variant="ghost" className="hover:bg-item-active" prefix={<DotsVertical />} />
+        </MetricCardThreeMenuContainer>
+      )}
+    </div>
+  );
+};
 MetricTitle.displayName = 'MetricTitle';
