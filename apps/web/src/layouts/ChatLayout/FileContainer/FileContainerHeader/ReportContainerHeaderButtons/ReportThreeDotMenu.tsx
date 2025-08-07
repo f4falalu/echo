@@ -6,14 +6,26 @@ import {
   type DropdownItem,
   type DropdownItems
 } from '@/components/ui/dropdown';
-import { Dots, ShareRight, WandSparkle } from '@/components/ui/icons';
+import { Dots, ShareRight, WandSparkle, History, Star } from '@/components/ui/icons';
+import { Refresh3, FileText, DuplicatePlus } from '@/components/ui/icons/NucleoIconOutlined';
+import { Star as StarFilled } from '@/components/ui/icons/NucleoIconFilled';
 import { Button } from '@/components/ui/buttons';
-import { useGetReport } from '@/api/buster_rest/reports';
+import {
+  useAddReportToCollection,
+  useGetReport,
+  useRemoveReportFromCollection
+} from '@/api/buster_rest/reports';
 import { getIsEffectiveOwner } from '@/lib/share';
 import { ShareMenuContent, getShareAssetConfig } from '@/components/features/ShareMenu';
 import { useBusterNotifications } from '@/context/BusterNotifications';
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import { ASSET_ICONS } from '@/components/features/config/assetIcons';
+import { useChatLayoutContextSelector } from '@/layouts/ChatLayout/ChatLayoutContext';
+import { useListVersionDropdownItems } from '@/components/features/versionHistory/useListVersionDropdownItems';
+import { useFavoriteStar } from '@/components/features/list/FavoriteStar';
+import { useStatusDropdownContent } from '@/components/features/metrics/StatusBadgeIndicator/useStatusDropdownContent';
+import type { VerificationStatus } from '@buster/server-shared/share';
+import { useSaveToCollectionsDropdownContent } from '@/components/features/dropdowns/SaveToCollectionsDropdown';
 
 export const ReportThreeDotMenu = React.memo(
   ({
@@ -28,10 +40,41 @@ export const ReportThreeDotMenu = React.memo(
     const editWithAI = useEditWithAI({ reportId });
     const shareMenu = useShareMenuSelectMenu({ reportId });
     const saveToLibrary = useSaveToLibrary({ reportId });
+    const favoriteItem = useFavoriteReportSelectMenu({ reportId });
+    const versionHistory = useVersionHistorySelectMenu({ reportId });
+    const verificationItem = useReportVerificationSelectMenu();
+    const refreshReportItem = useRefreshReportSelectMenu();
+    const duplicateReportItem = useDuplicateReportSelectMenu();
+    const downloadPdfItem = useDownloadPdfSelectMenu();
 
     const items: DropdownItems = useMemo(() => {
-      return [editWithAI, { type: 'divider' }, shareMenu, saveToLibrary];
-    }, [reportId, reportVersionNumber]);
+      return [
+        editWithAI,
+        { type: 'divider' },
+        shareMenu,
+        saveToLibrary,
+        favoriteItem,
+        { type: 'divider' },
+        versionHistory,
+        verificationItem,
+        { type: 'divider' },
+        refreshReportItem,
+        duplicateReportItem,
+        downloadPdfItem
+      ];
+    }, [
+      reportId,
+      reportVersionNumber,
+      editWithAI,
+      shareMenu,
+      favoriteItem,
+      versionHistory,
+      verificationItem,
+      refreshReportItem,
+      duplicateReportItem,
+      downloadPdfItem,
+      saveToLibrary
+    ]);
 
     return (
       <Dropdown items={items} side="bottom" align="end" contentClassName="max-h-fit" modal>
@@ -61,7 +104,7 @@ const useEditWithAI = ({ reportId }: { reportId: string }): DropdownItem => {
   );
 };
 
-export const useShareMenuSelectMenu = ({ reportId }: { reportId: string }) => {
+const useShareMenuSelectMenu = ({ reportId }: { reportId: string }) => {
   const { data: shareAssetConfig } = useGetReport({ reportId }, { select: getShareAssetConfig });
   const isEffectiveOwner = getIsEffectiveOwner(shareAssetConfig?.permission);
 
@@ -87,48 +130,198 @@ export const useShareMenuSelectMenu = ({ reportId }: { reportId: string }) => {
   );
 };
 
-export const useSaveToLibrary = ({ reportId }: { reportId: string }): DropdownItem => {
-  //   const { mutateAsync: saveMetricToCollection } = useSaveMetricToCollections();
-  //   const { mutateAsync: removeMetricFromCollection } = useRemoveMetricFromCollection();
-  //   const { data: selectedCollections } = useGetMetric(
-  //     { id: metricId },
-  //     { select: (x) => x.collections?.map((x) => x.id) }
-  //   );
-  //   const { openInfoMessage } = useBusterNotifications();
+const useSaveToLibrary = ({ reportId }: { reportId: string }): DropdownItem => {
+  const { mutateAsync: saveReportToCollection } = useAddReportToCollection();
+  const { mutateAsync: removeReportFromCollection } = useRemoveReportFromCollection();
 
-  //   const onSaveToCollection = useMemoizedFn(async (collectionIds: string[]) => {
-  //     await saveMetricToCollection({
-  //       metricIds: [metricId],
-  //       collectionIds
-  //     });
-  //     openInfoMessage('Metrics saved to collections');
-  //   });
+  const { data: selectedCollections } = useGetReport(
+    { reportId },
+    { select: (x) => x.collections?.map((x) => x.id) }
+  );
+  const { openInfoMessage } = useBusterNotifications();
 
-  //   const onRemoveFromCollection = useMemoizedFn(async (collectionId: string) => {
-  //     await removeMetricFromCollection({
-  //       metricIds: [metricId],
-  //       collectionIds: [collectionId]
-  //     });
-  //     openInfoMessage('Metrics removed from collections');
-  //   });
+  const onSaveToCollection = useMemoizedFn(async (collectionIds: string[]) => {
+    await saveReportToCollection({
+      reportIds: [reportId],
+      collectionIds
+    });
+    openInfoMessage('Report saved to collections');
+  });
 
-  //   const { ModalComponent, ...dropdownProps } = useSaveToCollectionsDropdownContent({
-  //     onSaveToCollection,
-  //     onRemoveFromCollection,
-  //     selectedCollections: selectedCollections || []
-  //   });
+  const onRemoveFromCollection = useMemoizedFn(async (collectionId: string) => {
+    await removeReportFromCollection({
+      reportIds: [reportId],
+      collectionIds: [collectionId]
+    });
+    openInfoMessage('Report removed from collections');
+  });
+
+  const { ModalComponent, ...dropdownProps } = useSaveToCollectionsDropdownContent({
+    onSaveToCollection,
+    onRemoveFromCollection,
+    selectedCollections: selectedCollections || []
+  });
 
   const CollectionSubMenu = useMemo(() => {
-    return <DropdownContent items={[]} />;
-  }, [reportId]);
+    return <DropdownContent {...dropdownProps} />;
+  }, [dropdownProps]);
 
   return useMemo(
     () => ({
       label: 'Add to collection',
       value: 'add-to-collection',
       icon: <ASSET_ICONS.collectionAdd />,
-      items: [<React.Fragment key="collection-sub-menu">{CollectionSubMenu}</React.Fragment>]
+      items: [
+        <React.Fragment key="collection-sub-menu">
+          {CollectionSubMenu} {ModalComponent}
+        </React.Fragment>
+      ]
     }),
     [CollectionSubMenu]
+  );
+};
+
+// Favorites for report (toggle add/remove)
+const useFavoriteReportSelectMenu = ({ reportId }: { reportId: string }): DropdownItem => {
+  const { data: name } = useGetReport({ reportId }, { select: (x) => x.name });
+  const { isFavorited, onFavoriteClick } = useFavoriteStar({
+    id: reportId,
+    type: 'report',
+    name: name || ''
+  });
+
+  return useMemo(
+    () => ({
+      label: isFavorited ? 'Remove from favorites' : 'Add to favorites',
+      value: 'toggle-favorite',
+      icon: isFavorited ? <StarFilled /> : <Star />,
+      onClick: onFavoriteClick,
+      closeOnSelect: false
+    }),
+    [isFavorited, onFavoriteClick]
+  );
+};
+
+// Version history for report
+const useVersionHistorySelectMenu = ({ reportId }: { reportId: string }): DropdownItem => {
+  const chatId = useChatLayoutContextSelector((x) => x.chatId);
+  const { data } = useGetReport(
+    { reportId },
+    {
+      select: (x) => ({
+        versions: x.versions,
+        version_number: x.version_number
+      })
+    }
+  );
+  const { versions = [], version_number } = data || {};
+
+  const versionHistoryItems: DropdownItems = useListVersionDropdownItems({
+    versions,
+    selectedVersion: version_number,
+    chatId,
+    fileId: reportId,
+    fileType: 'report',
+    useVersionHistoryMode: true
+  });
+
+  const reverseVersionHistoryItems = useMemo(() => {
+    return [...versionHistoryItems].reverse();
+  }, [versionHistoryItems]);
+
+  return useMemo(
+    () => ({
+      label: 'Version history',
+      value: 'version-history',
+      icon: <History />,
+      items: [
+        <React.Fragment key="version-history-sub-menu">
+          <DropdownContent items={reverseVersionHistoryItems} selectType="single" />
+        </React.Fragment>
+      ]
+    }),
+    [reverseVersionHistoryItems]
+  );
+};
+
+// Request verification dropdown (stubbed)
+const useReportVerificationSelectMenu = (): DropdownItem => {
+  const onChangeStatus = useMemoizedFn(async (_status: VerificationStatus) => {
+    // stubbed
+    return;
+  });
+
+  const dropdownProps = useStatusDropdownContent({
+    isAdmin: false,
+    selectedStatus: 'notRequested',
+    onChangeStatus
+  });
+
+  const statusSubMenu = useMemo(() => {
+    return <DropdownContent {...dropdownProps} />;
+  }, [dropdownProps]);
+
+  return useMemo(
+    () => ({
+      label: 'Request verification',
+      value: 'request-verification',
+      items: [<React.Fragment key="status-sub-menu">{statusSubMenu}</React.Fragment>]
+    }),
+    [statusSubMenu]
+  );
+};
+
+// Refresh report (stubbed)
+const useRefreshReportSelectMenu = (): DropdownItem => {
+  const onClick = useMemoizedFn(async () => {
+    alert('TODO: Refresh report');
+
+    return;
+  });
+
+  return useMemo(
+    () => ({
+      label: 'Refresh report',
+      value: 'refresh-report',
+      icon: <Refresh3 />,
+      onClick
+    }),
+    [onClick]
+  );
+};
+
+// Duplicate report (stubbed)
+const useDuplicateReportSelectMenu = (): DropdownItem => {
+  const onClick = useMemoizedFn(async () => {
+    alert('TODO: Duplicate report');
+    return;
+  });
+
+  return useMemo(
+    () => ({
+      label: 'Duplicate',
+      value: 'duplicate-report',
+      icon: <DuplicatePlus />,
+      onClick
+    }),
+    [onClick]
+  );
+};
+
+// Download as PDF (stubbed)
+const useDownloadPdfSelectMenu = (): DropdownItem => {
+  const onClick = useMemoizedFn(async () => {
+    // stubbed
+    return;
+  });
+
+  return useMemo(
+    () => ({
+      label: 'Download as PDF',
+      value: 'download-pdf',
+      icon: <FileText />,
+      onClick
+    }),
+    [onClick]
   );
 };

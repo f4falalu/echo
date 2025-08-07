@@ -11,7 +11,6 @@ import { queryKeys } from '@/api/query_keys';
 import type { RustApiError } from '../errors';
 import type {
   GetReportIndividualResponse,
-  GetReportsListResponse,
   UpdateReportResponse
 } from '@buster/server-shared/reports';
 import {
@@ -22,9 +21,14 @@ import {
   updateReport
 } from './requests';
 import { useDebounceFn } from '@/hooks/useDebounce';
-import { useAddAssetToCollection } from '../collections/queryRequests';
+import {
+  useAddAssetToCollection,
+  useRemoveAssetFromCollection
+} from '../collections/queryRequests';
 import { useGetUserFavorites } from '../users/favorites';
 import { collectionQueryKeys } from '@/api/query_keys/collection';
+import { reportsQueryKeys } from '@/api/query_keys/reports';
+import { useGetLatestReportVersionMemoized } from './reportQueryStore';
 
 /**
  * Hook to get a list of reports
@@ -221,6 +225,47 @@ export const useAddReportToCollection = () => {
           (id) => collectionQueryKeys.collectionsGetCollection(id).queryKey
         ),
         refetchType: 'all'
+      });
+    }
+  });
+};
+
+export const useRemoveReportFromCollection = () => {
+  const queryClient = useQueryClient();
+  const { mutateAsync: removeAssetFromCollection } = useRemoveAssetFromCollection();
+  const { data: userFavorites, refetch: refreshFavoritesList } = useGetUserFavorites();
+
+  const removeReportFromCollection = useMemoizedFn(
+    async ({ reportIds, collectionIds }: { reportIds: string[]; collectionIds: string[] }) => {
+      await Promise.all(
+        collectionIds.map((collectionId) =>
+          removeAssetFromCollection({
+            id: collectionId,
+            assets: reportIds.map((reportId) => ({ id: reportId, type: 'report' }))
+          })
+        )
+      );
+    }
+  );
+
+  return useMutation({
+    mutationFn: removeReportFromCollection,
+    onSuccess: (_, { collectionIds, reportIds }) => {
+      const collectionIsInFavorites = userFavorites.some((f) => {
+        return collectionIds.includes(f.id);
+      });
+      if (collectionIsInFavorites) refreshFavoritesList();
+
+      collectionIds.forEach((id) => {
+        queryClient.invalidateQueries({
+          queryKey: collectionQueryKeys.collectionsGetCollection(id).queryKey
+        });
+      });
+
+      reportIds.forEach((id) => {
+        queryClient.invalidateQueries({
+          queryKey: reportsQueryKeys.reportsGetReport(id).queryKey
+        });
       });
     }
   });

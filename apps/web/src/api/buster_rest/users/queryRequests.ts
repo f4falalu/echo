@@ -17,7 +17,7 @@ import {
   updateOrganizationUser
 } from './requests';
 import { organizationQueryKeys } from '@/api/query_keys/organization';
-import { UserResponse } from '@buster/server-shared/user';
+import type { UserResponse } from '@buster/server-shared/user';
 import type { RustApiError } from '../errors';
 
 export const useGetMyUserInfo = <TData = UserResponse>(

@@ -1,10 +1,5 @@
 import { type Value } from 'platejs';
-import {
-  useEditorRef,
-  usePlateEditor,
-  type TPlateEditor,
-  type WithPlateOptions
-} from 'platejs/react';
+import { useEditorRef, usePlateEditor, type TPlateEditor } from 'platejs/react';
 import { useMemo } from 'react';
 
 import { EditorKit } from './editor-kit';

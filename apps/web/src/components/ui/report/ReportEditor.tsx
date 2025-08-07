@@ -5,7 +5,7 @@ import { EditorContainer } from './EditorContainer';
 import { Editor } from './Editor';
 import { useReportEditor } from './useReportEditor';
 import { useMemoizedFn } from '@/hooks';
-import { ReportElements, type ReportElement } from '@buster/server-shared/reports';
+import type { ReportElements, ReportElement } from '@buster/server-shared/reports';
 import { cn } from '@/lib/utils';
 import { ThemeWrapper } from './ThemeWrapper/ThemeWrapper';
 
@@ -54,7 +54,15 @@ export const ReportEditor = React.memo(
       const editor = useReportEditor({ value, disabled, useFixedToolbarKit, onReady });
 
       const onReset = useMemoizedFn(() => {
-        editor?.tf.reset();
+        if (!editor) {
+          console.warn('Editor not yet initialized');
+          return;
+        }
+        if (readOnly) {
+          console.warn('Editor is read only');
+          return;
+        }
+        editor.tf.reset();
       });
 
       // Optionally expose the editor instance to the parent via ref
@@ -62,6 +70,10 @@ export const ReportEditor = React.memo(
 
       const onValueChangePreflight = useMemoizedFn(
         ({ value, editor }: { value: Value; editor: TPlateEditor<Value, AnyPluginConfig> }) => {
+          if (readOnly) {
+            console.warn('Editor is read only');
+            return;
+          }
           onValueChange?.(cleanValueToReportElements(value));
         }
       );

@@ -7,13 +7,11 @@ import {
   CardHeader,
   CardTitle
 } from '@/components/ui/card/CardBase';
-import { Select, type SelectItem } from '@/components/ui/select';
 import { AppTooltip } from '@/components/ui/tooltip';
 import { Text } from '@/components/ui/typography';
 import { useMemoizedFn } from '@/hooks';
 import { User } from '@buster/server-shared/user';
 import type { OrganizationUser } from '@buster/server-shared/organization';
-import { OrganizationUserRoleText } from '@/lib/organization/translations';
 import { AccessRoleSelect } from '@/components/features/security/AccessRoleSelect';
 
 export const UserDefaultAccess: React.FC<{
