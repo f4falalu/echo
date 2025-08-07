@@ -17,7 +17,7 @@ const DEFAULT_OPTIONS = {
       disableParallelToolCalls: true,
     },
     openai: {
-      disableParallelToolCalls: true,
+      parallelToolCalls: false,
       reasoningEffort: 'minimal',
     },
   },
