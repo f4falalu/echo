@@ -18,6 +18,7 @@ type OtherRouteParams = {
   assetId: string | undefined; //will first try and use metricId assuming it is a metric, then dashboardId assuming it is a dashboard, then assetId
   metricId?: string; //if this is provided, it will be used instead of assetId
   dashboardId?: string; //if this is provided, it will be used instead of assetId
+  reportId?: string; //if this is provided, it will be used instead of assetId
   versionNumber?: number; //will first try and use metricVersionNumber assuming it is a metric, then dashboardVersionNumber assuming it is a dashboard, then versionNumber
   metricVersionNumber?: number; //if this is provided, it will be used instead of versionNumber
   dashboardVersionNumber?: number; //if this is provided, it will be used instead of versionNumber
@@ -38,8 +39,9 @@ export const assetParamsToRoute = ({
   ...rest
 }: BaseParams): string => {
   const { versionNumber } = rest as OtherRouteParams;
-  const { metricVersionNumber, dashboardVersionNumber } = rest as MetricRouteParams;
-  const { metricId, dashboardId } = rest as OtherRouteParams;
+  const { metricVersionNumber, dashboardVersionNumber, reportVersionNumber } =
+    rest as MetricRouteParams;
+  const { metricId, dashboardId, reportId } = rest as OtherRouteParams;
 
   if (!assetId && chatId) {
     return createBusterRoute({
@@ -60,6 +62,8 @@ export const assetParamsToRoute = ({
       secondaryView: secondaryView as MetricFileViewSecondary,
       dashboardVersionNumber,
       dashboardId,
+      reportId,
+      reportVersionNumber,
       page: page as MetricRouteParams['page']
     });
   }
@@ -76,9 +80,8 @@ export const assetParamsToRoute = ({
   }
 
   if (type === 'report') {
-    const { reportVersionNumber } = rest as ReportRouteParams;
     return createReportRoute({
-      assetId,
+      assetId: reportId || assetId,
       chatId,
       page,
       reportVersionNumber: reportVersionNumber || versionNumber

@@ -7,10 +7,10 @@ import { useContext, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { cn } from '@/lib/classMerge';
 import { Hand } from '../icons';
-import { SortableItemContext } from './_BusterSortableItemDragContainer';
 import { BusterResizeableGrid } from './BusterResizeableGrid';
 import { MIN_ROW_HEIGHT } from './helpers';
 import type { BusterResizeableGridRow } from './interfaces';
+import { SortableItemContext } from './SortableItemContext';
 
 const meta: Meta<typeof BusterResizeableGrid> = {
   title: 'UI/Grid/BusterResizeableGrid',

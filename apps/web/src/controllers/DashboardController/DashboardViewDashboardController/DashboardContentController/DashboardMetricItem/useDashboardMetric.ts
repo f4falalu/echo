@@ -62,14 +62,14 @@ export const useDashboardMetric = ({
       .some((row) => row.items.some((item) => item.id === metricId));
   }, [dashboard?.id]);
 
-  const conatinerRef = useRef<HTMLDivElement>(null);
-  const [inViewport] = useInViewport(conatinerRef, {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [inViewport] = useInViewport(containerRef, {
     threshold: 0.33
   });
 
   const initialAnimationEnded = metricMetadata?.initialAnimationEnded || false;
-  const renderChart =
-    (metricMetadata?.hasBeenScrolledIntoView || isOnFirstTwoRows) && isMetricFetched;
+  const renderChart: boolean =
+    (metricMetadata?.hasBeenScrolledIntoView || !!isOnFirstTwoRows) && isMetricFetched;
 
   useEffect(() => {
     if (inViewport) {
@@ -81,7 +81,7 @@ export const useDashboardMetric = ({
     () => ({
       renderChart,
       metric,
-      conatinerRef,
+      containerRef,
       metricData,
       metricDataError,
       initialAnimationEnded,
@@ -96,7 +96,7 @@ export const useDashboardMetric = ({
       metricDataError,
       renderChart,
       metric,
-      conatinerRef,
+      containerRef,
       metricData,
       initialAnimationEnded,
       setInitialAnimationEnded,
