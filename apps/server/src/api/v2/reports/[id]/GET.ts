@@ -11,23 +11,30 @@ export async function getReportHandler(
 ): Promise<GetReportIndividualResponse> {
   const report = await getReport({ reportId, userId: user.id });
 
-  const platejsResult = await markdownToPlatejs(report.content);
+  try {
+    const platejsResult = await markdownToPlatejs(report.content);
 
-  if (platejsResult.error) {
-    console.error('Error converting markdown to PlateJS:', platejsResult.error);
+    if (platejsResult.error) {
+      console.error('Error converting markdown to PlateJS:', platejsResult.error);
+      throw new HTTPException(500, {
+        message: 'Error converting markdown to PlateJS',
+      });
+    }
+
+    const content = platejsResult.elements ?? [];
+
+    const response: GetReportIndividualResponse = {
+      ...report,
+      content,
+    };
+
+    return response;
+  } catch (error) {
+    console.error('Error converting markdown to PlateJS:', error);
     throw new HTTPException(500, {
-      message: 'Error converting markdown to PlateJS',
+      message: 'Error converting markdown',
     });
   }
-
-  const content = platejsResult.elements ?? [];
-
-  const response: GetReportIndividualResponse = {
-    ...report,
-    content,
-  };
-
-  return response;
 }
 
 const app = new Hono()
