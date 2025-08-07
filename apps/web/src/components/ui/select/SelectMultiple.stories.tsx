@@ -1,8 +1,8 @@
 'use client';
 
 import { faker } from '@faker-js/faker';
-import type { Meta, StoryObj } from '@storybook/react';
-import { fn } from '@storybook/test';
+import type { Meta, StoryObj } from '@storybook/nextjs';
+import { fn } from 'storybook/test';
 import { useMemo, useState } from 'react';
 import type { SelectItem } from './Select';
 import { SelectMultiple } from './SelectMultiple';

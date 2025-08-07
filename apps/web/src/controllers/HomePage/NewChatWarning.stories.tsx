@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/nextjs';
 import { NewChatWarning } from './NewChatWarning';
 import { z } from 'zod/v4';
 import type { OrganizationRole } from '@buster/server-shared/organization';

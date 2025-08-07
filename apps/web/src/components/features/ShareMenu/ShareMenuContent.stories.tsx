@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/nextjs';
 import type { ShareAssetType, ShareConfig, ShareRole } from '@buster/server-shared/share';
 import { ShareMenuContent } from './ShareMenuContent';
 

@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/nextjs';
 import type React from 'react';
 import { AppLayout } from './AppLayout';
 import { AppPageLayout } from './AppPageLayout';

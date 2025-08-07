@@ -1,6 +1,6 @@
 import React from 'react';
 import AppMarkdownStreaming from './AppMarkdownStreaming';
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/nextjs';
 import { useStreamTokenArray } from '@llm-ui/react';
 import type { MarkdownAnimation } from '../../typography/animation-common';
 

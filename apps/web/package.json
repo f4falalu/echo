@@ -173,18 +173,11 @@
     "zustand": "^5.0.7"
   },
   "devDependencies": {
-    "@chromatic-com/storybook": "^3.2.6",
+    "@chromatic-com/storybook": "^4.1.0",
     "@faker-js/faker": "^9.9.0",
     "@next/bundle-analyzer": "^15.4.6",
     "@playwright/test": "1.54.2",
-    "@storybook/addon-actions": "^8.6.14",
-    "@storybook/addon-controls": "^8.6.12",
-    "@storybook/addon-essentials": "^8.6.14",
-    "@storybook/addon-interactions": "^8.6.14",
-    "@storybook/blocks": "^8.6.14",
-    "@storybook/nextjs": "^8.6.14",
-    "@storybook/react": "^8.6.14",
-    "@storybook/test": "^8.6.14",
+    "@storybook/nextjs": "^9.1.1",
     "@tailwindcss/postcss": "4.1.11",
     "@testing-library/jest-dom": "^6.6.4",
     "@testing-library/react": "^16.3.0",
@@ -204,15 +197,16 @@
     "eslint": "^8.57.1",
     "eslint-config-next": "15.3.5",
     "eslint-config-prettier": "^10.1.8",
-    "eslint-plugin-storybook": "^0.12.0",
+    "eslint-plugin-storybook": "^9.1.1",
     "jsdom": "^26.1.0",
     "msw": "^2.10.4",
     "msw-storybook-addon": "^2.0.5",
     "prettier": "^3.6.2",
     "prettier-eslint": "^16.4.2",
     "prettier-plugin-tailwindcss": "^0.6.14",
-    "storybook": "^8.6.14",
-    "vitest": "catalog:"
+    "storybook": "^9.1.1",
+    "vitest": "catalog:",
+    "@storybook/addon-docs": "^9.1.1"
   },
   "msw": {
     "workerDirectory": [

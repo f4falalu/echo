@@ -1,7 +1,7 @@
 'use client';
 
-import type { Meta, StoryObj } from '@storybook/react';
-import { fn } from '@storybook/test';
+import type { Meta, StoryObj } from '@storybook/nextjs';
+import { fn } from 'storybook/test';
 import React from 'react';
 import { timeout } from '@/lib';
 import { Button } from '../buttons/Button';

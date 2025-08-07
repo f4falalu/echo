@@ -1,7 +1,7 @@
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/nextjs';
 import { AddCustomThemeBase } from './AddCustomThemeBase';
 import type { IColorPalette } from '../ThemeList';
-import { fn } from '@storybook/test';
+import { fn } from 'storybook/test';
 
 const meta: Meta<typeof AddCustomThemeBase> = {
   title: 'Features/Colors/AddCustomThemeBase',
