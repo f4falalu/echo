@@ -9,7 +9,7 @@ import {
   createModifyMetricsTool,
 } from '../../tools';
 import { Sonnet4 } from '../../utils/models/sonnet-4';
-import { createNoSuchToolHealingMessage, healToolWithLlm } from '../../utils/tool-call-repair';
+import { healToolWithLlm } from '../../utils/tool-call-repair';
 import { getAnalystAgentSystemPrompt } from './get-analyst-agent-system-prompt';
 
 const DEFAULT_CACHE_OPTIONS = {
@@ -92,16 +92,27 @@ export function createAnalystAgent(analystAgentOptions: AnalystAgentOptions) {
         }
 
         // Add healing message and retry
-        const healingMessage = createNoSuchToolHealingMessage(
-          error,
-          `createMetrics, modifyMetrics, createDashboards, modifyDashboards, createReports, modifyReports, doneTool are the tools that are available to you at this moment.
-          
-          The previous phase of the workflow was the think and prep phase that has access to the following tools:
-          sequentialThinking, executeSql, respondWithoutAssetCreation, submitThoughts, messageUserClarifyingQuestion
-          
-          However, you don't have access to any of those tools at this moment. 
-          `
-        );
+        const toolName = 'toolName' in error ? String(error.toolName) : 'unknown';
+        const toolCallId = 'toolCallId' in error ? String(error.toolCallId) : 'unknown';
+        
+        const healingMessage: ModelMessage = {
+          role: 'tool',
+          content: [
+            {
+              type: 'tool-result',
+              toolCallId,
+              toolName,
+              output: {
+                error: `Tool "${toolName}" is not available. Available tools: createMetrics, modifyMetrics, createDashboards, modifyDashboards, doneTool.
+                
+                The previous phase of the workflow was the think and prep phase that has access to the following tools:
+                sequentialThinking, executeSql, respondWithoutAssetCreation, submitThoughts, messageUserClarifyingQuestion
+                
+                However, you don't have access to any of those tools at this moment.`,
+              },
+            },
+          ],
+        };
         currentMessages.push(healingMessage);
 
         console.info(

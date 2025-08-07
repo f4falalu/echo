@@ -66,7 +66,7 @@ describe('createCreateMetricsDelta', () => {
       // Stream in second file by accumulating more text
       state.argsText = '{"files":[{"name":"metric1","yml_content":"content1"},';
       await handler('{"name":"metric2","yml_content":"content2"}');
-      
+
       // Now both files should be present
       expect(state.files).toHaveLength(2);
       expect(state.files[1]).toEqual({

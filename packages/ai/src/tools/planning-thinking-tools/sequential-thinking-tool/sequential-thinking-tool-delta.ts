@@ -1,0 +1,99 @@
+import { updateMessageEntries } from '@buster/database';
+import type { ToolCallOptions } from 'ai';
+import { normalizeEscapedText } from '../../../utils/streaming/escape-normalizer';
+import {
+  OptimisticJsonParser,
+  getOptimisticValue,
+} from '../../../utils/streaming/optimistic-json-parser';
+import {
+  createSequentialThinkingRawLlmMessageEntry,
+  createSequentialThinkingReasoningMessage,
+} from './helpers/sequential-thinking-tool-transform-helper';
+import type {
+  SequentialThinkingContext,
+  SequentialThinkingInput,
+  SequentialThinkingState,
+} from './sequential-thinking-tool';
+
+// Type-safe key extraction from the schema - will cause compile error if field names change
+const THOUGHT_KEY = 'thought' as const satisfies keyof SequentialThinkingInput;
+const NEXT_THOUGHT_NEEDED_KEY =
+  'nextThoughtNeeded' as const satisfies keyof SequentialThinkingInput;
+const THOUGHT_NUMBER_KEY = 'thoughtNumber' as const satisfies keyof SequentialThinkingInput;
+
+export function createSequentialThinkingDelta<TAgentContext extends SequentialThinkingContext>(
+  sequentialThinkingState: SequentialThinkingState,
+  context: TAgentContext
+) {
+  return async function sequentialThinkingDelta(
+    options: { inputTextDelta: string } & ToolCallOptions
+  ): Promise<void> {
+    // Accumulate the delta to the args
+    sequentialThinkingState.args = (sequentialThinkingState.args || '') + options.inputTextDelta;
+
+    // Use optimistic parsing to extract values even from incomplete JSON
+    const parseResult = OptimisticJsonParser.parse(sequentialThinkingState.args);
+
+    // Extract values from the optimistically parsed values
+    const thought = getOptimisticValue<string>(parseResult.extractedValues, THOUGHT_KEY);
+    const nextThoughtNeeded = getOptimisticValue<boolean>(
+      parseResult.extractedValues,
+      NEXT_THOUGHT_NEEDED_KEY
+    );
+    const thoughtNumber = getOptimisticValue<number>(
+      parseResult.extractedValues,
+      THOUGHT_NUMBER_KEY
+    );
+
+    // Track if state changed to avoid unnecessary database updates
+    let stateChanged = false;
+
+    if (thought !== undefined && thought !== '') {
+      // Normalize any double-escaped characters
+      const normalizedThought = normalizeEscapedText(thought);
+      if (sequentialThinkingState.thought !== normalizedThought) {
+        sequentialThinkingState.thought = normalizedThought;
+        stateChanged = true;
+      }
+    }
+
+    if (
+      nextThoughtNeeded !== undefined &&
+      sequentialThinkingState.nextThoughtNeeded !== nextThoughtNeeded
+    ) {
+      sequentialThinkingState.nextThoughtNeeded = nextThoughtNeeded;
+      stateChanged = true;
+    }
+
+    if (thoughtNumber !== undefined && sequentialThinkingState.thoughtNumber !== thoughtNumber) {
+      sequentialThinkingState.thoughtNumber = thoughtNumber;
+      stateChanged = true;
+    }
+
+    // Only update database if state actually changed
+    if (stateChanged && context.messageId) {
+      // Create the updated entries with the current state
+      const reasoningEntry = createSequentialThinkingReasoningMessage(
+        sequentialThinkingState,
+        options.toolCallId
+      );
+      const rawLlmMessage = createSequentialThinkingRawLlmMessageEntry(
+        sequentialThinkingState,
+        options.toolCallId
+      );
+
+      try {
+        if (reasoningEntry && rawLlmMessage) {
+          await updateMessageEntries({
+            messageId: context.messageId,
+            reasoningEntry,
+            rawLlmMessage,
+            mode: 'update',
+          });
+        }
+      } catch (error) {
+        console.error('[sequential-thinking] Failed to update reasoning entry on delta:', error);
+      }
+    }
+  };
+}

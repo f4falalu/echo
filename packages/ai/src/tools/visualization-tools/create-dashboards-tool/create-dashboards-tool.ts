@@ -67,6 +67,27 @@ export type CreateDashboardsInput = z.infer<typeof CreateDashboardsInputSchema>;
 export type CreateDashboardsOutput = z.infer<typeof CreateDashboardsOutputSchema>;
 export type CreateDashboardsContext = z.infer<typeof CreateDashboardsContextSchema>;
 
+// State management for streaming
+export interface CreateDashboardsFile {
+  name: string;
+  yml_content: string;
+  status?: 'processing' | 'completed' | 'failed';
+  id?: string;
+  version?: number;
+  error?: string;
+}
+
+export interface CreateDashboardsState {
+  toolCallId?: string;
+  argsText: string;
+  parsedArgs?: Partial<CreateDashboardsInput>;
+  files: CreateDashboardsFile[];
+  processingStartTime?: number;
+  messageId?: string | undefined;
+  reasoningEntryId?: string;
+  responseEntryId?: string;
+}
+
 // Type constraint for agent context - must have required fields
 export type CreateDashboardsAgentContext = {
   userId: string;
@@ -81,11 +102,18 @@ export type CreateDashboardsAgentContext = {
 export function createCreateDashboardsTool<
   TAgentContext extends CreateDashboardsAgentContext = CreateDashboardsAgentContext,
 >(context: TAgentContext) {
-  // Create all functions with the context passed directly
-  const execute = createCreateDashboardsExecute<TAgentContext>(context);
-  const onInputStart = createCreateDashboardsStart<TAgentContext>(context);
-  const onInputDelta = createCreateDashboardsDelta<TAgentContext>(context);
-  const onInputAvailable = createCreateDashboardsFinish<TAgentContext>(context);
+  // Initialize state for streaming
+  const state: CreateDashboardsState = {
+    argsText: '',
+    files: [],
+    messageId: context.messageId,
+  };
+
+  // Create all functions with the context and state passed
+  const execute = createCreateDashboardsExecute<TAgentContext>(context, state);
+  const onInputStart = createCreateDashboardsStart<TAgentContext>(context, state);
+  const onInputDelta = createCreateDashboardsDelta<TAgentContext>(context, state);
+  const onInputAvailable = createCreateDashboardsFinish<TAgentContext>(context, state);
 
   // Get the description from the original tool
   const description = `Creates dashboard configuration files with YAML content following the dashboard schema specification. Before using this tool, carefully consider the dashboard layout, metric references, and row organization. Each dashboard references existing metrics by their UUIDs and organizes them into rows with specific column layouts. **This tool supports creating multiple dashboards in a single call; prefer using bulk creation over creating dashboards one by one.**

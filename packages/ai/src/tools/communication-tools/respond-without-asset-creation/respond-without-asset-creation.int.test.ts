@@ -189,10 +189,7 @@ Escaped: \n \t \\ \" \'
       const input1 = { final_response: 'Response 1' };
       const input2 = { final_response: 'Response 2' };
 
-      const [result1, result2] = await Promise.all([
-        tool1.execute(input1),
-        tool2.execute(input2),
-      ]);
+      const [result1, result2] = await Promise.all([tool1.execute(input1), tool2.execute(input2)]);
 
       expect(result1).toEqual({});
       expect(result2).toEqual({});

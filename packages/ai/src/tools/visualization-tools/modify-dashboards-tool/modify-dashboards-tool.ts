@@ -1,9 +1,22 @@
 import { tool } from 'ai';
 import { z } from 'zod';
+import type { ModifyDashboardsFile } from './helpers/modify-dashboards-transform-helper';
 import { createModifyDashboardsDelta } from './modify-dashboards-delta';
 import { createModifyDashboardsExecute } from './modify-dashboards-execute';
 import { createModifyDashboardsFinish } from './modify-dashboards-finish';
 import { createModifyDashboardsStart } from './modify-dashboards-start';
+
+// State management for streaming
+export interface ModifyDashboardsState {
+  toolCallId?: string;
+  argsText: string;
+  parsedArgs?: Partial<ModifyDashboardsInput>;
+  files: ModifyDashboardsFile[];
+  processingStartTime?: number;
+  messageId?: string | undefined;
+  reasoningEntryId?: string;
+  responseEntryId?: string;
+}
 
 // Input schema for the modify dashboards tool
 const ModifyDashboardsInputSchema = z.object({
@@ -75,11 +88,18 @@ export type ModifyDashboardsAgentContext = {
 export function createModifyDashboardsTool<
   TAgentContext extends ModifyDashboardsAgentContext = ModifyDashboardsAgentContext,
 >(context: TAgentContext) {
-  // Create all functions with the context passed directly
-  const execute = createModifyDashboardsExecute<TAgentContext>(context);
-  const onInputStart = createModifyDashboardsStart<TAgentContext>(context);
-  const onInputDelta = createModifyDashboardsDelta<TAgentContext>(context);
-  const onInputAvailable = createModifyDashboardsFinish<TAgentContext>(context);
+  // Initialize state for streaming
+  const state: ModifyDashboardsState = {
+    argsText: '',
+    files: [],
+    messageId: context.messageId,
+  };
+
+  // Create all functions with the context and state passed
+  const execute = createModifyDashboardsExecute<TAgentContext>(context, state);
+  const onInputStart = createModifyDashboardsStart<TAgentContext>(context, state);
+  const onInputDelta = createModifyDashboardsDelta<TAgentContext>(context, state);
+  const onInputAvailable = createModifyDashboardsFinish<TAgentContext>(context, state);
 
   // Get the description from the original tool
   const description = `Updates existing dashboard configuration files with new YAML content. Provide the complete YAML content for each dashboard, replacing the entire existing file. This tool is ideal for bulk modifications when you need to update multiple dashboards simultaneously. The system will preserve version history and perform all necessary validations on the new content. For each dashboard, you need its UUID and the complete updated YAML content. **Prefer modifying dashboards in bulk using this tool rather than one by one.**

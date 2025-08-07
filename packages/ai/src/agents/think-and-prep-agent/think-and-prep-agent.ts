@@ -2,14 +2,13 @@ import { type ModelMessage, NoSuchToolError, hasToolCall, stepCountIs, streamTex
 import { wrapTraced } from 'braintrust';
 import z from 'zod';
 import {
+  createSequentialThinkingTool,
   executeSql,
   messageUserClarifyingQuestion,
   respondWithoutAssetCreation,
-  sequentialThinking,
   submitThoughts,
 } from '../../tools';
 import { Sonnet4 } from '../../utils/models/sonnet-4';
-import { createNoSuchToolHealingMessage } from '../../utils/tool-call-repair';
 import { getThinkAndPrepAgentSystemPrompt } from './get-think-and-prep-agent-system-prompt';
 
 const DEFAULT_CACHE_OPTIONS = {
@@ -27,6 +26,7 @@ const ThinkAndPrepAgentOptionsSchema = z.object({
   sql_dialect_guidance: z
     .string()
     .describe('The SQL dialect guidance for the think and prep agent.'),
+  messageId: z.string().optional().describe('The message ID for tracking tool execution.'),
 });
 
 const ThinkAndPrepStreamOptionsSchema = z.object({
@@ -40,6 +40,7 @@ export type ThinkAndPrepStreamOptions = z.infer<typeof ThinkAndPrepStreamOptions
 
 export function createThinkAndPrepAgent(thinkAndPrepAgentSchema: ThinkAndPrepAgentOptionsSchema) {
   const steps: never[] = [];
+  const { messageId } = thinkAndPrepAgentSchema;
 
   const systemMessage = {
     role: 'system',
@@ -59,7 +60,7 @@ export function createThinkAndPrepAgent(thinkAndPrepAgentSchema: ThinkAndPrepAge
             streamText({
               model: Sonnet4,
               tools: {
-                sequentialThinking,
+                sequentialThinking: createSequentialThinkingTool({ messageId }),
                 executeSql,
                 respondWithoutAssetCreation,
                 submitThoughts,
@@ -85,15 +86,27 @@ export function createThinkAndPrepAgent(thinkAndPrepAgentSchema: ThinkAndPrepAge
         }
 
         // Add healing message and retry
-        const healingMessage = createNoSuchToolHealingMessage(
-          error,
-          `sequentialThinking, executeSql, respondWithoutAssetCreation, submitThoughts, messageUserClarifyingQuestion are the tools that are available to you at this moment.
-          
-          The next phase of the workflow will be the analyst that has access to the following tools:
-          createMetrics, modifyMetrics, createDashboards, modifyDashboards, doneTool
-          
-          You'll be able to use those when they are available to you.`
-        );
+        const toolName = 'toolName' in error ? String(error.toolName) : 'unknown';
+        const toolCallId = 'toolCallId' in error ? String(error.toolCallId) : 'unknown';
+
+        const healingMessage: ModelMessage = {
+          role: 'tool',
+          content: [
+            {
+              type: 'tool-result',
+              toolCallId,
+              toolName,
+              output: {
+                error: `Tool "${toolName}" is not available. Available tools: sequentialThinking, executeSql, respondWithoutAssetCreation, submitThoughts, messageUserClarifyingQuestion.
+                
+                The next phase of the workflow will be the analyst that has access to the following tools:
+                createMetrics, modifyMetrics, createDashboards, modifyDashboards, doneTool
+                
+                You'll be able to use those when they are available to you.`,
+              },
+            },
+          ],
+        };
         currentMessages.push(healingMessage);
 
         console.info(

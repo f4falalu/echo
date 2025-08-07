@@ -61,6 +61,27 @@ export type ModifyMetricsInput = z.infer<typeof ModifyMetricsInputSchema>;
 export type ModifyMetricsOutput = z.infer<typeof ModifyMetricsOutputSchema>;
 export type ModifyMetricsContext = z.infer<typeof ModifyMetricsContextSchema>;
 
+// State management for streaming
+export interface ModifyMetricsFile {
+  id: string;
+  yml_content: string;
+  name?: string;
+  status?: 'processing' | 'completed' | 'failed';
+  version?: number;
+  error?: string;
+}
+
+export interface ModifyMetricsState {
+  toolCallId?: string;
+  argsText: string;
+  parsedArgs?: Partial<ModifyMetricsInput>;
+  files: ModifyMetricsFile[];
+  processingStartTime?: number;
+  messageId?: string | undefined;
+  reasoningEntryId?: string;
+  responseEntryId?: string;
+}
+
 // Type constraint for agent context - must have required fields
 export type ModifyMetricsAgentContext = {
   userId: string;
@@ -75,11 +96,18 @@ export type ModifyMetricsAgentContext = {
 export function createModifyMetricsTool<
   TAgentContext extends ModifyMetricsAgentContext = ModifyMetricsAgentContext,
 >(context: TAgentContext) {
-  // Create all functions with the context passed directly
-  const execute = createModifyMetricsExecute<TAgentContext>(context);
-  const onInputStart = createModifyMetricsStart<TAgentContext>(context);
-  const onInputDelta = createModifyMetricsDelta<TAgentContext>(context);
-  const onInputAvailable = createModifyMetricsFinish<TAgentContext>(context);
+  // Initialize state for streaming
+  const state: ModifyMetricsState = {
+    argsText: '',
+    files: [],
+    messageId: context.messageId,
+  };
+
+  // Create all functions with the context and state passed
+  const execute = createModifyMetricsExecute<TAgentContext>(context, state);
+  const onInputStart = createModifyMetricsStart<TAgentContext>(context, state);
+  const onInputDelta = createModifyMetricsDelta<TAgentContext>(context, state);
+  const onInputAvailable = createModifyMetricsFinish<TAgentContext>(context, state);
 
   // Get the description from the original tool
   const description = `Updates existing metric configuration files with new YAML content. Provide the complete YAML content for each metric, replacing the entire existing file. This tool is ideal for bulk modifications when you need to update multiple metrics simultaneously. The system will preserve version history and perform all necessary validations on the new content. For each metric, you need its UUID and the complete updated YAML content. **Prefer modifying metrics in bulk using this tool rather than one by one.**

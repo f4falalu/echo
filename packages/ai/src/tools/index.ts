@@ -3,7 +3,7 @@ export { idleTool } from './communication-tools/idle-tool';
 export { respondWithoutAssetCreation } from './communication-tools/respond-without-asset-creation';
 export { submitThoughts } from './communication-tools/submit-thoughts-tool';
 export { messageUserClarifyingQuestion } from './communication-tools/message-user-clarifying-question';
-export { sequentialThinking } from './planning-thinking-tools/sequential-thinking-tool';
+export { createSequentialThinkingTool } from './planning-thinking-tools/sequential-thinking-tool/sequential-thinking-tool';
 // Visualization tools - factory functions
 export { createCreateMetricsTool } from './visualization-tools/create-metrics-tool/create-metrics-tool';
 export { createModifyMetricsTool } from './visualization-tools/modify-metrics-tool/modify-metrics-tool';
@@ -11,7 +11,6 @@ export { createCreateDashboardsTool } from './visualization-tools/create-dashboa
 export { createModifyDashboardsTool } from './visualization-tools/modify-dashboards-tool/modify-dashboards-tool';
 export { executeSql } from './database-tools/execute-sql';
 export { executeSqlDocsAgent } from './database-tools/execute-sql-docs-agent';
-export { createTodoList } from './planning-thinking-tools/create-todo-item-tool';
 export { editFiles } from './file-tools/edit-files-tool/edit-files-tool';
 export { readFiles } from './file-tools/read-files-tool/read-files-tool';
 export { createFiles } from './file-tools/create-files-tool/create-file-tool';

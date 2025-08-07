@@ -251,6 +251,7 @@ ${databaseContext}
         // Create the agent instance
         const thinkAndPrepAgent = createThinkAndPrepAgent({
           sql_dialect_guidance: sqlDialectGuidance,
+          messageId,
         });
 
         const wrappedStream = wrapTraced(

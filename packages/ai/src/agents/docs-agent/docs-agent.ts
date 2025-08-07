@@ -6,6 +6,7 @@ import {
   bashExecute,
   checkOffTodoList,
   createFiles,
+  createSequentialThinkingTool,
   deleteFiles,
   editFiles,
   executeSqlDocsAgent,
@@ -13,7 +14,6 @@ import {
   idleTool,
   listFiles,
   readFiles,
-  sequentialThinking,
   updateClarificationsFile,
   webSearch,
 } from '../../tools';
@@ -69,7 +69,9 @@ export function createDocsAgent(docsAgentOptions: DocsAgentOptions) {
         streamText({
           model: Sonnet4,
           tools: {
-            sequentialThinking,
+            sequentialThinking: createSequentialThinkingTool({
+              messageId: docsAgentOptions.messageId,
+            }),
             grepSearch,
             readFiles,
             editFiles,

@@ -1,13 +1,13 @@
 import type { ToolCallOptions } from 'ai';
 import { describe, expect, test, vi } from 'vitest';
+import { createRespondWithoutAssetCreationDelta } from './respond-without-asset-creation-delta';
+import { createRespondWithoutAssetCreationFinish } from './respond-without-asset-creation-finish';
+import { createRespondWithoutAssetCreationStart } from './respond-without-asset-creation-start';
 import type {
   RespondWithoutAssetCreationContext,
   RespondWithoutAssetCreationInput,
   RespondWithoutAssetCreationState,
 } from './respond-without-asset-creation-tool';
-import { createRespondWithoutAssetCreationDelta } from './respond-without-asset-creation-delta';
-import { createRespondWithoutAssetCreationFinish } from './respond-without-asset-creation-finish';
-import { createRespondWithoutAssetCreationStart } from './respond-without-asset-creation-start';
 
 vi.mock('@buster/database', () => ({
   updateMessageEntries: vi.fn().mockResolvedValue({ success: true }),
@@ -223,10 +223,7 @@ describe('Respond Without Asset Creation Tool Streaming Tests', () => {
         final_response: undefined,
       };
 
-      const deltaHandler = createRespondWithoutAssetCreationDelta(
-        state,
-        contextWithoutMessageId
-      );
+      const deltaHandler = createRespondWithoutAssetCreationDelta(state, contextWithoutMessageId);
 
       await expect(
         deltaHandler({
@@ -330,10 +327,7 @@ The following items were processed:
         final_response: undefined,
       };
 
-      const finishHandler = createRespondWithoutAssetCreationFinish(
-        state,
-        contextWithoutMessageId
-      );
+      const finishHandler = createRespondWithoutAssetCreationFinish(state, contextWithoutMessageId);
 
       const input: RespondWithoutAssetCreationInput = {
         final_response: 'Test response without messageId',
