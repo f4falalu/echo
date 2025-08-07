@@ -26,7 +26,7 @@ export const ReportPageController: React.FC<{
     updateReport({ reportId, name });
   });
 
-  const { run: debouncedUpdateReport } = useDebounceFn(updateReport, { wait: 300 });
+  const { run: debouncedUpdateReport } = useDebounceFn(updateReport, { wait: 650 });
 
   const onChangeContent = useMemoizedFn((content: ReportElements) => {
     debouncedUpdateReport({ reportId, content });
