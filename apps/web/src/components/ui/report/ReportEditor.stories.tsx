@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/nextjs';
 import { HttpResponse, http } from 'msw';
 import { ReportEditor } from './ReportEditor';
 import { ReportElement } from '@buster/server-shared/reports';
@@ -10,39 +10,42 @@ const meta = {
   parameters: {
     msw: {
       handlers: [
-        //   // Mock Supabase auth endpoints to prevent MSW warnings
-        //   http.post('http://127.0.0.1:54321/auth/v1/token', ({ request }) => {
-        //     return HttpResponse.json({
-        //       access_token: 'mock_access_token',
-        //       token_type: 'bearer',
-        //       expires_in: 3600,
-        //       refresh_token: 'mock_refresh_token',
-        //       user: {
-        //         id: 'mock_user_id',
-        //         email: 'mock@example.com',
-        //         is_anonymous: false
-        //       }
-        //     });
-        //   }),
-        //   http.post('http://127.0.0.1:54321/auth/v1/refresh', ({ request }) => {
-        //     return HttpResponse.json({
-        //       access_token: 'mock_refreshed_access_token',
-        //       token_type: 'bearer',
-        //       expires_in: 3600,
-        //       refresh_token: 'mock_new_refresh_token',
-        //       user: {
-        //         id: 'mock_user_id',
-        //         email: 'mock@example.com',
-        //         is_anonymous: false
-        //       }
-        //     });
-        //   })
+        // Mock Supabase auth endpoints to prevent MSW warnings
+        http.post('http://127.0.0.1:54321/auth/v1/token', ({ request }) => {
+          return HttpResponse.json({
+            access_token: 'mock_access_token',
+            token_type: 'bearer',
+            expires_in: 3600,
+            refresh_token: 'mock_refresh_token',
+            user: {
+              id: 'mock_user_id',
+              email: 'mock@example.com',
+              is_anonymous: false
+            }
+          });
+        }),
+        http.post('http://127.0.0.1:54321/auth/v1/refresh', ({ request }) => {
+          return HttpResponse.json({
+            access_token: 'mock_refreshed_access_token',
+            token_type: 'bearer',
+            expires_in: 3600,
+            refresh_token: 'mock_new_refresh_token',
+            user: {
+              id: 'mock_user_id',
+              email: 'mock@example.com',
+              is_anonymous: false
+            }
+          });
+        }),
+        http.post('http://127.0.0.1:3001/api/v1/search', ({ request }) => {
+          return HttpResponse.json([]);
+        })
       ]
     }
   },
   decorators: [
     (Story) => (
-      <div className="border p-10">
+      <div className="border">
         <Story />
       </div>
     )

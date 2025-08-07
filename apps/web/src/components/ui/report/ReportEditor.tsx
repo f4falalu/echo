@@ -5,7 +5,7 @@ import { EditorContainer } from './EditorContainer';
 import { Editor } from './Editor';
 import { useReportEditor } from './useReportEditor';
 import { useMemoizedFn } from '@/hooks';
-import { ReportElements } from '@buster/server-shared/reports';
+import { ReportElements, type ReportElement } from '@buster/server-shared/reports';
 import { cn } from '@/lib/utils';
 import { ThemeWrapper } from './ThemeWrapper/ThemeWrapper';
 
@@ -16,6 +16,7 @@ interface ReportEditorProps {
   readOnly?: boolean;
   variant?: 'default';
   className?: string;
+  containerClassName?: string;
   disabled?: boolean;
   style?: React.CSSProperties;
   onValueChange?: (value: ReportElements) => void;
@@ -41,6 +42,7 @@ export const ReportEditor = React.memo(
         onReady,
         variant = 'default',
         className,
+        containerClassName,
         style,
         useFixedToolbarKit = false,
         readOnly = false,
@@ -60,7 +62,7 @@ export const ReportEditor = React.memo(
 
       const onValueChangePreflight = useMemoizedFn(
         ({ value, editor }: { value: Value; editor: TPlateEditor<Value, AnyPluginConfig> }) => {
-          onValueChange?.(value as ReportElements);
+          onValueChange?.(cleanValueToReportElements(value));
         }
       );
 
@@ -73,8 +75,14 @@ export const ReportEditor = React.memo(
               variant={variant}
               readonly={readOnly}
               disabled={disabled}
-              className={cn('pb-[15vh]', className)}>
-              <Editor style={style} placeholder={placeholder} disabled={disabled} autoFocus />
+              className={containerClassName}>
+              <Editor
+                style={style}
+                placeholder={placeholder}
+                disabled={disabled}
+                className={cn('pb-[20vh]', className)}
+                autoFocus
+              />
             </EditorContainer>
           </Plate>
         </ThemeWrapper>
@@ -84,3 +92,22 @@ export const ReportEditor = React.memo(
 );
 
 ReportEditor.displayName = 'ReportEditor';
+
+const cleanValueToReportElements = (value: Value): ReportElements => {
+  const filteredElements: ReportElements = value
+    .filter((element) => element.type !== 'slash_input')
+    .map<ReportElement>((element) => {
+      // If the element has a children array, filter its children as well
+      if (Array.isArray(element.children)) {
+        return {
+          ...element,
+          children: element.children.filter((child) => {
+            return child.type !== 'slash_input';
+          })
+        } as ReportElement;
+      }
+      return element as ReportElement;
+    });
+
+  return filteredElements;
+};

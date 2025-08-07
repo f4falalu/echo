@@ -7,6 +7,7 @@ import { cn } from '@/lib/utils';
 import type { DraggableAttributes, DraggableSyntheticListeners } from '@dnd-kit/core';
 import type { DropdownItems } from '../dropdown';
 import Link from 'next/link';
+import { PreparingYourRequestLoader } from '../charts/LoadingComponents';
 
 export const MetricCard = React.memo(
   React.forwardRef<
@@ -56,6 +57,26 @@ export const MetricCard = React.memo(
       const data = metricData?.data || null;
       const hideChart = isDragOverlay && data && data.length > 50;
 
+      const content = () => {
+        if (renderChart && chartOptions && !hideChart) {
+          return (
+            <BusterChartDynamic
+              data={data}
+              loading={loading}
+              error={error}
+              onInitialAnimationEnd={onInitialAnimationEnd}
+              animate={!isDragOverlay && animate}
+              animateLegend={false}
+              columnMetadata={metricData?.data_metadata?.column_metadata}
+              readOnly={true}
+              {...chartOptions}
+            />
+          );
+        }
+
+        return <PreparingYourRequestLoader />;
+      };
+
       return (
         <Card
           ref={ref}
@@ -83,23 +104,7 @@ export const MetricCard = React.memo(
               isTable ? '' : 'p-3',
               isDragOverlay ? 'pointer-events-none' : 'pointer-events-auto'
             )}>
-            {renderChart &&
-              chartOptions &&
-              (!hideChart ? (
-                <BusterChartDynamic
-                  data={data}
-                  loading={loading}
-                  error={error}
-                  onInitialAnimationEnd={onInitialAnimationEnd}
-                  animate={!isDragOverlay && animate}
-                  animateLegend={false}
-                  columnMetadata={metricData?.data_metadata?.column_metadata}
-                  readOnly={true}
-                  {...chartOptions}
-                />
-              ) : (
-                <div className="bg-gray-light/10 h-full w-full rounded" />
-              ))}
+            {content()}
           </div>
         </Card>
       );

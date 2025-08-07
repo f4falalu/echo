@@ -45,7 +45,6 @@ export const MetricPlugin = createPlatePlugin<
       },
       updateMetric: (metricId: string, options?: SetNodesOptions<TMetricElement[]>) => {
         tf.setNodes<TMetricElement>({ metricId }, options);
-        console.log('updated metric', metricId);
       }
     };
   })

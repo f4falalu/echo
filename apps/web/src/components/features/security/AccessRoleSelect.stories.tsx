@@ -1,5 +1,5 @@
-import type { Meta, StoryObj } from '@storybook/react';
-import { action } from '@storybook/addon-actions';
+import type { Meta, StoryObj } from '@storybook/nextjs';
+import { action } from 'storybook/actions';
 import { AccessRoleSelect } from './AccessRoleSelect';
 import type { OrganizationRole } from '@buster/server-shared/organization';
 

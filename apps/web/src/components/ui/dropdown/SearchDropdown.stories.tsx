@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/nextjs';
 import { Mailbox, MapSettings, User } from '../icons';
 import { SearchDropdown } from './SearchDropdown';
 

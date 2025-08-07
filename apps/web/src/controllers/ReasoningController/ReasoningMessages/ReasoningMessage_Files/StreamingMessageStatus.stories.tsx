@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/nextjs';
 import { StreamingMessageStatus } from './StreamingMessageStatus';
 
 const meta: Meta<typeof StreamingMessageStatus> = {

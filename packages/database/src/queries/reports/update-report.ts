@@ -64,6 +64,7 @@ export const updateReport = async (
     }
 
     if (content !== undefined) {
+      // From Nate: I was just thinking we do not KNOW if this is valid markdown... Maybe we should accept ReportElements and then convert to markdown? Leaving this comment here for now because we are moving fast and I don't want to block the PR.
       updateData.content = content;
     }
 

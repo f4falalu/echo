@@ -24,8 +24,10 @@ import { CUSTOM_KEYS } from '../config/keys';
 
 export const MediaKit = [
   ImagePlugin.configure({
-    options: { disableUploadInsert: true },
-    render: { afterEditable: MediaPreviewDialog, node: ImageElement }
+    options: { disableUploadInsert: true }
+    // render: {
+    //afterEditable: MediaPreviewDialog, node: ImageElement
+    //   }
   }),
   MediaEmbedPlugin.configure({
     node: {

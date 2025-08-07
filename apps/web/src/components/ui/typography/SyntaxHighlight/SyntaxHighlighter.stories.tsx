@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/nextjs';
 import { useState, useEffect } from 'react';
 import { SyntaxHighlighter } from './SyntaxHighlighter';
 
@@ -147,12 +147,7 @@ export const CustomStyling: Story = {
     language: 'sql',
     isDarkMode: false,
     showLineNumbers: true,
-    className: 'shadow-lg',
-    customStyle: {
-      backgroundColor: '#f8f8f8',
-      borderRadius: '12px',
-      padding: '20px'
-    }
+    className: 'shadow-lg'
   }
 };
 

@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/nextjs';
 import dayjs from 'dayjs';
 import {
   DEFAULT_COLUMN_LABEL_FORMAT,
