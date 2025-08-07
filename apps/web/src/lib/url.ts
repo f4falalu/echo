@@ -20,9 +20,7 @@ const ACCEPTED_DOMAINS = [
  */
 export function isUrlFromAcceptedDomain(url: string): boolean {
   try {
-    console.log('url', url);
     const parsedUrl = new URL(url);
-    console.log('parsedUrl', parsedUrl);
     return ACCEPTED_DOMAINS.some((accepted) => {
       try {
         // If accepted is a full URL, compare origins

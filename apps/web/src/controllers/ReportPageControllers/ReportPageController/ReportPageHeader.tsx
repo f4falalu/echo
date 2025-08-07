@@ -25,8 +25,10 @@ export const ReportPageHeader = React.forwardRef<
       <EditableTitle className="h-9" level={1} ref={ref} onChange={onChangeName}>
         {name}
       </EditableTitle>
-      <Paragraph size={'base'} variant={'tertiary'}>
-        {updatedAtFormatted} • {DEFAULT_CREATED_BY}
+      <Paragraph size={'base'} variant={'tertiary'} className="select-none">
+        <span className="select-text">{updatedAtFormatted}</span>
+        <span className="select-none"> • </span>
+        <span className="select-text">{DEFAULT_CREATED_BY}</span>
       </Paragraph>
     </div>
   );

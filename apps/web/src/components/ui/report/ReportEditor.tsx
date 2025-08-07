@@ -16,6 +16,7 @@ interface ReportEditorProps {
   readOnly?: boolean;
   variant?: 'default';
   className?: string;
+  containerClassName?: string;
   disabled?: boolean;
   style?: React.CSSProperties;
   onValueChange?: (value: ReportElements) => void;
@@ -41,6 +42,7 @@ export const ReportEditor = React.memo(
         onReady,
         variant = 'default',
         className,
+        containerClassName,
         style,
         useFixedToolbarKit = false,
         readOnly = false,
@@ -73,8 +75,14 @@ export const ReportEditor = React.memo(
               variant={variant}
               readonly={readOnly}
               disabled={disabled}
-              className={cn('pb-[15vh]', className)}>
-              <Editor style={style} placeholder={placeholder} disabled={disabled} autoFocus />
+              className={containerClassName}>
+              <Editor
+                style={style}
+                placeholder={placeholder}
+                disabled={disabled}
+                className={cn('pb-[20vh]', className)}
+                autoFocus
+              />
             </EditorContainer>
           </Plate>
         </ThemeWrapper>

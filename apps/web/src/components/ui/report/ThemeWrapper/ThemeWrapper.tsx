@@ -49,7 +49,7 @@ export function ThemeWrapper({ children, className, defaultTheme }: ThemeWrapper
       <div
         style={EDITOR_THEME}
         className={cn(
-          'themes-wrapper h-full w-full overflow-hidden bg-transparent antialiased',
+          'themes-wrapper h-full w-full overflow-visible bg-transparent antialiased',
           className
         )}>
         {children}
