@@ -16,6 +16,10 @@ const DEFAULT_OPTIONS = {
     anthropic: {
       disableParallelToolCalls: true,
     },
+    openai: {
+      disableParallelToolCalls: true,
+      reasoningEffort: 'minimal',
+    },
   },
 };
 
