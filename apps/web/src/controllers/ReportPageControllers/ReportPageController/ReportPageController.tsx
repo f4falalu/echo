@@ -7,7 +7,8 @@ import { ReportPageHeader } from './ReportPageHeader';
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import { useDebounceFn } from '@/hooks/useDebounce';
 import type { ReportElements } from '@buster/server-shared/reports';
-import DynamicReportEditor from '@/components/ui/report/DynamicReportEditor';
+//import DynamicReportEditor from '@/components/ui/report/DynamicReportEditor';
+import { ReportEditor } from '@/components/ui/report/ReportEditor';
 
 export const ReportPageController: React.FC<{
   reportId: string;
@@ -22,12 +23,20 @@ export const ReportPageController: React.FC<{
   const { mutate: updateReport } = useUpdateReport();
 
   const onChangeName = useMemoizedFn((name: string) => {
+    if (!report) {
+      console.warn('Report not yet fetched');
+      return;
+    }
     updateReport({ reportId, name });
   });
 
   const { run: debouncedUpdateReport } = useDebounceFn(updateReport, { wait: 650 });
 
   const onChangeContent = useMemoizedFn((content: ReportElements) => {
+    if (!report) {
+      console.warn('Report not yet fetched');
+      return;
+    }
     debouncedUpdateReport({ reportId, content });
   });
 
@@ -39,11 +48,11 @@ export const ReportPageController: React.FC<{
         onChangeName={onChangeName}
       />
 
-      <DynamicReportEditor
+      <ReportEditor
         //   ref={editor}
         value={content}
         onValueChange={onChangeContent}
-        readOnly={readOnly}
+        readOnly={readOnly || !report}
         className="px-0!"
       />
     </div>
