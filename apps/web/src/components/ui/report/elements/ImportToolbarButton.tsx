@@ -4,7 +4,6 @@ import * as React from 'react';
 
 import type { DropdownMenuProps } from '@radix-ui/react-dropdown-menu';
 
-import { MarkdownPlugin } from '@platejs/markdown';
 import { getEditorDOMFromHtmlString } from 'platejs';
 import { useEditorRef } from 'platejs/react';
 import { useFilePicker } from 'use-file-picker';
@@ -21,6 +20,7 @@ import {
 
 import { ToolbarButton } from '@/components/ui/toolbar/Toolbar';
 import type { SelectedFilesOrErrors } from 'use-file-picker/types';
+import { MarkdownPlugin } from '@buster/server-shared/lib/report';
 
 type ImportType = 'html' | 'markdown';
 

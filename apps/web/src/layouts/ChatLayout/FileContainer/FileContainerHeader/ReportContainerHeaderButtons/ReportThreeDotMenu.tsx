@@ -7,10 +7,14 @@ import {
   type DropdownItems
 } from '@/components/ui/dropdown';
 import { Dots, ShareRight, WandSparkle, History, Star } from '@/components/ui/icons';
-import { Refresh3, Duplicate, FileText } from '@/components/ui/icons/NucleoIconOutlined';
+import { Refresh3, FileText, DuplicatePlus } from '@/components/ui/icons/NucleoIconOutlined';
 import { Star as StarFilled } from '@/components/ui/icons/NucleoIconFilled';
 import { Button } from '@/components/ui/buttons';
-import { useGetReport } from '@/api/buster_rest/reports';
+import {
+  useAddReportToCollection,
+  useGetReport,
+  useRemoveReportFromCollection
+} from '@/api/buster_rest/reports';
 import { getIsEffectiveOwner } from '@/lib/share';
 import { ShareMenuContent, getShareAssetConfig } from '@/components/features/ShareMenu';
 import { useBusterNotifications } from '@/context/BusterNotifications';
@@ -21,6 +25,7 @@ import { useListVersionDropdownItems } from '@/components/features/versionHistor
 import { useFavoriteStar } from '@/components/features/list/FavoriteStar';
 import { useStatusDropdownContent } from '@/components/features/metrics/StatusBadgeIndicator/useStatusDropdownContent';
 import type { VerificationStatus } from '@buster/server-shared/share';
+import { useSaveToCollectionsDropdownContent } from '@/components/features/dropdowns/SaveToCollectionsDropdown';
 
 export const ReportThreeDotMenu = React.memo(
   ({
@@ -47,14 +52,15 @@ export const ReportThreeDotMenu = React.memo(
         editWithAI,
         { type: 'divider' },
         shareMenu,
+        saveToLibrary,
         favoriteItem,
         { type: 'divider' },
         versionHistory,
         verificationItem,
+        { type: 'divider' },
         refreshReportItem,
         duplicateReportItem,
-        downloadPdfItem,
-        saveToLibrary
+        downloadPdfItem
       ];
     }, [
       reportId,
@@ -98,7 +104,7 @@ const useEditWithAI = ({ reportId }: { reportId: string }): DropdownItem => {
   );
 };
 
-export const useShareMenuSelectMenu = ({ reportId }: { reportId: string }) => {
+const useShareMenuSelectMenu = ({ reportId }: { reportId: string }) => {
   const { data: shareAssetConfig } = useGetReport({ reportId }, { select: getShareAssetConfig });
   const isEffectiveOwner = getIsEffectiveOwner(shareAssetConfig?.permission);
 
@@ -124,47 +130,52 @@ export const useShareMenuSelectMenu = ({ reportId }: { reportId: string }) => {
   );
 };
 
-export const useSaveToLibrary = ({ reportId }: { reportId: string }): DropdownItem => {
-  //   const { mutateAsync: saveMetricToCollection } = useSaveMetricToCollections();
-  //   const { mutateAsync: removeMetricFromCollection } = useRemoveMetricFromCollection();
-  //   const { data: selectedCollections } = useGetMetric(
-  //     { id: metricId },
-  //     { select: (x) => x.collections?.map((x) => x.id) }
-  //   );
-  //   const { openInfoMessage } = useBusterNotifications();
+const useSaveToLibrary = ({ reportId }: { reportId: string }): DropdownItem => {
+  const { mutateAsync: saveReportToCollection } = useAddReportToCollection();
+  const { mutateAsync: removeReportFromCollection } = useRemoveReportFromCollection();
 
-  //   const onSaveToCollection = useMemoizedFn(async (collectionIds: string[]) => {
-  //     await saveMetricToCollection({
-  //       metricIds: [metricId],
-  //       collectionIds
-  //     });
-  //     openInfoMessage('Metrics saved to collections');
-  //   });
+  const { data: selectedCollections } = useGetReport(
+    { reportId },
+    { select: (x) => x.collections?.map((x) => x.id) }
+  );
+  const { openInfoMessage } = useBusterNotifications();
 
-  //   const onRemoveFromCollection = useMemoizedFn(async (collectionId: string) => {
-  //     await removeMetricFromCollection({
-  //       metricIds: [metricId],
-  //       collectionIds: [collectionId]
-  //     });
-  //     openInfoMessage('Metrics removed from collections');
-  //   });
+  const onSaveToCollection = useMemoizedFn(async (collectionIds: string[]) => {
+    await saveReportToCollection({
+      reportIds: [reportId],
+      collectionIds
+    });
+    openInfoMessage('Report saved to collections');
+  });
 
-  //   const { ModalComponent, ...dropdownProps } = useSaveToCollectionsDropdownContent({
-  //     onSaveToCollection,
-  //     onRemoveFromCollection,
-  //     selectedCollections: selectedCollections || []
-  //   });
+  const onRemoveFromCollection = useMemoizedFn(async (collectionId: string) => {
+    await removeReportFromCollection({
+      reportIds: [reportId],
+      collectionIds: [collectionId]
+    });
+    openInfoMessage('Report removed from collections');
+  });
+
+  const { ModalComponent, ...dropdownProps } = useSaveToCollectionsDropdownContent({
+    onSaveToCollection,
+    onRemoveFromCollection,
+    selectedCollections: selectedCollections || []
+  });
 
   const CollectionSubMenu = useMemo(() => {
-    return <DropdownContent items={[]} />;
-  }, [reportId]);
+    return <DropdownContent {...dropdownProps} />;
+  }, [dropdownProps]);
 
   return useMemo(
     () => ({
       label: 'Add to collection',
       value: 'add-to-collection',
       icon: <ASSET_ICONS.collectionAdd />,
-      items: [<React.Fragment key="collection-sub-menu">{CollectionSubMenu}</React.Fragment>]
+      items: [
+        <React.Fragment key="collection-sub-menu">
+          {CollectionSubMenu} {ModalComponent}
+        </React.Fragment>
+      ]
     }),
     [CollectionSubMenu]
   );
@@ -263,7 +274,8 @@ const useReportVerificationSelectMenu = (): DropdownItem => {
 // Refresh report (stubbed)
 const useRefreshReportSelectMenu = (): DropdownItem => {
   const onClick = useMemoizedFn(async () => {
-    // stubbed
+    alert('TODO: Refresh report');
+
     return;
   });
 
@@ -281,7 +293,7 @@ const useRefreshReportSelectMenu = (): DropdownItem => {
 // Duplicate report (stubbed)
 const useDuplicateReportSelectMenu = (): DropdownItem => {
   const onClick = useMemoizedFn(async () => {
-    // stubbed
+    alert('TODO: Duplicate report');
     return;
   });
 
@@ -289,7 +301,7 @@ const useDuplicateReportSelectMenu = (): DropdownItem => {
     () => ({
       label: 'Duplicate',
       value: 'duplicate-report',
-      icon: <Duplicate />,
+      icon: <DuplicatePlus />,
       onClick
     }),
     [onClick]
