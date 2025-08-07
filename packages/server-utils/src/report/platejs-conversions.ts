@@ -5,8 +5,13 @@ import { SERVER_EDITOR } from './server-editor';
 export const markdownToPlatejs = async (markdown: string) => {
   try {
     const descendants = SERVER_EDITOR.api.markdown.deserialize(markdown);
+    console.log('descendants', descendants);
+
+    console.log('descendants.json', JSON.stringify(descendants, null, 2));
 
     const safeParsedElements = ReportElementsSchema.safeParse(descendants);
+
+    console.log('safeParsedElements', safeParsedElements);
 
     return {
       error: safeParsedElements.error,

@@ -9,31 +9,22 @@ export async function getReportHandler(
   reportId: string,
   user: { id: string }
 ): Promise<GetReportIndividualResponse> {
-  try {
-    const report = await getReport({ reportId, userId: user.id });
+  const report = await getReport({ reportId, userId: user.id });
 
-    const platejsResult = await markdownToPlatejs(report.content);
+  const platejsResult = await markdownToPlatejs(report.content);
 
-    if (platejsResult.error) {
-      throw new HTTPException(500, {
-        message: `Error converting markdown to PlateJS: ${platejsResult.error.message}`,
-      });
-    }
-
-    const content = platejsResult.elements ?? [];
-
-    const response: GetReportIndividualResponse = {
-      ...report,
-      content,
-    };
-
-    return response;
-  } catch (error) {
-    console.error('Error getting report:', error);
-    throw new HTTPException(500, {
-      message: `Error getting report: ${error instanceof Error ? error.message : 'Unknown error'}`,
-    });
+  if (platejsResult.error) {
+    throw platejsResult.error;
   }
+
+  const content = platejsResult.elements ?? [];
+
+  const response: GetReportIndividualResponse = {
+    ...report,
+    content,
+  };
+
+  return response;
 }
 
 const app = new Hono()

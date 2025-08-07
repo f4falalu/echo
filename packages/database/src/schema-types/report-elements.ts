@@ -322,8 +322,8 @@ const ListTypeEnum = z.enum(['ul', 'ol']);
 
 // Nested list item for complex lists
 const NestedListElementSchema = z.object({
-  type: z.enum(['li', 'lic', 'lii']),
-  children: z.array(z.union([TextSchema, ParagraphElementSchema])).default([]),
+  type: z.enum(['li', 'lic', 'lii', 'ul', 'ol']),
+  children: z.array(z.any()).default([]),
 });
 
 // List container (unordered or ordered)
