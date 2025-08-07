@@ -10,7 +10,7 @@ import { GPT5 } from '../../utils';
 import { Sonnet4 } from '../../utils/models/sonnet-4';
 
 const DEFAULT_OPTIONS = {
-  maxSteps: 18,
+  maxSteps: 25,
   temperature: 1,
   providerOptions: {
     anthropic: {

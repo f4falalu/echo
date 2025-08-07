@@ -1,10 +1,7 @@
 import { and, eq, isNull } from 'drizzle-orm';
-import {} from 'drizzle-zod';
 import { z } from 'zod';
 import { db } from '../../connection';
-import { reportFiles } from '../../schema';
-import { workspaceSharingEnum } from '../../schema';
-import { ReportElementSchema, type ReportElements } from '../../schema-types';
+import { reportFiles, workspaceSharingEnum } from '../../schema';
 
 // Type for updating reportFiles - excludes read-only fields
 type UpdateReportData = Partial<
@@ -20,9 +17,7 @@ const UpdateReportInputSchema = z.object({
   userId: z.string().uuid('User ID must be a valid UUID'),
   name: z.string().optional(),
   publicly_accessible: z.boolean().optional(),
-  content: z.lazy(() => z.array(ReportElementSchema)).optional() as z.ZodOptional<
-    z.ZodType<ReportElements>
-  >,
+  content: z.string().optional(),
   public_expiry_date: z.string().nullable().optional(),
   public_password: z.string().nullable().optional(),
   workspace_sharing: WorkspaceSharingSchema.optional(),

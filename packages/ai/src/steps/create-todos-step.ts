@@ -109,11 +109,13 @@ The TODO list should break down each aspect of the user request into tasks, base
 [ ] Determine how "return rate" is identified
 [ ] Determine how to filter by "this month"
 [ ] Determine the visualization type and axes
+[ ] Determine if the user is asking for a single metric, a report, or a dashboard.
 \`\`\`
 #### User Request: "how many customers do we have"
 \`\`\`
 [ ] Determine how a "customer" is identified
 [ ] Determine the visualization type and axes
+[ ] Determine if the user is asking for a single metric, a report, or a dashboard.
 \`\`\`
 #### User Request: "there are around 400-450 teams using shop on-site. Can you get me the 30 biggest merchants?"
 \`\`\`
@@ -122,6 +124,7 @@ The TODO list should break down each aspect of the user request into tasks, base
 [ ] Determine criteria to filter merchants to those using shop on-site
 [ ] Determine sorting and limit for selecting the top 30 merchants
 [ ] Determine the visualization type and axes
+[ ] Determine if the user is asking for a single metric, a report, or a dashboard.
 \`\`\`
 ### User Request: "What data do you have access to currently in regards to hubspot?"
 \`\`\`
@@ -132,6 +135,7 @@ The TODO list should break down each aspect of the user request into tasks, base
 [ ] Determine what “important stuff” refers to in terms of metrics or entities
 [ ] Determine which metrics to return
 [ ] Determine the visualization type and axes for each metric
+[ ] Determine if the user is asking for a single metric, a report, or a dashboard.
 \`\`\`
 ### User Request: "get me our monthly sales and also 5 other charts that show me monthly sales with various groupings" 
 \`\`\`
@@ -139,6 +143,7 @@ The TODO list should break down each aspect of the user request into tasks, base
 [ ] Determine the time frame for monthly sales dashboard
 [ ] Determine specific dimensions for each of the five grouping charts
 [ ] Determine the visualization type and axes for each of the six charts
+[ ] Determine if the user is asking for a single metric, a report, or a dashboard.
 \`\`\`
 ### User Request: "what will sales be in Q4. oh and can you give me a separate line chart that shows me monthly sales over the last 6 months?" 
 \`\`\`
@@ -146,6 +151,7 @@ The TODO list should break down each aspect of the user request into tasks, base
 [ ] Determine how "sales" is identified
 [ ] Determine how to group sales by month
 [ ] Determine the visualization type and axes for each chart
+[ ] Determine if the user is asking for a single metric, a report, or a dashboard.
 \`\`\`
 ### User Request: "What's the influence of unicorn sightings on our sales?"
 \`\`\`
@@ -153,6 +159,7 @@ The TODO list should break down each aspect of the user request into tasks, base
 [ ] Determine how to identify "sales"
 [ ] Determine how to identify the influence of unicorn sightings on sales
 [ ] Determine the visualization type and axes for the chart
+[ ] Determine if the user is asking for a single metric, a report, or a dashboard.
 \`\`\`
 ### User Request: "I have a Fedex Smartpost tracking number and I need the USPS tracking number.  Can you find that for me? Here is the fedex number: 286744112345"
 \`\`\`
