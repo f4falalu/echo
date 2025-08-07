@@ -1,11 +1,10 @@
 'use client';
 
-import React, { useMemo } from 'react';
+import React, { useMemo, useContext } from 'react';
 import { useMemoizedFn } from '@/hooks';
 import { useDashboardMetric } from './useDashboardMetric';
 import { assetParamsToRoute } from '@/lib/assets';
 import { MetricCard } from '@/components/ui/metric';
-import { useContext } from 'use-context-selector';
 import { SortableItemContext } from '@/components/ui/grid/SortableItemContext';
 import { useMetricCardThreeDotMenuItems } from './metricCardThreeDotMenuItems';
 
@@ -48,10 +47,8 @@ const DashboardMetricItemBase: React.FC<{
   const animate =
     !initialAnimationEnded && !isDragOverlay && dataLength < 125 && numberOfMetrics <= 30;
 
-  const error: string | undefined = useMemo(
-    () => metric?.error || metricDataError?.message || metricError?.message || undefined,
-    [metric?.error, metricDataError, metricError]
-  );
+  const error: string | undefined =
+    metric?.error || metricDataError?.message || metricError?.message || undefined;
 
   const metricLink = useMemo(() => {
     return assetParamsToRoute({
@@ -93,4 +90,4 @@ const DashboardMetricItemBase: React.FC<{
   );
 };
 
-export const DashboardMetricItem = React.memo(DashboardMetricItemBase);
+export const DashboardMetricItem = DashboardMetricItemBase;
