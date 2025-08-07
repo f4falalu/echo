@@ -1,3 +1,3 @@
-import { MarkdownPlugin } from '@buster/server-shared/lib/report';
+import { MarkdownPlugin } from '@platejs/markdown'; //use this an not the one from server-utils
 
 export const MarkdownKit = [MarkdownPlugin];

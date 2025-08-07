@@ -3,7 +3,7 @@ import { useBusterNotifications } from '@/context/BusterNotifications';
 import type { PlateEditor } from 'platejs/react';
 import { NodeTypeLabels } from '../config/labels';
 import { createSlateEditor, serializeHtml } from 'platejs';
-import { MarkdownPlugin } from '@buster/server-shared/lib/report';
+import { MarkdownPlugin } from '@platejs/markdown';
 
 export const useExportReport = (editor: PlateEditor) => {
   const { openErrorMessage, openInfoMessage } = useBusterNotifications();

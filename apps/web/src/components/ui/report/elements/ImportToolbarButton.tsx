@@ -20,7 +20,7 @@ import {
 
 import { ToolbarButton } from '@/components/ui/toolbar/Toolbar';
 import type { SelectedFilesOrErrors } from 'use-file-picker/types';
-import { MarkdownPlugin } from '@buster/server-shared/lib/report';
+import { MarkdownPlugin } from '@platejs/markdown';
 
 type ImportType = 'html' | 'markdown';
 

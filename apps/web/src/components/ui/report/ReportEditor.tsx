@@ -5,7 +5,7 @@ import { EditorContainer } from './EditorContainer';
 import { Editor } from './Editor';
 import { useReportEditor } from './useReportEditor';
 import { useMemoizedFn } from '@/hooks';
-import { ReportElements, type ReportElement } from '@buster/server-shared/reports';
+import type { ReportElements, ReportElement } from '@buster/server-shared/reports';
 import { cn } from '@/lib/utils';
 import { ThemeWrapper } from './ThemeWrapper/ThemeWrapper';
 

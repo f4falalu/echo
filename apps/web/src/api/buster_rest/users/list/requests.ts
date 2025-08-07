@@ -1,5 +1,5 @@
 import { mainApiV2 } from '../../instances';
-import {
+import type {
   GetUserToOrganizationResponse,
   GetUserToOrganizationRequest
 } from '@buster/server-shared/user';
