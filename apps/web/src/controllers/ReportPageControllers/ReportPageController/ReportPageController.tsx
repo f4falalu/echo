@@ -2,13 +2,14 @@
 
 import { useGetReport, useUpdateReport } from '@/api/buster_rest/reports';
 import { cn } from '@/lib/utils';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { ReportPageHeader } from './ReportPageHeader';
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import { useDebounceFn } from '@/hooks/useDebounce';
 import type { ReportElements } from '@buster/server-shared/reports';
 //import DynamicReportEditor from '@/components/ui/report/DynamicReportEditor';
 import { ReportEditor } from '@/components/ui/report/ReportEditor';
+import { registerReportEditor, unregisterReportEditor } from '@/components/ui/report/editorRegistry';
 
 export const ReportPageController: React.FC<{
   reportId: string;
@@ -40,6 +41,12 @@ export const ReportPageController: React.FC<{
     debouncedUpdateReport({ reportId, content });
   });
 
+  useEffect(() => {
+    return () => {
+      unregisterReportEditor(reportId);
+    };
+  }, [reportId]);
+
   return (
     <div className={cn('space-y-1.5 pt-9 sm:px-[max(64px,calc(50%-350px))]', className)}>
       <ReportPageHeader
@@ -54,6 +61,7 @@ export const ReportPageController: React.FC<{
         onValueChange={onChangeContent}
         readOnly={readOnly || !report}
         className="px-0!"
+        onReady={(editor) => registerReportEditor(reportId, editor)}
       />
     </div>
   );
