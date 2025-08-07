@@ -1,8 +1,4 @@
 import type { ModelMessage } from 'ai';
-import type {
-  ChatMessageResponseMessage,
-  ChatMessageReasoningMessage,
-} from '@buster/server-shared/chats';
 import { type SQL, and, eq, isNull, sql } from 'drizzle-orm';
 import { db } from '../../connection';
 import { messages } from '../../schema';
@@ -12,8 +8,8 @@ export type UpdateMessageEntriesMode = 'update' | 'append';
 export interface UpdateMessageEntriesParams {
   messageId: string;
   rawLlmMessage?: ModelMessage;
-  responseEntry?: ChatMessageResponseMessage;
-  reasoningEntry?: ChatMessageReasoningMessage;
+  responseEntry?: unknown;
+  reasoningEntry?: unknown;
   mode?: UpdateMessageEntriesMode;
 }
 

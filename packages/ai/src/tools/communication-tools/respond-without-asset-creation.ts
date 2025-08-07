@@ -1,43 +1,11 @@
-import { tool } from 'ai';
-import { wrapTraced } from 'braintrust';
-import { z } from 'zod';
+// Re-export the factory function for new usage pattern
+export { createRespondWithoutAssetCreationTool } from './respond-without-asset-creation/respond-without-asset-creation-tool';
 
-// Input/Output schemas
-const respondWithoutAssetCreationInputSchema = z.object({
-  final_response: z
-    .string()
-    .min(1, 'Final response is required')
-    .describe(
-      "The final response message to the user. **MUST** be formatted in Markdown. Use bullet points or other appropriate Markdown formatting. Do not include headers. Do not use the '•' bullet character. Do not include markdown tables."
-    ),
-});
+// For backward compatibility, create a default instance that doesn't require context
+// This uses an empty messageId, which means streaming won't update the database
+// but the tool will still function for basic usage
+import { createRespondWithoutAssetCreationTool } from './respond-without-asset-creation/respond-without-asset-creation-tool';
 
-const respondWithoutAssetCreationOutputSchema = z.object({});
-
-// Process respond without asset creation tool execution
-async function processRespondWithoutAssetCreation(): Promise<
-  z.infer<typeof respondWithoutAssetCreationOutputSchema>
-> {
-  // This tool signals the end of the workflow and provides the final response.
-  // The actual agent termination logic resides elsewhere.
-  return {};
-}
-
-// Main respond without asset creation function with tracing
-const executeRespondWithoutAssetCreation = wrapTraced(
-  async (): Promise<z.infer<typeof respondWithoutAssetCreationOutputSchema>> => {
-    return await processRespondWithoutAssetCreation();
-  },
-  { name: 'respond-without-asset-creation' }
-);
-
-// Export the tool
-export const respondWithoutAssetCreation = tool({
-  description:
-    "Marks all remaining unfinished tasks as complete, sends a final response to the user, and ends the workflow. Use this when the workflow is finished. This must be in markdown format and not use the '•' bullet character.",
-  inputSchema: respondWithoutAssetCreationInputSchema,
-  outputSchema: respondWithoutAssetCreationOutputSchema,
-  execute: async () => {
-    return await executeRespondWithoutAssetCreation();
-  },
-});
+// Create a default instance without messageId for backward compatibility
+// When messageId is undefined, the tool will skip database updates but still work
+export const respondWithoutAssetCreation = createRespondWithoutAssetCreationTool({});

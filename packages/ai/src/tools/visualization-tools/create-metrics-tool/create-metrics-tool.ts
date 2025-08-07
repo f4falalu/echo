@@ -67,6 +67,27 @@ export type CreateMetricsInput = z.infer<typeof CreateMetricsInputSchema>;
 export type CreateMetricsOutput = z.infer<typeof CreateMetricsOutputSchema>;
 export type CreateMetricsContext = z.infer<typeof CreateMetricsContextSchema>;
 
+// State management for streaming
+export interface CreateMetricsFile {
+  name: string;
+  yml_content: string;
+  status?: 'processing' | 'completed' | 'failed';
+  id?: string;
+  version?: number;
+  error?: string;
+}
+
+export interface CreateMetricsState {
+  toolCallId?: string;
+  argsText: string;
+  parsedArgs?: Partial<CreateMetricsInput>;
+  files: CreateMetricsFile[];
+  processingStartTime?: number;
+  messageId?: string | undefined;
+  reasoningEntryId?: string;
+  responseEntryId?: string;
+}
+
 // Type constraint for agent context - must have required fields
 export type CreateMetricsAgentContext = {
   userId: string;
@@ -81,11 +102,18 @@ export type CreateMetricsAgentContext = {
 export function createCreateMetricsTool<
   TAgentContext extends CreateMetricsAgentContext = CreateMetricsAgentContext,
 >(context: TAgentContext) {
-  // Create all functions with the context passed directly
-  const execute = createCreateMetricsExecute<TAgentContext>(context);
-  const onInputStart = createCreateMetricsStart<TAgentContext>(context);
-  const onInputDelta = createCreateMetricsDelta<TAgentContext>(context);
-  const onInputAvailable = createCreateMetricsFinish<TAgentContext>(context);
+  // Initialize state for streaming
+  const state: CreateMetricsState = {
+    argsText: '',
+    files: [],
+    messageId: context.messageId,
+  };
+
+  // Create all functions with the context and state passed
+  const execute = createCreateMetricsExecute<TAgentContext>(context, state);
+  const onInputStart = createCreateMetricsStart<TAgentContext>(context, state);
+  const onInputDelta = createCreateMetricsDelta<TAgentContext>(context, state);
+  const onInputAvailable = createCreateMetricsFinish<TAgentContext>(context, state);
 
   // Get the description from the original tool
   const description = `**Create one or more metrics in Buster.** This tool generates new metrics files and automatically executes their SQL queries to verify validity and provide data previews.

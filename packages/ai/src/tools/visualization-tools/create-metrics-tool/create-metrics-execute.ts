@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import type { DataSource } from '@buster/data-source';
 import { assetPermissions, db, metricFiles } from '@buster/database';
+import { updateMessageFields } from '@buster/database';
 import { wrapTraced } from 'braintrust';
 import { inArray } from 'drizzle-orm';
 import * as yaml from 'yaml';
@@ -20,7 +21,9 @@ import type {
   CreateMetricsContext,
   CreateMetricsInput,
   CreateMetricsOutput,
+  CreateMetricsState,
 } from './create-metrics-tool';
+import { createMetricsReasoningMessage } from './helpers/create-metrics-transform-helper';
 
 // TypeScript types matching Rust DataMetadata structure
 enum SimpleType {
@@ -510,7 +513,7 @@ function generateResultMessage(
 // Main execute function with context mapping
 export function createCreateMetricsExecute<
   TAgentContext extends CreateMetricsAgentContext = CreateMetricsAgentContext,
->(context: TAgentContext) {
+>(context: TAgentContext, state: CreateMetricsState) {
   return wrapTraced(
     async (input: CreateMetricsInput): Promise<CreateMetricsOutput> => {
       // Use the passed context directly
@@ -523,7 +526,7 @@ export function createCreateMetricsExecute<
         messageId: context.messageId,
       };
 
-      const startTime = Date.now();
+      const startTime = state.processingStartTime || Date.now();
       const { files } = input;
 
       const createdFiles: FileWithId[] = [];
@@ -740,6 +743,64 @@ export function createCreateMetricsExecute<
             version: file.version_number,
           })),
         });
+      }
+
+      // Update state with final results
+      state.files = state.files.map((file) => {
+        const createdFile = createdFiles.find((cf) => cf.name === file.name);
+        const failedFile = failedFiles.find((ff) => ff.name === file.name);
+
+        if (createdFile) {
+          return {
+            ...file,
+            id: createdFile.id,
+            version: createdFile.version_number,
+            status: 'completed' as const,
+          };
+        }
+        if (failedFile) {
+          return {
+            ...file,
+            status: 'failed' as const,
+            error: failedFile.error,
+          };
+        }
+        return file;
+      });
+
+      // Update database with final state if we have a messageId
+      if (messageId && state.reasoningEntryId) {
+        try {
+          // Create final reasoning entry
+          const finalStatus =
+            failedFiles.length === 0
+              ? 'completed'
+              : createdFiles.length === 0
+                ? 'failed'
+                : 'completed';
+          const reasoningEntry = createMetricsReasoningMessage(
+            state.toolCallId || `create-metrics-${Date.now()}`,
+            state.files,
+            finalStatus
+          );
+
+          console.info('[create-metrics] Updating database with final results', {
+            messageId,
+            successCount: createdFiles.length,
+            failedCount: failedFiles.length,
+            toolCallId: state.toolCallId,
+          });
+
+          // Final update to database
+          await updateMessageFields(messageId, {
+            reasoning: [reasoningEntry], // Update existing entry with final state
+          });
+        } catch (error) {
+          console.error('[create-metrics] Failed to update final results in database', {
+            messageId,
+            error: error instanceof Error ? error.message : 'Unknown error',
+          });
+        }
       }
 
       return {

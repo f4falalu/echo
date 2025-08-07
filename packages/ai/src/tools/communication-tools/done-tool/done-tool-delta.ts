@@ -5,9 +5,9 @@ import {
   getOptimisticValue,
 } from '../../../utils/streaming/optimistic-json-parser';
 import {
-  DoneToolInputSchema,
   type DoneToolContext,
   type DoneToolInput,
+  DoneToolInputSchema,
   type DoneToolState,
 } from './done-tool';
 import {

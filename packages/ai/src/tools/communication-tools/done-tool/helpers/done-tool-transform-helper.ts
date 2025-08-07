@@ -2,10 +2,6 @@ import type { ChatMessageResponseMessage_Text } from '@buster/server-shared/chat
 import type { ModelMessage } from 'ai';
 import type { DoneToolState } from '../done-tool';
 
-/**
- * Convert DoneToolState to ChatMessageResponseMessage format
- * Used by done-tool streaming callbacks to create response entries
- */
 export function createDoneToolResponseMessage(
   doneToolState: DoneToolState,
   toolCallId?: string
