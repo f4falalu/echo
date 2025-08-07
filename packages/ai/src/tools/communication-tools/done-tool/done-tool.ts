@@ -5,7 +5,7 @@ import { createDoneToolExecute } from './done-tool-execute';
 import { createDoneToolFinish } from './done-tool-finish';
 import { createDoneToolStart } from './done-tool-start';
 
-const DoneToolInputSchema = z.object({
+export const DoneToolInputSchema = z.object({
   final_response: z
     .string()
     .min(1, 'Final response is required')

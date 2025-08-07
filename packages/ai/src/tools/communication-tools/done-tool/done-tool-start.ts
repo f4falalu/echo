@@ -1,4 +1,4 @@
-import { updateOrAppendRawLlmMessageEntry, updateOrAppendResponseEntry } from '@buster/database';
+import { updateMessageEntries } from '@buster/database';
 import type { ModelMessage, ToolCallOptions } from 'ai';
 import type { DoneToolContext, DoneToolState } from './done-tool';
 import {
@@ -30,7 +30,11 @@ export function createDoneToolStart<TAgentContext extends DoneToolContext>(
         // Add each file as a response entry to the database
         for (const fileResponse of fileResponses) {
           try {
-            await updateOrAppendResponseEntry(context.messageId, fileResponse, 'append');
+            await updateMessageEntries({
+              messageId: context.messageId,
+              responseEntry: fileResponse,
+              mode: 'append',
+            });
           } catch (error) {
             console.error('[done-tool] Failed to add file response entry:', error);
           }
@@ -43,18 +47,15 @@ export function createDoneToolStart<TAgentContext extends DoneToolContext>(
 
     try {
       if (doneToolMessage) {
-        await updateOrAppendRawLlmMessageEntry(context.messageId, doneToolMessage, 'append');
+        await updateMessageEntries({
+          messageId: context.messageId,
+          responseEntry: doneToolResponseEntry,
+          rawLlmMessage: doneToolMessage,
+          mode: 'append',
+        });
       }
     } catch (error) {
-      console.error('[done-tool] Failed to add done tool to raw LLM messages:', error);
-    }
-
-    try {
-      if (doneToolResponseEntry) {
-        await updateOrAppendResponseEntry(context.messageId, doneToolResponseEntry, 'append');
-      }
-    } catch (error) {
-      console.error('[done-tool] Failed to add done tool response entry:', error);
+      console.error('[done-tool] Failed to update done tool raw LLM message:', error);
     }
   };
 }
