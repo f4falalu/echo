@@ -22,16 +22,14 @@ export const MetricCardThreeMenuContainer = React.memo(
         }}
         className={cn(
           // Use opacity and pointer-events instead of display:none to maintain positioning context
-          'w-8.5 rounded transition-opacity duration-75',
-          'pointer-events-none opacity-0 group-hover:pointer-events-auto group-hover:opacity-100',
-          className,
-          isOpen && 'pointer-events-auto opacity-100'
+          '-mr-2 hidden group-hover:block',
+          'group-hover:pointer-events-auto',
+          isOpen && 'pointer-events-auto block',
+          className
         )}>
-        <div className="absolute top-3 right-1.5">
-          <Dropdown items={dropdownItems} side="top" align="end" onOpenChange={setIsOpen}>
-            {children}
-          </Dropdown>
-        </div>
+        <Dropdown items={dropdownItems} side="top" align="end" onOpenChange={setIsOpen}>
+          {children}
+        </Dropdown>
       </div>
     );
   }

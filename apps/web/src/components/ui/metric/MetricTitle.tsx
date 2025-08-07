@@ -37,8 +37,8 @@ export const MetricTitle: React.FC<{
     });
 
     return (
-      <>
-        <div className={'flex h-full cursor-pointer flex-col space-y-0.5 overflow-hidden'}>
+      <div className="group flex h-full min-h-0 w-full flex-1 flex-nowrap space-x-0.5">
+        <div className={'flex h-full flex-1 cursor-pointer flex-col space-y-0.5 overflow-hidden'}>
           <div className="flex w-full justify-between space-x-0.5 overflow-hidden">
             <Title
               as="h4"
@@ -66,10 +66,10 @@ export const MetricTitle: React.FC<{
 
         {isDragOverlay || readOnly ? null : (
           <MetricCardThreeMenuContainer dropdownItems={threeDotMenuItems}>
-            <Button variant="ghost" className="bg-item-hover!" prefix={<DotsVertical />} />
+            <Button variant="ghost" className="hover:bg-item-active" prefix={<DotsVertical />} />
           </MetricCardThreeMenuContainer>
         )}
-      </>
+      </div>
     );
   }
 );
