@@ -1,4 +1,4 @@
-export { doneTool } from './communication-tools/done-tool';
+export { doneTool } from './communication-tools/done-tool/done-tool';
 export { idleTool } from './communication-tools/idle-tool';
 export { respondWithoutAssetCreation } from './communication-tools/respond-without-asset-creation';
 export { submitThoughts } from './communication-tools/submit-thoughts-tool';

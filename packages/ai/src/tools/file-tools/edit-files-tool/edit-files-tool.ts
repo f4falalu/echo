@@ -1,14 +1,10 @@
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
-import { runTypescript } from '@buster/sandbox';
-import type { RuntimeContext } from '@mastra/core/runtime-context';
-import { createTool } from '@mastra/core/tools';
+import { type Sandbox, runTypescript } from '@buster/sandbox';
+import { tool } from 'ai';
 import { wrapTraced } from 'braintrust';
 import { z } from 'zod';
-import {
-  type DocsAgentContext,
-  DocsAgentContextKeys,
-} from '../../../agents/docs-agent/docs-agent-context';
+import type { DocsAgentOptions } from '../../../agents/docs-agent/docs-agent';
 
 const editFileParamsSchema = z.object({
   filePath: z.string().describe('Relative or absolute path to the file'),
@@ -48,10 +44,21 @@ const editFilesOutputSchema = z.object({
   }),
 });
 
+const editFilesContextSchema = z.object({
+  sandbox: z.custom<Sandbox>(
+    (val) => {
+      return val && typeof val === 'object' && 'id' in val && 'fs' in val;
+    },
+    { message: 'Invalid Sandbox instance' }
+  ),
+});
+
+type EditFilesContext = z.infer<typeof editFilesContextSchema>;
+
 const editFilesExecution = wrapTraced(
   async (
     params: z.infer<typeof editFilesInputSchema>,
-    runtimeContext: RuntimeContext<DocsAgentContext>
+    context: EditFilesContext
   ): Promise<z.infer<typeof editFilesOutputSchema>> => {
     const { edits } = params;
 
@@ -63,7 +70,7 @@ const editFilesExecution = wrapTraced(
     }
 
     try {
-      const sandbox = runtimeContext.get(DocsAgentContextKeys.Sandbox);
+      const sandbox = context.sandbox;
 
       if (sandbox) {
         // Generate CommonJS code for sandbox execution
@@ -223,8 +230,7 @@ console.log(JSON.stringify(results));
   { name: 'edit-files' }
 );
 
-export const editFiles = createTool({
-  id: 'edit-files',
+export const editFiles = tool({
   description: `Performs find-and-replace operations on files with validation and bulk editing support. Replaces specified text content with new content, but only if the find string appears exactly once in the file. Supports both relative and absolute file paths and can handle bulk operations through an array of edit objects.
 
 Key features:
@@ -243,14 +249,31 @@ Error conditions:
 For bulk operations, each edit is processed independently and the tool returns both successful and failed operations with detailed results.`,
   inputSchema: editFilesInputSchema,
   outputSchema: editFilesOutputSchema,
-  execute: async ({
-    context,
-    runtimeContext,
-  }: {
-    context: z.infer<typeof editFilesInputSchema>;
-    runtimeContext: RuntimeContext<DocsAgentContext>;
-  }) => {
-    return await editFilesExecution(context, runtimeContext);
+  execute: async (input, { experimental_context: context }) => {
+    const rawContext = context as DocsAgentOptions & { sandbox?: Sandbox };
+    
+    // Check if sandbox is available
+    if (!rawContext?.sandbox) {
+      // Return error for each edit when sandbox is not available
+      return {
+        results: input.edits.map((edit) => ({
+          status: 'error' as const,
+          file_path: edit.filePath,
+          error_message: 'File editing requires sandbox environment',
+        })),
+        summary: {
+          total: input.edits.length,
+          successful: 0,
+          failed: input.edits.length,
+        },
+      };
+    }
+    
+    const editFilesContext = editFilesContextSchema.parse({
+      sandbox: rawContext.sandbox,
+    });
+    
+    return await editFilesExecution(input, editFilesContext);
   },
 });
 

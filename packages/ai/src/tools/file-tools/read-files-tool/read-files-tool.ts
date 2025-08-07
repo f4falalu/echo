@@ -1,14 +1,10 @@
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
-import { runTypescript } from '@buster/sandbox';
-import type { RuntimeContext } from '@mastra/core/runtime-context';
-import { createTool } from '@mastra/core/tools';
+import { type Sandbox, runTypescript } from '@buster/sandbox';
+import { tool } from 'ai';
 import { wrapTraced } from 'braintrust';
 import { z } from 'zod';
-import {
-  type DocsAgentContext,
-  DocsAgentContextKeys,
-} from '../../../agents/docs-agent/docs-agent-context';
+import type { DocsAgentOptions } from '../../../agents/docs-agent/docs-agent';
 
 const readFilesInputSchema = z.object({
   files: z
@@ -17,6 +13,17 @@ const readFilesInputSchema = z.object({
       'Array of file paths to read. Can be absolute paths (e.g., /path/to/file.txt) or relative paths (e.g., ./relative/path/file.ts). Files will be read with UTF-8 encoding.'
     ),
 });
+
+const readFilesContextSchema = z.object({
+  sandbox: z.custom<Sandbox>(
+    (val) => {
+      return val && typeof val === 'object' && 'id' in val && 'fs' in val;
+    },
+    { message: 'Invalid Sandbox instance' }
+  ),
+});
+
+type ReadFilesContext = z.infer<typeof readFilesContextSchema>;
 
 const readFilesOutputSchema = z.object({
   results: z.array(
@@ -41,7 +48,7 @@ const readFilesOutputSchema = z.object({
 const readFilesExecution = wrapTraced(
   async (
     params: z.infer<typeof readFilesInputSchema>,
-    runtimeContext: RuntimeContext<DocsAgentContext>
+    context: ReadFilesContext
   ): Promise<z.infer<typeof readFilesOutputSchema>> => {
     const { files } = params;
 
@@ -50,7 +57,7 @@ const readFilesExecution = wrapTraced(
     }
 
     try {
-      const sandbox = runtimeContext.get(DocsAgentContextKeys.Sandbox);
+      const sandbox = context.sandbox;
 
       if (sandbox) {
         // Generate CommonJS code for sandbox execution
@@ -162,19 +169,30 @@ console.log(JSON.stringify(results));
   { name: 'read-files' }
 );
 
-export const readFiles = createTool({
-  id: 'read-files',
+export const readFiles = tool({
   description: `Read the contents of one or more files from the filesystem. Accepts both absolute and relative file paths. Files are read with UTF-8 encoding and content is limited to 1000 lines maximum. Returns both successful reads and failures with detailed error messages.`,
   inputSchema: readFilesInputSchema,
   outputSchema: readFilesOutputSchema,
-  execute: async ({
-    context,
-    runtimeContext,
-  }: {
-    context: z.infer<typeof readFilesInputSchema>;
-    runtimeContext: RuntimeContext<DocsAgentContext>;
-  }) => {
-    return await readFilesExecution(context, runtimeContext);
+  execute: async (input, { experimental_context: context }) => {
+    const rawContext = context as DocsAgentOptions & { sandbox?: Sandbox };
+    
+    // Check if sandbox is available
+    if (!rawContext?.sandbox) {
+      // Return error for each file when sandbox is not available
+      return {
+        results: input.files.map((filePath) => ({
+          status: 'error' as const,
+          file_path: filePath,
+          error_message: 'File reading requires sandbox environment',
+        })),
+      };
+    }
+    
+    const readFilesContext = readFilesContextSchema.parse({
+      sandbox: rawContext.sandbox,
+    });
+    
+    return await readFilesExecution(input, readFilesContext);
   },
 });
 

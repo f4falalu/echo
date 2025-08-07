@@ -1,10 +1,7 @@
-import { RuntimeContext } from '@mastra/core/runtime-context';
+import type { Sandbox } from '@buster/sandbox';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { z } from 'zod';
-import {
-  type DocsAgentContext,
-  DocsAgentContextKeys,
-} from '../../../agents/docs-agent/docs-agent-context';
+import type { DocsAgentOptions } from '../../../agents/docs-agent/docs-agent';
 import { createFiles } from './create-file-tool';
 
 vi.mock('@buster/sandbox', () => ({
@@ -18,11 +15,8 @@ import { runTypescript } from '@buster/sandbox';
 const mockRunTypescript = vi.mocked(runTypescript);
 
 describe('create-file-tool', () => {
-  let runtimeContext: RuntimeContext<DocsAgentContext>;
-
   beforeEach(() => {
     vi.clearAllMocks();
-    runtimeContext = new RuntimeContext<DocsAgentContext>();
   });
 
   afterEach(() => {
@@ -31,7 +25,6 @@ describe('create-file-tool', () => {
 
   describe('createFiles tool', () => {
     it('should have correct tool configuration', () => {
-      expect(createFiles.id).toBe('create-files');
       expect(createFiles.description).toContain('Create one or more files');
       expect(createFiles.inputSchema).toBeDefined();
       expect(createFiles.outputSchema).toBeDefined();
@@ -59,8 +52,11 @@ describe('create-file-tool', () => {
     });
 
     it('should execute with sandbox when available', async () => {
-      const mockSandbox = { process: { codeRun: vi.fn() } };
-      runtimeContext.set(DocsAgentContextKeys.Sandbox, mockSandbox as any);
+      const mockSandbox = { 
+        id: 'test-sandbox',
+        fs: {},
+        process: { codeRun: vi.fn() } 
+      } as unknown as Sandbox;
 
       const input = {
         files: [{ path: '/test/file.txt', content: 'test content' }],
@@ -74,9 +70,15 @@ describe('create-file-tool', () => {
 
       mockRunTypescript.mockResolvedValue(mockSandboxResult);
 
-      const result = await createFiles.execute({
-        context: input,
-        runtimeContext,
+      const result = await createFiles.execute(input, {
+        experimental_context: {
+          folder_structure: 'test',
+          userId: 'test-user',
+          chatId: 'test-chat',
+          dataSourceId: 'test-ds',
+          organizationId: 'test-org',
+          sandbox: mockSandbox,
+        } as DocsAgentOptions,
       });
 
       // Verify runTypescript was called (we can't check exact code since it's generated)
@@ -97,9 +99,15 @@ describe('create-file-tool', () => {
         files: [{ path: '/test/file.txt', content: 'test content' }],
       };
 
-      const result = await createFiles.execute({
-        context: input,
-        runtimeContext,
+      const result = await createFiles.execute(input, {
+        experimental_context: {
+          folder_structure: 'test',
+          userId: 'test-user',
+          chatId: 'test-chat',
+          dataSourceId: 'test-ds',
+          organizationId: 'test-org',
+          sandbox: undefined,
+        } as DocsAgentOptions,
       });
 
       expect(result.results).toHaveLength(1);
@@ -111,8 +119,11 @@ describe('create-file-tool', () => {
     });
 
     it('should handle sandbox execution errors', async () => {
-      const mockSandbox = { process: { codeRun: vi.fn() } };
-      runtimeContext.set(DocsAgentContextKeys.Sandbox, mockSandbox as any);
+      const mockSandbox = { 
+        id: 'test-sandbox',
+        fs: {},
+        process: { codeRun: vi.fn() }
+      } as unknown as Sandbox;
 
       const input = {
         files: [{ path: '/test/file.txt', content: 'test content' }],
@@ -126,9 +137,15 @@ describe('create-file-tool', () => {
 
       mockRunTypescript.mockResolvedValue(mockSandboxResult);
 
-      const result = await createFiles.execute({
-        context: input,
-        runtimeContext,
+      const result = await createFiles.execute(input, {
+        experimental_context: {
+          folder_structure: 'test',
+          userId: 'test-user',
+          chatId: 'test-chat',
+          dataSourceId: 'test-ds',
+          organizationId: 'test-org',
+          sandbox: mockSandbox,
+        } as DocsAgentOptions,
       });
 
       expect(result.results).toHaveLength(1);
@@ -140,8 +157,11 @@ describe('create-file-tool', () => {
     });
 
     it('should handle mixed success and error results', async () => {
-      const mockSandbox = { process: { codeRun: vi.fn() } };
-      runtimeContext.set(DocsAgentContextKeys.Sandbox, mockSandbox as any);
+      const mockSandbox = { 
+        id: 'test-sandbox',
+        fs: {},
+        process: { codeRun: vi.fn() }
+      } as unknown as Sandbox;
 
       const input = {
         files: [
@@ -161,9 +181,15 @@ describe('create-file-tool', () => {
 
       mockRunTypescript.mockResolvedValue(mockSandboxResult);
 
-      const result = await createFiles.execute({
-        context: input,
-        runtimeContext,
+      const result = await createFiles.execute(input, {
+        experimental_context: {
+          folder_structure: 'test',
+          userId: 'test-user',
+          chatId: 'test-chat',
+          dataSourceId: 'test-ds',
+          organizationId: 'test-org',
+          sandbox: mockSandbox,
+        } as DocsAgentOptions,
       });
 
       expect(result.results).toHaveLength(2);
@@ -181,17 +207,25 @@ describe('create-file-tool', () => {
     it('should handle empty files array', async () => {
       const input = { files: [] };
 
-      const result = await createFiles.execute({
-        context: input,
-        runtimeContext,
+      const result = await createFiles.execute(input, {
+        experimental_context: {
+          folder_structure: 'test',
+          userId: 'test-user',
+          chatId: 'test-chat',
+          dataSourceId: 'test-ds',
+          organizationId: 'test-org',
+        } as DocsAgentOptions,
       });
 
       expect(result.results).toEqual([]);
     });
 
     it('should handle JSON parse errors from sandbox', async () => {
-      const mockSandbox = { process: { codeRun: vi.fn() } };
-      runtimeContext.set(DocsAgentContextKeys.Sandbox, mockSandbox as any);
+      const mockSandbox = { 
+        id: 'test-sandbox',
+        fs: {},
+        process: { codeRun: vi.fn() }
+      } as unknown as Sandbox;
 
       const input = {
         files: [{ path: '/test/file.txt', content: 'test content' }],
@@ -205,9 +239,15 @@ describe('create-file-tool', () => {
 
       mockRunTypescript.mockResolvedValue(mockSandboxResult);
 
-      const result = await createFiles.execute({
-        context: input,
-        runtimeContext,
+      const result = await createFiles.execute(input, {
+        experimental_context: {
+          folder_structure: 'test',
+          userId: 'test-user',
+          chatId: 'test-chat',
+          dataSourceId: 'test-ds',
+          organizationId: 'test-org',
+          sandbox: mockSandbox,
+        } as DocsAgentOptions,
       });
 
       expect(result.results).toHaveLength(1);
@@ -219,8 +259,11 @@ describe('create-file-tool', () => {
     });
 
     it('should handle file read errors', async () => {
-      const mockSandbox = { process: { codeRun: vi.fn() } };
-      runtimeContext.set(DocsAgentContextKeys.Sandbox, mockSandbox as any);
+      const mockSandbox = { 
+        id: 'test-sandbox',
+        fs: {},
+        process: { codeRun: vi.fn() }
+      } as unknown as Sandbox;
 
       const input = {
         files: [{ path: '/test/file.txt', content: 'test content' }],
@@ -228,9 +271,15 @@ describe('create-file-tool', () => {
 
       mockRunTypescript.mockRejectedValue(new Error('Script not found'));
 
-      const result = await createFiles.execute({
-        context: input,
-        runtimeContext,
+      const result = await createFiles.execute(input, {
+        experimental_context: {
+          folder_structure: 'test',
+          userId: 'test-user',
+          chatId: 'test-chat',
+          dataSourceId: 'test-ds',
+          organizationId: 'test-org',
+          sandbox: mockSandbox,
+        } as DocsAgentOptions,
       });
 
       expect(result.results).toHaveLength(1);
@@ -242,8 +291,11 @@ describe('create-file-tool', () => {
     });
 
     it('should pass file parameters as JSON string argument', async () => {
-      const mockSandbox = { process: { codeRun: vi.fn() } };
-      runtimeContext.set(DocsAgentContextKeys.Sandbox, mockSandbox as any);
+      const mockSandbox = { 
+        id: 'test-sandbox',
+        fs: {},
+        process: { codeRun: vi.fn() }
+      } as unknown as Sandbox;
 
       const input = {
         files: [
@@ -263,9 +315,15 @@ describe('create-file-tool', () => {
 
       mockRunTypescript.mockResolvedValue(mockSandboxResult);
 
-      await createFiles.execute({
-        context: input,
-        runtimeContext,
+      await createFiles.execute(input, {
+        experimental_context: {
+          folder_structure: 'test',
+          userId: 'test-user',
+          chatId: 'test-chat',
+          dataSourceId: 'test-ds',
+          organizationId: 'test-org',
+          sandbox: mockSandbox,
+        } as DocsAgentOptions,
       });
 
       // Verify that runTypescript was called with generated code

@@ -1,44 +1,39 @@
 import type { StoredValueResult } from '@buster/stored-values';
 import { generateEmbedding, searchValuesByEmbedding } from '@buster/stored-values/search';
-import { createStep } from '@mastra/core';
-import type { RuntimeContext } from '@mastra/core/runtime-context';
 import { generateObject } from 'ai';
-import type { CoreMessage } from 'ai';
+import type { ModelMessage } from 'ai';
 import { wrapTraced } from 'braintrust';
 import { z } from 'zod';
-import { thinkAndPrepWorkflowInputSchema } from '../schemas/workflow-schemas';
 import { Haiku35 } from '../utils/models/haiku-3-5';
-import { appendToConversation, standardizeMessages } from '../utils/standardizeMessages';
-import type { AnalystRuntimeContext } from '../workflows/analyst-workflow';
 
-const inputSchema = thinkAndPrepWorkflowInputSchema;
-
-// Schema for what the LLM returns
-const llmOutputSchema = z.object({
-  values: z.array(z.string()).describe('The values that the agent will search for.'),
+// Zod schemas first - following Zod-first approach
+export const extractValuesSearchParamsSchema = z.object({
+  prompt: z.string().describe('The user prompt to extract values from'),
+  conversationHistory: z
+    .array(z.custom<ModelMessage>())
+    .optional()
+    .describe('Previous conversation messages for context'),
+  dataSourceId: z.string().optional().describe('The data source ID for stored values search'),
 });
 
-// Step output schema - what the step returns after performing the search
-export const extractValuesSearchOutputSchema = z.object({
-  values: z.array(z.string()).describe('The values that the agent will search for.'),
+export const extractValuesSearchResultSchema = z.object({
+  values: z.array(z.string()).describe('The values that were extracted from the prompt'),
   searchResults: z
     .string()
-    .describe('Formatted search results message for relevant database values.'),
+    .describe('Formatted search results message for relevant database values'),
   foundValues: z
     .record(z.record(z.array(z.string())))
     .describe('Structured results organized by schema.table.column'),
   searchPerformed: z.boolean().describe('Whether stored values search was actually performed'),
-  // Pass through dashboard context
-  dashboardFiles: z
-    .array(
-      z.object({
-        id: z.string(),
-        name: z.string(),
-        versionNumber: z.number(),
-        metricIds: z.array(z.string()),
-      })
-    )
-    .optional(),
+});
+
+// Export types from schemas
+export type ExtractValuesSearchParams = z.infer<typeof extractValuesSearchParamsSchema>;
+export type ExtractValuesSearchResult = z.infer<typeof extractValuesSearchResultSchema>;
+
+// Schema for what the LLM returns
+const llmOutputSchema = z.object({
+  values: z.array(z.string()).describe('The values that the agent will search for'),
 });
 
 const extractValuesInstructions = `
@@ -237,107 +232,101 @@ async function searchStoredValues(
   }
 }
 
-const extractValuesSearchStepExecution = async ({
-  inputData,
-  runtimeContext,
-}: {
-  inputData: z.infer<typeof inputSchema>;
-  runtimeContext: RuntimeContext<AnalystRuntimeContext>;
-}): Promise<z.infer<typeof extractValuesSearchOutputSchema>> => {
+/**
+ * Extracts values from the user prompt using LLM
+ */
+async function extractValuesWithLLM(
+  prompt: string,
+  conversationHistory?: ModelMessage[]
+): Promise<string[]> {
   try {
-    // Use the input data directly
-    const prompt = inputData.prompt;
-    const conversationHistory = inputData.conversationHistory;
+    // Prepare messages for the LLM
+    const messages: ModelMessage[] = [
+      {
+        role: 'system',
+        content: extractValuesInstructions,
+      },
+    ];
 
-    // Prepare messages for the agent
-    let messages: CoreMessage[];
+    // Add conversation history if provided
     if (conversationHistory && conversationHistory.length > 0) {
-      // Use conversation history as context + append new user message
-      messages = appendToConversation(conversationHistory as CoreMessage[], prompt);
-    } else {
-      // Otherwise, use just the prompt
-      messages = standardizeMessages(prompt);
+      messages.push(...conversationHistory);
     }
 
-    let extractedValues: { values: string[] } = { values: [] };
+    // Add the current user prompt
+    messages.push({
+      role: 'user',
+      content: prompt,
+    });
 
-    try {
-      const tracedValuesExtraction = wrapTraced(
-        async () => {
-          const { object } = await generateObject({
-            model: Haiku35,
-            schema: llmOutputSchema,
-            messages: [
-              {
-                role: 'system',
-                content: extractValuesInstructions,
-              },
-              ...messages,
-            ],
-          });
+    const tracedValuesExtraction = wrapTraced(
+      async () => {
+        const { object } = await generateObject({
+          model: Haiku35,
+          schema: llmOutputSchema,
+          messages,
+          temperature: 0,
+        });
 
-          return object;
-        },
-        {
-          name: 'Extract Values',
-        }
-      );
+        return object;
+      },
+      {
+        name: 'Extract Values',
+      }
+    );
 
-      extractedValues = await tracedValuesExtraction();
-    } catch (llmError) {
-      // Handle LLM generation errors specifically
-      console.warn('[ExtractValues] LLM failed to generate valid response:', {
-        error: llmError instanceof Error ? llmError.message : 'Unknown error',
-        errorType: llmError instanceof Error ? llmError.name : 'Unknown',
-      });
+    const result = await tracedValuesExtraction();
+    return result.values ?? [];
+  } catch (llmError) {
+    // Handle LLM generation errors specifically
+    console.warn('[ExtractValues] LLM failed to generate valid response:', {
+      error: llmError instanceof Error ? llmError.message : 'Unknown error',
+      errorType: llmError instanceof Error ? llmError.name : 'Unknown',
+    });
 
-      // Continue with empty values instead of failing
-      extractedValues = { values: [] };
-    }
+    // Continue with empty values instead of failing
+    return [];
+  }
+}
 
-    // Get dataSourceId from runtime context for stored values search
-    const dataSourceId = runtimeContext.get('dataSourceId') as string | undefined;
+export async function extractValuesSearch(
+  params: ExtractValuesSearchParams
+): Promise<ExtractValuesSearchResult> {
+  try {
+    const { prompt, conversationHistory, dataSourceId } = params;
+
+    // Extract values using LLM
+    const extractedValues = await extractValuesWithLLM(prompt, conversationHistory);
 
     // Perform stored values search if we have extracted values and a dataSourceId
-    const storedValuesResult = await searchStoredValues(extractedValues.values, dataSourceId || '');
+    const storedValuesResult = await searchStoredValues(extractedValues, dataSourceId || '');
 
     return {
-      values: extractedValues.values,
+      values: extractedValues,
       searchResults: storedValuesResult.searchResults,
       foundValues: storedValuesResult.foundValues,
       searchPerformed: storedValuesResult.searchPerformed,
-      dashboardFiles: inputData.dashboardFiles, // Pass through dashboard context
     };
   } catch (error) {
     // Handle AbortError gracefully
     if (error instanceof Error && error.name === 'AbortError') {
-      console.info('[ExtractValues] Step was aborted');
+      console.info('[ExtractValues] Operation was aborted');
       // Return empty values when aborted
       return {
         values: [],
         searchResults: '',
         foundValues: {},
         searchPerformed: false,
-        dashboardFiles: inputData.dashboardFiles, // Pass through dashboard context
       };
     }
 
-    console.error('[ExtractValues] Unexpected error in step execution:', error);
+    console.error('[ExtractValues] Unexpected error:', error);
     // Return empty values array instead of crashing
     return {
       values: [],
       searchResults: '',
       foundValues: {},
       searchPerformed: false,
-      dashboardFiles: inputData.dashboardFiles, // Pass through dashboard context
     };
   }
-};
-
-export const extractValuesSearchStep = createStep({
-  id: 'extract-values-search',
-  description: 'This step is a single llm call to quickly extract values from the user request.',
-  inputSchema,
-  outputSchema: extractValuesSearchOutputSchema,
-  execute: extractValuesSearchStepExecution,
-});
+}

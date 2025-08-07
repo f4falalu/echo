@@ -1,37 +1,33 @@
-import { Agent, createStep } from '@mastra/core';
-import type { RuntimeContext } from '@mastra/core/runtime-context';
-import type { CoreMessage } from 'ai';
-import { NoSuchToolError } from 'ai';
+import { generateObject } from 'ai';
+import type { ModelMessage } from 'ai';
 import { wrapTraced } from 'braintrust';
 import { z } from 'zod';
-import { thinkAndPrepWorkflowInputSchema } from '../schemas/workflow-schemas';
-import { createTodoList } from '../tools/planning-thinking-tools/create-todo-item-tool';
-import { ChunkProcessor } from '../utils/database/chunk-processor';
-import { ReasoningHistorySchema } from '../utils/memory/types';
 import { Sonnet4 } from '../utils/models/sonnet-4';
-import { RetryWithHealingError, isRetryWithHealingError } from '../utils/retry';
-import { appendToConversation, standardizeMessages } from '../utils/standardizeMessages';
-import { createOnChunkHandler } from '../utils/streaming';
-import type { AnalystRuntimeContext } from '../workflows/analyst-workflow';
 
-const inputSchema = thinkAndPrepWorkflowInputSchema;
+// Zod schemas first - following Zod-first approach
+export const createTodosParamsSchema = z.object({
+  prompt: z.string().describe('The user prompt to create todos from'),
+  conversationHistory: z
+    .array(z.custom<ModelMessage>())
+    .optional()
+    .describe('Previous conversation messages for context'),
+});
 
-export const createTodosOutputSchema = z.object({
-  todos: z.string().describe('The todos that the agent will work on.'),
-  reasoningHistory: ReasoningHistorySchema.optional().describe(
-    'Reasoning history for todo creation'
-  ),
-  // Pass through dashboard context
-  dashboardFiles: z
-    .array(
-      z.object({
-        id: z.string(),
-        name: z.string(),
-        versionNumber: z.number(),
-        metricIds: z.array(z.string()),
-      })
-    )
-    .optional(),
+export const createTodosResultSchema = z.object({
+  todos: z.string().describe('The TODO list in markdown format with checkboxes'),
+});
+
+// Export types from schemas
+export type CreateTodosParams = z.infer<typeof createTodosParamsSchema>;
+export type CreateTodosResult = z.infer<typeof createTodosResultSchema>;
+
+// Schema for what the LLM returns
+const llmOutputSchema = z.object({
+  todos: z
+    .string()
+    .describe(
+      'The TODO list in markdown format with checkboxes. Example: "[ ] Todo 1\n[ ] Todo 2\n[ ] Todo 3"'
+    ),
 });
 
 const todosInstructions = `
@@ -39,14 +35,6 @@ const todosInstructions = `
 You are a specialized AI agent within an AI-powered data analyst system. You are currently in "prep mode". Your task is to analyze a user request—using the chat history as additional context—and identify key aspects that need to be explored or defined, such as terms, metrics, timeframes, conditions, or calculations. 
 Your role is to interpret a user request—using the chat history as additional context—and break down the request into a markdown TODO list. This TODO list should break down each aspect of the user request into specific TODO list items that the AI-powered data analyst system needs to think through and clarify before proceeding with its analysis (e.g., looking through data catalog documentation, writing SQL, building charts/dashboards, or fulfilling the user request).
 **Important**: Pay close attention to the conversation history. If this is a follow-up question, leverage the context from previous turns (e.g., existing data context, previous plans or results) to identify what aspects of the most recent user request needs need to be interpreted.
----
-### Tool Calling
-You have access to various tools to complete tasks. Adhere to these rules:
-1. **Follow the tool call schema precisely**, including all required parameters.
-2. **Do not call tools that aren’t explicitly provided**, as tool availability varies dynamically based on your task and dependencies.
-3. **Avoid mentioning tool names in user communication.** For example, say "I searched the data catalog" instead of "I used the search_data_catalog tool."
-4. **Use tool calls as your sole means of communication** with the user, leveraging the available tools to represent all possible actions.
-5. **Use the \`createTodoList\` tool** to create the TODO list.
 ---
 ### Identifying Conditions and Questions:
 1. **Identify Conditions**:
@@ -129,7 +117,7 @@ The TODO list should break down each aspect of the user request into tasks, base
 \`\`\`
 ### User Request: "show me important stuff" 
 \`\`\`
-[ ] Determine what “important stuff” refers to in terms of metrics or entities
+[ ] Determine what "important stuff" refers to in terms of metrics or entities
 [ ] Determine which metrics to return
 [ ] Determine the visualization type and axes for each metric
 \`\`\`
@@ -179,373 +167,84 @@ The TODO list should break down each aspect of the user request into tasks, base
 - Do not mention privacy or security issues in the TODO list, if it is a concern then the data will not be accessible anyway.
 `;
 
-const DEFAULT_OPTIONS = {
-  maxSteps: 1,
-  temperature: 0,
-  maxTokens: 300,
-};
-
-export const todosAgent = new Agent({
-  name: 'Create Todos',
-  instructions: todosInstructions,
-  model: Sonnet4,
-  tools: {
-    createTodoList,
-  },
-  defaultGenerateOptions: DEFAULT_OPTIONS,
-  defaultStreamOptions: DEFAULT_OPTIONS,
-});
-
-const todoStepExecution = async ({
-  inputData,
-  runtimeContext,
-}: {
-  inputData: z.infer<typeof inputSchema>;
-  runtimeContext: RuntimeContext<AnalystRuntimeContext>;
-}): Promise<z.infer<typeof createTodosOutputSchema>> => {
-  const messageId = runtimeContext.get('messageId') as string | null;
-  const abortController = new AbortController();
-  let retryCount = 0;
-  const maxRetries = 3;
-
-  // Initialize chunk processor for streaming with available tools
-  const availableTools = new Set(['createTodoList']);
-  const workflowStartTime = runtimeContext.get('workflowStartTime');
-  const chunkProcessor = new ChunkProcessor(
-    messageId,
-    [],
-    [],
-    [],
-    undefined,
-    availableTools,
-    workflowStartTime
-  );
-
+/**
+ * Generates a TODO list using the LLM with structured output
+ */
+async function generateTodosWithLLM(
+  prompt: string,
+  conversationHistory?: ModelMessage[]
+): Promise<string> {
   try {
-    // Use the input data directly
-    const prompt = inputData.prompt;
-    const conversationHistory = inputData.conversationHistory;
+    // Prepare messages for the LLM
+    const messages: ModelMessage[] = [
+      {
+        role: 'system',
+        content: todosInstructions,
+      },
+    ];
 
-    // Prepare messages for the agent
-    let messages: CoreMessage[];
+    // Add conversation history if provided
     if (conversationHistory && conversationHistory.length > 0) {
-      // Use conversation history as context + append new user message
-      messages = appendToConversation(conversationHistory as CoreMessage[], prompt);
-    } else {
-      // Otherwise, use just the prompt
-      messages = standardizeMessages(prompt);
+      messages.push(...conversationHistory);
     }
 
-    // Set initial messages in chunk processor
-    chunkProcessor.setInitialMessages(messages);
+    // Add the current user prompt
+    messages.push({
+      role: 'user',
+      content: prompt,
+    });
 
-    // Main execution loop with retry logic
-    while (retryCount <= maxRetries) {
-      try {
-        const wrappedStream = wrapTraced(
-          async () => {
-            // Create stream directly without retryableAgentStreamWithHealing
-            const stream = await todosAgent.stream(messages, {
-              toolCallStreaming: true,
-              runtimeContext,
-              maxRetries: 5,
-              abortSignal: abortController.signal,
-              toolChoice: {
-                type: 'tool',
-                toolName: 'createTodoList',
-              },
-              onChunk: createOnChunkHandler({
-                chunkProcessor,
-                abortController,
-                finishingToolNames: [], // No finishing tools for todos
-              }),
-              onError: async (event: { error: unknown }) => {
-                const error = event.error;
-                console.error('Create Todos stream error caught in onError:', error);
-
-                // Check if this is a retryable error with custom healing message
-                const isRetryable =
-                  NoSuchToolError.isInstance(error) ||
-                  (error instanceof Error && error.name === 'AI_InvalidToolArgumentsError');
-
-                if (!isRetryable || retryCount >= maxRetries) {
-                  console.error('Create Todos onError: Not retryable or max retries reached', {
-                    isRetryable,
-                    retryCount,
-                    maxRetries,
-                  });
-                  // Not retryable or max retries reached - let it fail
-                  return; // Let the error propagate normally
-                }
-
-                // Create custom healing message for todos step
-                const toolName = 'toolName' in error ? String(error.toolName) : 'unknown';
-                const healingMessage = {
-                  role: 'tool' as const,
-                  content: [
-                    {
-                      type: 'tool-result' as const,
-                      toolCallId: 'toolCallId' in error ? String(error.toolCallId) : 'unknown',
-                      toolName: 'toolName' in error ? String(error.toolName) : 'unknown',
-                      result: {
-                        error:
-                          'Invalid tool call. Your job at this moment is to strictly call the createTodoList tool. This is the only tool available for creating the TODO list.',
-                      },
-                    },
-                  ],
-                };
-
-                console.info('Create Todos onError: Setting up retry', {
-                  retryCount: retryCount + 1,
-                  maxRetries,
-                  toolName,
-                });
-
-                // Throw a special error with the healing info to trigger retry
-                throw new RetryWithHealingError({
-                  type: NoSuchToolError.isInstance(error)
-                    ? 'no-such-tool'
-                    : 'invalid-tool-arguments',
-                  originalError: error,
-                  healingMessage,
-                });
-              },
-            });
-
-            return stream;
-          },
-          {
-            name: 'Create Todos',
-            spanAttributes: {
-              messageCount: messages.length,
-              retryAttempt: retryCount,
-            },
-          }
-        );
-
-        const stream = await wrappedStream();
-
-        // Process the stream - chunks are handled by onChunk callback
-        for await (const _chunk of stream.fullStream) {
-          // Stream is being processed via onChunk callback
-          // Todo items are being collected in real-time
-          if (abortController.signal.aborted) {
-            break;
-          }
-        }
-
-        console.info('Create Todos: Stream completed successfully');
-        break; // Exit the retry loop on success
-      } catch (error) {
-        console.error('Create Todos: Error in stream processing', error);
-
-        // Handle our special retry error
-        if (isRetryWithHealingError(error)) {
-          const retryableError = error.retryableError;
-
-          // Get the current messages from chunk processor to find the failed tool call
-          const currentMessages = chunkProcessor.getAccumulatedMessages();
-          const healingMessage = retryableError.healingMessage;
-          let insertionIndex = currentMessages.length; // Default to end
-
-          // If this is a NoSuchToolError, find the correct position to insert the healing message
-          if (retryableError.type === 'no-such-tool' && Array.isArray(healingMessage.content)) {
-            const firstContent = healingMessage.content[0];
-            if (
-              firstContent &&
-              typeof firstContent === 'object' &&
-              'type' in firstContent &&
-              firstContent.type === 'tool-result' &&
-              'toolCallId' in firstContent &&
-              'toolName' in firstContent
-            ) {
-              // Find the assistant message with the failed tool call
-              for (let i = currentMessages.length - 1; i >= 0; i--) {
-                const msg = currentMessages[i];
-                if (msg && msg.role === 'assistant' && Array.isArray(msg.content)) {
-                  // Find tool calls in this message
-                  const toolCalls = msg.content.filter(
-                    (
-                      c
-                    ): c is {
-                      type: 'tool-call';
-                      toolCallId: string;
-                      toolName: string;
-                      args: unknown;
-                    } =>
-                      typeof c === 'object' &&
-                      c !== null &&
-                      'type' in c &&
-                      c.type === 'tool-call' &&
-                      'toolCallId' in c &&
-                      'toolName' in c &&
-                      'args' in c
-                  );
-
-                  // Check each tool call to see if it matches and has no result
-                  for (const toolCall of toolCalls) {
-                    // Check if this tool call matches the failed tool name
-                    if (toolCall.toolName === firstContent.toolName) {
-                      // Look ahead for tool results
-                      let hasResult = false;
-                      for (let j = i + 1; j < currentMessages.length; j++) {
-                        const nextMsg = currentMessages[j];
-                        if (nextMsg && nextMsg.role === 'tool' && Array.isArray(nextMsg.content)) {
-                          const hasMatchingResult = nextMsg.content.some(
-                            (c) =>
-                              typeof c === 'object' &&
-                              c !== null &&
-                              'type' in c &&
-                              c.type === 'tool-result' &&
-                              'toolCallId' in c &&
-                              c.toolCallId === toolCall.toolCallId
-                          );
-                          if (hasMatchingResult) {
-                            hasResult = true;
-                            break;
-                          }
-                        }
-                      }
-
-                      // If this tool call has no result, this is our failed call
-                      if (!hasResult) {
-                        console.info(
-                          'Create Todos: Found orphaned tool call, using its ID for healing',
-                          {
-                            toolCallId: toolCall.toolCallId,
-                            toolName: toolCall.toolName,
-                            atIndex: i,
-                          }
-                        );
-
-                        // Update the healing message with the correct toolCallId
-                        firstContent.toolCallId = toolCall.toolCallId;
-
-                        // Insert position is right after this assistant message
-                        insertionIndex = i + 1;
-                        break;
-                      }
-                    }
-                  }
-
-                  // If we found the position, stop searching
-                  if (insertionIndex !== currentMessages.length) break;
-                }
-              }
-            }
-          }
-
-          console.info('Create Todos: Retrying with healing message', {
-            retryCount,
-            errorType: retryableError.type,
-            insertionIndex,
-            totalMessages: currentMessages.length,
-          });
-
-          // Create new messages array with healing message inserted at the correct position
-          const updatedMessages = [
-            ...currentMessages.slice(0, insertionIndex),
-            healingMessage,
-            ...currentMessages.slice(insertionIndex),
-          ];
-
-          // Update messages for the retry
-          messages = updatedMessages;
-
-          // Reset chunk processor with the properly ordered messages
-          chunkProcessor.setInitialMessages(messages);
-
-          // Force save to persist the healing message immediately
-          await chunkProcessor.saveToDatabase();
-
-          retryCount++;
-
-          // Continue to next retry iteration
-          continue;
-        }
-
-        // Handle normal AbortError (from finishing tools)
-        if (error instanceof Error && error.name === 'AbortError') {
-          console.info('Create Todos: Stream aborted successfully (normal completion)');
-          break; // Normal abort, exit retry loop
-        }
-
-        // Any other error at this point is fatal
-        console.error('Create Todos: Fatal error - not retryable', {
-          errorName: error instanceof Error ? error.name : 'unknown',
-          errorMessage: error instanceof Error ? error.message : String(error),
+    const tracedTodosGeneration = wrapTraced(
+      async () => {
+        const { object } = await generateObject({
+          model: Sonnet4,
+          schema: llmOutputSchema,
+          messages,
+          temperature: 0,
         });
 
-        // Re-throw the error
-        throw error;
+        return object;
+      },
+      {
+        name: 'Generate Todos',
       }
-    }
+    );
 
-    // Get the reasoning history - it already contains the streaming todo file entry
-    const reasoningHistory = chunkProcessor.getReasoningHistory();
-    let todosString = '';
+    const result = await tracedTodosGeneration();
+    return result.todos ?? '';
+  } catch (llmError) {
+    // Handle LLM generation errors specifically
+    console.warn('[CreateTodos] LLM failed to generate valid response:', {
+      error: llmError instanceof Error ? llmError.message : 'Unknown error',
+      errorType: llmError instanceof Error ? llmError.name : 'Unknown',
+    });
 
-    // Extract todos from the file entry in reasoning history
-    // Look for any file entry with a todo-related file name
-    for (const entry of reasoningHistory) {
-      if (entry.type === 'files' && entry.files) {
-        // Check each file in the entry
-        for (const [fileId, file] of Object.entries(entry.files)) {
-          // Check if this is a todo file by looking at the file name or ID
-          if (file?.file_name === 'todos' || fileId.startsWith('todo-')) {
-            if (file?.file?.text) {
-              todosString = file.file.text;
-              break;
-            }
-          }
-        }
-        if (todosString) break;
-      }
-    }
+    // Return empty TODO list instead of failing
+    return '';
+  }
+}
 
-    // Final save is handled by ChunkProcessor automatically
-    // The todo file entry is already in the reasoning history from streaming
+export async function createTodos(params: CreateTodosParams): Promise<CreateTodosResult> {
+  try {
+    const { prompt, conversationHistory } = params;
+
+    // Generate TODO list using LLM
+    const todos = await generateTodosWithLLM(prompt, conversationHistory);
 
     return {
-      todos: todosString,
-      reasoningHistory: reasoningHistory as z.infer<typeof ReasoningHistorySchema>,
-      dashboardFiles: inputData.dashboardFiles, // Pass through dashboard context
+      todos,
     };
   } catch (error) {
-    // Handle abort errors gracefully
+    // Handle AbortError gracefully
     if (error instanceof Error && error.name === 'AbortError') {
-      // Get the reasoning history - it already contains the streaming todo file entry
-      const reasoningHistory = chunkProcessor.getReasoningHistory();
-      let todosString = '';
-
-      // Extract todos from the file entry in reasoning history
-      // Look for any file entry with a todo-related file name
-      for (const entry of reasoningHistory) {
-        if (entry.type === 'files' && entry.files) {
-          // Check each file in the entry
-          for (const [fileId, file] of Object.entries(entry.files)) {
-            // Check if this is a todo file by looking at the file name or ID
-            if (file?.file_name === 'todos' || fileId.startsWith('todo-')) {
-              if (file?.file?.text) {
-                todosString = file.file.text;
-                break;
-              }
-            }
-          }
-          if (todosString) break;
-        }
-      }
-
-      // The todo file entry is already in the reasoning history from streaming
-
+      console.info('[CreateTodos] Operation was aborted');
+      // Return empty TODO list when aborted
       return {
-        todos: todosString,
-        reasoningHistory: reasoningHistory as z.infer<typeof ReasoningHistorySchema>,
-        dashboardFiles: inputData.dashboardFiles, // Pass through dashboard context
+        todos: '',
       };
     }
 
-    console.error('Failed to create todos:', error);
+    console.error('[CreateTodos] Unexpected error:', error);
 
     // Check if it's a database connection error
     if (error instanceof Error && error.message.includes('DATABASE_URL')) {
@@ -557,12 +256,4 @@ const todoStepExecution = async ({
       'Unable to create the analysis plan. Please try again or rephrase your request.'
     );
   }
-};
-
-export const createTodosStep = createStep({
-  id: 'create-todos',
-  description: 'This step is a single llm call to quickly create todos for the agent to work on.',
-  inputSchema,
-  outputSchema: createTodosOutputSchema,
-  execute: todoStepExecution,
-});
+}

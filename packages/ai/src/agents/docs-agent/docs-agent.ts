@@ -1,3 +1,4 @@
+import type { Sandbox } from '@buster/sandbox';
 import { type ModelMessage, hasToolCall, stepCountIs, streamText } from 'ai';
 import { wrapTraced } from 'braintrust';
 import z from 'zod';
@@ -33,6 +34,12 @@ const DocsAgentOptionsSchema = z.object({
   dataSourceId: z.string(),
   organizationId: z.string(),
   messageId: z.string().optional(),
+  sandbox: z.custom<Sandbox>(
+    (val) => {
+      return val && typeof val === 'object' && 'id' in val && 'fs' in val;
+    },
+    { message: 'Invalid Sandbox instance' }
+  ).optional(),
 });
 
 const DocsStreamOptionsSchema = z.object({
@@ -41,6 +48,9 @@ const DocsStreamOptionsSchema = z.object({
 
 export type DocsAgentOptions = z.infer<typeof DocsAgentOptionsSchema>;
 export type DocsStreamOptions = z.infer<typeof DocsStreamOptionsSchema>;
+
+// Extended type for passing to tools (includes sandbox)
+export type DocsAgentContextWithSandbox = DocsAgentOptions & { sandbox: Sandbox };
 
 export function createDocsAgent(docsAgentOptions: DocsAgentOptions) {
   const steps: never[] = [];

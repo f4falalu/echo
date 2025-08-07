@@ -101,6 +101,7 @@ const docsAgentExecution = async ({
       dataSourceId: dataSourceId || '',
       organizationId: organizationId || '',
       messageId: undefined, // Optional field
+      sandbox: sandbox, // Pass sandbox for file tools
     });
 
     const userMessage = `${inputData.message}`;

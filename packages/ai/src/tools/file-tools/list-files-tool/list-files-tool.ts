@@ -1,11 +1,8 @@
-import type { RuntimeContext } from '@mastra/core/runtime-context';
-import { createTool } from '@mastra/core/tools';
+import type { Sandbox } from '@buster/sandbox';
+import { tool } from 'ai';
 import { wrapTraced } from 'braintrust';
 import { z } from 'zod';
-import {
-  type DocsAgentContext,
-  DocsAgentContextKeys,
-} from '../../../agents/docs-agent/docs-agent-context';
+import type { DocsAgentOptions } from '../../../agents/docs-agent/docs-agent';
 
 const listFilesOptionsSchema = z.object({
   depth: z
@@ -51,10 +48,21 @@ const listFilesOutputSchema = z.object({
   ),
 });
 
+const listFilesContextSchema = z.object({
+  sandbox: z.custom<Sandbox>(
+    (val) => {
+      return val && typeof val === 'object' && 'id' in val && 'process' in val;
+    },
+    { message: 'Invalid Sandbox instance' }
+  ),
+});
+
+type ListFilesContext = z.infer<typeof listFilesContextSchema>;
+
 const listFilesExecution = wrapTraced(
   async (
     params: z.infer<typeof listFilesInputSchema>,
-    runtimeContext: RuntimeContext<DocsAgentContext>
+    context: ListFilesContext
   ): Promise<z.infer<typeof listFilesOutputSchema>> => {
     const { paths, options } = params;
 
@@ -63,7 +71,7 @@ const listFilesExecution = wrapTraced(
     }
 
     try {
-      const sandbox = runtimeContext.get(DocsAgentContextKeys.Sandbox);
+      const sandbox = context.sandbox;
 
       if (sandbox) {
         const results = [];
@@ -146,19 +154,30 @@ const listFilesExecution = wrapTraced(
   { name: 'list-files' }
 );
 
-export const listFiles = createTool({
-  id: 'list-files',
+export const listFiles = tool({
   description: `Displays the directory structure in a hierarchical tree format. Automatically excludes git-ignored files. Supports various options like depth limiting, showing only directories, following symlinks, and custom ignore patterns. Returns the raw text output showing the file system hierarchy with visual tree branches that clearly show parent-child relationships. Accepts both absolute and relative paths and can handle bulk operations through an array of paths.`,
   inputSchema: listFilesInputSchema,
   outputSchema: listFilesOutputSchema,
-  execute: async ({
-    context,
-    runtimeContext,
-  }: {
-    context: z.infer<typeof listFilesInputSchema>;
-    runtimeContext: RuntimeContext<DocsAgentContext>;
-  }) => {
-    return await listFilesExecution(context, runtimeContext);
+  execute: async (input, { experimental_context: context }) => {
+    const rawContext = context as DocsAgentOptions & { sandbox?: Sandbox };
+    
+    // Check if sandbox is available
+    if (!rawContext?.sandbox) {
+      // Return error for each path when sandbox is not available
+      return {
+        results: input.paths.map((path) => ({
+          status: 'error' as const,
+          path: path,
+          error_message: 'tree command requires sandbox environment',
+        })),
+      };
+    }
+    
+    const listFilesContext = listFilesContextSchema.parse({
+      sandbox: rawContext.sandbox,
+    });
+    
+    return await listFilesExecution(input, listFilesContext);
   },
 });
 

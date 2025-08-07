@@ -1,19 +1,15 @@
-import { RuntimeContext } from '@mastra/core/runtime-context';
+import type { Sandbox } from '@buster/sandbox';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { DocsAgentContextKeys } from '../../../agents/docs-agent/docs-agent-context';
+import type { DocsAgentOptions } from '../../../agents/docs-agent/docs-agent';
 import { listFiles } from './list-files-tool';
 
 describe('list-files-tool', () => {
-  let runtimeContext: RuntimeContext<any>;
-
   beforeEach(() => {
     vi.clearAllMocks();
-    runtimeContext = new RuntimeContext();
   });
 
   describe('listFiles tool', () => {
     it('should have correct tool definition', () => {
-      expect(listFiles.id).toBe('list-files');
       expect(listFiles.description).toContain('Displays the directory structure');
       expect(listFiles.inputSchema).toBeDefined();
       expect(listFiles.outputSchema).toBeDefined();
@@ -47,11 +43,11 @@ describe('list-files-tool', () => {
 
     it('should execute with sandbox when available', async () => {
       const mockSandbox = {
+        id: 'test-sandbox',
         process: {
           executeCommand: vi.fn(),
         },
-      };
-      runtimeContext.set(DocsAgentContextKeys.Sandbox, mockSandbox);
+      } as unknown as Sandbox;
 
       mockSandbox.process.executeCommand
         .mockResolvedValueOnce({
@@ -63,10 +59,19 @@ describe('list-files-tool', () => {
           exitCode: 0,
         });
 
-      const result = await listFiles.execute({
-        context: { paths: ['/test/path'] },
-        runtimeContext,
-      });
+      const result = await listFiles.execute(
+        { paths: ['/test/path'] },
+        {
+          experimental_context: {
+            folder_structure: 'test',
+            userId: 'test-user',
+            chatId: 'test-chat',
+            dataSourceId: 'test-ds',
+            organizationId: 'test-org',
+            sandbox: mockSandbox,
+          } as DocsAgentOptions,
+        }
+      );
 
       expect(mockSandbox.process.executeCommand).toHaveBeenCalledWith(
         'tree --gitignore "/test/path"'
@@ -82,11 +87,11 @@ describe('list-files-tool', () => {
 
     it('should handle options correctly', async () => {
       const mockSandbox = {
+        id: 'test-sandbox',
         process: {
           executeCommand: vi.fn(),
         },
-      };
-      runtimeContext.set(DocsAgentContextKeys.Sandbox, mockSandbox);
+      } as unknown as Sandbox;
 
       mockSandbox.process.executeCommand
         .mockResolvedValueOnce({
@@ -98,8 +103,8 @@ describe('list-files-tool', () => {
           exitCode: 0,
         });
 
-      const result = await listFiles.execute({
-        context: {
+      const result = await listFiles.execute(
+        {
           paths: ['/test/path'],
           options: {
             depth: 2,
@@ -109,8 +114,17 @@ describe('list-files-tool', () => {
             followSymlinks: true,
           },
         },
-        runtimeContext,
-      });
+        {
+          experimental_context: {
+            folder_structure: 'test',
+            userId: 'test-user',
+            chatId: 'test-chat',
+            dataSourceId: 'test-ds',
+            organizationId: 'test-org',
+            sandbox: mockSandbox,
+          } as DocsAgentOptions,
+        }
+      );
 
       expect(mockSandbox.process.executeCommand).toHaveBeenCalledWith(
         'tree --gitignore -L 2 -a -d -l -I *.log "/test/path"'
@@ -118,11 +132,19 @@ describe('list-files-tool', () => {
     });
 
     it('should return error when sandbox not available', async () => {
-      // Don't set sandbox in runtime context
-      const result = await listFiles.execute({
-        context: { paths: ['/test/path'] },
-        runtimeContext,
-      });
+      const result = await listFiles.execute(
+        { paths: ['/test/path'] },
+        {
+          experimental_context: {
+            folder_structure: 'test',
+            userId: 'test-user',
+            chatId: 'test-chat',
+            dataSourceId: 'test-ds',
+            organizationId: 'test-org',
+            sandbox: undefined,
+          } as DocsAgentOptions,
+        }
+      );
 
       expect(result.results).toHaveLength(1);
       expect(result.results[0]?.status).toBe('error');
@@ -133,21 +155,30 @@ describe('list-files-tool', () => {
 
     it('should handle command execution failure', async () => {
       const mockSandbox = {
+        id: 'test-sandbox',
         process: {
           executeCommand: vi.fn(),
         },
-      };
-      runtimeContext.set(DocsAgentContextKeys.Sandbox, mockSandbox);
+      } as unknown as Sandbox;
 
       mockSandbox.process.executeCommand.mockResolvedValue({
         result: 'tree: /nonexistent: No such file or directory',
         exitCode: 1,
       });
 
-      const result = await listFiles.execute({
-        context: { paths: ['/nonexistent'] },
-        runtimeContext,
-      });
+      const result = await listFiles.execute(
+        { paths: ['/nonexistent'] },
+        {
+          experimental_context: {
+            folder_structure: 'test',
+            userId: 'test-user',
+            chatId: 'test-chat',
+            dataSourceId: 'test-ds',
+            organizationId: 'test-org',
+            sandbox: mockSandbox,
+          } as DocsAgentOptions,
+        }
+      );
 
       expect(result.results).toHaveLength(1);
       expect(result.results[0]?.status).toBe('error');
@@ -157,21 +188,29 @@ describe('list-files-tool', () => {
     });
 
     it('should handle empty paths array', async () => {
-      const result = await listFiles.execute({
-        context: { paths: [] },
-        runtimeContext,
-      });
+      const result = await listFiles.execute(
+        { paths: [] },
+        {
+          experimental_context: {
+            folder_structure: 'test',
+            userId: 'test-user',
+            chatId: 'test-chat',
+            dataSourceId: 'test-ds',
+            organizationId: 'test-org',
+          } as DocsAgentOptions,
+        }
+      );
 
       expect(result.results).toHaveLength(0);
     });
 
     it('should handle multiple paths', async () => {
       const mockSandbox = {
+        id: 'test-sandbox',
         process: {
           executeCommand: vi.fn(),
         },
-      };
-      runtimeContext.set(DocsAgentContextKeys.Sandbox, mockSandbox);
+      } as unknown as Sandbox;
 
       mockSandbox.process.executeCommand
         .mockResolvedValueOnce({
@@ -191,10 +230,19 @@ describe('list-files-tool', () => {
           exitCode: 0,
         });
 
-      const result = await listFiles.execute({
-        context: { paths: ['/path1', '/path2'] },
-        runtimeContext,
-      });
+      const result = await listFiles.execute(
+        { paths: ['/path1', '/path2'] },
+        {
+          experimental_context: {
+            folder_structure: 'test',
+            userId: 'test-user',
+            chatId: 'test-chat',
+            dataSourceId: 'test-ds',
+            organizationId: 'test-org',
+            sandbox: mockSandbox,
+          } as DocsAgentOptions,
+        }
+      );
 
       expect(result.results).toHaveLength(2);
       expect(result.results[0]?.status).toBe('success');
@@ -203,18 +251,27 @@ describe('list-files-tool', () => {
 
     it('should handle exception during execution', async () => {
       const mockSandbox = {
+        id: 'test-sandbox',
         process: {
           executeCommand: vi.fn(),
         },
-      };
-      runtimeContext.set(DocsAgentContextKeys.Sandbox, mockSandbox);
+      } as unknown as Sandbox;
 
       mockSandbox.process.executeCommand.mockRejectedValue(new Error('Network error'));
 
-      const result = await listFiles.execute({
-        context: { paths: ['/test/path'] },
-        runtimeContext,
-      });
+      const result = await listFiles.execute(
+        { paths: ['/test/path'] },
+        {
+          experimental_context: {
+            folder_structure: 'test',
+            userId: 'test-user',
+            chatId: 'test-chat',
+            dataSourceId: 'test-ds',
+            organizationId: 'test-org',
+            sandbox: mockSandbox,
+          } as DocsAgentOptions,
+        }
+      );
 
       expect(result.results).toHaveLength(1);
       expect(result.results[0]?.status).toBe('error');

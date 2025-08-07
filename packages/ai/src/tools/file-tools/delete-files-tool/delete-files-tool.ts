@@ -1,11 +1,8 @@
-import type { RuntimeContext } from '@mastra/core/runtime-context';
-import { createTool } from '@mastra/core/tools';
+import type { Sandbox } from '@buster/sandbox';
+import { tool } from 'ai';
 import { wrapTraced } from 'braintrust';
 import { z } from 'zod';
-import {
-  type DocsAgentContext,
-  DocsAgentContextKeys,
-} from '../../../agents/docs-agent/docs-agent-context';
+import type { DocsAgentOptions } from '../../../agents/docs-agent/docs-agent';
 
 const deleteFilesInputSchema = z.object({
   paths: z
@@ -31,10 +28,21 @@ const deleteFilesOutputSchema = z.object({
   ),
 });
 
+const deleteFilesContextSchema = z.object({
+  sandbox: z.custom<Sandbox>(
+    (val) => {
+      return val && typeof val === 'object' && 'id' in val && 'process' in val;
+    },
+    { message: 'Invalid Sandbox instance' }
+  ),
+});
+
+type DeleteFilesContext = z.infer<typeof deleteFilesContextSchema>;
+
 const deleteFilesExecution = wrapTraced(
   async (
     params: z.infer<typeof deleteFilesInputSchema>,
-    runtimeContext: RuntimeContext<DocsAgentContext>
+    context: DeleteFilesContext
   ): Promise<z.infer<typeof deleteFilesOutputSchema>> => {
     const { paths } = params;
 
@@ -43,7 +51,7 @@ const deleteFilesExecution = wrapTraced(
     }
 
     try {
-      const sandbox = runtimeContext.get(DocsAgentContextKeys.Sandbox);
+      const sandbox = context.sandbox;
 
       if (sandbox) {
         const results: Array<
@@ -141,19 +149,30 @@ const deleteFilesExecution = wrapTraced(
   { name: 'delete-files' }
 );
 
-export const deleteFiles = createTool({
-  id: 'delete-files',
+export const deleteFiles = tool({
   description: `Deletes files at the specified paths. Accepts both absolute and relative file paths and can handle bulk operations through an array of paths. Only files can be deleted, not directories. Returns structured JSON with deletion results including success status and any error messages. Handles errors gracefully by continuing to process other files even if some fail.`,
   inputSchema: deleteFilesInputSchema,
   outputSchema: deleteFilesOutputSchema,
-  execute: async ({
-    context,
-    runtimeContext,
-  }: {
-    context: z.infer<typeof deleteFilesInputSchema>;
-    runtimeContext: RuntimeContext<DocsAgentContext>;
-  }) => {
-    return await deleteFilesExecution(context, runtimeContext);
+  execute: async (input, { experimental_context: context }) => {
+    const rawContext = context as DocsAgentOptions & { sandbox?: Sandbox };
+    
+    // Check if sandbox is available
+    if (!rawContext?.sandbox) {
+      // Return error for each path when sandbox is not available
+      return {
+        results: input.paths.map((path) => ({
+          status: 'error' as const,
+          path: path,
+          error_message: 'File deletion requires sandbox environment',
+        })),
+      };
+    }
+    
+    const deleteFilesContext = deleteFilesContextSchema.parse({
+      sandbox: rawContext.sandbox,
+    });
+    
+    return await deleteFilesExecution(input, deleteFilesContext);
   },
 });
 

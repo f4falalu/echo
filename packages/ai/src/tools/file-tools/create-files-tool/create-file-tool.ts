@@ -1,14 +1,10 @@
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
-import { runTypescript } from '@buster/sandbox';
-import type { RuntimeContext } from '@mastra/core/runtime-context';
-import { createTool } from '@mastra/core/tools';
+import { type Sandbox, runTypescript } from '@buster/sandbox';
+import { tool } from 'ai';
 import { wrapTraced } from 'braintrust';
 import { z } from 'zod';
-import {
-  type DocsAgentContext,
-  DocsAgentContextKeys,
-} from '../../../agents/docs-agent/docs-agent-context';
+import type { DocsAgentOptions } from '../../../agents/docs-agent/docs-agent';
 
 const fileCreateParamsSchema = z.object({
   path: z.string().describe('The relative or absolute path to create the file at'),
@@ -35,10 +31,21 @@ const createFilesOutputSchema = z.object({
   ),
 });
 
+const createFilesContextSchema = z.object({
+  sandbox: z.custom<Sandbox>(
+    (val) => {
+      return val && typeof val === 'object' && 'id' in val && 'fs' in val;
+    },
+    { message: 'Invalid Sandbox instance' }
+  ),
+});
+
+type CreateFilesContext = z.infer<typeof createFilesContextSchema>;
+
 const createFilesExecution = wrapTraced(
   async (
     params: z.infer<typeof createFilesInputSchema>,
-    runtimeContext: RuntimeContext<DocsAgentContext>
+    context: CreateFilesContext
   ): Promise<z.infer<typeof createFilesOutputSchema>> => {
     const { files } = params;
 
@@ -47,7 +54,7 @@ const createFilesExecution = wrapTraced(
     }
 
     try {
-      const sandbox = runtimeContext.get(DocsAgentContextKeys.Sandbox);
+      const sandbox = context.sandbox;
 
       if (sandbox) {
         // Generate CommonJS code for sandbox execution
@@ -183,19 +190,30 @@ console.log(JSON.stringify(results));
   { name: 'create-files' }
 );
 
-export const createFiles = createTool({
-  id: 'create-files',
+export const createFiles = tool({
   description: `Create one or more files at specified paths with provided content. Supports both absolute and relative file paths. Creates directories if they don't exist and overwrites existing files. Handles errors gracefully by continuing to process other files even if some fail. Returns both successful operations and failed operations with detailed error messages.`,
   inputSchema: createFilesInputSchema,
   outputSchema: createFilesOutputSchema,
-  execute: async ({
-    context,
-    runtimeContext,
-  }: {
-    context: z.infer<typeof createFilesInputSchema>;
-    runtimeContext: RuntimeContext<DocsAgentContext>;
-  }) => {
-    return await createFilesExecution(context, runtimeContext);
+  execute: async (input, { experimental_context: context }) => {
+    const rawContext = context as DocsAgentOptions & { sandbox?: Sandbox };
+    
+    // Check if sandbox is available
+    if (!rawContext?.sandbox) {
+      // Return error for each file when sandbox is not available
+      return {
+        results: input.files.map((file) => ({
+          status: 'error' as const,
+          filePath: file.path,
+          errorMessage: 'File creation requires sandbox environment',
+        })),
+      };
+    }
+    
+    const createFilesContext = createFilesContextSchema.parse({
+      sandbox: rawContext.sandbox,
+    });
+    
+    return await createFilesExecution(input, createFilesContext);
   },
 });
 

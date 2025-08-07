@@ -1,17 +1,11 @@
-import { RuntimeContext } from '@mastra/core/runtime-context';
+import type { Sandbox } from '@buster/sandbox';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import {
-  type DocsAgentContext,
-  DocsAgentContextKeys,
-} from '../../../agents/docs-agent/docs-agent-context';
+import type { DocsAgentOptions } from '../../../agents/docs-agent/docs-agent';
 import { deleteFiles } from './delete-files-tool';
 
 describe('delete-files-tool', () => {
-  let runtimeContext: RuntimeContext<DocsAgentContext>;
-
   beforeEach(() => {
     vi.clearAllMocks();
-    runtimeContext = new RuntimeContext<DocsAgentContext>();
   });
 
   afterEach(() => {
@@ -20,7 +14,6 @@ describe('delete-files-tool', () => {
 
   describe('deleteFiles tool', () => {
     it('should have correct tool configuration', () => {
-      expect(deleteFiles.id).toBe('delete-files');
       expect(deleteFiles.description).toContain('Deletes files at the specified paths');
       expect(deleteFiles.inputSchema).toBeDefined();
       expect(deleteFiles.outputSchema).toBeDefined();
@@ -44,8 +37,10 @@ describe('delete-files-tool', () => {
 
     it('should execute with sandbox when available', async () => {
       const mockCodeRun = vi.fn();
-      const mockSandbox = { process: { codeRun: mockCodeRun } };
-      runtimeContext.set(DocsAgentContextKeys.Sandbox, mockSandbox as any);
+      const mockSandbox = { 
+        id: 'test-sandbox',
+        process: { codeRun: mockCodeRun }
+      } as unknown as Sandbox;
 
       const input = {
         paths: ['/test/file.txt'],
@@ -65,9 +60,15 @@ describe('delete-files-tool', () => {
         stderr: '',
       });
 
-      const result = await deleteFiles.execute({
-        context: input,
-        runtimeContext,
+      const result = await deleteFiles.execute(input, {
+        experimental_context: {
+          folder_structure: 'test',
+          userId: 'test-user',
+          chatId: 'test-chat',
+          dataSourceId: 'test-ds',
+          organizationId: 'test-org',
+          sandbox: mockSandbox,
+        } as DocsAgentOptions,
       });
 
       expect(mockCodeRun).toHaveBeenCalledTimes(2);
@@ -93,9 +94,15 @@ describe('delete-files-tool', () => {
         paths: ['/test/file.txt'],
       };
 
-      const result = await deleteFiles.execute({
-        context: input,
-        runtimeContext,
+      const result = await deleteFiles.execute(input, {
+        experimental_context: {
+          folder_structure: 'test',
+          userId: 'test-user',
+          chatId: 'test-chat',
+          dataSourceId: 'test-ds',
+          organizationId: 'test-org',
+          sandbox: undefined,
+        } as DocsAgentOptions,
       });
 
       expect(result.results).toEqual([
@@ -109,8 +116,10 @@ describe('delete-files-tool', () => {
 
     it('should handle sandbox execution errors', async () => {
       const mockCodeRun = vi.fn();
-      const mockSandbox = { process: { codeRun: mockCodeRun } };
-      runtimeContext.set(DocsAgentContextKeys.Sandbox, mockSandbox as any);
+      const mockSandbox = { 
+        id: 'test-sandbox',
+        process: { codeRun: mockCodeRun }
+      } as unknown as Sandbox;
 
       const input = {
         paths: ['/test/file.txt'],
@@ -129,9 +138,15 @@ describe('delete-files-tool', () => {
         exitCode: 1,
       });
 
-      const result = await deleteFiles.execute({
-        context: input,
-        runtimeContext,
+      const result = await deleteFiles.execute(input, {
+        experimental_context: {
+          folder_structure: 'test',
+          userId: 'test-user',
+          chatId: 'test-chat',
+          dataSourceId: 'test-ds',
+          organizationId: 'test-org',
+          sandbox: mockSandbox,
+        } as DocsAgentOptions,
       });
 
       expect(result.results).toEqual([
@@ -145,8 +160,10 @@ describe('delete-files-tool', () => {
 
     it('should handle mixed success and error results', async () => {
       const mockCodeRun = vi.fn();
-      const mockSandbox = { process: { codeRun: mockCodeRun } };
-      runtimeContext.set(DocsAgentContextKeys.Sandbox, mockSandbox as any);
+      const mockSandbox = { 
+        id: 'test-sandbox',
+        process: { codeRun: mockCodeRun }
+      } as unknown as Sandbox;
 
       const input = {
         paths: ['/test/file1.txt', '/test/file2.txt'],
@@ -175,9 +192,15 @@ describe('delete-files-tool', () => {
         exitCode: 1,
       });
 
-      const result = await deleteFiles.execute({
-        context: input,
-        runtimeContext,
+      const result = await deleteFiles.execute(input, {
+        experimental_context: {
+          folder_structure: 'test',
+          userId: 'test-user',
+          chatId: 'test-chat',
+          dataSourceId: 'test-ds',
+          organizationId: 'test-org',
+          sandbox: mockSandbox,
+        } as DocsAgentOptions,
       });
 
       expect(result.results).toEqual([
@@ -196,9 +219,14 @@ describe('delete-files-tool', () => {
     it('should handle empty paths array', async () => {
       const input = { paths: [] };
 
-      const result = await deleteFiles.execute({
-        context: input,
-        runtimeContext,
+      const result = await deleteFiles.execute(input, {
+        experimental_context: {
+          folder_structure: 'test',
+          userId: 'test-user',
+          chatId: 'test-chat',
+          dataSourceId: 'test-ds',
+          organizationId: 'test-org',
+        } as DocsAgentOptions,
       });
 
       expect(result.results).toEqual([]);
@@ -206,8 +234,10 @@ describe('delete-files-tool', () => {
 
     it('should handle directory deletion attempts', async () => {
       const mockCodeRun = vi.fn();
-      const mockSandbox = { process: { codeRun: mockCodeRun } };
-      runtimeContext.set(DocsAgentContextKeys.Sandbox, mockSandbox as any);
+      const mockSandbox = { 
+        id: 'test-sandbox',
+        process: { codeRun: mockCodeRun }
+      } as unknown as Sandbox;
 
       const input = {
         paths: ['/test/directory'],
@@ -220,9 +250,15 @@ describe('delete-files-tool', () => {
         stderr: '',
       });
 
-      const result = await deleteFiles.execute({
-        context: input,
-        runtimeContext,
+      const result = await deleteFiles.execute(input, {
+        experimental_context: {
+          folder_structure: 'test',
+          userId: 'test-user',
+          chatId: 'test-chat',
+          dataSourceId: 'test-ds',
+          organizationId: 'test-org',
+          sandbox: mockSandbox,
+        } as DocsAgentOptions,
       });
 
       expect(mockCodeRun).toHaveBeenCalledTimes(1); // Only directory check, no rm call
@@ -237,8 +273,10 @@ describe('delete-files-tool', () => {
 
     it('should handle multiple files sequentially', async () => {
       const mockCodeRun = vi.fn();
-      const mockSandbox = { process: { codeRun: mockCodeRun } };
-      runtimeContext.set(DocsAgentContextKeys.Sandbox, mockSandbox as any);
+      const mockSandbox = { 
+        id: 'test-sandbox',
+        process: { codeRun: mockCodeRun }
+      } as unknown as Sandbox;
 
       const input = {
         paths: ['/test/file1.txt', '/test/file2.txt', '/test/file3.txt'],
@@ -260,9 +298,15 @@ describe('delete-files-tool', () => {
         });
       }
 
-      const result = await deleteFiles.execute({
-        context: input,
-        runtimeContext,
+      const result = await deleteFiles.execute(input, {
+        experimental_context: {
+          folder_structure: 'test',
+          userId: 'test-user',
+          chatId: 'test-chat',
+          dataSourceId: 'test-ds',
+          organizationId: 'test-org',
+          sandbox: mockSandbox,
+        } as DocsAgentOptions,
       });
 
       expect(mockCodeRun).toHaveBeenCalledTimes(6); // 2 calls per file
@@ -285,8 +329,10 @@ describe('delete-files-tool', () => {
 
     it('should handle codeRun errors', async () => {
       const mockCodeRun = vi.fn();
-      const mockSandbox = { process: { codeRun: mockCodeRun } };
-      runtimeContext.set(DocsAgentContextKeys.Sandbox, mockSandbox as any);
+      const mockSandbox = { 
+        id: 'test-sandbox',
+        process: { codeRun: mockCodeRun }
+      } as unknown as Sandbox;
 
       const input = {
         paths: ['/test/file.txt'],
@@ -295,9 +341,15 @@ describe('delete-files-tool', () => {
       // Mock codeRun to throw an error
       mockCodeRun.mockRejectedValue(new Error('Sandbox execution failed'));
 
-      const result = await deleteFiles.execute({
-        context: input,
-        runtimeContext,
+      const result = await deleteFiles.execute(input, {
+        experimental_context: {
+          folder_structure: 'test',
+          userId: 'test-user',
+          chatId: 'test-chat',
+          dataSourceId: 'test-ds',
+          organizationId: 'test-org',
+          sandbox: mockSandbox,
+        } as DocsAgentOptions,
       });
 
       expect(result.results).toEqual([

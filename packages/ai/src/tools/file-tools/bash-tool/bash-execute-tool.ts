@@ -1,11 +1,8 @@
-import type { RuntimeContext } from '@mastra/core/runtime-context';
-import { createTool } from '@mastra/core/tools';
+import type { Sandbox } from '@buster/sandbox';
+import { tool } from 'ai';
 import { wrapTraced } from 'braintrust';
 import { z } from 'zod';
-import {
-  type DocsAgentContext,
-  DocsAgentContextKeys,
-} from '../../../agents/docs-agent/docs-agent-context';
+import type { DocsAgentOptions } from '../../../agents/docs-agent/docs-agent';
 
 const bashCommandSchema = z.object({
   command: z.string().describe('The bash command to execute'),
@@ -19,6 +16,17 @@ const bashCommandSchema = z.object({
 const inputSchema = z.object({
   commands: z.array(bashCommandSchema),
 });
+
+const bashExecuteContextSchema = z.object({
+  sandbox: z.custom<Sandbox>(
+    (val) => {
+      return val && typeof val === 'object' && 'id' in val && 'process' in val;
+    },
+    { message: 'Invalid Sandbox instance' }
+  ),
+});
+
+type BashExecuteContext = z.infer<typeof bashExecuteContextSchema>;
 
 const outputSchema = z.object({
   results: z.array(
@@ -36,7 +44,7 @@ const outputSchema = z.object({
 const executeBashCommands = wrapTraced(
   async (
     input: z.infer<typeof inputSchema>,
-    runtimeContext: RuntimeContext<DocsAgentContext>
+    context: BashExecuteContext
   ): Promise<z.infer<typeof outputSchema>> => {
     const commands = Array.isArray(input.commands) ? input.commands : [input.commands];
 
@@ -45,8 +53,7 @@ const executeBashCommands = wrapTraced(
     }
 
     try {
-      // Check if sandbox is available in runtime context
-      const sandbox = runtimeContext.get(DocsAgentContextKeys.Sandbox);
+      const sandbox = context.sandbox;
 
       if (sandbox) {
         // Execute all commands concurrently using executeCommand
@@ -117,8 +124,7 @@ const executeBashCommands = wrapTraced(
   { name: 'bash-execute-tool' }
 );
 
-export const executeBash = createTool({
-  id: 'execute-bash',
+export const bashExecute = tool({
   description: `Executes bash commands and captures stdout, stderr, and exit codes.
 
 IMPORTANT: The 'commands' field must be an array of command objects: [{command: "pwd", description: "Print working directory"}, {command: "ls", description: "List files"}]
@@ -126,15 +132,33 @@ IMPORTANT: The 'commands' field must be an array of command objects: [{command: 
 Note: Timeout functionality is currently not supported in the sandbox environment.`,
   inputSchema,
   outputSchema,
-  execute: async ({
-    context,
-    runtimeContext,
-  }: {
-    context: z.infer<typeof inputSchema>;
-    runtimeContext: RuntimeContext<DocsAgentContext>;
-  }) => {
-    return await executeBashCommands(context, runtimeContext);
+  execute: async (input, { experimental_context: context }) => {
+    const rawContext = context as DocsAgentOptions & { sandbox?: Sandbox };
+    
+    // Check if sandbox is available
+    if (!rawContext?.sandbox) {
+      // Return error for each command when sandbox is not available
+      return {
+        results: input.commands.map((cmd) => ({
+          command: cmd.command,
+          stdout: '',
+          stderr: undefined,
+          exitCode: 1,
+          success: false,
+          error: 'Bash execution requires sandbox environment',
+        })),
+      };
+    }
+    
+    const bashExecuteContext = bashExecuteContextSchema.parse({
+      sandbox: rawContext.sandbox,
+    });
+    
+    return await executeBashCommands(input, bashExecuteContext);
   },
 });
 
-export default executeBash;
+// Keep the old export name for compatibility
+export const executeBash = bashExecute;
+
+export default bashExecute;

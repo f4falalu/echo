@@ -1,11 +1,8 @@
-import type { RuntimeContext } from '@mastra/core/runtime-context';
-import { createTool } from '@mastra/core/tools';
+import type { Sandbox } from '@buster/sandbox';
+import { tool } from 'ai';
 import { wrapTraced } from 'braintrust';
 import { z } from 'zod';
-import {
-  type DocsAgentContext,
-  DocsAgentContextKeys,
-} from '../../../agents/docs-agent/docs-agent-context';
+import type { DocsAgentOptions } from '../../../agents/docs-agent/docs-agent';
 
 const rgSearchInputSchema = z.object({
   commands: z.array(z.string()).min(1).describe('Array of ripgrep (rg) commands to execute'),
@@ -28,10 +25,21 @@ const rgSearchOutputSchema = z.object({
 export type RgSearchInput = z.infer<typeof rgSearchInputSchema>;
 export type RgSearchOutput = z.infer<typeof rgSearchOutputSchema>;
 
+const grepSearchContextSchema = z.object({
+  sandbox: z.custom<Sandbox>(
+    (val) => {
+      return val && typeof val === 'object' && 'id' in val && 'process' in val;
+    },
+    { message: 'Invalid Sandbox instance' }
+  ),
+});
+
+type GrepSearchContext = z.infer<typeof grepSearchContextSchema>;
+
 const rgSearchExecution = wrapTraced(
   async (
     params: z.infer<typeof rgSearchInputSchema>,
-    runtimeContext: RuntimeContext<DocsAgentContext>
+    context: GrepSearchContext
   ): Promise<z.infer<typeof rgSearchOutputSchema>> => {
     const { commands } = params;
     const startTime = Date.now();
@@ -45,7 +53,7 @@ const rgSearchExecution = wrapTraced(
     }
 
     try {
-      const sandbox = runtimeContext.get(DocsAgentContextKeys.Sandbox);
+      const sandbox = context.sandbox;
 
       if (sandbox) {
         // Execute all commands concurrently
@@ -119,20 +127,34 @@ const rgSearchExecution = wrapTraced(
   { name: 'rg-search' }
 );
 
-export const grepSearch = createTool({
-  id: 'grep_search',
+export const grepSearch = tool({
   description:
     'Executes ripgrep (rg) commands to search files and directories. Accepts raw rg commands with any flags and options. Returns the stdout/stderr output from each command.',
   inputSchema: rgSearchInputSchema,
   outputSchema: rgSearchOutputSchema,
-  execute: async ({
-    context,
-    runtimeContext,
-  }: {
-    context: z.infer<typeof rgSearchInputSchema>;
-    runtimeContext: RuntimeContext<DocsAgentContext>;
-  }) => {
-    return await rgSearchExecution(context, runtimeContext);
+  execute: async (input, { experimental_context: context }) => {
+    const rawContext = context as DocsAgentOptions & { sandbox?: Sandbox };
+    
+    // Check if sandbox is available
+    if (!rawContext?.sandbox) {
+      // Return error for each command when sandbox is not available
+      const startTime = Date.now();
+      return {
+        message: 'Ripgrep commands require sandbox environment',
+        duration: Date.now() - startTime,
+        results: input.commands.map((cmd) => ({
+          success: false,
+          command: cmd,
+          error: 'ripgrep command requires sandbox environment',
+        })),
+      };
+    }
+    
+    const grepSearchContext = grepSearchContextSchema.parse({
+      sandbox: rawContext.sandbox,
+    });
+    
+    return await rgSearchExecution(input, grepSearchContext);
   },
 });
 
