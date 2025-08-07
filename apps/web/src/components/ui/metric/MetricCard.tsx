@@ -9,105 +9,101 @@ import type { DropdownItems } from '../dropdown';
 import Link from 'next/link';
 import { PreparingYourRequestLoader } from '../charts/LoadingComponents';
 
-export const MetricCard = React.memo(
-  React.forwardRef<
-    HTMLDivElement,
+export const MetricCard = React.forwardRef<
+  HTMLDivElement,
+  {
+    className?: string;
+    metricId: string;
+    metricLink: string;
+    isDragOverlay: boolean;
+    readOnly: boolean;
+    metricData: BusterMetricData | undefined;
+    metric: Pick<BusterMetric, 'name' | 'time_frame' | 'chart_config' | 'description'> | undefined;
+    renderChart: boolean;
+    loading: boolean;
+    error: string | undefined;
+    animate: boolean;
+    onInitialAnimationEnd?: () => void;
+    attributes?: DraggableAttributes;
+    listeners?: DraggableSyntheticListeners;
+    threeDotMenuItems: DropdownItems;
+  }
+>(
+  (
     {
-      className?: string;
-      metricId: string;
-      metricLink: string;
-      isDragOverlay: boolean;
-      readOnly: boolean;
-      metricData: BusterMetricData | undefined;
-      metric:
-        | Pick<BusterMetric, 'name' | 'time_frame' | 'chart_config' | 'description'>
-        | undefined;
-      renderChart: boolean;
-      loading: boolean;
-      error: string | undefined;
-      animate: boolean;
-      onInitialAnimationEnd?: () => void;
-      attributes?: DraggableAttributes;
-      listeners?: DraggableSyntheticListeners;
-      threeDotMenuItems: DropdownItems;
-    }
-  >(
-    (
-      {
-        className = '',
-        metricId,
-        metricLink,
-        readOnly,
-        metricData,
-        metric,
-        isDragOverlay,
-        renderChart = true,
-        loading = false,
-        animate = true,
-        error,
-        attributes,
-        listeners,
-        threeDotMenuItems,
-        onInitialAnimationEnd
-      },
-      ref
-    ) => {
-      const isTable = metric?.chart_config?.selectedChartType === 'table';
-      const chartOptions = metric?.chart_config;
-      const data = metricData?.data || null;
-      const hideChart = isDragOverlay && data && data.length > 50;
+      className = '',
+      metricId,
+      metricLink,
+      readOnly,
+      metricData,
+      metric,
+      isDragOverlay,
+      renderChart = true,
+      loading = false,
+      animate = true,
+      error,
+      attributes,
+      listeners,
+      threeDotMenuItems,
+      onInitialAnimationEnd
+    },
+    ref
+  ) => {
+    const isTable = metric?.chart_config?.selectedChartType === 'table';
+    const chartOptions = metric?.chart_config;
+    const data = metricData?.data || null;
+    const hideChart = isDragOverlay && data && data.length > 50;
 
-      const content = () => {
-        if (renderChart && chartOptions && !hideChart) {
-          return (
-            <BusterChartDynamic
-              data={data}
-              loading={loading}
-              error={error}
-              onInitialAnimationEnd={onInitialAnimationEnd}
-              animate={!isDragOverlay && animate}
-              animateLegend={false}
-              columnMetadata={metricData?.data_metadata?.column_metadata}
-              readOnly={true}
-              {...chartOptions}
+    const content = () => {
+      if (renderChart && chartOptions && !hideChart) {
+        return (
+          <BusterChartDynamic
+            data={data}
+            loading={loading}
+            error={error}
+            onInitialAnimationEnd={onInitialAnimationEnd}
+            animate={!isDragOverlay && animate}
+            animateLegend={false}
+            columnMetadata={metricData?.data_metadata?.column_metadata}
+            readOnly={true}
+            {...chartOptions}
+          />
+        );
+      }
+
+      return <PreparingYourRequestLoader />;
+    };
+
+    return (
+      <Card
+        ref={ref}
+        className={cn('metric-item flex h-full w-full flex-col overflow-auto', className)}>
+        <Link className="swag flex" href={metricLink} prefetch {...attributes} {...listeners}>
+          <CardHeader
+            size="small"
+            data-testid={`metric-item-${metricId}`}
+            className="hover:bg-item-hover group relative min-h-13! w-full justify-center overflow-hidden border-b px-4 py-2">
+            <MetricTitle
+              name={metric?.name || ''}
+              timeFrame={metric?.time_frame}
+              metricLink={metricLink}
+              isDragOverlay={false}
+              readOnly={readOnly}
+              description={metric?.description}
+              threeDotMenuItems={threeDotMenuItems}
             />
-          );
-        }
+          </CardHeader>
+        </Link>
 
-        return <PreparingYourRequestLoader />;
-      };
-
-      return (
-        <Card
-          ref={ref}
-          className={cn('metric-item flex h-full w-full flex-col overflow-auto', className)}>
-          <Link className="swag flex" href={metricLink} prefetch {...attributes} {...listeners}>
-            <CardHeader
-              size="small"
-              data-testid={`metric-item-${metricId}`}
-              className="hover:bg-item-hover group relative min-h-13! w-full justify-center overflow-hidden border-b px-4 py-2">
-              <MetricTitle
-                name={metric?.name || ''}
-                timeFrame={metric?.time_frame}
-                metricLink={metricLink}
-                isDragOverlay={false}
-                readOnly={readOnly}
-                description={metric?.description}
-                threeDotMenuItems={threeDotMenuItems}
-              />
-            </CardHeader>
-          </Link>
-
-          <div
-            className={cn(
-              'h-full w-full overflow-hidden bg-transparent',
-              isTable ? '' : 'p-3',
-              isDragOverlay ? 'pointer-events-none' : 'pointer-events-auto'
-            )}>
-            {content()}
-          </div>
-        </Card>
-      );
-    }
-  )
+        <div
+          className={cn(
+            'h-full w-full overflow-hidden bg-transparent',
+            isTable ? '' : 'p-3',
+            isDragOverlay ? 'pointer-events-none' : 'pointer-events-auto'
+          )}>
+          {content()}
+        </div>
+      </Card>
+    );
+  }
 );
