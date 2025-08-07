@@ -251,7 +251,7 @@ For bulk operations, each edit is processed independently and the tool returns b
   outputSchema: editFilesOutputSchema,
   execute: async (input, { experimental_context: context }) => {
     const rawContext = context as DocsAgentOptions & { sandbox?: Sandbox };
-    
+
     // Check if sandbox is available
     if (!rawContext?.sandbox) {
       // Return error for each edit when sandbox is not available
@@ -268,11 +268,11 @@ For bulk operations, each edit is processed independently and the tool returns b
         },
       };
     }
-    
+
     const editFilesContext = editFilesContextSchema.parse({
       sandbox: rawContext.sandbox,
     });
-    
+
     return await editFilesExecution(input, editFilesContext);
   },
 });

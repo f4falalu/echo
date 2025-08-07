@@ -2,11 +2,11 @@ import { type ModelMessage, NoSuchToolError, hasToolCall, stepCountIs, streamTex
 import { wrapTraced } from 'braintrust';
 import z from 'zod';
 import {
-  createDashboards,
-  createMetrics,
-  doneTool,
-  modifyDashboards,
-  modifyMetrics,
+  createCreateDashboardsTool,
+  createCreateMetricsTool,
+  createDoneTool,
+  createModifyDashboardsTool,
+  createModifyMetricsTool,
 } from '../../tools';
 import { Sonnet4 } from '../../utils/models/sonnet-4';
 import { createNoSuchToolHealingMessage, healToolWithLlm } from '../../utils/tool-call-repair';
@@ -50,6 +50,14 @@ export function createAnalystAgent(analystAgentOptions: AnalystAgentOptions) {
     let attempt = 0;
     const currentMessages = [...messages];
 
+    // Create tool instances - all visualization tools now accept context directly
+    const createMetrics = createCreateMetricsTool(analystAgentOptions);
+    const modifyMetrics = createModifyMetricsTool(analystAgentOptions);
+    const createDashboards = createCreateDashboardsTool(analystAgentOptions);
+    const modifyDashboards = createModifyDashboardsTool(analystAgentOptions);
+    // Done tool now accepts context directly
+    const doneTool = createDoneTool<AnalystAgentOptions>(analystAgentOptions);
+
     while (attempt <= maxRetries) {
       try {
         return wrapTraced(
@@ -68,7 +76,6 @@ export function createAnalystAgent(analystAgentOptions: AnalystAgentOptions) {
               toolChoice: 'required',
               maxOutputTokens: 10000,
               temperature: 0,
-              experimental_context: analystAgentOptions,
               experimental_repairToolCall: healToolWithLlm,
             }),
           {

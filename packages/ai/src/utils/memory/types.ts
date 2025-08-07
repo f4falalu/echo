@@ -275,29 +275,22 @@ export function hasToolCalls(message: CoreMessage): boolean {
   if (!isAssistantMessage(message)) return false;
   return (
     Array.isArray(message.content) &&
-    message.content.some(
-      (item): item is { type: 'tool-call'; toolCallId: string; toolName: string; args: unknown } =>
-        typeof item === 'object' &&
-        item !== null &&
-        'type' in item &&
-        item.type === 'tool-call' &&
-        'toolCallId' in item &&
-        'toolName' in item
-    )
+    message.content.some((item) => {
+      if (typeof item !== 'object' || item === null || !('type' in item)) return false;
+      const i = item as { type?: unknown; toolCallId?: unknown; toolName?: unknown };
+      return (
+        i.type === 'tool-call' && typeof i.toolCallId === 'string' && typeof i.toolName === 'string'
+      );
+    })
   );
 }
 
 // Type guard for tool call content
-export function isToolCallContent(
-  content: unknown
-): content is { type: 'tool-call'; toolCallId: string; toolName: string; args: unknown } {
+export function isToolCallContent(content: unknown): boolean {
+  if (typeof content !== 'object' || content === null || !('type' in content)) return false;
+  const c = content as { type?: unknown; toolCallId?: unknown; toolName?: unknown };
   return (
-    typeof content === 'object' &&
-    content !== null &&
-    'type' in content &&
-    content.type === 'tool-call' &&
-    'toolCallId' in content &&
-    'toolName' in content
+    c.type === 'tool-call' && typeof c.toolCallId === 'string' && typeof c.toolName === 'string'
   );
 }
 

@@ -22,20 +22,40 @@ const DoneToolContextSchema = z.object({
   messageId: z.string().describe('The message ID of the message that triggered the done tool'),
 });
 
+const DoneToolStateSchema = z.object({
+  entry_id: z
+    .string()
+    .optional()
+    .describe(
+      'The entry ID of the entry that triggered the done tool. This is optional and will be set by the tool start'
+    ),
+  args: z.string().optional().describe('The arguments of the done tool'),
+  final_response: z
+    .string()
+    .optional()
+    .describe(
+      'The final response message to the user. This is optional and will be set by the tool delta and finish'
+    ),
+});
+
 export type DoneToolInput = z.infer<typeof DoneToolInputSchema>;
 export type DoneToolOutput = z.infer<typeof DoneToolOutputSchema>;
 export type DoneToolContext = z.infer<typeof DoneToolContextSchema>;
+export type DoneToolState = z.infer<typeof DoneToolStateSchema>;
 
-// Type constraint for agent context - must have at least a messageId
-export type DoneToolAgentContext = { messageId?: string };
+export function createDoneTool<TAgentContext extends DoneToolContext = DoneToolContext>(
+  context: TAgentContext
+) {
+  const state: DoneToolState = {
+    entry_id: undefined,
+    args: undefined,
+    final_response: undefined,
+  };
 
-// Factory function that accepts agent context and maps to tool context
-export function createDoneTool<TAgentContext extends DoneToolAgentContext = DoneToolAgentContext>() {
-  // Create all functions with the specific agent context type
-  const execute = createDoneToolExecute<TAgentContext>();
-  const onInputStart = createDoneToolStart<TAgentContext>();
-  const onInputDelta = createDoneToolDelta<TAgentContext>();
-  const onInputAvailable = createDoneToolFinish<TAgentContext>();
+  const execute = createDoneToolExecute<TAgentContext>(context);
+  const onInputStart = createDoneToolStart<TAgentContext>(state, context);
+  const onInputDelta = createDoneToolDelta<TAgentContext>(state, context);
+  const onInputAvailable = createDoneToolFinish<TAgentContext>(state, context);
 
   return tool({
     description:
@@ -49,5 +69,5 @@ export function createDoneTool<TAgentContext extends DoneToolAgentContext = Done
   });
 }
 
-// Export a default instance for backward compatibility
-export const doneTool = createDoneTool();
+// Default instance requires a context to be passed
+// export const doneTool = createDoneTool();

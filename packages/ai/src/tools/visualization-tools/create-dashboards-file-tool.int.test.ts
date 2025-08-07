@@ -598,10 +598,9 @@ rows:
       runtimeContext: mockRuntimeContext,
     };
 
-    const successResult = await createDashboards.execute(
-      successInput,
-      { experimental_context: mockRuntimeContext as unknown as RuntimeContext }
-    );
+    const successResult = await createDashboards.execute(successInput, {
+      experimental_context: mockRuntimeContext as unknown as RuntimeContext,
+    });
     expect(successResult.message).toBe('Successfully created 1 dashboard files.');
 
     // Track created dashboard for cleanup

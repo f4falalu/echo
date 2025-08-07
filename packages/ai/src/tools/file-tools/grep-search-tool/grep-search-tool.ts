@@ -134,7 +134,7 @@ export const grepSearch = tool({
   outputSchema: rgSearchOutputSchema,
   execute: async (input, { experimental_context: context }) => {
     const rawContext = context as DocsAgentOptions & { sandbox?: Sandbox };
-    
+
     // Check if sandbox is available
     if (!rawContext?.sandbox) {
       // Return error for each command when sandbox is not available
@@ -149,11 +149,11 @@ export const grepSearch = tool({
         })),
       };
     }
-    
+
     const grepSearchContext = grepSearchContextSchema.parse({
       sandbox: rawContext.sandbox,
     });
-    
+
     return await rgSearchExecution(input, grepSearchContext);
   },
 });

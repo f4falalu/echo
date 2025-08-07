@@ -1,6 +1,6 @@
 import { createWorkflow } from '@mastra/core';
 import { z } from 'zod';
-import { type AnalystAgentOptions } from '../agents/analyst-agent/analyst-agent';
+import type { AnalystAgentOptions } from '../agents/analyst-agent/analyst-agent';
 import { thinkAndPrepWorkflowInputSchema } from '../schemas/workflow-schemas';
 
 // Type alias for consistency
@@ -10,7 +10,7 @@ export type AnalystRuntimeContext = AnalystAgentOptions;
 // Re-export for backward compatibility
 export { thinkAndPrepWorkflowInputSchema, type AnalystAgentContext };
 // Legacy exports - deprecated, use AnalystAgentContext instead
-export { type AnalystAgentContext as AnalystRuntimeContext };
+export type { AnalystAgentContext as AnalystRuntimeContext };
 import { analystStep } from '../steps/analyst-step';
 import { createTodosStep } from '../steps/create-todos-step';
 import { extractValuesSearchStep } from '../steps/extract-values-search-step';

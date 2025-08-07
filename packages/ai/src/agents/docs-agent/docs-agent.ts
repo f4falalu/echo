@@ -34,12 +34,14 @@ const DocsAgentOptionsSchema = z.object({
   dataSourceId: z.string(),
   organizationId: z.string(),
   messageId: z.string().optional(),
-  sandbox: z.custom<Sandbox>(
-    (val) => {
-      return val && typeof val === 'object' && 'id' in val && 'fs' in val;
-    },
-    { message: 'Invalid Sandbox instance' }
-  ).optional(),
+  sandbox: z
+    .custom<Sandbox>(
+      (val) => {
+        return val && typeof val === 'object' && 'id' in val && 'fs' in val;
+      },
+      { message: 'Invalid Sandbox instance' }
+    )
+    .optional(),
 });
 
 const DocsStreamOptionsSchema = z.object({

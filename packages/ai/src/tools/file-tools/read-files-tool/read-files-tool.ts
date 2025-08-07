@@ -175,7 +175,7 @@ export const readFiles = tool({
   outputSchema: readFilesOutputSchema,
   execute: async (input, { experimental_context: context }) => {
     const rawContext = context as DocsAgentOptions & { sandbox?: Sandbox };
-    
+
     // Check if sandbox is available
     if (!rawContext?.sandbox) {
       // Return error for each file when sandbox is not available
@@ -187,11 +187,11 @@ export const readFiles = tool({
         })),
       };
     }
-    
+
     const readFilesContext = readFilesContextSchema.parse({
       sandbox: rawContext.sandbox,
     });
-    
+
     return await readFilesExecution(input, readFilesContext);
   },
 });

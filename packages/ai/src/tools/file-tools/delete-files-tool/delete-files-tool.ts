@@ -155,7 +155,7 @@ export const deleteFiles = tool({
   outputSchema: deleteFilesOutputSchema,
   execute: async (input, { experimental_context: context }) => {
     const rawContext = context as DocsAgentOptions & { sandbox?: Sandbox };
-    
+
     // Check if sandbox is available
     if (!rawContext?.sandbox) {
       // Return error for each path when sandbox is not available
@@ -167,11 +167,11 @@ export const deleteFiles = tool({
         })),
       };
     }
-    
+
     const deleteFilesContext = deleteFilesContextSchema.parse({
       sandbox: rawContext.sandbox,
     });
-    
+
     return await deleteFilesExecution(input, deleteFilesContext);
   },
 });

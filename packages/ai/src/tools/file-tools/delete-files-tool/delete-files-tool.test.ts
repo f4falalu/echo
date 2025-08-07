@@ -37,9 +37,9 @@ describe('delete-files-tool', () => {
 
     it('should execute with sandbox when available', async () => {
       const mockCodeRun = vi.fn();
-      const mockSandbox = { 
+      const mockSandbox = {
         id: 'test-sandbox',
-        process: { codeRun: mockCodeRun }
+        process: { codeRun: mockCodeRun },
       } as unknown as Sandbox;
 
       const input = {
@@ -116,9 +116,9 @@ describe('delete-files-tool', () => {
 
     it('should handle sandbox execution errors', async () => {
       const mockCodeRun = vi.fn();
-      const mockSandbox = { 
+      const mockSandbox = {
         id: 'test-sandbox',
-        process: { codeRun: mockCodeRun }
+        process: { codeRun: mockCodeRun },
       } as unknown as Sandbox;
 
       const input = {
@@ -160,9 +160,9 @@ describe('delete-files-tool', () => {
 
     it('should handle mixed success and error results', async () => {
       const mockCodeRun = vi.fn();
-      const mockSandbox = { 
+      const mockSandbox = {
         id: 'test-sandbox',
-        process: { codeRun: mockCodeRun }
+        process: { codeRun: mockCodeRun },
       } as unknown as Sandbox;
 
       const input = {
@@ -234,9 +234,9 @@ describe('delete-files-tool', () => {
 
     it('should handle directory deletion attempts', async () => {
       const mockCodeRun = vi.fn();
-      const mockSandbox = { 
+      const mockSandbox = {
         id: 'test-sandbox',
-        process: { codeRun: mockCodeRun }
+        process: { codeRun: mockCodeRun },
       } as unknown as Sandbox;
 
       const input = {
@@ -273,9 +273,9 @@ describe('delete-files-tool', () => {
 
     it('should handle multiple files sequentially', async () => {
       const mockCodeRun = vi.fn();
-      const mockSandbox = { 
+      const mockSandbox = {
         id: 'test-sandbox',
-        process: { codeRun: mockCodeRun }
+        process: { codeRun: mockCodeRun },
       } as unknown as Sandbox;
 
       const input = {
@@ -329,9 +329,9 @@ describe('delete-files-tool', () => {
 
     it('should handle codeRun errors', async () => {
       const mockCodeRun = vi.fn();
-      const mockSandbox = { 
+      const mockSandbox = {
         id: 'test-sandbox',
-        process: { codeRun: mockCodeRun }
+        process: { codeRun: mockCodeRun },
       } as unknown as Sandbox;
 
       const input = {

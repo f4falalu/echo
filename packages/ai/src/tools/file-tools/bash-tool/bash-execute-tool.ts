@@ -134,7 +134,7 @@ Note: Timeout functionality is currently not supported in the sandbox environmen
   outputSchema,
   execute: async (input, { experimental_context: context }) => {
     const rawContext = context as DocsAgentOptions & { sandbox?: Sandbox };
-    
+
     // Check if sandbox is available
     if (!rawContext?.sandbox) {
       // Return error for each command when sandbox is not available
@@ -149,11 +149,11 @@ Note: Timeout functionality is currently not supported in the sandbox environmen
         })),
       };
     }
-    
+
     const bashExecuteContext = bashExecuteContextSchema.parse({
       sandbox: rawContext.sandbox,
     });
-    
+
     return await executeBashCommands(input, bashExecuteContext);
   },
 });

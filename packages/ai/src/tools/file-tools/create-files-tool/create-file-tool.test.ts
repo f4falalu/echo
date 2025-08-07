@@ -52,10 +52,10 @@ describe('create-file-tool', () => {
     });
 
     it('should execute with sandbox when available', async () => {
-      const mockSandbox = { 
+      const mockSandbox = {
         id: 'test-sandbox',
         fs: {},
-        process: { codeRun: vi.fn() } 
+        process: { codeRun: vi.fn() },
       } as unknown as Sandbox;
 
       const input = {
@@ -119,10 +119,10 @@ describe('create-file-tool', () => {
     });
 
     it('should handle sandbox execution errors', async () => {
-      const mockSandbox = { 
+      const mockSandbox = {
         id: 'test-sandbox',
         fs: {},
-        process: { codeRun: vi.fn() }
+        process: { codeRun: vi.fn() },
       } as unknown as Sandbox;
 
       const input = {
@@ -157,10 +157,10 @@ describe('create-file-tool', () => {
     });
 
     it('should handle mixed success and error results', async () => {
-      const mockSandbox = { 
+      const mockSandbox = {
         id: 'test-sandbox',
         fs: {},
-        process: { codeRun: vi.fn() }
+        process: { codeRun: vi.fn() },
       } as unknown as Sandbox;
 
       const input = {
@@ -221,10 +221,10 @@ describe('create-file-tool', () => {
     });
 
     it('should handle JSON parse errors from sandbox', async () => {
-      const mockSandbox = { 
+      const mockSandbox = {
         id: 'test-sandbox',
         fs: {},
-        process: { codeRun: vi.fn() }
+        process: { codeRun: vi.fn() },
       } as unknown as Sandbox;
 
       const input = {
@@ -259,10 +259,10 @@ describe('create-file-tool', () => {
     });
 
     it('should handle file read errors', async () => {
-      const mockSandbox = { 
+      const mockSandbox = {
         id: 'test-sandbox',
         fs: {},
-        process: { codeRun: vi.fn() }
+        process: { codeRun: vi.fn() },
       } as unknown as Sandbox;
 
       const input = {
@@ -291,10 +291,10 @@ describe('create-file-tool', () => {
     });
 
     it('should pass file parameters as JSON string argument', async () => {
-      const mockSandbox = { 
+      const mockSandbox = {
         id: 'test-sandbox',
         fs: {},
-        process: { codeRun: vi.fn() }
+        process: { codeRun: vi.fn() },
       } as unknown as Sandbox;
 
       const input = {

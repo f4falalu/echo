@@ -20,3 +20,5 @@ export {
   getRawLlmMessages,
   getRawLlmMessagesByMessageId,
 } from './steps/get-chat-history';
+
+export type { ModelMessage } from 'ai';
