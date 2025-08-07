@@ -28,12 +28,13 @@ export interface GenerateChatTitleResult {
   title: string;
 }
 
-export async function generateChatTitle({
-  prompt,
-  conversationHistory,
-  chatId,
-  messageId,
-}: GenerateChatTitleParams): Promise<GenerateChatTitleResult> {
+/**
+ * Generates a title using the LLM with conversation context
+ */
+async function generateTitleWithLLM(
+  prompt: string,
+  conversationHistory?: ModelMessage[]
+): Promise<string> {
   try {
     // Prepare messages for the LLM
     const messages: ModelMessage[] = [];
@@ -55,59 +56,78 @@ export async function generateChatTitle({
       content: prompt,
     });
 
-    let title: { title: string };
+    const tracedChatTitle = wrapTraced(
+      async () => {
+        const { object } = await generateObject({
+          model: Haiku35,
+          schema: llmOutputSchema,
+          messages,
+        });
 
-    try {
-      const tracedChatTitle = wrapTraced(
-        async () => {
-          const { object } = await generateObject({
-            model: Haiku35,
-            schema: llmOutputSchema,
-            messages,
-          });
+        return object;
+      },
+      {
+        name: 'Generate Chat Title',
+      }
+    );
 
-          return object;
-        },
-        {
-          name: 'Generate Chat Title',
-        }
-      );
+    const result = await tracedChatTitle();
+    return result.title ?? 'New Analysis';
+  } catch (llmError) {
+    // Handle LLM generation errors specifically
+    console.warn('[GenerateChatTitle] LLM failed to generate valid response:', {
+      error: llmError instanceof Error ? llmError.message : 'Unknown error',
+      errorType: llmError instanceof Error ? llmError.name : 'Unknown',
+    });
 
-      const result = await tracedChatTitle();
-      title = { title: result.title ?? 'New Analysis' };
-    } catch (llmError) {
-      // Handle LLM generation errors specifically
-      console.warn('[GenerateChatTitle] LLM failed to generate valid response:', {
-        error: llmError instanceof Error ? llmError.message : 'Unknown error',
-        errorType: llmError instanceof Error ? llmError.name : 'Unknown',
-      });
+    // Continue with fallback title instead of failing
+    return 'New Analysis';
+  }
+}
 
-      // Continue with fallback title instead of failing
-      title = { title: 'New Analysis' };
-    }
+/**
+ * Updates database records with the generated title
+ */
+async function updateDatabaseRecords(
+  title: string,
+  chatId?: string,
+  messageId?: string
+): Promise<void> {
+  const updatePromises: Promise<{ success: boolean }>[] = [];
 
-    // Run database updates concurrently
-    const updatePromises: Promise<{ success: boolean }>[] = [];
+  if (chatId) {
+    updatePromises.push(
+      updateChat(chatId, {
+        title,
+      })
+    );
+  }
 
-    if (chatId) {
-      updatePromises.push(
-        updateChat(chatId, {
-          title: title.title,
-        })
-      );
-    }
+  if (messageId) {
+    updatePromises.push(
+      updateMessage(messageId, {
+        title,
+      })
+    );
+  }
 
-    if (messageId) {
-      updatePromises.push(
-        updateMessage(messageId, {
-          title: title.title,
-        })
-      );
-    }
+  await Promise.all(updatePromises);
+}
 
-    await Promise.all(updatePromises);
+export async function generateChatTitle({
+  prompt,
+  conversationHistory,
+  chatId,
+  messageId,
+}: GenerateChatTitleParams): Promise<GenerateChatTitleResult> {
+  try {
+    // Generate title using LLM
+    const title = await generateTitleWithLLM(prompt, conversationHistory);
 
-    return { title: title.title };
+    // Update database records with the generated title
+    await updateDatabaseRecords(title, chatId, messageId);
+
+    return { title };
   } catch (error) {
     // Handle AbortError gracefully
     if (error instanceof Error && error.name === 'AbortError') {
