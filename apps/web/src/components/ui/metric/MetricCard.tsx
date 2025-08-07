@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import { Card, CardHeader } from '@/components/ui/card/CardBase';
 import { MetricTitle } from './MetricTitle';
 import type { BusterMetric, BusterMetricData } from '@/api/asset_interfaces/metric';
@@ -107,3 +107,5 @@ export const MetricCard = React.forwardRef<
     );
   }
 );
+
+MetricCard.displayName = 'MetricCard';

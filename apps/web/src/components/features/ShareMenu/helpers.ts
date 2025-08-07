@@ -4,9 +4,15 @@ import type {
   BusterMetric
 } from '@/api/asset_interfaces';
 import type { ShareConfig } from '@buster/server-shared/share';
+import type { ReportIndividualResponse } from '@buster/server-shared/reports';
 
 export const getShareAssetConfig = (
-  message: BusterMetric | BusterDashboardResponse | BusterCollection | null
+  message:
+    | BusterMetric
+    | BusterDashboardResponse
+    | BusterCollection
+    | ReportIndividualResponse
+    | null
 ): ShareConfig | null => {
   if (!message) return null;
 

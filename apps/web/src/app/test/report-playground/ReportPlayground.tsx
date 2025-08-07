@@ -6,8 +6,6 @@ import type { ReportElements } from '@buster/server-shared/reports';
 import { useQuery } from '@tanstack/react-query';
 import { mainApiV2 } from '@/api/buster_rest/instances';
 import { useDebounceEffect } from '@/hooks';
-import { cn } from '@/lib/utils';
-import { Tooltip } from '@/components/ui/tooltip';
 
 import DynamicReportEditor from '@/components/ui/report/DynamicReportEditor';
 
