@@ -8,7 +8,7 @@ use sqlparser::ast::{
 };
 use sqlparser::dialect::{
     AnsiDialect, BigQueryDialect, ClickHouseDialect, DatabricksDialect, Dialect, DuckDbDialect,
-    GenericDialect, HiveDialect, MsSqlDialect, MySqlDialect, PostgreSqlDialect, SQLiteDialect,
+    GenericDialect, HiveDialect, MsSqlDialect, MySqlDialect, PostgreSqlDialect, SQLiteDialect, SnowflakeDialect,
 };
 use sqlparser::parser::Parser;
 use std::collections::{HashMap, HashSet};
@@ -48,7 +48,7 @@ pub fn get_dialect(data_source_dialect: &str) -> &'static dyn Dialect {
         "mariadb" => &MySqlDialect {}, // MariaDB uses MySQL dialect
         "postgres" => &PostgreSqlDialect {},
         "redshift" => &PostgreSqlDialect {}, // Redshift uses PostgreSQL dialect
-        "snowflake" => &GenericDialect {}, // SnowflakeDialect has limitations with some syntax, use GenericDialect
+        "snowflake" => &SnowflakeDialect{}, // SnowflakeDialect has limitations with some syntax, use GenericDialect
         "sqlserver" => &MsSqlDialect {}, // SQL Server uses MS SQL dialect
         "supabase" => &PostgreSqlDialect {}, // Supabase uses PostgreSQL dialect
         "generic" => &GenericDialect {},

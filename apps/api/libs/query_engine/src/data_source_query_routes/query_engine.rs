@@ -19,11 +19,18 @@ use crate::{
 
 use database::types::data_metadata::{ColumnMetaData, ColumnType, DataMetadata, SimpleType};
 use database::vault::read_secret;
+use database::{
+    enums::DataSourceType,
+    pool::get_pg_pool,
+    schema::data_sources,
+};
+use diesel::prelude::*;
+use diesel_async::RunQueryDsl;
 
 use super::{
     bigquery_query::bigquery_query, databricks_query::databricks_query, mysql_query::mysql_query,
     postgres_query::postgres_query, redshift_query::redshift_query,
-    security_utils::query_safety_filter, snowflake_query::{snowflake_query, ProcessingResult},
+    security_utils::query_safety_filter_with_dialect, snowflake_query::{snowflake_query, ProcessingResult},
     sql_server_query::sql_server_query,
 };
 
@@ -41,9 +48,25 @@ pub async fn query_engine(
 ) -> Result<QueryResult> {
     let corrected_sql = sql.to_owned();
 
+    // Fetch the data source type from the database
+    let mut conn = get_pg_pool().get().await
+        .map_err(|e| anyhow!("Failed to get database connection: {}", e))?;
+    
+    let data_source_type = data_sources::table
+        .filter(data_sources::id.eq(data_source_id))
+        .select(data_sources::type_)
+        .first::<DataSourceType>(&mut conn)
+        .await
+        .map_err(|e| anyhow!("Failed to fetch data source type: {}", e))?;
+    
+    let data_source_dialect = data_source_type.to_str();
+
     let secure_sql = corrected_sql.clone();
 
-    if let Some(warning) = query_safety_filter(secure_sql.clone()).await { return Err(anyhow!(warning)) };
+    // Use the dialect-aware security filter
+    if let Some(warning) = query_safety_filter_with_dialect(secure_sql.clone(), data_source_dialect).await { 
+        return Err(anyhow!(warning)) 
+    };
 
     let results = match route_to_query(data_source_id, &secure_sql, limit).await {
         Ok(results) => results,
