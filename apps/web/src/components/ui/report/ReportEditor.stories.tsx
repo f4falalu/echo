@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
+import { HttpResponse, http } from 'msw';
 import { ReportEditor } from './ReportEditor';
 import { ReportElement } from '@buster/server-shared/reports';
 
@@ -6,6 +7,39 @@ const meta = {
   title: 'UI/report/ReportEditor',
   component: ReportEditor,
   tags: ['autodocs'],
+  parameters: {
+    msw: {
+      handlers: [
+        //   // Mock Supabase auth endpoints to prevent MSW warnings
+        //   http.post('http://127.0.0.1:54321/auth/v1/token', ({ request }) => {
+        //     return HttpResponse.json({
+        //       access_token: 'mock_access_token',
+        //       token_type: 'bearer',
+        //       expires_in: 3600,
+        //       refresh_token: 'mock_refresh_token',
+        //       user: {
+        //         id: 'mock_user_id',
+        //         email: 'mock@example.com',
+        //         is_anonymous: false
+        //       }
+        //     });
+        //   }),
+        //   http.post('http://127.0.0.1:54321/auth/v1/refresh', ({ request }) => {
+        //     return HttpResponse.json({
+        //       access_token: 'mock_refreshed_access_token',
+        //       token_type: 'bearer',
+        //       expires_in: 3600,
+        //       refresh_token: 'mock_new_refresh_token',
+        //       user: {
+        //         id: 'mock_user_id',
+        //         email: 'mock@example.com',
+        //         is_anonymous: false
+        //       }
+        //     });
+        //   })
+      ]
+    }
+  },
   decorators: [
     (Story) => (
       <div className="border p-10">
@@ -324,5 +358,42 @@ export const ReadOnly: Story = {
   args: {
     value: plateValue,
     readOnly: true
+  }
+};
+
+export const WithCustomKit: Story = {
+  args: {
+    value: [
+      {
+        type: 'h1',
+        children: [{ text: 'Hello' }]
+      },
+      {
+        type: 'metric',
+        children: [{ text: '' }],
+        metricId: ''
+      },
+      {
+        type: 'characterCounter' as 'p',
+        children: [{ text: 'This is my character counter' }]
+      },
+      {
+        type: 'p',
+        children: [{ text: 'paragraph test' }]
+      },
+      {
+        type: 'metric',
+        children: [{ text: '' }],
+        metricId: '1234',
+        caption: [{ text: 'This is a caption' }]
+      },
+      {
+        type: 'img',
+        children: [{ text: '' }],
+        url: 'https://picsum.photos/200/200',
+        caption: [{ text: 'This is a caption' }]
+      }
+    ],
+    useFixedToolbarKit: true
   }
 };

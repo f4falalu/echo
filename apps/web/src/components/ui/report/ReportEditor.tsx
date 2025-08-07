@@ -20,9 +20,12 @@ interface ReportEditorProps {
   style?: React.CSSProperties;
   onValueChange?: (value: ReportElements) => void;
   useFixedToolbarKit?: boolean;
+  onReady?: (editor: IReportEditor) => void;
 }
 
-interface AppReportRef {
+export type IReportEditor = TPlateEditor<Value, AnyPluginConfig>;
+
+export interface AppReportRef {
   editor: TPlateEditor<Value, AnyPluginConfig> | null;
   onReset: () => void;
 }
@@ -35,6 +38,7 @@ export const ReportEditor = React.memo(
         value,
         placeholder,
         onValueChange,
+        onReady,
         variant = 'default',
         className,
         style,
@@ -45,7 +49,7 @@ export const ReportEditor = React.memo(
       ref
     ) => {
       // Initialize the editor instance using the custom useEditor hook
-      const editor = useReportEditor({ value, disabled, useFixedToolbarKit }, [value]);
+      const editor = useReportEditor({ value, disabled, useFixedToolbarKit, onReady });
 
       const onReset = useMemoizedFn(() => {
         editor?.tf.reset();
@@ -70,7 +74,7 @@ export const ReportEditor = React.memo(
               readonly={readOnly}
               disabled={disabled}
               className={cn('pb-[15vh]', className)}>
-              <Editor style={style} placeholder={placeholder} disabled={disabled} />
+              <Editor style={style} placeholder={placeholder} disabled={disabled} autoFocus />
             </EditorContainer>
           </Plate>
         </ThemeWrapper>

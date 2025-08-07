@@ -41,8 +41,10 @@ describe('useSelectedFile', () => {
     currentRoute: BusterRoutes.APP_CHAT_ID,
     secondaryView: undefined as FileViewSecondary | undefined,
     metricVersionNumber: undefined,
-    dashboardVersionNumber: undefined
-  };
+    dashboardVersionNumber: undefined,
+    reportId: undefined,
+    reportVersionNumber: undefined
+  } satisfies Parameters<typeof useSelectedFile>[0]['chatParams'];
 
   beforeEach(() => {
     vi.clearAllMocks();

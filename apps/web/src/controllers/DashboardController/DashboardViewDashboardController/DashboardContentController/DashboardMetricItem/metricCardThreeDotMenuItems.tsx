@@ -1,18 +1,9 @@
 'use client';
 
-import React, { useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 import { useRemoveMetricsFromDashboard } from '@/api/buster_rest/dashboards';
-import { Button } from '@/components/ui/buttons';
-import { Dropdown, type DropdownItems, type DropdownItem } from '@/components/ui/dropdown';
-import {
-  DotsVertical,
-  Trash,
-  ShareRight,
-  PenSparkle,
-  SquareChartPen,
-  Code
-} from '@/components/ui/icons';
-import { cn } from '@/lib/utils';
+import { type DropdownItems, type DropdownItem } from '@/components/ui/dropdown';
+import { Trash, ShareRight, PenSparkle, SquareChartPen, Code } from '@/components/ui/icons';
 import { ASSET_ICONS } from '@/components/features/config/assetIcons';
 import { assetParamsToRoute } from '@/lib/assets/assetParamsToRoute';
 import { useChatLayoutContextSelector } from '@/layouts/ChatLayout';
@@ -28,24 +19,13 @@ import {
   useMetricDrilldownItem
 } from '@/components/features/metrics/ThreeDotMenu';
 
-export const MetricItemCardThreeDotMenu: React.FC<{
+export const useMetricCardThreeDotMenuItems = ({
+  dashboardId,
+  metricId
+}: {
   dashboardId: string;
   metricId: string;
-}> = ({ dashboardId, metricId }) => {
-  return (
-    <MetricItemCardThreeDotMenuPopover dashboardId={dashboardId} metricId={metricId}>
-      <Button variant="ghost" className="bg-item-hover!" prefix={<DotsVertical />} />
-    </MetricItemCardThreeDotMenuPopover>
-  );
-};
-
-const MetricItemCardThreeDotMenuPopover: React.FC<{
-  className?: string;
-  dashboardId: string;
-  metricId: string;
-  children: React.ReactNode;
-}> = React.memo(({ children, dashboardId, metricId, className }) => {
-  const [isOpen, setIsOpen] = useState(false);
+}) => {
   const chatId = useChatLayoutContextSelector((x) => x.chatId);
   const removeFromDashboardItem = useRemoveFromDashboardItem({ dashboardId, metricId });
   const openChartItem = useOpenChartItem({ dashboardId, metricId, chatId });
@@ -92,28 +72,8 @@ const MetricItemCardThreeDotMenuPopover: React.FC<{
     ]
   );
 
-  return (
-    <div
-      onClick={(e) => {
-        e.stopPropagation();
-        e.preventDefault();
-      }}
-      className={cn(
-        // Use opacity and pointer-events instead of display:none to maintain positioning context
-        'w-8.5 rounded transition-opacity duration-75',
-        'pointer-events-none opacity-0 group-hover:pointer-events-auto group-hover:opacity-100',
-        className,
-        isOpen && 'pointer-events-auto opacity-100'
-      )}>
-      <div className="absolute right-1.5">
-        <Dropdown items={dropdownItems} side="top" align="end" onOpenChange={setIsOpen}>
-          {children}
-        </Dropdown>
-      </div>
-    </div>
-  );
-});
-MetricItemCardThreeDotMenuPopover.displayName = 'MetricItemCardThreeDotMenuPopover';
+  return dropdownItems;
+};
 
 const useRemoveFromDashboardItem = ({
   dashboardId,
