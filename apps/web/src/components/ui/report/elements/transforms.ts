@@ -74,7 +74,11 @@ export const insertBlock = (editor: PlateEditor, type: string) => {
         select: true
       });
     }
-    if (getBlockType(block[0]) !== type) {
+    // Only remove the previous block when replacing an empty paragraph.
+    // This prevents non-paragraph blocks (e.g., metric elements) from being
+    // inadvertently removed when inserting a new block after them.
+    const previousType = getBlockType(block[0]);
+    if (previousType === KEYS.p && previousType !== type) {
       // Check if SuggestionPlugin is available before using it
       const suggestionApi = editor.getApi(SuggestionPlugin);
       if (suggestionApi?.suggestion?.withoutSuggestions) {

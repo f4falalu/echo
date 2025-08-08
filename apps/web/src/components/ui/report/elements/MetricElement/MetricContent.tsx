@@ -29,15 +29,18 @@ export const MetricContent = React.memo(
 
     const {
       data: metric,
-      isFetching: isFetchingMetric,
+      isFetched: isFetchedMetric,
       error: metricError
-    } = useGetMetric({
-      id: metricId,
-      versionNumber: metricVersionNumber
-    });
+    } = useGetMetric(
+      {
+        id: metricId,
+        versionNumber: metricVersionNumber
+      },
+      { enabled: !!metricId }
+    );
     const {
       data: metricData,
-      isFetching: isFetchingMetricData,
+      isFetched: isFetchedMetricData,
       error: metricDataError
     } = useGetMetricData({
       id: metricId,
@@ -76,10 +79,9 @@ export const MetricContent = React.memo(
         metric={metric}
         metricData={metricData}
         renderChart={renderChart}
-        loading={!isFetchingMetric && !metricError}
+        loading={(!isFetchedMetric || !isFetchedMetricData) && !metricError}
         error={error}
         threeDotMenuItems={threeDotMenuItems}
-        className={cn('bg-transparent')}
       />
     );
   }

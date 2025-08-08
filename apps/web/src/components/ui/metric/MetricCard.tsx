@@ -7,6 +7,7 @@ import { cn } from '@/lib/utils';
 import type { DraggableAttributes, DraggableSyntheticListeners } from '@dnd-kit/core';
 import type { DropdownItems } from '../dropdown';
 import Link from 'next/link';
+import { Text } from '@/components/ui/typography/Text';
 import { PreparingYourRequestLoader } from '../charts/LoadingComponents';
 
 export const MetricCard = React.forwardRef<
@@ -54,6 +55,19 @@ export const MetricCard = React.forwardRef<
     const data = metricData?.data || null;
     const hideChart = isDragOverlay && data && data.length > 50;
 
+    if (error) {
+      return (
+        <div className="bg-item-hover flex h-full w-full flex-col items-center justify-center gap-y-2 rounded border p-5 shadow">
+          <Text variant={'default'} className="font-semibold">
+            Failed to load metric
+          </Text>
+          <Text variant={'secondary'} className="text-center">
+            {error}
+          </Text>
+        </div>
+      );
+    }
+
     const content = () => {
       if (renderChart && chartOptions && !hideChart) {
         return (
@@ -78,11 +92,13 @@ export const MetricCard = React.forwardRef<
       <Card
         ref={ref}
         className={cn('metric-item flex h-full w-full flex-col overflow-auto', className)}>
-        <Link className="swag flex" href={metricLink} prefetch {...attributes} {...listeners}>
+        <Link className="flex" href={metricLink} prefetch {...attributes} {...listeners}>
           <CardHeader
             size="small"
             data-testid={`metric-item-${metricId}`}
-            className="hover:bg-item-hover group relative min-h-13! w-full justify-center overflow-hidden border-b px-4 py-2">
+            className={cn(
+              'hover:bg-item-hover group relative min-h-14! w-full justify-center overflow-hidden border-b px-4 py-2'
+            )}>
             <MetricTitle
               name={metric?.name || ''}
               timeFrame={metric?.time_frame}

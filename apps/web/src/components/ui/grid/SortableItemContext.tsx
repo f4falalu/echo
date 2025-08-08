@@ -1,5 +1,5 @@
 import type { DraggableAttributes, DraggableSyntheticListeners } from '@dnd-kit/core';
-import  { createContext } from 'react';
+import { createContext } from 'react';
 
 interface Context {
   attributes: DraggableAttributes;

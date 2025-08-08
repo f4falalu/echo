@@ -52,7 +52,7 @@ export const ReasoningController: React.FC<ReasoningControllerProps> = ({ chatId
 
   return (
     <>
-      <ScrollArea viewportRef={viewportRef} className="swag h-full">
+      <ScrollArea viewportRef={viewportRef} className="h-full">
         <div className="h-full flex-col space-y-0.5 overflow-y-auto p-5">
           {reasoningMessageIds?.map((reasoningMessageId, messageIndex) => (
             <ReasoningMessageSelector

@@ -1,4 +1,4 @@
-import React, { useLayoutEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useSearch } from '@/api/buster_rest/search';
 import { Button } from '@/components/ui/buttons';
 import {
@@ -31,7 +31,16 @@ export const AddMetricModal: React.FC<{
     const [selectedMetrics, setSelectedMetrics] = useState<{ id: string; name: string }[]>([]);
     const debouncedSearchTerm = useDebounce(searchTerm, { wait: 175 });
 
-    const selectedMetricsIds = selectedMetricsProp.map((metric) => metric.id);
+    // IDs for initial selection provided via props
+    const initialSelectedMetricIds = useMemo(
+      () => selectedMetricsProp.map((metric) => metric.id),
+      [selectedMetricsProp]
+    );
+    // IDs for current internal selection state
+    const currentSelectedMetricIds = useMemo(
+      () => selectedMetrics.map((metric) => metric.id),
+      [selectedMetrics]
+    );
 
     const { data: searchResults } = useSearch(
       {
@@ -98,10 +107,14 @@ export const AddMetricModal: React.FC<{
     });
 
     const isSelectedChanged = useMemo(() => {
-      const originalIds = selectedMetricsIds;
-      const newIds = selectedMetricsIds;
-      return originalIds.length !== newIds.length || originalIds.some((id) => !newIds.includes(id));
-    }, [selectedMetricsIds, selectedMetricsIds]);
+      // Compare internal selection against the initial selection
+      if (initialSelectedMetricIds.length !== currentSelectedMetricIds.length) return true;
+      const initialSet = new Set(initialSelectedMetricIds);
+      for (const id of currentSelectedMetricIds) {
+        if (!initialSet.has(id)) return true;
+      }
+      return false;
+    }, [initialSelectedMetricIds, currentSelectedMetricIds]);
 
     const emptyState = useMemo(() => {
       if (loading) {
@@ -114,12 +127,16 @@ export const AddMetricModal: React.FC<{
     }, [loading, rows]);
 
     const addedMetricCount = useMemo(() => {
-      return selectedMetricsIds.filter((id) => !rows.some((row) => row.id === id)).length;
-    }, [selectedMetricsIds, rows]);
+      // Count metrics newly selected compared to the initial selection
+      const initialSet = new Set(initialSelectedMetricIds);
+      return currentSelectedMetricIds.filter((id) => !initialSet.has(id)).length;
+    }, [initialSelectedMetricIds, currentSelectedMetricIds]);
 
     const removedMetricCount = useMemo(() => {
-      return selectedMetricsIds.filter((id) => !rows.some((row) => row.id === id)).length;
-    }, [selectedMetricsIds, rows]);
+      // Count metrics removed from the initial selection
+      const currentSet = new Set(currentSelectedMetricIds);
+      return initialSelectedMetricIds.filter((id) => !currentSet.has(id)).length;
+    }, [initialSelectedMetricIds, currentSelectedMetricIds]);
 
     const primaryButtonText = useMemo(() => {
       if (loading) {
@@ -197,11 +214,12 @@ export const AddMetricModal: React.FC<{
       onClose
     ]);
 
-    useLayoutEffect(() => {
-      if (!loading) {
+    // Initialize internal selection from props only when the modal opens
+    useEffect(() => {
+      if (open) {
         setSelectedMetrics(selectedMetricsProp);
       }
-    }, [loading, rows]);
+    }, [open]);
 
     return (
       <InputSelectModal
@@ -211,7 +229,7 @@ export const AddMetricModal: React.FC<{
         columns={columns}
         rows={rows}
         onSelectChange={onSelectChange}
-        selectedRowKeys={selectedMetricsIds}
+        selectedRowKeys={currentSelectedMetricIds}
         footer={footer}
         emptyState={emptyState}
         searchText={searchTerm}
