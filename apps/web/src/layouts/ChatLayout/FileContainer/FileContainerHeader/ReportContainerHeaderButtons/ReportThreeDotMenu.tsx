@@ -29,6 +29,7 @@ import { useSaveToCollectionsDropdownContent } from '@/components/features/dropd
 import { getReportEditor } from '@/controllers/ReportPageControllers/ReportPageController/editorRegistry';
 import { NodeTypeLabels } from '@/components/ui/report/config/labels';
 import { useExportReport } from '@/components/ui/report/hooks';
+import { useBuildExportHtml2 } from '@/components/ui/report/hooks/buildExportHtml2';
 
 export const ReportThreeDotMenu = React.memo(
   ({
@@ -315,19 +316,21 @@ const useDuplicateReportSelectMenu = (): DropdownItem => {
 const useDownloadPdfSelectMenu = ({ reportId }: { reportId: string }): DropdownItem => {
   const { openErrorMessage } = useBusterNotifications();
   const { data: reportName } = useGetReport({ reportId }, { select: (x) => x.name });
-  const { exportToPdf } = useExportReport();
+  const buildExportHtml2 = useBuildExportHtml2({ reportId });
 
   const onClick = async () => {
     try {
-      const editor = getReportEditor(reportId);
+      const html = await buildExportHtml2({ reportId });
+      console.log('html', html);
+      // const editor = getReportEditor(reportId);
 
-      if (!editor) {
-        console.error('Editor not found');
-        openErrorMessage(NodeTypeLabels.failedToExportPdf.label);
-        return;
-      }
+      // if (!editor) {
+      //   console.error('Editor not found');
+      //   openErrorMessage(NodeTypeLabels.failedToExportPdf.label);
+      //   return;
+      // }
 
-      await exportToPdf({ editor, filename: reportName });
+      // await exportToPdf({ editor, filename: reportName });
     } catch (error) {
       console.error(error);
       openErrorMessage('Failed to export report as PDF');
