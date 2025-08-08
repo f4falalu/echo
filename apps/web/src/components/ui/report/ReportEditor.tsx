@@ -1,4 +1,4 @@
-import React, { useImperativeHandle } from 'react';
+import React, { useImperativeHandle, useRef } from 'react';
 import type { Value, AnyPluginConfig } from 'platejs';
 import { Plate, type TPlateEditor } from 'platejs/react';
 import { EditorContainer } from './EditorContainer';
@@ -51,6 +51,8 @@ export const ReportEditor = React.memo(
       ref
     ) => {
       // Initialize the editor instance using the custom useEditor hook
+      const isReady = useRef(false);
+
       const editor = useReportEditor({ value, disabled, useFixedToolbarKit, onReady });
 
       const onReset = useMemoizedFn(() => {
@@ -74,7 +76,12 @@ export const ReportEditor = React.memo(
             console.warn('Editor is read only');
             return;
           }
-          onValueChange?.(cleanValueToReportElements(value));
+          if (isReady.current) {
+            console.log('onValueChangePreflight', value);
+            onValueChange?.(cleanValueToReportElements(value));
+          }
+
+          isReady.current = true;
         }
       );
 

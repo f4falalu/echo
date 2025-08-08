@@ -35,7 +35,7 @@ export const useReportEditor = ({
     value,
     readOnly: disabled,
     onReady: ({ editor }) => onReady?.(editor)
-  }); // Pass dependencies to usePlateEditor
+  });
 };
 
 export type ReportEditor = TPlateEditor<Value, (typeof EditorKit)[number]>;

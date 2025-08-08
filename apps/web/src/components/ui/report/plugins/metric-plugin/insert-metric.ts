@@ -18,6 +18,7 @@ export const insertMetric = (editor: PlateEditor, options?: InsertNodesOptions) 
   // Small timeout to ensure the node is properly inserted and rendered
   setTimeout(() => {
     const plugin = editor.getPlugin(MetricPlugin);
+    console.log(plugin.api);
     plugin.api.metric.openAddMetricModal();
   }, 50);
 };
