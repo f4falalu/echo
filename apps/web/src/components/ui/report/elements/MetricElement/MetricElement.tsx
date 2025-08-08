@@ -32,7 +32,7 @@ export const MetricElement = withHOC(
     const readOnly = useReadOnly();
 
     const content = metricId ? (
-      <MetricToolbar>
+      <MetricToolbar selectedMetricId={metricId}>
         <MetricResizeContainer>
           <MetricContent
             metricId={metricId}

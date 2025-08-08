@@ -9,7 +9,7 @@ import { NodeTypeLabels } from '../../config/labels';
 import { AddMetricModal } from '@/components/features/modal/AddMetricModal';
 import { MetricPlugin, type TMetricElement } from '../../plugins/metric-plugin';
 
-export function MetricToolbar({ children }: { children: React.ReactNode }) {
+export function MetricToolbar({ children, selectedMetricId }: { children: React.ReactNode; selectedMetricId?: string }) {
   const editor = useEditorRef();
   const readOnly = useReadOnly();
   const selected = useSelected();
@@ -24,6 +24,10 @@ export function MetricToolbar({ children }: { children: React.ReactNode }) {
 
   const [openEditModal, setOpenEditModal] = React.useState(false);
 
+  const preselectedMetrics = React.useMemo(() => {
+    return selectedMetricId ? [{ id: selectedMetricId, name: '' }] : [];
+  }, [selectedMetricId]);
+
   const onOpenEdit = React.useCallback(() => {
     editor.tf.select();
     setOpenEditModal(true);
@@ -32,6 +36,17 @@ export function MetricToolbar({ children }: { children: React.ReactNode }) {
   const onCloseEdit = React.useCallback(() => {
     setOpenEditModal(false);
   }, []);
+
+  const handleAddMetrics = React.useCallback(
+    async (metrics: { id: string; name: string }[]) => {
+      const id = metrics?.[0]?.id;
+      const at = editor.api.findPath(element);
+      if (!id || !at) return onCloseEdit();
+      plugin.api.metric.updateMetric(id, { at });
+      onCloseEdit();
+    },
+    [editor, element, onCloseEdit, plugin.api.metric]
+  );
 
   return (
     <PopoverBase open={isOpen} modal={false}>
@@ -50,18 +65,9 @@ export function MetricToolbar({ children }: { children: React.ReactNode }) {
       <AddMetricModal
         open={openEditModal}
         loading={false}
-        selectedMetrics={[]}
+        selectedMetrics={preselectedMetrics}
         onClose={onCloseEdit}
-        onAddMetrics={async (metrics) => {
-          const selectedMetricId = metrics?.[0]?.id;
-          if (!selectedMetricId) return onCloseEdit();
-
-          const at = editor.api.findPath(element);
-          if (!at) return onCloseEdit();
-
-          plugin.api.metric.updateMetric(selectedMetricId, { at });
-          onCloseEdit();
-        }}
+        onAddMetrics={handleAddMetrics}
         selectionMode="single"
         saveButtonText="Update metric"
       />
