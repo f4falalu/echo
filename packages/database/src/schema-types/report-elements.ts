@@ -363,6 +363,7 @@ export const EquationElementSchema = z.object({
 export const MetricElementSchema = z.object({
   type: z.literal('metric'),
   metricId: z.string(),
+  width: z.union([z.number(), z.string().regex(/^(?:\d+px|\d+%)$/)]).optional(),
   children: z.array(VoidTextSchema).default([]),
   caption: z
     .array(z.union([TextSchema, ParagraphElementSchema]))

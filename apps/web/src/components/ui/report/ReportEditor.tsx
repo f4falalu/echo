@@ -79,7 +79,6 @@ export const ReportEditor = React.memo(
             return;
           }
           if (isReady.current) {
-            console.log('onValueChangePreflight', value);
             onValueChange?.(cleanValueToReportElements(value));
           }
 

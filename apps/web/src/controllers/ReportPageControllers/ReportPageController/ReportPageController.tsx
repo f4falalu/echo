@@ -44,7 +44,11 @@ export const ReportPageController: React.FC<{
   });
 
   return (
-    <div className={cn('space-y-1.5 pt-9 sm:px-[max(64px,calc(50%-350px))]', className)}>
+    <div
+      className={cn(
+        'h-full space-y-1.5 overflow-y-auto pt-9 sm:px-[max(64px,calc(50%-350px))]',
+        className
+      )}>
       {report ? (
         <>
           <ReportPageHeader
@@ -59,7 +63,7 @@ export const ReportPageController: React.FC<{
             placeholder="Start typing..."
             disabled={false}
             variant="default"
-            useFixedToolbarKit={true}
+            useFixedToolbarKit={false}
             onValueChange={onChangeContent}
             readOnly={readOnly || !report}
             className="px-0!"

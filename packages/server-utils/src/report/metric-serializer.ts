@@ -12,40 +12,31 @@ import {
 type MetricMdNode = MdRules['metric'];
 
 export const metricSerializer: MetricMdNode = {
-  serialize: (node, options) => {
-    console.log('node', node);
-
-    const typedAttributes = parseAttributes(node.attributes) as {
-      metricId: string;
-    };
-
-    // Extract the icon from the node (assuming it's stored as an attribute)
-    const icon = typedAttributes.metricId || '💡';
+  serialize: (node: MetricElement, options) => {
+    const width = node.width;
+    const metricId = node.metricId;
 
     if (!options.editor) {
       throw new Error('Editor is required');
     }
 
-    const content = serializeMd(options.editor, {
-      ...options,
-      value: node.children,
-    });
-
     return {
       type: 'html',
-      value: `<metric metricId="${icon}">${content}</metric>`,
+      value: `<metric metricId="${metricId}" width="${width}"></metric>`,
     };
   },
   deserialize: (node): MetricElement => {
     // Extract the icon attribute from the HTML element
     const typedAttributes = parseAttributes(node.attributes) as {
       metricId: string;
+      width: string | number;
     };
 
     // Return the PlateJS node structure
     return {
       type: 'metric',
       metricId: typedAttributes.metricId,
+      width: typedAttributes.width,
       children: [{ text: '' }],
     };
   },

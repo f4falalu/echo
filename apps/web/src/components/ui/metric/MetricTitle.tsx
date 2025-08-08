@@ -1,12 +1,10 @@
 'use client';
 
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import React from 'react';
 import type { BusterMetric } from '@/api/asset_interfaces/metric/interfaces';
 import { Text, Title } from '@/components/ui/typography';
 import { useMount } from '@/hooks/useMount';
-import type { DraggableAttributes, DraggableSyntheticListeners } from '@dnd-kit/core';
 import type { DropdownItems } from '../dropdown';
 import { MetricCardThreeMenuContainer } from './MetricCardThreeMenuContainer';
 import { DotsVertical } from '../icons';
@@ -39,31 +37,39 @@ export const MetricTitle: React.FC<{
     <div className="group flex h-full min-h-0 w-full flex-1 flex-nowrap space-x-0.5">
       <div className={'flex h-full flex-1 cursor-pointer flex-col space-y-0.5 overflow-hidden'}>
         <div className="flex w-full justify-between space-x-0.5 overflow-hidden">
-          <Title
-            as="h4"
-            truncate
-            className="text-md! whitespace-nowrap"
-            style={{ fontSize: '14px' }}>
-            {`${name}`}
-          </Title>
+          {name ? (
+            <Title
+              as="h4"
+              truncate
+              className="text-md! whitespace-nowrap"
+              style={{ fontSize: '14px' }}>
+              {`${name}`}
+            </Title>
+          ) : (
+            <div className="bg-item-active h-3.5 w-4/5 rounded-lg" />
+          )}
         </div>
 
         <div className="flex w-full items-center overflow-hidden">
-          <Text
-            className={`w-full ${timeFrame || description ? 'visible' : 'hidden'}`}
-            size="sm"
-            variant="secondary"
-            truncate={true}>
-            {timeFrame || '_'}
+          {name ? (
+            <Text
+              className={`w-full ${timeFrame || description ? 'visible' : 'hidden'}`}
+              size="sm"
+              variant="secondary"
+              truncate={true}>
+              {timeFrame || '_'}
 
-            {description && timeFrame && ' • '}
+              {description && timeFrame && ' • '}
 
-            {description}
-          </Text>
+              {description}
+            </Text>
+          ) : (
+            <div className="bg-item-active mt-1 h-3.5 w-full rounded-lg" />
+          )}
         </div>
       </div>
 
-      {isDragOverlay || readOnly ? null : (
+      {(isDragOverlay || readOnly) && name ? null : (
         <MetricCardThreeMenuContainer dropdownItems={threeDotMenuItems}>
           <Button variant="ghost" className="hover:bg-item-active" prefix={<DotsVertical />} />
         </MetricCardThreeMenuContainer>
