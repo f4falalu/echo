@@ -5,7 +5,7 @@ import { generateObject } from 'ai';
 import { wrapTraced } from 'braintrust';
 import { z } from 'zod';
 import { thinkAndPrepWorkflowInputSchema } from '../../../schemas/workflow-schemas';
-import { GPT5Nano } from '../../../utils/models/gpt-5-nano';
+import { GPT5Mini } from '../../../utils/models/gpt-5-mini';
 import { appendToConversation, standardizeMessages } from '../../../utils/standardizeMessages';
 import type { AnalystRuntimeContext } from '../../../workflows/analyst-workflow';
 import { formatAnalysisTypeRouterPrompt } from './format-analysis-type-router-prompt';
@@ -68,7 +68,7 @@ const execution = async ({
     const tracedAnalysisType = wrapTraced(
       async () => {
         const { object } = await generateObject({
-          model: GPT5Nano,
+          model: GPT5Mini,
           schema: analysisTypeSchema,
           messages: [
             {

@@ -8,7 +8,7 @@ import { thinkAndPrepWorkflowInputSchema } from '../schemas/workflow-schemas';
 import { createTodoList } from '../tools/planning-thinking-tools/create-todo-item-tool';
 import { ChunkProcessor } from '../utils/database/chunk-processor';
 import { ReasoningHistorySchema } from '../utils/memory/types';
-import { GPT5 } from '../utils/models/gpt-5';
+import { GPT5Mini } from '../utils/models/gpt-5-mini';
 import { RetryWithHealingError, isRetryWithHealingError } from '../utils/retry';
 import { appendToConversation, standardizeMessages } from '../utils/standardizeMessages';
 import { createOnChunkHandler } from '../utils/streaming';
@@ -198,7 +198,7 @@ const DEFAULT_OPTIONS = {
 export const todosAgent = new Agent({
   name: 'Create Todos',
   instructions: todosInstructions,
-  model: GPT5,
+  model: GPT5Mini,
   tools: {
     createTodoList,
   },
