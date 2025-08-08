@@ -34,11 +34,11 @@ export function createDashboardsReasoningMessage(
       id: fileId,
       file_type: 'dashboard',
       file_name: file.name,
-      version_number: file.version || undefined,
       status: file.status || 'loading',
       file: {
         text: file.yml_content,
       },
+      ...(file.version !== undefined ? { version_number: file.version } : {}),
       ...(file.error && { error: file.error }),
     };
   });

@@ -6,9 +6,9 @@ import {
   metricFiles,
   metricFilesToDashboardFiles,
 } from '@buster/database';
+import type { ModelMessage } from 'ai';
 import { wrapTraced } from 'braintrust';
 import { inArray } from 'drizzle-orm';
-import type { ModelMessage } from 'ai';
 import * as yaml from 'yaml';
 import { z } from 'zod';
 import { trackFileAssociations } from '../file-tracking-helper';
