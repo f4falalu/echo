@@ -8,65 +8,63 @@ import { animations, type MarkdownAnimation } from '../animation-common';
 import type { ThemedToken } from 'shiki';
 import { useCodeTokens } from './useCodeTokens';
 
-export const SyntaxHighlighter = React.memo(
-  ({
-    children,
-    language = 'sql',
-    showLineNumbers = false,
-    startingLineNumber = 1,
-    className = '',
-    isDarkMode = false,
-    animation = 'none',
-    animationDuration = 500
-  }: {
-    children: string;
-    language?: 'sql' | 'yaml';
-    showLineNumbers?: boolean;
-    startingLineNumber?: number;
-    className?: string;
-    isDarkMode?: boolean;
-    animation?: MarkdownAnimation;
-    animationDuration?: number;
-  }) => {
-    const { tokens, isLoading } = useCodeTokens(children, language, isDarkMode);
+export const SyntaxHighlighter = ({
+  children,
+  language = 'sql',
+  showLineNumbers = false,
+  startingLineNumber = 1,
+  className = '',
+  isDarkMode = false,
+  animation = 'none',
+  animationDuration = 500
+}: {
+  children: string;
+  language?: 'sql' | 'yaml';
+  showLineNumbers?: boolean;
+  startingLineNumber?: number;
+  className?: string;
+  isDarkMode?: boolean;
+  animation?: MarkdownAnimation;
+  animationDuration?: number;
+}) => {
+  const { tokens, isLoading } = useCodeTokens(children, language, isDarkMode);
 
-    const hasTokens = !!tokens && !isLoading;
+  const hasTokens = !!tokens && !isLoading;
 
-    const style = useMemo(() => {
-      if (tokens) {
-        return {
-          background: tokens.bg,
-          color: tokens.fg
-        };
-      }
-      return getFallbackStyle(isDarkMode);
-    }, [hasTokens, isDarkMode]);
+  const style = useMemo(() => {
+    if (tokens) {
+      return {
+        background: tokens.bg,
+        color: tokens.fg
+      };
+    }
+    return getFallbackStyle(isDarkMode);
+  }, [hasTokens, isDarkMode]);
 
-    return (
-      <SyntaxWrapper
-        showLineNumbers={showLineNumbers}
-        startingLineNumber={startingLineNumber}
-        className={className}
-        style={style}>
-        {hasTokens ? (
-          tokens.tokens.map((line: ThemedToken[], index: number) => {
-            return (
-              <Line
-                key={index}
-                tokens={line}
-                lineNumber={index + 1}
-                animation={animation !== 'none' ? animations[animation] : undefined}
-                animationDuration={animationDuration}
-              />
-            );
-          })
-        ) : (
-          <SyntaxFallback fallbackColor={style.color}>{children}</SyntaxFallback>
-        )}
-      </SyntaxWrapper>
-    );
-  }
-);
+  return (
+    <SyntaxWrapper
+      showLineNumbers={showLineNumbers}
+      startingLineNumber={startingLineNumber}
+      className={className}
+      style={style}>
+      {hasTokens ? (
+        tokens.tokens.map((line: ThemedToken[], index: number) => {
+          return (
+            <Line
+              key={index}
+              tokens={line}
+              lineNumber={index + 1}
+              animation={animation !== 'none' ? animations[animation] : undefined}
+              animationDuration={animationDuration}
+            />
+          );
+        })
+      ) : (
+        <SyntaxFallback fallbackColor={style.color}>{children}</SyntaxFallback>
+      )}
+    </SyntaxWrapper>
+  );
+};
 
 SyntaxHighlighter.displayName = 'SyntaxHighlighter';
 

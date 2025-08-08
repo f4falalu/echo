@@ -25,7 +25,7 @@ import {
 } from '@/components/ui/sidebar/config';
 import { cn } from '@/lib/classMerge';
 
-export const SidebarUserFooter: React.FC = () => {
+export const SidebarUserFooter: React.FC = React.memo(() => {
   const user = useUserConfigContextSelector((x) => x.user);
   const handleSignOut = useSignOut();
   if (!user) return null;
@@ -54,7 +54,9 @@ export const SidebarUserFooter: React.FC = () => {
       </SidebarUserDropdown>
     </div>
   );
-};
+});
+
+SidebarUserFooter.displayName = 'SidebarUserFooter';
 
 const topItems: DropdownProps['items'] = [
   {
@@ -86,7 +88,7 @@ const topItems: DropdownProps['items'] = [
 const SidebarUserDropdown: React.FC<{
   children: React.ReactNode;
   signOut: () => void;
-}> = React.memo(({ children, signOut }) => {
+}> = ({ children, signOut }) => {
   const onOpenContactSupportModal = useContactSupportModalStore((s) => s.onOpenContactSupportModal);
 
   const allItems: DropdownProps['items'] = useMemo(() => {
@@ -127,6 +129,6 @@ const SidebarUserDropdown: React.FC<{
       {children}
     </Dropdown>
   );
-});
+};
 
 SidebarUserDropdown.displayName = 'SidebarUserDropdown';
