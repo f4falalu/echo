@@ -7,7 +7,6 @@ import type {
 function hasFailureIndicators(entry: ChatMessageReasoningMessage): boolean {
   return (
     entry.status === 'failed' ||
-    entry.status === 'error' ||
     (entry.title?.toLowerCase().includes('error') ?? false) ||
     (entry.title?.toLowerCase().includes('failed') ?? false)
   );
