@@ -24,6 +24,7 @@ interface ReportEditorProps {
   onValueChange?: (value: ReportElements) => void;
   useFixedToolbarKit?: boolean;
   onReady?: (editor: IReportEditor) => void;
+  id?: string;
 }
 
 export type IReportEditor = TPlateEditor<Value, AnyPluginConfig>;
@@ -40,6 +41,7 @@ export const ReportEditor = React.memo(
       {
         value,
         placeholder,
+        id,
         onValueChange,
         onReady,
         variant = 'default',
@@ -89,7 +91,7 @@ export const ReportEditor = React.memo(
       if (!editor) return null;
 
       return (
-        <ThemeWrapper>
+        <ThemeWrapper id={id}>
           <Plate editor={editor} readOnly={readOnly} onValueChange={onValueChangePreflight}>
             <EditorContainer
               variant={variant}

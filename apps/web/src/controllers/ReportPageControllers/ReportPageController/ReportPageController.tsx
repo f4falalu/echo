@@ -12,11 +12,13 @@ import { ReportEditor, type IReportEditor } from '@/components/ui/report/ReportE
 import { registerReportEditor, unregisterReportEditor } from './editorRegistry';
 import { ReportEditorSkeleton } from '@/components/ui/report/ReportEditorSkeleton';
 
+export const PAGE_CONTROLLER_ID = (reportId: string) => `report-page-controller-${reportId}`;
+
 export const ReportPageController: React.FC<{
   reportId: string;
   readOnly?: boolean;
   className?: string;
-}> = ({ reportId, readOnly = false, className = '' }) => {
+}> = React.memo(({ reportId, readOnly = false, className = '' }) => {
   const { data: report } = useGetReport({ reportId, versionNumber: undefined });
   // const editor = useRef<AppReportRef>(null);
 
@@ -54,6 +56,7 @@ export const ReportPageController: React.FC<{
 
   return (
     <div
+      id={PAGE_CONTROLLER_ID(reportId)}
       className={cn(
         'h-full space-y-1.5 overflow-y-auto pt-9 sm:px-[max(64px,calc(50%-350px))]',
         className
@@ -76,6 +79,7 @@ export const ReportPageController: React.FC<{
             readOnly={readOnly || !report}
             className="px-0!"
             onReady={onReady}
+            id={PAGE_CONTROLLER_ID(reportId)}
           />
         </>
       ) : (
@@ -83,4 +87,6 @@ export const ReportPageController: React.FC<{
       )}
     </div>
   );
-};
+});
+
+ReportPageController.displayName = 'ReportPageController';
