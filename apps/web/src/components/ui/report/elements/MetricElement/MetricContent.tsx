@@ -10,13 +10,13 @@ export const MetricContent = React.memo(
   ({
     metricId,
     metricVersionNumber,
-    isBaseElement = false,
+    isExportMode = false,
     readOnly = false
   }: {
     metricId: string;
     metricVersionNumber: number | undefined;
     readOnly?: boolean;
-    isBaseElement?: boolean;
+    isExportMode?: boolean;
   }) => {
     const chatId = useChatLayoutContextSelector((x) => x.chatId);
     const reportId = useChatLayoutContextSelector((x) => x.reportId) || '';
@@ -24,7 +24,7 @@ export const MetricContent = React.memo(
     const ref = useRef<HTMLDivElement>(null);
 
     const [inViewport] = useInViewport(ref, {
-      threshold: isBaseElement ? 0 : 0.33
+      threshold: isExportMode ? 0 : 0.33
     });
     const renderChart = inViewport;
 
@@ -73,7 +73,7 @@ export const MetricContent = React.memo(
     return (
       <MetricCard
         metricLink={link}
-        animate={!isBaseElement}
+        animate={!isExportMode}
         metricId={metricId}
         readOnly={readOnly}
         isDragOverlay={false}
