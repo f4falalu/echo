@@ -22,7 +22,6 @@ import type {
   CreateMetricsState,
 } from './create-metrics-tool';
 import {
-  createMetricsRawLlmMessageEntry,
   createMetricsReasoningMessage,
   createMetricsResponseMessage,
 } from './helpers/create-metrics-transform-helper';
