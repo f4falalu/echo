@@ -19,23 +19,23 @@ const STOP_CONDITIONS = [
   hasToolCall('messageUserClarifyingQuestion'),
 ];
 
-const ThinkAndPrepAgentOptionsSchema = z.object({
+export const ThinkAndPrepAgentOptionsSchema = z.object({
   sql_dialect_guidance: z
     .string()
     .describe('The SQL dialect guidance for the think and prep agent.'),
   messageId: z.string().describe('The message ID for tracking tool execution.'),
 });
 
-const ThinkAndPrepStreamOptionsSchema = z.object({
+export const ThinkAndPrepStreamOptionsSchema = z.object({
   messages: z
     .array(z.custom<ModelMessage>())
     .describe('The messages to send to the think and prep agent.'),
 });
 
-export type ThinkAndPrepAgentOptionsSchema = z.infer<typeof ThinkAndPrepAgentOptionsSchema>;
+export type ThinkAndPrepAgentOptions = z.infer<typeof ThinkAndPrepAgentOptionsSchema>;
 export type ThinkAndPrepStreamOptions = z.infer<typeof ThinkAndPrepStreamOptionsSchema>;
 
-export function createThinkAndPrepAgent(thinkAndPrepAgentSchema: ThinkAndPrepAgentOptionsSchema) {
+export function createThinkAndPrepAgent(thinkAndPrepAgentSchema: ThinkAndPrepAgentOptions) {
   const steps: never[] = [];
   const { messageId } = thinkAndPrepAgentSchema;
 
