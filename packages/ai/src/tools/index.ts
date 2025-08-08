@@ -3,10 +3,10 @@ export { createIdleTool } from './communication-tools/idle-tool/idle-tool';
 export { createSubmitThoughtsTool } from './communication-tools/submit-thoughts-tool/submit-thoughts-tool';
 export { createSequentialThinkingTool } from './planning-thinking-tools/sequential-thinking-tool/sequential-thinking-tool';
 // Visualization tools - factory functions
-export { createCreateMetricsTool } from './visualization-tools/create-metrics-tool/create-metrics-tool';
-export { createModifyMetricsTool } from './visualization-tools/modify-metrics-tool/modify-metrics-tool';
-export { createCreateDashboardsTool } from './visualization-tools/create-dashboards-tool/create-dashboards-tool';
-export { createModifyDashboardsTool } from './visualization-tools/modify-dashboards-tool/modify-dashboards-tool';
+export { createCreateMetricsTool } from './visualization-tools/metrics/create-metrics-tool/create-metrics-tool';
+export { createModifyMetricsTool } from './visualization-tools/metrics/modify-metrics-tool/modify-metrics-tool';
+export { createCreateDashboardsTool } from './visualization-tools/dashboards/create-dashboards-tool/create-dashboards-tool';
+export { createModifyDashboardsTool } from './visualization-tools/dashboards/modify-dashboards-tool/modify-dashboards-tool';
 export { executeSql, createExecuteSqlTool } from './database-tools/execute-sql/execute-sql';
 export { executeSqlDocsAgent } from './database-tools/super-execute-sql/super-execute-sql';
 // File tools - factory functions

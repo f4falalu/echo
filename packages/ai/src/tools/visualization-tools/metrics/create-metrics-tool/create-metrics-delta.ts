@@ -3,7 +3,7 @@ import type { ChatMessageReasoningMessage } from '@buster/server-shared/chats';
 import {
   OptimisticJsonParser,
   getOptimisticValue,
-} from '../../../utils/streaming/optimistic-json-parser';
+} from '../../../../utils/streaming/optimistic-json-parser';
 import type {
   CreateMetricsContext,
   CreateMetricsInput,

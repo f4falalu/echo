@@ -4,7 +4,7 @@ import { createCreateMetricsDelta } from './create-metrics-delta';
 import { createCreateMetricsExecute } from './create-metrics-execute';
 import { createCreateMetricsFinish } from './create-metrics-finish';
 import { createCreateMetricsStart } from './create-metrics-start';
-import { getMetricToolDescription } from './get-metric-tool-description';
+import { getMetricToolDescription } from '../helpers/get-metric-tool-description';
 
 const CreateMetricsInputSchema = z.object({
   files: z

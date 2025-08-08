@@ -2,7 +2,7 @@ import { updateMessageFields } from '@buster/database';
 import {
   OptimisticJsonParser,
   getOptimisticValue,
-} from '../../../utils/streaming/optimistic-json-parser';
+} from '../../../../utils/streaming/optimistic-json-parser';
 import {
   MODIFY_METRICS_KEYS,
   createModifyMetricsReasoningMessage,

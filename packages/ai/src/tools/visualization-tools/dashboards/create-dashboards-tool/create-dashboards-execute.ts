@@ -11,7 +11,7 @@ import { wrapTraced } from 'braintrust';
 import { inArray } from 'drizzle-orm';
 import * as yaml from 'yaml';
 import { z } from 'zod';
-import { trackFileAssociations } from '../file-tracking-helper';
+import { trackFileAssociations } from '../../file-tracking-helper';
 import { createInitialDashboardVersionHistory } from '../version-history-helpers';
 import type { DashboardYml } from '../version-history-types';
 import type {

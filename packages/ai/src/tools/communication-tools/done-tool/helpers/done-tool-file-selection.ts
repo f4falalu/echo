@@ -1,9 +1,9 @@
 import type { ChatMessageResponseMessage } from '@buster/server-shared/chats';
 import type { ModelMessage } from 'ai';
-import type { CreateDashboardsOutput } from '../../../visualization-tools/create-dashboards-tool/create-dashboards-tool';
-import type { CreateMetricsOutput } from '../../../visualization-tools/create-metrics-tool/create-metrics-tool';
-import type { ModifyDashboardsOutput } from '../../../visualization-tools/modify-dashboards-tool/modify-dashboards-tool';
-import type { ModifyMetricsOutput } from '../../../visualization-tools/modify-metrics-tool/modify-metrics-tool';
+import type { CreateDashboardsOutput } from '../../../visualization-tools/dashboards/create-dashboards-tool/create-dashboards-tool';
+import type { ModifyDashboardsOutput } from '../../../visualization-tools/dashboards/modify-dashboards-tool/modify-dashboards-tool';
+import type { CreateMetricsOutput } from '../../../visualization-tools/metrics/create-metrics-tool/create-metrics-tool';
+import type { ModifyMetricsOutput } from '../../../visualization-tools/metrics/modify-metrics-tool/modify-metrics-tool';
 
 // File tracking type similar to ExtractedFile from file-selection.ts
 interface ExtractedFile {

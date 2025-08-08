@@ -46,7 +46,7 @@ describe('createModifyMetricsDelta', () => {
   describe('string delta handling', () => {
     it('should accumulate string deltas in argsText', async () => {
       const { OptimisticJsonParser, getOptimisticValue } = await import(
-        '../../../utils/streaming/optimistic-json-parser'
+        '../../../../utils/streaming/optimistic-json-parser'
       );
       (OptimisticJsonParser.parse as any).mockReturnValue({
         parsed: null,
@@ -64,7 +64,7 @@ describe('createModifyMetricsDelta', () => {
 
     it('should update parsedArgs when JSON is parsed', async () => {
       const { OptimisticJsonParser, getOptimisticValue } = await import(
-        '../../../utils/streaming/optimistic-json-parser'
+        '../../../../utils/streaming/optimistic-json-parser'
       );
       const parsedData = { files: [{ id: 'metric-1', yml_content: 'content' }] };
       (OptimisticJsonParser.parse as any).mockReturnValue({
@@ -82,7 +82,7 @@ describe('createModifyMetricsDelta', () => {
 
     it('should update state files from parsed array', async () => {
       const { OptimisticJsonParser, getOptimisticValue } = await import(
-        '../../../utils/streaming/optimistic-json-parser'
+        '../../../../utils/streaming/optimistic-json-parser'
       );
       (OptimisticJsonParser.parse as any).mockReturnValue({
         parsed: {},
@@ -114,7 +114,7 @@ describe('createModifyMetricsDelta', () => {
 
     it('should update existing files in state', async () => {
       const { OptimisticJsonParser, getOptimisticValue } = await import(
-        '../../../utils/streaming/optimistic-json-parser'
+        '../../../../utils/streaming/optimistic-json-parser'
       );
 
       // Pre-populate state with a file
@@ -142,7 +142,7 @@ describe('createModifyMetricsDelta', () => {
 
     it('should handle partial file data', async () => {
       const { OptimisticJsonParser, getOptimisticValue } = await import(
-        '../../../utils/streaming/optimistic-json-parser'
+        '../../../../utils/streaming/optimistic-json-parser'
       );
       (OptimisticJsonParser.parse as any).mockReturnValue({
         parsed: {},
@@ -166,7 +166,7 @@ describe('createModifyMetricsDelta', () => {
 
     it('should update database when messageId and reasoningEntryId exist', async () => {
       const { OptimisticJsonParser, getOptimisticValue } = await import(
-        '../../../utils/streaming/optimistic-json-parser'
+        '../../../../utils/streaming/optimistic-json-parser'
       );
       (OptimisticJsonParser.parse as any).mockReturnValue({
         parsed: {},
@@ -191,7 +191,7 @@ describe('createModifyMetricsDelta', () => {
 
     it('should not update database when messageId is missing', async () => {
       const { OptimisticJsonParser, getOptimisticValue } = await import(
-        '../../../utils/streaming/optimistic-json-parser'
+        '../../../../utils/streaming/optimistic-json-parser'
       );
       context.messageId = undefined;
 
@@ -210,7 +210,7 @@ describe('createModifyMetricsDelta', () => {
 
     it('should not update database when reasoningEntryId is missing', async () => {
       const { OptimisticJsonParser, getOptimisticValue } = await import(
-        '../../../utils/streaming/optimistic-json-parser'
+        '../../../../utils/streaming/optimistic-json-parser'
       );
       state.reasoningEntryId = undefined;
 
@@ -229,7 +229,7 @@ describe('createModifyMetricsDelta', () => {
 
     it('should filter undefined entries before creating reasoning message', async () => {
       const { OptimisticJsonParser, getOptimisticValue } = await import(
-        '../../../utils/streaming/optimistic-json-parser'
+        '../../../../utils/streaming/optimistic-json-parser'
       );
 
       // State with undefined entries
@@ -262,7 +262,7 @@ describe('createModifyMetricsDelta', () => {
 
     it('should handle database update errors gracefully', async () => {
       const { OptimisticJsonParser, getOptimisticValue } = await import(
-        '../../../utils/streaming/optimistic-json-parser'
+        '../../../../utils/streaming/optimistic-json-parser'
       );
       (updateMessageFields as any).mockRejectedValue(new Error('Database error'));
 
@@ -319,7 +319,7 @@ describe('createModifyMetricsDelta', () => {
     it('should log correct information', async () => {
       const consoleSpy = vi.spyOn(console, 'info').mockImplementation(() => {});
       const { OptimisticJsonParser, getOptimisticValue } = await import(
-        '../../../utils/streaming/optimistic-json-parser'
+        '../../../../utils/streaming/optimistic-json-parser'
       );
 
       (OptimisticJsonParser.parse as any).mockReturnValue({

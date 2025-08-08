@@ -4,7 +4,7 @@ import type { ToolCallOptions } from 'ai';
 import {
   OptimisticJsonParser,
   getOptimisticValue,
-} from '../../../utils/streaming/optimistic-json-parser';
+} from '../../../../utils/streaming/optimistic-json-parser';
 import type {
   CreateDashboardsContext,
   CreateDashboardsFile,

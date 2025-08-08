@@ -30,7 +30,7 @@ describe('createCreateDashboardsDelta', () => {
     const database = await import('@buster/database');
     updateMessageEntriesSpy = vi.mocked(database.updateMessageEntries);
 
-    const streaming = await import('../../../utils/streaming/optimistic-json-parser');
+    const streaming = await import('../../../../utils/streaming/optimistic-json-parser');
     OptimisticJsonParser = streaming.OptimisticJsonParser as unknown as {
       parse: ReturnType<typeof vi.fn>;
     };

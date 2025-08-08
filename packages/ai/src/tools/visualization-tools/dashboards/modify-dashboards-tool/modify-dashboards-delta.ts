@@ -4,7 +4,7 @@ import { wrapTraced } from 'braintrust';
 import {
   OptimisticJsonParser,
   getOptimisticValue,
-} from '../../../utils/streaming/optimistic-json-parser';
+} from '../../../../utils/streaming/optimistic-json-parser';
 import {
   TOOL_KEYS,
   createDashboardsReasoningMessage,

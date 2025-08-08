@@ -7,12 +7,12 @@ import { wrapTraced } from 'braintrust';
 import { inArray } from 'drizzle-orm';
 import * as yaml from 'yaml';
 import { z } from 'zod';
-import { getDataSource } from '../../../utils/get-data-source';
+import { getDataSource } from '../../../../utils/get-data-source';
 import {
   createPermissionErrorMessage,
   validateSqlPermissions,
-} from '../../../utils/sql-permissions';
-import { trackFileAssociations } from '../file-tracking-helper';
+} from '../../../../utils/sql-permissions';
+import { trackFileAssociations } from '../../file-tracking-helper';
 import { validateAndAdjustBarLineAxes } from '../helpers/bar-line-axis-validator';
 import { ensureTimeFrameQuoted } from '../helpers/time-frame-helper';
 import type {

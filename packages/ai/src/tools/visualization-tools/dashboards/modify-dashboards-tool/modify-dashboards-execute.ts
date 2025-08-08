@@ -6,7 +6,7 @@ import { wrapTraced } from 'braintrust';
 import { and, eq, inArray, isNull } from 'drizzle-orm';
 import * as yaml from 'yaml';
 import { z } from 'zod';
-import { trackFileAssociations } from '../file-tracking-helper';
+import { trackFileAssociations } from '../../file-tracking-helper';
 import { addDashboardVersionToHistory, getLatestVersionNumber } from '../version-history-helpers';
 import type { DashboardYml, VersionHistory } from '../version-history-types';
 import {

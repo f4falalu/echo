@@ -1,7 +1,7 @@
 import { updateMessageEntries } from '@buster/database';
 import type { ChatMessageReasoningMessage } from '@buster/server-shared/chats';
 import type { ToolCallOptions } from 'ai';
-import type { DoneToolInput } from '../../communication-tools/done-tool/done-tool';
+import type { DoneToolInput } from '../../../communication-tools/done-tool/done-tool';
 import type {
   CreateDashboardsContext,
   CreateDashboardsInput,
