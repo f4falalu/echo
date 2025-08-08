@@ -20,7 +20,7 @@ export function createExecuteSqlStart(state: ExecuteSqlState, context: ExecuteSq
     const rawLlmMessage = createExecuteSqlRawLlmMessageEntry(state, options.toolCallId);
 
     // Save initial entries to database
-    if (context.messageId) {
+    if (reasoningEntry && rawLlmMessage) {
       try {
         await updateMessageEntries({
           messageId: context.messageId,

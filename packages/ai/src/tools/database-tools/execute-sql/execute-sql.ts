@@ -23,7 +23,7 @@ const ExecuteSqlContextSchema = z.object({
   dataSourceId: z.string().describe('ID of the data source to execute SQL against'),
   userId: z.string().describe('ID of the user executing the SQL'),
   dataSourceSyntax: z.string().describe('SQL syntax variant for the data source'),
-  messageId: z.string().optional().describe('Message ID for database updates'),
+  messageId: z.string().describe('Message ID for database updates'),
 });
 
 const ExecuteSqlStateSchema = z.object({
@@ -127,7 +127,7 @@ export const executeSql = tool({
       dataSourceId: rawContext.dataSourceId,
       userId: rawContext.userId,
       dataSourceSyntax: rawContext.dataSourceSyntax,
-      messageId: rawContext.messageId,
+      messageId: rawContext.messageId || '',
     });
 
     // Create temporary state for this execution

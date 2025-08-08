@@ -20,7 +20,7 @@ export function createExecuteSqlFinish(state: ExecuteSqlState, context: ExecuteS
     const reasoningEntry = createExecuteSqlReasoningEntry(state, options.toolCallId);
     const rawLlmMessage = createExecuteSqlRawLlmMessageEntry(state, options.toolCallId);
 
-    if (context.messageId) {
+    if (reasoningEntry && rawLlmMessage) {
       try {
         await updateMessageEntries({
           messageId: context.messageId,

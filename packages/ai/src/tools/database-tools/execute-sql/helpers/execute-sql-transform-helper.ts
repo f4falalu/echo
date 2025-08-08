@@ -1,5 +1,5 @@
 import type { ChatMessageReasoningMessage } from '@buster/server-shared/chats';
-import type { CoreMessage } from 'ai';
+import type { ModelMessage } from 'ai';
 import type { ExecuteSqlOutput, ExecuteSqlState } from '../execute-sql';
 
 /**
@@ -103,7 +103,7 @@ export function createExecuteSqlReasoningEntry(
 export function createExecuteSqlRawLlmMessageEntry(
   state: ExecuteSqlState,
   toolCallId: string
-): CoreMessage | undefined {
+): ModelMessage | undefined {
   if (!state.statements || state.statements.length === 0) {
     return undefined;
   }
@@ -115,10 +115,10 @@ export function createExecuteSqlRawLlmMessageEntry(
         type: 'tool-call',
         toolCallId,
         toolName: 'executeSql',
-        args: {
+        input: {
           statements: state.statements,
         },
       },
     ],
-  } as CoreMessage;
+  } as ModelMessage;
 }

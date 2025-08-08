@@ -1,6 +1,9 @@
 import { describe, expect, test, vi } from 'vitest';
 import type { SequentialThinkingContext } from './sequential-thinking-tool';
-import { createSequentialThinkingTool } from './sequential-thinking-tool';
+import {
+  SequentialThinkingInputSchema,
+  createSequentialThinkingTool,
+} from './sequential-thinking-tool';
 
 vi.mock('braintrust', () => ({
   wrapTraced: vi.fn((fn: unknown) => fn),
@@ -35,11 +38,18 @@ describe('Sequential Thinking Tool', () => {
 
       const tool = createSequentialThinkingTool(context);
 
-      const result = await tool.execute({
-        thought: 'Let me think through this problem step by step',
-        nextThoughtNeeded: true,
-        thoughtNumber: 1,
-      });
+      expect(tool.execute).toBeDefined();
+      const execute = tool.execute;
+      if (!execute) throw new Error('execute is undefined');
+
+      const result = await execute(
+        {
+          thought: 'Let me think through this problem step by step',
+          nextThoughtNeeded: true,
+          thoughtNumber: 1,
+        },
+        { toolCallId: 'test', messages: [] }
+      );
 
       expect(result).toEqual({ success: true });
     });
@@ -49,11 +59,18 @@ describe('Sequential Thinking Tool', () => {
 
       const tool = createSequentialThinkingTool(context);
 
-      const result = await tool.execute({
-        thought: 'Thinking without message context',
-        nextThoughtNeeded: false,
-        thoughtNumber: 1,
-      });
+      expect(tool.execute).toBeDefined();
+      const execute = tool.execute;
+      if (!execute) throw new Error('execute is undefined');
+
+      const result = await execute(
+        {
+          thought: 'Thinking without message context',
+          nextThoughtNeeded: false,
+          thoughtNumber: 1,
+        },
+        { toolCallId: 'test', messages: [] }
+      );
 
       expect(result).toEqual({ success: true });
     });
@@ -83,7 +100,7 @@ describe('Sequential Thinking Tool', () => {
         thoughtNumber: 1,
       };
 
-      const parseResult = tool.inputSchema.safeParse(validInput);
+      const parseResult = SequentialThinkingInputSchema.safeParse(validInput);
       expect(parseResult.success).toBe(true);
 
       const invalidInput = {
@@ -92,7 +109,7 @@ describe('Sequential Thinking Tool', () => {
         thoughtNumber: 1,
       };
 
-      const invalidParseResult = tool.inputSchema.safeParse(invalidInput);
+      const invalidParseResult = SequentialThinkingInputSchema.safeParse(invalidInput);
       expect(invalidParseResult.success).toBe(false);
     });
 
@@ -109,7 +126,7 @@ describe('Sequential Thinking Tool', () => {
         thoughtNumber: -1,
       };
 
-      const negativeParseResult = tool.inputSchema.safeParse(negativeNumberInput);
+      const negativeParseResult = SequentialThinkingInputSchema.safeParse(negativeNumberInput);
       expect(negativeParseResult.success).toBe(false);
 
       const zeroNumberInput = {
@@ -118,7 +135,7 @@ describe('Sequential Thinking Tool', () => {
         thoughtNumber: 0,
       };
 
-      const zeroParseResult = tool.inputSchema.safeParse(zeroNumberInput);
+      const zeroParseResult = SequentialThinkingInputSchema.safeParse(zeroNumberInput);
       expect(zeroParseResult.success).toBe(false);
 
       const floatNumberInput = {
@@ -127,7 +144,7 @@ describe('Sequential Thinking Tool', () => {
         thoughtNumber: 1.5,
       };
 
-      const floatParseResult = tool.inputSchema.safeParse(floatNumberInput);
+      const floatParseResult = SequentialThinkingInputSchema.safeParse(floatNumberInput);
       expect(floatParseResult.success).toBe(false);
     });
   });

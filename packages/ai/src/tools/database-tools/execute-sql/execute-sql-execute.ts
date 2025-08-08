@@ -330,7 +330,7 @@ export function createExecuteSqlExecute(state: ExecuteSqlState, context: Execute
         const rawLlmMessage = createExecuteSqlRawLlmMessageEntry(state, state.toolCallId || '');
 
         // Update database with final status
-        if (context.messageId) {
+        if (reasoningEntry && rawLlmMessage) {
           try {
             await updateMessageEntries({
               messageId: context.messageId,
