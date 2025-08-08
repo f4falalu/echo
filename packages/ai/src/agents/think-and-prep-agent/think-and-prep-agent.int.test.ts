@@ -13,6 +13,10 @@ describe('Think and Prep Agent Integration Tests', () => {
         messageId: 'test-message-123',
         sql_dialect_guidance: 'postgresql',
         chatId: 'test-chat-123',
+        organizationId: 'test-organization-123',
+        userId: 'test-user-123',
+        dataSourceId: 'test-data-source-123',
+        dataSourceSyntax: 'postgresql',
       });
 
       const streamResult = await thinkAndPrepAgent.stream({

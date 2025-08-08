@@ -1,7 +1,7 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { db, messages, chats } from '@buster/database';
-import { eq } from 'drizzle-orm';
+import { chats, db, messages } from '@buster/database';
 import { createTestChat, createTestMessage } from '@buster/test-utils';
+import { eq } from 'drizzle-orm';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { markMessageComplete } from './mark-message-complete-step';
 
 describe('markMessageComplete integration test', () => {
@@ -20,7 +20,7 @@ describe('markMessageComplete integration test', () => {
     // Create a test message - returns just the ID string
     testMessageId = await createTestMessage(testChatId, testUserId, {
       isCompleted: false, // Start with uncompleted message for testing
-      finalReasoningMessage: null,
+      finalReasoningMessage: '',
     });
   });
 
@@ -40,11 +40,8 @@ describe('markMessageComplete integration test', () => {
     expect(result.completedAt).toBeDefined();
 
     // Verify the message was updated in the database
-    const [updatedMessage] = await db
-      .select()
-      .from(messages)
-      .where(eq(messages.id, testMessageId));
-    
+    const [updatedMessage] = await db.select().from(messages).where(eq(messages.id, testMessageId));
+
     expect(updatedMessage?.isCompleted).toBe(true);
     expect(updatedMessage?.finalReasoningMessage).toBe('Task completed successfully');
   });
@@ -67,14 +64,11 @@ describe('markMessageComplete integration test', () => {
     expect(result.messageId).toBe(testMessageId);
 
     // Wait a moment for database update to complete
-    await new Promise(resolve => setTimeout(resolve, 100));
+    await new Promise((resolve) => setTimeout(resolve, 100));
 
     // Verify the chat was updated with file information
-    const [updatedChat] = await db
-      .select()
-      .from(chats)
-      .where(eq(chats.id, testChatId));
-    
+    const [updatedChat] = await db.select().from(chats).where(eq(chats.id, testChatId));
+
     expect(updatedChat).toBeDefined();
     expect(updatedChat?.mostRecentFileId).toBe(selectedFile.fileId);
     expect(updatedChat?.mostRecentFileType).toBe(selectedFile.fileType);
@@ -106,7 +100,7 @@ describe('markMessageComplete integration test', () => {
         .select()
         .from(messages)
         .where(eq(messages.id, testMessageId));
-      
+
       expect(updatedMessage?.finalReasoningMessage).toBe('complete');
     }
   });
@@ -128,11 +122,8 @@ describe('markMessageComplete integration test', () => {
     expect(result.success).toBe(true);
 
     // Verify the chat was not updated
-    const [chat] = await db
-      .select()
-      .from(chats)
-      .where(eq(chats.id, testChatId));
-    
+    const [chat] = await db.select().from(chats).where(eq(chats.id, testChatId));
+
     expect(chat?.mostRecentFileId).toBeNull();
   });
 });

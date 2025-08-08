@@ -39,6 +39,11 @@ describe('runThinkAndPrepAgentStep', () => {
       options: {
         messageId: 'test-message-id',
         sql_dialect_guidance: 'postgres',
+        userId: 'test-user-id',
+        chatId: 'test-chat-id',
+        organizationId: 'test-organization-id',
+        dataSourceId: 'test-data-source-id',
+        dataSourceSyntax: 'test-data-source-syntax',
       },
       streamOptions: {
         messages: [{ role: 'user', content: 'Test prompt' }],
@@ -71,6 +76,11 @@ describe('runThinkAndPrepAgentStep', () => {
         options: {
           messageId: 'test-message-id',
           sql_dialect_guidance: 'postgres',
+          userId: 'test-user-id',
+          chatId: 'test-chat-id',
+          organizationId: 'test-organization-id',
+          dataSourceId: 'test-data-source-id',
+          dataSourceSyntax: 'test-data-source-syntax',
         },
         streamOptions: {
           messages: [{ role: 'user', content: 'Test prompt' }],
@@ -100,6 +110,11 @@ describe('runThinkAndPrepAgentStep', () => {
         options: {
           messageId: 'test-message-id',
           sql_dialect_guidance: 'postgres',
+          userId: 'test-user-id',
+          chatId: 'test-chat-id',
+          organizationId: 'test-organization-id',
+          dataSourceId: 'test-data-source-id',
+          dataSourceSyntax: 'test-data-source-syntax',
         },
         streamOptions: {
           messages: [{ role: 'user', content: 'Test prompt' }],
@@ -127,6 +142,11 @@ describe('runThinkAndPrepAgentStep', () => {
         options: {
           messageId: 'test-message-id',
           sql_dialect_guidance: 'postgres',
+          userId: 'test-user-id',
+          chatId: 'test-chat-id',
+          organizationId: 'test-organization-id',
+          dataSourceId: 'test-data-source-id',
+          dataSourceSyntax: 'test-data-source-syntax',
         },
         streamOptions: {
           messages: [{ role: 'user', content: 'Test prompt' }],
