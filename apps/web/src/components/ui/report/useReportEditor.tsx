@@ -6,6 +6,7 @@ import { useMemo } from 'react';
 import { EditorKit } from './editor-kit';
 import { FIXED_TOOLBAR_KIT_KEY } from './plugins/fixed-toolbar-kit';
 import { CUSTOM_KEYS } from './config/keys';
+import { GlobalVariablePlugin } from './plugins/global-variable-kit';
 
 export const useReportEditor = ({
   value,
@@ -24,26 +25,19 @@ export const useReportEditor = ({
       filteredKeys.push(FIXED_TOOLBAR_KIT_KEY);
     }
 
-    if (filteredKeys.length > 0) {
-      return EditorKit.filter((plugin) => !filteredKeys.includes(plugin.key));
-    }
-
-    return EditorKit;
-  }, [useFixedToolbarKit]);
-
-  console.log('mode in useReportEditor', mode);
+    return [
+      ...EditorKit,
+      GlobalVariablePlugin.configurePlugin(GlobalVariablePlugin, {
+        options: {
+          mode
+        }
+      })
+    ];
+  }, []);
 
   return usePlateEditor({
     plugins,
     value,
-    options: {
-      [CUSTOM_KEYS.globalVariable]: {
-        mode
-      },
-      swag: {
-        mode
-      }
-    },
     readOnly: disabled
   });
 };

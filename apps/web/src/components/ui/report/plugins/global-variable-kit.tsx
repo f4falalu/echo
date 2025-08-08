@@ -18,5 +18,3 @@ export const GlobalVariablePlugin = createPlatePlugin<
     mode: 'default'
   }
 });
-
-export const GlobalVariableKit = [GlobalVariablePlugin];
