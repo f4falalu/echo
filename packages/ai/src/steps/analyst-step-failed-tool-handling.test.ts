@@ -5,7 +5,19 @@ import type {
   ChatMessageResponseMessage,
 } from '@buster/server-shared/chats';
 import { describe, expect, test } from 'vitest';
-import { hasFailureIndicators, hasFileFailureIndicators } from '../utils/database/types';
+
+// Helper functions to check for failure indicators
+function hasFailureIndicators(entry: ChatMessageReasoningMessage): boolean {
+  return entry.status === 'failed' || entry.status === 'error' || 
+    (entry.title?.toLowerCase().includes('error') ?? false) ||
+    (entry.title?.toLowerCase().includes('failed') ?? false);
+}
+
+function hasFileFailureIndicators(file: { status?: string; file_name?: string }): boolean {
+  return file.status === 'failed' || file.status === 'error' ||
+    (file.file_name?.toLowerCase().includes('error') ?? false) ||
+    (file.file_name?.toLowerCase().includes('failed') ?? false);
+}
 
 // Import the functions we want to test
 // For now, we'll copy the enhanced functions here for testing

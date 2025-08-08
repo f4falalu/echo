@@ -5,12 +5,12 @@ import type {
 } from '@buster/server-shared/chats';
 import type { CoreMessage, TextStreamPart, ToolSet } from 'ai';
 import { ErrorAccumulator } from '../error-accumulator';
-import type { ExtractedFile } from '../file-selection';
+import type { ExtractedFile } from '../../tools/communication-tools/done-tool/helpers/file-selection';
 import {
   createFileResponseMessages,
   extractFilesFromReasoning,
   selectFilesForResponse,
-} from '../file-selection';
+} from '../../tools/communication-tools/done-tool/helpers/file-selection';
 import { normalizeEscapedText } from '../streaming/escape-normalizer';
 import { OptimisticJsonParser, getOptimisticValue } from '../streaming/optimistic-json-parser';
 import type {

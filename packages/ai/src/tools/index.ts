@@ -9,14 +9,23 @@ export { createCreateDashboardsTool } from './visualization-tools/create-dashboa
 export { createModifyDashboardsTool } from './visualization-tools/modify-dashboards-tool/modify-dashboards-tool';
 export { executeSql, createExecuteSqlTool } from './database-tools/execute-sql/execute-sql';
 export { executeSqlDocsAgent } from './database-tools/super-execute-sql/super-execute-sql';
-export { createEditFilesTool } from './file-tools/edit-files-tool/edit-files-tool';
-export { readFiles } from './file-tools/read-files-tool/read-files-tool';
-export { createFiles } from './file-tools/create-files-tool/create-file-tool';
+// File tools - factory functions
 export { createListFilesTool } from './file-tools/list-files-tool/list-files-tool';
+export { createReadFilesTool } from './file-tools/read-files-tool/read-files-tool';
+export { createCreateFilesTool } from './file-tools/create-files-tool/create-files-tool';
+export { createEditFilesTool } from './file-tools/edit-files-tool/edit-files-tool';
+export { createDeleteFilesTool } from './file-tools/delete-files-tool/delete-files-tool';
+export { createBashTool } from './file-tools/bash-tool';
 export { createGrepSearchTool } from './file-tools/grep-search-tool/grep-search-tool';
 
-export { createBashTool, bashExecute } from './file-tools/bash-tool';
+// Legacy exports for backward compatibility (to be deprecated)
+export { bashExecute } from './file-tools/bash-tool';
+export { readFiles } from './file-tools/read-files-tool/read-files-tool';
+export { createFiles } from './file-tools/create-files-tool/create-file-tool';
+export { editFiles } from './file-tools/edit-files-tool/edit-files-tool';
 export { deleteFiles } from './file-tools/delete-files-tool/delete-files-tool';
+export { grepSearch } from './file-tools/grep-search-tool/grep-search-tool';
+export { listFiles } from './file-tools/list-files-tool/list-files-tool';
 export { checkOffTodoList } from './planning-thinking-tools/check-off-todo-list-tool/check-off-todo-list-tool';
 export { updateClarificationsFile } from './planning-thinking-tools/update-clarifications-file-tool/update-clarifications-file-tool';
 export { webSearch } from './web-tools/web-search-tool';
