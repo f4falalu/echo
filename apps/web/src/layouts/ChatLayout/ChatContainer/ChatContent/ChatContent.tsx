@@ -8,6 +8,7 @@ import { useChatIndividualContextSelector } from '../../ChatContext';
 import { ChatInput } from './ChatInput';
 import { ChatMessageBlock } from './ChatMessageBlock';
 import { ChatScrollToBottom } from './ChatScrollToBottom';
+import { CHAT_CONTAINER_ID } from '../ChatContainer';
 
 const autoClass = 'mx-auto max-w-[600px] w-full';
 
@@ -22,13 +23,15 @@ export const ChatContent: React.FC = React.memo(() => {
   });
 
   useMount(() => {
-    const container = document.querySelector(
-      '.chat-container-content .scroll-area-viewport'
-    ) as HTMLElement;
+    const container = document
+      .getElementById(CHAT_CONTAINER_ID)
+      ?.querySelector('.scroll-area-viewport') as HTMLElement;
     if (!container) return;
     containerRef.current = container;
     enableAutoScroll();
   });
+
+  console.log('hit chat content');
 
   return (
     <>

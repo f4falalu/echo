@@ -7,6 +7,12 @@ export default function ChatLayout({ children }: { children: React.ReactNode }) 
 export async function generateMetadata({ params }: { params: Promise<{ chatId: string }> }) {
   const { chatId } = await params;
 
+  if (!chatId) {
+    return {
+      title: 'Buster'
+    };
+  }
+
   try {
     const response = await getTitle_server({
       assetId: chatId,

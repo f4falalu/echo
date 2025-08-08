@@ -4,6 +4,12 @@ import React from 'react';
 import { useGetChatMessage } from '@/api/buster_rest/chats';
 import { ChatResponseMessages } from './ChatResponseMessages';
 import { ChatUserMessage } from './ChatUserMessage';
+import type { BusterChatMessage } from '@/api/asset_interfaces/chat';
+
+// Stable selector functions to prevent unnecessary re-renders
+const selectMessageExists = (message: BusterChatMessage | undefined) => !!message?.id;
+const selectRequestMessage = (message: BusterChatMessage | undefined) => message?.request_message;
+const selectIsCompleted = (message: BusterChatMessage | undefined) => message?.is_completed;
 
 export const ChatMessageBlock: React.FC<{
   messageId: string;
@@ -11,14 +17,16 @@ export const ChatMessageBlock: React.FC<{
   messageIndex: number;
 }> = React.memo(({ messageId, chatId, messageIndex }) => {
   const { data: messageExists } = useGetChatMessage(messageId, {
-    select: (message) => !!message?.id
+    select: selectMessageExists
   });
   const { data: requestMessage } = useGetChatMessage(messageId, {
-    select: (message) => message?.request_message
+    select: selectRequestMessage
   });
   const { data: isStreamFinished = true } = useGetChatMessage(messageId, {
-    select: (x) => x?.is_completed
+    select: selectIsCompleted
   });
+
+  console.log('chat message block', messageId, messageIndex);
 
   if (!messageExists) return null;
 
