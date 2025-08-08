@@ -5,6 +5,15 @@ import { wrapTraced } from 'braintrust';
 import { z } from 'zod';
 import { Haiku35 } from '../../../llm/haiku-3-5';
 
+// Zod-first: define input/output schemas and export inferred types
+export const generateChatTitleParamsSchema = z.object({
+  messages: z.array(z.custom<ModelMessage>()).describe('The conversation history'),
+  chatId: z.string().uuid().describe('The chat ID to update'),
+  messageId: z.string().uuid().describe('The message ID to update with title'),
+});
+
+export type GenerateChatTitleParams = z.infer<typeof generateChatTitleParamsSchema>;
+
 // Schema for what the LLM returns
 const llmOutputSchema = z.object({
   title: z.string().describe('The title for the chat.'),
@@ -17,43 +26,14 @@ The title should be 3-8 words, capturing the main topic or intent of the convers
 With an emphasis on the user's question and most recent converstaion topic.
 `;
 
-export interface GenerateChatTitleParams {
-  prompt: string;
-  conversationHistory?: ModelMessage[];
-  chatId?: string;
-  messageId?: string;
-}
-
-export interface GenerateChatTitleResult {
-  title: string;
-}
-
 /**
  * Generates a title using the LLM with conversation context
  */
-async function generateTitleWithLLM(
-  prompt: string,
-  conversationHistory?: ModelMessage[]
-): Promise<string> {
+async function generateTitleWithLLM(messages: ModelMessage[]): Promise<void> {
   try {
-    // Prepare messages for the LLM
-    const messages: ModelMessage[] = [];
-
-    // Add system message
     messages.push({
       role: 'system',
       content: generateChatTitleInstructions,
-    });
-
-    // Add conversation history if available
-    if (conversationHistory && conversationHistory.length > 0) {
-      messages.push(...conversationHistory);
-    }
-
-    // Add the current user prompt
-    messages.push({
-      role: 'user',
-      content: prompt,
     });
 
     const tracedChatTitle = wrapTraced(
@@ -71,8 +51,7 @@ async function generateTitleWithLLM(
       }
     );
 
-    const result = await tracedChatTitle();
-    return result.title ?? 'New Analysis';
+    await tracedChatTitle();
   } catch (llmError) {
     // Handle LLM generation errors specifically
     console.warn('[GenerateChatTitle] LLM failed to generate valid response:', {
@@ -80,8 +59,7 @@ async function generateTitleWithLLM(
       errorType: llmError instanceof Error ? llmError.name : 'Unknown',
     });
 
-    // Continue with fallback title instead of failing
-    return 'New Analysis';
+    throw new Error('Failed to generate chat title');
   }
 }
 
@@ -115,28 +93,17 @@ async function updateDatabaseRecords(
 }
 
 export async function runGenerateChatTitleStep({
-  prompt,
-  conversationHistory,
+  messages,
   chatId,
   messageId,
-}: GenerateChatTitleParams): Promise<GenerateChatTitleResult> {
+}: GenerateChatTitleParams): Promise<void> {
+  let title = 'New Analysis';
+
   try {
-    // Generate title using LLM
-    const title = await generateTitleWithLLM(prompt, conversationHistory);
-
-    // Update database records with the generated title
-    await updateDatabaseRecords(title, chatId, messageId);
-
-    return { title };
+    title = (await generateTitleWithLLM(messages)) ?? 'New Analysis';
   } catch (error) {
-    // Handle AbortError gracefully
-    if (error instanceof Error && error.name === 'AbortError') {
-      // Return a fallback title when aborted
-      return { title: 'New Analysis' };
-    }
-
     console.error('[GenerateChatTitle] Failed to generate chat title:', error);
-    // Return a fallback title instead of crashing
-    return { title: 'New Analysis' };
   }
+
+  await updateDatabaseRecords(title, chatId, messageId);
 }

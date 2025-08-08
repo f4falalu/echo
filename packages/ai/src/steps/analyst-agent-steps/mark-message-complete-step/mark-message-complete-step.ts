@@ -5,7 +5,10 @@ import { z } from 'zod';
 export const MarkMessageCompleteInputSchema = z.object({
   messageId: z.string().optional().describe('The message ID to mark as complete'),
   chatId: z.string().optional().describe('The chat ID to update with file information'),
-  finalReasoningMessage: z.string().optional().describe('Final reasoning message for the completion'),
+  finalReasoningMessage: z
+    .string()
+    .optional()
+    .describe('Final reasoning message for the completion'),
   selectedFile: z
     .object({
       fileId: z.string().uuid().optional(),

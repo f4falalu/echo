@@ -4,22 +4,21 @@ import { runGenerateChatTitleStep } from './generate-chat-title-step';
 
 describe('generate-chat-title-step integration', () => {
   it('should generate title for a simple sales query', async () => {
-    const params = {
-      prompt: 'Show me total sales for last quarter',
-      conversationHistory: [],
-    };
+    const messages = [
+      { role: 'user', content: 'Show me total sales for last quarter' },
+    ] as ModelMessage[];
 
-    const result = await runGenerateChatTitleStep(params);
+    const result = await runGenerateChatTitleStep({
+      messages,
+      chatId: '00000000-0000-4000-8000-000000000001',
+      messageId: '00000000-0000-4000-8000-000000000002',
+    });
 
-    expect(result).toBeDefined();
-    expect(result.title).toBeDefined();
-    expect(typeof result.title).toBe('string');
-    expect(result.title.length).toBeGreaterThan(0);
-    expect(result.title.length).toBeLessThanOrEqual(50); // Reasonable title length
+    expect(result).toBeUndefined(); // Function returns void
   });
 
   it('should generate title with conversation history context', async () => {
-    const conversationHistory: ModelMessage[] = [
+    const messages: ModelMessage[] = [
       {
         role: 'user',
         content: 'I need to analyze our product performance',
@@ -29,52 +28,58 @@ describe('generate-chat-title-step integration', () => {
         content:
           'I can help you analyze product performance. What specific aspects would you like to explore?',
       },
+      {
+        role: 'user',
+        content: 'Compare revenue between laptops and desktop computers',
+      },
     ];
 
-    const params = {
-      prompt: 'Compare revenue between laptops and desktop computers',
-      conversationHistory,
-    };
+    const result = await runGenerateChatTitleStep({
+      messages,
+      chatId: '00000000-0000-4000-8000-000000000001',
+      messageId: '00000000-0000-4000-8000-000000000002',
+    });
 
-    const result = await runGenerateChatTitleStep(params);
-
-    expect(result).toBeDefined();
-    expect(result.title).toBeDefined();
-    expect(typeof result.title).toBe('string');
-    expect(result.title.length).toBeGreaterThan(0);
+    expect(result).toBeUndefined(); // Function returns void
   });
 
   it('should handle complex multi-part queries', async () => {
-    const params = {
-      prompt:
-        'What are the top selling products by category, and show me monthly trends for Q1 2024',
-      conversationHistory: [],
-    };
+    const messages = [
+      {
+        role: 'user',
+        content:
+          'What are the top selling products by category, and show me monthly trends for Q1 2024',
+      },
+    ] as ModelMessage[];
 
-    const result = await runGenerateChatTitleStep(params);
+    const result = await runGenerateChatTitleStep({
+      messages,
+      chatId: '00000000-0000-4000-8000-000000000001',
+      messageId: '00000000-0000-4000-8000-000000000002',
+    });
 
-    expect(result).toBeDefined();
-    expect(result.title).toBeDefined();
-    expect(typeof result.title).toBe('string');
-    expect(result.title.length).toBeGreaterThan(0);
+    expect(result).toBeUndefined(); // Function returns void
   });
 
   it('should generate title for technical data queries', async () => {
-    const params = {
-      prompt: 'Calculate customer lifetime value segmented by acquisition channel',
-      conversationHistory: [],
-    };
+    const messages = [
+      {
+        role: 'user',
+        content: 'Calculate customer lifetime value segmented by acquisition channel',
+      },
+    ] as ModelMessage[];
 
-    const result = await runGenerateChatTitleStep(params);
+    const result = await runGenerateChatTitleStep({
+      messages,
+      chatId: '00000000-0000-4000-8000-000000000001',
+      messageId: '00000000-0000-4000-8000-000000000002',
+    });
 
-    expect(result).toBeDefined();
-    expect(result.title).toBeDefined();
-    expect(typeof result.title).toBe('string');
-    expect(result.title.length).toBeGreaterThan(0);
+    expect(result).toBeUndefined(); // Function returns void
   });
 
   it('should handle follow-up questions with context', async () => {
-    const conversationHistory: ModelMessage[] = [
+    const messages: ModelMessage[] = [
       {
         role: 'user',
         content: 'Show me sales for Red Bull',
@@ -83,32 +88,31 @@ describe('generate-chat-title-step integration', () => {
         role: 'assistant',
         content: 'Here are the sales figures for Red Bull products...',
       },
+      {
+        role: 'user',
+        content: 'What about Monster Energy drinks?',
+      },
     ];
 
-    const params = {
-      prompt: 'What about Monster Energy drinks?',
-      conversationHistory,
-    };
+    const result = await runGenerateChatTitleStep({
+      messages,
+      chatId: '00000000-0000-4000-8000-000000000001',
+      messageId: '00000000-0000-4000-8000-000000000002',
+    });
 
-    const result = await runGenerateChatTitleStep(params);
-
-    expect(result).toBeDefined();
-    expect(result.title).toBeDefined();
-    expect(typeof result.title).toBe('string');
-    expect(result.title.length).toBeGreaterThan(0);
+    expect(result).toBeUndefined(); // Function returns void
   });
 
   it('should handle empty prompt gracefully', async () => {
-    const params = {
-      prompt: '',
-      conversationHistory: [],
-    };
+    const messages = [{ role: 'user', content: '' }] as ModelMessage[];
 
-    const result = await runGenerateChatTitleStep(params);
+    const result = await runGenerateChatTitleStep({
+      messages,
+      chatId: '00000000-0000-4000-8000-000000000001',
+      messageId: '00000000-0000-4000-8000-000000000002',
+    });
 
-    expect(result).toBeDefined();
-    expect(result.title).toBeDefined();
-    expect(result.title).toBe('New Analysis'); // Fallback title
+    expect(result).toBeUndefined(); // Function returns void
   });
 
   it('should handle very long prompts', async () => {
@@ -126,36 +130,33 @@ describe('generate-chat-title-step integration', () => {
       10. Website conversion rates by traffic source
     `.trim();
 
-    const params = {
-      prompt: longPrompt,
-      conversationHistory: [],
-    };
+    const messages = [{ role: 'user', content: longPrompt }] as ModelMessage[];
 
-    const result = await runGenerateChatTitleStep(params);
+    const result = await runGenerateChatTitleStep({
+      messages,
+      chatId: '00000000-0000-4000-8000-000000000001',
+      messageId: '00000000-0000-4000-8000-000000000002',
+    });
 
-    expect(result).toBeDefined();
-    expect(result.title).toBeDefined();
-    expect(typeof result.title).toBe('string');
-    expect(result.title.length).toBeGreaterThan(0);
-    expect(result.title.length).toBeLessThanOrEqual(50); // Should still be concise
+    expect(result).toBeUndefined(); // Function returns void
   });
 
   it('should generate appropriate title for data availability questions', async () => {
-    const params = {
-      prompt: 'What customer data do you have access to?',
-      conversationHistory: [],
-    };
+    const messages = [
+      { role: 'user', content: 'What customer data do you have access to?' },
+    ] as ModelMessage[];
 
-    const result = await runGenerateChatTitleStep(params);
+    const result = await runGenerateChatTitleStep({
+      messages,
+      chatId: '00000000-0000-4000-8000-000000000001',
+      messageId: '00000000-0000-4000-8000-000000000002',
+    });
 
-    expect(result).toBeDefined();
-    expect(result.title).toBeDefined();
-    expect(typeof result.title).toBe('string');
-    expect(result.title.length).toBeGreaterThan(0);
+    expect(result).toBeUndefined(); // Function returns void
   });
 
   it('should handle mixed language conversation history', async () => {
-    const conversationHistory: ModelMessage[] = [
+    const messages: ModelMessage[] = [
       {
         role: 'user',
         content: 'Show me sales data',
@@ -168,34 +169,35 @@ describe('generate-chat-title-step integration', () => {
         role: 'user',
         content: 'Can you filter by region?',
       },
+      {
+        role: 'user',
+        content: 'Focus on North America only',
+      },
     ];
 
-    const params = {
-      prompt: 'Focus on North America only',
-      conversationHistory,
-    };
+    const result = await runGenerateChatTitleStep({
+      messages,
+      chatId: '00000000-0000-4000-8000-000000000001',
+      messageId: '00000000-0000-4000-8000-000000000002',
+    });
 
-    const result = await runGenerateChatTitleStep(params);
-
-    expect(result).toBeDefined();
-    expect(result.title).toBeDefined();
-    expect(typeof result.title).toBe('string');
-    expect(result.title.length).toBeGreaterThan(0);
+    expect(result).toBeUndefined(); // Function returns void
   });
 
   it('should handle abort scenario gracefully', async () => {
     // This test simulates what happens when generateChatTitle handles an AbortError
     // In real scenarios, this would happen when a request is cancelled
-    const params = {
-      prompt: 'Show me quarterly revenue trends',
-      conversationHistory: [],
-    };
+    const messages = [
+      { role: 'user', content: 'Show me quarterly revenue trends' },
+    ] as ModelMessage[];
 
-    const result = await runGenerateChatTitleStep(params);
+    const result = await runGenerateChatTitleStep({
+      messages,
+      chatId: '00000000-0000-4000-8000-000000000001',
+      messageId: '00000000-0000-4000-8000-000000000002',
+    });
 
-    // Even if aborted internally, should return a valid result
-    expect(result).toBeDefined();
-    expect(result.title).toBeDefined();
-    expect(typeof result.title).toBe('string');
+    // Even if aborted internally, should complete without error
+    expect(result).toBeUndefined(); // Function returns void
   });
 });

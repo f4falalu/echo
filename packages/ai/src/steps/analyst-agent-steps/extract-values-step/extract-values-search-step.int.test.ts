@@ -4,9 +4,11 @@ import { runExtractValuesAndSearchStep } from './extract-values-search-step';
 
 describe('extract-values-search-step integration', () => {
   it('should extract values from simple product query', async () => {
+    const messages: ModelMessage[] = [
+      { role: 'user', content: 'Show me sales for Red Bull in California' },
+    ];
     const params = {
-      prompt: 'Show me sales for Red Bull in California',
-      conversationHistory: [],
+      messages,
     };
 
     const result = await runExtractValuesAndSearchStep(params);
@@ -14,16 +16,19 @@ describe('extract-values-search-step integration', () => {
     expect(result).toBeDefined();
     expect(result.values).toBeDefined();
     expect(Array.isArray(result.values)).toBe(true);
-    expect(result.searchPerformed).toBe(false); // No dataSourceId provided
-    expect(result.searchResults).toBe('');
-    expect(result.foundValues).toEqual({});
+    expect(result.valuesMessage).toBeUndefined();
   });
 
   it('should extract multiple values from complex query', async () => {
+    const messages: ModelMessage[] = [
+      {
+        role: 'user',
+        content:
+          'Compare Nike vs Adidas performance in New York and Los Angeles for Premium tier customers',
+      },
+    ];
     const params = {
-      prompt:
-        'Compare Nike vs Adidas performance in New York and Los Angeles for Premium tier customers',
-      conversationHistory: [],
+      messages,
     };
 
     const result = await runExtractValuesAndSearchStep(params);
@@ -35,9 +40,11 @@ describe('extract-values-search-step integration', () => {
   });
 
   it('should handle queries with no extractable values', async () => {
+    const messages: ModelMessage[] = [
+      { role: 'user', content: 'What is the total revenue last month?' },
+    ];
     const params = {
-      prompt: 'What is the total revenue last month?',
-      conversationHistory: [],
+      messages,
     };
 
     const result = await runExtractValuesAndSearchStep(params);
@@ -46,11 +53,11 @@ describe('extract-values-search-step integration', () => {
     expect(result.values).toBeDefined();
     expect(Array.isArray(result.values)).toBe(true);
     expect(result.values.length).toBe(0); // No specific values to extract
-    expect(result.searchPerformed).toBe(false);
+    expect(result.valuesMessage).toBeUndefined();
   });
 
   it('should use conversation history for context', async () => {
-    const conversationHistory: ModelMessage[] = [
+    const messages: ModelMessage[] = [
       {
         role: 'user',
         content: 'I want to analyze our electronics division',
@@ -59,11 +66,14 @@ describe('extract-values-search-step integration', () => {
         role: 'assistant',
         content: 'I can help you analyze the electronics division. What would you like to know?',
       },
+      {
+        role: 'user',
+        content: 'Show me iPhone 15 and Samsung Galaxy sales',
+      },
     ];
 
     const params = {
-      prompt: 'Show me iPhone 15 and Samsung Galaxy sales',
-      conversationHistory,
+      messages,
     };
 
     const result = await runExtractValuesAndSearchStep(params);
@@ -74,9 +84,11 @@ describe('extract-values-search-step integration', () => {
   });
 
   it('should extract company and product names', async () => {
+    const messages: ModelMessage[] = [
+      { role: 'user', content: 'How many Microsoft Surface laptops did Acme Corp purchase?' },
+    ];
     const params = {
-      prompt: 'How many Microsoft Surface laptops did Acme Corp purchase?',
-      conversationHistory: [],
+      messages,
     };
 
     const result = await runExtractValuesAndSearchStep(params);
@@ -88,9 +100,14 @@ describe('extract-values-search-step integration', () => {
   });
 
   it('should extract status values and categories', async () => {
+    const messages: ModelMessage[] = [
+      {
+        role: 'user',
+        content: 'Show me all completed orders for Enterprise customers in pending status',
+      },
+    ];
     const params = {
-      prompt: 'Show me all completed orders for Enterprise customers in pending status',
-      conversationHistory: [],
+      messages,
     };
 
     const result = await runExtractValuesAndSearchStep(params);
@@ -102,9 +119,11 @@ describe('extract-values-search-step integration', () => {
   });
 
   it('should handle industry-specific terms', async () => {
+    const messages: ModelMessage[] = [
+      { role: 'user', content: 'What is our B2B SaaS revenue from e-commerce platforms?' },
+    ];
     const params = {
-      prompt: 'What is our B2B SaaS revenue from e-commerce platforms?',
-      conversationHistory: [],
+      messages,
     };
 
     const result = await runExtractValuesAndSearchStep(params);
@@ -116,9 +135,11 @@ describe('extract-values-search-step integration', () => {
   });
 
   it('should extract location-based values', async () => {
+    const messages: ModelMessage[] = [
+      { role: 'user', content: 'Compare sales between San Francisco, New York, and Europe' },
+    ];
     const params = {
-      prompt: 'Compare sales between San Francisco, New York, and Europe',
-      conversationHistory: [],
+      messages,
     };
 
     const result = await runExtractValuesAndSearchStep(params);
@@ -130,9 +151,11 @@ describe('extract-values-search-step integration', () => {
   });
 
   it('should handle feature-based queries', async () => {
+    const messages: ModelMessage[] = [
+      { role: 'user', content: 'Show me all waterproof wireless headphones in organic materials' },
+    ];
     const params = {
-      prompt: 'Show me all waterproof wireless headphones in organic materials',
-      conversationHistory: [],
+      messages,
     };
 
     const result = await runExtractValuesAndSearchStep(params);
@@ -144,7 +167,7 @@ describe('extract-values-search-step integration', () => {
   });
 
   it('should handle follow-up questions with context', async () => {
-    const conversationHistory: ModelMessage[] = [
+    const messages: ModelMessage[] = [
       {
         role: 'user',
         content: 'Show me laptop sales',
@@ -153,11 +176,14 @@ describe('extract-values-search-step integration', () => {
         role: 'assistant',
         content: 'Here are the laptop sales figures...',
       },
+      {
+        role: 'user',
+        content: 'What about Dell and HP specifically?',
+      },
     ];
 
     const params = {
-      prompt: 'What about Dell and HP specifically?',
-      conversationHistory,
+      messages,
     };
 
     const result = await runExtractValuesAndSearchStep(params);
@@ -169,18 +195,16 @@ describe('extract-values-search-step integration', () => {
   });
 
   it('should handle empty prompt', async () => {
+    const messages: ModelMessage[] = [{ role: 'user', content: '' }];
     const params = {
-      prompt: '',
-      conversationHistory: [],
+      messages,
     };
 
     const result = await runExtractValuesAndSearchStep(params);
 
     expect(result).toBeDefined();
     expect(result.values).toEqual([]);
-    expect(result.searchPerformed).toBe(false);
-    expect(result.searchResults).toBe('');
-    expect(result.foundValues).toEqual({});
+    expect(result.valuesMessage).toBeUndefined();
   });
 
   it('should handle very long prompts with multiple values', async () => {
@@ -194,9 +218,9 @@ describe('extract-values-search-step integration', () => {
       for all completed and pending orders.
     `.trim();
 
+    const messages: ModelMessage[] = [{ role: 'user', content: longPrompt }];
     const params = {
-      prompt: longPrompt,
-      conversationHistory: [],
+      messages,
     };
 
     const result = await runExtractValuesAndSearchStep(params);
@@ -207,9 +231,11 @@ describe('extract-values-search-step integration', () => {
   });
 
   it('should not extract generic concepts', async () => {
+    const messages: ModelMessage[] = [
+      { role: 'user', content: 'Show me revenue, profit, and customer count for last month' },
+    ];
     const params = {
-      prompt: 'Show me revenue, profit, and customer count for last month',
-      conversationHistory: [],
+      messages,
     };
 
     const result = await runExtractValuesAndSearchStep(params);
@@ -221,9 +247,14 @@ describe('extract-values-search-step integration', () => {
   });
 
   it('should handle mixed valid and invalid values', async () => {
+    const messages: ModelMessage[] = [
+      {
+        role: 'user',
+        content: 'Show me Red Bull sales and revenue trends with customer analytics',
+      },
+    ];
     const params = {
-      prompt: 'Show me Red Bull sales and revenue trends with customer analytics',
-      conversationHistory: [],
+      messages,
     };
 
     const result = await runExtractValuesAndSearchStep(params);
@@ -235,9 +266,9 @@ describe('extract-values-search-step integration', () => {
   });
 
   it('should handle abort scenario gracefully', async () => {
+    const messages: ModelMessage[] = [{ role: 'user', content: 'Show me Nike products' }];
     const params = {
-      prompt: 'Show me Nike products',
-      conversationHistory: [],
+      messages,
     };
 
     // Even if internally aborted, should return valid structure
@@ -246,15 +277,15 @@ describe('extract-values-search-step integration', () => {
     expect(result).toBeDefined();
     expect(result.values).toBeDefined();
     expect(Array.isArray(result.values)).toBe(true);
-    expect(result.searchPerformed).toBe(false);
-    expect(result.searchResults).toBe('');
-    expect(result.foundValues).toEqual({});
+    expect(result.valuesMessage).toBeUndefined();
   });
 
   it('should handle special characters in values', async () => {
+    const messages: ModelMessage[] = [
+      { role: 'user', content: 'Show me sales for "Johnson & Johnson" and AT&T products' },
+    ];
     const params = {
-      prompt: 'Show me sales for "Johnson & Johnson" and AT&T products',
-      conversationHistory: [],
+      messages,
     };
 
     const result = await runExtractValuesAndSearchStep(params);
@@ -265,9 +296,11 @@ describe('extract-values-search-step integration', () => {
   });
 
   it('should extract model/version information', async () => {
+    const messages: ModelMessage[] = [
+      { role: 'user', content: 'Compare Version 2.0 with Model X performance metrics' },
+    ];
     const params = {
-      prompt: 'Compare Version 2.0 with Model X performance metrics',
-      conversationHistory: [],
+      messages,
     };
 
     const result = await runExtractValuesAndSearchStep(params);
@@ -279,9 +312,11 @@ describe('extract-values-search-step integration', () => {
   });
 
   it('should handle questions about specific IDs differently', async () => {
+    const messages: ModelMessage[] = [
+      { role: 'user', content: 'What is the status of order 12345 and ticket ABC123?' },
+    ];
     const params = {
-      prompt: 'What is the status of order 12345 and ticket ABC123?',
-      conversationHistory: [],
+      messages,
     };
 
     const result = await runExtractValuesAndSearchStep(params);
@@ -295,8 +330,7 @@ describe('extract-values-search-step integration', () => {
   it('should process concurrent value extraction requests', async () => {
     const promises = Array.from({ length: 3 }, (_, i) =>
       runExtractValuesAndSearchStep({
-        prompt: `Show me Product${i} sales`,
-        conversationHistory: [],
+        messages: [{ role: 'user', content: `Show me Product${i} sales` } as ModelMessage],
       })
     );
 

@@ -3,6 +3,8 @@
 import type { ModelMessage } from 'ai';
 import { z } from 'zod';
 import {
+  type CreateTodosResult,
+  type ExtractValuesSearchResult,
   runAnalystAgentStep,
   runCreateTodosStep,
   runExtractValuesAndSearchStep,
@@ -25,7 +27,13 @@ export type AnalystWorkflowInput = z.infer<typeof AnalystWorkflowInputSchema>;
 export async function runAnalystWorkflow(input: AnalystWorkflowInput) {
   const { messages } = input;
 
-  const analystPrepResults = await runAnalystPrepSteps(input);
+  const { todos, values } = await runAnalystPrepSteps(input);
+
+  if (values.valuesMessage) {
+    messages.push(values.valuesMessage);
+  }
+
+  messages.push(todos.todosMessage);
 
   const thinkAndPrepAgentStepResults = await runThinkAndPrepAgentStep({
     options: {
@@ -42,7 +50,9 @@ export async function runAnalystWorkflow(input: AnalystWorkflowInput) {
     },
   });
 
-  const analystAgentStepResults = await runAnalystAgentStep({
+  messages.push(...thinkAndPrepAgentStepResults.messages);
+
+  await runAnalystAgentStep({
     options: {
       messageId: input.messageId,
       chatId: input.chatId,
@@ -57,34 +67,38 @@ export async function runAnalystWorkflow(input: AnalystWorkflowInput) {
   });
 }
 
-async function runAnalystPrepSteps(input: AnalystWorkflowInput) {
-  const todos = await runCreateTodosStep({
-    options: {
-      messageId: input.messageId,
-      chatId: input.chatId,
-      organizationId: input.organizationId,
-      dataSourceId: input.dataSourceId,
-      dataSourceSyntax: input.dataSourceSyntax,
-    },
-  });
+const AnalystPrepStepSchema = z.object({
+  messages: z.array(z.custom<ModelMessage>()),
+  dataSourceId: z.string().uuid(),
+  chatId: z.string().uuid(),
+  messageId: z.string().uuid(),
+});
 
-  const values = await runExtractValuesAndSearchStep({
-    options: {
-      messageId: input.messageId,
-      chatId: input.chatId,
-      organizationId: input.organizationId,
-      dataSourceId: input.dataSourceId,
-      dataSourceSyntax: input.dataSourceSyntax,
-    },
-  });
+type AnalystPrepStepInput = z.infer<typeof AnalystPrepStepSchema>;
 
-  const chatTitle = await runGenerateChatTitleStep({
-    options: {
-      messageId: input.messageId,
-      chatId: input.chatId,
-      organizationId: input.organizationId,
-      dataSourceId: input.dataSourceId,
-      dataSourceSyntax: input.dataSourceSyntax,
-    },
-  });
+async function runAnalystPrepSteps({
+  messages,
+  dataSourceId,
+  chatId,
+  messageId,
+}: AnalystPrepStepInput): Promise<{
+  todos: CreateTodosResult;
+  values: ExtractValuesSearchResult;
+}> {
+  const [todos, values] = await Promise.all([
+    runCreateTodosStep({
+      messages,
+    }),
+    runExtractValuesAndSearchStep({
+      messages,
+      dataSourceId,
+    }),
+    runGenerateChatTitleStep({
+      messages,
+      chatId,
+      messageId,
+    }),
+  ]);
+
+  return { todos, values };
 }

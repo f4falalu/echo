@@ -35,12 +35,12 @@ async function getDataSourceCredentials(dataSourceId: string): Promise<Credentia
  * Create a DataSource instance for the given data source ID.
  * This is a simple helper that creates a new DataSource each time it's called.
  * The DataSource handles its own connection pooling internally.
- * 
+ *
  * Important: Remember to call dataSource.close() when done to clean up connections.
  */
 export async function getDataSource(dataSourceId: string): Promise<DataSource> {
   const credentials = await getDataSourceCredentials(dataSourceId);
-  
+
   const dataSource = new DataSource({
     dataSources: [
       {

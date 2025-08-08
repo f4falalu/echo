@@ -7,8 +7,6 @@ import {
   DocsAgentContextSchema,
 } from '../../agents/docs-agent/docs-agent-context';
 import { Sonnet4 } from '../../llm/sonnet-4';
-import { createTodoList } from '../../tools/planning-thinking-tools/create-todo-item-tool';
-import { standardizeMessages } from '../../utils/standardizeMessages';
 
 const createDocsTodosStepInputSchema = z.object({
   message: z.string(),
@@ -248,7 +246,12 @@ const createDocsTodosExecution = async ({
     if (inputData.repositoryTree) {
       messageContent = `${inputData.message}\n\n---\n\nREPOSITORY STRUCTURE:\n\`\`\`\n${inputData.repositoryTree}\n\`\`\``;
     }
-    const messages = standardizeMessages(messageContent);
+    const messages = [
+      {
+        role: 'user',
+        content: messageContent,
+      },
+    ];
 
     // Generate todos using the agent
     const result = await docsAgentTodos.generate(messages, {

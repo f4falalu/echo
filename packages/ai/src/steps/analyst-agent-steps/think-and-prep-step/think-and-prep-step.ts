@@ -29,7 +29,9 @@ export async function runThinkAndPrepAgentStep({
     const response = await result.response;
 
     if (!response || !Array.isArray(response.messages)) {
-      throw new Error('Think and prep agent returned an invalid response shape (missing messages array)');
+      throw new Error(
+        'Think and prep agent returned an invalid response shape (missing messages array)'
+      );
     }
 
     return {
