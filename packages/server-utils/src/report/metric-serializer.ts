@@ -1,13 +1,5 @@
 import type { MetricElement } from '@buster/database';
-import {
-  type DeserializeMdOptions,
-  type MdDecoration,
-  type MdNodeParser,
-  type MdRules,
-  convertChildrenDeserialize,
-  parseAttributes,
-  serializeMd,
-} from '@platejs/markdown';
+import { type MdRules, parseAttributes } from '@platejs/markdown';
 
 type MetricMdNode = MdRules['metric'];
 
@@ -20,9 +12,18 @@ export const metricSerializer: MetricMdNode = {
       throw new Error('Editor is required');
     }
 
+    const hasWidth =
+      width !== undefined &&
+      width !== null &&
+      width !== '' &&
+      width !== 0 &&
+      width !== '0' &&
+      width !== 'auto' &&
+      width !== '0px';
+
     return {
       type: 'html',
-      value: `<metric metricId="${metricId}" width="${width}"></metric>`,
+      value: `<metric metricId="${metricId}" width="${hasWidth ? width : '100%'}"></metric>`,
     };
   },
   deserialize: (node): MetricElement => {

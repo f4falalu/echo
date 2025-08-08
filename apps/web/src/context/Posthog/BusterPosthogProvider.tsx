@@ -75,6 +75,10 @@ const PosthogWrapper: React.FC<PropsWithChildren> = ({ children }) => {
     if (POSTHOG_KEY && !isServer && user && posthogModules?.posthog && team) {
       const { posthog } = posthogModules;
 
+      if (posthog.__loaded) {
+        return;
+      }
+
       posthog.init(POSTHOG_KEY, options);
 
       const email = user.email;
