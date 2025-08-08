@@ -46,7 +46,7 @@ export const MetricTitle: React.FC<{
               {`${name}`}
             </Title>
           ) : (
-            <div className="bg-item-active h-3.5 w-4/5 rounded-lg" />
+            <div className="bg-item-active/75 h-3.5 w-4/5 rounded-lg" />
           )}
         </div>
 
@@ -64,7 +64,7 @@ export const MetricTitle: React.FC<{
               {description}
             </Text>
           ) : (
-            <div className="bg-item-active mt-1 h-3.5 w-full rounded-lg" />
+            <div className="bg-item-active/75 mt-1 h-3.5 w-full rounded-lg" />
           )}
         </div>
       </div>

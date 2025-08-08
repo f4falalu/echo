@@ -314,19 +314,22 @@ const useDuplicateReportSelectMenu = (): DropdownItem => {
 // Download as PDF
 const useDownloadPdfSelectMenu = ({ reportId }: { reportId: string }): DropdownItem => {
   const { openErrorMessage } = useBusterNotifications();
-  const editor = getReportEditor(reportId);
   const { exportToPdf } = useExportReport();
 
   const onClick = async () => {
     try {
+      const editor = getReportEditor(reportId);
+
       if (!editor) {
+        console.error('Editor not found');
         openErrorMessage(NodeTypeLabels.failedToExportPdf.label);
         return;
       }
 
       await exportToPdf(editor);
     } catch (error) {
-      openErrorMessage('Failed to export PDF');
+      console.error(error);
+      openErrorMessage('Failed to export report as PDF');
     }
   };
 
