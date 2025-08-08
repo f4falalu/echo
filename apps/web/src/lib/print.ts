@@ -1,4 +1,12 @@
-export const printHTMLPage = ({ html, filename }: { html: string; filename: string }) => {
+export const printHTMLPage = ({
+  html,
+  filename,
+  closeOnPrint = true
+}: {
+  html: string;
+  filename: string;
+  closeOnPrint?: boolean;
+}) => {
   // Open a print window with the rendered HTML so the user can save as PDF
   const printWindow = window.open('', '_blank');
   if (!printWindow) throw new Error('Unable to open print window');
@@ -10,7 +18,9 @@ export const printHTMLPage = ({ html, filename }: { html: string; filename: stri
   // Close the print window after the user prints or cancels
   const handleAfterPrint = () => {
     try {
-      printWindow.close();
+      if (closeOnPrint) {
+        printWindow.close();
+      }
     } catch (e) {
       console.error('Failed to close print window', e);
     }
