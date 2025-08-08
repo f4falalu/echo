@@ -85,13 +85,14 @@ type ChatLayoutContextProviderProps = {
   chatLayoutProps: ReturnType<typeof useChatLayoutContext>;
 };
 
-export const ChatLayoutContextProvider: React.FC<ChatLayoutContextProviderProps> = React.memo(
-  ({ children, chatLayoutProps }) => {
-    return (
-      <ChatLayoutContext.Provider value={chatLayoutProps}>{children}</ChatLayoutContext.Provider>
-    );
-  }
-);
+export const ChatLayoutContextProvider: React.FC<ChatLayoutContextProviderProps> = ({
+  children,
+  chatLayoutProps
+}) => {
+  return (
+    <ChatLayoutContext.Provider value={chatLayoutProps}>{children}</ChatLayoutContext.Provider>
+  );
+};
 
 ChatLayoutContextProvider.displayName = 'ChatLayoutContextProvider';
 

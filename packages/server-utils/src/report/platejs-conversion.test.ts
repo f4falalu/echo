@@ -103,6 +103,79 @@ Here's an unordered list:
     const platejs = await markdownToPlatejs(markdown);
     expect(platejs.elements).toBeDefined();
   });
+
+  it('real world example 2', async () => {
+    const markdown = `      Our top sales reps differentiate themselves by building larger, more customized orders with more line items per deal. Bottom reps tend to have small, simple orders with minimal customization. Discounting does not appear to be a differentiator.
+
+        ## Executive Summary
+        - I analyzed sales rep performance and behaviors over the last 12 months.
+        - Top performers (top 20% by revenue handled) consistently:
+          - Handle more orders and revenue overall
+          - Build bigger baskets: more line items per order
+          - Drive more customized solutions
+        - Bottom performers (bottom 20%) typically:
+          - Have very low order counts and revenue
+          - Submit orders with few line items
+          - Have far fewer customized orders
+        - Pricing/discount behavior is not a strong differentiator: realized price vs list is ~99–100% across groups.
+
+        ## Key Findings
+        - Larger baskets and customization correlate with top performance.
+        - Price-driven decision context is common across all reps; it does not separate top from bottom.
+        - Consultation flag appears on all rep-led orders; it does not differentiate performance.
+
+        ## Metrics
+        These visuals show how behaviors differ by rep segment.
+
+        ### Segment overview: top-to-bottom quintiles
+        <metric metricId="TBD-QUINTILE-SUMMARY" />
+
+        ### Rep list: names and segments
+        <metric metricId="TBD-REP-SEGMENT-LIST" />
+
+        ### Behavior detail by rep
+        <metric metricId="TBD-REP-BEHAVIOR-DETAIL" />
+
+        ## What top reps do differently
+        - Build larger orders: significantly higher average lines per order.
+        - Sell more customized solutions: higher share of orders with customization (Standard Options/Minor Adjustments/Significant Customization/Custom Build).
+        - Maintain price integrity similar to peers (no evidence of heavier discounting).
+
+        ## What hurts bottom reps
+        - Very low activity: few orders and small baskets.
+        - Minimal customization: many stock-only orders.
+        - No evidence of offsetting with price tactics; realized price ratios remain similar to others.
+
+        ## Recommendations
+        1. Train for solution-building: bundle complementary items to increase lines per order.
+        2. Promote customization playbooks: encourage offering configurable options where applicable.
+        3. Activity focus for bottom reps: targeted pipelines to increase order count.
+        4. Monitor product mix: emphasize categories that lend to multi-line, customizable deals.
+
+        ## Methodology
+        - Data sources: ont_ont.sales_order_header, ont_ont.sales_order_detail, ont_ont.sales_person, ont_ont.person, ont_ont.product.
+        - Scope: Last 12 months from today; only orders attributed to a salesperson (salespersonid not null).
+        - Ranking: Reps ranked by total revenue handled over the last 12 months and split into quintiles; "Top performers" are top 20%; "Bottom performers" are bottom 20%.
+        - Behavior metrics per rep:
+          - Orders count, total revenue, average order value
+          - Average lines per order (proxy for cross-sell/basket size)
+          - Customization presence: share of orders tagged as customized (Standard Options, Minor Adjustments, Significant Customization, Custom Build) vs Stock
+          - Realized price ratio: linetotal / (unitprice*qty) at order level averaged per rep
+          - Decision context: share of orders marked Price-driven vs Value-driven
+        - Not differentiating factors:
+          - Consultation-level flag was present on all rep-led orders in this period
+          - Realized price ratio averaged ~0.996–0.999 across groups (minimal discounting)
+        - Notes and assumptions:
+          - Where behavior fields were missing at line level, I computed order-level summaries then averaged per rep.
+          - Product mix details are available but were not required for core conclusions; can be added if needed.`;
+
+    const platejs = await markdownToPlatejs(markdown);
+    expect(platejs.error).toBeUndefined();
+    expect(platejs.elements).toBeDefined();
+    const firstMetric = platejs.elements.find((element) => element.type === 'metric');
+    expect(firstMetric).toBeDefined();
+    expect(firstMetric?.metricId).toBe('TBD-QUINTILE-SUMMARY');
+  });
 });
 
 describe('platejsToMarkdown', () => {
@@ -569,5 +642,506 @@ describe('platejsToMarkdown', () => {
     const markdownFromPlatejs = await platejsToMarkdown(elements);
 
     expect(markdownFromPlatejs).toBeDefined();
+  });
+
+  it('should convert real world example 2', async () => {
+    const elements: ReportElements = [
+      {
+        children: [
+          {
+            text: 'Our top sales reps differentiate themselves by building larger, more customized orders with more line items per deal. Bottom reps tend to have small, simple orders with minimal customization. Discounting does not appear to be a differentiator.',
+          },
+        ],
+        type: 'p',
+      },
+      { children: [{ text: 'Executive Summary' }], type: 'h2' },
+      {
+        children: [
+          {
+            children: [
+              {
+                children: [
+                  {
+                    text: 'I analyzed sales rep performance and behaviors over the last 12 months.',
+                  },
+                ],
+                type: 'lic',
+              },
+            ],
+            type: 'li',
+          },
+          {
+            children: [
+              {
+                children: [{ text: 'Top performers (top 20% by revenue handled) consistently:' }],
+                type: 'lic',
+              },
+              {
+                children: [
+                  {
+                    children: [
+                      {
+                        children: [{ text: 'Handle more orders and revenue overall' }],
+                        type: 'lic',
+                      },
+                    ],
+                    type: 'li',
+                  },
+                  {
+                    children: [
+                      {
+                        children: [{ text: 'Build bigger baskets: more line items per order' }],
+                        type: 'lic',
+                      },
+                    ],
+                    type: 'li',
+                  },
+                  {
+                    children: [
+                      { children: [{ text: 'Drive more customized solutions' }], type: 'lic' },
+                    ],
+                    type: 'li',
+                  },
+                ],
+                type: 'ul',
+              },
+            ],
+            type: 'li',
+          },
+          {
+            children: [
+              { children: [{ text: 'Bottom performers (bottom 20%) typically:' }], type: 'lic' },
+              {
+                children: [
+                  {
+                    children: [
+                      {
+                        children: [{ text: 'Have very low order counts and revenue' }],
+                        type: 'lic',
+                      },
+                    ],
+                    type: 'li',
+                  },
+                  {
+                    children: [
+                      { children: [{ text: 'Submit orders with few line items' }], type: 'lic' },
+                    ],
+                    type: 'li',
+                  },
+                  {
+                    children: [
+                      { children: [{ text: 'Have far fewer customized orders' }], type: 'lic' },
+                    ],
+                    type: 'li',
+                  },
+                ],
+                type: 'ul',
+              },
+            ],
+            type: 'li',
+          },
+          {
+            children: [
+              {
+                children: [
+                  {
+                    text: 'Pricing/discount behavior is not a strong differentiator: realized price vs list is ~99–100% across groups.',
+                  },
+                ],
+                type: 'lic',
+              },
+            ],
+            type: 'li',
+          },
+        ],
+        type: 'ul',
+      },
+      { children: [{ text: 'Key Findings' }], type: 'h2' },
+      {
+        children: [
+          {
+            children: [
+              {
+                children: [
+                  { text: 'Larger baskets and customization correlate with top performance.' },
+                ],
+                type: 'lic',
+              },
+            ],
+            type: 'li',
+          },
+          {
+            children: [
+              {
+                children: [
+                  {
+                    text: 'Price-driven decision context is common across all reps; it does not separate top from bottom.',
+                  },
+                ],
+                type: 'lic',
+              },
+            ],
+            type: 'li',
+          },
+          {
+            children: [
+              {
+                children: [
+                  {
+                    text: 'Consultation flag appears on all rep-led orders; it does not differentiate performance.',
+                  },
+                ],
+                type: 'lic',
+              },
+            ],
+            type: 'li',
+          },
+        ],
+        type: 'ul',
+      },
+      { children: [{ text: 'Metrics' }], type: 'h2' },
+      {
+        children: [{ text: 'These visuals show how behaviors differ by rep segment.' }],
+        type: 'p',
+      },
+      { children: [{ text: 'Segment overview: top-to-bottom quintiles' }], type: 'h3' },
+      { type: 'metric', metricId: 'TBD-QUINTILE-SUMMARY', children: [{ text: '' }] },
+      { children: [{ text: 'Rep list: names and segments' }], type: 'h3' },
+      { type: 'metric', metricId: 'TBD-REP-SEGMENT-LIST', children: [{ text: '' }] },
+      { children: [{ text: 'Behavior detail by rep' }], type: 'h3' },
+      { type: 'metric', metricId: 'TBD-REP-BEHAVIOR-DETAIL', children: [{ text: '' }] },
+      { children: [{ text: 'What top reps do differently' }], type: 'h2' },
+      {
+        children: [
+          {
+            children: [
+              {
+                children: [
+                  { text: 'Build larger orders: significantly higher average lines per order.' },
+                ],
+                type: 'lic',
+              },
+            ],
+            type: 'li',
+          },
+          {
+            children: [
+              {
+                children: [
+                  {
+                    text: 'Sell more customized solutions: higher share of orders with customization (Standard Options/Minor Adjustments/Significant Customization/Custom Build).',
+                  },
+                ],
+                type: 'lic',
+              },
+            ],
+            type: 'li',
+          },
+          {
+            children: [
+              {
+                children: [
+                  {
+                    text: 'Maintain price integrity similar to peers (no evidence of heavier discounting).',
+                  },
+                ],
+                type: 'lic',
+              },
+            ],
+            type: 'li',
+          },
+        ],
+        type: 'ul',
+      },
+      { children: [{ text: 'What hurts bottom reps' }], type: 'h2' },
+      {
+        children: [
+          {
+            children: [
+              {
+                children: [{ text: 'Very low activity: few orders and small baskets.' }],
+                type: 'lic',
+              },
+            ],
+            type: 'li',
+          },
+          {
+            children: [
+              {
+                children: [{ text: 'Minimal customization: many stock-only orders.' }],
+                type: 'lic',
+              },
+            ],
+            type: 'li',
+          },
+          {
+            children: [
+              {
+                children: [
+                  {
+                    text: 'No evidence of offsetting with price tactics; realized price ratios remain similar to others.',
+                  },
+                ],
+                type: 'lic',
+              },
+            ],
+            type: 'li',
+          },
+        ],
+        type: 'ul',
+      },
+      { children: [{ text: 'Recommendations' }], type: 'h2' },
+      {
+        children: [
+          {
+            children: [
+              {
+                children: [
+                  {
+                    text: 'Train for solution-building: bundle complementary items to increase lines per order.',
+                  },
+                ],
+                type: 'lic',
+              },
+            ],
+            type: 'li',
+          },
+          {
+            children: [
+              {
+                children: [
+                  {
+                    text: 'Promote customization playbooks: encourage offering configurable options where applicable.',
+                  },
+                ],
+                type: 'lic',
+              },
+            ],
+            type: 'li',
+          },
+          {
+            children: [
+              {
+                children: [
+                  {
+                    text: 'Activity focus for bottom reps: targeted pipelines to increase order count.',
+                  },
+                ],
+                type: 'lic',
+              },
+            ],
+            type: 'li',
+          },
+          {
+            children: [
+              {
+                children: [
+                  {
+                    text: 'Monitor product mix: emphasize categories that lend to multi-line, customizable deals.',
+                  },
+                ],
+                type: 'lic',
+              },
+            ],
+            type: 'li',
+          },
+        ],
+        type: 'ol',
+      },
+      { children: [{ text: 'Methodology' }], type: 'h2' },
+      {
+        children: [
+          {
+            children: [
+              {
+                children: [
+                  {
+                    text: 'Data sources: ont_ont.sales_order_header, ont_ont.sales_order_detail, ont_ont.sales_person, ont_ont.person, ont_ont.product.',
+                  },
+                ],
+                type: 'lic',
+              },
+            ],
+            type: 'li',
+          },
+          {
+            children: [
+              {
+                children: [
+                  {
+                    text: 'Scope: Last 12 months from today; only orders attributed to a salesperson (salespersonid not null).',
+                  },
+                ],
+                type: 'lic',
+              },
+            ],
+            type: 'li',
+          },
+          {
+            children: [
+              {
+                children: [
+                  {
+                    text: 'Ranking: Reps ranked by total revenue handled over the last 12 months and split into quintiles; "Top performers" are top 20%; "Bottom performers" are bottom 20%.',
+                  },
+                ],
+                type: 'lic',
+              },
+            ],
+            type: 'li',
+          },
+          {
+            children: [
+              { children: [{ text: 'Behavior metrics per rep:' }], type: 'lic' },
+              {
+                children: [
+                  {
+                    children: [
+                      {
+                        children: [{ text: 'Orders count, total revenue, average order value' }],
+                        type: 'lic',
+                      },
+                    ],
+                    type: 'li',
+                  },
+                  {
+                    children: [
+                      {
+                        children: [
+                          { text: 'Average lines per order (proxy for cross-sell/basket size)' },
+                        ],
+                        type: 'lic',
+                      },
+                    ],
+                    type: 'li',
+                  },
+                  {
+                    children: [
+                      {
+                        children: [
+                          {
+                            text: 'Customization presence: share of orders tagged as customized (Standard Options, Minor Adjustments, Significant Customization, Custom Build) vs Stock',
+                          },
+                        ],
+                        type: 'lic',
+                      },
+                    ],
+                    type: 'li',
+                  },
+                  {
+                    children: [
+                      {
+                        children: [
+                          {
+                            text: 'Realized price ratio: linetotal / (unitprice*qty) at order level averaged per rep',
+                          },
+                        ],
+                        type: 'lic',
+                      },
+                    ],
+                    type: 'li',
+                  },
+                  {
+                    children: [
+                      {
+                        children: [
+                          {
+                            text: 'Decision context: share of orders marked Price-driven vs Value-driven',
+                          },
+                        ],
+                        type: 'lic',
+                      },
+                    ],
+                    type: 'li',
+                  },
+                ],
+                type: 'ul',
+              },
+            ],
+            type: 'li',
+          },
+          {
+            children: [
+              { children: [{ text: 'Not differentiating factors:' }], type: 'lic' },
+              {
+                children: [
+                  {
+                    children: [
+                      {
+                        children: [
+                          {
+                            text: 'Consultation-level flag was present on all rep-led orders in this period',
+                          },
+                        ],
+                        type: 'lic',
+                      },
+                    ],
+                    type: 'li',
+                  },
+                  {
+                    children: [
+                      {
+                        children: [
+                          {
+                            text: 'Realized price ratio averaged ~0.996–0.999 across groups (minimal discounting)',
+                          },
+                        ],
+                        type: 'lic',
+                      },
+                    ],
+                    type: 'li',
+                  },
+                ],
+                type: 'ul',
+              },
+            ],
+            type: 'li',
+          },
+          {
+            children: [
+              { children: [{ text: 'Notes and assumptions:' }], type: 'lic' },
+              {
+                children: [
+                  {
+                    children: [
+                      {
+                        children: [
+                          {
+                            text: 'Where behavior fields were missing at line level, I computed order-level summaries then averaged per rep.',
+                          },
+                        ],
+                        type: 'lic',
+                      },
+                    ],
+                    type: 'li',
+                  },
+                  {
+                    children: [
+                      {
+                        children: [
+                          {
+                            text: 'Product mix details are available but were not required for core conclusions; can be added if needed.',
+                          },
+                        ],
+                        type: 'lic',
+                      },
+                    ],
+                    type: 'li',
+                  },
+                ],
+                type: 'ul',
+              },
+            ],
+            type: 'li',
+          },
+        ],
+        type: 'ul',
+      },
+    ];
+    const markdownFromPlatejs = await platejsToMarkdown(elements);
+    expect(markdownFromPlatejs).toBeDefined();
+    expect(markdownFromPlatejs).toContain(
+      '<metric metricId="TBD-REP-SEGMENT-LIST" width="100%"></metric>'
+    );
   });
 });
