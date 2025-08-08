@@ -11,7 +11,7 @@ import { useDocumentTitle } from '@/hooks';
 
 export type AppAssetCheckLayoutProps = {
   assetId: string;
-  type: 'metric' | 'dashboard' | 'collection';
+  type: 'metric' | 'dashboard' | 'collection' | 'report';
   versionNumber?: number;
 };
 
@@ -19,7 +19,7 @@ export const AppAssetCheckLayout: React.FC<
   {
     children: React.ReactNode;
   } & AppAssetCheckLayoutProps
-> = React.memo(({ children, type, assetId, versionNumber }) => {
+> = ({ children, type, assetId, versionNumber }) => {
   const {
     hasAccess,
     passwordRequired,
@@ -57,7 +57,7 @@ export const AppAssetCheckLayout: React.FC<
     return assetTitle;
   }, [chatTitle, assetTitle]);
 
-  useDocumentTitle(title);
+  useDocumentTitle(title); //TODO we can probably remove this
 
   return (
     <>
@@ -65,6 +65,6 @@ export const AppAssetCheckLayout: React.FC<
       {Component}
     </>
   );
-});
+};
 
 AppAssetCheckLayout.displayName = 'AppAssetCheckLayout';

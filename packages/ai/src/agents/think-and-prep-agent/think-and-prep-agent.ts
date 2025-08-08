@@ -1,7 +1,7 @@
 import { type ModelMessage, NoSuchToolError, hasToolCall, stepCountIs, streamText } from 'ai';
 import { wrapTraced } from 'braintrust';
 import z from 'zod';
-import { Sonnet4 } from '../../llm/sonnet-4';
+import { GPT5 } from '../../llm/gpt-5';
 import { createSequentialThinkingTool, executeSql } from '../../tools';
 import { createMessageUserClarifyingQuestionTool } from '../../tools/communication-tools/message-user-clarifying-question/message-user-clarifying-question';
 import { createRespondWithoutAssetCreationTool } from '../../tools/communication-tools/respond-without-asset-creation/respond-without-asset-creation-tool';
@@ -10,6 +10,10 @@ import { getThinkAndPrepAgentSystemPrompt } from './get-think-and-prep-agent-sys
 
 const DEFAULT_CACHE_OPTIONS = {
   anthropic: { cacheControl: { type: 'ephemeral', ttl: '1h' } },
+  openai: {
+    parallelToolCalls: false,
+    reasoningEffort: 'minimal',
+  },
 };
 
 const STOP_CONDITIONS = [
@@ -63,10 +67,10 @@ export function createThinkAndPrepAgent(thinkAndPrepAgentSchema: ThinkAndPrepAge
 
     while (attempt <= maxRetries) {
       try {
-        return await wrapTraced(
+        return wrapTraced(
           () =>
             streamText({
-              model: Sonnet4,
+              model: GPT5,
               tools: {
                 sequentialThinking,
                 executeSql: executeSqlTool,

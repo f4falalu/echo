@@ -1,5 +1,5 @@
-import type { Meta, StoryObj } from '@storybook/react';
-import { fn } from '@storybook/test';
+import type { Meta, StoryObj } from '@storybook/nextjs';
+import { fn } from 'storybook/test';
 import { formOptions } from '@tanstack/react-form';
 import React from 'react';
 import { useAppForm, withForm } from './useFormBaseHooks';

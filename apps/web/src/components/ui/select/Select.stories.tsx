@@ -1,5 +1,5 @@
 import React from 'react';
-import { Meta, StoryObj } from '@storybook/react';
+import { Meta, StoryObj } from '@storybook/nextjs';
 import { Select, SelectItem } from './Select';
 import { useDebounceFn } from '../../../hooks';
 

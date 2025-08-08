@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/nextjs';
 import { FileCard } from './FileCard';
 import { Button } from '../buttons/Button';
 import { Text } from '../typography/Text';
@@ -149,7 +149,7 @@ export const CustomStyling: Story = {
 export const Loading: Story = {
   args: {
     fileName: 'loading-file.txt',
-    loading: true,
+
     children: (
       <div className="p-4">
         <Text>Loading state card</Text>
@@ -164,7 +164,6 @@ export const Collapsible: Story = {
     collapsible: 'chevron',
     className: 'hover:border-gray-light transition-all duration-200',
     headerClassName: 'min-w-60 bg-background',
-    collapseHeaderSecondary: <Text size="sm">Click to expand</Text>,
     collapseDefaultIcon: <Grid />,
     children: (
       <div className="p-4">

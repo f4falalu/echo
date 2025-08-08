@@ -4,12 +4,12 @@ import type {
   DashboardConfig
 } from '@/api/asset_interfaces/dashboard';
 import type {
+  SharePostRequest,
   ShareDeleteRequest,
   ShareUpdateRequest
-} from '@/api/asset_interfaces/shared_interfaces';
+} from '@buster/server-shared/share';
 import mainApi from '@/api/buster_rest/instances';
 import { serverFetch } from '@/api/createServerInstance';
-import { SharePostRequest } from '@buster/server-shared/share';
 
 export const dashboardsGetList = async (params: {
   /** The page number to fetch */

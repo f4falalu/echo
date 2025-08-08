@@ -5,10 +5,11 @@ import { useSupabaseContext } from '@/context/Supabase';
 
 export const useColorDictionaryThemes = () => {
   const isAnonymousUser = useSupabaseContext((x) => x.isAnonymousUser);
+
   return useQuery({
     ...dictionariesQueryKeys.colorPalettes,
     queryFn: getColorPalettes,
-    enabled: !isAnonymousUser
+    enabled: isAnonymousUser === false
   });
 };
 

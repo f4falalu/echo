@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/nextjs';
 import {
   DEFAULT_COLUMN_LABEL_FORMAT,
   DEFAULT_COLUMN_SETTINGS,

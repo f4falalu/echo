@@ -20,7 +20,7 @@ describe('Chat API Requests', () => {
       const mockChats: ChatListItem[] = [
         {
           id: 'test-chat-1',
-          title: 'Test Chat 1',
+          name: 'Test Chat 1',
           created_at: '2024-03-20T00:00:00Z',
           updated_at: '2024-03-20T00:00:00Z',
           is_favorited: false,
@@ -32,7 +32,8 @@ describe('Chat API Requests', () => {
           latest_file_id: 'file-1',
           latest_file_type: 'dashboard',
           latest_version_number: 1,
-          latest_file_name: 'Test File'
+          latest_file_name: 'Test File',
+          is_shared: false
         }
       ];
 

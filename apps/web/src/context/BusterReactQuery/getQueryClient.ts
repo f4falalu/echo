@@ -20,6 +20,7 @@ function makeQueryClient(params?: {
     defaultOptions: {
       queries: {
         refetchOnWindowFocus: false,
+        retryDelay: ERROR_RETRY_DELAY,
         staleTime: PREFETCH_STALE_TIME,
         gcTime: GC_TIME,
         enabled: () => {
@@ -31,8 +32,7 @@ function makeQueryClient(params?: {
             params.openErrorNotification(error);
           }
           return false;
-        },
-        retryDelay: ERROR_RETRY_DELAY
+        }
       },
       mutations: {
         retry: (failureCount, error) => {

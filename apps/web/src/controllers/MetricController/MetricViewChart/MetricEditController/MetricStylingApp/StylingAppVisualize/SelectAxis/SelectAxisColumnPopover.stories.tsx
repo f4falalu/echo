@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/nextjs';
 import { HttpResponse, http } from 'msw';
 import type { ChartConfigProps } from '@buster/server-shared/metrics';
 import { Button } from '@/components/ui/buttons/Button';

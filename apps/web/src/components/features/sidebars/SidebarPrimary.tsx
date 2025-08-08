@@ -13,6 +13,7 @@ import {
   COLLAPSED_JUSTIFY_CENTER,
   COLLAPSED_VISIBLE,
   type ISidebarGroup,
+  type ISidebarItem,
   type ISidebarList,
   type SidebarProps
 } from '@/components/ui/sidebar';
@@ -34,10 +35,7 @@ import { useFavoriteSidebarPanel } from './useFavoritesSidebarPanel';
 import { cn } from '@/lib/classMerge';
 import { BusterLogo } from '@/assets/svg/BusterLogo';
 
-const topItems = (
-  currentParentRoute: BusterRoutes,
-  favoritedPageType: ShareAssetType | null
-): ISidebarList => {
+const topItems = (currentParentRoute: BusterRoutes): ISidebarList => {
   const isActiveCheck = (type: ShareAssetType, route: BusterRoutes) => currentParentRoute === route;
 
   return {
@@ -92,8 +90,15 @@ const yourStuff = (
         route: createBusterRoute({ route: BusterRoutes.APP_COLLECTIONS }),
         id: BusterRoutes.APP_COLLECTIONS,
         active: isActiveCheck('collection', BusterRoutes.APP_COLLECTIONS)
+      },
+      process.env.NEXT_PUBLIC_ENABLE_REPORTS === 'true' && {
+        label: 'Reports',
+        icon: <ASSET_ICONS.reports />,
+        route: createBusterRoute({ route: BusterRoutes.APP_REPORTS }),
+        id: BusterRoutes.APP_REPORTS,
+        active: isActiveCheck('report', BusterRoutes.APP_REPORTS)
       }
-    ]
+    ].filter(Boolean) as ISidebarItem[]
   };
 };
 
@@ -164,10 +169,7 @@ export const SidebarPrimary = React.memo(() => {
 
   const { favoritesDropdownItems, favoritedPageType } = useFavoriteSidebarPanel();
 
-  const topItemsItems = useMemo(
-    () => topItems(currentParentRoute, favoritedPageType),
-    [currentParentRoute, favoritedPageType]
-  );
+  const topItemsItems = useMemo(() => topItems(currentParentRoute), [currentParentRoute]);
 
   const adminToolsItems = useMemo(() => {
     if (!isAdmin) return null;

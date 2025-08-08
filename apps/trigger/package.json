@@ -37,6 +37,6 @@
     "drizzle-orm": "catalog:"
   },
   "devDependencies": {
-    "@trigger.dev/build": "catalog:"
+    "@trigger.dev/build": "4.0.0-v4-beta.26"
   }
 }

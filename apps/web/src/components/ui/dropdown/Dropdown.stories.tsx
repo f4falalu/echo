@@ -1,8 +1,8 @@
 'use client';
 
 import { faker } from '@faker-js/faker';
-import type { Meta, StoryObj } from '@storybook/react';
-import { fn } from '@storybook/test';
+import type { Meta, StoryObj } from '@storybook/nextjs';
+import { fn } from 'storybook/test';
 import React from 'react';
 import { Button } from '../buttons/Button';
 import { PaintRoller, Star, Storage } from '../icons';
@@ -15,10 +15,6 @@ const meta: Meta<typeof Dropdown> = {
     layout: 'centered'
   },
   argTypes: {
-    closeOnSelect: {
-      control: 'boolean',
-      defaultValue: true
-    },
     align: {
       control: 'select',
       options: ['start', 'center', 'end'],

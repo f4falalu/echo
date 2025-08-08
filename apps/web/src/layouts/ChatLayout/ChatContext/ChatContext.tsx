@@ -1,4 +1,4 @@
-import { useQueries } from '@tanstack/react-query';
+import { useQueries, useQuery } from '@tanstack/react-query';
 import React, { useMemo, type PropsWithChildren } from 'react';
 import { createContext, useContextSelector } from 'use-context-selector';
 import type { BusterChatMessage } from '@/api/asset_interfaces/chat';
@@ -49,10 +49,10 @@ const useChatIndividualContext = ({
       return {
         ...queryKey,
         enabled: false,
-        select: (data: BusterChatMessage | undefined) => !data?.is_completed
+        select: (data: BusterChatMessage | undefined) => data?.is_completed
       };
     }),
-    combine: (result) => result.some((res) => res.data)
+    combine: (result) => result.some((res) => res.data === false)
   });
 
   const { isFileChanged, onResetToOriginal } = useIsFileChanged({
@@ -86,7 +86,7 @@ const IndividualChatContext = createContext<ReturnType<typeof useChatIndividualC
   {} as ReturnType<typeof useChatIndividualContext>
 );
 
-export const ChatContextProvider = React.memo(({ children }: PropsWithChildren) => {
+export const ChatContextProvider = ({ children }: PropsWithChildren) => {
   const chatId = useChatLayoutContextSelector((x) => x.chatId);
   const selectedFile = useChatLayoutContextSelector((x) => x.selectedFile);
 
@@ -100,7 +100,7 @@ export const ChatContextProvider = React.memo(({ children }: PropsWithChildren) 
       {children}
     </IndividualChatContext.Provider>
   );
-});
+};
 
 ChatContextProvider.displayName = 'ChatContextProvider';
 

@@ -1,7 +1,6 @@
 import { type ModelMessage, NoSuchToolError, hasToolCall, stepCountIs, streamText } from 'ai';
 import { wrapTraced } from 'braintrust';
 import z from 'zod';
-import { Sonnet4 } from '../../llm/sonnet-4';
 import {
   createCreateDashboardsTool,
   createCreateMetricsTool,
@@ -11,9 +10,14 @@ import {
 } from '../../tools';
 import { healToolWithLlm } from '../../utils/tool-call-repair';
 import { getAnalystAgentSystemPrompt } from './get-analyst-agent-system-prompt';
+import { GPT5 } from '../../llm/gpt-5';
 
 const DEFAULT_CACHE_OPTIONS = {
   anthropic: { cacheControl: { type: 'ephemeral', ttl: '1h' } },
+  openai: {
+    parallelToolCalls: false,
+    reasoningEffort: 'minimal',
+  },
 };
 
 const STOP_CONDITIONS = [stepCountIs(25), hasToolCall('doneTool')];
@@ -63,7 +67,7 @@ export function createAnalystAgent(analystAgentOptions: AnalystAgentOptions) {
         return wrapTraced(
           () =>
             streamText({
-              model: Sonnet4,
+              model: GPT5,
               tools: {
                 createMetrics,
                 modifyMetrics,

@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/nextjs';
 import { VerificationStatusSchema, type ShareAssetType } from '@buster/server-shared/share';
 import { StatusBadgeIndicator } from './StatusBadgeIndicator';
 

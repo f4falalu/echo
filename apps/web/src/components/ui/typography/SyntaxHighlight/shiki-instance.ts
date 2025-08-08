@@ -40,7 +40,7 @@ export const initializeHighlighter = async (): Promise<HighlighterCore> => {
 };
 
 // Highlight code
-export const highlightCode = async (
+export const getHighlightedCode = async (
   code: string,
   language: 'sql' | 'yaml',
   theme: 'github-light' | 'github-dark',
@@ -71,13 +71,6 @@ export const getCodeTokens = async (
     theme
   });
 };
-
-// Pre-initialize highlighter on module load for better performance
-if (typeof window !== 'undefined') {
-  initializeHighlighter().catch((error) => {
-    console.warn('Failed to pre-initialize syntax highlighter:', error);
-  });
-}
 
 export const getFallbackStyle = (isDarkMode: boolean) => {
   return {
