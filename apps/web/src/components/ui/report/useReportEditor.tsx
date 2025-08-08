@@ -32,7 +32,7 @@ export const useReportEditor = ({
           mode
         }
       })
-    ];
+    ].filter((p) => !filteredKeys.includes(p.key));
   }, []);
 
   return usePlateEditor({
