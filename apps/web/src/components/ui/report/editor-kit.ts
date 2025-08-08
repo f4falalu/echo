@@ -3,7 +3,7 @@
 import { type Value, TrailingBlockPlugin } from 'platejs';
 import { type TPlateEditor, useEditorRef } from 'platejs/react';
 
-import { AIKit } from './plugins/ai-kit';
+// import { AIKit } from './plugins/ai-kit';
 import { AlignKit } from './plugins/align-kit';
 import { AutoformatKit } from './plugins/autoformat-kit';
 import { BasicBlocksKit } from './plugins/basic-blocks-kit';
@@ -39,8 +39,14 @@ import { ToggleKit } from './plugins/toggle-kit';
 import { BusterStreamKit } from './plugins/buster-stream-kit';
 
 export const EditorKit = [
-  ...AIKit,
-  ...BlockMenuKit,
+  // Editing
+  ...SlashKit,
+  ...AutoformatKit,
+  ...CursorOverlayKit,
+  ...DndKit,
+  ...EmojiKit,
+  ...ExitBreakKit,
+  TrailingBlockPlugin,
 
   // Elements
   ...BasicBlocksKit,
@@ -60,6 +66,9 @@ export const EditorKit = [
   ...BasicMarksKit,
   ...FontKit,
 
+  // ...AIKit,
+  ...BlockMenuKit,
+
   // Block Style
   ...ListKit,
   ...AlignKit,
@@ -69,15 +78,6 @@ export const EditorKit = [
   ...DiscussionKit,
   ...CommentKit,
   ...SuggestionKit,
-
-  // Editing
-  ...SlashKit,
-  ...AutoformatKit,
-  ...CursorOverlayKit,
-  ...DndKit,
-  ...EmojiKit,
-  ...ExitBreakKit,
-  TrailingBlockPlugin,
 
   // Custom
   ...BusterStreamKit,

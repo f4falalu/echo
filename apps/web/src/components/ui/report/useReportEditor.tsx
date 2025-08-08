@@ -1,3 +1,5 @@
+'use client';
+
 import { type Value } from 'platejs';
 import { useEditorRef, usePlateEditor, type TPlateEditor } from 'platejs/react';
 import { useMemo } from 'react';
@@ -5,6 +7,8 @@ import { useMemo } from 'react';
 import { EditorKit } from './editor-kit';
 import { FIXED_TOOLBAR_KIT_KEY } from './plugins/fixed-toolbar-kit';
 import type { IReportEditor } from './ReportEditor';
+
+// Debug logs removed to avoid module-evaluation side effects
 
 export const useReportEditor = ({
   value,
@@ -29,6 +33,8 @@ export const useReportEditor = ({
 
     return EditorKit;
   }, [useFixedToolbarKit]);
+
+  // console.log('plugins', { plugins });
 
   return usePlateEditor({
     plugins,

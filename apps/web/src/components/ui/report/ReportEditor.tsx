@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useImperativeHandle, useRef } from 'react';
 import type { Value, AnyPluginConfig } from 'platejs';
 import { Plate, type TPlateEditor } from 'platejs/react';

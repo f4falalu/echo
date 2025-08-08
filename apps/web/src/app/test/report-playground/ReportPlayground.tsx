@@ -70,6 +70,8 @@ export const ReportPlayground: React.FC = () => {
           value={usedValue}
           useFixedToolbarKit={true}
           readOnly={false}
+          containerClassName="overflow-y-auto!"
+          className="overflow-y-auto!"
           onValueChange={logValueChanges}
         />
       </div>
@@ -177,6 +179,16 @@ const value: ReportElements = [
     icon: '😄',
     type: 'callout',
     id: 'KQ0_YKgdqy'
+  },
+  {
+    type: 'metric',
+    children: [{ text: '' }],
+    metricId: '',
+    caption: [{ text: 'This is a caption' }]
+  },
+  {
+    type: 'characterCounter' as 'p',
+    children: [{ text: 'This is my character counter' }]
   },
   {
     type: 'p',
