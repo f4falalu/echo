@@ -15,7 +15,7 @@ import {
 } from '@dnd-kit/core';
 import { arrayMove } from '@dnd-kit/sortable';
 import isEqual from 'lodash/isEqual';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { use, useCallback, useEffect, useRef, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { useMemoizedFn, useUpdateEffect } from '@/hooks';
 import { cn } from '@/lib/utils';
@@ -74,70 +74,76 @@ export const BusterResizeableGrid: React.FC<{
 
     const sensors = useSensors(useSensor(PointerSensor, pointerSensors));
 
-    const collisionDetectionStrategy: CollisionDetection = useMemoizedFn((args) => {
-      if (activeId && rows.some((row) => row.id === activeId)) {
-        return closestCenter({
-          ...args,
-          droppableContainers: args.droppableContainers.filter((container) =>
-            rows.map((v) => v.id).includes(container.id as string)
-          )
-        });
-      }
-
-      // Start by finding any intersecting droppable
-      const pointerIntersections = pointerWithin(args);
-      const intersections =
-        pointerIntersections.length > 0
-          ? // If there are droppables intersecting with the pointer, return those
-            pointerIntersections
-          : []; //rectIntersection(args);
-
-      let overId = getFirstCollision(intersections, 'id');
-
-      if (overId != null) {
-        if (rows.some((row) => row.id === overId)) {
-          const containerItems = rows.find((row) => row.id === overId)?.items || [];
-
-          // If a container is matched and it contains items (columns 'A', 'B', 'C')
-          if (containerItems.length > 0) {
-            // Return the closest droppable within that container
-            overId = closestCenter({
-              ...args,
-              droppableContainers: args.droppableContainers.filter(
-                (container) =>
-                  container.id !== overId &&
-                  containerItems.map((v) => v.id).includes(container.id as string)
-              )
-            })[0]?.id;
-          }
+    const collisionDetectionStrategy: CollisionDetection = useCallback(
+      (args) => {
+        if (activeId && rows.some((row) => row.id === activeId)) {
+          return closestCenter({
+            ...args,
+            droppableContainers: args.droppableContainers.filter((container) =>
+              rows.map((v) => v.id).includes(container.id as string)
+            )
+          });
         }
 
-        lastOverId.current = overId as string;
+        // Start by finding any intersecting droppable
+        const pointerIntersections = pointerWithin(args);
+        const intersections =
+          pointerIntersections.length > 0
+            ? // If there are droppables intersecting with the pointer, return those
+              pointerIntersections
+            : []; //rectIntersection(args);
 
-        return [{ id: overId }];
-      }
+        let overId = getFirstCollision(intersections, 'id');
 
-      // When a draggable item moves to a new container, the layout may shift
-      // and the `overId` may become `null`. We manually set the cached `lastOverId`
-      // to the id of the draggable item that was moved to the new container, otherwise
-      // the previous `overId` will be returned which can cause items to incorrectly shift positions
-      if (recentlyMovedToNewContainer.current) {
-        lastOverId.current = activeId;
-      }
+        if (overId != null) {
+          if (rows.some((row) => row.id === overId)) {
+            const containerItems = rows.find((row) => row.id === overId)?.items || [];
 
-      // If no droppable is matched, return the last match
-      return lastOverId.current ? [{ id: lastOverId.current }] : [];
-    });
+            // If a container is matched and it contains items (columns 'A', 'B', 'C')
+            if (containerItems.length > 0) {
+              // Return the closest droppable within that container
+              overId = closestCenter({
+                ...args,
+                droppableContainers: args.droppableContainers.filter(
+                  (container) =>
+                    container.id !== overId &&
+                    containerItems.map((v) => v.id).includes(container.id as string)
+                )
+              })[0]?.id;
+            }
+          }
 
-    const findContainer = useMemoizedFn((id: string) => {
-      if (rows.some((row) => row.id === id)) {
-        return id;
-      }
+          lastOverId.current = overId as string;
 
-      return rows.find((row) => row.items.some((item) => item.id === id))?.id;
-    });
+          return [{ id: overId }];
+        }
 
-    const onDragCancel = useMemoizedFn(() => {
+        // When a draggable item moves to a new container, the layout may shift
+        // and the `overId` may become `null`. We manually set the cached `lastOverId`
+        // to the id of the draggable item that was moved to the new container, otherwise
+        // the previous `overId` will be returned which can cause items to incorrectly shift positions
+        if (recentlyMovedToNewContainer.current) {
+          lastOverId.current = activeId;
+        }
+
+        // If no droppable is matched, return the last match
+        return lastOverId.current ? [{ id: lastOverId.current }] : [];
+      },
+      [activeId, rows]
+    );
+
+    const findContainer = useCallback(
+      (id: string) => {
+        if (rows.some((row) => row.id === id)) {
+          return id;
+        }
+
+        return rows.find((row) => row.items.some((item) => item.id === id))?.id;
+      },
+      [rows]
+    );
+
+    const onDragCancel = useCallback(() => {
       if (serverRows) {
         // Reset items to their original state in case items have been
         // Dragged across containers
@@ -145,17 +151,20 @@ export const BusterResizeableGrid: React.FC<{
       }
 
       setActiveId(null);
-    });
+    }, [serverRows, onRowLayoutChangePreflight]);
 
-    const onDragStart = useMemoizedFn(({ active }: DragStartEvent) => {
-      const style = document.createElement('style');
-      style.innerHTML = '* { cursor: grabbing; }';
-      document.head.appendChild(style);
-      styleRef.current = style;
-      setActiveId(active.id as string);
-      onStartDrag?.({ id: active.id as string });
-      isAnimating.current = true;
-    });
+    const onDragStart = useCallback(
+      ({ active }: DragStartEvent) => {
+        const style = document.createElement('style');
+        style.innerHTML = '* { cursor: grabbing; }';
+        document.head.appendChild(style);
+        styleRef.current = style;
+        setActiveId(active.id as string);
+        onStartDrag?.({ id: active.id as string });
+        isAnimating.current = true;
+      },
+      [onStartDrag]
+    );
 
     const onDragEnd = useMemoizedFn(
       ({ over, active, delta, activatorEvent, collisions }: DragEndEvent) => {
