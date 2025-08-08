@@ -16,17 +16,18 @@ import { Separator } from '@/components/ui/separator';
 import { TooltipBase as Tooltip, TooltipTrigger } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
 
-export function Toolbar({
-  className,
-  ...props
-}: React.ComponentProps<typeof ToolbarPrimitive.Root>) {
+export const Toolbar = React.forwardRef<
+  React.ElementRef<typeof ToolbarPrimitive.Root>,
+  React.ComponentPropsWithoutRef<typeof ToolbarPrimitive.Root>
+>(function Toolbar({ className, ...props }, ref) {
   return (
     <ToolbarPrimitive.Root
+      ref={ref}
       className={cn('relative flex items-center select-none', className)}
       {...props}
     />
   );
-}
+});
 
 export function ToolbarToggleGroup({
   className,
