@@ -1,7 +1,7 @@
 import type { PlateEditor } from 'platejs/react';
 import { NodeTypeLabels } from '../config/labels';
 import { buildExportHtml } from './buildExportHtml';
-import { printHTMLPage } from './printHTMLPage';
+import { printHTMLPage } from '@/lib/print';
 
 type Notifier = (message: string) => void;
 

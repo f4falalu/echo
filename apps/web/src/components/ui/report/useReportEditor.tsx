@@ -3,23 +3,20 @@
 import { type Value } from 'platejs';
 import { useEditorRef, usePlateEditor, type TPlateEditor } from 'platejs/react';
 import { useMemo } from 'react';
-
 import { EditorKit } from './editor-kit';
 import { FIXED_TOOLBAR_KIT_KEY } from './plugins/fixed-toolbar-kit';
-import type { IReportEditor } from './ReportEditor';
-
-// Debug logs removed to avoid module-evaluation side effects
+import { CUSTOM_KEYS } from './config/keys';
 
 export const useReportEditor = ({
   value,
   disabled,
-  onReady,
+  mode,
   useFixedToolbarKit = false
 }: {
   value: Value;
   disabled: boolean;
-  onReady?: (editor: IReportEditor) => void;
   useFixedToolbarKit?: boolean;
+  mode?: 'export' | 'default';
 }) => {
   const plugins = useMemo(() => {
     const filteredKeys: string[] = [];
@@ -34,13 +31,20 @@ export const useReportEditor = ({
     return EditorKit;
   }, [useFixedToolbarKit]);
 
-  // console.log('plugins', { plugins });
+  console.log('mode in useReportEditor', mode);
 
   return usePlateEditor({
     plugins,
     value,
-    readOnly: disabled,
-    onReady: ({ editor }) => onReady?.(editor)
+    options: {
+      [CUSTOM_KEYS.globalVariable]: {
+        mode
+      },
+      swag: {
+        mode
+      }
+    },
+    readOnly: disabled
   });
 };
 

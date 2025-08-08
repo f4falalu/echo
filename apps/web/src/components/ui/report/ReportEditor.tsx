@@ -25,6 +25,7 @@ interface ReportEditorProps {
   useFixedToolbarKit?: boolean;
   onReady?: (editor: IReportEditor) => void;
   id?: string;
+  mode?: 'export' | 'default';
 }
 
 export type IReportEditor = TPlateEditor<Value, AnyPluginConfig>;
@@ -48,6 +49,7 @@ export const ReportEditor = React.memo(
         className,
         containerClassName,
         style,
+        mode = 'default',
         useFixedToolbarKit = false,
         readOnly = false,
         disabled = false
@@ -57,7 +59,7 @@ export const ReportEditor = React.memo(
       // Initialize the editor instance using the custom useEditor hook
       const isReady = useRef(false);
 
-      const editor = useReportEditor({ value, disabled, useFixedToolbarKit, onReady });
+      const editor = useReportEditor({ mode, value, disabled, useFixedToolbarKit });
 
       const onReset = useMemoizedFn(() => {
         if (!editor) {
@@ -76,15 +78,14 @@ export const ReportEditor = React.memo(
 
       const onValueChangePreflight = useMemoizedFn(
         ({ value, editor }: { value: Value; editor: TPlateEditor<Value, AnyPluginConfig> }) => {
-          if (readOnly) {
-            console.warn('Editor is read only');
-            return;
-          }
-          if (isReady.current) {
+          if (isReady.current && !readOnly) {
             onValueChange?.(cleanValueToReportElements(value));
           }
 
-          isReady.current = true;
+          if (!isReady.current) {
+            onReady?.(editor);
+            isReady.current = true;
+          }
         }
       );
 

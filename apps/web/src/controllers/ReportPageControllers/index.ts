@@ -1,2 +1,2 @@
 export * from './ReportPageController';
-export * from './editorRegistry';
+export * from './useReportPageExport';

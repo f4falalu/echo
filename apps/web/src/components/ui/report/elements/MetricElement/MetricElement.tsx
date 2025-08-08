@@ -20,6 +20,7 @@ import { useSize } from '@/hooks/useSize';
 import { MetricContent } from './MetricContent';
 import { cn } from '@/lib/classMerge';
 import { useDraggable } from '@platejs/dnd';
+import { GlobalVariablePlugin } from '../../plugins/global-variable-kit';
 
 type MetricElementProps = PlateElementProps<TMetricElement>;
 
@@ -29,6 +30,11 @@ export const MetricElement = withHOC(
     const metricId = props.element.metricId;
     const metricVersionNumber = props.element.metricVersionNumber;
     const readOnly = useReadOnly();
+    console.log(props.editor.getOptionsStore(GlobalVariablePlugin));
+    console.log(props.editor.getOptions(GlobalVariablePlugin));
+    const mode = props.editor.getOption(GlobalVariablePlugin, 'mode');
+
+    console.log('mode', mode);
 
     const content = metricId ? (
       <MetricResizeContainer>

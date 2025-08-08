@@ -37,9 +37,11 @@ import { TableKit } from './plugins/table-kit';
 import { TocKit } from './plugins/toc-kit';
 import { ToggleKit } from './plugins/toggle-kit';
 import { BusterStreamKit } from './plugins/buster-stream-kit';
+import { GlobalVariableKit } from './plugins/global-variable-kit';
 
 export const EditorKit = [
   // Editing
+  ...GlobalVariableKit,
   ...SlashKit,
   ...AutoformatKit,
   ...CursorOverlayKit,
