@@ -6,21 +6,21 @@ import type { CreateMetricsInput } from './create-metrics-tool';
 // Mock the database module
 vi.mock('@buster/database', () => ({
   updateMessageFields: vi.fn(),
+  updateMessageEntries: vi.fn(),
   db: {},
   metricFiles: {},
   assetPermissions: {},
 }));
 
 // Mock other dependencies
-vi.mock('../../../utils/data-source-manager', () => ({
-  getWorkflowDataSourceManager: vi.fn().mockResolvedValue({
-    getDataSource: vi.fn().mockResolvedValue({
-      executeQuery: vi.fn().mockResolvedValue({
-        success: true,
-        results: [{ count: 1 }],
-        metadata: { rowCount: 1, totalRowCount: 1, executionTime: 100 },
-      }),
+vi.mock('../../../utils/get-data-source', () => ({
+  getDataSource: vi.fn().mockResolvedValue({
+    execute: vi.fn().mockResolvedValue({
+      success: true,
+      rows: [{ count: 1 }],
+      metadata: { rowCount: 1, totalRowCount: 1, executionTime: 100 },
     }),
+    close: vi.fn().mockResolvedValue(undefined),
   }),
 }));
 

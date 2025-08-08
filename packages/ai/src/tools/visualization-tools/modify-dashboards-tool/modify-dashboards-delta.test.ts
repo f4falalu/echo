@@ -1,10 +1,14 @@
-import { updateMessageFields } from '@buster/database';
+import { updateMessageEntries } from '@buster/database';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createModifyDashboardsDelta } from './modify-dashboards-delta';
-import type { ModifyDashboardsAgentContext, ModifyDashboardsState } from './modify-dashboards-tool';
+import type { ModifyDashboardsContext, ModifyDashboardsState } from './modify-dashboards-tool';
 
 vi.mock('@buster/database', () => ({
-  updateMessageFields: vi.fn(),
+  updateMessageEntries: vi.fn(),
+}));
+
+vi.mock('braintrust', () => ({
+  wrapTraced: (fn: unknown, _options?: unknown) => fn,
 }));
 
 describe('modify-dashboards-delta', () => {
@@ -15,7 +19,7 @@ describe('modify-dashboards-delta', () => {
   afterEach(() => {
     vi.clearAllMocks();
   });
-  const mockContext: ModifyDashboardsAgentContext = {
+  const mockContext: ModifyDashboardsContext = {
     userId: 'user-123',
     chatId: 'chat-123',
     dataSourceId: 'ds-123',
@@ -90,7 +94,7 @@ describe('modify-dashboards-delta', () => {
     expect(state.parsedArgs?.files).toHaveLength(2);
   });
 
-  it('should update database when messageId and reasoningEntryId exist', async () => {
+  it('should update database when messageId and toolCallId exist', async () => {
     const contextWithMessageId = {
       ...mockContext,
       messageId: 'msg-123',
@@ -100,7 +104,6 @@ describe('modify-dashboards-delta', () => {
       argsText: '',
       files: [],
       messageId: 'msg-123',
-      reasoningEntryId: 'reasoning-123',
       toolCallId: 'tool-123',
     };
 
@@ -108,35 +111,33 @@ describe('modify-dashboards-delta', () => {
 
     await onInputDelta('{"files":[{"id":"dash-1","yml_content":"content1"}]}');
 
-    expect(updateMessageFields).toHaveBeenCalledWith(
-      'msg-123',
-      expect.objectContaining({
-        reasoning: expect.arrayContaining([
-          expect.objectContaining({
-            id: 'tool-123',
-            type: 'files',
-            status: 'loading',
-          }),
-        ]),
-      })
-    );
+    expect(updateMessageEntries).toHaveBeenCalled();
+    const callArgs = vi.mocked(updateMessageEntries).mock.calls[0][0];
+    expect(callArgs.messageId).toBe('msg-123');
+    expect(callArgs.mode).toBe('update');
+    expect(callArgs.reasoningEntry.id).toBe('tool-123');
+    expect(callArgs.reasoningEntry.type).toBe('files');
+    expect(callArgs.reasoningEntry.status).toBe('loading');
+    expect(callArgs.responseEntry.id).toBe('tool-123');
+    expect(callArgs.responseEntry.type).toBe('text');
+    expect(callArgs.rawLlmMessage.role).toBe('assistant');
   });
 
   it('should not update database when messageId is missing', async () => {
     const state: ModifyDashboardsState = {
       argsText: '',
       files: [],
-      reasoningEntryId: 'reasoning-123',
+      toolCallId: 'tool-123',
     };
 
     const onInputDelta = createModifyDashboardsDelta(mockContext, state);
 
     await onInputDelta('{"files":[{"id":"dash-1","yml_content":"content1"}]}');
 
-    expect(updateMessageFields).not.toHaveBeenCalled();
+    expect(updateMessageEntries).not.toHaveBeenCalled();
   });
 
-  it('should not update database when reasoningEntryId is missing', async () => {
+  it('should not update database when toolCallId is missing', async () => {
     const contextWithMessageId = {
       ...mockContext,
       messageId: 'msg-123',
@@ -152,7 +153,7 @@ describe('modify-dashboards-delta', () => {
 
     await onInputDelta('{"files":[{"id":"dash-1","yml_content":"content1"}]}');
 
-    expect(updateMessageFields).not.toHaveBeenCalled();
+    expect(updateMessageEntries).not.toHaveBeenCalled();
   });
 
   it('should handle database update errors gracefully', async () => {
@@ -165,11 +166,10 @@ describe('modify-dashboards-delta', () => {
       argsText: '',
       files: [],
       messageId: 'msg-123',
-      reasoningEntryId: 'reasoning-123',
       toolCallId: 'tool-123',
     };
 
-    vi.mocked(updateMessageFields).mockRejectedValueOnce(new Error('DB Error'));
+    vi.mocked(updateMessageEntries).mockRejectedValueOnce(new Error('DB Error'));
 
     const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
@@ -185,39 +185,6 @@ describe('modify-dashboards-delta', () => {
     );
 
     consoleSpy.mockRestore();
-  });
-
-  it('should filter out undefined entries when updating database', async () => {
-    const contextWithMessageId = {
-      ...mockContext,
-      messageId: 'msg-123',
-    };
-
-    const state: ModifyDashboardsState = {
-      argsText: '',
-      files: [
-        undefined as any,
-        { id: 'dash-1', yml_content: 'content1', status: 'processing' },
-        undefined as any,
-      ],
-      messageId: 'msg-123',
-      reasoningEntryId: 'reasoning-123',
-      toolCallId: 'tool-123',
-    };
-
-    const onInputDelta = createModifyDashboardsDelta(contextWithMessageId, state);
-    await onInputDelta('{"files":[]}');
-
-    expect(updateMessageFields).toHaveBeenCalledWith(
-      'msg-123',
-      expect.objectContaining({
-        reasoning: expect.arrayContaining([
-          expect.objectContaining({
-            file_ids: ['dash-1'],
-          }),
-        ]),
-      })
-    );
   });
 
   it('should handle placeholder files with just id', async () => {
@@ -236,5 +203,31 @@ describe('modify-dashboards-delta', () => {
       yml_content: '',
       status: 'processing',
     });
+  });
+
+  it('should preserve existing files in state', async () => {
+    const contextWithMessageId = {
+      ...mockContext,
+      messageId: 'msg-123',
+    };
+
+    const state: ModifyDashboardsState = {
+      argsText: '',
+      files: [{ id: 'dash-1', yml_content: 'content1', status: 'processing' }],
+      messageId: 'msg-123',
+      toolCallId: 'tool-123',
+    };
+
+    const onInputDelta = createModifyDashboardsDelta(contextWithMessageId, state);
+    await onInputDelta('{"files":[]}');
+
+    expect(updateMessageEntries).toHaveBeenCalledWith(
+      expect.objectContaining({
+        messageId: 'msg-123',
+        reasoningEntry: expect.objectContaining({
+          file_ids: ['dash-1'],
+        }),
+      })
+    );
   });
 });

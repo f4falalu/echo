@@ -16,6 +16,10 @@ export function createCreateDashboardsFinish(
   return async (options: { input: CreateDashboardsInput } & ToolCallOptions) => {
     const input = options.input;
 
+    console.info('[create-dashboards] Input fully available:', {
+      filesCount: input.files.length,
+    });
+
     state.parsedArgs = input;
 
     state.files = input.files.map((f) => ({

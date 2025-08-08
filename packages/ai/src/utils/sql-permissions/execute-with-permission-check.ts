@@ -1,5 +1,5 @@
 import type { RuntimeContext } from '@mastra/core/runtime-context';
-import type { AnalystRuntimeContext } from '../../workflows/analyst-workflow';
+import type { AnalystRuntimeContext } from '../../workflows/analyst-agent-workflow/analyst-workflow';
 import { createPermissionErrorMessage, validateSqlPermissions } from './permission-validator';
 
 export interface ExecuteWithPermissionResult<T = unknown> {

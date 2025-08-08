@@ -1,11 +1,11 @@
-import { updateMessageFields } from '@buster/database';
+import { updateMessageEntries } from '@buster/database';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { createCreateMetricsDelta } from './create-metrics-delta';
-import type { CreateMetricsInput, CreateMetricsState } from './create-metrics-tool';
+import type { CreateMetricsState } from './create-metrics-tool';
 
 // Mock the database module
 vi.mock('@buster/database', () => ({
-  updateMessageFields: vi.fn(),
+  updateMessageEntries: vi.fn(),
 }));
 
 describe('createCreateMetricsDelta', () => {
@@ -23,11 +23,10 @@ describe('createCreateMetricsDelta', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     state = {
-      argsText: '',
-      files: [],
-      messageId: mockContext.messageId,
+      argsText: undefined,
+      files: undefined,
+      parsedArgs: undefined,
       toolCallId: 'tool-123',
-      reasoningEntryId: 'reasoning-456',
     };
   });
 
@@ -48,8 +47,9 @@ describe('createCreateMetricsDelta', () => {
       // Simulate streaming JSON
       await handler('{"files":[{"name":"metric1","yml_content":"content1"}');
 
-      expect(state.files).toHaveLength(1);
-      expect(state.files[0]).toEqual({
+      expect(state.files).toBeDefined();
+      expect(state.files!).toHaveLength(1);
+      expect(state.files![0]).toEqual({
         name: 'metric1',
         yml_content: 'content1',
         status: 'processing',
@@ -61,15 +61,16 @@ describe('createCreateMetricsDelta', () => {
 
       // Stream in multiple files - first complete file
       await handler('{"files":[{"name":"metric1","yml_content":"content1"}');
-      expect(state.files).toHaveLength(1);
+      expect(state.files).toBeDefined();
+      expect(state.files!).toHaveLength(1);
 
       // Stream in second file by accumulating more text
       state.argsText = '{"files":[{"name":"metric1","yml_content":"content1"},';
       await handler('{"name":"metric2","yml_content":"content2"}');
 
       // Now both files should be present
-      expect(state.files).toHaveLength(2);
-      expect(state.files[1]).toEqual({
+      expect(state.files!).toHaveLength(2);
+      expect(state.files![1]).toEqual({
         name: 'metric2',
         yml_content: 'content2',
         status: 'processing',
@@ -81,59 +82,35 @@ describe('createCreateMetricsDelta', () => {
 
       // Add initial file with just name
       await handler('{"files":[{"name":"metric1"}]}');
-      expect(state.files[0].yml_content).toBe('');
+      expect(state.files).toBeDefined();
+      expect(state.files![0]?.yml_content).toBe('');
 
       // Reset args text and update with content
       state.argsText = '';
       await handler('{"files":[{"name":"metric1","yml_content":"updated content"}]}');
-      expect(state.files[0].yml_content).toBe('updated content');
+      expect(state.files![0]?.yml_content).toBe('updated content');
     });
 
-    it('should update database with progress when messageId and reasoningEntryId exist', async () => {
+    it('should update database with progress when messageId exists', async () => {
       const handler = createCreateMetricsDelta(mockContext, state);
 
       await handler('{"files":[{"name":"metric1","yml_content":"content1"}]}');
 
-      expect(updateMessageFields).toHaveBeenCalledWith(
-        'msg-xyz',
+      expect(updateMessageEntries).toHaveBeenCalledWith(
         expect.objectContaining({
-          reasoning: expect.arrayContaining([
-            expect.objectContaining({
-              id: 'tool-123',
-              type: 'files',
-              status: 'loading',
-            }),
-          ]),
+          messageId: 'msg-xyz',
+          reasoningEntry: expect.any(Object),
+          mode: 'update',
         })
       );
     });
 
-    it('should not update database when messageId is missing', async () => {
-      const contextWithoutMessageId = {
-        ...mockContext,
-        messageId: undefined,
-      };
-      const handler = createCreateMetricsDelta(contextWithoutMessageId, state);
-
-      await handler('{"files":[{"name":"metric1","yml_content":"content1"}]}');
-
-      expect(updateMessageFields).not.toHaveBeenCalled();
-    });
-
-    it('should not update database when reasoningEntryId is missing', async () => {
-      state.reasoningEntryId = undefined;
-      const handler = createCreateMetricsDelta(mockContext, state);
-
-      await handler('{"files":[{"name":"metric1","yml_content":"content1"}]}');
-
-      expect(updateMessageFields).not.toHaveBeenCalled();
-    });
-
-    it('should handle database errors gracefully', async () => {
-      vi.mocked(updateMessageFields).mockRejectedValue(new Error('Database error'));
+    it('should handle database update errors gracefully', async () => {
+      vi.mocked(updateMessageEntries).mockRejectedValue(new Error('Database error'));
       const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
       const handler = createCreateMetricsDelta(mockContext, state);
+
       await handler('{"files":[{"name":"metric1","yml_content":"content1"}]}');
 
       expect(consoleErrorSpy).toHaveBeenCalledWith(
@@ -146,13 +123,22 @@ describe('createCreateMetricsDelta', () => {
 
       consoleErrorSpy.mockRestore();
     });
+
+    it('should not update database when messageId is missing', async () => {
+      const contextWithoutMessageId = { ...mockContext, messageId: undefined };
+      const handler = createCreateMetricsDelta(contextWithoutMessageId, state);
+
+      await handler('{"files":[{"name":"metric1","yml_content":"content1"}]}');
+
+      expect(updateMessageEntries).not.toHaveBeenCalled();
+    });
   });
 
   describe('object delta handling', () => {
-    it('should handle complete input object', async () => {
+    it('should handle complete object deltas', async () => {
       const handler = createCreateMetricsDelta(mockContext, state);
 
-      const input: Partial<CreateMetricsInput> = {
+      const input = {
         files: [
           { name: 'metric1', yml_content: 'content1' },
           { name: 'metric2', yml_content: 'content2' },
@@ -162,62 +148,22 @@ describe('createCreateMetricsDelta', () => {
       await handler(input);
 
       expect(state.parsedArgs).toEqual(input);
-      expect(state.files).toHaveLength(2);
-      expect(state.files[0]).toEqual({
+      expect(state.files).toBeDefined();
+      expect(state.files!).toHaveLength(2);
+      expect(state.files![0]).toEqual({
         name: 'metric1',
         yml_content: 'content1',
         status: 'processing',
       });
     });
 
-    it('should handle partial input object', async () => {
+    it('should handle empty files array', async () => {
       const handler = createCreateMetricsDelta(mockContext, state);
 
-      const input: Partial<CreateMetricsInput> = {};
-      await handler(input);
+      await handler({ files: [] });
 
-      expect(state.files).toHaveLength(0);
-    });
-  });
-
-  describe('logging', () => {
-    it('should log delta processing information', async () => {
-      const consoleInfoSpy = vi.spyOn(console, 'info').mockImplementation(() => {});
-
-      const handler = createCreateMetricsDelta(mockContext, state);
-      await handler('{"files":[{"name":"metric1","yml_content":"content1"}]}');
-
-      expect(consoleInfoSpy).toHaveBeenCalledWith(
-        '[create-metrics] Input delta processed',
-        expect.objectContaining({
-          hasFiles: true,
-          fileCount: 1,
-          processedCount: 1,
-          messageId: 'msg-xyz',
-          timestamp: expect.any(String),
-        })
-      );
-
-      consoleInfoSpy.mockRestore();
-    });
-
-    it('should log streaming progress updates', async () => {
-      const consoleInfoSpy = vi.spyOn(console, 'info').mockImplementation(() => {});
-
-      const handler = createCreateMetricsDelta(mockContext, state);
-      await handler('{"files":[{"name":"metric1","yml_content":"content1"}]}');
-
-      expect(consoleInfoSpy).toHaveBeenCalledWith(
-        '[create-metrics] Updating database with streaming progress',
-        expect.objectContaining({
-          messageId: 'msg-xyz',
-          progressMessage: 'Processed 1 metric',
-          fileCount: 1,
-          processedCount: 1,
-        })
-      );
-
-      consoleInfoSpy.mockRestore();
+      expect(state.files).toBeDefined();
+      expect(state.files!).toHaveLength(0);
     });
   });
 
@@ -226,47 +172,41 @@ describe('createCreateMetricsDelta', () => {
       const handler = createCreateMetricsDelta(mockContext, state);
 
       // This should not throw
-      await handler('{"files":[{malformed json');
+      await handler('{"files":[{"broken');
 
-      // State should still be updated with what could be parsed
-      expect(state.argsText).toBe('{"files":[{malformed json');
+      // State should be partially updated
+      expect(state.argsText).toBe('{"files":[{"broken');
     });
 
-    it('should handle empty string delta', async () => {
+    it('should initialize files array if undefined', async () => {
       const handler = createCreateMetricsDelta(mockContext, state);
 
-      await handler('');
+      // Ensure files is undefined initially
+      expect(state.files).toBeUndefined();
 
-      expect(state.argsText).toBe('');
-      expect(state.files).toHaveLength(0);
+      await handler('{"files":[]}');
+
+      // Files should now be initialized
+      expect(state.files).toBeDefined();
+      expect(state.files!).toHaveLength(0);
     });
 
-    it('should filter out undefined entries in files array', async () => {
+    it('should handle rapid successive deltas', async () => {
       const handler = createCreateMetricsDelta(mockContext, state);
-      state.toolCallId = 'tool-123';
-      state.reasoningEntryId = 'reasoning-456';
 
-      // Create sparse array with undefined entries
-      state.files = [
-        { name: 'metric1', yml_content: 'content1', status: 'processing' },
-        undefined as any,
-        { name: 'metric2', yml_content: 'content2', status: 'processing' },
-      ];
+      // Simulate rapid streaming
+      await handler('{"fil');
+      await handler('es":[');
+      await handler('{"name":');
+      await handler('"metric1",');
+      await handler('"yml_content":');
+      await handler('"content1"}');
+      await handler(']}');
 
-      // Trigger an update with valid JSON that has files
-      await handler('{"files":[{"name":"test","yml_content":"test"}]}');
-
-      // Should filter out undefined when updating database
-      expect(updateMessageFields).toHaveBeenCalledWith(
-        'msg-xyz',
-        expect.objectContaining({
-          reasoning: expect.arrayContaining([
-            expect.objectContaining({
-              file_ids: expect.any(Array),
-            }),
-          ]),
-        })
-      );
+      // Should accumulate properly
+      expect(state.argsText).toBe('{"files":[{"name":"metric1","yml_content":"content1"}]}');
+      expect(state.files).toBeDefined();
+      expect(state.files!).toHaveLength(1);
     });
   });
 });

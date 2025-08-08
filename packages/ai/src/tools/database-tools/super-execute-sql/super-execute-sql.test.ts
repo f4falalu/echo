@@ -1,23 +1,14 @@
 import type { DataSource } from '@buster/data-source';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import {
-  WorkflowDataSourceManager,
-  getWorkflowDataSourceManager,
-} from '../../../utils/data-source-manager';
+import { getDataSource } from '../../../utils/get-data-source';
 import { checkQueryIsReadOnly } from '../../../utils/sql-permissions/sql-parser-helpers';
 import type { SuperExecuteSqlContext, SuperExecuteSqlState } from './super-execute-sql';
 import { createSuperExecuteSqlExecute } from './super-execute-sql-execute';
 
-// Mock dependencies (partial mock to retain class for type compatibility)
-vi.mock('../../../utils/data-source-manager', async () => {
-  const actual = await vi.importActual<typeof import('../../../utils/data-source-manager')>(
-    '../../../utils/data-source-manager'
-  );
-  return {
-    ...actual,
-    getWorkflowDataSourceManager: vi.fn(),
-  };
-});
+// Mock dependencies
+vi.mock('../../../utils/get-data-source', () => ({
+  getDataSource: vi.fn(),
+}));
 
 vi.mock('../../../utils/sql-permissions/sql-parser-helpers', () => ({
   checkQueryIsReadOnly: vi.fn(),
@@ -36,11 +27,11 @@ describe('super-execute-sql', () => {
   };
 
   const mockExecute = vi.fn();
+  const mockClose = vi.fn();
   const mockDataSource = {
     execute: mockExecute,
+    close: mockClose,
   } as unknown as DataSource;
-
-  let managerInstance: WorkflowDataSourceManager;
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -51,10 +42,9 @@ describe('super-execute-sql', () => {
     mockState.executionResults = undefined;
 
     // Setup default mocks
-    managerInstance = new WorkflowDataSourceManager('test-workflow');
-    vi.spyOn(managerInstance, 'getDataSource').mockResolvedValue(mockDataSource);
-    vi.mocked(getWorkflowDataSourceManager).mockReturnValue(managerInstance);
+    vi.mocked(getDataSource).mockResolvedValue(mockDataSource);
     vi.mocked(checkQueryIsReadOnly).mockReturnValue({ isReadOnly: true });
+    mockClose.mockResolvedValue(undefined);
   });
 
   describe('createSuperExecuteSqlExecute', () => {

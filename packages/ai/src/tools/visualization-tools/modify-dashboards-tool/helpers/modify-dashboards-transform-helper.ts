@@ -2,19 +2,7 @@ import type {
   ChatMessageReasoningMessage,
   ChatMessageResponseMessage,
 } from '@buster/server-shared/chats';
-import type { ModifyDashboardsInput } from '../modify-dashboards-tool';
-
-/**
- * File structure for modify dashboards
- */
-export interface ModifyDashboardsFile {
-  id: string;
-  name?: string;
-  yml_content: string;
-  status?: 'processing' | 'completed' | 'failed';
-  version?: number;
-  error?: string;
-}
+import type { ModifyDashboardsFile, ModifyDashboardsInput } from '../modify-dashboards-tool';
 
 /**
  * Create a reasoning message entry for dashboards modification
@@ -46,11 +34,11 @@ export function createDashboardsReasoningMessage(
       id: fileId,
       file_type: 'dashboard',
       file_name: file.name || `Dashboard ${fileId}`,
-      version_number: file.version || undefined,
       status: file.status || 'loading',
       file: {
         text: file.yml_content,
       },
+      ...(file.version !== undefined ? { version_number: file.version } : {}),
       ...(file.error && { error: file.error }),
     };
   });
@@ -130,18 +118,17 @@ export function updateDashboardsProgressMessage(files: ModifyDashboardsFile[]): 
  * Extract file info for final response
  */
 export function extractDashboardsFileInfo(files: ModifyDashboardsFile[]) {
-  const successfulFiles = files.filter((f) => f.status === 'completed');
+  const successfulFiles = files.filter((f) => f.status === 'completed' && f.id);
   const failedFiles = files.filter((f) => f.status === 'failed');
 
   return {
     successfulFiles: successfulFiles.map((f) => ({
-      id: f.id,
+      id: f.id || '',
       name: f.name || `Dashboard ${f.id}`,
       version: f.version || 1,
     })),
     failedFiles: failedFiles.map((f) => ({
       id: f.id,
-      name: f.name || `Dashboard ${f.id}`,
       error: f.error || 'Unknown error',
     })),
   };
@@ -150,7 +137,7 @@ export function extractDashboardsFileInfo(files: ModifyDashboardsFile[]) {
 /**
  * Keys for type-safe extraction from streaming JSON
  */
-export const MODIFY_DASHBOARDS_KEYS = {
+export const TOOL_KEYS = {
   files: 'files' as const,
   id: 'id' as const,
   yml_content: 'yml_content' as const,

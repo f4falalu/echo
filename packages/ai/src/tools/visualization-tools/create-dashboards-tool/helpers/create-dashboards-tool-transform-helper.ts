@@ -1,5 +1,5 @@
 import type {
-  ChatMessageReasoningMessage,
+  ChatMessageReasoningMessage_Files,
   ChatMessageResponseMessage,
 } from '@buster/server-shared/chats';
 import type { CreateDashboardsFile, CreateDashboardsInput } from '../create-dashboards-tool';
@@ -11,7 +11,7 @@ export function createDashboardsReasoningMessage(
   toolCallId: string,
   files: CreateDashboardsFile[],
   status: 'loading' | 'completed' | 'failed' = 'loading'
-): ChatMessageReasoningMessage {
+): ChatMessageReasoningMessage_Files {
   // Transform files to the format expected by reasoning messages
   interface FileEntry {
     id: string;
@@ -64,7 +64,7 @@ export function createDashboardsReasoningMessage(
     status,
     file_ids: fileIds,
     files: fileEntries,
-  } as ChatMessageReasoningMessage;
+  } as ChatMessageReasoningMessage_Files;
 }
 
 /**

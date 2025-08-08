@@ -1,13 +1,13 @@
 import { describe, expect, it } from 'vitest';
+import type { ModifyDashboardsFile } from '../modify-dashboards-tool';
 import {
-  MODIFY_DASHBOARDS_KEYS,
+  TOOL_KEYS,
   createDashboardsRawLlmMessageEntry,
   createDashboardsReasoningMessage,
   createDashboardsResponseMessage,
   extractDashboardsFileInfo,
   updateDashboardsProgressMessage,
 } from './modify-dashboards-transform-helper';
-import type { ModifyDashboardsFile } from './modify-dashboards-transform-helper';
 
 describe('modify-dashboards-transform-helper', () => {
   describe('createDashboardsReasoningMessage', () => {
@@ -194,7 +194,6 @@ describe('modify-dashboards-transform-helper', () => {
       expect(result.failedFiles).toHaveLength(1);
       expect(result.failedFiles[0]).toEqual({
         id: 'dash-2',
-        name: 'Marketing',
         error: 'Invalid YAML',
       });
     });
@@ -220,11 +219,11 @@ describe('modify-dashboards-transform-helper', () => {
     });
   });
 
-  describe('MODIFY_DASHBOARDS_KEYS', () => {
+  describe('TOOL_KEYS', () => {
     it('should have correct key mappings', () => {
-      expect(MODIFY_DASHBOARDS_KEYS.files).toBe('files');
-      expect(MODIFY_DASHBOARDS_KEYS.id).toBe('id');
-      expect(MODIFY_DASHBOARDS_KEYS.yml_content).toBe('yml_content');
+      expect(TOOL_KEYS.files).toBe('files');
+      expect(TOOL_KEYS.id).toBe('id');
+      expect(TOOL_KEYS.yml_content).toBe('yml_content');
     });
   });
 });

@@ -27,6 +27,7 @@ describe('create-dashboards-tool-transform-helper', () => {
         file_ids: expect.any(Array),
         files: expect.any(Object),
       });
+
       expect(result.file_ids).toHaveLength(2);
     });
 
@@ -79,8 +80,10 @@ describe('create-dashboards-tool-transform-helper', () => {
 
       const result = createDashboardsReasoningMessage('tool-123', files, 'failed');
 
-      const fileId = result.file_ids[0];
-      expect(result.files[fileId]).toMatchObject({
+      const [firstId] = result.file_ids;
+      expect(firstId).toBeDefined();
+      if (firstId === undefined) throw new Error('Expected file id');
+      expect(result.files[firstId]).toMatchObject({
         file_type: 'dashboard',
         file_name: 'Dashboard 1',
         status: 'failed',

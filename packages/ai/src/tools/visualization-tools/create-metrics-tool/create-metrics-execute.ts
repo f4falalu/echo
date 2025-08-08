@@ -1,12 +1,12 @@
 import { randomUUID } from 'node:crypto';
 import type { DataSource } from '@buster/data-source';
-import { assetPermissions, db, metricFiles } from '@buster/database';
-import { updateMessageFields } from '@buster/database';
+import { assetPermissions, db, metricFiles, updateMessageEntries } from '@buster/database';
+import type { ModelMessage } from 'ai';
 import { wrapTraced } from 'braintrust';
 import { inArray } from 'drizzle-orm';
 import * as yaml from 'yaml';
 import { z } from 'zod';
-import { getWorkflowDataSourceManager } from '../../../utils/data-source-manager';
+import { getDataSource } from '../../../utils/get-data-source';
 import {
   createPermissionErrorMessage,
   validateSqlPermissions,
@@ -17,13 +17,16 @@ import { ensureTimeFrameQuoted } from '../time-frame-helper';
 import { createInitialMetricVersionHistory, validateMetricYml } from '../version-history-helpers';
 import type { MetricYml } from '../version-history-types';
 import type {
-  CreateMetricsAgentContext,
   CreateMetricsContext,
   CreateMetricsInput,
   CreateMetricsOutput,
   CreateMetricsState,
 } from './create-metrics-tool';
-import { createMetricsReasoningMessage } from './helpers/create-metrics-transform-helper';
+import {
+  createMetricsRawLlmMessageEntry,
+  createMetricsReasoningMessage,
+  createMetricsResponseMessage,
+} from './helpers/create-metrics-transform-helper';
 
 // TypeScript types matching Rust DataMetadata structure
 enum SimpleType {
@@ -228,8 +231,7 @@ async function processMetricFile(
   dataSourceId: string,
   dataSourceDialect: string,
   userId: string,
-  _organizationId: string,
-  workflowId: string
+  _organizationId: string
 ): Promise<MetricFileResult> {
   try {
     // Ensure timeFrame values are properly quoted before parsing
@@ -261,7 +263,6 @@ async function processMetricFile(
     const sqlValidationResult = await validateSql(
       finalMetricYml.sql,
       dataSourceId,
-      workflowId,
       userId,
       dataSourceDialect
     );
@@ -323,7 +324,6 @@ async function processMetricFile(
 async function validateSql(
   sqlQuery: string,
   dataSourceId: string,
-  workflowId: string,
   userId: string,
   dataSourceSyntax?: string
 ): Promise<ValidationResult> {
@@ -350,12 +350,11 @@ async function validateSql(
       };
     }
 
-    // Get data source from workflow manager (reuses existing connections)
-    const manager = getWorkflowDataSourceManager(workflowId);
-    let dataSource: DataSource;
+    // Get a new DataSource instance
+    let dataSource: DataSource | null = null;
 
     try {
-      dataSource = await manager.getDataSource(dataSourceId);
+      dataSource = await getDataSource(dataSourceId);
     } catch (_error) {
       return {
         success: false,
@@ -388,7 +387,7 @@ async function validateSql(
 
           // Validate metadata with Zod schema for runtime safety
           const validatedMetadata = resultMetadataSchema.safeParse(result.metadata);
-          const parsedMetadata: ResultMetadata = validatedMetadata.success
+          const parsedMetadata: ResultMetadata | undefined = validatedMetadata.success
             ? validatedMetadata.data
             : undefined;
 
@@ -478,12 +477,20 @@ async function validateSql(
       success: false,
       error: 'Max retries exceeded for SQL validation',
     };
-    // Note: We don't close the data source here anymore - it's managed by the workflow manager
   } catch (error) {
     return {
       success: false,
       error: error instanceof Error ? error.message : 'SQL validation failed',
     };
+  } finally {
+    // Always close the data source to clean up connections
+    if (dataSource) {
+      try {
+        await dataSource.close();
+      } catch (closeError) {
+        console.warn('[create-metrics] Error closing data source:', closeError);
+      }
+    }
   }
 }
 
@@ -510,305 +517,334 @@ function generateResultMessage(
   return `${successMsg}Failed to create ${failures.length} metric files:\n${failures.join('\n')}`;
 }
 
-// Main execute function with context mapping
-export function createCreateMetricsExecute<
-  TAgentContext extends CreateMetricsAgentContext = CreateMetricsAgentContext,
->(context: TAgentContext, state: CreateMetricsState) {
-  return wrapTraced(
-    async (input: CreateMetricsInput): Promise<CreateMetricsOutput> => {
-      // Use the passed context directly
-      const toolContext: CreateMetricsContext = {
-        userId: context.userId,
-        chatId: context.chatId,
-        dataSourceId: context.dataSourceId,
-        dataSourceSyntax: context.dataSourceSyntax || 'generic',
-        organizationId: context.organizationId,
-        messageId: context.messageId,
+// Main create metric files function
+const createMetricFiles = wrapTraced(
+  async (
+    params: CreateMetricsInput,
+    context: CreateMetricsContext
+  ): Promise<CreateMetricsOutput> => {
+    const startTime = Date.now();
+
+    // Get context values
+    const userId = context.userId;
+    const organizationId = context.organizationId;
+    const messageId = context.messageId;
+    const dataSourceId = context.dataSourceId;
+    const dataSourceSyntax = context.dataSourceSyntax || 'generic';
+
+    if (!dataSourceId) {
+      return {
+        message: 'Unable to identify the data source. Please refresh and try again.',
+        duration: Date.now() - startTime,
+        files: [],
+        failed_files: [],
       };
+    }
+    if (!userId) {
+      return {
+        message: 'Unable to verify your identity. Please log in again.',
+        duration: Date.now() - startTime,
+        files: [],
+        failed_files: [],
+      };
+    }
+    if (!organizationId) {
+      return {
+        message: 'Unable to access your organization. Please check your permissions.',
+        duration: Date.now() - startTime,
+        files: [],
+        failed_files: [],
+      };
+    }
 
-      const startTime = state.processingStartTime || Date.now();
-      const { files } = input;
+    const files: FileWithId[] = [];
+    const failedFiles: FailedFileCreation[] = [];
 
-      const createdFiles: FileWithId[] = [];
-      const failedFiles: FailedFileCreation[] = [];
+    // Process files concurrently
+    const processResults = await Promise.allSettled(
+      params.files.map(async (file) => {
+        const result = await processMetricFile(
+          file.name,
+          file.yml_content,
+          dataSourceId,
+          dataSourceSyntax,
+          userId,
+          organizationId
+        );
+        return { fileName: file.name, result };
+      })
+    );
 
-      // Extract context values
-      const dataSourceId = toolContext.dataSourceId;
-      const dataSourceSyntax = toolContext.dataSourceSyntax || 'generic';
-      const userId = toolContext.userId;
-      const organizationId = toolContext.organizationId;
-      const messageId = toolContext.messageId;
+    const successfulProcessing: Array<{
+      fileName: string;
+      metricFile: FileWithId;
+      metricYml: MetricYml;
+      message: string;
+      results: Record<string, unknown>[];
+    }> = [];
 
-      // Generate a unique workflow ID using data source
-      const workflowId = `workflow-${Date.now()}-${dataSourceId}`;
-
-      if (!dataSourceId) {
-        return {
-          message: 'Unable to identify the data source. Please refresh and try again.',
-          duration: Date.now() - startTime,
-          files: [],
-          failed_files: [],
-        };
-      }
-      if (!userId) {
-        return {
-          message: 'Unable to verify your identity. Please log in again.',
-          duration: Date.now() - startTime,
-          files: [],
-          failed_files: [],
-        };
-      }
-      if (!organizationId) {
-        return {
-          message: 'Unable to access your organization. Please check your permissions.',
-          duration: Date.now() - startTime,
-          files: [],
-          failed_files: [],
-        };
-      }
-
-      // Process files concurrently
-      const processResults = await Promise.allSettled(
-        files.map(async (file) => {
-          const result = await processMetricFile(
-            file.name,
-            file.yml_content,
-            dataSourceId,
-            dataSourceSyntax,
-            userId,
-            organizationId,
-            workflowId
-          );
-          return { fileName: file.name, result };
-        })
-      );
-
-      const successfulProcessing: Array<{
-        fileName: string;
-        metricFile: FileWithId;
-        metricYml: MetricYml;
-        message: string;
-        results: Record<string, unknown>[];
-      }> = [];
-
-      // Separate successful from failed processing
-      for (const processResult of processResults) {
-        if (processResult.status === 'fulfilled') {
-          const { fileName, result } = processResult.value;
-          if (
-            result.success &&
-            result.metricFile &&
-            result.metricYml &&
-            result.message &&
-            result.results
-          ) {
-            successfulProcessing.push({
-              fileName,
-              metricFile: result.metricFile,
-              metricYml: result.metricYml,
-              message: result.message,
-              results: result.results,
-            });
-          } else {
-            failedFiles.push({
-              name: fileName,
-              error: result.error || 'Unknown error',
-            });
-          }
+    // Separate successful from failed processing
+    for (const processResult of processResults) {
+      if (processResult.status === 'fulfilled') {
+        const { fileName, result } = processResult.value;
+        if (
+          result.success &&
+          result.metricFile &&
+          result.metricYml &&
+          result.message &&
+          result.results
+        ) {
+          successfulProcessing.push({
+            fileName,
+            metricFile: result.metricFile,
+            metricYml: result.metricYml,
+            message: result.message,
+            results: result.results,
+          });
         } else {
           failedFiles.push({
-            name: 'unknown',
-            error: processResult.reason?.message || 'Processing failed',
+            name: fileName,
+            error: result.error || 'Unknown error',
           });
         }
-      }
-
-      // Database operations
-      if (successfulProcessing.length > 0) {
-        try {
-          await db.transaction(async (tx: typeof db) => {
-            // Insert metric files
-            const metricRecords = successfulProcessing.map((sp) => ({
-              id: sp.metricFile.id,
-              name: sp.metricFile.name,
-              fileName: sp.fileName,
-              content: sp.metricYml,
-              verification: 'notRequested' as const,
-              evaluationObj: null,
-              evaluationSummary: null,
-              evaluationScore: null,
-              organizationId,
-              createdBy: userId,
-              createdAt: sp.metricFile.created_at,
-              updatedAt: sp.metricFile.updated_at,
-              deletedAt: null,
-              publiclyAccessible: false,
-              publiclyEnabledBy: null,
-              publicExpiryDate: null,
-              versionHistory: createInitialMetricVersionHistory(
-                sp.metricYml,
-                sp.metricFile.created_at
-              ),
-              dataMetadata: sp.results ? createDataMetadata(sp.results) : null,
-              publicPassword: null,
-              dataSourceId,
-            }));
-            await tx.insert(metricFiles).values(metricRecords);
-
-            // Insert asset permissions
-            const assetPermissionRecords = metricRecords.map((record) => ({
-              identityId: userId,
-              identityType: 'user' as const,
-              assetId: record.id,
-              assetType: 'metric_file' as const,
-              role: 'owner' as const,
-              createdAt: new Date().toISOString(),
-              updatedAt: new Date().toISOString(),
-              deletedAt: null,
-              createdBy: userId,
-              updatedBy: userId,
-            }));
-            await tx.insert(assetPermissions).values(assetPermissionRecords);
-          });
-
-          // Critical save verification - ensure records were actually saved
-          if (successfulProcessing.length > 0) {
-            try {
-              const savedMetricIds = successfulProcessing.map((sp) => sp.metricFile.id);
-              const verificationResult = await db
-                .select({ id: metricFiles.id })
-                .from(metricFiles)
-                .where(inArray(metricFiles.id, savedMetricIds))
-                .limit(savedMetricIds.length);
-
-              if (verificationResult.length !== savedMetricIds.length) {
-                console.error('[Critical Save Verification] Mismatch in saved records:', {
-                  expected: savedMetricIds.length,
-                  actual: verificationResult.length,
-                  messageId,
-                  workflowId,
-                });
-
-                // Mark files as failed if verification doesn't match
-                const savedIds = new Set(verificationResult.map((r) => r.id));
-                for (const sp of successfulProcessing) {
-                  if (!savedIds.has(sp.metricFile.id)) {
-                    failedFiles.push({
-                      name: sp.metricFile.name,
-                      error: 'Critical save verification failed - record not found after save',
-                    });
-                  }
-                }
-              }
-            } catch (verifyError) {
-              console.error('[Critical Save Verification] Error during verification:', verifyError);
-              // Don't fail the entire operation, but log the issue
-            }
-          }
-
-          // Prepare successful files output
-          for (const sp of successfulProcessing) {
-            createdFiles.push({
-              id: sp.metricFile.id,
-              name: sp.metricFile.name,
-              file_type: sp.metricFile.file_type,
-              result_message: sp.metricFile.result_message || '',
-              results: sp.metricFile.results || [],
-              created_at: sp.metricFile.created_at,
-              updated_at: sp.metricFile.updated_at,
-              version_number: sp.metricFile.version_number,
-            });
-          }
-        } catch (error) {
-          // Add all successful processing to failed if database operation fails
-          for (const sp of successfulProcessing) {
-            failedFiles.push({
-              name: sp.metricFile.name,
-              error: `Failed to save to database: ${error instanceof Error ? error.message : 'Unknown error'}`,
-            });
-          }
-        }
-      }
-
-      const duration = Date.now() - startTime;
-
-      const message = generateResultMessage(createdFiles, failedFiles);
-
-      // Track file associations if we have a messageId and created files
-      if (messageId && createdFiles.length > 0) {
-        await trackFileAssociations({
-          messageId,
-          files: createdFiles.map((file) => ({
-            id: file.id,
-            version: file.version_number,
-          })),
+      } else {
+        failedFiles.push({
+          name: 'unknown',
+          error: processResult.reason?.message || 'Processing failed',
         });
       }
+    }
 
-      // Update state with final results
-      state.files = state.files.map((file) => {
-        const createdFile = createdFiles.find((cf) => cf.name === file.name);
-        const failedFile = failedFiles.find((ff) => ff.name === file.name);
+    // Database operations
+    if (successfulProcessing.length > 0) {
+      try {
+        await db.transaction(async (tx: typeof db) => {
+          // Insert metric files
+          const metricRecords = successfulProcessing.map((sp) => ({
+            id: sp.metricFile.id,
+            name: sp.metricFile.name,
+            fileName: sp.fileName,
+            content: sp.metricYml,
+            verification: 'notRequested' as const,
+            evaluationObj: null,
+            evaluationSummary: null,
+            evaluationScore: null,
+            organizationId,
+            createdBy: userId,
+            createdAt: sp.metricFile.created_at,
+            updatedAt: sp.metricFile.updated_at,
+            deletedAt: null,
+            publiclyAccessible: false,
+            publiclyEnabledBy: null,
+            publicExpiryDate: null,
+            versionHistory: createInitialMetricVersionHistory(
+              sp.metricYml,
+              sp.metricFile.created_at
+            ),
+            dataMetadata: sp.results ? createDataMetadata(sp.results) : null,
+            publicPassword: null,
+            dataSourceId,
+          }));
+          await tx.insert(metricFiles).values(metricRecords);
 
-        if (createdFile) {
-          return {
-            ...file,
-            id: createdFile.id,
-            version: createdFile.version_number,
-            status: 'completed' as const,
-          };
-        }
-        if (failedFile) {
-          return {
-            ...file,
-            status: 'failed' as const,
-            error: failedFile.error,
-          };
-        }
-        return file;
-      });
+          // Insert asset permissions
+          const assetPermissionRecords = metricRecords.map((record) => ({
+            identityId: userId,
+            identityType: 'user' as const,
+            assetId: record.id,
+            assetType: 'metric_file' as const,
+            role: 'owner' as const,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+            deletedAt: null,
+            createdBy: userId,
+            updatedBy: userId,
+          }));
+          await tx.insert(assetPermissions).values(assetPermissionRecords);
+        });
 
-      // Update database with final state if we have a messageId
-      if (messageId && state.reasoningEntryId) {
-        try {
-          // Create final reasoning entry
-          const finalStatus =
-            failedFiles.length === 0
-              ? 'completed'
-              : createdFiles.length === 0
-                ? 'failed'
-                : 'completed';
-          const reasoningEntry = createMetricsReasoningMessage(
-            state.toolCallId || `create-metrics-${Date.now()}`,
-            state.files,
-            finalStatus
-          );
-
-          console.info('[create-metrics] Updating database with final results', {
-            messageId,
-            successCount: createdFiles.length,
-            failedCount: failedFiles.length,
-            toolCallId: state.toolCallId,
+        // Add successful files to output
+        for (const sp of successfulProcessing) {
+          files.push({
+            id: sp.metricFile.id,
+            name: sp.metricFile.name,
+            file_type: sp.metricFile.file_type,
+            result_message: sp.metricFile.result_message || '',
+            results: sp.metricFile.results || [],
+            created_at: sp.metricFile.created_at,
+            updated_at: sp.metricFile.updated_at,
+            version_number: sp.metricFile.version_number,
           });
-
-          // Final update to database
-          await updateMessageFields(messageId, {
-            reasoning: [reasoningEntry], // Update existing entry with final state
-          });
-        } catch (error) {
-          console.error('[create-metrics] Failed to update final results in database', {
-            messageId,
-            error: error instanceof Error ? error.message : 'Unknown error',
+        }
+      } catch (error) {
+        // Add all successful processing to failed if database operation fails
+        for (const sp of successfulProcessing) {
+          failedFiles.push({
+            name: sp.metricFile.name,
+            error: `Failed to save to database: ${error instanceof Error ? error.message : 'Unknown error'}`,
           });
         }
       }
+    }
 
-      return {
-        message,
-        duration,
-        files: createdFiles,
-        failed_files: failedFiles,
-      };
+    // Track file associations if messageId is available
+    if (messageId && files.length > 0) {
+      await trackFileAssociations({
+        messageId,
+        files: files.map((file) => ({
+          id: file.id,
+          version: file.version_number,
+        })),
+      });
+    }
+
+    const duration = Date.now() - startTime;
+    const message = generateResultMessage(files, failedFiles);
+
+    return {
+      message,
+      duration,
+      files,
+      failed_files: failedFiles,
+    };
+  },
+  { name: 'Create Metric Files' }
+);
+
+export function createCreateMetricsExecute(
+  context: CreateMetricsContext,
+  state: CreateMetricsState
+) {
+  return wrapTraced(
+    async (input: CreateMetricsInput): Promise<CreateMetricsOutput> => {
+      const startTime = Date.now();
+
+      try {
+        // Call the main function directly instead of delegating
+        const result = await createMetricFiles(input, context);
+
+        // Update state files with final results (IDs, versions, status)
+        if (result && typeof result === 'object') {
+          const typedResult = result as CreateMetricsOutput;
+          // Ensure state.files is initialized for safe mutations below
+          state.files = state.files ?? [];
+
+          // Update successful files
+          if (typedResult.files && Array.isArray(typedResult.files)) {
+            typedResult.files.forEach((file) => {
+              const stateFile = (state.files ?? []).find((f) => f.name === file.name);
+              if (stateFile) {
+                stateFile.id = file.id;
+                stateFile.version = file.version_number;
+                stateFile.status = 'completed';
+              }
+            });
+          }
+
+          // Update failed files
+          if (typedResult.failed_files && Array.isArray(typedResult.failed_files)) {
+            typedResult.failed_files.forEach((failedFile) => {
+              const stateFile = (state.files ?? []).find((f) => f.name === failedFile.name);
+              if (stateFile) {
+                stateFile.status = 'failed';
+                stateFile.error = failedFile.error;
+              }
+            });
+          }
+
+          // Update last entries if we have a messageId (no need for explicit entry IDs)
+          if (context.messageId) {
+            try {
+              const finalStatus = typedResult.failed_files?.length ? 'failed' : 'completed';
+              const toolCallId = state.toolCallId || `tool-${Date.now()}`;
+
+              const reasoningEntry = createMetricsReasoningMessage(
+                toolCallId,
+                state.files ?? [],
+                finalStatus
+              );
+              const responseEntry = createMetricsResponseMessage(toolCallId, typedResult.message);
+              const rawLlmMessage: ModelMessage = {
+                role: 'assistant',
+                content: [
+                  {
+                    type: 'tool-call',
+                    toolCallId,
+                    toolName: 'create-metrics',
+                    input: state.parsedArgs || input,
+                  },
+                ],
+              };
+
+              await updateMessageEntries({
+                messageId: context.messageId,
+                reasoningEntry,
+                responseEntry,
+                rawLlmMessage,
+                mode: 'update',
+              });
+
+              console.info('[create-metrics] Updated last entries with final results', {
+                messageId: context.messageId,
+                successCount: typedResult.files?.length || 0,
+                failedCount: typedResult.failed_files?.length || 0,
+              });
+            } catch (error) {
+              console.error('[create-metrics] Error updating final entries:', error);
+              // Don't throw - return the result anyway
+            }
+          }
+        }
+
+        const executionTime = Date.now() - startTime;
+        console.info('[create-metrics] Execution completed', {
+          executionTime: `${executionTime}ms`,
+          filesCreated: result?.files?.length || 0,
+          filesFailed: result?.failed_files?.length || 0,
+        });
+
+        return result as CreateMetricsOutput;
+      } catch (error) {
+        const executionTime = Date.now() - startTime;
+        console.error('[create-metrics] Execution failed', {
+          error,
+          executionTime: `${executionTime}ms`,
+        });
+
+        // Update last entries with failure status if possible
+        if (context.messageId) {
+          try {
+            const toolCallId = state.toolCallId || `tool-${Date.now()}`;
+            const reasoningEntry = createMetricsReasoningMessage(
+              toolCallId,
+              (state.files ?? []).map((f) => ({ ...f, status: 'failed' })),
+              'failed'
+            );
+            const rawLlmMessage: ModelMessage = {
+              role: 'assistant',
+              content: [
+                {
+                  type: 'tool-call',
+                  toolCallId,
+                  toolName: 'create-metrics',
+                  input: state.parsedArgs || {},
+                },
+              ],
+            };
+
+            await updateMessageEntries({
+              messageId: context.messageId,
+              reasoningEntry,
+              rawLlmMessage,
+              mode: 'update',
+            });
+          } catch (updateError) {
+            console.error('[create-metrics] Error updating entries on failure:', updateError);
+          }
+        }
+
+        throw error;
+      }
     },
     { name: 'create-metrics-execute' }
   );

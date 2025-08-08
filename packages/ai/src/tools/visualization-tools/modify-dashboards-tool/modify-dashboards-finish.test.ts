@@ -1,14 +1,18 @@
-import { updateMessageFields } from '@buster/database';
+import { updateMessageEntries } from '@buster/database';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createModifyDashboardsFinish } from './modify-dashboards-finish';
 import type {
-  ModifyDashboardsAgentContext,
+  ModifyDashboardsContext,
   ModifyDashboardsInput,
   ModifyDashboardsState,
 } from './modify-dashboards-tool';
 
 vi.mock('@buster/database', () => ({
-  updateMessageFields: vi.fn(),
+  updateMessageEntries: vi.fn(),
+}));
+
+vi.mock('braintrust', () => ({
+  wrapTraced: (fn: unknown, _options?: unknown) => fn,
 }));
 
 describe('modify-dashboards-finish', () => {
@@ -19,7 +23,7 @@ describe('modify-dashboards-finish', () => {
   afterEach(() => {
     vi.clearAllMocks();
   });
-  const mockContext: ModifyDashboardsAgentContext = {
+  const mockContext: ModifyDashboardsContext = {
     userId: 'user-123',
     chatId: 'chat-123',
     dataSourceId: 'ds-123',
@@ -52,7 +56,7 @@ describe('modify-dashboards-finish', () => {
     });
   });
 
-  it('should update database when messageId and reasoningEntryId exist', async () => {
+  it('should update database when messageId and toolCallId exist', async () => {
     const contextWithMessageId = {
       ...mockContext,
       messageId: 'msg-123',
@@ -62,24 +66,37 @@ describe('modify-dashboards-finish', () => {
       argsText: '',
       files: [],
       messageId: 'msg-123',
-      reasoningEntryId: 'reasoning-123',
       toolCallId: 'tool-123',
     };
 
     const onInputAvailable = createModifyDashboardsFinish(contextWithMessageId, state);
     await onInputAvailable(mockInput);
 
-    expect(updateMessageFields).toHaveBeenCalledWith(
-      'msg-123',
+    expect(updateMessageEntries).toHaveBeenCalledWith(
       expect.objectContaining({
-        reasoning: expect.arrayContaining([
-          expect.objectContaining({
-            id: 'tool-123',
-            type: 'files',
-            status: 'loading',
-            file_ids: ['dash-1', 'dash-2'],
-          }),
-        ]),
+        messageId: 'msg-123',
+        reasoningEntry: expect.objectContaining({
+          id: 'tool-123',
+          type: 'files',
+          status: 'loading',
+          file_ids: ['dash-1', 'dash-2'],
+        }),
+        responseEntry: expect.objectContaining({
+          id: 'tool-123',
+          type: 'text',
+          message: 'Processing dashboard modifications...',
+        }),
+        rawLlmMessage: expect.objectContaining({
+          role: 'assistant',
+          content: expect.arrayContaining([
+            expect.objectContaining({
+              type: 'tool-call',
+              toolCallId: 'tool-123',
+              toolName: 'modify-dashboards',
+            }),
+          ]),
+        }),
+        mode: 'update',
       })
     );
   });
@@ -88,16 +105,16 @@ describe('modify-dashboards-finish', () => {
     const state: ModifyDashboardsState = {
       argsText: '',
       files: [],
-      reasoningEntryId: 'reasoning-123',
+      toolCallId: 'tool-123',
     };
 
     const onInputAvailable = createModifyDashboardsFinish(mockContext, state);
     await onInputAvailable(mockInput);
 
-    expect(updateMessageFields).not.toHaveBeenCalled();
+    expect(updateMessageEntries).not.toHaveBeenCalled();
   });
 
-  it('should not update database when reasoningEntryId is missing', async () => {
+  it('should not update database when toolCallId is missing', async () => {
     const contextWithMessageId = {
       ...mockContext,
       messageId: 'msg-123',
@@ -112,7 +129,7 @@ describe('modify-dashboards-finish', () => {
     const onInputAvailable = createModifyDashboardsFinish(contextWithMessageId, state);
     await onInputAvailable(mockInput);
 
-    expect(updateMessageFields).not.toHaveBeenCalled();
+    expect(updateMessageEntries).not.toHaveBeenCalled();
   });
 
   it('should handle database update errors gracefully', async () => {
@@ -125,11 +142,10 @@ describe('modify-dashboards-finish', () => {
       argsText: '',
       files: [],
       messageId: 'msg-123',
-      reasoningEntryId: 'reasoning-123',
       toolCallId: 'tool-123',
     };
 
-    vi.mocked(updateMessageFields).mockRejectedValueOnce(new Error('DB Error'));
+    vi.mocked(updateMessageEntries).mockRejectedValueOnce(new Error('DB Error'));
 
     const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
@@ -147,27 +163,7 @@ describe('modify-dashboards-finish', () => {
     consoleSpy.mockRestore();
   });
 
-  it('should log processing duration when processingStartTime exists', async () => {
-    const state: ModifyDashboardsState = {
-      argsText: '',
-      files: [],
-      processingStartTime: Date.now() - 1000,
-    };
-
-    const consoleSpy = vi.spyOn(console, 'info');
-
-    const onInputAvailable = createModifyDashboardsFinish(mockContext, state);
-    await onInputAvailable(mockInput);
-
-    expect(consoleSpy).toHaveBeenCalledWith(
-      '[modify-dashboards] Input processing duration',
-      expect.objectContaining({
-        duration: expect.any(Number),
-      })
-    );
-  });
-
-  it('should handle empty input files', async () => {
+  it('should handle empty files', async () => {
     const state: ModifyDashboardsState = {
       argsText: '',
       files: [],
@@ -180,36 +176,29 @@ describe('modify-dashboards-finish', () => {
     const onInputAvailable = createModifyDashboardsFinish(mockContext, state);
     await onInputAvailable(emptyInput);
 
-    expect(state.files).toHaveLength(0);
     expect(state.parsedArgs).toEqual(emptyInput);
+    expect(state.files).toHaveLength(0);
   });
 
-  it('should generate toolCallId if not present', async () => {
-    const contextWithMessageId = {
-      ...mockContext,
-      messageId: 'msg-123',
-    };
-
+  it('should log processing duration when processingStartTime is available', async () => {
     const state: ModifyDashboardsState = {
       argsText: '',
       files: [],
-      messageId: 'msg-123',
-      reasoningEntryId: 'reasoning-123',
-      // No toolCallId
+      processingStartTime: Date.now() - 1000, // 1 second ago
     };
 
-    const onInputAvailable = createModifyDashboardsFinish(contextWithMessageId, state);
+    const consoleSpy = vi.spyOn(console, 'info').mockImplementation(() => {});
+
+    const onInputAvailable = createModifyDashboardsFinish(mockContext, state);
     await onInputAvailable(mockInput);
 
-    expect(updateMessageFields).toHaveBeenCalledWith(
-      'msg-123',
+    expect(consoleSpy).toHaveBeenCalledWith(
+      '[modify-dashboards] Input processing duration',
       expect.objectContaining({
-        reasoning: expect.arrayContaining([
-          expect.objectContaining({
-            id: expect.stringContaining('modify-dashboards-'),
-          }),
-        ]),
+        duration: expect.any(Number),
       })
     );
+
+    consoleSpy.mockRestore();
   });
 });

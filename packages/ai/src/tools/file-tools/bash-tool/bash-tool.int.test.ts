@@ -33,16 +33,19 @@ describe.sequential('bash-tool integration test', () => {
       sandbox: sharedSandbox,
     });
 
-    const result = await bashTool.execute({
-      commands: [
-        {
-          command: `mkdir -p /tmp/${testDir} && cd /tmp/${testDir} && pwd`,
-          description: 'Create test dir and print working directory',
-        },
-        { command: `cd /tmp/${testDir} && echo "Hello from sandbox"`, description: 'Echo test' },
-        { command: `cd /tmp/${testDir} && ls -la`, description: 'List files', timeout: 5000 },
-      ],
-    });
+    const result = await bashTool.execute!(
+      {
+        commands: [
+          {
+            command: `mkdir -p /tmp/${testDir} && cd /tmp/${testDir} && pwd`,
+            description: 'Create test dir and print working directory',
+          },
+          { command: `cd /tmp/${testDir} && echo "Hello from sandbox"`, description: 'Echo test' },
+          { command: `cd /tmp/${testDir} && ls -la`, description: 'List files', timeout: 5000 },
+        ],
+      },
+      { abortSignal: new AbortController().signal }
+    );
 
     expect(result.results).toHaveLength(3);
 
@@ -80,15 +83,18 @@ describe.sequential('bash-tool integration test', () => {
       sandbox: sharedSandbox,
     });
 
-    const result = await bashTool.execute({
-      commands: [
-        {
-          command: `mkdir -p /tmp/${testDir} && cd /tmp/${testDir} && nonexistentcommand`,
-          description: 'Should fail',
-        },
-        { command: `cd /tmp/${testDir} && exit 1`, description: 'Exit with error code' },
-      ],
-    });
+    const result = await bashTool.execute!(
+      {
+        commands: [
+          {
+            command: `mkdir -p /tmp/${testDir} && cd /tmp/${testDir} && nonexistentcommand`,
+            description: 'Should fail',
+          },
+          { command: `cd /tmp/${testDir} && exit 1`, description: 'Exit with error code' },
+        ],
+      },
+      { abortSignal: new AbortController().signal }
+    );
 
     expect(result.results).toHaveLength(2);
 
@@ -117,20 +123,23 @@ describe.sequential('bash-tool integration test', () => {
     });
 
     const testFile = `test-bash-${Date.now()}.txt`;
-    const result = await bashTool.execute({
-      commands: [
-        {
-          command: `echo "test content" > ${testFile}`,
-          description: 'Create file',
-        },
-        { command: `cat ${testFile}`, description: 'Read file' },
-        { command: `rm ${testFile}`, description: 'Remove file' },
-        {
-          command: `cat ${testFile}`,
-          description: 'Try to read removed file',
-        },
-      ],
-    });
+    const result = await bashTool.execute!(
+      {
+        commands: [
+          {
+            command: `echo "test content" > ${testFile}`,
+            description: 'Create file',
+          },
+          { command: `cat ${testFile}`, description: 'Read file' },
+          { command: `rm ${testFile}`, description: 'Remove file' },
+          {
+            command: `cat ${testFile}`,
+            description: 'Try to read removed file',
+          },
+        ],
+      },
+      { abortSignal: new AbortController().signal }
+    );
 
     expect(result.results).toHaveLength(4);
 
@@ -161,15 +170,18 @@ describe.sequential('bash-tool integration test', () => {
       sandbox: sharedSandbox,
     });
 
-    const result = await bashTool.execute({
-      commands: [
-        {
-          command: `mkdir -p ${testDir} && cd ${testDir} && sleep 2 && echo "completed"`,
-          description: 'Should timeout',
-          timeout: 1000,
-        },
-      ],
-    });
+    const result = await bashTool.execute!(
+      {
+        commands: [
+          {
+            command: `mkdir -p ${testDir} && cd ${testDir} && sleep 2 && echo "completed"`,
+            description: 'Should timeout',
+            timeout: 1000,
+          },
+        ],
+      },
+      { abortSignal: new AbortController().signal }
+    );
 
     expect(result.results).toHaveLength(1);
     expect(result.results[0]?.success).toBe(false);

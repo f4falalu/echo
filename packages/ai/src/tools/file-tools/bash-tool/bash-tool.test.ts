@@ -16,7 +16,7 @@ describe('createBashTool', () => {
     process: {
       executeCommand: vi.fn(),
     },
-  };
+  } as any;
 
   const mockContext = {
     messageId: 'test-message-id',
@@ -48,14 +48,17 @@ describe('createBashTool', () => {
 
     const bashTool = createBashTool(mockContext);
 
-    const result = await bashTool.execute({
-      commands: [
-        {
-          command: 'echo "Hello World"',
-          description: 'Test echo command',
-        },
-      ],
-    });
+    const result = await bashTool.execute!(
+      {
+        commands: [
+          {
+            command: 'echo "Hello World"',
+            description: 'Test echo command',
+          },
+        ],
+      },
+      { abortSignal: new AbortController().signal }
+    );
 
     expect(result.results).toHaveLength(1);
     expect(result.results[0]).toMatchObject({
@@ -74,14 +77,17 @@ describe('createBashTool', () => {
 
     const bashTool = createBashTool(mockContext);
 
-    const result = await bashTool.execute({
-      commands: [
-        {
-          command: 'nonexistentcommand',
-          description: 'Test failing command',
-        },
-      ],
-    });
+    const result = await bashTool.execute!(
+      {
+        commands: [
+          {
+            command: 'nonexistentcommand',
+            description: 'Test failing command',
+          },
+        ],
+      },
+      { abortSignal: new AbortController().signal }
+    );
 
     expect(result.results).toHaveLength(1);
     expect(result.results[0]).toMatchObject({
@@ -106,18 +112,21 @@ describe('createBashTool', () => {
 
     const bashTool = createBashTool(mockContext);
 
-    const result = await bashTool.execute({
-      commands: [
-        {
-          command: 'pwd',
-          description: 'Print working directory',
-        },
-        {
-          command: 'echo "Hello from test"',
-          description: 'Echo test message',
-        },
-      ],
-    });
+    const result = await bashTool.execute!(
+      {
+        commands: [
+          {
+            command: 'pwd',
+            description: 'Print working directory',
+          },
+          {
+            command: 'echo "Hello from test"',
+            description: 'Echo test message',
+          },
+        ],
+      },
+      { abortSignal: new AbortController().signal }
+    );
 
     expect(result.results).toHaveLength(2);
     expect(result.results[0]?.success).toBe(true);
@@ -130,14 +139,17 @@ describe('createBashTool', () => {
 
     const bashTool = createBashTool(mockContext);
 
-    const result = await bashTool.execute({
-      commands: [
-        {
-          command: 'echo "test"',
-          description: 'Test command',
-        },
-      ],
-    });
+    const result = await bashTool.execute!(
+      {
+        commands: [
+          {
+            command: 'echo "test"',
+            description: 'Test command',
+          },
+        ],
+      },
+      { abortSignal: new AbortController().signal }
+    );
 
     expect(result.results).toHaveLength(1);
     expect(result.results[0]).toMatchObject({
@@ -150,9 +162,12 @@ describe('createBashTool', () => {
   it('should handle empty commands array', async () => {
     const bashTool = createBashTool(mockContext);
 
-    const result = await bashTool.execute({
-      commands: [],
-    });
+    const result = await bashTool.execute!(
+      {
+        commands: [],
+      },
+      { abortSignal: new AbortController().signal }
+    );
 
     expect(result.results).toHaveLength(0);
     expect(mockSandbox.process.executeCommand).not.toHaveBeenCalled();

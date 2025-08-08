@@ -1,7 +1,7 @@
 import type { LanguageModelV2ToolCall } from '@ai-sdk/provider';
 import { generateObject } from 'ai';
 import { type InvalidToolInputError, NoSuchToolError, type ToolSet } from 'ai';
-import { Haiku35 } from '../../models/haiku-3-5';
+import { Haiku35 } from '../../llm/haiku-3-5';
 
 interface ToolCallWithArgs extends LanguageModelV2ToolCall {
   args?: unknown;

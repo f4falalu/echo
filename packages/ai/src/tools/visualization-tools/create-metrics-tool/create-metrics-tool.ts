@@ -5,7 +5,6 @@ import { createCreateMetricsExecute } from './create-metrics-execute';
 import { createCreateMetricsFinish } from './create-metrics-finish';
 import { createCreateMetricsStart } from './create-metrics-start';
 
-// Input schema for the create metrics tool
 const CreateMetricsInputSchema = z.object({
   files: z
     .array(
@@ -28,7 +27,6 @@ const CreateMetricsInputSchema = z.object({
     ),
 });
 
-// Output schema for the create metrics tool
 const CreateMetricsOutputSchema = z.object({
   message: z.string(),
   duration: z.number(),
@@ -52,7 +50,6 @@ const CreateMetricsOutputSchema = z.object({
   ),
 });
 
-// Context schema for the create metrics tool
 const CreateMetricsContextSchema = z.object({
   userId: z.string().describe('The user ID'),
   chatId: z.string().describe('The chat ID'),
@@ -62,58 +59,42 @@ const CreateMetricsContextSchema = z.object({
   messageId: z.string().optional().describe('The message ID'),
 });
 
-// Export types
+const CreateMetricsFileSchema = z.object({
+  name: z.string(),
+  yml_content: z.string(),
+  status: z.enum(['processing', 'completed', 'failed']).optional(),
+  id: z.string().optional(),
+  version: z.number().optional(),
+  error: z.string().optional(),
+});
+
+const CreateMetricsStateSchema = z.object({
+  toolCallId: z.string().optional(),
+  argsText: z.string().optional(),
+  parsedArgs: CreateMetricsInputSchema.optional(),
+  files: z.array(CreateMetricsFileSchema).optional(),
+});
+
 export type CreateMetricsInput = z.infer<typeof CreateMetricsInputSchema>;
 export type CreateMetricsOutput = z.infer<typeof CreateMetricsOutputSchema>;
 export type CreateMetricsContext = z.infer<typeof CreateMetricsContextSchema>;
+export type CreateMetricsFile = z.infer<typeof CreateMetricsFileSchema>;
+export type CreateMetricsState = z.infer<typeof CreateMetricsStateSchema>;
 
-// State management for streaming
-export interface CreateMetricsFile {
-  name: string;
-  yml_content: string;
-  status?: 'processing' | 'completed' | 'failed';
-  id?: string;
-  version?: number;
-  error?: string;
-}
-
-export interface CreateMetricsState {
-  toolCallId?: string;
-  argsText: string;
-  parsedArgs?: Partial<CreateMetricsInput>;
-  files: CreateMetricsFile[];
-  processingStartTime?: number;
-  messageId?: string | undefined;
-  reasoningEntryId?: string;
-  responseEntryId?: string;
-}
-
-// Type constraint for agent context - must have required fields
-export type CreateMetricsAgentContext = {
-  userId: string;
-  chatId: string;
-  dataSourceId: string;
-  dataSourceSyntax: string;
-  organizationId: string;
-  messageId?: string | undefined;
-};
-
-// Factory function that accepts agent context and maps to tool context
-export function createCreateMetricsTool<
-  TAgentContext extends CreateMetricsAgentContext = CreateMetricsAgentContext,
->(context: TAgentContext) {
+export function createCreateMetricsTool(context: CreateMetricsContext) {
   // Initialize state for streaming
   const state: CreateMetricsState = {
-    argsText: '',
-    files: [],
-    messageId: context.messageId,
+    argsText: undefined,
+    files: undefined,
+    parsedArgs: undefined,
+    toolCallId: undefined,
   };
 
   // Create all functions with the context and state passed
-  const execute = createCreateMetricsExecute<TAgentContext>(context, state);
-  const onInputStart = createCreateMetricsStart<TAgentContext>(context, state);
-  const onInputDelta = createCreateMetricsDelta<TAgentContext>(context, state);
-  const onInputAvailable = createCreateMetricsFinish<TAgentContext>(context, state);
+  const execute = createCreateMetricsExecute(context, state);
+  const onInputStart = createCreateMetricsStart(context, state);
+  const onInputDelta = createCreateMetricsDelta(context, state);
+  const onInputAvailable = createCreateMetricsFinish(context, state);
 
   // Get the description from the original tool
   const description = `**Create one or more metrics in Buster.** This tool generates new metrics files and automatically executes their SQL queries to verify validity and provide data previews.
@@ -1765,11 +1746,7 @@ Common errors:
 
   return tool({
     description,
-    inputSchema: CreateMetricsInputSchema,
-    outputSchema: CreateMetricsOutputSchema,
+    parameters: CreateMetricsInputSchema,
     execute,
-    onInputStart,
-    onInputDelta,
-    onInputAvailable,
-  });
+  } as any);
 }

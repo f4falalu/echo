@@ -1,11 +1,12 @@
-import { updateMessageFields } from '@buster/database';
+import { updateMessageEntries } from '@buster/database';
+import type { ToolCallOptions } from 'ai';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { createCreateMetricsStart } from './create-metrics-start';
-import type { CreateMetricsInput, CreateMetricsState } from './create-metrics-tool';
+import type { CreateMetricsState } from './create-metrics-tool';
 
 // Mock the database module
 vi.mock('@buster/database', () => ({
-  updateMessageFields: vi.fn(),
+  updateMessageEntries: vi.fn(),
 }));
 
 describe('createCreateMetricsStart', () => {
@@ -23,146 +24,102 @@ describe('createCreateMetricsStart', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     state = {
-      argsText: '',
-      files: [],
-      messageId: mockContext.messageId,
+      argsText: undefined,
+      files: undefined,
+      parsedArgs: undefined,
+      toolCallId: undefined,
     };
   });
 
   it('should initialize state when input is provided', async () => {
-    const input: CreateMetricsInput = {
-      files: [
-        { name: 'metric1', yml_content: 'content1' },
-        { name: 'metric2', yml_content: 'content2' },
-      ],
+    const options: ToolCallOptions = {
+      toolCallId: 'tool-123',
     };
 
     const handler = createCreateMetricsStart(mockContext, state);
-    await handler(input);
+    await handler(options);
 
     // Check state was initialized
-    expect(state.processingStartTime).toBeDefined();
-    expect(state.toolCallId).toBeDefined();
-    expect(state.toolCallId).toMatch(/^create-metrics-\d+-/);
-    expect(state.files).toHaveLength(2);
-    expect(state.files[0]).toEqual({
-      name: 'metric1',
-      yml_content: 'content1',
-      status: 'processing',
-    });
+    expect(state.toolCallId).toBe('tool-123');
   });
 
-  it('should create database entries when messageId exists', async () => {
-    const input: CreateMetricsInput = {
-      files: [{ name: 'metric1', yml_content: 'content1' }],
+  it('should create database entries when messageId is present', async () => {
+    const options: ToolCallOptions = {
+      toolCallId: 'tool-456',
     };
 
     const handler = createCreateMetricsStart(mockContext, state);
-    await handler(input);
+    await handler(options);
 
     // Check database was updated
-    expect(updateMessageFields).toHaveBeenCalledTimes(1);
-    expect(updateMessageFields).toHaveBeenCalledWith(
-      'msg-xyz',
+    expect(updateMessageEntries).toHaveBeenCalledTimes(1);
+    expect(updateMessageEntries).toHaveBeenCalledWith(
       expect.objectContaining({
-        rawLlmMessages: expect.any(Array),
-        reasoning: expect.any(Array),
+        messageId: 'msg-xyz',
+        responseEntry: expect.any(Object),
+        mode: 'append',
       })
     );
 
-    // Check reasoning entry was created
-    expect(state.reasoningEntryId).toBeDefined();
+    // Check state was updated
+    expect(state.toolCallId).toBe('tool-456');
   });
 
-  it('should handle context without messageId', async () => {
-    const contextWithoutMessageId = {
-      ...mockContext,
-      messageId: undefined,
-    };
-    const stateWithoutMessageId: CreateMetricsState = {
-      argsText: '',
-      files: [],
-      messageId: undefined,
+  it('should work without messageId', async () => {
+    const contextWithoutMessageId = { ...mockContext, messageId: undefined };
+
+    const options: ToolCallOptions = {
+      toolCallId: 'tool-789',
     };
 
-    const input: CreateMetricsInput = {
-      files: [{ name: 'metric1', yml_content: 'content1' }],
-    };
+    const handler = createCreateMetricsStart(contextWithoutMessageId, state);
+    await handler(options);
 
-    const handler = createCreateMetricsStart(contextWithoutMessageId, stateWithoutMessageId);
-    await handler(input);
-
-    // Should not update database
-    expect(updateMessageFields).not.toHaveBeenCalled();
-    expect(stateWithoutMessageId.reasoningEntryId).toBeUndefined();
-
-    // But should still initialize state
-    expect(stateWithoutMessageId.files).toHaveLength(1);
-    expect(stateWithoutMessageId.toolCallId).toBeDefined();
+    // Should not call database
+    expect(updateMessageEntries).not.toHaveBeenCalled();
+    expect(state.toolCallId).toBe('tool-789');
   });
 
   it('should handle database update errors gracefully', async () => {
-    const error = new Error('Database error');
-    vi.mocked(updateMessageFields).mockRejectedValue(error);
+    vi.mocked(updateMessageEntries).mockRejectedValue(new Error('Database error'));
 
     const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
-    const input: CreateMetricsInput = {
-      files: [{ name: 'metric1', yml_content: 'content1' }],
+    const options: ToolCallOptions = {
+      toolCallId: 'tool-error',
     };
 
     const handler = createCreateMetricsStart(mockContext, state);
-    await handler(input);
+    await handler(options);
 
     // Should log error but not throw
     expect(consoleErrorSpy).toHaveBeenCalledWith(
-      '[create-metrics] Failed to create initial database entries',
-      expect.objectContaining({
-        messageId: 'msg-xyz',
-        error: 'Database error',
-      })
+      '[create-metrics] Error creating initial database entries:',
+      expect.any(Error)
     );
-
-    // State should still be initialized
-    expect(state.files).toHaveLength(1);
 
     consoleErrorSpy.mockRestore();
   });
 
   it('should handle empty files array', async () => {
-    const input: CreateMetricsInput = {
-      files: [],
+    const options: ToolCallOptions = {
+      toolCallId: 'tool-empty',
     };
 
     const handler = createCreateMetricsStart(mockContext, state);
-    await handler(input);
+    await handler(options);
 
-    expect(state.files).toHaveLength(0);
-    expect(state.toolCallId).toBeDefined();
+    expect(state.toolCallId).toBe('tool-empty');
   });
 
-  it('should log start information', async () => {
-    const consoleInfoSpy = vi.spyOn(console, 'info').mockImplementation(() => {});
-
-    const input: CreateMetricsInput = {
-      files: [
-        { name: 'metric1', yml_content: 'content1' },
-        { name: 'metric2', yml_content: 'content2' },
-      ],
+  it('should not throw on any input', async () => {
+    const options: ToolCallOptions = {
+      toolCallId: 'tool-test',
     };
 
     const handler = createCreateMetricsStart(mockContext, state);
-    await handler(input);
 
-    expect(consoleInfoSpy).toHaveBeenCalledWith(
-      '[create-metrics] Starting metric creation',
-      expect.objectContaining({
-        fileCount: 2,
-        messageId: 'msg-xyz',
-        timestamp: expect.any(String),
-      })
-    );
-
-    consoleInfoSpy.mockRestore();
+    // Should not throw
+    await expect(handler(options)).resolves.not.toThrow();
   });
 });

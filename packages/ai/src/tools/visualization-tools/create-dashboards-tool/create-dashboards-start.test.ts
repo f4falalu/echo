@@ -1,17 +1,18 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { createCreateDashboardsStart } from './create-dashboards-start';
 import type {
-  CreateDashboardsAgentContext,
+  CreateDashboardsContext,
   CreateDashboardsInput,
   CreateDashboardsState,
 } from './create-dashboards-tool';
 
 vi.mock('@buster/database', () => ({
   insertMessageReasoning: vi.fn(),
+  updateMessageEntries: vi.fn(),
 }));
 
 describe('createCreateDashboardsStart', () => {
-  let context: CreateDashboardsAgentContext;
+  let context: CreateDashboardsContext;
   let state: CreateDashboardsState;
   let insertMessageReasoning: ReturnType<typeof vi.fn>;
 
@@ -31,112 +32,75 @@ describe('createCreateDashboardsStart', () => {
     state = {
       argsText: '',
       files: [],
-      messageId: 'msg-1',
+      parsedArgs: undefined,
+      toolCallId: undefined,
     };
   });
 
   it('should initialize state with processing start time and tool call ID', async () => {
-    const input: CreateDashboardsInput = {
-      files: [{ name: 'Dashboard 1', yml_content: 'content1' }],
-    };
-
     const handler = createCreateDashboardsStart(context, state);
-    await handler(input);
+    await handler({ toolCallId: 'test-tool-id' });
 
-    expect(state.processingStartTime).toBeDefined();
     expect(state.toolCallId).toBeDefined();
-    expect(state.toolCallId).toMatch(/^tool-\d+-\w+$/);
+    expect(state.toolCallId).toBe('test-tool-id');
+    // toolCallId is set from options.toolCallId which is provided by the AI SDK
   });
 
   it('should create initial reasoning entry when messageId exists', async () => {
-    insertMessageReasoning.mockResolvedValue({ id: 'reasoning-1' });
-
-    const input: CreateDashboardsInput = {
-      files: [{ name: 'Dashboard 1', yml_content: 'content1' }],
-    };
+    const { updateMessageEntries } = await import('@buster/database');
+    const updateMock = vi.mocked(updateMessageEntries);
 
     const handler = createCreateDashboardsStart(context, state);
-    await handler(input);
+    await handler({ toolCallId: 'test-tool-id' });
 
-    expect(insertMessageReasoning).toHaveBeenCalledWith(
-      'msg-1',
-      expect.objectContaining({
-        type: 'files',
-        title: 'Building new dashboards...',
-        status: 'loading',
-        file_ids: [],
-        files: {},
-      })
-    );
-
-    expect(state.reasoningEntryId).toBe('reasoning-1');
+    expect(updateMock).toHaveBeenCalled();
+    expect(state.toolCallId).toBe('test-tool-id');
   });
 
   it('should not create reasoning entry when messageId is undefined', async () => {
+    const { updateMessageEntries } = await import('@buster/database');
+    const updateMock = vi.mocked(updateMessageEntries);
     const contextWithoutMessageId = { ...context, messageId: undefined };
-    const stateWithoutMessageId = { ...state, messageId: undefined };
 
-    const input: CreateDashboardsInput = {
-      files: [{ name: 'Dashboard 1', yml_content: 'content1' }],
-    };
+    const handler = createCreateDashboardsStart(contextWithoutMessageId, state);
+    await handler({ toolCallId: 'test-tool-id' });
 
-    const handler = createCreateDashboardsStart(contextWithoutMessageId, stateWithoutMessageId);
-    await handler(input);
-
-    expect(insertMessageReasoning).not.toHaveBeenCalled();
-    expect(stateWithoutMessageId.reasoningEntryId).toBeUndefined();
+    expect(updateMock).not.toHaveBeenCalled();
   });
 
   it('should handle database errors gracefully', async () => {
-    insertMessageReasoning.mockRejectedValue(new Error('Database error'));
-
-    const input: CreateDashboardsInput = {
-      files: [{ name: 'Dashboard 1', yml_content: 'content1' }],
-    };
+    const { updateMessageEntries } = await import('@buster/database');
+    const updateMock = vi.mocked(updateMessageEntries);
+    updateMock.mockRejectedValue(new Error('Database error'));
 
     const handler = createCreateDashboardsStart(context, state);
 
     // Should not throw
-    await expect(handler(input)).resolves.not.toThrow();
+    await expect(handler({ toolCallId: 'test-tool-id' })).resolves.not.toThrow();
 
     // State should still be initialized
-    expect(state.processingStartTime).toBeDefined();
-    expect(state.toolCallId).toBeDefined();
-    // But reasoningEntryId should not be set due to error
-    expect(state.reasoningEntryId).toBeUndefined();
+    expect(state.toolCallId).toBe('test-tool-id');
   });
 
   it('should handle empty files array', async () => {
-    insertMessageReasoning.mockResolvedValue({ id: 'reasoning-1' });
-
-    const input: CreateDashboardsInput = {
-      files: [],
-    };
+    const { updateMessageEntries } = await import('@buster/database');
+    const updateMock = vi.mocked(updateMessageEntries);
 
     const handler = createCreateDashboardsStart(context, state);
-    await handler(input);
+    await handler({ toolCallId: 'test-tool-id' });
 
-    expect(state.processingStartTime).toBeDefined();
-    expect(state.toolCallId).toBeDefined();
-    expect(insertMessageReasoning).toHaveBeenCalled();
+    expect(state.toolCallId).toBe('test-tool-id');
+    expect(updateMock).toHaveBeenCalled();
   });
 
   it('should handle multiple files', async () => {
-    insertMessageReasoning.mockResolvedValue({ id: 'reasoning-1' });
-
-    const input: CreateDashboardsInput = {
-      files: [
-        { name: 'Dashboard 1', yml_content: 'content1' },
-        { name: 'Dashboard 2', yml_content: 'content2' },
-        { name: 'Dashboard 3', yml_content: 'content3' },
-      ],
-    };
+    const { updateMessageEntries } = await import('@buster/database');
+    const updateMock = vi.mocked(updateMessageEntries);
 
     const handler = createCreateDashboardsStart(context, state);
-    await handler(input);
+    await handler({ toolCallId: 'test-tool-id' });
 
-    expect(state.processingStartTime).toBeDefined();
-    expect(state.toolCallId).toBeDefined();
-    expect(state.reasoningEntryId).toBe('reasoning-1');
+    expect(state.toolCallId).toBe('test-tool-id');
+    expect(updateMock).toHaveBeenCalled();
   });
 });

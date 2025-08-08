@@ -39,7 +39,7 @@ export function createMetricsReasoningMessage(
       file: {
         text: file.yml_content,
       },
-      ...(file.error && { error: file.error }),
+      ...(file.error ? { error: file.error } : {}),
     };
   });
 

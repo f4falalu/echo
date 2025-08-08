@@ -6,19 +6,13 @@ export { createThinkAndPrepAgent } from './agents/think-and-prep-agent/think-and
 export {
   default as analystWorkflow,
   type AnalystAgentContext,
-} from './workflows/analyst-workflow';
-
-// Export schemas
-export {
-  type DashboardFileContext,
-  DashboardFileContextSchema,
-} from './schemas/workflow-schemas';
+} from './workflows/analyst-agent-workflow/analyst-workflow';
 
 // Export chat history utilities
 export {
   getChatHistory,
   getRawLlmMessages,
   getRawLlmMessagesByMessageId,
-} from './steps/get-chat-history';
+} from './steps/analyst-agent-steps/get-chat-history';
 
 export type { ModelMessage } from 'ai';

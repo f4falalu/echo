@@ -1,10 +1,11 @@
-import { updateMessageFields } from '@buster/database';
+import { updateMessageEntries } from '@buster/database';
+import type { ChatMessageReasoningMessage } from '@buster/server-shared/chats';
 import {
   OptimisticJsonParser,
   getOptimisticValue,
 } from '../../../utils/streaming/optimistic-json-parser';
 import type {
-  CreateMetricsAgentContext,
+  CreateMetricsContext,
   CreateMetricsInput,
   CreateMetricsState,
 } from './create-metrics-tool';
@@ -15,22 +16,25 @@ import {
 } from './helpers/create-metrics-transform-helper';
 
 // Factory function for onInputDelta callback
-export function createCreateMetricsDelta<
-  TAgentContext extends CreateMetricsAgentContext = CreateMetricsAgentContext,
->(context: TAgentContext, state: CreateMetricsState) {
+export function createCreateMetricsDelta(context: CreateMetricsContext, state: CreateMetricsState) {
   return async (delta: string | Partial<CreateMetricsInput>) => {
     const messageId = context.messageId;
 
+    // Initialize files array if not already initialized
+    if (!state.files) {
+      state.files = [];
+    }
+
     // Handle string deltas (streaming JSON)
     if (typeof delta === 'string') {
-      state.argsText += delta;
+      state.argsText = (state.argsText || '') + delta;
 
       // Use optimistic parsing to extract values even from incomplete JSON
       const parseResult = OptimisticJsonParser.parse(state.argsText);
 
       // Update parsed args
       if (parseResult.parsed) {
-        state.parsedArgs = parseResult.parsed as Partial<CreateMetricsInput>;
+        state.parsedArgs = parseResult.parsed as CreateMetricsInput;
       }
 
       // Extract files array from optimistic parsing
@@ -54,21 +58,21 @@ export function createCreateMetricsDelta<
               const ymlContent = file[CREATE_METRICS_KEYS.yml_content] as string;
 
               // Check if file already exists in state
-              if (state.files[index]) {
+              if (state.files![index]) {
                 // Update existing file
-                state.files[index].name = name;
-                state.files[index].yml_content = ymlContent;
+                state.files![index].name = name;
+                state.files![index].yml_content = ymlContent;
               } else {
                 // Add new file
-                state.files[index] = {
+                state.files![index] = {
                   name,
                   yml_content: ymlContent,
                   status: 'processing',
                 };
               }
-            } else if (hasName && !state.files[index]) {
+            } else if (hasName && !state.files![index]) {
               // Add placeholder with just name
-              state.files[index] = {
+              state.files![index] = {
                 name: file[CREATE_METRICS_KEYS.name] as string,
                 yml_content: '',
                 status: 'processing',
@@ -78,11 +82,11 @@ export function createCreateMetricsDelta<
         });
 
         // Update database with progress if we have a messageId
-        if (messageId && state.reasoningEntryId) {
+        if (messageId) {
           try {
             // Create updated reasoning entry
             const reasoningEntry = createMetricsReasoningMessage(
-              state.toolCallId || `create-metrics-${Date.now()}`,
+              state.toolCallId || `tool-${Date.now()}`,
               state.files.filter((f) => f), // Filter out any undefined entries
               'loading'
             );
@@ -97,9 +101,11 @@ export function createCreateMetricsDelta<
               processedCount: state.files.filter((f) => f?.yml_content).length,
             });
 
-            // Update database with append mode for streaming
-            await updateMessageFields(messageId, {
-              reasoning: [reasoningEntry], // This will update the existing entry with the same ID
+            // Update database with streaming progress
+            await updateMessageEntries({
+              messageId,
+              reasoningEntry: reasoningEntry as ChatMessageReasoningMessage,
+              mode: 'update',
             });
           } catch (error) {
             console.error('[create-metrics] Failed to update streaming progress', {
@@ -112,7 +118,7 @@ export function createCreateMetricsDelta<
     } else {
       // Handle object deltas (complete input)
       if (delta.files) {
-        state.parsedArgs = delta;
+        state.parsedArgs = delta as CreateMetricsInput;
         state.files = delta.files.map((file) => ({
           name: file.name,
           yml_content: file.yml_content,

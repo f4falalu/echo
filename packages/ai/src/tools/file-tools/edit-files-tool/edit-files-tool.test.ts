@@ -4,7 +4,7 @@ import * as path from 'node:path';
 import type { Sandbox } from '@buster/sandbox';
 import { runTypescript } from '@buster/sandbox';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { createMockSandbox } from '../../../workflows/docs-agent/test-helpers/mock-sandbox';
+import { createMockSandbox } from '../../../workflows/docs-agent-workflow/test-helpers/mock-sandbox';
 import { createEditFilesTool } from './edit-files-tool';
 
 // Mock the database function

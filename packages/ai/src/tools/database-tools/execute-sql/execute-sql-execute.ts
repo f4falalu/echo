@@ -1,7 +1,7 @@
 import { type DataSource, withRateLimit } from '@buster/data-source';
 import { updateMessageEntries } from '@buster/database';
 import { wrapTraced } from 'braintrust';
-import { getWorkflowDataSourceManager } from '../../../utils/data-source-manager';
+import { getDataSource } from '../../../utils/get-data-source';
 import {
   createPermissionErrorMessage,
   validateSqlPermissions,
@@ -258,21 +258,19 @@ export function createExecuteSqlExecute(state: ExecuteSqlState, context: Execute
 
       const dataSourceId = context.dataSourceId;
 
-      // Generate a unique workflow ID using start time and data source
-      const workflowId = `workflow-${Date.now()}-${dataSourceId}`;
-
-      // Get data source from workflow manager (reuses existing connections)
-      const manager = getWorkflowDataSourceManager(workflowId);
+      let dataSource: DataSource | null = null;
 
       try {
-        const dataSource = await manager.getDataSource(dataSourceId);
+        // Get a new DataSource instance
+        const ds = await getDataSource(dataSourceId);
+        dataSource = ds;
 
         // Execute SQL statements with rate limiting
         const executionPromises = statements.map((sqlStatement) =>
           withRateLimit(
             'sql-execution',
             async () => {
-              const result = await executeSingleStatement(sqlStatement, dataSource, context);
+              const result = await executeSingleStatement(sqlStatement, ds, context);
               return { sql: sqlStatement, result };
             },
             {
@@ -357,8 +355,16 @@ export function createExecuteSqlExecute(state: ExecuteSqlState, context: Execute
             error_message: `Unable to connect to your data source. Please check that it's properly configured and accessible.`,
           })),
         };
+      } finally {
+        // Always close the data source to clean up connections
+        if (dataSource) {
+          try {
+            await dataSource.close();
+          } catch (closeError) {
+            console.warn('[execute-sql] Error closing data source:', closeError);
+          }
+        }
       }
-      // Note: We don't close the data source here anymore - it's managed by the workflow manager
     },
     { name: 'execute-sql' }
   );

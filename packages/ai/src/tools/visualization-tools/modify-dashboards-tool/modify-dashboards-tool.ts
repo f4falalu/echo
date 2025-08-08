@@ -1,10 +1,19 @@
 import { tool } from 'ai';
 import { z } from 'zod';
-import type { ModifyDashboardsFile } from './helpers/modify-dashboards-transform-helper';
 import { createModifyDashboardsDelta } from './modify-dashboards-delta';
 import { createModifyDashboardsExecute } from './modify-dashboards-execute';
 import { createModifyDashboardsFinish } from './modify-dashboards-finish';
 import { createModifyDashboardsStart } from './modify-dashboards-start';
+
+// File structure for modify dashboards
+export interface ModifyDashboardsFile {
+  id: string;
+  name?: string;
+  yml_content: string;
+  status?: 'processing' | 'completed' | 'failed';
+  version?: number;
+  error?: string;
+}
 
 // State management for streaming
 export interface ModifyDashboardsState {
@@ -53,7 +62,7 @@ const ModifyDashboardsOutputSchema = z.object({
   ),
   failed_files: z.array(
     z.object({
-      file_name: z.string(),
+      id: z.string(),
       error: z.string(),
     })
   ),
@@ -74,20 +83,8 @@ export type ModifyDashboardsInput = z.infer<typeof ModifyDashboardsInputSchema>;
 export type ModifyDashboardsOutput = z.infer<typeof ModifyDashboardsOutputSchema>;
 export type ModifyDashboardsContext = z.infer<typeof ModifyDashboardsContextSchema>;
 
-// Type constraint for agent context - must have required fields
-export type ModifyDashboardsAgentContext = {
-  userId: string;
-  chatId: string;
-  dataSourceId: string;
-  dataSourceSyntax: string;
-  organizationId: string;
-  messageId?: string | undefined;
-};
-
 // Factory function that accepts agent context and maps to tool context
-export function createModifyDashboardsTool<
-  TAgentContext extends ModifyDashboardsAgentContext = ModifyDashboardsAgentContext,
->(context: TAgentContext) {
+export function createModifyDashboardsTool(context: ModifyDashboardsContext) {
   // Initialize state for streaming
   const state: ModifyDashboardsState = {
     argsText: '',
@@ -96,10 +93,10 @@ export function createModifyDashboardsTool<
   };
 
   // Create all functions with the context and state passed
-  const execute = createModifyDashboardsExecute<TAgentContext>(context, state);
-  const onInputStart = createModifyDashboardsStart<TAgentContext>(context, state);
-  const onInputDelta = createModifyDashboardsDelta<TAgentContext>(context, state);
-  const onInputAvailable = createModifyDashboardsFinish<TAgentContext>(context, state);
+  const execute = createModifyDashboardsExecute(context, state);
+  const onInputStart = createModifyDashboardsStart(context, state);
+  const onInputDelta = createModifyDashboardsDelta(context, state);
+  const onInputAvailable = createModifyDashboardsFinish(context, state);
 
   // Get the description from the original tool
   const description = `Updates existing dashboard configuration files with new YAML content. Provide the complete YAML content for each dashboard, replacing the entire existing file. This tool is ideal for bulk modifications when you need to update multiple dashboards simultaneously. The system will preserve version history and perform all necessary validations on the new content. For each dashboard, you need its UUID and the complete updated YAML content. **Prefer modifying dashboards in bulk using this tool rather than one by one.**

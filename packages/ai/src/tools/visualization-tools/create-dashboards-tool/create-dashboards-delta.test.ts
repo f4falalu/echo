@@ -1,12 +1,16 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { createCreateDashboardsDelta } from './create-dashboards-delta';
-import type { CreateDashboardsAgentContext, CreateDashboardsState } from './create-dashboards-tool';
+import type {
+  CreateDashboardsContext,
+  CreateDashboardsFile,
+  CreateDashboardsState,
+} from './create-dashboards-tool';
 
 vi.mock('@buster/database', () => ({
-  updateMessageReasoning: vi.fn(),
+  updateMessageEntries: vi.fn(),
 }));
 
-vi.mock('@buster/ai/utils/streaming', () => ({
+vi.mock('../../../utils/streaming/optimistic-json-parser', () => ({
   OptimisticJsonParser: {
     parse: vi.fn(),
   },
@@ -14,9 +18,9 @@ vi.mock('@buster/ai/utils/streaming', () => ({
 }));
 
 describe('createCreateDashboardsDelta', () => {
-  let context: CreateDashboardsAgentContext;
+  let context: CreateDashboardsContext;
   let state: CreateDashboardsState;
-  let updateMessageReasoning: ReturnType<typeof vi.fn>;
+  let updateMessageEntriesSpy: ReturnType<typeof vi.fn>;
   let OptimisticJsonParser: { parse: ReturnType<typeof vi.fn> };
   let getOptimisticValue: ReturnType<typeof vi.fn>;
 
@@ -24,10 +28,12 @@ describe('createCreateDashboardsDelta', () => {
     vi.clearAllMocks();
 
     const database = await import('@buster/database');
-    updateMessageReasoning = vi.mocked(database.updateMessageReasoning);
+    updateMessageEntriesSpy = vi.mocked(database.updateMessageEntries);
 
-    const streaming = await import('@buster/ai/utils/streaming');
-    OptimisticJsonParser = streaming.OptimisticJsonParser as any;
+    const streaming = await import('../../../utils/streaming/optimistic-json-parser');
+    OptimisticJsonParser = streaming.OptimisticJsonParser as unknown as {
+      parse: ReturnType<typeof vi.fn>;
+    };
     getOptimisticValue = vi.mocked(streaming.getOptimisticValue);
 
     context = {
@@ -42,29 +48,27 @@ describe('createCreateDashboardsDelta', () => {
     state = {
       argsText: '',
       files: [],
-      messageId: 'msg-1',
       toolCallId: 'tool-123',
-      reasoningEntryId: 'reasoning-1',
     };
   });
 
   describe('string delta handling', () => {
     it('should accumulate string deltas', async () => {
-      OptimisticJsonParser.parse.mockReturnValue({
+      vi.mocked(OptimisticJsonParser.parse).mockReturnValue({
         parsed: null,
         isComplete: false,
         extractedValues: new Map(),
       });
 
       const handler = createCreateDashboardsDelta(context, state);
-      await handler('{"files":[');
+      await handler({ inputTextDelta: '{"files":[', toolCallId: 'tool-123', messages: [] });
 
       expect(state.argsText).toBe('{"files":[');
       expect(OptimisticJsonParser.parse).toHaveBeenCalledWith('{"files":[');
     });
 
     it('should parse complete JSON and update files', async () => {
-      OptimisticJsonParser.parse.mockReturnValue({
+      vi.mocked(OptimisticJsonParser.parse).mockReturnValue({
         parsed: { files: [] },
         isComplete: true,
         extractedValues: new Map([['files', [{ name: 'Dashboard 1', yml_content: 'content1' }]]]),
@@ -78,10 +82,15 @@ describe('createCreateDashboardsDelta', () => {
       });
 
       const handler = createCreateDashboardsDelta(context, state);
-      await handler('{"files":[{"name":"Dashboard 1","yml_content":"content1"}]}');
+      await handler({
+        inputTextDelta: '{"files":[{"name":"Dashboard 1","yml_content":"content1"}]}',
+        toolCallId: 'tool-123',
+        messages: [],
+      });
 
-      expect(state.files).toHaveLength(1);
-      expect(state.files[0]).toEqual({
+      const filesAfterComplete = state.files ?? [];
+      expect(filesAfterComplete).toHaveLength(1);
+      expect(filesAfterComplete[0]).toEqual({
         name: 'Dashboard 1',
         yml_content: 'content1',
         status: 'processing',
@@ -89,7 +98,7 @@ describe('createCreateDashboardsDelta', () => {
     });
 
     it('should handle partial JSON with optimistic parsing', async () => {
-      OptimisticJsonParser.parse.mockReturnValue({
+      vi.mocked(OptimisticJsonParser.parse).mockReturnValue({
         parsed: { files: [{}] },
         isComplete: false,
         extractedValues: new Map([['files', [{ name: 'Partial' }]]]),
@@ -103,10 +112,14 @@ describe('createCreateDashboardsDelta', () => {
       });
 
       const handler = createCreateDashboardsDelta(context, state);
-      await handler('{"files":[{"name":"Partial"');
+      await handler({
+        inputTextDelta: '{"files":[{"name":"Partial"',
+        toolCallId: 'tool-123',
+        messages: [],
+      });
 
       // Should not add file without yml_content
-      expect(state.files).toHaveLength(0);
+      expect(state.files ?? []).toHaveLength(0);
     });
   });
 
@@ -114,19 +127,20 @@ describe('createCreateDashboardsDelta', () => {
     it('should handle object deltas with files', async () => {
       const handler = createCreateDashboardsDelta(context, state);
       await handler({
-        files: [
-          { name: 'Dashboard 1', yml_content: 'content1' },
-          { name: 'Dashboard 2', yml_content: 'content2' },
-        ],
+        inputTextDelta:
+          '{"files":[{"name":"Dashboard 1","yml_content":"content1"},{"name":"Dashboard 2","yml_content":"content2"}]}',
+        toolCallId: 'tool-123',
+        messages: [],
       });
 
-      expect(state.files).toHaveLength(2);
-      expect(state.files[0]).toEqual({
+      const filesTwo = state.files ?? [];
+      expect(filesTwo).toHaveLength(2);
+      expect(filesTwo[0]).toEqual({
         name: 'Dashboard 1',
         yml_content: 'content1',
         status: 'processing',
       });
-      expect(state.files[1]).toEqual({
+      expect(filesTwo[1]).toEqual({
         name: 'Dashboard 2',
         yml_content: 'content2',
         status: 'processing',
@@ -135,9 +149,9 @@ describe('createCreateDashboardsDelta', () => {
 
     it('should handle empty object delta', async () => {
       const handler = createCreateDashboardsDelta(context, state);
-      await handler({});
+      await handler({ inputTextDelta: '{}', toolCallId: 'tool-123', messages: [] });
 
-      expect(state.files).toHaveLength(0);
+      expect(state.files ?? []).toHaveLength(0);
     });
   });
 
@@ -145,16 +159,18 @@ describe('createCreateDashboardsDelta', () => {
     it('should update database when messageId and reasoningEntryId exist', async () => {
       const handler = createCreateDashboardsDelta(context, state);
       await handler({
-        files: [{ name: 'Dashboard 1', yml_content: 'content1' }],
+        inputTextDelta: '{"files":[{"name":"Dashboard 1","yml_content":"content1"}]}',
       });
 
-      expect(updateMessageReasoning).toHaveBeenCalledWith(
-        'msg-1',
-        'reasoning-1',
+      expect(updateMessageEntriesSpy).toHaveBeenCalledWith(
         expect.objectContaining({
-          type: 'files',
-          title: 'Building new dashboards...',
-          status: 'loading',
+          messageId: 'msg-1',
+          mode: 'update',
+          responseEntry: expect.objectContaining({
+            type: 'files',
+            title: 'Building new dashboards...',
+            status: 'loading',
+          }),
         })
       );
     });
@@ -165,33 +181,31 @@ describe('createCreateDashboardsDelta', () => {
 
       const handler = createCreateDashboardsDelta(contextWithoutMessageId, stateWithoutMessageId);
       await handler({
-        files: [{ name: 'Dashboard 1', yml_content: 'content1' }],
+        inputTextDelta: '{"files":[{"name":"Dashboard 1","yml_content":"content1"}]}',
       });
 
-      expect(updateMessageReasoning).not.toHaveBeenCalled();
+      expect(updateMessageEntriesSpy).not.toHaveBeenCalled();
     });
 
     it('should not update database when reasoningEntryId is missing', async () => {
-      const stateWithoutReasoningId = { ...state, reasoningEntryId: undefined };
+      const stateWithoutToolCallId = { ...state, toolCallId: undefined };
 
-      const handler = createCreateDashboardsDelta(context, stateWithoutReasoningId);
+      const handler = createCreateDashboardsDelta(context, stateWithoutToolCallId);
       await handler({
-        files: [{ name: 'Dashboard 1', yml_content: 'content1' }],
+        inputTextDelta: '{"files":[{"name":"Dashboard 1","yml_content":"content1"}]}',
       });
 
-      expect(updateMessageReasoning).not.toHaveBeenCalled();
+      expect(updateMessageEntriesSpy).not.toHaveBeenCalled();
     });
 
     it('should handle database update errors gracefully', async () => {
-      updateMessageReasoning.mockRejectedValue(new Error('Database error'));
+      updateMessageEntriesSpy.mockRejectedValue(new Error('Database error'));
 
       const handler = createCreateDashboardsDelta(context, state);
 
       // Should not throw
       await expect(
-        handler({
-          files: [{ name: 'Dashboard 1', yml_content: 'content1' }],
-        })
+        handler({ inputTextDelta: '{"files":[{"name":"Dashboard 1","yml_content":"content1"}]}' })
       ).resolves.not.toThrow();
 
       // State should still be updated
@@ -201,19 +215,18 @@ describe('createCreateDashboardsDelta', () => {
     it('should filter out undefined entries before updating database', async () => {
       state.files = [
         { name: 'Dashboard 1', yml_content: 'content1' },
-        undefined as any,
+        undefined as unknown as CreateDashboardsState['files'][number],
         { name: 'Dashboard 2', yml_content: 'content2' },
       ];
 
       const handler = createCreateDashboardsDelta(context, state);
-      await handler({});
+      await handler({ inputTextDelta: '' });
 
       // updateMessageReasoning should be called with filtered files
-      expect(updateMessageReasoning).toHaveBeenCalledWith(
-        'msg-1',
-        'reasoning-1',
+      expect(updateMessageEntriesSpy).toHaveBeenCalledWith(
         expect.objectContaining({
-          file_ids: expect.any(Array),
+          messageId: 'msg-1',
+          responseEntry: expect.objectContaining({ file_ids: expect.any(Array) }),
         })
       );
     });
@@ -229,7 +242,7 @@ describe('createCreateDashboardsDelta', () => {
         isComplete: false,
         extractedValues: new Map(),
       });
-      await handler('{"files":[');
+      await handler({ inputTextDelta: '{"files":[' });
       expect(state.argsText).toBe('{"files":[');
 
       // Second delta
@@ -243,7 +256,7 @@ describe('createCreateDashboardsDelta', () => {
         if (key === 'name') return 'Dashboard 1';
         return defaultValue;
       });
-      await handler('{"name":"Dashboard 1",');
+      await handler({ inputTextDelta: '{"name":"Dashboard 1",' });
       expect(state.argsText).toBe('{"files":[{"name":"Dashboard 1",');
 
       // Final delta
@@ -258,7 +271,7 @@ describe('createCreateDashboardsDelta', () => {
         if (key === 'yml_content') return 'content1';
         return defaultValue;
       });
-      await handler('"yml_content":"content1"}]}');
+      await handler({ inputTextDelta: '"yml_content":"content1"}]}' });
 
       expect(state.files).toHaveLength(1);
       expect(state.files[0]).toEqual({

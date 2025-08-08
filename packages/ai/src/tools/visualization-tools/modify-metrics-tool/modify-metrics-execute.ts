@@ -4,7 +4,7 @@ import { wrapTraced } from 'braintrust';
 import { eq, inArray } from 'drizzle-orm';
 import * as yaml from 'yaml';
 import { z } from 'zod';
-import { getWorkflowDataSourceManager } from '../../../utils/data-source-manager';
+import { getDataSource } from '../../../utils/get-data-source';
 import {
   createPermissionErrorMessage,
   validateSqlPermissions,
@@ -256,7 +256,6 @@ function createDataMetadata(results: Record<string, unknown>[]): DataMetadata {
 async function validateSql(
   sqlQuery: string,
   dataSourceId: string,
-  workflowId: string,
   userId: string,
   dataSourceSyntax?: string
 ): Promise<SqlValidationResult> {
@@ -283,12 +282,11 @@ async function validateSql(
       };
     }
 
-    // Get data source from workflow manager (reuses existing connections)
-    const manager = getWorkflowDataSourceManager(workflowId);
-    let dataSource: DataSource;
+    // Get a new DataSource instance
+    let dataSource: DataSource | null = null;
 
     try {
-      dataSource = await manager.getDataSource(dataSourceId);
+      dataSource = await getDataSource(dataSourceId);
     } catch (_error) {
       return {
         success: false,
@@ -411,12 +409,20 @@ async function validateSql(
       success: false,
       error: 'Max retries exceeded for SQL validation',
     };
-    // Note: We don't close the data source here anymore - it's managed by the workflow manager
   } catch (error) {
     return {
       success: false,
       error: error instanceof Error ? error.message : 'SQL validation failed',
     };
+  } finally {
+    // Always close the data source to clean up connections
+    if (dataSource) {
+      try {
+        await dataSource.close();
+      } catch (closeError) {
+        console.warn('[modify-metrics] Error closing data source:', closeError);
+      }
+    }
   }
 }
 
@@ -425,7 +431,6 @@ async function processMetricFileUpdate(
   existingFile: typeof metricFiles.$inferSelect,
   ymlContent: string,
   dataSourceId: string,
-  workflowId: string,
   duration: number,
   userId: string,
   dataSourceSyntax?: string
@@ -515,7 +520,6 @@ async function processMetricFileUpdate(
     const sqlValidation = await validateSql(
       newMetricYml.sql,
       dataSourceId,
-      workflowId,
       userId,
       dataSourceSyntax
     );
@@ -623,9 +627,6 @@ const modifyMetricFiles = wrapTraced(
     const messageId = context.messageId;
     const dataSourceSyntax = context.dataSourceSyntax;
 
-    // Generate a unique workflow ID using data source
-    const workflowId = `workflow-${Date.now()}-${dataSourceId}`;
-
     if (!dataSourceId) {
       return {
         message: 'Data source ID not found in runtime context',
@@ -690,7 +691,6 @@ const modifyMetricFiles = wrapTraced(
             existingFile,
             fileUpdate.yml_content,
             dataSourceId,
-            workflowId,
             Date.now() - startTime,
             userId,
             dataSourceSyntax

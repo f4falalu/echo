@@ -1,19 +1,18 @@
-import { updateMessageFields } from '@buster/database';
+import { updateMessageEntries } from '@buster/database';
+import type { ChatMessageReasoningMessage } from '@buster/server-shared/chats';
 import type {
-  CreateMetricsAgentContext,
+  CreateMetricsContext,
   CreateMetricsFile,
   CreateMetricsInput,
   CreateMetricsState,
 } from './create-metrics-tool';
-import {
-  createMetricsReasoningMessage,
-  extractMetricsFileInfo,
-} from './helpers/create-metrics-transform-helper';
+import { createMetricsReasoningMessage } from './helpers/create-metrics-transform-helper';
 
 // Factory function for onInputAvailable callback
-export function createCreateMetricsFinish<
-  TAgentContext extends CreateMetricsAgentContext = CreateMetricsAgentContext,
->(context: TAgentContext, state: CreateMetricsState) {
+export function createCreateMetricsFinish(
+  context: CreateMetricsContext,
+  state: CreateMetricsState
+) {
   return async (input: CreateMetricsInput) => {
     // Log when input is fully available
     const fileCount = input.files?.length || 0;
@@ -33,7 +32,7 @@ export function createCreateMetricsFinish<
     // Update files to ensure we have everything
     if (input.files) {
       state.files = input.files.map((file, index) => {
-        const existingFile = state.files[index];
+        const existingFile = state.files?.[index];
         const newFile: CreateMetricsFile = {
           name: file.name,
           yml_content: file.yml_content,
@@ -50,10 +49,10 @@ export function createCreateMetricsFinish<
     }
 
     // If we have a messageId, prepare for final updates
-    if (messageId && state.reasoningEntryId) {
+    if (messageId) {
       try {
         // Mark files as ready for processing
-        state.files.forEach((file) => {
+        state.files?.forEach((file) => {
           if (!file.status || file.status === 'processing') {
             file.status = 'processing'; // Will be updated to completed/failed by execute
           }
@@ -61,26 +60,22 @@ export function createCreateMetricsFinish<
 
         // Create updated reasoning entry
         const reasoningEntry = createMetricsReasoningMessage(
-          state.toolCallId || `create-metrics-${Date.now()}`,
-          state.files,
+          state.toolCallId || `tool-${Date.now()}`,
+          state.files || [],
           'loading' // Still loading, execute will mark as completed
         );
 
-        // Calculate processing time
-        const processingTime = state.processingStartTime
-          ? Date.now() - state.processingStartTime
-          : undefined;
-
         console.info('[create-metrics] Finalizing streaming data', {
           messageId,
-          fileCount: state.files.length,
-          processingTime,
+          fileCount: state.files?.length || 0,
           toolCallId: state.toolCallId,
         });
 
         // Update database with final streaming state
-        await updateMessageFields(messageId, {
-          reasoning: [reasoningEntry], // Update existing entry
+        await updateMessageEntries({
+          messageId,
+          reasoningEntry: reasoningEntry as ChatMessageReasoningMessage,
+          mode: 'update',
         });
       } catch (error) {
         console.error('[create-metrics] Failed to finalize streaming data', {

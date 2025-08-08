@@ -1,14 +1,19 @@
-import { updateMessageFields } from '@buster/database';
+import { createMessageEntries } from '@buster/database';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createModifyDashboardsStart } from './modify-dashboards-start';
 import type {
-  ModifyDashboardsAgentContext,
+  ModifyDashboardsContext,
   ModifyDashboardsInput,
   ModifyDashboardsState,
 } from './modify-dashboards-tool';
 
 vi.mock('@buster/database', () => ({
-  updateMessageFields: vi.fn(),
+  createMessageEntries: vi.fn(),
+  updateMessageEntries: vi.fn(),
+}));
+
+vi.mock('braintrust', () => ({
+  wrapTraced: (fn: unknown, _options?: unknown) => fn,
 }));
 
 describe('modify-dashboards-start', () => {
@@ -19,7 +24,7 @@ describe('modify-dashboards-start', () => {
   afterEach(() => {
     vi.clearAllMocks();
   });
-  const mockContext: ModifyDashboardsAgentContext = {
+  const mockContext: ModifyDashboardsContext = {
     userId: 'user-123',
     chatId: 'chat-123',
     dataSourceId: 'ds-123',
@@ -68,28 +73,36 @@ describe('modify-dashboards-start', () => {
     const onInputStart = createModifyDashboardsStart(contextWithMessageId, state);
     await onInputStart(mockInput);
 
-    expect(updateMessageFields).toHaveBeenCalledWith(
-      'msg-123',
+    expect(createMessageEntries).toHaveBeenCalledWith(
       expect.objectContaining({
-        rawLlmMessages: expect.arrayContaining([
-          expect.objectContaining({
-            type: 'tool-call',
-            toolCallId: state.toolCallId,
-            toolName: 'modify-dashboards-file',
-          }),
-        ]),
-        reasoning: expect.arrayContaining([
-          expect.objectContaining({
-            id: state.toolCallId,
-            type: 'files',
-            title: 'Modifying dashboards...',
-            status: 'loading',
-          }),
-        ]),
+        messageId: 'msg-123',
+        reasoningEntry: expect.objectContaining({
+          id: state.toolCallId,
+          type: 'files',
+          title: 'Modifying dashboards...',
+          status: 'loading',
+        }),
+        responseEntry: expect.objectContaining({
+          id: state.toolCallId,
+          type: 'text',
+          message: 'Starting dashboard modification...',
+          is_final_message: false,
+        }),
+        rawLlmMessage: expect.objectContaining({
+          role: 'assistant',
+          content: expect.arrayContaining([
+            expect.objectContaining({
+              type: 'tool-call',
+              toolCallId: state.toolCallId,
+              toolName: 'modify-dashboards',
+            }),
+          ]),
+        }),
       })
     );
 
     expect(state.reasoningEntryId).toBeDefined();
+    expect(state.responseEntryId).toBeDefined();
   });
 
   it('should not create database entries when messageId is missing', async () => {
@@ -101,7 +114,7 @@ describe('modify-dashboards-start', () => {
     const onInputStart = createModifyDashboardsStart(mockContext, state);
     await onInputStart(mockInput);
 
-    expect(updateMessageFields).not.toHaveBeenCalled();
+    expect(createMessageEntries).not.toHaveBeenCalled();
     expect(state.reasoningEntryId).toBeUndefined();
   });
 
@@ -117,7 +130,7 @@ describe('modify-dashboards-start', () => {
       messageId: 'msg-123',
     };
 
-    vi.mocked(updateMessageFields).mockRejectedValueOnce(new Error('DB Error'));
+    vi.mocked(createMessageEntries).mockRejectedValueOnce(new Error('DB Error'));
 
     const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
@@ -148,28 +161,8 @@ describe('modify-dashboards-start', () => {
     const onInputStart = createModifyDashboardsStart(mockContext, state);
     await onInputStart(emptyInput);
 
+    expect(state.processingStartTime).toBeDefined();
+    expect(state.toolCallId).toBeDefined();
     expect(state.files).toHaveLength(0);
-  });
-
-  it('should generate unique toolCallId', async () => {
-    const state1: ModifyDashboardsState = {
-      argsText: '',
-      files: [],
-    };
-
-    const state2: ModifyDashboardsState = {
-      argsText: '',
-      files: [],
-    };
-
-    const onInputStart1 = createModifyDashboardsStart(mockContext, state1);
-    const onInputStart2 = createModifyDashboardsStart(mockContext, state2);
-
-    await onInputStart1(mockInput);
-    await onInputStart2(mockInput);
-
-    expect(state1.toolCallId).toBeDefined();
-    expect(state2.toolCallId).toBeDefined();
-    expect(state1.toolCallId).not.toBe(state2.toolCallId);
   });
 });

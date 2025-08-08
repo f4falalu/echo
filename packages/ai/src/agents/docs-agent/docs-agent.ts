@@ -2,7 +2,7 @@ import type { Sandbox } from '@buster/sandbox';
 import { type ModelMessage, hasToolCall, stepCountIs, streamText } from 'ai';
 import { wrapTraced } from 'braintrust';
 import z from 'zod';
-import { Sonnet4 } from '../../models/sonnet-4';
+import { Sonnet4 } from '../../llm/sonnet-4';
 import {
   checkOffTodoList,
   createBashTool,
