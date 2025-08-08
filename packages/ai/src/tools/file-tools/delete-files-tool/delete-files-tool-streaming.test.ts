@@ -53,15 +53,17 @@ describe('delete-files-tool streaming', () => {
 
       expect(updateMessageEntries).toHaveBeenCalledWith({
         messageId: 'test-message-id',
-        entries: expect.arrayContaining([
-          expect.objectContaining({
+        entries: [
+          {
             entry_id: mockState.entry_id,
+            type: 'tool_execution',
             tool_name: 'delete_files',
             args: '{}',
+            result: null,
             status: 'loading',
             started_at: expect.any(Date),
-          }),
-        ]),
+          },
+        ],
       });
     });
 
@@ -114,14 +116,17 @@ describe('delete-files-tool streaming', () => {
 
       expect(updateMessageEntries).toHaveBeenCalledWith({
         messageId: 'test-message-id',
-        entries: expect.arrayContaining([
-          expect.objectContaining({
+        entries: [
+          {
             entry_id: 'test-entry-id',
+            type: 'tool_execution',
             tool_name: 'delete_files',
             args: '{"paths":["/test/path"]}',
+            result: null,
             status: 'loading',
-          }),
-        ]),
+            started_at: expect.any(Date),
+          },
+        ],
       });
     });
 
@@ -183,14 +188,17 @@ describe('delete-files-tool streaming', () => {
 
       expect(updateMessageEntries).toHaveBeenCalledWith({
         messageId: 'test-message-id',
-        entries: expect.arrayContaining([
-          expect.objectContaining({
+        entries: [
+          {
             entry_id: 'test-entry-id',
+            type: 'tool_execution',
             tool_name: 'delete_files',
             args: '{"paths":["/test/path1","/test/path2"]}',
+            result: null,
             status: 'loading',
-          }),
-        ]),
+            started_at: expect.any(Date),
+          },
+        ],
       });
     });
 

@@ -1,17 +1,21 @@
 import type { MessageEntry } from '@buster/database';
-import type { ListFilesToolContext } from '../list-files-tool';
+import type {
+  ListFilesToolContext,
+  ListFilesToolInput,
+  ListFilesToolOutput,
+} from '../list-files-tool';
 
 export interface ListFilesToolDbEntry {
   entry_id: string;
   tool_name: string;
-  args: any;
-  result?: any;
+  args: ListFilesToolInput;
+  result?: ListFilesToolOutput;
   status: 'loading' | 'success' | 'error';
   started_at?: Date;
   completed_at?: Date;
 }
 
-export function createListFilesToolTransformHelper(context: ListFilesToolContext) {
+export function createListFilesToolTransformHelper(_context: ListFilesToolContext) {
   return (entry: ListFilesToolDbEntry): MessageEntry => {
     return {
       entry_id: entry.entry_id,

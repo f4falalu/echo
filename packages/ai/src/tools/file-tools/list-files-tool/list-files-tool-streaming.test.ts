@@ -55,15 +55,17 @@ describe('list-files-tool streaming', () => {
 
       expect(updateMessageEntries).toHaveBeenCalledWith({
         messageId: 'test-message-id',
-        entries: expect.arrayContaining([
-          expect.objectContaining({
+        entries: [
+          {
             entry_id: mockState.entry_id,
             tool_name: 'list_files',
-            args: {},
+            type: 'tool_execution',
+            args: '{}',
+            result: null,
             status: 'loading',
             started_at: expect.any(Date),
-          }),
-        ]),
+          },
+        ],
       });
     });
 
@@ -91,7 +93,7 @@ describe('list-files-tool streaming', () => {
       });
 
       expect(mockState.args).toBe('{"paths": ["');
-      expect(mockState.paths).toBeUndefined();
+      expect(mockState.paths).toEqual(['']);
 
       await onInputDelta({
         delta: { type: 'text-delta', textDelta: '/test/path"], "options": {"depth": 2}}' },
@@ -113,17 +115,17 @@ describe('list-files-tool streaming', () => {
 
       expect(updateMessageEntries).toHaveBeenCalledWith({
         messageId: 'test-message-id',
-        entries: expect.arrayContaining([
-          expect.objectContaining({
+        entries: [
+          {
             entry_id: 'test-entry-id',
             tool_name: 'list_files',
-            args: {
-              paths: ['/test/path'],
-              options: undefined,
-            },
+            type: 'tool_execution',
+            args: '{"paths":["/test/path"]}',
+            result: null,
             status: 'loading',
-          }),
-        ]),
+            started_at: expect.any(Date),
+          },
+        ],
       });
     });
 
@@ -135,7 +137,7 @@ describe('list-files-tool streaming', () => {
         delta: { type: 'text-delta', textDelta: '{"paths": ["/test' },
       });
 
-      expect(mockState.paths).toBeUndefined();
+      expect(mockState.paths).toEqual(['/test']);
     });
 
     it('should skip processing if entry_id is not set', async () => {
@@ -181,14 +183,17 @@ describe('list-files-tool streaming', () => {
 
       expect(updateMessageEntries).toHaveBeenCalledWith({
         messageId: 'test-message-id',
-        entries: expect.arrayContaining([
-          expect.objectContaining({
+        entries: [
+          {
             entry_id: 'test-entry-id',
             tool_name: 'list_files',
-            args: input,
+            type: 'tool_execution',
+            args: '{"paths":["/test/path"],"options":{"depth":2,"all":true}}',
+            result: null,
             status: 'loading',
-          }),
-        ]),
+            started_at: expect.any(Date),
+          },
+        ],
       });
     });
 

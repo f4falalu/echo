@@ -39,7 +39,14 @@ function createMessageKey(msg: CoreMessage): string {
   if (msg.role === 'tool' && Array.isArray(msg.content)) {
     const toolResultIds = msg.content
       .filter(
-        (c): c is { type: 'tool-result'; toolCallId: string; toolName: string; output: unknown } =>
+        (
+          c
+        ): c is {
+          type: 'tool-result';
+          toolCallId: string;
+          toolName: string;
+          output: LanguageModelV2ToolResultOutput;
+        } =>
           typeof c === 'object' &&
           c !== null &&
           'type' in c &&

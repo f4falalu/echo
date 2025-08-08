@@ -97,7 +97,7 @@ async function processGrepSearch(
 
 // Factory function that creates the execute function with proper context typing
 export function createGrepSearchToolExecute(
-  grepSearchToolState: GrepSearchToolState,
+  _grepSearchToolState: GrepSearchToolState,
   context: GrepSearchToolContext
 ) {
   return wrapTraced(

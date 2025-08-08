@@ -1,17 +1,21 @@
 import type { MessageEntry } from '@buster/database';
-import type { EditFilesToolContext } from '../edit-files-tool';
+import type {
+  EditFilesToolContext,
+  EditFilesToolInput,
+  EditFilesToolOutput,
+} from '../edit-files-tool';
 
 export interface EditFilesToolDbEntry {
   entry_id: string;
   tool_name: string;
-  args: any;
-  result?: any;
+  args: EditFilesToolInput;
+  result?: EditFilesToolOutput;
   status: 'loading' | 'success' | 'error';
   started_at?: Date;
   completed_at?: Date;
 }
 
-export function createEditFilesToolTransformHelper(context: EditFilesToolContext) {
+export function createEditFilesToolTransformHelper(_context: EditFilesToolContext) {
   return (entry: EditFilesToolDbEntry): MessageEntry => {
     return {
       entry_id: entry.entry_id,

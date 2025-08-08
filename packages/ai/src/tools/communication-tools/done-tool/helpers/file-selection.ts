@@ -5,15 +5,21 @@ import type {
 
 // Helper functions to check for failure indicators
 function hasFailureIndicators(entry: ChatMessageReasoningMessage): boolean {
-  return entry.status === 'failed' || entry.status === 'error' || 
+  return (
+    entry.status === 'failed' ||
+    entry.status === 'error' ||
     (entry.title?.toLowerCase().includes('error') ?? false) ||
-    (entry.title?.toLowerCase().includes('failed') ?? false);
+    (entry.title?.toLowerCase().includes('failed') ?? false)
+  );
 }
 
 function hasFileFailureIndicators(file: { status?: string; file_name?: string }): boolean {
-  return file.status === 'failed' || file.status === 'error' ||
+  return (
+    file.status === 'failed' ||
+    file.status === 'error' ||
     (file.file_name?.toLowerCase().includes('error') ?? false) ||
-    (file.file_name?.toLowerCase().includes('failed') ?? false);
+    (file.file_name?.toLowerCase().includes('failed') ?? false)
+  );
 }
 
 // File tracking types

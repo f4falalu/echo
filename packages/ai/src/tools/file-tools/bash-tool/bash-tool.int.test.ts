@@ -1,10 +1,10 @@
-import { createSandbox } from '@buster/sandbox';
+import { type Sandbox, createSandbox } from '@buster/sandbox';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { createBashTool } from './bash-tool';
 
 describe.sequential('bash-tool integration test', () => {
   const hasApiKey = !!process.env.DAYTONA_API_KEY;
-  let sharedSandbox: any;
+  let sharedSandbox: Sandbox;
 
   beforeAll(async () => {
     if (hasApiKey) {

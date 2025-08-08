@@ -74,11 +74,17 @@ export function createDocsAgent(docsAgentOptions: DocsAgentOptions) {
   // Create file tools with context (only if sandbox is available)
   const listFiles = docsAgentOptions.sandbox ? createListFilesTool(toolContext as any) : undefined;
   const readFiles = docsAgentOptions.sandbox ? createReadFilesTool(toolContext as any) : undefined;
-  const createFiles = docsAgentOptions.sandbox ? createCreateFilesTool(toolContext as any) : undefined;
+  const createFiles = docsAgentOptions.sandbox
+    ? createCreateFilesTool(toolContext as any)
+    : undefined;
   const editFiles = docsAgentOptions.sandbox ? createEditFilesTool(toolContext as any) : undefined;
-  const deleteFiles = docsAgentOptions.sandbox ? createDeleteFilesTool(toolContext as any) : undefined;
+  const deleteFiles = docsAgentOptions.sandbox
+    ? createDeleteFilesTool(toolContext as any)
+    : undefined;
   const bashExecute = docsAgentOptions.sandbox ? createBashTool(toolContext as any) : undefined;
-  const grepSearch = docsAgentOptions.sandbox ? createGrepSearchTool(toolContext as any) : undefined;
+  const grepSearch = docsAgentOptions.sandbox
+    ? createGrepSearchTool(toolContext as any)
+    : undefined;
 
   async function stream({ messages }: DocsStreamOptions) {
     return wrapTraced(

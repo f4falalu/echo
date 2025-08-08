@@ -1,11 +1,15 @@
 import type { MessageEntry } from '@buster/database';
-import type { ReadFilesToolContext } from '../read-files-tool';
+import type {
+  ReadFilesToolContext,
+  ReadFilesToolInput,
+  ReadFilesToolOutput,
+} from '../read-files-tool';
 
 export interface ReadFilesToolDbEntry {
   entry_id: string;
   tool_name: string;
-  args: any;
-  result?: any;
+  args: ReadFilesToolInput;
+  result?: ReadFilesToolOutput;
   status: 'loading' | 'success' | 'error';
   started_at?: Date;
   completed_at?: Date;
