@@ -28,6 +28,7 @@ import type { VerificationStatus } from '@buster/server-shared/share';
 import { useSaveToCollectionsDropdownContent } from '@/components/features/dropdowns/SaveToCollectionsDropdown';
 import { getReportEditor } from '@/components/ui/report/editorRegistry';
 import { NodeTypeLabels } from '@/components/ui/report/config/labels';
+import { useExportReport } from '@/components/ui/report/hooks';
 
 export const ReportThreeDotMenu = React.memo(
   ({
@@ -313,69 +314,18 @@ const useDuplicateReportSelectMenu = (): DropdownItem => {
 // Download as PDF
 const useDownloadPdfSelectMenu = ({ reportId }: { reportId: string }): DropdownItem => {
   const { openErrorMessage, openInfoMessage } = useBusterNotifications();
+  const editor = getReportEditor(reportId);
+  const { exportToPdf } = useExportReport();
 
   const onClick = useMemoizedFn(async () => {
-    const editor = getReportEditor(reportId);
     if (!editor) {
       openErrorMessage(NodeTypeLabels.failedToExportPdf.label);
       return;
     }
 
-    try {
-      const html2canvas = await import('html2canvas-pro').then((m) => m.default);
-      const standardWidth = '850px';
-      const node = editor.api.toDOMNode(editor);
-      if (!node) throw new Error('Editor not found');
+    await exportToPdf(editor);
 
-      const style = document.createElement('style');
-      document.head.append(style);
-      const canvas = await html2canvas(node, {
-        onclone: (document: Document) => {
-          const editorElement = document.querySelector('[contenteditable="true"]');
-          if (editorElement) {
-            const existingStyle = editorElement.getAttribute('style') || '';
-            editorElement.setAttribute(
-              'style',
-              `${existingStyle}; width: ${standardWidth} !important; max-width: ${standardWidth} !important; min-width: ${standardWidth} !important;`
-            );
-            Array.from(editorElement.querySelectorAll('*')).forEach((element) => {
-              const elementStyle = element.getAttribute('style') || '';
-              element.setAttribute(
-                'style',
-                `${elementStyle}; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important`
-              );
-            });
-          } else {
-            throw new Error('Editor element not found');
-          }
-        }
-      });
-      style.remove();
-
-      const PDFLib = await import('pdf-lib');
-      const pdfDoc = await PDFLib.PDFDocument.create();
-      const page = pdfDoc.addPage([canvas.width, canvas.height]);
-      const imageEmbed = await pdfDoc.embedPng(canvas.toDataURL('PNG'));
-      const { height, width } = imageEmbed.scale(1);
-      page.drawImage(imageEmbed, { height, width, x: 0, y: 0 });
-      const pdfBase64 = await pdfDoc.saveAsBase64({ dataUri: true });
-
-      // download
-      const response = await fetch(pdfBase64);
-      const blob = await response.blob();
-      const blobUrl = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = blobUrl;
-      link.download = 'report.pdf';
-      document.body.append(link);
-      link.click();
-      link.remove();
-      window.URL.revokeObjectURL(blobUrl);
-
-      openInfoMessage(NodeTypeLabels.pdfExportedSuccessfully.label);
-    } catch (error) {
-      openErrorMessage(NodeTypeLabels.failedToExportPdf.label);
-    }
+    //
   });
 
   return useMemo(

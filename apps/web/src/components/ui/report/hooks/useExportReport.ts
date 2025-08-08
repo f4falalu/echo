@@ -4,11 +4,12 @@ import type { PlateEditor } from 'platejs/react';
 import { NodeTypeLabels } from '../config/labels';
 import { createSlateEditor, serializeHtml } from 'platejs';
 import { MarkdownPlugin } from '@platejs/markdown';
+import { useMemo } from 'react';
 
-export const useExportReport = (editor: PlateEditor) => {
+export const useExportReport = () => {
   const { openErrorMessage, openInfoMessage } = useBusterNotifications();
 
-  const getCanvas = async () => {
+  const getCanvas = async (editor: PlateEditor) => {
     const { default: html2canvas } = await import('html2canvas-pro');
 
     const style = document.createElement('style');
@@ -69,9 +70,9 @@ export const useExportReport = (editor: PlateEditor) => {
     window.URL.revokeObjectURL(blobUrl);
   };
 
-  const exportToPdf = async () => {
+  const exportToPdf = async (editor: PlateEditor) => {
     try {
-      const canvas = await getCanvas();
+      const canvas = await getCanvas(editor);
       const PDFLib = await import('pdf-lib');
       const pdfDoc = await PDFLib.PDFDocument.create();
       const page = pdfDoc.addPage([canvas.width, canvas.height]);
@@ -92,9 +93,9 @@ export const useExportReport = (editor: PlateEditor) => {
     }
   };
 
-  const exportToImage = async () => {
+  const exportToImage = async (editor: PlateEditor) => {
     try {
-      const canvas = await getCanvas();
+      const canvas = await getCanvas(editor);
       await downloadFile(canvas.toDataURL('image/png'), 'plate.png');
       openInfoMessage(NodeTypeLabels.imageExportedSuccessfully.label);
     } catch (error) {
@@ -102,7 +103,7 @@ export const useExportReport = (editor: PlateEditor) => {
     }
   };
 
-  const exportToHtml = async () => {
+  const exportToHtml = async (editor: PlateEditor) => {
     try {
       const BaseEditorKit = await import('../editor-base-kit').then(
         (module) => module.BaseEditorKit
@@ -157,7 +158,7 @@ export const useExportReport = (editor: PlateEditor) => {
     }
   };
 
-  const exportToMarkdown = async () => {
+  const exportToMarkdown = async (editor: PlateEditor) => {
     try {
       const md = editor.getApi(MarkdownPlugin).markdown.serialize();
       const url = `data:text/markdown;charset=utf-8,${encodeURIComponent(md)}`;
@@ -168,10 +169,13 @@ export const useExportReport = (editor: PlateEditor) => {
     }
   };
 
-  return {
-    exportToPdf,
-    exportToImage,
-    exportToHtml,
-    exportToMarkdown
-  };
+  return useMemo(
+    () => ({
+      exportToPdf,
+      exportToImage,
+      exportToHtml,
+      exportToMarkdown
+    }),
+    []
+  );
 };
