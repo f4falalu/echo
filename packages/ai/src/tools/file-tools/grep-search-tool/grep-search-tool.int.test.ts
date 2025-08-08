@@ -1,8 +1,6 @@
 import { createSandbox } from '@buster/sandbox';
-import { RuntimeContext } from '@mastra/core/runtime-context';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { DocsAgentContextKeys } from '../../../agents/docs-agent/docs-agent-context';
-import { grepSearch } from './grep-search-tool';
+import { createGrepSearchTool } from './grep-search-tool';
 
 describe.sequential('grep-search-tool integration test', () => {
   const hasApiKey = !!process.env.DAYTONA_API_KEY;
@@ -49,14 +47,13 @@ describe.sequential('grep-search-tool integration test', () => {
 
       await sharedSandbox.process.codeRun(createFilesCode);
 
-      const runtimeContext = new RuntimeContext();
-      runtimeContext.set(DocsAgentContextKeys.Sandbox, sharedSandbox);
+      const grepSearchTool = createGrepSearchTool({
+        messageId: 'test-message-id',
+        sandbox: sharedSandbox,
+      });
 
-      const result = await grepSearch.execute({
-        context: {
-          commands: [`cd ${testDir} && rg -n "test" test1.txt`, `cd ${testDir} && rg -n "Hello" .`],
-        },
-        runtimeContext,
+      const result = await grepSearchTool.execute({
+        commands: [`cd ${testDir} && rg -n "test" test1.txt`, `cd ${testDir} && rg -n "Hello" .`],
       });
 
       expect(result.results).toHaveLength(2);
@@ -97,14 +94,13 @@ describe.sequential('grep-search-tool integration test', () => {
 
       await sharedSandbox.process.codeRun(createFileCode);
 
-      const runtimeContext = new RuntimeContext();
-      runtimeContext.set(DocsAgentContextKeys.Sandbox, sharedSandbox);
+      const grepSearchTool = createGrepSearchTool({
+        messageId: 'test-message-id',
+        sandbox: sharedSandbox,
+      });
 
-      const result = await grepSearch.execute({
-        context: {
-          commands: [`cd ${testDir} && rg -i -n "hello" case-test.txt`],
-        },
-        runtimeContext,
+      const result = await grepSearchTool.execute({
+        commands: [`cd ${testDir} && rg -i -n "hello" case-test.txt`],
       });
 
       expect(result.results).toHaveLength(1);
@@ -136,14 +132,13 @@ describe.sequential('grep-search-tool integration test', () => {
 
       await sharedSandbox.process.codeRun(createFileCode);
 
-      const runtimeContext = new RuntimeContext();
-      runtimeContext.set(DocsAgentContextKeys.Sandbox, sharedSandbox);
+      const grepSearchTool = createGrepSearchTool({
+        messageId: 'test-message-id',
+        sandbox: sharedSandbox,
+      });
 
-      const result = await grepSearch.execute({
-        context: {
-          commands: [`cd ${testDir} && rg -w -n "test" word-test.txt`],
-        },
-        runtimeContext,
+      const result = await grepSearchTool.execute({
+        commands: [`cd ${testDir} && rg -w -n "test" word-test.txt`],
       });
 
       expect(result.results).toHaveLength(1);
@@ -175,14 +170,13 @@ describe.sequential('grep-search-tool integration test', () => {
 
       await sharedSandbox.process.codeRun(createFileCode);
 
-      const runtimeContext = new RuntimeContext();
-      runtimeContext.set(DocsAgentContextKeys.Sandbox, sharedSandbox);
+      const grepSearchTool = createGrepSearchTool({
+        messageId: 'test-message-id',
+        sandbox: sharedSandbox,
+      });
 
-      const result = await grepSearch.execute({
-        context: {
-          commands: [`cd ${testDir} && rg -F -n "$10.99" regex-test.txt`],
-        },
-        runtimeContext,
+      const result = await grepSearchTool.execute({
+        commands: [`cd ${testDir} && rg -F -n "$10.99" regex-test.txt`],
       });
 
       expect(result.results).toHaveLength(1);
@@ -212,14 +206,13 @@ describe.sequential('grep-search-tool integration test', () => {
 
       await sharedSandbox.process.codeRun(createFileCode);
 
-      const runtimeContext = new RuntimeContext();
-      runtimeContext.set(DocsAgentContextKeys.Sandbox, sharedSandbox);
+      const grepSearchTool = createGrepSearchTool({
+        messageId: 'test-message-id',
+        sandbox: sharedSandbox,
+      });
 
-      const result = await grepSearch.execute({
-        context: {
-          commands: [`cd ${testDir} && rg -v -n "test" invert-test.txt`],
-        },
-        runtimeContext,
+      const result = await grepSearchTool.execute({
+        commands: [`cd ${testDir} && rg -v -n "test" invert-test.txt`],
       });
 
       expect(result.results).toHaveLength(1);
@@ -250,14 +243,13 @@ describe.sequential('grep-search-tool integration test', () => {
 
       await sharedSandbox.process.codeRun(createFileCode);
 
-      const runtimeContext = new RuntimeContext();
-      runtimeContext.set(DocsAgentContextKeys.Sandbox, sharedSandbox);
+      const grepSearchTool = createGrepSearchTool({
+        messageId: 'test-message-id',
+        sandbox: sharedSandbox,
+      });
 
-      const result = await grepSearch.execute({
-        context: {
-          commands: [`cd ${testDir} && rg -m 3 -n "test" many-matches.txt`],
-        },
-        runtimeContext,
+      const result = await grepSearchTool.execute({
+        commands: [`cd ${testDir} && rg -m 3 -n "test" many-matches.txt`],
       });
 
       expect(result.results).toHaveLength(1);
@@ -288,14 +280,13 @@ describe.sequential('grep-search-tool integration test', () => {
 
       await sharedSandbox.process.codeRun(createFileCode);
 
-      const runtimeContext = new RuntimeContext();
-      runtimeContext.set(DocsAgentContextKeys.Sandbox, sharedSandbox);
+      const grepSearchTool = createGrepSearchTool({
+        messageId: 'test-message-id',
+        sandbox: sharedSandbox,
+      });
 
-      const result = await grepSearch.execute({
-        context: {
-          commands: [`cd ${testDir} && rg -n "nonexistent" no-match.txt`],
-        },
-        runtimeContext,
+      const result = await grepSearchTool.execute({
+        commands: [`cd ${testDir} && rg -n "nonexistent" no-match.txt`],
       });
 
       expect(result.results).toHaveLength(1);
@@ -326,18 +317,17 @@ describe.sequential('grep-search-tool integration test', () => {
 
       await sharedSandbox.process.codeRun(createFilesCode);
 
-      const runtimeContext = new RuntimeContext();
-      runtimeContext.set(DocsAgentContextKeys.Sandbox, sharedSandbox);
+      const grepSearchTool = createGrepSearchTool({
+        messageId: 'test-message-id',
+        sandbox: sharedSandbox,
+      });
 
-      const result = await grepSearch.execute({
-        context: {
-          commands: [
-            `cd ${testDir} && rg -n "test" file1.txt`,
-            `cd ${testDir} && rg -n "test" file2.txt`,
-            `cd ${testDir} && rg -n "nonexistent" file1.txt`,
-          ],
-        },
-        runtimeContext,
+      const result = await grepSearchTool.execute({
+        commands: [
+          `cd ${testDir} && rg -n "test" file1.txt`,
+          `cd ${testDir} && rg -n "test" file2.txt`,
+          `cd ${testDir} && rg -n "nonexistent" file1.txt`,
+        ],
       });
 
       expect(result.results).toHaveLength(3);
@@ -351,14 +341,13 @@ describe.sequential('grep-search-tool integration test', () => {
   (hasApiKey ? it : it.skip)(
     'should handle file not found error',
     async () => {
-      const runtimeContext = new RuntimeContext();
-      runtimeContext.set(DocsAgentContextKeys.Sandbox, sharedSandbox);
+      const grepSearchTool = createGrepSearchTool({
+        messageId: 'test-message-id',
+        sandbox: sharedSandbox,
+      });
 
-      const result = await grepSearch.execute({
-        context: {
-          commands: ['rg "test" /nonexistent/path/file.txt'],
-        },
-        runtimeContext,
+      const result = await grepSearchTool.execute({
+        commands: ['rg "test" /nonexistent/path/file.txt'],
       });
 
       expect(result.results).toHaveLength(1);
@@ -392,14 +381,13 @@ describe.sequential('grep-search-tool integration test', () => {
 
       await sharedSandbox.process.codeRun(createFilesCode);
 
-      const runtimeContext = new RuntimeContext();
-      runtimeContext.set(DocsAgentContextKeys.Sandbox, sharedSandbox);
+      const grepSearchTool = createGrepSearchTool({
+        messageId: 'test-message-id',
+        sandbox: sharedSandbox,
+      });
 
-      const result = await grepSearch.execute({
-        context: {
-          commands: [`cd ${testDir} && rg --type ts --color never -n "TODO" src/`],
-        },
-        runtimeContext,
+      const result = await grepSearchTool.execute({
+        commands: [`cd ${testDir} && rg --type ts --color never -n "TODO" src/`],
       });
 
       expect(result.results).toHaveLength(1);
@@ -431,14 +419,13 @@ describe.sequential('grep-search-tool integration test', () => {
 
       await sharedSandbox.process.codeRun(createFileCode);
 
-      const runtimeContext = new RuntimeContext();
-      runtimeContext.set(DocsAgentContextKeys.Sandbox, sharedSandbox);
+      const grepSearchTool = createGrepSearchTool({
+        messageId: 'test-message-id',
+        sandbox: sharedSandbox,
+      });
 
-      const result = await grepSearch.execute({
-        context: {
-          commands: [`cd ${testDir} && rg --json "test" json-test.txt`],
-        },
-        runtimeContext,
+      const result = await grepSearchTool.execute({
+        commands: [`cd ${testDir} && rg --json "test" json-test.txt`],
       });
 
       expect(result.results).toHaveLength(1);

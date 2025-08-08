@@ -6,7 +6,7 @@ import { generateSummary } from '../../tools/post-processing/generate-summary';
 import { standardizeMessages } from '../../utils/standardizeMessages';
 import { postProcessingWorkflowOutputSchema } from './schemas';
 
-import { Sonnet4 } from '../../utils/models/sonnet-4';
+import { Sonnet4 } from '../../models/sonnet-4';
 // Import the schema from combine-parallel-results step
 import { combineParallelResultsOutputSchema } from './combine-parallel-results-step';
 

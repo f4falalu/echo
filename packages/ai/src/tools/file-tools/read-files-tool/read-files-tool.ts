@@ -1,12 +1,12 @@
-import * as fs from 'node:fs/promises';
-import * as path from 'node:path';
-import { type Sandbox, runTypescript } from '@buster/sandbox';
+import type { Sandbox } from '@buster/sandbox';
 import { tool } from 'ai';
-import { wrapTraced } from 'braintrust';
 import { z } from 'zod';
-import type { DocsAgentOptions } from '../../../agents/docs-agent/docs-agent';
+import { createReadFilesToolDelta } from './read-files-tool-delta';
+import { createReadFilesToolExecute } from './read-files-tool-execute';
+import { createReadFilesToolFinish } from './read-files-tool-finish';
+import { createReadFilesToolStart } from './read-files-tool-start';
 
-const readFilesInputSchema = z.object({
+export const ReadFilesToolInputSchema = z.object({
   files: z
     .array(z.string())
     .describe(
@@ -14,18 +14,7 @@ const readFilesInputSchema = z.object({
     ),
 });
 
-const readFilesContextSchema = z.object({
-  sandbox: z.custom<Sandbox>(
-    (val) => {
-      return val && typeof val === 'object' && 'id' in val && 'fs' in val;
-    },
-    { message: 'Invalid Sandbox instance' }
-  ),
-});
-
-type ReadFilesContext = z.infer<typeof readFilesContextSchema>;
-
-const readFilesOutputSchema = z.object({
+const ReadFilesToolOutputSchema = z.object({
   results: z.array(
     z.discriminatedUnion('status', [
       z.object({
@@ -45,155 +34,50 @@ const readFilesOutputSchema = z.object({
   ),
 });
 
-const readFilesExecution = wrapTraced(
-  async (
-    params: z.infer<typeof readFilesInputSchema>,
-    context: ReadFilesContext
-  ): Promise<z.infer<typeof readFilesOutputSchema>> => {
-    const { files } = params;
-
-    if (!files || files.length === 0) {
-      return { results: [] };
-    }
-
-    try {
-      const sandbox = context.sandbox;
-
-      if (sandbox) {
-        // Generate CommonJS code for sandbox execution
-        const filesJson = JSON.stringify(files);
-        const sandboxCode = `
-const fs = require('fs');
-const path = require('path');
-
-const filesJson = ${JSON.stringify(filesJson)};
-const files = JSON.parse(filesJson);
-const results = [];
-const MAX_LINES = 1000;
-
-// Process files
-for (const filePath of files) {
-  try {
-    const resolvedPath = path.isAbsolute(filePath) 
-      ? filePath 
-      : path.join(process.cwd(), filePath);
-      
-    const content = fs.readFileSync(resolvedPath, 'utf-8');
-    const lines = content.split('\\n');
-    const truncated = lines.length > MAX_LINES;
-    const truncatedContent = truncated 
-      ? lines.slice(0, MAX_LINES).join('\\n')
-      : content;
-    
-    results.push({
-      success: true,
-      filePath: filePath,
-      content: truncatedContent,
-      truncated: truncated
-    });
-  } catch (error) {
-    results.push({
-      success: false,
-      filePath: filePath,
-      error: (error as any).code === 'ENOENT' ? 'File not found' : (error instanceof Error ? error.message : String(error))
-    });
-  }
-}
-
-console.log(JSON.stringify(results));
-`;
-
-        const result = await runTypescript(sandbox, sandboxCode);
-
-        if (result.exitCode !== 0) {
-          console.error('Sandbox execution failed. Exit code:', result.exitCode);
-          console.error('Stderr:', result.stderr);
-          console.error('Result:', result.result);
-          throw new Error(`Sandbox execution failed: ${result.stderr || 'Unknown error'}`);
-        }
-
-        let fileResults: Array<{
-          success: boolean;
-          filePath: string;
-          content?: string;
-          truncated?: boolean;
-          error?: string;
-        }>;
-        try {
-          fileResults = JSON.parse(result.result.trim());
-        } catch (parseError) {
-          console.error('Failed to parse sandbox output:', result.result);
-          throw new Error(
-            `Failed to parse sandbox output: ${parseError instanceof Error ? parseError.message : 'Unknown parse error'}`
-          );
-        }
-
-        return {
-          results: fileResults.map((fileResult) => {
-            if (fileResult.success) {
-              return {
-                status: 'success' as const,
-                file_path: fileResult.filePath,
-                content: fileResult.content || '',
-                truncated: fileResult.truncated || false,
-              };
-            }
-            return {
-              status: 'error' as const,
-              file_path: fileResult.filePath,
-              error_message: fileResult.error || 'Unknown error',
-            };
-          }),
-        };
-      }
-
-      // When not in sandbox, we can't read files
-      // Return an error for each file
-      return {
-        results: files.map((filePath) => ({
-          status: 'error' as const,
-          file_path: filePath,
-          error_message: 'File reading requires sandbox environment',
-        })),
-      };
-    } catch (error) {
-      return {
-        results: files.map((filePath) => ({
-          status: 'error' as const,
-          file_path: filePath,
-          error_message: `Execution error: ${error instanceof Error ? error.message : 'Unknown error'}`,
-        })),
-      };
-    }
-  },
-  { name: 'read-files' }
-);
-
-export const readFiles = tool({
-  description: `Read the contents of one or more files from the filesystem. Accepts both absolute and relative file paths. Files are read with UTF-8 encoding and content is limited to 1000 lines maximum. Returns both successful reads and failures with detailed error messages.`,
-  inputSchema: readFilesInputSchema,
-  outputSchema: readFilesOutputSchema,
-  execute: async (input, { experimental_context: context }) => {
-    const rawContext = context as DocsAgentOptions & { sandbox?: Sandbox };
-
-    // Check if sandbox is available
-    if (!rawContext?.sandbox) {
-      // Return error for each file when sandbox is not available
-      return {
-        results: input.files.map((filePath) => ({
-          status: 'error' as const,
-          file_path: filePath,
-          error_message: 'File reading requires sandbox environment',
-        })),
-      };
-    }
-
-    const readFilesContext = readFilesContextSchema.parse({
-      sandbox: rawContext.sandbox,
-    });
-
-    return await readFilesExecution(input, readFilesContext);
-  },
+const ReadFilesToolContextSchema = z.object({
+  messageId: z.string().describe('The message ID for database updates'),
+  sandbox: z
+    .custom<Sandbox>(
+      (val) => {
+        return val && typeof val === 'object' && 'id' in val && 'fs' in val;
+      },
+      { message: 'Invalid Sandbox instance' }
+    )
+    .describe('Sandbox instance for file operations'),
 });
 
-export default readFiles;
+const ReadFilesToolStateSchema = z.object({
+  entry_id: z.string().optional().describe('The entry ID for database updates'),
+  args: z.string().optional().describe('Accumulated streaming arguments'),
+  files: z.array(z.string()).optional().describe('Parsed files from streaming input'),
+});
+
+export type ReadFilesToolInput = z.infer<typeof ReadFilesToolInputSchema>;
+export type ReadFilesToolOutput = z.infer<typeof ReadFilesToolOutputSchema>;
+export type ReadFilesToolContext = z.infer<typeof ReadFilesToolContextSchema>;
+export type ReadFilesToolState = z.infer<typeof ReadFilesToolStateSchema>;
+
+export function createReadFilesTool<
+  TAgentContext extends ReadFilesToolContext = ReadFilesToolContext,
+>(context: TAgentContext) {
+  const state: ReadFilesToolState = {
+    entry_id: undefined,
+    args: undefined,
+    files: undefined,
+  };
+
+  const execute = createReadFilesToolExecute(state, context);
+  const onInputStart = createReadFilesToolStart(state, context);
+  const onInputDelta = createReadFilesToolDelta(state, context);
+  const onInputAvailable = createReadFilesToolFinish(state, context);
+
+  return tool({
+    description: `Read the contents of one or more files from the filesystem. Accepts both absolute and relative file paths. Files are read with UTF-8 encoding and content is limited to 1000 lines maximum. Returns both successful reads and failures with detailed error messages.`,
+    inputSchema: ReadFilesToolInputSchema,
+    outputSchema: ReadFilesToolOutputSchema,
+    execute,
+    onInputStart,
+    onInputDelta,
+    onInputAvailable,
+  });
+}

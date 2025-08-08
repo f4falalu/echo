@@ -1,8 +1,6 @@
 import { createSandbox } from '@buster/sandbox';
-import { RuntimeContext } from '@mastra/core/runtime-context';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { DocsAgentContextKeys } from '../../../agents/docs-agent/docs-agent-context';
-import { editFiles } from './edit-files-tool';
+import { createEditFilesTool } from './edit-files-tool';
 
 describe.sequential('edit-files-tool integration test', () => {
   const hasApiKey = !!process.env.DAYTONA_API_KEY;
@@ -49,25 +47,26 @@ describe.sequential('edit-files-tool integration test', () => {
       await sharedSandbox.process.codeRun(createFilesCode);
 
       // Now test editing files with the tool
-      const runtimeContext = new RuntimeContext();
-      runtimeContext.set(DocsAgentContextKeys.Sandbox, sharedSandbox);
+      const context = {
+        messageId: 'test-message-id',
+        sandbox: sharedSandbox,
+      };
 
-      const result = await editFiles.execute({
-        context: {
-          edits: [
-            {
-              filePath: `${testDir}/edit1.txt`,
-              findString: 'This is a test file',
-              replaceString: 'This is an edited file',
-            },
-            {
-              filePath: `${testDir}/edit2.txt`,
-              findString: 'Second line',
-              replaceString: 'Modified second line',
-            },
-          ],
-        },
-        runtimeContext,
+      const tool = createEditFilesTool(context);
+
+      const result = await tool.execute({
+        edits: [
+          {
+            filePath: `${testDir}/edit1.txt`,
+            findString: 'This is a test file',
+            replaceString: 'This is an edited file',
+          },
+          {
+            filePath: `${testDir}/edit2.txt`,
+            findString: 'Second line',
+            replaceString: 'Modified second line',
+          },
+        ],
       });
 
       expect(result.results).toHaveLength(2);
@@ -120,20 +119,21 @@ describe.sequential('edit-files-tool integration test', () => {
 
       await sharedSandbox.process.codeRun(createFileCode);
 
-      const runtimeContext = new RuntimeContext();
-      runtimeContext.set(DocsAgentContextKeys.Sandbox, sharedSandbox);
+      const context = {
+        messageId: 'test-message-id',
+        sandbox: sharedSandbox,
+      };
 
-      const result = await editFiles.execute({
-        context: {
-          edits: [
-            {
-              filePath: `${testDir}/notfound.txt`,
-              findString: 'nonexistent text',
-              replaceString: 'replacement',
-            },
-          ],
-        },
-        runtimeContext,
+      const tool = createEditFilesTool(context);
+
+      const result = await tool.execute({
+        edits: [
+          {
+            filePath: `${testDir}/notfound.txt`,
+            findString: 'nonexistent text',
+            replaceString: 'replacement',
+          },
+        ],
       });
 
       expect(result.results).toHaveLength(1);
@@ -162,20 +162,21 @@ describe.sequential('edit-files-tool integration test', () => {
 
       await sharedSandbox.process.codeRun(createFileCode);
 
-      const runtimeContext = new RuntimeContext();
-      runtimeContext.set(DocsAgentContextKeys.Sandbox, sharedSandbox);
+      const context = {
+        messageId: 'test-message-id',
+        sandbox: sharedSandbox,
+      };
 
-      const result = await editFiles.execute({
-        context: {
-          edits: [
-            {
-              filePath: `${testDir}/multiple.txt`,
-              findString: 'Hello',
-              replaceString: 'Hi',
-            },
-          ],
-        },
-        runtimeContext,
+      const tool = createEditFilesTool(context);
+
+      const result = await tool.execute({
+        edits: [
+          {
+            filePath: `${testDir}/multiple.txt`,
+            findString: 'Hello',
+            replaceString: 'Hi',
+          },
+        ],
       });
 
       expect(result.results[0]?.status).toBe('error');
@@ -203,25 +204,26 @@ describe.sequential('edit-files-tool integration test', () => {
 
       await sharedSandbox.process.codeRun(createFileCode);
 
-      const runtimeContext = new RuntimeContext();
-      runtimeContext.set(DocsAgentContextKeys.Sandbox, sharedSandbox);
+      const context = {
+        messageId: 'test-message-id',
+        sandbox: sharedSandbox,
+      };
 
-      const result = await editFiles.execute({
-        context: {
-          edits: [
-            {
-              filePath: `${testDir}/special.txt`,
-              findString: '$10.99',
-              replaceString: '$15.99',
-            },
-            {
-              filePath: `${testDir}/special.txt`,
-              findString: '/test/',
-              replaceString: '/prod/',
-            },
-          ],
-        },
-        runtimeContext,
+      const tool = createEditFilesTool(context);
+
+      const result = await tool.execute({
+        edits: [
+          {
+            filePath: `${testDir}/special.txt`,
+            findString: '$10.99',
+            replaceString: '$15.99',
+          },
+          {
+            filePath: `${testDir}/special.txt`,
+            findString: '/test/',
+            replaceString: '/prod/',
+          },
+        ],
       });
 
       expect(result.results.every((r) => r.status === 'success')).toBe(true);
@@ -260,35 +262,36 @@ describe.sequential('edit-files-tool integration test', () => {
 
       await sharedSandbox.process.codeRun(createFilesCode);
 
-      const runtimeContext = new RuntimeContext();
-      runtimeContext.set(DocsAgentContextKeys.Sandbox, sharedSandbox);
+      const context = {
+        messageId: 'test-message-id',
+        sandbox: sharedSandbox,
+      };
 
-      const result = await editFiles.execute({
-        context: {
-          edits: [
-            {
-              filePath: `${testDir}/bulk1.txt`,
-              findString: 'content to edit',
-              replaceString: 'modified content',
-            },
-            {
-              filePath: `${testDir}/bulk2.txt`,
-              findString: 'content to edit',
-              replaceString: 'updated content',
-            },
-            {
-              filePath: `${testDir}/bulk3.txt`,
-              findString: 'nonexistent',
-              replaceString: 'replacement',
-            },
-            {
-              filePath: `${testDir}/nonexistent.txt`,
-              findString: 'test',
-              replaceString: 'replacement',
-            },
-          ],
-        },
-        runtimeContext,
+      const tool = createEditFilesTool(context);
+
+      const result = await tool.execute({
+        edits: [
+          {
+            filePath: `${testDir}/bulk1.txt`,
+            findString: 'content to edit',
+            replaceString: 'modified content',
+          },
+          {
+            filePath: `${testDir}/bulk2.txt`,
+            findString: 'content to edit',
+            replaceString: 'updated content',
+          },
+          {
+            filePath: `${testDir}/bulk3.txt`,
+            findString: 'nonexistent',
+            replaceString: 'replacement',
+          },
+          {
+            filePath: `${testDir}/nonexistent.txt`,
+            findString: 'test',
+            replaceString: 'replacement',
+          },
+        ],
       });
 
       expect(result.results).toHaveLength(4);

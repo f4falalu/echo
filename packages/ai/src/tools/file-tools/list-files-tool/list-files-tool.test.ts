@@ -1,18 +1,36 @@
 import type { Sandbox } from '@buster/sandbox';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import type { DocsAgentOptions } from '../../../agents/docs-agent/docs-agent';
-import { listFiles } from './list-files-tool';
+import { ListFilesToolInputSchema, createListFilesTool } from './list-files-tool';
+
+vi.mock('@buster/database', () => ({
+  updateMessageEntries: vi.fn(),
+}));
 
 describe('list-files-tool', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  describe('listFiles tool', () => {
-    it('should have correct tool definition', () => {
-      expect(listFiles.description).toContain('Displays the directory structure');
-      expect(listFiles.inputSchema).toBeDefined();
-      expect(listFiles.outputSchema).toBeDefined();
+  describe('factory pattern tool', () => {
+    it('should create tool with factory function', () => {
+      const mockContext = {
+        messageId: 'test-message-id',
+        sandbox: {
+          id: 'test-sandbox',
+          process: {
+            executeCommand: vi.fn(),
+          },
+        } as unknown as Sandbox,
+      };
+
+      const tool = createListFilesTool(mockContext);
+      expect(tool.description).toContain('Displays the directory structure');
+      expect(tool.inputSchema).toBeDefined();
+      expect(tool.outputSchema).toBeDefined();
+      expect(tool.execute).toBeDefined();
+      expect(tool.onInputStart).toBeDefined();
+      expect(tool.onInputDelta).toBeDefined();
+      expect(tool.onInputAvailable).toBeDefined();
     });
 
     it('should validate input schema correctly', () => {
@@ -21,23 +39,7 @@ describe('list-files-tool', () => {
         options: { depth: 2, all: false },
       };
 
-      const result = listFiles.inputSchema.safeParse(validInput);
-      expect(result.success).toBe(true);
-    });
-
-    it('should validate output schema correctly', () => {
-      const validOutput = {
-        results: [
-          {
-            status: 'success' as const,
-            path: '/test/path',
-            output: 'test/path\n├── file1.txt\n├── file2.js\n└── subfolder/\n    └── file3.md',
-            currentDirectory: '/home/user',
-          },
-        ],
-      };
-
-      const result = listFiles.outputSchema.safeParse(validOutput);
+      const result = ListFilesToolInputSchema.safeParse(validInput);
       expect(result.success).toBe(true);
     });
 
@@ -59,19 +61,12 @@ describe('list-files-tool', () => {
           exitCode: 0,
         });
 
-      const result = await listFiles.execute(
-        { paths: ['/test/path'] },
-        {
-          experimental_context: {
-            folder_structure: 'test',
-            userId: 'test-user',
-            chatId: 'test-chat',
-            dataSourceId: 'test-ds',
-            organizationId: 'test-org',
-            sandbox: mockSandbox,
-          } as DocsAgentOptions,
-        }
-      );
+      const tool = createListFilesTool({
+        messageId: 'test-message-id',
+        sandbox: mockSandbox,
+      });
+
+      const result = await tool.execute({ paths: ['/test/path'] });
 
       expect(mockSandbox.process.executeCommand).toHaveBeenCalledWith(
         'tree --gitignore "/test/path"'
@@ -103,28 +98,21 @@ describe('list-files-tool', () => {
           exitCode: 0,
         });
 
-      const result = await listFiles.execute(
-        {
-          paths: ['/test/path'],
-          options: {
-            depth: 2,
-            all: true,
-            dirsOnly: true,
-            ignorePattern: '*.log',
-            followSymlinks: true,
-          },
+      const tool = createListFilesTool({
+        messageId: 'test-message-id',
+        sandbox: mockSandbox,
+      });
+
+      const result = await tool.execute({
+        paths: ['/test/path'],
+        options: {
+          depth: 2,
+          all: true,
+          dirsOnly: true,
+          ignorePattern: '*.log',
+          followSymlinks: true,
         },
-        {
-          experimental_context: {
-            folder_structure: 'test',
-            userId: 'test-user',
-            chatId: 'test-chat',
-            dataSourceId: 'test-ds',
-            organizationId: 'test-org',
-            sandbox: mockSandbox,
-          } as DocsAgentOptions,
-        }
-      );
+      });
 
       expect(mockSandbox.process.executeCommand).toHaveBeenCalledWith(
         'tree --gitignore -L 2 -a -d -l -I *.log "/test/path"'
@@ -132,19 +120,12 @@ describe('list-files-tool', () => {
     });
 
     it('should return error when sandbox not available', async () => {
-      const result = await listFiles.execute(
-        { paths: ['/test/path'] },
-        {
-          experimental_context: {
-            folder_structure: 'test',
-            userId: 'test-user',
-            chatId: 'test-chat',
-            dataSourceId: 'test-ds',
-            organizationId: 'test-org',
-            sandbox: undefined,
-          } as DocsAgentOptions,
-        }
-      );
+      const tool = createListFilesTool({
+        messageId: 'test-message-id',
+        sandbox: null as any,
+      });
+
+      const result = await tool.execute({ paths: ['/test/path'] });
 
       expect(result.results).toHaveLength(1);
       expect(result.results[0]?.status).toBe('error');
@@ -166,19 +147,12 @@ describe('list-files-tool', () => {
         exitCode: 1,
       });
 
-      const result = await listFiles.execute(
-        { paths: ['/nonexistent'] },
-        {
-          experimental_context: {
-            folder_structure: 'test',
-            userId: 'test-user',
-            chatId: 'test-chat',
-            dataSourceId: 'test-ds',
-            organizationId: 'test-org',
-            sandbox: mockSandbox,
-          } as DocsAgentOptions,
-        }
-      );
+      const tool = createListFilesTool({
+        messageId: 'test-message-id',
+        sandbox: mockSandbox,
+      });
+
+      const result = await tool.execute({ paths: ['/nonexistent'] });
 
       expect(result.results).toHaveLength(1);
       expect(result.results[0]?.status).toBe('error');
@@ -188,18 +162,12 @@ describe('list-files-tool', () => {
     });
 
     it('should handle empty paths array', async () => {
-      const result = await listFiles.execute(
-        { paths: [] },
-        {
-          experimental_context: {
-            folder_structure: 'test',
-            userId: 'test-user',
-            chatId: 'test-chat',
-            dataSourceId: 'test-ds',
-            organizationId: 'test-org',
-          } as DocsAgentOptions,
-        }
-      );
+      const tool = createListFilesTool({
+        messageId: 'test-message-id',
+        sandbox: {} as any,
+      });
+
+      const result = await tool.execute({ paths: [] });
 
       expect(result.results).toHaveLength(0);
     });
@@ -230,19 +198,12 @@ describe('list-files-tool', () => {
           exitCode: 0,
         });
 
-      const result = await listFiles.execute(
-        { paths: ['/path1', '/path2'] },
-        {
-          experimental_context: {
-            folder_structure: 'test',
-            userId: 'test-user',
-            chatId: 'test-chat',
-            dataSourceId: 'test-ds',
-            organizationId: 'test-org',
-            sandbox: mockSandbox,
-          } as DocsAgentOptions,
-        }
-      );
+      const tool = createListFilesTool({
+        messageId: 'test-message-id',
+        sandbox: mockSandbox,
+      });
+
+      const result = await tool.execute({ paths: ['/path1', '/path2'] });
 
       expect(result.results).toHaveLength(2);
       expect(result.results[0]?.status).toBe('success');
@@ -259,19 +220,12 @@ describe('list-files-tool', () => {
 
       mockSandbox.process.executeCommand.mockRejectedValue(new Error('Network error'));
 
-      const result = await listFiles.execute(
-        { paths: ['/test/path'] },
-        {
-          experimental_context: {
-            folder_structure: 'test',
-            userId: 'test-user',
-            chatId: 'test-chat',
-            dataSourceId: 'test-ds',
-            organizationId: 'test-org',
-            sandbox: mockSandbox,
-          } as DocsAgentOptions,
-        }
-      );
+      const tool = createListFilesTool({
+        messageId: 'test-message-id',
+        sandbox: mockSandbox,
+      });
+
+      const result = await tool.execute({ paths: ['/test/path'] });
 
       expect(result.results).toHaveLength(1);
       expect(result.results[0]?.status).toBe('error');

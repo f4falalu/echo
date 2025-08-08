@@ -2,7 +2,7 @@ import { generateObject } from 'ai';
 import type { ModelMessage } from 'ai';
 import { wrapTraced } from 'braintrust';
 import { z } from 'zod';
-import { Sonnet4 } from '../utils/models/sonnet-4';
+import { Sonnet4 } from '../models/sonnet-4';
 
 // Zod schemas first - following Zod-first approach
 export const createTodosParamsSchema = z.object({

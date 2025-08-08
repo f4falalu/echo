@@ -1,10 +1,12 @@
 import type { Sandbox } from '@buster/sandbox';
 import { tool } from 'ai';
-import { wrapTraced } from 'braintrust';
 import { z } from 'zod';
-import type { DocsAgentOptions } from '../../../agents/docs-agent/docs-agent';
+import { createDeleteFilesToolDelta } from './delete-files-tool-delta';
+import { createDeleteFilesToolExecute } from './delete-files-tool-execute';
+import { createDeleteFilesToolFinish } from './delete-files-tool-finish';
+import { createDeleteFilesToolStart } from './delete-files-tool-start';
 
-const deleteFilesInputSchema = z.object({
+export const DeleteFilesToolInputSchema = z.object({
   paths: z
     .array(z.string())
     .describe(
@@ -12,7 +14,7 @@ const deleteFilesInputSchema = z.object({
     ),
 });
 
-const deleteFilesOutputSchema = z.object({
+const DeleteFilesToolOutputSchema = z.object({
   results: z.array(
     z.discriminatedUnion('status', [
       z.object({
@@ -28,152 +30,50 @@ const deleteFilesOutputSchema = z.object({
   ),
 });
 
-const deleteFilesContextSchema = z.object({
-  sandbox: z.custom<Sandbox>(
-    (val) => {
-      return val && typeof val === 'object' && 'id' in val && 'process' in val;
-    },
-    { message: 'Invalid Sandbox instance' }
-  ),
+const DeleteFilesToolContextSchema = z.object({
+  messageId: z.string().describe('The message ID for database updates'),
+  sandbox: z
+    .custom<Sandbox>(
+      (val) => {
+        return val && typeof val === 'object' && 'id' in val && 'process' in val;
+      },
+      { message: 'Invalid Sandbox instance' }
+    )
+    .describe('Sandbox instance for file operations'),
 });
 
-type DeleteFilesContext = z.infer<typeof deleteFilesContextSchema>;
-
-const deleteFilesExecution = wrapTraced(
-  async (
-    params: z.infer<typeof deleteFilesInputSchema>,
-    context: DeleteFilesContext
-  ): Promise<z.infer<typeof deleteFilesOutputSchema>> => {
-    const { paths } = params;
-
-    if (!paths || paths.length === 0) {
-      return { results: [] };
-    }
-
-    try {
-      const sandbox = context.sandbox;
-
-      if (sandbox) {
-        const results: Array<
-          | { status: 'success'; path: string }
-          | { status: 'error'; path: string; error_message: string }
-        > = [];
-
-        // Process each file path
-        for (const filePath of paths) {
-          try {
-            // First check if it's a directory
-            const testResult = await sandbox.process.codeRun(`
-              const fs = require('fs');
-              
-              try {
-                const stats = fs.statSync('${filePath.replace(/'/g, "\\'")}');
-                console.log(JSON.stringify({ isDirectory: stats.isDirectory() }));
-              } catch (error) {
-                console.log(JSON.stringify({ error: error.code || error.message }));
-                process.exit(1);
-              }
-            `);
-
-            if (testResult.exitCode === 0) {
-              const testData = JSON.parse(testResult.result.trim());
-              if (testData.isDirectory) {
-                results.push({
-                  status: 'error',
-                  path: filePath,
-                  error_message: 'Cannot delete directories with this tool',
-                });
-                continue;
-              }
-            }
-
-            // Use rm command to delete the file
-            const deleteResult = await sandbox.process.codeRun(`
-              const { execSync } = require('child_process');
-              
-              try {
-                execSync('rm "${filePath.replace(/"/g, '\\"')}"', { encoding: 'utf8' });
-                console.log('SUCCESS');
-              } catch (error) {
-                console.error('ERROR:', error.message);
-                process.exit(1);
-              }
-            `);
-
-            if (deleteResult.exitCode === 0) {
-              results.push({
-                status: 'success',
-                path: filePath,
-              });
-            } else {
-              const errorMessage = deleteResult.result || 'Unknown error';
-              results.push({
-                status: 'error',
-                path: filePath,
-                error_message: errorMessage.includes('No such file')
-                  ? 'File not found'
-                  : errorMessage,
-              });
-            }
-          } catch (error) {
-            results.push({
-              status: 'error',
-              path: filePath,
-              error_message: error instanceof Error ? error.message : 'Unknown error',
-            });
-          }
-        }
-
-        return { results };
-      }
-
-      // When not in sandbox, we can't delete files
-      // Return an error for each path
-      return {
-        results: paths.map((targetPath) => ({
-          status: 'error' as const,
-          path: targetPath,
-          error_message: 'File deletion requires sandbox environment',
-        })),
-      };
-    } catch (error) {
-      return {
-        results: paths.map((targetPath) => ({
-          status: 'error' as const,
-          path: targetPath,
-          error_message: `Execution error: ${error instanceof Error ? error.message : 'Unknown error'}`,
-        })),
-      };
-    }
-  },
-  { name: 'delete-files' }
-);
-
-export const deleteFiles = tool({
-  description: `Deletes files at the specified paths. Accepts both absolute and relative file paths and can handle bulk operations through an array of paths. Only files can be deleted, not directories. Returns structured JSON with deletion results including success status and any error messages. Handles errors gracefully by continuing to process other files even if some fail.`,
-  inputSchema: deleteFilesInputSchema,
-  outputSchema: deleteFilesOutputSchema,
-  execute: async (input, { experimental_context: context }) => {
-    const rawContext = context as DocsAgentOptions & { sandbox?: Sandbox };
-
-    // Check if sandbox is available
-    if (!rawContext?.sandbox) {
-      // Return error for each path when sandbox is not available
-      return {
-        results: input.paths.map((path) => ({
-          status: 'error' as const,
-          path: path,
-          error_message: 'File deletion requires sandbox environment',
-        })),
-      };
-    }
-
-    const deleteFilesContext = deleteFilesContextSchema.parse({
-      sandbox: rawContext.sandbox,
-    });
-
-    return await deleteFilesExecution(input, deleteFilesContext);
-  },
+const DeleteFilesToolStateSchema = z.object({
+  entry_id: z.string().optional().describe('The entry ID for database updates'),
+  args: z.string().optional().describe('Accumulated streaming arguments'),
+  paths: z.array(z.string()).optional().describe('Parsed paths from streaming input'),
 });
 
-export default deleteFiles;
+export type DeleteFilesToolInput = z.infer<typeof DeleteFilesToolInputSchema>;
+export type DeleteFilesToolOutput = z.infer<typeof DeleteFilesToolOutputSchema>;
+export type DeleteFilesToolContext = z.infer<typeof DeleteFilesToolContextSchema>;
+export type DeleteFilesToolState = z.infer<typeof DeleteFilesToolStateSchema>;
+
+export function createDeleteFilesTool<
+  TAgentContext extends DeleteFilesToolContext = DeleteFilesToolContext,
+>(context: TAgentContext) {
+  const state: DeleteFilesToolState = {
+    entry_id: undefined,
+    args: undefined,
+    paths: undefined,
+  };
+
+  const execute = createDeleteFilesToolExecute(state, context);
+  const onInputStart = createDeleteFilesToolStart(state, context);
+  const onInputDelta = createDeleteFilesToolDelta(state, context);
+  const onInputAvailable = createDeleteFilesToolFinish(state, context);
+
+  return tool({
+    description: `Deletes files at the specified paths. Accepts both absolute and relative file paths and can handle bulk operations through an array of paths. Only files can be deleted, not directories. Returns structured JSON with deletion results including success status and any error messages. Handles errors gracefully by continuing to process other files even if some fail.`,
+    inputSchema: DeleteFilesToolInputSchema,
+    outputSchema: DeleteFilesToolOutputSchema,
+    execute,
+    onInputStart,
+    onInputDelta,
+    onInputAvailable,
+  });
+}

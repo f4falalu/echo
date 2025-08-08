@@ -2,10 +2,10 @@ import { Agent, createStep } from '@mastra/core';
 import type { CoreMessage } from 'ai';
 import { wrapTraced } from 'braintrust';
 import { z } from 'zod';
+import { Sonnet4 } from '../../models/sonnet-4';
 import { flagChat } from '../../tools/post-processing/flag-chat';
 import { noIssuesFound } from '../../tools/post-processing/no-issues-found';
 import { MessageHistorySchema } from '../../utils/memory/types';
-import { Sonnet4 } from '../../utils/models/sonnet-4';
 import { standardizeMessages } from '../../utils/standardizeMessages';
 
 const inputSchema = z.object({

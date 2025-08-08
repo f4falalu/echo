@@ -1,6 +1,7 @@
 import { type ModelMessage, NoSuchToolError, hasToolCall, stepCountIs, streamText } from 'ai';
 import { wrapTraced } from 'braintrust';
 import z from 'zod';
+import { Sonnet4 } from '../../models/sonnet-4';
 import {
   createCreateDashboardsTool,
   createCreateMetricsTool,
@@ -8,7 +9,6 @@ import {
   createModifyDashboardsTool,
   createModifyMetricsTool,
 } from '../../tools';
-import { Sonnet4 } from '../../utils/models/sonnet-4';
 import { healToolWithLlm } from '../../utils/tool-call-repair';
 import { getAnalystAgentSystemPrompt } from './get-analyst-agent-system-prompt';
 

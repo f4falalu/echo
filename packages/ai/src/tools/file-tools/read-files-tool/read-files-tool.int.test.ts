@@ -1,8 +1,6 @@
 import { createSandbox } from '@buster/sandbox';
-import { RuntimeContext } from '@mastra/core/runtime-context';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { DocsAgentContextKeys } from '../../../agents/docs-agent/docs-agent-context';
-import { readFiles } from './read-files-tool';
+import { createReadFilesTool } from './read-files-tool';
 
 describe.sequential('read-files-tool integration test', () => {
   const hasApiKey = !!process.env.DAYTONA_API_KEY;
@@ -47,15 +45,16 @@ describe.sequential('read-files-tool integration test', () => {
 
       await sharedSandbox.process.codeRun(createFilesCode);
 
-      // Now test reading files with the tool
-      const runtimeContext = new RuntimeContext();
-      runtimeContext.set(DocsAgentContextKeys.Sandbox, sharedSandbox);
+      // Now test reading files with the tool using factory pattern
+      const context = {
+        messageId: 'test-message-id',
+        sandbox: sharedSandbox,
+      };
 
-      const result = await readFiles.execute({
-        context: {
-          files: [`${testDir}/test1.txt`, `${testDir}/test2.txt`],
-        },
-        runtimeContext,
+      const readFilesTool = createReadFilesTool(context);
+
+      const result = await readFilesTool.execute({
+        files: [`${testDir}/test1.txt`, `${testDir}/test2.txt`],
       });
 
       expect(result.results).toHaveLength(2);
@@ -78,14 +77,15 @@ describe.sequential('read-files-tool integration test', () => {
   (hasApiKey ? it : it.skip)(
     'should handle non-existent files in sandbox',
     async () => {
-      const runtimeContext = new RuntimeContext();
-      runtimeContext.set(DocsAgentContextKeys.Sandbox, sharedSandbox);
+      const context = {
+        messageId: 'test-message-id',
+        sandbox: sharedSandbox,
+      };
 
-      const result = await readFiles.execute({
-        context: {
-          files: ['nonexistent.txt'],
-        },
-        runtimeContext,
+      const readFilesTool = createReadFilesTool(context);
+
+      const result = await readFilesTool.execute({
+        files: ['nonexistent.txt'],
       });
 
       expect(result.results).toHaveLength(1);
@@ -119,20 +119,21 @@ describe.sequential('read-files-tool integration test', () => {
 
       await sharedSandbox.process.codeRun(createFilesCode);
 
-      const runtimeContext = new RuntimeContext();
-      runtimeContext.set(DocsAgentContextKeys.Sandbox, sharedSandbox);
+      const context = {
+        messageId: 'test-message-id',
+        sandbox: sharedSandbox,
+      };
 
-      const result = await readFiles.execute({
-        context: {
-          files: [
-            `${testDir}/file1.txt`,
-            `${testDir}/file2.txt`,
-            `${testDir}/file3.txt`,
-            `${testDir}/file4.txt`,
-            `${testDir}/file5.txt`,
-          ],
-        },
-        runtimeContext,
+      const readFilesTool = createReadFilesTool(context);
+
+      const result = await readFilesTool.execute({
+        files: [
+          `${testDir}/file1.txt`,
+          `${testDir}/file2.txt`,
+          `${testDir}/file3.txt`,
+          `${testDir}/file4.txt`,
+          `${testDir}/file5.txt`,
+        ],
       });
 
       expect(result.results).toHaveLength(5);
@@ -149,15 +150,17 @@ describe.sequential('read-files-tool integration test', () => {
   );
 
   it('should return error when no sandbox is available', async () => {
-    // Create runtime context without sandbox
-    const runtimeContext = new RuntimeContext();
+    // Create context without sandbox
+    const context = {
+      messageId: 'test-message-id',
+      sandbox: undefined as any,
+    };
+
+    const readFilesTool = createReadFilesTool(context);
 
     // This should return error since sandbox is required
-    const result = await readFiles.execute({
-      context: {
-        files: ['test.txt'],
-      },
-      runtimeContext,
+    const result = await readFilesTool.execute({
+      files: ['test.txt'],
     });
 
     expect(result.results).toHaveLength(1);

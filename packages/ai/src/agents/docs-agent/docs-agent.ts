@@ -2,22 +2,22 @@ import type { Sandbox } from '@buster/sandbox';
 import { type ModelMessage, hasToolCall, stepCountIs, streamText } from 'ai';
 import { wrapTraced } from 'braintrust';
 import z from 'zod';
+import { Sonnet4 } from '../../models/sonnet-4';
 import {
   bashExecute,
   checkOffTodoList,
+  createEditFilesTool,
   createFiles,
+  createGrepSearchTool,
   createIdleTool,
+  createListFilesTool,
   createSequentialThinkingTool,
   deleteFiles,
-  editFiles,
   executeSqlDocsAgent,
-  grepSearch,
-  listFiles,
   readFiles,
   updateClarificationsFile,
   webSearch,
 } from '../../tools';
-import { Sonnet4 } from '../../utils/models/sonnet-4';
 import { healToolWithLlm } from '../../utils/tool-call-repair';
 import { getDocsAgentSystemPrompt } from './get-docs-agent-system-prompt';
 
@@ -65,6 +65,18 @@ export function createDocsAgent(docsAgentOptions: DocsAgentOptions) {
 
   const idleTool = createIdleTool({ messageId: docsAgentOptions.messageId });
 
+  // Create tool context with messageId and sandbox if available
+  const toolContext = {
+    messageId: docsAgentOptions.messageId || 'default',
+    sandbox: docsAgentOptions.sandbox,
+  };
+
+  // Create file tools with context (only if sandbox is available)
+  const listFiles = docsAgentOptions.sandbox ? createListFilesTool(toolContext) : undefined;
+  const editFilesTool = docsAgentOptions.sandbox ? createEditFilesTool(toolContext) : undefined;
+  const grepSearchTool = docsAgentOptions.sandbox ? createGrepSearchTool(toolContext) : undefined;
+  const createFilesTool = docsAgentOptions.sandbox ? createFiles(toolContext) : undefined;
+
   async function stream({ messages }: DocsStreamOptions) {
     return wrapTraced(
       () =>
@@ -74,12 +86,12 @@ export function createDocsAgent(docsAgentOptions: DocsAgentOptions) {
             sequentialThinking: createSequentialThinkingTool({
               messageId: docsAgentOptions.messageId,
             }),
-            grepSearch,
+            ...(grepSearchTool && { grepSearch: grepSearchTool }),
             readFiles,
-            editFiles,
-            createFiles,
+            ...(editFilesTool && { editFiles: editFilesTool }),
+            ...(createFilesTool && { createFiles: createFilesTool }),
             deleteFiles,
-            listFiles,
+            ...(listFiles && { listFiles }),
             executeSql: executeSqlDocsAgent,
             bashExecute,
             updateClarificationsFile,

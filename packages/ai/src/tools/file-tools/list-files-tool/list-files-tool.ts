@@ -1,10 +1,12 @@
 import type { Sandbox } from '@buster/sandbox';
 import { tool } from 'ai';
-import { wrapTraced } from 'braintrust';
 import { z } from 'zod';
-import type { DocsAgentOptions } from '../../../agents/docs-agent/docs-agent';
+import { createListFilesToolDelta } from './list-files-tool-delta';
+import { createListFilesToolExecute } from './list-files-tool-execute';
+import { createListFilesToolFinish } from './list-files-tool-finish';
+import { createListFilesToolStart } from './list-files-tool-start';
 
-const listFilesOptionsSchema = z.object({
+const ListFilesOptionsSchema = z.object({
   depth: z
     .number()
     .optional()
@@ -18,16 +20,16 @@ const listFilesOptionsSchema = z.object({
   followSymlinks: z.boolean().optional().describe('Use -l flag to follow symbolic links'),
 });
 
-const listFilesInputSchema = z.object({
+export const ListFilesToolInputSchema = z.object({
   paths: z
     .array(z.string())
     .describe(
       'Array of paths to display tree structure for. Can be absolute paths (e.g., /path/to/directory) or relative paths (e.g., ./relative/path).'
     ),
-  options: listFilesOptionsSchema.optional().describe('Options for tree command execution'),
+  options: ListFilesOptionsSchema.optional().describe('Options for tree command execution'),
 });
 
-const listFilesOutputSchema = z.object({
+const ListFilesToolOutputSchema = z.object({
   results: z.array(
     z.discriminatedUnion('status', [
       z.object({
@@ -48,137 +50,52 @@ const listFilesOutputSchema = z.object({
   ),
 });
 
-const listFilesContextSchema = z.object({
-  sandbox: z.custom<Sandbox>(
-    (val) => {
-      return val && typeof val === 'object' && 'id' in val && 'process' in val;
-    },
-    { message: 'Invalid Sandbox instance' }
-  ),
+const ListFilesToolContextSchema = z.object({
+  messageId: z.string().describe('The message ID for database updates'),
+  sandbox: z
+    .custom<Sandbox>(
+      (val) => {
+        return val && typeof val === 'object' && 'id' in val && 'process' in val;
+      },
+      { message: 'Invalid Sandbox instance' }
+    )
+    .describe('Sandbox instance for file operations'),
 });
 
-type ListFilesContext = z.infer<typeof listFilesContextSchema>;
-
-const listFilesExecution = wrapTraced(
-  async (
-    params: z.infer<typeof listFilesInputSchema>,
-    context: ListFilesContext
-  ): Promise<z.infer<typeof listFilesOutputSchema>> => {
-    const { paths, options } = params;
-
-    if (!paths || paths.length === 0) {
-      return { results: [] };
-    }
-
-    try {
-      const sandbox = context.sandbox;
-
-      if (sandbox) {
-        const results = [];
-
-        for (const targetPath of paths) {
-          try {
-            // Build tree command flags
-            const flags = ['--gitignore']; // Always include gitignore
-
-            if (options?.depth) {
-              flags.push('-L', options.depth.toString());
-            }
-            if (options?.all) {
-              flags.push('-a');
-            }
-            if (options?.dirsOnly) {
-              flags.push('-d');
-            }
-            if (options?.followSymlinks) {
-              flags.push('-l');
-            }
-            if (options?.ignorePattern) {
-              flags.push('-I', options.ignorePattern);
-            }
-
-            // Build tree command
-            const command = `tree ${flags.join(' ')} "${targetPath}"`;
-
-            // Execute command directly using sandbox.process.executeCommand
-            const result = await sandbox.process.executeCommand(command);
-
-            if (result.exitCode === 0) {
-              // Get current directory
-              const pwdResult = await sandbox.process.executeCommand('pwd');
-
-              results.push({
-                status: 'success' as const,
-                path: targetPath,
-                output: result.result,
-                currentDirectory: pwdResult.result.trim(),
-              });
-            } else {
-              results.push({
-                status: 'error' as const,
-                path: targetPath,
-                error_message: result.result || `Command failed with exit code ${result.exitCode}`,
-              });
-            }
-          } catch (error) {
-            results.push({
-              status: 'error' as const,
-              path: targetPath,
-              error_message: error instanceof Error ? error.message : 'Unknown error',
-            });
-          }
-        }
-
-        return { results };
-      }
-
-      // When not in sandbox, we can't use the tree command
-      // Return an error for each path
-      return {
-        results: paths.map((targetPath) => ({
-          status: 'error' as const,
-          path: targetPath,
-          error_message: 'tree command requires sandbox environment',
-        })),
-      };
-    } catch (error) {
-      return {
-        results: paths.map((targetPath) => ({
-          status: 'error' as const,
-          path: targetPath,
-          error_message: `Execution error: ${error instanceof Error ? error.message : 'Unknown error'}`,
-        })),
-      };
-    }
-  },
-  { name: 'list-files' }
-);
-
-export const listFiles = tool({
-  description: `Displays the directory structure in a hierarchical tree format. Automatically excludes git-ignored files. Supports various options like depth limiting, showing only directories, following symlinks, and custom ignore patterns. Returns the raw text output showing the file system hierarchy with visual tree branches that clearly show parent-child relationships. Accepts both absolute and relative paths and can handle bulk operations through an array of paths.`,
-  inputSchema: listFilesInputSchema,
-  outputSchema: listFilesOutputSchema,
-  execute: async (input, { experimental_context: context }) => {
-    const rawContext = context as DocsAgentOptions & { sandbox?: Sandbox };
-
-    // Check if sandbox is available
-    if (!rawContext?.sandbox) {
-      // Return error for each path when sandbox is not available
-      return {
-        results: input.paths.map((path) => ({
-          status: 'error' as const,
-          path: path,
-          error_message: 'tree command requires sandbox environment',
-        })),
-      };
-    }
-
-    const listFilesContext = listFilesContextSchema.parse({
-      sandbox: rawContext.sandbox,
-    });
-
-    return await listFilesExecution(input, listFilesContext);
-  },
+const ListFilesToolStateSchema = z.object({
+  entry_id: z.string().optional().describe('The entry ID for database updates'),
+  args: z.string().optional().describe('Accumulated streaming arguments'),
+  paths: z.array(z.string()).optional().describe('Parsed paths from streaming input'),
+  options: ListFilesOptionsSchema.optional().describe('Parsed options from streaming input'),
 });
 
-export default listFiles;
+export type ListFilesToolInput = z.infer<typeof ListFilesToolInputSchema>;
+export type ListFilesToolOutput = z.infer<typeof ListFilesToolOutputSchema>;
+export type ListFilesToolContext = z.infer<typeof ListFilesToolContextSchema>;
+export type ListFilesToolState = z.infer<typeof ListFilesToolStateSchema>;
+
+export function createListFilesTool<
+  TAgentContext extends ListFilesToolContext = ListFilesToolContext,
+>(context: TAgentContext) {
+  const state: ListFilesToolState = {
+    entry_id: undefined,
+    args: undefined,
+    paths: undefined,
+    options: undefined,
+  };
+
+  const execute = createListFilesToolExecute(state, context);
+  const onInputStart = createListFilesToolStart(state, context);
+  const onInputDelta = createListFilesToolDelta(state, context);
+  const onInputAvailable = createListFilesToolFinish(state, context);
+
+  return tool({
+    description: `Displays the directory structure in a hierarchical tree format. Automatically excludes git-ignored files. Supports various options like depth limiting, showing only directories, following symlinks, and custom ignore patterns. Returns the raw text output showing the file system hierarchy with visual tree branches that clearly show parent-child relationships. Accepts both absolute and relative paths and can handle bulk operations through an array of paths.`,
+    inputSchema: ListFilesToolInputSchema,
+    outputSchema: ListFilesToolOutputSchema,
+    execute,
+    onInputStart,
+    onInputDelta,
+    onInputAvailable,
+  });
+}

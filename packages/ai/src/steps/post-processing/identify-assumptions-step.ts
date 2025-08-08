@@ -2,13 +2,13 @@ import { Agent, createStep } from '@mastra/core';
 import type { CoreMessage } from 'ai';
 import { wrapTraced } from 'braintrust';
 import { z } from 'zod';
+import { Sonnet4 } from '../../models/sonnet-4';
 import {
   type assumptionItemSchema,
   listAssumptionsResponse,
 } from '../../tools/post-processing/list-assumptions-response';
 import { noAssumptionsIdentified } from '../../tools/post-processing/no-assumptions-identified';
 import { MessageHistorySchema } from '../../utils/memory/types';
-import { Sonnet4 } from '../../utils/models/sonnet-4';
 
 const inputSchema = z.object({
   conversationHistory: MessageHistorySchema.optional(),

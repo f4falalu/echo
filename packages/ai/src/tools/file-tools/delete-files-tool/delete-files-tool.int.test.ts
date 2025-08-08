@@ -1,8 +1,6 @@
 import { createSandbox } from '@buster/sandbox';
-import { RuntimeContext } from '@mastra/core/runtime-context';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { DocsAgentContextKeys } from '../../../agents/docs-agent/docs-agent-context';
-import { deleteFiles } from './delete-files-tool';
+import { createDeleteFilesTool } from './delete-files-tool';
 
 describe.sequential('delete-files-tool integration test', () => {
   const hasApiKey = !!process.env.DAYTONA_API_KEY;
@@ -49,18 +47,17 @@ describe.sequential('delete-files-tool integration test', () => {
       await sharedSandbox.process.codeRun(createFilesCode);
 
       // Now test deleting files with the tool
-      const runtimeContext = new RuntimeContext();
-      runtimeContext.set(DocsAgentContextKeys.Sandbox, sharedSandbox);
+      const tool = createDeleteFilesTool({
+        messageId: 'test-message-id',
+        sandbox: sharedSandbox,
+      });
 
-      const result = await deleteFiles.execute({
-        context: {
-          paths: [
-            `${testDir}/delete1.txt`,
-            `${testDir}/delete2.txt`,
-            `${testDir}/subdir/delete3.txt`,
-          ],
-        },
-        runtimeContext,
+      const result = await tool.execute({
+        paths: [
+          `${testDir}/delete1.txt`,
+          `${testDir}/delete2.txt`,
+          `${testDir}/subdir/delete3.txt`,
+        ],
       });
 
       expect(result.results).toHaveLength(3);
@@ -104,14 +101,13 @@ describe.sequential('delete-files-tool integration test', () => {
     'should handle non-existent files gracefully',
     async () => {
       const testDir = getTestDir();
-      const runtimeContext = new RuntimeContext();
-      runtimeContext.set(DocsAgentContextKeys.Sandbox, sharedSandbox);
+      const tool = createDeleteFilesTool({
+        messageId: 'test-message-id',
+        sandbox: sharedSandbox,
+      });
 
-      const result = await deleteFiles.execute({
-        context: {
-          paths: [`${testDir}/nonexistent1.txt`, `${testDir}/nonexistent2.txt`],
-        },
-        runtimeContext,
+      const result = await tool.execute({
+        paths: [`${testDir}/nonexistent1.txt`, `${testDir}/nonexistent2.txt`],
       });
 
       expect(result.results).toHaveLength(2);
@@ -148,18 +144,17 @@ describe.sequential('delete-files-tool integration test', () => {
 
       await sharedSandbox.process.codeRun(createFilesCode);
 
-      const runtimeContext = new RuntimeContext();
-      runtimeContext.set(DocsAgentContextKeys.Sandbox, sharedSandbox);
+      const tool = createDeleteFilesTool({
+        messageId: 'test-message-id',
+        sandbox: sharedSandbox,
+      });
 
-      const result = await deleteFiles.execute({
-        context: {
-          paths: [
-            `${testDir}/exists1.txt`,
-            `${testDir}/does-not-exist.txt`,
-            `${testDir}/exists2.txt`,
-          ],
-        },
-        runtimeContext,
+      const result = await tool.execute({
+        paths: [
+          `${testDir}/exists1.txt`,
+          `${testDir}/does-not-exist.txt`,
+          `${testDir}/exists2.txt`,
+        ],
       });
 
       expect(result.results).toHaveLength(3);
@@ -197,14 +192,13 @@ describe.sequential('delete-files-tool integration test', () => {
 
       await sharedSandbox.process.codeRun(createFileCode);
 
-      const runtimeContext = new RuntimeContext();
-      runtimeContext.set(DocsAgentContextKeys.Sandbox, sharedSandbox);
+      const tool = createDeleteFilesTool({
+        messageId: 'test-message-id',
+        sandbox: sharedSandbox,
+      });
 
-      const result = await deleteFiles.execute({
-        context: {
-          paths: [`/tmp/${testDir}/absolute-delete-test.txt`],
-        },
-        runtimeContext,
+      const result = await tool.execute({
+        paths: [`/tmp/${testDir}/absolute-delete-test.txt`],
       });
 
       expect(result.results).toHaveLength(1);
@@ -243,14 +237,13 @@ describe.sequential('delete-files-tool integration test', () => {
 
       await sharedSandbox.process.codeRun(createDirCode);
 
-      const runtimeContext = new RuntimeContext();
-      runtimeContext.set(DocsAgentContextKeys.Sandbox, sharedSandbox);
+      const tool = createDeleteFilesTool({
+        messageId: 'test-message-id',
+        sandbox: sharedSandbox,
+      });
 
-      const result = await deleteFiles.execute({
-        context: {
-          paths: [`${testDir}/test-directory`],
-        },
-        runtimeContext,
+      const result = await tool.execute({
+        paths: [`${testDir}/test-directory`],
       });
 
       expect(result.results).toHaveLength(1);
@@ -282,18 +275,17 @@ describe.sequential('delete-files-tool integration test', () => {
     'should handle permission errors gracefully',
     async () => {
       const testDir = getTestDir();
-      const runtimeContext = new RuntimeContext();
-      runtimeContext.set(DocsAgentContextKeys.Sandbox, sharedSandbox);
+      const tool = createDeleteFilesTool({
+        messageId: 'test-message-id',
+        sandbox: sharedSandbox,
+      });
 
       // Try to delete a system file (should fail with permission error)
-      const result = await deleteFiles.execute({
-        context: {
-          paths: [
-            '/etc/passwd', // System file, should not be deletable
-            `${testDir}/regular-file.txt`, // Non-existent file
-          ],
-        },
-        runtimeContext,
+      const result = await tool.execute({
+        paths: [
+          '/etc/passwd', // System file, should not be deletable
+          `${testDir}/regular-file.txt`, // Non-existent file
+        ],
       });
 
       expect(result.results).toHaveLength(2);
@@ -332,14 +324,13 @@ describe.sequential('delete-files-tool integration test', () => {
 
       await sharedSandbox.process.codeRun(createFileCode);
 
-      const runtimeContext = new RuntimeContext();
-      runtimeContext.set(DocsAgentContextKeys.Sandbox, sharedSandbox);
+      const tool = createDeleteFilesTool({
+        messageId: 'test-message-id',
+        sandbox: sharedSandbox,
+      });
 
-      const result = await deleteFiles.execute({
-        context: {
-          paths: [`${testDir}/file with spaces.txt`],
-        },
-        runtimeContext,
+      const result = await tool.execute({
+        paths: [`${testDir}/file with spaces.txt`],
       });
 
       expect(result.results).toHaveLength(1);

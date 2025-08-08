@@ -1,11 +1,11 @@
 import { type ModelMessage, NoSuchToolError, hasToolCall, stepCountIs, streamText } from 'ai';
 import { wrapTraced } from 'braintrust';
 import z from 'zod';
+import { Sonnet4 } from '../../models/sonnet-4';
 import { createSequentialThinkingTool, executeSql } from '../../tools';
 import { createMessageUserClarifyingQuestionTool } from '../../tools/communication-tools/message-user-clarifying-question/message-user-clarifying-question';
 import { createRespondWithoutAssetCreationTool } from '../../tools/communication-tools/respond-without-asset-creation/respond-without-asset-creation-tool';
 import { createSubmitThoughtsTool } from '../../tools/communication-tools/submit-thoughts-tool/submit-thoughts-tool';
-import { Sonnet4 } from '../../utils/models/sonnet-4';
 import { getThinkAndPrepAgentSystemPrompt } from './get-think-and-prep-agent-system-prompt';
 
 const DEFAULT_CACHE_OPTIONS = {

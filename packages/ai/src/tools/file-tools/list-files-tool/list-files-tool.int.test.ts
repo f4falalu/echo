@@ -1,9 +1,6 @@
-import { createSandbox } from '@buster/sandbox';
-import { addFiles } from '@buster/sandbox';
-import { RuntimeContext } from '@mastra/core/runtime-context';
+import { addFiles, createSandbox } from '@buster/sandbox';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { DocsAgentContextKeys } from '../../../agents/docs-agent/docs-agent-context';
-import { listFiles } from './list-files-tool';
+import { createListFilesTool } from './list-files-tool';
 
 describe.sequential('list-files-tool integration test', () => {
   const hasApiKey = !!process.env.DAYTONA_API_KEY;
@@ -74,14 +71,13 @@ describe.sequential('list-files-tool integration test', () => {
 
         await addFiles(sharedSandbox, testFiles);
 
-        const runtimeContext = new RuntimeContext();
-        runtimeContext.set(DocsAgentContextKeys.Sandbox, sharedSandbox);
+        const tool = createListFilesTool({
+          messageId: 'test-message-id',
+          sandbox: sharedSandbox,
+        });
 
-        const result = await listFiles.execute({
-          context: {
-            paths: [`${testDir}`],
-          },
-          runtimeContext,
+        const result = await tool.execute({
+          paths: [`${testDir}`],
         });
 
         expect(result.results).toHaveLength(1);
@@ -139,17 +135,16 @@ describe.sequential('list-files-tool integration test', () => {
 
         await addFiles(sharedSandbox, testFiles);
 
-        const runtimeContext = new RuntimeContext();
-        runtimeContext.set(DocsAgentContextKeys.Sandbox, sharedSandbox);
+        const tool = createListFilesTool({
+          messageId: 'test-message-id',
+          sandbox: sharedSandbox,
+        });
 
-        const result = await listFiles.execute({
-          context: {
-            paths: [`${testDir}`],
-            options: {
-              depth: 2,
-            },
+        const result = await tool.execute({
+          paths: [`${testDir}`],
+          options: {
+            depth: 2,
           },
-          runtimeContext,
         });
 
         expect(result.results[0]?.status).toBe('success');
@@ -190,17 +185,16 @@ describe.sequential('list-files-tool integration test', () => {
 
         await addFiles(sharedSandbox, testFiles);
 
-        const runtimeContext = new RuntimeContext();
-        runtimeContext.set(DocsAgentContextKeys.Sandbox, sharedSandbox);
+        const tool = createListFilesTool({
+          messageId: 'test-message-id',
+          sandbox: sharedSandbox,
+        });
 
-        const result = await listFiles.execute({
-          context: {
-            paths: [`${testDir}`],
-            options: {
-              all: true,
-            },
+        const result = await tool.execute({
+          paths: [`${testDir}`],
+          options: {
+            all: true,
           },
-          runtimeContext,
         });
 
         expect(result.results[0]?.status).toBe('success');
@@ -248,14 +242,13 @@ describe.sequential('list-files-tool integration test', () => {
 
         await addFiles(sharedSandbox, testFiles);
 
-        const runtimeContext = new RuntimeContext();
-        runtimeContext.set(DocsAgentContextKeys.Sandbox, sharedSandbox);
+        const tool = createListFilesTool({
+          messageId: 'test-message-id',
+          sandbox: sharedSandbox,
+        });
 
-        const result = await listFiles.execute({
-          context: {
-            paths: [`${testDir}/subdir1`, `${testDir}/subdir2`],
-          },
-          runtimeContext,
+        const result = await tool.execute({
+          paths: [`${testDir}/subdir1`, `${testDir}/subdir2`],
         });
 
         expect(result.results).toHaveLength(2);
@@ -281,14 +274,13 @@ describe.sequential('list-files-tool integration test', () => {
     (hasApiKey ? it : it.skip)(
       'should handle non-existent paths',
       async () => {
-        const runtimeContext = new RuntimeContext();
-        runtimeContext.set(DocsAgentContextKeys.Sandbox, sharedSandbox);
+        const tool = createListFilesTool({
+          messageId: 'test-message-id',
+          sandbox: sharedSandbox,
+        });
 
-        const result = await listFiles.execute({
-          context: {
-            paths: ['nonexistent-dir', 'also-nonexistent'],
-          },
-          runtimeContext,
+        const result = await tool.execute({
+          paths: ['nonexistent-dir', 'also-nonexistent'],
         });
 
         expect(result.results).toHaveLength(2);
@@ -308,14 +300,13 @@ describe.sequential('list-files-tool integration test', () => {
     (hasApiKey ? it : it.skip)(
       'should handle empty paths array',
       async () => {
-        const runtimeContext = new RuntimeContext();
-        runtimeContext.set(DocsAgentContextKeys.Sandbox, sharedSandbox);
+        const tool = createListFilesTool({
+          messageId: 'test-message-id',
+          sandbox: sharedSandbox,
+        });
 
-        const result = await listFiles.execute({
-          context: {
-            paths: [],
-          },
-          runtimeContext,
+        const result = await tool.execute({
+          paths: [],
         });
 
         expect(result.results).toHaveLength(0);
@@ -326,14 +317,13 @@ describe.sequential('list-files-tool integration test', () => {
 
   describe('without sandbox', () => {
     it('should return error when sandbox is not available', async () => {
-      const runtimeContext = new RuntimeContext();
-      // Don't set sandbox in runtime context
+      const tool = createListFilesTool({
+        messageId: 'test-message-id',
+        sandbox: null as any,
+      });
 
-      const result = await listFiles.execute({
-        context: {
-          paths: ['.', '/some/path'],
-        },
-        runtimeContext,
+      const result = await tool.execute({
+        paths: ['.', '/some/path'],
       });
 
       expect(result.results).toHaveLength(2);
@@ -349,14 +339,13 @@ describe.sequential('list-files-tool integration test', () => {
     });
 
     it('should handle empty paths without sandbox', async () => {
-      const runtimeContext = new RuntimeContext();
-      // Don't set sandbox in runtime context
+      const tool = createListFilesTool({
+        messageId: 'test-message-id',
+        sandbox: null as any,
+      });
 
-      const result = await listFiles.execute({
-        context: {
-          paths: [],
-        },
-        runtimeContext,
+      const result = await tool.execute({
+        paths: [],
       });
 
       expect(result.results).toHaveLength(0);

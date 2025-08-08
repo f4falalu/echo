@@ -1,8 +1,15 @@
+// Legacy bash-execute-tool - DEPRECATED
+// Use createBashTool from './bash-tool' instead
+
 import type { Sandbox } from '@buster/sandbox';
 import { tool } from 'ai';
 import { wrapTraced } from 'braintrust';
 import { z } from 'zod';
 import type { DocsAgentOptions } from '../../../agents/docs-agent/docs-agent';
+import { createBashTool } from './bash-tool';
+
+// Re-export new factory function for migration
+export { createBashTool } from './bash-tool';
 
 const bashCommandSchema = z.object({
   command: z.string().describe('The bash command to execute'),

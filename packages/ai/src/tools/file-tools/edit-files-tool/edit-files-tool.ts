@@ -1,20 +1,20 @@
-import * as fs from 'node:fs/promises';
-import * as path from 'node:path';
-import { type Sandbox, runTypescript } from '@buster/sandbox';
+import type { Sandbox } from '@buster/sandbox';
 import { tool } from 'ai';
-import { wrapTraced } from 'braintrust';
 import { z } from 'zod';
-import type { DocsAgentOptions } from '../../../agents/docs-agent/docs-agent';
+import { createEditFilesToolDelta } from './edit-files-tool-delta';
+import { createEditFilesToolExecute } from './edit-files-tool-execute';
+import { createEditFilesToolFinish } from './edit-files-tool-finish';
+import { createEditFilesToolStart } from './edit-files-tool-start';
 
-const editFileParamsSchema = z.object({
+const EditFileParamsSchema = z.object({
   filePath: z.string().describe('Relative or absolute path to the file'),
   findString: z.string().describe('Text to find (must appear exactly once)'),
   replaceString: z.string().describe('Text to replace the found text with'),
 });
 
-const editFilesInputSchema = z.object({
+export const EditFilesToolInputSchema = z.object({
   edits: z
-    .array(editFileParamsSchema)
+    .array(EditFileParamsSchema)
     .min(1, 'At least one edit must be provided')
     .max(100, 'Maximum 100 edits allowed per request')
     .describe(
@@ -22,7 +22,7 @@ const editFilesInputSchema = z.object({
     ),
 });
 
-const editFilesOutputSchema = z.object({
+export const EditFilesToolOutputSchema = z.object({
   results: z.array(
     z.discriminatedUnion('status', [
       z.object({
@@ -44,194 +44,66 @@ const editFilesOutputSchema = z.object({
   }),
 });
 
-const editFilesContextSchema = z.object({
-  sandbox: z.custom<Sandbox>(
-    (val) => {
-      return val && typeof val === 'object' && 'id' in val && 'fs' in val;
-    },
-    { message: 'Invalid Sandbox instance' }
-  ),
+export const EditFilesToolContextSchema = z.object({
+  messageId: z.string().describe('The message ID for database updates'),
+  sandbox: z
+    .custom<Sandbox>(
+      (val) => {
+        return val && typeof val === 'object' && 'id' in val && 'fs' in val;
+      },
+      { message: 'Invalid Sandbox instance' }
+    )
+    .describe('Sandbox instance for file operations'),
 });
 
-type EditFilesContext = z.infer<typeof editFilesContextSchema>;
+export const EditFilesToolStateSchema = z.object({
+  entry_id: z.string().optional().describe('The entry ID for database updates'),
+  args: z.string().optional().describe('Accumulated streaming arguments'),
+  edits: z.array(EditFileParamsSchema).optional().describe('Parsed edits from streaming input'),
+  isComplete: z.boolean().optional().describe('Whether input parsing is complete'),
+  executionResults: z
+    .array(
+      z.discriminatedUnion('status', [
+        z.object({
+          status: z.literal('success'),
+          file_path: z.string(),
+          message: z.string(),
+        }),
+        z.object({
+          status: z.literal('error'),
+          file_path: z.string(),
+          error_message: z.string(),
+        }),
+      ])
+    )
+    .optional()
+    .describe('Execution results'),
+});
 
-const editFilesExecution = wrapTraced(
-  async (
-    params: z.infer<typeof editFilesInputSchema>,
-    context: EditFilesContext
-  ): Promise<z.infer<typeof editFilesOutputSchema>> => {
-    const { edits } = params;
+export type EditFilesToolInput = z.infer<typeof EditFilesToolInputSchema>;
+export type EditFilesToolOutput = z.infer<typeof EditFilesToolOutputSchema>;
+export type EditFilesToolContext = z.infer<typeof EditFilesToolContextSchema>;
+export type EditFilesToolState = z.infer<typeof EditFilesToolStateSchema>;
 
-    if (!edits || edits.length === 0) {
-      return {
-        results: [],
-        summary: { total: 0, successful: 0, failed: 0 },
-      };
-    }
+// Factory function to create the edit-files tool
+export function createEditFilesTool<
+  TAgentContext extends EditFilesToolContext = EditFilesToolContext,
+>(context: TAgentContext) {
+  const state: EditFilesToolState = {
+    entry_id: undefined,
+    args: undefined,
+    edits: undefined,
+    isComplete: false,
+    executionResults: undefined,
+  };
 
-    try {
-      const sandbox = context.sandbox;
+  const execute = createEditFilesToolExecute(state, context);
+  const onInputStart = createEditFilesToolStart(state, context);
+  const onInputDelta = createEditFilesToolDelta(state, context);
+  const onInputAvailable = createEditFilesToolFinish(state, context);
 
-      if (sandbox) {
-        // Generate CommonJS code for sandbox execution
-        const editsJson = JSON.stringify(edits);
-        const sandboxCode = `
-const fs = require('fs');
-const path = require('path');
-
-const editsJson = ${JSON.stringify(editsJson)};
-const edits = JSON.parse(editsJson);
-const results = [];
-
-// Process edits
-for (const edit of edits) {
-  try {
-    const resolvedPath = path.isAbsolute(edit.filePath) 
-      ? edit.filePath 
-      : path.join(process.cwd(), edit.filePath);
-      
-    // Read the file
-    let content;
-    try {
-      content = fs.readFileSync(resolvedPath, 'utf-8');
-    } catch (error) {
-      if ((error as any).code === 'ENOENT') {
-        results.push({
-          success: false,
-          filePath: edit.filePath,
-          error: 'File not found'
-        });
-        continue;
-      }
-      throw error;
-    }
-    
-    // Check if find string exists
-    const occurrences = content.split(edit.findString).length - 1;
-    
-    if (occurrences === 0) {
-      results.push({
-        success: false,
-        filePath: edit.filePath,
-        error: 'Find string not found in file: "' + edit.findString + '"'
-      });
-      continue;
-    }
-    
-    if (occurrences > 1) {
-      results.push({
-        success: false,
-        filePath: edit.filePath,
-        error: 'Find string "' + edit.findString + '" appears ' + occurrences + ' times. Please use a more specific string that appears only once.'
-      });
-      continue;
-    }
-    
-    // Replace the string
-    const newContent = content.replace(edit.findString, edit.replaceString);
-    fs.writeFileSync(resolvedPath, newContent, 'utf-8');
-    
-    results.push({
-      success: true,
-      filePath: edit.filePath,
-      message: 'Successfully replaced "' + edit.findString + '" with "' + edit.replaceString + '" in ' + edit.filePath
-    });
-  } catch (error) {
-    results.push({
-      success: false,
-      filePath: edit.filePath,
-      error: (error instanceof Error ? error.message : String(error)) || 'Unknown error'
-    });
-  }
-}
-
-console.log(JSON.stringify(results));
-`;
-
-        const result = await runTypescript(sandbox, sandboxCode);
-
-        if (result.exitCode !== 0) {
-          console.error('Sandbox execution failed. Exit code:', result.exitCode);
-          console.error('Stderr:', result.stderr);
-          console.error('Result:', result.result);
-          throw new Error(`Sandbox execution failed: ${result.stderr || 'Unknown error'}`);
-        }
-
-        let fileResults: Array<{
-          success: boolean;
-          filePath: string;
-          message?: string;
-          error?: string;
-        }>;
-        try {
-          fileResults = JSON.parse(result.result.trim());
-        } catch (parseError) {
-          console.error('Failed to parse sandbox output:', result.result);
-          throw new Error(
-            `Failed to parse sandbox output: ${parseError instanceof Error ? parseError.message : 'Unknown parse error'}`
-          );
-        }
-
-        const successful = fileResults.filter((r) => r.success).length;
-        const failed = fileResults.length - successful;
-
-        return {
-          results: fileResults.map((fileResult) => {
-            if (fileResult.success) {
-              return {
-                status: 'success' as const,
-                file_path: fileResult.filePath,
-                message: fileResult.message || 'File edited successfully',
-              };
-            }
-            return {
-              status: 'error' as const,
-              file_path: fileResult.filePath,
-              error_message: fileResult.error || 'Unknown error',
-            };
-          }),
-          summary: {
-            total: fileResults.length,
-            successful,
-            failed,
-          },
-        };
-      }
-
-      // When not in sandbox, we can't edit files
-      // Return an error for each edit
-      return {
-        results: edits.map((edit) => ({
-          status: 'error' as const,
-          file_path: edit.filePath,
-          error_message: 'File editing requires sandbox environment',
-        })),
-        summary: {
-          total: edits.length,
-          successful: 0,
-          failed: edits.length,
-        },
-      };
-    } catch (error) {
-      return {
-        results: edits.map((edit) => ({
-          status: 'error' as const,
-          file_path: edit.filePath,
-          error_message: `Execution error: ${error instanceof Error ? error.message : 'Unknown error'}`,
-        })),
-        summary: {
-          total: edits.length,
-          successful: 0,
-          failed: edits.length,
-        },
-      };
-    }
-  },
-  { name: 'edit-files' }
-);
-
-export const editFiles = tool({
-  description: `Performs find-and-replace operations on files with validation and bulk editing support. Replaces specified text content with new content, but only if the find string appears exactly once in the file. Supports both relative and absolute file paths and can handle bulk operations through an array of edit objects.
+  return tool({
+    description: `Performs find-and-replace operations on files with validation and bulk editing support. Replaces specified text content with new content, but only if the find string appears exactly once in the file. Supports both relative and absolute file paths and can handle bulk operations through an array of edit objects.
 
 Key features:
 - Validates that the find string appears exactly once (returns error if 0 or multiple occurrences)
@@ -247,34 +119,11 @@ Error conditions:
 - Permission/IO errors: Returns appropriate error messages
 
 For bulk operations, each edit is processed independently and the tool returns both successful and failed operations with detailed results.`,
-  inputSchema: editFilesInputSchema,
-  outputSchema: editFilesOutputSchema,
-  execute: async (input, { experimental_context: context }) => {
-    const rawContext = context as DocsAgentOptions & { sandbox?: Sandbox };
-
-    // Check if sandbox is available
-    if (!rawContext?.sandbox) {
-      // Return error for each edit when sandbox is not available
-      return {
-        results: input.edits.map((edit) => ({
-          status: 'error' as const,
-          file_path: edit.filePath,
-          error_message: 'File editing requires sandbox environment',
-        })),
-        summary: {
-          total: input.edits.length,
-          successful: 0,
-          failed: input.edits.length,
-        },
-      };
-    }
-
-    const editFilesContext = editFilesContextSchema.parse({
-      sandbox: rawContext.sandbox,
-    });
-
-    return await editFilesExecution(input, editFilesContext);
-  },
-});
-
-export default editFiles;
+    inputSchema: EditFilesToolInputSchema,
+    outputSchema: EditFilesToolOutputSchema,
+    execute,
+    onInputStart,
+    onInputDelta,
+    onInputAvailable,
+  });
+}

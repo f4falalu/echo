@@ -1,8 +1,10 @@
 import { createSandbox } from '@buster/sandbox';
-import { RuntimeContext } from '@mastra/core/runtime-context';
-import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { DocsAgentContextKeys } from '../../../agents/docs-agent/docs-agent-context';
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import { createFiles } from './create-file-tool';
+
+vi.mock('@buster/database', () => ({
+  updateMessageEntries: vi.fn(),
+}));
 
 describe.sequential('create-file-tool integration test', () => {
   const hasApiKey = !!process.env.DAYTONA_API_KEY;
@@ -37,18 +39,17 @@ describe.sequential('create-file-tool integration test', () => {
         fs.mkdirSync('${testDir}', { recursive: true });
       `);
 
-      const runtimeContext = new RuntimeContext();
-      runtimeContext.set(DocsAgentContextKeys.Sandbox, sharedSandbox);
+      const createFilesTool = createFiles({
+        messageId: 'test-message-id',
+        sandbox: sharedSandbox,
+      });
 
-      const result = await createFiles.execute({
-        context: {
-          files: [
-            { path: `${testDir}/test1.txt`, content: 'Hello from test1' },
-            { path: `${testDir}/test2.txt`, content: 'Hello from test2' },
-            { path: `${testDir}/subdir/test3.txt`, content: 'Hello from subdirectory' },
-          ],
-        },
-        runtimeContext,
+      const result = await createFilesTool.execute({
+        files: [
+          { path: `${testDir}/test1.txt`, content: 'Hello from test1' },
+          { path: `${testDir}/test2.txt`, content: 'Hello from test2' },
+          { path: `${testDir}/subdir/test3.txt`, content: 'Hello from subdirectory' },
+        ],
       });
 
       expect(result.results).toHaveLength(3);
@@ -96,14 +97,13 @@ describe.sequential('create-file-tool integration test', () => {
     'should handle absolute paths in sandbox',
     async () => {
       const testDir = getTestDir();
-      const runtimeContext = new RuntimeContext();
-      runtimeContext.set(DocsAgentContextKeys.Sandbox, sharedSandbox);
+      const createFilesTool = createFiles({
+        messageId: 'test-message-id',
+        sandbox: sharedSandbox,
+      });
 
-      const result = await createFiles.execute({
-        context: {
-          files: [{ path: `/tmp/${testDir}/absolute-test.txt`, content: 'Absolute path content' }],
-        },
-        runtimeContext,
+      const result = await createFilesTool.execute({
+        files: [{ path: `/tmp/${testDir}/absolute-test.txt`, content: 'Absolute path content' }],
       });
 
       expect(result.results).toHaveLength(1);
@@ -142,23 +142,19 @@ describe.sequential('create-file-tool integration test', () => {
         fs.mkdirSync('${testDir}', { recursive: true });
       `);
 
-      const runtimeContext = new RuntimeContext();
-      runtimeContext.set(DocsAgentContextKeys.Sandbox, sharedSandbox);
+      const createFilesTool = createFiles({
+        messageId: 'test-message-id',
+        sandbox: sharedSandbox,
+      });
 
       // First create a file
-      await createFiles.execute({
-        context: {
-          files: [{ path: `${testDir}/overwrite-test.txt`, content: 'Original content' }],
-        },
-        runtimeContext,
+      await createFilesTool.execute({
+        files: [{ path: `${testDir}/overwrite-test.txt`, content: 'Original content' }],
       });
 
       // Then overwrite it
-      const result = await createFiles.execute({
-        context: {
-          files: [{ path: `${testDir}/overwrite-test.txt`, content: 'New content' }],
-        },
-        runtimeContext,
+      const result = await createFilesTool.execute({
+        files: [{ path: `${testDir}/overwrite-test.txt`, content: 'New content' }],
       });
 
       expect(result.results).toHaveLength(1);
@@ -191,16 +187,15 @@ describe.sequential('create-file-tool integration test', () => {
         fs.mkdirSync('${testDir}', { recursive: true });
       `);
 
-      const runtimeContext = new RuntimeContext();
-      runtimeContext.set(DocsAgentContextKeys.Sandbox, sharedSandbox);
+      const createFilesTool = createFiles({
+        messageId: 'test-message-id',
+        sandbox: sharedSandbox,
+      });
 
       const specialContent = 'Line 1\nLine 2\tTabbed\n"Quoted"\n\'Single quoted\'';
 
-      const result = await createFiles.execute({
-        context: {
-          files: [{ path: `${testDir}/special-chars.txt`, content: specialContent }],
-        },
-        runtimeContext,
+      const result = await createFilesTool.execute({
+        files: [{ path: `${testDir}/special-chars.txt`, content: specialContent }],
       });
 
       expect(result.results[0]).toEqual({
@@ -232,18 +227,17 @@ describe.sequential('create-file-tool integration test', () => {
         fs.mkdirSync('${testDir}', { recursive: true });
       `);
 
-      const runtimeContext = new RuntimeContext();
-      runtimeContext.set(DocsAgentContextKeys.Sandbox, sharedSandbox);
+      const createFilesTool = createFiles({
+        messageId: 'test-message-id',
+        sandbox: sharedSandbox,
+      });
 
       // Try to create a file in a restricted directory
-      const result = await createFiles.execute({
-        context: {
-          files: [
-            { path: '/root/restricted.txt', content: 'This should fail' },
-            { path: `${testDir}/valid-file.txt`, content: 'This should succeed' },
-          ],
-        },
-        runtimeContext,
+      const result = await createFilesTool.execute({
+        files: [
+          { path: '/root/restricted.txt', content: 'This should fail' },
+          { path: `${testDir}/valid-file.txt`, content: 'This should succeed' },
+        ],
       });
 
       expect(result.results).toHaveLength(2);

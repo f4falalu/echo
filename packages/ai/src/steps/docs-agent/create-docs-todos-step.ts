@@ -6,8 +6,8 @@ import {
   DocsAgentContextKeys,
   DocsAgentContextSchema,
 } from '../../agents/docs-agent/docs-agent-context';
+import { Sonnet4 } from '../../models/sonnet-4';
 import { createTodoList } from '../../tools/planning-thinking-tools/create-todo-item-tool';
-import { Sonnet4 } from '../../utils/models/sonnet-4';
 import { standardizeMessages } from '../../utils/standardizeMessages';
 
 const createDocsTodosStepInputSchema = z.object({
