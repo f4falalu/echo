@@ -1,4 +1,4 @@
-import type { IReportEditor } from './ReportEditor';
+import type { IReportEditor } from '@/components/ui/report/ReportEditor';
 
 // Simple in-memory registry to map reportId -> editor instance
 const reportEditorRegistry = new Map<string, IReportEditor>();

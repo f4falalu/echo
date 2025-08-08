@@ -26,7 +26,7 @@ import { useFavoriteStar } from '@/components/features/list/FavoriteStar';
 import { useStatusDropdownContent } from '@/components/features/metrics/StatusBadgeIndicator/useStatusDropdownContent';
 import type { VerificationStatus } from '@buster/server-shared/share';
 import { useSaveToCollectionsDropdownContent } from '@/components/features/dropdowns/SaveToCollectionsDropdown';
-import { getReportEditor } from '@/components/ui/report/editorRegistry';
+import { getReportEditor } from '@/controllers/ReportPageControllers/ReportPageController/editorRegistry';
 import { NodeTypeLabels } from '@/components/ui/report/config/labels';
 import { useExportReport } from '@/components/ui/report/hooks';
 
@@ -313,20 +313,22 @@ const useDuplicateReportSelectMenu = (): DropdownItem => {
 
 // Download as PDF
 const useDownloadPdfSelectMenu = ({ reportId }: { reportId: string }): DropdownItem => {
-  const { openErrorMessage, openInfoMessage } = useBusterNotifications();
+  const { openErrorMessage } = useBusterNotifications();
   const editor = getReportEditor(reportId);
   const { exportToPdf } = useExportReport();
 
-  const onClick = useMemoizedFn(async () => {
-    if (!editor) {
-      openErrorMessage(NodeTypeLabels.failedToExportPdf.label);
-      return;
+  const onClick = async () => {
+    try {
+      if (!editor) {
+        openErrorMessage(NodeTypeLabels.failedToExportPdf.label);
+        return;
+      }
+
+      await exportToPdf(editor);
+    } catch (error) {
+      openErrorMessage('Failed to export PDF');
     }
-
-    await exportToPdf(editor);
-
-    //
-  });
+  };
 
   return useMemo(
     () => ({
@@ -335,6 +337,6 @@ const useDownloadPdfSelectMenu = ({ reportId }: { reportId: string }): DropdownI
       icon: <FileText />,
       onClick
     }),
-    [onClick]
+    []
   );
 };

@@ -9,10 +9,7 @@ import { useDebounceFn } from '@/hooks/useDebounce';
 import type { ReportElements } from '@buster/server-shared/reports';
 //import DynamicReportEditor from '@/components/ui/report/DynamicReportEditor';
 import { ReportEditor, type IReportEditor } from '@/components/ui/report/ReportEditor';
-import {
-  registerReportEditor,
-  unregisterReportEditor
-} from '@/components/ui/report/editorRegistry';
+import { registerReportEditor, unregisterReportEditor } from './editorRegistry';
 import { ReportEditorSkeleton } from '@/components/ui/report/ReportEditorSkeleton';
 
 export const ReportPageController: React.FC<{
