@@ -1,0 +1,1 @@
+export { registerReportEditor, unregisterReportEditor, getReportEditor } from './editorRegistry';
