@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import type { DataSource } from '@buster/data-source';
 import { assetPermissions, db, metricFiles, updateMessageEntries } from '@buster/database';
+import type { Metric } from '@buster/server-shared/metrics';
 import type { ModelMessage } from 'ai';
 import { wrapTraced } from 'braintrust';
 import { inArray } from 'drizzle-orm';
@@ -11,11 +12,9 @@ import {
   createPermissionErrorMessage,
   validateSqlPermissions,
 } from '../../../utils/sql-permissions';
-import { validateAndAdjustBarLineAxes } from '../bar-line-axis-validator';
 import { trackFileAssociations } from '../file-tracking-helper';
-import { ensureTimeFrameQuoted } from '../time-frame-helper';
-import { createInitialMetricVersionHistory, validateMetricYml } from '../version-history-helpers';
-import type { MetricYml } from '../version-history-types';
+import { validateAndAdjustBarLineAxes } from '../helpers/bar-line-axis-validator';
+import { ensureTimeFrameQuoted } from '../helpers/time-frame-helper';
 import type {
   CreateMetricsContext,
   CreateMetricsInput,
@@ -87,7 +86,7 @@ interface MetricFileResult {
   success: boolean;
   error?: string;
   metricFile?: FileWithId;
-  metricYml?: MetricYml;
+  metricYml?: Metric;
   message?: string;
   results?: Record<string, unknown>[];
 }
@@ -226,12 +225,10 @@ function createDataMetadata(results: Record<string, unknown>[]): DataMetadata {
 }
 
 async function processMetricFile(
-  _fileName: string,
   ymlContent: string,
   dataSourceId: string,
   dataSourceDialect: string,
-  userId: string,
-  _organizationId: string
+  userId: string
 ): Promise<MetricFileResult> {
   try {
     // Ensure timeFrame values are properly quoted before parsing

@@ -1,4 +1,4 @@
-import type { MetricYml } from './version-history-types';
+import type { MetricYml } from '../version-history-types';
 
 export interface AxisValidationResult {
   isValid: boolean;

@@ -29,7 +29,6 @@
     "@buster/typescript-config": "workspace:*",
     "@buster/vitest-config": "workspace:*",
     "@buster/web-tools": "workspace:*",
-    "@mastra/core": "catalog:",
     "@trigger.dev/sdk": "catalog:",
     "ai": "catalog:",
     "braintrust": "catalog:",

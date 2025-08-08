@@ -9,9 +9,9 @@ import {
   createPermissionErrorMessage,
   validateSqlPermissions,
 } from '../../../utils/sql-permissions';
-import { validateAndAdjustBarLineAxes } from '../bar-line-axis-validator';
 import { trackFileAssociations } from '../file-tracking-helper';
-import { ensureTimeFrameQuoted } from '../time-frame-helper';
+import { validateAndAdjustBarLineAxes } from '../helpers/bar-line-axis-validator';
+import { ensureTimeFrameQuoted } from '../helpers/time-frame-helper';
 import {
   addMetricVersionToHistory,
   getLatestVersionNumber,

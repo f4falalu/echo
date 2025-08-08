@@ -26,7 +26,7 @@ describe('create-dashboards-tool streaming integration', () => {
     insertMessageReasoning = vi.mocked(database.insertMessageReasoning);
     updateMessageReasoning = vi.mocked(database.updateMessageReasoning);
 
-    const fileTool = await import('../create-dashboards-file-tool');
+    const fileTool = await import('./create-dashboards-file-tool');
     mockExecute = vi.mocked(fileTool.createDashboards.execute);
 
     context = {

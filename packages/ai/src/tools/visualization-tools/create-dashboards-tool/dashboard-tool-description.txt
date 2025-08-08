@@ -1,0 +1,36 @@
+Creates dashboard configuration files with YAML content following the dashboard schema specification. Before using this tool, carefully consider the dashboard layout, metric references, and row organization. Each dashboard references existing metrics by their UUIDs and organizes them into rows with specific column layouts. **This tool supports creating multiple dashboards in a single call; prefer using bulk creation over creating dashboards one by one.**
+
+## COMPLETE DASHBOARD YAML SCHEMA
+
+# DASHBOARD CONFIGURATION - YML STRUCTURE
+# ----------------------------------------
+# Required fields:
+#
+# name: Your Dashboard Title  # Do NOT use quotes for string values
+# description: A description of the dashboard, its metrics, and its purpose.  # NO quotes
+# rows: 
+#   - id: 1               # Required row ID (integer)
+#     items:
+#       - id: metric-uuid-1  # UUIDv4 of an existing metric, NO quotes
+#     column_sizes: [12]   # Required - must sum to exactly 12
+#   - id: 2 # REQUIRED
+#     items:
+#       - id: metric-uuid-2
+#       - id: metric-uuid-3
+#     column_sizes: 
+#       - 6
+#       - 6
+#
+# Rules:
+# 1. Each row can have up to 4 items
+# 2. Each row must have a unique ID
+# 3. column_sizes is required and must specify the width for each item
+# 4. Sum of column_sizes in a row must be exactly 12
+# 5. Each column size must be at least 3
+# 6. All arrays should follow the YML array syntax using `-` and should NOT USE `[]` formatting.
+# 7. Don't use comments. The ones in the example are just for explanation
+# 8. String values generally should NOT use quotes unless they contain special characters (like :, {, }, [, ], ,, &, *, #, ?, |, -, <, >, =, !, %, @, `) or start/end with whitespace.
+# 9. If a string contains special characters or needs to preserve leading/trailing whitespace, enclose it in double quotes (`"`). Example: `name: "Sales & Marketing Dashboard"`
+# 10. Avoid special characters in names and descriptions where possible, but if needed, use quotes as described in rule 9. UUIDs should NEVER be quoted.
+
+**CRITICAL:** Follow the schema exactly - all metric IDs must reference existing metrics, column sizes must sum to 12, and row IDs must be unique. The tool will validate all metric references against the database.

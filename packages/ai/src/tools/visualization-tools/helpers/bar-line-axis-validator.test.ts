@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
+import type { MetricYml } from '../version-history-types';
 import { validateAndAdjustBarLineAxes } from './bar-line-axis-validator';
-import type { MetricYml } from './version-history-types';
 
 describe('validateAndAdjustBarLineAxes', () => {
   it('should return valid for non-bar/line charts', () => {
