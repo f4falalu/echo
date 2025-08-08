@@ -14,7 +14,7 @@ import { ResizableProvider, useResizableValue } from '@platejs/resizable';
 import { MetricEmbedPlaceholder } from './MetricPlaceholder';
 import { Caption, CaptionTextarea } from '../CaptionNode';
 import { mediaResizeHandleVariants, Resizable, ResizeHandle } from '../ResizeHandle';
-import { type TMetricElement } from '../../plugins/metric-plugin';
+import { type TMetricElement } from '../../plugins/metric-kit';
 import React, { useMemo, useRef, type PropsWithChildren } from 'react';
 import { useSize } from '@/hooks/useSize';
 import { MetricContent } from './MetricContent';

@@ -6,7 +6,18 @@ import { createSlateEditor, serializeHtml } from 'platejs';
 // computed CSS styles so no external CSS is required. Additionally,
 // snapshot <canvas> elements inside metrics to <img> tags to avoid
 // blank canvases in the exported HTML.
-export const buildExportHtml = async (editor: PlateEditor): Promise<string> => {
+// Options for building the export HTML document
+type BuildExportHtmlOptions = {
+  // Optional document title to embed in the HTML head
+  title?: string;
+};
+
+export const buildExportHtml = async (
+  editor: PlateEditor,
+  options?: BuildExportHtmlOptions
+): Promise<string> => {
+  // Resolve the document title with a sensible default
+  const documentTitle = options?.title || 'Buster Report';
   // Prefer using the live editor DOM to inline computed styles
   const liveRoot = document.querySelector('[contenteditable="true"]') as HTMLElement | null;
 
@@ -89,35 +100,7 @@ export const buildExportHtml = async (editor: PlateEditor): Promise<string> => {
     wrapper.appendChild(clonedRoot);
     contentHtml = wrapper.outerHTML;
   } else {
-    // Fallback: serialize using static editor and include minimal inline styles
-    const BaseEditorKit = await import('../editor-base-kit').then((module) => module.BaseEditorKit);
-
-    const editorStatic = createSlateEditor({
-      plugins: BaseEditorKit,
-      value: editor.children
-    });
-
-    const serializedHtml = await serializeHtml(editorStatic, {
-      editorComponent: EditorStatic,
-      props: { style: { padding: '0 calc(50% - 350px)', paddingBottom: '' } }
-    });
-
-    // Wrap the serialized HTML to match the centered, fixed-width layout
-    const wrapper = document.createElement('div');
-    wrapper.setAttribute(
-      'style',
-      [
-        'width: 816px',
-        'max-width: 816px',
-        'min-width: 816px',
-        'margin: 24px auto',
-        'background: #ffffff',
-        'padding: 40px',
-        'box-sizing: border-box'
-      ].join('; ')
-    );
-    wrapper.innerHTML = serializedHtml;
-    contentHtml = wrapper.outerHTML;
+    throw new Error('No live root found');
   }
 
   // Build a minimal HTML document without external CSS
@@ -127,6 +110,7 @@ export const buildExportHtml = async (editor: PlateEditor): Promise<string> => {
           <meta charset="utf-8" />
           <meta name="viewport" content="width=device-width, initial-scale=1.0" />
           <meta name="color-scheme" content="light dark" />
+          <title>${documentTitle}</title>
           <style>
             body { margin: 0; background: #f5f5f5; }
             @media print {

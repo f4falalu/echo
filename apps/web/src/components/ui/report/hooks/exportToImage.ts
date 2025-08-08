@@ -5,18 +5,26 @@ import { downloadFile } from './downloadFile';
 
 type Notifier = (message: string) => void;
 
-export const exportToImage = async (
-  editor: PlateEditor,
-  openInfoMessage: Notifier,
-  openErrorMessage: Notifier
-) => {
+type ExportToImageOptions = {
+  editor: PlateEditor;
+  filename?: string;
+  openInfoMessage?: Notifier;
+  openErrorMessage?: Notifier;
+};
+
+export const exportToImage = async ({
+  editor,
+  filename = 'plate.png',
+  openInfoMessage,
+  openErrorMessage
+}: ExportToImageOptions) => {
   try {
     const canvas = await getCanvas(editor);
-    await downloadFile(canvas.toDataURL('image/png'), 'plate.png');
-    openInfoMessage(NodeTypeLabels.imageExportedSuccessfully.label);
+    await downloadFile(canvas.toDataURL('image/png'), filename);
+    openInfoMessage?.(NodeTypeLabels.imageExportedSuccessfully.label);
   } catch (error) {
     console.error(error);
-    openErrorMessage(NodeTypeLabels.failedToExportImage.label);
+    openErrorMessage?.(NodeTypeLabels.failedToExportImage.label);
   }
 };
 

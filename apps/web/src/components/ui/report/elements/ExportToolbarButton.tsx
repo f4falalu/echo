@@ -34,16 +34,16 @@ export function ExportToolbarButton({ children, ...props }: DropdownMenuProps) {
 
       <DropdownMenuContent align="start">
         <DropdownMenuGroup>
-          <DropdownMenuItem onSelect={() => exportToHtml(editor)}>
+          <DropdownMenuItem onSelect={() => exportToHtml({ editor })}>
             {NodeTypeLabels.exportAsHtml.label}
           </DropdownMenuItem>
-          <DropdownMenuItem onSelect={() => exportToPdf(editor)}>
+          <DropdownMenuItem onSelect={() => exportToPdf({ editor })}>
             {NodeTypeLabels.exportAsPdf.label}
           </DropdownMenuItem>
-          <DropdownMenuItem onSelect={() => exportToImage(editor)}>
+          <DropdownMenuItem onSelect={() => exportToImage({ editor })}>
             {NodeTypeLabels.exportAsImage.label}
           </DropdownMenuItem>
-          <DropdownMenuItem onSelect={() => exportToMarkdown(editor)}>
+          <DropdownMenuItem onSelect={() => exportToMarkdown({ editor })}>
             {NodeTypeLabels.exportAsMarkdown.label}
           </DropdownMenuItem>
         </DropdownMenuGroup>

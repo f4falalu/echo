@@ -5,17 +5,18 @@ import { useChatLayoutContextSelector } from '@/layouts/ChatLayout';
 import { assetParamsToRoute } from '@/lib/assets/assetParamsToRoute';
 import React, { useMemo, useRef } from 'react';
 import { useMetricContentThreeDotMenuItems } from './useMetricContentThreeDotMenuItems';
-import { cn } from '@/lib/classMerge';
 
 export const MetricContent = React.memo(
   ({
     metricId,
     metricVersionNumber,
+    isBaseElement = false,
     readOnly = false
   }: {
     metricId: string;
     metricVersionNumber: number | undefined;
     readOnly?: boolean;
+    isBaseElement?: boolean;
   }) => {
     const chatId = useChatLayoutContextSelector((x) => x.chatId);
     const reportId = useChatLayoutContextSelector((x) => x.reportId) || '';
@@ -23,7 +24,7 @@ export const MetricContent = React.memo(
     const ref = useRef<HTMLDivElement>(null);
 
     const [inViewport] = useInViewport(ref, {
-      threshold: 0.33
+      threshold: isBaseElement ? 0 : 0.33
     });
     const renderChart = inViewport;
 
@@ -72,7 +73,7 @@ export const MetricContent = React.memo(
     return (
       <MetricCard
         metricLink={link}
-        animate
+        animate={!isBaseElement}
         metricId={metricId}
         readOnly={readOnly}
         isDragOverlay={false}

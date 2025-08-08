@@ -4,13 +4,21 @@ import { buildExportHtml } from './buildExportHtml';
 
 type Notifier = (message: string) => void;
 
-export const exportToPdf = async (
-  editor: PlateEditor,
-  openInfoMessage: Notifier,
-  openErrorMessage: Notifier
-) => {
+type ExportToPdfOptions = {
+  filename?: string;
+  openInfoMessage?: Notifier;
+  openErrorMessage?: Notifier;
+  editor: PlateEditor;
+};
+
+export const exportToPdf = async ({
+  editor,
+  filename = 'Buster Report',
+  openInfoMessage,
+  openErrorMessage
+}: ExportToPdfOptions) => {
   try {
-    const html = await buildExportHtml(editor);
+    const html = await buildExportHtml(editor, { title: filename });
 
     // Open a print window with the rendered HTML so the user can save as PDF
     const printWindow = window.open('', '_blank');
@@ -20,10 +28,22 @@ export const exportToPdf = async (
     printWindow.document.write(html);
     printWindow.document.close();
 
+    // Close the print window after the user prints or cancels
+    const handleAfterPrint = () => {
+      try {
+        //  printWindow.close();
+      } catch (e) {
+        console.error('Failed to close print window', e);
+      }
+    };
+    printWindow.addEventListener('afterprint', handleAfterPrint);
+
     // Trigger print when resources are loaded
     const triggerPrint = () => {
       try {
         printWindow.focus();
+        // Set the title for the print window so the OS save dialog suggests it
+        printWindow.document.title = filename;
         printWindow.print();
       } catch (e) {
         console.error('Failed to trigger print dialog', e);
@@ -37,13 +57,11 @@ export const exportToPdf = async (
       printWindow.addEventListener('load', () => setTimeout(triggerPrint, 100));
     }
 
-    openInfoMessage(NodeTypeLabels.pdfExportedSuccessfully.label);
+    openInfoMessage?.(NodeTypeLabels.pdfExportedSuccessfully.label);
   } catch (error) {
     console.error(error);
-    openErrorMessage(NodeTypeLabels.failedToExportPdf.label);
+    openErrorMessage?.(NodeTypeLabels.failedToExportPdf.label);
   }
 };
 
 export default exportToPdf;
-
-

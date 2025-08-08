@@ -314,6 +314,7 @@ const useDuplicateReportSelectMenu = (): DropdownItem => {
 // Download as PDF
 const useDownloadPdfSelectMenu = ({ reportId }: { reportId: string }): DropdownItem => {
   const { openErrorMessage } = useBusterNotifications();
+  const { data: reportName } = useGetReport({ reportId }, { select: (x) => x.name });
   const { exportToPdf } = useExportReport();
 
   const onClick = async () => {
@@ -326,7 +327,7 @@ const useDownloadPdfSelectMenu = ({ reportId }: { reportId: string }): DropdownI
         return;
       }
 
-      await exportToPdf(editor);
+      await exportToPdf({ editor, filename: reportName });
     } catch (error) {
       console.error(error);
       openErrorMessage('Failed to export report as PDF');
