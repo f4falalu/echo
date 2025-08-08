@@ -28,7 +28,7 @@ export const useDownloadPNGSelectMenu = ({
     () => ({
       label: 'Download as PNG',
       value: 'download-png',
-      disabled: !canDownload,
+      disabled: true,
       icon: <SquareChart />,
       onClick: async () => {
         const node = document.getElementById(METRIC_CHART_CONTAINER_ID(metricId)) as HTMLElement;

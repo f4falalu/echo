@@ -47,7 +47,9 @@ export const MetricElement = withHOC(
         className="rounded-md"
         attributes={{
           ...attributes,
-          'data-plate-open-context-menu': true
+          'data-plate-open-context-menu': true,
+          // Mark metric element for export so we can target it for rasterization
+          'data-export-metric': true
         }}
         {...props}>
         <div contentEditable={false}>{content}</div>
@@ -85,6 +87,7 @@ const MetricResizeContainer: React.FC<PropsWithChildren> = ({ children }) => {
 
   return (
     <figure
+      data-metric-figure
       onClick={selectNode}
       ref={ref}
       contentEditable={false}
