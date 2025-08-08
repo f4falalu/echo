@@ -1,6 +1,10 @@
 import type { ChatMessageResponseMessage } from '@buster/server-shared/chats';
-import type { CoreMessage } from 'ai';
-import type { MessageUserClarifyingQuestionInput } from '../message-user-clarifying-question';
+import type { ModelMessage } from 'ai';
+import {
+  MESSAGE_USER_CLARIFYING_QUESTION_TOOL_NAME,
+  type MessageUserClarifyingQuestionInput,
+  type MessageUserClarifyingQuestionState,
+} from '../message-user-clarifying-question';
 
 // Key definitions for type-safe extraction
 export const MESSAGE_USER_CLARIFYING_QUESTION_KEYS = {
@@ -10,12 +14,12 @@ export const MESSAGE_USER_CLARIFYING_QUESTION_KEYS = {
 // Helper to create response entry for clarifying question
 export function messageUserClarifyingQuestionResponseMessage(
   toolCallId: string,
-  clarifyingQuestion: string
+  messageUserClarifyingQuestionState: MessageUserClarifyingQuestionState
 ): ChatMessageResponseMessage {
   return {
     id: toolCallId,
     type: 'text',
-    message: clarifyingQuestion,
+    message: messageUserClarifyingQuestionState.clarifyingQuestion || '',
     is_final_message: true,
   };
 }
@@ -23,17 +27,16 @@ export function messageUserClarifyingQuestionResponseMessage(
 // Helper to create raw LLM message entry
 export function messageUserClarifyingQuestionRawLlmMessageEntry(
   toolCallId: string,
-  toolName: string,
-  input: MessageUserClarifyingQuestionInput
-): CoreMessage {
+  messageUserClarifyingQuestionState: MessageUserClarifyingQuestionState
+): ModelMessage {
   return {
     role: 'assistant',
     content: [
       {
         type: 'tool-call',
         toolCallId,
-        toolName,
-        args: input,
+        toolName: MESSAGE_USER_CLARIFYING_QUESTION_TOOL_NAME,
+        input: messageUserClarifyingQuestionState.args,
       },
     ],
   };
@@ -48,14 +51,4 @@ export function extractClarifyingQuestion(extractedValues: Map<string, unknown>)
   }
 
   return '';
-}
-
-// Helper to update progress message during streaming
-export function updateClarifyingQuestionProgressMessage(currentQuestion: string): string {
-  if (!currentQuestion) {
-    return 'Preparing clarifying question...';
-  }
-
-  const wordCount = currentQuestion.split(/\s+/).length;
-  return `Writing clarifying question (${wordCount} words)...`;
 }

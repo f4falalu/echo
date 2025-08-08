@@ -1,4 +1,5 @@
 import { updateMessageEntries } from '@buster/database';
+import type { ToolCallOptions } from 'ai';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createMessageUserClarifyingQuestionTool } from './message-user-clarifying-question';
 import type { MessageUserClarifyingQuestionInput } from './message-user-clarifying-question';
@@ -39,46 +40,64 @@ describe('messageUserClarifyingQuestion integration', () => {
 
     // Execute tool with all lifecycle methods
     if (tool.onInputStart) {
-      await tool.onInputStart(input);
+      await tool.onInputStart({
+        toolCallId: 'test-tool-call-123',
+        messages: [],
+      } as ToolCallOptions);
     }
 
     if (tool.onInputAvailable) {
-      await tool.onInputAvailable(input);
+      await tool.onInputAvailable({
+        input,
+        toolCallId: 'test-tool-call-123',
+        messages: [],
+      });
     }
 
-    const result = await tool.execute(input);
+    if (tool.execute) {
+      const result = await tool.execute(input, {
+        toolCallId: 'test-tool-call-123',
+        messages: [],
+      } as ToolCallOptions);
+      expect(result).toEqual({});
+    }
 
     // Verify database calls
     expect(mockUpdateMessageEntries).toHaveBeenCalled();
 
     // Check initial append call
-    const appendCall = mockUpdateMessageEntries.mock.calls.find((call) => call[2] === 'append');
+    const appendCall = mockUpdateMessageEntries.mock.calls
+      .map((args) => args[0])
+      .find((arg) => arg?.mode === 'append');
     expect(appendCall).toBeDefined();
-    expect(appendCall?.[0]).toBe('test-message-123');
-    expect(appendCall?.[1]).toHaveProperty('responseEntry');
-    expect(appendCall?.[1]).toHaveProperty('rawLlmMessage');
+    expect(appendCall?.messageId).toBe('test-message-123');
+    expect(appendCall).toHaveProperty('responseEntry');
+    expect(appendCall).toHaveProperty('rawLlmMessage');
 
     // Check update call
-    const updateCall = mockUpdateMessageEntries.mock.calls.find((call) => call[2] === 'update');
+    const updateCall = mockUpdateMessageEntries.mock.calls
+      .map((args) => args[0])
+      .find((arg) => arg?.mode === 'update');
     expect(updateCall).toBeDefined();
-    expect(updateCall?.[0]).toBe('test-message-123');
-    expect(updateCall?.[1]).toHaveProperty('responseEntry');
+    expect(updateCall?.messageId).toBe('test-message-123');
+    expect(updateCall).toHaveProperty('responseEntry');
 
     // Verify the response entry has the clarifying question
-    const responseEntry = updateCall?.[1].responseEntry;
+    const responseEntry = updateCall?.responseEntry as
+      | { type?: string; message?: string; is_final_message?: boolean }
+      | undefined;
     expect(responseEntry).toMatchObject({
       type: 'text',
       message: 'What specific metrics would you like to analyze?',
       is_final_message: true,
     });
-
-    expect(result).toEqual({});
   });
 
   it('should handle streaming updates correctly', async () => {
     const mockContext = {
       messageId: 'test-message-stream',
       chatId: 'test-chat-stream',
+      userId: 'test-user-stream',
     };
 
     const tool = createMessageUserClarifyingQuestionTool(mockContext);
@@ -86,8 +105,9 @@ describe('messageUserClarifyingQuestion integration', () => {
     // Start streaming
     if (tool.onInputStart) {
       await tool.onInputStart({
-        clarifying_question: '',
-      } as MessageUserClarifyingQuestionInput);
+        toolCallId: 'test-tool-call-123',
+        messages: [],
+      } as ToolCallOptions);
     }
 
     // Simulate streaming chunks
@@ -100,7 +120,11 @@ describe('messageUserClarifyingQuestion integration', () => {
 
     if (tool.onInputDelta) {
       for (const chunk of chunks) {
-        await tool.onInputDelta(chunk);
+        await tool.onInputDelta({
+          inputTextDelta: chunk,
+          toolCallId: 'test-tool-call-123',
+          messages: [],
+        });
       }
     }
 
@@ -110,16 +134,24 @@ describe('messageUserClarifyingQuestion integration', () => {
     };
 
     if (tool.onInputAvailable) {
-      await tool.onInputAvailable(completeInput);
+      await tool.onInputAvailable({
+        input: completeInput,
+        toolCallId: 'test-tool-call-123',
+        messages: [],
+      });
     }
 
     // Verify multiple update calls during streaming
-    const updateCalls = mockUpdateMessageEntries.mock.calls.filter((call) => call[2] === 'update');
+    const updateCalls = mockUpdateMessageEntries.mock.calls
+      .map((args) => args[0])
+      .filter((arg) => arg?.mode === 'update');
     expect(updateCalls.length).toBeGreaterThan(0);
 
     // Verify final update has complete question
-    const lastUpdateCall = updateCalls[updateCalls.length - 1];
-    expect(lastUpdateCall?.[1].responseEntry?.message).toBe(
+    const lastUpdateCall = updateCalls[updateCalls.length - 1] as
+      | { responseEntry?: { message?: string } }
+      | undefined;
+    expect(lastUpdateCall?.responseEntry?.message).toBe(
       'Please provide more details about your requirements'
     );
   });
@@ -130,6 +162,8 @@ describe('messageUserClarifyingQuestion integration', () => {
 
     const mockContext = {
       messageId: 'test-message-error',
+      chatId: 'test-chat-error',
+      userId: 'test-user-error',
     };
 
     const tool = createMessageUserClarifyingQuestionTool(mockContext);
@@ -140,42 +174,25 @@ describe('messageUserClarifyingQuestion integration', () => {
 
     // Should not throw even with database error
     if (tool.onInputStart) {
-      await expect(tool.onInputStart(input)).resolves.not.toThrow();
+      await expect(
+        tool.onInputStart({ toolCallId: 'test-tool-call-123', messages: [] } as ToolCallOptions)
+      ).resolves.not.toThrow();
     }
 
-    const result = await tool.execute(input);
-    expect(result).toEqual({});
-  });
-
-  it('should work without messageId', async () => {
-    const mockContext = {
-      chatId: 'test-chat-no-message',
-    };
-
-    const tool = createMessageUserClarifyingQuestionTool(mockContext);
-
-    const input: MessageUserClarifyingQuestionInput = {
-      clarifying_question: 'Can you clarify your requirements?',
-    };
-
-    if (tool.onInputStart) {
-      await tool.onInputStart(input);
+    if (tool.execute) {
+      const result = await tool.execute(input, {
+        toolCallId: 'test-tool-call-123',
+        messages: [],
+      } as ToolCallOptions);
+      expect(result).toEqual({});
     }
-
-    if (tool.onInputAvailable) {
-      await tool.onInputAvailable(input);
-    }
-
-    const result = await tool.execute(input);
-
-    // Should not call database without messageId
-    expect(mockUpdateMessageEntries).not.toHaveBeenCalled();
-    expect(result).toEqual({});
   });
 
   it('should handle multi-line markdown questions', async () => {
     const mockContext = {
       messageId: 'test-message-markdown',
+      chatId: 'test-chat-markdown',
+      userId: 'test-user-markdown',
     };
 
     const tool = createMessageUserClarifyingQuestionTool(mockContext);
@@ -193,19 +210,32 @@ This will help me create a more accurate analysis.`,
 
     // Call lifecycle methods to trigger database updates
     if (tool.onInputStart) {
-      await tool.onInputStart(input);
+      await tool.onInputStart({
+        toolCallId: 'test-tool-call-123',
+        messages: [],
+      } as ToolCallOptions);
     }
 
     if (tool.onInputAvailable) {
-      await tool.onInputAvailable(input);
+      await tool.onInputAvailable({
+        input,
+        toolCallId: 'test-tool-call-123',
+        messages: [],
+      });
     }
 
-    await tool.execute(input);
+    if (tool.execute) {
+      await tool.execute(input, {
+        toolCallId: 'test-tool-call-123',
+        messages: [],
+      } as ToolCallOptions);
+    }
 
     // Verify the markdown is preserved
-    const calls = mockUpdateMessageEntries.mock.calls;
-    const hasMarkdownQuestion = calls.some((call) => {
-      const entry = call[1].responseEntry || call[1].rawLlmMessage;
+    const calls = mockUpdateMessageEntries.mock.calls.map((args) => args[0]);
+    const hasMarkdownQuestion = calls.some((arg) => {
+      const entry =
+        (arg?.responseEntry as { message?: string } | undefined) || (arg?.rawLlmMessage as unknown);
       return entry && JSON.stringify(entry).includes('**Data Sources**');
     });
 

@@ -1,8 +1,6 @@
 export { createDoneTool } from './communication-tools/done-tool/done-tool';
-export { idleTool } from './communication-tools/idle-tool';
-export { respondWithoutAssetCreation } from './communication-tools/respond-without-asset-creation';
-export { submitThoughts } from './communication-tools/submit-thoughts-tool';
-export { messageUserClarifyingQuestion } from './communication-tools/message-user-clarifying-question';
+export { idleTool } from './communication-tools/idle-tool/idle-tool';
+export { submitThoughts } from './communication-tools/submit-thoughts-tool/submit-thoughts-tool';
 export { createSequentialThinkingTool } from './planning-thinking-tools/sequential-thinking-tool/sequential-thinking-tool';
 // Visualization tools - factory functions
 export { createCreateMetricsTool } from './visualization-tools/create-metrics-tool/create-metrics-tool';

@@ -6,10 +6,7 @@ import {
   createDoneToolResponseMessage,
 } from './helpers/done-tool-transform-helper';
 
-export function createDoneToolFinish<TAgentContext extends DoneToolContext>(
-  doneToolState: DoneToolState,
-  context: TAgentContext
-) {
+export function createDoneToolFinish(doneToolState: DoneToolState, context: DoneToolContext) {
   return async function doneToolFinish(
     options: { input: DoneToolInput } & ToolCallOptions
   ): Promise<void> {

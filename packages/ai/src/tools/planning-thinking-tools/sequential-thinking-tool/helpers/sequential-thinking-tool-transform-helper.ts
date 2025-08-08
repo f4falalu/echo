@@ -25,9 +25,6 @@ export function createSequentialThinkingReasoningMessage(
   // Determine title based on status
   const title = status === 'completed' ? 'Thought for a few seconds' : 'Thinking it through...';
 
-  // Determine if reasoning is finished based on nextThoughtNeeded
-  const finishedReasoning = sequentialThinkingState.nextThoughtNeeded === false;
-
   const reasoningMessage: ChatMessageReasoningMessage_Text = {
     id,
     type: 'text',
@@ -36,7 +33,6 @@ export function createSequentialThinkingReasoningMessage(
     message: sequentialThinkingState.thought || '',
     message_chunk: undefined,
     secondary_title: undefined,
-    finished_reasoning: finishedReasoning,
   };
 
   return reasoningMessage;

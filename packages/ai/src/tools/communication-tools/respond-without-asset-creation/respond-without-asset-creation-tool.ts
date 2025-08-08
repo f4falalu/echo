@@ -14,7 +14,7 @@ export const RespondWithoutAssetCreationInputSchema = z.object({
     ),
 });
 
-const RespondWithoutAssetCreationOutputSchema = z.object({});
+export const RespondWithoutAssetCreationOutputSchema = z.object({});
 
 const RespondWithoutAssetCreationContextSchema = z.object({
   messageId: z
@@ -63,10 +63,10 @@ export function createRespondWithoutAssetCreationTool<
     final_response: undefined,
   };
 
-  const execute = createRespondWithoutAssetCreationExecute<TAgentContext>(context);
-  const onInputStart = createRespondWithoutAssetCreationStart<TAgentContext>(state, context);
-  const onInputDelta = createRespondWithoutAssetCreationDelta<TAgentContext>(state, context);
-  const onInputAvailable = createRespondWithoutAssetCreationFinish<TAgentContext>(state, context);
+  const execute = createRespondWithoutAssetCreationExecute();
+  const onInputStart = createRespondWithoutAssetCreationStart(state, context);
+  const onInputDelta = createRespondWithoutAssetCreationDelta(state, context);
+  const onInputAvailable = createRespondWithoutAssetCreationFinish(state, context);
 
   return tool({
     description:

@@ -19,10 +19,7 @@ const DoneToolOutputSchema = z.object({
 });
 
 const DoneToolContextSchema = z.object({
-  messageId: z
-    .string()
-    .optional()
-    .describe('The message ID of the message that triggered the done tool'),
+  messageId: z.string().describe('The message ID of the message that triggered the done tool'),
 });
 
 const DoneToolStateSchema = z.object({
@@ -55,10 +52,10 @@ export function createDoneTool<TAgentContext extends DoneToolContext = DoneToolC
     final_response: undefined,
   };
 
-  const execute = createDoneToolExecute<TAgentContext>(context);
-  const onInputStart = createDoneToolStart<TAgentContext>(state, context);
-  const onInputDelta = createDoneToolDelta<TAgentContext>(state, context);
-  const onInputAvailable = createDoneToolFinish<TAgentContext>(state, context);
+  const execute = createDoneToolExecute();
+  const onInputStart = createDoneToolStart(state, context);
+  const onInputDelta = createDoneToolDelta(state, context);
+  const onInputAvailable = createDoneToolFinish(state, context);
 
   return tool({
     description:

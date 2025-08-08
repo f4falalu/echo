@@ -1,4 +1,6 @@
 import { updateMessageEntries } from '@buster/database';
+import type { ToolCallOptions } from 'ai';
+import type { DoneToolInput } from '../done-tool/done-tool';
 import { messageUserClarifyingQuestionResponseMessage } from './helpers/message-user-clarifying-question-transform-helper';
 import type {
   MessageUserClarifyingQuestionContext,
@@ -7,47 +9,31 @@ import type {
 } from './message-user-clarifying-question';
 
 // Factory function for onInputAvailable callback
-export function createMessageUserClarifyingQuestionFinish<
-  TAgentContext extends MessageUserClarifyingQuestionContext = MessageUserClarifyingQuestionContext,
->(context: TAgentContext, state: MessageUserClarifyingQuestionState) {
-  return async (input: MessageUserClarifyingQuestionInput) => {
+export function createMessageUserClarifyingQuestionFinish(
+  context: MessageUserClarifyingQuestionContext,
+  state: MessageUserClarifyingQuestionState
+) {
+  return async (options: { input: MessageUserClarifyingQuestionInput } & ToolCallOptions) => {
     const messageId = context.messageId;
-    const processingTime = Date.now() - (state.processingStartTime || Date.now());
-
-    console.info('[message-user-clarifying-question] Finalizing clarifying question', {
-      messageId,
-      processingTime,
-      questionLength: input.clarifying_question?.length || 0,
-      timestamp: new Date().toISOString(),
-    });
 
     // Ensure state has complete input
-    state.parsedArgs = input;
-    state.clarifyingQuestion = input.clarifying_question;
+    state.args = options.input.clarifying_question;
+    state.clarifyingQuestion = options.input.clarifying_question;
 
     // If we have a messageId, finalize database entries
-    if (messageId && state.responseEntryId) {
+    if (messageId) {
       try {
         // Create final response entry with complete question
         const responseEntry = messageUserClarifyingQuestionResponseMessage(
-          state.toolCallId || '',
-          input.clarifying_question
+          options.toolCallId,
+          state
         );
 
         // Final update to database
-        await updateMessageEntries(
+        await updateMessageEntries({
           messageId,
-          {
-            responseEntry,
-          },
-          'update'
-        );
-
-        console.info('[message-user-clarifying-question] Finalized database entries', {
-          messageId,
-          toolCallId: state.toolCallId,
-          responseEntryId: state.responseEntryId,
-          finalQuestionLength: input.clarifying_question.length,
+          responseEntry,
+          mode: 'update',
         });
       } catch (error) {
         console.error('[message-user-clarifying-question] Failed to finalize database entries', {
@@ -56,11 +42,5 @@ export function createMessageUserClarifyingQuestionFinish<
         });
       }
     }
-
-    console.info('[message-user-clarifying-question] Clarifying question ready', {
-      messageId,
-      processingTime,
-      questionWordCount: input.clarifying_question.split(/\s+/).length,
-    });
   };
 }

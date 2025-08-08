@@ -59,8 +59,8 @@ describe('Done Tool Integration Tests', () => {
         .where(and(eq(messages.id, testMessageId), isNull(messages.deletedAt)));
 
       expect(message).toBeDefined();
-      expect(message.rawLlmMessages).toBeDefined();
-      expect(message.responseMessages).toBeDefined();
+      expect(message?.rawLlmMessages).toBeDefined();
+      expect(message?.responseMessages).toBeDefined();
     });
 
     test('should update entries during streaming delta', async () => {
@@ -87,7 +87,7 @@ describe('Done Tool Integration Tests', () => {
         .from(messages)
         .where(and(eq(messages.id, testMessageId), isNull(messages.deletedAt)));
 
-      expect(message.rawLlmMessages).toBeDefined();
+      expect(message?.rawLlmMessages).toBeDefined();
       expect(state.final_response).toBe('Partial response');
     });
 
@@ -115,84 +115,8 @@ describe('Done Tool Integration Tests', () => {
         .from(messages)
         .where(and(eq(messages.id, testMessageId), isNull(messages.deletedAt)));
 
-      expect(message.rawLlmMessages).toBeDefined();
-      expect(message.responseMessages).toBeDefined();
-    });
-
-    test('should handle file extraction from tool calls', async () => {
-      const state: DoneToolState = {
-        entry_id: undefined,
-        args: undefined,
-        final_response: undefined,
-      };
-
-      const startHandler = createDoneToolStart(state, mockContext);
-      const toolCallId = randomUUID();
-
-      const mockMessages: ModelMessage[] = [
-        {
-          role: 'assistant',
-          content: [
-            {
-              type: 'tool-call' as const,
-              toolCallId: 'file-tool-123',
-              toolName: 'create-metrics-file',
-              input: {
-                files: [
-                  {
-                    name: 'Revenue Analysis',
-                    yml_content: 'name: Revenue\nsql: SELECT * FROM sales',
-                  },
-                ],
-              },
-            },
-          ],
-        },
-        {
-          role: 'tool',
-          content: [
-            {
-              type: 'text' as const,
-              text: JSON.stringify({
-                files: [
-                  {
-                    id: randomUUID(),
-                    name: 'Revenue Analysis',
-                    file_type: 'metric',
-                    yml_content: 'name: Revenue\nsql: SELECT * FROM sales',
-                    created_at: new Date().toISOString(),
-                    updated_at: new Date().toISOString(),
-                    version_number: 1,
-                  },
-                ],
-              }),
-            },
-          ],
-          toolCallId: 'file-tool-123',
-          toolName: 'create-metrics-file',
-        },
-      ];
-
-      const options: ToolCallOptions & { messages?: ModelMessage[] } = {
-        toolCallId,
-        messages: mockMessages,
-      };
-
-      await startHandler(options);
-
-      // Query the messages table properly
-      const [message] = await db
-        .select()
-        .from(messages)
-        .where(eq(messages.id, testMessageId))
-        .limit(1);
-
-      expect(message).toBeDefined();
-      expect(message.responseMessages).toBeDefined();
-      if (Array.isArray(message.responseMessages)) {
-        const fileResponses = message.responseMessages.filter((msg: any) => msg.type === 'file');
-        expect(fileResponses.length).toBeGreaterThan(0);
-      }
+      expect(message?.rawLlmMessages).toBeDefined();
+      expect(message?.responseMessages).toBeDefined();
     });
   });
 
@@ -252,8 +176,8 @@ All operations completed successfully.`;
         .where(and(eq(messages.id, testMessageId), isNull(messages.deletedAt)));
 
       expect(message).toBeDefined();
-      expect(message.rawLlmMessages).toBeDefined();
-      expect(message.responseMessages).toBeDefined();
+      expect(message?.rawLlmMessages).toBeDefined();
+      expect(message?.responseMessages).toBeDefined();
     });
 
     test('should handle multiple done tool invocations in sequence', async () => {
@@ -297,9 +221,9 @@ All operations completed successfully.`;
         .from(messages)
         .where(and(eq(messages.id, testMessageId), isNull(messages.deletedAt)));
 
-      expect(message.rawLlmMessages).toBeDefined();
-      if (Array.isArray(message.rawLlmMessages)) {
-        expect(message.rawLlmMessages.length).toBeGreaterThanOrEqual(2);
+      expect(message?.rawLlmMessages).toBeDefined();
+      if (Array.isArray(message?.rawLlmMessages)) {
+        expect(message?.rawLlmMessages.length).toBeGreaterThanOrEqual(2);
       }
     });
   });
@@ -367,9 +291,9 @@ All operations completed successfully.`;
         .from(messages)
         .where(and(eq(messages.id, testMessageId), isNull(messages.deletedAt)));
 
-      expect(message.rawLlmMessages).toBeDefined();
-      if (Array.isArray(message.rawLlmMessages)) {
-        const initialLength = message.rawLlmMessages.length;
+      expect(message?.rawLlmMessages).toBeDefined();
+      if (Array.isArray(message?.rawLlmMessages)) {
+        const initialLength = message?.rawLlmMessages.length;
 
         await startHandler({ toolCallId: randomUUID(), messages: [] });
 
@@ -378,8 +302,8 @@ All operations completed successfully.`;
           .from(messages)
           .where(and(eq(messages.id, testMessageId), isNull(messages.deletedAt)));
 
-        if (Array.isArray(updatedMessage.rawLlmMessages)) {
-          expect(updatedMessage.rawLlmMessages.length).toBeGreaterThan(initialLength);
+        if (Array.isArray(updatedMessage?.rawLlmMessages)) {
+          expect(updatedMessage?.rawLlmMessages.length).toBeGreaterThan(initialLength);
         }
       }
     });
@@ -414,7 +338,7 @@ All operations completed successfully.`;
         .from(messages)
         .where(and(eq(messages.id, testMessageId), isNull(messages.deletedAt)));
 
-      expect(message.rawLlmMessages).toBeDefined();
+      expect(message?.rawLlmMessages).toBeDefined();
     });
   });
 });

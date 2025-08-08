@@ -1,63 +1,43 @@
 import { updateMessageEntries } from '@buster/database';
+import type { ToolCallOptions } from 'ai';
 import {
   messageUserClarifyingQuestionRawLlmMessageEntry,
   messageUserClarifyingQuestionResponseMessage,
 } from './helpers/message-user-clarifying-question-transform-helper';
 import type {
   MessageUserClarifyingQuestionContext,
-  MessageUserClarifyingQuestionInput,
   MessageUserClarifyingQuestionState,
 } from './message-user-clarifying-question';
 
 // Factory function for onInputStart callback
-export function createMessageUserClarifyingQuestionStart<
-  TAgentContext extends MessageUserClarifyingQuestionContext = MessageUserClarifyingQuestionContext,
->(context: TAgentContext, state: MessageUserClarifyingQuestionState) {
-  return async (input: MessageUserClarifyingQuestionInput) => {
+export function createMessageUserClarifyingQuestionStart(
+  context: MessageUserClarifyingQuestionContext,
+  state: MessageUserClarifyingQuestionState
+) {
+  return async (options: ToolCallOptions) => {
     const messageId = context.messageId;
 
-    console.info('[message-user-clarifying-question] Starting clarifying question', {
-      messageId,
-      questionLength: input.clarifying_question?.length || 0,
-      timestamp: new Date().toISOString(),
-    });
-
     // Initialize state
-    state.processingStartTime = Date.now();
-    state.toolCallId = `clarifying-question-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-    state.clarifyingQuestion = input.clarifying_question;
+    state.toolCallId = options.toolCallId;
 
     // If we have a messageId, create initial database entries
     if (messageId) {
       try {
         // Create initial response entry (empty, will be updated with streaming)
-        const responseEntry = messageUserClarifyingQuestionResponseMessage(
-          state.toolCallId,
-          '' // Start with empty, will be populated during streaming
-        );
-        state.responseEntryId = responseEntry.id;
+        const responseEntry = messageUserClarifyingQuestionResponseMessage(state.toolCallId, state);
 
         // Create raw LLM message entry
         const rawLlmEntry = messageUserClarifyingQuestionRawLlmMessageEntry(
           state.toolCallId,
-          'messageUserClarifyingQuestion',
-          input
+          state
         );
 
         // Update database with initial entries (append mode)
-        await updateMessageEntries(
+        await updateMessageEntries({
           messageId,
-          {
-            responseEntry,
-            rawLlmMessage: rawLlmEntry,
-          },
-          'append'
-        );
-
-        console.info('[message-user-clarifying-question] Created initial database entries', {
-          messageId,
-          toolCallId: state.toolCallId,
-          responseEntryId: state.responseEntryId,
+          responseEntry,
+          rawLlmMessage: rawLlmEntry,
+          mode: 'append',
         });
       } catch (error) {
         console.error(

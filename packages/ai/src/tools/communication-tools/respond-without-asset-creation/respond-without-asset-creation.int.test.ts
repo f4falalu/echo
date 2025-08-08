@@ -1,5 +1,15 @@
-import { describe, expect, test } from 'vitest';
-import { createRespondWithoutAssetCreationTool } from './respond-without-asset-creation-tool';
+import type { ToolCallOptions } from 'ai';
+import { describe, expect, test, vi } from 'vitest';
+import {
+  RespondWithoutAssetCreationInputSchema,
+  RespondWithoutAssetCreationOutputSchema,
+  createRespondWithoutAssetCreationTool,
+} from './respond-without-asset-creation-tool';
+
+// Mock braintrust tracing wrapper to a no-op for tests
+vi.mock('braintrust', () => ({
+  wrapTraced: (fn: unknown) => fn,
+}));
 
 describe('Respond Without Asset Creation Tool Integration Tests', () => {
   describe('Tool Creation and Configuration', () => {
@@ -41,8 +51,7 @@ describe('Respond Without Asset Creation Tool Integration Tests', () => {
 
   describe('Input Validation', () => {
     test('should validate final_response is required', () => {
-      const tool = createRespondWithoutAssetCreationTool({});
-      const schema = tool.inputSchema;
+      const schema = RespondWithoutAssetCreationInputSchema;
 
       const validInput = {
         final_response: 'This is a valid response',
@@ -57,8 +66,7 @@ describe('Respond Without Asset Creation Tool Integration Tests', () => {
     });
 
     test('should accept markdown formatted responses', () => {
-      const tool = createRespondWithoutAssetCreationTool({});
-      const schema = tool.inputSchema;
+      const schema = RespondWithoutAssetCreationInputSchema;
 
       const markdownInput = {
         final_response: `
@@ -81,8 +89,7 @@ describe('Respond Without Asset Creation Tool Integration Tests', () => {
     });
 
     test('should reject empty object', () => {
-      const tool = createRespondWithoutAssetCreationTool({});
-      const schema = tool.inputSchema;
+      const schema = RespondWithoutAssetCreationInputSchema;
 
       const emptyInput = {};
 
@@ -90,8 +97,7 @@ describe('Respond Without Asset Creation Tool Integration Tests', () => {
     });
 
     test('should reject null final_response', () => {
-      const tool = createRespondWithoutAssetCreationTool({});
-      const schema = tool.inputSchema;
+      const schema = RespondWithoutAssetCreationInputSchema;
 
       const nullInput = {
         final_response: null,
@@ -111,10 +117,15 @@ describe('Respond Without Asset Creation Tool Integration Tests', () => {
         final_response: 'Task completed successfully',
       };
 
-      const result = await tool.execute(input);
+      if (tool.execute) {
+        const result = await tool.execute(input, {
+          toolCallId: 'test-tool-call',
+          messages: [],
+        } as ToolCallOptions);
 
-      expect(result).toBeDefined();
-      expect(result).toEqual({});
+        expect(result).toBeDefined();
+        expect(result).toEqual({});
+      }
     });
 
     test('should execute with long response', async () => {
@@ -125,10 +136,15 @@ describe('Respond Without Asset Creation Tool Integration Tests', () => {
         final_response: longResponse,
       };
 
-      const result = await tool.execute(input);
+      if (tool.execute) {
+        const result = await tool.execute(input, {
+          toolCallId: 'test-tool-call',
+          messages: [],
+        } as ToolCallOptions);
 
-      expect(result).toBeDefined();
-      expect(result).toEqual({});
+        expect(result).toBeDefined();
+        expect(result).toEqual({});
+      }
     });
 
     test('should execute with special characters', async () => {
@@ -142,10 +158,15 @@ Escaped: \n \t \\ \" \'
 `,
       };
 
-      const result = await tool.execute(input);
+      if (tool.execute) {
+        const result = await tool.execute(input, {
+          toolCallId: 'test-tool-call',
+          messages: [],
+        } as ToolCallOptions);
 
-      expect(result).toBeDefined();
-      expect(result).toEqual({});
+        expect(result).toBeDefined();
+        expect(result).toEqual({});
+      }
     });
 
     test('should execute without messageId context', async () => {
@@ -155,10 +176,15 @@ Escaped: \n \t \\ \" \'
         final_response: 'Response without message context',
       };
 
-      const result = await tool.execute(input);
+      if (tool.execute) {
+        const result = await tool.execute(input, {
+          toolCallId: 'test-tool-call',
+          messages: [],
+        } as ToolCallOptions);
 
-      expect(result).toBeDefined();
-      expect(result).toEqual({});
+        expect(result).toBeDefined();
+        expect(result).toEqual({});
+      }
     });
   });
 
@@ -189,25 +215,28 @@ Escaped: \n \t \\ \" \'
       const input1 = { final_response: 'Response 1' };
       const input2 = { final_response: 'Response 2' };
 
-      const [result1, result2] = await Promise.all([tool1.execute(input1), tool2.execute(input2)]);
+      if (tool1.execute && tool2.execute) {
+        const [result1, result2] = await Promise.all([
+          tool1.execute(input1, { toolCallId: 'tc-1', messages: [] } as ToolCallOptions),
+          tool2.execute(input2, { toolCallId: 'tc-2', messages: [] } as ToolCallOptions),
+        ]);
 
-      expect(result1).toEqual({});
-      expect(result2).toEqual({});
+        expect(result1).toEqual({});
+        expect(result2).toEqual({});
+      }
     });
   });
 
   describe('Output Schema Validation', () => {
     test('should have empty output schema', () => {
-      const tool = createRespondWithoutAssetCreationTool({});
-      const outputSchema = tool.outputSchema;
+      const outputSchema = RespondWithoutAssetCreationOutputSchema;
 
       const emptyOutput = {};
       expect(() => outputSchema.parse(emptyOutput)).not.toThrow();
     });
 
     test('should accept empty output only', () => {
-      const tool = createRespondWithoutAssetCreationTool({});
-      const outputSchema = tool.outputSchema;
+      const outputSchema = RespondWithoutAssetCreationOutputSchema;
 
       // The output schema is z.object({}) which accepts empty objects
       // Additional properties are allowed in Zod by default unless strict() is used

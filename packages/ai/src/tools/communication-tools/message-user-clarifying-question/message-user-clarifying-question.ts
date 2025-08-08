@@ -5,6 +5,8 @@ import { createMessageUserClarifyingQuestionExecute } from './message-user-clari
 import { createMessageUserClarifyingQuestionFinish } from './message-user-clarifying-question-finish';
 import { createMessageUserClarifyingQuestionStart } from './message-user-clarifying-question-start';
 
+export const MESSAGE_USER_CLARIFYING_QUESTION_TOOL_NAME = 'messageUserClarifyingQuestion';
+
 // Input/Output schemas
 const MessageUserClarifyingQuestionInputSchema = z.object({
   clarifying_question: z
@@ -17,6 +19,21 @@ const MessageUserClarifyingQuestionInputSchema = z.object({
 
 const MessageUserClarifyingQuestionOutputSchema = z.object({});
 
+const MessageUserClarifyingQuestionContextSchema = z.object({
+  messageId: z.string().describe('The message ID of the message that triggered the tool'),
+  chatId: z.string().describe('The chat ID of the chat that triggered the tool'),
+  userId: z.string().describe('The user ID of the user that triggered the tool'),
+});
+
+const MessageUserClarifyingQuestionStateSchema = z.object({
+  toolCallId: z
+    .string()
+    .optional()
+    .describe('The tool call ID of the tool call that triggered the tool'),
+  args: z.string().optional().describe('The arguments of the tool'),
+  clarifyingQuestion: z.string().optional().describe('The clarifying question of the tool'),
+});
+
 // Export types
 export type MessageUserClarifyingQuestionInput = z.infer<
   typeof MessageUserClarifyingQuestionInputSchema
@@ -24,24 +41,12 @@ export type MessageUserClarifyingQuestionInput = z.infer<
 export type MessageUserClarifyingQuestionOutput = z.infer<
   typeof MessageUserClarifyingQuestionOutputSchema
 >;
-
-// State management for streaming
-export interface MessageUserClarifyingQuestionState {
-  toolCallId?: string;
-  argsText: string;
-  parsedArgs?: Partial<MessageUserClarifyingQuestionInput>;
-  clarifyingQuestion: string;
-  processingStartTime?: number;
-  messageId?: string | undefined;
-  responseEntryId?: string;
-}
-
-// Type constraint for agent context - must have required fields
-export type MessageUserClarifyingQuestionContext = {
-  messageId?: string | undefined;
-  chatId?: string;
-  userId?: string;
-};
+export type MessageUserClarifyingQuestionContext = z.infer<
+  typeof MessageUserClarifyingQuestionContextSchema
+>;
+export type MessageUserClarifyingQuestionState = z.infer<
+  typeof MessageUserClarifyingQuestionStateSchema
+>;
 
 // Factory function that accepts agent context and creates the tool
 export function createMessageUserClarifyingQuestionTool<
@@ -49,16 +54,16 @@ export function createMessageUserClarifyingQuestionTool<
 >(context: TAgentContext) {
   // Initialize state for streaming
   const state: MessageUserClarifyingQuestionState = {
-    argsText: '',
+    toolCallId: undefined,
+    args: '',
     clarifyingQuestion: '',
-    messageId: context.messageId,
   };
 
   // Create all functions with the context and state passed
-  const execute = createMessageUserClarifyingQuestionExecute<TAgentContext>(context, state);
-  const onInputStart = createMessageUserClarifyingQuestionStart<TAgentContext>(context, state);
-  const onInputDelta = createMessageUserClarifyingQuestionDelta<TAgentContext>(context, state);
-  const onInputAvailable = createMessageUserClarifyingQuestionFinish<TAgentContext>(context, state);
+  const execute = createMessageUserClarifyingQuestionExecute();
+  const onInputStart = createMessageUserClarifyingQuestionStart(context, state);
+  const onInputDelta = createMessageUserClarifyingQuestionDelta(context, state);
+  const onInputAvailable = createMessageUserClarifyingQuestionFinish(context, state);
 
   // Return the tool definition
   return tool({
@@ -72,6 +77,3 @@ export function createMessageUserClarifyingQuestionTool<
     onInputAvailable,
   });
 }
-
-// Export a standalone version for backward compatibility
-export const messageUserClarifyingQuestion = createMessageUserClarifyingQuestionTool({});

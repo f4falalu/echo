@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { parseStreamingArgs as parseIdleArgs } from '../../tools/communication-tools/idle-tool';
+import { parseStreamingArgs as parseIdleArgs } from '../../tools/communication-tools/idle-tool/idle-tool';
 // Note: Some tools have been converted to AI SDK v5 and no longer have parseStreamingArgs
 // Only test tools that still have the parseStreamingArgs function
 // execute-sql-docs-agent has been converted to AI SDK v5 and no longer has parseStreamingArgs

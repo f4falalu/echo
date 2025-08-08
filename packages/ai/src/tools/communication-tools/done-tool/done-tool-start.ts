@@ -11,13 +11,8 @@ import {
 } from './helpers/done-tool-transform-helper';
 
 // Factory function that creates a type-safe callback for the specific agent context
-export function createDoneToolStart<TAgentContext extends DoneToolContext>(
-  doneToolState: DoneToolState,
-  context: TAgentContext
-) {
-  return async function doneToolStart(
-    options: ToolCallOptions & { messages?: ModelMessage[] }
-  ): Promise<void> {
+export function createDoneToolStart(doneToolState: DoneToolState, context: DoneToolContext) {
+  return async function doneToolStart(options: ToolCallOptions): Promise<void> {
     doneToolState.entry_id = options.toolCallId;
 
     // Extract files from the tool call responses in messages

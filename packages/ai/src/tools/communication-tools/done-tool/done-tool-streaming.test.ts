@@ -60,9 +60,12 @@ describe('Done Tool Streaming Tests', () => {
           role: 'tool',
           content: [
             {
-              type: 'text' as const,
-              text: JSON.stringify({
-                files: [
+              type: 'tool-result',
+              toolCallId: 'file-tool-123',
+              toolName: 'create-metrics-file',
+              output: {
+                type: 'json',
+                value: [
                   {
                     id: 'file-123',
                     name: 'test.yml',
@@ -70,11 +73,9 @@ describe('Done Tool Streaming Tests', () => {
                     yml_content: 'test content',
                   },
                 ],
-              }),
+              },
             },
           ],
-          toolCallId: 'file-tool-123',
-          toolName: 'create-metrics-file',
         },
       ];
 

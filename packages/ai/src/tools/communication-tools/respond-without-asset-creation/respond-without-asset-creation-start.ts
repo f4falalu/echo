@@ -13,7 +13,9 @@ import type {
 export function createRespondWithoutAssetCreationStart<
   TAgentContext extends RespondWithoutAssetCreationContext,
 >(state: RespondWithoutAssetCreationState, context: TAgentContext) {
-  return async function respondWithoutAssetCreationStart(options: ToolCallOptions): Promise<void> {
+  return async function respondWithoutAssetCreationStart(
+    options: Pick<ToolCallOptions, 'toolCallId'>
+  ): Promise<void> {
     state.entry_id = options.toolCallId;
 
     const responseEntry = createRespondWithoutAssetCreationResponseMessage(

@@ -29,6 +29,7 @@ describe('Respond Without Asset Creation Tool Streaming Tests', () => {
       const startHandler = createRespondWithoutAssetCreationStart(state, mockContext);
       const options: ToolCallOptions = {
         toolCallId: 'tool-call-123',
+        messages: [],
       };
 
       await startHandler(options);
@@ -49,6 +50,7 @@ describe('Respond Without Asset Creation Tool Streaming Tests', () => {
       const startHandler = createRespondWithoutAssetCreationStart(state, contextWithoutMessageId);
       const options: ToolCallOptions = {
         toolCallId: 'tool-call-456',
+        messages: [],
       };
 
       await expect(startHandler(options)).resolves.not.toThrow();
@@ -68,6 +70,7 @@ describe('Respond Without Asset Creation Tool Streaming Tests', () => {
       const startHandler = createRespondWithoutAssetCreationStart(state, contextWithEmptyMessageId);
       const options: ToolCallOptions = {
         toolCallId: 'tool-call-789',
+        messages: [],
       };
 
       await expect(startHandler(options)).resolves.not.toThrow();
@@ -88,6 +91,7 @@ describe('Respond Without Asset Creation Tool Streaming Tests', () => {
       await deltaHandler({
         inputTextDelta: '{"final_',
         toolCallId: 'tool-call-123',
+        messages: [],
       });
 
       expect(state.args).toBe('{"final_');
@@ -95,6 +99,7 @@ describe('Respond Without Asset Creation Tool Streaming Tests', () => {
       await deltaHandler({
         inputTextDelta: 'response": "Hello',
         toolCallId: 'tool-call-123',
+        messages: [],
       });
 
       expect(state.args).toBe('{"final_response": "Hello');
@@ -112,6 +117,7 @@ describe('Respond Without Asset Creation Tool Streaming Tests', () => {
       await deltaHandler({
         inputTextDelta: '{"final_response": "This is a partial response that is still being',
         toolCallId: 'tool-call-123',
+        messages: [],
       });
 
       expect(state.args).toBe('{"final_response": "This is a partial response that is still being');
@@ -130,6 +136,7 @@ describe('Respond Without Asset Creation Tool Streaming Tests', () => {
       await deltaHandler({
         inputTextDelta: '{"final_response": "Complete response message"}',
         toolCallId: 'tool-call-123',
+        messages: [],
       });
 
       expect(state.args).toBe('{"final_response": "Complete response message"}');
@@ -155,6 +162,7 @@ describe('Respond Without Asset Creation Tool Streaming Tests', () => {
       await deltaHandler({
         inputTextDelta: jsonInput,
         toolCallId: 'tool-call-123',
+        messages: [],
       });
 
       expect(state.final_response).toBe(markdownContent);
@@ -172,6 +180,7 @@ describe('Respond Without Asset Creation Tool Streaming Tests', () => {
       await deltaHandler({
         inputTextDelta: '{"final_response": "Line 1\\nLine 2\\n\\"Quoted text\\""}',
         toolCallId: 'tool-call-123',
+        messages: [],
       });
 
       expect(state.final_response).toBe('Line 1\nLine 2\n"Quoted text"');
@@ -189,6 +198,7 @@ describe('Respond Without Asset Creation Tool Streaming Tests', () => {
       await deltaHandler({
         inputTextDelta: '{"other_field": "value"}',
         toolCallId: 'tool-call-123',
+        messages: [],
       });
 
       expect(state.args).toBe('{"other_field": "value"}');
@@ -207,6 +217,7 @@ describe('Respond Without Asset Creation Tool Streaming Tests', () => {
       await deltaHandler({
         inputTextDelta: '{"final_response": ""}',
         toolCallId: 'tool-call-123',
+        messages: [],
       });
 
       expect(state.args).toBe('{"final_response": ""}');
@@ -229,6 +240,7 @@ describe('Respond Without Asset Creation Tool Streaming Tests', () => {
         deltaHandler({
           inputTextDelta: '{"final_response": "Test without messageId"}',
           toolCallId: 'tool-call-123',
+          messages: [],
         })
       ).resolves.not.toThrow();
 
@@ -253,6 +265,7 @@ describe('Respond Without Asset Creation Tool Streaming Tests', () => {
       await finishHandler({
         input,
         toolCallId: 'tool-call-123',
+        messages: [],
       });
 
       expect(state.entry_id).toBe('tool-call-123');
@@ -275,6 +288,7 @@ describe('Respond Without Asset Creation Tool Streaming Tests', () => {
       await finishHandler({
         input,
         toolCallId: 'tool-call-456',
+        messages: [],
       });
 
       expect(state.entry_id).toBe('tool-call-456');
@@ -311,6 +325,7 @@ The following items were processed:
       await finishHandler({
         input,
         toolCallId: 'tool-call-789',
+        messages: [],
       });
 
       expect(state.entry_id).toBe('tool-call-789');
@@ -337,6 +352,7 @@ The following items were processed:
         finishHandler({
           input,
           toolCallId: 'tool-call-no-msg',
+          messages: [],
         })
       ).resolves.not.toThrow();
 
@@ -385,6 +401,7 @@ The following items were processed:
       await deltaHandler({
         inputTextDelta: '{"final_response": "Testing"}',
         toolCallId: 'test-123',
+        messages: [],
       });
       expect(state.args).toBeTypeOf('string');
       expect(state.final_response).toBeTypeOf('string');
@@ -392,7 +409,7 @@ The following items were processed:
       const input: RespondWithoutAssetCreationInput = {
         final_response: 'Final test',
       };
-      await finishHandler({ input, toolCallId: 'test-123' });
+      await finishHandler({ input, toolCallId: 'test-123', messages: [] });
       expect(state.entry_id).toBeTypeOf('string');
       expect(state.final_response).toBeTypeOf('string');
     });
@@ -428,6 +445,7 @@ The following items were processed:
         await deltaHandler({
           inputTextDelta: chunk,
           toolCallId,
+          messages: [],
         });
       }
 
@@ -441,7 +459,7 @@ The following items were processed:
       const input: RespondWithoutAssetCreationInput = {
         final_response: 'This is a streaming response that comes in multiple chunks',
       };
-      await finishHandler({ input, toolCallId });
+      await finishHandler({ input, toolCallId, messages: [] });
 
       expect(state.entry_id).toBe(toolCallId);
       expect(state.final_response).toBe(
@@ -473,6 +491,7 @@ The following items were processed:
         await deltaHandler({
           inputTextDelta: chunk,
           toolCallId: 'format-test',
+          messages: [],
         });
       }
 
@@ -496,6 +515,7 @@ The following items were processed:
       await deltaHandler({
         inputTextDelta: jsonWithLongText,
         toolCallId: 'long-test',
+        messages: [],
       });
 
       expect(state.final_response).toBe(longText);
@@ -517,6 +537,7 @@ The following items were processed:
         deltaHandler({
           inputTextDelta: '{"final_response": "Unclosed string',
           toolCallId: 'tool-call-123',
+          messages: [],
         })
       ).resolves.not.toThrow();
 
@@ -541,6 +562,7 @@ The following items were processed:
         finishHandler({
           input,
           toolCallId: 'empty-test',
+          messages: [],
         })
       ).resolves.not.toThrow();
 

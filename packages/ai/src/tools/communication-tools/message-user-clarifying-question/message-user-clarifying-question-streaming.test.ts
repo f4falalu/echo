@@ -1,6 +1,12 @@
 import { describe, expect, it, vi } from 'vitest';
-import { createMessageUserClarifyingQuestionTool } from './message-user-clarifying-question';
-import type { MessageUserClarifyingQuestionInput } from './message-user-clarifying-question';
+import type {
+  MessageUserClarifyingQuestionContext,
+  MessageUserClarifyingQuestionInput,
+  MessageUserClarifyingQuestionState,
+} from './message-user-clarifying-question';
+import { createMessageUserClarifyingQuestionDelta } from './message-user-clarifying-question-delta';
+import { createMessageUserClarifyingQuestionFinish } from './message-user-clarifying-question-finish';
+import { createMessageUserClarifyingQuestionStart } from './message-user-clarifying-question-start';
 
 // Mock the database update function
 vi.mock('@buster/database', () => ({
@@ -14,13 +20,21 @@ vi.mock('braintrust', () => ({
 
 describe('messageUserClarifyingQuestion streaming', () => {
   it('should handle streaming JSON input', async () => {
-    const mockContext = {
+    const mockContext: MessageUserClarifyingQuestionContext = {
       messageId: 'test-message-123',
       chatId: 'test-chat-456',
       userId: 'test-user-789',
     };
 
-    const tool = createMessageUserClarifyingQuestionTool(mockContext);
+    const state: MessageUserClarifyingQuestionState = {
+      args: '',
+      clarifyingQuestion: '',
+      toolCallId: undefined,
+    };
+
+    const onStart = createMessageUserClarifyingQuestionStart(mockContext, state);
+    const onDelta = createMessageUserClarifyingQuestionDelta(mockContext, state);
+    const onFinish = createMessageUserClarifyingQuestionFinish(mockContext, state);
 
     // Simulate streaming JSON chunks
     const jsonChunks = [
@@ -39,102 +53,94 @@ describe('messageUserClarifyingQuestion streaming', () => {
       '}',
     ];
 
-    // Call onInputStart if it exists
-    if (tool.onInputStart) {
-      await tool.onInputStart({
-        clarifying_question: '',
-      } as MessageUserClarifyingQuestionInput);
+    await onStart({ toolCallId: 'tc-1', messages: [] });
+
+    for (const chunk of jsonChunks) {
+      await onDelta({ inputTextDelta: chunk, toolCallId: 'tc-1', messages: [] });
     }
 
-    // Stream the chunks through onInputDelta
-    if (tool.onInputDelta) {
-      for (const chunk of jsonChunks) {
-        await tool.onInputDelta(chunk);
-      }
-    }
-
-    // Call onInputAvailable with complete input
-    if (tool.onInputAvailable) {
-      const completeInput: MessageUserClarifyingQuestionInput = {
-        clarifying_question:
-          'What specific data sources would you like me to analyze? Please provide:\n- The database tables or data sources\n- The time period of interest\n- Any specific metrics or KPIs to focus on',
-      };
-      await tool.onInputAvailable(completeInput);
-    }
-
-    // Execute the tool
-    const result = await tool.execute({
+    const completeInput: MessageUserClarifyingQuestionInput = {
       clarifying_question:
         'What specific data sources would you like me to analyze? Please provide:\n- The database tables or data sources\n- The time period of interest\n- Any specific metrics or KPIs to focus on',
-    });
+    };
+    await onFinish({ input: completeInput, toolCallId: 'tc-1', messages: [] });
 
-    expect(result).toEqual({});
+    expect(state.clarifyingQuestion).toBe(completeInput.clarifying_question);
   });
 
   it('should handle partial JSON parsing during streaming', async () => {
-    const mockContext = {
+    const mockContext: MessageUserClarifyingQuestionContext = {
       messageId: 'test-message-456',
+      chatId: 'test-chat-456',
+      userId: 'test-user-456',
     };
 
-    const tool = createMessageUserClarifyingQuestionTool(mockContext);
+    const state: MessageUserClarifyingQuestionState = {
+      args: '',
+      clarifyingQuestion: '',
+      toolCallId: undefined,
+    };
 
-    // Test with incomplete JSON that can still be optimistically parsed
+    const onDelta = createMessageUserClarifyingQuestionDelta(mockContext, state);
+
     const incompleteJson = '{"clarifying_question":"Do you want to analyze sales or marketing data';
 
-    if (tool.onInputStart) {
-      await tool.onInputStart({
-        clarifying_question: '',
-      } as MessageUserClarifyingQuestionInput);
-    }
-
-    if (tool.onInputDelta) {
-      await tool.onInputDelta(incompleteJson);
-    }
-
-    // Even with incomplete JSON, the optimistic parser should extract the partial value
-    // This is verified by the fact that no errors are thrown
+    await expect(
+      onDelta({ inputTextDelta: incompleteJson, toolCallId: 'tc-2', messages: [] })
+    ).resolves.not.toThrow();
     expect(true).toBe(true);
   });
 
   it('should handle empty or malformed input gracefully', async () => {
-    const mockContext = {};
-    const tool = createMessageUserClarifyingQuestionTool(mockContext);
+    const mockContext: MessageUserClarifyingQuestionContext = {
+      messageId: '',
+      chatId: '',
+      userId: '',
+    };
 
-    // Test with empty input
-    const result = await tool.execute({
-      clarifying_question: '',
-    });
+    const state: MessageUserClarifyingQuestionState = {
+      args: '',
+      clarifyingQuestion: '',
+      toolCallId: undefined,
+    };
 
-    expect(result).toEqual({});
+    const onDelta = createMessageUserClarifyingQuestionDelta(mockContext, state);
+    const onFinish = createMessageUserClarifyingQuestionFinish(mockContext, state);
 
-    // Test with malformed streaming input
-    if (tool.onInputDelta) {
-      await tool.onInputDelta('not valid json');
-      await tool.onInputDelta('{"incomplete":');
-    }
+    await expect(
+      onDelta({ inputTextDelta: 'not valid json', toolCallId: 'tc-3', messages: [] })
+    ).resolves.not.toThrow();
+    await expect(
+      onDelta({ inputTextDelta: '{"incomplete":', toolCallId: 'tc-3', messages: [] })
+    ).resolves.not.toThrow();
 
-    // Should not throw errors
-    expect(true).toBe(true);
+    await expect(
+      onFinish({ input: { clarifying_question: '' }, toolCallId: 'tc-3', messages: [] })
+    ).resolves.not.toThrow();
   });
 
   it('should work without messageId context', async () => {
-    const mockContext = {};
-    const tool = createMessageUserClarifyingQuestionTool(mockContext);
+    const mockContext: MessageUserClarifyingQuestionContext = {
+      messageId: '',
+      chatId: '',
+      userId: '',
+    };
+
+    const state: MessageUserClarifyingQuestionState = {
+      args: '',
+      clarifyingQuestion: '',
+      toolCallId: undefined,
+    };
+
+    const onStart = createMessageUserClarifyingQuestionStart(mockContext, state);
+    const onFinish = createMessageUserClarifyingQuestionFinish(mockContext, state);
 
     const input: MessageUserClarifyingQuestionInput = {
       clarifying_question: 'Which metrics are most important to you?',
     };
 
-    // Should work without database updates
-    if (tool.onInputStart) {
-      await tool.onInputStart(input);
-    }
-
-    if (tool.onInputAvailable) {
-      await tool.onInputAvailable(input);
-    }
-
-    const result = await tool.execute(input);
-    expect(result).toEqual({});
+    await expect(onStart({ toolCallId: 'tc-4', messages: [] })).resolves.not.toThrow();
+    await expect(onFinish({ input, toolCallId: 'tc-4', messages: [] })).resolves.not.toThrow();
+    expect(state.clarifyingQuestion).toBe(input.clarifying_question);
   });
 });
