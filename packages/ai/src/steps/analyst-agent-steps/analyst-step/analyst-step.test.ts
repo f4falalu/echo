@@ -1,5 +1,5 @@
-import { describe, expect, it, vi } from 'vitest';
 import type { ModelMessage } from 'ai';
+import { describe, expect, it, vi } from 'vitest';
 import { runAnalystAgentStep } from './analyst-step';
 
 // Mock the analyst agent module
@@ -35,13 +35,15 @@ describe('runAnalystAgentStep', () => {
 
     const result = await runAnalystAgentStep({
       options: {
+        organizationId: 'test-org-id',
         chatId: 'test-chat-id',
         messageId: 'test-message-id',
         userId: 'test-user-id',
+        dataSourceId: 'test-ds-id',
+        dataSourceSyntax: 'postgres',
       },
       streamOptions: {
-        prompt: 'Test prompt',
-        conversationHistory: [],
+        messages: [{ role: 'user', content: 'Test prompt' }],
       },
     });
 
@@ -66,10 +68,16 @@ describe('runAnalystAgentStep', () => {
 
     await expect(
       runAnalystAgentStep({
-        options: {},
+        options: {
+          organizationId: 'test-org-id',
+          chatId: 'test-chat-id',
+          messageId: 'test-message-id',
+          userId: 'test-user-id',
+          dataSourceId: 'test-ds-id',
+          dataSourceSyntax: 'postgres',
+        },
         streamOptions: {
-          prompt: 'Test prompt',
-          conversationHistory: [],
+          messages: [{ role: 'user', content: 'Test prompt' }],
         },
       })
     ).rejects.toThrow('Analyst agent returned an invalid response shape (missing messages array)');
@@ -89,10 +97,16 @@ describe('runAnalystAgentStep', () => {
 
     await expect(
       runAnalystAgentStep({
-        options: {},
+        options: {
+          organizationId: 'test-org-id',
+          chatId: 'test-chat-id',
+          messageId: 'test-message-id',
+          userId: 'test-user-id',
+          dataSourceId: 'test-ds-id',
+          dataSourceSyntax: 'postgres',
+        },
         streamOptions: {
-          prompt: 'Test prompt',
-          conversationHistory: [],
+          messages: [{ role: 'user', content: 'Test prompt' }],
         },
       })
     ).rejects.toThrow('Analyst agent returned an invalid response shape (missing messages array)');
@@ -111,13 +125,15 @@ describe('runAnalystAgentStep', () => {
     await expect(
       runAnalystAgentStep({
         options: {
+          organizationId: 'test-org-id',
           chatId: 'test-chat-id',
           messageId: 'test-message-id',
           userId: 'test-user-id',
+          dataSourceId: 'test-ds-id',
+          dataSourceSyntax: 'postgres',
         },
         streamOptions: {
-          prompt: 'Test prompt',
-          conversationHistory: [],
+          messages: [{ role: 'user', content: 'Test prompt' }],
         },
       })
     ).rejects.toThrow('Test error');
