@@ -82,6 +82,7 @@ const execution = async ({
             openai: {
               parallelToolCalls: false,
               reasoningEffort: 'minimal',
+              verbosity: 'low',
             },
           },
         });
