@@ -24,9 +24,9 @@ export const MetricContent = React.memo(
     const ref = useRef<HTMLDivElement>(null);
 
     const [inViewport] = useInViewport(ref, {
-      threshold: isExportMode ? 0 : 0.33
+      threshold: 0.33
     });
-    const renderChart = inViewport;
+    const renderChart = inViewport || isExportMode;
 
     const {
       data: metric,
@@ -72,6 +72,7 @@ export const MetricContent = React.memo(
 
     return (
       <MetricCard
+        ref={ref}
         metricLink={link}
         animate={!isExportMode}
         metricId={metricId}

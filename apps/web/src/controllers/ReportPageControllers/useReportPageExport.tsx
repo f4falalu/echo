@@ -4,6 +4,7 @@ import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import { useRef, useState } from 'react';
 import { ReportPageController } from './ReportPageController';
 import { printHTMLPage } from '@/lib/print';
+import { timeout } from '@/lib';
 
 const ExportContainerComponent: React.FC<{
   reportId: string;
@@ -18,13 +19,15 @@ const ExportContainerComponent: React.FC<{
       ref={ref}
       style={{
         width: '820px',
+        minWidth: '820px',
+        maxWidth: '820px',
         height: '100%',
         position: 'fixed',
         top: 0,
-        left: -1,
+        left: 0,
         right: 0,
         bottom: 0,
-        zIndex: 100
+        zIndex: -1
       }}>
       <ReportPageController
         reportId={reportId}
@@ -36,7 +39,7 @@ const ExportContainerComponent: React.FC<{
             if (immiateChild) {
               await buildHtmlMethod(immiateChild, reportName || '');
             }
-          }, 100);
+          }, 150);
         }}
       />
     </div>
@@ -63,10 +66,11 @@ export const useReportPageExport = ({
 
   const buildHtmlMethod = useMemoizedFn(async (node: HTMLElement, title: string) => {
     try {
+      await timeout(150); //wait for chart nodes to be rendered
       const result = await buildExportHtml({ root: node, title });
       printHTMLPage({ html: result, filename: title, closeOnPrint: false });
     } finally {
-      setIsExportingReport(false);
+      //  setIsExportingReport(false);
     }
   });
 
@@ -155,6 +159,13 @@ const buildExportHtml = async (options?: {
       clone.removeAttribute('draggable');
       clone.removeAttribute('spellcheck');
     }
+
+    // Ensure the cloned root has no padding and full width
+    const existingStyle = clonedRoot.getAttribute('style') || '';
+    clonedRoot.setAttribute(
+      'style',
+      `${existingStyle}; width: 100%; padding: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: visible;`.trim()
+    );
 
     // Wrap content with a fixed width, centered container for consistency
     const wrapper = document.createElement('div');
