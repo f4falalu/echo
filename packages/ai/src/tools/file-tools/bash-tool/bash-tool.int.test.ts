@@ -44,7 +44,7 @@ describe.sequential('bash-tool integration test', () => {
           { command: `cd /tmp/${testDir} && ls -la`, description: 'List files', timeout: 5000 },
         ],
       },
-      { abortSignal: new AbortController().signal }
+      { toolCallId: 'test-tool-call', messages: [], abortSignal: new AbortController().signal }
     );
 
     expect(result.results).toHaveLength(3);
@@ -93,7 +93,7 @@ describe.sequential('bash-tool integration test', () => {
           { command: `cd /tmp/${testDir} && exit 1`, description: 'Exit with error code' },
         ],
       },
-      { abortSignal: new AbortController().signal }
+      { toolCallId: 'test-tool-call', messages: [], abortSignal: new AbortController().signal }
     );
 
     expect(result.results).toHaveLength(2);
@@ -138,7 +138,7 @@ describe.sequential('bash-tool integration test', () => {
           },
         ],
       },
-      { abortSignal: new AbortController().signal }
+      { toolCallId: 'test-tool-call', messages: [], abortSignal: new AbortController().signal }
     );
 
     expect(result.results).toHaveLength(4);
@@ -180,7 +180,7 @@ describe.sequential('bash-tool integration test', () => {
           },
         ],
       },
-      { abortSignal: new AbortController().signal }
+      { toolCallId: 'test-tool-call', messages: [], abortSignal: new AbortController().signal }
     );
 
     expect(result.results).toHaveLength(1);

@@ -57,7 +57,7 @@ describe('createBashTool', () => {
           },
         ],
       },
-      { abortSignal: new AbortController().signal }
+      { toolCallId: 'test-tool-call', messages: [], abortSignal: new AbortController().signal }
     );
 
     expect(result.results).toHaveLength(1);
@@ -86,7 +86,7 @@ describe('createBashTool', () => {
           },
         ],
       },
-      { abortSignal: new AbortController().signal }
+      { toolCallId: 'test-tool-call', messages: [], abortSignal: new AbortController().signal }
     );
 
     expect(result.results).toHaveLength(1);
@@ -125,7 +125,7 @@ describe('createBashTool', () => {
           },
         ],
       },
-      { abortSignal: new AbortController().signal }
+      { toolCallId: 'test-tool-call', messages: [], abortSignal: new AbortController().signal }
     );
 
     expect(result.results).toHaveLength(2);
@@ -148,7 +148,7 @@ describe('createBashTool', () => {
           },
         ],
       },
-      { abortSignal: new AbortController().signal }
+      { toolCallId: 'test-tool-call', messages: [], abortSignal: new AbortController().signal }
     );
 
     expect(result.results).toHaveLength(1);
@@ -166,7 +166,7 @@ describe('createBashTool', () => {
       {
         commands: [],
       },
-      { abortSignal: new AbortController().signal }
+      { toolCallId: 'test-tool-call', messages: [], abortSignal: new AbortController().signal }
     );
 
     expect(result.results).toHaveLength(0);
