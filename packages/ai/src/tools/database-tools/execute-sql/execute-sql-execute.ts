@@ -6,10 +6,15 @@ import {
   createPermissionErrorMessage,
   validateSqlPermissions,
 } from '../../../utils/sql-permissions';
-import type { ExecuteSqlContext, ExecuteSqlInput, ExecuteSqlOutput, ExecuteSqlState } from './execute-sql';
+import type {
+  ExecuteSqlContext,
+  ExecuteSqlInput,
+  ExecuteSqlOutput,
+  ExecuteSqlState,
+} from './execute-sql';
 import {
-  createExecuteSqlReasoningEntry,
   createExecuteSqlRawLlmMessageEntry,
+  createExecuteSqlReasoningEntry,
 } from './helpers/execute-sql-transform-helper';
 
 /**
@@ -283,36 +288,38 @@ export function createExecuteSqlExecute(state: ExecuteSqlState, context: Execute
         const executionResults = await Promise.allSettled(executionPromises);
 
         // Process results
-        const results: ExecuteSqlOutput['results'] = executionResults.map((executionResult, index) => {
-          const sql = statements[index] || '';
+        const results: ExecuteSqlOutput['results'] = executionResults.map(
+          (executionResult, index) => {
+            const sql = statements[index] || '';
 
-          if (executionResult.status === 'fulfilled') {
-            const { result } = executionResult.value;
-            if (result.success) {
+            if (executionResult.status === 'fulfilled') {
+              const { result } = executionResult.value;
+              if (result.success) {
+                return {
+                  status: 'success' as const,
+                  sql,
+                  results: result.data || [],
+                };
+              }
               return {
-                status: 'success' as const,
+                status: 'error' as const,
                 sql,
-                results: result.data || [],
+                error_message: result.error || 'Unknown error occurred',
               };
             }
+
             return {
               status: 'error' as const,
               sql,
-              error_message: result.error || 'Unknown error occurred',
+              error_message: executionResult.reason?.message || 'Execution failed',
             };
           }
-
-          return {
-            status: 'error' as const,
-            sql,
-            error_message: executionResult.reason?.message || 'Execution failed',
-          };
-        });
+        );
 
         // Update reasoning entry with results
         const endTime = Date.now();
         const executionTime = endTime - (state.startTime || endTime);
-        
+
         // Update state with results
         state.executionResults = results;
         state.executionTime = executionTime;

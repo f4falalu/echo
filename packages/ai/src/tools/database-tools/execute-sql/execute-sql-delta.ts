@@ -6,8 +6,8 @@ import {
 } from '../../../utils/streaming/optimistic-json-parser';
 import type { ExecuteSqlContext, ExecuteSqlInput, ExecuteSqlState } from './execute-sql';
 import {
-  createExecuteSqlReasoningEntry,
   createExecuteSqlRawLlmMessageEntry,
+  createExecuteSqlReasoningEntry,
 } from './helpers/execute-sql-transform-helper';
 
 // Type-safe key extraction from the schema

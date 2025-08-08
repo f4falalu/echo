@@ -113,7 +113,8 @@ describe('Sequential Thinking Tool Integration Tests', () => {
 
       // Stream complete JSON
       await deltaHandler({
-        inputTextDelta: '{"thought": "Step 1: Understanding the problem", "thoughtNumber": 1, "nextThoughtNeeded": true}',
+        inputTextDelta:
+          '{"thought": "Step 1: Understanding the problem", "thoughtNumber": 1, "nextThoughtNeeded": true}',
         toolCallId,
         messages: [],
       });
@@ -152,7 +153,9 @@ describe('Sequential Thinking Tool Integration Tests', () => {
       });
 
       // Verify state was finalized
-      expect(state.thought).toBe('After analyzing the problem, the solution is to use a recursive approach');
+      expect(state.thought).toBe(
+        'After analyzing the problem, the solution is to use a recursive approach'
+      );
       expect(state.nextThoughtNeeded).toBe(false);
       expect(state.thoughtNumber).toBe(3);
       expect(state.entry_id).toBe(toolCallId);
@@ -174,13 +177,13 @@ describe('Sequential Thinking Tool Integration Tests', () => {
 
       // First thought - start and delta
       await startHandler({ toolCallId, messages: [] });
-      
+
       await deltaHandler({
         inputTextDelta: '{"thought": "First, let me understand',
         toolCallId,
         messages: [],
       });
-      
+
       await deltaHandler({
         inputTextDelta: ' the requirements", "thoughtNumber": 1}',
         toolCallId,
@@ -227,9 +230,7 @@ describe('Sequential Thinking Tool Integration Tests', () => {
       const toolCallId = randomUUID();
 
       // Should not throw, but handle error gracefully
-      await expect(
-        startHandler({ toolCallId, messages: [] })
-      ).resolves.not.toThrow();
+      await expect(startHandler({ toolCallId, messages: [] })).resolves.not.toThrow();
 
       // State should still be updated even if database fails
       expect(state.entry_id).toBe(toolCallId);

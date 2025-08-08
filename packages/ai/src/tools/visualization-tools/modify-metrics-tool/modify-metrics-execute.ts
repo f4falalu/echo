@@ -5,7 +5,10 @@ import { eq, inArray } from 'drizzle-orm';
 import * as yaml from 'yaml';
 import { z } from 'zod';
 import { getWorkflowDataSourceManager } from '../../../utils/data-source-manager';
-import { createPermissionErrorMessage, validateSqlPermissions } from '../../../utils/sql-permissions';
+import {
+  createPermissionErrorMessage,
+  validateSqlPermissions,
+} from '../../../utils/sql-permissions';
 import { validateAndAdjustBarLineAxes } from '../bar-line-axis-validator';
 import { trackFileAssociations } from '../file-tracking-helper';
 import { ensureTimeFrameQuoted } from '../time-frame-helper';
@@ -607,7 +610,10 @@ async function processMetricFileUpdate(
 
 // Main modify metrics function
 const modifyMetricFiles = wrapTraced(
-  async (params: UpdateFilesParams, context: ModifyMetricsAgentContext): Promise<ModifyFilesOutput> => {
+  async (
+    params: UpdateFilesParams,
+    context: ModifyMetricsAgentContext
+  ): Promise<ModifyFilesOutput> => {
     const startTime = Date.now();
 
     // Get context values
@@ -857,10 +863,7 @@ export function createModifyMetricsExecute<
 
       try {
         // Call the main function directly instead of delegating
-        const result = await modifyMetricFiles(
-          input as UpdateFilesParams,
-          context
-        );
+        const result = await modifyMetricFiles(input as UpdateFilesParams, context);
 
         // Update state files with results
         if (result.files && Array.isArray(result.files)) {

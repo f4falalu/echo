@@ -19,7 +19,9 @@ describe('Sequential Thinking Tool', () => {
 
       const tool = createSequentialThinkingTool(context);
 
-      expect(tool.description).toContain('detailed tool for dynamic and reflective problem-solving');
+      expect(tool.description).toContain(
+        'detailed tool for dynamic and reflective problem-solving'
+      );
       expect(tool.description).toContain('When to use this tool');
       expect(tool.description).toContain('Key features');
       expect(tool.inputSchema).toBeDefined();

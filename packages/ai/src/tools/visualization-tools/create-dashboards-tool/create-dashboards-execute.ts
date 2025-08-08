@@ -524,10 +524,7 @@ export function createCreateDashboardsExecute<
 
       try {
         // Call the main function directly instead of delegating
-        const result = await createDashboardFiles(
-          input as CreateDashboardFilesParams,
-          context
-        );
+        const result = await createDashboardFiles(input as CreateDashboardFilesParams, context);
 
         // Update state files with final results (IDs, versions, status)
         if (result && typeof result === 'object') {

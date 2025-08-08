@@ -1,6 +1,4 @@
-import type {
-  ChatMessageReasoningMessage,
-} from '@buster/server-shared/chats';
+import type { ChatMessageReasoningMessage } from '@buster/server-shared/chats';
 import type { CoreMessage } from 'ai';
 import type { ExecuteSqlOutput, ExecuteSqlState } from '../execute-sql';
 
@@ -22,11 +20,11 @@ export function createExecuteSqlReasoningEntry(
   let fullContent = statementsYaml;
   if (state.executionResults && state.executionResults.length > 0) {
     let resultsYaml = '\n\nresults:';
-    
+
     for (const result of state.executionResults) {
       resultsYaml += `\n  - status: ${result.status}`;
       resultsYaml += `\n    sql: ${result.sql}`;
-      
+
       if (result.status === 'error' && result.error_message) {
         resultsYaml += `\n    error_message: |-\n      ${result.error_message}`;
       } else if (result.status === 'success' && result.results) {
@@ -39,18 +37,18 @@ export function createExecuteSqlReasoningEntry(
         }
       }
     }
-    
+
     fullContent += resultsYaml;
   }
 
   // Calculate title based on results
   let title = 'Executing SQL';
   let status: 'loading' | 'completed' | 'failed' = 'loading';
-  
+
   if (state.executionResults && state.isComplete) {
     const successCount = state.executionResults.filter((r) => r.status === 'success').length;
     const failedCount = state.executionResults.filter((r) => r.status === 'error').length;
-    
+
     if (failedCount > 0) {
       title = `Ran ${successCount} validation ${successCount === 1 ? 'query' : 'queries'}, ${failedCount} failed`;
       status = 'failed';
@@ -76,7 +74,7 @@ export function createExecuteSqlReasoningEntry(
   }
 
   const fileId = `sql-${toolCallId}`;
-  
+
   return {
     id: toolCallId,
     type: 'files',

@@ -270,7 +270,10 @@ async function processDashboardFileUpdate(
 
 // Main modify dashboard files function
 const modifyDashboardFiles = wrapTraced(
-  async (params: UpdateFilesParams, context: ModifyDashboardsAgentContext): Promise<ModifyFilesOutput> => {
+  async (
+    params: UpdateFilesParams,
+    context: ModifyDashboardsAgentContext
+  ): Promise<ModifyFilesOutput> => {
     const startTime = Date.now();
 
     // Get context values (for logging/tracking)
@@ -518,10 +521,7 @@ export function createModifyDashboardsExecute<
       }));
 
       // Call the main function directly instead of delegating
-      const result = await modifyDashboardFiles(
-        input as UpdateFilesParams,
-        context
-      );
+      const result = await modifyDashboardFiles(input as UpdateFilesParams, context);
 
       // Update state files with final results
       if (result.files) {

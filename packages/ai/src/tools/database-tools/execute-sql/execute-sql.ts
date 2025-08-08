@@ -33,26 +33,28 @@ const ExecuteSqlStateSchema = z.object({
   isComplete: z.boolean().optional().describe('Whether input is complete'),
   startTime: z.number().optional().describe('Execution start time'),
   executionTime: z.number().optional().describe('Total execution time in ms'),
-  executionResults: z.array(
-    z.discriminatedUnion('status', [
-      z.object({
-        status: z.literal('success'),
-        sql: z.string(),
-        results: z.array(z.record(z.unknown())),
-      }),
-      z.object({
-        status: z.literal('error'),
-        sql: z.string(),
-        error_message: z.string(),
-      }),
-    ])
-  ).optional().describe('Execution results'),
+  executionResults: z
+    .array(
+      z.discriminatedUnion('status', [
+        z.object({
+          status: z.literal('success'),
+          sql: z.string(),
+          results: z.array(z.record(z.unknown())),
+        }),
+        z.object({
+          status: z.literal('error'),
+          sql: z.string(),
+          error_message: z.string(),
+        }),
+      ])
+    )
+    .optional()
+    .describe('Execution results'),
 });
 
 export type ExecuteSqlInput = z.infer<typeof ExecuteSqlInputSchema>;
 export type ExecuteSqlContext = z.infer<typeof ExecuteSqlContextSchema>;
 export type ExecuteSqlState = z.infer<typeof ExecuteSqlStateSchema>;
-
 
 const ExecuteSqlOutputSchema = z.object({
   results: z.array(
