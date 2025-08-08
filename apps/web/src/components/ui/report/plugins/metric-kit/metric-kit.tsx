@@ -48,3 +48,5 @@ export const MetricPlugin = createPlatePlugin<
     }
   };
 });
+
+export const MetricKit = [MetricPlugin];

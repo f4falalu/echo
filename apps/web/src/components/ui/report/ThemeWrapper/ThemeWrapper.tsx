@@ -6,6 +6,7 @@ import { THEME_RESET_COLORS, THEME_RESET_STYLE } from '@/styles/theme-reset';
 
 interface ThemeWrapperProps extends React.ComponentProps<'div'> {
   defaultTheme?: string;
+  id?: string;
 }
 
 /**
@@ -43,10 +44,11 @@ const CSS_VARIABLES_THEME = Object.entries(THEME_RESET_COLORS.light).reduce(
 
 const EDITOR_THEME = { ...CSS_VARIABLES_THEME, ...THEME_RESET_STYLE };
 
-export function ThemeWrapper({ children, className, defaultTheme }: ThemeWrapperProps) {
+export function ThemeWrapper({ children, className, defaultTheme, id }: ThemeWrapperProps) {
   return (
     <>
       <div
+        id={id}
         style={EDITOR_THEME}
         className={cn(
           'themes-wrapper h-full w-full overflow-visible bg-transparent antialiased',

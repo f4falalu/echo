@@ -13,7 +13,7 @@ import {
 import React, { useEffect } from 'react';
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import { AddMetricModal } from '@/components/features/modal/AddMetricModal';
-import { MetricPlugin, type TMetricElement } from '../../plugins/metric-plugin';
+import { MetricPlugin, type TMetricElement } from '../../plugins/metric-kit';
 
 export const MetricEmbedPlaceholder: React.FC = () => {
   const [openModal, setOpenModal] = React.useState(false);

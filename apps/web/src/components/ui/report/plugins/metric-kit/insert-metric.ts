@@ -1,7 +1,7 @@
 import type { InsertNodesOptions } from 'platejs';
 import type { PlateEditor } from 'platejs/react';
 import { CUSTOM_KEYS } from '../../config/keys';
-import { MetricPlugin, type TMetricElement } from './metric-plugin';
+import { MetricPlugin, type TMetricElement } from './metric-kit';
 
 export const insertMetric = (editor: PlateEditor, options?: InsertNodesOptions) => {
   editor.tf.insertNode<TMetricElement>(
@@ -19,5 +19,5 @@ export const insertMetric = (editor: PlateEditor, options?: InsertNodesOptions) 
   setTimeout(() => {
     const plugin = editor.getPlugin(MetricPlugin);
     plugin.api.metric.openAddMetricModal();
-  }, 50);
+  }, 25);
 };

@@ -22,7 +22,7 @@ export function ExportToolbarButton({ children, ...props }: DropdownMenuProps) {
   const editor = useEditorRef();
   const [open, setOpen] = React.useState(false);
 
-  const { exportToHtml, exportToPdf, exportToImage, exportToMarkdown } = useExportReport(editor);
+  const { exportToHtml, exportToPdf, exportToImage, exportToMarkdown } = useExportReport();
 
   return (
     <DropdownMenu open={open} onOpenChange={setOpen} modal={false}>
@@ -34,16 +34,16 @@ export function ExportToolbarButton({ children, ...props }: DropdownMenuProps) {
 
       <DropdownMenuContent align="start">
         <DropdownMenuGroup>
-          <DropdownMenuItem onSelect={exportToHtml}>
+          <DropdownMenuItem onSelect={() => exportToHtml({ editor })}>
             {NodeTypeLabels.exportAsHtml.label}
           </DropdownMenuItem>
-          <DropdownMenuItem onSelect={exportToPdf}>
+          <DropdownMenuItem onSelect={() => exportToPdf({ editor })}>
             {NodeTypeLabels.exportAsPdf.label}
           </DropdownMenuItem>
-          <DropdownMenuItem onSelect={exportToImage}>
+          <DropdownMenuItem onSelect={() => exportToImage({ editor })}>
             {NodeTypeLabels.exportAsImage.label}
           </DropdownMenuItem>
-          <DropdownMenuItem onSelect={exportToMarkdown}>
+          <DropdownMenuItem onSelect={() => exportToMarkdown({ editor })}>
             {NodeTypeLabels.exportAsMarkdown.label}
           </DropdownMenuItem>
         </DropdownMenuGroup>

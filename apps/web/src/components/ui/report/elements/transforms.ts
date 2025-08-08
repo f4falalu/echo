@@ -19,7 +19,7 @@ import { TablePlugin } from '@platejs/table/react';
 import { insertToc } from '@platejs/toc';
 import { type NodeEntry, type Path, type TElement, KEYS, PathApi } from 'platejs';
 import { CUSTOM_KEYS } from '../config/keys';
-import { insertMetric } from '../plugins/metric-plugin';
+import { insertMetric } from '../plugins/metric-kit';
 
 const ACTION_THREE_COLUMNS = 'action_three_columns';
 
