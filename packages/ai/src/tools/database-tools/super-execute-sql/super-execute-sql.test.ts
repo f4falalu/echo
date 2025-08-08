@@ -254,7 +254,7 @@ describe('super-execute-sql', () => {
     it('should handle data source connection errors', async () => {
       const executeHandler = createSuperExecuteSqlExecute(mockState, mockContext);
 
-      vi.spyOn(managerInstance, 'getDataSource').mockRejectedValue(new Error('Connection failed'));
+      vi.mocked(getDataSource).mockRejectedValue(new Error('Connection failed'));
 
       const result = await executeHandler({
         statements: ['SELECT 1'],
@@ -272,7 +272,7 @@ describe('super-execute-sql', () => {
       const executeHandler = createSuperExecuteSqlExecute(mockState, mockContext);
 
       // Reset the mock to resolve properly for this test
-      vi.spyOn(managerInstance, 'getDataSource').mockResolvedValue(mockDataSource);
+      vi.mocked(getDataSource).mockResolvedValue(mockDataSource);
 
       mockExecute.mockResolvedValue({
         success: true,

@@ -276,9 +276,9 @@ export function createSuperExecuteSqlExecute(
       }
 
       const dataSourceId = context.dataSourceId;
-      
+
       let dataSource: DataSource | null = null;
-      
+
       try {
         // Get a new DataSource instance
         dataSource = await getDataSource(dataSourceId);
@@ -288,6 +288,10 @@ export function createSuperExecuteSqlExecute(
           withRateLimit(
             'sql-execution',
             async () => {
+              if (!dataSource) {
+                throw new Error('DataSource is not available');
+              }
+
               const result = await executeSingleStatement(sqlStatement, dataSource);
               return { sql: sqlStatement, result };
             },
