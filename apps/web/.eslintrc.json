@@ -16,6 +16,7 @@
     "@typescript-eslint/no-unused-vars": "off",
     "@typescript-eslint/ban-ts-comment": "off",
     "@typescript-eslint/ban-types": "off",
+    "@typescript-eslint/no-empty-object-type": "off",
     "no-console": "off",
     "react/no-array-index-key": "off",
     "react-hooks/exhaustive-deps": "off",
