@@ -20,12 +20,6 @@ export { createGrepSearchTool } from './file-tools/grep-search-tool/grep-search-
 
 // Legacy exports for backward compatibility (to be deprecated)
 export { bashExecute } from './file-tools/bash-tool';
-export { readFiles } from './file-tools/read-files-tool/read-files-tool';
-export { createFiles } from './file-tools/create-files-tool/create-file-tool';
-export { editFiles } from './file-tools/edit-files-tool/edit-files-tool';
-export { deleteFiles } from './file-tools/delete-files-tool/delete-files-tool';
-export { grepSearch } from './file-tools/grep-search-tool/grep-search-tool';
-export { listFiles } from './file-tools/list-files-tool/list-files-tool';
 export { checkOffTodoList } from './planning-thinking-tools/check-off-todo-list-tool/check-off-todo-list-tool';
 export { updateClarificationsFile } from './planning-thinking-tools/update-clarifications-file-tool/update-clarifications-file-tool';
 export { webSearch } from './web-tools/web-search-tool';

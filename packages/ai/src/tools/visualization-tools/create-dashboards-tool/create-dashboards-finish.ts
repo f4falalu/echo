@@ -1,23 +1,23 @@
-import { updateMessageReasoning } from '@buster/database';
+import { updateMessageEntries } from '@buster/database';
 import type { ChatMessageReasoningMessage } from '@buster/server-shared/chats';
+import type { ToolCallOptions } from 'ai';
+import type { DoneToolInput } from '../../communication-tools/done-tool/done-tool';
 import type {
-  CreateDashboardsAgentContext,
+  CreateDashboardsContext,
   CreateDashboardsInput,
   CreateDashboardsState,
 } from './create-dashboards-tool';
 import { createDashboardsReasoningMessage } from './helpers/create-dashboards-tool-transform-helper';
 
-export function createCreateDashboardsFinish<
-  TAgentContext extends CreateDashboardsAgentContext = CreateDashboardsAgentContext,
->(context: TAgentContext, state: CreateDashboardsState) {
-  return async (input: CreateDashboardsInput) => {
-    const fileCount = input.files?.length || 0;
-    const fileNames = input.files?.map((f) => f.name) || [];
+export function createCreateDashboardsFinish(
+  context: CreateDashboardsContext,
+  state: CreateDashboardsState
+) {
+  return async (options: { input: CreateDashboardsInput } & ToolCallOptions) => {
+    const input = options.input;
 
-    // Store complete input in state
     state.parsedArgs = input;
 
-    // Update state files with final data
     state.files = input.files.map((f) => ({
       name: f.name,
       yml_content: f.yml_content,
@@ -25,7 +25,7 @@ export function createCreateDashboardsFinish<
     }));
 
     // Update database ONLY if both context.messageId AND state.reasoningEntryId exist
-    if (context.messageId && state.reasoningEntryId) {
+    if (context.messageId && state.toolCallId) {
       try {
         const reasoningMessage = createDashboardsReasoningMessage(
           state.toolCallId || `tool-${Date.now()}`,
@@ -33,40 +33,14 @@ export function createCreateDashboardsFinish<
           'loading'
         );
 
-        await updateMessageReasoning(
-          context.messageId,
-          state.reasoningEntryId,
-          reasoningMessage as ChatMessageReasoningMessage
-        );
-
-        console.info('[create-dashboards] Updated reasoning entry with complete input', {
+        await updateMessageEntries({
           messageId: context.messageId,
-          reasoningEntryId: state.reasoningEntryId,
-          fileCount,
+          responseEntry: reasoningMessage as ChatMessageReasoningMessage,
+          mode: 'update',
         });
       } catch (error) {
         console.error('[create-dashboards] Error updating reasoning entry on finish:', error);
-        // Don't throw - continue processing
       }
-    }
-
-    // Log processing time if available
-    if (state.processingStartTime) {
-      const processingTime = Date.now() - state.processingStartTime;
-      console.info('[create-dashboards] Input fully available', {
-        fileCount,
-        fileNames,
-        messageId: context.messageId,
-        processingTime: `${processingTime}ms`,
-        timestamp: new Date().toISOString(),
-      });
-    } else {
-      console.info('[create-dashboards] Input fully available', {
-        fileCount,
-        fileNames,
-        messageId: context.messageId,
-        timestamp: new Date().toISOString(),
-      });
     }
   };
 }

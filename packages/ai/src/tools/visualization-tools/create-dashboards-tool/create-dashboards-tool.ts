@@ -62,58 +62,44 @@ const CreateDashboardsContextSchema = z.object({
   messageId: z.string().optional().describe('The message ID'),
 });
 
+const CreateDashboardsFileSchema = z.object({
+  name: z.string(),
+  yml_content: z.string(),
+  status: z.enum(['processing', 'completed', 'failed']).optional(),
+  id: z.string().optional(),
+  version: z.number().optional(),
+  error: z.string().optional(),
+});
+
+const CreateDashboardsStateSchema = z.object({
+  toolCallId: z.string().optional(),
+  argsText: z.string().optional(),
+  parsedArgs: CreateDashboardsInputSchema.optional(),
+  files: z.array(CreateDashboardsFileSchema).optional(),
+});
+
 // Export types
 export type CreateDashboardsInput = z.infer<typeof CreateDashboardsInputSchema>;
 export type CreateDashboardsOutput = z.infer<typeof CreateDashboardsOutputSchema>;
 export type CreateDashboardsContext = z.infer<typeof CreateDashboardsContextSchema>;
-
-// State management for streaming
-export interface CreateDashboardsFile {
-  name: string;
-  yml_content: string;
-  status?: 'processing' | 'completed' | 'failed';
-  id?: string;
-  version?: number;
-  error?: string;
-}
-
-export interface CreateDashboardsState {
-  toolCallId?: string;
-  argsText: string;
-  parsedArgs?: Partial<CreateDashboardsInput>;
-  files: CreateDashboardsFile[];
-  processingStartTime?: number;
-  messageId?: string | undefined;
-  reasoningEntryId?: string;
-  responseEntryId?: string;
-}
-
-// Type constraint for agent context - must have required fields
-export type CreateDashboardsAgentContext = {
-  userId: string;
-  chatId: string;
-  dataSourceId: string;
-  dataSourceSyntax: string;
-  organizationId: string;
-  messageId?: string | undefined;
-};
+export type CreateDashboardsFile = z.infer<typeof CreateDashboardsFileSchema>;
+export type CreateDashboardsState = z.infer<typeof CreateDashboardsStateSchema>;
 
 // Factory function that accepts agent context and maps to tool context
-export function createCreateDashboardsTool<
-  TAgentContext extends CreateDashboardsAgentContext = CreateDashboardsAgentContext,
->(context: TAgentContext) {
+export function createCreateDashboardsTool(context: CreateDashboardsContext) {
   // Initialize state for streaming
   const state: CreateDashboardsState = {
-    argsText: '',
-    files: [],
-    messageId: context.messageId,
+    argsText: undefined,
+    files: undefined,
+    parsedArgs: undefined,
+    toolCallId: undefined,
   };
 
   // Create all functions with the context and state passed
-  const execute = createCreateDashboardsExecute<TAgentContext>(context, state);
-  const onInputStart = createCreateDashboardsStart<TAgentContext>(context, state);
-  const onInputDelta = createCreateDashboardsDelta<TAgentContext>(context, state);
-  const onInputAvailable = createCreateDashboardsFinish<TAgentContext>(context, state);
+  const execute = createCreateDashboardsExecute(context, state);
+  const onInputStart = createCreateDashboardsStart(context, state);
+  const onInputDelta = createCreateDashboardsDelta(context, state);
+  const onInputAvailable = createCreateDashboardsFinish(context, state);
 
   // Get the description from the original tool
   const description = `Creates dashboard configuration files with YAML content following the dashboard schema specification. Before using this tool, carefully consider the dashboard layout, metric references, and row organization. Each dashboard references existing metrics by their UUIDs and organizes them into rows with specific column layouts. **This tool supports creating multiple dashboards in a single call; prefer using bulk creation over creating dashboards one by one.**

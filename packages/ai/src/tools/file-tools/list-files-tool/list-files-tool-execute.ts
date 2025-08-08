@@ -1,17 +1,11 @@
-import { updateMessageEntries } from '@buster/database';
 import { wrapTraced } from 'braintrust';
-import { createListFilesToolTransformHelper } from './helpers/list-files-tool-transform-helper';
 import type {
   ListFilesToolContext,
   ListFilesToolInput,
   ListFilesToolOutput,
-  ListFilesToolState,
 } from './list-files-tool';
 
-export function createListFilesToolExecute(
-  state: ListFilesToolState,
-  context: ListFilesToolContext
-) {
+export function createListFilesToolExecute(context: ListFilesToolContext) {
   return wrapTraced(
     async (input: ListFilesToolInput): Promise<ListFilesToolOutput> => {
       const { paths, options } = input;
@@ -83,27 +77,7 @@ export function createListFilesToolExecute(
           }
         }
 
-        const output = { results };
-
-        if (state.entry_id) {
-          const transformToDb = createListFilesToolTransformHelper(context);
-          const dbEntry = transformToDb({
-            entry_id: state.entry_id,
-            tool_name: 'list_files',
-            args: input,
-            result: output,
-            status: 'success',
-            started_at: new Date(),
-            completed_at: new Date(),
-          });
-
-          await updateMessageEntries({
-            messageId: context.messageId,
-            entries: [dbEntry],
-          });
-        }
-
-        return output;
+        return { results };
       } catch (error) {
         const errorMessage = `Execution error: ${error instanceof Error ? error.message : 'Unknown error'}`;
         const output = {
@@ -113,24 +87,6 @@ export function createListFilesToolExecute(
             error_message: errorMessage,
           })),
         };
-
-        if (state.entry_id) {
-          const transformToDb = createListFilesToolTransformHelper(context);
-          const dbEntry = transformToDb({
-            entry_id: state.entry_id,
-            tool_name: 'list_files',
-            args: input,
-            result: { error: errorMessage },
-            status: 'error',
-            started_at: new Date(),
-            completed_at: new Date(),
-          });
-
-          await updateMessageEntries({
-            messageId: context.messageId,
-            entries: [dbEntry],
-          });
-        }
 
         return output;
       }

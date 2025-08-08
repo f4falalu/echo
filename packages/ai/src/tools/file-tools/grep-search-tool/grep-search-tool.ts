@@ -1,10 +1,7 @@
 import type { Sandbox } from '@buster/sandbox';
 import { tool } from 'ai';
 import { z } from 'zod';
-import { createGrepSearchToolDelta } from './grep-search-tool-delta';
 import { createGrepSearchToolExecute } from './grep-search-tool-execute';
-import { createGrepSearchToolFinish } from './grep-search-tool-finish';
-import { createGrepSearchToolStart } from './grep-search-tool-start';
 
 const GrepResultSchema = z.object({
   success: z.boolean().describe('Whether the command executed successfully'),
@@ -36,30 +33,14 @@ const GrepSearchToolContextSchema = z.object({
     .describe('Sandbox instance for command execution'),
 });
 
-const GrepSearchToolStateSchema = z.object({
-  entry_id: z.string().optional().describe('The entry ID for database updates'),
-  args: z.string().optional().describe('Accumulated streaming arguments'),
-  commands: z.array(z.string()).optional().describe('Parsed commands from streaming input'),
-});
-
 export type GrepSearchToolInput = z.infer<typeof GrepSearchToolInputSchema>;
 export type GrepSearchToolOutput = z.infer<typeof GrepSearchToolOutputSchema>;
 export type GrepSearchToolContext = z.infer<typeof GrepSearchToolContextSchema>;
-export type GrepSearchToolState = z.infer<typeof GrepSearchToolStateSchema>;
 
 export function createGrepSearchTool<
   TAgentContext extends GrepSearchToolContext = GrepSearchToolContext,
 >(context: TAgentContext) {
-  const state: GrepSearchToolState = {
-    entry_id: undefined,
-    args: undefined,
-    commands: undefined,
-  };
-
-  const execute = createGrepSearchToolExecute(state, context);
-  const onInputStart = createGrepSearchToolStart(state, context);
-  const onInputDelta = createGrepSearchToolDelta(state, context);
-  const onInputAvailable = createGrepSearchToolFinish(state, context);
+  const execute = createGrepSearchToolExecute(context);
 
   return tool({
     description:
@@ -67,8 +48,5 @@ export function createGrepSearchTool<
     inputSchema: GrepSearchToolInputSchema,
     outputSchema: GrepSearchToolOutputSchema,
     execute,
-    onInputStart,
-    onInputDelta,
-    onInputAvailable,
   });
 }

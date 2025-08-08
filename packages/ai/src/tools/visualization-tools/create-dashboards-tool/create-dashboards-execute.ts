@@ -1,26 +1,30 @@
 import { randomUUID } from 'node:crypto';
-import { db, updateMessageReasoning } from '@buster/database';
+import { db, updateMessageEntries } from '@buster/database';
 import {
   assetPermissions,
   dashboardFiles,
   metricFiles,
   metricFilesToDashboardFiles,
 } from '@buster/database';
-import type { ChatMessageReasoningMessage } from '@buster/server-shared/chats';
 import { wrapTraced } from 'braintrust';
 import { inArray } from 'drizzle-orm';
+import type { ModelMessage } from 'ai';
 import * as yaml from 'yaml';
 import { z } from 'zod';
 import { trackFileAssociations } from '../file-tracking-helper';
 import { createInitialDashboardVersionHistory } from '../version-history-helpers';
 import type { DashboardYml } from '../version-history-types';
 import type {
-  CreateDashboardsAgentContext,
+  CreateDashboardsContext,
   CreateDashboardsInput,
   CreateDashboardsOutput,
   CreateDashboardsState,
 } from './create-dashboards-tool';
-import { createDashboardsReasoningMessage } from './helpers/create-dashboards-tool-transform-helper';
+import {
+  createDashboardsRawLlmMessageEntry,
+  createDashboardsReasoningMessage,
+  createDashboardsResponseMessage,
+} from './helpers/create-dashboards-tool-transform-helper';
 
 // Core interfaces matching Rust structs exactly
 interface DashboardFileParams {
@@ -305,7 +309,7 @@ function generateResultMessage(
 const createDashboardFiles = wrapTraced(
   async (
     params: CreateDashboardFilesParams,
-    context: CreateDashboardsAgentContext
+    context: CreateDashboardsContext
   ): Promise<CreateDashboardFilesOutput> => {
     const startTime = Date.now();
 
@@ -512,12 +516,13 @@ const createDashboardFiles = wrapTraced(
       failed_files: failedFiles,
     };
   },
-  { name: 'create-dashboard-files' }
+  { name: 'Create Dashboard Files' }
 );
 
-export function createCreateDashboardsExecute<
-  TAgentContext extends CreateDashboardsAgentContext = CreateDashboardsAgentContext,
->(context: TAgentContext, state: CreateDashboardsState) {
+export function createCreateDashboardsExecute(
+  context: CreateDashboardsContext,
+  state: CreateDashboardsState
+) {
   return wrapTraced(
     async (input: CreateDashboardsInput): Promise<CreateDashboardsOutput> => {
       const startTime = Date.now();
@@ -529,11 +534,13 @@ export function createCreateDashboardsExecute<
         // Update state files with final results (IDs, versions, status)
         if (result && typeof result === 'object') {
           const typedResult = result as CreateDashboardsOutput;
+          // Ensure state.files is initialized for safe mutations below
+          state.files = state.files ?? [];
 
           // Update successful files
           if (typedResult.files && Array.isArray(typedResult.files)) {
             typedResult.files.forEach((file) => {
-              const stateFile = state.files.find((f) => f.name === file.name);
+              const stateFile = (state.files ?? []).find((f) => f.name === file.name);
               if (stateFile) {
                 stateFile.id = file.id;
                 stateFile.version = file.version_number;
@@ -545,7 +552,7 @@ export function createCreateDashboardsExecute<
           // Update failed files
           if (typedResult.failed_files && Array.isArray(typedResult.failed_files)) {
             typedResult.failed_files.forEach((failedFile) => {
-              const stateFile = state.files.find((f) => f.name === failedFile.name);
+              const stateFile = (state.files ?? []).find((f) => f.name === failedFile.name);
               if (stateFile) {
                 stateFile.status = 'failed';
                 stateFile.error = failedFile.error;
@@ -553,30 +560,48 @@ export function createCreateDashboardsExecute<
             });
           }
 
-          // Create final reasoning entry if context.messageId exists
-          if (context.messageId && state.reasoningEntryId) {
+          // Update last entries if we have a messageId (no need for explicit entry IDs)
+          if (context.messageId) {
             try {
               const finalStatus = typedResult.failed_files?.length ? 'failed' : 'completed';
-              const finalReasoningMessage = createDashboardsReasoningMessage(
-                state.toolCallId || `tool-${Date.now()}`,
-                state.files,
+              const toolCallId = state.toolCallId || `tool-${Date.now()}`;
+
+              const reasoningEntry = createDashboardsReasoningMessage(
+                toolCallId,
+                state.files ?? [],
                 finalStatus
               );
-
-              await updateMessageReasoning(
-                context.messageId,
-                state.reasoningEntryId,
-                finalReasoningMessage as ChatMessageReasoningMessage
+              const responseEntry = createDashboardsResponseMessage(
+                toolCallId,
+                typedResult.message
               );
+              const rawLlmMessage: ModelMessage = {
+                role: 'assistant',
+                content: [
+                  {
+                    type: 'tool-call',
+                    toolCallId,
+                    toolName: 'create-dashboards',
+                    input: state.parsedArgs || (input as Partial<CreateDashboardFilesParams>),
+                  },
+                ],
+              };
 
-              console.info('[create-dashboards] Updated reasoning entry with final results', {
+              await updateMessageEntries({
                 messageId: context.messageId,
-                reasoningEntryId: state.reasoningEntryId,
+                reasoningEntry,
+                responseEntry,
+                rawLlmMessage,
+                mode: 'update',
+              });
+
+              console.info('[create-dashboards] Updated last entries with final results', {
+                messageId: context.messageId,
                 successCount: typedResult.files?.length || 0,
                 failedCount: typedResult.failed_files?.length || 0,
               });
             } catch (error) {
-              console.error('[create-dashboards] Error updating final reasoning entry:', error);
+              console.error('[create-dashboards] Error updating final entries:', error);
               // Don't throw - return the result anyway
             }
           }
@@ -597,25 +622,35 @@ export function createCreateDashboardsExecute<
           executionTime: `${executionTime}ms`,
         });
 
-        // Update reasoning entry with failure status if possible
-        if (context.messageId && state.reasoningEntryId) {
+        // Update last entries with failure status if possible
+        if (context.messageId) {
           try {
-            const failedReasoningMessage = createDashboardsReasoningMessage(
-              state.toolCallId || `tool-${Date.now()}`,
-              state.files.map((f) => ({ ...f, status: 'failed' })),
+            const toolCallId = state.toolCallId || `tool-${Date.now()}`;
+            const reasoningEntry = createDashboardsReasoningMessage(
+              toolCallId,
+              (state.files ?? []).map((f) => ({ ...f, status: 'failed' })),
               'failed'
             );
+            const rawLlmMessage: ModelMessage = {
+              role: 'assistant',
+              content: [
+                {
+                  type: 'tool-call',
+                  toolCallId,
+                  toolName: 'create-dashboards',
+                  input: state.parsedArgs || {},
+                },
+              ],
+            };
 
-            await updateMessageReasoning(
-              context.messageId,
-              state.reasoningEntryId,
-              failedReasoningMessage as ChatMessageReasoningMessage
-            );
+            await updateMessageEntries({
+              messageId: context.messageId,
+              reasoningEntry,
+              rawLlmMessage,
+              mode: 'update',
+            });
           } catch (updateError) {
-            console.error(
-              '[create-dashboards] Error updating reasoning entry on failure:',
-              updateError
-            );
+            console.error('[create-dashboards] Error updating entries on failure:', updateError);
           }
         }
 

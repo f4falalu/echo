@@ -1,10 +1,7 @@
 import type { Sandbox } from '@buster/sandbox';
 import { tool } from 'ai';
 import { z } from 'zod';
-import { createReadFilesToolDelta } from './read-files-tool-delta';
 import { createReadFilesToolExecute } from './read-files-tool-execute';
-import { createReadFilesToolFinish } from './read-files-tool-finish';
-import { createReadFilesToolStart } from './read-files-tool-start';
 
 export const ReadFilesToolInputSchema = z.object({
   files: z
@@ -46,38 +43,19 @@ const ReadFilesToolContextSchema = z.object({
     .describe('Sandbox instance for file operations'),
 });
 
-const ReadFilesToolStateSchema = z.object({
-  entry_id: z.string().optional().describe('The entry ID for database updates'),
-  args: z.string().optional().describe('Accumulated streaming arguments'),
-  files: z.array(z.string()).optional().describe('Parsed files from streaming input'),
-});
-
 export type ReadFilesToolInput = z.infer<typeof ReadFilesToolInputSchema>;
 export type ReadFilesToolOutput = z.infer<typeof ReadFilesToolOutputSchema>;
 export type ReadFilesToolContext = z.infer<typeof ReadFilesToolContextSchema>;
-export type ReadFilesToolState = z.infer<typeof ReadFilesToolStateSchema>;
 
 export function createReadFilesTool<
   TAgentContext extends ReadFilesToolContext = ReadFilesToolContext,
 >(context: TAgentContext) {
-  const state: ReadFilesToolState = {
-    entry_id: undefined,
-    args: undefined,
-    files: undefined,
-  };
-
-  const execute = createReadFilesToolExecute(state, context);
-  const onInputStart = createReadFilesToolStart(state, context);
-  const onInputDelta = createReadFilesToolDelta(state, context);
-  const onInputAvailable = createReadFilesToolFinish(state, context);
+  const execute = createReadFilesToolExecute(context);
 
   return tool({
     description: `Read the contents of one or more files from the filesystem. Accepts both absolute and relative file paths. Files are read with UTF-8 encoding and content is limited to 1000 lines maximum. Returns both successful reads and failures with detailed error messages.`,
     inputSchema: ReadFilesToolInputSchema,
     outputSchema: ReadFilesToolOutputSchema,
     execute,
-    onInputStart,
-    onInputDelta,
-    onInputAvailable,
   });
 }

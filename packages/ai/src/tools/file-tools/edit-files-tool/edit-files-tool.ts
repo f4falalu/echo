@@ -1,10 +1,7 @@
 import type { Sandbox } from '@buster/sandbox';
 import { tool } from 'ai';
 import { z } from 'zod';
-import { createEditFilesToolDelta } from './edit-files-tool-delta';
 import { createEditFilesToolExecute } from './edit-files-tool-execute';
-import { createEditFilesToolFinish } from './edit-files-tool-finish';
-import { createEditFilesToolStart } from './edit-files-tool-start';
 
 const EditFileParamsSchema = z.object({
   filePath: z.string().describe('Relative or absolute path to the file'),
@@ -56,51 +53,15 @@ export const EditFilesToolContextSchema = z.object({
     .describe('Sandbox instance for file operations'),
 });
 
-export const EditFilesToolStateSchema = z.object({
-  entry_id: z.string().optional().describe('The entry ID for database updates'),
-  args: z.string().optional().describe('Accumulated streaming arguments'),
-  edits: z.array(EditFileParamsSchema).optional().describe('Parsed edits from streaming input'),
-  isComplete: z.boolean().optional().describe('Whether input parsing is complete'),
-  executionResults: z
-    .array(
-      z.discriminatedUnion('status', [
-        z.object({
-          status: z.literal('success'),
-          file_path: z.string(),
-          message: z.string(),
-        }),
-        z.object({
-          status: z.literal('error'),
-          file_path: z.string(),
-          error_message: z.string(),
-        }),
-      ])
-    )
-    .optional()
-    .describe('Execution results'),
-});
-
 export type EditFilesToolInput = z.infer<typeof EditFilesToolInputSchema>;
 export type EditFilesToolOutput = z.infer<typeof EditFilesToolOutputSchema>;
 export type EditFilesToolContext = z.infer<typeof EditFilesToolContextSchema>;
-export type EditFilesToolState = z.infer<typeof EditFilesToolStateSchema>;
 
 // Factory function to create the edit-files tool
 export function createEditFilesTool<
   TAgentContext extends EditFilesToolContext = EditFilesToolContext,
 >(context: TAgentContext) {
-  const state: EditFilesToolState = {
-    entry_id: undefined,
-    args: undefined,
-    edits: undefined,
-    isComplete: false,
-    executionResults: undefined,
-  };
-
-  const execute = createEditFilesToolExecute(state, context);
-  const onInputStart = createEditFilesToolStart(state, context);
-  const onInputDelta = createEditFilesToolDelta(state, context);
-  const onInputAvailable = createEditFilesToolFinish(state, context);
+  const execute = createEditFilesToolExecute(context);
 
   return tool({
     description: `Performs find-and-replace operations on files with validation and bulk editing support. Replaces specified text content with new content, but only if the find string appears exactly once in the file. Supports both relative and absolute file paths and can handle bulk operations through an array of edit objects.
@@ -122,8 +83,5 @@ For bulk operations, each edit is processed independently and the tool returns b
     inputSchema: EditFilesToolInputSchema,
     outputSchema: EditFilesToolOutputSchema,
     execute,
-    onInputStart,
-    onInputDelta,
-    onInputAvailable,
   });
 }

@@ -1,5 +1,5 @@
 import { updateMessageEntries } from '@buster/database';
-import type { ModelMessage, ToolCallOptions } from 'ai';
+import type { ToolCallOptions } from 'ai';
 import type { DoneToolContext, DoneToolState } from './done-tool';
 import {
   createFileResponseMessages,

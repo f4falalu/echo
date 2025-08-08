@@ -1,17 +1,11 @@
-import { updateMessageEntries } from '@buster/database';
 import { wrapTraced } from 'braintrust';
 import type {
   DeleteFilesToolContext,
   DeleteFilesToolInput,
   DeleteFilesToolOutput,
-  DeleteFilesToolState,
 } from './delete-files-tool';
-import { createDeleteFilesToolTransformHelper } from './helpers/delete-files-tool-transform-helper';
 
-export function createDeleteFilesToolExecute(
-  state: DeleteFilesToolState,
-  context: DeleteFilesToolContext
-) {
+export function createDeleteFilesToolExecute(context: DeleteFilesToolContext) {
   return wrapTraced(
     async (input: DeleteFilesToolInput): Promise<DeleteFilesToolOutput> => {
       const { paths } = input;
@@ -111,56 +105,16 @@ export function createDeleteFilesToolExecute(
           }
         }
 
-        const output = { results };
-
-        if (state.entry_id) {
-          const transformToDb = createDeleteFilesToolTransformHelper(context);
-          const dbEntry = transformToDb({
-            entry_id: state.entry_id,
-            tool_name: 'delete_files',
-            args: input,
-            result: output,
-            status: 'success',
-            started_at: new Date(),
-            completed_at: new Date(),
-          });
-
-          await updateMessageEntries({
-            messageId: context.messageId,
-            entries: [dbEntry],
-          });
-        }
-
-        return output;
+        return { results };
       } catch (error) {
         const errorMessage = `Execution error: ${error instanceof Error ? error.message : 'Unknown error'}`;
-        const output = {
+        return {
           results: paths.map((targetPath) => ({
             status: 'error' as const,
             path: targetPath,
             error_message: errorMessage,
           })),
         };
-
-        if (state.entry_id) {
-          const transformToDb = createDeleteFilesToolTransformHelper(context);
-          const dbEntry = transformToDb({
-            entry_id: state.entry_id,
-            tool_name: 'delete_files',
-            args: input,
-            result: { error: errorMessage },
-            status: 'error',
-            started_at: new Date(),
-            completed_at: new Date(),
-          });
-
-          await updateMessageEntries({
-            messageId: context.messageId,
-            entries: [dbEntry],
-          });
-        }
-
-        return output;
       }
     },
     { name: 'delete-files-tool-execute' }

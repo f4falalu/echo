@@ -66,24 +66,48 @@ export function createDocsAgent(docsAgentOptions: DocsAgentOptions) {
   const idleTool = createIdleTool({ messageId: docsAgentOptions.messageId });
 
   // Create tool context with messageId and sandbox if available
-  const toolContext = {
-    messageId: docsAgentOptions.messageId || 'default',
-    sandbox: docsAgentOptions.sandbox,
-  };
-
   // Create file tools with context (only if sandbox is available)
-  const listFiles = docsAgentOptions.sandbox ? createListFilesTool(toolContext as any) : undefined;
-  const readFiles = docsAgentOptions.sandbox ? createReadFilesTool(toolContext as any) : undefined;
+  const listFiles = docsAgentOptions.sandbox
+    ? createListFilesTool({
+        messageId: docsAgentOptions.messageId || 'default',
+        sandbox: docsAgentOptions.sandbox,
+      })
+    : undefined;
+  const readFiles = docsAgentOptions.sandbox
+    ? createReadFilesTool({
+        messageId: docsAgentOptions.messageId || 'default',
+        sandbox: docsAgentOptions.sandbox,
+      })
+    : undefined;
   const createFiles = docsAgentOptions.sandbox
-    ? createCreateFilesTool(toolContext as any)
+    ? createCreateFilesTool({
+        messageId: docsAgentOptions.messageId || 'default',
+        sandbox: docsAgentOptions.sandbox,
+      })
     : undefined;
-  const editFiles = docsAgentOptions.sandbox ? createEditFilesTool(toolContext as any) : undefined;
+  const editFiles = docsAgentOptions.sandbox
+    ? createEditFilesTool({
+        messageId: docsAgentOptions.messageId || 'default',
+        sandbox: docsAgentOptions.sandbox,
+      })
+    : undefined;
   const deleteFiles = docsAgentOptions.sandbox
-    ? createDeleteFilesTool(toolContext as any)
+    ? createDeleteFilesTool({
+        messageId: docsAgentOptions.messageId || 'default',
+        sandbox: docsAgentOptions.sandbox,
+      })
     : undefined;
-  const bashExecute = docsAgentOptions.sandbox ? createBashTool(toolContext as any) : undefined;
+  const bashExecute = docsAgentOptions.sandbox
+    ? createBashTool({
+        messageId: docsAgentOptions.messageId || 'default',
+        sandbox: docsAgentOptions.sandbox,
+      })
+    : undefined;
   const grepSearch = docsAgentOptions.sandbox
-    ? createGrepSearchTool(toolContext as any)
+    ? createGrepSearchTool({
+        messageId: docsAgentOptions.messageId || 'default',
+        sandbox: docsAgentOptions.sandbox,
+      })
     : undefined;
 
   async function stream({ messages }: DocsStreamOptions) {

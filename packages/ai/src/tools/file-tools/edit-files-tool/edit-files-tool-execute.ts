@@ -1,18 +1,12 @@
-import { updateMessageEntries } from '@buster/database';
 import { runTypescript } from '@buster/sandbox';
 import { wrapTraced } from 'braintrust';
 import type {
   EditFilesToolContext,
   EditFilesToolInput,
   EditFilesToolOutput,
-  EditFilesToolState,
 } from './edit-files-tool';
-import { createEditFilesToolTransformHelper } from './helpers/edit-files-tool-transform-helper';
 
-export function createEditFilesToolExecute(
-  state: EditFilesToolState,
-  context: EditFilesToolContext
-) {
+export function createEditFilesToolExecute(context: EditFilesToolContext) {
   return wrapTraced(
     async (input: EditFilesToolInput): Promise<EditFilesToolOutput> => {
       const { edits } = input;
@@ -29,7 +23,7 @@ export function createEditFilesToolExecute(
 
         if (!sandbox) {
           // When not in sandbox, we can't edit files - return error for each edit
-          const output = {
+          return {
             results: edits.map((edit) => ({
               status: 'error' as const,
               file_path: edit.filePath,
@@ -41,27 +35,6 @@ export function createEditFilesToolExecute(
               failed: edits.length,
             },
           };
-
-          // Update database with error result
-          if (state.entry_id) {
-            const transformToDb = createEditFilesToolTransformHelper(context);
-            const dbEntry = transformToDb({
-              entry_id: state.entry_id,
-              tool_name: 'edit_files',
-              args: input,
-              result: { error: 'File editing requires sandbox environment' },
-              status: 'error',
-              started_at: new Date(),
-              completed_at: new Date(),
-            });
-
-            await updateMessageEntries({
-              messageId: context.messageId,
-              entries: [dbEntry],
-            });
-          }
-
-          return output;
         }
 
         // Generate CommonJS code for sandbox execution
@@ -188,28 +161,6 @@ console.log(JSON.stringify(results));
           },
         };
 
-        // Store execution results in state
-        state.executionResults = output.results;
-
-        // Update database with successful result
-        if (state.entry_id) {
-          const transformToDb = createEditFilesToolTransformHelper(context);
-          const dbEntry = transformToDb({
-            entry_id: state.entry_id,
-            tool_name: 'edit_files',
-            args: input,
-            result: output,
-            status: 'success',
-            started_at: new Date(),
-            completed_at: new Date(),
-          });
-
-          await updateMessageEntries({
-            messageId: context.messageId,
-            entries: [dbEntry],
-          });
-        }
-
         return output;
       } catch (error) {
         const errorMessage = `Execution error: ${error instanceof Error ? error.message : 'Unknown error'}`;
@@ -225,25 +176,6 @@ console.log(JSON.stringify(results));
             failed: edits.length,
           },
         };
-
-        // Update database with error result
-        if (state.entry_id) {
-          const transformToDb = createEditFilesToolTransformHelper(context);
-          const dbEntry = transformToDb({
-            entry_id: state.entry_id,
-            tool_name: 'edit_files',
-            args: input,
-            result: { error: errorMessage },
-            status: 'error',
-            started_at: new Date(),
-            completed_at: new Date(),
-          });
-
-          await updateMessageEntries({
-            messageId: context.messageId,
-            entries: [dbEntry],
-          });
-        }
 
         return output;
       }

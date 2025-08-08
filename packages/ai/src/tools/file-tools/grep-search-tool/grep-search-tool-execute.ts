@@ -3,7 +3,6 @@ import type {
   GrepSearchToolContext,
   GrepSearchToolInput,
   GrepSearchToolOutput,
-  GrepSearchToolState,
 } from './grep-search-tool';
 
 // Process grep search execution in sandbox
@@ -96,10 +95,7 @@ async function processGrepSearch(
 }
 
 // Factory function that creates the execute function with proper context typing
-export function createGrepSearchToolExecute(
-  _grepSearchToolState: GrepSearchToolState,
-  context: GrepSearchToolContext
-) {
+export function createGrepSearchToolExecute(context: GrepSearchToolContext) {
   return wrapTraced(
     async (input: GrepSearchToolInput): Promise<GrepSearchToolOutput> => {
       return processGrepSearch(input, context);

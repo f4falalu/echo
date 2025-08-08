@@ -6,7 +6,6 @@ export type {
   BashToolInput,
   BashToolOutput,
   BashToolContext,
-  BashToolState,
 } from './bash-tool';
 
 // Legacy exports for backward compatibility

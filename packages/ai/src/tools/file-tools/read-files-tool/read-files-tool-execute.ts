@@ -1,18 +1,12 @@
-import { updateMessageEntries } from '@buster/database';
 import { runTypescript } from '@buster/sandbox';
 import { wrapTraced } from 'braintrust';
-import { createReadFilesToolTransformHelper } from './helpers/read-files-tool-transform-helper';
 import type {
   ReadFilesToolContext,
   ReadFilesToolInput,
   ReadFilesToolOutput,
-  ReadFilesToolState,
 } from './read-files-tool';
 
-export function createReadFilesToolExecute(
-  state: ReadFilesToolState,
-  context: ReadFilesToolContext
-) {
+export function createReadFilesToolExecute(context: ReadFilesToolContext) {
   return wrapTraced(
     async (input: ReadFilesToolInput): Promise<ReadFilesToolOutput> => {
       const { files } = input;
@@ -120,24 +114,6 @@ console.log(JSON.stringify(results));
           }),
         };
 
-        if (state.entry_id) {
-          const transformToDb = createReadFilesToolTransformHelper(context);
-          const dbEntry = transformToDb({
-            entry_id: state.entry_id,
-            tool_name: 'read_files',
-            args: input,
-            result: output,
-            status: 'success',
-            started_at: new Date(),
-            completed_at: new Date(),
-          });
-
-          await updateMessageEntries({
-            messageId: context.messageId,
-            entries: [dbEntry],
-          });
-        }
-
         return output;
       } catch (error) {
         const errorMessage = `Execution error: ${error instanceof Error ? error.message : 'Unknown error'}`;
@@ -148,24 +124,6 @@ console.log(JSON.stringify(results));
             error_message: errorMessage,
           })),
         };
-
-        if (state.entry_id) {
-          const transformToDb = createReadFilesToolTransformHelper(context);
-          const dbEntry = transformToDb({
-            entry_id: state.entry_id,
-            tool_name: 'read_files',
-            args: input,
-            result: { error: errorMessage },
-            status: 'error',
-            started_at: new Date(),
-            completed_at: new Date(),
-          });
-
-          await updateMessageEntries({
-            messageId: context.messageId,
-            entries: [dbEntry],
-          });
-        }
 
         return output;
       }
