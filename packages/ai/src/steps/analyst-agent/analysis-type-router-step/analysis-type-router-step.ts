@@ -5,7 +5,7 @@ import { generateObject } from 'ai';
 import { wrapTraced } from 'braintrust';
 import { z } from 'zod';
 import { thinkAndPrepWorkflowInputSchema } from '../../../schemas/workflow-schemas';
-import { Haiku35 } from '../../../utils/models/haiku-3-5';
+import { GPT5Nano } from '../../../utils/models/gpt-5-nano';
 import { appendToConversation, standardizeMessages } from '../../../utils/standardizeMessages';
 import type { AnalystRuntimeContext } from '../../../workflows/analyst-workflow';
 import { formatAnalysisTypeRouterPrompt } from './format-analysis-type-router-prompt';
@@ -68,7 +68,7 @@ const execution = async ({
     const tracedAnalysisType = wrapTraced(
       async () => {
         const { object } = await generateObject({
-          model: Haiku35,
+          model: GPT5Nano,
           schema: analysisTypeSchema,
           messages: [
             {
@@ -77,8 +77,13 @@ const execution = async ({
             },
             ...messages,
           ],
-          temperature: 0,
-          maxTokens: 500,
+          temperature: 1,
+          providerOptions: {
+            openai: {
+              parallelToolCalls: false,
+              reasoningEffort: 'minimal',
+            },
+          },
         });
 
         return object;

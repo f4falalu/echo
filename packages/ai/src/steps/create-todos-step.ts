@@ -8,7 +8,7 @@ import { thinkAndPrepWorkflowInputSchema } from '../schemas/workflow-schemas';
 import { createTodoList } from '../tools/planning-thinking-tools/create-todo-item-tool';
 import { ChunkProcessor } from '../utils/database/chunk-processor';
 import { ReasoningHistorySchema } from '../utils/memory/types';
-import { Sonnet4 } from '../utils/models/sonnet-4';
+import { GPT5 } from '../utils/models/gpt-5';
 import { RetryWithHealingError, isRetryWithHealingError } from '../utils/retry';
 import { appendToConversation, standardizeMessages } from '../utils/standardizeMessages';
 import { createOnChunkHandler } from '../utils/streaming';
@@ -188,14 +188,17 @@ The TODO list should break down each aspect of the user request into tasks, base
 
 const DEFAULT_OPTIONS = {
   maxSteps: 1,
-  temperature: 0,
-  maxTokens: 300,
+  temperature: 1,
+  openai: {
+    parallelToolCalls: false,
+    reasoningEffort: 'minimal',
+  },
 };
 
 export const todosAgent = new Agent({
   name: 'Create Todos',
   instructions: todosInstructions,
-  model: Sonnet4,
+  model: GPT5,
   tools: {
     createTodoList,
   },
