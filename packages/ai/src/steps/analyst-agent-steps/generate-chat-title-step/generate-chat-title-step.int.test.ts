@@ -1,6 +1,6 @@
 import type { ModelMessage } from 'ai';
 import { describe, expect, it } from 'vitest';
-import { generateChatTitle } from './generate-chat-title-step';
+import { runGenerateChatTitleStep } from './generate-chat-title-step';
 
 describe('generate-chat-title-step integration', () => {
   it('should generate title for a simple sales query', async () => {
@@ -9,7 +9,7 @@ describe('generate-chat-title-step integration', () => {
       conversationHistory: [],
     };
 
-    const result = await generateChatTitle(params);
+    const result = await runGenerateChatTitleStep(params);
 
     expect(result).toBeDefined();
     expect(result.title).toBeDefined();
@@ -26,7 +26,8 @@ describe('generate-chat-title-step integration', () => {
       },
       {
         role: 'assistant',
-        content: 'I can help you analyze product performance. What specific aspects would you like to explore?',
+        content:
+          'I can help you analyze product performance. What specific aspects would you like to explore?',
       },
     ];
 
@@ -35,7 +36,7 @@ describe('generate-chat-title-step integration', () => {
       conversationHistory,
     };
 
-    const result = await generateChatTitle(params);
+    const result = await runGenerateChatTitleStep(params);
 
     expect(result).toBeDefined();
     expect(result.title).toBeDefined();
@@ -45,11 +46,12 @@ describe('generate-chat-title-step integration', () => {
 
   it('should handle complex multi-part queries', async () => {
     const params = {
-      prompt: 'What are the top selling products by category, and show me monthly trends for Q1 2024',
+      prompt:
+        'What are the top selling products by category, and show me monthly trends for Q1 2024',
       conversationHistory: [],
     };
 
-    const result = await generateChatTitle(params);
+    const result = await runGenerateChatTitleStep(params);
 
     expect(result).toBeDefined();
     expect(result.title).toBeDefined();
@@ -63,7 +65,7 @@ describe('generate-chat-title-step integration', () => {
       conversationHistory: [],
     };
 
-    const result = await generateChatTitle(params);
+    const result = await runGenerateChatTitleStep(params);
 
     expect(result).toBeDefined();
     expect(result.title).toBeDefined();
@@ -88,7 +90,7 @@ describe('generate-chat-title-step integration', () => {
       conversationHistory,
     };
 
-    const result = await generateChatTitle(params);
+    const result = await runGenerateChatTitleStep(params);
 
     expect(result).toBeDefined();
     expect(result.title).toBeDefined();
@@ -102,7 +104,7 @@ describe('generate-chat-title-step integration', () => {
       conversationHistory: [],
     };
 
-    const result = await generateChatTitle(params);
+    const result = await runGenerateChatTitleStep(params);
 
     expect(result).toBeDefined();
     expect(result.title).toBeDefined();
@@ -129,7 +131,7 @@ describe('generate-chat-title-step integration', () => {
       conversationHistory: [],
     };
 
-    const result = await generateChatTitle(params);
+    const result = await runGenerateChatTitleStep(params);
 
     expect(result).toBeDefined();
     expect(result.title).toBeDefined();
@@ -144,7 +146,7 @@ describe('generate-chat-title-step integration', () => {
       conversationHistory: [],
     };
 
-    const result = await generateChatTitle(params);
+    const result = await runGenerateChatTitleStep(params);
 
     expect(result).toBeDefined();
     expect(result.title).toBeDefined();
@@ -173,7 +175,7 @@ describe('generate-chat-title-step integration', () => {
       conversationHistory,
     };
 
-    const result = await generateChatTitle(params);
+    const result = await runGenerateChatTitleStep(params);
 
     expect(result).toBeDefined();
     expect(result.title).toBeDefined();
@@ -189,7 +191,7 @@ describe('generate-chat-title-step integration', () => {
       conversationHistory: [],
     };
 
-    const result = await generateChatTitle(params);
+    const result = await runGenerateChatTitleStep(params);
 
     // Even if aborted internally, should return a valid result
     expect(result).toBeDefined();

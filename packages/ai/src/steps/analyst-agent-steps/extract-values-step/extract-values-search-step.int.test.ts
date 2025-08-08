@@ -1,6 +1,6 @@
 import type { ModelMessage } from 'ai';
 import { describe, expect, it } from 'vitest';
-import { extractValuesSearch } from './extract-values-search-step';
+import { runExtractValuesAndSearchStep } from './extract-values-search-step';
 
 describe('extract-values-search-step integration', () => {
   it('should extract values from simple product query', async () => {
@@ -9,7 +9,7 @@ describe('extract-values-search-step integration', () => {
       conversationHistory: [],
     };
 
-    const result = await extractValuesSearch(params);
+    const result = await runExtractValuesAndSearchStep(params);
 
     expect(result).toBeDefined();
     expect(result.values).toBeDefined();
@@ -21,11 +21,12 @@ describe('extract-values-search-step integration', () => {
 
   it('should extract multiple values from complex query', async () => {
     const params = {
-      prompt: 'Compare Nike vs Adidas performance in New York and Los Angeles for Premium tier customers',
+      prompt:
+        'Compare Nike vs Adidas performance in New York and Los Angeles for Premium tier customers',
       conversationHistory: [],
     };
 
-    const result = await extractValuesSearch(params);
+    const result = await runExtractValuesAndSearchStep(params);
 
     expect(result).toBeDefined();
     expect(result.values).toBeDefined();
@@ -39,7 +40,7 @@ describe('extract-values-search-step integration', () => {
       conversationHistory: [],
     };
 
-    const result = await extractValuesSearch(params);
+    const result = await runExtractValuesAndSearchStep(params);
 
     expect(result).toBeDefined();
     expect(result.values).toBeDefined();
@@ -55,7 +56,7 @@ describe('extract-values-search-step integration', () => {
         content: 'I want to analyze our electronics division',
       },
       {
-        role: 'assistant', 
+        role: 'assistant',
         content: 'I can help you analyze the electronics division. What would you like to know?',
       },
     ];
@@ -65,7 +66,7 @@ describe('extract-values-search-step integration', () => {
       conversationHistory,
     };
 
-    const result = await extractValuesSearch(params);
+    const result = await runExtractValuesAndSearchStep(params);
 
     expect(result).toBeDefined();
     expect(result.values).toBeDefined();
@@ -78,7 +79,7 @@ describe('extract-values-search-step integration', () => {
       conversationHistory: [],
     };
 
-    const result = await extractValuesSearch(params);
+    const result = await runExtractValuesAndSearchStep(params);
 
     expect(result).toBeDefined();
     expect(result.values).toBeDefined();
@@ -92,7 +93,7 @@ describe('extract-values-search-step integration', () => {
       conversationHistory: [],
     };
 
-    const result = await extractValuesSearch(params);
+    const result = await runExtractValuesAndSearchStep(params);
 
     expect(result).toBeDefined();
     expect(result.values).toBeDefined();
@@ -106,7 +107,7 @@ describe('extract-values-search-step integration', () => {
       conversationHistory: [],
     };
 
-    const result = await extractValuesSearch(params);
+    const result = await runExtractValuesAndSearchStep(params);
 
     expect(result).toBeDefined();
     expect(result.values).toBeDefined();
@@ -120,7 +121,7 @@ describe('extract-values-search-step integration', () => {
       conversationHistory: [],
     };
 
-    const result = await extractValuesSearch(params);
+    const result = await runExtractValuesAndSearchStep(params);
 
     expect(result).toBeDefined();
     expect(result.values).toBeDefined();
@@ -134,7 +135,7 @@ describe('extract-values-search-step integration', () => {
       conversationHistory: [],
     };
 
-    const result = await extractValuesSearch(params);
+    const result = await runExtractValuesAndSearchStep(params);
 
     expect(result).toBeDefined();
     expect(result.values).toBeDefined();
@@ -159,7 +160,7 @@ describe('extract-values-search-step integration', () => {
       conversationHistory,
     };
 
-    const result = await extractValuesSearch(params);
+    const result = await runExtractValuesAndSearchStep(params);
 
     expect(result).toBeDefined();
     expect(result.values).toBeDefined();
@@ -173,7 +174,7 @@ describe('extract-values-search-step integration', () => {
       conversationHistory: [],
     };
 
-    const result = await extractValuesSearch(params);
+    const result = await runExtractValuesAndSearchStep(params);
 
     expect(result).toBeDefined();
     expect(result.values).toEqual([]);
@@ -198,7 +199,7 @@ describe('extract-values-search-step integration', () => {
       conversationHistory: [],
     };
 
-    const result = await extractValuesSearch(params);
+    const result = await runExtractValuesAndSearchStep(params);
 
     expect(result).toBeDefined();
     expect(result.values).toBeDefined();
@@ -211,7 +212,7 @@ describe('extract-values-search-step integration', () => {
       conversationHistory: [],
     };
 
-    const result = await extractValuesSearch(params);
+    const result = await runExtractValuesAndSearchStep(params);
 
     expect(result).toBeDefined();
     expect(result.values).toBeDefined();
@@ -225,7 +226,7 @@ describe('extract-values-search-step integration', () => {
       conversationHistory: [],
     };
 
-    const result = await extractValuesSearch(params);
+    const result = await runExtractValuesAndSearchStep(params);
 
     expect(result).toBeDefined();
     expect(result.values).toBeDefined();
@@ -240,7 +241,7 @@ describe('extract-values-search-step integration', () => {
     };
 
     // Even if internally aborted, should return valid structure
-    const result = await extractValuesSearch(params);
+    const result = await runExtractValuesAndSearchStep(params);
 
     expect(result).toBeDefined();
     expect(result.values).toBeDefined();
@@ -256,7 +257,7 @@ describe('extract-values-search-step integration', () => {
       conversationHistory: [],
     };
 
-    const result = await extractValuesSearch(params);
+    const result = await runExtractValuesAndSearchStep(params);
 
     expect(result).toBeDefined();
     expect(result.values).toBeDefined();
@@ -269,7 +270,7 @@ describe('extract-values-search-step integration', () => {
       conversationHistory: [],
     };
 
-    const result = await extractValuesSearch(params);
+    const result = await runExtractValuesAndSearchStep(params);
 
     expect(result).toBeDefined();
     expect(result.values).toBeDefined();
@@ -283,7 +284,7 @@ describe('extract-values-search-step integration', () => {
       conversationHistory: [],
     };
 
-    const result = await extractValuesSearch(params);
+    const result = await runExtractValuesAndSearchStep(params);
 
     expect(result).toBeDefined();
     expect(result.values).toBeDefined();
@@ -293,7 +294,7 @@ describe('extract-values-search-step integration', () => {
 
   it('should process concurrent value extraction requests', async () => {
     const promises = Array.from({ length: 3 }, (_, i) =>
-      extractValuesSearch({
+      runExtractValuesAndSearchStep({
         prompt: `Show me Product${i} sales`,
         conversationHistory: [],
       })

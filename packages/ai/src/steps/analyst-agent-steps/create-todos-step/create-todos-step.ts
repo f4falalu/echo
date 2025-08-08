@@ -224,7 +224,7 @@ async function generateTodosWithLLM(
   }
 }
 
-export async function createTodos(params: CreateTodosParams): Promise<CreateTodosResult> {
+export async function runCreateTodosStep(params: CreateTodosParams): Promise<CreateTodosResult> {
   try {
     const { prompt, conversationHistory } = params;
 

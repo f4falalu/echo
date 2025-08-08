@@ -289,7 +289,7 @@ async function extractValuesWithLLM(
   }
 }
 
-export async function extractValuesSearch(
+export async function runExtractValuesAndSearchStep(
   params: ExtractValuesSearchParams
 ): Promise<ExtractValuesSearchResult> {
   try {

@@ -24,6 +24,11 @@ export const ThinkAndPrepAgentOptionsSchema = z.object({
     .string()
     .describe('The SQL dialect guidance for the think and prep agent.'),
   messageId: z.string().describe('The message ID for tracking tool execution.'),
+  chatId: z.string().describe('The chat ID for tracking tool execution.'),
+  organizationId: z.string().describe('The organization ID for tracking tool execution.'),
+  dataSourceId: z.string().describe('The data source ID for tracking tool execution.'),
+  dataSourceSyntax: z.string().describe('The data source syntax for tracking tool execution.'),
+  userId: z.string().describe('The user ID for tracking tool execution.'),
 });
 
 export const ThinkAndPrepStreamOptionsSchema = z.object({

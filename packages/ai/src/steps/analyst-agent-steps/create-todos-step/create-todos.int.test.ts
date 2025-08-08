@@ -1,6 +1,6 @@
 import type { ModelMessage } from 'ai';
 import { describe, expect, it } from 'vitest';
-import { createTodos } from './create-todos-step';
+import { runCreateTodosStep } from './create-todos-step';
 
 describe('create-todos-step integration', () => {
   it('should create todos for basic sales query', async () => {
@@ -9,7 +9,7 @@ describe('create-todos-step integration', () => {
       conversationHistory: [],
     };
 
-    const result = await createTodos(params);
+    const result = await runCreateTodosStep(params);
 
     expect(result).toBeDefined();
     expect(result.todos).toBeDefined();
@@ -23,7 +23,7 @@ describe('create-todos-step integration', () => {
       conversationHistory: [],
     };
 
-    const result = await createTodos(params);
+    const result = await runCreateTodosStep(params);
 
     expect(result).toBeDefined();
     expect(result.todos).toBeDefined();
@@ -37,7 +37,7 @@ describe('create-todos-step integration', () => {
       conversationHistory: [],
     };
 
-    const result = await createTodos(params);
+    const result = await runCreateTodosStep(params);
 
     expect(result).toBeDefined();
     expect(result.todos).toBeDefined();
@@ -51,7 +51,7 @@ describe('create-todos-step integration', () => {
       conversationHistory: [],
     };
 
-    const result = await createTodos(params);
+    const result = await runCreateTodosStep(params);
 
     expect(result).toBeDefined();
     expect(result.todos).toBeDefined();
@@ -61,11 +61,12 @@ describe('create-todos-step integration', () => {
 
   it('should create todos for merchant ranking queries', async () => {
     const params = {
-      prompt: 'There are around 400-450 teams using shop on-site. Can you get me the 30 biggest merchants?',
+      prompt:
+        'There are around 400-450 teams using shop on-site. Can you get me the 30 biggest merchants?',
       conversationHistory: [],
     };
 
-    const result = await createTodos(params);
+    const result = await runCreateTodosStep(params);
 
     expect(result).toBeDefined();
     expect(result.todos).toBeDefined();
@@ -79,7 +80,7 @@ describe('create-todos-step integration', () => {
       conversationHistory: [],
     };
 
-    const result = await createTodos(params);
+    const result = await runCreateTodosStep(params);
 
     expect(result).toBeDefined();
     expect(result.todos).toBeDefined();
@@ -92,7 +93,7 @@ describe('create-todos-step integration', () => {
       conversationHistory: [],
     };
 
-    const result = await createTodos(params);
+    const result = await runCreateTodosStep(params);
 
     expect(result).toBeDefined();
     expect(result.todos).toBeDefined();
@@ -102,11 +103,12 @@ describe('create-todos-step integration', () => {
 
   it('should create todos for dashboard creation requests', async () => {
     const params = {
-      prompt: 'Get me our monthly sales and also 5 other charts that show me monthly sales with various groupings',
+      prompt:
+        'Get me our monthly sales and also 5 other charts that show me monthly sales with various groupings',
       conversationHistory: [],
     };
 
-    const result = await createTodos(params);
+    const result = await runCreateTodosStep(params);
 
     expect(result).toBeDefined();
     expect(result.todos).toBeDefined();
@@ -116,11 +118,12 @@ describe('create-todos-step integration', () => {
 
   it('should handle forecast requests with limitations', async () => {
     const params = {
-      prompt: 'What will sales be in Q4. Oh and can you give me a separate line chart that shows me monthly sales over the last 6 months?',
+      prompt:
+        'What will sales be in Q4. Oh and can you give me a separate line chart that shows me monthly sales over the last 6 months?',
       conversationHistory: [],
     };
 
-    const result = await createTodos(params);
+    const result = await runCreateTodosStep(params);
 
     expect(result).toBeDefined();
     expect(result.todos).toBeDefined();
@@ -134,7 +137,7 @@ describe('create-todos-step integration', () => {
       conversationHistory: [],
     };
 
-    const result = await createTodos(params);
+    const result = await runCreateTodosStep(params);
 
     expect(result).toBeDefined();
     expect(result.todos).toBeDefined();
@@ -150,7 +153,8 @@ describe('create-todos-step integration', () => {
       },
       {
         role: 'assistant',
-        content: 'I can help you analyze product performance. What specific aspects would you like to explore?',
+        content:
+          'I can help you analyze product performance. What specific aspects would you like to explore?',
       },
     ];
 
@@ -159,7 +163,7 @@ describe('create-todos-step integration', () => {
       conversationHistory,
     };
 
-    const result = await createTodos(params);
+    const result = await runCreateTodosStep(params);
 
     expect(result).toBeDefined();
     expect(result.todos).toBeDefined();
@@ -183,7 +187,7 @@ describe('create-todos-step integration', () => {
       conversationHistory,
     };
 
-    const result = await createTodos(params);
+    const result = await runCreateTodosStep(params);
 
     expect(result).toBeDefined();
     expect(result.todos).toBeDefined();
@@ -193,11 +197,12 @@ describe('create-todos-step integration', () => {
 
   it('should handle specific tracking number requests', async () => {
     const params = {
-      prompt: 'I have a Fedex Smartpost tracking number and I need the USPS tracking number. Can you find that for me? Here is the fedex number: 286744112345',
+      prompt:
+        'I have a Fedex Smartpost tracking number and I need the USPS tracking number. Can you find that for me? Here is the fedex number: 286744112345',
       conversationHistory: [],
     };
 
-    const result = await createTodos(params);
+    const result = await runCreateTodosStep(params);
 
     expect(result).toBeDefined();
     expect(result.todos).toBeDefined();
@@ -211,7 +216,7 @@ describe('create-todos-step integration', () => {
       conversationHistory: [],
     };
 
-    const result = await createTodos(params);
+    const result = await runCreateTodosStep(params);
 
     expect(result).toBeDefined();
     expect(result.todos).toBeDefined();
@@ -225,7 +230,7 @@ describe('create-todos-step integration', () => {
       conversationHistory: [],
     };
 
-    const result = await createTodos(params);
+    const result = await runCreateTodosStep(params);
 
     expect(result).toBeDefined();
     expect(result.todos).toBeDefined();
@@ -239,7 +244,7 @@ describe('create-todos-step integration', () => {
       conversationHistory: [],
     };
 
-    const result = await createTodos(params);
+    const result = await runCreateTodosStep(params);
 
     expect(result).toBeDefined();
     expect(result.todos).toBeDefined();
@@ -266,7 +271,7 @@ describe('create-todos-step integration', () => {
       conversationHistory: [],
     };
 
-    const result = await createTodos(params);
+    const result = await runCreateTodosStep(params);
 
     expect(result).toBeDefined();
     expect(result.todos).toBeDefined();
@@ -280,7 +285,7 @@ describe('create-todos-step integration', () => {
       conversationHistory: [],
     };
 
-    const result = await createTodos(params);
+    const result = await runCreateTodosStep(params);
 
     expect(result).toBeDefined();
     expect(result.todos).toBeDefined();
@@ -295,7 +300,7 @@ describe('create-todos-step integration', () => {
     };
 
     // Even if internally aborted, should return valid structure
-    const result = await createTodos(params);
+    const result = await runCreateTodosStep(params);
 
     expect(result).toBeDefined();
     expect(result.todos).toBeDefined();
@@ -304,7 +309,7 @@ describe('create-todos-step integration', () => {
 
   it('should process concurrent todo creation requests', async () => {
     const promises = Array.from({ length: 3 }, (_, i) =>
-      createTodos({
+      runCreateTodosStep({
         prompt: `Query ${i}: Show me sales data`,
         conversationHistory: [],
       })

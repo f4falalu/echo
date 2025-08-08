@@ -1,81 +1,41 @@
 import { updateChat, updateMessage } from '@buster/database';
-import { createStep } from '@mastra/core';
-import type { RuntimeContext } from '@mastra/core/runtime-context';
 import { z } from 'zod';
-import type { AnalystRuntimeContext } from '../../../workflows/analyst-agent-workflow/analyst-workflow';
-import {
-  MessageHistorySchema,
-  ReasoningHistorySchema,
-  ResponseHistorySchema,
-  StepFinishDataSchema,
-} from '../utils/memory/types';
 
-// Analyst-specific metadata schema
-const AnalystMetadataSchema = z.object({
-  toolsUsed: z.array(z.string()).optional(),
-  finalTool: z.string().optional(),
-  doneTool: z.boolean().optional(),
-  filesCreated: z.number().optional(),
-  filesReturned: z.number().optional(),
-});
-
-// Input schema matches analyst step output
-const inputSchema = z.object({
-  conversationHistory: MessageHistorySchema,
-  finished: z.boolean().optional(),
-  stepData: StepFinishDataSchema.optional(),
-  reasoningHistory: ReasoningHistorySchema,
-  responseHistory: ResponseHistorySchema,
-  metadata: AnalystMetadataSchema.optional(),
+// Input schema with all necessary parameters
+export const MarkMessageCompleteInputSchema = z.object({
+  messageId: z.string().optional().describe('The message ID to mark as complete'),
+  chatId: z.string().optional().describe('The chat ID to update with file information'),
+  finalReasoningMessage: z.string().optional().describe('Final reasoning message for the completion'),
   selectedFile: z
     .object({
       fileId: z.string().uuid().optional(),
       fileType: z.string().optional(),
       versionNumber: z.number().optional(),
     })
-    .optional(),
-  finalReasoningMessage: z.string().optional(),
+    .optional()
+    .describe('File information to update in the chat'),
 });
 
-// Output schema passes through analyst data plus completion info
-const outputSchema = z.object({
-  conversationHistory: MessageHistorySchema,
-  finished: z.boolean().optional(),
-  stepData: StepFinishDataSchema.optional(),
-  reasoningHistory: ReasoningHistorySchema,
-  responseHistory: ResponseHistorySchema,
-  metadata: AnalystMetadataSchema.optional(),
-  selectedFile: z
-    .object({
-      fileId: z.string().uuid().optional(),
-      fileType: z.string().optional(),
-      versionNumber: z.number().optional(),
-    })
-    .optional(),
-  // Completion metadata
+// Output schema with completion info
+export const MarkMessageCompleteOutputSchema = z.object({
   messageId: z.string().describe('The message ID that was marked complete'),
   completedAt: z.string().describe('ISO timestamp when the message was marked complete'),
   success: z.boolean().describe('Whether the operation was successful'),
 });
 
-const markMessageCompleteExecution = async ({
-  inputData,
-  runtimeContext,
-}: {
-  inputData: z.infer<typeof inputSchema>;
-  runtimeContext: RuntimeContext<AnalystRuntimeContext>;
-}): Promise<z.infer<typeof outputSchema>> => {
-  try {
-    const messageId = runtimeContext.get('messageId');
-    const completedAt = new Date().toISOString();
+export type MarkMessageCompleteInput = z.infer<typeof MarkMessageCompleteInputSchema>;
+export type MarkMessageCompleteOutput = z.infer<typeof MarkMessageCompleteOutputSchema>;
 
-    // Use the finalReasoningMessage from ChunkProcessor if available
-    const finalReasoningMessage = inputData.finalReasoningMessage || 'complete';
+export async function markMessageComplete(
+  input: MarkMessageCompleteInput
+): Promise<MarkMessageCompleteOutput> {
+  try {
+    const completedAt = new Date().toISOString();
+    const finalReasoningMessage = input.finalReasoningMessage || 'complete';
 
     // If no messageId, this is expected when running without database operations
-    if (!messageId) {
+    if (!input.messageId) {
       return {
-        ...inputData, // Pass through all analyst data
         messageId: '', // Empty string to indicate no database operation
         completedAt,
         success: true,
@@ -83,38 +43,32 @@ const markMessageCompleteExecution = async ({
     }
 
     // Update the message in the database
-    await updateMessage(messageId, {
+    await updateMessage(input.messageId, {
       isCompleted: true,
       finalReasoningMessage,
     });
 
     // Update chat with most recent file information if available
-    if (inputData.selectedFile?.fileId) {
-      const chatId = runtimeContext.get('chatId');
-      if (chatId) {
-        await updateChat(chatId, {
-          mostRecentFileId: inputData.selectedFile.fileId,
-          mostRecentFileType: inputData.selectedFile.fileType,
-          mostRecentVersionNumber: inputData.selectedFile.versionNumber,
-        });
-      }
+    if (input.selectedFile?.fileId && input.chatId) {
+      await updateChat(input.chatId, {
+        mostRecentFileId: input.selectedFile.fileId,
+        mostRecentFileType: input.selectedFile.fileType,
+        mostRecentVersionNumber: input.selectedFile.versionNumber,
+      });
     }
 
     return {
-      ...inputData, // Pass through all analyst data
-      messageId,
+      messageId: input.messageId,
       completedAt,
       success: true,
     };
   } catch (error) {
     // Handle AbortError gracefully
     if (error instanceof Error && error.name === 'AbortError') {
-      // Pass through the input data when aborted
       return {
-        ...inputData,
-        messageId: runtimeContext.get('messageId') || '',
+        messageId: input.messageId || '',
         completedAt: new Date().toISOString(),
-        success: false, // Mark as unsuccessful when aborted
+        success: false,
       };
     }
 
@@ -130,12 +84,4 @@ const markMessageCompleteExecution = async ({
       'Unable to mark message as complete. Please try again or contact support if the issue persists.'
     );
   }
-};
-
-export const markMessageCompleteStep = createStep({
-  id: 'mark-message-complete',
-  description: 'This step marks a message as complete with optional metadata and success status.',
-  inputSchema,
-  outputSchema,
-  execute: markMessageCompleteExecution,
-});
+}

@@ -114,7 +114,7 @@ async function updateDatabaseRecords(
   await Promise.all(updatePromises);
 }
 
-export async function generateChatTitle({
+export async function runGenerateChatTitleStep({
   prompt,
   conversationHistory,
   chatId,
