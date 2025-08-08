@@ -30,11 +30,7 @@ export const MetricElement = withHOC(
     const metricId = props.element.metricId;
     const metricVersionNumber = props.element.metricVersionNumber;
     const readOnly = useReadOnly();
-    console.log(props.editor.getOptionsStore(GlobalVariablePlugin));
-    console.log(props.editor.getOptions(GlobalVariablePlugin));
     const mode = props.editor.getOption(GlobalVariablePlugin, 'mode');
-
-    console.log('mode', mode);
 
     const content = metricId ? (
       <MetricResizeContainer>
@@ -42,6 +38,7 @@ export const MetricElement = withHOC(
           metricId={metricId}
           metricVersionNumber={metricVersionNumber}
           readOnly={readOnly}
+          isExportMode={mode === 'export'}
         />
       </MetricResizeContainer>
     ) : (

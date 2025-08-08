@@ -2,7 +2,7 @@
 
 import { useGetReport, useUpdateReport } from '@/api/buster_rest/reports';
 import { cn } from '@/lib/utils';
-import React, { useEffect } from 'react';
+import React from 'react';
 import { ReportPageHeader } from './ReportPageHeader';
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import { useDebounceFn } from '@/hooks/useDebounce';

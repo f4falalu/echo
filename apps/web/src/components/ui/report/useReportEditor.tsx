@@ -5,13 +5,12 @@ import { useEditorRef, usePlateEditor, type TPlateEditor } from 'platejs/react';
 import { useMemo } from 'react';
 import { EditorKit } from './editor-kit';
 import { FIXED_TOOLBAR_KIT_KEY } from './plugins/fixed-toolbar-kit';
-import { CUSTOM_KEYS } from './config/keys';
 import { GlobalVariablePlugin } from './plugins/global-variable-kit';
 
 export const useReportEditor = ({
   value,
   disabled,
-  mode,
+  mode = 'default',
   useFixedToolbarKit = false
 }: {
   value: Value;
@@ -27,10 +26,8 @@ export const useReportEditor = ({
 
     return [
       ...EditorKit,
-      GlobalVariablePlugin.configurePlugin(GlobalVariablePlugin, {
-        options: {
-          mode
-        }
+      GlobalVariablePlugin.configure({
+        options: { mode }
       })
     ].filter((p) => !filteredKeys.includes(p.key));
   }, []);
