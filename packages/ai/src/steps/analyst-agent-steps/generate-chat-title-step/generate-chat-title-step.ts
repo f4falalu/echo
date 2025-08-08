@@ -3,7 +3,7 @@ import { generateObject } from 'ai';
 import type { ModelMessage } from 'ai';
 import { wrapTraced } from 'braintrust';
 import { z } from 'zod';
-import { Haiku35 } from '../../llm/haiku-3-5';
+import { Haiku35 } from '../../../llm/haiku-3-5';
 
 // Schema for what the LLM returns
 const llmOutputSchema = z.object({

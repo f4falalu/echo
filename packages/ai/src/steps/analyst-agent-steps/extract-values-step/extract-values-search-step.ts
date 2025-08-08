@@ -4,7 +4,7 @@ import { generateObject } from 'ai';
 import type { ModelMessage } from 'ai';
 import { wrapTraced } from 'braintrust';
 import { z } from 'zod';
-import { Haiku35 } from '../../llm/haiku-3-5';
+import { Haiku35 } from '../../../llm/haiku-3-5';
 
 // Zod schemas first - following Zod-first approach
 export const extractValuesSearchParamsSchema = z.object({

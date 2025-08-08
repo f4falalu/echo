@@ -18,7 +18,7 @@ const DEFAULT_CACHE_OPTIONS = {
 
 const STOP_CONDITIONS = [stepCountIs(25), hasToolCall('doneTool')];
 
-const AnalystAgentOptionsSchema = z.object({
+export const AnalystAgentOptionsSchema = z.object({
   userId: z.string(),
   chatId: z.string(),
   dataSourceId: z.string(),
@@ -27,7 +27,7 @@ const AnalystAgentOptionsSchema = z.object({
   messageId: z.string(),
 });
 
-const AnalystStreamOptionsSchema = z.object({
+export const AnalystStreamOptionsSchema = z.object({
   messages: z
     .array(z.custom<ModelMessage>())
     .describe('The messages to send to the analyst agent.'),

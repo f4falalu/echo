@@ -1,72 +1,17 @@
-import { createWorkflow } from '@mastra/core';
-import { z } from 'zod';
-import type { AnalystAgentOptions } from '../../agents/analyst-agent/analyst-agent';
-import { thinkAndPrepWorkflowInputSchema } from '../../schemas/workflow-schemas';
+// input for the workflow
 
-// Type alias for consistency
-export type AnalystAgentContext = AnalystAgentOptions;
-export type AnalystRuntimeContext = AnalystAgentOptions;
+// concurrently run the following steps:
+// 1. create todos
+// 2. extract values
+// 3. chat title
 
-// Re-export for backward compatibility
-export { thinkAndPrepWorkflowInputSchema, type AnalystAgentContext };
-// Legacy exports - deprecated, use AnalystAgentContext instead
-export type { AnalystAgentContext as AnalystRuntimeContext };
-import { analystStep } from '../../steps/analyst-agent-steps/analyst-step';
-import { createTodosStep } from '../../steps/analyst-agent-steps/create-todos-step';
-import { extractValuesSearchStep } from '../../steps/analyst-agent-steps/extract-values-search-step';
-import { formatOutputStep } from '../../steps/analyst-agent-steps/format-output-step';
-import { generateChatTitleStep } from '../../steps/analyst-agent-steps/generate-chat-title-step';
-import { markMessageCompleteStep } from '../../steps/analyst-agent-steps/mark-message-complete-step';
-import { thinkAndPrepStep } from '../../steps/analyst-agent-steps/think-and-prep-step';
-import {
-  MessageHistorySchema,
-  ReasoningHistorySchema,
-  ResponseHistorySchema,
-  StepFinishDataSchema,
-} from '../utils/memory/types';
+// Each of those output their single result
 
-// Metadata schema for output
-const WorkflowMetadataSchema = z.object({
-  toolsUsed: z.array(z.string()).optional(),
-  finalTool: z.string().optional(),
-  text: z.string().optional(),
-  reasoning: z.string().optional(),
-  doneTool: z.boolean().optional(),
-  filesCreated: z.number().optional(),
-  filesReturned: z.number().optional(),
-});
+// Think and prep step
+// should output the messages up to the submit thoughts
+// if finishing tool is called, then we don't continue
 
-const outputSchema = z.object({
-  title: z.string().optional(),
-  todos: z.array(z.string()).optional(),
-  values: z.array(z.string()).optional(),
-  conversationHistory: MessageHistorySchema.optional(),
-  finished: z.boolean().optional(),
-  stepData: StepFinishDataSchema.optional(),
-  reasoningHistory: ReasoningHistorySchema, // Add reasoning history
-  responseHistory: ResponseHistorySchema, // Add response history
-  metadata: WorkflowMetadataSchema.optional(),
-});
+// Analyst step
+// should output the messages up to the done tool
 
-const analystWorkflow = createWorkflow({
-  id: 'analyst-workflow',
-  inputSchema: thinkAndPrepWorkflowInputSchema,
-  outputSchema,
-  steps: [
-    generateChatTitleStep,
-    extractValuesSearchStep,
-    createTodosStep,
-    thinkAndPrepStep,
-    analystStep,
-    markMessageCompleteStep,
-    formatOutputStep,
-  ],
-})
-  .parallel([generateChatTitleStep, extractValuesSearchStep, createTodosStep])
-  .then(thinkAndPrepStep)
-  .then(analystStep) // Always run analyst step - it will pass through if finished
-  .then(markMessageCompleteStep)
-  .then(formatOutputStep)
-  .commit();
-
-export default analystWorkflow;
+// Return Jacob output

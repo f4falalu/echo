@@ -2,7 +2,7 @@ import { updateChat, updateMessage } from '@buster/database';
 import { createStep } from '@mastra/core';
 import type { RuntimeContext } from '@mastra/core/runtime-context';
 import { z } from 'zod';
-import type { AnalystRuntimeContext } from '../../workflows/analyst-agent-workflow/analyst-workflow';
+import type { AnalystRuntimeContext } from '../../../workflows/analyst-agent-workflow/analyst-workflow';
 import {
   MessageHistorySchema,
   ReasoningHistorySchema,

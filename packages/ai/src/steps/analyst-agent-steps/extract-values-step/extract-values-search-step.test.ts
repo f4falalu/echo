@@ -35,7 +35,7 @@ vi.mock('@mastra/core', async () => {
 
 // Now import after mocks are set up
 import { RuntimeContext } from '@mastra/core/runtime-context';
-import type { AnalystRuntimeContext } from '../../workflows/analyst-agent-workflow/analyst-workflow';
+import type { AnalystRuntimeContext } from '../../../workflows/analyst-agent-workflow/analyst-workflow';
 import { extractValuesSearchStep } from './extract-values-search-step';
 
 // Import the mocked functions
