@@ -1,3 +1,5 @@
+'use client';
+
 import { cn } from '@/lib/classMerge';
 import type { Descendant, PluginConfig, TElement, TNode } from 'platejs';
 import {

@@ -9,6 +9,9 @@ import { useDebounceFn } from '@/hooks/useDebounce';
 import type { ReportElements } from '@buster/server-shared/reports';
 //import DynamicReportEditor from '@/components/ui/report/DynamicReportEditor';
 import { ReportEditor } from '@/components/ui/report/ReportEditor';
+import { ReportEditorSkeleton } from '../../../components/ui/report/ReportEditorSkeleton';
+import DynamicReportEditor from '@/components/ui/report/DynamicReportEditor';
+import type { Value } from 'platejs';
 
 export const ReportPageController: React.FC<{
   reportId: string;
@@ -41,20 +44,34 @@ export const ReportPageController: React.FC<{
   });
 
   return (
-    <div className={cn('space-y-1.5 pt-9 sm:px-[max(64px,calc(50%-350px))]', className)}>
-      <ReportPageHeader
-        name={report?.name}
-        updatedAt={report?.updated_at}
-        onChangeName={onChangeName}
-      />
+    <div
+      className={cn(
+        'h-full space-y-1.5 overflow-y-auto pt-9 sm:px-[max(64px,calc(50%-350px))]',
+        className
+      )}>
+      {report ? (
+        <>
+          <ReportPageHeader
+            name={report?.name}
+            updatedAt={report?.updated_at}
+            onChangeName={onChangeName}
+          />
 
-      <ReportEditor
-        //   ref={editor}
-        value={content}
-        onValueChange={onChangeContent}
-        readOnly={readOnly || !report}
-        className="px-0!"
-      />
+          <ReportEditor
+            //   ref={editor}
+            value={content}
+            placeholder="Start typing..."
+            disabled={false}
+            variant="default"
+            useFixedToolbarKit={false}
+            onValueChange={onChangeContent}
+            readOnly={readOnly || !report}
+            className="px-0!"
+          />
+        </>
+      ) : (
+        <ReportEditorSkeleton />
+      )}
     </div>
   );
 };

@@ -50,8 +50,11 @@ export const MetricElement = withHOC(
           'data-plate-open-context-menu': true
         }}
         {...props}>
-        {content}
-        {children}
+        <div contentEditable={false}>{content}</div>
+
+        <div className="h-0" contentEditable={false}>
+          {children}
+        </div>
       </PlateElement>
     );
   }
@@ -87,7 +90,7 @@ const MetricResizeContainer: React.FC<PropsWithChildren> = ({ children }) => {
       contentEditable={false}
       className={cn(
         'group relative m-0 my-1.5 w-full cursor-default transition-all',
-        isSelected && 'bg-item-hover/10 ring-ring rounded ring-2 ring-offset-4'
+        isSelected && 'bg-item-hover/10 rounded'
       )}>
       <Resizable
         align={align}

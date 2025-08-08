@@ -32,20 +32,19 @@ export const MetricPlugin = createPlatePlugin<
   node: {
     type: CUSTOM_KEYS.metric,
     isElement: true,
-    isVoid: true
+    isVoid: false,
+    component: MetricElement
   }
-})
-  .extendApi(({ setOption, plugin, editor, tf, ...rest }) => {
-    return {
-      openAddMetricModal: () => {
-        setOption('openMetricModal', true);
-      },
-      closeAddMetricModal: () => {
-        setOption('openMetricModal', false);
-      },
-      updateMetric: (metricId: string, options?: SetNodesOptions<TMetricElement[]>) => {
-        tf.setNodes<TMetricElement>({ metricId }, options);
-      }
-    };
-  })
-  .withComponent(MetricElement);
+}).extendApi(({ setOption, plugin, editor, tf, ...rest }) => {
+  return {
+    openAddMetricModal: () => {
+      setOption('openMetricModal', true);
+    },
+    closeAddMetricModal: () => {
+      setOption('openMetricModal', false);
+    },
+    updateMetric: (metricId: string, options?: SetNodesOptions<TMetricElement[]>) => {
+      tf.setNodes<TMetricElement>({ metricId }, options);
+    }
+  };
+});
