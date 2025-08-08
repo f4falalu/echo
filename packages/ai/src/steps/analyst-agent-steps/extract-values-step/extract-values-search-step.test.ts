@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 // Mock the AI models first, before any imports that might use them
-vi.mock('../utils/models/haiku-3-5', () => ({
+vi.mock('../../../llm/haiku-3-5', () => ({
   Haiku35: 'mock-model',
 }));
 
@@ -344,6 +344,80 @@ describe('extractValuesSearchStep', () => {
     });
   });
 
+  describe('LLM extraction behavior', () => {
+    it('should handle LLM timeout gracefully', async () => {
+      const inputData = {
+        prompt: 'Test prompt with timeout',
+        conversationHistory: [],
+      };
+
+      const runtimeContext = new RuntimeContext<AnalystRuntimeContext>();
+      runtimeContext.set('dataSourceId', 'test-datasource-id');
+
+      // Mock LLM timeout
+      const timeoutError = new Error('Request timeout');
+      timeoutError.name = 'TimeoutError';
+      mockGenerateObject.mockRejectedValue(timeoutError);
+
+      const result = await extractValuesSearchStep.execute({
+        inputData,
+        runtimeContext,
+        getInitData: async () => inputData,
+      } as any);
+
+      expect(result.values).toEqual([]);
+      expect(result.searchPerformed).toBe(false);
+    });
+
+    it('should handle malformed LLM response', async () => {
+      const inputData = {
+        prompt: 'Test malformed response',
+        conversationHistory: [],
+      };
+
+      const runtimeContext = new RuntimeContext<AnalystRuntimeContext>();
+      runtimeContext.set('dataSourceId', 'test-datasource-id');
+
+      // Mock malformed response
+      mockGenerateObject.mockResolvedValue({
+        object: { wrongField: 'test' }, // Missing 'values' field
+      });
+
+      const result = await extractValuesSearchStep.execute({
+        inputData,
+        runtimeContext,
+        getInitData: async () => inputData,
+      } as any);
+
+      expect(result.values).toEqual([]);
+      expect(result.searchPerformed).toBe(false);
+    });
+
+    it('should handle LLM returning non-array values', async () => {
+      const inputData = {
+        prompt: 'Test non-array values',
+        conversationHistory: [],
+      };
+
+      const runtimeContext = new RuntimeContext<AnalystRuntimeContext>();
+      runtimeContext.set('dataSourceId', 'test-datasource-id');
+
+      // Mock non-array values
+      mockGenerateObject.mockResolvedValue({
+        object: { values: 'not an array' },
+      });
+
+      const result = await extractValuesSearchStep.execute({
+        inputData,
+        runtimeContext,
+        getInitData: async () => inputData,
+      } as any);
+
+      expect(result.values).toEqual([]);
+      expect(result.searchPerformed).toBe(false);
+    });
+  });
+
   describe('result formatting', () => {
     it('should deduplicate values within the same column', async () => {
       const mockSearchResults = [
@@ -460,6 +534,200 @@ describe('extractValuesSearchStep', () => {
 
       expect(result.searchResults).toContain('sales.products');
       expect(result.searchResults).toContain('inventory.locations');
+    });
+  });
+
+  describe('performance and concurrency', () => {
+    it('should handle large number of extracted values efficiently', async () => {
+      const inputData = {
+        prompt: 'Large query with many values',
+        conversationHistory: [],
+      };
+
+      const runtimeContext = new RuntimeContext<AnalystRuntimeContext>();
+      runtimeContext.set('dataSourceId', 'test-datasource-id');
+
+      // Mock extraction of many values
+      const manyValues = Array.from({ length: 50 }, (_, i) => `Value${i}`);
+      mockGenerateObject.mockResolvedValue({
+        object: { values: manyValues },
+      });
+
+      mockGenerateEmbedding.mockResolvedValue([1, 2, 3]);
+      mockSearchValuesByEmbedding.mockResolvedValue([]);
+
+      const startTime = Date.now();
+      const result = await extractValuesSearchStep.execute({
+        inputData,
+        runtimeContext,
+        getInitData: async () => inputData,
+      } as any);
+      const endTime = Date.now();
+
+      expect(result.values).toEqual(manyValues);
+      expect(result.searchPerformed).toBe(true);
+      // Should complete in reasonable time (< 10 seconds)
+      expect(endTime - startTime).toBeLessThan(10000);
+    });
+
+    it('should handle partial embedding generation failures', async () => {
+      const inputData = {
+        prompt: 'Test partial failures',
+        conversationHistory: [],
+      };
+
+      const runtimeContext = new RuntimeContext<AnalystRuntimeContext>();
+      runtimeContext.set('dataSourceId', 'test-datasource-id');
+
+      mockGenerateObject.mockResolvedValue({
+        object: { values: ['value1', 'value2', 'value3'] },
+      });
+
+      // Some embeddings succeed, some fail
+      mockGenerateEmbedding
+        .mockResolvedValueOnce([1, 2, 3])
+        .mockRejectedValueOnce(new Error('Embedding failed'))
+        .mockResolvedValueOnce([4, 5, 6]);
+
+      mockSearchValuesByEmbedding.mockResolvedValue([]);
+
+      const result = await extractValuesSearchStep.execute({
+        inputData,
+        runtimeContext,
+        getInitData: async () => inputData,
+      } as any);
+
+      expect(result.searchPerformed).toBe(true);
+      // Should still work with partial results
+      expect(mockSearchValuesByEmbedding).toHaveBeenCalledTimes(2);
+    });
+
+    it('should handle AbortError during extraction', async () => {
+      const inputData = {
+        prompt: 'Test abort',
+        conversationHistory: [],
+      };
+
+      const runtimeContext = new RuntimeContext<AnalystRuntimeContext>();
+      runtimeContext.set('dataSourceId', 'test-datasource-id');
+
+      const abortError = new Error('Aborted');
+      abortError.name = 'AbortError';
+      mockGenerateObject.mockRejectedValue(abortError);
+
+      const result = await extractValuesSearchStep.execute({
+        inputData,
+        runtimeContext,
+        getInitData: async () => inputData,
+      } as any);
+
+      expect(result.values).toEqual([]);
+      expect(result.searchPerformed).toBe(false);
+    });
+  });
+
+  describe('stored values search edge cases', () => {
+    it('should handle empty search results gracefully', async () => {
+      const inputData = {
+        prompt: 'Find specific value',
+        conversationHistory: [],
+      };
+
+      const runtimeContext = new RuntimeContext<AnalystRuntimeContext>();
+      runtimeContext.set('dataSourceId', 'test-datasource-id');
+
+      mockGenerateObject.mockResolvedValue({
+        object: { values: ['NonExistentValue'] },
+      });
+
+      mockGenerateEmbedding.mockResolvedValue([1, 2, 3]);
+      mockSearchValuesByEmbedding.mockResolvedValue([]); // No results
+
+      const result = await extractValuesSearchStep.execute({
+        inputData,
+        runtimeContext,
+        getInitData: async () => inputData,
+      } as any);
+
+      expect(result.searchPerformed).toBe(true);
+      expect(result.searchResults).toBe('');
+      expect(result.foundValues).toEqual({});
+    });
+
+    it('should handle duplicate search results across different tables', async () => {
+      const mockSearchResults = [
+        {
+          id: '1',
+          value: 'TestValue',
+          schema_name: 'schema1',
+          table_name: 'table1',
+          column_name: 'col1',
+          database_name: 'db',
+          synced_at: new Date(),
+        },
+        {
+          id: '2',
+          value: 'TestValue',
+          schema_name: 'schema2',
+          table_name: 'table2',
+          column_name: 'col1',
+          database_name: 'db',
+          synced_at: new Date(),
+        },
+      ];
+
+      const inputData = {
+        prompt: 'Find TestValue',
+        conversationHistory: [],
+      };
+
+      const runtimeContext = new RuntimeContext<AnalystRuntimeContext>();
+      runtimeContext.set('dataSourceId', 'test-datasource-id');
+
+      mockGenerateObject.mockResolvedValue({
+        object: { values: ['TestValue'] },
+      });
+
+      mockGenerateEmbedding.mockResolvedValue([1, 2, 3]);
+      mockSearchValuesByEmbedding.mockResolvedValue(mockSearchResults);
+
+      const result = await extractValuesSearchStep.execute({
+        inputData,
+        runtimeContext,
+        getInitData: async () => inputData,
+      } as any);
+
+      expect(result.foundValues).toEqual({
+        'schema1.table1': { col1: ['TestValue'] },
+        'schema2.table2': { col1: ['TestValue'] },
+      });
+    });
+
+    it('should handle very long value strings', async () => {
+      const longValue = 'A'.repeat(1000);
+      const inputData = {
+        prompt: `Find ${longValue}`,
+        conversationHistory: [],
+      };
+
+      const runtimeContext = new RuntimeContext<AnalystRuntimeContext>();
+      runtimeContext.set('dataSourceId', 'test-datasource-id');
+
+      mockGenerateObject.mockResolvedValue({
+        object: { values: [longValue] },
+      });
+
+      mockGenerateEmbedding.mockResolvedValue([1, 2, 3]);
+      mockSearchValuesByEmbedding.mockResolvedValue([]);
+
+      const result = await extractValuesSearchStep.execute({
+        inputData,
+        runtimeContext,
+        getInitData: async () => inputData,
+      } as any);
+
+      expect(result.values).toContain(longValue);
+      expect(result.searchPerformed).toBe(true);
     });
   });
 });
