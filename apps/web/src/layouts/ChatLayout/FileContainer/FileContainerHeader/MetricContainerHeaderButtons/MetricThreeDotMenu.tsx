@@ -154,7 +154,6 @@ export const ThreeDotMenuButton = React.memo(
       ]
     );
 
-
     return (
       <Dropdown items={items} side="left" align="end" contentClassName="max-h-fit" modal>
         <Button prefix={<Dots />} variant="ghost" data-testid="three-dot-menu-button" />
