@@ -6,12 +6,12 @@ import {
   bashExecute,
   checkOffTodoList,
   createFiles,
+  createIdleTool,
   createSequentialThinkingTool,
   deleteFiles,
   editFiles,
   executeSqlDocsAgent,
   grepSearch,
-  idleTool,
   listFiles,
   readFiles,
   updateClarificationsFile,
@@ -62,6 +62,8 @@ export function createDocsAgent(docsAgentOptions: DocsAgentOptions) {
     content: getDocsAgentSystemPrompt(docsAgentOptions.folder_structure),
     providerOptions: DEFAULT_CACHE_OPTIONS,
   } as ModelMessage;
+
+  const idleTool = createIdleTool({ messageId: docsAgentOptions.messageId });
 
   async function stream({ messages }: DocsStreamOptions) {
     return wrapTraced(

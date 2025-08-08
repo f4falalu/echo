@@ -2,27 +2,46 @@ import { tool } from 'ai';
 import { wrapTraced } from 'braintrust';
 import { z } from 'zod';
 
-const submitThoughtsInputSchema = z.object({});
+// Minimal schemas: no input/output for a signal-only tool
+const SubmitThoughtsInputSchema = z.object({});
+const SubmitThoughtsOutputSchema = z.object({});
 
-const submitThoughtsOutputSchema = z.object({});
+// Optional context for consistency with other tools (e.g., messageId for future logging)
+const SubmitThoughtsContextSchema = z.object({
+  messageId: z.string().optional().describe('The message ID for tracking tool execution.'),
+});
 
-async function processSubmitThoughts(): Promise<z.infer<typeof submitThoughtsOutputSchema>> {
+export type SubmitThoughtsInput = z.infer<typeof SubmitThoughtsInputSchema>;
+export type SubmitThoughtsOutput = z.infer<typeof SubmitThoughtsOutputSchema>;
+export type SubmitThoughtsContext = z.infer<typeof SubmitThoughtsContextSchema>;
+
+async function processSubmitThoughts(): Promise<SubmitThoughtsOutput> {
   return {};
 }
 
-// Main submit thoughts function with tracing
-const executeSubmitThoughts = wrapTraced(
-  async (): Promise<z.infer<typeof submitThoughtsOutputSchema>> => {
-    return await processSubmitThoughts();
-  },
-  { name: 'Submit Thoughts' }
-);
+function createSubmitThoughtsExecute() {
+  return wrapTraced(
+    async (): Promise<SubmitThoughtsOutput> => {
+      return await processSubmitThoughts();
+    },
+    { name: 'Submit Thoughts' }
+  );
+}
 
-// Export the tool
-export const submitThoughts = tool({
-  description:
-    'Confirms that the agent has finished thinking through all of its steps and is ready to move on to the next phase of the workflow. This is a signal tool with no input or output parameters.',
-  inputSchema: submitThoughtsInputSchema,
-  outputSchema: submitThoughtsOutputSchema,
-  execute: executeSubmitThoughts,
-});
+// Factory: returns a simple tool definition (no streaming lifecycle needed)
+export function createSubmitThoughtsTool<
+  TAgentContext extends SubmitThoughtsContext = SubmitThoughtsContext,
+>(_context: TAgentContext) {
+  const execute = createSubmitThoughtsExecute();
+
+  return tool({
+    description:
+      'Confirms that the agent has finished thinking through all of its steps and is ready to move on to the next phase of the workflow. This is a signal tool with no input or output parameters.',
+    inputSchema: SubmitThoughtsInputSchema,
+    outputSchema: SubmitThoughtsOutputSchema,
+    execute,
+  });
+}
+
+// Back-compat default instance (no context required)
+export const submitThoughts = createSubmitThoughtsTool({});

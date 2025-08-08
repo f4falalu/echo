@@ -22,8 +22,6 @@ describe('messageUserClarifyingQuestion streaming', () => {
   it('should handle streaming JSON input', async () => {
     const mockContext: MessageUserClarifyingQuestionContext = {
       messageId: 'test-message-123',
-      chatId: 'test-chat-456',
-      userId: 'test-user-789',
     };
 
     const state: MessageUserClarifyingQuestionState = {
@@ -71,8 +69,6 @@ describe('messageUserClarifyingQuestion streaming', () => {
   it('should handle partial JSON parsing during streaming', async () => {
     const mockContext: MessageUserClarifyingQuestionContext = {
       messageId: 'test-message-456',
-      chatId: 'test-chat-456',
-      userId: 'test-user-456',
     };
 
     const state: MessageUserClarifyingQuestionState = {
@@ -94,8 +90,6 @@ describe('messageUserClarifyingQuestion streaming', () => {
   it('should handle empty or malformed input gracefully', async () => {
     const mockContext: MessageUserClarifyingQuestionContext = {
       messageId: '',
-      chatId: '',
-      userId: '',
     };
 
     const state: MessageUserClarifyingQuestionState = {
@@ -122,8 +116,6 @@ describe('messageUserClarifyingQuestion streaming', () => {
   it('should work without messageId context', async () => {
     const mockContext: MessageUserClarifyingQuestionContext = {
       messageId: '',
-      chatId: '',
-      userId: '',
     };
 
     const state: MessageUserClarifyingQuestionState = {

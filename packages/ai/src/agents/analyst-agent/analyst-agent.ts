@@ -24,7 +24,7 @@ const AnalystAgentOptionsSchema = z.object({
   dataSourceId: z.string(),
   dataSourceSyntax: z.string(),
   organizationId: z.string(),
-  messageId: z.string().optional(),
+  messageId: z.string(),
 });
 
 const AnalystStreamOptionsSchema = z.object({
@@ -56,7 +56,7 @@ export function createAnalystAgent(analystAgentOptions: AnalystAgentOptions) {
     const createDashboards = createCreateDashboardsTool(analystAgentOptions);
     const modifyDashboards = createModifyDashboardsTool(analystAgentOptions);
     // Done tool now accepts context directly
-    const doneTool = createDoneTool<AnalystAgentOptions>(analystAgentOptions);
+    const doneTool = createDoneTool(analystAgentOptions);
 
     while (attempt <= maxRetries) {
       try {
@@ -94,7 +94,7 @@ export function createAnalystAgent(analystAgentOptions: AnalystAgentOptions) {
         // Add healing message and retry
         const toolName = 'toolName' in error ? String(error.toolName) : 'unknown';
         const toolCallId = 'toolCallId' in error ? String(error.toolCallId) : 'unknown';
-        
+
         const healingMessage: ModelMessage = {
           role: 'tool',
           content: [
@@ -103,7 +103,8 @@ export function createAnalystAgent(analystAgentOptions: AnalystAgentOptions) {
               toolCallId,
               toolName,
               output: {
-                error: `Tool "${toolName}" is not available. Available tools: createMetrics, modifyMetrics, createDashboards, modifyDashboards, doneTool.
+                type: 'text',
+                value: `Tool "${toolName}" is not available. Available tools: createMetrics, modifyMetrics, createDashboards, modifyDashboards, doneTool.
                 
                 The previous phase of the workflow was the think and prep phase that has access to the following tools:
                 sequentialThinking, executeSql, respondWithoutAssetCreation, submitThoughts, messageUserClarifyingQuestion

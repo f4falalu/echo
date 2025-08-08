@@ -16,28 +16,44 @@ const IdleOutputSchema = z.object({
   success: z.boolean().describe('Whether the operation was successful'),
 });
 
-type IdleOutput = z.infer<typeof IdleOutputSchema>;
+// Optional context for consistency with other tools
+const IdleContextSchema = z.object({
+  messageId: z.string().optional().describe('The message ID for tracking tool execution.'),
+});
+
+export type IdleInput = z.infer<typeof IdleInputSchema>;
+export type IdleOutput = z.infer<typeof IdleOutputSchema>;
+export type IdleContext = z.infer<typeof IdleContextSchema>;
 
 async function processIdle(): Promise<IdleOutput> {
-  return {
-    success: true,
-  };
+  return { success: true };
 }
 
-const executeIdle = wrapTraced(
-  async (): Promise<IdleOutput> => {
-    return await processIdle();
-  },
-  { name: 'idle-tool' }
-);
+function createIdleExecute() {
+  return wrapTraced(
+    async (): Promise<IdleOutput> => {
+      return await processIdle();
+    },
+    { name: 'idle-tool' }
+  );
+}
 
-// Export the tool
-export const idleTool = tool({
-  description:
-    "Marks all remaining unfinished tasks as complete, sends a final response to the user, and enters an idle state. Use this when current work is finished but the agent should remain available for future tasks. This must be in markdown format and not use the '•' bullet character.",
-  inputSchema: IdleInputSchema,
-  outputSchema: IdleOutputSchema,
-  execute: executeIdle,
-});
+// Factory: simple tool without streaming lifecycle
+export function createIdleTool<TAgentContext extends IdleContext = IdleContext>(
+  _context: TAgentContext
+) {
+  const execute = createIdleExecute();
+
+  return tool({
+    description:
+      "Marks all remaining unfinished tasks as complete, sends a final response to the user, and enters an idle state. Use this when current work is finished but the agent should remain available for future tasks. This must be in markdown format and not use the '•' bullet character.",
+    inputSchema: IdleInputSchema,
+    outputSchema: IdleOutputSchema,
+    execute,
+  });
+}
+
+// Back-compat default instance
+export const idleTool = createIdleTool({});
 
 export default idleTool;

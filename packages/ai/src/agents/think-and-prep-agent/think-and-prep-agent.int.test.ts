@@ -10,6 +10,7 @@ describe('Think and Prep Agent Integration Tests', () => {
 
     try {
       const thinkAndPrepAgent = createThinkAndPrepAgent({
+        messageId: 'test-message-123',
         sql_dialect_guidance: 'postgresql',
       });
 

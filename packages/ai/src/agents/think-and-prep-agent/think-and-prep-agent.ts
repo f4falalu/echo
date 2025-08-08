@@ -1,13 +1,10 @@
 import { type ModelMessage, NoSuchToolError, hasToolCall, stepCountIs, streamText } from 'ai';
 import { wrapTraced } from 'braintrust';
 import z from 'zod';
-import {
-  createSequentialThinkingTool,
-  executeSql,
-  messageUserClarifyingQuestion,
-  respondWithoutAssetCreation,
-  submitThoughts,
-} from '../../tools';
+import { createSequentialThinkingTool, executeSql } from '../../tools';
+import { createMessageUserClarifyingQuestionTool } from '../../tools/communication-tools/message-user-clarifying-question/message-user-clarifying-question';
+import { createRespondWithoutAssetCreationTool } from '../../tools/communication-tools/respond-without-asset-creation/respond-without-asset-creation-tool';
+import { createSubmitThoughtsTool } from '../../tools/communication-tools/submit-thoughts-tool/submit-thoughts-tool';
 import { Sonnet4 } from '../../utils/models/sonnet-4';
 import { getThinkAndPrepAgentSystemPrompt } from './get-think-and-prep-agent-system-prompt';
 
@@ -26,7 +23,7 @@ const ThinkAndPrepAgentOptionsSchema = z.object({
   sql_dialect_guidance: z
     .string()
     .describe('The SQL dialect guidance for the think and prep agent.'),
-  messageId: z.string().optional().describe('The message ID for tracking tool execution.'),
+  messageId: z.string().describe('The message ID for tracking tool execution.'),
 });
 
 const ThinkAndPrepStreamOptionsSchema = z.object({
@@ -53,6 +50,12 @@ export function createThinkAndPrepAgent(thinkAndPrepAgentSchema: ThinkAndPrepAge
     let attempt = 0;
     const currentMessages = [...messages];
 
+    const sequentialThinking = createSequentialThinkingTool({ messageId });
+    const executeSqlTool = executeSql;
+    const respondWithoutAssetCreation = createRespondWithoutAssetCreationTool({ messageId });
+    const submitThoughts = createSubmitThoughtsTool({ messageId });
+    const messageUserClarifyingQuestion = createMessageUserClarifyingQuestionTool({ messageId });
+
     while (attempt <= maxRetries) {
       try {
         return await wrapTraced(
@@ -60,8 +63,8 @@ export function createThinkAndPrepAgent(thinkAndPrepAgentSchema: ThinkAndPrepAge
             streamText({
               model: Sonnet4,
               tools: {
-                sequentialThinking: createSequentialThinkingTool({ messageId }),
-                executeSql,
+                sequentialThinking,
+                executeSql: executeSqlTool,
                 respondWithoutAssetCreation,
                 submitThoughts,
                 messageUserClarifyingQuestion,
@@ -97,7 +100,8 @@ export function createThinkAndPrepAgent(thinkAndPrepAgentSchema: ThinkAndPrepAge
               toolCallId,
               toolName,
               output: {
-                error: `Tool "${toolName}" is not available. Available tools: sequentialThinking, executeSql, respondWithoutAssetCreation, submitThoughts, messageUserClarifyingQuestion.
+                type: 'text',
+                value: `Tool "${toolName}" is not available. Available tools: sequentialThinking, executeSql, respondWithoutAssetCreation, submitThoughts, messageUserClarifyingQuestion.
                 
                 The next phase of the workflow will be the analyst that has access to the following tools:
                 createMetrics, modifyMetrics, createDashboards, modifyDashboards, doneTool

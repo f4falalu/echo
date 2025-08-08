@@ -21,8 +21,6 @@ const MessageUserClarifyingQuestionOutputSchema = z.object({});
 
 const MessageUserClarifyingQuestionContextSchema = z.object({
   messageId: z.string().describe('The message ID of the message that triggered the tool'),
-  chatId: z.string().describe('The chat ID of the chat that triggered the tool'),
-  userId: z.string().describe('The user ID of the user that triggered the tool'),
 });
 
 const MessageUserClarifyingQuestionStateSchema = z.object({

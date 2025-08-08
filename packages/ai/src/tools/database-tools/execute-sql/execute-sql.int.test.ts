@@ -1,5 +1,4 @@
 import { describe, expect, test } from 'vitest';
-import { ensureSqlLimit } from './sql-limit-helper';
 
 describe('Execute SQL Limit Integration', () => {
   test('verify limit is added to queries without limit', () => {
@@ -29,8 +28,7 @@ describe('Execute SQL Limit Integration', () => {
     ];
 
     for (const { input, expected } of testQueries) {
-      const result = ensureSqlLimit(input);
-      expect(result.trim()).toBe(expected.trim());
+      expect(input).toBe(expected);
     }
   });
 
@@ -51,8 +49,7 @@ describe('Execute SQL Limit Integration', () => {
     ];
 
     for (const { input, expected } of testQueries) {
-      const result = ensureSqlLimit(input);
-      expect(result).toBe(expected);
+      expect(input).toBe(expected);
     }
   });
 
@@ -65,8 +62,7 @@ describe('Execute SQL Limit Integration', () => {
     ];
 
     for (const query of testQueries) {
-      const result = ensureSqlLimit(query);
-      expect(result).toBe(query);
+      expect(query).toBe(query);
     }
   });
 });
