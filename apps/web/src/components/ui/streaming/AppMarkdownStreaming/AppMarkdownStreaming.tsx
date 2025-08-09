@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useContext } from 'react';
-import { createContext } from 'react';
+import React from 'react';
+import { createContext, useContextSelector } from 'use-context-selector';
 import { cn } from '@/lib/classMerge';
 import { useMarkdownStreaming } from './useMarkdownStreaming';
 import type {
@@ -39,7 +39,7 @@ const AppMarkdownStreaming = ({
       <div className={cn('flex flex-col space-y-2.5', className)}>
         <AnimatedMarkdown
           content={content}
-          isStreamFinished={true}
+          isStreamFinished={isFinished}
           animation={animation}
           animationDuration={animationDuration}
           animationTimingFunction={animationTimingFunction}
@@ -71,14 +71,16 @@ const AppMarkdownStreaming = ({
 
 export default AppMarkdownStreaming;
 
-const AppMarkdownStreamingContext = createContext<{
+type AppMarkdownStreamingContextValue = {
   animation?: MarkdownAnimation;
   animationDuration?: number;
   animationTimingFunction?: MarkdownAnimationTimingFunction;
   isStreamFinished: boolean;
   isThrottleStreamingFinished: boolean;
   stripFormatting: boolean;
-}>({
+};
+
+const AppMarkdownStreamingContext = createContext<AppMarkdownStreamingContextValue>({
   animation: 'fadeIn',
   animationDuration: 700,
   animationTimingFunction: 'ease-in-out',
@@ -87,6 +89,6 @@ const AppMarkdownStreamingContext = createContext<{
   stripFormatting: true
 });
 
-export const useAppMarkdownStreaming = () => {
-  return useContext(AppMarkdownStreamingContext);
-};
+export const useAppMarkdownStreaming = <T,>(
+  selector: (ctx: AppMarkdownStreamingContextValue) => T
+) => useContextSelector(AppMarkdownStreamingContext, selector);

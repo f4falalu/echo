@@ -10,7 +10,7 @@ const CodeComponentStreaming: LLMOutputComponent = React.memo(({ blockMatch }) =
   const codeBlockRegex = /^```(\w+)?/;
   const match = blockMatch.output.match(codeBlockRegex);
   const language = match && match[1] ? match[1] : '';
-  const { isStreamFinished } = useAppMarkdownStreaming();
+  const isStreamFinished = useAppMarkdownStreaming((ctx) => ctx.isStreamFinished);
 
   if (!language) {
     return null;

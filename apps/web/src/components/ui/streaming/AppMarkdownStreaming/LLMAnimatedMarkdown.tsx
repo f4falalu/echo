@@ -17,7 +17,7 @@ export const LLMAnimatedMarkdown: React.FC<LLMAnimatedMarkdownProps> = React.mem
       animationDuration,
       isStreamFinished,
       animationTimingFunction
-    } = useAppMarkdownStreaming();
+    } = useAppMarkdownStreaming((ctx) => ctx);
 
     const optimizedContent = useMemo(() => {
       const partialMatch = findPartialInlineCode(markdown);

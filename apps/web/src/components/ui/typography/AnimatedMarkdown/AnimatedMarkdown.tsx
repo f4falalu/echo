@@ -29,7 +29,7 @@ const AnimatedMarkdown: React.FC<AnimatedMarkdownProps> = ({
   stripFormatting = true,
   className
 }) => {
-  const { components } = useMarkdownComponents({
+  const components = useMarkdownComponents({
     animation,
     animationDuration,
     animationTimingFunction,
