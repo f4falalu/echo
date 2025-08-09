@@ -20,19 +20,11 @@ export const AppAssetCheckLayout: React.FC<
     children: React.ReactNode;
   } & AppAssetCheckLayoutProps
 > = ({ children, type, assetId, versionNumber }) => {
-  const {
-    hasAccess,
-    passwordRequired,
-    isPublic,
-    isFetched,
-    showLoader,
-    title: assetTitle
-  } = useGetAsset({
+  const { hasAccess, passwordRequired, isPublic, isFetched, showLoader } = useGetAsset({
     assetId,
     type,
     versionNumber
   });
-  const chatTitle = useChatIndividualContextSelector((x) => x.chatTitle);
 
   const Component = useMemo(() => {
     if (!isFetched) return null;
@@ -51,13 +43,6 @@ export const AppAssetCheckLayout: React.FC<
 
     return <>{children}</>;
   }, [isFetched, hasAccess, isPublic, passwordRequired, assetId, type, children]);
-
-  const title = useMemo(() => {
-    if (chatTitle) return [chatTitle, assetTitle].filter(Boolean).join(' | ');
-    return assetTitle;
-  }, [chatTitle, assetTitle]);
-
-  useDocumentTitle(title); //TODO we can probably remove this
 
   return (
     <>

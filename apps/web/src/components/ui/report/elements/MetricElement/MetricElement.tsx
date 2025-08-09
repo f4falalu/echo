@@ -12,6 +12,7 @@ import {
 } from 'platejs/react';
 import { ResizableProvider, useResizableValue } from '@platejs/resizable';
 import { MetricEmbedPlaceholder } from './MetricPlaceholder';
+import { MetricToolbar } from './MetricToolbar';
 import { Caption, CaptionTextarea } from '../CaptionNode';
 import { mediaResizeHandleVariants, Resizable, ResizeHandle } from '../ResizeHandle';
 import { type TMetricElement } from '../../plugins/metric-kit';
@@ -20,6 +21,7 @@ import { useSize } from '@/hooks/useSize';
 import { MetricContent } from './MetricContent';
 import { cn } from '@/lib/classMerge';
 import { useDraggable } from '@platejs/dnd';
+import { GlobalVariablePlugin } from '../../plugins/global-variable-kit';
 
 type MetricElementProps = PlateElementProps<TMetricElement>;
 
@@ -29,15 +31,19 @@ export const MetricElement = withHOC(
     const metricId = props.element.metricId;
     const metricVersionNumber = props.element.metricVersionNumber;
     const readOnly = useReadOnly();
+    const mode = props.editor.getOption(GlobalVariablePlugin, 'mode');
 
     const content = metricId ? (
-      <MetricResizeContainer>
-        <MetricContent
-          metricId={metricId}
-          metricVersionNumber={metricVersionNumber}
-          readOnly={readOnly}
-        />
-      </MetricResizeContainer>
+      <MetricToolbar selectedMetricId={metricId}>
+        <MetricResizeContainer>
+          <MetricContent
+            metricId={metricId}
+            metricVersionNumber={metricVersionNumber}
+            readOnly={readOnly}
+            isExportMode={mode === 'export'}
+          />
+        </MetricResizeContainer>
+      </MetricToolbar>
     ) : (
       <MetricEmbedPlaceholder />
     );

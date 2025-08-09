@@ -3,23 +3,20 @@
 import { type Value } from 'platejs';
 import { useEditorRef, usePlateEditor, type TPlateEditor } from 'platejs/react';
 import { useMemo } from 'react';
-
 import { EditorKit } from './editor-kit';
 import { FIXED_TOOLBAR_KIT_KEY } from './plugins/fixed-toolbar-kit';
-import type { IReportEditor } from './ReportEditor';
-
-// Debug logs removed to avoid module-evaluation side effects
+import { GlobalVariablePlugin } from './plugins/global-variable-kit';
 
 export const useReportEditor = ({
   value,
   disabled,
-  onReady,
+  mode = 'default',
   useFixedToolbarKit = false
 }: {
   value: Value;
   disabled: boolean;
-  onReady?: (editor: IReportEditor) => void;
   useFixedToolbarKit?: boolean;
+  mode?: 'export' | 'default';
 }) => {
   const plugins = useMemo(() => {
     const filteredKeys: string[] = [];
@@ -27,20 +24,18 @@ export const useReportEditor = ({
       filteredKeys.push(FIXED_TOOLBAR_KIT_KEY);
     }
 
-    if (filteredKeys.length > 0) {
-      return EditorKit.filter((plugin) => !filteredKeys.includes(plugin.key));
-    }
-
-    return EditorKit;
-  }, [useFixedToolbarKit]);
-
-  // console.log('plugins', { plugins });
+    return [
+      ...EditorKit,
+      GlobalVariablePlugin.configure({
+        options: { mode }
+      })
+    ].filter((p) => !filteredKeys.includes(p.key));
+  }, []);
 
   return usePlateEditor({
     plugins,
     value,
-    readOnly: disabled,
-    onReady: ({ editor }) => onReady?.(editor)
+    readOnly: disabled
   });
 };
 

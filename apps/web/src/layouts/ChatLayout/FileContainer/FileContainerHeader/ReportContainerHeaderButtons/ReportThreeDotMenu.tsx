@@ -26,10 +26,7 @@ import { useFavoriteStar } from '@/components/features/list/FavoriteStar';
 import { useStatusDropdownContent } from '@/components/features/metrics/StatusBadgeIndicator/useStatusDropdownContent';
 import type { VerificationStatus } from '@buster/server-shared/share';
 import { useSaveToCollectionsDropdownContent } from '@/components/features/dropdowns/SaveToCollectionsDropdown';
-import { getReportEditor } from '@/controllers/ReportPageControllers/ReportPageController/editorRegistry';
-import { NodeTypeLabels } from '@/components/ui/report/config/labels';
-import { useExportReport } from '@/components/ui/report/hooks';
-import { useBuildExportHtml2 } from '@/components/ui/report/hooks/buildExportHtml2';
+import { useReportPageExport } from '@/controllers/ReportPageControllers/useReportPageExport';
 
 export const ReportThreeDotMenu = React.memo(
   ({
@@ -49,7 +46,9 @@ export const ReportThreeDotMenu = React.memo(
     const verificationItem = useReportVerificationSelectMenu();
     const refreshReportItem = useRefreshReportSelectMenu();
     const duplicateReportItem = useDuplicateReportSelectMenu();
-    const downloadPdfItem = useDownloadPdfSelectMenu({ reportId });
+    const { dropdownItem: downloadPdfItem, exportPdfContainer } = useDownloadPdfSelectMenu({
+      reportId
+    });
 
     const items: DropdownItems = useMemo(() => {
       return [
@@ -81,9 +80,12 @@ export const ReportThreeDotMenu = React.memo(
     ]);
 
     return (
-      <Dropdown items={items} side="bottom" align="end" contentClassName="max-h-fit" modal>
-        <Button prefix={<Dots />} variant="ghost" data-testid="three-dot-menu-button" />
-      </Dropdown>
+      <>
+        <Dropdown items={items} side="bottom" align="end" contentClassName="max-h-fit" modal>
+          <Button prefix={<Dots />} variant="ghost" data-testid="three-dot-menu-button" />
+        </Dropdown>
+        {exportPdfContainer}
+      </>
     );
   }
 );
@@ -313,37 +315,39 @@ const useDuplicateReportSelectMenu = (): DropdownItem => {
 };
 
 // Download as PDF
-const useDownloadPdfSelectMenu = ({ reportId }: { reportId: string }): DropdownItem => {
+const useDownloadPdfSelectMenu = ({
+  reportId
+}: {
+  reportId: string;
+}): {
+  dropdownItem: DropdownItem;
+  exportPdfContainer: React.ReactNode;
+} => {
   const { openErrorMessage } = useBusterNotifications();
   const { data: reportName } = useGetReport({ reportId }, { select: (x) => x.name });
-  const buildExportHtml2 = useBuildExportHtml2({ reportId });
+  const { exportReportAsPDF, cancelExport, ExportContainer } = useReportPageExport({
+    reportId,
+    reportName: reportName || ''
+  });
 
   const onClick = async () => {
     try {
-      const html = await buildExportHtml2({ reportId });
-      console.log('html', html);
-      // const editor = getReportEditor(reportId);
-
-      // if (!editor) {
-      //   console.error('Editor not found');
-      //   openErrorMessage(NodeTypeLabels.failedToExportPdf.label);
-      //   return;
-      // }
-
-      // await exportToPdf({ editor, filename: reportName });
+      await exportReportAsPDF();
     } catch (error) {
       console.error(error);
       openErrorMessage('Failed to export report as PDF');
     }
   };
 
-  return useMemo(
-    () => ({
-      label: 'Download as PDF',
-      value: 'download-pdf',
-      icon: <FileText />,
-      onClick
-    }),
-    []
-  );
+  return useMemo(() => {
+    return {
+      dropdownItem: {
+        label: 'Download as PDF',
+        value: 'download-pdf',
+        icon: <FileText />,
+        onClick
+      },
+      exportPdfContainer: ExportContainer
+    };
+  }, [reportId, exportReportAsPDF, cancelExport, ExportContainer]);
 };

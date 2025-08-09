@@ -2,11 +2,11 @@
 
 import React, { useMemo } from 'react';
 import { cn } from '@/lib/classMerge';
-import { getFallbackStyle } from './shiki-instance';
 import styles from './SyntaxHighlighter.module.css';
 import { animations, type MarkdownAnimation } from '../animation-common';
 import type { ThemedToken } from 'shiki';
 import { useCodeTokens } from './useCodeTokens';
+import { getFallbackStyle } from './shiki-instance';
 
 export const SyntaxHighlighter = ({
   children,
@@ -39,7 +39,10 @@ export const SyntaxHighlighter = ({
       };
     }
     return getFallbackStyle(isDarkMode);
-  }, [hasTokens, isDarkMode]);
+  }, [
+    // hasTokens,
+    isDarkMode
+  ]);
 
   return (
     <SyntaxWrapper

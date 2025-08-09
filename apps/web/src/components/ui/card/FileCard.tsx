@@ -191,10 +191,10 @@ const CollapseContent = React.memo(
 
         return () => resizeObserver.disconnect();
       }
-    }, [collapsible, children]);
+    }, [collapsible]);
 
-    const ExpandButton = useMemo(() => {
-      return collapsible === 'overlay-peek' && !isTooSmallToCollapse ? (
+    const ExpandButton =
+      collapsible === 'overlay-peek' && !isTooSmallToCollapse ? (
         <div
           onClick={onCollapseClick}
           className="bg-background hover:bg-item-hover absolute inset-x-0 bottom-0 m-1 flex h-7 scale-95 cursor-pointer items-center justify-center gap-x-1 rounded border bg-gradient-to-b opacity-0 shadow transition-all delay-75 duration-200 group-hover:scale-100 group-hover:opacity-100">
@@ -204,15 +204,11 @@ const CollapseContent = React.memo(
           <Text>{isCollapsed ? 'Click to expand' : 'Click to collapse'}</Text>
         </div>
       ) : null;
-    }, [collapsible, isCollapsed, onCollapseClick, isTooSmallToCollapse]);
 
-    const ContentWrapper = useMemo(
-      () => (
-        <div ref={contentRef} className="w-full">
-          {children}
-        </div>
-      ),
-      [children]
+    const ContentWrapper = (
+      <div ref={contentRef} className="w-full">
+        {children}
+      </div>
     );
 
     // Handle overlay-peek differently

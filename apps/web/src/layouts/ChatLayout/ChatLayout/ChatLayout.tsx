@@ -51,11 +51,8 @@ export const ChatLayout: React.FC<ChatSplitterProps> = ({ children }) => {
       <ChatContextProvider>
         <AppSplitter
           ref={appSplitterRef}
-          leftChildren={useMemo(() => mounted && <ChatContainer />, [mounted])}
-          rightChildren={useMemo(
-            () => mounted && <FileContainer>{children}</FileContainer>,
-            [children, mounted]
-          )}
+          leftChildren={mounted && <ChatContainer />}
+          rightChildren={mounted && <FileContainer>{children}</FileContainer>}
           autoSaveId={autoSaveId}
           defaultLayout={defaultSplitterLayout}
           allowResize={selectedLayout === 'both'}
