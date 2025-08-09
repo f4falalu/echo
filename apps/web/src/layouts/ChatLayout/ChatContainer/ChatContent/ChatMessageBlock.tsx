@@ -26,8 +26,6 @@ export const ChatMessageBlock: React.FC<{
     select: selectIsCompleted
   });
 
-  console.log('chat message block', messageId, messageIndex);
-
   if (!messageExists) return null;
 
   return (

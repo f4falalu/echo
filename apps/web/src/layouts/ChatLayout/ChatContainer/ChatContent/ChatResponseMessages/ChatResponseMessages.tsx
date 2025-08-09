@@ -4,6 +4,7 @@ import { ChatMessageOptions } from '../ChatMessageOptions';
 import { MessageContainer } from '../MessageContainer';
 import { ChatResponseMessageSelector } from './ChatResponseMessageSelector';
 import { ChatResponseReasoning } from './ChatResponseReasoning';
+import type { BusterChatMessage } from '@/api/asset_interfaces/chat';
 
 interface ChatResponseMessagesProps {
   isStreamFinished: boolean;
@@ -12,16 +13,21 @@ interface ChatResponseMessagesProps {
   messageIndex: number;
 }
 
+const stableResponseMessageIdsSelector = (x: BusterChatMessage) => x?.response_message_ids || [];
+const stableLastReasoningMessageIdSelector = (x: BusterChatMessage) =>
+  x?.reasoning_message_ids?.[x.reasoning_message_ids.length - 1];
+const stableFinalReasoningMessageSelector = (x: BusterChatMessage) => x?.final_reasoning_message;
+
 export const ChatResponseMessages: React.FC<ChatResponseMessagesProps> = React.memo(
   ({ chatId, isStreamFinished, messageId, messageIndex }) => {
     const { data: responseMessageIds } = useGetChatMessage(messageId, {
-      select: (x) => x?.response_message_ids || []
+      select: stableResponseMessageIdsSelector
     });
     const { data: lastReasoningMessageId } = useGetChatMessage(messageId, {
-      select: (x) => x?.reasoning_message_ids?.[x.reasoning_message_ids.length - 1]
+      select: stableLastReasoningMessageIdSelector
     });
     const { data: finalReasoningMessage } = useGetChatMessage(messageId, {
-      select: (x) => x?.final_reasoning_message
+      select: stableFinalReasoningMessageSelector
     });
     const showReasoningMessage =
       messageIndex === 0 ? !!lastReasoningMessageId || !isStreamFinished : true;
