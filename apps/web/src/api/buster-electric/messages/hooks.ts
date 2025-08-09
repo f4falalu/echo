@@ -125,14 +125,19 @@ const useCheckIfWeHaveAFollowupDashboard = (messageId: string) => {
         for (const file of allFiles) {
           const fileType = (file as ChatMessageResponseMessage_File).file_type;
           if (fileType === 'dashboard') {
-            const { queryKey } = dashboardQueryKeys.dashboardGetDashboard(
-              file.id,
-              file.version_number
-            );
-            queryClient.invalidateQueries({ queryKey });
+            queryClient.invalidateQueries({
+              ...dashboardQueryKeys.dashboardGetDashboard(file.id, file.version_number)
+            });
+            queryClient.invalidateQueries({
+              ...dashboardQueryKeys.dashboardGetDashboard(file.id, null)
+            });
           } else if (fileType === 'metric') {
-            const { queryKey } = metricsQueryKeys.metricsGetMetric(file.id, file.version_number);
-            queryClient.invalidateQueries({ queryKey });
+            queryClient.invalidateQueries({
+              ...metricsQueryKeys.metricsGetMetric(file.id, file.version_number)
+            });
+            queryClient.invalidateQueries({
+              ...metricsQueryKeys.metricsGetMetric(file.id, null)
+            });
           } else if (fileType === 'report') {
             const { queryKey } = reportsQueryKeys.reportsGetReport(file.id, file.version_number);
             queryClient.invalidateQueries({ queryKey });
