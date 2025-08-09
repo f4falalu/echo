@@ -89,7 +89,9 @@ export const useGetMetric = <TData = BusterMetric>(
   });
 };
 
-export const usePrefetchGetMetricClient = () => {
+export const usePrefetchGetMetricClient = <TData = BusterMetric>(
+  params?: Omit<UseQueryOptions<BusterMetric, RustApiError, TData>, 'queryKey' | 'queryFn'>
+) => {
   const queryClient = useQueryClient();
   const { selectedVersionNumber } = useGetMetricVersionNumber();
   return useMemoizedFn(
@@ -102,7 +104,8 @@ export const usePrefetchGetMetricClient = () => {
           queryFn: async () => {
             const result = await getMetric({ id, version_number: versionNumber });
             return upgradeMetricToIMetric(result, null);
-          }
+          },
+          ...params
         });
       }
     }

@@ -9,11 +9,8 @@ import { Copy2 } from '../../icons';
 import { useMemoizedFn } from '@/hooks';
 import { useBusterNotifications } from '@/context/BusterNotifications';
 import dynamic from 'next/dynamic';
-
-const SyntaxHighlighter = dynamic(
-  () => import('@/components/ui/typography/SyntaxHighlight').then((mod) => mod.SyntaxHighlighter),
-  { ssr: false }
-);
+//THIS USED TO BE DYNAMIC...
+import { SyntaxHighlighter } from '@/components/ui/typography/SyntaxHighlight/SyntaxHighlighter';
 
 type LineSegment = {
   type: 'text' | 'hidden';

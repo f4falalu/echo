@@ -16,6 +16,12 @@ export default async function Layout({
 export async function generateMetadata({ params }: { params: Promise<{ dashboardId: string }> }) {
   const { dashboardId } = await params;
 
+  if (!dashboardId || dashboardId.includes('dashboardId')) {
+    return {
+      title: 'Buster'
+    };
+  }
+
   try {
     const response = await getTitle_server({
       assetId: dashboardId,

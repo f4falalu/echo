@@ -5,6 +5,7 @@ import { useBusterNewChatContextSelector } from '@/context/Chats';
 import { useMemoizedFn } from '@/hooks';
 import { useChatIndividualContextSelector } from '@/layouts/ChatLayout/ChatContext';
 import { timeout } from '@/lib/timeout';
+import { CHAT_CONTAINER_ID } from '../../ChatContainer';
 
 type FlowType = 'followup-chat' | 'followup-metric' | 'followup-dashboard' | 'new';
 
@@ -99,6 +100,13 @@ export const useChatInputFlow = ({
 
       setTimeout(() => {
         textAreaRef.current?.focus();
+        const container = document.getElementById(CHAT_CONTAINER_ID);
+        if (container) {
+          container.scrollTo({
+            top: container.scrollHeight,
+            behavior: 'smooth'
+          });
+        }
       }, 50);
 
       setTimeout(() => {
