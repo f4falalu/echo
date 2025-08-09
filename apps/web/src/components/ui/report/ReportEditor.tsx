@@ -24,6 +24,8 @@ interface ReportEditorProps {
   onValueChange?: (value: ReportElements) => void;
   useFixedToolbarKit?: boolean;
   onReady?: (editor: IReportEditor) => void;
+  id?: string;
+  mode?: 'export' | 'default';
 }
 
 export type IReportEditor = TPlateEditor<Value, AnyPluginConfig>;
@@ -40,12 +42,14 @@ export const ReportEditor = React.memo(
       {
         value,
         placeholder,
+        id,
         onValueChange,
         onReady,
         variant = 'default',
         className,
         containerClassName,
         style,
+        mode = 'default',
         useFixedToolbarKit = false,
         readOnly = false,
         disabled = false
@@ -55,7 +59,7 @@ export const ReportEditor = React.memo(
       // Initialize the editor instance using the custom useEditor hook
       const isReady = useRef(false);
 
-      const editor = useReportEditor({ value, disabled, useFixedToolbarKit, onReady });
+      const editor = useReportEditor({ mode, value, disabled, useFixedToolbarKit });
 
       const onReset = useMemoizedFn(() => {
         if (!editor) {
@@ -74,22 +78,21 @@ export const ReportEditor = React.memo(
 
       const onValueChangePreflight = useMemoizedFn(
         ({ value, editor }: { value: Value; editor: TPlateEditor<Value, AnyPluginConfig> }) => {
-          if (readOnly) {
-            console.warn('Editor is read only');
-            return;
-          }
-          if (isReady.current) {
+          if (isReady.current && !readOnly) {
             onValueChange?.(cleanValueToReportElements(value));
           }
 
-          isReady.current = true;
+          if (!isReady.current) {
+            onReady?.(editor);
+            isReady.current = true;
+          }
         }
       );
 
       if (!editor) return null;
 
       return (
-        <ThemeWrapper>
+        <ThemeWrapper id={id}>
           <Plate editor={editor} readOnly={readOnly} onValueChange={onValueChangePreflight}>
             <EditorContainer
               variant={variant}

@@ -2,7 +2,8 @@
 
 import { SortableContext, useSortable } from '@dnd-kit/sortable';
 import React, { useEffect, useMemo, useState } from 'react';
-import { useMemoizedFn, useMount, useMouse } from '@/hooks';
+import { useMouse } from '@/hooks/useMouse';
+import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import { cn } from '@/lib/classMerge';
 import { BusterSortableItemDragContainer } from './_BusterSortableItemDragContainer';
 import type { ResizeableGridDragItem } from './interfaces';
@@ -33,8 +34,8 @@ export const BusterResizeColumns: React.FC<ContainerProps> = ({
   const mouse = useMouse({ moveThrottleMs: 50, disabled: readOnly || !over });
   const [stagedLayoutColumns, setStagedLayoutColumns] = useState<number[]>(() => columnSizes || []);
 
-  const canResize = useMemo(() => items.length > 1 && items.length < 4, [items.length]);
-  const isDropzoneActives = useMemo(() => !!over?.id && canResize, [over?.id, canResize]);
+  const canResize = items.length > 1 && items.length < 4;
+  const isDropzoneActives = !!over?.id && canResize;
 
   const insertPosition = useMemoizedFn((itemId: string, _index: number, mouseLeft: number) => {
     const movedIndex = _index;
@@ -90,14 +91,6 @@ export const BusterResizeColumns: React.FC<ContainerProps> = ({
     onRowLayoutChange(newColumnSpans, rowId);
   });
 
-  const onDragEnd = useMemoizedFn(() => {
-    //Optional: Add any additional drag end logic
-  });
-
-  const onDragStart = useMemoizedFn(() => {
-    // Optional: Add any additional drag start logic
-  });
-
   useEffect(() => {
     if (!isEqual(stagedLayoutColumns, columnSizes)) {
       setStagedLayoutColumns(columnSizes || []);
@@ -113,8 +106,8 @@ export const BusterResizeColumns: React.FC<ContainerProps> = ({
         <BusterResizeColumnsSplitPanes
           columnSpans={stagedLayoutColumns || []}
           allowResize={!readOnly && canResize}
-          onDragStart={onDragStart}
-          onDragEnd={onDragEnd}
+          // onDragStart={onDragStart}
+          // onDragEnd={onDragEnd}
           onChange={onChangeLayout}>
           {items.map((item, index) => (
             <div

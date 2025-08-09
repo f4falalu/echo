@@ -5,5 +5,5 @@ export default async function Page(props: { params: Promise<{ reportId: string }
 
   const { reportId } = params;
 
-  return <ReportPageController reportId={reportId} />;
+  return <ReportPageController reportId={reportId} mode="default" />;
 }

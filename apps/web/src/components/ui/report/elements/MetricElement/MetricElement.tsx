@@ -15,12 +15,13 @@ import { MetricEmbedPlaceholder } from './MetricPlaceholder';
 import { MetricToolbar } from './MetricToolbar';
 import { Caption, CaptionTextarea } from '../CaptionNode';
 import { mediaResizeHandleVariants, Resizable, ResizeHandle } from '../ResizeHandle';
-import { type TMetricElement } from '../../plugins/metric-plugin';
+import { type TMetricElement } from '../../plugins/metric-kit';
 import React, { useMemo, useRef, type PropsWithChildren } from 'react';
 import { useSize } from '@/hooks/useSize';
 import { MetricContent } from './MetricContent';
 import { cn } from '@/lib/classMerge';
 import { useDraggable } from '@platejs/dnd';
+import { GlobalVariablePlugin } from '../../plugins/global-variable-kit';
 
 type MetricElementProps = PlateElementProps<TMetricElement>;
 
@@ -30,6 +31,7 @@ export const MetricElement = withHOC(
     const metricId = props.element.metricId;
     const metricVersionNumber = props.element.metricVersionNumber;
     const readOnly = useReadOnly();
+    const mode = props.editor.getOption(GlobalVariablePlugin, 'mode');
 
     const content = metricId ? (
       <MetricToolbar selectedMetricId={metricId}>
@@ -38,6 +40,7 @@ export const MetricElement = withHOC(
             metricId={metricId}
             metricVersionNumber={metricVersionNumber}
             readOnly={readOnly}
+            isExportMode={mode === 'export'}
           />
         </MetricResizeContainer>
       </MetricToolbar>
@@ -50,7 +53,9 @@ export const MetricElement = withHOC(
         className="rounded-md"
         attributes={{
           ...attributes,
-          'data-plate-open-context-menu': true
+          'data-plate-open-context-menu': true,
+          // Mark metric element for export so we can target it for rasterization
+          'data-export-metric': true
         }}
         {...props}>
         <div contentEditable={false}>{content}</div>
@@ -88,6 +93,7 @@ const MetricResizeContainer: React.FC<PropsWithChildren> = ({ children }) => {
 
   return (
     <figure
+      data-metric-figure
       onClick={selectNode}
       ref={ref}
       contentEditable={false}

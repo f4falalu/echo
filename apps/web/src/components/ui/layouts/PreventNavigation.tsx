@@ -200,48 +200,44 @@ const LeavingDialog: React.FC<{
   okText: string;
   canceling: boolean;
   okaying: boolean;
-}> = React.memo(
-  ({
-    onClose,
-    isOpen,
-    okaying,
-    canceling,
-    noCallback,
-    yesCallback,
-    title,
-    description,
-    okText,
-    cancelText
-  }) => {
-    const disableButtons = okaying || canceling;
+}> = ({
+  onClose,
+  isOpen,
+  okaying,
+  canceling,
+  noCallback,
+  yesCallback,
+  title,
+  description,
+  okText,
+  cancelText
+}) => {
+  const disableButtons = okaying || canceling;
 
-    const memoizedHeader = useMemo(() => {
-      return { title, description };
-    }, [title, description]);
+  const memoizedHeader = useMemo(() => {
+    return { title, description };
+  }, [title, description]);
 
-    const memoizedFooter = useMemo(() => {
-      return {
-        primaryButton: {
-          text: cancelText,
-          onClick: noCallback,
-          loading: canceling,
-          disabled: disableButtons
-        },
-        secondaryButton: {
-          text: okText,
-          onClick: yesCallback,
-          loading: okaying,
-          disabled: disableButtons
-        }
-      };
-    }, [okaying, canceling, disableButtons, noCallback, yesCallback, cancelText, okText]);
+  const memoizedFooter = useMemo(() => {
+    return {
+      primaryButton: {
+        text: cancelText,
+        onClick: noCallback,
+        loading: canceling,
+        disabled: disableButtons
+      },
+      secondaryButton: {
+        text: okText,
+        onClick: yesCallback,
+        loading: okaying,
+        disabled: disableButtons
+      }
+    };
+  }, [okaying, canceling, disableButtons, noCallback, yesCallback, cancelText, okText]);
 
-    return (
-      <>
-        <AppModal open={isOpen} onClose={onClose} header={memoizedHeader} footer={memoizedFooter} />
-      </>
-    );
-  }
-);
+  return (
+    <AppModal open={isOpen} onClose={onClose} header={memoizedHeader} footer={memoizedFooter} />
+  );
+};
 
 LeavingDialog.displayName = 'LeavingDialog';

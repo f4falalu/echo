@@ -12,7 +12,7 @@ export const BarContainer: React.FC<{
   children?: React.ReactNode;
   title: string;
   secondaryTitle?: string;
-}> = React.memo(({ showBar, isStreamFinished, status, children, title, secondaryTitle }) => {
+}> = ({ showBar, isStreamFinished, status, children, title, secondaryTitle }) => {
   return (
     <div className={'relative flex space-x-1.5 overflow-visible'}>
       <VerticalBarContainer showBar={showBar} status={status} isStreamFinished={isStreamFinished} />
@@ -27,7 +27,7 @@ export const BarContainer: React.FC<{
       </div>
     </div>
   );
-});
+};
 
 BarContainer.displayName = 'BarContainer';
 
@@ -35,41 +35,42 @@ const VerticalBarContainer: React.FC<{
   showBar: boolean;
   status: BusterChatMessageReasoning_status;
   isStreamFinished: boolean;
-}> = React.memo(({ showBar, isStreamFinished, status }) => {
+}> = ({ showBar, isStreamFinished, status }) => {
   return (
     <div className="ml-2 flex w-5 min-w-5 flex-col items-center pt-0.5">
       <StatusIndicator status={status} />
       <VerticalBar show={showBar} isStreamFinished={isStreamFinished} />
     </div>
   );
-});
+};
 
 VerticalBarContainer.displayName = 'BarContainer';
 
-const VerticalBar: React.FC<{ show?: boolean; isStreamFinished: boolean }> = React.memo(
-  ({ show, isStreamFinished }) => {
-    return (
-      <div
-        className={cn(
-          'flex w-full flex-1 justify-center overflow-hidden',
-          'opacity-0 transition-opacity duration-300',
-          show && 'opacity-100!'
-        )}>
-        <AnimatePresence initial={!isStreamFinished}>
-          <motion.div
-            className={cn('bg-text-tertiary w-[0.5px]', 'mt-1 overflow-hidden')}
-            initial={{ height: 0 }}
-            animate={{ height: 'auto' }}
-            transition={{
-              duration: 0.3,
-              ease: 'easeInOut'
-            }}
-          />
-        </AnimatePresence>
-      </div>
-    );
-  }
-);
+const VerticalBar: React.FC<{ show?: boolean; isStreamFinished: boolean }> = ({
+  show,
+  isStreamFinished
+}) => {
+  return (
+    <div
+      className={cn(
+        'flex w-full flex-1 justify-center overflow-hidden',
+        'opacity-0 transition-opacity duration-300',
+        show && 'opacity-100!'
+      )}>
+      <AnimatePresence initial={!isStreamFinished}>
+        <motion.div
+          className={cn('bg-text-tertiary w-[0.5px]', 'mt-1 overflow-hidden')}
+          initial={{ height: 0 }}
+          animate={{ height: 'auto' }}
+          transition={{
+            duration: 0.3,
+            ease: 'easeInOut'
+          }}
+        />
+      </AnimatePresence>
+    </div>
+  );
+};
 
 VerticalBar.displayName = 'VerticalBar';
 
@@ -77,7 +78,7 @@ const TitleContainer: React.FC<{
   title: string;
   secondaryTitle?: string;
   isStreamFinished: boolean;
-}> = React.memo(({ title, secondaryTitle, isStreamFinished }) => {
+}> = ({ title, secondaryTitle, isStreamFinished }) => {
   return (
     <div className={cn('@container flex w-full items-center space-x-1.5 overflow-hidden')}>
       <AnimatePresence mode="wait" initial={!isStreamFinished}>
@@ -103,6 +104,6 @@ const TitleContainer: React.FC<{
       </AnimatePresence>
     </div>
   );
-});
+};
 
 TitleContainer.displayName = 'TitleContainer';

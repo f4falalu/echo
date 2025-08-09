@@ -1,5 +1,4 @@
 import React, { useMemo } from 'react';
-import { ShareAssetType } from '@buster/server-shared/share';
 import { useDeleteChat, useDuplicateChat, useGetChat } from '@/api/buster_rest/chats';
 import { useFavoriteStar } from '@/components/features/list';
 import { Dropdown, type DropdownItems } from '@/components/ui/dropdown';
@@ -15,7 +14,7 @@ import { CHAT_HEADER_TITLE_ID } from '../ChatHeaderTitle';
 
 export const ChatContainerHeaderDropdown: React.FC<{
   children: React.ReactNode;
-}> = React.memo(({ children }) => {
+}> = ({ children }) => {
   const { openSuccessMessage } = useBusterNotifications();
   const chatId = useChatIndividualContextSelector((state) => state.chatId);
   const onChangePage = useAppLayoutContextSelector((s) => s.onChangePage);
@@ -117,6 +116,6 @@ export const ChatContainerHeaderDropdown: React.FC<{
       {chatId ? children : null}
     </Dropdown>
   );
-});
+};
 
 ChatContainerHeaderDropdown.displayName = 'ChatContainerHeaderDropdown';

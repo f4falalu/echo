@@ -4,16 +4,20 @@ import React, { useRef } from 'react';
 import { useMount } from '@/hooks';
 import { useAutoScroll } from '@/hooks/useAutoScroll';
 import { cn } from '@/lib/utils';
-import { useChatIndividualContextSelector } from '../../ChatContext';
+import { useChatIndividualContextSelector, type ChatIndividualState } from '../../ChatContext';
 import { ChatInput } from './ChatInput';
 import { ChatMessageBlock } from './ChatMessageBlock';
+import { CHAT_CONTAINER_ID } from '../ChatContainer';
 import { ChatScrollToBottom } from './ChatScrollToBottom';
 
 const autoClass = 'mx-auto max-w-[600px] w-full';
 
+const stableChatIdSelector = (state: ChatIndividualState) => state.chatId;
+const stableChatMessageIdsSelector = (state: ChatIndividualState) => state.chatMessageIds;
+
 export const ChatContent: React.FC = React.memo(() => {
-  const chatId = useChatIndividualContextSelector((state) => state.chatId);
-  const chatMessageIds = useChatIndividualContextSelector((state) => state.chatMessageIds);
+  const chatId = useChatIndividualContextSelector(stableChatIdSelector);
+  const chatMessageIds = useChatIndividualContextSelector(stableChatMessageIdsSelector);
   const containerRef = useRef<HTMLElement | null>(null);
 
   const { isAutoScrollEnabled, scrollToBottom, enableAutoScroll } = useAutoScroll(containerRef, {
@@ -22,9 +26,9 @@ export const ChatContent: React.FC = React.memo(() => {
   });
 
   useMount(() => {
-    const container = document.querySelector(
-      '.chat-container-content .scroll-area-viewport'
-    ) as HTMLElement;
+    const container = document
+      .getElementById(CHAT_CONTAINER_ID)
+      ?.querySelector('.scroll-area-viewport') as HTMLElement;
     if (!container) return;
     containerRef.current = container;
     enableAutoScroll();
@@ -59,7 +63,7 @@ ChatContent.displayName = 'ChatContent';
 
 const ChatInputWrapper: React.FC<{
   children?: React.ReactNode;
-}> = React.memo(({ children }) => {
+}> = ({ children }) => {
   return (
     <div className="bg-page-background absolute bottom-0 w-full overflow-visible">
       <div className="from-page-background pointer-events-none absolute -top-16 h-16 w-full bg-gradient-to-t to-transparent" />
@@ -69,6 +73,6 @@ const ChatInputWrapper: React.FC<{
       </div>
     </div>
   );
-});
+};
 
 ChatInputWrapper.displayName = 'ChatInputWrapper';

@@ -14,6 +14,8 @@ import isEmpty from 'lodash/isEmpty';
 import { metricsQueryKeys } from '../../query_keys/metric';
 import { chatQueryKeys } from '../../query_keys/chat';
 import { reportsQueryKeys } from '@/api/query_keys/reports';
+import { usePrefetchGetDashboardClient } from '@/api/buster_rest/dashboards/queryRequests';
+import { usePrefetchGetMetricClient } from '@/api/buster_rest/metrics/queryRequests';
 
 export const useGetMessage = ({ chatId, messageId }: { chatId: string; messageId: string }) => {
   const shape = useMemo(() => messageShape({ chatId, messageId }), [chatId, messageId]);
@@ -72,15 +74,6 @@ export const useTrackAndUpdateMessageChanges = (
             });
           }
 
-          //check if we have a files in the message
-          const hasFiles = iChatMessage.reasoning_message_ids?.some((id) => {
-            const reasoningMessage = iChatMessage.response_messages?.[id];
-            return (
-              reasoningMessage &&
-              (reasoningMessage as ChatMessageResponseMessage_File)?.file_type === 'dashboard'
-            );
-          });
-
           if (!isEmpty(iChatMessage.response_message_ids)) {
             checkIfWeHaveAFollowupDashboard(iChatMessage);
           }
@@ -89,10 +82,23 @@ export const useTrackAndUpdateMessageChanges = (
             queryClient.invalidateQueries({
               queryKey: chatQueryKeys.chatsGetList().queryKey
             });
+            const hasFiles = iChatMessage.reasoning_message_ids?.some((id) => {
+              const reasoningMessage = iChatMessage.response_messages?.[id];
+              return (
+                reasoningMessage &&
+                (reasoningMessage as ChatMessageResponseMessage_File)?.file_type === 'dashboard'
+              );
+            });
             if (hasFiles) {
-              queryClient.invalidateQueries({
-                queryKey: metricsQueryKeys.metricsGetList().queryKey
-              });
+              queryClient
+                .invalidateQueries({
+                  queryKey: metricsQueryKeys.metricsGetList().queryKey
+                })
+                .then(() => {
+                  queryClient.invalidateQueries({
+                    queryKey: reportsQueryKeys.reportsGetList().queryKey
+                  });
+                });
             }
           }
         }
@@ -119,14 +125,19 @@ const useCheckIfWeHaveAFollowupDashboard = (messageId: string) => {
         for (const file of allFiles) {
           const fileType = (file as ChatMessageResponseMessage_File).file_type;
           if (fileType === 'dashboard') {
-            const { queryKey } = dashboardQueryKeys.dashboardGetDashboard(
-              file.id,
-              file.version_number
-            );
-            queryClient.invalidateQueries({ queryKey });
+            queryClient.invalidateQueries({
+              ...dashboardQueryKeys.dashboardGetDashboard(file.id, file.version_number)
+            });
+            queryClient.invalidateQueries({
+              ...dashboardQueryKeys.dashboardGetDashboard(file.id, null)
+            });
           } else if (fileType === 'metric') {
-            const { queryKey } = metricsQueryKeys.metricsGetMetric(file.id, file.version_number);
-            queryClient.invalidateQueries({ queryKey });
+            queryClient.invalidateQueries({
+              ...metricsQueryKeys.metricsGetMetric(file.id, file.version_number)
+            });
+            queryClient.invalidateQueries({
+              ...metricsQueryKeys.metricsGetMetric(file.id, null)
+            });
           } else if (fileType === 'report') {
             const { queryKey } = reportsQueryKeys.reportsGetReport(file.id, file.version_number);
             queryClient.invalidateQueries({ queryKey });

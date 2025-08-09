@@ -1,5 +1,5 @@
-import React from 'react';
-import type { BusterChatMessageResponse } from '@/api/asset_interfaces';
+import React, { useCallback } from 'react';
+import type { BusterChatMessage, BusterChatMessageResponse } from '@/api/asset_interfaces/chat';
 import { useGetChatMessage } from '@/api/buster_rest/chats';
 import { ChatResponseMessage_File } from './ChatResponseMessage_File';
 import { ChatResponseMessage_Text } from './ChatResponseMessage_Text';
@@ -26,23 +26,29 @@ export interface ChatResponseMessageSelectorProps {
   chatId: string;
 }
 
-export const ChatResponseMessageSelector: React.FC<ChatResponseMessageSelectorProps> = React.memo(
-  ({ responseMessageId, messageId, chatId, isStreamFinished }) => {
-    const { data: messageType } = useGetChatMessage(messageId, {
-      select: (x) => x?.response_messages?.[responseMessageId]?.type || 'text'
-    });
-    const ChatResponseMessage =
-      ChatResponseMessageRecord[messageType as BusterChatMessageResponse['type']];
+export const ChatResponseMessageSelector: React.FC<ChatResponseMessageSelectorProps> = ({
+  responseMessageId,
+  messageId,
+  chatId,
+  isStreamFinished
+}) => {
+  const { data: messageType } = useGetChatMessage(messageId, {
+    select: useCallback(
+      (x: BusterChatMessage) => x?.response_messages?.[responseMessageId]?.type || 'text',
+      [responseMessageId]
+    )
+  });
+  const ChatResponseMessage =
+    ChatResponseMessageRecord[messageType as BusterChatMessageResponse['type']];
 
-    return (
-      <ChatResponseMessage
-        isStreamFinished={isStreamFinished}
-        responseMessageId={responseMessageId}
-        messageId={messageId}
-        chatId={chatId}
-      />
-    );
-  }
-);
+  return (
+    <ChatResponseMessage
+      isStreamFinished={isStreamFinished}
+      responseMessageId={responseMessageId}
+      messageId={messageId}
+      chatId={chatId}
+    />
+  );
+};
 
 ChatResponseMessageSelector.displayName = 'ChatResponseMessageSelector';
