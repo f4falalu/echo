@@ -36,6 +36,7 @@ export interface ReasoningMessageProps {
   messageId: string;
   isStreamFinished: boolean;
   chatId: string;
+  isLastMessage: boolean;
 }
 
 const ReasoningMessageRecord: Record<
@@ -98,13 +99,13 @@ export const ReasoningMessageSelector: React.FC<ReasoningMessageSelectorProps> =
         <AnimatePresence mode="wait" initial={!isStreamFinished}>
           <motion.div key={animationKey} {...itemAnimationConfig} className="h-auto">
             <div className="min-h-[1px]">
-              {/* <ReasoningMessage
+              <ReasoningMessage
                 reasoningMessageId={reasoningMessageId}
                 isStreamFinished={isStreamFinished}
                 messageId={messageId}
                 chatId={chatId}
-              /> */}
-              {reasoningMessageId}
+                isLastMessage={isLastMessage}
+              />
             </div>
           </motion.div>
         </AnimatePresence>
