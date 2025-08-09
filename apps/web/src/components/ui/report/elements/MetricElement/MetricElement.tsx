@@ -32,6 +32,10 @@ export const MetricElement = withHOC(
     const metricVersionNumber = props.element.metricVersionNumber;
     const readOnly = useReadOnly();
     const mode = props.editor.getOption(GlobalVariablePlugin, 'mode');
+    const isSelected = useSelected();
+    const isFocused = useFocused();
+    const showFocused = isSelected && isFocused;
+    const className = cn(showFocused && 'ring-ring bg-brand/10 ring-1 ring-offset-4');
 
     const content = metricId ? (
       <MetricToolbar selectedMetricId={metricId}>
@@ -41,11 +45,12 @@ export const MetricElement = withHOC(
             metricVersionNumber={metricVersionNumber}
             readOnly={readOnly}
             isExportMode={mode === 'export'}
+            className={className}
           />
         </MetricResizeContainer>
       </MetricToolbar>
     ) : (
-      <MetricEmbedPlaceholder />
+      <MetricEmbedPlaceholder className={className} />
     );
 
     return (
@@ -60,9 +65,7 @@ export const MetricElement = withHOC(
         {...props}>
         <div contentEditable={false}>{content}</div>
 
-        <div className="h-0" contentEditable={false}>
-          {children}
-        </div>
+        {children}
       </PlateElement>
     );
   }
