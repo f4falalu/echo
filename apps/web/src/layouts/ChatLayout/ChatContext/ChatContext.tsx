@@ -9,7 +9,6 @@ import type { SelectedFile } from '../interfaces';
 import { useAutoChangeLayout } from './useAutoChangeLayout';
 import { useIsFileChanged } from './useIsFileChanged';
 import { useChatStreaming } from './useChatStreaming';
-import { useChatDocumentTitle } from './useChatDocumentTitle';
 
 const useChatIndividualContext = ({
   chatId,
@@ -65,7 +64,6 @@ const useChatIndividualContext = ({
     chatId
   });
   useChatStreaming({ chatId, messageId: currentMessageId, isStreamingMessage });
-  useChatDocumentTitle({ chatTitle, selectedFileId, selectedFileType });
 
   return {
     hasChat,
