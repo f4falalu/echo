@@ -57,7 +57,11 @@ export const MetricCard = React.forwardRef<
 
     if (error) {
       return (
-        <div className="bg-item-hover flex h-full w-full flex-col items-center justify-center gap-y-2 rounded border p-5 shadow">
+        <div
+          className={cn(
+            'bg-item-hover flex h-full w-full flex-col items-center justify-center gap-y-2 rounded border p-5 shadow',
+            className
+          )}>
           <Text variant={'default'} className="font-semibold">
             Failed to load metric
           </Text>

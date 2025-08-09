@@ -1,6 +1,5 @@
 'use client';
 
-import { CaptionPlugin } from '@platejs/caption/react';
 import {
   AudioPlugin,
   FilePlugin,
@@ -41,14 +40,8 @@ export const MediaKit = [
   PlaceholderPlugin.configure({
     options: { disableEmptyPlaceholder: false },
     render: { afterEditable: MediaUploadToast, node: PlaceholderElement }
-  }),
-  CaptionPlugin.configure({
-    options: {
-      query: {
-        allow: [KEYS.img, KEYS.video, KEYS.audio, KEYS.file, KEYS.mediaEmbed, CUSTOM_KEYS.metric]
-      }
-    }
   })
+
   // VideoPlugin.withComponent(VideoElement),
   // AudioPlugin.withComponent(AudioElement),
   // FilePlugin.withComponent(FileElement),
