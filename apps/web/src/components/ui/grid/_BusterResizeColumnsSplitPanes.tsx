@@ -314,6 +314,14 @@ export const BusterResizeColumnsSplitPanes: React.FC<BusterResizeColumnsSplitPan
     [handleMouseMove, columnSpans, onChangeRef, onDragEndRef, dragStateRef]
   );
 
+  // Consolidated cleanup helper to ensure listeners and styles are always reset
+  const cleanupDrag = useCallback(() => {
+    document.removeEventListener('mousemove', handleMouseMove);
+    document.removeEventListener('mouseup', handleMouseUp);
+    document.body.style.userSelect = '';
+    document.body.style.cursor = '';
+  }, [handleMouseMove, handleMouseUp]);
+
   // Create stable mouse down handlers for each sash
   const sashHandlers = useMemo(() => {
     return children.slice(0, -1).map((_, index) => (event: React.MouseEvent) => {
@@ -351,12 +359,46 @@ export const BusterResizeColumnsSplitPanes: React.FC<BusterResizeColumnsSplitPan
   // Clean up event listeners on unmount
   useEffect(() => {
     return () => {
-      document.removeEventListener('mousemove', handleMouseMove);
-      document.removeEventListener('mouseup', handleMouseUp);
-      document.body.style.userSelect = '';
-      document.body.style.cursor = '';
+      cleanupDrag();
     };
-  }, [handleMouseMove, handleMouseUp]);
+  }, [cleanupDrag]);
+
+  // If resizing becomes disabled mid-drag, force cleanup and reset state
+  useEffect(() => {
+    if (!canResize && dragStateRef.current.isDragging) {
+      cleanupDrag();
+      setDragState({
+        isDragging: false,
+        dragIndex: null,
+        startX: 0,
+        startColumnSpans: [],
+        currentColumnSpans: columnSpans
+      });
+    }
+  }, [canResize, columnSpans, cleanupDrag]);
+
+  // Handle tab blur/visibility changes to prevent stuck listeners if mouseup is missed
+  useEffect(() => {
+    const handleVisibilityOrBlur = () => {
+      if (dragStateRef.current.isDragging) {
+        cleanupDrag();
+        setDragState({
+          isDragging: false,
+          dragIndex: null,
+          startX: 0,
+          startColumnSpans: [],
+          currentColumnSpans: columnSpans
+        });
+      }
+    };
+
+    window.addEventListener('blur', handleVisibilityOrBlur);
+    document.addEventListener('visibilitychange', handleVisibilityOrBlur);
+    return () => {
+      window.removeEventListener('blur', handleVisibilityOrBlur);
+      document.removeEventListener('visibilitychange', handleVisibilityOrBlur);
+    };
+  }, [cleanupDrag, columnSpans]);
 
   useEffect(() => {
     //there was a bug was being applied on the first render of the component

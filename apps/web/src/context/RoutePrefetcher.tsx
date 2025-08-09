@@ -77,12 +77,17 @@ export const RoutePrefetcher: React.FC = React.memo(() => {
 
     // Wait for page load
     if (document.readyState !== 'complete') {
+      let loadListener: ((this: Window, ev: Event) => any) | null = null;
       await Promise.race([
         new Promise((resolve) => {
-          window.addEventListener('load', resolve, { once: true });
+          loadListener = () => resolve(undefined);
+          window.addEventListener('load', loadListener as EventListener, { once: true });
         }),
         timeout(2000)
       ]);
+      if (loadListener) {
+        window.removeEventListener('load', loadListener as EventListener);
+      }
     }
 
     // Setup network activity monitoring
