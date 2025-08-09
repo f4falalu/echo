@@ -1,15 +1,30 @@
 import * as React from 'react';
 
-import { useEditorRef, useEditorSelector, useElement, useReadOnly, useRemoveNodeButton, useSelected } from 'platejs/react';
+import {
+  useEditorRef,
+  useEditorSelector,
+  useElement,
+  useReadOnly,
+  useRemoveNodeButton,
+  useSelected
+} from 'platejs/react';
 
 import { Button } from '@/components/ui/buttons';
 import { PopoverBase, PopoverAnchor, PopoverContent } from '@/components/ui/popover';
 import { NodeTypeIcons } from '../../config/icons';
 import { NodeTypeLabels } from '../../config/labels';
 import { AddMetricModal } from '@/components/features/modal/AddMetricModal';
-import { MetricPlugin, type TMetricElement } from '../../plugins/metric-plugin';
+import { MetricPlugin, type TMetricElement } from '../../plugins/metric-kit';
+import { Separator } from '@/components/ui/separator';
+import { CaptionButton } from '../CaptionNode';
 
-export function MetricToolbar({ children, selectedMetricId }: { children: React.ReactNode; selectedMetricId?: string }) {
+export function MetricToolbar({
+  children,
+  selectedMetricId
+}: {
+  children: React.ReactNode;
+  selectedMetricId?: string;
+}) {
   const editor = useEditorRef();
   const readOnly = useReadOnly();
   const selected = useSelected();
@@ -57,6 +72,10 @@ export function MetricToolbar({ children, selectedMetricId }: { children: React.
           <Button onClick={onOpenEdit} variant="ghost">
             {NodeTypeLabels.editMetric?.label ?? 'Edit metric'}
           </Button>
+
+          <CaptionButton variant="ghost">{NodeTypeLabels.caption.label}</CaptionButton>
+
+          <Separator orientation="vertical" className="mx-1 h-6" />
 
           <Button prefix={<NodeTypeIcons.trash />} variant="ghost" {...removeButtonProps}></Button>
         </div>

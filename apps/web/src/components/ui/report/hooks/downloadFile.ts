@@ -17,5 +17,3 @@ export const downloadFile = async (url: string, filename: string) => {
 };
 
 export default downloadFile;
-
-
