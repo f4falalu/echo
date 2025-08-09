@@ -137,7 +137,7 @@ export const PreventNavigation: React.FC<PreventNavigationProps> = React.memo(
         window.removeEventListener('popstate', handlePopState);
         window.removeEventListener('beforeunload', handleBeforeUnload);
       };
-    }, [isDirty]);
+    }, [handleClick, handlePopState, handleBeforeUnload]);
 
     const onClose = useMemoizedFn(async () => {
       setLeavingPage(false);
