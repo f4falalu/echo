@@ -4,17 +4,20 @@ import React, { useRef } from 'react';
 import { useMount } from '@/hooks';
 import { useAutoScroll } from '@/hooks/useAutoScroll';
 import { cn } from '@/lib/utils';
-import { useChatIndividualContextSelector } from '../../ChatContext';
+import { useChatIndividualContextSelector, type ChatIndividualState } from '../../ChatContext';
 import { ChatInput } from './ChatInput';
 import { ChatMessageBlock } from './ChatMessageBlock';
-import { ChatScrollToBottom } from './ChatScrollToBottom';
 import { CHAT_CONTAINER_ID } from '../ChatContainer';
+import { ChatScrollToBottom } from './ChatScrollToBottom';
 
 const autoClass = 'mx-auto max-w-[600px] w-full';
 
+const stableChatIdSelector = (state: ChatIndividualState) => state.chatId;
+const stableChatMessageIdsSelector = (state: ChatIndividualState) => state.chatMessageIds;
+
 export const ChatContent: React.FC = React.memo(() => {
-  const chatId = useChatIndividualContextSelector((state) => state.chatId);
-  const chatMessageIds = useChatIndividualContextSelector((state) => state.chatMessageIds);
+  const chatId = useChatIndividualContextSelector(stableChatIdSelector);
+  const chatMessageIds = useChatIndividualContextSelector(stableChatMessageIdsSelector);
   const containerRef = useRef<HTMLElement | null>(null);
 
   const { isAutoScrollEnabled, scrollToBottom, enableAutoScroll } = useAutoScroll(containerRef, {
@@ -30,8 +33,6 @@ export const ChatContent: React.FC = React.memo(() => {
     containerRef.current = container;
     enableAutoScroll();
   });
-
-  console.log('hit chat content');
 
   return (
     <>

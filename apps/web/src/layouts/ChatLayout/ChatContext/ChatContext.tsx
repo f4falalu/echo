@@ -1,5 +1,5 @@
-import { useQueries, useQuery } from '@tanstack/react-query';
-import React, { useMemo, type PropsWithChildren } from 'react';
+import { useQueries } from '@tanstack/react-query';
+import React, { type PropsWithChildren } from 'react';
 import { createContext, useContextSelector } from 'use-context-selector';
 import type { BusterChatMessage } from '@/api/asset_interfaces/chat';
 import { useGetChat } from '@/api/buster_rest/chats';
@@ -82,9 +82,9 @@ const useChatIndividualContext = ({
   };
 };
 
-const IndividualChatContext = createContext<ReturnType<typeof useChatIndividualContext>>(
-  {} as ReturnType<typeof useChatIndividualContext>
-);
+export type ChatIndividualState = ReturnType<typeof useChatIndividualContext>;
+
+const IndividualChatContext = createContext<ChatIndividualState>({} as ChatIndividualState);
 
 export const ChatContextProvider = ({ children }: PropsWithChildren) => {
   const chatId = useChatLayoutContextSelector((x) => x.chatId);
@@ -104,6 +104,5 @@ export const ChatContextProvider = ({ children }: PropsWithChildren) => {
 
 ChatContextProvider.displayName = 'ChatContextProvider';
 
-export const useChatIndividualContextSelector = <T,>(
-  selector: (state: ReturnType<typeof useChatIndividualContext>) => T
-) => useContextSelector(IndividualChatContext, selector);
+export const useChatIndividualContextSelector = <T,>(selector: (state: ChatIndividualState) => T) =>
+  useContextSelector(IndividualChatContext, selector);
