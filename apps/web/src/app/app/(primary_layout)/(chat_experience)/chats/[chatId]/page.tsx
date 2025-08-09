@@ -44,9 +44,6 @@ export async function generateMetadata({
       title: response.title || 'New Chat'
     };
   } catch (error) {
-    console.log('-----rest-----', rest);
-    console.log('----params------', params);
-    console.log('-----chatId-----', chatId);
     console.error('Failed to fetch chat title:', chatId, error);
     return {
       title: 'New Chat'
