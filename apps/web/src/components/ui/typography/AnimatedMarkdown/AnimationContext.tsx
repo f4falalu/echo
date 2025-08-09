@@ -1,4 +1,5 @@
-import React, { createContext, useContext } from 'react';
+import React from 'react';
+import { useContextSelector, createContext } from 'use-context-selector';
 
 interface AnimationContextValue {
   shouldStopAnimations: boolean;
@@ -18,7 +19,7 @@ export const AnimationProvider: React.FC<{
 };
 
 export const useAnimationContext = () => {
-  const context = useContext(AnimationContext);
+  const context = useContextSelector(AnimationContext, (x) => x);
   if (!context) {
     // Return default value if context is not provided
     return { shouldStopAnimations: false };

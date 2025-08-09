@@ -10,6 +10,16 @@ import type {
 } from '../../typography/animation-common';
 import AnimatedMarkdown from '../../typography/AnimatedMarkdown/AnimatedMarkdown';
 
+interface AppMarkdownStreamingProps {
+  content: string;
+  isStreamFinished: boolean;
+  animation?: MarkdownAnimation;
+  animationDuration?: number;
+  animationTimingFunction?: MarkdownAnimationTimingFunction;
+  className?: string;
+  stripFormatting?: boolean;
+}
+
 const AppMarkdownStreaming = ({
   content,
   isStreamFinished,
@@ -18,28 +28,15 @@ const AppMarkdownStreaming = ({
   animationTimingFunction = 'linear',
   className,
   stripFormatting = true
-}: {
-  content: string;
-  isStreamFinished: boolean;
-  animation?: MarkdownAnimation;
-  animationDuration?: number;
-  animationTimingFunction?: MarkdownAnimationTimingFunction;
-  className?: string;
-  stripFormatting?: boolean;
-}) => {
-  const { blockMatches, isFinished } = useMarkdownStreaming({
-    content,
-    isStreamFinished
-  });
-
+}: AppMarkdownStreamingProps) => {
   // When the upstream stream and the throttled streaming are finished, render a single
   // non-streaming markdown to unmount streaming components and release memory.
-  if (isStreamFinished && isFinished) {
+  if (isStreamFinished) {
     return (
       <div className={cn('flex flex-col space-y-2.5', className)}>
         <AnimatedMarkdown
           content={content}
-          isStreamFinished={isFinished}
+          isStreamFinished={isStreamFinished}
           animation={animation}
           animationDuration={animationDuration}
           animationTimingFunction={animationTimingFunction}
@@ -48,6 +45,44 @@ const AppMarkdownStreaming = ({
       </div>
     );
   }
+
+  return (
+    <AppMarkdownStreamingConent
+      content={content}
+      isStreamFinished={isStreamFinished}
+      animation={animation}
+      animationDuration={animationDuration}
+      animationTimingFunction={animationTimingFunction}
+      className={className}
+      stripFormatting={stripFormatting}
+    />
+  );
+};
+
+export default AppMarkdownStreaming;
+
+type AppMarkdownStreamingContextValue = {
+  animation?: MarkdownAnimation;
+  animationDuration?: number;
+  animationTimingFunction?: MarkdownAnimationTimingFunction;
+  isStreamFinished: boolean;
+  isThrottleStreamingFinished: boolean;
+  stripFormatting: boolean;
+};
+
+const AppMarkdownStreamingConent: React.FC<AppMarkdownStreamingProps> = ({
+  content,
+  isStreamFinished,
+  animation,
+  animationDuration,
+  animationTimingFunction,
+  className,
+  stripFormatting = true
+}) => {
+  const { blockMatches, isFinished } = useMarkdownStreaming({
+    content,
+    isStreamFinished
+  });
 
   return (
     <AppMarkdownStreamingContext.Provider
@@ -67,17 +102,6 @@ const AppMarkdownStreaming = ({
       </div>
     </AppMarkdownStreamingContext.Provider>
   );
-};
-
-export default AppMarkdownStreaming;
-
-type AppMarkdownStreamingContextValue = {
-  animation?: MarkdownAnimation;
-  animationDuration?: number;
-  animationTimingFunction?: MarkdownAnimationTimingFunction;
-  isStreamFinished: boolean;
-  isThrottleStreamingFinished: boolean;
-  stripFormatting: boolean;
 };
 
 const AppMarkdownStreamingContext = createContext<AppMarkdownStreamingContextValue>({
