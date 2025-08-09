@@ -29,5 +29,3 @@ export const exportToImage = async ({
 };
 
 export default exportToImage;
-
-

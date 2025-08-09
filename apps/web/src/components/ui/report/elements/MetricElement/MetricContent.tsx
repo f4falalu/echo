@@ -5,6 +5,8 @@ import { useChatLayoutContextSelector } from '@/layouts/ChatLayout';
 import { assetParamsToRoute } from '@/lib/assets/assetParamsToRoute';
 import React, { useMemo, useRef } from 'react';
 import { useMetricContentThreeDotMenuItems } from './useMetricContentThreeDotMenuItems';
+import { useFocused, useSelected } from 'platejs/react';
+import { cn } from '@/lib/utils';
 
 export const MetricContent = React.memo(
   ({
@@ -22,6 +24,8 @@ export const MetricContent = React.memo(
     const reportId = useChatLayoutContextSelector((x) => x.reportId) || '';
     const reportVersionNumber = useChatLayoutContextSelector((x) => x.reportVersionNumber);
     const ref = useRef<HTMLDivElement>(null);
+    const isSelected = useSelected();
+    const isFocused = useFocused();
 
     const [inViewport] = useInViewport(ref, {
       threshold: 0.33
@@ -72,6 +76,9 @@ export const MetricContent = React.memo(
 
     return (
       <MetricCard
+        className={cn('transition-all duration-200', {
+          'ring-ring ring-1 ring-offset-3': isSelected && isFocused
+        })}
         ref={ref}
         metricLink={link}
         animate={!isExportMode}

@@ -12,6 +12,7 @@ import {
 } from 'platejs/react';
 import { ResizableProvider, useResizableValue } from '@platejs/resizable';
 import { MetricEmbedPlaceholder } from './MetricPlaceholder';
+import { MetricToolbar } from './MetricToolbar';
 import { Caption, CaptionTextarea } from '../CaptionNode';
 import { mediaResizeHandleVariants, Resizable, ResizeHandle } from '../ResizeHandle';
 import { type TMetricElement } from '../../plugins/metric-kit';
@@ -33,14 +34,16 @@ export const MetricElement = withHOC(
     const mode = props.editor.getOption(GlobalVariablePlugin, 'mode');
 
     const content = metricId ? (
-      <MetricResizeContainer>
-        <MetricContent
-          metricId={metricId}
-          metricVersionNumber={metricVersionNumber}
-          readOnly={readOnly}
-          isExportMode={mode === 'export'}
-        />
-      </MetricResizeContainer>
+      <MetricToolbar selectedMetricId={metricId}>
+        <MetricResizeContainer>
+          <MetricContent
+            metricId={metricId}
+            metricVersionNumber={metricVersionNumber}
+            readOnly={readOnly}
+            isExportMode={mode === 'export'}
+          />
+        </MetricResizeContainer>
+      </MetricToolbar>
     ) : (
       <MetricEmbedPlaceholder />
     );

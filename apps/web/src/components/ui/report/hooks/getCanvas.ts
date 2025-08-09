@@ -54,5 +54,3 @@ export const getCanvas = async (editor: PlateEditor) => {
 };
 
 export default getCanvas;
-
-
