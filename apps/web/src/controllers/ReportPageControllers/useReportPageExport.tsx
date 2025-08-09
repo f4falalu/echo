@@ -2,9 +2,14 @@
 
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import { useRef, useState } from 'react';
-import { ReportPageController } from './ReportPageController';
 import { printHTMLPage } from '@/lib/print';
-import { timeout } from '@/lib';
+import { timeout } from '@/lib/timeout';
+import dynamic from 'next/dynamic';
+
+const DynamicReportPageController = dynamic(
+  () => import('./ReportPageController').then((mod) => mod.ReportPageController),
+  { ssr: false }
+);
 
 const ExportContainerComponent: React.FC<{
   reportId: string;
@@ -29,7 +34,7 @@ const ExportContainerComponent: React.FC<{
         bottom: 0,
         zIndex: -1
       }}>
-      <ReportPageController
+      <DynamicReportPageController
         reportId={reportId}
         readOnly={true}
         mode="export"

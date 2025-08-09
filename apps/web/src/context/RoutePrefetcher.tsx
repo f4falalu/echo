@@ -77,7 +77,7 @@ export const RoutePrefetcher: React.FC = React.memo(() => {
 
     // Wait for page load
     if (document.readyState !== 'complete') {
-      let loadListener: ((this: Window, ev: Event) => any) | null = null;
+      let loadListener: ((this: Window, ev: Event) => void) | null = null;
       await Promise.race([
         new Promise((resolve) => {
           loadListener = () => resolve(undefined);
