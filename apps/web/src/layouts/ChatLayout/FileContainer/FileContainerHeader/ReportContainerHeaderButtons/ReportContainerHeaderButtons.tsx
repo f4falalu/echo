@@ -4,7 +4,7 @@ import { FileButtonContainer } from '../FileButtonContainer';
 import { useChatLayoutContextSelector } from '@/layouts/ChatLayout/ChatLayoutContext';
 import { useIsReportReadOnly } from '@/context/Reports/useIsReportReadOnly';
 import { useGetReport } from '@/api/buster_rest/reports';
-import { canEdit, getIsEffectiveOwner } from '@/lib/share';
+import { getIsEffectiveOwner } from '@/lib/share';
 import { ShareReportButton } from '@/components/features/buttons/ShareReportButton';
 import { ReportThreeDotMenu } from './ReportThreeDotMenu';
 import { HideButtonContainer } from '../HideButtonContainer';

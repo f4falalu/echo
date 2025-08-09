@@ -26,7 +26,7 @@ import { useFavoriteStar } from '@/components/features/list/FavoriteStar';
 import { useStatusDropdownContent } from '@/components/features/metrics/StatusBadgeIndicator/useStatusDropdownContent';
 import type { VerificationStatus } from '@buster/server-shared/share';
 import { useSaveToCollectionsDropdownContent } from '@/components/features/dropdowns/SaveToCollectionsDropdown';
-import { useReportPageExport } from '@/controllers/ReportPageControllers';
+import { useReportPageExport } from '@/controllers/ReportPageControllers/useReportPageExport';
 
 export const ReportThreeDotMenu = React.memo(
   ({

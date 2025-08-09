@@ -6,7 +6,7 @@
 import './MonacoWebWorker';
 
 import type { editor } from 'monaco-editor/esm/vs/editor/editor.api';
-import React, { forwardRef, useMemo } from 'react';
+import React, { forwardRef, useCallback, useMemo } from 'react';
 import { cn } from '@/lib/classMerge';
 import { CircleSpinnerLoaderContainer } from '../../loaders/CircleSpinnerLoaderContainer';
 import { configureMonacoToUseYaml } from './yamlHelper';
@@ -107,44 +107,47 @@ export const AppCodeEditor = forwardRef<AppCodeEditorHandle, AppCodeEditorProps>
       };
     }, [readOnlyMessage, monacoEditorOptions]);
 
-    const onMountCodeEditor = async (
-      editor: editor.IStandaloneCodeEditor,
-      monaco: typeof import('monaco-editor')
-    ) => {
-      const [GithubLightTheme, NightOwlTheme] = await Promise.all([
-        (await import('./themes/github_light_theme')).default,
-        (await import('./themes/tomorrow_night_theme')).default
-      ]);
+    const onMountCodeEditor = useCallback(
+      async (editor: editor.IStandaloneCodeEditor, monaco: typeof import('monaco-editor')) => {
+        const [GithubLightTheme, NightOwlTheme] = await Promise.all([
+          (await import('./themes/github_light_theme')).default,
+          (await import('./themes/tomorrow_night_theme')).default
+        ]);
 
-      monaco.editor.defineTheme('github-light', GithubLightTheme);
-      monaco.editor.defineTheme('night-owl', NightOwlTheme);
-      editor.updateOptions({
-        theme: useDarkMode ? 'night-owl' : 'github-light',
-        colorDecorators: true
-      });
-      if (onChangeEditorHeight) {
-        editor.onDidContentSizeChange(() => {
-          const contentHeight = editor.getContentHeight();
-          onChangeEditorHeight(contentHeight);
+        monaco.editor.defineTheme('github-light', GithubLightTheme);
+        monaco.editor.defineTheme('night-owl', NightOwlTheme);
+        editor.updateOptions({
+          theme: useDarkMode ? 'night-owl' : 'github-light',
+          colorDecorators: true
         });
-      }
+        if (onChangeEditorHeight) {
+          editor.onDidContentSizeChange(() => {
+            const contentHeight = editor.getContentHeight();
+            onChangeEditorHeight(contentHeight);
+          });
+        }
 
-      if (language === 'yaml') {
-        await configureMonacoToUseYaml(monaco);
-      }
+        if (language === 'yaml') {
+          await configureMonacoToUseYaml(monaco);
+        }
 
-      onMount?.(editor, monaco);
+        onMount?.(editor, monaco);
 
-      editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, () => {
-        onMetaEnter?.();
-      });
-    };
+        editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, () => {
+          onMetaEnter?.();
+        });
+      },
+      [onChangeEditorHeight, language, onMount, useDarkMode]
+    );
 
-    const onChangeCodeEditor = (v: string | undefined) => {
-      if (!readOnly) {
-        onChange?.(v || '');
-      }
-    };
+    const onChangeCodeEditor = useCallback(
+      (v: string | undefined) => {
+        if (!readOnly) {
+          onChange?.(v || '');
+        }
+      },
+      [onChange, readOnly]
+    );
 
     return (
       <div

@@ -25,7 +25,7 @@ export const printHTMLPage = ({
       console.error('Failed to close print window', e);
     }
   };
-  printWindow.addEventListener('afterprint', handleAfterPrint);
+  printWindow.addEventListener('afterprint', handleAfterPrint, { once: true });
 
   // Trigger print when resources are loaded
   const triggerPrint = () => {
@@ -43,6 +43,6 @@ export const printHTMLPage = ({
     // Give a brief moment for styles to apply
     setTimeout(triggerPrint, 100);
   } else {
-    printWindow.addEventListener('load', () => setTimeout(triggerPrint, 100));
+    printWindow.addEventListener('load', () => setTimeout(triggerPrint, 100), { once: true });
   }
 };
