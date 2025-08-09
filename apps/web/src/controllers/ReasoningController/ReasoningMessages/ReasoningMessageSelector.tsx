@@ -99,14 +99,13 @@ export const ReasoningMessageSelector: React.FC<ReasoningMessageSelectorProps> =
         <AnimatePresence mode="wait" initial={!isStreamFinished}>
           <motion.div key={animationKey} {...itemAnimationConfig} className="h-auto">
             <div className="min-h-[1px]">
-              {/* <ReasoningMessage
+              <ReasoningMessage
                 reasoningMessageId={reasoningMessageId}
                 isStreamFinished={isStreamFinished}
                 messageId={messageId}
                 chatId={chatId}
                 isLastMessage={isLastMessage}
-              /> */}
-              {reasoningMessageId}
+              />
             </div>
           </motion.div>
         </AnimatePresence>

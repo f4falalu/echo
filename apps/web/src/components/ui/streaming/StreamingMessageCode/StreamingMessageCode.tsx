@@ -62,63 +62,63 @@ export const StreamingMessageCode: React.FC<{
       return buttons;
     }, [buttons]);
 
-    useEffect(() => {
-      const processText = () => {
-        // Split the text into lines, keeping empty lines
-        const lines = (text || '').split('\n');
-        const segments: LineSegment[] = [];
-        let currentLine = 1;
+    // useEffect(() => {
+    //   const processText = () => {
+    //     // Split the text into lines, keeping empty lines
+    //     const lines = (text || '').split('\n');
+    //     const segments: LineSegment[] = [];
+    //     let currentLine = 1;
 
-        if (!modified || modified.length === 0) {
-          for (const line of lines) {
-            segments.push({
-              type: 'text',
-              content: line,
-              lineNumber: currentLine++
-            });
-          }
-        } else {
-          // Sort modified ranges to ensure proper processing
-          const sortedModified = [...modified].sort((a, b) => a[0] - b[0]);
+    //     if (!modified || modified.length === 0) {
+    //       for (const line of lines) {
+    //         segments.push({
+    //           type: 'text',
+    //           content: line,
+    //           lineNumber: currentLine++
+    //         });
+    //       }
+    //     } else {
+    //       // Sort modified ranges to ensure proper processing
+    //       const sortedModified = [...modified].sort((a, b) => a[0] - b[0]);
 
-          let lastEnd = 0;
-          for (const [start, end] of sortedModified) {
-            // Add visible lines before the hidden section
-            for (let i = lastEnd; i < start - 1; i++) {
-              segments.push({
-                type: 'text',
-                content: lines[i],
-                lineNumber: currentLine++
-              });
-            }
+    //       let lastEnd = 0;
+    //       for (const [start, end] of sortedModified) {
+    //         // Add visible lines before the hidden section
+    //         for (let i = lastEnd; i < start - 1; i++) {
+    //           segments.push({
+    //             type: 'text',
+    //             content: lines[i],
+    //             lineNumber: currentLine++
+    //           });
+    //         }
 
-            // Add hidden section
-            const hiddenLineCount = end - start + 1;
-            segments.push({
-              type: 'hidden',
-              content: '',
-              lineNumber: currentLine,
-              numberOfLines: hiddenLineCount
-            });
-            currentLine += hiddenLineCount;
-            lastEnd = end;
-          }
+    //         // Add hidden section
+    //         const hiddenLineCount = end - start + 1;
+    //         segments.push({
+    //           type: 'hidden',
+    //           content: '',
+    //           lineNumber: currentLine,
+    //           numberOfLines: hiddenLineCount
+    //         });
+    //         currentLine += hiddenLineCount;
+    //         lastEnd = end;
+    //       }
 
-          // Add remaining visible lines after the last hidden section
-          for (let i = lastEnd; i < lines.length; i++) {
-            segments.push({
-              type: 'text',
-              content: lines[i],
-              lineNumber: currentLine++
-            });
-          }
-        }
+    //       // Add remaining visible lines after the last hidden section
+    //       for (let i = lastEnd; i < lines.length; i++) {
+    //         segments.push({
+    //           type: 'text',
+    //           content: lines[i],
+    //           lineNumber: currentLine++
+    //         });
+    //       }
+    //     }
 
-        setLineSegments(segments);
-      };
+    //     setLineSegments(segments);
+    //   };
 
-      processText();
-    }, [text, modified]);
+    //   processText();
+    // }, [text, modified]);
 
     return (
       <FileCard collapsible={collapsible} fileName={fileName} headerButtons={buttonComponent}>

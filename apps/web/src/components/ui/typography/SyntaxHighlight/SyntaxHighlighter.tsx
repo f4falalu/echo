@@ -2,11 +2,11 @@
 
 import React, { useMemo } from 'react';
 import { cn } from '@/lib/classMerge';
-//import { getFallbackStyle } from './shiki-instance';
 import styles from './SyntaxHighlighter.module.css';
 import { animations, type MarkdownAnimation } from '../animation-common';
 import type { ThemedToken } from 'shiki';
-//import { useCodeTokens } from './useCodeTokens';
+import { useCodeTokens } from './useCodeTokens';
+import { getFallbackStyle } from './shiki-instance';
 
 export const SyntaxHighlighter = ({
   children,
@@ -27,23 +27,18 @@ export const SyntaxHighlighter = ({
   animation?: MarkdownAnimation;
   animationDuration?: number;
 }) => {
-  // const { tokens, isLoading } = useCodeTokens(children, language, isDarkMode);
+  const { tokens, isLoading } = useCodeTokens(children, language, isDarkMode);
 
-  // const hasTokens = !!tokens && !isLoading;
+  const hasTokens = !!tokens && !isLoading;
 
   const style = useMemo(() => {
-    // if (tokens) {
-    //   return {
-    //     background: tokens.bg,
-    //     color: tokens.fg
-    //   };
-    // }
-    // return getFallbackStyle(isDarkMode);
-
-    return {
-      background: 'red',
-      color: 'blue'
-    };
+    if (tokens) {
+      return {
+        background: tokens.bg,
+        color: tokens.fg
+      };
+    }
+    return getFallbackStyle(isDarkMode);
   }, [
     // hasTokens,
     isDarkMode
@@ -55,7 +50,7 @@ export const SyntaxHighlighter = ({
       startingLineNumber={startingLineNumber}
       className={className}
       style={style}>
-      {/* {hasTokens ? (
+      {hasTokens ? (
         tokens.tokens.map((line: ThemedToken[], index: number) => {
           return (
             <Line
@@ -67,9 +62,9 @@ export const SyntaxHighlighter = ({
             />
           );
         })
-      ) : ( */}
-      <SyntaxFallback fallbackColor={style.color}>{children}</SyntaxFallback>
-      {/* )} */}
+      ) : (
+        <SyntaxFallback fallbackColor={style.color}>{children}</SyntaxFallback>
+      )}
     </SyntaxWrapper>
   );
 };
