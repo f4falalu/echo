@@ -392,6 +392,13 @@ export interface CreateDashboardsArgs {
   }>;
 }
 
+export interface CreateReportsArgs {
+  files: Array<{
+    name?: string;
+    content?: string;
+  }>;
+}
+
 export interface ModifyMetricsArgs {
   files: Array<{
     id: string;
@@ -440,6 +447,15 @@ export function isCreateMetricsArgs(args: unknown): args is CreateMetricsArgs {
 }
 
 export function isCreateDashboardsArgs(args: unknown): args is CreateDashboardsArgs {
+  return (
+    typeof args === 'object' &&
+    args !== null &&
+    'files' in args &&
+    Array.isArray((args as { files: unknown }).files)
+  );
+}
+
+export function isCreateReportsArgs(args: unknown): args is CreateReportsArgs {
   return (
     typeof args === 'object' &&
     args !== null &&

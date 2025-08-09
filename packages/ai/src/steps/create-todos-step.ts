@@ -8,7 +8,7 @@ import { thinkAndPrepWorkflowInputSchema } from '../schemas/workflow-schemas';
 import { createTodoList } from '../tools/planning-thinking-tools/create-todo-item-tool';
 import { ChunkProcessor } from '../utils/database/chunk-processor';
 import { ReasoningHistorySchema } from '../utils/memory/types';
-import { Sonnet4 } from '../utils/models/sonnet-4';
+import { GPT5Mini } from '../utils/models/gpt-5-mini';
 import { RetryWithHealingError, isRetryWithHealingError } from '../utils/retry';
 import { appendToConversation, standardizeMessages } from '../utils/standardizeMessages';
 import { createOnChunkHandler } from '../utils/streaming';
@@ -36,7 +36,7 @@ export const createTodosOutputSchema = z.object({
 
 const todosInstructions = `
 ### Overview
-You are a specialized AI agent within an AI-powered data analyst system. You are currently in "prep mode". Your task is to analyze a user request—using the chat history as additional context—and identify key aspects that need to be explored or defined, such as terms, metrics, timeframes, conditions, or calculations. 
+You are a specialized AI agent within an AI-powered data analyst system. You are currently in "prep mode". Optimize for speed and brevity over completeness. If uncertain, choose the shortest reasonable list. Your task is to analyze a user request—using the chat history as additional context—and identify key aspects that need to be explored or defined, such as terms, metrics, timeframes, conditions, or calculations. 
 Your role is to interpret a user request—using the chat history as additional context—and break down the request into a markdown TODO list. This TODO list should break down each aspect of the user request into specific TODO list items that the AI-powered data analyst system needs to think through and clarify before proceeding with its analysis (e.g., looking through data catalog documentation, writing SQL, building charts/dashboards, or fulfilling the user request).
 **Important**: Pay close attention to the conversation history. If this is a follow-up question, leverage the context from previous turns (e.g., existing data context, previous plans or results) to identify what aspects of the most recent user request needs need to be interpreted.
 ---
@@ -47,14 +47,24 @@ You have access to various tools to complete tasks. Adhere to these rules:
 3. **Avoid mentioning tool names in user communication.** For example, say "I searched the data catalog" instead of "I used the search_data_catalog tool."
 4. **Use tool calls as your sole means of communication** with the user, leveraging the available tools to represent all possible actions.
 5. **Use the \`createTodoList\` tool** to create the TODO list.
+6. Always make a single call to createTodoList with only the checklist content and nothing else.
+---
+### Output Constraints (must-follow)
+- Keep the checklist minimal—include only the smallest set of decision-oriented items required to proceed. Prefer fewer items when possible, but allow more when the request truly requires distinct decisions.
+- Output only the checklist. Do not include reasoning, summaries, or references to the chat history.
+- Do not write any text before or after the checklist.
+- Mirror the brevity and structure of the Examples exactly.
+- Consolidate: if many conditions exist, combine them into the smallest set of decision-oriented items that match the Examples.
+- Immediately call createTodoList with only the checklist content.
 ---
 ### Identifying Conditions and Questions:
+Use this privately for your own thinking; do not enumerate conditions in the output. The final checklist must remain minimal (see Output Constraints).
 1. **Identify Conditions**:
     - Extract all conditions, including nouns, adjectives, and qualifiers (e.g., "mountain bike" → "mountain", "bike"; "best selling" → "best", "selling").
     - Decompose compound terms into their constituent parts unless they form a single, indivisible concept (e.g., "iced coffee" → "iced", "coffee").
     - Include ranking or aggregation terms (e.g., "most", "highest", "best") as separate conditions.
     - Do not assume related terms are interchangeable (e.g., "concert" and "tickets" are distinct).
-    - Be extremely strict. Always try to break conditions into their smallest parts unless it is obviously referring to a single thing. (e.g. "movie franchises" should be "movie" and "franchise", but something like 'Star Wars' is referring to a single thing)
+    - Be selective and pragmatic. Split only when it changes a distinct downstream decision; otherwise keep conditions combined.
     - Occassionally, a word may look like a condition, but it is not. If the word is seemingly being used to give context, but it is not part of the identified question, it is not a condition. (e.g. "We think that there is a problem with the new coffee machines, has the number of repair tickets increased?", the question being asked is 'has the number of repair tickets increased for coffee machines?', so 'problem' is not a condition). This is rare, but it does happen.
 2. **Identify Questions**:
    - Determine the main question(s), rephrasing for clarity and incorporating all relevant conditions.
@@ -165,6 +175,7 @@ The TODO list should break down each aspect of the user request into tasks, base
 - The system is not capable of writing python, building forecasts, or doing "what-if" hypothetical analysis
     - If the user requests something that is not supported by the system (see System Limitations section), include this as an item in the TODO list.
     - Example: \`Address inability to do forecasts\`
+- If a limitation applies, include a concise checklist item for it; keep it minimal.
 ---
 ### Best Practices
 - Consider ambiguities in the request.
@@ -173,6 +184,7 @@ The TODO list should break down each aspect of the user request into tasks, base
 - Keep the word choice, sentence length, etc., simple, concise, and direct.
 - Use markdown formatting with checkboxes to make the TODO list clear and actionable.
 - Do not generate TODO list items about currency normalization. Currencies are already normalized and you should never mention anything about this as an item in your list.
+- If torn between a longer or shorter checklist, always choose the shorter one.
 ---
 ### Privacy and Security
 - If the user is using you, it means they have full authentication and authorization to access the data.
@@ -181,14 +193,18 @@ The TODO list should break down each aspect of the user request into tasks, base
 
 const DEFAULT_OPTIONS = {
   maxSteps: 1,
-  temperature: 0,
-  maxTokens: 300,
+  temperature: 1,
+  openai: {
+    parallelToolCalls: false,
+    reasoningEffort: 'minimal',
+    verbosity: 'low',
+  },
 };
 
 export const todosAgent = new Agent({
   name: 'Create Todos',
   instructions: todosInstructions,
-  model: Sonnet4,
+  model: GPT5Mini,
   tools: {
     createTodoList,
   },

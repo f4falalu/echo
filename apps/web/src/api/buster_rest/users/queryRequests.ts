@@ -17,7 +17,7 @@ import {
   updateOrganizationUser
 } from './requests';
 import { organizationQueryKeys } from '@/api/query_keys/organization';
-import { UserResponse } from '@buster/server-shared/user';
+import type { UserResponse } from '@buster/server-shared/user';
 import type { RustApiError } from '../errors';
 
 export const useGetMyUserInfo = <TData = UserResponse>(
@@ -26,7 +26,7 @@ export const useGetMyUserInfo = <TData = UserResponse>(
   return useQuery({
     ...userQueryKeys.userGetUserMyself,
     queryFn: getMyUserInfo,
-    enabled: true, //This is a server only query,
+    enabled: false, //This is a server only query,
     select: props?.select,
     ...props
   });

@@ -6,8 +6,6 @@ import type { ReportElements } from '@buster/server-shared/reports';
 import { useQuery } from '@tanstack/react-query';
 import { mainApiV2 } from '@/api/buster_rest/instances';
 import { useDebounceEffect } from '@/hooks';
-import { cn } from '@/lib/utils';
-import { Tooltip } from '@/components/ui/tooltip';
 
 import DynamicReportEditor from '@/components/ui/report/DynamicReportEditor';
 
@@ -72,6 +70,8 @@ export const ReportPlayground: React.FC = () => {
           value={usedValue}
           useFixedToolbarKit={true}
           readOnly={false}
+          containerClassName="overflow-y-auto!"
+          className="overflow-y-auto!"
           onValueChange={logValueChanges}
         />
       </div>
@@ -179,6 +179,16 @@ const value: ReportElements = [
     icon: '😄',
     type: 'callout',
     id: 'KQ0_YKgdqy'
+  },
+  {
+    type: 'metric',
+    children: [{ text: '' }],
+    metricId: '',
+    caption: [{ text: 'This is a caption' }]
+  },
+  {
+    type: 'characterCounter' as 'p',
+    children: [{ text: 'This is my character counter' }]
   },
   {
     type: 'p',

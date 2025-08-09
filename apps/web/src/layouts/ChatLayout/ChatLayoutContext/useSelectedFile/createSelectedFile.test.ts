@@ -4,9 +4,11 @@ import type { ChatURLParsed } from './parsePathnameSegments';
 
 describe('createSelectedFile', () => {
   it('returns a metric file when metricId is provided', () => {
-    const params: ChatURLParsed = {
-      metricId: 'metric-123'
-    };
+    const params = {
+      metricId: 'metric-123',
+      collectionId: 'collection-123',
+      datasetId: 'dataset-123'
+    } as Parameters<typeof createSelectedFile>[0];
 
     const result = createSelectedFile(params);
 
@@ -17,9 +19,9 @@ describe('createSelectedFile', () => {
   });
 
   it('returns a dashboard file when dashboardId is provided', () => {
-    const params: ChatURLParsed = {
+    const params = {
       dashboardId: 'dashboard-456'
-    };
+    } as Parameters<typeof createSelectedFile>[0];
 
     const result = createSelectedFile(params);
 
@@ -30,9 +32,9 @@ describe('createSelectedFile', () => {
   });
 
   it('returns a reasoning file when messageId is provided', () => {
-    const params: ChatURLParsed = {
+    const params = {
       messageId: 'message-789'
-    };
+    } as Parameters<typeof createSelectedFile>[0];
 
     const result = createSelectedFile(params);
 
@@ -43,11 +45,11 @@ describe('createSelectedFile', () => {
   });
 
   it('returns null when no relevant id is provided', () => {
-    const params: ChatURLParsed = {
+    const params = {
       chatId: 'chat-123',
       collectionId: 'collection-123',
       datasetId: 'dataset-123'
-    };
+    } as Parameters<typeof createSelectedFile>[0];
 
     const result = createSelectedFile(params);
 
@@ -55,7 +57,7 @@ describe('createSelectedFile', () => {
   });
 
   it('returns null when params object is empty', () => {
-    const params: ChatURLParsed = {};
+    const params = {} as Parameters<typeof createSelectedFile>[0];
 
     const result = createSelectedFile(params);
 
@@ -63,11 +65,11 @@ describe('createSelectedFile', () => {
   });
 
   it('prioritizes metricId over other ids', () => {
-    const params: ChatURLParsed = {
+    const params = {
       metricId: 'metric-123',
       dashboardId: 'dashboard-456',
       messageId: 'message-789'
-    };
+    } as Parameters<typeof createSelectedFile>[0];
 
     const result = createSelectedFile(params);
 
@@ -78,10 +80,10 @@ describe('createSelectedFile', () => {
   });
 
   it('prioritizes dashboardId over messageId when metricId is not provided', () => {
-    const params: ChatURLParsed = {
+    const params = {
       dashboardId: 'dashboard-456',
       messageId: 'message-789'
-    };
+    } as Parameters<typeof createSelectedFile>[0];
 
     const result = createSelectedFile(params);
 

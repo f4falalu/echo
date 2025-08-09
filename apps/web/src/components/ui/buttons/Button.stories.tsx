@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/nextjs';
 import * as OutlinedIcons from '../icons/NucleoIconOutlined';
 import { ArrowUp } from '../icons/NucleoIconOutlined';
 import { IconSelectOutlined } from '../icons/NucleoIconOutlined/iconStories';

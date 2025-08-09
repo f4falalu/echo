@@ -8,6 +8,8 @@ import {
 
 // Re-export for backward compatibility
 export { thinkAndPrepWorkflowInputSchema, AnalystRuntimeContextSchema, type AnalystRuntimeContext };
+
+import { analysisTypeRouterStep } from '../steps/analyst-agent/analysis-type-router-step/analysis-type-router-step';
 import { analystStep } from '../steps/analyst-step';
 import { createTodosStep } from '../steps/create-todos-step';
 import { extractValuesSearchStep } from '../steps/extract-values-search-step';
@@ -59,7 +61,12 @@ const analystWorkflow = createWorkflow({
     formatOutputStep,
   ],
 })
-  .parallel([generateChatTitleStep, extractValuesSearchStep, createTodosStep])
+  .parallel([
+    generateChatTitleStep,
+    extractValuesSearchStep,
+    createTodosStep,
+    analysisTypeRouterStep,
+  ])
   .then(thinkAndPrepStep)
   .then(analystStep) // Always run analyst step - it will pass through if finished
   .then(markMessageCompleteStep)

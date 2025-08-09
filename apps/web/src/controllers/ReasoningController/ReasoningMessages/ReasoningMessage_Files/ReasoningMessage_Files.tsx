@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import type {
   BusterChatMessage,
   BusterChatMessageReasoning_files
@@ -11,13 +11,17 @@ const getReasoningMessage = (x: BusterChatMessage | undefined, reasoningMessageI
   x?.reasoning_messages[reasoningMessageId] as BusterChatMessageReasoning_files | undefined;
 
 export const ReasoningMessage_Files: React.FC<ReasoningMessageProps> = React.memo(
-  ({ isStreamFinished, chatId, reasoningMessageId, messageId }) => {
+  ({ isStreamFinished, isLastMessage, chatId, reasoningMessageId, messageId }) => {
     const { data: file_ids } = useGetChatMessage(messageId, {
-      select: (x) => {
-        const reasoningMessage = getReasoningMessage(x, reasoningMessageId);
-        const file_ids = reasoningMessage?.file_ids || [];
-        return file_ids;
-      }
+      select: useCallback(
+        (x: BusterChatMessage) => {
+          const reasoningMessage = getReasoningMessage(x, reasoningMessageId);
+          const file_ids = reasoningMessage?.file_ids || [];
+          return file_ids;
+        },
+        [reasoningMessageId]
+      ),
+      notifyOnChangeProps: ['data']
     });
 
     if (!file_ids || file_ids.length === 0) return null;
@@ -31,7 +35,7 @@ export const ReasoningMessage_Files: React.FC<ReasoningMessageProps> = React.mem
             chatId={chatId}
             messageId={messageId}
             reasoningMessageId={reasoningMessageId}
-            isStreamFinished={isStreamFinished}
+            isStreamFinished={isStreamFinished || !isLastMessage}
           />
         ))}
       </div>

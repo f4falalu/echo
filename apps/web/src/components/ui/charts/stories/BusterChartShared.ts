@@ -1,4 +1,4 @@
-import type { Meta } from '@storybook/react';
+import type { Meta } from '@storybook/nextjs';
 import { DEFAULT_CHART_CONFIG } from '@buster/server-shared/metrics';
 import { BusterChart } from '../BusterChart';
 

@@ -26,6 +26,7 @@ import {
 
 import { Button } from '@/components/ui/buttons';
 import { Separator } from '@/components/ui/separator';
+import { NodeTypeLabels } from '../config/labels';
 
 const popoverVariants = cva(
   'z-50 w-auto rounded border bg-popover p-1 text-popover-foreground shadow-md outline-hidden'
@@ -89,7 +90,7 @@ export function LinkFloatingToolbar({ state }: { state?: LinkFloatingToolbarStat
   ) : (
     <div className="box-content flex items-center space-x-0">
       <Button variant={'ghost'} size={'default'} {...editButtonProps}>
-        Edit link
+        {NodeTypeLabels.editLink.label}
       </Button>
 
       <LinkOpenButton />

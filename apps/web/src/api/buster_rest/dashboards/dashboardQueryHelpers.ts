@@ -93,7 +93,6 @@ export const useGetDashboardAndInitializeMetrics = (params?: { prefetchData?: bo
         password,
         version_number: version_number || undefined
       }).then((data) => {
-        if (shouldInitializeMetrics) initializeMetrics(data.metrics);
         const latestVersion = last(data.versions)?.version_number || 1;
         const isLatestVersion = data.dashboard.version_number === latestVersion;
 
@@ -111,6 +110,8 @@ export const useGetDashboardAndInitializeMetrics = (params?: { prefetchData?: bo
           );
           onSetLatestDashboardVersion(data.dashboard.id, latestVersion);
         }
+
+        if (shouldInitializeMetrics) initializeMetrics(data.metrics);
 
         return data;
       });

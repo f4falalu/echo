@@ -26,6 +26,12 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { metricId } = await params;
 
+  if (!metricId || metricId.includes('metricId')) {
+    return {
+      title: 'Buster'
+    };
+  }
+
   try {
     // Fetch the metric title using the server-side request
     const response = await getTitle_server({
@@ -38,7 +44,7 @@ export async function generateMetadata({
     };
   } catch (error) {
     // Fallback title if the request fails
-    console.error('Failed to fetch metric title:', error);
+    console.error('Failed to fetch metric title:', metricId, error);
     return {
       title: 'New Metric'
     };

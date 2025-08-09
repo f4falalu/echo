@@ -367,4 +367,216 @@ describe('createMetricRoute', () => {
       );
     });
   });
+
+  describe('Report route tests', () => {
+    describe('Report with chart page', () => {
+      it('should create report metric chart route with all parameters', () => {
+        const result = createMetricRoute({
+          assetId: 'metric-123',
+          chatId: 'chat-456',
+          reportId: 'report-789',
+          secondaryView: 'chart-edit',
+          metricVersionNumber: 5,
+          reportVersionNumber: 2,
+          page: 'chart'
+        });
+
+        expect(result).toContain(
+          '/app/chats/chat-456/reports/report-789/metrics/metric-123/chart?secondary_view=chart-edit&metric_version_number=5&report_version_number=2'
+        );
+      });
+
+      it('should create report metric chart route with version history view', () => {
+        const result = createMetricRoute({
+          assetId: 'metric-123',
+          chatId: 'chat-456',
+          reportId: 'report-789',
+          secondaryView: 'version-history',
+          page: 'chart'
+        });
+
+        expect(result).toContain(
+          '/app/chats/chat-456/reports/report-789/metrics/metric-123/chart?secondary_view=version-history'
+        );
+      });
+
+      it('should create report metric chart route with minimal parameters', () => {
+        const result = createMetricRoute({
+          assetId: 'metric-123',
+          chatId: 'chat-456',
+          reportId: 'report-789',
+          page: 'chart'
+        });
+
+        expect(result).toContain('/app/chats/chat-456/reports/report-789/metrics/metric-123/chart');
+      });
+
+      it('should prioritize report route over regular chat route', () => {
+        const result = createMetricRoute({
+          assetId: 'metric-123',
+          chatId: 'chat-456',
+          reportId: 'report-789',
+          page: 'chart'
+        });
+
+        expect(result).toContain('/app/chats/chat-456/reports/report-789/metrics/metric-123/chart');
+        expect(result).not.toContain('/app/chats/chat-456/metrics/metric-123/chart');
+      });
+
+      it('should prioritize dashboard route over report route', () => {
+        const result = createMetricRoute({
+          assetId: 'metric-123',
+          chatId: 'chat-456',
+          dashboardId: 'dashboard-456',
+          reportId: 'report-789',
+          page: 'chart'
+        });
+
+        expect(result).toContain(
+          '/app/chats/chat-456/dashboards/dashboard-456/metrics/metric-123/chart'
+        );
+        expect(result).not.toContain('reports');
+      });
+    });
+
+    describe('Report with results page', () => {
+      it('should create report metric results route with version numbers', () => {
+        const result = createMetricRoute({
+          assetId: 'metric-123',
+          chatId: 'chat-456',
+          reportId: 'report-789',
+          metricVersionNumber: 3,
+          reportVersionNumber: 1,
+          page: 'results'
+        });
+
+        expect(result).toContain(
+          '/app/chats/chat-456/reports/report-789/metrics/metric-123/results?metric_version_number=3&report_version_number=1'
+        );
+      });
+
+      it('should create report metric results route with minimal parameters', () => {
+        const result = createMetricRoute({
+          assetId: 'metric-123',
+          chatId: 'chat-456',
+          reportId: 'report-789',
+          page: 'results'
+        });
+
+        expect(result).toContain(
+          '/app/chats/chat-456/reports/report-789/metrics/metric-123/results'
+        );
+      });
+
+      it('should require both chatId and reportId for report results route', () => {
+        const result = createMetricRoute({
+          assetId: 'metric-123',
+          reportId: 'report-789',
+          page: 'results'
+        });
+
+        // Should fall back to non-chat route when chatId is missing
+        expect(result).toContain('/app/metrics/metric-123/results');
+        expect(result).not.toContain('reports');
+      });
+    });
+
+    describe('Report with SQL page', () => {
+      it('should create report metric SQL route with version numbers', () => {
+        const result = createMetricRoute({
+          assetId: 'metric-123',
+          chatId: 'chat-456',
+          reportId: 'report-789',
+          metricVersionNumber: 7,
+          reportVersionNumber: 3,
+          page: 'sql'
+        });
+
+        expect(result).toContain(
+          '/app/chats/chat-456/reports/report-789/metrics/metric-123/sql?metric_version_number=7&report_version_number=3'
+        );
+      });
+
+      it('should create report metric SQL route without version number', () => {
+        const result = createMetricRoute({
+          assetId: 'metric-123',
+          chatId: 'chat-456',
+          reportId: 'report-789',
+          page: 'sql'
+        });
+
+        expect(result).toContain('/app/chats/chat-456/reports/report-789/metrics/metric-123/sql');
+      });
+    });
+
+    describe('Report edge cases', () => {
+      it('should handle reportId without chatId for chart page', () => {
+        const result = createMetricRoute({
+          assetId: 'metric-123',
+          reportId: 'report-789',
+          page: 'chart'
+        });
+
+        // Should fall back to non-chat route
+        expect(result).toContain('/app/metrics/metric-123/chart');
+        expect(result).not.toContain('reports');
+      });
+
+      it('should handle reportId without chatId for sql page', () => {
+        const result = createMetricRoute({
+          assetId: 'metric-123',
+          reportId: 'report-789',
+          page: 'sql'
+        });
+
+        // Should fall back to non-chat route
+        expect(result).toContain('/app/metrics/metric-123/sql');
+        expect(result).not.toContain('reports');
+      });
+
+      it('should handle both dashboardId and reportId with missing chatId', () => {
+        const result = createMetricRoute({
+          assetId: 'metric-123',
+          dashboardId: 'dashboard-456',
+          reportId: 'report-789',
+          page: 'chart'
+        });
+
+        // Should fall back to non-chat route
+        expect(result).toContain('/app/metrics/metric-123/chart');
+        expect(result).not.toContain('dashboards');
+        expect(result).not.toContain('reports');
+      });
+
+      it('should use versionNumber as fallback for metricVersionNumber in report context', () => {
+        const result = createMetricRoute({
+          assetId: 'metric-123',
+          chatId: 'chat-456',
+          reportId: 'report-789',
+          versionNumber: 4,
+          page: 'chart'
+        });
+
+        expect(result).toContain(
+          '/app/chats/chat-456/reports/report-789/metrics/metric-123/chart?metric_version_number=4'
+        );
+      });
+
+      it('should prefer metricVersionNumber over versionNumber in report context', () => {
+        const result = createMetricRoute({
+          assetId: 'metric-123',
+          chatId: 'chat-456',
+          reportId: 'report-789',
+          metricVersionNumber: 6,
+          versionNumber: 4,
+          page: 'chart'
+        });
+
+        expect(result).toContain(
+          '/app/chats/chat-456/reports/report-789/metrics/metric-123/chart?metric_version_number=6'
+        );
+        expect(result).not.toContain('metric_version_number=4');
+      });
+    });
+  });
 });

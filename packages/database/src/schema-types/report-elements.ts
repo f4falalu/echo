@@ -322,8 +322,8 @@ const ListTypeEnum = z.enum(['ul', 'ol']);
 
 // Nested list item for complex lists
 const NestedListElementSchema = z.object({
-  type: z.enum(['li', 'lic', 'lii']),
-  children: z.array(z.union([TextSchema, ParagraphElementSchema])).default([]),
+  type: z.enum(['li', 'lic', 'lii', 'ul', 'ol']),
+  children: z.array(z.any()).default([]), //not super happy about this... but... ce la vie
 });
 
 // List container (unordered or ordered)
@@ -363,8 +363,12 @@ export const EquationElementSchema = z.object({
 export const MetricElementSchema = z.object({
   type: z.literal('metric'),
   metricId: z.string(),
+  width: z.union([z.number(), z.string().regex(/^(?:\d+px|\d+%)$/)]).optional(),
   children: z.array(VoidTextSchema).default([]),
-  caption: z.array(z.union([TextSchema, ParagraphElementSchema])).default([]),
+  caption: z
+    .array(z.union([TextSchema, ParagraphElementSchema]))
+    .default([])
+    .optional(),
 });
 
 export const MediaEmbedElementSchema = z.object({

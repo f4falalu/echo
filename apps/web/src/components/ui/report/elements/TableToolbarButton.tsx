@@ -48,7 +48,7 @@ export function TableToolbarButton(props: DropdownMenuProps) {
 
   return (
     <DropdownMenu open={open} onOpenChange={setOpen} modal={false} {...props}>
-      <DropdownMenuTrigger>
+      <DropdownMenuTrigger asChild>
         <ToolbarButton pressed={open} tooltip={createLabel('table')} isDropdown>
           <NodeTypeIcons.table />
         </ToolbarButton>

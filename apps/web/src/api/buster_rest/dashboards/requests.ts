@@ -3,10 +3,13 @@ import type {
   BusterDashboardResponse,
   DashboardConfig
 } from '@/api/asset_interfaces/dashboard';
-import type { ShareDeleteRequest, ShareUpdateRequest } from '@buster/server-shared/share';
+import type {
+  SharePostRequest,
+  ShareDeleteRequest,
+  ShareUpdateRequest
+} from '@buster/server-shared/share';
 import mainApi from '@/api/buster_rest/instances';
 import { serverFetch } from '@/api/createServerInstance';
-import { SharePostRequest } from '@buster/server-shared/share';
 
 export const dashboardsGetList = async (params: {
   /** The page number to fetch */

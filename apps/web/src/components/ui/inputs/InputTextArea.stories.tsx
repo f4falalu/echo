@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/nextjs';
 import { InputTextArea } from './InputTextArea';
 
 const meta: Meta<typeof InputTextArea> = {

@@ -154,7 +154,7 @@ function TableFloatingToolbar({ children, ...props }: React.ComponentProps<typeo
             )}
 
             <DropdownMenu modal={false}>
-              <DropdownMenuTrigger>
+              <DropdownMenuTrigger asChild>
                 <ToolbarButton tooltip="Cell borders">
                   <NodeTypeIcons.tableBorders />
                 </ToolbarButton>
@@ -334,7 +334,7 @@ function ColorDropdownMenu({ children, tooltip }: { children: React.ReactNode; t
 
   return (
     <DropdownMenu open={open} onOpenChange={setOpen} modal={false}>
-      <DropdownMenuTrigger>
+      <DropdownMenuTrigger asChild>
         <ToolbarButton tooltip={tooltip}>{children}</ToolbarButton>
       </DropdownMenuTrigger>
 

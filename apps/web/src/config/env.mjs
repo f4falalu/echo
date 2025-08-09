@@ -1,5 +1,6 @@
 import { z } from 'zod';
-import { isServer } from '@tanstack/react-query';
+
+const isServer = typeof window === 'undefined';
 
 if (!isServer) {
   throw new Error('env.mjs is only meant to be used on the server');

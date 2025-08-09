@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/nextjs';
 import { type DataSource, DataSourceTypes } from '@/api/asset_interfaces/datasources';
 import { SqlServerForm } from './SqlServerForm';
 

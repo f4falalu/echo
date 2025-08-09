@@ -13,6 +13,7 @@ import {
   COLLAPSED_JUSTIFY_CENTER,
   COLLAPSED_VISIBLE,
   type ISidebarGroup,
+  type ISidebarItem,
   type ISidebarList,
   type SidebarProps
 } from '@/components/ui/sidebar';
@@ -89,15 +90,15 @@ const yourStuff = (
         route: createBusterRoute({ route: BusterRoutes.APP_COLLECTIONS }),
         id: BusterRoutes.APP_COLLECTIONS,
         active: isActiveCheck('collection', BusterRoutes.APP_COLLECTIONS)
+      },
+      process.env.NEXT_PUBLIC_ENABLE_REPORTS === 'true' && {
+        label: 'Reports',
+        icon: <ASSET_ICONS.reports />,
+        route: createBusterRoute({ route: BusterRoutes.APP_REPORTS }),
+        id: BusterRoutes.APP_REPORTS,
+        active: isActiveCheck('report', BusterRoutes.APP_REPORTS)
       }
-      // {
-      //   label: 'Reports',
-      //   icon: <ASSET_ICONS.reports />,
-      //   route: createBusterRoute({ route: BusterRoutes.APP_REPORTS }),
-      //   id: BusterRoutes.APP_REPORTS,
-      //   active: isActiveCheck('report', BusterRoutes.APP_REPORTS)
-      // }
-    ]
+    ].filter(Boolean) as ISidebarItem[]
   };
 };
 

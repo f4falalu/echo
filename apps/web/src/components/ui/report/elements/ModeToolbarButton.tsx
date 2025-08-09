@@ -49,7 +49,7 @@ export function ModeToolbarButton(props: DropdownMenuProps) {
 
   return (
     <DropdownMenu open={open} onOpenChange={setOpen} modal={false} {...props}>
-      <DropdownMenuTrigger>
+      <DropdownMenuTrigger asChild>
         <ToolbarButton pressed={open} tooltip={createLabel('mode')} isDropdown>
           {item[value].icon}
           <span className="hidden lg:inline">{item[value].label}</span>

@@ -6,8 +6,7 @@
 import './MonacoWebWorker';
 
 import type { editor } from 'monaco-editor/esm/vs/editor/editor.api';
-import React, { forwardRef, useMemo } from 'react';
-import { useMemoizedFn } from '@/hooks';
+import React, { forwardRef, useCallback, useMemo } from 'react';
 import { cn } from '@/lib/classMerge';
 import { CircleSpinnerLoaderContainer } from '../../loaders/CircleSpinnerLoaderContainer';
 import { configureMonacoToUseYaml } from './yamlHelper';
@@ -16,8 +15,13 @@ import { configureMonacoToUseYaml } from './yamlHelper';
 //import NightOwnTheme from 'monaco-themes/themes/Night Owl.json';
 //https://github.com/brijeshb42/monaco-ace-tokenizer
 
-import { Editor } from '@monaco-editor/react';
 import { useTheme } from 'next-themes';
+
+import dynamic from 'next/dynamic';
+const Editor = dynamic(() => import('@monaco-editor/react').then((m) => m.Editor), {
+  ssr: false,
+  loading: () => null
+});
 
 interface AppCodeEditorProps {
   className?: string;
@@ -103,7 +107,7 @@ export const AppCodeEditor = forwardRef<AppCodeEditorHandle, AppCodeEditorProps>
       };
     }, [readOnlyMessage, monacoEditorOptions]);
 
-    const onMountCodeEditor = useMemoizedFn(
+    const onMountCodeEditor = useCallback(
       async (editor: editor.IStandaloneCodeEditor, monaco: typeof import('monaco-editor')) => {
         const [GithubLightTheme, NightOwlTheme] = await Promise.all([
           (await import('./themes/github_light_theme')).default,
@@ -132,14 +136,18 @@ export const AppCodeEditor = forwardRef<AppCodeEditorHandle, AppCodeEditorProps>
         editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, () => {
           onMetaEnter?.();
         });
-      }
+      },
+      [onChangeEditorHeight, language, onMount, useDarkMode]
     );
 
-    const onChangeCodeEditor = useMemoizedFn((v: string | undefined) => {
-      if (!readOnly) {
-        onChange?.(v || '');
-      }
-    });
+    const onChangeCodeEditor = useCallback(
+      (v: string | undefined) => {
+        if (!readOnly) {
+          onChange?.(v || '');
+        }
+      },
+      [onChange, readOnly]
+    );
 
     return (
       <div

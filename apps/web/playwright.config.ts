@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { defineConfig, devices } from '@playwright/test';
 
 /**
@@ -38,8 +39,16 @@ export default defineConfig({
     /* Run tests in headed mode (non-headless) */
     headless: true,
     /* Use stored auth state only if it exists */
-    storageState: fs.existsSync(path.join(__dirname, 'playwright-tests/auth-utils/auth.json'))
-      ? path.join(__dirname, 'playwright-tests/auth-utils/auth.json')
+    storageState: fs.existsSync(
+      path.join(
+        path.dirname(fileURLToPath(import.meta.url)),
+        'playwright-tests/auth-utils/auth.json'
+      )
+    )
+      ? path.join(
+          path.dirname(fileURLToPath(import.meta.url)),
+          'playwright-tests/auth-utils/auth.json'
+        )
       : undefined
   },
 

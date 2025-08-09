@@ -31,6 +31,7 @@
     "eval:golden": "npx braintrust eval evals/golden-dataset",
     "eval:charting": "npx braintrust eval evals/agents/analyst-agent/chart-formatting",
     "eval:tool-order": "npx braintrust eval evals/agents/analyst-agent/tool-order",
+    "eval:reports": "npx braintrust eval evals/agents/analyst-agent/report-builder",
     "braintrust:push": "npx braintrust push evals/agents/analyst-agent/metrics/test_scorers.ts",
     "braintrust:push:metric:staged": "npx braintrust push evals/agents/analyst-agent/metrics/staged_scorers.ts",
     "braintrust:push:chart:staged": "npx braintrust push evals/agents/analyst-agent/chart-formatting/staged-scorers.ts",
@@ -39,6 +40,7 @@
   "dependencies": {
     "@ai-sdk/anthropic": "^1.2.12",
     "@ai-sdk/google-vertex": "^2.2.27",
+    "@ai-sdk/openai": "^1.3.23",
     "@ai-sdk/provider": "^1.1.3",
     "@buster/access-controls": "workspace:*",
     "@buster/data-source": "workspace:*",

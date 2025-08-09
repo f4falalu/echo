@@ -12,23 +12,29 @@ import { useAutoScroll } from '@/hooks/useAutoScroll';
 import { ReasoningMessageSelector } from './ReasoningMessages';
 import { BlackBoxMessage } from './ReasoningMessages/ReasoningBlackBoxMessage';
 import { ReasoningScrollToBottom } from './ReasoningScrollToBottom';
+import type { BusterChatMessage, IBusterChat } from '@/api/asset_interfaces/chat';
 
 interface ReasoningControllerProps {
   chatId: string;
   messageId: string;
 }
 
+const stableHasChatSelector = (x: IBusterChat) => !!x.id;
+const stableReasoningMessageIdsSelector = (x: BusterChatMessage) => x?.reasoning_message_ids || [];
+const stableIsStreamFinishedSelector = (x: BusterChatMessage) => x?.is_completed;
+const stableFinalReasoningMessageSelector = (x: BusterChatMessage) => x?.final_reasoning_message;
+
 export const ReasoningController: React.FC<ReasoningControllerProps> = ({ chatId, messageId }) => {
-  const { data: hasChat } = useGetChat({ id: chatId || '' }, { select: (x) => !!x.id });
+  const { data: hasChat } = useGetChat({ id: chatId || '' }, { select: stableHasChatSelector });
   const { data: reasoning_message_ids = [] } = useGetChatMessage(messageId, {
-    select: ({ reasoning_message_ids }) => reasoning_message_ids
+    select: stableReasoningMessageIdsSelector
   });
   const reasoningMessageIds = useMemo(() => reasoning_message_ids, [reasoning_message_ids]);
   const { data: isStreamFinished } = useGetChatMessage(messageId, {
-    select: ({ is_completed }) => is_completed
+    select: stableIsStreamFinishedSelector
   });
   const { data: finalReasoningMessage } = useGetChatMessage(messageId, {
-    select: ({ final_reasoning_message }) => final_reasoning_message
+    select: stableFinalReasoningMessageSelector
   });
   const { data: blackBoxMessage } = useQuery({
     ...queryKeys.chatsBlackBoxMessages(messageId),
@@ -52,7 +58,7 @@ export const ReasoningController: React.FC<ReasoningControllerProps> = ({ chatId
 
   return (
     <>
-      <ScrollArea viewportRef={viewportRef} className="swag h-full">
+      <ScrollArea viewportRef={viewportRef} className="h-full">
         <div className="h-full flex-col space-y-0.5 overflow-y-auto p-5">
           {reasoningMessageIds?.map((reasoningMessageId, messageIndex) => (
             <ReasoningMessageSelector

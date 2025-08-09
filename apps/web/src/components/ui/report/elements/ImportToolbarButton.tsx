@@ -4,7 +4,6 @@ import * as React from 'react';
 
 import type { DropdownMenuProps } from '@radix-ui/react-dropdown-menu';
 
-import { MarkdownPlugin } from '@platejs/markdown';
 import { getEditorDOMFromHtmlString } from 'platejs';
 import { useEditorRef } from 'platejs/react';
 import { useFilePicker } from 'use-file-picker';
@@ -21,6 +20,7 @@ import {
 
 import { ToolbarButton } from '@/components/ui/toolbar/Toolbar';
 import type { SelectedFilesOrErrors } from 'use-file-picker/types';
+import { MarkdownPlugin } from '@platejs/markdown';
 
 type ImportType = 'html' | 'markdown';
 
@@ -73,7 +73,7 @@ export function ImportToolbarButton(props: DropdownMenuProps) {
 
   return (
     <DropdownMenu open={open} onOpenChange={setOpen} modal={false} {...props}>
-      <DropdownMenuTrigger>
+      <DropdownMenuTrigger asChild>
         <ToolbarButton pressed={open} tooltip={createLabel('import')} isDropdown>
           <div className="size-4">
             <NodeTypeIcons.import />

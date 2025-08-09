@@ -2,12 +2,7 @@
 
 import * as React from 'react';
 import * as DropdownMenuPrimitive from '@radix-ui/react-dropdown-menu';
-import {
-  Check3 as Check,
-  RadioChecked,
-  ChevronRight,
-  RadioUnchecked
-} from '../icons/NucleoIconOutlined';
+import { Check3 as Check, ChevronRight, RadioUnchecked } from '../icons/NucleoIconOutlined';
 
 import { cn } from '@/lib/utils';
 import { THEME_RESET_STYLE } from '@/styles/theme-reset';
