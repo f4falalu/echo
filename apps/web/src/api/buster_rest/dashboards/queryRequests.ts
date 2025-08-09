@@ -84,17 +84,22 @@ export const useGetDashboard = <TData = BusterDashboardResponse>(
   });
 };
 
-export const usePrefetchGetDashboardClient = () => {
+export const usePrefetchGetDashboardClient = <TData = BusterDashboardResponse>(
+  params?: Omit<
+    UseQueryOptions<BusterDashboardResponse, RustApiError, TData>,
+    'queryKey' | 'queryFn'
+  >
+) => {
   const queryClient = useQueryClient();
   const queryFn = useGetDashboardAndInitializeMetrics({ prefetchData: false });
   return useMemoizedFn((id: string, versionNumber: number) => {
     const getDashboardQueryKey = dashboardQueryKeys.dashboardGetDashboard(id, versionNumber);
-    const isStale = isQueryStale(getDashboardQueryKey, queryClient);
-    if (!isStale) return queryClient;
-
+    const isStale = isQueryStale(getDashboardQueryKey, queryClient) || params?.staleTime === 0;
+    if (!isStale) return;
     return queryClient.prefetchQuery({
       ...dashboardQueryKeys.dashboardGetDashboard(id, versionNumber),
-      queryFn: () => queryFn(id, versionNumber)
+      queryFn: () => queryFn(id, versionNumber),
+      ...params
     });
   });
 };
