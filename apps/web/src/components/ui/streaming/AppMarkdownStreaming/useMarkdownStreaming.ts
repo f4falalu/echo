@@ -16,7 +16,6 @@ const throttle = throttleBasic({
 });
 
 const blocks = [
-  // Handle code blocks (triple backticks)
   {
     component: CodeComponentStreaming,
     findCompleteMatch: findCompleteCodeBlock(),
