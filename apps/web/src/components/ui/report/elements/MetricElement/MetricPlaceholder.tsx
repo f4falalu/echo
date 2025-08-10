@@ -6,22 +6,20 @@ import {
   useReadOnly,
   useElement,
   usePluginOption,
-  type PlateEditor,
-  useSelected,
-  useFocused
+  type PlateEditor
 } from 'platejs/react';
 import React, { useEffect } from 'react';
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import { AddMetricModal } from '@/components/features/modal/AddMetricModal';
 import { MetricPlugin, type TMetricElement } from '../../plugins/metric-kit';
 
-export const MetricEmbedPlaceholder: React.FC = () => {
+export const MetricEmbedPlaceholder: React.FC<{
+  className?: string;
+}> = ({ className }) => {
   const [openModal, setOpenModal] = React.useState(false);
   const editor = useEditorRef();
   const plugin = editor.getPlugin(MetricPlugin);
   const readOnly = useReadOnly();
-  const selected = useSelected();
-  const focused = useFocused();
   const element = useElement<TMetricElement>();
 
   // Use usePluginOption to make the component reactive to plugin option changes
@@ -47,11 +45,12 @@ export const MetricEmbedPlaceholder: React.FC = () => {
 
   return (
     <>
-      <div className={cn('metric-placeholder py-2.5')}>
+      <div className={'metric-placeholder py-2.5'}>
         <div
           onClick={onOpenAddMetricModal}
           className={cn(
-            'bg-muted hover:bg-primary/10 flex cursor-pointer items-center rounded-sm p-3 pr-9 select-none'
+            'bg-muted hover:bg-primary/10 flex cursor-pointer items-center rounded-sm p-3 pr-9 select-none',
+            className
           )}
           contentEditable={false}>
           <div className="text-muted-foreground/80 relative mr-3 flex [&_svg]:size-6">

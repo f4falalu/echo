@@ -5,18 +5,21 @@ import { useChatLayoutContextSelector } from '@/layouts/ChatLayout';
 import { assetParamsToRoute } from '@/lib/assets/assetParamsToRoute';
 import React, { useMemo, useRef } from 'react';
 import { useMetricContentThreeDotMenuItems } from './useMetricContentThreeDotMenuItems';
+import { cn } from '@/lib/utils';
 
 export const MetricContent = React.memo(
   ({
     metricId,
     metricVersionNumber,
     isExportMode = false,
-    readOnly = false
+    readOnly = false,
+    className
   }: {
     metricId: string;
     metricVersionNumber: number | undefined;
     readOnly?: boolean;
     isExportMode?: boolean;
+    className?: string;
   }) => {
     const chatId = useChatLayoutContextSelector((x) => x.chatId);
     const reportId = useChatLayoutContextSelector((x) => x.reportId) || '';
@@ -72,6 +75,7 @@ export const MetricContent = React.memo(
 
     return (
       <MetricCard
+        className={cn('transition-all duration-100', className)}
         ref={ref}
         metricLink={link}
         animate={!isExportMode}

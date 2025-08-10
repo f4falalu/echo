@@ -37,6 +37,7 @@ import { TableKit } from './plugins/table-kit';
 import { TocKit } from './plugins/toc-kit';
 import { ToggleKit } from './plugins/toggle-kit';
 import { BusterStreamKit } from './plugins/buster-stream-kit';
+import { CaptionKit } from './plugins/caption-kit';
 
 export const EditorKit = [
   // Editing
@@ -61,6 +62,7 @@ export const EditorKit = [
   ...DateKit,
   ...LinkKit,
   ...MentionKit,
+  ...CaptionKit,
 
   // Marks
   ...BasicMarksKit,
