@@ -93,7 +93,7 @@ export const FileCard = React.memo(
               variant={'gray'}
               size={'xsmall'}
               className={cn(
-                'justify-center',
+                'justify-center font-sans',
                 isChevronCollapsible && 'cursor-pointer select-none',
                 isChevronCollapsible && isCollapsed && 'border-b-0',
                 headerClassName

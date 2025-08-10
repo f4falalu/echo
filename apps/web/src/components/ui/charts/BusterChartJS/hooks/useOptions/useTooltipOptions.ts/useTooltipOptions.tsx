@@ -151,7 +151,7 @@ export const useTooltipOptions = ({
   useUnmount(() => {
     // Clear the cache to prevent memory leaks
     tooltipCache.current = {};
-    
+
     // Remove tooltip element if it exists
     const tooltipEl = document.getElementById('buster-chartjs-tooltip');
     if (tooltipEl && tooltipEl.parentNode) {

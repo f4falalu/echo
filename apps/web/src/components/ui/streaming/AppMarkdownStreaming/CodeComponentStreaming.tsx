@@ -16,7 +16,7 @@ const CodeComponentStreaming: LLMOutputComponent = ({ blockMatch }) => {
   }
 
   return (
-    <CodeComponent language={language} isStreamFinished={isStreamFinished}>
+    <CodeComponent className="!font-sans" language={language} isStreamFinished={isStreamFinished}>
       {blockMatch.visibleText}
     </CodeComponent>
   );
