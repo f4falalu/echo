@@ -20,6 +20,21 @@
         "@buster-app/api-legacy#dev",
         "@buster/server-utils#dev"
       ]
+    },
+    "dev:fast": {
+      "cache": false,
+      "persistent": true,
+      "dependsOn": ["@buster/database#start", "^build"],
+      "with": [
+        "@buster/ai#dev:fast",
+        "@buster/server-shared#dev:fast",
+        "@buster/access-controls#dev:fast",
+        "@buster/data-source#dev",
+        "@buster-app/trigger#dev:fast",
+        "@buster-app/electric-server#dev:fast",
+        "@buster-app/api-legacy#dev:fast",
+        "@buster/server-utils#dev:fast"
+      ]
     }
   }
 }

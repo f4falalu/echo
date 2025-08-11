@@ -20,6 +20,7 @@
     "build:dry-run": "tsc",
     "typecheck": "tsc --noEmit",
     "dev": "tsc --watch",
+    "dev:fast": "tsc --watch",
     "lint": "biome check --write",
     "test": "vitest run",
     "test:unit": "vitest run --exclude '**/*.int.test.ts' --exclude '**/*.integration.test.ts' --passWithNoTests",

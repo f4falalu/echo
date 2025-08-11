@@ -75,6 +75,7 @@
     "build": "tsc --build",
     "build:dry-run": "tsc --build",
     "dev": "tsc --watch",
+    "dev:fast": "tsc --watch",
     "lint": "biome check --write",
     "test": "vitest run",
     "test:integration": "vitest run **/*.int.test.ts **/*.integration.test.ts",
