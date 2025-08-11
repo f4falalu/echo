@@ -1,7 +1,6 @@
 import path, { dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import env from './src/config/env.mjs';
-import { withPostHogConfig } from '@posthog/nextjs-config';
 import withBundleAnalyzer from '@next/bundle-analyzer';
 
 const __filename = fileURLToPath(import.meta.url);

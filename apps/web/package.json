@@ -29,7 +29,8 @@
     "node": ">=22.0.0"
   },
   "dependencies": {
-    "@ariakit/react": "^0.4.17",
+    "@ariakit/react": "^0.4.18",
+    "@buster/env-utils": "workspace:*",
     "@buster/server-shared": "workspace:*",
     "@buster/typescript-config": "workspace:*",
     "@dnd-kit/core": "^6.3.1",

@@ -1,5 +1,9 @@
 import { z } from 'zod';
 
+// Load environment variables from root .env file
+import { loadRootEnv } from '@buster/env-utils';
+loadRootEnv();
+
 const isServer = typeof window === 'undefined';
 
 if (!isServer) {
@@ -67,7 +71,6 @@ try {
   serverEnv = serverEnvSchema.parse(process.env);
   console.log('Successfully parsed server environment variables');
   clientEnv = clientEnvSchema.parse(process.env);
-  console.log('Successfully parsed client environment variables');
 } catch (error) {
   console.error('❌ Server environment validation failed!');
   console.error('');
