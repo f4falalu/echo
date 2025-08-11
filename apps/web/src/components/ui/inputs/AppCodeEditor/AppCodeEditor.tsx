@@ -105,7 +105,7 @@ export const AppCodeEditor = forwardRef<AppCodeEditorHandle, AppCodeEditorProps>
         },
         ...monacoEditorOptions
       };
-    }, [readOnlyMessage, monacoEditorOptions]);
+    }, [language, readOnly, readOnlyMessage, monacoEditorOptions]);
 
     const onMountCodeEditor = useCallback(
       async (editor: editor.IStandaloneCodeEditor, monaco: typeof import('monaco-editor')) => {
@@ -121,9 +121,13 @@ export const AppCodeEditor = forwardRef<AppCodeEditorHandle, AppCodeEditorProps>
           colorDecorators: true
         });
         if (onChangeEditorHeight) {
-          editor.onDidContentSizeChange(() => {
+          const contentSizeDisposable = editor.onDidContentSizeChange(() => {
             const contentHeight = editor.getContentHeight();
             onChangeEditorHeight(contentHeight);
+          });
+          // Ensure our listener is disposed with the editor
+          editor.onDidDispose(() => {
+            contentSizeDisposable.dispose();
           });
         }
 
@@ -137,7 +141,7 @@ export const AppCodeEditor = forwardRef<AppCodeEditorHandle, AppCodeEditorProps>
           onMetaEnter?.();
         });
       },
-      [onChangeEditorHeight, language, onMount, useDarkMode]
+      [onChangeEditorHeight, language, onMount, useDarkMode, onMetaEnter]
     );
 
     const onChangeCodeEditor = useCallback(
