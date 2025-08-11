@@ -10,6 +10,15 @@ const apiUrl = new URL(env.NEXT_PUBLIC_API_URL).origin;
 const api2Url = new URL(env.NEXT_PUBLIC_API2_URL).origin;
 const profilePictureURL = 'https://googleusercontent.com';
 
+// Derive Supabase origins (HTTP and WS) from env so CSP allows them in all modes
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseOrigin = supabaseUrl ? new URL(supabaseUrl).origin : '';
+const supabaseWsOrigin = supabaseUrl
+  ? supabaseUrl.startsWith('https')
+    ? supabaseOrigin.replace('https', 'wss')
+    : supabaseOrigin.replace('http', 'ws')
+  : '';
+
 // Function to create CSP header with dynamic API URLs
 const createCspHeader = (isEmbed = false) => {
   const isDev = process.env.NODE_ENV === 'development';
@@ -42,6 +51,8 @@ const createCspHeader = (isEmbed = false) => {
         "'self'",
         'data:', // Allow data URLs for PDF exports and other data URI downloads
         localDomains,
+        supabaseOrigin,
+        supabaseWsOrigin,
         'https://*.vercel.app',
         'https://*.supabase.co',
         'wss://*.supabase.co',
