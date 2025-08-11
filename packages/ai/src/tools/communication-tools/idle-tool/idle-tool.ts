@@ -39,9 +39,7 @@ function createIdleExecute() {
 }
 
 // Factory: simple tool without streaming lifecycle
-export function createIdleTool<TAgentContext extends IdleContext = IdleContext>(
-  _context: TAgentContext
-) {
+export function createIdleTool() {
   const execute = createIdleExecute();
 
   return tool({
@@ -52,8 +50,3 @@ export function createIdleTool<TAgentContext extends IdleContext = IdleContext>(
     execute,
   });
 }
-
-// Back-compat default instance
-export const idleTool = createIdleTool({});
-
-export default idleTool;

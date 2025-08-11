@@ -43,9 +43,7 @@ export type DoneToolOutput = z.infer<typeof DoneToolOutputSchema>;
 export type DoneToolContext = z.infer<typeof DoneToolContextSchema>;
 export type DoneToolState = z.infer<typeof DoneToolStateSchema>;
 
-export function createDoneTool<TAgentContext extends DoneToolContext = DoneToolContext>(
-  context: TAgentContext
-) {
+export function createDoneTool(context: DoneToolContext) {
   const state: DoneToolState = {
     entry_id: undefined,
     args: undefined,

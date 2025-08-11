@@ -47,9 +47,9 @@ export type MessageUserClarifyingQuestionState = z.infer<
 >;
 
 // Factory function that accepts agent context and creates the tool
-export function createMessageUserClarifyingQuestionTool<
-  TAgentContext extends MessageUserClarifyingQuestionContext = MessageUserClarifyingQuestionContext,
->(context: TAgentContext) {
+export function createMessageUserClarifyingQuestionTool(
+  context: MessageUserClarifyingQuestionContext
+) {
   // Initialize state for streaming
   const state: MessageUserClarifyingQuestionState = {
     toolCallId: undefined,

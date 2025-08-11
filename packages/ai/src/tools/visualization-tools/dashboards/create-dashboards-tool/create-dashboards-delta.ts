@@ -1,5 +1,4 @@
 import { updateMessageEntries } from '@buster/database';
-import type { ChatMessageReasoningMessage } from '@buster/server-shared/chats';
 import type { ToolCallOptions } from 'ai';
 import {
   OptimisticJsonParser,
@@ -7,13 +6,20 @@ import {
 } from '../../../../utils/streaming/optimistic-json-parser';
 import type {
   CreateDashboardsContext,
-  CreateDashboardsFile,
+  CreateDashboardsReasoningFile,
   CreateDashboardsState,
 } from './create-dashboards-tool';
 import {
-  TOOL_KEYS,
-  createDashboardsReasoningMessage,
+  createCreateDashboardsRawLlmMessageEntry,
+  createCreateDashboardsReasoningEntry,
 } from './helpers/create-dashboards-tool-transform-helper';
+
+// Define TOOL_KEYS locally since we removed them from the helper
+const TOOL_KEYS = {
+  files: 'files' as const,
+  name: 'name' as const,
+  yml_content: 'yml_content' as const,
+};
 
 export function createCreateDashboardsDelta(
   context: CreateDashboardsContext,
@@ -21,7 +27,7 @@ export function createCreateDashboardsDelta(
 ) {
   return async (options: { inputTextDelta: string } & ToolCallOptions) => {
     // Handle string deltas (accumulate JSON text)
-    state.argsText += options.inputTextDelta;
+    state.argsText = (state.argsText || '') + options.inputTextDelta;
 
     // Try to parse the accumulated JSON
     const parseResult = OptimisticJsonParser.parse(state.argsText || '');
@@ -36,7 +42,7 @@ export function createCreateDashboardsDelta(
 
       if (filesArray && Array.isArray(filesArray)) {
         // Update state files with streamed data
-        const updatedFiles: CreateDashboardsFile[] = [];
+        const updatedFiles: CreateDashboardsReasoningFile[] = [];
 
         filesArray.forEach((file) => {
           if (file && typeof file === 'object') {
@@ -63,32 +69,44 @@ export function createCreateDashboardsDelta(
         });
 
         state.files = updatedFiles;
+        
+        // Also update parsedArgs as we stream for raw LLM message
+        if (updatedFiles.length > 0) {
+          state.parsedArgs = {
+            files: updatedFiles.map(f => ({
+              name: f.name,
+              yml_content: f.yml_content,
+            })),
+          };
+        }
       }
     }
 
-    // Update database ONLY if both context.messageId AND state.reasoningEntryId exist
+    // Update database with both reasoning and raw LLM entries
     if (context.messageId && state.toolCallId) {
       try {
-        // Filter out undefined entries
-        if (state.files) {
-          const validFiles = state.files.filter((f) => f);
+        const reasoningEntry = createCreateDashboardsReasoningEntry(state, options.toolCallId);
+        const rawLlmMessage = createCreateDashboardsRawLlmMessageEntry(state, options.toolCallId);
 
-          if (validFiles.length > 0) {
-            const reasoningMessage = createDashboardsReasoningMessage(
-              state.toolCallId || `tool-${Date.now()}`,
-              validFiles,
-              'loading'
-            );
+        // Update both entries together if they exist
+        const updates: Parameters<typeof updateMessageEntries>[0] = {
+          messageId: context.messageId,
+          mode: 'update',
+        };
 
-            await updateMessageEntries({
-              messageId: context.messageId,
-              responseEntry: reasoningMessage as ChatMessageReasoningMessage,
-              mode: 'update',
-            });
-          }
+        if (reasoningEntry) {
+          updates.responseEntry = reasoningEntry;
+        }
+
+        if (rawLlmMessage) {
+          updates.rawLlmMessageEntry = rawLlmMessage;
+        }
+
+        if (reasoningEntry || rawLlmMessage) {
+          await updateMessageEntries(updates);
         }
       } catch (error) {
-        console.error('[create-dashboards] Error updating reasoning entry during delta:', error);
+        console.error('[create-dashboards] Error updating entries during delta:', error);
         // Don't throw - continue processing
       }
     }

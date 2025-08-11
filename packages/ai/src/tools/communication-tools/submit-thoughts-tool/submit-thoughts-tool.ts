@@ -29,9 +29,7 @@ function createSubmitThoughtsExecute() {
 }
 
 // Factory: returns a simple tool definition (no streaming lifecycle needed)
-export function createSubmitThoughtsTool<
-  TAgentContext extends SubmitThoughtsContext = SubmitThoughtsContext,
->(_context: TAgentContext) {
+export function createSubmitThoughtsTool() {
   const execute = createSubmitThoughtsExecute();
 
   return tool({
@@ -42,6 +40,3 @@ export function createSubmitThoughtsTool<
     execute,
   });
 }
-
-// Back-compat default instance (no context required)
-export const submitThoughts = createSubmitThoughtsTool({});

@@ -1,13 +1,14 @@
 import { updateMessageEntries } from '@buster/database';
-import type { ChatMessageReasoningMessage } from '@buster/server-shared/chats';
 import type { ToolCallOptions } from 'ai';
-import type { DoneToolInput } from '../../../communication-tools/done-tool/done-tool';
 import type {
   CreateDashboardsContext,
   CreateDashboardsInput,
   CreateDashboardsState,
 } from './create-dashboards-tool';
-import { createDashboardsReasoningMessage } from './helpers/create-dashboards-tool-transform-helper';
+import {
+  createCreateDashboardsRawLlmMessageEntry,
+  createCreateDashboardsReasoningEntry,
+} from './helpers/create-dashboards-tool-transform-helper';
 
 export function createCreateDashboardsFinish(
   context: CreateDashboardsContext,
@@ -28,22 +29,31 @@ export function createCreateDashboardsFinish(
       status: 'processing' as const,
     }));
 
-    // Update database ONLY if both context.messageId AND state.reasoningEntryId exist
+    // Update database with both reasoning and raw LLM entries
     if (context.messageId && state.toolCallId) {
       try {
-        const reasoningMessage = createDashboardsReasoningMessage(
-          state.toolCallId || `tool-${Date.now()}`,
-          state.files,
-          'loading'
-        );
+        const reasoningEntry = createCreateDashboardsReasoningEntry(state, options.toolCallId);
+        const rawLlmMessage = createCreateDashboardsRawLlmMessageEntry(state, options.toolCallId);
 
-        await updateMessageEntries({
+        // Update both entries together if they exist
+        const updates: Parameters<typeof updateMessageEntries>[0] = {
           messageId: context.messageId,
-          responseEntry: reasoningMessage as ChatMessageReasoningMessage,
           mode: 'update',
-        });
+        };
+
+        if (reasoningEntry) {
+          updates.responseEntry = reasoningEntry;
+        }
+
+        if (rawLlmMessage) {
+          updates.rawLlmMessageEntry = rawLlmMessage;
+        }
+
+        if (reasoningEntry || rawLlmMessage) {
+          await updateMessageEntries(updates);
+        }
       } catch (error) {
-        console.error('[create-dashboards] Error updating reasoning entry on finish:', error);
+        console.error('[create-dashboards] Error updating entries on finish:', error);
       }
     }
   };
