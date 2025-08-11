@@ -2,14 +2,12 @@ import { getUser, getUserOrganizationId } from '@buster/database';
 import type { Context, Next } from 'hono';
 import { bearerAuth } from 'hono/bearer-auth';
 import { isOrganizationAdmin } from '../utils/admin';
-import { createSupabaseClient } from './supabase';
-
-const supabase = createSupabaseClient();
+import { getSupabaseClient } from './supabase';
 
 export const requireAuth = bearerAuth({
   verifyToken: async (token, c) => {
     try {
-      const { data, error } = await supabase.auth.getUser(token); //usually takes about 3 - 7ms
+      const { data, error } = await getSupabaseClient().auth.getUser(token); //usually takes about 3 - 7ms
 
       if (error) {
         // Log specific auth errors to help with debugging
@@ -73,7 +71,7 @@ export async function requireUser(c: Context, next: Next) {
   }
 
   try {
-    const { data, error } = await supabase.auth.getUser(token);
+    const { data, error } = await getSupabaseClient().auth.getUser(token);
 
     if (error) {
       console.warn('Token validation failed in requireUser:', {

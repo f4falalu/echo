@@ -1,7 +1,6 @@
 import { dbPing } from '@buster/database';
 import { Hono } from 'hono';
 import type { Context } from 'hono';
-
 interface HealthCheckResult {
   status: 'healthy' | 'unhealthy' | 'degraded';
   timestamp: string;

@@ -17,3 +17,12 @@ export const createSupabaseClient = () => {
 
   return supabase;
 };
+
+let globalSupabase: ReturnType<typeof createSupabaseClient> | null = null;
+
+export const getSupabaseClient = () => {
+  if (!globalSupabase) {
+    globalSupabase = createSupabaseClient();
+  }
+  return globalSupabase;
+};
