@@ -1,38 +1,98 @@
 import * as React from 'react';
 
+/**
+ * Configuration for {@link useLLMStreaming}.
+ *
+ * Supply the full, accumulated `content` string as it grows over time. The
+ * hook will emit a progressively revealed substring to reduce re-render
+ * pressure while maintaining markdown-aware safety around backticks and code
+ * fences.
+ */
 export type UseLLMStreamingProps = {
-  // Full upstream content accumulated so far
+  /**
+   * Full upstream content accumulated so far. Provide the entire string as it
+   * grows; the hook determines what subset to show.
+   */
   content: string;
-  // Whether upstream stream has ended
+  /** Whether upstream stream has ended. Drives final flushing behavior. */
   isStreamFinished: boolean;
-  // Number of characters we want buffered beyond the emitted chunk before flushing
+  /**
+   * Number of characters to keep buffered beyond the emitted chunk before
+   * flushing. Higher values increase perceived smoothness at the cost of
+   * latency.
+   * @defaultValue 21
+   */
   targetBufferChars?: number;
-  // Minimum characters to emit per frame
+  /**
+   * Minimum characters to emit per frame.
+   * @defaultValue 4
+   */
   minChunkChars?: number;
-  // Maximum characters to emit per frame
+  /**
+   * Maximum characters to emit per frame.
+   * @defaultValue 45
+   */
   maxChunkChars?: number;
-  // Preferred frame pacing (ms) to gate re-renders; 33ms ≈ 30fps
+  /**
+   * Preferred frame pacing in milliseconds used to gate re-renders (33ms ≈ 30fps).
+   * @defaultValue 33
+   */
   frameLookBackMs?: number;
-  // Percentage [0..1] to scale chunk size based on recent input growth
+  /**
+   * Percentage in [0..1] used to scale chunk size based on recent input growth.
+   * @defaultValue 0.35
+   */
   adjustPercentage?: number;
-  // Hold back a few characters to ensure correct markdown rendering
+  /**
+   * Read-ahead characters required beyond the next chunk to avoid rendering
+   * partial tokens that could break markdown.
+   * @defaultValue 6
+   */
   readAheadChars?: number;
-  // Maximum time to wait for read-ahead before forcing a flush
+  /**
+   * Maximum time to wait for read-ahead before forcing a flush.
+   * @defaultValue 200
+   */
   readAheadMaxMs?: number;
-  // If true, apply simple markdown-aware boundaries (inline code/backticks)
+  /**
+   * If true, apply markdown-aware boundaries to avoid starting inline or fenced
+   * code blocks without also rendering their closers when possible.
+   * @defaultValue true
+   */
   markdownSafeBoundaries?: boolean;
-  // Do not delay beyond this total lag when stream has finished; flush all
+  /**
+   * If true, do not delay beyond the configured gating once the stream has
+   * finished; flush the remainder immediately.
+   * @defaultValue true
+   */
   flushImmediatelyOnComplete?: boolean;
 };
 
+/**
+ * Return value of {@link useLLMStreaming}.
+ */
 export type UseLLMStreamingReturn = {
+  /** The currently visible, throttled subset of the upstream `content`. */
   throttledContent: string;
+  /** True when `isStreamFinished` is true and all characters have been emitted. */
   isDone: boolean;
+  /** Immediately reveal all available upstream `content`. */
   flushNow: () => void;
+  /** Reset internal state and visible content back to empty. */
   reset: () => void;
 };
 
-// Compute a safe chunk length given backlog and configuration
+/**
+ * Compute an emission chunk length given backlog and configuration.
+ *
+ * The result respects min/max chunk sizes and is increased proportionally
+ * to recent upstream growth to keep up with fast producers.
+ *
+ * @param backlogLength - Characters remaining to be emitted.
+ * @param recentDelta - Increase in source length since the last pacing window.
+ * @param cfg - Required emission configuration bounds and growth scaling.
+ * @returns A safe chunk size to emit on this frame.
+ */
 function computeChunkLength(
   backlogLength: number,
   recentDelta: number,
@@ -51,7 +111,13 @@ function computeChunkLength(
   return Math.max(cfg.minChunkChars, Math.min(cfg.maxChunkChars, candidate));
 }
 
-// Count number of triple-backtick fences in a substring
+/**
+ * Count the number of triple-backtick code-fence tokens (```)
+ * present in the provided text.
+ *
+ * @param text - Substring to inspect.
+ * @returns Count of fence tokens.
+ */
 function countFencesIn(text: string): number {
   const fenceRegex = /```/g;
   let count = 0;
@@ -59,7 +125,13 @@ function countFencesIn(text: string): number {
   return count;
 }
 
-// Count isolated single backticks (not part of fences) in a small chunk
+/**
+ * Count isolated single backticks (not part of a fence) in the given text.
+ * A backtick is considered isolated if neither neighbor is a backtick.
+ *
+ * @param text - Substring to inspect.
+ * @returns Count of isolated backticks.
+ */
 function countIsolatedBackticks(text: string): number {
   let count = 0;
   for (let i = 0; i < text.length; i++) {
@@ -70,7 +142,13 @@ function countIsolatedBackticks(text: string): number {
   return count;
 }
 
-// Find first isolated single backtick index in a small chunk
+/**
+ * Find the index of the first isolated single backtick in the given text.
+ * Returns -1 if none exist.
+ *
+ * @param text - Substring to inspect.
+ * @returns Index of the first isolated backtick, or -1.
+ */
 function findFirstIsolatedBacktickIndex(text: string): number {
   for (let i = 0; i < text.length; i++) {
     if (text[i] === '`' && text[i - 1] !== '`' && text[i + 1] !== '`') {
@@ -80,6 +158,14 @@ function findFirstIsolatedBacktickIndex(text: string): number {
   return -1;
 }
 
+/**
+ * Find the next isolated backtick index in `text` starting from `startIndex`.
+ * Returns -1 if none exist.
+ *
+ * @param text - Substring to inspect.
+ * @param startIndex - Starting offset to begin the search.
+ * @returns Index of the next isolated backtick, or -1.
+ */
 function findNextIsolatedBacktickIndexFrom(text: string, startIndex: number): number {
   for (let i = startIndex; i < text.length; i++) {
     if (text[i] === '`' && text[i - 1] !== '`' && text[i + 1] !== '`') {
@@ -89,6 +175,32 @@ function findNextIsolatedBacktickIndexFrom(text: string, startIndex: number): nu
   return -1;
 }
 
+/**
+ * useLLMStreaming
+ *
+ * React hook that progressively reveals an upstream markdown `content` stream
+ * with frame-paced updates. It aims to balance responsiveness and readability
+ * by controlling the size and timing of emitted substrings, while avoiding
+ * rendering partial inline code segments or unbalanced ``` fences when possible.
+ *
+ * @remarks
+ * - Provide the full accumulated `content` string as it grows over time.
+ * - When `isStreamFinished` becomes true, the hook can flush the remaining
+ *   content immediately (configurable via `flushImmediatelyOnComplete`).
+ * - Use `flushNow` to reveal everything eagerly; use `reset` to clear state for
+ *   a new stream.
+ *
+ * @param props - {@link UseLLMStreamingProps}
+ * @returns {@link UseLLMStreamingReturn}
+ *
+ * @example
+ * ```tsx
+ * const { throttledContent, isDone, flushNow, reset } = useLLMStreaming({
+ *   content,
+ *   isStreamFinished
+ * });
+ * ```
+ */
 export const useLLMStreaming = ({
   content,
   isStreamFinished,
@@ -138,8 +250,7 @@ export const useLLMStreaming = ({
         shownLengthRef.current = content.length;
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isStreamFinished, content]);
+  }, [isStreamFinished, content, flushImmediatelyOnComplete, throttledContent.length]);
 
   const flushNow = React.useCallback(() => {
     setThrottledContent(content);
@@ -154,6 +265,8 @@ export const useLLMStreaming = ({
     readAheadStartTsRef.current = null;
     prevSourceLenRef.current = 0;
     prevSourceTsRef.current = 0;
+    fenceOpenRef.current = false;
+    inlineOpenRef.current = false;
   }, []);
 
   // Main animation frame loop
@@ -169,6 +282,14 @@ export const useLLMStreaming = ({
       const shownLen = shownLengthRef.current;
       const sourceLen = contentRef.current.length;
       const backlogLen = Math.max(0, sourceLen - shownLen);
+
+      // Defensive sync: if upstream content shrinks (e.g., reset without calling `reset()`),
+      // align the visible content to avoid a persistent RAF loop with zero backlog.
+      if (shownLen > sourceLen && shouldTick) {
+        setThrottledContent(contentRef.current);
+        shownLengthRef.current = sourceLen;
+        lastUpdateTsRef.current = now;
+      }
 
       // Track input growth to adapt chunk size
       const prevLen = prevSourceLenRef.current;
