@@ -363,15 +363,6 @@ export const ReadOnly: Story = {
   }
 };
 
-export const WithBulletList: Story = {
-  args: {
-    value: [
-      { type: 'h1', children: [{ text: 'Bullet List' }] },
-      { type: 'ul', children: [{ type: 'li', children: [{ text: 'Bullet list item 1' }] }] }
-    ]
-  }
-};
-
 export const WithCustomKit: Story = {
   args: {
     value: [

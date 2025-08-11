@@ -51,7 +51,7 @@ import {
 } from '@platejs/table';
 import { BaseTocPlugin } from '@platejs/toc';
 import { BaseTogglePlugin } from '@platejs/toggle';
-import { createSlateEditor } from 'platejs';
+import { KEYS, createSlateEditor } from 'platejs';
 import { MarkdownPlugin } from './MarkdownPlugin';
 
 export const BaseTableKit = [
@@ -103,10 +103,18 @@ const serverNode = [
   BaseFontColorPlugin,
   BaseFontFamilyPlugin,
   BaseFontSizePlugin,
-  BaseListPlugin,
   BaseTextAlignPlugin,
   BaseLineHeightPlugin,
-  BaseIndentPlugin,
+  BaseListPlugin.configure({
+    inject: {
+      targetPlugins: [...KEYS.heading, KEYS.p, KEYS.blockquote, KEYS.codeBlock, KEYS.toggle],
+    },
+  }),
+  BaseIndentPlugin.configure({
+    inject: {
+      targetPlugins: [...KEYS.heading, KEYS.p, KEYS.blockquote, KEYS.codeBlock, KEYS.toggle],
+    },
+  }),
 ];
 
 export const SERVER_EDITOR = createSlateEditor({

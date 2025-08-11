@@ -1221,3 +1221,146 @@ describe('platejsToMarkdown', () => {
     );
   });
 });
+
+describe('platejs to markdown and back to platejs', () => {
+  const stripIds = (els: ReportElements): ReportElements =>
+    JSON.parse(
+      JSON.stringify(els, (key, value) => (key === 'id' ? undefined : value))
+    ) as ReportElements;
+
+  it('should convert a simple list', async () => {
+    const elements: ReportElements = [{ type: 'h1', children: [{ text: 'Hello World' }] }];
+    const markdown = await platejsToMarkdown(elements);
+    const platejs = await markdownToPlatejs(markdown);
+    expect(platejs.elements).toEqual(elements);
+  });
+
+  it('should convert a simply report', async () => {
+    const elements: ReportElements = [
+      {
+        type: 'h1',
+        children: [
+          {
+            text: 'Welcome to the Report Editor',
+          },
+        ],
+        id: 'Vz_fc9l3OV',
+      },
+      {
+        type: 'p',
+        children: [
+          {
+            text: 'This is a sample paragraph with ',
+          },
+          {
+            text: 'bold text',
+            bold: true,
+          },
+          {
+            text: ' and ',
+          },
+          {
+            text: 'italic text',
+            italic: true,
+          },
+          {
+            text: '.',
+          },
+          {
+            text: 'hilight',
+            highlight: true,
+          },
+        ],
+        id: 'ClqektybwP',
+      },
+      {
+        type: 'p',
+        children: [
+          {
+            text: 'The end',
+          },
+        ],
+      },
+    ];
+    const markdown = await platejsToMarkdown(elements);
+    const platejs = await markdownToPlatejs(markdown);
+
+    // recursively remove all ids from both expected and actual elements before comparing
+
+    const expectedWithoutIds = stripIds(elements);
+    const actualWithoutIds = stripIds(platejs.elements);
+
+    expect(actualWithoutIds).toEqual(expectedWithoutIds);
+  });
+
+  it('should conver a list', async () => {
+    const elements: ReportElements = [
+      {
+        type: 'p',
+        children: [
+          {
+            text: '',
+            highlight: true,
+          },
+        ],
+        id: 'ClqektybwP',
+      },
+      {
+        type: 'h2',
+        children: [
+          {
+            text: 'Features',
+          },
+        ],
+        id: 'eVbnpcBwkp',
+      },
+      {
+        type: 'p',
+        id: 'FbIatZBASm',
+        children: [
+          {
+            text: 'Feature rich',
+          },
+        ],
+        indent: 1,
+        listStyleType: 'disc',
+      },
+      {
+        type: 'p',
+        id: '3p3BUsPf7T',
+        indent: 1,
+        listStyleType: 'disc',
+        children: [
+          {
+            text: 'Very cool',
+          },
+        ],
+      },
+      {
+        type: 'p',
+        id: 'zaPCCuMpTZ',
+        indent: 1,
+        listStyleType: 'disc',
+        children: [
+          {
+            text: 'Nice test',
+          },
+        ],
+      },
+      {
+        children: [
+          {
+            text: '',
+          },
+        ],
+        type: 'p',
+        id: 'hjDTOHWM9j',
+      },
+    ];
+    const markdown = await platejsToMarkdown(elements);
+    const platejs = await markdownToPlatejs(markdown);
+    const expectedWithoutIds = stripIds(elements);
+    const actualWithoutIds = stripIds(platejs.elements);
+    expect(actualWithoutIds).toEqual(expectedWithoutIds);
+  });
+});
