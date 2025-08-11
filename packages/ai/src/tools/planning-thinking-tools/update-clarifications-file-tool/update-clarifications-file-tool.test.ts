@@ -1,10 +1,24 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { createUpdateClarificationsFileTool } from './update-clarifications-file-tool';
+import type {
+  UpdateClarificationsFileToolInput,
+  UpdateClarificationsFileToolOutput,
+} from './update-clarifications-file-tool';
 
 describe('updateClarificationsFile', () => {
   let updateClarificationsFileTool: ReturnType<typeof createUpdateClarificationsFileTool>;
   let clarifications: any[];
   let updateClarificationsCalled: boolean;
+
+  // Helper to call execute with a concrete signature
+  const run = async (
+    input: UpdateClarificationsFileToolInput
+  ): Promise<UpdateClarificationsFileToolOutput> => {
+    const exec = updateClarificationsFileTool.execute as (
+      i: UpdateClarificationsFileToolInput
+    ) => Promise<UpdateClarificationsFileToolOutput>;
+    return exec(input);
+  };
 
   beforeEach(() => {
     clarifications = [];
@@ -21,7 +35,7 @@ describe('updateClarificationsFile', () => {
   });
 
   it('should add a clarification question successfully', async () => {
-    const result = await updateClarificationsFileTool.execute({
+    const result = await run({
       clarifications: [
         {
           issue: 'Database connection configuration',
@@ -52,7 +66,7 @@ describe('updateClarificationsFile', () => {
 
   it('should overwrite previous clarification when adding new one', async () => {
     // Add first clarification
-    await updateClarificationsFileTool.execute({
+    await run({
       clarifications: [
         {
           issue: 'First issue',
@@ -63,7 +77,7 @@ describe('updateClarificationsFile', () => {
     });
 
     // Add second clarification
-    const result = await updateClarificationsFileTool.execute({
+    const result = await run({
       clarifications: [
         {
           issue: 'Second issue',
@@ -89,7 +103,7 @@ describe('updateClarificationsFile', () => {
   it('should handle very long clarification content', async () => {
     const longText = 'A'.repeat(1000);
 
-    const result = await updateClarificationsFileTool.execute({
+    const result = await run({
       clarifications: [
         {
           issue: longText,
@@ -105,9 +119,8 @@ describe('updateClarificationsFile', () => {
     expect(result.clarifications?.[0]?.clarificationQuestion).toBe(`${longText}?`);
   });
 
-
   it('should handle empty strings', async () => {
-    const result = await updateClarificationsFileTool.execute({
+    const result = await run({
       clarifications: [
         {
           issue: '',
@@ -128,7 +141,7 @@ describe('updateClarificationsFile', () => {
   });
 
   it('should handle special characters in clarification content', async () => {
-    const result = await updateClarificationsFileTool.execute({
+    const result = await run({
       clarifications: [
         {
           issue: 'Issue with "quotes" and \'apostrophes\'',

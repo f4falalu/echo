@@ -1,10 +1,22 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { createCheckOffTodoListTool } from './check-off-todo-list-tool';
+import type {
+  CheckOffTodoListToolInput,
+  CheckOffTodoListToolOutput,
+} from './check-off-todo-list-tool';
 
 describe('checkOffTodoList', () => {
   let checkOffTodoListTool: ReturnType<typeof createCheckOffTodoListTool>;
   let todoList: string;
   let updateTodoListCalled: boolean;
+
+  // Helper to call execute with a concrete signature
+  const run = async (input: CheckOffTodoListToolInput): Promise<CheckOffTodoListToolOutput> => {
+    const exec = checkOffTodoListTool.execute as (
+      i: CheckOffTodoListToolInput
+    ) => Promise<CheckOffTodoListToolOutput>;
+    return exec(input);
+  };
 
   beforeEach(() => {
     todoList = '';
@@ -26,7 +38,7 @@ describe('checkOffTodoList', () => {
 - [ ] Implement feature
 - [ ] Review code`;
 
-    const result = await checkOffTodoListTool.execute({
+    const result = await run({
       todoItems: ['Write unit tests'],
     });
 
@@ -50,7 +62,7 @@ describe('checkOffTodoList', () => {
 - [ ] Review code
 - [ ] Deploy to production`;
 
-    const result = await checkOffTodoListTool.execute({
+    const result = await run({
       todoItems: ['Write unit tests', 'Review code'],
     });
 
@@ -70,7 +82,7 @@ describe('checkOffTodoList', () => {
 - [ ] Implement feature
 - [ ] Review code`;
 
-    const result = await checkOffTodoListTool.execute({
+    const result = await run({
       todoItems: ['Write unit tests', 'Non-existent task', 'Review code'],
     });
 
@@ -86,7 +98,7 @@ describe('checkOffTodoList', () => {
   it('should return error when todo list is not found in context', async () => {
     todoList = '';
 
-    const result = await checkOffTodoListTool.execute({
+    const result = await run({
       todoItems: ['Some task', 'Another task'],
     });
 
@@ -102,7 +114,7 @@ describe('checkOffTodoList', () => {
 - [ ] Write unit tests
 - [ ] Implement feature`;
 
-    const result = await checkOffTodoListTool.execute({
+    const result = await run({
       todoItems: ['Non-existent task', 'Another missing task'],
     });
 
@@ -121,7 +133,7 @@ describe('checkOffTodoList', () => {
 - [ ] Implement feature
 - [ ] Review code`;
 
-    const result = await checkOffTodoListTool.execute({
+    const result = await run({
       todoItems: ['Write unit tests', 'Implement feature'],
     });
 
@@ -137,7 +149,7 @@ describe('checkOffTodoList', () => {
     todoList = `## Todo List
 - [ ] Write unit tests`;
 
-    const result = await checkOffTodoListTool.execute({
+    const result = await run({
       todoItems: [],
     });
 
@@ -153,7 +165,7 @@ describe('checkOffTodoList', () => {
 - [ ] Write unit tests
 - [ ] Implement feature`;
 
-    const result = await checkOffTodoListTool.execute({
+    const result = await run({
       todoItems: ['Write unit tests'],
     });
 
@@ -164,5 +176,4 @@ describe('checkOffTodoList', () => {
     expect(lines[2]).toBe('- [ ] Write unit tests');
     expect(result.checkedOffItems).toEqual(['Write unit tests']);
   });
-
 });
