@@ -1,4 +1,4 @@
-import type { MetricElement } from '@buster/database';
+import type { MetricElement, TextElement } from '@buster/database';
 import { type MdRules, parseAttributes } from '@platejs/markdown';
 
 type MetricMdNode = MdRules['metric'];
@@ -8,7 +8,7 @@ export const metricSerializer: MetricMdNode = {
     const width = node.width;
     const metricId = node.metricId;
     const caption = node.caption;
-    const captionText = caption?.map((c) => c.text).join(' ');
+    const captionText: string = caption?.map((c) => (c as TextElement)?.text)?.join(' ') || '';
 
     if (!options.editor) {
       throw new Error('Editor is required');

@@ -1217,7 +1217,7 @@ describe('platejsToMarkdown', () => {
     const markdownFromPlatejs = await platejsToMarkdown(elements);
     expect(markdownFromPlatejs).toBeDefined();
     expect(markdownFromPlatejs).toContain(
-      '<metric metricId="TBD-REP-SEGMENT-LIST" width="100%"></metric>'
+      '<metric metricId="TBD-REP-SEGMENT-LIST" width="100%" caption=""></metric>'
     );
   });
 

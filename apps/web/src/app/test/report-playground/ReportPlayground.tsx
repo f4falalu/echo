@@ -38,9 +38,7 @@ export const ReportPlayground: React.FC = () => {
     { wait: 150 }
   );
 
-  const logValueChanges = (value: ReportElements) => {
-    console.log('value', value);
-  };
+  const logValueChanges = (value: ReportElements) => {};
 
   const usedValue: ReportElements = hasBeenSuccessFullAtLeastOnce ? data?.elements || [] : value;
 
