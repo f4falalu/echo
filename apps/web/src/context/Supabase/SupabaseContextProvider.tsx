@@ -9,10 +9,10 @@ import type { UseSupabaseUserContextType } from '@/lib/supabase';
 import { timeout } from '@/lib/timeout';
 import { useBusterNotifications } from '../BusterNotifications';
 import { flushSync } from 'react-dom';
-import { createBrowserClient } from '@/lib/supabase/client';
+import { getBrowserClient } from '@/lib/supabase/client';
 
 const PREEMTIVE_REFRESH_MINUTES = 5;
-const supabase = createBrowserClient();
+const supabase = getBrowserClient();
 
 const useSupabaseContextInternal = ({
   supabaseContext
