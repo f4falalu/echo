@@ -22,6 +22,8 @@ const DEFAULT_OPTIONS = {
     openai: {
       parallelToolCalls: false,
       reasoningEffort: 'minimal',
+      serviceTier: 'priority',
+      verbosity: 'low',
     },
   },
 };
