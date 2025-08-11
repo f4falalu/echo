@@ -1,12 +1,10 @@
 import { updateMessageEntries } from '@buster/database';
-import type { ChatMessageReasoningMessage } from '@buster/server-shared/chats';
 import type { ToolCallOptions } from 'ai';
-import type {
-  CreateDashboardsContext,
-  CreateDashboardsInput,
-  CreateDashboardsState,
-} from './create-dashboards-tool';
-import { createDashboardsReasoningMessage } from './helpers/create-dashboards-tool-transform-helper';
+import type { CreateDashboardsContext, CreateDashboardsState } from './create-dashboards-tool';
+import {
+  createCreateDashboardsRawLlmMessageEntry,
+  createCreateDashboardsReasoningEntry,
+} from './helpers/create-dashboards-tool-transform-helper';
 
 export function createDashboardsStart(
   context: CreateDashboardsContext,
@@ -14,22 +12,31 @@ export function createDashboardsStart(
 ) {
   return async (options: ToolCallOptions) => {
     state.toolCallId = options.toolCallId;
+    state.argsText = '';
+    state.files = [];
 
     if (context.messageId) {
       try {
-        const initialReasoningMessage = createDashboardsReasoningMessage(
-          state.toolCallId || `tool-${Date.now()}`,
-          [],
-          'loading'
-        );
+        // Initially we don't have files yet, so reasoning entry might be undefined
+        const reasoningEntry = createCreateDashboardsReasoningEntry(state, options.toolCallId);
+        const rawLlmMessage = createCreateDashboardsRawLlmMessageEntry(state, options.toolCallId);
 
-        const 
+        // Only update if we have something to update
+        if (reasoningEntry) {
+          await updateMessageEntries({
+            messageId: context.messageId,
+            responseEntry: reasoningEntry,
+            mode: 'append',
+          });
+        }
 
-        await updateMessageEntries({
-          messageId: context.messageId,
-          responseEntry: initialReasoningMessage as ChatMessageReasoningMessage,
-          mode: 'append',
-        });
+        if (rawLlmMessage) {
+          await updateMessageEntries({
+            messageId: context.messageId,
+            rawLlmMessageEntry: rawLlmMessage,
+            mode: 'append',
+          });
+        }
       } catch (error) {
         console.error('[create-dashboards] Error creating initial database entries:', error);
       }

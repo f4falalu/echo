@@ -14,12 +14,15 @@ describe('webSearch tool integration', () => {
   it.skipIf(!process.env.FIRECRAWL_API_KEY)(
     'should perform actual web search and return results',
     async () => {
-      const result = await webSearchTool.execute({
-        query: 'Buster Data',
-        limit: 10,
-        scrapeContent: true,
-        formats: ['markdown'],
-      });
+      const result = await webSearchTool.execute!(
+        {
+          query: 'Buster Data',
+          limit: 10,
+          scrapeContent: true,
+          formats: ['markdown'],
+        },
+        { toolCallId: 'test-tool-call', messages: [], abortSignal: new AbortController().signal }
+      );
 
       expect(result.success).toBe(true);
       expect(result.results).toBeDefined();
@@ -41,9 +44,12 @@ describe('webSearch tool integration', () => {
   it.skipIf(!process.env.FIRECRAWL_API_KEY)(
     'should handle search with minimal options',
     async () => {
-      const result = await webSearchTool.execute({
-        query: 'TypeScript',
-      });
+      const result = await webSearchTool.execute!(
+        {
+          query: 'TypeScript',
+        },
+        { toolCallId: 'test-tool-call', messages: [], abortSignal: new AbortController().signal }
+      );
 
       expect(result.success).toBe(true);
       expect(result.results).toBeDefined();

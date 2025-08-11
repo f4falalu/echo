@@ -43,7 +43,8 @@ export function createWebSearchTool() {
   return tool({
     description:
       'Search the web for information using Firecrawl. Returns search results with titles, URLs, descriptions, and optionally scraped content. Useful for finding current information, research, and web content.',
-    parameters: WebSearchToolInputSchema,
+    inputSchema: WebSearchToolInputSchema,
+    outputSchema: WebSearchToolOutputSchema,
     execute: createWebSearchToolExecute(),
   });
 }

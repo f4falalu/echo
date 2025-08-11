@@ -38,12 +38,15 @@ describe('webSearch tool', () => {
 
     mockFirecrawlService.webSearch.mockResolvedValue(mockResponse);
 
-    const result = await webSearchTool.execute({
-      query: 'test query',
-      limit: 5,
-      scrapeContent: true,
-      formats: ['markdown'],
-    });
+    const result = await webSearchTool.execute!(
+      {
+        query: 'test query',
+        limit: 5,
+        scrapeContent: true,
+        formats: ['markdown'],
+      },
+      { toolCallId: 'test-tool-call', messages: [], abortSignal: new AbortController().signal }
+    );
 
     expect(result.success).toBe(true);
     expect(result.results).toHaveLength(1);
@@ -63,12 +66,15 @@ describe('webSearch tool', () => {
 
     mockFirecrawlService.webSearch.mockResolvedValue(mockResponse);
 
-    await webSearchTool.execute({
-      query: 'test query',
-      limit: 3,
-      scrapeContent: true,
-      formats: ['html', 'markdown'],
-    });
+    await webSearchTool.execute!(
+      {
+        query: 'test query',
+        limit: 3,
+        scrapeContent: true,
+        formats: ['html', 'markdown'],
+      },
+      { toolCallId: 'test-tool-call', messages: [], abortSignal: new AbortController().signal }
+    );
 
     expect(mockFirecrawlService.webSearch).toHaveBeenCalledWith('test query', {
       limit: 3,
@@ -81,9 +87,12 @@ describe('webSearch tool', () => {
   it('should handle errors gracefully', async () => {
     mockFirecrawlService.webSearch.mockRejectedValue(new Error('Search failed'));
 
-    const result = await webSearchTool.execute({
-      query: 'test query',
-    });
+    const result = await webSearchTool.execute!(
+      {
+        query: 'test query',
+      },
+      { toolCallId: 'test-tool-call', messages: [], abortSignal: new AbortController().signal }
+    );
 
     expect(result.success).toBe(false);
     expect(result.results).toEqual([]);
@@ -98,9 +107,12 @@ describe('webSearch tool', () => {
 
     mockFirecrawlService.webSearch.mockResolvedValue(mockResponse);
 
-    await webSearchTool.execute({
-      query: 'test query',
-    });
+    await webSearchTool.execute!(
+      {
+        query: 'test query',
+      },
+      { toolCallId: 'test-tool-call', messages: [], abortSignal: new AbortController().signal }
+    );
 
     expect(mockFirecrawlService.webSearch).toHaveBeenCalledWith('test query', {
       limit: 5,
