@@ -83,7 +83,7 @@ const actualTokenArray = [
   {
     token:
       "Looking at the database context, I can see there's a `customer` model that serves as the comprehensive customer model for customer relationship management and purchase behavior analysis. ",
-    delayMs: 300
+    delayMs: 1300
   },
   {
     token: 'The customer is identified by `customerid` which is a unique identifier. ',
@@ -193,8 +193,8 @@ const actualTokenArray = [
 
 const StreamingDemo: React.FC<{ animation: MarkdownAnimation }> = ({ animation }) => {
   const { isStreamFinished, output } = useStreamTokenArray([
-    ...redRisingPoemTokenArray,
-    ...actualTokenArray
+    ...actualTokenArray,
+    ...redRisingPoemTokenArray
   ]);
 
   return (
