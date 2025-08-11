@@ -19,6 +19,7 @@
     "build:dry-run": "tsc",
     "typecheck": "tsc --noEmit",
     "dev": "tsc --watch",
+    "dev:fast": "tsc --watch",
     "dev:mastra": "mastra dev --dir src",
     "lint": "biome check --write",
     "test": "vitest run",

@@ -17,6 +17,11 @@
       "persistent": true,
       "dependsOn": ["@buster/database#dev"]
     },
+    "dev:fast": {
+      "cache": false,
+      "persistent": true,
+      "dependsOn": ["@buster/database#dev"]
+    },
     "lint": {
       "dependsOn": ["^lint"]
     },

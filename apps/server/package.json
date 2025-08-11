@@ -11,6 +11,7 @@
     "build": "tsup",
     "build:dry-run": "tsup",
     "dev": "bun --watch src/index.ts",
+    "dev:fast": "bun --watch src/index.ts",
     "dev:build": "tsup --watch",
     "lint": "biome check --write",
     "start": "bun dist/index.js",
