@@ -28,7 +28,7 @@ import { LineHeightKit } from './plugins/line-height-kit';
 import { LinkKit } from './plugins/link-kit';
 import { ListKit } from './plugins/list-kit';
 import { MarkdownKit } from './plugins/markdown-kit';
-import { MathKit } from './plugins/math-kit';
+// import { MathKit } from './plugins/math-kit';
 import { MediaKit } from './plugins/media-kit';
 import { MentionKit } from './plugins/mention-kit';
 import { SlashKit } from './plugins/slash-kit';
@@ -58,7 +58,7 @@ export const EditorKit = [
   ...MediaKit,
   ...CalloutKit,
   ...ColumnKit,
-  ...MathKit,
+  // ...MathKit,
   ...DateKit,
   ...LinkKit,
   ...MentionKit,

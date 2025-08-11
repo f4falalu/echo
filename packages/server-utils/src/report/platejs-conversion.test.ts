@@ -201,6 +201,59 @@ Here's an unordered list:
     expect((thirdElement as ParagraphElement).listStyleType).toBe('disc');
     expect(thirdElement.children[0]).toEqual({ text: 'Bullet list item 2' });
   });
+
+  it('dollar sign', async () => {
+    const markdown = `Top performers balance volume and value across purchase contexts:
+- **High-volume replacement parts** (1,088 orders, $16M revenue)
+- **High-value maintenance & upgrade** (535 orders, $21.4M revenue)`;
+
+    const platejs = await markdownToPlatejs(markdown);
+    expect(platejs.error).toBeUndefined();
+    expect(platejs.elements).toBeDefined();
+    const firstElement = platejs.elements[0];
+    expect(firstElement.type).toBe('p');
+    expect(firstElement.children[0]).toEqual({
+      text: 'Top performers balance volume and value across purchase contexts:',
+    });
+    expect(platejs.elements).toEqual([
+      {
+        children: [
+          {
+            text: 'Top performers balance volume and value across purchase contexts:',
+          },
+        ],
+        type: 'p',
+      },
+      {
+        children: [
+          {
+            bold: true,
+            text: 'High-volume replacement parts',
+          },
+          {
+            text: ' (1,088 orders, $16M revenue)',
+          },
+        ],
+        type: 'p',
+        indent: 1,
+        listStyleType: 'disc',
+      },
+      {
+        children: [
+          {
+            bold: true,
+            text: 'High-value maintenance & upgrade',
+          },
+          {
+            text: ' (535 orders, $21.4M revenue)',
+          },
+        ],
+        type: 'p',
+        indent: 1,
+        listStyleType: 'disc',
+      },
+    ]);
+  });
 });
 
 describe('platejsToMarkdown', () => {
