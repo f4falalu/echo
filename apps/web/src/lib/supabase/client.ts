@@ -12,3 +12,12 @@ export function createBrowserClient() {
 
   return createBrowserClientSSR(supabaseUrl, supabaseAnonKey);
 }
+
+let browserClient: ReturnType<typeof createBrowserClient> | null = null;
+
+export const getBrowserClient = () => {
+  if (!browserClient) {
+    browserClient = createBrowserClient();
+  }
+  return browserClient;
+};

@@ -9,10 +9,10 @@ import type { UseSupabaseUserContextType } from '@/lib/supabase';
 import { timeout } from '@/lib/timeout';
 import { useBusterNotifications } from '../BusterNotifications';
 import { flushSync } from 'react-dom';
-import { createBrowserClient } from '@/lib/supabase/client';
+import { getBrowserClient } from '@/lib/supabase/client';
 
 const PREEMTIVE_REFRESH_MINUTES = 5;
-const supabase = createBrowserClient();
+const supabase = getBrowserClient();
 
 const useSupabaseContextInternal = ({
   supabaseContext
@@ -20,8 +20,9 @@ const useSupabaseContextInternal = ({
   supabaseContext: UseSupabaseUserContextType;
 }) => {
   const refreshTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
-  const { openErrorNotification, openInfoMessage } = useBusterNotifications();
+  const { openErrorNotification } = useBusterNotifications();
   const [accessToken, setAccessToken] = useState(supabaseContext.accessToken || '');
+  const refreshInFlightRef = useRef<Promise<string> | null>(null);
 
   const isAnonymousUser: boolean =
     !supabaseContext.user?.id || supabaseContext.user?.is_anonymous === true;
@@ -29,9 +30,10 @@ const useSupabaseContextInternal = ({
   const getExpiresAt = useMemoizedFn((token?: string) => {
     try {
       const decoded = jwtDecode(token || accessToken);
-      const expiresAtDecoded = (decoded as { exp?: number } | undefined)?.exp || 0;
-      const ms = millisecondsFromUnixTimestamp(expiresAtDecoded);
-      return ms;
+      const expiresAtDecoded = (decoded as { exp?: number } | undefined)?.exp ?? 0;
+      const expiresAtMs = millisecondsFromUnixTimestamp(expiresAtDecoded);
+      const msUntilExpiry = Math.max(0, expiresAtMs - Date.now());
+      return msUntilExpiry;
     } catch {
       // If token is missing/invalid, report that it is effectively expired now
       return 0;
@@ -62,7 +64,10 @@ const useSupabaseContextInternal = ({
         const { data: sessionData } = await supabase.auth.getSession();
         const recoveredToken = sessionData.session?.access_token || '';
         if (recoveredToken) {
-          await onUpdateToken({ accessToken: recoveredToken, expiresAt: sessionData.session?.expires_at ?? 0 });
+          await onUpdateToken({
+            accessToken: recoveredToken,
+            expiresAt: sessionData.session?.expires_at ?? 0
+          });
           return {
             access_token: recoveredToken,
             isTokenValid: true
@@ -75,10 +80,37 @@ const useSupabaseContextInternal = ({
       const needsPreemptiveRefresh = minutesUntilExpiration < PREEMTIVE_REFRESH_MINUTES;
 
       if (needsPreemptiveRefresh) {
-        const { data: refreshedSession, error: refreshedSessionError } =
-          await supabase.auth.refreshSession();
+        try {
+          // Ensure only one refresh is in-flight
+          let refreshPromise = refreshInFlightRef.current;
+          if (!refreshPromise) {
+            refreshPromise = (async () => {
+              const { data: refreshedSession, error: refreshedSessionError } =
+                await supabase.auth.refreshSession();
 
-        if (refreshedSessionError || !refreshedSession.session) {
+              if (refreshedSessionError || !refreshedSession.session) {
+                throw refreshedSessionError || new Error('Failed to refresh session');
+              }
+
+              const refreshedAccessToken = refreshedSession.session.access_token;
+              const expiresAt = refreshedSession.session.expires_at ?? 0;
+              await onUpdateToken({ accessToken: refreshedAccessToken, expiresAt });
+              return refreshedAccessToken;
+            })();
+            refreshInFlightRef.current = refreshPromise;
+            // Clear the ref when the refresh resolves/rejects
+            void refreshPromise.finally(() => {
+              refreshInFlightRef.current = null;
+            });
+          }
+
+          const refreshedAccessToken = await refreshPromise;
+          await timeout(25);
+          return {
+            access_token: refreshedAccessToken,
+            isTokenValid: true
+          };
+        } catch (err) {
           openErrorNotification({
             title: 'Error refreshing session',
             description: 'Please refresh the page and try again',
@@ -88,21 +120,14 @@ const useSupabaseContextInternal = ({
           const { data: sessionData } = await supabase.auth.getSession();
           const fallbackToken = sessionData.session?.access_token || '';
           if (fallbackToken) {
-            await onUpdateToken({ accessToken: fallbackToken, expiresAt: sessionData.session?.expires_at ?? 0 });
+            await onUpdateToken({
+              accessToken: fallbackToken,
+              expiresAt: sessionData.session?.expires_at ?? 0
+            });
             return { access_token: fallbackToken, isTokenValid: true };
           }
-          throw refreshedSessionError || new Error('Failed to refresh session');
+          throw err;
         }
-
-        const refreshedAccessToken = refreshedSession.session?.access_token;
-        const expiresAt = refreshedSession.session?.expires_at ?? 0;
-
-        await onUpdateToken({ accessToken: refreshedAccessToken, expiresAt });
-        await timeout(25);
-        return {
-          access_token: refreshedAccessToken,
-          isTokenValid: true
-        };
       }
 
       return {
@@ -154,11 +179,16 @@ const useSupabaseContextInternal = ({
 
   useEffect(() => {
     // Keep access token in sync with Supabase client (captures auto-refresh events)
-    const { data: subscription } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: subscription } = supabase.auth.onAuthStateChange((event, session) => {
       const newToken = session?.access_token;
-      if (newToken) {
-        void onUpdateToken({ accessToken: newToken, expiresAt: session?.expires_at ?? 0 });
+      if (event === 'SIGNED_OUT' || !newToken) {
+        setAccessToken('');
+        if (refreshTimerRef.current) {
+          clearTimeout(refreshTimerRef.current);
+        }
+        return;
       }
+      void onUpdateToken({ accessToken: newToken, expiresAt: session?.expires_at ?? 0 });
     });
 
     return () => {
