@@ -40,7 +40,7 @@ describe('Dashboard Tool Prompt Instructions', () => {
 
   it('should load and process the prompt template correctly', () => {
     const sqlDialectGuidance = 'Test SQL guidance for PostgreSQL';
-    const result = getDashboardToolDescription(sqlDialectGuidance);
+    const result = getDashboardToolDescription();
 
     expect(result).toBeDefined();
     expect(typeof result).toBe('string');
@@ -59,7 +59,7 @@ describe('Dashboard Tool Prompt Instructions', () => {
   });
 
   it('should contain expected sections from the prompt template', () => {
-    const result = getDashboardToolDescription('Test guidance');
+    const result = getDashboardToolDescription();
 
     // Check for key sections that should be in the prompt
     // Note: These expectations may need to be adjusted based on the actual content
@@ -70,11 +70,11 @@ describe('Dashboard Tool Prompt Instructions', () => {
 
   it('should throw an error for empty SQL dialect guidance', () => {
     expect(() => {
-      getDashboardToolDescription('');
+      getDashboardToolDescription();
     }).toThrow('SQL dialect guidance is required');
 
     expect(() => {
-      getDashboardToolDescription('   '); // whitespace only
+      getDashboardToolDescription(); // whitespace only
     }).toThrow('SQL dialect guidance is required');
   });
 });

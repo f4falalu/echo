@@ -6,49 +6,49 @@ import { createCreateMetricsExecute } from './create-metrics-execute';
 import { createCreateMetricsFinish } from './create-metrics-finish';
 import { createCreateMetricsStart } from './create-metrics-start';
 
+const CreateMetricsInputFileSchema = z.object({
+  name: z
+    .string()
+    .describe(
+      "The natural language name/title for the metric, exactly matching the 'name' field within the YML content. This name will identify the metric in the UI. Do not include file extensions or use file path characters."
+    ),
+  yml_content: z
+    .string()
+    .describe(
+      "The YAML content for a single metric, adhering to the comprehensive metric schema. Multiple metrics can be created in one call by providing multiple entries in the 'files' array. **Prefer creating metrics in bulk.**"
+    ),
+});
+
 const CreateMetricsInputSchema = z.object({
   files: z
-    .array(
-      z.object({
-        name: z
-          .string()
-          .describe(
-            "The natural language name/title for the metric, exactly matching the 'name' field within the YML content. This name will identify the metric in the UI. Do not include file extensions or use file path characters."
-          ),
-        yml_content: z
-          .string()
-          .describe(
-            "The YAML content for a single metric, adhering to the comprehensive metric schema. Multiple metrics can be created in one call by providing multiple entries in the 'files' array. **Prefer creating metrics in bulk.**"
-          ),
-      })
-    )
+    .array(CreateMetricsInputFileSchema)
     .min(1)
     .describe(
       'List of file parameters to create. The files will contain YAML content that adheres to the metric schema specification.'
     ),
 });
 
+const CreateMetricsOutputFileSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  file_type: z.string(),
+  result_message: z.string().optional(),
+  results: z.array(z.record(z.any())).optional(),
+  created_at: z.string(),
+  updated_at: z.string(),
+  version_number: z.number(),
+});
+
+const CreateMetricsOutputFailedFileSchema = z.object({
+  name: z.string(),
+  error: z.string(),
+});
+
 const CreateMetricsOutputSchema = z.object({
   message: z.string(),
   duration: z.number(),
-  files: z.array(
-    z.object({
-      id: z.string(),
-      name: z.string(),
-      file_type: z.string(),
-      result_message: z.string().optional(),
-      results: z.array(z.record(z.any())).optional(),
-      created_at: z.string(),
-      updated_at: z.string(),
-      version_number: z.number(),
-    })
-  ),
-  failed_files: z.array(
-    z.object({
-      name: z.string(),
-      error: z.string(),
-    })
-  ),
+  files: z.array(CreateMetricsOutputFileSchema),
+  failed_files: z.array(CreateMetricsOutputFailedFileSchema),
 });
 
 const CreateMetricsContextSchema = z.object({
@@ -60,7 +60,7 @@ const CreateMetricsContextSchema = z.object({
   messageId: z.string().optional().describe('The message ID'),
 });
 
-const CreateMetricsFileSchema = z.object({
+const CreateMetricsReasoningFileSchema = z.object({
   name: z.string(),
   yml_content: z.string(),
   status: z.enum(['processing', 'completed', 'failed']).optional(),
@@ -72,22 +72,23 @@ const CreateMetricsFileSchema = z.object({
 const CreateMetricsStateSchema = z.object({
   toolCallId: z.string().optional(),
   argsText: z.string().optional(),
-  parsedArgs: CreateMetricsInputSchema.optional(),
-  files: z.array(CreateMetricsFileSchema).optional(),
+  files: z.array(CreateMetricsReasoningFileSchema).optional(),
+  failed_files: z.array(CreateMetricsReasoningFileSchema).optional(),
 });
 
 export type CreateMetricsInput = z.infer<typeof CreateMetricsInputSchema>;
 export type CreateMetricsOutput = z.infer<typeof CreateMetricsOutputSchema>;
 export type CreateMetricsContext = z.infer<typeof CreateMetricsContextSchema>;
-export type CreateMetricsFile = z.infer<typeof CreateMetricsFileSchema>;
+export type CreateMetricsReasoningFile = z.infer<typeof CreateMetricsReasoningFileSchema>;
 export type CreateMetricsState = z.infer<typeof CreateMetricsStateSchema>;
+export type CreateMetricsInputFile = z.infer<typeof CreateMetricsInputFileSchema>;
+export type CreateMetricsOutputFile = z.infer<typeof CreateMetricsOutputFileSchema>;
+export type CreateMetricsOutputFailedFile = z.infer<typeof CreateMetricsOutputFailedFileSchema>;
 
 export function createCreateMetricsTool(context: CreateMetricsContext) {
-  // Initialize state for streaming
   const state: CreateMetricsState = {
     argsText: undefined,
     files: undefined,
-    parsedArgs: undefined,
     toolCallId: undefined,
   };
 

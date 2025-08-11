@@ -6,14 +6,52 @@ import {
   metricFiles,
   metricFilesToDashboardFiles,
 } from '@buster/database';
-import type { ModelMessage } from 'ai';
 import { wrapTraced } from 'braintrust';
 import { inArray } from 'drizzle-orm';
 import * as yaml from 'yaml';
 import { z } from 'zod';
 import { trackFileAssociations } from '../../file-tracking-helper';
-import { createInitialDashboardVersionHistory } from '../version-history-helpers';
-import type { DashboardYml } from '../version-history-types';
+// Type definitions for version history
+interface DashboardYml {
+  name: string;
+  description?: string;
+  rows: Array<{
+    id: string;
+    items: Array<{ id: string }>;
+    columnSizes?: number[];
+    rowHeight?: number;
+  }>;
+}
+
+interface VersionHistory {
+  versions: Array<{
+    version: number;
+    created_at: string;
+    changes?: string;
+    content: DashboardYml;
+  }>;
+}
+
+// Helper function to create initial version history
+function createInitialDashboardVersionHistory(
+  dashboardYml: DashboardYml,
+  createdAt: string
+): VersionHistory {
+  return {
+    versions: [
+      {
+        version: 1,
+        created_at: createdAt,
+        content: dashboardYml,
+      },
+    ],
+  };
+}
+
+import {
+  DashboardConfig,
+  DashboardConfigSchema,
+} from '../../../../../../server-shared/src/dashboards/dashboard.types';
 import type {
   CreateDashboardsContext,
   CreateDashboardsInput,
@@ -61,18 +99,24 @@ type CreateDashboardFilesOutput = CreateDashboardsOutput;
 const dashboardYmlSchema = z.object({
   name: z.string().min(1, 'Dashboard name is required'),
   description: z.string().optional(),
-  rows: z.array(
-    z.object({
-      id: z.string(),
-      items: z.array(
-        z.object({
+  rows: z
+    .array(
+      z
+        .object({
           id: z.string(),
-        }).passthrough()
-      ),
-      column_sizes: z.array(z.number()).optional(),
-      rowHeight: z.number().optional(),
-    }).passthrough()
-  ).min(1, 'Dashboard must have at least one row'),
+          items: z.array(
+            z
+              .object({
+                id: z.string(),
+              })
+              .passthrough()
+          ),
+          column_sizes: z.array(z.number()).optional(),
+          rowHeight: z.number().optional(),
+        })
+        .passthrough()
+    )
+    .min(1, 'Dashboard must have at least one row'),
 });
 
 // Parse and validate dashboard YAML content
@@ -173,7 +217,9 @@ async function processDashboardFile(file: { name: string; yml_content: string })
   const dashboardId = randomUUID();
 
   // Collect all metric IDs from rows
-  const metricIds: string[] = dashboardYml.rows.flatMap((row) => row.items).map((item) => item.id);
+  const metricIds: string[] = dashboardYml.rows
+    .flatMap((row: { items: Array<{ id: string }> }) => row.items)
+    .map((item: { id: string }) => item.id);
 
   // Validate metric IDs if any exist
   if (metricIds.length > 0) {
@@ -200,7 +246,7 @@ async function processDashboardFile(file: { name: string; yml_content: string })
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
     version_number: 1,
-    content: dashboardYml as DashboardFileContent,
+    content: DashboardConfig,
   };
 
   return {
@@ -373,8 +419,8 @@ const createDashboardFiles = wrapTraced(
           // Create associations between metrics and dashboards
           for (const sp of successfulProcessing) {
             const metricIds: string[] = sp.dashboardYml.rows
-              .flatMap((row) => row.items)
-              .map((item) => item.id);
+              .flatMap((row: { items: Array<{ id: string }> }) => row.items)
+              .map((item: { id: string }) => item.id);
 
             if (metricIds.length > 0) {
               const metricDashboardAssociations = metricIds.map((metricId: string) => ({
@@ -496,7 +542,7 @@ export function createCreateDashboardsExecute(
 
               // Update state for final status
               if (state.files) {
-                state.files.forEach(f => {
+                state.files.forEach((f) => {
                   if (!f.status || f.status === 'processing') {
                     f.status = finalStatus === 'failed' ? 'failed' : 'completed';
                   }
@@ -516,7 +562,7 @@ export function createCreateDashboardsExecute(
               }
 
               if (rawLlmMessage) {
-                updates.rawLlmMessageEntry = rawLlmMessage;
+                updates.rawLlmMessage = rawLlmMessage;
               }
 
               if (reasoningEntry || rawLlmMessage) {
@@ -556,7 +602,7 @@ export function createCreateDashboardsExecute(
             const toolCallId = state.toolCallId || `tool-${Date.now()}`;
             // Update state files to failed status
             if (state.files) {
-              state.files.forEach(f => {
+              state.files.forEach((f) => {
                 f.status = 'failed';
               });
             }
@@ -574,7 +620,7 @@ export function createCreateDashboardsExecute(
             }
 
             if (rawLlmMessage) {
-              updates.rawLlmMessageEntry = rawLlmMessage;
+              updates.rawLlmMessage = rawLlmMessage;
             }
 
             if (reasoningEntry || rawLlmMessage) {

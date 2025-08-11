@@ -7,7 +7,7 @@ export { createCreateMetricsTool } from './visualization-tools/metrics/create-me
 export { createModifyMetricsTool } from './visualization-tools/metrics/modify-metrics-tool/modify-metrics-tool';
 export { createCreateDashboardsTool } from './visualization-tools/dashboards/create-dashboards-tool/create-dashboards-tool';
 export { createModifyDashboardsTool } from './visualization-tools/dashboards/modify-dashboards-tool/modify-dashboards-tool';
-export { executeSql, createExecuteSqlTool } from './database-tools/execute-sql/execute-sql';
+export { createExecuteSqlTool } from './database-tools/execute-sql/execute-sql';
 export { executeSqlDocsAgent } from './database-tools/super-execute-sql/super-execute-sql';
 // File tools - factory functions
 export { createListFilesTool } from './file-tools/list-files-tool/list-files-tool';

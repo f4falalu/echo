@@ -33,7 +33,7 @@ export function createDashboardsStart(
         if (rawLlmMessage) {
           await updateMessageEntries({
             messageId: context.messageId,
-            rawLlmMessageEntry: rawLlmMessage,
+            rawLlmMessage: rawLlmMessage,
             mode: 'append',
           });
         }

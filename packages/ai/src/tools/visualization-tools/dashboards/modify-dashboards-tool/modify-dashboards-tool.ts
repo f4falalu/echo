@@ -1,6 +1,6 @@
 import { tool } from 'ai';
 import { z } from 'zod';
-import { getDashboardToolDescription } from '../helpers/get-dashboard-tool-descripton';
+import { getDashboardToolDescription } from '../helpers/get-dashboard-tool-description';
 import { createModifyDashboardsDelta } from './modify-dashboards-delta';
 import { createModifyDashboardsExecute } from './modify-dashboards-execute';
 import { createModifyDashboardsFinish } from './modify-dashboards-finish';

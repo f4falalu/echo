@@ -46,7 +46,7 @@ export function createCreateDashboardsFinish(
         }
 
         if (rawLlmMessage) {
-          updates.rawLlmMessageEntry = rawLlmMessage;
+          updates.rawLlmMessage = rawLlmMessage;
         }
 
         if (reasoningEntry || rawLlmMessage) {

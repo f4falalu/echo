@@ -2,69 +2,21 @@ import type {
   ChatMessageReasoningMessage,
   ChatMessageResponseMessage,
 } from '@buster/server-shared/chats';
-import type { CreateMetricsFile, CreateMetricsInput } from '../create-metrics-tool';
+import type {
+  CreateMetricsFile,
+  CreateMetricsInput,
+  CreateMetricsState,
+} from '../create-metrics-tool';
 
 /**
  * Create a reasoning message entry for metrics creation
  */
 export function createMetricsReasoningMessage(
   toolCallId: string,
-  files: CreateMetricsFile[],
-  status: 'loading' | 'completed' | 'failed' = 'loading'
+  state: CreateMetricsState
 ): ChatMessageReasoningMessage {
-  // Transform files to the format expected by reasoning messages
-  interface FileEntry {
-    id: string;
-    file_type: string;
-    file_name: string;
-    version_number?: number;
-    status: string;
-    file: {
-      text: string;
-    };
-    error?: string;
-  }
-  const fileEntries: Record<string, FileEntry> = {};
-  const fileIds: string[] = [];
-
-  files.forEach((file) => {
-    const fileId = file.id || crypto.randomUUID();
-    fileIds.push(fileId);
-    fileEntries[fileId] = {
-      id: fileId,
-      file_type: 'metric',
-      file_name: file.name,
-      version_number: file.version || undefined,
-      status: file.status || 'loading',
-      file: {
-        text: file.yml_content,
-      },
-      ...(file.error ? { error: file.error } : {}),
-    };
-  });
-
-  // Determine title based on status
-  let title = 'Building new metrics...';
-  if (status === 'completed') {
-    const successCount = files.filter((f) => f.status !== 'failed').length;
-    const failedCount = files.filter((f) => f.status === 'failed').length;
-    if (failedCount > 0) {
-      title = `Created ${successCount} ${successCount === 1 ? 'metric' : 'metrics'}, ${failedCount} failed`;
-    } else {
-      title = `Created ${successCount} ${successCount === 1 ? 'metric' : 'metrics'}`;
-    }
-  } else if (status === 'failed') {
-    title = 'Failed to create metrics';
-  }
-
-  return {
-    id: toolCallId,
-    type: 'files',
-    title,
-    status,
-    file_ids: fileIds,
-    files: fileEntries,
-  } as ChatMessageReasoningMessage;
+  const files = state.files || [];
+  
 }
 
 /**
