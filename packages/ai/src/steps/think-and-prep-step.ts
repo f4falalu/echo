@@ -186,7 +186,7 @@ const thinkAndPrepExecution = async ({
       .join('\n---\n');
 
     // Get dialect-specific guidance
-    const sqlDialectGuidance = getSqlDialectGuidance(dataSourceSyntax);
+    const _sqlDialectGuidance = getSqlDialectGuidance(dataSourceSyntax);
 
     // Create dataset system message
     const createDatasetSystemMessage = (databaseContext: string): string => {

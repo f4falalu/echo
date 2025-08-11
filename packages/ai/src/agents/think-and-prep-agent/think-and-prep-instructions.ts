@@ -497,7 +497,7 @@ Today's date is ${new Date().toLocaleDateString()}.
 export const getThinkAndPrepInstructions = async ({
   runtimeContext,
 }: { runtimeContext: RuntimeContext<AnalystRuntimeContext> }): Promise<string> => {
-  const userId = runtimeContext.get('userId');
+  const _userId = runtimeContext.get('userId');
   const dataSourceSyntax = runtimeContext.get('dataSourceSyntax');
 
   // Get dialect-specific guidance
