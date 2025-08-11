@@ -40,13 +40,10 @@ export type WebSearchToolInput = z.infer<typeof WebSearchToolInputSchema>;
 export type WebSearchToolOutput = z.infer<typeof WebSearchToolOutputSchema>;
 
 export function createWebSearchTool() {
-  const execute = createWebSearchToolExecute();
-
   return tool({
     description:
       'Search the web for information using Firecrawl. Returns search results with titles, URLs, descriptions, and optionally scraped content. Useful for finding current information, research, and web content.',
-    inputSchema: WebSearchToolInputSchema,
-    outputSchema: WebSearchToolOutputSchema,
-    execute,
+    parameters: WebSearchToolInputSchema,
+    execute: createWebSearchToolExecute(),
   });
 }

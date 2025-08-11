@@ -54,7 +54,11 @@ describe('createCreateMetricsDelta', () => {
       const handler = createCreateMetricsDelta(mockContext, state);
 
       // Simulate streaming JSON
-      await handler('{"files":[{"name":"metric1","yml_content":"content1"}');
+      await handler({
+        inputTextDelta: '{"files":[{"name":"metric1","yml_content":"content1"}',
+        toolCallId: 'tool-123',
+        messages: [],
+      });
 
       expect(state.files).toBeDefined();
       expect(state.files!).toHaveLength(1);
@@ -69,13 +73,21 @@ describe('createCreateMetricsDelta', () => {
       const handler = createCreateMetricsDelta(mockContext, state);
 
       // Stream in multiple files - first complete file
-      await handler('{"files":[{"name":"metric1","yml_content":"content1"}');
+      await handler({
+        inputTextDelta: '{"files":[{"name":"metric1","yml_content":"content1"}',
+        toolCallId: 'tool-123',
+        messages: [],
+      });
       expect(state.files).toBeDefined();
       expect(state.files!).toHaveLength(1);
 
       // Stream in second file by accumulating more text
       state.argsText = '{"files":[{"name":"metric1","yml_content":"content1"},';
-      await handler('{"name":"metric2","yml_content":"content2"}');
+      await handler({
+        inputTextDelta: '{"name":"metric2","yml_content":"content2"}',
+        toolCallId: 'tool-123',
+        messages: [],
+      });
 
       // Now both files should be present
       expect(state.files!).toHaveLength(2);
@@ -90,20 +102,32 @@ describe('createCreateMetricsDelta', () => {
       const handler = createCreateMetricsDelta(mockContext, state);
 
       // Add initial file with just name
-      await handler('{"files":[{"name":"metric1"}]}');
+      await handler({
+        inputTextDelta: '{"files":[{"name":"metric1"}]}',
+        toolCallId: 'tool-123',
+        messages: [],
+      });
       expect(state.files).toBeDefined();
       expect(state.files![0]?.yml_content).toBe('');
 
       // Reset args text and update with content
       state.argsText = '';
-      await handler('{"files":[{"name":"metric1","yml_content":"updated content"}]}');
+      await handler({
+        inputTextDelta: '{"files":[{"name":"metric1","yml_content":"updated content"}]}',
+        toolCallId: 'tool-123',
+        messages: [],
+      });
       expect(state.files![0]?.yml_content).toBe('updated content');
     });
 
     it('should update database with progress when messageId exists', async () => {
       const handler = createCreateMetricsDelta(mockContext, state);
 
-      await handler('{"files":[{"name":"metric1","yml_content":"content1"}]}');
+      await handler({
+        inputTextDelta: '{"files":[{"name":"metric1","yml_content":"content1"}]}',
+        toolCallId: 'tool-123',
+        messages: [],
+      });
 
       expect(updateMessageEntries).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -120,7 +144,11 @@ describe('createCreateMetricsDelta', () => {
 
       const handler = createCreateMetricsDelta(mockContext, state);
 
-      await handler('{"files":[{"name":"metric1","yml_content":"content1"}]}');
+      await handler({
+        inputTextDelta: '{"files":[{"name":"metric1","yml_content":"content1"}]}',
+        toolCallId: 'tool-123',
+        messages: [],
+      });
 
       expect(consoleErrorSpy).toHaveBeenCalledWith(
         '[create-metrics] Failed to update streaming progress',
@@ -137,14 +165,18 @@ describe('createCreateMetricsDelta', () => {
       const contextWithoutMessageId = { ...mockContext, messageId: undefined };
       const handler = createCreateMetricsDelta(contextWithoutMessageId, state);
 
-      await handler('{"files":[{"name":"metric1","yml_content":"content1"}]}');
+      await handler({
+        inputTextDelta: '{"files":[{"name":"metric1","yml_content":"content1"}]}',
+        toolCallId: 'tool-123',
+        messages: [],
+      });
 
       expect(updateMessageEntries).not.toHaveBeenCalled();
     });
   });
 
-  describe('object delta handling', () => {
-    it('should handle complete object deltas', async () => {
+  describe('complete JSON handling', () => {
+    it('should handle complete JSON in single delta', async () => {
       const handler = createCreateMetricsDelta(mockContext, state);
 
       const input = {
@@ -154,9 +186,12 @@ describe('createCreateMetricsDelta', () => {
         ],
       };
 
-      await handler(input);
+      await handler({
+        inputTextDelta: JSON.stringify(input),
+        toolCallId: 'tool-123',
+        messages: [],
+      });
 
-      expect(state.parsedArgs).toEqual(input);
       expect(state.files).toBeDefined();
       expect(state.files!).toHaveLength(2);
       expect(state.files![0]).toEqual({
@@ -169,7 +204,11 @@ describe('createCreateMetricsDelta', () => {
     it('should handle empty files array', async () => {
       const handler = createCreateMetricsDelta(mockContext, state);
 
-      await handler({ files: [] });
+      await handler({
+        inputTextDelta: JSON.stringify({ files: [] }),
+        toolCallId: 'tool-123',
+        messages: [],
+      });
 
       expect(state.files).toBeDefined();
       expect(state.files!).toHaveLength(0);
@@ -181,7 +220,11 @@ describe('createCreateMetricsDelta', () => {
       const handler = createCreateMetricsDelta(mockContext, state);
 
       // This should not throw
-      await handler('{"files":[{"broken');
+      await handler({
+        inputTextDelta: '{"files":[{"broken',
+        toolCallId: 'tool-123',
+        messages: [],
+      });
 
       // State should be partially updated
       expect(state.argsText).toBe('{"files":[{"broken');
@@ -193,7 +236,11 @@ describe('createCreateMetricsDelta', () => {
       // Ensure files is undefined initially
       expect(state.files).toBeUndefined();
 
-      await handler('{"files":[]}');
+      await handler({
+        inputTextDelta: '{"files":[]}',
+        toolCallId: 'tool-123',
+        messages: [],
+      });
 
       // Files should now be initialized
       expect(state.files).toBeDefined();
@@ -204,13 +251,41 @@ describe('createCreateMetricsDelta', () => {
       const handler = createCreateMetricsDelta(mockContext, state);
 
       // Simulate rapid streaming
-      await handler('{"fil');
-      await handler('es":[');
-      await handler('{"name":');
-      await handler('"metric1",');
-      await handler('"yml_content":');
-      await handler('"content1"}');
-      await handler(']}');
+      await handler({
+        inputTextDelta: '{"fil',
+        toolCallId: 'tool-123',
+        messages: [],
+      });
+      await handler({
+        inputTextDelta: 'es":[',
+        toolCallId: 'tool-123',
+        messages: [],
+      });
+      await handler({
+        inputTextDelta: '{"name":',
+        toolCallId: 'tool-123',
+        messages: [],
+      });
+      await handler({
+        inputTextDelta: '"metric1",',
+        toolCallId: 'tool-123',
+        messages: [],
+      });
+      await handler({
+        inputTextDelta: '"yml_content":',
+        toolCallId: 'tool-123',
+        messages: [],
+      });
+      await handler({
+        inputTextDelta: '"content1"}',
+        toolCallId: 'tool-123',
+        messages: [],
+      });
+      await handler({
+        inputTextDelta: ']}',
+        toolCallId: 'tool-123',
+        messages: [],
+      });
 
       // Should accumulate properly
       expect(state.argsText).toBe('{"files":[{"name":"metric1","yml_content":"content1"}]}');

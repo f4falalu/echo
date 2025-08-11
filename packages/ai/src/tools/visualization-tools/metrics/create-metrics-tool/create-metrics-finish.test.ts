@@ -127,7 +127,11 @@ describe('createCreateMetricsFinish', () => {
     };
 
     const handler = createCreateMetricsFinish(contextWithoutMessageId, state);
-    await handler(input);
+    await handler({
+      input,
+      toolCallId: 'tool-123',
+      messages: [],
+    });
 
     expect(updateMessageEntries).not.toHaveBeenCalled();
   });

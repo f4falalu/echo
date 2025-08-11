@@ -2,7 +2,7 @@ import type {
   ChatMessageReasoningMessage_Files,
   ChatMessageResponseMessage,
 } from '@buster/server-shared/chats';
-import type { CreateDashboardsFile, CreateDashboardsInput } from '../create-dashboards-tool';
+import type { CreateDashboardsReasoningFile, CreateDashboardsInput } from '../create-dashboards-tool';
 
 /**
  * Create a reasoning message entry for dashboards creation

@@ -8,7 +8,7 @@ import type {
 } from './create-dashboards-tool';
 import { createDashboardsReasoningMessage } from './helpers/create-dashboards-tool-transform-helper';
 
-export function createCreateDashboardsStart(
+export function createDashboardsStart(
   context: CreateDashboardsContext,
   state: CreateDashboardsState
 ) {
@@ -22,6 +22,8 @@ export function createCreateDashboardsStart(
           [],
           'loading'
         );
+
+        const 
 
         await updateMessageEntries({
           messageId: context.messageId,

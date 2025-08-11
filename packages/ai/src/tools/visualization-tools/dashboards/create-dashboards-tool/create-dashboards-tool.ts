@@ -4,53 +4,40 @@ import { getDashboardToolDescription } from '../helpers/get-dashboard-tool-descr
 import { createCreateDashboardsDelta } from './create-dashboards-delta';
 import { createCreateDashboardsExecute } from './create-dashboards-execute';
 import { createCreateDashboardsFinish } from './create-dashboards-finish';
-import { createCreateDashboardsStart } from './create-dashboards-start';
+import { createDashboardsStart } from './create-dashboards-start';
+
+const CreateDashboardsInputFileSchema = z.object({
+  name: z.string(),
+  yml_content: z.string(),
+});
 
 // Input schema for the create dashboards tool
 const CreateDashboardsInputSchema = z.object({
-  files: z
-    .array(
-      z.object({
-        name: z
-          .string()
-          .describe(
-            "The natural language name/title for the dashboard, exactly matching the 'name' field within the YML content. This name will identify the dashboard in the UI. Do not include file extensions or use file path characters."
-          ),
-        yml_content: z
-          .string()
-          .describe(
-            "The YAML content for a single dashboard, adhering to the comprehensive dashboard schema. Multiple dashboards can be created in one call by providing multiple entries in the 'files' array. **Prefer creating dashboards in bulk.**"
-          ),
-      })
-    )
-    .min(1)
-    .describe(
-      'List of dashboard file parameters to create. The files will contain YAML content that adheres to the dashboard schema specification.'
-    ),
+  files: z.array(CreateDashboardsInputFileSchema).min(1),
+});
+
+const CreateDashboardsOutputFileSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  file_type: z.string(),
+  result_message: z.string().optional(),
+  results: z.array(z.record(z.any())).optional(),
+  created_at: z.string(),
+  updated_at: z.string(),
+  version_number: z.number(),
+});
+
+const CreateDashboardsOutputFailedFileSchema = z.object({
+  name: z.string(),
+  error: z.string(),
 });
 
 // Output schema for the create dashboards tool
 const CreateDashboardsOutputSchema = z.object({
   message: z.string(),
   duration: z.number(),
-  files: z.array(
-    z.object({
-      id: z.string(),
-      name: z.string(),
-      file_type: z.string(),
-      result_message: z.string().optional(),
-      results: z.array(z.record(z.any())).optional(),
-      created_at: z.string(),
-      updated_at: z.string(),
-      version_number: z.number(),
-    })
-  ),
-  failed_files: z.array(
-    z.object({
-      name: z.string(),
-      error: z.string(),
-    })
-  ),
+  files: z.array(CreateDashboardsOutputFileSchema),
+  failed_files: z.array(CreateDashboardsOutputFailedFileSchema),
 });
 
 // Context schema for the create dashboards tool
@@ -63,7 +50,7 @@ const CreateDashboardsContextSchema = z.object({
   messageId: z.string().optional().describe('The message ID'),
 });
 
-const CreateDashboardsFileSchema = z.object({
+const CreateDashboardsReasoningFileSchema = z.object({
   name: z.string(),
   yml_content: z.string(),
   status: z.enum(['processing', 'completed', 'failed']).optional(),
@@ -76,14 +63,18 @@ const CreateDashboardsStateSchema = z.object({
   toolCallId: z.string().optional(),
   argsText: z.string().optional(),
   parsedArgs: CreateDashboardsInputSchema.optional(),
-  files: z.array(CreateDashboardsFileSchema).optional(),
+  files: z.array(CreateDashboardsReasoningFileSchema).optional(),
 });
 
 // Export types
 export type CreateDashboardsInput = z.infer<typeof CreateDashboardsInputSchema>;
 export type CreateDashboardsOutput = z.infer<typeof CreateDashboardsOutputSchema>;
 export type CreateDashboardsContext = z.infer<typeof CreateDashboardsContextSchema>;
-export type CreateDashboardsFile = z.infer<typeof CreateDashboardsFileSchema>;
+export type CreateDashboardsOutputFile = z.infer<typeof CreateDashboardsOutputFileSchema>;
+export type CreateDashboardsOutputFailedFile = z.infer<
+  typeof CreateDashboardsOutputFailedFileSchema
+>;
+export type CreateDashboardsReasoningFile = z.infer<typeof CreateDashboardsReasoningFileSchema>;
 export type CreateDashboardsState = z.infer<typeof CreateDashboardsStateSchema>;
 
 // Factory function that accepts agent context and maps to tool context
@@ -98,7 +89,7 @@ export function createCreateDashboardsTool(context: CreateDashboardsContext) {
 
   // Create all functions with the context and state passed
   const execute = createCreateDashboardsExecute(context, state);
-  const onInputStart = createCreateDashboardsStart(context, state);
+  const onInputStart = createDashboardsStart(context, state);
   const onInputDelta = createCreateDashboardsDelta(context, state);
   const onInputAvailable = createCreateDashboardsFinish(context, state);
 

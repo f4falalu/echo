@@ -21,131 +21,10 @@ import type {
   CreateDashboardsState,
 } from './create-dashboards-tool';
 import {
-  createDashboardsRawLlmMessageEntry,
+  createDashboardsRawLlMessageEntry,
   createDashboardsReasoningMessage,
   createDashboardsResponseMessage,
 } from './helpers/create-dashboards-tool-transform-helper';
-
-// Core interfaces matching Rust structs exactly
-interface DashboardFileParams {
-  name: string;
-  yml_content: string;
-}
-
-interface CreateDashboardFilesParams {
-  files: DashboardFileParams[];
-}
-
-interface FailedFileCreation {
-  name: string;
-  error: string;
-}
-
-interface DashboardFileContent {
-  rows: Array<{
-    items: Array<{
-      id: string;
-      [key: string]: unknown;
-    }>;
-    [key: string]: unknown;
-  }>;
-  [key: string]: unknown;
-}
-
-interface FileWithId {
-  id: string;
-  name: string;
-  file_type: string;
-  result_message?: string;
-  results?: Record<string, unknown>[];
-  created_at: string;
-  updated_at: string;
-  version_number: number;
-  content?: DashboardFileContent;
-}
-
-interface CreateDashboardFilesOutput {
-  message: string;
-  duration: number;
-  files: FileWithId[];
-  failed_files: FailedFileCreation[];
-}
-
-// Row item schema matching Rust RowItem
-const rowItemSchema = z.object({
-  id: z.string().uuid('Must be a valid UUID for an existing metric'),
-});
-
-// Row schema matching Rust Row struct exactly
-const rowSchema = z.object({
-  id: z.number().int().positive('Row ID must be a positive integer'),
-  items: z
-    .array(rowItemSchema)
-    .min(1, 'Each row must have at least 1 item')
-    .max(4, 'Each row can have at most 4 items'),
-  column_sizes: z
-    .array(
-      z
-        .number()
-        .int()
-        .min(3, 'Each column size must be at least 3')
-        .max(12, 'Each column size cannot exceed 12')
-    )
-    .min(1, 'column_sizes array cannot be empty')
-    .refine((sizes) => sizes.reduce((sum, size) => sum + size, 0) === 12, {
-      message: 'Column sizes must sum to exactly 12',
-    }),
-  rowHeight: z
-    .number()
-    .int()
-    .min(320, 'Row height must be at least 320')
-    .max(550, 'Row height cannot exceed 550')
-    .optional(),
-});
-
-// Dashboard YAML schema matching Rust DashboardYml struct exactly
-const dashboardYmlSchema = z
-  .object({
-    name: z.string().min(1, 'Dashboard name is required'),
-    description: z.string().optional(),
-    rows: z
-      .array(rowSchema)
-      .min(1, 'Dashboard must have at least one row')
-      .refine(
-        (rows) => {
-          const ids = rows.map((row) => row.id);
-          const uniqueIds = new Set(ids);
-          return ids.length === uniqueIds.size;
-        },
-        {
-          message: 'All row IDs must be unique',
-        }
-      ),
-  })
-  .refine(
-    (dashboard) => {
-      // Validate each row structure and column constraints
-      return dashboard.rows.every((row) => {
-        // Check that number of items matches number of column sizes
-        if (row.items.length !== row.column_sizes.length) {
-          return false;
-        }
-
-        // Check column size constraints
-        const sum = row.column_sizes.reduce((acc, size) => acc + size, 0);
-        if (sum !== 12) {
-          return false;
-        }
-
-        // Check minimum column size
-        return row.column_sizes.every((size) => size >= 3);
-      });
-    },
-    {
-      message:
-        'Invalid row configuration: items must match column_sizes, sizes must sum to 12, and each size must be >= 3',
-    }
-  );
 
 // Parse and validate dashboard YAML content
 function parseAndValidateYaml(ymlContent: string): {
@@ -217,7 +96,7 @@ async function validateMetricIds(
 }
 
 // Process a dashboard file creation request
-async function processDashboardFile(file: DashboardFileParams): Promise<{
+async function processDashboardFile(file: CreateDashboardsInput): Promise<{
   success: boolean;
   dashboardFile?: FileWithId;
   dashboardYml?: DashboardYml;

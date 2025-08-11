@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { createCreateDashboardsStart } from './create-dashboards-start';
+import { createDashboardsStart } from './create-dashboards-start';
 import type {
   CreateDashboardsContext,
   CreateDashboardsInput,
@@ -38,7 +38,7 @@ describe('createCreateDashboardsStart', () => {
   });
 
   it('should initialize state with processing start time and tool call ID', async () => {
-    const handler = createCreateDashboardsStart(context, state);
+    const handler = createDashboardsStart(context, state);
     await handler({ toolCallId: 'test-tool-id' });
 
     expect(state.toolCallId).toBeDefined();
@@ -50,7 +50,7 @@ describe('createCreateDashboardsStart', () => {
     const { updateMessageEntries } = await import('@buster/database');
     const updateMock = vi.mocked(updateMessageEntries);
 
-    const handler = createCreateDashboardsStart(context, state);
+    const handler = createDashboardsStart(context, state);
     await handler({ toolCallId: 'test-tool-id' });
 
     expect(updateMock).toHaveBeenCalled();
@@ -62,7 +62,7 @@ describe('createCreateDashboardsStart', () => {
     const updateMock = vi.mocked(updateMessageEntries);
     const contextWithoutMessageId = { ...context, messageId: undefined };
 
-    const handler = createCreateDashboardsStart(contextWithoutMessageId, state);
+    const handler = createDashboardsStart(contextWithoutMessageId, state);
     await handler({ toolCallId: 'test-tool-id' });
 
     expect(updateMock).not.toHaveBeenCalled();
@@ -73,7 +73,7 @@ describe('createCreateDashboardsStart', () => {
     const updateMock = vi.mocked(updateMessageEntries);
     updateMock.mockRejectedValue(new Error('Database error'));
 
-    const handler = createCreateDashboardsStart(context, state);
+    const handler = createDashboardsStart(context, state);
 
     // Should not throw
     await expect(handler({ toolCallId: 'test-tool-id' })).resolves.not.toThrow();
@@ -86,7 +86,7 @@ describe('createCreateDashboardsStart', () => {
     const { updateMessageEntries } = await import('@buster/database');
     const updateMock = vi.mocked(updateMessageEntries);
 
-    const handler = createCreateDashboardsStart(context, state);
+    const handler = createDashboardsStart(context, state);
     await handler({ toolCallId: 'test-tool-id' });
 
     expect(state.toolCallId).toBe('test-tool-id');
@@ -97,7 +97,7 @@ describe('createCreateDashboardsStart', () => {
     const { updateMessageEntries } = await import('@buster/database');
     const updateMock = vi.mocked(updateMessageEntries);
 
-    const handler = createCreateDashboardsStart(context, state);
+    const handler = createDashboardsStart(context, state);
     await handler({ toolCallId: 'test-tool-id' });
 
     expect(state.toolCallId).toBe('test-tool-id');
