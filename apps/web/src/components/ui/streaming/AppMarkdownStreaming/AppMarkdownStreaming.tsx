@@ -31,32 +31,32 @@ const AppMarkdownStreaming = ({
 }: AppMarkdownStreamingProps) => {
   // When the upstream stream and the throttled streaming are finished, render a single
   // non-streaming markdown to unmount streaming components and release memory.
-  if (isStreamFinished) {
-    return (
-      <div className={cn('flex flex-col space-y-2.5', className)}>
-        <AnimatedMarkdown
-          content={content}
-          isStreamFinished={isStreamFinished}
-          animation={animation}
-          animationDuration={animationDuration}
-          animationTimingFunction={animationTimingFunction}
-          stripFormatting={stripFormatting}
-        />
-      </div>
-    );
-  }
-
+  //if (isStreamFinished) {
   return (
-    <AppMarkdownStreamingConent
-      content={content}
-      isStreamFinished={isStreamFinished}
-      animation={animation}
-      animationDuration={animationDuration}
-      animationTimingFunction={animationTimingFunction}
-      className={className}
-      stripFormatting={stripFormatting}
-    />
+    <div className={cn('flex flex-col space-y-2.5', className)}>
+      <AnimatedMarkdown
+        content={content}
+        isStreamFinished={isStreamFinished}
+        animation={animation}
+        animationDuration={animationDuration}
+        animationTimingFunction={animationTimingFunction}
+        stripFormatting={stripFormatting}
+      />
+    </div>
   );
+  // }
+
+  // return (
+  //   <AppMarkdownStreamingConent
+  //     content={content}
+  //     isStreamFinished={isStreamFinished}
+  //     animation={animation}
+  //     animationDuration={animationDuration}
+  //     animationTimingFunction={animationTimingFunction}
+  //     className={className}
+  //     stripFormatting={stripFormatting}
+  //   />
+  // );
 };
 
 export default AppMarkdownStreaming;
