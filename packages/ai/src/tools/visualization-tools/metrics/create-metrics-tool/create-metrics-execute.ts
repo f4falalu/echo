@@ -1,10 +1,9 @@
 import { randomUUID } from 'node:crypto';
 import type { DataSource } from '@buster/data-source';
 import { assetPermissions, db, metricFiles, updateMessageEntries } from '@buster/database';
-import type { Metric } from '@buster/server-shared/metrics';
+import { type ChartConfigProps, ChartConfigPropsSchema } from '@buster/server-shared/metrics';
 import type { ModelMessage } from 'ai';
 import { wrapTraced } from 'braintrust';
-import { inArray } from 'drizzle-orm';
 import * as yaml from 'yaml';
 import { z } from 'zod';
 import { getDataSource } from '../../../../utils/get-data-source';
@@ -85,7 +84,7 @@ interface MetricFileResult {
   success: boolean;
   error?: string;
   metricFile?: FileWithId;
-  metricYml?: Metric;
+  metricYml?: ChartConfigProps;
   message?: string;
   results?: Record<string, unknown>[];
 }
@@ -227,6 +226,7 @@ async function processMetricFile(
   ymlContent: string,
   dataSourceId: string,
   dataSourceDialect: string,
+  userId: string,
   userId: string
 ): Promise<MetricFileResult> {
   try {
@@ -234,11 +234,12 @@ async function processMetricFile(
     const fixedYmlContent = ensureTimeFrameQuoted(ymlContent);
 
     // Parse and validate YAML
-    const parsedYml = yaml.parse(fixedYmlContent);
-    const metricYml = validateMetricYml(parsedYml);
+    const metricYml = yaml.parse(fixedYmlContent);
+
+    const validatedMetricYml = ChartConfigPropsSchema.parse(metricYml);
 
     // Validate and adjust bar/line chart axes
-    const axisValidation = validateAndAdjustBarLineAxes(metricYml);
+    const axisValidation = validateAndAdjustBarLineAxes(validatedMetricYml);
     if (!axisValidation.isValid) {
       return {
         success: false,
@@ -478,15 +479,6 @@ async function validateSql(
       success: false,
       error: error instanceof Error ? error.message : 'SQL validation failed',
     };
-  } finally {
-    // Always close the data source to clean up connections
-    if (dataSource) {
-      try {
-        await dataSource.close();
-      } catch (closeError) {
-        console.warn('[create-metrics] Error closing data source:', closeError);
-      }
-    }
   }
 }
 
@@ -564,8 +556,7 @@ const createMetricFiles = wrapTraced(
           file.yml_content,
           dataSourceId,
           dataSourceSyntax,
-          userId,
-          organizationId
+          userId
         );
         return { fileName: file.name, result };
       })
@@ -574,7 +565,7 @@ const createMetricFiles = wrapTraced(
     const successfulProcessing: Array<{
       fileName: string;
       metricFile: FileWithId;
-      metricYml: MetricYml;
+      metricYml: ChartConfigProps;
       message: string;
       results: Record<string, unknown>[];
     }> = [];

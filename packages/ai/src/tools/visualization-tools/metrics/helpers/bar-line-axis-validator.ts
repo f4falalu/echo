@@ -1,38 +1,30 @@
-import type { MetricYml } from '../version-history-types';
-
-export interface AxisValidationResult {
-  isValid: boolean;
-  shouldSwapAxes: boolean;
-  error?: string;
-  adjustedYml?: MetricYml;
-}
+import type { ChartConfigProps } from '@buster/server-shared/metrics';
 
 /**
  * Validates and potentially adjusts bar/line chart axes to ensure numeric fields are on Y axis
  * @param metricYml The parsed metric YAML configuration
  * @returns Validation result indicating if axes should be swapped or if there's an error
  */
-export function validateAndAdjustBarLineAxes(metricYml: MetricYml): AxisValidationResult {
+export function validateAndAdjustBarLineAxes(
+  metricChartConfig: ChartConfigProps
+): ChartConfigProps {
   // Only validate bar and line charts
-  const chartType = metricYml.chartConfig?.selectedChartType;
+  const chartType = metricChartConfig.selectedChartType;
   if (chartType !== 'bar' && chartType !== 'line') {
-    return { isValid: true, shouldSwapAxes: false };
+    return metricChartConfig;
   }
 
-  const barAndLineAxis = metricYml.chartConfig?.barAndLineAxis;
-  const columnLabelFormats = metricYml.chartConfig?.columnLabelFormats;
+  const barAndLineAxis = metricChartConfig.barAndLineAxis;
+  const columnLabelFormats = metricChartConfig.columnLabelFormats;
 
   if (!barAndLineAxis || !columnLabelFormats) {
-    return { isValid: true, shouldSwapAxes: false };
+    return metricChartConfig;
   }
 
   if (!barAndLineAxis.x?.length || !barAndLineAxis.y?.length) {
-    return {
-      isValid: false,
-      shouldSwapAxes: false,
-      error:
-        'Bar and line charts require at least one column for each axis. Please specify both X and Y axis columns.',
-    };
+    throw new Error(
+      'Bar and line charts require at least one column for each axis. Please specify both X and Y axis columns.'
+    );
   }
   const xColumns = barAndLineAxis.x;
   const yColumns = barAndLineAxis.y;
@@ -47,7 +39,7 @@ export function validateAndAdjustBarLineAxes(metricYml: MetricYml): AxisValidati
 
   // If all Y columns are numeric, no adjustment needed
   if (allYColumnsNumeric) {
-    return { isValid: true, shouldSwapAxes: false };
+    return metricChartConfig;
   }
 
   // At least one Y column is non-numeric, check if we can swap with X
@@ -61,23 +53,16 @@ export function validateAndAdjustBarLineAxes(metricYml: MetricYml): AxisValidati
   // If X columns are numeric and Y columns are not, swap them
   if (allXColumnsNumeric && !allYColumnsNumeric) {
     // Create adjusted YAML with swapped axes
-    const adjustedYml: MetricYml = {
-      ...metricYml,
-      chartConfig: {
-        ...metricYml.chartConfig,
-        barAndLineAxis: {
-          ...barAndLineAxis,
-          x: yColumns, // Swap: Y becomes X
-          y: xColumns, // Swap: X becomes Y
-        },
+    const swappedAxisChartConfig: ChartConfigProps = {
+      ...metricChartConfig,
+      barAndLineAxis: {
+        ...barAndLineAxis,
+        x: yColumns, // Swap: Y becomes X
+        y: xColumns, // Swap: X becomes Y
       },
     };
 
-    return {
-      isValid: true,
-      shouldSwapAxes: true,
-      adjustedYml,
-    };
+    return swappedAxisChartConfig;
   }
 
   // Y has non-numeric columns and X is also non-numeric (or empty)
@@ -92,9 +77,7 @@ export function validateAndAdjustBarLineAxes(metricYml: MetricYml): AxisValidati
     })
     .join(', ');
 
-  return {
-    isValid: false,
-    shouldSwapAxes: false,
-    error: `Bar and line charts require numeric values on the Y axis. The following columns are non-numeric: ${columnTypes}. Please adjust your SQL query to ensure numeric columns are used for the Y axis, or use a different chart type.`,
-  };
+  throw new Error(
+    `Bar and line charts require numeric values on the Y axis. The following columns are non-numeric: ${columnTypes}. Please adjust your SQL query to ensure numeric columns are used for the Y axis, or use a different chart type.`
+  );
 }

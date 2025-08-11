@@ -1,5 +1,6 @@
 import { updateMessageEntries } from '@buster/database';
 import type { ChatMessageReasoningMessage } from '@buster/server-shared/chats';
+import type { ToolCallOptions } from 'ai';
 import type {
   CreateMetricsContext,
   CreateMetricsFile,
@@ -13,7 +14,10 @@ export function createCreateMetricsFinish(
   context: CreateMetricsContext,
   state: CreateMetricsState
 ) {
-  return async (input: CreateMetricsInput) => {
+  return async function createMetricsFinish(
+    options: { input: CreateMetricsInput } & ToolCallOptions
+  ): Promise<void> {
+    const input = options.input;
     // Log when input is fully available
     const fileCount = input.files?.length || 0;
     const messageId = context.messageId;

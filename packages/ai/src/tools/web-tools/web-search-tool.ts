@@ -1,10 +1,8 @@
-import { FirecrawlService, type WebSearchOptions, type WebSearchResult } from '@buster/web-tools';
-import type { RuntimeContext } from '@mastra/core/runtime-context';
-import { createTool } from '@mastra/core/tools';
-import { wrapTraced } from 'braintrust';
+import { tool } from 'ai';
 import { z } from 'zod';
+import { createWebSearchToolExecute } from './web-search-tool-execute';
 
-const inputSchema = z.object({
+export const WebSearchToolInputSchema = z.object({
   query: z.string().min(1, 'Search query is required').describe('The search query to execute'),
   limit: z
     .number()
@@ -23,7 +21,7 @@ const inputSchema = z.object({
     .describe('Content formats to scrape (default: ["markdown"])'),
 });
 
-const outputSchema = z.object({
+const WebSearchToolOutputSchema = z.object({
   success: z.boolean().describe('Whether the search was successful'),
   results: z
     .array(
@@ -38,64 +36,17 @@ const outputSchema = z.object({
   error: z.string().optional().describe('Error message if the search failed'),
 });
 
-type WebSearchInput = z.infer<typeof inputSchema>;
-type WebSearchOutput = z.infer<typeof outputSchema>;
+export type WebSearchToolInput = z.infer<typeof WebSearchToolInputSchema>;
+export type WebSearchToolOutput = z.infer<typeof WebSearchToolOutputSchema>;
 
-async function executeWebSearch(
-  input: WebSearchInput,
-  _context: RuntimeContext
-): Promise<WebSearchOutput> {
-  try {
-    const firecrawlService = new FirecrawlService();
+export function createWebSearchTool() {
+  const execute = createWebSearchToolExecute();
 
-    const searchOptions: WebSearchOptions = {
-      limit: input.limit || 5,
-      ...(input.scrapeContent !== false && {
-        scrapeOptions: {
-          formats: input.formats || ['markdown'],
-        },
-      }),
-    };
-
-    const response = await firecrawlService.webSearch(input.query, searchOptions);
-
-    const transformedResults = response.results.map((result: WebSearchResult) => ({
-      title: result.title,
-      url: result.url,
-      description: result.description,
-      ...(result.content && { content: result.content }),
-    }));
-
-    return {
-      success: response.success,
-      results: transformedResults,
-    };
-  } catch (error) {
-    return {
-      success: false,
-      results: [],
-      error: error instanceof Error ? error.message : 'Unknown error occurred',
-    };
-  }
+  return tool({
+    description:
+      'Search the web for information using Firecrawl. Returns search results with titles, URLs, descriptions, and optionally scraped content. Useful for finding current information, research, and web content.',
+    inputSchema: WebSearchToolInputSchema,
+    outputSchema: WebSearchToolOutputSchema,
+    execute,
+  });
 }
-
-const executeWebSearchTraced = wrapTraced(executeWebSearch, { name: 'web-search-tool' });
-
-export const webSearch = createTool({
-  id: 'web-search',
-  description:
-    'Search the web for information using Firecrawl. Returns search results with titles, URLs, descriptions, and optionally scraped content. Useful for finding current information, research, and web content.',
-  inputSchema,
-  outputSchema,
-  execute: async ({
-    context,
-    runtimeContext,
-  }: {
-    context: WebSearchInput;
-    runtimeContext: RuntimeContext;
-  }) => {
-    return await executeWebSearchTraced(context, runtimeContext);
-  },
-});
-
-export default webSearch;

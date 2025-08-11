@@ -17,9 +17,10 @@ export { createEditFilesTool } from './file-tools/edit-files-tool/edit-files-too
 export { createDeleteFilesTool } from './file-tools/delete-files-tool/delete-files-tool';
 export { createBashTool } from './file-tools/bash-tool';
 export { createGrepSearchTool } from './file-tools/grep-search-tool/grep-search-tool';
+// Web tools - factory functions
+export { createWebSearchTool } from './web-tools/web-search-tool';
 
 // Legacy exports for backward compatibility (to be deprecated)
 export { bashExecute } from './file-tools/bash-tool';
 export { checkOffTodoList } from './planning-thinking-tools/check-off-todo-list-tool/check-off-todo-list-tool';
 export { updateClarificationsFile } from './planning-thinking-tools/update-clarifications-file-tool/update-clarifications-file-tool';
-export { webSearch } from './web-tools/web-search-tool';

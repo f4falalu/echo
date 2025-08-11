@@ -1,4 +1,5 @@
 import { updateMessageEntries } from '@buster/database';
+import type { ToolCallOptions } from 'ai';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { createCreateMetricsDelta } from './create-metrics-delta';
 import type { CreateMetricsState } from './create-metrics-tool';
@@ -34,10 +35,18 @@ describe('createCreateMetricsDelta', () => {
     it('should accumulate text deltas', async () => {
       const handler = createCreateMetricsDelta(mockContext, state);
 
-      await handler('{"files":[');
+      await handler({
+        inputTextDelta: '{"files":[',
+        toolCallId: 'tool-123',
+        messages: [],
+      });
       expect(state.argsText).toBe('{"files":[');
 
-      await handler('{"name":"metric1",');
+      await handler({
+        inputTextDelta: '{"name":"metric1",',
+        toolCallId: 'tool-123',
+        messages: [],
+      });
       expect(state.argsText).toBe('{"files":[{"name":"metric1",');
     });
 

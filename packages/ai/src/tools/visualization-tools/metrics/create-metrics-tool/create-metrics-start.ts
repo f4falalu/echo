@@ -5,7 +5,7 @@ import type { CreateMetricsContext, CreateMetricsState } from './create-metrics-
 import { createMetricsReasoningMessage } from './helpers/create-metrics-transform-helper';
 
 export function createCreateMetricsStart(context: CreateMetricsContext, state: CreateMetricsState) {
-  return async (options: ToolCallOptions) => {
+  return async function createMetricsStart(options: ToolCallOptions): Promise<void> {
     state.toolCallId = options.toolCallId;
 
     if (context.messageId) {

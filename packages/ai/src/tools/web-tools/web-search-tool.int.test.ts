@@ -1,24 +1,24 @@
 import { beforeEach, describe, expect, it } from 'vitest';
-import { webSearch } from './web-search-tool';
+import { createWebSearchTool } from './web-search-tool';
 
 describe('webSearch tool integration', () => {
+  let webSearchTool: ReturnType<typeof createWebSearchTool>;
+
   beforeEach(() => {
     if (!process.env.FIRECRAWL_API_KEY) {
       console.warn('Skipping integration tests - FIRECRAWL_API_KEY not set');
     }
+    webSearchTool = createWebSearchTool();
   });
 
   it.skipIf(!process.env.FIRECRAWL_API_KEY)(
     'should perform actual web search and return results',
     async () => {
-      const result = await webSearch.execute({
-        context: {
-          query: 'Buster Data',
-          limit: 10,
-          scrapeContent: true,
-          formats: ['markdown'],
-        },
-        runtimeContext: {} as any,
+      const result = await webSearchTool.execute({
+        query: 'Buster Data',
+        limit: 10,
+        scrapeContent: true,
+        formats: ['markdown'],
       });
 
       expect(result.success).toBe(true);
@@ -41,11 +41,8 @@ describe('webSearch tool integration', () => {
   it.skipIf(!process.env.FIRECRAWL_API_KEY)(
     'should handle search with minimal options',
     async () => {
-      const result = await webSearch.execute({
-        context: {
-          query: 'TypeScript',
-        },
-        runtimeContext: {} as any,
+      const result = await webSearchTool.execute({
+        query: 'TypeScript',
       });
 
       expect(result.success).toBe(true);

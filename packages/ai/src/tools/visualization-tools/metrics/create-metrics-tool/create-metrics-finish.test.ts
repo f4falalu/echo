@@ -1,4 +1,5 @@
 import { updateMessageEntries } from '@buster/database';
+import type { ToolCallOptions } from 'ai';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { createCreateMetricsFinish } from './create-metrics-finish';
 import type { CreateMetricsInput, CreateMetricsState } from './create-metrics-tool';
@@ -39,7 +40,11 @@ describe('createCreateMetricsFinish', () => {
     };
 
     const handler = createCreateMetricsFinish(mockContext, state);
-    await handler(input);
+    await handler({
+      input,
+      toolCallId: 'tool-123',
+      messages: [],
+    });
 
     expect(state.parsedArgs).toEqual(input);
     expect(state.files).toBeDefined();
@@ -71,7 +76,11 @@ describe('createCreateMetricsFinish', () => {
     };
 
     const handler = createCreateMetricsFinish(mockContext, state);
-    await handler(input);
+    await handler({
+      input,
+      toolCallId: 'tool-123',
+      messages: [],
+    });
 
     // Check that existing properties are preserved
     expect(state.files!).toHaveLength(2);
@@ -95,7 +104,11 @@ describe('createCreateMetricsFinish', () => {
     };
 
     const handler = createCreateMetricsFinish(mockContext, state);
-    await handler(input);
+    await handler({
+      input,
+      toolCallId: 'tool-123',
+      messages: [],
+    });
 
     expect(updateMessageEntries).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -128,7 +141,11 @@ describe('createCreateMetricsFinish', () => {
     };
 
     const handler = createCreateMetricsFinish(mockContext, state);
-    await handler(input);
+    await handler({
+      input,
+      toolCallId: 'tool-123',
+      messages: [],
+    });
 
     expect(consoleErrorSpy).toHaveBeenCalledWith(
       '[create-metrics] Failed to finalize streaming data',
@@ -147,7 +164,11 @@ describe('createCreateMetricsFinish', () => {
     };
 
     const handler = createCreateMetricsFinish(mockContext, state);
-    await handler(input);
+    await handler({
+      input,
+      toolCallId: 'tool-123',
+      messages: [],
+    });
 
     expect(state.files).toBeDefined();
     expect(state.files!).toHaveLength(0);
@@ -164,7 +185,11 @@ describe('createCreateMetricsFinish', () => {
     };
 
     const handler = createCreateMetricsFinish(mockContext, state);
-    await handler(input);
+    await handler({
+      input,
+      toolCallId: 'tool-123',
+      messages: [],
+    });
 
     expect(consoleInfoSpy).toHaveBeenCalledWith(
       '[create-metrics] Input fully available',
@@ -212,7 +237,11 @@ describe('createCreateMetricsFinish', () => {
     };
 
     const handler = createCreateMetricsFinish(mockContext, state);
-    await handler(input);
+    await handler({
+      input,
+      toolCallId: 'tool-123',
+      messages: [],
+    });
 
     // All files should be marked as processing
     expect(state.files![0]?.status).toBe('failed'); // Keeps existing non-processing status
@@ -235,7 +264,11 @@ describe('createCreateMetricsFinish', () => {
     };
 
     const handler = createCreateMetricsFinish(mockContext, state);
-    await handler(input);
+    await handler({
+      input,
+      toolCallId: 'tool-123',
+      messages: [],
+    });
 
     expect(state.files![0]).toEqual({
       name: 'metric1',

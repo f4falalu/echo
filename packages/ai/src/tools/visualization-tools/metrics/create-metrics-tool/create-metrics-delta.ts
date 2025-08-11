@@ -7,7 +7,7 @@ import {
 } from '../../../../utils/streaming/optimistic-json-parser';
 import type {
   CreateMetricsContext,
-  CreateMetricsInput,
+  CreateMetricsFile,
   CreateMetricsState,
 } from './create-metrics-tool';
 import {
@@ -18,122 +18,112 @@ import {
 
 // Factory function for onInputDelta callback
 export function createCreateMetricsDelta(context: CreateMetricsContext, state: CreateMetricsState) {
-  return async (options: { inputTextDelta: string } & ToolCallOptions) => {
-    const messageId = context.messageId;
+  return async function createMetricsDelta(
+    options: { inputTextDelta: string } & ToolCallOptions
+  ): Promise<void> {
+    // Accumulate the delta to the args
+    state.argsText = (state.argsText || '') + options.inputTextDelta;
 
-    // Initialize files array if not already initialized
-    if (!state.files) {
-      state.files = [];
-    }
+    // Use optimistic parsing to extract values even from incomplete JSON
+    const parseResult = OptimisticJsonParser.parse(state.argsText);
 
-    // Handle string deltas (streaming JSON)
-    if (typeof options.inputTextDelta === 'string') {
-      state.argsText = (state.argsText || '') + options.inputTextDelta;
+    // Extract files array from optimistic parsing - type-safe key
+    const filesArray = getOptimisticValue<unknown[]>(
+      parseResult.extractedValues,
+      CREATE_METRICS_KEYS.files
+    );
 
-      // Use optimistic parsing to extract values even from incomplete JSON
-      const parseResult = OptimisticJsonParser.parse(state.argsText);
-
-      // Update parsed args
-      if (parseResult.parsed) {
-        state.parsedArgs = parseResult.parsed as CreateMetricsInput;
+    if (filesArray && Array.isArray(filesArray)) {
+      // Initialize files array if not already initialized
+      if (!state.files) {
+        state.files = [];
       }
 
-      // Extract files array from optimistic parsing
-      const filesArray = getOptimisticValue<unknown[]>(
-        parseResult.extractedValues,
-        CREATE_METRICS_KEYS.files,
-        []
-      );
+      // Track if state changed to avoid unnecessary database updates
+      let stateChanged = false;
 
-      if (filesArray && Array.isArray(filesArray)) {
-        // Update state files with streaming data
-        filesArray.forEach((file, index) => {
-          if (file && typeof file === 'object') {
-            const hasName = CREATE_METRICS_KEYS.name in file && file[CREATE_METRICS_KEYS.name];
-            const hasContent =
-              CREATE_METRICS_KEYS.yml_content in file && file[CREATE_METRICS_KEYS.yml_content];
+      // Update state files with streaming data
+      filesArray.forEach((file, index) => {
+        if (file && typeof file === 'object') {
+          const hasName = CREATE_METRICS_KEYS.name in file && file[CREATE_METRICS_KEYS.name];
+          const hasContent =
+            CREATE_METRICS_KEYS.yml_content in file && file[CREATE_METRICS_KEYS.yml_content];
 
-            // Update or add file when we have both name and content
-            if (hasName && hasContent) {
-              const name = file[CREATE_METRICS_KEYS.name] as string;
-              const ymlContent = file[CREATE_METRICS_KEYS.yml_content] as string;
+          // Update or add file when we have both name and content
+          if (hasName && hasContent) {
+            const name = file[CREATE_METRICS_KEYS.name] as string;
+            const ymlContent = file[CREATE_METRICS_KEYS.yml_content] as string;
 
-              // Check if file already exists in state
-              if (state.files?.[index]) {
-                // Update existing file
-                state.files[index].name = name;
-                state.files[index].yml_content = ymlContent;
-              } else {
-                // Add new file
+            // Check if file already exists in state
+            const existingFile = state.files?.[index];
+            if (existingFile) {
+              // Only update if values changed
+              if (existingFile.name !== name || existingFile.yml_content !== ymlContent) {
+                existingFile.name = name;
+                existingFile.yml_content = ymlContent;
+                stateChanged = true;
+              }
+            } else {
+              // Add new file
+              if (state.files) {
                 state.files[index] = {
                   name,
                   yml_content: ymlContent,
                   status: 'processing',
                 };
+                stateChanged = true;
               }
-            } else if (hasName && !state.files?.[index]) {
-              // Add placeholder with just name
+            }
+          } else if (hasName && !state.files?.[index]) {
+            // Add placeholder with just name
+            if (state.files) {
               state.files[index] = {
                 name: file[CREATE_METRICS_KEYS.name] as string,
                 yml_content: '',
                 status: 'processing',
               };
+              stateChanged = true;
             }
           }
-        });
+        }
+      });
 
-        // Update database with progress if we have a messageId
-        if (messageId) {
-          try {
-            // Create updated reasoning entry
-            const reasoningEntry = createMetricsReasoningMessage(
-              state.toolCallId || `tool-${Date.now()}`,
-              state.files.filter((f) => f), // Filter out any undefined entries
-              'loading'
-            );
+      // Update database with progress if state changed and we have a messageId
+      if (stateChanged && context.messageId && state.files) {
+        try {
+          // Filter out any undefined entries
+          const validFiles = state.files.filter((f): f is CreateMetricsFile => f !== undefined);
 
-            // Get progress message (filter out undefined entries)
-            const progressMessage = updateMetricsProgressMessage(state.files.filter((f) => f));
+          // Create updated reasoning entry
+          const reasoningEntry = createMetricsReasoningMessage(
+            state.toolCallId || options.toolCallId,
+            validFiles,
+            'loading'
+          );
 
-            console.info('[create-metrics] Updating database with streaming progress', {
-              messageId,
-              progressMessage,
-              fileCount: state.files.filter((f) => f).length,
-              processedCount: state.files.filter((f) => f?.yml_content).length,
-            });
+          // Get progress message
+          const progressMessage = updateMetricsProgressMessage(validFiles);
 
-            // Update database with streaming progress
-            await updateMessageEntries({
-              messageId,
-              reasoningEntry: reasoningEntry as ChatMessageReasoningMessage,
-              mode: 'update',
-            });
-          } catch (error) {
-            console.error('[create-metrics] Failed to update streaming progress', {
-              messageId,
-              error: error instanceof Error ? error.message : 'Unknown error',
-            });
-          }
+          console.info('[create-metrics] Updating database with streaming progress', {
+            messageId: context.messageId,
+            progressMessage,
+            fileCount: validFiles.length,
+            processedCount: validFiles.filter((f) => f.yml_content).length,
+          });
+
+          // Update database with streaming progress
+          await updateMessageEntries({
+            messageId: context.messageId,
+            reasoningEntry: reasoningEntry as ChatMessageReasoningMessage,
+            mode: 'update',
+          });
+        } catch (error) {
+          console.error('[create-metrics] Failed to update streaming progress', {
+            messageId: context.messageId,
+            error: error instanceof Error ? error.message : 'Unknown error',
+          });
         }
       }
-    } else {
-      // Handle object deltas (complete input)
-      if (options.input.files) {
-        state.parsedArgs = options.input as CreateMetricsInput;
-        state.files = options.input.files.map((file) => ({
-          name: file.name,
-          yml_content: file.yml_content,
-          status: 'processing',
-        }));
-      }
     }
-
-    console.info('[create-metrics] Input delta processed', {
-      hasFiles: !!state.files?.filter((f) => f).length,
-      fileCount: state.files?.filter((f) => f).length,
-      processedCount: state.files?.filter((f) => f?.yml_content).length,
-      messageId,
-      timestamp: new Date().toISOString(),
-    });
   };
 }

@@ -91,7 +91,7 @@ export function createCreateMetricsTool(context: CreateMetricsContext) {
     toolCallId: undefined,
   };
 
-  // Create all functions with the context and state passed
+  // Create all functions with the state captured via closure
   const execute = createCreateMetricsExecute(context, state);
   const onInputStart = createCreateMetricsStart(context, state);
   const onInputDelta = createCreateMetricsDelta(context, state);
@@ -99,7 +99,8 @@ export function createCreateMetricsTool(context: CreateMetricsContext) {
 
   return tool({
     description: getMetricToolDescription(),
-    parameters: CreateMetricsInputSchema,
+    inputSchema: CreateMetricsInputSchema,
+    outputSchema: CreateMetricsOutputSchema,
     execute,
     onInputStart,
     onInputDelta,

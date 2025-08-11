@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { webSearch } from './web-search-tool';
+import { createWebSearchTool } from './web-search-tool';
 
 vi.mock('@buster/web-tools', () => {
   const mockFirecrawlService = {
@@ -14,11 +14,13 @@ vi.mock('@buster/web-tools', () => {
 
 describe('webSearch tool', () => {
   let mockFirecrawlService: any;
+  let webSearchTool: ReturnType<typeof createWebSearchTool>;
 
   beforeEach(async () => {
     vi.clearAllMocks();
     const { mockFirecrawlService: mock } = vi.mocked(await import('@buster/web-tools')) as any;
     mockFirecrawlService = mock;
+    webSearchTool = createWebSearchTool();
   });
 
   it('should transform search results correctly', async () => {
@@ -36,14 +38,11 @@ describe('webSearch tool', () => {
 
     mockFirecrawlService.webSearch.mockResolvedValue(mockResponse);
 
-    const result = await webSearch.execute({
-      context: {
-        query: 'test query',
-        limit: 5,
-        scrapeContent: true,
-        formats: ['markdown'],
-      },
-      runtimeContext: {} as any,
+    const result = await webSearchTool.execute({
+      query: 'test query',
+      limit: 5,
+      scrapeContent: true,
+      formats: ['markdown'],
     });
 
     expect(result.success).toBe(true);
@@ -64,14 +63,11 @@ describe('webSearch tool', () => {
 
     mockFirecrawlService.webSearch.mockResolvedValue(mockResponse);
 
-    await webSearch.execute({
-      context: {
-        query: 'test query',
-        limit: 3,
-        scrapeContent: true,
-        formats: ['html', 'markdown'],
-      },
-      runtimeContext: {} as any,
+    await webSearchTool.execute({
+      query: 'test query',
+      limit: 3,
+      scrapeContent: true,
+      formats: ['html', 'markdown'],
     });
 
     expect(mockFirecrawlService.webSearch).toHaveBeenCalledWith('test query', {
@@ -85,11 +81,8 @@ describe('webSearch tool', () => {
   it('should handle errors gracefully', async () => {
     mockFirecrawlService.webSearch.mockRejectedValue(new Error('Search failed'));
 
-    const result = await webSearch.execute({
-      context: {
-        query: 'test query',
-      },
-      runtimeContext: {} as any,
+    const result = await webSearchTool.execute({
+      query: 'test query',
     });
 
     expect(result.success).toBe(false);
@@ -105,11 +98,8 @@ describe('webSearch tool', () => {
 
     mockFirecrawlService.webSearch.mockResolvedValue(mockResponse);
 
-    await webSearch.execute({
-      context: {
-        query: 'test query',
-      },
-      runtimeContext: {} as any,
+    await webSearchTool.execute({
+      query: 'test query',
     });
 
     expect(mockFirecrawlService.webSearch).toHaveBeenCalledWith('test query', {

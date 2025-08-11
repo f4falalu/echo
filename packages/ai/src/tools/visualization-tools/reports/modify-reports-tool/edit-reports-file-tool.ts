@@ -4,7 +4,7 @@ import { createTool } from '@mastra/core/tools';
 import { wrapTraced } from 'braintrust';
 import { z } from 'zod';
 import type { AnalystRuntimeContext } from '../../workflows/analyst-workflow';
-import { trackFileAssociations } from './file-tracking-helper';
+import { trackFileAssociations } from '../../file-tracking-helper';
 
 // Core interfaces
 interface EditOperation {

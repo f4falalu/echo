@@ -1,4 +1,3 @@
-import type { RuntimeContext } from '@mastra/core/runtime-context';
 import { createPermissionErrorMessage, validateSqlPermissions } from './permission-validator';
 
 export interface ExecuteWithPermissionResult<T = unknown> {

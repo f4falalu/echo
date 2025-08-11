@@ -14,9 +14,9 @@ import {
   createListFilesTool,
   createReadFilesTool,
   createSequentialThinkingTool,
+  createWebSearchTool,
   executeSqlDocsAgent,
   updateClarificationsFile,
-  webSearch,
 } from '../../tools';
 import { healToolWithLlm } from '../../utils/tool-call-repair';
 import { getDocsAgentSystemPrompt } from './get-docs-agent-system-prompt';
@@ -109,6 +109,8 @@ export function createDocsAgent(docsAgentOptions: DocsAgentOptions) {
         sandbox: docsAgentOptions.sandbox,
       })
     : undefined;
+
+  const webSearch = createWebSearchTool();
 
   async function stream({ messages }: DocsStreamOptions) {
     return wrapTraced(
