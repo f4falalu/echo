@@ -27,26 +27,54 @@ const useSupabaseContextInternal = ({
     !supabaseContext.user?.id || supabaseContext.user?.is_anonymous === true;
 
   const getExpiresAt = useMemoizedFn((token?: string) => {
-    const decoded = jwtDecode(token || accessToken);
-    const expiresAtDecoded = decoded?.exp || 0;
-    const ms = millisecondsFromUnixTimestamp(expiresAtDecoded);
-    return ms;
+    try {
+      const decoded = jwtDecode(token || accessToken);
+      const expiresAtDecoded = (decoded as { exp?: number } | undefined)?.exp || 0;
+      const ms = millisecondsFromUnixTimestamp(expiresAtDecoded);
+      return ms;
+    } catch {
+      // If token is missing/invalid, report that it is effectively expired now
+      return 0;
+    }
   });
+
+  const onUpdateToken = useMemoizedFn(
+    async ({ accessToken, expiresAt: _expiresAt }: { accessToken: string; expiresAt: number }) => {
+      setAccessToken(accessToken);
+      flushSync(() => {
+        //noop
+      });
+    }
+  );
 
   const checkTokenValidity = useMemoizedFn(async () => {
     try {
-      const ms = getExpiresAt();
-      const minutesUntilExpiration = ms / 60000;
-      const isTokenExpired = minutesUntilExpiration < PREEMTIVE_REFRESH_MINUTES; //5 minutes
-
+      // Anonymous users do not require refresh; return current token as-is
       if (isAnonymousUser) {
         return {
           access_token: accessToken,
-          isTokenValid: isTokenExpired
+          isTokenValid: true
         };
       }
 
-      if (isTokenExpired) {
+      // If we don't have a token in memory, try to recover it from Supabase session
+      if (!accessToken) {
+        const { data: sessionData } = await supabase.auth.getSession();
+        const recoveredToken = sessionData.session?.access_token || '';
+        if (recoveredToken) {
+          await onUpdateToken({ accessToken: recoveredToken, expiresAt: sessionData.session?.expires_at ?? 0 });
+          return {
+            access_token: recoveredToken,
+            isTokenValid: true
+          };
+        }
+      }
+
+      const msUntilExpiration = getExpiresAt();
+      const minutesUntilExpiration = msUntilExpiration / 60000;
+      const needsPreemptiveRefresh = minutesUntilExpiration < PREEMTIVE_REFRESH_MINUTES;
+
+      if (needsPreemptiveRefresh) {
         const { data: refreshedSession, error: refreshedSessionError } =
           await supabase.auth.refreshSession();
 
@@ -56,16 +84,23 @@ const useSupabaseContextInternal = ({
             description: 'Please refresh the page and try again',
             duration: 120 * 1000 //2 minutes
           });
-          throw refreshedSessionError;
+          // As a fallback, try to read whatever session is available
+          const { data: sessionData } = await supabase.auth.getSession();
+          const fallbackToken = sessionData.session?.access_token || '';
+          if (fallbackToken) {
+            await onUpdateToken({ accessToken: fallbackToken, expiresAt: sessionData.session?.expires_at ?? 0 });
+            return { access_token: fallbackToken, isTokenValid: true };
+          }
+          throw refreshedSessionError || new Error('Failed to refresh session');
         }
 
-        const accessToken = refreshedSession.session?.access_token;
+        const refreshedAccessToken = refreshedSession.session?.access_token;
         const expiresAt = refreshedSession.session?.expires_at ?? 0;
 
-        await onUpdateToken({ accessToken, expiresAt });
+        await onUpdateToken({ accessToken: refreshedAccessToken, expiresAt });
         await timeout(25);
         return {
-          access_token: accessToken,
+          access_token: refreshedAccessToken,
           isTokenValid: true
         };
       }
@@ -85,15 +120,6 @@ const useSupabaseContextInternal = ({
     }
   });
 
-  const onUpdateToken = useMemoizedFn(
-    async ({ accessToken, expiresAt: _expiresAt }: { accessToken: string; expiresAt: number }) => {
-      setAccessToken(accessToken);
-      flushSync(() => {
-        //noop
-      });
-    }
-  );
-
   useLayoutEffect(() => {
     if (supabaseContext.accessToken) {
       setAccessToken(supabaseContext.accessToken);
@@ -105,6 +131,10 @@ const useSupabaseContextInternal = ({
       const expiresInMs = getExpiresAt();
       const refreshBuffer = PREEMTIVE_REFRESH_MINUTES * 60000; // Refresh minutes before expiration
       const timeUntilRefresh = Math.max(0, expiresInMs - refreshBuffer);
+
+      if (refreshTimerRef.current) {
+        clearTimeout(refreshTimerRef.current);
+      }
 
       // Set up timer for future refresh
       refreshTimerRef.current = setTimeout(() => {
@@ -120,7 +150,40 @@ const useSupabaseContextInternal = ({
         clearTimeout(refreshTimerRef.current);
       }
     };
-  }, [accessToken, checkTokenValidity]);
+  }, [accessToken, checkTokenValidity, getExpiresAt]);
+
+  useEffect(() => {
+    // Keep access token in sync with Supabase client (captures auto-refresh events)
+    const { data: subscription } = supabase.auth.onAuthStateChange((_event, session) => {
+      const newToken = session?.access_token;
+      if (newToken) {
+        void onUpdateToken({ accessToken: newToken, expiresAt: session?.expires_at ?? 0 });
+      }
+    });
+
+    return () => {
+      subscription.subscription.unsubscribe();
+    };
+  }, [onUpdateToken]);
+
+  useEffect(() => {
+    const onVisibility = () => {
+      if (document.visibilityState === 'visible') {
+        void checkTokenValidity();
+      }
+    };
+    const onOnline = () => {
+      void checkTokenValidity();
+    };
+
+    window.addEventListener('visibilitychange', onVisibility);
+    window.addEventListener('online', onOnline);
+
+    return () => {
+      window.removeEventListener('visibilitychange', onVisibility);
+      window.removeEventListener('online', onOnline);
+    };
+  }, [checkTokenValidity]);
 
   return {
     isAnonymousUser,

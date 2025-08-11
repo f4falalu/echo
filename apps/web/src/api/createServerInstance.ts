@@ -1,7 +1,6 @@
 'use server';
 
 import type { RequestInit } from 'next/dist/server/web/spec-extension/request';
-import { cookies } from 'next/headers';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { BASE_URL } from './buster_rest/config';
 import type { RustApiError } from './buster_rest/errors';
@@ -64,8 +63,7 @@ export const serverFetch = async <T>(url: string, config: FetchConfig = {}): Pro
 };
 
 export const getSupabaseTokenFromCookies = async () => {
-  const cookiesManager = await cookies();
-  const tokenCookie =
-    cookiesManager.get('sb-127-auth-token') || cookiesManager.get('next-sb-access-token');
-  return tokenCookie?.value || '';
+  const supabase = await createSupabaseServerClient();
+  const sessionData = await supabase.auth.getSession();
+  return sessionData.data?.session?.access_token || '';
 };
