@@ -12,6 +12,7 @@ import { Sonnet4 } from '../../utils/models/sonnet-4';
 const DEFAULT_OPTIONS = {
   maxSteps: 25,
   temperature: 1,
+  maxTokens: 10000,
   providerOptions: {
     anthropic: {
       disableParallelToolCalls: true,
