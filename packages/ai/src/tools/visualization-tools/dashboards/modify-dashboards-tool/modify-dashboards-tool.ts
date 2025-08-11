@@ -1,5 +1,6 @@
 import { tool } from 'ai';
 import { z } from 'zod';
+import { getDashboardToolDescription } from '../helpers/get-dashboard-tool-descripton';
 import { createModifyDashboardsDelta } from './modify-dashboards-delta';
 import { createModifyDashboardsExecute } from './modify-dashboards-execute';
 import { createModifyDashboardsFinish } from './modify-dashboards-finish';
@@ -98,46 +99,8 @@ export function createModifyDashboardsTool(context: ModifyDashboardsContext) {
   const onInputDelta = createModifyDashboardsDelta(context, state);
   const onInputAvailable = createModifyDashboardsFinish(context, state);
 
-  // Get the description from the original tool
-  const description = `Updates existing dashboard configuration files with new YAML content. Provide the complete YAML content for each dashboard, replacing the entire existing file. This tool is ideal for bulk modifications when you need to update multiple dashboards simultaneously. The system will preserve version history and perform all necessary validations on the new content. For each dashboard, you need its UUID and the complete updated YAML content. **Prefer modifying dashboards in bulk using this tool rather than one by one.**
-
-## COMPLETE DASHBOARD YAML SCHEMA
-
-# DASHBOARD CONFIGURATION - YML STRUCTURE
-# ----------------------------------------
-# Required fields:
-#
-# name: Your Dashboard Title  # Do NOT use quotes for string values
-# description: A description of the dashboard, its metrics, and its purpose.  # NO quotes
-# rows: 
-#   - id: 1               # Required row ID (integer)
-#     items:
-#       - id: metric-uuid-1  # UUIDv4 of an existing metric, NO quotes
-#     column_sizes: [12]   # Required - must sum to exactly 12
-#   - id: 2 # REQUIRED
-#     items:
-#       - id: metric-uuid-2
-#       - id: metric-uuid-3
-#     column_sizes: 
-#       - 6
-#       - 6
-#
-# Rules:
-# 1. Each row can have up to 4 items
-# 2. Each row must have a unique ID
-# 3. column_sizes is required and must specify the width for each item
-# 4. Sum of column_sizes in a row must be exactly 12
-# 5. Each column size must be at least 3
-# 6. All arrays should follow the YML array syntax using \`-\` and should NOT USE \`[]\` formatting.
-# 7. Don't use comments. The ones in the example are just for explanation
-# 8. String values generally should NOT use quotes unless they contain special characters (like :, {, }, [, ], ,, &, *, #, ?, |, -, <, >, =, !, %, @, \`) or start/end with whitespace.
-# 9. If a string contains special characters or needs to preserve leading/trailing whitespace, enclose it in double quotes (\`"\`). Example: \`name: "Sales & Marketing Dashboard"\`
-# 10. Avoid special characters in names and descriptions where possible, but if needed, use quotes as described in rule 9. UUIDs should NEVER be quoted.
-
-**CRITICAL:** Follow the schema exactly - all metric IDs must reference existing metrics, column sizes must sum to 12, and row IDs must be unique. The tool will validate all metric references against the database.`;
-
   return tool({
-    description,
+    description: getDashboardToolDescription(),
     inputSchema: ModifyDashboardsInputSchema,
     outputSchema: ModifyDashboardsOutputSchema,
     execute,

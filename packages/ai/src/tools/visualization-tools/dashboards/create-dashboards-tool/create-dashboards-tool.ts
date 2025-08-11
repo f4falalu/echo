@@ -1,10 +1,10 @@
 import { tool } from 'ai';
 import { z } from 'zod';
+import { getDashboardToolDescription } from '../helpers/get-dashboard-tool-descripton';
 import { createCreateDashboardsDelta } from './create-dashboards-delta';
 import { createCreateDashboardsExecute } from './create-dashboards-execute';
 import { createCreateDashboardsFinish } from './create-dashboards-finish';
 import { createCreateDashboardsStart } from './create-dashboards-start';
-import { getDashboardToolDescription } from '../helpers/get-dashboard-tool-descripton';
 
 // Input schema for the create dashboards tool
 const CreateDashboardsInputSchema = z.object({

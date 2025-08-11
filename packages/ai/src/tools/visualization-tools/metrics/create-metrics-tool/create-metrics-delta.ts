@@ -1,5 +1,6 @@
 import { updateMessageEntries } from '@buster/database';
 import type { ChatMessageReasoningMessage } from '@buster/server-shared/chats';
+import type { ToolCallOptions } from 'ai';
 import {
   OptimisticJsonParser,
   getOptimisticValue,
@@ -17,7 +18,7 @@ import {
 
 // Factory function for onInputDelta callback
 export function createCreateMetricsDelta(context: CreateMetricsContext, state: CreateMetricsState) {
-  return async (delta: string | Partial<CreateMetricsInput>) => {
+  return async (options: { inputTextDelta: string } & ToolCallOptions) => {
     const messageId = context.messageId;
 
     // Initialize files array if not already initialized
@@ -26,8 +27,8 @@ export function createCreateMetricsDelta(context: CreateMetricsContext, state: C
     }
 
     // Handle string deltas (streaming JSON)
-    if (typeof delta === 'string') {
-      state.argsText = (state.argsText || '') + delta;
+    if (typeof options.inputTextDelta === 'string') {
+      state.argsText = (state.argsText || '') + options.inputTextDelta;
 
       // Use optimistic parsing to extract values even from incomplete JSON
       const parseResult = OptimisticJsonParser.parse(state.argsText);
@@ -58,21 +59,21 @@ export function createCreateMetricsDelta(context: CreateMetricsContext, state: C
               const ymlContent = file[CREATE_METRICS_KEYS.yml_content] as string;
 
               // Check if file already exists in state
-              if (state.files![index]) {
+              if (state.files?.[index]) {
                 // Update existing file
-                state.files![index].name = name;
-                state.files![index].yml_content = ymlContent;
+                state.files[index].name = name;
+                state.files[index].yml_content = ymlContent;
               } else {
                 // Add new file
-                state.files![index] = {
+                state.files[index] = {
                   name,
                   yml_content: ymlContent,
                   status: 'processing',
                 };
               }
-            } else if (hasName && !state.files![index]) {
+            } else if (hasName && !state.files?.[index]) {
               // Add placeholder with just name
-              state.files![index] = {
+              state.files[index] = {
                 name: file[CREATE_METRICS_KEYS.name] as string,
                 yml_content: '',
                 status: 'processing',
@@ -117,20 +118,20 @@ export function createCreateMetricsDelta(context: CreateMetricsContext, state: C
       }
     } else {
       // Handle object deltas (complete input)
-      if (delta.files) {
-        state.parsedArgs = delta as CreateMetricsInput;
-        state.files = delta.files.map((file) => ({
+      if (options.input.files) {
+        state.parsedArgs = options.input as CreateMetricsInput;
+        state.files = options.input.files.map((file) => ({
           name: file.name,
           yml_content: file.yml_content,
-          status: 'processing' as const,
+          status: 'processing',
         }));
       }
     }
 
     console.info('[create-metrics] Input delta processed', {
-      hasFiles: !!state.files.filter((f) => f).length,
-      fileCount: state.files.filter((f) => f).length,
-      processedCount: state.files.filter((f) => f?.yml_content).length,
+      hasFiles: !!state.files?.filter((f) => f).length,
+      fileCount: state.files?.filter((f) => f).length,
+      processedCount: state.files?.filter((f) => f?.yml_content).length,
       messageId,
       timestamp: new Date().toISOString(),
     });

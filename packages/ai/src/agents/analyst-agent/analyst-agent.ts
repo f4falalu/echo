@@ -1,6 +1,7 @@
 import { type ModelMessage, NoSuchToolError, hasToolCall, stepCountIs, streamText } from 'ai';
 import { wrapTraced } from 'braintrust';
 import z from 'zod';
+import { GPT5 } from '../../llm/gpt-5';
 import {
   createCreateDashboardsTool,
   createCreateMetricsTool,
@@ -10,7 +11,6 @@ import {
 } from '../../tools';
 import { healToolWithLlm } from '../../utils/tool-call-repair';
 import { getAnalystAgentSystemPrompt } from './get-analyst-agent-system-prompt';
-import { GPT5 } from '../../llm/gpt-5';
 
 const DEFAULT_CACHE_OPTIONS = {
   anthropic: { cacheControl: { type: 'ephemeral', ttl: '1h' } },

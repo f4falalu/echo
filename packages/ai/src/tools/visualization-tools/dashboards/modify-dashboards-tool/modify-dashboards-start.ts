@@ -1,5 +1,5 @@
 import { updateMessageEntries } from '@buster/database';
-import type { ModelMessage } from 'ai';
+import type { ModelMessage, ToolCallOptions } from 'ai';
 import { wrapTraced } from 'braintrust';
 import { createDashboardsReasoningMessage } from './helpers/modify-dashboards-transform-helper';
 import type {
@@ -14,7 +14,11 @@ export function createModifyDashboardsStart(
   state: ModifyDashboardsState
 ) {
   return wrapTraced(
-    async (input: ModifyDashboardsInput) => {
+    async (options: ToolCallOptions) => {
+      state.toolCallId = options.toolCallId;
+
+      const input = options.input as ModifyDashboardsInput;
+
       // Log the start of dashboard modification
       const fileCount = input.files?.length || 0;
       const messageId = context.messageId;
@@ -25,12 +29,6 @@ export function createModifyDashboardsStart(
         timestamp: new Date().toISOString(),
       });
 
-      // Initialize state
-      state.processingStartTime = Date.now();
-      state.toolCallId = `modify-dashboards-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-      state.parsedArgs = input;
-
-      // Initialize files in state (with IDs from input)
       state.files = input.files.map((file) => ({
         id: file.id,
         yml_content: file.yml_content,
