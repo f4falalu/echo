@@ -1,15 +1,15 @@
 'use client';
 
-import React, { useImperativeHandle, useRef } from 'react';
+import type { ReportElement, ReportElements } from '@buster/server-shared/reports';
 import type { Value, AnyPluginConfig } from 'platejs';
 import { Plate, type TPlateEditor } from 'platejs/react';
-import { EditorContainer } from './EditorContainer';
-import { Editor } from './Editor';
-import { useReportEditor } from './useReportEditor';
+import React, { useImperativeHandle, useRef } from 'react';
 import { useMemoizedFn } from '@/hooks';
-import type { ReportElements, ReportElement } from '@buster/server-shared/reports';
 import { cn } from '@/lib/utils';
+import { Editor } from './Editor';
+import { EditorContainer } from './EditorContainer';
 import { ThemeWrapper } from './ThemeWrapper/ThemeWrapper';
+import { useReportEditor } from './useReportEditor';
 
 interface ReportEditorProps {
   // We accept the generic Value type but recommend using ReportTypes.Value for type safety
@@ -74,7 +74,7 @@ export const ReportEditor = React.memo(
       });
 
       // Optionally expose the editor instance to the parent via ref
-      useImperativeHandle(ref, () => ({ editor, onReset }), [editor]);
+      useImperativeHandle(ref, () => ({ editor, onReset }), [editor, { editor, onReset }]);
 
       const onValueChangePreflight = useMemoizedFn(
         ({ value, editor }: { value: Value; editor: TPlateEditor<Value, AnyPluginConfig> }) => {

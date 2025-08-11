@@ -1,8 +1,8 @@
-import React from 'react';
-import AppMarkdownStreaming from './AppMarkdownStreaming';
-import type { Meta, StoryObj } from '@storybook/nextjs';
 import { useStreamTokenArray } from '@llm-ui/react';
+import type { Meta, StoryObj } from '@storybook/nextjs';
+import type React from 'react';
 import type { MarkdownAnimation } from '../../typography/animation-common';
+import AppMarkdownStreaming from './AppMarkdownStreaming';
 
 const meta: Meta<typeof AppMarkdownStreaming> = {
   title: 'UI/Typography/AppMarkdownStreaming',

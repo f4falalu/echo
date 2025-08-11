@@ -1,7 +1,6 @@
+import type { ReportElement } from '@buster/server-shared/reports';
 import type { Meta, StoryObj } from '@storybook/nextjs';
-import { HttpResponse, http } from 'msw';
 import { ReportEditor } from './ReportEditor';
-import { ReportElement } from '@buster/server-shared/reports';
 
 const meta = {
   title: 'UI/report/ReportEditor',
@@ -361,6 +360,15 @@ export const ReadOnly: Story = {
   args: {
     value: plateValue,
     readOnly: true
+  }
+};
+
+export const WithBulletList: Story = {
+  args: {
+    value: [
+      { type: 'h1', children: [{ text: 'Bullet List' }] },
+      { type: 'ul', children: [{ type: 'li', children: [{ text: 'Bullet list item 1' }] }] }
+    ]
   }
 };
 

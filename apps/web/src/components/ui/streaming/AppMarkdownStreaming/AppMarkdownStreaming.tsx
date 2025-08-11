@@ -1,12 +1,11 @@
 'use client';
 
-import React from 'react';
 import { cn } from '@/lib/classMerge';
+import AnimatedMarkdown from '../../typography/AnimatedMarkdown/AnimatedMarkdown';
 import type {
   MarkdownAnimation,
   MarkdownAnimationTimingFunction
 } from '../../typography/animation-common';
-import AnimatedMarkdown from '../../typography/AnimatedMarkdown/AnimatedMarkdown';
 import { useLLMStreaming } from './useLLMStreaming';
 
 /**
