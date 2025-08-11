@@ -72,13 +72,13 @@ export const MetricElement = withHOC(
 );
 
 const MetricResizeContainer: React.FC<PropsWithChildren> = ({ children }) => {
-  const width = useResizableValue('width');
+  const width = useResizableValue('width') || 700;
   const ref = useRef<HTMLDivElement>(null);
   const element = useElement();
   const editor = useEditorRef();
-  const editorWidth = useSize(ref)?.width ?? 400;
+  const editorWidth = useSize(ref)?.width ?? 700;
   const isSelected = useSelected();
-  const isFocused = useFocused();
+
   const { isDragging, handleRef } = useDraggable({
     element: element
   });
@@ -91,6 +91,7 @@ const MetricResizeContainer: React.FC<PropsWithChildren> = ({ children }) => {
   const height = useMemo(() => {
     const ratio = 9 / 16;
     if (typeof width !== 'number') return (editorWidth ?? 400) * ratio;
+
     return width * ratio;
   }, [width, editorWidth]);
 
@@ -117,7 +118,11 @@ const MetricResizeContainer: React.FC<PropsWithChildren> = ({ children }) => {
 
         <div
           ref={handleRef}
-          className={cn('min-h-64', isDragging && 'cursor-grabbing opacity-50')}
+          className={cn(
+            'min-h-64',
+            !height && 'min-h-[390px] bg-red-500 opacity-50',
+            isDragging && 'cursor-grabbing opacity-50'
+          )}
           style={{ height }}>
           {children}
         </div>

@@ -1220,6 +1220,57 @@ describe('platejsToMarkdown', () => {
       '<metric metricId="TBD-REP-SEGMENT-LIST" width="100%"></metric>'
     );
   });
+
+  it('basic caption', async () => {
+    const elements: ReportElements = [
+      {
+        type: 'img',
+        children: [
+          {
+            text: '',
+          },
+        ],
+        url: 'https://picsum.photos/200/200',
+        caption: [
+          {
+            text: 'This is a caption...',
+          },
+        ],
+        id: 'eIIq6-rQ1X',
+      },
+    ];
+    const markdownFromPlatejs = await platejsToMarkdown(elements);
+    expect(markdownFromPlatejs).toBeDefined();
+    expect(markdownFromPlatejs).toContain(
+      '![This is a caption...](https://picsum.photos/200/200 "This is a caption...")'
+    );
+    console.log(markdownFromPlatejs);
+  });
+
+  it('basic metric caption', async () => {
+    const elements: ReportElements = [
+      {
+        type: 'metric',
+        children: [
+          {
+            text: '',
+          },
+        ],
+        metricId: '1234',
+        caption: [
+          {
+            text: 'This is a caption.. AND IT REALLY WORKS!',
+          },
+        ],
+        id: 'YGbwsH2r0l',
+      },
+    ];
+    const markdownFromPlatejs = await platejsToMarkdown(elements);
+    expect(markdownFromPlatejs).toBeDefined();
+    expect(markdownFromPlatejs).toContain(
+      '<metric metricId="1234" width="100%" caption="This is a caption.. AND IT REALLY WORKS!"></metric>'
+    );
+  });
 });
 
 describe('platejs to markdown and back to platejs', () => {

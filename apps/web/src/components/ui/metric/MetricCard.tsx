@@ -89,7 +89,7 @@ export const MetricCard = React.forwardRef<
         );
       }
 
-      return <PreparingYourRequestLoader />;
+      return <PreparingYourRequestLoader text="Loading metric card..." />;
     };
 
     return (

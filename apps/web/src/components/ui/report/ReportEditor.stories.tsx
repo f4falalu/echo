@@ -85,12 +85,11 @@ const sampleValue = [
     children: [{ text: 'Features' }]
   },
   {
-    type: 'ul',
-    children: [
-      { type: 'li', children: [{ text: 'Rich text editing' }] },
-      { type: 'li', children: [{ text: 'Multiple block types' }] },
-      { type: 'li', children: [{ text: 'Customizable appearance' }] }
-    ]
+    type: 'img',
+    children: [{ text: '' }],
+    width: 200,
+    url: 'https://picsum.photos/200/200',
+    caption: [{ text: 'This is a caption' }]
   },
   {
     type: 'callout',

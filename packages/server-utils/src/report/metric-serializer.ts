@@ -7,6 +7,8 @@ export const metricSerializer: MetricMdNode = {
   serialize: (node: MetricElement, options) => {
     const width = node.width;
     const metricId = node.metricId;
+    const caption = node.caption;
+    const captionText = caption?.map((c) => c.text).join(' ');
 
     if (!options.editor) {
       throw new Error('Editor is required');
@@ -23,7 +25,7 @@ export const metricSerializer: MetricMdNode = {
 
     return {
       type: 'html',
-      value: `<metric metricId="${metricId}" width="${hasWidth ? width : '100%'}"></metric>`,
+      value: `<metric metricId="${metricId}" width="${hasWidth ? width : '100%'}" caption="${captionText}"></metric>`,
     };
   },
   deserialize: (node): MetricElement => {
@@ -31,12 +33,14 @@ export const metricSerializer: MetricMdNode = {
     const typedAttributes = parseAttributes(node.attributes) as {
       metricId: string;
       width: string | number;
+      caption: string | undefined;
     };
 
     // Return the PlateJS node structure
     return {
       type: 'metric',
       metricId: typedAttributes.metricId,
+      caption: typedAttributes.caption ? [{ text: typedAttributes.caption }] : undefined,
       width: typedAttributes.width,
       children: [{ text: '' }],
     };
