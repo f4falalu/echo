@@ -1,3 +1,4 @@
+import { StatusSchema } from '@buster/server-shared/chats';
 import { tool } from 'ai';
 import { z } from 'zod';
 import { getDashboardToolDescription } from '../helpers/get-dashboard-tool-description';
@@ -19,11 +20,6 @@ const CreateDashboardsInputSchema = z.object({
 const CreateDashboardsOutputFileSchema = z.object({
   id: z.string(),
   name: z.string(),
-  file_type: z.string(),
-  result_message: z.string().optional(),
-  results: z.array(z.record(z.any())).optional(),
-  created_at: z.string(),
-  updated_at: z.string(),
   version_number: z.number(),
 });
 
@@ -35,7 +31,6 @@ const CreateDashboardsOutputFailedFileSchema = z.object({
 // Output schema for the create dashboards tool
 const CreateDashboardsOutputSchema = z.object({
   message: z.string(),
-  duration: z.number(),
   files: z.array(CreateDashboardsOutputFileSchema),
   failed_files: z.array(CreateDashboardsOutputFailedFileSchema),
 });
@@ -50,20 +45,23 @@ const CreateDashboardsContextSchema = z.object({
   messageId: z.string().optional().describe('The message ID'),
 });
 
-const CreateDashboardsReasoningFileSchema = z.object({
-  name: z.string(),
-  yml_content: z.string(),
-  status: z.enum(['processing', 'completed', 'failed']).optional(),
-  id: z.string().optional(),
-  version: z.number().optional(),
-  error: z.string().optional(),
+const CreateDashboardStateFileSchema = z.object({
+  id: z.string().uuid(),
+  file_name: z.string().optional(),
+  file_type: z.string(),
+  version_number: z.number(),
+  file: z
+    .object({
+      text: z.string(),
+    })
+    .optional(),
+  status: StatusSchema,
 });
 
 const CreateDashboardsStateSchema = z.object({
   toolCallId: z.string().optional(),
   argsText: z.string().optional(),
-  parsedArgs: CreateDashboardsInputSchema.optional(),
-  files: z.array(CreateDashboardsReasoningFileSchema).optional(),
+  files: z.array(CreateDashboardStateFileSchema).optional(),
 });
 
 // Export types
@@ -74,8 +72,8 @@ export type CreateDashboardsOutputFile = z.infer<typeof CreateDashboardsOutputFi
 export type CreateDashboardsOutputFailedFile = z.infer<
   typeof CreateDashboardsOutputFailedFileSchema
 >;
-export type CreateDashboardsReasoningFile = z.infer<typeof CreateDashboardsReasoningFileSchema>;
 export type CreateDashboardsState = z.infer<typeof CreateDashboardsStateSchema>;
+export type CreateDashboardStateFile = z.infer<typeof CreateDashboardStateFileSchema>;
 
 // Factory function that accepts agent context and maps to tool context
 export function createCreateDashboardsTool(context: CreateDashboardsContext) {
@@ -83,7 +81,6 @@ export function createCreateDashboardsTool(context: CreateDashboardsContext) {
   const state: CreateDashboardsState = {
     argsText: undefined,
     files: undefined,
-    parsedArgs: undefined,
     toolCallId: undefined,
   };
 

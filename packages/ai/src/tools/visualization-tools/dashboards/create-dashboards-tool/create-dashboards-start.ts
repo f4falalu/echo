@@ -12,8 +12,6 @@ export function createDashboardsStart(
 ) {
   return async (options: ToolCallOptions) => {
     state.toolCallId = options.toolCallId;
-    state.argsText = '';
-    state.files = [];
 
     if (context.messageId) {
       try {

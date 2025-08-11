@@ -1,4 +1,7 @@
-import type { ChatMessageReasoningMessage } from '@buster/server-shared/chats';
+import type {
+  ChatMessageReasoningMessage,
+  ChatMessageReasoningMessage_File,
+} from '@buster/server-shared/chats';
 import type { ModelMessage } from 'ai';
 import type { CreateDashboardsState } from '../create-dashboards-tool';
 
@@ -9,72 +12,42 @@ export function createCreateDashboardsReasoningEntry(
   state: CreateDashboardsState,
   toolCallId: string
 ): ChatMessageReasoningMessage | undefined {
+  state.toolCallId = toolCallId;
+
   if (!state.files || state.files.length === 0) {
     return undefined;
   }
 
-  // Transform files to the format expected by reasoning messages
-  interface FileEntry {
-    id: string;
-    file_type: string;
-    file_name: string;
-    version_number?: number;
-    status: string;
-    file: {
-      text: string;
-    };
-    error?: string;
-  }
-  const fileEntries: Record<string, FileEntry> = {};
+  // Build Record<string, ReasoningFile> as required by schema
+  const filesRecord: Record<string, ChatMessageReasoningMessage_File> = {};
   const fileIds: string[] = [];
-
-  state.files.forEach((file) => {
-    const fileId = file.id || `dashboard-${toolCallId}-${file.name}`;
-    fileIds.push(fileId);
-    fileEntries[fileId] = {
-      id: fileId,
+  for (const f of state.files) {
+    // Skip entries that do not yet have a file_name
+    if (!f.file_name) continue;
+    const id = f.id;
+    fileIds.push(id);
+    filesRecord[id] = {
+      id,
       file_type: 'dashboard',
-      file_name: file.name,
-      status: file.status || 'processing',
+      file_name: f.file_name,
+      version_number: f.version_number,
+      status: f.status,
       file: {
-        text: file.yml_content,
+        text: f.file?.text,
       },
-      ...(file.version !== undefined ? { version_number: file.version } : {}),
-      ...(file.error && { error: file.error }),
     };
-  });
-
-  // Determine status and title based on file states
-  let title = 'Creating dashboards';
-  let status: 'loading' | 'completed' | 'failed' = 'loading';
-
-  const processingCount = state.files.filter((f) => f.status === 'processing').length;
-  const completedCount = state.files.filter((f) => f.status === 'completed').length;
-  const failedCount = state.files.filter((f) => f.status === 'failed').length;
-
-  if (processingCount > 0) {
-    title = `Creating ${state.files.length} ${state.files.length === 1 ? 'dashboard' : 'dashboards'}`;
-    status = 'loading';
-  } else if (failedCount === state.files.length) {
-    title = 'Failed to create dashboards';
-    status = 'failed';
-  } else if (completedCount > 0 || failedCount > 0) {
-    if (failedCount > 0) {
-      title = `Created ${completedCount} ${completedCount === 1 ? 'dashboard' : 'dashboards'}, ${failedCount} failed`;
-      status = 'failed';
-    } else {
-      title = `Created ${completedCount} ${completedCount === 1 ? 'dashboard' : 'dashboards'}`;
-      status = 'completed';
-    }
   }
+
+  // If nothing valid to show yet, skip emitting a files reasoning message
+  if (fileIds.length === 0) return undefined;
 
   return {
     id: toolCallId,
     type: 'files',
-    title,
-    status,
+    title: 'Creating dashboards...',
+    status: 'loading',
     file_ids: fileIds,
-    files: fileEntries,
+    files: filesRecord,
   } as ChatMessageReasoningMessage;
 }
 
@@ -85,9 +58,8 @@ export function createCreateDashboardsRawLlmMessageEntry(
   state: CreateDashboardsState,
   toolCallId: string
 ): ModelMessage | undefined {
-  if (!state.parsedArgs || !state.parsedArgs.files || state.parsedArgs.files.length === 0) {
-    return undefined;
-  }
+  // If we don't have files yet, skip emitting raw LLM entry
+  if (!state.files || state.files.length === 0) return undefined;
 
   return {
     role: 'assistant',
@@ -97,7 +69,13 @@ export function createCreateDashboardsRawLlmMessageEntry(
         toolCallId,
         toolName: 'createDashboards',
         input: {
-          files: state.parsedArgs.files,
+          files: state.files
+            .map((file) => ({
+              name: file.file_name ?? 'dashboard',
+              yml_content: file.file?.text ?? '',
+            }))
+            // Filter out clearly invalid entries
+            .filter((f) => f.name && f.yml_content),
         },
       },
     ],

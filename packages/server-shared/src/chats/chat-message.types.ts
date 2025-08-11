@@ -14,7 +14,7 @@ const ChatUserMessageSchema = z
   })
   .or(z.null());
 
-const StatusSchema = z.enum(['loading', 'completed', 'failed']);
+export const StatusSchema = z.enum(['loading', 'completed', 'failed']);
 
 const ResponseMessage_TextSchema = z.object({
   id: z.string(),
