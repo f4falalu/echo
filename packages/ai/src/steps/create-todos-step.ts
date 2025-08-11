@@ -6,6 +6,7 @@ import { wrapTraced } from 'braintrust';
 import { z } from 'zod';
 import { thinkAndPrepWorkflowInputSchema } from '../schemas/workflow-schemas';
 import { createTodoList } from '../tools/planning-thinking-tools/create-todo-item-tool';
+import { Sonnet4 } from '../utils';
 import { ChunkProcessor } from '../utils/database/chunk-processor';
 import { ReasoningHistorySchema } from '../utils/memory/types';
 import { GPT5Mini } from '../utils/models/gpt-5-mini';
@@ -13,7 +14,6 @@ import { RetryWithHealingError, isRetryWithHealingError } from '../utils/retry';
 import { appendToConversation, standardizeMessages } from '../utils/standardizeMessages';
 import { createOnChunkHandler } from '../utils/streaming';
 import type { AnalystRuntimeContext } from '../workflows/analyst-workflow';
-import { Sonnet4 } from '../utils';
 
 const inputSchema = thinkAndPrepWorkflowInputSchema;
 
