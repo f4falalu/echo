@@ -20,6 +20,10 @@ export { createGrepSearchTool } from './file-tools/grep-search-tool/grep-search-
 // Web tools - factory functions
 export { createWebSearchTool } from './web-tools/web-search-tool';
 
+// Planning/thinking tools - factory functions
+export { createCheckOffTodoListTool } from './planning-thinking-tools/check-off-todo-list-tool/check-off-todo-list-tool';
+export { createUpdateClarificationsFileTool } from './planning-thinking-tools/update-clarifications-file-tool/update-clarifications-file-tool';
+
 // Legacy exports for backward compatibility (to be deprecated)
 export { bashExecute } from './file-tools/bash-tool';
 export { checkOffTodoList } from './planning-thinking-tools/check-off-todo-list-tool/check-off-todo-list-tool';

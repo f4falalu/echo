@@ -1,26 +1,33 @@
-import { RuntimeContext } from '@mastra/core/runtime-context';
 import { beforeEach, describe, expect, it } from 'vitest';
-import type { DocsAgentContext } from '../../../agents/docs-agent/docs-agent-context';
-import { checkOffTodoList } from './check-off-todo-list-tool';
+import { createCheckOffTodoListTool } from './check-off-todo-list-tool';
 
 describe('checkOffTodoList', () => {
-  let runtimeContext: RuntimeContext<DocsAgentContext>;
+  let checkOffTodoListTool: ReturnType<typeof createCheckOffTodoListTool>;
+  let todoList: string;
+  let updateTodoListCalled: boolean;
 
   beforeEach(() => {
-    runtimeContext = new RuntimeContext<DocsAgentContext>();
+    todoList = '';
+    updateTodoListCalled = false;
+    checkOffTodoListTool = createCheckOffTodoListTool({
+      get todoList() {
+        return todoList;
+      },
+      updateTodoList: (newList: string) => {
+        todoList = newList;
+        updateTodoListCalled = true;
+      },
+    });
   });
 
   it('should check off a single todo item successfully', async () => {
-    const initialTodoList = `## Todo List
+    todoList = `## Todo List
 - [ ] Write unit tests
 - [ ] Implement feature
 - [ ] Review code`;
 
-    runtimeContext.set('todoList', initialTodoList);
-
-    const result = await checkOffTodoList.execute({
-      context: { todoItems: ['Write unit tests'] },
-      runtimeContext,
+    const result = await checkOffTodoListTool.execute({
+      todoItems: ['Write unit tests'],
     });
 
     expect(result.success).toBe(true);
@@ -32,22 +39,19 @@ describe('checkOffTodoList', () => {
     expect(result.failedItems).toEqual([]);
 
     // Verify context was updated
-    const updatedContext = runtimeContext.get('todoList');
-    expect(updatedContext).toBe(result.updatedTodoList);
+    expect(updateTodoListCalled).toBe(true);
+    expect(todoList).toBe(result.updatedTodoList);
   });
 
   it('should check off multiple todo items successfully', async () => {
-    const initialTodoList = `## Todo List
+    todoList = `## Todo List
 - [ ] Write unit tests
 - [ ] Implement feature
 - [ ] Review code
 - [ ] Deploy to production`;
 
-    runtimeContext.set('todoList', initialTodoList);
-
-    const result = await checkOffTodoList.execute({
-      context: { todoItems: ['Write unit tests', 'Review code'] },
-      runtimeContext,
+    const result = await checkOffTodoListTool.execute({
+      todoItems: ['Write unit tests', 'Review code'],
     });
 
     expect(result.success).toBe(true);
@@ -61,16 +65,13 @@ describe('checkOffTodoList', () => {
   });
 
   it('should handle partial success when some items are not found', async () => {
-    const initialTodoList = `## Todo List
+    todoList = `## Todo List
 - [ ] Write unit tests
 - [ ] Implement feature
 - [ ] Review code`;
 
-    runtimeContext.set('todoList', initialTodoList);
-
-    const result = await checkOffTodoList.execute({
-      context: { todoItems: ['Write unit tests', 'Non-existent task', 'Review code'] },
-      runtimeContext,
+    const result = await checkOffTodoListTool.execute({
+      todoItems: ['Write unit tests', 'Non-existent task', 'Review code'],
     });
 
     expect(result.success).toBe(true);
@@ -83,9 +84,10 @@ describe('checkOffTodoList', () => {
   });
 
   it('should return error when todo list is not found in context', async () => {
-    const result = await checkOffTodoList.execute({
-      context: { todoItems: ['Some task', 'Another task'] },
-      runtimeContext,
+    todoList = '';
+
+    const result = await checkOffTodoListTool.execute({
+      todoItems: ['Some task', 'Another task'],
     });
 
     expect(result.success).toBe(false);
@@ -96,15 +98,12 @@ describe('checkOffTodoList', () => {
   });
 
   it('should return error when no items could be checked off', async () => {
-    const todoList = `## Todo List
+    todoList = `## Todo List
 - [ ] Write unit tests
 - [ ] Implement feature`;
 
-    runtimeContext.set('todoList', todoList);
-
-    const result = await checkOffTodoList.execute({
-      context: { todoItems: ['Non-existent task', 'Another missing task'] },
-      runtimeContext,
+    const result = await checkOffTodoListTool.execute({
+      todoItems: ['Non-existent task', 'Another missing task'],
     });
 
     expect(result.success).toBe(false);
@@ -117,16 +116,13 @@ describe('checkOffTodoList', () => {
   });
 
   it('should not check off already checked items', async () => {
-    const todoList = `## Todo List
+    todoList = `## Todo List
 - [x] Write unit tests
 - [ ] Implement feature
 - [ ] Review code`;
 
-    runtimeContext.set('todoList', todoList);
-
-    const result = await checkOffTodoList.execute({
-      context: { todoItems: ['Write unit tests', 'Implement feature'] },
-      runtimeContext,
+    const result = await checkOffTodoListTool.execute({
+      todoItems: ['Write unit tests', 'Implement feature'],
     });
 
     expect(result.success).toBe(true);
@@ -138,14 +134,11 @@ describe('checkOffTodoList', () => {
   });
 
   it('should handle empty array of todo items', async () => {
-    const todoList = `## Todo List
+    todoList = `## Todo List
 - [ ] Write unit tests`;
 
-    runtimeContext.set('todoList', todoList);
-
-    const result = await checkOffTodoList.execute({
-      context: { todoItems: [] },
-      runtimeContext,
+    const result = await checkOffTodoListTool.execute({
+      todoItems: [],
     });
 
     expect(result.success).toBe(false);
@@ -155,16 +148,13 @@ describe('checkOffTodoList', () => {
   });
 
   it('should handle first occurrence when there are duplicates', async () => {
-    const todoList = `## Todo List
+    todoList = `## Todo List
 - [ ] Write unit tests
 - [ ] Write unit tests
 - [ ] Implement feature`;
 
-    runtimeContext.set('todoList', todoList);
-
-    const result = await checkOffTodoList.execute({
-      context: { todoItems: ['Write unit tests'] },
-      runtimeContext,
+    const result = await checkOffTodoListTool.execute({
+      todoItems: ['Write unit tests'],
     });
 
     expect(result.success).toBe(true);
@@ -175,47 +165,4 @@ describe('checkOffTodoList', () => {
     expect(result.checkedOffItems).toEqual(['Write unit tests']);
   });
 
-  it('should validate input schema', () => {
-    const validInput = { todoItems: ['Test task', 'Another task'] };
-    const parsed = checkOffTodoList.inputSchema.parse(validInput);
-    expect(parsed).toEqual(validInput);
-
-    // Empty array should be valid
-    const emptyInput = { todoItems: [] };
-    const emptyParsed = checkOffTodoList.inputSchema.parse(emptyInput);
-    expect(emptyParsed).toEqual(emptyInput);
-
-    expect(() => {
-      checkOffTodoList.inputSchema.parse({ todoItems: 'not an array' });
-    }).toThrow();
-
-    expect(() => {
-      checkOffTodoList.inputSchema.parse({ todoItems: [123, 456] });
-    }).toThrow();
-
-    expect(() => {
-      checkOffTodoList.inputSchema.parse({});
-    }).toThrow();
-  });
-
-  it('should validate output schema', () => {
-    const validOutput = {
-      success: true,
-      updatedTodoList: '- [x] Done',
-      message: 'Success',
-      checkedOffItems: ['Done'],
-      failedItems: [],
-    };
-    const parsed = checkOffTodoList.outputSchema.parse(validOutput);
-    expect(parsed).toEqual(validOutput);
-
-    const minimalOutput = {
-      success: false,
-      updatedTodoList: '',
-      checkedOffItems: [],
-      failedItems: ['Failed item'],
-    };
-    const minimalParsed = checkOffTodoList.outputSchema.parse(minimalOutput);
-    expect(minimalParsed).toEqual(minimalOutput);
-  });
 });

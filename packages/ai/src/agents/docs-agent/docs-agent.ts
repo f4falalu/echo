@@ -4,8 +4,8 @@ import { wrapTraced } from 'braintrust';
 import z from 'zod';
 import { Sonnet4 } from '../../llm/sonnet-4';
 import {
-  checkOffTodoList,
   createBashTool,
+  createCheckOffTodoListTool,
   createCreateFilesTool,
   createDeleteFilesTool,
   createEditFilesTool,
@@ -14,9 +14,9 @@ import {
   createListFilesTool,
   createReadFilesTool,
   createSequentialThinkingTool,
+  createUpdateClarificationsFileTool,
   createWebSearchTool,
   executeSqlDocsAgent,
-  updateClarificationsFile,
 } from '../../tools';
 import { healToolWithLlm } from '../../utils/tool-call-repair';
 import { getDocsAgentSystemPrompt } from './get-docs-agent-system-prompt';
@@ -111,6 +111,17 @@ export function createDocsAgent(docsAgentOptions: DocsAgentOptions) {
     : undefined;
 
   const webSearch = createWebSearchTool();
+  
+  // Create planning tools with simple context
+  const checkOffTodoList = createCheckOffTodoListTool({
+    todoList: '',
+    updateTodoList: () => {},
+  });
+  
+  const updateClarificationsFile = createUpdateClarificationsFileTool({
+    clarifications: [],
+    updateClarifications: () => {},
+  });
 
   async function stream({ messages }: DocsStreamOptions) {
     return wrapTraced(
