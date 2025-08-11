@@ -28,7 +28,7 @@ const DEFAULT_OPTIONS = {
 export const thinkAndPrepAgent = new Agent({
   name: 'Think and Prep Agent',
   instructions: '', // We control the system messages in the step at stream instantiation
-  model: GPT5,
+  model: Sonnet4,
   tools: {
     sequentialThinking,
     executeSql,

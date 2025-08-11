@@ -13,6 +13,7 @@ import { RetryWithHealingError, isRetryWithHealingError } from '../utils/retry';
 import { appendToConversation, standardizeMessages } from '../utils/standardizeMessages';
 import { createOnChunkHandler } from '../utils/streaming';
 import type { AnalystRuntimeContext } from '../workflows/analyst-workflow';
+import { Sonnet4 } from '../utils';
 
 const inputSchema = thinkAndPrepWorkflowInputSchema;
 
@@ -198,14 +199,14 @@ const DEFAULT_OPTIONS = {
     parallelToolCalls: false,
     reasoningEffort: 'minimal',
     serviceTier: 'priority',
-    verbosity: 'low'
+    verbosity: 'low',
   },
 };
 
 export const todosAgent = new Agent({
   name: 'Create Todos',
   instructions: todosInstructions,
-  model: GPT5Mini,
+  model: Sonnet4,
   tools: {
     createTodoList,
   },
