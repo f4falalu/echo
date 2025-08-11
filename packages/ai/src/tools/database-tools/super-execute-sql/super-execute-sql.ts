@@ -72,9 +72,7 @@ const SuperExecuteSqlOutputSchema = z.object({
 export type SuperExecuteSqlOutput = z.infer<typeof SuperExecuteSqlOutputSchema>;
 
 // Factory function to create the super-execute-sql tool
-export function createSuperExecuteSqlTool<
-  TAgentContext extends SuperExecuteSqlContext = SuperExecuteSqlContext,
->(context: TAgentContext) {
+export function createSuperExecuteSqlTool(context: SuperExecuteSqlContext) {
   // Initialize state
   const state: SuperExecuteSqlState = {
     startTime: Date.now(),

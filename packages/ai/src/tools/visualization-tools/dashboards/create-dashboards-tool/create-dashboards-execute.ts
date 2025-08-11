@@ -21,10 +21,59 @@ import type {
   CreateDashboardsState,
 } from './create-dashboards-tool';
 import {
-  createDashboardsRawLlMessageEntry,
-  createDashboardsReasoningMessage,
-  createDashboardsResponseMessage,
+  createCreateDashboardsRawLlmMessageEntry,
+  createCreateDashboardsReasoningEntry,
 } from './helpers/create-dashboards-tool-transform-helper';
+
+// Type definitions
+interface DashboardFileContent {
+  rows: Array<{
+    items: Array<{
+      id: string;
+      [key: string]: unknown;
+    }>;
+    [key: string]: unknown;
+  }>;
+  [key: string]: unknown;
+}
+
+interface FileWithId {
+  id: string;
+  name: string;
+  file_type: string;
+  result_message?: string;
+  results?: Record<string, unknown>[];
+  created_at: string;
+  updated_at: string;
+  version_number: number;
+  content?: DashboardFileContent;
+}
+
+interface FailedFileCreation {
+  name: string;
+  error: string;
+}
+
+type CreateDashboardFilesParams = CreateDashboardsInput;
+type CreateDashboardFilesOutput = CreateDashboardsOutput;
+
+// Dashboard YAML schema
+const dashboardYmlSchema = z.object({
+  name: z.string().min(1, 'Dashboard name is required'),
+  description: z.string().optional(),
+  rows: z.array(
+    z.object({
+      id: z.string(),
+      items: z.array(
+        z.object({
+          id: z.string(),
+        }).passthrough()
+      ),
+      column_sizes: z.array(z.number()).optional(),
+      rowHeight: z.number().optional(),
+    }).passthrough()
+  ).min(1, 'Dashboard must have at least one row'),
+});
 
 // Parse and validate dashboard YAML content
 function parseAndValidateYaml(ymlContent: string): {
@@ -96,7 +145,7 @@ async function validateMetricIds(
 }
 
 // Process a dashboard file creation request
-async function processDashboardFile(file: CreateDashboardsInput): Promise<{
+async function processDashboardFile(file: { name: string; yml_content: string }): Promise<{
   success: boolean;
   dashboardFile?: FileWithId;
   dashboardYml?: DashboardYml;
@@ -445,34 +494,34 @@ export function createCreateDashboardsExecute(
               const finalStatus = typedResult.failed_files?.length ? 'failed' : 'completed';
               const toolCallId = state.toolCallId || `tool-${Date.now()}`;
 
-              const reasoningEntry = createDashboardsReasoningMessage(
-                toolCallId,
-                state.files ?? [],
-                finalStatus
-              );
-              const responseEntry = createDashboardsResponseMessage(
-                toolCallId,
-                typedResult.message
-              );
-              const rawLlmMessage: ModelMessage = {
-                role: 'assistant',
-                content: [
-                  {
-                    type: 'tool-call',
-                    toolCallId,
-                    toolName: 'create-dashboards',
-                    input: state.parsedArgs || (input as Partial<CreateDashboardFilesParams>),
-                  },
-                ],
+              // Update state for final status
+              if (state.files) {
+                state.files.forEach(f => {
+                  if (!f.status || f.status === 'processing') {
+                    f.status = finalStatus === 'failed' ? 'failed' : 'completed';
+                  }
+                });
+              }
+
+              const reasoningEntry = createCreateDashboardsReasoningEntry(state, toolCallId);
+              const rawLlmMessage = createCreateDashboardsRawLlmMessageEntry(state, toolCallId);
+
+              const updates: Parameters<typeof updateMessageEntries>[0] = {
+                messageId: context.messageId,
+                mode: 'update',
               };
 
-              await updateMessageEntries({
-                messageId: context.messageId,
-                reasoningEntry,
-                responseEntry,
-                rawLlmMessage,
-                mode: 'update',
-              });
+              if (reasoningEntry) {
+                updates.responseEntry = reasoningEntry;
+              }
+
+              if (rawLlmMessage) {
+                updates.rawLlmMessageEntry = rawLlmMessage;
+              }
+
+              if (reasoningEntry || rawLlmMessage) {
+                await updateMessageEntries(updates);
+              }
 
               console.info('[create-dashboards] Updated last entries with final results', {
                 messageId: context.messageId,
@@ -505,29 +554,32 @@ export function createCreateDashboardsExecute(
         if (context.messageId) {
           try {
             const toolCallId = state.toolCallId || `tool-${Date.now()}`;
-            const reasoningEntry = createDashboardsReasoningMessage(
-              toolCallId,
-              (state.files ?? []).map((f) => ({ ...f, status: 'failed' })),
-              'failed'
-            );
-            const rawLlmMessage: ModelMessage = {
-              role: 'assistant',
-              content: [
-                {
-                  type: 'tool-call',
-                  toolCallId,
-                  toolName: 'create-dashboards',
-                  input: state.parsedArgs || {},
-                },
-              ],
+            // Update state files to failed status
+            if (state.files) {
+              state.files.forEach(f => {
+                f.status = 'failed';
+              });
+            }
+
+            const reasoningEntry = createCreateDashboardsReasoningEntry(state, toolCallId);
+            const rawLlmMessage = createCreateDashboardsRawLlmMessageEntry(state, toolCallId);
+
+            const updates: Parameters<typeof updateMessageEntries>[0] = {
+              messageId: context.messageId,
+              mode: 'update',
             };
 
-            await updateMessageEntries({
-              messageId: context.messageId,
-              reasoningEntry,
-              rawLlmMessage,
-              mode: 'update',
-            });
+            if (reasoningEntry) {
+              updates.responseEntry = reasoningEntry;
+            }
+
+            if (rawLlmMessage) {
+              updates.rawLlmMessageEntry = rawLlmMessage;
+            }
+
+            if (reasoningEntry || rawLlmMessage) {
+              await updateMessageEntries(updates);
+            }
           } catch (updateError) {
             console.error('[create-dashboards] Error updating entries on failure:', updateError);
           }

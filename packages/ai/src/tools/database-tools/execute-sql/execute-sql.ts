@@ -76,9 +76,7 @@ const ExecuteSqlOutputSchema = z.object({
 export type ExecuteSqlOutput = z.infer<typeof ExecuteSqlOutputSchema>;
 
 // Factory function to create the execute-sql tool
-export function createExecuteSqlTool<TAgentContext extends ExecuteSqlContext = ExecuteSqlContext>(
-  context: TAgentContext
-) {
+export function createExecuteSqlTool(context: ExecuteSqlContext) {
   // Initialize state for streaming
   const state: ExecuteSqlState = {
     toolCallId: undefined,
@@ -110,40 +108,3 @@ export function createExecuteSqlTool<TAgentContext extends ExecuteSqlContext = E
     onInputAvailable,
   });
 }
-
-// Legacy export for backward compatibility
-export const executeSql = tool({
-  description: `Use this to run lightweight, validation queries to understand values in columns, date ranges, etc. 
-    Please limit your queries to 50 rows for performance.
-    Query results will be limited to 50 rows for performance. 
-    You must use the <SCHEMA_NAME>.<TABLE_NAME> syntax/qualifier for all table names. 
-    Otherwise the queries wont run successfully.`,
-  inputSchema: ExecuteSqlInputSchema,
-  outputSchema: ExecuteSqlOutputSchema,
-  execute: async (input, { experimental_context: context }) => {
-    const rawContext = context as AnalystAgentOptions;
-
-    const executeSqlContext = ExecuteSqlContextSchema.parse({
-      dataSourceId: rawContext.dataSourceId,
-      userId: rawContext.userId,
-      dataSourceSyntax: rawContext.dataSourceSyntax,
-      messageId: rawContext.messageId || '',
-    });
-
-    // Create temporary state for this execution
-    const state: ExecuteSqlState = {
-      toolCallId: undefined,
-      args: JSON.stringify(input),
-      statements: input.statements,
-      isComplete: true,
-      startTime: Date.now(),
-      executionTime: undefined,
-      executionResults: undefined,
-    };
-
-    const executeFunction = createExecuteSqlExecute(state, executeSqlContext);
-    return await executeFunction(input);
-  },
-});
-
-export default executeSql;
