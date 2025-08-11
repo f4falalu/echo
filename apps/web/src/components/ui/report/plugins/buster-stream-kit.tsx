@@ -2,10 +2,10 @@
 
 import { BannerPlugin } from './banner-plugin';
 import { CharacterCounterPlugin } from './character-counter-kit';
-import { MetricPlugin } from './metric-plugin';
+import { MetricKit } from './metric-kit';
 
 export const BusterStreamKit = [
   //BannerPlugin,
   CharacterCounterPlugin,
-  MetricPlugin
+  ...MetricKit
 ];

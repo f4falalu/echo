@@ -29,7 +29,7 @@ const AnimatedMarkdown: React.FC<AnimatedMarkdownProps> = ({
   stripFormatting = true,
   className
 }) => {
-  const { components } = useMarkdownComponents({
+  const components = useMarkdownComponents({
     animation,
     animationDuration,
     animationTimingFunction,
@@ -38,7 +38,8 @@ const AnimatedMarkdown: React.FC<AnimatedMarkdownProps> = ({
   });
 
   return (
-    <div className={cn(styles.container, 'flex flex-col space-y-2 leading-1.5', className)}>
+    <div
+      className={cn(styles.container, 'flex flex-col space-y-2 font-sans! leading-1.5', className)}>
       <ReactMarkdown
         components={components}
         // remarkPlugins are used to extend or modify the Markdown parsing behavior.

@@ -11,6 +11,7 @@ import { ShimmerText } from '@/components/ui/typography/ShimmerText';
 import { BusterRoutes, createBusterRoute } from '@/routes';
 import { useChatLayoutContextSelector } from '../../../ChatLayoutContext';
 import { BLACK_BOX_INITIAL_THOUGHT } from '@/layouts/ChatLayout/ChatContext/useBlackBoxMessage';
+import type { BusterChatMessage } from '@/api/asset_interfaces/chat';
 
 const animations = {
   initial: { opacity: 0 },
@@ -18,6 +19,9 @@ const animations = {
   exit: { opacity: 0 },
   transition: { delay: 0, duration: 0.35 }
 };
+
+const stableLastMessageTitleSelector = (x: BusterChatMessage) =>
+  x?.reasoning_messages?.[x.reasoning_message_ids?.[x.reasoning_message_ids.length - 1]]?.title;
 
 export const ChatResponseReasoning: React.FC<{
   reasoningMessageId: string | undefined;
@@ -29,7 +33,7 @@ export const ChatResponseReasoning: React.FC<{
   ({ finalReasoningMessage, reasoningMessageId, isStreamFinished, messageId, chatId }) => {
     const urlMessageId = useChatLayoutContextSelector((x) => x.messageId);
     const { data: lastMessageTitle } = useGetChatMessage(messageId, {
-      select: (x) => x?.reasoning_messages?.[reasoningMessageId ?? '']?.title
+      select: stableLastMessageTitleSelector
     });
     const selectedFileType = useChatLayoutContextSelector((x) => x.selectedFileType);
     const isReasonginFileSelected = selectedFileType === 'reasoning' && urlMessageId === messageId;

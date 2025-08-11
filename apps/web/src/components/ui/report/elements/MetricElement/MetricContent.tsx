@@ -5,17 +5,21 @@ import { useChatLayoutContextSelector } from '@/layouts/ChatLayout';
 import { assetParamsToRoute } from '@/lib/assets/assetParamsToRoute';
 import React, { useMemo, useRef } from 'react';
 import { useMetricContentThreeDotMenuItems } from './useMetricContentThreeDotMenuItems';
-import { cn } from '@/lib/classMerge';
+import { cn } from '@/lib/utils';
 
 export const MetricContent = React.memo(
   ({
     metricId,
     metricVersionNumber,
-    readOnly = false
+    isExportMode = false,
+    readOnly = false,
+    className
   }: {
     metricId: string;
     metricVersionNumber: number | undefined;
     readOnly?: boolean;
+    isExportMode?: boolean;
+    className?: string;
   }) => {
     const chatId = useChatLayoutContextSelector((x) => x.chatId);
     const reportId = useChatLayoutContextSelector((x) => x.reportId) || '';
@@ -25,7 +29,7 @@ export const MetricContent = React.memo(
     const [inViewport] = useInViewport(ref, {
       threshold: 0.33
     });
-    const renderChart = inViewport;
+    const renderChart = inViewport || isExportMode;
 
     const {
       data: metric,
@@ -71,8 +75,10 @@ export const MetricContent = React.memo(
 
     return (
       <MetricCard
+        className={cn('transition-all duration-100', className)}
+        ref={ref}
         metricLink={link}
-        animate
+        animate={!isExportMode}
         metricId={metricId}
         readOnly={readOnly}
         isDragOverlay={false}

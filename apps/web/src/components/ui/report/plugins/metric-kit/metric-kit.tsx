@@ -1,7 +1,7 @@
 import { createPlatePlugin } from 'platejs/react';
 import { MetricElement } from '../../elements/MetricElement/MetricElement';
 import { CUSTOM_KEYS } from '../../config/keys';
-import type { Path, SetNodesOptions, TElement } from 'platejs';
+import type { SetNodesOptions, TElement } from 'platejs';
 
 export type MetricPluginOptions = {
   openMetricModal: boolean;
@@ -32,8 +32,15 @@ export const MetricPlugin = createPlatePlugin<
   node: {
     type: CUSTOM_KEYS.metric,
     isElement: true,
-    isVoid: false,
+    isVoid: true,
     component: MetricElement
+  },
+  rules: {
+    break: {
+      default: 'exit',
+      empty: 'exit',
+      emptyLineEnd: 'exit'
+    }
   }
 }).extendApi(({ setOption, plugin, editor, tf, ...rest }) => {
   return {
@@ -48,3 +55,5 @@ export const MetricPlugin = createPlatePlugin<
     }
   };
 });
+
+export const MetricKit = [MetricPlugin];
