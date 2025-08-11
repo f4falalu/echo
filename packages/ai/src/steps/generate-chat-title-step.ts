@@ -68,7 +68,7 @@ const generateChatTitleExecution = async ({
       const tracedChatTitle = wrapTraced(
         async () => {
           const { object } = await generateObject({
-            model: GPT5Mini,
+            model: Haiku35,
             schema: llmOutputSchema,
             messages: [
               {
