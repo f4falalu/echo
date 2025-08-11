@@ -20,6 +20,7 @@ const DEFAULT_OPTIONS = {
       parallelToolCalls: false,
       reasoningEffort: 'minimal',
       serviceTier: 'priority',
+      verbosity: 'low',
     },
   },
 };
