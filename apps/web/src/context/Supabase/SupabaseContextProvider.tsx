@@ -32,9 +32,9 @@ const useSupabaseContextInternal = ({
       const decoded = jwtDecode(token || accessToken);
       const expiresAtDecoded = (decoded as { exp?: number } | undefined)?.exp ?? 0;
       const expiresAtMs = millisecondsFromUnixTimestamp(expiresAtDecoded);
-      const msUntilExpiry = Math.max(0, expiresAtMs - Date.now());
-      return msUntilExpiry;
+      return expiresAtMs;
     } catch {
+      console.error('Error decoding token', token);
       // If token is missing/invalid, report that it is effectively expired now
       return 0;
     }
@@ -126,6 +126,7 @@ const useSupabaseContextInternal = ({
             });
             return { access_token: fallbackToken, isTokenValid: true };
           }
+          console.error('Error refreshing session', err);
           throw err;
         }
       }
@@ -155,6 +156,7 @@ const useSupabaseContextInternal = ({
     const setupRefreshTimer = () => {
       const expiresInMs = getExpiresAt();
       const refreshBuffer = PREEMTIVE_REFRESH_MINUTES * 60000; // Refresh minutes before expiration
+
       const timeUntilRefresh = Math.max(0, expiresInMs - refreshBuffer);
 
       if (refreshTimerRef.current) {
@@ -181,14 +183,16 @@ const useSupabaseContextInternal = ({
     // Keep access token in sync with Supabase client (captures auto-refresh events)
     const { data: subscription } = supabase.auth.onAuthStateChange((event, session) => {
       const newToken = session?.access_token;
-      if (event === 'SIGNED_OUT' || !newToken) {
+      if (event === 'SIGNED_OUT' || (!newToken && event !== 'INITIAL_SESSION')) {
         setAccessToken('');
         if (refreshTimerRef.current) {
           clearTimeout(refreshTimerRef.current);
         }
         return;
       }
-      void onUpdateToken({ accessToken: newToken, expiresAt: session?.expires_at ?? 0 });
+      if (newToken) {
+        void onUpdateToken({ accessToken: newToken, expiresAt: session?.expires_at ?? 0 });
+      }
     });
 
     return () => {
