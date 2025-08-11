@@ -1,5 +1,5 @@
-import type { Meta, StoryObj } from '@storybook/react';
-import { action } from '@storybook/addon-actions';
+import type { Meta, StoryObj } from '@storybook/nextjs';
+import { action } from 'storybook/actions';
 import { useState } from 'react';
 import { InputSearchDropdown, type InputSearchDropdownProps } from './InputSearchDropdown';
 import { useDebounceFn, useMemoizedFn } from '../../../hooks';
@@ -87,9 +87,7 @@ export const Default: Story = {
   render: (args) => <InputSearchDropdownWithState {...args} />,
   args: {
     placeholder: 'Search fruits...',
-    value: '',
-    placement: 'bottom',
-    popoverMatchWidth: true
+    value: ''
   }
 };
 
@@ -97,9 +95,7 @@ export const WithInitialValue: Story = {
   render: (args) => <InputSearchDropdownWithState {...args} />,
   args: {
     placeholder: 'Search fruits...',
-    value: 'Apple',
-
-    popoverMatchWidth: true
+    value: 'Apple'
   }
 };
 
@@ -117,8 +113,7 @@ export const CustomStyling: Story = {
   args: {
     placeholder: 'Search fruits...',
     value: '',
-    className: 'border-2 border-blue-500 rounded-lg',
-    popoverClassName: 'bg-blue-50 border border-blue-200'
+    className: 'border-2 border-blue-500 rounded-lg'
   }
 };
 
@@ -192,8 +187,6 @@ export const ComplexOptions: Story = {
   render: (args) => <ComplexInputSearchDropdown {...args} />,
   args: {
     placeholder: 'Search fruits with icons...',
-    value: '',
-    placement: 'bottom',
-    popoverMatchWidth: true
+    value: ''
   }
 };

@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/nextjs';
 import { DataSourceTypes } from '@/api/asset_interfaces/datasources';
 import { AppDataSourceIcon } from './AppDataSourceIcons';
 

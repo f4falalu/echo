@@ -106,7 +106,7 @@ export function FontColorToolbarButton({
         setOpen(value);
       }}
       modal={false}>
-      <DropdownMenuTrigger>
+      <DropdownMenuTrigger asChild>
         <ToolbarButton pressed={open} tooltip={tooltip}>
           {children}
         </ToolbarButton>

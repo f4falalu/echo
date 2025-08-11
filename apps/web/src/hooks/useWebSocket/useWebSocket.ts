@@ -27,6 +27,7 @@ const useWebSocket = ({ url, checkTokenValidity, canConnect, onMessage }: WebSoc
   const { online } = useNetwork();
   const messageQueue = useRef<QueuedMessage[]>([]); // Updated queue type
   const processing = useRef<boolean>(false); // Flag to indicate if processing is ongoing
+  const rafId = useRef<number | null>(null); // Track scheduled RAF to allow cancellation
   // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Generic message queue for WebSocket data
   const sendQueue = useRef<Record<string, any>[]>([]); // Queue to store messages to be sent
   const ws = useRef<WebSocket | null>(null);
@@ -99,13 +100,13 @@ const useWebSocket = ({ url, checkTokenValidity, canConnect, onMessage }: WebSoc
       }
 
       if (messageQueue.current.length > 0) {
-        requestAnimationFrame(processMessages);
+        rafId.current = requestAnimationFrame(processMessages);
       } else {
         processing.current = false;
       }
     };
 
-    requestAnimationFrame(processMessages);
+    rafId.current = requestAnimationFrame(processMessages);
   });
 
   const handleIncomingMessage = useMemoizedFn((event: MessageEvent) => {
@@ -115,7 +116,13 @@ const useWebSocket = ({ url, checkTokenValidity, canConnect, onMessage }: WebSoc
         timestamp: Date.now()
       };
 
+      // Cap the queue size to avoid unbounded growth
+      const MAX_QUEUE = 2000;
       messageQueue.current.push(queuedMessage);
+      if (messageQueue.current.length > MAX_QUEUE) {
+        // Drop oldest messages to keep memory bounded
+        messageQueue.current.splice(0, messageQueue.current.length - MAX_QUEUE);
+      }
 
       if (!processing.current) {
         processQueue();
@@ -223,6 +230,33 @@ const useWebSocket = ({ url, checkTokenValidity, canConnect, onMessage }: WebSoc
   useWindowFocus(() => {
     handleVisibilityChange();
   });
+
+  // Cleanup on unmount: close socket, clear queues, cancel RAF
+  useEffect(() => {
+    return () => {
+      try {
+        if (ws.current) {
+          // Remove handlers to avoid retaining closures
+          ws.current.onopen = null;
+          ws.current.onclose = null;
+          ws.current.onerror = null;
+          ws.current.onmessage = null;
+          ws.current.close();
+        }
+      } catch {
+        // noop
+      }
+      ws.current = null;
+      messageQueue.current = [];
+      sendQueue.current = [];
+      processing.current = false;
+      if (rafId.current !== null) {
+        cancelAnimationFrame(rafId.current);
+        rafId.current = null;
+      }
+      setConnectionStatus(ReadyState.Closed);
+    };
+  }, []);
 
   return {
     sendJSONMessage,

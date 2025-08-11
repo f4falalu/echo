@@ -122,12 +122,14 @@ export const PreventNavigation: React.FC<PreventNavigationProps> = React.memo(
     });
 
     useEffect(() => {
-      /* *************************** Open listeners ************************** */
-      for (const link of document.querySelectorAll('a')) {
-        link.addEventListener('click', handleClick);
+      if (isDirty) {
+        /* *************************** Open listeners ************************** */
+        for (const link of document.querySelectorAll('a')) {
+          link.addEventListener('click', handleClick);
+        }
+        window.addEventListener('popstate', handlePopState);
+        window.addEventListener('beforeunload', handleBeforeUnload);
       }
-      window.addEventListener('popstate', handlePopState);
-      window.addEventListener('beforeunload', handleBeforeUnload);
 
       /* ************** Return from useEffect closing listeners ************** */
       return () => {
@@ -137,7 +139,7 @@ export const PreventNavigation: React.FC<PreventNavigationProps> = React.memo(
         window.removeEventListener('popstate', handlePopState);
         window.removeEventListener('beforeunload', handleBeforeUnload);
       };
-    }, [isDirty]);
+    }, [isDirty, handleClick, handlePopState, handleBeforeUnload]);
 
     const onClose = useMemoizedFn(async () => {
       setLeavingPage(false);
@@ -200,48 +202,44 @@ const LeavingDialog: React.FC<{
   okText: string;
   canceling: boolean;
   okaying: boolean;
-}> = React.memo(
-  ({
-    onClose,
-    isOpen,
-    okaying,
-    canceling,
-    noCallback,
-    yesCallback,
-    title,
-    description,
-    okText,
-    cancelText
-  }) => {
-    const disableButtons = okaying || canceling;
+}> = ({
+  onClose,
+  isOpen,
+  okaying,
+  canceling,
+  noCallback,
+  yesCallback,
+  title,
+  description,
+  okText,
+  cancelText
+}) => {
+  const disableButtons = okaying || canceling;
 
-    const memoizedHeader = useMemo(() => {
-      return { title, description };
-    }, [title, description]);
+  const memoizedHeader = useMemo(() => {
+    return { title, description };
+  }, [title, description]);
 
-    const memoizedFooter = useMemo(() => {
-      return {
-        primaryButton: {
-          text: cancelText,
-          onClick: noCallback,
-          loading: canceling,
-          disabled: disableButtons
-        },
-        secondaryButton: {
-          text: okText,
-          onClick: yesCallback,
-          loading: okaying,
-          disabled: disableButtons
-        }
-      };
-    }, [okaying, canceling, disableButtons, noCallback, yesCallback, cancelText, okText]);
+  const memoizedFooter = useMemo(() => {
+    return {
+      primaryButton: {
+        text: cancelText,
+        onClick: noCallback,
+        loading: canceling,
+        disabled: disableButtons
+      },
+      secondaryButton: {
+        text: okText,
+        onClick: yesCallback,
+        loading: okaying,
+        disabled: disableButtons
+      }
+    };
+  }, [okaying, canceling, disableButtons, noCallback, yesCallback, cancelText, okText]);
 
-    return (
-      <>
-        <AppModal open={isOpen} onClose={onClose} header={memoizedHeader} footer={memoizedFooter} />
-      </>
-    );
-  }
-);
+  return (
+    <AppModal open={isOpen} onClose={onClose} header={memoizedHeader} footer={memoizedFooter} />
+  );
+};
 
 LeavingDialog.displayName = 'LeavingDialog';

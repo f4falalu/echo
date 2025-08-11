@@ -3,7 +3,9 @@ import { Agent } from '@mastra/core';
 import {
   createDashboards,
   createMetrics,
+  createReports,
   doneTool,
+  editReports,
   modifyDashboards,
   modifyMetrics,
 } from '../../tools';
@@ -11,11 +13,17 @@ import { Sonnet4 } from '../../utils/models/sonnet-4';
 
 const DEFAULT_OPTIONS = {
   maxSteps: 18,
-  temperature: 0,
+  temperature: 1,
   maxTokens: 10000,
   providerOptions: {
     anthropic: {
       disableParallelToolCalls: true,
+    },
+    openai: {
+      parallelToolCalls: false,
+      reasoningEffort: 'minimal',
+      serviceTier: 'priority',
+      verbosity: 'low',
     },
   },
 };

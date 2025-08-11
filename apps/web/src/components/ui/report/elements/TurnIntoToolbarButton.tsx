@@ -54,7 +54,7 @@ export function TurnIntoToolbarButton(props: DropdownMenuProps) {
 
   return (
     <DropdownMenu open={open} onOpenChange={setOpen} modal={false} {...props}>
-      <DropdownMenuTrigger>
+      <DropdownMenuTrigger asChild>
         <ToolbarButton
           className="min-w-[125px]"
           pressed={open}

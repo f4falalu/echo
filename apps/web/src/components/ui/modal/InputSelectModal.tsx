@@ -15,6 +15,7 @@ export interface InputSelectModalProps<T = unknown> extends Omit<BorderedModalPr
   onSelectChange: NonNullable<BusterListProps['onSelectChange']>;
   selectedRowKeys: NonNullable<BusterListProps['selectedRowKeys']>;
   showHeader?: NonNullable<BusterListProps['showHeader']>;
+  showSelectAll?: BusterListProps['showSelectAll'];
   searchText: string;
   handleSearchChange: (searchText: string) => void;
 }
@@ -30,6 +31,7 @@ function InputSelectModalBase<T = unknown>({
   searchText,
   handleSearchChange,
   showHeader = true,
+  showSelectAll = true,
   ...props
 }: InputSelectModalProps<T>) {
   const memoizedHeader = useMemo(() => {
@@ -75,6 +77,7 @@ function InputSelectModalBase<T = unknown>({
           selectedRowKeys={selectedRowKeys}
           useRowClickSelectChange={true}
           hideLastRowBorder
+          showSelectAll={showSelectAll}
         />
       </div>
     </BorderedModal>

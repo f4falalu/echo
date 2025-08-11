@@ -1,5 +1,5 @@
-import { useQueries, useQuery } from '@tanstack/react-query';
-import React, { useMemo, type PropsWithChildren } from 'react';
+import { useQueries } from '@tanstack/react-query';
+import React, { type PropsWithChildren } from 'react';
 import { createContext, useContextSelector } from 'use-context-selector';
 import type { BusterChatMessage } from '@/api/asset_interfaces/chat';
 import { useGetChat } from '@/api/buster_rest/chats';
@@ -9,7 +9,6 @@ import type { SelectedFile } from '../interfaces';
 import { useAutoChangeLayout } from './useAutoChangeLayout';
 import { useIsFileChanged } from './useIsFileChanged';
 import { useChatStreaming } from './useChatStreaming';
-import { useChatDocumentTitle } from './useChatDocumentTitle';
 
 const useChatIndividualContext = ({
   chatId,
@@ -65,7 +64,6 @@ const useChatIndividualContext = ({
     chatId
   });
   useChatStreaming({ chatId, messageId: currentMessageId, isStreamingMessage });
-  useChatDocumentTitle({ chatTitle, selectedFileId, selectedFileType });
 
   return {
     hasChat,
@@ -82,11 +80,11 @@ const useChatIndividualContext = ({
   };
 };
 
-const IndividualChatContext = createContext<ReturnType<typeof useChatIndividualContext>>(
-  {} as ReturnType<typeof useChatIndividualContext>
-);
+export type ChatIndividualState = ReturnType<typeof useChatIndividualContext>;
 
-export const ChatContextProvider = React.memo(({ children }: PropsWithChildren) => {
+const IndividualChatContext = createContext<ChatIndividualState>({} as ChatIndividualState);
+
+export const ChatContextProvider = ({ children }: PropsWithChildren) => {
   const chatId = useChatLayoutContextSelector((x) => x.chatId);
   const selectedFile = useChatLayoutContextSelector((x) => x.selectedFile);
 
@@ -100,10 +98,9 @@ export const ChatContextProvider = React.memo(({ children }: PropsWithChildren) 
       {children}
     </IndividualChatContext.Provider>
   );
-});
+};
 
 ChatContextProvider.displayName = 'ChatContextProvider';
 
-export const useChatIndividualContextSelector = <T,>(
-  selector: (state: ReturnType<typeof useChatIndividualContext>) => T
-) => useContextSelector(IndividualChatContext, selector);
+export const useChatIndividualContextSelector = <T,>(selector: (state: ChatIndividualState) => T) =>
+  useContextSelector(IndividualChatContext, selector);

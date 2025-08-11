@@ -1,3 +1,5 @@
+'use client';
+
 import { BaseCaptionPlugin } from '@platejs/caption';
 import {
   BaseAudioPlugin,

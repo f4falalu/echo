@@ -19,6 +19,7 @@
     "build:commonjs": "tsc --module commonjs --moduleResolution node",
     "build:commonjs:watch": "npm run build:commonjs && tsc --module commonjs --moduleResolution node --watch",
     "dev": "tsc --watch",
+    "dev:fast": "tsc --watch",
     "lint": "biome check --write",
     "test": "vitest run",
     "test:unit": "vitest run --exclude '**/*.int.test.ts' --exclude '**/*.integration.test.ts' --passWithNoTests",

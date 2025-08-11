@@ -6,15 +6,22 @@ import {
   sequentialThinking,
   submitThoughts,
 } from '../../tools';
+import { GPT5 } from '../../utils';
 import { Sonnet4 } from '../../utils/models/sonnet-4';
 
 const DEFAULT_OPTIONS = {
-  maxSteps: 18,
-  temperature: 0,
+  maxSteps: 25,
+  temperature: 1,
   maxTokens: 10000,
   providerOptions: {
     anthropic: {
       disableParallelToolCalls: true,
+    },
+    openai: {
+      parallelToolCalls: false,
+      reasoningEffort: 'minimal',
+      serviceTier: 'priority',
+      verbosity: 'low',
     },
   },
 };

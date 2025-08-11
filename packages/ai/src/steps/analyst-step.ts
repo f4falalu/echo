@@ -10,7 +10,7 @@ import type {
   ChatMessageResponseMessage,
 } from '@buster/server-shared/chats';
 import { analystAgent } from '../agents/analyst-agent/analyst-agent';
-import { createAnalystInstructionsWithoutDatasets } from '../agents/analyst-agent/analyst-agent-instructions';
+import { getAnalystInstructions } from '../agents/analyst-agent/analyst-agent-instructions';
 import { getSqlDialectGuidance } from '../agents/shared/sql-dialect-guidance';
 import { ChunkProcessor } from '../utils/database/chunk-processor';
 import {
@@ -383,7 +383,7 @@ ${databaseContext}
           const systemMessages: CoreMessage[] = [
             {
               role: 'system',
-              content: createAnalystInstructionsWithoutDatasets(sqlDialectGuidance),
+              content: await getAnalystInstructions({ runtimeContext }),
               providerOptions: DEFAULT_CACHE_OPTIONS,
             },
             {

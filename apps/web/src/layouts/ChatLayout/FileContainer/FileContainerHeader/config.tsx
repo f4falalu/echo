@@ -6,6 +6,7 @@ import { MetricContainerHeaderButtons } from './MetricContainerHeaderButtons';
 import { MetricContainerHeaderSegment } from './MetricContainerHeaderSegment';
 import { ReasoningContainerHeaderSegment } from './ReasoningContainerHeaderSegment';
 import { ReportContainerHeaderSegment } from './ReportContainerHeaderSegment';
+import { ReportContainerHeaderButtons } from './ReportContainerHeaderButtons';
 
 export const SelectedFileSegmentRecord: Record<FileType, React.FC<FileContainerSegmentProps>> = {
   metric: MetricContainerHeaderSegment,
@@ -21,7 +22,7 @@ export const SelectedFileSegmentRecord: Record<FileType, React.FC<FileContainerS
 export const SelectedFileButtonsRecord: Record<FileType, React.FC<FileContainerButtonsProps>> = {
   metric: MetricContainerHeaderButtons,
   dashboard: DashboardContainerHeaderButtons,
-  report: () => <div>TODO: Report buttons</div>,
+  report: ReportContainerHeaderButtons,
   reasoning: () => null
   // value: ValueContainerHeaderButtons,
   // term: TermContainerHeaderButtons,

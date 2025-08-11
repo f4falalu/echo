@@ -8,6 +8,8 @@ export { createMetrics } from './visualization-tools/create-metrics-file-tool';
 export { modifyMetrics } from './visualization-tools/modify-metrics-file-tool';
 export { createDashboards } from './visualization-tools/create-dashboards-file-tool';
 export { modifyDashboards } from './visualization-tools/modify-dashboards-file-tool';
+export { createReports } from './visualization-tools/create-reports-file-tool';
+export { editReports } from './visualization-tools/edit-reports-file-tool';
 export { executeSql } from './database-tools/execute-sql';
 export { createTodoList } from './planning-thinking-tools/create-todo-item-tool';
 export { editFiles } from './file-tools/edit-files-tool/edit-files-tool';

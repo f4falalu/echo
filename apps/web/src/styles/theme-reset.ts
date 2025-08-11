@@ -75,7 +75,9 @@ export const THEME_RESET_COLORS = {
     'accent-foreground': '240 5.9% 10%',
     background: '0 0% 100%',
     border: '240 5.9% 90%',
-    brand: '217.2 91.2% 59.8%',
+    // Made the brand color slightly more purple by shifting the hue closer to 240 (pure purple)
+    // Updated to match #7c3aed (HSL: 255, 81%, 58%)
+    brand: '255 81% 58%',
     card: '0 0% 100%',
     'card-foreground': '240 10% 3.9%',
     destructive: '0 84.2% 60.2%',

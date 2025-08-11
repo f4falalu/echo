@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/nextjs';
 import { DEFAULT_COLUMN_LABEL_FORMAT, type ColumnLabelFormat } from '@buster/server-shared/metrics';
 import { BusterMetricChart } from '../MetricChart/BusterMetricChart';
 

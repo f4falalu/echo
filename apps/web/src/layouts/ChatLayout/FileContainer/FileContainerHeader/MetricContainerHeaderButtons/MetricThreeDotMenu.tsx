@@ -60,6 +60,11 @@ import {
   useVersionHistorySelectMenu,
   useMetricDrilldownItem
 } from '@/components/features/metrics/ThreeDotMenu';
+import {
+  useDownloadMetricDataCSV,
+  useDownloadPNGSelectMenu,
+  useRenameMetricOnPage
+} from '@/context/Metrics/metricDropdownItems';
 
 export const ThreeDotMenuButton = React.memo(
   ({
@@ -82,10 +87,19 @@ export const ThreeDotMenuButton = React.memo(
     const editChartMenu = useEditChartSelectMenu();
     const resultsViewMenu = useResultsViewSelectMenu({ chatId, metricId });
     const sqlEditorMenu = useSQLEditorSelectMenu({ chatId, metricId });
-    const downloadCSVMenu = useDownloadCSVSelectMenu({ metricId });
-    const downloadPNGMenu = useDownloadPNGSelectMenu({ metricId });
+    const downloadCSVMenu = useDownloadMetricDataCSV({
+      metricId,
+      metricVersionNumber: versionNumber
+    });
+    const downloadPNGMenu = useDownloadPNGSelectMenu({
+      metricId,
+      metricVersionNumber: versionNumber
+    });
     const deleteMetricMenu = useDeleteMetricSelectMenu({ metricId });
-    const renameMetricMenu = useRenameMetricSelectMenu({ metricId });
+    const renameMetricMenu = useRenameMetricOnPage({
+      metricId,
+      metricVersionNumber: versionNumber
+    });
     const shareMenu = useShareMenuSelectMenu({ metricId });
     const drilldownItem = useMetricDrilldownItem({ metricId });
 
@@ -141,7 +155,7 @@ export const ThreeDotMenuButton = React.memo(
     );
 
     return (
-      <Dropdown items={items} side="bottom" align="end" contentClassName="max-h-fit" modal>
+      <Dropdown items={items} side="left" align="end" contentClassName="max-h-fit" modal>
         <Button prefix={<Dots />} variant="ghost" data-testid="three-dot-menu-button" />
       </Dropdown>
     );
@@ -359,63 +373,6 @@ const useSQLEditorSelectMenu = ({
   );
 };
 
-const useDownloadCSVSelectMenu = ({ metricId }: { metricId: string }) => {
-  const [isDownloading, setIsDownloading] = useState(false);
-  const { data: metricData } = useGetMetricData({ id: metricId }, { enabled: false });
-  const { data: name } = useGetMetric({ id: metricId }, { select: (x) => x.name });
-
-  return useMemo(
-    () => ({
-      label: 'Download as CSV',
-      value: 'download-csv',
-      icon: <Download4 />,
-      loading: isDownloading,
-      onClick: async () => {
-        const data = metricData?.data;
-        if (data && name) {
-          setIsDownloading(true);
-          await exportJSONToCSV(data, name);
-          setIsDownloading(false);
-        }
-      }
-    }),
-    [metricData, isDownloading, name]
-  );
-};
-
-const useDownloadPNGSelectMenu = ({ metricId }: { metricId: string }) => {
-  const { openErrorMessage } = useBusterNotifications();
-  const { data: name } = useGetMetric({ id: metricId }, { select: (x) => x.name });
-  const { data: selectedChartType } = useGetMetric(
-    { id: metricId },
-    { select: (x) => x.chart_config?.selectedChartType }
-  );
-
-  const canDownload = selectedChartType && selectedChartType !== 'table';
-
-  return useMemo(
-    () => ({
-      label: 'Download as PNG',
-      value: 'download-png',
-      disabled: !canDownload,
-      icon: <SquareChart />,
-      onClick: async () => {
-        const node = document.getElementById(METRIC_CHART_CONTAINER_ID(metricId)) as HTMLElement;
-        if (node) {
-          try {
-            return await downloadElementToImage(node, `${name}.png`);
-          } catch (error) {
-            console.error(error);
-          }
-        }
-
-        openErrorMessage('Failed to download PNG');
-      }
-    }),
-    [canDownload, metricId, name, openErrorMessage]
-  );
-};
-
 const useDeleteMetricSelectMenu = ({ metricId }: { metricId: string }) => {
   const { mutateAsync: deleteMetric } = useDeleteMetric();
   const onChangePage = useAppLayoutContextSelector((x) => x.onChangePage);
@@ -431,39 +388,6 @@ const useDeleteMetricSelectMenu = ({ metricId }: { metricId: string }) => {
       }
     }),
     [metricId, onChangePage, deleteMetric]
-  );
-};
-
-const useRenameMetricSelectMenu = ({ metricId }: { metricId: string }) => {
-  const onSetFileView = useChatLayoutContextSelector((x) => x.onSetFileView);
-  const onChangePage = useAppLayoutContextSelector((x) => x.onChangePage);
-  const chatId = useChatLayoutContextSelector((x) => x.chatId);
-  const dashboardId = useChatLayoutContextSelector((x) => x.dashboardId);
-  return useMemo(
-    () => ({
-      label: 'Rename metric',
-      value: 'rename-metric',
-      icon: <Pencil />,
-      onClick: async () => {
-        const route = assetParamsToRoute({
-          type: 'metric',
-          assetId: metricId,
-          chatId,
-          dashboardId,
-          page: 'chart'
-        });
-        await onChangePage(route);
-        await timeout(100);
-        const input = await ensureElementExists(
-          () => document.getElementById(METRIC_CHART_TITLE_INPUT_ID) as HTMLInputElement
-        );
-        if (input) {
-          input.focus();
-          input.select();
-        }
-      }
-    }),
-    [onSetFileView]
   );
 };
 

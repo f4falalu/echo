@@ -1,28 +1,14 @@
-import type { DraggableSyntheticListeners } from '@dnd-kit/core';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import React, { createContext, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { BusterSortableItemContent } from './_BusterSortableItemContent';
-
-interface Context {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- I am using any here to make it easier because I am lazy okay
-  attributes: Record<string, any>;
-  listeners: DraggableSyntheticListeners;
-  // ref(node: HTMLElement | null): void;
-  isDragging: boolean;
-}
-
-export const SortableItemContext = createContext<Context>({
-  attributes: {},
-  listeners: undefined,
-  isDragging: false
-});
+import { SortableItemContext } from './SortableItemContext';
 
 export const BusterSortableItemDragContainer: React.FC<{
   itemId: string;
   allowEdit?: boolean;
   children: React.ReactNode;
-}> = React.memo(({ itemId, allowEdit = true, children }) => {
+}> = ({ itemId, allowEdit = true, children }) => {
   const {
     attributes,
     isDragging,
@@ -69,6 +55,6 @@ export const BusterSortableItemDragContainer: React.FC<{
       </BusterSortableItemContent>
     </SortableItemContext.Provider>
   );
-});
+};
 
 BusterSortableItemDragContainer.displayName = 'BusterSortableItemDragContainer';

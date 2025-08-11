@@ -9,6 +9,10 @@
     "dev": {
       "dependsOn": ["@buster/database#start"],
       "outputs": []
+    },
+    "dev:fast": {
+      "dependsOn": ["@buster/database#start"],
+      "outputs": []
     }
   }
 }

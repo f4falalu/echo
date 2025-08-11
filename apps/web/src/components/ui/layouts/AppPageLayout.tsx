@@ -22,10 +22,12 @@ export const AppPageLayout: React.FC<
     headerClassName?: string;
     mainClassName?: string;
     contentContainerId?: string;
+    id?: string;
   }>
 > = ({
   children,
   header,
+  id,
   secondaryHeader,
   scrollable = false,
   className = '',
@@ -37,6 +39,7 @@ export const AppPageLayout: React.FC<
 }) => {
   return (
     <div
+      id={id}
       className={cn(
         'app-page-layout flex h-full w-full flex-col overflow-hidden',
         scrollable && 'overflow-y-auto',

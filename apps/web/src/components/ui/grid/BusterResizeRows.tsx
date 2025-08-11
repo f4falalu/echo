@@ -2,8 +2,9 @@
 
 import { useDroppable } from '@dnd-kit/core';
 import clamp from 'lodash/clamp';
-import React, { useMemo, useRef, useState } from 'react';
-import { useDebounceFn, useMemoizedFn, useUpdateLayoutEffect } from '@/hooks';
+import React, { useRef, useState } from 'react';
+import { useDebounceFn, useUpdateLayoutEffect } from '@/hooks';
+import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import { cn } from '@/lib/classMerge';
 import { BusterNewItemDropzone } from './_BusterBusterNewItemDropzone';
 import { BusterResizeColumns } from './BusterResizeColumns';
@@ -21,13 +22,13 @@ export const BusterResizeRows: React.FC<{
   const [sizes, setSizes] = useState<number[]>(rows.map((r) => r.rowHeight ?? MIN_ROW_HEIGHT));
 
   const { run: handleRowLayoutChangeDebounced } = useDebounceFn(
-    useMemoizedFn((sizes: number[]) => {
+    (sizes: number[]) => {
       const newRows = rows.map((r, index) => ({
         ...r,
         rowHeight: sizes[index]
       }));
       onRowLayoutChange(newRows);
-    }),
+    },
     { wait: 375 }
   );
 
@@ -124,7 +125,7 @@ const ResizeRowHandle: React.FC<{
     const showDropzone = !!over?.id && !hideDropzone;
     const isDropzoneActive = showDropzone && isOver;
 
-    const handler = useMemoizedFn((mouseDownEvent: React.MouseEvent<HTMLButtonElement>) => {
+    const handler = (mouseDownEvent: React.MouseEvent<HTMLButtonElement>) => {
       if (typeof index !== 'number') return;
 
       const startPosition = mouseDownEvent.pageY;
@@ -147,17 +148,15 @@ const ResizeRowHandle: React.FC<{
 
       document.body.addEventListener('mousemove', onMouseMove);
       document.body.addEventListener('mouseup', onMouseUp, { once: true });
-    });
+    };
 
     const onMouseDown = top ? undefined : handler;
 
-    const memoizedStyle = useMemo(() => {
-      return {
-        zIndex: 1,
-        bottom: !top ? -4 : -4,
-        transform: !top ? 'translateY(100%)' : 'translateY(100%)'
-      };
-    }, [top]);
+    const style: React.CSSProperties = {
+      zIndex: 1,
+      bottom: !top ? -4 : -4,
+      transform: !top ? 'translateY(100%)' : 'translateY(100%)'
+    };
 
     const showActive = (active || isDropzoneActive) && !readOnly;
 
@@ -172,7 +171,7 @@ const ResizeRowHandle: React.FC<{
             'h-1 w-full rounded-sm transition-colors duration-200 ease-in-out select-none',
             !top && 'dragger absolute'
           )}
-          style={memoizedStyle}
+          style={style}
           onMouseDown={onMouseDown}
         />
         <div

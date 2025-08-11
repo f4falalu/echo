@@ -1,3 +1,4 @@
+import { ASSET_ICONS } from '@/components/features/config/assetIcons';
 import {
   // Text formatting
   TextBold,
@@ -120,6 +121,9 @@ import {
 } from '@/components/ui/icons';
 
 export const NodeTypeIcons = {
+  // Metrics
+  metric: ASSET_ICONS.metrics,
+
   // Text formatting
   bold: TextBold,
   italic: TextItalic,

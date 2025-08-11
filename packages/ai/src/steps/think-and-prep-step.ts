@@ -7,7 +7,7 @@ import { wrapTraced } from 'braintrust';
 import { z } from 'zod';
 import { getSqlDialectGuidance } from '../agents/shared/sql-dialect-guidance';
 import { thinkAndPrepAgent } from '../agents/think-and-prep-agent/think-and-prep-agent';
-import { createThinkAndPrepInstructionsWithoutDatasets } from '../agents/think-and-prep-agent/think-and-prep-instructions';
+import { getThinkAndPrepInstructions } from '../agents/think-and-prep-agent/think-and-prep-instructions';
 import type { thinkAndPrepWorkflowInputSchema } from '../schemas/workflow-schemas';
 import { ChunkProcessor } from '../utils/database/chunk-processor';
 import {
@@ -28,6 +28,23 @@ const inputSchema = z.object({
   'create-todos': createTodosOutputSchema,
   'extract-values-search': extractValuesSearchOutputSchema,
   'generate-chat-title': generateChatTitleOutputSchema,
+  'analysis-type-router': z.object({
+    analysisType: z.object({
+      choice: z.enum(['standard', 'investigation']),
+      reasoning: z.string(),
+    }),
+    conversationHistory: z.array(z.any()),
+    dashboardFiles: z
+      .array(
+        z.object({
+          id: z.string(),
+          name: z.string(),
+          versionNumber: z.number(),
+          metricIds: z.array(z.string()),
+        })
+      )
+      .optional(),
+  }),
   // Include original workflow inputs to maintain access to prompt and conversationHistory
   prompt: z.string(),
   conversationHistory: z.array(z.any()).optional(),
@@ -250,11 +267,22 @@ ${databaseContext}
 
         const wrappedStream = wrapTraced(
           async () => {
+            // Force standard analysis type for this step
+            const analysisType = 'standard' as const;
+
+            console.info('Think and Prep: Using analysis type', {
+              analysisType,
+              note: 'Forced to standard in think-and-prep-step',
+            });
+
+            // Always use standard instructions
+            const instructions = await getThinkAndPrepInstructions({ runtimeContext });
+
             // Create system messages with dataset context and instructions
             const systemMessages: CoreMessage[] = [
               {
                 role: 'system',
-                content: createThinkAndPrepInstructionsWithoutDatasets(sqlDialectGuidance),
+                content: instructions,
                 providerOptions: DEFAULT_CACHE_OPTIONS,
               },
               {

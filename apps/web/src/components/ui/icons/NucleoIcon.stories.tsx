@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/nextjs';
 import type React from 'react';
 import * as FilledIcons from './NucleoIconFilled';
 import { IconSelectFilled } from './NucleoIconFilled/iconStories';

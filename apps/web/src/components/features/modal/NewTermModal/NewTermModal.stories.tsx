@@ -1,5 +1,5 @@
-import type { Meta, StoryObj } from '@storybook/react';
-import { fn } from '@storybook/test';
+import type { Meta, StoryObj } from '@storybook/nextjs';
+import { fn } from 'storybook/test';
 import { HttpResponse, http } from 'msw';
 import { BASE_URL } from '@/api/buster_rest/config';
 import { NewTermModal } from './NewTermModal';

@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/nextjs';
 import { faker } from '@faker-js/faker';
 import { DataContainer } from './DataContainer';
 import type { DataResult } from '@buster/server-shared/metrics';

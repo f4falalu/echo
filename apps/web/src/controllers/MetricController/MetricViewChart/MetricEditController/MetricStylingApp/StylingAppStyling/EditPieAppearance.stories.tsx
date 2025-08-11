@@ -1,5 +1,5 @@
-import type { Meta, StoryObj } from '@storybook/react';
-import { fn } from '@storybook/test';
+import type { Meta, StoryObj } from '@storybook/nextjs';
+import { fn } from 'storybook/test';
 import React from 'react';
 import { DEFAULT_CHART_CONFIG } from '@buster/server-shared/metrics';
 import { EditPieAppearance } from './EditPieAppearance';

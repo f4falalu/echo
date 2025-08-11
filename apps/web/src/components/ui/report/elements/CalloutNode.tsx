@@ -18,6 +18,7 @@ export function CalloutElement({
   children,
   ...props
 }: PlateElementProps<TCalloutElement>) {
+  const { element } = props;
   const { emojiPickerState, isOpen, setIsOpen } = useEmojiDropdownMenuState({
     closeOnSelect: true
   });
@@ -32,7 +33,7 @@ export function CalloutElement({
       className={cn('bg-muted flex rounded-sm p-4 pl-3', attributes.className)}
       style={{
         ...attributes.style,
-        backgroundColor: props.element.backgroundColor
+        backgroundColor: element.backgroundColor
       }}
       attributes={{
         ...attributes,
@@ -51,7 +52,7 @@ export function CalloutElement({
                 fontFamily:
                   '"Apple Color Emoji", "Segoe UI Emoji", NotoColorEmoji, "Noto Color Emoji", "Segoe UI Symbol", "Android Emoji", EmojiSymbols'
               }}
-              prefix={<div className="text-lg">{(props.element.icon || '💡').trim()}</div>}
+              prefix={<div className="text-lg">{(element.icon || '💡').trim()}</div>}
               contentEditable={false}
             />
           }>

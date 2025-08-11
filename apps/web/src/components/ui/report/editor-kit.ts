@@ -3,7 +3,7 @@
 import { type Value, TrailingBlockPlugin } from 'platejs';
 import { type TPlateEditor, useEditorRef } from 'platejs/react';
 
-import { AIKit } from './plugins/ai-kit';
+// import { AIKit } from './plugins/ai-kit';
 import { AlignKit } from './plugins/align-kit';
 import { AutoformatKit } from './plugins/autoformat-kit';
 import { BasicBlocksKit } from './plugins/basic-blocks-kit';
@@ -28,7 +28,7 @@ import { LineHeightKit } from './plugins/line-height-kit';
 import { LinkKit } from './plugins/link-kit';
 import { ListKit } from './plugins/list-kit';
 import { MarkdownKit } from './plugins/markdown-kit';
-import { MathKit } from './plugins/math-kit';
+// import { MathKit } from './plugins/math-kit';
 import { MediaKit } from './plugins/media-kit';
 import { MentionKit } from './plugins/mention-kit';
 import { SlashKit } from './plugins/slash-kit';
@@ -36,10 +36,18 @@ import { SuggestionKit } from './plugins/suggestion-kit';
 import { TableKit } from './plugins/table-kit';
 import { TocKit } from './plugins/toc-kit';
 import { ToggleKit } from './plugins/toggle-kit';
+import { BusterStreamKit } from './plugins/buster-stream-kit';
+import { CaptionKit } from './plugins/caption-kit';
 
 export const EditorKit = [
-  ...AIKit,
-  ...BlockMenuKit,
+  // Editing
+  ...SlashKit,
+  ...AutoformatKit,
+  ...CursorOverlayKit,
+  ...DndKit,
+  ...EmojiKit,
+  ...ExitBreakKit,
+  TrailingBlockPlugin,
 
   // Elements
   ...BasicBlocksKit,
@@ -50,14 +58,18 @@ export const EditorKit = [
   ...MediaKit,
   ...CalloutKit,
   ...ColumnKit,
-  ...MathKit,
+  // ...MathKit,
   ...DateKit,
   ...LinkKit,
   ...MentionKit,
+  ...CaptionKit,
 
   // Marks
   ...BasicMarksKit,
   ...FontKit,
+
+  // ...AIKit,
+  ...BlockMenuKit,
 
   // Block Style
   ...ListKit,
@@ -69,14 +81,8 @@ export const EditorKit = [
   ...CommentKit,
   ...SuggestionKit,
 
-  // Editing
-  ...SlashKit,
-  ...AutoformatKit,
-  ...CursorOverlayKit,
-  ...DndKit,
-  ...EmojiKit,
-  ...ExitBreakKit,
-  TrailingBlockPlugin,
+  // Custom
+  ...BusterStreamKit,
 
   // Parsers
   ...DocxKit,

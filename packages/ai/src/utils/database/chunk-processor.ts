@@ -28,6 +28,7 @@ import {
   hasStatus,
   isCreateDashboardsArgs,
   isCreateMetricsArgs,
+  isCreateReportsArgs,
   isExecuteSqlArgs,
   isModifyDashboardsArgs,
   isModifyMetricsArgs,
@@ -561,6 +562,8 @@ export class ChunkProcessor<T extends ToolSet = GenericToolSet> {
         'create-metrics-file': 'Building new metrics...',
         createDashboards: 'Building new dashboards...',
         'create-dashboards-file': 'Building new dashboards...',
+        createReports: 'Building new reports...',
+        'create-reports-file': 'Building new reports...',
         modifyMetrics: 'Modifying metrics...',
         'modify-metrics-file': 'Modifying metrics...',
         modifyDashboards: 'Modifying dashboards...',
@@ -1259,6 +1262,55 @@ export class ChunkProcessor<T extends ToolSet = GenericToolSet> {
         break;
       }
 
+      case 'createReports':
+      case 'create-reports-file': {
+        // Parse streaming files array to show incremental progress
+        const filesArray = getOptimisticValue<unknown[]>(parseResult.extractedValues, 'files', []);
+        if (filesArray && Array.isArray(filesArray) && entry.type === 'files') {
+          const existingFiles = entry.files || {};
+          const existingFileIds = (entry as ReasoningEntry & { file_ids: string[] }).file_ids || [];
+
+          // Process each file in the array (might be incrementally added)
+          filesArray.forEach((file, index) => {
+            if (file && typeof file === 'object') {
+              const hasName = 'name' in file && file.name;
+              const hasContent = 'content' in file && file.content;
+
+              // Only add file when both name AND content are present
+              const fileIdAtIndex = existingFileIds[index];
+              if (hasName && hasContent && !fileIdAtIndex) {
+                const fileId = crypto.randomUUID();
+                existingFileIds[index] = fileId;
+                existingFiles[fileId] = {
+                  id: fileId,
+                  file_type: 'report',
+                  file_name: (file as { name?: string }).name || '',
+                  version_number: undefined, // Temporary value - will be updated from tool result
+                  status: 'loading',
+                  file: {
+                    text: (file as { content?: string }).content || '',
+                  },
+                };
+              } else if (fileIdAtIndex && hasContent) {
+                // Update existing file content if it has changed
+                const fileId = fileIdAtIndex;
+                const existingFile = existingFiles[fileId];
+                if (existingFile?.file) {
+                  existingFile.file.text = (file as { content?: string }).content || '';
+                }
+              }
+            }
+          });
+
+          // Update the entry - keep sparse array to maintain index mapping
+          (entry as ReasoningEntry & { file_ids: string[] }).file_ids = existingFileIds;
+          entry.files = existingFiles;
+
+          // Title stays static - "Creating reports..."
+        }
+        break;
+      }
+
       case 'executeSql':
       case 'execute-sql': {
         // Update SQL content as it streams
@@ -1582,6 +1634,23 @@ export class ChunkProcessor<T extends ToolSet = GenericToolSet> {
             id: toolCallId,
             type: 'files',
             title: 'Building new dashboards...',
+            status: 'loading',
+            secondary_title: undefined,
+            file_ids: [],
+            files: {},
+          } as ReasoningEntry;
+        }
+        break;
+
+      case 'createReports':
+      case 'create-reports-file':
+        // Handle similar to createMetrics - expects files array with name and content
+        if (isCreateReportsArgs(args)) {
+          // Start with empty files - they'll be populated during streaming
+          return {
+            id: toolCallId,
+            type: 'files',
+            title: 'Building new reports...',
             status: 'loading',
             secondary_title: undefined,
             file_ids: [],
@@ -2048,6 +2117,8 @@ export class ChunkProcessor<T extends ToolSet = GenericToolSet> {
       'create-metrics-file',
       'createDashboards',
       'create-dashboards-file',
+      'createReports',
+      'create-reports-file',
       'modifyMetrics',
       'modify-metrics-file',
       'modifyDashboards',
@@ -2252,6 +2323,16 @@ export class ChunkProcessor<T extends ToolSet = GenericToolSet> {
             case 'createDashboards':
             case 'create-dashboards-file':
               entityName = successCount === 1 ? 'dashboard' : 'dashboards';
+              if (failedCount > 0) {
+                newTitle = `Created ${successCount} ${entityName}, ${failedCount} failed`;
+              } else {
+                newTitle = `Created ${successCount} ${entityName}`;
+              }
+              break;
+
+            case 'createReports':
+            case 'create-reports-file':
+              entityName = successCount === 1 ? 'report' : 'reports';
               if (failedCount > 0) {
                 newTitle = `Created ${successCount} ${entityName}, ${failedCount} failed`;
               } else {

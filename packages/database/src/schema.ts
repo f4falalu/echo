@@ -19,7 +19,7 @@ import {
   uuid,
   varchar,
 } from 'drizzle-orm/pg-core';
-import type { OrganizationColorPalettes, ReportElements } from './schema-types';
+import type { OrganizationColorPalettes } from './schema-types';
 
 export const assetPermissionRoleEnum = pgEnum('asset_permission_role_enum', [
   'owner',
@@ -996,7 +996,7 @@ export const reportFiles = pgTable(
   {
     id: uuid().defaultRandom().primaryKey().notNull(),
     name: varchar().notNull(),
-    content: jsonb('content').$type<ReportElements>().notNull(),
+    content: text('content').notNull(),
     organizationId: uuid('organization_id').notNull(),
     createdBy: uuid('created_by').notNull(),
     createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' })
@@ -1017,7 +1017,7 @@ export const reportFiles = pgTable(
         Record<
           string, //version number as a string
           {
-            content: ReportElements;
+            content: string;
             updated_at: string;
             version_number: number;
           }
@@ -1954,7 +1954,10 @@ export const slackIntegrations = pgTable(
 
     // OAuth state fields (for pending integrations)
     oauthState: varchar('oauth_state', { length: 255 }).unique(),
-    oauthExpiresAt: timestamp('oauth_expires_at', { withTimezone: true, mode: 'string' }),
+    oauthExpiresAt: timestamp('oauth_expires_at', {
+      withTimezone: true,
+      mode: 'string',
+    }),
     oauthMetadata: jsonb('oauth_metadata').default({}),
 
     // Slack workspace info (populated after successful OAuth)
@@ -1971,9 +1974,17 @@ export const slackIntegrations = pgTable(
     tokenVaultKey: varchar('token_vault_key', { length: 255 }).unique(),
 
     // Metadata
-    installedBySlackUserId: varchar('installed_by_slack_user_id', { length: 255 }),
-    installedAt: timestamp('installed_at', { withTimezone: true, mode: 'string' }),
-    lastUsedAt: timestamp('last_used_at', { withTimezone: true, mode: 'string' }),
+    installedBySlackUserId: varchar('installed_by_slack_user_id', {
+      length: 255,
+    }),
+    installedAt: timestamp('installed_at', {
+      withTimezone: true,
+      mode: 'string',
+    }),
+    lastUsedAt: timestamp('last_used_at', {
+      withTimezone: true,
+      mode: 'string',
+    }),
     status: slackIntegrationStatusEnum().default('pending').notNull(),
 
     // Default channel configuration
@@ -2050,8 +2061,14 @@ export const githubIntegrations = pgTable(
     repositoryPermissions: jsonb('repository_permissions').default({}),
 
     status: githubIntegrationStatusEnum().default('pending').notNull(),
-    installedAt: timestamp('installed_at', { withTimezone: true, mode: 'string' }),
-    lastUsedAt: timestamp('last_used_at', { withTimezone: true, mode: 'string' }),
+    installedAt: timestamp('installed_at', {
+      withTimezone: true,
+      mode: 'string',
+    }),
+    lastUsedAt: timestamp('last_used_at', {
+      withTimezone: true,
+      mode: 'string',
+    }),
 
     // Timestamps
     createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' })
@@ -2113,7 +2130,10 @@ export const slackMessageTracking = pgTable(
     senderInfo: jsonb('sender_info'),
 
     // Timestamps
-    sentAt: timestamp('sent_at', { withTimezone: true, mode: 'string' }).notNull(),
+    sentAt: timestamp('sent_at', {
+      withTimezone: true,
+      mode: 'string',
+    }).notNull(),
     createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' })
       .defaultNow()
       .notNull(),

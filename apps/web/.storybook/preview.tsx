@@ -1,7 +1,6 @@
-import type { Preview } from '@storybook/react';
+import type { Preview } from '@storybook/nextjs';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { initialize, mswLoader } from 'msw-storybook-addon';
-import React from 'react';
 import { BusterAssetsProvider } from '../src/context/Assets/BusterAssetsProvider';
 import { BusterStyleProvider } from '../src/context/BusterStyles/BusterStyles';
 import '../src/styles/styles.scss';
@@ -18,14 +17,18 @@ const preview: Preview = {
       }
     },
     backgrounds: {
-      values: [
-        // 👇 Default values
-        { name: 'Dark', value: '#333' },
-        { name: 'Light', value: '#FFFFFF' }
-      ],
-      // 👇 Specify which background is shown by default
-      default: 'Light'
+      options: {
+        light: { name: 'Light', value: '#ffffff' },
+        dark: { name: 'Dark', value: '#000000' },
+        maroon: { name: 'Maroon', value: '#800000' }
+      }
     }
+  },
+  initialGlobals: {
+    backgrounds: {
+      value: 'light'
+    },
+    theme: 'light'
   },
   loaders: [mswLoader],
   decorators: [

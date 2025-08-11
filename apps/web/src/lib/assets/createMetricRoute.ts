@@ -8,6 +8,8 @@ export type MetricRouteParams = {
   secondaryView?: MetricFileViewSecondary;
   metricVersionNumber?: number;
   dashboardVersionNumber?: number;
+  reportId?: string;
+  reportVersionNumber?: number;
   type: 'metric';
   page?: 'chart' | 'results' | 'sql' | undefined;
   versionNumber?: number; //will first try and use metricVersionNumber assuming it is a metric, then dashboardVersionNumber assuming it is a dashboard, then versionNumber
@@ -20,11 +22,19 @@ export const createMetricRoute = ({
   dashboardId,
   metricVersionNumber: _metricVersionNumber,
   dashboardVersionNumber,
+  reportId,
+  reportVersionNumber,
   versionNumber,
   page = 'chart'
 }: Omit<MetricRouteParams, 'type'>) => {
   const metricVersionNumber = _metricVersionNumber || versionNumber;
-  const baseParams = { metricVersionNumber, dashboardVersionNumber, metricId, secondaryView };
+  const baseParams = {
+    metricVersionNumber,
+    dashboardVersionNumber,
+    reportVersionNumber,
+    metricId,
+    secondaryView
+  };
 
   if (page === 'chart') {
     // Check for dashboardId first (requires chatId as well)
@@ -51,6 +61,36 @@ export const createMetricRoute = ({
             route: BusterRoutes.APP_CHAT_ID_DASHBOARD_ID_METRIC_ID_CHART,
             chatId,
             dashboardId,
+            ...baseParams
+          });
+        }
+      }
+    }
+
+    // Check for reportId next (requires chatId as well)
+    if (reportId && chatId) {
+      switch (secondaryView) {
+        case 'chart-edit':
+          return createBusterRoute({
+            route: BusterRoutes.APP_CHAT_ID_REPORT_ID_METRIC_ID_CHART,
+            chatId,
+            reportId,
+            ...baseParams
+          });
+        case 'version-history':
+          return createBusterRoute({
+            route: BusterRoutes.APP_CHAT_ID_REPORT_ID_METRIC_ID_CHART,
+            chatId,
+            reportId,
+            ...baseParams
+          });
+        default: {
+          const test: never | undefined = secondaryView;
+
+          return createBusterRoute({
+            route: BusterRoutes.APP_CHAT_ID_REPORT_ID_METRIC_ID_CHART,
+            chatId,
+            reportId,
             ...baseParams
           });
         }
@@ -110,6 +150,16 @@ export const createMetricRoute = ({
       });
     }
 
+    // Check for reportId next (requires chatId as well)
+    if (reportId && chatId) {
+      return createBusterRoute({
+        route: BusterRoutes.APP_CHAT_ID_REPORT_ID_METRIC_ID_RESULTS,
+        chatId,
+        reportId,
+        ...baseParams
+      });
+    }
+
     if (chatId) {
       return createBusterRoute({
         route: BusterRoutes.APP_CHAT_ID_METRIC_ID_RESULTS,
@@ -133,6 +183,16 @@ export const createMetricRoute = ({
         route: BusterRoutes.APP_CHAT_ID_DASHBOARD_ID_METRIC_ID_SQL,
         chatId,
         dashboardId,
+        ...baseParams
+      });
+    }
+
+    // Check for reportId next (requires chatId as well)
+    if (reportId && chatId) {
+      return createBusterRoute({
+        route: BusterRoutes.APP_CHAT_ID_REPORT_ID_METRIC_ID_SQL,
+        chatId,
+        reportId,
         ...baseParams
       });
     }

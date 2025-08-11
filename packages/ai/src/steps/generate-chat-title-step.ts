@@ -6,6 +6,7 @@ import type { CoreMessage } from 'ai';
 import { wrapTraced } from 'braintrust';
 import { z } from 'zod';
 import { thinkAndPrepWorkflowInputSchema } from '../schemas/workflow-schemas';
+import { GPT5Mini } from '../utils/models/gpt-5-mini';
 import { Haiku35 } from '../utils/models/haiku-3-5';
 import { appendToConversation, standardizeMessages } from '../utils/standardizeMessages';
 import type { AnalystRuntimeContext } from '../workflows/analyst-workflow';
@@ -76,6 +77,13 @@ const generateChatTitleExecution = async ({
               },
               ...messages,
             ],
+            temperature: 1,
+            providerOptions: {
+              openai: {
+                parallelToolCalls: false,
+                reasoningEffort: 'minimal',
+              },
+            },
           });
 
           return object;

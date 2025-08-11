@@ -2,9 +2,7 @@
 
 import { isServer } from '@tanstack/react-query';
 import type { PostHogConfig } from 'posthog-js';
-import posthog from 'posthog-js';
-import { PostHogProvider } from 'posthog-js/react';
-import React, { type PropsWithChildren, useEffect } from 'react';
+import React, { type PropsWithChildren, useEffect, useState } from 'react';
 import { isDev } from '@/config';
 import { useUserConfigContextSelector } from '../Users';
 import type { Team } from '@buster/server-shared/teams';
@@ -12,13 +10,13 @@ import type { Team } from '@buster/server-shared/teams';
 const POSTHOG_KEY = process.env.NEXT_PUBLIC_POSTHOG_KEY;
 const DEBUG_POSTHOG = false;
 
-export const BusterPosthogProvider: React.FC<PropsWithChildren> = React.memo(({ children }) => {
+export const BusterPosthogProvider: React.FC<PropsWithChildren> = ({ children }) => {
   if ((isDev && !DEBUG_POSTHOG) || !POSTHOG_KEY) {
     return <>{children}</>;
   }
 
   return <PosthogWrapper>{children}</PosthogWrapper>;
-});
+};
 BusterPosthogProvider.displayName = 'BusterPosthogProvider';
 
 const options: Partial<PostHogConfig> = {
@@ -46,8 +44,41 @@ const PosthogWrapper: React.FC<PropsWithChildren> = ({ children }) => {
   const userOrganizations = useUserConfigContextSelector((state) => state.userOrganizations);
   const team: Team | undefined = userTeams?.[0];
 
+  const [posthogModules, setPosthogModules] = useState<{
+    posthog: typeof import('posthog-js').default;
+    PostHogProvider: typeof import('posthog-js/react').PostHogProvider;
+  } | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Async load posthog-js dependencies
   useEffect(() => {
-    if (POSTHOG_KEY && !isServer && user && posthog && team) {
+    const loadPosthogModules = async () => {
+      try {
+        const [{ default: posthog }, { PostHogProvider }] = await Promise.all([
+          import('posthog-js'),
+          import('posthog-js/react')
+        ]);
+
+        setPosthogModules({ posthog, PostHogProvider });
+      } catch (error) {
+        console.error('Failed to load PostHog modules:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadPosthogModules();
+  }, []);
+
+  // Initialize PostHog when modules are loaded and user data is available
+  useEffect(() => {
+    if (POSTHOG_KEY && !isServer && user && posthogModules?.posthog && team) {
+      const { posthog } = posthogModules;
+
+      if (posthog.__loaded) {
+        return;
+      }
+
       posthog.init(POSTHOG_KEY, options);
 
       const email = user.email;
@@ -58,7 +89,13 @@ const PosthogWrapper: React.FC<PropsWithChildren> = ({ children }) => {
       });
       posthog.group(team?.id, team?.name);
     }
-  }, [user?.id, team?.id]);
+  }, [user?.id, team?.id, posthogModules]);
 
-  return <PostHogProvider client={posthog}>{children}</PostHogProvider>;
+  // Show children while loading or if modules failed to load
+  if (isLoading || !posthogModules) {
+    return <>{children}</>;
+  }
+
+  const { PostHogProvider } = posthogModules;
+  return <PostHogProvider client={posthogModules.posthog}>{children}</PostHogProvider>;
 };

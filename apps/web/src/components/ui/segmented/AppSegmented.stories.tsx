@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/nextjs';
 import { useState } from 'react';
 import { Checkbox } from '../checkbox';
 import { BottleChampagne, Grid, HouseModern, PaintRoller } from '../icons';

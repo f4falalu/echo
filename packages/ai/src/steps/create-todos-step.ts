@@ -6,9 +6,10 @@ import { wrapTraced } from 'braintrust';
 import { z } from 'zod';
 import { thinkAndPrepWorkflowInputSchema } from '../schemas/workflow-schemas';
 import { createTodoList } from '../tools/planning-thinking-tools/create-todo-item-tool';
+import { Sonnet4 } from '../utils';
 import { ChunkProcessor } from '../utils/database/chunk-processor';
 import { ReasoningHistorySchema } from '../utils/memory/types';
-import { Sonnet4 } from '../utils/models/sonnet-4';
+import { GPT5Mini } from '../utils/models/gpt-5-mini';
 import { RetryWithHealingError, isRetryWithHealingError } from '../utils/retry';
 import { appendToConversation, standardizeMessages } from '../utils/standardizeMessages';
 import { createOnChunkHandler } from '../utils/streaming';
@@ -181,8 +182,13 @@ The TODO list should break down each aspect of the user request into tasks, base
 
 const DEFAULT_OPTIONS = {
   maxSteps: 1,
-  temperature: 0,
-  maxTokens: 300,
+  temperature: 1,
+  openai: {
+    parallelToolCalls: false,
+    reasoningEffort: 'minimal',
+    serviceTier: 'priority',
+    verbosity: 'low',
+  },
 };
 
 export const todosAgent = new Agent({

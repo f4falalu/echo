@@ -167,14 +167,23 @@ export const useMarkdownComponents = ({
         </TableHeaderCellComponent>
       ),
       br: ({ className, style }) => <BreakComponent className={className} style={style} />,
-      code: ({ children, className, style, ...rest }) => (
-        //we can assume that code is inline if it reach to this point
-        <CodeComponent {...commonProps} className={className} style={style} isInline={true}>
-          {children}
-        </CodeComponent>
-      )
+      code: ({ children, className, style, ...rest }) => {
+        const language = className?.split('language-')[1];
+        const hasLanguage = !!language;
+
+        return (
+          //we can assume that code is inline if it reach to this point
+          <CodeComponent
+            {...commonProps}
+            className={className}
+            style={style}
+            isInline={!hasLanguage}>
+            {children}
+          </CodeComponent>
+        );
+      }
     };
   }, [commonProps]);
 
-  return { components, commonProps };
+  return components;
 };

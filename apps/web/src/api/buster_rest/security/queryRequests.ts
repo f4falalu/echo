@@ -10,10 +10,7 @@ import {
   addApprovedDomain,
   removeApprovedDomain
 } from './requests';
-import type {
-  GetApprovedDomainsResponse,
-  GetWorkspaceSettingsResponse
-} from '@buster/server-shared/security';
+import type { GetApprovedDomainsResponse } from '@buster/server-shared/security';
 
 export const useGetWorkspaceSettings = () => {
   return useQuery({

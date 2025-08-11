@@ -5,7 +5,6 @@ import type { UseSupabaseUserContextType } from '@/lib/supabase';
 import { BusterAssetsProvider } from './Assets/BusterAssetsProvider';
 import { AppLayoutProvider } from './BusterAppLayout';
 import { BusterReactQueryProvider } from './BusterReactQuery/BusterReactQueryAndApi';
-import { BusterWebSocketProvider } from './BusterWebSocket';
 import { BusterNewChatProvider } from './Chats';
 import { BusterPosthogProvider } from './Posthog';
 import { RoutePrefetcher } from './RoutePrefetcher';

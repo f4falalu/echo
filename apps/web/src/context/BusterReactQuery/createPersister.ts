@@ -6,7 +6,7 @@ import packageJson from '../../../package.json';
 
 const buster = packageJson.version;
 
-export const PERSIST_TIME = 1000 * 60 * 60 * 24 * 7; // 7 days
+export const PERSIST_TIME = 1000 * 60 * 60 * 24 * 3; // 3 days
 
 export const PERSISTED_QUERIES = [queryKeys.slackGetChannels.queryKey].map(hashKey);
 

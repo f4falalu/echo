@@ -1,4 +1,9 @@
 export const NodeTypeLabels = {
+  metric: {
+    label: 'Metric',
+    keyboard: undefined,
+    keywords: ['metric', 'chart', 'charts', 'graph', 'report']
+  },
   // Block types
   paragraph: {
     label: 'Text',
@@ -304,6 +309,11 @@ export const NodeTypeLabels = {
   },
   editLink: {
     label: 'Edit link',
+    keyboard: undefined,
+    keywords: []
+  },
+  editMetric: {
+    label: 'Edit metric',
     keyboard: undefined,
     keywords: []
   },
