@@ -16,6 +16,7 @@ interface ReportEditorProps {
   value: ReportElements;
   placeholder?: string;
   readOnly?: boolean;
+  isStreaming?: boolean; //if true, the editor will be updated with the value prop when it is changed, everything will be readonly
   variant?: 'default';
   className?: string;
   containerClassName?: string;
@@ -52,14 +53,15 @@ export const ReportEditor = React.memo(
         mode = 'default',
         useFixedToolbarKit = false,
         readOnly = false,
-        disabled = false
+        disabled = false,
+        isStreaming = false
       },
       ref
     ) => {
       // Initialize the editor instance using the custom useEditor hook
       const isReady = useRef(false);
 
-      const editor = useReportEditor({ mode, value, disabled, useFixedToolbarKit });
+      const editor = useReportEditor({ isStreaming, mode, value, disabled, useFixedToolbarKit });
 
       const onReset = useMemoizedFn(() => {
         if (!editor) {

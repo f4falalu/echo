@@ -7,9 +7,10 @@ import { ReportPageHeader } from './ReportPageHeader';
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import { useDebounceFn } from '@/hooks/useDebounce';
 import type { ReportElements } from '@buster/server-shared/reports';
-//import DynamicReportEditor from '@/components/ui/report/DynamicReportEditor';
-import { ReportEditor, type IReportEditor } from '@/components/ui/report/ReportEditor';
+import DynamicReportEditor from '@/components/ui/report/DynamicReportEditor';
+import { type IReportEditor } from '@/components/ui/report/ReportEditor';
 import { ReportEditorSkeleton } from '@/components/ui/report/ReportEditorSkeleton';
+import { useChatIndividualContextSelector } from '@/layouts/ChatLayout/ChatContext';
 
 export const ReportPageController: React.FC<{
   reportId: string;
@@ -20,6 +21,7 @@ export const ReportPageController: React.FC<{
 }> = React.memo(
   ({ reportId, readOnly = false, className = '', onReady: onReadyProp, mode = 'default' }) => {
     const { data: report } = useGetReport({ reportId, versionNumber: undefined });
+    const isStreamingMessage = useChatIndividualContextSelector((x) => x.isStreamingMessage);
 
     const content: ReportElements = report?.content || [];
 
@@ -57,7 +59,7 @@ export const ReportPageController: React.FC<{
               onChangeName={onChangeName}
             />
 
-            <ReportEditor
+            <DynamicReportEditor
               value={content}
               placeholder="Start typing..."
               disabled={false}
@@ -68,6 +70,7 @@ export const ReportPageController: React.FC<{
               className="px-0!"
               mode={mode}
               onReady={onReadyProp}
+              isStreaming={isStreamingMessage}
             />
           </>
         ) : (
