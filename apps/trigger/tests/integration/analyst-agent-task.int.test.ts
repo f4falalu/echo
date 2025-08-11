@@ -1,6 +1,6 @@
 import { db, eq, messages } from '@buster/database';
 import { createTestChat, createTestMessage } from '@buster/test-utils';
-import { tasks } from '@trigger.dev/sdk/v3';
+import { runs, tasks } from '@trigger.dev/sdk';
 import { initLogger, wrapTraced } from 'braintrust';
 import { afterAll, beforeAll, describe, expect, test } from 'vitest';
 import type { analystAgentTask } from '../../src/tasks/analyst-agent-task';
@@ -32,6 +32,29 @@ describe('Analyst Agent Task Integration Tests', () => {
   const TEST_USER_ID = 'c2dd64cd-f7f3-4884-bc91-d46ae431901e';
   const TEST_ORG_ID = 'bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce';
   const TEST_MESSAGE_CONTENT = 'who is our top customer';
+
+  async function triggerAndPollAnalystAgent(
+    payload: { message_id: string },
+    pollIntervalMs = 2000,
+    timeoutMs = 30 * 60 * 1000 // align with 30 min test timeout
+  ) {
+    const handle = await tasks.trigger<typeof analystAgentTask>('analyst-agent-task', payload);
+
+    const start = Date.now();
+    // eslint-disable-next-line no-constant-condition
+    while (true) {
+      const run = await runs.retrieve(handle.id);
+      if (run.status === 'COMPLETED' || run.status === 'FAILED' || run.status === 'CANCELED') {
+        return run;
+      }
+
+      if (Date.now() - start > timeoutMs) {
+        return run;
+      }
+
+      await new Promise((resolve) => setTimeout(resolve, pollIntervalMs));
+    }
+  }
 
   beforeAll(() => {
     if (!process.env.BRAINTRUST_KEY) {
@@ -82,13 +105,7 @@ describe('Analyst Agent Task Integration Tests', () => {
       console.log('Triggering analyst agent task...');
 
       const tracedTaskTrigger = wrapTraced(
-        async () => {
-          return await tasks.triggerAndPoll<typeof analystAgentTask>(
-            'analyst-agent-task',
-            { message_id: messageId },
-            { pollIntervalMs: 5000 } // Poll every 5 seconds
-          );
-        },
+        async () => await triggerAndPollAnalystAgent({ message_id: messageId }, 5000),
         {
           name: 'Trigger Analyst Agent Task',
         }
@@ -161,11 +178,7 @@ describe('Analyst Agent Task Integration Tests', () => {
     try {
       console.log('Testing error handling with invalid message ID...');
 
-      const result = await tasks.triggerAndPoll<typeof analystAgentTask>(
-        'analyst-agent-task',
-        { message_id: invalidMessageId },
-        { pollIntervalMs: 2000 } // Poll every 2 seconds for error case
-      );
+      const result = await triggerAndPollAnalystAgent({ message_id: invalidMessageId }, 2000);
 
       // Task should complete but with error result
       expect(result).toBeDefined();
@@ -193,11 +206,10 @@ describe('Analyst Agent Task Integration Tests', () => {
 
       // Test with invalid UUID format
       await expect(
-        tasks.triggerAndPoll<typeof analystAgentTask>(
-          'analyst-agent-task',
+        triggerAndPollAnalystAgent(
           // Intentionally invalid input to test validation
           { message_id: 'not-a-uuid' } as { message_id: string },
-          { pollIntervalMs: 1000 }
+          1000
         )
       ).rejects.toThrow();
 

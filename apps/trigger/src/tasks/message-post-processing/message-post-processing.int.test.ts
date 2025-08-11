@@ -6,7 +6,7 @@ import {
   createTestMessage,
   createTestUser,
 } from '@buster/test-utils';
-import { tasks } from '@trigger.dev/sdk/v3';
+import { runs, tasks } from '@trigger.dev/sdk';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import type { messagePostProcessingTask } from './message-post-processing';
 
@@ -18,6 +18,33 @@ describe.skipIf(skipIntegrationTests)('messagePostProcessingTask integration', (
   let testChatId: string;
   let testMessageId: string;
   let testOrgId: string;
+
+  async function triggerAndPollMessagePostProcessing(
+    payload: { messageId: string },
+    pollIntervalMs = 2000,
+    timeoutMs = 60000
+  ) {
+    const handle = await tasks.trigger<typeof messagePostProcessingTask>(
+      'message-post-processing',
+      payload
+    );
+
+    const start = Date.now();
+    // poll until terminal state or timeout
+    // eslint-disable-next-line no-constant-condition
+    while (true) {
+      const run = await runs.retrieve(handle.id);
+      if (run.status === 'COMPLETED' || run.status === 'FAILED' || run.status === 'CANCELED') {
+        return run;
+      }
+
+      if (Date.now() - start > timeoutMs) {
+        return run;
+      }
+
+      await new Promise((resolve) => setTimeout(resolve, pollIntervalMs));
+    }
+  }
 
   beforeAll(async () => {
     // Use specific test user with datasets and permissions
@@ -42,11 +69,7 @@ describe.skipIf(skipIntegrationTests)('messagePostProcessingTask integration', (
     const messageId = 'a3206f20-35d1-4a6c-84a7-48f8f222c39f';
 
     // Execute task
-    const result = await tasks.triggerAndPoll<typeof messagePostProcessingTask>(
-      'message-post-processing',
-      { messageId },
-      { pollIntervalMs: 2000 }
-    );
+    const result = await triggerAndPollMessagePostProcessing({ messageId }, 2000);
 
     // Verify result structure
     expect(result).toBeDefined();
@@ -108,10 +131,9 @@ describe.skipIf(skipIntegrationTests)('messagePostProcessingTask integration', (
     });
 
     // Execute task for follow-up
-    const result = await tasks.triggerAndPoll<typeof messagePostProcessingTask>(
-      'message-post-processing',
+    const result = await triggerAndPollMessagePostProcessing(
       { messageId: followUpMessageId },
-      { pollIntervalMs: 2000 }
+      2000
     );
 
     // Verify it's a follow-up result
@@ -128,11 +150,7 @@ describe.skipIf(skipIntegrationTests)('messagePostProcessingTask integration', (
     const messageId = '203744bd-439f-4b3c-9ea2-ddfe243c5afe';
 
     // Execute task
-    const result = await tasks.triggerAndPoll<typeof messagePostProcessingTask>(
-      'message-post-processing',
-      { messageId },
-      { pollIntervalMs: 2000 }
-    );
+    const result = await triggerAndPollMessagePostProcessing({ messageId }, 2000);
 
     // Should still process successfully
     expect(result).toBeDefined();
@@ -151,11 +169,7 @@ describe.skipIf(skipIntegrationTests)('messagePostProcessingTask integration', (
   it('should fail gracefully when message does not exist', async () => {
     const nonExistentId = '00000000-0000-0000-0000-000000000000';
 
-    const result = await tasks.triggerAndPoll<typeof messagePostProcessingTask>(
-      'message-post-processing',
-      { messageId: nonExistentId },
-      { pollIntervalMs: 2000 }
-    );
+    const result = await triggerAndPollMessagePostProcessing({ messageId: nonExistentId }, 2000);
 
     expect(result.status).toBe('COMPLETED');
     expect(result.output?.success).toBe(false);
@@ -168,11 +182,7 @@ describe.skipIf(skipIntegrationTests)('messagePostProcessingTask integration', (
 
     const startTime = Date.now();
 
-    await tasks.triggerAndPoll<typeof messagePostProcessingTask>(
-      'message-post-processing',
-      { messageId },
-      { pollIntervalMs: 2000 }
-    );
+    await triggerAndPollMessagePostProcessing({ messageId }, 2000);
 
     const duration = Date.now() - startTime;
 
@@ -203,11 +213,7 @@ describe.skipIf(skipIntegrationTests)('messagePostProcessingTask integration', (
     });
 
     // Should still process successfully
-    const result = await tasks.triggerAndPoll<typeof messagePostProcessingTask>(
-      'message-post-processing',
-      { messageId: largeMessageId },
-      { pollIntervalMs: 2000 }
-    );
+    const result = await triggerAndPollMessagePostProcessing({ messageId: largeMessageId }, 2000);
 
     expect(result).toBeDefined();
     expect(result.status).toBe('COMPLETED');
