@@ -61,12 +61,7 @@ const analystWorkflow = createWorkflow({
     formatOutputStep,
   ],
 })
-  .parallel([
-    generateChatTitleStep,
-    extractValuesSearchStep,
-    createTodosStep,
-    analysisTypeRouterStep,
-  ])
+  .parallel([generateChatTitleStep, extractValuesSearchStep, createTodosStep])
   .then(thinkAndPrepStep)
   .then(analystStep) // Always run analyst step - it will pass through if finished
   .then(markMessageCompleteStep)

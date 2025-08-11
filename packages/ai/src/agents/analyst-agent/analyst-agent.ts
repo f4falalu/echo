@@ -37,8 +37,6 @@ export const analystAgent = new Agent({
     modifyMetrics,
     createDashboards,
     modifyDashboards,
-    createReports,
-    editReports,
     doneTool,
   },
   defaultGenerateOptions: DEFAULT_OPTIONS,
