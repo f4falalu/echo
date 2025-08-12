@@ -1,11 +1,9 @@
 import { createRootRouteWithContext, HeadContent, Link, Scripts } from '@tanstack/react-router';
 import { AppProviders } from '@/context/AppProviders';
-import { BusterStyleProvider } from '@/context/BusterStyles';
-import Header from '../components/Header';
 import { getSupabaseUser } from '../integrations/supabase/getSupabaseUserContext';
 import { TanstackDevtools } from '../integrations/tanstack-dev-tools/tanstack-devtools';
 import type { AppRouterContext } from '../router';
-import appCss from '../styles.css?url';
+import appCss from '../styles/styles.scss?url';
 
 export const Route = createRootRouteWithContext<AppRouterContext>()({
   head: () => ({

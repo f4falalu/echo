@@ -1021,6 +1021,9 @@ importers:
       tailwind-merge:
         specifier: ^3.3.1
         version: 3.3.1
+      tailwind-scrollbar:
+        specifier: ^4.0.2
+        version: 4.0.2(react@19.1.1)(tailwindcss@4.1.11)
       tailwindcss:
         specifier: ^4.1.11
         version: 4.1.11
@@ -1082,6 +1085,9 @@ importers:
       jsdom:
         specifier: ^26.1.0
         version: 26.1.0
+      sass:
+        specifier: ^1.90.0
+        version: 1.90.0
       typescript:
         specifier: ^5.9.0
         version: 5.9.2
@@ -28257,6 +28263,12 @@ snapshots:
       clsx: 2.1.1
       react: 18.3.1
 
+  prism-react-renderer@2.4.1(react@19.1.1):
+    dependencies:
+      '@types/prismjs': 1.26.5
+      clsx: 2.1.1
+      react: 19.1.1
+
   process-nextick-args@2.0.1: {}
 
   process-on-spawn@1.1.0:
@@ -29767,6 +29779,13 @@ snapshots:
   tailwind-scrollbar@4.0.2(react@18.3.1)(tailwindcss@4.1.11):
     dependencies:
       prism-react-renderer: 2.4.1(react@18.3.1)
+      tailwindcss: 4.1.11
+    transitivePeerDependencies:
+      - react
+
+  tailwind-scrollbar@4.0.2(react@19.1.1)(tailwindcss@4.1.11):
+    dependencies:
+      prism-react-renderer: 2.4.1(react@19.1.1)
       tailwindcss: 4.1.11
     transitivePeerDependencies:
       - react
