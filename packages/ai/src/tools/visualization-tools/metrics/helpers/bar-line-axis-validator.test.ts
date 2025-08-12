@@ -1,285 +1,177 @@
-import { type MetricYml, MetricYmlSchema } from '@buster/server-shared/metrics';
 import { describe, expect, it } from 'vitest';
 import { validateAndAdjustBarLineAxes } from './bar-line-axis-validator';
+import type { ChartConfigProps } from '@buster/server-shared/metrics';
 
 describe('validateAndAdjustBarLineAxes', () => {
   it('should return unchanged config for non-bar/line charts', () => {
-    const metricYml = MetricYmlSchema.parse({
-      name: 'Pie Chart',
-      description: 'Test pie chart',
-      timeFrame: '2024',
-      sql: 'SELECT category, count FROM data',
-      chartConfig: {
-        selectedChartType: 'pie',
-        columnLabelFormats: {},
-      },
-    });
+    const chartConfig = {
+      selectedChartType: 'pie',
+      columnLabelFormats: {},
+    } as ChartConfigProps;
 
-    const result = validateAndAdjustBarLineAxes(metricYml.chartConfig);
-    expect(result).toEqual(metricYml.chartConfig);
+    const result = validateAndAdjustBarLineAxes(chartConfig);
+    expect(result).toEqual(chartConfig);
   });
 
   it('should return valid when Y axis has numeric columns', () => {
-    const metricYml = MetricYmlSchema.parse({
-      name: 'Sales by Month',
-      description: 'Monthly sales data',
-      timeFrame: '2024',
-      sql: 'SELECT month, sales FROM data',
-      chartConfig: {
-        selectedChartType: 'line',
-        columnLabelFormats: {
-          month: {
-            columnType: 'date',
-            style: 'date',
-            replaceMissingDataWith: null,
-            numberSeparatorStyle: null,
-          },
-          sales: {
-            columnType: 'number',
-            style: 'currency',
-            replaceMissingDataWith: 0,
-            numberSeparatorStyle: ',',
-          },
+    const chartConfig = {
+      selectedChartType: 'line',
+      columnLabelFormats: {
+        month: {
+          columnType: 'date',
         },
-        barAndLineAxis: {
-          x: ['month'],
-          y: ['sales'],
+        sales: {
+          columnType: 'number',
         },
       },
-    });
+      barAndLineAxis: {
+        x: ['month'],
+        y: ['sales'],
+      },
+    } as any;
 
-    const result = validateAndAdjustBarLineAxes(metricYml.chartConfig);
-    // Function returns the config directly if valid, not an object with isValid property
-    expect(result).toEqual(metricYml.chartConfig);
+    const result = validateAndAdjustBarLineAxes(chartConfig);
+    expect(result).toEqual(chartConfig);
   });
 
   it('should swap axes when Y has non-numeric and X has numeric columns', () => {
-    const metricYml = MetricYmlSchema.parse({
-      name: 'Sales Rep by Revenue',
-      description: 'Revenue by sales rep',
-      timeFrame: '2024',
-      sql: 'SELECT revenue, sales_rep FROM data',
-      chartConfig: {
-        selectedChartType: 'bar',
-        columnLabelFormats: {
-          revenue: {
-            columnType: 'number',
-            style: 'currency',
-            replaceMissingDataWith: 0,
-            numberSeparatorStyle: ',',
-          },
-          sales_rep: {
-            columnType: 'string',
-            style: 'string',
-            replaceMissingDataWith: null,
-            numberSeparatorStyle: null,
-          },
+    const chartConfig = {
+      selectedChartType: 'bar',
+      columnLabelFormats: {
+        revenue: {
+          columnType: 'number',
         },
-        barAndLineAxis: {
-          x: ['revenue'],
-          y: ['sales_rep'],
+        sales_rep: {
+          columnType: 'string',
         },
       },
-    });
+      barAndLineAxis: {
+        x: ['revenue'],
+        y: ['sales_rep'],
+      },
+    } as any;
 
-    const result = validateAndAdjustBarLineAxes(metricYml.chartConfig);
-    // Function returns adjusted config with swapped axes
+    const result = validateAndAdjustBarLineAxes(chartConfig);
     expect(result.barAndLineAxis?.x).toEqual(['sales_rep']);
     expect(result.barAndLineAxis?.y).toEqual(['revenue']);
   });
 
   it('should throw error when Y has non-numeric and X also has non-numeric columns', () => {
-    const metricYml = MetricYmlSchema.parse({
-      name: 'Categories by Region',
-      description: 'Product categories by region',
-      timeFrame: '2024',
-      sql: 'SELECT region, category FROM data',
-      chartConfig: {
-        selectedChartType: 'line',
-        columnLabelFormats: {
-          region: {
-            columnType: 'string',
-            style: 'string',
-            replaceMissingDataWith: null,
-            numberSeparatorStyle: null,
-          },
-          category: {
-            columnType: 'string',
-            style: 'string',
-            replaceMissingDataWith: null,
-            numberSeparatorStyle: null,
-          },
+    const chartConfig = {
+      selectedChartType: 'line',
+      columnLabelFormats: {
+        region: {
+          columnType: 'string',
         },
-        barAndLineAxis: {
-          x: ['region'],
-          y: ['category'],
+        category: {
+          columnType: 'string',
         },
       },
-    });
+      barAndLineAxis: {
+        x: ['region'],
+        y: ['category'],
+      },
+    } as any;
 
-    // Function throws an error for invalid configurations
-    expect(() => validateAndAdjustBarLineAxes(metricYml.chartConfig)).toThrowError(
+    expect(() => validateAndAdjustBarLineAxes(chartConfig)).toThrowError(
       /Bar and line charts require numeric values on the Y axis.*category \(string\)/
     );
   });
 
   it('should handle multiple columns on axes', () => {
-    const metricYml = MetricYmlSchema.parse({
-      name: 'Multi Column Chart',
-      description: 'Chart with multiple columns',
-      timeFrame: '2024',
-      sql: 'SELECT date, region, sales, profit FROM data',
-      chartConfig: {
-        selectedChartType: 'line',
-        columnLabelFormats: {
-          date: {
-            columnType: 'date',
-            style: 'date',
-            replaceMissingDataWith: null,
-            numberSeparatorStyle: null,
-          },
-          region: {
-            columnType: 'string',
-            style: 'string',
-            replaceMissingDataWith: null,
-            numberSeparatorStyle: null,
-          },
-          sales: {
-            columnType: 'number',
-            style: 'currency',
-            replaceMissingDataWith: 0,
-            numberSeparatorStyle: ',',
-          },
-          profit: {
-            columnType: 'number',
-            style: 'currency',
-            replaceMissingDataWith: 0,
-            numberSeparatorStyle: ',',
-          },
+    const chartConfig = {
+      selectedChartType: 'line',
+      columnLabelFormats: {
+        date: {
+          columnType: 'date',
         },
-        barAndLineAxis: {
-          x: ['date'],
-          y: ['sales', 'profit'],
+        region: {
+          columnType: 'string',
+        },
+        sales: {
+          columnType: 'number',
+        },
+        profit: {
+          columnType: 'number',
         },
       },
-    });
+      barAndLineAxis: {
+        x: ['date'],
+        y: ['sales', 'profit'],
+      },
+    } as any;
 
-    const result = validateAndAdjustBarLineAxes(metricYml.chartConfig);
-    expect(result).toEqual(metricYml.chartConfig);
+    const result = validateAndAdjustBarLineAxes(chartConfig);
+    expect(result).toEqual(chartConfig);
   });
 
-  it('should return error when Y has mixed numeric and non-numeric columns', () => {
-    const metricYml: MetricYml = {
-      name: 'Mixed Y Axis',
-      description: 'Chart with mixed column types on Y',
-      timeFrame: '2024',
-      sql: 'SELECT month, sales, category FROM data',
-      chartConfig: {
-        selectedChartType: 'bar',
-        columnLabelFormats: {
-          month: {
-            columnType: 'date',
-            style: 'date',
-            replaceMissingDataWith: null,
-            numberSeparatorStyle: null,
-          },
-          sales: {
-            columnType: 'number',
-            style: 'currency',
-            replaceMissingDataWith: 0,
-            numberSeparatorStyle: ',',
-          },
-          category: {
-            columnType: 'string',
-            style: 'string',
-            replaceMissingDataWith: null,
-            numberSeparatorStyle: null,
-          },
+  it('should throw error when Y has mixed numeric and non-numeric columns', () => {
+    const chartConfig = {
+      selectedChartType: 'bar',
+      columnLabelFormats: {
+        month: {
+          columnType: 'date',
         },
-        barAndLineAxis: {
-          x: ['month'],
-          y: ['sales', 'category'],
+        sales: {
+          columnType: 'number',
+        },
+        category: {
+          columnType: 'string',
         },
       },
-    };
+      barAndLineAxis: {
+        x: ['month'],
+        y: ['sales', 'category'],
+      },
+    } as any;
 
-    const result = validateAndAdjustBarLineAxes(metricYml);
-    expect(result.isValid).toBe(false);
-    expect(result.shouldSwapAxes).toBe(false);
-    expect(result.error).toContain('category (string)');
+    expect(() => validateAndAdjustBarLineAxes(chartConfig)).toThrowError(/category \(string\)/);
   });
 
   it('should handle date columns as non-numeric', () => {
-    const metricYml: MetricYml = {
-      name: 'Date on Y Axis',
-      description: 'Chart with date on Y axis',
-      timeFrame: '2024',
-      sql: 'SELECT sales, order_date FROM data',
-      chartConfig: {
-        selectedChartType: 'line',
-        columnLabelFormats: {
-          sales: {
-            columnType: 'number',
-            style: 'currency',
-            replaceMissingDataWith: 0,
-            numberSeparatorStyle: ',',
-          },
-          order_date: {
-            columnType: 'date',
-            style: 'date',
-            replaceMissingDataWith: null,
-            numberSeparatorStyle: null,
-          },
+    const chartConfig = {
+      selectedChartType: 'line',
+      columnLabelFormats: {
+        sales: {
+          columnType: 'number',
         },
-        barAndLineAxis: {
-          x: ['sales'],
-          y: ['order_date'],
+        order_date: {
+          columnType: 'date',
         },
       },
-    };
+      barAndLineAxis: {
+        x: ['sales'],
+        y: ['order_date'],
+      },
+    } as any;
 
-    const result = validateAndAdjustBarLineAxes(metricYml);
-    expect(result.isValid).toBe(true);
-    expect(result.shouldSwapAxes).toBe(true);
-    expect(result.adjustedYml?.chartConfig?.barAndLineAxis?.x).toEqual(['order_date']);
-    expect(result.adjustedYml?.chartConfig?.barAndLineAxis?.y).toEqual(['sales']);
+    const result = validateAndAdjustBarLineAxes(chartConfig);
+    expect(result.barAndLineAxis?.x).toEqual(['order_date']);
+    expect(result.barAndLineAxis?.y).toEqual(['sales']);
   });
 
   it('should handle missing barAndLineAxis gracefully', () => {
-    const metricYml: MetricYml = {
-      name: 'Missing Axis Config',
-      description: 'Chart without axis config',
-      timeFrame: '2024',
-      sql: 'SELECT * FROM data',
-      chartConfig: {
-        selectedChartType: 'bar',
-        columnLabelFormats: {},
-      },
-    };
+    const chartConfig = {
+      selectedChartType: 'bar',
+      columnLabelFormats: {},
+    } as any;
 
-    const result = validateAndAdjustBarLineAxes(metricYml);
-    expect(result.isValid).toBe(true);
-    expect(result.shouldSwapAxes).toBe(false);
+    const result = validateAndAdjustBarLineAxes(chartConfig);
+    expect(result).toEqual(chartConfig);
   });
 
-  it('should handle empty axis arrays', () => {
-    const metricYml: MetricYml = {
-      name: 'Empty Axes',
-      description: 'Chart with empty axes',
-      timeFrame: '2024',
-      sql: 'SELECT * FROM data',
-      chartConfig: {
-        selectedChartType: 'line',
-        columnLabelFormats: {},
-        barAndLineAxis: {
-          x: [],
-          y: [],
-        },
+  it('should throw error for empty axis arrays', () => {
+    const chartConfig = {
+      selectedChartType: 'line',
+      columnLabelFormats: {},
+      barAndLineAxis: {
+        x: [],
+        y: [],
       },
-    };
+    } as any;
 
-    const result = validateAndAdjustBarLineAxes(metricYml);
-    expect(result.isValid).toBe(false);
-    expect(result.shouldSwapAxes).toBe(false);
+    expect(() => validateAndAdjustBarLineAxes(chartConfig)).toThrowError(
+      /Bar and line charts require at least one column for each axis/
+    );
   });
 });
