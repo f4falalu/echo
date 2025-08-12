@@ -1,6 +1,6 @@
 import { updateMessageFields } from '@buster/database';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import type { ModifyMetricsAgentContext, ModifyMetricsInput } from './modify-metrics-tool';
+import type { ModifyMetricsContext, ModifyMetricsInput } from './modify-metrics-tool';
 import { createModifyMetricsTool } from './modify-metrics-tool';
 
 vi.mock('@buster/database', () => ({
@@ -8,14 +8,16 @@ vi.mock('@buster/database', () => ({
   createMessageFields: vi.fn(),
 }));
 
-vi.mock('../modify-metrics-file-tool', () => ({
-  modifyMetrics: {
-    execute: vi.fn(),
-  },
+vi.mock('./modify-metrics-execute', () => ({
+  createModifyMetricsExecute: vi.fn(() => vi.fn()),
 }));
 
 describe('modify-metrics-tool streaming integration', () => {
-  let context: ModifyMetricsAgentContext;
+  let context: ModifyMetricsContext;
+  const mockToolCallOptions = {
+    toolCallId: 'tool-call-123',
+    messages: [],
+  };
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -33,7 +35,7 @@ describe('modify-metrics-tool streaming integration', () => {
     const tool = createModifyMetricsTool(context);
 
     // Simulate streaming start
-    await tool.onInputStart?.({} as ModifyMetricsInput);
+    await tool.onInputStart?.(mockToolCallOptions);
 
     // Verify initial database entry was created
     expect(updateMessageFields).toHaveBeenCalledWith('msg-123', {
@@ -48,9 +50,15 @@ describe('modify-metrics-tool streaming integration', () => {
     });
 
     // Simulate streaming deltas
-    await tool.onInputDelta?.('{"files":[{"id":"metric-1"');
-    await tool.onInputDelta?.(',"yml_content":"name: Test');
-    await tool.onInputDelta?.(' Metric\\n"}]}');
+    await tool.onInputDelta?.({
+      inputTextDelta: '{"files":[{"id":"metric-1"',
+      ...mockToolCallOptions,
+    });
+    await tool.onInputDelta?.({
+      inputTextDelta: ',"yml_content":"name: Test',
+      ...mockToolCallOptions,
+    });
+    await tool.onInputDelta?.({ inputTextDelta: ' Metric\\n"}]}', ...mockToolCallOptions });
 
     // Verify database was updated during streaming
     const callCount = (updateMessageFields as any).mock.calls.length;
@@ -60,11 +68,11 @@ describe('modify-metrics-tool streaming integration', () => {
     const input: ModifyMetricsInput = {
       files: [{ id: 'metric-1', yml_content: 'name: Test Metric\n' }],
     };
-    await tool.onInputAvailable?.(input);
+    await tool.onInputAvailable?.({ input, ...mockToolCallOptions });
 
     // Mock successful execution
-    const { modifyMetrics } = await import('../modify-metrics-file-tool');
-    (modifyMetrics.execute as any).mockResolvedValue({
+    const { createModifyMetricsExecute } = await import('./modify-metrics-execute');
+    const mockExecute = vi.fn().mockResolvedValue({
       message: 'Success',
       duration: 100,
       files: [
@@ -81,11 +89,11 @@ describe('modify-metrics-tool streaming integration', () => {
     });
 
     // Execute the tool
-    const result = await tool.execute(input, {});
+    const result = await tool.execute?.(input, mockToolCallOptions);
 
     expect(result).toBeDefined();
-    expect(result.files).toHaveLength(1);
-    expect(result.files[0].name).toBe('Test Metric');
+    expect(result?.files).toHaveLength(1);
+    expect(result?.files?.[0]?.name).toBe('Test Metric');
   });
 
   it('should handle streaming without messageId', async () => {
@@ -93,13 +101,16 @@ describe('modify-metrics-tool streaming integration', () => {
     const tool = createModifyMetricsTool(context);
 
     // Simulate streaming start
-    await tool.onInputStart?.({} as ModifyMetricsInput);
+    await tool.onInputStart?.(mockToolCallOptions);
 
     // Should not update database without messageId
     expect(updateMessageFields).not.toHaveBeenCalled();
 
     // Simulate streaming deltas
-    await tool.onInputDelta?.('{"files":[{"id":"metric-1","yml_content":"content"}]}');
+    await tool.onInputDelta?.({
+      inputTextDelta: '{"files":[{"id":"metric-1","yml_content":"content"}]}',
+      ...mockToolCallOptions,
+    });
 
     // Still should not update database
     expect(updateMessageFields).not.toHaveBeenCalled();
@@ -108,14 +119,14 @@ describe('modify-metrics-tool streaming integration', () => {
     const input: ModifyMetricsInput = {
       files: [{ id: 'metric-1', yml_content: 'content' }],
     };
-    await tool.onInputAvailable?.(input);
+    await tool.onInputAvailable?.({ input, ...mockToolCallOptions });
 
     // Still no database updates
     expect(updateMessageFields).not.toHaveBeenCalled();
 
     // Mock successful execution
-    const { modifyMetrics } = await import('../modify-metrics-file-tool');
-    (modifyMetrics.execute as any).mockResolvedValue({
+    const { createModifyMetricsExecute } = await import('./modify-metrics-execute');
+    const mockExecute = vi.fn().mockResolvedValue({
       message: 'Success',
       duration: 100,
       files: [
@@ -132,21 +143,21 @@ describe('modify-metrics-tool streaming integration', () => {
     });
 
     // Tool should still execute successfully without messageId
-    const result = await tool.execute(input, {});
+    const result = await tool.execute?.(input, mockToolCallOptions);
 
     expect(result).toBeDefined();
-    expect(result.files).toHaveLength(1);
+    expect(result?.files).toHaveLength(1);
   });
 
   it('should handle partial streaming with incomplete JSON', async () => {
     const tool = createModifyMetricsTool(context);
 
-    await tool.onInputStart?.({} as ModifyMetricsInput);
+    await tool.onInputStart?.(mockToolCallOptions);
 
     // Send incomplete JSON chunks
-    await tool.onInputDelta?.('{"files":[');
-    await tool.onInputDelta?.('{"id":"metric-1",');
-    await tool.onInputDelta?.('"yml_content":"partial');
+    await tool.onInputDelta?.({ inputTextDelta: '{"files":[', ...mockToolCallOptions });
+    await tool.onInputDelta?.({ inputTextDelta: '{"id":"metric-1",', ...mockToolCallOptions });
+    await tool.onInputDelta?.({ inputTextDelta: '"yml_content":"partial', ...mockToolCallOptions });
 
     // Database should be updated with partial progress
     const calls = (updateMessageFields as any).mock.calls;
@@ -161,14 +172,23 @@ describe('modify-metrics-tool streaming integration', () => {
   it('should handle multiple files streaming', async () => {
     const tool = createModifyMetricsTool(context);
 
-    await tool.onInputStart?.({} as ModifyMetricsInput);
+    await tool.onInputStart?.(mockToolCallOptions);
 
     // Stream multiple files
-    await tool.onInputDelta?.('{"files":[');
-    await tool.onInputDelta?.('{"id":"m1","yml_content":"content1"},');
-    await tool.onInputDelta?.('{"id":"m2","yml_content":"content2"},');
-    await tool.onInputDelta?.('{"id":"m3","yml_content":"content3"}');
-    await tool.onInputDelta?.(']}');
+    await tool.onInputDelta?.({ inputTextDelta: '{"files":[', ...mockToolCallOptions });
+    await tool.onInputDelta?.({
+      inputTextDelta: '{"id":"m1","yml_content":"content1"},',
+      ...mockToolCallOptions,
+    });
+    await tool.onInputDelta?.({
+      inputTextDelta: '{"id":"m2","yml_content":"content2"},',
+      ...mockToolCallOptions,
+    });
+    await tool.onInputDelta?.({
+      inputTextDelta: '{"id":"m3","yml_content":"content3"}',
+      ...mockToolCallOptions,
+    });
+    await tool.onInputDelta?.({ inputTextDelta: ']}', ...mockToolCallOptions });
 
     const input: ModifyMetricsInput = {
       files: [
@@ -178,11 +198,11 @@ describe('modify-metrics-tool streaming integration', () => {
       ],
     };
 
-    await tool.onInputAvailable?.(input);
+    await tool.onInputAvailable?.({ input, ...mockToolCallOptions });
 
     // Mock mixed results
-    const { modifyMetrics } = await import('../modify-metrics-file-tool');
-    (modifyMetrics.execute as any).mockResolvedValue({
+    const { createModifyMetricsExecute } = await import('./modify-metrics-execute');
+    (createModifyMetricsExecute as any).mockResolvedValue({
       message: 'Partial success',
       duration: 200,
       files: [
@@ -211,10 +231,10 @@ describe('modify-metrics-tool streaming integration', () => {
       ],
     });
 
-    const result = await tool.execute(input, {});
+    const result = await tool.execute?.(input, mockToolCallOptions);
 
-    expect(result.files).toHaveLength(2);
-    expect(result.failed_files).toHaveLength(1);
+    expect(result?.files).toHaveLength(2);
+    expect(result?.failed_files).toHaveLength(1);
   });
 
   it('should handle execution failure', async () => {
@@ -224,14 +244,14 @@ describe('modify-metrics-tool streaming integration', () => {
       files: [{ id: 'metric-1', yml_content: 'invalid content' }],
     };
 
-    await tool.onInputStart?.(input);
-    await tool.onInputAvailable?.(input);
+    await tool.onInputStart?.(mockToolCallOptions);
+    await tool.onInputAvailable?.({ input, ...mockToolCallOptions });
 
     // Mock execution failure
-    const { modifyMetrics } = await import('../modify-metrics-file-tool');
-    (modifyMetrics.execute as any).mockRejectedValue(new Error('Execution failed'));
+    const { createModifyMetricsExecute } = await import('./modify-metrics-execute');
+    (createModifyMetricsExecute as any).mockRejectedValue(new Error('Execution failed'));
 
-    await expect(tool.execute(input, {})).rejects.toThrow('Execution failed');
+    await expect(tool.execute?.(input, mockToolCallOptions)).rejects.toThrow('Execution failed');
 
     // Database should be updated with failure status
     const calls = (updateMessageFields as any).mock.calls;
@@ -249,18 +269,21 @@ describe('modify-metrics-tool streaming integration', () => {
     const tool = createModifyMetricsTool(context);
 
     // All operations should continue despite database errors
-    await tool.onInputStart?.({} as ModifyMetricsInput);
-    await tool.onInputDelta?.('{"files":[{"id":"m1","yml_content":"c1"}]}');
+    await tool.onInputStart?.(mockToolCallOptions);
+    await tool.onInputDelta?.({
+      inputTextDelta: '{"files":[{"id":"m1","yml_content":"c1"}]}',
+      ...mockToolCallOptions,
+    });
 
     const input: ModifyMetricsInput = {
       files: [{ id: 'm1', yml_content: 'c1' }],
     };
 
-    await tool.onInputAvailable?.(input);
+    await tool.onInputAvailable?.({ input, ...mockToolCallOptions });
 
     // Mock successful execution
-    const { modifyMetrics } = await import('../modify-metrics-file-tool');
-    (modifyMetrics.execute as any).mockResolvedValue({
+    const { createModifyMetricsExecute } = await import('./modify-metrics-execute');
+    const mockExecute = vi.fn().mockResolvedValue({
       message: 'Success',
       duration: 50,
       files: [
@@ -275,10 +298,11 @@ describe('modify-metrics-tool streaming integration', () => {
       ],
       failed_files: [],
     });
+    (createModifyMetricsExecute as any).mockImplementation(mockExecute);
 
     // Tool should still execute successfully despite database errors
-    const result = await tool.execute(input, {});
-    expect(result.files).toHaveLength(1);
+    const result = await tool.execute?.(input, mockToolCallOptions);
+    expect(result?.files).toHaveLength(1);
   });
 
   it('should properly track state throughout streaming', async () => {
@@ -288,11 +312,11 @@ describe('modify-metrics-tool streaming integration', () => {
     let capturedState: any = null;
 
     // Override execute to capture state
-    const originalExecute = tool.execute;
+    const originalExecute = tool.execute!;
     tool.execute = async (input: ModifyMetricsInput, options: any) => {
       // The state should be populated by this point
-      const { modifyMetrics } = await import('../modify-metrics-file-tool');
-      (modifyMetrics.execute as any).mockImplementation(async () => {
+      const { createModifyMetricsExecute } = await import('./modify-metrics-execute');
+      (createModifyMetricsExecute as any).mockImplementation(async () => {
         // Capture state during execution
         capturedState = {
           hasToolCallId: true, // State should have toolCallId
@@ -308,15 +332,18 @@ describe('modify-metrics-tool streaming integration', () => {
       return originalExecute(input, options);
     };
 
-    await tool.onInputStart?.({} as ModifyMetricsInput);
-    await tool.onInputDelta?.('{"files":[{"id":"m1","yml_content":"content"}]}');
+    await tool.onInputStart?.(mockToolCallOptions);
+    await tool.onInputDelta?.({
+      inputTextDelta: '{"files":[{"id":"m1","yml_content":"content"}]}',
+      ...mockToolCallOptions,
+    });
 
     const input: ModifyMetricsInput = {
       files: [{ id: 'm1', yml_content: 'content' }],
     };
 
-    await tool.onInputAvailable?.(input);
-    await tool.execute(input, {});
+    await tool.onInputAvailable?.({ input, ...mockToolCallOptions });
+    await tool.execute?.(input, mockToolCallOptions);
 
     expect(capturedState).toBeTruthy();
     expect(capturedState.hasToolCallId).toBe(true);

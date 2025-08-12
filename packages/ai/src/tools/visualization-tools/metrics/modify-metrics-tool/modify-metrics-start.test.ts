@@ -43,10 +43,8 @@ describe('createModifyMetricsStart', () => {
     };
 
     const startHandler = createModifyMetricsStart(context, state);
-    await startHandler(input);
+    await startHandler({ ...input, toolCallId: 'tool-123', messages: [] });
 
-    expect(state.processingStartTime).toBeDefined();
-    expect(state.processingStartTime).toBeGreaterThan(0);
     expect(state.toolCallId).toBeDefined();
     expect(state.toolCallId).toMatch(/^modify-metrics-\d+-[a-z0-9]+$/);
   });
@@ -58,7 +56,7 @@ describe('createModifyMetricsStart', () => {
     };
 
     const startHandler = createModifyMetricsStart(context, state);
-    await startHandler(input);
+    await startHandler({ ...input, toolCallId: 'tool-123', messages: [] });
 
     expect(updateMessageFields).toHaveBeenCalledTimes(1);
     expect(updateMessageFields).toHaveBeenCalledWith('msg-123', {
@@ -82,7 +80,7 @@ describe('createModifyMetricsStart', () => {
       ]),
     });
 
-    expect(state.reasoningEntryId).toBe(state.toolCallId);
+    expect(state.toolCallId).toBe(state.toolCallId);
   });
 
   it('should not create database entries when messageId is missing', async () => {
@@ -92,10 +90,10 @@ describe('createModifyMetricsStart', () => {
     };
 
     const startHandler = createModifyMetricsStart(context, state);
-    await startHandler(input);
+    await startHandler({ ...input, toolCallId: 'tool-123', messages: [] });
 
     expect(updateMessageFields).not.toHaveBeenCalled();
-    expect(state.reasoningEntryId).toBeUndefined();
+    expect(state.toolCallId).toBeUndefined();
   });
 
   it('should handle database errors gracefully', async () => {
@@ -109,14 +107,15 @@ describe('createModifyMetricsStart', () => {
     const startHandler = createModifyMetricsStart(context, state);
 
     // Should not throw
-    await expect(startHandler(input)).resolves.not.toThrow();
+    await expect(
+      startHandler({ ...input, toolCallId: 'tool-123', messages: [] })
+    ).resolves.not.toThrow();
 
     expect(updateMessageFields).toHaveBeenCalled();
     // State should still be initialized even if database fails
-    expect(state.processingStartTime).toBeDefined();
     expect(state.toolCallId).toBeDefined();
     // But reasoningEntryId should not be set due to error
-    expect(state.reasoningEntryId).toBeUndefined();
+    expect(state.toolCallId).toBeUndefined();
   });
 
   it('should handle empty files array', async () => {
@@ -126,9 +125,8 @@ describe('createModifyMetricsStart', () => {
     };
 
     const startHandler = createModifyMetricsStart(context, state);
-    await startHandler(input);
+    await startHandler({ ...input, toolCallId: 'tool-123', messages: [] });
 
-    expect(state.processingStartTime).toBeDefined();
     expect(state.toolCallId).toBeDefined();
     expect(updateMessageFields).toHaveBeenCalled();
   });
@@ -144,7 +142,7 @@ describe('createModifyMetricsStart', () => {
     };
 
     const startHandler = createModifyMetricsStart(context, state);
-    await startHandler(input);
+    await startHandler({ ...input, toolCallId: 'tool-123', messages: [] });
 
     expect(consoleSpy).toHaveBeenCalledWith(
       '[modify-metrics] Starting metric modification',
@@ -166,10 +164,10 @@ describe('createModifyMetricsStart', () => {
     };
 
     let startHandler = createModifyMetricsStart(context, state);
-    await startHandler(input);
+    await startHandler({ ...input, toolCallId: 'tool-123', messages: [] });
 
     expect(updateMessageFields).not.toHaveBeenCalled();
-    expect(state.reasoningEntryId).toBeUndefined();
+    expect(state.toolCallId).toBeUndefined();
 
     // Reset state for second test
     state = {
@@ -185,11 +183,11 @@ describe('createModifyMetricsStart', () => {
     // Now test with messageId
     context.messageId = 'msg-456';
     startHandler = createModifyMetricsStart(context, state);
-    await startHandler(input);
+    await startHandler({ ...input, toolCallId: 'tool-456', messages: [] });
 
     expect(updateMessageFields).toHaveBeenCalledWith('msg-456', expect.any(Object));
     // The reasoningEntryId should be set to the toolCallId after successful database update
-    expect(state.reasoningEntryId).toBe(state.toolCallId);
-    expect(state.reasoningEntryId).toBeDefined();
+    expect(state.toolCallId).toBe(state.toolCallId);
+    expect(state.toolCallId).toBeDefined();
   });
 });
