@@ -1,83 +1,65 @@
-import { updateMessageFields } from '@buster/database';
-import {
-  createModifyMetricsRawLlmMessageEntry,
-  createModifyMetricsReasoningMessage,
-} from './helpers/modify-metrics-tool-transform-helper';
+import { updateMessageEntries } from '@buster/database';
+import type { ToolCallOptions } from 'ai';
 import type {
-  ModifyMetricsAgentContext,
+  ModifyMetricsContext,
   ModifyMetricsInput,
   ModifyMetricsState,
 } from './modify-metrics-tool';
+import {
+  createModifyMetricsRawLlmMessageEntry,
+  createModifyMetricsReasoningEntry,
+} from './helpers/modify-metrics-tool-transform-helper';
 
-export function createModifyMetricsFinish<
-  TAgentContext extends ModifyMetricsAgentContext = ModifyMetricsAgentContext,
->(context: TAgentContext, state: ModifyMetricsState) {
-  return async (input: ModifyMetricsInput) => {
-    const fileCount = input.files?.length || 0;
-    const messageId = context?.messageId;
-    const fileIds = input.files?.map((f) => f.id) || [];
+export function createModifyMetricsFinish(
+  context: ModifyMetricsContext,
+  state: ModifyMetricsState
+) {
+  return async (options: { input: ModifyMetricsInput } & ToolCallOptions) => {
+    const input = options.input;
 
-    // Store complete input in state
-    state.parsedArgs = input;
-
-    // Update state files with final data
-    state.files = input.files.map((file) => ({
-      id: file.id,
-      yml_content: file.yml_content,
-      name: undefined, // Name will be populated from backend response
-      status: 'processing' as const,
-    }));
-
-    console.info('[modify-metrics] Input fully available', {
-      fileCount,
-      fileIds,
-      messageId,
-      timestamp: new Date().toISOString(),
-    });
-
-    // Update database with final state if we have both messageId and reasoningEntryId
-    if (messageId && state.reasoningEntryId) {
-      try {
-        // Create final reasoning entry
-        const reasoningEntry = createModifyMetricsReasoningMessage(
-          state.toolCallId || `modify-metrics-${Date.now()}`,
-          state.files,
-          'loading' // Still loading until execution completes
-        );
-
-        // Create raw LLM message entry with full args
-        const rawLlmEntry = createModifyMetricsRawLlmMessageEntry(
-          state.toolCallId || `modify-metrics-${Date.now()}`,
-          'modify-metrics-file',
-          state.parsedArgs
-        );
-
-        console.info('[modify-metrics] Updating database with final input', {
-          messageId,
-          fileCount,
-          toolCallId: state.toolCallId,
-        });
-
-        await updateMessageFields(messageId, {
-          reasoning: [reasoningEntry],
-          rawLlmMessages: [rawLlmEntry],
-        });
-      } catch (error) {
-        console.error('[modify-metrics] Failed to update database with final input', {
-          messageId,
-          error: error instanceof Error ? error.message : 'Unknown error',
-        });
-        // Continue processing even if database update fails
-      }
+    if (input.files) {
+      state.files = input.files.map((file, index) => {
+        const existingFile = state.files?.[index];
+        return {
+          id: file.id,
+          file_name: existingFile?.file_name,
+          file_type: 'metric',
+          version_number: existingFile?.version_number || 1,
+          file: {
+            text: file.yml_content,
+          },
+          yml_content: file.yml_content,
+          status: existingFile?.status || 'loading',
+        };
+      });
     }
 
-    // Log processing time if available
-    if (state.processingStartTime) {
-      const processingTime = Date.now() - state.processingStartTime;
-      console.info('[modify-metrics] Input processing time', {
-        processingTimeMs: processingTime,
-        processingTimeSeconds: (processingTime / 1000).toFixed(2),
-      });
+    // Update database with both reasoning and raw LLM entries
+    if (context.messageId && state.toolCallId) {
+      try {
+        const reasoningEntry = createModifyMetricsReasoningEntry(state, options.toolCallId);
+        const rawLlmMessage = createModifyMetricsRawLlmMessageEntry(state, options.toolCallId);
+
+        // Update both entries together if they exist
+        const updates: Parameters<typeof updateMessageEntries>[0] = {
+          messageId: context.messageId,
+          mode: 'update',
+        };
+
+        if (reasoningEntry) {
+          updates.responseEntry = reasoningEntry;
+        }
+
+        if (rawLlmMessage) {
+          updates.rawLlmMessage = rawLlmMessage;
+        }
+
+        if (reasoningEntry || rawLlmMessage) {
+          await updateMessageEntries(updates);
+        }
+      } catch (error) {
+        console.error('[modify-metrics] Error updating entries on finish:', error);
+      }
     }
   };
 }

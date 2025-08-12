@@ -1,5 +1,5 @@
 import type { DataSource } from '@buster/data-source';
-import { db, metricFiles, updateMessageFields } from '@buster/database';
+import { db, metricFiles, updateMessageEntries } from '@buster/database';
 import { wrapTraced } from 'braintrust';
 import { eq, inArray } from 'drizzle-orm';
 import * as yaml from 'yaml';
@@ -16,11 +16,14 @@ import {
   addMetricVersionToHistory,
   getLatestVersionNumber,
   validateMetricYml,
-} from '../version-history-helpers';
-import type { MetricYml, VersionHistory } from '../version-history-types';
-import { createModifyMetricsReasoningMessage } from './helpers/modify-metrics-tool-transform-helper';
+} from '../../version-history-helpers';
+import type { MetricYml, VersionHistory } from '../../version-history-types';
+import {
+  createModifyMetricsRawLlmMessageEntry,
+  createModifyMetricsReasoningEntry,
+} from './helpers/modify-metrics-tool-transform-helper';
 import type {
-  ModifyMetricsAgentContext,
+  ModifyMetricsContext,
   ModifyMetricsInput,
   ModifyMetricsOutput,
   ModifyMetricsState,
@@ -76,7 +79,7 @@ interface UpdateFilesParams {
 }
 
 interface FailedFileModification {
-  file_name: string;
+  id: string;
   error: string;
 }
 
@@ -91,12 +94,6 @@ interface FileWithId {
   version_number: number;
 }
 
-interface ModifyFilesOutput {
-  message: string;
-  duration: number;
-  files: FileWithId[];
-  failed_files: FailedFileModification[];
-}
 
 interface ModificationResult {
   file_id: string;
@@ -415,14 +412,7 @@ async function validateSql(
       error: error instanceof Error ? error.message : 'SQL validation failed',
     };
   } finally {
-    // Always close the data source to clean up connections
-    if (dataSource) {
-      try {
-        await dataSource.close();
-      } catch (closeError) {
-        console.warn('[modify-metrics] Error closing data source:', closeError);
-      }
-    }
+    // Data source cleanup handled by getDataSource
   }
 }
 
@@ -616,8 +606,9 @@ async function processMetricFileUpdate(
 const modifyMetricFiles = wrapTraced(
   async (
     params: UpdateFilesParams,
-    context: ModifyMetricsAgentContext
-  ): Promise<ModifyFilesOutput> => {
+    context: ModifyMetricsContext,
+    state?: ModifyMetricsState
+  ): Promise<ModifyMetricsOutput> => {
     const startTime = Date.now();
 
     // Get context values
@@ -630,7 +621,6 @@ const modifyMetricFiles = wrapTraced(
     if (!dataSourceId) {
       return {
         message: 'Data source ID not found in runtime context',
-        duration: Date.now() - startTime,
         files: [],
         failed_files: [],
       };
@@ -638,7 +628,6 @@ const modifyMetricFiles = wrapTraced(
     if (!userId) {
       return {
         message: 'User ID not found in runtime context',
-        duration: Date.now() - startTime,
         files: [],
         failed_files: [],
       };
@@ -646,7 +635,6 @@ const modifyMetricFiles = wrapTraced(
     if (!organizationId) {
       return {
         message: 'Organization ID not found in runtime context',
-        duration: Date.now() - startTime,
         files: [],
         failed_files: [],
       };
@@ -670,7 +658,6 @@ const modifyMetricFiles = wrapTraced(
       if (existingFiles.length === 0) {
         return {
           message: 'No metric files found with the provided IDs',
-          duration: Date.now() - startTime,
           files: [],
           failed_files: [],
         };
@@ -735,7 +722,7 @@ const modifyMetricFiles = wrapTraced(
           });
         } else {
           failedFiles.push({
-            file_name: 'fileName' in result ? result.fileName : 'Unknown file',
+            id: existingFile.id,
             error: `Failed to modify '${result.fileName}': ${result.error}.
 
 Please attempt to modify the metric again. This error could be due to:
@@ -811,7 +798,6 @@ Please attempt to modify the metric again. This error could be due to:
     } catch (error) {
       return {
         message: `Failed to modify metric files: ${error instanceof Error ? error.message : 'Unknown error'}`,
-        duration: Date.now() - startTime,
         files: [],
         failed_files: [],
       };
@@ -845,7 +831,6 @@ Please attempt to modify the metric again. This error could be due to:
 
     return {
       message,
-      duration: Date.now() - startTime,
       files,
       failed_files: failedFiles,
     };
@@ -853,99 +838,153 @@ Please attempt to modify the metric again. This error could be due to:
   { name: 'modify-metric-files' }
 );
 
-export function createModifyMetricsExecute<
-  TAgentContext extends ModifyMetricsAgentContext = ModifyMetricsAgentContext,
->(context: TAgentContext, state: ModifyMetricsState) {
+export function createModifyMetricsExecute(
+  context: ModifyMetricsContext,
+  state: ModifyMetricsState
+) {
   return wrapTraced(
     async (input: ModifyMetricsInput): Promise<ModifyMetricsOutput> => {
       const startTime = Date.now();
       const messageId = context?.messageId;
 
       try {
-        // Call the main function directly instead of delegating
-        const result = await modifyMetricFiles(input as UpdateFilesParams, context);
+        // Call the main function directly, passing state for tracking
+        const result = await modifyMetricFiles(input as UpdateFilesParams, context, state);
 
-        // Update state files with results
-        if (result.files && Array.isArray(result.files)) {
-          result.files.forEach((file) => {
-            const stateFile = state.files.find((f) => f.id === file.id);
-            if (stateFile) {
-              stateFile.status = 'completed';
-              stateFile.name = file.name;
-              stateFile.version = file.version_number;
-            }
-          });
-        }
+        // Update state files with final results (IDs, versions, status)
+        if (result && typeof result === 'object') {
+          const typedResult = result as ModifyMetricsOutput;
+          // Ensure state.files is initialized for safe mutations below
+          state.files = state.files ?? [];
 
-        // Handle failed files
-        if (result.failed_files && Array.isArray(result.failed_files)) {
-          result.failed_files.forEach((failedFile) => {
-            // Try to match by name since failed files might not have IDs
-            const stateFile = state.files.find((f) => f.name === failedFile.file_name);
-            if (stateFile) {
-              stateFile.status = 'failed';
-              stateFile.error = failedFile.error;
-            }
-          });
-        }
-
-        // Create final reasoning entry if messageId exists
-        if (messageId && state.reasoningEntryId) {
-          try {
-            const finalStatus = result.failed_files?.length > 0 ? 'completed' : 'completed';
-            const reasoningEntry = createModifyMetricsReasoningMessage(
-              state.toolCallId || `modify-metrics-${Date.now()}`,
-              state.files,
-              finalStatus
-            );
-
-            console.info('[modify-metrics] Updating database with execution results', {
-              messageId,
-              successCount: result.files?.length || 0,
-              failedCount: result.failed_files?.length || 0,
-              executionTime: Date.now() - startTime,
-            });
-
-            await updateMessageFields(messageId, {
-              reasoning: [reasoningEntry],
-            });
-          } catch (error) {
-            console.error('[modify-metrics] Failed to update database with execution results', {
-              messageId,
-              error: error instanceof Error ? error.message : 'Unknown error',
+          // Update successful files
+          if (typedResult.files && Array.isArray(typedResult.files)) {
+            typedResult.files.forEach((file) => {
+              const stateFile = (state.files ?? []).find((f) => f.id === file.id);
+              if (stateFile) {
+                stateFile.file_name = file.name;
+                stateFile.version_number = file.version_number;
+                stateFile.status = 'completed';
+              }
             });
           }
+
+          // Update failed files
+          if (typedResult.failed_files && Array.isArray(typedResult.failed_files)) {
+            typedResult.failed_files.forEach((failedFile) => {
+              const stateFile = (state.files ?? []).find((f) => f.id === failedFile.id);
+              if (stateFile) {
+                stateFile.status = 'failed';
+                // Store error in yml_content field temporarily
+                stateFile.yml_content = failedFile.error;
+              }
+            });
+          }
+
+          // Update last entries if we have a messageId
+          if (context.messageId) {
+            try {
+              const finalStatus = typedResult.failed_files?.length ? 'failed' : 'completed';
+              const toolCallId = state.toolCallId || `tool-${Date.now()}`;
+
+              // Update state for final status
+              if (state.files) {
+                state.files.forEach((f) => {
+                  if (!f.status || f.status === 'loading') {
+                    f.status = finalStatus === 'failed' ? 'failed' : 'completed';
+                  }
+                });
+              }
+
+              const reasoningEntry = createModifyMetricsReasoningEntry(state, toolCallId);
+              const rawLlmMessage = createModifyMetricsRawLlmMessageEntry(state, toolCallId);
+
+              const updates: Parameters<typeof updateMessageEntries>[0] = {
+                messageId: context.messageId,
+                mode: 'update',
+              };
+
+              if (reasoningEntry) {
+                updates.responseEntry = reasoningEntry;
+              }
+
+              if (rawLlmMessage) {
+                updates.rawLlmMessage = rawLlmMessage;
+              }
+
+              if (reasoningEntry || rawLlmMessage) {
+                await updateMessageEntries(updates);
+              }
+
+              console.info('[modify-metrics] Updated last entries with final results', {
+                messageId: context.messageId,
+                successCount: typedResult.files?.length || 0,
+                failedCount: typedResult.failed_files?.length || 0,
+              });
+            } catch (error) {
+              console.error('[modify-metrics] Error updating final entries:', error);
+              // Don't throw - return the result anyway
+            }
+          }
         }
+
+        const executionTime = Date.now() - startTime;
+        console.info('[modify-metrics] Execution completed', {
+          executionTime: `${executionTime}ms`,
+          filesModified: result?.files?.length || 0,
+          filesFailed: result?.failed_files?.length || 0,
+        });
 
         return result as ModifyMetricsOutput;
       } catch (error) {
-        // Update all files as failed if execution throws
-        state.files.forEach((file) => {
-          file.status = 'failed';
-          file.error = error instanceof Error ? error.message : 'Unknown error';
-        });
+        console.error('[modify-metrics] Execution error:', error);
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
 
-        // Update database with failure status
-        if (messageId && state.reasoningEntryId) {
+        // Create error response
+        const errorResult: ModifyMetricsOutput = {
+          message: `Failed to modify metrics: ${errorMessage}`,
+          files: [],
+          failed_files: input.files.map((file) => ({
+            id: file.id,
+            error: errorMessage,
+          })),
+        };
+
+        // Update state for errors
+        if (state.files) {
+          state.files.forEach((f) => {
+            f.status = 'failed';
+          });
+        }
+
+        // Try to update database with error state
+        if (context.messageId && state.toolCallId) {
           try {
-            const reasoningEntry = createModifyMetricsReasoningMessage(
-              state.toolCallId || `modify-metrics-${Date.now()}`,
-              state.files,
-              'failed'
-            );
+            const reasoningEntry = createModifyMetricsReasoningEntry(state, state.toolCallId);
+            const rawLlmMessage = createModifyMetricsRawLlmMessageEntry(state, state.toolCallId);
 
-            await updateMessageFields(messageId, {
-              reasoning: [reasoningEntry],
-            });
+            const updates: Parameters<typeof updateMessageEntries>[0] = {
+              messageId: context.messageId,
+              mode: 'update',
+            };
+
+            if (reasoningEntry) {
+              updates.responseEntry = reasoningEntry;
+            }
+
+            if (rawLlmMessage) {
+              updates.rawLlmMessage = rawLlmMessage;
+            }
+
+            if (reasoningEntry || rawLlmMessage) {
+              await updateMessageEntries(updates);
+            }
           } catch (dbError) {
-            console.error('[modify-metrics] Failed to update database with error status', {
-              messageId,
-              error: dbError instanceof Error ? dbError.message : 'Unknown error',
-            });
+            console.error('[modify-metrics] Error updating database with error state:', dbError);
           }
         }
 
-        throw error;
+        return errorResult;
       }
     },
     { name: 'modify-metrics-execute' }

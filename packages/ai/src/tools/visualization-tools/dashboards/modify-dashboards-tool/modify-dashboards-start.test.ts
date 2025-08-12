@@ -130,7 +130,7 @@ describe('modify-dashboards-start', () => {
     const onInputStart = createModifyDashboardsStart(contextWithMessageId, state);
     await onInputStart(mockOptions);
 
-    // Since there are no files, createModifyDashboardsReasoningEntry and 
+    // Since there are no files, createModifyDashboardsReasoningEntry and
     // createModifyDashboardsRawLlmMessageEntry will return undefined,
     // so updateMessageEntries should not be called
     expect(updateMessageEntries).not.toHaveBeenCalled();
@@ -155,7 +155,7 @@ describe('modify-dashboards-start', () => {
     };
 
     const onInputStart = createModifyDashboardsStart(contextWithMessageId, state);
-    
+
     // First call
     await onInputStart({ ...mockOptions, toolCallId: 'tool-123' });
     expect(state.toolCallId).toBe('tool-123');

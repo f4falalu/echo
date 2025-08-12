@@ -22,10 +22,7 @@ const TOOL_KEYS = {
   yml_content: 'yml_content' as const,
 };
 
-export function createCreateMetricsDelta(
-  context: CreateMetricsContext,
-  state: CreateMetricsState
-) {
+export function createCreateMetricsDelta(context: CreateMetricsContext, state: CreateMetricsState) {
   return async (options: { inputTextDelta: string } & ToolCallOptions) => {
     // Handle string deltas (accumulate JSON text)
     state.argsText = (state.argsText || '') + options.inputTextDelta;

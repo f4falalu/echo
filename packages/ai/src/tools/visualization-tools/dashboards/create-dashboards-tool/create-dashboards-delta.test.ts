@@ -215,7 +215,7 @@ describe('createDashboardsDelta', () => {
         isComplete: true,
         extractedValues: new Map(),
       });
-      
+
       // Mock getOptimisticValue to return empty array for files
       getOptimisticValue.mockImplementation((map, key, defaultValue) => {
         if (key === 'files') return [];

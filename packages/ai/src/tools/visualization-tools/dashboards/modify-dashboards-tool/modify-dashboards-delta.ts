@@ -4,15 +4,15 @@ import {
   OptimisticJsonParser,
   getOptimisticValue,
 } from '../../../../utils/streaming/optimistic-json-parser';
+import {
+  createModifyDashboardsRawLlmMessageEntry,
+  createModifyDashboardsReasoningEntry,
+} from './helpers/modify-dashboards-transform-helper';
 import type {
   ModifyDashboardStateFile,
   ModifyDashboardsContext,
   ModifyDashboardsState,
 } from './modify-dashboards-tool';
-import {
-  createModifyDashboardsRawLlmMessageEntry,
-  createModifyDashboardsReasoningEntry,
-} from './helpers/modify-dashboards-transform-helper';
 
 // Define TOOL_KEYS locally since we removed them from the helper
 const TOOL_KEYS = {

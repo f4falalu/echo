@@ -1,69 +1,46 @@
-import { createMessageFields, updateMessageFields } from '@buster/database';
+import { updateMessageEntries } from '@buster/database';
+import type { ToolCallOptions } from 'ai';
+import type { ModifyMetricsContext, ModifyMetricsState } from './modify-metrics-tool';
 import {
   createModifyMetricsRawLlmMessageEntry,
-  createModifyMetricsReasoningMessage,
+  createModifyMetricsReasoningEntry,
 } from './helpers/modify-metrics-tool-transform-helper';
-import type {
-  ModifyMetricsAgentContext,
-  ModifyMetricsInput,
-  ModifyMetricsState,
-} from './modify-metrics-tool';
 
-export function createModifyMetricsStart<
-  TAgentContext extends ModifyMetricsAgentContext = ModifyMetricsAgentContext,
->(context: TAgentContext, state: ModifyMetricsState) {
-  return async (_input: ModifyMetricsInput) => {
-    const fileCount = _input.files?.length || 0;
-    const messageId = context?.messageId;
+export function createModifyMetricsStart(context: ModifyMetricsContext, state: ModifyMetricsState) {
+  return async (options: ToolCallOptions) => {
+    state.toolCallId = options.toolCallId;
 
-    // Initialize state
-    state.processingStartTime = Date.now();
-    state.toolCallId = `modify-metrics-${Date.now()}-${Math.random().toString(36).substr(2, 11)}`;
-
-    console.info('[modify-metrics] Starting metric modification', {
-      fileCount,
-      messageId,
-      toolCallId: state.toolCallId,
-      timestamp: new Date().toISOString(),
-    });
-
-    // Create initial database entries ONLY if messageId exists
-    if (messageId) {
+    if (context.messageId) {
       try {
-        // Create initial reasoning entry
-        const reasoningEntry = createModifyMetricsReasoningMessage(
-          state.toolCallId,
-          [], // No files yet
-          'loading'
-        );
+        if (context.messageId && state.toolCallId) {
+          // Update database with both reasoning and raw LLM entries
+          try {
+            const reasoningEntry = createModifyMetricsReasoningEntry(state, options.toolCallId);
+            const rawLlmMessage = createModifyMetricsRawLlmMessageEntry(state, options.toolCallId);
 
-        // Create raw LLM message entry
-        const rawLlmEntry = createModifyMetricsRawLlmMessageEntry(
-          state.toolCallId,
-          'modify-metrics-file',
-          undefined // No args yet
-        );
+            // Update both entries together if they exist
+            const updates: Parameters<typeof updateMessageEntries>[0] = {
+              messageId: context.messageId,
+              mode: 'append',
+            };
 
-        console.info('[modify-metrics] Creating initial database entries', {
-          messageId,
-          toolCallId: state.toolCallId,
-          reasoningEntryId: reasoningEntry.id,
-        });
+            if (reasoningEntry) {
+              updates.responseEntry = reasoningEntry;
+            }
 
-        // Update database with initial entries
-        await updateMessageFields(messageId, {
-          reasoning: [reasoningEntry],
-          rawLlmMessages: [rawLlmEntry],
-        });
+            if (rawLlmMessage) {
+              updates.rawLlmMessage = rawLlmMessage;
+            }
 
-        // Store reasoning entry ID in state for later updates
-        state.reasoningEntryId = reasoningEntry.id;
+            if (reasoningEntry || rawLlmMessage) {
+              await updateMessageEntries(updates);
+            }
+          } catch (error) {
+            console.error('[modify-metrics] Error updating entries on start:', error);
+          }
+        }
       } catch (error) {
-        console.error('[modify-metrics] Failed to create initial database entries', {
-          messageId,
-          error: error instanceof Error ? error.message : 'Unknown error',
-        });
-        // Continue processing even if database update fails
+        console.error('[modify-metrics] Error creating initial database entries:', error);
       }
     }
   };

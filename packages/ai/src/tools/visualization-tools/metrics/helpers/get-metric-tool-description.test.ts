@@ -5,7 +5,7 @@ import { getMetricToolDescriptionPrompt } from './get-metric-tool-description';
 
 describe('Metric Tool Description Instructions', () => {
   it('should validate template file contains expected variables', () => {
-    const promptPath = path.join(__dirname, 'create-metric-tool-prompt.txt');
+    const promptPath = path.join(__dirname, 'metric-tool-description.txt');
     const content = fs.readFileSync(promptPath, 'utf-8');
 
     // Expected template variables
@@ -63,7 +63,7 @@ describe('Metric Tool Description Instructions', () => {
 
     // Check for key sections that should be in the prompt
     // Note: These expectations may need to be adjusted based on the actual content
-    // of the create-metric-tool-prompt.txt file
+    // of the metric-tool-description.txt file
     expect(result.length).toBeGreaterThan(0);
     // Additional specific content checks can be added based on the prompt template structure
   });

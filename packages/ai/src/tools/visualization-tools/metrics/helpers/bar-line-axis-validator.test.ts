@@ -1,23 +1,16 @@
+import type { ChartConfigProps } from '@buster/server-shared/metrics';
 import { describe, expect, it } from 'vitest';
-import type { MetricYml } from '../version-history-types';
 import { validateAndAdjustBarLineAxes } from './bar-line-axis-validator';
 
 describe('validateAndAdjustBarLineAxes', () => {
-  it('should return valid for non-bar/line charts', () => {
-    const metricYml: MetricYml = {
-      name: 'Test Metric',
-      description: 'Test description',
-      timeFrame: '2024',
-      sql: 'SELECT * FROM test',
-      chartConfig: {
-        selectedChartType: 'pie',
-        columnLabelFormats: {},
-      },
-    };
+  it('should return unchanged config for non-bar/line charts', () => {
+    const chartConfig: ChartConfigProps = {
+      selectedChartType: 'pie',
+      columnLabelFormats: {},
+    } as ChartConfigProps;
 
-    const result = validateAndAdjustBarLineAxes(metricYml);
-    expect(result.isValid).toBe(true);
-    expect(result.shouldSwapAxes).toBe(false);
+    const result = validateAndAdjustBarLineAxes(chartConfig);
+    expect(result).toEqual(chartConfig);
   });
 
   it('should return valid when Y axis has numeric columns', () => {

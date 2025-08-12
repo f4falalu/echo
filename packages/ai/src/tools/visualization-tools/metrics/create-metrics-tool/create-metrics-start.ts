@@ -6,10 +6,7 @@ import {
   createCreateMetricsReasoningEntry,
 } from './helpers/create-metrics-transform-helper';
 
-export function createCreateMetricsStart(
-  context: CreateMetricsContext,
-  state: CreateMetricsState
-) {
+export function createCreateMetricsStart(context: CreateMetricsContext, state: CreateMetricsState) {
   return async (options: ToolCallOptions) => {
     state.toolCallId = options.toolCallId;
 
@@ -19,10 +16,7 @@ export function createCreateMetricsStart(
           // Update database with both reasoning and raw LLM entries
           try {
             const reasoningEntry = createCreateMetricsReasoningEntry(state, options.toolCallId);
-            const rawLlmMessage = createCreateMetricsRawLlmMessageEntry(
-              state,
-              options.toolCallId
-            );
+            const rawLlmMessage = createCreateMetricsRawLlmMessageEntry(state, options.toolCallId);
 
             // Update both entries together if they exist
             const updates: Parameters<typeof updateMessageEntries>[0] = {

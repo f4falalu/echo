@@ -180,7 +180,9 @@ describe('createMetricsDelta', () => {
       vi.mocked(OptimisticJsonParser.parse).mockReturnValueOnce({
         parsed: { files: [{ name: 'metric1', yml_content: 'updated content' }] },
         isComplete: true,
-        extractedValues: new Map([['files', [{ name: 'metric1', yml_content: 'updated content' }]]]),
+        extractedValues: new Map([
+          ['files', [{ name: 'metric1', yml_content: 'updated content' }]],
+        ]),
       });
 
       getOptimisticValue.mockImplementation((map, key, defaultValue) => {

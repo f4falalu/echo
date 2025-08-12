@@ -103,17 +103,30 @@ data:
       expect(tool).toHaveProperty('onInputAvailable');
 
       // Simulate the streaming lifecycle
-      const startPromise = tool.onInputStart?.(input, { toolCallId: 'call-123' });
+      const startPromise = tool.onInputStart?.({
+        toolCallId: 'call-123',
+        messages: [],
+        messages: [],
+      });
       const deltaPromises: Promise<void>[] = [];
-      const finishPromise = tool.onInputAvailable?.(input, { toolCallId: 'call-123' });
+      const finishPromise = tool.onInputAvailable?.({
+        input,
+        toolCallId: 'call-123',
+        messages: [],
+        messages: [],
+      });
 
       // Simulate streaming deltas
       const jsonString = JSON.stringify(input);
       const chunks = [jsonString.slice(0, 20), jsonString.slice(20, 50), jsonString.slice(50)];
 
       for (const chunk of chunks) {
-        const deltaPromise = tool.onInputDelta?.(chunk, { toolCallId: 'call-123' });
-        if (deltaPromise) deltaPromises.push(deltaPromise);
+        const deltaPromise = tool.onInputDelta?.({
+          inputTextDelta: chunk,
+          toolCallId: 'call-123',
+          messages: [],
+        });
+        if (deltaPromise) deltaPromises.push(deltaPromise as Promise<void>);
       }
 
       // Wait for all streaming handlers
@@ -145,7 +158,7 @@ data:
       const tool = createCreateMetricsTool(mockContext);
 
       // Start with empty state
-      await tool.onInputStart?.({ files: [] }, { toolCallId: 'call-123' });
+      await tool.onInputStart?.({ toolCallId: 'call-123', messages: [] });
 
       // Stream partial JSON that builds up a file
       const partialChunks = [
@@ -158,7 +171,7 @@ data:
       ];
 
       for (const chunk of partialChunks) {
-        await tool.onInputDelta?.(chunk, { toolCallId: 'call-123' });
+        await tool.onInputDelta?.({ inputTextDelta: chunk, toolCallId: 'call-123', messages: [] });
       }
 
       // Finish streaming
@@ -171,7 +184,7 @@ data:
           },
         ],
       };
-      await tool.onInputAvailable?.(fullInput, { toolCallId: 'call-123' });
+      await tool.onInputAvailable?.({ input: fullInput, toolCallId: 'call-123', messages: [] });
 
       // Verify progressive updates
       const calls = vi.mocked(updateMessageFields).mock.calls;
@@ -195,13 +208,17 @@ data:
       };
 
       // Start streaming
-      await tool.onInputStart?.(input, { toolCallId: 'call-123' });
+      await tool.onInputStart?.({ toolCallId: 'call-123', messages: [] });
 
       // Stream complete object as delta
-      await tool.onInputDelta?.(input, { toolCallId: 'call-123' });
+      await tool.onInputDelta?.({
+        inputTextDelta: JSON.stringify(input),
+        toolCallId: 'call-123',
+        messages: [],
+      });
 
       // Finish streaming
-      await tool.onInputAvailable?.(input, { toolCallId: 'call-123' });
+      await tool.onInputAvailable?.({ input, toolCallId: 'call-123', messages: [] });
 
       // Verify files were tracked
       const calls = vi.mocked(updateMessageFields).mock.calls;
@@ -230,9 +247,13 @@ data:
       };
 
       // Run through streaming lifecycle
-      await tool.onInputStart?.(input, { toolCallId: 'call-123' });
-      await tool.onInputDelta?.(JSON.stringify(input), { toolCallId: 'call-123' });
-      await tool.onInputAvailable?.(input, { toolCallId: 'call-123' });
+      await tool.onInputStart?.({ toolCallId: 'call-123', messages: [] });
+      await tool.onInputDelta?.({
+        inputTextDelta: JSON.stringify(input),
+        toolCallId: 'call-123',
+        messages: [],
+      });
+      await tool.onInputAvailable?.({ input, toolCallId: 'call-123', messages: [] });
 
       // Should not update database
       expect(updateMessageFields).not.toHaveBeenCalled();
@@ -254,9 +275,13 @@ data:
       };
 
       // Run through streaming lifecycle
-      await tool.onInputStart?.(input, { toolCallId: 'call-123' });
-      await tool.onInputDelta?.(JSON.stringify(input), { toolCallId: 'call-123' });
-      await tool.onInputAvailable?.(input, { toolCallId: 'call-123' });
+      await tool.onInputStart?.({ toolCallId: 'call-123', messages: [] });
+      await tool.onInputDelta?.({
+        inputTextDelta: JSON.stringify(input),
+        toolCallId: 'call-123',
+        messages: [],
+      });
+      await tool.onInputAvailable?.({ input, toolCallId: 'call-123', messages: [] });
 
       // Should log errors but not throw
       expect(consoleErrorSpy).toHaveBeenCalled();
@@ -266,11 +291,13 @@ data:
     it('should progressively build file content during streaming', async () => {
       const tool = createCreateMetricsTool(mockContext);
 
-      await tool.onInputStart?.({ files: [] }, { toolCallId: 'call-123' });
+      await tool.onInputStart?.({ toolCallId: 'call-123', messages: [] });
 
       // First delta - just file name
-      await tool.onInputDelta?.('{"files":[{"name":"Progressive Metric"}', {
+      await tool.onInputDelta?.({
+        inputTextDelta: '{"files":[{"name":"Progressive Metric"}',
         toolCallId: 'call-123',
+        messages: [],
       });
 
       // Check first update
@@ -278,10 +305,12 @@ data:
       expect(calls.length).toBeGreaterThanOrEqual(1);
 
       // Second delta - add yml_content
-      await tool.onInputDelta?.(
-        '{"files":[{"name":"Progressive Metric","yml_content":"name: Progressive\\ntype: metric"}',
-        { toolCallId: 'call-123' }
-      );
+      await tool.onInputDelta?.({
+        inputTextDelta:
+          '{"files":[{"name":"Progressive Metric","yml_content":"name: Progressive\\ntype: metric"}',
+        toolCallId: 'call-123',
+        messages: [],
+      });
 
       // Check second update
       calls = vi.mocked(updateMessageFields).mock.calls;
@@ -296,7 +325,7 @@ data:
           },
         ],
       };
-      await tool.onInputAvailable?.(fullInput, { toolCallId: 'call-123' });
+      await tool.onInputAvailable?.({ input: fullInput, toolCallId: 'call-123', messages: [] });
 
       // Verify progressive updates
       calls = vi.mocked(updateMessageFields).mock.calls;
