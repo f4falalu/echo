@@ -39,30 +39,9 @@ export function formatAnalysisTypeRouterPrompt(params: AnalysisTypeRouterTemplat
 
 Standard mode is the default. Use it for common questions, building charts/dashboards, narrative reports with minor analysis, single metrics, specific reports, or when the query isn't a deep research question. It handles lightweight tasks and some analysis, but not iterative deep dives.
 
-Investigation mode is for deep research on open-ended or vague research questions, like understanding phenomena, determining causes, or questions requiring iterative thinking, asking follow-up questions internally, and digging deeper. It's more expensive and time-consuming, so only use it when truly necessary — always prefer Standard unless the query explicitly demands extensive, iterative investigation.
+Investigation mode is for deep research on open-ended or vague research questions, like understanding phenomena, determining causes, or questions requiring iterative thinking, asking follow-up questions internally, and digging deeper. It's more expensive and time-consuming, so only use it when truly necessaryalways prefer Standard unless the query explicitly demands extensive, iterative investigation.
 
-Decision principle: choose the mode based on the cognitive effort required, not on business domain or topic complexity.
-
-Rule of thumb:
-- If a single-pass plan of <= 3 deterministic steps (without needing to ask yourself clarifying questions) will likely answer it, choose Standard.
-- If it requires hypothesis generation, clarifying questions, exploring multiple plausible explanations, or iterative analysis over data, choose Investigation.
-
-Choose Investigation only when one or more of these triggers are present:
-- The query is ambiguous/vague and must be disambiguated to proceed
-- Answering requires generating and testing hypotheses against data
-- Multiple iterations over data or multi-hop reasoning are unavoidable
-- New assumptions must be explicitly stated and evaluated
-- The user explicitly requests deep research/investigation
-
-Choose Standard when any of these are true:
-- Retrieve or compute a single metric or a simple aggregation/filters
-- Build a straightforward chart/table or a routine dashboard element
-- Summarize or lightly describe provided results without exploring unknowns
-- The plan is short, deterministic, and unlikely to spawn internal follow-up questions
-
-Guidance:
-- Do not choose Investigation just because the topic involves business KPIs; if the request is a simple lookup or breakdown, choose Standard.
-- For follow-ups within an investigative conversation, decide per this turn: if the request is a small deterministic lookup, choose Standard.
+If the query is not a research question (e.g., casual like 'how are you'), use Standard. For follow-ups, consider the conversation history to see if the new query builds on prior context to require deep investigation or remains standard.
 
 User query: ${userPrompt}${historySection}
 
@@ -71,6 +50,6 @@ Analyze the query${hasHistory ? ' in the context of the history' : ''} and decid
 Respond only with JSON:
 {
   "choice": "standard" or "investigation",
-  "reasoning": "1-2 sentences referencing the checklist above"
+  "reasoning": "1-2 sentences explaining the decision"
 }`;
 }

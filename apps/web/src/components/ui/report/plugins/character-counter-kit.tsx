@@ -1,14 +1,14 @@
 'use client';
 
-import { cn } from '@/lib/classMerge';
 import type { Descendant, PluginConfig, TElement, TNode } from 'platejs';
 import {
   createPlatePlugin,
   PlateElement,
-  useSelected,
-  type PlateElementProps
+  type PlateElementProps,
+  useSelected
 } from 'platejs/react';
 import { useMemo } from 'react';
+import { cn } from '@/lib/classMerge';
 
 // Helper function to recursively count characters in editor nodes
 const countCharactersInNodes = (nodes: (TNode | Descendant)[]): number => {

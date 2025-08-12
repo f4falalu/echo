@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "echo 'y' | npx trigger.dev@v4-beta dev",
+    "dev:fast": "echo 'y' | npx trigger.dev@v4-beta dev",
     "deploy": "echo 'y' | npx trigger.dev@v4-beta deploy",
     "prebuild": "[ \"$SKIP_ENV_CHECK\" = \"true\" ] || tsx scripts/validate-env.ts",
     "build": "echo 'No build step required but we run it to make sure env is loaded' && tsc --noEmit",
@@ -37,6 +38,6 @@
     "drizzle-orm": "catalog:"
   },
   "devDependencies": {
-    "@trigger.dev/build": "4.0.0-v4-beta.26"
+    "@trigger.dev/build": "4.0.0-v4-beta.27"
   }
 }

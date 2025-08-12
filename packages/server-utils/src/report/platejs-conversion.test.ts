@@ -1,4 +1,4 @@
-import type { ReportElements } from '@buster/database';
+import type { ParagraphElement, ReportElements } from '@buster/database';
 import { describe, expect, it } from 'vitest';
 import { markdownToPlatejs, platejsToMarkdown } from './platejs-conversions';
 
@@ -175,6 +175,84 @@ Here's an unordered list:
     const firstMetric = platejs.elements.find((element) => element.type === 'metric');
     expect(firstMetric).toBeDefined();
     expect(firstMetric?.metricId).toBe('TBD-QUINTILE-SUMMARY');
+  });
+
+  it('should convert markdown to platejs with a metric', async () => {
+    const markdownWithBulletList = `
+    # Bullet List Example
+
+    - Bullet list item 1
+    - Bullet list item 2
+    - Bullet list item 3
+    `;
+
+    const platejs = await markdownToPlatejs(markdownWithBulletList);
+
+    const firstElement = platejs.elements[0];
+    expect(firstElement.type).toBe('h1');
+    expect(firstElement.children[0]).toEqual({ text: 'Bullet List Example' });
+
+    const secondElement = platejs.elements[1];
+    expect(secondElement.type).toBe('p');
+    expect(secondElement.children[0]).toEqual({ text: 'Bullet list item 1' });
+
+    const thirdElement = platejs.elements[2];
+    expect(thirdElement.type).toBe('p');
+    expect((thirdElement as ParagraphElement).listStyleType).toBe('disc');
+    expect(thirdElement.children[0]).toEqual({ text: 'Bullet list item 2' });
+  });
+
+  it('dollar sign', async () => {
+    const markdown = `Top performers balance volume and value across purchase contexts:
+- **High-volume replacement parts** (1,088 orders, $16M revenue)
+- **High-value maintenance & upgrade** (535 orders, $21.4M revenue)`;
+
+    const platejs = await markdownToPlatejs(markdown);
+    expect(platejs.error).toBeUndefined();
+    expect(platejs.elements).toBeDefined();
+    const firstElement = platejs.elements[0];
+    expect(firstElement.type).toBe('p');
+    expect(firstElement.children[0]).toEqual({
+      text: 'Top performers balance volume and value across purchase contexts:',
+    });
+    expect(platejs.elements).toEqual([
+      {
+        children: [
+          {
+            text: 'Top performers balance volume and value across purchase contexts:',
+          },
+        ],
+        type: 'p',
+      },
+      {
+        children: [
+          {
+            bold: true,
+            text: 'High-volume replacement parts',
+          },
+          {
+            text: ' (1,088 orders, $16M revenue)',
+          },
+        ],
+        type: 'p',
+        indent: 1,
+        listStyleType: 'disc',
+      },
+      {
+        children: [
+          {
+            bold: true,
+            text: 'High-value maintenance & upgrade',
+          },
+          {
+            text: ' (535 orders, $21.4M revenue)',
+          },
+        ],
+        type: 'p',
+        indent: 1,
+        listStyleType: 'disc',
+      },
+    ]);
   });
 });
 
@@ -673,7 +751,11 @@ describe('platejsToMarkdown', () => {
           {
             children: [
               {
-                children: [{ text: 'Top performers (top 20% by revenue handled) consistently:' }],
+                children: [
+                  {
+                    text: 'Top performers (top 20% by revenue handled) consistently:',
+                  },
+                ],
                 type: 'lic',
               },
               {
@@ -690,7 +772,11 @@ describe('platejsToMarkdown', () => {
                   {
                     children: [
                       {
-                        children: [{ text: 'Build bigger baskets: more line items per order' }],
+                        children: [
+                          {
+                            text: 'Build bigger baskets: more line items per order',
+                          },
+                        ],
                         type: 'lic',
                       },
                     ],
@@ -698,7 +784,10 @@ describe('platejsToMarkdown', () => {
                   },
                   {
                     children: [
-                      { children: [{ text: 'Drive more customized solutions' }], type: 'lic' },
+                      {
+                        children: [{ text: 'Drive more customized solutions' }],
+                        type: 'lic',
+                      },
                     ],
                     type: 'li',
                   },
@@ -710,7 +799,10 @@ describe('platejsToMarkdown', () => {
           },
           {
             children: [
-              { children: [{ text: 'Bottom performers (bottom 20%) typically:' }], type: 'lic' },
+              {
+                children: [{ text: 'Bottom performers (bottom 20%) typically:' }],
+                type: 'lic',
+              },
               {
                 children: [
                   {
@@ -724,13 +816,19 @@ describe('platejsToMarkdown', () => {
                   },
                   {
                     children: [
-                      { children: [{ text: 'Submit orders with few line items' }], type: 'lic' },
+                      {
+                        children: [{ text: 'Submit orders with few line items' }],
+                        type: 'lic',
+                      },
                     ],
                     type: 'li',
                   },
                   {
                     children: [
-                      { children: [{ text: 'Have far fewer customized orders' }], type: 'lic' },
+                      {
+                        children: [{ text: 'Have far fewer customized orders' }],
+                        type: 'lic',
+                      },
                     ],
                     type: 'li',
                   },
@@ -763,7 +861,9 @@ describe('platejsToMarkdown', () => {
             children: [
               {
                 children: [
-                  { text: 'Larger baskets and customization correlate with top performance.' },
+                  {
+                    text: 'Larger baskets and customization correlate with top performance.',
+                  },
                 ],
                 type: 'lic',
               },
@@ -804,12 +904,27 @@ describe('platejsToMarkdown', () => {
         children: [{ text: 'These visuals show how behaviors differ by rep segment.' }],
         type: 'p',
       },
-      { children: [{ text: 'Segment overview: top-to-bottom quintiles' }], type: 'h3' },
-      { type: 'metric', metricId: 'TBD-QUINTILE-SUMMARY', children: [{ text: '' }] },
+      {
+        children: [{ text: 'Segment overview: top-to-bottom quintiles' }],
+        type: 'h3',
+      },
+      {
+        type: 'metric',
+        metricId: 'TBD-QUINTILE-SUMMARY',
+        children: [{ text: '' }],
+      },
       { children: [{ text: 'Rep list: names and segments' }], type: 'h3' },
-      { type: 'metric', metricId: 'TBD-REP-SEGMENT-LIST', children: [{ text: '' }] },
+      {
+        type: 'metric',
+        metricId: 'TBD-REP-SEGMENT-LIST',
+        children: [{ text: '' }],
+      },
       { children: [{ text: 'Behavior detail by rep' }], type: 'h3' },
-      { type: 'metric', metricId: 'TBD-REP-BEHAVIOR-DETAIL', children: [{ text: '' }] },
+      {
+        type: 'metric',
+        metricId: 'TBD-REP-BEHAVIOR-DETAIL',
+        children: [{ text: '' }],
+      },
       { children: [{ text: 'What top reps do differently' }], type: 'h2' },
       {
         children: [
@@ -817,7 +932,9 @@ describe('platejsToMarkdown', () => {
             children: [
               {
                 children: [
-                  { text: 'Build larger orders: significantly higher average lines per order.' },
+                  {
+                    text: 'Build larger orders: significantly higher average lines per order.',
+                  },
                 ],
                 type: 'lic',
               },
@@ -992,13 +1109,20 @@ describe('platejsToMarkdown', () => {
           },
           {
             children: [
-              { children: [{ text: 'Behavior metrics per rep:' }], type: 'lic' },
+              {
+                children: [{ text: 'Behavior metrics per rep:' }],
+                type: 'lic',
+              },
               {
                 children: [
                   {
                     children: [
                       {
-                        children: [{ text: 'Orders count, total revenue, average order value' }],
+                        children: [
+                          {
+                            text: 'Orders count, total revenue, average order value',
+                          },
+                        ],
                         type: 'lic',
                       },
                     ],
@@ -1008,7 +1132,9 @@ describe('platejsToMarkdown', () => {
                     children: [
                       {
                         children: [
-                          { text: 'Average lines per order (proxy for cross-sell/basket size)' },
+                          {
+                            text: 'Average lines per order (proxy for cross-sell/basket size)',
+                          },
                         ],
                         type: 'lic',
                       },
@@ -1062,7 +1188,10 @@ describe('platejsToMarkdown', () => {
           },
           {
             children: [
-              { children: [{ text: 'Not differentiating factors:' }], type: 'lic' },
+              {
+                children: [{ text: 'Not differentiating factors:' }],
+                type: 'lic',
+              },
               {
                 children: [
                   {
@@ -1141,7 +1270,201 @@ describe('platejsToMarkdown', () => {
     const markdownFromPlatejs = await platejsToMarkdown(elements);
     expect(markdownFromPlatejs).toBeDefined();
     expect(markdownFromPlatejs).toContain(
-      '<metric metricId="TBD-REP-SEGMENT-LIST" width="100%"></metric>'
+      '<metric metricId="TBD-REP-SEGMENT-LIST" width="100%" caption=""></metric>'
     );
+  });
+
+  it('basic caption', async () => {
+    const elements: ReportElements = [
+      {
+        type: 'img',
+        children: [
+          {
+            text: '',
+          },
+        ],
+        url: 'https://picsum.photos/200/200',
+        caption: [
+          {
+            text: 'This is a caption...',
+          },
+        ],
+        id: 'eIIq6-rQ1X',
+      },
+    ];
+    const markdownFromPlatejs = await platejsToMarkdown(elements);
+    expect(markdownFromPlatejs).toBeDefined();
+    expect(markdownFromPlatejs).toContain(
+      '![This is a caption...](https://picsum.photos/200/200 "This is a caption...")'
+    );
+    console.log(markdownFromPlatejs);
+  });
+
+  it('basic metric caption', async () => {
+    const elements: ReportElements = [
+      {
+        type: 'metric',
+        children: [
+          {
+            text: '',
+          },
+        ],
+        metricId: '1234',
+        caption: [
+          {
+            text: 'This is a caption.. AND IT REALLY WORKS!',
+          },
+        ],
+        id: 'YGbwsH2r0l',
+      },
+    ];
+    const markdownFromPlatejs = await platejsToMarkdown(elements);
+    expect(markdownFromPlatejs).toBeDefined();
+    expect(markdownFromPlatejs).toContain(
+      '<metric metricId="1234" width="100%" caption="This is a caption.. AND IT REALLY WORKS!"></metric>'
+    );
+  });
+});
+
+describe('platejs to markdown and back to platejs', () => {
+  const stripIds = (els: ReportElements): ReportElements =>
+    JSON.parse(
+      JSON.stringify(els, (key, value) => (key === 'id' ? undefined : value))
+    ) as ReportElements;
+
+  it('should convert a simple list', async () => {
+    const elements: ReportElements = [{ type: 'h1', children: [{ text: 'Hello World' }] }];
+    const markdown = await platejsToMarkdown(elements);
+    const platejs = await markdownToPlatejs(markdown);
+    expect(platejs.elements).toEqual(elements);
+  });
+
+  it('should convert a simply report', async () => {
+    const elements: ReportElements = [
+      {
+        type: 'h1',
+        children: [
+          {
+            text: 'Welcome to the Report Editor',
+          },
+        ],
+        id: 'Vz_fc9l3OV',
+      },
+      {
+        type: 'p',
+        children: [
+          {
+            text: 'This is a sample paragraph with ',
+          },
+          {
+            text: 'bold text',
+            bold: true,
+          },
+          {
+            text: ' and ',
+          },
+          {
+            text: 'italic text',
+            italic: true,
+          },
+          {
+            text: '.',
+          },
+          {
+            text: 'hilight',
+            highlight: true,
+          },
+        ],
+        id: 'ClqektybwP',
+      },
+      {
+        type: 'p',
+        children: [
+          {
+            text: 'The end',
+          },
+        ],
+      },
+    ];
+    const markdown = await platejsToMarkdown(elements);
+    const platejs = await markdownToPlatejs(markdown);
+
+    // recursively remove all ids from both expected and actual elements before comparing
+
+    const expectedWithoutIds = stripIds(elements);
+    const actualWithoutIds = stripIds(platejs.elements);
+
+    expect(actualWithoutIds).toEqual(expectedWithoutIds);
+  });
+
+  it('should conver a list', async () => {
+    const elements: ReportElements = [
+      {
+        type: 'p',
+        children: [
+          {
+            text: '',
+            highlight: true,
+          },
+        ],
+        id: 'ClqektybwP',
+      },
+      {
+        type: 'h2',
+        children: [
+          {
+            text: 'Features',
+          },
+        ],
+        id: 'eVbnpcBwkp',
+      },
+      {
+        type: 'p',
+        id: 'FbIatZBASm',
+        children: [
+          {
+            text: 'Feature rich',
+          },
+        ],
+        indent: 1,
+        listStyleType: 'disc',
+      },
+      {
+        type: 'p',
+        id: '3p3BUsPf7T',
+        indent: 1,
+        listStyleType: 'disc',
+        children: [
+          {
+            text: 'Very cool',
+          },
+        ],
+      },
+      {
+        type: 'p',
+        id: 'zaPCCuMpTZ',
+        indent: 1,
+        listStyleType: 'disc',
+        children: [
+          {
+            text: 'Nice test',
+          },
+        ],
+      },
+      {
+        children: [
+          {
+            text: '',
+          },
+        ],
+        type: 'p',
+        id: 'hjDTOHWM9j',
+      },
+    ];
+    const markdown = await platejsToMarkdown(elements);
+    const platejs = await markdownToPlatejs(markdown);
+    const expectedWithoutIds = stripIds(elements);
+    const actualWithoutIds = stripIds(platejs.elements);
+    expect(actualWithoutIds).toEqual(expectedWithoutIds);
   });
 });

@@ -1,6 +1,10 @@
 import * as path from 'node:path';
 import { esbuildPlugin } from '@trigger.dev/build/extensions';
-import { defineConfig } from '@trigger.dev/sdk/v3';
+import { defineConfig } from '@trigger.dev/sdk';
+
+// Load environment variables from root .env file
+import { loadRootEnv } from '@buster/env-utils';
+loadRootEnv();
 
 export default defineConfig({
   project: 'proj_lyyhkqmzhwiskfnavddk',

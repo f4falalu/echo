@@ -6,6 +6,11 @@
       "dependsOn": ["@buster/database#start"],
       "with": [],
       "outputs": []
+    },
+    "dev:fast": {
+      "dependsOn": ["@buster/database#start"],
+      "with": [],
+      "outputs": []
     }
   }
 }

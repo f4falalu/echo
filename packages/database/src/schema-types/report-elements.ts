@@ -323,6 +323,7 @@ const ListTypeEnum = z.enum(['ul', 'ol']);
 // Nested list item for complex lists
 const NestedListElementSchema = z.object({
   type: z.enum(['li', 'lic', 'lii', 'ul', 'ol']),
+  id: z.string().optional(),
   children: z.array(z.any()).default([]), //not super happy about this... but... ce la vie
 });
 
@@ -362,6 +363,7 @@ export const EquationElementSchema = z.object({
 
 export const MetricElementSchema = z.object({
   type: z.literal('metric'),
+  id: z.string().optional(), //THIS IS A UNIQUE ID THAT PLATEJS USES. WE SHOULD NOT SET IT.
   metricId: z.string(),
   width: z.union([z.number(), z.string().regex(/^(?:\d+px|\d+%)$/)]).optional(),
   children: z.array(VoidTextSchema).default([]),

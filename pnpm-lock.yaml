@@ -12,15 +12,48 @@ catalogs:
     '@platejs/basic-nodes':
       specifier: ^49.0.0
       version: 49.0.0
+    '@platejs/basic-styles':
+      specifier: ^49.0.0
+      version: 49.0.0
+    '@platejs/date':
+      specifier: ^49.0.2
+      version: 49.0.2
+    '@platejs/indent':
+      specifier: ^49.0.0
+      version: 49.0.0
+    '@platejs/layout':
+      specifier: ^49.2.1
+      version: 49.2.1
+    '@platejs/link':
+      specifier: ^49.1.1
+      version: 49.1.1
+    '@platejs/list':
+      specifier: ^49.2.0
+      version: 49.2.0
     '@platejs/markdown':
       specifier: ^49.2.1
       version: 49.2.1
+    '@platejs/math':
+      specifier: ^49.0.0
+      version: 49.0.0
+    '@platejs/media':
+      specifier: ^49.0.0
+      version: 49.0.0
+    '@platejs/table':
+      specifier: ^49.1.13
+      version: 49.1.13
+    '@platejs/toc':
+      specifier: ^49.0.0
+      version: 49.0.0
+    '@platejs/toggle':
+      specifier: ^49.0.0
+      version: 49.0.0
     '@supabase/supabase-js':
       specifier: ^2.50.0
       version: 2.50.2
     '@trigger.dev/sdk':
-      specifier: ^4.0.0-v4-beta.25
-      version: 4.0.0-v4-beta.26
+      specifier: ^4.0.0-v4-beta.27
+      version: 4.0.0-v4-beta.27
     ai:
       specifier: ^5.0.5
       version: 5.0.5
@@ -43,11 +76,14 @@ catalogs:
       specifier: ^8.16.2
       version: 8.16.3
     platejs:
-      specifier: ^49.2.8
-      version: 49.2.8
+      specifier: ^49.2.9
+      version: 49.2.9
     remark-gfm:
       specifier: ^4.0.1
       version: 4.0.1
+    remark-math:
+      specifier: ^6.0.0
+      version: 6.0.0
     tsup:
       specifier: ^8.5.0
       version: 8.5.0
@@ -162,7 +198,11 @@ importers:
         version: 2.50.2
       '@trigger.dev/sdk':
         specifier: 'catalog:'
+<<<<<<< HEAD
         version: 4.0.0-v4-beta.26(ai@5.0.5(zod@3.25.1))(zod@3.25.1)
+=======
+        version: 4.0.0-v4-beta.27(ai@4.3.16(react@18.3.1)(zod@3.25.1))(zod@3.25.1)
+>>>>>>> origin/staging
       ai:
         specifier: 'catalog:'
         version: 5.0.5(zod@3.25.1)
@@ -231,8 +271,13 @@ importers:
         specifier: workspace:*
         version: link:../../packages/web-tools
       '@trigger.dev/sdk':
+<<<<<<< HEAD
         specifier: 'catalog:'
         version: 4.0.0-v4-beta.26(ai@5.0.5(zod@3.25.1))(zod@3.25.1)
+=======
+        specifier: 4.0.0-v4-beta.27
+        version: 4.0.0-v4-beta.27(ai@4.3.16(react@18.3.1)(zod@3.25.1))(zod@3.25.1)
+>>>>>>> origin/staging
       ai:
         specifier: 'catalog:'
         version: 5.0.5(zod@3.25.1)
@@ -250,14 +295,17 @@ importers:
         version: 3.25.1
     devDependencies:
       '@trigger.dev/build':
-        specifier: 4.0.0-v4-beta.26
-        version: 4.0.0-v4-beta.26(typescript@5.8.3)
+        specifier: 4.0.0-v4-beta.27
+        version: 4.0.0-v4-beta.27(typescript@5.8.3)
 
   apps/web:
     dependencies:
       '@ariakit/react':
-        specifier: ^0.4.17
-        version: 0.4.17(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: ^0.4.18
+        version: 0.4.18(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@buster/env-utils':
+        specifier: workspace:*
+        version: link:../../packages/env-utils
       '@buster/server-shared':
         specifier: workspace:*
         version: link:../../packages/server-shared
@@ -299,94 +347,94 @@ importers:
         version: 4.7.0(monaco-editor@0.52.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@platejs/ai':
         specifier: ^49.2.4
-        version: 49.2.4(platejs@49.2.8(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.8.3)
+        version: 49.2.4(platejs@49.2.9(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.8.3)
       '@platejs/autoformat':
         specifier: 'catalog:'
-        version: 49.0.0(platejs@49.2.8(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 49.0.0(platejs@49.2.9(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@platejs/basic-nodes':
         specifier: 'catalog:'
-        version: 49.0.0(platejs@49.2.8(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 49.0.0(platejs@49.2.9(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@platejs/basic-styles':
-        specifier: ^49.0.0
-        version: 49.0.0(platejs@49.2.8(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: 'catalog:'
+        version: 49.0.0(platejs@49.2.9(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@platejs/callout':
         specifier: ^49.0.0
-        version: 49.0.0(platejs@49.2.8(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 49.0.0(platejs@49.2.9(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@platejs/caption':
         specifier: ^49.0.0
-        version: 49.0.0(@types/react@18.3.23)(platejs@49.2.8(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 49.0.0(@types/react@18.3.23)(platejs@49.2.9(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@platejs/code-block':
         specifier: ^49.0.0
-        version: 49.0.0(platejs@49.2.8(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 49.0.0(platejs@49.2.9(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@platejs/combobox':
         specifier: ^49.0.0
-        version: 49.0.0(platejs@49.2.8(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 49.0.0(platejs@49.2.9(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@platejs/comment':
         specifier: ^49.0.0
-        version: 49.0.0(platejs@49.2.8(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 49.0.0(platejs@49.2.9(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@platejs/date':
-        specifier: ^49.0.2
-        version: 49.0.2(platejs@49.2.8(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: 'catalog:'
+        version: 49.0.2(platejs@49.2.9(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@platejs/dnd':
-        specifier: ^49.2.7
-        version: 49.2.7(platejs@49.2.8(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dnd-html5-backend@16.0.1)(react-dnd@16.0.1(@types/node@24.0.10)(@types/react@18.3.23)(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: ^49.2.10
+        version: 49.2.10(platejs@49.2.9(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dnd-html5-backend@16.0.1)(react-dnd@16.0.1(@types/node@24.0.10)(@types/react@18.3.23)(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@platejs/docx':
         specifier: ^49.0.0
-        version: 49.0.0(platejs@49.2.8(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 49.0.0(platejs@49.2.9(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@platejs/emoji':
         specifier: ^49.0.0
-        version: 49.0.0(@emoji-mart/data@1.2.1)(platejs@49.2.8(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 49.0.0(@emoji-mart/data@1.2.1)(platejs@49.2.9(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@platejs/floating':
         specifier: ^49.0.0
-        version: 49.0.0(platejs@49.2.8(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 49.0.0(platejs@49.2.9(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@platejs/indent':
-        specifier: ^49.0.0
-        version: 49.0.0(platejs@49.2.8(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: 'catalog:'
+        version: 49.0.0(platejs@49.2.9(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@platejs/juice':
         specifier: ^49.0.0
-        version: 49.0.0(platejs@49.2.8(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 49.0.0(platejs@49.2.9(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@platejs/layout':
-        specifier: ^49.2.1
-        version: 49.2.1(platejs@49.2.8(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: 'catalog:'
+        version: 49.2.1(platejs@49.2.9(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@platejs/link':
-        specifier: ^49.1.1
-        version: 49.1.1(platejs@49.2.8(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: 'catalog:'
+        version: 49.1.1(platejs@49.2.9(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@platejs/list':
-        specifier: ^49.2.0
-        version: 49.2.0(platejs@49.2.8(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: 'catalog:'
+        version: 49.2.0(platejs@49.2.9(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@platejs/markdown':
         specifier: 'catalog:'
-        version: 49.2.1(platejs@49.2.8(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.8.3)
+        version: 49.2.1(platejs@49.2.9(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.8.3)
       '@platejs/math':
-        specifier: ^49.0.0
-        version: 49.0.0(platejs@49.2.8(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: 'catalog:'
+        version: 49.0.0(platejs@49.2.9(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@platejs/media':
-        specifier: ^49.0.0
-        version: 49.0.0(platejs@49.2.8(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: 'catalog:'
+        version: 49.0.0(platejs@49.2.9(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@platejs/mention':
         specifier: ^49.0.0
-        version: 49.0.0(platejs@49.2.8(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 49.0.0(platejs@49.2.9(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@platejs/resizable':
         specifier: ^49.0.0
-        version: 49.0.0(platejs@49.2.8(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 49.0.0(platejs@49.2.9(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@platejs/selection':
         specifier: ^49.2.4
-        version: 49.2.4(platejs@49.2.8(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 49.2.4(platejs@49.2.9(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@platejs/slash-command':
         specifier: ^49.0.0
-        version: 49.0.0(platejs@49.2.8(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 49.0.0(platejs@49.2.9(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@platejs/suggestion':
         specifier: ^49.0.0
-        version: 49.0.0(platejs@49.2.8(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 49.0.0(platejs@49.2.9(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@platejs/table':
-        specifier: ^49.1.13
-        version: 49.1.13(platejs@49.2.8(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: 'catalog:'
+        version: 49.1.13(platejs@49.2.9(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@platejs/toc':
-        specifier: ^49.0.0
-        version: 49.0.0(platejs@49.2.8(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: 'catalog:'
+        version: 49.0.0(platejs@49.2.9(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@platejs/toggle':
-        specifier: ^49.0.0
-        version: 49.0.0(platejs@49.2.8(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: 'catalog:'
+        version: 49.0.0(platejs@49.2.9(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@posthog/nextjs-config':
         specifier: ^1.1.2
         version: 1.1.2(next@14.2.30(@babel/core@7.28.0)(@opentelemetry/api@1.9.0)(@playwright/test@1.54.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.90.0))
@@ -490,7 +538,7 @@ importers:
         specifier: ^7.3.2
         version: 7.3.2(next@14.2.30(@babel/core@7.28.0)(@opentelemetry/api@1.9.0)(@playwright/test@1.54.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.90.0))(react@18.3.1)(uploadthing@7.7.3(express@4.21.2)(next@14.2.30(@babel/core@7.28.0)(@opentelemetry/api@1.9.0)(@playwright/test@1.54.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.90.0))(tailwindcss@4.1.11))
       axios:
-        specifier: ^1.11.0
+        specifier: 'catalog:'
         version: 1.11.0
       canvas-confetti:
         specifier: ^1.9.3
@@ -578,7 +626,7 @@ importers:
         version: 1.17.1
       platejs:
         specifier: 'catalog:'
-        version: 49.2.8(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1))
+        version: 49.2.9(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1))
       pluralize:
         specifier: ^8.0.0
         version: 8.0.0
@@ -1046,21 +1094,54 @@ importers:
         version: link:../vitest-config
       '@platejs/autoformat':
         specifier: 'catalog:'
-        version: 49.0.0(platejs@49.2.8(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 49.0.0(platejs@49.2.9(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@platejs/basic-nodes':
         specifier: 'catalog:'
-        version: 49.0.0(platejs@49.2.8(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 49.0.0(platejs@49.2.9(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@platejs/basic-styles':
+        specifier: 'catalog:'
+        version: 49.0.0(platejs@49.2.9(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@platejs/date':
+        specifier: 'catalog:'
+        version: 49.0.2(platejs@49.2.9(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@platejs/indent':
+        specifier: 'catalog:'
+        version: 49.0.0(platejs@49.2.9(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@platejs/layout':
+        specifier: 'catalog:'
+        version: 49.2.1(platejs@49.2.9(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@platejs/link':
+        specifier: 'catalog:'
+        version: 49.1.1(platejs@49.2.9(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@platejs/list':
+        specifier: 'catalog:'
+        version: 49.2.0(platejs@49.2.9(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@platejs/markdown':
         specifier: 'catalog:'
-        version: 49.2.1(platejs@49.2.8(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.8.3)
+        version: 49.2.1(platejs@49.2.9(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.8.3)
+      '@platejs/math':
+        specifier: 'catalog:'
+        version: 49.0.0(platejs@49.2.9(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@platejs/media':
+        specifier: 'catalog:'
+        version: 49.0.0(platejs@49.2.9(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@platejs/table':
+        specifier: 'catalog:'
+        version: 49.1.13(platejs@49.2.9(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@platejs/toc':
+        specifier: 'catalog:'
+        version: 49.0.0(platejs@49.2.9(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@platejs/toggle':
+        specifier: 'catalog:'
+        version: 49.0.0(platejs@49.2.9(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       platejs:
         specifier: 'catalog:'
-        version: 49.2.8(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1))
+        version: 49.2.9(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1))
       remark-gfm:
         specifier: 'catalog:'
         version: 4.0.1
       remark-math:
-        specifier: ^6.0.0
+        specifier: 'catalog:'
         version: 6.0.0
       zod:
         specifier: 'catalog:'
@@ -1313,14 +1394,14 @@ packages:
   '@ariakit/core@0.4.15':
     resolution: {integrity: sha512-vvxmZvkNhiisKM+Y1TbGMUfVVchV/sWu9F0xw0RYADXcimWPK31dd9JnIZs/OQ5pwAryAHmERHwuGQVESkSjwQ==}
 
-  '@ariakit/react-core@0.4.17':
-    resolution: {integrity: sha512-kFF6n+gC/5CRQIyaMTFoBPio2xUe0k9rZhMNdUobWRmc/twfeLVkODx+8UVYaNyKilTge8G0JFqwvFKku/jKEw==}
+  '@ariakit/react-core@0.4.18':
+    resolution: {integrity: sha512-wHtojXF7KPRwGTSbPg50l203Qngg2aGYCzCut+mYEwe3S0ZzuYVpiY+2Yh15HssnQ/S5yiDGRL4q94UEXsyO+w==}
     peerDependencies:
       react: ^17.0.0 || ^18.0.0 || ^19.0.0
       react-dom: ^17.0.0 || ^18.0.0 || ^19.0.0
 
-  '@ariakit/react@0.4.17':
-    resolution: {integrity: sha512-HQaIboE2axtlncJz1hRTaiQfJ1GGjhdtNcAnPwdjvl2RybfmlHowIB+HTVBp36LzroKPs/M4hPCxk7XTaqRZGg==}
+  '@ariakit/react@0.4.18':
+    resolution: {integrity: sha512-r38DFvdv6JzjC/8mHekTaJEXO6hmx+YPIiyjq9oL7DckLmqGkAKbFrmQd2CeKZZ1c372DDVw7lLhYjj/VYCBZQ==}
     peerDependencies:
       react: ^17.0.0 || ^18.0.0 || ^19.0.0
       react-dom: ^17.0.0 || ^18.0.0 || ^19.0.0
@@ -3051,14 +3132,25 @@ packages:
   '@open-draft/until@2.1.0':
     resolution: {integrity: sha512-U69T3ItWHvLwGg5eJ0n3I62nWuE6ilHlmz7zM0npLBRvPRd7e6NYmg54vvRtP5mZG7kZqZCFVdsTWo7BPtBujg==}
 
+<<<<<<< HEAD
   '@opentelemetry/api-logs@0.52.1':
     resolution: {integrity: sha512-qnSqB2DQ9TPP96dl8cDubDvrUyWc0/sK81xHTK8eSUspzDM3bsewX903qclQFvVhgStjRWdC5bLb3kQqMkfV5A==}
     engines: {node: '>=14'}
+=======
+  '@opentelemetry/api-logs@0.201.1':
+    resolution: {integrity: sha512-IxcFDP1IGMDemVFG2by/AMK+/o6EuBQ8idUq3xZ6MxgQGeumYZuX5OwR0h9HuvcUc/JPjQGfU5OHKIKYDJcXeA==}
+    engines: {node: '>=8.0.0'}
+
+  '@opentelemetry/api-logs@0.203.0':
+    resolution: {integrity: sha512-9B9RU0H7Ya1Dx/Rkyc4stuBZSGVQF27WigitInx2QQoj6KUpEFYPKoWjdFTunJYxmXmh17HeBvbMa1EhGyPmqQ==}
+    engines: {node: '>=8.0.0'}
+>>>>>>> origin/staging
 
   '@opentelemetry/api@1.9.0':
     resolution: {integrity: sha512-3giAOQvZiH5F9bMlMiv8+GSPMeqg0dbaeo58/0SlA9sxSqZhnUtxzX9/2FzyhS9sWQf5S0GJE0AKBrFqjpeYcg==}
     engines: {node: '>=8.0.0'}
 
+<<<<<<< HEAD
   '@opentelemetry/context-async-hooks@1.25.1':
     resolution: {integrity: sha512-UW/ge9zjvAEmRWVapOP0qyCvPulWU6cQxGxDbWEFfGOj1VBBZAuOqTo3X6yWmDTD3Xe15ysCZChHncr2xFMIfQ==}
     engines: {node: '>=14'}
@@ -3080,9 +3172,46 @@ packages:
   '@opentelemetry/exporter-logs-otlp-http@0.52.1':
     resolution: {integrity: sha512-qKgywId2DbdowPZpOBXQKp0B8DfhfIArmSic15z13Nk/JAOccBUQdPwDjDnjsM5f0ckZFMVR2t/tijTUAqDZoA==}
     engines: {node: '>=14'}
+=======
+  '@opentelemetry/auto-instrumentations-node@0.59.0':
+    resolution: {integrity: sha512-kqoEBQss8fGGGRND0ycXZrwCXa/ePFop6W+YvZF5PikA9EsH0J/F2W6zvjetKjtdjyl6AUDW8I7gslZPXLLz3Q==}
+    engines: {node: ^18.19.0 || >=20.6.0}
     peerDependencies:
-      '@opentelemetry/api': ^1.0.0
+      '@opentelemetry/api': ^1.4.1
+      '@opentelemetry/core': ^2.0.0
 
+  '@opentelemetry/context-async-hooks@2.0.1':
+    resolution: {integrity: sha512-XuY23lSI3d4PEqKA+7SLtAgwqIfc6E/E9eAQWLN1vlpC53ybO3o6jW4BsXo1xvz9lYyyWItfQDDLzezER01mCw==}
+    engines: {node: ^18.19.0 || >=20.6.0}
+    peerDependencies:
+      '@opentelemetry/api': '>=1.0.0 <1.10.0'
+
+  '@opentelemetry/core@2.0.1':
+    resolution: {integrity: sha512-MaZk9SJIDgo1peKevlbhP6+IwIiNPNmswNL4AF0WaQJLbHXjr9SrZMgS12+iqr9ToV4ZVosCcc0f8Rg67LXjxw==}
+    engines: {node: ^18.19.0 || >=20.6.0}
+    peerDependencies:
+      '@opentelemetry/api': '>=1.0.0 <1.10.0'
+
+  '@opentelemetry/exporter-logs-otlp-grpc@0.201.1':
+    resolution: {integrity: sha512-ACV2Az9BHRcAaPMYBnYMwKHNn2JwkzzsT3cdeG6+Tokm47fFfpf2xk3sq3QvX0Gk+TXW7q6d+OfBuYfWoAud2g==}
+    engines: {node: ^18.19.0 || >=20.6.0}
+    peerDependencies:
+      '@opentelemetry/api': ^1.3.0
+
+  '@opentelemetry/exporter-logs-otlp-http@0.201.1':
+    resolution: {integrity: sha512-flYr1tr/wlUxsVc2ZYt/seNLgp3uagyUg9MtjiHYyaMQcN4XuEuI4UjUFwXAGQjd2khmXeie5YnTmO8gzyzemw==}
+    engines: {node: ^18.19.0 || >=20.6.0}
+    peerDependencies:
+      '@opentelemetry/api': ^1.3.0
+
+  '@opentelemetry/exporter-logs-otlp-http@0.203.0':
+    resolution: {integrity: sha512-s0hys1ljqlMTbXx2XiplmMJg9wG570Z5lH7wMvrZX6lcODI56sG4HL03jklF63tBeyNwK2RV1/ntXGo3HgG4Qw==}
+    engines: {node: ^18.19.0 || >=20.6.0}
+>>>>>>> origin/staging
+    peerDependencies:
+      '@opentelemetry/api': ^1.3.0
+
+<<<<<<< HEAD
   '@opentelemetry/exporter-trace-otlp-grpc@0.52.1':
     resolution: {integrity: sha512-pVkSH20crBwMTqB3nIN4jpQKUEoB0Z94drIHpYyEqs7UBr+I0cpYyOR3bqjA/UasQUMROb3GX8ZX4/9cVRqGBQ==}
     engines: {node: '>=14'}
@@ -3092,9 +3221,57 @@ packages:
   '@opentelemetry/exporter-trace-otlp-http@0.52.1':
     resolution: {integrity: sha512-05HcNizx0BxcFKKnS5rwOV+2GevLTVIRA0tRgWYyw4yCgR53Ic/xk83toYKts7kbzcI+dswInUg/4s8oyA+tqg==}
     engines: {node: '>=14'}
+=======
+  '@opentelemetry/exporter-logs-otlp-proto@0.201.1':
+    resolution: {integrity: sha512-ZVkutDoQYLAkWmpbmd9XKZ9NeBQS6GPxLl/NZ/uDMq+tFnmZu1p0cvZ43x5+TpFoGkjPR6QYHCxkcZBwI9M8ag==}
+    engines: {node: ^18.19.0 || >=20.6.0}
     peerDependencies:
-      '@opentelemetry/api': ^1.0.0
+      '@opentelemetry/api': ^1.3.0
 
+  '@opentelemetry/exporter-metrics-otlp-grpc@0.201.1':
+    resolution: {integrity: sha512-ywo4TpQNOLi07K7P3CaymzS8XlDGfTFmMQ4oSPsZv38/gAf3/wPVh2uL5qYAFqrVokNCmkcaeCwX3QSy0g9b/A==}
+    engines: {node: ^18.19.0 || >=20.6.0}
+    peerDependencies:
+      '@opentelemetry/api': ^1.3.0
+
+  '@opentelemetry/exporter-metrics-otlp-http@0.201.1':
+    resolution: {integrity: sha512-LMRVg2yTev28L51RLLUK3gY0avMa1RVBq7IkYNtXDBxJRcd0TGGq/0rqfk7Y4UIM9NCJhDIUFHeGg8NpSgSWcw==}
+    engines: {node: ^18.19.0 || >=20.6.0}
+    peerDependencies:
+      '@opentelemetry/api': ^1.3.0
+
+  '@opentelemetry/exporter-metrics-otlp-proto@0.201.1':
+    resolution: {integrity: sha512-9ie2jcaUQZdIoe6B02r0rF4Gz+JsZ9mev/2pYou1N0woOUkFM8xwO6BAlORnrFVslqF/XO5WG3q5FsTbuC5iiw==}
+    engines: {node: ^18.19.0 || >=20.6.0}
+    peerDependencies:
+      '@opentelemetry/api': ^1.3.0
+
+  '@opentelemetry/exporter-prometheus@0.201.1':
+    resolution: {integrity: sha512-J6/4KgljApWda/2YBMHHZg6vaZ6H8BjFInO8YQW+N0al1LjGAAq3pFRCEHpU6GI7ZlkphCxKy6MUjXOZVM8KWQ==}
+    engines: {node: ^18.19.0 || >=20.6.0}
+    peerDependencies:
+      '@opentelemetry/api': ^1.3.0
+
+  '@opentelemetry/exporter-trace-otlp-grpc@0.201.1':
+    resolution: {integrity: sha512-0ZM5CBoZbufXckxi/SWwP5B++CjPWS6N1i+K7f+GhRxYWVGt/yh4eiV3jklZKWw/DUyMkUvUOo0GW1RxoiLoZQ==}
+    engines: {node: ^18.19.0 || >=20.6.0}
+    peerDependencies:
+      '@opentelemetry/api': ^1.3.0
+
+  '@opentelemetry/exporter-trace-otlp-http@0.201.1':
+    resolution: {integrity: sha512-Nw3pIqATC/9LfSGrMiQeeMQ7/z7W2D0wKPxtXwAcr7P64JW7KSH4YSX7Ji8Ti3MmB79NQg6imdagfegJDB0rng==}
+    engines: {node: ^18.19.0 || >=20.6.0}
+    peerDependencies:
+      '@opentelemetry/api': ^1.3.0
+
+  '@opentelemetry/exporter-trace-otlp-http@0.203.0':
+    resolution: {integrity: sha512-ZDiaswNYo0yq/cy1bBLJFe691izEJ6IgNmkjm4C6kE9ub/OMQqDXORx2D2j8fzTBTxONyzusbaZlqtfmyqURPw==}
+    engines: {node: ^18.19.0 || >=20.6.0}
+>>>>>>> origin/staging
+    peerDependencies:
+      '@opentelemetry/api': ^1.3.0
+
+<<<<<<< HEAD
   '@opentelemetry/exporter-trace-otlp-proto@0.52.1':
     resolution: {integrity: sha512-pt6uX0noTQReHXNeEslQv7x311/F1gJzMnp1HD2qgypLRPbXDeMzzeTngRTUaUbP6hqWNtPxuLr4DEoZG+TcEQ==}
     engines: {node: '>=14'}
@@ -3116,9 +3293,291 @@ packages:
   '@opentelemetry/otlp-exporter-base@0.52.1':
     resolution: {integrity: sha512-z175NXOtX5ihdlshtYBe5RpGeBoTXVCKPPLiQlD6FHvpM4Ch+p2B0yWKYSrBfLH24H9zjJiBdTrtD+hLlfnXEQ==}
     engines: {node: '>=14'}
+=======
+  '@opentelemetry/exporter-trace-otlp-proto@0.201.1':
+    resolution: {integrity: sha512-wMxdDDyW+lmmenYGBp0evCoKzajXqIw6SSaZtaF/uqKR9/POhC/9vudnc+kf8W49hYFyIEutPrc1hA0exe3UwQ==}
+    engines: {node: ^18.19.0 || >=20.6.0}
+    peerDependencies:
+      '@opentelemetry/api': ^1.3.0
+
+  '@opentelemetry/exporter-zipkin@2.0.1':
+    resolution: {integrity: sha512-a9eeyHIipfdxzCfc2XPrE+/TI3wmrZUDFtG2RRXHSbZZULAny7SyybSvaDvS77a7iib5MPiAvluwVvbGTsHxsw==}
+    engines: {node: ^18.19.0 || >=20.6.0}
     peerDependencies:
       '@opentelemetry/api': ^1.0.0
 
+  '@opentelemetry/instrumentation-amqplib@0.48.0':
+    resolution: {integrity: sha512-zXcClQX3sttvBih1CjdPbvve/If1lCHPFK41fDpJE5NYjK38dwTMOUEV0+/ulfq4iU4oEV+ReCA+ZaXAm/uYdw==}
+    engines: {node: ^18.19.0 || >=20.6.0}
+    peerDependencies:
+      '@opentelemetry/api': ^1.3.0
+
+  '@opentelemetry/instrumentation-aws-lambda@0.52.0':
+    resolution: {integrity: sha512-xGVhBxxO7OuOl72XNwt1MOgaA6d3pSKI2Y5r3OfGNkx602KzW1t2vBHzJf8s4DAJYdMd5/RJLRi1z87CBu7yyg==}
+    engines: {node: ^18.19.0 || >=20.6.0}
+    peerDependencies:
+      '@opentelemetry/api': ^1.3.0
+
+  '@opentelemetry/instrumentation-aws-sdk@0.53.0':
+    resolution: {integrity: sha512-CXB2cu0qnp5lHtNZRpvz0oOZrIKiWfHOiNVGWln9KY0m9sBheEqc58x3Ptpi5lMyso67heVCGDAc9+KbLAZwTQ==}
+    engines: {node: ^18.19.0 || >=20.6.0}
+    peerDependencies:
+      '@opentelemetry/api': ^1.3.0
+
+  '@opentelemetry/instrumentation-bunyan@0.47.0':
+    resolution: {integrity: sha512-Sux5us8fkBLO/z+H8P2fSu+fRIm1xTeUHlwtM/E4CNZS9W/sAYrc8djZVa2JrwNXj/tE6U5vRJVObGekIkULow==}
+    engines: {node: ^18.19.0 || >=20.6.0}
+    peerDependencies:
+      '@opentelemetry/api': ^1.3.0
+
+  '@opentelemetry/instrumentation-cassandra-driver@0.47.0':
+    resolution: {integrity: sha512-MMn/Y2ErClGe7fmzTfR3iJcbEIspAn9hxbnj8oH7bVpPHcWbPphYICkNfLqah4tKVd+zazhs1agCiHL8y/e12g==}
+    engines: {node: ^18.19.0 || >=20.6.0}
+    peerDependencies:
+      '@opentelemetry/api': ^1.3.0
+
+  '@opentelemetry/instrumentation-connect@0.45.0':
+    resolution: {integrity: sha512-OHdp71gsRnm0lVD7SEtYSJFfvq4r6QN/5lgRK+Vrife1DHy+Insm66JJZN2Frt1waIzmDNn3VLCCafTnItfVcA==}
+    engines: {node: ^18.19.0 || >=20.6.0}
+    peerDependencies:
+      '@opentelemetry/api': ^1.3.0
+
+  '@opentelemetry/instrumentation-cucumber@0.16.0':
+    resolution: {integrity: sha512-bLKOQFgKimQkD8th+y0zMD9vNBjq79BWmPd7QqOGV2atQFbb2QJnorp/Y6poTVQNiITv0GE2mmmcqbjF+Y+JQA==}
+    engines: {node: ^18.19.0 || >=20.6.0}
+    peerDependencies:
+      '@opentelemetry/api': ^1.0.0
+
+  '@opentelemetry/instrumentation-dataloader@0.18.0':
+    resolution: {integrity: sha512-egPb8OcGZP6GUU/dbB8NnVgnSIqlM0nHS8KkADq51rVaMkzBcevtinYDFYTQu9tuQ6GEwaSdiQxiQORpYaVeQw==}
+    engines: {node: ^18.19.0 || >=20.6.0}
+    peerDependencies:
+      '@opentelemetry/api': ^1.3.0
+
+  '@opentelemetry/instrumentation-dns@0.45.0':
+    resolution: {integrity: sha512-gE02Jj97aaYUdZIvp2RwWPy3DLN86k15YvPRzkMaPWZKVwsKrHcA+xVX8k3rh9o0g64PC/U2f+LXiJr14PyVLg==}
+    engines: {node: ^18.19.0 || >=20.6.0}
+    peerDependencies:
+      '@opentelemetry/api': ^1.3.0
+
+  '@opentelemetry/instrumentation-express@0.50.0':
+    resolution: {integrity: sha512-0VF7HM8hTe0B5oXqCfBljMYFeQ3WKKqs0kCTRT02/Pjnmj5bOmR62r2dstjxbxnGKoeFRUHD/QAown9gyf659A==}
+    engines: {node: ^18.19.0 || >=20.6.0}
+    peerDependencies:
+      '@opentelemetry/api': ^1.3.0
+
+  '@opentelemetry/instrumentation-fastify@0.46.0':
+    resolution: {integrity: sha512-tib8SH5RCqhYRw9Qcpep9tP6ABxyXFDljdRy2aKpklHaFAyDELr3EpEAkGdkMZtO5Y3/QhUsmzYZp1np9jkjUg==}
+    engines: {node: ^18.19.0 || >=20.6.0}
+    peerDependencies:
+      '@opentelemetry/api': ^1.3.0
+
+  '@opentelemetry/instrumentation-fs@0.21.0':
+    resolution: {integrity: sha512-p2Fn78KSSbSSIJOOTn9FbxEzNRIIsYn9KTemKhABuunVqHixIqQ3hUjChbR+RbjPNZQthDC/0GHDeihRoyLdLQ==}
+    engines: {node: ^18.19.0 || >=20.6.0}
+    peerDependencies:
+      '@opentelemetry/api': ^1.3.0
+
+  '@opentelemetry/instrumentation-generic-pool@0.45.0':
+    resolution: {integrity: sha512-+fk7tnpzkkBAQzEtyJA0zRv7aBDhr05zczyBn//iJdmDG+ZfQFuIKK4dXNnv9FUZpedW0wcHlPqbP5FIGhAsLQ==}
+    engines: {node: ^18.19.0 || >=20.6.0}
+    peerDependencies:
+      '@opentelemetry/api': ^1.3.0
+
+  '@opentelemetry/instrumentation-graphql@0.49.0':
+    resolution: {integrity: sha512-FZaOS/BmE5npzk95X3Iqfo80a6wEJlkAtk7wLUJG/VZaB8RbBjJow4g0YdtvK8GNGEQW02KiQ+VtzdPGRemlwg==}
+    engines: {node: ^18.19.0 || >=20.6.0}
+    peerDependencies:
+      '@opentelemetry/api': ^1.3.0
+
+  '@opentelemetry/instrumentation-grpc@0.201.1':
+    resolution: {integrity: sha512-OIkXkVnilh8E6YKz/PiQtWeERqbcbjtVppMc7A2h39eaoaKnckXxom3YXhX+/PMhfmjbUnqw6k/KvmUr9zig1Q==}
+    engines: {node: ^18.19.0 || >=20.6.0}
+    peerDependencies:
+      '@opentelemetry/api': ^1.3.0
+
+  '@opentelemetry/instrumentation-hapi@0.47.0':
+    resolution: {integrity: sha512-0BCiQl2+oAuhSzbZrgpZgRvg7PclTfb7GxuBqWmWj9XkRk6cKla18S0pBqRCtl+qluRIaZ7tyXKmdtlsXj0QIw==}
+    engines: {node: ^18.19.0 || >=20.6.0}
+    peerDependencies:
+      '@opentelemetry/api': ^1.3.0
+
+  '@opentelemetry/instrumentation-http@0.201.1':
+    resolution: {integrity: sha512-xhkL/eOntScSLS8C2/LHKZ9Z9MEyGB9Yil7lF3JV0+YBeLXHQUIw2xPD7T0qw0DnqlrN8c/gi8hb5BEXZcyHRg==}
+    engines: {node: ^18.19.0 || >=20.6.0}
+    peerDependencies:
+      '@opentelemetry/api': ^1.3.0
+
+  '@opentelemetry/instrumentation-ioredis@0.49.0':
+    resolution: {integrity: sha512-CcbA9ylntqK7/lo7NUD/I+Uj6xcIiFFk1O2RnY23MugJunqZIFufvYkdh1mdG2bvBKdIVvA2nkVVt1Igw0uw1A==}
+    engines: {node: ^18.19.0 || >=20.6.0}
+    peerDependencies:
+      '@opentelemetry/api': ^1.3.0
+
+  '@opentelemetry/instrumentation-kafkajs@0.10.0':
+    resolution: {integrity: sha512-0roBjhMaW5li1gXVqrBRjzeLPWUiym8TPQi3iXqMA3GizPzilE4hwhIVI7GxtMHAdS15TgkUce6WVYVOBFrrbg==}
+    engines: {node: ^18.19.0 || >=20.6.0}
+    peerDependencies:
+      '@opentelemetry/api': ^1.3.0
+
+  '@opentelemetry/instrumentation-knex@0.46.0':
+    resolution: {integrity: sha512-+AxDwDdLJB467mEPOQKHod/1NDzX8msUAOEiViMkM7xAJoUsHTrP6EKlbjrCKkK+X2Eqh2pTO0ibeLkhG96oNA==}
+    engines: {node: ^18.19.0 || >=20.6.0}
+    peerDependencies:
+      '@opentelemetry/api': ^1.3.0
+
+  '@opentelemetry/instrumentation-koa@0.49.0':
+    resolution: {integrity: sha512-LO2pdZ5SF2LzWZLwrPTja/sQN8Kl4Wu5QvWSFJJLLGpeVKQWC4n41qjPUAAu668w43s42xqfs9bC4hWmQe7o8g==}
+    engines: {node: ^18.19.0 || >=20.6.0}
+    peerDependencies:
+      '@opentelemetry/api': ^1.3.0
+
+  '@opentelemetry/instrumentation-lru-memoizer@0.46.0':
+    resolution: {integrity: sha512-k8wdehAJYuSYWKiIDXrXSd7+33M4qOUEhrE3ymNFOHxVjwtUWpSh6JYSFe+5pqGilhl4CqUgxCkaQ9kPy3rAOQ==}
+    engines: {node: ^18.19.0 || >=20.6.0}
+    peerDependencies:
+      '@opentelemetry/api': ^1.3.0
+
+  '@opentelemetry/instrumentation-memcached@0.45.0':
+    resolution: {integrity: sha512-9NjbvCBM7p+wh/sHfSGDvrtinFYqIr6qunL9nN3e86eIQh3WyE9YdnlFGRbBR+MOzTCwSzrKAvY+J0fQe91VHA==}
+    engines: {node: ^18.19.0 || >=20.6.0}
+    peerDependencies:
+      '@opentelemetry/api': ^1.3.0
+
+  '@opentelemetry/instrumentation-mongodb@0.54.0':
+    resolution: {integrity: sha512-xTECmvFNfavpNz7btxmmvkCZKdHphQSSf0J4tSw4OOT0CSTythB/IWo41mYBd6GIutkmeA12dkKPd8zAU7zzyA==}
+    engines: {node: ^18.19.0 || >=20.6.0}
+    peerDependencies:
+      '@opentelemetry/api': ^1.3.0
+
+  '@opentelemetry/instrumentation-mongoose@0.48.0':
+    resolution: {integrity: sha512-kvopwp/kb1wN8jd0HhIBx/ZxbSmwqhN7LLvl9a7fXYACYlewUtCnVJLG80kwuG+rexRZlxeDfjoacFRDQSf9XA==}
+    engines: {node: ^18.19.0 || >=20.6.0}
+    peerDependencies:
+      '@opentelemetry/api': ^1.3.0
+
+  '@opentelemetry/instrumentation-mysql2@0.47.0':
+    resolution: {integrity: sha512-rVKuKJ6HFVTNXNo8WuC3lBL/9zQ0OZfga/2dLseg/jlQZzUlWijsA57trnA92pcYxs32HBPSfKpuA88ZAVBFpA==}
+    engines: {node: ^18.19.0 || >=20.6.0}
+    peerDependencies:
+      '@opentelemetry/api': ^1.3.0
+
+  '@opentelemetry/instrumentation-mysql@0.47.0':
+    resolution: {integrity: sha512-QWJNDNW0JyHj3cGtQOeNBcrDeOY35yX/JnDg8jEvxzmoEABHyj0EqI8fHPdOQmdctTjKTjzbqwtuAzLYIfkdAA==}
+    engines: {node: ^18.19.0 || >=20.6.0}
+    peerDependencies:
+      '@opentelemetry/api': ^1.3.0
+
+  '@opentelemetry/instrumentation-nestjs-core@0.47.0':
+    resolution: {integrity: sha512-xTtWbqdvlxRfhYidLEq0XvQUGqqgT4Fom21nxJ7XYvOoUJ4KNOxFBnfGW9RcXtFHDkux6rIjNP5CiPCYMZ007g==}
+    engines: {node: ^18.19.0 || >=20.6.0}
+    peerDependencies:
+      '@opentelemetry/api': ^1.3.0
+
+  '@opentelemetry/instrumentation-net@0.45.0':
+    resolution: {integrity: sha512-kFdY4IMth8obBPXoAlpLkea7l85Joe+p7oep+BexrHQ0iX+0cvnfoYBMMSE/vAp6T1N3Nu6RDT2Wzf3mqkHxjw==}
+    engines: {node: ^18.19.0 || >=20.6.0}
+    peerDependencies:
+      '@opentelemetry/api': ^1.3.0
+
+  '@opentelemetry/instrumentation-oracledb@0.27.0':
+    resolution: {integrity: sha512-b/JBJroC22DqgeMUSLYyleN6ohyXbCK1YGvBsCuDdiYUmOOyyWYSKdm4D26hTwFv1TKce+Im6aGcXF1hq2WKuQ==}
+    engines: {node: ^18.19.0 || >=20.6.0}
+    peerDependencies:
+      '@opentelemetry/api': ^1.3.0
+
+  '@opentelemetry/instrumentation-pg@0.53.0':
+    resolution: {integrity: sha512-riWbJvSviTAsjeuq8fn7Y7+CXEYf3sGR18WfLeM7GgSnptTOur1++SLTN7XogqiwP3LFFQ0GLoYe+hxVOEyEpw==}
+    engines: {node: ^18.19.0 || >=20.6.0}
+    peerDependencies:
+      '@opentelemetry/api': ^1.3.0
+
+  '@opentelemetry/instrumentation-pino@0.48.0':
+    resolution: {integrity: sha512-+X+GTaXFuExrmQ3XS1HH8E+4KkKQ1HPzjNGnckuW/SQVOxRGeZMwJu1s60lx4eLpQuXXRh9nJaCAqMi/As347w==}
+    engines: {node: ^18.19.0 || >=20.6.0}
+    peerDependencies:
+      '@opentelemetry/api': ^1.3.0
+
+  '@opentelemetry/instrumentation-redis-4@0.48.0':
+    resolution: {integrity: sha512-aHZGrVwOsCM5u2PQdK1/PJuIWjGjYhOKEqqaPg3Mere2C6brwp+ih1bjcGyMRBS+7KNn5OSPcsFWpcW17Bfotw==}
+    engines: {node: ^18.19.0 || >=20.6.0}
+    peerDependencies:
+      '@opentelemetry/api': ^1.3.0
+
+  '@opentelemetry/instrumentation-redis@0.48.0':
+    resolution: {integrity: sha512-bp82CqAcBNk0+nneAX2L+wbCKiNHTnTEJlppOEjxESIR8AocSKO7gnWpotTh5Bki2UULUn62MBXJmRnIzj0ikw==}
+    engines: {node: ^18.19.0 || >=20.6.0}
+    peerDependencies:
+      '@opentelemetry/api': ^1.3.0
+
+  '@opentelemetry/instrumentation-restify@0.47.0':
+    resolution: {integrity: sha512-A1VixeXnRAQQfWidjnNqOwqGp1K5/r6fIyCdL+1Yvde11HiruMQOf6B71D7wWJHRtNKpLhq3o8JzeNGJoBEMpA==}
+    engines: {node: ^18.19.0 || >=20.6.0}
+    peerDependencies:
+      '@opentelemetry/api': ^1.3.0
+
+  '@opentelemetry/instrumentation-router@0.46.0':
+    resolution: {integrity: sha512-p98dJcw0reSyfkhRwzx8HrhyjcKmyguIE0KCLcxBnvQFnPL7EfUR2up2M9ggceFiZO5GUo1gk+r/mP+B9VBsQw==}
+    engines: {node: ^18.19.0 || >=20.6.0}
+    peerDependencies:
+      '@opentelemetry/api': ^1.3.0
+
+  '@opentelemetry/instrumentation-runtime-node@0.15.0':
+    resolution: {integrity: sha512-K3aPMYImALNsovPUjlIHctS2oH1YESlIAQMgiHXvcUxxz6+d66pPE1a4IoGP19iFOmRDMjshgHR/0DXMOEvZKg==}
+    engines: {node: ^18.19.0 || >=20.6.0}
+    peerDependencies:
+      '@opentelemetry/api': ^1.3.0
+
+  '@opentelemetry/instrumentation-socket.io@0.48.0':
+    resolution: {integrity: sha512-bVFiRvQnAW9hT+8FZVuhhybAvopAShLGm6LYz8raNZokxEw2FzGDVXONWaAM5D2/RbCbMl7R+PLN//3SEU/k0g==}
+    engines: {node: ^18.19.0 || >=20.6.0}
+    peerDependencies:
+      '@opentelemetry/api': ^1.3.0
+
+  '@opentelemetry/instrumentation-tedious@0.20.0':
+    resolution: {integrity: sha512-8OqIj554Rh8sll9myfDaFD1cYY8XKpxK3SMzCTZGc4BqS61gU0kd7UEydZeplrkQHDgySP4nvtFfkQCaZyTS4Q==}
+    engines: {node: ^18.19.0 || >=20.6.0}
+    peerDependencies:
+      '@opentelemetry/api': ^1.3.0
+
+  '@opentelemetry/instrumentation-undici@0.12.0':
+    resolution: {integrity: sha512-SLqTWPWWwqSZVYZw3a9sdcNXsahJfimvDpYaoDd6ryvQGDlOrHVKr56gL5qD3XDVa67DmV5ZQrxRrnYUdlp3BQ==}
+    engines: {node: ^18.19.0 || >=20.6.0}
+    peerDependencies:
+      '@opentelemetry/api': ^1.7.0
+
+  '@opentelemetry/instrumentation-winston@0.46.0':
+    resolution: {integrity: sha512-/nvmsLSON9Ki8C32kOMAkzsCpFfpjI2Fvr51uAY8/8bwG258MUUN8fCbAOMaiaPEKiB807wsE/aym83LYiB0ng==}
+    engines: {node: ^18.19.0 || >=20.6.0}
+    peerDependencies:
+      '@opentelemetry/api': ^1.3.0
+
+  '@opentelemetry/instrumentation@0.201.1':
+    resolution: {integrity: sha512-6EOSoT2zcyBM3VryAzn35ytjRrOMeaWZyzQ/PHVfxoXp5rMf7UUgVToqxOhQffKOHtC7Dma4bHt+DuwIBBZyZA==}
+    engines: {node: ^18.19.0 || >=20.6.0}
+    peerDependencies:
+      '@opentelemetry/api': ^1.3.0
+
+  '@opentelemetry/instrumentation@0.203.0':
+    resolution: {integrity: sha512-ke1qyM+3AK2zPuBPb6Hk/GCsc5ewbLvPNkEuELx/JmANeEp6ZjnZ+wypPAJSucTw0wvCGrUaibDSdcrGFoWxKQ==}
+    engines: {node: ^18.19.0 || >=20.6.0}
+    peerDependencies:
+      '@opentelemetry/api': ^1.3.0
+
+  '@opentelemetry/otlp-exporter-base@0.201.1':
+    resolution: {integrity: sha512-FiS/mIWmZXyRxYGyXPHY+I/4+XrYVTD7Fz/zwOHkVPQsA1JTakAOP9fAi6trXMio0dIpzvQujLNiBqGM7ExrQw==}
+    engines: {node: ^18.19.0 || >=20.6.0}
+    peerDependencies:
+      '@opentelemetry/api': ^1.3.0
+
+  '@opentelemetry/otlp-exporter-base@0.203.0':
+    resolution: {integrity: sha512-Wbxf7k+87KyvxFr5D7uOiSq/vHXWommvdnNE7vECO3tAhsA2GfOlpWINCMWUEPdHZ7tCXxw6Epp3vgx3jU7llQ==}
+    engines: {node: ^18.19.0 || >=20.6.0}
+>>>>>>> origin/staging
+    peerDependencies:
+      '@opentelemetry/api': ^1.3.0
+
+<<<<<<< HEAD
   '@opentelemetry/otlp-grpc-exporter-base@0.52.1':
     resolution: {integrity: sha512-zo/YrSDmKMjG+vPeA9aBBrsQM9Q/f2zo6N04WMB3yNldJRsgpRBeLLwvAt/Ba7dpehDLOEFBd1i2JCoaFtpCoQ==}
     engines: {node: '>=14'}
@@ -3128,9 +3587,27 @@ packages:
   '@opentelemetry/otlp-transformer@0.52.1':
     resolution: {integrity: sha512-I88uCZSZZtVa0XniRqQWKbjAUm73I8tpEy/uJYPPYw5d7BRdVk0RfTBQw8kSUl01oVWEuqxLDa802222MYyWHg==}
     engines: {node: '>=14'}
+=======
+  '@opentelemetry/otlp-grpc-exporter-base@0.201.1':
+    resolution: {integrity: sha512-Y0h9hiMvNtUuXUMkYNAt81hxnFuOHHSeu/RC+pXcHe7S6ac0ROlcjdabBKmYSadJxRrP4YfLahLRuNkVtZow4w==}
+    engines: {node: ^18.19.0 || >=20.6.0}
     peerDependencies:
-      '@opentelemetry/api': '>=1.3.0 <1.10.0'
+      '@opentelemetry/api': ^1.3.0
 
+  '@opentelemetry/otlp-transformer@0.201.1':
+    resolution: {integrity: sha512-+q/8Yuhtu9QxCcjEAXEO8fXLjlSnrnVwfzi9jiWaMAppQp69MoagHHomQj02V2WnGjvBod5ajgkbK4IoWab50A==}
+    engines: {node: ^18.19.0 || >=20.6.0}
+    peerDependencies:
+      '@opentelemetry/api': ^1.3.0
+
+  '@opentelemetry/otlp-transformer@0.203.0':
+    resolution: {integrity: sha512-Y8I6GgoCna0qDQ2W6GCRtaF24SnvqvA8OfeTi7fqigD23u8Jpb4R5KFv/pRvrlGagcCLICMIyh9wiejp4TXu/A==}
+    engines: {node: ^18.19.0 || >=20.6.0}
+>>>>>>> origin/staging
+    peerDependencies:
+      '@opentelemetry/api': ^1.3.0
+
+<<<<<<< HEAD
   '@opentelemetry/propagator-b3@1.25.1':
     resolution: {integrity: sha512-p6HFscpjrv7//kE+7L+3Vn00VEDUJB0n6ZrjkTYHrJ58QZ8B3ajSJhRbCcY6guQ3PDjTbxWklyvIN2ojVbIb1A==}
     engines: {node: '>=14'}
@@ -3186,6 +3663,115 @@ packages:
   '@opentelemetry/semantic-conventions@1.28.0':
     resolution: {integrity: sha512-lp4qAiMTD4sNWW4DbKLBkfiMZ4jbAboJIGOQr5DvciMRI494OapieI9qiODpOt0XBr1LjIDy1xAGAnVs5supTA==}
     engines: {node: '>=14'}
+=======
+  '@opentelemetry/propagation-utils@0.31.2':
+    resolution: {integrity: sha512-FlJzdZ0cQY8qqOsJ/A+L/t05LvZtnsMq6vbamunVMYRi9TAy+xq37t+nT/dx3dKJ/2k409jDj9eA0Yhj9RtTug==}
+    engines: {node: ^18.19.0 || >=20.6.0}
+    peerDependencies:
+      '@opentelemetry/api': ^1.0.0
+
+  '@opentelemetry/propagator-b3@2.0.1':
+    resolution: {integrity: sha512-Hc09CaQ8Tf5AGLmf449H726uRoBNGPBL4bjr7AnnUpzWMvhdn61F78z9qb6IqB737TffBsokGAK1XykFEZ1igw==}
+    engines: {node: ^18.19.0 || >=20.6.0}
+    peerDependencies:
+      '@opentelemetry/api': '>=1.0.0 <1.10.0'
+
+  '@opentelemetry/propagator-jaeger@2.0.1':
+    resolution: {integrity: sha512-7PMdPBmGVH2eQNb/AtSJizQNgeNTfh6jQFqys6lfhd6P4r+m/nTh3gKPPpaCXVdRQ+z93vfKk+4UGty390283w==}
+    engines: {node: ^18.19.0 || >=20.6.0}
+    peerDependencies:
+      '@opentelemetry/api': '>=1.0.0 <1.10.0'
+
+  '@opentelemetry/redis-common@0.37.0':
+    resolution: {integrity: sha512-tJwgE6jt32bLs/9J6jhQRKU2EZnsD8qaO13aoFyXwF6s4LhpT7YFHf3Z03MqdILk6BA2BFUhoyh7k9fj9i032A==}
+    engines: {node: ^18.19.0 || >=20.6.0}
+
+  '@opentelemetry/resource-detector-alibaba-cloud@0.31.2':
+    resolution: {integrity: sha512-Itp6duMXkAIQzmDHIf1kc6Llj/fa0BxilaELp0K6Fp9y+b0ex9LksNAQfTDFPHNine7tFoXauvvHbJFXIB6mqw==}
+    engines: {node: ^18.19.0 || >=20.6.0}
+    peerDependencies:
+      '@opentelemetry/api': ^1.0.0
+
+  '@opentelemetry/resource-detector-aws@2.2.0':
+    resolution: {integrity: sha512-6k7//RWAv4U1PeZhv0Too0Sv7sp7/A6s6g9h5ZYauPcroh2t4gOmkQSspSLYCynn34YZwn3FGbuaMwTDjHEJig==}
+    engines: {node: ^18.19.0 || >=20.6.0}
+    peerDependencies:
+      '@opentelemetry/api': ^1.0.0
+
+  '@opentelemetry/resource-detector-azure@0.8.0':
+    resolution: {integrity: sha512-YBsJQrt0NGT66BgdVhhTkv7/oe/rTflX/rKteptVK6HNo7z8wbeAbB4SnSNJFfF+v3XrP/ruiTxKnNzoh/ampw==}
+    engines: {node: ^18.19.0 || >=20.6.0}
+    peerDependencies:
+      '@opentelemetry/api': ^1.0.0
+
+  '@opentelemetry/resource-detector-container@0.7.2':
+    resolution: {integrity: sha512-St3Krrbpvq7k0UoUNlm7Z4Xqf9HdS9R5yPslwl/WPaZpj/Bf/54WZTPmNQat+93Ey6PTX0ISKg26DfcjPemUhg==}
+    engines: {node: ^18.19.0 || >=20.6.0}
+    peerDependencies:
+      '@opentelemetry/api': ^1.0.0
+
+  '@opentelemetry/resource-detector-gcp@0.35.0':
+    resolution: {integrity: sha512-JYkyOUc7TZAyHy37N2aPAwFvRdET0+E5qIRjmQLPop9LQi4+N0sKf65g4xCwuY/0M721T/424G3zneJjxyiooA==}
+    engines: {node: ^18.19.0 || >=20.6.0}
+    peerDependencies:
+      '@opentelemetry/api': ^1.0.0
+
+  '@opentelemetry/resources@2.0.1':
+    resolution: {integrity: sha512-dZOB3R6zvBwDKnHDTB4X1xtMArB/d324VsbiPkX/Yu0Q8T2xceRthoIVFhJdvgVM2QhGVUyX9tzwiNxGtoBJUw==}
+    engines: {node: ^18.19.0 || >=20.6.0}
+    peerDependencies:
+      '@opentelemetry/api': '>=1.3.0 <1.10.0'
+
+  '@opentelemetry/sdk-logs@0.201.1':
+    resolution: {integrity: sha512-Ug8gtpssUNUnfpotB9ZhnSsPSGDu+7LngTMgKl31mmVJwLAKyl6jC8diZrMcGkSgBh0o5dbg9puvLyR25buZfw==}
+    engines: {node: ^18.19.0 || >=20.6.0}
+    peerDependencies:
+      '@opentelemetry/api': '>=1.4.0 <1.10.0'
+
+  '@opentelemetry/sdk-logs@0.203.0':
+    resolution: {integrity: sha512-vM2+rPq0Vi3nYA5akQD2f3QwossDnTDLvKbea6u/A2NZ3XDkPxMfo/PNrDoXhDUD/0pPo2CdH5ce/thn9K0kLw==}
+    engines: {node: ^18.19.0 || >=20.6.0}
+    peerDependencies:
+      '@opentelemetry/api': '>=1.4.0 <1.10.0'
+
+  '@opentelemetry/sdk-metrics@2.0.1':
+    resolution: {integrity: sha512-wf8OaJoSnujMAHWR3g+/hGvNcsC16rf9s1So4JlMiFaFHiE4HpIA3oUh+uWZQ7CNuK8gVW/pQSkgoa5HkkOl0g==}
+    engines: {node: ^18.19.0 || >=20.6.0}
+    peerDependencies:
+      '@opentelemetry/api': '>=1.9.0 <1.10.0'
+
+  '@opentelemetry/sdk-node@0.201.1':
+    resolution: {integrity: sha512-OdkYe6ZEFbPq+YXhebuiYpPECIBrrKgFJoAQVATllKlB5RDQDTE4J84/8LwGfQqSxBiSK2u1aSaFpzgBVoBrKA==}
+    engines: {node: ^18.19.0 || >=20.6.0}
+    peerDependencies:
+      '@opentelemetry/api': '>=1.3.0 <1.10.0'
+
+  '@opentelemetry/sdk-trace-base@2.0.1':
+    resolution: {integrity: sha512-xYLlvk/xdScGx1aEqvxLwf6sXQLXCjk3/1SQT9X9AoN5rXRhkdvIFShuNNmtTEPRBqcsMbS4p/gJLNI2wXaDuQ==}
+    engines: {node: ^18.19.0 || >=20.6.0}
+    peerDependencies:
+      '@opentelemetry/api': '>=1.3.0 <1.10.0'
+
+  '@opentelemetry/sdk-trace-node@2.0.1':
+    resolution: {integrity: sha512-UhdbPF19pMpBtCWYP5lHbTogLWx9N0EBxtdagvkn5YtsAnCBZzL7SjktG+ZmupRgifsHMjwUaCCaVmqGfSADmA==}
+    engines: {node: ^18.19.0 || >=20.6.0}
+    peerDependencies:
+      '@opentelemetry/api': '>=1.0.0 <1.10.0'
+
+  '@opentelemetry/semantic-conventions@1.34.0':
+    resolution: {integrity: sha512-aKcOkyrorBGlajjRdVoJWHTxfxO1vCNHLJVlSDaRHDIdjU+pX8IYQPvPDkYiujKLbRnWU+1TBwEt0QRgSm4SGA==}
+    engines: {node: '>=14'}
+
+  '@opentelemetry/semantic-conventions@1.36.0':
+    resolution: {integrity: sha512-TtxJSRD8Ohxp6bKkhrm27JRHAxPczQA7idtcTOMYI+wQRRrfgqxHv1cFbCApcSnNjtXkmzFozn6jQtFrOmbjPQ==}
+    engines: {node: '>=14'}
+
+  '@opentelemetry/sql-common@0.41.0':
+    resolution: {integrity: sha512-pmzXctVbEERbqSfiAgdes9Y63xjoOyXcD7B6IXBkVb+vbM7M9U98mn33nGXxPf4dfYR0M+vhcKRZmbSJ7HfqFA==}
+    engines: {node: ^18.19.0 || >=20.6.0}
+    peerDependencies:
+      '@opentelemetry/api': ^1.1.0
+>>>>>>> origin/staging
 
   '@oven/bun-darwin-aarch64@1.2.18':
     resolution: {integrity: sha512-GNxVh9VUOQ6S0aDp4Qe80MGadGbh8BS6p3jEHXIboRoTrb/80oR0csMjGUpdwGa2hX1zTvpPBwOFXvVP9UaB0Q==}
@@ -3397,8 +3983,8 @@ packages:
       react: '>=18.0.0'
       react-dom: '>=18.0.0'
 
-  '@platejs/core@49.2.8':
-    resolution: {integrity: sha512-46XtwIy50RQhrFpL637nPh6w38DcX4AQm+NQ4MPGUqSl7RL6ZULdyjuLGrSeVYQUO4LIWWCOIupRx+KYOObtAQ==}
+  '@platejs/core@49.2.9':
+    resolution: {integrity: sha512-iX10jlyYAgQE6cT9DDLNCJVzaFuIg+2WgReQS00sIEXh2nv9UewV+3fqoHDodfh+CEgWZWv5bXfbTOgr6D8DBQ==}
     peerDependencies:
       react: '>=18.0.0'
       react-dom: '>=18.0.0'
@@ -3417,10 +4003,10 @@ packages:
       react: '>=18.0.0'
       react-dom: '>=18.0.0'
 
-  '@platejs/dnd@49.2.7':
-    resolution: {integrity: sha512-qyZA2QzFDMjmUis/TTDN6Fq6kJNaa83o9A51hK5viEY/eyglsr3T+6Qo8iVfuTyqHRpKQkhk+EZKwBmwRLIdGw==}
+  '@platejs/dnd@49.2.10':
+    resolution: {integrity: sha512-5Qagci7Fx8QoPS0ck3HIpFh8cgVo2Sj8eeo3LClPmYChkMlA0TqCXPcnoxLAN8ZqKLQEYh5mugzczxrc74/ldw==}
     peerDependencies:
-      platejs: '>=49.2.6'
+      platejs: '>=49.2.9'
       react: '>=18.0.0'
       react-dnd: '>=14.0.0'
       react-dnd-html5-backend: '>=14.0.0'
@@ -3563,8 +4149,8 @@ packages:
       react: '>=18.0.0'
       react-dom: '>=18.0.0'
 
-  '@platejs/utils@49.2.8':
-    resolution: {integrity: sha512-kC+J9QoWgKuZqz+QqMFjfddav8Z6mb4Hrks1CO3RMq36DnzdfZv+mIsusYeZKdjEMvKrYqWq4ymfxRbsBGiNYw==}
+  '@platejs/utils@49.2.9':
+    resolution: {integrity: sha512-yV1NgawwVWtViAJD/nzlObu8rlDIpihpl6zfeKbnuMjLoUjGUJbmUaQTiXo7+IO+XjILaolmLGH5/f3vXJ6Gkw==}
     peerDependencies:
       react: '>=18.0.0'
       react-dom: '>=18.0.0'
@@ -4927,20 +5513,20 @@ packages:
     resolution: {integrity: sha512-XCuKFP5PS55gnMVu3dty8KPatLqUoy/ZYzDzAGCQ8JNFCkLXzmI7vNHCR+XpbZaMWQK/vQubr7PkYq8g470J/A==}
     engines: {node: '>= 10'}
 
-  '@trigger.dev/build@4.0.0-v4-beta.26':
-    resolution: {integrity: sha512-0vgWW/pezlIDTOjV5C9VQJ6ONmkbCNAN+QrkVgS1rPUlZvirJFkoeZOKfL8z6mC7OIDOfabD+iu8X/cPzlYCUg==}
+  '@trigger.dev/build@4.0.0-v4-beta.27':
+    resolution: {integrity: sha512-j0crKvdP4+fxcgqm+/nfxwzdvTr6QHsxwy5IeIJoj/nCR5hrH3AFDLopb9fODE6jubEBWJfH/FGXy7NQSfOhAQ==}
     engines: {node: '>=18.20.0'}
 
-  '@trigger.dev/core@4.0.0-v4-beta.26':
-    resolution: {integrity: sha512-iUkkGaMK5s+Mr4hqSkryuDLo3wIZSSD3rEgQqSq6cHQF8o+sCAEi9/IEET5YITBatrEIC7poDgyQsqkHUfyL8Q==}
+  '@trigger.dev/core@4.0.0-v4-beta.27':
+    resolution: {integrity: sha512-PJzW07GbxeHKigZ0AiO4aAtDdb2r5iioI7P6TLTqp3XfsxLb1ezPNv3zt6dy1uvZsefGR/EO4y7X0VN1pJyLTA==}
     engines: {node: '>=18.20.0'}
 
-  '@trigger.dev/sdk@4.0.0-v4-beta.26':
-    resolution: {integrity: sha512-pGEeQK8CkAMftLimniXAGPrHnsutddP3HCMafVbRHRfPq2xZITPXgOCEfHqmlPKP6w3NSS+VypG922xRmni1Mg==}
+  '@trigger.dev/sdk@4.0.0-v4-beta.27':
+    resolution: {integrity: sha512-iSxXkcb7rcMF6aG1Xqq3TFHOkAWG6zrkV7lKjqRu/qRS31mbx2dlSgsB1UHFsL47vGpkrebTIkcQreXIp2GSpA==}
     engines: {node: '>=18.20.0'}
     peerDependencies:
       ai: ^4.2.0
-      zod: ^3.0.0
+      zod: ^3.0.0 || ^4.0.0
     peerDependenciesMeta:
       ai:
         optional: true
@@ -9491,8 +10077,8 @@ packages:
   pkg-types@1.3.1:
     resolution: {integrity: sha512-/Jm5M4RvtBFVkKWRu2BLUTNP8/M2a+UwuAX+ae4770q1qVGtfjG+WTCupoZixokjmHiry8uI+dlY8KXYV5HVVQ==}
 
-  platejs@49.2.8:
-    resolution: {integrity: sha512-Ne/AdNI7z/kswvOz8sHesT4EDux0ka1SWAE04DqFP/vel4CkWhEh4B7MuVPbHCVdOgIhkw2JVkqIlm3A63vuWw==}
+  platejs@49.2.9:
+    resolution: {integrity: sha512-qRe65Ar9YRRaKw3SbiJwD8+eWmJVkHl1OXptQbpkJ6442OAquLRYzhhCNmdu7L0P9NqjrCmhPb18L0HFHpdxNQ==}
     peerDependencies:
       react: '>=18.0.0'
       react-dom: '>=18.0.0'
@@ -11803,11 +12389,11 @@ packages:
     peerDependencies:
       zod: ^3.18.0
 
-  zod@3.23.8:
-    resolution: {integrity: sha512-XBx9AXhXktjUqnepgTiE5flcKIYWi/rme0Eaj+5Y0lftuGBq+jyRu/md4WnuxqgP1ubdpNCsYEYPxrzVHD8d6g==}
-
   zod@3.25.1:
     resolution: {integrity: sha512-bkxUGQiqWDTXHSgqtevYDri5ee2GPC9szPct4pqpzLEpswgDQmuseDz81ZF0AnNu1xsmnBVmbtv/t/WeUIHlpg==}
+
+  zod@3.25.76:
+    resolution: {integrity: sha512-gzUt/qt81nXsFGKIFcC3YnfEAx5NkunCfnDlvuBSSFS02bcXu4Lmea0AFIUwbLWxWPx3d9p8S5QoaujKcNQxcQ==}
 
   zustand-x@6.1.0:
     resolution: {integrity: sha512-lW1Fs29bLCrerWDa3lZLPuEn+ZkbSGzXdwdImKLJUtI2OqlDjpcFac5WTzCPs2ul/igwXFnGiKH1mdn+1Pl2mw==}
@@ -11978,7 +12564,7 @@ snapshots:
 
   '@ariakit/core@0.4.15': {}
 
-  '@ariakit/react-core@0.4.17(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@ariakit/react-core@0.4.18(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
       '@ariakit/core': 0.4.15
       '@floating-ui/dom': 1.7.2
@@ -11986,9 +12572,9 @@ snapshots:
       react-dom: 18.3.1(react@18.3.1)
       use-sync-external-store: 1.5.0(react@18.3.1)
 
-  '@ariakit/react@0.4.17(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@ariakit/react@0.4.18(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
-      '@ariakit/react-core': 0.4.17(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@ariakit/react-core': 0.4.18(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
 
@@ -14267,12 +14853,21 @@ snapshots:
 
   '@open-draft/until@2.1.0': {}
 
+<<<<<<< HEAD
   '@opentelemetry/api-logs@0.52.1':
+=======
+  '@opentelemetry/api-logs@0.201.1':
+    dependencies:
+      '@opentelemetry/api': 1.9.0
+
+  '@opentelemetry/api-logs@0.203.0':
+>>>>>>> origin/staging
     dependencies:
       '@opentelemetry/api': 1.9.0
 
   '@opentelemetry/api@1.9.0': {}
 
+<<<<<<< HEAD
   '@opentelemetry/context-async-hooks@1.25.1(@opentelemetry/api@1.9.0)':
     dependencies:
       '@opentelemetry/api': 1.9.0
@@ -14288,14 +14883,103 @@ snapshots:
       '@opentelemetry/semantic-conventions': 1.28.0
 
   '@opentelemetry/exporter-logs-otlp-http@0.52.1(@opentelemetry/api@1.9.0)':
+=======
+  '@opentelemetry/auto-instrumentations-node@0.59.0(@opentelemetry/api@1.9.0)(@opentelemetry/core@2.0.1(@opentelemetry/api@1.9.0))':
     dependencies:
       '@opentelemetry/api': 1.9.0
-      '@opentelemetry/api-logs': 0.52.1
-      '@opentelemetry/core': 1.25.1(@opentelemetry/api@1.9.0)
-      '@opentelemetry/otlp-exporter-base': 0.52.1(@opentelemetry/api@1.9.0)
-      '@opentelemetry/otlp-transformer': 0.52.1(@opentelemetry/api@1.9.0)
-      '@opentelemetry/sdk-logs': 0.52.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/core': 2.0.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation': 0.201.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation-amqplib': 0.48.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation-aws-lambda': 0.52.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation-aws-sdk': 0.53.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation-bunyan': 0.47.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation-cassandra-driver': 0.47.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation-connect': 0.45.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation-cucumber': 0.16.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation-dataloader': 0.18.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation-dns': 0.45.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation-express': 0.50.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation-fastify': 0.46.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation-fs': 0.21.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation-generic-pool': 0.45.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation-graphql': 0.49.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation-grpc': 0.201.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation-hapi': 0.47.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation-http': 0.201.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation-ioredis': 0.49.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation-kafkajs': 0.10.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation-knex': 0.46.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation-koa': 0.49.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation-lru-memoizer': 0.46.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation-memcached': 0.45.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation-mongodb': 0.54.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation-mongoose': 0.48.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation-mysql': 0.47.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation-mysql2': 0.47.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation-nestjs-core': 0.47.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation-net': 0.45.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation-oracledb': 0.27.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation-pg': 0.53.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation-pino': 0.48.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation-redis': 0.48.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation-redis-4': 0.48.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation-restify': 0.47.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation-router': 0.46.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation-runtime-node': 0.15.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation-socket.io': 0.48.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation-tedious': 0.20.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation-undici': 0.12.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation-winston': 0.46.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/resource-detector-alibaba-cloud': 0.31.2(@opentelemetry/api@1.9.0)
+      '@opentelemetry/resource-detector-aws': 2.2.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/resource-detector-azure': 0.8.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/resource-detector-container': 0.7.2(@opentelemetry/api@1.9.0)
+      '@opentelemetry/resource-detector-gcp': 0.35.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/resources': 2.0.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/sdk-node': 0.201.1(@opentelemetry/api@1.9.0)
+    transitivePeerDependencies:
+      - encoding
+      - supports-color
 
+  '@opentelemetry/context-async-hooks@2.0.1(@opentelemetry/api@1.9.0)':
+    dependencies:
+      '@opentelemetry/api': 1.9.0
+
+  '@opentelemetry/core@2.0.1(@opentelemetry/api@1.9.0)':
+    dependencies:
+      '@opentelemetry/api': 1.9.0
+      '@opentelemetry/semantic-conventions': 1.34.0
+
+  '@opentelemetry/exporter-logs-otlp-grpc@0.201.1(@opentelemetry/api@1.9.0)':
+    dependencies:
+      '@grpc/grpc-js': 1.13.4
+      '@opentelemetry/api': 1.9.0
+      '@opentelemetry/core': 2.0.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/otlp-exporter-base': 0.201.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/otlp-grpc-exporter-base': 0.201.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/otlp-transformer': 0.201.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/sdk-logs': 0.201.1(@opentelemetry/api@1.9.0)
+
+  '@opentelemetry/exporter-logs-otlp-http@0.201.1(@opentelemetry/api@1.9.0)':
+    dependencies:
+      '@opentelemetry/api': 1.9.0
+      '@opentelemetry/api-logs': 0.201.1
+      '@opentelemetry/core': 2.0.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/otlp-exporter-base': 0.201.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/otlp-transformer': 0.201.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/sdk-logs': 0.201.1(@opentelemetry/api@1.9.0)
+
+  '@opentelemetry/exporter-logs-otlp-http@0.203.0(@opentelemetry/api@1.9.0)':
+>>>>>>> origin/staging
+    dependencies:
+      '@opentelemetry/api': 1.9.0
+      '@opentelemetry/api-logs': 0.203.0
+      '@opentelemetry/core': 2.0.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/otlp-exporter-base': 0.203.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/otlp-transformer': 0.203.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/sdk-logs': 0.203.0(@opentelemetry/api@1.9.0)
+
+<<<<<<< HEAD
   '@opentelemetry/exporter-trace-otlp-grpc@0.52.1(@opentelemetry/api@1.9.0)':
     dependencies:
       '@grpc/grpc-js': 1.13.4
@@ -14307,14 +14991,87 @@ snapshots:
       '@opentelemetry/sdk-trace-base': 1.25.1(@opentelemetry/api@1.9.0)
 
   '@opentelemetry/exporter-trace-otlp-http@0.52.1(@opentelemetry/api@1.9.0)':
+=======
+  '@opentelemetry/exporter-logs-otlp-proto@0.201.1(@opentelemetry/api@1.9.0)':
     dependencies:
       '@opentelemetry/api': 1.9.0
-      '@opentelemetry/core': 1.25.1(@opentelemetry/api@1.9.0)
-      '@opentelemetry/otlp-exporter-base': 0.52.1(@opentelemetry/api@1.9.0)
-      '@opentelemetry/otlp-transformer': 0.52.1(@opentelemetry/api@1.9.0)
-      '@opentelemetry/resources': 1.25.1(@opentelemetry/api@1.9.0)
-      '@opentelemetry/sdk-trace-base': 1.25.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/api-logs': 0.201.1
+      '@opentelemetry/core': 2.0.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/otlp-exporter-base': 0.201.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/otlp-transformer': 0.201.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/resources': 2.0.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/sdk-logs': 0.201.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/sdk-trace-base': 2.0.1(@opentelemetry/api@1.9.0)
 
+  '@opentelemetry/exporter-metrics-otlp-grpc@0.201.1(@opentelemetry/api@1.9.0)':
+    dependencies:
+      '@grpc/grpc-js': 1.13.4
+      '@opentelemetry/api': 1.9.0
+      '@opentelemetry/core': 2.0.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/exporter-metrics-otlp-http': 0.201.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/otlp-exporter-base': 0.201.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/otlp-grpc-exporter-base': 0.201.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/otlp-transformer': 0.201.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/resources': 2.0.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/sdk-metrics': 2.0.1(@opentelemetry/api@1.9.0)
+
+  '@opentelemetry/exporter-metrics-otlp-http@0.201.1(@opentelemetry/api@1.9.0)':
+    dependencies:
+      '@opentelemetry/api': 1.9.0
+      '@opentelemetry/core': 2.0.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/otlp-exporter-base': 0.201.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/otlp-transformer': 0.201.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/resources': 2.0.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/sdk-metrics': 2.0.1(@opentelemetry/api@1.9.0)
+
+  '@opentelemetry/exporter-metrics-otlp-proto@0.201.1(@opentelemetry/api@1.9.0)':
+    dependencies:
+      '@opentelemetry/api': 1.9.0
+      '@opentelemetry/core': 2.0.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/exporter-metrics-otlp-http': 0.201.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/otlp-exporter-base': 0.201.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/otlp-transformer': 0.201.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/resources': 2.0.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/sdk-metrics': 2.0.1(@opentelemetry/api@1.9.0)
+
+  '@opentelemetry/exporter-prometheus@0.201.1(@opentelemetry/api@1.9.0)':
+    dependencies:
+      '@opentelemetry/api': 1.9.0
+      '@opentelemetry/core': 2.0.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/resources': 2.0.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/sdk-metrics': 2.0.1(@opentelemetry/api@1.9.0)
+
+  '@opentelemetry/exporter-trace-otlp-grpc@0.201.1(@opentelemetry/api@1.9.0)':
+    dependencies:
+      '@grpc/grpc-js': 1.13.4
+      '@opentelemetry/api': 1.9.0
+      '@opentelemetry/core': 2.0.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/otlp-exporter-base': 0.201.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/otlp-grpc-exporter-base': 0.201.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/otlp-transformer': 0.201.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/resources': 2.0.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/sdk-trace-base': 2.0.1(@opentelemetry/api@1.9.0)
+
+  '@opentelemetry/exporter-trace-otlp-http@0.201.1(@opentelemetry/api@1.9.0)':
+    dependencies:
+      '@opentelemetry/api': 1.9.0
+      '@opentelemetry/core': 2.0.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/otlp-exporter-base': 0.201.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/otlp-transformer': 0.201.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/resources': 2.0.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/sdk-trace-base': 2.0.1(@opentelemetry/api@1.9.0)
+
+  '@opentelemetry/exporter-trace-otlp-http@0.203.0(@opentelemetry/api@1.9.0)':
+>>>>>>> origin/staging
+    dependencies:
+      '@opentelemetry/api': 1.9.0
+      '@opentelemetry/core': 2.0.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/otlp-exporter-base': 0.203.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/otlp-transformer': 0.203.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/resources': 2.0.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/sdk-trace-base': 2.0.1(@opentelemetry/api@1.9.0)
+
+<<<<<<< HEAD
   '@opentelemetry/exporter-trace-otlp-proto@0.52.1(@opentelemetry/api@1.9.0)':
     dependencies:
       '@opentelemetry/api': 1.9.0
@@ -14333,23 +15090,412 @@ snapshots:
       '@opentelemetry/semantic-conventions': 1.25.1
 
   '@opentelemetry/instrumentation@0.52.1(@opentelemetry/api@1.9.0)':
+=======
+  '@opentelemetry/exporter-trace-otlp-proto@0.201.1(@opentelemetry/api@1.9.0)':
     dependencies:
       '@opentelemetry/api': 1.9.0
-      '@opentelemetry/api-logs': 0.52.1
+      '@opentelemetry/core': 2.0.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/otlp-exporter-base': 0.201.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/otlp-transformer': 0.201.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/resources': 2.0.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/sdk-trace-base': 2.0.1(@opentelemetry/api@1.9.0)
+
+  '@opentelemetry/exporter-zipkin@2.0.1(@opentelemetry/api@1.9.0)':
+    dependencies:
+      '@opentelemetry/api': 1.9.0
+      '@opentelemetry/core': 2.0.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/resources': 2.0.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/sdk-trace-base': 2.0.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/semantic-conventions': 1.36.0
+
+  '@opentelemetry/instrumentation-amqplib@0.48.0(@opentelemetry/api@1.9.0)':
+    dependencies:
+      '@opentelemetry/api': 1.9.0
+      '@opentelemetry/core': 2.0.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation': 0.201.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/semantic-conventions': 1.34.0
+    transitivePeerDependencies:
+      - supports-color
+
+  '@opentelemetry/instrumentation-aws-lambda@0.52.0(@opentelemetry/api@1.9.0)':
+    dependencies:
+      '@opentelemetry/api': 1.9.0
+      '@opentelemetry/instrumentation': 0.201.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/semantic-conventions': 1.34.0
+      '@types/aws-lambda': 8.10.147
+    transitivePeerDependencies:
+      - supports-color
+
+  '@opentelemetry/instrumentation-aws-sdk@0.53.0(@opentelemetry/api@1.9.0)':
+    dependencies:
+      '@opentelemetry/api': 1.9.0
+      '@opentelemetry/core': 2.0.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation': 0.201.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/propagation-utils': 0.31.2(@opentelemetry/api@1.9.0)
+      '@opentelemetry/semantic-conventions': 1.34.0
+    transitivePeerDependencies:
+      - supports-color
+
+  '@opentelemetry/instrumentation-bunyan@0.47.0(@opentelemetry/api@1.9.0)':
+    dependencies:
+      '@opentelemetry/api': 1.9.0
+      '@opentelemetry/api-logs': 0.201.1
+      '@opentelemetry/instrumentation': 0.201.1(@opentelemetry/api@1.9.0)
+      '@types/bunyan': 1.8.11
+    transitivePeerDependencies:
+      - supports-color
+
+  '@opentelemetry/instrumentation-cassandra-driver@0.47.0(@opentelemetry/api@1.9.0)':
+    dependencies:
+      '@opentelemetry/api': 1.9.0
+      '@opentelemetry/instrumentation': 0.201.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/semantic-conventions': 1.34.0
+    transitivePeerDependencies:
+      - supports-color
+
+  '@opentelemetry/instrumentation-connect@0.45.0(@opentelemetry/api@1.9.0)':
+    dependencies:
+      '@opentelemetry/api': 1.9.0
+      '@opentelemetry/core': 2.0.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation': 0.201.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/semantic-conventions': 1.34.0
+      '@types/connect': 3.4.38
+    transitivePeerDependencies:
+      - supports-color
+
+  '@opentelemetry/instrumentation-cucumber@0.16.0(@opentelemetry/api@1.9.0)':
+    dependencies:
+      '@opentelemetry/api': 1.9.0
+      '@opentelemetry/instrumentation': 0.201.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/semantic-conventions': 1.34.0
+    transitivePeerDependencies:
+      - supports-color
+
+  '@opentelemetry/instrumentation-dataloader@0.18.0(@opentelemetry/api@1.9.0)':
+    dependencies:
+      '@opentelemetry/api': 1.9.0
+      '@opentelemetry/instrumentation': 0.201.1(@opentelemetry/api@1.9.0)
+    transitivePeerDependencies:
+      - supports-color
+
+  '@opentelemetry/instrumentation-dns@0.45.0(@opentelemetry/api@1.9.0)':
+    dependencies:
+      '@opentelemetry/api': 1.9.0
+      '@opentelemetry/instrumentation': 0.201.1(@opentelemetry/api@1.9.0)
+    transitivePeerDependencies:
+      - supports-color
+
+  '@opentelemetry/instrumentation-express@0.50.0(@opentelemetry/api@1.9.0)':
+    dependencies:
+      '@opentelemetry/api': 1.9.0
+      '@opentelemetry/core': 2.0.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation': 0.201.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/semantic-conventions': 1.34.0
+    transitivePeerDependencies:
+      - supports-color
+
+  '@opentelemetry/instrumentation-fastify@0.46.0(@opentelemetry/api@1.9.0)':
+    dependencies:
+      '@opentelemetry/api': 1.9.0
+      '@opentelemetry/core': 2.0.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation': 0.201.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/semantic-conventions': 1.34.0
+    transitivePeerDependencies:
+      - supports-color
+
+  '@opentelemetry/instrumentation-fs@0.21.0(@opentelemetry/api@1.9.0)':
+    dependencies:
+      '@opentelemetry/api': 1.9.0
+      '@opentelemetry/core': 2.0.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation': 0.201.1(@opentelemetry/api@1.9.0)
+    transitivePeerDependencies:
+      - supports-color
+
+  '@opentelemetry/instrumentation-generic-pool@0.45.0(@opentelemetry/api@1.9.0)':
+    dependencies:
+      '@opentelemetry/api': 1.9.0
+      '@opentelemetry/instrumentation': 0.201.1(@opentelemetry/api@1.9.0)
+    transitivePeerDependencies:
+      - supports-color
+
+  '@opentelemetry/instrumentation-graphql@0.49.0(@opentelemetry/api@1.9.0)':
+    dependencies:
+      '@opentelemetry/api': 1.9.0
+      '@opentelemetry/instrumentation': 0.201.1(@opentelemetry/api@1.9.0)
+    transitivePeerDependencies:
+      - supports-color
+
+  '@opentelemetry/instrumentation-grpc@0.201.1(@opentelemetry/api@1.9.0)':
+    dependencies:
+      '@opentelemetry/api': 1.9.0
+      '@opentelemetry/instrumentation': 0.201.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/semantic-conventions': 1.34.0
+    transitivePeerDependencies:
+      - supports-color
+
+  '@opentelemetry/instrumentation-hapi@0.47.0(@opentelemetry/api@1.9.0)':
+    dependencies:
+      '@opentelemetry/api': 1.9.0
+      '@opentelemetry/core': 2.0.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation': 0.201.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/semantic-conventions': 1.34.0
+    transitivePeerDependencies:
+      - supports-color
+
+  '@opentelemetry/instrumentation-http@0.201.1(@opentelemetry/api@1.9.0)':
+    dependencies:
+      '@opentelemetry/api': 1.9.0
+      '@opentelemetry/core': 2.0.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation': 0.201.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/semantic-conventions': 1.34.0
+      forwarded-parse: 2.1.2
+    transitivePeerDependencies:
+      - supports-color
+
+  '@opentelemetry/instrumentation-ioredis@0.49.0(@opentelemetry/api@1.9.0)':
+    dependencies:
+      '@opentelemetry/api': 1.9.0
+      '@opentelemetry/instrumentation': 0.201.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/redis-common': 0.37.0
+      '@opentelemetry/semantic-conventions': 1.34.0
+    transitivePeerDependencies:
+      - supports-color
+
+  '@opentelemetry/instrumentation-kafkajs@0.10.0(@opentelemetry/api@1.9.0)':
+    dependencies:
+      '@opentelemetry/api': 1.9.0
+      '@opentelemetry/instrumentation': 0.201.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/semantic-conventions': 1.34.0
+    transitivePeerDependencies:
+      - supports-color
+
+  '@opentelemetry/instrumentation-knex@0.46.0(@opentelemetry/api@1.9.0)':
+    dependencies:
+      '@opentelemetry/api': 1.9.0
+      '@opentelemetry/instrumentation': 0.201.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/semantic-conventions': 1.34.0
+    transitivePeerDependencies:
+      - supports-color
+
+  '@opentelemetry/instrumentation-koa@0.49.0(@opentelemetry/api@1.9.0)':
+    dependencies:
+      '@opentelemetry/api': 1.9.0
+      '@opentelemetry/core': 2.0.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation': 0.201.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/semantic-conventions': 1.34.0
+    transitivePeerDependencies:
+      - supports-color
+
+  '@opentelemetry/instrumentation-lru-memoizer@0.46.0(@opentelemetry/api@1.9.0)':
+    dependencies:
+      '@opentelemetry/api': 1.9.0
+      '@opentelemetry/instrumentation': 0.201.1(@opentelemetry/api@1.9.0)
+    transitivePeerDependencies:
+      - supports-color
+
+  '@opentelemetry/instrumentation-memcached@0.45.0(@opentelemetry/api@1.9.0)':
+    dependencies:
+      '@opentelemetry/api': 1.9.0
+      '@opentelemetry/instrumentation': 0.201.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/semantic-conventions': 1.34.0
+      '@types/memcached': 2.2.10
+    transitivePeerDependencies:
+      - supports-color
+
+  '@opentelemetry/instrumentation-mongodb@0.54.0(@opentelemetry/api@1.9.0)':
+    dependencies:
+      '@opentelemetry/api': 1.9.0
+      '@opentelemetry/instrumentation': 0.201.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/semantic-conventions': 1.34.0
+    transitivePeerDependencies:
+      - supports-color
+
+  '@opentelemetry/instrumentation-mongoose@0.48.0(@opentelemetry/api@1.9.0)':
+    dependencies:
+      '@opentelemetry/api': 1.9.0
+      '@opentelemetry/core': 2.0.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation': 0.201.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/semantic-conventions': 1.34.0
+    transitivePeerDependencies:
+      - supports-color
+
+  '@opentelemetry/instrumentation-mysql2@0.47.0(@opentelemetry/api@1.9.0)':
+    dependencies:
+      '@opentelemetry/api': 1.9.0
+      '@opentelemetry/instrumentation': 0.201.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/semantic-conventions': 1.34.0
+      '@opentelemetry/sql-common': 0.41.0(@opentelemetry/api@1.9.0)
+    transitivePeerDependencies:
+      - supports-color
+
+  '@opentelemetry/instrumentation-mysql@0.47.0(@opentelemetry/api@1.9.0)':
+    dependencies:
+      '@opentelemetry/api': 1.9.0
+      '@opentelemetry/instrumentation': 0.201.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/semantic-conventions': 1.34.0
+      '@types/mysql': 2.15.26
+    transitivePeerDependencies:
+      - supports-color
+
+  '@opentelemetry/instrumentation-nestjs-core@0.47.0(@opentelemetry/api@1.9.0)':
+    dependencies:
+      '@opentelemetry/api': 1.9.0
+      '@opentelemetry/instrumentation': 0.201.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/semantic-conventions': 1.34.0
+    transitivePeerDependencies:
+      - supports-color
+
+  '@opentelemetry/instrumentation-net@0.45.0(@opentelemetry/api@1.9.0)':
+    dependencies:
+      '@opentelemetry/api': 1.9.0
+      '@opentelemetry/instrumentation': 0.201.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/semantic-conventions': 1.34.0
+    transitivePeerDependencies:
+      - supports-color
+
+  '@opentelemetry/instrumentation-oracledb@0.27.0(@opentelemetry/api@1.9.0)':
+    dependencies:
+      '@opentelemetry/api': 1.9.0
+      '@opentelemetry/instrumentation': 0.201.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/semantic-conventions': 1.34.0
+      '@types/oracledb': 6.5.2
+    transitivePeerDependencies:
+      - supports-color
+
+  '@opentelemetry/instrumentation-pg@0.53.0(@opentelemetry/api@1.9.0)':
+    dependencies:
+      '@opentelemetry/api': 1.9.0
+      '@opentelemetry/core': 2.0.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation': 0.201.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/semantic-conventions': 1.34.0
+      '@opentelemetry/sql-common': 0.41.0(@opentelemetry/api@1.9.0)
+      '@types/pg': 8.6.1
+      '@types/pg-pool': 2.0.6
+    transitivePeerDependencies:
+      - supports-color
+
+  '@opentelemetry/instrumentation-pino@0.48.0(@opentelemetry/api@1.9.0)':
+    dependencies:
+      '@opentelemetry/api': 1.9.0
+      '@opentelemetry/api-logs': 0.201.1
+      '@opentelemetry/core': 2.0.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation': 0.201.1(@opentelemetry/api@1.9.0)
+    transitivePeerDependencies:
+      - supports-color
+
+  '@opentelemetry/instrumentation-redis-4@0.48.0(@opentelemetry/api@1.9.0)':
+    dependencies:
+      '@opentelemetry/api': 1.9.0
+      '@opentelemetry/instrumentation': 0.201.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/redis-common': 0.37.0
+      '@opentelemetry/semantic-conventions': 1.34.0
+    transitivePeerDependencies:
+      - supports-color
+
+  '@opentelemetry/instrumentation-redis@0.48.0(@opentelemetry/api@1.9.0)':
+    dependencies:
+      '@opentelemetry/api': 1.9.0
+      '@opentelemetry/instrumentation': 0.201.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/redis-common': 0.37.0
+      '@opentelemetry/semantic-conventions': 1.34.0
+    transitivePeerDependencies:
+      - supports-color
+
+  '@opentelemetry/instrumentation-restify@0.47.0(@opentelemetry/api@1.9.0)':
+    dependencies:
+      '@opentelemetry/api': 1.9.0
+      '@opentelemetry/core': 2.0.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation': 0.201.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/semantic-conventions': 1.34.0
+    transitivePeerDependencies:
+      - supports-color
+
+  '@opentelemetry/instrumentation-router@0.46.0(@opentelemetry/api@1.9.0)':
+    dependencies:
+      '@opentelemetry/api': 1.9.0
+      '@opentelemetry/instrumentation': 0.201.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/semantic-conventions': 1.34.0
+    transitivePeerDependencies:
+      - supports-color
+
+  '@opentelemetry/instrumentation-runtime-node@0.15.0(@opentelemetry/api@1.9.0)':
+    dependencies:
+      '@opentelemetry/api': 1.9.0
+      '@opentelemetry/instrumentation': 0.201.1(@opentelemetry/api@1.9.0)
+    transitivePeerDependencies:
+      - supports-color
+
+  '@opentelemetry/instrumentation-socket.io@0.48.0(@opentelemetry/api@1.9.0)':
+    dependencies:
+      '@opentelemetry/api': 1.9.0
+      '@opentelemetry/instrumentation': 0.201.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/semantic-conventions': 1.34.0
+    transitivePeerDependencies:
+      - supports-color
+
+  '@opentelemetry/instrumentation-tedious@0.20.0(@opentelemetry/api@1.9.0)':
+    dependencies:
+      '@opentelemetry/api': 1.9.0
+      '@opentelemetry/instrumentation': 0.201.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/semantic-conventions': 1.34.0
+      '@types/tedious': 4.0.14
+    transitivePeerDependencies:
+      - supports-color
+
+  '@opentelemetry/instrumentation-undici@0.12.0(@opentelemetry/api@1.9.0)':
+    dependencies:
+      '@opentelemetry/api': 1.9.0
+      '@opentelemetry/core': 2.0.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation': 0.201.1(@opentelemetry/api@1.9.0)
+    transitivePeerDependencies:
+      - supports-color
+
+  '@opentelemetry/instrumentation-winston@0.46.0(@opentelemetry/api@1.9.0)':
+    dependencies:
+      '@opentelemetry/api': 1.9.0
+      '@opentelemetry/api-logs': 0.201.1
+      '@opentelemetry/instrumentation': 0.201.1(@opentelemetry/api@1.9.0)
+    transitivePeerDependencies:
+      - supports-color
+
+  '@opentelemetry/instrumentation@0.201.1(@opentelemetry/api@1.9.0)':
+    dependencies:
+      '@opentelemetry/api': 1.9.0
+      '@opentelemetry/api-logs': 0.201.1
       '@types/shimmer': 1.2.0
       import-in-the-middle: 1.14.2
       require-in-the-middle: 7.5.2
-      semver: 7.7.2
       shimmer: 1.2.1
     transitivePeerDependencies:
       - supports-color
 
-  '@opentelemetry/otlp-exporter-base@0.52.1(@opentelemetry/api@1.9.0)':
+  '@opentelemetry/instrumentation@0.203.0(@opentelemetry/api@1.9.0)':
+>>>>>>> origin/staging
     dependencies:
       '@opentelemetry/api': 1.9.0
-      '@opentelemetry/core': 1.25.1(@opentelemetry/api@1.9.0)
-      '@opentelemetry/otlp-transformer': 0.52.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/api-logs': 0.203.0
+      import-in-the-middle: 1.14.2
+      require-in-the-middle: 7.5.2
+    transitivePeerDependencies:
+      - supports-color
 
+<<<<<<< HEAD
+  '@opentelemetry/otlp-exporter-base@0.52.1(@opentelemetry/api@1.9.0)':
+=======
+  '@opentelemetry/otlp-exporter-base@0.201.1(@opentelemetry/api@1.9.0)':
+    dependencies:
+      '@opentelemetry/api': 1.9.0
+      '@opentelemetry/core': 2.0.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/otlp-transformer': 0.201.1(@opentelemetry/api@1.9.0)
+
+  '@opentelemetry/otlp-exporter-base@0.203.0(@opentelemetry/api@1.9.0)':
+>>>>>>> origin/staging
+    dependencies:
+      '@opentelemetry/api': 1.9.0
+      '@opentelemetry/core': 2.0.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/otlp-transformer': 0.203.0(@opentelemetry/api@1.9.0)
+
+<<<<<<< HEAD
   '@opentelemetry/otlp-grpc-exporter-base@0.52.1(@opentelemetry/api@1.9.0)':
     dependencies:
       '@grpc/grpc-js': 1.13.4
@@ -14359,16 +15505,39 @@ snapshots:
       '@opentelemetry/otlp-transformer': 0.52.1(@opentelemetry/api@1.9.0)
 
   '@opentelemetry/otlp-transformer@0.52.1(@opentelemetry/api@1.9.0)':
+=======
+  '@opentelemetry/otlp-grpc-exporter-base@0.201.1(@opentelemetry/api@1.9.0)':
+    dependencies:
+      '@grpc/grpc-js': 1.13.4
+      '@opentelemetry/api': 1.9.0
+      '@opentelemetry/core': 2.0.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/otlp-exporter-base': 0.201.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/otlp-transformer': 0.201.1(@opentelemetry/api@1.9.0)
+
+  '@opentelemetry/otlp-transformer@0.201.1(@opentelemetry/api@1.9.0)':
     dependencies:
       '@opentelemetry/api': 1.9.0
-      '@opentelemetry/api-logs': 0.52.1
-      '@opentelemetry/core': 1.25.1(@opentelemetry/api@1.9.0)
-      '@opentelemetry/resources': 1.25.1(@opentelemetry/api@1.9.0)
-      '@opentelemetry/sdk-logs': 0.52.1(@opentelemetry/api@1.9.0)
-      '@opentelemetry/sdk-metrics': 1.25.1(@opentelemetry/api@1.9.0)
-      '@opentelemetry/sdk-trace-base': 1.25.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/api-logs': 0.201.1
+      '@opentelemetry/core': 2.0.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/resources': 2.0.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/sdk-logs': 0.201.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/sdk-metrics': 2.0.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/sdk-trace-base': 2.0.1(@opentelemetry/api@1.9.0)
       protobufjs: 7.5.3
 
+  '@opentelemetry/otlp-transformer@0.203.0(@opentelemetry/api@1.9.0)':
+>>>>>>> origin/staging
+    dependencies:
+      '@opentelemetry/api': 1.9.0
+      '@opentelemetry/api-logs': 0.203.0
+      '@opentelemetry/core': 2.0.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/resources': 2.0.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/sdk-logs': 0.203.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/sdk-metrics': 2.0.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/sdk-trace-base': 2.0.1(@opentelemetry/api@1.9.0)
+      protobufjs: 7.5.3
+
+<<<<<<< HEAD
   '@opentelemetry/propagator-b3@1.25.1(@opentelemetry/api@1.9.0)':
     dependencies:
       '@opentelemetry/api': 1.9.0
@@ -14386,19 +15555,84 @@ snapshots:
       '@opentelemetry/semantic-conventions': 1.25.1
 
   '@opentelemetry/sdk-logs@0.52.1(@opentelemetry/api@1.9.0)':
+=======
+  '@opentelemetry/propagation-utils@0.31.2(@opentelemetry/api@1.9.0)':
     dependencies:
       '@opentelemetry/api': 1.9.0
-      '@opentelemetry/api-logs': 0.52.1
-      '@opentelemetry/core': 1.25.1(@opentelemetry/api@1.9.0)
-      '@opentelemetry/resources': 1.25.1(@opentelemetry/api@1.9.0)
 
-  '@opentelemetry/sdk-metrics@1.25.1(@opentelemetry/api@1.9.0)':
+  '@opentelemetry/propagator-b3@2.0.1(@opentelemetry/api@1.9.0)':
     dependencies:
       '@opentelemetry/api': 1.9.0
-      '@opentelemetry/core': 1.25.1(@opentelemetry/api@1.9.0)
-      '@opentelemetry/resources': 1.25.1(@opentelemetry/api@1.9.0)
-      lodash.merge: 4.6.2
+      '@opentelemetry/core': 2.0.1(@opentelemetry/api@1.9.0)
 
+  '@opentelemetry/propagator-jaeger@2.0.1(@opentelemetry/api@1.9.0)':
+    dependencies:
+      '@opentelemetry/api': 1.9.0
+      '@opentelemetry/core': 2.0.1(@opentelemetry/api@1.9.0)
+
+  '@opentelemetry/redis-common@0.37.0': {}
+
+  '@opentelemetry/resource-detector-alibaba-cloud@0.31.2(@opentelemetry/api@1.9.0)':
+    dependencies:
+      '@opentelemetry/api': 1.9.0
+      '@opentelemetry/core': 2.0.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/resources': 2.0.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/semantic-conventions': 1.34.0
+
+  '@opentelemetry/resource-detector-aws@2.2.0(@opentelemetry/api@1.9.0)':
+    dependencies:
+      '@opentelemetry/api': 1.9.0
+      '@opentelemetry/core': 2.0.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/resources': 2.0.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/semantic-conventions': 1.34.0
+
+  '@opentelemetry/resource-detector-azure@0.8.0(@opentelemetry/api@1.9.0)':
+    dependencies:
+      '@opentelemetry/api': 1.9.0
+      '@opentelemetry/core': 2.0.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/resources': 2.0.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/semantic-conventions': 1.34.0
+
+  '@opentelemetry/resource-detector-container@0.7.2(@opentelemetry/api@1.9.0)':
+    dependencies:
+      '@opentelemetry/api': 1.9.0
+      '@opentelemetry/core': 2.0.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/resources': 2.0.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/semantic-conventions': 1.34.0
+
+  '@opentelemetry/resource-detector-gcp@0.35.0(@opentelemetry/api@1.9.0)':
+    dependencies:
+      '@opentelemetry/api': 1.9.0
+      '@opentelemetry/core': 2.0.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/resources': 2.0.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/semantic-conventions': 1.34.0
+      gcp-metadata: 6.1.1
+    transitivePeerDependencies:
+      - encoding
+      - supports-color
+
+  '@opentelemetry/resources@2.0.1(@opentelemetry/api@1.9.0)':
+    dependencies:
+      '@opentelemetry/api': 1.9.0
+      '@opentelemetry/core': 2.0.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/semantic-conventions': 1.34.0
+
+  '@opentelemetry/sdk-logs@0.201.1(@opentelemetry/api@1.9.0)':
+    dependencies:
+      '@opentelemetry/api': 1.9.0
+      '@opentelemetry/api-logs': 0.201.1
+      '@opentelemetry/core': 2.0.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/resources': 2.0.1(@opentelemetry/api@1.9.0)
+
+  '@opentelemetry/sdk-logs@0.203.0(@opentelemetry/api@1.9.0)':
+>>>>>>> origin/staging
+    dependencies:
+      '@opentelemetry/api': 1.9.0
+      '@opentelemetry/api-logs': 0.203.0
+      '@opentelemetry/core': 2.0.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/resources': 2.0.1(@opentelemetry/api@1.9.0)
+
+<<<<<<< HEAD
   '@opentelemetry/sdk-node@0.52.1(@opentelemetry/api@1.9.0)':
     dependencies:
       '@opentelemetry/api': 1.9.0
@@ -14438,6 +15672,64 @@ snapshots:
   '@opentelemetry/semantic-conventions@1.25.1': {}
 
   '@opentelemetry/semantic-conventions@1.28.0': {}
+=======
+  '@opentelemetry/sdk-metrics@2.0.1(@opentelemetry/api@1.9.0)':
+    dependencies:
+      '@opentelemetry/api': 1.9.0
+      '@opentelemetry/core': 2.0.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/resources': 2.0.1(@opentelemetry/api@1.9.0)
+
+  '@opentelemetry/sdk-node@0.201.1(@opentelemetry/api@1.9.0)':
+    dependencies:
+      '@opentelemetry/api': 1.9.0
+      '@opentelemetry/api-logs': 0.201.1
+      '@opentelemetry/core': 2.0.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/exporter-logs-otlp-grpc': 0.201.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/exporter-logs-otlp-http': 0.201.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/exporter-logs-otlp-proto': 0.201.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/exporter-metrics-otlp-grpc': 0.201.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/exporter-metrics-otlp-http': 0.201.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/exporter-metrics-otlp-proto': 0.201.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/exporter-prometheus': 0.201.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/exporter-trace-otlp-grpc': 0.201.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/exporter-trace-otlp-http': 0.201.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/exporter-trace-otlp-proto': 0.201.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/exporter-zipkin': 2.0.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation': 0.201.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/propagator-b3': 2.0.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/propagator-jaeger': 2.0.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/resources': 2.0.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/sdk-logs': 0.201.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/sdk-metrics': 2.0.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/sdk-trace-base': 2.0.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/sdk-trace-node': 2.0.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/semantic-conventions': 1.34.0
+    transitivePeerDependencies:
+      - supports-color
+
+  '@opentelemetry/sdk-trace-base@2.0.1(@opentelemetry/api@1.9.0)':
+    dependencies:
+      '@opentelemetry/api': 1.9.0
+      '@opentelemetry/core': 2.0.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/resources': 2.0.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/semantic-conventions': 1.34.0
+
+  '@opentelemetry/sdk-trace-node@2.0.1(@opentelemetry/api@1.9.0)':
+    dependencies:
+      '@opentelemetry/api': 1.9.0
+      '@opentelemetry/context-async-hooks': 2.0.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/core': 2.0.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/sdk-trace-base': 2.0.1(@opentelemetry/api@1.9.0)
+
+  '@opentelemetry/semantic-conventions@1.34.0': {}
+
+  '@opentelemetry/semantic-conventions@1.36.0': {}
+
+  '@opentelemetry/sql-common@0.41.0(@opentelemetry/api@1.9.0)':
+    dependencies:
+      '@opentelemetry/api': 1.9.0
+      '@opentelemetry/core': 2.0.1(@opentelemetry/api@1.9.0)
+>>>>>>> origin/staging
 
   '@oven/bun-darwin-aarch64@1.2.18':
     optional: true
@@ -14544,72 +15836,72 @@ snapshots:
   '@pkgjs/parseargs@0.11.0':
     optional: true
 
-  '@platejs/ai@49.2.4(platejs@49.2.8(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.8.3)':
+  '@platejs/ai@49.2.4(platejs@49.2.9(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.8.3)':
     dependencies:
-      '@platejs/markdown': 49.2.1(platejs@49.2.8(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.8.3)
-      '@platejs/selection': 49.2.4(platejs@49.2.8(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@platejs/markdown': 49.2.1(platejs@49.2.9(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.8.3)
+      '@platejs/selection': 49.2.4(platejs@49.2.9(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       lodash: 4.17.21
-      platejs: 49.2.8(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1))
+      platejs: 49.2.9(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1))
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
     transitivePeerDependencies:
       - supports-color
       - typescript
 
-  '@platejs/autoformat@49.0.0(platejs@49.2.8(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@platejs/autoformat@49.0.0(platejs@49.2.9(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
       lodash: 4.17.21
-      platejs: 49.2.8(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1))
+      platejs: 49.2.9(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1))
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
 
-  '@platejs/basic-nodes@49.0.0(platejs@49.2.8(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@platejs/basic-nodes@49.0.0(platejs@49.2.9(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
-      platejs: 49.2.8(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1))
+      platejs: 49.2.9(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1))
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
 
-  '@platejs/basic-styles@49.0.0(platejs@49.2.8(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@platejs/basic-styles@49.0.0(platejs@49.2.9(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
-      platejs: 49.2.8(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1))
+      platejs: 49.2.9(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1))
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
 
-  '@platejs/callout@49.0.0(platejs@49.2.8(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@platejs/callout@49.0.0(platejs@49.2.9(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
-      platejs: 49.2.8(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1))
+      platejs: 49.2.9(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1))
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
 
-  '@platejs/caption@49.0.0(@types/react@18.3.23)(platejs@49.2.8(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@platejs/caption@49.0.0(@types/react@18.3.23)(platejs@49.2.9(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
-      platejs: 49.2.8(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1))
+      platejs: 49.2.9(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1))
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
       react-textarea-autosize: 8.5.9(@types/react@18.3.23)(react@18.3.1)
     transitivePeerDependencies:
       - '@types/react'
 
-  '@platejs/code-block@49.0.0(platejs@49.2.8(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@platejs/code-block@49.0.0(platejs@49.2.9(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
-      platejs: 49.2.8(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1))
+      platejs: 49.2.9(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1))
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
 
-  '@platejs/combobox@49.0.0(platejs@49.2.8(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@platejs/combobox@49.0.0(platejs@49.2.9(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
-      platejs: 49.2.8(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1))
+      platejs: 49.2.9(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1))
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
 
-  '@platejs/comment@49.0.0(platejs@49.2.8(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@platejs/comment@49.0.0(platejs@49.2.9(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
       lodash: 4.17.21
-      platejs: 49.2.8(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1))
+      platejs: 49.2.9(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1))
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
 
-  '@platejs/core@49.2.8(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1))':
+  '@platejs/core@49.2.9(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1))':
     dependencies:
       '@platejs/slate': 49.2.4
       '@udecode/react-hotkeys': 37.0.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -14640,93 +15932,93 @@ snapshots:
       - slate-dom
       - use-sync-external-store
 
-  '@platejs/date@49.0.2(platejs@49.2.8(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@platejs/date@49.0.2(platejs@49.2.9(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
-      platejs: 49.2.8(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1))
+      platejs: 49.2.9(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1))
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
 
-  '@platejs/diff@49.0.0(platejs@49.2.8(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@platejs/diff@49.0.0(platejs@49.2.9(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
       diff-match-patch-ts: 0.6.0
       lodash: 4.17.21
-      platejs: 49.2.8(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1))
+      platejs: 49.2.9(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1))
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
 
-  '@platejs/dnd@49.2.7(platejs@49.2.8(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dnd-html5-backend@16.0.1)(react-dnd@16.0.1(@types/node@24.0.10)(@types/react@18.3.23)(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@platejs/dnd@49.2.10(platejs@49.2.9(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dnd-html5-backend@16.0.1)(react-dnd@16.0.1(@types/node@24.0.10)(@types/react@18.3.23)(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
       lodash: 4.17.21
-      platejs: 49.2.8(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1))
+      platejs: 49.2.9(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1))
       raf: 3.4.1
       react: 18.3.1
       react-dnd: 16.0.1(@types/node@24.0.10)(@types/react@18.3.23)(react@18.3.1)
       react-dnd-html5-backend: 16.0.1
       react-dom: 18.3.1(react@18.3.1)
 
-  '@platejs/docx@49.0.0(platejs@49.2.8(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@platejs/docx@49.0.0(platejs@49.2.9(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
-      platejs: 49.2.8(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1))
+      platejs: 49.2.9(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1))
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
       validator: 13.15.15
 
-  '@platejs/emoji@49.0.0(@emoji-mart/data@1.2.1)(platejs@49.2.8(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@platejs/emoji@49.0.0(@emoji-mart/data@1.2.1)(platejs@49.2.9(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
       '@emoji-mart/data': 1.2.1
-      '@platejs/combobox': 49.0.0(platejs@49.2.8(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      platejs: 49.2.8(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1))
+      '@platejs/combobox': 49.0.0(platejs@49.2.9(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      platejs: 49.2.9(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1))
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
 
-  '@platejs/floating@49.0.0(platejs@49.2.8(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@platejs/floating@49.0.0(platejs@49.2.9(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
       '@floating-ui/core': 1.7.2
       '@floating-ui/react': 0.27.14(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      platejs: 49.2.8(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1))
+      platejs: 49.2.9(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1))
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
 
-  '@platejs/indent@49.0.0(platejs@49.2.8(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@platejs/indent@49.0.0(platejs@49.2.9(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
-      platejs: 49.2.8(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1))
+      platejs: 49.2.9(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1))
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
 
-  '@platejs/juice@49.0.0(platejs@49.2.8(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@platejs/juice@49.0.0(platejs@49.2.9(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
       juice: 11.0.1
-      platejs: 49.2.8(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1))
+      platejs: 49.2.9(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1))
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
 
-  '@platejs/layout@49.2.1(platejs@49.2.8(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@platejs/layout@49.2.1(platejs@49.2.9(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
-      platejs: 49.2.8(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1))
+      platejs: 49.2.9(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1))
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
 
-  '@platejs/link@49.1.1(platejs@49.2.8(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@platejs/link@49.1.1(platejs@49.2.9(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
-      '@platejs/floating': 49.0.0(platejs@49.2.8(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      platejs: 49.2.8(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1))
+      '@platejs/floating': 49.0.0(platejs@49.2.9(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      platejs: 49.2.9(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1))
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
 
-  '@platejs/list@49.2.0(platejs@49.2.8(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@platejs/list@49.2.0(platejs@49.2.9(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
-      '@platejs/indent': 49.0.0(platejs@49.2.8(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@platejs/indent': 49.0.0(platejs@49.2.9(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       clsx: 2.1.1
-      platejs: 49.2.8(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1))
+      platejs: 49.2.9(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1))
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
 
-  '@platejs/markdown@49.2.1(platejs@49.2.8(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.8.3)':
+  '@platejs/markdown@49.2.1(platejs@49.2.9(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.8.3)':
     dependencies:
       marked: 15.0.12
       mdast-util-math: 3.0.0
       mdast-util-mdx: 3.0.0
-      platejs: 49.2.8(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1))
+      platejs: 49.2.9(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1))
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
       remark-mdx: 3.1.0
@@ -14738,44 +16030,44 @@ snapshots:
       - supports-color
       - typescript
 
-  '@platejs/math@49.0.0(platejs@49.2.8(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@platejs/math@49.0.0(platejs@49.2.9(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
       katex: 0.16.22
-      platejs: 49.2.8(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1))
+      platejs: 49.2.9(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1))
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
 
-  '@platejs/media@49.0.0(platejs@49.2.8(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@platejs/media@49.0.0(platejs@49.2.9(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
       js-video-url-parser: 0.5.1
-      platejs: 49.2.8(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1))
+      platejs: 49.2.9(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1))
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
 
-  '@platejs/mention@49.0.0(platejs@49.2.8(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@platejs/mention@49.0.0(platejs@49.2.9(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
-      '@platejs/combobox': 49.0.0(platejs@49.2.8(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      platejs: 49.2.8(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1))
+      '@platejs/combobox': 49.0.0(platejs@49.2.9(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      platejs: 49.2.9(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1))
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
 
-  '@platejs/resizable@49.0.0(platejs@49.2.8(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@platejs/resizable@49.0.0(platejs@49.2.9(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
-      platejs: 49.2.8(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1))
+      platejs: 49.2.9(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1))
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
 
-  '@platejs/selection@49.2.4(platejs@49.2.8(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@platejs/selection@49.2.4(platejs@49.2.9(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
       copy-to-clipboard: 3.3.3
-      platejs: 49.2.8(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1))
+      platejs: 49.2.9(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1))
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
 
-  '@platejs/slash-command@49.0.0(platejs@49.2.8(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@platejs/slash-command@49.0.0(platejs@49.2.9(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
-      '@platejs/combobox': 49.0.0(platejs@49.2.8(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      platejs: 49.2.8(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1))
+      '@platejs/combobox': 49.0.0(platejs@49.2.9(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      platejs: 49.2.9(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1))
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
 
@@ -14787,39 +16079,39 @@ snapshots:
       slate: 0.117.0
       slate-dom: 0.116.0(slate@0.117.0)
 
-  '@platejs/suggestion@49.0.0(platejs@49.2.8(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@platejs/suggestion@49.0.0(platejs@49.2.9(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
-      '@platejs/diff': 49.0.0(platejs@49.2.8(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@platejs/diff': 49.0.0(platejs@49.2.9(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       lodash: 4.17.21
-      platejs: 49.2.8(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1))
+      platejs: 49.2.9(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1))
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
 
-  '@platejs/table@49.1.13(platejs@49.2.8(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@platejs/table@49.1.13(platejs@49.2.9(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
-      '@platejs/resizable': 49.0.0(platejs@49.2.8(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@platejs/resizable': 49.0.0(platejs@49.2.9(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       lodash: 4.17.21
-      platejs: 49.2.8(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1))
+      platejs: 49.2.9(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1))
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
 
-  '@platejs/toc@49.0.0(platejs@49.2.8(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@platejs/toc@49.0.0(platejs@49.2.9(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
-      platejs: 49.2.8(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1))
+      platejs: 49.2.9(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1))
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
 
-  '@platejs/toggle@49.0.0(platejs@49.2.8(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@platejs/toggle@49.0.0(platejs@49.2.9(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
-      '@platejs/indent': 49.0.0(platejs@49.2.8(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@platejs/indent': 49.0.0(platejs@49.2.9(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       lodash: 4.17.21
-      platejs: 49.2.8(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1))
+      platejs: 49.2.9(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1))
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
 
-  '@platejs/utils@49.2.8(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1))':
+  '@platejs/utils@49.2.9(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1))':
     dependencies:
-      '@platejs/core': 49.2.8(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1))
+      '@platejs/core': 49.2.9(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1))
       '@platejs/slate': 49.2.4
       '@udecode/react-utils': 49.0.15(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@udecode/utils': 47.2.7
@@ -16411,9 +17703,9 @@ snapshots:
 
   '@tootallnate/once@2.0.0': {}
 
-  '@trigger.dev/build@4.0.0-v4-beta.26(typescript@5.8.3)':
+  '@trigger.dev/build@4.0.0-v4-beta.27(typescript@5.8.3)':
     dependencies:
-      '@trigger.dev/core': 4.0.0-v4-beta.26
+      '@trigger.dev/core': 4.0.0-v4-beta.27
       pkg-types: 1.3.1
       tinyglobby: 0.2.14
       tsconfck: 3.1.3(typescript@5.8.3)
@@ -16423,24 +17715,23 @@ snapshots:
       - typescript
       - utf-8-validate
 
-  '@trigger.dev/core@4.0.0-v4-beta.26':
+  '@trigger.dev/core@4.0.0-v4-beta.27':
     dependencies:
       '@bugsnag/cuid': 3.2.1
       '@electric-sql/client': 1.0.0-beta.1
       '@google-cloud/precise-date': 4.0.0
       '@jsonhero/path': 1.0.21
       '@opentelemetry/api': 1.9.0
-      '@opentelemetry/api-logs': 0.52.1
-      '@opentelemetry/core': 1.30.1(@opentelemetry/api@1.9.0)
-      '@opentelemetry/exporter-logs-otlp-http': 0.52.1(@opentelemetry/api@1.9.0)
-      '@opentelemetry/exporter-trace-otlp-http': 0.52.1(@opentelemetry/api@1.9.0)
-      '@opentelemetry/instrumentation': 0.52.1(@opentelemetry/api@1.9.0)
-      '@opentelemetry/resources': 1.25.1(@opentelemetry/api@1.9.0)
-      '@opentelemetry/sdk-logs': 0.52.1(@opentelemetry/api@1.9.0)
-      '@opentelemetry/sdk-node': 0.52.1(@opentelemetry/api@1.9.0)
-      '@opentelemetry/sdk-trace-base': 1.25.1(@opentelemetry/api@1.9.0)
-      '@opentelemetry/sdk-trace-node': 1.25.1(@opentelemetry/api@1.9.0)
-      '@opentelemetry/semantic-conventions': 1.25.1
+      '@opentelemetry/api-logs': 0.203.0
+      '@opentelemetry/core': 2.0.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/exporter-logs-otlp-http': 0.203.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/exporter-trace-otlp-http': 0.203.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation': 0.203.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/resources': 2.0.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/sdk-logs': 0.203.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/sdk-trace-base': 2.0.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/sdk-trace-node': 2.0.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/semantic-conventions': 1.36.0
       dequal: 2.0.3
       eventsource: 3.0.7
       eventsource-parser: 3.0.3
@@ -16456,20 +17747,23 @@ snapshots:
       superjson: 2.2.2
       tinyexec: 0.3.2
       uncrypto: 0.1.3
-      zod: 3.23.8
+      zod: 3.25.76
       zod-error: 1.5.0
-      zod-validation-error: 1.5.0(zod@3.23.8)
+      zod-validation-error: 1.5.0(zod@3.25.76)
     transitivePeerDependencies:
       - bufferutil
       - supports-color
       - utf-8-validate
 
+<<<<<<< HEAD
   '@trigger.dev/sdk@4.0.0-v4-beta.26(ai@5.0.5(zod@3.25.1))(zod@3.25.1)':
+=======
+  '@trigger.dev/sdk@4.0.0-v4-beta.27(ai@4.3.16(react@18.3.1)(zod@3.25.1))(zod@3.25.1)':
+>>>>>>> origin/staging
     dependencies:
       '@opentelemetry/api': 1.9.0
-      '@opentelemetry/api-logs': 0.52.1
-      '@opentelemetry/semantic-conventions': 1.25.1
-      '@trigger.dev/core': 4.0.0-v4-beta.26
+      '@opentelemetry/semantic-conventions': 1.36.0
+      '@trigger.dev/core': 4.0.0-v4-beta.27
       chalk: 5.4.1
       cronstrue: 2.59.0
       debug: 4.4.1
@@ -21935,11 +23229,11 @@ snapshots:
       mlly: 1.7.4
       pathe: 2.0.3
 
-  platejs@49.2.8(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)):
+  platejs@49.2.9(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1)):
     dependencies:
-      '@platejs/core': 49.2.8(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1))
+      '@platejs/core': 49.2.9(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1))
       '@platejs/slate': 49.2.4
-      '@platejs/utils': 49.2.8(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1))
+      '@platejs/utils': 49.2.9(@types/react@18.3.23)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(slate-dom@0.116.0(slate@0.117.0))(slate@0.117.0)(use-sync-external-store@1.5.0(react@18.3.1))
       '@udecode/react-hotkeys': 37.0.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@udecode/react-utils': 49.0.15(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@udecode/utils': 47.2.7
@@ -24545,19 +25839,19 @@ snapshots:
 
   zod-error@1.5.0:
     dependencies:
-      zod: 3.25.1
+      zod: 3.25.76
 
   zod-to-json-schema@3.24.6(zod@3.25.1):
     dependencies:
       zod: 3.25.1
 
-  zod-validation-error@1.5.0(zod@3.23.8):
+  zod-validation-error@1.5.0(zod@3.25.76):
     dependencies:
-      zod: 3.23.8
-
-  zod@3.23.8: {}
+      zod: 3.25.76
 
   zod@3.25.1: {}
+
+  zod@3.25.76: {}
 
   zustand-x@6.1.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.2)(zustand@5.0.7(immer@10.1.1)(react@18.3.1)(use-sync-external-store@1.5.0(react@18.3.1))):
     dependencies:

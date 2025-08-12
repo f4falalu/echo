@@ -5,6 +5,7 @@
   "scripts": {
     "start": "bun run scripts/start.ts",
     "dev": "bun run scripts/start.ts",
+    "dev:fast": "bun run scripts/start.ts",
     "stop": "docker compose stop"
   },
   "dependencies": {

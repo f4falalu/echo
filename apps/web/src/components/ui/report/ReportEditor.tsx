@@ -1,21 +1,22 @@
 'use client';
 
-import React, { useImperativeHandle, useRef } from 'react';
+import type { ReportElement, ReportElements } from '@buster/server-shared/reports';
 import type { Value, AnyPluginConfig } from 'platejs';
 import { Plate, type TPlateEditor } from 'platejs/react';
-import { EditorContainer } from './EditorContainer';
-import { Editor } from './Editor';
-import { useReportEditor } from './useReportEditor';
+import React, { useImperativeHandle, useRef } from 'react';
 import { useMemoizedFn } from '@/hooks';
-import type { ReportElements, ReportElement } from '@buster/server-shared/reports';
 import { cn } from '@/lib/utils';
+import { Editor } from './Editor';
+import { EditorContainer } from './EditorContainer';
 import { ThemeWrapper } from './ThemeWrapper/ThemeWrapper';
+import { useReportEditor } from './useReportEditor';
 
 interface ReportEditorProps {
   // We accept the generic Value type but recommend using ReportTypes.Value for type safety
   value: ReportElements;
   placeholder?: string;
   readOnly?: boolean;
+  isStreaming?: boolean; //if true, the editor will be updated with the value prop when it is changed, everything will be readonly
   variant?: 'default';
   className?: string;
   containerClassName?: string;
@@ -52,14 +53,15 @@ export const ReportEditor = React.memo(
         mode = 'default',
         useFixedToolbarKit = false,
         readOnly = false,
-        disabled = false
+        disabled = false,
+        isStreaming = false
       },
       ref
     ) => {
       // Initialize the editor instance using the custom useEditor hook
       const isReady = useRef(false);
 
-      const editor = useReportEditor({ mode, value, disabled, useFixedToolbarKit });
+      const editor = useReportEditor({ isStreaming, mode, value, disabled, useFixedToolbarKit });
 
       const onReset = useMemoizedFn(() => {
         if (!editor) {
@@ -74,7 +76,7 @@ export const ReportEditor = React.memo(
       });
 
       // Optionally expose the editor instance to the parent via ref
-      useImperativeHandle(ref, () => ({ editor, onReset }), [editor]);
+      useImperativeHandle(ref, () => ({ editor, onReset }), [editor, { editor, onReset }]);
 
       const onValueChangePreflight = useMemoizedFn(
         ({ value, editor }: { value: Value; editor: TPlateEditor<Value, AnyPluginConfig> }) => {

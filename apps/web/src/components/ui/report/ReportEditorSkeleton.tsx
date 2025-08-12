@@ -45,23 +45,17 @@ interface ReportEditorSkeletonProps {
  * // Show chart instead of image
  * <ReportEditorSkeleton elements={['header', 'chart', 'paragraphs']} />
  */
-const DEFAULT_ELEMENTS: SkeletonElement[] = [
-  'toolbar',
-  'header',
-  'chart',
-  'paragraphs',
-  'additionalContent'
-];
+const DEFAULT_ELEMENTS: SkeletonElement[] = ['header', 'chart', 'paragraphs', 'additionalContent'];
 
 export function ReportEditorSkeleton({
   className,
   elements = DEFAULT_ELEMENTS
 }: ReportEditorSkeletonProps) {
   return (
-    <div className={cn('mx-auto w-full space-y-6', className)}>
+    <div className={cn('mx-auto w-full space-y-6 sm:px-[max(64px,calc(50%-350px))]', className)}>
       {/* Toolbar skeleton */}
       {elements.includes('toolbar') && (
-        <div className="border-border bg-background flex h-11 w-full animate-pulse items-center justify-between border-b px-3">
+        <div className="border-border flex h-11 w-full animate-pulse items-center justify-between border-b bg-transparent px-3">
           <div className="flex items-center space-x-2.5">
             {/* Tool buttons */}
             <div className="bg-muted w- h-7 rounded"></div>
@@ -80,7 +74,7 @@ export function ReportEditorSkeleton({
 
       {/* Content area */}
       <div className="px-8 pb-12">
-        <div className="bg-background border-border animate-pulse space-y-6 rounded-lg">
+        <div className="border-border animate-pulse space-y-6 rounded-lg bg-transparent">
           {/* Header skeleton */}
           {elements.includes('header') && (
             <div className="space-y-3">
@@ -111,8 +105,8 @@ export function ReportEditorSkeleton({
 
           {/* Chart placeholder */}
           {elements.includes('chart') && (
-            <div className="bg-muted flex h-48 w-full items-center justify-center rounded-lg">
-              <div className="bg-muted-foreground/3 mx-5 flex h-40 w-full items-center justify-center rounded-lg">
+            <div className="bg-muted flex w-full items-center justify-center rounded-lg">
+              <div className="bg-muted-foreground/3 m-5 mx-5 flex h-full min-h-56 w-full items-center justify-center rounded-lg">
                 <div className="text-muted-foreground/15 flex h-full w-full items-center justify-center text-[40px]">
                   <ChartStackedBar />
                 </div>

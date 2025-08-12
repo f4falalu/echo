@@ -7,6 +7,12 @@
       "persistent": true,
       "dependsOn": ["^build"],
       "with": ["@buster/database#dev"]
+    },
+    "dev:fast": {
+      "cache": false,
+      "persistent": true,
+      "dependsOn": ["^build"],
+      "with": ["@buster/database#dev"]
     }
   }
 }
