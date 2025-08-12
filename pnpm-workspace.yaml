@@ -8,6 +8,7 @@ packages:
   - "apps/electric-server"
   - "apps/trigger"
   - "apps/api"
+  - "apps/web-tss"
 
 catalog:
   "@mastra/core": "^0.10.8"
