@@ -3,7 +3,6 @@ import { describe, expect, it, vi } from 'vitest';
 import {
   formatFollowUpMessageParamsSchema,
   formatFollowUpMessageResultSchema,
-  formatFollowUpMessageStep,
   runFormatFollowUpMessageStep,
 } from './format-follow-up-message-step';
 
@@ -131,17 +130,6 @@ describe('format-follow-up-message-step', () => {
       await expect(runFormatFollowUpMessageStep(params)).rejects.toThrow(
         'Unable to format the follow-up message. Please try again later.'
       );
-    });
-  });
-
-  describe('step configuration', () => {
-    it('should export step configuration object', () => {
-      expect(formatFollowUpMessageStep).toBeDefined();
-      expect(formatFollowUpMessageStep.id).toBe('format-follow-up-message');
-      expect(formatFollowUpMessageStep.description).toContain('follow-up messages');
-      expect(formatFollowUpMessageStep.inputSchema).toBe(formatFollowUpMessageParamsSchema);
-      expect(formatFollowUpMessageStep.outputSchema).toBe(formatFollowUpMessageResultSchema);
-      expect(formatFollowUpMessageStep.execute).toBe(runFormatFollowUpMessageStep);
     });
   });
 });

@@ -1,7 +1,7 @@
 import type { Sandbox } from '@buster/sandbox';
 import { z } from 'zod';
 import { DocsAgentContextSchema } from '../../../agents/docs-agent/docs-agent-context';
-import { getRepositoryTree } from '../../../workflows/docs-agent-workflow/helpers/tree-helper';
+import { getRepositoryTree } from './helpers/tree-helper';
 
 // Zod schemas first - following Zod-first approach
 export const getRepositoryTreeParamsSchema = z.object({

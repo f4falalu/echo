@@ -1,7 +1,7 @@
 import type { ModelMessage } from 'ai';
 import { initLogger } from 'braintrust';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import postProcessingWorkflow, {
+import runMessagePostProcessingWorkflow, {
   type PostProcessingWorkflowInput,
 } from './message-post-processing-workflow';
 
@@ -324,24 +324,18 @@ describe('Post-Processing Workflow Integration Tests', () => {
     const mockInput: PostProcessingWorkflowInput = {
       conversationHistory: mockConversationHistory as ModelMessage[],
       userName: 'Test Post-Processing Workflow',
-      messageId: 'msg_12345',
-      userId: 'user_67890',
-      chatId: 'chat_abcde',
       isFollowUp: false,
       isSlackFollowUp: false,
-      previousMessages: [],
       datasets:
         'name: product\ndescription: Product catalog information\ntables:\n  - name: product\n    description: Product information including bikes and accessories\n    columns:\n      - name: name\n        description: Product name\n      - name: finishedgoodsflag\n        description: Indicates if finished and ready for sale\n  - name: sales_order_header\n    description: Sales order header information\n    columns:\n      - name: onlineorderflag\n        description: Boolean indicating if order was placed online\n  - name: credit_card\n    description: Credit card information\n    columns:\n      - name: cardtype\n        description: Type of credit card',
     };
 
     // Execute the workflow
-    const run = postProcessingWorkflow.createRun();
-    const result = await run.start({
-      inputData: mockInput,
-    });
+    const result = await runMessagePostProcessingWorkflow(mockInput);
 
     // Verify the workflow executed successfully
     expect(result).toBeDefined();
-    expect(result.status).toBe('success');
+    expect(result.flagChatResult).toBeDefined();
+    expect(result.assumptionsResult).toBeDefined();
   }, 300000); // 5 minute timeout for full workflow execution
 });

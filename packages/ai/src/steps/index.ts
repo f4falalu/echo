@@ -18,4 +18,3 @@ export * from './message-post-processing-steps/format-initial-message-step/forma
 export * from './message-post-processing-steps/format-follow-up-message-step/format-follow-up-message-step';
 export * from './message-post-processing-steps/identify-assumptions-step/identify-assumptions-step';
 export * from './message-post-processing-steps/flag-chat-step/flag-chat-step';
-export * from './message-post-processing-steps/schemas';

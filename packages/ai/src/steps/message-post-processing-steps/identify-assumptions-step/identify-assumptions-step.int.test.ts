@@ -1,6 +1,6 @@
 import type { ModelMessage } from 'ai';
 import { describe, expect, it } from 'vitest';
-import { identifyAssumptionsStepExecution } from './identify-assumptions-step';
+import { runIdentifyAssumptionsStep } from './identify-assumptions-step';
 
 describe('identify-assumptions-step integration', () => {
   it('should analyze conversation history and return assumptions results', async () => {
@@ -293,19 +293,12 @@ describe('identify-assumptions-step integration', () => {
     };
 
     // Call the step execution function directly
-    const result = await identifyAssumptionsStepExecution({ inputData: mockInput });
+    const result = await runIdentifyAssumptionsStep(mockInput);
 
     // Verify the step executed successfully and returned expected structure
     expect(result).toBeDefined();
     expect(result.toolCalled).toBeDefined();
     expect(typeof result.toolCalled).toBe('string');
-    expect(result.userName).toBe(mockInput.userName);
-    expect(result.messageId).toBe(mockInput.messageId);
-    expect(result.userId).toBe(mockInput.userId);
-    expect(result.chatId).toBe(mockInput.chatId);
-    expect(result.isFollowUp).toBe(mockInput.isFollowUp);
-    expect(result.conversationHistory).toEqual(mockConversationHistory);
-
     // Should have either assumptions array OR be empty based on tool called
     if (result.toolCalled === 'listAssumptionsResponse') {
       expect(result.assumptions).toBeDefined();

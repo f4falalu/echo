@@ -1,8 +1,6 @@
-import type { CoreMessage } from 'ai';
+import type { ModelMessage } from 'ai';
 import { describe, expect, it, vi } from 'vitest';
 import {
-  flagChatStep,
-  flagChatStepExecution,
   flagChatStepParamsSchema,
   flagChatStepResultSchema,
   runFlagChatStep,
@@ -81,7 +79,7 @@ describe('flag-chat-step', () => {
 
   describe('runFlagChatStep', () => {
     it('should handle flagChat result from LLM', async () => {
-      const mockConversation: CoreMessage[] = [
+      const mockConversation: ModelMessage[] = [
         { role: 'user', content: 'Find my sales data' },
         { role: 'assistant', content: 'I could not find any sales data matching your criteria.' },
       ];
@@ -114,7 +112,7 @@ describe('flag-chat-step', () => {
     });
 
     it('should handle noIssuesFound result from LLM', async () => {
-      const mockConversation: CoreMessage[] = [
+      const mockConversation: ModelMessage[] = [
         { role: 'user', content: 'Show me revenue charts' },
         { role: 'assistant', content: 'Here is your revenue chart with $10,000 total.' },
       ];
@@ -143,7 +141,7 @@ describe('flag-chat-step', () => {
     });
 
     it('should handle LLM errors gracefully', async () => {
-      const mockConversation: CoreMessage[] = [{ role: 'user', content: 'Test request' }];
+      const mockConversation: ModelMessage[] = [{ role: 'user', content: 'Test request' }];
 
       // Mock generateObject to throw an error
       const { generateObject } = await import('ai');
@@ -185,61 +183,6 @@ describe('flag-chat-step', () => {
       if (result.type === 'noIssuesFound') {
         expect(result.message).toBe('No conversation to analyze.');
       }
-    });
-  });
-
-  describe('legacy flagChatStepExecution', () => {
-    it('should handle legacy input format and return legacy output format', async () => {
-      // Mock generateObject to return a flagChat result
-      const { generateObject } = await import('ai');
-      vi.mocked(generateObject).mockResolvedValue({
-        object: {
-          type: 'flagChat',
-          summary_message: 'Legacy test message',
-          summary_title: 'Legacy Test',
-        },
-      } as any);
-
-      const legacyInput = {
-        conversationHistory: [{ role: 'user' as const, content: 'Legacy test' }],
-        userName: 'Legacy User',
-        messageId: 'msg_123',
-        userId: 'user_456',
-        chatId: 'chat_789',
-        isFollowUp: false,
-        isSlackFollowUp: false,
-        previousMessages: [],
-        datasets: 'legacy datasets',
-      };
-
-      const result = await flagChatStepExecution({ inputData: legacyInput });
-
-      // Verify all legacy fields are preserved
-      expect(result.conversationHistory).toEqual(legacyInput.conversationHistory);
-      expect(result.userName).toBe(legacyInput.userName);
-      expect(result.messageId).toBe(legacyInput.messageId);
-      expect(result.userId).toBe(legacyInput.userId);
-      expect(result.chatId).toBe(legacyInput.chatId);
-      expect(result.isFollowUp).toBe(legacyInput.isFollowUp);
-      expect(result.isSlackFollowUp).toBe(legacyInput.isSlackFollowUp);
-      expect(result.previousMessages).toEqual(legacyInput.previousMessages);
-      expect(result.datasets).toBe(legacyInput.datasets);
-
-      // Verify new result fields are present
-      expect(result.toolCalled).toBe('flagChat');
-      expect(result.flagChatMessage).toBe('Legacy test message');
-      expect(result.flagChatTitle).toBe('Legacy Test');
-    });
-  });
-
-  describe('step configuration', () => {
-    it('should export step configuration object', () => {
-      expect(flagChatStep).toBeDefined();
-      expect(flagChatStep.id).toBe('flag-chat');
-      expect(flagChatStep.description).toContain('analyzes the chat history');
-      expect(flagChatStep.inputSchema).toBe(flagChatStepParamsSchema);
-      expect(flagChatStep.outputSchema).toBe(flagChatStepResultSchema);
-      expect(flagChatStep.execute).toBe(runFlagChatStep);
     });
   });
 });

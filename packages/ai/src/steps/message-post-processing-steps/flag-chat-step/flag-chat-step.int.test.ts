@@ -1,6 +1,6 @@
 import type { ModelMessage } from 'ai';
 import { describe, expect, it } from 'vitest';
-import { flagChatStepExecution } from './flag-chat-step';
+import { runFlagChatStep } from './flag-chat-step';
 
 describe('flag-chat-step integration', () => {
   it('should analyze conversation history and return flag-chat results', async () => {
@@ -341,24 +341,18 @@ describe('flag-chat-step integration', () => {
     };
 
     // Call the step execution function directly
-    const result = await flagChatStepExecution({ inputData: mockInput });
+    const result = await runFlagChatStep(mockInput);
 
     // Verify the step executed successfully and returned expected structure
     expect(result).toBeDefined();
-    expect(result.toolCalled).toBeDefined();
-    expect(typeof result.toolCalled).toBe('string');
-    expect(result.userName).toBe(mockInput.userName);
-    expect(result.messageId).toBe(mockInput.messageId);
-    expect(result.userId).toBe(mockInput.userId);
-    expect(result.chatId).toBe(mockInput.chatId);
-    expect(result.isFollowUp).toBe(mockInput.isFollowUp);
-    expect(result.conversationHistory).toEqual(mockConversationHistory);
-
-    // Should have either summaryMessage/summaryTitle OR message based on tool called
-    if (result.toolCalled === 'flagChat') {
-    } else if (result.toolCalled === 'noIssuesFound') {
-      expect(result.flagChatMessage).toBeDefined();
-      expect(result.flagChatTitle).toBeDefined();
+    expect(result.type).toBeDefined();
+    expect(['flagChat', 'noIssuesFound']).toContain(result.type);
+    // Check result structure based on type
+    if (result.type === 'flagChat') {
+      expect(result.summaryMessage).toBeDefined();
+      expect(result.summaryTitle).toBeDefined();
+    } else {
+      expect(result.message).toBeDefined();
     }
   });
 });

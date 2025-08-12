@@ -205,15 +205,3 @@ export async function runFormatFollowUpMessageStep(
     throw new Error('Unable to format the follow-up message. Please try again later.');
   }
 }
-
-/**
- * Export the step without using Mastra's createStep
- */
-export const formatFollowUpMessageStep = {
-  id: 'format-follow-up-message',
-  description:
-    'This step generates an update message for follow-up messages with new issues and assumptions identified.',
-  inputSchema: formatFollowUpMessageParamsSchema,
-  outputSchema: formatFollowUpMessageResultSchema,
-  execute: runFormatFollowUpMessageStep,
-};

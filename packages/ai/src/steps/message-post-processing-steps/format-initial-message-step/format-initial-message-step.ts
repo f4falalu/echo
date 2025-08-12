@@ -229,15 +229,3 @@ export async function runFormatInitialMessageStep(
     throw new Error('Unable to format the initial message. Please try again later.');
   }
 }
-
-/**
- * Export the step without using Mastra's createStep
- */
-export const formatInitialMessageStep = {
-  id: 'format-initial-message',
-  description:
-    'This step checks for major assumptions and generates a summary message for initial messages if major assumptions are found.',
-  inputSchema: formatInitialMessageParamsSchema,
-  outputSchema: formatInitialMessageResultSchema,
-  execute: runFormatInitialMessageStep,
-};

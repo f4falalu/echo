@@ -39,9 +39,7 @@ describe('runGetRepositoryTreeStep', () => {
 │   └── index.ts
 └── package.json`;
 
-    const { getRepositoryTree } = await import(
-      '../../../workflows/docs-agent-workflow/helpers/tree-helper'
-    );
+    const { getRepositoryTree } = await import('./helpers/tree-helper');
     vi.mocked(getRepositoryTree).mockResolvedValueOnce({
       success: true,
       output: mockTreeOutput,
@@ -98,9 +96,7 @@ describe('runGetRepositoryTreeStep', () => {
     });
 
     // Mock the tree helper to return a failure
-    const { getRepositoryTree } = await import(
-      '../../../workflows/docs-agent-workflow/helpers/tree-helper'
-    );
+    const { getRepositoryTree } = await import('./helpers/tree-helper');
     vi.mocked(getRepositoryTree).mockResolvedValueOnce({
       success: false,
       error: 'tree command not found',
@@ -137,9 +133,7 @@ describe('runGetRepositoryTreeStep', () => {
 │   └── index.ts
 └── package.json`;
 
-    const { getRepositoryTree } = await import(
-      '../../../workflows/docs-agent-workflow/helpers/tree-helper'
-    );
+    const { getRepositoryTree } = await import('./helpers/tree-helper');
     vi.mocked(getRepositoryTree).mockResolvedValueOnce({
       success: true,
       output: mockTreeOutput,
@@ -173,9 +167,7 @@ describe('runGetRepositoryTreeStep', () => {
     });
 
     // Mock the tree helper to throw an error
-    const { getRepositoryTree } = await import(
-      '../../../workflows/docs-agent-workflow/helpers/tree-helper'
-    );
+    const { getRepositoryTree } = await import('./helpers/tree-helper');
     vi.mocked(getRepositoryTree).mockRejectedValueOnce(new Error('Unexpected error'));
 
     const input = {

@@ -3,7 +3,6 @@ import { describe, expect, it, vi } from 'vitest';
 import {
   formatInitialMessageParamsSchema,
   formatInitialMessageResultSchema,
-  formatInitialMessageStep,
   runFormatInitialMessageStep,
 } from './format-initial-message-step';
 
@@ -131,17 +130,6 @@ describe('format-initial-message-step', () => {
       await expect(runFormatInitialMessageStep(params)).rejects.toThrow(
         'Unable to format the initial message. Please try again later.'
       );
-    });
-  });
-
-  describe('step configuration', () => {
-    it('should export step configuration object', () => {
-      expect(formatInitialMessageStep).toBeDefined();
-      expect(formatInitialMessageStep.id).toBe('format-initial-message');
-      expect(formatInitialMessageStep.description).toContain('major assumptions');
-      expect(formatInitialMessageStep.inputSchema).toBe(formatInitialMessageParamsSchema);
-      expect(formatInitialMessageStep.outputSchema).toBe(formatInitialMessageResultSchema);
-      expect(formatInitialMessageStep.execute).toBe(runFormatInitialMessageStep);
     });
   });
 });
