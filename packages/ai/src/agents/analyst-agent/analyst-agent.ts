@@ -1,7 +1,7 @@
 import { type ModelMessage, NoSuchToolError, hasToolCall, stepCountIs, streamText } from 'ai';
 import { wrapTraced } from 'braintrust';
 import z from 'zod';
-import { GPT5 } from '../../llm/gpt-5';
+import { Sonnet4 } from '../../llm';
 import {
   createCreateDashboardsTool,
   createCreateMetricsTool,
@@ -43,8 +43,6 @@ export type AnalystAgentOptions = z.infer<typeof AnalystAgentOptionsSchema>;
 export type AnalystStreamOptions = z.infer<typeof AnalystStreamOptionsSchema>;
 
 export function createAnalystAgent(analystAgentOptions: AnalystAgentOptions) {
-  const steps: never[] = [];
-
   const systemMessage = {
     role: 'system',
     content: getAnalystAgentSystemPrompt(analystAgentOptions.dataSourceSyntax),
@@ -71,7 +69,7 @@ export function createAnalystAgent(analystAgentOptions: AnalystAgentOptions) {
         return wrapTraced(
           () =>
             streamText({
-              model: GPT5,
+              model: Sonnet4,
               tools: {
                 createMetrics,
                 modifyMetrics,
@@ -135,12 +133,7 @@ export function createAnalystAgent(analystAgentOptions: AnalystAgentOptions) {
     throw new Error('Max retry attempts exceeded');
   }
 
-  async function getSteps() {
-    return steps;
-  }
-
   return {
     stream,
-    getSteps,
   };
 }

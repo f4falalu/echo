@@ -35,54 +35,49 @@ export function createModifyMetricsDelta(context: ModifyMetricsContext, state: M
     // Try to parse the accumulated JSON
     const parseResult = OptimisticJsonParser.parse(state.argsText || '');
 
-    if (parseResult.parsed) {
-      // Extract files array from parsed result
-      const filesArray = getOptimisticValue<unknown[]>(
-        parseResult.extractedValues,
-        TOOL_KEYS.files,
-        []
-      );
+    // Extract files array using getOptimisticValue
+    const filesArray = getOptimisticValue<unknown[]>(
+      parseResult.extractedValues,
+      TOOL_KEYS.files,
+      undefined
+    );
 
-      if (filesArray && Array.isArray(filesArray)) {
-        // Update state files with streamed data
-        const updatedFiles: ModifyMetricStateFile[] = [];
+    if (filesArray && Array.isArray(filesArray)) {
+      // Update state files with streamed data
+      const updatedFiles: ModifyMetricStateFile[] = [];
 
-        filesArray.forEach((file, index) => {
-          if (file && typeof file === 'object') {
-            const fileObj = file as Record<string, unknown>;
-            const id = getOptimisticValue<string>(
-              new Map(Object.entries(fileObj)),
-              TOOL_KEYS.id,
-              ''
-            );
-            const ymlContent = getOptimisticValue<string>(
-              new Map(Object.entries(fileObj)),
-              TOOL_KEYS.yml_content,
-              ''
-            );
+      filesArray.forEach((file) => {
+        if (file && typeof file === 'object') {
+          const fileObj = file as Record<string, unknown>;
+          
+          // Extract values directly from the file object
+          const id = fileObj[TOOL_KEYS.id] as string | undefined;
+          const ymlContent = fileObj[TOOL_KEYS.yml_content] as string | undefined;
 
-            // Only add files that have at least an ID
-            if (id) {
-              // Check if this file already exists in state to preserve data
-              const existingFile = state.files?.[index];
+          // Only add files that have at least an ID
+          if (id) {
+            // Find existing file by ID to preserve data
+            const existingFile = state.files?.find(f => f?.id === id);
 
-              updatedFiles.push({
-                id: existingFile?.id || id,
-                file_name: existingFile?.file_name,
-                file_type: 'metric',
-                version_number: existingFile?.version_number || 1,
-                file: ymlContent
-                  ? {
-                      text: ymlContent,
-                    }
-                  : undefined,
-                yml_content: ymlContent || undefined,
-                status: 'loading',
-              });
-            }
+            updatedFiles.push({
+              id: id,
+              file_name: existingFile?.file_name,
+              file_type: 'metric',
+              version_number: existingFile?.version_number || 1,
+              file: ymlContent
+                ? {
+                    text: ymlContent,
+                  }
+                : existingFile?.file,
+              yml_content: ymlContent || existingFile?.yml_content,
+              status: 'loading',
+            });
           }
-        });
+        }
+      });
 
+      // Only update state.files if we have new files
+      if (updatedFiles.length > 0) {
         state.files = updatedFiles;
       }
     }

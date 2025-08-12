@@ -1,7 +1,7 @@
-import { baseConfig } from '@buster/vitest-config';
-import { defineConfig } from 'vitest/config';
 import fs from 'node:fs';
 import path from 'node:path';
+import { baseConfig } from '@buster/vitest-config';
+import { defineConfig } from 'vitest/config';
 
 // Custom plugin to handle .txt file imports
 const textFilePlugin = () => ({

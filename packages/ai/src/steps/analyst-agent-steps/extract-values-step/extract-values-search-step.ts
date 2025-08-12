@@ -193,18 +193,16 @@ export async function runExtractValuesAndSearchStep(
     // Handle AbortError gracefully
     if (error instanceof Error && error.name === 'AbortError') {
       console.info('[ExtractValues] Operation was aborted');
-      // Return empty values when aborted
+      // Return empty object when aborted
       return {
         values: [],
-        valuesMessage: undefined,
       };
     }
 
     console.error('[ExtractValues] Unexpected error:', error);
-    // Return empty values array instead of crashing
+    // Return empty object instead of crashing
     return {
       values: [],
-      valuesMessage: undefined,
     };
   }
 }

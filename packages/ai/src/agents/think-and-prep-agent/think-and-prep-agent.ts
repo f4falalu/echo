@@ -1,7 +1,7 @@
 import { type ModelMessage, NoSuchToolError, hasToolCall, stepCountIs, streamText } from 'ai';
 import { wrapTraced } from 'braintrust';
 import z from 'zod';
-import { GPT5 } from '../../llm/gpt-5';
+import { Sonnet4 } from '../../llm';
 import { createExecuteSqlTool, createSequentialThinkingTool } from '../../tools';
 import { createMessageUserClarifyingQuestionTool } from '../../tools/communication-tools/message-user-clarifying-question/message-user-clarifying-question';
 import { createRespondWithoutAssetCreationTool } from '../../tools/communication-tools/respond-without-asset-creation/respond-without-asset-creation-tool';
@@ -86,7 +86,7 @@ export function createThinkAndPrepAgent(thinkAndPrepAgentSchema: ThinkAndPrepAge
         return wrapTraced(
           () =>
             streamText({
-              model: GPT5,
+              model: Sonnet4,
               tools: {
                 sequentialThinking,
                 executeSql: executeSqlTool,

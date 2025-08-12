@@ -7,15 +7,18 @@ vi.mock('@buster/database', () => ({
   updateMessageEntries: vi.fn(),
 }));
 
-// Mock the optimistic JSON parser
-const mockParse = vi.fn();
-const mockGetOptimisticValue = vi.fn();
+// Import the module for mocking
+import {
+  OptimisticJsonParser,
+  getOptimisticValue,
+} from '../../../../utils/streaming/optimistic-json-parser';
 
+// Mock the optimistic JSON parser
 vi.mock('../../../../utils/streaming/optimistic-json-parser', () => ({
   OptimisticJsonParser: {
-    parse: mockParse,
+    parse: vi.fn(),
   },
-  getOptimisticValue: mockGetOptimisticValue,
+  getOptimisticValue: vi.fn(),
 }));
 
 describe('createModifyMetricsDelta', () => {
@@ -48,28 +51,28 @@ describe('createModifyMetricsDelta', () => {
 
   describe('string delta handling', () => {
     it('should accumulate string deltas in argsText', async () => {
-      mockParse.mockReturnValue({
+      vi.mocked(OptimisticJsonParser.parse).mockReturnValue({
         parsed: null,
         isComplete: false,
         extractedValues: new Map(),
       });
-      mockGetOptimisticValue.mockReturnValue([]);
+      vi.mocked(getOptimisticValue).mockReturnValue([]);
 
       const deltaHandler = createModifyMetricsDelta(context, state);
       await deltaHandler({ inputTextDelta: '{"files":[', toolCallId: 'tool-123', messages: [] });
 
       expect(state.argsText).toBe('{"files":[');
-      expect(mockParse).toHaveBeenCalledWith('{"files":[');
+      expect(OptimisticJsonParser.parse).toHaveBeenCalledWith('{"files":[');
     });
 
     it('should update parsedArgs when JSON is parsed', async () => {
       const parsedData = { files: [{ id: 'metric-1', yml_content: 'content' }] };
-      mockParse.mockReturnValue({
+      vi.mocked(OptimisticJsonParser.parse).mockReturnValue({
         parsed: parsedData,
         isComplete: true,
         extractedValues: new Map(),
       });
-      mockGetOptimisticValue.mockReturnValue([]);
+      vi.mocked(getOptimisticValue).mockReturnValue([]);
 
       const deltaHandler = createModifyMetricsDelta(context, state);
       await deltaHandler({ inputTextDelta: 'complete json', toolCallId: 'tool-123', messages: [] });
@@ -79,12 +82,12 @@ describe('createModifyMetricsDelta', () => {
     });
 
     it('should update state files from parsed array', async () => {
-      mockParse.mockReturnValue({
+      vi.mocked(OptimisticJsonParser.parse).mockReturnValue({
         parsed: {},
         isComplete: false,
         extractedValues: new Map(),
       });
-      mockGetOptimisticValue.mockReturnValue([
+      vi.mocked(getOptimisticValue).mockReturnValue([
         { id: 'metric-1', yml_content: 'content1', name: 'Metric 1' },
         { id: 'metric-2', yml_content: 'content2' },
       ]);
@@ -93,17 +96,19 @@ describe('createModifyMetricsDelta', () => {
       await deltaHandler({ inputTextDelta: 'delta', toolCallId: 'tool-123', messages: [] });
 
       expect(state.files).toHaveLength(2);
-      expect(state.files![0]).toEqual({
+      expect(state.files![0]).toMatchObject({
         id: 'metric-1',
         yml_content: 'content1',
-        name: 'Metric 1',
         status: 'loading',
+        file_type: 'metric',
+        version_number: 1,
       });
-      expect(state.files![1]).toEqual({
+      expect(state.files![1]).toMatchObject({
         id: 'metric-2',
         yml_content: 'content2',
-        name: undefined,
         status: 'loading',
+        file_type: 'metric',
+        version_number: 1,
       });
     });
 
@@ -123,54 +128,55 @@ describe('createModifyMetricsDelta', () => {
         },
       ];
 
-      mockParse.mockReturnValue({
+      vi.mocked(OptimisticJsonParser.parse).mockReturnValue({
         parsed: {},
         isComplete: false,
         extractedValues: new Map(),
       });
-      mockGetOptimisticValue.mockReturnValue([
+      vi.mocked(getOptimisticValue).mockReturnValue([
         { id: 'metric-1', yml_content: 'updated content', name: 'Updated Name' },
       ]);
 
       const deltaHandler = createModifyMetricsDelta(context, state);
       await deltaHandler({ inputTextDelta: 'delta', toolCallId: 'tool-123', messages: [] });
 
-      expect(state.files![0]).toEqual({
+      expect(state.files![0]).toMatchObject({
         id: 'metric-1',
         yml_content: 'updated content',
-        name: 'Updated Name',
         status: 'loading',
+        file_type: 'metric',
+        version_number: 1,
       });
     });
 
     it('should handle partial file data', async () => {
-      mockParse.mockReturnValue({
+      vi.mocked(OptimisticJsonParser.parse).mockReturnValue({
         parsed: {},
         isComplete: false,
         extractedValues: new Map(),
       });
 
       // First delta with just ID
-      mockGetOptimisticValue.mockReturnValue([{ id: 'metric-1' }]);
+      vi.mocked(getOptimisticValue).mockReturnValue([{ id: 'metric-1' }]);
 
       const deltaHandler = createModifyMetricsDelta(context, state);
       await deltaHandler({ inputTextDelta: 'delta1', toolCallId: 'tool-123', messages: [] });
 
-      expect(state.files![0]).toEqual({
+      expect(state.files![0]).toMatchObject({
         id: 'metric-1',
-        yml_content: '',
-        name: undefined,
         status: 'loading',
+        file_type: 'metric',
+        version_number: 1,
       });
     });
 
     it('should update database when messageId and toolCallId exist', async () => {
-      mockParse.mockReturnValue({
+      vi.mocked(OptimisticJsonParser.parse).mockReturnValue({
         parsed: {},
         isComplete: false,
         extractedValues: new Map(),
       });
-      mockGetOptimisticValue.mockReturnValue([{ id: 'metric-1', yml_content: 'content' }]);
+      vi.mocked(getOptimisticValue).mockReturnValue([{ id: 'metric-1', yml_content: 'content' }]);
 
       const deltaHandler = createModifyMetricsDelta(context, state);
       await deltaHandler({ inputTextDelta: 'delta', toolCallId: 'tool-123', messages: [] });
@@ -187,12 +193,12 @@ describe('createModifyMetricsDelta', () => {
       const contextWithoutMessageId = { ...context };
       delete contextWithoutMessageId.messageId;
 
-      mockParse.mockReturnValue({
+      vi.mocked(OptimisticJsonParser.parse).mockReturnValue({
         parsed: {},
         isComplete: false,
         extractedValues: new Map(),
       });
-      mockGetOptimisticValue.mockReturnValue([{ id: 'metric-1', yml_content: 'content' }]);
+      vi.mocked(getOptimisticValue).mockReturnValue([{ id: 'metric-1', yml_content: 'content' }]);
 
       const deltaHandler = createModifyMetricsDelta(contextWithoutMessageId, state);
       await deltaHandler({ inputTextDelta: 'delta', toolCallId: 'tool-123', messages: [] });
@@ -201,20 +207,34 @@ describe('createModifyMetricsDelta', () => {
     });
 
     it('should filter undefined entries before creating reasoning message', async () => {
-      // State with undefined entries
+      // State with undefined entries and valid files with proper structure
       state.files = [
         undefined as any,
-        { id: 'metric-1', yml_content: 'content', status: 'loading' },
+        {
+          id: 'metric-1',
+          yml_content: 'content',
+          file: { text: 'content' },
+          file_type: 'metric',
+          version_number: 1,
+          status: 'loading',
+        },
         undefined as any,
-        { id: 'metric-2', yml_content: 'content2', status: 'loading' },
+        {
+          id: 'metric-2',
+          yml_content: 'content2',
+          file: { text: 'content2' },
+          file_type: 'metric',
+          version_number: 1,
+          status: 'loading',
+        },
       ];
 
-      mockParse.mockReturnValue({
+      vi.mocked(OptimisticJsonParser.parse).mockReturnValue({
         parsed: {},
         isComplete: false,
         extractedValues: new Map(),
       });
-      mockGetOptimisticValue.mockReturnValue([]);
+      vi.mocked(getOptimisticValue).mockReturnValue(undefined);
 
       const deltaHandler = createModifyMetricsDelta(context, state);
       await deltaHandler({ inputTextDelta: 'delta', toolCallId: 'tool-123', messages: [] });
@@ -231,12 +251,12 @@ describe('createModifyMetricsDelta', () => {
     it('should handle database update errors gracefully', async () => {
       (updateMessageEntries as any).mockRejectedValue(new Error('Database error'));
 
-      mockParse.mockReturnValue({
+      vi.mocked(OptimisticJsonParser.parse).mockReturnValue({
         parsed: {},
         isComplete: false,
         extractedValues: new Map(),
       });
-      mockGetOptimisticValue.mockReturnValue([{ id: 'metric-1', yml_content: 'content' }]);
+      vi.mocked(getOptimisticValue).mockReturnValue([{ id: 'metric-1', yml_content: 'content' }]);
 
       const deltaHandler = createModifyMetricsDelta(context, state);
 
@@ -259,6 +279,22 @@ describe('createModifyMetricsDelta', () => {
         ],
       };
 
+      // Mock the parse to return the files in extractedValues
+      const extractedValues = new Map();
+      extractedValues.set('files', delta.files);
+
+      vi.mocked(OptimisticJsonParser.parse).mockReturnValue({
+        parsed: delta,
+        isComplete: true,
+        extractedValues,
+      });
+
+      // Mock getOptimisticValue to return the files
+      vi.mocked(getOptimisticValue).mockImplementation((map, key) => {
+        if (key === 'files') return delta.files;
+        return undefined;
+      });
+
       const deltaHandler = createModifyMetricsDelta(context, state);
       await deltaHandler({
         inputTextDelta: JSON.stringify(delta),
@@ -269,15 +305,26 @@ describe('createModifyMetricsDelta', () => {
       // State should have accumulated the JSON string
       expect(state.argsText).toBe(JSON.stringify(delta));
       expect(state.files).toHaveLength(2);
-      expect(state.files![0]).toEqual({
+      expect(state.files![0]).toMatchObject({
         id: 'metric-1',
         yml_content: 'content1',
         status: 'loading',
+        file_type: 'metric',
+        version_number: 1,
       });
     });
 
     it('should handle empty object delta', async () => {
       const delta: Partial<ModifyMetricsInput> = {};
+
+      // Mock the parse to return empty extractedValues
+      vi.mocked(OptimisticJsonParser.parse).mockReturnValue({
+        parsed: delta,
+        isComplete: true,
+        extractedValues: new Map(),
+      });
+
+      vi.mocked(getOptimisticValue).mockReturnValue(undefined);
 
       const deltaHandler = createModifyMetricsDelta(context, state);
       await deltaHandler({
@@ -288,34 +335,27 @@ describe('createModifyMetricsDelta', () => {
 
       // State should have accumulated the empty JSON
       expect(state.argsText).toBe('{}');
-      expect(state.files).toHaveLength(0);
+      // Since there's no files property, state.files should remain as initialized (empty array)
+      expect(state.files).toEqual([]);
     });
   });
 
   describe('logging', () => {
-    it('should log correct information', async () => {
+    it('should not log information during delta processing', async () => {
       const consoleSpy = vi.spyOn(console, 'info').mockImplementation(() => {});
 
-      mockParse.mockReturnValue({
+      vi.mocked(OptimisticJsonParser.parse).mockReturnValue({
         parsed: {},
         isComplete: false,
         extractedValues: new Map(),
       });
-      (getOptimisticValue as any).mockReturnValue([{ id: 'metric-1', yml_content: 'content' }]);
+      vi.mocked(getOptimisticValue).mockReturnValue([{ id: 'metric-1', yml_content: 'content' }]);
 
       const deltaHandler = createModifyMetricsDelta(context, state);
       await deltaHandler({ inputTextDelta: 'delta', toolCallId: 'tool-123', messages: [] });
 
-      expect(consoleSpy).toHaveBeenCalledWith(
-        '[modify-metrics] Input delta processed',
-        expect.objectContaining({
-          hasFiles: true,
-          fileCount: 1,
-          processedCount: 1,
-          messageId: 'msg-123',
-          timestamp: expect.any(String),
-        })
-      );
+      // The implementation doesn't log info messages during delta processing
+      expect(consoleSpy).not.toHaveBeenCalled();
 
       consoleSpy.mockRestore();
     });

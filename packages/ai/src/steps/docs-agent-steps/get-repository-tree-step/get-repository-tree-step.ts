@@ -46,15 +46,30 @@ export async function runGetRepositoryTreeStep(
 
     console.info('[GetRepositoryTree] Generating repository tree structure');
 
-    // Get current working directory
-    const pwdResult = await sandbox.process.executeCommand('pwd');
-    const currentDir = pwdResult.result.trim();
+    // Get current working directory - handle errors gracefully
+    let currentDir = '';
+    try {
+      const pwdResult = await sandbox.process.executeCommand('pwd');
+      currentDir = pwdResult.result.trim();
+    } catch (error) {
+      console.warn('[GetRepositoryTree] Failed to get current directory:', error);
+      // Continue with empty currentDir - will still show partial message
+    }
 
     // Get the tree structure with gitignore option enabled
-    const treeResult = await getRepositoryTree(sandbox, '.', {
-      gitignore: true,
-      maxDepth: 5, // Limit depth to avoid extremely large outputs
-    });
+    let treeResult;
+    try {
+      treeResult = await getRepositoryTree(sandbox, '.', {
+        gitignore: true,
+        maxDepth: 5, // Limit depth to avoid extremely large outputs
+      });
+    } catch (error) {
+      console.error('[GetRepositoryTree] Error calling getRepositoryTree:', error);
+      return {
+        ...validatedParams,
+        repositoryTree: '',
+      };
+    }
 
     if (!treeResult.success || !treeResult.output) {
       console.warn('[GetRepositoryTree] Failed to generate tree:', treeResult.error);

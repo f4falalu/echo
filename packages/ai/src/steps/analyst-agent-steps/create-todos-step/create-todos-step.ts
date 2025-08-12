@@ -39,14 +39,14 @@ async function generateTodosWithLLM(messages: ModelMessage[]): Promise<string> {
       content: getCreateTodosSystemMessage(),
     };
 
-    messages.unshift(systemMessage);
+    const todosMessages: ModelMessage[] = [systemMessage, ...messages];
 
     const tracedTodosGeneration = wrapTraced(
       async () => {
         const { object } = await generateObject({
           model: Sonnet4,
           schema: llmOutputSchema,
-          messages,
+          messages: todosMessages,
           temperature: 0,
         });
 

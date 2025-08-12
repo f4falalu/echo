@@ -96,7 +96,7 @@ describe('createModifyMetricsStart', () => {
         file: { text: 'content' },
       },
     ];
-    
+
     (updateMessageEntries as any).mockRejectedValue(new Error('Database error'));
 
     const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
@@ -104,19 +104,17 @@ describe('createModifyMetricsStart', () => {
     const startHandler = createModifyMetricsStart(context, state);
 
     // Should not throw
-    await expect(
-      startHandler({ toolCallId: 'tool-123', messages: [] })
-    ).resolves.not.toThrow();
+    await expect(startHandler({ toolCallId: 'tool-123', messages: [] })).resolves.not.toThrow();
 
     expect(updateMessageEntries).toHaveBeenCalled();
     // State should still be initialized even if database fails
     expect(state.toolCallId).toBe('tool-123');
-    
+
     expect(consoleSpy).toHaveBeenCalledWith(
       '[modify-metrics] Error updating entries on start:',
       expect.any(Error)
     );
-    
+
     consoleSpy.mockRestore();
   });
 

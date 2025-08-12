@@ -3,7 +3,7 @@ import { generateObject } from 'ai';
 import type { ModelMessage } from 'ai';
 import { wrapTraced } from 'braintrust';
 import { z } from 'zod';
-import { Haiku35 } from '../../../llm/haiku-3-5';
+import { Haiku35 } from '../../../llm';
 
 // Zod-first: define input/output schemas and export inferred types
 export const generateChatTitleParamsSchema = z.object({
@@ -31,17 +31,20 @@ With an emphasis on the user's question and most recent converstaion topic.
  */
 async function generateTitleWithLLM(messages: ModelMessage[]): Promise<void> {
   try {
-    messages.push({
-      role: 'system',
-      content: generateChatTitleInstructions,
-    });
+    const titleMessages: ModelMessage[] = [
+      {
+        role: 'system',
+        content: generateChatTitleInstructions,
+      },
+      ...messages,
+    ];
 
     const tracedChatTitle = wrapTraced(
       async () => {
         const { object } = await generateObject({
           model: Haiku35,
           schema: llmOutputSchema,
-          messages,
+          messages: titleMessages,
         });
 
         return object;

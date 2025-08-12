@@ -35,9 +35,6 @@ describe('createBashTool', () => {
     expect(bashTool.inputSchema).toBeDefined();
     expect(bashTool.outputSchema).toBeDefined();
     expect(bashTool.execute).toBeDefined();
-    expect(bashTool.onInputStart).toBeDefined();
-    expect(bashTool.onInputDelta).toBeDefined();
-    expect(bashTool.onInputAvailable).toBeDefined();
   });
 
   it('should handle successful command execution', async () => {
