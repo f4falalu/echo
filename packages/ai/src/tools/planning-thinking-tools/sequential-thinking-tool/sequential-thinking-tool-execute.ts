@@ -35,9 +35,7 @@ async function processSequentialThinking(
 }
 
 // Factory function that creates the execute function with proper context typing
-export function createSequentialThinkingExecute<TAgentContext extends SequentialThinkingContext>(
-  context: TAgentContext
-) {
+export function createSequentialThinkingExecute(context: SequentialThinkingContext) {
   return wrapTraced(
     async (input: SequentialThinkingInput): Promise<SequentialThinkingOutput> => {
       // Use the messageId from the passed context

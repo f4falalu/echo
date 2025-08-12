@@ -852,10 +852,10 @@ export const messages = pgTable(
   {
     id: uuid().defaultRandom().primaryKey().notNull(),
     requestMessage: text('request_message'),
-    responseMessages: jsonb('response_messages').notNull(),
-    reasoning: jsonb().notNull(),
+    responseMessages: jsonb('response_messages').default([]).notNull(),
+    reasoning: jsonb().default([]).notNull(),
     title: text().notNull(),
-    rawLlmMessages: jsonb('raw_llm_messages').notNull(),
+    rawLlmMessages: jsonb('raw_llm_messages').default([]).notNull(),
     finalReasoningMessage: text('final_reasoning_message'),
     chatId: uuid('chat_id').notNull(),
     createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' })

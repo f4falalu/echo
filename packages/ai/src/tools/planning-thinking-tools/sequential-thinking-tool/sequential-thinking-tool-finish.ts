@@ -11,9 +11,9 @@ import type {
   SequentialThinkingState,
 } from './sequential-thinking-tool';
 
-export function createSequentialThinkingFinish<TAgentContext extends SequentialThinkingContext>(
+export function createSequentialThinkingFinish(
   sequentialThinkingState: SequentialThinkingState,
-  context: TAgentContext
+  context: SequentialThinkingContext
 ) {
   return async function sequentialThinkingFinish(
     options: { input: SequentialThinkingInput } & ToolCallOptions

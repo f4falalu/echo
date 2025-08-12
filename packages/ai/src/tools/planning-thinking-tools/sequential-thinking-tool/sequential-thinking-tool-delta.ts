@@ -21,9 +21,9 @@ const NEXT_THOUGHT_NEEDED_KEY =
   'nextThoughtNeeded' as const satisfies keyof SequentialThinkingInput;
 const THOUGHT_NUMBER_KEY = 'thoughtNumber' as const satisfies keyof SequentialThinkingInput;
 
-export function createSequentialThinkingDelta<TAgentContext extends SequentialThinkingContext>(
+export function createSequentialThinkingDelta(
   sequentialThinkingState: SequentialThinkingState,
-  context: TAgentContext
+  context: SequentialThinkingContext
 ) {
   return async function sequentialThinkingDelta(
     options: { inputTextDelta: string } & ToolCallOptions

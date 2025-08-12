@@ -58,9 +58,7 @@ export type SequentialThinkingOutput = z.infer<typeof SequentialThinkingOutputSc
 export type SequentialThinkingContext = z.infer<typeof SequentialThinkingContextSchema>;
 export type SequentialThinkingState = z.infer<typeof SequentialThinkingStateSchema>;
 
-export function createSequentialThinkingTool<
-  TAgentContext extends SequentialThinkingContext = SequentialThinkingContext,
->(context: TAgentContext) {
+export function createSequentialThinkingTool(context: SequentialThinkingContext) {
   const state: SequentialThinkingState = {
     entry_id: undefined,
     args: undefined,
@@ -69,10 +67,10 @@ export function createSequentialThinkingTool<
     thoughtNumber: undefined,
   };
 
-  const execute = createSequentialThinkingExecute<TAgentContext>(context);
-  const onInputStart = createSequentialThinkingStart<TAgentContext>(state, context);
-  const onInputDelta = createSequentialThinkingDelta<TAgentContext>(state, context);
-  const onInputAvailable = createSequentialThinkingFinish<TAgentContext>(state, context);
+  const execute = createSequentialThinkingExecute(context);
+  const onInputStart = createSequentialThinkingStart(state, context);
+  const onInputDelta = createSequentialThinkingDelta(state, context);
+  const onInputAvailable = createSequentialThinkingFinish(state, context);
 
   return tool({
     description: `A detailed tool for dynamic and reflective problem-solving through thoughts.

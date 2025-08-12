@@ -10,9 +10,9 @@ import type {
 } from './sequential-thinking-tool';
 
 // Factory function that creates a type-safe callback for the specific agent context
-export function createSequentialThinkingStart<TAgentContext extends SequentialThinkingContext>(
+export function createSequentialThinkingStart(
   sequentialThinkingState: SequentialThinkingState,
-  context: TAgentContext
+  context: SequentialThinkingContext
 ) {
   return async function sequentialThinkingStart(options: ToolCallOptions): Promise<void> {
     // Set the entry ID in state
