@@ -13,6 +13,8 @@ import { z } from 'zod';
 import {
   type DashboardConfig,
   DashboardConfigSchema,
+  type DashboardYml,
+  DashboardYmlSchema,
 } from '../../../../../../server-shared/src/dashboards/dashboard.types';
 import { trackFileAssociations } from '../../file-tracking-helper';
 import type {
@@ -27,11 +29,7 @@ import {
 } from './helpers/create-dashboards-tool-transform-helper';
 
 // Type definitions
-interface DashboardWithMetadata {
-  name: string;
-  description?: string;
-  config: DashboardConfig;
-}
+type DashboardWithMetadata = DashboardYml;
 
 interface FileWithId {
   id: string;
@@ -50,14 +48,7 @@ interface FailedFileCreation {
   error: string;
 }
 
-interface VersionHistory {
-  versions: Array<{
-    version: number;
-    created_at: string;
-    changes?: string;
-    content: DashboardWithMetadata;
-  }>;
-}
+type VersionHistory = (typeof dashboardFiles.$inferSelect)['versionHistory'];
 
 // Helper function to create initial version history
 function createInitialDashboardVersionHistory(
@@ -65,42 +56,16 @@ function createInitialDashboardVersionHistory(
   createdAt: string
 ): VersionHistory {
   return {
-    versions: [
-      {
-        version: 1,
-        created_at: createdAt,
-        content: dashboard,
-      },
-    ],
+    '1': {
+      content: JSON.stringify(dashboard),
+      updated_at: createdAt,
+      version_number: 1,
+    },
   };
 }
 
 type CreateDashboardFilesParams = CreateDashboardsInput;
 type CreateDashboardFilesOutput = CreateDashboardsOutput;
-
-// Dashboard YAML schema
-const dashboardYmlSchema = z.object({
-  name: z.string().min(1, 'Dashboard name is required'),
-  description: z.string().optional(),
-  rows: z
-    .array(
-      z
-        .object({
-          id: z.string(),
-          items: z.array(
-            z
-              .object({
-                id: z.string(),
-              })
-              .passthrough()
-          ),
-          column_sizes: z.array(z.number()).optional(),
-          rowHeight: z.number().optional(),
-        })
-        .passthrough()
-    )
-    .min(1, 'Dashboard must have at least one row'),
-});
 
 // Parse and validate dashboard YAML content
 function parseAndValidateYaml(ymlContent: string): {
@@ -110,7 +75,7 @@ function parseAndValidateYaml(ymlContent: string): {
 } {
   try {
     const parsedYml = yaml.parse(ymlContent);
-    const validationResult = dashboardYmlSchema.safeParse(parsedYml);
+    const validationResult = DashboardYmlSchema.safeParse(parsedYml);
 
     if (!validationResult.success) {
       return {
@@ -119,22 +84,8 @@ function parseAndValidateYaml(ymlContent: string): {
       };
     }
 
-    // Create DashboardConfig that matches the server-shared type
-    const dashboardConfig: DashboardConfig = {
-      rows: validationResult.data.rows?.map((row) => ({
-        id: row.id,
-        items: row.items.map((item) => ({ id: item.id })),
-        ...(row.column_sizes !== undefined && { columnSizes: row.column_sizes }),
-        ...(row.rowHeight !== undefined && { rowHeight: row.rowHeight }),
-      })),
-    };
-
-    // Return dashboard with metadata
-    const dashboard: DashboardWithMetadata = {
-      name: validationResult.data.name,
-      ...(validationResult.data.description && { description: validationResult.data.description }),
-      config: dashboardConfig,
-    };
+    // Return the validated dashboard
+    const dashboard: DashboardWithMetadata = validationResult.data;
 
     return { success: true, data: dashboard };
   } catch (error) {

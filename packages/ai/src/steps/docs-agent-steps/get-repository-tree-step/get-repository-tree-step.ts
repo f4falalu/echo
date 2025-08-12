@@ -32,7 +32,7 @@ export async function runGetRepositoryTreeStep(
   try {
     // Validate input
     const validatedParams = getRepositoryTreeParamsSchema.parse(params);
-    
+
     // Get the sandbox from context
     const sandbox = validatedParams.context.sandbox as Sandbox;
 
@@ -87,4 +87,3 @@ export async function runGetRepositoryTreeStep(
     };
   }
 }
-

@@ -2,8 +2,8 @@ import { generateObject } from 'ai';
 import type { ModelMessage } from 'ai';
 import { wrapTraced } from 'braintrust';
 import { z } from 'zod';
-import { Sonnet4 } from '../../llm/sonnet-4';
-import { MessageHistorySchema } from '../../utils/memory/types';
+import { Sonnet4 } from '../../../llm/sonnet-4';
+import { MessageHistorySchema } from '../../../utils/memory/types';
 
 // Simplified input schema - only include necessary fields
 export const flagChatStepInputSchema = z.object({

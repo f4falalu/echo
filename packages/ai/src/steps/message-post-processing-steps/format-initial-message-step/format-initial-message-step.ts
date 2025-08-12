@@ -2,8 +2,8 @@ import { generateObject } from 'ai';
 import type { ModelMessage } from 'ai';
 import { wrapTraced } from 'braintrust';
 import { z } from 'zod';
-import { postProcessingWorkflowOutputSchema } from './schemas';
-import { Sonnet4 } from '../../llm/sonnet-4';
+import { Sonnet4 } from '../../../llm/sonnet-4';
+import { postProcessingWorkflowOutputSchema } from '../schemas';
 // Import the schema from combine-parallel-results step
 import { combineParallelResultsOutputSchema } from './combine-parallel-results-step';
 
@@ -16,7 +16,9 @@ export const formatInitialMessageOutputSchema = postProcessingWorkflowOutputSche
 // LLM-compatible schema for generating summary
 export const generateSummaryOutputSchema = z.object({
   title: z.string().describe('A concise title for the summary message, 3-6 words long'),
-  summary_message: z.string().describe('A simple and concise summary of the issues and assumptions'),
+  summary_message: z
+    .string()
+    .describe('A simple and concise summary of the issues and assumptions'),
 });
 
 export type FormatInitialMessageParams = z.infer<typeof inputSchema>;
@@ -118,9 +120,7 @@ ${flaggedIssues}
 Major Assumptions Identified:
 ${
   majorAssumptions.length > 0
-    ? majorAssumptions
-        .map((a) => `- ${a.descriptiveTitle}: ${a.explanation}`)
-        .join('\n\n')
+    ? majorAssumptions.map((a) => `- ${a.descriptiveTitle}: ${a.explanation}`).join('\n\n')
     : 'No major assumptions identified'
 }
 

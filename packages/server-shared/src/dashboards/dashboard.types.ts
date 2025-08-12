@@ -36,6 +36,13 @@ export const DashboardSchema = z.object({
   file_name: z.string(),
 });
 
+export const DashboardYmlSchema = z.object({
+  name: z.string(),
+  description: z.string(),
+  config: DashboardConfigSchema,
+});
+
 // Export inferred types
 export type DashboardConfig = z.infer<typeof DashboardConfigSchema>;
 export type Dashboard = z.infer<typeof DashboardSchema>;
+export type DashboardYml = z.infer<typeof DashboardYmlSchema>;

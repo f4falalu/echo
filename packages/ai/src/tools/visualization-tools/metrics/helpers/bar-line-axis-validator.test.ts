@@ -1,20 +1,26 @@
-import type { ChartConfigProps } from '@buster/server-shared/metrics';
+import { type MetricYml, MetricYmlSchema } from '@buster/server-shared/metrics';
 import { describe, expect, it } from 'vitest';
 import { validateAndAdjustBarLineAxes } from './bar-line-axis-validator';
 
 describe('validateAndAdjustBarLineAxes', () => {
   it('should return unchanged config for non-bar/line charts', () => {
-    const chartConfig: ChartConfigProps = {
-      selectedChartType: 'pie',
-      columnLabelFormats: {},
-    } as ChartConfigProps;
+    const metricYml = MetricYmlSchema.parse({
+      name: 'Pie Chart',
+      description: 'Test pie chart',
+      timeFrame: '2024',
+      sql: 'SELECT category, count FROM data',
+      chartConfig: {
+        selectedChartType: 'pie',
+        columnLabelFormats: {},
+      },
+    });
 
-    const result = validateAndAdjustBarLineAxes(chartConfig);
-    expect(result).toEqual(chartConfig);
+    const result = validateAndAdjustBarLineAxes(metricYml.chartConfig);
+    expect(result).toEqual(metricYml.chartConfig);
   });
 
   it('should return valid when Y axis has numeric columns', () => {
-    const metricYml: MetricYml = {
+    const metricYml = MetricYmlSchema.parse({
       name: 'Sales by Month',
       description: 'Monthly sales data',
       timeFrame: '2024',
@@ -40,15 +46,15 @@ describe('validateAndAdjustBarLineAxes', () => {
           y: ['sales'],
         },
       },
-    };
+    });
 
-    const result = validateAndAdjustBarLineAxes(metricYml);
-    expect(result.isValid).toBe(true);
-    expect(result.shouldSwapAxes).toBe(false);
+    const result = validateAndAdjustBarLineAxes(metricYml.chartConfig);
+    // Function returns the config directly if valid, not an object with isValid property
+    expect(result).toEqual(metricYml.chartConfig);
   });
 
   it('should swap axes when Y has non-numeric and X has numeric columns', () => {
-    const metricYml: MetricYml = {
+    const metricYml = MetricYmlSchema.parse({
       name: 'Sales Rep by Revenue',
       description: 'Revenue by sales rep',
       timeFrame: '2024',
@@ -74,18 +80,16 @@ describe('validateAndAdjustBarLineAxes', () => {
           y: ['sales_rep'],
         },
       },
-    };
+    });
 
-    const result = validateAndAdjustBarLineAxes(metricYml);
-    expect(result.isValid).toBe(true);
-    expect(result.shouldSwapAxes).toBe(true);
-    expect(result.adjustedYml).toBeDefined();
-    expect(result.adjustedYml?.chartConfig?.barAndLineAxis?.x).toEqual(['sales_rep']);
-    expect(result.adjustedYml?.chartConfig?.barAndLineAxis?.y).toEqual(['revenue']);
+    const result = validateAndAdjustBarLineAxes(metricYml.chartConfig);
+    // Function returns adjusted config with swapped axes
+    expect(result.barAndLineAxis?.x).toEqual(['sales_rep']);
+    expect(result.barAndLineAxis?.y).toEqual(['revenue']);
   });
 
-  it('should return error when Y has non-numeric and X also has non-numeric columns', () => {
-    const metricYml: MetricYml = {
+  it('should throw error when Y has non-numeric and X also has non-numeric columns', () => {
+    const metricYml = MetricYmlSchema.parse({
       name: 'Categories by Region',
       description: 'Product categories by region',
       timeFrame: '2024',
@@ -111,18 +115,16 @@ describe('validateAndAdjustBarLineAxes', () => {
           y: ['category'],
         },
       },
-    };
+    });
 
-    const result = validateAndAdjustBarLineAxes(metricYml);
-    expect(result.isValid).toBe(false);
-    expect(result.shouldSwapAxes).toBe(false);
-    expect(result.error).toBeDefined();
-    expect(result.error).toContain('Bar and line charts require numeric values on the Y axis');
-    expect(result.error).toContain('category (string)');
+    // Function throws an error for invalid configurations
+    expect(() => validateAndAdjustBarLineAxes(metricYml.chartConfig)).toThrowError(
+      /Bar and line charts require numeric values on the Y axis.*category \(string\)/
+    );
   });
 
   it('should handle multiple columns on axes', () => {
-    const metricYml: MetricYml = {
+    const metricYml = MetricYmlSchema.parse({
       name: 'Multi Column Chart',
       description: 'Chart with multiple columns',
       timeFrame: '2024',
@@ -160,11 +162,10 @@ describe('validateAndAdjustBarLineAxes', () => {
           y: ['sales', 'profit'],
         },
       },
-    };
+    });
 
-    const result = validateAndAdjustBarLineAxes(metricYml);
-    expect(result.isValid).toBe(true);
-    expect(result.shouldSwapAxes).toBe(false);
+    const result = validateAndAdjustBarLineAxes(metricYml.chartConfig);
+    expect(result).toEqual(metricYml.chartConfig);
   });
 
   it('should return error when Y has mixed numeric and non-numeric columns', () => {

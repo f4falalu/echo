@@ -7,6 +7,8 @@ import { z } from 'zod';
 import {
   type DashboardConfig,
   DashboardConfigSchema,
+  type DashboardYml,
+  DashboardYmlSchema,
 } from '../../../../../../server-shared/src/dashboards/dashboard.types';
 import { trackFileAssociations } from '../../file-tracking-helper';
 import {
@@ -21,11 +23,7 @@ import type {
 } from './modify-dashboards-tool';
 
 // Type definitions
-interface DashboardWithMetadata {
-  name: string;
-  description?: string;
-  config: DashboardConfig;
-}
+type DashboardWithMetadata = DashboardYml;
 
 interface FileWithId {
   id: string;
@@ -44,14 +42,16 @@ interface FailedFileModification {
   error: string;
 }
 
-type VersionHistory = (typeof metricFiles.$inferSelect)['versionHistory'];
+type VersionHistory = (typeof dashboardFiles.$inferSelect)['versionHistory'];
 
 // Helper function to get latest version number
 function getLatestVersionNumber(versionHistory: VersionHistory | null): number {
-  if (!versionHistory || !versionHistory.versions || versionHistory.versions.length === 0) {
+  if (!versionHistory || Object.keys(versionHistory).length === 0) {
     return 0;
   }
-  return Math.max(...versionHistory.versions.map((v) => v.version));
+  // Get all version numbers from the record values
+  const versionNumbers = Object.values(versionHistory).map((v) => v.version_number);
+  return Math.max(...versionNumbers);
 }
 
 // Helper function to add dashboard version to history
@@ -60,61 +60,26 @@ function addDashboardVersionToHistory(
   dashboard: DashboardWithMetadata,
   createdAt: string
 ): VersionHistory {
-  const newVersion = getLatestVersionNumber(versionHistory) + 1;
-  const newEntry = createDashboardVersionForHistory(dashboard, createdAt, newVersion);
+  const newVersionNumber = getLatestVersionNumber(versionHistory) + 1;
 
-  if (!versionHistory) {
-    return { versions: [newEntry] };
-  }
-
-  return {
-    versions: [...versionHistory.versions, newEntry],
+  // Create new version entry matching the schema
+  const newVersionEntry = {
+    content: JSON.stringify(dashboard), // Store dashboard as JSON string
+    updated_at: createdAt,
+    version_number: newVersionNumber,
   };
-}
 
-// Helper function to create dashboard version for history
-function createDashboardVersionForHistory(
-  dashboard: DashboardWithMetadata,
-  createdAt: string,
-  version: number
-): {
-  version: number;
-  created_at: string;
-  content: DashboardWithMetadata;
-} {
-  return {
-    version,
-    created_at: createdAt,
-    content: dashboard,
+  // Create new version history record
+  const updatedHistory = {
+    ...(versionHistory || {}),
+    [newVersionNumber.toString()]: newVersionEntry,
   };
+
+  return updatedHistory;
 }
 
 type ModifyDashboardFilesParams = ModifyDashboardsInput;
 type ModifyDashboardFilesOutput = ModifyDashboardsOutput;
-
-// Dashboard YAML schema
-const dashboardYmlSchema = z.object({
-  name: z.string().min(1, 'Dashboard name is required'),
-  description: z.string().optional(),
-  rows: z
-    .array(
-      z
-        .object({
-          id: z.string(),
-          items: z.array(
-            z
-              .object({
-                id: z.string(),
-              })
-              .passthrough()
-          ),
-          column_sizes: z.array(z.number()).optional(),
-          rowHeight: z.number().optional(),
-        })
-        .passthrough()
-    )
-    .min(1, 'Dashboard must have at least one row'),
-});
 
 // Parse and validate dashboard YAML content
 function parseAndValidateYaml(ymlContent: string): {
@@ -124,7 +89,7 @@ function parseAndValidateYaml(ymlContent: string): {
 } {
   try {
     const parsedYml = yaml.parse(ymlContent);
-    const validationResult = dashboardYmlSchema.safeParse(parsedYml);
+    const validationResult = DashboardYmlSchema.safeParse(parsedYml);
 
     if (!validationResult.success) {
       return {
@@ -133,22 +98,8 @@ function parseAndValidateYaml(ymlContent: string): {
       };
     }
 
-    // Create DashboardConfig that matches the server-shared type
-    const dashboardConfig: DashboardConfig = {
-      rows: validationResult.data.rows?.map((row) => ({
-        id: row.id,
-        items: row.items.map((item) => ({ id: item.id })),
-        ...(row.column_sizes !== undefined && { columnSizes: row.column_sizes }),
-        ...(row.rowHeight !== undefined && { rowHeight: row.rowHeight }),
-      })),
-    };
-
-    // Return dashboard with metadata
-    const dashboard: DashboardWithMetadata = {
-      name: validationResult.data.name,
-      ...(validationResult.data.description && { description: validationResult.data.description }),
-      config: dashboardConfig,
-    };
+    // Return the validated dashboard
+    const dashboard: DashboardWithMetadata = validationResult.data;
 
     return { success: true, data: dashboard };
   } catch (error) {

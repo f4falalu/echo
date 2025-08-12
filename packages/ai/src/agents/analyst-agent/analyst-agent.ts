@@ -5,9 +5,11 @@ import { GPT5 } from '../../llm/gpt-5';
 import {
   createCreateDashboardsTool,
   createCreateMetricsTool,
+  createCreateReportsTool,
   createDoneTool,
   createModifyDashboardsTool,
   createModifyMetricsTool,
+  createModifyReportsTool,
 } from '../../tools';
 import { healToolWithLlm } from '../../utils/tool-call-repair';
 import { getAnalystAgentSystemPrompt } from './get-analyst-agent-system-prompt';
@@ -59,6 +61,8 @@ export function createAnalystAgent(analystAgentOptions: AnalystAgentOptions) {
     const modifyMetrics = createModifyMetricsTool(analystAgentOptions);
     const createDashboards = createCreateDashboardsTool(analystAgentOptions);
     const modifyDashboards = createModifyDashboardsTool(analystAgentOptions);
+    const createReports = createCreateReportsTool(analystAgentOptions);
+    const modifyReports = createModifyReportsTool(analystAgentOptions);
     // Done tool now accepts context directly
     const doneTool = createDoneTool(analystAgentOptions);
 
@@ -73,6 +77,8 @@ export function createAnalystAgent(analystAgentOptions: AnalystAgentOptions) {
                 modifyMetrics,
                 createDashboards,
                 modifyDashboards,
+                createReports,
+                modifyReports,
                 doneTool,
               },
               messages: [systemMessage, ...currentMessages],

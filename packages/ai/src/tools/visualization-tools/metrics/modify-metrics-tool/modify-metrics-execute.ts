@@ -1,5 +1,12 @@
 import type { DataSource } from '@buster/data-source';
 import { db, metricFiles, updateMessageEntries } from '@buster/database';
+import {
+  type ChartConfigProps,
+  type ColumnMetaData,
+  type DataMetadata,
+  type MetricYml,
+  MetricYmlSchema,
+} from '@buster/server-shared/metrics';
 import { wrapTraced } from 'braintrust';
 import { eq, inArray } from 'drizzle-orm';
 import * as yaml from 'yaml';
@@ -10,12 +17,6 @@ import {
   validateSqlPermissions,
 } from '../../../../utils/sql-permissions';
 import { trackFileAssociations } from '../../file-tracking-helper';
-import {
-  addMetricVersionToHistory,
-  getLatestVersionNumber,
-  validateMetricYml,
-} from '../../version-history-helpers';
-import type { MetricYml, VersionHistory } from '../../version-history-types';
 import { validateAndAdjustBarLineAxes } from '../helpers/bar-line-axis-validator';
 import { ensureTimeFrameQuoted } from '../helpers/time-frame-helper';
 import {
@@ -29,60 +30,6 @@ import type {
   ModifyMetricsState,
 } from './modify-metrics-tool';
 
-// TypeScript types matching Rust DataMetadata structure
-enum SimpleType {
-  Number = 'number',
-  String = 'string',
-  Date = 'date',
-  Boolean = 'boolean',
-  Other = 'other',
-}
-
-enum ColumnType {
-  Int2 = 'int2',
-  Int4 = 'int4',
-  Int8 = 'int8',
-  Float4 = 'float4',
-  Float8 = 'float8',
-  Varchar = 'varchar',
-  Text = 'text',
-  Bool = 'bool',
-  Date = 'date',
-  Timestamp = 'timestamp',
-  Timestamptz = 'timestamptz',
-  Other = 'other',
-}
-
-interface ColumnMetaData {
-  name: string;
-  min_value: unknown;
-  max_value: unknown;
-  unique_values: number;
-  simple_type: SimpleType;
-  type: ColumnType;
-}
-
-interface DataMetadata {
-  column_count: number;
-  row_count: number;
-  column_metadata: ColumnMetaData[];
-}
-
-// Core interfaces matching Rust structs
-interface FileUpdate {
-  id: string;
-  yml_content: string;
-}
-
-interface UpdateFilesParams {
-  files: FileUpdate[];
-}
-
-interface FailedFileModification {
-  id: string;
-  error: string;
-}
-
 interface FileWithId {
   id: string;
   name: string;
@@ -94,42 +41,80 @@ interface FileWithId {
   version_number: number;
 }
 
-interface ModificationResult {
-  file_id: string;
-  file_name: string;
-  success: boolean;
-  error?: string;
-  modification_type: string;
-  timestamp: string;
-  duration: number;
+interface FailedFileModification {
+  id: string;
+  error: string;
 }
 
-// Zod schema for validating result metadata from DataSource
-const resultMetadataSchema = z
-  .object({
-    totalRowCount: z.number().optional(),
-    limited: z.boolean().optional(),
-    maxRows: z.number().optional(),
-  })
-  .optional();
+interface MetricFileResult {
+  success: boolean;
+  error?: string;
+  metricFile?: FileWithId;
+  metricYml?: MetricYml;
+  message?: string;
+  results?: Record<string, unknown>[];
+}
 
-type ResultMetadata = z.infer<typeof resultMetadataSchema>;
+type VersionHistory = (typeof metricFiles.$inferSelect)['versionHistory'];
+
+// Helper function to add version to history
+function addMetricVersionToHistory(
+  currentHistory: VersionHistory | null,
+  metric: MetricYml,
+  updatedAt: string
+): VersionHistory {
+  const history = currentHistory || {};
+  const versions = Object.keys(history)
+    .map(Number)
+    .filter((n) => !Number.isNaN(n));
+  const nextVersion = versions.length > 0 ? Math.max(...versions) + 1 : 1;
+
+  return {
+    ...history,
+    [nextVersion.toString()]: {
+      content: JSON.stringify(metric),
+      updated_at: updatedAt,
+      version_number: nextVersion,
+    },
+  };
+}
+
+// Helper function to get latest version number
+function getLatestVersionNumber(versionHistory: VersionHistory | null): number {
+  if (!versionHistory) return 1;
+  const versions = Object.keys(versionHistory)
+    .map(Number)
+    .filter((n) => !Number.isNaN(n));
+  return versions.length > 0 ? Math.max(...versions) : 1;
+}
+
+interface ValidationResult {
+  success: boolean;
+  error?: string;
+  message?: string;
+  results?: Record<string, unknown>[];
+  metadata?: QueryMetadata;
+}
 
 interface QueryMetadata {
   rowCount: number;
   totalRowCount: number;
   executionTime: number;
   limited: boolean;
-  maxRows?: number;
+  maxRows: number;
 }
 
-interface SqlValidationResult {
-  success: boolean;
-  message?: string;
-  results?: Record<string, unknown>[];
-  metadata?: QueryMetadata;
-  error?: string;
+interface ResultMetadata {
+  totalRowCount?: number | undefined;
+  limited?: boolean | undefined;
+  maxRows?: number | undefined;
 }
+
+const resultMetadataSchema = z.object({
+  totalRowCount: z.number().optional(),
+  limited: z.boolean().optional(),
+  maxRows: z.number().optional(),
+});
 
 /**
  * Analyzes query results to create DataMetadata structure
@@ -152,46 +137,46 @@ function createDataMetadata(results: Record<string, unknown>[]): DataMetadata {
       .filter((v) => v !== null && v !== undefined);
 
     // Determine column type based on the first non-null value
-    let columnType = ColumnType.Other;
-    let simpleType = SimpleType.Other;
+    let columnType: ColumnMetaData['type'] = 'text';
+    let simpleType: ColumnMetaData['simple_type'] = 'text';
 
     if (values.length > 0) {
       const firstValue = values[0];
 
       if (typeof firstValue === 'number') {
-        columnType = Number.isInteger(firstValue) ? ColumnType.Int4 : ColumnType.Float8;
-        simpleType = SimpleType.Number;
+        columnType = Number.isInteger(firstValue) ? 'int4' : 'float8';
+        simpleType = 'number';
       } else if (typeof firstValue === 'boolean') {
-        columnType = ColumnType.Bool;
-        simpleType = SimpleType.Boolean;
+        columnType = 'bool';
+        simpleType = 'text'; // boolean is not in the simple_type enum, so use text
       } else if (firstValue instanceof Date) {
-        columnType = ColumnType.Timestamp;
-        simpleType = SimpleType.Date;
+        columnType = 'timestamp';
+        simpleType = 'date';
       } else if (typeof firstValue === 'string') {
         // Check if it's a numeric string first
         if (!Number.isNaN(Number(firstValue))) {
-          columnType = Number.isInteger(Number(firstValue)) ? ColumnType.Int4 : ColumnType.Float8;
-          simpleType = SimpleType.Number;
+          columnType = Number.isInteger(Number(firstValue)) ? 'int4' : 'float8';
+          simpleType = 'number';
         } else if (
           !Number.isNaN(Date.parse(firstValue)) &&
           // Additional check to avoid parsing simple numbers as dates
           (firstValue.includes('-') || firstValue.includes('/') || firstValue.includes(':'))
         ) {
-          columnType = ColumnType.Timestamp;
-          simpleType = SimpleType.Date;
+          columnType = 'timestamp';
+          simpleType = 'date';
         } else {
-          columnType = ColumnType.Varchar;
-          simpleType = SimpleType.String;
+          columnType = 'text';
+          simpleType = 'text';
         }
       }
     }
 
     // Calculate min/max values
-    let minValue: unknown = null;
-    let maxValue: unknown = null;
+    let minValue: string | number = '';
+    let maxValue: string | number = '';
 
     if (values.length > 0) {
-      if (simpleType === SimpleType.Number) {
+      if (simpleType === 'number') {
         const numValues = values
           .map((v) => {
             if (typeof v === 'number') return v;
@@ -203,7 +188,7 @@ function createDataMetadata(results: Record<string, unknown>[]): DataMetadata {
           minValue = Math.min(...numValues);
           maxValue = Math.max(...numValues);
         }
-      } else if (simpleType === SimpleType.Date) {
+      } else if (simpleType === 'date') {
         const dateValues = values
           .map((v) => {
             if (v instanceof Date) return v;
@@ -216,14 +201,17 @@ function createDataMetadata(results: Record<string, unknown>[]): DataMetadata {
           .filter((d) => d !== null) as Date[];
 
         if (dateValues.length > 0) {
-          minValue = new Date(Math.min(...dateValues.map((d) => d.getTime())));
-          maxValue = new Date(Math.max(...dateValues.map((d) => d.getTime())));
+          const minDate = new Date(Math.min(...dateValues.map((d) => d.getTime())));
+          const maxDate = new Date(Math.max(...dateValues.map((d) => d.getTime())));
+          minValue = minDate.toISOString();
+          maxValue = maxDate.toISOString();
         }
-      } else if (simpleType === SimpleType.String) {
+      } else if (simpleType === 'text') {
         const strValues = values.filter((v) => typeof v === 'string') as string[];
         if (strValues.length > 0) {
-          minValue = strValues.sort()[0];
-          maxValue = strValues.sort().reverse()[0];
+          const sortedValues = [...strValues].sort();
+          minValue = sortedValues[0] || '';
+          maxValue = sortedValues[sortedValues.length - 1] || '';
         }
       }
     }
@@ -232,7 +220,7 @@ function createDataMetadata(results: Record<string, unknown>[]): DataMetadata {
     const uniqueValues = new Set(values).size;
 
     columnMetadata.push({
-      name: columnName.toLowerCase(),
+      name: columnName,
       min_value: minValue,
       max_value: maxValue,
       unique_values: uniqueValues,
@@ -248,13 +236,12 @@ function createDataMetadata(results: Record<string, unknown>[]): DataMetadata {
   };
 }
 
-// Replace the basic SQL validation with comprehensive validation
 async function validateSql(
   sqlQuery: string,
   dataSourceId: string,
   userId: string,
   dataSourceSyntax?: string
-): Promise<SqlValidationResult> {
+): Promise<ValidationResult> {
   try {
     if (!sqlQuery.trim()) {
       return { success: false, error: 'SQL query cannot be empty' };
@@ -315,7 +302,7 @@ async function validateSql(
 
           // Validate metadata with Zod schema for runtime safety
           const validatedMetadata = resultMetadataSchema.safeParse(result.metadata);
-          const parsedMetadata: ResultMetadata = validatedMetadata.success
+          const parsedMetadata: ResultMetadata | undefined = validatedMetadata.success
             ? validatedMetadata.data
             : undefined;
 
@@ -415,150 +402,98 @@ async function validateSql(
   }
 }
 
-// Process a metric file update with complete new YAML content
-async function processMetricFileUpdate(
+async function processMetricFile(
+  file: { id: string; yml_content: string },
   existingFile: typeof metricFiles.$inferSelect,
-  ymlContent: string,
   dataSourceId: string,
-  duration: number,
-  userId: string,
-  dataSourceSyntax?: string
-): Promise<{
-  success: boolean;
-  updatedFile?: typeof metricFiles.$inferSelect;
-  metricYml?: MetricYml;
-  modificationResults: ModificationResult[];
-  validationMessage: string;
-  validationResults: Record<string, unknown>[];
-  validatedDatasetIds: string[];
-  error?: string;
-}> {
-  const modificationResults: ModificationResult[] = [];
-  const timestamp = new Date().toISOString();
-
+  dataSourceDialect: string,
+  userId: string
+): Promise<MetricFileResult> {
   try {
     // Ensure timeFrame values are properly quoted before parsing
-    const fixedYmlContent = ensureTimeFrameQuoted(ymlContent);
+    const fixedYmlContent = ensureTimeFrameQuoted(file.yml_content);
 
     // Parse and validate YAML
-    const parsedYml = yaml.parse(fixedYmlContent);
-    const metricYml = validateMetricYml(parsedYml);
+    const metricYml = yaml.parse(fixedYmlContent);
+
+    const validatedMetricYml = MetricYmlSchema.parse(metricYml);
 
     // Validate and adjust bar/line chart axes
-    const axisValidation = validateAndAdjustBarLineAxes(metricYml);
-    if (!axisValidation.isValid) {
-      const error = axisValidation.error || 'Invalid bar/line chart axis configuration';
-      modificationResults.push({
-        file_id: existingFile.id,
-        file_name: existingFile.name,
-        success: false,
-        error,
-        modification_type: 'axis_validation',
-        timestamp,
-        duration,
-      });
+    let finalChartConfig: ChartConfigProps;
+    try {
+      finalChartConfig = validateAndAdjustBarLineAxes(validatedMetricYml.chartConfig);
+    } catch (error) {
       return {
         success: false,
-        modificationResults,
-        validationMessage: '',
-        validationResults: [],
-        validatedDatasetIds: [],
-        error,
+        error: error instanceof Error ? error.message : 'Invalid bar/line chart axis configuration',
       };
     }
 
-    // Use adjusted YAML if axes were swapped
-    const newMetricYml =
-      axisValidation.shouldSwapAxes && axisValidation.adjustedYml
-        ? axisValidation.adjustedYml
-        : metricYml;
+    // Create the final metric YML with the adjusted chart config
+    const finalMetricYml: MetricYml = {
+      ...validatedMetricYml,
+      chartConfig: finalChartConfig,
+    };
 
     // Check if SQL has changed to avoid unnecessary validation
     const existingContent = existingFile.content as MetricYml | null;
-    const sqlChanged = existingContent?.sql !== newMetricYml.sql;
+    const sqlChanged = existingContent?.sql !== finalMetricYml.sql;
 
-    // If SQL hasn't changed, we can skip validation
+    // If SQL hasn't changed and we have metadata, skip validation
     if (!sqlChanged && existingFile.dataMetadata) {
-      modificationResults.push({
-        file_id: existingFile.id,
-        file_name: newMetricYml.name,
-        success: true,
-        modification_type: 'content',
-        timestamp,
-        duration,
-      });
+      const metricFile: FileWithId = {
+        id: existingFile.id,
+        name: finalMetricYml.name,
+        file_type: 'metric',
+        result_message: 'SQL unchanged, validation skipped',
+        results: [],
+        created_at: existingFile.createdAt,
+        updated_at: new Date().toISOString(),
+        version_number: getLatestVersionNumber(existingFile.versionHistory as VersionHistory) + 1,
+      };
 
       return {
         success: true,
-        updatedFile: {
-          ...existingFile,
-          content: newMetricYml,
-          name: newMetricYml.name,
-          updatedAt: new Date().toISOString(),
-          // Keep existing metadata since SQL hasn't changed
-        },
-        metricYml: newMetricYml,
-        modificationResults,
-        validationMessage: 'SQL unchanged, validation skipped',
-        validationResults: [],
-        validatedDatasetIds: [],
+        metricFile,
+        metricYml: finalMetricYml,
+        message: 'SQL unchanged, validation skipped',
+        results: [],
       };
     }
 
     // Validate SQL if it has changed or if metadata is missing
-    const sqlValidation = await validateSql(
-      newMetricYml.sql,
+    const sqlValidationResult = await validateSql(
+      finalMetricYml.sql,
       dataSourceId,
       userId,
-      dataSourceSyntax
+      dataSourceDialect
     );
-    if (!sqlValidation.success) {
-      const error = `SQL validation failed: ${sqlValidation.error}`;
-      modificationResults.push({
-        file_id: existingFile.id,
-        file_name: newMetricYml.name,
-        success: false,
-        error,
-        modification_type: 'sql_validation',
-        timestamp,
-        duration,
-      });
+
+    if (!sqlValidationResult.success) {
       return {
         success: false,
-        modificationResults,
-        validationMessage: '',
-        validationResults: [],
-        validatedDatasetIds: [],
-        error,
+        error: `The SQL query has an issue: ${sqlValidationResult.error}. Please check your query syntax.`,
       };
     }
 
-    // Track successful update
-    modificationResults.push({
-      file_id: existingFile.id,
-      file_name: newMetricYml.name,
-      success: true,
-      modification_type: 'content',
-      timestamp,
-      duration,
-    });
+    // Create metric file object
+    const metricFile: FileWithId = {
+      id: existingFile.id,
+      name: finalMetricYml.name,
+      file_type: 'metric',
+      result_message: sqlValidationResult.message || '',
+      results: sqlValidationResult.results || [],
+      created_at: existingFile.createdAt,
+      updated_at: new Date().toISOString(),
+      version_number: getLatestVersionNumber(existingFile.versionHistory as VersionHistory) + 1,
+    };
 
     return {
       success: true,
-      updatedFile: {
-        ...existingFile,
-        content: newMetricYml,
-        name: newMetricYml.name,
-        updatedAt: new Date().toISOString(),
-        dataMetadata: sqlValidation.results ? createDataMetadata(sqlValidation.results) : null,
-      },
-      metricYml: newMetricYml,
-      modificationResults,
-      validationMessage: sqlChanged
-        ? sqlValidation.message || 'SQL validation completed'
-        : 'Metadata missing, validation completed',
-      validationResults: sqlValidation.results || [],
-      validatedDatasetIds: [],
+      metricFile,
+      metricYml: finalMetricYml,
+      message: sqlValidationResult.message || '',
+      results: sqlValidationResult.results || [],
     };
   } catch (error) {
     let errorMessage = 'Unknown error';
@@ -580,36 +515,42 @@ async function processMetricFileUpdate(
       }
     }
 
-    const errorMessage2 = errorMessage;
-    modificationResults.push({
-      file_id: existingFile.id,
-      file_name: existingFile.name,
-      success: false,
-      error: errorMessage2,
-      modification_type: 'validation',
-      timestamp,
-      duration,
-    });
     return {
       success: false,
-      modificationResults,
-      validationMessage: '',
-      validationResults: [],
-      validatedDatasetIds: [],
-      error: errorMessage2,
+      error: errorMessage,
     };
   }
 }
 
-// Main modify metrics function
+function generateResultMessage(
+  modifiedFiles: FileWithId[],
+  failedFiles: FailedFileModification[]
+): string {
+  if (failedFiles.length === 0) {
+    return `Successfully modified ${modifiedFiles.length} metric files.`;
+  }
+
+  const successMsg =
+    modifiedFiles.length > 0 ? `Successfully modified ${modifiedFiles.length} metric files. ` : '';
+
+  const failures = failedFiles.map(
+    (failure) =>
+      `Failed to modify metric with ID '${failure.id}': ${failure.error}.\n\nPlease recreate the metric from scratch rather than attempting to modify. This error could be due to:\n- Using a dataset that doesn't exist (please reevaluate the available datasets in the chat conversation)\n- Invalid configuration in the metric file\n- Special characters in the metric name or SQL query\n- Syntax errors in the SQL query`
+  );
+
+  if (failures.length === 1) {
+    return `${successMsg.trim()}${failures[0]}.`;
+  }
+
+  return `${successMsg}Failed to modify ${failures.length} metric files:\n${failures.join('\n')}`;
+}
+
+// Main modify metric files function
 const modifyMetricFiles = wrapTraced(
   async (
-    params: UpdateFilesParams,
-    context: ModifyMetricsContext,
-    state?: ModifyMetricsState
+    params: ModifyMetricsInput,
+    context: ModifyMetricsContext
   ): Promise<ModifyMetricsOutput> => {
-    const startTime = Date.now();
-
     // Get context values
     const dataSourceId = context.dataSourceId;
     const userId = context.userId;
@@ -646,160 +587,147 @@ const modifyMetricFiles = wrapTraced(
     const metricIds = params.files.map((f) => f.id);
     const fileMap = new Map(params.files.map((f) => [f.id, f]));
 
-    try {
-      // Fetch existing metric files
-      const existingFiles = await db
-        .select()
-        .from(metricFiles)
-        .where(inArray(metricFiles.id, metricIds))
-        .execute();
+    // Fetch existing metric files
+    const existingFiles = await db
+      .select()
+      .from(metricFiles)
+      .where(inArray(metricFiles.id, metricIds))
+      .execute();
 
-      if (existingFiles.length === 0) {
-        return {
-          message: 'No metric files found with the provided IDs',
-          files: [],
-          failed_files: [],
-        };
-      }
+    if (existingFiles.length === 0) {
+      return {
+        message: 'No metric files found with the provided IDs',
+        files: [],
+        failed_files: [],
+      };
+    }
 
-      // Process updates concurrently
-      const updatePromises = existingFiles.map(async (existingFile) => {
+    // Process files concurrently
+    const processResults = await Promise.allSettled(
+      existingFiles.map(async (existingFile) => {
         const fileUpdate = fileMap.get(existingFile.id);
         if (!fileUpdate) {
           return {
             fileName: existingFile.name,
-            error: 'File update not found in request',
+            fileId: existingFile.id,
+            result: {
+              success: false,
+              error: 'File update not found in request',
+            } as MetricFileResult,
           };
         }
+        const result = await processMetricFile(
+          fileUpdate,
+          existingFile,
+          dataSourceId,
+          dataSourceSyntax || 'generic',
+          userId
+        );
+        return { fileName: existingFile.name, fileId: existingFile.id, result };
+      })
+    );
 
-        try {
-          const result = await processMetricFileUpdate(
-            existingFile,
-            fileUpdate.yml_content,
-            dataSourceId,
-            Date.now() - startTime,
-            userId,
-            dataSourceSyntax
-          );
+    const successfulProcessing: Array<{
+      fileName: string;
+      fileId: string;
+      existingFile: typeof metricFiles.$inferSelect;
+      metricFile: FileWithId;
+      metricYml: MetricYml;
+      message: string;
+      results: Record<string, unknown>[];
+    }> = [];
 
-          if (!result.success) {
-            return {
-              fileName: existingFile.name,
-              error: result.error || 'Unknown error',
-            };
+    // Separate successful from failed processing
+    for (const processResult of processResults) {
+      if (processResult.status === 'fulfilled') {
+        const { fileName, fileId, result } = processResult.value;
+        if (
+          result.success &&
+          result.metricFile &&
+          result.metricYml &&
+          result.message &&
+          result.results
+        ) {
+          const existingFile = existingFiles.find((f) => f.id === fileId);
+          if (existingFile) {
+            successfulProcessing.push({
+              fileName,
+              fileId,
+              existingFile,
+              metricFile: result.metricFile,
+              metricYml: result.metricYml,
+              message: result.message,
+              results: result.results,
+            });
           }
-
-          return {
-            fileName: existingFile.name,
-            success: true,
-            updatedFile: result.updatedFile,
-            metricYml: result.metricYml,
-            validationMessage: result.validationMessage,
-            validationResults: result.validationResults,
-          };
-        } catch (error) {
-          return {
-            fileName: existingFile.name,
-            error: error instanceof Error ? error.message : 'Unknown error',
-          };
-        }
-      });
-
-      const results = await Promise.all(updatePromises);
-
-      // Separate successful and failed updates
-      const successfulUpdates: Array<{
-        file: typeof metricFiles.$inferSelect;
-        metricYml: MetricYml;
-      }> = [];
-
-      for (const result of results) {
-        if ('success' in result && result.success && result.updatedFile && result.metricYml) {
-          successfulUpdates.push({
-            file: result.updatedFile,
-            metricYml: result.metricYml,
-          });
         } else {
           failedFiles.push({
-            id: existingFile.id,
-            error: `Failed to modify '${result.fileName}': ${result.error}.
-
-Please attempt to modify the metric again. This error could be due to:
-- Using a dataset that doesn't exist (please reevaluate the available datasets in the chat conversation)
-- Invalid configuration in the metric file
-- Special characters in the metric name or SQL query
-- Syntax errors in the SQL query`,
+            id: fileId,
+            error: result.error || 'Unknown error',
           });
         }
+      } else {
+        failedFiles.push({
+          id: 'unknown',
+          error: processResult.reason?.message || 'Processing failed',
+        });
       }
+    }
 
-      // Update successful files in database
-      if (successfulUpdates.length > 0) {
-        // Process each successful update
-        for (const { file, metricYml } of successfulUpdates) {
-          // Get current version history
-          const currentVersionHistory = file.versionHistory as VersionHistory | null;
+    // Database operations
+    if (successfulProcessing.length > 0) {
+      try {
+        await db.transaction(async (tx: typeof db) => {
+          // Update metric files
+          for (const sp of successfulProcessing) {
+            // Get current version history
+            const currentVersionHistory = sp.existingFile.versionHistory as VersionHistory | null;
 
-          // Add new version to history
-          const updatedVersionHistory = addMetricVersionToHistory(
-            currentVersionHistory,
-            metricYml,
-            new Date().toISOString()
-          );
+            // Add new version to history
+            const updatedVersionHistory = addMetricVersionToHistory(
+              currentVersionHistory,
+              sp.metricYml,
+              sp.metricFile.updated_at
+            );
 
-          // Get the latest version number
-          const latestVersion = getLatestVersionNumber(updatedVersionHistory);
-
-          await db
-            .update(metricFiles)
-            .set({
-              content: metricYml,
-              name: metricYml.name,
-              updatedAt: new Date().toISOString(),
-              dataMetadata: file.dataMetadata,
-              versionHistory: updatedVersionHistory,
-            })
-            .where(eq(metricFiles.id, file.id))
-            .execute();
-
-          // Critical save verification
-          const verificationResult = await db
-            .select({
-              id: metricFiles.id,
-              updatedAt: metricFiles.updatedAt,
-              name: metricFiles.name,
-            })
-            .from(metricFiles)
-            .where(eq(metricFiles.id, file.id))
-            .limit(1);
-
-          if (verificationResult.length === 0) {
-            throw new Error('Critical save verification failed - record not found after update');
+            await tx
+              .update(metricFiles)
+              .set({
+                name: sp.metricYml.name,
+                content: sp.metricYml,
+                updatedAt: sp.metricFile.updated_at,
+                dataMetadata: sp.results
+                  ? createDataMetadata(sp.results)
+                  : sp.existingFile.dataMetadata,
+                versionHistory: updatedVersionHistory,
+              })
+              .where(eq(metricFiles.id, sp.fileId))
+              .execute();
           }
+        });
 
-          // Add to successful files output
+        // Add successful files to output
+        for (const sp of successfulProcessing) {
           files.push({
-            id: file.id,
-            name: metricYml.name,
-            file_type: 'metric',
-            result_message:
-              results.find((r) => 'success' in r && r.updatedFile?.id === file.id)
-                ?.validationMessage || '',
-            results:
-              results.find((r) => 'success' in r && r.updatedFile?.id === file.id)
-                ?.validationResults || [],
-            created_at: file.createdAt,
-            updated_at: file.updatedAt,
-            version_number: latestVersion,
+            id: sp.metricFile.id,
+            name: sp.metricFile.name,
+            file_type: sp.metricFile.file_type,
+            result_message: sp.metricFile.result_message || '',
+            results: sp.metricFile.results || [],
+            created_at: sp.metricFile.created_at,
+            updated_at: sp.metricFile.updated_at,
+            version_number: sp.metricFile.version_number,
+          });
+        }
+      } catch (error) {
+        // Add all successful processing to failed if database operation fails
+        for (const sp of successfulProcessing) {
+          failedFiles.push({
+            id: sp.fileId,
+            error: `Failed to save to database: ${error instanceof Error ? error.message : 'Unknown error'}`,
           });
         }
       }
-    } catch (error) {
-      return {
-        message: `Failed to modify metric files: ${error instanceof Error ? error.message : 'Unknown error'}`,
-        files: [],
-        failed_files: [],
-      };
     }
 
     // Track file associations if messageId is available
@@ -813,20 +741,7 @@ Please attempt to modify the metric again. This error could be due to:
       });
     }
 
-    // Generate result message
-    const successCount = files.length;
-    const failureCount = failedFiles.length;
-
-    let message: string;
-    if (successCount > 0 && failureCount === 0) {
-      message = `Successfully modified ${successCount} metric file${successCount === 1 ? '' : 's'}.`;
-    } else if (successCount === 0 && failureCount > 0) {
-      message = `Failed to modify ${failureCount} metric file${failureCount === 1 ? '' : 's'}.`;
-    } else if (successCount > 0 && failureCount > 0) {
-      message = `Successfully modified ${successCount} metric file${successCount === 1 ? '' : 's'}, ${failureCount} failed.`;
-    } else {
-      message = 'No metric files were processed.';
-    }
+    const message = generateResultMessage(files, failedFiles);
 
     return {
       message,
@@ -834,7 +749,7 @@ Please attempt to modify the metric again. This error could be due to:
       failed_files: failedFiles,
     };
   },
-  { name: 'modify-metric-files' }
+  { name: 'Modify Metric Files' }
 );
 
 export function createModifyMetricsExecute(
@@ -844,11 +759,10 @@ export function createModifyMetricsExecute(
   return wrapTraced(
     async (input: ModifyMetricsInput): Promise<ModifyMetricsOutput> => {
       const startTime = Date.now();
-      const messageId = context?.messageId;
 
       try {
-        // Call the main function directly, passing state for tracking
-        const result = await modifyMetricFiles(input as UpdateFilesParams, context, state);
+        // Call the main function directly
+        const result = await modifyMetricFiles(input, context);
 
         // Update state files with final results (IDs, versions, status)
         if (result && typeof result === 'object') {
@@ -937,18 +851,8 @@ export function createModifyMetricsExecute(
         return result as ModifyMetricsOutput;
       } catch (error) {
         console.error('[modify-metrics] Execution error:', error);
-        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
 
         // Create error response
-        const errorResult: ModifyMetricsOutput = {
-          message: `Failed to modify metrics: ${errorMessage}`,
-          files: [],
-          failed_files: input.files.map((file) => ({
-            id: file.id,
-            error: errorMessage,
-          })),
-        };
-
         // Update state for errors
         if (state.files) {
           state.files.forEach((f) => {
@@ -983,7 +887,7 @@ export function createModifyMetricsExecute(
           }
         }
 
-        return errorResult;
+        throw error;
       }
     },
     { name: 'modify-metrics-execute' }

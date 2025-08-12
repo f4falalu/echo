@@ -14,9 +14,8 @@ export * from './docs-agent-steps/docs-agent-step/docs-agent-step';
 export * from './docs-agent-steps/initialize-context-step';
 
 // Message post-processing steps
-export * from './message-post-processing-steps/format-initial-message-step';
-export * from './message-post-processing-steps/format-follow-up-message-step';
-export * from './message-post-processing-steps/identify-assumptions-step';
-export * from './message-post-processing-steps/flag-chat-step';
-export * from './message-post-processing-steps/combine-parallel-results-step';
+export * from './message-post-processing-steps/format-initial-message-step/format-initial-message-step';
+export * from './message-post-processing-steps/format-follow-up-message-step/format-follow-up-message-step';
+export * from './message-post-processing-steps/identify-assumptions-step/identify-assumptions-step';
+export * from './message-post-processing-steps/flag-chat-step/flag-chat-step';
 export * from './message-post-processing-steps/schemas';

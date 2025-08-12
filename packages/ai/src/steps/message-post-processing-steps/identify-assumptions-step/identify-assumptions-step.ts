@@ -2,13 +2,13 @@ import { Agent, createStep } from '@mastra/core';
 import type { CoreMessage } from 'ai';
 import { wrapTraced } from 'braintrust';
 import { z } from 'zod';
-import { Sonnet4 } from '../../llm/sonnet-4';
+import { Sonnet4 } from '../../../llm/sonnet-4';
+import { MessageHistorySchema } from '../../../utils/memory/types';
 import {
   type assumptionItemSchema,
   listAssumptionsResponse,
 } from '../../tools/post-processing/list-assumptions-response';
 import { noAssumptionsIdentified } from '../../tools/post-processing/no-assumptions-identified';
-import { MessageHistorySchema } from '../../utils/memory/types';
 
 const inputSchema = z.object({
   conversationHistory: MessageHistorySchema.optional(),
@@ -89,7 +89,6 @@ export const identifyAssumptionsOutputSchema = z.object({
 
 // The system prompt has been extracted to get-identify-assumptions-system-message.ts
 // This removed the long 375+ line prompt from this file
-
 
 const createDatasetSystemMessage = (datasets: string): string => {
   return `<dataset_context>

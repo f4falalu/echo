@@ -1,9 +1,9 @@
 import { createWorkflow } from '@mastra/core';
 import { combineParallelResultsStep } from '../../steps/message-post-processing-steps/combine-parallel-results-step';
-import { flagChatStep } from '../../steps/message-post-processing-steps/flag-chat-step';
-import { formatFollowUpMessageStep } from '../../steps/message-post-processing-steps/format-follow-up-message-step';
-import { formatInitialMessageStep } from '../../steps/message-post-processing-steps/format-initial-message-step';
-import { identifyAssumptionsStep } from '../../steps/message-post-processing-steps/identify-assumptions-step';
+import { flagChatStep } from '../../steps/message-post-processing-steps/flag-chat-step/flag-chat-step';
+import { formatFollowUpMessageStep } from '../../steps/message-post-processing-steps/format-follow-up-message-step/format-follow-up-message-step';
+import { formatInitialMessageStep } from '../../steps/message-post-processing-steps/format-initial-message-step/format-initial-message-step';
+import { identifyAssumptionsStep } from '../../steps/message-post-processing-steps/identify-assumptions-step/identify-assumptions-step';
 import {
   postProcessingWorkflowInputSchema,
   postProcessingWorkflowOutputSchema,

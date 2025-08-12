@@ -5,7 +5,7 @@ import { createDocsAgent } from '../../../agents/docs-agent/docs-agent';
 import { DocsAgentContextSchema } from '../../../agents/docs-agent/docs-agent-context';
 
 // Zod schemas first - following Zod-first approach
-export const docsAgentParamsSchema = z.object({
+export const DocsAgentStepInputSchema = z.object({
   todos: z.string().describe('The todos string'),
   todoList: z.string().describe('The TODO list'),
   message: z.string().describe('The user message'),
@@ -14,7 +14,7 @@ export const docsAgentParamsSchema = z.object({
   repositoryTree: z.string().describe('The tree structure of the repository'),
 });
 
-export const docsAgentResultSchema = z.object({
+export const DocsAgentStepOutputSchema = z.object({
   todos: z.array(z.string()).optional().describe('Array of todos'),
   todoList: z.string().optional().describe('The TODO list'),
   documentationCreated: z.boolean().optional().describe('Whether documentation was created'),
@@ -38,15 +38,15 @@ export const docsAgentResultSchema = z.object({
 });
 
 // Export types from schemas
-export type DocsAgentParams = z.infer<typeof docsAgentParamsSchema>;
-export type DocsAgentResult = z.infer<typeof docsAgentResultSchema>;
+export type DocsAgentStepInput = z.infer<typeof DocsAgentStepInputSchema>;
+export type DocsAgentStepOutput = z.infer<typeof DocsAgentStepOutputSchema>;
 
 /**
  * Main documentation agent that processes todos and creates documentation
  */
-export async function runDocsAgentStep(params: DocsAgentParams): Promise<DocsAgentResult> {
+export async function runDocsAgentStep(params: DocsAgentStepInput): Promise<DocsAgentStepOutput> {
   // Validate input
-  const validatedParams = docsAgentParamsSchema.parse(params);
+  const validatedParams = DocsAgentStepInputSchema.parse(params);
 
   // Extract values from context
   const sandbox = validatedParams.context.sandbox as Sandbox;
@@ -231,4 +231,3 @@ export async function runDocsAgentStep(params: DocsAgentParams): Promise<DocsAge
     );
   }
 }
-

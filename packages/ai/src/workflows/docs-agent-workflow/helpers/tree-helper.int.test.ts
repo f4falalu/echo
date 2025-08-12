@@ -180,5 +180,4 @@ describe('tree-helper integration', () => {
       expect(result.command).toContain('-P "*.test.ts"');
     });
   });
-
 });

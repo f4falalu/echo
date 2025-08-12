@@ -1,7 +1,12 @@
 import { randomUUID } from 'node:crypto';
 import type { DataSource } from '@buster/data-source';
 import { assetPermissions, db, metricFiles, updateMessageEntries } from '@buster/database';
-import { type ChartConfigProps, ChartConfigPropsSchema } from '@buster/server-shared/metrics';
+import {
+  type ChartConfigProps,
+  ChartConfigPropsSchema,
+  type ColumnMetaData,
+  type DataMetadata,
+} from '@buster/server-shared/metrics';
 import { wrapTraced } from 'braintrust';
 import * as yaml from 'yaml';
 import { z } from 'zod';
@@ -23,45 +28,6 @@ import {
   createCreateMetricsRawLlmMessageEntry,
   createCreateMetricsReasoningEntry,
 } from './helpers/create-metrics-transform-helper';
-
-// TypeScript types matching Rust DataMetadata structure
-enum SimpleType {
-  Number = 'number',
-  String = 'string',
-  Date = 'date',
-  Boolean = 'boolean',
-  Other = 'other',
-}
-
-enum ColumnType {
-  Int2 = 'int2',
-  Int4 = 'int4',
-  Int8 = 'int8',
-  Float4 = 'float4',
-  Float8 = 'float8',
-  Varchar = 'varchar',
-  Text = 'text',
-  Bool = 'bool',
-  Date = 'date',
-  Timestamp = 'timestamp',
-  Timestamptz = 'timestamptz',
-  Other = 'other',
-}
-
-interface ColumnMetaData {
-  name: string;
-  min_value: unknown;
-  max_value: unknown;
-  unique_values: number;
-  simple_type: SimpleType;
-  type: ColumnType;
-}
-
-interface DataMetadata {
-  column_count: number;
-  row_count: number;
-  column_metadata: ColumnMetaData[];
-}
 
 interface FileWithId {
   id: string;
@@ -153,52 +119,52 @@ function createDataMetadata(results: Record<string, unknown>[]): DataMetadata {
       .filter((v) => v !== null && v !== undefined);
 
     // Determine column type based on the first non-null value
-    let columnType = ColumnType.Other;
-    let simpleType = SimpleType.Other;
+    let columnType: ColumnMetaData['type'] = 'text';
+    let simpleType: ColumnMetaData['simple_type'] = 'text';
 
     if (values.length > 0) {
       const firstValue = values[0];
 
       if (typeof firstValue === 'number') {
-        columnType = Number.isInteger(firstValue) ? ColumnType.Int4 : ColumnType.Float8;
-        simpleType = SimpleType.Number;
+        columnType = Number.isInteger(firstValue) ? 'int4' : 'float8';
+        simpleType = 'number';
       } else if (typeof firstValue === 'boolean') {
-        columnType = ColumnType.Bool;
-        simpleType = SimpleType.Boolean;
+        columnType = 'bool';
+        simpleType = 'text'; // boolean is not in the simple_type enum, so use text
       } else if (firstValue instanceof Date) {
-        columnType = ColumnType.Timestamp;
-        simpleType = SimpleType.Date;
+        columnType = 'timestamp';
+        simpleType = 'date';
       } else if (typeof firstValue === 'string') {
         // Check if it's a numeric string first
         if (!Number.isNaN(Number(firstValue))) {
-          columnType = Number.isInteger(Number(firstValue)) ? ColumnType.Int4 : ColumnType.Float8;
-          simpleType = SimpleType.Number;
+          columnType = Number.isInteger(Number(firstValue)) ? 'int4' : 'float8';
+          simpleType = 'number';
         } else if (
           !Number.isNaN(Date.parse(firstValue)) &&
           // Additional check to avoid parsing simple numbers as dates
           (firstValue.includes('-') || firstValue.includes('/') || firstValue.includes(':'))
         ) {
-          columnType = ColumnType.Date;
-          simpleType = SimpleType.Date;
+          columnType = 'date';
+          simpleType = 'date';
         } else {
-          columnType = ColumnType.Text;
-          simpleType = SimpleType.String;
+          columnType = 'text';
+          simpleType = 'text';
         }
       }
     }
 
     // Calculate min, max, and unique values
-    let minValue: unknown = null;
-    let maxValue: unknown = null;
+    let minValue: string | number = '';
+    let maxValue: string | number = '';
     const uniqueValues = new Set(values);
 
-    if (simpleType === SimpleType.Number && values.length > 0) {
+    if (simpleType === 'number' && values.length > 0) {
       const numericValues = values.filter((v): v is number => typeof v === 'number');
       if (numericValues.length > 0) {
         minValue = Math.min(...numericValues);
         maxValue = Math.max(...numericValues);
       }
-    } else if (simpleType === SimpleType.Date && values.length > 0) {
+    } else if (simpleType === 'date' && values.length > 0) {
       const dateValues = values
         .map((v) => {
           if (v instanceof Date) return v.getTime();
@@ -216,8 +182,8 @@ function createDataMetadata(results: Record<string, unknown>[]): DataMetadata {
     } else if (values.length > 0) {
       // For strings and other types, just take first and last in sorted order
       const sortedValues = [...values].sort();
-      minValue = sortedValues[0];
-      maxValue = sortedValues[sortedValues.length - 1];
+      minValue = String(sortedValues[0]);
+      maxValue = String(sortedValues[sortedValues.length - 1]);
     }
 
     columnMetadata.push({

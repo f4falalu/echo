@@ -128,9 +128,7 @@ describe('docs-agent-workflow', () => {
         context: {},
       };
 
-      await expect(
-        runDocsAgentWorkflow(invalidInput as any)
-      ).rejects.toThrow();
+      await expect(runDocsAgentWorkflow(invalidInput as any)).rejects.toThrow();
     });
   });
 
