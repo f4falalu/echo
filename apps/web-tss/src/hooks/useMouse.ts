@@ -76,11 +76,11 @@ export function useMouse(options: UseMouseOptions = {}) {
 
     const element = target?.current ?? document;
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Element can be Document or HTMLElement with different event listener signatures
+    // biome-ignore lint/suspicious/noExplicitAny: Element can be Document or HTMLElement with different event listener signatures
     element.addEventListener('mousemove', updateMouseState as any);
 
     return () => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Element can be Document or HTMLElement with different event listener signatures
+      // biome-ignore lint/suspicious/noExplicitAny: Element can be Document or HTMLElement with different event listener signatures
       element.removeEventListener('mousemove', updateMouseState as any);
 
       // Clear any pending timers

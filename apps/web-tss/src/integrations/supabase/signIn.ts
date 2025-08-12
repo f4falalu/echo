@@ -1,56 +1,56 @@
-import { redirect } from "@tanstack/react-router";
-import { createServerFn } from "@tanstack/react-start";
-import { z } from "zod";
-import { ServerRoute as AuthCallbackRoute } from "../../routes/auth.callback";
-import { getSupabaseServerClient } from "./server";
+import { redirect } from '@tanstack/react-router';
+import { createServerFn } from '@tanstack/react-start';
+import { z } from 'zod';
+import { ServerRoute as AuthCallbackRoute } from '../../routes/auth.callback';
+import { getSupabaseServerClient } from './server';
 
 const isValidRedirectUrl = (url: string): boolean => {
   try {
     const decoded = decodeURIComponent(url);
-    return decoded.startsWith("/") && !decoded.startsWith("//");
+    return decoded.startsWith('/') && !decoded.startsWith('//');
   } catch {
     return false;
   }
 };
 
-export const signInWithEmailAndPassword = createServerFn({ method: "POST" })
+export const signInWithEmailAndPassword = createServerFn({ method: 'POST' })
   .validator(
-    z.object({ email: z.string(), password: z.string(), redirectUrl: z.string().optional() }),
+    z.object({ email: z.string(), password: z.string(), redirectUrl: z.string().optional() })
   )
   .handler(async ({ data }) => {
     const supabase = getSupabaseServerClient();
     const { error } = await supabase.auth.signInWithPassword({
       email: data.email,
-      password: data.password,
+      password: data.password
     });
     if (error) {
       return {
         error: true,
-        message: error.message,
+        message: error.message
       };
     }
 
     return;
   });
 
-export const signInWithGoogle = createServerFn({ method: "POST" })
+export const signInWithGoogle = createServerFn({ method: 'POST' })
   .validator(z.object({ redirectUrl: z.string().optional() }))
   .handler(async ({ data: { redirectUrl } }) => {
     const supabase = getSupabaseServerClient();
 
-    const redirectTo = redirectUrl || "/";
+    const redirectTo = redirectUrl || '/';
 
     const callbackUrl = new URL(AuthCallbackRoute.to);
 
     if (redirectTo && isValidRedirectUrl(redirectTo)) {
-      callbackUrl.searchParams.set("next", redirectTo);
+      callbackUrl.searchParams.set('next', redirectTo);
     }
 
     const { data, error } = await supabase.auth.signInWithOAuth({
-      provider: "google",
+      provider: 'google',
       options: {
-        redirectTo: callbackUrl.toString(),
-      },
+        redirectTo: callbackUrl.toString()
+      }
     });
 
     if (error) {
@@ -60,7 +60,7 @@ export const signInWithGoogle = createServerFn({ method: "POST" })
     throw redirect({ to: data.url });
   });
 
-export const signInWithAnonymousUser = createServerFn({ method: "POST" }).handler(async () => {
+export const signInWithAnonymousUser = createServerFn({ method: 'POST' }).handler(async () => {
   const supabase = getSupabaseServerClient();
   const { data, error } = await supabase.auth.signInAnonymously();
   if (error) {
@@ -70,7 +70,7 @@ export const signInWithAnonymousUser = createServerFn({ method: "POST" }).handle
   const session = data.session;
 
   if (!session) {
-    return { success: false, error: "No session found" };
+    return { success: false, error: 'No session found' };
   }
 
   return {
@@ -97,10 +97,10 @@ export const signInWithAnonymousUser = createServerFn({ method: "POST" }).handle
             created_at: session.user.created_at,
             updated_at: session.user.updated_at,
             role: session.user.role,
-            deleted_at: session.user.deleted_at,
+            deleted_at: session.user.deleted_at
           }
-        : null,
-    },
+        : null
+    }
   };
 });
 

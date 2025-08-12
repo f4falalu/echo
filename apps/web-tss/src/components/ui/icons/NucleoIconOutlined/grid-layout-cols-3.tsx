@@ -17,7 +17,8 @@ function gridLayoutCols3(props: iconProps) {
           stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
-          strokeWidth="1.5"></rect>
+          strokeWidth="1.5"
+        ></rect>
         <rect
           x="8.25"
           y="7.75"
@@ -30,7 +31,8 @@ function gridLayoutCols3(props: iconProps) {
           stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
-          strokeWidth="1.5"></rect>
+          strokeWidth="1.5"
+        ></rect>
         <rect
           x="-2.75"
           y="7.75"
@@ -43,7 +45,8 @@ function gridLayoutCols3(props: iconProps) {
           stroke="#212121"
           strokeLinecap="round"
           strokeLinejoin="round"
-          strokeWidth="1.5"></rect>
+          strokeWidth="1.5"
+        ></rect>
       </g>
     </svg>
   );

@@ -3,7 +3,7 @@
 import debounce from 'lodash/debounce';
 import isFunction from 'lodash/isFunction';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { isDev } from '@/config';
+import { isDev } from '@/config/dev';
 import useLatest from './useLatest';
 import { useUnmount } from './useUnmount';
 
@@ -14,7 +14,7 @@ interface DebounceOptions {
   trailing?: boolean;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any -- Required for generic function types
+// biome-ignore lint/suspicious/noExplicitAny: just use any
 type noop = (...args: any[]) => any;
 
 export function useDebounceFn<T extends noop>(fn: T, options?: DebounceOptions) {

@@ -13,7 +13,8 @@ export const IndeterminateLinearLoader: React.FC<{
   return (
     <div
       className={`h-1.5 w-full overflow-hidden bg-gray-200 ${className}`}
-      style={{ ...style, height, backgroundColor: trackColor }}>
+      style={{ ...style, height, backgroundColor: trackColor }}
+    >
       <div
         className={twMerge(
           'bg-primary',

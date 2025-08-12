@@ -1,4 +1,3 @@
-export { default as FileText } from './file-text';
 export { default as Accessibility } from './accessibility';
 export { default as AddAbove } from './add-above';
 export { default as I12_addAbove } from './add-above-I12px';
@@ -1360,6 +1359,7 @@ export { default as FileSettings } from './file-settings';
 export { default as FileShield } from './file-shield';
 export { default as FileSparkle } from './file-sparkle';
 export { default as FileStar } from './file-star';
+export { default as FileText } from './file-text';
 export { default as FileTree } from './file-tree';
 export { default as FileUser } from './file-user';
 export { default as FileXmark } from './file-xmark';

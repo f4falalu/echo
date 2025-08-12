@@ -1,19 +1,19 @@
-import React from "react";
-import { cn } from "@/lib/classMerge";
-import { ChevronLeft } from "../icons";
-import { Button } from "./Button";
+import React from 'react';
+import { cn } from '@/lib/classMerge';
+import { ChevronLeft } from '../icons';
+import { Button } from './Button';
 
 interface BackButtonProps {
   onClick?: () => void;
   text?: string;
-  size?: "medium" | "large";
+  size?: 'medium' | 'large';
   className?: string;
   style?: React.CSSProperties;
   linkUrl?: string;
 }
 
 export const BackButton: React.FC<BackButtonProps> = React.memo(
-  ({ onClick, text = "Back", className = "", style, linkUrl }) => {
+  ({ onClick, text = 'Back', className = '', style, linkUrl }) => {
     return (
       <LinkWrapper linkUrl={linkUrl}>
         <Button
@@ -24,21 +24,21 @@ export const BackButton: React.FC<BackButtonProps> = React.memo(
           }
           variant="link"
           onClick={onClick}
-          className={cn(className, "group pl-1.5")}
+          className={cn(className, 'group pl-1.5')}
           style={style}
         >
           {text}
         </Button>
       </LinkWrapper>
     );
-  },
+  }
 );
 
-BackButton.displayName = "BackButton";
+BackButton.displayName = 'BackButton';
 
 const LinkWrapper: React.FC<{ children: React.ReactNode; linkUrl?: string }> = ({
   children,
-  linkUrl,
+  linkUrl
 }) => {
   if (linkUrl) {
     return <a href={linkUrl}>{children}</a>;

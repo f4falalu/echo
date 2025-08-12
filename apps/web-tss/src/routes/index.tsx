@@ -1,8 +1,8 @@
-import { createFileRoute } from "@tanstack/react-router";
-import logo from "../logo.svg";
+import { createFileRoute } from '@tanstack/react-router';
+import logo from '../logo.svg';
 
-export const Route = createFileRoute("/")({
-  component: App,
+export const Route = createFileRoute('/')({
+  component: App
 });
 
 function App() {

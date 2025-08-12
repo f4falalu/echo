@@ -5,7 +5,7 @@ export type Person = {
   age: number;
   visits: number;
   progress: number;
-  status: "relationship" | "complicated" | "single";
+  status: 'relationship' | 'complicated' | 'single';
   subRows?: Person[];
 };
 
@@ -16,7 +16,7 @@ const range = (len: number): number[] => {
 };
 
 const makePerson = (num: number): Person => {
-  const statuses: Person["status"][] = ["relationship", "complicated", "single"];
+  const statuses: Person['status'][] = ['relationship', 'complicated', 'single'];
   return {
     id: num,
     firstName: `First${num}`,
@@ -24,7 +24,7 @@ const makePerson = (num: number): Person => {
     age: (num % 40) + 1,
     visits: (num * 17) % 1_000,
     progress: (num * 7) % 100,
-    status: statuses[num % statuses.length],
+    status: statuses[num % statuses.length]
   };
 };
 
@@ -34,11 +34,10 @@ export function makeData(...lens: number[]): Person[] {
     return range(len).map((index): Person => {
       return {
         ...makePerson(index),
-        subRows: lens[depth + 1] ? makeDataLevel(depth + 1) : undefined,
+        subRows: lens[depth + 1] ? makeDataLevel(depth + 1) : undefined
       };
     });
   };
 
   return makeDataLevel();
 }
-

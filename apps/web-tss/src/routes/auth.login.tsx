@@ -1,19 +1,19 @@
-import { createFileRoute, useRouter } from "@tanstack/react-router";
-import { signInWithEmailAndPassword } from "../integrations/supabase/signIn";
+import { createFileRoute, useRouter } from '@tanstack/react-router';
+import { signInWithEmailAndPassword } from '../integrations/supabase/signIn';
 
-export const Route = createFileRoute("/auth/login")({
-  component: LoginComp,
+export const Route = createFileRoute('/auth/login')({
+  component: LoginComp
 });
 
 function LoginComp() {
   const router = useRouter();
 
   const onSubmit = async (formData: FormData) => {
-    const email = formData.get("email") as string;
-    const password = formData.get("password") as string;
+    const email = formData.get('email') as string;
+    const password = formData.get('password') as string;
     await signInWithEmailAndPassword({ data: { email, password } });
     router.invalidate();
-    router.navigate({ to: "/" });
+    router.navigate({ to: '/' });
   };
 
   return (
@@ -23,7 +23,7 @@ function LoginComp() {
           className="border border-gray-300 rounded-md p-2"
           type="email"
           name="email"
-          defaultValue={"chad@buster.so"}
+          defaultValue={'chad@buster.so'}
           placeholder="Email"
         />
         <input

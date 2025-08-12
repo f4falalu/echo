@@ -61,7 +61,8 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = React.memo(
             text: primaryButtonProps?.text ?? 'Submit',
             onClick: onOk
           }
-        }}>
+        }}
+      >
         {content}
       </AppModal>
     );

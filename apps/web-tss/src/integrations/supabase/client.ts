@@ -1,21 +1,22 @@
-"use client";
+'use client';
 
-import { createBrowserClient as createBrowserClientSSR } from "@supabase/ssr";
+import { createBrowserClient as createBrowserClientSSR } from '@supabase/ssr';
+import { env } from '@/env';
 
 function createBrowserClient() {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  const supabaseUrl = env.VITE_PUBLIC_SUPABASE_URL;
+  const supabaseAnonKey = env.VITE_PUBLIC_SUPABASE_ANON_KEY;
 
   if (!supabaseUrl || !supabaseAnonKey) {
-    throw new Error("Missing Supabase environment variables for browser client");
+    throw new Error('Missing Supabase environment variables for browser client');
   }
 
   return createBrowserClientSSR(supabaseUrl, supabaseAnonKey, {
     auth: {
       persistSession: true,
       autoRefreshToken: true,
-      detectSessionInUrl: true,
-    },
+      detectSessionInUrl: true
+    }
   });
 }
 

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, MutableRefObject } from 'react';
+import { type MutableRefObject, useEffect, useRef } from 'react';
 import { useLatest } from './useLatest';
 
 type Target = HTMLElement | null | undefined;

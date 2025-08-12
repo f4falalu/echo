@@ -13,7 +13,8 @@ export const ChartIcon_Metric: React.FC<{ colors?: string[]; disabled?: boolean 
       width="1em"
       height="1em"
       viewBox="0 0 22 22"
-      fill="none">
+      fill="none"
+    >
       <title>Metric Chart Icon</title>
       <path
         d="M2.70179 7.07395V13.5405H1.48239V8.78296C1.37153 8.94924 0.992778 9.03238 0.715642 9.03238H0.216797V7.97926H0.669453C1.17754 7.97926 1.46391 7.77603 1.54705 7.07395H2.70179Z"

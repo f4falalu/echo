@@ -1,11 +1,10 @@
-import * as React from 'react';
-
-import type { ClientUploadedFileData, UploadFilesOptions } from 'uploadthing/types';
 import { generateReactHelpers } from '@uploadthing/react';
+import * as React from 'react';
 import { toast } from 'sonner';
-import { z } from 'zod';
 import type { FileRouter } from 'uploadthing/next';
 import { createUploadthing } from 'uploadthing/next';
+import type { ClientUploadedFileData, UploadFilesOptions } from 'uploadthing/types';
+import { z } from 'zod';
 
 const f = createUploadthing();
 

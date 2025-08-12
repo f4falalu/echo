@@ -15,7 +15,8 @@ export const PulseLoader: React.FC<{
           ...style,
           width: `${size}px`,
           height: `${size}px`
-        }}>
+        }}
+      >
         <span
           className="bg-primary absolute inline-flex h-full w-full animate-ping rounded-full opacity-75"
           style={{

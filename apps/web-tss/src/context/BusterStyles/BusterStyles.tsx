@@ -1,0 +1,9 @@
+import type React from 'react';
+import type { PropsWithChildren } from 'react';
+import { BusterNotificationsProvider } from '../BusterNotifications/BusterNotifications';
+
+// const ENABLE_DARK_MODE = false;
+
+export const BusterStyleProvider: React.FC<PropsWithChildren> = ({ children }) => {
+  return <BusterNotificationsProvider>{children}</BusterNotificationsProvider>;
+};

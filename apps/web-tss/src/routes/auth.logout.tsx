@@ -1,7 +1,7 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { signOut } from "@/integrations/supabase/signOut";
+import { createFileRoute } from '@tanstack/react-router';
+import { signOut } from '@/integrations/supabase/signOut';
 
-export const Route = createFileRoute("/auth/logout")({
+export const Route = createFileRoute('/auth/logout')({
   preload: false,
-  loader: () => signOut(),
+  loader: () => signOut()
 });

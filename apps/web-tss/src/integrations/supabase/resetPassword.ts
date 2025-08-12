@@ -1,17 +1,19 @@
-import { createServerFn } from "@tanstack/react-start";
-import { z } from "zod";
-import { ServerRoute as AuthCallbackRoute } from "../../routes/auth.callback";
-import { getSupabaseServerClient } from "./server";
+import { createServerFn } from '@tanstack/react-start';
+import { z } from 'zod';
+import { env } from '@/env';
+import { ServerRoute as AuthCallbackRoute } from '../../routes/auth.callback';
+import { getSupabaseServerClient } from './server';
 
-export const resetPasswordEmailSend = createServerFn({ method: "POST" })
+export const resetPasswordEmailSend = createServerFn({ method: 'POST' })
   .validator(z.object({ email: z.string().email() }))
   .handler(async ({ data: { email } }) => {
     const supabase = await getSupabaseServerClient();
+    const url = env.VITE_PUBLIC_URL;
 
-    const authURLFull = `${process.env.NEXT_PUBLIC_URL}${AuthCallbackRoute.to}`;
+    const authURLFull = `${url}${AuthCallbackRoute.to}`;
 
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: authURLFull,
+      redirectTo: authURLFull
     });
 
     if (error) {
@@ -21,7 +23,7 @@ export const resetPasswordEmailSend = createServerFn({ method: "POST" })
     return;
   });
 
-export const resetPassword = createServerFn({ method: "POST" })
+export const resetPassword = createServerFn({ method: 'POST' })
   .validator(z.object({ password: z.string() }))
   .handler(async ({ data: { password } }) => {
     const supabase = await getSupabaseServerClient();

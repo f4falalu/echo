@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/nextjs';
-import { fn } from 'storybook/test';
 import { useState } from 'react';
+import { fn } from 'storybook/test';
 import { BorderedModal } from './BorderedModal';
 
 const meta: Meta<typeof BorderedModal> = {
@@ -16,6 +16,7 @@ export default meta;
 type Story = StoryObj<typeof BorderedModal>;
 
 // Wrapper component to handle state
+// biome-ignore lint/suspicious/noExplicitAny: just use any
 const ScrollableModalWrapper = (args: any) => {
   const [open, setOpen] = useState(true);
   return <BorderedModal {...args} open={open} onOpenChange={setOpen} />;

@@ -174,7 +174,8 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         disabled={disabled}
         data-loading={loading}
         data-selected={selected}
-        {...props}>
+        {...props}
+      >
         {loading ? (
           <LoadingIcon variant={variant} size={size} />
         ) : (
@@ -207,7 +208,8 @@ export const LoadingIcon: React.FC<{
         'flex items-center justify-center text-black dark:text-white',
         variant === 'black' && 'dark',
         loadingSizeVariants[size || 'default']
-      )}>
+      )}
+    >
       <CircleSpinnerLoader
         size={size === 'tall' ? 12.5 : 9.5}
         fill={

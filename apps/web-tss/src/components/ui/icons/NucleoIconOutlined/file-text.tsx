@@ -1,5 +1,5 @@
-import type { iconProps } from './iconProps';
 import React from 'react';
+import type { iconProps } from './iconProps';
 
 export default function FileText() {
   return (
@@ -12,13 +12,15 @@ export default function FileText() {
           stroke="currentColor"
           strokeLinecap="square"
           strokeMiterlimit="10"
-          strokeWidth="1.3"></path>
+          strokeWidth="1.3"
+        ></path>
         <polyline
           points="4 7 9 7 9 2"
           stroke="currentColor"
           strokeMiterlimit="10"
           strokeWidth="1.3"
-          fill="currentColor"></polyline>
+          fill="currentColor"
+        ></polyline>
         <line
           x1="13"
           y1="9"
@@ -28,7 +30,8 @@ export default function FileText() {
           stroke="currentColor"
           strokeLinecap="square"
           strokeMiterlimit="10"
-          strokeWidth="1.3"></line>
+          strokeWidth="1.3"
+        ></line>
         <line
           x1="8"
           y1="13"
@@ -38,7 +41,8 @@ export default function FileText() {
           stroke="currentColor"
           strokeLinecap="square"
           strokeMiterlimit="10"
-          strokeWidth="1.3"></line>
+          strokeWidth="1.3"
+        ></line>
         <line
           x1="8"
           y1="17"
@@ -48,7 +52,8 @@ export default function FileText() {
           stroke="currentColor"
           strokeLinecap="square"
           strokeMiterlimit="10"
-          strokeWidth="1.3"></line>
+          strokeWidth="1.3"
+        ></line>
       </g>
     </svg>
   );

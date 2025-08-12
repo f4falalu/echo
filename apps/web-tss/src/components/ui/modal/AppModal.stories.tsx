@@ -1,38 +1,38 @@
-"use client";
+'use client';
 
-import type { Meta, StoryObj } from "@storybook/nextjs";
-import React from "react";
-import { fn } from "storybook/test";
-import { Button } from "../buttons/Button";
-import type { ModalProps } from "./AppModal";
-import { AppModal } from "./AppModal";
+import type { Meta, StoryObj } from '@storybook/nextjs';
+import React from 'react';
+import { fn } from 'storybook/test';
+import { Button } from '../buttons/Button';
+import type { ModalProps } from './AppModal';
+import { AppModal } from './AppModal';
 
 const meta: Meta<typeof AppModal> = {
-  title: "UI/Modal/AppModal",
+  title: 'UI/Modal/AppModal',
   component: AppModal,
   argTypes: {
     open: {
-      control: "boolean",
-      description: "Controls whether the modal is open or closed",
+      control: 'boolean',
+      description: 'Controls whether the modal is open or closed'
     },
     onClose: {
-      action: "closed",
-      description: "Function called when the modal is closed",
+      action: 'closed',
+      description: 'Function called when the modal is closed'
     },
     width: {
-      control: { type: "number", min: 300, max: 1200, step: 50 },
-      description: "Width of the modal in pixels",
+      control: { type: 'number', min: 300, max: 1200, step: 50 },
+      description: 'Width of the modal in pixels'
     },
     header: {
-      description: "Header configuration with title and optional description",
+      description: 'Header configuration with title and optional description'
     },
     footer: {
-      description: "Footer configuration with primary and optional secondary buttons",
-    },
+      description: 'Footer configuration with primary and optional secondary buttons'
+    }
   },
   parameters: {
-    layout: "centered",
-  },
+    layout: 'centered'
+  }
 };
 
 export default meta;
@@ -56,7 +56,7 @@ const ModalContainer = (args: ModalProps) => {
         onClick: () => {
           args.footer.primaryButton.onClick?.();
           handleClose();
-        },
+        }
       },
       secondaryButton: args.footer.secondaryButton
         ? {
@@ -64,10 +64,10 @@ const ModalContainer = (args: ModalProps) => {
             onClick: () => {
               args.footer.secondaryButton?.onClick?.();
               handleClose();
-            },
+            }
           }
-        : undefined,
-    },
+        : undefined
+    }
   };
 
   return (
@@ -82,18 +82,18 @@ export const Default: Story = {
   render: (args) => <ModalContainer {...args} />,
   args: {
     header: {
-      title: "Modal Title",
-      description: "This is a description of the modal",
+      title: 'Modal Title',
+      description: 'This is a description of the modal'
     },
     footer: {
       primaryButton: {
-        text: "Confirm",
-        onClick: fn(),
+        text: 'Confirm',
+        onClick: fn()
       },
       secondaryButton: {
-        text: "Cancel",
-        onClick: fn(),
-      },
+        text: 'Cancel',
+        onClick: fn()
+      }
     },
     width: 600,
     children: (
@@ -101,75 +101,75 @@ export const Default: Story = {
         <p>This is the content of the modal.</p>
         <p className="mt-2">You can put any React components here.</p>
       </div>
-    ),
-  },
+    )
+  }
 };
 
 export const WithoutDescription: Story = {
   render: (args) => <ModalContainer {...args} />,
   args: {
     header: {
-      title: "Simple Modal",
+      title: 'Simple Modal'
     },
     footer: {
       primaryButton: {
-        text: "OK",
-        onClick: fn(),
-      },
+        text: 'OK',
+        onClick: fn()
+      }
     },
     width: 500,
     children: (
       <div className="">
         <p>A modal without a description and secondary button.</p>
       </div>
-    ),
-  },
+    )
+  }
 };
 
 export const LoadingState: Story = {
   render: (args) => <ModalContainer {...args} />,
   args: {
     header: {
-      title: "Processing Data",
-      description: "Please wait while we process your request",
+      title: 'Processing Data',
+      description: 'Please wait while we process your request'
     },
     footer: {
       primaryButton: {
-        text: "Submit",
+        text: 'Submit',
         onClick: fn(),
-        loading: true,
+        loading: true
       },
       secondaryButton: {
-        text: "Cancel",
+        text: 'Cancel',
         onClick: fn(),
-        disabled: true,
-      },
+        disabled: true
+      }
     },
     width: 550,
     children: (
       <div className="">
         <p>This modal shows loading and disabled states for buttons.</p>
       </div>
-    ),
-  },
+    )
+  }
 };
 
 export const CustomWidth: Story = {
   render: (args) => <ModalContainer {...args} />,
   args: {
     header: {
-      title: "Wide Modal",
-      description: "This modal has a custom width",
+      title: 'Wide Modal',
+      description: 'This modal has a custom width'
     },
     footer: {
       primaryButton: {
-        text: "Save",
-        onClick: fn(),
+        text: 'Save',
+        onClick: fn()
       },
       secondaryButton: {
-        text: "Discard",
-        onClick: fn(),
-      },
+        text: 'Discard',
+        onClick: fn()
+      }
     },
     width: 300,
     children: (
@@ -180,33 +180,33 @@ export const CustomWidth: Story = {
           <div className="rounded border p-4">Column 2 content</div>
         </div>
       </div>
-    ),
-  },
+    )
+  }
 };
 
 export const WithCustomFooterLeft: Story = {
   render: (args) => <ModalContainer {...args} />,
   args: {
     header: {
-      title: "Custom Footer",
-      description: "This modal has custom content in the left side of the footer",
+      title: 'Custom Footer',
+      description: 'This modal has custom content in the left side of the footer'
     },
     footer: {
       left: <span className="text-sm text-gray-500">Additional footer information</span>,
       primaryButton: {
-        text: "Continue",
-        onClick: fn(),
+        text: 'Continue',
+        onClick: fn()
       },
       secondaryButton: {
-        text: "Back",
-        onClick: fn(),
-      },
+        text: 'Back',
+        onClick: fn()
+      }
     },
     width: 600,
     children: (
       <div className="">
         <p>Notice the additional text on the left side of the footer.</p>
       </div>
-    ),
-  },
+    )
+  }
 };

@@ -107,7 +107,8 @@ export const AppModal = <T,>({
           if (preventCloseOnClickOutside) {
             e.preventDefault();
           }
-        }}>
+        }}
+      >
         <div className="flex flex-col gap-4 overflow-hidden p-6">
           {header && (
             <DialogHeader className="">
@@ -121,7 +122,8 @@ export const AppModal = <T,>({
 
         {footer && (
           <DialogFooter
-            className={cn('flex items-center', footer.left ? 'justify-between' : 'justify-end')}>
+            className={cn('flex items-center', footer.left ? 'justify-between' : 'justify-end')}
+          >
             {footer.left && footer.left}
             <div className={cn('flex items-center space-x-2')}>
               {footer.secondaryButton && (
@@ -129,7 +131,8 @@ export const AppModal = <T,>({
                   onClick={onSecondaryButtonClickPreflight}
                   variant={footer.secondaryButton.variant ?? 'ghost'}
                   loading={footer.secondaryButton.loading ?? isLoadingSecondaryButton}
-                  disabled={footer.secondaryButton.disabled}>
+                  disabled={footer.secondaryButton.disabled}
+                >
                   {footer.secondaryButton.text}
                 </Button>
               )}
@@ -137,7 +140,8 @@ export const AppModal = <T,>({
                 onClick={onPrimaryButtonClickPreflight}
                 variant={footer.primaryButton.variant ?? 'black'}
                 loading={footer.primaryButton.loading ?? isLoadingPrimaryButton}
-                disabled={footer.primaryButton.disabled}>
+                disabled={footer.primaryButton.disabled}
+              >
                 {footer.primaryButton.text}
               </Button>
             </div>

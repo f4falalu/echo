@@ -16,7 +16,8 @@ export const ChartIcon_AreaRelative: React.FC<{ colors?: string[]; disabled?: bo
       width="1em"
       height="1em"
       viewBox="0 0 22 22"
-      fill="none">
+      fill="none"
+    >
       <title>Area Relative Chart Icon</title>
       <path
         d="M0 17.8889L7 15L16 17L22 15V20C22 20.5523 21.5523 21 21 21H1C0.447716 21 0 20.5523 0 20V17.8889Z"

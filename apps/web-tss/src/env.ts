@@ -1,19 +1,32 @@
-import { createEnv } from "@t3-oss/env-core";
-import { z } from "zod";
+import { createEnv } from '@t3-oss/env-core';
+import { z } from 'zod';
 
 export const env = createEnv({
   server: {
     SERVER_URL: z.string().url().optional(),
+    POSTHOG_API_KEY: z.string().optional(),
+    POSTHOG_ENV_ID: z.string().optional()
   },
 
   /**
    * The prefix that client-side variables must have. This is enforced both at
    * a type-level and at runtime.
    */
-  clientPrefix: "VITE_",
+  clientPrefix: 'VITE_',
 
   client: {
     VITE_APP_TITLE: z.string().min(1).optional(),
+    VITE_PUBLIC_API_URL: z.string().url(),
+    VITE_PUBLIC_API2_URL: z.string().url(),
+    VITE_PUBLIC_WEB_SOCKET_URL: z.string().url().optional(),
+    VITE_PUBLIC_URL: z.string().url(),
+    VITE_PUBLIC_SUPABASE_URL: z.string().url(),
+    VITE_PUBLIC_SUPABASE_ANON_KEY: z.string(),
+    VITE_PUBLIC_POSTHOG_KEY: z.string().optional(),
+    VITE_PUBLIC_POSTHOG_HOST: z.string().url().optional(),
+    VITE_PUBLIC_ENABLE_TANSTACK_PANEL: z.string().optional(),
+    VITE_PUBLIC_USER: z.string().optional(),
+    VITE_PUBLIC_USER_PASSWORD: z.string().optional()
   },
 
   /**
@@ -35,5 +48,5 @@ export const env = createEnv({
    * In order to solve these issues, we recommend that all new projects
    * explicitly specify this option as true.
    */
-  emptyStringAsUndefined: true,
+  emptyStringAsUndefined: true
 });

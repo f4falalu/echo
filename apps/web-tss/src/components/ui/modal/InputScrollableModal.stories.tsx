@@ -1,7 +1,7 @@
 import { faker } from '@faker-js/faker';
 import type { Meta, StoryObj } from '@storybook/nextjs';
-import { fn } from 'storybook/test';
 import React from 'react';
+import { fn } from 'storybook/test';
 import { useSet } from '@/hooks';
 import { InputSelectModal, type InputSelectModalProps } from './InputSelectModal';
 

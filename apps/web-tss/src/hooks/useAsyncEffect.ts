@@ -3,7 +3,7 @@
 import { useEffect } from 'react';
 
 type AsyncEffect = () => Promise<undefined | (() => void)>;
-type DependencyList = ReadonlyArray<unknown>;
+type DependencyList = readonly unknown[];
 
 /**
  * A hook for handling async effects in React components.

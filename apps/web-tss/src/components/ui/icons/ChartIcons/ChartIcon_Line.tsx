@@ -13,7 +13,8 @@ export const ChartIcon_Line: React.FC<{ colors?: string[]; disabled?: boolean }>
       width="1em"
       height="1em"
       viewBox="0 0 23 22"
-      fill="none">
+      fill="none"
+    >
       <title>Line Chart Icon</title>
       <g clipPath="url(#clip0_257_835)">
         <path

@@ -47,7 +47,8 @@ const DialogContent = React.memo(
           'border shadow-lg duration-200',
           className
         )}
-        {...props}>
+        {...props}
+      >
         {children}
         {showClose && <DialogCloseButton />}
       </DialogPrimitive.Content>
@@ -101,7 +102,8 @@ const DialogCloseButton = React.forwardRef<
       'absolute top-6 right-6 opacity-70 transition-opacity hover:opacity-100 disabled:pointer-events-none',
       className
     )}
-    {...props}>
+    {...props}
+  >
     <Button prefix={<Xmark />} variant="ghost" />
   </DialogPrimitive.Close>
 ));

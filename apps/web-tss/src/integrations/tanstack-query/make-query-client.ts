@@ -1,10 +1,10 @@
-import { QueryClient } from "@tanstack/react-query";
+import { QueryClient } from '@tanstack/react-query';
 import {
   ERROR_RETRY_DELAY,
   GC_TIME,
   PREFETCH_STALE_TIME,
-  USER_CANCELLED_ERROR,
-} from "./query-client-config";
+  USER_CANCELLED_ERROR
+} from './query-client-config';
 
 type OpenErrorNotification = (error: Error | { message: string }) => void;
 
@@ -29,7 +29,7 @@ export function makeQueryClient(params?: {
             params.openErrorNotification(error);
           }
           return false;
-        },
+        }
       },
       mutations: {
         retry: (_failureCount, error) => {
@@ -37,12 +37,12 @@ export function makeQueryClient(params?: {
             params.openErrorNotification(error);
           }
           return false;
-        },
+        }
       },
       dehydrate: {
         shouldDehydrateQuery: () => true,
-        shouldRedactErrors: () => false,
-      },
-    },
+        shouldRedactErrors: () => false
+      }
+    }
   });
 }

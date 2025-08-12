@@ -1,18 +1,18 @@
-"use client";
+'use client';
 
-import React, { type ReactNode, useMemo, useState } from "react";
-import { useMemoizedFn } from "@/hooks/useMemoizedFn";
-import { cn } from "@/lib/utils";
-import { Button, type ButtonProps } from "../buttons";
-import { AppTooltip } from "../tooltip";
+import React, { type ReactNode, useMemo, useState } from 'react';
+import { useMemoizedFn } from '@/hooks/useMemoizedFn';
+import { cn } from '@/lib/utils';
+import { Button, type ButtonProps } from '../buttons';
+import { AppTooltip } from '../tooltip';
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogFooter,
   DialogHeader,
-  DialogTitle,
-} from "./ModalBase";
+  DialogTitle
+} from './ModalBase';
 
 export interface BorderedModalProps {
   children: React.ReactNode;
@@ -22,7 +22,7 @@ export interface BorderedModalProps {
     primaryButton: {
       text: string;
       onClick: (() => Promise<void>) | (() => void);
-      variant?: ButtonProps["variant"];
+      variant?: ButtonProps['variant'];
       loading?: boolean;
       disabled?: boolean;
       tooltip?: string;
@@ -30,7 +30,7 @@ export interface BorderedModalProps {
     secondaryButton?: {
       text: string;
       onClick: () => void;
-      variant?: ButtonProps["variant"];
+      variant?: ButtonProps['variant'];
       loading?: boolean;
       disabled?: boolean;
     };
@@ -55,7 +55,7 @@ export const BorderedModal = React.memo(
     header,
     open,
     onClose,
-    className = "",
+    className = ''
   }: BorderedModalProps) => {
     const [isLoadingPrimaryButton, setIsLoadingPrimaryButton] = useState(false);
 
@@ -74,7 +74,7 @@ export const BorderedModal = React.memo(
     const memoizedStyle = useMemo(() => {
       return {
         width: width,
-        maxWidth: width,
+        maxWidth: width
       };
     }, [width]);
 
@@ -89,7 +89,7 @@ export const BorderedModal = React.memo(
         >
           {header && (
             <DialogHeader
-              className={cn("border-b", headerIsTitleObject ? "px-6 pt-6 pb-4" : "space-y-0!")}
+              className={cn('border-b', headerIsTitleObject ? 'px-6 pt-6 pb-4' : 'space-y-0!')}
             >
               {headerIsTitleObject ? (
                 <>
@@ -106,14 +106,14 @@ export const BorderedModal = React.memo(
 
           {footer && (
             <DialogFooter
-              className={cn("flex items-center", footer.left ? "justify-between" : "justify-end")}
+              className={cn('flex items-center', footer.left ? 'justify-between' : 'justify-end')}
             >
               {footer.left && footer.left}
-              <div className={cn("flex items-center space-x-2")}>
+              <div className={cn('flex items-center space-x-2')}>
                 {footer.secondaryButton && (
                   <Button
                     onClick={footer.secondaryButton.onClick}
-                    variant={footer.secondaryButton.variant ?? "ghost"}
+                    variant={footer.secondaryButton.variant ?? 'ghost'}
                     loading={footer.secondaryButton.loading}
                     disabled={footer.secondaryButton.disabled}
                   >
@@ -128,7 +128,7 @@ export const BorderedModal = React.memo(
                   >
                     <Button
                       onClick={onPrimaryButtonClickPreflight}
-                      variant={footer.primaryButton.variant ?? "black"}
+                      variant={footer.primaryButton.variant ?? 'black'}
                       loading={footer.primaryButton.loading ?? isLoadingPrimaryButton}
                       disabled={footer.primaryButton.disabled}
                     >
@@ -142,10 +142,10 @@ export const BorderedModal = React.memo(
         </DialogContent>
       </Dialog>
     );
-  },
+  }
 );
 
-BorderedModal.displayName = "BorderedModal";
+BorderedModal.displayName = 'BorderedModal';
 
 const isHeaderTitleObject = (
   header:
@@ -153,10 +153,10 @@ const isHeaderTitleObject = (
         title: string;
         description?: string;
       }
-    | ReactNode,
+    | ReactNode
 ): header is {
   title: string;
   description?: string;
 } => {
-  return typeof header === "object" && header !== null && "title" in header;
+  return typeof header === 'object' && header !== null && 'title' in header;
 };

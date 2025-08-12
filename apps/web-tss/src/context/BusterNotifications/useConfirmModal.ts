@@ -1,11 +1,11 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState } from 'react';
 import type {
   ConfirmProps as BaseConfirmProps,
-  ConfirmModalProps,
-} from "@/components/ui/modal/ConfirmModal";
-import { USER_CANCELLED_ERROR } from "../../integrations/tanstack-query/query-client-config";
+  ConfirmModalProps
+} from '@/components/ui/modal/ConfirmModal';
+import { USER_CANCELLED_ERROR } from '../../integrations/tanstack-query/query-client-config';
 
-interface ConfirmProps<T = unknown> extends Omit<BaseConfirmProps, "onOk"> {
+interface ConfirmProps<T = unknown> extends Omit<BaseConfirmProps, 'onOk'> {
   title: string | React.ReactNode;
   content: string | React.ReactNode;
   onOk: () => T | Promise<T>;
@@ -13,13 +13,13 @@ interface ConfirmProps<T = unknown> extends Omit<BaseConfirmProps, "onOk"> {
 }
 
 const defaultConfirmModalProps: ConfirmProps<unknown> = {
-  title: "",
-  content: "",
+  title: '',
+  content: '',
   onOk: () => undefined,
-  onCancel: async () => Promise.reject(USER_CANCELLED_ERROR),
+  onCancel: async () => Promise.reject(USER_CANCELLED_ERROR)
 };
 
-interface QueuedModal<T = unknown> extends Omit<ConfirmProps<T>, "onOk" | "onCancel"> {
+interface QueuedModal<T = unknown> extends Omit<ConfirmProps<T>, 'onOk' | 'onCancel'> {
   resolve: (value: T | undefined) => void;
   reject: (reason?: unknown) => void;
   onClose: () => void;
@@ -65,7 +65,7 @@ export const useOpenConfirmModal = () => {
         onClose: () => {
           resolve(undefined);
           setModalQueue((prev) => prev.slice(1));
-        },
+        }
       };
 
       setModalQueue((prev) => [...prev, newModal] as QueuedModal<unknown>[]);
@@ -76,12 +76,12 @@ export const useOpenConfirmModal = () => {
     return currentModal
       ? {
           ...currentModal,
-          open: true,
+          open: true
         }
       : {
           ...defaultConfirmModalProps,
           open: false,
-          onClose: () => {},
+          onClose: () => {}
         };
   }, [currentModal]);
 

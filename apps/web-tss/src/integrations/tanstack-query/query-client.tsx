@@ -1,13 +1,13 @@
 import {
   type QueryClient,
   QueryClientProvider,
-  type QueryClientProviderProps,
-} from "@tanstack/react-query";
-import { openErrorNotification as openErrorNotificationMethod } from "@/context/BusterNotifications";
-import { makeQueryClient } from "./make-query-client";
+  type QueryClientProviderProps
+} from '@tanstack/react-query';
+import { openErrorNotification as openErrorNotificationMethod } from '@/context/BusterNotifications';
+import { makeQueryClient } from './make-query-client';
 
 let browserQueryClient: QueryClient | undefined;
-const isServer = typeof window === "undefined";
+const isServer = typeof window === 'undefined';
 
 export function getContext() {
   if (isServer) {
@@ -26,9 +26,9 @@ export function getContext() {
 
 export function Provider({
   children,
-  queryClient,
+  queryClient
 }: {
-  children: QueryClientProviderProps["children"];
+  children: QueryClientProviderProps['children'];
   queryClient: QueryClient;
 }) {
   return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>;

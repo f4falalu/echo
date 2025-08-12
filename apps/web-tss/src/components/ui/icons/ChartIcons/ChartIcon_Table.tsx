@@ -14,7 +14,8 @@ export const ChartIcon_Table: React.FC<{ colors?: string[]; disabled?: boolean }
       height="1em"
       viewBox="0 0 23 22"
       fill="none"
-      xmlns="http://www.w3.org/2000/svg">
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>Table Icon</title>
       <g clipPath="url(#clip0_257_1030)">
         <path

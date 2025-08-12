@@ -61,7 +61,8 @@ const TestComponent = ({
       <div
         className="flex cursor-pointer items-center justify-center p-1 text-center text-black"
         style={{ width: 120 }}
-        onClick={onClick}>
+        onClick={onClick}
+      >
         Open Toast
       </div>
     </div>
@@ -108,7 +109,7 @@ export const Success: Story = {
   }
 };
 
-export const Error: Story = {
+export const ErrorToast: Story = {
   args: {
     type: 'error',
     title: 'Error',

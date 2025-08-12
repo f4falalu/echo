@@ -1,1 +1,1 @@
-export * from "./BusterLoadingLogo";
+export * from './BusterLoadingLogo';

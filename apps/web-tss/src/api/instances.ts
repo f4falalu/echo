@@ -1,5 +1,5 @@
-import ky from "ky";
-import { BASE_URL, BASE_URL_V2 } from "./config";
+import ky from 'ky';
+import { BASE_URL, BASE_URL_V2 } from './config';
 
 const mainApi = ky.create({
   prefixUrl: BASE_URL,
@@ -7,9 +7,9 @@ const mainApi = ky.create({
     beforeRequest: [
       async (request) => {
         // request.headers.set("Authorization", `Bearer ${token}`);
-      },
-    ],
-  },
+      }
+    ]
+  }
 });
 const mainApiV2 = ky.create({ prefixUrl: BASE_URL_V2 });
 

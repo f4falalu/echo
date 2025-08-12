@@ -1,16 +1,16 @@
-import React from "react";
-import { cn } from "@/lib/utils";
-import { KeyboardShortcutPill } from "../pills/KeyboardShortcutPills";
+import React from 'react';
+import { cn } from '@/lib/utils';
+import { KeyboardShortcutPill } from '../pills/KeyboardShortcutPills';
 import {
   TooltipBase,
   TooltipContent as TooltipContentBase,
   type TooltipProvider,
-  TooltipTrigger,
-} from "./TooltipBase";
+  TooltipTrigger
+} from './TooltipBase';
 
 export interface TooltipProps
-  extends Pick<React.ComponentProps<typeof TooltipContentBase>, "align" | "side" | "sideOffset">,
-    Pick<React.ComponentProps<typeof TooltipProvider>, "delayDuration" | "skipDelayDuration"> {
+  extends Pick<React.ComponentProps<typeof TooltipContentBase>, 'align' | 'side' | 'sideOffset'>,
+    Pick<React.ComponentProps<typeof TooltipProvider>, 'delayDuration' | 'skipDelayDuration'> {
   children: React.ReactNode;
   title: string | React.ReactNode | undefined;
   shortcuts?: string[];
@@ -32,9 +32,9 @@ export const Tooltip = React.forwardRef<HTMLSpanElement, TooltipProps>(
       side,
       open,
       triggerClassName,
-      contentClassName,
+      contentClassName
     },
-    ref,
+    ref
   ) => {
     if (!title || (!title && !shortcuts?.length)) return children;
 
@@ -55,7 +55,7 @@ export const Tooltip = React.forwardRef<HTMLSpanElement, TooltipProps>(
         </TooltipContentBase>
       </TooltipBase>
     );
-  },
+  }
 );
 
 const TooltipContent: React.FC<{
@@ -64,11 +64,11 @@ const TooltipContent: React.FC<{
   className?: string;
 }> = ({ title, shortcut, className }) => {
   return (
-    <div className={cn("flex h-3 max-h-3 min-h-3 items-center gap-x-1.5", className)}>
+    <div className={cn('flex h-3 max-h-3 min-h-3 items-center gap-x-1.5', className)}>
       <span className="text-sm">{title}</span>
       <KeyboardShortcutPill shortcut={shortcut} />
     </div>
   );
 };
 
-Tooltip.displayName = "Tooltip";
+Tooltip.displayName = 'Tooltip';

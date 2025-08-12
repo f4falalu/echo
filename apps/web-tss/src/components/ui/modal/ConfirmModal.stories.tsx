@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/nextjs';
-import { fn } from 'storybook/test';
 import React from 'react';
+import { fn } from 'storybook/test';
 import { useBusterNotifications } from '../../../context/BusterNotifications';
 import { Button } from '../buttons/Button';
 import { ConfirmModal, type ConfirmProps } from './ConfirmModal';
@@ -47,7 +47,8 @@ export const Default: Story = {
             });
             alert(res);
             alert('openConfirmModal promise resolved');
-          }}>
+          }}
+        >
           Open Confirm Modal with a promise
         </Button>
       </div>

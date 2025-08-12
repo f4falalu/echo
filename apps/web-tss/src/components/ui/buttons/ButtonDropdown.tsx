@@ -59,7 +59,8 @@ export const ButtonDropdown = React.forwardRef<HTMLDivElement, ButtonDropdownPro
         {...dropdownProps}
         open={isOpen}
         onOpenChange={setIsOpen}
-        align={dropdownProps.align || 'end'}>
+        align={dropdownProps.align || 'end'}
+      >
         <ButtonSplit ref={ref} {...buttonProps} open={isOpen} onOpenChange={setIsOpen} />
       </Dropdown>
     );
@@ -105,18 +106,21 @@ export const ButtonSplit = React.memo(
             'gap-0 !bg-transparent p-0',
             disabled && 'cursor-not-allowed opacity-70',
             className
-          )}>
+          )}
+        >
           <div
             className={cn(
               primaryButtonVariants({ variant }),
               'flex h-full items-center gap-0.5 border-none pr-2 pl-2.5'
-            )}>
+            )}
+          >
             {loading ? (
               <LoadingIcon variant={variant} size={size} />
             ) : (
               icon && (
                 <span
-                  className={cn(buttonIconVariants({ variant, size }), 'text-sm', iconClassName)}>
+                  className={cn(buttonIconVariants({ variant, size }), 'text-sm', iconClassName)}
+                >
                   {icon}
                 </span>
               )
@@ -129,14 +133,16 @@ export const ButtonSplit = React.memo(
             className="flex h-full cursor-pointer items-center justify-center text-sm"
             aria-label={open ? 'Close dropdown menu' : 'Open dropdown menu'}
             aria-expanded={open}
-            onClick={handleClick}>
+            onClick={handleClick}
+          >
             <div className={cn(splitButtonVariants({ variant }), 'border-none')}>
               <span
                 className={cn(
                   'transition-transform duration-100',
                   disabled && 'cursor-not-allowed opacity-90',
                   open && 'rotate-180'
-                )}>
+                )}
+              >
                 <ChevronDown />
               </span>
             </div>

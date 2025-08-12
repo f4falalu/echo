@@ -13,7 +13,8 @@ export const ChartIcon_Combo: React.FC<{ colors?: string[]; disabled?: boolean }
       width="1em"
       height="1em"
       viewBox="0 0 22 22"
-      fill="none">
+      fill="none"
+    >
       <title>Combo Chart Icon</title>
       <g clipPath="url(#clip0_257_883)">
         <path

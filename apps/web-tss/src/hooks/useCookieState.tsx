@@ -1,9 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { isServer } from '@tanstack/react-query';
+import { useEffect, useState } from 'react';
 import { useMemoizedFn } from './useMemoizedFn';
 import { useMount } from './useMount';
-import { isServer } from '@tanstack/react-query';
 
 type SetState<S> = S | ((prevState?: S) => S);
 

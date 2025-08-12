@@ -18,7 +18,8 @@ export const AthenaIcon: React.FC<{
         strokeLinecap="round"
         strokeLinejoin="round"
         width={props.size || 24}
-        height={props.size || 24}>
+        height={props.size || 24}
+      >
         <title>Athena Icon</title>
         <use x="2.5" y="2.5" />
         <g stroke="none">

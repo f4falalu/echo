@@ -1,6 +1,6 @@
-import React from 'react';
-import { cn } from '@/lib/classMerge';
 import { cva, type VariantProps } from 'class-variance-authority';
+import type React from 'react';
+import { cn } from '@/lib/classMerge';
 
 const pillVariants = cva('rounded-sm border px-1 py-0.5 text-xs', {
   variants: {
