@@ -1,4 +1,6 @@
 import { createRootRouteWithContext, HeadContent, Link, Scripts } from '@tanstack/react-router';
+import { GlobalErrorCard } from '@/components/features/global/GlobalErrorCard';
+import { NotFoundCard } from '@/components/features/global/NotFoundCard';
 import { AppProviders } from '@/context/AppProviders';
 import { getSupabaseUser } from '../integrations/supabase/getSupabaseUserContext';
 import { TanstackDevtools } from '../integrations/tanstack-dev-tools/tanstack-devtools';
@@ -21,8 +23,9 @@ export const Route = createRootRouteWithContext<AppRouterContext>()({
     ],
     links: [{ rel: 'stylesheet', href: appCss }],
   }),
-  notFoundComponent: NotFound,
+  notFoundComponent: NotFoundCard,
   shellComponent: RootDocument,
+  errorComponent: GlobalErrorCard,
   beforeLoad: async () => {
     const supabaseConfig = await getSupabaseUser();
     return supabaseConfig;
@@ -46,18 +49,5 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         <Scripts />
       </body>
     </html>
-  );
-}
-
-// Default 404 component rendered when a route is not found
-function NotFound() {
-  return (
-    <div className="m-8 flex flex-col items-start gap-4">
-      <h1 className="text-2xl font-semibold">Page not found</h1>
-      <p className="text-gray-600">The page you are looking for does not exist.</p>
-      <Link to="/" className="text-blue-600 hover:underline">
-        Go back home
-      </Link>
-    </div>
   );
 }
