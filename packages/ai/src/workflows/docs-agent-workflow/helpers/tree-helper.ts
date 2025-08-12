@@ -3,11 +3,6 @@ import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { runTypescript } from '@buster/sandbox';
 import type { Sandbox } from '@buster/sandbox';
-import type { RuntimeContext } from '@mastra/core/runtime-context';
-import {
-  type DocsAgentContext,
-  DocsAgentContextKeys,
-} from '../../../agents/docs-agent/docs-agent-context';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -90,25 +85,3 @@ export async function getRepositoryTree(
   }
 }
 
-/**
- * Helper function to get repository tree from runtime context.
- * This checks if a sandbox is available and uses it to execute the tree command.
- *
- * @param runtimeContext - The runtime context that may contain a sandbox
- * @param targetPath - The path to generate tree from (defaults to repository root)
- * @param options - Options for the tree command
- * @returns The tree output as a string, or null if no sandbox is available
- */
-export async function getRepositoryTreeFromContext(
-  runtimeContext: RuntimeContext<DocsAgentContext>,
-  targetPath = '.',
-  options: TreeOptions = { gitignore: true }
-): Promise<TreeResult | null> {
-  const sandbox = runtimeContext.get(DocsAgentContextKeys.Sandbox);
-
-  if (!sandbox) {
-    return null;
-  }
-
-  return getRepositoryTree(sandbox, targetPath, options);
-}

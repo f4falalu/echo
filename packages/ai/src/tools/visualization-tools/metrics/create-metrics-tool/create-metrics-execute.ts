@@ -79,12 +79,6 @@ interface FailedFileCreation {
   error: string;
 }
 
-interface MetricWithMetadata {
-  name: string;
-  description?: string;
-  config: ChartConfigProps;
-}
-
 interface MetricFileResult {
   success: boolean;
   error?: string;
@@ -94,14 +88,7 @@ interface MetricFileResult {
   results?: Record<string, unknown>[];
 }
 
-interface VersionHistory {
-  versions: Array<{
-    version: number;
-    created_at: string;
-    changes?: string;
-    content: MetricWithMetadata;
-  }>;
-}
+type VersionHistory = (typeof metricFiles.$inferSelect)['versionHistory'];
 
 // Helper function to create initial version history
 function createInitialMetricVersionHistory(
@@ -109,17 +96,11 @@ function createInitialMetricVersionHistory(
   createdAt: string
 ): VersionHistory {
   return {
-    versions: [
-      {
-        version: 1,
-        created_at: createdAt,
-        content: {
-          name: metric.name,
-          ...(metric.description && { description: metric.description }),
-          config: metric,
-        },
-      },
-    ],
+    '1': {
+      content: JSON.stringify(metric),
+      updated_at: createdAt,
+      version_number: 1,
+    },
   };
 }
 
@@ -140,9 +121,9 @@ interface QueryMetadata {
 }
 
 interface ResultMetadata {
-  totalRowCount?: number;
-  limited?: boolean;
-  maxRows?: number;
+  totalRowCount?: number | undefined;
+  limited?: boolean | undefined;
+  maxRows?: number | undefined;
 }
 
 const resultMetadataSchema = z.object({
@@ -273,26 +254,22 @@ async function processMetricFile(
     const validatedMetricYml = ChartConfigPropsSchema.parse(metricYml);
 
     // Validate and adjust bar/line chart axes
-    const axisValidation = validateAndAdjustBarLineAxes(validatedMetricYml);
-    if (!axisValidation.isValid) {
+    let finalMetricYml: ChartConfigProps;
+    try {
+      finalMetricYml = validateAndAdjustBarLineAxes(validatedMetricYml);
+    } catch (error) {
       return {
         success: false,
-        error: axisValidation.error || 'Invalid bar/line chart axis configuration',
+        error: error instanceof Error ? error.message : 'Invalid bar/line chart axis configuration',
       };
     }
-
-    // Use adjusted YAML if axes were swapped
-    const finalMetricYml =
-      axisValidation.shouldSwapAxes && axisValidation.adjustedYml
-        ? axisValidation.adjustedYml
-        : metricYml;
 
     // Use provided metric ID from state or generate new one
     const id = metricId || randomUUID();
 
     // Validate SQL by running it
     const sqlValidationResult = await validateSql(
-      finalMetricYml.sql,
+      metricYml.sql,
       dataSourceId,
       userId,
       dataSourceDialect
@@ -309,7 +286,7 @@ async function processMetricFile(
     const now = new Date().toISOString();
     const metricFile: FileWithId = {
       id,
-      name: finalMetricYml.name,
+      name: metricYml.name,
       file_type: 'metric',
       result_message: sqlValidationResult.message || '',
       results: sqlValidationResult.results || [],
@@ -546,8 +523,6 @@ const createMetricFiles = wrapTraced(
     context: CreateMetricsContext,
     state?: CreateMetricsState
   ): Promise<CreateMetricsOutput> => {
-    const startTime = Date.now();
-
     // Get context values
     const userId = context.userId;
     const organizationId = context.organizationId;

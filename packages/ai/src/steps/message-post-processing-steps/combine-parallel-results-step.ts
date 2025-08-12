@@ -1,13 +1,12 @@
-import { createStep } from '@mastra/core';
 import { z } from 'zod';
 import { MessageHistorySchema } from '../../utils/memory/types';
-import { flagChatOutputSchema } from './flag-chat-step';
-import { identifyAssumptionsOutputSchema } from './identify-assumptions-step';
+import { flagChatStepOutputSchema } from './flag-chat-step';
+import { identifyAssumptionsResultSchema } from './identify-assumptions-step';
 
 // Input schema for parallel results
 const inputSchema = z.object({
-  'flag-chat': flagChatOutputSchema,
-  'identify-assumptions': identifyAssumptionsOutputSchema,
+  'flag-chat': flagChatStepOutputSchema,
+  'identify-assumptions': identifyAssumptionsResultSchema,
 });
 
 // Output schema combines both results into a flat object
@@ -109,11 +108,15 @@ export const combineParallelResultsStepExecution = async ({
   };
 };
 
-export const combineParallelResultsStep = createStep({
+/**
+ * Export the step without using Mastra's createStep
+ * This is a pure data transformation step with no AI/LLM functionality
+ */
+export const combineParallelResultsStep = {
   id: 'combine-parallel-results',
   description:
     'This step combines the parallel results from flag-chat and identify-assumptions into a flat object.',
   inputSchema,
   outputSchema: combineParallelResultsOutputSchema,
   execute: combineParallelResultsStepExecution,
-});
+};

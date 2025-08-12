@@ -1,80 +1,74 @@
 import type { Sandbox } from '@buster/sandbox';
+import type { ModelMessage } from 'ai';
 import { z } from 'zod';
 import { createDocsAgent } from '../../../agents/docs-agent/docs-agent';
-import {
-  DocsAgentContextKeys,
-  DocsAgentContextSchema,
-} from '../../../agents/docs-agent/docs-agent-context';
-import type { MessageUserClarifyingQuestion } from '../../../agents/docs-agent/docs-agent-context';
+import { DocsAgentContextSchema } from '../../../agents/docs-agent/docs-agent-context';
 
-const docsAgentStepInputSchema = z.object({
-  todos: z.string(),
-  todoList: z.string(),
-  message: z.string(),
-  organizationId: z.string(),
-  context: DocsAgentContextSchema,
+// Zod schemas first - following Zod-first approach
+export const docsAgentParamsSchema = z.object({
+  todos: z.string().describe('The todos string'),
+  todoList: z.string().describe('The TODO list'),
+  message: z.string().describe('The user message'),
+  organizationId: z.string().describe('The organization ID'),
+  context: DocsAgentContextSchema.describe('The docs agent context'),
   repositoryTree: z.string().describe('The tree structure of the repository'),
 });
 
-const docsAgentStepOutputSchema = z.object({
-  todos: z.array(z.string()).optional(),
-  todoList: z.string().optional(),
-  documentationCreated: z.boolean().optional(),
-  clarificationNeeded: z.boolean().optional(),
+export const docsAgentResultSchema = z.object({
+  todos: z.array(z.string()).optional().describe('Array of todos'),
+  todoList: z.string().optional().describe('The TODO list'),
+  documentationCreated: z.boolean().optional().describe('Whether documentation was created'),
+  clarificationNeeded: z.boolean().optional().describe('Whether clarification is needed'),
   clarificationQuestion: z
     .object({
       issue: z.string(),
       context: z.string(),
       clarificationQuestion: z.string(),
     })
-    .optional(),
-  finished: z.boolean().optional(),
+    .optional()
+    .describe('Clarification question details'),
+  finished: z.boolean().optional().describe('Whether the agent finished'),
   metadata: z
     .object({
       filesCreated: z.number().optional(),
       toolsUsed: z.array(z.string()).optional(),
     })
-    .optional(),
+    .optional()
+    .describe('Metadata about the execution'),
 });
 
-const docsAgentExecution = async ({
-  inputData,
-  runtimeContext,
-}: {
-  inputData: z.infer<typeof docsAgentStepInputSchema>;
-  runtimeContext: RuntimeContext;
-}): Promise<z.infer<typeof docsAgentStepOutputSchema>> => {
-  // Access values from runtime context
-  const sandbox = runtimeContext.get(DocsAgentContextKeys.Sandbox) as Sandbox;
-  const todoList = runtimeContext.get(DocsAgentContextKeys.TodoList) as string;
-  const clarificationQuestion = runtimeContext.get(DocsAgentContextKeys.ClarificationQuestions) as
-    | MessageUserClarifyingQuestion
-    | undefined;
+// Export types from schemas
+export type DocsAgentParams = z.infer<typeof docsAgentParamsSchema>;
+export type DocsAgentResult = z.infer<typeof docsAgentResultSchema>;
 
-  // Also access standard workflow context
-  const organizationId = runtimeContext.get('organizationId') as string;
-  const workflowStartTime = runtimeContext.get('workflowStartTime') as number;
-  const dataSourceId = runtimeContext.get('dataSourceId') as string;
-  const dataSourceSyntax = runtimeContext.get('dataSourceSyntax') as string;
+/**
+ * Main documentation agent that processes todos and creates documentation
+ */
+export async function runDocsAgentStep(params: DocsAgentParams): Promise<DocsAgentResult> {
+  // Validate input
+  const validatedParams = docsAgentParamsSchema.parse(params);
+
+  // Extract values from context
+  const sandbox = validatedParams.context.sandbox as Sandbox;
+  const todoList = validatedParams.todoList;
+  const dataSourceId = validatedParams.context.dataSourceId;
 
   // Create abort controller for handling idle tool
   const abortController = new AbortController();
 
-  // Initialize tracking variables outside try block
+  // Initialize tracking variables
   let documentationCreated = false;
   let clarificationNeeded = false;
   let filesCreated = 0;
   const toolsUsed = new Set<string>();
   let finished = false;
+  let updatedClarificationQuestion: any = undefined;
 
   console.info('[DocsAgent] Starting docs agent execution', {
     hasSandbox: !!sandbox,
     todoListLength: todoList?.length || 0,
-    hasClarificationQuestion: !!clarificationQuestion,
-    organizationId,
-    workflowStartTime,
+    organizationId: validatedParams.organizationId,
     dataSourceId,
-    dataSourceSyntax,
   });
 
   try {
@@ -92,27 +86,27 @@ const docsAgentExecution = async ({
 
     // Create the docs agent with folder structure and context
     const docsAgent = createDocsAgent({
-      folder_structure: inputData.repositoryTree,
-      userId: organizationId, // Using organizationId as userId for now
-      chatId: workflowStartTime?.toString() || 'unknown', // Using workflowStartTime as chatId
+      folder_structure: validatedParams.repositoryTree,
+      userId: validatedParams.organizationId, // Using organizationId as userId for now
+      chatId: Date.now().toString(), // Using current timestamp as chatId
       dataSourceId: dataSourceId || '',
-      organizationId: organizationId || '',
+      organizationId: validatedParams.organizationId || '',
       messageId: undefined, // Optional field
       sandbox: sandbox, // Pass sandbox for file tools
     });
 
-    const userMessage = `${inputData.message}`;
+    const userMessage = `${validatedParams.message}`;
     const todoMessage = `<todo-list>\n${todoList}\n</todo-list>`;
 
-    const messages = [
+    const messages: any[] = [
       {
         role: 'user',
         content: userMessage,
-      } as CoreMessage,
+      },
       {
         role: 'user',
         content: todoMessage,
-      } as CoreMessage,
+      },
     ];
 
     // Add cwd message if available (after todo list)
@@ -120,7 +114,7 @@ const docsAgentExecution = async ({
       messages.push({
         role: 'user',
         content: cwdMessage,
-      } as CoreMessage);
+      });
     }
 
     // Execute the docs agent
@@ -137,17 +131,17 @@ const docsAgentExecution = async ({
       }
 
       // Track step count
-      if (chunk.type === 'step-start') {
+      if ((chunk as any).type === 'step-start') {
         stepCount++;
         console.log(`[DocsAgent] Step ${stepCount} started`);
       }
 
       // Log text chunks to see what the agent is thinking
-      if (chunk.type === 'text-delta' && chunk.textDelta) {
-        lastTextContent += chunk.textDelta;
+      if (chunk.type === 'text-delta' && (chunk as any).textDelta) {
+        lastTextContent += (chunk as any).textDelta;
       }
 
-      if (chunk.type === 'step-finish') {
+      if ((chunk as any).type === 'step-finish') {
         console.log(
           `[DocsAgent] Step ${stepCount} finished. Last text: ${lastTextContent.slice(0, 200)}...`
         );
@@ -158,7 +152,7 @@ const docsAgentExecution = async ({
       if (chunk.type === 'tool-call') {
         console.log(
           `[DocsAgent] Tool call: ${chunk.toolName} with args:`,
-          JSON.stringify(chunk.args).slice(0, 200)
+          JSON.stringify((chunk as any).args).slice(0, 200)
         );
         toolsUsed.add(chunk.toolName);
 
@@ -184,21 +178,15 @@ const docsAgentExecution = async ({
 
       // Check for clarification updates in tool results
       if (chunk.type === 'tool-result') {
-        if (chunk.toolName === 'updateClarificationsFile' && chunk.result) {
-          // Update the runtime context with any new clarification questions
-          const resultData = chunk.result as Record<string, unknown>;
+        if (chunk.toolName === 'updateClarificationsFile' && (chunk as any).result) {
+          // Store any new clarification questions
+          const resultData = (chunk as any).result as Record<string, unknown>;
           if (resultData.clarificationQuestion) {
-            runtimeContext.set(
-              DocsAgentContextKeys.ClarificationQuestions,
-              resultData.clarificationQuestion
-            );
+            updatedClarificationQuestion = resultData.clarificationQuestion;
           }
         }
       }
     }
-
-    // Get the final todo list state
-    const finalTodoList = runtimeContext.get(DocsAgentContextKeys.TodoList) as string;
 
     console.log('[DocsAgent] Final results:', {
       documentationCreated,
@@ -208,10 +196,11 @@ const docsAgentExecution = async ({
     });
 
     return {
-      todos: inputData.todos.split('\n').filter((line) => line.trim()),
-      todoList: finalTodoList || inputData.todoList,
+      todos: validatedParams.todos.split('\n').filter((line) => line.trim()),
+      todoList: validatedParams.todoList,
       documentationCreated,
       clarificationNeeded,
+      clarificationQuestion: updatedClarificationQuestion,
       finished,
       metadata: {
         filesCreated,
@@ -223,12 +212,9 @@ const docsAgentExecution = async ({
     if (error instanceof Error && error.name === 'AbortError') {
       console.info('[DocsAgent] Stream aborted successfully (idle tool called)');
 
-      // Get the final todo list state
-      const finalTodoList = runtimeContext.get(DocsAgentContextKeys.TodoList) as string;
-
       return {
-        todos: inputData.todos.split('\n').filter((line) => line.trim()),
-        todoList: finalTodoList || inputData.todoList,
+        todos: validatedParams.todos.split('\n').filter((line) => line.trim()),
+        todoList: validatedParams.todoList,
         documentationCreated,
         clarificationNeeded,
         finished: true,
@@ -244,12 +230,5 @@ const docsAgentExecution = async ({
       `Docs agent execution failed: ${error instanceof Error ? error.message : 'Unknown error'}`
     );
   }
-};
+}
 
-export const docsAgentStep = createStep({
-  id: 'docs-agent',
-  description: 'Main documentation agent that processes todos and creates documentation',
-  inputSchema: docsAgentStepInputSchema,
-  outputSchema: docsAgentStepOutputSchema,
-  execute: docsAgentExecution,
-});

@@ -1,9 +1,7 @@
 import * as fs from 'node:fs/promises';
 import { runTypescript } from '@buster/sandbox';
-import { RuntimeContext } from '@mastra/core/runtime-context';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { DocsAgentContextKeys } from '../../../agents/docs-agent/docs-agent-context';
-import { getRepositoryTree, getRepositoryTreeFromContext } from './tree-helper';
+import { getRepositoryTree } from './tree-helper';
 
 vi.mock('node:fs/promises');
 vi.mock('@buster/sandbox');
@@ -154,63 +152,6 @@ describe('tree-helper', () => {
           path: 'src',
           options: { gitignore: false, maxDepth: 2, dirsOnly: true, pattern: '*.ts' },
         })
-      ).toString('base64');
-      expect(runTypescript).toHaveBeenCalledWith(mockSandbox, 'mock script content', {
-        argv: [expectedArg],
-      });
-    });
-  });
-
-  describe('getRepositoryTreeFromContext', () => {
-    it('should return tree result when sandbox is available', async () => {
-      const mockSandbox = { id: 'test-sandbox' } as any;
-      const runtimeContext = new RuntimeContext();
-      runtimeContext.set(DocsAgentContextKeys.Sandbox, mockSandbox);
-
-      const mockTreeOutput = {
-        success: true,
-        output: 'tree output',
-      };
-
-      vi.mocked(fs.readFile).mockResolvedValue('mock script content');
-      vi.mocked(runTypescript).mockResolvedValue({
-        result: JSON.stringify(mockTreeOutput),
-        exitCode: 0,
-        stderr: '',
-      });
-
-      const result = await getRepositoryTreeFromContext(runtimeContext);
-
-      expect(result).toEqual(mockTreeOutput);
-    });
-
-    it('should return null when sandbox is not available', async () => {
-      const runtimeContext = new RuntimeContext();
-      // Don't set sandbox in context
-
-      const result = await getRepositoryTreeFromContext(runtimeContext);
-
-      expect(result).toBeNull();
-      expect(fs.readFile).not.toHaveBeenCalled();
-      expect(runTypescript).not.toHaveBeenCalled();
-    });
-
-    it('should pass options correctly through context', async () => {
-      const mockSandbox = { id: 'test-sandbox' } as any;
-      const runtimeContext = new RuntimeContext();
-      runtimeContext.set(DocsAgentContextKeys.Sandbox, mockSandbox);
-
-      vi.mocked(fs.readFile).mockResolvedValue('mock script content');
-      vi.mocked(runTypescript).mockResolvedValue({
-        result: JSON.stringify({ success: true }),
-        exitCode: 0,
-        stderr: '',
-      });
-
-      await getRepositoryTreeFromContext(runtimeContext, 'tests', { maxDepth: 1 });
-
-      const expectedArg = Buffer.from(
-        JSON.stringify({ path: 'tests', options: { maxDepth: 1 } })
       ).toString('base64');
       expect(runTypescript).toHaveBeenCalledWith(mockSandbox, 'mock script content', {
         argv: [expectedArg],

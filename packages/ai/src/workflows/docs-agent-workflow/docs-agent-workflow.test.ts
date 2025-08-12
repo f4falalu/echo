@@ -1,5 +1,9 @@
-import { describe, expect, it } from 'vitest';
-import docsAgentWorkflow from './docs-agent-workflow';
+import { describe, expect, it, vi } from 'vitest';
+import {
+  docsAgentWorkflowInputSchema,
+  docsAgentWorkflowOutputSchema,
+  runDocsAgentWorkflow,
+} from './docs-agent-workflow';
 import {
   TEST_MESSAGES,
   createTestContext,
@@ -7,22 +11,58 @@ import {
 } from './test-helpers/context-helpers';
 import { createMockSandbox } from './test-helpers/mock-sandbox';
 
-describe('docs-agent-workflow with mock sandbox', () => {
-  describe('workflow structure', () => {
-    it('should have correct input and output schemas', () => {
-      expect(docsAgentWorkflow.inputSchema).toBeDefined();
-      expect(docsAgentWorkflow.outputSchema).toBeDefined();
+// Mock the step functions
+vi.mock('../../steps', () => ({
+  runInitializeContextStep: vi.fn(async (params) => ({
+    message: params.message,
+    organizationId: params.organizationId,
+    contextInitialized: true,
+    context: params.context,
+  })),
+  runGetRepositoryTreeStep: vi.fn(async (params) => ({
+    ...params,
+    repositoryTree: 'mock-tree-structure',
+  })),
+  runCreateDocsTodosStep: vi.fn(async () => ({
+    todos: '# Documentation Todo\n- [ ] Task 1\n- [ ] Task 2',
+    todosMessage: {
+      role: 'assistant',
+      content: '# Documentation Todo\n- [ ] Task 1\n- [ ] Task 2',
+    },
+  })),
+  runDocsAgentStep: vi.fn(async () => ({
+    todos: ['Task 1', 'Task 2'],
+    todoList: '# Documentation Todo\n- [ ] Task 1\n- [ ] Task 2',
+    documentationCreated: true,
+    clarificationNeeded: false,
+    finished: true,
+    metadata: {
+      filesCreated: 2,
+      toolsUsed: ['createFiles', 'editFiles'],
+    },
+  })),
+}));
+
+describe('docs-agent-workflow', () => {
+  describe('workflow schemas', () => {
+    it('should have correct input schema', () => {
+      expect(docsAgentWorkflowInputSchema).toBeDefined();
+      const shape = docsAgentWorkflowInputSchema.shape;
+      expect(shape.message).toBeDefined();
+      expect(shape.organizationId).toBeDefined();
+      expect(shape.context).toBeDefined();
     });
 
-    it('should have all required steps', () => {
-      const workflow = docsAgentWorkflow as any;
-      // The workflow has a steps object with the step definitions
-      const stepKeys = Object.keys(workflow.steps);
-      expect(stepKeys).toHaveLength(4);
-      expect(stepKeys).toContain('initialize-context');
-      expect(stepKeys).toContain('get-repository-tree');
-      expect(stepKeys).toContain('create-docs-todos');
-      expect(stepKeys).toContain('docs-agent');
+    it('should have correct output schema', () => {
+      expect(docsAgentWorkflowOutputSchema).toBeDefined();
+      const shape = docsAgentWorkflowOutputSchema.shape;
+      expect(shape.todos).toBeDefined();
+      expect(shape.todoList).toBeDefined();
+      expect(shape.documentationCreated).toBeDefined();
+      expect(shape.clarificationNeeded).toBeDefined();
+      expect(shape.clarificationQuestion).toBeDefined();
+      expect(shape.finished).toBeDefined();
+      expect(shape.metadata).toBeDefined();
     });
   });
 
@@ -59,6 +99,38 @@ describe('docs-agent-workflow with mock sandbox', () => {
       expect(input.message).toBe(TEST_MESSAGES.documentAll);
       expect(input.organizationId).toBe('test-org-123');
       expect(input.context).toBe(context);
+    });
+  });
+
+  describe('workflow execution', () => {
+    it('should execute workflow successfully with mocked steps', async () => {
+      const mockSandbox = createMockSandbox();
+      const context = createTestContext({ sandbox: mockSandbox });
+      const input = createTestWorkflowInput({
+        message: TEST_MESSAGES.documentAll,
+        context,
+      });
+
+      const result = await runDocsAgentWorkflow(input);
+
+      expect(result).toBeDefined();
+      expect(result.documentationCreated).toBe(true);
+      expect(result.finished).toBe(true);
+      expect(result.todos).toEqual(['Task 1', 'Task 2']);
+      expect(result.metadata?.filesCreated).toBe(2);
+      expect(result.metadata?.toolsUsed).toContain('createFiles');
+    });
+
+    it('should validate input schema', async () => {
+      const invalidInput = {
+        message: 123, // Should be string
+        organizationId: 'test-org',
+        context: {},
+      };
+
+      await expect(
+        runDocsAgentWorkflow(invalidInput as any)
+      ).rejects.toThrow();
     });
   });
 

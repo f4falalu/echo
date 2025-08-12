@@ -1,4 +1,4 @@
-import type { CoreMessage } from 'ai';
+import type { ModelMessage } from 'ai';
 import { initLogger } from 'braintrust';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import postProcessingWorkflow, {
@@ -19,7 +19,7 @@ describe('Post-Processing Workflow Integration Tests', () => {
   });
 
   it('should successfully execute post-processing workflow and return output', async () => {
-    const mockConversationHistory: CoreMessage[] = [
+    const mockConversationHistory = [
       {
         content:
           'How many stock Mountain-500 series bikes were sold online to NA customers using a ColonialVoice card?',
@@ -37,7 +37,7 @@ describe('Post-Processing Workflow Integration Tests', () => {
       {
         content: [
           {
-            args: {
+            input: {
               isRevision: false,
               needsMoreThoughts: false,
               nextThoughtNeeded: true,
@@ -69,7 +69,7 @@ describe('Post-Processing Workflow Integration Tests', () => {
       {
         content: [
           {
-            args: {
+            input: {
               statements: [
                 "SELECT DISTINCT p.name FROM postgres.ont_ont.product p WHERE p.name ILIKE '%Mountain-500%' LIMIT 25",
                 "SELECT DISTINCT p.name FROM postgres.ont_ont.product p WHERE p.name ILIKE '%Mountain%' AND p.name ILIKE '%500%' LIMIT 25",
@@ -322,7 +322,7 @@ describe('Post-Processing Workflow Integration Tests', () => {
     ];
 
     const mockInput: PostProcessingWorkflowInput = {
-      conversationHistory: mockConversationHistory,
+      conversationHistory: mockConversationHistory as ModelMessage[],
       userName: 'Test Post-Processing Workflow',
       messageId: 'msg_12345',
       userId: 'user_67890',

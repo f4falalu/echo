@@ -951,7 +951,19 @@ export const dashboardFiles = pgTable(
       withTimezone: true,
       mode: 'string',
     }),
-    versionHistory: jsonb('version_history').default({}).notNull(),
+    versionHistory: jsonb('version_history')
+      .$type<
+        Record<
+          string, //version number as a string
+          {
+            content: string;
+            updated_at: string;
+            version_number: number;
+          }
+        >
+      >()
+      .default({})
+      .notNull(),
     publicPassword: text('public_password'),
     workspaceSharing: workspaceSharingEnum('workspace_sharing').default('none').notNull(),
     workspaceSharingEnabledBy: uuid('workspace_sharing_enabled_by'),
@@ -1245,7 +1257,19 @@ export const metricFiles = pgTable(
       withTimezone: true,
       mode: 'string',
     }),
-    versionHistory: jsonb('version_history').default({}).notNull(),
+    versionHistory: jsonb('version_history')
+      .$type<
+        Record<
+          string, //version number as a string
+          {
+            content: string;
+            updated_at: string;
+            version_number: number;
+          }
+        >
+      >()
+      .default({})
+      .notNull(),
     dataMetadata: jsonb('data_metadata'),
     publicPassword: text('public_password'),
     dataSourceId: uuid('data_source_id').notNull(),

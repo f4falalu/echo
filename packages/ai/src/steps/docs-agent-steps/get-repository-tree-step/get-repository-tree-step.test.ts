@@ -1,244 +1,202 @@
 import type { Sandbox } from '@buster/sandbox';
-import { RuntimeContext } from '@mastra/core/runtime-context';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { DocsAgentContextKeys } from '../../../agents/docs-agent/docs-agent-context';
-import { getRepositoryTreeStep } from './get-repository-tree-step';
+import { runGetRepositoryTreeStep } from './get-repository-tree-step';
 
 // Mock the tree helper
-vi.mock('../../workflows/docs-agent/helpers/tree-helper', () => ({
+vi.mock('../../../workflows/docs-agent-workflow/helpers/tree-helper', () => ({
   getRepositoryTree: vi.fn(),
 }));
 
-import { getRepositoryTree } from '../../../workflows/docs-agent-workflow/helpers/tree-helper';
-
-// Mock execution context types
-interface MockStepContext {
-  inputData: unknown;
-  getInitData: () => Promise<{ message: string }>;
-  runtimeContext: RuntimeContext;
-  runId: string;
-  mastra: Record<string, unknown>;
-  getStepResult: () => Promise<Record<string, unknown>>;
-  suspend: () => Promise<void>;
-  emitter?: Record<string, unknown>;
-}
-
-describe('getRepositoryTreeStep', () => {
-  let mockRuntimeContext: RuntimeContext;
+describe('runGetRepositoryTreeStep', () => {
   let mockSandbox: Sandbox;
 
   beforeEach(() => {
     vi.clearAllMocks();
-    mockRuntimeContext = new RuntimeContext();
-    mockSandbox = { id: 'test-sandbox' } as Sandbox;
+    // Create a mock sandbox
+    mockSandbox = {
+      id: 'mock-sandbox-123',
+      url: 'https://sandbox.example.com',
+      fs: {
+        uploadFile: vi.fn(),
+        readFile: vi.fn(),
+      },
+      process: {
+        executeCommand: vi.fn(),
+      },
+    } as unknown as Sandbox;
   });
 
-  it('should generate repository tree when sandbox is available', async () => {
+  it('should generate repository tree successfully', async () => {
+    // Mock the pwd command
+    vi.mocked(mockSandbox.process.executeCommand).mockResolvedValueOnce({
+      result: '/home/workspace',
+      exitCode: 0,
+      stderr: '',
+    });
+
+    // Mock the tree helper to return a successful result
     const mockTreeOutput = `.
 ├── src/
-│   ├── index.ts
-│   └── utils.ts
-├── package.json
-└── README.md
+│   └── index.ts
+└── package.json`;
 
-2 directories, 4 files`;
-
-    mockRuntimeContext.set(DocsAgentContextKeys.Sandbox, mockSandbox);
-    vi.mocked(getRepositoryTree).mockResolvedValue({
+    const { getRepositoryTree } = await import(
+      '../../../workflows/docs-agent-workflow/helpers/tree-helper'
+    );
+    vi.mocked(getRepositoryTree).mockResolvedValueOnce({
       success: true,
       output: mockTreeOutput,
-      command: 'tree --gitignore -L 5 "."',
+      command: 'tree --gitignore "."',
     });
 
-    const inputData = {
+    const input = {
       message: 'Test message',
       organizationId: 'org-123',
       contextInitialized: true,
       context: {
         sandbox: mockSandbox,
+        dataSourceId: 'data-source-123',
         todoList: '',
         clarificationQuestions: [],
-        dataSourceId: 'ds-123',
       },
     };
 
-    const mockContext: MockStepContext = {
-      inputData,
-      getInitData: async () => ({ message: 'Test message' }),
-      runtimeContext: mockRuntimeContext,
-      runId: 'test-run',
-      mastra: {},
-      getStepResult: async () => ({}),
-      suspend: async () => {},
-      [Symbol.for('emitter')]: {},
-    };
+    const result = await runGetRepositoryTreeStep(input);
 
-    const result = await getRepositoryTreeStep.execute(mockContext as any);
-
-    expect(result).toEqual({
-      ...inputData,
-      repositoryTree: mockTreeOutput,
-    });
-
-    expect(getRepositoryTree).toHaveBeenCalledWith(mockSandbox, '.', {
-      gitignore: true,
-      maxDepth: 5,
-    });
-
-    expect(mockRuntimeContext.get('repositoryTree')).toBe(mockTreeOutput);
+    expect(result).toBeDefined();
+    expect(result.repositoryTree).toContain('<YOU ARE HERE: /home/workspace>');
+    expect(result.repositoryTree).toContain(mockTreeOutput);
+    expect(result.message).toBe('Test message');
+    expect(result.organizationId).toBe('org-123');
+    expect(result.context).toEqual(input.context);
   });
 
-  it('should return empty string when sandbox is not available', async () => {
-    // Don't set sandbox in runtime context
-
-    const inputData = {
+  it('should handle missing sandbox gracefully', async () => {
+    const input = {
       message: 'Test message',
       organizationId: 'org-123',
       contextInitialized: true,
       context: {
-        sandbox: mockSandbox,
+        sandbox: null as any,
+        dataSourceId: 'data-source-123',
         todoList: '',
         clarificationQuestions: [],
-        dataSourceId: 'ds-123',
       },
     };
 
-    const mockContext: MockStepContext = {
-      inputData,
-      getInitData: async () => ({ message: 'Test message' }),
-      runtimeContext: mockRuntimeContext,
-      runId: 'test-run',
-      mastra: {},
-      getStepResult: async () => ({}),
-      suspend: async () => {},
-      [Symbol.for('emitter')]: {},
-    };
+    const result = await runGetRepositoryTreeStep(input);
 
-    const result = await getRepositoryTreeStep.execute(mockContext as any);
-
-    expect(result).toEqual({
-      ...inputData,
-      repositoryTree: '',
-    });
-
-    expect(getRepositoryTree).not.toHaveBeenCalled();
+    expect(result).toBeDefined();
+    expect(result.repositoryTree).toBe('');
+    expect(result.message).toBe('Test message');
   });
 
-  it('should return empty string when tree generation fails', async () => {
-    mockRuntimeContext.set(DocsAgentContextKeys.Sandbox, mockSandbox);
-    vi.mocked(getRepositoryTree).mockResolvedValue({
+  it('should handle tree generation failure gracefully', async () => {
+    // Mock the pwd command
+    vi.mocked(mockSandbox.process.executeCommand).mockResolvedValueOnce({
+      result: '/home/workspace',
+      exitCode: 0,
+      stderr: '',
+    });
+
+    // Mock the tree helper to return a failure
+    const { getRepositoryTree } = await import(
+      '../../../workflows/docs-agent-workflow/helpers/tree-helper'
+    );
+    vi.mocked(getRepositoryTree).mockResolvedValueOnce({
       success: false,
-      error: 'Tree command not installed',
+      error: 'tree command not found',
     });
 
-    const inputData = {
+    const input = {
       message: 'Test message',
       organizationId: 'org-123',
       contextInitialized: true,
       context: {
         sandbox: mockSandbox,
+        dataSourceId: 'data-source-123',
         todoList: '',
         clarificationQuestions: [],
-        dataSourceId: 'ds-123',
       },
     };
 
-    const mockContext: MockStepContext = {
-      inputData,
-      getInitData: async () => ({ message: 'Test message' }),
-      runtimeContext: mockRuntimeContext,
-      runId: 'test-run',
-      mastra: {},
-      getStepResult: async () => ({}),
-      suspend: async () => {},
-      [Symbol.for('emitter')]: {},
-    };
+    const result = await runGetRepositoryTreeStep(input);
 
-    const result = await getRepositoryTreeStep.execute(mockContext as any);
-
-    expect(result).toEqual({
-      ...inputData,
-      repositoryTree: '',
-    });
+    expect(result).toBeDefined();
+    expect(result.repositoryTree).toBe('');
+    expect(result.message).toBe('Test message');
   });
 
-  it('should handle exceptions gracefully', async () => {
-    mockRuntimeContext.set(DocsAgentContextKeys.Sandbox, mockSandbox);
-    vi.mocked(getRepositoryTree).mockRejectedValue(new Error('Unexpected error'));
+  it('should handle pwd command failure gracefully', async () => {
+    // Mock the pwd command to fail
+    vi.mocked(mockSandbox.process.executeCommand).mockRejectedValueOnce(
+      new Error('Command failed')
+    );
 
-    const inputData = {
-      message: 'Test message',
-      organizationId: 'org-123',
-      contextInitialized: true,
-      context: {
-        sandbox: mockSandbox,
-        todoList: '',
-        clarificationQuestions: [],
-        dataSourceId: 'ds-123',
-      },
-    };
+    // Mock the tree helper to return a successful result
+    const mockTreeOutput = `.
+├── src/
+│   └── index.ts
+└── package.json`;
 
-    const mockContext: MockStepContext = {
-      inputData,
-      getInitData: async () => ({ message: 'Test message' }),
-      runtimeContext: mockRuntimeContext,
-      runId: 'test-run',
-      mastra: {},
-      getStepResult: async () => ({}),
-      suspend: async () => {},
-      [Symbol.for('emitter')]: {},
-    };
-
-    const result = await getRepositoryTreeStep.execute(mockContext as any);
-
-    expect(result).toEqual({
-      ...inputData,
-      repositoryTree: '',
-    });
-  });
-
-  it('should pass through all input data correctly', async () => {
-    mockRuntimeContext.set(DocsAgentContextKeys.Sandbox, mockSandbox);
-    vi.mocked(getRepositoryTree).mockResolvedValue({
+    const { getRepositoryTree } = await import(
+      '../../../workflows/docs-agent-workflow/helpers/tree-helper'
+    );
+    vi.mocked(getRepositoryTree).mockResolvedValueOnce({
       success: true,
-      output: 'tree output',
-      command: 'tree',
+      output: mockTreeOutput,
+      command: 'tree --gitignore "."',
     });
 
-    const inputData = {
-      message: 'Complex message with todos',
-      organizationId: 'org-456',
+    const input = {
+      message: 'Test message',
+      organizationId: 'org-123',
       contextInitialized: true,
       context: {
         sandbox: mockSandbox,
-        todoList: '- [ ] Task 1\n- [ ] Task 2',
-        clarificationQuestions: [{ question: 'test' }],
-        dataSourceId: 'ds-456',
+        dataSourceId: 'data-source-123',
+        todoList: '',
+        clarificationQuestions: [],
       },
     };
 
-    const mockContext: MockStepContext = {
-      inputData,
-      getInitData: async () => ({ message: 'Test message' }),
-      runtimeContext: mockRuntimeContext,
-      runId: 'test-run',
-      mastra: {},
-      getStepResult: async () => ({}),
-      suspend: async () => {},
-      [Symbol.for('emitter')]: {},
-    };
+    const result = await runGetRepositoryTreeStep(input);
 
-    const result = await getRepositoryTreeStep.execute(mockContext as any);
+    expect(result).toBeDefined();
+    expect(result.repositoryTree).toContain('<YOU ARE HERE: ');
+    expect(result.repositoryTree).toContain(mockTreeOutput);
+  });
 
-    expect(result).toEqual({
-      ...inputData,
-      repositoryTree: 'tree output',
+  it('should handle complete tree generation error gracefully', async () => {
+    // Mock the pwd command
+    vi.mocked(mockSandbox.process.executeCommand).mockResolvedValueOnce({
+      result: '/home/workspace',
+      exitCode: 0,
+      stderr: '',
     });
 
-    // Ensure all input data is preserved
-    expect(result.message).toBe(inputData.message);
-    expect(result.organizationId).toBe(inputData.organizationId);
-    expect(result.contextInitialized).toBe(inputData.contextInitialized);
-    expect(result.context).toEqual(inputData.context);
+    // Mock the tree helper to throw an error
+    const { getRepositoryTree } = await import(
+      '../../../workflows/docs-agent-workflow/helpers/tree-helper'
+    );
+    vi.mocked(getRepositoryTree).mockRejectedValueOnce(new Error('Unexpected error'));
+
+    const input = {
+      message: 'Test message',
+      organizationId: 'org-123',
+      contextInitialized: true,
+      context: {
+        sandbox: mockSandbox,
+        dataSourceId: 'data-source-123',
+        todoList: '',
+        clarificationQuestions: [],
+      },
+    };
+
+    const result = await runGetRepositoryTreeStep(input);
+
+    expect(result).toBeDefined();
+    expect(result.repositoryTree).toBe('');
+    expect(result.message).toBe('Test message');
   });
 });

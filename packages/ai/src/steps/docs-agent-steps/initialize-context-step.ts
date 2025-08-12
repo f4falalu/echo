@@ -1,69 +1,45 @@
-import type { Sandbox } from '@buster/sandbox';
-import { createStep } from '@mastra/core';
-import type { RuntimeContext } from '@mastra/core/runtime-context';
 import { z } from 'zod';
-import {
-  DocsAgentContextKeys,
-  DocsAgentContextSchema,
-} from '../../agents/docs-agent/docs-agent-context';
+import { DocsAgentContextSchema } from '../../agents/docs-agent/docs-agent-context';
 
-// Input schema matches the workflow input schema
-const initializeContextStepInputSchema = z.object({
-  message: z.string(),
-  organizationId: z.string(),
-  context: DocsAgentContextSchema,
+// Zod schemas first - following Zod-first approach
+export const initializeContextParamsSchema = z.object({
+  message: z.string().describe('The user message'),
+  organizationId: z.string().describe('The organization ID'),
+  context: DocsAgentContextSchema.describe('The docs agent context'),
 });
 
-// Output schema includes the input data plus a context object
-const initializeContextStepOutputSchema = z.object({
-  message: z.string(),
-  organizationId: z.string(),
-  contextInitialized: z.boolean(),
-  // Use the DocsAgentContextSchema for the context
-  context: DocsAgentContextSchema,
+export const initializeContextResultSchema = z.object({
+  message: z.string().describe('The user message'),
+  organizationId: z.string().describe('The organization ID'),
+  contextInitialized: z.boolean().describe('Whether context was initialized'),
+  context: DocsAgentContextSchema.describe('The initialized context'),
 });
 
-const initializeContextExecution = async ({
-  inputData,
-  runtimeContext,
-}: {
-  inputData: z.infer<typeof initializeContextStepInputSchema>;
-  runtimeContext: RuntimeContext;
-}): Promise<z.infer<typeof initializeContextStepOutputSchema>> => {
-  // Set runtime context values
-  runtimeContext.set(DocsAgentContextKeys.Sandbox, inputData.context.sandbox);
-  runtimeContext.set(DocsAgentContextKeys.TodoList, inputData.context.todoList);
-  runtimeContext.set(DocsAgentContextKeys.DataSourceId, inputData.context.dataSourceId);
+// Export types from schemas
+export type InitializeContextParams = z.infer<typeof initializeContextParamsSchema>;
+export type InitializeContextResult = z.infer<typeof initializeContextResultSchema>;
 
-  if (inputData.context.clarificationQuestions.length > 0) {
-    runtimeContext.set(
-      DocsAgentContextKeys.ClarificationQuestions,
-      inputData.context.clarificationQuestions
-    );
-  }
+/**
+ * Initializes the context for the docs agent workflow
+ * This is a simple pass-through function that validates and structures the input data
+ */
+export async function runInitializeContextStep(
+  params: InitializeContextParams
+): Promise<InitializeContextResult> {
+  // Validate input
+  const validatedParams = initializeContextParamsSchema.parse(params);
 
-  // Also set standard workflow context
-  runtimeContext.set('organizationId', inputData.organizationId);
-  runtimeContext.set('workflowStartTime', Date.now());
-
-  // Return data for next steps with context initialized
+  // Return structured data for next steps
   return {
-    message: inputData.message,
-    organizationId: inputData.organizationId,
+    message: validatedParams.message,
+    organizationId: validatedParams.organizationId,
     contextInitialized: true,
     context: {
-      sandbox: inputData.context.sandbox,
-      todoList: inputData.context.todoList,
-      clarificationQuestions: inputData.context.clarificationQuestions,
-      dataSourceId: inputData.context.dataSourceId,
+      sandbox: validatedParams.context.sandbox,
+      todoList: validatedParams.context.todoList,
+      clarificationQuestions: validatedParams.context.clarificationQuestions,
+      dataSourceId: validatedParams.context.dataSourceId,
     },
   };
-};
+}
 
-export const initializeContextStep = createStep({
-  id: 'initialize-context',
-  description: 'Initializes the runtime context with DocsAgent specific values',
-  inputSchema: initializeContextStepInputSchema,
-  outputSchema: initializeContextStepOutputSchema,
-  execute: initializeContextExecution,
-});

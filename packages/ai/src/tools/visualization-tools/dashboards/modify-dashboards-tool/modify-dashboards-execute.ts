@@ -44,14 +44,7 @@ interface FailedFileModification {
   error: string;
 }
 
-interface VersionHistory {
-  versions: Array<{
-    version: number;
-    created_at: string;
-    changes?: string;
-    content: DashboardWithMetadata;
-  }>;
-}
+type VersionHistory = (typeof metricFiles.$inferSelect)['versionHistory'];
 
 // Helper function to get latest version number
 function getLatestVersionNumber(versionHistory: VersionHistory | null): number {

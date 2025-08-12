@@ -1,11 +1,8 @@
-import { Agent, createStep } from '@mastra/core';
-import type { CoreMessage } from 'ai';
+import { generateObject } from 'ai';
+import type { ModelMessage } from 'ai';
 import { wrapTraced } from 'braintrust';
-import type { z } from 'zod';
-import { generateSummary } from '../../tools/post-processing/generate-summary';
-import { standardizeMessages } from '../../utils/standardizeMessages';
+import { z } from 'zod';
 import { postProcessingWorkflowOutputSchema } from './schemas';
-
 import { Sonnet4 } from '../../llm/sonnet-4';
 // Import the schema from combine-parallel-results step
 import { combineParallelResultsOutputSchema } from './combine-parallel-results-step';
@@ -15,6 +12,15 @@ const inputSchema = combineParallelResultsOutputSchema;
 
 // Use the unified schema from the workflow
 export const formatInitialMessageOutputSchema = postProcessingWorkflowOutputSchema;
+
+// LLM-compatible schema for generating summary
+export const generateSummaryOutputSchema = z.object({
+  title: z.string().describe('A concise title for the summary message, 3-6 words long'),
+  summary_message: z.string().describe('A simple and concise summary of the issues and assumptions'),
+});
+
+export type FormatInitialMessageParams = z.infer<typeof inputSchema>;
+export type GenerateSummaryResult = z.infer<typeof generateSummaryOutputSchema>;
 
 const initialMessageInstructions = `
 <intro>
@@ -89,113 +95,124 @@ Below are concise examples of summary messages and titles:
 </examples>
 `;
 
-const DEFAULT_OPTIONS = {
-  maxSteps: 1,
-  temperature: 0,
-  maxTokens: 10000,
-  providerOptions: {
-    anthropic: {
-      disableParallelToolCalls: true,
-    },
-  },
+const DEFAULT_CACHE_OPTIONS = {
+  anthropic: { cacheControl: { type: 'ephemeral' } },
 };
 
-export const initialMessageAgent = new Agent({
-  name: 'Format Initial Message',
-  instructions: initialMessageInstructions,
-  model: Sonnet4,
-  tools: {
-    generateSummary,
-  },
-  defaultGenerateOptions: DEFAULT_OPTIONS,
-  defaultStreamOptions: DEFAULT_OPTIONS,
-});
+/**
+ * Generate summary using LLM
+ */
+async function generateSummaryWithLLM(
+  userName: string,
+  flaggedIssues: string,
+  majorAssumptions: Array<{ descriptiveTitle: string; explanation: string; label: string }>,
+  conversationHistory?: ModelMessage[]
+): Promise<GenerateSummaryResult> {
+  const contextMessage = `Issues and assumptions identified from the chat that require data team attention:
 
-export const formatInitialMessageStepExecution = async ({
-  inputData,
-}: {
-  inputData: z.infer<typeof inputSchema>;
-}): Promise<z.infer<typeof formatInitialMessageOutputSchema>> => {
-  try {
-    // Check if there are any major assumptions
-    const majorAssumptions = inputData.assumptions?.filter((a) => a.label === 'major') || [];
-
-    // If no major assumptions, return null for formatted_message
-    if (majorAssumptions.length === 0) {
-      return {
-        ...inputData,
-      };
-    }
-
-    // Prepare context about issues and assumptions for the agent
-    const issuesAndAssumptions = {
-      flagged_issues: inputData.flagChatMessage || 'No issues flagged',
-      major_assumptions: majorAssumptions,
-    };
-
-    const contextMessage = `Issues and assumptions identified from the chat that require data team attention:
-
-User: ${inputData.userName}
+User: ${userName}
 
 Issues Flagged: 
-${issuesAndAssumptions.flagged_issues}
+${flaggedIssues}
 
 Major Assumptions Identified:
 ${
-  issuesAndAssumptions.major_assumptions.length > 0
-    ? issuesAndAssumptions.major_assumptions
+  majorAssumptions.length > 0
+    ? majorAssumptions
         .map((a) => `- ${a.descriptiveTitle}: ${a.explanation}`)
         .join('\n\n')
     : 'No major assumptions identified'
 }
 
 ${
-  inputData.conversationHistory && inputData.conversationHistory.length > 0
+  conversationHistory && conversationHistory.length > 0
     ? `\nChat History:
 \`\`\`
-${JSON.stringify(inputData.conversationHistory, null, 2)}
+${JSON.stringify(conversationHistory, null, 2)}
 \`\`\``
     : ''
 }
 
 Generate a cohesive summary with title for the data team.`;
 
-    const messages: CoreMessage[] = standardizeMessages(contextMessage);
+  const systemAndUserMessages: ModelMessage[] = [
+    {
+      role: 'system',
+      content: initialMessageInstructions,
+      providerOptions: DEFAULT_CACHE_OPTIONS,
+    },
+    {
+      role: 'user',
+      content: contextMessage,
+    },
+  ];
 
-    const tracedInitialMessage = wrapTraced(
-      async () => {
-        const response = await initialMessageAgent.generate(messages, {
-          toolChoice: 'required',
-        });
-        return response;
+  const { object } = await generateObject({
+    model: Sonnet4,
+    schema: generateSummaryOutputSchema,
+    messages: systemAndUserMessages,
+    temperature: 0,
+    maxTokens: 10000,
+    providerOptions: {
+      anthropic: {
+        disableParallelToolCalls: true,
       },
-      {
-        name: 'Format Initial Message',
-      }
-    );
+    },
+  });
 
-    const initialResult = await tracedInitialMessage();
+  return object;
+}
 
-    // Extract tool call information
-    const toolCalls = initialResult.toolCalls || [];
-    if (toolCalls.length === 0) {
-      throw new Error('No tool was called by the format initial message agent');
-    }
+/**
+ * Main execution function for format initial message step
+ */
+export async function runFormatInitialMessageStep(
+  params: FormatInitialMessageParams
+): Promise<z.infer<typeof formatInitialMessageOutputSchema>> {
+  // Check if there are any major assumptions
+  const majorAssumptions = params.assumptions?.filter((a) => a.label === 'major') || [];
 
-    const toolCall = toolCalls[0]; // Should only be one with maxSteps: 1
-    if (!toolCall) {
-      throw new Error('Tool call is undefined');
-    }
-
-    if (toolCall.toolName !== 'generateSummary') {
-      throw new Error(`Unexpected tool called: ${toolCall.toolName}`);
-    }
-
+  // If no major assumptions, return without generating message
+  if (majorAssumptions.length === 0) {
     return {
-      ...inputData,
-      summaryMessage: toolCall.args.summary_message,
-      summaryTitle: toolCall.args.title,
+      ...params,
     };
+  }
+
+  const tracedFormatMessage = wrapTraced(
+    async () => {
+      const result = await generateSummaryWithLLM(
+        params.userName,
+        params.flagChatMessage || 'No issues flagged',
+        majorAssumptions,
+        params.conversationHistory
+      );
+      return result;
+    },
+    {
+      name: 'Format Initial Message',
+    }
+  );
+
+  const summaryResult = await tracedFormatMessage();
+
+  return {
+    ...params,
+    summaryMessage: summaryResult.summary_message,
+    summaryTitle: summaryResult.title,
+  };
+}
+
+/**
+ * Legacy execution function for backwards compatibility
+ */
+export const formatInitialMessageStepExecution = async ({
+  inputData,
+}: {
+  inputData: z.infer<typeof inputSchema>;
+}): Promise<z.infer<typeof formatInitialMessageOutputSchema>> => {
+  try {
+    return await runFormatInitialMessageStep(inputData);
   } catch (error) {
     console.error('Failed to format initial message:', error);
 
@@ -209,11 +226,26 @@ Generate a cohesive summary with title for the data team.`;
   }
 };
 
-export const formatInitialMessageStep = createStep({
+/**
+ * Export the step without using Mastra's createStep
+ */
+export const formatInitialMessageStep = {
+  id: 'format-initial-message',
+  description:
+    'This step checks for major assumptions and generates a summary message for initial messages if major assumptions are found.',
+  inputSchema,
+  outputSchema: formatInitialMessageOutputSchema,
+  execute: runFormatInitialMessageStep,
+};
+
+/**
+ * Legacy step export for backwards compatibility
+ */
+export const formatInitialMessageStepLegacy = {
   id: 'format-initial-message',
   description:
     'This step checks for major assumptions and generates a summary message for initial messages if major assumptions are found.',
   inputSchema,
   outputSchema: formatInitialMessageOutputSchema,
   execute: formatInitialMessageStepExecution,
-});
+};

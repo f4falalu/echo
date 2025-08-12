@@ -1,8 +1,6 @@
 import { type Sandbox, addFiles, createSandbox } from '@buster/sandbox';
-import { RuntimeContext } from '@mastra/core/runtime-context';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { DocsAgentContextKeys } from '../../../agents/docs-agent/docs-agent-context';
-import { getRepositoryTree, getRepositoryTreeFromContext } from './tree-helper';
+import { getRepositoryTree } from './tree-helper';
 
 describe('tree-helper integration', () => {
   const hasApiKey = !!process.env.DAYTONA_API_KEY;
@@ -183,28 +181,4 @@ describe('tree-helper integration', () => {
     });
   });
 
-  describe('getRepositoryTreeFromContext', () => {
-    it.skipIf(!hasApiKey)('should work with runtime context', async () => {
-      const runtimeContext = new RuntimeContext();
-      runtimeContext.set(DocsAgentContextKeys.Sandbox, sandbox);
-
-      const result = await getRepositoryTreeFromContext(runtimeContext, 'src');
-
-      expect(result).not.toBeNull();
-      expect(result?.success).toBe(true);
-      if (result?.output) {
-        expect(result.output).toContain('index.ts');
-        expect(result.output).toContain('utils');
-      }
-    });
-
-    it.skipIf(!hasApiKey)('should return null without sandbox in context', async () => {
-      const runtimeContext = new RuntimeContext();
-      // Don't set sandbox
-
-      const result = await getRepositoryTreeFromContext(runtimeContext);
-
-      expect(result).toBeNull();
-    });
-  });
 });

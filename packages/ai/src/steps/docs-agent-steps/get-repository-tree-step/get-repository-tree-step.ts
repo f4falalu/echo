@@ -1,45 +1,45 @@
 import type { Sandbox } from '@buster/sandbox';
-import { createStep } from '@mastra/core';
-import type { RuntimeContext } from '@mastra/core/runtime-context';
 import { z } from 'zod';
-import {
-  DocsAgentContextKeys,
-  DocsAgentContextSchema,
-} from '../../../agents/docs-agent/docs-agent-context';
+import { DocsAgentContextSchema } from '../../../agents/docs-agent/docs-agent-context';
 import { getRepositoryTree } from '../../../workflows/docs-agent-workflow/helpers/tree-helper';
 
-// Input schema - receives data from initialize-context step
-const getRepositoryTreeStepInputSchema = z.object({
-  message: z.string(),
-  organizationId: z.string(),
-  contextInitialized: z.boolean(),
-  context: DocsAgentContextSchema,
+// Zod schemas first - following Zod-first approach
+export const getRepositoryTreeParamsSchema = z.object({
+  message: z.string().describe('The user message'),
+  organizationId: z.string().describe('The organization ID'),
+  contextInitialized: z.boolean().describe('Whether context was initialized'),
+  context: DocsAgentContextSchema.describe('The docs agent context'),
 });
 
-// Output schema - passes through all input data plus the tree structure
-const getRepositoryTreeStepOutputSchema = z.object({
-  message: z.string(),
-  organizationId: z.string(),
-  contextInitialized: z.boolean(),
-  context: DocsAgentContextSchema,
+export const getRepositoryTreeResultSchema = z.object({
+  message: z.string().describe('The user message'),
+  organizationId: z.string().describe('The organization ID'),
+  contextInitialized: z.boolean().describe('Whether context was initialized'),
+  context: DocsAgentContextSchema.describe('The docs agent context'),
   repositoryTree: z.string().describe('The tree structure of the repository'),
 });
 
-const getRepositoryTreeExecution = async ({
-  inputData,
-  runtimeContext,
-}: {
-  inputData: z.infer<typeof getRepositoryTreeStepInputSchema>;
-  runtimeContext: RuntimeContext;
-}): Promise<z.infer<typeof getRepositoryTreeStepOutputSchema>> => {
+// Export types from schemas
+export type GetRepositoryTreeParams = z.infer<typeof getRepositoryTreeParamsSchema>;
+export type GetRepositoryTreeResult = z.infer<typeof getRepositoryTreeResultSchema>;
+
+/**
+ * Generates a tree structure of the repository using the sandbox
+ */
+export async function runGetRepositoryTreeStep(
+  params: GetRepositoryTreeParams
+): Promise<GetRepositoryTreeResult> {
   try {
-    // Get the sandbox from runtime context
-    const sandbox = runtimeContext.get(DocsAgentContextKeys.Sandbox) as Sandbox;
+    // Validate input
+    const validatedParams = getRepositoryTreeParamsSchema.parse(params);
+    
+    // Get the sandbox from context
+    const sandbox = validatedParams.context.sandbox as Sandbox;
 
     if (!sandbox) {
       console.warn('[GetRepositoryTree] No sandbox available, skipping tree generation');
       return {
-        ...inputData,
+        ...validatedParams,
         repositoryTree: '',
       };
     }
@@ -59,7 +59,7 @@ const getRepositoryTreeExecution = async ({
     if (!treeResult.success || !treeResult.output) {
       console.warn('[GetRepositoryTree] Failed to generate tree:', treeResult.error);
       return {
-        ...inputData,
+        ...validatedParams,
         repositoryTree: '',
       };
     }
@@ -73,28 +73,18 @@ const getRepositoryTreeExecution = async ({
       currentDirectory: currentDir,
     });
 
-    // Store the tree in runtime context for potential use by other steps
-    runtimeContext.set('repositoryTree', treeWithLocation);
-
     // Return the data with the tree structure added
     return {
-      ...inputData,
+      ...validatedParams,
       repositoryTree: treeWithLocation,
     };
   } catch (error) {
     console.error('[GetRepositoryTree] Error generating repository tree:', error);
     // Don't fail the entire workflow if tree generation fails
     return {
-      ...inputData,
+      ...params,
       repositoryTree: '',
     };
   }
-};
+}
 
-export const getRepositoryTreeStep = createStep({
-  id: 'get-repository-tree',
-  description: 'Generates a tree structure of the repository using the tree command',
-  inputSchema: getRepositoryTreeStepInputSchema,
-  outputSchema: getRepositoryTreeStepOutputSchema,
-  execute: getRepositoryTreeExecution,
-});

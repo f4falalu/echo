@@ -3,7 +3,7 @@ import { currentSpan, initLogger, wrapTraced } from 'braintrust';
 import type { Logger as BraintrustLogger } from 'braintrust';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { DocsAgentContext } from '../../agents/docs-agent/docs-agent-context';
-import docsAgentWorkflow from './docs-agent-workflow';
+import { runDocsAgentWorkflow } from './docs-agent-workflow';
 import {
   TEST_MESSAGES,
   createContextWithClarifications,
@@ -54,8 +54,7 @@ describe('docs-agent-workflow', () => {
   async function runWorkflowWithTracing(input: unknown, metadata: Record<string, unknown> = {}) {
     if (!braintrustLogger) {
       // Run without tracing if no Braintrust key
-      const run = docsAgentWorkflow.createRun();
-      return await run.start({ inputData: input as any });
+      return await runDocsAgentWorkflow(input as any);
     }
 
     return await wrapTraced(
@@ -67,8 +66,7 @@ describe('docs-agent-workflow', () => {
           },
         });
 
-        const run = docsAgentWorkflow.createRun();
-        return await run.start({ inputData: input as any });
+        return await runDocsAgentWorkflow(input as any);
       },
       {
         name: 'Docs Agent Workflow Test',
