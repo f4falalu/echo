@@ -1,11 +1,14 @@
-import { createFileRoute } from '@tanstack/react-router';
+import { createFileRoute, redirect } from '@tanstack/react-router';
 import logo from '../logo.svg';
 
 export const Route = createFileRoute('/')({
   component: App,
   beforeLoad: async ({ context }) => {
     const hasUser = context.user;
-    console.log('hasUser', hasUser);
+    const isAnonymous = context.user?.is_anonymous;
+    if (!hasUser || isAnonymous) {
+      throw redirect({ to: '/auth/login' });
+    }
   },
 });
 
