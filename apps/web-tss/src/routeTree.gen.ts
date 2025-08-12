@@ -12,11 +12,9 @@ import { createServerRootRoute } from '@tanstack/react-start/server'
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as DemoDbChatRouteImport } from './routes/demo.db-chat'
-import { ServerRoute as DemoDbChatApiServerRouteImport } from './routes/demo.db-chat-api'
+import { Route as AuthLogoutRouteImport } from './routes/auth.logout'
+import { Route as AuthLoginRouteImport } from './routes/auth.login'
 import { ServerRoute as AuthCallbackServerRouteImport } from './routes/auth.callback'
-import { ServerRoute as ApiDemoTqTodosServerRouteImport } from './routes/api.demo-tq-todos'
-import { ServerRoute as ApiDemoNamesServerRouteImport } from './routes/api.demo-names'
 
 const rootServerRouteImport = createServerRootRoute()
 
@@ -25,102 +23,71 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const DemoDbChatRoute = DemoDbChatRouteImport.update({
-  id: '/demo/db-chat',
-  path: '/demo/db-chat',
+const AuthLogoutRoute = AuthLogoutRouteImport.update({
+  id: '/auth/logout',
+  path: '/auth/logout',
   getParentRoute: () => rootRouteImport,
 } as any)
-const DemoDbChatApiServerRoute = DemoDbChatApiServerRouteImport.update({
-  id: '/demo/db-chat-api',
-  path: '/demo/db-chat-api',
-  getParentRoute: () => rootServerRouteImport,
+const AuthLoginRoute = AuthLoginRouteImport.update({
+  id: '/auth/login',
+  path: '/auth/login',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const AuthCallbackServerRoute = AuthCallbackServerRouteImport.update({
   id: '/auth/callback',
   path: '/auth/callback',
   getParentRoute: () => rootServerRouteImport,
 } as any)
-const ApiDemoTqTodosServerRoute = ApiDemoTqTodosServerRouteImport.update({
-  id: '/api/demo-tq-todos',
-  path: '/api/demo-tq-todos',
-  getParentRoute: () => rootServerRouteImport,
-} as any)
-const ApiDemoNamesServerRoute = ApiDemoNamesServerRouteImport.update({
-  id: '/api/demo-names',
-  path: '/api/demo-names',
-  getParentRoute: () => rootServerRouteImport,
-} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/demo/db-chat': typeof DemoDbChatRoute
+  '/auth/login': typeof AuthLoginRoute
+  '/auth/logout': typeof AuthLogoutRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/demo/db-chat': typeof DemoDbChatRoute
+  '/auth/login': typeof AuthLoginRoute
+  '/auth/logout': typeof AuthLogoutRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/demo/db-chat': typeof DemoDbChatRoute
+  '/auth/login': typeof AuthLoginRoute
+  '/auth/logout': typeof AuthLogoutRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/demo/db-chat'
+  fullPaths: '/' | '/auth/login' | '/auth/logout'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/demo/db-chat'
-  id: '__root__' | '/' | '/demo/db-chat'
+  to: '/' | '/auth/login' | '/auth/logout'
+  id: '__root__' | '/' | '/auth/login' | '/auth/logout'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  DemoDbChatRoute: typeof DemoDbChatRoute
+  AuthLoginRoute: typeof AuthLoginRoute
+  AuthLogoutRoute: typeof AuthLogoutRoute
 }
 export interface FileServerRoutesByFullPath {
-  '/api/demo-names': typeof ApiDemoNamesServerRoute
-  '/api/demo-tq-todos': typeof ApiDemoTqTodosServerRoute
   '/auth/callback': typeof AuthCallbackServerRoute
-  '/demo/db-chat-api': typeof DemoDbChatApiServerRoute
 }
 export interface FileServerRoutesByTo {
-  '/api/demo-names': typeof ApiDemoNamesServerRoute
-  '/api/demo-tq-todos': typeof ApiDemoTqTodosServerRoute
   '/auth/callback': typeof AuthCallbackServerRoute
-  '/demo/db-chat-api': typeof DemoDbChatApiServerRoute
 }
 export interface FileServerRoutesById {
   __root__: typeof rootServerRouteImport
-  '/api/demo-names': typeof ApiDemoNamesServerRoute
-  '/api/demo-tq-todos': typeof ApiDemoTqTodosServerRoute
   '/auth/callback': typeof AuthCallbackServerRoute
-  '/demo/db-chat-api': typeof DemoDbChatApiServerRoute
 }
 export interface FileServerRouteTypes {
   fileServerRoutesByFullPath: FileServerRoutesByFullPath
-  fullPaths:
-    | '/api/demo-names'
-    | '/api/demo-tq-todos'
-    | '/auth/callback'
-    | '/demo/db-chat-api'
+  fullPaths: '/auth/callback'
   fileServerRoutesByTo: FileServerRoutesByTo
-  to:
-    | '/api/demo-names'
-    | '/api/demo-tq-todos'
-    | '/auth/callback'
-    | '/demo/db-chat-api'
-  id:
-    | '__root__'
-    | '/api/demo-names'
-    | '/api/demo-tq-todos'
-    | '/auth/callback'
-    | '/demo/db-chat-api'
+  to: '/auth/callback'
+  id: '__root__' | '/auth/callback'
   fileServerRoutesById: FileServerRoutesById
 }
 export interface RootServerRouteChildren {
-  ApiDemoNamesServerRoute: typeof ApiDemoNamesServerRoute
-  ApiDemoTqTodosServerRoute: typeof ApiDemoTqTodosServerRoute
   AuthCallbackServerRoute: typeof AuthCallbackServerRoute
-  DemoDbChatApiServerRoute: typeof DemoDbChatApiServerRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -132,24 +99,24 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/demo/db-chat': {
-      id: '/demo/db-chat'
-      path: '/demo/db-chat'
-      fullPath: '/demo/db-chat'
-      preLoaderRoute: typeof DemoDbChatRouteImport
+    '/auth/logout': {
+      id: '/auth/logout'
+      path: '/auth/logout'
+      fullPath: '/auth/logout'
+      preLoaderRoute: typeof AuthLogoutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth/login': {
+      id: '/auth/login'
+      path: '/auth/login'
+      fullPath: '/auth/login'
+      preLoaderRoute: typeof AuthLoginRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
 }
 declare module '@tanstack/react-start/server' {
   interface ServerFileRoutesByPath {
-    '/demo/db-chat-api': {
-      id: '/demo/db-chat-api'
-      path: '/demo/db-chat-api'
-      fullPath: '/demo/db-chat-api'
-      preLoaderRoute: typeof DemoDbChatApiServerRouteImport
-      parentRoute: typeof rootServerRouteImport
-    }
     '/auth/callback': {
       id: '/auth/callback'
       path: '/auth/callback'
@@ -157,35 +124,19 @@ declare module '@tanstack/react-start/server' {
       preLoaderRoute: typeof AuthCallbackServerRouteImport
       parentRoute: typeof rootServerRouteImport
     }
-    '/api/demo-tq-todos': {
-      id: '/api/demo-tq-todos'
-      path: '/api/demo-tq-todos'
-      fullPath: '/api/demo-tq-todos'
-      preLoaderRoute: typeof ApiDemoTqTodosServerRouteImport
-      parentRoute: typeof rootServerRouteImport
-    }
-    '/api/demo-names': {
-      id: '/api/demo-names'
-      path: '/api/demo-names'
-      fullPath: '/api/demo-names'
-      preLoaderRoute: typeof ApiDemoNamesServerRouteImport
-      parentRoute: typeof rootServerRouteImport
-    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  DemoDbChatRoute: DemoDbChatRoute,
+  AuthLoginRoute: AuthLoginRoute,
+  AuthLogoutRoute: AuthLogoutRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
 const rootServerRouteChildren: RootServerRouteChildren = {
-  ApiDemoNamesServerRoute: ApiDemoNamesServerRoute,
-  ApiDemoTqTodosServerRoute: ApiDemoTqTodosServerRoute,
   AuthCallbackServerRoute: AuthCallbackServerRoute,
-  DemoDbChatApiServerRoute: DemoDbChatApiServerRoute,
 }
 export const serverRouteTree = rootServerRouteImport
   ._addFileChildren(rootServerRouteChildren)

@@ -5,6 +5,7 @@
     { "path": "../apps/server" },
     { "path": "../apps/trigger" },
     { "path": "../apps/web" },
+    { "path": "../apps/web-tss" },
     { "path": "../packages/access-controls" },
     { "path": "../packages/ai" },
     { "path": "../packages/data-source" },
@@ -20,7 +21,8 @@
     { "path": "../packages/web-tools" },
     { "path": "../packages/sandbox" },
     { "path": "../packages/env-utils" },
-    { "path": "../packages/server-utils" }
+    { "path": "../packages/server-utils" },
+
   ],
   "settings": {
     "editor.defaultFormatter": "biomejs.biome",

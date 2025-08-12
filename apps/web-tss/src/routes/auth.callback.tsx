@@ -1,6 +1,6 @@
 import { createServerFileRoute } from "@tanstack/react-start/server";
 import { z } from "zod";
-import { getSupabaseServerClient } from "@/integrations/supabase/server";
+import { getSupabaseServerClient } from "../integrations/supabase/server";
 
 // Define the search parameters schema for type safety
 const searchParamsSchema = z.object({

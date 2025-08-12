@@ -23,7 +23,6 @@ export * from './useUnmount';
 export * from './useUpdateDebounceEffect';
 export * from './useUpdateEffect';
 export * from './useUpdateLayoutEffect';
-export * from './useWebSocket';
 export * from './useWhyDidYouUpdate';
 export * from './useWindowFocus';
 export * from './useWindowWidth';

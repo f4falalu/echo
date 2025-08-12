@@ -19,7 +19,7 @@ export const signInWithEmailAndPassword = createServerFn({ method: "POST" })
   )
   .handler(async ({ data }) => {
     const supabase = getSupabaseServerClient();
-    const { error } = await supabase.auth.signUp({
+    const { error } = await supabase.auth.signInWithPassword({
       email: data.email,
       password: data.password,
     });
@@ -30,10 +30,7 @@ export const signInWithEmailAndPassword = createServerFn({ method: "POST" })
       };
     }
 
-    // Redirect to the prev page stored in the "redirect" search param
-    throw redirect({
-      href: data.redirectUrl || "/",
-    });
+    return;
   });
 
 export const signInWithGoogle = createServerFn({ method: "POST" })
@@ -62,6 +59,50 @@ export const signInWithGoogle = createServerFn({ method: "POST" })
 
     throw redirect({ to: data.url });
   });
+
+export const signInWithAnonymousUser = createServerFn({ method: "POST" }).handler(async () => {
+  const supabase = getSupabaseServerClient();
+  const { data, error } = await supabase.auth.signInAnonymously();
+  if (error) {
+    return { success: false, error: error.message };
+  }
+
+  const session = data.session;
+
+  if (!session) {
+    return { success: false, error: "No session found" };
+  }
+
+  return {
+    success: true,
+    data: {
+      accessToken: session.access_token,
+      refreshToken: session.refresh_token,
+      user: session.user
+        ? {
+            id: session.user.id,
+            email: session.user.email,
+            app_metadata: session.user.app_metadata,
+            user_metadata: session.user.user_metadata,
+            aud: session.user.aud,
+            confirmation_sent_at: session.user.confirmation_sent_at,
+            recovery_sent_at: session.user.recovery_sent_at,
+            email_change_sent_at: session.user.email_change_sent_at,
+            invited_at: session.user.invited_at,
+            action_link: session.user.action_link,
+            email_confirmed_at: session.user.email_confirmed_at,
+            phone_confirmed_at: session.user.phone_confirmed_at,
+            last_sign_in_at: session.user.last_sign_in_at,
+            phone: session.user.phone,
+            created_at: session.user.created_at,
+            updated_at: session.user.updated_at,
+            role: session.user.role,
+            deleted_at: session.user.deleted_at,
+          }
+        : null,
+    },
+  };
+});
 
 // export const signInWithGithub = async ({
 //   redirectTo,

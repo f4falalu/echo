@@ -1,4 +1,3 @@
-import Link from 'next/link';
 import React from 'react';
 import { cn } from '@/lib/classMerge';
 import { ChevronLeft } from '../icons';
@@ -41,7 +40,7 @@ const LinkWrapper: React.FC<{ children: React.ReactNode; linkUrl?: string }> = (
   linkUrl
 }) => {
   if (linkUrl) {
-    return <Link href={linkUrl}>{children}</Link>;
+    return <a href={linkUrl}>{children}</a>;
   }
   return <>{children}</>;
 };
