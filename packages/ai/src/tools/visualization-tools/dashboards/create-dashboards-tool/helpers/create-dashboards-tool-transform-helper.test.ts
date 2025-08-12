@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import type { CreateDashboardsState } from '../create-dashboards-tool';
+import type { CreateDashboardStateFile, CreateDashboardsState } from '../create-dashboards-tool';
 import {
   createCreateDashboardsRawLlmMessageEntry,
   createCreateDashboardsReasoningEntry,
@@ -21,12 +21,25 @@ describe('create-dashboards-tool-transform-helper', () => {
       expect(result).toBeUndefined();
     });
 
-    it('should create a reasoning entry with processing status', () => {
+    it('should skip files without file_name property', () => {
       const state: CreateDashboardsState = {
         files: [
-          { name: 'Dashboard 1', yml_content: 'content1', status: 'processing' },
-          { name: 'Dashboard 2', yml_content: 'content2', status: 'processing' },
-        ],
+          {
+            id: 'file-1',
+            file_type: 'dashboard',
+            version_number: 1,
+            status: 'loading',
+            // No file_name, so should be skipped
+          },
+          {
+            id: 'file-2',
+            file_name: 'Dashboard 2',
+            file_type: 'dashboard',
+            version_number: 1,
+            file: { text: 'content2' },
+            status: 'loading',
+          },
+        ] as CreateDashboardStateFile[],
       };
 
       const result = createCreateDashboardsReasoningEntry(state, 'tool-123');
@@ -34,21 +47,35 @@ describe('create-dashboards-tool-transform-helper', () => {
       expect(result).toMatchObject({
         id: 'tool-123',
         type: 'files',
-        title: 'Creating 2 dashboards',
+        title: 'Creating dashboards...',
         status: 'loading',
-        file_ids: expect.any(Array),
+        file_ids: ['file-2'],
         files: expect.any(Object),
       });
 
-      expect(result?.file_ids).toHaveLength(2);
+      expect(result?.file_ids).toHaveLength(1);
     });
 
-    it('should create a reasoning entry with completed status', () => {
+    it('should create a reasoning entry with proper file structure', () => {
       const state: CreateDashboardsState = {
         files: [
-          { name: 'Dashboard 1', yml_content: 'content1', status: 'completed', id: 'file-1' },
-          { name: 'Dashboard 2', yml_content: 'content2', status: 'completed', id: 'file-2' },
-        ],
+          {
+            id: 'file-1',
+            file_name: 'Dashboard 1',
+            file_type: 'dashboard',
+            version_number: 1,
+            file: { text: 'content1' },
+            status: 'completed',
+          },
+          {
+            id: 'file-2',
+            file_name: 'Dashboard 2',
+            file_type: 'dashboard',
+            version_number: 1,
+            file: { text: 'content2' },
+            status: 'completed',
+          },
+        ] as CreateDashboardStateFile[],
       };
 
       const result = createCreateDashboardsReasoningEntry(state, 'tool-123');
@@ -56,108 +83,192 @@ describe('create-dashboards-tool-transform-helper', () => {
       expect(result).toMatchObject({
         id: 'tool-123',
         type: 'files',
-        title: 'Created 2 dashboards',
-        status: 'completed',
+        title: 'Creating dashboards...',
+        status: 'loading',
+        file_ids: ['file-1', 'file-2'],
       });
-    });
 
-    it('should handle mixed success and failure', () => {
-      const state: CreateDashboardsState = {
-        files: [
-          { name: 'Dashboard 1', yml_content: 'content1', status: 'completed', id: 'file-1' },
-          { name: 'Dashboard 2', yml_content: 'content2', status: 'failed', error: 'Invalid YAML' },
-        ],
-      };
-
-      const result = createCreateDashboardsReasoningEntry(state, 'tool-123');
-
-      expect(result).toMatchObject({
-        id: 'tool-123',
-        type: 'files',
-        title: 'Created 1 dashboard, 1 failed',
-        status: 'failed',
-      });
-    });
-
-    it('should handle all failed dashboards', () => {
-      const state: CreateDashboardsState = {
-        files: [
-          { name: 'Dashboard 1', yml_content: 'content1', status: 'failed', error: 'Error 1' },
-          { name: 'Dashboard 2', yml_content: 'content2', status: 'failed', error: 'Error 2' },
-        ],
-      };
-
-      const result = createCreateDashboardsReasoningEntry(state, 'tool-123');
-
-      expect(result).toMatchObject({
-        id: 'tool-123',
-        type: 'files',
-        title: 'Failed to create dashboards',
-        status: 'failed',
-      });
-    });
-
-    it('should handle singular dashboard count', () => {
-      const state: CreateDashboardsState = {
-        files: [
-          { name: 'Dashboard 1', yml_content: 'content1', status: 'completed', id: 'file-1' },
-        ],
-      };
-
-      const result = createCreateDashboardsReasoningEntry(state, 'tool-123');
-
-      expect(result?.title).toBe('Created 1 dashboard');
-    });
-
-    it('should include error information in file entries', () => {
-      const state: CreateDashboardsState = {
-        files: [
-          { name: 'Dashboard 1', yml_content: 'content1', status: 'failed', error: 'Test error' },
-        ],
-      };
-
-      const result = createCreateDashboardsReasoningEntry(state, 'tool-123');
-
-      const fileIds = result?.file_ids;
-      expect(fileIds).toBeDefined();
-      if (!fileIds || !result) throw new Error('Expected result with file ids');
-      
-      const [firstId] = fileIds;
-      expect(firstId).toBeDefined();
-      expect(result.files[firstId]).toMatchObject({
+      // Verify files are properly structured
+      expect(result?.files['file-1']).toMatchObject({
+        id: 'file-1',
         file_type: 'dashboard',
         file_name: 'Dashboard 1',
-        status: 'failed',
-        error: 'Test error',
+        version_number: 1,
+        status: 'completed',
+        file: { text: 'content1' },
       });
+    });
+
+    it('should update toolCallId in state', () => {
+      const state: CreateDashboardsState = {
+        files: [
+          {
+            id: 'file-1',
+            file_name: 'Dashboard 1',
+            file_type: 'dashboard',
+            version_number: 1,
+            file: { text: 'content1' },
+            status: 'loading',
+          },
+        ] as CreateDashboardStateFile[],
+      };
+
+      const result = createCreateDashboardsReasoningEntry(state, 'tool-123');
+
+      expect(state.toolCallId).toBe('tool-123');
+      expect(result).toBeDefined();
+    });
+
+    it('should handle incremental updates from streaming', () => {
+      const state: CreateDashboardsState = {
+        argsText: '{"files":[{"name":"Dashboard 1","yml_content":"partial',
+      };
+
+      // Simulate first update with partial data
+      state.files = [
+        {
+          id: 'file-1',
+          file_type: 'dashboard',
+          version_number: 1,
+          status: 'loading',
+          // No file_name yet
+        },
+      ] as CreateDashboardStateFile[];
+
+      let result = createCreateDashboardsReasoningEntry(state, 'tool-123');
+      expect(result).toBeUndefined(); // Should be undefined without file_name
+
+      // Simulate second update with more data
+      state.files = [
+        {
+          id: 'file-1',
+          file_name: 'Dashboard 1',
+          file_type: 'dashboard',
+          version_number: 1,
+          status: 'loading',
+          // Now has file_name but no file content yet
+        },
+      ] as CreateDashboardStateFile[];
+
+      result = createCreateDashboardsReasoningEntry(state, 'tool-123');
+      expect(result).toBeDefined();
+      expect(result?.file_ids).toEqual(['file-1']);
+
+      // Simulate third update with complete data
+      state.files = [
+        {
+          id: 'file-1',
+          file_name: 'Dashboard 1',
+          file_type: 'dashboard',
+          version_number: 1,
+          file: { text: 'complete content' },
+          status: 'loading',
+        },
+      ] as CreateDashboardStateFile[];
+
+      result = createCreateDashboardsReasoningEntry(state, 'tool-123');
+      expect(result?.files['file-1'].file?.text).toBe('complete content');
+    });
+
+    it('should handle multiple files with incremental data', () => {
+      const state: CreateDashboardsState = {
+        files: [
+          {
+            id: 'file-1',
+            file_name: 'Dashboard 1',
+            file_type: 'dashboard',
+            version_number: 1,
+            file: { text: 'content1' },
+            status: 'loading',
+          },
+          {
+            id: 'file-2',
+            // This one doesn't have file_name yet, should be skipped
+            file_type: 'dashboard',
+            version_number: 1,
+            status: 'loading',
+          },
+          {
+            id: 'file-3',
+            file_name: 'Dashboard 3',
+            file_type: 'dashboard',
+            version_number: 1,
+            // This one has name but no content yet
+            status: 'loading',
+          },
+        ] as CreateDashboardStateFile[],
+      };
+
+      const result = createCreateDashboardsReasoningEntry(state, 'tool-123');
+
+      // Should only include files with file_name
+      expect(result?.file_ids).toEqual(['file-1', 'file-3']);
+      expect(result?.files['file-1'].file?.text).toBe('content1');
+      expect(result?.files['file-3'].file?.text).toBeUndefined();
+    });
+
+    it('should handle empty files array after filtering', () => {
+      const state: CreateDashboardsState = {
+        files: [
+          {
+            id: 'file-1',
+            // No file_name
+            file_type: 'dashboard',
+            version_number: 1,
+            status: 'loading',
+          },
+          {
+            id: 'file-2',
+            // No file_name either
+            file_type: 'dashboard',
+            version_number: 1,
+            status: 'loading',
+          },
+        ] as CreateDashboardStateFile[],
+      };
+
+      const result = createCreateDashboardsReasoningEntry(state, 'tool-123');
+
+      // Should return undefined when no files have file_name
+      expect(result).toBeUndefined();
     });
   });
 
   describe('createCreateDashboardsRawLlmMessageEntry', () => {
-    it('should return undefined when no parsedArgs in state', () => {
+    it('should return undefined when no files in state', () => {
       const state: CreateDashboardsState = {};
       const result = createCreateDashboardsRawLlmMessageEntry(state, 'tool-123');
       expect(result).toBeUndefined();
     });
 
-    it('should return undefined when parsedArgs has no files', () => {
+    it('should return undefined when files array is empty', () => {
       const state: CreateDashboardsState = {
-        parsedArgs: {
-          files: [],
-        },
+        files: [],
       };
       const result = createCreateDashboardsRawLlmMessageEntry(state, 'tool-123');
       expect(result).toBeUndefined();
     });
 
-    it('should create a raw LLM message entry with parsedArgs', () => {
+    it('should create a raw LLM message entry from files', () => {
       const state: CreateDashboardsState = {
-        parsedArgs: {
-          files: [
-            { name: 'Dashboard 1', yml_content: 'content1' },
-            { name: 'Dashboard 2', yml_content: 'content2' },
-          ],
-        },
+        files: [
+          {
+            id: 'file-1',
+            file_name: 'Dashboard 1',
+            file_type: 'dashboard',
+            version_number: 1,
+            file: { text: 'content1' },
+            status: 'loading',
+          },
+          {
+            id: 'file-2',
+            file_name: 'Dashboard 2',
+            file_type: 'dashboard',
+            version_number: 1,
+            file: { text: 'content2' },
+            status: 'loading',
+          },
+        ] as CreateDashboardStateFile[],
       };
 
       const result = createCreateDashboardsRawLlmMessageEntry(state, 'tool-123');
@@ -177,6 +288,99 @@ describe('create-dashboards-tool-transform-helper', () => {
             },
           },
         ],
+      });
+    });
+
+    it('should filter out files without name or content', () => {
+      const state: CreateDashboardsState = {
+        files: [
+          {
+            id: 'file-1',
+            file_name: 'Dashboard 1',
+            file_type: 'dashboard',
+            version_number: 1,
+            file: { text: 'content1' },
+            status: 'loading',
+          },
+          {
+            id: 'file-2',
+            // Missing file_name
+            file_type: 'dashboard',
+            version_number: 1,
+            file: { text: 'content2' },
+            status: 'loading',
+          },
+          {
+            id: 'file-3',
+            file_name: 'Dashboard 3',
+            file_type: 'dashboard',
+            version_number: 1,
+            // Missing file content
+            status: 'loading',
+          },
+        ] as CreateDashboardStateFile[],
+      };
+
+      const result = createCreateDashboardsRawLlmMessageEntry(state, 'tool-123');
+
+      expect(result?.content[0]).toMatchObject({
+        type: 'tool-call',
+        input: {
+          files: [
+            { name: 'Dashboard 1', yml_content: 'content1' },
+            // Only the first file should be included
+          ],
+        },
+      });
+    });
+
+    it('should handle incremental state updates', () => {
+      const state: CreateDashboardsState = {};
+
+      // Start with no files
+      let result = createCreateDashboardsRawLlmMessageEntry(state, 'tool-123');
+      expect(result).toBeUndefined();
+
+      // Add partial file
+      state.files = [
+        {
+          id: 'file-1',
+          file_type: 'dashboard',
+          version_number: 1,
+          status: 'loading',
+        },
+      ] as CreateDashboardStateFile[];
+
+      result = createCreateDashboardsRawLlmMessageEntry(state, 'tool-123');
+      // Returns a message with empty files array when no valid data
+      expect(result).toBeDefined();
+      expect(result?.content[0]).toMatchObject({
+        type: 'tool-call',
+        input: {
+          files: [], // Empty array when filtered
+        },
+      });
+
+      // Add file_name
+      state.files[0].file_name = 'Dashboard 1';
+      result = createCreateDashboardsRawLlmMessageEntry(state, 'tool-123');
+      // Still empty array without content
+      expect(result?.content[0]).toMatchObject({
+        type: 'tool-call',
+        input: {
+          files: [],
+        },
+      });
+
+      // Add file content
+      state.files[0].file = { text: 'content1' };
+      result = createCreateDashboardsRawLlmMessageEntry(state, 'tool-123');
+      expect(result).toBeDefined();
+      expect(result?.content[0]).toMatchObject({
+        type: 'tool-call',
+        input: {
+          files: [{ name: 'Dashboard 1', yml_content: 'content1' }],
+        },
       });
     });
   });

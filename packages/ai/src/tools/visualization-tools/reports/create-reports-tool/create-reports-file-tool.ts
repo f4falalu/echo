@@ -5,8 +5,8 @@ import type { RuntimeContext } from '@mastra/core/runtime-context';
 import { createTool } from '@mastra/core/tools';
 import { wrapTraced } from 'braintrust';
 import { z } from 'zod';
-import type { AnalystRuntimeContext } from '../../workflows/analyst-workflow';
 import { trackFileAssociations } from '../../file-tracking-helper';
+import type { AnalystRuntimeContext } from '../../workflows/analyst-workflow';
 
 // Core interfaces matching the expected structure
 interface ReportFileParams {

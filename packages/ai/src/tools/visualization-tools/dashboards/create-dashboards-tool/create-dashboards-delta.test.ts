@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { createCreateDashboardsDelta } from './create-dashboards-delta';
 import type {
   CreateDashboardsContext,
-  CreateDashboardsFile,
+  CreateDashboardStateFile,
   CreateDashboardsState,
 } from './create-dashboards-tool';
 
@@ -34,7 +34,11 @@ describe('createCreateDashboardsDelta', () => {
     OptimisticJsonParser = streaming.OptimisticJsonParser as unknown as {
       parse: ReturnType<typeof vi.fn>;
     };
-    getOptimisticValue = vi.mocked(streaming.getOptimisticValue);
+    getOptimisticValue = streaming.getOptimisticValue as ReturnType<typeof vi.fn>;
+    
+    // Set OptimisticJsonParser.parse and getOptimisticValue as mock functions
+    OptimisticJsonParser.parse = vi.fn();
+    getOptimisticValue = vi.fn();
 
     context = {
       userId: 'user-1',
@@ -54,7 +58,7 @@ describe('createCreateDashboardsDelta', () => {
 
   describe('string delta handling', () => {
     it('should accumulate string deltas', async () => {
-      vi.mocked(OptimisticJsonParser.parse).mockReturnValue({
+      OptimisticJsonParser.parse.mockReturnValue({
         parsed: null,
         isComplete: false,
         extractedValues: new Map(),
@@ -68,7 +72,7 @@ describe('createCreateDashboardsDelta', () => {
     });
 
     it('should parse complete JSON and update files', async () => {
-      vi.mocked(OptimisticJsonParser.parse).mockReturnValue({
+      OptimisticJsonParser.parse.mockReturnValue({
         parsed: { files: [] },
         isComplete: true,
         extractedValues: new Map([['files', [{ name: 'Dashboard 1', yml_content: 'content1' }]]]),
@@ -90,15 +94,20 @@ describe('createCreateDashboardsDelta', () => {
 
       const filesAfterComplete = state.files ?? [];
       expect(filesAfterComplete).toHaveLength(1);
-      expect(filesAfterComplete[0]).toEqual({
-        name: 'Dashboard 1',
-        yml_content: 'content1',
-        status: 'processing',
+      expect(filesAfterComplete[0]).toMatchObject({
+        file_name: 'Dashboard 1',
+        file_type: 'dashboard',
+        version_number: 1,
+        file: {
+          text: 'content1',
+        },
+        status: 'loading',
       });
+      expect(filesAfterComplete[0].id).toBeDefined();
     });
 
     it('should handle partial JSON with optimistic parsing', async () => {
-      vi.mocked(OptimisticJsonParser.parse).mockReturnValue({
+      OptimisticJsonParser.parse.mockReturnValue({
         parsed: { files: [{}] },
         isComplete: false,
         extractedValues: new Map([['files', [{ name: 'Partial' }]]]),
@@ -118,13 +127,46 @@ describe('createCreateDashboardsDelta', () => {
         messages: [],
       });
 
-      // Should not add file without yml_content
-      expect(state.files ?? []).toHaveLength(0);
+      // Should add file with name even without yml_content
+      const files = state.files ?? [];
+      expect(files).toHaveLength(1);
+      expect(files[0]).toMatchObject({
+        file_name: 'Partial',
+        file_type: 'dashboard',
+        version_number: 1,
+        file: undefined,
+        status: 'loading',
+      });
     });
   });
 
   describe('object delta handling', () => {
     it('should handle object deltas with files', async () => {
+      OptimisticJsonParser.parse.mockReturnValue({
+        parsed: { files: [] },
+        isComplete: true,
+        extractedValues: new Map([['files', [
+          { name: 'Dashboard 1', yml_content: 'content1' },
+          { name: 'Dashboard 2', yml_content: 'content2' }
+        ]]]),
+      });
+
+      getOptimisticValue.mockImplementation((map, key, defaultValue) => {
+        if (key === 'files') return [
+          { name: 'Dashboard 1', yml_content: 'content1' },
+          { name: 'Dashboard 2', yml_content: 'content2' }
+        ];
+        if (map.get('name') === 'Dashboard 1') {
+          if (key === 'name') return 'Dashboard 1';
+          if (key === 'yml_content') return 'content1';
+        }
+        if (map.get('name') === 'Dashboard 2') {
+          if (key === 'name') return 'Dashboard 2';
+          if (key === 'yml_content') return 'content2';
+        }
+        return defaultValue;
+      });
+
       const handler = createCreateDashboardsDelta(context, state);
       await handler({
         inputTextDelta:
@@ -135,19 +177,33 @@ describe('createCreateDashboardsDelta', () => {
 
       const filesTwo = state.files ?? [];
       expect(filesTwo).toHaveLength(2);
-      expect(filesTwo[0]).toEqual({
-        name: 'Dashboard 1',
-        yml_content: 'content1',
-        status: 'processing',
+      expect(filesTwo[0]).toMatchObject({
+        file_name: 'Dashboard 1',
+        file_type: 'dashboard',
+        version_number: 1,
+        file: {
+          text: 'content1',
+        },
+        status: 'loading',
       });
-      expect(filesTwo[1]).toEqual({
-        name: 'Dashboard 2',
-        yml_content: 'content2',
-        status: 'processing',
+      expect(filesTwo[1]).toMatchObject({
+        file_name: 'Dashboard 2',
+        file_type: 'dashboard',
+        version_number: 1,
+        file: {
+          text: 'content2',
+        },
+        status: 'loading',
       });
     });
 
     it('should handle empty object delta', async () => {
+      OptimisticJsonParser.parse.mockReturnValue({
+        parsed: {},
+        isComplete: true,
+        extractedValues: new Map(),
+      });
+
       const handler = createCreateDashboardsDelta(context, state);
       await handler({ inputTextDelta: '{}', toolCallId: 'tool-123', messages: [] });
 
@@ -157,9 +213,23 @@ describe('createCreateDashboardsDelta', () => {
 
   describe('database updates', () => {
     it('should update database when messageId and reasoningEntryId exist', async () => {
+      OptimisticJsonParser.parse.mockReturnValue({
+        parsed: { files: [] },
+        isComplete: true,
+        extractedValues: new Map([['files', [{ name: 'Dashboard 1', yml_content: 'content1' }]]]),
+      });
+
+      getOptimisticValue.mockImplementation((map, key, defaultValue) => {
+        if (key === 'files') return [{ name: 'Dashboard 1', yml_content: 'content1' }];
+        if (key === 'name') return 'Dashboard 1';
+        if (key === 'yml_content') return 'content1';
+        return defaultValue;
+      });
+
       const handler = createCreateDashboardsDelta(context, state);
       await handler({
         inputTextDelta: '{"files":[{"name":"Dashboard 1","yml_content":"content1"}]}',
+        toolCallId: 'tool-123',
       });
 
       expect(updateMessageEntriesSpy).toHaveBeenCalledWith(
@@ -168,7 +238,7 @@ describe('createCreateDashboardsDelta', () => {
           mode: 'update',
           responseEntry: expect.objectContaining({
             type: 'files',
-            title: 'Building new dashboards...',
+            title: 'Creating dashboards...',
             status: 'loading',
           }),
         })
@@ -176,6 +246,19 @@ describe('createCreateDashboardsDelta', () => {
     });
 
     it('should not update database when messageId is missing', async () => {
+      OptimisticJsonParser.parse.mockReturnValue({
+        parsed: { files: [] },
+        isComplete: true,
+        extractedValues: new Map([['files', [{ name: 'Dashboard 1', yml_content: 'content1' }]]]),
+      });
+
+      getOptimisticValue.mockImplementation((map, key, defaultValue) => {
+        if (key === 'files') return [{ name: 'Dashboard 1', yml_content: 'content1' }];
+        if (key === 'name') return 'Dashboard 1';
+        if (key === 'yml_content') return 'content1';
+        return defaultValue;
+      });
+
       const contextWithoutMessageId = { ...context, messageId: undefined };
       const stateWithoutMessageId = { ...state, messageId: undefined };
 
@@ -188,6 +271,19 @@ describe('createCreateDashboardsDelta', () => {
     });
 
     it('should not update database when reasoningEntryId is missing', async () => {
+      OptimisticJsonParser.parse.mockReturnValue({
+        parsed: { files: [] },
+        isComplete: true,
+        extractedValues: new Map([['files', [{ name: 'Dashboard 1', yml_content: 'content1' }]]]),
+      });
+
+      getOptimisticValue.mockImplementation((map, key, defaultValue) => {
+        if (key === 'files') return [{ name: 'Dashboard 1', yml_content: 'content1' }];
+        if (key === 'name') return 'Dashboard 1';
+        if (key === 'yml_content') return 'content1';
+        return defaultValue;
+      });
+
       const stateWithoutToolCallId = { ...state, toolCallId: undefined };
 
       const handler = createCreateDashboardsDelta(context, stateWithoutToolCallId);
@@ -199,6 +295,19 @@ describe('createCreateDashboardsDelta', () => {
     });
 
     it('should handle database update errors gracefully', async () => {
+      OptimisticJsonParser.parse.mockReturnValue({
+        parsed: { files: [] },
+        isComplete: true,
+        extractedValues: new Map([['files', [{ name: 'Dashboard 1', yml_content: 'content1' }]]]),
+      });
+
+      getOptimisticValue.mockImplementation((map, key, defaultValue) => {
+        if (key === 'files') return [{ name: 'Dashboard 1', yml_content: 'content1' }];
+        if (key === 'name') return 'Dashboard 1';
+        if (key === 'yml_content') return 'content1';
+        return defaultValue;
+      });
+
       updateMessageEntriesSpy.mockRejectedValue(new Error('Database error'));
 
       const handler = createCreateDashboardsDelta(context, state);
@@ -213,14 +322,34 @@ describe('createCreateDashboardsDelta', () => {
     });
 
     it('should filter out undefined entries before updating database', async () => {
+      OptimisticJsonParser.parse.mockReturnValue({
+        parsed: null,
+        isComplete: false,
+        extractedValues: new Map(),
+      });
+
       state.files = [
-        { name: 'Dashboard 1', yml_content: 'content1' },
+        {
+          id: 'id-1',
+          file_name: 'Dashboard 1',
+          file_type: 'dashboard',
+          version_number: 1,
+          file: { text: 'content1' },
+          status: 'loading',
+        },
         undefined as unknown as CreateDashboardsState['files'][number],
-        { name: 'Dashboard 2', yml_content: 'content2' },
+        {
+          id: 'id-2',
+          file_name: 'Dashboard 2',
+          file_type: 'dashboard',
+          version_number: 1,
+          file: { text: 'content2' },
+          status: 'loading',
+        },
       ];
 
       const handler = createCreateDashboardsDelta(context, state);
-      await handler({ inputTextDelta: '' });
+      await handler({ inputTextDelta: '', toolCallId: 'tool-123' });
 
       // updateMessageReasoning should be called with filtered files
       expect(updateMessageEntriesSpy).toHaveBeenCalledWith(
@@ -274,10 +403,14 @@ describe('createCreateDashboardsDelta', () => {
       await handler({ inputTextDelta: '"yml_content":"content1"}]}' });
 
       expect(state.files).toHaveLength(1);
-      expect(state.files[0]).toEqual({
-        name: 'Dashboard 1',
-        yml_content: 'content1',
-        status: 'processing',
+      expect(state.files[0]).toMatchObject({
+        file_name: 'Dashboard 1',
+        file_type: 'dashboard',
+        version_number: 1,
+        file: {
+          text: 'content1',
+        },
+        status: 'loading',
       });
     });
   });

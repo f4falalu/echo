@@ -11,45 +11,8 @@ import { inArray } from 'drizzle-orm';
 import * as yaml from 'yaml';
 import { z } from 'zod';
 import { trackFileAssociations } from '../../file-tracking-helper';
-// Type definitions for version history
-interface DashboardYml {
-  name: string;
-  description?: string;
-  rows: Array<{
-    id: string;
-    items: Array<{ id: string }>;
-    columnSizes?: number[];
-    rowHeight?: number;
-  }>;
-}
-
-interface VersionHistory {
-  versions: Array<{
-    version: number;
-    created_at: string;
-    changes?: string;
-    content: DashboardYml;
-  }>;
-}
-
-// Helper function to create initial version history
-function createInitialDashboardVersionHistory(
-  dashboardYml: DashboardYml,
-  createdAt: string
-): VersionHistory {
-  return {
-    versions: [
-      {
-        version: 1,
-        created_at: createdAt,
-        content: dashboardYml,
-      },
-    ],
-  };
-}
-
 import {
-  DashboardConfig,
+  type DashboardConfig,
   DashboardConfigSchema,
 } from '../../../../../../server-shared/src/dashboards/dashboard.types';
 import type {
@@ -64,15 +27,10 @@ import {
 } from './helpers/create-dashboards-tool-transform-helper';
 
 // Type definitions
-interface DashboardFileContent {
-  rows: Array<{
-    items: Array<{
-      id: string;
-      [key: string]: unknown;
-    }>;
-    [key: string]: unknown;
-  }>;
-  [key: string]: unknown;
+interface DashboardWithMetadata {
+  name: string;
+  description?: string;
+  config: DashboardConfig;
 }
 
 interface FileWithId {
@@ -84,12 +42,37 @@ interface FileWithId {
   created_at: string;
   updated_at: string;
   version_number: number;
-  content?: DashboardFileContent;
+  content?: DashboardConfig;
 }
 
 interface FailedFileCreation {
   name: string;
   error: string;
+}
+
+interface VersionHistory {
+  versions: Array<{
+    version: number;
+    created_at: string;
+    changes?: string;
+    content: DashboardWithMetadata;
+  }>;
+}
+
+// Helper function to create initial version history
+function createInitialDashboardVersionHistory(
+  dashboard: DashboardWithMetadata,
+  createdAt: string
+): VersionHistory {
+  return {
+    versions: [
+      {
+        version: 1,
+        created_at: createdAt,
+        content: dashboard,
+      },
+    ],
+  };
 }
 
 type CreateDashboardFilesParams = CreateDashboardsInput;
@@ -123,7 +106,7 @@ const dashboardYmlSchema = z.object({
 function parseAndValidateYaml(ymlContent: string): {
   success: boolean;
   error?: string;
-  data?: DashboardYml;
+  data?: DashboardWithMetadata;
 } {
   try {
     const parsedYml = yaml.parse(ymlContent);
@@ -136,19 +119,24 @@ function parseAndValidateYaml(ymlContent: string): {
       };
     }
 
-    // Transform the validated data to match DashboardYml type (camelCase)
-    const transformedData: DashboardYml = {
-      name: validationResult.data.name,
-      description: validationResult.data.description,
-      rows: validationResult.data.rows.map((row) => ({
+    // Create DashboardConfig that matches the server-shared type
+    const dashboardConfig: DashboardConfig = {
+      rows: validationResult.data.rows?.map((row) => ({
         id: row.id,
-        items: row.items,
-        columnSizes: row.column_sizes, // Transform snake_case to camelCase
+        items: row.items.map((item) => ({ id: item.id })),
+        columnSizes: row.column_sizes, // Transform snake_case to camelCase if present
         rowHeight: row.rowHeight,
       })),
     };
 
-    return { success: true, data: transformedData };
+    // Return dashboard with metadata
+    const dashboard: DashboardWithMetadata = {
+      name: validationResult.data.name,
+      ...(validationResult.data.description && { description: validationResult.data.description }),
+      config: dashboardConfig,
+    };
+
+    return { success: true, data: dashboard };
   } catch (error) {
     return {
       success: false,
@@ -189,10 +177,13 @@ async function validateMetricIds(
 }
 
 // Process a dashboard file creation request
-async function processDashboardFile(file: { name: string; yml_content: string }): Promise<{
+async function processDashboardFile(
+  file: { name: string; yml_content: string },
+  dashboardId?: string
+): Promise<{
   success: boolean;
   dashboardFile?: FileWithId;
-  dashboardYml?: DashboardYml;
+  dashboard?: DashboardWithMetadata;
   error?: string;
 }> {
   // Parse and validate YAML
@@ -205,21 +196,23 @@ async function processDashboardFile(file: { name: string; yml_content: string })
     };
   }
 
-  const dashboardYml = yamlValidation.data;
-  if (!dashboardYml) {
+  const dashboard = yamlValidation.data;
+  if (!dashboard) {
     return {
       success: false,
       error: 'Failed to parse dashboard YAML data.',
     };
   }
 
-  // Generate deterministic UUID for dashboard
-  const dashboardId = randomUUID();
+  // Use provided dashboard ID from state or generate new one
+  const id = dashboardId || randomUUID();
 
-  // Collect all metric IDs from rows
-  const metricIds: string[] = dashboardYml.rows
-    .flatMap((row: { items: Array<{ id: string }> }) => row.items)
-    .map((item: { id: string }) => item.id);
+  // Collect all metric IDs from rows if they exist
+  const metricIds: string[] = dashboard.config.rows
+    ? dashboard.config.rows
+        .flatMap((row) => row.items)
+        .map((item) => item.id)
+    : [];
 
   // Validate metric IDs if any exist
   if (metricIds.length > 0) {
@@ -240,19 +233,19 @@ async function processDashboardFile(file: { name: string; yml_content: string })
   }
 
   const dashboardFile: FileWithId = {
-    id: dashboardId,
-    name: dashboardYml.name,
+    id,
+    name: dashboard.name,
     file_type: 'dashboard',
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
     version_number: 1,
-    content: DashboardConfig,
+    content: dashboard.config, // Store the DashboardConfig directly
   };
 
   return {
     success: true,
     dashboardFile,
-    dashboardYml,
+    dashboard,
   };
 }
 
@@ -283,10 +276,9 @@ function generateResultMessage(
 const createDashboardFiles = wrapTraced(
   async (
     params: CreateDashboardFilesParams,
-    context: CreateDashboardsContext
+    context: CreateDashboardsContext,
+    state?: CreateDashboardsState
   ): Promise<CreateDashboardFilesOutput> => {
-    const startTime = Date.now();
-
     // Get context values
     const userId = context.userId;
     const organizationId = context.organizationId;
@@ -295,7 +287,6 @@ const createDashboardFiles = wrapTraced(
     if (!userId) {
       return {
         message: 'Unable to verify your identity. Please log in again.',
-        duration: Date.now() - startTime,
         files: [],
         failed_files: [],
       };
@@ -303,7 +294,6 @@ const createDashboardFiles = wrapTraced(
     if (!organizationId) {
       return {
         message: 'Unable to access your organization. Please check your permissions.',
-        duration: Date.now() - startTime,
         files: [],
         failed_files: [],
       };
@@ -312,27 +302,42 @@ const createDashboardFiles = wrapTraced(
     const files: FileWithId[] = [];
     const failedFiles: FailedFileCreation[] = [];
 
-    // Process files concurrently
+    // Process files concurrently, passing dashboard IDs from state
     const processResults = await Promise.allSettled(
-      params.files.map(async (file) => {
-        const result = await processDashboardFile(file);
+      params.files.map(async (file, index) => {
+        // Ensure file has required properties
+        if (!file.name || !file.yml_content) {
+          return {
+            fileName: file.name || 'unknown',
+            result: {
+              success: false,
+              error: 'Missing required file properties',
+            },
+          };
+        }
+        // Get dashboard ID from state if available
+        const dashboardId = state?.files?.[index]?.id;
+        const result = await processDashboardFile(
+          file as { name: string; yml_content: string },
+          typeof dashboardId === 'string' ? dashboardId : undefined
+        );
         return { fileName: file.name, result };
       })
     );
 
     const successfulProcessing: Array<{
       dashboardFile: FileWithId;
-      dashboardYml: DashboardYml;
+      dashboard: DashboardWithMetadata;
     }> = [];
 
     // Separate successful from failed processing
     for (const processResult of processResults) {
       if (processResult.status === 'fulfilled') {
         const { fileName, result } = processResult.value;
-        if (result.success && result.dashboardFile && result.dashboardYml) {
+        if (result.success && result.dashboardFile && result.dashboard) {
           successfulProcessing.push({
             dashboardFile: result.dashboardFile,
-            dashboardYml: result.dashboardYml,
+            dashboard: result.dashboard,
           });
         } else {
           failedFiles.push({
@@ -361,7 +366,7 @@ const createDashboardFiles = wrapTraced(
                 id: sp.dashboardFile.id,
                 name: sp.dashboardFile.name,
                 fileName: sp.dashboardFile.name,
-                content: sp.dashboardFile.content,
+                content: sp.dashboardFile.content, // This already contains the DashboardConfig
                 filter: null,
                 organizationId,
                 createdBy: userId,
@@ -372,7 +377,7 @@ const createDashboardFiles = wrapTraced(
                 publiclyEnabledBy: null,
                 publicExpiryDate: null,
                 versionHistory: createInitialDashboardVersionHistory(
-                  sp.dashboardYml,
+                  sp.dashboard,
                   sp.dashboardFile.created_at
                 ),
                 publicPassword: null,
@@ -382,7 +387,7 @@ const createDashboardFiles = wrapTraced(
               id: sp.dashboardFile.id,
               name: sp.dashboardFile.name,
               fileName: originalFile.name,
-              content: sp.dashboardFile.content,
+              content: sp.dashboardFile.content, // This already contains the DashboardConfig
               filter: null,
               organizationId,
               createdBy: userId,
@@ -393,7 +398,7 @@ const createDashboardFiles = wrapTraced(
               publiclyEnabledBy: null,
               publicExpiryDate: null,
               versionHistory: createInitialDashboardVersionHistory(
-                sp.dashboardYml,
+                sp.dashboard,
                 sp.dashboardFile.created_at
               ),
               publicPassword: null,
@@ -418,9 +423,11 @@ const createDashboardFiles = wrapTraced(
 
           // Create associations between metrics and dashboards
           for (const sp of successfulProcessing) {
-            const metricIds: string[] = sp.dashboardYml.rows
-              .flatMap((row: { items: Array<{ id: string }> }) => row.items)
-              .map((item: { id: string }) => item.id);
+            const metricIds: string[] = sp.dashboard.config.rows
+              ? sp.dashboard.config.rows
+                  .flatMap((row) => row.items)
+                  .map((item) => item.id)
+              : [];
 
             if (metricIds.length > 0) {
               const metricDashboardAssociations = metricIds.map((metricId: string) => ({
@@ -480,12 +487,10 @@ const createDashboardFiles = wrapTraced(
       });
     }
 
-    const duration = Date.now() - startTime;
     const message = generateResultMessage(files, failedFiles);
 
     return {
       message,
-      duration,
       files,
       failed_files: failedFiles,
     };
@@ -502,8 +507,12 @@ export function createCreateDashboardsExecute(
       const startTime = Date.now();
 
       try {
-        // Call the main function directly instead of delegating
-        const result = await createDashboardFiles(input as CreateDashboardFilesParams, context);
+        // Call the main function directly, passing state for dashboard IDs
+        const result = await createDashboardFiles(
+          input as CreateDashboardFilesParams,
+          context,
+          state
+        );
 
         // Update state files with final results (IDs, versions, status)
         if (result && typeof result === 'object') {
@@ -514,10 +523,10 @@ export function createCreateDashboardsExecute(
           // Update successful files
           if (typedResult.files && Array.isArray(typedResult.files)) {
             typedResult.files.forEach((file) => {
-              const stateFile = (state.files ?? []).find((f) => f.name === file.name);
+              const stateFile = (state.files ?? []).find((f) => f.file_name === file.name);
               if (stateFile) {
                 stateFile.id = file.id;
-                stateFile.version = file.version_number;
+                stateFile.version_number = file.version_number;
                 stateFile.status = 'completed';
               }
             });
@@ -526,10 +535,10 @@ export function createCreateDashboardsExecute(
           // Update failed files
           if (typedResult.failed_files && Array.isArray(typedResult.failed_files)) {
             typedResult.failed_files.forEach((failedFile) => {
-              const stateFile = (state.files ?? []).find((f) => f.name === failedFile.name);
+              const stateFile = (state.files ?? []).find((f) => f.file_name === failedFile.name);
               if (stateFile) {
                 stateFile.status = 'failed';
-                stateFile.error = failedFile.error;
+                // Add error to the state file if needed (not part of the current schema)
               }
             });
           }
@@ -543,7 +552,7 @@ export function createCreateDashboardsExecute(
               // Update state for final status
               if (state.files) {
                 state.files.forEach((f) => {
-                  if (!f.status || f.status === 'processing') {
+                  if (!f.status || f.status === 'loading') {
                     f.status = finalStatus === 'failed' ? 'failed' : 'completed';
                   }
                 });

@@ -5,8 +5,8 @@ import {
   getOptimisticValue,
 } from '../../../../utils/streaming/optimistic-json-parser';
 import type {
+  CreateDashboardStateFile,
   CreateDashboardsContext,
-  CreateDashboardsReasoningFile,
   CreateDashboardsState,
 } from './create-dashboards-tool';
 import {
@@ -42,9 +42,9 @@ export function createCreateDashboardsDelta(
 
       if (filesArray && Array.isArray(filesArray)) {
         // Update state files with streamed data
-        const updatedFiles: CreateDashboardsReasoningFile[] = [];
+        const updatedFiles: CreateDashboardStateFile[] = [];
 
-        filesArray.forEach((file) => {
+        filesArray.forEach((file, index) => {
           if (file && typeof file === 'object') {
             const fileObj = file as Record<string, unknown>;
             const name = getOptimisticValue<string>(
@@ -58,27 +58,28 @@ export function createCreateDashboardsDelta(
               ''
             );
 
-            if (name && ymlContent) {
+            // Only add files that have at least a name
+            if (name) {
+              // Check if this file already exists in state to preserve its ID
+              const existingFile = state.files?.[index];
+
               updatedFiles.push({
-                name,
-                yml_content: ymlContent,
-                status: 'processing',
+                id: existingFile?.id || crypto.randomUUID(),
+                file_name: name,
+                file_type: 'dashboard',
+                version_number: existingFile?.version_number || 1,
+                file: ymlContent
+                  ? {
+                      text: ymlContent,
+                    }
+                  : undefined,
+                status: 'loading',
               });
             }
           }
         });
 
         state.files = updatedFiles;
-        
-        // Also update parsedArgs as we stream for raw LLM message
-        if (updatedFiles.length > 0) {
-          state.parsedArgs = {
-            files: updatedFiles.map(f => ({
-              name: f.name,
-              yml_content: f.yml_content,
-            })),
-          };
-        }
       }
     }
 

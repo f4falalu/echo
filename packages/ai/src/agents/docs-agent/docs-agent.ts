@@ -111,13 +111,13 @@ export function createDocsAgent(docsAgentOptions: DocsAgentOptions) {
     : undefined;
 
   const webSearch = createWebSearchTool();
-  
+
   // Create planning tools with simple context
   const checkOffTodoList = createCheckOffTodoListTool({
     todoList: '',
     updateTodoList: () => {},
   });
-  
+
   const updateClarificationsFile = createUpdateClarificationsFileTool({
     clarifications: [],
     updateClarifications: () => {},

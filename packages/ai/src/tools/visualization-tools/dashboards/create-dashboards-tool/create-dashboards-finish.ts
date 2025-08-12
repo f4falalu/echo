@@ -17,17 +17,21 @@ export function createCreateDashboardsFinish(
   return async (options: { input: CreateDashboardsInput } & ToolCallOptions) => {
     const input = options.input;
 
-    console.info('[create-dashboards] Input fully available:', {
-      filesCount: input.files.length,
-    });
-
-    state.parsedArgs = input;
-
-    state.files = input.files.map((f) => ({
-      name: f.name,
-      yml_content: f.yml_content,
-      status: 'processing' as const,
-    }));
+    if (input.files) {
+      state.files = input.files.map((file, index) => {
+        const existingFile = state.files?.[index];
+        return {
+          id: existingFile?.id || crypto.randomUUID(),
+          file_name: file.name,
+          file_type: 'dashboard',
+          version_number: existingFile?.version_number || 1,
+          file: {
+            text: file.yml_content,
+          },
+          status: existingFile?.status || 'loading',
+        };
+      });
+    }
 
     // Update database with both reasoning and raw LLM entries
     if (context.messageId && state.toolCallId) {

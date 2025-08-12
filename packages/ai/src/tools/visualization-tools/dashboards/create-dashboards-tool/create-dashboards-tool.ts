@@ -7,6 +7,8 @@ import { createCreateDashboardsExecute } from './create-dashboards-execute';
 import { createCreateDashboardsFinish } from './create-dashboards-finish';
 import { createDashboardsStart } from './create-dashboards-start';
 
+export const TOOL_NAME = 'createDashboards';
+
 const CreateDashboardsInputFileSchema = z.object({
   name: z.string(),
   yml_content: z.string(),
@@ -80,7 +82,7 @@ export function createCreateDashboardsTool(context: CreateDashboardsContext) {
   // Initialize state for streaming
   const state: CreateDashboardsState = {
     argsText: undefined,
-    files: undefined,
+    files: [],
     toolCallId: undefined,
   };
 

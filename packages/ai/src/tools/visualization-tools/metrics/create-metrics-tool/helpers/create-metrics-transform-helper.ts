@@ -16,7 +16,6 @@ export function createMetricsReasoningMessage(
   state: CreateMetricsState
 ): ChatMessageReasoningMessage {
   const files = state.files || [];
-  
 }
 
 /**

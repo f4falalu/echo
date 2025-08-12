@@ -54,9 +54,7 @@ export type RespondWithoutAssetCreationState = z.infer<
   typeof RespondWithoutAssetCreationStateSchema
 >;
 
-export function createRespondWithoutAssetCreationTool(
-  context: RespondWithoutAssetCreationContext
-) {
+export function createRespondWithoutAssetCreationTool(context: RespondWithoutAssetCreationContext) {
   const state: RespondWithoutAssetCreationState = {
     entry_id: undefined,
     args: undefined,

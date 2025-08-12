@@ -3,7 +3,7 @@ import type {
   ChatMessageReasoningMessage_File,
 } from '@buster/server-shared/chats';
 import type { ModelMessage } from 'ai';
-import type { CreateDashboardsState } from '../create-dashboards-tool';
+import { type CreateDashboardsState, TOOL_NAME } from '../create-dashboards-tool';
 
 /**
  * Create a reasoning entry for create-dashboards tool
@@ -22,8 +22,8 @@ export function createCreateDashboardsReasoningEntry(
   const filesRecord: Record<string, ChatMessageReasoningMessage_File> = {};
   const fileIds: string[] = [];
   for (const f of state.files) {
-    // Skip entries that do not yet have a file_name
-    if (!f.file_name) continue;
+    // Skip undefined entries or entries that do not yet have a file_name
+    if (!f || !f.file_name) continue;
     const id = f.id;
     fileIds.push(id);
     filesRecord[id] = {
@@ -33,7 +33,7 @@ export function createCreateDashboardsReasoningEntry(
       version_number: f.version_number,
       status: f.status,
       file: {
-        text: f.file?.text,
+        text: f.file?.text || '',
       },
     };
   }
@@ -67,11 +67,12 @@ export function createCreateDashboardsRawLlmMessageEntry(
       {
         type: 'tool-call',
         toolCallId,
-        toolName: 'createDashboards',
+        toolName: TOOL_NAME,
         input: {
           files: state.files
+            .filter((file) => file != null) // Filter out null/undefined entries first
             .map((file) => ({
-              name: file.file_name ?? 'dashboard',
+              name: file.file_name ?? '',
               yml_content: file.file?.text ?? '',
             }))
             // Filter out clearly invalid entries
