@@ -4,7 +4,13 @@ import path from 'node:path';
 import type { Sandbox } from '@daytonaio/sdk';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { createSandbox } from '../management/create-sandbox';
-import { type UploadProgress, addFiles, uploadDirectory, uploadMultipleFiles } from './add-files';
+import {
+  type FileInput,
+  type UploadProgress,
+  addFiles,
+  uploadDirectory,
+  uploadMultipleFiles,
+} from './add-files';
 
 describe('filesystem/add-files integration tests', () => {
   let sandbox: Sandbox;
@@ -31,11 +37,6 @@ describe('filesystem/add-files integration tests', () => {
       await cleanup();
     }
     cleanupFuncs = [];
-
-    // Destroy sandbox
-    if (sandbox?.destroy) {
-      await sandbox.destroy();
-    }
   });
 
   describe('Single file operations', () => {
@@ -142,7 +143,7 @@ describe('filesystem/add-files integration tests', () => {
     });
 
     it('should handle mixed content types', async () => {
-      const files = [
+      const files: FileInput[] = [
         {
           path: 'memory-file.txt',
           content: 'Direct string content',

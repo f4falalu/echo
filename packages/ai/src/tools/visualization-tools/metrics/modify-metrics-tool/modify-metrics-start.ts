@@ -1,10 +1,10 @@
 import { updateMessageEntries } from '@buster/database';
 import type { ToolCallOptions } from 'ai';
-import type { ModifyMetricsContext, ModifyMetricsState } from './modify-metrics-tool';
 import {
   createModifyMetricsRawLlmMessageEntry,
   createModifyMetricsReasoningEntry,
 } from './helpers/modify-metrics-tool-transform-helper';
+import type { ModifyMetricsContext, ModifyMetricsState } from './modify-metrics-tool';
 
 export function createModifyMetricsStart(context: ModifyMetricsContext, state: ModifyMetricsState) {
   return async (options: ToolCallOptions) => {

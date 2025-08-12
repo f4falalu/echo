@@ -5,15 +5,15 @@ import {
   OptimisticJsonParser,
   getOptimisticValue,
 } from '../../../../utils/streaming/optimistic-json-parser';
+import {
+  createModifyMetricsRawLlmMessageEntry,
+  createModifyMetricsReasoningEntry,
+} from './helpers/modify-metrics-tool-transform-helper';
 import type {
   ModifyMetricStateFile,
   ModifyMetricsContext,
   ModifyMetricsState,
 } from './modify-metrics-tool';
-import {
-  createModifyMetricsRawLlmMessageEntry,
-  createModifyMetricsReasoningEntry,
-} from './helpers/modify-metrics-tool-transform-helper';
 
 // Define TOOL_KEYS locally
 const TOOL_KEYS = {

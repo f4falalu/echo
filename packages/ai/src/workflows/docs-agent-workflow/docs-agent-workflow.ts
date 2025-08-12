@@ -1,9 +1,9 @@
 import { createWorkflow } from '@mastra/core';
 import { z } from 'zod';
 import { DocsAgentContextSchema } from '../../agents/docs-agent/docs-agent-context';
-import { createDocsTodosStep } from '../../steps/docs-agent-steps/create-docs-todos-step';
-import { docsAgentStep } from '../../steps/docs-agent-steps/docs-agent-step';
-import { getRepositoryTreeStep } from '../../steps/docs-agent-steps/get-repository-tree-step';
+import { createDocsTodosStep } from '../../steps/docs-agent-steps/create-docs-todo-list-step/create-docs-todos-step';
+import { docsAgentStep } from '../../steps/docs-agent-steps/docs-agent-step/docs-agent-step';
+import { getRepositoryTreeStep } from '../../steps/docs-agent-steps/get-repository-tree-step/get-repository-tree-step';
 import { initializeContextStep } from '../../steps/docs-agent-steps/initialize-context-step';
 
 // Input schema for the workflow - matches what initialize-context-step expects

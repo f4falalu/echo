@@ -1,7 +1,7 @@
 import type { Sandbox } from '@buster/sandbox';
 import { RuntimeContext } from '@mastra/core/runtime-context';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { DocsAgentContextKeys } from '../../agents/docs-agent/docs-agent-context';
+import { DocsAgentContextKeys } from '../../../agents/docs-agent/docs-agent-context';
 import { getRepositoryTreeStep } from './get-repository-tree-step';
 
 // Mock the tree helper
@@ -9,7 +9,7 @@ vi.mock('../../workflows/docs-agent/helpers/tree-helper', () => ({
   getRepositoryTree: vi.fn(),
 }));
 
-import { getRepositoryTree } from '../../workflows/docs-agent-workflow/helpers/tree-helper';
+import { getRepositoryTree } from '../../../workflows/docs-agent-workflow/helpers/tree-helper';
 
 // Mock execution context types
 interface MockStepContext {

@@ -10,14 +10,14 @@ import {
   validateSqlPermissions,
 } from '../../../../utils/sql-permissions';
 import { trackFileAssociations } from '../../file-tracking-helper';
-import { validateAndAdjustBarLineAxes } from '../helpers/bar-line-axis-validator';
-import { ensureTimeFrameQuoted } from '../helpers/time-frame-helper';
 import {
   addMetricVersionToHistory,
   getLatestVersionNumber,
   validateMetricYml,
 } from '../../version-history-helpers';
 import type { MetricYml, VersionHistory } from '../../version-history-types';
+import { validateAndAdjustBarLineAxes } from '../helpers/bar-line-axis-validator';
+import { ensureTimeFrameQuoted } from '../helpers/time-frame-helper';
 import {
   createModifyMetricsRawLlmMessageEntry,
   createModifyMetricsReasoningEntry,
@@ -93,7 +93,6 @@ interface FileWithId {
   updated_at: string;
   version_number: number;
 }
-
 
 interface ModificationResult {
   file_id: string;

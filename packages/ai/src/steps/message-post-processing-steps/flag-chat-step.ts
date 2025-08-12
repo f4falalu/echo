@@ -1,52 +1,64 @@
-import { Agent, createStep } from '@mastra/core';
-import type { CoreMessage } from 'ai';
+import { generateObject } from 'ai';
+import type { ModelMessage } from 'ai';
 import { wrapTraced } from 'braintrust';
 import { z } from 'zod';
 import { Sonnet4 } from '../../llm/sonnet-4';
-import { flagChat } from '../../tools/post-processing/flag-chat';
-import { noIssuesFound } from '../../tools/post-processing/no-issues-found';
 import { MessageHistorySchema } from '../../utils/memory/types';
-import { standardizeMessages } from '../../utils/standardizeMessages';
 
-const inputSchema = z.object({
+// Simplified input schema - only include necessary fields
+export const flagChatStepInputSchema = z.object({
   conversationHistory: MessageHistorySchema.optional(),
-  userName: z.string().describe('Name for the post-processing operation'),
-  messageId: z.string().describe('Message ID for the current operation'),
-  userId: z.string().describe('User ID for the current operation'),
-  chatId: z.string().describe('Chat ID for the current operation'),
-  isFollowUp: z.boolean().describe('Whether this is a follow-up message'),
-  isSlackFollowUp: z
-    .boolean()
-    .describe('Whether this is a follow-up message for an existing Slack thread'),
-  previousMessages: z.array(z.string()).describe('Array of previous messages for context'),
-  datasets: z.string().describe('Assembled YAML content of all available datasets for context'),
+  userName: z.string().describe('User name for context'),
+  datasets: z.string().describe('Dataset context for analysis'),
 });
 
-export const flagChatOutputSchema = z.object({
-  // Pass through all input fields
-  conversationHistory: MessageHistorySchema.optional(),
-  userName: z.string().describe('Name for the post-processing operation'),
-  messageId: z.string().describe('Message ID for the current operation'),
-  userId: z.string().describe('User ID for the current operation'),
-  chatId: z.string().describe('Chat ID for the current operation'),
-  isFollowUp: z.boolean().describe('Whether this is a follow-up message'),
-  isSlackFollowUp: z
-    .boolean()
-    .describe('Whether this is a follow-up message for an existing Slack thread'),
-  previousMessages: z.array(z.string()).describe('Array of previous messages for context'),
-  datasets: z.string().describe('Assembled YAML content of all available datasets for context'),
-
-  // New fields from this step
-  toolCalled: z.string().describe('Name of the tool that was called by the agent'),
-  flagChatMessage: z
+// Schema for what the LLM returns - using simple object instead of discriminated union
+export const flagChatStepLLMOutputSchema = z.object({
+  type: z.enum(['flagChat', 'noIssuesFound']).describe('Type of result'),
+  summary_message: z
     .string()
     .optional()
-    .describe('Confirmation message indicating no issues found'),
+    .describe('Summary message for the data team (only if flagChat)'),
+  summary_title: z.string().optional().describe('Short title for the summary (only if flagChat)'),
+  message: z.string().optional().describe('Confirmation message (only if noIssuesFound)'),
+});
+
+// Discriminated union for type-safe result handling (derived from LLM output)
+export const flagChatStepOutputSchema = z.discriminatedUnion('type', [
+  z.object({
+    type: z.literal('flagChat'),
+    summary_message: z.string().describe('Summary message for the data team'),
+    summary_title: z.string().describe('Short title for the summary'),
+  }),
+  z.object({
+    type: z.literal('noIssuesFound'),
+    message: z.string().describe('Confirmation message that no issues were found'),
+  }),
+]);
+
+// Result schema that includes the input passthrough plus the flag chat result
+export const flagChatStepResultSchema = z.object({
+  // Pass through input fields
+  conversationHistory: MessageHistorySchema.optional(),
+  userName: z.string(),
+  datasets: z.string(),
+
+  // Result from this step
+  flagChatResult: flagChatStepOutputSchema,
+
+  // For backwards compatibility with existing consumers
+  toolCalled: z.string().describe('Type of result: flagChat or noIssuesFound'),
+  flagChatMessage: z.string().optional().describe('Message from the analysis'),
   flagChatTitle: z.string().optional().describe('Title for the flag chat message'),
 });
 
-// Template function that accepts datasets parameter
-const CREATE_FLAG_CHAT_SYSTEM_PROMPT = `
+// Export types from schemas
+export type FlagChatStepParams = z.infer<typeof flagChatStepInputSchema>;
+export type FlagChatStepOutput = z.infer<typeof flagChatStepOutputSchema>;
+export type FlagChatStepResult = z.infer<typeof flagChatStepResultSchema>;
+
+// Template function that returns the system prompt
+const getFlagChatSystemMessage = (): string => `
 <intro>
 - You are a specialized AI agent within the Buster system, an AI-powered data analyst platform.
 - Your role is to review the chat history between Buster and the user, identify signs of user frustration or issues, and flag chats for review by the data team.
@@ -119,7 +131,7 @@ Flag the chat if any of these conditions are met:
 </flagging_criteria>
 
 <output_format>
-- If flagging the chat, use the \`flagChat\` tool to provide a summary and title.
+- If flagging the chat, return a flagChat response with summary and title.
     - Include a 3-6 word title for the summary message.
     - Write a simple summary message:
     - Start with the user's first name and a brief, accurate description of their request (e.g., "Kevin requested a "total count of customers"").
@@ -129,10 +141,11 @@ Flag the chat if any of these conditions are met:
     - Use backticks for specific fields or calculations (e.g., \`sales.revenue\` or \`(# of orders delivered on or before due date) / (Total number of orders) * 100\`).
     - Do not use bold, headers, or emojis in the title or summary.
     - The title and summary should be written using a JSON string format.
-- Example of \`flagChat\` fields:
-    - Summary Message: "Nate requested \"recent returns for Retail Ready customers with Canadian shipping addresses\".\n\n- Found no matching records.\n- The conversation history doesn't show a final response was sent. Likely encountered an error."
-    - Title: "No Final Response Sent"
-- If no issues, use the \`noIssuesFound\` tool.
+- Example of flagChat response:
+    - type: "flagChat"
+    - summary_message: "Nate requested \"recent returns for Retail Ready customers with Canadian shipping addresses\".\n\n- Found no matching records.\n- The conversation history doesn't show a final response was sent. Likely encountered an error."
+    - summary_title: "No Final Response Sent"
+- If no issues, return a noIssuesFound response with a confirmation message.
 </output_format>
 `;
 
@@ -142,138 +155,148 @@ ${datasets}
 </dataset_context>`;
 };
 
-const DEFAULT_OPTIONS = {
-  maxSteps: 1,
-  temperature: 0,
-  maxTokens: 10000,
-  providerOptions: {
-    anthropic: {
-      disableParallelToolCalls: true,
-      thinking: { type: 'enabled', budgetTokens: 5000 },
-    },
-  },
-};
-
-const DEFAULT_CACHE_OPTIONS = {
-  anthropic: { cacheControl: { type: 'ephemeral' } },
-};
-
-export const flagChatStepExecution = async ({
-  inputData,
-}: {
-  inputData: z.infer<typeof inputSchema>;
-}): Promise<z.infer<typeof flagChatOutputSchema>> => {
+/**
+ * Generates a flag chat analysis using the LLM with structured output
+ */
+async function generateFlagChatWithLLM(
+  conversationHistory: ModelMessage[] | undefined,
+  userName: string,
+  datasets: string
+): Promise<FlagChatStepOutput> {
   try {
-    // Use the conversation history directly since this is post-processing
-    const conversationHistory = inputData.conversationHistory;
+    // Prepare messages for the LLM
+    const messages: ModelMessage[] = [];
 
-    // Create agent with injected instructions
-    const flagChatAgentWithContext = new Agent({
-      name: 'Flag Chat Review',
-      instructions: '', // We control the system messages below at stream instantiation
-      model: Sonnet4,
-      tools: {
-        flagChat,
-        noIssuesFound,
-      },
-      defaultGenerateOptions: DEFAULT_OPTIONS,
-      defaultStreamOptions: DEFAULT_OPTIONS,
+    // Add dataset context as system message
+    messages.push({
+      role: 'system',
+      content: createDatasetSystemMessage(datasets || 'No dataset context available.'),
     });
 
-    // Prepare messages for the agent - format conversation history as text for analysis
-    let messages: CoreMessage[];
+    // Add main system prompt
+    messages.push({
+      role: 'system',
+      content: getFlagChatSystemMessage(),
+    });
+
+    // Add conversation history for analysis
     if (conversationHistory && conversationHistory.length > 0) {
-      // Format conversation history as text for analysis
       const chatHistoryText = JSON.stringify(conversationHistory, null, 2);
+      messages.push({
+        role: 'system',
+        content: `Here is the chat history to analyze:
 
-      // Create separate system message for chat history and user message for analysis prompt
-      messages = [
-        {
-          role: 'system',
-          content: createDatasetSystemMessage(
-            inputData.datasets || 'No dataset context available.'
-          ),
-          providerOptions: DEFAULT_CACHE_OPTIONS,
-        },
-        {
-          role: 'system',
-          content: CREATE_FLAG_CHAT_SYSTEM_PROMPT,
-          providerOptions: DEFAULT_CACHE_OPTIONS,
-        },
-        {
-          role: 'system',
-          content: `Here is the chat history to analyze:
-
-User: ${inputData.userName}
+User: ${userName}
 
 Chat History:
 \`\`\`
 ${chatHistoryText}
 \`\`\``,
-          providerOptions: DEFAULT_CACHE_OPTIONS,
-        },
-        {
-          role: 'user',
-          content:
-            'Please analyze this conversation history for potential user frustration or issues that should be flagged for review.',
-        },
-      ];
+      });
     } else {
-      // If no conversation history, create a message indicating that
-      messages = standardizeMessages(`User: ${inputData.userName}
+      messages.push({
+        role: 'system',
+        content: `User: ${userName}
 
-No conversation history available for analysis.`);
+No conversation history available for analysis.`,
+      });
     }
 
-    const tracedFlagChat = wrapTraced(
+    // Add user prompt
+    messages.push({
+      role: 'user',
+      content:
+        'Please analyze this conversation history for potential user frustration or issues that should be flagged for review.',
+    });
+
+    const tracedFlagChatGeneration = wrapTraced(
       async () => {
-        const response = await flagChatAgentWithContext.generate(messages);
-        return response;
+        const { object } = await generateObject({
+          model: Sonnet4,
+          schema: flagChatStepLLMOutputSchema,
+          messages,
+          temperature: 0,
+          maxOutputTokens: 10000,
+        });
+        return object;
       },
       {
-        name: 'Flag Chat Review',
+        name: 'Flag Chat Analysis',
       }
     );
 
-    const flagChatResult = await tracedFlagChat();
+    const llmResult = await tracedFlagChatGeneration();
 
-    // Extract tool call information
-    const toolCalls = flagChatResult.toolCalls || [];
-    if (toolCalls.length === 0) {
-      throw new Error('No tool was called by the flag chat agent');
-    }
+    // Convert LLM result to discriminated union format
+    const result: FlagChatStepOutput =
+      llmResult.type === 'flagChat'
+        ? {
+            type: 'flagChat',
+            summary_message: llmResult.summary_message || '',
+            summary_title: llmResult.summary_title || '',
+          }
+        : {
+            type: 'noIssuesFound',
+            message: llmResult.message || '',
+          };
 
-    const toolCall = toolCalls[0]; // Should only be one with maxSteps: 1
-    if (!toolCall) {
-      throw new Error('Tool call is undefined');
-    }
+    return result;
+  } catch (llmError) {
+    console.warn('[FlagChatStep] LLM failed to generate valid response:', {
+      error: llmError instanceof Error ? llmError.message : 'Unknown error',
+      errorType: llmError instanceof Error ? llmError.name : 'Unknown',
+    });
 
-    if (!toolCall) {
-      throw new Error('No tool was called by the flag chat agent');
-    }
+    // Return a default no issues found result
+    return {
+      type: 'noIssuesFound',
+      message: 'Unable to analyze chat history for issues at this time.',
+    };
+  }
+}
 
-    // Handle different tool responses
+export async function runFlagChatStep(params: FlagChatStepParams): Promise<FlagChatStepResult> {
+  try {
+    const flagChatResult = await generateFlagChatWithLLM(
+      params.conversationHistory,
+      params.userName,
+      params.datasets
+    );
+
+    // Map result for backwards compatibility
+    let toolCalled: string;
     let flagChatMessage: string | undefined;
     let flagChatTitle: string | undefined;
 
-    if (toolCall.toolName === 'noIssuesFound') {
-      flagChatMessage = toolCall.args.message;
+    if (flagChatResult.type === 'flagChat') {
+      toolCalled = 'flagChat';
+      flagChatMessage = flagChatResult.summary_message;
+      flagChatTitle = flagChatResult.summary_title;
+    } else if (flagChatResult.type === 'noIssuesFound') {
+      toolCalled = 'noIssuesFound';
+      flagChatMessage = flagChatResult.message;
       flagChatTitle = 'No Issues Found';
-    } else if (toolCall.toolName === 'flagChat') {
-      flagChatMessage = toolCall.args.summary_message;
-      flagChatTitle = toolCall.args.summary_title;
+    } else {
+      // This should never happen with discriminated unions, but TypeScript safety
+      throw new Error('Invalid flag chat result type');
     }
 
     return {
-      // Pass through all input fields
-      ...inputData,
-      // Add new fields from this step
-      toolCalled: toolCall.toolName,
+      // Pass through input fields
+      conversationHistory: params.conversationHistory,
+      userName: params.userName,
+      datasets: params.datasets,
+
+      // New structured result
+      flagChatResult,
+
+      // Backwards compatibility fields
+      toolCalled,
       flagChatMessage,
       flagChatTitle,
     };
   } catch (error) {
-    console.error('Failed to analyze chat for flagging:', error);
+    console.error('[flag-chat-step] Unexpected error:', error);
 
     // Check if it's a database connection error
     if (error instanceof Error && error.message.includes('DATABASE_URL')) {
@@ -283,13 +306,59 @@ No conversation history available for analysis.`);
     // For other errors, throw a user-friendly message
     throw new Error('Unable to analyze the chat for review. Please try again later.');
   }
+}
+
+// Legacy function for backwards compatibility
+export const flagChatStepExecution = async ({
+  inputData,
+}: {
+  inputData: {
+    conversationHistory?: z.infer<typeof MessageHistorySchema>;
+    userName: string;
+    messageId: string;
+    userId: string;
+    chatId: string;
+    isFollowUp: boolean;
+    isSlackFollowUp: boolean;
+    previousMessages: string[];
+    datasets: string;
+  };
+}) => {
+  // Convert old input format to new simplified format
+  const params: FlagChatStepParams = {
+    conversationHistory: inputData.conversationHistory,
+    userName: inputData.userName,
+    datasets: inputData.datasets,
+  };
+
+  const result = await runFlagChatStep(params);
+
+  // Return in old format for backwards compatibility
+  return {
+    // Pass through all input fields from old format
+    conversationHistory: inputData.conversationHistory,
+    userName: inputData.userName,
+    messageId: inputData.messageId,
+    userId: inputData.userId,
+    chatId: inputData.chatId,
+    isFollowUp: inputData.isFollowUp,
+    isSlackFollowUp: inputData.isSlackFollowUp,
+    previousMessages: inputData.previousMessages,
+    datasets: inputData.datasets,
+
+    // Add fields from new result
+    toolCalled: result.toolCalled,
+    flagChatMessage: result.flagChatMessage,
+    flagChatTitle: result.flagChatTitle,
+  };
 };
 
-export const flagChatStep = createStep({
+// Export for external use (no longer using Mastra createStep)
+export const flagChatStep = {
   id: 'flag-chat',
   description:
     'This step analyzes the chat history to identify potential user frustration or issues and flags the chat for review if needed.',
-  inputSchema,
-  outputSchema: flagChatOutputSchema,
-  execute: flagChatStepExecution,
-});
+  inputSchema: flagChatStepInputSchema,
+  outputSchema: flagChatStepResultSchema,
+  execute: runFlagChatStep,
+};

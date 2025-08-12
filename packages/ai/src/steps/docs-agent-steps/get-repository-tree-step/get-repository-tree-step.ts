@@ -5,8 +5,8 @@ import { z } from 'zod';
 import {
   DocsAgentContextKeys,
   DocsAgentContextSchema,
-} from '../../agents/docs-agent/docs-agent-context';
-import { getRepositoryTree } from '../../workflows/docs-agent-workflow/helpers/tree-helper';
+} from '../../../agents/docs-agent/docs-agent-context';
+import { getRepositoryTree } from '../../../workflows/docs-agent-workflow/helpers/tree-helper';
 
 // Input schema - receives data from initialize-context step
 const getRepositoryTreeStepInputSchema = z.object({

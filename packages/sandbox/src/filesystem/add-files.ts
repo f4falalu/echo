@@ -190,7 +190,12 @@ export async function uploadMultipleFiles(
       for (let i = 0; i < fileUploadItems.length; i += BATCH_SIZE) {
         const batch = fileUploadItems.slice(i, i + BATCH_SIZE);
 
-        await sandbox.fs.uploadFiles(batch);
+        await sandbox.fs.uploadFiles(
+          batch.map((item) => ({
+            source: item.source,
+            destination: item.destination,
+          }))
+        );
         uploadedFiles.push(...batch.map((item) => item.destination));
 
         // Report progress after upload

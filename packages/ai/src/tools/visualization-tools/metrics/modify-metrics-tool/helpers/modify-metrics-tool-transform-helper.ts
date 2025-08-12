@@ -43,14 +43,14 @@ export function createModifyMetricsReasoningEntry(
 
   // Determine title based on status
   let title = 'Modifying metrics...';
-  const allCompleted = state.files.every(f => f?.status === 'completed');
-  const anyFailed = state.files.some(f => f?.status === 'failed');
-  
+  const allCompleted = state.files.every((f) => f?.status === 'completed');
+  const anyFailed = state.files.some((f) => f?.status === 'failed');
+
   if (allCompleted) {
     title = `Modified ${fileIds.length} ${fileIds.length === 1 ? 'metric' : 'metrics'}`;
   } else if (anyFailed) {
-    const failedCount = state.files.filter(f => f?.status === 'failed').length;
-    const successCount = state.files.filter(f => f?.status === 'completed').length;
+    const failedCount = state.files.filter((f) => f?.status === 'failed').length;
+    const successCount = state.files.filter((f) => f?.status === 'completed').length;
     if (successCount > 0) {
       title = `Modified ${successCount} ${successCount === 1 ? 'metric' : 'metrics'}, ${failedCount} failed`;
     } else {
