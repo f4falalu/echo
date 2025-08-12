@@ -1,10 +1,10 @@
-import { updateMessageFields } from '@buster/database';
+import { updateMessageEntries } from '@buster/database';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { createModifyMetricsFinish } from './modify-metrics-finish';
 import type { ModifyMetricsInput, ModifyMetricsState } from './modify-metrics-tool';
 
 vi.mock('@buster/database', () => ({
-  updateMessageFields: vi.fn(),
+  updateMessageEntries: vi.fn(),
 }));
 
 describe('createModifyMetricsFinish', () => {
@@ -24,8 +24,6 @@ describe('createModifyMetricsFinish', () => {
       argsText: '',
       files: [],
       toolCallId: 'tool-123',
-      reasoningEntryId: 'reasoning-123',
-      processingStartTime: Date.now() - 1000, // Started 1 second ago
     };
     context = {
       userId: 'user-123',
@@ -46,9 +44,12 @@ describe('createModifyMetricsFinish', () => {
     };
 
     const finishHandler = createModifyMetricsFinish(context, state);
-    await finishHandler(input);
+    await finishHandler({ input, toolCallId: 'tool-123', messages: [] });
 
-    expect(state.parsedArgs).toEqual(input);
+    // Verify files were updated with input data
+    expect(state.files?.map((f) => ({ id: f.id, yml_content: f.yml_content }))).toEqual(
+      input.files
+    );
   });
 
   it('should update state files with final data', async () => {
@@ -60,80 +61,87 @@ describe('createModifyMetricsFinish', () => {
     };
 
     const finishHandler = createModifyMetricsFinish(context, state);
-    await finishHandler(input);
+    await finishHandler({ input, toolCallId: 'tool-123', messages: [] });
 
     expect(state.files).toHaveLength(2);
-    expect(state.files[0]).toEqual({
+    expect(state.files?.[0]).toMatchObject({
       id: 'metric-1',
       yml_content: 'content1',
-      name: undefined,
-      status: 'processing',
+      file_type: 'metric',
+      status: 'loading',
     });
-    expect(state.files[1]).toEqual({
+    expect(state.files?.[1]).toMatchObject({
       id: 'metric-2',
       yml_content: 'content2',
-      name: undefined,
-      status: 'processing',
+      file_type: 'metric',
+      status: 'loading',
     });
   });
 
-  it('should update database when messageId and reasoningEntryId exist', async () => {
+  it('should update database when messageId and toolCallId exist', async () => {
     const input: ModifyMetricsInput = {
       files: [{ id: 'metric-1', yml_content: 'content1' }],
     };
 
     const finishHandler = createModifyMetricsFinish(context, state);
-    await finishHandler(input);
+    await finishHandler({ input, toolCallId: 'tool-123', messages: [] });
 
-    expect(updateMessageFields).toHaveBeenCalledWith('msg-123', {
-      reasoning: expect.arrayContaining([
-        expect.objectContaining({
-          id: 'tool-123',
-          type: 'files',
-          title: 'Modifying metrics...',
-          status: 'loading',
-          file_ids: ['metric-1'],
-        }),
-      ]),
-      rawLlmMessages: expect.arrayContaining([
-        expect.objectContaining({
-          type: 'tool-call',
-          toolCallId: 'tool-123',
-          toolName: 'modify-metrics-file',
-          args: input,
-        }),
-      ]),
+    expect(updateMessageEntries).toHaveBeenCalledWith({
+      messageId: 'msg-123',
+      mode: 'update',
+      responseEntry: expect.objectContaining({
+        id: 'tool-123',
+        type: 'files',
+        title: 'Modifying metrics...',
+        status: 'loading',
+        file_ids: ['metric-1'],
+        files: expect.any(Object),
+      }),
+      rawLlmMessage: expect.objectContaining({
+        role: 'assistant',
+        content: expect.arrayContaining([
+          expect.objectContaining({
+            type: 'tool-call',
+            toolCallId: 'tool-123',
+            toolName: 'modifyMetrics',
+            input: {
+              files: [{ id: 'metric-1', yml_content: 'content1' }],
+            },
+          }),
+        ]),
+      }),
     });
   });
 
   it('should not update database when messageId is missing', async () => {
-    context.messageId = undefined;
+    const contextWithoutMessageId = { ...context };
+    delete contextWithoutMessageId.messageId;
 
     const input: ModifyMetricsInput = {
       files: [{ id: 'metric-1', yml_content: 'content1' }],
     };
 
-    const finishHandler = createModifyMetricsFinish(context, state);
-    await finishHandler(input);
+    const finishHandler = createModifyMetricsFinish(contextWithoutMessageId, state);
+    await finishHandler({ input, toolCallId: 'tool-123', messages: [] });
 
-    expect(updateMessageFields).not.toHaveBeenCalled();
+    expect(updateMessageEntries).not.toHaveBeenCalled();
   });
 
-  it('should not update database when reasoningEntryId is missing', async () => {
-    state.reasoningEntryId = undefined;
+  it('should not update database when toolCallId is missing in state', async () => {
+    state.toolCallId = undefined;
 
     const input: ModifyMetricsInput = {
       files: [{ id: 'metric-1', yml_content: 'content1' }],
     };
 
     const finishHandler = createModifyMetricsFinish(context, state);
-    await finishHandler(input);
+    await finishHandler({ input, toolCallId: 'tool-123', messages: [] });
 
-    expect(updateMessageFields).not.toHaveBeenCalled();
+    expect(updateMessageEntries).not.toHaveBeenCalled();
   });
 
   it('should handle database update errors gracefully', async () => {
-    (updateMessageFields as any).mockRejectedValue(new Error('Database error'));
+    vi.mocked(updateMessageEntries).mockRejectedValue(new Error('Database error'));
 
     const input: ModifyMetricsInput = {
       files: [{ id: 'metric-1', yml_content: 'content1' }],
@@ -142,54 +150,18 @@ describe('createModifyMetricsFinish', () => {
     const finishHandler = createModifyMetricsFinish(context, state);
 
     // Should not throw
-    await expect(finishHandler(input)).resolves.not.toThrow();
+    await expect(
+      finishHandler({ input, toolCallId: 'tool-123', messages: [] })
+    ).resolves.not.toThrow();
 
     // State should still be updated
-    expect(state.parsedArgs).toEqual(input);
     expect(state.files).toHaveLength(1);
-  });
-
-  it('should log processing time when processingStartTime exists', async () => {
-    const consoleSpy = vi.spyOn(console, 'info').mockImplementation(() => {});
-
-    const input: ModifyMetricsInput = {
-      files: [{ id: 'metric-1', yml_content: 'content1' }],
-    };
-
-    const finishHandler = createModifyMetricsFinish(context, state);
-    await finishHandler(input);
-
-    expect(consoleSpy).toHaveBeenCalledWith(
-      '[modify-metrics] Input processing time',
-      expect.objectContaining({
-        processingTimeMs: expect.any(Number),
-        processingTimeSeconds: expect.any(String),
-      })
+    expect(state.files?.map((f) => ({ id: f.id, yml_content: f.yml_content }))).toEqual(
+      input.files
     );
-
-    consoleSpy.mockRestore();
   });
 
-  it('should not log processing time when processingStartTime is missing', async () => {
-    const consoleSpy = vi.spyOn(console, 'info').mockImplementation(() => {});
-    state.processingStartTime = undefined;
-
-    const input: ModifyMetricsInput = {
-      files: [{ id: 'metric-1', yml_content: 'content1' }],
-    };
-
-    const finishHandler = createModifyMetricsFinish(context, state);
-    await finishHandler(input);
-
-    const calls = consoleSpy.mock.calls;
-    const processingTimeCall = calls.find(
-      (call) => call[0] === '[modify-metrics] Input processing time'
-    );
-
-    expect(processingTimeCall).toBeUndefined();
-
-    consoleSpy.mockRestore();
-  });
+  // Tests for processingStartTime removed as it's not part of ModifyMetricsState
 
   it('should handle empty files array', async () => {
     const input: ModifyMetricsInput = {
@@ -197,69 +169,33 @@ describe('createModifyMetricsFinish', () => {
     };
 
     const finishHandler = createModifyMetricsFinish(context, state);
-    await finishHandler(input);
+    await finishHandler({ input, toolCallId: 'tool-123', messages: [] });
 
     expect(state.files).toHaveLength(0);
-    expect(state.parsedArgs).toEqual(input);
 
-    expect(updateMessageFields).toHaveBeenCalledWith('msg-123', {
-      reasoning: expect.arrayContaining([
-        expect.objectContaining({
-          file_ids: [],
-          files: {},
-        }),
-      ]),
-      rawLlmMessages: expect.any(Array),
-    });
+    // When files array is empty, no database update happens
+    expect(updateMessageEntries).not.toHaveBeenCalled();
   });
 
-  it('should use fallback toolCallId when not set in state', async () => {
-    state.toolCallId = undefined;
-
+  it('should set toolCallId on state when provided', async () => {
     const input: ModifyMetricsInput = {
       files: [{ id: 'metric-1', yml_content: 'content1' }],
     };
 
     const finishHandler = createModifyMetricsFinish(context, state);
-    await finishHandler(input);
+    await finishHandler({ input, toolCallId: 'tool-123', messages: [] });
 
-    expect(updateMessageFields).toHaveBeenCalledWith('msg-123', {
-      reasoning: expect.arrayContaining([
-        expect.objectContaining({
-          id: expect.stringMatching(/^modify-metrics-\d+$/),
-        }),
-      ]),
-      rawLlmMessages: expect.arrayContaining([
-        expect.objectContaining({
-          toolCallId: expect.stringMatching(/^modify-metrics-\d+$/),
-        }),
-      ]),
-    });
-  });
+    // The toolCallId is set on state from the original value
+    expect(state.toolCallId).toBe('tool-123');
 
-  it('should log correct information', async () => {
-    const consoleSpy = vi.spyOn(console, 'info').mockImplementation(() => {});
-
-    const input: ModifyMetricsInput = {
-      files: [
-        { id: 'metric-1', yml_content: 'content1' },
-        { id: 'metric-2', yml_content: 'content2' },
-      ],
-    };
-
-    const finishHandler = createModifyMetricsFinish(context, state);
-    await finishHandler(input);
-
-    expect(consoleSpy).toHaveBeenCalledWith(
-      '[modify-metrics] Input fully available',
+    // Database update should happen with the toolCallId
+    expect(updateMessageEntries).toHaveBeenCalledWith(
       expect.objectContaining({
-        fileCount: 2,
-        fileIds: ['metric-1', 'metric-2'],
         messageId: 'msg-123',
-        timestamp: expect.any(String),
+        mode: 'update',
       })
     );
-
-    consoleSpy.mockRestore();
   });
+
+  // Test for logging removed as implementation doesn't log this message
 });
