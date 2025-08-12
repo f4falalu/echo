@@ -6,7 +6,7 @@ import { getSupabaseServerClient } from '../integrations/supabase/server';
 const searchParamsSchema = z.object({
   code: z.string().optional(),
   code_challenge: z.string().optional(),
-  next: z.string().optional()
+  next: z.string().optional(),
 });
 
 // Type for the validated search parameters
@@ -21,7 +21,7 @@ export const ServerRoute = createServerFileRoute('/auth/callback').methods({
     const searchParams: SearchParams = {
       code: url.searchParams.get('code') || undefined,
       code_challenge: url.searchParams.get('code_challenge') || undefined,
-      next: url.searchParams.get('next') || undefined
+      next: url.searchParams.get('next') || undefined,
     };
 
     // Validate the parameters (optional - provides runtime validation)
@@ -48,26 +48,26 @@ export const ServerRoute = createServerFileRoute('/auth/callback').methods({
 
     const forwardedHost = request.headers.get('x-forwarded-host');
     const origin = request.headers.get('origin');
-    const isLocalEnv = process.env.NODE_ENV === 'development';
+    const isLocalEnv = !import.meta.env.PROD;
 
     if (isLocalEnv) {
       const redirectPath = next?.startsWith('/') ? next : '/app';
       return new Response(null, {
         status: 302,
-        headers: { Location: `${origin}${redirectPath}` }
+        headers: { Location: `${origin}${redirectPath}` },
       });
     }
 
     if (forwardedHost) {
       return new Response(null, {
         status: 302,
-        headers: { Location: `https://${forwardedHost}${next}` }
+        headers: { Location: `https://${forwardedHost}${next}` },
       });
     }
 
     return new Response(null, {
       status: 302,
-      headers: { Location: `${origin}${next}` }
+      headers: { Location: `${origin}${next}` },
     });
-  }
+  },
 });

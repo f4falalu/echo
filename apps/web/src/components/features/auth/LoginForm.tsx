@@ -190,15 +190,11 @@ const LoginOptions: React.FC<{
     sessionStorage.clear();
   });
 
-  const onSubmitClickPreflight = useMemoizedFn(async (d: { email: string; password: string }) => {
-    onSubmitClick(d);
-  });
-
   useHotkeys(
     'meta+shift+b',
     (e) => {
       setSignUpFlow(false);
-      onSubmitClickPreflight({
+      onSubmitClick({
         email: DEFAULT_CREDENTIALS.email,
         password: DEFAULT_CREDENTIALS.password
       });

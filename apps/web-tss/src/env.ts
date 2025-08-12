@@ -5,7 +5,7 @@ export const env = createEnv({
   server: {
     SERVER_URL: z.string().url().optional(),
     POSTHOG_API_KEY: z.string().optional(),
-    POSTHOG_ENV_ID: z.string().optional()
+    POSTHOG_ENV_ID: z.string().optional(),
   },
 
   /**
@@ -26,7 +26,7 @@ export const env = createEnv({
     VITE_PUBLIC_POSTHOG_HOST: z.string().url().optional(),
     VITE_PUBLIC_ENABLE_TANSTACK_PANEL: z.string().optional(),
     VITE_PUBLIC_USER: z.string().optional(),
-    VITE_PUBLIC_USER_PASSWORD: z.string().optional()
+    VITE_PUBLIC_USER_PASSWORD: z.string().optional(),
   },
 
   /**
@@ -48,5 +48,5 @@ export const env = createEnv({
    * In order to solve these issues, we recommend that all new projects
    * explicitly specify this option as true.
    */
-  emptyStringAsUndefined: true
+  emptyStringAsUndefined: true,
 });

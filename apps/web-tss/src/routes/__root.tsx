@@ -11,29 +11,29 @@ export const Route = createRootRouteWithContext<AppRouterContext>()({
   head: () => ({
     meta: [
       {
-        charSet: 'utf-8'
+        charSet: 'utf-8',
       },
       {
         name: 'viewport',
-        content: 'width=device-width, initial-scale=1'
+        content: 'width=device-width, initial-scale=1',
       },
       {
-        title: 'Buster'
-      }
+        title: 'Buster',
+      },
     ],
     links: [
       {
         rel: 'stylesheet',
-        href: appCss
-      }
-    ]
+        href: appCss,
+      },
+    ],
   }),
   notFoundComponent: NotFound,
   shellComponent: RootDocument,
   beforeLoad: async () => {
     const supabaseConfig = await getSupabaseUser();
     return supabaseConfig;
-  }
+  },
 });
 
 function RootDocument({ children }: { children: React.ReactNode }) {
@@ -46,8 +46,6 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       </head>
       <body>
         <AppProviders accessToken={accessToken} user={user}>
-          <Header />
-          {user ? <div>Logged in as {user.email}</div> : <div>Logged out</div>}
           {children}
         </AppProviders>
 

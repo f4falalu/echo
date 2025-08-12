@@ -16,7 +16,11 @@ const isValidRedirectUrl = (url: string): boolean => {
 
 export const signInWithEmailAndPassword = createServerFn({ method: 'POST' })
   .validator(
-    z.object({ email: z.string(), password: z.string(), redirectUrl: z.string().optional() })
+    z.object({
+      email: z.string(),
+      password: z.string(),
+      redirectUrl: z.string().nullable().optional(),
+    })
   )
   .handler(async ({ data }) => {
     const supabase = getSupabaseServerClient();
@@ -26,20 +30,20 @@ export const signInWithEmailAndPassword = createServerFn({ method: 'POST' })
     });
     if (error) {
       return {
-        error: true,
+        error: true as const,
         message: error.message,
       };
     }
 
-    return;
+    return {
+      error: false as const,
+    };
   });
 
 export const signInWithGoogle = createServerFn({ method: 'POST' })
-  .validator(z.object({ redirectUrl: z.string().optional() }))
-  .handler(async ({ data: { redirectUrl } }) => {
+  .validator(z.object({ redirectTo: z.string().nullable().optional() }))
+  .handler(async ({ data: { redirectTo } }) => {
     const supabase = getSupabaseServerClient();
-
-    const redirectTo = redirectUrl || '/';
 
     const callbackUrl = new URL(AuthCallbackRoute.to);
 
@@ -106,11 +110,9 @@ export const signInWithAnonymousUser = createServerFn({ method: 'POST' }).handle
 });
 
 export const signInWithGithub = createServerFn({ method: 'POST' })
-  .validator(z.object({ redirectUrl: z.string().optional() }))
-  .handler(async ({ data: { redirectUrl } }) => {
+  .validator(z.object({ redirectTo: z.string().nullable().optional() }))
+  .handler(async ({ data: { redirectTo } }) => {
     const supabase = getSupabaseServerClient();
-
-    const redirectTo = redirectUrl || '/';
 
     const callbackUrl = new URL(AuthCallbackRoute.to);
 
@@ -132,26 +134,65 @@ export const signInWithGithub = createServerFn({ method: 'POST' })
     throw redirect({ to: data.url });
   });
 
-export const signUpWithEmailAndPassword = createServerFn({ method: 'POST' })
-  .validator(
-    z.object({ email: z.string(), password: z.string(), redirectUrl: z.string().optional() })
-  )
-  .handler(async ({ data }) => {
+export const signInWithAzure = createServerFn({ method: 'POST' })
+  .validator(z.object({ redirectTo: z.string().nullable().optional() }))
+  .handler(async ({ data: { redirectTo } }) => {
     const supabase = getSupabaseServerClient();
 
-    const authURLFull = `${env.VITE_PUBLIC_URL}${AuthCallbackRoute.to}`;
+    const callbackUrl = new URL(AuthCallbackRoute.to);
 
-    const { error } = await supabase.auth.signUp({
-      email: data.email,
-      password: data.password,
+    if (redirectTo && isValidRedirectUrl(redirectTo)) {
+      callbackUrl.searchParams.set('next', redirectTo);
+    }
+
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: 'azure',
       options: {
-        emailRedirectTo: data.redirectUrl,
+        redirectTo: callbackUrl.toString(),
+        scopes: 'email',
       },
     });
 
     if (error) {
       return { success: false, error: error.message };
     }
+
+    throw redirect({ to: data.url });
+  });
+
+export const signUpWithEmailAndPassword = createServerFn({ method: 'POST' })
+  .validator(
+    z.object({
+      email: z.string(),
+      password: z.string(),
+      redirectTo: z.string().nullable().optional(),
+    })
+  )
+  .handler(async ({ data }) => {
+    const supabase = getSupabaseServerClient();
+
+    const authURLFull = `${AuthCallbackRoute.to}`;
+
+    console.log(data);
+
+    const { error } = await supabase.auth.signUp({
+      email: data.email,
+      password: data.password,
+      options: {
+        emailRedirectTo: data.redirectTo || `${env.VITE_PUBLIC_URL}`,
+      },
+    });
+
+    console.log('error', error);
+
+    if (error) {
+      return {
+        success: false,
+        error: error.message,
+      };
+    }
+
+    console.log('authURLFull', authURLFull);
 
     throw redirect({ to: authURLFull });
   });
