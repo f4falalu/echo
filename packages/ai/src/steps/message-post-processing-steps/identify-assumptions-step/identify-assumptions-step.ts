@@ -218,12 +218,12 @@ No conversation history available for analysis.`,
         toolCalled: 'listAssumptions',
         assumptions,
       };
-    } else {
-      return {
-        toolCalled: 'noAssumptions',
-        assumptions: undefined,
-      };
     }
+    
+    return {
+      toolCalled: 'noAssumptions',
+      assumptions: undefined,
+    };
   } catch (llmError) {
     console.warn('[IdentifyAssumptionsStep] LLM failed to generate valid response:', {
       error: llmError instanceof Error ? llmError.message : 'Unknown error',

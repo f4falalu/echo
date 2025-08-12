@@ -66,7 +66,7 @@ export function createModifyReportsDelta(context: ModifyReportsContext, state: M
         // Update state edits with streamed data
         const updatedEdits: ModifyReportsEditState[] = [];
 
-        editsArray.forEach((edit, index) => {
+        editsArray.forEach((edit, _index) => {
           if (edit && typeof edit === 'object') {
             const editObj = edit as Record<string, unknown>;
             const codeToReplace = getOptimisticValue<string>(
