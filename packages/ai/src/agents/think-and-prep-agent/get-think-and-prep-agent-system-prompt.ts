@@ -1,5 +1,5 @@
-import * as fs from 'node:fs';
-import * as path from 'node:path';
+import thinkAndPrepInvestigationPrompt from './think-and-prep-agent-investigation-prompt.txt';
+import thinkAndPrepStandardPrompt from './think-and-prep-agent-standard-prompt.txt';
 
 /**
  * Template parameters for the think and prep agent prompt
@@ -15,11 +15,11 @@ export interface ThinkAndPrepTemplateParams {
 export type AnalysisMode = 'standard' | 'investigation';
 
 /**
- * Type-safe mapping of analysis modes to prompt file names
+ * Type-safe mapping of analysis modes to prompt content
  */
-const PROMPT_FILES: Record<AnalysisMode, string> = {
-  standard: 'think-and-prep-agent-standard-prompt.txt',
-  investigation: 'think-and-prep-agent-investigation-prompt.txt',
+const PROMPTS: Record<AnalysisMode, string> = {
+  standard: thinkAndPrepStandardPrompt,
+  investigation: thinkAndPrepInvestigationPrompt,
 } as const;
 
 /**
@@ -29,18 +29,11 @@ function loadAndProcessPrompt(
   params: ThinkAndPrepTemplateParams,
   analysisMode: AnalysisMode = 'standard'
 ): string {
-  const promptFileName = PROMPT_FILES[analysisMode];
-  const promptPath = path.join(__dirname, promptFileName);
+  const content = PROMPTS[analysisMode];
 
-  try {
-    const content = fs.readFileSync(promptPath, 'utf-8');
-
-    return content
-      .replace(/\{\{sql_dialect_guidance\}\}/g, params.sqlDialectGuidance)
-      .replace(/\{\{date\}\}/g, params.date);
-  } catch (error) {
-    throw new Error(`Failed to load prompt template for ${analysisMode} mode: ${String(error)}`);
-  }
+  return content
+    .replace(/\{\{sql_dialect_guidance\}\}/g, params.sqlDialectGuidance)
+    .replace(/\{\{date\}\}/g, params.date);
 }
 
 /**

@@ -44,7 +44,7 @@ export type DocsAgentStepOutput = z.infer<typeof DocsAgentStepOutputSchema>;
 /**
  * Main documentation agent that processes todos and creates documentation
  */
-export async function runDocsAgentStep(params: DocsAgentStepInput): Promise<DocsAgentStepOutput> {
+export async function runDocsAgentStep(params: DocsAgentStepInput): Promise<void> {
   // Validate input
   const validatedParams = DocsAgentStepInputSchema.parse(params);
 
@@ -52,24 +52,6 @@ export async function runDocsAgentStep(params: DocsAgentStepInput): Promise<Docs
   const sandbox = validatedParams.context.sandbox as Sandbox;
   const todoList = validatedParams.todoList;
   const dataSourceId = validatedParams.context.dataSourceId;
-
-  // Create abort controller for handling idle tool
-  const abortController = new AbortController();
-
-  // Initialize tracking variables
-  let documentationCreated = false;
-  let clarificationNeeded = false;
-  let filesCreated = 0;
-  const toolsUsed = new Set<string>();
-  let finished = false;
-  let updatedClarificationQuestion: any = undefined;
-
-  console.info('[DocsAgent] Starting docs agent execution', {
-    hasSandbox: !!sandbox,
-    todoListLength: todoList?.length || 0,
-    organizationId: validatedParams.organizationId,
-    dataSourceId,
-  });
 
   try {
     // Get current working directory from sandbox
@@ -98,7 +80,7 @@ export async function runDocsAgentStep(params: DocsAgentStepInput): Promise<Docs
     const userMessage = `${validatedParams.message}`;
     const todoMessage = `<todo-list>\n${todoList}\n</todo-list>`;
 
-    const messages: any[] = [
+    const messages: ModelMessage[] = [
       {
         role: 'user',
         content: userMessage,
@@ -120,111 +102,15 @@ export async function runDocsAgentStep(params: DocsAgentStepInput): Promise<Docs
     // Execute the docs agent
     const result = await docsAgent.stream({ messages });
 
-    // Process the stream to extract results
-    let stepCount = 0;
-    let lastTextContent = '';
+    // Wait for the response and extract tool calls
+    const response = await result.response;
 
-    for await (const chunk of result.fullStream) {
-      // Check if aborted
-      if (abortController.signal.aborted) {
-        break;
-      }
-
-      // Track step count
-      if ((chunk as any).type === 'step-start') {
-        stepCount++;
-        console.log(`[DocsAgent] Step ${stepCount} started`);
-      }
-
-      // Log text chunks to see what the agent is thinking
-      if (chunk.type === 'text-delta' && (chunk as any).textDelta) {
-        lastTextContent += (chunk as any).textDelta;
-      }
-
-      if ((chunk as any).type === 'step-finish') {
-        console.log(
-          `[DocsAgent] Step ${stepCount} finished. Last text: ${lastTextContent.slice(0, 200)}...`
-        );
-        lastTextContent = '';
-      }
-
-      // Track tool usage
-      if (chunk.type === 'tool-call') {
-        console.log(
-          `[DocsAgent] Tool call: ${chunk.toolName} with args:`,
-          JSON.stringify((chunk as any).args).slice(0, 200)
-        );
-        toolsUsed.add(chunk.toolName);
-
-        // Track specific tool outcomes
-        if (chunk.toolName === 'createFiles' || chunk.toolName === 'editFiles') {
-          console.log(
-            `[DocsAgent] Tool ${chunk.toolName} called - marking documentationCreated = true`
-          );
-          documentationCreated = true;
-          filesCreated++;
-        }
-
-        if (chunk.toolName === 'updateClarificationsFile') {
-          clarificationNeeded = true;
-        }
-
-        if (chunk.toolName === 'idleTool') {
-          console.log('[DocsAgent] Idle tool called - aborting stream');
-          finished = true;
-          abortController.abort();
-        }
-      }
-
-      // Check for clarification updates in tool results
-      if (chunk.type === 'tool-result') {
-        if (chunk.toolName === 'updateClarificationsFile' && (chunk as any).result) {
-          // Store any new clarification questions
-          const resultData = (chunk as any).result as Record<string, unknown>;
-          if (resultData.clarificationQuestion) {
-            updatedClarificationQuestion = resultData.clarificationQuestion;
-          }
-        }
-      }
+    if (!response || !Array.isArray(response.messages)) {
+      throw new Error('Docs agent returned an invalid response shape (missing messages array)');
     }
 
-    console.log('[DocsAgent] Final results:', {
-      documentationCreated,
-      filesCreated,
-      toolsUsed: Array.from(toolsUsed),
-      finished,
-    });
-
-    return {
-      todos: validatedParams.todos.split('\n').filter((line) => line.trim()),
-      todoList: validatedParams.todoList,
-      documentationCreated,
-      clarificationNeeded,
-      clarificationQuestion: updatedClarificationQuestion,
-      finished,
-      metadata: {
-        filesCreated,
-        toolsUsed: Array.from(toolsUsed),
-      },
-    };
+    return;
   } catch (error) {
-    // Handle abort error gracefully
-    if (error instanceof Error && error.name === 'AbortError') {
-      console.info('[DocsAgent] Stream aborted successfully (idle tool called)');
-
-      return {
-        todos: validatedParams.todos.split('\n').filter((line) => line.trim()),
-        todoList: validatedParams.todoList,
-        documentationCreated,
-        clarificationNeeded,
-        finished: true,
-        metadata: {
-          filesCreated,
-          toolsUsed: Array.from(toolsUsed),
-        },
-      };
-    }
-
     console.error('[DocsAgent] Error executing docs agent:', error);
     throw new Error(
       `Docs agent execution failed: ${error instanceof Error ? error.message : 'Unknown error'}`

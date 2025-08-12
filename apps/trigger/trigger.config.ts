@@ -1,3 +1,4 @@
+import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { esbuildPlugin } from '@trigger.dev/build/extensions';
 import { defineConfig } from '@trigger.dev/sdk';
@@ -42,14 +43,17 @@ export default defineConfig({
               // Handle sub-paths like @buster/ai/workflows/analyst-workflow
               // Check if subPath already starts with 'src', if so, don't add it again
               const cleanSubPath = subPath.startsWith('src/') ? subPath.slice(4) : subPath;
-              resolvedPath = path.resolve(
-                process.cwd(),
-                '../..',
-                'packages',
-                packageName,
-                'src',
-                `${cleanSubPath}.ts`
-              );
+              const srcRoot = path.resolve(process.cwd(), '../..', 'packages', packageName, 'src');
+
+              const candidatePaths = [
+                path.join(srcRoot, `${cleanSubPath}.ts`),
+                path.join(srcRoot, cleanSubPath, 'index.ts'),
+                path.join(srcRoot, `${cleanSubPath}.tsx`),
+                path.join(srcRoot, cleanSubPath, 'index.tsx'),
+              ];
+
+              const found = candidatePaths.find((p) => fs.existsSync(p));
+              resolvedPath = found ?? path.join(srcRoot, cleanSubPath);
             } else {
               // Handle direct package imports like @buster/ai
               resolvedPath = path.resolve(

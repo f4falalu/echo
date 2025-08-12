@@ -1,12 +1,10 @@
-import * as fs from 'node:fs';
-import * as path from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { getMetricToolDescriptionPrompt } from './get-metric-tool-description';
+import metricToolDescription from './metric-tool-description.txt';
 
 describe('Metric Tool Description Instructions', () => {
   it('should validate template file contains expected variables', () => {
-    const promptPath = path.join(__dirname, 'metric-tool-description.txt');
-    const content = fs.readFileSync(promptPath, 'utf-8');
+    const content = metricToolDescription;
 
     // Expected template variables
     const expectedVariables = ['sql_dialect_guidance', 'date'];

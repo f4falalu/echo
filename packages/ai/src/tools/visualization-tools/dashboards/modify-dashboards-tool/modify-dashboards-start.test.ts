@@ -56,6 +56,7 @@ describe('modify-dashboards-start', () => {
           file_type: 'dashboard',
           version_number: 1,
           status: 'loading',
+          file: { text: 'dashboard content' }, // Need file content for entry to be created
         },
       ],
     };
@@ -97,6 +98,7 @@ describe('modify-dashboards-start', () => {
           file_type: 'dashboard',
           version_number: 1,
           status: 'loading',
+          file: { text: 'dashboard content' }, // Need file content for entry to be created
         },
       ],
     };
@@ -150,6 +152,7 @@ describe('modify-dashboards-start', () => {
           file_type: 'dashboard',
           version_number: 1,
           status: 'loading',
+          file: { text: 'dashboard content' }, // Need file content for entry to be created
         },
       ],
     };

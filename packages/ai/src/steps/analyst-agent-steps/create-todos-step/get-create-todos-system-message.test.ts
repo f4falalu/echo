@@ -1,6 +1,5 @@
-import * as fs from 'node:fs';
-import * as path from 'node:path';
 import { describe, expect, it } from 'vitest';
+import createTodosSystemPrompt from './create-todos-system-prompt.txt';
 import { getCreateTodosSystemMessage } from './get-create-todos-system-message';
 
 describe('Create Todos System Message', () => {
@@ -38,16 +37,10 @@ describe('Create Todos System Message', () => {
     expect(result).toContain('[ ]'); // Checkbox format
   });
 
-  it('should validate prompt file exists and is readable', () => {
-    const promptPath = path.join(__dirname, 'create-todos-system-prompt.txt');
-
-    expect(() => {
-      fs.accessSync(promptPath, fs.constants.R_OK);
-    }).not.toThrow();
-
-    const stats = fs.statSync(promptPath);
-    expect(stats.isFile()).toBe(true);
-    expect(stats.size).toBeGreaterThan(0);
+  it('should validate prompt file is loaded', () => {
+    expect(createTodosSystemPrompt).toBeDefined();
+    expect(typeof createTodosSystemPrompt).toBe('string');
+    expect(createTodosSystemPrompt.length).toBeGreaterThan(0);
   });
 
   it('should not contain any template variables', () => {

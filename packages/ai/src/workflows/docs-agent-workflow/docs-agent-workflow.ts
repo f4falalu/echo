@@ -50,9 +50,7 @@ export type DocsAgentWorkflowOutput = z.infer<typeof docsAgentWorkflowOutputSche
  * 3. Create TODO list for documentation tasks
  * 4. Execute the docs agent to create documentation
  */
-export async function runDocsAgentWorkflow(
-  input: DocsAgentWorkflowInput
-): Promise<DocsAgentWorkflowOutput> {
+export async function runDocsAgentWorkflow(input: DocsAgentWorkflowInput): Promise<void> {
   // Validate input
   const validatedInput = docsAgentWorkflowInputSchema.parse(input);
 
@@ -86,7 +84,7 @@ export async function runDocsAgentWorkflow(
   });
 
   // Step 4: Execute the docs agent with all the prepared data
-  const agentResult = await runDocsAgentStep({
+  const _agentResult = await runDocsAgentStep({
     todos: todosResult.todos,
     todoList: todosResult.todos, // Using todos as todoList
     message: treeResult.message,
@@ -96,15 +94,7 @@ export async function runDocsAgentWorkflow(
   });
 
   // Return the final results from the agent
-  return {
-    todos: agentResult.todos,
-    todoList: agentResult.todoList,
-    documentationCreated: agentResult.documentationCreated,
-    clarificationNeeded: agentResult.clarificationNeeded,
-    clarificationQuestion: agentResult.clarificationQuestion,
-    finished: agentResult.finished,
-    metadata: agentResult.metadata,
-  };
+  return;
 }
 
 // Default export for backward compatibility if needed

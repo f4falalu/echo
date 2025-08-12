@@ -1,5 +1,4 @@
-import * as fs from 'node:fs';
-import * as path from 'node:path';
+import docsAgentPrompt from './docs-agent-prompt.txt';
 
 /**
  * Template parameters for the docs agent prompt
@@ -13,17 +12,9 @@ export interface DocsAgentTemplateParams {
  * Loads the docs agent prompt template and replaces variables
  */
 function loadAndProcessPrompt(params: DocsAgentTemplateParams): string {
-  const promptPath = path.join(__dirname, 'docs-agent-prompt.txt');
-
-  try {
-    const content = fs.readFileSync(promptPath, 'utf-8');
-
-    return content
-      .replace(/\{\{folder_structure\}\}/g, params.folderStructure)
-      .replace(/\{\{date\}\}/g, params.date);
-  } catch (error) {
-    throw new Error(`Failed to load prompt template: ${String(error)}`);
-  }
+  return docsAgentPrompt
+    .replace(/\{\{folder_structure\}\}/g, params.folderStructure)
+    .replace(/\{\{date\}\}/g, params.date);
 }
 
 /**

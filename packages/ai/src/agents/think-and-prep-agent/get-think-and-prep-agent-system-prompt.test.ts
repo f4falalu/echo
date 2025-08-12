@@ -1,16 +1,15 @@
-import * as fs from 'node:fs';
-import * as path from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { getThinkAndPrepAgentSystemPrompt } from './get-think-and-prep-agent-system-prompt';
+import thinkAndPrepInvestigationPrompt from './think-and-prep-agent-investigation-prompt.txt';
+import thinkAndPrepStandardPrompt from './think-and-prep-agent-standard-prompt.txt';
 
 describe('Think and Prep Agent Instructions', () => {
   describe.each([
-    ['standard', 'think-and-prep-agent-standard-prompt.txt'],
-    ['investigation', 'think-and-prep-agent-investigation-prompt.txt'],
-  ])('%s mode', (mode, filename) => {
+    ['standard', thinkAndPrepStandardPrompt],
+    ['investigation', thinkAndPrepInvestigationPrompt],
+  ])('%s mode', (mode, promptContent) => {
     it(`should validate ${mode} template file contains expected variables`, () => {
-      const promptPath = path.join(__dirname, filename);
-      const content = fs.readFileSync(promptPath, 'utf-8');
+      const content = promptContent;
 
       // Expected template variables
       const expectedVariables = ['sql_dialect_guidance', 'date'];

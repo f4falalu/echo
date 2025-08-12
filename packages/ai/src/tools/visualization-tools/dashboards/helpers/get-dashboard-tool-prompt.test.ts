@@ -1,12 +1,10 @@
-import * as fs from 'node:fs';
-import * as path from 'node:path';
 import { describe, expect, it } from 'vitest';
+import dashboardToolDescription from './dashboard-tool-description.txt';
 import { getDashboardToolDescription } from './get-dashboard-tool-description';
 
 describe('Dashboard Tool Prompt Instructions', () => {
   it('should validate template file has no template variables', () => {
-    const promptPath = path.join(__dirname, 'dashboard-tool-description.txt');
-    const content = fs.readFileSync(promptPath, 'utf-8');
+    const content = dashboardToolDescription;
 
     // Find any template variables in the file
     const templateVariablePattern = /\{\{([^}]+)\}\}/g;
@@ -32,9 +30,7 @@ describe('Dashboard Tool Prompt Instructions', () => {
     expect(result.length).toBeGreaterThan(0);
 
     // Should return the raw content from the text file
-    const promptPath = path.join(__dirname, 'dashboard-tool-description.txt');
-    const expectedContent = fs.readFileSync(promptPath, 'utf-8');
-    expect(result).toBe(expectedContent);
+    expect(result).toBe(dashboardToolDescription);
   });
 
   it('should contain expected sections from the dashboard description', () => {

@@ -1,6 +1,5 @@
-import * as fs from 'node:fs';
-import * as path from 'node:path';
 import { describe, expect, it } from 'vitest';
+import createDocsTodosSystemPrompt from './create-docs-todos-system-prompt.txt';
 import { getCreateDocsTodosSystemMessage } from './get-create-docs-todos-system-message';
 
 describe('Create Docs Todos System Message', () => {
@@ -39,16 +38,10 @@ describe('Create Docs Todos System Message', () => {
     expect(result).toContain('.sql files');
   });
 
-  it('should validate prompt file exists and is readable', () => {
-    const promptPath = path.join(__dirname, 'create-docs-todos-system-prompt.txt');
-
-    expect(() => {
-      fs.accessSync(promptPath, fs.constants.R_OK);
-    }).not.toThrow();
-
-    const stats = fs.statSync(promptPath);
-    expect(stats.isFile()).toBe(true);
-    expect(stats.size).toBeGreaterThan(0);
+  it('should validate prompt file is loaded', () => {
+    expect(createDocsTodosSystemPrompt).toBeDefined();
+    expect(typeof createDocsTodosSystemPrompt).toBe('string');
+    expect(createDocsTodosSystemPrompt.length).toBeGreaterThan(0);
   });
 
   it('should not contain any template variables', () => {

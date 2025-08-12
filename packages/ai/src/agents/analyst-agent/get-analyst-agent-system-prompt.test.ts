@@ -1,12 +1,10 @@
-import * as fs from 'node:fs';
-import * as path from 'node:path';
 import { describe, expect, it } from 'vitest';
+import analystAgentPrompt from './analyst-agent-prompt.txt';
 import { getAnalystAgentSystemPrompt } from './get-analyst-agent-system-prompt';
 
 describe('Analyst Agent Instructions', () => {
   it('should validate template file contains expected variables', () => {
-    const promptPath = path.join(__dirname, 'analyst-agent-prompt.txt');
-    const content = fs.readFileSync(promptPath, 'utf-8');
+    const content = analystAgentPrompt;
 
     // Expected template variables
     const expectedVariables = ['sql_dialect_guidance', 'date'];
