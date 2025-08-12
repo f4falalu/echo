@@ -64,7 +64,7 @@ function InputSelectModalBase<T = unknown>({
       <div
         className="max-h-[65vh]"
         style={{
-          height: (rows.length || 1) * 48 + (showHeader ? 32 : 0) //32 is the height of the header
+          height: (rows.length || 1) * 48 + (showHeader ? 32 : 0), //32 is the height of the header
         }}
       >
         <BusterList

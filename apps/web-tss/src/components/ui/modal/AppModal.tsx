@@ -2,7 +2,6 @@
 
 import type React from 'react';
 import { useMemo, useState } from 'react';
-import { useMemoizedFn } from '@/hooks';
 import { cn } from '@/lib/classMerge';
 import { Button, type ButtonProps } from '../buttons/Button';
 import {
@@ -11,7 +10,7 @@ import {
   DialogDescription,
   DialogFooter,
   DialogHeader,
-  DialogTitle
+  DialogTitle,
 } from './ModalBase';
 
 export interface ModalProps<T = unknown> {
@@ -56,27 +55,27 @@ export const AppModal = <T,>({
   className,
   style,
   showClose = true,
-  children
+  children,
 }: ModalProps<T>) => {
   const [isLoadingPrimaryButton, setIsLoadingPrimaryButton] = useState(false);
   const [isLoadingSecondaryButton, setIsLoadingSecondaryButton] = useState(false);
 
-  const onOpenChange = useMemoizedFn((open: boolean) => {
+  const onOpenChange = (open: boolean) => {
     if (!open) {
       onClose();
     }
-  });
+  };
 
   const memoizedStyle = useMemo(
     () => ({
       minWidth: width ?? 600,
       maxWidth: width ?? 600,
-      ...style
+      ...style,
     }),
     [width, style]
   );
 
-  const onPrimaryButtonClickPreflight = useMemoizedFn(async () => {
+  const onPrimaryButtonClickPreflight = async () => {
     setIsLoadingPrimaryButton(true);
     try {
       const result = await footer.primaryButton.onClick();
@@ -84,9 +83,9 @@ export const AppModal = <T,>({
     } finally {
       setIsLoadingPrimaryButton(false);
     }
-  });
+  };
 
-  const onSecondaryButtonClickPreflight = useMemoizedFn(async () => {
+  const onSecondaryButtonClickPreflight = async () => {
     if (!footer.secondaryButton) return;
     setIsLoadingSecondaryButton(true);
     try {
@@ -95,7 +94,7 @@ export const AppModal = <T,>({
     } finally {
       setIsLoadingSecondaryButton(false);
     }
-  });
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

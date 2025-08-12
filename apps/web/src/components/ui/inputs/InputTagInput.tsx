@@ -2,7 +2,6 @@
 
 import type { VariantProps } from 'class-variance-authority';
 import * as React from 'react';
-import { useMemoizedFn } from '@/hooks';
 import { cn } from '@/lib/utils';
 import { inputVariants } from './Input';
 import { InputTag } from './InputTag';
@@ -43,7 +42,7 @@ const InputTagInput = React.forwardRef<HTMLInputElement, TagInputProps>(
     const containerRef = React.useRef<HTMLDivElement>(null);
     const scrollRef = React.useRef<HTMLDivElement>(null);
 
-    const addMultipleTags = useMemoizedFn((value: string) => {
+    const addMultipleTags = (value: string) => {
       const newTags = value
         .split(delimiter)
         .map((tag) => tag.trim())
@@ -64,15 +63,15 @@ const InputTagInput = React.forwardRef<HTMLInputElement, TagInputProps>(
           scrollRef.current.scrollLeft = scrollRef.current.scrollWidth;
         }
       });
-    });
+    };
 
-    const handleBlur = useMemoizedFn(() => {
+    const handleBlur = () => {
       if (inputValue.trim() !== '') {
         addMultipleTags(inputValue);
       }
-    });
+    };
 
-    const handleKeyDown = useMemoizedFn((e: React.KeyboardEvent<HTMLInputElement>) => {
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
       if (
         (e.key === 'Tab' || e.key === 'Enter' || e.key === delimiter) &&
         inputValue.trim() !== ''
@@ -86,9 +85,9 @@ const InputTagInput = React.forwardRef<HTMLInputElement, TagInputProps>(
       if (e.key === 'Enter' && inputValue.trim() === '') {
         onPressEnter?.();
       }
-    });
+    };
 
-    const handleInputChange = useMemoizedFn((e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       const value = e.target.value;
       if (value.includes(delimiter)) {
         addMultipleTags(value);
@@ -96,24 +95,24 @@ const InputTagInput = React.forwardRef<HTMLInputElement, TagInputProps>(
         setInputValue(value);
         onChangeText?.(value);
       }
-    });
+    };
 
-    const handlePaste = useMemoizedFn((e: React.ClipboardEvent<HTMLInputElement>) => {
+    const handlePaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
       const pastedText = e.clipboardData.getData('text');
       if (pastedText.includes(delimiter)) {
         e.preventDefault();
         addMultipleTags(pastedText);
       }
       // If no delimiter is found, let the default paste behavior handle it
-    });
+    };
 
     // Focus the container when clicked
-    const handleContainerClick = useMemoizedFn(() => {
+    const handleContainerClick = () => {
       const input = containerRef.current?.querySelector('input');
       if (input && !disabled) {
         input.focus();
       }
-    });
+    };
 
     // Add gap classes based on variant
     const gapClasses = variant === 'ghost' ? 'gap-2' : variant === 'default' ? 'gap-2' : 'gap-1';

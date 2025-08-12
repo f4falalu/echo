@@ -2,7 +2,6 @@
 
 import { cva } from 'class-variance-authority';
 import React from 'react';
-import { useMemoizedFn } from '@/hooks';
 import { cn } from '@/lib/classMerge';
 import { Dropdown, type DropdownProps } from '../dropdown/Dropdown';
 import { ChevronDown } from '../icons/NucleoIconOutlined';
@@ -11,7 +10,7 @@ import {
   buttonIconVariants,
   buttonTypeClasses,
   buttonVariants,
-  LoadingIcon
+  LoadingIcon,
 } from './Button';
 
 interface ButtonDropdownProps {
@@ -34,21 +33,21 @@ const dropdownButtonVariants = cva('flex items-center pr-0', {
       full: 'rounded-full',
       large: 'rounded-lg',
       small: 'rounded-sm',
-      none: 'rounded-none'
-    }
-  }
+      none: 'rounded-none',
+    },
+  },
 });
 
 const primaryButtonVariants = cva('', {
   variants: {
-    variant: buttonTypeClasses
-  }
+    variant: buttonTypeClasses,
+  },
 });
 
 const splitButtonVariants = cva('flex w-full items-center justify-center h-full px-[5px]', {
   variants: {
-    variant: buttonTypeClasses
-  }
+    variant: buttonTypeClasses,
+  },
 });
 
 export const ButtonDropdown = React.forwardRef<HTMLDivElement, ButtonDropdownProps>(
@@ -88,14 +87,14 @@ export const ButtonSplit = React.memo(
         loading = false,
         iconClassName,
         open,
-        onOpenChange
+        onOpenChange,
       },
       ref
     ) => {
-      const handleClick = useMemoizedFn(() => {
+      const handleClick = () => {
         if (disabled) return;
         onOpenChange(!open);
-      });
+      };
 
       return (
         <div

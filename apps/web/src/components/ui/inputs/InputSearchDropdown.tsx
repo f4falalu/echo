@@ -1,8 +1,5 @@
-'use client';
-
 import React, { useMemo } from 'react';
 import { Select, type SelectItem } from '../select/Select';
-import { cn } from '@/lib/utils';
 
 export interface InputSearchDropdownProps<T = string> {
   options: SelectItem<T>[];

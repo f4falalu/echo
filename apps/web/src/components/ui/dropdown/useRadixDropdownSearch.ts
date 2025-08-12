@@ -1,5 +1,3 @@
-import { useMemoizedFn } from '@/hooks';
-
 export const useRadixDropdownSearch = ({
   showIndex,
   onSelectItem,
@@ -9,7 +7,7 @@ export const useRadixDropdownSearch = ({
   onSelectItem?: (index: number) => void;
   onChange: (text: string) => void;
 }) => {
-  const onKeyDown = useMemoizedFn((e: React.KeyboardEvent<HTMLInputElement>) => {
+  const onKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     const isFirstCharacter = (e.target as HTMLInputElement).value.length === 0;
 
     // Only prevent default for digit shortcuts when showIndex is true
@@ -28,7 +26,7 @@ export const useRadixDropdownSearch = ({
     } else {
       e.stopPropagation();
     }
-  });
+  };
 
   const onChange = useMemoizedFn((e: React.ChangeEvent<HTMLInputElement>) => {
     e.stopPropagation();
