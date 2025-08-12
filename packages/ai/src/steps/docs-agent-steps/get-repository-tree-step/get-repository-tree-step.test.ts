@@ -31,7 +31,6 @@ describe('runGetRepositoryTreeStep', () => {
     vi.mocked(mockSandbox.process.executeCommand).mockResolvedValueOnce({
       result: '/home/workspace',
       exitCode: 0,
-      stderr: '',
     });
 
     // Mock the tree helper to return a successful result
@@ -96,7 +95,6 @@ describe('runGetRepositoryTreeStep', () => {
     vi.mocked(mockSandbox.process.executeCommand).mockResolvedValueOnce({
       result: '/home/workspace',
       exitCode: 0,
-      stderr: '',
     });
 
     // Mock the tree helper to return a failure
@@ -172,7 +170,6 @@ describe('runGetRepositoryTreeStep', () => {
     vi.mocked(mockSandbox.process.executeCommand).mockResolvedValueOnce({
       result: '/home/workspace',
       exitCode: 0,
-      stderr: '',
     });
 
     // Mock the tree helper to throw an error
