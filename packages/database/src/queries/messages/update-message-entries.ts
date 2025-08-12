@@ -27,14 +27,16 @@ type MessageFieldName = keyof typeof MESSAGE_FIELD_MAPPING;
 
 /**
  * Helper function to generate SQL for updating or appending to a JSONB array field
+ * @param fieldName - The field name to update
+ * @param jsonString - Pre-stringified JSON to insert/update
+ * @param mode - Whether to append or update the last element
  */
 function generateJsonbArraySql(
   fieldName: MessageFieldName,
-  entry: unknown,
+  jsonString: string,
   mode: UpdateMessageEntriesMode
 ): SQL {
   const field = MESSAGE_FIELD_MAPPING[fieldName];
-  const jsonString = JSON.stringify(entry);
 
   if (mode === 'append') {
     return sql`COALESCE(${field}, '[]'::jsonb) || ${jsonString}::jsonb`;
@@ -43,7 +45,7 @@ function generateJsonbArraySql(
   // Update mode: replace last element or create new array
   return sql`
     CASE 
-      WHEN jsonb_array_length(${field}) > 0 THEN
+      WHEN ${field} IS NOT NULL AND jsonb_array_length(${field}) > 0 THEN
         jsonb_set(
           ${field},
           ARRAY[jsonb_array_length(${field}) - 1]::text[],
@@ -73,16 +75,17 @@ export async function updateMessageEntries({
     };
 
     // Add each field conditionally using the helper function
+    // Stringify the entries before passing them to SQL to ensure proper JSONB casting
     if (rawLlmMessage) {
-      setValues.rawLlmMessages = generateJsonbArraySql('rawLlmMessages', rawLlmMessage, mode);
+      setValues.rawLlmMessages = generateJsonbArraySql('rawLlmMessages', JSON.stringify(rawLlmMessage), mode);
     }
 
     if (responseEntry) {
-      setValues.responseMessages = generateJsonbArraySql('responseMessages', responseEntry, mode);
+      setValues.responseMessages = generateJsonbArraySql('responseMessages', JSON.stringify(responseEntry), mode);
     }
 
     if (reasoningEntry) {
-      setValues.reasoning = generateJsonbArraySql('reasoning', reasoningEntry, mode);
+      setValues.reasoning = generateJsonbArraySql('reasoning', JSON.stringify(reasoningEntry), mode);
     }
 
     await db

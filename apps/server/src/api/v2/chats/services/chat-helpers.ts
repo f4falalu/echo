@@ -326,10 +326,7 @@ export async function handleNewChat({
           chatId: newChat.id,
           createdBy: user.id,
           requestMessage: prompt,
-          responseMessages: {},
-          reasoning: {},
           title: prompt,
-          rawLlmMessages: {},
           isCompleted: false,
         })
         .returning();

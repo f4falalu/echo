@@ -134,10 +134,7 @@ export async function createMessage(input: CreateMessageInput): Promise<Message>
           chatId: validated.chatId,
           createdBy: validated.userId,
           requestMessage: validated.content,
-          responseMessages: {},
-          reasoning: {},
           title: validated.content.substring(0, 255), // Ensure title fits in database
-          rawLlmMessages: {},
           isCompleted: false,
         })
         .returning();
