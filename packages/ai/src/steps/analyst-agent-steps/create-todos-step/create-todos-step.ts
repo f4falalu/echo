@@ -74,7 +74,7 @@ export async function runCreateTodosStep(params: CreateTodosParams): Promise<Cre
     const todos = await generateTodosWithLLM(params.messages);
 
     const todosMessage: ModelMessage = {
-      role: 'assistant',
+      role: 'user',
       content: todos,
     };
 

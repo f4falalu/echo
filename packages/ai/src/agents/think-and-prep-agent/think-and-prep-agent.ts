@@ -53,7 +53,6 @@ export type ThinkAndPrepAgentOptions = z.infer<typeof ThinkAndPrepAgentOptionsSc
 export type ThinkAndPrepStreamOptions = z.infer<typeof ThinkAndPrepStreamOptionsSchema>;
 
 export function createThinkAndPrepAgent(thinkAndPrepAgentSchema: ThinkAndPrepAgentOptions) {
-  const steps: never[] = [];
   const { messageId } = thinkAndPrepAgentSchema;
 
   const systemMessage = {
@@ -147,12 +146,7 @@ export function createThinkAndPrepAgent(thinkAndPrepAgentSchema: ThinkAndPrepAge
     throw new Error('Max retry attempts exceeded');
   }
 
-  async function getSteps() {
-    return steps;
-  }
-
   return {
     stream,
-    getSteps,
   };
 }

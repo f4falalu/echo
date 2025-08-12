@@ -184,10 +184,13 @@ export async function runExtractValuesAndSearchStep(
 
     return {
       values: extractedValues,
-      valuesMessage: {
-        role: 'assistant',
-        content: storedValuesResult.searchResults,
-      },
+      valuesMessage:
+        extractedValues.length > 0
+          ? {
+              role: 'user',
+              content: storedValuesResult.searchResults,
+            }
+          : undefined,
     };
   } catch (error) {
     // Handle AbortError gracefully
