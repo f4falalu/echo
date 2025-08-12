@@ -10,11 +10,11 @@ import { wrapTraced } from 'braintrust';
 import { inArray } from 'drizzle-orm';
 import * as yaml from 'yaml';
 import { z } from 'zod';
-import { trackFileAssociations } from '../../file-tracking-helper';
 import {
   type DashboardConfig,
   DashboardConfigSchema,
 } from '../../../../../../server-shared/src/dashboards/dashboard.types';
+import { trackFileAssociations } from '../../file-tracking-helper';
 import type {
   CreateDashboardsContext,
   CreateDashboardsInput,
@@ -124,8 +124,8 @@ function parseAndValidateYaml(ymlContent: string): {
       rows: validationResult.data.rows?.map((row) => ({
         id: row.id,
         items: row.items.map((item) => ({ id: item.id })),
-        columnSizes: row.column_sizes, // Transform snake_case to camelCase if present
-        rowHeight: row.rowHeight,
+        ...(row.column_sizes !== undefined && { columnSizes: row.column_sizes }),
+        ...(row.rowHeight !== undefined && { rowHeight: row.rowHeight }),
       })),
     };
 
@@ -209,9 +209,7 @@ async function processDashboardFile(
 
   // Collect all metric IDs from rows if they exist
   const metricIds: string[] = dashboard.config.rows
-    ? dashboard.config.rows
-        .flatMap((row) => row.items)
-        .map((item) => item.id)
+    ? dashboard.config.rows.flatMap((row) => row.items).map((item) => item.id)
     : [];
 
   // Validate metric IDs if any exist
@@ -424,9 +422,7 @@ const createDashboardFiles = wrapTraced(
           // Create associations between metrics and dashboards
           for (const sp of successfulProcessing) {
             const metricIds: string[] = sp.dashboard.config.rows
-              ? sp.dashboard.config.rows
-                  .flatMap((row) => row.items)
-                  .map((item) => item.id)
+              ? sp.dashboard.config.rows.flatMap((row) => row.items).map((item) => item.id)
               : [];
 
             if (metricIds.length > 0) {

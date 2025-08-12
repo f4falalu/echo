@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto';
 import { updateMessageEntries } from '@buster/database';
 import type { ToolCallOptions } from 'ai';
 import {
@@ -64,7 +65,7 @@ export function createCreateDashboardsDelta(
               const existingFile = state.files?.[index];
 
               updatedFiles.push({
-                id: existingFile?.id || crypto.randomUUID(),
+                id: existingFile?.id || randomUUID(),
                 file_name: name,
                 file_type: 'dashboard',
                 version_number: existingFile?.version_number || 1,

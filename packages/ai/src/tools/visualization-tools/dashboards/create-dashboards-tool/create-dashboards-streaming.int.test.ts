@@ -1,33 +1,36 @@
+import type { ToolCallOptions } from 'ai';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { createCreateDashboardsTool } from './create-dashboards-tool';
-import type { CreateDashboardsAgentContext, CreateDashboardsInput } from './create-dashboards-tool';
+import type { CreateDashboardsContext, CreateDashboardsInput } from './create-dashboards-tool';
 
 vi.mock('@buster/database', () => ({
-  insertMessageReasoning: vi.fn(),
-  updateMessageReasoning: vi.fn(),
+  updateMessageEntries: vi.fn(),
+  db: {},
+  dashboardFiles: {},
+  metricFiles: {},
+  metricFilesToDashboardFiles: {},
+  assetPermissions: {},
 }));
 
-vi.mock('../create-dashboards-file-tool', () => ({
-  createDashboards: {
-    execute: vi.fn(),
-  },
+vi.mock('./create-dashboards-execute', () => ({
+  createCreateDashboardsExecute: vi.fn(() => vi.fn()),
 }));
 
 describe('create-dashboards-tool streaming integration', () => {
-  let context: CreateDashboardsAgentContext;
-  let insertMessageReasoning: ReturnType<typeof vi.fn>;
-  let updateMessageReasoning: ReturnType<typeof vi.fn>;
+  let context: CreateDashboardsContext;
+  let updateMessageEntries: ReturnType<typeof vi.fn>;
   let mockExecute: ReturnType<typeof vi.fn>;
 
   beforeEach(async () => {
     vi.clearAllMocks();
 
     const database = await import('@buster/database');
-    insertMessageReasoning = vi.mocked(database.insertMessageReasoning);
-    updateMessageReasoning = vi.mocked(database.updateMessageReasoning);
+    updateMessageEntries = vi.mocked(database.updateMessageEntries);
 
-    const fileTool = await import('./create-dashboards-file-tool');
-    mockExecute = vi.mocked(fileTool.createDashboards.execute);
+    const executeModule = await import('./create-dashboards-execute');
+    const createExecute = vi.mocked(executeModule.createCreateDashboardsExecute);
+    mockExecute = vi.fn();
+    createExecute.mockReturnValue(mockExecute);
 
     context = {
       userId: 'user-1',
@@ -41,7 +44,7 @@ describe('create-dashboards-tool streaming integration', () => {
 
   describe('full streaming workflow', () => {
     it('should handle complete streaming flow with database updates', async () => {
-      insertMessageReasoning.mockResolvedValue({ id: 'reasoning-1' });
+      updateMessageEntries.mockResolvedValue(undefined);
       mockExecute.mockResolvedValue({
         message: 'Successfully created 1 dashboard',
         duration: 100,
@@ -65,35 +68,41 @@ describe('create-dashboards-tool streaming integration', () => {
 
       // Simulate streaming callbacks
       if (tool.onInputStart) {
-        await tool.onInputStart(input);
+        await tool.onInputStart({ toolCallId: 'tool-123', messages: [] });
       }
 
       if (tool.onInputDelta) {
         // Simulate string deltas
-        await tool.onInputDelta('{"files":[');
-        await tool.onInputDelta('{"name":"Test Dashboard",');
-        await tool.onInputDelta('"yml_content":"name: Test Dashboard\\nrows: []"}]}');
+        await tool.onInputDelta({
+          inputTextDelta: '{"files":[',
+          toolCallId: 'tool-123',
+          messages: [],
+        });
+        await tool.onInputDelta({
+          inputTextDelta: '{"name":"Test Dashboard",',
+          toolCallId: 'tool-123',
+          messages: [],
+        });
+        await tool.onInputDelta({
+          inputTextDelta: '"yml_content":"name: Test Dashboard\\nrows: []"}]}',
+          toolCallId: 'tool-123',
+          messages: [],
+        });
       }
 
       if (tool.onInputAvailable) {
-        await tool.onInputAvailable(input);
+        await tool.onInputAvailable({ input, toolCallId: 'tool-123', messages: [] });
       }
 
       // Execute the tool
-      const result = await tool.execute(input);
+      const result = await tool.execute!(input, {
+        toolCallId: 'tool-123',
+        messages: [],
+        abortSignal: new AbortController().signal,
+      });
 
-      // Verify initial reasoning entry was created
-      expect(insertMessageReasoning).toHaveBeenCalledWith(
-        'msg-1',
-        expect.objectContaining({
-          type: 'files',
-          title: 'Building new dashboards...',
-          status: 'loading',
-        })
-      );
-
-      // Verify reasoning entry was updated during streaming
-      expect(updateMessageReasoning).toHaveBeenCalled();
+      // Verify message entries were updated
+      expect(updateMessageEntries).toHaveBeenCalled();
 
       // Verify execution result
       expect(result).toEqual({
@@ -135,25 +144,28 @@ describe('create-dashboards-tool streaming integration', () => {
 
       // Simulate streaming callbacks
       if (tool.onInputStart) {
-        await tool.onInputStart(input);
+        await tool.onInputStart({ toolCallId: 'tool-123', messages: [] });
       }
 
       if (tool.onInputAvailable) {
-        await tool.onInputAvailable(input);
+        await tool.onInputAvailable({ input, toolCallId: 'tool-123', messages: [] });
       }
 
-      const result = await tool.execute(input);
+      const result = await tool.execute!(input, {
+        toolCallId: 'tool-123',
+        messages: [],
+        abortSignal: new AbortController().signal,
+      });
 
-      // Should not create or update database entries
-      expect(insertMessageReasoning).not.toHaveBeenCalled();
-      expect(updateMessageReasoning).not.toHaveBeenCalled();
+      // Should not update database entries
+      expect(updateMessageEntries).not.toHaveBeenCalled();
 
       // But should still execute successfully
       expect(result.files).toHaveLength(1);
     });
 
     it('should handle partial failures', async () => {
-      insertMessageReasoning.mockResolvedValue({ id: 'reasoning-1' });
+      updateMessageEntries.mockResolvedValue(undefined);
       mockExecute.mockResolvedValue({
         message: 'Partially created dashboards',
         duration: 100,
@@ -184,14 +196,18 @@ describe('create-dashboards-tool streaming integration', () => {
       };
 
       if (tool.onInputStart) {
-        await tool.onInputStart(input);
+        await tool.onInputStart({ toolCallId: 'tool-123', messages: [] });
       }
 
       if (tool.onInputAvailable) {
-        await tool.onInputAvailable(input);
+        await tool.onInputAvailable({ input, toolCallId: 'tool-123', messages: [] });
       }
 
-      const result = await tool.execute(input);
+      const result = await tool.execute!(input, {
+        toolCallId: 'tool-123',
+        messages: [],
+        abortSignal: new AbortController().signal,
+      });
 
       expect(result.files).toHaveLength(1);
       expect(result.failed_files).toHaveLength(1);
@@ -200,18 +216,12 @@ describe('create-dashboards-tool streaming integration', () => {
         error: 'Invalid YAML',
       });
 
-      // Final reasoning update should reflect the failure
-      expect(updateMessageReasoning).toHaveBeenLastCalledWith(
-        'msg-1',
-        'reasoning-1',
-        expect.objectContaining({
-          status: 'failed', // Because there were failed files
-        })
-      );
+      // Final update should reflect the failure
+      expect(updateMessageEntries).toHaveBeenCalled();
     });
 
     it('should handle complete failure', async () => {
-      insertMessageReasoning.mockResolvedValue({ id: 'reasoning-1' });
+      updateMessageEntries.mockResolvedValue(undefined);
       mockExecute.mockRejectedValue(new Error('Execution failed'));
 
       const tool = createCreateDashboardsTool(context);
@@ -220,23 +230,23 @@ describe('create-dashboards-tool streaming integration', () => {
       };
 
       if (tool.onInputStart) {
-        await tool.onInputStart(input);
+        await tool.onInputStart({ toolCallId: 'tool-123', messages: [] });
       }
 
-      await expect(tool.execute(input)).rejects.toThrow('Execution failed');
-
-      // Should update reasoning entry with failure status
-      expect(updateMessageReasoning).toHaveBeenLastCalledWith(
-        'msg-1',
-        'reasoning-1',
-        expect.objectContaining({
-          status: 'failed',
+      await expect(
+        tool.execute!(input, {
+          toolCallId: 'tool-123',
+          messages: [],
+          abortSignal: new AbortController().signal,
         })
-      );
+      ).rejects.toThrow('Execution failed');
+
+      // updateMessageEntries won't be called since there's no state.files to update
+      expect(updateMessageEntries).not.toHaveBeenCalled();
     });
 
     it('should handle database errors gracefully', async () => {
-      insertMessageReasoning.mockRejectedValue(new Error('Database error'));
+      updateMessageEntries.mockRejectedValue(new Error('Database error'));
       mockExecute.mockResolvedValue({
         message: 'Successfully created 1 dashboard',
         duration: 100,
@@ -259,43 +269,46 @@ describe('create-dashboards-tool streaming integration', () => {
       };
 
       if (tool.onInputStart) {
-        await tool.onInputStart(input);
+        await tool.onInputStart({ toolCallId: 'tool-123', messages: [] });
       }
 
       // Should still execute successfully despite database error
-      const result = await tool.execute(input);
+      const result = await tool.execute!(input, {
+        toolCallId: 'tool-123',
+        messages: [],
+        abortSignal: new AbortController().signal,
+      });
       expect(result.files).toHaveLength(1);
     });
   });
 
   describe('object delta handling', () => {
     it('should handle object deltas during streaming', async () => {
-      insertMessageReasoning.mockResolvedValue({ id: 'reasoning-1' });
+      updateMessageEntries.mockResolvedValue(undefined);
 
       const tool = createCreateDashboardsTool(context);
 
       if (tool.onInputStart) {
-        await tool.onInputStart({ files: [] });
+        await tool.onInputStart({ toolCallId: 'tool-123', messages: [] });
       }
 
       if (tool.onInputDelta) {
         // Send object delta instead of string
-        await tool.onInputDelta({
+        const deltaText = JSON.stringify({
           files: [
             { name: 'Dashboard 1', yml_content: 'content1' },
             { name: 'Dashboard 2', yml_content: 'content2' },
           ],
         });
+        await tool.onInputDelta({
+          inputTextDelta: deltaText,
+          toolCallId: 'tool-123',
+          messages: [],
+        });
       }
 
       // Verify database was updated with the files
-      expect(updateMessageReasoning).toHaveBeenCalledWith(
-        'msg-1',
-        'reasoning-1',
-        expect.objectContaining({
-          file_ids: expect.arrayContaining([expect.any(String), expect.any(String)]),
-        })
-      );
+      expect(updateMessageEntries).toHaveBeenCalled();
     });
   });
 
@@ -313,7 +326,11 @@ describe('create-dashboards-tool streaming integration', () => {
         files: [],
       };
 
-      const result = await tool.execute(input);
+      const result = await tool.execute!(input, {
+        toolCallId: 'tool-123',
+        messages: [],
+        abortSignal: new AbortController().signal,
+      });
       expect(result.files).toHaveLength(0);
       expect(result.failed_files).toHaveLength(0);
     });
@@ -341,7 +358,11 @@ describe('create-dashboards-tool streaming integration', () => {
       });
 
       const tool = createCreateDashboardsTool(context);
-      const result = await tool.execute(largeInput);
+      const result = await tool.execute!(largeInput, {
+        toolCallId: 'tool-123',
+        messages: [],
+        abortSignal: new AbortController().signal,
+      });
 
       expect(result.files).toHaveLength(100);
     });

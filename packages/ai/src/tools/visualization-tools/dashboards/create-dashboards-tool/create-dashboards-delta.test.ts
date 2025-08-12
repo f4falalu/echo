@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { createCreateDashboardsDelta } from './create-dashboards-delta';
 import type {
-  CreateDashboardsContext,
   CreateDashboardStateFile,
+  CreateDashboardsContext,
   CreateDashboardsState,
 } from './create-dashboards-tool';
 
@@ -10,14 +10,14 @@ vi.mock('@buster/database', () => ({
   updateMessageEntries: vi.fn(),
 }));
 
-vi.mock('../../../utils/streaming/optimistic-json-parser', () => ({
+vi.mock('../../../../utils/streaming/optimistic-json-parser', () => ({
   OptimisticJsonParser: {
     parse: vi.fn(),
   },
   getOptimisticValue: vi.fn(),
 }));
 
-describe('createCreateDashboardsDelta', () => {
+describe('createDashboardsDelta', () => {
   let context: CreateDashboardsContext;
   let state: CreateDashboardsState;
   let updateMessageEntriesSpy: ReturnType<typeof vi.fn>;
@@ -34,11 +34,7 @@ describe('createCreateDashboardsDelta', () => {
     OptimisticJsonParser = streaming.OptimisticJsonParser as unknown as {
       parse: ReturnType<typeof vi.fn>;
     };
-    getOptimisticValue = streaming.getOptimisticValue as ReturnType<typeof vi.fn>;
-    
-    // Set OptimisticJsonParser.parse and getOptimisticValue as mock functions
-    OptimisticJsonParser.parse = vi.fn();
-    getOptimisticValue = vi.fn();
+    getOptimisticValue = vi.mocked(streaming.getOptimisticValue);
 
     context = {
       userId: 'user-1',
@@ -58,7 +54,7 @@ describe('createCreateDashboardsDelta', () => {
 
   describe('string delta handling', () => {
     it('should accumulate string deltas', async () => {
-      OptimisticJsonParser.parse.mockReturnValue({
+      vi.mocked(OptimisticJsonParser.parse).mockReturnValue({
         parsed: null,
         isComplete: false,
         extractedValues: new Map(),
@@ -72,16 +68,23 @@ describe('createCreateDashboardsDelta', () => {
     });
 
     it('should parse complete JSON and update files', async () => {
-      OptimisticJsonParser.parse.mockReturnValue({
-        parsed: { files: [] },
+      const fileData = { name: 'Dashboard 1', yml_content: 'content1' };
+      vi.mocked(OptimisticJsonParser.parse).mockReturnValue({
+        parsed: { files: [fileData] },
         isComplete: true,
-        extractedValues: new Map([['files', [{ name: 'Dashboard 1', yml_content: 'content1' }]]]),
+        extractedValues: new Map([['files', [fileData]]]),
       });
 
       getOptimisticValue.mockImplementation((map, key, defaultValue) => {
-        if (key === 'files') return [{ name: 'Dashboard 1', yml_content: 'content1' }];
-        if (key === 'name') return 'Dashboard 1';
-        if (key === 'yml_content') return 'content1';
+        // When getting from the main extracted values
+        if (map instanceof Map && map.has(key)) {
+          return map.get(key);
+        }
+        // When getting from file object entries (Map created from Object.entries)
+        if (map instanceof Map) {
+          const value = map.get(key);
+          if (value !== undefined) return value;
+        }
         return defaultValue;
       });
 
@@ -103,11 +106,11 @@ describe('createCreateDashboardsDelta', () => {
         },
         status: 'loading',
       });
-      expect(filesAfterComplete[0].id).toBeDefined();
+      expect(filesAfterComplete[0]?.id).toBeDefined();
     });
 
     it('should handle partial JSON with optimistic parsing', async () => {
-      OptimisticJsonParser.parse.mockReturnValue({
+      vi.mocked(OptimisticJsonParser.parse).mockReturnValue({
         parsed: { files: [{}] },
         isComplete: false,
         extractedValues: new Map([['files', [{ name: 'Partial' }]]]),
@@ -142,20 +145,26 @@ describe('createCreateDashboardsDelta', () => {
 
   describe('object delta handling', () => {
     it('should handle object deltas with files', async () => {
-      OptimisticJsonParser.parse.mockReturnValue({
+      vi.mocked(OptimisticJsonParser.parse).mockReturnValue({
         parsed: { files: [] },
         isComplete: true,
-        extractedValues: new Map([['files', [
-          { name: 'Dashboard 1', yml_content: 'content1' },
-          { name: 'Dashboard 2', yml_content: 'content2' }
-        ]]]),
+        extractedValues: new Map([
+          [
+            'files',
+            [
+              { name: 'Dashboard 1', yml_content: 'content1' },
+              { name: 'Dashboard 2', yml_content: 'content2' },
+            ],
+          ],
+        ]),
       });
 
       getOptimisticValue.mockImplementation((map, key, defaultValue) => {
-        if (key === 'files') return [
-          { name: 'Dashboard 1', yml_content: 'content1' },
-          { name: 'Dashboard 2', yml_content: 'content2' }
-        ];
+        if (key === 'files')
+          return [
+            { name: 'Dashboard 1', yml_content: 'content1' },
+            { name: 'Dashboard 2', yml_content: 'content2' },
+          ];
         if (map.get('name') === 'Dashboard 1') {
           if (key === 'name') return 'Dashboard 1';
           if (key === 'yml_content') return 'content1';
@@ -198,10 +207,19 @@ describe('createCreateDashboardsDelta', () => {
     });
 
     it('should handle empty object delta', async () => {
-      OptimisticJsonParser.parse.mockReturnValue({
+      // Ensure clean state
+      state.files = [];
+
+      vi.mocked(OptimisticJsonParser.parse).mockReturnValue({
         parsed: {},
         isComplete: true,
         extractedValues: new Map(),
+      });
+      
+      // Mock getOptimisticValue to return empty array for files
+      getOptimisticValue.mockImplementation((map, key, defaultValue) => {
+        if (key === 'files') return [];
+        return defaultValue;
       });
 
       const handler = createCreateDashboardsDelta(context, state);
@@ -213,7 +231,7 @@ describe('createCreateDashboardsDelta', () => {
 
   describe('database updates', () => {
     it('should update database when messageId and reasoningEntryId exist', async () => {
-      OptimisticJsonParser.parse.mockReturnValue({
+      vi.mocked(OptimisticJsonParser.parse).mockReturnValue({
         parsed: { files: [] },
         isComplete: true,
         extractedValues: new Map([['files', [{ name: 'Dashboard 1', yml_content: 'content1' }]]]),
@@ -230,6 +248,7 @@ describe('createCreateDashboardsDelta', () => {
       await handler({
         inputTextDelta: '{"files":[{"name":"Dashboard 1","yml_content":"content1"}]}',
         toolCallId: 'tool-123',
+        messages: [],
       });
 
       expect(updateMessageEntriesSpy).toHaveBeenCalledWith(
@@ -246,7 +265,7 @@ describe('createCreateDashboardsDelta', () => {
     });
 
     it('should not update database when messageId is missing', async () => {
-      OptimisticJsonParser.parse.mockReturnValue({
+      vi.mocked(OptimisticJsonParser.parse).mockReturnValue({
         parsed: { files: [] },
         isComplete: true,
         extractedValues: new Map([['files', [{ name: 'Dashboard 1', yml_content: 'content1' }]]]),
@@ -260,18 +279,20 @@ describe('createCreateDashboardsDelta', () => {
       });
 
       const contextWithoutMessageId = { ...context, messageId: undefined };
-      const stateWithoutMessageId = { ...state, messageId: undefined };
+      const stateWithoutMessageId = { ...state };
 
       const handler = createCreateDashboardsDelta(contextWithoutMessageId, stateWithoutMessageId);
       await handler({
         inputTextDelta: '{"files":[{"name":"Dashboard 1","yml_content":"content1"}]}',
+        toolCallId: 'tool-123',
+        messages: [],
       });
 
       expect(updateMessageEntriesSpy).not.toHaveBeenCalled();
     });
 
     it('should not update database when reasoningEntryId is missing', async () => {
-      OptimisticJsonParser.parse.mockReturnValue({
+      vi.mocked(OptimisticJsonParser.parse).mockReturnValue({
         parsed: { files: [] },
         isComplete: true,
         extractedValues: new Map([['files', [{ name: 'Dashboard 1', yml_content: 'content1' }]]]),
@@ -289,13 +310,15 @@ describe('createCreateDashboardsDelta', () => {
       const handler = createCreateDashboardsDelta(context, stateWithoutToolCallId);
       await handler({
         inputTextDelta: '{"files":[{"name":"Dashboard 1","yml_content":"content1"}]}',
+        toolCallId: 'tool-123',
+        messages: [],
       });
 
       expect(updateMessageEntriesSpy).not.toHaveBeenCalled();
     });
 
     it('should handle database update errors gracefully', async () => {
-      OptimisticJsonParser.parse.mockReturnValue({
+      vi.mocked(OptimisticJsonParser.parse).mockReturnValue({
         parsed: { files: [] },
         isComplete: true,
         extractedValues: new Map([['files', [{ name: 'Dashboard 1', yml_content: 'content1' }]]]),
@@ -314,7 +337,11 @@ describe('createCreateDashboardsDelta', () => {
 
       // Should not throw
       await expect(
-        handler({ inputTextDelta: '{"files":[{"name":"Dashboard 1","yml_content":"content1"}]}' })
+        handler({
+          inputTextDelta: '{"files":[{"name":"Dashboard 1","yml_content":"content1"}]}',
+          toolCallId: 'tool-123',
+          messages: [],
+        })
       ).resolves.not.toThrow();
 
       // State should still be updated
@@ -322,7 +349,7 @@ describe('createCreateDashboardsDelta', () => {
     });
 
     it('should filter out undefined entries before updating database', async () => {
-      OptimisticJsonParser.parse.mockReturnValue({
+      vi.mocked(OptimisticJsonParser.parse).mockReturnValue({
         parsed: null,
         isComplete: false,
         extractedValues: new Map(),
@@ -337,7 +364,7 @@ describe('createCreateDashboardsDelta', () => {
           file: { text: 'content1' },
           status: 'loading',
         },
-        undefined as unknown as CreateDashboardsState['files'][number],
+        undefined as unknown as CreateDashboardStateFile,
         {
           id: 'id-2',
           file_name: 'Dashboard 2',
@@ -349,7 +376,7 @@ describe('createCreateDashboardsDelta', () => {
       ];
 
       const handler = createCreateDashboardsDelta(context, state);
-      await handler({ inputTextDelta: '', toolCallId: 'tool-123' });
+      await handler({ inputTextDelta: '', toolCallId: 'tool-123', messages: [] });
 
       // updateMessageReasoning should be called with filtered files
       expect(updateMessageEntriesSpy).toHaveBeenCalledWith(
@@ -366,16 +393,16 @@ describe('createCreateDashboardsDelta', () => {
       const handler = createCreateDashboardsDelta(context, state);
 
       // First delta
-      OptimisticJsonParser.parse.mockReturnValue({
+      vi.mocked(OptimisticJsonParser.parse).mockReturnValue({
         parsed: null,
         isComplete: false,
         extractedValues: new Map(),
       });
-      await handler({ inputTextDelta: '{"files":[' });
+      await handler({ inputTextDelta: '{"files":[', toolCallId: 'tool-123', messages: [] });
       expect(state.argsText).toBe('{"files":[');
 
       // Second delta
-      OptimisticJsonParser.parse.mockReturnValue({
+      vi.mocked(OptimisticJsonParser.parse).mockReturnValue({
         parsed: { files: [{}] },
         isComplete: false,
         extractedValues: new Map([['files', [{ name: 'Dashboard 1' }]]]),
@@ -385,11 +412,15 @@ describe('createCreateDashboardsDelta', () => {
         if (key === 'name') return 'Dashboard 1';
         return defaultValue;
       });
-      await handler({ inputTextDelta: '{"name":"Dashboard 1",' });
+      await handler({
+        inputTextDelta: '{"name":"Dashboard 1",',
+        toolCallId: 'tool-123',
+        messages: [],
+      });
       expect(state.argsText).toBe('{"files":[{"name":"Dashboard 1",');
 
       // Final delta
-      OptimisticJsonParser.parse.mockReturnValue({
+      vi.mocked(OptimisticJsonParser.parse).mockReturnValue({
         parsed: { files: [{ name: 'Dashboard 1', yml_content: 'content1' }] },
         isComplete: true,
         extractedValues: new Map([['files', [{ name: 'Dashboard 1', yml_content: 'content1' }]]]),
@@ -400,10 +431,14 @@ describe('createCreateDashboardsDelta', () => {
         if (key === 'yml_content') return 'content1';
         return defaultValue;
       });
-      await handler({ inputTextDelta: '"yml_content":"content1"}]}' });
+      await handler({
+        inputTextDelta: '"yml_content":"content1"}]}',
+        toolCallId: 'tool-123',
+        messages: [],
+      });
 
       expect(state.files).toHaveLength(1);
-      expect(state.files[0]).toMatchObject({
+      expect(state.files?.[0]).toMatchObject({
         file_name: 'Dashboard 1',
         file_type: 'dashboard',
         version_number: 1,

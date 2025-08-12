@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto';
 import { updateMessageEntries } from '@buster/database';
 import type { ToolCallOptions } from 'ai';
 import type {
@@ -21,7 +22,7 @@ export function createCreateDashboardsFinish(
       state.files = input.files.map((file, index) => {
         const existingFile = state.files?.[index];
         return {
-          id: existingFile?.id || crypto.randomUUID(),
+          id: existingFile?.id || randomUUID(),
           file_name: file.name,
           file_type: 'dashboard',
           version_number: existingFile?.version_number || 1,

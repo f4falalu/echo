@@ -7,17 +7,17 @@ import type {
 } from './create-dashboards-tool';
 
 vi.mock('@buster/database', () => ({
-  updateMessageReasoning: vi.fn(),
+  updateMessageEntries: vi.fn(),
 }));
 
 describe('createCreateDashboardsFinish', () => {
   let context: CreateDashboardsContext;
   let state: CreateDashboardsState;
-  let updateMessageReasoning: ReturnType<typeof vi.fn>;
+  let updateMessageEntries: ReturnType<typeof vi.fn>;
 
   beforeEach(async () => {
     vi.clearAllMocks();
-    updateMessageReasoning = vi.mocked((await import('@buster/database')).updateMessageReasoning);
+    updateMessageEntries = vi.mocked((await import('@buster/database')).updateMessageEntries);
 
     context = {
       userId: 'user-1',
@@ -31,7 +31,6 @@ describe('createCreateDashboardsFinish', () => {
     state = {
       argsText: '',
       files: [],
-      parsedArgs: undefined,
       toolCallId: 'tool-123',
     };
   });
@@ -45,14 +44,17 @@ describe('createCreateDashboardsFinish', () => {
     };
 
     const handler = createCreateDashboardsFinish(context, state);
-    await handler({ input, toolCallId: 'tool-123' });
+    await handler({ input, toolCallId: 'tool-123', messages: [] });
 
-    expect(state.parsedArgs).toEqual(input);
     expect(state.files).toHaveLength(2);
-    expect(state.files[0]).toEqual({
-      name: 'Dashboard 1',
-      yml_content: 'content1',
-      status: 'processing',
+    expect(state.files![0]).toMatchObject({
+      file_name: 'Dashboard 1',
+      file_type: 'dashboard',
+      version_number: 1,
+      file: {
+        text: 'content1',
+      },
+      status: 'loading',
     });
   });
 
@@ -62,11 +64,12 @@ describe('createCreateDashboardsFinish', () => {
     };
 
     const handler = createCreateDashboardsFinish(context, state);
-    await handler({ input, toolCallId: 'tool-123' });
+    await handler({ input, toolCallId: 'tool-123', messages: [] });
 
-    // Since the finish implementation doesn't update the database, we just check that state is updated
-    expect(state.parsedArgs).toEqual(input);
+    // Check that state is updated
     expect(state.files).toHaveLength(1);
+    // updateMessageEntries should be called since we have a file now
+    expect(updateMessageEntries).toHaveBeenCalled();
   });
 
   it('should handle when messageId is missing', async () => {
@@ -77,10 +80,11 @@ describe('createCreateDashboardsFinish', () => {
     };
 
     const handler = createCreateDashboardsFinish(contextWithoutMessageId, state);
-    await handler({ input, toolCallId: 'tool-123' });
+    await handler({ input, toolCallId: 'tool-123', messages: [] });
 
     // State should still be updated
-    expect(state.parsedArgs).toEqual(input);
+    expect(state.files).toHaveLength(1);
+    expect(updateMessageEntries).not.toHaveBeenCalled();
   });
 
   it('should handle when state is minimal', async () => {
@@ -91,10 +95,10 @@ describe('createCreateDashboardsFinish', () => {
     };
 
     const handler = createCreateDashboardsFinish(context, minimalState);
-    await handler({ input, toolCallId: 'tool-123' });
+    await handler({ input, toolCallId: 'tool-123', messages: [] });
 
     // State should still be updated
-    expect(minimalState.parsedArgs).toEqual(input);
+    expect(minimalState.files).toHaveLength(1);
   });
 
   it('should handle state updates correctly', async () => {
@@ -105,50 +109,14 @@ describe('createCreateDashboardsFinish', () => {
     const handler = createCreateDashboardsFinish(context, state);
 
     // Should not throw
-    await expect(handler({ input, toolCallId: 'tool-123' })).resolves.not.toThrow();
+    await expect(handler({ input, toolCallId: 'tool-123', messages: [] })).resolves.not.toThrow();
 
     // State should be updated
-    expect(state.parsedArgs).toEqual(input);
     expect(state.files).toHaveLength(1);
-  });
-
-  it('should log when input is available', async () => {
-    const consoleSpy = vi.spyOn(console, 'info');
-
-    const input: CreateDashboardsInput = {
-      files: [{ name: 'Dashboard 1', yml_content: 'content1' }],
-    };
-
-    const handler = createCreateDashboardsFinish(context, state);
-    await handler({ input, toolCallId: 'tool-123' });
-
-    expect(consoleSpy).toHaveBeenCalledWith(
-      '[create-dashboards] Input fully available:',
-      expect.objectContaining({
-        filesCount: 1,
-      })
-    );
-  });
-
-  it('should log correctly with multiple files', async () => {
-    const consoleSpy = vi.spyOn(console, 'info');
-
-    const input: CreateDashboardsInput = {
-      files: [
-        { name: 'Dashboard 1', yml_content: 'content1' },
-        { name: 'Dashboard 2', yml_content: 'content2' },
-      ],
-    };
-
-    const handler = createCreateDashboardsFinish(context, state);
-    await handler({ input, toolCallId: 'tool-123' });
-
-    expect(consoleSpy).toHaveBeenCalledWith(
-      '[create-dashboards] Input fully available:',
-      expect.objectContaining({
-        filesCount: 2,
-      })
-    );
+    expect(state.files![0]).toMatchObject({
+      file_name: 'Dashboard 1',
+      file_type: 'dashboard',
+    });
   });
 
   it('should handle empty files array', async () => {
@@ -157,9 +125,8 @@ describe('createCreateDashboardsFinish', () => {
     };
 
     const handler = createCreateDashboardsFinish(context, state);
-    await handler({ input, toolCallId: 'tool-123' });
+    await handler({ input, toolCallId: 'tool-123', messages: [] });
 
-    expect(state.parsedArgs).toEqual(input);
     expect(state.files).toHaveLength(0);
   });
 
@@ -173,10 +140,14 @@ describe('createCreateDashboardsFinish', () => {
     };
 
     const handler = createCreateDashboardsFinish(context, state);
-    await handler({ input, toolCallId: 'tool-123' });
+    await handler({ input, toolCallId: 'tool-123', messages: [] });
 
     expect(state.files).toHaveLength(3);
-    expect(state.files.map((f) => f.name)).toEqual(['Dashboard 1', 'Dashboard 2', 'Dashboard 3']);
-    expect(state.files.every((f) => f.status === 'processing')).toBe(true);
+    expect(state.files!.map((f) => f.file_name)).toEqual([
+      'Dashboard 1',
+      'Dashboard 2',
+      'Dashboard 3',
+    ]);
+    expect(state.files!.every((f) => f.status === 'loading')).toBe(true);
   });
 });

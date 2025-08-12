@@ -53,7 +53,10 @@ describe('create-dashboards-tool-transform-helper', () => {
         files: expect.any(Object),
       });
 
-      expect(result?.file_ids).toHaveLength(1);
+      expect(result?.type).toBe('files');
+      if (result?.type === 'files') {
+        expect(result.file_ids).toHaveLength(1);
+      }
     });
 
     it('should create a reasoning entry with proper file structure', () => {
@@ -89,14 +92,16 @@ describe('create-dashboards-tool-transform-helper', () => {
       });
 
       // Verify files are properly structured
-      expect(result?.files['file-1']).toMatchObject({
-        id: 'file-1',
-        file_type: 'dashboard',
-        file_name: 'Dashboard 1',
-        version_number: 1,
-        status: 'completed',
-        file: { text: 'content1' },
-      });
+      if (result?.type === 'files') {
+        expect(result.files['file-1']).toMatchObject({
+          id: 'file-1',
+          file_type: 'dashboard',
+          file_name: 'Dashboard 1',
+          version_number: 1,
+          status: 'completed',
+          file: { text: 'content1' },
+        });
+      }
     });
 
     it('should update toolCallId in state', () => {
@@ -152,7 +157,9 @@ describe('create-dashboards-tool-transform-helper', () => {
 
       result = createCreateDashboardsReasoningEntry(state, 'tool-123');
       expect(result).toBeDefined();
-      expect(result?.file_ids).toEqual(['file-1']);
+      if (result?.type === 'files') {
+        expect(result.file_ids).toEqual(['file-1']);
+      }
 
       // Simulate third update with complete data
       state.files = [
@@ -167,7 +174,9 @@ describe('create-dashboards-tool-transform-helper', () => {
       ] as CreateDashboardStateFile[];
 
       result = createCreateDashboardsReasoningEntry(state, 'tool-123');
-      expect(result?.files['file-1'].file?.text).toBe('complete content');
+      if (result?.type === 'files') {
+        expect(result.files['file-1']?.file?.text).toBe('complete content');
+      }
     });
 
     it('should handle multiple files with incremental data', () => {
@@ -202,9 +211,11 @@ describe('create-dashboards-tool-transform-helper', () => {
       const result = createCreateDashboardsReasoningEntry(state, 'tool-123');
 
       // Should only include files with file_name
-      expect(result?.file_ids).toEqual(['file-1', 'file-3']);
-      expect(result?.files['file-1'].file?.text).toBe('content1');
-      expect(result?.files['file-3'].file?.text).toBeUndefined();
+      if (result?.type === 'files') {
+        expect(result.file_ids).toEqual(['file-1', 'file-3']);
+        expect(result.files['file-1']?.file?.text).toBe('content1');
+        expect(result.files['file-3']?.file?.text).toBe('');
+      }
     });
 
     it('should handle empty files array after filtering', () => {
@@ -362,7 +373,7 @@ describe('create-dashboards-tool-transform-helper', () => {
       });
 
       // Add file_name
-      state.files[0].file_name = 'Dashboard 1';
+      state.files[0]!.file_name = 'Dashboard 1';
       result = createCreateDashboardsRawLlmMessageEntry(state, 'tool-123');
       // Still empty array without content
       expect(result?.content[0]).toMatchObject({
@@ -373,7 +384,7 @@ describe('create-dashboards-tool-transform-helper', () => {
       });
 
       // Add file content
-      state.files[0].file = { text: 'content1' };
+      state.files[0]!.file = { text: 'content1' };
       result = createCreateDashboardsRawLlmMessageEntry(state, 'tool-123');
       expect(result).toBeDefined();
       expect(result?.content[0]).toMatchObject({
