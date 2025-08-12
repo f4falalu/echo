@@ -1,128 +1,115 @@
+import { randomUUID } from 'node:crypto';
 import { updateMessageEntries } from '@buster/database';
-import type { ChatMessageReasoningMessage } from '@buster/server-shared/chats';
 import type { ToolCallOptions } from 'ai';
 import {
   OptimisticJsonParser,
   getOptimisticValue,
 } from '../../../../utils/streaming/optimistic-json-parser';
 import type {
+  CreateMetricStateFile,
   CreateMetricsContext,
-  CreateMetricsFile,
   CreateMetricsState,
 } from './create-metrics-tool';
 import {
-  CREATE_METRICS_KEYS,
-  createMetricsReasoningMessage,
-  updateMetricsProgressMessage,
+  createCreateMetricsRawLlmMessageEntry,
+  createCreateMetricsReasoningEntry,
 } from './helpers/create-metrics-transform-helper';
 
-// Factory function for onInputDelta callback
-export function createCreateMetricsDelta(context: CreateMetricsContext, state: CreateMetricsState) {
-  return async function createMetricsDelta(
-    options: { inputTextDelta: string } & ToolCallOptions
-  ): Promise<void> {
-    // Accumulate the delta to the args
+// Define TOOL_KEYS locally since we removed them from the helper
+const TOOL_KEYS = {
+  files: 'files' as const,
+  name: 'name' as const,
+  yml_content: 'yml_content' as const,
+};
+
+export function createCreateMetricsDelta(
+  context: CreateMetricsContext,
+  state: CreateMetricsState
+) {
+  return async (options: { inputTextDelta: string } & ToolCallOptions) => {
+    // Handle string deltas (accumulate JSON text)
     state.argsText = (state.argsText || '') + options.inputTextDelta;
 
-    // Use optimistic parsing to extract values even from incomplete JSON
-    const parseResult = OptimisticJsonParser.parse(state.argsText);
+    // Try to parse the accumulated JSON
+    const parseResult = OptimisticJsonParser.parse(state.argsText || '');
 
-    // Extract files array from optimistic parsing - type-safe key
-    const filesArray = getOptimisticValue<unknown[]>(
-      parseResult.extractedValues,
-      CREATE_METRICS_KEYS.files
-    );
+    if (parseResult.parsed) {
+      // Extract files array from parsed result
+      const filesArray = getOptimisticValue<unknown[]>(
+        parseResult.extractedValues,
+        TOOL_KEYS.files,
+        []
+      );
 
-    if (filesArray && Array.isArray(filesArray)) {
-      // Initialize files array if not already initialized
-      if (!state.files) {
-        state.files = [];
-      }
+      if (filesArray && Array.isArray(filesArray)) {
+        // Update state files with streamed data
+        const updatedFiles: CreateMetricStateFile[] = [];
 
-      // Track if state changed to avoid unnecessary database updates
-      let stateChanged = false;
+        filesArray.forEach((file, index) => {
+          if (file && typeof file === 'object') {
+            const fileObj = file as Record<string, unknown>;
+            const name = getOptimisticValue<string>(
+              new Map(Object.entries(fileObj)),
+              TOOL_KEYS.name,
+              ''
+            );
+            const ymlContent = getOptimisticValue<string>(
+              new Map(Object.entries(fileObj)),
+              TOOL_KEYS.yml_content,
+              ''
+            );
 
-      // Update state files with streaming data
-      filesArray.forEach((file, index) => {
-        if (file && typeof file === 'object') {
-          const hasName = CREATE_METRICS_KEYS.name in file && file[CREATE_METRICS_KEYS.name];
-          const hasContent =
-            CREATE_METRICS_KEYS.yml_content in file && file[CREATE_METRICS_KEYS.yml_content];
+            // Only add files that have at least a name
+            if (name) {
+              // Check if this file already exists in state to preserve its ID
+              const existingFile = state.files?.[index];
 
-          // Update or add file when we have both name and content
-          if (hasName && hasContent) {
-            const name = file[CREATE_METRICS_KEYS.name] as string;
-            const ymlContent = file[CREATE_METRICS_KEYS.yml_content] as string;
-
-            // Check if file already exists in state
-            const existingFile = state.files?.[index];
-            if (existingFile) {
-              // Only update if values changed
-              if (existingFile.name !== name || existingFile.yml_content !== ymlContent) {
-                existingFile.name = name;
-                existingFile.yml_content = ymlContent;
-                stateChanged = true;
-              }
-            } else {
-              // Add new file
-              if (state.files) {
-                state.files[index] = {
-                  name,
-                  yml_content: ymlContent,
-                  status: 'processing',
-                };
-                stateChanged = true;
-              }
-            }
-          } else if (hasName && !state.files?.[index]) {
-            // Add placeholder with just name
-            if (state.files) {
-              state.files[index] = {
-                name: file[CREATE_METRICS_KEYS.name] as string,
-                yml_content: '',
-                status: 'processing',
-              };
-              stateChanged = true;
+              updatedFiles.push({
+                id: existingFile?.id || randomUUID(),
+                file_name: name,
+                file_type: 'metric',
+                version_number: existingFile?.version_number || 1,
+                file: ymlContent
+                  ? {
+                      text: ymlContent,
+                    }
+                  : undefined,
+                status: 'loading',
+              });
             }
           }
+        });
+
+        state.files = updatedFiles;
+      }
+    }
+
+    // Update database with both reasoning and raw LLM entries
+    if (context.messageId && state.toolCallId) {
+      try {
+        const reasoningEntry = createCreateMetricsReasoningEntry(state, options.toolCallId);
+        const rawLlmMessage = createCreateMetricsRawLlmMessageEntry(state, options.toolCallId);
+
+        // Update both entries together if they exist
+        const updates: Parameters<typeof updateMessageEntries>[0] = {
+          messageId: context.messageId,
+          mode: 'update',
+        };
+
+        if (reasoningEntry) {
+          updates.responseEntry = reasoningEntry;
         }
-      });
 
-      // Update database with progress if state changed and we have a messageId
-      if (stateChanged && context.messageId && state.files) {
-        try {
-          // Filter out any undefined entries
-          const validFiles = state.files.filter((f): f is CreateMetricsFile => f !== undefined);
-
-          // Create updated reasoning entry
-          const reasoningEntry = createMetricsReasoningMessage(
-            state.toolCallId || options.toolCallId,
-            validFiles,
-            'loading'
-          );
-
-          // Get progress message
-          const progressMessage = updateMetricsProgressMessage(validFiles);
-
-          console.info('[create-metrics] Updating database with streaming progress', {
-            messageId: context.messageId,
-            progressMessage,
-            fileCount: validFiles.length,
-            processedCount: validFiles.filter((f) => f.yml_content).length,
-          });
-
-          // Update database with streaming progress
-          await updateMessageEntries({
-            messageId: context.messageId,
-            reasoningEntry: reasoningEntry as ChatMessageReasoningMessage,
-            mode: 'update',
-          });
-        } catch (error) {
-          console.error('[create-metrics] Failed to update streaming progress', {
-            messageId: context.messageId,
-            error: error instanceof Error ? error.message : 'Unknown error',
-          });
+        if (rawLlmMessage) {
+          updates.rawLlmMessage = rawLlmMessage;
         }
+
+        if (reasoningEntry || rawLlmMessage) {
+          await updateMessageEntries(updates);
+        }
+      } catch (error) {
+        console.error('[create-metrics] Error updating entries during delta:', error);
+        // Don't throw - continue processing
       }
     }
   };

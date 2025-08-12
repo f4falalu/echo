@@ -9,6 +9,29 @@ vi.mock('@buster/database', () => ({
   updateMessageEntries: vi.fn(),
 }));
 
+// Mock the transform helper
+vi.mock('./helpers/create-metrics-transform-helper', () => ({
+  createCreateMetricsReasoningEntry: vi.fn(() => ({
+    id: 'tool-123',
+    type: 'files',
+    title: 'Creating metrics...',
+    status: 'loading',
+    file_ids: ['file-1'],
+    files: {},
+  })),
+  createCreateMetricsRawLlmMessageEntry: vi.fn(() => ({
+    role: 'assistant',
+    content: [
+      {
+        type: 'tool-call',
+        toolCallId: 'tool-123',
+        toolName: 'createMetrics',
+        input: { files: [] },
+      },
+    ],
+  })),
+}));
+
 describe('createCreateMetricsFinish', () => {
   const mockContext = {
     userId: 'user-123',
@@ -26,7 +49,6 @@ describe('createCreateMetricsFinish', () => {
     state = {
       argsText: undefined,
       files: undefined,
-      parsedArgs: undefined,
       toolCallId: 'tool-123',
     };
   });
@@ -46,13 +68,23 @@ describe('createCreateMetricsFinish', () => {
       messages: [],
     });
 
-    expect(state.parsedArgs).toEqual(input);
     expect(state.files).toBeDefined();
     expect(state.files!).toHaveLength(2);
     expect(state.files![0]).toMatchObject({
-      name: 'metric1',
-      yml_content: 'content1',
-      status: 'processing',
+      file_name: 'metric1',
+      file_type: 'metric',
+      file: {
+        text: 'content1',
+      },
+      status: 'loading',
+    });
+    expect(state.files![1]).toMatchObject({
+      file_name: 'metric2',
+      file_type: 'metric',
+      file: {
+        text: 'content2',
+      },
+      status: 'loading',
     });
   });
 
@@ -60,11 +92,14 @@ describe('createCreateMetricsFinish', () => {
     // Pre-populate state with existing file data
     state.files = [
       {
-        name: 'metric1',
-        yml_content: '',
-        status: 'processing',
         id: 'existing-id-1',
-        version: 1,
+        file_name: 'metric1',
+        file_type: 'metric',
+        version_number: 2,
+        file: {
+          text: '',
+        },
+        status: 'loading',
       },
     ];
 
@@ -84,17 +119,24 @@ describe('createCreateMetricsFinish', () => {
 
     // Check that existing properties are preserved
     expect(state.files!).toHaveLength(2);
-    expect(state.files![0]).toEqual({
-      name: 'metric1',
-      yml_content: 'updated content',
-      status: 'processing',
+    expect(state.files![0]).toMatchObject({
       id: 'existing-id-1',
-      version: 1,
+      file_name: 'metric1',
+      file_type: 'metric',
+      version_number: 2,
+      file: {
+        text: 'updated content',
+      },
+      status: 'loading',
     });
-    expect(state.files![1]).toEqual({
-      name: 'metric2',
-      yml_content: 'content2',
-      status: 'processing',
+    expect(state.files![1]).toMatchObject({
+      file_name: 'metric2',
+      file_type: 'metric',
+      version_number: 1,
+      file: {
+        text: 'content2',
+      },
+      status: 'loading',
     });
   });
 
@@ -113,7 +155,6 @@ describe('createCreateMetricsFinish', () => {
     expect(updateMessageEntries).toHaveBeenCalledWith(
       expect.objectContaining({
         messageId: 'msg-xyz',
-        reasoningEntry: expect.any(Object),
         mode: 'update',
       })
     );
@@ -152,11 +193,8 @@ describe('createCreateMetricsFinish', () => {
     });
 
     expect(consoleErrorSpy).toHaveBeenCalledWith(
-      '[create-metrics] Failed to finalize streaming data',
-      expect.objectContaining({
-        messageId: 'msg-xyz',
-        error: 'Database error',
-      })
+      '[create-metrics] Error updating entries on finish:',
+      expect.any(Error)
     );
 
     consoleErrorSpy.mockRestore();
@@ -178,58 +216,28 @@ describe('createCreateMetricsFinish', () => {
     expect(state.files!).toHaveLength(0);
   });
 
-  it('should log file information', async () => {
-    const consoleInfoSpy = vi.spyOn(console, 'info').mockImplementation(() => {});
-
-    const input: CreateMetricsInput = {
-      files: [
-        { name: 'metric1', yml_content: 'content1' },
-        { name: 'metric2', yml_content: 'content2' },
-      ],
-    };
-
-    const handler = createCreateMetricsFinish(mockContext, state);
-    await handler({
-      input,
-      toolCallId: 'tool-123',
-      messages: [],
-    });
-
-    expect(consoleInfoSpy).toHaveBeenCalledWith(
-      '[create-metrics] Input fully available',
-      expect.objectContaining({
-        fileCount: 2,
-        fileNames: ['metric1', 'metric2'],
-        messageId: 'msg-xyz',
-        timestamp: expect.any(String),
-      })
-    );
-
-    expect(consoleInfoSpy).toHaveBeenCalledWith(
-      '[create-metrics] Finalizing streaming data',
-      expect.objectContaining({
-        messageId: 'msg-xyz',
-        fileCount: 2,
-        toolCallId: 'tool-123',
-      })
-    );
-
-    consoleInfoSpy.mockRestore();
-  });
-
-  it('should mark files as processing when status is not set', async () => {
+  it('should preserve existing status when not loading', async () => {
     // Pre-populate with files that have different statuses
     state.files = [
       {
-        name: 'metric1',
-        yml_content: 'old content',
+        id: 'id-1',
+        file_name: 'metric1',
+        file_type: 'metric',
+        version_number: 1,
+        file: {
+          text: 'old content',
+        },
         status: 'failed',
-        error: 'previous error',
       },
       {
-        name: 'metric2',
-        yml_content: 'old content',
-        // No status
+        id: 'id-2',
+        file_name: 'metric2',
+        file_type: 'metric',
+        version_number: 1,
+        file: {
+          text: 'old content',
+        },
+        status: 'completed',
       },
     ];
 
@@ -247,24 +255,40 @@ describe('createCreateMetricsFinish', () => {
       messages: [],
     });
 
-    // All files should be marked as processing
-    expect(state.files![0]?.status).toBe('failed'); // Keeps existing non-processing status
-    expect(state.files![0]?.error).toBe('previous error'); // Preserves error
-    expect(state.files![1]?.status).toBe('processing'); // Sets to processing if undefined
+    // Status should be preserved
+    expect(state.files![0]?.status).toBe('failed');
+    expect(state.files![1]?.status).toBe('completed');
   });
 
   it('should handle files with existing IDs and versions', async () => {
     state.files = [
       {
-        name: 'metric1',
-        yml_content: '',
         id: 'id-123',
-        version: 2,
+        file_name: 'metric1',
+        file_type: 'metric',
+        version_number: 2,
+        file: {
+          text: '',
+        },
+        status: 'loading',
+      },
+      {
+        id: 'id-456',
+        file_name: 'metric2',
+        file_type: 'metric',
+        version_number: 3,
+        file: {
+          text: '',
+        },
+        status: 'loading',
       },
     ];
 
     const input: CreateMetricsInput = {
-      files: [{ name: 'metric1', yml_content: 'final content' }],
+      files: [
+        { name: 'metric1', yml_content: 'final content' },
+        { name: 'metric2', yml_content: 'content2' },
+      ],
     };
 
     const handler = createCreateMetricsFinish(mockContext, state);
@@ -275,11 +299,21 @@ describe('createCreateMetricsFinish', () => {
     });
 
     expect(state.files![0]).toEqual({
-      name: 'metric1',
-      yml_content: 'final content',
-      status: 'processing',
+      file_name: 'metric1',
+      file: { text: 'final content' },
       id: 'id-123',
-      version: 2,
+      file_type: 'metric',
+      version_number: 2,
+      status: 'loading',
+    });
+
+    expect(state.files![1]).toEqual({
+      file_name: 'metric2',
+      file: { text: 'content2' },
+      id: 'id-456',
+      file_type: 'metric',
+      version_number: 3,
+      status: 'loading',
     });
   });
 });

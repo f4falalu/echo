@@ -1,18 +1,17 @@
-import { randomUUID } from 'node:crypto';
 import { db, updateMessageEntries } from '@buster/database';
 import { dashboardFiles, metricFiles, metricFilesToDashboardFiles } from '@buster/database';
-import type { ModelMessage } from 'ai';
 import { wrapTraced } from 'braintrust';
 import { and, eq, inArray, isNull } from 'drizzle-orm';
 import * as yaml from 'yaml';
 import { z } from 'zod';
-import { trackFileAssociations } from '../../file-tracking-helper';
-import { addDashboardVersionToHistory, getLatestVersionNumber } from '../version-history-helpers';
-import type { DashboardYml, VersionHistory } from '../version-history-types';
 import {
-  createDashboardsRawLlmMessageEntry,
-  createDashboardsReasoningMessage,
-  createDashboardsResponseMessage,
+  type DashboardConfig,
+  DashboardConfigSchema,
+} from '../../../../../../server-shared/src/dashboards/dashboard.types';
+import { trackFileAssociations } from '../../file-tracking-helper';
+import {
+  createModifyDashboardsRawLlmMessageEntry,
+  createModifyDashboardsReasoningEntry,
 } from './helpers/modify-dashboards-transform-helper';
 import type {
   ModifyDashboardsContext,
@@ -21,30 +20,11 @@ import type {
   ModifyDashboardsState,
 } from './modify-dashboards-tool';
 
-// Core interfaces matching Rust structs exactly
-interface DashboardFileUpdateParams {
-  id: string;
-  yml_content: string;
-}
-
-interface ModifyDashboardFilesParams {
-  files: DashboardFileUpdateParams[];
-}
-
-interface FailedFileModification {
-  id: string;
-  error: string;
-}
-
-interface DashboardFileContent {
-  rows: Array<{
-    items: Array<{
-      id: string;
-      [key: string]: unknown;
-    }>;
-    [key: string]: unknown;
-  }>;
-  [key: string]: unknown;
+// Type definitions
+interface DashboardWithMetadata {
+  name: string;
+  description?: string;
+  config: DashboardConfig;
 }
 
 interface FileWithId {
@@ -56,97 +36,98 @@ interface FileWithId {
   created_at: string;
   updated_at: string;
   version_number: number;
-  content?: DashboardFileContent;
+  content?: DashboardConfig;
 }
 
-interface ModifyDashboardFilesOutput {
-  message: string;
-  duration: number;
-  files: FileWithId[];
-  failed_files: FailedFileModification[];
+interface FailedFileModification {
+  id: string;
+  error: string;
 }
 
-// Row item schema matching Rust RowItem
-const rowItemSchema = z.object({
-  id: z.string().uuid('Must be a valid UUID for an existing metric'),
-});
+interface VersionHistory {
+  versions: Array<{
+    version: number;
+    created_at: string;
+    changes?: string;
+    content: DashboardWithMetadata;
+  }>;
+}
 
-// Row schema matching Rust Row struct exactly
-const rowSchema = z.object({
-  id: z.number().int().positive('Row ID must be a positive integer'),
-  items: z
-    .array(rowItemSchema)
-    .min(1, 'Each row must have at least 1 item')
-    .max(4, 'Each row can have at most 4 items'),
-  column_sizes: z
+// Helper function to get latest version number
+function getLatestVersionNumber(versionHistory: VersionHistory | null): number {
+  if (!versionHistory || !versionHistory.versions || versionHistory.versions.length === 0) {
+    return 0;
+  }
+  return Math.max(...versionHistory.versions.map((v) => v.version));
+}
+
+// Helper function to add dashboard version to history
+function addDashboardVersionToHistory(
+  versionHistory: VersionHistory | null,
+  dashboard: DashboardWithMetadata,
+  createdAt: string
+): VersionHistory {
+  const newVersion = getLatestVersionNumber(versionHistory) + 1;
+  const newEntry = createDashboardVersionForHistory(dashboard, createdAt, newVersion);
+
+  if (!versionHistory) {
+    return { versions: [newEntry] };
+  }
+
+  return {
+    versions: [...versionHistory.versions, newEntry],
+  };
+}
+
+// Helper function to create dashboard version for history
+function createDashboardVersionForHistory(
+  dashboard: DashboardWithMetadata,
+  createdAt: string,
+  version: number
+): {
+  version: number;
+  created_at: string;
+  content: DashboardWithMetadata;
+} {
+  return {
+    version,
+    created_at: createdAt,
+    content: dashboard,
+  };
+}
+
+type ModifyDashboardFilesParams = ModifyDashboardsInput;
+type ModifyDashboardFilesOutput = ModifyDashboardsOutput;
+
+// Dashboard YAML schema
+const dashboardYmlSchema = z.object({
+  name: z.string().min(1, 'Dashboard name is required'),
+  description: z.string().optional(),
+  rows: z
     .array(
       z
-        .number()
-        .int()
-        .min(3, 'Each column size must be at least 3')
-        .max(12, 'Each column size cannot exceed 12')
+        .object({
+          id: z.string(),
+          items: z.array(
+            z
+              .object({
+                id: z.string(),
+              })
+              .passthrough()
+          ),
+          column_sizes: z.array(z.number()).optional(),
+          rowHeight: z.number().optional(),
+        })
+        .passthrough()
     )
-    .min(1, 'column_sizes array cannot be empty')
-    .refine((sizes) => sizes.reduce((sum, size) => sum + size, 0) === 12, {
-      message: 'Column sizes must sum to exactly 12',
-    }),
-  rowHeight: z
-    .number()
-    .int()
-    .min(320, 'Row height must be at least 320')
-    .max(550, 'Row height cannot exceed 550')
-    .optional(),
+    .min(1, 'Dashboard must have at least one row'),
 });
-
-// Dashboard YAML schema matching Rust DashboardYml struct exactly
-const dashboardYmlSchema = z
-  .object({
-    name: z.string().min(1, 'Dashboard name is required'),
-    description: z.string().optional(),
-    rows: z
-      .array(rowSchema)
-      .min(1, 'Dashboard must have at least one row')
-      .refine(
-        (rows) => {
-          const ids = rows.map((row) => row.id);
-          const uniqueIds = new Set(ids);
-          return ids.length === uniqueIds.size;
-        },
-        {
-          message: 'All row IDs must be unique',
-        }
-      ),
-  })
-  .refine(
-    (dashboard) => {
-      // Validate each row structure and column constraints
-      return dashboard.rows.every((row) => {
-        // Check that number of items matches number of column sizes
-        if (row.items.length !== row.column_sizes.length) {
-          return false;
-        }
-
-        // Check column size constraints
-        const sum = row.column_sizes.reduce((acc, size) => acc + size, 0);
-        if (sum !== 12) {
-          return false;
-        }
-
-        // Check minimum column size
-        return row.column_sizes.every((size) => size >= 3);
-      });
-    },
-    {
-      message:
-        'Invalid row configuration: items must match column_sizes, sizes must sum to 12, and each size must be >= 3',
-    }
-  );
 
 // Parse and validate dashboard YAML content
 function parseAndValidateYaml(ymlContent: string): {
   success: boolean;
   error?: string;
-  data?: DashboardYml;
+  data?: DashboardWithMetadata;
 } {
   try {
     const parsedYml = yaml.parse(ymlContent);
@@ -159,19 +140,24 @@ function parseAndValidateYaml(ymlContent: string): {
       };
     }
 
-    // Transform the validated data to match DashboardYml type (camelCase)
-    const transformedData: DashboardYml = {
-      name: validationResult.data.name,
-      description: validationResult.data.description,
-      rows: validationResult.data.rows.map((row) => ({
+    // Create DashboardConfig that matches the server-shared type
+    const dashboardConfig: DashboardConfig = {
+      rows: validationResult.data.rows?.map((row) => ({
         id: row.id,
-        items: row.items,
-        columnSizes: row.column_sizes, // Transform snake_case to camelCase
-        rowHeight: row.rowHeight,
+        items: row.items.map((item) => ({ id: item.id })),
+        ...(row.column_sizes !== undefined && { columnSizes: row.column_sizes }),
+        ...(row.rowHeight !== undefined && { rowHeight: row.rowHeight }),
       })),
     };
 
-    return { success: true, data: transformedData };
+    // Return dashboard with metadata
+    const dashboard: DashboardWithMetadata = {
+      name: validationResult.data.name,
+      ...(validationResult.data.description && { description: validationResult.data.description }),
+      config: dashboardConfig,
+    };
+
+    return { success: true, data: dashboard };
   } catch (error) {
     return {
       success: false,
@@ -212,10 +198,10 @@ async function validateMetricIds(
 }
 
 // Process a dashboard file modification request
-async function processDashboardFile(file: DashboardFileUpdateParams): Promise<{
+async function processDashboardFile(file: { id: string; yml_content: string }): Promise<{
   success: boolean;
   dashboardFile?: FileWithId;
-  dashboardYml?: DashboardYml;
+  dashboard?: DashboardWithMetadata;
   existingFile?: typeof dashboardFiles.$inferSelect;
   error?: string;
 }> {
@@ -252,16 +238,18 @@ async function processDashboardFile(file: DashboardFileUpdateParams): Promise<{
     };
   }
 
-  const dashboardYml = yamlValidation.data;
-  if (!dashboardYml) {
+  const dashboard = yamlValidation.data;
+  if (!dashboard) {
     return {
       success: false,
       error: 'Failed to parse dashboard YAML data.',
     };
   }
 
-  // Collect all metric IDs from rows
-  const metricIds: string[] = dashboardYml.rows.flatMap((row) => row.items).map((item) => item.id);
+  // Collect all metric IDs from rows if they exist
+  const metricIds: string[] = dashboard.config.rows
+    ? dashboard.config.rows.flatMap((row) => row.items).map((item) => item.id)
+    : [];
 
   // Validate metric IDs if any exist
   if (metricIds.length > 0) {
@@ -287,18 +275,18 @@ async function processDashboardFile(file: DashboardFileUpdateParams): Promise<{
 
   const dashboardFile: FileWithId = {
     id: file.id,
-    name: dashboardYml.name,
+    name: dashboard.name,
     file_type: 'dashboard',
     created_at: existingFile.createdAt,
     updated_at: new Date().toISOString(),
     version_number: latestVersion,
-    content: dashboardYml as DashboardFileContent,
+    content: dashboard.config, // Store the DashboardConfig directly
   };
 
   return {
     success: true,
     dashboardFile,
-    dashboardYml,
+    dashboard,
     existingFile,
   };
 }
@@ -332,10 +320,9 @@ function generateResultMessage(
 const modifyDashboardFiles = wrapTraced(
   async (
     params: ModifyDashboardFilesParams,
-    context: ModifyDashboardsContext
+    context: ModifyDashboardsContext,
+    _state?: ModifyDashboardsState
   ): Promise<ModifyDashboardFilesOutput> => {
-    const startTime = Date.now();
-
     // Get context values
     const userId = context.userId;
     const organizationId = context.organizationId;
@@ -344,7 +331,6 @@ const modifyDashboardFiles = wrapTraced(
     if (!userId) {
       return {
         message: 'Unable to verify your identity. Please log in again.',
-        duration: Date.now() - startTime,
         files: [],
         failed_files: [],
       };
@@ -352,7 +338,6 @@ const modifyDashboardFiles = wrapTraced(
     if (!organizationId) {
       return {
         message: 'Unable to access your organization. Please check your permissions.',
-        duration: Date.now() - startTime,
         files: [],
         failed_files: [],
       };
@@ -371,7 +356,7 @@ const modifyDashboardFiles = wrapTraced(
 
     const successfulProcessing: Array<{
       dashboardFile: FileWithId;
-      dashboardYml: DashboardYml;
+      dashboard: DashboardWithMetadata;
       existingFile: typeof dashboardFiles.$inferSelect;
     }> = [];
 
@@ -379,10 +364,10 @@ const modifyDashboardFiles = wrapTraced(
     for (const processResult of processResults) {
       if (processResult.status === 'fulfilled') {
         const { fileId, result } = processResult.value;
-        if (result.success && result.dashboardFile && result.dashboardYml && result.existingFile) {
+        if (result.success && result.dashboardFile && result.dashboard && result.existingFile) {
           successfulProcessing.push({
             dashboardFile: result.dashboardFile,
-            dashboardYml: result.dashboardYml,
+            dashboard: result.dashboard,
             existingFile: result.existingFile,
           });
         } else {
@@ -408,25 +393,25 @@ const modifyDashboardFiles = wrapTraced(
             // Add new version to history
             const updatedVersionHistory = addDashboardVersionToHistory(
               sp.existingFile.versionHistory as VersionHistory | null,
-              sp.dashboardYml,
+              sp.dashboard,
               new Date().toISOString()
             );
 
             await tx
               .update(dashboardFiles)
               .set({
-                content: sp.dashboardYml as DashboardFileContent,
+                content: sp.dashboard.config as DashboardConfig,
                 updatedAt: sp.dashboardFile.updated_at,
                 versionHistory: updatedVersionHistory,
-                name: sp.dashboardYml.name,
+                name: sp.dashboard.name,
               })
               .where(eq(dashboardFiles.id, sp.dashboardFile.id))
               .execute();
 
             // Update metric associations
-            const newMetricIds = sp.dashboardYml.rows
-              .flatMap((row) => row.items)
-              .map((item) => item.id);
+            const newMetricIds = sp.dashboard.config.rows
+              ? sp.dashboard.config.rows.flatMap((row) => row.items).map((item) => item.id)
+              : [];
 
             const existingAssociations = await tx
               .select({ metricFileId: metricFilesToDashboardFiles.metricFileId })
@@ -527,12 +512,10 @@ const modifyDashboardFiles = wrapTraced(
       });
     }
 
-    const duration = Date.now() - startTime;
     const message = generateResultMessage(files, failedFiles);
 
     return {
       message,
-      duration,
       files,
       failed_files: failedFiles,
     };
@@ -549,8 +532,12 @@ export function createModifyDashboardsExecute(
       const startTime = Date.now();
 
       try {
-        // Call the main function directly instead of delegating
-        const result = await modifyDashboardFiles(input as ModifyDashboardFilesParams, context);
+        // Call the main function directly, passing state for dashboard IDs
+        const result = await modifyDashboardFiles(
+          input as ModifyDashboardFilesParams,
+          context,
+          state
+        );
 
         // Update state files with final results (IDs, versions, status)
         if (result && typeof result === 'object') {
@@ -563,8 +550,8 @@ export function createModifyDashboardsExecute(
             typedResult.files.forEach((file) => {
               const stateFile = (state.files ?? []).find((f) => f.id === file.id);
               if (stateFile) {
-                stateFile.name = file.name;
-                stateFile.version = file.version_number;
+                stateFile.file_name = file.name;
+                stateFile.version_number = file.version_number;
                 stateFile.status = 'completed';
               }
             });
@@ -576,7 +563,7 @@ export function createModifyDashboardsExecute(
               const stateFile = (state.files ?? []).find((f) => f.id === failedFile.id);
               if (stateFile) {
                 stateFile.status = 'failed';
-                stateFile.error = failedFile.error;
+                // Add error to the state file if needed (not part of the current schema)
               }
             });
           }
@@ -587,34 +574,34 @@ export function createModifyDashboardsExecute(
               const finalStatus = typedResult.failed_files?.length ? 'failed' : 'completed';
               const toolCallId = state.toolCallId || `tool-${Date.now()}`;
 
-              const reasoningEntry = createDashboardsReasoningMessage(
-                toolCallId,
-                state.files ?? [],
-                finalStatus
-              );
-              const responseEntry = createDashboardsResponseMessage(
-                toolCallId,
-                typedResult.message
-              );
-              const rawLlmMessage: ModelMessage = {
-                role: 'assistant',
-                content: [
-                  {
-                    type: 'tool-call',
-                    toolCallId,
-                    toolName: 'modify-dashboards',
-                    input: state.parsedArgs || (input as Partial<ModifyDashboardFilesParams>),
-                  },
-                ],
+              // Update state for final status
+              if (state.files) {
+                state.files.forEach((f) => {
+                  if (!f.status || f.status === 'loading') {
+                    f.status = finalStatus === 'failed' ? 'failed' : 'completed';
+                  }
+                });
+              }
+
+              const reasoningEntry = createModifyDashboardsReasoningEntry(state, toolCallId);
+              const rawLlmMessage = createModifyDashboardsRawLlmMessageEntry(state, toolCallId);
+
+              const updates: Parameters<typeof updateMessageEntries>[0] = {
+                messageId: context.messageId,
+                mode: 'update',
               };
 
-              await updateMessageEntries({
-                messageId: context.messageId,
-                reasoningEntry,
-                responseEntry,
-                rawLlmMessage,
-                mode: 'update',
-              });
+              if (reasoningEntry) {
+                updates.responseEntry = reasoningEntry;
+              }
+
+              if (rawLlmMessage) {
+                updates.rawLlmMessage = rawLlmMessage;
+              }
+
+              if (reasoningEntry || rawLlmMessage) {
+                await updateMessageEntries(updates);
+              }
 
               console.info('[modify-dashboards] Updated last entries with final results', {
                 messageId: context.messageId,
@@ -647,29 +634,32 @@ export function createModifyDashboardsExecute(
         if (context.messageId) {
           try {
             const toolCallId = state.toolCallId || `tool-${Date.now()}`;
-            const reasoningEntry = createDashboardsReasoningMessage(
-              toolCallId,
-              (state.files ?? []).map((f) => ({ ...f, status: 'failed' })),
-              'failed'
-            );
-            const rawLlmMessage: ModelMessage = {
-              role: 'assistant',
-              content: [
-                {
-                  type: 'tool-call',
-                  toolCallId,
-                  toolName: 'modify-dashboards',
-                  input: state.parsedArgs || {},
-                },
-              ],
+            // Update state files to failed status
+            if (state.files) {
+              state.files.forEach((f) => {
+                f.status = 'failed';
+              });
+            }
+
+            const reasoningEntry = createModifyDashboardsReasoningEntry(state, toolCallId);
+            const rawLlmMessage = createModifyDashboardsRawLlmMessageEntry(state, toolCallId);
+
+            const updates: Parameters<typeof updateMessageEntries>[0] = {
+              messageId: context.messageId,
+              mode: 'update',
             };
 
-            await updateMessageEntries({
-              messageId: context.messageId,
-              reasoningEntry,
-              rawLlmMessage,
-              mode: 'update',
-            });
+            if (reasoningEntry) {
+              updates.responseEntry = reasoningEntry;
+            }
+
+            if (rawLlmMessage) {
+              updates.rawLlmMessage = rawLlmMessage;
+            }
+
+            if (reasoningEntry || rawLlmMessage) {
+              await updateMessageEntries(updates);
+            }
           } catch (updateError) {
             console.error('[modify-dashboards] Error updating entries on failure:', updateError);
           }

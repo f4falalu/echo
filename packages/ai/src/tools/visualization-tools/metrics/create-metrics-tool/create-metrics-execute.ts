@@ -2,7 +2,6 @@ import { randomUUID } from 'node:crypto';
 import type { DataSource } from '@buster/data-source';
 import { assetPermissions, db, metricFiles, updateMessageEntries } from '@buster/database';
 import { type ChartConfigProps, ChartConfigPropsSchema } from '@buster/server-shared/metrics';
-import type { ModelMessage } from 'ai';
 import { wrapTraced } from 'braintrust';
 import * as yaml from 'yaml';
 import { z } from 'zod';
@@ -21,8 +20,8 @@ import type {
   CreateMetricsState,
 } from './create-metrics-tool';
 import {
-  createMetricsReasoningMessage,
-  createMetricsResponseMessage,
+  createCreateMetricsRawLlmMessageEntry,
+  createCreateMetricsReasoningEntry,
 } from './helpers/create-metrics-transform-helper';
 
 // TypeScript types matching Rust DataMetadata structure
@@ -80,6 +79,12 @@ interface FailedFileCreation {
   error: string;
 }
 
+interface MetricWithMetadata {
+  name: string;
+  description?: string;
+  config: ChartConfigProps;
+}
+
 interface MetricFileResult {
   success: boolean;
   error?: string;
@@ -87,6 +92,35 @@ interface MetricFileResult {
   metricYml?: ChartConfigProps;
   message?: string;
   results?: Record<string, unknown>[];
+}
+
+interface VersionHistory {
+  versions: Array<{
+    version: number;
+    created_at: string;
+    changes?: string;
+    content: MetricWithMetadata;
+  }>;
+}
+
+// Helper function to create initial version history
+function createInitialMetricVersionHistory(
+  metric: ChartConfigProps,
+  createdAt: string
+): VersionHistory {
+  return {
+    versions: [
+      {
+        version: 1,
+        created_at: createdAt,
+        content: {
+          name: metric.name,
+          ...(metric.description && { description: metric.description }),
+          config: metric,
+        },
+      },
+    ],
+  };
 }
 
 interface ValidationResult {
@@ -223,15 +257,15 @@ function createDataMetadata(results: Record<string, unknown>[]): DataMetadata {
 }
 
 async function processMetricFile(
-  ymlContent: string,
+  file: { name: string; yml_content: string },
   dataSourceId: string,
   dataSourceDialect: string,
   userId: string,
-  userId: string
+  metricId?: string
 ): Promise<MetricFileResult> {
   try {
     // Ensure timeFrame values are properly quoted before parsing
-    const fixedYmlContent = ensureTimeFrameQuoted(ymlContent);
+    const fixedYmlContent = ensureTimeFrameQuoted(file.yml_content);
 
     // Parse and validate YAML
     const metricYml = yaml.parse(fixedYmlContent);
@@ -253,8 +287,8 @@ async function processMetricFile(
         ? axisValidation.adjustedYml
         : metricYml;
 
-    // Generate deterministic UUID (simplified version)
-    const metricId = randomUUID();
+    // Use provided metric ID from state or generate new one
+    const id = metricId || randomUUID();
 
     // Validate SQL by running it
     const sqlValidationResult = await validateSql(
@@ -274,7 +308,7 @@ async function processMetricFile(
     // Create metric file object
     const now = new Date().toISOString();
     const metricFile: FileWithId = {
-      id: metricId,
+      id,
       name: finalMetricYml.name,
       file_type: 'metric',
       result_message: sqlValidationResult.message || '',
@@ -509,7 +543,8 @@ function generateResultMessage(
 const createMetricFiles = wrapTraced(
   async (
     params: CreateMetricsInput,
-    context: CreateMetricsContext
+    context: CreateMetricsContext,
+    state?: CreateMetricsState
   ): Promise<CreateMetricsOutput> => {
     const startTime = Date.now();
 
@@ -523,7 +558,6 @@ const createMetricFiles = wrapTraced(
     if (!dataSourceId) {
       return {
         message: 'Unable to identify the data source. Please refresh and try again.',
-        duration: Date.now() - startTime,
         files: [],
         failed_files: [],
       };
@@ -531,7 +565,6 @@ const createMetricFiles = wrapTraced(
     if (!userId) {
       return {
         message: 'Unable to verify your identity. Please log in again.',
-        duration: Date.now() - startTime,
         files: [],
         failed_files: [],
       };
@@ -539,7 +572,6 @@ const createMetricFiles = wrapTraced(
     if (!organizationId) {
       return {
         message: 'Unable to access your organization. Please check your permissions.',
-        duration: Date.now() - startTime,
         files: [],
         failed_files: [],
       };
@@ -548,15 +580,27 @@ const createMetricFiles = wrapTraced(
     const files: FileWithId[] = [];
     const failedFiles: FailedFileCreation[] = [];
 
-    // Process files concurrently
+    // Process files concurrently, passing metric IDs from state
     const processResults = await Promise.allSettled(
-      params.files.map(async (file) => {
+      params.files.map(async (file, index) => {
+        // Ensure file has required properties
+        if (!file.name || !file.yml_content) {
+          return {
+            fileName: file.name || 'unknown',
+            result: {
+              success: false,
+              error: 'Missing required file properties',
+            },
+          };
+        }
+        // Get metric ID from state if available
+        const metricId = state?.files?.[index]?.id;
         const result = await processMetricFile(
-          file.name,
-          file.yml_content,
+          file as { name: string; yml_content: string },
           dataSourceId,
           dataSourceSyntax,
-          userId
+          userId,
+          typeof metricId === 'string' ? metricId : undefined
         );
         return { fileName: file.name, result };
       })
@@ -685,12 +729,10 @@ const createMetricFiles = wrapTraced(
       });
     }
 
-    const duration = Date.now() - startTime;
     const message = generateResultMessage(files, failedFiles);
 
     return {
       message,
-      duration,
       files,
       failed_files: failedFiles,
     };
@@ -707,8 +749,8 @@ export function createCreateMetricsExecute(
       const startTime = Date.now();
 
       try {
-        // Call the main function directly instead of delegating
-        const result = await createMetricFiles(input, context);
+        // Call the main function directly, passing state for metric IDs
+        const result = await createMetricFiles(input, context, state);
 
         // Update state files with final results (IDs, versions, status)
         if (result && typeof result === 'object') {
@@ -719,10 +761,10 @@ export function createCreateMetricsExecute(
           // Update successful files
           if (typedResult.files && Array.isArray(typedResult.files)) {
             typedResult.files.forEach((file) => {
-              const stateFile = (state.files ?? []).find((f) => f.name === file.name);
+              const stateFile = (state.files ?? []).find((f) => f.file_name === file.name);
               if (stateFile) {
                 stateFile.id = file.id;
-                stateFile.version = file.version_number;
+                stateFile.version_number = file.version_number;
                 stateFile.status = 'completed';
               }
             });
@@ -731,10 +773,10 @@ export function createCreateMetricsExecute(
           // Update failed files
           if (typedResult.failed_files && Array.isArray(typedResult.failed_files)) {
             typedResult.failed_files.forEach((failedFile) => {
-              const stateFile = (state.files ?? []).find((f) => f.name === failedFile.name);
+              const stateFile = (state.files ?? []).find((f) => f.file_name === failedFile.name);
               if (stateFile) {
                 stateFile.status = 'failed';
-                stateFile.error = failedFile.error;
+                // Add error to the state file if needed (not part of the current schema)
               }
             });
           }
@@ -745,31 +787,34 @@ export function createCreateMetricsExecute(
               const finalStatus = typedResult.failed_files?.length ? 'failed' : 'completed';
               const toolCallId = state.toolCallId || `tool-${Date.now()}`;
 
-              const reasoningEntry = createMetricsReasoningMessage(
-                toolCallId,
-                state.files ?? [],
-                finalStatus
-              );
-              const responseEntry = createMetricsResponseMessage(toolCallId, typedResult.message);
-              const rawLlmMessage: ModelMessage = {
-                role: 'assistant',
-                content: [
-                  {
-                    type: 'tool-call',
-                    toolCallId,
-                    toolName: 'create-metrics',
-                    input: state.parsedArgs || input,
-                  },
-                ],
+              // Update state for final status
+              if (state.files) {
+                state.files.forEach((f) => {
+                  if (!f.status || f.status === 'loading') {
+                    f.status = finalStatus === 'failed' ? 'failed' : 'completed';
+                  }
+                });
+              }
+
+              const reasoningEntry = createCreateMetricsReasoningEntry(state, toolCallId);
+              const rawLlmMessage = createCreateMetricsRawLlmMessageEntry(state, toolCallId);
+
+              const updates: Parameters<typeof updateMessageEntries>[0] = {
+                messageId: context.messageId,
+                mode: 'update',
               };
 
-              await updateMessageEntries({
-                messageId: context.messageId,
-                reasoningEntry,
-                responseEntry,
-                rawLlmMessage,
-                mode: 'update',
-              });
+              if (reasoningEntry) {
+                updates.responseEntry = reasoningEntry;
+              }
+
+              if (rawLlmMessage) {
+                updates.rawLlmMessage = rawLlmMessage;
+              }
+
+              if (reasoningEntry || rawLlmMessage) {
+                await updateMessageEntries(updates);
+              }
 
               console.info('[create-metrics] Updated last entries with final results', {
                 messageId: context.messageId,
@@ -802,29 +847,32 @@ export function createCreateMetricsExecute(
         if (context.messageId) {
           try {
             const toolCallId = state.toolCallId || `tool-${Date.now()}`;
-            const reasoningEntry = createMetricsReasoningMessage(
-              toolCallId,
-              (state.files ?? []).map((f) => ({ ...f, status: 'failed' })),
-              'failed'
-            );
-            const rawLlmMessage: ModelMessage = {
-              role: 'assistant',
-              content: [
-                {
-                  type: 'tool-call',
-                  toolCallId,
-                  toolName: 'create-metrics',
-                  input: state.parsedArgs || {},
-                },
-              ],
+            // Update state files to failed status
+            if (state.files) {
+              state.files.forEach((f) => {
+                f.status = 'failed';
+              });
+            }
+
+            const reasoningEntry = createCreateMetricsReasoningEntry(state, toolCallId);
+            const rawLlmMessage = createCreateMetricsRawLlmMessageEntry(state, toolCallId);
+
+            const updates: Parameters<typeof updateMessageEntries>[0] = {
+              messageId: context.messageId,
+              mode: 'update',
             };
 
-            await updateMessageEntries({
-              messageId: context.messageId,
-              reasoningEntry,
-              rawLlmMessage,
-              mode: 'update',
-            });
+            if (reasoningEntry) {
+              updates.responseEntry = reasoningEntry;
+            }
+
+            if (rawLlmMessage) {
+              updates.rawLlmMessage = rawLlmMessage;
+            }
+
+            if (reasoningEntry || rawLlmMessage) {
+              await updateMessageEntries(updates);
+            }
           } catch (updateError) {
             console.error('[create-metrics] Error updating entries on failure:', updateError);
           }

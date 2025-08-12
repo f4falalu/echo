@@ -1,95 +1,84 @@
 import type {
   ChatMessageReasoningMessage,
-  ChatMessageResponseMessage,
+  ChatMessageReasoningMessage_File,
 } from '@buster/server-shared/chats';
-import type {
-  CreateMetricsFile,
-  CreateMetricsInput,
-  CreateMetricsState,
-} from '../create-metrics-tool';
+import type { ModelMessage } from 'ai';
+import { type CreateMetricsState, TOOL_NAME } from '../create-metrics-tool';
 
 /**
- * Create a reasoning message entry for metrics creation
+ * Create a reasoning entry for create-metrics tool
  */
-export function createMetricsReasoningMessage(
-  toolCallId: string,
-  state: CreateMetricsState
-): ChatMessageReasoningMessage {
-  const files = state.files || [];
-}
+export function createCreateMetricsReasoningEntry(
+  state: CreateMetricsState,
+  toolCallId: string
+): ChatMessageReasoningMessage | undefined {
+  state.toolCallId = toolCallId;
 
-/**
- * Create a response message for metrics creation feedback
- */
-export function createMetricsResponseMessage(
-  toolCallId: string,
-  message: string
-): ChatMessageResponseMessage {
+  if (!state.files || state.files.length === 0) {
+    return undefined;
+  }
+
+  // Build Record<string, ReasoningFile> as required by schema
+  const filesRecord: Record<string, ChatMessageReasoningMessage_File> = {};
+  const fileIds: string[] = [];
+  for (const f of state.files) {
+    // Skip undefined entries or entries that do not yet have a file_name
+    if (!f || !f.file_name) continue;
+    const id = f.id;
+    fileIds.push(id);
+    filesRecord[id] = {
+      id,
+      file_type: 'metric',
+      file_name: f.file_name,
+      version_number: f.version_number,
+      status: f.status,
+      file: {
+        text: f.file?.text || '',
+      },
+    };
+  }
+
+  // If nothing valid to show yet, skip emitting a files reasoning message
+  if (fileIds.length === 0) return undefined;
+
   return {
     id: toolCallId,
-    type: 'text',
-    message,
-    is_final_message: false,
-  } as ChatMessageResponseMessage;
+    type: 'files',
+    title: 'Creating metrics...',
+    status: 'loading',
+    file_ids: fileIds,
+    files: filesRecord,
+  } as ChatMessageReasoningMessage;
 }
 
 /**
- * Create raw LLM message entry for database
+ * Create a raw LLM message entry for create-metrics tool
  */
-export function createMetricsRawLlmMessageEntry(
-  toolCallId: string,
-  toolName: string,
-  args: Partial<CreateMetricsInput> | undefined
-) {
-  return {
-    type: 'tool-call',
-    toolCallId,
-    toolName,
-    args: args || {},
-  };
-}
-
-/**
- * Update progress message during streaming
- */
-export function updateMetricsProgressMessage(files: CreateMetricsFile[]): string {
-  const processedCount = files.filter((f) => f.yml_content).length;
-  const totalCount = files.length;
-
-  if (processedCount === 0) {
-    return 'Starting metric creation...';
-  }
-  if (processedCount < totalCount) {
-    return `Processing metrics... (${processedCount}/${totalCount})`;
-  }
-  return `Processed ${totalCount} ${totalCount === 1 ? 'metric' : 'metrics'}`;
-}
-
-/**
- * Extract file info for final response
- */
-export function extractMetricsFileInfo(files: CreateMetricsFile[]) {
-  const successfulFiles = files.filter((f) => f.status === 'completed' && f.id);
-  const failedFiles = files.filter((f) => f.status === 'failed');
+export function createCreateMetricsRawLlmMessageEntry(
+  state: CreateMetricsState,
+  toolCallId: string
+): ModelMessage | undefined {
+  // If we don't have files yet, skip emitting raw LLM entry
+  if (!state.files || state.files.length === 0) return undefined;
 
   return {
-    successfulFiles: successfulFiles.map((f) => ({
-      id: f.id || '',
-      name: f.name,
-      version: f.version || 1,
-    })),
-    failedFiles: failedFiles.map((f) => ({
-      name: f.name,
-      error: f.error || 'Unknown error',
-    })),
-  };
+    role: 'assistant',
+    content: [
+      {
+        type: 'tool-call',
+        toolCallId,
+        toolName: TOOL_NAME,
+        input: {
+          files: state.files
+            .filter((file) => file != null) // Filter out null/undefined entries first
+            .map((file) => ({
+              name: file.file_name ?? '',
+              yml_content: file.file?.text ?? '',
+            }))
+            // Filter out clearly invalid entries
+            .filter((f) => f.name && f.yml_content),
+        },
+      },
+    ],
+  } as ModelMessage;
 }
-
-/**
- * Keys for type-safe extraction from streaming JSON
- */
-export const CREATE_METRICS_KEYS = {
-  files: 'files' as const,
-  name: 'name' as const,
-  yml_content: 'yml_content' as const,
-} satisfies Record<string, keyof CreateMetricsInput | 'name' | 'yml_content'>;

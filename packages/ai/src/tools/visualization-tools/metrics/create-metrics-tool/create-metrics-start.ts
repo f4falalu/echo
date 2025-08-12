@@ -1,26 +1,50 @@
 import { updateMessageEntries } from '@buster/database';
-import type { ChatMessageReasoningMessage } from '@buster/server-shared/chats';
 import type { ToolCallOptions } from 'ai';
 import type { CreateMetricsContext, CreateMetricsState } from './create-metrics-tool';
-import { createMetricsReasoningMessage } from './helpers/create-metrics-transform-helper';
+import {
+  createCreateMetricsRawLlmMessageEntry,
+  createCreateMetricsReasoningEntry,
+} from './helpers/create-metrics-transform-helper';
 
-export function createCreateMetricsStart(context: CreateMetricsContext, state: CreateMetricsState) {
-  return async function createMetricsStart(options: ToolCallOptions): Promise<void> {
+export function createCreateMetricsStart(
+  context: CreateMetricsContext,
+  state: CreateMetricsState
+) {
+  return async (options: ToolCallOptions) => {
     state.toolCallId = options.toolCallId;
 
     if (context.messageId) {
       try {
-        const initialReasoningMessage = createMetricsReasoningMessage(
-          state.toolCallId || `tool-${Date.now()}`,
-          [],
-          'loading'
-        );
+        if (context.messageId && state.toolCallId) {
+          // Update database with both reasoning and raw LLM entries
+          try {
+            const reasoningEntry = createCreateMetricsReasoningEntry(state, options.toolCallId);
+            const rawLlmMessage = createCreateMetricsRawLlmMessageEntry(
+              state,
+              options.toolCallId
+            );
 
-        await updateMessageEntries({
-          messageId: context.messageId,
-          responseEntry: initialReasoningMessage as ChatMessageReasoningMessage,
-          mode: 'append',
-        });
+            // Update both entries together if they exist
+            const updates: Parameters<typeof updateMessageEntries>[0] = {
+              messageId: context.messageId,
+              mode: 'append',
+            };
+
+            if (reasoningEntry) {
+              updates.responseEntry = reasoningEntry;
+            }
+
+            if (rawLlmMessage) {
+              updates.rawLlmMessage = rawLlmMessage;
+            }
+
+            if (reasoningEntry || rawLlmMessage) {
+              await updateMessageEntries(updates);
+            }
+          } catch (error) {
+            console.error('[create-metrics] Error updating entries on finish:', error);
+          }
+        }
       } catch (error) {
         console.error('[create-metrics] Error creating initial database entries:', error);
       }

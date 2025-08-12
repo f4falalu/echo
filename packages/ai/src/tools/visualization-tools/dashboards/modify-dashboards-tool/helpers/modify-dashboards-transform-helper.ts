@@ -1,144 +1,84 @@
 import type {
   ChatMessageReasoningMessage,
-  ChatMessageResponseMessage,
+  ChatMessageReasoningMessage_File,
 } from '@buster/server-shared/chats';
-import type { ModifyDashboardsFile, ModifyDashboardsInput } from '../modify-dashboards-tool';
+import type { ModelMessage } from 'ai';
+import { type ModifyDashboardsState, TOOL_NAME } from '../modify-dashboards-tool';
 
 /**
- * Create a reasoning message entry for dashboards modification
+ * Create a reasoning entry for modify-dashboards tool
  */
-export function createDashboardsReasoningMessage(
-  toolCallId: string,
-  files: ModifyDashboardsFile[],
-  status: 'loading' | 'completed' | 'failed' = 'loading'
-): ChatMessageReasoningMessage {
-  // Transform files to the format expected by reasoning messages
-  interface FileEntry {
-    id: string;
-    file_type: string;
-    file_name: string;
-    version_number?: number;
-    status: string;
-    file: {
-      text: string;
-    };
-    error?: string;
+export function createModifyDashboardsReasoningEntry(
+  state: ModifyDashboardsState,
+  toolCallId: string
+): ChatMessageReasoningMessage | undefined {
+  state.toolCallId = toolCallId;
+
+  if (!state.files || state.files.length === 0) {
+    return undefined;
   }
-  const fileEntries: Record<string, FileEntry> = {};
+
+  // Build Record<string, ReasoningFile> as required by schema
+  const filesRecord: Record<string, ChatMessageReasoningMessage_File> = {};
   const fileIds: string[] = [];
-
-  files.forEach((file) => {
-    const fileId = file.id;
-    fileIds.push(fileId);
-    fileEntries[fileId] = {
-      id: fileId,
+  for (const f of state.files) {
+    // Skip undefined entries or entries that do not yet have an id
+    if (!f || !f.id) continue;
+    const id = f.id;
+    fileIds.push(id);
+    filesRecord[id] = {
+      id,
       file_type: 'dashboard',
-      file_name: file.name || `Dashboard ${fileId}`,
-      status: file.status || 'loading',
+      file_name: f.file_name || `Dashboard ${id}`,
+      version_number: f.version_number,
+      status: f.status,
       file: {
-        text: file.yml_content,
+        text: f.file?.text || '',
       },
-      ...(file.version !== undefined ? { version_number: file.version } : {}),
-      ...(file.error && { error: file.error }),
     };
-  });
-
-  // Determine title based on status
-  let title = 'Modifying dashboards...';
-  if (status === 'completed') {
-    const successCount = files.filter((f) => f.status !== 'failed').length;
-    const failedCount = files.filter((f) => f.status === 'failed').length;
-    if (failedCount > 0) {
-      title = `Modified ${successCount} ${successCount === 1 ? 'dashboard' : 'dashboards'}, ${failedCount} failed`;
-    } else {
-      title = `Modified ${successCount} ${successCount === 1 ? 'dashboard' : 'dashboards'}`;
-    }
-  } else if (status === 'failed') {
-    title = 'Failed to modify dashboards';
   }
+
+  // If nothing valid to show yet, skip emitting a files reasoning message
+  if (fileIds.length === 0) return undefined;
 
   return {
     id: toolCallId,
     type: 'files',
-    title,
-    status,
+    title: 'Modifying dashboards...',
+    status: 'loading',
     file_ids: fileIds,
-    files: fileEntries,
+    files: filesRecord,
   } as ChatMessageReasoningMessage;
 }
 
 /**
- * Create a response message for dashboards modification feedback
+ * Create a raw LLM message entry for modify-dashboards tool
  */
-export function createDashboardsResponseMessage(
-  toolCallId: string,
-  message: string
-): ChatMessageResponseMessage {
-  return {
-    id: toolCallId,
-    type: 'text',
-    message,
-    is_final_message: false,
-  } as ChatMessageResponseMessage;
-}
-
-/**
- * Create raw LLM message entry for database
- */
-export function createDashboardsRawLlmMessageEntry(
-  toolCallId: string,
-  toolName: string,
-  args: Partial<ModifyDashboardsInput> | undefined
-) {
-  return {
-    type: 'tool-call',
-    toolCallId,
-    toolName,
-    args: args || {},
-  };
-}
-
-/**
- * Update progress message during streaming
- */
-export function updateDashboardsProgressMessage(files: ModifyDashboardsFile[]): string {
-  const processedCount = files.filter((f) => f.yml_content).length;
-  const totalCount = files.length;
-
-  if (processedCount === 0) {
-    return 'Starting dashboard modification...';
-  }
-  if (processedCount < totalCount) {
-    return `Processing dashboards... (${processedCount}/${totalCount})`;
-  }
-  return `Processed ${totalCount} ${totalCount === 1 ? 'dashboard' : 'dashboards'}`;
-}
-
-/**
- * Extract file info for final response
- */
-export function extractDashboardsFileInfo(files: ModifyDashboardsFile[]) {
-  const successfulFiles = files.filter((f) => f.status === 'completed' && f.id);
-  const failedFiles = files.filter((f) => f.status === 'failed');
+export function createModifyDashboardsRawLlmMessageEntry(
+  state: ModifyDashboardsState,
+  toolCallId: string
+): ModelMessage | undefined {
+  // If we don't have files yet, skip emitting raw LLM entry
+  if (!state.files || state.files.length === 0) return undefined;
 
   return {
-    successfulFiles: successfulFiles.map((f) => ({
-      id: f.id || '',
-      name: f.name || `Dashboard ${f.id}`,
-      version: f.version || 1,
-    })),
-    failedFiles: failedFiles.map((f) => ({
-      id: f.id,
-      error: f.error || 'Unknown error',
-    })),
-  };
+    role: 'assistant',
+    content: [
+      {
+        type: 'tool-call',
+        toolCallId,
+        toolName: TOOL_NAME,
+        input: {
+          files: state.files
+            .filter((file) => file != null) // Filter out null/undefined entries first
+            .map((file) => ({
+              id: file.id,
+              yml_content: file.file?.text ?? '',
+            }))
+            // Filter out clearly invalid entries
+            .filter((f) => f.id && f.yml_content),
+        },
+      },
+    ],
+  } as ModelMessage;
 }
-
-/**
- * Keys for type-safe extraction from streaming JSON
- */
-export const TOOL_KEYS = {
-  files: 'files' as const,
-  id: 'id' as const,
-  yml_content: 'yml_content' as const,
-} satisfies Record<string, keyof ModifyDashboardsInput | 'id' | 'yml_content'>;

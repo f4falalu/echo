@@ -1,14 +1,11 @@
 import { updateMessageEntries } from '@buster/database';
+import type { ToolCallOptions } from 'ai';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createModifyDashboardsDelta } from './modify-dashboards-delta';
 import type { ModifyDashboardsContext, ModifyDashboardsState } from './modify-dashboards-tool';
 
 vi.mock('@buster/database', () => ({
   updateMessageEntries: vi.fn(),
-}));
-
-vi.mock('braintrust', () => ({
-  wrapTraced: (fn: unknown, _options?: unknown) => fn,
 }));
 
 describe('modify-dashboards-delta', () => {
@@ -19,12 +16,18 @@ describe('modify-dashboards-delta', () => {
   afterEach(() => {
     vi.clearAllMocks();
   });
+
   const mockContext: ModifyDashboardsContext = {
     userId: 'user-123',
     chatId: 'chat-123',
     dataSourceId: 'ds-123',
     dataSourceSyntax: 'postgresql',
     organizationId: 'org-123',
+  };
+
+  const mockOptions: ToolCallOptions = {
+    toolCallId: 'tool-123',
+    messages: [],
   };
 
   it('should handle string deltas and accumulate text', async () => {
@@ -35,10 +38,10 @@ describe('modify-dashboards-delta', () => {
 
     const onInputDelta = createModifyDashboardsDelta(mockContext, state);
 
-    await onInputDelta('{"files":[');
+    await onInputDelta({ inputTextDelta: '{"files":[', ...mockOptions });
     expect(state.argsText).toBe('{"files":[');
 
-    await onInputDelta('{"id":"dash-1",');
+    await onInputDelta({ inputTextDelta: '{"id":"dash-1",', ...mockOptions });
     expect(state.argsText).toBe('{"files":[{"id":"dash-1",');
   });
 
@@ -51,47 +54,44 @@ describe('modify-dashboards-delta', () => {
     const onInputDelta = createModifyDashboardsDelta(mockContext, state);
 
     // Stream in a complete file object
-    await onInputDelta('{"files":[{"id":"dash-1","yml_content":"content1"}');
+    await onInputDelta({
+      inputTextDelta: '{"files":[{"id":"dash-1","yml_content":"content1"}',
+      ...mockOptions,
+    });
 
     expect(state.files).toHaveLength(1);
-    expect(state.files[0]).toMatchObject({
+    expect(state.files?.[0]).toMatchObject({
       id: 'dash-1',
-      yml_content: 'content1',
-      status: 'processing',
+      file_type: 'dashboard',
+      version_number: 1,
+      status: 'loading',
     });
+    expect(state.files?.[0]?.file?.text).toBe('content1');
   });
 
   it('should update existing files when streaming', async () => {
     const state: ModifyDashboardsState = {
       argsText: '',
-      files: [{ id: 'dash-1', yml_content: '', status: 'processing' }],
-    };
-
-    const onInputDelta = createModifyDashboardsDelta(mockContext, state);
-
-    await onInputDelta('{"files":[{"id":"dash-1","yml_content":"updated content"}');
-
-    expect(state.files[0].yml_content).toBe('updated content');
-  });
-
-  it('should handle object deltas', async () => {
-    const state: ModifyDashboardsState = {
-      argsText: '',
-      files: [],
+      files: [
+        {
+          id: 'dash-1',
+          file_name: 'Dashboard 1',
+          file_type: 'dashboard',
+          version_number: 1,
+          status: 'loading',
+        },
+      ],
     };
 
     const onInputDelta = createModifyDashboardsDelta(mockContext, state);
 
     await onInputDelta({
-      files: [
-        { id: 'dash-1', yml_content: 'content1' },
-        { id: 'dash-2', yml_content: 'content2' },
-      ],
+      inputTextDelta: '{"files":[{"id":"dash-1","yml_content":"updated content"}',
+      ...mockOptions,
     });
 
-    expect(state.files).toHaveLength(2);
-    expect(state.parsedArgs).toBeDefined();
-    expect(state.parsedArgs?.files).toHaveLength(2);
+    expect(state.files?.[0]?.file?.text).toBe('updated content');
+    expect(state.files?.[0]?.file_name).toBe('Dashboard 1'); // Preserved from existing
   });
 
   it('should update database when messageId and toolCallId exist', async () => {
@@ -103,24 +103,20 @@ describe('modify-dashboards-delta', () => {
     const state: ModifyDashboardsState = {
       argsText: '',
       files: [],
-      messageId: 'msg-123',
       toolCallId: 'tool-123',
     };
 
     const onInputDelta = createModifyDashboardsDelta(contextWithMessageId, state);
 
-    await onInputDelta('{"files":[{"id":"dash-1","yml_content":"content1"}]}');
+    await onInputDelta({
+      inputTextDelta: '{"files":[{"id":"dash-1","yml_content":"content1"}]}',
+      ...mockOptions,
+    });
 
     expect(updateMessageEntries).toHaveBeenCalled();
-    const callArgs = vi.mocked(updateMessageEntries).mock.calls[0][0];
-    expect(callArgs.messageId).toBe('msg-123');
-    expect(callArgs.mode).toBe('update');
-    expect(callArgs.reasoningEntry.id).toBe('tool-123');
-    expect(callArgs.reasoningEntry.type).toBe('files');
-    expect(callArgs.reasoningEntry.status).toBe('loading');
-    expect(callArgs.responseEntry.id).toBe('tool-123');
-    expect(callArgs.responseEntry.type).toBe('text');
-    expect(callArgs.rawLlmMessage.role).toBe('assistant');
+    const callArgs = vi.mocked(updateMessageEntries).mock.calls[0]?.[0];
+    expect(callArgs?.messageId).toBe('msg-123');
+    expect(callArgs?.mode).toBe('update');
   });
 
   it('should not update database when messageId is missing', async () => {
@@ -132,12 +128,15 @@ describe('modify-dashboards-delta', () => {
 
     const onInputDelta = createModifyDashboardsDelta(mockContext, state);
 
-    await onInputDelta('{"files":[{"id":"dash-1","yml_content":"content1"}]}');
+    await onInputDelta({
+      inputTextDelta: '{"files":[{"id":"dash-1","yml_content":"content1"}]}',
+      ...mockOptions,
+    });
 
     expect(updateMessageEntries).not.toHaveBeenCalled();
   });
 
-  it('should not update database when toolCallId is missing', async () => {
+  it('should not update database when no files parsed yet', async () => {
     const contextWithMessageId = {
       ...mockContext,
       messageId: 'msg-123',
@@ -146,13 +145,18 @@ describe('modify-dashboards-delta', () => {
     const state: ModifyDashboardsState = {
       argsText: '',
       files: [],
-      messageId: 'msg-123',
+      toolCallId: 'tool-123',
     };
 
     const onInputDelta = createModifyDashboardsDelta(contextWithMessageId, state);
 
-    await onInputDelta('{"files":[{"id":"dash-1","yml_content":"content1"}]}');
+    // Send partial JSON that doesn't have complete files yet
+    await onInputDelta({
+      inputTextDelta: '{"files":[',
+      ...mockOptions,
+    });
 
+    // Should not update because no files were extracted yet
     expect(updateMessageEntries).not.toHaveBeenCalled();
   });
 
@@ -165,7 +169,6 @@ describe('modify-dashboards-delta', () => {
     const state: ModifyDashboardsState = {
       argsText: '',
       files: [],
-      messageId: 'msg-123',
       toolCallId: 'tool-123',
     };
 
@@ -174,14 +177,14 @@ describe('modify-dashboards-delta', () => {
     const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
     const onInputDelta = createModifyDashboardsDelta(contextWithMessageId, state);
-    await onInputDelta('{"files":[{"id":"dash-1","yml_content":"content1"}]}');
+    await onInputDelta({
+      inputTextDelta: '{"files":[{"id":"dash-1","yml_content":"content1"}]}',
+      ...mockOptions,
+    });
 
     expect(consoleSpy).toHaveBeenCalledWith(
-      '[modify-dashboards] Failed to update streaming progress',
-      expect.objectContaining({
-        messageId: 'msg-123',
-        error: 'DB Error',
-      })
+      '[modify-dashboards] Error updating entries during delta:',
+      expect.any(Error)
     );
 
     consoleSpy.mockRestore();
@@ -195,39 +198,70 @@ describe('modify-dashboards-delta', () => {
 
     const onInputDelta = createModifyDashboardsDelta(mockContext, state);
 
-    await onInputDelta('{"files":[{"id":"dash-1"}');
+    await onInputDelta({
+      inputTextDelta: '{"files":[{"id":"dash-1"}',
+      ...mockOptions,
+    });
 
     expect(state.files).toHaveLength(1);
-    expect(state.files[0]).toMatchObject({
+    expect(state.files?.[0]).toMatchObject({
       id: 'dash-1',
-      yml_content: '',
-      status: 'processing',
+      file_type: 'dashboard',
+      version_number: 1,
+      status: 'loading',
     });
+    expect(state.files?.[0]?.file).toBeUndefined();
   });
 
-  it('should preserve existing files in state', async () => {
-    const contextWithMessageId = {
-      ...mockContext,
-      messageId: 'msg-123',
-    };
-
+  it('should preserve existing file metadata', async () => {
     const state: ModifyDashboardsState = {
       argsText: '',
-      files: [{ id: 'dash-1', yml_content: 'content1', status: 'processing' }],
-      messageId: 'msg-123',
-      toolCallId: 'tool-123',
+      files: [
+        {
+          id: 'dash-1',
+          file_name: 'My Dashboard',
+          file_type: 'dashboard',
+          version_number: 3,
+          status: 'loading',
+        },
+      ],
     };
 
-    const onInputDelta = createModifyDashboardsDelta(contextWithMessageId, state);
-    await onInputDelta('{"files":[]}');
+    const onInputDelta = createModifyDashboardsDelta(mockContext, state);
 
-    expect(updateMessageEntries).toHaveBeenCalledWith(
-      expect.objectContaining({
-        messageId: 'msg-123',
-        reasoningEntry: expect.objectContaining({
-          file_ids: ['dash-1'],
-        }),
-      })
-    );
+    await onInputDelta({
+      inputTextDelta: '{"files":[{"id":"dash-1","yml_content":"new content"}',
+      ...mockOptions,
+    });
+
+    expect(state.files?.[0]).toMatchObject({
+      id: 'dash-1',
+      file_name: 'My Dashboard', // Preserved
+      file_type: 'dashboard',
+      version_number: 3, // Preserved
+      status: 'loading',
+    });
+    expect(state.files?.[0]?.file?.text).toBe('new content');
+  });
+
+  it('should handle multiple files in stream', async () => {
+    const state: ModifyDashboardsState = {
+      argsText: '',
+      files: [],
+    };
+
+    const onInputDelta = createModifyDashboardsDelta(mockContext, state);
+
+    await onInputDelta({
+      inputTextDelta:
+        '{"files":[{"id":"dash-1","yml_content":"content1"},{"id":"dash-2","yml_content":"content2"}',
+      ...mockOptions,
+    });
+
+    expect(state.files).toHaveLength(2);
+    expect(state.files?.[0]?.id).toBe('dash-1');
+    expect(state.files?.[1]?.id).toBe('dash-2');
+    expect(state.files?.[0]?.file?.text).toBe('content1');
+    expect(state.files?.[1]?.file?.text).toBe('content2');
   });
 });

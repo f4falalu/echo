@@ -1,19 +1,11 @@
-import { createMessageEntries } from '@buster/database';
+import { updateMessageEntries } from '@buster/database';
+import type { ToolCallOptions } from 'ai';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createModifyDashboardsStart } from './modify-dashboards-start';
-import type {
-  ModifyDashboardsContext,
-  ModifyDashboardsInput,
-  ModifyDashboardsState,
-} from './modify-dashboards-tool';
+import type { ModifyDashboardsContext, ModifyDashboardsState } from './modify-dashboards-tool';
 
 vi.mock('@buster/database', () => ({
-  createMessageEntries: vi.fn(),
   updateMessageEntries: vi.fn(),
-}));
-
-vi.mock('braintrust', () => ({
-  wrapTraced: (fn: unknown, _options?: unknown) => fn,
 }));
 
 describe('modify-dashboards-start', () => {
@@ -24,6 +16,7 @@ describe('modify-dashboards-start', () => {
   afterEach(() => {
     vi.clearAllMocks();
   });
+
   const mockContext: ModifyDashboardsContext = {
     userId: 'user-123',
     chatId: 'chat-123',
@@ -32,30 +25,21 @@ describe('modify-dashboards-start', () => {
     organizationId: 'org-123',
   };
 
-  const mockInput: ModifyDashboardsInput = {
-    files: [
-      { id: 'dash-1', yml_content: 'content1' },
-      { id: 'dash-2', yml_content: 'content2' },
-    ],
+  const mockOptions: ToolCallOptions = {
+    toolCallId: 'tool-123',
+    messages: [],
   };
 
-  it('should initialize state and log start', async () => {
+  it('should set toolCallId in state', async () => {
     const state: ModifyDashboardsState = {
       argsText: '',
       files: [],
     };
 
     const onInputStart = createModifyDashboardsStart(mockContext, state);
-    await onInputStart(mockInput);
+    await onInputStart(mockOptions);
 
-    expect(state.processingStartTime).toBeDefined();
-    expect(state.toolCallId).toBeDefined();
-    expect(state.files).toHaveLength(2);
-    expect(state.files[0]).toMatchObject({
-      id: 'dash-1',
-      yml_content: 'content1',
-      status: 'processing',
-    });
+    expect(state.toolCallId).toBe('tool-123');
   });
 
   it('should create database entries when messageId exists', async () => {
@@ -66,43 +50,25 @@ describe('modify-dashboards-start', () => {
 
     const state: ModifyDashboardsState = {
       argsText: '',
-      files: [],
-      messageId: 'msg-123',
+      files: [
+        {
+          id: 'dash-1',
+          file_type: 'dashboard',
+          version_number: 1,
+          status: 'loading',
+        },
+      ],
     };
 
     const onInputStart = createModifyDashboardsStart(contextWithMessageId, state);
-    await onInputStart(mockInput);
+    await onInputStart(mockOptions);
 
-    expect(createMessageEntries).toHaveBeenCalledWith(
+    expect(updateMessageEntries).toHaveBeenCalledWith(
       expect.objectContaining({
         messageId: 'msg-123',
-        reasoningEntry: expect.objectContaining({
-          id: state.toolCallId,
-          type: 'files',
-          title: 'Modifying dashboards...',
-          status: 'loading',
-        }),
-        responseEntry: expect.objectContaining({
-          id: state.toolCallId,
-          type: 'text',
-          message: 'Starting dashboard modification...',
-          is_final_message: false,
-        }),
-        rawLlmMessage: expect.objectContaining({
-          role: 'assistant',
-          content: expect.arrayContaining([
-            expect.objectContaining({
-              type: 'tool-call',
-              toolCallId: state.toolCallId,
-              toolName: 'modify-dashboards',
-            }),
-          ]),
-        }),
+        mode: 'append',
       })
     );
-
-    expect(state.reasoningEntryId).toBeDefined();
-    expect(state.responseEntryId).toBeDefined();
   });
 
   it('should not create database entries when messageId is missing', async () => {
@@ -112,10 +78,9 @@ describe('modify-dashboards-start', () => {
     };
 
     const onInputStart = createModifyDashboardsStart(mockContext, state);
-    await onInputStart(mockInput);
+    await onInputStart(mockOptions);
 
-    expect(createMessageEntries).not.toHaveBeenCalled();
-    expect(state.reasoningEntryId).toBeUndefined();
+    expect(updateMessageEntries).not.toHaveBeenCalled();
   });
 
   it('should handle database update errors gracefully', async () => {
@@ -126,43 +91,79 @@ describe('modify-dashboards-start', () => {
 
     const state: ModifyDashboardsState = {
       argsText: '',
-      files: [],
-      messageId: 'msg-123',
+      files: [
+        {
+          id: 'dash-1',
+          file_type: 'dashboard',
+          version_number: 1,
+          status: 'loading',
+        },
+      ],
     };
 
-    vi.mocked(createMessageEntries).mockRejectedValueOnce(new Error('DB Error'));
+    vi.mocked(updateMessageEntries).mockRejectedValueOnce(new Error('DB Error'));
 
     const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
     const onInputStart = createModifyDashboardsStart(contextWithMessageId, state);
-    await onInputStart(mockInput);
+    await onInputStart(mockOptions);
 
     expect(consoleSpy).toHaveBeenCalledWith(
-      '[modify-dashboards] Failed to create initial database entries',
-      expect.objectContaining({
-        messageId: 'msg-123',
-        error: 'DB Error',
-      })
+      '[modify-dashboards] Error updating entries on finish:',
+      expect.any(Error)
     );
 
     consoleSpy.mockRestore();
   });
 
-  it('should handle empty input files', async () => {
+  it('should not call updateMessageEntries when no entries to update', async () => {
+    const contextWithMessageId = {
+      ...mockContext,
+      messageId: 'msg-123',
+    };
+
     const state: ModifyDashboardsState = {
       argsText: '',
-      files: [],
+      files: undefined, // No files, so no entries will be created
     };
 
-    const emptyInput: ModifyDashboardsInput = {
-      files: [],
+    const onInputStart = createModifyDashboardsStart(contextWithMessageId, state);
+    await onInputStart(mockOptions);
+
+    // Since there are no files, createModifyDashboardsReasoningEntry and 
+    // createModifyDashboardsRawLlmMessageEntry will return undefined,
+    // so updateMessageEntries should not be called
+    expect(updateMessageEntries).not.toHaveBeenCalled();
+  });
+
+  it('should handle multiple calls with different toolCallIds', async () => {
+    const contextWithMessageId = {
+      ...mockContext,
+      messageId: 'msg-123',
     };
 
-    const onInputStart = createModifyDashboardsStart(mockContext, state);
-    await onInputStart(emptyInput);
+    const state: ModifyDashboardsState = {
+      argsText: '',
+      files: [
+        {
+          id: 'dash-1',
+          file_type: 'dashboard',
+          version_number: 1,
+          status: 'loading',
+        },
+      ],
+    };
 
-    expect(state.processingStartTime).toBeDefined();
-    expect(state.toolCallId).toBeDefined();
-    expect(state.files).toHaveLength(0);
+    const onInputStart = createModifyDashboardsStart(contextWithMessageId, state);
+    
+    // First call
+    await onInputStart({ ...mockOptions, toolCallId: 'tool-123' });
+    expect(state.toolCallId).toBe('tool-123');
+
+    // Second call with different toolCallId
+    await onInputStart({ ...mockOptions, toolCallId: 'tool-456' });
+    expect(state.toolCallId).toBe('tool-456');
+
+    expect(updateMessageEntries).toHaveBeenCalledTimes(2);
   });
 });

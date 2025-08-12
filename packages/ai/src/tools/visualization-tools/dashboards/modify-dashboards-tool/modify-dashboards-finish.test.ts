@@ -1,4 +1,5 @@
 import { updateMessageEntries } from '@buster/database';
+import type { ToolCallOptions } from 'ai';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createModifyDashboardsFinish } from './modify-dashboards-finish';
 import type {
@@ -11,10 +12,6 @@ vi.mock('@buster/database', () => ({
   updateMessageEntries: vi.fn(),
 }));
 
-vi.mock('braintrust', () => ({
-  wrapTraced: (fn: unknown, _options?: unknown) => fn,
-}));
-
 describe('modify-dashboards-finish', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -23,6 +20,7 @@ describe('modify-dashboards-finish', () => {
   afterEach(() => {
     vi.clearAllMocks();
   });
+
   const mockContext: ModifyDashboardsContext = {
     userId: 'user-123',
     chatId: 'chat-123',
@@ -38,21 +36,76 @@ describe('modify-dashboards-finish', () => {
     ],
   };
 
-  it('should store complete input in state', async () => {
+  const mockOptions: ToolCallOptions = {
+    toolCallId: 'tool-123',
+    messages: [],
+  };
+
+  it('should store files in state', async () => {
     const state: ModifyDashboardsState = {
       argsText: '',
       files: [],
     };
 
     const onInputAvailable = createModifyDashboardsFinish(mockContext, state);
-    await onInputAvailable(mockInput);
+    await onInputAvailable({ input: mockInput, ...mockOptions });
 
-    expect(state.parsedArgs).toEqual(mockInput);
     expect(state.files).toHaveLength(2);
-    expect(state.files[0]).toMatchObject({
+    expect(state.files?.[0]).toMatchObject({
       id: 'dash-1',
-      yml_content: 'content1',
-      status: 'processing',
+      file_type: 'dashboard',
+      version_number: 1,
+      file: { text: 'content1' },
+      status: 'loading',
+    });
+    expect(state.files?.[1]).toMatchObject({
+      id: 'dash-2',
+      file_type: 'dashboard',
+      version_number: 1,
+      file: { text: 'content2' },
+      status: 'loading',
+    });
+  });
+
+  it('should preserve existing file metadata', async () => {
+    const state: ModifyDashboardsState = {
+      argsText: '',
+      files: [
+        {
+          id: 'dash-1',
+          file_name: 'Sales Dashboard',
+          file_type: 'dashboard',
+          version_number: 3,
+          status: 'loading',
+        },
+        {
+          id: 'dash-2',
+          file_name: 'Marketing Dashboard',
+          file_type: 'dashboard',
+          version_number: 2,
+          status: 'loading',
+        },
+      ],
+    };
+
+    const onInputAvailable = createModifyDashboardsFinish(mockContext, state);
+    await onInputAvailable({ input: mockInput, ...mockOptions });
+
+    expect(state.files?.[0]).toMatchObject({
+      id: 'dash-1',
+      file_name: 'Sales Dashboard', // Preserved
+      file_type: 'dashboard',
+      version_number: 3, // Preserved
+      file: { text: 'content1' },
+      status: 'loading',
+    });
+    expect(state.files?.[1]).toMatchObject({
+      id: 'dash-2',
+      file_name: 'Marketing Dashboard', // Preserved
+      file_type: 'dashboard',
+      version_number: 2, // Preserved
+      file: { text: 'content2' },
+      status: 'loading',
     });
   });
 
@@ -65,37 +118,15 @@ describe('modify-dashboards-finish', () => {
     const state: ModifyDashboardsState = {
       argsText: '',
       files: [],
-      messageId: 'msg-123',
       toolCallId: 'tool-123',
     };
 
     const onInputAvailable = createModifyDashboardsFinish(contextWithMessageId, state);
-    await onInputAvailable(mockInput);
+    await onInputAvailable({ input: mockInput, ...mockOptions });
 
     expect(updateMessageEntries).toHaveBeenCalledWith(
       expect.objectContaining({
         messageId: 'msg-123',
-        reasoningEntry: expect.objectContaining({
-          id: 'tool-123',
-          type: 'files',
-          status: 'loading',
-          file_ids: ['dash-1', 'dash-2'],
-        }),
-        responseEntry: expect.objectContaining({
-          id: 'tool-123',
-          type: 'text',
-          message: 'Processing dashboard modifications...',
-        }),
-        rawLlmMessage: expect.objectContaining({
-          role: 'assistant',
-          content: expect.arrayContaining([
-            expect.objectContaining({
-              type: 'tool-call',
-              toolCallId: 'tool-123',
-              toolName: 'modify-dashboards',
-            }),
-          ]),
-        }),
         mode: 'update',
       })
     );
@@ -109,12 +140,12 @@ describe('modify-dashboards-finish', () => {
     };
 
     const onInputAvailable = createModifyDashboardsFinish(mockContext, state);
-    await onInputAvailable(mockInput);
+    await onInputAvailable({ input: mockInput, ...mockOptions });
 
     expect(updateMessageEntries).not.toHaveBeenCalled();
   });
 
-  it('should not update database when toolCallId is missing', async () => {
+  it('should not update database when toolCallId is missing from state', async () => {
     const contextWithMessageId = {
       ...mockContext,
       messageId: 'msg-123',
@@ -123,12 +154,13 @@ describe('modify-dashboards-finish', () => {
     const state: ModifyDashboardsState = {
       argsText: '',
       files: [],
-      messageId: 'msg-123',
+      // No toolCallId in state
     };
 
     const onInputAvailable = createModifyDashboardsFinish(contextWithMessageId, state);
-    await onInputAvailable(mockInput);
+    await onInputAvailable({ input: mockInput, ...mockOptions });
 
+    // Should not update because state.toolCallId is undefined
     expect(updateMessageEntries).not.toHaveBeenCalled();
   });
 
@@ -141,7 +173,6 @@ describe('modify-dashboards-finish', () => {
     const state: ModifyDashboardsState = {
       argsText: '',
       files: [],
-      messageId: 'msg-123',
       toolCallId: 'tool-123',
     };
 
@@ -150,14 +181,11 @@ describe('modify-dashboards-finish', () => {
     const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
     const onInputAvailable = createModifyDashboardsFinish(contextWithMessageId, state);
-    await onInputAvailable(mockInput);
+    await onInputAvailable({ input: mockInput, ...mockOptions });
 
     expect(consoleSpy).toHaveBeenCalledWith(
-      '[modify-dashboards] Failed to update with final input',
-      expect.objectContaining({
-        messageId: 'msg-123',
-        error: 'DB Error',
-      })
+      '[modify-dashboards] Error updating entries on finish:',
+      expect.any(Error)
     );
 
     consoleSpy.mockRestore();
@@ -174,31 +202,54 @@ describe('modify-dashboards-finish', () => {
     };
 
     const onInputAvailable = createModifyDashboardsFinish(mockContext, state);
-    await onInputAvailable(emptyInput);
+    await onInputAvailable({ input: emptyInput, ...mockOptions });
 
-    expect(state.parsedArgs).toEqual(emptyInput);
     expect(state.files).toHaveLength(0);
   });
 
-  it('should log processing duration when processingStartTime is available', async () => {
-    const state: ModifyDashboardsState = {
-      argsText: '',
-      files: [],
-      processingStartTime: Date.now() - 1000, // 1 second ago
+  it('should not update database when no files to update', async () => {
+    const contextWithMessageId = {
+      ...mockContext,
+      messageId: 'msg-123',
     };
 
-    const consoleSpy = vi.spyOn(console, 'info').mockImplementation(() => {});
+    const state: ModifyDashboardsState = {
+      argsText: '',
+      files: undefined,
+      toolCallId: 'tool-123',
+    };
+
+    const emptyInput: ModifyDashboardsInput = {
+      files: [],
+    };
+
+    const onInputAvailable = createModifyDashboardsFinish(contextWithMessageId, state);
+    await onInputAvailable({ input: emptyInput, ...mockOptions });
+
+    // Since files is empty, no reasoning or raw LLM entries will be created
+    expect(updateMessageEntries).not.toHaveBeenCalled();
+  });
+
+  it('should handle undefined input files', async () => {
+    const state: ModifyDashboardsState = {
+      argsText: '',
+      files: [
+        {
+          id: 'existing-1',
+          file_type: 'dashboard',
+          version_number: 1,
+          status: 'loading',
+        },
+      ],
+    };
+
+    const inputWithoutFiles = {} as ModifyDashboardsInput;
 
     const onInputAvailable = createModifyDashboardsFinish(mockContext, state);
-    await onInputAvailable(mockInput);
+    await onInputAvailable({ input: inputWithoutFiles, ...mockOptions });
 
-    expect(consoleSpy).toHaveBeenCalledWith(
-      '[modify-dashboards] Input processing duration',
-      expect.objectContaining({
-        duration: expect.any(Number),
-      })
-    );
-
-    consoleSpy.mockRestore();
+    // State should remain unchanged when input.files is undefined
+    expect(state.files).toHaveLength(1);
+    expect(state.files?.[0]?.id).toBe('existing-1');
   });
 });

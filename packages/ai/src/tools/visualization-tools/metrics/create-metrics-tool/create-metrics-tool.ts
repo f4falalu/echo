@@ -1,3 +1,4 @@
+import { StatusSchema } from '@buster/server-shared/chats';
 import { tool } from 'ai';
 import { z } from 'zod';
 import { getMetricToolDescription } from '../helpers/get-metric-tool-description';
@@ -5,6 +6,8 @@ import { createCreateMetricsDelta } from './create-metrics-delta';
 import { createCreateMetricsExecute } from './create-metrics-execute';
 import { createCreateMetricsFinish } from './create-metrics-finish';
 import { createCreateMetricsStart } from './create-metrics-start';
+
+export const TOOL_NAME = 'createMetrics';
 
 const CreateMetricsInputFileSchema = z.object({
   name: z
@@ -31,11 +34,6 @@ const CreateMetricsInputSchema = z.object({
 const CreateMetricsOutputFileSchema = z.object({
   id: z.string(),
   name: z.string(),
-  file_type: z.string(),
-  result_message: z.string().optional(),
-  results: z.array(z.record(z.any())).optional(),
-  created_at: z.string(),
-  updated_at: z.string(),
   version_number: z.number(),
 });
 
@@ -46,7 +44,6 @@ const CreateMetricsOutputFailedFileSchema = z.object({
 
 const CreateMetricsOutputSchema = z.object({
   message: z.string(),
-  duration: z.number(),
   files: z.array(CreateMetricsOutputFileSchema),
   failed_files: z.array(CreateMetricsOutputFailedFileSchema),
 });
@@ -60,39 +57,44 @@ const CreateMetricsContextSchema = z.object({
   messageId: z.string().optional().describe('The message ID'),
 });
 
-const CreateMetricsReasoningFileSchema = z.object({
-  name: z.string(),
-  yml_content: z.string(),
-  status: z.enum(['processing', 'completed', 'failed']).optional(),
-  id: z.string().optional(),
-  version: z.number().optional(),
-  error: z.string().optional(),
+const CreateMetricStateFileSchema = z.object({
+  id: z.string().uuid(),
+  file_name: z.string().optional(),
+  file_type: z.string(),
+  version_number: z.number(),
+  file: z
+    .object({
+      text: z.string(),
+    })
+    .optional(),
+  status: StatusSchema,
 });
 
 const CreateMetricsStateSchema = z.object({
   toolCallId: z.string().optional(),
   argsText: z.string().optional(),
-  files: z.array(CreateMetricsReasoningFileSchema).optional(),
-  failed_files: z.array(CreateMetricsReasoningFileSchema).optional(),
+  files: z.array(CreateMetricStateFileSchema).optional(),
 });
 
+// Export types
 export type CreateMetricsInput = z.infer<typeof CreateMetricsInputSchema>;
 export type CreateMetricsOutput = z.infer<typeof CreateMetricsOutputSchema>;
 export type CreateMetricsContext = z.infer<typeof CreateMetricsContextSchema>;
-export type CreateMetricsReasoningFile = z.infer<typeof CreateMetricsReasoningFileSchema>;
-export type CreateMetricsState = z.infer<typeof CreateMetricsStateSchema>;
-export type CreateMetricsInputFile = z.infer<typeof CreateMetricsInputFileSchema>;
 export type CreateMetricsOutputFile = z.infer<typeof CreateMetricsOutputFileSchema>;
 export type CreateMetricsOutputFailedFile = z.infer<typeof CreateMetricsOutputFailedFileSchema>;
+export type CreateMetricsState = z.infer<typeof CreateMetricsStateSchema>;
+export type CreateMetricStateFile = z.infer<typeof CreateMetricStateFileSchema>;
 
+// Factory function that accepts agent context and maps to tool context
 export function createCreateMetricsTool(context: CreateMetricsContext) {
+  // Initialize state for streaming
   const state: CreateMetricsState = {
     argsText: undefined,
-    files: undefined,
+    files: [],
     toolCallId: undefined,
   };
 
-  // Create all functions with the state captured via closure
+  // Create all functions with the context and state passed
   const execute = createCreateMetricsExecute(context, state);
   const onInputStart = createCreateMetricsStart(context, state);
   const onInputDelta = createCreateMetricsDelta(context, state);

@@ -1,91 +1,64 @@
+import { randomUUID } from 'node:crypto';
 import { updateMessageEntries } from '@buster/database';
-import type { ChatMessageReasoningMessage } from '@buster/server-shared/chats';
 import type { ToolCallOptions } from 'ai';
 import type {
   CreateMetricsContext,
-  CreateMetricsFile,
   CreateMetricsInput,
   CreateMetricsState,
 } from './create-metrics-tool';
-import { createMetricsReasoningMessage } from './helpers/create-metrics-transform-helper';
+import {
+  createCreateMetricsRawLlmMessageEntry,
+  createCreateMetricsReasoningEntry,
+} from './helpers/create-metrics-transform-helper';
 
-// Factory function for onInputAvailable callback
 export function createCreateMetricsFinish(
   context: CreateMetricsContext,
   state: CreateMetricsState
 ) {
-  return async function createMetricsFinish(
-    options: { input: CreateMetricsInput } & ToolCallOptions
-  ): Promise<void> {
+  return async (options: { input: CreateMetricsInput } & ToolCallOptions) => {
     const input = options.input;
-    // Log when input is fully available
-    const fileCount = input.files?.length || 0;
-    const messageId = context.messageId;
-    const fileNames = input.files?.map((f) => f.name) || [];
 
-    console.info('[create-metrics] Input fully available', {
-      fileCount,
-      fileNames,
-      messageId,
-      timestamp: new Date().toISOString(),
-    });
-
-    // Ensure state has complete input
-    state.parsedArgs = input;
-
-    // Update files to ensure we have everything
     if (input.files) {
       state.files = input.files.map((file, index) => {
         const existingFile = state.files?.[index];
-        const newFile: CreateMetricsFile = {
-          name: file.name,
-          yml_content: file.yml_content,
-          status: existingFile?.status || ('processing' as const),
+        return {
+          id: existingFile?.id || randomUUID(),
+          file_name: file.name,
+          file_type: 'metric',
+          version_number: existingFile?.version_number || 1,
+          file: {
+            text: file.yml_content,
+          },
+          status: existingFile?.status || 'loading',
         };
-
-        // Only add optional properties if they have values
-        if (existingFile?.id) newFile.id = existingFile.id;
-        if (existingFile?.version) newFile.version = existingFile.version;
-        if (existingFile?.error) newFile.error = existingFile.error;
-
-        return newFile;
       });
     }
 
-    // If we have a messageId, prepare for final updates
-    if (messageId) {
+    // Update database with both reasoning and raw LLM entries
+    if (context.messageId && state.toolCallId) {
       try {
-        // Mark files as ready for processing
-        state.files?.forEach((file) => {
-          if (!file.status || file.status === 'processing') {
-            file.status = 'processing'; // Will be updated to completed/failed by execute
-          }
-        });
+        const reasoningEntry = createCreateMetricsReasoningEntry(state, options.toolCallId);
+        const rawLlmMessage = createCreateMetricsRawLlmMessageEntry(state, options.toolCallId);
 
-        // Create updated reasoning entry
-        const reasoningEntry = createMetricsReasoningMessage(
-          state.toolCallId || `tool-${Date.now()}`,
-          state.files || [],
-          'loading' // Still loading, execute will mark as completed
-        );
-
-        console.info('[create-metrics] Finalizing streaming data', {
-          messageId,
-          fileCount: state.files?.length || 0,
-          toolCallId: state.toolCallId,
-        });
-
-        // Update database with final streaming state
-        await updateMessageEntries({
-          messageId,
-          reasoningEntry: reasoningEntry as ChatMessageReasoningMessage,
+        // Update both entries together if they exist
+        const updates: Parameters<typeof updateMessageEntries>[0] = {
+          messageId: context.messageId,
           mode: 'update',
-        });
+        };
+
+        if (reasoningEntry) {
+          updates.responseEntry = reasoningEntry;
+        }
+
+        if (rawLlmMessage) {
+          updates.rawLlmMessage = rawLlmMessage;
+        }
+
+        if (reasoningEntry || rawLlmMessage) {
+          await updateMessageEntries(updates);
+        }
       } catch (error) {
-        console.error('[create-metrics] Failed to finalize streaming data', {
-          messageId,
-          error: error instanceof Error ? error.message : 'Unknown error',
-        });
+        console.error('[create-metrics] Error updating entries on finish:', error);
       }
     }
   };

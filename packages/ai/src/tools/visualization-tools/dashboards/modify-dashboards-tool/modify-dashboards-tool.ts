@@ -1,3 +1,4 @@
+import { StatusSchema } from '@buster/server-shared/chats';
 import { tool } from 'ai';
 import { z } from 'zod';
 import { getDashboardToolDescription } from '../helpers/get-dashboard-tool-description';
@@ -6,67 +7,41 @@ import { createModifyDashboardsExecute } from './modify-dashboards-execute';
 import { createModifyDashboardsFinish } from './modify-dashboards-finish';
 import { createModifyDashboardsStart } from './modify-dashboards-start';
 
-// File structure for modify dashboards
-export interface ModifyDashboardsFile {
-  id: string;
-  name?: string;
-  yml_content: string;
-  status?: 'processing' | 'completed' | 'failed';
-  version?: number;
-  error?: string;
-}
+export const TOOL_NAME = 'modifyDashboards';
 
-// State management for streaming
-export interface ModifyDashboardsState {
-  toolCallId?: string;
-  argsText: string;
-  parsedArgs?: Partial<ModifyDashboardsInput>;
-  files: ModifyDashboardsFile[];
-  processingStartTime?: number;
-  messageId?: string | undefined;
-  reasoningEntryId?: string;
-  responseEntryId?: string;
-}
+const ModifyDashboardsInputFileSchema = z.object({
+  id: z.string().uuid('Dashboard ID must be a valid UUID'),
+  yml_content: z
+    .string()
+    .describe(
+      'The complete updated YAML content for the dashboard. This replaces the entire existing content.'
+    ),
+});
 
 // Input schema for the modify dashboards tool
 const ModifyDashboardsInputSchema = z.object({
   files: z
-    .array(
-      z.object({
-        id: z.string().uuid('Dashboard ID must be a valid UUID'),
-        yml_content: z
-          .string()
-          .describe(
-            'The complete updated YAML content for the dashboard. This replaces the entire existing content.'
-          ),
-      })
-    )
+    .array(ModifyDashboardsInputFileSchema)
     .min(1)
     .describe('Array of dashboard files to modify with their complete updated YAML content'),
+});
+
+const ModifyDashboardsOutputFileSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  version_number: z.number(),
+});
+
+const ModifyDashboardsOutputFailedFileSchema = z.object({
+  id: z.string(),
+  error: z.string(),
 });
 
 // Output schema for the modify dashboards tool
 const ModifyDashboardsOutputSchema = z.object({
   message: z.string(),
-  duration: z.number(),
-  files: z.array(
-    z.object({
-      id: z.string(),
-      name: z.string(),
-      file_type: z.string(),
-      result_message: z.string().optional(),
-      results: z.array(z.record(z.any())).optional(),
-      created_at: z.string(),
-      updated_at: z.string(),
-      version_number: z.number(),
-    })
-  ),
-  failed_files: z.array(
-    z.object({
-      id: z.string(),
-      error: z.string(),
-    })
-  ),
+  files: z.array(ModifyDashboardsOutputFileSchema),
+  failed_files: z.array(ModifyDashboardsOutputFailedFileSchema),
 });
 
 // Context schema for the modify dashboards tool
@@ -79,18 +54,43 @@ const ModifyDashboardsContextSchema = z.object({
   messageId: z.string().optional().describe('The message ID'),
 });
 
+const ModifyDashboardStateFileSchema = z.object({
+  id: z.string().uuid(),
+  file_name: z.string().optional(),
+  file_type: z.string(),
+  version_number: z.number(),
+  file: z
+    .object({
+      text: z.string(),
+    })
+    .optional(),
+  status: StatusSchema,
+});
+
+const ModifyDashboardsStateSchema = z.object({
+  toolCallId: z.string().optional(),
+  argsText: z.string().optional(),
+  files: z.array(ModifyDashboardStateFileSchema).optional(),
+});
+
 // Export types
 export type ModifyDashboardsInput = z.infer<typeof ModifyDashboardsInputSchema>;
 export type ModifyDashboardsOutput = z.infer<typeof ModifyDashboardsOutputSchema>;
 export type ModifyDashboardsContext = z.infer<typeof ModifyDashboardsContextSchema>;
+export type ModifyDashboardsOutputFile = z.infer<typeof ModifyDashboardsOutputFileSchema>;
+export type ModifyDashboardsOutputFailedFile = z.infer<
+  typeof ModifyDashboardsOutputFailedFileSchema
+>;
+export type ModifyDashboardsState = z.infer<typeof ModifyDashboardsStateSchema>;
+export type ModifyDashboardStateFile = z.infer<typeof ModifyDashboardStateFileSchema>;
 
 // Factory function that accepts agent context and maps to tool context
 export function createModifyDashboardsTool(context: ModifyDashboardsContext) {
   // Initialize state for streaming
   const state: ModifyDashboardsState = {
-    argsText: '',
+    argsText: undefined,
     files: [],
-    messageId: context.messageId,
+    toolCallId: undefined,
   };
 
   // Create all functions with the context and state passed
