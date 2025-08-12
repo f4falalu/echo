@@ -1,49 +1,72 @@
-import type { ResponseMessage, ResponseMessageReasoningEntry } from '@buster/server-shared';
-import type { CreateReportStateFile, CreateReportsState } from '../create-reports-tool';
+import type {
+  ChatMessageReasoningMessage,
+  ChatMessageReasoningMessage_File,
+} from '@buster/server-shared/chats';
+import type { ModelMessage } from 'ai';
+import {
+  type CreateReportStateFile,
+  type CreateReportsState,
+  TOOL_NAME,
+} from '../create-reports-tool';
 
-// Transform state file to response file format
-function transformStateFileToResponseFile(file: CreateReportStateFile) {
-  return {
-    id: file.id,
-    file_name: file.file_name ?? 'Untitled Report',
-    file_type: file.file_type,
-    status: file.status,
-    file: file.file,
-    version_number: file.version_number,
-  };
-}
-
-// Create reasoning entry for create reports tool
+/**
+ * Create a reasoning entry for create-reports tool
+ */
 export function createCreateReportsReasoningEntry(
   state: CreateReportsState,
   toolCallId: string
-): ResponseMessageReasoningEntry | undefined {
+): ChatMessageReasoningMessage | undefined {
+  state.toolCallId = toolCallId;
+
   if (!state.files || state.files.length === 0) {
     return undefined;
   }
 
+  // Build Record<string, ReasoningFile> as required by schema
+  const filesRecord: Record<string, ChatMessageReasoningMessage_File> = {};
+  const fileIds: string[] = [];
+  for (const f of state.files) {
+    // Skip undefined entries or entries that do not yet have a file_name
+    if (!f || !f.file_name) continue;
+
+    // Type assertion to ensure proper typing
+    const file = f as CreateReportStateFile;
+    const id = file.id;
+    fileIds.push(id);
+    filesRecord[id] = {
+      id,
+      file_type: 'report',
+      file_name: file.file_name ?? '',
+      version_number: file.version_number,
+      status: file.status,
+      file: {
+        text: file.file?.text || '',
+      },
+    };
+  }
+
+  // If nothing valid to show yet, skip emitting a files reasoning message
+  if (fileIds.length === 0) return undefined;
+
   return {
-    id: `reasoning-${toolCallId}`,
-    agentName: 'analyst',
-    agentId: 'analyst',
-    toolName: 'createReports',
-    toolCallId,
-    type: 'tool',
-    content: {
-      argsText: state.argsText ?? '',
-      files: state.files.map(transformStateFileToResponseFile),
-    },
-  };
+    id: toolCallId,
+    type: 'files',
+    title: 'Creating reports...',
+    status: 'loading',
+    file_ids: fileIds,
+    files: filesRecord,
+  } as ChatMessageReasoningMessage;
 }
 
-// Create raw LLM message entry for create reports tool
+/**
+ * Create a raw LLM message entry for create-reports tool
+ */
 export function createCreateReportsRawLlmMessageEntry(
   state: CreateReportsState,
   toolCallId: string
-): ResponseMessage | undefined {
-  if (!state.files || state.files.length === 0) {
-    return undefined;
-  }
+): ModelMessage | undefined {
+  // If we don't have files yet, skip emitting raw LLM entry
+  if (!state.files || state.files.length === 0) return undefined;
 
   return {
     role: 'assistant',
@@ -51,14 +74,21 @@ export function createCreateReportsRawLlmMessageEntry(
       {
         type: 'tool-call',
         toolCallId,
-        toolName: 'createReports',
-        args: {
-          files: state.files.map((file) => ({
-            name: file.file_name ?? 'Untitled Report',
-            content: (file.file as { text?: string })?.text ?? '',
-          })),
+        toolName: TOOL_NAME,
+        input: {
+          files: state.files
+            .filter((file) => file != null) // Filter out null/undefined entries first
+            .map((file) => {
+              const typedFile = file as CreateReportStateFile;
+              return {
+                name: typedFile.file_name ?? '',
+                yml_content: typedFile.file?.text ?? '',
+              };
+            })
+            // Filter out clearly invalid entries
+            .filter((f) => f.name && f.yml_content),
         },
       },
     ],
-  };
+  } as ModelMessage;
 }

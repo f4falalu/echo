@@ -1,10 +1,10 @@
-import type { CoreMessage } from 'ai';
+import type { ModelMessage } from 'ai';
 import { describe, expect, it } from 'vitest';
 import { identifyAssumptionsStepExecution } from './identify-assumptions-step';
 
 describe('identify-assumptions-step integration', () => {
   it('should analyze conversation history and return assumptions results', async () => {
-    const mockConversationHistory: CoreMessage[] = [
+    const mockConversationHistory: ModelMessage[] = [
       {
         content:
           'How many stock Mountain-500 series bikes were sold online to NA customers using a ColonialVoice card?',
@@ -22,7 +22,7 @@ describe('identify-assumptions-step integration', () => {
       {
         content: [
           {
-            args: {
+            input: {
               isRevision: false,
               needsMoreThoughts: false,
               nextThoughtNeeded: true,
@@ -41,9 +41,9 @@ describe('identify-assumptions-step integration', () => {
       {
         content: [
           {
-            result: {
+            output: {
               success: true,
-            },
+            } as any,
             toolCallId: 'toolu_01De2VQ9M2mhHxf1rNvxSkf1',
             toolName: 'sequentialThinking',
             type: 'tool-result',
@@ -54,7 +54,7 @@ describe('identify-assumptions-step integration', () => {
       {
         content: [
           {
-            args: {
+            input: {
               statements: [
                 "SELECT DISTINCT p.name FROM postgres.ont_ont.product p WHERE p.name ILIKE '%Mountain-500%' LIMIT 25",
                 "SELECT DISTINCT p.name FROM postgres.ont_ont.product p WHERE p.name ILIKE '%Mountain%' AND p.name ILIKE '%500%' LIMIT 25",
@@ -73,7 +73,7 @@ describe('identify-assumptions-step integration', () => {
       {
         content: [
           {
-            result: {
+            output: {
               results: [
                 {
                   results: [
@@ -133,7 +133,7 @@ describe('identify-assumptions-step integration', () => {
                   status: 'success',
                 },
               ],
-            },
+            } as any,
             toolCallId: 'toolu_01Ufu6nZQvYAXaQr2XZHKptL',
             toolName: 'executeSql',
             type: 'tool-result',
@@ -144,7 +144,7 @@ describe('identify-assumptions-step integration', () => {
       {
         content: [
           {
-            args: {
+            input: {
               isRevision: false,
               needsMoreThoughts: false,
               nextThoughtNeeded: true,
@@ -163,9 +163,9 @@ describe('identify-assumptions-step integration', () => {
       {
         content: [
           {
-            result: {
+            output: {
               success: true,
-            },
+            } as any,
             toolCallId: 'toolu_02KKXA1KUXcCAHjA2jAjfSXE',
             toolName: 'sequentialThinking',
             type: 'tool-result',
@@ -176,7 +176,7 @@ describe('identify-assumptions-step integration', () => {
       {
         content: [
           {
-            args: {
+            input: {
               isRevision: false,
               needsMoreThoughts: false,
               nextThoughtNeeded: false,
@@ -195,9 +195,9 @@ describe('identify-assumptions-step integration', () => {
       {
         content: [
           {
-            result: {
+            output: {
               success: true,
-            },
+            } as any,
             toolCallId: 'toolu_03QyPGts4d3WdGmFmrd5urVT',
             toolName: 'sequentialThinking',
             type: 'tool-result',
@@ -208,7 +208,7 @@ describe('identify-assumptions-step integration', () => {
       {
         content: [
           {
-            args: {},
+            input: {},
             toolCallId: 'toolu_04T6RXZpViewbAVZWYD5YxRd',
             toolName: 'submitThoughts',
             type: 'tool-call',
@@ -219,7 +219,7 @@ describe('identify-assumptions-step integration', () => {
       {
         content: [
           {
-            result: {},
+            output: {} as any,
             toolCallId: 'toolu_04T6RXZpViewbAVZWYD5YxRd',
             toolName: 'submitThoughts',
             type: 'tool-result',
@@ -230,7 +230,7 @@ describe('identify-assumptions-step integration', () => {
       {
         content: [
           {
-            args: {
+            input: {
               files: [
                 {
                   name: 'Mountain-500 Online Sales to NA Customers with ColonialVoice Card',
@@ -249,7 +249,7 @@ describe('identify-assumptions-step integration', () => {
       {
         content: [
           {
-            result: {
+            output: {
               duration: 674,
               failed_files: [],
               files: [
@@ -269,7 +269,7 @@ describe('identify-assumptions-step integration', () => {
                 },
               ],
               message: 'Successfully created 1 metric files.',
-            },
+            } as any,
             toolCallId: 'toolu_05JTGAQ7Pz8gT3SnRaUZttdF',
             toolName: 'createMetrics',
             type: 'tool-result',

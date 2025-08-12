@@ -1,4 +1,4 @@
-import { StatusSchema } from '@buster/server-shared';
+import { StatusSchema } from '@buster/server-shared/chats';
 import { tool } from 'ai';
 import { z } from 'zod';
 import { createCreateReportsDelta } from './create-reports-delta';

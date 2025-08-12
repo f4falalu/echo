@@ -1,14 +1,5 @@
-import { Agent, createStep } from '@mastra/core';
-import type { CoreMessage } from 'ai';
-import { wrapTraced } from 'braintrust';
 import { z } from 'zod';
-import { Sonnet4 } from '../../../llm/sonnet-4';
 import { MessageHistorySchema } from '../../../utils/memory/types';
-import {
-  type assumptionItemSchema,
-  listAssumptionsResponse,
-} from '../../tools/post-processing/list-assumptions-response';
-import { noAssumptionsIdentified } from '../../tools/post-processing/no-assumptions-identified';
 
 const inputSchema = z.object({
   conversationHistory: MessageHistorySchema.optional(),
@@ -170,14 +161,3 @@ export const identifyAssumptionsStep = {
   execute: runIdentifyAssumptionsStep,
 };
 
-/**
- * Legacy step export for backwards compatibility
- */
-export const identifyAssumptionsStepLegacy = {
-  id: 'identify-assumptions',
-  description:
-    'This step analyzes SQL queries to identify assumptions made during query construction that could impact result accuracy.',
-  inputSchema,
-  outputSchema: identifyAssumptionsResultSchema,
-  execute: identifyAssumptionsStepExecution,
-};

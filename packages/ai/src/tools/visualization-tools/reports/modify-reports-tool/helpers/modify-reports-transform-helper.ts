@@ -1,4 +1,4 @@
-import type { ResponseMessage, ResponseMessageReasoningEntry } from '@buster/server-shared';
+import type { ResponseMessage, ResponseMessageReasoningEntry } from '@buster/server-shared/chats';
 import type { ModifyReportsEditState, ModifyReportsState } from '../modify-reports-tool';
 
 // Transform state edit to response edit format
