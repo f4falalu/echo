@@ -1,6 +1,7 @@
 import { redirect } from '@tanstack/react-router';
 import { createServerFn } from '@tanstack/react-start';
 import { z } from 'zod';
+import { env } from '@/env';
 import { ServerRoute as AuthCallbackRoute } from '../../routes/auth.callback';
 import { getSupabaseServerClient } from './server';
 
@@ -21,12 +22,12 @@ export const signInWithEmailAndPassword = createServerFn({ method: 'POST' })
     const supabase = getSupabaseServerClient();
     const { error } = await supabase.auth.signInWithPassword({
       email: data.email,
-      password: data.password
+      password: data.password,
     });
     if (error) {
       return {
         error: true,
-        message: error.message
+        message: error.message,
       };
     }
 
@@ -49,8 +50,8 @@ export const signInWithGoogle = createServerFn({ method: 'POST' })
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: callbackUrl.toString()
-      }
+        redirectTo: callbackUrl.toString(),
+      },
     });
 
     if (error) {
@@ -97,120 +98,60 @@ export const signInWithAnonymousUser = createServerFn({ method: 'POST' }).handle
             created_at: session.user.created_at,
             updated_at: session.user.updated_at,
             role: session.user.role,
-            deleted_at: session.user.deleted_at
+            deleted_at: session.user.deleted_at,
           }
-        : null
-    }
+        : null,
+    },
   };
 });
 
-// export const signInWithGithub = async ({
-//   redirectTo,
-// }: {
-//   redirectTo?: string | null;
-// } = {}): Promise<ServerActionResult<string>> => {
-//   "use server";
+export const signInWithGithub = createServerFn({ method: 'POST' })
+  .validator(z.object({ redirectUrl: z.string().optional() }))
+  .handler(async ({ data: { redirectUrl } }) => {
+    const supabase = getSupabaseServerClient();
 
-//   const supabase = await createSupabaseServerClient();
+    const redirectTo = redirectUrl || '/';
 
-//   const callbackUrl = new URL(authURLFull);
-//   if (redirectTo && isValidRedirectUrl(redirectTo)) {
-//     callbackUrl.searchParams.set("next", redirectTo);
-//   }
+    const callbackUrl = new URL(AuthCallbackRoute.to);
 
-//   const { data, error } = await supabase.auth.signInWithOAuth({
-//     provider: "github",
-//     options: {
-//       redirectTo: callbackUrl.toString(),
-//     },
-//   });
+    if (redirectTo && isValidRedirectUrl(redirectTo)) {
+      callbackUrl.searchParams.set('next', redirectTo);
+    }
 
-//   if (error) {
-//     return { success: false, error: error.message };
-//   }
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: 'github',
+      options: {
+        redirectTo: callbackUrl.toString(),
+      },
+    });
 
-//   revalidatePath("/", "layout");
-//   return redirect(data.url);
-// };
+    if (error) {
+      return { success: false, error: error.message };
+    }
 
-// export const signInWithAzure = async ({
-//   redirectTo,
-// }: {
-//   redirectTo?: string | null;
-// } = {}): Promise<ServerActionResult<string>> => {
-//   "use server";
+    throw redirect({ to: data.url });
+  });
 
-//   const supabase = await createSupabaseServerClient();
+export const signUpWithEmailAndPassword = createServerFn({ method: 'POST' })
+  .validator(
+    z.object({ email: z.string(), password: z.string(), redirectUrl: z.string().optional() })
+  )
+  .handler(async ({ data }) => {
+    const supabase = getSupabaseServerClient();
 
-//   const callbackUrl = new URL(authURLFull);
-//   if (redirectTo && isValidRedirectUrl(redirectTo)) {
-//     callbackUrl.searchParams.set("next", redirectTo);
-//   }
+    const authURLFull = `${env.VITE_PUBLIC_URL}${AuthCallbackRoute.to}`;
 
-//   const { data, error } = await supabase.auth.signInWithOAuth({
-//     provider: "azure",
-//     options: {
-//       redirectTo: callbackUrl.toString(),
-//       scopes: "email",
-//     },
-//   });
+    const { error } = await supabase.auth.signUp({
+      email: data.email,
+      password: data.password,
+      options: {
+        emailRedirectTo: data.redirectUrl,
+      },
+    });
 
-//   if (error) {
-//     return { success: false, error: error.message };
-//   }
-//   revalidatePath("/", "layout");
-//   return redirect(data.url);
-// };
+    if (error) {
+      return { success: false, error: error.message };
+    }
 
-// export const signUp = async ({
-//   email,
-//   password,
-//   redirectTo,
-// }: {
-//   email: string;
-//   password: string;
-//   redirectTo?: string | null;
-// }): Promise<ServerActionResult> => {
-//   "use server";
-//   const supabase = await createSupabaseServerClient();
-//   const authURL = createBusterRoute({
-//     route: BusterRoutes.AUTH_CONFIRM,
-//   });
-//   const authURLFull = `${process.env.NEXT_PUBLIC_URL}${authURL}`;
-
-//   const { error } = await supabase.auth.signUp({
-//     email,
-//     password,
-//     options: {
-//       emailRedirectTo: authURLFull,
-//     },
-//   });
-//   if (error) {
-//     console.error("supabase error in signUp", error);
-//     // Return the actual Supabase error message
-//     return { success: false, error: error.message };
-//   }
-
-//   revalidatePath("/", "layout");
-//   const finalRedirect =
-//     redirectTo && isValidRedirectUrl(redirectTo)
-//       ? decodeURIComponent(redirectTo)
-//       : createBusterRoute({ route: BusterRoutes.APP_HOME });
-//   return redirect(finalRedirect);
-// };
-
-// export const signInWithAnonymousUser = async () => {
-//   "use server";
-
-//   const supabase = await createSupabaseServerClient();
-
-//   const { data, error } = await supabase.auth.signInAnonymously();
-
-//   if (error) {
-//     throw error;
-//   }
-
-//   revalidatePath("/", "layout");
-
-//   return data;
-// };
+    throw redirect({ to: authURLFull });
+  });
