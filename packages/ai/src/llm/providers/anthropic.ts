@@ -1,5 +1,6 @@
 import { createAnthropic } from '@ai-sdk/anthropic';
-import { wrapAISDKModel } from 'braintrust';
+import { wrapLanguageModel } from 'ai';
+import { BraintrustMiddleware } from 'braintrust';
 
 export const anthropicModel = (modelId: string) => {
   const anthropic = createAnthropic({
@@ -42,6 +43,9 @@ export const anthropicModel = (modelId: string) => {
     }) as typeof fetch,
   });
 
-  // Wrap the model with Braintrust tracing and return it
-  return wrapAISDKModel(anthropic(modelId));
+  // Wrap the model with Braintrust middleware
+  return wrapLanguageModel({
+    model: anthropic(modelId),
+    middleware: BraintrustMiddleware({ debug: true }),
+  });
 };

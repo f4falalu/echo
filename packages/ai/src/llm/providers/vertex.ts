@@ -1,6 +1,7 @@
 import { createVertexAnthropic } from '@ai-sdk/google-vertex/anthropic';
 import type { LanguageModelV2 } from '@ai-sdk/provider';
-import { wrapAISDKModel } from 'braintrust';
+import { wrapLanguageModel } from 'ai';
+import { BraintrustMiddleware } from 'braintrust';
 
 export const vertexModel = (modelId: string): LanguageModelV2 => {
   // Create a proxy that validates credentials on first use
@@ -70,8 +71,11 @@ export const vertexModel = (modelId: string): LanguageModelV2 => {
         }) as typeof fetch,
       });
 
-      // Wrap the model with Braintrust tracing
-      actualModel = wrapAISDKModel(vertex(modelId));
+      // Wrap the model with Braintrust middleware
+      actualModel = wrapLanguageModel({
+        model: vertex(modelId),
+        middleware: BraintrustMiddleware({ debug: true }),
+      });
     }
     return actualModel;
   };
