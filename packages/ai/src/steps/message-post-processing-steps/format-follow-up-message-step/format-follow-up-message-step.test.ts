@@ -1,224 +1,147 @@
 import type { ModelMessage } from 'ai';
-import { describe, expect, test, vi } from 'vitest';
-import { formatFollowUpMessageStepExecution } from './format-follow-up-message-step';
+import { describe, expect, it, vi } from 'vitest';
+import {
+  formatFollowUpMessageParamsSchema,
+  formatFollowUpMessageResultSchema,
+  formatFollowUpMessageStep,
+  runFormatFollowUpMessageStep,
+} from './format-follow-up-message-step';
 
-// Mock the agent and its dependencies
-vi.mock('@mastra/core', () => ({
-  Agent: vi.fn().mockImplementation(() => ({
-    generate: vi.fn().mockResolvedValue({
-      toolCalls: [
-        {
-          toolName: 'generateUpdateMessage',
-          args: {
-            update_message: 'Test update message',
-            title: 'Update Title',
-          },
-        },
-      ],
-    }),
-  })),
-  createStep: vi.fn((config) => config),
+// Mock the generateObject function to avoid actual LLM calls in unit tests
+vi.mock('ai', () => ({
+  generateObject: vi.fn(),
 }));
 
+// Mock the Sonnet4 model
+vi.mock('../../../llm/sonnet-4', () => ({
+  Sonnet4: 'mocked-sonnet-4-model',
+}));
+
+// Mock braintrust to avoid external dependencies in unit tests
 vi.mock('braintrust', () => ({
   wrapTraced: vi.fn((fn) => fn),
 }));
 
-vi.mock('../../utils/models/sonnet-4', () => ({
-  Sonnet4: 'mocked-model',
-}));
+describe('format-follow-up-message-step', () => {
+  describe('schema validation', () => {
+    it('should validate input schema correctly', () => {
+      const validInput = {
+        userName: 'John Doe',
+        flaggedIssues: 'Additional issues found',
+        majorAssumptions: [
+          {
+            descriptiveTitle: 'Additional data join assumption',
+            explanation: 'Made additional assumptions about data relationships',
+            label: 'major',
+          },
+        ],
+        conversationHistory: [
+          { role: 'user' as const, content: 'Follow-up question' },
+          { role: 'assistant' as const, content: 'Follow-up response' },
+        ],
+      };
 
-vi.mock('../../../src/utils/standardizeMessages', () => ({
-  standardizeMessages: vi.fn((msg) => [{ role: 'user', content: msg }]),
-}));
+      const result = formatFollowUpMessageParamsSchema.safeParse(validInput);
+      expect(result.success).toBe(true);
+      if (result.success) {
+        expect(result.data.userName).toBe('John Doe');
+        expect(result.data.majorAssumptions).toHaveLength(1);
+      }
+    });
 
-vi.mock('../../../src/tools/post-processing/generate-update-message', () => ({
-  generateUpdateMessage: {},
-}));
+    it('should validate result schema correctly', () => {
+      const validResult = {
+        summaryMessage: 'Test update message',
+        summaryTitle: 'Test Update Title',
+      };
 
-describe('Format Follow-up Message Step Unit Tests', () => {
-  test('should include chat history in context message when present', async () => {
-    const mockConversationHistory: ModelMessage[] = [
-      { role: 'user', content: 'Initial query about sales' },
-      { role: 'assistant', content: 'Sales data analysis complete' },
-      { role: 'user', content: 'Can you filter by last 6 months?' },
-      { role: 'assistant', content: 'Filtered data shown' },
-    ];
-
-    const inputData = {
-      conversationHistory: mockConversationHistory,
-      userName: 'Sarah Connor',
-      messageId: 'msg-fu-123',
-      userId: 'user-123',
-      chatId: 'chat-123',
-      isFollowUp: true,
-      isSlackFollowUp: true,
-      previousMessages: ['Previous slack message'],
-      datasets: 'test datasets',
-      toolCalled: 'flagChat',
-      flagChatMessage: 'New assumptions made during follow-up',
-      flagChatTitle: 'Follow-up Issues',
-      assumptions: [
-        {
-          descriptiveTitle: 'Time Period Filter',
-          classification: 'timePeriodInterpretation' as const,
-          explanation: 'Assumed last 6 months means from today',
-          label: 'major' as const,
-        },
-      ],
-    };
-
-    const result = await formatFollowUpMessageStepExecution({ inputData });
-
-    expect(result.summaryMessage).toBe('Test update message');
-    expect(result.summaryTitle).toBe('Update Title');
-    expect(result.message).toBe('Test update message');
-    expect(result.conversationHistory).toEqual(mockConversationHistory);
+      const result = formatFollowUpMessageResultSchema.safeParse(validResult);
+      expect(result.success).toBe(true);
+    });
   });
 
-  test('should handle empty conversation history', async () => {
-    const inputData = {
-      conversationHistory: [],
-      userName: 'Kyle Reese',
-      messageId: 'msg-fu-456',
-      userId: 'user-456',
-      chatId: 'chat-456',
-      isFollowUp: true,
-      isSlackFollowUp: false,
-      previousMessages: [],
-      datasets: 'test datasets',
-      toolCalled: 'flagChat',
-      flagChatMessage: 'Follow-up issues detected',
-      flagChatTitle: 'Issues Found',
-      assumptions: [
-        {
-          descriptiveTitle: 'Data Aggregation',
-          classification: 'aggregation' as const,
-          explanation: 'Used SUM for totals',
-          label: 'major' as const,
+  describe('runFormatFollowUpMessageStep', () => {
+    it('should return empty result when no major assumptions', async () => {
+      const params = {
+        userName: 'John Doe',
+        flaggedIssues: 'No new issues',
+        majorAssumptions: [], // No major assumptions
+      };
+
+      const result = await runFormatFollowUpMessageStep(params);
+
+      expect(result.summaryMessage).toBe('');
+      expect(result.summaryTitle).toBe('');
+    });
+
+    it('should generate update message when major assumptions exist', async () => {
+      const mockConversationHistory: ModelMessage[] = [
+        { role: 'user', content: 'Can you update the analysis with different filters?' },
+        { role: 'assistant', content: 'Here is the updated analysis with new assumptions.' },
+      ];
+
+      // Mock generateObject to return an update message
+      const { generateObject } = await import('ai');
+      vi.mocked(generateObject).mockResolvedValue({
+        object: {
+          title: 'Filter Update Assumptions',
+          update_message:
+            'John sent a follow-up request to update the analysis but additional assumptions were made about the filtering criteria.',
         },
-      ],
-    };
+      } as any);
 
-    const result = await formatFollowUpMessageStepExecution({ inputData });
+      const params = {
+        userName: 'John Doe',
+        flaggedIssues: 'New filter assumptions',
+        majorAssumptions: [
+          {
+            descriptiveTitle: 'Filter Criteria Assumption',
+            explanation: 'Assumed certain filter criteria without clear documentation',
+            label: 'major',
+          },
+        ],
+        conversationHistory: mockConversationHistory,
+      };
 
-    expect(result.summaryMessage).toBe('Test update message');
-    expect(result.summaryTitle).toBe('Update Title');
-    expect(result.message).toBe('Test update message');
-    expect(result.conversationHistory).toEqual([]);
+      const result = await runFormatFollowUpMessageStep(params);
+
+      expect(result.summaryMessage).toBe(
+        'John sent a follow-up request to update the analysis but additional assumptions were made about the filtering criteria.'
+      );
+      expect(result.summaryTitle).toBe('Filter Update Assumptions');
+    });
+
+    it('should handle LLM errors gracefully', async () => {
+      // Mock generateObject to throw an error
+      const { generateObject } = await import('ai');
+      vi.mocked(generateObject).mockRejectedValue(new Error('LLM service unavailable'));
+
+      const params = {
+        userName: 'Jane Smith',
+        flaggedIssues: 'Some new issues',
+        majorAssumptions: [
+          {
+            descriptiveTitle: 'Follow-up Assumption',
+            explanation: 'Additional assumptions in follow-up',
+            label: 'major',
+          },
+        ],
+      };
+
+      await expect(runFormatFollowUpMessageStep(params)).rejects.toThrow(
+        'Unable to format the follow-up message. Please try again later.'
+      );
+    });
   });
 
-  test('should handle missing conversation history', async () => {
-    const inputData = {
-      userName: 'John Connor',
-      messageId: 'msg-fu-789',
-      userId: 'user-789',
-      chatId: 'chat-789',
-      isFollowUp: true,
-      isSlackFollowUp: true,
-      previousMessages: ['Initial slack thread message'],
-      datasets: 'test datasets',
-      toolCalled: 'flagChat',
-      flagChatMessage: 'Additional clarification needed',
-      flagChatTitle: 'Needs Clarification',
-      assumptions: [
-        {
-          descriptiveTitle: 'Metric Definition',
-          classification: 'metricDefinition' as const,
-          explanation: 'Used standard revenue metric',
-          label: 'major' as const,
-        },
-      ],
-    };
-
-    const result = await formatFollowUpMessageStepExecution({ inputData });
-
-    expect(result.summaryMessage).toBe('Test update message');
-    expect(result.summaryTitle).toBe('Update Title');
-    expect(result.message).toBe('Test update message');
-    expect(result.conversationHistory).toBeUndefined();
-  });
-
-  test('should return input data unchanged when no major assumptions', async () => {
-    const inputData = {
-      conversationHistory: [
-        { role: 'user' as const, content: 'Follow-up question' },
-        { role: 'assistant' as const, content: 'Follow-up answer' },
-      ],
-      userName: 'Marcus Wright',
-      messageId: 'msg-fu-999',
-      userId: 'user-999',
-      chatId: 'chat-999',
-      isFollowUp: true,
-      isSlackFollowUp: false,
-      previousMessages: [],
-      datasets: 'test datasets',
-      toolCalled: 'noIssuesFound',
-      assumptions: [
-        {
-          descriptiveTitle: 'Formatting Choice',
-          classification: 'dataFormat' as const,
-          explanation: 'Used comma separation',
-          label: 'minor' as const,
-        },
-        {
-          descriptiveTitle: 'Time Zone',
-          classification: 'timePeriodInterpretation' as const,
-          explanation: 'Used UTC',
-          label: 'timeRelated' as const,
-        },
-      ],
-    };
-
-    const result = await formatFollowUpMessageStepExecution({ inputData });
-
-    expect(result).toEqual(inputData);
-    expect(result.summaryMessage).toBeUndefined();
-    expect(result.summaryTitle).toBeUndefined();
-    expect(result.message).toBeUndefined();
-  });
-
-  test('should handle multiple major assumptions with conversation history', async () => {
-    const mockConversationHistory: ModelMessage[] = [
-      { role: 'user', content: 'Show me customer segments' },
-      { role: 'assistant', content: 'Here are the segments' },
-      { role: 'user', content: 'Filter by enterprise only' },
-    ];
-
-    const inputData = {
-      conversationHistory: mockConversationHistory,
-      userName: 'Kate Brewster',
-      messageId: 'msg-fu-multi',
-      userId: 'user-multi',
-      chatId: 'chat-multi',
-      isFollowUp: true,
-      isSlackFollowUp: true,
-      previousMessages: ['Thread about customer analysis'],
-      datasets: 'test datasets',
-      toolCalled: 'flagChat',
-      flagChatMessage: 'Multiple assumptions in follow-up',
-      flagChatTitle: 'Multiple Issues',
-      assumptions: [
-        {
-          descriptiveTitle: 'Enterprise Definition',
-          classification: 'segmentDefinition' as const,
-          explanation: 'Defined enterprise as >$1M revenue',
-          label: 'major' as const,
-        },
-        {
-          descriptiveTitle: 'Customer Status',
-          classification: 'dataQuality' as const,
-          explanation: 'Included only active customers',
-          label: 'major' as const,
-        },
-      ],
-    };
-
-    const result = await formatFollowUpMessageStepExecution({ inputData });
-
-    expect(result.summaryMessage).toBe('Test update message');
-    expect(result.summaryTitle).toBe('Update Title');
-    expect(result.message).toBe('Test update message');
-    expect(result.conversationHistory).toEqual(mockConversationHistory);
+  describe('step configuration', () => {
+    it('should export step configuration object', () => {
+      expect(formatFollowUpMessageStep).toBeDefined();
+      expect(formatFollowUpMessageStep.id).toBe('format-follow-up-message');
+      expect(formatFollowUpMessageStep.description).toContain('follow-up messages');
+      expect(formatFollowUpMessageStep.inputSchema).toBe(formatFollowUpMessageParamsSchema);
+      expect(formatFollowUpMessageStep.outputSchema).toBe(formatFollowUpMessageResultSchema);
+      expect(formatFollowUpMessageStep.execute).toBe(runFormatFollowUpMessageStep);
+    });
   });
 });

@@ -1,6 +1,6 @@
 import type { ModelMessage } from 'ai';
 import { describe, expect, it } from 'vitest';
-import { formatFollowUpMessageStepExecution } from './format-follow-up-message-step';
+import { runFormatFollowUpMessageStep } from './format-follow-up-message-step';
 
 describe('format-follow-up-message-step integration', () => {
   it('should format follow-up message with new issues and assumptions', async () => {

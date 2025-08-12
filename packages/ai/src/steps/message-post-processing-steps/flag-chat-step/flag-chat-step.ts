@@ -5,15 +5,31 @@ import { z } from 'zod';
 import { Sonnet4 } from '../../../llm/sonnet-4';
 import { MessageHistorySchema } from '../../../utils/memory/types';
 
-// Simplified input schema - only include necessary fields
-export const flagChatStepInputSchema = z.object({
+// Zod schemas first - following Zod-first approach
+export const flagChatStepParamsSchema = z.object({
   conversationHistory: MessageHistorySchema.optional(),
   userName: z.string().describe('User name for context'),
   datasets: z.string().describe('Dataset context for analysis'),
 });
 
+export const flagChatStepResultSchema = z.discriminatedUnion('type', [
+  z.object({
+    type: z.literal('flagChat'),
+    summaryMessage: z.string().describe('Summary message for the data team'),
+    summaryTitle: z.string().describe('Short title for the summary'),
+  }),
+  z.object({
+    type: z.literal('noIssuesFound'),
+    message: z.string().describe('Confirmation message that no issues were found'),
+  }),
+]);
+
+// Export types from schemas
+export type FlagChatStepParams = z.infer<typeof flagChatStepParamsSchema>;
+export type FlagChatStepResult = z.infer<typeof flagChatStepResultSchema>;
+
 // Schema for what the LLM returns - using simple object instead of discriminated union
-export const flagChatStepLLMOutputSchema = z.object({
+const flagChatStepLLMOutputSchema = z.object({
   type: z.enum(['flagChat', 'noIssuesFound']).describe('Type of result'),
   summary_message: z
     .string()
@@ -22,40 +38,6 @@ export const flagChatStepLLMOutputSchema = z.object({
   summary_title: z.string().optional().describe('Short title for the summary (only if flagChat)'),
   message: z.string().optional().describe('Confirmation message (only if noIssuesFound)'),
 });
-
-// Discriminated union for type-safe result handling (derived from LLM output)
-export const flagChatStepOutputSchema = z.discriminatedUnion('type', [
-  z.object({
-    type: z.literal('flagChat'),
-    summary_message: z.string().describe('Summary message for the data team'),
-    summary_title: z.string().describe('Short title for the summary'),
-  }),
-  z.object({
-    type: z.literal('noIssuesFound'),
-    message: z.string().describe('Confirmation message that no issues were found'),
-  }),
-]);
-
-// Result schema that includes the input passthrough plus the flag chat result
-export const flagChatStepResultSchema = z.object({
-  // Pass through input fields
-  conversationHistory: MessageHistorySchema.optional(),
-  userName: z.string(),
-  datasets: z.string(),
-
-  // Result from this step
-  flagChatResult: flagChatStepOutputSchema,
-
-  // For backwards compatibility with existing consumers
-  toolCalled: z.string().describe('Type of result: flagChat or noIssuesFound'),
-  flagChatMessage: z.string().optional().describe('Message from the analysis'),
-  flagChatTitle: z.string().optional().describe('Title for the flag chat message'),
-});
-
-// Export types from schemas
-export type FlagChatStepParams = z.infer<typeof flagChatStepInputSchema>;
-export type FlagChatStepOutput = z.infer<typeof flagChatStepOutputSchema>;
-export type FlagChatStepResult = z.infer<typeof flagChatStepResultSchema>;
 
 // Template function that returns the system prompt
 const getFlagChatSystemMessage = (): string => `
@@ -162,7 +144,7 @@ async function generateFlagChatWithLLM(
   conversationHistory: ModelMessage[] | undefined,
   userName: string,
   datasets: string
-): Promise<FlagChatStepOutput> {
+): Promise<FlagChatStepResult> {
   try {
     // Prepare messages for the LLM
     const messages: ModelMessage[] = [];
@@ -227,13 +209,13 @@ No conversation history available for analysis.`,
 
     const llmResult = await tracedFlagChatGeneration();
 
-    // Convert LLM result to discriminated union format
-    const result: FlagChatStepOutput =
+    // Convert LLM result to discriminated union format with camelCase
+    const result: FlagChatStepResult =
       llmResult.type === 'flagChat'
         ? {
             type: 'flagChat',
-            summary_message: llmResult.summary_message || '',
-            summary_title: llmResult.summary_title || '',
+            summaryMessage: llmResult.summary_message || '',
+            summaryTitle: llmResult.summary_title || '',
           }
         : {
             type: 'noIssuesFound',
@@ -257,44 +239,13 @@ No conversation history available for analysis.`,
 
 export async function runFlagChatStep(params: FlagChatStepParams): Promise<FlagChatStepResult> {
   try {
-    const flagChatResult = await generateFlagChatWithLLM(
+    const result = await generateFlagChatWithLLM(
       params.conversationHistory,
       params.userName,
       params.datasets
     );
 
-    // Map result for backwards compatibility
-    let toolCalled: string;
-    let flagChatMessage: string | undefined;
-    let flagChatTitle: string | undefined;
-
-    if (flagChatResult.type === 'flagChat') {
-      toolCalled = 'flagChat';
-      flagChatMessage = flagChatResult.summary_message;
-      flagChatTitle = flagChatResult.summary_title;
-    } else if (flagChatResult.type === 'noIssuesFound') {
-      toolCalled = 'noIssuesFound';
-      flagChatMessage = flagChatResult.message;
-      flagChatTitle = 'No Issues Found';
-    } else {
-      // This should never happen with discriminated unions, but TypeScript safety
-      throw new Error('Invalid flag chat result type');
-    }
-
-    return {
-      // Pass through input fields
-      conversationHistory: params.conversationHistory,
-      userName: params.userName,
-      datasets: params.datasets,
-
-      // New structured result
-      flagChatResult,
-
-      // Backwards compatibility fields
-      toolCalled,
-      flagChatMessage,
-      flagChatTitle,
-    };
+    return result;
   } catch (error) {
     console.error('[flag-chat-step] Unexpected error:', error);
 
@@ -333,6 +284,21 @@ export const flagChatStepExecution = async ({
 
   const result = await runFlagChatStep(params);
 
+  // Convert result for backwards compatibility
+  let toolCalled: string;
+  let flagChatMessage: string | undefined;
+  let flagChatTitle: string | undefined;
+
+  if (result.type === 'flagChat') {
+    toolCalled = 'flagChat';
+    flagChatMessage = result.summaryMessage;
+    flagChatTitle = result.summaryTitle;
+  } else {
+    toolCalled = 'noIssuesFound';
+    flagChatMessage = result.message;
+    flagChatTitle = 'No Issues Found';
+  }
+
   // Return in old format for backwards compatibility
   return {
     // Pass through all input fields from old format
@@ -347,9 +313,9 @@ export const flagChatStepExecution = async ({
     datasets: inputData.datasets,
 
     // Add fields from new result
-    toolCalled: result.toolCalled,
-    flagChatMessage: result.flagChatMessage,
-    flagChatTitle: result.flagChatTitle,
+    toolCalled,
+    flagChatMessage,
+    flagChatTitle,
   };
 };
 
@@ -358,7 +324,7 @@ export const flagChatStep = {
   id: 'flag-chat',
   description:
     'This step analyzes the chat history to identify potential user frustration or issues and flags the chat for review if needed.',
-  inputSchema: flagChatStepInputSchema,
+  inputSchema: flagChatStepParamsSchema,
   outputSchema: flagChatStepResultSchema,
   execute: runFlagChatStep,
 };

@@ -1,53 +1,64 @@
-import type { ResponseMessage, ResponseMessageReasoningEntry } from '@buster/server-shared/chats';
-import type { ModifyReportsEditState, ModifyReportsState } from '../modify-reports-tool';
+import type {
+  ChatMessageReasoningMessage,
+  ChatMessageReasoningMessage_File,
+} from '@buster/server-shared/chats';
+import type { ModelMessage } from 'ai';
+import { type ModifyReportsState, TOOL_NAME } from '../modify-reports-tool';
 
-// Transform state edit to response edit format
-function transformStateEditToResponseEdit(edit: ModifyReportsEditState) {
-  return {
-    operation: edit.operation,
-    code_to_replace: edit.code_to_replace,
-    code: edit.code,
-    status: edit.status,
-    error: edit.error,
-  };
-}
-
-// Create reasoning entry for modify reports tool
+/**
+ * Create a reasoning entry for modify-reports tool
+ */
 export function createModifyReportsReasoningEntry(
   state: ModifyReportsState,
   toolCallId: string
-): ResponseMessageReasoningEntry | undefined {
+): ChatMessageReasoningMessage | undefined {
+  state.toolCallId = toolCallId;
+
   if (!state.reportId && !state.edits?.length) {
     return undefined;
   }
 
+  // Build Record<string, ReasoningFile> as required by schema
+  const filesRecord: Record<string, ChatMessageReasoningMessage_File> = {};
+  const fileIds: string[] = [];
+
+  if (state.reportId && state.reportName) {
+    const id = state.reportId;
+    fileIds.push(id);
+    filesRecord[id] = {
+      id,
+      file_type: 'report',
+      file_name: state.reportName,
+      version_number: state.version_number || 1,
+      status: 'loading',
+      file: {
+        text: state.currentContent || state.finalContent || '',
+      },
+    };
+  }
+
+  // If nothing valid to show yet, skip emitting a files reasoning message
+  if (fileIds.length === 0) return undefined;
+
   return {
-    id: `reasoning-${toolCallId}`,
-    agentName: 'analyst',
-    agentId: 'analyst',
-    toolName: 'modifyReports',
-    toolCallId,
-    type: 'tool',
-    content: {
-      argsText: state.argsText ?? '',
-      reportId: state.reportId ?? '',
-      reportName: state.reportName ?? 'Untitled Report',
-      edits: state.edits?.map(transformStateEditToResponseEdit) ?? [],
-      currentContent: state.currentContent,
-      finalContent: state.finalContent,
-      version_number: state.version_number,
-    },
-  };
+    id: toolCallId,
+    type: 'files',
+    title: 'Modifying reports...',
+    status: 'loading',
+    file_ids: fileIds,
+    files: filesRecord,
+  } as ChatMessageReasoningMessage;
 }
 
-// Create raw LLM message entry for modify reports tool
+/**
+ * Create a raw LLM message entry for modify-reports tool
+ */
 export function createModifyReportsRawLlmMessageEntry(
   state: ModifyReportsState,
   toolCallId: string
-): ResponseMessage | undefined {
-  if (!state.reportId || !state.edits?.length) {
-    return undefined;
-  }
+): ModelMessage | undefined {
+  // If we don't have report data yet, skip emitting raw LLM entry
+  if (!state.reportId || !state.edits?.length) return undefined;
 
   return {
     role: 'assistant',
@@ -55,16 +66,20 @@ export function createModifyReportsRawLlmMessageEntry(
       {
         type: 'tool-call',
         toolCallId,
-        toolName: 'modifyReports',
-        args: {
+        toolName: TOOL_NAME,
+        input: {
           id: state.reportId,
           name: state.reportName ?? 'Untitled Report',
-          edits: state.edits.map((edit) => ({
-            code_to_replace: edit.code_to_replace,
-            code: edit.code,
-          })),
+          edits: state.edits
+            .filter((edit) => edit != null) // Filter out null/undefined entries first
+            .map((edit) => ({
+              code_to_replace: edit.code_to_replace || '',
+              code: edit.code || '',
+            }))
+            // Filter out clearly invalid entries
+            .filter((e) => e.code !== undefined),
         },
       },
     ],
-  };
+  } as ModelMessage;
 }

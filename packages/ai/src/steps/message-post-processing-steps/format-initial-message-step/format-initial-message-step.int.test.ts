@@ -1,6 +1,6 @@
 import type { CoreMessage } from 'ai';
 import { describe, expect, it } from 'vitest';
-import { formatInitialMessageStepExecution } from './format-initial-message-step';
+import { runFormatInitialMessageStep } from './format-initial-message-step';
 
 describe('format-initial-message-step integration', () => {
   it('should format initial message when major assumptions are found', async () => {

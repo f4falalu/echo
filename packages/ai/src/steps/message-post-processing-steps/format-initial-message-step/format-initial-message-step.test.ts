@@ -1,168 +1,147 @@
-import type { CoreMessage } from 'ai';
-import { describe, expect, test, vi } from 'vitest';
-import { formatInitialMessageStepExecution } from './format-initial-message-step';
+import type { ModelMessage } from 'ai';
+import { describe, expect, it, vi } from 'vitest';
+import {
+  formatInitialMessageParamsSchema,
+  formatInitialMessageResultSchema,
+  formatInitialMessageStep,
+  runFormatInitialMessageStep,
+} from './format-initial-message-step';
 
-// Mock the agent and its dependencies
-vi.mock('@mastra/core', () => ({
-  Agent: vi.fn().mockImplementation(() => ({
-    generate: vi.fn().mockResolvedValue({
-      toolCalls: [
-        {
-          toolName: 'generateSummary',
-          args: {
-            summary_message: 'Test summary message',
-            title: 'Test Title',
-          },
-        },
-      ],
-    }),
-  })),
-  createStep: vi.fn((config) => config),
+// Mock the generateObject function to avoid actual LLM calls in unit tests
+vi.mock('ai', () => ({
+  generateObject: vi.fn(),
 }));
 
+// Mock the Sonnet4 model
+vi.mock('../../../llm/sonnet-4', () => ({
+  Sonnet4: 'mocked-sonnet-4-model',
+}));
+
+// Mock braintrust to avoid external dependencies in unit tests
 vi.mock('braintrust', () => ({
   wrapTraced: vi.fn((fn) => fn),
 }));
 
-vi.mock('../../utils/models/sonnet-4', () => ({
-  Sonnet4: 'mocked-model',
-}));
+describe('format-initial-message-step', () => {
+  describe('schema validation', () => {
+    it('should validate input schema correctly', () => {
+      const validInput = {
+        userName: 'John Doe',
+        flaggedIssues: 'No data returned for request',
+        majorAssumptions: [
+          {
+            descriptiveTitle: 'Assumed product table join',
+            explanation: 'Joined tables without documentation',
+            label: 'major',
+          },
+        ],
+        conversationHistory: [
+          { role: 'user' as const, content: 'Hello' },
+          { role: 'assistant' as const, content: 'Hi there!' },
+        ],
+      };
 
-vi.mock('../../../src/utils/standardizeMessages', () => ({
-  standardizeMessages: vi.fn((msg) => [{ role: 'user', content: msg }]),
-}));
+      const result = formatInitialMessageParamsSchema.safeParse(validInput);
+      expect(result.success).toBe(true);
+      if (result.success) {
+        expect(result.data.userName).toBe('John Doe');
+        expect(result.data.majorAssumptions).toHaveLength(1);
+      }
+    });
 
-vi.mock('../../../src/tools/post-processing/generate-summary', () => ({
-  generateSummary: {},
-}));
+    it('should validate result schema correctly', () => {
+      const validResult = {
+        summaryMessage: 'Test summary message',
+        summaryTitle: 'Test Title',
+      };
 
-describe('Format Initial Message Step Unit Tests', () => {
-  test('should include chat history in context message when present', async () => {
-    const mockConversationHistory: CoreMessage[] = [
-      { role: 'user', content: 'What is the total revenue?' },
-      { role: 'assistant', content: 'The total revenue is $1M' },
-    ];
-
-    const inputData = {
-      conversationHistory: mockConversationHistory,
-      userName: 'John Doe',
-      messageId: 'msg-123',
-      userId: 'user-123',
-      chatId: 'chat-123',
-      isFollowUp: false,
-      isSlackFollowUp: false,
-      previousMessages: [],
-      datasets: 'test datasets',
-      toolCalled: 'flagChat',
-      flagChatMessage: 'Major issues found',
-      flagChatTitle: 'Issues Detected',
-      assumptions: [
-        {
-          descriptiveTitle: 'Revenue Calculation',
-          classification: 'metricDefinition' as const,
-          explanation: 'Assumed revenue includes all sources',
-          label: 'major' as const,
-        },
-      ],
-    };
-
-    const result = await formatInitialMessageStepExecution({ inputData });
-
-    expect(result.summaryMessage).toBe('Test summary message');
-    expect(result.summaryTitle).toBe('Test Title');
-    expect(result.conversationHistory).toEqual(mockConversationHistory);
+      const result = formatInitialMessageResultSchema.safeParse(validResult);
+      expect(result.success).toBe(true);
+    });
   });
 
-  test('should handle empty conversation history', async () => {
-    const inputData = {
-      conversationHistory: [],
-      userName: 'Jane Smith',
-      messageId: 'msg-456',
-      userId: 'user-456',
-      chatId: 'chat-456',
-      isFollowUp: false,
-      isSlackFollowUp: false,
-      previousMessages: [],
-      datasets: 'test datasets',
-      toolCalled: 'flagChat',
-      flagChatMessage: 'Minor issues found',
-      flagChatTitle: 'Minor Issues',
-      assumptions: [
-        {
-          descriptiveTitle: 'Customer Count',
-          classification: 'dataQuality' as const,
-          explanation: 'Included all customer statuses',
-          label: 'major' as const,
+  describe('runFormatInitialMessageStep', () => {
+    it('should return empty result when no major assumptions', async () => {
+      const params = {
+        userName: 'John Doe',
+        flaggedIssues: 'No issues',
+        majorAssumptions: [], // No major assumptions
+      };
+
+      const result = await runFormatInitialMessageStep(params);
+
+      expect(result.summaryMessage).toBe('');
+      expect(result.summaryTitle).toBe('');
+    });
+
+    it('should generate summary when major assumptions exist', async () => {
+      const mockConversationHistory: ModelMessage[] = [
+        { role: 'user', content: 'What is the total revenue?' },
+        { role: 'assistant', content: 'The total revenue is $1M' },
+      ];
+
+      // Mock generateObject to return a summary
+      const { generateObject } = await import('ai');
+      vi.mocked(generateObject).mockResolvedValue({
+        object: {
+          title: 'Revenue Calculation Issues',
+          summary_message:
+            'John requested total revenue data but major assumptions were made about the calculation method.',
         },
-      ],
-    };
+      } as any);
 
-    const result = await formatInitialMessageStepExecution({ inputData });
+      const params = {
+        userName: 'John Doe',
+        flaggedIssues: 'Major calculation assumptions',
+        majorAssumptions: [
+          {
+            descriptiveTitle: 'Revenue Calculation Method',
+            explanation: 'Assumed revenue includes all sources without documentation',
+            label: 'major',
+          },
+        ],
+        conversationHistory: mockConversationHistory,
+      };
 
-    expect(result.summaryMessage).toBe('Test summary message');
-    expect(result.summaryTitle).toBe('Test Title');
-    expect(result.conversationHistory).toEqual([]);
+      const result = await runFormatInitialMessageStep(params);
+
+      expect(result.summaryMessage).toBe(
+        'John requested total revenue data but major assumptions were made about the calculation method.'
+      );
+      expect(result.summaryTitle).toBe('Revenue Calculation Issues');
+    });
+
+    it('should handle LLM errors gracefully', async () => {
+      // Mock generateObject to throw an error
+      const { generateObject } = await import('ai');
+      vi.mocked(generateObject).mockRejectedValue(new Error('LLM service unavailable'));
+
+      const params = {
+        userName: 'Jane Smith',
+        flaggedIssues: 'Some issues',
+        majorAssumptions: [
+          {
+            descriptiveTitle: 'Data Join Assumption',
+            explanation: 'Joined tables without clear documentation',
+            label: 'major',
+          },
+        ],
+      };
+
+      await expect(runFormatInitialMessageStep(params)).rejects.toThrow(
+        'Unable to format the initial message. Please try again later.'
+      );
+    });
   });
 
-  test('should handle missing conversation history', async () => {
-    const inputData = {
-      userName: 'Bob Johnson',
-      messageId: 'msg-789',
-      userId: 'user-789',
-      chatId: 'chat-789',
-      isFollowUp: false,
-      isSlackFollowUp: false,
-      previousMessages: [],
-      datasets: 'test datasets',
-      toolCalled: 'flagChat',
-      flagChatMessage: 'No issues found',
-      flagChatTitle: 'All Clear',
-      assumptions: [
-        {
-          descriptiveTitle: 'Date Range',
-          classification: 'timePeriodInterpretation' as const,
-          explanation: 'Assumed current month',
-          label: 'major' as const,
-        },
-      ],
-    };
-
-    const result = await formatInitialMessageStepExecution({ inputData });
-
-    expect(result.summaryMessage).toBe('Test summary message');
-    expect(result.summaryTitle).toBe('Test Title');
-    expect(result.conversationHistory).toBeUndefined();
-  });
-
-  test('should return input data unchanged when no major assumptions', async () => {
-    const inputData = {
-      conversationHistory: [
-        { role: 'user' as const, content: 'Hello' },
-        { role: 'assistant' as const, content: 'Hi there!' },
-      ],
-      userName: 'Alice Cooper',
-      messageId: 'msg-999',
-      userId: 'user-999',
-      chatId: 'chat-999',
-      isFollowUp: false,
-      isSlackFollowUp: false,
-      previousMessages: [],
-      datasets: 'test datasets',
-      toolCalled: 'noIssuesFound',
-      assumptions: [
-        {
-          descriptiveTitle: 'Minor Detail',
-          classification: 'dataFormat' as const,
-          explanation: 'Used standard format',
-          label: 'minor' as const,
-        },
-      ],
-    };
-
-    const result = await formatInitialMessageStepExecution({ inputData });
-
-    expect(result).toEqual(inputData);
-    expect(result.summaryMessage).toBeUndefined();
-    expect(result.summaryTitle).toBeUndefined();
+  describe('step configuration', () => {
+    it('should export step configuration object', () => {
+      expect(formatInitialMessageStep).toBeDefined();
+      expect(formatInitialMessageStep.id).toBe('format-initial-message');
+      expect(formatInitialMessageStep.description).toContain('major assumptions');
+      expect(formatInitialMessageStep.inputSchema).toBe(formatInitialMessageParamsSchema);
+      expect(formatInitialMessageStep.outputSchema).toBe(formatInitialMessageResultSchema);
+      expect(formatInitialMessageStep.execute).toBe(runFormatInitialMessageStep);
+    });
   });
 });

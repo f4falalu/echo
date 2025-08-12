@@ -8,6 +8,7 @@ import {
 import type {
   CreateMetricStateFile,
   CreateMetricsContext,
+  CreateMetricsInput,
   CreateMetricsState,
 } from './create-metrics-tool';
 import {
@@ -20,6 +21,10 @@ const TOOL_KEYS = {
   files: 'files' as const,
   name: 'name' as const,
   yml_content: 'yml_content' as const,
+} satisfies {
+  files: keyof CreateMetricsInput;
+  name: keyof CreateMetricsInput['files'][number];
+  yml_content: keyof CreateMetricsInput['files'][number];
 };
 
 export function createCreateMetricsDelta(context: CreateMetricsContext, state: CreateMetricsState) {

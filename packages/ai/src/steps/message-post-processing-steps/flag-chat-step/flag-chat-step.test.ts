@@ -3,9 +3,7 @@ import { describe, expect, it, vi } from 'vitest';
 import {
   flagChatStep,
   flagChatStepExecution,
-  flagChatStepInputSchema,
-  flagChatStepLLMOutputSchema,
-  flagChatStepOutputSchema,
+  flagChatStepParamsSchema,
   flagChatStepResultSchema,
   runFlagChatStep,
 } from './flag-chat-step';
@@ -37,7 +35,7 @@ describe('flag-chat-step', () => {
         ],
       };
 
-      const result = flagChatStepInputSchema.safeParse(validInput);
+      const result = flagChatStepParamsSchema.safeParse(validInput);
       expect(result.success).toBe(true);
       if (result.success) {
         expect(result.data.userName).toBe('John Doe');
@@ -52,71 +50,31 @@ describe('flag-chat-step', () => {
         datasets: 'product, sales',
       };
 
-      const result = flagChatStepInputSchema.safeParse(inputWithoutHistory);
+      const result = flagChatStepParamsSchema.safeParse(inputWithoutHistory);
       expect(result.success).toBe(true);
       if (result.success) {
         expect(result.data.conversationHistory).toBeUndefined();
       }
     });
 
-    it('should validate LLM output schema for flagChat type', () => {
-      const flagChatOutput = {
+    it('should validate result schema for flagChat type', () => {
+      const flagChatResult = {
         type: 'flagChat',
-        summary_message: 'User experienced an issue with empty results',
-        summary_title: 'Empty Results Issue',
+        summaryMessage: 'User experienced an issue with empty results',
+        summaryTitle: 'Empty Results Issue',
       };
 
-      const result = flagChatStepLLMOutputSchema.safeParse(flagChatOutput);
+      const result = flagChatStepResultSchema.safeParse(flagChatResult);
       expect(result.success).toBe(true);
     });
 
-    it('should validate LLM output schema for noIssuesFound type', () => {
-      const noIssuesOutput = {
+    it('should validate result schema for noIssuesFound type', () => {
+      const noIssuesResult = {
         type: 'noIssuesFound',
         message: 'Analysis complete, no issues detected',
       };
 
-      const result = flagChatStepLLMOutputSchema.safeParse(noIssuesOutput);
-      expect(result.success).toBe(true);
-    });
-
-    it('should validate discriminated union output schema for flagChat', () => {
-      const flagChatResult = {
-        type: 'flagChat',
-        summary_message: 'User experienced an issue',
-        summary_title: 'Issue Found',
-      };
-
-      const result = flagChatStepOutputSchema.safeParse(flagChatResult);
-      expect(result.success).toBe(true);
-    });
-
-    it('should validate discriminated union output schema for noIssuesFound', () => {
-      const noIssuesResult = {
-        type: 'noIssuesFound',
-        message: 'No issues detected',
-      };
-
-      const result = flagChatStepOutputSchema.safeParse(noIssuesResult);
-      expect(result.success).toBe(true);
-    });
-
-    it('should validate complete result schema', () => {
-      const completeResult = {
-        conversationHistory: [{ role: 'user' as const, content: 'Test message' }],
-        userName: 'John Doe',
-        datasets: 'test dataset',
-        flagChatResult: {
-          type: 'flagChat' as const,
-          summary_message: 'Issue found',
-          summary_title: 'Issue Title',
-        },
-        toolCalled: 'flagChat',
-        flagChatMessage: 'Issue found',
-        flagChatTitle: 'Issue Title',
-      };
-
-      const result = flagChatStepResultSchema.safeParse(completeResult);
+      const result = flagChatStepResultSchema.safeParse(noIssuesResult);
       expect(result.success).toBe(true);
     });
   });
@@ -146,15 +104,13 @@ describe('flag-chat-step', () => {
 
       const result = await runFlagChatStep(params);
 
-      expect(result.userName).toBe('Kevin');
-      expect(result.datasets).toBe('sales, products');
-      expect(result.conversationHistory).toEqual(mockConversation);
-      expect(result.flagChatResult.type).toBe('flagChat');
-      expect(result.toolCalled).toBe('flagChat');
-      expect(result.flagChatMessage).toBe(
-        'Kevin requested sales data but no results were returned.'
-      );
-      expect(result.flagChatTitle).toBe('No Results Found');
+      expect(result.type).toBe('flagChat');
+      if (result.type === 'flagChat') {
+        expect(result.summaryMessage).toBe(
+          'Kevin requested sales data but no results were returned.'
+        );
+        expect(result.summaryTitle).toBe('No Results Found');
+      }
     });
 
     it('should handle noIssuesFound result from LLM', async () => {
@@ -180,13 +136,10 @@ describe('flag-chat-step', () => {
 
       const result = await runFlagChatStep(params);
 
-      expect(result.userName).toBe('Alice');
-      expect(result.datasets).toBe('revenue, charts');
-      expect(result.conversationHistory).toEqual(mockConversation);
-      expect(result.flagChatResult.type).toBe('noIssuesFound');
-      expect(result.toolCalled).toBe('noIssuesFound');
-      expect(result.flagChatMessage).toBe('Analysis complete, user received proper results.');
-      expect(result.flagChatTitle).toBe('No Issues Found');
+      expect(result.type).toBe('noIssuesFound');
+      if (result.type === 'noIssuesFound') {
+        expect(result.message).toBe('Analysis complete, user received proper results.');
+      }
     });
 
     it('should handle LLM errors gracefully', async () => {
@@ -204,14 +157,10 @@ describe('flag-chat-step', () => {
 
       const result = await runFlagChatStep(params);
 
-      expect(result.userName).toBe('Bob');
-      expect(result.datasets).toBe('test data');
-      expect(result.flagChatResult.type).toBe('noIssuesFound');
-      expect(result.toolCalled).toBe('noIssuesFound');
-      expect(result.flagChatMessage).toBe(
-        'Unable to analyze chat history for issues at this time.'
-      );
-      expect(result.flagChatTitle).toBe('No Issues Found');
+      expect(result.type).toBe('noIssuesFound');
+      if (result.type === 'noIssuesFound') {
+        expect(result.message).toBe('Unable to analyze chat history for issues at this time.');
+      }
     });
 
     it('should handle empty conversation history', async () => {
@@ -232,11 +181,10 @@ describe('flag-chat-step', () => {
 
       const result = await runFlagChatStep(params);
 
-      expect(result.userName).toBe('Charlie');
-      expect(result.datasets).toBe('empty test');
-      expect(result.conversationHistory).toBeUndefined();
-      expect(result.flagChatResult.type).toBe('noIssuesFound');
-      expect(result.toolCalled).toBe('noIssuesFound');
+      expect(result.type).toBe('noIssuesFound');
+      if (result.type === 'noIssuesFound') {
+        expect(result.message).toBe('No conversation to analyze.');
+      }
     });
   });
 
@@ -289,7 +237,7 @@ describe('flag-chat-step', () => {
       expect(flagChatStep).toBeDefined();
       expect(flagChatStep.id).toBe('flag-chat');
       expect(flagChatStep.description).toContain('analyzes the chat history');
-      expect(flagChatStep.inputSchema).toBe(flagChatStepInputSchema);
+      expect(flagChatStep.inputSchema).toBe(flagChatStepParamsSchema);
       expect(flagChatStep.outputSchema).toBe(flagChatStepResultSchema);
       expect(flagChatStep.execute).toBe(runFlagChatStep);
     });

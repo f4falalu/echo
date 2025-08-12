@@ -68,11 +68,11 @@ async function processEditOperations(
   let allSuccess = true;
   let currentVersion = 1;
 
-  for (let index = 0; index < edits.length; index++) {
-    const edit = edits[index];
+  for (const [index, edit] of edits.entries()) {
     // Update state edit status to processing
-    if (state?.edits?.[index]) {
-      state.edits[index].status = 'loading';
+    const editState = state?.edits?.[index];
+    if (editState) {
+      editState.status = 'loading';
     }
 
     const result = await processEditOperation(reportId, edit, currentContent);
@@ -82,8 +82,9 @@ async function processEditOperations(
       currentVersion++;
 
       // Update state edit status to completed
-      if (state?.edits?.[index]) {
-        state.edits[index].status = 'completed';
+      const completedEditState = state?.edits?.[index];
+      if (completedEditState) {
+        completedEditState.status = 'completed';
       }
 
       // Update state current content
@@ -98,9 +99,10 @@ async function processEditOperations(
       errors.push(errorMsg);
 
       // Update state edit status to failed
-      if (state?.edits?.[index]) {
-        state.edits[index].status = 'failed';
-        state.edits[index].error = result.error || 'Unknown error';
+      const failedEditState = state?.edits?.[index];
+      if (failedEditState) {
+        failedEditState.status = 'failed';
+        failedEditState.error = result.error || 'Unknown error';
       }
       // Continue processing remaining edits even if one fails
     }

@@ -5,17 +5,26 @@ import {
   OptimisticJsonParser,
   getOptimisticValue,
 } from '../../../../utils/streaming/optimistic-json-parser';
-import type { CreateReportsContext, CreateReportsState } from './create-reports-tool';
+import type {
+  CreateReportStateFile,
+  CreateReportsContext,
+  CreateReportsInput,
+  CreateReportsState,
+} from './create-reports-tool';
 import {
   createCreateReportsRawLlmMessageEntry,
   createCreateReportsReasoningEntry,
 } from './helpers/create-reports-tool-transform-helper';
 
-// Define TOOL_KEYS locally
+// Define TOOL_KEYS locally since we removed them from the helper
 const TOOL_KEYS = {
   files: 'files' as const,
   name: 'name' as const,
   content: 'content' as const,
+} satisfies {
+  files: keyof CreateReportsInput;
+  name: keyof CreateReportsInput['files'][number];
+  content: keyof CreateReportsInput['files'][number];
 };
 
 export function createCreateReportsDelta(context: CreateReportsContext, state: CreateReportsState) {
@@ -23,55 +32,67 @@ export function createCreateReportsDelta(context: CreateReportsContext, state: C
     // Handle string deltas (accumulate JSON text)
     state.argsText = (state.argsText || '') + options.inputTextDelta;
 
-    // Parse the accumulated JSON to extract file information
-    const parser = new OptimisticJsonParser();
-    const optimisticArgs = parser.parse(state.argsText || '') as Record<string, any>;
+    // Try to parse the accumulated JSON
+    const parseResult = OptimisticJsonParser.parse(state.argsText || '');
 
-    // Track parsed args for processing
-    if (optimisticArgs) {
-      const files = getOptimisticValue(optimisticArgs, TOOL_KEYS.files) as any[] | undefined;
+    if (parseResult.parsed) {
+      // Extract files array from parsed result
+      const filesArray = getOptimisticValue<unknown[]>(
+        parseResult.extractedValues,
+        TOOL_KEYS.files,
+        []
+      );
 
-      // Initialize state files if needed
-      if (!state.files) {
-        state.files = [];
-      }
+      if (filesArray && Array.isArray(filesArray)) {
+        // Update state files with streamed data
+        const updatedFiles: CreateReportStateFile[] = [];
 
-      // Process each file in the delta
-      if (files && Array.isArray(files)) {
-        for (let i = 0; i < files.length; i++) {
-          const file = files[i];
-          if (typeof file === 'object' && file) {
-            const name = getOptimisticValue(file, TOOL_KEYS.name) as string | undefined;
-            const content = getOptimisticValue(file, TOOL_KEYS.content) as string | undefined;
+        filesArray.forEach((file, index) => {
+          if (file && typeof file === 'object') {
+            const fileObj = file as Record<string, unknown>;
+            const name = getOptimisticValue<string>(
+              new Map(Object.entries(fileObj)),
+              TOOL_KEYS.name,
+              ''
+            );
+            const content = getOptimisticValue<string>(
+              new Map(Object.entries(fileObj)),
+              TOOL_KEYS.content,
+              ''
+            );
 
-            // Check if this file index already exists in state
-            if (!state.files[i] && name) {
-              // New file - add to state with UUID
-              const reportId = randomUUID();
-              state.files[i] = {
-                id: reportId,
+            // Only add files that have at least a name
+            if (name) {
+              // Check if this file already exists in state to preserve its ID
+              const existingFile = state.files?.[index];
+
+              updatedFiles.push({
+                id: existingFile?.id || randomUUID(),
                 file_name: name,
                 file_type: 'report',
-                version_number: 1,
+                version_number: existingFile?.version_number || 1,
+                file: content
+                  ? {
+                      text: content,
+                    }
+                  : undefined,
                 status: 'loading',
-                file: content ? { text: content } : undefined,
-              };
-            } else if (state.files[i]) {
-              // Update existing file
-              if (name) state.files[i].file_name = name;
-              if (content) state.files[i].file = { text: content };
+              });
             }
           }
-        }
+        });
+
+        state.files = updatedFiles;
       }
     }
 
-    // Update database entries with current state
+    // Update database with both reasoning and raw LLM entries
     if (context.messageId && state.toolCallId) {
       try {
-        const reasoningEntry = createCreateReportsReasoningEntry(state, state.toolCallId);
-        const rawLlmMessage = createCreateReportsRawLlmMessageEntry(state, state.toolCallId);
+        const reasoningEntry = createCreateReportsReasoningEntry(state, options.toolCallId);
+        const rawLlmMessage = createCreateReportsRawLlmMessageEntry(state, options.toolCallId);
 
+        // Update both entries together if they exist
         const updates: Parameters<typeof updateMessageEntries>[0] = {
           messageId: context.messageId,
           mode: 'update',
@@ -89,7 +110,8 @@ export function createCreateReportsDelta(context: CreateReportsContext, state: C
           await updateMessageEntries(updates);
         }
       } catch (error) {
-        console.error('[create-reports] Error updating entries on delta:', error);
+        console.error('[create-reports] Error updating entries during delta:', error);
+        // Don't throw - continue processing
       }
     }
   };

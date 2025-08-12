@@ -8,15 +8,26 @@ import {
   createModifyReportsRawLlmMessageEntry,
   createModifyReportsReasoningEntry,
 } from './helpers/modify-reports-transform-helper';
-import type { ModifyReportsContext, ModifyReportsState } from './modify-reports-tool';
+import type {
+  ModifyReportsContext,
+  ModifyReportsEditState,
+  ModifyReportsInput,
+  ModifyReportsState,
+} from './modify-reports-tool';
 
-// Define TOOL_KEYS locally
+// Define TOOL_KEYS locally since we removed them from the helper
 const TOOL_KEYS = {
   id: 'id' as const,
   name: 'name' as const,
   edits: 'edits' as const,
   code_to_replace: 'code_to_replace' as const,
   code: 'code' as const,
+} satisfies {
+  id: keyof ModifyReportsInput;
+  name: keyof ModifyReportsInput;
+  edits: keyof ModifyReportsInput;
+  code_to_replace: keyof ModifyReportsInput['edits'][number];
+  code: keyof ModifyReportsInput['edits'][number];
 };
 
 export function createModifyReportsDelta(context: ModifyReportsContext, state: ModifyReportsState) {
@@ -24,15 +35,18 @@ export function createModifyReportsDelta(context: ModifyReportsContext, state: M
     // Handle string deltas (accumulate JSON text)
     state.argsText = (state.argsText || '') + options.inputTextDelta;
 
-    // Parse the accumulated JSON to extract information
-    const parser = new OptimisticJsonParser();
-    const optimisticArgs = parser.parse(state.argsText || '') as Record<string, any>;
+    // Try to parse the accumulated JSON
+    const parseResult = OptimisticJsonParser.parse(state.argsText || '');
 
-    // Track parsed args for processing
-    if (optimisticArgs) {
-      const id = getOptimisticValue(optimisticArgs, TOOL_KEYS.id) as string | undefined;
-      const name = getOptimisticValue(optimisticArgs, TOOL_KEYS.name) as string | undefined;
-      const edits = getOptimisticValue(optimisticArgs, TOOL_KEYS.edits) as any[] | undefined;
+    if (parseResult.parsed) {
+      // Extract values from parsed result
+      const id = getOptimisticValue<string>(parseResult.extractedValues, TOOL_KEYS.id, '');
+      const name = getOptimisticValue<string>(parseResult.extractedValues, TOOL_KEYS.name, '');
+      const editsArray = getOptimisticValue<unknown[]>(
+        parseResult.extractedValues,
+        TOOL_KEYS.edits,
+        []
+      );
 
       // Update report metadata
       if (id) {
@@ -43,46 +57,52 @@ export function createModifyReportsDelta(context: ModifyReportsContext, state: M
       }
 
       // Process edits
-      if (edits && edits.length > 0) {
+      if (editsArray && Array.isArray(editsArray)) {
         // Initialize state edits if needed
         if (!state.edits) {
           state.edits = [];
         }
 
-        // Add or update edits in state
-        for (let i = 0; i < edits.length; i++) {
-          const edit = edits[i];
-          if (edit) {
-            const operation = edit.code_to_replace === '' ? 'append' : 'replace';
+        // Update state edits with streamed data
+        const updatedEdits: ModifyReportsEditState[] = [];
 
-            if (state.edits[i]) {
-              // Update existing edit
-              state.edits[i] = {
+        editsArray.forEach((edit, index) => {
+          if (edit && typeof edit === 'object') {
+            const editObj = edit as Record<string, unknown>;
+            const codeToReplace = getOptimisticValue<string>(
+              new Map(Object.entries(editObj)),
+              TOOL_KEYS.code_to_replace,
+              ''
+            );
+            const code = getOptimisticValue<string>(
+              new Map(Object.entries(editObj)),
+              TOOL_KEYS.code,
+              ''
+            );
+
+            if (code !== undefined) {
+              const operation = codeToReplace === '' ? 'append' : 'replace';
+              updatedEdits.push({
                 operation,
-                code_to_replace: edit.code_to_replace,
-                code: edit.code,
-                status: 'loading',
-              };
-            } else {
-              // Add new edit
-              state.edits.push({
-                operation,
-                code_to_replace: edit.code_to_replace,
-                code: edit.code,
+                code_to_replace: codeToReplace || '',
+                code,
                 status: 'loading',
               });
             }
           }
-        }
+        });
+
+        state.edits = updatedEdits;
       }
     }
 
-    // Update database entries with current state
+    // Update database with both reasoning and raw LLM entries
     if (context.messageId && state.toolCallId) {
       try {
-        const reasoningEntry = createModifyReportsReasoningEntry(state, state.toolCallId);
-        const rawLlmMessage = createModifyReportsRawLlmMessageEntry(state, state.toolCallId);
+        const reasoningEntry = createModifyReportsReasoningEntry(state, options.toolCallId);
+        const rawLlmMessage = createModifyReportsRawLlmMessageEntry(state, options.toolCallId);
 
+        // Update both entries together if they exist
         const updates: Parameters<typeof updateMessageEntries>[0] = {
           messageId: context.messageId,
           mode: 'update',
@@ -100,7 +120,8 @@ export function createModifyReportsDelta(context: ModifyReportsContext, state: M
           await updateMessageEntries(updates);
         }
       } catch (error) {
-        console.error('[modify-reports] Error updating entries on delta:', error);
+        console.error('[modify-reports] Error updating entries during delta:', error);
+        // Don't throw - continue processing
       }
     }
   };

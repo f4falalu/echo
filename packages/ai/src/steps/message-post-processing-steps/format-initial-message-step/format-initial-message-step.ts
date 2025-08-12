@@ -3,26 +3,44 @@ import type { ModelMessage } from 'ai';
 import { wrapTraced } from 'braintrust';
 import { z } from 'zod';
 import { Sonnet4 } from '../../../llm/sonnet-4';
-import { postProcessingWorkflowOutputSchema } from '../schemas';
-// Import the schema from combine-parallel-results step
-import { combineParallelResultsOutputSchema } from './combine-parallel-results-step';
 
-// Input schema matches the output of combine-parallel-results step
-const inputSchema = combineParallelResultsOutputSchema;
+// Zod schemas first - following Zod-first approach
+export const formatInitialMessageParamsSchema = z.object({
+  userName: z.string().describe('User name for context'),
+  flaggedIssues: z.string().describe('Issues that were flagged during analysis'),
+  majorAssumptions: z
+    .array(
+      z.object({
+        descriptiveTitle: z.string().describe('A clear, descriptive title for the assumption'),
+        explanation: z
+          .string()
+          .describe('Detailed explanation of the assumption and its potential impact'),
+        label: z.string().describe('Label indicating the nature and severity of the assumption'),
+      })
+    )
+    .describe('List of major assumptions that need attention'),
+  conversationHistory: z
+    .array(z.custom<ModelMessage>())
+    .optional()
+    .describe('The conversation history'),
+});
 
-// Use the unified schema from the workflow
-export const formatInitialMessageOutputSchema = postProcessingWorkflowOutputSchema;
+export const formatInitialMessageResultSchema = z.object({
+  summaryMessage: z.string().describe('The formatted summary message for the data team'),
+  summaryTitle: z.string().describe('Short title for the summary message'),
+});
+
+// Export types from schemas
+export type FormatInitialMessageParams = z.infer<typeof formatInitialMessageParamsSchema>;
+export type FormatInitialMessageResult = z.infer<typeof formatInitialMessageResultSchema>;
 
 // LLM-compatible schema for generating summary
-export const generateSummaryOutputSchema = z.object({
+const generateSummaryOutputSchema = z.object({
   title: z.string().describe('A concise title for the summary message, 3-6 words long'),
   summary_message: z
     .string()
     .describe('A simple and concise summary of the issues and assumptions'),
 });
-
-export type FormatInitialMessageParams = z.infer<typeof inputSchema>;
-export type GenerateSummaryResult = z.infer<typeof generateSummaryOutputSchema>;
 
 const initialMessageInstructions = `
 <intro>
@@ -109,7 +127,7 @@ async function generateSummaryWithLLM(
   flaggedIssues: string,
   majorAssumptions: Array<{ descriptiveTitle: string; explanation: string; label: string }>,
   conversationHistory?: ModelMessage[]
-): Promise<GenerateSummaryResult> {
+): Promise<z.infer<typeof generateSummaryOutputSchema>> {
   const contextMessage = `Issues and assumptions identified from the chat that require data team attention:
 
 User: ${userName}
@@ -152,7 +170,7 @@ Generate a cohesive summary with title for the data team.`;
     schema: generateSummaryOutputSchema,
     messages: systemAndUserMessages,
     temperature: 0,
-    maxTokens: 10000,
+    maxOutputTokens: 10000,
     providerOptions: {
       anthropic: {
         disableParallelToolCalls: true,
@@ -168,53 +186,39 @@ Generate a cohesive summary with title for the data team.`;
  */
 export async function runFormatInitialMessageStep(
   params: FormatInitialMessageParams
-): Promise<z.infer<typeof formatInitialMessageOutputSchema>> {
-  // Check if there are any major assumptions
-  const majorAssumptions = params.assumptions?.filter((a) => a.label === 'major') || [];
-
-  // If no major assumptions, return without generating message
-  if (majorAssumptions.length === 0) {
-    return {
-      ...params,
-    };
-  }
-
-  const tracedFormatMessage = wrapTraced(
-    async () => {
-      const result = await generateSummaryWithLLM(
-        params.userName,
-        params.flagChatMessage || 'No issues flagged',
-        majorAssumptions,
-        params.conversationHistory
-      );
-      return result;
-    },
-    {
-      name: 'Format Initial Message',
-    }
-  );
-
-  const summaryResult = await tracedFormatMessage();
-
-  return {
-    ...params,
-    summaryMessage: summaryResult.summary_message,
-    summaryTitle: summaryResult.title,
-  };
-}
-
-/**
- * Legacy execution function for backwards compatibility
- */
-export const formatInitialMessageStepExecution = async ({
-  inputData,
-}: {
-  inputData: z.infer<typeof inputSchema>;
-}): Promise<z.infer<typeof formatInitialMessageOutputSchema>> => {
+): Promise<FormatInitialMessageResult> {
   try {
-    return await runFormatInitialMessageStep(inputData);
+    // If no major assumptions, return empty result
+    if (params.majorAssumptions.length === 0) {
+      return {
+        summaryMessage: '',
+        summaryTitle: '',
+      };
+    }
+
+    const tracedFormatMessage = wrapTraced(
+      async () => {
+        const result = await generateSummaryWithLLM(
+          params.userName,
+          params.flaggedIssues,
+          params.majorAssumptions,
+          params.conversationHistory
+        );
+        return result;
+      },
+      {
+        name: 'Format Initial Message',
+      }
+    );
+
+    const summaryResult = await tracedFormatMessage();
+
+    return {
+      summaryMessage: summaryResult.summary_message,
+      summaryTitle: summaryResult.title,
+    };
   } catch (error) {
-    console.error('Failed to format initial message:', error);
+    console.error('[format-initial-message-step] Unexpected error:', error);
 
     // Check if it's a database connection error
     if (error instanceof Error && error.message.includes('DATABASE_URL')) {
@@ -224,7 +228,7 @@ export const formatInitialMessageStepExecution = async ({
     // For other errors, throw a user-friendly message
     throw new Error('Unable to format the initial message. Please try again later.');
   }
-};
+}
 
 /**
  * Export the step without using Mastra's createStep
@@ -233,19 +237,7 @@ export const formatInitialMessageStep = {
   id: 'format-initial-message',
   description:
     'This step checks for major assumptions and generates a summary message for initial messages if major assumptions are found.',
-  inputSchema,
-  outputSchema: formatInitialMessageOutputSchema,
+  inputSchema: formatInitialMessageParamsSchema,
+  outputSchema: formatInitialMessageResultSchema,
   execute: runFormatInitialMessageStep,
-};
-
-/**
- * Legacy step export for backwards compatibility
- */
-export const formatInitialMessageStepLegacy = {
-  id: 'format-initial-message',
-  description:
-    'This step checks for major assumptions and generates a summary message for initial messages if major assumptions are found.',
-  inputSchema,
-  outputSchema: formatInitialMessageOutputSchema,
-  execute: formatInitialMessageStepExecution,
 };

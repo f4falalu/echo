@@ -1,6 +1,6 @@
+import type { ChartConfigProps } from '@buster/server-shared/metrics';
 import { describe, expect, it } from 'vitest';
 import { validateAndAdjustBarLineAxes } from './bar-line-axis-validator';
-import type { ChartConfigProps } from '@buster/server-shared/metrics';
 
 describe('validateAndAdjustBarLineAxes', () => {
   it('should return unchanged config for non-bar/line charts', () => {

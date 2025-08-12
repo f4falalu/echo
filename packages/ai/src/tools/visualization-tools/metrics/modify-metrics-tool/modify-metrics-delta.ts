@@ -12,6 +12,7 @@ import {
 import type {
   ModifyMetricStateFile,
   ModifyMetricsContext,
+  ModifyMetricsInput,
   ModifyMetricsState,
 } from './modify-metrics-tool';
 
@@ -20,6 +21,10 @@ const TOOL_KEYS = {
   files: 'files' as const,
   id: 'id' as const,
   yml_content: 'yml_content' as const,
+} satisfies {
+  files: keyof ModifyMetricsInput;
+  id: keyof ModifyMetricsInput['files'][number];
+  yml_content: keyof ModifyMetricsInput['files'][number];
 };
 
 export function createModifyMetricsDelta(context: ModifyMetricsContext, state: ModifyMetricsState) {

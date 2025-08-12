@@ -3,23 +3,44 @@ import type { ModelMessage } from 'ai';
 import { wrapTraced } from 'braintrust';
 import { z } from 'zod';
 import { Sonnet4 } from '../../../llm/sonnet-4';
-import { postProcessingWorkflowOutputSchema } from '../schemas';
 
-const inputSchema = postProcessingWorkflowOutputSchema;
+// Zod schemas first - following Zod-first approach
+export const formatFollowUpMessageParamsSchema = z.object({
+  userName: z.string().describe('User name for context'),
+  flaggedIssues: z.string().describe('Issues that were flagged during analysis'),
+  majorAssumptions: z
+    .array(
+      z.object({
+        descriptiveTitle: z.string().describe('A clear, descriptive title for the assumption'),
+        explanation: z
+          .string()
+          .describe('Detailed explanation of the assumption and its potential impact'),
+        label: z.string().describe('Label indicating the nature and severity of the assumption'),
+      })
+    )
+    .describe('List of major assumptions that need attention'),
+  conversationHistory: z
+    .array(z.custom<ModelMessage>())
+    .optional()
+    .describe('The conversation history'),
+});
 
-// Use the unified schema from the workflow
-export const formatFollowUpMessageOutputSchema = postProcessingWorkflowOutputSchema;
+export const formatFollowUpMessageResultSchema = z.object({
+  summaryMessage: z.string().describe('The formatted update message for the data team'),
+  summaryTitle: z.string().describe('Short title for the update message'),
+});
+
+// Export types from schemas
+export type FormatFollowUpMessageParams = z.infer<typeof formatFollowUpMessageParamsSchema>;
+export type FormatFollowUpMessageResult = z.infer<typeof formatFollowUpMessageResultSchema>;
 
 // LLM-compatible schema for generating update message
-export const generateUpdateMessageOutputSchema = z.object({
+const generateUpdateMessageOutputSchema = z.object({
   title: z.string().describe('A concise title for the update message, 3-6 words long'),
   update_message: z
     .string()
     .describe('A simple and concise update about the new issues and assumptions'),
 });
-
-export type FormatFollowUpMessageParams = z.infer<typeof inputSchema>;
-export type GenerateUpdateMessageResult = z.infer<typeof generateUpdateMessageOutputSchema>;
 
 const followUpMessageInstructions = `
 <intro>
@@ -80,7 +101,7 @@ async function generateUpdateMessageWithLLM(
   flaggedIssues: string,
   majorAssumptions: Array<{ descriptiveTitle: string; explanation: string; label: string }>,
   conversationHistory?: ModelMessage[]
-): Promise<GenerateUpdateMessageResult> {
+): Promise<z.infer<typeof generateUpdateMessageOutputSchema>> {
   const contextMessage = `New issues and assumptions identified from the latest chat messages:
 
 User: ${userName}
@@ -141,54 +162,39 @@ Generate a concise update message for the data team.`;
  */
 export async function runFormatFollowUpMessageStep(
   params: FormatFollowUpMessageParams
-): Promise<z.infer<typeof formatFollowUpMessageOutputSchema>> {
-  // Check if there are any major assumptions
-  const majorAssumptions = params.assumptions?.filter((a) => a.label === 'major') || [];
-
-  // If no major assumptions, return without generating message
-  if (majorAssumptions.length === 0) {
-    return {
-      ...params,
-    };
-  }
-
-  const tracedFollowUpMessage = wrapTraced(
-    async () => {
-      const result = await generateUpdateMessageWithLLM(
-        params.userName,
-        params.flagChatMessage || 'No issues flagged',
-        majorAssumptions,
-        params.conversationHistory
-      );
-      return result;
-    },
-    {
-      name: 'Format Follow-up Message',
-    }
-  );
-
-  const updateResult = await tracedFollowUpMessage();
-
-  return {
-    ...params,
-    summaryMessage: updateResult.update_message,
-    summaryTitle: updateResult.title,
-    message: updateResult.update_message, // Store the update message in the message field as well
-  };
-}
-
-/**
- * Legacy execution function for backwards compatibility
- */
-export const formatFollowUpMessageStepExecution = async ({
-  inputData,
-}: {
-  inputData: z.infer<typeof inputSchema>;
-}): Promise<z.infer<typeof formatFollowUpMessageOutputSchema>> => {
+): Promise<FormatFollowUpMessageResult> {
   try {
-    return await runFormatFollowUpMessageStep(inputData);
+    // If no major assumptions, return empty result
+    if (params.majorAssumptions.length === 0) {
+      return {
+        summaryMessage: '',
+        summaryTitle: '',
+      };
+    }
+
+    const tracedFollowUpMessage = wrapTraced(
+      async () => {
+        const result = await generateUpdateMessageWithLLM(
+          params.userName,
+          params.flaggedIssues,
+          params.majorAssumptions,
+          params.conversationHistory
+        );
+        return result;
+      },
+      {
+        name: 'Format Follow-up Message',
+      }
+    );
+
+    const updateResult = await tracedFollowUpMessage();
+
+    return {
+      summaryMessage: updateResult.update_message,
+      summaryTitle: updateResult.title,
+    };
   } catch (error) {
-    console.error('Failed to format follow-up message:', error);
+    console.error('[format-follow-up-message-step] Unexpected error:', error);
 
     // Check if it's a database connection error
     if (error instanceof Error && error.message.includes('DATABASE_URL')) {
@@ -198,7 +204,7 @@ export const formatFollowUpMessageStepExecution = async ({
     // For other errors, throw a user-friendly message
     throw new Error('Unable to format the follow-up message. Please try again later.');
   }
-};
+}
 
 /**
  * Export the step without using Mastra's createStep
@@ -207,19 +213,7 @@ export const formatFollowUpMessageStep = {
   id: 'format-follow-up-message',
   description:
     'This step generates an update message for follow-up messages with new issues and assumptions identified.',
-  inputSchema,
-  outputSchema: formatFollowUpMessageOutputSchema,
+  inputSchema: formatFollowUpMessageParamsSchema,
+  outputSchema: formatFollowUpMessageResultSchema,
   execute: runFormatFollowUpMessageStep,
-};
-
-/**
- * Legacy step export for backwards compatibility
- */
-export const formatFollowUpMessageStepLegacy = {
-  id: 'format-follow-up-message',
-  description:
-    'This step generates an update message for follow-up messages with new issues and assumptions identified.',
-  inputSchema,
-  outputSchema: formatFollowUpMessageOutputSchema,
-  execute: formatFollowUpMessageStepExecution,
 };
