@@ -15,43 +15,9 @@ import {
 } from '@buster/database';
 
 // AI package imports
-import { type AnalystRuntimeContext, analystWorkflow } from '@buster/ai';
-
-// Mastra workflow integration
-import { RuntimeContext } from '@mastra/core/runtime-context';
+import { type AnalystWorkflowInput, runAnalystWorkflow } from '@buster/ai';
 
 import type { messagePostProcessingTask } from '../message-post-processing/message-post-processing';
-
-/**
- * Task 3: Setup runtime context from Task 2 database helper outputs
- * Uses individual helper results to populate Mastra RuntimeContext
- */
-function setupRuntimeContextFromMessage(
-  messageContext: MessageContextOutput,
-  dataSource: OrganizationDataSourceOutput,
-  messageId: string
-): RuntimeContext<AnalystRuntimeContext> {
-  try {
-    const runtimeContext = new RuntimeContext<AnalystRuntimeContext>();
-
-    // Populate from Task 2 helper outputs
-    runtimeContext.set('userId', messageContext.userId);
-    runtimeContext.set('chatId', messageContext.chatId);
-    runtimeContext.set('organizationId', messageContext.organizationId);
-    runtimeContext.set('dataSourceId', dataSource.dataSourceId);
-    runtimeContext.set('dataSourceSyntax', dataSource.dataSourceSyntax);
-    runtimeContext.set('workflowStartTime', Date.now());
-
-    // Add messageId for database persistence (following AI package pattern)
-    runtimeContext.set('messageId', messageId);
-
-    return runtimeContext;
-  } catch (error) {
-    throw error instanceof Error
-      ? error
-      : new Error(`Failed to setup runtime context: ${String(error)}`);
-  }
-}
 
 /**
  * Resource usage tracker for the entire task execution
@@ -358,30 +324,33 @@ export const analystAgentTask: ReturnType<
       // Log performance after data loading
       logPerformanceMetrics('post-data-load', payload.message_id, taskStartTime, resourceTracker);
 
-      // Task 3: Setup runtime context for workflow execution
-      const contextSetupStart = Date.now();
-      const runtimeContext = setupRuntimeContextFromMessage(
-        messageContext,
-        dataSource,
-        payload.message_id
-      );
-      const contextSetupTime = Date.now() - contextSetupStart;
-
       // Task 4: Prepare workflow input with conversation history and dashboard files
-      const workflowInput = {
-        prompt: messageContext.requestMessage,
-        conversationHistory: conversationHistory.length > 0 ? conversationHistory : undefined,
-        dashboardFiles: dashboardFiles.length > 0 ? dashboardFiles : undefined,
+      // Convert conversation history to messages format expected by the workflow
+      const messages =
+        conversationHistory.length > 0
+          ? conversationHistory
+          : [
+              {
+                role: 'user' as const,
+                content: messageContext.requestMessage,
+              },
+            ];
+
+      const workflowInput: AnalystWorkflowInput = {
+        messages,
+        messageId: payload.message_id,
+        chatId: messageContext.chatId,
+        userId: messageContext.userId,
+        organizationId: messageContext.organizationId,
+        dataSourceId: dataSource.dataSourceId,
+        dataSourceSyntax: dataSource.dataSourceSyntax,
       };
 
       logger.log('Workflow input prepared', {
         messageId: payload.message_id,
-        hasPrompt: !!workflowInput.prompt,
-        hasConversationHistory: !!workflowInput.conversationHistory,
-        conversationHistoryLength: workflowInput.conversationHistory?.length || 0,
-        hasDashboardFiles: !!workflowInput.dashboardFiles,
-        dashboardFilesCount: workflowInput.dashboardFiles?.length || 0,
-        contextSetupTimeMs: contextSetupTime,
+        messagesCount: workflowInput.messages.length,
+        hasDashboardFiles: dashboardFiles.length > 0,
+        dashboardFilesCount: dashboardFiles.length,
         totalPrepTimeMs: Date.now() - dataLoadStart,
       });
 
@@ -395,21 +364,7 @@ export const analystAgentTask: ReturnType<
         totalPrepTimeMs: Date.now() - dataLoadStart,
       });
 
-      // Pre-create the workflow run to measure initialization time separately
-      const createRunStart = Date.now();
-      const run = analystWorkflow.createRun();
-      const createRunTime = Date.now() - createRunStart;
-
-      logger.log('Workflow run created', {
-        messageId: payload.message_id,
-        createRunTimeMs: createRunTime,
-      });
-
-      // Log performance after workflow run creation
-      logPerformanceMetrics('post-createrun', payload.message_id, taskStartTime, resourceTracker);
-
       // Execute workflow with tracing
-      const workflowStartMethodStart = Date.now();
       const tracedWorkflow = wrapTraced(
         async () => {
           currentSpan().log({
@@ -423,26 +378,19 @@ export const analystAgentTask: ReturnType<
             },
           });
 
-          return await run.start({
-            inputData: workflowInput,
-            runtimeContext,
-          });
+          return await runAnalystWorkflow(workflowInput);
         },
         {
           name: 'Analyst Agent Task Workflow',
         }
       );
 
-      const workflowResult = await tracedWorkflow();
-      const workflowStartMethodTime = Date.now() - workflowStartMethodStart;
+      await tracedWorkflow();
       const totalWorkflowTime = Date.now() - workflowExecutionStart;
 
       logger.log('Analyst workflow completed successfully', {
         messageId: payload.message_id,
-        workflowResult: !!workflowResult,
-        workflowStartMethodTimeMs: workflowStartMethodTime,
         totalWorkflowTimeMs: totalWorkflowTime,
-        createRunTimeMs: createRunTime,
       });
 
       // Log final performance metrics
@@ -459,9 +407,6 @@ export const analystAgentTask: ReturnType<
         executionTimeMs: totalExecutionTime,
         breakdown: {
           dataLoadTimeMs: dataLoadTime,
-          contextSetupTimeMs: contextSetupTime,
-          createRunTimeMs: createRunTime,
-          workflowStartMethodTimeMs: workflowStartMethodTime,
           totalWorkflowTimeMs: totalWorkflowTime,
         },
       });
@@ -557,9 +502,6 @@ function getErrorCode(error: unknown): string {
     if (error.message.includes('Multiple data sources found')) return 'MULTIPLE_DATA_SOURCES_ERROR';
     if (error.message.includes('Database query failed')) return 'DATABASE_ERROR';
     if (error.message.includes('Output validation failed')) return 'DATA_VALIDATION_ERROR';
-
-    // Task 3: Runtime context errors
-    if (error.message.includes('Failed to setup runtime context')) return 'RUNTIME_CONTEXT_ERROR';
 
     // Task 5: Workflow execution errors
     if (error.message.includes('workflow') || error.message.includes('Workflow'))

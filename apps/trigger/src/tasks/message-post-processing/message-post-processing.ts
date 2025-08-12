@@ -1,6 +1,6 @@
 import postProcessingWorkflow, {
   type PostProcessingWorkflowOutput,
-} from '@buster/ai/workflows/post-processing-workflow';
+} from '@buster/ai/workflows/message-post-processing-workflow/message-post-processing-workflow';
 import { eq, getBraintrustMetadata, getDb, messages, slackIntegrations } from '@buster/database';
 import type {
   AssumptionClassification,
@@ -37,14 +37,16 @@ function extractDbFields(
 
   // Check if there are any major assumptions
   const hasMajorAssumptions =
-    workflowOutput.assumptions?.some((assumption) => assumption.label === 'major') ?? false;
+    workflowOutput.assumptionsResult?.assumptions?.some(
+      (assumption) => assumption.label === 'major'
+    ) ?? false;
 
   // Determine confidence score based on rules:
   // - Low if toolCalled is 'flagChat'
   // - Low if there are any major assumptions
   // - High otherwise
   let confidence_score: ConfidenceScore = 'high';
-  if (workflowOutput.toolCalled === 'flagChat' || hasMajorAssumptions) {
+  if (workflowOutput.assumptionsResult?.toolCalled === 'flagChat' || hasMajorAssumptions) {
     confidence_score = 'low';
   }
 
@@ -52,27 +54,30 @@ function extractDbFields(
   let summaryMessage: string;
   let summaryTitle: string;
 
-  if (!hasMajorAssumptions && workflowOutput.flagChatMessage) {
+  if (!hasMajorAssumptions && workflowOutput.flagChatResult?.message) {
     // If no major assumptions, use flagChatMessage as summaryMessage
-    summaryMessage = workflowOutput.flagChatMessage;
+    summaryMessage = workflowOutput.flagChatResult.message;
     summaryTitle = 'No Major Assumptions Identified';
   } else {
     // Otherwise use the provided summary fields or defaults
-    summaryMessage = workflowOutput.summaryMessage || 'No summary available';
-    summaryTitle = workflowOutput.summaryTitle || 'Summary';
+    summaryMessage =
+      workflowOutput.flagChatResult?.summaryMessage ||
+      workflowOutput.formattedMessage ||
+      'No summary available';
+    summaryTitle = workflowOutput.flagChatResult?.summaryTitle || 'Summary';
   }
 
   const extracted: PostProcessingMessage = {
     summary_message: summaryMessage,
     summary_title: summaryTitle,
     confidence_score,
-    assumptions: workflowOutput.assumptions?.map((assumption) => ({
+    assumptions: workflowOutput.assumptionsResult?.assumptions?.map((assumption) => ({
       descriptive_title: assumption.descriptiveTitle,
       classification: assumption.classification as AssumptionClassification,
       explanation: assumption.explanation,
       label: assumption.label as AssumptionLabel,
     })),
-    tool_called: workflowOutput.toolCalled || 'unknown', // Provide default if missing
+    tool_called: workflowOutput.assumptionsResult?.toolCalled || 'unknown', // Provide default if missing
     user_name: userName,
   };
 
@@ -171,63 +176,24 @@ export const messagePostProcessingTask: ReturnType<
             },
           });
 
-          const run = postProcessingWorkflow.createRun();
-          return await run.start({
-            inputData: workflowInput,
-          });
+          return await postProcessingWorkflow(workflowInput);
         },
         {
           name: 'Message Post-Processing Workflow',
         }
       );
 
-      const workflowResult = await tracedWorkflow();
+      const validatedOutput = await tracedWorkflow();
 
-      if (!workflowResult || workflowResult.status !== 'success' || !workflowResult.result) {
+      if (!validatedOutput) {
         throw new Error('Post-processing workflow returned no output');
-      }
-
-      // Handle branch results - the result will have one of the branch step IDs as a key
-      let validatedOutput: PostProcessingWorkflowOutput;
-
-      // Define the expected shape of branch results
-      type BranchResult = {
-        'format-follow-up-message'?: PostProcessingWorkflowOutput;
-        'format-initial-message'?: PostProcessingWorkflowOutput;
-      };
-
-      const branchResult = workflowResult.result as BranchResult;
-
-      if ('format-follow-up-message' in branchResult && branchResult['format-follow-up-message']) {
-        validatedOutput = branchResult['format-follow-up-message'] as PostProcessingWorkflowOutput;
-      } else if (
-        'format-initial-message' in branchResult &&
-        branchResult['format-initial-message']
-      ) {
-        validatedOutput = branchResult['format-initial-message'] as PostProcessingWorkflowOutput;
-      } else {
-        logger.error('Unexpected workflow result structure', {
-          messageId: payload.messageId,
-          resultKeys: Object.keys(branchResult),
-          result: branchResult,
-        });
-        console.error('Unexpected workflow result structure:', {
-          messageId: payload.messageId,
-          resultKeys: Object.keys(branchResult),
-          result: branchResult,
-        });
-        throw new Error('Post-processing workflow returned unexpected result structure');
       }
 
       logger.log('Validated output', {
         messageId: payload.messageId,
-        summaryTitle: validatedOutput.summaryTitle,
-        summaryMessage: validatedOutput.summaryMessage,
-        flagChatMessage: validatedOutput.flagChatMessage,
-        flagChatTitle: validatedOutput.flagChatTitle,
-        toolCalled: validatedOutput.toolCalled,
-        assumptions: validatedOutput.assumptions,
-        message: validatedOutput.message,
+        flagChatResult: validatedOutput.flagChatResult,
+        assumptionsResult: validatedOutput.assumptionsResult,
+        formattedMessage: validatedOutput.formattedMessage,
       });
 
       // Step 6: Store result in database

@@ -55,7 +55,8 @@ describe('format-follow-up-message-step integration', () => {
       majorAssumptions: [
         {
           descriptiveTitle: 'Date range assumption for monthly trends',
-          explanation: 'User requested monthly trends but did not specify date range, so assuming all available historical data',
+          explanation:
+            'User requested monthly trends but did not specify date range, so assuming all available historical data',
           label: 'major',
         },
       ],
