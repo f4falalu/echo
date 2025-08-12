@@ -5,6 +5,7 @@ export * from './analyst-agent-steps/mark-message-complete-step/mark-message-com
 export * from './analyst-agent-steps/generate-chat-title-step/generate-chat-title-step';
 export * from './analyst-agent-steps/extract-values-step/extract-values-search-step';
 export * from './analyst-agent-steps/create-todos-step/create-todos-step';
+export * from './analyst-agent-steps/analysis-type-router-step/analysis-type-router-step';
 
 // Docs agent steps
 export * from './docs-agent-steps/create-docs-todos-step';

@@ -1,9 +1,9 @@
-import type { CoreMessage } from 'ai';
+import type { ModelMessage } from 'ai';
 
 // Define the required template parameters
 interface AnalysisTypeRouterTemplateParams {
   userPrompt: string;
-  conversationHistory?: CoreMessage[];
+  conversationHistory?: ModelMessage[];
 }
 
 /**
