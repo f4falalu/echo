@@ -3,7 +3,7 @@ import { AppProviders } from '@/context/AppProviders';
 import { getSupabaseUser } from '../integrations/supabase/getSupabaseUserContext';
 import { TanstackDevtools } from '../integrations/tanstack-dev-tools/tanstack-devtools';
 import type { AppRouterContext } from '../router';
-import appCss from '../styles/styles.scss?url';
+import appCss from '../styles/styles.css?url';
 
 export const Route = createRootRouteWithContext<AppRouterContext>()({
   head: () => ({
@@ -19,12 +19,7 @@ export const Route = createRootRouteWithContext<AppRouterContext>()({
         title: 'Buster',
       },
     ],
-    links: [
-      {
-        rel: 'stylesheet',
-        href: appCss,
-      },
-    ],
+    links: [{ rel: 'stylesheet', href: appCss }],
   }),
   notFoundComponent: NotFound,
   shellComponent: RootDocument,

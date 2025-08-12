@@ -8,18 +8,20 @@ export const TanstackDevtools: React.FC = () => {
   return (
     <TanstackDevtoolsBase
       config={{
-        position: 'bottom-left'
+        position: 'bottom-left',
+        hideUntilHover: true,
+        defaultOpen: false,
       }}
       plugins={[
         {
           name: 'Tanstack Query',
-          render: <ReactQueryDevtoolsPanel />
+          render: <ReactQueryDevtoolsPanel />,
         },
         {
           name: 'Tanstack Router',
-          render: <TanStackRouterDevtoolsPanel />
+          render: <TanStackRouterDevtoolsPanel />,
         },
-        StoreDevtools
+        StoreDevtools,
       ]}
     />
   );

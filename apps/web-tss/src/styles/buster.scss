@@ -46,5 +46,6 @@
 
   /* Firefox scrollbar styling */
   scrollbar-width: thin;
-  scrollbar-color: color-mix(in srgb, var(--color-border) 50%, transparent) transparent;
+  scrollbar-color: color-mix(in srgb, var(--color-border) 50%, transparent)
+    transparent;
 }

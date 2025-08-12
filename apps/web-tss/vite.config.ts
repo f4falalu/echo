@@ -26,11 +26,6 @@ const config = defineConfig({
       },
     }),
   ],
-  css: {
-    preprocessorOptions: {
-      scss: {},
-    },
-  },
 });
 
 export default config;

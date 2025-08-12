@@ -1,6 +1,6 @@
 @import "./tailwind.css";
 @import "./fonts.css";
-@use "./buster";
+@import "./buster.scss";
 
 input {
   font-family:
