@@ -4,11 +4,8 @@ import { wrapTraced } from 'braintrust';
 import { z } from 'zod';
 import { Sonnet4 } from '../../../llm/sonnet-4';
 import { postProcessingWorkflowOutputSchema } from '../schemas';
-// Import the schema from combine-parallel-results step
-import { combineParallelResultsOutputSchema } from './combine-parallel-results-step';
 
-// Input schema matches the output of combine-parallel-results step
-const inputSchema = combineParallelResultsOutputSchema;
+const inputSchema = postProcessingWorkflowOutputSchema;
 
 // Use the unified schema from the workflow
 export const formatFollowUpMessageOutputSchema = postProcessingWorkflowOutputSchema;
@@ -128,7 +125,7 @@ Generate a concise update message for the data team.`;
     schema: generateUpdateMessageOutputSchema,
     messages: systemAndUserMessages,
     temperature: 0,
-    maxTokens: 10000,
+    maxOutputTokens: 10000,
     providerOptions: {
       anthropic: {
         disableParallelToolCalls: true,

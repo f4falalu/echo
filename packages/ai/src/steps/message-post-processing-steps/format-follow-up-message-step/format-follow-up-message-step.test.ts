@@ -1,4 +1,4 @@
-import type { CoreMessage } from 'ai';
+import type { ModelMessage } from 'ai';
 import { describe, expect, test, vi } from 'vitest';
 import { formatFollowUpMessageStepExecution } from './format-follow-up-message-step';
 
@@ -38,7 +38,7 @@ vi.mock('../../../src/tools/post-processing/generate-update-message', () => ({
 
 describe('Format Follow-up Message Step Unit Tests', () => {
   test('should include chat history in context message when present', async () => {
-    const mockConversationHistory: CoreMessage[] = [
+    const mockConversationHistory: ModelMessage[] = [
       { role: 'user', content: 'Initial query about sales' },
       { role: 'assistant', content: 'Sales data analysis complete' },
       { role: 'user', content: 'Can you filter by last 6 months?' },
@@ -179,7 +179,7 @@ describe('Format Follow-up Message Step Unit Tests', () => {
   });
 
   test('should handle multiple major assumptions with conversation history', async () => {
-    const mockConversationHistory: CoreMessage[] = [
+    const mockConversationHistory: ModelMessage[] = [
       { role: 'user', content: 'Show me customer segments' },
       { role: 'assistant', content: 'Here are the segments' },
       { role: 'user', content: 'Filter by enterprise only' },
