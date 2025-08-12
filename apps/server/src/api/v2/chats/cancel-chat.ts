@@ -13,7 +13,7 @@ import type {
   ChatMessageResponseMessage,
 } from '@buster/server-shared/chats';
 import { runs } from '@trigger.dev/sdk';
-import type { CoreMessage } from 'ai';
+import type { ModelMessage, ToolResultPart } from 'ai';
 import { errorResponse } from '../../../utils/response';
 
 /**
@@ -98,7 +98,7 @@ export async function cancelChatHandler(chatId: string, user: User): Promise<voi
 /**
  * Find tool calls without corresponding tool results
  */
-function findIncompleteToolCalls(messages: CoreMessage[]): ToolCallContent[] {
+function findIncompleteToolCalls(messages: ModelMessage[]): ToolCallContent[] {
   const toolCalls = new Map<string, ToolCallContent>();
   const toolResults = new Set<string>();
 
@@ -133,21 +133,23 @@ function findIncompleteToolCalls(messages: CoreMessage[]): ToolCallContent[] {
 /**
  * Create tool result messages for incomplete tool calls
  */
-function createCancellationToolResults(incompleteToolCalls: ToolCallContent[]): CoreMessage[] {
+function createCancellationToolResults(incompleteToolCalls: ToolCallContent[]): ModelMessage[] {
   if (incompleteToolCalls.length === 0) {
     return [];
   }
 
-  const toolResultMessages: CoreMessage[] = [];
+  const toolResultMessages: ModelMessage[] = [];
 
   for (const toolCall of incompleteToolCalls) {
-    const toolResult: ToolResultContent = {
+    const toolResult: ToolResultPart = {
       type: 'tool-result',
       toolCallId: toolCall.toolCallId,
       toolName: toolCall.toolName,
-      result: {
-        error: true,
-        message: 'The user ended the chat',
+      output: {
+        type: 'json',
+        value: {
+          message: 'The user ended the chat',
+        },
       },
     };
 
@@ -163,7 +165,7 @@ function createCancellationToolResults(incompleteToolCalls: ToolCallContent[]): 
 /**
  * Clean up messages by adding tool results for incomplete tool calls
  */
-function cleanUpRawLlmMessages(messages: CoreMessage[]): CoreMessage[] {
+function cleanUpRawLlmMessages(messages: ModelMessage[]): ModelMessage[] {
   const incompleteToolCalls = findIncompleteToolCalls(messages);
 
   if (incompleteToolCalls.length === 0) {
@@ -217,13 +219,13 @@ function ensureReasoningMessagesCompleted(
  * In all cases, the message is marked as complete with an appropriate final reasoning message.
  */
 interface CleanedMessageFields {
-  rawLlmMessages: CoreMessage[];
+  rawLlmMessages: ModelMessage[];
   reasoning: ChatMessageReasoningMessage[];
   responseMessages: ChatMessageResponseMessage[];
 }
 
 function cleanUpMessageFields(
-  rawLlmMessages: CoreMessage[],
+  rawLlmMessages: ModelMessage[],
   reasoning: ChatMessageReasoningMessage[],
   responseMessages: ChatMessageResponseMessage[]
 ): CleanedMessageFields {
@@ -249,7 +251,7 @@ async function cleanUpMessage(
   try {
     // Parse and validate the message fields
     const currentRawMessages = Array.isArray(rawLlmMessages)
-      ? (rawLlmMessages as CoreMessage[])
+      ? (rawLlmMessages as ModelMessage[])
       : [];
     const currentReasoning = Array.isArray(reasoning)
       ? (reasoning as ChatMessageReasoningMessage[])
