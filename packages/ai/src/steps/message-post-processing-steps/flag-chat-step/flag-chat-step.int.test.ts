@@ -1,10 +1,10 @@
-import type { CoreMessage } from 'ai';
+import type { ModelMessage } from 'ai';
 import { describe, expect, it } from 'vitest';
 import { flagChatStepExecution } from './flag-chat-step';
 
 describe('flag-chat-step integration', () => {
   it('should analyze conversation history and return flag-chat results', async () => {
-    const mockConversationHistory: CoreMessage[] = [
+    const mockConversationHistory: ModelMessage[] = [
       {
         content:
           'How many stock Mountain-500 series bikes were sold online to NA customers using a ColonialVoice card?',
@@ -22,7 +22,7 @@ describe('flag-chat-step integration', () => {
       {
         content: [
           {
-            args: {
+            input: {
               isRevision: false,
               needsMoreThoughts: false,
               nextThoughtNeeded: true,
@@ -41,8 +41,11 @@ describe('flag-chat-step integration', () => {
       {
         content: [
           {
-            result: {
-              success: true,
+            output: {
+              type: 'json' as const,
+              value: {
+                success: true,
+              },
             },
             toolCallId: 'toolu_01De2VQ9M2mhHxf1rNvxSkf1',
             toolName: 'sequentialThinking',
@@ -54,7 +57,7 @@ describe('flag-chat-step integration', () => {
       {
         content: [
           {
-            args: {
+            input: {
               statements: [
                 "SELECT DISTINCT p.name FROM postgres.ont_ont.product p WHERE p.name ILIKE '%Mountain-500%' LIMIT 25",
                 "SELECT DISTINCT p.name FROM postgres.ont_ont.product p WHERE p.name ILIKE '%Mountain%' AND p.name ILIKE '%500%' LIMIT 25",
@@ -73,66 +76,69 @@ describe('flag-chat-step integration', () => {
       {
         content: [
           {
-            result: {
-              results: [
-                {
-                  results: [
-                    { name: 'Mountain-500 Black, 40' },
-                    { name: 'Mountain-500 Black, 42' },
-                    { name: 'Mountain-500 Black, 44' },
-                    { name: 'Mountain-500 Black, 48' },
-                    { name: 'Mountain-500 Black, 52' },
-                    { name: 'Mountain-500 Silver, 40' },
-                    { name: 'Mountain-500 Silver, 42' },
-                    { name: 'Mountain-500 Silver, 44' },
-                    { name: 'Mountain-500 Silver, 48' },
-                    { name: 'Mountain-500 Silver, 52' },
-                  ],
-                  sql: "SELECT DISTINCT p.name FROM postgres.ont_ont.product p WHERE p.name ILIKE '%Mountain-500%' LIMIT 25",
-                  status: 'success',
-                },
-                {
-                  results: [
-                    { name: 'Mountain-500 Black, 40' },
-                    { name: 'Mountain-500 Black, 42' },
-                    { name: 'Mountain-500 Black, 44' },
-                    { name: 'Mountain-500 Black, 48' },
-                    { name: 'Mountain-500 Black, 52' },
-                    { name: 'Mountain-500 Silver, 40' },
-                    { name: 'Mountain-500 Silver, 42' },
-                    { name: 'Mountain-500 Silver, 44' },
-                    { name: 'Mountain-500 Silver, 48' },
-                    { name: 'Mountain-500 Silver, 52' },
-                  ],
-                  sql: "SELECT DISTINCT p.name FROM postgres.ont_ont.product p WHERE p.name ILIKE '%Mountain%' AND p.name ILIKE '%500%' LIMIT 25",
-                  status: 'success',
-                },
-                {
-                  results: [{ cardtype: 'ColonialVoice' }],
-                  sql: "SELECT DISTINCT cc.cardtype FROM postgres.ont_ont.credit_card cc WHERE cc.cardtype ILIKE '%Colonial%' OR cc.cardtype ILIKE '%Voice%' LIMIT 25",
-                  status: 'success',
-                },
-                {
-                  results: [
-                    { cardtype: 'Vista' },
-                    { cardtype: 'SuperiorCard' },
-                    { cardtype: 'Distinguish' },
-                    { cardtype: 'ColonialVoice' },
-                  ],
-                  sql: 'SELECT DISTINCT cc.cardtype FROM postgres.ont_ont.credit_card cc LIMIT 25',
-                  status: 'success',
-                },
-                {
-                  results: [
-                    { countryregioncode: 'AS', name: 'American Samoa' },
-                    { countryregioncode: 'CA', name: 'Canada' },
-                    { countryregioncode: 'MX', name: 'Mexico' },
-                    { countryregioncode: 'US', name: 'United States' },
-                  ],
-                  sql: "SELECT DISTINCT cr.countryregioncode, cr.name FROM postgres.ont_ont.country_region cr WHERE cr.name ILIKE '%America%' OR cr.countryregioncode IN ('US', 'CA', 'MX') LIMIT 25",
-                  status: 'success',
-                },
-              ],
+            output: {
+              type: 'json' as const,
+              value: {
+                results: [
+                  {
+                    results: [
+                      { name: 'Mountain-500 Black, 40' },
+                      { name: 'Mountain-500 Black, 42' },
+                      { name: 'Mountain-500 Black, 44' },
+                      { name: 'Mountain-500 Black, 48' },
+                      { name: 'Mountain-500 Black, 52' },
+                      { name: 'Mountain-500 Silver, 40' },
+                      { name: 'Mountain-500 Silver, 42' },
+                      { name: 'Mountain-500 Silver, 44' },
+                      { name: 'Mountain-500 Silver, 48' },
+                      { name: 'Mountain-500 Silver, 52' },
+                    ],
+                    sql: "SELECT DISTINCT p.name FROM postgres.ont_ont.product p WHERE p.name ILIKE '%Mountain-500%' LIMIT 25",
+                    status: 'success',
+                  },
+                  {
+                    results: [
+                      { name: 'Mountain-500 Black, 40' },
+                      { name: 'Mountain-500 Black, 42' },
+                      { name: 'Mountain-500 Black, 44' },
+                      { name: 'Mountain-500 Black, 48' },
+                      { name: 'Mountain-500 Black, 52' },
+                      { name: 'Mountain-500 Silver, 40' },
+                      { name: 'Mountain-500 Silver, 42' },
+                      { name: 'Mountain-500 Silver, 44' },
+                      { name: 'Mountain-500 Silver, 48' },
+                      { name: 'Mountain-500 Silver, 52' },
+                    ],
+                    sql: "SELECT DISTINCT p.name FROM postgres.ont_ont.product p WHERE p.name ILIKE '%Mountain%' AND p.name ILIKE '%500%' LIMIT 25",
+                    status: 'success',
+                  },
+                  {
+                    results: [{ cardtype: 'ColonialVoice' }],
+                    sql: "SELECT DISTINCT cc.cardtype FROM postgres.ont_ont.credit_card cc WHERE cc.cardtype ILIKE '%Colonial%' OR cc.cardtype ILIKE '%Voice%' LIMIT 25",
+                    status: 'success',
+                  },
+                  {
+                    results: [
+                      { cardtype: 'Vista' },
+                      { cardtype: 'SuperiorCard' },
+                      { cardtype: 'Distinguish' },
+                      { cardtype: 'ColonialVoice' },
+                    ],
+                    sql: 'SELECT DISTINCT cc.cardtype FROM postgres.ont_ont.credit_card cc LIMIT 25',
+                    status: 'success',
+                  },
+                  {
+                    results: [
+                      { countryregioncode: 'AS', name: 'American Samoa' },
+                      { countryregioncode: 'CA', name: 'Canada' },
+                      { countryregioncode: 'MX', name: 'Mexico' },
+                      { countryregioncode: 'US', name: 'United States' },
+                    ],
+                    sql: "SELECT DISTINCT cr.countryregioncode, cr.name FROM postgres.ont_ont.country_region cr WHERE cr.name ILIKE '%America%' OR cr.countryregioncode IN ('US', 'CA', 'MX') LIMIT 25",
+                    status: 'success',
+                  },
+                ],
+              },
             },
             toolCallId: 'toolu_01Ufu6nZQvYAXaQr2XZHKptL',
             toolName: 'executeSql',
@@ -144,7 +150,7 @@ describe('flag-chat-step integration', () => {
       {
         content: [
           {
-            args: {
+            input: {
               isRevision: false,
               needsMoreThoughts: false,
               nextThoughtNeeded: true,
@@ -163,8 +169,11 @@ describe('flag-chat-step integration', () => {
       {
         content: [
           {
-            result: {
-              success: true,
+            output: {
+              type: 'json' as const,
+              value: {
+                success: true,
+              },
             },
             toolCallId: 'toolu_02KKXA1KUXcCAHjA2jAjfSXE',
             toolName: 'sequentialThinking',
@@ -176,7 +185,7 @@ describe('flag-chat-step integration', () => {
       {
         content: [
           {
-            args: {
+            input: {
               isRevision: false,
               needsMoreThoughts: false,
               nextThoughtNeeded: false,
@@ -195,8 +204,11 @@ describe('flag-chat-step integration', () => {
       {
         content: [
           {
-            result: {
-              success: true,
+            output: {
+              type: 'json' as const,
+              value: {
+                success: true,
+              },
             },
             toolCallId: 'toolu_03QyPGts4d3WdGmFmrd5urVT',
             toolName: 'sequentialThinking',
@@ -208,7 +220,7 @@ describe('flag-chat-step integration', () => {
       {
         content: [
           {
-            args: {},
+            input: {},
             toolCallId: 'toolu_04T6RXZpViewbAVZWYD5YxRd',
             toolName: 'submitThoughts',
             type: 'tool-call',
@@ -219,7 +231,10 @@ describe('flag-chat-step integration', () => {
       {
         content: [
           {
-            result: {},
+            output: {
+              type: 'json' as const,
+              value: {},
+            },
             toolCallId: 'toolu_04T6RXZpViewbAVZWYD5YxRd',
             toolName: 'submitThoughts',
             type: 'tool-result',
@@ -230,7 +245,7 @@ describe('flag-chat-step integration', () => {
       {
         content: [
           {
-            args: {
+            input: {
               files: [
                 {
                   name: 'Mountain-500 Online Sales to NA Customers with ColonialVoice Card',
@@ -249,26 +264,29 @@ describe('flag-chat-step integration', () => {
       {
         content: [
           {
-            result: {
-              duration: 674,
-              failed_files: [],
-              files: [
-                {
-                  created_at: '2025-06-24T22:29:54.034Z',
-                  file_type: 'metric',
-                  id: 'a4a649b9-c61b-4632-8103-21ae207d4eb8',
-                  name: 'Mountain-500 Online Sales to NA Customers with ColonialVoice Card',
-                  result_message: 'Query validated successfully and returned 1 records',
-                  results: [
-                    {
-                      total_bikes_sold: '47',
-                    },
-                  ],
-                  updated_at: '2025-06-24T22:29:54.034Z',
-                  version_number: 1,
-                },
-              ],
-              message: 'Successfully created 1 metric files.',
+            output: {
+              type: 'json' as const,
+              value: {
+                duration: 674,
+                failed_files: [],
+                files: [
+                  {
+                    created_at: '2025-06-24T22:29:54.034Z',
+                    file_type: 'metric',
+                    id: 'a4a649b9-c61b-4632-8103-21ae207d4eb8',
+                    name: 'Mountain-500 Online Sales to NA Customers with ColonialVoice Card',
+                    result_message: 'Query validated successfully and returned 1 records',
+                    results: [
+                      {
+                        total_bikes_sold: '47',
+                      },
+                    ],
+                    updated_at: '2025-06-24T22:29:54.034Z',
+                    version_number: 1,
+                  },
+                ],
+                message: 'Successfully created 1 metric files.',
+              },
             },
             toolCallId: 'toolu_05JTGAQ7Pz8gT3SnRaUZttdF',
             toolName: 'createMetrics',
@@ -280,7 +298,7 @@ describe('flag-chat-step integration', () => {
       {
         content: [
           {
-            args: {
+            input: {
               final_response:
                 "I found the answer to your specific question about Mountain-500 series bikes sold online to North American customers using ColonialVoice cards.\n\n**Result: 47 Mountain-500 series bikes were sold under these exact conditions.**\n\nHere's how I identified and filtered the data based on your requirements:\n\n- **Mountain-500 series bikes**: Found 10 different Mountain-500 variants in the database (5 black and 5 silver in various sizes: 40, 42, 44, 48, 52)\n- **Stock bikes**: Filtered for finished goods ready for sale (using the `finishedgoodsflag`)\n- **Online sales**: Used the online order flag to identify web-based purchases\n- **NA customers**: Included customers from United States, Canada, and Mexico\n- **ColonialVoice card**: Filtered specifically for this credit card type (which exists in the database alongside Vista, SuperiorCard, and Distinguish)\n\nThe analysis shows that despite the very specific filtering criteria, there was still a meaningful volume of 47 bikes sold through this particular channel combination. This suggests that ColonialVoice cardholders in North America represent an active customer segment for the Mountain-500 product line in online sales.",
             },
@@ -294,8 +312,11 @@ describe('flag-chat-step integration', () => {
       {
         content: [
           {
-            result: {
-              success: true,
+            output: {
+              type: 'json' as const,
+              value: {
+                success: true,
+              },
             },
             toolCallId: 'toolu_06WAfvCoQtpBoNdmNi17LKCe',
             toolName: 'doneTool',
