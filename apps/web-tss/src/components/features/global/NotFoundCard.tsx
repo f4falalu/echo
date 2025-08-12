@@ -1,13 +1,34 @@
 import { Link, type NotFoundRouteComponent } from '@tanstack/react-router';
+import { Button } from '@/components/ui/buttons';
+import { Card, CardContent, CardFooter } from '@/components/ui/card/CardBase';
 
+// Displays a full-screen, visually polished 404 not found state
+// inspired by GlobalErrorCard with consistent styling and components.
 export const NotFoundCard: NotFoundRouteComponent = () => {
   return (
-    <div className="m-8 flex flex-col items-start gap-4">
-      <h1 className="text-2xl font-semibold">Page not found</h1>
-      <p className="text-gray-600">The page you are looking for does not exist.</p>
-      <Link to="/" className="text-blue-600 hover:underline">
-        Go back home
-      </Link>
-    </div>
+    <section
+      className="bg-opacity-90 flex min-h-screen w-screen flex-col items-center justify-center bg-linear-to-br from-gray-50 to-gray-200 p-8 backdrop-blur-xs backdrop-brightness-95 backdrop-filter"
+      aria-label="Page not found"
+    >
+      <Card className="-mt-10 max-w-100">
+        <CardContent>
+          <div className="flex flex-col gap-4">
+            <h1 className="text-2xl font-medium">404 - Page not found</h1>
+
+            <h5 className="m-0 text-base font-medium text-gray-600">
+              The page you are looking for doesn’t exist or may have been moved.
+            </h5>
+          </div>
+        </CardContent>
+
+        <CardFooter className="w-full pt-0">
+          <Link to="/" className="w-full">
+            <Button variant="black" block size="tall">
+              Take me home
+            </Button>
+          </Link>
+        </CardFooter>
+      </Card>
+    </section>
   );
 };
