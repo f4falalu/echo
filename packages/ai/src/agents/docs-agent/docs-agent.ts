@@ -63,7 +63,7 @@ export function createDocsAgent(docsAgentOptions: DocsAgentOptions) {
     providerOptions: DEFAULT_CACHE_OPTIONS,
   } as ModelMessage;
 
-  const idleTool = createIdleTool({ messageId: docsAgentOptions.messageId });
+  const idleTool = createIdleTool();
 
   // Create tool context with messageId and sandbox if available
   // Create file tools with context (only if sandbox is available)

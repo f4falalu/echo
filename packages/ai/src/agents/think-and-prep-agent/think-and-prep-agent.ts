@@ -2,11 +2,14 @@ import { type ModelMessage, NoSuchToolError, hasToolCall, stepCountIs, streamTex
 import { wrapTraced } from 'braintrust';
 import z from 'zod';
 import { GPT5 } from '../../llm/gpt-5';
-import { createSequentialThinkingTool, executeSql } from '../../tools';
+import { createExecuteSqlTool, createSequentialThinkingTool } from '../../tools';
 import { createMessageUserClarifyingQuestionTool } from '../../tools/communication-tools/message-user-clarifying-question/message-user-clarifying-question';
 import { createRespondWithoutAssetCreationTool } from '../../tools/communication-tools/respond-without-asset-creation/respond-without-asset-creation-tool';
 import { createSubmitThoughtsTool } from '../../tools/communication-tools/submit-thoughts-tool/submit-thoughts-tool';
-import { getThinkAndPrepAgentSystemPrompt } from './get-think-and-prep-agent-system-prompt';
+import {
+  type AnalysisMode,
+  getThinkAndPrepAgentSystemPrompt,
+} from './get-think-and-prep-agent-system-prompt';
 
 const DEFAULT_CACHE_OPTIONS = {
   anthropic: { cacheControl: { type: 'ephemeral', ttl: '1h' } },
@@ -33,6 +36,11 @@ export const ThinkAndPrepAgentOptionsSchema = z.object({
   dataSourceId: z.string().describe('The data source ID for tracking tool execution.'),
   dataSourceSyntax: z.string().describe('The data source syntax for tracking tool execution.'),
   userId: z.string().describe('The user ID for tracking tool execution.'),
+  analysisMode: z
+    .enum(['standard', 'investigation'])
+    .default('standard')
+    .describe('The analysis mode to determine which prompt to use.')
+    .optional(),
 });
 
 export const ThinkAndPrepStreamOptionsSchema = z.object({
@@ -50,7 +58,10 @@ export function createThinkAndPrepAgent(thinkAndPrepAgentSchema: ThinkAndPrepAge
 
   const systemMessage = {
     role: 'system',
-    content: getThinkAndPrepAgentSystemPrompt(thinkAndPrepAgentSchema.sql_dialect_guidance),
+    content: getThinkAndPrepAgentSystemPrompt(
+      thinkAndPrepAgentSchema.sql_dialect_guidance,
+      (thinkAndPrepAgentSchema.analysisMode || 'standard') as AnalysisMode
+    ),
     providerOptions: DEFAULT_CACHE_OPTIONS,
   } as ModelMessage;
 
@@ -60,9 +71,14 @@ export function createThinkAndPrepAgent(thinkAndPrepAgentSchema: ThinkAndPrepAge
     const currentMessages = [...messages];
 
     const sequentialThinking = createSequentialThinkingTool({ messageId });
-    const executeSqlTool = executeSql;
+    const executeSqlTool = createExecuteSqlTool({
+      messageId,
+      dataSourceId: thinkAndPrepAgentSchema.dataSourceId,
+      dataSourceSyntax: thinkAndPrepAgentSchema.dataSourceSyntax,
+      userId: thinkAndPrepAgentSchema.userId,
+    });
     const respondWithoutAssetCreation = createRespondWithoutAssetCreationTool({ messageId });
-    const submitThoughts = createSubmitThoughtsTool({ messageId });
+    const submitThoughts = createSubmitThoughtsTool();
     const messageUserClarifyingQuestion = createMessageUserClarifyingQuestionTool({ messageId });
 
     while (attempt <= maxRetries) {
