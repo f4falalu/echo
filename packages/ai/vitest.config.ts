@@ -6,7 +6,7 @@ import { defineConfig } from 'vitest/config';
 // Custom plugin to handle .txt file imports
 const textFilePlugin = () => ({
   name: 'text-file-plugin',
-  transform(code: string, id: string) {
+  transform(_code: string, id: string) {
     if (id.endsWith('.txt')) {
       const content = fs.readFileSync(id, 'utf-8');
       return {

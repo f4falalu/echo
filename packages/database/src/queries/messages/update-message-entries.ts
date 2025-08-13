@@ -77,15 +77,27 @@ export async function updateMessageEntries({
     // Add each field conditionally using the helper function
     // Stringify the entries before passing them to SQL to ensure proper JSONB casting
     if (rawLlmMessage) {
-      setValues.rawLlmMessages = generateJsonbArraySql('rawLlmMessages', JSON.stringify(rawLlmMessage), mode);
+      setValues.rawLlmMessages = generateJsonbArraySql(
+        'rawLlmMessages',
+        JSON.stringify(rawLlmMessage),
+        mode
+      );
     }
 
     if (responseEntry) {
-      setValues.responseMessages = generateJsonbArraySql('responseMessages', JSON.stringify(responseEntry), mode);
+      setValues.responseMessages = generateJsonbArraySql(
+        'responseMessages',
+        JSON.stringify(responseEntry),
+        mode
+      );
     }
 
     if (reasoningEntry) {
-      setValues.reasoning = generateJsonbArraySql('reasoning', JSON.stringify(reasoningEntry), mode);
+      setValues.reasoning = generateJsonbArraySql(
+        'reasoning',
+        JSON.stringify(reasoningEntry),
+        mode
+      );
     }
 
     await db

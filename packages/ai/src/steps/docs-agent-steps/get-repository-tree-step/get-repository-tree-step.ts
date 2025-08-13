@@ -57,7 +57,7 @@ export async function runGetRepositoryTreeStep(
     }
 
     // Get the tree structure with gitignore option enabled
-    let treeResult;
+    let treeResult: unknown;
     try {
       treeResult = await getRepositoryTree(sandbox, '.', {
         gitignore: true,

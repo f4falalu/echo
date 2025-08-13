@@ -6,6 +6,7 @@ import { createExecuteSqlTool, createSequentialThinkingTool } from '../../tools'
 import { createMessageUserClarifyingQuestionTool } from '../../tools/communication-tools/message-user-clarifying-question/message-user-clarifying-question';
 import { createRespondWithoutAssetCreationTool } from '../../tools/communication-tools/respond-without-asset-creation/respond-without-asset-creation-tool';
 import { createSubmitThoughtsTool } from '../../tools/communication-tools/submit-thoughts-tool/submit-thoughts-tool';
+import { healToolWithLlm } from '../../utils';
 import {
   type AnalysisMode,
   getThinkAndPrepAgentSystemPrompt,
@@ -98,6 +99,10 @@ export function createThinkAndPrepAgent(thinkAndPrepAgentSchema: ThinkAndPrepAge
               toolChoice: 'required',
               maxOutputTokens: 10000,
               temperature: 0,
+              experimental_repairToolCall: healToolWithLlm,
+              onFinish: () => {
+                console.info('Think and Prep Agent finished');
+              },
             }),
           {
             name: 'Think and Prep Agent',

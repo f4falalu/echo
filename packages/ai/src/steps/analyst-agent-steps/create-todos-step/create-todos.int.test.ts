@@ -3,6 +3,9 @@ import { describe, expect, it } from 'vitest';
 import { runCreateTodosStep } from './create-todos-step';
 
 describe('create-todos-step integration', () => {
+  // Test messageId for all tests
+  const testMessageId = 'test-message-id-123';
+
   it('should create todos for basic sales query', async () => {
     const messages: ModelMessage[] = [
       {
@@ -11,18 +14,18 @@ describe('create-todos-step integration', () => {
       },
     ];
 
-    const result = await runCreateTodosStep({ messages });
+    const result = await runCreateTodosStep({ messages, messageId: testMessageId });
 
     expect(result).toBeDefined();
     expect(result.todos).toBeDefined();
     expect(typeof result.todos).toBe('string');
     expect(result.todosMessage).toBeDefined();
-    expect(result.todosMessage.role).toBe('assistant');
+    expect(result.todosMessage.role).toBe('user');
     expect(result.todos).toContain('[ ]');
     expect(result.todosMessage).toBeDefined();
-    expect(result.todosMessage.role).toBe('assistant'); // Should contain checkbox format
+    expect(result.todosMessage.role).toBe('user'); // Should contain checkbox format
     expect(result.todosMessage).toBeDefined();
-    expect(result.todosMessage.role).toBe('assistant');
+    expect(result.todosMessage.role).toBe('user');
     expect(result.todosMessage.content).toBe(result.todos);
   });
 
@@ -34,16 +37,16 @@ describe('create-todos-step integration', () => {
       },
     ];
 
-    const result = await runCreateTodosStep({ messages });
+    const result = await runCreateTodosStep({ messages, messageId: testMessageId });
 
     expect(result).toBeDefined();
     expect(result.todos).toBeDefined();
     expect(typeof result.todos).toBe('string');
     expect(result.todosMessage).toBeDefined();
-    expect(result.todosMessage.role).toBe('assistant');
+    expect(result.todosMessage.role).toBe('user');
     expect(result.todos).toContain('[ ]');
     expect(result.todosMessage).toBeDefined();
-    expect(result.todosMessage.role).toBe('assistant');
+    expect(result.todosMessage.role).toBe('user');
   });
 
   it('should create todos for specific entity queries', async () => {
@@ -54,13 +57,13 @@ describe('create-todos-step integration', () => {
       },
     ];
 
-    const result = await runCreateTodosStep({ messages });
+    const result = await runCreateTodosStep({ messages, messageId: testMessageId });
 
     expect(result).toBeDefined();
     expect(result.todos).toBeDefined();
     expect(typeof result.todos).toBe('string');
     expect(result.todosMessage).toBeDefined();
-    expect(result.todosMessage.role).toBe('assistant');
+    expect(result.todosMessage.role).toBe('user');
     // Should contain todos about identifying Baltic Born, return rate, and time period
   });
 
@@ -72,16 +75,16 @@ describe('create-todos-step integration', () => {
       },
     ];
 
-    const result = await runCreateTodosStep({ messages });
+    const result = await runCreateTodosStep({ messages, messageId: testMessageId });
 
     expect(result).toBeDefined();
     expect(result.todos).toBeDefined();
     expect(typeof result.todos).toBe('string');
     expect(result.todosMessage).toBeDefined();
-    expect(result.todosMessage.role).toBe('assistant');
+    expect(result.todosMessage.role).toBe('user');
     expect(result.todos).toContain('[ ]');
     expect(result.todosMessage).toBeDefined();
-    expect(result.todosMessage.role).toBe('assistant');
+    expect(result.todosMessage.role).toBe('user');
   });
 
   it('should create todos for merchant ranking queries', async () => {
@@ -93,13 +96,13 @@ describe('create-todos-step integration', () => {
       },
     ];
 
-    const result = await runCreateTodosStep({ messages });
+    const result = await runCreateTodosStep({ messages, messageId: testMessageId });
 
     expect(result).toBeDefined();
     expect(result.todos).toBeDefined();
     expect(typeof result.todos).toBe('string');
     expect(result.todosMessage).toBeDefined();
-    expect(result.todosMessage.role).toBe('assistant');
+    expect(result.todosMessage.role).toBe('user');
     // Should include todos about identifying merchants, metrics, filtering, and sorting
   });
 
@@ -111,13 +114,13 @@ describe('create-todos-step integration', () => {
       },
     ];
 
-    const result = await runCreateTodosStep({ messages });
+    const result = await runCreateTodosStep({ messages, messageId: testMessageId });
 
     expect(result).toBeDefined();
     expect(result.todos).toBeDefined();
     expect(typeof result.todos).toBe('string');
     expect(result.todosMessage).toBeDefined();
-    expect(result.todosMessage.role).toBe('assistant');
+    expect(result.todosMessage.role).toBe('user');
   });
 
   it('should handle vague requests appropriately', async () => {
@@ -128,13 +131,13 @@ describe('create-todos-step integration', () => {
       },
     ];
 
-    const result = await runCreateTodosStep({ messages });
+    const result = await runCreateTodosStep({ messages, messageId: testMessageId });
 
     expect(result).toBeDefined();
     expect(result.todos).toBeDefined();
     expect(typeof result.todos).toBe('string');
     expect(result.todosMessage).toBeDefined();
-    expect(result.todosMessage.role).toBe('assistant');
+    expect(result.todosMessage.role).toBe('user');
     // Should create todos about determining what "important stuff" means
   });
 
@@ -147,13 +150,13 @@ describe('create-todos-step integration', () => {
       },
     ];
 
-    const result = await runCreateTodosStep({ messages });
+    const result = await runCreateTodosStep({ messages, messageId: testMessageId });
 
     expect(result).toBeDefined();
     expect(result.todos).toBeDefined();
     expect(typeof result.todos).toBe('string');
     expect(result.todosMessage).toBeDefined();
-    expect(result.todosMessage.role).toBe('assistant');
+    expect(result.todosMessage.role).toBe('user');
     // Should include todos about charts and groupings
   });
 
@@ -166,13 +169,13 @@ describe('create-todos-step integration', () => {
       },
     ];
 
-    const result = await runCreateTodosStep({ messages });
+    const result = await runCreateTodosStep({ messages, messageId: testMessageId });
 
     expect(result).toBeDefined();
     expect(result.todos).toBeDefined();
     expect(typeof result.todos).toBe('string');
     expect(result.todosMessage).toBeDefined();
-    expect(result.todosMessage.role).toBe('assistant');
+    expect(result.todosMessage.role).toBe('user');
     // Should include todo about inability to do forecasts
   });
 
@@ -184,13 +187,13 @@ describe('create-todos-step integration', () => {
       },
     ];
 
-    const result = await runCreateTodosStep({ messages });
+    const result = await runCreateTodosStep({ messages, messageId: testMessageId });
 
     expect(result).toBeDefined();
     expect(result.todos).toBeDefined();
     expect(typeof result.todos).toBe('string');
     expect(result.todosMessage).toBeDefined();
-    expect(result.todosMessage.role).toBe('assistant');
+    expect(result.todosMessage.role).toBe('user');
     // Should create todos about identifying both elements
   });
 
@@ -211,13 +214,13 @@ describe('create-todos-step integration', () => {
       },
     ];
 
-    const result = await runCreateTodosStep({ messages });
+    const result = await runCreateTodosStep({ messages, messageId: testMessageId });
 
     expect(result).toBeDefined();
     expect(result.todos).toBeDefined();
     expect(typeof result.todos).toBe('string');
     expect(result.todosMessage).toBeDefined();
-    expect(result.todosMessage.role).toBe('assistant');
+    expect(result.todosMessage.role).toBe('user');
   });
 
   it('should handle follow-up questions with context', async () => {
@@ -236,13 +239,13 @@ describe('create-todos-step integration', () => {
       },
     ];
 
-    const result = await runCreateTodosStep({ messages });
+    const result = await runCreateTodosStep({ messages, messageId: testMessageId });
 
     expect(result).toBeDefined();
     expect(result.todos).toBeDefined();
     expect(typeof result.todos).toBe('string');
     expect(result.todosMessage).toBeDefined();
-    expect(result.todosMessage.role).toBe('assistant');
+    expect(result.todosMessage.role).toBe('user');
     // Should leverage context from previous messages
   });
 
@@ -255,13 +258,13 @@ describe('create-todos-step integration', () => {
       },
     ];
 
-    const result = await runCreateTodosStep({ messages });
+    const result = await runCreateTodosStep({ messages, messageId: testMessageId });
 
     expect(result).toBeDefined();
     expect(result.todos).toBeDefined();
     expect(typeof result.todos).toBe('string');
     expect(result.todosMessage).toBeDefined();
-    expect(result.todosMessage.role).toBe('assistant');
+    expect(result.todosMessage.role).toBe('user');
     // Should create todos about data availability
   });
 
@@ -273,13 +276,13 @@ describe('create-todos-step integration', () => {
       },
     ];
 
-    const result = await runCreateTodosStep({ messages });
+    const result = await runCreateTodosStep({ messages, messageId: testMessageId });
 
     expect(result).toBeDefined();
     expect(result.todos).toBeDefined();
     expect(typeof result.todos).toBe('string');
     expect(result.todosMessage).toBeDefined();
-    expect(result.todosMessage.role).toBe('assistant');
+    expect(result.todosMessage.role).toBe('user');
     // Should break down "sports car" and "best selling"
   });
 
@@ -291,13 +294,13 @@ describe('create-todos-step integration', () => {
       },
     ];
 
-    const result = await runCreateTodosStep({ messages });
+    const result = await runCreateTodosStep({ messages, messageId: testMessageId });
 
     expect(result).toBeDefined();
     expect(result.todos).toBeDefined();
     expect(typeof result.todos).toBe('string');
     expect(result.todosMessage).toBeDefined();
-    expect(result.todosMessage.role).toBe('assistant');
+    expect(result.todosMessage.role).toBe('user');
     // Should include todos about smart TVs and online channel
   });
 
@@ -309,13 +312,13 @@ describe('create-todos-step integration', () => {
       },
     ];
 
-    const result = await runCreateTodosStep({ messages });
+    const result = await runCreateTodosStep({ messages, messageId: testMessageId });
 
     expect(result).toBeDefined();
     expect(result.todos).toBeDefined();
     expect(result.todos).toBe(''); // Empty TODO list for empty prompt
     expect(result.todosMessage).toBeDefined();
-    expect(result.todosMessage.role).toBe('assistant');
+    expect(result.todosMessage.role).toBe('user');
     expect(result.todosMessage.content).toBe('');
   });
 
@@ -341,13 +344,13 @@ describe('create-todos-step integration', () => {
       },
     ];
 
-    const result = await runCreateTodosStep({ messages });
+    const result = await runCreateTodosStep({ messages, messageId: testMessageId });
 
     expect(result).toBeDefined();
     expect(result.todos).toBeDefined();
     expect(typeof result.todos).toBe('string');
     expect(result.todosMessage).toBeDefined();
-    expect(result.todosMessage.role).toBe('assistant');
+    expect(result.todosMessage.role).toBe('user');
     expect(result.todos.length).toBeGreaterThan(0);
   });
 
@@ -359,13 +362,13 @@ describe('create-todos-step integration', () => {
       },
     ];
 
-    const result = await runCreateTodosStep({ messages });
+    const result = await runCreateTodosStep({ messages, messageId: testMessageId });
 
     expect(result).toBeDefined();
     expect(result.todos).toBeDefined();
     expect(typeof result.todos).toBe('string');
     expect(result.todosMessage).toBeDefined();
-    expect(result.todosMessage.role).toBe('assistant');
+    expect(result.todosMessage.role).toBe('user');
     // Should include todos about CLV calculation and segmentation
   });
 
@@ -378,13 +381,13 @@ describe('create-todos-step integration', () => {
     ];
 
     // Even if internally aborted, should return valid structure
-    const result = await runCreateTodosStep({ messages });
+    const result = await runCreateTodosStep({ messages, messageId: testMessageId });
 
     expect(result).toBeDefined();
     expect(result.todos).toBeDefined();
     expect(typeof result.todos).toBe('string');
     expect(result.todosMessage).toBeDefined();
-    expect(result.todosMessage.role).toBe('assistant');
+    expect(result.todosMessage.role).toBe('user');
   });
 
   it('should process concurrent todo creation requests', async () => {
@@ -396,6 +399,7 @@ describe('create-todos-step integration', () => {
             content: `Query ${i}: Show me sales data`,
           },
         ],
+        messageId: `${testMessageId}-${i}`,
       })
     );
 

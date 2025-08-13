@@ -88,6 +88,7 @@ async function runAnalystPrepSteps({
   const [todos, values] = await Promise.all([
     runCreateTodosStep({
       messages,
+      messageId,
     }),
     runExtractValuesAndSearchStep({
       messages,

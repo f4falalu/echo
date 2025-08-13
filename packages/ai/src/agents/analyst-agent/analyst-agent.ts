@@ -85,6 +85,9 @@ export function createAnalystAgent(analystAgentOptions: AnalystAgentOptions) {
               maxOutputTokens: 10000,
               temperature: 0,
               experimental_repairToolCall: healToolWithLlm,
+              onFinish: () => {
+                console.info('Analyst Agent finished');
+              },
             }),
           {
             name: 'Analyst Agent',

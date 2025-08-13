@@ -18,7 +18,7 @@ vi.mock('ai', async () => {
 
 // Mock wrapTraced
 vi.mock('braintrust', () => ({
-  wrapTraced: (fn: Function) => fn,
+  wrapTraced: (fn: () => unknown) => fn,
 }));
 
 describe('runAnalysisTypeRouterStep', () => {

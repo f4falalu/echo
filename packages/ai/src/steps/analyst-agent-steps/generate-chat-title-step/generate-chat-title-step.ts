@@ -29,7 +29,7 @@ With an emphasis on the user's question and most recent converstaion topic.
 /**
  * Generates a title using the LLM with conversation context
  */
-async function generateTitleWithLLM(messages: ModelMessage[]): Promise<void> {
+async function generateTitleWithLLM(messages: ModelMessage[]): Promise<string> {
   try {
     const titleMessages: ModelMessage[] = [
       {
@@ -54,7 +54,8 @@ async function generateTitleWithLLM(messages: ModelMessage[]): Promise<void> {
       }
     );
 
-    await tracedChatTitle();
+    const result = await tracedChatTitle();
+    return result.title;
   } catch (llmError) {
     // Handle LLM generation errors specifically
     console.warn('[GenerateChatTitle] LLM failed to generate valid response:', {

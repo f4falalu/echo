@@ -49,7 +49,7 @@ export function createModifyMetricsDelta(context: ModifyMetricsContext, state: M
       filesArray.forEach((file) => {
         if (file && typeof file === 'object') {
           const fileObj = file as Record<string, unknown>;
-          
+
           // Extract values directly from the file object
           const id = fileObj[TOOL_KEYS.id] as string | undefined;
           const ymlContent = fileObj[TOOL_KEYS.yml_content] as string | undefined;
@@ -57,7 +57,7 @@ export function createModifyMetricsDelta(context: ModifyMetricsContext, state: M
           // Only add files that have at least an ID
           if (id) {
             // Find existing file by ID to preserve data
-            const existingFile = state.files?.find(f => f?.id === id);
+            const existingFile = state.files?.find((f) => f?.id === id);
 
             updatedFiles.push({
               id: id,
