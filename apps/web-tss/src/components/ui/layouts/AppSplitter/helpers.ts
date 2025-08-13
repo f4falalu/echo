@@ -23,7 +23,7 @@ export const sizeToPixels = (size: string | number, containerSize: number): numb
 
 // Ease-in-out cubic easing function
 export const easeInOutCubic = (t: number): number => {
-  return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+  return t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2;
 };
 
 export const DEFAULT_LAYOUT = ['230px', 'auto'];

@@ -77,7 +77,7 @@ export const useAutoScroll = (
     observeSubTree = true,
     observeCharacterData = false,
     observeAttributes = false,
-    animationCooldown = 500
+    animationCooldown = 500,
   } = options;
 
   const [isAutoScrollEnabled, setIsAutoScrollEnabled] = useState(enabled);
@@ -176,7 +176,7 @@ export const useAutoScroll = (
         childList: true,
         subtree: observeSubTree,
         characterData: observeCharacterData,
-        attributes: observeAttributes
+        attributes: observeAttributes,
       };
 
       // Start observing
@@ -209,7 +209,7 @@ export const useAutoScroll = (
     observeSubTree,
     observeCharacterData,
     observeAttributes,
-    animationCooldown
+    animationCooldown,
   ]);
 
   // Listen for user–initiated events. Only disable auto–scroll if the container isn't near the bottom.
@@ -306,6 +306,6 @@ export const useAutoScroll = (
     scrollToTop,
     scrollToNode,
     enableAutoScroll,
-    disableAutoScroll
+    disableAutoScroll,
   };
 };

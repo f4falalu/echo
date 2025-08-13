@@ -7,7 +7,7 @@ import {
   WindowDownload,
   WindowEdit,
   WindowSettings,
-  WindowUser
+  WindowUser,
 } from '../icons/NucleoIconOutlined';
 import { ContextMenu } from './ContextMenu';
 
@@ -15,15 +15,15 @@ const meta: Meta<typeof ContextMenu> = {
   title: 'UI/Context/ContextMenu',
   component: ContextMenu,
   parameters: {
-    layout: 'centered'
+    layout: 'centered',
   },
   argTypes: {
     disabled: {
       control: 'boolean',
-      defaultValue: false
-    }
+      defaultValue: false,
+    },
   },
-  tags: ['autodocs']
+  tags: ['autodocs'],
 };
 
 export default meta;
@@ -36,19 +36,19 @@ export const Basic: Story = {
       {
         label: 'Edit',
         onClick: () => alert('Edit clicked'),
-        icon: <WindowEdit />
+        icon: <WindowEdit />,
       },
       {
         label: 'Settings',
         onClick: () => alert('Settings clicked'),
-        icon: <WindowSettings />
+        icon: <WindowSettings />,
       },
       {
         label: 'Logout',
         onClick: () => alert('Logout clicked'),
-        icon: <Window />
-      }
-    ]
+        icon: <Window />,
+      },
+    ],
   },
   render: (args) => (
     <div className="flex h-[200px] w-[200px] items-center justify-center rounded-md border border-dashed">
@@ -58,7 +58,7 @@ export const Basic: Story = {
         </div>
       </ContextMenu>
     </div>
-  )
+  ),
 };
 
 // Example with dividers and shortcuts
@@ -69,22 +69,22 @@ export const WithDividersAndShortcuts: Story = {
         label: 'Profile',
         onClick: () => alert('Profile clicked'),
         icon: <WindowUser />,
-        shortcut: '⌘P'
+        shortcut: '⌘P',
       },
       {
         label: 'Settings',
         onClick: () => alert('Settings clicked'),
         icon: <WindowSettings />,
-        shortcut: '⌘S'
+        shortcut: '⌘S',
       },
       { type: 'divider' },
       {
         label: 'Logout',
         onClick: () => alert('Logout clicked'),
         icon: <Window />,
-        shortcut: '⌘L'
-      }
-    ]
+        shortcut: '⌘L',
+      },
+    ],
   },
   render: (args) => (
     <div className="flex h-[200px] w-[200px] items-center justify-center rounded-md border border-dashed">
@@ -94,7 +94,7 @@ export const WithDividersAndShortcuts: Story = {
         </div>
       </ContextMenu>
     </div>
-  )
+  ),
 };
 
 // Example with nested items
@@ -107,18 +107,18 @@ export const WithNestedItems: Story = {
         items: [
           {
             label: 'New',
-            onClick: () => alert('New file clicked')
+            onClick: () => alert('New file clicked'),
           },
           {
             label: 'Open',
-            onClick: () => alert('Open file clicked')
+            onClick: () => alert('Open file clicked'),
           },
           {
             label: 'Save',
             onClick: () => alert('Save file clicked'),
-            shortcut: '⌘S'
-          }
-        ]
+            shortcut: '⌘S',
+          },
+        ],
       },
       {
         label: 'Edit',
@@ -128,17 +128,17 @@ export const WithNestedItems: Story = {
             label: 'Copy',
             onClick: () => alert('Copy clicked'),
             icon: <CircleCopy />,
-            shortcut: '⌘C'
+            shortcut: '⌘C',
           },
           {
             label: 'Delete',
             onClick: () => alert('Delete clicked'),
             icon: <Window />,
-            shortcut: '⌫'
-          }
-        ]
-      }
-    ]
+            shortcut: '⌫',
+          },
+        ],
+      },
+    ],
   },
   render: (args) => (
     <div className="flex h-[200px] w-[200px] items-center justify-center rounded-md border border-dashed">
@@ -148,7 +148,7 @@ export const WithNestedItems: Story = {
         </div>
       </ContextMenu>
     </div>
-  )
+  ),
 };
 
 // Example with disabled items
@@ -158,20 +158,20 @@ export const WithDisabledItems: Story = {
       {
         label: 'Edit',
         onClick: () => alert('Edit clicked'),
-        icon: <WindowEdit />
+        icon: <WindowEdit />,
       },
       {
         label: 'Delete',
         onClick: () => alert('Delete clicked'),
         icon: <Window />,
-        disabled: true
+        disabled: true,
       },
       {
         label: 'Download',
         onClick: () => alert('Download clicked'),
-        icon: <WindowDownload />
-      }
-    ]
+        icon: <WindowDownload />,
+      },
+    ],
   },
   render: (args) => (
     <div className="flex h-[200px] w-[200px] items-center justify-center rounded-md border border-dashed">
@@ -181,7 +181,7 @@ export const WithDisabledItems: Story = {
         </div>
       </ContextMenu>
     </div>
-  )
+  ),
 };
 
 // Example with loading state
@@ -190,19 +190,19 @@ export const WithLoadingItems: Story = {
     items: [
       {
         label: 'Normal Item',
-        onClick: () => alert('Normal clicked')
+        onClick: () => alert('Normal clicked'),
       },
       {
         label: 'Loading Item',
         loading: true,
-        onClick: () => alert('Loading clicked')
+        onClick: () => alert('Loading clicked'),
       },
       { type: 'divider' },
       {
         label: 'Another Item',
-        onClick: () => alert('Another clicked')
-      }
-    ]
+        onClick: () => alert('Another clicked'),
+      },
+    ],
   },
   render: (args) => (
     <div className="flex h-[200px] w-[200px] items-center justify-center rounded-md border border-dashed">
@@ -212,7 +212,7 @@ export const WithLoadingItems: Story = {
         </div>
       </ContextMenu>
     </div>
-  )
+  ),
 };
 
 // Example with selection
@@ -222,19 +222,19 @@ export const WithSelection: Story = {
       {
         label: 'Option 1',
         onClick: () => alert('Option 1 clicked'),
-        selected: false
+        selected: false,
       },
       {
         label: 'Option 2',
         onClick: () => alert('Option 2 clicked'),
-        selected: true
+        selected: true,
       },
       {
         label: 'Option 3',
         onClick: () => alert('Option 3 clicked'),
-        selected: false
-      }
-    ]
+        selected: false,
+      },
+    ],
   },
   render: (args) => (
     <div className="flex h-[200px] w-[200px] items-center justify-center rounded-md border border-dashed">
@@ -244,7 +244,7 @@ export const WithSelection: Story = {
         </div>
       </ContextMenu>
     </div>
-  )
+  ),
 };
 
 // Example with secondary labels and truncation
@@ -255,22 +255,22 @@ export const WithSecondaryLabels: Story = {
         label: 'Document 1',
         secondaryLabel: 'Last edited 2 days ago',
         onClick: () => alert('Document 1 clicked'),
-        icon: <File />
+        icon: <File />,
       },
       {
         label: 'Document with a very long name that should be truncated',
         secondaryLabel: 'Last edited yesterday',
         truncate: true,
         onClick: () => alert('Document 2 clicked'),
-        icon: <File />
+        icon: <File />,
       },
       {
         label: 'Document 3',
         secondaryLabel: 'Last edited just now',
         onClick: () => alert('Document 3 clicked'),
-        icon: <File />
-      }
-    ]
+        icon: <File />,
+      },
+    ],
   },
   render: (args) => (
     <div className="flex h-[200px] w-[200px] items-center justify-center rounded-md border border-dashed">
@@ -280,7 +280,7 @@ export const WithSecondaryLabels: Story = {
         </div>
       </ContextMenu>
     </div>
-  )
+  ),
 };
 
 // Example with links
@@ -290,19 +290,19 @@ export const WithLinks: Story = {
       {
         label: 'Documentation',
         link: 'https://example.com/docs',
-        linkIcon: 'arrow-external'
+        linkIcon: 'arrow-external',
       },
       {
         label: 'Settings',
         link: '/settings',
-        linkIcon: 'arrow-right'
+        linkIcon: 'arrow-right',
       },
       {
         label: 'Profile',
         link: '/profile',
-        linkIcon: 'caret-right'
-      }
-    ]
+        linkIcon: 'caret-right',
+      },
+    ],
   },
   render: (args) => (
     <div className="flex h-[200px] w-[200px] items-center justify-center rounded-md border border-dashed">
@@ -312,7 +312,7 @@ export const WithLinks: Story = {
         </div>
       </ContextMenu>
     </div>
-  )
+  ),
 };
 
 // Example with custom width
@@ -321,13 +321,13 @@ export const CustomWidth: Story = {
     items: [
       {
         label: 'This is a menu item with a very long label that might need to be constrained',
-        onClick: () => alert('Long item clicked')
+        onClick: () => alert('Long item clicked'),
       },
       {
         label: 'Short item',
-        onClick: () => alert('Short item clicked')
-      }
-    ]
+        onClick: () => alert('Short item clicked'),
+      },
+    ],
   },
   render: (args) => (
     <div className="flex h-[200px] w-[200px] items-center justify-center rounded-md border border-dashed">
@@ -337,7 +337,7 @@ export const CustomWidth: Story = {
         </div>
       </ContextMenu>
     </div>
-  )
+  ),
 };
 
 export const ContextMenuWithEverything: Story = {
@@ -348,19 +348,19 @@ export const ContextMenuWithEverything: Story = {
         onClick: () => alert('Option 1 clicked'),
         icon: <WindowUser />,
         selected: false,
-        loading: true
+        loading: true,
       },
       {
         label: 'Option 2',
         onClick: () => alert('Option 2 clicked'),
         icon: <WindowSettings />,
-        selected: true
+        selected: true,
       },
       {
         label: 'Option 3',
         onClick: () => alert('Option 3 clicked'),
         icon: <Window />,
-        selected: false
+        selected: false,
       },
       { type: 'divider' },
       {
@@ -368,13 +368,13 @@ export const ContextMenuWithEverything: Story = {
         onClick: () => alert('Option 4 clicked'),
         icon: <Window />,
         link: 'https://example.com/docs',
-        loading: true
+        loading: true,
       },
       {
         label: 'Option 5',
         onClick: () => alert('Option 5 clicked'),
         icon: <Window />,
-        link: 'https://example.com/docs'
+        link: 'https://example.com/docs',
       },
       { type: 'divider' },
       {
@@ -385,10 +385,11 @@ export const ContextMenuWithEverything: Story = {
         items: [
           <div
             key="nested-item"
-            className="flex min-h-10 min-w-10 items-center rounded bg-red-200 p-1 text-red-600">
+            className="flex min-h-10 min-w-10 items-center rounded bg-red-200 p-1 text-red-600"
+          >
             This is a nested item
-          </div>
-        ]
+          </div>,
+        ],
       },
       {
         label: 'Option 7',
@@ -397,13 +398,13 @@ export const ContextMenuWithEverything: Story = {
         items: [
           {
             label: 'Option 7.1',
-            onClick: () => alert('Option 7.1 clicked')
+            onClick: () => alert('Option 7.1 clicked'),
           },
           {
             label: 'Option 7.2',
-            onClick: () => alert('Option 7.2 clicked')
-          }
-        ]
+            onClick: () => alert('Option 7.2 clicked'),
+          },
+        ],
       },
       {
         label: 'Option 8',
@@ -412,15 +413,15 @@ export const ContextMenuWithEverything: Story = {
         items: [
           {
             label: 'Option 8.1',
-            onClick: () => alert('Option 8.1 clicked')
+            onClick: () => alert('Option 8.1 clicked'),
           },
           {
             label: 'Option 8.2',
-            onClick: () => alert('Option 8.2 clicked')
-          }
-        ]
-      }
-    ]
+            onClick: () => alert('Option 8.2 clicked'),
+          },
+        ],
+      },
+    ],
   },
   render: (args) => (
     <div className="flex h-[200px] w-[200px] items-center justify-center rounded-md border border-dashed">
@@ -430,5 +431,5 @@ export const ContextMenuWithEverything: Story = {
         </div>
       </ContextMenu>
     </div>
-  )
+  ),
 };

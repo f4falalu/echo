@@ -100,7 +100,7 @@ export function useCookieState<T>(
     onError,
     bustStorageOnInit = false,
     expirationTime = DEFAULT_EXPIRATION_TIME,
-    cookieOptions = {}
+    cookieOptions = {},
   } = options || {};
 
   const executeBustStorage = useMemoizedFn(() => {
@@ -181,7 +181,7 @@ export function useCookieState<T>(
         // Create storage data with current timestamp
         const storageData: StorageData<T> = {
           value: JSON.parse(serializer(state)),
-          timestamp: Date.now()
+          timestamp: Date.now(),
         };
         setCookie(key, JSON.stringify(storageData), expirationTime, cookieOptions);
       }

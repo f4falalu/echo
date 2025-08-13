@@ -19,18 +19,18 @@ export const selectVariants = cva(
     variants: {
       variant: {
         default: 'border-border shadow bg-background  data-[placeholder]:text-gray-light  ',
-        ghost: 'border-none bg-transparent shadow-none disabled:bg-transparent outline-none'
+        ghost: 'border-none bg-transparent shadow-none disabled:bg-transparent outline-none',
       },
       size: {
         default: 'h-7',
         tall: 'h-8',
-        small: 'h-6'
-      }
+        small: 'h-6',
+      },
     },
     defaultVariants: {
       variant: 'default',
-      size: 'default'
-    }
+      size: 'default',
+    },
   }
 );
 
@@ -44,7 +44,8 @@ const SelectTrigger = React.forwardRef<
   <SelectPrimitive.Trigger
     ref={ref}
     className={cn('relative', selectVariants({ variant, size }), className)}
-    {...props}>
+    {...props}
+  >
     {children}
     {!loading && (
       <SelectPrimitive.Icon asChild>
@@ -70,7 +71,8 @@ const SelectScrollUpButton = React.forwardRef<
   <SelectPrimitive.ScrollUpButton
     ref={ref}
     className={cn('flex cursor-default items-center justify-center py-1', className)}
-    {...props}>
+    {...props}
+  >
     <div className="flex items-center justify-center">
       <ChevronUp />
     </div>
@@ -85,7 +87,8 @@ const SelectScrollDownButton = React.forwardRef<
   <SelectPrimitive.ScrollDownButton
     ref={ref}
     className={cn('flex cursor-default items-center justify-center py-1', className)}
-    {...props}>
+    {...props}
+  >
     <div className="flex items-center justify-center">
       <ChevronDown />
     </div>
@@ -109,14 +112,16 @@ const SelectContent = React.forwardRef<
         className
       )}
       position={position}
-      {...props}>
+      {...props}
+    >
       {/* <SelectScrollUpButton /> */}
       <SelectPrimitive.Viewport
         className={cn(
           'p-1',
           position === 'popper' &&
             'h-[var(--radix-select-trigger-height)] w-full min-w-[var(--radix-select-trigger-width)]'
-        )}>
+        )}
+      >
         {children}
       </SelectPrimitive.Viewport>
       {/* <SelectScrollDownButton /> */}
@@ -153,7 +158,8 @@ const SelectItem = React.forwardRef<
         'data-[state=checked]:bg-item-select! relative flex w-full cursor-pointer items-center justify-between space-x-0.5 rounded-sm px-2 py-1.5 text-sm outline-none select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-60',
         className
       )}
-      {...props}>
+      {...props}
+    >
       <div className="flex flex-col gap-y-0.5">
         <div className="flex items-center gap-x-1.5">
           {icon && <span className="text-icon-color">{icon}</span>}
@@ -211,5 +217,5 @@ export {
   SelectItem,
   SelectSeparator,
   SelectScrollUpButton,
-  SelectScrollDownButton
+  SelectScrollDownButton,
 };

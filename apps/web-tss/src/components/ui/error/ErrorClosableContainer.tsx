@@ -27,7 +27,8 @@ export const ErrorClosableContainer: React.FC<{
             'bg-danger-background text-danger-foreground border-danger-foreground rounded-sm px-2 py-3 shadow',
             'absolute right-0 bottom-0 left-0 mx-4 mb-2', //TODO: fix this
             className
-          )}>
+          )}
+        >
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <CircleWarning />
@@ -42,7 +43,8 @@ export const ErrorClosableContainer: React.FC<{
               className={cn(
                 'text-danger-foreground flex cursor-pointer items-center justify-center border-none bg-none hover:opacity-80',
                 'cursor-pointer rounded-sm p-0.5 transition-colors hover:bg-black/5'
-              )}>
+              )}
+            >
               <Xmark />
             </button>
           </div>

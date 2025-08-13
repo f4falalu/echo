@@ -13,7 +13,7 @@ export const resetPasswordEmailSend = createServerFn({ method: 'POST' })
     const authURLFull = `${url}${AuthCallbackRoute.to}`;
 
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: authURLFull
+      redirectTo: authURLFull,
     });
 
     if (error) {

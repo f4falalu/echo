@@ -38,7 +38,7 @@ BackButton.displayName = 'BackButton';
 
 const LinkWrapper: React.FC<{ children: React.ReactNode; linkUrl?: string }> = ({
   children,
-  linkUrl
+  linkUrl,
 }) => {
   if (linkUrl) {
     return <a href={linkUrl}>{children}</a>;

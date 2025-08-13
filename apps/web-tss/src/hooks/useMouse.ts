@@ -36,7 +36,7 @@ export function useMouse(options: UseMouseOptions = {}) {
     pageX: 0,
     pageY: 0,
     elementX: 0,
-    elementY: 0
+    elementY: 0,
   });
 
   const moveTimer = useState<ReturnType<typeof setTimeout> | null>(null);
@@ -55,7 +55,7 @@ export function useMouse(options: UseMouseOptions = {}) {
       pageX: event.pageX,
       pageY: event.pageY,
       elementX: event.clientX - rect.left,
-      elementY: event.clientY - rect.top
+      elementY: event.clientY - rect.top,
     }));
 
     // Reset isMoving after the specified throttle time

@@ -1,6 +1,6 @@
-import * as React from 'react';
-import type { Meta, StoryObj } from '@storybook/nextjs';
 import { useStreamTokenArray } from '@llm-ui/react';
+import type { Meta, StoryObj } from '@storybook/nextjs';
+import type * as React from 'react';
 import { useLLMStreaming } from './useLLMStreaming';
 
 // Simple token stream to exercise throttling + read-ahead
@@ -19,7 +19,7 @@ const demoTokens: Array<{ token: string; delayMs: number }> = [
       'Ut in risus volutpat libero pharetra tempor. Cras vestibulum bibendum augue. Praesent egestas leo in pede. ' +
       'Praesent blandit odio eu enim. Pellentesque sed dui ut augue blandit sodales. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Aliquam nibh. Mauris ac mauris sed pede pellentesque fermentum. ' +
       'Maecenas adipiscing ante non diam sodales hendrerit.\n\n',
-    delayMs: 100
+    delayMs: 100,
   },
   {
     token:
@@ -31,7 +31,7 @@ const demoTokens: Array<{ token: string; delayMs: number }> = [
       'Ut in risus volutpat libero pharetra tempor. Cras vestibulum bibendum augue. Praesent egestas leo in pede. ' +
       'Praesent blandit odio eu enim. Pellentesque sed dui ut augue blandit sodales. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Aliquam nibh. Mauris ac mauris sed pede pellentesque fermentum. ' +
       'Maecenas adipiscing ante non diam sodales hendrerit.\n\n',
-    delayMs: 1000
+    delayMs: 1000,
   },
   { token: 'It also tests inline code like `useEffect` and fences.\n\n', delayMs: 500 },
   { token: '```ts\n', delayMs: 200 },
@@ -42,7 +42,7 @@ const demoTokens: Array<{ token: string; delayMs: number }> = [
   { token: 'Inline code split start: `br', delayMs: 300 },
   { token: 'ok', delayMs: 500 },
   { token: 'en_code` continues.\n\n', delayMs: 300 },
-  { token: 'Final line.\n', delayMs: 400 }
+  { token: 'Final line.\n', delayMs: 400 },
 ];
 
 type HookHarnessProps = {
@@ -74,7 +74,7 @@ const HookHarness: React.FC<HookHarnessProps> = (args) => {
     frameLookBackMs: args.frameLookBackMs,
     adjustPercentage: args.adjustPercentage,
     markdownSafeBoundaries: args.markdownSafeBoundaries,
-    flushImmediatelyOnComplete: args.flushImmediatelyOnComplete
+    flushImmediatelyOnComplete: args.flushImmediatelyOnComplete,
   });
 
   return (
@@ -122,7 +122,7 @@ const meta: Meta<typeof HookHarness> = {
     frameLookBackMs: 33,
     adjustPercentage: 0.35,
     markdownSafeBoundaries: true,
-    flushImmediatelyOnComplete: true
+    flushImmediatelyOnComplete: true,
   },
   argTypes: {
     readAheadChars: { control: { type: 'number', min: 0, max: 32, step: 1 } },
@@ -133,13 +133,13 @@ const meta: Meta<typeof HookHarness> = {
     frameLookBackMs: { control: { type: 'number', min: 8, max: 100, step: 1 } },
     adjustPercentage: { control: { type: 'number', min: 0, max: 1, step: 0.05 } },
     markdownSafeBoundaries: { control: { type: 'boolean' } },
-    flushImmediatelyOnComplete: { control: { type: 'boolean' } }
-  }
+    flushImmediatelyOnComplete: { control: { type: 'boolean' } },
+  },
 };
 
 export default meta;
 type Story = StoryObj<typeof HookHarness>;
 
 export const Default: Story = {
-  render: (args) => <HookHarness {...args} />
+  render: (args) => <HookHarness {...args} />,
 };

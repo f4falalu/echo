@@ -9,7 +9,7 @@ export const CircleSpinnerLoader: React.FC<{
       <output
         style={{
           width: `${size}px`,
-          height: `${size}px`
+          height: `${size}px`,
         }}
       >
         <svg
@@ -19,7 +19,7 @@ export const CircleSpinnerLoader: React.FC<{
           fill={fill}
           style={{
             width: `${size}px`,
-            height: `${size}px`
+            height: `${size}px`,
           }}
           xmlns="http://www.w3.org/2000/svg"
         >

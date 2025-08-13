@@ -5,7 +5,7 @@ const meta: Meta<typeof CodeCard> = {
   title: 'UI/Cards/CodeCard',
   component: CodeCard,
   parameters: {
-    layout: 'centered'
+    layout: 'centered',
   },
   tags: ['autodocs'],
   decorators: [
@@ -13,8 +13,8 @@ const meta: Meta<typeof CodeCard> = {
       <div className="w-full min-w-[500px]">
         <Story />
       </div>
-    )
-  ]
+    ),
+  ],
 };
 
 export default meta;
@@ -47,8 +47,8 @@ export const Default: Story = {
     code: sampleCode,
     language: 'javascript',
     fileName: 'example.js',
-    className: 'w-[500px] h-[300px]'
-  }
+    className: 'w-[500px] h-[300px]',
+  },
 };
 
 export const ReadOnly: Story = {
@@ -57,8 +57,8 @@ export const ReadOnly: Story = {
     language: 'javascript',
     fileName: 'readonly.js',
     readOnly: true,
-    className: 'w-[500px] h-[300px]'
-  }
+    className: 'w-[500px] h-[300px]',
+  },
 };
 
 export const LargerEditor: Story = {
@@ -66,8 +66,8 @@ export const LargerEditor: Story = {
     code: longCode,
     language: 'typescript',
     fileName: 'MyComponent.tsx',
-    className: 'w-[600px] h-[400px]'
-  }
+    className: 'w-[600px] h-[400px]',
+  },
 };
 
 export const NoButtons: Story = {
@@ -76,8 +76,8 @@ export const NoButtons: Story = {
     language: 'javascript',
     fileName: 'no-buttons.js',
     buttons: false,
-    className: 'w-[500px] h-[300px]'
-  }
+    className: 'w-[500px] h-[300px]',
+  },
 };
 
 export const CustomButtons: Story = {
@@ -86,6 +86,6 @@ export const CustomButtons: Story = {
     language: 'javascript',
     fileName: 'custom-buttons.js',
     buttons: <div className="px-2">Custom Buttons</div>,
-    className: 'w-[500px] h-[300px]'
-  }
+    className: 'w-[500px] h-[300px]',
+  },
 };

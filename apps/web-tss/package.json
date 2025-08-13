@@ -13,7 +13,6 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "posthog-js": "^1.259.0",
     "@buster/server-shared": "workspace:*",
     "@buster/typescript-config": "workspace:*",
     "@faker-js/faker": "^9.9.0",
@@ -26,6 +25,7 @@
     "@radix-ui/react-label": "^2.1.7",
     "@radix-ui/react-popover": "^1.1.14",
     "@radix-ui/react-select": "^2.2.5",
+    "@radix-ui/react-separator": "^1.1.7",
     "@radix-ui/react-slider": "^1.3.5",
     "@radix-ui/react-slot": "^1.2.3",
     "@radix-ui/react-switch": "^1.2.5",
@@ -67,6 +67,7 @@
     "monaco-sql-languages": "^0.15.1",
     "monaco-yaml": "^5.4.0",
     "pluralize": "^8.0.0",
+    "posthog-js": "^1.259.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "react-hotkeys-hook": "^5.1.0",

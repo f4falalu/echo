@@ -1,7 +1,7 @@
-import type { AnimatedMarkdownProps } from './AnimatedMarkdown';
 import React from 'react';
-import TokenizedText from './TokenizedText';
 import { createAnimationStyle } from '../animation-common';
+import type { AnimatedMarkdownProps } from './AnimatedMarkdown';
+import TokenizedText from './TokenizedText';
 
 export const animateTokenizedText = (
   text: string | React.ReactNode,
@@ -27,7 +27,7 @@ export const animateTokenizedText = (
         'del',
         'code',
         'a',
-        'span'
+        'span',
       ];
 
       let typeName = item.type;
@@ -59,8 +59,9 @@ export const animateTokenizedText = (
           style={{
             ...createAnimationStyle(animationsProps),
             whiteSpace: 'pre-wrap',
-            display: isInlineElement ? 'inline' : 'inline-block'
-          }}>
+            display: isInlineElement ? 'inline' : 'inline-block',
+          }}
+        >
           {item}
         </span>
       );
@@ -72,8 +73,9 @@ export const animateTokenizedText = (
         style={{
           ...createAnimationStyle(animationsProps),
           whiteSpace: 'pre-wrap',
-          display: 'inline'
-        }}>
+          display: 'inline',
+        }}
+      >
         {item}
       </span>
     );

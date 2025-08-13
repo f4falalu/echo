@@ -56,7 +56,7 @@ const useSupabaseContextInternal = (supabaseContext: SupabaseContextType) => {
       if (isAnonymousUser) {
         return {
           access_token: accessToken,
-          isTokenValid: true
+          isTokenValid: true,
         };
       }
 
@@ -67,11 +67,11 @@ const useSupabaseContextInternal = (supabaseContext: SupabaseContextType) => {
         if (recoveredToken) {
           await onUpdateToken({
             accessToken: recoveredToken,
-            expiresAt: sessionData.session?.expires_at ?? 0
+            expiresAt: sessionData.session?.expires_at ?? 0,
           });
           return {
             access_token: recoveredToken,
-            isTokenValid: true
+            isTokenValid: true,
           };
         }
       }
@@ -109,13 +109,13 @@ const useSupabaseContextInternal = (supabaseContext: SupabaseContextType) => {
           await timeout(25);
           return {
             access_token: refreshedAccessToken,
-            isTokenValid: true
+            isTokenValid: true,
           };
         } catch (err) {
           openErrorNotification({
             title: 'Error refreshing session',
             description: 'Please refresh the page and try again',
-            duration: 120 * 1000 //2 minutes
+            duration: 120 * 1000, //2 minutes
           });
           // As a fallback, try to read whatever session is available
           const { data: sessionData } = await supabase.auth.getSession();
@@ -123,7 +123,7 @@ const useSupabaseContextInternal = (supabaseContext: SupabaseContextType) => {
           if (fallbackToken) {
             await onUpdateToken({
               accessToken: fallbackToken,
-              expiresAt: sessionData.session?.expires_at ?? 0
+              expiresAt: sessionData.session?.expires_at ?? 0,
             });
             return { access_token: fallbackToken, isTokenValid: true };
           }
@@ -134,14 +134,14 @@ const useSupabaseContextInternal = (supabaseContext: SupabaseContextType) => {
 
       return {
         access_token: accessToken,
-        isTokenValid: true
+        isTokenValid: true,
       };
     } catch (e) {
       console.error(e);
       openErrorNotification({
         title: 'Error checking user authentication',
         description: 'Please try again later',
-        duration: 120 * 1000 //2 minutes
+        duration: 120 * 1000, //2 minutes
       });
       throw e;
     }
@@ -225,21 +225,25 @@ const useSupabaseContextInternal = (supabaseContext: SupabaseContextType) => {
     setAccessToken,
     accessToken,
     user: supabaseContext.user,
-    checkTokenValidity
+    checkTokenValidity,
   };
 };
 
 const SupabaseContext = createContext<ReturnType<typeof useSupabaseContextInternal>>({
-  isAnonymousUser: true
+  isAnonymousUser: true,
 } as ReturnType<typeof useSupabaseContextInternal>);
 
-export const SupabaseContextProvider: React.FC<PropsWithChildren<SupabaseContextType>> = React.memo(
-  ({ accessToken, user, children }) => {
-    const value = useSupabaseContextInternal({ accessToken, user });
+export const SupabaseContextProvider: React.FC<
+  SupabaseContextType & { children: React.ReactNode }
+> = React.memo(({ accessToken, user, children }) => {
+  const value = useSupabaseContextInternal({ accessToken, user });
 
-    return <SupabaseContext.Provider value={value}>{children}</SupabaseContext.Provider>;
-  }
-);
+  return (
+    <SupabaseContext.Provider value={value}>
+      <>{children}</>
+    </SupabaseContext.Provider>
+  );
+});
 SupabaseContextProvider.displayName = 'SupabaseContextProvider';
 
 export type SupabaseContextReturnType = ReturnType<typeof useSupabaseContextInternal>;

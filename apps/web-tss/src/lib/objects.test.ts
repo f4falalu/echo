@@ -1,6 +1,6 @@
+import { DEFAULT_CHART_THEME } from '@buster/server-shared/metrics';
 import { describe, expect, it, vi } from 'vitest';
 import { compareObjectsByKeys } from './objects';
-import { DEFAULT_CHART_THEME } from '@buster/server-shared/metrics';
 
 describe('compareObjectsByKeys', () => {
   // Test basic equality
@@ -79,7 +79,7 @@ describe('compareObjectsByKeys', () => {
     const consoleSpy = vi.spyOn(console, 'log');
 
     const object1 = {
-      colors: DEFAULT_CHART_THEME
+      colors: DEFAULT_CHART_THEME,
     };
 
     const object2 = {
@@ -93,8 +93,8 @@ describe('compareObjectsByKeys', () => {
         '#F3864F',
         '#C82184',
         '#31FCB4',
-        '#E83562'
-      ]
+        '#E83562',
+      ],
     };
 
     const result = compareObjectsByKeys(object1, object2, ['colors']);
@@ -116,8 +116,8 @@ describe('compareObjectsByKeys', () => {
       datasets: [
         {
           name: 'entity_sales_order',
-          id: '9fa460b4-1410-4e74-aa34-eb79027cd59c'
-        }
+          id: '9fa460b4-1410-4e74-aa34-eb79027cd59c',
+        },
       ],
       data_source_id: 'cc3ef3bc-44ec-4a43-8dc4-681cae5c996a',
       error: null,
@@ -132,7 +132,7 @@ describe('compareObjectsByKeys', () => {
           '#F3864F',
           '#C82184',
           '#31FCB4',
-          '#E83562'
+          '#E83562',
         ],
         selectedChartType: 'combo',
         yAxisShowAxisLabel: true,
@@ -162,24 +162,24 @@ describe('compareObjectsByKeys', () => {
           x: ['month'],
           y: ['order_count'],
           category: [],
-          tooltip: null
+          tooltip: null,
         },
         scatterAxis: {
           x: ['order_count'],
           y: ['total_revenue'],
           size: [],
-          tooltip: null
+          tooltip: null,
         },
         comboChartAxis: {
           x: ['month'],
           y: ['order_count', 'total_revenue'],
           y2: [],
-          tooltip: null
+          tooltip: null,
         },
         pieChartAxis: {
           x: ['month'],
           y: ['order_count'],
-          tooltip: null
+          tooltip: null,
         },
         lineGroupType: null,
         scatterDotSize: [3, 15],
@@ -213,7 +213,7 @@ describe('compareObjectsByKeys', () => {
             lineType: 'normal',
             lineSymbolSize: 0,
             barRoundness: 8,
-            showDataLabelsAsPercentage: false
+            showDataLabelsAsPercentage: false,
           },
           order_count: {
             showDataLabels: false,
@@ -223,7 +223,7 @@ describe('compareObjectsByKeys', () => {
             lineType: 'normal',
             lineSymbolSize: 0,
             barRoundness: 8,
-            showDataLabelsAsPercentage: false
+            showDataLabelsAsPercentage: false,
           },
           total_revenue: {
             showDataLabels: false,
@@ -233,8 +233,8 @@ describe('compareObjectsByKeys', () => {
             lineType: 'normal',
             lineSymbolSize: 0,
             barRoundness: 8,
-            showDataLabelsAsPercentage: false
-          }
+            showDataLabelsAsPercentage: false,
+          },
         },
         columnLabelFormats: {
           month: {
@@ -254,7 +254,7 @@ describe('compareObjectsByKeys', () => {
             prefix: '',
             suffix: '',
             replaceMissingDataWith: null,
-            makeLabelHumanReadable: true
+            makeLabelHumanReadable: true,
           },
           order_count: {
             style: 'number',
@@ -273,7 +273,7 @@ describe('compareObjectsByKeys', () => {
             prefix: '',
             suffix: '',
             replaceMissingDataWith: 0,
-            makeLabelHumanReadable: true
+            makeLabelHumanReadable: true,
           },
           total_revenue: {
             style: 'currency',
@@ -292,9 +292,9 @@ describe('compareObjectsByKeys', () => {
             prefix: '',
             suffix: '',
             replaceMissingDataWith: 0,
-            makeLabelHumanReadable: true
-          }
-        }
+            makeLabelHumanReadable: true,
+          },
+        },
       },
       data_metadata: {
         column_count: 3,
@@ -306,7 +306,7 @@ describe('compareObjectsByKeys', () => {
             max_value: '2023-04-01',
             unique_values: 15,
             simple_type: 'date',
-            type: 'date'
+            type: 'date',
           },
           {
             name: 'order_count',
@@ -314,7 +314,7 @@ describe('compareObjectsByKeys', () => {
             max_value: 3216,
             unique_values: 15,
             simple_type: 'number',
-            type: 'int8'
+            type: 'int8',
           },
           {
             name: 'total_revenue',
@@ -322,9 +322,9 @@ describe('compareObjectsByKeys', () => {
             max_value: 4113794.05,
             unique_values: 15,
             simple_type: 'number',
-            type: 'float8'
-          }
-        ]
+            type: 'float8',
+          },
+        ],
       },
       status: 'notRequested',
       evaluation_score: null,
@@ -339,15 +339,15 @@ describe('compareObjectsByKeys', () => {
       dashboards: [
         {
           id: '2057b640-3e98-56e0-a9af-093875a94f17',
-          name: 'Sales Dashboard'
-        }
+          name: 'Sales Dashboard',
+        },
       ],
       collections: [],
       versions: [
         {
           version_number: 1,
-          updated_at: '2025-04-08T16:31:43.755253Z'
-        }
+          updated_at: '2025-04-08T16:31:43.755253Z',
+        },
       ],
       permission: 'owner',
       sql: "SELECT \n  DATE_TRUNC('month', order_date)::date AS month, \n  COUNT(sales_order_id) AS order_count, \n  SUM(line_total) AS total_revenue\nFROM sem.entity_sales_order\nGROUP BY 1\nORDER BY 1\n",
@@ -355,13 +355,13 @@ describe('compareObjectsByKeys', () => {
         {
           email: 'chad@buster.so',
           role: 'owner',
-          name: 'Chad 🇹🇩'
-        }
+          name: 'Chad 🇹🇩',
+        },
       ],
       public_expiry_date: null,
       public_enabled_by: null,
       publicly_accessible: false,
-      public_password: null
+      public_password: null,
     } as const;
 
     const object2 = {
@@ -379,7 +379,7 @@ describe('compareObjectsByKeys', () => {
           '#F3864F',
           '#C82184',
           '#31FCB4',
-          '#E83562'
+          '#E83562',
         ],
         selectedChartType: 'combo',
         yAxisShowAxisLabel: true,
@@ -409,24 +409,24 @@ describe('compareObjectsByKeys', () => {
           x: ['month'],
           y: ['order_count'],
           category: [],
-          tooltip: null
+          tooltip: null,
         },
         scatterAxis: {
           x: ['order_count'],
           y: ['total_revenue'],
           size: [],
-          tooltip: null
+          tooltip: null,
         },
         comboChartAxis: {
           x: ['month'],
           y: ['order_count', 'total_revenue'],
           y2: [],
-          tooltip: null
+          tooltip: null,
         },
         pieChartAxis: {
           x: ['month'],
           y: ['order_count'],
-          tooltip: null
+          tooltip: null,
         },
         lineGroupType: null,
         scatterDotSize: [3, 15],
@@ -460,7 +460,7 @@ describe('compareObjectsByKeys', () => {
             lineType: 'normal',
             lineSymbolSize: 0,
             barRoundness: 8,
-            showDataLabelsAsPercentage: false
+            showDataLabelsAsPercentage: false,
           },
           order_count: {
             showDataLabels: false,
@@ -470,7 +470,7 @@ describe('compareObjectsByKeys', () => {
             lineType: 'normal',
             lineSymbolSize: 0,
             barRoundness: 8,
-            showDataLabelsAsPercentage: false
+            showDataLabelsAsPercentage: false,
           },
           total_revenue: {
             showDataLabels: false,
@@ -480,8 +480,8 @@ describe('compareObjectsByKeys', () => {
             lineType: 'normal',
             lineSymbolSize: 0,
             barRoundness: 8,
-            showDataLabelsAsPercentage: false
-          }
+            showDataLabelsAsPercentage: false,
+          },
         },
         columnLabelFormats: {
           month: {
@@ -501,7 +501,7 @@ describe('compareObjectsByKeys', () => {
             prefix: '',
             suffix: '',
             replaceMissingDataWith: null,
-            makeLabelHumanReadable: true
+            makeLabelHumanReadable: true,
           },
           order_count: {
             style: 'number',
@@ -520,7 +520,7 @@ describe('compareObjectsByKeys', () => {
             prefix: '',
             suffix: '',
             replaceMissingDataWith: 0,
-            makeLabelHumanReadable: true
+            makeLabelHumanReadable: true,
           },
           total_revenue: {
             style: 'currency',
@@ -539,18 +539,18 @@ describe('compareObjectsByKeys', () => {
             prefix: '',
             suffix: '',
             replaceMissingDataWith: 0,
-            makeLabelHumanReadable: true
-          }
-        }
+            makeLabelHumanReadable: true,
+          },
+        },
       },
-      file: 'name: Orders vs Revenue Trend\ndescription: Combines the monthly count of orders and sales revenue to show their trends side by side.\ntimeFrame: All time\nsql: "SELECT \\n  DATE_TRUNC(\'month\', order_date)::date AS month, \\n  COUNT(sales_order_id) AS order_count, \\n  SUM(line_total) AS total_revenue\\nFROM sem.entity_sales_order\\nGROUP BY 1\\nORDER BY 1\\n"\nchartConfig:\n  selectedChartType: combo\n  columnLabelFormats:\n    month:\n      columnType: date\n      style: date\n      dateFormat: MMM YYYY\n    order_count:\n      columnType: number\n      style: number\n      minimumFractionDigits: 0\n    total_revenue:\n      columnType: number\n      style: currency\n      minimumFractionDigits: 2\n      currency: USD\n  comboChartAxis:\n    x:\n    - month\n    y:\n    - order_count\n    - total_revenue\ndatasetIds:\n- 9fa460b4-1410-4e74-aa34-eb79027cd59c\n'
+      file: 'name: Orders vs Revenue Trend\ndescription: Combines the monthly count of orders and sales revenue to show their trends side by side.\ntimeFrame: All time\nsql: "SELECT \\n  DATE_TRUNC(\'month\', order_date)::date AS month, \\n  COUNT(sales_order_id) AS order_count, \\n  SUM(line_total) AS total_revenue\\nFROM sem.entity_sales_order\\nGROUP BY 1\\nORDER BY 1\\n"\nchartConfig:\n  selectedChartType: combo\n  columnLabelFormats:\n    month:\n      columnType: date\n      style: date\n      dateFormat: MMM YYYY\n    order_count:\n      columnType: number\n      style: number\n      minimumFractionDigits: 0\n    total_revenue:\n      columnType: number\n      style: currency\n      minimumFractionDigits: 2\n      currency: USD\n  comboChartAxis:\n    x:\n    - month\n    y:\n    - order_count\n    - total_revenue\ndatasetIds:\n- 9fa460b4-1410-4e74-aa34-eb79027cd59c\n',
     } as const;
 
     const result = compareObjectsByKeys(object1, object2, [
       'name',
       'description',
       'chart_config',
-      'file'
+      'file',
     ]);
 
     expect(result).toBe(true);

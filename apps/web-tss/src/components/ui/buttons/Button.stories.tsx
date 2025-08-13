@@ -9,45 +9,45 @@ const meta: Meta<typeof Button> = {
   component: Button,
   tags: ['autodocs'],
   args: {
-    children: 'Button'
+    children: 'Button',
   },
   argTypes: {
     variant: {
       control: 'select',
-      options: ['default', 'black', 'primary', 'ghost', 'link', 'danger', 'warning', 'success']
+      options: ['default', 'black', 'primary', 'ghost', 'link', 'danger', 'warning', 'success'],
     },
     size: {
       control: 'select',
-      options: ['default', 'tall', 'small']
+      options: ['default', 'tall', 'small'],
     },
     disabled: {
       control: 'boolean',
-      defaultValue: false
+      defaultValue: false,
     },
     loading: {
       control: 'boolean',
-      defaultValue: false
+      defaultValue: false,
     },
     selected: {
       control: 'boolean',
-      defaultValue: false
+      defaultValue: false,
     },
     block: {
       control: 'boolean',
-      defaultValue: false
+      defaultValue: false,
     },
     prefix: {
       control: 'select',
-      options: IconSelectOutlined
+      options: IconSelectOutlined,
     },
     suffix: {
       control: 'select',
-      options: IconSelectOutlined
+      options: IconSelectOutlined,
     },
     rounding: {
       control: 'select',
-      options: ['default', 'full', 'large', 'small', 'none']
-    }
+      options: ['default', 'full', 'large', 'small', 'none'],
+    },
   },
   render: (args) => {
     const PrefixIcon = OutlinedIcons[args.prefix as keyof typeof OutlinedIcons];
@@ -59,7 +59,7 @@ const meta: Meta<typeof Button> = {
         <Button {...args} prefix={PrefixComponent} suffix={SuffixComponent} />
       </div>
     );
-  }
+  },
 };
 
 export default meta;
@@ -69,73 +69,73 @@ type Story = StoryObj<typeof Button>;
 export const Default: Story = {
   args: {
     variant: 'default',
-    size: 'default'
-  }
+    size: 'default',
+  },
 };
 
 export const Black: Story = {
   args: {
     variant: 'black',
-    size: 'default'
-  }
+    size: 'default',
+  },
 };
 
 export const Primary: Story = {
   args: {
     variant: 'primary',
-    size: 'default'
-  }
+    size: 'default',
+  },
 };
 
 export const Tall: Story = {
   args: {
     variant: 'default',
-    size: 'tall'
-  }
+    size: 'tall',
+  },
 };
 
 export const Disabled: Story = {
   args: {
     variant: 'default',
     size: 'default',
-    disabled: true
-  }
+    disabled: true,
+  },
 };
 
 export const Loading: Story = {
   args: {
     variant: 'default',
     size: 'default',
-    loading: true
-  }
+    loading: true,
+  },
 };
 
 export const WithBorder: Story = {
   args: {
     variant: 'default',
-    size: 'default'
-  }
+    size: 'default',
+  },
 };
 
 export const Ghost: Story = {
   args: {
     variant: 'ghost',
-    size: 'default'
-  }
+    size: 'default',
+  },
 };
 
 export const Link: Story = {
   args: {
     variant: 'link',
-    size: 'default'
-  }
+    size: 'default',
+  },
 };
 
 export const Small: Story = {
   args: {
     variant: 'default',
-    size: 'small'
-  }
+    size: 'small',
+  },
 };
 
 export const IconButton: Story = {
@@ -144,8 +144,8 @@ export const IconButton: Story = {
     size: 'tall',
     prefix: 'ArrowUp',
     children: '',
-    rounding: 'full'
-  }
+    rounding: 'full',
+  },
 };
 
 export const Block: Story = {
@@ -153,6 +153,6 @@ export const Block: Story = {
     variant: 'primary',
     size: 'default',
     block: true,
-    children: 'Full Width Button'
-  }
+    children: 'Full Width Button',
+  },
 };

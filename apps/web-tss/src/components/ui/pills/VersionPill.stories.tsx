@@ -9,9 +9,9 @@ const meta: Meta<typeof VersionPill> = {
     version_number: {
       control: 'number',
       description: 'The version number to display in the pill',
-      defaultValue: 1
-    }
-  }
+      defaultValue: 1,
+    },
+  },
 };
 
 export default meta;
@@ -19,6 +19,6 @@ type Story = StoryObj<typeof VersionPill>;
 
 export const Default: Story = {
   args: {
-    version_number: 12
-  }
+    version_number: 12,
+  },
 };

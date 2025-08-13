@@ -6,20 +6,20 @@ const meta: Meta<typeof SearchDropdown> = {
   title: 'UI/Dropdowns/SearchDropdown',
   component: SearchDropdown,
   parameters: {
-    layout: 'centered'
+    layout: 'centered',
   },
   argTypes: {
     open: {
       control: 'boolean',
-      defaultValue: true
-    }
+      defaultValue: true,
+    },
   },
   tags: ['autodocs'],
   render: (args) => (
     <div className="flex min-w-[500px] flex-col gap-0">
       <SearchDropdown {...args} children={<div className="h-6 w-full bg-gray-300"></div>} />
     </div>
-  )
+  ),
 };
 
 export default meta;
@@ -29,19 +29,19 @@ const items = [
   {
     label: 'Nate Rules',
     value: 'profile',
-    icon: <User />
+    icon: <User />,
   },
   {
     label: 'Settings',
     value: 'settings',
-    icon: <MapSettings />
+    icon: <MapSettings />,
   },
   {
     label: 'Messages',
     value: 'messages',
     icon: <Mailbox />,
-    disabled: false
-  }
+    disabled: false,
+  },
 ];
 
 // Basic example
@@ -49,8 +49,8 @@ export const Default: Story = {
   args: {
     items: items,
     open: true,
-    onSelect: (item) => alert(`Selected: ${item.value}`)
-  }
+    onSelect: (item) => alert(`Selected: ${item.value}`),
+  },
 };
 
 // Example with some items disabled
@@ -61,12 +61,12 @@ export const WithDisabledItems: Story = {
       {
         label: 'Disabled Option',
         value: 'disabled',
-        disabled: true
-      }
+        disabled: true,
+      },
     ],
     open: true,
-    onSelect: (item) => alert(`Selected: ${item.value}`)
-  }
+    onSelect: (item) => alert(`Selected: ${item.value}`),
+  },
 };
 
 // Example with custom styling
@@ -75,6 +75,6 @@ export const CustomStyling: Story = {
     items: items,
     open: true,
     className: 'bg-slate-100 rounded-lg shadow-lg',
-    onSelect: (item) => alert(`Selected: ${item.value}`)
-  }
+    onSelect: (item) => alert(`Selected: ${item.value}`),
+  },
 };

@@ -11,7 +11,7 @@ import {
   DialogDescription,
   DialogFooter,
   DialogHeader,
-  DialogTitle
+  DialogTitle,
 } from './ModalBase';
 
 export interface BorderedModalProps {
@@ -55,7 +55,7 @@ export const BorderedModal = React.memo(
     header,
     open,
     onClose,
-    className = ''
+    className = '',
   }: BorderedModalProps) => {
     const [isLoadingPrimaryButton, setIsLoadingPrimaryButton] = useState(false);
 
@@ -74,7 +74,7 @@ export const BorderedModal = React.memo(
     const memoizedStyle = useMemo(() => {
       return {
         width: width,
-        maxWidth: width
+        maxWidth: width,
       };
     }, [width]);
 

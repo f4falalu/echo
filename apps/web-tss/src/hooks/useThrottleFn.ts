@@ -64,6 +64,6 @@ export function useThrottleFn<T extends (...args: any[]) => any>(
 
   return {
     run,
-    cancel
+    cancel,
   };
 }

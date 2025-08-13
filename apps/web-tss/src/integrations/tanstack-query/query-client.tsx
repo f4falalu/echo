@@ -1,7 +1,7 @@
 import {
   type QueryClient,
   QueryClientProvider,
-  type QueryClientProviderProps
+  type QueryClientProviderProps,
 } from '@tanstack/react-query';
 import { openErrorNotification as openErrorNotificationMethod } from '@/context/BusterNotifications';
 import { makeQueryClient } from './make-query-client';
@@ -26,7 +26,7 @@ export function getContext() {
 
 export function Provider({
   children,
-  queryClient
+  queryClient,
 }: {
   children: QueryClientProviderProps['children'];
   queryClient: QueryClient;

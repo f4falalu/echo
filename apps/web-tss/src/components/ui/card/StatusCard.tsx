@@ -8,12 +8,12 @@ const statusVariants = cva('shadow p-3 rounded', {
   variants: {
     variant: {
       danger: 'bg-danger-foreground text-white',
-      default: 'bg-background text-foreground border'
-    }
+      default: 'bg-background text-foreground border',
+    },
   },
   defaultVariants: {
-    variant: 'default'
-  }
+    variant: 'default',
+  },
 });
 
 export const StatusCard: React.FC<
@@ -33,7 +33,8 @@ export const StatusCard: React.FC<
           variant === 'danger' && 'text-white',
           variant === 'default' && 'text-text-secondary',
           'leading-[1.3]'
-        )}>
+        )}
+      >
         {message}
       </Text>
 

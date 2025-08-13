@@ -47,7 +47,7 @@ export function useDebounceFn<T extends noop>(fn: T, options?: DebounceOptions) 
   return {
     run: debounced,
     cancel: debounced.cancel,
-    flush: debounced.flush
+    flush: debounced.flush,
   };
 }
 

@@ -14,7 +14,7 @@ interface NetworkState {
 
 export function useNetwork(): NetworkState {
   const [network, setNetwork] = useState<NetworkState>(() => ({
-    online: typeof navigator !== 'undefined' ? navigator.onLine : true
+    online: typeof navigator !== 'undefined' ? navigator.onLine : true,
   }));
 
   useEffect(() => {
@@ -29,12 +29,12 @@ export function useNetwork(): NetworkState {
           type: connection?.type,
           downlink: connection?.downlink,
           saveData: connection?.saveData,
-          effectiveType: connection?.effectiveType
+          effectiveType: connection?.effectiveType,
         });
       } else {
         setNetwork({
           online: navigator.onLine,
-          since: new Date()
+          since: new Date(),
         });
       }
     }

@@ -6,35 +6,35 @@ const meta: Meta<typeof ShimmerText> = {
   component: ShimmerText,
   tags: ['autodocs'],
   args: {
-    text: 'Sample Shimmer Text'
+    text: 'Sample Shimmer Text',
   },
   argTypes: {
     text: {
       control: 'text',
-      description: 'The text to display with shimmer effect'
+      description: 'The text to display with shimmer effect',
     },
     colors: {
       control: { type: 'object' },
-      description: 'Array of colors for the shimmer gradient (minimum 2 colors required)'
+      description: 'Array of colors for the shimmer gradient (minimum 2 colors required)',
     },
     duration: {
       control: { type: 'number', min: 0.5, max: 5, step: 0.1 },
       description: 'Duration of the shimmer animation in seconds',
-      defaultValue: 1.5
+      defaultValue: 1.5,
     },
     fontSize: {
       control: { type: 'number', min: 8, max: 36, step: 1 },
       description: 'Font size in pixels',
-      defaultValue: 13
-    }
+      defaultValue: 13,
+    },
   },
   decorators: [
     (Story) => (
       <div className="flex h-full w-full items-center justify-center">
         <Story />
       </div>
-    )
-  ]
+    ),
+  ],
 };
 
 export default meta;
@@ -46,8 +46,8 @@ export const Default: Story = {
     text: 'Default Shimmer Text',
     colors: ['var(--color-foreground)', 'var(--color-text-tertiary)'],
     duration: 1.5,
-    fontSize: 13
-  }
+    fontSize: 13,
+  },
 };
 
 export const CustomColors: Story = {
@@ -55,32 +55,32 @@ export const CustomColors: Story = {
     text: 'Custom Colors Shimmer',
     colors: ['#3b82f6', '#10b981', '#6366f1'],
     duration: 1.5,
-    fontSize: 16
-  }
+    fontSize: 16,
+  },
 };
 
 export const SlowAnimation: Story = {
   args: {
     text: 'Slow Animation Shimmer',
     duration: 3,
-    fontSize: 13
-  }
+    fontSize: 13,
+  },
 };
 
 export const FastAnimation: Story = {
   args: {
     text: 'Fast Animation Shimmer',
     duration: 0.8,
-    fontSize: 13
-  }
+    fontSize: 13,
+  },
 };
 
 export const LargeText: Story = {
   args: {
     text: 'Large Shimmer Text',
     duration: 1.5,
-    fontSize: 24
-  }
+    fontSize: 24,
+  },
 };
 
 export const MultipleExamples: Story = {
@@ -112,5 +112,5 @@ export const MultipleExamples: Story = {
         fontSize={13}
       />
     </div>
-  )
+  ),
 };

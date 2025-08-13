@@ -16,7 +16,7 @@ const TestComponent: React.FC<{
   color = '#000000',
   size = '16px',
   strokewidth = 1.3,
-  style = 'outlined'
+  style = 'outlined',
 }) => {
   const IconComponent =
     style === 'outlined'
@@ -36,32 +36,32 @@ const meta: Meta<typeof TestComponent> = {
   title: 'UI/Icons/Nucleo',
   component: TestComponent,
   parameters: {
-    layout: 'centered'
+    layout: 'centered',
   },
   argTypes: {
     icon: {
       control: 'select',
       options: IconSelectOutlined,
-      defaultValue: 'add-above'
+      defaultValue: 'add-above',
     },
     color: {
       control: 'color',
-      defaultValue: '#000000'
+      defaultValue: '#000000',
     },
     size: {
       control: 'select',
-      options: ['12px', '16px', '18px']
+      options: ['12px', '16px', '18px'],
     },
     strokewidth: {
       control: 'number',
-      defaultValue: 1.3
-    }
+      defaultValue: 1.3,
+    },
   },
   args: {
     icon: 'add-above',
     color: '#000000',
-    size: '16px'
-  }
+    size: '16px',
+  },
 };
 
 export default meta;
@@ -73,8 +73,8 @@ export const Outlined: Story = {
     icon: 'add-above',
     color: '#000000',
     size: '16px',
-    style: 'outlined'
-  }
+    style: 'outlined',
+  },
 };
 
 export const Filled: Story = {
@@ -82,11 +82,11 @@ export const Filled: Story = {
     icon: 'add-above',
     color: '#000000',
     size: '16px',
-    style: 'filled'
+    style: 'filled',
   },
   argTypes: {
     icon: {
-      options: IconSelectFilled
-    }
-  }
+      options: IconSelectFilled,
+    },
+  },
 };

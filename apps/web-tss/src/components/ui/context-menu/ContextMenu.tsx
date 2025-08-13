@@ -17,7 +17,7 @@ import {
   ContextMenuSub,
   ContextMenuSubContent,
   ContextMenuSubTrigger,
-  ContextMenuTrigger
+  ContextMenuTrigger,
 } from './ContextBase';
 
 export interface ContextMenuItem {
@@ -105,7 +105,7 @@ const ContextMenuItemComponent: React.FC<ContextMenuItem & { index: number }> = 
   truncate,
   link,
   linkIcon,
-  index
+  index,
 }) => {
   const isSubItem = items && items.length > 0;
 
@@ -140,7 +140,8 @@ const ContextMenuItemComponent: React.FC<ContextMenuItem & { index: number }> = 
         truncate={truncate}
         disabled={disabled}
         onClick={onClick}
-        checked={selected}>
+        checked={selected}
+      >
         {content}
       </ContextMenuCheckboxItem>
     );

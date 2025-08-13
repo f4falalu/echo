@@ -7,22 +7,22 @@ const meta: Meta<typeof Text> = {
   component: Text,
   tags: ['autodocs'],
   args: {
-    children: 'Sample Text'
+    children: 'Sample Text',
   },
   argTypes: {
     variant: {
       control: 'select',
-      options: ['default', 'secondary', 'tertiary', 'danger', 'primary', 'inherit', 'link']
+      options: ['default', 'secondary', 'tertiary', 'danger', 'primary', 'inherit', 'link'],
     },
     size: {
       control: 'select',
-      options: ['xxs', 'xs', 'sm', 'base', 'md', 'lg', 'xl', '2xl']
+      options: ['xxs', 'xs', 'sm', 'base', 'md', 'lg', 'xl', '2xl'],
     },
     truncate: {
       control: 'boolean',
-      defaultValue: false
-    }
-  }
+      defaultValue: false,
+    },
+  },
 };
 
 export default meta;
@@ -60,50 +60,50 @@ export const AllSizes: Story = {
         Text 3XS Size (6px)
       </Text>
     </div>
-  )
+  ),
 };
 
 export const Default: Story = {
   args: {
     variant: 'default',
-    size: 'base'
-  }
+    size: 'base',
+  },
 };
 
 export const Secondary: Story = {
   args: {
     variant: 'secondary',
-    size: 'base'
-  }
+    size: 'base',
+  },
 };
 
 export const Primary: Story = {
   args: {
     variant: 'primary',
-    size: 'base'
-  }
+    size: 'base',
+  },
 };
 
 export const Large: Story = {
   args: {
     variant: 'default',
-    size: 'lg'
-  }
+    size: 'lg',
+  },
 };
 
 export const Small: Story = {
   args: {
     variant: 'default',
-    size: 'sm'
-  }
+    size: 'sm',
+  },
 };
 
 export const Link: Story = {
   args: {
     variant: 'link',
     size: 'base',
-    children: 'Click me'
-  }
+    children: 'Click me',
+  },
 };
 
 export const Truncated: Story = {
@@ -112,13 +112,13 @@ export const Truncated: Story = {
     size: 'base',
     truncate: true,
     children:
-      'This is a very long text that will be truncated when it exceeds the available space in the container'
+      'This is a very long text that will be truncated when it exceeds the available space in the container',
   },
   decorators: [
     (Story) => (
       <div className="overflow-hidden" style={{ width: '200px' }}>
         <Story />
       </div>
-    )
-  ]
+    ),
+  ],
 };

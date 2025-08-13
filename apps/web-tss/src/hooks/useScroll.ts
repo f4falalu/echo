@@ -17,7 +17,7 @@ export const useScroll = (
     left: 0,
     top: 0,
     direction: null,
-    isScrolling: false
+    isScrolling: false,
   });
 
   useEffect(() => {
@@ -47,7 +47,7 @@ export const useScroll = (
         top: currentScrollY,
         direction:
           currentScrollY > lastScrollY ? 'down' : currentScrollY < lastScrollY ? 'up' : null,
-        isScrolling: true
+        isScrolling: true,
       });
 
       lastScrollY = currentScrollY;
@@ -59,7 +59,7 @@ export const useScroll = (
       scrollTimeout = setTimeout(() => {
         setScrollState((prev) => ({
           ...prev,
-          isScrolling: false
+          isScrolling: false,
         }));
       }, 150);
     };

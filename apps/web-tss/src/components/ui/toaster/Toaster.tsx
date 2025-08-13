@@ -16,7 +16,7 @@ const Toaster = ({ ...props }: ToasterProps) => {
       icons={{
         success: <CircleCheck />,
         error: <CircleXmark />,
-        warning: <CircleWarning />
+        warning: <CircleWarning />,
       }}
       swipeDirections={['right']}
       theme={'light'}
@@ -28,8 +28,8 @@ const Toaster = ({ ...props }: ToasterProps) => {
           description: 'group-[.toast]:text-gray-light',
           actionButton: 'group-[.toast]:bg-primary group-[.toast]:text-primary-foreground',
           cancelButton: 'group-[.toast]:bg-border group-[.toast]:text-foreground',
-          icon: 'mx-0! !flex !justify-center'
-        }
+          icon: 'mx-0! !flex !justify-center',
+        },
       }}
       {...props}
     />

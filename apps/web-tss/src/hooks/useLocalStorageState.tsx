@@ -34,7 +34,7 @@ export function useLocalStorageState<T>(
     deserializer = JSON.parse,
     onError,
     bustStorageOnInit = false,
-    expirationTime = DEFAULT_EXPIRATION_TIME
+    expirationTime = DEFAULT_EXPIRATION_TIME,
   } = options || {};
 
   // Get initial value from localStorage or use default
@@ -108,7 +108,7 @@ export function useLocalStorageState<T>(
         // Create storage data with current timestamp
         const storageData: StorageData<T> = {
           value: JSON.parse(serializer(state)),
-          timestamp: Date.now()
+          timestamp: Date.now(),
         };
         window.localStorage.setItem(key, JSON.stringify(storageData));
       }

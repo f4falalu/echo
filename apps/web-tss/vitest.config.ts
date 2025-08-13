@@ -6,11 +6,11 @@ export default defineConfig({
   plugins: [
     tsconfigPaths({
       root: resolve(__dirname),
-      projects: [resolve(__dirname, 'tsconfig.json')]
-    }) as unknown as Plugin
+      projects: [resolve(__dirname, 'tsconfig.json')],
+    }) as unknown as Plugin,
   ],
   esbuild: {
-    jsx: 'automatic'
+    jsx: 'automatic',
   },
   test: {
     globals: true,
@@ -20,8 +20,8 @@ export default defineConfig({
     poolOptions: {
       forks: {
         maxForks: process.env.CI ? 1 : 8,
-        minForks: process.env.CI ? 1 : 8
-      }
+        minForks: process.env.CI ? 1 : 8,
+      },
     },
     include: ['**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
     exclude: [
@@ -29,7 +29,7 @@ export default defineConfig({
       '**/dist/**',
       '**/.next/**',
       '**/playwright-tests/**',
-      '**/coverage/**'
+      '**/coverage/**',
     ],
     coverage: {
       provider: 'v8',
@@ -56,14 +56,14 @@ export default defineConfig({
         '**/vitest.config.[jt]s',
         '**/playwright.config.[jt]s',
         '**/.storybook/**',
-        '**/storybook-static/**'
-      ]
-    }
+        '**/storybook-static/**',
+      ],
+    },
   },
 
   css: {
     postcss: {
-      plugins: []
-    }
-  }
+      plugins: [],
+    },
+  },
 });

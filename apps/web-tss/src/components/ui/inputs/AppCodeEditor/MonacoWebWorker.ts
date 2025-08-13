@@ -15,6 +15,6 @@ if (typeof window !== 'undefined') {
         default:
           throw new Error(`Unknown label ${label}`);
       }
-    }
+    },
   };
 }

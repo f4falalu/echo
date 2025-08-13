@@ -45,8 +45,8 @@ function useSet<K>(initialValue?: Iterable<K>) {
       remove: useMemoizedFn(remove),
       reset: useMemoizedFn(reset),
       has: useMemoizedFn(has),
-      size: useMemoizedFn(size)
-    }
+      size: useMemoizedFn(size),
+    },
   ] as const;
 }
 

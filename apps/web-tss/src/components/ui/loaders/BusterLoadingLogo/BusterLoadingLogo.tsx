@@ -21,7 +21,7 @@ export const BusterLoadingLogo = React.memo(function LogoLoadingAnimation({
   backgroundColor = '#E0E0E0',
   foregroundColor = 'black',
   isLoading = true,
-  style
+  style,
 }: BusterLoadingLogoProps) {
   const pathRef = useRef<SVGPathElement>(null);
   const [pathLength, setPathLength] = useState(2500); // fallback value
@@ -77,7 +77,7 @@ export const BusterLoadingLogo = React.memo(function LogoLoadingAnimation({
             ? ({
                 '--path-length': pathLength,
                 strokeDasharray: pathLength,
-                strokeDashoffset: pathLength
+                strokeDashoffset: pathLength,
               } as React.CSSProperties & { '--path-length': number })
             : undefined
         }

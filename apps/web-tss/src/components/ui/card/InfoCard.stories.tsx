@@ -11,31 +11,31 @@ const meta: Meta<typeof InfoCard> = {
     title: faker.lorem.sentence(),
     description: faker.lorem.paragraph(),
     icon: <Bell />,
-    onClick: () => {}
+    onClick: () => {},
   },
   argTypes: {
     variant: {
       control: 'select',
-      options: ['default', 'gray', 'ghost']
+      options: ['default', 'gray', 'ghost'],
     },
     size: {
       control: 'select',
-      options: ['default']
+      options: ['default'],
     },
     iconPosition: {
       control: 'select',
-      options: ['top', 'center', 'bottom', 'absolute-top']
+      options: ['top', 'center', 'bottom', 'absolute-top'],
     },
     title: {
-      control: 'text'
+      control: 'text',
     },
     description: {
-      control: 'text'
+      control: 'text',
     },
     selected: {
-      control: 'boolean'
-    }
-  }
+      control: 'boolean',
+    },
+  },
 };
 
 export default meta;
@@ -46,8 +46,8 @@ export const Default: Story = {
     title: 'Notifications',
     description: 'You have 3 unread messages',
     icon: <Bell />,
-    iconPosition: 'center'
-  }
+    iconPosition: 'center',
+  },
 };
 
 export const TopIcon: Story = {
@@ -55,8 +55,8 @@ export const TopIcon: Story = {
     title: 'System Status',
     description: 'All systems are operational',
     icon: <Bell />,
-    iconPosition: 'top'
-  }
+    iconPosition: 'top',
+  },
 };
 
 export const BottomIcon: Story = {
@@ -64,8 +64,8 @@ export const BottomIcon: Story = {
     title: 'Updates Available',
     description: 'New version 2.0 is ready to install',
     icon: <Bell />,
-    iconPosition: 'bottom'
-  }
+    iconPosition: 'bottom',
+  },
 };
 
 export const AbsoluteTopIcon: Story = {
@@ -73,14 +73,14 @@ export const AbsoluteTopIcon: Story = {
     title: 'Important Notice',
     description: 'Please review your account settings',
     icon: <Bell />,
-    iconPosition: 'absolute-top'
-  }
+    iconPosition: 'absolute-top',
+  },
 };
 
 export const NoIcon: Story = {
   args: {
     title: 'Simple Card',
     description: 'A card without an icon',
-    icon: null
-  }
+    icon: null,
+  },
 };

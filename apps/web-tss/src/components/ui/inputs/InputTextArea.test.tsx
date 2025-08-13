@@ -1,15 +1,15 @@
-import { render, fireEvent, waitFor } from '@testing-library/react';
-import { vi, describe, it, expect, beforeEach } from 'vitest';
+import { fireEvent, render, waitFor } from '@testing-library/react';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { InputTextArea } from './InputTextArea';
 
 // Mock useMemoizedFn hook
 vi.mock('@/hooks', () => ({
-  useMemoizedFn: (fn: any) => fn
+  useMemoizedFn: (fn: any) => fn,
 }));
 
 // Mock cn function
 vi.mock('@/lib/classMerge', () => ({
-  cn: (...classes: any[]) => classes.filter(Boolean).join(' ')
+  cn: (...classes: any[]) => classes.filter(Boolean).join(' '),
 }));
 
 describe('InputTextArea', () => {
@@ -23,7 +23,7 @@ describe('InputTextArea', () => {
     // Mock window.getComputedStyle
     Object.defineProperty(window, 'getComputedStyle', {
       value: mockGetComputedStyle,
-      writable: true
+      writable: true,
     });
 
     // Mock requestAnimationFrame
@@ -32,7 +32,7 @@ describe('InputTextArea', () => {
         setTimeout(callback, 0);
         return 1;
       },
-      writable: true
+      writable: true,
     });
 
     // Default mock values for getComputedStyle
@@ -40,7 +40,7 @@ describe('InputTextArea', () => {
       lineHeight: '20px',
       fontSize: '16px',
       paddingTop: '8px',
-      paddingBottom: '8px'
+      paddingBottom: '8px',
     });
   });
 
@@ -78,7 +78,7 @@ describe('InputTextArea', () => {
         lineHeight: 'normal',
         fontSize: '16px',
         paddingTop: '8px',
-        paddingBottom: '8px'
+        paddingBottom: '8px',
       });
 
       const { container } = render(
@@ -106,7 +106,7 @@ describe('InputTextArea', () => {
       // Mock scrollHeight property
       Object.defineProperty(textarea, 'scrollHeight', {
         get: () => 100, // Large scrollHeight that should be ignored for empty content
-        configurable: true
+        configurable: true,
       });
 
       // Set empty value and trigger input event
@@ -128,7 +128,7 @@ describe('InputTextArea', () => {
       // Mock scrollHeight property
       Object.defineProperty(textarea, 'scrollHeight', {
         get: () => 60, // Close to minHeight
-        configurable: true
+        configurable: true,
       });
 
       textarea.value = 'short text';
@@ -152,7 +152,7 @@ describe('InputTextArea', () => {
       // Mock scrollHeight property
       Object.defineProperty(textarea, 'scrollHeight', {
         get: () => 120,
-        configurable: true
+        configurable: true,
       });
 
       textarea.value = longText;
@@ -175,7 +175,7 @@ describe('InputTextArea', () => {
       // Mock scrollHeight property
       Object.defineProperty(textarea, 'scrollHeight', {
         get: () => 200,
-        configurable: true
+        configurable: true,
       });
 
       textarea.value = veryLongText;
@@ -198,7 +198,7 @@ describe('InputTextArea', () => {
       // Mock scrollHeight property
       Object.defineProperty(textarea, 'scrollHeight', {
         get: () => 80,
-        configurable: true
+        configurable: true,
       });
 
       textarea.value = 'Normal text';
@@ -222,7 +222,7 @@ describe('InputTextArea', () => {
       // Mock scrollHeight property
       Object.defineProperty(textarea, 'scrollHeight', {
         get: () => 76,
-        configurable: true
+        configurable: true,
       });
 
       textarea.value = multilineText;
@@ -345,7 +345,7 @@ describe('InputTextArea', () => {
         lineHeight: '20px',
         fontSize: '16px',
         paddingTop: '12px',
-        paddingBottom: '15px'
+        paddingBottom: '15px',
       });
 
       const { container } = render(

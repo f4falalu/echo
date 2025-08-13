@@ -7,21 +7,21 @@ const meta: Meta<typeof InputPassword> = {
   tags: ['autodocs'],
   argTypes: {
     disabled: {
-      control: 'boolean'
+      control: 'boolean',
     },
     value: {
-      control: 'text'
+      control: 'text',
     },
     onChange: { action: 'changed' },
     size: {
       control: 'select',
-      options: ['default', 'tall', 'small']
+      options: ['default', 'tall', 'small'],
     },
     variant: {
       control: 'select',
-      options: ['default', 'ghost']
-    }
-  }
+      options: ['default', 'ghost'],
+    },
+  },
 };
 
 export default meta;
@@ -29,42 +29,42 @@ type Story = StoryObj<typeof InputPassword>;
 
 export const Default: Story = {
   args: {
-    placeholder: 'Enter password here...'
-  }
+    placeholder: 'Enter password here...',
+  },
 };
 
 export const Disabled: Story = {
   args: {
     disabled: true,
     placeholder: 'Password field (disabled)',
-    value: 'Cannot edit this'
-  }
+    value: 'Cannot edit this',
+  },
 };
 
 export const WithValue: Story = {
   args: {
     value: 'Password123',
-    placeholder: 'Enter password here...'
-  }
+    placeholder: 'Enter password here...',
+  },
 };
 
 export const Small: Story = {
   args: {
     size: 'small',
-    placeholder: 'Small password input...'
-  }
+    placeholder: 'Small password input...',
+  },
 };
 
 export const Tall: Story = {
   args: {
     size: 'tall',
-    placeholder: 'Tall password input...'
-  }
+    placeholder: 'Tall password input...',
+  },
 };
 
 export const Ghost: Story = {
   args: {
     variant: 'ghost',
-    placeholder: 'Ghost password input...'
-  }
+    placeholder: 'Ghost password input...',
+  },
 };

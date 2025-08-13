@@ -15,7 +15,7 @@ interface UseDebounceSearchProps<T> {
 export const useDebounceSearch = <T>({
   items,
   searchPredicate,
-  debounceTime = 150
+  debounceTime = 150,
 }: UseDebounceSearchProps<T>) => {
   const [isPending, startTransition] = useTransition();
   const [searchText, setSearchText] = useState('');
@@ -59,6 +59,6 @@ export const useDebounceSearch = <T>({
     filteredItems,
     searchText,
     handleSearchChange,
-    isPending
+    isPending,
   };
 };

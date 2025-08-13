@@ -26,7 +26,7 @@ export const createRouter = () => {
             {props.children}
           </TanstackQuery.Provider>
         );
-      }
+      },
     }),
     queryClient
   );

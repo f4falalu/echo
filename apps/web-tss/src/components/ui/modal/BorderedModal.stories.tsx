@@ -7,9 +7,9 @@ const meta: Meta<typeof BorderedModal> = {
   title: 'UI/Modal/ScrollableModal',
   component: BorderedModal,
   parameters: {
-    layout: 'centered'
+    layout: 'centered',
   },
-  tags: ['autodocs']
+  tags: ['autodocs'],
 };
 
 export default meta;
@@ -27,7 +27,7 @@ export const Basic: Story = {
   args: {
     header: {
       title: 'Example Modal',
-      description: 'This is a basic example of the ScrollableModal component'
+      description: 'This is a basic example of the ScrollableModal component',
     },
     children: (
       <div className="space-y-4 py-4">
@@ -39,16 +39,16 @@ export const Basic: Story = {
     footer: {
       primaryButton: {
         text: 'Save Changes',
-        onClick: fn()
+        onClick: fn(),
       },
       secondaryButton: {
         text: 'Cancel',
         onClick: fn(),
-        variant: 'ghost'
-      }
+        variant: 'ghost',
+      },
     },
-    width: 600
-  }
+    width: 600,
+  },
 };
 
 export const WithCustomHeader: Story = {
@@ -71,16 +71,16 @@ export const WithCustomHeader: Story = {
       primaryButton: {
         text: 'Confirm',
         onClick: fn(),
-        variant: 'black'
+        variant: 'black',
       },
       secondaryButton: {
         text: 'Back',
         onClick: fn(),
-        variant: 'ghost'
-      }
+        variant: 'ghost',
+      },
     },
-    width: 500
-  }
+    width: 500,
+  },
 };
 
 export const LoadingState: Story = {
@@ -88,7 +88,7 @@ export const LoadingState: Story = {
   args: {
     header: {
       title: 'Loading State Example',
-      description: 'This example shows the modal with loading state in buttons'
+      description: 'This example shows the modal with loading state in buttons',
     },
     children: (
       <div className="py-4">
@@ -99,15 +99,15 @@ export const LoadingState: Story = {
       primaryButton: {
         text: 'Submit',
         onClick: () => new Promise((resolve) => setTimeout(resolve, 2000)),
-        loading: true
+        loading: true,
       },
       secondaryButton: {
         text: 'Cancel',
         onClick: fn(),
         variant: 'ghost',
-        disabled: true
-      }
+        disabled: true,
+      },
     },
-    width: 400
-  }
+    width: 400,
+  },
 };

@@ -12,12 +12,12 @@ const editableTitleVariants = cva('relative flex items-center justify-between', 
       2: 'text-2xl',
       3: 'text-xl',
       4: 'text-md',
-      5: 'text-base'
-    }
+      5: 'text-base',
+    },
   },
   defaultVariants: {
-    level: 4
-  }
+    level: 4,
+  },
 });
 
 export const EditableTitle = React.forwardRef<
@@ -51,7 +51,7 @@ export const EditableTitle = React.forwardRef<
       level = 4,
       onEdit,
       onChange,
-      onSetValue
+      onSetValue,
     },
     inputRef
   ) => {

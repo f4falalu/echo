@@ -2,8 +2,8 @@
 
 import { faker } from '@faker-js/faker';
 import type { Meta, StoryObj } from '@storybook/nextjs';
-import { fn } from 'storybook/test';
 import { useMemo, useState } from 'react';
+import { fn } from 'storybook/test';
 import type { SelectItem } from './Select';
 import { SelectMultiple } from './SelectMultiple';
 
@@ -13,7 +13,7 @@ const meta = {
   parameters: {
     // layout: 'fullscreen'
   },
-  tags: ['autodocs']
+  tags: ['autodocs'],
 } satisfies Meta<typeof SelectMultiple>;
 
 export default meta;
@@ -24,7 +24,7 @@ const baseItems: SelectItem[] = [
   { value: '2', label: 'Option 2' },
   { value: '3', label: 'Option 3' },
   { value: '4', label: 'Option 4' },
-  { value: '5', label: 'Option 5' }
+  { value: '5', label: 'Option 5' },
 ];
 
 // Interactive story with state management
@@ -54,9 +54,9 @@ export const Default: Story = {
     items: baseItems,
     onChange: fn(),
     value: [],
-    placeholder: 'Select multiple options...'
+    placeholder: 'Select multiple options...',
   },
-  render: () => <SelectMultipleWithHooks />
+  render: () => <SelectMultipleWithHooks />,
 };
 
 export const WithPreselectedValues: Story = {
@@ -64,13 +64,13 @@ export const WithPreselectedValues: Story = {
     items: baseItems,
     value: ['1', '2'],
     onChange: fn(),
-    placeholder: 'Select multiple options...'
+    placeholder: 'Select multiple options...',
   },
   render: (args) => (
     <div className="w-[300px]">
       <SelectMultiple {...args} />
     </div>
-  )
+  ),
 };
 
 export const Empty: Story = {
@@ -78,13 +78,13 @@ export const Empty: Story = {
     items: baseItems,
     onChange: fn(),
     placeholder: 'Select multiple options...',
-    value: []
+    value: [],
   },
   render: (args) => (
     <div className="w-[300px]">
       <SelectMultiple {...args} />
     </div>
-  )
+  ),
 };
 
 export const FullySelected: Story = {
@@ -92,13 +92,13 @@ export const FullySelected: Story = {
     items: baseItems,
     value: baseItems.map((item) => item.value),
     onChange: fn(),
-    placeholder: 'Select multiple options...'
+    placeholder: 'Select multiple options...',
   },
   render: (args) => (
     <div className="w-[300px]">
       <SelectMultiple {...args} />
     </div>
-  )
+  ),
 };
 
 export const CustomWidth: Story = {
@@ -106,13 +106,13 @@ export const CustomWidth: Story = {
     items: baseItems,
     value: ['1'],
     onChange: fn(),
-    placeholder: 'Select multiple options...'
+    placeholder: 'Select multiple options...',
   },
   render: (args) => (
     <div className="w-[500px]">
       <SelectMultiple {...args} />
     </div>
-  )
+  ),
 };
 
 const WithHundredItemsWithHooks = () => {
@@ -122,7 +122,7 @@ const WithHundredItemsWithHooks = () => {
     () =>
       Array.from({ length: 100 }, (_, index) => ({
         value: index.toString(),
-        label: faker.company.name()
+        label: faker.company.name(),
       })),
     []
   );
@@ -148,7 +148,7 @@ export const WithHundredItems: Story = {
     items: [],
     value: [],
     onChange: fn(),
-    placeholder: 'Select multiple options...'
+    placeholder: 'Select multiple options...',
   },
-  render: () => <WithHundredItemsWithHooks />
+  render: () => <WithHundredItemsWithHooks />,
 };

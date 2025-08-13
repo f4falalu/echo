@@ -10,25 +10,25 @@ const meta: Meta<typeof InputTextAreaButton> = {
   args: {},
   argTypes: {
     disabled: {
-      control: 'boolean'
+      control: 'boolean',
     },
     placeholder: {
-      control: 'text'
+      control: 'text',
     },
     rows: {
-      control: 'number'
+      control: 'number',
     },
     className: {
-      control: 'text'
-    }
+      control: 'text',
+    },
   },
   decorators: [
     (Story) => (
       <div className="p-4">
         <Story />
       </div>
-    )
-  ]
+    ),
+  ],
 };
 
 export default meta;
@@ -37,8 +37,8 @@ type Story = StoryObj<typeof InputTextAreaButton>;
 export const Default: Story = {
   args: {
     placeholder: 'Enter text here...',
-    rows: 4
-  }
+    rows: 4,
+  },
 };
 
 export const WithAutoResize: Story = {
@@ -46,9 +46,9 @@ export const WithAutoResize: Story = {
     placeholder: 'Type to see auto-resize in action...',
     autoResize: {
       minRows: 3,
-      maxRows: 6
-    }
-  }
+      maxRows: 6,
+    },
+  },
 };
 
 export const Disabled: Story = {
@@ -56,22 +56,22 @@ export const Disabled: Story = {
     disabled: true,
     placeholder: 'Disabled textarea',
     value: 'Cannot edit this text',
-    rows: 4
-  }
+    rows: 4,
+  },
 };
 
 export const CustomPlaceholder: Story = {
   args: {
     placeholder: 'Type your message here...',
-    rows: 3
-  }
+    rows: 3,
+  },
 };
 
 export const WithInitialValue: Story = {
   args: {
     value: 'This is some initial text in the textarea...',
-    rows: 4
-  }
+    rows: 4,
+  },
 };
 
 export const ChatInput: Story = {
@@ -80,12 +80,12 @@ export const ChatInput: Story = {
     rows: 4,
     autoResize: {
       minRows: 4,
-      maxRows: 12
+      maxRows: 12,
     },
 
     loadingIcon: <ShapeSquare />,
     sendIcon: <ArrowUp />,
     onStop: fn(),
-    onSubmit: fn()
-  }
+    onSubmit: fn(),
+  },
 };

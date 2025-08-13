@@ -7,7 +7,7 @@ type WithDateField<K extends string> = {
 
 export const createChatRecord = <
   K extends string = 'last_edited',
-  T extends WithDateField<K> = WithDateField<K>
+  T extends WithDateField<K> = WithDateField<K>,
 >(
   data: T[],
   dateKey: K = 'last_edited' as K
@@ -33,7 +33,7 @@ export const createChatRecord = <
       isDateSame({
         date: item[dateKey] as string,
         compareDate: today,
-        interval: 'day'
+        interval: 'day',
       })
     ) {
       TODAY.push(item);
@@ -41,7 +41,7 @@ export const createChatRecord = <
       isDateSame({
         date: item[dateKey] as string,
         compareDate: yesterday,
-        interval: 'day'
+        interval: 'day',
       })
     ) {
       YESTERDAY.push(item);
@@ -49,12 +49,12 @@ export const createChatRecord = <
       isDateAfter({
         date: item[dateKey] as string,
         compareDate: weekStartDate,
-        interval: 'day'
+        interval: 'day',
       }) &&
       isDateBefore({
         date: item[dateKey] as string,
         compareDate: twoDaysAgo,
-        interval: 'day'
+        interval: 'day',
       })
     ) {
       LAST_WEEK.push(item);
@@ -67,7 +67,7 @@ export const createChatRecord = <
     TODAY,
     YESTERDAY,
     LAST_WEEK,
-    ALL_OTHERS
+    ALL_OTHERS,
   };
 
   return result;
