@@ -31,8 +31,8 @@ export const SharePermissionsUpdateRequestSchema = z.object({
 export type SharePermissionsUpdateRequest = z.infer<typeof SharePermissionsUpdateRequestSchema>;
 
 // Keep old names for backward compatibility but don't export from index
-const ShareUpdateRequestSchema = SharePermissionsUpdateRequestSchema;
-type ShareUpdateRequest = SharePermissionsUpdateRequest;
+const _ShareUpdateRequestSchema = SharePermissionsUpdateRequestSchema;
+type _ShareUpdateRequest = SharePermissionsUpdateRequest;
 
 //Used for deleting share permissions for a report, collection, or metric
 export const ShareDeleteRequestSchema = z.array(z.string());

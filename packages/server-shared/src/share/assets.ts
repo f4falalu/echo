@@ -17,4 +17,4 @@ export const ShareAssetPermissionRoleSchema = z.enum(
 );
 
 // Keep the old name for backward compatibility but don't export it from index
-const AssetPermissionRoleSchema = ShareAssetPermissionRoleSchema;
+const _AssetPermissionRoleSchema = ShareAssetPermissionRoleSchema;
