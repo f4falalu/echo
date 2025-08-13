@@ -881,6 +881,29 @@ export const messages = pgTable(
       'btree',
       table.createdBy.asc().nullsLast().op('uuid_ops')
     ),
+    index('messages_deleted_at_idx').using(
+      'btree',
+      table.deletedAt.asc().nullsLast().op('timestamptz_ops')
+    ),
+    // GIN indexes for JSONB columns
+    index('messages_raw_llm_messages_gin_idx').using(
+      'gin',
+      table.rawLlmMessages.asc().nullsLast().op('jsonb_ops')
+    ),
+    index('messages_response_messages_gin_idx').using(
+      'gin', 
+      table.responseMessages.asc().nullsLast().op('jsonb_ops')
+    ),
+    index('messages_reasoning_gin_idx').using(
+      'gin',
+      table.reasoning.asc().nullsLast().op('jsonb_ops')
+    ),
+    // Composite index for WHERE clause
+    index('messages_id_deleted_at_idx').using(
+      'btree',
+      table.id.asc().nullsLast().op('uuid_ops'),
+      table.deletedAt.asc().nullsLast().op('timestamptz_ops')
+    ),
     foreignKey({
       columns: [table.chatId],
       foreignColumns: [chats.id],

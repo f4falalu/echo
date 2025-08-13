@@ -1,27 +1,78 @@
+import { updateMessageEntries } from '@buster/database';
 import { wrapTraced } from 'braintrust';
-import type {
-  SequentialThinkingContext,
-  SequentialThinkingInput,
-  SequentialThinkingOutput,
+import { normalizeEscapedText } from '../../../utils/streaming/escape-normalizer';
+import {
+  createSequentialThinkingRawLlmMessageEntry,
+  createSequentialThinkingReasoningMessage,
+} from './helpers/sequential-thinking-tool-transform-helper';
+import {
+  SEQUENTIAL_THINKING_TOOL_NAME,
+  type SequentialThinkingContext,
+  type SequentialThinkingInput,
+  type SequentialThinkingOutput,
+  type SequentialThinkingState,
 } from './sequential-thinking-tool';
 
 // Process sequential thinking execution
 async function processSequentialThinking(
   input: SequentialThinkingInput,
-  messageId?: string
+  state: SequentialThinkingState,
+  context: SequentialThinkingContext
 ): Promise<SequentialThinkingOutput> {
   try {
     // Log the thinking step for debugging
-    if (messageId) {
+    if (context.messageId) {
       console.info('[sequential-thinking] Processing thought:', {
-        messageId,
+        messageId: context.messageId,
         thoughtNumber: input.thoughtNumber,
         nextThoughtNeeded: input.nextThoughtNeeded,
       });
     }
 
-    // The actual thinking logic is handled by the streaming callbacks
-    // This execute function just confirms successful processing
+    // Since we have the full input object, create the reasoning entries directly
+    const toolCallId = state.entry_id;
+
+    if (toolCallId && context.messageId) {
+      // Create reasoning entry with completed status using the input values directly
+      const reasoningEntry = createSequentialThinkingReasoningMessage(
+        {
+          entry_id: toolCallId,
+          thought: normalizeEscapedText(input.thought),
+          nextThoughtNeeded: input.nextThoughtNeeded,
+          thoughtNumber: input.thoughtNumber,
+        },
+        toolCallId,
+        'completed' // Mark as completed in execute
+      );
+
+      // Create raw LLM message entry using the input values directly
+      const rawLlmMessage = createSequentialThinkingRawLlmMessageEntry(
+        {
+          entry_id: toolCallId,
+          thought: normalizeEscapedText(input.thought),
+          nextThoughtNeeded: input.nextThoughtNeeded,
+          thoughtNumber: input.thoughtNumber,
+        },
+        toolCallId
+      );
+
+      if (reasoningEntry && rawLlmMessage) {
+        await updateMessageEntries({
+          messageId: context.messageId,
+          reasoningEntry,
+          rawLlmMessage,
+          toolCallId,
+        });
+
+        console.info('[sequential-thinking] Completed sequential thinking in execute:', {
+          messageId: context.messageId,
+          toolCallId,
+          thoughtNumber: input.thoughtNumber,
+          nextThoughtNeeded: input.nextThoughtNeeded,
+        });
+      }
+    }
+
     return {
       success: true,
     };
@@ -35,13 +86,14 @@ async function processSequentialThinking(
 }
 
 // Factory function that creates the execute function with proper context typing
-export function createSequentialThinkingExecute(context: SequentialThinkingContext) {
+export function createSequentialThinkingExecute(
+  state: SequentialThinkingState,
+  context: SequentialThinkingContext
+) {
   return wrapTraced(
     async (input: SequentialThinkingInput): Promise<SequentialThinkingOutput> => {
-      // Use the messageId from the passed context
-      const messageId = context.messageId;
-      return await processSequentialThinking(input, messageId);
+      return await processSequentialThinking(input, state, context);
     },
-    { name: 'Sequential Thinking Tool' }
+    { name: SEQUENTIAL_THINKING_TOOL_NAME }
   );
 }

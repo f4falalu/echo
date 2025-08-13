@@ -11,10 +11,6 @@ export interface UpdateMessageEntriesParams {
   reasoningEntry?: unknown;
 }
 
-/**
- * Mapping of field names to their corresponding message table columns
- * This provides type-safe access to the JSONB columns we need to update
- */
 const MESSAGE_FIELD_MAPPING = {
   rawLlmMessages: messages.rawLlmMessages,
   responseMessages: messages.responseMessages,
@@ -24,16 +20,7 @@ const MESSAGE_FIELD_MAPPING = {
 type MessageFieldName = keyof typeof MESSAGE_FIELD_MAPPING;
 
 /**
- * Helper function to generate SQL for upserting entries in a JSONB array field.
- * Ensures only one entry exists per toolCallId - either updates the existing entry
- * or appends a new one if it doesn't exist.
- * 
- * Uses jsonb_set for efficient in-place updates instead of rebuilding the entire array.
- * This is optimized for frequent streaming updates.
- * 
- * @param fieldName - The field name to update
- * @param jsonString - Pre-stringified JSON to insert/update
- * @param toolCallId - The toolCallId for identifying the entry (must be unique)
+ * Generates SQL for upserting entries in a JSONB array field using jsonb_set.
  */
 function generateJsonbArrayUpsertSql(
   fieldName: MessageFieldName,
@@ -42,48 +29,32 @@ function generateJsonbArrayUpsertSql(
 ): SQL {
   const field = MESSAGE_FIELD_MAPPING[fieldName];
 
-  // Efficient approach: Find index once and use jsonb_set for updates
-  // This avoids rebuilding the entire array for streaming updates
   return sql`
     CASE
       WHEN EXISTS (
         SELECT 1 
-        FROM jsonb_array_elements(${field}) AS elem 
-        WHERE elem->>'id' = ${toolCallId} OR elem->>'toolCallId' = ${toolCallId}
+        FROM jsonb_array_elements(COALESCE(${field}, '[]'::jsonb)) WITH ORDINALITY AS elem(value, pos)
+        WHERE elem.value->>'id' = ${toolCallId} OR elem.value->>'toolCallId' = ${toolCallId}
       ) THEN
-        -- Update existing entry using jsonb_set at the found index
-        (SELECT jsonb_set(
-          ${field},
-          ARRAY[(idx - 1)::text],
+        jsonb_set(
+          COALESCE(${field}, '[]'::jsonb),
+          ARRAY[(
+            SELECT (elem.pos - 1)::text
+            FROM jsonb_array_elements(COALESCE(${field}, '[]'::jsonb)) WITH ORDINALITY AS elem(value, pos)
+            WHERE elem.value->>'id' = ${toolCallId} OR elem.value->>'toolCallId' = ${toolCallId}
+            LIMIT 1
+          )],
           ${jsonString}::jsonb,
           false
         )
-        FROM (
-          SELECT row_number() OVER () AS idx, elem.value
-          FROM jsonb_array_elements(${field}) AS elem
-        ) AS indexed
-        WHERE indexed.value->>'id' = ${toolCallId} 
-           OR indexed.value->>'toolCallId' = ${toolCallId}
-        LIMIT 1)
       ELSE
-        -- No existing entry, append the new one
         COALESCE(${field}, '[]'::jsonb) || ${jsonString}::jsonb
     END
   `;
 }
 
 /**
- * Atomically upsert multiple message entry arrays on a single row.
- * Each entry is identified by its unique toolCallId - if an entry with that toolCallId exists,
- * it will be replaced with the new data; otherwise, a new entry will be appended.
- *
- * IMPORTANT: This function guarantees that only one entry per toolCallId will exist in each array.
- * Multiple calls with the same toolCallId will update the existing entry, not create duplicates.
- *
- * This prevents race conditions between concurrent tool updates by ensuring each tool
- * only modifies its own entries, identified by toolCallId.
- *
- * Any of the entry parameters may be omitted. If none are provided, only updatedAt is modified.
+ * Updates message entries atomically, ensuring only one entry per toolCallId exists.
  */
 export async function updateMessageEntries({
   messageId,
@@ -97,8 +68,6 @@ export async function updateMessageEntries({
       updatedAt: new Date().toISOString(),
     };
 
-    // Add each field conditionally using the upsert helper function
-    // Stringify the entries before passing them to SQL to ensure proper JSONB casting
     if (rawLlmMessage) {
       setValues.rawLlmMessages = generateJsonbArrayUpsertSql(
         'rawLlmMessages',

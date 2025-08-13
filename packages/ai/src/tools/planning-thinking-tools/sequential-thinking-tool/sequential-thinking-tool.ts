@@ -69,7 +69,7 @@ export function createSequentialThinkingTool(context: SequentialThinkingContext)
     thoughtNumber: undefined,
   };
 
-  const execute = createSequentialThinkingExecute(context);
+  const execute = createSequentialThinkingExecute(state, context);
   const onInputStart = createSequentialThinkingStart(state, context);
   const onInputDelta = createSequentialThinkingDelta(state, context);
   const onInputAvailable = createSequentialThinkingFinish(state, context);
