@@ -13,18 +13,7 @@ const config = defineConfig({
     tailwindcss(),
     tanstackStart({ customViteReactPlugin: true }),
     viteReact(),
-    // Custom plugin to exclude test and stories files in dev mode
-    {
-      name: 'exclude-test-stories',
-      resolveId(id) {
-        // Exclude .test and .stories files from being resolved
-        if (/\.(test|stories)\.(js|ts|jsx|tsx)$/.test(id)) {
-          return { id, external: true };
-        }
-        return null;
-      },
-    },
-    !process.env.VITEST
+    !process.env.VITEST && process.env.NODE_ENV !== 'development'
       ? checker({
           typescript: true,
           biome: true,
@@ -41,11 +30,6 @@ const config = defineConfig({
       output: {
         // Force lodash and lodash-es into a dedicated vendor chunk
         manualChunks(id) {
-          // Skip chunking for test and stories files (they should be excluded anyway)
-          if (/\.(test|stories)\.(js|ts|jsx|tsx)$/.test(id)) {
-            return;
-          }
-
           if (id.includes('node_modules/lodash')) {
             return 'vendor-lodash';
           }

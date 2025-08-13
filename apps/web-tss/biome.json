@@ -45,6 +45,9 @@
         "noExcessiveCognitiveComplexity": "off",
         "noForEach": "off"
       },
+      "nursery": {
+        "useSortedClasses": "off"
+      },
       "performance": {
         "noDelete": "error"
       },

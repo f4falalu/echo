@@ -1,5 +1,6 @@
 export type PanelSize = `${number}px` | `${number}%` | 'auto' | number;
-export type LayoutSize = [PanelSize, PanelSize];
+type PanelSizeWithAuto = Exclude<PanelSize, 'auto'>;
+export type LayoutSize = ['auto', PanelSizeWithAuto] | [PanelSizeWithAuto, 'auto'];
 
 export interface IAppSplitterProps {
   /** Content to display in the left panel */
@@ -101,12 +102,6 @@ export interface IAppSplitterProps {
 
   /** Additional CSS classes for the right panel */
   rightPanelClassName?: string;
-
-  /**
-   * Whether to clear saved layout from cookies on initialization
-   * Can be a boolean or a function that returns a boolean based on preserved side value and container width
-   */
-  bustStorageOnInit?: boolean | ((preservedSideValue: number | null, refSize: number) => boolean);
 }
 
 /**

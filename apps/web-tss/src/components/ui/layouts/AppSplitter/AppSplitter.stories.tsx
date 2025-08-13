@@ -39,7 +39,7 @@ type Story = StoryObj<typeof AppSplitter>;
 
 // Helper components for demo content
 const LeftContent = ({ title = 'Left Panel' }: { title?: string }) => (
-  <div className="bg-muted/20 h-full bg-blue-100/10 p-6">
+  <div className="bg-muted/20 h-full  p-6">
     <Title as="h3">{title}</Title>
     <Text className="text-muted-foreground mt-2">
       This is the left panel content. Try resizing the panels by dragging the splitter.
@@ -836,7 +836,7 @@ export const CollapsedLeftPanel: Story = {
       </div>
     ),
     autoSaveId: 'collapsed-left-panel',
-    defaultLayout: ['0%', '100%'],
+    defaultLayout: ['auto', '100%'],
     leftPanelMinSize: '200px',
     preserveSide: 'right',
   },

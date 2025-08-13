@@ -17,7 +17,8 @@ import { useMount } from '@/hooks/useMount';
 import { cn } from '@/lib/classMerge';
 import type { AppSplitterRef, IAppSplitterProps, SplitterState } from './AppSplitter.types';
 import { AppSplitterProvider } from './AppSplitterProvider';
-import { createAutoSaveId, easeInOutCubic, sizeToPixels } from './helpers';
+import { createAutoSaveId } from './create-auto-save-id';
+import { easeInOutCubic, sizeToPixels } from './helpers';
 import { Panel } from './Panel';
 import { Splitter } from './Splitter';
 import { useDefaultValue } from './useDefaultValue';
@@ -109,17 +110,15 @@ const AppSplitterWrapper = forwardRef<AppSplitterRef, IAppSplitterProps>(
           className={cn('flex h-full w-full', isVertical ? 'flex-row' : 'flex-col', className)}
           style={style}
         >
-          {mounted && (
-            <AppSplitterBase
-              {...props}
-              ref={componentRef}
-              isVertical={isVertical}
-              containerRef={containerRef}
-              splitterAutoSaveId={splitterAutoSaveId}
-              split={split}
-              calculatedInitialValue={initialValue}
-            />
-          )}
+          <AppSplitterBase
+            {...props}
+            ref={componentRef}
+            isVertical={isVertical}
+            containerRef={containerRef}
+            splitterAutoSaveId={splitterAutoSaveId}
+            split={split}
+            calculatedInitialValue={initialValue}
+          />
         </div>
       </AppSplitterContext.Provider>
     );
@@ -285,33 +284,19 @@ const AppSplitterBase = forwardRef<
       return constrainedSize;
     });
 
-    // Calculate panel sizes with simplified logic
-    const { leftSize, rightSize } = useMemo(() => {
+    // Calculate preserved panel size - non-preserved panel will use flex-1
+    const preservedPanelSize = useMemo(() => {
       const { containerSize, isAnimating, sizeSetByAnimation, isDragging, hasUserInteracted } =
         state;
 
-      if (!containerSize) {
-        return { leftSize: 0, rightSize: 0 };
-      }
-
       // Handle hidden panels
-      if (leftHidden && !rightHidden) return { leftSize: 0, rightSize: containerSize };
-      if (rightHidden && !leftHidden) return { leftSize: containerSize, rightSize: 0 };
-      if (leftHidden && rightHidden) return { leftSize: 0, rightSize: 0 };
+      if (leftHidden || rightHidden) return 0;
 
       const currentSize = savedLayout ?? 0;
 
-      // Check if a panel is at 0px and should remain at 0px
-      const isLeftPanelZero = currentSize === 0 && preserveSide === 'left';
-      const isRightPanelZero = currentSize === 0 && preserveSide === 'right';
-
-      // If a panel is at 0px, keep it at 0px and give all space to the other panel
-      if (isLeftPanelZero) {
-        return { leftSize: 0, rightSize: containerSize };
-      }
-      if (isRightPanelZero) {
-        return { leftSize: containerSize, rightSize: 0 };
-      }
+      // Check if the preserved panel is at 0px
+      const isPanelZero = currentSize === 0;
+      if (isPanelZero) return 0;
 
       // During animation or when size was set by animation (and not currently dragging),
       // don't apply constraints to allow smooth animations
@@ -319,17 +304,17 @@ const AppSplitterBase = forwardRef<
         !isAnimating && !sizeSetByAnimation && hasUserInteracted && !isDragging;
 
       const finalSize = shouldApplyConstraints ? applyConstraints(currentSize) : currentSize;
+      return Math.max(0, finalSize);
+    }, [state, savedLayout, leftHidden, rightHidden, applyConstraints]);
 
+    // Determine panel sizes based on preserve side
+    const { leftSize, rightSize } = useMemo(() => {
       if (preserveSide === 'left') {
-        const left = Math.max(0, finalSize);
-        const right = Math.max(0, containerSize - left);
-        return { leftSize: left, rightSize: right };
+        return { leftSize: preservedPanelSize, rightSize: 'auto' as const };
       } else {
-        const right = Math.max(0, finalSize);
-        const left = Math.max(0, containerSize - right);
-        return { leftSize: left, rightSize: right };
+        return { leftSize: 'auto' as const, rightSize: preservedPanelSize };
       }
-    }, [state, savedLayout, leftHidden, rightHidden, preserveSide, applyConstraints]);
+    }, [preservedPanelSize, preserveSide]);
 
     // ================================
     // CONTAINER RESIZE HANDLING
@@ -507,18 +492,44 @@ const AppSplitterBase = forwardRef<
     const isSideClosed = useCallback(
       (side: 'left' | 'right') => {
         if (side === 'left') {
-          return leftHidden || leftSize === 0;
+          return (
+            leftHidden ||
+            leftSize === 0 ||
+            (preserveSide === 'right' && preservedPanelSize === state.containerSize)
+          );
         } else {
-          return rightHidden || rightSize === 0;
+          return (
+            rightHidden ||
+            rightSize === 0 ||
+            (preserveSide === 'left' && preservedPanelSize === state.containerSize)
+          );
         }
       },
-      [leftHidden, rightHidden, leftSize, rightSize]
+      [
+        leftHidden,
+        rightHidden,
+        leftSize,
+        rightSize,
+        preserveSide,
+        preservedPanelSize,
+        state.containerSize,
+      ]
     );
 
     // Get sizes in pixels
     const getSizesInPixels = useCallback((): [number, number] => {
-      return [leftSize, rightSize];
-    }, [leftSize, rightSize]);
+      const containerSize = state.containerSize;
+
+      if (preserveSide === 'left') {
+        const left = typeof leftSize === 'number' ? leftSize : 0;
+        const right = containerSize - left;
+        return [left, right];
+      } else {
+        const right = typeof rightSize === 'number' ? rightSize : 0;
+        const left = containerSize - right;
+        return [left, right];
+      }
+    }, [leftSize, rightSize, preserveSide, state.containerSize]);
 
     // ================================
     // MOUSE EVENT HANDLERS
@@ -622,11 +633,14 @@ const AppSplitterBase = forwardRef<
 
     // Determine if splitter should be hidden
     const shouldHideSplitter =
-      hideSplitterProp || (leftHidden && rightHidden) || leftSize === 0 || rightSize === 0;
+      hideSplitterProp || (leftHidden && rightHidden) || preservedPanelSize === 0;
 
     const showSplitter = !leftHidden && !rightHidden;
 
-    const sizes: [string | number, string | number] = [`${leftSize}px`, `${rightSize}px`];
+    const sizes: [string | number, string | number] =
+      preserveSide === 'left'
+        ? [`${preservedPanelSize}px`, 'auto']
+        : ['auto', `${preservedPanelSize}px`];
 
     const content = (
       <>

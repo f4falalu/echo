@@ -152,7 +152,6 @@ export function useCookieState<T>(
             value: JSON.parse(serializer(newState)),
             timestamp: Date.now(),
           };
-          console.log(key, storageData);
           setCookie(key, JSON.stringify(storageData), expirationTime, cookieOptions);
         }
 

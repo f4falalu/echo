@@ -1,9 +1,8 @@
 import type React from 'react';
 import { cn } from '@/lib/utils';
-import type { LayoutSize } from './AppSplitter';
 import { AppSplitter } from './AppSplitter/AppSplitter';
-
-const DEFAULT_LAYOUT: LayoutSize = ['230px', 'auto'];
+import type { LayoutSize } from './AppSplitter/AppSplitter.types';
+import { createAutoSaveId } from './AppSplitter/create-auto-save-id';
 
 /**
  * @param floating - Applies floating styles with padding and border (default: true)
@@ -21,7 +20,7 @@ export const AppLayout: React.FC<
     defaultLayout: LayoutSize;
     initialLayout: LayoutSize | null;
     leftHidden?: boolean;
-    autoSaveId?: string;
+    autoSaveId: string;
   }>
 > = ({
   children,
@@ -44,7 +43,7 @@ export const AppLayout: React.FC<
 
   return (
     <AppSplitter
-      defaultLayout={defaultLayout ?? DEFAULT_LAYOUT}
+      defaultLayout={defaultLayout}
       className="max-h-screen min-h-screen overflow-hidden"
       autoSaveId={autoSaveId}
       preserveSide="left"
@@ -81,3 +80,6 @@ const PageLayout: React.FC<
     </div>
   );
 };
+
+export type { LayoutSize };
+export { createAutoSaveId };
