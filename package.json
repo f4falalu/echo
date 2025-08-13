@@ -64,16 +64,12 @@
   "packageManager": "pnpm@9.15.0",
   "pnpm": {
     "peerDependencyRules": {
-      "ignoreMissing": ["shiki"],
+      "ignoreMissing": [
+        "shiki"
+      ],
       "allowedVersions": {
         "shiki": "3"
       }
-    },
-    "overrides": {
-      "react": "^19.1.1",
-      "react-dom": "^19.1.1",
-      "@types/react": "^19.1.10",
-      "@types/react-dom": "^19.1.7"
     }
   }
 }

@@ -238,11 +238,7 @@ export const SupabaseContextProvider: React.FC<
 > = React.memo(({ accessToken, user, children }) => {
   const value = useSupabaseContextInternal({ accessToken, user });
 
-  return (
-    <SupabaseContext.Provider value={value}>
-      <>{children}</>
-    </SupabaseContext.Provider>
-  );
+  return <SupabaseContext.Provider value={value}>{children}</SupabaseContext.Provider>;
 });
 SupabaseContextProvider.displayName = 'SupabaseContextProvider';
 

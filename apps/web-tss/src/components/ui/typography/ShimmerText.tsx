@@ -52,16 +52,14 @@ export const ShimmerText: React.FC<ShimmerText2Props> = React.memo(
     }, [duration]);
 
     return (
-      <>
-        <motion.div
-          className={cn('shimmer-text leading-1.3', className)}
-          style={memoizedStyle}
-          animate={animate}
-          transition={memoizedTransition}
-        >
-          {text}
-        </motion.div>
-      </>
+      <motion.div
+        className={cn('shimmer-text leading-1.3', className)}
+        style={memoizedStyle}
+        animate={animate}
+        transition={memoizedTransition}
+      >
+        {text}
+      </motion.div>
     );
   }
 );

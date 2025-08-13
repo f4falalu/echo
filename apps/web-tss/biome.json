@@ -1,5 +1,5 @@
 {
-  "$schema": "https://biomejs.dev/schemas/2.1.1/schema.json",
+  "$schema": "https://biomejs.dev/schemas/2.1.4/schema.json",
   "files": {
     "ignoreUnknown": false,
     "includes": [
@@ -15,7 +15,7 @@
       "!**/build/**",
       "!**/coverage/**",
       "!**/.next/**",
-      "!**/drizzle/**"
+      "!**/*.css"
     ]
   },
   "linter": {
@@ -25,7 +25,8 @@
       "correctness": {
         "noUnusedVariables": "off",
         "noUnusedImports": "off",
-        "useExhaustiveDependencies": "off"
+        "useExhaustiveDependencies": "off",
+        "noChildrenProp": "off"
       },
       "style": {
         "noNonNullAssertion": "error",
@@ -53,6 +54,18 @@
       }
     }
   },
+  "overrides": [
+    {
+      "includes": ["**/*.test.ts", "**/*.test.tsx"],
+      "linter": {
+        "rules": {
+          "suspicious": {
+            "noExplicitAny": "off"
+          }
+        }
+      }
+    }
+  ],
   "formatter": {
     "enabled": true,
     "formatWithErrors": false,

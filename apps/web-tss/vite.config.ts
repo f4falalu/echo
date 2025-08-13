@@ -19,12 +19,12 @@ const config = defineConfig({
       customViteReactPlugin: true,
     }),
     viteReact(),
-    checker({
-      typescript: {
-        tsconfigPath: './tsconfig.json',
-        buildMode: false,
-      },
-    }),
+    !process.env.VITEST
+      ? checker({
+          typescript: true,
+          biome: true,
+        })
+      : undefined,
   ],
 });
 
