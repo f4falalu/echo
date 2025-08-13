@@ -1685,9 +1685,6 @@ fn convert_array_to_datatype(
 // Query Execution & Processing
 // -------------------------
 
-// Define the row limit constant here or retrieve from config
-const PROCESSING_ROW_LIMIT: usize = 5000;
-
 fn prepare_query(query: &str) -> String {
     // Note: This function currently doesn't apply a LIMIT to the query.
     // The limit is applied during processing below as a safeguard.
@@ -1767,22 +1764,27 @@ fn safe_process_record_batch(batch: &RecordBatch) -> ProcessingResult {
 pub async fn snowflake_query(
     mut snowflake_client: SnowflakeApi,
     query: String,
+    limit: Option<i64>,
 ) -> Result<ProcessingResult, Error> {
+    // Get the limit value, defaulting to 5000 if not specified
+    let default_limit = 5000;
+    let limit_value = limit.unwrap_or(default_limit) as usize;
+    
     let limited_query = prepare_query(&query);
 
     let result = match snowflake_client.exec(&limited_query).await {
         Ok(result) => match result {
             QueryResult::Arrow(result) => {
-                let mut all_rows = Vec::with_capacity(PROCESSING_ROW_LIMIT);
+                let mut all_rows = Vec::with_capacity(limit_value);
                 let mut has_processing_errors = false;
                 let mut error_info = String::new();
 
                 // Process each batch with error handling
                 for batch in result.iter() {
-                    if all_rows.len() >= PROCESSING_ROW_LIMIT && !has_processing_errors {
+                    if all_rows.len() >= limit_value && !has_processing_errors {
                         tracing::warn!(
                             "Processing row limit ({}) reached. Stopping data processing.",
-                            PROCESSING_ROW_LIMIT
+                            limit_value
                         );
                         break;
                     }
@@ -1792,7 +1794,7 @@ pub async fn snowflake_query(
                     match safe_process_record_batch(&batch) {
                         ProcessingResult::Processed(batch_rows) => {
                             if !has_processing_errors {
-                                let remaining_capacity = PROCESSING_ROW_LIMIT.saturating_sub(all_rows.len());
+                                let remaining_capacity = limit_value.saturating_sub(all_rows.len());
                                 let rows_to_take = std::cmp::min(batch_rows.len(), remaining_capacity);
                                 
                                 if rows_to_take > 0 {
