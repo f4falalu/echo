@@ -1,11 +1,13 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import React, { useRef } from 'react';
+import cookies from 'js-cookie';
+import React, { useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/buttons/Button';
 import { Text } from '@/components/ui/typography/Text';
 import { Title } from '@/components/ui/typography/Title';
 import { AppSplitter } from './AppSplitter';
-import type { AppSplitterRef } from './AppSplitter.types';
+import type { AppSplitterRef, LayoutSize } from './AppSplitter.types';
 import { useAppSplitterContext } from './AppSplitterProvider';
+import { createAutoSaveId } from './helpers';
 
 const meta: Meta<typeof AppSplitter> = {
   title: 'UI/layouts/AppSplitter',
@@ -71,6 +73,38 @@ const RightContent = ({ title = 'Right Panel' }: { title?: string }) => (
   </div>
 );
 
+export const PassingInitialLayoutFromCookies: Story = {
+  decorators: [
+    () => {
+      const tagRaw = 'this-is-a-test';
+      const tag = createAutoSaveId(tagRaw);
+      const initialLayoutFromCookie: { value: number } = JSON.parse(
+        cookies.get(tag) ?? '["100px", "auto"]'
+      );
+
+      const initialLayout: LayoutSize = [
+        initialLayoutFromCookie.value && initialLayoutFromCookie.value > 0
+          ? `${initialLayoutFromCookie.value}px`
+          : '100px',
+        'auto',
+      ];
+
+      return (
+        <AppSplitter
+          leftChildren={<LeftContent title="Left Panel (Preserved)" />}
+          rightChildren={<RightContent title="Right Panel (Auto)" />}
+          autoSaveId={tagRaw}
+          defaultLayout={['400px', 'auto']}
+          leftPanelMinSize={400}
+          rightPanelMinSize={400}
+          initialLayout={initialLayout}
+          preserveSide="left"
+        />
+      );
+    },
+  ],
+};
+
 // 1. Left panel preserved (default behavior)
 export const LeftPanelPreserved: Story = {
   args: {
@@ -92,7 +126,7 @@ export const RightPanelPreserved: Story = {
     autoSaveId: 'right-preserved',
     defaultLayout: ['auto', '200px'],
     preserveSide: 'right',
-    rightPanelMinSize: 200,
+    rightPanelMinSize: 500,
   },
 };
 
@@ -246,6 +280,7 @@ export const NestedThreePanel: Story = {
     rightChildren: (
       <div className="flex h-full w-full overflow-hidden">
         <AppSplitter
+          initialLayout={null}
           leftChildren={
             <div className="h-full bg-blue-100/10 p-6">
               <Title as="h3">Middle Panel</Title>
@@ -325,6 +360,7 @@ const AnimationViaRefExample = () => {
   return (
     <AppSplitter
       ref={splitterRef}
+      initialLayout={null}
       leftChildren={
         <div className="h-full bg-blue-100 p-4">
           <h2 className="mb-4 text-lg font-semibold">Left Panel (via Ref)</h2>
@@ -397,6 +433,7 @@ const ContextControlPanel = () => {
 const AnimationViaContextExample = () => {
   return (
     <AppSplitter
+      initialLayout={null}
       leftChildren={
         <div className="h-full bg-purple-100">
           <ContextControlPanel />
@@ -435,6 +472,7 @@ const AnimationDurationsExample = () => {
 
   return (
     <AppSplitter
+      initialLayout={null}
       ref={splitterRef}
       leftChildren={
         <div className="h-full bg-indigo-100 p-4">
@@ -478,6 +516,7 @@ export const HorizontalWithAnimation: Story = {
     return (
       <AppSplitter
         ref={splitterRef}
+        initialLayout={null}
         split="horizontal"
         leftChildren={
           <div className="h-full w-full bg-teal-100 p-4">
@@ -538,6 +577,7 @@ const ThreePanelWithAnimationExample = () => {
   return (
     <AppSplitter
       ref={outerSplitterRef}
+      initialLayout={null}
       leftChildren={
         <div className="h-full bg-blue-100/20 p-4">
           <Title as="h3" className="mb-4">
@@ -577,6 +617,7 @@ const ThreePanelWithAnimationExample = () => {
         <div className="flex h-full w-full overflow-hidden">
           <AppSplitter
             ref={innerSplitterRef}
+            initialLayout={null}
             leftChildren={
               <div className="h-full bg-green-100/20 p-4">
                 <Title as="h3" className="mb-4">

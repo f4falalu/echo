@@ -18,7 +18,8 @@ export const AppLayout: React.FC<
     floating?: boolean;
     className?: string;
     sidebar?: React.ReactNode;
-    defaultLayout?: LayoutSize;
+    defaultLayout: LayoutSize;
+    initialLayout: LayoutSize | null;
     leftHidden?: boolean;
     autoSaveId?: string;
   }>
@@ -28,6 +29,7 @@ export const AppLayout: React.FC<
   floating = true,
   className = '',
   sidebar,
+  initialLayout,
   autoSaveId = 'app-layout',
 }) => {
   const PageContent = (
@@ -52,6 +54,7 @@ export const AppLayout: React.FC<
       hideSplitter={true}
       leftChildren={sidebar}
       rightChildren={PageContent}
+      initialLayout={initialLayout}
     />
   );
 };

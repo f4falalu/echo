@@ -28,6 +28,8 @@ import { useMount } from '@/hooks/useMount';
  * Props for the AppSplitter component
  */
 interface IAppSplitterProps {
+  renderLeftPanel?: boolean;
+  renderRightPanel?: boolean;
   /** Content to display in the left panel */
   leftChildren: React.ReactNode;
 

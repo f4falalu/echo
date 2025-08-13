@@ -1,8 +1,10 @@
-import { useMemo } from 'react';
+import { useCallback, useMemo, useState } from 'react';
+import { useMemoizedFn } from '../../../../hooks/useMemoizedFn';
+import type { LayoutSize } from './AppSplitter.types';
 import { sizeToPixels } from './helpers';
 
 interface UseInitialValueProps {
-  initialLayout?: (`${number}px` | `${number}%` | 'auto' | number)[];
+  initialLayout: LayoutSize | null;
   split: 'vertical' | 'horizontal';
   preserveSide: 'left' | 'right';
   leftPanelMinSize?: number | string;
@@ -27,8 +29,8 @@ export const useInitialValue = ({
   rightPanelMaxSize,
   containerRef,
   mounted,
-}: UseInitialValueProps): number | null => {
-  return useMemo(() => {
+}: UseInitialValueProps) => {
+  const getInitialValue = () => {
     if (initialLayout) {
       const [leftValue, rightValue] = initialLayout;
       const containerSize =
@@ -69,14 +71,11 @@ export const useInitialValue = ({
       return result;
     }
     return null;
-  }, [
-    mounted,
-    initialLayout,
-    split,
-    preserveSide,
-    leftPanelMinSize,
-    rightPanelMinSize,
-    leftPanelMaxSize,
-    rightPanelMaxSize,
-  ]);
+  };
+
+  const initialValue = useMemo(() => {
+    return getInitialValue();
+  }, [getInitialValue, mounted]);
+
+  return initialValue;
 };

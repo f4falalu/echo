@@ -20,6 +20,7 @@ import { AppSplitterProvider } from './AppSplitterProvider';
 import { createAutoSaveId, easeInOutCubic, sizeToPixels } from './helpers';
 import { Panel } from './Panel';
 import { Splitter } from './Splitter';
+import { useDefaultValue } from './useDefaultValue';
 import { useInitialValue } from './useInitialValue';
 
 // ================================
@@ -76,17 +77,6 @@ const AppSplitterWrapper = forwardRef<AppSplitterRef, IAppSplitterProps>(
     } = props;
 
     // Calculate initialValue using custom hook
-    const initialValue = useInitialValue({
-      initialLayout: props.initialLayout,
-      split,
-      preserveSide,
-      leftPanelMinSize,
-      rightPanelMinSize,
-      leftPanelMaxSize,
-      rightPanelMaxSize,
-      containerRef,
-      mounted,
-    });
 
     useMount(async () => {
       //we need to wait for the parent to be mounted and the container to be sized
@@ -97,6 +87,18 @@ const AppSplitterWrapper = forwardRef<AppSplitterRef, IAppSplitterProps>(
       } else {
         setMounted(true);
       }
+    });
+
+    const initialValue = useInitialValue({
+      initialLayout: props.initialLayout,
+      split,
+      preserveSide,
+      leftPanelMinSize,
+      rightPanelMinSize,
+      leftPanelMaxSize,
+      rightPanelMaxSize,
+      containerRef,
+      mounted,
     });
 
     return (
@@ -188,23 +190,16 @@ const AppSplitterBase = forwardRef<
     // STORAGE MANAGEMENT
     // ================================
 
-    const defaultValue = useCallback(() => {
-      const [leftValue, rightValue] = defaultLayout;
-      const containerSize =
-        split === 'vertical'
-          ? (containerRef.current?.offsetWidth ?? 0)
-          : (containerRef.current?.offsetHeight ?? 0);
-
-      if (preserveSide === 'left' && leftValue === 'auto') {
-        return containerSize;
-      }
-      if (preserveSide === 'right' && rightValue === 'auto') {
-        return containerSize;
-      }
-      const preserveValue = preserveSide === 'left' ? leftValue : rightValue;
-      const result = sizeToPixels(preserveValue, containerSize);
-      return result;
-    }, [defaultLayout, split, preserveSide]);
+    const defaultValue = useDefaultValue({
+      defaultLayout,
+      split,
+      preserveSide,
+      leftPanelMinSize,
+      rightPanelMinSize,
+      leftPanelMaxSize,
+      rightPanelMaxSize,
+      containerRef,
+    });
 
     // Load saved layout from cookies
     const [savedLayout, setSavedLayout] = useCookieState<number | null>(splitterAutoSaveId, {
@@ -421,15 +416,23 @@ const AppSplitterBase = forwardRef<
             cancelAnimationFrame(animationRef.current);
           }
 
-          const targetPixels = sizeToPixels(width, state.containerSize);
+          // Convert target to pixels and clamp to constraints
+          const targetPixelsRaw = sizeToPixels(width, state.containerSize);
+          const constrainedTargetPixels = applyConstraints(
+            preserveSide === 'left' ? targetPixelsRaw : state.containerSize - targetPixelsRaw
+          );
           let targetSize: number;
 
           if (side === 'left') {
             targetSize =
-              preserveSide === 'left' ? targetPixels : state.containerSize - targetPixels;
+              preserveSide === 'left'
+                ? constrainedTargetPixels
+                : state.containerSize - constrainedTargetPixels;
           } else {
             targetSize =
-              preserveSide === 'right' ? targetPixels : state.containerSize - targetPixels;
+              preserveSide === 'right'
+                ? constrainedTargetPixels
+                : state.containerSize - constrainedTargetPixels;
           }
 
           const startSize = savedLayout ?? 0;
@@ -492,9 +495,9 @@ const AppSplitterBase = forwardRef<
 
       // Apply the preservation logic with the effective side
       if (effectivePreserveSide === 'left' && leftValue !== 'auto') {
-        setSavedLayout(leftPixels);
+        setSavedLayout(applyConstraints(leftPixels));
       } else if (effectivePreserveSide === 'right' && rightValue !== 'auto') {
-        setSavedLayout(rightPixels);
+        setSavedLayout(applyConstraints(rightPixels));
       }
 
       setState((prev) => ({ ...prev, sizeSetByAnimation: false }));

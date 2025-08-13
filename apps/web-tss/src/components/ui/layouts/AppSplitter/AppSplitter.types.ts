@@ -14,7 +14,7 @@ export interface IAppSplitterProps {
   /**
    * Initial preserved-side size from cookies (in pixels)
    */
-  initialLayout?: LayoutSize;
+  initialLayout: LayoutSize | null;
 
   /**
    * Default layout configuration as [left, right] sizes
