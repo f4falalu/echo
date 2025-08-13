@@ -243,16 +243,16 @@ const AppSplitterWrapper = forwardRef<AppSplitterRef, IAppSplitterProps>(
           id={splitterAutoSaveId}
           className={cn('flex h-full w-full', isVertical ? 'flex-row' : 'flex-col', className)}
           style={style}>
-          {mounted && (
-            <AppSplitterBase
-              {...props}
-              ref={componentRef}
-              isVertical={isVertical}
-              containerRef={containerRef}
-              splitterAutoSaveId={splitterAutoSaveId}
-              split={split}
-            />
-          )}
+          {/* {mounted && ( */}
+          <AppSplitterBase
+            {...props}
+            ref={componentRef}
+            isVertical={isVertical}
+            containerRef={containerRef}
+            splitterAutoSaveId={splitterAutoSaveId}
+            split={split}
+          />
+          {/* )} */}
         </div>
       </AppSplitterContext.Provider>
     );

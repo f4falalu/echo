@@ -574,10 +574,29 @@ const ThreePanelWithAnimationExample = () => {
     innerSplitterRef.current?.animateWidth(size, 'right', duration);
   };
 
+  const parseLayout = (layout: string, preserveSide: 'left' | 'right'): LayoutSize | null => {
+    try {
+      if (!layout) return null;
+      const { value } = JSON.parse(layout) as { value: number };
+      return preserveSide === 'left' ? [`${value}px`, 'auto'] : ['auto', `${value}px`];
+    } catch (error) {
+      return null;
+    }
+  };
+
+  const initialLayoutParent = parseLayout(
+    cookies.get('app-splitter-three-panel-outer') ?? '',
+    'left'
+  );
+  const initialLayoutInner = parseLayout(
+    cookies.get('app-splitter-three-panel-inner') ?? '',
+    'right'
+  );
+
   return (
     <AppSplitter
       ref={outerSplitterRef}
-      initialLayout={null}
+      initialLayout={initialLayoutParent}
       leftChildren={
         <div className="h-full bg-blue-100/20 p-4">
           <Title as="h3" className="mb-4">
@@ -617,7 +636,7 @@ const ThreePanelWithAnimationExample = () => {
         <div className="flex h-full w-full overflow-hidden">
           <AppSplitter
             ref={innerSplitterRef}
-            initialLayout={null}
+            initialLayout={initialLayoutInner}
             leftChildren={
               <div className="h-full bg-green-100/20 p-4">
                 <Title as="h3" className="mb-4">
