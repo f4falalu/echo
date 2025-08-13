@@ -25,6 +25,8 @@ type ThemeProviderProps = {
 // Create the context
 const ThemeProviderContext = createContext<ThemeProviderState | null>(null);
 
+const ENABLED_DARK_MODE = false;
+
 // Theme provider component
 export function BusterThemeProvider({
   children,
@@ -50,6 +52,8 @@ export function BusterThemeProvider({
 
   // Apply theme to document root
   useEffect(() => {
+    if (!ENABLED_DARK_MODE) return;
+
     const root = window.document.documentElement;
 
     // Remove both classes first

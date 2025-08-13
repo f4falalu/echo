@@ -7,6 +7,7 @@
     "dev:fast": "pnpm run build && pnpm run start",
     "start": "node .output/server/index.mjs",
     "build": "vite build",
+    "build:fix-react-symlink": "npx tsx scripts/fix-react-symlink.ts",
     "serve": "vite preview",
     "test": "vitest run",
     "lint": "biome check --write",
