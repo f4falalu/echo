@@ -25,7 +25,7 @@ export function createCreateMetricsStart(context: CreateMetricsContext, state: C
             };
 
             if (reasoningEntry) {
-              updates.responseEntry = reasoningEntry;
+              updates.reasoningEntry = reasoningEntry;
             }
 
             if (rawLlmMessage) {

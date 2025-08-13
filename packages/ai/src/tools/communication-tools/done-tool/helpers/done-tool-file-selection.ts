@@ -19,12 +19,12 @@ interface ExtractedFile {
 
 /**
  * Extract files from tool call responses in the conversation messages
- * Uses proper TypeScript types to identify and extract visualization tool outputs
+ * Scans both tool results and assistant messages for file information
  */
 export function extractFilesFromToolCalls(messages: ModelMessage[]): ExtractedFile[] {
   const files: ExtractedFile[] = [];
 
-  // Iterate through messages to find tool call results
+  // Iterate through messages to find files
   for (const message of messages) {
     if (message.role === 'tool') {
       // Tool messages have content that contains the tool result
@@ -42,11 +42,122 @@ export function extractFilesFromToolCalls(messages: ModelMessage[]): ExtractedFi
         // Handle single tool result object
         processToolOutput(toolContent, files);
       }
+    } else if (message.role === 'assistant') {
+      // Assistant messages might contain reasoning entries with files
+      // Check if the content contains file information
+      if (typeof message.content === 'string') {
+        // Try to extract files from assistant content if it contains structured data
+        extractFilesFromAssistantMessage(message.content, files);
+      } else if (Array.isArray(message.content)) {
+        // Handle structured content
+        for (const content of message.content) {
+          if (content && typeof content === 'object') {
+            extractFilesFromStructuredContent(content, files);
+          }
+        }
+      }
     }
   }
 
   // Deduplicate files by ID, keeping highest version
   return deduplicateFilesByVersion(files);
+}
+
+/**
+ * Extract files from assistant message content
+ */
+function extractFilesFromAssistantMessage(content: string, files: ExtractedFile[]): void {
+  // Assistant messages might contain JSON data or structured information about files
+  // We'll try to parse it if it looks like it contains file data
+  try {
+    // Check if content contains file-like structures
+    if (content.includes('"file_type"') || content.includes('"files"')) {
+      // Try to extract JSON objects from the content
+      const jsonMatches = content.match(/\{[^{}]*\}/g);
+      if (jsonMatches) {
+        for (const match of jsonMatches) {
+          try {
+            const obj = JSON.parse(match);
+            if (obj && typeof obj === 'object') {
+              processFileObject(obj, files);
+            }
+          } catch {
+            // Ignore parse errors for individual matches
+          }
+        }
+      }
+    }
+  } catch {
+    // Ignore if we can't parse the content
+  }
+}
+
+/**
+ * Extract files from structured content (like tool calls or reasoning entries)
+ */
+function extractFilesFromStructuredContent(content: unknown, files: ExtractedFile[]): void {
+  if (!content || typeof content !== 'object') return;
+  
+  const obj = content as Record<string, unknown>;
+  
+  // Check if this is a files reasoning entry
+  if (obj.type === 'files' && obj.files && typeof obj.files === 'object') {
+    const filesObj = obj.files as Record<string, unknown>;
+    for (const fileId in filesObj) {
+      const file = filesObj[fileId];
+      if (file && typeof file === 'object') {
+        processFileObject(file, files);
+      }
+    }
+  }
+  
+  // Check if this contains file information directly
+  if ('file_type' in obj && 'file_name' in obj && 'id' in obj) {
+    processFileObject(obj, files);
+  }
+  
+  // Recursively check nested structures
+  for (const key in obj) {
+    const value = obj[key];
+    if (value && typeof value === 'object') {
+      if (Array.isArray(value)) {
+        for (const item of value) {
+          extractFilesFromStructuredContent(item, files);
+        }
+      } else {
+        extractFilesFromStructuredContent(value, files);
+      }
+    }
+  }
+}
+
+/**
+ * Process a file object and add it to the files array
+ */
+function processFileObject(obj: unknown, files: ExtractedFile[]): void {
+  if (!obj || typeof obj !== 'object') return;
+  
+  const file = obj as Record<string, unknown>;
+  
+  // Check if this looks like a file object
+  if (file.id && (file.file_type || file.fileType) && (file.file_name || file.fileName || file.name)) {
+    const fileType = (file.file_type || file.fileType) as string;
+    const fileName = (file.file_name || file.fileName || file.name) as string;
+    const id = file.id as string;
+    const versionNumber = (file.version_number || file.versionNumber || 1) as number;
+    
+    // Only add valid file types
+    if (fileType === 'metric' || fileType === 'dashboard' || fileType === 'report') {
+      files.push({
+        id,
+        fileType: fileType as 'metric' | 'dashboard' | 'report',
+        fileName,
+        status: 'completed',
+        operation: 'created',
+        versionNumber,
+      });
+    }
+  }
 }
 
 /**

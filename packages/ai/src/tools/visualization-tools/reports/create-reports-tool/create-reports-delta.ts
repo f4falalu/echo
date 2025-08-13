@@ -99,7 +99,7 @@ export function createCreateReportsDelta(context: CreateReportsContext, state: C
         };
 
         if (reasoningEntry) {
-          updates.responseEntry = reasoningEntry;
+          updates.reasoningEntry = reasoningEntry;
         }
 
         if (rawLlmMessage) {

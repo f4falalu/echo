@@ -95,7 +95,7 @@ export function createModifyMetricsDelta(context: ModifyMetricsContext, state: M
         };
 
         if (reasoningEntry) {
-          updates.responseEntry = reasoningEntry;
+          updates.reasoningEntry = reasoningEntry;
         }
 
         if (rawLlmMessage) {

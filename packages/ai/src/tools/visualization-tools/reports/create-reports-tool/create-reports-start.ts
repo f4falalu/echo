@@ -25,7 +25,7 @@ export function createReportsStart(context: CreateReportsContext, state: CreateR
             };
 
             if (reasoningEntry) {
-              updates.responseEntry = reasoningEntry;
+              updates.reasoningEntry = reasoningEntry;
             }
 
             if (rawLlmMessage) {

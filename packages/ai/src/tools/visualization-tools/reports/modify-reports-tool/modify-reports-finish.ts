@@ -72,7 +72,7 @@ export function createModifyReportsFinish(
         };
 
         if (reasoningEntry) {
-          updates.responseEntry = reasoningEntry;
+          updates.reasoningEntry = reasoningEntry;
         }
 
         if (rawLlmMessage) {

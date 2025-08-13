@@ -46,7 +46,7 @@ export function createModifyDashboardsFinish(
         };
 
         if (reasoningEntry) {
-          updates.responseEntry = reasoningEntry;
+          updates.reasoningEntry = reasoningEntry;
         }
 
         if (rawLlmMessage) {

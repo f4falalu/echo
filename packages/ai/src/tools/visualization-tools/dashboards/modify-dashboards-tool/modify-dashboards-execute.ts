@@ -594,7 +594,7 @@ export function createModifyDashboardsExecute(
             };
 
             if (reasoningEntry) {
-              updates.responseEntry = reasoningEntry;
+              updates.reasoningEntry = reasoningEntry;
             }
 
             if (rawLlmMessage) {

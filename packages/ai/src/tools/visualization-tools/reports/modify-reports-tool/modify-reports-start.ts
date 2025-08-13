@@ -25,7 +25,7 @@ export function modifyReportsStart(context: ModifyReportsContext, state: ModifyR
             };
 
             if (reasoningEntry) {
-              updates.responseEntry = reasoningEntry;
+              updates.reasoningEntry = reasoningEntry;
             }
 
             if (rawLlmMessage) {

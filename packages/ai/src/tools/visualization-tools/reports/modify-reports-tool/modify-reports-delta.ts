@@ -109,7 +109,7 @@ export function createModifyReportsDelta(context: ModifyReportsContext, state: M
         };
 
         if (reasoningEntry) {
-          updates.responseEntry = reasoningEntry;
+          updates.reasoningEntry = reasoningEntry;
         }
 
         if (rawLlmMessage) {
