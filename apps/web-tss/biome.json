@@ -38,7 +38,8 @@
       "suspicious": {
         "noExplicitAny": "error",
         "noConsole": "off",
-        "noArrayIndexKey": "off"
+        "noArrayIndexKey": "off",
+        "noTemplateCurlyInString": "off"
       },
       "complexity": {
         "noExcessiveCognitiveComplexity": "off",
@@ -63,6 +64,12 @@
             "noExplicitAny": "off"
           }
         }
+      }
+    },
+    {
+      "includes": ["**/*.stories.tsx"],
+      "linter": {
+        "enabled": false
       }
     }
   ],

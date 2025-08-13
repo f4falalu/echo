@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import { cn } from '@/lib/classMerge';
 import { ChevronLeft } from '../icons';
 import { Button } from './Button';

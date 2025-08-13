@@ -99,7 +99,13 @@ export const DropdownBase = <T,>({
   showEmptyState = true,
 }: DropdownProps<T>) => {
   return (
-    <DropdownMenu open={open} defaultOpen={open} onOpenChange={onOpenChange} dir={dir}>
+    <DropdownMenu
+      open={open}
+      defaultOpen={open}
+      onOpenChange={onOpenChange}
+      dir={dir}
+      modal={modal}
+    >
       <DropdownMenuTrigger asChild disabled={disabled}>
         <span className="dropdown-trigger">{children}</span>
       </DropdownMenuTrigger>
