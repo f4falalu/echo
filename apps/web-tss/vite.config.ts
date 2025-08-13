@@ -6,18 +6,12 @@ import checker from 'vite-plugin-checker';
 import viteTsConfigPaths from 'vite-tsconfig-paths';
 
 const config = defineConfig({
-  server: {
-    port: 3000,
-  },
+  server: { port: 3000 },
   plugins: [
     // this is the plugin that enables path aliases
-    viteTsConfigPaths({
-      projects: ['./tsconfig.json'],
-    }),
+    viteTsConfigPaths({ projects: ['./tsconfig.json'] }),
     tailwindcss(),
-    tanstackStart({
-      customViteReactPlugin: true,
-    }),
+    tanstackStart({ customViteReactPlugin: true }),
     viteReact(),
     !process.env.VITEST
       ? checker({
@@ -26,6 +20,21 @@ const config = defineConfig({
         })
       : undefined,
   ],
+  build: {
+    rollupOptions: {
+      output: {
+        // Force lodash and lodash-es into a dedicated vendor chunk
+        manualChunks(id) {
+          if (id.includes('node_modules/lodash')) {
+            return 'vendor-lodash';
+          }
+          if (id.includes('node_modules/lodash-es')) {
+            return 'vendor-lodash';
+          }
+        },
+      },
+    },
+  },
 });
 
 export default config;
