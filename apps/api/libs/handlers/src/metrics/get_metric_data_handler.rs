@@ -198,11 +198,9 @@ pub async fn get_metric_data_handler(
         request.limit
     );
 
-    // Determine the actual query limit - we query for 5001 to check if there are more records
-    let query_limit = match request.limit {
-        Some(limit) => std::cmp::min(limit, 5001),
-        None => 5001,
-    };
+    // Determine the actual query limit - we query for one extra record to check if there are more
+    let display_limit = request.limit.unwrap_or(5000).min(5000);
+    let query_limit = display_limit + 1;
 
     // Try to get cached metadata first
     let mut conn_meta = get_pg_pool().get().await?;
@@ -239,13 +237,13 @@ pub async fn get_metric_data_handler(
         }
     };
 
-    // Check if we have more than 5000 records
-    let has_more_records = query_result.data.len() > 5000;
+    // Check if we have more records than the display limit
+    let has_more_records = query_result.data.len() > display_limit as usize;
     
-    // Truncate to 5000 records if we got more
+    // Truncate to display limit if we got more
     let mut data = query_result.data;
     if has_more_records {
-        data.truncate(5000);
+        data.truncate(display_limit as usize);
     }
 
     // Determine which metadata to use
