@@ -9,3 +9,4 @@ export * from './dashboards';
 export * from './metrics';
 export * from './collections';
 export * from './reports';
+export * from './vault';
