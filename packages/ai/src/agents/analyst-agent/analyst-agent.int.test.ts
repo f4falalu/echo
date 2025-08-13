@@ -14,6 +14,7 @@ describe('Analyst Agent Integration Tests', () => {
         dataSourceSyntax: 'postgresql',
         organizationId: '123',
         messageId: '123',
+        datasets: [],
       });
 
       const streamResult = await analystAgent.stream({

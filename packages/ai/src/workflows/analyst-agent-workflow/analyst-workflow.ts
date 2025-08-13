@@ -1,5 +1,6 @@
 // input for the workflow
 
+import type { PermissionedDataset } from '@buster/access-controls';
 import type { ModelMessage } from 'ai';
 import { z } from 'zod';
 import {
@@ -20,6 +21,7 @@ const AnalystWorkflowInputSchema = z.object({
   organizationId: z.string().uuid(),
   dataSourceId: z.string().uuid(),
   dataSourceSyntax: z.string(),
+  datasets: z.array(z.custom<PermissionedDataset>()),
 });
 
 export type AnalystWorkflowInput = z.infer<typeof AnalystWorkflowInputSchema>;
@@ -44,6 +46,7 @@ export async function runAnalystWorkflow(input: AnalystWorkflowInput) {
       dataSourceSyntax: input.dataSourceSyntax,
       userId: input.userId,
       sql_dialect_guidance: input.dataSourceSyntax,
+      datasets: input.datasets,
     },
     streamOptions: {
       messages,
@@ -60,6 +63,7 @@ export async function runAnalystWorkflow(input: AnalystWorkflowInput) {
       dataSourceId: input.dataSourceId,
       dataSourceSyntax: input.dataSourceSyntax,
       userId: input.userId,
+      datasets: input.datasets,
     },
     streamOptions: {
       messages,

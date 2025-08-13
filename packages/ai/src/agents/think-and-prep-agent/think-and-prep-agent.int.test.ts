@@ -17,6 +17,7 @@ describe('Think and Prep Agent Integration Tests', () => {
         userId: 'test-user-123',
         dataSourceId: 'test-data-source-123',
         dataSourceSyntax: 'postgresql',
+        datasets: [],
       });
 
       const streamResult = await thinkAndPrepAgent.stream({

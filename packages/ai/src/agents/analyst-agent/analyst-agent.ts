@@ -1,3 +1,4 @@
+import type { PermissionedDataset } from '@buster/access-controls';
 import { type ModelMessage, NoSuchToolError, hasToolCall, stepCountIs, streamText } from 'ai';
 import { wrapTraced } from 'braintrust';
 import z from 'zod';
@@ -31,6 +32,7 @@ export const AnalystAgentOptionsSchema = z.object({
   dataSourceSyntax: z.string(),
   organizationId: z.string(),
   messageId: z.string(),
+  datasets: z.array(z.custom<PermissionedDataset>()),
 });
 
 export const AnalystStreamOptionsSchema = z.object({
@@ -43,9 +45,25 @@ export type AnalystAgentOptions = z.infer<typeof AnalystAgentOptionsSchema>;
 export type AnalystStreamOptions = z.infer<typeof AnalystStreamOptionsSchema>;
 
 export function createAnalystAgent(analystAgentOptions: AnalystAgentOptions) {
+  const { datasets } = analystAgentOptions;
+
   const systemMessage = {
     role: 'system',
     content: getAnalystAgentSystemPrompt(analystAgentOptions.dataSourceSyntax),
+    providerOptions: DEFAULT_CACHE_OPTIONS,
+  } as ModelMessage;
+
+  // Create second system message with datasets information
+  const datasetsContent = datasets
+    .filter((d) => d.ymlFile)
+    .map((d) => d.ymlFile)
+    .join('\n\n');
+
+  const datasetsSystemMessage = {
+    role: 'system',
+    content: datasetsContent
+      ? `<database_context>\n${datasetsContent}\n</database_context>`
+      : '<database_context>\nNo datasets available\n</database_context>',
     providerOptions: DEFAULT_CACHE_OPTIONS,
   } as ModelMessage;
 
@@ -79,7 +97,7 @@ export function createAnalystAgent(analystAgentOptions: AnalystAgentOptions) {
                 modifyReports,
                 doneTool,
               },
-              messages: [systemMessage, ...currentMessages],
+              messages: [systemMessage, datasetsSystemMessage, ...currentMessages],
               stopWhen: STOP_CONDITIONS,
               toolChoice: 'required',
               maxOutputTokens: 10000,

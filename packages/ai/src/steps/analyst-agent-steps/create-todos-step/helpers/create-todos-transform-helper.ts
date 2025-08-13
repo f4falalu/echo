@@ -33,7 +33,7 @@ export function createTodosReasoningMessage(
   return {
     id,
     type: 'files',
-    title: 'Analysis Plan',
+    title: todosState.is_complete ? 'Broke down your request' : 'Breaking down your request...',
     status: todosState.is_complete ? 'completed' : 'loading',
     secondary_title: undefined,
     file_ids: [id],

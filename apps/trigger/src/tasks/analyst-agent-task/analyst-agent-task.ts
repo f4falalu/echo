@@ -14,6 +14,9 @@ import {
   getOrganizationDataSource,
 } from '@buster/database';
 
+// Access control imports
+import { type PermissionedDataset, getPermissionedDatasets } from '@buster/access-controls';
+
 // AI package imports
 import { type AnalystWorkflowInput, runAnalystWorkflow } from '@buster/ai';
 
@@ -286,18 +289,42 @@ export const analystAgentTask: ReturnType<
         getChatDashboardFiles({ chatId: context.chatId })
       );
 
+      // Fetch user's datasets as soon as we have the userId
+      const datasetsPromise = messageContextPromise.then(async (context) => {
+        try {
+          // Using the existing access control function
+          const datasets = await getPermissionedDatasets(context.userId, 0, 1000);
+          return datasets;
+        } catch (error) {
+          logger.error('Failed to fetch datasets for user', {
+            userId: context.userId,
+            messageId: payload.message_id,
+            error: error instanceof Error ? error.message : 'Unknown error',
+          });
+          // Return empty array on error to not block the workflow
+          return [] as PermissionedDataset[];
+        }
+      });
+
       // Fetch Braintrust metadata in parallel
       const braintrustMetadataPromise = getBraintrustMetadata({ messageId: payload.message_id });
 
       // Wait for all operations to complete
-      const [messageContext, conversationHistory, dataSource, dashboardFiles, braintrustMetadata] =
-        await Promise.all([
-          messageContextPromise,
-          conversationHistoryPromise,
-          dataSourcePromise,
-          dashboardFilesPromise,
-          braintrustMetadataPromise,
-        ]);
+      const [
+        messageContext,
+        conversationHistory,
+        dataSource,
+        dashboardFiles,
+        datasets,
+        braintrustMetadata,
+      ] = await Promise.all([
+        messageContextPromise,
+        conversationHistoryPromise,
+        dataSourcePromise,
+        dashboardFilesPromise,
+        datasetsPromise,
+        braintrustMetadataPromise,
+      ]);
 
       const dataLoadEnd = Date.now();
       const dataLoadTime = dataLoadEnd - dataLoadStart;
@@ -316,6 +343,11 @@ export const analystAgentTask: ReturnType<
           versionNumber: d.versionNumber,
           metricIdsCount: d.metricIds.length,
           metricIds: d.metricIds,
+        })),
+        datasetsCount: datasets.length,
+        datasets: datasets.map((d) => ({
+          id: d.id,
+          name: d.name,
         })),
         dataLoadTimeMs: dataLoadTime,
         braintrustMetadata, // Log the metadata to verify it's working
@@ -344,6 +376,7 @@ export const analystAgentTask: ReturnType<
         organizationId: messageContext.organizationId,
         dataSourceId: dataSource.dataSourceId,
         dataSourceSyntax: dataSource.dataSourceSyntax,
+        datasets,
       };
 
       logger.log('Workflow input prepared', {

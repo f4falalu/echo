@@ -44,6 +44,7 @@ describe('runThinkAndPrepAgentStep', () => {
         organizationId: 'test-organization-id',
         dataSourceId: 'test-data-source-id',
         dataSourceSyntax: 'test-data-source-syntax',
+        datasets: [],
       },
       streamOptions: {
         messages: [{ role: 'user', content: 'Test prompt' }],
@@ -81,6 +82,7 @@ describe('runThinkAndPrepAgentStep', () => {
           organizationId: 'test-organization-id',
           dataSourceId: 'test-data-source-id',
           dataSourceSyntax: 'test-data-source-syntax',
+          datasets: [],
         },
         streamOptions: {
           messages: [{ role: 'user', content: 'Test prompt' }],
@@ -115,6 +117,7 @@ describe('runThinkAndPrepAgentStep', () => {
           organizationId: 'test-organization-id',
           dataSourceId: 'test-data-source-id',
           dataSourceSyntax: 'test-data-source-syntax',
+          datasets: [],
         },
         streamOptions: {
           messages: [{ role: 'user', content: 'Test prompt' }],
@@ -147,6 +150,7 @@ describe('runThinkAndPrepAgentStep', () => {
           organizationId: 'test-organization-id',
           dataSourceId: 'test-data-source-id',
           dataSourceSyntax: 'test-data-source-syntax',
+          datasets: [],
         },
         streamOptions: {
           messages: [{ role: 'user', content: 'Test prompt' }],

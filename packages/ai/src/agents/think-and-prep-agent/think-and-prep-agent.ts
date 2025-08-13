@@ -1,3 +1,4 @@
+import type { PermissionedDataset } from '@buster/access-controls';
 import { type ModelMessage, NoSuchToolError, hasToolCall, stepCountIs, streamText } from 'ai';
 import { wrapTraced } from 'braintrust';
 import z from 'zod';
@@ -37,6 +38,9 @@ export const ThinkAndPrepAgentOptionsSchema = z.object({
   dataSourceId: z.string().describe('The data source ID for tracking tool execution.'),
   dataSourceSyntax: z.string().describe('The data source syntax for tracking tool execution.'),
   userId: z.string().describe('The user ID for tracking tool execution.'),
+  datasets: z
+    .array(z.custom<PermissionedDataset>())
+    .describe('The datasets available to the user.'),
   analysisMode: z
     .enum(['standard', 'investigation'])
     .default('standard')
@@ -54,7 +58,7 @@ export type ThinkAndPrepAgentOptions = z.infer<typeof ThinkAndPrepAgentOptionsSc
 export type ThinkAndPrepStreamOptions = z.infer<typeof ThinkAndPrepStreamOptionsSchema>;
 
 export function createThinkAndPrepAgent(thinkAndPrepAgentSchema: ThinkAndPrepAgentOptions) {
-  const { messageId } = thinkAndPrepAgentSchema;
+  const { messageId, datasets } = thinkAndPrepAgentSchema;
 
   const systemMessage = {
     role: 'system',
@@ -62,6 +66,20 @@ export function createThinkAndPrepAgent(thinkAndPrepAgentSchema: ThinkAndPrepAge
       thinkAndPrepAgentSchema.sql_dialect_guidance,
       (thinkAndPrepAgentSchema.analysisMode || 'standard') as AnalysisMode
     ),
+    providerOptions: DEFAULT_CACHE_OPTIONS,
+  } as ModelMessage;
+
+  // Create second system message with datasets information
+  const datasetsContent = datasets
+    .filter((d) => d.ymlFile)
+    .map((d) => d.ymlFile)
+    .join('\n\n');
+
+  const datasetsSystemMessage = {
+    role: 'system',
+    content: datasetsContent
+      ? `<database_context>\n${datasetsContent}\n</database_context>`
+      : '<database_context>\nNo datasets available\n</database_context>',
     providerOptions: DEFAULT_CACHE_OPTIONS,
   } as ModelMessage;
 
@@ -94,7 +112,7 @@ export function createThinkAndPrepAgent(thinkAndPrepAgentSchema: ThinkAndPrepAge
                 submitThoughts,
                 messageUserClarifyingQuestion,
               },
-              messages: [systemMessage, ...currentMessages],
+              messages: [systemMessage, datasetsSystemMessage, ...currentMessages],
               stopWhen: STOP_CONDITIONS,
               toolChoice: 'required',
               maxOutputTokens: 10000,
