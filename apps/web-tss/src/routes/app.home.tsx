@@ -17,7 +17,7 @@ export const Route = createFileRoute('/app/home')({
 
 function RouteComponent() {
   const { initialLayout } = Route.useLoaderData();
-  console.log('initialLayout', initialLayout);
+
   return (
     <div className=" h-full">
       <AppSplitter

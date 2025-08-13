@@ -19,18 +19,25 @@ export { default as Download } from './download';
 export { default as Eye } from './eye'; // Eye (show) icon
 export { default as EyeSlash } from './eye-slash'; // Eye with slash (hide) icon
 export { default as File } from './file';
+export { default as FileText } from './file-text'; // File text icon
 export { default as Flag } from './flag'; // Flag icon
+export { default as Folder5 } from './folder-5'; // Folder variant 5 icon
+export { default as FolderPlus } from './folder-plus'; // Folder with plus icon
 export { default as Gear } from './gear'; // Gear/settings icon
+export { default as Grid } from './grid'; // Grid icon
+export { default as GridPlus } from './grid-plus'; // Grid with plus icon
 export { default as House4 } from './house-4'; // House variant 4 icon
 export { default as Magnifier } from './magnifier';
 export { default as Mailbox } from './mailbox';
 export { default as MapSettings } from './map-settings';
+export { default as Messages } from './messages'; // Messages icon
 export { default as Minus } from './minus';
 export { default as PaintRoller } from './paint-roller';
 export { default as Plus } from './plus'; // Plus/add icon
 export { default as ShapeCircle } from './shape-circle';
 export { default as ShapeSquare } from './shape-square';
 export { default as SidebarLeft } from './sidebar-left';
+export { default as SquareChart } from './square-chart'; // Square chart icon
 export { default as Star } from './star';
 export { default as Storage } from './storage';
 export { default as Table } from './table'; // Table icon
