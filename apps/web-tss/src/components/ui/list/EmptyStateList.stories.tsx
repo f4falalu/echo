@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/nextjs';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { EmptyStateList } from './EmptyStateList';
 
 const meta: Meta<typeof EmptyStateList> = {

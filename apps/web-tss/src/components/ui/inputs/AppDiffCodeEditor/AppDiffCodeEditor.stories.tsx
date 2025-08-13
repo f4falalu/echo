@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/nextjs';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { AppDiffCodeEditor } from './AppDiffCodeEditor';
 
 const meta: Meta<typeof AppDiffCodeEditor> = {

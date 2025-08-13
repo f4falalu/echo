@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/nextjs';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { InputPassword } from './InputPassword';
 
 const meta: Meta<typeof InputPassword> = {

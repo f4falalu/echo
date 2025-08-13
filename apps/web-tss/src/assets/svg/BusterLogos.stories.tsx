@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/nextjs';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { BusterLogo } from './BusterLogo';
 import { BusterLogoWithText } from './BusterLogoWithText';
 

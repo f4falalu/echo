@@ -1,7 +1,7 @@
 'use client';
 
 import { faker } from '@faker-js/faker';
-import type { Meta, StoryObj } from '@storybook/nextjs';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { useMemo, useState } from 'react';
 import { fn } from 'storybook/test';
 import type { SelectItem } from './Select';

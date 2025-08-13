@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/nextjs';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { fn } from 'storybook/test';
 import { ArrowUp, ShapeSquare } from '../icons/NucleoIconFilled';
 import { InputTextAreaButton } from './InputTextAreaButton';

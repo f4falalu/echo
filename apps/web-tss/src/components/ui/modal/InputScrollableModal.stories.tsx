@@ -1,8 +1,7 @@
 import { faker } from '@faker-js/faker';
-import type { Meta, StoryObj } from '@storybook/nextjs';
-import React from 'react';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { fn } from 'storybook/test';
-import { useSet } from '@/hooks';
+import { useSet } from '@/hooks/useSet';
 import { InputSelectModal, type InputSelectModalProps } from './InputSelectModal';
 
 // Define the data type for the list items

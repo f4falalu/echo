@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/nextjs';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { VersionPill } from './VersionPill';
 
 const meta: Meta<typeof VersionPill> = {

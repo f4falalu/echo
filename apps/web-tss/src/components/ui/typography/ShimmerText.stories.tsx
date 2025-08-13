@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/nextjs';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { ShimmerText } from './ShimmerText';
 
 const meta: Meta<typeof ShimmerText> = {

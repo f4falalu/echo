@@ -1,7 +1,8 @@
-import type { Meta, StoryObj } from '@storybook/nextjs';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { useState } from 'react';
 import { action } from 'storybook/actions';
-import { useDebounceFn, useMemoizedFn } from '../../../hooks';
+import { useDebounceFn } from '@/hooks/useDebounce';
+import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import { InputSearchDropdown, type InputSearchDropdownProps } from './InputSearchDropdown';
 
 const meta: Meta<typeof InputSearchDropdown> = {

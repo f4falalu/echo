@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/nextjs';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { PaintRoller } from '../icons/NucleoIconOutlined';
 import { ButtonDropdown } from './ButtonDropdown';
 

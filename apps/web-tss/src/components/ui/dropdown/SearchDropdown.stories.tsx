@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/nextjs';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Mailbox, MapSettings, User } from '../icons';
 import { SearchDropdown } from './SearchDropdown';
 

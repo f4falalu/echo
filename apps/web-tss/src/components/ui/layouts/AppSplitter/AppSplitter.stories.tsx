@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/nextjs';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import React, { useRef } from 'react';
 import { Button } from '@/components/ui/buttons/Button';
 import { Text } from '@/components/ui/typography/Text';

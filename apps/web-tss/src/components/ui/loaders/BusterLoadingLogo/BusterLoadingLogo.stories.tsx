@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/nextjs';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import BusterLoadingLogo from './BusterLoadingLogo';
 
 const meta: Meta<typeof BusterLoadingLogo> = {

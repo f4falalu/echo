@@ -1,6 +1,6 @@
-import type { Meta, StoryObj } from '@storybook/nextjs';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import React from 'react';
-import { useDebounceFn } from '../../../hooks';
+import { useDebounceFn } from '@/hooks/useDebounce';
 import { Select, type SelectItem } from './Select';
 
 const meta: Meta<typeof Select> = {
