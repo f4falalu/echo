@@ -2,7 +2,9 @@
 
 import type React from 'react';
 import { Toaster as ToasterSonner } from 'sonner';
-import { CircleCheck, CircleWarning, CircleXmark } from '../icons/NucleoIconOutlined';
+import CircleCheck from '../icons/NucleoIconOutlined/circle-check';
+import CircleWarning from '../icons/NucleoIconOutlined/circle-warning';
+import CircleXmark from '../icons/NucleoIconOutlined/circle-xmark';
 
 type ToasterProps = React.ComponentProps<typeof ToasterSonner>;
 

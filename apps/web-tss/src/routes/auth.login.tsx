@@ -1,7 +1,6 @@
-import { createFileRoute, useRouter } from '@tanstack/react-router';
+import { createFileRoute } from '@tanstack/react-router';
 import { z } from 'zod';
 import { LoginForm } from '@/components/features/auth/LoginForm';
-import { signInWithEmailAndPassword } from '../integrations/supabase/signIn';
 
 const searchParamsSchema = z.object({
   next: z.string().optional(),

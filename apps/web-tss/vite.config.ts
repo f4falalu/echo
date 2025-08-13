@@ -31,6 +31,10 @@ const config = defineConfig({
           if (id.includes('node_modules/lodash-es')) {
             return 'vendor-lodash';
           }
+          // Move supabase modules to their own chunk
+          if (id.includes('node_modules/@supabase')) {
+            return 'vendor-supabase';
+          }
         },
       },
     },
