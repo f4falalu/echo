@@ -20,20 +20,6 @@
     "react": "^19.1.1",
     "react-dom": "^19.1.1"
   },
-  "overrides": {
-    "react": "^19.1.1",
-    "react-dom": "^19.1.1",
-    "@types/react": "^19.1.10",
-    "@types/react-dom": "^19.1.7"
-  },
-  "pnpm": {
-    "overrides": {
-      "react": "^19.1.1",
-      "react-dom": "^19.1.1",
-      "@types/react": "^19.1.10",
-      "@types/react-dom": "^19.1.7"
-    }
-  },
   "dependencies": {
     "@buster/server-shared": "workspace:*",
     "@buster/typescript-config": "workspace:*",
@@ -61,19 +47,19 @@
     "@tailwindcss/vite": "^4.1.11",
     "@tanstack/db": "^0.1.1",
     "@tanstack/match-sorter-utils": "^8.19.4",
-    "@tanstack/query-db-collection": "^0.2.0",
-    "@tanstack/react-db": "^0.1.1",
+    "@tanstack/query-db-collection": "0.1.1",
+    "@tanstack/react-db": "0.1.1",
     "@tanstack/react-devtools": "^0.3.0",
     "@tanstack/react-form": "^1.19.1",
     "@tanstack/react-query": "^5.85.0",
     "@tanstack/react-query-devtools": "^5.85.0",
-    "@tanstack/react-router": "^1.131.7",
-    "@tanstack/react-router-devtools": "^1.131.7",
+    "@tanstack/react-router": "^1.131.8",
+    "@tanstack/react-router-devtools": "^1.131.8",
     "@tanstack/react-router-with-query": "^1.130.17",
-    "@tanstack/react-start": "^1.131.7",
+    "@tanstack/react-start": "^1.131.8",
     "@tanstack/react-store": "^0.7.3",
     "@tanstack/react-table": "^8.21.3",
-    "@tanstack/router-plugin": "^1.131.7",
+    "@tanstack/router-plugin": "^1.131.8",
     "@tanstack/store": "^0.7.2",
     "canvas-confetti": "^1.9.3",
     "class-variance-authority": "^0.7.1",
@@ -95,6 +81,7 @@
     "react-hotkeys-hook": "^5.1.0",
     "react-markdown": "^10.1.0",
     "remark-gfm": "^4.0.1",
+    "scheduler": "^0.26.0",
     "shiki": "^3.9.2",
     "sonner": "^2.0.7",
     "tailwind-merge": "^3.3.1",

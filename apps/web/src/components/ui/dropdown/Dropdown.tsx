@@ -1,9 +1,8 @@
 'use client';
 
-import type { ReactNode } from 'react';
 import type { DropdownMenuProps } from '@radix-ui/react-dropdown-menu';
 import Link from 'next/link';
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, type ReactNode } from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
 import { useDebounceSearch, useMemoizedFn } from '@/hooks';
 import { cn } from '@/lib/classMerge';
@@ -48,7 +47,7 @@ export interface DropdownDivider {
   type: 'divider';
 }
 
-export type DropdownItems<T = string> = (DropdownItem<T> | DropdownDivider | React.ReactNode)[];
+export type DropdownItems<T = string> = (DropdownItem<T> | DropdownDivider | ReactNode)[];
 
 export interface DropdownProps<T = string> extends DropdownMenuProps {
   items: DropdownItems<T>;
