@@ -44,7 +44,7 @@ export const MetricDataTruncatedWarning: React.FC<MetricDataTruncatedWarningProp
       <div className="flex flex-col space-y-1">
         <Text className="font-medium">This request returned more than 5,000 records</Text>
         <Text size="xs" variant="secondary">
-          To see all records, you'll need to download the results.
+          To see all records, you&apos;ll need to download the results.
         </Text>
       </div>
       <Button
