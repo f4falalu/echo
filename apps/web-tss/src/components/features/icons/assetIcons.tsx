@@ -35,6 +35,7 @@ export const assetTypeToIcon = (assetType: ShareAssetType) => {
       return ASSET_ICONS.reports;
     default: {
       const _result: never = assetType;
+      console.warn('Asset type to icon not found', assetType);
       return ASSET_ICONS.metrics;
     }
   }
