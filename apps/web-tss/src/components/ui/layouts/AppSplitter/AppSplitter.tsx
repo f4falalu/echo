@@ -46,7 +46,7 @@ interface IAppSplitterProps {
    * Default layout configuration as [left, right] sizes
    * Can be numbers (pixels), percentages (strings like "50%"), or "auto"
    */
-  defaultLayout: (string | number)[];
+  defaultLayout: (`${number}px` | `${number}&` | 'auto' | number)[];
 
   /**
    * Minimum size for the left panel
@@ -133,18 +133,6 @@ interface IAppSplitterProps {
    * Can be a boolean or a function that returns a boolean based on preserved side value and container width
    */
   bustStorageOnInit?: boolean | ((preservedSideValue: number | null, refSize: number) => boolean);
-
-  /**
-   * Whether to render the left panel content
-   * @default true
-   */
-  renderLeftPanel?: boolean;
-
-  /**
-   * Whether to render the right panel content
-   * @default true
-   */
-  renderRightPanel?: boolean;
 }
 
 /**
@@ -299,8 +287,6 @@ const AppSplitterBase = forwardRef<
       preserveSide,
       rightHidden = false,
       leftHidden = false,
-      renderLeftPanel = true,
-      renderRightPanel = true,
       hideSplitter: hideSplitterProp = false,
       leftPanelClassName,
       rightPanelClassName,
@@ -801,7 +787,7 @@ const AppSplitterBase = forwardRef<
           height={!isVertical ? leftSize : 'auto'}
           hidden={leftHidden}
         >
-          {renderLeftPanel && leftChildren}
+          {leftChildren}
         </Panel>
         {showSplitter && (
           <Splitter
@@ -819,7 +805,7 @@ const AppSplitterBase = forwardRef<
           height={!isVertical ? rightSize : 'auto'}
           hidden={rightHidden}
         >
-          {renderRightPanel && rightChildren}
+          {rightChildren}
         </Panel>
       </>
     );

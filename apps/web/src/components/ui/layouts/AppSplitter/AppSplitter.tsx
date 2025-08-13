@@ -133,18 +133,6 @@ interface IAppSplitterProps {
    * Can be a boolean or a function that returns a boolean based on preserved side value and container width
    */
   bustStorageOnInit?: boolean | ((preservedSideValue: number | null, refSize: number) => boolean);
-
-  /**
-   * Whether to render the left panel content
-   * @default true
-   */
-  renderLeftPanel?: boolean;
-
-  /**
-   * Whether to render the right panel content
-   * @default true
-   */
-  renderRightPanel?: boolean;
 }
 
 /**
