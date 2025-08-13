@@ -1,5 +1,6 @@
 import { getTitle_server } from '@/api/buster_rest/title';
 import { DashboardLayout } from '@/layouts/DashboardLayout';
+import type React from 'react';
 
 export default async function Layout({
   children,
