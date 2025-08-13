@@ -2,7 +2,7 @@
 
 import { isServer } from '@tanstack/react-query';
 import cookies from 'js-cookie';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useMemoizedFn } from './useMemoizedFn';
 import { useMount } from './useMount';
 
@@ -25,11 +25,10 @@ interface CookieOptions {
 
 interface Options<T> {
   defaultValue?: T | (() => T);
-  initialValue?: T;
+  initialValue?: T | (() => T);
   serializer?: (value: T) => string;
   deserializer?: (value: string) => T;
   onError?: (error: unknown) => void;
-  bustStorageOnInit?: boolean | ((layout: T) => boolean);
   expirationTime?: number;
   cookieOptions?: CookieOptions;
 }
@@ -73,7 +72,6 @@ export function useCookieState<T>(
     serializer = JSON.stringify,
     deserializer = JSON.parse,
     onError,
-    bustStorageOnInit = false,
     expirationTime = DEFAULT_EXPIRATION_TIME,
     cookieOptions = {},
   } = options || {};
@@ -85,14 +83,9 @@ export function useCookieState<T>(
 
   // Get initial value from cookies or use default
   const getInitialValue = useMemoizedFn((): T | undefined => {
-    // If bustStorageOnInit is true, ignore cookies and use default value
-    if (bustStorageOnInit === true) {
-      return executeBustStorage();
-    }
-
     // Prefer explicitly provided initialValue if present
     if (initialValue !== undefined) {
-      return initialValue;
+      return typeof initialValue === 'function' ? (initialValue as () => T)() : initialValue;
     }
 
     try {
@@ -128,10 +121,6 @@ export function useCookieState<T>(
       // Data is still valid, deserialize and return the value
       const deserializedValue = deserializer(JSON.stringify(storageData.value));
 
-      if (typeof bustStorageOnInit === 'function' && bustStorageOnInit(deserializedValue)) {
-        return executeBustStorage();
-      }
-
       return deserializedValue;
     } catch (error) {
       onError?.(error);
@@ -146,35 +135,28 @@ export function useCookieState<T>(
     setState(getInitialValue());
   });
 
-  // Update cookies when state changes
-  useEffect(() => {
-    try {
-      if (state === undefined && !isServer) {
-        removeCookie(key, cookieOptions);
-      } else {
-        // Create storage data with current timestamp
-        const storageData: StorageData<T> = {
-          value: JSON.parse(serializer(state)),
-          timestamp: Date.now(),
-        };
-        setCookie(key, JSON.stringify(storageData), expirationTime, cookieOptions);
-      }
-    } catch (error) {
-      onError?.(error);
-    }
-  }, [key, state, serializer, onError, expirationTime, cookieOptions]);
-
   // Setter function that handles both direct values and function updates
   const setStoredState = useMemoizedFn((value?: SetState<T>) => {
     try {
-      if (typeof value === 'function') {
-        setState((prevState) => {
-          const newState = (value as (prevState?: T) => T)(prevState);
-          return newState;
-        });
-      } else {
-        setState(value);
-      }
+      setState((prevState) => {
+        // Calculate the new state value
+        const newState =
+          typeof value === 'function' ? (value as (prevState?: T) => T)(prevState) : value;
+
+        // Update cookie with the new state
+        if (newState === undefined && !isServer) {
+          removeCookie(key, cookieOptions);
+        } else {
+          // Create storage data with current timestamp
+          const storageData: StorageData<T> = {
+            value: JSON.parse(serializer(newState)),
+            timestamp: Date.now(),
+          };
+          setCookie(key, JSON.stringify(storageData), expirationTime, cookieOptions);
+        }
+
+        return newState;
+      });
     } catch (error) {
       onError?.(error);
     }

@@ -51,8 +51,8 @@ export const ChatLayout: React.FC<ChatSplitterProps> = ({ children }) => {
       <ChatContextProvider>
         <AppSplitter
           ref={appSplitterRef}
-          leftChildren={mounted && <ChatContainer />}
-          rightChildren={mounted && <FileContainer>{children}</FileContainer>}
+          leftChildren={mounted && renderLeftPanel && <ChatContainer />}
+          rightChildren={mounted && renderRightPanel && <FileContainer>{children}</FileContainer>}
           autoSaveId={autoSaveId}
           defaultLayout={defaultSplitterLayout}
           allowResize={selectedLayout === 'both'}
@@ -61,8 +61,6 @@ export const ChatLayout: React.FC<ChatSplitterProps> = ({ children }) => {
           leftPanelMaxSize={leftPanelMaxSize}
           rightPanelMinSize={rightPanelMinSize}
           rightPanelMaxSize={rightPanelMaxSize}
-          renderLeftPanel={renderLeftPanel}
-          renderRightPanel={renderRightPanel}
           bustStorageOnInit={bustStorageOnInit}
         />
       </ChatContextProvider>

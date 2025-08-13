@@ -40,13 +40,13 @@ interface IAppSplitterProps {
   /**
    * Initial preserved-side size from cookies (in pixels)
    */
-  initialLayout?: number | null;
+  initialLayout?: (`${number}px` | `${number}%` | 'auto' | number)[];
 
   /**
    * Default layout configuration as [left, right] sizes
    * Can be numbers (pixels), percentages (strings like "50%"), or "auto"
    */
-  defaultLayout: (`${number}px` | `${number}&` | 'auto' | number)[];
+  defaultLayout: (`${number}px` | `${number}%` | 'auto' | number)[];
 
   /**
    * Minimum size for the left panel
@@ -218,7 +218,12 @@ const AppSplitterWrapper = forwardRef<AppSplitterRef, IAppSplitterProps>(
   ({ autoSaveId, style, className, split = 'vertical', ...props }, componentRef) => {
     const containerRef = useRef<HTMLDivElement>(null);
     const isVertical = split === 'vertical';
-    const [mounted, setMounted] = useState(!props.bustStorageOnInit);
+    const [mounted, setMounted] = useState(
+      !props.leftPanelMinSize &&
+        !props.rightPanelMinSize &&
+        !props.leftPanelMaxSize &&
+        !props.rightPanelMaxSize
+    );
     const splitterAutoSaveId = createAutoSaveId(autoSaveId);
 
     const { splitterAutoSaveId: parentSplitterAutoSaveId } = useAppSplitterContext();
@@ -293,7 +298,6 @@ const AppSplitterBase = forwardRef<
       isVertical,
       splitterAutoSaveId,
       containerRef,
-      bustStorageOnInit,
       split = 'vertical',
     },
     ref
@@ -322,23 +326,7 @@ const AppSplitterBase = forwardRef<
     // STORAGE MANAGEMENT
     // ================================
 
-    const bustStorageOnInitSplitter = (preservedSideValue: number | null) => {
-      const refSize =
-        split === 'vertical'
-          ? containerRef.current?.offsetWidth
-          : containerRef.current?.offsetHeight;
-      // Don't bust storage if container hasn't been sized yet
-      if (!refSize || refSize === 0) {
-        // console.warn('AppSplitter: container not sized yet');
-        return false;
-      }
-
-      return typeof bustStorageOnInit === 'function'
-        ? bustStorageOnInit(preservedSideValue, refSize)
-        : !!bustStorageOnInit;
-    };
-
-    const defaultValue = () => {
+    const defaultValue = useCallback(() => {
       const [leftValue, rightValue] = defaultLayout;
       const containerSize =
         split === 'vertical'
@@ -354,13 +342,65 @@ const AppSplitterBase = forwardRef<
       const preserveValue = preserveSide === 'left' ? leftValue : rightValue;
       const result = sizeToPixels(preserveValue, containerSize);
       return result;
-    };
+    }, [defaultLayout, split, preserveSide]);
+
+    const initialValue = useCallback(() => {
+      if (initialLayout) {
+        const [leftValue, rightValue] = initialLayout;
+        const containerSize =
+          split === 'vertical'
+            ? (containerRef.current?.offsetWidth ?? 0)
+            : (containerRef.current?.offsetHeight ?? 0);
+
+        if (preserveSide === 'left' && leftValue === 'auto') {
+          return containerSize;
+        }
+        if (preserveSide === 'right' && rightValue === 'auto') {
+          return containerSize;
+        }
+        const preserveValue = preserveSide === 'left' ? leftValue : rightValue;
+        const result = sizeToPixels(preserveValue, containerSize);
+
+        // Check if the result is within min/max bounds
+        if (containerSize > 0) {
+          const minSize =
+            preserveSide === 'left'
+              ? sizeToPixels(leftPanelMinSize, containerSize)
+              : sizeToPixels(rightPanelMinSize, containerSize);
+          const maxSize =
+            preserveSide === 'left'
+              ? leftPanelMaxSize
+                ? sizeToPixels(leftPanelMaxSize, containerSize)
+                : containerSize
+              : rightPanelMaxSize
+                ? sizeToPixels(rightPanelMaxSize, containerSize)
+                : containerSize;
+
+          // If the result is outside the min/max bounds, use the default value
+          if (result < minSize || result > maxSize) {
+            return defaultValue();
+          }
+        }
+
+        return result;
+      }
+      return defaultValue();
+    }, [
+      initialLayout,
+      split,
+      preserveSide,
+      leftPanelMinSize,
+      rightPanelMinSize,
+      leftPanelMaxSize,
+      rightPanelMaxSize,
+      defaultValue,
+    ]);
 
     // Load saved layout from cookies
+
     const [savedLayout, setSavedLayout] = useCookieState<number | null>(splitterAutoSaveId, {
       defaultValue,
-      initialValue: initialLayout ?? undefined,
-      bustStorageOnInit: bustStorageOnInitSplitter,
+      initialValue,
     });
 
     // ================================

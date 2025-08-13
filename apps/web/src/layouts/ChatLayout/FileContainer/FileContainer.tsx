@@ -70,7 +70,7 @@ export const FileContainer: React.FC<FileContainerProps> = ({ children }) => {
     }
   });
 
-  const rightChildren = useMemo(() => {
+  const rightChildren: React.ReactNode = useMemo(() => {
     if (!debouncedSelectedFileViewSecondary) {
       return null;
     }

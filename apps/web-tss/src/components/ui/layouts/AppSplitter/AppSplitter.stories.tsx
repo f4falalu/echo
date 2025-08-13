@@ -77,7 +77,9 @@ export const LeftPanelPreserved: Story = {
     rightChildren: <RightContent title="Right Panel (Auto)" />,
     autoSaveId: 'left-preserved',
     defaultLayout: ['300px', 'auto'],
+    initialLayout: ['100px', 'auto'],
     preserveSide: 'left',
+    leftPanelMinSize: 200,
   },
 };
 
@@ -89,6 +91,7 @@ export const RightPanelPreserved: Story = {
     autoSaveId: 'right-preserved',
     defaultLayout: ['auto', '200px'],
     preserveSide: 'right',
+    rightPanelMinSize: 200,
   },
 };
 
@@ -216,6 +219,7 @@ export const PercentageBasedSizing: Story = {
     rightChildren: <RightContent title="70% Width Panel" />,
     autoSaveId: 'percentage-sizing',
     defaultLayout: ['30%', 'auto'],
+    leftPanelMinSize: '200px',
     preserveSide: 'left',
   },
 };
