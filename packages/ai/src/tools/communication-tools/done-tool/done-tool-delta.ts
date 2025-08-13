@@ -52,7 +52,7 @@ export function createDoneToolDelta(doneToolState: DoneToolState, context: DoneT
             messageId: context.messageId,
             responseEntry: doneToolResponseEntry,
             rawLlmMessage: doneToolMessage,
-            mode: 'append',
+            mode: 'update',
           });
         }
       } catch (error) {
