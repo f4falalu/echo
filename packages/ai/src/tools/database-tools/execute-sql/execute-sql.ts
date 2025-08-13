@@ -6,6 +6,8 @@ import { createExecuteSqlExecute } from './execute-sql-execute';
 import { createExecuteSqlFinish } from './execute-sql-finish';
 import { createExecuteSqlStart } from './execute-sql-start';
 
+export const EXECUTE_SQL_TOOL_NAME = 'executeSql';
+
 export const ExecuteSqlInputSchema = z.object({
   statements: z.array(z.string()).describe(
     `Array of lightweight, optimized SQL statements to execute. 

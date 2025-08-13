@@ -4,9 +4,20 @@ import { wrapTraced } from 'braintrust';
 import z from 'zod';
 import { Sonnet4 } from '../../llm';
 import { createExecuteSqlTool, createSequentialThinkingTool } from '../../tools';
-import { createMessageUserClarifyingQuestionTool, MESSAGE_USER_CLARIFYING_QUESTION_TOOL_NAME } from '../../tools/communication-tools/message-user-clarifying-question/message-user-clarifying-question';
-import { createRespondWithoutAssetCreationTool, RESPOND_WITHOUT_ASSET_CREATION_TOOL_NAME } from '../../tools/communication-tools/respond-without-asset-creation/respond-without-asset-creation-tool';
-import { createSubmitThoughtsTool, SUBMIT_THOUGHTS_TOOL_NAME } from '../../tools/communication-tools/submit-thoughts-tool/submit-thoughts-tool';
+import {
+  MESSAGE_USER_CLARIFYING_QUESTION_TOOL_NAME,
+  createMessageUserClarifyingQuestionTool,
+} from '../../tools/communication-tools/message-user-clarifying-question/message-user-clarifying-question';
+import {
+  RESPOND_WITHOUT_ASSET_CREATION_TOOL_NAME,
+  createRespondWithoutAssetCreationTool,
+} from '../../tools/communication-tools/respond-without-asset-creation/respond-without-asset-creation-tool';
+import {
+  SUBMIT_THOUGHTS_TOOL_NAME,
+  createSubmitThoughtsTool,
+} from '../../tools/communication-tools/submit-thoughts-tool/submit-thoughts-tool';
+import { EXECUTE_SQL_TOOL_NAME } from '../../tools/database-tools/execute-sql/execute-sql';
+import { SEQUENTIAL_THINKING_TOOL_NAME } from '../../tools/planning-thinking-tools/sequential-thinking-tool/sequential-thinking-tool';
 import { healToolWithLlm } from '../../utils';
 import {
   type AnalysisMode,
@@ -106,11 +117,11 @@ export function createThinkAndPrepAgent(thinkAndPrepAgentSchema: ThinkAndPrepAge
             streamText({
               model: Sonnet4,
               tools: {
-                sequentialThinking,
-                executeSql: executeSqlTool,
-                respondWithoutAssetCreation,
-                submitThoughts,
-                messageUserClarifyingQuestion,
+                [SEQUENTIAL_THINKING_TOOL_NAME]: sequentialThinking,
+                [EXECUTE_SQL_TOOL_NAME]: executeSqlTool,
+                [RESPOND_WITHOUT_ASSET_CREATION_TOOL_NAME]: respondWithoutAssetCreation,
+                [SUBMIT_THOUGHTS_TOOL_NAME]: submitThoughts,
+                [MESSAGE_USER_CLARIFYING_QUESTION_TOOL_NAME]: messageUserClarifyingQuestion,
               },
               messages: [systemMessage, datasetsSystemMessage, ...currentMessages],
               stopWhen: STOP_CONDITIONS,

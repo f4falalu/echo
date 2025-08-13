@@ -6,11 +6,12 @@ import {
   createPermissionErrorMessage,
   validateSqlPermissions,
 } from '../../../utils/sql-permissions';
-import type {
-  ExecuteSqlContext,
-  ExecuteSqlInput,
-  ExecuteSqlOutput,
-  ExecuteSqlState,
+import {
+  EXECUTE_SQL_TOOL_NAME,
+  type ExecuteSqlContext,
+  type ExecuteSqlInput,
+  type ExecuteSqlOutput,
+  type ExecuteSqlState,
 } from './execute-sql';
 import {
   createExecuteSqlRawLlmMessageEntry,
@@ -366,6 +367,6 @@ export function createExecuteSqlExecute(state: ExecuteSqlState, context: Execute
         }
       }
     },
-    { name: 'execute-sql' }
+    { name: EXECUTE_SQL_TOOL_NAME }
   );
 }

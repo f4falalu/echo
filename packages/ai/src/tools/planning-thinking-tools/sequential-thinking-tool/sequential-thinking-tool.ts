@@ -5,6 +5,8 @@ import { createSequentialThinkingExecute } from './sequential-thinking-tool-exec
 import { createSequentialThinkingFinish } from './sequential-thinking-tool-finish';
 import { createSequentialThinkingStart } from './sequential-thinking-tool-start';
 
+export const SEQUENTIAL_THINKING_TOOL_NAME = 'sequentialThinking';
+
 export const SequentialThinkingInputSchema = z.object({
   thought: z
     .string()
