@@ -1,13 +1,13 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import cookies from 'js-cookie';
-import React, { useEffect, useRef } from 'react';
+import React, { useRef } from 'react';
 import { Button } from '@/components/ui/buttons/Button';
 import { Text } from '@/components/ui/typography/Text';
 import { Title } from '@/components/ui/typography/Title';
 import { AppSplitter } from './AppSplitter';
 import type { AppSplitterRef, LayoutSize } from './AppSplitter.types';
 import { useAppSplitterContext } from './AppSplitterProvider';
-import { createAutoSaveId } from './helpers';
+import { createAutoSaveId } from './create-auto-save-id';
 
 const meta: Meta<typeof AppSplitter> = {
   title: 'UI/layouts/AppSplitter',

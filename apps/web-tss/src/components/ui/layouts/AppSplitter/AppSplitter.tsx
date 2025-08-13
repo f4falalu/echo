@@ -387,7 +387,8 @@ const AppSplitterBase = forwardRef<
       async (
         width: string | number,
         side: 'left' | 'right',
-        duration: number = 250
+        duration: number = 250,
+        honorConstraints: boolean = false
       ): Promise<void> => {
         return new Promise((resolve) => {
           if (!state.containerSize) {
@@ -401,23 +402,19 @@ const AppSplitterBase = forwardRef<
             cancelAnimationFrame(animationRef.current);
           }
 
-          // Convert target to pixels and clamp to constraints
           const targetPixelsRaw = sizeToPixels(width, state.containerSize);
           const constrainedTargetPixels = applyConstraints(
             preserveSide === 'left' ? targetPixelsRaw : state.containerSize - targetPixelsRaw
           );
+          const targetPixels = honorConstraints ? constrainedTargetPixels : targetPixelsRaw;
           let targetSize: number;
 
           if (side === 'left') {
             targetSize =
-              preserveSide === 'left'
-                ? constrainedTargetPixels
-                : state.containerSize - constrainedTargetPixels;
+              preserveSide === 'left' ? targetPixels : state.containerSize - targetPixels;
           } else {
             targetSize =
-              preserveSide === 'right'
-                ? constrainedTargetPixels
-                : state.containerSize - constrainedTargetPixels;
+              preserveSide === 'right' ? targetPixels : state.containerSize - targetPixels;
           }
 
           const startSize = savedLayout ?? 0;
