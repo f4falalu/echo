@@ -1,7 +1,7 @@
 import * as React from 'react';
 import type { Meta, StoryObj } from '@storybook/nextjs';
-import { useStreamTokenArray } from '@llm-ui/react';
 import { useLLMStreaming } from './useLLMStreaming';
+import { useStreamTokenArray } from './useStreamTokenArray';
 
 // Simple token stream to exercise throttling + read-ahead
 const demoTokens: Array<{ token: string; delayMs: number }> = [
@@ -60,7 +60,10 @@ type HookHarnessProps = {
 
 const HookHarness: React.FC<HookHarnessProps> = (args) => {
   // Simulate incoming streamed content
-  const { output, isStreamFinished } = useStreamTokenArray(demoTokens);
+  const { throttledContent: output, isDone: isStreamFinished } = useStreamTokenArray({
+    tokens: demoTokens,
+    isStreamFinished: false
+  });
 
   // Apply the throttling + read-ahead hook
   const { throttledContent, isDone, flushNow, reset } = useLLMStreaming({
