@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Button } from '../buttons/Button';
-import { Grid } from '../icons';
+import Grid from '../icons/NucleoIconOutlined/grid';
 import { Text } from '../typography/Text';
 import { FileCard } from './FileCard';
 

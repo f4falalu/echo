@@ -1,5 +1,4 @@
-import type React from 'react';
-import { lazy, Suspense, useEffect, useState } from 'react';
+import React, { lazy, Suspense, useEffect, useState } from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
 
 // Lazy load the actual devtools component
@@ -10,17 +9,17 @@ const LazyTanstackDevtools = lazy(() =>
 );
 
 // Export component with Suspense wrapper
-export const TanstackDevtools: React.FC = () => {
+export const TanstackDevtools: React.FC = React.memo(() => {
   // Track if we're on the client side
   const [mounted, setMounted] = useState(false);
-  const [useDevTools, setUseDevTools] = useState(false);
+  const [useDevTools, setUseDevTools] = useState(import.meta.env.DEV);
 
   useEffect(() => {
     // Set to true only after mount (client-side only)
     setMounted(true);
   }, []);
 
-  useHotkeys('shift+alt+d', () => {
+  useHotkeys('shift+a', () => {
     setUseDevTools(true);
   });
 
@@ -34,4 +33,6 @@ export const TanstackDevtools: React.FC = () => {
       <LazyTanstackDevtools />
     </Suspense>
   );
-};
+});
+
+TanstackDevtools.displayName = 'TanstackDevtools';

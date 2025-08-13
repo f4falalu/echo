@@ -2,7 +2,9 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import React from 'react';
 import { fn } from 'storybook/test';
 import { Button } from '@/components/ui/buttons';
-import { Cat, Dog, Garage } from '@/components/ui/icons';
+import Cat from '@/components/ui/icons/NucleoIconOutlined/cat';
+import Dog from '@/components/ui/icons/NucleoIconOutlined/dog';
+import Garage from '@/components/ui/icons/NucleoIconOutlined/garage';
 import { BusterListSelectedOptionPopupContainer } from './ListSelectedOptionPopup';
 
 const meta: Meta<typeof BusterListSelectedOptionPopupContainer> = {

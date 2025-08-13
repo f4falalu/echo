@@ -1,6 +1,6 @@
 import { faker } from '@faker-js/faker';
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { Bell } from '@/components/ui/icons';
+import Bell from '@/components/ui/icons/NucleoIconOutlined/bell';
 import { InfoCard } from './InfoCard';
 
 const meta: Meta<typeof InfoCard> = {

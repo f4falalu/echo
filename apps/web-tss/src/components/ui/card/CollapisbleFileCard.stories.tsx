@@ -1,6 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { fn } from 'storybook/test';
-import { Download, File, Image } from '../icons';
+import Download from '../icons/NucleoIconOutlined/download';
+import File from '../icons/NucleoIconOutlined/file';
+import Image from '../icons/NucleoIconOutlined/image';
 import { CollapisbleFileCard } from './CollapisbleFileCard';
 
 const meta: Meta<typeof CollapisbleFileCard> = {

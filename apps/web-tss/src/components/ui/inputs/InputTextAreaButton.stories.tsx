@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { fn } from 'storybook/test';
-import { ArrowUp, ShapeSquare } from '../icons/NucleoIconFilled';
+import { ArrowUp, ShapeSquare } from '../icons';
 import { InputTextAreaButton } from './InputTextAreaButton';
 
 const meta: Meta<typeof InputTextAreaButton> = {
