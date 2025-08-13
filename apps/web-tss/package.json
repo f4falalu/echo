@@ -14,6 +14,26 @@
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build"
   },
+  "peerDependencies": {
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1",
+    "@types/react": "^19.1.10",
+    "@types/react-dom": "^19.1.7"
+  },
+  "overrides": {
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1",
+    "@types/react": "^19.1.10",
+    "@types/react-dom": "^19.1.7"
+  },
+  "pnpm": {
+    "overrides": {
+      "react": "^19.1.1",
+      "react-dom": "^19.1.1",
+      "@types/react": "^19.1.10",
+      "@types/react-dom": "^19.1.7"
+    }
+  },
   "dependencies": {
     "@buster/server-shared": "workspace:*",
     "@buster/typescript-config": "workspace:*",

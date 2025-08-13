@@ -65,7 +65,11 @@
   "pnpm": {
     "overrides": {
       "@buster-app/web-tss>@types/react": "^19.1.10",
-      "@buster-app/web-tss>@types/react-dom": "^19.1.7"
+      "@buster-app/web-tss>@types/react-dom": "^19.1.7",
+      "use-context-selector@*>@types/react": "^19.1.10",
+      "@tanstack/react-router@*>@types/react": "^19.1.10",
+      "@radix-ui/react-*>@types/react": "^19.1.10",
+      "@testing-library/react-hooks>@types/react": "^19.1.10"
     },
     "peerDependencyRules": {
       "ignoreMissing": [
