@@ -12,6 +12,13 @@ import {
   createModifyMetricsTool,
   createModifyReportsTool,
 } from '../../tools';
+import { DONE_TOOL_NAME } from '../../tools/communication-tools/done-tool/done-tool';
+import { CREATE_DASHBOARDS_TOOL_NAME } from '../../tools/visualization-tools/dashboards/create-dashboards-tool/create-dashboards-tool';
+import { MODIFY_DASHBOARDS_TOOL_NAME } from '../../tools/visualization-tools/dashboards/modify-dashboards-tool/modify-dashboards-tool';
+import { CREATE_METRICS_TOOL_NAME } from '../../tools/visualization-tools/metrics/create-metrics-tool/create-metrics-tool';
+import { MODIFY_METRICS_TOOL_NAME } from '../../tools/visualization-tools/metrics/modify-metrics-tool/modify-metrics-tool';
+import { CREATE_REPORTS_TOOL_NAME } from '../../tools/visualization-tools/reports/create-reports-tool/create-reports-tool';
+import { MODIFY_REPORTS_TOOL_NAME } from '../../tools/visualization-tools/reports/modify-reports-tool/modify-reports-tool';
 import { healToolWithLlm } from '../../utils/tool-call-repair';
 import { getAnalystAgentSystemPrompt } from './get-analyst-agent-system-prompt';
 
@@ -23,7 +30,7 @@ const DEFAULT_CACHE_OPTIONS = {
   },
 };
 
-const STOP_CONDITIONS = [stepCountIs(25), hasToolCall('doneTool')];
+const STOP_CONDITIONS = [stepCountIs(25), hasToolCall(DONE_TOOL_NAME)];
 
 export const AnalystAgentOptionsSchema = z.object({
   userId: z.string(),
@@ -72,14 +79,12 @@ export function createAnalystAgent(analystAgentOptions: AnalystAgentOptions) {
     let attempt = 0;
     const currentMessages = [...messages];
 
-    // Create tool instances - all visualization tools now accept context directly
     const createMetrics = createCreateMetricsTool(analystAgentOptions);
     const modifyMetrics = createModifyMetricsTool(analystAgentOptions);
     const createDashboards = createCreateDashboardsTool(analystAgentOptions);
     const modifyDashboards = createModifyDashboardsTool(analystAgentOptions);
     const createReports = createCreateReportsTool(analystAgentOptions);
     const modifyReports = createModifyReportsTool(analystAgentOptions);
-    // Done tool now accepts context directly
     const doneTool = createDoneTool(analystAgentOptions);
 
     while (attempt <= maxRetries) {
@@ -89,13 +94,13 @@ export function createAnalystAgent(analystAgentOptions: AnalystAgentOptions) {
             streamText({
               model: Sonnet4,
               tools: {
-                createMetrics,
-                modifyMetrics,
-                createDashboards,
-                modifyDashboards,
-                createReports,
-                modifyReports,
-                doneTool,
+                [CREATE_METRICS_TOOL_NAME]: createMetrics,
+                [MODIFY_METRICS_TOOL_NAME]: modifyMetrics,
+                [CREATE_DASHBOARDS_TOOL_NAME]: createDashboards,
+                [MODIFY_DASHBOARDS_TOOL_NAME]: modifyDashboards,
+                [CREATE_REPORTS_TOOL_NAME]: createReports,
+                [MODIFY_REPORTS_TOOL_NAME]: modifyReports,
+                [DONE_TOOL_NAME]: doneTool,
               },
               messages: [systemMessage, datasetsSystemMessage, ...currentMessages],
               stopWhen: STOP_CONDITIONS,

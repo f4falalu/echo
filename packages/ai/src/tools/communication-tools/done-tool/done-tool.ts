@@ -5,6 +5,8 @@ import { createDoneToolExecute } from './done-tool-execute';
 import { createDoneToolFinish } from './done-tool-finish';
 import { createDoneToolStart } from './done-tool-start';
 
+export const DONE_TOOL_NAME = 'doneTool';
+
 export const DoneToolInputSchema = z.object({
   final_response: z
     .string()

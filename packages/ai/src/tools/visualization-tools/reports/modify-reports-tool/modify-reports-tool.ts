@@ -6,7 +6,7 @@ import { createModifyReportsExecute } from './modify-reports-execute';
 import { createModifyReportsFinish } from './modify-reports-finish';
 import { modifyReportsStart } from './modify-reports-start';
 
-export const TOOL_NAME = 'modifyReports';
+export const MODIFY_REPORTS_TOOL_NAME = 'modifyReports';
 
 const ModifyReportsEditSchema = z.object({
   code_to_replace: z

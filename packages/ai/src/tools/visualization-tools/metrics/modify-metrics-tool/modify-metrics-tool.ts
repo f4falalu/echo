@@ -7,7 +7,7 @@ import { createModifyMetricsExecute } from './modify-metrics-execute';
 import { createModifyMetricsFinish } from './modify-metrics-finish';
 import { createModifyMetricsStart } from './modify-metrics-start';
 
-export const TOOL_NAME = 'modifyMetrics';
+export const MODIFY_METRICS_TOOL_NAME = 'modifyMetrics';
 
 const ModifyMetricsInputFileSchema = z.object({
   id: z.string().describe('The UUID of the metric file to modify'),

@@ -6,7 +6,7 @@ import { createCreateReportsExecute } from './create-reports-execute';
 import { createCreateReportsFinish } from './create-reports-finish';
 import { createReportsStart } from './create-reports-start';
 
-export const TOOL_NAME = 'createReports';
+export const CREATE_REPORTS_TOOL_NAME = 'createReports';
 
 const CreateReportsInputFileSchema = z.object({
   name: z

@@ -3,7 +3,7 @@ import type {
   ChatMessageReasoningMessage_File,
 } from '@buster/server-shared/chats';
 import type { ModelMessage } from 'ai';
-import { type CreateMetricsState, TOOL_NAME } from '../create-metrics-tool';
+import { CREATE_METRICS_TOOL_NAME, type CreateMetricsState } from '../create-metrics-tool';
 
 /**
  * Create a reasoning entry for create-metrics tool
@@ -67,7 +67,7 @@ export function createCreateMetricsRawLlmMessageEntry(
       {
         type: 'tool-call',
         toolCallId,
-        toolName: TOOL_NAME,
+        toolName: CREATE_METRICS_TOOL_NAME,
         input: {
           files: state.files
             .filter((file) => file != null) // Filter out null/undefined entries first

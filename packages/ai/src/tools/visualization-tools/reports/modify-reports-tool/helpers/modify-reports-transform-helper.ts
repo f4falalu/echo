@@ -3,7 +3,7 @@ import type {
   ChatMessageReasoningMessage_File,
 } from '@buster/server-shared/chats';
 import type { ModelMessage } from 'ai';
-import { type ModifyReportsState, TOOL_NAME } from '../modify-reports-tool';
+import { MODIFY_REPORTS_TOOL_NAME, type ModifyReportsState } from '../modify-reports-tool';
 
 /**
  * Create a reasoning entry for modify-reports tool
@@ -66,7 +66,7 @@ export function createModifyReportsRawLlmMessageEntry(
       {
         type: 'tool-call',
         toolCallId,
-        toolName: TOOL_NAME,
+        toolName: MODIFY_REPORTS_TOOL_NAME,
         input: {
           id: state.reportId,
           name: state.reportName ?? 'Untitled Report',

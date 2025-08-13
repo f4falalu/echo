@@ -84,6 +84,8 @@ export type ModifyDashboardsOutputFailedFile = z.infer<
 export type ModifyDashboardsState = z.infer<typeof ModifyDashboardsStateSchema>;
 export type ModifyDashboardStateFile = z.infer<typeof ModifyDashboardStateFileSchema>;
 
+export const MODIFY_DASHBOARDS_TOOL_NAME = 'modifyDashboards';
+
 // Factory function that accepts agent context and maps to tool context
 export function createModifyDashboardsTool(context: ModifyDashboardsContext) {
   // Initialize state for streaming

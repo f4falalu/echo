@@ -7,7 +7,7 @@ import { createCreateMetricsExecute } from './create-metrics-execute';
 import { createCreateMetricsFinish } from './create-metrics-finish';
 import { createCreateMetricsStart } from './create-metrics-start';
 
-export const TOOL_NAME = 'createMetrics';
+export const CREATE_METRICS_TOOL_NAME = 'createMetrics';
 
 const CreateMetricsInputFileSchema = z.object({
   name: z

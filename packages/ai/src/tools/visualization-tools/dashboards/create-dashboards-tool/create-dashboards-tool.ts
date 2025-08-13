@@ -7,7 +7,7 @@ import { createCreateDashboardsExecute } from './create-dashboards-execute';
 import { createCreateDashboardsFinish } from './create-dashboards-finish';
 import { createDashboardsStart } from './create-dashboards-start';
 
-export const TOOL_NAME = 'createDashboards';
+export const CREATE_DASHBOARDS_TOOL_NAME = 'createDashboards';
 
 const CreateDashboardsInputFileSchema = z.object({
   name: z.string(),
