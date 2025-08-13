@@ -91,11 +91,11 @@ function processToolOutput(output: unknown, files: ExtractedFile[]): void {
     }
   }
 
-  // Check if this is a reports tool output
-  if (isReportsToolOutput(output)) {
+  // Check if this is a create reports tool output
+  if (isCreateReportsToolOutput(output)) {
     const operation = detectOperation(output.message);
 
-    // Extract successfully created/modified report files
+    // Extract successfully created report files
     if (output.files && Array.isArray(output.files)) {
       for (const file of output.files) {
         files.push({
@@ -108,19 +108,20 @@ function processToolOutput(output: unknown, files: ExtractedFile[]): void {
         });
       }
     }
+  }
+
+  // Check if this is a modify reports tool output
+  if (isModifyReportsToolOutput(output)) {
     // For modify reports tool, extract from the file object
-    if ('file' in output && output.file && typeof output.file === 'object') {
-      const file = output.file as Record<string, unknown>;
-      if (file.id && file.name && file.version_number) {
-        files.push({
-          id: file.id as string,
-          fileType: 'report',
-          fileName: file.name as string,
-          status: 'completed',
-          operation: 'modified',
-          versionNumber: file.version_number as number,
-        });
-      }
+    if (output.file && typeof output.file === 'object') {
+      files.push({
+        id: output.file.id,
+        fileType: 'report',
+        fileName: output.file.name,
+        status: 'completed',
+        operation: 'modified',
+        versionNumber: output.file.version_number,
+      });
     }
   }
 }
@@ -168,30 +169,43 @@ function isDashboardsToolOutput(
 }
 
 /**
- * Type guard to check if output is from create/modify reports tool
+ * Type guard to check if output is from create reports tool
  */
-function isReportsToolOutput(output: unknown): output is CreateReportsOutput | ModifyReportsOutput {
+function isCreateReportsToolOutput(output: unknown): output is CreateReportsOutput {
   if (!output || typeof output !== 'object') return false;
 
   const obj = output as Record<string, unknown>;
 
   // Check for create reports output structure
-  if ('files' in obj && 'message' in obj && Array.isArray(obj.files)) {
-    // Check if files have report-specific properties
+  if ('files' in obj && 'message' in obj && 'failed_files' in obj) {
+    if (!Array.isArray(obj.files)) return false;
+    
+    // Check if files have report-specific properties (id, name, version_number)
     return obj.files.every((file: unknown) => {
       if (!file || typeof file !== 'object') return false;
       const fileObj = file as Record<string, unknown>;
-      // Reports don't have file_type in the output, just id, name, version_number
       return 'id' in fileObj && 'name' in fileObj && 'version_number' in fileObj;
     });
   }
 
-  // Check for modify reports output structure (has a single 'file' property)
+  return false;
+}
+
+/**
+ * Type guard to check if output is from modify reports tool
+ */
+function isModifyReportsToolOutput(output: unknown): output is ModifyReportsOutput {
+  if (!output || typeof output !== 'object') return false;
+
+  const obj = output as Record<string, unknown>;
+
+  // Check for modify reports output structure (has success, message, and file properties)
   if ('success' in obj && 'message' in obj && 'file' in obj) {
     const file = obj.file;
     if (file && typeof file === 'object') {
       const fileObj = file as Record<string, unknown>;
-      return 'id' in fileObj && 'name' in fileObj && 'version_number' in fileObj;
+      // Check for required file properties
+      return 'id' in fileObj && 'name' in fileObj && 'version_number' in fileObj && 'content' in fileObj && 'updated_at' in fileObj;
     }
   }
 

@@ -2,6 +2,8 @@ import { tool } from 'ai';
 import { wrapTraced } from 'braintrust';
 import { z } from 'zod';
 
+export const SUBMIT_THOUGHTS_TOOL_NAME = 'submitThoughts';
+
 // Minimal schemas: no input/output for a signal-only tool
 const SubmitThoughtsInputSchema = z.object({});
 const SubmitThoughtsOutputSchema = z.object({});

@@ -4,9 +4,9 @@ import { wrapTraced } from 'braintrust';
 import z from 'zod';
 import { Sonnet4 } from '../../llm';
 import { createExecuteSqlTool, createSequentialThinkingTool } from '../../tools';
-import { createMessageUserClarifyingQuestionTool } from '../../tools/communication-tools/message-user-clarifying-question/message-user-clarifying-question';
-import { createRespondWithoutAssetCreationTool } from '../../tools/communication-tools/respond-without-asset-creation/respond-without-asset-creation-tool';
-import { createSubmitThoughtsTool } from '../../tools/communication-tools/submit-thoughts-tool/submit-thoughts-tool';
+import { createMessageUserClarifyingQuestionTool, MESSAGE_USER_CLARIFYING_QUESTION_TOOL_NAME } from '../../tools/communication-tools/message-user-clarifying-question/message-user-clarifying-question';
+import { createRespondWithoutAssetCreationTool, RESPOND_WITHOUT_ASSET_CREATION_TOOL_NAME } from '../../tools/communication-tools/respond-without-asset-creation/respond-without-asset-creation-tool';
+import { createSubmitThoughtsTool, SUBMIT_THOUGHTS_TOOL_NAME } from '../../tools/communication-tools/submit-thoughts-tool/submit-thoughts-tool';
 import { healToolWithLlm } from '../../utils';
 import {
   type AnalysisMode,
@@ -23,9 +23,9 @@ const DEFAULT_CACHE_OPTIONS = {
 
 const STOP_CONDITIONS = [
   stepCountIs(25),
-  hasToolCall('submitThoughts'),
-  hasToolCall('respondWithoutAssetCreation'),
-  hasToolCall('messageUserClarifyingQuestion'),
+  hasToolCall(SUBMIT_THOUGHTS_TOOL_NAME),
+  hasToolCall(RESPOND_WITHOUT_ASSET_CREATION_TOOL_NAME),
+  hasToolCall(MESSAGE_USER_CLARIFYING_QUESTION_TOOL_NAME),
 ];
 
 export const ThinkAndPrepAgentOptionsSchema = z.object({

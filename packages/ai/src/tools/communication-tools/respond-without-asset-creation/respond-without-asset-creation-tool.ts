@@ -5,6 +5,8 @@ import { createRespondWithoutAssetCreationExecute } from './respond-without-asse
 import { createRespondWithoutAssetCreationFinish } from './respond-without-asset-creation-finish';
 import { createRespondWithoutAssetCreationStart } from './respond-without-asset-creation-start';
 
+export const RESPOND_WITHOUT_ASSET_CREATION_TOOL_NAME = 'respondWithoutAssetCreation';
+
 export const RespondWithoutAssetCreationInputSchema = z.object({
   final_response: z
     .string()
