@@ -1,7 +1,7 @@
 import { createRootRouteWithContext, HeadContent, Link, Scripts } from '@tanstack/react-router';
 import { GlobalErrorCard } from '@/components/features/global/GlobalErrorCard';
 import { NotFoundCard } from '@/components/features/global/NotFoundCard';
-import { AppProviders } from '@/context/AppProviders';
+import { RootProviders } from '@/context/Providers';
 import { getSupabaseUser } from '../integrations/supabase/getSupabaseUserContext';
 import { TanstackDevtools } from '../integrations/tanstack-dev-tools/tanstack-devtools';
 import type { AppRouterContext } from '../router';
@@ -41,9 +41,9 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         <HeadContent />
       </head>
       <body>
-        <AppProviders accessToken={accessToken} user={user}>
+        <RootProviders accessToken={accessToken} user={user}>
           {children}
-        </AppProviders>
+        </RootProviders>
 
         <TanstackDevtools />
         <Scripts />

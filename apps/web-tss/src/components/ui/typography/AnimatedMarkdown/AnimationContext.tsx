@@ -1,5 +1,5 @@
-import React from 'react';
-import { useContextSelector, createContext } from 'use-context-selector';
+import type React from 'react';
+import { createContext, useContextSelector } from 'use-context-selector';
 
 interface AnimationContextValue {
   shouldStopAnimations: boolean;
@@ -13,7 +13,7 @@ export const AnimationProvider: React.FC<{
 }> = ({ children, shouldStopAnimations }) => {
   return (
     <AnimationContext.Provider value={{ shouldStopAnimations }}>
-      {children}
+      <>{children}</>
     </AnimationContext.Provider>
   );
 };

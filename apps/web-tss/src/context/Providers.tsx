@@ -3,7 +3,7 @@ import type { PropsWithChildren } from 'react';
 import { BusterStyleProvider } from './BusterStyles';
 import {
   SupabaseContextProvider,
-  type SupabaseContextType
+  type SupabaseContextType,
 } from './Supabase/SupabaseContextProvider';
 // import type { UseSupabaseUserContextType } from '@/lib/supabase';
 // import { BusterAssetsProvider } from './Assets/BusterAssetsProvider';
@@ -21,10 +21,10 @@ import {
 //   clearLog: false // clears the console per group of renders (default: false)
 // });
 
-export const AppProviders: React.FC<PropsWithChildren<SupabaseContextType>> = ({
+export const RootProviders: React.FC<PropsWithChildren<SupabaseContextType>> = ({
   children,
   accessToken,
-  user
+  user,
 }) => {
   return (
     <SupabaseContextProvider accessToken={accessToken} user={user}>
@@ -45,4 +45,8 @@ export const AppProviders: React.FC<PropsWithChildren<SupabaseContextType>> = ({
       </BusterReactQueryProvider> */}
     </SupabaseContextProvider>
   );
+};
+
+export const AppProviders: React.FC<PropsWithChildren> = ({ children }) => {
+  return <>{children}</>;
 };
