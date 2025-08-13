@@ -3,7 +3,8 @@ import React, { useRef } from 'react';
 import { Button } from '@/components/ui/buttons/Button';
 import { Text } from '@/components/ui/typography/Text';
 import { Title } from '@/components/ui/typography/Title';
-import { AppSplitter, type AppSplitterRef } from './AppSplitter';
+import { AppSplitter } from './AppSplitter';
+import type { AppSplitterRef } from './AppSplitter.types';
 import { useAppSplitterContext } from './AppSplitterProvider';
 
 const meta: Meta<typeof AppSplitter> = {

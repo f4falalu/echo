@@ -1,8 +1,9 @@
 import type React from 'react';
 import { cn } from '@/lib/utils';
+import type { LayoutSize } from './AppSplitter';
 import { AppSplitter } from './AppSplitter/AppSplitter';
 
-const DEFAULT_LAYOUT = ['230px', 'auto'];
+const DEFAULT_LAYOUT: LayoutSize = ['230px', 'auto'];
 
 /**
  * @param floating - Applies floating styles with padding and border (default: true)
@@ -17,7 +18,7 @@ export const AppLayout: React.FC<
     floating?: boolean;
     className?: string;
     sidebar?: React.ReactNode;
-    defaultLayout?: [string, string];
+    defaultLayout?: LayoutSize;
     leftHidden?: boolean;
     autoSaveId?: string;
   }>
