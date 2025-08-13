@@ -18,7 +18,7 @@ function transformToAuthUserDTO(user: User): AuthUserDTO {
     id: user.id,
     email: user.email,
     created_at: user.created_at,
-    is_anonymous: user.is_anonymous ?? false
+    is_anonymous: user.is_anonymous ?? false,
   };
 }
 
@@ -40,9 +40,9 @@ export const getSupabaseUser = createServerFn({ method: 'GET' }).handler(async (
         is_anonymous: true,
         id: anon.data.user?.id ?? '',
         email: anon.data.user?.email ?? '',
-        created_at: anon.data.user?.created_at ?? ''
+        created_at: anon.data.user?.created_at ?? '',
       } satisfies AuthUserDTO,
-      accessToken: anon.data.accessToken
+      accessToken: anon.data.accessToken,
     } as { user: AuthUserDTO; accessToken: string | undefined };
   }
 
@@ -55,6 +55,6 @@ export const getSupabaseUser = createServerFn({ method: 'GET' }).handler(async (
 
   return {
     user,
-    accessToken
+    accessToken,
   } as { user: AuthUserDTO; accessToken?: string };
 });

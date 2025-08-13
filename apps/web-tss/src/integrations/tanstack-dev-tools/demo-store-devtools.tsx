@@ -14,7 +14,7 @@ type EventMap = {
 class StoreDevtoolsEventClient extends EventClient<EventMap> {
   constructor() {
     super({
-      pluginId: 'store-devtools'
+      pluginId: 'store-devtools',
     });
   }
 }
@@ -25,7 +25,7 @@ store.subscribe(() => {
   sdec.emit('state', {
     firstName: store.state.firstName,
     lastName: store.state.lastName,
-    fullName: fullName.state
+    fullName: fullName.state,
   });
 });
 
@@ -33,7 +33,7 @@ function DevtoolPanel() {
   const [state, setState] = useState<EventMap['store-devtools:state']>(() => ({
     firstName: store.state.firstName,
     lastName: store.state.lastName,
-    fullName: fullName.state
+    fullName: fullName.state,
   }));
 
   useEffect(() => {
@@ -54,5 +54,5 @@ function DevtoolPanel() {
 
 export default {
   name: 'TanStack Store',
-  render: <DevtoolPanel />
+  render: <DevtoolPanel />,
 };

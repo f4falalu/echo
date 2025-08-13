@@ -252,7 +252,7 @@ const DropdownMenuLink: React.FC<{
   link: string | null;
   linkIcon?: 'arrow-right' | 'arrow-external' | 'caret-right';
   linkTarget?: '_blank' | '_self';
-}> = ({ className, link, linkTarget, linkIcon = 'arrow-right', ...props }) => {
+}> = ({ className, link, linkTarget, linkIcon = 'arrow-right' }) => {
   const icon = React.useMemo(() => {
     if (linkIcon === 'arrow-right') return <ArrowRight />;
     if (linkIcon === 'arrow-external') return <ArrowUpRight />;

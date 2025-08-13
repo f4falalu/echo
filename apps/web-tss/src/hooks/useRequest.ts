@@ -55,6 +55,6 @@ export function useRequest<TData>(service: Service<TData>, options: Options = {}
     error,
     data,
     runAsync,
-    run
+    run,
   };
 }

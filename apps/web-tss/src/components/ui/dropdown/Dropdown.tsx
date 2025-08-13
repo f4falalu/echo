@@ -99,7 +99,13 @@ export const DropdownBase = <T,>({
   showEmptyState = true,
 }: DropdownProps<T>) => {
   return (
-    <DropdownMenu open={open} defaultOpen={open} onOpenChange={onOpenChange} dir={dir}>
+    <DropdownMenu
+      open={open}
+      defaultOpen={open}
+      onOpenChange={onOpenChange}
+      dir={dir}
+      modal={modal}
+    >
       <DropdownMenuTrigger asChild disabled={disabled}>
         <span className="dropdown-trigger">{children}</span>
       </DropdownMenuTrigger>
@@ -369,7 +375,7 @@ const DropdownItem = <T,>({
   const enabledHotKeys = showIndex && !disabled && !!onSelectItem;
 
   // Add hotkey support when showIndex is true
-  useHotkeys(showIndex ? `${index}` : '', (e) => onSelectItem(index), {
+  useHotkeys(showIndex ? `${index}` : '', (_e) => onSelectItem(index), {
     enabled: enabledHotKeys,
   });
 

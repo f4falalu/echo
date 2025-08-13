@@ -1,6 +1,7 @@
 import { faker } from '@faker-js/faker';
-import type { Meta, StoryObj } from '@storybook/nextjs';
-import React, { useMemo } from 'react';
+import type { Meta, StoryObj } from '@storybook/react-vite';
+import * as React from 'react';
+import { useMemo } from 'react';
 import type { ContextMenuProps } from '../../context-menu/ContextMenu';
 import { BusterList } from './index';
 import type { BusterListColumn, BusterListRowItem } from './interfaces';
@@ -10,7 +11,7 @@ const meta: Meta<typeof BusterList> = {
   component: BusterList,
   tags: ['autodocs'],
   parameters: {
-    layout: 'centered'
+    layout: 'centered',
   },
   argTypes: {
     columns: { control: 'object' },
@@ -20,15 +21,15 @@ const meta: Meta<typeof BusterList> = {
     showSelectAll: { control: 'boolean' },
     useRowClickSelectChange: { control: 'boolean' },
     rowClassName: { control: 'text' },
-    hideLastRowBorder: { control: 'boolean' }
+    hideLastRowBorder: { control: 'boolean' },
   },
   decorators: [
     (Story) => (
       <div className="bg-background w-full min-w-[500px]">
         <Story />
       </div>
-    )
-  ]
+    ),
+  ],
 };
 
 export default meta;
@@ -49,21 +50,23 @@ const sampleColumns: BusterListColumn<SampleData>[] = [
   {
     dataIndex: 'name',
     title: 'Name',
-    width: 100
+    width: 100,
   },
   {
     dataIndex: 'age',
     title: 'Age',
-    width: 100
+    width: 100,
   },
   {
     dataIndex: 'actions',
     title: 'Actions',
     width: 100,
-    render: (_: any, record: SampleData) => (
-      <button className="text-blue-500 hover:underline">View</button>
-    )
-  }
+    render: (_: any, _record: SampleData) => (
+      <button type="button" className="text-blue-500 hover:underline">
+        View
+      </button>
+    ),
+  },
 ];
 
 // Generate sample rows using faker
@@ -78,18 +81,18 @@ const generateSampleRows = (count: number): BusterListRowItem<SampleData>[] => {
         name: faker.person.fullName(),
         age: faker.number.int({ min: 18, max: 80 }),
         address: `${faker.location.streetAddress()}, ${faker.location.city()}, ${faker.location.state()}`,
-        email: faker.internet.email()
-      }
+        email: faker.internet.email(),
+      },
     });
 
     if (i === 3) {
       rows.push({
-        id: 'section' + i,
+        id: `section${i}`,
         data: null,
         rowSection: {
           title: faker.company.name(),
-          secondaryTitle: faker.company.catchPhrase()
-        }
+          secondaryTitle: faker.company.catchPhrase(),
+        },
       });
     }
   }
@@ -97,12 +100,12 @@ const generateSampleRows = (count: number): BusterListRowItem<SampleData>[] => {
   // Add a section row in the middle
   const sectionIndex = Math.floor(count / 2);
   rows.splice(sectionIndex, 0, {
-    id: 'section' + sectionIndex,
+    id: `section${sectionIndex}`,
     data: null,
     rowSection: {
       title: faker.company.name(),
-      secondaryTitle: faker.company.catchPhrase()
-    }
+      secondaryTitle: faker.company.catchPhrase(),
+    },
   });
 
   return rows;
@@ -115,17 +118,17 @@ const sampleContextMenu: ContextMenuProps = {
   items: [
     {
       label: 'View Details',
-      onClick: () => alert(`View`)
+      onClick: () => alert(`View`),
     },
     {
       label: 'Edit',
-      onClick: () => alert(`Edit`)
+      onClick: () => alert(`Edit`),
     },
     {
       label: 'Delete',
-      onClick: () => alert(`Delete`)
-    }
-  ]
+      onClick: () => alert(`Delete`),
+    },
+  ],
 };
 
 export const Default: Story = {
@@ -133,13 +136,13 @@ export const Default: Story = {
     columns: sampleColumns,
     rows: sampleRows,
     showHeader: true,
-    showSelectAll: true
+    showSelectAll: true,
   },
   render: (args) => (
     <div style={{ height: '400px', width: '800px' }}>
       <BusterList {...args} />
     </div>
-  )
+  ),
 };
 
 export const WithSelection: Story = {
@@ -167,7 +170,7 @@ export const WithSelection: Story = {
         />
       </div>
     );
-  }
+  },
 };
 
 export const WithContextMenu: Story = {
@@ -176,13 +179,13 @@ export const WithContextMenu: Story = {
     rows: sampleRows,
     contextMenu: sampleContextMenu,
     showHeader: true,
-    showSelectAll: true
+    showSelectAll: true,
   },
   render: (args) => (
     <div style={{ height: '400px', width: '800px' }}>
       <BusterList {...args} />
     </div>
-  )
+  ),
 };
 
 export const WithRowClickSelection: Story = {
@@ -207,20 +210,20 @@ export const WithRowClickSelection: Story = {
         />
       </div>
     );
-  }
+  },
 };
 
 export const WithoutHeader: Story = {
   args: {
     columns: sampleColumns,
     rows: sampleRows,
-    showHeader: false
+    showHeader: false,
   },
   render: (args) => (
     <div style={{ height: '400px', width: '800px' }}>
       <BusterList {...args} />
     </div>
-  )
+  ),
 };
 
 export const EmptyState: Story = {
@@ -228,13 +231,13 @@ export const EmptyState: Story = {
     columns: sampleColumns,
     rows: [],
     emptyState: <div className="text-gray-500">No data available</div>,
-    showHeader: true
+    showHeader: true,
   },
   render: (args) => (
     <div style={{ height: '400px', width: '800px' }}>
       <BusterList {...args} />
     </div>
-  )
+  ),
 };
 
 export const BorderVariant: Story = {
@@ -290,7 +293,7 @@ export const BorderVariant: Story = {
         </div>
       </div>
     );
-  }
+  },
 };
 
 // Story with many rows to demonstrate virtualization
@@ -299,13 +302,13 @@ export const ManyRows: Story = {
     columns: sampleColumns,
     rows: generateSampleRows(100),
     showHeader: true,
-    showSelectAll: true
+    showSelectAll: true,
   },
   render: (args) => (
     <div style={{ height: '400px', width: '800px' }}>
       <BusterList {...args} />
     </div>
-  )
+  ),
 };
 
 export const ManyRowsWithContextMenu: Story = {
@@ -314,13 +317,13 @@ export const ManyRowsWithContextMenu: Story = {
     rows: generateSampleRows(100),
     contextMenu: sampleContextMenu,
     showHeader: true,
-    showSelectAll: true
+    showSelectAll: true,
   },
   render: (args) => (
     <div style={{ height: '400px', width: '800px' }}>
       <BusterList {...args} />
     </div>
-  )
+  ),
 };
 
 export const InteractiveSelection: Story = {
@@ -345,5 +348,5 @@ export const InteractiveSelection: Story = {
         />
       </div>
     );
-  }
+  },
 };

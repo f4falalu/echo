@@ -1,6 +1,6 @@
 'use client';
 
-import { motion, type MotionProps } from 'framer-motion';
+import { type MotionProps, motion } from 'framer-motion';
 import React, { useMemo } from 'react';
 import { cn } from '@/lib/classMerge';
 
@@ -13,7 +13,7 @@ interface ShimmerText2Props {
 }
 
 const animate = {
-  backgroundPosition: ['200% 50%', '0% 50%']
+  backgroundPosition: ['200% 50%', '0% 50%'],
 };
 
 export const ShimmerText: React.FC<ShimmerText2Props> = React.memo(
@@ -22,7 +22,7 @@ export const ShimmerText: React.FC<ShimmerText2Props> = React.memo(
     colors = ['var(--color-foreground)', 'var(--color-text-tertiary)'],
     duration = 1.5,
     fontSize = 13,
-    className = ''
+    className = '',
   }) => {
     if (colors.length < 2) {
       throw new Error('ShimmerText requires at least 2 colors');
@@ -39,7 +39,7 @@ export const ShimmerText: React.FC<ShimmerText2Props> = React.memo(
         backgroundClip: 'text',
         WebkitBackgroundClip: 'text',
         WebkitTextFillColor: 'transparent',
-        fontSize: fontSize
+        fontSize: fontSize,
       };
     }, [gradientColors]);
 
@@ -47,20 +47,19 @@ export const ShimmerText: React.FC<ShimmerText2Props> = React.memo(
       return {
         duration,
         repeat: Number.POSITIVE_INFINITY,
-        ease: 'linear'
+        ease: 'linear',
       };
     }, [duration]);
 
     return (
-      <>
-        <motion.div
-          className={cn('shimmer-text leading-1.3', className)}
-          style={memoizedStyle}
-          animate={animate}
-          transition={memoizedTransition}>
-          {text}
-        </motion.div>
-      </>
+      <motion.div
+        className={cn('shimmer-text leading-1.3', className)}
+        style={memoizedStyle}
+        animate={animate}
+        transition={memoizedTransition}
+      >
+        {text}
+      </motion.div>
     );
   }
 );

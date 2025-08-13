@@ -5,7 +5,7 @@ const meta: Meta<typeof AppCodeEditor> = {
   title: 'UI/Inputs/AppCodeEditor',
   component: AppCodeEditor,
   parameters: {
-    layout: 'centered'
+    layout: 'centered',
   },
   tags: ['autodocs'],
   decorators: [
@@ -13,8 +13,8 @@ const meta: Meta<typeof AppCodeEditor> = {
       <div className="min-w-[500px]">
         <Story />
       </div>
-    )
-  ]
+    ),
+  ],
 };
 
 export default meta;
@@ -40,8 +40,8 @@ export const Default: Story = {
     value: sampleSQLCode,
     height: '300px',
     language: 'pgsql',
-    variant: 'bordered'
-  }
+    variant: 'bordered',
+  },
 };
 
 export const ReadOnly: Story = {
@@ -51,8 +51,8 @@ export const ReadOnly: Story = {
     language: 'pgsql',
     readOnly: true,
     variant: 'bordered',
-    readOnlyMessage: 'This is a read-only view'
-  }
+    readOnlyMessage: 'This is a read-only view',
+  },
 };
 
 export const YAMLEditor: Story = {
@@ -60,8 +60,8 @@ export const YAMLEditor: Story = {
     value: sampleYAMLCode,
     height: '300px',
     language: 'yaml',
-    variant: 'bordered'
-  }
+    variant: 'bordered',
+  },
 };
 
 export const CustomHeight: Story = {
@@ -69,16 +69,16 @@ export const CustomHeight: Story = {
     value: sampleSQLCode,
     height: '500px',
     language: 'pgsql',
-    variant: 'bordered'
-  }
+    variant: 'bordered',
+  },
 };
 
 export const EmptyEditor: Story = {
   args: {
     height: '200px',
     language: 'pgsql',
-    variant: 'bordered'
-  }
+    variant: 'bordered',
+  },
 };
 
 export const ChatConfigDemo: Story = {
@@ -177,6 +177,6 @@ chartConfig:
 datasetIds:
 - e9d9b89e-d070-4bea-8f28-65045c84e7e1
 - 9fa460b4-1410-4e74-aa34-eb79027cd59c
-`
-  }
+`,
+  },
 };

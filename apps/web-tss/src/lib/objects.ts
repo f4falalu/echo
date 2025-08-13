@@ -133,7 +133,7 @@ export const setNestedProperty = <T>(obj: T, path: (keyof T)[], value: unknown):
   return path.reduceRight(
     (acc, key, index) => ({
       ...((index === 0 ? obj : acc) as Record<string, unknown>),
-      [key]: acc
+      [key]: acc,
     }),
     value
   ) as T;

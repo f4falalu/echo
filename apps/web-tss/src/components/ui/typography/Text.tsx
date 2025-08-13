@@ -16,13 +16,13 @@ const textVariants = cva('leading-1.3', {
       xl: 'text-xl',
       '2xl': 'text-2xl',
       '3xl': 'text-3xl',
-      '4xl': 'text-4xl'
+      '4xl': 'text-4xl',
     },
     truncate: {
       true: 'truncate',
-      false: ''
-    }
-  }
+      false: '',
+    },
+  },
 });
 
 type TextProps = {
@@ -42,7 +42,7 @@ export const Text: React.FC<TextProps> = ({
   style,
   onClick,
   children,
-  dataTestId
+  dataTestId,
 }) => {
   const TextNode = truncate ? 'div' : 'span';
 
@@ -51,7 +51,8 @@ export const Text: React.FC<TextProps> = ({
       data-testid={dataTestId}
       style={style}
       className={cn(textVariants({ size, truncate }), textColorVariants({ variant }), className)}
-      onClick={onClick}>
+      onClick={onClick}
+    >
       {children}
     </TextNode>
   );

@@ -1,57 +1,57 @@
 import type { Meta, StoryObj } from '@storybook/nextjs';
 import { fn } from 'storybook/test';
+import { Download, File, Image } from '../icons';
 import { CollapisbleFileCard } from './CollapisbleFileCard';
-import { File, Download, Image } from '../icons';
 
 const meta: Meta<typeof CollapisbleFileCard> = {
   title: 'UI/card/CollapisbleFileCard',
   component: CollapisbleFileCard,
   parameters: {
-    layout: 'centered'
+    layout: 'centered',
   },
   tags: ['autodocs'],
   argTypes: {
     fileName: {
       control: 'text',
-      description: 'The file name to display'
+      description: 'The file name to display',
     },
     className: {
       control: 'text',
-      description: 'Additional CSS classes'
+      description: 'Additional CSS classes',
     },
     bodyClassName: {
       control: 'text',
-      description: 'Additional CSS classes for body'
+      description: 'Additional CSS classes for body',
     },
     headerClassName: {
       control: 'text',
-      description: 'Additional CSS classes for header'
+      description: 'Additional CSS classes for header',
     },
     children: {
       control: 'text',
-      description: 'Content to display inside the card'
+      description: 'Content to display inside the card',
     },
     collapsible: {
       control: { type: 'select' },
       options: ['chevron', 'overlay-peek', false],
-      description: 'Collapsible behavior type'
+      description: 'Collapsible behavior type',
     },
     collapseContent: {
       control: 'boolean',
-      description: 'Whether the content is collapsed by default'
+      description: 'Whether the content is collapsed by default',
     },
     onCollapse: {
       action: 'collapsed',
-      description: 'Callback when collapse state changes'
-    }
+      description: 'Callback when collapse state changes',
+    },
   },
   decorators: [
     (Story) => (
       <div style={{ width: '400px', height: '300px' }}>
         <Story />
       </div>
-    )
-  ]
+    ),
+  ],
 };
 
 export default meta;
@@ -64,8 +64,8 @@ export const Default: Story = {
     collapsible: false,
     collapseContent: false,
     className: '',
-    onCollapse: fn()
-  }
+    onCollapse: fn(),
+  },
 };
 
 export const WithContent: Story = {
@@ -85,8 +85,8 @@ export const WithContent: Story = {
       </div>
     ),
     collapsible: false,
-    onCollapse: fn()
-  }
+    onCollapse: fn(),
+  },
 };
 
 export const ChevronCollapsible: Story = {
@@ -107,15 +107,15 @@ export const ChevronCollapsible: Story = {
     ),
     collapsible: 'chevron',
     collapseContent: true,
-    onCollapse: fn()
-  }
+    onCollapse: fn(),
+  },
 };
 
 export const ChevronCollapsibleWithDefaultIcon: Story = {
   args: {
     ...ChevronCollapsible.args,
-    collapseDefaultIcon: <Download />
-  }
+    collapseDefaultIcon: <Download />,
+  },
 };
 
 export const ChevronCollapsedByDefault: Story = {
@@ -131,8 +131,8 @@ export const ChevronCollapsedByDefault: Story = {
     ),
     collapsible: 'chevron',
     collapseContent: true,
-    onCollapse: fn()
-  }
+    onCollapse: fn(),
+  },
 };
 
 export const OverlayPeekCollapsible: Story = {
@@ -159,8 +159,8 @@ export const OverlayPeekCollapsible: Story = {
     ),
     collapsible: 'overlay-peek',
     collapseContent: true,
-    onCollapse: fn()
-  }
+    onCollapse: fn(),
+  },
 };
 
 export const WithIcon: Story = {
@@ -176,15 +176,15 @@ export const WithIcon: Story = {
     ),
     collapsible: 'chevron',
     collapseContent: false,
-    onCollapse: fn()
-  }
+    onCollapse: fn(),
+  },
 };
 
 export const WithIconNoContent: Story = {
   args: {
     ...WithIcon.args,
-    children: null
-  }
+    children: null,
+  },
 };
 
 export const WithCollapseDefaultIcon: Story = {
@@ -202,8 +202,8 @@ export const WithCollapseDefaultIcon: Story = {
     ),
     collapsible: 'chevron',
     collapseContent: true,
-    onCollapse: fn()
-  }
+    onCollapse: fn(),
+  },
 };
 
 export const DifferentFileTypes: Story = {
@@ -220,8 +220,8 @@ export const DifferentFileTypes: Story = {
     ),
     collapsible: 'overlay-peek',
     collapseContent: false,
-    onCollapse: fn()
-  }
+    onCollapse: fn(),
+  },
 };
 
 export const LongContent: Story = {
@@ -244,8 +244,8 @@ export const LongContent: Story = {
     ),
     collapsible: 'overlay-peek',
     collapseContent: true,
-    onCollapse: fn()
-  }
+    onCollapse: fn(),
+  },
 };
 
 export const NoFileName: Story = {
@@ -256,8 +256,8 @@ export const NoFileName: Story = {
       </div>
     ),
     collapsible: false,
-    onCollapse: fn()
-  }
+    onCollapse: fn(),
+  },
 };
 
 export const CustomStyling: Story = {
@@ -275,8 +275,8 @@ export const CustomStyling: Story = {
     ),
     collapsible: 'chevron',
     collapseContent: false,
-    onCollapse: fn()
-  }
+    onCollapse: fn(),
+  },
 };
 
 export const OverlayPeekExpanded: Story = {
@@ -301,8 +301,8 @@ export const OverlayPeekExpanded: Story = {
     ),
     collapsible: 'overlay-peek',
     collapseContent: false,
-    onCollapse: fn()
-  }
+    onCollapse: fn(),
+  },
 };
 
 export const ReactNodeFileName: Story = {
@@ -323,6 +323,6 @@ export const ReactNodeFileName: Story = {
     ),
     collapsible: 'chevron',
     collapseContent: false,
-    onCollapse: fn()
-  }
+    onCollapse: fn(),
+  },
 };

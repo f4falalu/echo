@@ -2,7 +2,7 @@
 
 if (typeof window !== 'undefined') {
   window.MonacoEnvironment = {
-    getWorker(moduleId, label) {
+    getWorker(_moduleId, label) {
       switch (label) {
         case 'editorWorkerService':
           return new Worker(new URL('monaco-editor/esm/vs/editor/editor.worker', import.meta.url));
@@ -15,6 +15,6 @@ if (typeof window !== 'undefined') {
         default:
           throw new Error(`Unknown label ${label}`);
       }
-    }
+    },
   };
 }

@@ -3,7 +3,7 @@ import { DEFAULT_CHART_COLORS, DISABLED_CHART_COLORS } from './config';
 
 export const ChartIcon_GroupedColumn: React.FC<{ colors?: string[]; disabled?: boolean }> = ({
   colors: colorsProp = DEFAULT_CHART_COLORS,
-  disabled
+  disabled,
 }) => {
   const colors = disabled ? DISABLED_CHART_COLORS : colorsProp;
 

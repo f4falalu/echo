@@ -28,7 +28,7 @@ const openNotification = (props: NotificationProps) => {
 
   const toastOptions: ExternalToast = {
     ...props,
-    description: !hasTitle && message ? message : message
+    description: !hasTitle && message ? message : message,
   };
 
   switch (type) {
@@ -89,7 +89,7 @@ const openMessage = (props: {
   return openNotification({
     ...props,
     title: props.message,
-    message: ''
+    message: '',
   });
 };
 
@@ -114,7 +114,7 @@ const useBusterNotificationsInternal = () => {
     openErrorMessage,
     openInfoMessage,
     openSuccessMessage,
-    openNotification
+    openNotification,
   };
 };
 

@@ -1,21 +1,21 @@
+import type { Meta, StoryObj } from '@storybook/nextjs';
 import React from 'react';
-import { Meta, StoryObj } from '@storybook/nextjs';
-import { Select, SelectItem } from './Select';
 import { useDebounceFn } from '../../../hooks';
+import { Select, type SelectItem } from './Select';
 
 const meta: Meta<typeof Select> = {
   title: 'UI/select/Select',
   component: Select,
   parameters: {
-    layout: 'centered'
+    layout: 'centered',
   },
   decorators: [
     (Story) => (
       <div style={{ width: '300px' }}>
         <Story />
       </div>
-    )
-  ]
+    ),
+  ],
 };
 
 export default meta;
@@ -27,7 +27,7 @@ const basicItems: SelectItem[] = [
   { value: '2', label: 'Option 2' },
   { value: '3', label: 'Option 3' },
   { value: '4', label: 'Option 4' },
-  { value: '5', label: 'Option 5' }
+  { value: '5', label: 'Option 5' },
 ];
 
 const userItems: SelectItem[] = [
@@ -35,15 +35,15 @@ const userItems: SelectItem[] = [
   { value: 'jane', label: 'Jane Smith', secondaryLabel: 'jane@example.com' },
   { value: 'bob', label: 'Bob Johnson', secondaryLabel: 'bob@example.com' },
   { value: 'alice', label: 'Alice Williams', secondaryLabel: 'alice@example.com' },
-  { value: 'charlie', label: 'Charlie Brown', secondaryLabel: 'charlie@example.com' }
+  { value: 'charlie', label: 'Charlie Brown', secondaryLabel: 'charlie@example.com' },
 ];
 
 // Basic select without search
 export const Basic: Story = {
   args: {
     items: basicItems,
-    placeholder: 'Select an option'
-  }
+    placeholder: 'Select an option',
+  },
 };
 
 // Select with search enabled
@@ -51,8 +51,8 @@ export const WithSearch: Story = {
   args: {
     items: userItems,
     placeholder: 'Search users...',
-    search: true
-  }
+    search: true,
+  },
 };
 
 // Select with custom search function
@@ -66,9 +66,9 @@ export const WithCustomSearch: Story = {
         // Search only in email (secondaryLabel)
         const email = item.secondaryLabel || '';
         return email.toLowerCase().includes(searchTerm.toLowerCase());
-      }
-    }
-  }
+      },
+    },
+  },
 };
 
 // Clearable select
@@ -77,8 +77,8 @@ export const Clearable: Story = {
     items: basicItems,
     placeholder: 'Select an option',
     clearable: true,
-    search: true
-  }
+    search: true,
+  },
 };
 
 // Controlled input example
@@ -102,7 +102,7 @@ export const ControlledInput: Story = {
         />
       </div>
     );
-  }
+  },
 };
 
 // Async search example
@@ -159,14 +159,14 @@ export const AsyncSearch: Story = {
             fn: (searchTerm: string) => {
               debouncedSearch(searchTerm);
               return Promise.resolve();
-            }
+            },
           }}
           loading={isLoading}
           emptyMessage={inputValue ? 'No users found' : 'Type to search users'}
         />
       </div>
     );
-  }
+  },
 };
 
 // Grouped items example
@@ -178,21 +178,21 @@ export const GroupedItems: Story = {
         items: [
           { value: 'apple', label: 'Apple' },
           { value: 'banana', label: 'Banana' },
-          { value: 'orange', label: 'Orange' }
-        ]
+          { value: 'orange', label: 'Orange' },
+        ],
       },
       {
         label: 'Vegetables',
         items: [
           { value: 'carrot', label: 'Carrot' },
           { value: 'broccoli', label: 'Broccoli' },
-          { value: 'spinach', label: 'Spinach' }
-        ]
-      }
+          { value: 'spinach', label: 'Spinach' },
+        ],
+      },
     ],
     placeholder: 'Select a food...',
-    search: true
-  }
+    search: true,
+  },
 };
 
 // Disabled state
@@ -200,8 +200,8 @@ export const Disabled: Story = {
   args: {
     items: basicItems,
     placeholder: 'Select an option',
-    disabled: true
-  }
+    disabled: true,
+  },
 };
 
 // With icons example
@@ -211,11 +211,11 @@ export const WithIcons: Story = {
       { value: 'home', label: 'Home', icon: '🏠' },
       { value: 'work', label: 'Work', icon: '💼' },
       { value: 'school', label: 'School', icon: '🎓' },
-      { value: 'gym', label: 'Gym', icon: '💪' }
+      { value: 'gym', label: 'Gym', icon: '💪' },
     ],
     placeholder: 'Select a location...',
-    search: true
-  }
+    search: true,
+  },
 };
 
 // Loading state example
@@ -224,17 +224,17 @@ export const LoadingState: Story = {
     items: userItems,
     placeholder: 'Loading...',
     loading: true,
-    search: true
-  }
+    search: true,
+  },
 };
 
 export const WithHundredItems: Story = {
   args: {
     items: Array.from({ length: 100 }, (_, i) => ({
       value: `item-${i}`,
-      label: `Item ${i}`
+      label: `Item ${i}`,
     })),
     placeholder: 'Select an option',
-    search: true
-  }
+    search: true,
+  },
 };

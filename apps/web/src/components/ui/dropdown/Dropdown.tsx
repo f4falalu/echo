@@ -2,7 +2,7 @@
 
 import type { DropdownMenuProps } from '@radix-ui/react-dropdown-menu';
 import Link from 'next/link';
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, type ReactNode } from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
 import { useDebounceSearch, useMemoizedFn } from '@/hooks';
 import { cn } from '@/lib/classMerge';
@@ -25,7 +25,7 @@ import {
 import { DropdownMenuHeaderSearch } from './DropdownMenuHeaderSearch';
 
 export interface DropdownItem<T = string> {
-  label: React.ReactNode | string;
+  label: ReactNode | string;
   truncate?: boolean;
   searchLabel?: string; // Used for filtering
   secondaryLabel?: string;
@@ -33,7 +33,7 @@ export interface DropdownItem<T = string> {
   shortcut?: string;
   onClick?: (e: React.MouseEvent<HTMLDivElement>) => void;
   closeOnSelect?: boolean; //default is true
-  icon?: React.ReactNode;
+  icon?: ReactNode;
   disabled?: boolean;
   loading?: boolean;
   selected?: boolean;
@@ -47,7 +47,7 @@ export interface DropdownDivider {
   type: 'divider';
 }
 
-export type DropdownItems<T = string> = (DropdownItem<T> | DropdownDivider | React.ReactNode)[];
+export type DropdownItems<T = string> = (DropdownItem<T> | DropdownDivider | ReactNode)[];
 
 export interface DropdownProps<T = string> extends DropdownMenuProps {
   items: DropdownItems<T>;

@@ -1,14 +1,14 @@
+import type { ReactNode } from 'react';
 import { AppAssetCheckLayout } from '@/layouts/AppAssetCheckLayout';
 import type { Metadata } from 'next';
 import { getTitle_server } from '@/api/buster_rest/title';
 
-export default async function ReportLayout({
-  children,
-  params
-}: {
-  children: React.ReactNode;
+interface ReportLayoutProps {
+  children: ReactNode;
   params: Promise<{ reportId: string }>;
-}) {
+}
+
+export default async function ReportLayout({ children, params }: ReportLayoutProps) {
   const { reportId } = await params;
 
   return (

@@ -5,11 +5,11 @@ const mainApi = ky.create({
   prefixUrl: BASE_URL,
   hooks: {
     beforeRequest: [
-      async (request) => {
+      async (_request) => {
         // request.headers.set("Authorization", `Bearer ${token}`);
-      }
-    ]
-  }
+      },
+    ],
+  },
 });
 const mainApiV2 = ky.create({ prefixUrl: BASE_URL_V2 });
 

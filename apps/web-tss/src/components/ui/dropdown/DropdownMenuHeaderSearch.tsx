@@ -20,12 +20,12 @@ export const DropdownMenuHeaderSearch = <T,>({
   onPressEnter,
   showIndex = false,
   placeholder,
-  className = ''
+  className = '',
 }: DropdownMenuHeaderSearchProps<T>) => {
   const { onChange: onChangePreflight, onKeyDown: onKeyDownPreflight } = useRadixDropdownSearch({
     showIndex,
     onSelectItem,
-    onChange
+    onChange,
   });
 
   return (

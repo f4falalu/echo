@@ -12,29 +12,29 @@ const meta: Meta<typeof InputTagInput> = {
   argTypes: {
     variant: {
       control: 'select',
-      options: ['default', 'ghost', 'single']
+      options: ['default', 'ghost', 'single'],
     },
     size: {
       control: 'select',
-      options: ['default', 'tall', 'small']
+      options: ['default', 'tall', 'small'],
     },
     disabled: {
-      control: 'boolean'
+      control: 'boolean',
     },
     placeholder: {
-      control: 'text'
+      control: 'text',
     },
     maxTags: {
-      control: 'number'
+      control: 'number',
     },
     delimiter: {
       control: 'text',
       description: 'Character used to separate tags (default is comma)',
       table: {
-        defaultValue: { summary: ',' }
-      }
-    }
-  }
+        defaultValue: { summary: ',' },
+      },
+    },
+  },
 };
 
 export default meta;
@@ -67,8 +67,8 @@ export const Default: Story = {
   render: (args) => <InteractiveTagInput {...args} />,
   args: {
     placeholder: 'Add tags...',
-    tags: ['React', 'TypeScript']
-  }
+    tags: ['React', 'TypeScript'],
+  },
 };
 
 export const Ghost: Story = {
@@ -76,8 +76,8 @@ export const Ghost: Story = {
   args: {
     variant: 'ghost',
     placeholder: 'Add tags...',
-    tags: ['Ghost', 'Variant']
-  }
+    tags: ['Ghost', 'Variant'],
+  },
 };
 
 export const Tall: Story = {
@@ -85,8 +85,8 @@ export const Tall: Story = {
   args: {
     size: 'tall',
     placeholder: 'Add tags...',
-    tags: ['Tall', 'Size']
-  }
+    tags: ['Tall', 'Size'],
+  },
 };
 
 export const Small: Story = {
@@ -94,8 +94,8 @@ export const Small: Story = {
   args: {
     size: 'small',
     placeholder: 'Add tags...',
-    tags: ['Small', 'Size']
-  }
+    tags: ['Small', 'Size'],
+  },
 };
 
 export const Disabled: Story = {
@@ -103,8 +103,8 @@ export const Disabled: Story = {
   args: {
     disabled: true,
     placeholder: 'Disabled input',
-    tags: ['Cannot', 'Edit', 'These']
-  }
+    tags: ['Cannot', 'Edit', 'These'],
+  },
 };
 
 export const MaxTags: Story = {
@@ -112,16 +112,16 @@ export const MaxTags: Story = {
   args: {
     maxTags: 3,
     placeholder: 'Maximum 3 tags...',
-    tags: ['First', 'Second']
-  }
+    tags: ['First', 'Second'],
+  },
 };
 
 export const Empty: Story = {
   render: (args) => <InteractiveTagInput {...args} />,
   args: {
     placeholder: 'Start typing to add tags...',
-    tags: []
-  }
+    tags: [],
+  },
 };
 
 export const CustomDelimiter: Story = {
@@ -129,7 +129,7 @@ export const CustomDelimiter: Story = {
   args: {
     placeholder: 'Type or paste "tag1;tag2;tag3"...',
     delimiter: ';',
-    tags: []
+    tags: [],
   },
   parameters: {
     docs: {
@@ -138,10 +138,10 @@ export const CustomDelimiter: Story = {
           'Use a custom delimiter (semicolon in this example) to separate tags. You can:\n' +
           '1. Type text and press the delimiter to create a tag\n' +
           '2. Paste a delimited list (e.g., "tag1;tag2;tag3")\n' +
-          '3. Type or paste text with delimiters for automatic tag creation'
-      }
-    }
-  }
+          '3. Type or paste text with delimiters for automatic tag creation',
+      },
+    },
+  },
 };
 
 export const SpaceDelimiter: Story = {
@@ -149,13 +149,13 @@ export const SpaceDelimiter: Story = {
   args: {
     placeholder: 'Type or paste space-separated tags...',
     delimiter: ' ',
-    tags: []
+    tags: [],
   },
   parameters: {
     docs: {
       description: {
-        story: 'Using space as a delimiter. Perfect for handling space-separated lists of tags.'
-      }
-    }
-  }
+        story: 'Using space as a delimiter. Perfect for handling space-separated lists of tags.',
+      },
+    },
+  },
 };

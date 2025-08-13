@@ -1,7 +1,7 @@
 export const printHTMLPage = ({
   html,
   filename,
-  closeOnPrint = true
+  closeOnPrint = true,
 }: {
   html: string;
   filename: string;

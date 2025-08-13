@@ -4,7 +4,7 @@ import { Text } from '@/components/ui/typography';
 
 export const DropdownLabel: React.FC<{ title: string; subtitle?: string }> = ({
   title,
-  subtitle
+  subtitle,
 }) => {
   return (
     <div className="dropdown-label flex space-x-2 py-1">

@@ -15,9 +15,9 @@ const meta: Meta<typeof InputSelectModal<ListItemData>> = {
   title: 'UI/Modal/InputSelectModal',
   component: InputSelectModal,
   parameters: {
-    layout: 'centered'
+    layout: 'centered',
   },
-  tags: ['autodocs']
+  tags: ['autodocs'],
 };
 
 export default meta;
@@ -45,28 +45,28 @@ export const Default: Story = {
     footer: {
       primaryButton: {
         text: 'Confirm',
-        onClick: fn()
+        onClick: fn(),
       },
       secondaryButton: {
         text: 'Cancel',
         onClick: fn(),
-        variant: 'ghost'
-      }
+        variant: 'ghost',
+      },
     },
     columns: [
       {
         title: 'Name',
-        dataIndex: 'name' as const
+        dataIndex: 'name' as const,
       },
       {
         title: 'Email',
-        dataIndex: 'email' as const
-      }
+        dataIndex: 'email' as const,
+      },
     ] satisfies InputSelectModalProps<ListItemData>['columns'],
     selectedRowKeys: [],
     rows: Array.from({ length: 3000 }, () => ({
       id: faker.string.uuid(),
-      data: { name: faker.person.fullName(), email: faker.internet.email() } as ListItemData
-    }))
-  }
+      data: { name: faker.person.fullName(), email: faker.internet.email() } as ListItemData,
+    })),
+  },
 };

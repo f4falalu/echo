@@ -18,7 +18,8 @@ export const PopupContainer: React.FC<{
           initial={{ opacity: 0, y: -3 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -3 }}
-          transition={{ duration: 0.12 }}>
+          transition={{ duration: 0.12 }}
+        >
           <div className="bg-background rounded px-2 py-1.5 shadow-md">
             {show && <>{children}</>}
           </div>

@@ -6,8 +6,6 @@ import { FileIndeterminateLoader } from '@/components/features/FileIndeterminate
 import { AppNoPageAccess } from '@/controllers/AppNoPageAccess';
 import { AppPasswordAccess } from '@/controllers/AppPasswordAccess';
 import { useGetAsset } from './useGetAsset';
-import { useChatIndividualContextSelector } from '../ChatLayout/ChatContext';
-import { useDocumentTitle } from '@/hooks';
 
 export type AppAssetCheckLayoutProps = {
   assetId: string;

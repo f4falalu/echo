@@ -33,7 +33,7 @@ const BusterListRowComponentSelectorInner = React.forwardRef(
       onContextMenuClick,
       hideLastRowBorder,
       rowClassName,
-      useRowClickSelectChange = false
+      useRowClickSelectChange = false,
     }: BusterListRowComponentSelectorProps<T>,
     ref: React.ForwardedRef<HTMLDivElement>
   ) => {

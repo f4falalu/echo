@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/nextjs';
-import { fn } from 'storybook/test';
 import React from 'react';
+import { fn } from 'storybook/test';
 import { EditableTitle } from './EditableTitle';
 
 const meta: Meta<typeof EditableTitle> = {
@@ -9,29 +9,29 @@ const meta: Meta<typeof EditableTitle> = {
   argTypes: {
     children: {
       control: 'text',
-      description: 'The text content of the title'
+      description: 'The text content of the title',
     },
     level: {
       control: { type: 'select', options: [1, 2, 3, 4, 5] },
-      description: 'The heading level, affecting the font size'
+      description: 'The heading level, affecting the font size',
     },
     disabled: {
       control: 'boolean',
-      description: 'Whether the title is editable or not'
+      description: 'Whether the title is editable or not',
     },
     placeholder: {
       control: 'text',
-      description: 'Placeholder text when the title is empty'
+      description: 'Placeholder text when the title is empty',
     },
     className: {
       control: 'text',
-      description: 'Additional CSS class names for the container'
+      description: 'Additional CSS class names for the container',
     },
     inputClassName: {
       control: 'text',
-      description: 'Additional CSS class names for the input element'
-    }
-  }
+      description: 'Additional CSS class names for the input element',
+    },
+  },
 };
 
 export default meta;
@@ -60,8 +60,8 @@ export const Default: Story = {
     level: 4,
     onChange: fn(),
     onEdit: fn(),
-    placeholder: 'Enter a title'
-  }
+    placeholder: 'Enter a title',
+  },
 };
 
 export const Level1: Story = {
@@ -70,8 +70,8 @@ export const Level1: Story = {
     children: 'Large Heading',
     level: 1,
     onChange: fn(),
-    onEdit: fn()
-  }
+    onEdit: fn(),
+  },
 };
 
 export const Level2: Story = {
@@ -80,8 +80,8 @@ export const Level2: Story = {
     children: 'Medium Heading',
     level: 2,
     onChange: fn(),
-    onEdit: fn()
-  }
+    onEdit: fn(),
+  },
 };
 
 export const Level3: Story = {
@@ -90,8 +90,8 @@ export const Level3: Story = {
     children: 'Small Heading',
     level: 3,
     onChange: fn(),
-    onEdit: fn()
-  }
+    onEdit: fn(),
+  },
 };
 
 export const Disabled: Story = {
@@ -101,8 +101,8 @@ export const Disabled: Story = {
     level: 4,
     disabled: true,
     onChange: fn(),
-    onEdit: fn()
-  }
+    onEdit: fn(),
+  },
 };
 
 export const WithPlaceholder: Story = {
@@ -112,8 +112,8 @@ export const WithPlaceholder: Story = {
     level: 4,
     placeholder: 'Enter your title here...',
     onChange: fn(),
-    onEdit: fn()
-  }
+    onEdit: fn(),
+  },
 };
 
 export const InitiallyEditing: Story = {
@@ -122,6 +122,6 @@ export const InitiallyEditing: Story = {
     children: 'Initially in Edit Mode',
     level: 4,
     onChange: fn(),
-    onEdit: fn()
-  }
+    onEdit: fn(),
+  },
 };

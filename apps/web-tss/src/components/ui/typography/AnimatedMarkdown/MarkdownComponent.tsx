@@ -94,7 +94,6 @@ export const StrongComponent: React.FC<MarkdownComponentProps> = ({
   children,
   className,
   style,
-  ...rest
 }) => {
   return (
     <strong style={style} className={className}>
@@ -107,7 +106,6 @@ export const EmphasisComponent: React.FC<MarkdownComponentProps> = ({
   children,
   className,
   style,
-  ...rest
 }) => {
   return (
     <em style={style} className={className}>
@@ -120,7 +118,6 @@ export const DeleteComponent: React.FC<MarkdownComponentProps> = ({
   children,
   className,
   style,
-  ...rest
 }) => {
   return (
     <del style={style} className={className}>
@@ -222,7 +219,6 @@ export const UnorderedListComponent: React.FC<MarkdownComponentProps> = ({
   children,
   className,
   style,
-  ...rest
 }) => {
   return (
     <ul style={style} className={cn(className, 'mt-1 space-y-1', 'list-inside', 'list-disc')}>

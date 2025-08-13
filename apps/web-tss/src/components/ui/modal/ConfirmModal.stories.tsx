@@ -7,7 +7,7 @@ import { ConfirmModal, type ConfirmProps } from './ConfirmModal';
 
 const meta: Meta<typeof ConfirmModal> = {
   title: 'UI/Modal/ConfirmModal',
-  component: ConfirmModal
+  component: ConfirmModal,
 };
 
 export default meta;
@@ -28,7 +28,7 @@ export const Default: Story = {
       onCancel: async () => {
         await new Promise((resolve) => setTimeout(resolve, 1));
         alert('onCancel');
-      }
+      },
     };
 
     return (
@@ -43,7 +43,7 @@ export const Default: Story = {
               onCancel: async () => {
                 await new Promise((resolve) => setTimeout(resolve, 1));
                 alert('onCancel');
-              }
+              },
             });
             alert(res);
             alert('openConfirmModal promise resolved');
@@ -53,7 +53,7 @@ export const Default: Story = {
         </Button>
       </div>
     );
-  }
+  },
 };
 
 export const Sequential: Story = {
@@ -65,7 +65,7 @@ export const Sequential: Story = {
         title: 'First Modal',
         content: 'This is the first modal in the sequence.',
         onOk: fn(),
-        onCancel: fn()
+        onCancel: fn(),
       });
 
       await new Promise((resolve) => setTimeout(resolve, 100));
@@ -74,7 +74,7 @@ export const Sequential: Story = {
         title: 'Second Modal',
         content: 'Here comes the second modal!',
         onOk: fn(),
-        onCancel: fn()
+        onCancel: fn(),
       });
 
       await new Promise((resolve) => setTimeout(resolve, 100));
@@ -83,10 +83,10 @@ export const Sequential: Story = {
         title: 'Final Modal',
         content: 'This is the last modal in our sequence.',
         onOk: fn(),
-        onCancel: fn()
+        onCancel: fn(),
       });
     };
 
     return <Button onClick={handleSequentialModals}>Open Sequential Modals</Button>;
-  }
+  },
 };

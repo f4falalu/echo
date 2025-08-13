@@ -7,7 +7,7 @@ export const COOKIE_OPTIONS: CookieOptions = {
   secure: process.env.NODE_ENV === 'production', // Only use secure in production
   sameSite: 'lax', // Type assertion to fix the error
   httpOnly: true, // Make cookies HttpOnly
-  maxAge: 60 * 60 * 24 * 7 // 1 week
+  maxAge: 60 * 60 * 24 * 7, // 1 week
 };
 
 export function getSupabaseServerClient() {
@@ -23,17 +23,17 @@ export function getSupabaseServerClient() {
       getAll() {
         return Object.entries(parseCookies()).map(([name, value]) => ({
           name,
-          value
+          value,
         }));
       },
       setAll(cookies) {
         cookies.forEach((cookie) => {
           setCookie(cookie.name, cookie.value, {
             ...COOKIE_OPTIONS,
-            ...cookie.options
+            ...cookie.options,
           });
         });
-      }
-    }
+      },
+    },
   });
 }

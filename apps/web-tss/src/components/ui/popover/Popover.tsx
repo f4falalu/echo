@@ -4,7 +4,7 @@ import {
   PopoverContent,
   type PopoverContentVariant,
   PopoverTrigger,
-  type PopoverTriggerType
+  type PopoverTriggerType,
 } from './PopoverBase';
 
 export interface PopoverProps
@@ -40,7 +40,8 @@ export const Popover = React.memo<PopoverProps>(
           side={side}
           className={className}
           size={size}
-          sideOffset={sideOffset}>
+          sideOffset={sideOffset}
+        >
           {content}
         </PopoverContent>
       </PopoverBase>

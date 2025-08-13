@@ -5,7 +5,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuTrigger
+  DropdownMenuTrigger,
 } from './DropdownBase';
 
 export interface SearchDropdownItem {
@@ -33,11 +33,10 @@ export const SearchDropdown = React.memo(
     items,
     useLinkIcon = true,
     onSelect,
-    className,
     offset = 0,
     children,
     open,
-    contentClassName = 'rounded-t-none'
+    contentClassName = 'rounded-t-none',
   }: SearchDropdownProps) => {
     return (
       <DropdownMenu open={open} defaultOpen={open} modal={false}>
@@ -52,13 +51,15 @@ export const SearchDropdown = React.memo(
           sideOffset={offset}
           align={'center'}
           side={'bottom'}
-          loop>
+          loop
+        >
           {items.map((item, index) => (
             <DropdownMenuItem
               disabled={item.disabled}
               key={`${item.value}-${index}`}
               className="group min-h-10"
-              onClick={() => onSelect(item)}>
+              onClick={() => onSelect(item)}
+            >
               {item.label}
               {useLinkIcon && <ArrowRightIcon />}
             </DropdownMenuItem>

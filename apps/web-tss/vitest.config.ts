@@ -1,27 +1,37 @@
-import { resolve } from 'node:path';
+/// <reference types="vitest/config" />
+
+/// <reference types="vitest/config" />
+import path, { resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { storybookTest } from '@storybook/addon-vitest/vitest-plugin';
 import tsconfigPaths from 'vite-tsconfig-paths';
 import { defineConfig } from 'vitest/config';
 
+const dirname =
+  typeof __dirname !== 'undefined' ? __dirname : path.dirname(fileURLToPath(import.meta.url));
+
+// More info at: https://storybook.js.org/docs/next/writing-tests/integrations/vitest-addon
 export default defineConfig({
   plugins: [
     tsconfigPaths({
       root: resolve(__dirname),
-      projects: [resolve(__dirname, 'tsconfig.json')]
-    }) as unknown as Plugin
+      projects: [resolve(__dirname, 'tsconfig.json')],
+    }) as unknown as Plugin,
   ],
   esbuild: {
-    jsx: 'automatic'
+    jsx: 'automatic',
   },
   test: {
     globals: true,
-    environment: 'jsdom', // For React components
+    environment: 'jsdom',
+    // For React components
     setupFiles: ['./vitest.setup.ts'],
     pool: 'forks',
     poolOptions: {
       forks: {
         maxForks: process.env.CI ? 1 : 8,
-        minForks: process.env.CI ? 1 : 8
-      }
+        minForks: process.env.CI ? 1 : 8,
+      },
     },
     include: ['**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
     exclude: [
@@ -29,7 +39,7 @@ export default defineConfig({
       '**/dist/**',
       '**/.next/**',
       '**/playwright-tests/**',
-      '**/coverage/**'
+      '**/coverage/**',
     ],
     coverage: {
       provider: 'v8',
@@ -56,14 +66,39 @@ export default defineConfig({
         '**/vitest.config.[jt]s',
         '**/playwright.config.[jt]s',
         '**/.storybook/**',
-        '**/storybook-static/**'
-      ]
-    }
+        '**/storybook-static/**',
+      ],
+    },
+    projects: [
+      {
+        extends: true,
+        plugins: [
+          // The plugin will run tests for the stories defined in your Storybook config
+          // See options at: https://storybook.js.org/docs/next/writing-tests/integrations/vitest-addon#storybooktest
+          storybookTest({
+            configDir: path.join(dirname, '.storybook'),
+          }),
+        ],
+        test: {
+          name: 'storybook',
+          browser: {
+            enabled: true,
+            headless: true,
+            provider: 'playwright',
+            instances: [
+              {
+                browser: 'chromium',
+              },
+            ],
+          },
+          setupFiles: ['.storybook/vitest.setup.ts'],
+        },
+      },
+    ],
   },
-
   css: {
     postcss: {
-      plugins: []
-    }
-  }
+      plugins: [],
+    },
+  },
 });

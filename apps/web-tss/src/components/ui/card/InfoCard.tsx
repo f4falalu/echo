@@ -5,44 +5,44 @@ import { cn } from '@/lib/classMerge';
 const infoCardVariants = cva('rounded relative flex gap-1 w-full h-full justify-between', {
   variants: {
     size: {
-      default: 'px-4 py-3.5'
+      default: 'px-4 py-3.5',
     },
     variant: {
       default: 'border bg-background shadow',
       gray: 'border bg-item-hover shadow',
-      ghost: 'border-none bg-transparent shadow-none'
+      ghost: 'border-none bg-transparent shadow-none',
     },
     selectable: {
       true: 'cursor-pointer',
-      false: ''
+      false: '',
     },
     selected: {
       true: '',
-      false: ''
-    }
+      false: '',
+    },
   },
   compoundVariants: [
     {
       selectable: true,
       variant: 'default',
-      className: 'hover:bg-item-hover'
+      className: 'hover:bg-item-hover',
     },
     {
       selectable: true,
       variant: 'gray',
-      className: 'hover:bg-item-active'
+      className: 'hover:bg-item-active',
     },
     {
       selected: true,
       variant: 'default',
-      className: 'bg-item-hover'
+      className: 'bg-item-hover',
     },
     {
       selected: true,
       variant: 'gray',
-      className: 'bg-item-active'
-    }
-  ]
+      className: 'bg-item-active',
+    },
+  ],
 });
 
 interface InfoCardProps extends React.HTMLAttributes<HTMLDivElement> {
@@ -75,7 +75,8 @@ export const InfoCard: React.FC<InfoCardProps> = React.memo(
           infoCardVariants({ size, variant, selectable: !!onClick, selected }),
           className
         )}
-        {...props}>
+        {...props}
+      >
         <div className="flex flex-1 flex-col gap-1.5">
           <h3 className="text-foreground text-base">{title}</h3>
           <p className="text-gray-dark text-xs">{description}</p>
@@ -88,9 +89,10 @@ export const InfoCard: React.FC<InfoCardProps> = React.memo(
               {
                 'items-start': iconPosition === 'top',
                 'items-center': iconPosition === 'center',
-                'items-end': iconPosition === 'bottom'
+                'items-end': iconPosition === 'bottom',
               }
-            )}>
+            )}
+          >
             <span className="h-fit">{icon}</span>
           </div>
         )}

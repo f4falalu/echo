@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import type React from 'react';
+import { useState } from 'react';
+import { inputHasText } from '@/lib/text';
+import { cn } from '@/lib/utils';
 import { Button } from '../buttons/Button';
 import { InputTextArea } from '../inputs/InputTextArea';
-import { cn } from '@/lib/utils';
-import { inputHasText } from '@/lib/text';
 
 interface InputCardProps {
   placeholder: string;
@@ -21,7 +22,7 @@ export const InputCard: React.FC<InputCardProps> = ({
   onChange,
   onSubmit,
   loading,
-  className
+  className,
 }) => {
   const [inputValue, setInputValue] = useState(value ?? '');
 
@@ -52,7 +53,7 @@ export const InputCard: React.FC<InputCardProps> = ({
           onPressEnter={handlePressEnter}
           autoResize={{
             minRows: 5,
-            maxRows: 10
+            maxRows: 10,
           }}
         />
       </div>
@@ -63,7 +64,8 @@ export const InputCard: React.FC<InputCardProps> = ({
           loading={loading}
           block
           variant={'black'}
-          disabled={disableSubmit}>
+          disabled={disableSubmit}
+        >
           {buttonText}
         </Button>
       </div>

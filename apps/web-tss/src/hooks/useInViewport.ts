@@ -37,7 +37,7 @@ export const useInViewport = (
       },
       {
         threshold: options.threshold ?? 0,
-        rootMargin: options.rootMargin ?? '0px'
+        rootMargin: options.rootMargin ?? '0px',
       }
     );
 

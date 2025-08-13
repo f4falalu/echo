@@ -1,6 +1,7 @@
 import { AppAssetCheckLayout } from '@/layouts/AppAssetCheckLayout';
 import type { Metadata } from 'next';
 import { getTitle_server } from '@/api/buster_rest/title';
+import React from 'react';
 
 export default async function MetricLayout({
   children,

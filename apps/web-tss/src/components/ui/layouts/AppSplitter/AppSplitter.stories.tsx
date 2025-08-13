@@ -1,34 +1,34 @@
 import type { Meta, StoryObj } from '@storybook/nextjs';
 import React, { useRef } from 'react';
+import { Button } from '@/components/ui/buttons/Button';
+import { Text } from '@/components/ui/typography/Text';
+import { Title } from '@/components/ui/typography/Title';
 import { AppSplitter, type AppSplitterRef } from './AppSplitter';
 import { useAppSplitterContext } from './AppSplitterProvider';
-import { Title } from '@/components/ui/typography/Title';
-import { Text } from '@/components/ui/typography/Text';
-import { Button } from '@/components/ui/buttons/Button';
 
 const meta: Meta<typeof AppSplitter> = {
   title: 'UI/layouts/AppSplitter',
   component: AppSplitter,
   parameters: {
-    layout: 'fullscreen'
+    layout: 'fullscreen',
   },
   decorators: [
     (Story) => (
       <div style={{ height: '600px', width: '100%', border: '1px solid #ccc' }}>
         <Story />
       </div>
-    )
+    ),
   ],
   argTypes: {
     split: {
       control: 'select',
-      options: ['vertical', 'horizontal']
+      options: ['vertical', 'horizontal'],
     },
     preserveSide: {
       control: 'select',
-      options: ['left', 'right']
-    }
-  }
+      options: ['left', 'right'],
+    },
+  },
 };
 
 export default meta;
@@ -61,7 +61,8 @@ const RightContent = ({ title = 'Right Panel' }: { title?: string }) => (
       {[1, 2, 3, 4, 5, 6].map((i) => (
         <div
           key={i}
-          className="bg-muted/10 flex h-32 items-center justify-center rounded-lg border">
+          className="bg-muted/10 flex h-32 items-center justify-center rounded-lg border"
+        >
           <Text>Content Block {i}</Text>
         </div>
       ))}
@@ -76,8 +77,8 @@ export const LeftPanelPreserved: Story = {
     rightChildren: <RightContent title="Right Panel (Auto)" />,
     autoSaveId: 'left-preserved',
     defaultLayout: ['300px', 'auto'],
-    preserveSide: 'left'
-  }
+    preserveSide: 'left',
+  },
 };
 
 // 2. Right panel preserved
@@ -87,8 +88,8 @@ export const RightPanelPreserved: Story = {
     rightChildren: <RightContent title="Right Panel (Preserved)" />,
     autoSaveId: 'right-preserved',
     defaultLayout: ['auto', '200px'],
-    preserveSide: 'right'
-  }
+    preserveSide: 'right',
+  },
 };
 
 // 3. Horizontal split - top preserved
@@ -99,8 +100,8 @@ export const HorizontalTopPreserved: Story = {
     autoSaveId: 'horizontal-top',
     defaultLayout: ['200px', 'auto'],
     split: 'horizontal',
-    preserveSide: 'left'
-  }
+    preserveSide: 'left',
+  },
 };
 
 // 4. Horizontal split - bottom preserved
@@ -111,8 +112,8 @@ export const HorizontalBottomPreserved: Story = {
     autoSaveId: 'horizontal-bottom',
     defaultLayout: ['auto', '300px'],
     split: 'horizontal',
-    preserveSide: 'right'
-  }
+    preserveSide: 'right',
+  },
 };
 
 // 5. With min and max sizes
@@ -135,8 +136,8 @@ export const WithMinMaxSizes: Story = {
     leftPanelMinSize: 200,
     leftPanelMaxSize: 500,
     rightPanelMinSize: 300,
-    preserveSide: 'left'
-  }
+    preserveSide: 'left',
+  },
 };
 
 // 6. Splitter hidden
@@ -147,8 +148,8 @@ export const SplitterHidden: Story = {
     autoSaveId: 'splitter-hidden',
     defaultLayout: ['300px', 'auto'],
     hideSplitter: true,
-    preserveSide: 'left'
-  }
+    preserveSide: 'left',
+  },
 };
 
 // 7. Left panel hidden
@@ -166,8 +167,8 @@ export const LeftPanelHidden: Story = {
     autoSaveId: 'left-hidden',
     defaultLayout: ['300px', 'auto'],
     leftHidden: true,
-    preserveSide: 'left'
-  }
+    preserveSide: 'left',
+  },
 };
 
 // 8. Custom splitter class
@@ -178,8 +179,8 @@ export const CustomSplitterClass: Story = {
     autoSaveId: 'custom-splitter',
     defaultLayout: ['300px', 'auto'],
     splitterClassName: 'bg-red-500 hover:bg-red-500/80 min-w-2',
-    preserveSide: 'left'
-  }
+    preserveSide: 'left',
+  },
 };
 
 // 9. Resize disabled
@@ -197,8 +198,8 @@ export const ResizeDisabled: Story = {
     autoSaveId: 'resize-disabled',
     defaultLayout: ['300px', 'auto'],
     allowResize: false,
-    preserveSide: 'left'
-  }
+    preserveSide: 'left',
+  },
 };
 
 // Additional story: Percentage-based sizing
@@ -215,8 +216,8 @@ export const PercentageBasedSizing: Story = {
     rightChildren: <RightContent title="70% Width Panel" />,
     autoSaveId: 'percentage-sizing',
     defaultLayout: ['30%', 'auto'],
-    preserveSide: 'left'
-  }
+    preserveSide: 'left',
+  },
 };
 
 // Nested Three Panel Layout Story
@@ -251,7 +252,8 @@ export const NestedThreePanel: Story = {
                 {[1, 2, 3, 4].map((i) => (
                   <div
                     key={i}
-                    className="bg-muted/10 flex h-24 items-center justify-center rounded-lg border">
+                    className="bg-muted/10 flex h-24 items-center justify-center rounded-lg border"
+                  >
                     <Text>Content Block {i}</Text>
                   </div>
                 ))}
@@ -299,8 +301,8 @@ export const NestedThreePanel: Story = {
     defaultLayout: ['250px', 'auto'],
     preserveSide: 'left',
     leftPanelMinSize: 200,
-    leftPanelMaxSize: 400
-  }
+    leftPanelMaxSize: 400,
+  },
 };
 
 // Story with animation controls via ref
@@ -350,7 +352,7 @@ const AnimationViaRefExample = () => {
 };
 
 export const AnimationViaRef: Story = {
-  render: () => <AnimationViaRefExample />
+  render: () => <AnimationViaRefExample />,
 };
 
 // Story with animation controls via context
@@ -411,7 +413,7 @@ const AnimationViaContextExample = () => {
 };
 
 export const AnimationViaContext: Story = {
-  render: () => <AnimationViaContextExample />
+  render: () => <AnimationViaContextExample />,
 };
 
 // Story demonstrating different animation durations
@@ -423,7 +425,7 @@ const AnimationDurationsExample = () => {
     { label: 'Fast (200ms)', duration: 200, size: '300px' },
     { label: 'Normal (500ms)', duration: 500, size: '400px' },
     { label: 'Slow (1000ms)', duration: 1000, size: '500px' },
-    { label: 'Very Slow (2000ms)', duration: 2000, size: '250px' }
+    { label: 'Very Slow (2000ms)', duration: 2000, size: '250px' },
   ];
 
   return (
@@ -436,7 +438,8 @@ const AnimationDurationsExample = () => {
             {animations.map((anim) => (
               <Button
                 key={anim.label}
-                onClick={() => splitterRef.current?.animateWidth(anim.size, 'left', anim.duration)}>
+                onClick={() => splitterRef.current?.animateWidth(anim.size, 'left', anim.duration)}
+              >
                 {anim.label} → {anim.size}
               </Button>
             ))}
@@ -459,7 +462,7 @@ const AnimationDurationsExample = () => {
 };
 
 export const AnimationDurations: Story = {
-  render: () => <AnimationDurationsExample />
+  render: () => <AnimationDurationsExample />,
 };
 
 // Story for horizontal split with animations
@@ -504,7 +507,7 @@ export const HorizontalWithAnimation: Story = {
         rightPanelMinSize={100}
       />
     );
-  }
+  },
 };
 
 // Three panel layout with animation controls
@@ -551,7 +554,8 @@ const ThreePanelWithAnimationExample = () => {
             <Button
               onClick={() => animateLeftPanel('400px', 1000)}
               className="w-full"
-              variant="outlined">
+              variant="outlined"
+            >
               Set to 400px (slow)
             </Button>
           </div>
@@ -580,19 +584,22 @@ const ThreePanelWithAnimationExample = () => {
                   <Button
                     onClick={() => animateMiddlePanel('auto')}
                     className="w-full"
-                    variant="outlined">
+                    variant="outlined"
+                  >
                     Set to Auto
                   </Button>
                   <Button
                     onClick={() => animateMiddlePanel('50%')}
                     className="w-full"
-                    variant="outlined">
+                    variant="outlined"
+                  >
                     Set to 50%
                   </Button>
                   <Button
                     onClick={() => animateMiddlePanel('60%')}
                     className="w-full"
-                    variant="outlined">
+                    variant="outlined"
+                  >
                     Set to 60%
                   </Button>
                 </div>
@@ -611,7 +618,8 @@ const ThreePanelWithAnimationExample = () => {
                       }}
                       className="w-full"
                       variant="default"
-                      size="small">
+                      size="small"
+                    >
                       Cascade Animation
                     </Button>
                     <Button
@@ -622,7 +630,8 @@ const ThreePanelWithAnimationExample = () => {
                       }}
                       className="w-full"
                       variant="default"
-                      size="small">
+                      size="small"
+                    >
                       Sync Animation
                     </Button>
                   </div>
@@ -641,37 +650,43 @@ const ThreePanelWithAnimationExample = () => {
                   <Button
                     onClick={() => animateRightPanel('250px')}
                     className="w-full"
-                    variant="outlined">
+                    variant="outlined"
+                  >
                     Set to 250px
                   </Button>
                   <Button
                     onClick={() => animateRightPanel('350px')}
                     className="w-full"
-                    variant="outlined">
+                    variant="outlined"
+                  >
                     Set to 350px
                   </Button>
                   <Button
                     onClick={() => animateRightPanel('30%')}
                     className="w-full"
-                    variant="outlined">
+                    variant="outlined"
+                  >
                     Set to 30%
                   </Button>
                   <Button
                     onClick={() => animateRightPanel('400px', 1500)}
                     className="w-full"
-                    variant="outlined">
+                    variant="outlined"
+                  >
                     Set to 400px (very slow)
                   </Button>
                   <Button
                     onClick={() => animateRightPanel('0px')}
                     className="w-full"
-                    variant="danger">
+                    variant="danger"
+                  >
                     Close Panel (0px)
                   </Button>
                   <Button
                     onClick={() => animateRightPanel('320px')}
                     className="w-full"
-                    variant="primary">
+                    variant="primary"
+                  >
                     Reopen Panel (320px)
                   </Button>
                 </div>
@@ -684,14 +699,16 @@ const ThreePanelWithAnimationExample = () => {
                         onClick={() => animateRightPanel('200px', 100)}
                         className="w-full"
                         variant="ghost"
-                        size="small">
+                        size="small"
+                      >
                         Fast (100ms)
                       </Button>
                       <Button
                         onClick={() => animateRightPanel('450px', 2000)}
                         className="w-full"
                         variant="ghost"
-                        size="small">
+                        size="small"
+                      >
                         Ultra Slow (2s)
                       </Button>
                     </div>
@@ -718,7 +735,7 @@ const ThreePanelWithAnimationExample = () => {
 };
 
 export const ThreePanelWithAnimation: Story = {
-  render: () => <ThreePanelWithAnimationExample />
+  render: () => <ThreePanelWithAnimationExample />,
 };
 
 export const CollapsedLeftPanel: Story = {
@@ -755,7 +772,8 @@ export const CollapsedLeftPanel: Story = {
           {[1, 2, 3, 4, 5, 6].map((i) => (
             <div
               key={i}
-              className="bg-muted/10 flex h-32 items-center justify-center rounded-lg border">
+              className="bg-muted/10 flex h-32 items-center justify-center rounded-lg border"
+            >
               <Text>Content Block {i}</Text>
             </div>
           ))}
@@ -774,6 +792,6 @@ export const CollapsedLeftPanel: Story = {
     autoSaveId: 'collapsed-left-panel',
     defaultLayout: ['0%', '100%'],
     leftPanelMinSize: '200px',
-    preserveSide: 'right'
-  }
+    preserveSide: 'right',
+  },
 };

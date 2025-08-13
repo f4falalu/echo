@@ -5,7 +5,7 @@ import {
   TooltipBase,
   TooltipContent as TooltipContentBase,
   type TooltipProvider,
-  TooltipTrigger
+  TooltipTrigger,
 } from './TooltipBase';
 
 export interface TooltipProps
@@ -32,7 +32,7 @@ export const Tooltip = React.forwardRef<HTMLSpanElement, TooltipProps>(
       side,
       open,
       triggerClassName,
-      contentClassName
+      contentClassName,
     },
     ref
   ) => {

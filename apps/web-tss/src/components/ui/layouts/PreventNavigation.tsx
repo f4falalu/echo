@@ -173,19 +173,17 @@ export const PreventNavigation: React.FC<PreventNavigationProps> = React.memo(
     if (!isDirty) return null;
 
     return (
-      <>
-        <LeavingDialog
-          {...props}
-          canceling={canceling}
-          okaying={okaying}
-          cancelText={cancelText}
-          okText={okText}
-          isOpen={leavingPage}
-          onClose={onClose}
-          noCallback={noCallback}
-          yesCallback={yesCallback}
-        />
-      </>
+      <LeavingDialog
+        {...props}
+        canceling={canceling}
+        okaying={okaying}
+        cancelText={cancelText}
+        okText={okText}
+        isOpen={leavingPage}
+        onClose={onClose}
+        noCallback={noCallback}
+        yesCallback={yesCallback}
+      />
     );
   }
 );

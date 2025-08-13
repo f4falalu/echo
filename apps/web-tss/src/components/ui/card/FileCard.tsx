@@ -291,7 +291,7 @@ const CollapseToggleIcon = React.memo(
     onClick?: (e: React.MouseEvent<HTMLDivElement>) => void;
   }) => {
     const showChevron = isHovered || !isCollapsed;
-    const showDefaultIcon = !isHovered && isCollapsed && collapseDefaultIcon;
+    const showDefaultIcon = !isHovered && isCollapsed && !!collapseDefaultIcon;
 
     return (
       <div

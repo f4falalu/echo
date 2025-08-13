@@ -7,7 +7,7 @@ describe('formatDate', () => {
   it('should format a valid date string correctly', () => {
     const result = formatDate({
       date: '2024-03-20',
-      format: 'YYYY-MM-DD'
+      format: 'YYYY-MM-DD',
     });
     expect(result).toBe('2024-03-20');
   });
@@ -17,7 +17,7 @@ describe('formatDate', () => {
     const result = formatDate({
       date: '2024-03-20T12:00:00Z',
       format: 'YYYY-MM-DD HH:mm',
-      isUTC: true
+      isUTC: true,
     });
     expect(result).toBe('2024-03-20 12:00');
   });
@@ -27,7 +27,7 @@ describe('formatDate', () => {
     const result = formatDate({
       date: 1,
       format: 'dddd',
-      convertNumberTo: 'day_of_week'
+      convertNumberTo: 'day_of_week',
     });
     expect(result).toBe('Monday');
   });
@@ -37,7 +37,7 @@ describe('formatDate', () => {
     const result = formatDate({
       date: 3,
       format: 'MMMM',
-      convertNumberTo: 'month_of_year'
+      convertNumberTo: 'month_of_year',
     });
     expect(result).toBe('March');
   });
@@ -47,7 +47,7 @@ describe('formatDate', () => {
     const result = formatDate({
       date: '2024-03-20',
       format: 'YYYY [Q]Q',
-      convertNumberTo: 'quarter'
+      convertNumberTo: 'quarter',
     });
     expect(result).toBe('2024 Q1');
   });
@@ -56,7 +56,7 @@ describe('formatDate', () => {
   it('should handle invalid date by returning string representation', () => {
     const result = formatDate({
       date: 'invalid-date',
-      format: 'YYYY-MM-DD'
+      format: 'YYYY-MM-DD',
     });
     expect(result).toBe('invalid-date');
   });
@@ -67,7 +67,7 @@ describe('formatDate', () => {
     const result = formatDate({
       date: dateObj,
       format: 'YYYY-MM-DD',
-      isUTC: true
+      isUTC: true,
     });
     expect(result).toBe('2024-03-20');
   });
@@ -76,7 +76,7 @@ describe('formatDate', () => {
   it('should handle 10-digit unix timestamp', () => {
     const result = formatDate({
       date: 1710921600, // 2024-03-20 00:00:00
-      format: 'YYYY-MM-DD'
+      format: 'YYYY-MM-DD',
     });
     expect(result).toBe('2024-03-20');
   });
@@ -85,7 +85,7 @@ describe('formatDate', () => {
   it('should handle 13-digit millisecond timestamp', () => {
     const result = formatDate({
       date: 1710921600000, // 2024-03-20 00:00:00
-      format: 'YYYY-MM-DD'
+      format: 'YYYY-MM-DD',
     });
     expect(result).toBe('2024-03-20');
   });
@@ -94,7 +94,7 @@ describe('formatDate', () => {
   it('should format date with custom format', () => {
     const result = formatDate({
       date: '2024-03-20',
-      format: 'MMM ddd, YYYY'
+      format: 'MMM ddd, YYYY',
     });
     expect(result).toBe('Mar Wed, 2024');
   });
@@ -104,7 +104,7 @@ describe('formatDate', () => {
     const result = formatDate({
       date: 3,
       format: 'MM',
-      dateKey: 'month'
+      dateKey: 'month',
     });
     expect(result).toBe('03');
   });
@@ -114,7 +114,7 @@ describe('formatDate', () => {
     const result = formatDate({
       date: 'not-a-date',
       format: 'YYYY-MM-DD',
-      ignoreValidation: false
+      ignoreValidation: false,
     });
     expect(result).toBe('not-a-date');
   });
@@ -124,7 +124,7 @@ describe('formatDate', () => {
     const result = formatDate({
       date: '123',
       format: 'YYYY-MM-DD',
-      convertNumberTo: 'number'
+      convertNumberTo: 'number',
     });
     expect(result).toBe('123');
   });
@@ -133,7 +133,7 @@ describe('formatDate', () => {
   it('should handle empty input gracefully', () => {
     const result = formatDate({
       date: '',
-      format: 'YYYY-MM-DD'
+      format: 'YYYY-MM-DD',
     });
     expect(result).toBe('');
   });

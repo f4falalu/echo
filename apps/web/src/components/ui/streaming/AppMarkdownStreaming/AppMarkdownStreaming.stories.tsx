@@ -1,8 +1,8 @@
-import { useStreamTokenArray } from '@llm-ui/react';
 import type { Meta, StoryObj } from '@storybook/nextjs';
 import type React from 'react';
 import type { MarkdownAnimation } from '../../typography/animation-common';
 import AppMarkdownStreaming from './AppMarkdownStreaming';
+import { useStreamTokenArray } from './useStreamTokenArray';
 
 const meta: Meta<typeof AppMarkdownStreaming> = {
   title: 'UI/Typography/AppMarkdownStreaming',
@@ -192,10 +192,10 @@ const actualTokenArray = [
 ];
 
 const StreamingDemo: React.FC<{ animation: MarkdownAnimation }> = ({ animation }) => {
-  const { isStreamFinished, output } = useStreamTokenArray([
-    ...actualTokenArray,
-    ...redRisingPoemTokenArray
-  ]);
+  const { isDone: isStreamFinished, throttledContent: output } = useStreamTokenArray({
+    tokens: [...actualTokenArray, ...redRisingPoemTokenArray],
+    isStreamFinished: false
+  });
 
   return (
     <div className="flex w-full space-y-4 space-x-4">
@@ -401,7 +401,10 @@ const complexMarkdownTokenArray = [
 
 export const ComplexStream: Story = {
   render: () => {
-    const { isStreamFinished, output } = useStreamTokenArray(complexMarkdownTokenArray);
+    const { isDone: isStreamFinished, throttledContent: output } = useStreamTokenArray({
+      tokens: complexMarkdownTokenArray,
+      isStreamFinished: false
+    });
 
     return (
       <div className="flex w-full space-y-4 space-x-4">
@@ -470,7 +473,10 @@ const paragraphToListTransitionTokens = [
 
 export const ParagraphToListTransition: Story = {
   render: () => {
-    const { isStreamFinished, output } = useStreamTokenArray(paragraphToListTransitionTokens);
+    const { isDone: isStreamFinished, throttledContent: output } = useStreamTokenArray({
+      tokens: paragraphToListTransitionTokens,
+      isStreamFinished: false
+    });
 
     return (
       <div className="flex flex-col space-y-4">
@@ -712,7 +718,10 @@ const brokenInlineCodeTokens = [
 
 export const InlineCodeStreaming: Story = {
   render: () => {
-    const { isStreamFinished, output } = useStreamTokenArray(brokenInlineCodeTokens);
+    const { isDone: isStreamFinished, throttledContent: output } = useStreamTokenArray({
+      tokens: brokenInlineCodeTokens,
+      isStreamFinished: false
+    });
 
     return (
       <div className="flex flex-col space-y-4">

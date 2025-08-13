@@ -28,11 +28,11 @@ export const useRadixDropdownSearch = ({
     }
   };
 
-  const onChange = useMemoizedFn((e: React.ChangeEvent<HTMLInputElement>) => {
+  const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     e.stopPropagation();
     e.preventDefault();
     onChangeProp(e.target.value);
-  });
+  };
 
   return {
     onKeyDown,

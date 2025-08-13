@@ -7,12 +7,12 @@ const pillVariants = cva('rounded-sm border px-1 py-0.5 text-xs', {
     variant: {
       gray: 'bg-item-select text-gray-dark',
       danger: 'bg-danger-background text-danger-foreground border-none',
-      success: 'bg-success-background text-success-foreground border-none'
-    }
+      success: 'bg-success-background text-success-foreground border-none',
+    },
   },
   defaultVariants: {
-    variant: 'gray'
-  }
+    variant: 'gray',
+  },
 });
 
 export interface PillProps extends React.ComponentProps<'div'>, VariantProps<typeof pillVariants> {}
