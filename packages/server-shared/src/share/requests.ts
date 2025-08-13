@@ -13,7 +13,7 @@ export const SharePostRequestSchema = z.array(
 export type SharePostRequest = z.infer<typeof SharePostRequestSchema>;
 
 //Used for updating share permissions for a report, collection, or metric
-export const ShareUpdateRequestSchema = z.object({
+export const SharePermissionsUpdateRequestSchema = z.object({
   publicly_accessible: z.boolean().optional(),
   public_expiry_date: z.string().nullable().optional(),
   public_password: z.string().nullable().optional(),
@@ -28,7 +28,11 @@ export const ShareUpdateRequestSchema = z.object({
     .optional(),
 });
 
-export type ShareUpdateRequest = z.infer<typeof ShareUpdateRequestSchema>;
+export type SharePermissionsUpdateRequest = z.infer<typeof SharePermissionsUpdateRequestSchema>;
+
+// Keep old names for backward compatibility but don't export from index
+const ShareUpdateRequestSchema = SharePermissionsUpdateRequestSchema;
+type ShareUpdateRequest = SharePermissionsUpdateRequest;
 
 //Used for deleting share permissions for a report, collection, or metric
 export const ShareDeleteRequestSchema = z.array(z.string());

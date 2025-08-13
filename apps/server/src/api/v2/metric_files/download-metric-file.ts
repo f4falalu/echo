@@ -1,3 +1,4 @@
+import { type AssetPermissionCheck, checkPermission } from '@buster/access-controls';
 import type { User } from '@buster/database';
 import { getUserOrganizationId } from '@buster/database';
 import type { ExportMetricDataOutput, MetricDownloadResponse } from '@buster/server-shared/metrics';
@@ -9,9 +10,10 @@ import { HTTPException } from 'hono/http-exception';
  *
  * This handler:
  * 1. Validates user has access to the organization
- * 2. Triggers the export task in Trigger.dev
- * 3. Waits for the task to complete (max 2 minutes)
- * 4. Returns a presigned URL for downloading the CSV file
+ * 2. Checks user has permission to view the metric file
+ * 3. Triggers the export task in Trigger.dev
+ * 4. Waits for the task to complete (max 2 minutes)
+ * 5. Returns a presigned URL for downloading the CSV file
  *
  * The download URL expires after 60 seconds for security
  */
@@ -29,6 +31,23 @@ export async function downloadMetricFileHandler(
   }
 
   const { organizationId } = userOrg;
+
+  // Check if user has permission to view this metric file
+  const permissionCheck: AssetPermissionCheck = {
+    userId: user.id,
+    assetId: metricId,
+    assetType: 'metric_file',
+    requiredRole: 'can_view',
+    organizationId,
+  };
+
+  const permissionResult = await checkPermission(permissionCheck);
+
+  if (!permissionResult.hasAccess) {
+    throw new HTTPException(403, {
+      message: 'You do not have permission to download this metric file',
+    });
+  }
 
   try {
     // Trigger the export task

@@ -14,6 +14,7 @@ export const AssetTypeSchema = z.enum([
   'chat',
   'metric_file',
   'dashboard_file',
+  'report_file',
   'data_source',
   'metric',
   'filter',
@@ -32,6 +33,7 @@ export type CascadingAssetType =
   | 'chat'
   | 'metric_file'
   | 'dashboard_file'
+  | 'report_file'
   | 'collection';
 
 // Permission roles - matching database AssetPermissionRole enum

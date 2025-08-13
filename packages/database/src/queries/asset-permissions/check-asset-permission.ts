@@ -17,7 +17,14 @@ import type { AssetPermissionRole, AssetType, WorkspaceSharing } from '../../sch
 export interface CheckAssetPermissionParams {
   userId: string;
   assetId: string;
-  assetType: 'dashboard' | 'thread' | 'chat' | 'metric_file' | 'dashboard_file' | 'collection';
+  assetType:
+    | 'dashboard'
+    | 'thread'
+    | 'chat'
+    | 'metric_file'
+    | 'dashboard_file'
+    | 'report_file'
+    | 'collection';
   organizationId?: string;
 }
 

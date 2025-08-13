@@ -1,6 +1,7 @@
 import { randomBytes } from 'node:crypto';
 import { GetObjectCommand, PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
+import { type AssetPermissionCheck, checkPermission } from '@buster/access-controls';
 import { createAdapter } from '@buster/data-source';
 import type { Credentials } from '@buster/data-source';
 import { getDataSourceCredentials, getMetricForExport } from '@buster/database';
@@ -41,13 +42,14 @@ const MAX_FILE_SIZE = 500 * 1024 * 1024; // 500MB max file size
  * Task for exporting metric data to CSV and generating a presigned download URL
  *
  * This task:
- * 1. Fetches metric configuration and validates user access
- * 2. Retrieves data source credentials from vault
- * 3. Executes the metric's SQL query
- * 4. Converts results to CSV format
- * 5. Uploads to R2 storage
- * 6. Generates a 60-second presigned URL for download
- * 7. Schedules cleanup after 60 seconds
+ * 1. Fetches metric configuration and validates organization access
+ * 2. Checks user has permission to view the metric file
+ * 3. Retrieves data source credentials from vault
+ * 4. Executes the metric's SQL query
+ * 5. Converts results to CSV format
+ * 6. Uploads to R2 storage
+ * 7. Generates a 60-second presigned URL for download
+ * 8. Schedules cleanup after 60 seconds
  */
 export const exportMetricData: ReturnType<
   typeof schemaTask<
@@ -87,6 +89,31 @@ export const exportMetricData: ReturnType<
           metricId: payload.metricId,
           metricOrgId: metric.organizationId,
           requestOrgId: payload.organizationId,
+        });
+
+        return {
+          success: false,
+          error: 'You do not have permission to export this metric',
+          errorCode: 'UNAUTHORIZED',
+        };
+      }
+
+      // Step 1b: Check user has permission to view this metric file
+      const permissionCheck: AssetPermissionCheck = {
+        userId: payload.userId,
+        assetId: payload.metricId,
+        assetType: 'metric_file',
+        requiredRole: 'can_view',
+        organizationId: payload.organizationId,
+      };
+
+      const permissionResult = await checkPermission(permissionCheck);
+
+      if (!permissionResult.hasAccess) {
+        logger.error('User lacks permission to access metric file', {
+          metricId: payload.metricId,
+          userId: payload.userId,
+          organizationId: payload.organizationId,
         });
 
         return {

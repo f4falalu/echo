@@ -1,12 +1,12 @@
 import { z } from 'zod';
-import { AssetPermissionRoleSchema } from './assets';
+import { ShareAssetPermissionRoleSchema } from './assets';
 
 export const IndividualPermissionSchema = z.object({
   id: z.string(),
   name: z.string().nullable(),
   email: z.string(),
   avatar_url: z.string().nullable(),
-  role: AssetPermissionRoleSchema,
+  role: ShareAssetPermissionRoleSchema,
 });
 
 export type IndividualPermission = z.infer<typeof IndividualPermissionSchema>;

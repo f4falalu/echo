@@ -6,6 +6,7 @@ export type AssetType =
   | 'chat'
   | 'metric_file'
   | 'dashboard_file'
+  | 'report_file'
   | 'collection'
   | 'data_source'
   | 'metric'

@@ -12,6 +12,8 @@ export * from './message';
 export * from './metrics';
 export * from './organization';
 export * from './security';
+// Export share module (has some naming conflicts with chats and metrics)
+// TODO: Resolve naming conflicts properly
 export * from './share';
 export * from './slack';
 export * from './teams';
