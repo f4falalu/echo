@@ -11,7 +11,7 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import { useLocalStorageState } from '@/hooks/useLocalStorageState';
+import { useCookieState } from '@/hooks/useCookieState';
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import { useMount } from '@/hooks/useMount';
 import { cn } from '@/lib/classMerge';
@@ -34,8 +34,13 @@ interface IAppSplitterProps {
   /** Content to display in the right panel */
   rightChildren: React.ReactNode;
 
-  /** Unique identifier for auto-saving layout to localStorage */
+  /** Unique identifier for auto-saving layout to cookies */
   autoSaveId: string;
+
+  /**
+   * Initial preserved-side size from cookies (in pixels)
+   */
+  initialLayout?: number | null;
 
   /**
    * Default layout configuration as [left, right] sizes
@@ -124,7 +129,7 @@ interface IAppSplitterProps {
   rightPanelClassName?: string;
 
   /**
-   * Whether to clear saved layout from localStorage on initialization
+   * Whether to clear saved layout from cookies on initialization
    * Can be a boolean or a function that returns a boolean based on preserved side value and container width
    */
   bustStorageOnInit?: boolean | ((preservedSideValue: number | null, refSize: number) => boolean);
@@ -283,6 +288,7 @@ const AppSplitterBase = forwardRef<
     {
       leftChildren,
       rightChildren,
+      initialLayout,
       defaultLayout,
       leftPanelMinSize = 0,
       rightPanelMinSize = 0,
@@ -364,9 +370,10 @@ const AppSplitterBase = forwardRef<
       return result;
     };
 
-    // Load saved layout from localStorage
-    const [savedLayout, setSavedLayout] = useLocalStorageState<number | null>(splitterAutoSaveId, {
+    // Load saved layout from cookies
+    const [savedLayout, setSavedLayout] = useCookieState<number | null>(splitterAutoSaveId, {
       defaultValue,
+      initialValue: initialLayout ?? undefined,
       bustStorageOnInit: bustStorageOnInitSplitter,
     });
 

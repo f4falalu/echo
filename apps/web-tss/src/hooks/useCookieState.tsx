@@ -24,6 +24,7 @@ interface CookieOptions {
 
 interface Options<T> {
   defaultValue?: T | (() => T);
+  initialValue?: T;
   serializer?: (value: T) => string;
   deserializer?: (value: string) => T;
   onError?: (error: unknown) => void;
@@ -93,6 +94,7 @@ export function useCookieState<T>(
 ): [T | undefined, (value?: SetState<T>) => void, () => T | undefined] {
   const {
     defaultValue,
+    initialValue,
     serializer = JSON.stringify,
     deserializer = JSON.parse,
     onError,
@@ -111,6 +113,11 @@ export function useCookieState<T>(
     // If bustStorageOnInit is true, ignore cookies and use default value
     if (bustStorageOnInit === true) {
       return executeBustStorage();
+    }
+
+    // Prefer explicitly provided initialValue if present
+    if (initialValue !== undefined) {
+      return initialValue;
     }
 
     try {
