@@ -15,8 +15,9 @@ export function createSequentialThinkingStart(
   context: SequentialThinkingContext
 ) {
   return async function sequentialThinkingStart(options: ToolCallOptions): Promise<void> {
-    // Set the entry ID in state
+    // Set the entry ID and start time in state
     sequentialThinkingState.entry_id = options.toolCallId;
+    sequentialThinkingState.startTime = Date.now();
 
     // Create initial reasoning entry with loading status
     const reasoningEntry = createSequentialThinkingReasoningMessage(

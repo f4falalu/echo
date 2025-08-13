@@ -11,9 +11,10 @@ import {
  */
 export function createTodosStepStart(todosState: CreateTodosState, context: CreateTodosContext) {
   return async function todosStepStart(): Promise<void> {
-    // Generate a unique ID for this TODO creation
+    // Generate a unique ID for this TODO creation and set start time
     const toolCallId = `todos-${Date.now()}-${Math.random().toString(36).substring(2)}`;
     todosState.entry_id = toolCallId;
+    todosState.startTime = Date.now();
 
     // Create initial reasoning message with loading status
     const todosReasoningEntry = createTodosReasoningMessage(todosState, toolCallId);

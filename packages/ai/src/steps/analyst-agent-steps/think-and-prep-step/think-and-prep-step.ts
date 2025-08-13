@@ -31,11 +31,11 @@ export async function runThinkAndPrepAgentStep({
     const thinkAndPrepAgent = createThinkAndPrepAgent(options);
 
     const result = await thinkAndPrepAgent.stream(streamOptions);
-    
+
     console.info('[runThinkAndPrepAgentStep] Stream started, consuming stream', {
       messageId: options?.messageId,
     });
-    
+
     // Consume the text stream to ensure the agent continues processing
     if (result.textStream) {
       for await (const _ of result.textStream) {
@@ -43,13 +43,13 @@ export async function runThinkAndPrepAgentStep({
         // just consume them to keep the stream flowing
       }
     }
-    
+
     console.info('[runThinkAndPrepAgentStep] Stream consumed, awaiting response', {
       messageId: options?.messageId,
     });
-    
+
     const response = await result.response;
-    
+
     console.info('[runThinkAndPrepAgentStep] Response received', {
       messageId: options?.messageId,
       hasResponse: !!response,

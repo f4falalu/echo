@@ -71,6 +71,7 @@ const ModifyDashboardsStateSchema = z.object({
   toolCallId: z.string().optional(),
   argsText: z.string().optional(),
   files: z.array(ModifyDashboardStateFileSchema).optional(),
+  startTime: z.number().optional(),
 });
 
 // Export types

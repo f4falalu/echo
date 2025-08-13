@@ -70,6 +70,7 @@ const ModifyReportsStateSchema = z.object({
   currentContent: z.string().optional(),
   finalContent: z.string().optional(),
   version_number: z.number().optional(),
+  startTime: z.number().optional(),
 });
 
 // Export types

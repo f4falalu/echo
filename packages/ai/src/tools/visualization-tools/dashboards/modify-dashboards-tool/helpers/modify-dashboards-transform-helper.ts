@@ -3,7 +3,8 @@ import type {
   ChatMessageReasoningMessage_File,
 } from '@buster/server-shared/chats';
 import type { ModelMessage } from 'ai';
-import { type ModifyDashboardsState, MODIFY_DASHBOARDS_TOOL_NAME } from '../modify-dashboards-tool';
+import { formatElapsedTime } from '../../../../shared/format-elapsed-time';
+import { MODIFY_DASHBOARDS_TOOL_NAME, type ModifyDashboardsState } from '../modify-dashboards-tool';
 
 /**
  * Create a reasoning entry for modify-dashboards tool
@@ -41,11 +42,39 @@ export function createModifyDashboardsReasoningEntry(
   // If nothing valid to show yet, skip emitting a files reasoning message
   if (fileIds.length === 0) return undefined;
 
+  // Calculate title and status based on completion state
+  let title = 'Modifying dashboards...';
+  let status: 'loading' | 'completed' | 'failed' = 'loading';
+
+  // Check if all files have been processed (state has completion status)
+  const completedFiles = state.files.filter((f) => f?.status === 'completed').length;
+  const failedFiles = state.files.filter((f) => f?.status === 'failed').length;
+  const totalFiles = state.files.length;
+
+  // If all files have a final status, we're complete
+  const isComplete = completedFiles + failedFiles === totalFiles && totalFiles > 0;
+  if (isComplete) {
+    if (failedFiles === 0) {
+      title = `Modified ${completedFiles} ${completedFiles === 1 ? 'dashboard' : 'dashboards'}`;
+      status = 'completed';
+    } else if (completedFiles === 0) {
+      title = `Failed to modify ${failedFiles} ${failedFiles === 1 ? 'dashboard' : 'dashboards'}`;
+      status = 'failed';
+    } else {
+      title = `Modified ${completedFiles} of ${totalFiles} dashboards`;
+      status = 'failed'; // Partial success is considered failed
+    }
+  }
+
+  // Calculate elapsed time if complete
+  const secondaryTitle = isComplete ? formatElapsedTime(state.startTime) : undefined;
+
   return {
     id: toolCallId,
     type: 'files',
-    title: 'Modifying dashboards...',
-    status: 'loading',
+    title,
+    status,
+    secondary_title: secondaryTitle,
     file_ids: fileIds,
     files: filesRecord,
   } as ChatMessageReasoningMessage;

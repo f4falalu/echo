@@ -3,6 +3,7 @@ import type {
   ChatMessageReasoningMessage_File,
 } from '@buster/server-shared/chats';
 import type { ModelMessage } from 'ai';
+import { formatElapsedTime } from '../../../../shared/format-elapsed-time';
 import { MODIFY_REPORTS_TOOL_NAME, type ModifyReportsState } from '../modify-reports-tool';
 
 /**
@@ -40,11 +41,41 @@ export function createModifyReportsReasoningEntry(
   // If nothing valid to show yet, skip emitting a files reasoning message
   if (fileIds.length === 0) return undefined;
 
+  // Calculate title and status based on completion state
+  let title = 'Modifying reports...';
+  let status: 'loading' | 'completed' | 'failed' = 'loading';
+  let secondaryTitle: string | undefined;
+
+  // Check if modification is complete based on state
+  if (state.finalContent !== undefined) {
+    // Check if any edits failed
+    const hasFailedEdits = state.edits?.some((edit) => edit.status === 'failed') ?? false;
+
+    if (hasFailedEdits) {
+      title = 'Failed to modify report';
+      status = 'failed';
+    } else if (state.finalContent) {
+      title = 'Modified 1 report';
+      status = 'completed';
+      // Update the file status in filesRecord
+      if (state.reportId) {
+        const file = filesRecord[state.reportId];
+        if (file) {
+          file.status = 'completed';
+        }
+      }
+    }
+
+    // Calculate elapsed time when complete
+    secondaryTitle = formatElapsedTime(state.startTime);
+  }
+
   return {
     id: toolCallId,
     type: 'files',
-    title: 'Modifying reports...',
-    status: 'loading',
+    title,
+    status,
+    secondary_title: secondaryTitle,
     file_ids: fileIds,
     files: filesRecord,
   } as ChatMessageReasoningMessage;

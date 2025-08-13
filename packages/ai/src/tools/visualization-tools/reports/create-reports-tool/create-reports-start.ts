@@ -9,6 +9,7 @@ import {
 export function createReportsStart(context: CreateReportsContext, state: CreateReportsState) {
   return async (options: ToolCallOptions) => {
     state.toolCallId = options.toolCallId;
+    state.startTime = Date.now();
 
     if (context.messageId) {
       try {

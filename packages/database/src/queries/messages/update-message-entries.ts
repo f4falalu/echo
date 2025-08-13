@@ -29,19 +29,30 @@ function generateJsonbArrayUpsertSql(
 ): SQL {
   const field = MESSAGE_FIELD_MAPPING[fieldName];
 
+  // For rawLlmMessages, we need to check inside the content array for toolCallId
+  // Structure: { role: 'assistant', content: [{ type: 'tool-call', toolCallId: '...', ... }] }
+  const whereClause =
+    fieldName === 'rawLlmMessages'
+      ? sql`EXISTS (
+        SELECT 1 
+        FROM jsonb_array_elements(elem.value->'content') AS content_elem
+        WHERE content_elem->>'toolCallId' = ${toolCallId}
+      )`
+      : sql`elem.value->>'id' = ${toolCallId} OR elem.value->>'toolCallId' = ${toolCallId}`;
+
   return sql`
     CASE
       WHEN EXISTS (
         SELECT 1 
         FROM jsonb_array_elements(COALESCE(${field}, '[]'::jsonb)) WITH ORDINALITY AS elem(value, pos)
-        WHERE elem.value->>'id' = ${toolCallId} OR elem.value->>'toolCallId' = ${toolCallId}
+        WHERE ${whereClause}
       ) THEN
         jsonb_set(
           COALESCE(${field}, '[]'::jsonb),
           ARRAY[(
             SELECT (elem.pos - 1)::text
             FROM jsonb_array_elements(COALESCE(${field}, '[]'::jsonb)) WITH ORDINALITY AS elem(value, pos)
-            WHERE elem.value->>'id' = ${toolCallId} OR elem.value->>'toolCallId' = ${toolCallId}
+            WHERE ${whereClause}
             LIMIT 1
           )],
           ${jsonString}::jsonb,

@@ -27,6 +27,7 @@ export const createTodosStateSchema = z.object({
   args: z.string().optional().describe('Accumulated streaming arguments'),
   todos: z.string().optional().describe('The extracted TODO list'),
   is_complete: z.boolean().optional().describe('Whether streaming is complete'),
+  startTime: z.number().optional().describe('The start time of the TODO creation'),
 });
 
 // Schema for what the LLM returns

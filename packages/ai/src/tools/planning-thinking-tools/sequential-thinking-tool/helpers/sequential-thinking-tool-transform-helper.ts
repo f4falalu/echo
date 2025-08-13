@@ -1,9 +1,9 @@
 import type {
-  ChatMessageReasoningMessage,
   ChatMessageReasoningMessage_Text,
   ChatMessageReasoning_status,
 } from '@buster/server-shared/chats';
 import type { ModelMessage } from 'ai';
+import { formatElapsedTime } from '../../../shared/format-elapsed-time';
 import type { SequentialThinkingState } from '../sequential-thinking-tool';
 
 /**
@@ -16,7 +16,7 @@ export function createSequentialThinkingReasoningMessage(
   status: ChatMessageReasoning_status = 'loading'
 ): ChatMessageReasoningMessage_Text | null {
   // Use entry_id from state or fallback to provided toolCallId
-  const id = sequentialThinkingState.entry_id || toolCallId;
+  const id = toolCallId;
 
   if (!id) {
     return null;
@@ -25,6 +25,10 @@ export function createSequentialThinkingReasoningMessage(
   // Determine title based on status
   const title = status === 'completed' ? 'Thought for a few seconds' : 'Thinking it through...';
 
+  // Calculate elapsed time if completed
+  const secondaryTitle =
+    status === 'completed' ? formatElapsedTime(sequentialThinkingState.startTime) : undefined;
+
   const reasoningMessage: ChatMessageReasoningMessage_Text = {
     id,
     type: 'text',
@@ -32,7 +36,7 @@ export function createSequentialThinkingReasoningMessage(
     status,
     message: sequentialThinkingState.thought || '',
     message_chunk: undefined,
-    secondary_title: undefined,
+    secondary_title: secondaryTitle,
   };
 
   return reasoningMessage;
@@ -46,7 +50,7 @@ export function createSequentialThinkingRawLlmMessageEntry(
   sequentialThinkingState: SequentialThinkingState,
   toolCallId?: string
 ): ModelMessage | null {
-  const id = sequentialThinkingState.entry_id || toolCallId;
+  const id = toolCallId;
 
   if (!id) {
     return null;

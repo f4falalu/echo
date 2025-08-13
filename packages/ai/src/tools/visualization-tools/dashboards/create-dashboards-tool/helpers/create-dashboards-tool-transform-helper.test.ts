@@ -86,8 +86,8 @@ describe('create-dashboards-tool-transform-helper', () => {
       expect(result).toMatchObject({
         id: 'tool-123',
         type: 'files',
-        title: 'Creating dashboards...',
-        status: 'loading',
+        title: 'Created 2 dashboards',
+        status: 'completed',
         file_ids: ['file-1', 'file-2'],
       });
 

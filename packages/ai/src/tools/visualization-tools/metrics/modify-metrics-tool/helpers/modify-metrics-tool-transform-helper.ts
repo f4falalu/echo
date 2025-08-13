@@ -3,6 +3,7 @@ import type {
   ChatMessageReasoningMessage_File,
 } from '@buster/server-shared/chats';
 import type { ModelMessage } from 'ai';
+import { formatElapsedTime } from '../../../../shared/format-elapsed-time';
 import { MODIFY_METRICS_TOOL_NAME, type ModifyMetricsState } from '../modify-metrics-tool';
 
 /**
@@ -41,28 +42,39 @@ export function createModifyMetricsReasoningEntry(
   // If nothing valid to show yet, skip emitting a files reasoning message
   if (fileIds.length === 0) return undefined;
 
-  // Determine title based on status
+  // Calculate title and status based on completion state
   let title = 'Modifying metrics...';
-  const allCompleted = state.files.every((f) => f?.status === 'completed');
-  const anyFailed = state.files.some((f) => f?.status === 'failed');
+  let status: 'loading' | 'completed' | 'failed' = 'loading';
 
-  if (allCompleted) {
-    title = `Modified ${fileIds.length} ${fileIds.length === 1 ? 'metric' : 'metrics'}`;
-  } else if (anyFailed) {
-    const failedCount = state.files.filter((f) => f?.status === 'failed').length;
-    const successCount = state.files.filter((f) => f?.status === 'completed').length;
-    if (successCount > 0) {
-      title = `Modified ${successCount} ${successCount === 1 ? 'metric' : 'metrics'}, ${failedCount} failed`;
+  // Check if all files have been processed (state has completion status)
+  const completedFiles = state.files.filter((f) => f?.status === 'completed').length;
+  const failedFiles = state.files.filter((f) => f?.status === 'failed').length;
+  const totalFiles = state.files.length;
+
+  // If all files have a final status, we're complete
+  const isComplete = completedFiles + failedFiles === totalFiles && totalFiles > 0;
+  if (isComplete) {
+    if (failedFiles === 0) {
+      title = `Modified ${completedFiles} ${completedFiles === 1 ? 'metric' : 'metrics'}`;
+      status = 'completed';
+    } else if (completedFiles === 0) {
+      title = `Failed to modify ${failedFiles} ${failedFiles === 1 ? 'metric' : 'metrics'}`;
+      status = 'failed';
     } else {
-      title = 'Failed to modify metrics';
+      title = `Modified ${completedFiles} of ${totalFiles} metrics`;
+      status = 'failed'; // Partial success is considered failed
     }
   }
+
+  // Calculate elapsed time if complete
+  const secondaryTitle = isComplete ? formatElapsedTime(state.startTime) : undefined;
 
   return {
     id: toolCallId,
     type: 'files',
     title,
-    status: anyFailed ? 'failed' : allCompleted ? 'completed' : 'loading',
+    status,
+    secondary_title: secondaryTitle,
     file_ids: fileIds,
     files: filesRecord,
   } as ChatMessageReasoningMessage;

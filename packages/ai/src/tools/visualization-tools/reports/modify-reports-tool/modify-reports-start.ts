@@ -9,6 +9,7 @@ import type { ModifyReportsContext, ModifyReportsState } from './modify-reports-
 export function modifyReportsStart(context: ModifyReportsContext, state: ModifyReportsState) {
   return async (options: ToolCallOptions) => {
     state.toolCallId = options.toolCallId;
+    state.startTime = Date.now();
 
     if (context.messageId) {
       try {

@@ -17,10 +17,24 @@ export function createDoneToolStart(doneToolState: DoneToolState, context: DoneT
 
     // Extract files from the tool call responses in messages
     if (options.messages) {
+      console.info('[done-tool-start] Extracting files from messages', {
+        messageCount: options.messages?.length,
+        toolCallId: options.toolCallId,
+      });
+
       const extractedFiles = extractFilesFromToolCalls(options.messages);
+
+      console.info('[done-tool-start] Files extracted', {
+        extractedCount: extractedFiles.length,
+        files: extractedFiles.map((f) => ({ id: f.id, type: f.fileType, name: f.fileName })),
+      });
 
       if (extractedFiles.length > 0 && context.messageId) {
         const fileResponses = createFileResponseMessages(extractedFiles);
+
+        console.info('[done-tool-start] Creating file response messages', {
+          responseCount: fileResponses.length,
+        });
 
         // Add each file as a response entry to the database
         for (const fileResponse of fileResponses) {

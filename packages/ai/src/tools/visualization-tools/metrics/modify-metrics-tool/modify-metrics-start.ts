@@ -9,6 +9,7 @@ import type { ModifyMetricsContext, ModifyMetricsState } from './modify-metrics-
 export function createModifyMetricsStart(context: ModifyMetricsContext, state: ModifyMetricsState) {
   return async (options: ToolCallOptions) => {
     state.toolCallId = options.toolCallId;
+    state.startTime = Date.now();
 
     if (context.messageId) {
       try {

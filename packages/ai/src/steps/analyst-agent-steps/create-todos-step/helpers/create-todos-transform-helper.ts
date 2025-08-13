@@ -3,6 +3,7 @@ import type {
   ChatMessageReasoningMessage_Files,
 } from '@buster/server-shared/chats';
 import type { ModelMessage } from 'ai';
+import { formatElapsedTime } from '../../../../tools/shared/format-elapsed-time';
 import type { CreateTodosState } from '../create-todos-step';
 
 /**
@@ -30,12 +31,17 @@ export function createTodosReasoningMessage(
     },
   };
 
+  // Calculate elapsed time if complete
+  const secondaryTitle = todosState.is_complete
+    ? formatElapsedTime(todosState.startTime)
+    : undefined;
+
   return {
     id,
     type: 'files',
     title: todosState.is_complete ? 'Broke down your request' : 'Breaking down your request...',
     status: todosState.is_complete ? 'completed' : 'loading',
-    secondary_title: undefined,
+    secondary_title: secondaryTitle,
     file_ids: [id],
     files: {
       [id]: todoFile,
@@ -45,7 +51,7 @@ export function createTodosReasoningMessage(
 
 /**
  * Creates a raw LLM message entry for TODOs
- * This is stored as the raw assistant message in the database
+ * This is stored as a raw user message in the database
  */
 export function createTodosRawLlmMessageEntry(
   todosState: CreateTodosState,
@@ -53,20 +59,16 @@ export function createTodosRawLlmMessageEntry(
 ): ModelMessage | null {
   const id = todosState.entry_id || toolCallId;
 
-  if (!id) {
+  if (!id || !todosState.todos) {
     return null;
   }
 
   return {
-    role: 'assistant',
+    role: 'user',
     content: [
       {
-        type: 'tool-call',
-        toolCallId: id,
-        toolName: 'createTodos',
-        input: {
-          todos: todosState.todos || '',
-        },
+        type: 'text',
+        text: `<todo_list>\n- Below are the items on your TODO list:\n${todosState.todos}\n</todo_list>`,
       },
     ],
   };

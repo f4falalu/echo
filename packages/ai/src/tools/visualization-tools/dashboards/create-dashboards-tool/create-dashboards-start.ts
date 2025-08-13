@@ -12,6 +12,8 @@ export function createDashboardsStart(
 ) {
   return async (options: ToolCallOptions) => {
     state.toolCallId = options.toolCallId;
+    state.startTime = Date.now();
+    state.startTime = Date.now();
 
     if (context.messageId) {
       try {

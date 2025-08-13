@@ -9,6 +9,7 @@ import {
 export function createCreateMetricsStart(context: CreateMetricsContext, state: CreateMetricsState) {
   return async (options: ToolCallOptions) => {
     state.toolCallId = options.toolCallId;
+    state.startTime = Date.now();
 
     if (context.messageId) {
       try {

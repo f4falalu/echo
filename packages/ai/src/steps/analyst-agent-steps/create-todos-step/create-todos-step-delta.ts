@@ -4,10 +4,7 @@ import {
   getOptimisticValue,
 } from '../../../utils/streaming/optimistic-json-parser';
 import type { CreateTodosContext, CreateTodosInput, CreateTodosState } from './create-todos-step';
-import {
-  createTodosRawLlmMessageEntry,
-  createTodosReasoningMessage,
-} from './helpers/create-todos-transform-helper';
+import { createTodosReasoningMessage } from './helpers/create-todos-transform-helper';
 
 // Type-safe key extraction from the schema - will cause compile error if field name changes
 const TODOS_KEY = 'todos' as const satisfies keyof CreateTodosInput;
@@ -31,16 +28,15 @@ export function createTodosStepDelta(todosState: CreateTodosState, context: Crea
       // Update the state with the extracted todos
       todosState.todos = todos;
 
-      // Create updated reasoning and raw message entries
+      // Only update reasoning entry during streaming (not raw LLM messages)
       const todosReasoningEntry = createTodosReasoningMessage(todosState);
-      const todosRawMessage = createTodosRawLlmMessageEntry(todosState);
 
       try {
-        if (todosReasoningEntry && todosRawMessage) {
+        if (todosReasoningEntry) {
           await updateMessageEntries({
             messageId: context.messageId,
             reasoningEntry: todosReasoningEntry,
-            rawLlmMessage: todosRawMessage,
+            // Don't update rawLlmMessage during streaming
             toolCallId: todosState.entry_id || '',
           });
         }

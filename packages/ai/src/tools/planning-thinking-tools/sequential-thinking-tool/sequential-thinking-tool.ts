@@ -53,6 +53,7 @@ const SequentialThinkingStateSchema = z.object({
     .describe(
       'Current number in sequence. This is optional and will be set by the tool delta and finish'
     ),
+  startTime: z.number().optional().describe('The start time of the thinking process'),
 });
 
 export type SequentialThinkingInput = z.infer<typeof SequentialThinkingInputSchema>;
@@ -67,6 +68,7 @@ export function createSequentialThinkingTool(context: SequentialThinkingContext)
     thought: undefined,
     nextThoughtNeeded: undefined,
     thoughtNumber: undefined,
+    startTime: undefined,
   };
 
   const execute = createSequentialThinkingExecute(state, context);

@@ -71,6 +71,7 @@ const ModifyMetricsStateSchema = z.object({
   toolCallId: z.string().optional(),
   argsText: z.string().optional(),
   files: z.array(ModifyMetricStateFileSchema).optional(),
+  startTime: z.number().optional(),
 });
 
 // Export types

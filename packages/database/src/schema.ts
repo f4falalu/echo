@@ -891,7 +891,7 @@ export const messages = pgTable(
       table.rawLlmMessages.asc().nullsLast().op('jsonb_ops')
     ),
     index('messages_response_messages_gin_idx').using(
-      'gin', 
+      'gin',
       table.responseMessages.asc().nullsLast().op('jsonb_ops')
     ),
     index('messages_reasoning_gin_idx').using(
