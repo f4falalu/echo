@@ -54,7 +54,7 @@ const StreamTokenArrayDemo = ({
   }, [tokens, autoStream, streamDelay]);
 
   const { throttledTokens, throttledContent, isDone, flushNow, reset } = useStreamTokenArray({
-    tokens: autoStream ? currentTokens : tokens,
+    tokens: (autoStream ? currentTokens : tokens).map(t => ({ token: t, delayMs: 0 })),
     isStreamFinished: autoStream ? finished : isStreamFinished,
     ...hookProps
   });
