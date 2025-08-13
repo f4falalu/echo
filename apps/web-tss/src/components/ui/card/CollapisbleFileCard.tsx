@@ -287,7 +287,7 @@ const CollapseToggleIcon = React.memo(
     className?: string;
     onClick?: (e: React.MouseEvent<HTMLDivElement>) => void;
   }) => {
-    const showChevron = (isHovered || !isCollapsed) && collapseDefaultIcon;
+    const showChevron: boolean = (isHovered || !isCollapsed) && !!collapseDefaultIcon;
     const showDefaultIcon = !isHovered && isCollapsed && collapseDefaultIcon;
 
     return (
@@ -313,7 +313,7 @@ const CollapseToggleIcon = React.memo(
               <ChevronDown />
             </motion.div>
           )}
-          {showDefaultIcon && (
+          {!!showDefaultIcon && (
             <motion.div
               key="default"
               initial={{ opacity: 0 }}

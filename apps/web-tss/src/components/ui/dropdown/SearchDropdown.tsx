@@ -33,7 +33,6 @@ export const SearchDropdown = React.memo(
     items,
     useLinkIcon = true,
     onSelect,
-    className,
     offset = 0,
     children,
     open,

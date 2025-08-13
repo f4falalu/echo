@@ -165,7 +165,7 @@ export const useAutoScroll = (
 
     if (isAutoScrollEnabled) {
       // Create a new observer
-      observerRef.current = new MutationObserver((mutations) => {
+      observerRef.current = new MutationObserver((_mutations) => {
         if (isAutoScrollEnabled) {
           startScrollAnimation();
         }

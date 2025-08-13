@@ -13,7 +13,7 @@ export const AnimationProvider: React.FC<{
 }> = ({ children, shouldStopAnimations }) => {
   return (
     <AnimationContext.Provider value={{ shouldStopAnimations }}>
-      <>{children}</>
+      {children}
     </AnimationContext.Provider>
   );
 };

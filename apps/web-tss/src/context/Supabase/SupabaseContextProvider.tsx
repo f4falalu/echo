@@ -1,5 +1,5 @@
 import { jwtDecode } from 'jwt-decode';
-import React, { type PropsWithChildren, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { flushSync } from 'react-dom';
 import { createContext, useContextSelector } from 'use-context-selector';
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';

@@ -167,7 +167,7 @@ export const useMarkdownComponents = ({
         </TableHeaderCellComponent>
       ),
       br: ({ className, style }) => <BreakComponent className={className} style={style} />,
-      code: ({ children, className, style, ...rest }) => {
+      code: ({ children, className, style }) => {
         const language = className?.split('language-')[1];
         const hasLanguage = !!language;
 

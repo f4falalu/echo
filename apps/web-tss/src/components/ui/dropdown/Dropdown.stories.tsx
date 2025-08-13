@@ -395,7 +395,7 @@ export const WithLongText: Story = {
           value: faker.string.uuid(),
           label,
           secondaryLabel,
-          searchLabel: label + ' ' + secondaryLabel,
+          searchLabel: `${label} ${secondaryLabel}`,
           onClick: fn(),
           truncate: true,
         };
@@ -447,9 +447,9 @@ export const WithManyItemsToSearch: Story = {
     menuHeader: 'Search items...',
     items: [
       ...Array.from({ length: 100 }).map(() => {
-        const product = faker.commerce.productAdjective() + ' ' + faker.commerce.product();
+        const product = `${faker.commerce.productAdjective()} ${faker.commerce.product()}`;
         return {
-          value: product + ' ' + faker.string.uuid(),
+          value: `${product} ${faker.string.uuid()}`,
           label: product,
         };
       }),

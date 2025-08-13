@@ -20,11 +20,7 @@ const AppSplitterContext = createContext<AppSplitterProviderProps>({
 export const AppSplitterProvider: React.FC<
   AppSplitterProviderProps & { children: React.ReactNode }
 > = ({ children, ...props }) => {
-  return (
-    <AppSplitterContext.Provider value={props}>
-      <>{children}</>
-    </AppSplitterContext.Provider>
-  );
+  return <AppSplitterContext.Provider value={props}>{children}</AppSplitterContext.Provider>;
 };
 
 export const useAppSplitterContext = <T,>(selector: (value: AppSplitterProviderProps) => T) =>

@@ -1,6 +1,7 @@
 import { faker } from '@faker-js/faker';
-import type { Meta, StoryObj } from '@storybook/nextjs';
-import React, { useMemo } from 'react';
+import type { Meta, StoryObj } from '@storybook/react-vite';
+import * as React from 'react';
+import { useMemo } from 'react';
 import type { ContextMenuProps } from '../../context-menu/ContextMenu';
 import { BusterList } from './index';
 import type { BusterListColumn, BusterListRowItem } from './interfaces';
@@ -60,8 +61,10 @@ const sampleColumns: BusterListColumn<SampleData>[] = [
     dataIndex: 'actions',
     title: 'Actions',
     width: 100,
-    render: (_: any, record: SampleData) => (
-      <button className="text-blue-500 hover:underline">View</button>
+    render: (_: any, _record: SampleData) => (
+      <button type="button" className="text-blue-500 hover:underline">
+        View
+      </button>
     ),
   },
 ];
@@ -84,7 +87,7 @@ const generateSampleRows = (count: number): BusterListRowItem<SampleData>[] => {
 
     if (i === 3) {
       rows.push({
-        id: 'section' + i,
+        id: `section${i}`,
         data: null,
         rowSection: {
           title: faker.company.name(),
@@ -97,7 +100,7 @@ const generateSampleRows = (count: number): BusterListRowItem<SampleData>[] => {
   // Add a section row in the middle
   const sectionIndex = Math.floor(count / 2);
   rows.splice(sectionIndex, 0, {
-    id: 'section' + sectionIndex,
+    id: `section${sectionIndex}`,
     data: null,
     rowSection: {
       title: faker.company.name(),

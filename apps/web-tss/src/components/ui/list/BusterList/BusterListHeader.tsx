@@ -52,7 +52,7 @@ export const BusterListHeader = <T = unknown>({
         />
       )}
 
-      {columns.map((column, index) => (
+      {columns.map((column, _index) => (
         <div
           className="header-cell flex h-full items-center p-0"
           key={String(column.dataIndex)}

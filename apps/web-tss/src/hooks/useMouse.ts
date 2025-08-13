@@ -45,7 +45,7 @@ export function useMouse(options: UseMouseOptions = {}) {
     const element = target?.current ?? document.documentElement;
     const rect = element.getBoundingClientRect();
 
-    setState((prev) => ({
+    setState((_prev) => ({
       x: event.x,
       y: event.y,
       screenX: event.screenX,

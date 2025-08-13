@@ -48,7 +48,7 @@ export const AppDiffCodeEditor = forwardRef<AppDiffCodeEditorHandle, AppDiffCode
       viewMode = 'side-by-side',
       disabled = false,
     },
-    ref
+    _ref
   ) => {
     const isDarkModeContext = false;
     const useDarkMode = isDarkMode ?? isDarkModeContext;

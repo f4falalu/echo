@@ -1,6 +1,7 @@
 'use client';
 
 import { isServer } from '@tanstack/react-query';
+import cookies from 'js-cookie';
 import { useEffect, useState } from 'react';
 import { useMemoizedFn } from './useMemoizedFn';
 import { useMount } from './useMount';
@@ -33,23 +34,7 @@ interface Options<T> {
   cookieOptions?: CookieOptions;
 }
 
-// Helper function to parse cookies
-const parseCookies = (): Record<string, string> => {
-  if (isServer) return {};
-
-  return document.cookie.split(';').reduce(
-    (cookies, cookie) => {
-      const [name, value] = cookie.trim().split('=');
-      if (name && value) {
-        cookies[name] = decodeURIComponent(value);
-      }
-      return cookies;
-    },
-    {} as Record<string, string>
-  );
-};
-
-// Helper function to set a cookie
+// Helper function to set a cookie using js-cookie
 const setCookie = (
   name: string,
   value: string,
@@ -58,34 +43,24 @@ const setCookie = (
 ): void => {
   if (isServer) return;
 
-  const expires = new Date(Date.now() + expirationTime).toUTCString();
+  const expires = new Date(Date.now() + expirationTime);
   const { domain, path = '/', secure = true, sameSite = 'lax' } = options;
 
-  let cookieString = `${name}=${encodeURIComponent(value)}; expires=${expires}; path=${path}; SameSite=${sameSite}`;
-
-  if (secure) {
-    cookieString += '; Secure';
-  }
-
-  if (domain) {
-    cookieString += `; Domain=${domain}`;
-  }
-
-  document.cookie = cookieString;
+  cookies.set(name, value, {
+    expires,
+    path,
+    domain,
+    secure,
+    sameSite,
+  });
 };
 
-// Helper function to remove a cookie
+// Helper function to remove a cookie using js-cookie
 const removeCookie = (name: string, options: CookieOptions = {}): void => {
   if (isServer) return;
 
   const { domain, path = '/' } = options;
-  let cookieString = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=${path}`;
-
-  if (domain) {
-    cookieString += `; Domain=${domain}`;
-  }
-
-  document.cookie = cookieString;
+  cookies.remove(name, { path, domain });
 };
 
 export function useCookieState<T>(
@@ -121,8 +96,7 @@ export function useCookieState<T>(
     }
 
     try {
-      const cookies = parseCookies();
-      const cookieValue = cookies[key];
+      const cookieValue = cookies.get(key);
 
       if (!cookieValue) {
         return executeBustStorage();

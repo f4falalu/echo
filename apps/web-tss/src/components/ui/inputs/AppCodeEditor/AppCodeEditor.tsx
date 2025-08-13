@@ -59,7 +59,7 @@ export const AppCodeEditor = forwardRef<AppCodeEditorHandle, AppCodeEditorProps>
       variant,
       onMetaEnter,
     },
-    ref
+    _ref
   ) => {
     // const { cx, styles } = useStyles();
 
