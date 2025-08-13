@@ -26,6 +26,15 @@ export async function runAnalystAgentStep({
     const analystAgent = createAnalystAgent(options);
 
     const result = await analystAgent.stream(streamOptions);
+    
+    // Consume the text stream to ensure the agent continues processing
+    if (result.textStream) {
+      for await (const _ of result.textStream) {
+        // We don't need to do anything with the text chunks,
+        // just consume them to keep the stream flowing
+      }
+    }
+    
     const response = await result.response;
 
     if (!response || !Array.isArray(response.messages)) {

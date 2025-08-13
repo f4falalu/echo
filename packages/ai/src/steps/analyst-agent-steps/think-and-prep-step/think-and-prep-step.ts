@@ -23,10 +23,39 @@ export async function runThinkAndPrepAgentStep({
   streamOptions,
 }: RunThinkAndPrepAgentStepInput): Promise<RunThinkAndPrepAgentStepOutput> {
   try {
+    console.info('[runThinkAndPrepAgentStep] Starting agent stream', {
+      messageId: options?.messageId,
+      messageCount: streamOptions.messages.length,
+    });
+
     const thinkAndPrepAgent = createThinkAndPrepAgent(options);
 
     const result = await thinkAndPrepAgent.stream(streamOptions);
+    
+    console.info('[runThinkAndPrepAgentStep] Stream started, consuming stream', {
+      messageId: options?.messageId,
+    });
+    
+    // Consume the text stream to ensure the agent continues processing
+    if (result.textStream) {
+      for await (const _ of result.textStream) {
+        // We don't need to do anything with the text chunks,
+        // just consume them to keep the stream flowing
+      }
+    }
+    
+    console.info('[runThinkAndPrepAgentStep] Stream consumed, awaiting response', {
+      messageId: options?.messageId,
+    });
+    
     const response = await result.response;
+    
+    console.info('[runThinkAndPrepAgentStep] Response received', {
+      messageId: options?.messageId,
+      hasResponse: !!response,
+      hasMessages: !!response?.messages,
+      messageCount: response?.messages?.length,
+    });
 
     if (!response || !Array.isArray(response.messages)) {
       throw new Error(
