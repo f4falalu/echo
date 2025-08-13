@@ -65,19 +65,16 @@ describe('messageUserClarifyingQuestion integration', () => {
     // Verify database calls
     expect(mockUpdateMessageEntries).toHaveBeenCalled();
 
-    // Check initial append call
-    const appendCall = mockUpdateMessageEntries.mock.calls
-      .map((args) => args[0])
-      .find((arg) => arg?.mode === 'append');
-    expect(appendCall).toBeDefined();
-    expect(appendCall?.messageId).toBe('test-message-123');
-    expect(appendCall).toHaveProperty('responseEntry');
-    expect(appendCall).toHaveProperty('rawLlmMessage');
+    // Check initial call
+    const initialCall = mockUpdateMessageEntries.mock.calls[0]?.[0];
+    expect(initialCall).toBeDefined();
+    expect(initialCall?.messageId).toBe('test-message-123');
+    expect(initialCall).toHaveProperty('responseEntry');
+    expect(initialCall).toHaveProperty('rawLlmMessage');
+    expect(initialCall).toHaveProperty('toolCallId');
 
-    // Check update call
-    const updateCall = mockUpdateMessageEntries.mock.calls
-      .map((args) => args[0])
-      .find((arg) => arg?.mode === 'update');
+    // Check update call (second call)
+    const updateCall = mockUpdateMessageEntries.mock.calls[1]?.[0];
     expect(updateCall).toBeDefined();
     expect(updateCall?.messageId).toBe('test-message-123');
     expect(updateCall).toHaveProperty('responseEntry');
@@ -144,7 +141,7 @@ describe('messageUserClarifyingQuestion integration', () => {
     // Verify multiple update calls during streaming
     const updateCalls = mockUpdateMessageEntries.mock.calls
       .map((args) => args[0])
-      .filter((arg) => arg?.mode === 'update');
+      .filter((arg, index) => index > 0); // Skip first call (which was the initial call)
     expect(updateCalls.length).toBeGreaterThan(0);
 
     // Verify final update has complete question

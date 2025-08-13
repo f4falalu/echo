@@ -334,7 +334,7 @@ export function createExecuteSqlExecute(state: ExecuteSqlState, context: Execute
               messageId: context.messageId,
               reasoningEntry,
               rawLlmMessage,
-              mode: 'update',
+              toolCallId: state.toolCallId || '',
             });
           } catch (error) {
             console.error('[execute-sql] Failed to update final entries:', {

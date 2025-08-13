@@ -155,7 +155,7 @@ describe('createCreateMetricsFinish', () => {
     expect(updateMessageEntries).toHaveBeenCalledWith(
       expect.objectContaining({
         messageId: 'msg-xyz',
-        mode: 'update',
+        toolCallId: 'tool-123',
       })
     );
   });

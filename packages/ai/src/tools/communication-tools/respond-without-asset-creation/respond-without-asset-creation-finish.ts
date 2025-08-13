@@ -36,7 +36,7 @@ export function createRespondWithoutAssetCreationFinish<
             messageId: context.messageId,
             responseEntry: responseEntry,
             rawLlmMessage: rawLlmMessage,
-            mode: 'update',
+            toolCallId: options.toolCallId,
           });
         }
       } catch (error) {

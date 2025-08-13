@@ -341,7 +341,7 @@ describe('Sequential Thinking Tool Streaming Tests', () => {
       expect(updateMessageEntries).toHaveBeenCalledWith(
         expect.objectContaining({
           messageId: mockContext.messageId,
-          mode: 'update',
+          toolCallId: 'final-call',
         })
       );
     });

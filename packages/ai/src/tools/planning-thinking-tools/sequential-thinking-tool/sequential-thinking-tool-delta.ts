@@ -88,7 +88,7 @@ export function createSequentialThinkingDelta(
             messageId: context.messageId,
             reasoningEntry,
             rawLlmMessage,
-            mode: 'update',
+            toolCallId: options.toolCallId,
           });
         }
       } catch (error) {

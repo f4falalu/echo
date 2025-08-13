@@ -43,7 +43,7 @@ export function createSequentialThinkingFinish(
           messageId: context.messageId,
           reasoningEntry,
           rawLlmMessage,
-          mode: 'update',
+          toolCallId: options.toolCallId,
         });
 
         console.info('[sequential-thinking] Completed sequential thinking:', {

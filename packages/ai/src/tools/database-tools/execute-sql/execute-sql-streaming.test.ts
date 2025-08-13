@@ -179,6 +179,7 @@ describe('execute-sql streaming', () => {
 
       expect(updateMessageEntries).toHaveBeenCalledWith({
         messageId: 'test-message',
+        toolCallId: 'test-tool-call-id',
         reasoningEntry: expect.objectContaining({
           id: 'test-tool-call-id',
           type: 'files',
@@ -186,7 +187,6 @@ describe('execute-sql streaming', () => {
         rawLlmMessage: expect.objectContaining({
           role: 'assistant',
         }),
-        mode: 'update',
       });
     });
   });
@@ -212,13 +212,13 @@ describe('execute-sql streaming', () => {
 
       expect(updateMessageEntries).toHaveBeenCalledWith({
         messageId: 'test-message',
+        toolCallId: 'test-tool-call-id',
         reasoningEntry: expect.objectContaining({
           id: 'test-tool-call-id',
         }),
         rawLlmMessage: expect.objectContaining({
           role: 'assistant',
         }),
-        mode: 'update',
       });
     });
 

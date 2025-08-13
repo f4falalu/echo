@@ -116,7 +116,7 @@ describe('modify-dashboards-delta', () => {
     expect(updateMessageEntries).toHaveBeenCalled();
     const callArgs = vi.mocked(updateMessageEntries).mock.calls[0]?.[0];
     expect(callArgs?.messageId).toBe('msg-123');
-    expect(callArgs?.mode).toBe('update');
+    expect(callArgs?.toolCallId).toBe('tool-123');
   });
 
   it('should not update database when messageId is missing', async () => {

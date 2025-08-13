@@ -25,7 +25,7 @@ export function createTodosStepStart(todosState: CreateTodosState, context: Crea
           messageId: context.messageId,
           reasoningEntry: todosReasoningEntry,
           rawLlmMessage: todosRawMessage,
-          mode: 'append',
+          toolCallId,
         });
       }
     } catch (error) {

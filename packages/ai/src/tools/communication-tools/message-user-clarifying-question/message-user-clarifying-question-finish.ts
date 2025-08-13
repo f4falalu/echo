@@ -33,7 +33,7 @@ export function createMessageUserClarifyingQuestionFinish(
         await updateMessageEntries({
           messageId,
           responseEntry,
-          mode: 'update',
+          toolCallId: options.toolCallId,
         });
       } catch (error) {
         console.error('[message-user-clarifying-question] Failed to finalize database entries', {

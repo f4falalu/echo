@@ -37,7 +37,7 @@ export function createMessageUserClarifyingQuestionStart(
           messageId,
           responseEntry,
           rawLlmMessage: rawLlmEntry,
-          mode: 'append',
+          toolCallId: options.toolCallId,
         });
       } catch (error) {
         console.error(

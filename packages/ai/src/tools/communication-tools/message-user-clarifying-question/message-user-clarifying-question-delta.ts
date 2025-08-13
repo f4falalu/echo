@@ -49,7 +49,7 @@ export function createMessageUserClarifyingQuestionDelta(
           await updateMessageEntries({
             messageId,
             responseEntry,
-            mode: 'update',
+            toolCallId,
           });
         } catch (error) {
           console.error(

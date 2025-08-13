@@ -41,7 +41,7 @@ export function createTodosStepDelta(todosState: CreateTodosState, context: Crea
             messageId: context.messageId,
             reasoningEntry: todosReasoningEntry,
             rawLlmMessage: todosRawMessage,
-            mode: 'update',
+            toolCallId: todosState.entry_id || '',
           });
         }
       } catch (error) {

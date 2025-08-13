@@ -317,11 +317,11 @@ All operations completed successfully.`;
 
       await updateMessageEntries({
         messageId: testMessageId,
+        toolCallId: 'test-tool-call-id',
         rawLlmMessage: {
           role: 'assistant',
           content: [{ type: 'text', text: 'Initial' }],
         },
-        mode: 'append',
       });
 
       const deltaHandler = createDoneToolDelta(state, mockContext);

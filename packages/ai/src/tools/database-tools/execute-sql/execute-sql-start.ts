@@ -26,7 +26,7 @@ export function createExecuteSqlStart(state: ExecuteSqlState, context: ExecuteSq
           messageId: context.messageId,
           reasoningEntry,
           rawLlmMessage,
-          mode: 'append',
+          toolCallId: options.toolCallId,
         });
       } catch (error) {
         console.error('[execute-sql] Failed to create initial entries:', {

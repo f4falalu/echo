@@ -21,7 +21,7 @@ export function createReportsStart(context: CreateReportsContext, state: CreateR
             // Update both entries together if they exist
             const updates: Parameters<typeof updateMessageEntries>[0] = {
               messageId: context.messageId,
-              mode: 'append',
+              toolCallId: options.toolCallId,
             };
 
             if (reasoningEntry) {

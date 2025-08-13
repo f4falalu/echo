@@ -91,7 +91,7 @@ export function createModifyMetricsDelta(context: ModifyMetricsContext, state: M
         // Update both entries together if they exist
         const updates: Parameters<typeof updateMessageEntries>[0] = {
           messageId: context.messageId,
-          mode: 'update',
+          toolCallId: options.toolCallId,
         };
 
         if (reasoningEntry) {

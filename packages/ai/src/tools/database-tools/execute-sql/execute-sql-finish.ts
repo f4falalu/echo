@@ -26,7 +26,7 @@ export function createExecuteSqlFinish(state: ExecuteSqlState, context: ExecuteS
           messageId: context.messageId,
           reasoningEntry,
           rawLlmMessage,
-          mode: 'update',
+          toolCallId: options.toolCallId,
         });
       } catch (error) {
         console.error('[execute-sql] Failed to finalize entries:', {

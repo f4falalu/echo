@@ -286,7 +286,7 @@ export function createModifyReportsExecute(
 
               const updates: Parameters<typeof updateMessageEntries>[0] = {
                 messageId: context.messageId,
-                mode: 'update',
+                toolCallId: state.toolCallId || '',
               };
 
               if (reasoningEntry) {
@@ -347,7 +347,7 @@ export function createModifyReportsExecute(
 
             const updates: Parameters<typeof updateMessageEntries>[0] = {
               messageId: context.messageId,
-              mode: 'update',
+              toolCallId: state.toolCallId || '',
             };
 
             if (reasoningEntry) {

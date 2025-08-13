@@ -36,7 +36,7 @@ export function createSequentialThinkingStart(
           messageId: context.messageId,
           reasoningEntry,
           rawLlmMessage,
-          mode: 'append',
+          toolCallId: options.toolCallId,
         });
 
         console.info('[sequential-thinking] Started sequential thinking:', {

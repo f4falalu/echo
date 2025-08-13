@@ -21,7 +21,7 @@ export function createDoneToolFinish(doneToolState: DoneToolState, context: Done
           messageId: context.messageId,
           responseEntry: doneToolResponseEntry,
           rawLlmMessage: doneToolMessage,
-          mode: 'update',
+          toolCallId: options.toolCallId,
         });
       }
     } catch (error) {

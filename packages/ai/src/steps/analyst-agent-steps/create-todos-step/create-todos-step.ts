@@ -92,7 +92,7 @@ async function generateTodosWithLLM(
         });
 
         // Process text deltas for optimistic updates
-        (async () => {
+        const deltaProcessing = (async () => {
           for await (const delta of textStream) {
             await onTextDelta(delta);
           }
@@ -100,6 +100,9 @@ async function generateTodosWithLLM(
 
         // Wait for the final object
         const result = await object;
+
+        // Ensure all delta processing is complete before finalizing
+        await deltaProcessing;
 
         // Finalize the reasoning message
         await onStreamFinish(result);

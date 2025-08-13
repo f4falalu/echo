@@ -27,7 +27,7 @@ export function createDashboardsStart(
             // Update both entries together if they exist
             const updates: Parameters<typeof updateMessageEntries>[0] = {
               messageId: context.messageId,
-              mode: 'append',
+              toolCallId: options.toolCallId,
             };
 
             if (reasoningEntry) {

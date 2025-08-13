@@ -58,7 +58,7 @@ export function createRespondWithoutAssetCreationDelta<
               messageId: context.messageId,
               responseEntry: responseEntry,
               rawLlmMessage: rawLlmMessage,
-              mode: 'append',
+              toolCallId: options.toolCallId,
             });
           }
         } catch (error) {

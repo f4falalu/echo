@@ -254,7 +254,7 @@ describe('createDashboardsDelta', () => {
       expect(updateMessageEntriesSpy).toHaveBeenCalledWith(
         expect.objectContaining({
           messageId: 'msg-1',
-          mode: 'update',
+          toolCallId: 'tool-123',
           responseEntry: expect.objectContaining({
             type: 'files',
             title: 'Creating dashboards...',

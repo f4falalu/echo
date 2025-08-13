@@ -68,7 +68,7 @@ describe('createModifyMetricsStart', () => {
     expect(updateMessageEntries).toHaveBeenCalledWith(
       expect.objectContaining({
         messageId: 'msg-123',
-        mode: 'append',
+        toolCallId: 'tool-123',
       })
     );
 
@@ -177,7 +177,7 @@ describe('createModifyMetricsStart', () => {
     expect(updateMessageEntries).toHaveBeenCalledWith(
       expect.objectContaining({
         messageId: 'msg-456',
-        mode: 'append',
+        toolCallId: 'tool-456',
       })
     );
     expect(state.toolCallId).toBe('tool-456');

@@ -28,7 +28,7 @@ export function createDoneToolStart(doneToolState: DoneToolState, context: DoneT
             await updateMessageEntries({
               messageId: context.messageId,
               responseEntry: fileResponse,
-              mode: 'append',
+              toolCallId: options.toolCallId,
             });
           } catch (error) {
             console.error('[done-tool] Failed to add file response entry:', error);
@@ -46,7 +46,7 @@ export function createDoneToolStart(doneToolState: DoneToolState, context: DoneT
           messageId: context.messageId,
           responseEntry: doneToolResponseEntry,
           rawLlmMessage: doneToolMessage,
-          mode: 'append',
+          toolCallId: options.toolCallId,
         });
       }
     } catch (error) {

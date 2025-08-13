@@ -4,11 +4,13 @@ import type { CreateDashboardsOutput } from '../../../visualization-tools/dashbo
 import type { ModifyDashboardsOutput } from '../../../visualization-tools/dashboards/modify-dashboards-tool/modify-dashboards-tool';
 import type { CreateMetricsOutput } from '../../../visualization-tools/metrics/create-metrics-tool/create-metrics-tool';
 import type { ModifyMetricsOutput } from '../../../visualization-tools/metrics/modify-metrics-tool/modify-metrics-tool';
+import type { CreateReportsOutput } from '../../../visualization-tools/reports/create-reports-tool/create-reports-tool';
+import type { ModifyReportsOutput } from '../../../visualization-tools/reports/modify-reports-tool/modify-reports-tool';
 
 // File tracking type similar to ExtractedFile from file-selection.ts
 interface ExtractedFile {
   id: string;
-  fileType: 'metric' | 'dashboard';
+  fileType: 'metric' | 'dashboard' | 'report';
   fileName: string;
   status: 'completed' | 'failed' | 'loading';
   operation?: 'created' | 'modified' | undefined;
@@ -88,6 +90,39 @@ function processToolOutput(output: unknown, files: ExtractedFile[]): void {
       }
     }
   }
+
+  // Check if this is a reports tool output
+  if (isReportsToolOutput(output)) {
+    const operation = detectOperation(output.message);
+
+    // Extract successfully created/modified report files
+    if (output.files && Array.isArray(output.files)) {
+      for (const file of output.files) {
+        files.push({
+          id: file.id,
+          fileType: 'report',
+          fileName: file.name,
+          status: 'completed',
+          operation,
+          versionNumber: file.version_number,
+        });
+      }
+    }
+    // For modify reports tool, extract from the file object
+    if ('file' in output && output.file && typeof output.file === 'object') {
+      const file = output.file as Record<string, unknown>;
+      if (file.id && file.name && file.version_number) {
+        files.push({
+          id: file.id as string,
+          fileType: 'report',
+          fileName: file.name as string,
+          status: 'completed',
+          operation: 'modified',
+          versionNumber: file.version_number as number,
+        });
+      }
+    }
+  }
 }
 
 /**
@@ -133,6 +168,37 @@ function isDashboardsToolOutput(
 }
 
 /**
+ * Type guard to check if output is from create/modify reports tool
+ */
+function isReportsToolOutput(output: unknown): output is CreateReportsOutput | ModifyReportsOutput {
+  if (!output || typeof output !== 'object') return false;
+
+  const obj = output as Record<string, unknown>;
+
+  // Check for create reports output structure
+  if ('files' in obj && 'message' in obj && Array.isArray(obj.files)) {
+    // Check if files have report-specific properties
+    return obj.files.every((file: unknown) => {
+      if (!file || typeof file !== 'object') return false;
+      const fileObj = file as Record<string, unknown>;
+      // Reports don't have file_type in the output, just id, name, version_number
+      return 'id' in fileObj && 'name' in fileObj && 'version_number' in fileObj;
+    });
+  }
+
+  // Check for modify reports output structure (has a single 'file' property)
+  if ('success' in obj && 'message' in obj && 'file' in obj) {
+    const file = obj.file;
+    if (file && typeof file === 'object') {
+      const fileObj = file as Record<string, unknown>;
+      return 'id' in fileObj && 'name' in fileObj && 'version_number' in fileObj;
+    }
+  }
+
+  return false;
+}
+
+/**
  * Detect if files were created or modified based on the message
  */
 function detectOperation(message: string): 'created' | 'modified' | undefined {
@@ -172,19 +238,28 @@ function deduplicateFilesByVersion(files: ExtractedFile[]): ExtractedFile[] {
  * Create file response messages for selected files
  */
 export function createFileResponseMessages(files: ExtractedFile[]): ChatMessageResponseMessage[] {
-  return files.map((file) => ({
-    id: file.id,
-    type: 'file' as const,
-    file_type: file.fileType,
-    file_name: file.fileName,
-    version_number: file.versionNumber || 1,
-    filter_version_id: null,
-    metadata: [
-      {
-        status: 'completed' as const,
-        message: `${file.fileType === 'dashboard' ? 'Dashboard' : 'Metric'} ${file.operation || 'created'} successfully`,
-        timestamp: Date.now(),
-      },
-    ],
-  }));
+  return files.map((file) => {
+    // Determine the display name for the file type
+    const fileTypeDisplay = 
+      file.fileType === 'dashboard' ? 'Dashboard' : 
+      file.fileType === 'metric' ? 'Metric' : 
+      file.fileType === 'report' ? 'Report' : 
+      file.fileType;
+
+    return {
+      id: file.id,
+      type: 'file' as const,
+      file_type: file.fileType as 'metric' | 'dashboard' | 'report',
+      file_name: file.fileName,
+      version_number: file.versionNumber || 1,
+      filter_version_id: null,
+      metadata: [
+        {
+          status: 'completed' as const,
+          message: `${fileTypeDisplay} ${file.operation || 'created'} successfully`,
+          timestamp: Date.now(),
+        },
+      ],
+    };
+  });
 }

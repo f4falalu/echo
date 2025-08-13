@@ -127,7 +127,7 @@ describe('modify-dashboards-finish', () => {
     expect(updateMessageEntries).toHaveBeenCalledWith(
       expect.objectContaining({
         messageId: 'msg-123',
-        mode: 'update',
+        toolCallId: 'tool-123',
       })
     );
   });

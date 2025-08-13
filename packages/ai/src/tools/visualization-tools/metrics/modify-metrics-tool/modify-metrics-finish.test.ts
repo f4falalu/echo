@@ -88,7 +88,7 @@ describe('createModifyMetricsFinish', () => {
 
     expect(updateMessageEntries).toHaveBeenCalledWith({
       messageId: 'msg-123',
-      mode: 'update',
+      toolCallId: 'tool-123',
       responseEntry: expect.objectContaining({
         id: 'tool-123',
         type: 'files',
@@ -192,7 +192,7 @@ describe('createModifyMetricsFinish', () => {
     expect(updateMessageEntries).toHaveBeenCalledWith(
       expect.objectContaining({
         messageId: 'msg-123',
-        mode: 'update',
+        toolCallId: 'tool-123',
       })
     );
   });
