@@ -2,7 +2,7 @@ Creates dashboard configuration files with YAML content following the dashboard 
 
 ## COMPLETE DASHBOARD YAML SCHEMA
 
-# DASHBOARD CONFIGURATION - YML STRUCTURE
+`# DASHBOARD CONFIGURATION - YML STRUCTURE
 # ----------------------------------------
 # Required fields:
 #
@@ -32,5 +32,96 @@ Creates dashboard configuration files with YAML content following the dashboard 
 # 8. String values generally should NOT use quotes unless they contain special characters (like :, {, }, [, ], ,, &, *, #, ?, |, -, <, >, =, !, %, @, `) or start/end with whitespace.
 # 9. If a string contains special characters or needs to preserve leading/trailing whitespace, enclose it in double quotes (`"`). Example: `name: "Sales & Marketing Dashboard"`
 # 10. Avoid special characters in names and descriptions where possible, but if needed, use quotes as described in rule 9. UUIDs should NEVER be quoted.
+# ----------------------------------------
+
+type: object
+name: Dashboard Configuration Schema
+description: Specifies the structure and constraints of a dashboard config file.
+properties:
+  name:
+    type: string
+    description: The title of the dashboard (e.g. Sales & Marketing Dashboard) - do NOT use quotes
+  description:
+    type: string
+    description: A description of the dashboard, its metrics, and its purpose
+  rows:
+    type: array
+    description: Array of row objects, each containing metric items
+    items:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: This is just an integer representing the row number 1 -> n
+        items:
+          type: array
+          description: Array of metrics to display in this row (max 4 items)
+          maxItems: 4
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                description: UUIDv4 identifier of an existing metric
+            required:
+              - id
+        column_sizes:
+          type: array
+          description: Required array of column sizes (must sum to exactly 12)
+          items:
+            type: integer
+            minimum: 3
+            maximum: 12
+      required:
+        - id
+        - items
+        - column_sizes
+required:
+  - name
+  - description
+  - rows`
+
+**Key Requirements:**
+- `name`: Dashboard title (no underscores, descriptive name)
+- `description`: Natural language explanation of the dashboard's purpose and contents
+- `rows`: Array of row objects, each with unique ID, items (metric UUIDs), and column_sizes
+- Each row must have 1-4 items maximum
+- `column_sizes` must sum to exactly 12 and each size must be >= 3
+- All metric IDs must be valid UUIDs of existing metrics
+- Row IDs must be unique integers (typically 1, 2, 3, etc.)
+
+**Dashboard Layout Rules:**
+- Grid system: Each row spans 12 columns total
+- Column sizes: [12] = full width, [6,6] = two halves, [4,4,4] = three thirds, [3,3,3,3] = four quarters
+- Common layouts: [12], [6,6], [4,8], [3,9], [4,4,4], [3,3,6], [3,3,3,3]
+- Each metric item gets the corresponding column size in the same position
+
+**Example Structure:**
+```yaml
+name: Sales Performance Dashboard
+description: Comprehensive overview of sales metrics including revenue, conversions, and geographic performance
+rows:
+  - id: 1
+    items:
+      - id: 550e8400-e29b-41d4-a716-446655440001
+    column_sizes:
+      - 12
+  - id: 2
+    items:
+      - id: 550e8400-e29b-41d4-a716-446655440002
+      - id: 550e8400-e29b-41d4-a716-446655440003
+    column_sizes:
+      - 6
+      - 6
+  - id: 3
+    items:
+      - id: 550e8400-e29b-41d4-a716-446655440004
+      - id: 550e8400-e29b-41d4-a716-446655440005
+      - id: 550e8400-e29b-41d4-a716-446655440006
+    column_sizes:
+      - 4
+      - 4
+      - 4
+```
 
 **CRITICAL:** Follow the schema exactly - all metric IDs must reference existing metrics, column sizes must sum to 12, and row IDs must be unique. The tool will validate all metric references against the database.

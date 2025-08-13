@@ -1,28 +1,23 @@
 import { describe, expect, it } from 'vitest';
-import { getMetricToolDescription } from './get-metric-tool-description';
-import metricToolDescription from './metric-tool-description.txt';
+import dashboardToolDescription from './dashboard-tool-description.txt';
+import { getDashboardToolDescription } from './get-dashboard-tool-description';
 
-describe('getMetricToolDescription', () => {
-  it('should return the metric tool description from the .txt file', () => {
-    const description = getMetricToolDescription();
+describe('getDashboardToolDescription', () => {
+  it('should return the dashboard tool description from the .txt file', () => {
+    const description = getDashboardToolDescription();
 
     // Verify it returns a non-empty string
     expect(typeof description).toBe('string');
     expect(description.length).toBeGreaterThan(0);
 
     // Verify it contains the expected content from the actual .txt file
-    expect(description).toContain('Creates metric configuration files with YAML content');
-    expect(description).toContain('COMPLETE METRIC YAML SCHEMA SPECIFICATION');
-    expect(description).toContain('selectedChartType');
-    expect(description).toContain('columnLabelFormats');
-
-    // Verify it has the full schema documentation
-    expect(description).toContain('# METRIC CONFIGURATION - YML STRUCTURE');
-    expect(description).toContain('bar, line, scatter, pie, combo, metric, table');
+    expect(description).toContain('Creates dashboard configuration files');
+    expect(description).toContain('COMPLETE DASHBOARD YAML SCHEMA');
+    expect(description).toContain('DASHBOARD CONFIGURATION - YML STRUCTURE');
   });
 
   it('should have no template variables in the .txt file', () => {
-    const content = metricToolDescription;
+    const content = dashboardToolDescription;
 
     // Find any template variables in the file
     const templateVariablePattern = /\{\{([^}]+)\}\}/g;
