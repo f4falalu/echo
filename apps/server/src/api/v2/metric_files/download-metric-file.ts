@@ -43,7 +43,7 @@ export async function downloadMetricFileHandler(
     const timeout = 120000; // 2 minutes
     const pollInterval = 2000; // Poll every 2 seconds
 
-    let run;
+    let run: Awaited<ReturnType<typeof runs.retrieve>>;
     while (true) {
       run = await runs.retrieve(handle.id);
 

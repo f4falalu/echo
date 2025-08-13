@@ -12,7 +12,7 @@ export type GetMetricForExportInput = z.infer<typeof GetMetricForExportInputSche
 export interface MetricForExport {
   id: string;
   name: string;
-  content: any; // JSONB content containing SQL and other metadata
+  content: Record<string, unknown>; // JSONB content containing SQL and other metadata
   dataSourceId: string;
   organizationId: string;
   secretId: string;
@@ -58,13 +58,18 @@ export async function getMetricForExport(input: GetMetricForExportInput): Promis
 
   if (typeof result.content === 'object' && result.content !== null) {
     // Check common locations for SQL in metric content
-    const content = result.content as Record<string, any>;
+    const content = result.content as Record<string, unknown>;
     sql =
-      content.sql ||
-      content.query ||
-      content.sqlQuery ||
-      content.definition?.sql ||
-      content.definition?.query;
+      (typeof content.sql === 'string' ? content.sql : undefined) ||
+      (typeof content.query === 'string' ? content.query : undefined) ||
+      (typeof content.sqlQuery === 'string' ? content.sqlQuery : undefined) ||
+      (typeof content.definition === 'object' && content.definition !== null
+        ? typeof (content.definition as Record<string, unknown>).sql === 'string'
+          ? ((content.definition as Record<string, unknown>).sql as string)
+          : typeof (content.definition as Record<string, unknown>).query === 'string'
+            ? ((content.definition as Record<string, unknown>).query as string)
+            : undefined
+        : undefined);
   }
 
   if (!sql) {
@@ -74,7 +79,7 @@ export async function getMetricForExport(input: GetMetricForExportInput): Promis
   return {
     id: result.id,
     name: result.name,
-    content: result.content,
+    content: result.content as Record<string, unknown>,
     dataSourceId: result.dataSourceId,
     organizationId: result.organizationId,
     secretId: result.secretId,

@@ -12,13 +12,24 @@ import {
   type ExportMetricDataOutput,
 } from './interfaces';
 
+// Validate required environment variables
+if (!process.env.R2_ACCOUNT_ID) {
+  throw new Error('R2_ACCOUNT_ID environment variable is missing');
+}
+if (!process.env.R2_ACCESS_KEY_ID) {
+  throw new Error('R2_ACCESS_KEY_ID environment variable is missing');
+}
+if (!process.env.R2_SECRET_ACCESS_KEY) {
+  throw new Error('R2_SECRET_ACCESS_KEY environment variable is missing');
+}
+
 // Initialize R2 client (S3-compatible)
 const r2Client = new S3Client({
   region: 'auto',
   endpoint: `https://${process.env.R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,
   credentials: {
-    accessKeyId: process.env.R2_ACCESS_KEY_ID!,
-    secretAccessKey: process.env.R2_SECRET_ACCESS_KEY!,
+    accessKeyId: process.env.R2_ACCESS_KEY_ID,
+    secretAccessKey: process.env.R2_SECRET_ACCESS_KEY,
   },
 });
 
@@ -120,11 +131,14 @@ export const exportMetricData: ReturnType<
       logger.log('Executing metric query', { sql: `${metric.sql?.substring(0, 100)}...` });
 
       const adapter = await createAdapter(credentials);
-      let queryResult;
+      let queryResult: Awaited<ReturnType<typeof adapter.query>> | undefined;
 
       try {
+        if (!metric.sql) {
+          throw new Error('Metric SQL is missing');
+        }
         queryResult = await adapter.query(
-          metric.sql!,
+          metric.sql,
           [], // No parameters for metric queries
           MAX_ROWS,
           60000 // 60 second query timeout

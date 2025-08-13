@@ -1,6 +1,7 @@
 import { MetricDownloadParamsSchema } from '@buster/server-shared/metrics';
 import { zValidator } from '@hono/zod-validator';
 import { Hono } from 'hono';
+import { HTTPException } from 'hono/http-exception';
 import { requireAuth } from '../../../middleware/auth';
 import '../../../types/hono.types';
 import { downloadMetricFileHandler } from './download-metric-file';
@@ -28,8 +29,8 @@ const app = new Hono()
     console.error('Metric files API error:', err);
 
     // Let HTTPException responses pass through
-    if (err instanceof Error && 'getResponse' in err) {
-      return (err as any).getResponse();
+    if (err instanceof HTTPException) {
+      return err.getResponse();
     }
 
     // Default error response
