@@ -5,7 +5,7 @@ import * as React from 'react';
 import { Xmark } from '@/components/ui/icons';
 
 import { cn } from '@/lib/utils';
-import { Button } from '../buttons';
+import { Button } from '../buttons/Button';
 
 const Dialog = DialogPrimitive.Root;
 

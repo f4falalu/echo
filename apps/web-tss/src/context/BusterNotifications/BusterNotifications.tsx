@@ -4,7 +4,7 @@ import type React from 'react';
 import type { PropsWithChildren } from 'react';
 import { type ExternalToast, toast } from 'sonner';
 import { createContext, useContextSelector } from 'use-context-selector';
-// import { ConfirmModal } from '@/components/ui/modal/ConfirmModal';
+import { ConfirmModal } from '@/components/ui/modal/ConfirmModal';
 import { Toaster } from '@/components/ui/toaster/Toaster';
 import { useOpenConfirmModal } from './useConfirmModal';
 
@@ -134,7 +134,7 @@ export const BusterNotificationsProvider: React.FC<PropsWithChildren> = ({ child
     <BusterNotifications.Provider value={{ ...value, openConfirmModal }}>
       {children}
       <Toaster />
-      {/* <ConfirmModal {...confirmModalProps} /> */}
+      <ConfirmModal {...confirmModalProps} />
     </BusterNotifications.Provider>
   );
 };

@@ -35,6 +35,22 @@ const config = defineConfig({
           if (id.includes('node_modules/@supabase')) {
             return 'vendor-supabase';
           }
+
+          if (id.includes('components/ui/icons')) {
+            return 'vendor-icons';
+          }
+
+          if (id.includes('components/ui')) {
+            return 'vendor-ui';
+          }
+
+          if (id.includes('zod')) {
+            return 'vendor-zod';
+          }
+
+          if (id.includes('@tanstack')) {
+            return 'vendor-tanstack';
+          }
         },
       },
     },
