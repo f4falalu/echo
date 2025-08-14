@@ -28,10 +28,10 @@ export const MetricDataTruncatedWarning: React.FC<MetricDataTruncatedWarningProp
       });
 
       // Race between the API call and the timeout
-      const response = await Promise.race([
+      const response = (await Promise.race([
         downloadMetricFile(metricId),
         timeoutPromise
-      ]) as Awaited<ReturnType<typeof downloadMetricFile>>;
+      ])) as Awaited<ReturnType<typeof downloadMetricFile>>;
 
       // Simply navigate to the download URL
       // The response-content-disposition header will force a download
@@ -56,14 +56,12 @@ export const MetricDataTruncatedWarning: React.FC<MetricDataTruncatedWarningProp
       )}>
       <div className="flex flex-col space-y-1">
         <Text className="font-medium">
-          {hasError
-            ? 'Download failed'
-            : 'This request returned more than 5,000 records'}
+          {hasError ? 'Download failed' : 'This request returned more than 5,000 records'}
         </Text>
         <Text size="xs" variant={hasError ? 'danger' : 'secondary'}>
           {hasError
             ? 'The download took too long or encountered an error. Please try again.'
-            : 'To see all records, you\'ll need to download the results.'}
+            : "To see all records, you'll need to download the results."}
         </Text>
       </div>
       <Button
