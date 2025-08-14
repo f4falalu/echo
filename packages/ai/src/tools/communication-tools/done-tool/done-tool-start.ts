@@ -80,12 +80,12 @@ export function createDoneToolStart(doneToolState: DoneToolState, context: DoneT
           timeString = `${elapsedSeconds} seconds`;
         } else {
           const elapsedMinutes = Math.floor(elapsedSeconds / 60);
-          timeString = `${elapsedMinutes} min`;
+          timeString = `${elapsedMinutes} minutes`;
         }
 
         await updateMessage(context.messageId, {
           isCompleted: true,
-          finalReasoningMessage: `Total workflow time: ${timeString}`,
+          finalReasoningMessage: `Reasoned for ${timeString}`,
         });
       }
     } catch (error) {

@@ -49,12 +49,12 @@ export function createMessageUserClarifyingQuestionStart(
           timeString = `${elapsedSeconds} seconds`;
         } else {
           const elapsedMinutes = Math.floor(elapsedSeconds / 60);
-          timeString = `${elapsedMinutes} min`;
+          timeString = `${elapsedMinutes} minutes`;
         }
 
         await updateMessage(messageId, {
           isCompleted: true,
-          finalReasoningMessage: `Total workflow time: ${timeString}`,
+          finalReasoningMessage: `Reasoned for ${timeString}`,
         });
       } catch (error) {
         console.error(

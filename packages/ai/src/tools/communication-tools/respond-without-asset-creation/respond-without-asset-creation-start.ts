@@ -48,12 +48,12 @@ export function createRespondWithoutAssetCreationStart<
           timeString = `${elapsedSeconds} seconds`;
         } else {
           const elapsedMinutes = Math.floor(elapsedSeconds / 60);
-          timeString = `${elapsedMinutes} min`;
+          timeString = `${elapsedMinutes} minutes`;
         }
 
         await updateMessage(context.messageId, {
           isCompleted: true,
-          finalReasoningMessage: `Total workflow time: ${timeString}`,
+          finalReasoningMessage: `Reasoned for ${timeString}`,
         });
       } catch (error) {
         console.error('[respond-without-asset-creation] Failed to update initial entries:', error);

@@ -30,23 +30,27 @@ export async function updateMessageEntries({
   reasoningMessages,
 }: UpdateMessageEntriesParams): Promise<{ success: boolean }> {
   try {
-    const updates: Record<string, SQL | Date> = { updatedAt: new Date() };
+    const updates: Record<string, SQL | string> = { updatedAt: new Date().toISOString() };
 
     // Optimized merge for response messages - upsert by 'id'
     if (responseMessages?.length) {
       const newData = JSON.stringify(responseMessages);
       updates.responseMessages = sql`
         COALESCE(
-          (SELECT jsonb_agg(value)
+          (SELECT jsonb_agg(value ORDER BY ordinality)
            FROM (
-             SELECT DISTINCT ON (value->>'id') value
-             FROM (
-               SELECT jsonb_array_elements(COALESCE(${messages.responseMessages}, '[]'::jsonb))
-               UNION ALL
-               SELECT jsonb_array_elements(${newData}::jsonb)
-             ) combined(value)
-             ORDER BY value->>'id', value DESC
-           ) deduplicated),
+             -- Keep existing messages that aren't being updated
+             SELECT value, ordinality
+             FROM jsonb_array_elements(COALESCE(${messages.responseMessages}, '[]'::jsonb)) WITH ORDINALITY AS t(value, ordinality)
+             WHERE NOT EXISTS (
+               SELECT 1 FROM jsonb_array_elements(${newData}::jsonb) AS new_msg
+               WHERE new_msg->>'id' = t.value->>'id'
+             )
+             UNION ALL
+             -- Add new/updated messages at the end
+             SELECT value, 1000000 + ordinality AS ordinality
+             FROM jsonb_array_elements(${newData}::jsonb) WITH ORDINALITY AS t(value, ordinality)
+           ) combined),
           '[]'::jsonb
         )`;
     }
@@ -56,16 +60,20 @@ export async function updateMessageEntries({
       const newData = JSON.stringify(reasoningMessages);
       updates.reasoning = sql`
         COALESCE(
-          (SELECT jsonb_agg(value)
+          (SELECT jsonb_agg(value ORDER BY ordinality)
            FROM (
-             SELECT DISTINCT ON (value->>'id') value
-             FROM (
-               SELECT jsonb_array_elements(COALESCE(${messages.reasoning}, '[]'::jsonb))
-               UNION ALL
-               SELECT jsonb_array_elements(${newData}::jsonb)
-             ) combined(value)
-             ORDER BY value->>'id', value DESC
-           ) deduplicated),
+             -- Keep existing messages that aren't being updated
+             SELECT value, ordinality
+             FROM jsonb_array_elements(COALESCE(${messages.reasoning}, '[]'::jsonb)) WITH ORDINALITY AS t(value, ordinality)
+             WHERE NOT EXISTS (
+               SELECT 1 FROM jsonb_array_elements(${newData}::jsonb) AS new_msg
+               WHERE new_msg->>'id' = t.value->>'id'
+             )
+             UNION ALL
+             -- Add new/updated messages at the end
+             SELECT value, 1000000 + ordinality AS ordinality
+             FROM jsonb_array_elements(${newData}::jsonb) WITH ORDINALITY AS t(value, ordinality)
+           ) combined),
           '[]'::jsonb
         )`;
     }
@@ -75,26 +83,33 @@ export async function updateMessageEntries({
       const newData = JSON.stringify(rawLlmMessages);
       updates.rawLlmMessages = sql`
         COALESCE(
-          (SELECT jsonb_agg(value)
+          (SELECT jsonb_agg(value ORDER BY ordinality)
            FROM (
-             SELECT DISTINCT ON (
-               value->>'role',
-               (SELECT string_agg(content->>'toolCallId', ',' ORDER BY content->>'toolCallId')
-                FROM jsonb_array_elements(value->'content') content
-                WHERE content->>'toolCallId' IS NOT NULL)
-             ) value
-             FROM (
-               SELECT jsonb_array_elements(COALESCE(${messages.rawLlmMessages}, '[]'::jsonb))
-               UNION ALL
-               SELECT jsonb_array_elements(${newData}::jsonb)
-             ) combined(value)
-             ORDER BY 
-               value->>'role',
-               (SELECT string_agg(content->>'toolCallId', ',' ORDER BY content->>'toolCallId')
-                FROM jsonb_array_elements(value->'content') content
-                WHERE content->>'toolCallId' IS NOT NULL),
-               value DESC
-           ) deduplicated),
+             -- Keep existing messages that aren't being updated
+             SELECT value, ordinality
+             FROM jsonb_array_elements(COALESCE(${messages.rawLlmMessages}, '[]'::jsonb)) WITH ORDINALITY AS t(value, ordinality)
+             WHERE NOT EXISTS (
+               SELECT 1 FROM jsonb_array_elements(${newData}::jsonb) AS new_msg
+               WHERE new_msg->>'role' = t.value->>'role'
+                 AND (
+                   -- Compare toolCallIds if they exist
+                   (SELECT string_agg(content->>'toolCallId', ',' ORDER BY content->>'toolCallId')
+                    FROM jsonb_array_elements(new_msg->'content') content
+                    WHERE content->>'toolCallId' IS NOT NULL) =
+                   (SELECT string_agg(content->>'toolCallId', ',' ORDER BY content->>'toolCallId')
+                    FROM jsonb_array_elements(t.value->'content') content
+                    WHERE content->>'toolCallId' IS NOT NULL)
+                   OR
+                   -- Both have no toolCallIds
+                   ((SELECT COUNT(*) FROM jsonb_array_elements(new_msg->'content') content WHERE content->>'toolCallId' IS NOT NULL) = 0
+                    AND (SELECT COUNT(*) FROM jsonb_array_elements(t.value->'content') content WHERE content->>'toolCallId' IS NOT NULL) = 0)
+                 )
+             )
+             UNION ALL
+             -- Add new/updated messages at the end
+             SELECT value, 1000000 + ordinality AS ordinality
+             FROM jsonb_array_elements(${newData}::jsonb) WITH ORDINALITY AS t(value, ordinality)
+           ) combined),
           '[]'::jsonb
         )`;
     }
