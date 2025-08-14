@@ -1,9 +1,8 @@
 import { QueryClient, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { queryKeys } from '@/api/query_keys';
-import { useMemoizedFn } from '@/hooks';
+import { datasetGroupQueryKeys } from '@/api/query_keys/dataset_groups';
+import { datasetQueryKeys } from '@/api/query_keys/datasets';
 import {
   getDatasetPermissionsOverview,
-  getDatasetPermissionsOverview_server,
   listDatasetDatasetGroups,
   listDatasetPermissionUsers,
   listIndividualDatasetPermissionGroups,
@@ -13,12 +12,12 @@ import {
 } from './requests';
 
 export const useGetDatasetPermissionsOverview = (dataset_id: string) => {
-  const queryFn = useMemoizedFn(() => {
+  const queryFn = () => {
     return getDatasetPermissionsOverview({ dataset_id });
-  });
+  };
 
   return useQuery({
-    ...queryKeys.datasetPermissionsOverview(dataset_id),
+    ...datasetGroupQueryKeys.datasetPermissionsOverview(dataset_id),
     queryFn,
   });
 };
@@ -29,19 +28,19 @@ export const prefetchGetDatasetPermissionsOverview = async (
 ) => {
   const queryClient = queryClientProp || new QueryClient();
   await queryClient.prefetchQuery({
-    ...queryKeys.datasetPermissionsOverview(datasetId),
-    queryFn: () => getDatasetPermissionsOverview_server(datasetId),
+    ...datasetGroupQueryKeys.datasetPermissionsOverview(datasetId),
+    queryFn: () => getDatasetPermissionsOverview({ dataset_id: datasetId }),
   });
   return queryClient;
 };
 
 export const useDatasetListPermissionGroups = (dataset_id: string) => {
-  const queryFn = useMemoizedFn(() => {
+  const queryFn = () => {
     return listIndividualDatasetPermissionGroups({ dataset_id });
-  });
+  };
 
   return useQuery({
-    ...queryKeys.datasetPermissionGroupsList(dataset_id),
+    ...datasetGroupQueryKeys.datasetPermissionGroupsList(dataset_id),
     queryFn,
     enabled: !!dataset_id,
   });
@@ -54,7 +53,7 @@ export const useDatasetUpdatePermissionGroups = () => {
     mutationFn: updateDatasetPermissionGroups,
     onMutate: ({ dataset_id, groups }) => {
       queryClient.setQueryData(
-        queryKeys.datasetPermissionGroupsList(dataset_id).queryKey,
+        datasetGroupQueryKeys.datasetPermissionGroupsList(dataset_id).queryKey,
         (oldData) => {
           const keyedChanges: Record<string, { id: string; assigned: boolean }> = {};
           for (const { id, assigned } of groups) {
@@ -72,7 +71,7 @@ export const useDatasetUpdatePermissionGroups = () => {
     },
     onSettled: (_, __, { dataset_id }) => {
       queryClient.invalidateQueries({
-        queryKey: queryKeys.datasetPermissionGroupsList(dataset_id).queryKey,
+        queryKey: datasetGroupQueryKeys.datasetPermissionGroupsList(dataset_id).queryKey,
         refetchType: 'all',
       });
     },
@@ -80,20 +79,20 @@ export const useDatasetUpdatePermissionGroups = () => {
 };
 
 export const useDatasetListDatasetGroups = (dataset_id: string) => {
-  const queryFn = useMemoizedFn(() => listDatasetDatasetGroups({ dataset_id }));
+  const queryFn = () => listDatasetDatasetGroups({ dataset_id });
 
   return useQuery({
-    ...queryKeys.datasetGroupsList,
+    ...datasetGroupQueryKeys.datasetGroupsList,
     queryFn,
     enabled: !!dataset_id,
   });
 };
 
 export const useDatasetListPermissionUsers = (dataset_id: string) => {
-  const queryFn = useMemoizedFn(() => listDatasetPermissionUsers({ dataset_id }));
+  const queryFn = () => listDatasetPermissionUsers({ dataset_id });
 
   return useQuery({
-    ...queryKeys.datasetPermissionUsersList(dataset_id),
+    ...datasetGroupQueryKeys.datasetPermissionUsersList(dataset_id),
     queryFn,
     enabled: !!dataset_id,
   });
@@ -104,12 +103,12 @@ export const useDatasetUpdateDatasetGroups = () => {
 
   return useMutation({
     mutationFn: updateDatasetDatasetGroups,
-    onMutate: ({ dataset_id, groups }) => {
+    onMutate: ({ groups }) => {
       const keyedChanges: Record<string, { id: string; assigned: boolean }> = {};
       for (const { id, assigned } of groups) {
         keyedChanges[id] = { id, assigned };
       }
-      queryClient.setQueryData(queryKeys.datasetGroupsList.queryKey, (oldData) => {
+      queryClient.setQueryData(datasetGroupQueryKeys.datasetGroupsList.queryKey, (oldData) => {
         return (
           oldData?.map((group) => {
             const updatedGroup = keyedChanges[group.id];
@@ -124,13 +123,13 @@ export const useDatasetUpdateDatasetGroups = () => {
 
 export const useDatasetUpdatePermissionUsers = (dataset_id: string) => {
   const queryClient = useQueryClient();
-  const mutationFn = useMemoizedFn((users: { id: string; assigned: boolean }[]) => {
+  const mutationFn = (users: { id: string; assigned: boolean }[]) => {
     const keyedChanges: Record<string, { id: string; assigned: boolean }> = {};
     for (const { id, assigned } of users) {
       keyedChanges[id] = { id, assigned };
     }
     queryClient.setQueryData(
-      queryKeys.datasetPermissionUsersList(dataset_id).queryKey,
+      datasetGroupQueryKeys.datasetPermissionUsersList(dataset_id).queryKey,
       (oldData) => {
         return (
           oldData?.map((user) => {
@@ -142,7 +141,7 @@ export const useDatasetUpdatePermissionUsers = (dataset_id: string) => {
       }
     );
     return updateDatasetPermissionUsers({ dataset_id, users });
-  });
+  };
 
   return useMutation({
     mutationFn,

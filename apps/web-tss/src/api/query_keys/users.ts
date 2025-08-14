@@ -16,14 +16,14 @@ import type {
 
 const favoritesGetList = queryOptions<UserFavoriteResponse>({
   queryKey: ['myself', 'list', 'favorites'] as const,
-  staleTime: 1000 * 60 * 60, // 1 hour,
+  staleTime: 1000 * 60 * 20, // 20 minutes,
   initialData: [],
   initialDataUpdatedAt: 0,
 });
 
 const userGetUserMyself = queryOptions<UserResponse | null>({
   queryKey: ['myself'] as const,
-  staleTime: 1000 * 60 * 60, // 1 hour
+  staleTime: 1000 * 60 * 20, // 20 minutes
 });
 
 const userGetUser = (userId: string) =>

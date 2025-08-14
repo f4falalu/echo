@@ -4,11 +4,9 @@ import isEmpty from 'lodash/isEmpty';
 import uniq from 'lodash/uniq';
 import { useMemo, useRef } from 'react';
 import { useGetChatMemoized, useGetChatMessageMemoized } from '@/api/buster_rest/chats';
-import { usePrefetchGetDashboardClient } from '@/api/buster_rest/dashboards/queryRequests';
-import { usePrefetchGetMetricClient } from '@/api/buster_rest/metrics/queryRequests';
+import { useChatUpdate } from '@/api/buster_rest/chats/useChatUpdate';
 import { reportsQueryKeys } from '@/api/query_keys/reports';
-import { useChatUpdate } from '@/context/Chats/useChatUpdate';
-import { useMemoizedFn } from '@/hooks';
+import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import type { BusterChatMessage } from '../../asset_interfaces/chat';
 import { chatQueryKeys } from '../../query_keys/chat';
 import { dashboardQueryKeys } from '../../query_keys/dashboard';
@@ -34,7 +32,6 @@ export const useTrackAndUpdateMessageChanges = (
   {
     chatId,
     messageId,
-    isStreamingMessage,
   }: {
     chatId: string | undefined;
     messageId: string;
@@ -57,8 +54,8 @@ export const useTrackAndUpdateMessageChanges = (
   return useShapeStream(
     shape,
     updateOperations,
-    useMemoizedFn((message) => {
-      if (message && message.value && chatId) {
+    (message) => {
+      if (message?.value && chatId) {
         const iChatMessage = updateMessageShapeToIChatMessage(message.value);
         const chat = getChatMemoized(chatId);
 
@@ -105,7 +102,7 @@ export const useTrackAndUpdateMessageChanges = (
         callback?.(iChatMessage);
         onUpdateChatMessage(iChatMessage);
       }
-    }),
+    },
     subscribe
   );
 };
@@ -129,14 +126,14 @@ const useCheckIfWeHaveAFollowupDashboard = (messageId: string) => {
               ...dashboardQueryKeys.dashboardGetDashboard(file.id, file.version_number),
             });
             queryClient.invalidateQueries({
-              ...dashboardQueryKeys.dashboardGetDashboard(file.id, null),
+              ...dashboardQueryKeys.dashboardGetDashboard(file.id, 'LATEST'),
             });
           } else if (fileType === 'metric') {
             queryClient.invalidateQueries({
               ...metricsQueryKeys.metricsGetMetric(file.id, file.version_number),
             });
             queryClient.invalidateQueries({
-              ...metricsQueryKeys.metricsGetMetric(file.id, null),
+              ...metricsQueryKeys.metricsGetMetric(file.id, 'LATEST'),
             });
           } else if (fileType === 'report') {
             const { queryKey } = reportsQueryKeys.reportsGetReport(file.id, file.version_number);
@@ -166,7 +163,7 @@ export const useTrackAndUpdateNewMessages = ({ chatId }: { chatId: string | unde
     shape,
     insertOperations,
     useMemoizedFn((message) => {
-      if (message && message.value && chatId) {
+      if (message?.value && chatId) {
         const messageId = message.value.id;
         const chat = getChatMemoized(chatId);
 

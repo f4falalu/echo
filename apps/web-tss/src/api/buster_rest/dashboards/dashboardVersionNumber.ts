@@ -1,7 +1,6 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useSearch } from '@tanstack/react-router';
 import { useCallback, useMemo } from 'react';
-import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import type { BusterDashboardResponse } from '../../asset_interfaces/dashboard/interfaces';
 import { dashboardQueryKeys } from '../../query_keys/dashboard';
 

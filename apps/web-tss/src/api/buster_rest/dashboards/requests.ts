@@ -9,7 +9,6 @@ import type {
   DashboardConfig,
 } from '@/api/asset_interfaces/dashboard';
 import mainApi from '@/api/buster_rest/instances';
-import { serverFetch } from '@/api/createServerInstance';
 
 export const dashboardsGetList = async (params: {
   /** The page number to fetch */

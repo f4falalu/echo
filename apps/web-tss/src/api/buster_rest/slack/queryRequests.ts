@@ -1,7 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { slackQueryKeys } from '@/api/query_keys/slack';
 import { useBusterNotifications } from '@/context/BusterNotifications';
-import { useMemoizedFn } from '@/hooks';
 import {
   getSlackChannels,
   getSlackIntegration,
@@ -32,7 +31,7 @@ export const useGetSlackChannels = (enabled = true) => {
 // POST /api/v2/slack/auth/init
 export const useInitiateSlackOAuth = () => {
   const { openErrorNotification } = useBusterNotifications();
-  const mutationFn = useMemoizedFn(async () => {
+  const mutationFn = async () => {
     const result = await initiateSlackOAuth();
     if (result.auth_url) {
       window.location.href = result.auth_url;
@@ -43,7 +42,7 @@ export const useInitiateSlackOAuth = () => {
         duration: 5000,
       });
     }
-  });
+  };
 
   return useMutation({
     mutationFn,
@@ -71,7 +70,7 @@ export const useRemoveSlackIntegration = () => {
   const queryClient = useQueryClient();
   const { openConfirmModal } = useBusterNotifications();
 
-  const mutationFn = useMemoizedFn(async () => {
+  const mutationFn = async () => {
     const ignoreConfirm = false;
 
     const method = async () => {
@@ -91,7 +90,7 @@ export const useRemoveSlackIntegration = () => {
       },
       onOk: method,
     });
-  });
+  };
 
   return useMutation({
     mutationFn,

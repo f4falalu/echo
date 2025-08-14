@@ -10,7 +10,6 @@ import type {
   SQLServerCredentials,
 } from '@/api/asset_interfaces/datasources';
 import { DataSourceSchema } from '@/api/asset_interfaces/datasources';
-import { serverFetch } from '@/api/createServerInstance';
 import mainApi from '../instances';
 
 export const listDatasources = async () => {
@@ -21,12 +20,6 @@ export const getDatasource = async (id: string) => {
   return await mainApi
     .get<DataSource>(`/data_sources/${id}`)
     .then((res) => DataSourceSchema.parse(res.data));
-};
-
-export const getDatasource_server = async (id: string) => {
-  const response = await serverFetch<DataSource>(`/data_sources/${id}`);
-  // Validate response with DataSourceSchema
-  return DataSourceSchema.parse(response);
 };
 
 export const deleteDatasource = async (id: string) => {

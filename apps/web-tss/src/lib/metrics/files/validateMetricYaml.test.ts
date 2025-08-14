@@ -7,8 +7,8 @@ const mockMonaco = {
     Error: 8, // These values match monaco-editor's real values
     Warning: 4,
     Info: 2,
-    Hint: 1
-  }
+    Hint: 1,
+  },
 };
 
 describe('validateMetricYaml', () => {

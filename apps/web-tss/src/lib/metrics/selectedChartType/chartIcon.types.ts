@@ -1,8 +1,8 @@
-import {
+import type {
+  ChartConfigProps,
   ChartEncodes,
   ChartType,
   ColumnMetaData,
-  ChartConfigProps
 } from '@buster/server-shared/metrics';
 
 export interface SelectChartTypeProps {

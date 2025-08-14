@@ -21,7 +21,6 @@ import type {
   SharePostRequest,
   ShareUpdateRequest,
 } from '@buster/server-shared/share';
-import { serverFetch } from '@/api/createServerInstance';
 import { mainApi } from '../instances';
 
 export const getMetric = async (params: GetMetricRequest): Promise<GetMetricResponse> => {
@@ -30,12 +29,6 @@ export const getMetric = async (params: GetMetricRequest): Promise<GetMetricResp
       params,
     })
     .then((res) => res.data);
-};
-
-export const getMetric_server = async ({ id, password }: Parameters<typeof getMetric>[0]) => {
-  return await serverFetch<GetMetricResponse>(`/metric_files/${id}`, {
-    params: { ...(password && { password }) },
-  });
 };
 
 export const getMetricData = async ({
@@ -50,10 +43,6 @@ export const getMetricData = async ({
 
 export const listMetrics = async (params: GetMetricListRequest) => {
   return mainApi.get<ListMetricsResponse>('/metric_files', { params }).then((res) => res.data);
-};
-
-export const listMetrics_server = async (params: Parameters<typeof listMetrics>[0]) => {
-  return await serverFetch<ListMetricsResponse>('/metric_files', { params });
 };
 
 export const updateMetric = async (params: UpdateMetricRequest) => {

@@ -9,6 +9,6 @@ export const upgradeMetricToIMetric = (
   return {
     ...oldMetric,
     ...metric,
-    chart_config
+    chart_config,
   };
 };

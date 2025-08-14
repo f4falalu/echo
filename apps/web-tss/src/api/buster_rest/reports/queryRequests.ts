@@ -10,7 +10,6 @@ import {
   useQueryClient,
 } from '@tanstack/react-query';
 import { create } from 'mutative';
-import { queryKeys } from '@/api/query_keys';
 import { collectionQueryKeys } from '@/api/query_keys/collection';
 import { reportsQueryKeys } from '@/api/query_keys/reports';
 import type { RustApiError } from '../../errors';
@@ -19,13 +18,7 @@ import {
   useRemoveAssetFromCollection,
 } from '../collections/queryRequests';
 import { useGetUserFavorites } from '../users/favorites';
-import {
-  getReportById,
-  getReportById_server,
-  getReportsList,
-  getReportsList_server,
-  updateReport,
-} from './requests';
+import { getReportById, getReportsList, updateReport } from './requests';
 
 /**
  * Hook to get a list of reports
@@ -36,7 +29,7 @@ export const useGetReportsList = (params?: Parameters<typeof getReportsList>[0])
   };
 
   const res = useQuery({
-    ...queryKeys.reportsGetList(params),
+    ...reportsQueryKeys.reportsGetList(params),
     queryFn,
   });
 
@@ -59,8 +52,8 @@ export const prefetchGetReportsList = async (
   const queryClient = queryClientProp || new QueryClient();
 
   await queryClient.prefetchQuery({
-    ...queryKeys.reportsGetList(params),
-    queryFn: () => getReportsList_server(params),
+    ...reportsQueryKeys.reportsGetList(params),
+    queryFn: () => getReportsList(params),
   });
 
   return queryClient;
@@ -73,7 +66,7 @@ export const prefetchGetReportsListClient = async (
   const queryClient = queryClientProp || new QueryClient();
 
   await queryClient.prefetchQuery({
-    ...queryKeys.reportsGetList(params),
+    ...reportsQueryKeys.reportsGetList(params),
     queryFn: () => getReportsList(params),
   });
 
@@ -95,7 +88,7 @@ export const useGetReport = <T = GetReportIndividualResponse>(
   };
 
   return useQuery({
-    ...queryKeys.reportsGetReport(reportId ?? '', versionNumber),
+    ...reportsQueryKeys.reportsGetReport(reportId ?? '', versionNumber),
     queryFn,
     enabled: !!reportId,
     select: options?.select,
@@ -110,8 +103,8 @@ export const prefetchGetReportById = async (reportId: string, queryClientProp?: 
   const queryClient = queryClientProp || new QueryClient();
 
   await queryClient.prefetchQuery({
-    ...queryKeys.reportsGetReport(reportId),
-    queryFn: () => getReportById_server(reportId),
+    ...reportsQueryKeys.reportsGetReport(reportId),
+    queryFn: () => getReportById(reportId),
   });
 
   return queryClient;
@@ -130,18 +123,18 @@ export const useUpdateReport = () => {
     onMutate: async ({ reportId, ...data }) => {
       // Cancel any outgoing refetches
       await queryClient.cancelQueries({
-        queryKey: queryKeys.reportsGetReport(reportId).queryKey,
+        queryKey: reportsQueryKeys.reportsGetReport(reportId).queryKey,
       });
 
       // Snapshot the previous value
       const previousReport = queryClient.getQueryData<GetReportIndividualResponse>(
-        queryKeys.reportsGetReport(reportId).queryKey
+        reportsQueryKeys.reportsGetReport(reportId).queryKey
       );
 
       // Optimistically update the individual report
       if (previousReport) {
         queryClient.setQueryData(
-          queryKeys.reportsGetReport(reportId).queryKey,
+          reportsQueryKeys.reportsGetReport(reportId).queryKey,
           create(previousReport, (draft) => {
             if (data.name !== undefined) draft.name = data.name;
             if (data.content !== undefined) draft.content = data.content;
@@ -156,14 +149,14 @@ export const useUpdateReport = () => {
       // If the mutation fails, use the context to roll back
       if (context?.previousReport) {
         queryClient.setQueryData(
-          queryKeys.reportsGetReport(reportId).queryKey,
+          reportsQueryKeys.reportsGetReport(reportId).queryKey,
           context.previousReport
         );
       }
     },
     onSuccess: (data, { reportId, ...updateData }, ctx) => {
       // Update the individual report cache with server response
-      queryClient.setQueryData(queryKeys.reportsGetReport(reportId).queryKey, data);
+      queryClient.setQueryData(reportsQueryKeys.reportsGetReport(reportId).queryKey, data);
 
       const nameChanged =
         updateData.name !== undefined &&
@@ -172,7 +165,7 @@ export const useUpdateReport = () => {
 
       // Invalidate the list cache to ensure it's fresh
       if (nameChanged) {
-        const listQueryKey = queryKeys.reportsGetList().queryKey;
+        const listQueryKey = reportsQueryKeys.reportsGetList().queryKey;
         const hasActiveQuery = queryClient.getQueryCache().find({
           queryKey: listQueryKey,
           exact: true,

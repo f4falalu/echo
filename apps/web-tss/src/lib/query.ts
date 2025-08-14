@@ -17,9 +17,3 @@ export const isQueryStale = (
 
   return isStale && queryState?.fetchStatus !== 'fetching';
 };
-
-export const hasOrganizationId = (queryClient: QueryClient): boolean => {
-  const organizationId = queryClient.getQueryData(userQueryKeys.userGetUserMyself.queryKey)
-    ?.organizations?.[0]?.id;
-  return !!organizationId;
-};

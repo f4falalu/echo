@@ -2,12 +2,7 @@ import { QueryClient, useMutation, useQuery, useQueryClient } from '@tanstack/re
 import { create } from 'mutative';
 import { organizationQueryKeys } from '@/api/query_keys/organization';
 import { userQueryKeys } from '../../query_keys/users';
-import {
-  createOrganization,
-  getOrganizationUsers,
-  getOrganizationUsers_server,
-  updateOrganization,
-} from './requests';
+import { createOrganization, getOrganizationUsers, updateOrganization } from './requests';
 
 export const useGetOrganizationUsers = (organizationId: string) => {
   const queryFn = () => {
@@ -31,7 +26,7 @@ export const prefetchGetOrganizationUsers = async (
   await queryClient.prefetchQuery({
     ...queryOptions,
     staleTime: 10 * 1000,
-    queryFn: () => getOrganizationUsers_server({ organizationId }),
+    queryFn: () => getOrganizationUsers({ organizationId }),
   });
   return queryClient;
 };

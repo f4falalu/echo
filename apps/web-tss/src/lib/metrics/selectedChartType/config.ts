@@ -28,7 +28,7 @@ export enum ChartIconType {
   RELATIVE_AREA = 'relativeArea',
   SCATTER = 'scatter',
   PIE = 'pie',
-  METRIC = 'metric'
+  METRIC = 'metric',
 }
 
 export const CHART_ICON_LIST: {
@@ -40,12 +40,12 @@ export const CHART_ICON_LIST: {
   {
     id: ChartIconType.STACKED_COLUMN,
     icon: ChartIcon_StackedColumn,
-    tooltipText: 'Stacked Column'
+    tooltipText: 'Stacked Column',
   },
   {
     id: ChartIconType.RELATIVE_STACKED_COLUMN,
     icon: ChartIcon_StackedColumnRelative,
-    tooltipText: 'Relative Stacked Column'
+    tooltipText: 'Relative Stacked Column',
   },
   { id: ChartIconType.LINE, icon: ChartIcon_Line, tooltipText: 'Line' },
   { id: ChartIconType.COMBO, icon: ChartIcon_Combo, tooltipText: 'Combo' },
@@ -55,17 +55,17 @@ export const CHART_ICON_LIST: {
   {
     id: ChartIconType.RELATIVE_STACKED_BAR,
     icon: ChartIcon_StackedBarRelative,
-    tooltipText: 'Percent Stacked Bar'
+    tooltipText: 'Percent Stacked Bar',
   },
   { id: ChartIconType.AREA, icon: ChartIcon_Area, tooltipText: 'Area' },
   {
     id: ChartIconType.RELATIVE_AREA,
     icon: ChartIcon_AreaRelative,
-    tooltipText: 'Percent Stacked Area'
+    tooltipText: 'Percent Stacked Area',
   },
   { id: ChartIconType.SCATTER, icon: ChartIcon_Scatter, tooltipText: 'Scatter' },
   { id: ChartIconType.PIE, icon: ChartIcon_Pie, tooltipText: 'Pie' },
-  { id: ChartIconType.METRIC, icon: ChartIcon_Metric, tooltipText: 'Metric' }
+  { id: ChartIconType.METRIC, icon: ChartIcon_Metric, tooltipText: 'Metric' },
 ];
 
 export const DETERMINE_SELECTED_CHART_TYPE_ORDER: readonly ChartIconType[] = [
@@ -82,5 +82,5 @@ export const DETERMINE_SELECTED_CHART_TYPE_ORDER: readonly ChartIconType[] = [
   ChartIconType.RELATIVE_AREA,
   ChartIconType.SCATTER,
   ChartIconType.PIE,
-  ChartIconType.METRIC
+  ChartIconType.METRIC,
 ];

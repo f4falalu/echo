@@ -62,7 +62,7 @@ export const validateMetricYaml = (
       startLineNumber: lineNumber,
       startColumn: columnNumber,
       endLineNumber: lineNumber,
-      endColumn: columnNumber
+      endColumn: columnNumber,
     });
 
     return markers;
@@ -76,7 +76,7 @@ export const validateMetricYaml = (
       startLineNumber: 1,
       startColumn: 1,
       endLineNumber: 1,
-      endColumn: 1
+      endColumn: 1,
     });
     return markers;
   }
@@ -94,7 +94,7 @@ export const validateMetricYaml = (
         startLineNumber: findLineNumberForKey(content, key) || 1,
         startColumn: 1,
         endLineNumber: findLineNumberForKey(content, key) || 1,
-        endColumn: 100
+        endColumn: 100,
       });
     }
   }
@@ -108,7 +108,7 @@ export const validateMetricYaml = (
         startLineNumber: 1,
         startColumn: 1,
         endLineNumber: 1,
-        endColumn: 100
+        endColumn: 100,
       });
     }
   }
@@ -122,7 +122,7 @@ export const validateMetricYaml = (
       startLineNumber: lineNumber,
       startColumn: 1,
       endLineNumber: lineNumber,
-      endColumn: content.split('\n')[lineNumber - 1]?.length || 1
+      endColumn: content.split('\n')[lineNumber - 1]?.length || 1,
     });
   }
 
@@ -134,7 +134,7 @@ export const validateMetricYaml = (
       startLineNumber: lineNumber,
       startColumn: 1,
       endLineNumber: lineNumber,
-      endColumn: content.split('\n')[lineNumber - 1]?.length || 1
+      endColumn: content.split('\n')[lineNumber - 1]?.length || 1,
     });
   }
 
@@ -146,7 +146,7 @@ export const validateMetricYaml = (
       startLineNumber: lineNumber,
       startColumn: 1,
       endLineNumber: lineNumber,
-      endColumn: content.split('\n')[lineNumber - 1]?.length || 1
+      endColumn: content.split('\n')[lineNumber - 1]?.length || 1,
     });
   }
 
@@ -164,7 +164,7 @@ export const validateMetricYaml = (
         startLineNumber: siblingsLineNumber,
         startColumn: 1,
         endLineNumber: siblingsLineNumber,
-        endColumn: content.split('\n')[siblingsLineNumber - 1]?.length || 1
+        endColumn: content.split('\n')[siblingsLineNumber - 1]?.length || 1,
       });
     } else {
       // Validate that each sibling's age is a number
@@ -186,7 +186,7 @@ export const validateMetricYaml = (
             startLineNumber: siblingLineNumber,
             startColumn: 1,
             endLineNumber: siblingLineNumber,
-            endColumn: lines[siblingLineNumber - 1]?.length || 1
+            endColumn: lines[siblingLineNumber - 1]?.length || 1,
           });
         }
       }
@@ -225,12 +225,12 @@ const configureYamlSchema = (
                 Age: { type: 'number' },
                 Siblings: {
                   type: 'object',
-                  additionalProperties: { type: 'number' }
-                }
-              }
-            }
-          }
-        ]
+                  additionalProperties: { type: 'number' },
+                },
+              },
+            },
+          },
+        ],
       });
     }
   }
@@ -277,7 +277,7 @@ export const MyYamlEditor: React.FC = () => {
       value={initialValue}
       onMount={editorDidMount}
       options={{
-        automaticLayout: true
+        automaticLayout: true,
       }}
     />
   );

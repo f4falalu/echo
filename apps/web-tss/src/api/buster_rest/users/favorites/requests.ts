@@ -1,14 +1,9 @@
 import type { ShareAssetType } from '@buster/server-shared/share';
 import type { UserFavoriteResponse } from '@buster/server-shared/user';
-import { serverFetch } from '../../../createServerInstance';
 import { mainApi } from '../../instances';
 
 export const getUserFavorites = async () => {
   return mainApi.get<UserFavoriteResponse>('/users/favorites').then((response) => response.data);
-};
-
-export const getUserFavorites_server = async () => {
-  return serverFetch<UserFavoriteResponse>('/users/favorites');
 };
 
 export const createUserFavorite = async (

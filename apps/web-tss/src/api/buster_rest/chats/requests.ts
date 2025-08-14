@@ -1,22 +1,18 @@
-import {
-  type DeleteChatsRequest,
-  type DuplicateChatRequest,
-  type DuplicateChatResponse,
-  type GetChatRequest,
-  type GetChatResponse,
-  type GetChatsListRequest,
-  type GetChatsListResponse,
-  type GetLogsListRequest,
-  GetLogsListRequestSchema,
-  type GetLogsListResponse,
-  type UpdateChatMessageFeedbackRequest,
-  type UpdateChatMessageFeedbackResponse,
-  type UpdateChatRequest,
-  type UpdateChatResponse,
+import type {
+  DeleteChatsRequest,
+  DuplicateChatRequest,
+  DuplicateChatResponse,
+  GetChatRequest,
+  GetChatResponse,
+  GetChatsListRequest,
+  GetChatsListResponse,
+  GetLogsListRequest,
+  GetLogsListResponse,
+  UpdateChatMessageFeedbackRequest,
+  UpdateChatMessageFeedbackResponse,
+  UpdateChatRequest,
+  UpdateChatResponse,
 } from '@buster/server-shared/chats';
-import { createServerFn } from '@tanstack/react-start';
-import { createAxiosInstance } from '../../createAxiosInstance';
-import { serverFetch } from '../../createServerInstance';
 import { mainApi, mainApiV2 } from '../instances';
 
 const CHATS_BASE = '/chats';

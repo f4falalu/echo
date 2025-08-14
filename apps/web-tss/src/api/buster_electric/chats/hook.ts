@@ -1,6 +1,5 @@
-import { useMemo, useRef } from 'react';
-import { useChatUpdate } from '@/context/Chats/useChatUpdate';
-import { useMemoizedFn } from '@/hooks';
+import { useMemo } from 'react';
+import { useChatUpdate } from '@/api/buster_rest/chats/useChatUpdate';
 import { useShape, useShapeStream } from '../instances';
 import { type BusterChatWithoutMessages, chatShape } from './shapes';
 
@@ -14,7 +13,6 @@ const updateOperations: Array<`insert` | `update` | `delete`> = ['update'];
 export const useTrackAndUpdateChatChanges = (
   {
     chatId,
-    isStreamingMessage,
   }: {
     chatId: string | undefined;
     isStreamingMessage: boolean;
@@ -28,12 +26,12 @@ export const useTrackAndUpdateChatChanges = (
   return useShapeStream(
     shape,
     updateOperations,
-    useMemoizedFn((chat) => {
-      if (chat && chat.value) {
+    (chat) => {
+      if (chat?.value) {
         callback?.(chat.value);
         onUpdateChat(chat.value);
       }
-    }),
+    },
     subscribe
   );
 };

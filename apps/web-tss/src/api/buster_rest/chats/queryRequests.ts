@@ -39,7 +39,7 @@ export const useGetListChats = (
     [filters]
   );
 
-  const queryFn = useMemoizedFn(() => getListChats(filtersCompiled));
+  const queryFn = () => getListChats(filtersCompiled);
 
   return useQuery({
     ...chatQueryKeys.chatsGetList(filtersCompiled),
@@ -69,7 +69,7 @@ export const useGetListLogs = (
     [filters]
   );
 
-  const queryFn = useMemoizedFn(() => getListLogs(filtersCompiled));
+  const queryFn = () => getListLogs(filtersCompiled);
 
   return useQuery({
     ...chatQueryKeys.logsGetList(filtersCompiled),
@@ -82,7 +82,7 @@ export const useGetChat = <TData = IBusterChat>(
   options?: Omit<UseQueryOptions<IBusterChat, RustApiError, TData>, 'queryKey' | 'queryFn'>
 ) => {
   const queryClient = useQueryClient();
-  const queryFn = useMemoizedFn(() => {
+  const queryFn = () => {
     return getChat(params).then((chat) => {
       const { iChat, iChatMessages } = updateChatToIChat(chat);
       const lastMessageId = last(iChat.message_ids);
@@ -110,7 +110,7 @@ export const useGetChat = <TData = IBusterChat>(
 
       return iChat;
     });
-  });
+  };
 
   return useQuery({
     ...chatQueryKeys.chatsGetChat(params.id),

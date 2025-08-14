@@ -1,10 +1,10 @@
 import { type QueryClient, type UseQueryOptions, useQuery } from '@tanstack/react-query';
 import { useMemo } from 'react';
 import { metricsQueryKeys } from '@/api/query_keys/metric';
-import { useUserConfigContextSelector } from '@/context/Users';
-import { useMemoizedFn } from '@/hooks';
-import { hasOrganizationId, isQueryStale } from '@/lib';
+import { isQueryStale } from '@/lib/query';
 import type { RustApiError } from '../../errors';
+import { useGetUserOrganizationId } from '../users/useGetUserInfo';
+import { hasOrganizationId } from '../users/userQueryHelpers';
 import { listMetrics } from './requests';
 
 export const useGetMetricsList = (
@@ -14,12 +14,12 @@ export const useGetMetricsList = (
     'queryKey' | 'queryFn' | 'initialData'
   >
 ) => {
-  const organizationId = useUserConfigContextSelector((state) => state.userOrganizations?.id);
+  const organizationId = useGetUserOrganizationId();
   const compiledParams: Parameters<typeof listMetrics>[0] = useMemo(
     () => ({ status: [], ...params, page_token: 0, page_size: 3500 }),
     [params]
   );
-  const queryFn = useMemoizedFn(() => listMetrics(compiledParams));
+  const queryFn = () => listMetrics(compiledParams);
 
   return useQuery({
     ...metricsQueryKeys.metricsGetList(compiledParams),

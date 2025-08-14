@@ -12,8 +12,9 @@ import type { BusterCollection } from '@/api/asset_interfaces/collection';
 import { collectionQueryKeys } from '@/api/query_keys/collection';
 import { getProtectedAssetPassword } from '@/context/BusterAssets/useProtectedAssetStore';
 import { useBusterNotifications } from '@/context/BusterNotifications';
-import { hasOrganizationId, isQueryStale } from '@/lib/query';
+import { isQueryStale } from '@/lib/query';
 import type { RustApiError } from '../../errors';
+import { hasOrganizationId } from '../users/userQueryHelpers';
 import {
   addAssetToCollection,
   collectionsCreateCollection,

@@ -5,8 +5,6 @@ import type {
   UpdateReportRequest,
   UpdateReportResponse,
 } from '@buster/server-shared/reports';
-import { serverFetch } from '@/api/createServerInstance';
-import { BASE_URL_V2 } from '../config';
 import { mainApiV2 } from '../instances';
 
 /**
@@ -20,31 +18,10 @@ export const getReportsList = async (params?: GetReportsListRequest) => {
 };
 
 /**
- * Server-side version of getReportsList
- */
-export const getReportsList_server = async (params?: Parameters<typeof getReportsList>[0]) => {
-  const { page = 1, page_size = 5000, ...allParams } = params || {};
-  return await serverFetch<GetReportsListResponse>('/reports', {
-    baseURL: BASE_URL_V2,
-    params: { page, page_size, ...allParams },
-  });
-};
-
-/**
  * Get an individual report by ID
  */
 export const getReportById = async (reportId: string) => {
   return mainApiV2.get<GetReportIndividualResponse>(`/reports/${reportId}`).then((res) => res.data);
-};
-
-/**
- * Server-side version of getReportById
- */
-export const getReportById_server = async (reportId: string) => {
-  return await serverFetch<GetReportIndividualResponse>(`/reports/${reportId}`, {
-    baseURL: BASE_URL_V2,
-    method: 'GET',
-  });
 };
 
 /**

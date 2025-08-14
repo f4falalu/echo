@@ -1,5 +1,4 @@
 import type { DataResult } from '@buster/server-shared/metrics';
-import { serverFetch } from '@/api/createServerInstance';
 import type { BusterDataset, BusterDatasetListItem } from '../../asset_interfaces';
 import { mainApi } from '../instances';
 
@@ -27,23 +26,10 @@ export const getDatasets = async (params?: {
     .then((res) => res.data);
 };
 
-export const getDatasets_server = async (
-  params?: Parameters<typeof getDatasets>[0]
-): Promise<BusterDatasetListItem[]> => {
-  const { page = 0, page_size = 1000, ...allParams } = params || {};
-  return await serverFetch<BusterDatasetListItem[]>('/datasets', {
-    params: { page, page_size, ...allParams },
-  });
-};
-
 const GET_DATASET_URL = (datasetId: string) => `/datasets/${datasetId}`;
 
 export const getDatasetMetadata = async (datasetId: string): Promise<BusterDataset> => {
   return await mainApi.get<BusterDataset>(GET_DATASET_URL(datasetId)).then((res) => res.data);
-};
-
-export const getDatasetMetadata_server = async (datasetId: string) => {
-  return await serverFetch<BusterDataset>(GET_DATASET_URL(datasetId));
 };
 
 export const getDatasetDataSample = async (datasetId: string) => {

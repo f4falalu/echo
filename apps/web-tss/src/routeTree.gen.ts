@@ -18,8 +18,12 @@ import { Route as AuthResetPasswordRouteImport } from './routes/auth.reset-passw
 import { Route as AuthLogoutRouteImport } from './routes/auth.logout'
 import { Route as AuthLoginRouteImport } from './routes/auth.login'
 import { Route as AppHomeRouteImport } from './routes/app.home'
-import { Route as AppDashboardsRouteImport } from './routes/app.dashboards'
+import { Route as AppReportsIndexRouteImport } from './routes/app.reports.index'
+import { Route as AppMetricsIndexRouteImport } from './routes/app.metrics.index'
+import { Route as AppDashboardsIndexRouteImport } from './routes/app.dashboards.index'
 import { Route as AppChatsIndexRouteImport } from './routes/app.chats.index'
+import { Route as AppReportsReportIdRouteImport } from './routes/app.reports.$reportId'
+import { Route as AppMetricsMetricIdRouteImport } from './routes/app.metrics.$metricId'
 import { Route as AppDashboardsDashboardIdRouteImport } from './routes/app.dashboards.$dashboardId'
 import { Route as AppChatsChatIdRouteImport } from './routes/app.chats.$chatId'
 import { ServerRoute as AuthCallbackServerRouteImport } from './routes/auth.callback'
@@ -61,9 +65,19 @@ const AppHomeRoute = AppHomeRouteImport.update({
   path: '/home',
   getParentRoute: () => AppRoute,
 } as any)
-const AppDashboardsRoute = AppDashboardsRouteImport.update({
-  id: '/dashboards',
-  path: '/dashboards',
+const AppReportsIndexRoute = AppReportsIndexRouteImport.update({
+  id: '/reports/',
+  path: '/reports/',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppMetricsIndexRoute = AppMetricsIndexRouteImport.update({
+  id: '/metrics/',
+  path: '/metrics/',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppDashboardsIndexRoute = AppDashboardsIndexRouteImport.update({
+  id: '/dashboards/',
+  path: '/dashboards/',
   getParentRoute: () => AppRoute,
 } as any)
 const AppChatsIndexRoute = AppChatsIndexRouteImport.update({
@@ -71,11 +85,21 @@ const AppChatsIndexRoute = AppChatsIndexRouteImport.update({
   path: '/chats/',
   getParentRoute: () => AppRoute,
 } as any)
+const AppReportsReportIdRoute = AppReportsReportIdRouteImport.update({
+  id: '/reports/$reportId',
+  path: '/reports/$reportId',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppMetricsMetricIdRoute = AppMetricsMetricIdRouteImport.update({
+  id: '/metrics/$metricId',
+  path: '/metrics/$metricId',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppDashboardsDashboardIdRoute =
   AppDashboardsDashboardIdRouteImport.update({
-    id: '/$dashboardId',
-    path: '/$dashboardId',
-    getParentRoute: () => AppDashboardsRoute,
+    id: '/dashboards/$dashboardId',
+    path: '/dashboards/$dashboardId',
+    getParentRoute: () => AppRoute,
   } as any)
 const AppChatsChatIdRoute = AppChatsChatIdRouteImport.update({
   id: '/chats/$chatId',
@@ -92,41 +116,53 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/app': typeof AppRouteWithChildren
   '/auth': typeof AuthRouteWithChildren
-  '/app/dashboards': typeof AppDashboardsRouteWithChildren
   '/app/home': typeof AppHomeRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/logout': typeof AuthLogoutRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
   '/app/chats/$chatId': typeof AppChatsChatIdRoute
   '/app/dashboards/$dashboardId': typeof AppDashboardsDashboardIdRoute
+  '/app/metrics/$metricId': typeof AppMetricsMetricIdRoute
+  '/app/reports/$reportId': typeof AppReportsReportIdRoute
   '/app/chats': typeof AppChatsIndexRoute
+  '/app/dashboards': typeof AppDashboardsIndexRoute
+  '/app/metrics': typeof AppMetricsIndexRoute
+  '/app/reports': typeof AppReportsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/app': typeof AppRouteWithChildren
   '/auth': typeof AuthRouteWithChildren
-  '/app/dashboards': typeof AppDashboardsRouteWithChildren
   '/app/home': typeof AppHomeRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/logout': typeof AuthLogoutRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
   '/app/chats/$chatId': typeof AppChatsChatIdRoute
   '/app/dashboards/$dashboardId': typeof AppDashboardsDashboardIdRoute
+  '/app/metrics/$metricId': typeof AppMetricsMetricIdRoute
+  '/app/reports/$reportId': typeof AppReportsReportIdRoute
   '/app/chats': typeof AppChatsIndexRoute
+  '/app/dashboards': typeof AppDashboardsIndexRoute
+  '/app/metrics': typeof AppMetricsIndexRoute
+  '/app/reports': typeof AppReportsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/app': typeof AppRouteWithChildren
   '/auth': typeof AuthRouteWithChildren
-  '/app/dashboards': typeof AppDashboardsRouteWithChildren
   '/app/home': typeof AppHomeRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/logout': typeof AuthLogoutRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
   '/app/chats/$chatId': typeof AppChatsChatIdRoute
   '/app/dashboards/$dashboardId': typeof AppDashboardsDashboardIdRoute
+  '/app/metrics/$metricId': typeof AppMetricsMetricIdRoute
+  '/app/reports/$reportId': typeof AppReportsReportIdRoute
   '/app/chats/': typeof AppChatsIndexRoute
+  '/app/dashboards/': typeof AppDashboardsIndexRoute
+  '/app/metrics/': typeof AppMetricsIndexRoute
+  '/app/reports/': typeof AppReportsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -134,40 +170,52 @@ export interface FileRouteTypes {
     | '/'
     | '/app'
     | '/auth'
-    | '/app/dashboards'
     | '/app/home'
     | '/auth/login'
     | '/auth/logout'
     | '/auth/reset-password'
     | '/app/chats/$chatId'
     | '/app/dashboards/$dashboardId'
+    | '/app/metrics/$metricId'
+    | '/app/reports/$reportId'
     | '/app/chats'
+    | '/app/dashboards'
+    | '/app/metrics'
+    | '/app/reports'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/app'
     | '/auth'
-    | '/app/dashboards'
     | '/app/home'
     | '/auth/login'
     | '/auth/logout'
     | '/auth/reset-password'
     | '/app/chats/$chatId'
     | '/app/dashboards/$dashboardId'
+    | '/app/metrics/$metricId'
+    | '/app/reports/$reportId'
     | '/app/chats'
+    | '/app/dashboards'
+    | '/app/metrics'
+    | '/app/reports'
   id:
     | '__root__'
     | '/'
     | '/app'
     | '/auth'
-    | '/app/dashboards'
     | '/app/home'
     | '/auth/login'
     | '/auth/logout'
     | '/auth/reset-password'
     | '/app/chats/$chatId'
     | '/app/dashboards/$dashboardId'
+    | '/app/metrics/$metricId'
+    | '/app/reports/$reportId'
     | '/app/chats/'
+    | '/app/dashboards/'
+    | '/app/metrics/'
+    | '/app/reports/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -248,11 +296,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppHomeRouteImport
       parentRoute: typeof AppRoute
     }
-    '/app/dashboards': {
-      id: '/app/dashboards'
+    '/app/reports/': {
+      id: '/app/reports/'
+      path: '/reports'
+      fullPath: '/app/reports'
+      preLoaderRoute: typeof AppReportsIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/metrics/': {
+      id: '/app/metrics/'
+      path: '/metrics'
+      fullPath: '/app/metrics'
+      preLoaderRoute: typeof AppMetricsIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/dashboards/': {
+      id: '/app/dashboards/'
       path: '/dashboards'
       fullPath: '/app/dashboards'
-      preLoaderRoute: typeof AppDashboardsRouteImport
+      preLoaderRoute: typeof AppDashboardsIndexRouteImport
       parentRoute: typeof AppRoute
     }
     '/app/chats/': {
@@ -262,12 +324,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppChatsIndexRouteImport
       parentRoute: typeof AppRoute
     }
+    '/app/reports/$reportId': {
+      id: '/app/reports/$reportId'
+      path: '/reports/$reportId'
+      fullPath: '/app/reports/$reportId'
+      preLoaderRoute: typeof AppReportsReportIdRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/metrics/$metricId': {
+      id: '/app/metrics/$metricId'
+      path: '/metrics/$metricId'
+      fullPath: '/app/metrics/$metricId'
+      preLoaderRoute: typeof AppMetricsMetricIdRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/app/dashboards/$dashboardId': {
       id: '/app/dashboards/$dashboardId'
-      path: '/$dashboardId'
+      path: '/dashboards/$dashboardId'
       fullPath: '/app/dashboards/$dashboardId'
       preLoaderRoute: typeof AppDashboardsDashboardIdRouteImport
-      parentRoute: typeof AppDashboardsRoute
+      parentRoute: typeof AppRoute
     }
     '/app/chats/$chatId': {
       id: '/app/chats/$chatId'
@@ -290,30 +366,28 @@ declare module '@tanstack/react-start/server' {
   }
 }
 
-interface AppDashboardsRouteChildren {
-  AppDashboardsDashboardIdRoute: typeof AppDashboardsDashboardIdRoute
-}
-
-const AppDashboardsRouteChildren: AppDashboardsRouteChildren = {
-  AppDashboardsDashboardIdRoute: AppDashboardsDashboardIdRoute,
-}
-
-const AppDashboardsRouteWithChildren = AppDashboardsRoute._addFileChildren(
-  AppDashboardsRouteChildren,
-)
-
 interface AppRouteChildren {
-  AppDashboardsRoute: typeof AppDashboardsRouteWithChildren
   AppHomeRoute: typeof AppHomeRoute
   AppChatsChatIdRoute: typeof AppChatsChatIdRoute
+  AppDashboardsDashboardIdRoute: typeof AppDashboardsDashboardIdRoute
+  AppMetricsMetricIdRoute: typeof AppMetricsMetricIdRoute
+  AppReportsReportIdRoute: typeof AppReportsReportIdRoute
   AppChatsIndexRoute: typeof AppChatsIndexRoute
+  AppDashboardsIndexRoute: typeof AppDashboardsIndexRoute
+  AppMetricsIndexRoute: typeof AppMetricsIndexRoute
+  AppReportsIndexRoute: typeof AppReportsIndexRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
-  AppDashboardsRoute: AppDashboardsRouteWithChildren,
   AppHomeRoute: AppHomeRoute,
   AppChatsChatIdRoute: AppChatsChatIdRoute,
+  AppDashboardsDashboardIdRoute: AppDashboardsDashboardIdRoute,
+  AppMetricsMetricIdRoute: AppMetricsMetricIdRoute,
+  AppReportsReportIdRoute: AppReportsReportIdRoute,
   AppChatsIndexRoute: AppChatsIndexRoute,
+  AppDashboardsIndexRoute: AppDashboardsIndexRoute,
+  AppMetricsIndexRoute: AppMetricsIndexRoute,
+  AppReportsIndexRoute: AppReportsIndexRoute,
 }
 
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)

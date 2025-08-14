@@ -1,6 +1,6 @@
 import { QueryClient, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { DataSourceTypes } from '@/api/asset_interfaces/datasources/interfaces';
-import { queryKeys } from '@/api/query_keys';
+import { datasourceQueryKeys } from '@/api/query_keys/datasources';
 import { useBusterNotifications } from '@/context/BusterNotifications';
 import {
   createBigQueryDataSource,
@@ -12,7 +12,6 @@ import {
   createSQLServerDataSource,
   deleteDatasource,
   getDatasource,
-  getDatasource_server,
   listDatasources,
   updateBigQueryDataSource,
   updateDatabricksDataSource,
@@ -41,7 +40,7 @@ import type {
 
 export const useListDatasources = (enabled = true) => {
   return useQuery({
-    ...queryKeys.datasourceGetList,
+    ...datasourceQueryKeys.datasourceGetList,
     queryFn: listDatasources,
     enabled,
   });
@@ -49,7 +48,7 @@ export const useListDatasources = (enabled = true) => {
 
 export const useGetDatasource = (id: string | undefined) => {
   return useQuery({
-    ...queryKeys.datasourceGet(id || ''),
+    ...datasourceQueryKeys.datasourceGet(id || ''),
     queryFn: () => getDatasource(id || ''),
     enabled: !!id,
   });
@@ -59,8 +58,8 @@ export const prefetchGetDatasource = async (id: string, queryClientProp?: QueryC
   const queryClient = queryClientProp || new QueryClient();
 
   await queryClient.prefetchQuery({
-    ...queryKeys.datasourceGet(id),
-    queryFn: () => getDatasource_server(id),
+    ...datasourceQueryKeys.datasourceGet(id),
+    queryFn: () => getDatasource(id),
   });
 
   return queryClient;
@@ -82,7 +81,7 @@ export const useDeleteDatasource = () => {
     mutationFn,
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: queryKeys.datasourceGetList.queryKey,
+        queryKey: datasourceQueryKeys.datasourceGetList.queryKey,
         refetchType: 'all',
       });
     },
@@ -95,7 +94,7 @@ export const useCreatePostgresDataSource = () => {
     mutationFn: createPostgresDataSource,
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: queryKeys.datasourceGetList.queryKey,
+        queryKey: datasourceQueryKeys.datasourceGetList.queryKey,
         refetchType: 'all',
       });
     },
@@ -108,11 +107,11 @@ export const useUpdatePostgresDataSource = () => {
     mutationFn: updatePostgresDataSource,
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
-        queryKey: queryKeys.datasourceGetList.queryKey,
+        queryKey: datasourceQueryKeys.datasourceGetList.queryKey,
         refetchType: 'all',
       });
       queryClient.invalidateQueries({
-        queryKey: queryKeys.datasourceGet(variables.id).queryKey,
+        queryKey: datasourceQueryKeys.datasourceGet(variables.id).queryKey,
         refetchType: 'all',
       });
     },
@@ -125,7 +124,7 @@ export const useCreateMySQLDataSource = () => {
     mutationFn: createMySQLDataSource,
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: queryKeys.datasourceGetList.queryKey,
+        queryKey: datasourceQueryKeys.datasourceGetList.queryKey,
       });
     },
   });
@@ -137,10 +136,10 @@ export const useUpdateMySQLDataSource = () => {
     mutationFn: updateMySQLDataSource,
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
-        queryKey: queryKeys.datasourceGetList.queryKey,
+        queryKey: datasourceQueryKeys.datasourceGetList.queryKey,
       });
       queryClient.invalidateQueries({
-        queryKey: queryKeys.datasourceGet(variables.id).queryKey,
+        queryKey: datasourceQueryKeys.datasourceGet(variables.id).queryKey,
       });
     },
   });
@@ -152,7 +151,7 @@ export const useCreateBigQueryDataSource = () => {
     mutationFn: createBigQueryDataSource,
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: queryKeys.datasourceGetList.queryKey,
+        queryKey: datasourceQueryKeys.datasourceGetList.queryKey,
       });
     },
   });
@@ -164,10 +163,10 @@ export const useUpdateBigQueryDataSource = () => {
     mutationFn: updateBigQueryDataSource,
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
-        queryKey: queryKeys.datasourceGetList.queryKey,
+        queryKey: datasourceQueryKeys.datasourceGetList.queryKey,
       });
       queryClient.invalidateQueries({
-        queryKey: queryKeys.datasourceGet(variables.id).queryKey,
+        queryKey: datasourceQueryKeys.datasourceGet(variables.id).queryKey,
       });
     },
   });
@@ -179,7 +178,7 @@ export const useCreateRedshiftDataSource = () => {
     mutationFn: createRedshiftDataSource,
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: queryKeys.datasourceGetList.queryKey,
+        queryKey: datasourceQueryKeys.datasourceGetList.queryKey,
       });
     },
   });
@@ -191,10 +190,10 @@ export const useUpdateRedshiftDataSource = () => {
     mutationFn: updateRedshiftDataSource,
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
-        queryKey: queryKeys.datasourceGetList.queryKey,
+        queryKey: datasourceQueryKeys.datasourceGetList.queryKey,
       });
       queryClient.invalidateQueries({
-        queryKey: queryKeys.datasourceGet(variables.id).queryKey,
+        queryKey: datasourceQueryKeys.datasourceGet(variables.id).queryKey,
       });
     },
   });
@@ -206,7 +205,7 @@ export const useCreateSnowflakeDataSource = () => {
     mutationFn: createSnowflakeDataSource,
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: queryKeys.datasourceGetList.queryKey,
+        queryKey: datasourceQueryKeys.datasourceGetList.queryKey,
       });
     },
   });
@@ -218,10 +217,10 @@ export const useUpdateSnowflakeDataSource = () => {
     mutationFn: updateSnowflakeDataSource,
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
-        queryKey: queryKeys.datasourceGetList.queryKey,
+        queryKey: datasourceQueryKeys.datasourceGetList.queryKey,
       });
       queryClient.invalidateQueries({
-        queryKey: queryKeys.datasourceGet(variables.id).queryKey,
+        queryKey: datasourceQueryKeys.datasourceGet(variables.id).queryKey,
       });
     },
   });
@@ -233,7 +232,7 @@ export const useCreateDatabricksDataSource = () => {
     mutationFn: createDatabricksDataSource,
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: queryKeys.datasourceGetList.queryKey,
+        queryKey: datasourceQueryKeys.datasourceGetList.queryKey,
       });
     },
   });
@@ -245,10 +244,10 @@ export const useUpdateDatabricksDataSource = () => {
     mutationFn: updateDatabricksDataSource,
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
-        queryKey: queryKeys.datasourceGetList.queryKey,
+        queryKey: datasourceQueryKeys.datasourceGetList.queryKey,
       });
       queryClient.invalidateQueries({
-        queryKey: queryKeys.datasourceGet(variables.id).queryKey,
+        queryKey: datasourceQueryKeys.datasourceGet(variables.id).queryKey,
       });
     },
   });
@@ -260,7 +259,7 @@ export const useCreateSQLServerDataSource = () => {
     mutationFn: createSQLServerDataSource,
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: queryKeys.datasourceGetList.queryKey,
+        queryKey: datasourceQueryKeys.datasourceGetList.queryKey,
       });
     },
   });
@@ -272,10 +271,10 @@ export const useUpdateSQLServerDataSource = () => {
     mutationFn: updateSQLServerDataSource,
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
-        queryKey: queryKeys.datasourceGetList.queryKey,
+        queryKey: datasourceQueryKeys.datasourceGetList.queryKey,
       });
       queryClient.invalidateQueries({
-        queryKey: queryKeys.datasourceGet(variables.id).queryKey,
+        queryKey: datasourceQueryKeys.datasourceGet(variables.id).queryKey,
       });
     },
   });

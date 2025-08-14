@@ -1,7 +1,6 @@
 import type { GetUserToOrganizationResponse } from '@buster/server-shared/user';
 import { keepPreviousData, type UseQueryOptions, useQuery } from '@tanstack/react-query';
 import { userQueryKeys } from '@/api/query_keys/users';
-import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import type { RustApiError } from '../../../errors';
 import { getUserToOrganization } from './requests';
 
@@ -12,7 +11,7 @@ export const useGetUserToOrganization = <TData = GetUserToOrganizationResponse>(
     'queryKey' | 'queryFn'
   >
 ) => {
-  const queryFn = useMemoizedFn(() => getUserToOrganization(params));
+  const queryFn = () => getUserToOrganization(params);
 
   return useQuery({
     ...userQueryKeys.userGetUserToOrganization(params),

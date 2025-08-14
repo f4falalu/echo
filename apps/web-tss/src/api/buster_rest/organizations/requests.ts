@@ -4,7 +4,6 @@ import type {
   UpdateOrganizationRequest,
   UpdateOrganizationResponse,
 } from '@buster/server-shared/organization';
-import { serverFetch } from '../../createServerInstance';
 import { mainApi, mainApiV2 } from '../instances';
 
 export const getOrganizationUsers = async ({
@@ -15,14 +14,6 @@ export const getOrganizationUsers = async ({
   return mainApi
     .get<OrganizationUser[]>(`/organizations/${organizationId}/users`)
     .then((response) => response.data);
-};
-
-export const getOrganizationUsers_server = async ({
-  organizationId,
-}: {
-  organizationId: string;
-}): Promise<OrganizationUser[]> => {
-  return serverFetch<OrganizationUser[]>(`/organizations/${organizationId}/users`);
 };
 
 export const createOrganization = async (organization: { name: string }) => {

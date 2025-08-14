@@ -8,7 +8,6 @@ import {
 import { getShapeStream, useShape as useElectricShape } from '@electric-sql/react';
 import { useEffect, useMemo, useRef } from 'react';
 import { useSupabaseContext } from '@/context/Supabase';
-import { useMemoizedFn } from '../../hooks';
 import { ELECTRIC_BASE_URL } from './config';
 
 export type ElectricShapeOptions<T extends Row<unknown> = Row<unknown>> = Omit<
@@ -59,9 +58,9 @@ export const useShapeStream = <T extends Row<unknown> = Row<unknown>>(
 ) => {
   const accessToken = useSupabaseContext((s) => s.accessToken);
   const memoParams = useMemo(() => params, [JSON.stringify(params)]);
-  const abortRef = useRef<AbortController>();
+  const abortRef = useRef<AbortController>(null);
 
-  const createStream = useMemoizedFn(() => {
+  const createStream = () => {
     abortRef.current?.abort();
     const controller = new AbortController();
     abortRef.current = controller;
@@ -73,7 +72,7 @@ export const useShapeStream = <T extends Row<unknown> = Row<unknown>>(
       ...opts,
       signal: controller.signal,
     });
-  });
+  };
 
   useEffect(() => {
     if (!subscribe) {

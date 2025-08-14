@@ -1,16 +1,13 @@
 import { QueryClient, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { queryKeys } from '@/api/query_keys';
 import { datasetQueryKeys } from '@/api/query_keys/datasets';
-import { useMemoizedFn } from '@/hooks';
+import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import {
   createDataset,
   deleteDataset,
   deployDataset,
   getDatasetDataSample,
   getDatasetMetadata,
-  getDatasetMetadata_server,
   getDatasets,
-  getDatasets_server,
   updateDataset,
 } from './requests';
 
@@ -18,12 +15,12 @@ const options = datasetQueryKeys.datasetsListQueryOptions();
 const baseDatasetQueryKey = options.queryKey;
 
 export const useGetDatasets = (params?: Parameters<typeof getDatasets>[0]) => {
-  const queryFn = useMemoizedFn(() => {
+  const queryFn = () => {
     return getDatasets(params);
-  });
+  };
 
   return useQuery({
-    ...queryKeys.datasetsListQueryOptions(params),
+    ...datasetQueryKeys.datasetsListQueryOptions(params),
     queryFn,
     enabled: true,
   });
@@ -36,26 +33,26 @@ export const prefetchGetDatasets = async (
   const queryClient = queryClientProp || new QueryClient();
 
   await queryClient.prefetchQuery({
-    ...queryKeys.datasetsListQueryOptions(params),
-    queryFn: () => getDatasets_server(params),
+    ...datasetQueryKeys.datasetsListQueryOptions(params),
+    queryFn: () => getDatasets(params),
   });
 
   return queryClient;
 };
 
 export const useGetDatasetData = (datasetId: string | undefined) => {
-  const queryFn = useMemoizedFn(() => getDatasetDataSample(datasetId || ''));
+  const queryFn = () => getDatasetDataSample(datasetId || '');
   return useQuery({
-    ...queryKeys.datasetData(datasetId || ''),
+    ...datasetQueryKeys.datasetData(datasetId || ''),
     queryFn,
     enabled: !!datasetId,
   });
 };
 
 export const useGetDatasetMetadata = (datasetId: string | undefined) => {
-  const queryFn = useMemoizedFn(() => getDatasetMetadata(datasetId || ''));
+  const queryFn = () => getDatasetMetadata(datasetId || '');
   const res = useQuery({
-    ...queryKeys.datasetMetadata(datasetId || ''),
+    ...datasetQueryKeys.datasetMetadata(datasetId || ''),
     queryFn,
     enabled: !!datasetId,
   });
@@ -68,8 +65,8 @@ export const prefetchGetDatasetMetadata = async (
 ) => {
   const queryClient = queryClientProp || new QueryClient();
   await queryClient.prefetchQuery({
-    ...queryKeys.datasetMetadata(datasetId),
-    queryFn: () => getDatasetMetadata_server(datasetId),
+    ...datasetQueryKeys.datasetMetadata(datasetId),
+    queryFn: () => getDatasetMetadata(datasetId),
   });
   return queryClient;
 };

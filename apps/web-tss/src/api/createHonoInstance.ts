@@ -10,8 +10,8 @@
  */
 
 export const createHonoInstance = (
-  baseURL: string,
-  getAccessToken: () => Promise<{
+  _baseURL: string,
+  _getAccessToken: () => Promise<{
     access_token: string;
   }>
 ) => {

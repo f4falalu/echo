@@ -1,14 +1,6 @@
 import { Store, useStore } from '@tanstack/react-store';
 import type { BusterDashboard } from '@/api/asset_interfaces/dashboard';
 
-// type OriginalDashboardStore = {
-//   originalDashboards: Record<string, BusterDashboard>;
-//   bulkAddOriginalDashboards: (dashboards: Record<string, BusterDashboard>) => void;
-//   setOriginalDashboard: (dashboard: BusterDashboard) => void;
-//   getOriginalDashboard: (dashboardId: string | undefined) => BusterDashboard | undefined;
-//   removeOriginalDashboard: (dashboardId: string) => void;
-// };
-
 const originalDashboardStore = new Store(new Map<string, BusterDashboard>());
 
 export const bulkAddOriginalDashboards = (dashboards: Record<string, BusterDashboard>) => {
@@ -35,4 +27,12 @@ export const removeOriginalDashboard = (dashboardId: string) => {
 
 export const useOriginalDashboardStore = () => {
   return useStore(originalDashboardStore);
+};
+
+const stableSelectOriginalDashboard = (dashboardId: string) => {
+  return (state: Map<string, BusterDashboard>) => state.get(dashboardId);
+};
+
+export const useGetOriginalDashboard = (dashboardId: string) => {
+  return useStore(originalDashboardStore, stableSelectOriginalDashboard(dashboardId));
 };

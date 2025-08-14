@@ -11,14 +11,7 @@ import { userQueryKeys } from '@/api/query_keys/users';
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import type { RustApiError } from '../../errors';
 import { useCreateOrganization } from '../organizations/queryRequests';
-import {
-  getMyUserInfo,
-  getMyUserInfo_server,
-  getUser,
-  getUser_server,
-  inviteUser,
-  updateOrganizationUser,
-} from './requests';
+import { getMyUserInfo, getUser, inviteUser, updateOrganizationUser } from './requests';
 
 export const useGetMyUserInfo = <TData = UserResponse>(
   props?: Omit<UseQueryOptions<UserResponse | null, RustApiError, TData>, 'queryKey' | 'queryFn'>
@@ -32,20 +25,17 @@ export const useGetMyUserInfo = <TData = UserResponse>(
   });
 };
 
-export const prefetchGetMyUserInfo = async (
-  params: Parameters<typeof getMyUserInfo_server>[0],
-  queryClientProp?: QueryClient
-) => {
+export const prefetchGetMyUserInfo = async (queryClientProp?: QueryClient) => {
   const queryClient = queryClientProp || new QueryClient();
   await queryClient.prefetchQuery({
     ...userQueryKeys.userGetUserMyself,
-    queryFn: () => getMyUserInfo_server(params),
+    queryFn: () => getMyUserInfo(),
   });
   return queryClient;
 };
 
 export const useGetUser = (params: Parameters<typeof getUser>[0]) => {
-  const queryFn = useMemoizedFn(() => getUser(params));
+  const queryFn = () => getUser(params);
   return useQuery({
     ...userQueryKeys.userGetUser(params.userId),
     queryFn,
@@ -76,7 +66,7 @@ export const prefetchGetUser = async (userId: string, queryClientProp?: QueryCli
   const queryClient = queryClientProp || new QueryClient();
   await queryClient.prefetchQuery({
     ...userQueryKeys.userGetUser(userId),
-    queryFn: () => getUser_server({ userId }),
+    queryFn: () => getUser({ userId }),
   });
   return queryClient;
 };
