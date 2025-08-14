@@ -25,26 +25,15 @@ export const ASSET_ICONS = {
 export const assetTypeToIcon = (assetType: ShareAssetType) => {
   switch (assetType) {
     case 'metric':
-    case 'metric_file':
       return ASSET_ICONS.metrics;
     case 'dashboard':
-    case 'dashboard_file':
       return ASSET_ICONS.dashboards;
     case 'collection':
-    case 'collection_file':
       return ASSET_ICONS.collections;
     case 'chat':
-    case 'thread':
       return ASSET_ICONS.chats;
     case 'report':
       return ASSET_ICONS.reports;
-    case 'data_source':
-    case 'filter':
-    case 'dataset':
-    case 'tool':
-    case 'source':
-    case 'dataset_permission':
-      return ASSET_ICONS.table;
     default: {
       const _result: never = assetType;
       return ASSET_ICONS.metrics;
