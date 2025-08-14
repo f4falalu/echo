@@ -6,7 +6,7 @@ import type {
 import type {
   SharePostRequest,
   ShareDeleteRequest,
-  SharePermissionsUpdateRequest
+  ShareUpdateRequest
 } from '@buster/server-shared/share';
 import mainApi from '@/api/buster_rest/instances';
 import { serverFetch } from '@/api/createServerInstance';
@@ -103,7 +103,7 @@ export const updateDashboardShare = async ({
   id
 }: {
   id: string;
-  params: SharePermissionsUpdateRequest;
+  params: ShareUpdateRequest;
 }) => {
   return mainApi
     .put<BusterDashboardResponse>(`/dashboards/${id}/sharing`, params)

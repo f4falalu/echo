@@ -17,7 +17,7 @@ import type {
   ShareUpdateResponse,
   MetricDownloadResponse
 } from '@buster/server-shared/metrics';
-import type { ShareDeleteRequest, SharePermissionsUpdateRequest } from '@buster/server-shared/share';
+import type { ShareDeleteRequest, ShareUpdateRequest } from '@buster/server-shared/share';
 import { serverFetch } from '@/api/createServerInstance';
 import { mainApi, mainApiV2 } from '../instances';
 import { SharePostRequest } from '@buster/server-shared/share';
@@ -99,7 +99,7 @@ export const updateMetricShare = async ({
   id
 }: {
   id: string;
-  params: SharePermissionsUpdateRequest;
+  params: ShareUpdateRequest;
 }) => {
   return mainApi
     .put<ShareUpdateResponse>(`/metric_files/${id}/sharing`, params)

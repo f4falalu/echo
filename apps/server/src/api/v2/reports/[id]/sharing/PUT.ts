@@ -1,8 +1,8 @@
 import { getUserOrganizationId, updateReport } from '@buster/database';
 import type { ShareUpdateResponse, UpdateReportResponse } from '@buster/server-shared/reports';
 import {
-  type SharePermissionsUpdateRequest,
-  SharePermissionsUpdateRequestSchema,
+  type ShareUpdateRequest,
+  ShareUpdateRequestSchema,
 } from '@buster/server-shared/share';
 import { zValidator } from '@hono/zod-validator';
 import { Hono } from 'hono';
@@ -11,7 +11,7 @@ import { getReportHandler } from '../GET';
 
 async function updateReportShareHandler(
   reportId: string,
-  request: SharePermissionsUpdateRequest,
+  request: ShareUpdateRequest,
   user: { id: string; organizationId: string }
 ) {
   const _hasPermissionToEditAssetPermissions = true; //DALLIN: Check if user has permission to edit asset permissions
@@ -47,7 +47,7 @@ async function updateReportShareHandler(
 
 const app = new Hono().put(
   '/',
-  zValidator('json', SharePermissionsUpdateRequestSchema),
+  zValidator('json', ShareUpdateRequestSchema),
   async (c) => {
     const reportId = c.req.param('id');
     const request = c.req.valid('json');

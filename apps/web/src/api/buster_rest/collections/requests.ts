@@ -2,7 +2,7 @@ import type { ShareAssetType } from '@buster/server-shared/share';
 import type { BusterCollection, BusterCollectionListItem } from '@/api/asset_interfaces/collection';
 import mainApi from '@/api/buster_rest/instances';
 import type { SharePostRequest } from '@buster/server-shared/share';
-import type { ShareDeleteRequest, SharePermissionsUpdateRequest } from '@buster/server-shared/share';
+import type { ShareDeleteRequest, ShareUpdateRequest } from '@buster/server-shared/share';
 
 export const collectionsGetList = async (params: {
   /** Current page number (1-based indexing) */
@@ -91,7 +91,7 @@ export const updateCollectionShare = async ({
   id
 }: {
   id: string;
-  params: SharePermissionsUpdateRequest;
+  params: ShareUpdateRequest;
 }) => {
   return mainApi
     .put<BusterCollection>(`/collections/${id}/sharing`, params)
