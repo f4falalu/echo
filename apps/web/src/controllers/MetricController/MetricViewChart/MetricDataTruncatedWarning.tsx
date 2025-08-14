@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Text } from '@/components/ui/typography';
 import { Button } from '@/components/ui/buttons';
-import { Download4 } from '@/components/ui/icons';
+import { Download4, CircleWarning } from '@/components/ui/icons';
 import { cn } from '@/lib/classMerge';
 import { downloadMetricFile } from '@/api/buster_rest/metrics/requests';
 
@@ -15,21 +15,30 @@ export const MetricDataTruncatedWarning: React.FC<MetricDataTruncatedWarningProp
   metricId
 }) => {
   const [isDownloading, setIsDownloading] = useState(false);
+  const [hasError, setHasError] = useState(false);
 
   const handleDownload = async () => {
     try {
       setIsDownloading(true);
-      
-      // Call the API to get the download URL
-      const response = await downloadMetricFile(metricId);
-      
+      setHasError(false);
+
+      // Create a timeout promise that rejects after 3 minutes
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('Download timeout')), 3 * 60 * 1000); // 3 minutes
+      });
+
+      // Race between the API call and the timeout
+      const response = await Promise.race([
+        downloadMetricFile(metricId),
+        timeoutPromise
+      ]) as Awaited<ReturnType<typeof downloadMetricFile>>;
+
       // Simply navigate to the download URL
       // The response-content-disposition header will force a download
       window.location.href = response.downloadUrl;
-      
     } catch (error) {
       console.error('Failed to download metric file:', error);
-      // You might want to show an error toast here
+      setHasError(true);
     } finally {
       // Add a small delay before removing loading state since download happens async
       setTimeout(() => {
@@ -40,21 +49,30 @@ export const MetricDataTruncatedWarning: React.FC<MetricDataTruncatedWarningProp
 
   return (
     <div
-      className={cn('bg-background flex items-center justify-between rounded border p-4 shadow', className)}>
+      className={cn(
+        'bg-background flex items-center justify-between rounded border p-4 shadow',
+        hasError && 'border-red-500',
+        className
+      )}>
       <div className="flex flex-col space-y-1">
-        <Text className="font-medium">This request returned more than 5,000 records</Text>
-        <Text size="xs" variant="secondary">
-          To see all records, you&apos;ll need to download the results.
+        <Text className="font-medium">
+          {hasError
+            ? 'Download failed'
+            : 'This request returned more than 5,000 records'}
+        </Text>
+        <Text size="xs" variant={hasError ? 'danger' : 'secondary'}>
+          {hasError
+            ? 'The download took too long or encountered an error. Please try again.'
+            : 'To see all records, you\'ll need to download the results.'}
         </Text>
       </div>
       <Button
         onClick={handleDownload}
         loading={isDownloading}
-        variant="default"
+        variant={hasError ? 'danger' : 'default'}
         className="ml-4"
-        prefix={<Download4 />}
-      >
-        Download
+        prefix={hasError ? <CircleWarning /> : <Download4 />}>
+        {hasError ? 'Try Again' : 'Download'}
       </Button>
     </div>
   );
