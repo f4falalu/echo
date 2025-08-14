@@ -10,7 +10,7 @@ export function createDoneToolFinish(doneToolState: DoneToolState, context: Done
   return async function doneToolFinish(
     options: { input: DoneToolInput } & ToolCallOptions
   ): Promise<void> {
-    doneToolState.entry_id = options.toolCallId;
+    doneToolState.toolCallId = options.toolCallId;
 
     const doneToolResponseEntry = createDoneToolResponseMessage(doneToolState, options.toolCallId);
     const doneToolMessage = createDoneToolRawLlmMessageEntry(doneToolState, options.toolCallId);

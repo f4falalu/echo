@@ -4,12 +4,7 @@ import {
   OptimisticJsonParser,
   getOptimisticValue,
 } from '../../../utils/streaming/optimistic-json-parser';
-import {
-  type DoneToolContext,
-  type DoneToolInput,
-  DoneToolInputSchema,
-  type DoneToolState,
-} from './done-tool';
+import type { DoneToolContext, DoneToolInput, DoneToolState } from './done-tool';
 import {
   createDoneToolRawLlmMessageEntry,
   createDoneToolResponseMessage,
@@ -17,7 +12,7 @@ import {
 
 // Type-safe key extraction from the schema - will cause compile error if field name changes
 // Using keyof with the inferred type ensures we're using the actual schema keys
-const FINAL_RESPONSE_KEY = 'final_response' as const satisfies keyof DoneToolInput;
+const FINAL_RESPONSE_KEY = 'finalResponse' as const satisfies keyof DoneToolInput;
 
 export function createDoneToolDelta(doneToolState: DoneToolState, context: DoneToolContext) {
   return async function doneToolDelta(
@@ -37,7 +32,7 @@ export function createDoneToolDelta(doneToolState: DoneToolState, context: DoneT
 
     if (finalResponse !== undefined && finalResponse !== '') {
       // Update the state with the extracted final_response
-      doneToolState.final_response = finalResponse;
+      doneToolState.finalResponse = finalResponse;
 
       // Create the response entries with the current state
       const doneToolResponseEntry = createDoneToolResponseMessage(

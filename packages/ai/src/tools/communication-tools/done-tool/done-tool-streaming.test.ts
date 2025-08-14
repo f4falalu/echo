@@ -18,9 +18,9 @@ describe('Done Tool Streaming Tests', () => {
   describe('createDoneToolStart', () => {
     test('should initialize state with entry_id on start', async () => {
       const state: DoneToolState = {
-        entry_id: undefined,
+        toolCallId: undefined,
         args: undefined,
-        final_response: undefined,
+        finalResponse: undefined,
       };
 
       const startHandler = createDoneToolStart(state, mockContext);
@@ -31,14 +31,14 @@ describe('Done Tool Streaming Tests', () => {
 
       await startHandler(options);
 
-      expect(state.entry_id).toBe('tool-call-123');
+      expect(state.toolCallId).toBe('tool-call-123');
     });
 
     test('should handle start with messages containing file tool calls', async () => {
       const state: DoneToolState = {
-        entry_id: undefined,
+        toolCallId: undefined,
         args: undefined,
-        final_response: undefined,
+        finalResponse: undefined,
       };
 
       const startHandler = createDoneToolStart(state, mockContext);
@@ -87,14 +87,14 @@ describe('Done Tool Streaming Tests', () => {
 
       await startHandler(options);
 
-      expect(state.entry_id).toBe('tool-call-123');
+      expect(state.toolCallId).toBe('tool-call-123');
     });
 
     test('should handle start without messages', async () => {
       const state: DoneToolState = {
-        entry_id: undefined,
+        toolCallId: undefined,
         args: undefined,
-        final_response: undefined,
+        finalResponse: undefined,
       };
 
       const startHandler = createDoneToolStart(state, mockContext);
@@ -105,7 +105,7 @@ describe('Done Tool Streaming Tests', () => {
 
       await startHandler(options);
 
-      expect(state.entry_id).toBe('tool-call-456');
+      expect(state.toolCallId).toBe('tool-call-456');
     });
 
     test('should handle context without messageId', async () => {
@@ -114,9 +114,9 @@ describe('Done Tool Streaming Tests', () => {
         workflowStartTime: Date.now(),
       };
       const state: DoneToolState = {
-        entry_id: undefined,
+        toolCallId: undefined,
         args: undefined,
-        final_response: undefined,
+        finalResponse: undefined,
       };
 
       const startHandler = createDoneToolStart(state, contextWithoutMessageId);
@@ -126,16 +126,16 @@ describe('Done Tool Streaming Tests', () => {
       };
 
       await expect(startHandler(options)).resolves.not.toThrow();
-      expect(state.entry_id).toBe('tool-call-789');
+      expect(state.toolCallId).toBe('tool-call-789');
     });
   });
 
   describe('createDoneToolDelta', () => {
     test('should accumulate text deltas to args', async () => {
       const state: DoneToolState = {
-        entry_id: 'test-entry',
+        toolCallId: 'test-entry',
         args: '',
-        final_response: undefined,
+        finalResponse: undefined,
       };
 
       const deltaHandler = createDoneToolDelta(state, mockContext);
@@ -159,9 +159,9 @@ describe('Done Tool Streaming Tests', () => {
 
     test('should extract partial final_response from incomplete JSON', async () => {
       const state: DoneToolState = {
-        entry_id: 'test-entry',
+        toolCallId: 'test-entry',
         args: '',
-        final_response: undefined,
+        finalResponse: undefined,
       };
 
       const deltaHandler = createDoneToolDelta(state, mockContext);
@@ -173,14 +173,14 @@ describe('Done Tool Streaming Tests', () => {
       });
 
       expect(state.args).toBe('{"final_response": "This is a partial response that is still being');
-      expect(state.final_response).toBe('This is a partial response that is still being');
+      expect(state.finalResponse).toBe('This is a partial response that is still being');
     });
 
     test('should handle complete JSON in delta', async () => {
       const state: DoneToolState = {
-        entry_id: 'test-entry',
+        toolCallId: 'test-entry',
         args: '',
-        final_response: undefined,
+        finalResponse: undefined,
       };
 
       const deltaHandler = createDoneToolDelta(state, mockContext);
@@ -192,14 +192,14 @@ describe('Done Tool Streaming Tests', () => {
       });
 
       expect(state.args).toBe('{"final_response": "Complete response message"}');
-      expect(state.final_response).toBe('Complete response message');
+      expect(state.finalResponse).toBe('Complete response message');
     });
 
     test('should handle markdown content in final_response', async () => {
       const state: DoneToolState = {
-        entry_id: 'test-entry',
+        toolCallId: 'test-entry',
         args: '',
-        final_response: undefined,
+        finalResponse: undefined,
       };
 
       const deltaHandler = createDoneToolDelta(state, mockContext);
@@ -217,14 +217,14 @@ describe('Done Tool Streaming Tests', () => {
         messages: [],
       });
 
-      expect(state.final_response).toBe(markdownContent);
+      expect(state.finalResponse).toBe(markdownContent);
     });
 
     test('should handle escaped characters in JSON', async () => {
       const state: DoneToolState = {
-        entry_id: 'test-entry',
+        toolCallId: 'test-entry',
         args: '',
-        final_response: undefined,
+        finalResponse: undefined,
       };
 
       const deltaHandler = createDoneToolDelta(state, mockContext);
@@ -235,14 +235,14 @@ describe('Done Tool Streaming Tests', () => {
         messages: [],
       });
 
-      expect(state.final_response).toBe('Line 1\nLine 2\n"Quoted text"');
+      expect(state.finalResponse).toBe('Line 1\nLine 2\n"Quoted text"');
     });
 
     test('should not update state when no final_response is extracted', async () => {
       const state: DoneToolState = {
-        entry_id: 'test-entry',
+        toolCallId: 'test-entry',
         args: '',
-        final_response: undefined,
+        finalResponse: undefined,
       };
 
       const deltaHandler = createDoneToolDelta(state, mockContext);
@@ -254,14 +254,14 @@ describe('Done Tool Streaming Tests', () => {
       });
 
       expect(state.args).toBe('{"other_field": "value"}');
-      expect(state.final_response).toBeUndefined();
+      expect(state.finalResponse).toBeUndefined();
     });
 
     test('should handle empty final_response gracefully', async () => {
       const state: DoneToolState = {
-        entry_id: 'test-entry',
+        toolCallId: 'test-entry',
         args: '',
-        final_response: undefined,
+        finalResponse: undefined,
       };
 
       const deltaHandler = createDoneToolDelta(state, mockContext);
@@ -273,22 +273,22 @@ describe('Done Tool Streaming Tests', () => {
       });
 
       expect(state.args).toBe('{"final_response": ""}');
-      expect(state.final_response).toBeUndefined();
+      expect(state.finalResponse).toBeUndefined();
     });
   });
 
   describe('createDoneToolFinish', () => {
     test('should update state with final input on finish', async () => {
       const state: DoneToolState = {
-        entry_id: undefined,
+        toolCallId: undefined,
         args: '{"final_response": "Final message"}',
-        final_response: 'Final message',
+        finalResponse: 'Final message',
       };
 
       const finishHandler = createDoneToolFinish(state, mockContext);
 
       const input: DoneToolInput = {
-        final_response: 'This is the final response message',
+        finalResponse: 'This is the final response message',
       };
 
       await finishHandler({
@@ -297,20 +297,20 @@ describe('Done Tool Streaming Tests', () => {
         messages: [],
       });
 
-      expect(state.entry_id).toBe('tool-call-123');
+      expect(state.toolCallId).toBe('tool-call-123');
     });
 
     test('should handle finish without prior entry_id', async () => {
       const state: DoneToolState = {
-        entry_id: undefined,
+        toolCallId: undefined,
         args: undefined,
-        final_response: undefined,
+        finalResponse: undefined,
       };
 
       const finishHandler = createDoneToolFinish(state, mockContext);
 
       const input: DoneToolInput = {
-        final_response: 'Response without prior start',
+        finalResponse: 'Response without prior start',
       };
 
       await finishHandler({
@@ -319,14 +319,14 @@ describe('Done Tool Streaming Tests', () => {
         messages: [],
       });
 
-      expect(state.entry_id).toBe('tool-call-456');
+      expect(state.toolCallId).toBe('tool-call-456');
     });
 
     test('should handle markdown formatted final response', async () => {
       const state: DoneToolState = {
-        entry_id: undefined,
+        toolCallId: undefined,
         args: undefined,
-        final_response: undefined,
+        finalResponse: undefined,
       };
 
       const finishHandler = createDoneToolFinish(state, mockContext);
@@ -346,7 +346,7 @@ The following items were processed:
 `;
 
       const input: DoneToolInput = {
-        final_response: markdownResponse,
+        finalResponse: markdownResponse,
       };
 
       await finishHandler({
@@ -355,7 +355,7 @@ The following items were processed:
         messages: [],
       });
 
-      expect(state.entry_id).toBe('tool-call-789');
+      expect(state.toolCallId).toBe('tool-call-789');
     });
   });
 
@@ -373,9 +373,9 @@ The following items were processed:
       };
 
       const state: DoneToolState = {
-        entry_id: undefined,
+        toolCallId: undefined,
         args: undefined,
-        final_response: undefined,
+        finalResponse: undefined,
       };
 
       const handler1 = createDoneToolStart(state, validContext);
@@ -387,9 +387,9 @@ The following items were processed:
 
     test('should maintain state type consistency through streaming lifecycle', async () => {
       const state: DoneToolState = {
-        entry_id: undefined,
+        toolCallId: undefined,
         args: undefined,
-        final_response: undefined,
+        finalResponse: undefined,
       };
 
       const startHandler = createDoneToolStart(state, mockContext);
@@ -397,7 +397,7 @@ The following items were processed:
       const finishHandler = createDoneToolFinish(state, mockContext);
 
       await startHandler({ toolCallId: 'test-123', messages: [] });
-      expect(state.entry_id).toBeTypeOf('string');
+      expect(state.toolCallId).toBeTypeOf('string');
 
       await deltaHandler({
         inputTextDelta: '{"final_response": "Testing"}',
@@ -405,22 +405,22 @@ The following items were processed:
         messages: [],
       });
       expect(state.args).toBeTypeOf('string');
-      expect(state.final_response).toBeTypeOf('string');
+      expect(state.finalResponse).toBeTypeOf('string');
 
       const input: DoneToolInput = {
-        final_response: 'Final test',
+        finalResponse: 'Final test',
       };
       await finishHandler({ input, toolCallId: 'test-123', messages: [] });
-      expect(state.entry_id).toBeTypeOf('string');
+      expect(state.toolCallId).toBeTypeOf('string');
     });
   });
 
   describe('Streaming Flow Integration', () => {
     test('should handle complete streaming flow from start to finish', async () => {
       const state: DoneToolState = {
-        entry_id: undefined,
+        toolCallId: undefined,
         args: undefined,
-        final_response: undefined,
+        finalResponse: undefined,
       };
 
       const startHandler = createDoneToolStart(state, mockContext);
@@ -430,7 +430,7 @@ The following items were processed:
       const toolCallId = 'streaming-test-123';
 
       await startHandler({ toolCallId, messages: [] });
-      expect(state.entry_id).toBe(toolCallId);
+      expect(state.toolCallId).toBe(toolCallId);
 
       const chunks = [
         '{"final_',
@@ -452,23 +452,23 @@ The following items were processed:
       expect(state.args).toBe(
         '{"final_response": "This is a streaming response that comes in multiple chunks"}'
       );
-      expect(state.final_response).toBe(
+      expect(state.finalResponse).toBe(
         'This is a streaming response that comes in multiple chunks'
       );
 
       const input: DoneToolInput = {
-        final_response: 'This is a streaming response that comes in multiple chunks',
+        finalResponse: 'This is a streaming response that comes in multiple chunks',
       };
       await finishHandler({ input, toolCallId, messages: [] });
 
-      expect(state.entry_id).toBe(toolCallId);
+      expect(state.toolCallId).toBe(toolCallId);
     });
 
     test('should handle streaming with special characters and formatting', async () => {
       const state: DoneToolState = {
-        entry_id: undefined,
+        toolCallId: undefined,
         args: undefined,
-        final_response: undefined,
+        finalResponse: undefined,
       };
 
       const deltaHandler = createDoneToolDelta(state, mockContext);
@@ -492,7 +492,7 @@ The following items were processed:
         });
       }
 
-      expect(state.final_response).toBe(
+      expect(state.finalResponse).toBe(
         '## Results\n\n- Success: 90%\n- Failed: 10%\n\n**Note:** Review failed items'
       );
     });

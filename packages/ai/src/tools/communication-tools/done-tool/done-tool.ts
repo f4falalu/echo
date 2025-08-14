@@ -8,7 +8,7 @@ import { createDoneToolStart } from './done-tool-start';
 export const DONE_TOOL_NAME = 'doneTool';
 
 export const DoneToolInputSchema = z.object({
-  final_response: z
+  finalResponse: z
     .string()
     .min(1, 'Final response is required')
     .describe(
@@ -26,14 +26,14 @@ const DoneToolContextSchema = z.object({
 });
 
 const DoneToolStateSchema = z.object({
-  entry_id: z
+  toolCallId: z
     .string()
     .optional()
     .describe(
       'The entry ID of the entry that triggered the done tool. This is optional and will be set by the tool start'
     ),
   args: z.string().optional().describe('The arguments of the done tool'),
-  final_response: z
+  finalResponse: z
     .string()
     .optional()
     .describe(
@@ -48,9 +48,9 @@ export type DoneToolState = z.infer<typeof DoneToolStateSchema>;
 
 export function createDoneTool(context: DoneToolContext) {
   const state: DoneToolState = {
-    entry_id: undefined,
+    toolCallId: undefined,
     args: undefined,
-    final_response: undefined,
+    finalResponse: undefined,
   };
 
   const execute = createDoneToolExecute();

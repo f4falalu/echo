@@ -7,7 +7,7 @@ export function createDoneToolResponseMessage(
   toolCallId?: string
 ): ChatMessageResponseMessage_Text | null {
   // Use entry_id from state or fallback to provided toolCallId
-  const id = doneToolState.entry_id || toolCallId;
+  const id = doneToolState.toolCallId || toolCallId;
 
   if (!id) {
     return null;
@@ -16,7 +16,7 @@ export function createDoneToolResponseMessage(
   return {
     id,
     type: 'text',
-    message: doneToolState.final_response || '',
+    message: doneToolState.finalResponse || '',
     is_final_message: true,
   };
 }
@@ -25,7 +25,7 @@ export function createDoneToolRawLlmMessageEntry(
   doneToolState: DoneToolState,
   toolCallId?: string
 ): ModelMessage | undefined {
-  const id = doneToolState.entry_id || toolCallId;
+  const id = doneToolState.toolCallId || toolCallId;
 
   if (!id) {
     return undefined;
@@ -41,8 +41,8 @@ export function createDoneToolRawLlmMessageEntry(
         input: {},
       },
       // Optionally include any accumulated text content
-      ...(doneToolState.final_response
-        ? [{ type: 'text' as const, text: doneToolState.final_response }]
+      ...(doneToolState.finalResponse
+        ? [{ type: 'text' as const, text: doneToolState.finalResponse }]
         : []),
     ],
   };

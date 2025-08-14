@@ -44,9 +44,9 @@ describe('Done Tool Integration Tests', () => {
   describe('Database Message Updates', () => {
     test('should create initial entries when done tool starts', async () => {
       const state: DoneToolState = {
-        entry_id: undefined,
+        toolCallId: undefined,
         args: undefined,
-        final_response: undefined,
+        finalResponse: undefined,
       };
 
       const startHandler = createDoneToolStart(state, mockContext);
@@ -66,9 +66,9 @@ describe('Done Tool Integration Tests', () => {
 
     test('should update entries during streaming delta', async () => {
       const state: DoneToolState = {
-        entry_id: undefined,
+        toolCallId: undefined,
         args: '',
-        final_response: undefined,
+        finalResponse: undefined,
       };
 
       const startHandler = createDoneToolStart(state, mockContext);
@@ -89,14 +89,14 @@ describe('Done Tool Integration Tests', () => {
         .where(and(eq(messages.id, testMessageId), isNull(messages.deletedAt)));
 
       expect(message?.rawLlmMessages).toBeDefined();
-      expect(state.final_response).toBe('Partial response');
+      expect(state.finalResponse).toBe('Partial response');
     });
 
     test('should finalize entries when done tool finishes', async () => {
       const state: DoneToolState = {
-        entry_id: undefined,
+        toolCallId: undefined,
         args: '',
-        final_response: undefined,
+        finalResponse: undefined,
       };
 
       const startHandler = createDoneToolStart(state, mockContext);
@@ -106,7 +106,7 @@ describe('Done Tool Integration Tests', () => {
       await startHandler({ toolCallId, messages: [] });
 
       const input: DoneToolInput = {
-        final_response: 'This is the complete final response',
+        finalResponse: 'This is the complete final response',
       };
 
       await finishHandler({ input, toolCallId, messages: [] });
@@ -124,9 +124,9 @@ describe('Done Tool Integration Tests', () => {
   describe('Complete Streaming Flow', () => {
     test('should handle full streaming lifecycle with database updates', async () => {
       const state: DoneToolState = {
-        entry_id: undefined,
+        toolCallId: undefined,
         args: '',
-        final_response: undefined,
+        finalResponse: undefined,
       };
 
       const startHandler = createDoneToolStart(state, mockContext);
@@ -163,10 +163,10 @@ The following tasks have been completed:
 
 All operations completed successfully.`;
 
-      expect(state.final_response).toBe(expectedResponse);
+      expect(state.finalResponse).toBe(expectedResponse);
 
       const input: DoneToolInput = {
-        final_response: expectedResponse,
+        finalResponse: expectedResponse,
       };
 
       await finishHandler({ input, toolCallId, messages: [] });
@@ -183,15 +183,15 @@ All operations completed successfully.`;
 
     test('should handle multiple done tool invocations in sequence', async () => {
       const state1: DoneToolState = {
-        entry_id: undefined,
+        toolCallId: undefined,
         args: '',
-        final_response: undefined,
+        finalResponse: undefined,
       };
 
       const state2: DoneToolState = {
-        entry_id: undefined,
+        toolCallId: undefined,
         args: '',
-        final_response: undefined,
+        finalResponse: undefined,
       };
 
       const startHandler1 = createDoneToolStart(state1, mockContext);
@@ -205,14 +205,14 @@ All operations completed successfully.`;
 
       await startHandler1({ toolCallId: toolCallId1, messages: [] });
       await finishHandler1({
-        input: { final_response: 'First response' },
+        input: { finalResponse: 'First response' },
         toolCallId: toolCallId1,
         messages: [],
       });
 
       await startHandler2({ toolCallId: toolCallId2, messages: [] });
       await finishHandler2({
-        input: { final_response: 'Second response' },
+        input: { finalResponse: 'Second response' },
         toolCallId: toolCallId2,
         messages: [],
       });
@@ -237,23 +237,23 @@ All operations completed successfully.`;
       };
 
       const state: DoneToolState = {
-        entry_id: undefined,
+        toolCallId: undefined,
         args: '',
-        final_response: undefined,
+        finalResponse: undefined,
       };
 
       const startHandler = createDoneToolStart(state, invalidContext);
       const toolCallId = randomUUID();
 
       await expect(startHandler({ toolCallId, messages: [] })).resolves.not.toThrow();
-      expect(state.entry_id).toBe(toolCallId);
+      expect(state.toolCallId).toBe(toolCallId);
     });
 
     test('should continue processing even if database update fails', async () => {
       const state: DoneToolState = {
-        entry_id: undefined,
+        toolCallId: undefined,
         args: '',
-        final_response: undefined,
+        finalResponse: undefined,
       };
 
       const invalidContext: DoneToolContext = {
@@ -272,16 +272,16 @@ All operations completed successfully.`;
         })
       ).resolves.not.toThrow();
 
-      expect(state.final_response).toBe('Test');
+      expect(state.finalResponse).toBe('Test');
     });
   });
 
   describe('Message Entry Modes', () => {
     test('should use append mode for start operations', async () => {
       const state: DoneToolState = {
-        entry_id: undefined,
+        toolCallId: undefined,
         args: undefined,
-        final_response: undefined,
+        finalResponse: undefined,
       };
 
       const startHandler = createDoneToolStart(state, mockContext);
@@ -313,9 +313,9 @@ All operations completed successfully.`;
 
     test('should use update mode for delta and finish operations', async () => {
       const state: DoneToolState = {
-        entry_id: undefined,
+        toolCallId: undefined,
         args: '',
-        final_response: undefined,
+        finalResponse: undefined,
       };
 
       await updateMessageEntries({
