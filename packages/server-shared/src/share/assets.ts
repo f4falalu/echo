@@ -12,9 +12,6 @@ const AssetPermissionRoleEnums: Record<AssetPermissionRoleBase, AssetPermissionR
     can_view: 'can_view',
   });
 
-export const ShareAssetPermissionRoleSchema = z.enum(
+export const AssetPermissionRoleSchema = z.enum(
   Object.values(AssetPermissionRoleEnums) as [AssetPermissionRoleBase, ...AssetPermissionRoleBase[]]
 );
-
-// Keep the old name for backward compatibility but don't export it from index
-const _AssetPermissionRoleSchema = ShareAssetPermissionRoleSchema;
