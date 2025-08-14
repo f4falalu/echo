@@ -1,7 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { ShareIndividualSchema } from '../share';
+import { AssetPermissionRoleSchema, ShareIndividualSchema } from '../share';
 import {
-  AssetPermissionRoleSchema,
   type ChatCreateHandlerRequest,
   ChatCreateHandlerRequestSchema,
   type ChatCreateRequest,
@@ -11,7 +10,7 @@ import {
 
 describe('AssetPermissionRoleSchema', () => {
   it('should accept valid role values', () => {
-    const validRoles = ['viewer', 'editor', 'owner'];
+    const validRoles = ['owner', 'viewer', 'full_access', 'can_edit', 'can_filter', 'can_view'];
 
     for (const role of validRoles) {
       const result = AssetPermissionRoleSchema.safeParse(role);
@@ -23,7 +22,7 @@ describe('AssetPermissionRoleSchema', () => {
   });
 
   it('should reject invalid role values', () => {
-    const invalidRoles = ['admin', 'user', 'guest', '', 'VIEWER'];
+    const invalidRoles = ['admin', 'user', 'guest', '', 'VIEWER', 'editor'];
 
     for (const role of invalidRoles) {
       const result = AssetPermissionRoleSchema.safeParse(role);
