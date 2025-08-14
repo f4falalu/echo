@@ -510,15 +510,14 @@ export function createCreateDashboardsExecute(
 
               const updates: Parameters<typeof updateMessageEntries>[0] = {
                 messageId: context.messageId,
-                toolCallId: state.toolCallId || '',
               };
 
               if (reasoningEntry) {
-                updates.reasoningEntry = reasoningEntry;
+                updates.reasoningMessages = [reasoningEntry];
               }
 
               if (rawLlmMessage) {
-                updates.rawLlmMessage = rawLlmMessage;
+                updates.rawLlmMessages = [rawLlmMessage];
               }
 
               if (reasoningEntry || rawLlmMessage) {
@@ -568,15 +567,14 @@ export function createCreateDashboardsExecute(
 
             const updates: Parameters<typeof updateMessageEntries>[0] = {
               messageId: context.messageId,
-              toolCallId: state.toolCallId || '',
             };
 
             if (reasoningEntry) {
-              updates.responseEntry = reasoningEntry;
+              updates.reasoningMessages = [reasoningEntry];
             }
 
             if (rawLlmMessage) {
-              updates.rawLlmMessage = rawLlmMessage;
+              updates.rawLlmMessages = [rawLlmMessage];
             }
 
             if (reasoningEntry || rawLlmMessage) {

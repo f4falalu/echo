@@ -27,6 +27,8 @@ const AnalystWorkflowInputSchema = z.object({
 export type AnalystWorkflowInput = z.infer<typeof AnalystWorkflowInputSchema>;
 
 export async function runAnalystWorkflow(input: AnalystWorkflowInput) {
+  const workflowStartTime = Date.now();
+
   const { messages } = input;
 
   const { todos, values } = await runAnalystPrepSteps(input);
@@ -47,6 +49,7 @@ export async function runAnalystWorkflow(input: AnalystWorkflowInput) {
       userId: input.userId,
       sql_dialect_guidance: input.dataSourceSyntax,
       datasets: input.datasets,
+      workflowStartTime,
     },
     streamOptions: {
       messages,
@@ -64,6 +67,7 @@ export async function runAnalystWorkflow(input: AnalystWorkflowInput) {
       dataSourceSyntax: input.dataSourceSyntax,
       userId: input.userId,
       datasets: input.datasets,
+      workflowStartTime,
     },
     streamOptions: {
       messages,

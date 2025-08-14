@@ -22,6 +22,7 @@ const DoneToolOutputSchema = z.object({
 
 const DoneToolContextSchema = z.object({
   messageId: z.string().describe('The message ID of the message that triggered the done tool'),
+  workflowStartTime: z.number().describe('The start time of the workflow'),
 });
 
 const DoneToolStateSchema = z.object({

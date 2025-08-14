@@ -1,4 +1,4 @@
-import { updateMessageEntries } from '@buster/database';
+import { updateMessage, updateMessageEntries } from '@buster/database';
 import type { ToolCallOptions } from 'ai';
 import {
   messageUserClarifyingQuestionRawLlmMessageEntry,
@@ -35,9 +35,26 @@ export function createMessageUserClarifyingQuestionStart(
         // Update database with initial entries (append mode)
         await updateMessageEntries({
           messageId,
-          responseEntry,
-          rawLlmMessage: rawLlmEntry,
-          toolCallId: options.toolCallId,
+          responseMessages: [responseEntry],
+          rawLlmMessages: [rawLlmEntry],
+        });
+
+        // Mark message as completed and add final reasoning message with workflow time
+        const currentTime = Date.now();
+        const elapsedTimeMs = currentTime - context.workflowStartTime;
+        const elapsedSeconds = Math.floor(elapsedTimeMs / 1000);
+
+        let timeString: string;
+        if (elapsedSeconds < 60) {
+          timeString = `${elapsedSeconds} seconds`;
+        } else {
+          const elapsedMinutes = Math.floor(elapsedSeconds / 60);
+          timeString = `${elapsedMinutes} min`;
+        }
+
+        await updateMessage(messageId, {
+          isCompleted: true,
+          finalReasoningMessage: `Total workflow time: ${timeString}`,
         });
       } catch (error) {
         console.error(

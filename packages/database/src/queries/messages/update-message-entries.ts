@@ -1,111 +1,107 @@
 import type { ModelMessage } from 'ai';
 import { type SQL, and, eq, isNull, sql } from 'drizzle-orm';
+import { z } from 'zod';
 import { db } from '../../connection';
 import { messages } from '../../schema';
+import { ReasoningMessageSchema, ResponseMessageSchema } from '../../schemas/message-schemas';
 
-export interface UpdateMessageEntriesParams {
-  messageId: string;
-  toolCallId: string;
-  rawLlmMessage?: ModelMessage;
-  responseEntry?: unknown;
-  reasoningEntry?: unknown;
-}
+const UpdateMessageEntriesSchema = z.object({
+  messageId: z.string().uuid(),
+  rawLlmMessages: z.array(z.custom<ModelMessage>()).optional(),
+  responseMessages: z.array(ResponseMessageSchema).optional(),
+  reasoningMessages: z.array(ReasoningMessageSchema).optional(),
+});
 
-const MESSAGE_FIELD_MAPPING = {
-  rawLlmMessages: messages.rawLlmMessages,
-  responseMessages: messages.responseMessages,
-  reasoning: messages.reasoning,
-} as const;
-
-type MessageFieldName = keyof typeof MESSAGE_FIELD_MAPPING;
+export type UpdateMessageEntriesParams = z.infer<typeof UpdateMessageEntriesSchema>;
 
 /**
- * Generates SQL for upserting entries in a JSONB array field using jsonb_set.
- */
-function generateJsonbArrayUpsertSql(
-  fieldName: MessageFieldName,
-  jsonString: string,
-  toolCallId: string
-): SQL {
-  const field = MESSAGE_FIELD_MAPPING[fieldName];
-
-  // For rawLlmMessages, we need to check inside the content array for toolCallId
-  // Structure: { role: 'assistant', content: [{ type: 'tool-call', toolCallId: '...', ... }] }
-  const whereClause =
-    fieldName === 'rawLlmMessages'
-      ? sql`EXISTS (
-        SELECT 1 
-        FROM jsonb_array_elements(elem.value->'content') AS content_elem
-        WHERE content_elem->>'toolCallId' = ${toolCallId}
-      )`
-      : sql`elem.value->>'id' = ${toolCallId} OR elem.value->>'toolCallId' = ${toolCallId}`;
-
-  return sql`
-    CASE
-      WHEN EXISTS (
-        SELECT 1 
-        FROM jsonb_array_elements(COALESCE(${field}, '[]'::jsonb)) WITH ORDINALITY AS elem(value, pos)
-        WHERE ${whereClause}
-      ) THEN
-        jsonb_set(
-          COALESCE(${field}, '[]'::jsonb),
-          ARRAY[(
-            SELECT (elem.pos - 1)::text
-            FROM jsonb_array_elements(COALESCE(${field}, '[]'::jsonb)) WITH ORDINALITY AS elem(value, pos)
-            WHERE ${whereClause}
-            LIMIT 1
-          )],
-          ${jsonString}::jsonb,
-          false
-        )
-      ELSE
-        COALESCE(${field}, '[]'::jsonb) || ${jsonString}::jsonb
-    END
-  `;
-}
-
-/**
- * Updates message entries atomically, ensuring only one entry per toolCallId exists.
+ * Updates message entries using optimized JSONB merge operations.
+ * Performs batch upserts for multiple entries in a single database operation.
+ *
+ * Upsert logic:
+ * - responseMessages: upsert by 'id' field
+ * - reasoningMessages: upsert by 'id' field
+ * - rawLlmMessages: upsert by combination of 'role' and 'toolCallId' in content array
  */
 export async function updateMessageEntries({
   messageId,
-  toolCallId,
-  rawLlmMessage,
-  responseEntry,
-  reasoningEntry,
+  rawLlmMessages,
+  responseMessages,
+  reasoningMessages,
 }: UpdateMessageEntriesParams): Promise<{ success: boolean }> {
   try {
-    const setValues: Record<string, SQL | string> = {
-      updatedAt: new Date().toISOString(),
-    };
+    const updates: Record<string, SQL | Date> = { updatedAt: new Date() };
 
-    if (rawLlmMessage) {
-      setValues.rawLlmMessages = generateJsonbArrayUpsertSql(
-        'rawLlmMessages',
-        JSON.stringify(rawLlmMessage),
-        toolCallId
-      );
+    // Optimized merge for response messages - upsert by 'id'
+    if (responseMessages?.length) {
+      const newData = JSON.stringify(responseMessages);
+      updates.responseMessages = sql`
+        COALESCE(
+          (SELECT jsonb_agg(value)
+           FROM (
+             SELECT DISTINCT ON (value->>'id') value
+             FROM (
+               SELECT jsonb_array_elements(COALESCE(${messages.responseMessages}, '[]'::jsonb))
+               UNION ALL
+               SELECT jsonb_array_elements(${newData}::jsonb)
+             ) combined(value)
+             ORDER BY value->>'id', value DESC
+           ) deduplicated),
+          '[]'::jsonb
+        )`;
     }
 
-    if (responseEntry) {
-      setValues.responseMessages = generateJsonbArrayUpsertSql(
-        'responseMessages',
-        JSON.stringify(responseEntry),
-        toolCallId
-      );
+    // Optimized merge for reasoning messages - upsert by 'id'
+    if (reasoningMessages?.length) {
+      const newData = JSON.stringify(reasoningMessages);
+      updates.reasoning = sql`
+        COALESCE(
+          (SELECT jsonb_agg(value)
+           FROM (
+             SELECT DISTINCT ON (value->>'id') value
+             FROM (
+               SELECT jsonb_array_elements(COALESCE(${messages.reasoning}, '[]'::jsonb))
+               UNION ALL
+               SELECT jsonb_array_elements(${newData}::jsonb)
+             ) combined(value)
+             ORDER BY value->>'id', value DESC
+           ) deduplicated),
+          '[]'::jsonb
+        )`;
     }
 
-    if (reasoningEntry) {
-      setValues.reasoning = generateJsonbArrayUpsertSql(
-        'reasoning',
-        JSON.stringify(reasoningEntry),
-        toolCallId
-      );
+    // Optimized merge for raw LLM messages - upsert by role + toolCallId combination
+    if (rawLlmMessages?.length) {
+      const newData = JSON.stringify(rawLlmMessages);
+      updates.rawLlmMessages = sql`
+        COALESCE(
+          (SELECT jsonb_agg(value)
+           FROM (
+             SELECT DISTINCT ON (
+               value->>'role',
+               (SELECT string_agg(content->>'toolCallId', ',' ORDER BY content->>'toolCallId')
+                FROM jsonb_array_elements(value->'content') content
+                WHERE content->>'toolCallId' IS NOT NULL)
+             ) value
+             FROM (
+               SELECT jsonb_array_elements(COALESCE(${messages.rawLlmMessages}, '[]'::jsonb))
+               UNION ALL
+               SELECT jsonb_array_elements(${newData}::jsonb)
+             ) combined(value)
+             ORDER BY 
+               value->>'role',
+               (SELECT string_agg(content->>'toolCallId', ',' ORDER BY content->>'toolCallId')
+                FROM jsonb_array_elements(value->'content') content
+                WHERE content->>'toolCallId' IS NOT NULL),
+               value DESC
+           ) deduplicated),
+          '[]'::jsonb
+        )`;
     }
 
     await db
       .update(messages)
-      .set(setValues)
+      .set(updates)
       .where(and(eq(messages.id, messageId), isNull(messages.deletedAt)));
 
     return { success: true };

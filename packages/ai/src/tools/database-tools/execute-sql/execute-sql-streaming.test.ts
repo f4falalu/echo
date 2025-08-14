@@ -179,14 +179,17 @@ describe('execute-sql streaming', () => {
 
       expect(updateMessageEntries).toHaveBeenCalledWith({
         messageId: 'test-message',
-        toolCallId: 'test-tool-call-id',
-        reasoningEntry: expect.objectContaining({
-          id: 'test-tool-call-id',
-          type: 'files',
-        }),
-        rawLlmMessage: expect.objectContaining({
-          role: 'assistant',
-        }),
+        reasoningMessages: [
+          expect.objectContaining({
+            id: 'test-tool-call-id',
+            type: 'files',
+          }),
+        ],
+        rawLlmMessages: [
+          expect.objectContaining({
+            role: 'assistant',
+          }),
+        ],
       });
     });
   });
@@ -212,13 +215,16 @@ describe('execute-sql streaming', () => {
 
       expect(updateMessageEntries).toHaveBeenCalledWith({
         messageId: 'test-message',
-        toolCallId: 'test-tool-call-id',
-        reasoningEntry: expect.objectContaining({
-          id: 'test-tool-call-id',
-        }),
-        rawLlmMessage: expect.objectContaining({
-          role: 'assistant',
-        }),
+        reasoningMessages: [
+          expect.objectContaining({
+            id: 'test-tool-call-id',
+          }),
+        ],
+        rawLlmMessages: [
+          expect.objectContaining({
+            role: 'assistant',
+          }),
+        ],
       });
     });
 

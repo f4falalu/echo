@@ -87,8 +87,7 @@ describe('createCreateMetricsStart', () => {
     expect(updateMessageEntries).toHaveBeenCalledWith(
       expect.objectContaining({
         messageId: 'msg-xyz',
-        toolCallId: 'tool-456',
-        responseEntry: expect.any(Object),
+        responseMessages: [expect.any(Object)],
       })
     );
 

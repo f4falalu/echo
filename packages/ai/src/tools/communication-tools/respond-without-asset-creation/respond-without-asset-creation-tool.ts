@@ -21,10 +21,10 @@ export const RespondWithoutAssetCreationOutputSchema = z.object({});
 const RespondWithoutAssetCreationContextSchema = z.object({
   messageId: z
     .string()
-    .optional()
     .describe(
       'The message ID of the message that triggered the respond without asset creation tool'
     ),
+  workflowStartTime: z.number().describe('The start time of the workflow'),
 });
 
 const RespondWithoutAssetCreationStateSchema = z.object({

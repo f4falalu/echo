@@ -1,4 +1,4 @@
-import { updateMessageEntries } from '@buster/database';
+import { type UpdateMessageEntriesParams, updateMessageEntries } from '@buster/database';
 import type { ToolCallOptions } from 'ai';
 import {
   createRespondWithoutAssetCreationRawLlmMessageEntry,
@@ -28,16 +28,23 @@ export function createRespondWithoutAssetCreationFinish<
       options.toolCallId
     );
 
+    const entries: UpdateMessageEntriesParams = {
+      messageId: context.messageId,
+    };
+
+    if (responseEntry) {
+      entries.responseMessages = [responseEntry];
+    }
+
+    if (rawLlmMessage) {
+      entries.rawLlmMessages = [rawLlmMessage];
+    }
+
     // Only update database if we have a valid messageId
     if (context.messageId) {
       try {
-        if (rawLlmMessage) {
-          await updateMessageEntries({
-            messageId: context.messageId,
-            responseEntry: responseEntry,
-            rawLlmMessage: rawLlmMessage,
-            toolCallId: options.toolCallId,
-          });
+        if (entries.responseMessages || entries.rawLlmMessages) {
+          await updateMessageEntries(entries);
         }
       } catch (error) {
         console.error('[respond-without-asset-creation] Failed to update final entries:', error);

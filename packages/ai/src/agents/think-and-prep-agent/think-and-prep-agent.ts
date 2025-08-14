@@ -57,6 +57,7 @@ export const ThinkAndPrepAgentOptionsSchema = z.object({
     .default('standard')
     .describe('The analysis mode to determine which prompt to use.')
     .optional(),
+  workflowStartTime: z.number().describe('The start time of the workflow'),
 });
 
 export const ThinkAndPrepStreamOptionsSchema = z.object({
@@ -69,7 +70,7 @@ export type ThinkAndPrepAgentOptions = z.infer<typeof ThinkAndPrepAgentOptionsSc
 export type ThinkAndPrepStreamOptions = z.infer<typeof ThinkAndPrepStreamOptionsSchema>;
 
 export function createThinkAndPrepAgent(thinkAndPrepAgentSchema: ThinkAndPrepAgentOptions) {
-  const { messageId, datasets } = thinkAndPrepAgentSchema;
+  const { messageId, datasets, workflowStartTime } = thinkAndPrepAgentSchema;
 
   const systemMessage = {
     role: 'system',
@@ -106,9 +107,15 @@ export function createThinkAndPrepAgent(thinkAndPrepAgentSchema: ThinkAndPrepAge
       dataSourceSyntax: thinkAndPrepAgentSchema.dataSourceSyntax,
       userId: thinkAndPrepAgentSchema.userId,
     });
-    const respondWithoutAssetCreation = createRespondWithoutAssetCreationTool({ messageId });
+    const respondWithoutAssetCreation = createRespondWithoutAssetCreationTool({
+      messageId,
+      workflowStartTime,
+    });
     const submitThoughts = createSubmitThoughtsTool();
-    const messageUserClarifyingQuestion = createMessageUserClarifyingQuestionTool({ messageId });
+    const messageUserClarifyingQuestion = createMessageUserClarifyingQuestionTool({
+      messageId,
+      workflowStartTime,
+    });
 
     while (attempt <= maxRetries) {
       try {

@@ -32,18 +32,22 @@ export function createSequentialThinkingStart(
     );
 
     try {
-      if (reasoningEntry && rawLlmMessage && context.messageId) {
-        await updateMessageEntries({
-          messageId: context.messageId,
-          reasoningEntry,
-          rawLlmMessage,
-          toolCallId: options.toolCallId,
-        });
+      if (context.messageId) {
+        const reasoningMessages = reasoningEntry ? [reasoningEntry] : [];
+        const rawLlmMessages = rawLlmMessage ? [rawLlmMessage] : [];
 
-        console.info('[sequential-thinking] Started sequential thinking:', {
-          messageId: context.messageId,
-          toolCallId: options.toolCallId,
-        });
+        if (reasoningMessages.length > 0 || rawLlmMessages.length > 0) {
+          await updateMessageEntries({
+            messageId: context.messageId,
+            reasoningMessages,
+            rawLlmMessages,
+          });
+
+          console.info('[sequential-thinking] Started sequential thinking:', {
+            messageId: context.messageId,
+            toolCallId: options.toolCallId,
+          });
+        }
       }
     } catch (error) {
       console.error('[sequential-thinking] Failed to update reasoning entry on start:', error);

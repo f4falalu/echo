@@ -38,6 +38,7 @@ describe('runThinkAndPrepAgentStep', () => {
     const result = await runThinkAndPrepAgentStep({
       options: {
         messageId: 'test-message-id',
+        workflowStartTime: Date.now(),
         sql_dialect_guidance: 'postgres',
         userId: 'test-user-id',
         chatId: 'test-chat-id',
@@ -76,6 +77,7 @@ describe('runThinkAndPrepAgentStep', () => {
       runThinkAndPrepAgentStep({
         options: {
           messageId: 'test-message-id',
+          workflowStartTime: Date.now(),
           sql_dialect_guidance: 'postgres',
           userId: 'test-user-id',
           chatId: 'test-chat-id',
@@ -111,6 +113,7 @@ describe('runThinkAndPrepAgentStep', () => {
       runThinkAndPrepAgentStep({
         options: {
           messageId: 'test-message-id',
+          workflowStartTime: Date.now(),
           sql_dialect_guidance: 'postgres',
           userId: 'test-user-id',
           chatId: 'test-chat-id',
@@ -144,6 +147,7 @@ describe('runThinkAndPrepAgentStep', () => {
       runThinkAndPrepAgentStep({
         options: {
           messageId: 'test-message-id',
+          workflowStartTime: Date.now(),
           sql_dialect_guidance: 'postgres',
           userId: 'test-user-id',
           chatId: 'test-chat-id',

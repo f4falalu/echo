@@ -56,12 +56,14 @@ async function processSequentialThinking(
         toolCallId
       );
 
-      if (reasoningEntry && rawLlmMessage) {
+      const reasoningMessages = reasoningEntry ? [reasoningEntry] : [];
+      const rawLlmMessages = rawLlmMessage ? [rawLlmMessage] : [];
+
+      if (reasoningMessages.length > 0 || rawLlmMessages.length > 0) {
         await updateMessageEntries({
           messageId: context.messageId,
-          reasoningEntry,
-          rawLlmMessage,
-          toolCallId,
+          reasoningMessages,
+          rawLlmMessages,
         });
 
         console.info('[sequential-thinking] Completed sequential thinking in execute:', {

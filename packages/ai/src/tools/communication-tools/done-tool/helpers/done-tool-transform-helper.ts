@@ -24,11 +24,11 @@ export function createDoneToolResponseMessage(
 export function createDoneToolRawLlmMessageEntry(
   doneToolState: DoneToolState,
   toolCallId?: string
-): ModelMessage | null {
+): ModelMessage | undefined {
   const id = doneToolState.entry_id || toolCallId;
 
   if (!id) {
-    return null;
+    return undefined;
   }
 
   return {

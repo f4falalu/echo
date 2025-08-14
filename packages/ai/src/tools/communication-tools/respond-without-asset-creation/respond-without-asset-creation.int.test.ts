@@ -14,7 +14,10 @@ vi.mock('braintrust', () => ({
 describe('Respond Without Asset Creation Tool Integration Tests', () => {
   describe('Tool Creation and Configuration', () => {
     test('should create tool with minimal context', () => {
-      const tool = createRespondWithoutAssetCreationTool({});
+      const tool = createRespondWithoutAssetCreationTool({
+        messageId: 'test-message-id',
+        workflowStartTime: Date.now(),
+      });
 
       expect(tool).toBeDefined();
       expect(tool.inputSchema).toBeDefined();
@@ -28,6 +31,7 @@ describe('Respond Without Asset Creation Tool Integration Tests', () => {
     test('should create tool with full context', () => {
       const tool = createRespondWithoutAssetCreationTool({
         messageId: 'test-message-123',
+        workflowStartTime: Date.now(),
       });
 
       expect(tool).toBeDefined();
@@ -39,6 +43,7 @@ describe('Respond Without Asset Creation Tool Integration Tests', () => {
         messageId: 'test-message-456',
         userId: 'user-123',
         chatId: 'chat-456',
+        workflowStartTime: Date.now(),
         additionalField: 'extra-data',
       };
 
@@ -111,6 +116,7 @@ describe('Respond Without Asset Creation Tool Integration Tests', () => {
     test('should execute successfully with valid input', async () => {
       const tool = createRespondWithoutAssetCreationTool({
         messageId: 'test-message-789',
+        workflowStartTime: Date.now(),
       });
 
       const input = {
@@ -129,7 +135,10 @@ describe('Respond Without Asset Creation Tool Integration Tests', () => {
     });
 
     test('should execute with long response', async () => {
-      const tool = createRespondWithoutAssetCreationTool({});
+      const tool = createRespondWithoutAssetCreationTool({
+        messageId: 'test-message-id',
+        workflowStartTime: Date.now(),
+      });
 
       const longResponse = 'A'.repeat(10000);
       const input = {
@@ -148,7 +157,10 @@ describe('Respond Without Asset Creation Tool Integration Tests', () => {
     });
 
     test('should execute with special characters', async () => {
-      const tool = createRespondWithoutAssetCreationTool({});
+      const tool = createRespondWithoutAssetCreationTool({
+        messageId: 'test-message-id',
+        workflowStartTime: Date.now(),
+      });
 
       const input = {
         final_response: `
@@ -170,7 +182,10 @@ Escaped: \n \t \\ \" \'
     });
 
     test('should execute without messageId context', async () => {
-      const tool = createRespondWithoutAssetCreationTool({});
+      const tool = createRespondWithoutAssetCreationTool({
+        messageId: 'test-message-id',
+        workflowStartTime: Date.now(),
+      });
 
       const input = {
         final_response: 'Response without message context',
@@ -192,10 +207,12 @@ Escaped: \n \t \\ \" \'
     test('should create multiple independent tool instances', () => {
       const tool1 = createRespondWithoutAssetCreationTool({
         messageId: 'message-1',
+        workflowStartTime: Date.now(),
       });
 
       const tool2 = createRespondWithoutAssetCreationTool({
         messageId: 'message-2',
+        workflowStartTime: Date.now(),
       });
 
       expect(tool1).not.toBe(tool2);
@@ -206,8 +223,8 @@ Escaped: \n \t \\ \" \'
     });
 
     test('should maintain separate state for each instance', async () => {
-      const context1 = { messageId: 'msg-1' };
-      const context2 = { messageId: 'msg-2' };
+      const context1 = { messageId: 'msg-1', workflowStartTime: Date.now() };
+      const context2 = { messageId: 'msg-2', workflowStartTime: Date.now() };
 
       const tool1 = createRespondWithoutAssetCreationTool(context1);
       const tool2 = createRespondWithoutAssetCreationTool(context2);
@@ -248,7 +265,10 @@ Escaped: \n \t \\ \" \'
 
   describe('Tool Description', () => {
     test('should have correct description', () => {
-      const tool = createRespondWithoutAssetCreationTool({});
+      const tool = createRespondWithoutAssetCreationTool({
+        messageId: 'test-message-id',
+        workflowStartTime: Date.now(),
+      });
 
       expect(tool.description).toContain('Marks all remaining unfinished tasks');
       expect(tool.description).toContain('ends the workflow');

@@ -29,15 +29,14 @@ export function createDashboardsStart(
             // Update both entries together if they exist
             const updates: Parameters<typeof updateMessageEntries>[0] = {
               messageId: context.messageId,
-              toolCallId: options.toolCallId,
             };
 
             if (reasoningEntry) {
-              updates.reasoningEntry = reasoningEntry;
+              updates.reasoningMessages = [reasoningEntry];
             }
 
             if (rawLlmMessage) {
-              updates.rawLlmMessage = rawLlmMessage;
+              updates.rawLlmMessages = [rawLlmMessage];
             }
 
             if (reasoningEntry || rawLlmMessage) {

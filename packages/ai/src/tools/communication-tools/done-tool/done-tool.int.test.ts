@@ -28,6 +28,7 @@ describe('Done Tool Integration Tests', () => {
 
     mockContext = {
       messageId: testMessageId,
+      workflowStartTime: Date.now(),
     };
   });
 
@@ -232,6 +233,7 @@ All operations completed successfully.`;
     test('should handle database errors gracefully', async () => {
       const invalidContext: DoneToolContext = {
         messageId: 'non-existent-message-id',
+        workflowStartTime: Date.now(),
       };
 
       const state: DoneToolState = {
@@ -256,6 +258,7 @@ All operations completed successfully.`;
 
       const invalidContext: DoneToolContext = {
         messageId: 'invalid-id',
+        workflowStartTime: Date.now(),
       };
 
       const deltaHandler = createDoneToolDelta(state, invalidContext);
@@ -317,11 +320,12 @@ All operations completed successfully.`;
 
       await updateMessageEntries({
         messageId: testMessageId,
-        toolCallId: 'test-tool-call-id',
-        rawLlmMessage: {
-          role: 'assistant',
-          content: [{ type: 'text', text: 'Initial' }],
-        },
+        rawLlmMessages: [
+          {
+            role: 'assistant',
+            content: [{ type: 'text', text: 'Initial' }],
+          },
+        ],
       });
 
       const deltaHandler = createDoneToolDelta(state, mockContext);

@@ -40,6 +40,7 @@ export const AnalystAgentOptionsSchema = z.object({
   organizationId: z.string(),
   messageId: z.string(),
   datasets: z.array(z.custom<PermissionedDataset>()),
+  workflowStartTime: z.number(),
 });
 
 export const AnalystStreamOptionsSchema = z.object({

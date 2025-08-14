@@ -16,6 +16,7 @@ vi.mock('@buster/database', () => ({
 describe('Respond Without Asset Creation Tool Streaming Tests', () => {
   const mockContext: RespondWithoutAssetCreationContext = {
     messageId: 'test-message-id-123',
+    workflowStartTime: Date.now(),
   };
 
   describe('createRespondWithoutAssetCreationStart', () => {
@@ -39,7 +40,8 @@ describe('Respond Without Asset Creation Tool Streaming Tests', () => {
 
     test('should handle start without messageId in context', async () => {
       const contextWithoutMessageId: RespondWithoutAssetCreationContext = {
-        messageId: undefined,
+        messageId: 'test-message-id',
+        workflowStartTime: Date.now(),
       };
       const state: RespondWithoutAssetCreationState = {
         entry_id: undefined,
@@ -60,6 +62,7 @@ describe('Respond Without Asset Creation Tool Streaming Tests', () => {
     test('should handle empty messageId gracefully', async () => {
       const contextWithEmptyMessageId: RespondWithoutAssetCreationContext = {
         messageId: '',
+        workflowStartTime: Date.now(),
       };
       const state: RespondWithoutAssetCreationState = {
         entry_id: undefined,
@@ -226,7 +229,8 @@ describe('Respond Without Asset Creation Tool Streaming Tests', () => {
 
     test('should handle context without messageId', async () => {
       const contextWithoutMessageId: RespondWithoutAssetCreationContext = {
-        messageId: undefined,
+        messageId: 'test-message-id',
+        workflowStartTime: Date.now(),
       };
       const state: RespondWithoutAssetCreationState = {
         entry_id: 'test-entry',
@@ -334,7 +338,8 @@ The following items were processed:
 
     test('should handle context without messageId', async () => {
       const contextWithoutMessageId: RespondWithoutAssetCreationContext = {
-        messageId: undefined,
+        messageId: 'test-message-id',
+        workflowStartTime: Date.now(),
       };
       const state: RespondWithoutAssetCreationState = {
         entry_id: undefined,
@@ -364,10 +369,12 @@ The following items were processed:
     test('should enforce RespondWithoutAssetCreationContext type requirements', () => {
       const validContext: RespondWithoutAssetCreationContext = {
         messageId: 'message-123',
+        workflowStartTime: Date.now(),
       };
 
       const extendedContext = {
         messageId: 'message-456',
+        workflowStartTime: Date.now(),
         additionalField: 'extra-data',
       };
 

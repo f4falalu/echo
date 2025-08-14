@@ -21,6 +21,7 @@ const MessageUserClarifyingQuestionOutputSchema = z.object({});
 
 const MessageUserClarifyingQuestionContextSchema = z.object({
   messageId: z.string().describe('The message ID of the message that triggered the tool'),
+  workflowStartTime: z.number().describe('The start time of the workflow'),
 });
 
 const MessageUserClarifyingQuestionStateSchema = z.object({

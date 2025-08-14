@@ -88,28 +88,31 @@ describe('createModifyMetricsFinish', () => {
 
     expect(updateMessageEntries).toHaveBeenCalledWith({
       messageId: 'msg-123',
-      toolCallId: 'tool-123',
-      responseEntry: expect.objectContaining({
-        id: 'tool-123',
-        type: 'files',
-        title: 'Modifying metrics...',
-        status: 'loading',
-        file_ids: ['metric-1'],
-        files: expect.any(Object),
-      }),
-      rawLlmMessage: expect.objectContaining({
-        role: 'assistant',
-        content: expect.arrayContaining([
-          expect.objectContaining({
-            type: 'tool-call',
-            toolCallId: 'tool-123',
-            toolName: 'modifyMetrics',
-            input: {
-              files: [{ id: 'metric-1', yml_content: 'content1' }],
-            },
-          }),
-        ]),
-      }),
+      responseMessages: [
+        expect.objectContaining({
+          id: 'tool-123',
+          type: 'files',
+          title: 'Modifying metrics...',
+          status: 'loading',
+          file_ids: ['metric-1'],
+          files: expect.any(Object),
+        }),
+      ],
+      rawLlmMessages: [
+        expect.objectContaining({
+          role: 'assistant',
+          content: expect.arrayContaining([
+            expect.objectContaining({
+              type: 'tool-call',
+              toolCallId: 'tool-123',
+              toolName: 'modifyMetrics',
+              input: {
+                files: [{ id: 'metric-1', yml_content: 'content1' }],
+              },
+            }),
+          ]),
+        }),
+      ],
     });
   });
 
@@ -192,7 +195,6 @@ describe('createModifyMetricsFinish', () => {
     expect(updateMessageEntries).toHaveBeenCalledWith(
       expect.objectContaining({
         messageId: 'msg-123',
-        toolCallId: 'tool-123',
       })
     );
   });

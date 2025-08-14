@@ -227,7 +227,6 @@ describe('createMetricsDelta', () => {
       expect(updateMessageEntriesSpy).toHaveBeenCalledWith(
         expect.objectContaining({
           messageId: 'msg-1',
-          toolCallId: 'tool-123',
         })
       );
     });

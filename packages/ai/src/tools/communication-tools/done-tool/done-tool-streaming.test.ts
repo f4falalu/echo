@@ -12,6 +12,7 @@ vi.mock('@buster/database', () => ({
 describe('Done Tool Streaming Tests', () => {
   const mockContext: DoneToolContext = {
     messageId: 'test-message-id-123',
+    workflowStartTime: Date.now(),
   };
 
   describe('createDoneToolStart', () => {
@@ -110,6 +111,7 @@ describe('Done Tool Streaming Tests', () => {
     test('should handle context without messageId', async () => {
       const contextWithoutMessageId: DoneToolContext = {
         messageId: '',
+        workflowStartTime: Date.now(),
       };
       const state: DoneToolState = {
         entry_id: undefined,
@@ -361,10 +363,12 @@ The following items were processed:
     test('should enforce DoneToolContext type requirements', () => {
       const validContext: DoneToolContext = {
         messageId: 'message-123',
+        workflowStartTime: Date.now(),
       };
 
       const extendedContext = {
         messageId: 'message-456',
+        workflowStartTime: Date.now(),
         additionalField: 'extra-data',
       };
 

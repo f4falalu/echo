@@ -35,9 +35,8 @@ export function createTodosStepDelta(todosState: CreateTodosState, context: Crea
         if (todosReasoningEntry) {
           await updateMessageEntries({
             messageId: context.messageId,
-            reasoningEntry: todosReasoningEntry,
-            // Don't update rawLlmMessage during streaming
-            toolCallId: todosState.entry_id || '',
+            reasoningMessages: [todosReasoningEntry],
+            // Don't update rawLlmMessages during streaming
           });
         }
       } catch (error) {

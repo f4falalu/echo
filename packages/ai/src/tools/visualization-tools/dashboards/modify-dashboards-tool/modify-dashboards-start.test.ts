@@ -67,7 +67,6 @@ describe('modify-dashboards-start', () => {
     expect(updateMessageEntries).toHaveBeenCalledWith(
       expect.objectContaining({
         messageId: 'msg-123',
-        toolCallId: 'tool-123',
       })
     );
   });

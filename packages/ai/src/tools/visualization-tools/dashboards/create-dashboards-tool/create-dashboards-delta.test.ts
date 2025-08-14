@@ -254,17 +254,20 @@ describe('createDashboardsDelta', () => {
       expect(updateMessageEntriesSpy).toHaveBeenCalledWith(
         expect.objectContaining({
           messageId: 'msg-1',
-          toolCallId: 'tool-123',
-          reasoningEntry: expect.objectContaining({
-            type: 'files',
-            title: 'Creating dashboards...',
-            status: 'loading',
-            secondary_title: undefined,
-          }),
-          rawLlmMessage: expect.objectContaining({
-            role: 'assistant',
-            content: expect.any(Array),
-          }),
+          reasoningMessages: [
+            expect.objectContaining({
+              type: 'files',
+              title: 'Creating dashboards...',
+              status: 'loading',
+              secondary_title: undefined,
+            }),
+          ],
+          rawLlmMessages: [
+            expect.objectContaining({
+              role: 'assistant',
+              content: expect.any(Array),
+            }),
+          ],
         })
       );
     });
@@ -387,14 +390,18 @@ describe('createDashboardsDelta', () => {
       expect(updateMessageEntriesSpy).toHaveBeenCalledWith(
         expect.objectContaining({
           messageId: 'msg-1',
-          reasoningEntry: expect.objectContaining({
-            file_ids: expect.any(Array),
-            secondary_title: undefined,
-          }),
-          rawLlmMessage: expect.objectContaining({
-            role: 'assistant',
-            content: expect.any(Array),
-          }),
+          reasoningMessages: [
+            expect.objectContaining({
+              file_ids: expect.any(Array),
+              secondary_title: undefined,
+            }),
+          ],
+          rawLlmMessages: [
+            expect.objectContaining({
+              role: 'assistant',
+              content: expect.any(Array),
+            }),
+          ],
         })
       );
     });

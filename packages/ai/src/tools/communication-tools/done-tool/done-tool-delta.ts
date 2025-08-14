@@ -1,4 +1,4 @@
-import { updateMessageEntries } from '@buster/database';
+import { type UpdateMessageEntriesParams, updateMessageEntries } from '@buster/database';
 import type { ToolCallOptions } from 'ai';
 import {
   OptimisticJsonParser,
@@ -46,14 +46,21 @@ export function createDoneToolDelta(doneToolState: DoneToolState, context: DoneT
       );
       const doneToolMessage = createDoneToolRawLlmMessageEntry(doneToolState, options.toolCallId);
 
+      const entries: UpdateMessageEntriesParams = {
+        messageId: context.messageId,
+      };
+
+      if (doneToolResponseEntry) {
+        entries.responseMessages = [doneToolResponseEntry];
+      }
+
+      if (doneToolMessage) {
+        entries.rawLlmMessages = [doneToolMessage];
+      }
+
       try {
-        if (doneToolMessage) {
-          await updateMessageEntries({
-            messageId: context.messageId,
-            responseEntry: doneToolResponseEntry,
-            rawLlmMessage: doneToolMessage,
-            toolCallId: options.toolCallId,
-          });
+        if (entries.responseMessages || entries.rawLlmMessages) {
+          await updateMessageEntries(entries);
         }
       } catch (error) {
         console.error('[done-tool] Failed to update done tool raw LLM message:', error);

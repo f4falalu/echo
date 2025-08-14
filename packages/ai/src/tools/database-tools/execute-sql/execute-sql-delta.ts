@@ -56,14 +56,21 @@ export function createExecuteSqlDelta(state: ExecuteSqlState, context: ExecuteSq
     const reasoningEntry = createExecuteSqlReasoningEntry(state, options.toolCallId);
     const rawLlmMessage = createExecuteSqlRawLlmMessageEntry(state, options.toolCallId);
 
-    if (reasoningEntry && rawLlmMessage) {
+    const messagesToSave: Parameters<typeof updateMessageEntries>[0] = {
+      messageId: context.messageId,
+    };
+
+    if (reasoningEntry) {
+      messagesToSave.reasoningMessages = [reasoningEntry];
+    }
+
+    if (rawLlmMessage) {
+      messagesToSave.rawLlmMessages = [rawLlmMessage];
+    }
+
+    if (messagesToSave.reasoningMessages || messagesToSave.rawLlmMessages) {
       try {
-        await updateMessageEntries({
-          messageId: context.messageId,
-          reasoningEntry,
-          rawLlmMessage,
-          toolCallId: options.toolCallId,
-        });
+        await updateMessageEntries(messagesToSave);
       } catch (error) {
         console.error('[execute-sql] Failed to update entries during delta:', {
           messageId: context.messageId,

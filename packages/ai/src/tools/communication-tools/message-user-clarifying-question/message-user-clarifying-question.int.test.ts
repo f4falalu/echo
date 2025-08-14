@@ -30,6 +30,7 @@ describe('messageUserClarifyingQuestion integration', () => {
       messageId: 'test-message-123',
       chatId: 'test-chat-456',
       userId: 'test-user-789',
+      workflowStartTime: Date.now(),
     };
 
     const tool = createMessageUserClarifyingQuestionTool(mockContext);
@@ -69,21 +70,21 @@ describe('messageUserClarifyingQuestion integration', () => {
     const initialCall = mockUpdateMessageEntries.mock.calls[0]?.[0];
     expect(initialCall).toBeDefined();
     expect(initialCall?.messageId).toBe('test-message-123');
-    expect(initialCall).toHaveProperty('responseEntry');
-    expect(initialCall).toHaveProperty('rawLlmMessage');
+    expect(initialCall).toHaveProperty('responseMessages');
+    expect(initialCall).toHaveProperty('rawLlmMessages');
     expect(initialCall).toHaveProperty('toolCallId');
 
     // Check update call (second call)
     const updateCall = mockUpdateMessageEntries.mock.calls[1]?.[0];
     expect(updateCall).toBeDefined();
     expect(updateCall?.messageId).toBe('test-message-123');
-    expect(updateCall).toHaveProperty('responseEntry');
+    expect(updateCall).toHaveProperty('responseMessages');
 
-    // Verify the response entry has the clarifying question
-    const responseEntry = updateCall?.responseEntry as
-      | { type?: string; message?: string; is_final_message?: boolean }
+    // Verify the response messages has the clarifying question
+    const responseMessages = updateCall?.responseMessages as
+      | Array<{ type?: string; message?: string; is_final_message?: boolean }>
       | undefined;
-    expect(responseEntry).toMatchObject({
+    expect(responseMessages?.[0]).toMatchObject({
       type: 'text',
       message: 'What specific metrics would you like to analyze?',
       is_final_message: true,
@@ -95,6 +96,7 @@ describe('messageUserClarifyingQuestion integration', () => {
       messageId: 'test-message-stream',
       chatId: 'test-chat-stream',
       userId: 'test-user-stream',
+      workflowStartTime: Date.now(),
     };
 
     const tool = createMessageUserClarifyingQuestionTool(mockContext);
@@ -146,9 +148,9 @@ describe('messageUserClarifyingQuestion integration', () => {
 
     // Verify final update has complete question
     const lastUpdateCall = updateCalls[updateCalls.length - 1] as
-      | { responseEntry?: { message?: string } }
+      | { responseMessages?: Array<{ message?: string }> }
       | undefined;
-    expect(lastUpdateCall?.responseEntry?.message).toBe(
+    expect(lastUpdateCall?.responseMessages?.[0]?.message).toBe(
       'Please provide more details about your requirements'
     );
   });
@@ -161,6 +163,7 @@ describe('messageUserClarifyingQuestion integration', () => {
       messageId: 'test-message-error',
       chatId: 'test-chat-error',
       userId: 'test-user-error',
+      workflowStartTime: Date.now(),
     };
 
     const tool = createMessageUserClarifyingQuestionTool(mockContext);
@@ -190,6 +193,7 @@ describe('messageUserClarifyingQuestion integration', () => {
       messageId: 'test-message-markdown',
       chatId: 'test-chat-markdown',
       userId: 'test-user-markdown',
+      workflowStartTime: Date.now(),
     };
 
     const tool = createMessageUserClarifyingQuestionTool(mockContext);
@@ -232,7 +236,8 @@ This will help me create a more accurate analysis.`,
     const calls = mockUpdateMessageEntries.mock.calls.map((args) => args[0]);
     const hasMarkdownQuestion = calls.some((arg) => {
       const entry =
-        (arg?.responseEntry as { message?: string } | undefined) || (arg?.rawLlmMessage as unknown);
+        (arg?.responseMessages as Array<{ message?: string }> | undefined)?.[0] ||
+        (arg?.rawLlmMessages as unknown);
       return entry && JSON.stringify(entry).includes('**Data Sources**');
     });
 

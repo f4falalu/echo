@@ -329,14 +329,21 @@ export function createExecuteSqlExecute(state: ExecuteSqlState, context: Execute
         const rawLlmMessage = createExecuteSqlRawLlmMessageEntry(state, state.toolCallId || '');
 
         // Update database with final status
-        if (reasoningEntry && rawLlmMessage) {
+        const messagesToSave: Parameters<typeof updateMessageEntries>[0] = {
+          messageId: context.messageId,
+        };
+
+        if (reasoningEntry) {
+          messagesToSave.reasoningMessages = [reasoningEntry];
+        }
+
+        if (rawLlmMessage) {
+          messagesToSave.rawLlmMessages = [rawLlmMessage];
+        }
+
+        if (messagesToSave.reasoningMessages || messagesToSave.rawLlmMessages) {
           try {
-            await updateMessageEntries({
-              messageId: context.messageId,
-              reasoningEntry,
-              rawLlmMessage,
-              toolCallId: state.toolCallId || '',
-            });
+            await updateMessageEntries(messagesToSave);
           } catch (error) {
             console.error('[execute-sql] Failed to update final entries:', {
               messageId: context.messageId,

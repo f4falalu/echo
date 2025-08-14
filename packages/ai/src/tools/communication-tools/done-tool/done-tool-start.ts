@@ -1,5 +1,6 @@
-import { updateMessageEntries } from '@buster/database';
+import { updateMessage, updateMessageEntries } from '@buster/database';
 import type { ToolCallOptions } from 'ai';
+import type { UpdateMessageEntriesParams } from '../../../../../database/src/queries/messages/update-message-entries';
 import type { DoneToolContext, DoneToolState } from './done-tool';
 import {
   createFileResponseMessages,
@@ -36,17 +37,14 @@ export function createDoneToolStart(doneToolState: DoneToolState, context: DoneT
           responseCount: fileResponses.length,
         });
 
-        // Add each file as a response entry to the database
-        for (const fileResponse of fileResponses) {
-          try {
-            await updateMessageEntries({
-              messageId: context.messageId,
-              responseEntry: fileResponse,
-              toolCallId: options.toolCallId,
-            });
-          } catch (error) {
-            console.error('[done-tool] Failed to add file response entry:', error);
-          }
+        // Add all files as response entries to the database in a single batch
+        try {
+          await updateMessageEntries({
+            messageId: context.messageId,
+            responseMessages: fileResponses,
+          });
+        } catch (error) {
+          console.error('[done-tool] Failed to add file response entries:', error);
         }
       }
     }
@@ -54,13 +52,40 @@ export function createDoneToolStart(doneToolState: DoneToolState, context: DoneT
     const doneToolResponseEntry = createDoneToolResponseMessage(doneToolState, options.toolCallId);
     const doneToolMessage = createDoneToolRawLlmMessageEntry(doneToolState, options.toolCallId);
 
+    const entries: UpdateMessageEntriesParams = {
+      messageId: context.messageId,
+    };
+
+    if (doneToolResponseEntry) {
+      entries.responseMessages = [doneToolResponseEntry];
+    }
+
+    if (doneToolMessage) {
+      entries.rawLlmMessages = [doneToolMessage];
+    }
+
     try {
-      if (doneToolMessage) {
-        await updateMessageEntries({
-          messageId: context.messageId,
-          responseEntry: doneToolResponseEntry,
-          rawLlmMessage: doneToolMessage,
-          toolCallId: options.toolCallId,
+      if (entries.responseMessages || entries.rawLlmMessages) {
+        await updateMessageEntries(entries);
+      }
+
+      // Mark message as completed and add final reasoning message with workflow time
+      if (context.messageId) {
+        const currentTime = Date.now();
+        const elapsedTimeMs = currentTime - context.workflowStartTime;
+        const elapsedSeconds = Math.floor(elapsedTimeMs / 1000);
+
+        let timeString: string;
+        if (elapsedSeconds < 60) {
+          timeString = `${elapsedSeconds} seconds`;
+        } else {
+          const elapsedMinutes = Math.floor(elapsedSeconds / 60);
+          timeString = `${elapsedMinutes} min`;
+        }
+
+        await updateMessage(context.messageId, {
+          isCompleted: true,
+          finalReasoningMessage: `Total workflow time: ${timeString}`,
         });
       }
     } catch (error) {

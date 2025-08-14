@@ -1,4 +1,4 @@
-import { updateMessageEntries } from '@buster/database';
+import { type UpdateMessageEntriesParams, updateMessageEntries } from '@buster/database';
 import type { ToolCallOptions } from 'ai';
 import {
   OptimisticJsonParser,
@@ -18,9 +18,10 @@ import type {
 const FINAL_RESPONSE_KEY =
   'final_response' as const satisfies keyof RespondWithoutAssetCreationInput;
 
-export function createRespondWithoutAssetCreationDelta<
-  TAgentContext extends RespondWithoutAssetCreationContext,
->(state: RespondWithoutAssetCreationState, context: TAgentContext) {
+export function createRespondWithoutAssetCreationDelta(
+  state: RespondWithoutAssetCreationState,
+  context: RespondWithoutAssetCreationContext
+) {
   return async function respondWithoutAssetCreationDelta(
     options: { inputTextDelta: string } & ToolCallOptions
   ): Promise<void> {
@@ -50,23 +51,27 @@ export function createRespondWithoutAssetCreationDelta<
         options.toolCallId
       );
 
-      // Only update database if we have a valid messageId
-      if (context.messageId) {
-        try {
-          if (rawLlmMessage) {
-            await updateMessageEntries({
-              messageId: context.messageId,
-              responseEntry: responseEntry,
-              rawLlmMessage: rawLlmMessage,
-              toolCallId: options.toolCallId,
-            });
-          }
-        } catch (error) {
-          console.error(
-            '[respond-without-asset-creation] Failed to update streaming entries:',
-            error
-          );
+      const entries: UpdateMessageEntriesParams = {
+        messageId: context.messageId,
+      };
+
+      if (responseEntry) {
+        entries.responseMessages = [responseEntry];
+      }
+
+      if (rawLlmMessage) {
+        entries.rawLlmMessages = [rawLlmMessage];
+      }
+
+      try {
+        if (entries.responseMessages || entries.rawLlmMessages) {
+          await updateMessageEntries(entries);
         }
+      } catch (error) {
+        console.error(
+          '[respond-without-asset-creation] Failed to update streaming entries:',
+          error
+        );
       }
     }
   };

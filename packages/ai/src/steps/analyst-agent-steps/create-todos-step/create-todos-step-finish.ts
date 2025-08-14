@@ -23,9 +23,8 @@ export function createTodosStepFinish(todosState: CreateTodosState, context: Cre
       if (todosReasoningEntry && todosRawMessage) {
         await updateMessageEntries({
           messageId: context.messageId,
-          reasoningEntry: todosReasoningEntry,
-          rawLlmMessage: todosRawMessage,
-          toolCallId: todosState.entry_id || '',
+          reasoningMessages: [todosReasoningEntry],
+          rawLlmMessages: [todosRawMessage],
         });
       }
     } catch (error) {

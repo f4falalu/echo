@@ -48,8 +48,7 @@ export function createMessageUserClarifyingQuestionDelta(
 
           await updateMessageEntries({
             messageId,
-            responseEntry,
-            toolCallId,
+            responseMessages: [responseEntry],
           });
         } catch (error) {
           console.error(

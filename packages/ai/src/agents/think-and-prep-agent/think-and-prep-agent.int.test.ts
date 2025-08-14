@@ -11,6 +11,7 @@ describe('Think and Prep Agent Integration Tests', () => {
     try {
       const thinkAndPrepAgent = createThinkAndPrepAgent({
         messageId: 'test-message-123',
+        workflowStartTime: Date.now(),
         sql_dialect_guidance: 'postgresql',
         chatId: 'test-chat-123',
         organizationId: 'test-organization-123',

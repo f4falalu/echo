@@ -83,12 +83,14 @@ export function createSequentialThinkingDelta(
       );
 
       try {
-        if (reasoningEntry && rawLlmMessage) {
+        const reasoningMessages = reasoningEntry ? [reasoningEntry] : [];
+        const rawLlmMessages = rawLlmMessage ? [rawLlmMessage] : [];
+
+        if (reasoningMessages.length > 0 || rawLlmMessages.length > 0) {
           await updateMessageEntries({
             messageId: context.messageId,
-            reasoningEntry,
-            rawLlmMessage,
-            toolCallId: options.toolCallId,
+            reasoningMessages,
+            rawLlmMessages,
           });
         }
       } catch (error) {
