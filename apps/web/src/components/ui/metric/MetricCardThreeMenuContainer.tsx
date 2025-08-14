@@ -26,7 +26,7 @@ export const MetricCardThreeMenuContainer = ({
         isOpen && 'pointer-events-auto block',
         className
       )}>
-      <Dropdown items={dropdownItems} side="left" align="center" onOpenChange={setIsOpen}>
+      <Dropdown items={dropdownItems} side="left" align="start" onOpenChange={setIsOpen}>
         {children}
       </Dropdown>
     </div>
