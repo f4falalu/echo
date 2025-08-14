@@ -34,8 +34,8 @@ export async function getDataSourceCredentials(
     // Parse and return the credentials
     try {
       return JSON.parse(secretString);
-    } catch (parseError) {
-      console.error(parseError);
+    } catch {
+      // Don't log the parse error as it may contain sensitive credential information
       throw new Error(
         `Failed to parse credentials for data source ID ${validated.dataSourceId}: Invalid JSON format`
       );

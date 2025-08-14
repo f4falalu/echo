@@ -85,7 +85,7 @@ export async function bulkRemoveAssetPermissions(
     )
     .returning();
 
-  return deleted as AssetPermission[];
+  return deleted;
 }
 
 /**

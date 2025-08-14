@@ -17,11 +17,7 @@ const app = new Hono()
 
     const response = await downloadMetricFileHandler(id, user);
 
-    // Option 1: Return JSON with download URL for client to handle
     return c.json(response);
-
-    // Option 2: Redirect directly to download URL (uncomment if preferred)
-    // return c.redirect(response.downloadUrl);
   })
 
   // Error handler for metric_files routes

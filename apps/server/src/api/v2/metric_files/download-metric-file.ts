@@ -74,7 +74,7 @@ export async function downloadMetricFileHandler(
       // Check for timeout
       if (Date.now() - startTime > timeout) {
         throw new HTTPException(504, {
-          message: 'Export took too long to complete. Please try again with a smaller date range.',
+          message: 'Export took too long to complete. Please try again with less data.',
         });
       }
 

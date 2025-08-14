@@ -56,6 +56,8 @@ export async function getMetricForExport(input: GetMetricForExportInput): Promis
   // The content structure may vary, so we check multiple possible locations
   let sql: string | undefined;
 
+  //TODO: we need to use the metric type when we merge in the new ai sdk v5 branch date: 08/14/2025
+
   if (typeof result.content === 'object' && result.content !== null) {
     // Check common locations for SQL in metric content
     const content = result.content as Record<string, unknown>;
