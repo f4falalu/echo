@@ -5,21 +5,24 @@ const inviteModalStore = new Store({
   openInviteModal: false,
 });
 
+export const toggleInviteModal = (v?: boolean) => {
+  const newState = v ?? !inviteModalStore.state.openInviteModal;
+  inviteModalStore.setState({ openInviteModal: newState });
+};
+
+export const closeInviteModal = () => {
+  inviteModalStore.setState({ openInviteModal: false });
+};
+
 export const useInviteModalStore = () => {
   const state = useStore(inviteModalStore);
-
-  const onToggleInviteModal = useCallback(
-    (v?: boolean) => {
-      inviteModalStore.setState({ openInviteModal: v ?? !state.openInviteModal });
-    },
-    [state.openInviteModal]
-  );
 
   return useMemo(
     () => ({
       ...state,
-      onToggleInviteModal,
+      toggleInviteModal,
+      closeInviteModal,
     }),
-    [state, onToggleInviteModal]
+    [state]
   );
 };

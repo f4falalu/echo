@@ -20,11 +20,16 @@ import { Route as AuthLoginRouteImport } from './routes/auth.login'
 import { Route as AppHomeRouteImport } from './routes/app.home'
 import { Route as AppReportsIndexRouteImport } from './routes/app.reports.index'
 import { Route as AppMetricsIndexRouteImport } from './routes/app.metrics.index'
+import { Route as AppLogsIndexRouteImport } from './routes/app.logs.index'
+import { Route as AppDatasetsIndexRouteImport } from './routes/app.datasets.index'
 import { Route as AppDashboardsIndexRouteImport } from './routes/app.dashboards.index'
+import { Route as AppCollectionsIndexRouteImport } from './routes/app.collections.index'
 import { Route as AppChatsIndexRouteImport } from './routes/app.chats.index'
 import { Route as AppReportsReportIdRouteImport } from './routes/app.reports.$reportId'
 import { Route as AppMetricsMetricIdRouteImport } from './routes/app.metrics.$metricId'
+import { Route as AppDatasetsDatasetIdRouteImport } from './routes/app.datasets.$datasetId'
 import { Route as AppDashboardsDashboardIdRouteImport } from './routes/app.dashboards.$dashboardId'
+import { Route as AppCollectionsCollectionIdRouteImport } from './routes/app.collections.$collectionId'
 import { Route as AppChatsChatIdRouteImport } from './routes/app.chats.$chatId'
 import { ServerRoute as AuthCallbackServerRouteImport } from './routes/auth.callback'
 
@@ -75,9 +80,24 @@ const AppMetricsIndexRoute = AppMetricsIndexRouteImport.update({
   path: '/metrics/',
   getParentRoute: () => AppRoute,
 } as any)
+const AppLogsIndexRoute = AppLogsIndexRouteImport.update({
+  id: '/logs/',
+  path: '/logs/',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppDatasetsIndexRoute = AppDatasetsIndexRouteImport.update({
+  id: '/datasets/',
+  path: '/datasets/',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppDashboardsIndexRoute = AppDashboardsIndexRouteImport.update({
   id: '/dashboards/',
   path: '/dashboards/',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppCollectionsIndexRoute = AppCollectionsIndexRouteImport.update({
+  id: '/collections/',
+  path: '/collections/',
   getParentRoute: () => AppRoute,
 } as any)
 const AppChatsIndexRoute = AppChatsIndexRouteImport.update({
@@ -95,10 +115,21 @@ const AppMetricsMetricIdRoute = AppMetricsMetricIdRouteImport.update({
   path: '/metrics/$metricId',
   getParentRoute: () => AppRoute,
 } as any)
+const AppDatasetsDatasetIdRoute = AppDatasetsDatasetIdRouteImport.update({
+  id: '/datasets/$datasetId',
+  path: '/datasets/$datasetId',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppDashboardsDashboardIdRoute =
   AppDashboardsDashboardIdRouteImport.update({
     id: '/dashboards/$dashboardId',
     path: '/dashboards/$dashboardId',
+    getParentRoute: () => AppRoute,
+  } as any)
+const AppCollectionsCollectionIdRoute =
+  AppCollectionsCollectionIdRouteImport.update({
+    id: '/collections/$collectionId',
+    path: '/collections/$collectionId',
     getParentRoute: () => AppRoute,
   } as any)
 const AppChatsChatIdRoute = AppChatsChatIdRouteImport.update({
@@ -121,11 +152,16 @@ export interface FileRoutesByFullPath {
   '/auth/logout': typeof AuthLogoutRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
   '/app/chats/$chatId': typeof AppChatsChatIdRoute
+  '/app/collections/$collectionId': typeof AppCollectionsCollectionIdRoute
   '/app/dashboards/$dashboardId': typeof AppDashboardsDashboardIdRoute
+  '/app/datasets/$datasetId': typeof AppDatasetsDatasetIdRoute
   '/app/metrics/$metricId': typeof AppMetricsMetricIdRoute
   '/app/reports/$reportId': typeof AppReportsReportIdRoute
   '/app/chats': typeof AppChatsIndexRoute
+  '/app/collections': typeof AppCollectionsIndexRoute
   '/app/dashboards': typeof AppDashboardsIndexRoute
+  '/app/datasets': typeof AppDatasetsIndexRoute
+  '/app/logs': typeof AppLogsIndexRoute
   '/app/metrics': typeof AppMetricsIndexRoute
   '/app/reports': typeof AppReportsIndexRoute
 }
@@ -138,11 +174,16 @@ export interface FileRoutesByTo {
   '/auth/logout': typeof AuthLogoutRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
   '/app/chats/$chatId': typeof AppChatsChatIdRoute
+  '/app/collections/$collectionId': typeof AppCollectionsCollectionIdRoute
   '/app/dashboards/$dashboardId': typeof AppDashboardsDashboardIdRoute
+  '/app/datasets/$datasetId': typeof AppDatasetsDatasetIdRoute
   '/app/metrics/$metricId': typeof AppMetricsMetricIdRoute
   '/app/reports/$reportId': typeof AppReportsReportIdRoute
   '/app/chats': typeof AppChatsIndexRoute
+  '/app/collections': typeof AppCollectionsIndexRoute
   '/app/dashboards': typeof AppDashboardsIndexRoute
+  '/app/datasets': typeof AppDatasetsIndexRoute
+  '/app/logs': typeof AppLogsIndexRoute
   '/app/metrics': typeof AppMetricsIndexRoute
   '/app/reports': typeof AppReportsIndexRoute
 }
@@ -156,11 +197,16 @@ export interface FileRoutesById {
   '/auth/logout': typeof AuthLogoutRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
   '/app/chats/$chatId': typeof AppChatsChatIdRoute
+  '/app/collections/$collectionId': typeof AppCollectionsCollectionIdRoute
   '/app/dashboards/$dashboardId': typeof AppDashboardsDashboardIdRoute
+  '/app/datasets/$datasetId': typeof AppDatasetsDatasetIdRoute
   '/app/metrics/$metricId': typeof AppMetricsMetricIdRoute
   '/app/reports/$reportId': typeof AppReportsReportIdRoute
   '/app/chats/': typeof AppChatsIndexRoute
+  '/app/collections/': typeof AppCollectionsIndexRoute
   '/app/dashboards/': typeof AppDashboardsIndexRoute
+  '/app/datasets/': typeof AppDatasetsIndexRoute
+  '/app/logs/': typeof AppLogsIndexRoute
   '/app/metrics/': typeof AppMetricsIndexRoute
   '/app/reports/': typeof AppReportsIndexRoute
 }
@@ -175,11 +221,16 @@ export interface FileRouteTypes {
     | '/auth/logout'
     | '/auth/reset-password'
     | '/app/chats/$chatId'
+    | '/app/collections/$collectionId'
     | '/app/dashboards/$dashboardId'
+    | '/app/datasets/$datasetId'
     | '/app/metrics/$metricId'
     | '/app/reports/$reportId'
     | '/app/chats'
+    | '/app/collections'
     | '/app/dashboards'
+    | '/app/datasets'
+    | '/app/logs'
     | '/app/metrics'
     | '/app/reports'
   fileRoutesByTo: FileRoutesByTo
@@ -192,11 +243,16 @@ export interface FileRouteTypes {
     | '/auth/logout'
     | '/auth/reset-password'
     | '/app/chats/$chatId'
+    | '/app/collections/$collectionId'
     | '/app/dashboards/$dashboardId'
+    | '/app/datasets/$datasetId'
     | '/app/metrics/$metricId'
     | '/app/reports/$reportId'
     | '/app/chats'
+    | '/app/collections'
     | '/app/dashboards'
+    | '/app/datasets'
+    | '/app/logs'
     | '/app/metrics'
     | '/app/reports'
   id:
@@ -209,11 +265,16 @@ export interface FileRouteTypes {
     | '/auth/logout'
     | '/auth/reset-password'
     | '/app/chats/$chatId'
+    | '/app/collections/$collectionId'
     | '/app/dashboards/$dashboardId'
+    | '/app/datasets/$datasetId'
     | '/app/metrics/$metricId'
     | '/app/reports/$reportId'
     | '/app/chats/'
+    | '/app/collections/'
     | '/app/dashboards/'
+    | '/app/datasets/'
+    | '/app/logs/'
     | '/app/metrics/'
     | '/app/reports/'
   fileRoutesById: FileRoutesById
@@ -310,11 +371,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppMetricsIndexRouteImport
       parentRoute: typeof AppRoute
     }
+    '/app/logs/': {
+      id: '/app/logs/'
+      path: '/logs'
+      fullPath: '/app/logs'
+      preLoaderRoute: typeof AppLogsIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/datasets/': {
+      id: '/app/datasets/'
+      path: '/datasets'
+      fullPath: '/app/datasets'
+      preLoaderRoute: typeof AppDatasetsIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/app/dashboards/': {
       id: '/app/dashboards/'
       path: '/dashboards'
       fullPath: '/app/dashboards'
       preLoaderRoute: typeof AppDashboardsIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/collections/': {
+      id: '/app/collections/'
+      path: '/collections'
+      fullPath: '/app/collections'
+      preLoaderRoute: typeof AppCollectionsIndexRouteImport
       parentRoute: typeof AppRoute
     }
     '/app/chats/': {
@@ -338,11 +420,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppMetricsMetricIdRouteImport
       parentRoute: typeof AppRoute
     }
+    '/app/datasets/$datasetId': {
+      id: '/app/datasets/$datasetId'
+      path: '/datasets/$datasetId'
+      fullPath: '/app/datasets/$datasetId'
+      preLoaderRoute: typeof AppDatasetsDatasetIdRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/app/dashboards/$dashboardId': {
       id: '/app/dashboards/$dashboardId'
       path: '/dashboards/$dashboardId'
       fullPath: '/app/dashboards/$dashboardId'
       preLoaderRoute: typeof AppDashboardsDashboardIdRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/collections/$collectionId': {
+      id: '/app/collections/$collectionId'
+      path: '/collections/$collectionId'
+      fullPath: '/app/collections/$collectionId'
+      preLoaderRoute: typeof AppCollectionsCollectionIdRouteImport
       parentRoute: typeof AppRoute
     }
     '/app/chats/$chatId': {
@@ -369,11 +465,16 @@ declare module '@tanstack/react-start/server' {
 interface AppRouteChildren {
   AppHomeRoute: typeof AppHomeRoute
   AppChatsChatIdRoute: typeof AppChatsChatIdRoute
+  AppCollectionsCollectionIdRoute: typeof AppCollectionsCollectionIdRoute
   AppDashboardsDashboardIdRoute: typeof AppDashboardsDashboardIdRoute
+  AppDatasetsDatasetIdRoute: typeof AppDatasetsDatasetIdRoute
   AppMetricsMetricIdRoute: typeof AppMetricsMetricIdRoute
   AppReportsReportIdRoute: typeof AppReportsReportIdRoute
   AppChatsIndexRoute: typeof AppChatsIndexRoute
+  AppCollectionsIndexRoute: typeof AppCollectionsIndexRoute
   AppDashboardsIndexRoute: typeof AppDashboardsIndexRoute
+  AppDatasetsIndexRoute: typeof AppDatasetsIndexRoute
+  AppLogsIndexRoute: typeof AppLogsIndexRoute
   AppMetricsIndexRoute: typeof AppMetricsIndexRoute
   AppReportsIndexRoute: typeof AppReportsIndexRoute
 }
@@ -381,11 +482,16 @@ interface AppRouteChildren {
 const AppRouteChildren: AppRouteChildren = {
   AppHomeRoute: AppHomeRoute,
   AppChatsChatIdRoute: AppChatsChatIdRoute,
+  AppCollectionsCollectionIdRoute: AppCollectionsCollectionIdRoute,
   AppDashboardsDashboardIdRoute: AppDashboardsDashboardIdRoute,
+  AppDatasetsDatasetIdRoute: AppDatasetsDatasetIdRoute,
   AppMetricsMetricIdRoute: AppMetricsMetricIdRoute,
   AppReportsReportIdRoute: AppReportsReportIdRoute,
   AppChatsIndexRoute: AppChatsIndexRoute,
+  AppCollectionsIndexRoute: AppCollectionsIndexRoute,
   AppDashboardsIndexRoute: AppDashboardsIndexRoute,
+  AppDatasetsIndexRoute: AppDatasetsIndexRoute,
+  AppLogsIndexRoute: AppLogsIndexRoute,
   AppMetricsIndexRoute: AppMetricsIndexRoute,
   AppReportsIndexRoute: AppReportsIndexRoute,
 }

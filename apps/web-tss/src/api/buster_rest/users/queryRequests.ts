@@ -27,7 +27,7 @@ export const useGetMyUserInfo = <TData = UserResponse>(
 
 export const prefetchGetMyUserInfo = async (queryClientProp?: QueryClient) => {
   const queryClient = queryClientProp || new QueryClient();
-  await queryClient.prefetchQuery({
+  await queryClient.ensureQueryData({
     ...userQueryKeys.userGetUserMyself,
     queryFn: () => getMyUserInfo(),
   });

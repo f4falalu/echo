@@ -7,18 +7,24 @@ const contactSupportModalStore = new Store<{
   formType: false,
 });
 
+export const toggleContactSupportModal = (v: typeof contactSupportModalStore.state.formType) => {
+  const newState = v ?? !contactSupportModalStore.state.formType;
+  contactSupportModalStore.setState({ formType: newState });
+};
+
+export const closeContactSupportModal = () => {
+  contactSupportModalStore.setState({ formType: false });
+};
+
 export const useContactSupportModalStore = () => {
   const state = useStore(contactSupportModalStore);
-
-  const onOpenContactSupportModal = useCallback((v: typeof state.formType) => {
-    contactSupportModalStore.setState({ formType: v });
-  }, []);
 
   return useMemo(
     () => ({
       ...state,
-      onOpenContactSupportModal,
+      toggleContactSupportModal,
+      closeContactSupportModal,
     }),
-    [state, onOpenContactSupportModal]
+    [state]
   );
 };

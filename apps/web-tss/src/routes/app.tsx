@@ -1,7 +1,8 @@
 import { createFileRoute, Outlet, redirect } from '@tanstack/react-router';
-import { getAppLayout } from '../api/server-functions/getAppLayout';
-import { AppProviders } from '../context/Providers';
-import { PRIMARY_APP_LAYOUT_ID, PrimaryAppLayout } from '../layouts/PrimaryAppLayout';
+import { prefetchGetMyUserInfo } from '@/api/buster_rest/users/queryRequests';
+import { getAppLayout } from '@/api/server-functions/getAppLayout';
+import { AppProviders } from '@/context/Providers';
+import { PRIMARY_APP_LAYOUT_ID, PrimaryAppLayout } from '@/layouts/PrimaryAppLayout';
 
 export const Route = createFileRoute('/app')({
   beforeLoad: async ({ context, location }) => {
@@ -17,8 +18,12 @@ export const Route = createFileRoute('/app')({
     }
   },
 
-  loader: async () => {
-    const initialLayout = await getAppLayout({ data: { id: PRIMARY_APP_LAYOUT_ID } });
+  loader: async ({ context }) => {
+    const { queryClient } = context;
+    const [initialLayout] = await Promise.all([
+      getAppLayout({ data: { id: PRIMARY_APP_LAYOUT_ID } }),
+      prefetchGetMyUserInfo(queryClient),
+    ]);
     return {
       initialLayout,
     };

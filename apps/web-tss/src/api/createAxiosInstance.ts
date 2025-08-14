@@ -61,12 +61,7 @@ export const createAxiosInstance = (baseURL = BASE_URL_V2) => {
   return apiInstance;
 };
 
-export const defaultAxiosRequestHandler = async (
-  config: InternalAxiosRequestConfig<unknown>,
-  options?: {
-    checkTokenValidity: SupabaseContextReturnType['checkTokenValidity'];
-  }
-) => {
+export const defaultAxiosRequestHandler = async (config: InternalAxiosRequestConfig<unknown>) => {
   let token: string | undefined = '';
 
   try {
