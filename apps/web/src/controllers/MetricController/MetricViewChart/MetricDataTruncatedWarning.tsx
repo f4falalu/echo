@@ -22,9 +22,9 @@ export const MetricDataTruncatedWarning: React.FC<MetricDataTruncatedWarningProp
       setIsDownloading(true);
       setHasError(false);
 
-      // Create a timeout promise that rejects after 3 minutes
+      // Create a timeout promise that rejects after 2 minutes (matching backend timeout)
       const timeoutPromise = new Promise((_, reject) => {
-        setTimeout(() => reject(new Error('Download timeout')), 3 * 60 * 1000); // 3 minutes
+        setTimeout(() => reject(new Error('Download timeout')), 2 * 60 * 1000); // 2 minutes
       });
 
       // Race between the API call and the timeout
@@ -36,14 +36,17 @@ export const MetricDataTruncatedWarning: React.FC<MetricDataTruncatedWarningProp
       // Simply navigate to the download URL
       // The response-content-disposition header will force a download
       window.location.href = response.downloadUrl;
+
+      // Keep button disabled for longer since download is async
+      // User can click again after 5 seconds if needed
+      setTimeout(() => {
+        setIsDownloading(false);
+      }, 5000);
     } catch (error) {
       console.error('Failed to download metric file:', error);
       setHasError(true);
-    } finally {
-      // Add a small delay before removing loading state since download happens async
-      setTimeout(() => {
-        setIsDownloading(false);
-      }, 1000);
+      // Re-enable button immediately on error so user can retry
+      setIsDownloading(false);
     }
   };
 

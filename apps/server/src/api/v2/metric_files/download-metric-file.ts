@@ -50,12 +50,21 @@ export async function downloadMetricFileHandler(
   }
 
   try {
-    // Trigger the export task
-    const handle = await tasks.trigger('export-metric-data', {
-      metricId,
-      userId: user.id,
-      organizationId,
-    });
+    // Trigger the export task with idempotency to prevent duplicates
+    // If the same user tries to download the same metric within 5 minutes,
+    // it will return the existing task instead of creating a new one
+    const handle = await tasks.trigger(
+      'export-metric-data',
+      {
+        metricId,
+        userId: user.id,
+        organizationId,
+      },
+      {
+        idempotencyKey: `export-${user.id}-${metricId}`,
+        idempotencyKeyTTL: '5m', // 5 minutes TTL
+      }
+    );
 
     // Poll for task completion with timeout
     const startTime = Date.now();

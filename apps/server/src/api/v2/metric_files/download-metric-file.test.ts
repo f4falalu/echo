@@ -121,12 +121,19 @@ describe('downloadMetricFileHandler', () => {
         organizationId: mockOrganizationId,
       });
 
-      // Verify task was triggered with correct parameters
-      expect(tasks.trigger).toHaveBeenCalledWith('export-metric-data', {
-        metricId: mockMetricId,
-        userId: mockUser.id,
-        organizationId: mockOrganizationId,
-      });
+      // Verify task was triggered with correct parameters and idempotency
+      expect(tasks.trigger).toHaveBeenCalledWith(
+        'export-metric-data',
+        {
+          metricId: mockMetricId,
+          userId: mockUser.id,
+          organizationId: mockOrganizationId,
+        },
+        {
+          idempotencyKey: `export-${mockUser.id}-${mockMetricId}`,
+          idempotencyKeyTTL: '5m',
+        }
+      );
 
       // Verify successful response
       expect(result).toMatchObject({
