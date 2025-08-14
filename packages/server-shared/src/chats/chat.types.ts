@@ -1,10 +1,9 @@
 import { z } from 'zod';
 import { AssetTypeSchema } from '../assets/asset-types.types';
-import { ShareIndividualSchema } from '../share';
+import { AssetPermissionRoleSchema, ShareIndividualSchema } from '../share';
 import { ChatMessageSchema } from './chat-message.types';
 
 // Asset Permission Role enum (matching database enum)
-export const AssetPermissionRoleSchema = z.enum(['viewer', 'editor', 'owner']);
 export const ChatAssetTypeSchema = AssetTypeSchema.exclude(['chat', 'collection']);
 
 // Main ChatWithMessages schema

@@ -1,4 +1,4 @@
-import { logger, schemaTask } from '@trigger.dev/sdk/v3';
+import { logger, schemaTask } from '@trigger.dev/sdk';
 import { IntrospectDataInputSchema, type IntrospectDataOutput } from './interfaces';
 /**
  * Task for introspecting data sources by connecting to them and analyzing their structure.
