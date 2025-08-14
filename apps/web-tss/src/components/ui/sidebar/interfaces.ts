@@ -3,7 +3,7 @@ import type React from 'react';
 export interface ISidebarItem {
   label: string;
   icon?: React.ReactNode;
-  route: string | null;
+  route: string | null; //typesafe this?
   id: string;
   disabled?: boolean;
   active?: boolean;

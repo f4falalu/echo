@@ -1,26 +1,24 @@
-import type { Meta, StoryObj } from '@storybook/nextjs';
-import React from 'react';
-import { BusterRoutes } from '../../../routes';
-import { HouseModern } from '../icons/NucleoIconOutlined';
+import type { Meta, StoryObj } from '@storybook/react-vite';
+import { Check3 } from '../icons/NucleoIconOutlined';
 import { SidebarItem } from './SidebarItem';
 
 const meta: Meta<typeof SidebarItem> = {
   title: 'UI/Sidebar/SidebarItem',
   component: SidebarItem,
   parameters: {
-    layout: 'centered'
+    layout: 'centered',
   },
   argTypes: {
     variant: {
       control: 'select',
-      options: ['default', 'emphasized']
+      options: ['default', 'emphasized'],
     },
     active: {
-      control: 'boolean'
+      control: 'boolean',
     },
     disabled: {
-      control: 'boolean'
-    }
+      control: 'boolean',
+    },
   },
   tags: ['autodocs'],
   decorators: [
@@ -28,8 +26,8 @@ const meta: Meta<typeof SidebarItem> = {
       <div className="min-w-[300px]">
         <Story />
       </div>
-    )
-  ]
+    ),
+  ],
 };
 
 export default meta;
@@ -38,34 +36,34 @@ type Story = StoryObj<typeof SidebarItem>;
 export const Default: Story = {
   args: {
     label: 'Home',
-    icon: <HouseModern />,
-    route: BusterRoutes.APP_HOME,
-    id: 'home'
-  }
+    icon: <Check3 />,
+    route: '/app/home',
+    id: 'home',
+  },
 };
 
 export const Emphasized: Story = {
   args: {
     ...Default.args,
     variant: 'emphasized',
-    id: 'home-emphasized'
-  }
+    id: 'home-emphasized',
+  },
 };
 
 export const Active: Story = {
   args: {
     ...Default.args,
     id: 'home-active',
-    active: true
-  }
+    active: true,
+  },
 };
 
 export const Disabled: Story = {
   args: {
     ...Default.args,
     disabled: true,
-    id: 'home-disabled'
-  }
+    id: 'home-disabled',
+  },
 };
 
 export const LongText: Story = {
@@ -73,13 +71,13 @@ export const LongText: Story = {
     ...Default.args,
     label:
       'This is a very long sidebar item label that should demonstrate text truncation behavior in the component',
-    id: 'long-text'
+    id: 'long-text',
   },
   decorators: [
     (Story) => (
       <div className="max-w-[200px]">
         <Story />
       </div>
-    )
-  ]
+    ),
+  ],
 };

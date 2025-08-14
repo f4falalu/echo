@@ -1,23 +1,21 @@
-import type { Meta, StoryObj } from '@storybook/nextjs';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { fn } from 'storybook/test';
-import React from 'react';
-import { BusterRoutes } from '../../../routes';
-import { HouseModern, MapSettings, User } from '../icons/NucleoIconOutlined';
+import { MapSettings, User } from '../icons/NucleoIconOutlined';
 import { SidebarCollapsible } from './SidebarCollapsible';
 
 const meta: Meta<typeof SidebarCollapsible> = {
   title: 'UI/Sidebar/SidebarCollapsible',
   component: SidebarCollapsible,
   parameters: {
-    layout: 'centered'
+    layout: 'centered',
   },
   decorators: [
     (Story) => (
       <div className="bg-background min-w-[270px]">
         <Story />
       </div>
-    )
-  ]
+    ),
+  ],
 };
 
 export default meta;
@@ -31,22 +29,22 @@ export const Default: Story = {
         id: '1',
         label: 'Profile',
         icon: <User />,
-        route: BusterRoutes.SETTINGS
+        route: '/settings',
       },
       {
         id: '2',
         label: 'Account',
         icon: <MapSettings />,
-        route: BusterRoutes.APP_CHAT
+        route: '/app/chat',
       },
       {
         id: '3',
         label: 'Dashboard',
-        icon: <HouseModern />,
-        route: BusterRoutes.APP_METRIC
-      }
-    ]
-  }
+        icon: <MapSettings />,
+        route: '/app/metric',
+      },
+    ],
+  },
 };
 
 export const Sortable: Story = {
@@ -54,6 +52,6 @@ export const Sortable: Story = {
     label: 'Sortable',
     isSortable: true,
     items: Default.args!.items!,
-    onItemsReorder: fn()
-  }
+    onItemsReorder: fn(),
+  },
 };

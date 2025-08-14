@@ -18,7 +18,9 @@ import { Route as AuthResetPasswordRouteImport } from './routes/auth.reset-passw
 import { Route as AuthLogoutRouteImport } from './routes/auth.logout'
 import { Route as AuthLoginRouteImport } from './routes/auth.login'
 import { Route as AppHomeRouteImport } from './routes/app.home'
+import { Route as AppDashboardsRouteImport } from './routes/app.dashboards'
 import { Route as AppChatsIndexRouteImport } from './routes/app.chats.index'
+import { Route as AppDashboardsDashboardIdRouteImport } from './routes/app.dashboards.$dashboardId'
 import { Route as AppChatsChatIdRouteImport } from './routes/app.chats.$chatId'
 import { ServerRoute as AuthCallbackServerRouteImport } from './routes/auth.callback'
 
@@ -59,11 +61,22 @@ const AppHomeRoute = AppHomeRouteImport.update({
   path: '/home',
   getParentRoute: () => AppRoute,
 } as any)
+const AppDashboardsRoute = AppDashboardsRouteImport.update({
+  id: '/dashboards',
+  path: '/dashboards',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppChatsIndexRoute = AppChatsIndexRouteImport.update({
   id: '/chats/',
   path: '/chats/',
   getParentRoute: () => AppRoute,
 } as any)
+const AppDashboardsDashboardIdRoute =
+  AppDashboardsDashboardIdRouteImport.update({
+    id: '/$dashboardId',
+    path: '/$dashboardId',
+    getParentRoute: () => AppDashboardsRoute,
+  } as any)
 const AppChatsChatIdRoute = AppChatsChatIdRouteImport.update({
   id: '/chats/$chatId',
   path: '/chats/$chatId',
@@ -79,22 +92,26 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/app': typeof AppRouteWithChildren
   '/auth': typeof AuthRouteWithChildren
+  '/app/dashboards': typeof AppDashboardsRouteWithChildren
   '/app/home': typeof AppHomeRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/logout': typeof AuthLogoutRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
   '/app/chats/$chatId': typeof AppChatsChatIdRoute
+  '/app/dashboards/$dashboardId': typeof AppDashboardsDashboardIdRoute
   '/app/chats': typeof AppChatsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/app': typeof AppRouteWithChildren
   '/auth': typeof AuthRouteWithChildren
+  '/app/dashboards': typeof AppDashboardsRouteWithChildren
   '/app/home': typeof AppHomeRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/logout': typeof AuthLogoutRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
   '/app/chats/$chatId': typeof AppChatsChatIdRoute
+  '/app/dashboards/$dashboardId': typeof AppDashboardsDashboardIdRoute
   '/app/chats': typeof AppChatsIndexRoute
 }
 export interface FileRoutesById {
@@ -102,11 +119,13 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/app': typeof AppRouteWithChildren
   '/auth': typeof AuthRouteWithChildren
+  '/app/dashboards': typeof AppDashboardsRouteWithChildren
   '/app/home': typeof AppHomeRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/logout': typeof AuthLogoutRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
   '/app/chats/$chatId': typeof AppChatsChatIdRoute
+  '/app/dashboards/$dashboardId': typeof AppDashboardsDashboardIdRoute
   '/app/chats/': typeof AppChatsIndexRoute
 }
 export interface FileRouteTypes {
@@ -115,33 +134,39 @@ export interface FileRouteTypes {
     | '/'
     | '/app'
     | '/auth'
+    | '/app/dashboards'
     | '/app/home'
     | '/auth/login'
     | '/auth/logout'
     | '/auth/reset-password'
     | '/app/chats/$chatId'
+    | '/app/dashboards/$dashboardId'
     | '/app/chats'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/app'
     | '/auth'
+    | '/app/dashboards'
     | '/app/home'
     | '/auth/login'
     | '/auth/logout'
     | '/auth/reset-password'
     | '/app/chats/$chatId'
+    | '/app/dashboards/$dashboardId'
     | '/app/chats'
   id:
     | '__root__'
     | '/'
     | '/app'
     | '/auth'
+    | '/app/dashboards'
     | '/app/home'
     | '/auth/login'
     | '/auth/logout'
     | '/auth/reset-password'
     | '/app/chats/$chatId'
+    | '/app/dashboards/$dashboardId'
     | '/app/chats/'
   fileRoutesById: FileRoutesById
 }
@@ -223,12 +248,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppHomeRouteImport
       parentRoute: typeof AppRoute
     }
+    '/app/dashboards': {
+      id: '/app/dashboards'
+      path: '/dashboards'
+      fullPath: '/app/dashboards'
+      preLoaderRoute: typeof AppDashboardsRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/app/chats/': {
       id: '/app/chats/'
       path: '/chats'
       fullPath: '/app/chats'
       preLoaderRoute: typeof AppChatsIndexRouteImport
       parentRoute: typeof AppRoute
+    }
+    '/app/dashboards/$dashboardId': {
+      id: '/app/dashboards/$dashboardId'
+      path: '/$dashboardId'
+      fullPath: '/app/dashboards/$dashboardId'
+      preLoaderRoute: typeof AppDashboardsDashboardIdRouteImport
+      parentRoute: typeof AppDashboardsRoute
     }
     '/app/chats/$chatId': {
       id: '/app/chats/$chatId'
@@ -251,13 +290,27 @@ declare module '@tanstack/react-start/server' {
   }
 }
 
+interface AppDashboardsRouteChildren {
+  AppDashboardsDashboardIdRoute: typeof AppDashboardsDashboardIdRoute
+}
+
+const AppDashboardsRouteChildren: AppDashboardsRouteChildren = {
+  AppDashboardsDashboardIdRoute: AppDashboardsDashboardIdRoute,
+}
+
+const AppDashboardsRouteWithChildren = AppDashboardsRoute._addFileChildren(
+  AppDashboardsRouteChildren,
+)
+
 interface AppRouteChildren {
+  AppDashboardsRoute: typeof AppDashboardsRouteWithChildren
   AppHomeRoute: typeof AppHomeRoute
   AppChatsChatIdRoute: typeof AppChatsChatIdRoute
   AppChatsIndexRoute: typeof AppChatsIndexRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
+  AppDashboardsRoute: AppDashboardsRouteWithChildren,
   AppHomeRoute: AppHomeRoute,
   AppChatsChatIdRoute: AppChatsChatIdRoute,
   AppChatsIndexRoute: AppChatsIndexRoute,

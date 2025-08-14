@@ -12,6 +12,10 @@
       "types": "./dist/assets/index.d.ts",
       "default": "./dist/assets/index.js"
     },
+    "./api": {
+      "types": "./dist/api/index.d.ts",
+      "default": "./dist/api/index.js"
+    },
     "./chats": {
       "types": "./dist/chats/index.d.ts",
       "default": "./dist/chats/index.js"

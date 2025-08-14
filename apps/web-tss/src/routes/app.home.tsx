@@ -1,8 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router';
+import { getAppLayout } from '@/api/server-functions/getAppLayout';
 import { AppSplitter } from '@/components/ui/layouts/AppSplitter/AppSplitter';
-import { createAutoSaveId } from '../components/ui/layouts/AppLayout';
 import { useAppSplitterContext } from '../components/ui/layouts/AppSplitter';
-import { getAppLayout } from '../serverFns/getAppLayout';
 
 export const Route = createFileRoute('/app/home')({
   component: RouteComponent,

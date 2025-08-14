@@ -1,7 +1,7 @@
 import { createFileRoute, Outlet, redirect } from '@tanstack/react-router';
+import { getAppLayout } from '../api/server-functions/getAppLayout';
 import { AppProviders } from '../context/Providers';
 import { PRIMARY_APP_LAYOUT_ID, PrimaryAppLayout } from '../layouts/PrimaryAppLayout';
-import { getAppLayout } from '../serverFns/getAppLayout';
 
 export const Route = createFileRoute('/app')({
   beforeLoad: async ({ context, location }) => {
