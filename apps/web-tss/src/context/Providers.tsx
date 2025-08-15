@@ -24,9 +24,10 @@ import {
 export const RootProviders: React.FC<PropsWithChildren<SupabaseContextType>> = ({
   children,
   user,
+  accessToken,
 }) => {
   return (
-    <SupabaseContextProvider user={user}>
+    <SupabaseContextProvider user={user} accessToken={accessToken}>
       <BusterStyleProvider>{children}</BusterStyleProvider>
       {/* <BusterReactQueryProvider>
         <HydrationBoundary state={dehydrate(queryClient)}>

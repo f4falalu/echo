@@ -23,7 +23,7 @@ function transformToAuthUserDTO(user: User): AuthUserDTO {
 }
 
 export const getSupabaseUser = createServerFn({ method: 'GET' }).handler(async () => {
-  const supabase = await getSupabaseServerClient();
+  const supabase = getSupabaseServerClient();
   const { data: userData } = await supabase.auth.getUser();
 
   if (!userData.user) {
@@ -43,7 +43,7 @@ export const getSupabaseUser = createServerFn({ method: 'GET' }).handler(async (
         created_at: anon.data.user?.created_at ?? '',
       } satisfies AuthUserDTO,
       accessToken: anon.data.accessToken,
-    } as { user: AuthUserDTO; accessToken: string | undefined };
+    } as { user: AuthUserDTO; accessToken: string };
   }
 
   // Get the session first
@@ -56,5 +56,5 @@ export const getSupabaseUser = createServerFn({ method: 'GET' }).handler(async (
   return {
     user,
     accessToken,
-  } as { user: AuthUserDTO; accessToken: string | undefined };
+  } as { user: AuthUserDTO; accessToken: string };
 });

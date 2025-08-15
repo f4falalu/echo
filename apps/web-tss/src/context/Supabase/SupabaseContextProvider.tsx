@@ -9,14 +9,19 @@ export type SupabaseContextType = {
     id: string;
     is_anonymous: boolean;
   };
+  accessToken: string;
 };
 
 const supabase = getBrowserClient();
 const fiveMinutes = 5 * 60 * 1000;
 
-const useSupabaseContextInternal = ({ user }: SupabaseContextType) => {
+const useSupabaseContextInternal = ({
+  user,
+  accessToken: accessTokenProp,
+}: SupabaseContextType) => {
   const refreshTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const [supabaseUser, setSupabaseUser] = useState<Pick<User, 'id' | 'is_anonymous'> | null>(user);
+  const [accessToken, setAccessToken] = useState(accessTokenProp);
 
   const isAnonymousUser: boolean = !user?.id || user?.is_anonymous === true;
 
@@ -27,8 +32,11 @@ const useSupabaseContextInternal = ({ user }: SupabaseContextType) => {
       const user = session?.user ?? null;
       const expiresAt = session?.expires_at ?? 0;
       const timerMs = expiresAt - fiveMinutes;
+      const accessToken = session?.access_token ?? '';
 
       setSupabaseUser(user);
+
+      if (accessToken) setAccessToken(accessToken);
 
       if (refreshTimerRef.current) {
         clearTimeout(refreshTimerRef.current);
@@ -48,7 +56,9 @@ const useSupabaseContextInternal = ({ user }: SupabaseContextType) => {
   });
 
   return {
+    supabaseUser,
     isAnonymousUser,
+    accessToken,
   };
 };
 
@@ -58,8 +68,8 @@ const SupabaseContext = createContext<ReturnType<typeof useSupabaseContextIntern
 
 export const SupabaseContextProvider: React.FC<
   SupabaseContextType & { children: React.ReactNode }
-> = React.memo(({ user, children }) => {
-  const value = useSupabaseContextInternal({ user });
+> = React.memo(({ user, accessToken, children }) => {
+  const value = useSupabaseContextInternal({ user, accessToken });
 
   return <SupabaseContext.Provider value={value}>{children}</SupabaseContext.Provider>;
 });

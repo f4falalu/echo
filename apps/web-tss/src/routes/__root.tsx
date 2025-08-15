@@ -33,7 +33,7 @@ export const Route = createRootRouteWithContext<AppRouterContext>()({
 });
 
 function RootDocument({ children }: { children: React.ReactNode }) {
-  const { user } = Route.useRouteContext();
+  const { user, accessToken } = Route.useRouteContext();
 
   return (
     <html lang="en">
@@ -41,7 +41,9 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         <HeadContent />
       </head>
       <body>
-        <RootProviders user={user}>{children}</RootProviders>
+        <RootProviders user={user} accessToken={accessToken}>
+          {children}
+        </RootProviders>
         <TanstackDevtools />
         <Scripts />
       </body>
