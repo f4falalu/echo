@@ -56,5 +56,5 @@ export const getSupabaseUser = createServerFn({ method: 'GET' }).handler(async (
   return {
     user,
     accessToken,
-  } as { user: AuthUserDTO; accessToken?: string };
+  } as { user: AuthUserDTO; accessToken: string | undefined };
 });

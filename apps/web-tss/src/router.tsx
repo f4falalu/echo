@@ -12,7 +12,7 @@ export interface AppRouterContext {
 
 // Create a new router instance
 export const createRouter = () => {
-  const queryClient = TanstackQuery.getContext();
+  const queryClient = TanstackQuery.getQueryClient();
 
   return routerWithQueryClient(
     createTanstackRouter({

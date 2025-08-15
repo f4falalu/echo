@@ -2,7 +2,7 @@ import { createRootRouteWithContext, HeadContent, Link, Scripts } from '@tanstac
 import { LazyGlobalErrorCard } from '@/components/features/global/LazyGlobalErrorCard';
 import { NotFoundCard } from '@/components/features/global/NotFoundCard';
 import { RootProviders } from '@/context/Providers';
-import { getSupabaseUser } from '../integrations/supabase/getSupabaseUserContext';
+import { getSupabaseUser } from '../integrations/supabase/getSupabaseUserServer';
 import { TanstackDevtools } from '../integrations/tanstack-dev-tools/tanstack-devtools';
 import type { AppRouterContext } from '../router';
 import appCss from '../styles/styles.css?url';
@@ -33,7 +33,7 @@ export const Route = createRootRouteWithContext<AppRouterContext>()({
 });
 
 function RootDocument({ children }: { children: React.ReactNode }) {
-  const { user, accessToken } = Route.useRouteContext();
+  const { user } = Route.useRouteContext();
 
   return (
     <html lang="en">
@@ -41,10 +41,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         <HeadContent />
       </head>
       <body>
-        <RootProviders accessToken={accessToken} user={user}>
-          {children}
-        </RootProviders>
-
+        <RootProviders user={user}>{children}</RootProviders>
         <TanstackDevtools />
         <Scripts />
       </body>

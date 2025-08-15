@@ -7,6 +7,7 @@ import {
   useSupabaseContext,
 } from '@/context/Supabase/SupabaseContextProvider';
 import { checkIfUserIsAdmin } from '@/lib/user';
+import { getBrowserClient } from '../../../integrations/supabase/client';
 
 const stableSelectUserOrganization = (data: UserResponse | null) => {
   const firstOrganization = data?.organizations?.[0];

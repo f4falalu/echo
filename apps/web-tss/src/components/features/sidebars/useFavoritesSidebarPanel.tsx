@@ -9,6 +9,7 @@ import {
 } from '@/api/buster_rest/users';
 import type { ISidebarGroup } from '@/components/ui/sidebar';
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
+import { useWhyDidYouUpdate } from '../../../hooks/useWhyDidYouUpdate';
 import { assetTypeToIcon } from '../icons/assetIcons';
 
 export const useFavoriteSidebarPanel = () => {
@@ -77,24 +78,26 @@ export const useFavoriteSidebarPanel = () => {
   const favoritesDropdownItems: ISidebarGroup | null = useMemo(() => {
     if (!favorites || favorites.length === 0) return null;
 
+    console.log('favorites', favorites);
+
     return {
       label: 'Favorites',
       id: 'favorites',
       isSortable: true,
       onItemsReorder: updateUserFavorites,
-      items: [],
-      // items: favorites.map((favorite) => {
-      //   const Icon = assetTypeToIcon(favorite.asset_type);
-      //   // const route = assetTypeToRoute(favorite.asset_type, favorite.id);
-      //   return {
-      //     label: favorite.name,
-      //     icon: <Icon />,
-      //     route: '/',
-      //     active: isAssetActive(favorite),
-      //     id: favorite.id,
-      //     onRemove: () => deleteUserFavorite([favorite.id]),
-      //   };
-      // }),
+
+      items: favorites.map((favorite) => {
+        const Icon = assetTypeToIcon(favorite.asset_type);
+        //     const route = assetTypeToRoute(favorite.asset_type, favorite.id);
+        return {
+          label: favorite.name,
+          icon: <Icon />,
+          route: '/',
+          active: false, //isAssetActive(favorite),
+          id: favorite.id,
+          onRemove: () => deleteUserFavorite([favorite.id]),
+        };
+      }),
     } satisfies ISidebarGroup;
   }, [
     favorites,
@@ -107,5 +110,5 @@ export const useFavoriteSidebarPanel = () => {
     // collectionId,
   ]);
 
-  return { favoritesDropdownItems };
+  return favoritesDropdownItems;
 };

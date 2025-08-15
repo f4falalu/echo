@@ -181,7 +181,7 @@ export const SidebarPrimary = React.memo(() => {
   const isUserRegistered = useIsUserRegistered();
   const parentRoute = useGetParentRoute();
 
-  const { favoritesDropdownItems } = useFavoriteSidebarPanel();
+  const favoritesDropdownItems = useFavoriteSidebarPanel();
 
   const topItemsItems = useMemo(() => topItems(parentRoute), [parentRoute]);
 

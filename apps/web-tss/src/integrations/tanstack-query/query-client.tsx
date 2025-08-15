@@ -9,7 +9,7 @@ import { makeQueryClient } from './make-query-client';
 let browserQueryClient: QueryClient | undefined;
 const isServer = typeof window === 'undefined';
 
-export function getContext() {
+export function getQueryClient() {
   if (isServer) {
     // Server: always make a new query client
     return makeQueryClient();

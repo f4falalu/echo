@@ -1,8 +1,8 @@
 import { isServer } from '@tanstack/react-query';
 import type { AxiosRequestHeaders } from 'axios';
 import axios, { type AxiosError, type InternalAxiosRequestConfig } from 'axios';
-import type { SupabaseContextReturnType } from '@/context/Supabase/SupabaseContextProvider';
 import { Route as AuthRoute } from '@/routes/auth.login';
+import { checkTokenValidity } from './checkTokenValidity';
 import { BASE_URL_V2 } from './config';
 import { getSupabaseAccessTokenServerFn } from './createServerInstance';
 import { rustErrorHandler } from './errors';
@@ -69,11 +69,11 @@ export const defaultAxiosRequestHandler = async (config: InternalAxiosRequestCon
       token = await getSupabaseAccessTokenServerFn();
     } else {
       // Always check token validity before making requests
-      const tokenResult = await options?.checkTokenValidity?.();
+      const tokenResult = await checkTokenValidity();
       token = tokenResult?.access_token || '';
     }
 
-    if (!token && options?.checkTokenValidity) {
+    if (!token) {
       throw new Error('User authentication error - no token found');
     }
 
