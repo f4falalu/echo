@@ -17,7 +17,9 @@ const MessageUserClarifyingQuestionInputSchema = z.object({
     ),
 });
 
-const MessageUserClarifyingQuestionOutputSchema = z.object({});
+const MessageUserClarifyingQuestionOutputSchema = z.object({
+  success: z.boolean().describe('Whether the operation was successful'),
+});
 
 const MessageUserClarifyingQuestionContextSchema = z.object({
   messageId: z.string().describe('The message ID of the message that triggered the tool'),
@@ -59,7 +61,7 @@ export function createMessageUserClarifyingQuestionTool(
   };
 
   // Create all functions with the context and state passed
-  const execute = createMessageUserClarifyingQuestionExecute();
+  const execute = createMessageUserClarifyingQuestionExecute(context, state);
   const onInputStart = createMessageUserClarifyingQuestionStart(context, state);
   const onInputDelta = createMessageUserClarifyingQuestionDelta(context, state);
   const onInputAvailable = createMessageUserClarifyingQuestionFinish(context, state);
