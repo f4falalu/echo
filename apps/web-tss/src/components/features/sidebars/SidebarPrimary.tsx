@@ -39,10 +39,8 @@ import { Sidebar } from '@/components/ui/sidebar/Sidebar';
 import { Tooltip } from '@/components/ui/tooltip/Tooltip';
 import { useContactSupportModalStore, useInviteModalStore } from '@/context/BusterAppLayout';
 import { toggleContactSupportModal } from '@/context/BusterAppLayout/useContactSupportModalStore';
+import { toggleInviteModal } from '@/context/BusterAppLayout/useInviteModalStore';
 import { cn } from '@/lib/classMerge';
-import { Route as AppHomeRoute } from '@/routes/app.home';
-import { Route as AppSettingsRoute } from '@/routes/app.settings.profile';
-import { toggleInviteModal } from '../../../context/BusterAppLayout/useInviteModalStore';
 import { ASSET_ICONS } from '../icons/assetIcons';
 // import { InvitePeopleModal } from '../modal/InvitePeopleModal';
 // import { SupportModal } from '../modal/SupportModal';
@@ -215,19 +213,19 @@ const SidebarPrimaryHeader: React.FC<{ hideActions?: boolean }> = ({ hideActions
 
   return (
     <div className={cn(COLLAPSED_JUSTIFY_CENTER, 'flex min-h-7 items-center')}>
-      <Link to={AppHomeRoute.to}>
+      <Link to={'/app/home'}>
         <BusterLogoWithText className={COLLAPSED_HIDDEN} />
         <BusterLogo className={COLLAPSED_VISIBLE} />
       </Link>
       {!hideActions && (
         <div className={cn(COLLAPSED_HIDDEN, 'items-center gap-2')}>
           <Tooltip title="Settings">
-            <Link to={AppSettingsRoute.to}>
+            <Link to={'/app/settings/profile'}>
               <Button prefix={<Gear />} variant="ghost" />
             </Link>
           </Tooltip>
           <Tooltip title="Start a chat" shortcuts={['C']}>
-            <Link to={AppHomeRoute.to}>
+            <Link to={'/app/home'}>
               <Button size="tall" rounding={'large'} prefix={<PencilSquareIcon />} />
             </Link>
           </Tooltip>

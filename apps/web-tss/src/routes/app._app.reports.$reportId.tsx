@@ -2,14 +2,14 @@ import { createFileRoute } from '@tanstack/react-router';
 import { z } from 'zod';
 
 const searchParamsSchema = z.object({
-  metric_version_number: z.coerce.number().optional(),
+  report_version_number: z.coerce.number().optional(),
 });
 
-export const Route = createFileRoute('/app/collections/$collectionId/metrics/$metricId')({
+export const Route = createFileRoute('/app/_app/reports/$reportId')({
   validateSearch: searchParamsSchema,
   component: RouteComponent,
 });
 
 function RouteComponent() {
-  return <div>Hello "/app/collections/$collectionId/metrics/$metricId"!</div>;
+  return <div>Hello "/app/reports/$reportId"!</div>;
 }

@@ -7,12 +7,14 @@ const searchParamsSchema = z.object({
 });
 
 export const Route = createFileRoute(
-  '/app/chats/$chatId/dashboards/$dashboardId/metrics/$metricId'
+  '/app/_app/collections/$collectionId/dashboard/$dashboardId/metrics/$metricId'
 )({
   validateSearch: searchParamsSchema,
   component: RouteComponent,
 });
 
 function RouteComponent() {
-  return <div>Hello "/app/chats/$chatId/dashboard/$dashboardId/metrics/$metricId"!</div>;
+  return (
+    <div>Hello "/app/collections/$collectionId/dashboard/$dashboardId/metrics/$metricId"!</div>
+  );
 }

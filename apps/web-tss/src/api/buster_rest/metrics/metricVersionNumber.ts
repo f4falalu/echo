@@ -20,7 +20,7 @@ export const useGetMetricVersionNumber = (
 
   // Get the metric_version_number query param from the route
   const paramVersionNumber = useSearch({
-    from: '/app/metrics/$metricId',
+    from: '/app/_app/metrics/$metricId',
     select: stableVersionSearchSelector,
   });
 

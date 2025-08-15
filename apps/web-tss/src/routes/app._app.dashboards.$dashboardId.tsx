@@ -5,7 +5,7 @@ const searchParamsSchema = z.object({
   dashboard_version_number: z.coerce.number().optional(),
 });
 
-export const Route = createFileRoute('/app/dashboards/$dashboardId')({
+export const Route = createFileRoute('/app/_app/dashboards/$dashboardId')({
   validateSearch: searchParamsSchema,
   component: RouteComponent,
 });

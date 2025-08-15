@@ -3,7 +3,7 @@ import { prefetchGetUserFavorites } from '@/api/buster_rest/users/favorites/quer
 import { prefetchGetMyUserInfo } from '@/api/buster_rest/users/queryRequests';
 import { getAppLayout } from '@/api/server-functions/getAppLayout';
 import { AppProviders } from '@/context/Providers';
-import { PRIMARY_APP_LAYOUT_ID, PrimaryAppLayout } from '@/layouts/PrimaryAppLayout';
+import { PRIMARY_APP_LAYOUT_ID } from '@/layouts/PrimaryAppLayout';
 
 export const Route = createFileRoute('/app')({
   beforeLoad: async ({ context, location }) => {
@@ -31,13 +31,9 @@ export const Route = createFileRoute('/app')({
     };
   },
   component: () => {
-    const { initialLayout } = Route.useLoaderData();
-
     return (
       <AppProviders>
-        <PrimaryAppLayout initialLayout={initialLayout}>
-          <Outlet />
-        </PrimaryAppLayout>
+        <Outlet />
       </AppProviders>
     );
   },

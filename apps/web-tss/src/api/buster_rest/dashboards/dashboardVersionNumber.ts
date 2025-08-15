@@ -20,7 +20,7 @@ export const useGetDashboardVersionNumber = (
 
   // Get the dashboard_version_number query param from the route
   const paramVersionNumber = useSearch({
-    from: '/app/dashboards/$dashboardId',
+    from: '/app/_app/dashboards/$dashboardId',
     select: stableVersionSearchSelector,
   });
 
