@@ -6,6 +6,7 @@ import {
   createPermissionErrorMessage,
   validateSqlPermissions,
 } from '../../../utils/sql-permissions';
+import { createRawToolResultEntry } from '../../shared/create-raw-llm-tool-result-entry';
 import {
   EXECUTE_SQL_TOOL_NAME,
   type ExecuteSqlContext,
@@ -327,6 +328,13 @@ export function createExecuteSqlExecute(state: ExecuteSqlState, context: Execute
         // Create final reasoning entry with complete status
         const reasoningEntry = createExecuteSqlReasoningEntry(state, state.toolCallId || '');
         const rawLlmMessage = createExecuteSqlRawLlmMessageEntry(state, state.toolCallId || '');
+        const rawLlmResultEntry = createRawToolResultEntry(
+          state.toolCallId || '',
+          EXECUTE_SQL_TOOL_NAME,
+          {
+            results,
+          }
+        );
 
         // Update database with final status
         const messagesToSave: Parameters<typeof updateMessageEntries>[0] = {
@@ -338,7 +346,7 @@ export function createExecuteSqlExecute(state: ExecuteSqlState, context: Execute
         }
 
         if (rawLlmMessage) {
-          messagesToSave.rawLlmMessages = [rawLlmMessage];
+          messagesToSave.rawLlmMessages = [rawLlmMessage, rawLlmResultEntry];
         }
 
         if (messagesToSave.reasoningMessages || messagesToSave.rawLlmMessages) {
