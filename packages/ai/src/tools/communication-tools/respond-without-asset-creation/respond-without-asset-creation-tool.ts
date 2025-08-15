@@ -16,7 +16,9 @@ export const RespondWithoutAssetCreationInputSchema = z.object({
     ),
 });
 
-export const RespondWithoutAssetCreationOutputSchema = z.object({});
+export const RespondWithoutAssetCreationOutputSchema = z.object({
+  success: z.boolean().describe('Whether the operation was successful'),
+});
 
 const RespondWithoutAssetCreationContextSchema = z.object({
   messageId: z
@@ -28,7 +30,7 @@ const RespondWithoutAssetCreationContextSchema = z.object({
 });
 
 const RespondWithoutAssetCreationStateSchema = z.object({
-  entry_id: z
+  toolCallId: z
     .string()
     .optional()
     .describe(
@@ -58,15 +60,15 @@ export type RespondWithoutAssetCreationState = z.infer<
 
 export function createRespondWithoutAssetCreationTool(context: RespondWithoutAssetCreationContext) {
   const state: RespondWithoutAssetCreationState = {
-    entry_id: undefined,
+    toolCallId: undefined,
     args: undefined,
     final_response: undefined,
   };
 
-  const execute = createRespondWithoutAssetCreationExecute();
-  const onInputStart = createRespondWithoutAssetCreationStart(state, context);
-  const onInputDelta = createRespondWithoutAssetCreationDelta(state, context);
-  const onInputAvailable = createRespondWithoutAssetCreationFinish(state, context);
+  const execute = createRespondWithoutAssetCreationExecute(context, state);
+  const onInputStart = createRespondWithoutAssetCreationStart(context, state);
+  const onInputDelta = createRespondWithoutAssetCreationDelta(context, state);
+  const onInputAvailable = createRespondWithoutAssetCreationFinish(context, state);
 
   return tool({
     description:

@@ -7,7 +7,7 @@ export function createRespondWithoutAssetCreationResponseMessage(
   toolCallId?: string
 ): ChatMessageResponseMessage_Text | null {
   // Use entry_id from state or fallback to provided toolCallId
-  const id = state.entry_id || toolCallId;
+  const id = state.toolCallId || toolCallId;
 
   if (!id) {
     return null;
@@ -25,7 +25,7 @@ export function createRespondWithoutAssetCreationRawLlmMessageEntry(
   state: RespondWithoutAssetCreationState,
   toolCallId?: string
 ): ModelMessage | null {
-  const id = state.entry_id || toolCallId;
+  const id = state.toolCallId || toolCallId;
 
   if (!id) {
     return null;

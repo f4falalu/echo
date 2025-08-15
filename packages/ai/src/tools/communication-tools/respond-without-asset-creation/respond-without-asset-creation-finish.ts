@@ -10,13 +10,14 @@ import type {
   RespondWithoutAssetCreationState,
 } from './respond-without-asset-creation-tool';
 
-export function createRespondWithoutAssetCreationFinish<
-  TAgentContext extends RespondWithoutAssetCreationContext,
->(state: RespondWithoutAssetCreationState, context: TAgentContext) {
+export function createRespondWithoutAssetCreationFinish(
+  context: RespondWithoutAssetCreationContext,
+  state: RespondWithoutAssetCreationState
+) {
   return async function respondWithoutAssetCreationFinish(
     options: { input: RespondWithoutAssetCreationInput } & ToolCallOptions
   ): Promise<void> {
-    state.entry_id = options.toolCallId;
+    state.toolCallId = options.toolCallId;
     state.final_response = options.input.final_response;
 
     const responseEntry = createRespondWithoutAssetCreationResponseMessage(

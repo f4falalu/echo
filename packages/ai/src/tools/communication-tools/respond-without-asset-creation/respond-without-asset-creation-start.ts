@@ -10,13 +10,14 @@ import type {
 } from './respond-without-asset-creation-tool';
 
 // Factory function that creates a type-safe callback for the specific agent context
-export function createRespondWithoutAssetCreationStart<
-  TAgentContext extends RespondWithoutAssetCreationContext,
->(state: RespondWithoutAssetCreationState, context: TAgentContext) {
+export function createRespondWithoutAssetCreationStart(
+  context: RespondWithoutAssetCreationContext,
+  state: RespondWithoutAssetCreationState
+) {
   return async function respondWithoutAssetCreationStart(
     options: Pick<ToolCallOptions, 'toolCallId'>
   ): Promise<void> {
-    state.entry_id = options.toolCallId;
+    state.toolCallId = options.toolCallId;
 
     const responseEntry = createRespondWithoutAssetCreationResponseMessage(
       state,

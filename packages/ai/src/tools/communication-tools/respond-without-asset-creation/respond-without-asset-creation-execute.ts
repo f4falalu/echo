@@ -1,20 +1,53 @@
+import { updateMessageEntries } from '@buster/database';
 import { wrapTraced } from 'braintrust';
-import type {
-  RespondWithoutAssetCreationContext,
-  RespondWithoutAssetCreationInput,
-  RespondWithoutAssetCreationOutput,
+import { createRawToolResultEntry } from '../../shared/create-raw-llm-tool-result-entry';
+import {
+  RESPOND_WITHOUT_ASSET_CREATION_TOOL_NAME,
+  type RespondWithoutAssetCreationContext,
+  type RespondWithoutAssetCreationInput,
+  type RespondWithoutAssetCreationOutput,
+  type RespondWithoutAssetCreationState,
 } from './respond-without-asset-creation-tool';
 
-async function processRespondWithoutAssetCreation(): Promise<RespondWithoutAssetCreationOutput> {
-  return {};
+async function processRespondWithoutAssetCreation(
+  toolCallId: string,
+  messageId: string
+): Promise<RespondWithoutAssetCreationOutput> {
+  const output: RespondWithoutAssetCreationOutput = {
+    success: true,
+  };
+
+  const rawToolResultEntry = createRawToolResultEntry(
+    toolCallId,
+    RESPOND_WITHOUT_ASSET_CREATION_TOOL_NAME,
+    output
+  );
+
+  try {
+    await updateMessageEntries({
+      messageId,
+      rawLlmMessages: [rawToolResultEntry],
+    });
+  } catch (error) {
+    console.error('[respond-without-asset-creation] Error updating message entries:', error);
+  }
+
+  return output;
 }
 
-export function createRespondWithoutAssetCreationExecute() {
+export function createRespondWithoutAssetCreationExecute(
+  context: RespondWithoutAssetCreationContext,
+  state: RespondWithoutAssetCreationState
+) {
   return wrapTraced(
     async (
       _input: RespondWithoutAssetCreationInput
     ): Promise<RespondWithoutAssetCreationOutput> => {
-      return await processRespondWithoutAssetCreation();
+      if (!state.toolCallId) {
+        throw new Error('Tool call ID is required');
+      }
+
+      return await processRespondWithoutAssetCreation(state.toolCallId, context.messageId);
     },
     { name: 'Respond Without Asset Creation' }
   );

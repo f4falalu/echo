@@ -19,8 +19,8 @@ const FINAL_RESPONSE_KEY =
   'final_response' as const satisfies keyof RespondWithoutAssetCreationInput;
 
 export function createRespondWithoutAssetCreationDelta(
-  state: RespondWithoutAssetCreationState,
-  context: RespondWithoutAssetCreationContext
+  context: RespondWithoutAssetCreationContext,
+  state: RespondWithoutAssetCreationState
 ) {
   return async function respondWithoutAssetCreationDelta(
     options: { inputTextDelta: string } & ToolCallOptions

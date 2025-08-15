@@ -22,12 +22,12 @@ describe('Respond Without Asset Creation Tool Streaming Tests', () => {
   describe('createRespondWithoutAssetCreationStart', () => {
     test('should initialize state with entry_id on start', async () => {
       const state: RespondWithoutAssetCreationState = {
-        entry_id: undefined,
+        toolCallId: undefined,
         args: undefined,
         final_response: undefined,
       };
 
-      const startHandler = createRespondWithoutAssetCreationStart(state, mockContext);
+      const startHandler = createRespondWithoutAssetCreationStart(mockContext, state);
       const options: ToolCallOptions = {
         toolCallId: 'tool-call-123',
         messages: [],
@@ -35,7 +35,7 @@ describe('Respond Without Asset Creation Tool Streaming Tests', () => {
 
       await startHandler(options);
 
-      expect(state.entry_id).toBe('tool-call-123');
+      expect(state.toolCallId).toBe('tool-call-123');
     });
 
     test('should handle start without messageId in context', async () => {
@@ -44,19 +44,19 @@ describe('Respond Without Asset Creation Tool Streaming Tests', () => {
         workflowStartTime: Date.now(),
       };
       const state: RespondWithoutAssetCreationState = {
-        entry_id: undefined,
+        toolCallId: undefined,
         args: undefined,
         final_response: undefined,
       };
 
-      const startHandler = createRespondWithoutAssetCreationStart(state, contextWithoutMessageId);
+      const startHandler = createRespondWithoutAssetCreationStart(contextWithoutMessageId, state);
       const options: ToolCallOptions = {
         toolCallId: 'tool-call-456',
         messages: [],
       };
 
       await expect(startHandler(options)).resolves.not.toThrow();
-      expect(state.entry_id).toBe('tool-call-456');
+      expect(state.toolCallId).toBe('tool-call-456');
     });
 
     test('should handle empty messageId gracefully', async () => {
@@ -65,31 +65,31 @@ describe('Respond Without Asset Creation Tool Streaming Tests', () => {
         workflowStartTime: Date.now(),
       };
       const state: RespondWithoutAssetCreationState = {
-        entry_id: undefined,
+        toolCallId: undefined,
         args: undefined,
         final_response: undefined,
       };
 
-      const startHandler = createRespondWithoutAssetCreationStart(state, contextWithEmptyMessageId);
+      const startHandler = createRespondWithoutAssetCreationStart(contextWithEmptyMessageId, state);
       const options: ToolCallOptions = {
         toolCallId: 'tool-call-789',
         messages: [],
       };
 
       await expect(startHandler(options)).resolves.not.toThrow();
-      expect(state.entry_id).toBe('tool-call-789');
+      expect(state.toolCallId).toBe('tool-call-789');
     });
   });
 
   describe('createRespondWithoutAssetCreationDelta', () => {
     test('should accumulate text deltas to args', async () => {
       const state: RespondWithoutAssetCreationState = {
-        entry_id: 'test-entry',
+        toolCallId: 'test-entry',
         args: '',
         final_response: undefined,
       };
 
-      const deltaHandler = createRespondWithoutAssetCreationDelta(state, mockContext);
+      const deltaHandler = createRespondWithoutAssetCreationDelta(mockContext, state);
 
       await deltaHandler({
         inputTextDelta: '{"final_',
@@ -110,12 +110,12 @@ describe('Respond Without Asset Creation Tool Streaming Tests', () => {
 
     test('should extract partial final_response from incomplete JSON', async () => {
       const state: RespondWithoutAssetCreationState = {
-        entry_id: 'test-entry',
+        toolCallId: 'test-entry',
         args: '',
         final_response: undefined,
       };
 
-      const deltaHandler = createRespondWithoutAssetCreationDelta(state, mockContext);
+      const deltaHandler = createRespondWithoutAssetCreationDelta(mockContext, state);
 
       await deltaHandler({
         inputTextDelta: '{"final_response": "This is a partial response that is still being',
@@ -129,12 +129,12 @@ describe('Respond Without Asset Creation Tool Streaming Tests', () => {
 
     test('should handle complete JSON in delta', async () => {
       const state: RespondWithoutAssetCreationState = {
-        entry_id: 'test-entry',
+        toolCallId: 'test-entry',
         args: '',
         final_response: undefined,
       };
 
-      const deltaHandler = createRespondWithoutAssetCreationDelta(state, mockContext);
+      const deltaHandler = createRespondWithoutAssetCreationDelta(mockContext, state);
 
       await deltaHandler({
         inputTextDelta: '{"final_response": "Complete response message"}',
@@ -148,12 +148,12 @@ describe('Respond Without Asset Creation Tool Streaming Tests', () => {
 
     test('should handle markdown content in final_response', async () => {
       const state: RespondWithoutAssetCreationState = {
-        entry_id: 'test-entry',
+        toolCallId: 'test-entry',
         args: '',
         final_response: undefined,
       };
 
-      const deltaHandler = createRespondWithoutAssetCreationDelta(state, mockContext);
+      const deltaHandler = createRespondWithoutAssetCreationDelta(mockContext, state);
 
       const markdownContent = `## Summary
 
@@ -173,12 +173,12 @@ describe('Respond Without Asset Creation Tool Streaming Tests', () => {
 
     test('should handle escaped characters in JSON', async () => {
       const state: RespondWithoutAssetCreationState = {
-        entry_id: 'test-entry',
+        toolCallId: 'test-entry',
         args: '',
         final_response: undefined,
       };
 
-      const deltaHandler = createRespondWithoutAssetCreationDelta(state, mockContext);
+      const deltaHandler = createRespondWithoutAssetCreationDelta(mockContext, state);
 
       await deltaHandler({
         inputTextDelta: '{"final_response": "Line 1\\nLine 2\\n\\"Quoted text\\""}',
@@ -191,12 +191,12 @@ describe('Respond Without Asset Creation Tool Streaming Tests', () => {
 
     test('should not update state when no final_response is extracted', async () => {
       const state: RespondWithoutAssetCreationState = {
-        entry_id: 'test-entry',
+        toolCallId: 'test-entry',
         args: '',
         final_response: undefined,
       };
 
-      const deltaHandler = createRespondWithoutAssetCreationDelta(state, mockContext);
+      const deltaHandler = createRespondWithoutAssetCreationDelta(mockContext, state);
 
       await deltaHandler({
         inputTextDelta: '{"other_field": "value"}',
@@ -210,12 +210,12 @@ describe('Respond Without Asset Creation Tool Streaming Tests', () => {
 
     test('should handle empty final_response gracefully', async () => {
       const state: RespondWithoutAssetCreationState = {
-        entry_id: 'test-entry',
+        toolCallId: 'test-entry',
         args: '',
         final_response: undefined,
       };
 
-      const deltaHandler = createRespondWithoutAssetCreationDelta(state, mockContext);
+      const deltaHandler = createRespondWithoutAssetCreationDelta(mockContext, state);
 
       await deltaHandler({
         inputTextDelta: '{"final_response": ""}',
@@ -233,12 +233,12 @@ describe('Respond Without Asset Creation Tool Streaming Tests', () => {
         workflowStartTime: Date.now(),
       };
       const state: RespondWithoutAssetCreationState = {
-        entry_id: 'test-entry',
+        toolCallId: 'test-entry',
         args: '',
         final_response: undefined,
       };
 
-      const deltaHandler = createRespondWithoutAssetCreationDelta(state, contextWithoutMessageId);
+      const deltaHandler = createRespondWithoutAssetCreationDelta(contextWithoutMessageId, state);
 
       await expect(
         deltaHandler({
@@ -255,12 +255,12 @@ describe('Respond Without Asset Creation Tool Streaming Tests', () => {
   describe('createRespondWithoutAssetCreationFinish', () => {
     test('should update state with final input on finish', async () => {
       const state: RespondWithoutAssetCreationState = {
-        entry_id: undefined,
+        toolCallId: undefined,
         args: '{"final_response": "Final message"}',
         final_response: 'Final message',
       };
 
-      const finishHandler = createRespondWithoutAssetCreationFinish(state, mockContext);
+      const finishHandler = createRespondWithoutAssetCreationFinish(mockContext, state);
 
       const input: RespondWithoutAssetCreationInput = {
         final_response: 'This is the final response message',
@@ -272,18 +272,18 @@ describe('Respond Without Asset Creation Tool Streaming Tests', () => {
         messages: [],
       });
 
-      expect(state.entry_id).toBe('tool-call-123');
+      expect(state.toolCallId).toBe('tool-call-123');
       expect(state.final_response).toBe('This is the final response message');
     });
 
     test('should handle finish without prior entry_id', async () => {
       const state: RespondWithoutAssetCreationState = {
-        entry_id: undefined,
+        toolCallId: undefined,
         args: undefined,
         final_response: undefined,
       };
 
-      const finishHandler = createRespondWithoutAssetCreationFinish(state, mockContext);
+      const finishHandler = createRespondWithoutAssetCreationFinish(mockContext, state);
 
       const input: RespondWithoutAssetCreationInput = {
         final_response: 'Response without prior start',
@@ -295,18 +295,18 @@ describe('Respond Without Asset Creation Tool Streaming Tests', () => {
         messages: [],
       });
 
-      expect(state.entry_id).toBe('tool-call-456');
+      expect(state.toolCallId).toBe('tool-call-456');
       expect(state.final_response).toBe('Response without prior start');
     });
 
     test('should handle markdown formatted final response', async () => {
       const state: RespondWithoutAssetCreationState = {
-        entry_id: undefined,
+        toolCallId: undefined,
         args: undefined,
         final_response: undefined,
       };
 
-      const finishHandler = createRespondWithoutAssetCreationFinish(state, mockContext);
+      const finishHandler = createRespondWithoutAssetCreationFinish(mockContext, state);
 
       const markdownResponse = `
 ## Analysis Complete
@@ -332,7 +332,7 @@ The following items were processed:
         messages: [],
       });
 
-      expect(state.entry_id).toBe('tool-call-789');
+      expect(state.toolCallId).toBe('tool-call-789');
       expect(state.final_response).toBe(markdownResponse);
     });
 
@@ -342,12 +342,12 @@ The following items were processed:
         workflowStartTime: Date.now(),
       };
       const state: RespondWithoutAssetCreationState = {
-        entry_id: undefined,
+        toolCallId: undefined,
         args: undefined,
         final_response: undefined,
       };
 
-      const finishHandler = createRespondWithoutAssetCreationFinish(state, contextWithoutMessageId);
+      const finishHandler = createRespondWithoutAssetCreationFinish(contextWithoutMessageId, state);
 
       const input: RespondWithoutAssetCreationInput = {
         final_response: 'Test response without messageId',
@@ -379,13 +379,13 @@ The following items were processed:
       };
 
       const state: RespondWithoutAssetCreationState = {
-        entry_id: undefined,
+        toolCallId: undefined,
         args: undefined,
         final_response: undefined,
       };
 
-      const handler1 = createRespondWithoutAssetCreationStart(state, validContext);
-      const handler2 = createRespondWithoutAssetCreationStart(state, extendedContext);
+      const handler1 = createRespondWithoutAssetCreationStart(validContext, state);
+      const handler2 = createRespondWithoutAssetCreationStart(extendedContext, state);
 
       expect(handler1).toBeDefined();
       expect(handler2).toBeDefined();
@@ -393,17 +393,17 @@ The following items were processed:
 
     test('should maintain state type consistency through streaming lifecycle', async () => {
       const state: RespondWithoutAssetCreationState = {
-        entry_id: undefined,
+        toolCallId: undefined,
         args: undefined,
         final_response: undefined,
       };
 
-      const startHandler = createRespondWithoutAssetCreationStart(state, mockContext);
-      const deltaHandler = createRespondWithoutAssetCreationDelta(state, mockContext);
-      const finishHandler = createRespondWithoutAssetCreationFinish(state, mockContext);
+      const startHandler = createRespondWithoutAssetCreationStart(mockContext, state);
+      const deltaHandler = createRespondWithoutAssetCreationDelta(mockContext, state);
+      const finishHandler = createRespondWithoutAssetCreationFinish(mockContext, state);
 
       await startHandler({ toolCallId: 'test-123' });
-      expect(state.entry_id).toBeTypeOf('string');
+      expect(state.toolCallId).toBeTypeOf('string');
 
       await deltaHandler({
         inputTextDelta: '{"final_response": "Testing"}',
@@ -417,7 +417,7 @@ The following items were processed:
         final_response: 'Final test',
       };
       await finishHandler({ input, toolCallId: 'test-123', messages: [] });
-      expect(state.entry_id).toBeTypeOf('string');
+      expect(state.toolCallId).toBeTypeOf('string');
       expect(state.final_response).toBeTypeOf('string');
     });
   });
@@ -425,19 +425,19 @@ The following items were processed:
   describe('Streaming Flow Integration', () => {
     test('should handle complete streaming flow from start to finish', async () => {
       const state: RespondWithoutAssetCreationState = {
-        entry_id: undefined,
+        toolCallId: undefined,
         args: undefined,
         final_response: undefined,
       };
 
-      const startHandler = createRespondWithoutAssetCreationStart(state, mockContext);
-      const deltaHandler = createRespondWithoutAssetCreationDelta(state, mockContext);
-      const finishHandler = createRespondWithoutAssetCreationFinish(state, mockContext);
+      const startHandler = createRespondWithoutAssetCreationStart(mockContext, state);
+      const deltaHandler = createRespondWithoutAssetCreationDelta(mockContext, state);
+      const finishHandler = createRespondWithoutAssetCreationFinish(mockContext, state);
 
       const toolCallId = 'streaming-test-123';
 
       await startHandler({ toolCallId });
-      expect(state.entry_id).toBe(toolCallId);
+      expect(state.toolCallId).toBe(toolCallId);
 
       const chunks = [
         '{"final_',
@@ -468,7 +468,7 @@ The following items were processed:
       };
       await finishHandler({ input, toolCallId, messages: [] });
 
-      expect(state.entry_id).toBe(toolCallId);
+      expect(state.toolCallId).toBe(toolCallId);
       expect(state.final_response).toBe(
         'This is a streaming response that comes in multiple chunks'
       );
@@ -476,12 +476,12 @@ The following items were processed:
 
     test('should handle streaming with special characters and formatting', async () => {
       const state: RespondWithoutAssetCreationState = {
-        entry_id: undefined,
+        toolCallId: undefined,
         args: undefined,
         final_response: undefined,
       };
 
-      const deltaHandler = createRespondWithoutAssetCreationDelta(state, mockContext);
+      const deltaHandler = createRespondWithoutAssetCreationDelta(mockContext, state);
 
       const chunks = [
         '{"final_response": "',
@@ -509,12 +509,12 @@ The following items were processed:
 
     test('should handle streaming with very long responses', async () => {
       const state: RespondWithoutAssetCreationState = {
-        entry_id: undefined,
+        toolCallId: undefined,
         args: undefined,
         final_response: undefined,
       };
 
-      const deltaHandler = createRespondWithoutAssetCreationDelta(state, mockContext);
+      const deltaHandler = createRespondWithoutAssetCreationDelta(mockContext, state);
 
       const longText = 'A'.repeat(1000);
       const jsonWithLongText = JSON.stringify({ final_response: longText });
@@ -533,12 +533,12 @@ The following items were processed:
   describe('Error Handling', () => {
     test('should handle malformed JSON gracefully', async () => {
       const state: RespondWithoutAssetCreationState = {
-        entry_id: 'test-entry',
+        toolCallId: 'test-entry',
         args: '',
         final_response: undefined,
       };
 
-      const deltaHandler = createRespondWithoutAssetCreationDelta(state, mockContext);
+      const deltaHandler = createRespondWithoutAssetCreationDelta(mockContext, state);
 
       await expect(
         deltaHandler({
@@ -554,12 +554,12 @@ The following items were processed:
 
     test('should handle null or undefined values', async () => {
       const state: RespondWithoutAssetCreationState = {
-        entry_id: undefined,
+        toolCallId: undefined,
         args: undefined,
         final_response: undefined,
       };
 
-      const finishHandler = createRespondWithoutAssetCreationFinish(state, mockContext);
+      const finishHandler = createRespondWithoutAssetCreationFinish(mockContext, state);
 
       const input: RespondWithoutAssetCreationInput = {
         final_response: '',
