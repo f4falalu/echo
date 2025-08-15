@@ -12,20 +12,20 @@ Creates dashboard configuration files with YAML content following the dashboard 
 #   - id: 1               # Required row ID (integer)
 #     items:
 #       - id: metric-uuid-1  # UUIDv4 of an existing metric, NO quotes
-#     column_sizes: [12]   # Required - must sum to exactly 12
+#     columnSizes: [12]   # Required - must sum to exactly 12
 #   - id: 2 # REQUIRED
 #     items:
 #       - id: metric-uuid-2
 #       - id: metric-uuid-3
-#     column_sizes: 
+#     columnSizes: 
 #       - 6
 #       - 6
 #
 # Rules:
 # 1. Each row can have up to 4 items
 # 2. Each row must have a unique ID
-# 3. column_sizes is required and must specify the width for each item
-# 4. Sum of column_sizes in a row must be exactly 12
+# 3. columnSizes is required and must specify the width for each item
+# 4. Sum of columnSizes in a row must be exactly 12
 # 5. Each column size must be at least 3
 # 6. All arrays should follow the YML array syntax using `-` and should NOT USE `[]` formatting.
 # 7. Don't use comments. The ones in the example are just for explanation
@@ -65,7 +65,7 @@ properties:
                 description: UUIDv4 identifier of an existing metric
             required:
               - id
-        column_sizes:
+        columnSizes:
           type: array
           description: Required array of column sizes (must sum to exactly 12)
           items:
@@ -75,7 +75,7 @@ properties:
       required:
         - id
         - items
-        - column_sizes
+        - columnSizes
 required:
   - name
   - description
@@ -84,9 +84,9 @@ required:
 **Key Requirements:**
 - `name`: Dashboard title (no underscores, descriptive name)
 - `description`: Natural language explanation of the dashboard's purpose and contents
-- `rows`: Array of row objects, each with unique ID, items (metric UUIDs), and column_sizes
+- `rows`: Array of row objects, each with unique ID, items (metric UUIDs), and columnSizes
 - Each row must have 1-4 items maximum
-- `column_sizes` must sum to exactly 12 and each size must be >= 3
+- `columnSizes` must sum to exactly 12 and each size must be >= 3
 - All metric IDs must be valid UUIDs of existing metrics
 - Row IDs must be unique integers (typically 1, 2, 3, etc.)
 
@@ -104,13 +104,13 @@ rows:
   - id: 1
     items:
       - id: 550e8400-e29b-41d4-a716-446655440001
-    column_sizes:
+    columnSizes:
       - 12
   - id: 2
     items:
       - id: 550e8400-e29b-41d4-a716-446655440002
       - id: 550e8400-e29b-41d4-a716-446655440003
-    column_sizes:
+    columnSizes:
       - 6
       - 6
   - id: 3
@@ -118,7 +118,7 @@ rows:
       - id: 550e8400-e29b-41d4-a716-446655440004
       - id: 550e8400-e29b-41d4-a716-446655440005
       - id: 550e8400-e29b-41d4-a716-446655440006
-    column_sizes:
+    columnSizes:
       - 4
       - 4
       - 4

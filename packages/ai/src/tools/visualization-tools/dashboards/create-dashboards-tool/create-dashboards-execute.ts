@@ -161,8 +161,8 @@ async function processDashboardFile(
   const id = dashboardId || randomUUID();
 
   // Collect all metric IDs from rows if they exist
-  const metricIds: string[] = dashboard.config.rows
-    ? dashboard.config.rows.flatMap((row) => row.items).map((item) => item.id)
+  const metricIds: string[] = dashboard.rows
+    ? dashboard.rows.flatMap((row) => row.items).map((item) => item.id)
     : [];
 
   // Validate metric IDs if any exist
@@ -190,7 +190,7 @@ async function processDashboardFile(
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
     version_number: 1,
-    content: dashboard.config, // Store the DashboardConfig directly
+    content: { rows: dashboard.rows }, // Extract the config properties
   };
 
   return {
@@ -374,8 +374,8 @@ const createDashboardFiles = wrapTraced(
 
           // Create associations between metrics and dashboards
           for (const sp of successfulProcessing) {
-            const metricIds: string[] = sp.dashboard.config.rows
-              ? sp.dashboard.config.rows.flatMap((row) => row.items).map((item) => item.id)
+            const metricIds: string[] = sp.dashboard.rows
+              ? sp.dashboard.rows.flatMap((row) => row.items).map((item) => item.id)
               : [];
 
             if (metricIds.length > 0) {

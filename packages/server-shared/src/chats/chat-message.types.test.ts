@@ -1,6 +1,6 @@
+import { ReasoningMessageSchema, ResponseMessageSchema } from '@buster/database';
 import { describe, expect, it } from 'vitest';
 import { ChatMessageSchema } from './chat-message.types';
-import { ReasoningMessageSchema, ResponseMessageSchema } from '@buster/database';
 
 describe('ChatMessageSchema', () => {
   it('should parse a valid complete chat message', () => {
