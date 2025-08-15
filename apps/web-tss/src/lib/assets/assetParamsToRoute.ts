@@ -326,35 +326,3 @@ export const assetParamsToRoutePath = (params: AssetParamsToRoute): RouteFilePat
   const navOptions = assetParamsToRoute(params);
   return navOptions.to as RouteFilePaths;
 };
-
-// Example usage:
-// const routePath = createRouteBuilder()
-//   .withChat('chat-123')
-//   .withMetric('metric-456')
-//   .build(); // Type: '/app/chats/$chatId/metrics/$metricId'
-//
-// const navigationOptions = createRouteBuilder()
-//   .withChat('chat-123')
-//   .withMetric('metric-456')
-//   .buildNavigationOptions(); // Returns: { to: '/app/chats/$chatId/metrics/$metricId', params: { chatId: 'chat-123', metricId: 'metric-456' } }
-//
-// const navOptions = assetParamsToRoute({
-//   assetType: 'dashboard',
-//   assetId: 'dash-123',
-//   chatId: 'chat-456',
-//   metricId: 'metric-789'
-// }); // Returns: BusterNavigateOptions with route and params
-//
-// const collectionNavOptions = assetParamsToRoute({
-//   assetType: 'collection',
-//   assetId: 'collection-123',
-//   chatId: 'chat-456',
-//   dashboardId: 'dash-789',
-//   metricId: 'metric-012'
-// }); // Returns: BusterNavigateOptions for '/app/collections/$collectionId/chats/$chatId/dashboards/$dashboardId/metrics/$metricId'
-//
-// // Use with Link component:
-// <Link {...navOptions}>Go to Dashboard</Link>
-//
-// // Use with navigate:
-// navigate(navOptions);
