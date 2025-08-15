@@ -1,4 +1,4 @@
-import { TanstackDevtools as TanstackDevtoolsBase } from '@tanstack/react-devtools';
+import { TanStackDevtools as TanstackDevtoolsBase } from '@tanstack/react-devtools';
 import { ReactQueryDevtoolsPanel } from '@tanstack/react-query-devtools';
 import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools';
 import type React from 'react';

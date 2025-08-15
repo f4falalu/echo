@@ -406,14 +406,18 @@ const DropdownItem = <T,>({
 
     // Wrap with Link if needed
     if (!isSelectable && link) {
-      const isExternal = link.startsWith('http');
+      const className = 'flex w-full items-center gap-x-2';
+      if (typeof link === 'string') {
+        const isExternal = link.startsWith('http');
+        return (
+          <a href={link} target={isExternal ? '_blank' : '_self'} className={className}>
+            {content}
+          </a>
+        );
+      }
 
       return (
-        <Link
-          className="flex w-full items-center gap-x-2"
-          to={link}
-          target={isExternal ? '_blank' : '_self'}
-        >
+        <Link className={className} {...link}>
           {content}
         </Link>
       );

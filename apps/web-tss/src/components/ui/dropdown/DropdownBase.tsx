@@ -2,6 +2,7 @@ import * as DropdownMenuPrimitive from '@radix-ui/react-dropdown-menu';
 import { Link } from '@tanstack/react-router';
 import * as React from 'react';
 import { cn } from '@/lib/classMerge';
+import type { OptionsTo } from '@/types/routes';
 import { Button } from '../buttons/Button';
 import { Checkbox } from '../checkbox/Checkbox';
 import { CaretRight } from '../icons/NucleoIconFilled';
@@ -249,7 +250,7 @@ DropdownMenuShortcut.displayName = 'DropdownMenuShortcut';
 
 const DropdownMenuLink: React.FC<{
   className?: string;
-  link: string | null;
+  link: OptionsTo | string | null;
   linkIcon?: 'arrow-right' | 'arrow-external' | 'caret-right';
   linkTarget?: '_blank' | '_self';
 }> = ({ className, link, linkTarget, linkIcon = 'arrow-right' }) => {
@@ -259,7 +260,7 @@ const DropdownMenuLink: React.FC<{
     if (linkIcon === 'caret-right') return <CaretRight />;
   }, [linkIcon]);
 
-  const isExternal = link?.startsWith('http');
+  const isExternal = typeof link === 'string' && link.startsWith('http');
 
   const content = (
     <Button
@@ -281,6 +282,18 @@ const DropdownMenuLink: React.FC<{
         {content}
       </div>
     );
+  const target = linkTarget || (isExternal ? '_blank' : '_self');
+
+  const linkContent =
+    typeof link === 'string' ? (
+      <a href={link} target={target} className={className}>
+        {content}
+      </a>
+    ) : (
+      <Link {...link} target={target} preload="intent" className={className}>
+        {content}
+      </Link>
+    );
 
   return (
     <div
@@ -288,9 +301,7 @@ const DropdownMenuLink: React.FC<{
       onClick={(e) => e.stopPropagation()}
       onKeyDown={(e) => e.stopPropagation()}
     >
-      <Link to={link} target={linkTarget || isExternal ? '_blank' : '_self'} className="">
-        {content}
-      </Link>
+      {linkContent}
     </div>
   );
 };

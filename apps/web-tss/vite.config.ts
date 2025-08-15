@@ -7,7 +7,9 @@ import viteTsConfigPaths from 'vite-tsconfig-paths';
 
 const config = defineConfig(({ command, mode }) => {
   const isBuild = command === 'build';
-  const idProduction = mode === 'production';
+  const isProduction = mode === 'production';
+  const isTypecheck = process.argv.includes('--typecheck') || process.env.TYPECHECK === 'true';
+  const useChecker = !process.env.VITEST && isBuild;
 
   return {
     server: { port: 3000 },
@@ -17,14 +19,15 @@ const config = defineConfig(({ command, mode }) => {
       tailwindcss(),
       tanstackStart({ customViteReactPlugin: true }),
       viteReact(),
-      !process.env.VITEST && isBuild
+      useChecker
         ? checker({
-            typescript: idProduction,
-            biome: true,
+            typescript: isTypecheck,
+            biome: isProduction,
           })
         : undefined,
     ],
     build: {
+      chunkSizeWarningLimit: 550,
       rollupOptions: {
         // Exclude test and stories files from build
         external: (id) => {
