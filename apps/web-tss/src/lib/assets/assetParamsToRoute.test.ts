@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import type { FileRouteTypes } from '@/routeTree.gen';
 import { assetParamsToRoute, createRouteBuilder } from './assetParamsToRoute';
 
@@ -87,7 +87,12 @@ describe('assetParamsToRoute', () => {
         assetType: 'chat',
         assetId: 'chat-123',
       });
-      expect(chatRoute).toBe('/app/chats/$chatId');
+      expect(chatRoute).toEqual({
+        to: '/app/chats/$chatId',
+        params: {
+          chatId: 'chat-123',
+        },
+      });
 
       // Chat with dashboard
       const chatDashRoute = assetParamsToRoute({
@@ -95,7 +100,13 @@ describe('assetParamsToRoute', () => {
         assetId: 'chat-123',
         dashboardId: 'dash-456',
       });
-      expect(chatDashRoute).toBe('/app/chats/$chatId/dashboard/$dashboardId');
+      expect(chatDashRoute).toEqual({
+        to: '/app/chats/$chatId/dashboard/$dashboardId',
+        params: {
+          chatId: 'chat-123',
+          dashboardId: 'dash-456',
+        },
+      });
 
       // Chat with metric
       const chatMetricRoute = assetParamsToRoute({
@@ -103,7 +114,13 @@ describe('assetParamsToRoute', () => {
         assetId: 'chat-123',
         metricId: 'metric-456',
       });
-      expect(chatMetricRoute).toBe('/app/chats/$chatId/metrics/$metricId');
+      expect(chatMetricRoute).toEqual({
+        to: '/app/chats/$chatId/metrics/$metricId',
+        params: {
+          chatId: 'chat-123',
+          metricId: 'metric-456',
+        },
+      });
 
       // Chat with dashboard and metric
       const chatDashMetricRoute = assetParamsToRoute({
@@ -112,9 +129,14 @@ describe('assetParamsToRoute', () => {
         dashboardId: 'dash-456',
         metricId: 'metric-789',
       });
-      expect(chatDashMetricRoute).toBe(
-        '/app/chats/$chatId/dashboard/$dashboardId/metrics/$metricId'
-      );
+      expect(chatDashMetricRoute).toEqual({
+        to: '/app/chats/$chatId/dashboard/$dashboardId/metrics/$metricId',
+        params: {
+          chatId: 'chat-123',
+          dashboardId: 'dash-456',
+          metricId: 'metric-789',
+        },
+      });
     });
 
     it('should handle metric asset type correctly', () => {
