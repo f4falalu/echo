@@ -36,16 +36,13 @@ export const LoginForm: React.FC<{ redirectTo: string | null | undefined }> = ({
     async ({ email, password }: { email: string; password: string }) => {
       setLoading('email');
       try {
-        console.log('onSignInWithUsernameAndPassword', email, password, redirectTo);
         const result = await signInWithEmailAndPassword({
           data: { email, password, redirectUrl: redirectTo },
         });
-        console.log('result', result);
         if (result?.error) {
           setErrorMessages([result.message]);
           setLoading(null);
         } else {
-          console.log('redirecting to', redirectTo);
           navigate({ to: redirectTo || '/' });
         }
       } catch (error: unknown) {

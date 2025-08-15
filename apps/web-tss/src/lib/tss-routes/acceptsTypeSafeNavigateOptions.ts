@@ -11,13 +11,11 @@ export function acceptsTypeSafeNavigateOptions<
   TTo extends string | undefined = undefined,
   TMaskFrom extends FileRouteTypes['to'] = TFrom,
   TMaskTo extends string = '',
->(options: OptionsTo<TFrom, TTo, TMaskFrom, TMaskTo>): void {
+>(_options: OptionsTo<TFrom, TTo, TMaskFrom, TMaskTo>): void {
   // In a test environment, you might want to just log or store the navigation
   // For actual implementation, you could:
   // 1. Store the navigation in a test spy
   // 2. Update window.location in a test environment
   // 3. Use a mock router's navigate method
-
   // For now, just log it
-  console.log('Test navigation called with:', options);
 }

@@ -13,8 +13,6 @@ export const QueryPersister = ({
 }) => {
   const [mounted, setMounted] = React.useState(false);
 
-  console.log(queryClient.getQueryData(userQueryKeys.favoritesGetList.queryKey));
-
   return (
     <TanstackPersistQueryClientProvider
       client={queryClient}

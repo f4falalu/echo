@@ -129,6 +129,12 @@ export const SidebarCollapsible: React.FC<
     triggerClassName,
     className,
   }) => {
+    // Track client mount to avoid SSR/CSR hydration mismatches for dnd-kit generated attributes
+    const [isMounted, setIsMounted] = React.useState(false);
+    React.useEffect(() => {
+      setIsMounted(true);
+    }, []);
+
     const [isOpen, setIsOpen] = React.useState(defaultOpen);
     const [sortedItems, setSortedItems] = React.useState(items);
     const [draggingId, setDraggingId] = React.useState<string | null>(null);
@@ -194,9 +200,19 @@ export const SidebarCollapsible: React.FC<
           </div>
         )}
 
-        <CollapsibleContent className="data-[state=open]:animate-collapsible-down data-[state=closed]:animate-collapsible-up pl-0">
-          <div className="space-y-0.5">
-            {isSortable ? (
+        <CollapsibleContent
+          className={cn(
+            isMounted &&
+              'data-[state=open]:animate-collapsible-down data-[state=closed]:animate-collapsible-up',
+            'h-[var(--radix-collapsible-content-height)]'
+          )}
+          style={{
+            minHeight:
+              !isMounted && isOpen ? `${items.length * 28 + items.length * 2 - 2}px` : undefined,
+          }}
+        >
+          <div className="gap-y-0.5 flex flex-col">
+            {isMounted && isSortable ? (
               <DndContext
                 sensors={sensors}
                 collisionDetection={closestCenter}
@@ -227,7 +243,7 @@ export const SidebarCollapsible: React.FC<
             ) : (
               items.map((item) => (
                 <SidebarItem
-                  key={item.id + item.route}
+                  key={item.id}
                   {...item}
                   active={activeItem === item.id || item.active}
                 />

@@ -49,7 +49,6 @@ export function AssetNavigationExample() {
     assetId: 'report-999',
     chatId: 'chat-123',
   });
-  console.log(justThePath); // '/app/chats/$chatId/report/$reportId'
 
   // Example 5: Converting navigation options to href
   const reportNavOptions = assetParamsToRoute({
@@ -60,7 +59,6 @@ export function AssetNavigationExample() {
 
   // Convert to actual URL
   const reportHref = routeToHref(reportNavOptions);
-  console.log(reportHref); // '/app/chats/chat-123/report/report-999'
 
   // Example 6: Using with native anchor tags
   const dashboardHref = routeToHref(dashboardNavOptions);
@@ -130,10 +128,6 @@ export function generateShareableLinks() {
   const baseUrl = window.location.origin;
   const chatHref = baseUrl + routeToHref(chatOptions);
   const metricHref = baseUrl + routeToHref(metricOptions);
-
-  console.log('Share these links:');
-  console.log('Chat:', chatHref); // https://example.com/app/chats/chat-123
-  console.log('Metric:', metricHref); // https://example.com/app/chats/chat-123/metrics/metric-456
 
   return { chatHref, metricHref };
 }
