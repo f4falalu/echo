@@ -53,7 +53,7 @@ export function createDoneTool(context: DoneToolContext) {
     finalResponse: undefined,
   };
 
-  const execute = createDoneToolExecute();
+  const execute = createDoneToolExecute(state, context);
   const onInputStart = createDoneToolStart(state, context);
   const onInputDelta = createDoneToolDelta(state, context);
   const onInputAvailable = createDoneToolFinish(state, context);
