@@ -34,7 +34,7 @@ describe('assetParamsToRoute', () => {
         .withChat('chat-123')
         .withDashboard('dash-456')
         .build();
-      expect(chatDashRoute).toBe('/app/chats/$chatId/dashboard/$dashboardId');
+      expect(chatDashRoute).toBe('/app/chats/$chatId/dashboards/$dashboardId');
 
       // Chat + Metric
       const chatMetricRoute = createRouteBuilder()
@@ -57,7 +57,7 @@ describe('assetParamsToRoute', () => {
         .withMetric('metric-789')
         .build();
       expect(chatDashMetricRoute).toBe(
-        '/app/chats/$chatId/dashboard/$dashboardId/metrics/$metricId'
+        '/app/chats/$chatId/dashboards/$dashboardId/metrics/$metricId'
       );
 
       // Chat + Report + Metric
@@ -169,7 +169,7 @@ describe('assetParamsToRoute', () => {
         dashboardId: 'dash-456',
       });
       expect(chatDashRoute).toEqual({
-        to: '/app/chats/$chatId/dashboard/$dashboardId',
+        to: '/app/chats/$chatId/dashboards/$dashboardId',
         params: {
           chatId: 'chat-123',
           dashboardId: 'dash-456',
@@ -198,7 +198,7 @@ describe('assetParamsToRoute', () => {
         metricId: 'metric-789',
       });
       expect(chatDashMetricRoute).toEqual({
-        to: '/app/chats/$chatId/dashboard/$dashboardId/metrics/$metricId',
+        to: '/app/chats/$chatId/dashboards/$dashboardId/metrics/$metricId',
         params: {
           chatId: 'chat-123',
           dashboardId: 'dash-456',
@@ -242,7 +242,7 @@ describe('assetParamsToRoute', () => {
         dashboardId: 'dash-789',
       });
       expect(metricChatDashRoute).toEqual({
-        to: '/app/chats/$chatId/dashboard/$dashboardId/metrics/$metricId',
+        to: '/app/chats/$chatId/dashboards/$dashboardId/metrics/$metricId',
         params: {
           chatId: 'chat-456',
           dashboardId: 'dash-789',
@@ -271,7 +271,7 @@ describe('assetParamsToRoute', () => {
         chatId: 'chat-456',
       });
       expect(dashChatRoute).toEqual({
-        to: '/app/chats/$chatId/dashboard/$dashboardId',
+        to: '/app/chats/$chatId/dashboards/$dashboardId',
         params: {
           chatId: 'chat-456',
           dashboardId: 'dash-123',
@@ -286,7 +286,7 @@ describe('assetParamsToRoute', () => {
         metricId: 'metric-789',
       });
       expect(dashChatMetricRoute).toEqual({
-        to: '/app/chats/$chatId/dashboard/$dashboardId/metrics/$metricId',
+        to: '/app/chats/$chatId/dashboards/$dashboardId/metrics/$metricId',
         params: {
           chatId: 'chat-456',
           dashboardId: 'dash-123',

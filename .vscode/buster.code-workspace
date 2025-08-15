@@ -1,28 +1,13 @@
 {
   "folders": [
     { "path": "../apps/api" },
-    { "path": "../apps/electric-server" },
     { "path": "../apps/server" },
-    { "path": "../apps/trigger" },
     { "path": "../apps/web" },
     { "path": "../apps/web-tss" },
     { "path": "../packages/access-controls" },
-    { "path": "../packages/ai" },
-    { "path": "../packages/data-source" },
     { "path": "../packages/database" },
-    { "path": "../packages/rerank" },
     { "path": "../packages/server-shared" },
-    { "path": "../packages/slack" },
-    { "path": "../packages/stored-values" },
-    { "path": "../packages/supabase" },
-    { "path": "../packages/test-utils" },
-    { "path": "../packages/typescript-config" },
-    { "path": "../packages/vitest-config" },
-    { "path": "../packages/web-tools" },
-    { "path": "../packages/sandbox" },
-    { "path": "../packages/env-utils" },
     { "path": "../packages/server-utils" },
-
   ],
   "settings": {
     "editor.defaultFormatter": "biomejs.biome",
