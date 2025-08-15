@@ -1285,7 +1285,13 @@ export const metricFiles = pgTable(
         Record<
           string, //version number as a string
           {
-            content: string;
+            content: string | {
+              name: string;
+              description: string;
+              timeFrame: string;
+              sql: string;
+              chartConfig: Record<string, unknown>;
+            };
             updated_at: string;
             version_number: number;
           }

@@ -193,8 +193,8 @@ async function processDashboardFile(file: { id: string; yml_content: string }): 
   }
 
   // Collect all metric IDs from rows if they exist
-  const metricIds: string[] = dashboard.config.rows
-    ? dashboard.config.rows.flatMap((row) => row.items).map((item) => item.id)
+  const metricIds: string[] = dashboard.rows
+    ? dashboard.rows.flatMap((row) => row.items).map((item) => item.id)
     : [];
 
   // Validate metric IDs if any exist
@@ -226,7 +226,7 @@ async function processDashboardFile(file: { id: string; yml_content: string }): 
     created_at: existingFile.createdAt,
     updated_at: new Date().toISOString(),
     version_number: latestVersion,
-    content: dashboard.config, // Store the DashboardConfig directly
+    content: { rows: dashboard.rows }, // Extract the config properties
   };
 
   return {
@@ -346,7 +346,7 @@ const modifyDashboardFiles = wrapTraced(
             await tx
               .update(dashboardFiles)
               .set({
-                content: sp.dashboard.config as DashboardConfig,
+                content: { rows: sp.dashboard.rows } as DashboardConfig,
                 updatedAt: sp.dashboardFile.updated_at,
                 versionHistory: updatedVersionHistory,
                 name: sp.dashboard.name,
@@ -355,8 +355,8 @@ const modifyDashboardFiles = wrapTraced(
               .execute();
 
             // Update metric associations
-            const newMetricIds = sp.dashboard.config.rows
-              ? sp.dashboard.config.rows.flatMap((row) => row.items).map((item) => item.id)
+            const newMetricIds = sp.dashboard.rows
+              ? sp.dashboard.rows.flatMap((row) => row.items).map((item) => item.id)
               : [];
 
             const existingAssociations = await tx

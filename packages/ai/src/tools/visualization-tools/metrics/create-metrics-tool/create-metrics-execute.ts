@@ -3,9 +3,10 @@ import type { DataSource } from '@buster/data-source';
 import { assetPermissions, db, metricFiles, updateMessageEntries } from '@buster/database';
 import {
   type ChartConfigProps,
-  ChartConfigPropsSchema,
   type ColumnMetaData,
   type DataMetadata,
+  type MetricYml,
+  MetricYmlSchema,
 } from '@buster/server-shared/metrics';
 import { wrapTraced } from 'braintrust';
 import * as yaml from 'yaml';
@@ -51,7 +52,7 @@ interface MetricFileResult {
   success: boolean;
   error?: string;
   metricFile?: FileWithId;
-  metricYml?: ChartConfigProps;
+  metricYml?: MetricYml;
   message?: string;
   results?: Record<string, unknown>[];
 }
@@ -59,13 +60,10 @@ interface MetricFileResult {
 type VersionHistory = (typeof metricFiles.$inferSelect)['versionHistory'];
 
 // Helper function to create initial version history
-function createInitialMetricVersionHistory(
-  metric: ChartConfigProps,
-  createdAt: string
-): VersionHistory {
+function createInitialMetricVersionHistory(metric: MetricYml, createdAt: string): VersionHistory {
   return {
     '1': {
-      content: JSON.stringify(metric),
+      content: metric,
       updated_at: createdAt,
       version_number: 1,
     },
@@ -219,12 +217,12 @@ async function processMetricFile(
     // Parse and validate YAML
     const metricYml = yaml.parse(fixedYmlContent);
 
-    const validatedMetricYml = ChartConfigPropsSchema.parse(metricYml);
+    const validatedMetricYml = MetricYmlSchema.parse(metricYml);
 
     // Validate and adjust bar/line chart axes
-    let finalMetricYml: ChartConfigProps;
+    let finalChartConfig: ChartConfigProps;
     try {
-      finalMetricYml = validateAndAdjustBarLineAxes(validatedMetricYml);
+      finalChartConfig = validateAndAdjustBarLineAxes(validatedMetricYml.chartConfig);
     } catch (error) {
       return {
         success: false,
@@ -232,12 +230,18 @@ async function processMetricFile(
       };
     }
 
+    // Create the final metric YML with the adjusted chart config
+    const finalMetricYml: MetricYml = {
+      ...validatedMetricYml,
+      chartConfig: finalChartConfig,
+    };
+
     // Use provided metric ID from state or generate new one
     const id = metricId || randomUUID();
 
     // Validate SQL by running it
     const sqlValidationResult = await validateSql(
-      metricYml.sql,
+      finalMetricYml.sql,
       dataSourceId,
       userId,
       dataSourceDialect
@@ -254,7 +258,7 @@ async function processMetricFile(
     const now = new Date().toISOString();
     const metricFile: FileWithId = {
       id,
-      name: metricYml.name,
+      name: finalMetricYml.name,
       file_type: 'metric',
       result_message: sqlValidationResult.message || '',
       results: sqlValidationResult.results || [],
@@ -552,7 +556,7 @@ const createMetricFiles = wrapTraced(
     const successfulProcessing: Array<{
       fileName: string;
       metricFile: FileWithId;
-      metricYml: ChartConfigProps;
+      metricYml: MetricYml;
       message: string;
       results: Record<string, unknown>[];
     }> = [];

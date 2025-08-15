@@ -74,7 +74,7 @@ function addMetricVersionToHistory(
   return {
     ...history,
     [nextVersion.toString()]: {
-      content: JSON.stringify(metric),
+      content: metric,
       updated_at: updatedAt,
       version_number: nextVersion,
     },
