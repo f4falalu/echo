@@ -2,6 +2,7 @@ import { randomUUID } from 'node:crypto';
 import { db, updateMessageEntries } from '@buster/database';
 import { assetPermissions, reportFiles } from '@buster/database';
 import { wrapTraced } from 'braintrust';
+import { createRawToolResultEntry } from '../../../shared/create-raw-llm-tool-result-entry';
 import { trackFileAssociations } from '../../file-tracking-helper';
 import type {
   CreateReportsContext,
@@ -9,6 +10,7 @@ import type {
   CreateReportsOutput,
   CreateReportsState,
 } from './create-reports-tool';
+import { CREATE_REPORTS_TOOL_NAME } from './create-reports-tool';
 import {
   createCreateReportsRawLlmMessageEntry,
   createCreateReportsReasoningEntry,
@@ -400,6 +402,13 @@ export function createCreateReportsExecute(
 
               const reasoningEntry = createCreateReportsReasoningEntry(state, toolCallId);
               const rawLlmMessage = createCreateReportsRawLlmMessageEntry(state, toolCallId);
+              const rawLlmResultEntry = createRawToolResultEntry(
+                toolCallId,
+                CREATE_REPORTS_TOOL_NAME,
+                {
+                  files: state.files,
+                }
+              );
 
               const updates: Parameters<typeof updateMessageEntries>[0] = {
                 messageId: context.messageId,
@@ -410,7 +419,7 @@ export function createCreateReportsExecute(
               }
 
               if (rawLlmMessage) {
-                updates.rawLlmMessages = [rawLlmMessage];
+                updates.rawLlmMessages = [rawLlmMessage, rawLlmResultEntry];
               }
 
               if (reasoningEntry || rawLlmMessage) {
@@ -457,6 +466,13 @@ export function createCreateReportsExecute(
 
             const reasoningEntry = createCreateReportsReasoningEntry(state, toolCallId);
             const rawLlmMessage = createCreateReportsRawLlmMessageEntry(state, toolCallId);
+            const rawLlmResultEntry = createRawToolResultEntry(
+              toolCallId,
+              CREATE_REPORTS_TOOL_NAME,
+              {
+                files: state.files,
+              }
+            );
 
             const updates: Parameters<typeof updateMessageEntries>[0] = {
               messageId: context.messageId,
@@ -467,7 +483,7 @@ export function createCreateReportsExecute(
             }
 
             if (rawLlmMessage) {
-              updates.rawLlmMessages = [rawLlmMessage];
+              updates.rawLlmMessages = [rawLlmMessage, rawLlmResultEntry];
             }
 
             if (reasoningEntry || rawLlmMessage) {

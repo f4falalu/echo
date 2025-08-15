@@ -1,5 +1,6 @@
 import { appendReportContent, replaceReportContent, updateMessageEntries } from '@buster/database';
 import { wrapTraced } from 'braintrust';
+import { createRawToolResultEntry } from '../../../shared/create-raw-llm-tool-result-entry';
 import { trackFileAssociations } from '../../file-tracking-helper';
 import {
   createModifyReportsRawLlmMessageEntry,
@@ -11,6 +12,7 @@ import type {
   ModifyReportsOutput,
   ModifyReportsState,
 } from './modify-reports-tool';
+import { MODIFY_REPORTS_TOOL_NAME } from './modify-reports-tool';
 
 // Process a single edit operation
 async function processEditOperation(
@@ -283,6 +285,13 @@ export function createModifyReportsExecute(
 
               const reasoningEntry = createModifyReportsReasoningEntry(state, toolCallId);
               const rawLlmMessage = createModifyReportsRawLlmMessageEntry(state, toolCallId);
+              const rawLlmResultEntry = createRawToolResultEntry(
+                toolCallId,
+                MODIFY_REPORTS_TOOL_NAME,
+                {
+                  edits: state.edits,
+                }
+              );
 
               const updates: Parameters<typeof updateMessageEntries>[0] = {
                 messageId: context.messageId,
@@ -293,7 +302,7 @@ export function createModifyReportsExecute(
               }
 
               if (rawLlmMessage) {
-                updates.rawLlmMessages = [rawLlmMessage];
+                updates.rawLlmMessages = [rawLlmMessage, rawLlmResultEntry];
               }
 
               if (reasoningEntry || rawLlmMessage) {
@@ -343,6 +352,13 @@ export function createModifyReportsExecute(
 
             const reasoningEntry = createModifyReportsReasoningEntry(state, toolCallId);
             const rawLlmMessage = createModifyReportsRawLlmMessageEntry(state, toolCallId);
+            const rawLlmResultEntry = createRawToolResultEntry(
+              toolCallId,
+              MODIFY_REPORTS_TOOL_NAME,
+              {
+                edits: state.edits,
+              }
+            );
 
             const updates: Parameters<typeof updateMessageEntries>[0] = {
               messageId: context.messageId,
@@ -353,7 +369,7 @@ export function createModifyReportsExecute(
             }
 
             if (rawLlmMessage) {
-              updates.rawLlmMessages = [rawLlmMessage];
+              updates.rawLlmMessages = [rawLlmMessage, rawLlmResultEntry];
             }
 
             if (reasoningEntry || rawLlmMessage) {

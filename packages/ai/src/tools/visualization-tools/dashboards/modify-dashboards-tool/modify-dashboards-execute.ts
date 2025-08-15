@@ -10,6 +10,7 @@ import {
   type DashboardYml,
   DashboardYmlSchema,
 } from '../../../../../../server-shared/src/dashboards/dashboard.types';
+import { createRawToolResultEntry } from '../../../shared/create-raw-llm-tool-result-entry';
 import { trackFileAssociations } from '../../file-tracking-helper';
 import {
   createModifyDashboardsRawLlmMessageEntry,
@@ -21,6 +22,7 @@ import type {
   ModifyDashboardsOutput,
   ModifyDashboardsState,
 } from './modify-dashboards-tool';
+import { MODIFY_DASHBOARDS_TOOL_NAME } from './modify-dashboards-tool';
 
 // Type definitions
 type DashboardWithMetadata = DashboardYml;
@@ -529,6 +531,13 @@ export function createModifyDashboardsExecute(
 
               const reasoningEntry = createModifyDashboardsReasoningEntry(state, toolCallId);
               const rawLlmMessage = createModifyDashboardsRawLlmMessageEntry(state, toolCallId);
+              const rawLlmResultEntry = createRawToolResultEntry(
+                toolCallId,
+                MODIFY_DASHBOARDS_TOOL_NAME,
+                {
+                  files: state.files,
+                }
+              );
 
               const updates: Parameters<typeof updateMessageEntries>[0] = {
                 messageId: context.messageId,
@@ -539,7 +548,7 @@ export function createModifyDashboardsExecute(
               }
 
               if (rawLlmMessage) {
-                updates.rawLlmMessages = [rawLlmMessage];
+                updates.rawLlmMessages = [rawLlmMessage, rawLlmResultEntry];
               }
 
               if (reasoningEntry || rawLlmMessage) {
@@ -586,6 +595,13 @@ export function createModifyDashboardsExecute(
 
             const reasoningEntry = createModifyDashboardsReasoningEntry(state, toolCallId);
             const rawLlmMessage = createModifyDashboardsRawLlmMessageEntry(state, toolCallId);
+            const rawLlmResultEntry = createRawToolResultEntry(
+              toolCallId,
+              MODIFY_DASHBOARDS_TOOL_NAME,
+              {
+                files: state.files,
+              }
+            );
 
             const updates: Parameters<typeof updateMessageEntries>[0] = {
               messageId: context.messageId,
@@ -596,7 +612,7 @@ export function createModifyDashboardsExecute(
             }
 
             if (rawLlmMessage) {
-              updates.rawLlmMessages = [rawLlmMessage];
+              updates.rawLlmMessages = [rawLlmMessage, rawLlmResultEntry];
             }
 
             if (reasoningEntry || rawLlmMessage) {

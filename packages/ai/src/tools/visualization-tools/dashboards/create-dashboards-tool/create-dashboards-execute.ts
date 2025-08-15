@@ -16,12 +16,14 @@ import {
   type DashboardYml,
   DashboardYmlSchema,
 } from '../../../../../../server-shared/src/dashboards/dashboard.types';
+import { createRawToolResultEntry } from '../../../shared/create-raw-llm-tool-result-entry';
 import { trackFileAssociations } from '../../file-tracking-helper';
-import type {
-  CreateDashboardsContext,
-  CreateDashboardsInput,
-  CreateDashboardsOutput,
-  CreateDashboardsState,
+import {
+  CREATE_DASHBOARDS_TOOL_NAME,
+  type CreateDashboardsContext,
+  type CreateDashboardsInput,
+  type CreateDashboardsOutput,
+  type CreateDashboardsState,
 } from './create-dashboards-tool';
 import {
   createCreateDashboardsRawLlmMessageEntry,
@@ -564,6 +566,13 @@ export function createCreateDashboardsExecute(
 
             const reasoningEntry = createCreateDashboardsReasoningEntry(state, toolCallId);
             const rawLlmMessage = createCreateDashboardsRawLlmMessageEntry(state, toolCallId);
+            const rawLlmResultEntry = createRawToolResultEntry(
+              toolCallId,
+              CREATE_DASHBOARDS_TOOL_NAME,
+              {
+                files: state.files,
+              }
+            );
 
             const updates: Parameters<typeof updateMessageEntries>[0] = {
               messageId: context.messageId,
@@ -574,7 +583,7 @@ export function createCreateDashboardsExecute(
             }
 
             if (rawLlmMessage) {
-              updates.rawLlmMessages = [rawLlmMessage];
+              updates.rawLlmMessages = [rawLlmMessage, rawLlmResultEntry];
             }
 
             if (reasoningEntry || rawLlmMessage) {

@@ -33,7 +33,7 @@ const DocsAgentOptionsSchema = z.object({
   chatId: z.string(),
   dataSourceId: z.string(),
   organizationId: z.string(),
-  messageId: z.string().optional(),
+  messageId: z.string(),
   sandbox: z
     .custom<Sandbox>(
       (val) => {
@@ -55,8 +55,6 @@ export type DocsStreamOptions = z.infer<typeof DocsStreamOptionsSchema>;
 export type DocsAgentContextWithSandbox = DocsAgentOptions & { sandbox: Sandbox };
 
 export function createDocsAgent(docsAgentOptions: DocsAgentOptions) {
-  const steps: never[] = [];
-
   const systemMessage = {
     role: 'system',
     content: getDocsAgentSystemPrompt(docsAgentOptions.folder_structure),
@@ -159,12 +157,7 @@ export function createDocsAgent(docsAgentOptions: DocsAgentOptions) {
     )();
   }
 
-  async function getSteps() {
-    return steps;
-  }
-
   return {
     stream,
-    getSteps,
   };
 }

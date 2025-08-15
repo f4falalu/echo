@@ -9,6 +9,7 @@ export const DocsAgentStepInputSchema = z.object({
   todos: z.string().describe('The todos string'),
   todoList: z.string().describe('The TODO list'),
   message: z.string().describe('The user message'),
+  messageId: z.string().describe('The user message'),
   organizationId: z.string().describe('The organization ID'),
   context: DocsAgentContextSchema.describe('The docs agent context'),
   repositoryTree: z.string().describe('The tree structure of the repository'),
@@ -73,7 +74,7 @@ export async function runDocsAgentStep(params: DocsAgentStepInput): Promise<void
       chatId: Date.now().toString(), // Using current timestamp as chatId
       dataSourceId: dataSourceId || '',
       organizationId: validatedParams.organizationId || '',
-      messageId: undefined, // Optional field
+      messageId: validatedParams.messageId, // Optional field
       sandbox: sandbox, // Pass sandbox for file tools
     });
 

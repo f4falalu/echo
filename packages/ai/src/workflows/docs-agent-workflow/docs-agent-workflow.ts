@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto';
 import type { ModelMessage } from 'ai';
 import { z } from 'zod';
 import { DocsAgentContextSchema } from '../../agents/docs-agent/docs-agent-context';
@@ -83,11 +84,15 @@ export async function runDocsAgentWorkflow(input: DocsAgentWorkflowInput): Promi
     repositoryTree: treeResult.repositoryTree,
   });
 
+  // TODO: This is a temporary solution to get a messageId
+  const messageId = randomUUID();
+
   // Step 4: Execute the docs agent with all the prepared data
   const _agentResult = await runDocsAgentStep({
     todos: todosResult.todos,
     todoList: todosResult.todos, // Using todos as todoList
     message: treeResult.message,
+    messageId: messageId,
     organizationId: treeResult.organizationId,
     context: treeResult.context,
     repositoryTree: treeResult.repositoryTree,

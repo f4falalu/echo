@@ -15,6 +15,7 @@ import {
   createPermissionErrorMessage,
   validateSqlPermissions,
 } from '../../../../utils/sql-permissions';
+import { createRawToolResultEntry } from '../../../shared/create-raw-llm-tool-result-entry';
 import { trackFileAssociations } from '../../file-tracking-helper';
 import { validateAndAdjustBarLineAxes } from '../helpers/bar-line-axis-validator';
 import { ensureTimeFrameQuoted } from '../helpers/time-frame-helper';
@@ -24,6 +25,7 @@ import type {
   CreateMetricsOutput,
   CreateMetricsState,
 } from './create-metrics-tool';
+import { CREATE_METRICS_TOOL_NAME } from './create-metrics-tool';
 import {
   createCreateMetricsRawLlmMessageEntry,
   createCreateMetricsReasoningEntry,
@@ -739,6 +741,13 @@ export function createCreateMetricsExecute(
 
               const reasoningEntry = createCreateMetricsReasoningEntry(state, toolCallId);
               const rawLlmMessage = createCreateMetricsRawLlmMessageEntry(state, toolCallId);
+              const rawLlmResultEntry = createRawToolResultEntry(
+                toolCallId,
+                CREATE_METRICS_TOOL_NAME,
+                {
+                  files: state.files,
+                }
+              );
 
               const updates: Parameters<typeof updateMessageEntries>[0] = {
                 messageId: context.messageId,
@@ -749,7 +758,7 @@ export function createCreateMetricsExecute(
               }
 
               if (rawLlmMessage) {
-                updates.rawLlmMessages = [rawLlmMessage];
+                updates.rawLlmMessages = [rawLlmMessage, rawLlmResultEntry];
               }
 
               if (reasoningEntry || rawLlmMessage) {
@@ -796,6 +805,13 @@ export function createCreateMetricsExecute(
 
             const reasoningEntry = createCreateMetricsReasoningEntry(state, toolCallId);
             const rawLlmMessage = createCreateMetricsRawLlmMessageEntry(state, toolCallId);
+            const rawLlmResultEntry = createRawToolResultEntry(
+              toolCallId,
+              CREATE_METRICS_TOOL_NAME,
+              {
+                files: state.files,
+              }
+            );
 
             const updates: Parameters<typeof updateMessageEntries>[0] = {
               messageId: context.messageId,
@@ -806,7 +822,7 @@ export function createCreateMetricsExecute(
             }
 
             if (rawLlmMessage) {
-              updates.rawLlmMessages = [rawLlmMessage];
+              updates.rawLlmMessages = [rawLlmMessage, rawLlmResultEntry];
             }
 
             if (reasoningEntry || rawLlmMessage) {
