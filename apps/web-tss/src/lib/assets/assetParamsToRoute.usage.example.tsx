@@ -1,10 +1,10 @@
 import { Link, useNavigate } from '@tanstack/react-router';
+import { routeToHref } from '../tss-routes';
 import {
   type AssetParamsToRoute,
   assetParamsToRoute,
   assetParamsToRoutePath,
 } from './assetParamsToRoute';
-import { navigationOptionsToHref, toHref } from './typeSafeNavigation';
 
 // Example React component showing usage
 export function AssetNavigationExample() {
@@ -59,11 +59,11 @@ export function AssetNavigationExample() {
   });
 
   // Convert to actual URL
-  const reportHref = navigationOptionsToHref(reportNavOptions);
+  const reportHref = routeToHref(reportNavOptions);
   console.log(reportHref); // '/app/chats/chat-123/report/report-999'
 
   // Example 6: Using with native anchor tags
-  const dashboardHref = toHref(dashboardNavOptions);
+  const dashboardHref = routeToHref(dashboardNavOptions);
   // dashboardHref is: '/app/chats/chat-123/dashboard/dash-789/metrics/metric-456'
 
   return (
@@ -97,7 +97,7 @@ export function AssetNavigationExample() {
 // Example function that accepts AssetParamsToRoute
 export function createAssetLink(params: AssetParamsToRoute) {
   const navOptions = assetParamsToRoute(params);
-  const href = toHref(navOptions);
+  const href = routeToHref(navOptions);
 
   // You can use either Link component or native anchor
   return (
@@ -128,8 +128,8 @@ export function generateShareableLinks() {
 
   // Convert to absolute URLs for sharing
   const baseUrl = window.location.origin;
-  const chatHref = baseUrl + toHref(chatOptions);
-  const metricHref = baseUrl + toHref(metricOptions);
+  const chatHref = baseUrl + routeToHref(chatOptions);
+  const metricHref = baseUrl + routeToHref(metricOptions);
 
   console.log('Share these links:');
   console.log('Chat:', chatHref); // https://example.com/app/chats/chat-123

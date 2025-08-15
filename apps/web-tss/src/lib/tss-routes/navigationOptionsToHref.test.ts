@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import type { BusterNavigateOptions } from './typeSafeNavigation';
-import { navigationOptionsToHref, toHref } from './typeSafeNavigation';
+import type { BusterNavigateOptions } from '../tss-routes';
+import { routeToHref } from '../tss-routes';
 
 describe('navigationOptionsToHref', () => {
   it('should convert simple route with single param', () => {
@@ -11,7 +11,7 @@ describe('navigationOptionsToHref', () => {
       },
     };
 
-    const href = navigationOptionsToHref(options);
+    const href = routeToHref(options);
     expect(href).toBe('/app/chats/123');
   });
 
@@ -24,7 +24,7 @@ describe('navigationOptionsToHref', () => {
       },
     };
 
-    const href = navigationOptionsToHref(options);
+    const href = routeToHref(options);
     expect(href).toBe('/app/chats/chat-123/dashboard/dash-456');
   });
 
@@ -38,7 +38,7 @@ describe('navigationOptionsToHref', () => {
       },
     };
 
-    const href = navigationOptionsToHref(options);
+    const href = routeToHref(options);
     expect(href).toBe('/app/chats/chat-123/dashboard/dash-456/metrics/metric-789');
   });
 
@@ -50,7 +50,7 @@ describe('navigationOptionsToHref', () => {
       },
     };
 
-    const href = navigationOptionsToHref(options);
+    const href = routeToHref(options);
     expect(href).toBe('/app/chats/chat%20with%20spaces%20%26%20special');
   });
 
@@ -66,7 +66,7 @@ describe('navigationOptionsToHref', () => {
       },
     };
 
-    const href = navigationOptionsToHref(options);
+    const href = routeToHref(options);
     expect(href).toBe('/app/chats/123?filter=active&sort=date');
   });
 
@@ -79,7 +79,7 @@ describe('navigationOptionsToHref', () => {
       hash: 'section-1',
     };
 
-    const href = navigationOptionsToHref(options);
+    const href = routeToHref(options);
     expect(href).toBe('/app/chats/123#section-1');
   });
 
@@ -95,7 +95,7 @@ describe('navigationOptionsToHref', () => {
       hash: 'privacy',
     };
 
-    const href = navigationOptionsToHref(options);
+    const href = routeToHref(options);
     expect(href).toBe('/app/chats/123?tab=settings#privacy');
   });
 
@@ -107,7 +107,7 @@ describe('navigationOptionsToHref', () => {
       },
     };
 
-    const href = toHref(options);
+    const href = routeToHref(options);
     expect(href).toBe('/app/metrics/metric-123');
   });
 
@@ -116,7 +116,7 @@ describe('navigationOptionsToHref', () => {
       to: '/app/home',
     };
 
-    const href = navigationOptionsToHref(options);
+    const href = routeToHref(options);
     expect(href).toBe('/app/home');
   });
 
@@ -130,7 +130,7 @@ describe('navigationOptionsToHref', () => {
       },
     };
 
-    const href = navigationOptionsToHref(options);
+    const href = routeToHref(options);
     expect(href).toBe('/app/chats/123/report/report-456');
   });
 });

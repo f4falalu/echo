@@ -4,7 +4,7 @@ import {
   createRoute,
   createRouteFactory,
   type RouteOptions,
-} from './typeSafeNavigation';
+} from '../tss-routes';
 
 // Example 1: Using acceptsTypeSafeNavigateOptions
 acceptsTypeSafeNavigateOptions({

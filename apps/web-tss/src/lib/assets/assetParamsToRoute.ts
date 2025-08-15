@@ -1,7 +1,7 @@
 import type { AssetType } from '@buster/server-shared/assets';
 import type { AnyRouter, NavigateOptions, RegisteredRouter } from '@tanstack/react-router';
 import type { FileRouteTypes } from '@/routeTree.gen';
-import type { BusterNavigateOptions } from './typeSafeNavigation';
+import type { BusterNavigateOptions } from '../tss-routes';
 
 type RouteFilePaths = FileRouteTypes['id'];
 
