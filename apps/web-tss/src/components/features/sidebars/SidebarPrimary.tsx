@@ -38,7 +38,6 @@ import {
 import { Sidebar } from '@/components/ui/sidebar/Sidebar';
 import { Tooltip } from '@/components/ui/tooltip/Tooltip';
 import { useContactSupportModalStore, useInviteModalStore } from '@/context/BusterAppLayout';
-import { useGetParentRoute } from '@/context/BusterAppLayout/useAppRoutes';
 import { toggleContactSupportModal } from '@/context/BusterAppLayout/useContactSupportModalStore';
 import { cn } from '@/lib/classMerge';
 import { Route as AppHomeRoute } from '@/routes/app.home';
@@ -49,8 +48,6 @@ import { ASSET_ICONS } from '../icons/assetIcons';
 // import { SupportModal } from '../modal/SupportModal';
 import { SidebarUserFooter } from './SidebarUserFooter';
 import { useFavoriteSidebarPanel } from './useFavoritesSidebarPanel';
-
-//import { useFavoriteSidebarPanel } from './useFavoritesSidebarPanel';
 
 const topItems: ISidebarList = {
   id: 'top-items',
@@ -70,6 +67,10 @@ const topItems: ISidebarList = {
       id: '/app/chats/',
       preload: 'viewport',
       preloadDelay: 2000,
+      activeOptions: {
+        exact: true,
+      },
+      activeProps: {},
     },
   ],
 };
@@ -188,8 +189,6 @@ export const SidebarPrimary = React.memo(() => {
 
     return items;
   }, [isUserRegistered, restrictNewUserInvitations, favoritesDropdownItems, isAdmin, topItems]);
-
-  console.log(sidebarItems);
 
   return (
     <>

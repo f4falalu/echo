@@ -57,7 +57,6 @@ export const SidebarItem: React.FC<
   className = '',
   onClick,
   collapsedTooltip,
-  activeOptions,
   ...rest
 }) => {
   const ItemNode = disabled || !route ? 'div' : Link;

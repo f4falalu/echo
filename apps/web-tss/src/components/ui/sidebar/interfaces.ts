@@ -21,11 +21,12 @@ export type ISidebarItem = ISidebarItemBase &
         route: OptionsTo;
         preload?: LinkProps['preload'];
         preloadDelay?: LinkProps['preloadDelay'];
+        activeProps?: LinkProps['activeProps'];
+        preloadIntentProximity?: LinkProps['preloadIntentProximity'];
         activeOptions?: ActiveOptions; // Only allowed when route is provided
       }
     | {
         route?: never;
-        activeOptions?: never;
       }
   );
 
@@ -34,7 +35,7 @@ export type ISidebarItemWithRoute = ISidebarItemBase & {
   route: OptionsTo;
   preload?: LinkProps['preload'];
   preloadDelay?: LinkProps['preloadDelay'];
-  activeOptions?: ActiveOptions;
+  activeOptions?: LinkProps['activeOptions'];
 };
 
 export interface ISidebarGroup {
