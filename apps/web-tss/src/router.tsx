@@ -22,6 +22,7 @@ export const createRouter = () => {
       context: { queryClient, user: null }, //context is defined in the root route
       scrollRestoration: true,
       defaultPreload: 'intent',
+      defaultPendingComponent: () => <div>Loading...</div>,
       Wrap: (props) => {
         return (
           <TanstackQuery.Provider queryClient={queryClient}>

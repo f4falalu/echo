@@ -4,11 +4,15 @@ import { hashKey, isServer } from '@tanstack/react-query';
 import type { PersistQueryClientProviderProps } from '@tanstack/react-query-persist-client';
 import { dictionariesQueryKeys } from '@/api/query_keys/dictionaries';
 import { slackQueryKeys } from '@/api/query_keys/slack';
+import { userQueryKeys } from '@/api/query_keys/users';
 import packageJson from '../../../package.json';
 
 const buster = packageJson.version;
 export const PERSIST_TIME = 1000 * 60 * 60 * 24 * 3; // 3 days
-const PERSISTED_QUERIES = [slackQueryKeys.slackGetChannels.queryKey].map(hashKey);
+const PERSISTED_QUERIES = [
+  slackQueryKeys.slackGetChannels.queryKey,
+  userQueryKeys.favoritesGetList.queryKey,
+].map(hashKey);
 
 export const PERMANENT_QUERIES = [
   dictionariesQueryKeys.getCurrencies.queryKey,
@@ -30,7 +34,6 @@ const persisterAsync = createAsyncStoragePersister({
     for (const query of client.clientState.queries) {
       const isPermanentQuery = PERMANENT_QUERIES.includes(query.queryHash);
       if (!isPermanentQuery) {
-        console.log('setting dataUpdatedAt to 1', query.queryHash);
         query.state.dataUpdatedAt = 1;
       }
     }
@@ -44,7 +47,6 @@ export const persistOptions: PersistQueryClientProviderProps['persistOptions'] =
     shouldDehydrateQuery: (query) => {
       const isList =
         query.queryKey[1] === 'list' || query.queryKey[query.queryKey.length - 1] === 'list';
-
       return isList || ALL_PERSISTED_QUERIES.includes(query.queryHash);
     },
   },

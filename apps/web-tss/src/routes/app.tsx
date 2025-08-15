@@ -1,4 +1,5 @@
 import { createFileRoute, Outlet, redirect } from '@tanstack/react-router';
+import { prefetchGetUserFavorites } from '@/api/buster_rest/users/favorites/queryRequests';
 import { prefetchGetMyUserInfo } from '@/api/buster_rest/users/queryRequests';
 import { getAppLayout } from '@/api/server-functions/getAppLayout';
 import { AppProviders } from '@/context/Providers';
@@ -23,6 +24,7 @@ export const Route = createFileRoute('/app')({
     const [initialLayout] = await Promise.all([
       getAppLayout({ data: { id: PRIMARY_APP_LAYOUT_ID } }),
       prefetchGetMyUserInfo(queryClient),
+      prefetchGetUserFavorites(queryClient),
     ]);
     return {
       initialLayout,

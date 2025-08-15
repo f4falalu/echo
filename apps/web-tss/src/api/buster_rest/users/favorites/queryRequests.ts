@@ -9,11 +9,10 @@ import {
 } from './requests';
 
 export const useGetUserFavorites = () => {
-  const queryFn = async () => getUserFavorites();
   const organizationId = useGetUserOrganizationId();
   return useQuery({
     ...userQueryKeys.favoritesGetList,
-    queryFn,
+    queryFn: getUserFavorites,
     enabled: !!organizationId,
   });
 };
@@ -22,7 +21,7 @@ export const prefetchGetUserFavorites = async (queryClientProp?: QueryClient) =>
   const queryClient = queryClientProp || new QueryClient();
   await queryClient.prefetchQuery({
     ...userQueryKeys.favoritesGetList,
-    queryFn: () => getUserFavorites(),
+    queryFn: getUserFavorites,
   });
   return queryClient;
 };
