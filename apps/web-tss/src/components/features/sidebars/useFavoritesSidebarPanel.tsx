@@ -9,6 +9,8 @@ import {
 } from '@/api/buster_rest/users';
 import type { ISidebarGroup } from '@/components/ui/sidebar';
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
+import { assetParamsToRoute } from '@/lib/assets/assetParamsToRoute';
+import { useMount } from '../../../hooks/useMount';
 import { useWhyDidYouUpdate } from '../../../hooks/useWhyDidYouUpdate';
 import { assetTypeToIcon } from '../icons/assetIcons';
 
@@ -16,6 +18,10 @@ export const useFavoriteSidebarPanel = () => {
   const { data: favorites } = useGetUserFavorites();
   const { mutateAsync: updateUserFavorites } = useUpdateUserFavorites();
   const { mutateAsync: deleteUserFavorite } = useDeleteUserFavorite();
+
+  useMount(() => {
+    assetParamsToRoute({ assetType: 'chat', assetId: '123' });
+  });
 
   // const { chatId, metricId, dashboardId, collectionId, reportId } = useParams() as {
   //   chatId: string | undefined;
