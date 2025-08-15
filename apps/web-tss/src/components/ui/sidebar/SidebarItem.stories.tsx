@@ -11,7 +11,7 @@ const meta: Meta<typeof SidebarItem> = {
   argTypes: {
     variant: {
       control: 'select',
-      options: ['default', 'emphasized'],
+      options: ['default'],
     },
     active: {
       control: 'boolean',
@@ -39,14 +39,6 @@ export const Default: Story = {
     icon: <Check3 />,
     route: { to: '/app/home' },
     id: 'home',
-  },
-};
-
-export const Emphasized: Story = {
-  args: {
-    ...Default.args,
-    variant: 'emphasized',
-    id: 'home-emphasized',
   },
 };
 

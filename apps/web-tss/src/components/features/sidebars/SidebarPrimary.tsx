@@ -39,25 +39,10 @@ import { Sidebar } from '@/components/ui/sidebar/Sidebar';
 import { Tooltip } from '@/components/ui/tooltip/Tooltip';
 import { useContactSupportModalStore, useInviteModalStore } from '@/context/BusterAppLayout';
 import { useGetParentRoute } from '@/context/BusterAppLayout/useAppRoutes';
-import {
-  closeContactSupportModal,
-  toggleContactSupportModal,
-} from '@/context/BusterAppLayout/useContactSupportModalStore';
-import { useMemoizedFn } from '@/hooks/useMemoizedFn';
+import { toggleContactSupportModal } from '@/context/BusterAppLayout/useContactSupportModalStore';
 import { cn } from '@/lib/classMerge';
-import { createRoute } from '@/lib/tss-routes';
-import { Route as AppChatsRoute } from '@/routes/app.chats.$chatId';
-import { Route as AppChatRoute } from '@/routes/app.chats.index';
-import { Route as AppCollectionsRoute } from '@/routes/app.collections.index';
-import { Route as AppDashboardsRoute } from '@/routes/app.dashboards.index';
-import { Route as AppDatasetsRoute } from '@/routes/app.datasets.index';
 import { Route as AppHomeRoute } from '@/routes/app.home';
-import { Route as AppLogsRoute } from '@/routes/app.logs.index';
-import { Route as AppMetricIdRoute } from '@/routes/app.metrics.$metricId';
-import { Route as AppMetricsRoute } from '@/routes/app.metrics.index';
-import { Route as AppReportsRoute } from '@/routes/app.reports.index';
 import { Route as AppSettingsRoute } from '@/routes/app.settings.profile';
-import type { FileRoutesById, FileRouteTypes } from '@/routeTree.gen';
 import { toggleInviteModal } from '../../../context/BusterAppLayout/useInviteModalStore';
 import { ASSET_ICONS } from '../icons/assetIcons';
 // import { InvitePeopleModal } from '../modal/InvitePeopleModal';
@@ -73,14 +58,14 @@ const topItems: ISidebarList = {
     {
       label: 'Home',
       icon: <House4 />,
-      route: { to: AppHomeRoute.to },
-      id: AppHomeRoute.id,
+      route: { to: '/app/home' },
+      id: '/app/home',
     },
     {
       label: 'Chat history',
       icon: <ASSET_ICONS.chats />,
-      route: { to: AppChatRoute.to },
-      id: AppChatRoute.id,
+      route: { to: '/app/chats' },
+      id: '/app/chats/',
     },
   ],
 };
@@ -88,33 +73,42 @@ const topItems: ISidebarList = {
 const yourStuff: ISidebarGroup = {
   label: 'Your stuff',
   id: 'your-stuff',
-  items: [
-    {
-      label: 'Metrics',
-      icon: <ASSET_ICONS.metrics />,
-      route: { to: AppMetricsRoute.to },
-      id: AppMetricsRoute.id,
-    },
-    {
-      label: 'Dashboards',
-      icon: <ASSET_ICONS.dashboards />,
-      route: { to: AppDashboardsRoute.to },
-      id: AppDashboardsRoute.id,
-    },
-    {
-      label: 'Collections',
-      icon: <ASSET_ICONS.collections />,
-      route: { to: AppCollectionsRoute.to },
-      id: AppCollectionsRoute.id,
-    },
-    {
-      label: 'Reports',
-      icon: <ASSET_ICONS.reports />,
-      route: { to: AppReportsRoute.to },
-      id: AppReportsRoute.id,
-      show: process.env.NEXT_PUBLIC_ENABLE_REPORTS === 'true',
-    },
-  ].filter((x) => x.show !== false),
+  items: (
+    [
+      {
+        label: 'Metrics',
+        icon: <ASSET_ICONS.metrics />,
+        route: { to: '/app/metrics' },
+        id: '/app/metrics',
+        preload: true,
+        preloadDelay: 1000,
+      },
+      {
+        label: 'Dashboards',
+        icon: <ASSET_ICONS.dashboards />,
+        route: { to: '/app/dashboards' },
+        id: '/app/dashboards/',
+        preload: true,
+        preloadDelay: 1000,
+      },
+      {
+        label: 'Collections',
+        icon: <ASSET_ICONS.collections />,
+        route: { to: '/app/collections' },
+        id: '/app/collections/',
+        preload: true,
+        preloadDelay: 1000,
+      },
+      {
+        label: 'Reports',
+        icon: <ASSET_ICONS.reports />,
+        route: { to: '/app/reports' },
+        id: '/app/reports/',
+        preload: false,
+        show: process.env.NEXT_PUBLIC_ENABLE_REPORTS === 'true',
+      },
+    ] satisfies (ISidebarItem & { show?: boolean })[]
+  ).filter((x) => x.show !== false),
 };
 
 const adminTools: ISidebarGroup = {
@@ -124,18 +118,18 @@ const adminTools: ISidebarGroup = {
     {
       label: 'Logs',
       icon: <UnorderedList2 />,
-      route: { to: AppLogsRoute.to },
-      id: AppLogsRoute.id,
+      route: { to: '/app/logs' },
+      id: '/app/logs/',
       collapsedTooltip: 'Logs',
     },
     {
       label: 'Datasets',
       icon: <Table />,
-      route: { to: AppDatasetsRoute.to },
-      id: AppDatasetsRoute.id,
+      route: { to: '/app/datasets' },
+      id: '/app/datasets/',
       collapsedTooltip: 'Datasets',
     },
-  ],
+  ] satisfies ISidebarItem[],
 };
 
 const tryGroup = (showInvitePeople: boolean): ISidebarGroup => ({
@@ -145,7 +139,6 @@ const tryGroup = (showInvitePeople: boolean): ISidebarGroup => ({
     {
       label: 'Invite people',
       icon: <Plus />,
-      route: null,
       id: 'invite-people',
       onClick: () => toggleInviteModal(),
       show: showInvitePeople,
@@ -153,7 +146,6 @@ const tryGroup = (showInvitePeople: boolean): ISidebarGroup => ({
     {
       label: 'Leave feedback',
       icon: <Flag />,
-      route: null,
       id: 'leave-feedback',
       onClick: () => toggleContactSupportModal('feedback'),
     },
@@ -214,7 +206,7 @@ const SidebarPrimaryHeader: React.FC<{ hideActions?: boolean }> = ({ hideActions
   const navigate = useNavigate();
 
   useHotkeys('C', () => {
-    navigate({ to: AppHomeRoute.to });
+    navigate({ to: '/app/home' });
   });
 
   return (

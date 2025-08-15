@@ -1,4 +1,4 @@
-import { Link } from '@tanstack/react-router';
+import { Link, MatchRoute } from '@tanstack/react-router';
 import { cva, type VariantProps } from 'class-variance-authority';
 import type React from 'react';
 import { cn } from '@/lib/classMerge';
@@ -10,11 +10,13 @@ import {
   COLLAPSED_HIDDEN_FLEX_GROUP,
   COLLAPSED_JUSTIFY_CENTER,
 } from './config';
-import type { ISidebarItem } from './interfaces';
+import type { ISidebarItem, ISidebarItemWithRoute } from './interfaces';
 
 const itemVariants = cva(
   cn(
     'flex items-center group rounded px-1.5 min-h-7 max-h-7 text-base transition-colors cursor-pointer',
+    // Active state styles using data-status attribute
+    'data-[status=active]:bg-nav-item-select data-[status=active]:hover:bg-nav-item-select',
     COLLAPSED_JUSTIFY_CENTER
   ),
   {
@@ -23,45 +25,16 @@ const itemVariants = cva(
         default: 'hover:bg-nav-item-hover text-text-default',
         emphasized: 'shadow bg-background border border-border text-text-default',
       },
-      active: {
-        true: '',
-        false: '',
-      },
       disabled: {
-        true: 'cursor-not-allowed',
+        true: 'cursor-not-allowed text-text-disabled bg-transparent',
         false: '',
       },
     },
     compoundVariants: [
       {
-        active: true,
-        disabled: false,
-        variant: 'default',
-        className: 'bg-nav-item-select hover:bg-nav-item-select',
-      },
-      {
-        active: false,
         disabled: true,
         variant: 'default',
-        className: 'text-text-disabled! bg-transparent',
-      },
-      {
-        active: true,
-        disabled: false,
-        variant: 'emphasized',
-        className: 'bg-nav-item-select hover:bg-nav-item-select ',
-      },
-      {
-        active: false,
-        disabled: true,
-        variant: 'emphasized',
-        className: 'bg-nav-item-select hover:bg-nav-item-select',
-      },
-      {
-        active: false,
-        disabled: false,
-        variant: 'emphasized',
-        className: 'hover:bg-item-hover ',
+        className: 'hover:bg-transparent',
       },
     ],
   }
@@ -84,10 +57,9 @@ export const SidebarItem: React.FC<
   className = '',
   onClick,
   collapsedTooltip,
+  activeOptions,
 }) => {
   const ItemNode = disabled || !route ? 'div' : Link;
-
-  console.log(label, route);
 
   return (
     <AppTooltip
@@ -98,9 +70,14 @@ export const SidebarItem: React.FC<
     >
       <ItemNode
         {...route}
-        className={cn(itemVariants({ active, disabled, variant }), className)}
+        className={cn(itemVariants({ disabled, variant }), className)}
         onClick={onClick}
         data-testid={`sidebar-item-${id}`}
+        data-status={active ? 'active' : undefined}
+        disabled={disabled}
+        activeOptions={{ exact: true, ...activeOptions }}
+        preload={preload}
+        preloadDelay={preloadDelay}
       >
         <div className={'flex items-center gap-2 overflow-hidden'}>
           <span
@@ -134,3 +111,12 @@ export const SidebarItem: React.FC<
 };
 
 SidebarItem.displayName = 'SidebarItem';
+
+
+const LinkWrapper: React.FC<{
+  route: OptionsTo;
+  preload?: boolean;
+  preloadDelay?: number;
+}> = ({ route, preload, preloadDelay }) => {
+  return <Link to={route.to} preload={preload} preloadDelay={preloadDelay} />;
+};
