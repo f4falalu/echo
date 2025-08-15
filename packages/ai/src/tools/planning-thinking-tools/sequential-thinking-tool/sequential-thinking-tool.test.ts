@@ -54,27 +54,6 @@ describe('Sequential Thinking Tool', () => {
       expect(result).toEqual({ success: true });
     });
 
-    test('should handle execution without messageId', async () => {
-      const context: SequentialThinkingContext = {};
-
-      const tool = createSequentialThinkingTool(context);
-
-      expect(tool.execute).toBeDefined();
-      const execute = tool.execute;
-      if (!execute) throw new Error('execute is undefined');
-
-      const result = await execute(
-        {
-          thought: 'Thinking without message context',
-          nextThoughtNeeded: false,
-          thoughtNumber: 1,
-        },
-        { toolCallId: 'test', messages: [] }
-      );
-
-      expect(result).toEqual({ success: true });
-    });
-
     test('should have required streaming callbacks', () => {
       const context: SequentialThinkingContext = {
         messageId: 'test-message-123',

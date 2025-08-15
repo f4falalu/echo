@@ -9,7 +9,7 @@ describe('Sequential Thinking Tool Transform Helper', () => {
   describe('createSequentialThinkingReasoningMessage', () => {
     test('should create reasoning message with loading status by default', () => {
       const state: SequentialThinkingState = {
-        entry_id: 'test-entry-123',
+        toolCallId: 'test-entry-123',
         args: undefined,
         thought: 'This is my thinking process',
         nextThoughtNeeded: true,
@@ -31,7 +31,7 @@ describe('Sequential Thinking Tool Transform Helper', () => {
 
     test('should create reasoning message with completed status', () => {
       const state: SequentialThinkingState = {
-        entry_id: 'test-entry-456',
+        toolCallId: 'test-entry-456',
         args: undefined,
         thought: 'Final thought completed',
         nextThoughtNeeded: false,
@@ -53,7 +53,7 @@ describe('Sequential Thinking Tool Transform Helper', () => {
 
     test('should use toolCallId when entry_id is not set', () => {
       const state: SequentialThinkingState = {
-        entry_id: undefined,
+        toolCallId: undefined,
         args: undefined,
         thought: 'Thinking with toolCallId',
         nextThoughtNeeded: true,
@@ -75,7 +75,7 @@ describe('Sequential Thinking Tool Transform Helper', () => {
 
     test('should return null when no id is available', () => {
       const state: SequentialThinkingState = {
-        entry_id: undefined,
+        toolCallId: undefined,
         args: undefined,
         thought: 'No ID available',
         nextThoughtNeeded: true,
@@ -89,7 +89,7 @@ describe('Sequential Thinking Tool Transform Helper', () => {
 
     test('should handle empty thought', () => {
       const state: SequentialThinkingState = {
-        entry_id: 'test-entry-empty',
+        toolCallId: 'test-entry-empty',
         args: undefined,
         thought: undefined,
         nextThoughtNeeded: undefined,
@@ -113,7 +113,7 @@ describe('Sequential Thinking Tool Transform Helper', () => {
   describe('createSequentialThinkingRawLlmMessageEntry', () => {
     test('should create raw LLM message with all state values', () => {
       const state: SequentialThinkingState = {
-        entry_id: 'test-entry-123',
+        toolCallId: 'test-entry-123',
         args: undefined,
         thought: 'Complete thinking process',
         nextThoughtNeeded: false,
@@ -141,7 +141,7 @@ describe('Sequential Thinking Tool Transform Helper', () => {
 
     test('should create raw LLM message with partial state values', () => {
       const state: SequentialThinkingState = {
-        entry_id: 'test-entry-456',
+        toolCallId: 'test-entry-456',
         args: undefined,
         thought: 'Partial thought',
         nextThoughtNeeded: undefined,
@@ -167,7 +167,7 @@ describe('Sequential Thinking Tool Transform Helper', () => {
 
     test('should use toolCallId when entry_id is not set', () => {
       const state: SequentialThinkingState = {
-        entry_id: undefined,
+        toolCallId: undefined,
         args: undefined,
         thought: 'Using toolCallId',
         nextThoughtNeeded: true,
@@ -195,7 +195,7 @@ describe('Sequential Thinking Tool Transform Helper', () => {
 
     test('should return null when no id is available', () => {
       const state: SequentialThinkingState = {
-        entry_id: undefined,
+        toolCallId: undefined,
         args: undefined,
         thought: 'No ID available',
         nextThoughtNeeded: true,
@@ -209,7 +209,7 @@ describe('Sequential Thinking Tool Transform Helper', () => {
 
     test('should create empty input object when no state values are defined', () => {
       const state: SequentialThinkingState = {
-        entry_id: 'test-entry-empty',
+        toolCallId: 'test-entry-empty',
         args: undefined,
         thought: undefined,
         nextThoughtNeeded: undefined,
@@ -233,7 +233,7 @@ describe('Sequential Thinking Tool Transform Helper', () => {
 
     test('should handle all field types correctly', () => {
       const state: SequentialThinkingState = {
-        entry_id: 'test-types',
+        toolCallId: 'test-types',
         args: '{"thought": "test"}', // This should not be included in output
         thought: 'String value',
         nextThoughtNeeded: true,

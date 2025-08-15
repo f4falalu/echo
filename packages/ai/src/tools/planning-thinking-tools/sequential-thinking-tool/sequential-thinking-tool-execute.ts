@@ -1,6 +1,7 @@
 import { updateMessageEntries } from '@buster/database';
 import { wrapTraced } from 'braintrust';
 import { normalizeEscapedText } from '../../../utils/streaming/escape-normalizer';
+import { createRawToolResultEntry } from '../../shared/create-raw-llm-tool-result-entry';
 import {
   createSequentialThinkingRawLlmMessageEntry,
   createSequentialThinkingReasoningMessage,
@@ -15,76 +16,31 @@ import {
 
 // Process sequential thinking execution
 async function processSequentialThinking(
-  input: SequentialThinkingInput,
-  state: SequentialThinkingState,
-  context: SequentialThinkingContext
+  toolCallId: string,
+  messageId: string
 ): Promise<SequentialThinkingOutput> {
+  const output: SequentialThinkingOutput = {
+    success: true,
+  };
+
+  const rawToolResultEntry = createRawToolResultEntry(
+    toolCallId,
+    SEQUENTIAL_THINKING_TOOL_NAME,
+    output
+  );
+
   try {
-    // Log the thinking step for debugging
-    if (context.messageId) {
-      console.info('[sequential-thinking] Processing thought:', {
-        messageId: context.messageId,
-        thoughtNumber: input.thoughtNumber,
-        nextThoughtNeeded: input.nextThoughtNeeded,
-      });
-    }
-
-    // Since we have the full input object, create the reasoning entries directly
-    const toolCallId = state.entry_id;
-
-    if (toolCallId && context.messageId) {
-      // Create reasoning entry with completed status using the input values directly
-      const reasoningEntry = createSequentialThinkingReasoningMessage(
-        {
-          entry_id: toolCallId,
-          thought: normalizeEscapedText(input.thought),
-          nextThoughtNeeded: input.nextThoughtNeeded,
-          thoughtNumber: input.thoughtNumber,
-        },
-        toolCallId,
-        'completed' // Mark as completed in execute
-      );
-
-      // Create raw LLM message entry using the input values directly
-      const rawLlmMessage = createSequentialThinkingRawLlmMessageEntry(
-        {
-          entry_id: toolCallId,
-          thought: normalizeEscapedText(input.thought),
-          nextThoughtNeeded: input.nextThoughtNeeded,
-          thoughtNumber: input.thoughtNumber,
-        },
-        toolCallId
-      );
-
-      const reasoningMessages = reasoningEntry ? [reasoningEntry] : [];
-      const rawLlmMessages = rawLlmMessage ? [rawLlmMessage] : [];
-
-      if (reasoningMessages.length > 0 || rawLlmMessages.length > 0) {
-        await updateMessageEntries({
-          messageId: context.messageId,
-          reasoningMessages,
-          rawLlmMessages,
-        });
-
-        console.info('[sequential-thinking] Completed sequential thinking in execute:', {
-          messageId: context.messageId,
-          toolCallId,
-          thoughtNumber: input.thoughtNumber,
-          nextThoughtNeeded: input.nextThoughtNeeded,
-        });
-      }
-    }
-
-    return {
-      success: true,
-    };
+    await updateMessageEntries({
+      messageId,
+      rawLlmMessages: [rawToolResultEntry],
+    });
   } catch (error) {
-    console.error('[sequential-thinking] Error in sequential thinking:', error);
-
-    throw new Error(
-      `Sequential thinking processing failed: ${error instanceof Error ? error.message : 'Unknown error'}`
-    );
+    console.error('[sequential-thinking] Error updating message entries:', error);
   }
+
+  return {
+    success: true,
+  };
 }
 
 // Factory function that creates the execute function with proper context typing
@@ -93,8 +49,12 @@ export function createSequentialThinkingExecute(
   context: SequentialThinkingContext
 ) {
   return wrapTraced(
-    async (input: SequentialThinkingInput): Promise<SequentialThinkingOutput> => {
-      return await processSequentialThinking(input, state, context);
+    async (_input: SequentialThinkingInput): Promise<SequentialThinkingOutput> => {
+      if (!state.toolCallId) {
+        throw new Error('Tool call ID is required');
+      }
+
+      return await processSequentialThinking(state.toolCallId, context.messageId);
     },
     { name: SEQUENTIAL_THINKING_TOOL_NAME }
   );

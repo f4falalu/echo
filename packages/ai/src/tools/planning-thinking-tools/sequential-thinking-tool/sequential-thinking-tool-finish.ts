@@ -19,7 +19,7 @@ export function createSequentialThinkingFinish(
     options: { input: SequentialThinkingInput } & ToolCallOptions
   ): Promise<void> {
     // Update state with the final input values
-    sequentialThinkingState.entry_id = options.toolCallId;
+    sequentialThinkingState.toolCallId = options.toolCallId;
     sequentialThinkingState.thought = normalizeEscapedText(options.input.thought);
     sequentialThinkingState.nextThoughtNeeded = options.input.nextThoughtNeeded;
     sequentialThinkingState.thoughtNumber = options.input.thoughtNumber;

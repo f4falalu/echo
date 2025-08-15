@@ -21,7 +21,7 @@ describe('Sequential Thinking Tool Streaming Tests', () => {
   describe('createSequentialThinkingStart', () => {
     test('should initialize state with entry_id on start', async () => {
       const state: SequentialThinkingState = {
-        entry_id: undefined,
+        toolCallId: undefined,
         args: undefined,
         thought: undefined,
         nextThoughtNeeded: undefined,
@@ -36,35 +36,14 @@ describe('Sequential Thinking Tool Streaming Tests', () => {
 
       await startHandler(options);
 
-      expect(state.entry_id).toBe('tool-call-123');
-    });
-
-    test('should handle start without messageId in context', async () => {
-      const state: SequentialThinkingState = {
-        entry_id: undefined,
-        args: undefined,
-        thought: undefined,
-        nextThoughtNeeded: undefined,
-        thoughtNumber: undefined,
-      };
-
-      const contextWithoutMessageId: SequentialThinkingContext = {};
-      const startHandler = createSequentialThinkingStart(state, contextWithoutMessageId);
-      const options: ToolCallOptions = {
-        toolCallId: 'tool-call-456',
-        messages: [],
-      };
-
-      await startHandler(options);
-
-      expect(state.entry_id).toBe('tool-call-456');
+      expect(state.toolCallId).toBe('tool-call-123');
     });
   });
 
   describe('createSequentialThinkingDelta', () => {
     test('should accumulate delta text to args', async () => {
       const state: SequentialThinkingState = {
-        entry_id: 'tool-call-123',
+        toolCallId: 'tool-call-123',
         args: '',
         thought: undefined,
         nextThoughtNeeded: undefined,
@@ -85,7 +64,7 @@ describe('Sequential Thinking Tool Streaming Tests', () => {
 
     test('should parse partial JSON and extract thought value', async () => {
       const state: SequentialThinkingState = {
-        entry_id: 'tool-call-123',
+        toolCallId: 'tool-call-123',
         args: '',
         thought: undefined,
         nextThoughtNeeded: undefined,
@@ -105,7 +84,7 @@ describe('Sequential Thinking Tool Streaming Tests', () => {
 
     test('should handle nextThoughtNeeded boolean value', async () => {
       const state: SequentialThinkingState = {
-        entry_id: 'tool-call-123',
+        toolCallId: 'tool-call-123',
         args: '',
         thought: undefined,
         nextThoughtNeeded: undefined,
@@ -126,7 +105,7 @@ describe('Sequential Thinking Tool Streaming Tests', () => {
 
     test('should handle thoughtNumber value', async () => {
       const state: SequentialThinkingState = {
-        entry_id: 'tool-call-123',
+        toolCallId: 'tool-call-123',
         args: '',
         thought: undefined,
         nextThoughtNeeded: undefined,
@@ -148,7 +127,7 @@ describe('Sequential Thinking Tool Streaming Tests', () => {
 
     test('should accumulate multiple deltas correctly', async () => {
       const state: SequentialThinkingState = {
-        entry_id: 'tool-call-123',
+        toolCallId: 'tool-call-123',
         args: '',
         thought: undefined,
         nextThoughtNeeded: undefined,
@@ -185,7 +164,7 @@ describe('Sequential Thinking Tool Streaming Tests', () => {
 
     test('should handle escaped characters in thought', async () => {
       const state: SequentialThinkingState = {
-        entry_id: 'tool-call-123',
+        toolCallId: 'tool-call-123',
         args: '',
         thought: undefined,
         nextThoughtNeeded: undefined,
@@ -208,7 +187,7 @@ describe('Sequential Thinking Tool Streaming Tests', () => {
       vi.mocked(updateMessageEntries).mockClear();
 
       const state: SequentialThinkingState = {
-        entry_id: 'tool-call-123',
+        toolCallId: 'tool-call-123',
         args: '{"thought": "Already set"}',
         thought: 'Already set',
         nextThoughtNeeded: undefined,
@@ -230,7 +209,7 @@ describe('Sequential Thinking Tool Streaming Tests', () => {
   describe('createSequentialThinkingFinish', () => {
     test('should update state with final input values', async () => {
       const state: SequentialThinkingState = {
-        entry_id: 'tool-call-123',
+        toolCallId: 'tool-call-123',
         args: '{"thought": "Partial"}',
         thought: 'Partial',
         nextThoughtNeeded: undefined,
@@ -258,7 +237,7 @@ describe('Sequential Thinking Tool Streaming Tests', () => {
 
     test('should normalize escaped text in final thought', async () => {
       const state: SequentialThinkingState = {
-        entry_id: undefined,
+        toolCallId: undefined,
         args: undefined,
         thought: undefined,
         nextThoughtNeeded: undefined,
@@ -280,36 +259,7 @@ describe('Sequential Thinking Tool Streaming Tests', () => {
       });
 
       expect(state.thought).toBe('Final thought with "escaped quotes" and \\\\backslashes');
-      expect(state.entry_id).toBe('tool-call-789');
-    });
-
-    test('should handle finish without messageId in context', async () => {
-      const state: SequentialThinkingState = {
-        entry_id: undefined,
-        args: undefined,
-        thought: undefined,
-        nextThoughtNeeded: undefined,
-        thoughtNumber: undefined,
-      };
-
-      const contextWithoutMessageId: SequentialThinkingContext = {};
-      const finishHandler = createSequentialThinkingFinish(state, contextWithoutMessageId);
-
-      const input: SequentialThinkingInput = {
-        thought: 'Thinking without message context',
-        nextThoughtNeeded: true,
-        thoughtNumber: 1,
-      };
-
-      await finishHandler({
-        input,
-        toolCallId: 'no-message-id',
-        messages: [],
-      });
-
-      expect(state.thought).toBe('Thinking without message context');
-      expect(state.nextThoughtNeeded).toBe(true);
-      expect(state.thoughtNumber).toBe(1);
+      expect(state.toolCallId).toBe('tool-call-789');
     });
 
     test('should update database with completed status on finish', async () => {
@@ -317,7 +267,7 @@ describe('Sequential Thinking Tool Streaming Tests', () => {
       vi.mocked(updateMessageEntries).mockClear();
 
       const state: SequentialThinkingState = {
-        entry_id: undefined,
+        toolCallId: undefined,
         args: undefined,
         thought: undefined,
         nextThoughtNeeded: undefined,

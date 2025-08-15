@@ -45,7 +45,7 @@ describe('Sequential Thinking Tool Integration Tests', () => {
   describe('Database Message Updates', () => {
     test('should create initial entries when sequential thinking starts', async () => {
       const state: SequentialThinkingState = {
-        entry_id: undefined,
+        toolCallId: undefined,
         args: undefined,
         thought: undefined,
         nextThoughtNeeded: undefined,
@@ -58,7 +58,7 @@ describe('Sequential Thinking Tool Integration Tests', () => {
       await startHandler({ toolCallId, messages: [] });
 
       // Verify state was updated
-      expect(state.entry_id).toBe(toolCallId);
+      expect(state.toolCallId).toBe(toolCallId);
 
       // Verify database was updated
       const [message] = await db
@@ -71,7 +71,7 @@ describe('Sequential Thinking Tool Integration Tests', () => {
 
     test('should update state during streaming delta', async () => {
       const state: SequentialThinkingState = {
-        entry_id: undefined,
+        toolCallId: undefined,
         args: '',
         thought: undefined,
         nextThoughtNeeded: undefined,
@@ -98,7 +98,7 @@ describe('Sequential Thinking Tool Integration Tests', () => {
 
     test('should update state with complete JSON during delta', async () => {
       const state: SequentialThinkingState = {
-        entry_id: undefined,
+        toolCallId: undefined,
         args: '',
         thought: undefined,
         nextThoughtNeeded: undefined,
@@ -127,7 +127,7 @@ describe('Sequential Thinking Tool Integration Tests', () => {
 
     test('should finalize state when sequential thinking finishes', async () => {
       const state: SequentialThinkingState = {
-        entry_id: undefined,
+        toolCallId: undefined,
         args: '',
         thought: undefined,
         nextThoughtNeeded: undefined,
@@ -158,12 +158,12 @@ describe('Sequential Thinking Tool Integration Tests', () => {
       );
       expect(state.nextThoughtNeeded).toBe(false);
       expect(state.thoughtNumber).toBe(3);
-      expect(state.entry_id).toBe(toolCallId);
+      expect(state.toolCallId).toBe(toolCallId);
     });
 
     test('should handle multiple sequential thoughts in sequence', async () => {
       const state: SequentialThinkingState = {
-        entry_id: undefined,
+        toolCallId: undefined,
         args: '',
         thought: undefined,
         nextThoughtNeeded: undefined,
@@ -214,7 +214,7 @@ describe('Sequential Thinking Tool Integration Tests', () => {
 
     test('should handle error gracefully when database update fails', async () => {
       const state: SequentialThinkingState = {
-        entry_id: undefined,
+        toolCallId: undefined,
         args: undefined,
         thought: undefined,
         nextThoughtNeeded: undefined,
@@ -233,12 +233,12 @@ describe('Sequential Thinking Tool Integration Tests', () => {
       await expect(startHandler({ toolCallId, messages: [] })).resolves.not.toThrow();
 
       // State should still be updated even if database fails
-      expect(state.entry_id).toBe(toolCallId);
+      expect(state.toolCallId).toBe(toolCallId);
     });
 
     test('should handle streaming with escaped characters', async () => {
       const state: SequentialThinkingState = {
-        entry_id: undefined,
+        toolCallId: undefined,
         args: '',
         thought: undefined,
         nextThoughtNeeded: undefined,

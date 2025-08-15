@@ -25,12 +25,11 @@ const SequentialThinkingOutputSchema = z.object({
 const SequentialThinkingContextSchema = z.object({
   messageId: z
     .string()
-    .optional()
     .describe('The message ID of the message that triggered the sequential thinking'),
 });
 
 const SequentialThinkingStateSchema = z.object({
-  entry_id: z
+  toolCallId: z
     .string()
     .optional()
     .describe(
@@ -63,7 +62,7 @@ export type SequentialThinkingState = z.infer<typeof SequentialThinkingStateSche
 
 export function createSequentialThinkingTool(context: SequentialThinkingContext) {
   const state: SequentialThinkingState = {
-    entry_id: undefined,
+    toolCallId: undefined,
     args: undefined,
     thought: undefined,
     nextThoughtNeeded: undefined,
