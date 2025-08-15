@@ -60,12 +60,16 @@ const topItems: ISidebarList = {
       icon: <House4 />,
       route: { to: '/app/home' },
       id: '/app/home',
+      preload: 'viewport',
+      preloadDelay: 1000,
     },
     {
       label: 'Chat history',
       icon: <ASSET_ICONS.chats />,
       route: { to: '/app/chats' },
       id: '/app/chats/',
+      preload: 'viewport',
+      preloadDelay: 2000,
     },
   ],
 };
@@ -80,7 +84,7 @@ const yourStuff: ISidebarGroup = {
         icon: <ASSET_ICONS.metrics />,
         route: { to: '/app/metrics' },
         id: '/app/metrics',
-        preload: true,
+        preload: 'intent',
         preloadDelay: 1000,
       },
       {
@@ -88,7 +92,7 @@ const yourStuff: ISidebarGroup = {
         icon: <ASSET_ICONS.dashboards />,
         route: { to: '/app/dashboards' },
         id: '/app/dashboards/',
-        preload: true,
+        preload: 'intent',
         preloadDelay: 1000,
       },
       {
@@ -96,7 +100,7 @@ const yourStuff: ISidebarGroup = {
         icon: <ASSET_ICONS.collections />,
         route: { to: '/app/collections' },
         id: '/app/collections/',
-        preload: true,
+        preload: 'intent',
         preloadDelay: 1000,
       },
       {
@@ -104,7 +108,7 @@ const yourStuff: ISidebarGroup = {
         icon: <ASSET_ICONS.reports />,
         route: { to: '/app/reports' },
         id: '/app/reports/',
-        preload: false,
+        preload: 'intent',
         show: process.env.NEXT_PUBLIC_ENABLE_REPORTS === 'true',
       },
     ] satisfies (ISidebarItem & { show?: boolean })[]
@@ -121,6 +125,7 @@ const adminTools: ISidebarGroup = {
       route: { to: '/app/logs' },
       id: '/app/logs/',
       collapsedTooltip: 'Logs',
+      preload: 'viewport',
     },
     {
       label: 'Datasets',

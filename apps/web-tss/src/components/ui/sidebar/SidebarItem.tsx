@@ -1,4 +1,4 @@
-import { Link, MatchRoute } from '@tanstack/react-router';
+import { Link, type LinkProps, MatchRoute } from '@tanstack/react-router';
 import { cva, type VariantProps } from 'class-variance-authority';
 import type React from 'react';
 import { cn } from '@/lib/classMerge';
@@ -58,8 +58,49 @@ export const SidebarItem: React.FC<
   onClick,
   collapsedTooltip,
   activeOptions,
+  ...rest
 }) => {
   const ItemNode = disabled || !route ? 'div' : Link;
+
+  const wrapperProps = {
+    className: cn(itemVariants({ disabled, variant }), className),
+    onClick,
+    'data-testid': `sidebar-item-${id}`,
+    'data-status': active ? 'active' : undefined,
+    disabled,
+    ...rest,
+  };
+
+  const content = (
+    <>
+      <div className={'flex items-center gap-2 overflow-hidden'}>
+        <span
+          className={cn('text-icon-size! text-icon-color', {
+            'text-text-disabled': disabled,
+            'pl-4.5': !icon, //hmmm... maybe this should be a prop?
+          })}
+        >
+          {icon}
+        </span>
+        <span className={cn(COLLAPSED_HIDDEN_BLOCK, 'leading-1.3 truncate', className)}>
+          {label}
+        </span>
+      </div>
+      {onRemove && (
+        <Button
+          className={cn(COLLAPSED_HIDDEN_FLEX_GROUP)}
+          variant="ghost"
+          size={'small'}
+          prefix={<Xmark />}
+          onClick={(e) => {
+            e.stopPropagation();
+            e.preventDefault();
+            onRemove();
+          }}
+        />
+      )}
+    </>
+  );
 
   return (
     <AppTooltip
@@ -68,43 +109,8 @@ export const SidebarItem: React.FC<
       sideOffset={8}
       delayDuration={1000}
     >
-      <ItemNode
-        {...route}
-        className={cn(itemVariants({ disabled, variant }), className)}
-        onClick={onClick}
-        data-testid={`sidebar-item-${id}`}
-        data-status={active ? 'active' : undefined}
-        disabled={disabled}
-        activeOptions={{ exact: true, ...activeOptions }}
-        preload={preload}
-        preloadDelay={preloadDelay}
-      >
-        <div className={'flex items-center gap-2 overflow-hidden'}>
-          <span
-            className={cn('text-icon-size! text-icon-color', {
-              'text-text-disabled': disabled,
-              'pl-4.5': !icon, //hmmm... maybe this should be a prop?
-            })}
-          >
-            {icon}
-          </span>
-          <span className={cn(COLLAPSED_HIDDEN_BLOCK, 'leading-1.3 truncate', className)}>
-            {label}
-          </span>
-        </div>
-        {onRemove && (
-          <Button
-            className={cn(COLLAPSED_HIDDEN_FLEX_GROUP)}
-            variant="ghost"
-            size={'small'}
-            prefix={<Xmark />}
-            onClick={(e) => {
-              e.stopPropagation();
-              e.preventDefault();
-              onRemove();
-            }}
-          />
-        )}
+      <ItemNode {...wrapperProps} {...route}>
+        {content}
       </ItemNode>
     </AppTooltip>
   );
@@ -112,11 +118,8 @@ export const SidebarItem: React.FC<
 
 SidebarItem.displayName = 'SidebarItem';
 
-
-const LinkWrapper: React.FC<{
-  route: OptionsTo;
-  preload?: boolean;
-  preloadDelay?: number;
-}> = ({ route, preload, preloadDelay }) => {
-  return <Link to={route.to} preload={preload} preloadDelay={preloadDelay} />;
-};
+// Type-safe wrapper that only accepts route-related props from ISidebarItemWithRoute
+const LinkWrapper: React.FC<
+  Pick<ISidebarItemWithRoute, 'route' | 'preload' | 'preloadDelay'> &
+    React.ComponentProps<typeof Link>
+> = Link;

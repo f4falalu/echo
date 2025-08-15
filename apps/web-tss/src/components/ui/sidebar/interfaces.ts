@@ -1,4 +1,4 @@
-import type { ActiveOptions } from '@tanstack/react-router';
+import type { ActiveOptions, LinkProps } from '@tanstack/react-router';
 import type React from 'react';
 import type { OptionsTo } from '@/types/routes';
 
@@ -19,8 +19,8 @@ export type ISidebarItem = ISidebarItemBase &
   (
     | {
         route: OptionsTo;
-        preload?: boolean;
-        preloadDelay?: number;
+        preload?: LinkProps['preload'];
+        preloadDelay?: LinkProps['preloadDelay'];
         activeOptions?: ActiveOptions; // Only allowed when route is provided
       }
     | {
@@ -32,8 +32,8 @@ export type ISidebarItem = ISidebarItemBase &
 // Extract only the route variant of ISidebarItem (useful for components that require a route)
 export type ISidebarItemWithRoute = ISidebarItemBase & {
   route: OptionsTo;
-  preload?: boolean;
-  preloadDelay?: number;
+  preload?: LinkProps['preload'];
+  preloadDelay?: LinkProps['preloadDelay'];
   activeOptions?: ActiveOptions;
 };
 
