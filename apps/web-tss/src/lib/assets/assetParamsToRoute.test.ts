@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import type { FileRouteTypes } from '@/routeTree.gen';
 import { assetParamsToRoute, createRouteBuilder } from './assetParamsToRoute';
 
-type RouteFilePaths = FileRouteTypes['id'];
+type RouteFilePaths = FileRouteTypes['to'];
 
 describe('assetParamsToRoute', () => {
   describe('RouteBuilder', () => {
@@ -22,6 +22,10 @@ describe('assetParamsToRoute', () => {
       // Test single report route
       const reportRoute = createRouteBuilder().withReport('report-123').build();
       expect(reportRoute).toBe('/app/reports/$reportId');
+
+      // Test single collection route
+      const collectionRoute = createRouteBuilder().withCollection('collection-123').build();
+      expect(collectionRoute).toBe('/app/collections/$collectionId');
     });
 
     it('should build chat combination routes correctly', () => {
@@ -63,6 +67,70 @@ describe('assetParamsToRoute', () => {
         .withMetric('metric-789')
         .build();
       expect(chatReportMetricRoute).toBe('/app/chats/$chatId/report/$reportId/metrics/$metricId');
+    });
+
+    it('should build collection combination routes correctly', () => {
+      // Collection + Chat
+      const collectionChatRoute = createRouteBuilder()
+        .withCollection('collection-123')
+        .withChat('chat-456')
+        .build();
+      expect(collectionChatRoute).toBe('/app/collections/$collectionId/chats/$chatId');
+
+      // Collection + Dashboard
+      const collectionDashRoute = createRouteBuilder()
+        .withCollection('collection-123')
+        .withDashboard('dash-456')
+        .build();
+      expect(collectionDashRoute).toBe('/app/collections/$collectionId/dashboard/$dashboardId');
+
+      // Collection + Metric
+      const collectionMetricRoute = createRouteBuilder()
+        .withCollection('collection-123')
+        .withMetric('metric-456')
+        .build();
+      expect(collectionMetricRoute).toBe('/app/collections/$collectionId/metrics/$metricId');
+
+      // Collection + Chat + Dashboard
+      const collectionChatDashRoute = createRouteBuilder()
+        .withCollection('collection-123')
+        .withChat('chat-456')
+        .withDashboard('dash-789')
+        .build();
+      expect(collectionChatDashRoute).toBe(
+        '/app/collections/$collectionId/chats/$chatId/dashboards/$dashboardId'
+      );
+
+      // Collection + Chat + Metric
+      const collectionChatMetricRoute = createRouteBuilder()
+        .withCollection('collection-123')
+        .withChat('chat-456')
+        .withMetric('metric-789')
+        .build();
+      expect(collectionChatMetricRoute).toBe(
+        '/app/collections/$collectionId/chats/$chatId/metrics/$metricId'
+      );
+
+      // Collection + Dashboard + Metric
+      const collectionDashMetricRoute = createRouteBuilder()
+        .withCollection('collection-123')
+        .withDashboard('dash-456')
+        .withMetric('metric-789')
+        .build();
+      expect(collectionDashMetricRoute).toBe(
+        '/app/collections/$collectionId/dashboard/$dashboardId/metrics/$metricId'
+      );
+
+      // Collection + Chat + Dashboard + Metric
+      const collectionChatDashMetricRoute = createRouteBuilder()
+        .withCollection('collection-123')
+        .withChat('chat-456')
+        .withDashboard('dash-789')
+        .withMetric('metric-012')
+        .build();
+      expect(collectionChatDashMetricRoute).toBe(
+        '/app/collections/$collectionId/chats/$chatId/dashboards/$dashboardId/metrics/$metricId'
+      );
     });
 
     it('should maintain parameter values in state', () => {
@@ -145,7 +213,12 @@ describe('assetParamsToRoute', () => {
         assetType: 'metric',
         assetId: 'metric-123',
       });
-      expect(metricRoute).toBe('/app/metrics/$metricId');
+      expect(metricRoute).toEqual({
+        to: '/app/metrics/$metricId',
+        params: {
+          metricId: 'metric-123',
+        },
+      });
 
       // Metric with chat
       const metricChatRoute = assetParamsToRoute({
@@ -153,7 +226,13 @@ describe('assetParamsToRoute', () => {
         assetId: 'metric-123',
         chatId: 'chat-456',
       });
-      expect(metricChatRoute).toBe('/app/chats/$chatId/metrics/$metricId');
+      expect(metricChatRoute).toEqual({
+        to: '/app/chats/$chatId/metrics/$metricId',
+        params: {
+          chatId: 'chat-456',
+          metricId: 'metric-123',
+        },
+      });
 
       // Metric with chat and dashboard
       const metricChatDashRoute = assetParamsToRoute({
@@ -162,9 +241,14 @@ describe('assetParamsToRoute', () => {
         chatId: 'chat-456',
         dashboardId: 'dash-789',
       });
-      expect(metricChatDashRoute).toBe(
-        '/app/chats/$chatId/dashboard/$dashboardId/metrics/$metricId'
-      );
+      expect(metricChatDashRoute).toEqual({
+        to: '/app/chats/$chatId/dashboard/$dashboardId/metrics/$metricId',
+        params: {
+          chatId: 'chat-456',
+          dashboardId: 'dash-789',
+          metricId: 'metric-123',
+        },
+      });
     });
 
     it('should handle dashboard asset type correctly', () => {
@@ -173,7 +257,12 @@ describe('assetParamsToRoute', () => {
         assetType: 'dashboard',
         assetId: 'dash-123',
       });
-      expect(dashRoute).toBe('/app/dashboards/$dashboardId');
+      expect(dashRoute).toEqual({
+        to: '/app/dashboards/$dashboardId',
+        params: {
+          dashboardId: 'dash-123',
+        },
+      });
 
       // Dashboard with chat
       const dashChatRoute = assetParamsToRoute({
@@ -181,7 +270,13 @@ describe('assetParamsToRoute', () => {
         assetId: 'dash-123',
         chatId: 'chat-456',
       });
-      expect(dashChatRoute).toBe('/app/chats/$chatId/dashboard/$dashboardId');
+      expect(dashChatRoute).toEqual({
+        to: '/app/chats/$chatId/dashboard/$dashboardId',
+        params: {
+          chatId: 'chat-456',
+          dashboardId: 'dash-123',
+        },
+      });
 
       // Dashboard with chat and metric
       const dashChatMetricRoute = assetParamsToRoute({
@@ -190,9 +285,14 @@ describe('assetParamsToRoute', () => {
         chatId: 'chat-456',
         metricId: 'metric-789',
       });
-      expect(dashChatMetricRoute).toBe(
-        '/app/chats/$chatId/dashboard/$dashboardId/metrics/$metricId'
-      );
+      expect(dashChatMetricRoute).toEqual({
+        to: '/app/chats/$chatId/dashboard/$dashboardId/metrics/$metricId',
+        params: {
+          chatId: 'chat-456',
+          dashboardId: 'dash-123',
+          metricId: 'metric-789',
+        },
+      });
     });
 
     it('should handle report asset type correctly', () => {
@@ -201,7 +301,12 @@ describe('assetParamsToRoute', () => {
         assetType: 'report',
         assetId: 'report-123',
       });
-      expect(reportRoute).toBe('/app/reports/$reportId');
+      expect(reportRoute).toEqual({
+        to: '/app/reports/$reportId',
+        params: {
+          reportId: 'report-123',
+        },
+      });
 
       // Report with chat
       const reportChatRoute = assetParamsToRoute({
@@ -209,7 +314,13 @@ describe('assetParamsToRoute', () => {
         assetId: 'report-123',
         chatId: 'chat-456',
       });
-      expect(reportChatRoute).toBe('/app/chats/$chatId/report/$reportId');
+      expect(reportChatRoute).toEqual({
+        to: '/app/chats/$chatId/report/$reportId',
+        params: {
+          chatId: 'chat-456',
+          reportId: 'report-123',
+        },
+      });
 
       // Report with chat and metric
       const reportChatMetricRoute = assetParamsToRoute({
@@ -218,7 +329,136 @@ describe('assetParamsToRoute', () => {
         chatId: 'chat-456',
         metricId: 'metric-789',
       });
-      expect(reportChatMetricRoute).toBe('/app/chats/$chatId/report/$reportId/metrics/$metricId');
+      expect(reportChatMetricRoute).toEqual({
+        to: '/app/chats/$chatId/report/$reportId/metrics/$metricId',
+        params: {
+          chatId: 'chat-456',
+          reportId: 'report-123',
+          metricId: 'metric-789',
+        },
+      });
+    });
+
+    it('should handle collection asset type correctly', () => {
+      // Collection only
+      const collectionRoute = assetParamsToRoute({
+        assetType: 'collection',
+        assetId: 'collection-123',
+      });
+      expect(collectionRoute).toEqual({
+        to: '/app/collections/$collectionId',
+        params: {
+          collectionId: 'collection-123',
+        },
+      });
+
+      // Collection with chat
+      const collectionChatRoute = assetParamsToRoute({
+        assetType: 'collection',
+        assetId: 'collection-123',
+        chatId: 'chat-456',
+      });
+      expect(collectionChatRoute).toEqual({
+        to: '/app/collections/$collectionId/chats/$chatId',
+        params: {
+          collectionId: 'collection-123',
+          chatId: 'chat-456',
+        },
+      });
+
+      // Collection with dashboard
+      const collectionDashRoute = assetParamsToRoute({
+        assetType: 'collection',
+        assetId: 'collection-123',
+        dashboardId: 'dash-456',
+      });
+      expect(collectionDashRoute).toEqual({
+        to: '/app/collections/$collectionId/dashboard/$dashboardId',
+        params: {
+          collectionId: 'collection-123',
+          dashboardId: 'dash-456',
+        },
+      });
+
+      // Collection with metric
+      const collectionMetricRoute = assetParamsToRoute({
+        assetType: 'collection',
+        assetId: 'collection-123',
+        metricId: 'metric-456',
+      });
+      expect(collectionMetricRoute).toEqual({
+        to: '/app/collections/$collectionId/metrics/$metricId',
+        params: {
+          collectionId: 'collection-123',
+          metricId: 'metric-456',
+        },
+      });
+
+      // Collection with chat and dashboard
+      const collectionChatDashRoute = assetParamsToRoute({
+        assetType: 'collection',
+        assetId: 'collection-123',
+        chatId: 'chat-456',
+        dashboardId: 'dash-789',
+      });
+      expect(collectionChatDashRoute).toEqual({
+        to: '/app/collections/$collectionId/chats/$chatId/dashboards/$dashboardId',
+        params: {
+          collectionId: 'collection-123',
+          chatId: 'chat-456',
+          dashboardId: 'dash-789',
+        },
+      });
+
+      // Collection with chat and metric
+      const collectionChatMetricRoute = assetParamsToRoute({
+        assetType: 'collection',
+        assetId: 'collection-123',
+        chatId: 'chat-456',
+        metricId: 'metric-789',
+      });
+      expect(collectionChatMetricRoute).toEqual({
+        to: '/app/collections/$collectionId/chats/$chatId/metrics/$metricId',
+        params: {
+          collectionId: 'collection-123',
+          chatId: 'chat-456',
+          metricId: 'metric-789',
+        },
+      });
+
+      // Collection with dashboard and metric
+      const collectionDashMetricRoute = assetParamsToRoute({
+        assetType: 'collection',
+        assetId: 'collection-123',
+        dashboardId: 'dash-456',
+        metricId: 'metric-789',
+      });
+      expect(collectionDashMetricRoute).toEqual({
+        to: '/app/collections/$collectionId/dashboard/$dashboardId/metrics/$metricId',
+        params: {
+          collectionId: 'collection-123',
+          dashboardId: 'dash-456',
+          metricId: 'metric-789',
+        },
+      });
+
+      // Collection with chat, dashboard and metric
+      const collectionChatDashMetricRoute = assetParamsToRoute({
+        assetType: 'collection',
+        assetId: 'collection-123',
+        chatId: 'chat-456',
+        dashboardId: 'dash-789',
+        metricId: 'metric-012',
+      });
+      expect(collectionChatDashMetricRoute).toEqual({
+        to: '/app/collections/$collectionId/chats/$chatId/dashboards/$dashboardId/metrics/$metricId',
+        params: {
+          collectionId: 'collection-123',
+          chatId: 'chat-456',
+          dashboardId: 'dash-789',
+          metricId: 'metric-012',
+        },
+      });
     });
   });
 
@@ -230,11 +470,24 @@ describe('assetParamsToRoute', () => {
         createRouteBuilder().withDashboard('1').build(),
         createRouteBuilder().withMetric('1').build(),
         createRouteBuilder().withReport('1').build(),
+        createRouteBuilder().withCollection('1').build(),
         createRouteBuilder().withChat('1').withDashboard('2').build(),
         createRouteBuilder().withChat('1').withMetric('2').build(),
         createRouteBuilder().withChat('1').withReport('2').build(),
         createRouteBuilder().withChat('1').withDashboard('2').withMetric('3').build(),
         createRouteBuilder().withChat('1').withReport('2').withMetric('3').build(),
+        createRouteBuilder().withCollection('1').withChat('2').build(),
+        createRouteBuilder().withCollection('1').withDashboard('2').build(),
+        createRouteBuilder().withCollection('1').withMetric('2').build(),
+        createRouteBuilder().withCollection('1').withChat('2').withDashboard('3').build(),
+        createRouteBuilder().withCollection('1').withChat('2').withMetric('3').build(),
+        createRouteBuilder().withCollection('1').withDashboard('2').withMetric('3').build(),
+        createRouteBuilder()
+          .withCollection('1')
+          .withChat('2')
+          .withDashboard('3')
+          .withMetric('4')
+          .build(),
       ];
 
       expect(routes).toBeDefined();

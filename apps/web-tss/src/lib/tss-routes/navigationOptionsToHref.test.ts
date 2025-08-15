@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import type { BusterNavigateOptions } from '../tss-routes';
-import { routeToHref } from '../tss-routes';
+import { routeToHref } from './navigationOptionsToHref';
+import type { BusterNavigateOptions } from './types';
 
 describe('navigationOptionsToHref', () => {
   it('should convert simple route with single param', () => {
