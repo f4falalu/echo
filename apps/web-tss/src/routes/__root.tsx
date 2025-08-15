@@ -10,16 +10,9 @@ import appCss from '../styles/styles.css?url';
 export const Route = createRootRouteWithContext<AppRouterContext>()({
   head: () => ({
     meta: [
-      {
-        charSet: 'utf-8',
-      },
-      {
-        name: 'viewport',
-        content: 'width=device-width, initial-scale=1',
-      },
-      {
-        title: 'Buster',
-      },
+      { charSet: 'utf-8' },
+      { name: 'viewport', content: 'width=device-width, initial-scale=1' },
+      { title: 'Buster' },
     ],
     links: [{ rel: 'stylesheet', href: appCss }],
   }),
@@ -33,7 +26,7 @@ export const Route = createRootRouteWithContext<AppRouterContext>()({
 });
 
 function RootDocument({ children }: { children: React.ReactNode }) {
-  const { user, accessToken } = Route.useRouteContext();
+  const { user, accessToken, queryClient } = Route.useRouteContext();
 
   return (
     <html lang="en">
@@ -41,7 +34,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         <HeadContent />
       </head>
       <body>
-        <RootProviders user={user} accessToken={accessToken}>
+        <RootProviders user={user} accessToken={accessToken} queryClient={queryClient}>
           {children}
         </RootProviders>
         <TanstackDevtools />

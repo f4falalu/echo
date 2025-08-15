@@ -1,6 +1,8 @@
 import type { User } from '@supabase/supabase-js';
 import type { QueryClient } from '@tanstack/react-query';
+import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
 import { createRouter as createTanstackRouter } from '@tanstack/react-router';
+import { setupRouterSsrQueryIntegration } from '@tanstack/react-router-ssr-query';
 import { routerWithQueryClient } from '@tanstack/react-router-with-query';
 import * as TanstackQuery from './integrations/tanstack-query/query-client';
 import { routeTree } from './routeTree.gen';
@@ -14,7 +16,7 @@ export interface AppRouterContext {
 export const createRouter = () => {
   const queryClient = TanstackQuery.getQueryClient();
 
-  return routerWithQueryClient(
+  const router = routerWithQueryClient(
     createTanstackRouter({
       routeTree,
       context: { queryClient, user: null }, //context is defined in the root route
@@ -30,6 +32,15 @@ export const createRouter = () => {
     }),
     queryClient
   );
+
+  // setupRouterSsrQueryIntegration({
+  //   router,
+  //   queryClient,
+  //   // Disable auto-wrapping since we'll handle it ourselves
+  //   wrapQueryClient: false,
+  // });
+
+  return router;
 };
 
 // Register the router instance for type safety

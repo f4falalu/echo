@@ -1,10 +1,13 @@
+import type { QueryClient } from '@tanstack/react-query';
 import type React from 'react';
 import type { PropsWithChildren } from 'react';
 import { BusterStyleProvider } from './BusterStyles';
+import { QueryPersister } from './Query/QueryProvider';
 import {
   SupabaseContextProvider,
   type SupabaseContextType,
 } from './Supabase/SupabaseContextProvider';
+
 // import type { UseSupabaseUserContextType } from '@/lib/supabase';
 // import { BusterAssetsProvider } from './Assets/BusterAssetsProvider';
 // import { AppLayoutProvider } from './BusterAppLayout';
@@ -21,15 +24,19 @@ import {
 //   clearLog: false // clears the console per group of renders (default: false)
 // });
 
-export const RootProviders: React.FC<PropsWithChildren<SupabaseContextType>> = ({
+type RootProvidersProps = PropsWithChildren<SupabaseContextType & { queryClient: QueryClient }>;
+
+export const RootProviders: React.FC<RootProvidersProps> = ({
   children,
   user,
   accessToken,
+  queryClient,
 }) => {
   return (
-    <SupabaseContextProvider user={user} accessToken={accessToken}>
-      <BusterStyleProvider>{children}</BusterStyleProvider>
-      {/* <BusterReactQueryProvider>
+    <QueryPersister queryClient={queryClient}>
+      <SupabaseContextProvider user={user} accessToken={accessToken}>
+        <BusterStyleProvider>{children}</BusterStyleProvider>
+        {/* <BusterReactQueryProvider>
         <HydrationBoundary state={dehydrate(queryClient)}>
           <AppLayoutProvider>
             <BusterUserConfigProvider>
@@ -43,7 +50,8 @@ export const RootProviders: React.FC<PropsWithChildren<SupabaseContextType>> = (
           </AppLayoutProvider>
         </HydrationBoundary>
       </BusterReactQueryProvider> */}
-    </SupabaseContextProvider>
+      </SupabaseContextProvider>
+    </QueryPersister>
   );
 };
 

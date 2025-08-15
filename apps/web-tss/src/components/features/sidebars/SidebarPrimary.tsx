@@ -78,42 +78,39 @@ const topItems: ISidebarList = {
 const yourStuff: ISidebarGroup = {
   label: 'Your stuff',
   id: 'your-stuff',
-  items: (
-    [
-      {
-        label: 'Metrics',
-        icon: <ASSET_ICONS.metrics />,
-        route: { to: '/app/metrics' },
-        id: '/app/metrics',
-        preload: 'intent',
-        preloadDelay: 1000,
-      },
-      {
-        label: 'Dashboards',
-        icon: <ASSET_ICONS.dashboards />,
-        route: { to: '/app/dashboards' },
-        id: '/app/dashboards/',
-        preload: 'intent',
-        preloadDelay: 1000,
-      },
-      {
-        label: 'Collections',
-        icon: <ASSET_ICONS.collections />,
-        route: { to: '/app/collections' },
-        id: '/app/collections/',
-        preload: 'intent',
-        preloadDelay: 1000,
-      },
-      {
-        label: 'Reports',
-        icon: <ASSET_ICONS.reports />,
-        route: { to: '/app/reports' },
-        id: '/app/reports/',
-        preload: 'intent',
-        show: process.env.NEXT_PUBLIC_ENABLE_REPORTS === 'true',
-      },
-    ] satisfies (ISidebarItem & { show?: boolean })[]
-  ).filter((x) => x.show !== false),
+  items: [
+    {
+      label: 'Metrics',
+      icon: <ASSET_ICONS.metrics />,
+      route: { to: '/app/metrics' },
+      id: '/app/metrics',
+      preload: 'intent',
+      preloadDelay: 1000,
+    },
+    {
+      label: 'Dashboards',
+      icon: <ASSET_ICONS.dashboards />,
+      route: { to: '/app/dashboards' },
+      id: '/app/dashboards/',
+      preload: 'intent',
+      preloadDelay: 1000,
+    },
+    {
+      label: 'Collections',
+      icon: <ASSET_ICONS.collections />,
+      route: { to: '/app/collections' },
+      id: '/app/collections/',
+      preload: 'intent',
+      preloadDelay: 1000,
+    },
+    {
+      label: 'Reports',
+      icon: <ASSET_ICONS.reports />,
+      route: { to: '/app/reports' },
+      id: '/app/reports/',
+      preload: 'intent',
+    },
+  ] satisfies (ISidebarItem & { show?: boolean })[],
 };
 
 const adminTools: ISidebarGroup = {
@@ -155,7 +152,10 @@ const tryGroup = (showInvitePeople: boolean): ISidebarGroup => ({
       id: 'leave-feedback',
       onClick: () => toggleContactSupportModal('feedback'),
     },
-  ].filter((x) => x.show !== false),
+  ].reduce((acc, { show, ...item }) => {
+    if (show !== false) acc.push(item);
+    return acc;
+  }, [] as ISidebarItem[]),
 });
 
 export const SidebarPrimary = React.memo(() => {
