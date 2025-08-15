@@ -1,16 +1,12 @@
 import { createFileRoute } from '@tanstack/react-router';
+import { z } from 'zod';
 
-// Search params interface for type safety
-interface RouteSearch {
-  report_version_number?: number;
-}
+const searchParamsSchema = z.object({
+  report_version_number: z.coerce.number().optional(),
+});
 
 export const Route = createFileRoute('/app/reports/$reportId')({
-  validateSearch: (search: Record<string, unknown>): RouteSearch => ({
-    report_version_number: search.report_version_number
-      ? Number(search.report_version_number)
-      : undefined,
-  }),
+  validateSearch: searchParamsSchema,
   component: RouteComponent,
 });
 
