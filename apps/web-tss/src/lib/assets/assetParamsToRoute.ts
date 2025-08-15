@@ -1,5 +1,7 @@
 import type { AssetType } from '@buster/server-shared/assets';
+import type { AnyRouter, NavigateOptions, RegisteredRouter } from '@tanstack/react-router';
 import type { FileRouteTypes } from '@/routeTree.gen';
+import type { BusterNavigateOptions } from './typeSafeNavigation';
 
 type RouteFilePaths = FileRouteTypes['id'];
 
@@ -37,7 +39,7 @@ type ReportParamsToRoute = {
   chatId?: string;
 };
 
-type AssetParamsToRoute =
+export type AssetParamsToRoute =
   | ChatParamsToRoute
   | MetricParamsToRoute
   | DashboardParamsToRoute
@@ -166,6 +168,20 @@ class RouteBuilder<T extends RouteBuilderState = NonNullable<unknown>> {
   }
 
   /**
+   * Build navigation options with route and params
+   */
+  buildNavigationOptions(): BusterNavigateOptions {
+    const route = this.build();
+    const params = this.getParams();
+
+    // Type assertion through unknown for complex generic type
+    return {
+      to: route,
+      params,
+    } as unknown as BusterNavigateOptions;
+  }
+
+  /**
    * Determine the route key based on current state
    */
   private getRouteKey(): string {
@@ -189,9 +205,10 @@ class RouteBuilder<T extends RouteBuilderState = NonNullable<unknown>> {
 }
 
 /**
- * Main function to convert asset params to route
+ * Main function to convert asset params to route navigation options
+ * Returns type-safe navigation options that can be passed to Link or navigate
  */
-export const assetParamsToRoute = (params: AssetParamsToRoute): RouteFilePaths => {
+export const assetParamsToRoute = (params: AssetParamsToRoute): BusterNavigateOptions => {
   const builder = new RouteBuilder();
 
   // Build route based on asset type and additional params
@@ -201,7 +218,7 @@ export const assetParamsToRoute = (params: AssetParamsToRoute): RouteFilePaths =
       if (params.dashboardId) route = route.withDashboard(params.dashboardId);
       if (params.reportId) route = route.withReport(params.reportId);
       if (params.metricId) route = route.withMetric(params.metricId);
-      return route.build() as RouteFilePaths;
+      return route.buildNavigationOptions();
     }
 
     case 'metric': {
@@ -211,7 +228,7 @@ export const assetParamsToRoute = (params: AssetParamsToRoute): RouteFilePaths =
         if (params.dashboardId) route = route.withDashboard(params.dashboardId);
         if (params.reportId) route = route.withReport(params.reportId);
       }
-      return route.build() as RouteFilePaths;
+      return route.buildNavigationOptions();
     }
 
     case 'dashboard': {
@@ -220,7 +237,7 @@ export const assetParamsToRoute = (params: AssetParamsToRoute): RouteFilePaths =
         route = route.withChat(params.chatId);
         if (params.metricId) route = route.withMetric(params.metricId);
       }
-      return route.build() as RouteFilePaths;
+      return route.buildNavigationOptions();
     }
 
     case 'report': {
@@ -229,7 +246,7 @@ export const assetParamsToRoute = (params: AssetParamsToRoute): RouteFilePaths =
         route = route.withChat(params.chatId);
         if (params.metricId) route = route.withMetric(params.metricId);
       }
-      return route.build() as RouteFilePaths;
+      return route.buildNavigationOptions();
     }
 
     default:
@@ -242,15 +259,35 @@ export const assetParamsToRoute = (params: AssetParamsToRoute): RouteFilePaths =
  */
 export const createRouteBuilder = () => new RouteBuilder();
 
+/**
+ * Helper function to get just the route path from asset params
+ * Use this when you only need the path string without params
+ */
+export const assetParamsToRoutePath = (params: AssetParamsToRoute): RouteFilePaths => {
+  const navOptions = assetParamsToRoute(params);
+  return navOptions.to as RouteFilePaths;
+};
+
 // Example usage:
-// const route1 = createRouteBuilder()
+// const routePath = createRouteBuilder()
 //   .withChat('chat-123')
 //   .withMetric('metric-456')
 //   .build(); // Type: '/app/chats/$chatId/metrics/$metricId'
 //
-// const route2 = assetParamsToRoute({
+// const navigationOptions = createRouteBuilder()
+//   .withChat('chat-123')
+//   .withMetric('metric-456')
+//   .buildNavigationOptions(); // Returns: { to: '/app/chats/$chatId/metrics/$metricId', params: { chatId: 'chat-123', metricId: 'metric-456' } }
+//
+// const navOptions = assetParamsToRoute({
 //   assetType: 'dashboard',
 //   assetId: 'dash-123',
 //   chatId: 'chat-456',
 //   metricId: 'metric-789'
-// }); // Returns: '/app/chats/$chatId/dashboard/$dashboardId/metrics/$metricId'
+// }); // Returns: BusterNavigateOptions with route and params
+//
+// // Use with Link component:
+// <Link {...navOptions}>Go to Dashboard</Link>
+//
+// // Use with navigate:
+// navigate(navOptions);
