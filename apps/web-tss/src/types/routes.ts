@@ -12,7 +12,7 @@ import type { FileRouteTypes } from '@/routeTree.gen';
  *
  * Without type parameters, TypeScript won't enforce required params!
  */
-export type BusterNavigateOptions<
+export type OptionsTo<
   TFrom extends FileRouteTypes['id'] = '/',
   TTo extends string | undefined = undefined,
   TMaskFrom extends FileRouteTypes['id'] = TFrom,
@@ -26,7 +26,7 @@ export type BusterNavigateOptions<
  * type ChatRouteOptions = RouteOptions<'/app/chats/$chatId'>;
  * // This will give you the type with proper params like { chatId: string }
  */
-export type RouteOptions<
+export type SimpleOptionsTo<
   TTo extends FileRouteTypes['id'],
   TFrom extends FileRouteTypes['id'] = '/',
-> = BusterNavigateOptions<TFrom, TTo>;
+> = OptionsTo<TFrom, TTo>;

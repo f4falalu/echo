@@ -25,6 +25,9 @@ import { Route as AppDatasetsIndexRouteImport } from './routes/app.datasets.inde
 import { Route as AppDashboardsIndexRouteImport } from './routes/app.dashboards.index'
 import { Route as AppCollectionsIndexRouteImport } from './routes/app.collections.index'
 import { Route as AppChatsIndexRouteImport } from './routes/app.chats.index'
+import { Route as AppSettingsUsersRouteImport } from './routes/app.settings.users'
+import { Route as AppSettingsProfileRouteImport } from './routes/app.settings.profile'
+import { Route as AppSettingsDatasourcesRouteImport } from './routes/app.settings.datasources'
 import { Route as AppReportsReportIdRouteImport } from './routes/app.reports.$reportId'
 import { Route as AppMetricsMetricIdRouteImport } from './routes/app.metrics.$metricId'
 import { Route as AppDatasetsDatasetIdRouteImport } from './routes/app.datasets.$datasetId'
@@ -115,6 +118,21 @@ const AppCollectionsIndexRoute = AppCollectionsIndexRouteImport.update({
 const AppChatsIndexRoute = AppChatsIndexRouteImport.update({
   id: '/chats/',
   path: '/chats/',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppSettingsUsersRoute = AppSettingsUsersRouteImport.update({
+  id: '/settings/users',
+  path: '/settings/users',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppSettingsProfileRoute = AppSettingsProfileRouteImport.update({
+  id: '/settings/profile',
+  path: '/settings/profile',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppSettingsDatasourcesRoute = AppSettingsDatasourcesRouteImport.update({
+  id: '/settings/datasources',
+  path: '/settings/datasources',
   getParentRoute: () => AppRoute,
 } as any)
 const AppReportsReportIdRoute = AppReportsReportIdRouteImport.update({
@@ -246,6 +264,9 @@ export interface FileRoutesByFullPath {
   '/app/datasets/$datasetId': typeof AppDatasetsDatasetIdRoute
   '/app/metrics/$metricId': typeof AppMetricsMetricIdRoute
   '/app/reports/$reportId': typeof AppReportsReportIdRoute
+  '/app/settings/datasources': typeof AppSettingsDatasourcesRoute
+  '/app/settings/profile': typeof AppSettingsProfileRoute
+  '/app/settings/users': typeof AppSettingsUsersRoute
   '/app/chats': typeof AppChatsIndexRoute
   '/app/collections': typeof AppCollectionsIndexRoute
   '/app/dashboards': typeof AppDashboardsIndexRoute
@@ -280,6 +301,9 @@ export interface FileRoutesByTo {
   '/app/datasets/$datasetId': typeof AppDatasetsDatasetIdRoute
   '/app/metrics/$metricId': typeof AppMetricsMetricIdRoute
   '/app/reports/$reportId': typeof AppReportsReportIdRoute
+  '/app/settings/datasources': typeof AppSettingsDatasourcesRoute
+  '/app/settings/profile': typeof AppSettingsProfileRoute
+  '/app/settings/users': typeof AppSettingsUsersRoute
   '/app/chats': typeof AppChatsIndexRoute
   '/app/collections': typeof AppCollectionsIndexRoute
   '/app/dashboards': typeof AppDashboardsIndexRoute
@@ -315,6 +339,9 @@ export interface FileRoutesById {
   '/app/datasets/$datasetId': typeof AppDatasetsDatasetIdRoute
   '/app/metrics/$metricId': typeof AppMetricsMetricIdRoute
   '/app/reports/$reportId': typeof AppReportsReportIdRoute
+  '/app/settings/datasources': typeof AppSettingsDatasourcesRoute
+  '/app/settings/profile': typeof AppSettingsProfileRoute
+  '/app/settings/users': typeof AppSettingsUsersRoute
   '/app/chats/': typeof AppChatsIndexRoute
   '/app/collections/': typeof AppCollectionsIndexRoute
   '/app/dashboards/': typeof AppDashboardsIndexRoute
@@ -351,6 +378,9 @@ export interface FileRouteTypes {
     | '/app/datasets/$datasetId'
     | '/app/metrics/$metricId'
     | '/app/reports/$reportId'
+    | '/app/settings/datasources'
+    | '/app/settings/profile'
+    | '/app/settings/users'
     | '/app/chats'
     | '/app/collections'
     | '/app/dashboards'
@@ -385,6 +415,9 @@ export interface FileRouteTypes {
     | '/app/datasets/$datasetId'
     | '/app/metrics/$metricId'
     | '/app/reports/$reportId'
+    | '/app/settings/datasources'
+    | '/app/settings/profile'
+    | '/app/settings/users'
     | '/app/chats'
     | '/app/collections'
     | '/app/dashboards'
@@ -419,6 +452,9 @@ export interface FileRouteTypes {
     | '/app/datasets/$datasetId'
     | '/app/metrics/$metricId'
     | '/app/reports/$reportId'
+    | '/app/settings/datasources'
+    | '/app/settings/profile'
+    | '/app/settings/users'
     | '/app/chats/'
     | '/app/collections/'
     | '/app/dashboards/'
@@ -565,6 +601,27 @@ declare module '@tanstack/react-router' {
       path: '/chats'
       fullPath: '/app/chats'
       preLoaderRoute: typeof AppChatsIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/settings/users': {
+      id: '/app/settings/users'
+      path: '/settings/users'
+      fullPath: '/app/settings/users'
+      preLoaderRoute: typeof AppSettingsUsersRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/settings/profile': {
+      id: '/app/settings/profile'
+      path: '/settings/profile'
+      fullPath: '/app/settings/profile'
+      preLoaderRoute: typeof AppSettingsProfileRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/settings/datasources': {
+      id: '/app/settings/datasources'
+      path: '/settings/datasources'
+      fullPath: '/app/settings/datasources'
+      preLoaderRoute: typeof AppSettingsDatasourcesRouteImport
       parentRoute: typeof AppRoute
     }
     '/app/reports/$reportId': {
@@ -832,6 +889,9 @@ interface AppRouteChildren {
   AppDatasetsDatasetIdRoute: typeof AppDatasetsDatasetIdRoute
   AppMetricsMetricIdRoute: typeof AppMetricsMetricIdRoute
   AppReportsReportIdRoute: typeof AppReportsReportIdRoute
+  AppSettingsDatasourcesRoute: typeof AppSettingsDatasourcesRoute
+  AppSettingsProfileRoute: typeof AppSettingsProfileRoute
+  AppSettingsUsersRoute: typeof AppSettingsUsersRoute
   AppChatsIndexRoute: typeof AppChatsIndexRoute
   AppCollectionsIndexRoute: typeof AppCollectionsIndexRoute
   AppDashboardsIndexRoute: typeof AppDashboardsIndexRoute
@@ -849,6 +909,9 @@ const AppRouteChildren: AppRouteChildren = {
   AppDatasetsDatasetIdRoute: AppDatasetsDatasetIdRoute,
   AppMetricsMetricIdRoute: AppMetricsMetricIdRoute,
   AppReportsReportIdRoute: AppReportsReportIdRoute,
+  AppSettingsDatasourcesRoute: AppSettingsDatasourcesRoute,
+  AppSettingsProfileRoute: AppSettingsProfileRoute,
+  AppSettingsUsersRoute: AppSettingsUsersRoute,
   AppChatsIndexRoute: AppChatsIndexRoute,
   AppCollectionsIndexRoute: AppCollectionsIndexRoute,
   AppDashboardsIndexRoute: AppDashboardsIndexRoute,

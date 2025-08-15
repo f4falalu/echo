@@ -1,7 +1,18 @@
 'use client';
 
 import type { ShareAssetType } from '@buster/server-shared/share';
-import { Link, matchByPath, matchPathname, type RouteMatch } from '@tanstack/react-router';
+import {
+  Link,
+  MatchRoute,
+  matchByPath,
+  matchPathname,
+  type RouteMatch,
+  useLinkProps,
+  useMatch,
+  useMatches,
+  useMatchRoute,
+  useNavigate,
+} from '@tanstack/react-router';
 import React, { useMemo } from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
 import {
@@ -28,132 +39,106 @@ import { Sidebar } from '@/components/ui/sidebar/Sidebar';
 import { Tooltip } from '@/components/ui/tooltip/Tooltip';
 import { useContactSupportModalStore, useInviteModalStore } from '@/context/BusterAppLayout';
 import { useGetParentRoute } from '@/context/BusterAppLayout/useAppRoutes';
+import {
+  closeContactSupportModal,
+  toggleContactSupportModal,
+} from '@/context/BusterAppLayout/useContactSupportModalStore';
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import { cn } from '@/lib/classMerge';
+import { createRoute } from '@/lib/tss-routes';
+import { Route as AppChatsRoute } from '@/routes/app.chats.$chatId';
 import { Route as AppChatRoute } from '@/routes/app.chats.index';
 import { Route as AppCollectionsRoute } from '@/routes/app.collections.index';
 import { Route as AppDashboardsRoute } from '@/routes/app.dashboards.index';
 import { Route as AppDatasetsRoute } from '@/routes/app.datasets.index';
 import { Route as AppHomeRoute } from '@/routes/app.home';
 import { Route as AppLogsRoute } from '@/routes/app.logs.index';
+import { Route as AppMetricIdRoute } from '@/routes/app.metrics.$metricId';
 import { Route as AppMetricsRoute } from '@/routes/app.metrics.index';
 import { Route as AppReportsRoute } from '@/routes/app.reports.index';
+import { Route as AppSettingsRoute } from '@/routes/app.settings.profile';
 import type { FileRoutesById, FileRouteTypes } from '@/routeTree.gen';
+import { toggleInviteModal } from '../../../context/BusterAppLayout/useInviteModalStore';
 import { ASSET_ICONS } from '../icons/assetIcons';
-import { useFavoriteSidebarPanel } from './useFavoritesSidebarPanel';
-
 // import { InvitePeopleModal } from '../modal/InvitePeopleModal';
 // import { SupportModal } from '../modal/SupportModal';
-// import { SidebarUserFooter } from './SidebarUserFooter/SidebarUserFooter';
+import { SidebarUserFooter } from './SidebarUserFooter';
+import { useFavoriteSidebarPanel } from './useFavoritesSidebarPanel';
+
 //import { useFavoriteSidebarPanel } from './useFavoritesSidebarPanel';
 
-type FileRoutes = FileRouteTypes['id'];
-const isMatchingParentRoute = (parentRoute: FileRoutes, to: FileRoutes): boolean => {
-  return !!matchByPath(parentRoute, to, { to: to, fuzzy: true });
+const topItems: ISidebarList = {
+  id: 'top-items',
+  items: [
+    {
+      label: 'Home',
+      icon: <House4 />,
+      route: { to: AppHomeRoute.to },
+      id: AppHomeRoute.id,
+    },
+    {
+      label: 'Chat history',
+      icon: <ASSET_ICONS.chats />,
+      route: { to: AppChatRoute.to },
+      id: AppChatRoute.id,
+    },
+  ],
 };
 
-const topItems = (currentParentRoute: FileRoutes): ISidebarList => {
-  return {
-    id: 'top-items',
-    items: [
-      {
-        label: 'Home',
-        icon: <House4 />,
-        route: AppHomeRoute.id,
-        id: AppHomeRoute.id,
-        active: currentParentRoute === AppHomeRoute.id,
-      },
-      {
-        label: 'Chat history',
-        icon: <ASSET_ICONS.chats />,
-        route: AppChatRoute.id,
-        id: AppChatRoute.id,
-        active: isMatchingParentRoute(AppChatRoute.id, currentParentRoute),
-      },
-    ],
-  };
+const yourStuff: ISidebarGroup = {
+  label: 'Your stuff',
+  id: 'your-stuff',
+  items: [
+    {
+      label: 'Metrics',
+      icon: <ASSET_ICONS.metrics />,
+      route: { to: AppMetricsRoute.to },
+      id: AppMetricsRoute.id,
+    },
+    {
+      label: 'Dashboards',
+      icon: <ASSET_ICONS.dashboards />,
+      route: { to: AppDashboardsRoute.to },
+      id: AppDashboardsRoute.id,
+    },
+    {
+      label: 'Collections',
+      icon: <ASSET_ICONS.collections />,
+      route: { to: AppCollectionsRoute.to },
+      id: AppCollectionsRoute.id,
+    },
+    {
+      label: 'Reports',
+      icon: <ASSET_ICONS.reports />,
+      route: { to: AppReportsRoute.to },
+      id: AppReportsRoute.id,
+      show: process.env.NEXT_PUBLIC_ENABLE_REPORTS === 'true',
+    },
+  ].filter((x) => x.show !== false),
 };
 
-const yourStuff = (
-  currentParentRoute: FileRoutes,
-  favoritedPageType: ShareAssetType | null
-): ISidebarGroup => {
-  const isActiveCheck = (type: ShareAssetType, route: FileRoutes) =>
-    favoritedPageType !== type && favoritedPageType === null && currentParentRoute === route;
-
-  return {
-    label: 'Your stuff',
-    id: 'your-stuff',
-    items: [
-      {
-        label: 'Metrics',
-        icon: <ASSET_ICONS.metrics />,
-        route: AppMetricsRoute.id,
-        id: AppMetricsRoute.id,
-        active: isActiveCheck('metric', AppMetricsRoute.id),
-      },
-      {
-        label: 'Dashboards',
-        icon: <ASSET_ICONS.dashboards />,
-        route: AppDashboardsRoute.id,
-        id: AppDashboardsRoute.id,
-        active: isActiveCheck('dashboard', AppDashboardsRoute.id),
-      },
-      {
-        label: 'Collections',
-        icon: <ASSET_ICONS.collections />,
-        route: AppCollectionsRoute.id,
-        id: AppCollectionsRoute.id,
-        active: isActiveCheck('collection', AppCollectionsRoute.id),
-      },
-      process.env.NEXT_PUBLIC_ENABLE_REPORTS === 'true' && {
-        label: 'Reports',
-        icon: <ASSET_ICONS.reports />,
-        route: AppReportsRoute.id,
-        id: AppReportsRoute.id,
-        active: isActiveCheck('report', AppReportsRoute.id),
-      },
-    ].filter(Boolean) as ISidebarItem[],
-  };
-};
-
-const adminTools = (currentParentRoute: FileRoutes): ISidebarGroup => ({
+const adminTools: ISidebarGroup = {
   label: 'Admin tools',
   id: 'admin-tools',
   items: [
     {
       label: 'Logs',
       icon: <UnorderedList2 />,
-      route: AppLogsRoute.id,
+      route: { to: AppLogsRoute.to },
       id: AppLogsRoute.id,
       collapsedTooltip: 'Logs',
-      active: isMatchingParentRoute(AppLogsRoute.id, currentParentRoute),
     },
-    // {
-    //   label: 'Terms & Definitions',
-    //   icon: <BookOpen4 />,
-    //   route: BusterRoutes.APP_TERMS,
-    //   id: BusterRoutes.APP_TERMS
-    // },
     {
       label: 'Datasets',
       icon: <Table />,
-      route: AppDatasetsRoute.id,
+      route: { to: AppDatasetsRoute.to },
       id: AppDatasetsRoute.id,
-      active: isMatchingParentRoute(AppDatasetsRoute.id, currentParentRoute),
       collapsedTooltip: 'Datasets',
     },
-  ].map((x) => ({
-    ...x,
-    active: x.route === currentParentRoute,
-  })),
-});
+  ],
+};
 
-const tryGroup = (
-  onClickInvitePeople: () => void,
-  onClickLeaveFeedback: () => void,
-  showInvitePeople: boolean
-): ISidebarGroup => ({
+const tryGroup = (showInvitePeople: boolean): ISidebarGroup => ({
   label: 'Try',
   id: 'try',
   items: [
@@ -162,7 +147,7 @@ const tryGroup = (
       icon: <Plus />,
       route: null,
       id: 'invite-people',
-      onClick: onClickInvitePeople,
+      onClick: () => toggleInviteModal(),
       show: showInvitePeople,
     },
     {
@@ -170,7 +155,7 @@ const tryGroup = (
       icon: <Flag />,
       route: null,
       id: 'leave-feedback',
-      onClick: onClickLeaveFeedback,
+      onClick: () => toggleContactSupportModal('feedback'),
     },
   ].filter((x) => x.show !== false),
 });
@@ -179,70 +164,46 @@ export const SidebarPrimary = React.memo(() => {
   const isAdmin = useIsUserAdmin();
   const restrictNewUserInvitations = useRestrictNewUserInvitations();
   const isUserRegistered = useIsUserRegistered();
-  const parentRoute = useGetParentRoute();
 
   const favoritesDropdownItems = useFavoriteSidebarPanel();
 
-  const topItemsItems = useMemo(() => topItems(parentRoute), [parentRoute]);
+  const tryGroupMemoized = useMemo(
+    () => tryGroup(!restrictNewUserInvitations),
+    [restrictNewUserInvitations]
+  );
 
-  // const adminToolsItems = useMemo(() => {
-  //   if (!isAdmin) return null;
-  //   return adminTools(currentParentRoute);
-  // }, [isAdmin, currentParentRoute]);
+  const sidebarItems: SidebarProps['content'] = useMemo(() => {
+    if (!isUserRegistered) return [];
 
-  // const yourStuffItems = useMemo(
-  //   () => yourStuff(currentParentRoute, favoritedPageType),
-  //   [currentParentRoute, favoritedPageType]
-  // );
+    const items = [topItems];
 
-  // const sidebarItems: SidebarProps['content'] = useMemo(() => {
-  //   if (!isUserRegistered) return [];
+    if (isAdmin) {
+      items.push(adminTools);
+    }
 
-  //   const items = [topItemsItems];
+    items.push(yourStuff);
 
-  //   if (adminToolsItems) {
-  //     items.push(adminToolsItems);
-  //   }
+    if (favoritesDropdownItems) {
+      items.push(favoritesDropdownItems);
+    }
 
-  //   items.push(yourStuffItems);
+    items.push(tryGroupMemoized);
 
-  //   if (favoritesDropdownItems) {
-  //     items.push(favoritesDropdownItems);
-  //   }
+    return items;
+  }, [isUserRegistered, restrictNewUserInvitations, favoritesDropdownItems, isAdmin, topItems]);
 
-  //   items.push(
-  //     tryGroup(
-  //       onToggleInviteModal,
-  //       () => onOpenContactSupportModal('feedback'),
-  //       !restrictNewUserInvitations
-  //     )
-  //   );
-
-  //   return items;
-  // }, [
-  //   isUserRegistered,
-  //   adminToolsItems,
-  //   restrictNewUserInvitations,
-  //   yourStuffItems,
-  //   favoritesDropdownItems,
-  //   onToggleInviteModal,
-  //   onOpenContactSupportModal,
-  //   isAdmin,
-  //   topItemsItems,
-  // ]);
-
-  // const onCloseSupportModal = useMemoizedFn(() => onOpenContactSupportModal(false));
+  console.log(sidebarItems);
 
   return (
     <>
-      {/* <Sidebar
+      <Sidebar
         content={sidebarItems}
         header={<SidebarPrimaryHeader hideActions={!isUserRegistered} />}
         footer={<SidebarUserFooter />}
         useCollapsible={isUserRegistered}
-      /> */}
+      />
 
-      {/* <GlobalModals onCloseSupportModal={onCloseSupportModal} /> */}
+      <GlobalModals />
     </>
   );
 });
@@ -250,49 +211,42 @@ export const SidebarPrimary = React.memo(() => {
 SidebarPrimary.displayName = 'SidebarPrimary';
 
 const SidebarPrimaryHeader: React.FC<{ hideActions?: boolean }> = ({ hideActions = false }) => {
-  // const onChangePage = useAppLayoutContextSelector((s) => s.onChangePage);
-  // useHotkeys('C', () => {
-  //   onChangePage(BusterRoutes.APP_HOME);
-  // });
+  const navigate = useNavigate();
+
+  useHotkeys('C', () => {
+    navigate({ to: AppHomeRoute.to });
+  });
 
   return (
     <div className={cn(COLLAPSED_JUSTIFY_CENTER, 'flex min-h-7 items-center')}>
-      {/* <Link href={createBusterRoute({ route: BusterRoutes.APP_HOME })}>
+      <Link to={AppHomeRoute.to}>
         <BusterLogoWithText className={COLLAPSED_HIDDEN} />
         <BusterLogo className={COLLAPSED_VISIBLE} />
       </Link>
       {!hideActions && (
         <div className={cn(COLLAPSED_HIDDEN, 'items-center gap-2')}>
           <Tooltip title="Settings">
-            <Link href={createBusterRoute({ route: BusterRoutes.SETTINGS_PROFILE })}>
+            <Link to={AppSettingsRoute.to}>
               <Button prefix={<Gear />} variant="ghost" />
             </Link>
           </Tooltip>
           <Tooltip title="Start a chat" shortcuts={['C']}>
-            <Link href={createBusterRoute({ route: BusterRoutes.APP_HOME })}>
-              <Button
-                size="tall"
-                rounding={'large'}
-                prefix={
-                  <div className="flex items-center justify-center">
-                    <PencilSquareIcon />
-                  </div>
-                }
-              />
+            <Link to={AppHomeRoute.to}>
+              <Button size="tall" rounding={'large'} prefix={<PencilSquareIcon />} />
             </Link>
           </Tooltip>
         </div>
-      )} */}
+      )}
     </div>
   );
 };
 
-const GlobalModals = ({ onCloseSupportModal }: { onCloseSupportModal: () => void }) => {
+const GlobalModals = () => {
   const { toggleInviteModal, closeInviteModal, openInviteModal } = useInviteModalStore();
   const isAnonymousUser = useIsAnonymousUser();
   const { formType } = useContactSupportModalStore();
 
-  // if (isAnonymousUser) return null;
+  if (isAnonymousUser) return null;
 
   return (
     <>

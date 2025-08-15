@@ -3,11 +3,12 @@ import { getAppLayout } from '@/api/server-functions/getAppLayout';
 import { AppSplitter } from '@/components/ui/layouts/AppSplitter/AppSplitter';
 import { useAppSplitterContext } from '../components/ui/layouts/AppSplitter';
 
+const layoutId = 'primary-layout';
+
 export const Route = createFileRoute('/app/home')({
   component: RouteComponent,
   loader: async () => {
-    const id = 'test0';
-    const initialLayout = await getAppLayout({ data: { id, preservedSide: 'right' } });
+    const initialLayout = await getAppLayout({ data: { id: layoutId, preservedSide: 'right' } });
     return {
       initialLayout,
     };

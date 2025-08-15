@@ -1,10 +1,5 @@
-import {
-  acceptsTypeSafeNavigateOptions,
-  type BusterNavigateOptions,
-  createRoute,
-  createRouteFactory,
-  type RouteOptions,
-} from '.';
+import type { OptionsTo, SimpleOptionsTo } from '@/types/routes';
+import { acceptsTypeSafeNavigateOptions, createRoute, createRouteFactory } from '.';
 
 // Example 1: Using acceptsTypeSafeNavigateOptions
 acceptsTypeSafeNavigateOptions({
@@ -27,7 +22,7 @@ const createChatRoute = createRouteFactory('/app/chats/$chatId');
 createChatRoute({ chatId: '456' });
 
 // Example 4: Using type helpers
-type ChatRouteOptions = RouteOptions<'/app/chats/$chatId'>;
+type ChatRouteOptions = SimpleOptionsTo<'/app/chats/$chatId'>;
 const typedRoute: ChatRouteOptions = {
   to: '/app/chats/$chatId',
   params: {
@@ -40,7 +35,7 @@ acceptsTypeSafeNavigateOptions(typedRoute);
 function createDashboardRoute(
   chatId: string,
   dashboardId: string
-): BusterNavigateOptions<'/', '/app/chats/$chatId/dashboard/$dashboardId'> {
+): OptionsTo<'/', '/app/chats/$chatId/dashboard/$dashboardId'> {
   return {
     to: '/app/chats/$chatId/dashboard/$dashboardId',
     params: {
@@ -62,7 +57,7 @@ acceptsTypeSafeNavigateOptions(dashboardRoute);
 // };
 
 // Correct version with proper params
-const correctTypedRoute = (): BusterNavigateOptions<'/', '/app/chats/$chatId'> => {
+const correctTypedRoute = (): OptionsTo<'/', '/app/chats/$chatId'> => {
   return {
     to: '/app/chats/$chatId',
     params: {

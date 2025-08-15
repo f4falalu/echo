@@ -1,5 +1,5 @@
 import type { FileRouteTypes } from '@/routeTree.gen';
-import type { BusterNavigateOptions } from './types';
+import type { OptionsTo } from '@/types/routes';
 
 /**
  * Type-safe navigate function for testing that matches the behavior of useNavigate()
@@ -11,7 +11,7 @@ export function acceptsTypeSafeNavigateOptions<
   TTo extends string | undefined = undefined,
   TMaskFrom extends FileRouteTypes['id'] = TFrom,
   TMaskTo extends string = '',
->(options: BusterNavigateOptions<TFrom, TTo, TMaskFrom, TMaskTo>): void {
+>(options: OptionsTo<TFrom, TTo, TMaskFrom, TMaskTo>): void {
   // In a test environment, you might want to just log or store the navigation
   // For actual implementation, you could:
   // 1. Store the navigation in a test spy

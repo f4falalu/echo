@@ -87,6 +87,8 @@ export const SidebarItem: React.FC<
 }) => {
   const ItemNode = disabled || !route ? 'div' : Link;
 
+  console.log(label, route);
+
   return (
     <AppTooltip
       title={<span className="block max-w-[260px] truncate">{collapsedTooltip || label}</span>}
@@ -95,7 +97,7 @@ export const SidebarItem: React.FC<
       delayDuration={1000}
     >
       <ItemNode
-        to={route || ''}
+        {...route}
         className={cn(itemVariants({ active, disabled, variant }), className)}
         onClick={onClick}
         data-testid={`sidebar-item-${id}`}

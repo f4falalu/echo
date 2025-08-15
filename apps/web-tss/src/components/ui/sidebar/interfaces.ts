@@ -1,9 +1,10 @@
 import type React from 'react';
+import type { OptionsTo } from '@/types/routes';
 
 export interface ISidebarItem {
   label: string;
   icon?: React.ReactNode;
-  route: string | null; //typesafe this?
+  route: OptionsTo | null; //typesafe this?
   id: string;
   disabled?: boolean;
   active?: boolean;
@@ -23,10 +24,12 @@ export interface ISidebarGroup {
   onItemsReorder?: (ids: string[]) => void;
   triggerClassName?: string;
   className?: string;
+  useDefaultActiveStyles?: boolean;
 }
 
 export interface ISidebarList {
   items: ISidebarItem[];
+  useDefaultActiveStyles?: boolean;
   id: string;
 }
 

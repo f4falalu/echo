@@ -1,6 +1,8 @@
 export { default as ArrowRight } from './arrow-right'; // Arrow pointing right icon
+export { default as ArrowRightFromLine } from './arrow-right-from-line'; // Arrow right from line icon
 export { default as ArrowUp } from './arrow-up';
 export { default as ArrowUpRight } from './arrow-up-right';
+export { default as Book2 } from './book-2'; // Book variant 2 icon
 export { default as Check } from './check';
 export { default as Check3 } from './check-3';
 export { default as ChevronDown } from './chevron-down';
@@ -15,6 +17,7 @@ export { default as CircleWarning } from './circle-warning';
 export { default as CircleXmark } from './circle-xmark';
 export { default as Copy } from './copy';
 export { default as Copy2 } from './copy-2'; // Alternate copy icon
+export { default as Database } from './database'; // Database icon
 export { default as Download } from './download';
 export { default as Eye } from './eye'; // Eye (show) icon
 export { default as EyeSlash } from './eye-slash'; // Eye with slash (hide) icon
@@ -30,6 +33,7 @@ export { default as House4 } from './house-4'; // House variant 4 icon
 export { default as Magnifier } from './magnifier';
 export { default as Mailbox } from './mailbox';
 export { default as MapSettings } from './map-settings';
+export { default as Message } from './message'; // Message icon
 export { default as Messages } from './messages'; // Messages icon
 export { default as Minus } from './minus';
 export { default as PaintRoller } from './paint-roller';
@@ -43,6 +47,7 @@ export { default as Storage } from './storage';
 export { default as Table } from './table'; // Table icon
 export { default as UnorderedList2 } from './unordered-list-2'; // Unordered list variant 2 icon
 export { default as User } from './user';
+export { default as UserGroup } from './user-group'; // User group icon
 export { default as Window } from './window';
 export { default as WindowDownload } from './window-download';
 export { default as WindowEdit } from './window-edit';

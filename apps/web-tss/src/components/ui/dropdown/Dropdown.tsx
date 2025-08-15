@@ -5,6 +5,7 @@ import { useHotkeys } from 'react-hotkeys-hook';
 import { useDebounceSearch } from '@/hooks/useDebounceSearch';
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import { cn } from '@/lib/classMerge';
+import type { OptionsTo } from '@/types/routes';
 import { CircleSpinnerLoader } from '../loaders/CircleSpinnerLoader';
 import {
   DropdownMenu,
@@ -37,7 +38,7 @@ export interface DropdownItem<T = string> {
   loading?: boolean;
   selected?: boolean;
   items?: DropdownItems<T>;
-  link?: string;
+  link?: string | OptionsTo;
   linkTarget?: '_blank' | '_self';
   linkIcon?: 'arrow-right' | 'arrow-external' | 'caret-right';
 }

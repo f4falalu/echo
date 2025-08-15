@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest';
+import type { OptionsTo } from '@/types/routes';
 import { routeToHref } from './navigationOptionsToHref';
-import type { BusterNavigateOptions } from './types';
 
 describe('navigationOptionsToHref', () => {
   it('should convert simple route with single param', () => {
-    const options: BusterNavigateOptions = {
+    const options: OptionsTo = {
       to: '/app/chats/$chatId',
       params: {
         chatId: '123',
@@ -16,7 +16,7 @@ describe('navigationOptionsToHref', () => {
   });
 
   it('should convert route with multiple params', () => {
-    const options: BusterNavigateOptions = {
+    const options: OptionsTo = {
       to: '/app/chats/$chatId/dashboard/$dashboardId',
       params: {
         chatId: 'chat-123',
@@ -29,7 +29,7 @@ describe('navigationOptionsToHref', () => {
   });
 
   it('should convert complex nested route', () => {
-    const options: BusterNavigateOptions = {
+    const options: OptionsTo = {
       to: '/app/chats/$chatId/dashboard/$dashboardId/metrics/$metricId',
       params: {
         chatId: 'chat-123',
@@ -43,7 +43,7 @@ describe('navigationOptionsToHref', () => {
   });
 
   it('should handle URL encoding for special characters', () => {
-    const options: BusterNavigateOptions = {
+    const options: OptionsTo = {
       to: '/app/chats/$chatId',
       params: {
         chatId: 'chat with spaces & special',
@@ -55,7 +55,7 @@ describe('navigationOptionsToHref', () => {
   });
 
   it('should add search params when provided', () => {
-    const options: BusterNavigateOptions = {
+    const options: OptionsTo = {
       to: '/app/chats/$chatId',
       params: {
         chatId: '123',
@@ -71,7 +71,7 @@ describe('navigationOptionsToHref', () => {
   });
 
   it('should add hash when provided', () => {
-    const options: BusterNavigateOptions = {
+    const options: OptionsTo = {
       to: '/app/chats/$chatId',
       params: {
         chatId: '123',
@@ -84,7 +84,7 @@ describe('navigationOptionsToHref', () => {
   });
 
   it('should handle search params and hash together', () => {
-    const options: BusterNavigateOptions = {
+    const options: OptionsTo = {
       to: '/app/chats/$chatId',
       params: {
         chatId: '123',
@@ -100,7 +100,7 @@ describe('navigationOptionsToHref', () => {
   });
 
   it('should work with toHref alias', () => {
-    const options: BusterNavigateOptions = {
+    const options: OptionsTo = {
       to: '/app/metrics/$metricId',
       params: {
         metricId: 'metric-123',
@@ -112,7 +112,7 @@ describe('navigationOptionsToHref', () => {
   });
 
   it('should handle routes without params', () => {
-    const options: BusterNavigateOptions = {
+    const options: OptionsTo = {
       to: '/app/home',
     };
 
@@ -122,7 +122,7 @@ describe('navigationOptionsToHref', () => {
 
   it('should handle params that appear multiple times in different positions', () => {
     // Test with a route that has repeated param patterns
-    const options: BusterNavigateOptions = {
+    const options: OptionsTo = {
       to: '/app/chats/$chatId/report/$reportId',
       params: {
         chatId: '123',

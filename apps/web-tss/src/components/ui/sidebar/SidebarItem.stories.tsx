@@ -37,7 +37,7 @@ export const Default: Story = {
   args: {
     label: 'Home',
     icon: <Check3 />,
-    route: '/app/home',
+    route: { to: '/app/home' },
     id: 'home',
   },
 };

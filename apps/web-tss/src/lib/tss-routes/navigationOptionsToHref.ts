@@ -1,5 +1,5 @@
 import type { FileRouteTypes } from '@/routeTree.gen';
-import type { BusterNavigateOptions } from './types';
+import type { OptionsTo } from '@/types/routes';
 
 /**
  * Converts navigation options to a URL string (href)
@@ -25,7 +25,7 @@ import type { BusterNavigateOptions } from './types';
 function navigationOptionsToHref<
   TFrom extends FileRouteTypes['id'] = '/',
   TTo extends string | undefined = undefined,
->(options: BusterNavigateOptions<TFrom, TTo>): string {
+>(options: OptionsTo<TFrom, TTo>): string {
   let href = options.to as string;
 
   // Replace all $param placeholders with actual values from params
