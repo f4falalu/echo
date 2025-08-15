@@ -49,7 +49,7 @@ describe('Done Tool Integration Tests', () => {
         finalResponse: undefined,
       };
 
-      const startHandler = createDoneToolStart(state, mockContext);
+      const startHandler = createDoneToolStart(mockContext, state);
       const toolCallId = randomUUID();
 
       await startHandler({ toolCallId, messages: [] });
@@ -71,8 +71,8 @@ describe('Done Tool Integration Tests', () => {
         finalResponse: undefined,
       };
 
-      const startHandler = createDoneToolStart(state, mockContext);
-      const deltaHandler = createDoneToolDelta(state, mockContext);
+      const startHandler = createDoneToolStart(mockContext, state);
+      const deltaHandler = createDoneToolDelta(mockContext, state);
       const toolCallId = randomUUID();
 
       await startHandler({ toolCallId, messages: [] });
@@ -99,8 +99,8 @@ describe('Done Tool Integration Tests', () => {
         finalResponse: undefined,
       };
 
-      const startHandler = createDoneToolStart(state, mockContext);
-      const finishHandler = createDoneToolFinish(state, mockContext);
+      const startHandler = createDoneToolStart(mockContext, state);
+      const finishHandler = createDoneToolFinish(mockContext, state);
       const toolCallId = randomUUID();
 
       await startHandler({ toolCallId, messages: [] });
@@ -129,9 +129,9 @@ describe('Done Tool Integration Tests', () => {
         finalResponse: undefined,
       };
 
-      const startHandler = createDoneToolStart(state, mockContext);
-      const deltaHandler = createDoneToolDelta(state, mockContext);
-      const finishHandler = createDoneToolFinish(state, mockContext);
+      const startHandler = createDoneToolStart(mockContext, state);
+      const deltaHandler = createDoneToolDelta(mockContext, state);
+      const finishHandler = createDoneToolFinish(mockContext, state);
       const toolCallId = randomUUID();
 
       await startHandler({ toolCallId, messages: [] });
@@ -194,11 +194,11 @@ All operations completed successfully.`;
         finalResponse: undefined,
       };
 
-      const startHandler1 = createDoneToolStart(state1, mockContext);
-      const finishHandler1 = createDoneToolFinish(state1, mockContext);
+      const startHandler1 = createDoneToolStart(mockContext, state1);
+      const finishHandler1 = createDoneToolFinish(mockContext, state1);
 
-      const startHandler2 = createDoneToolStart(state2, mockContext);
-      const finishHandler2 = createDoneToolFinish(state2, mockContext);
+      const startHandler2 = createDoneToolStart(mockContext, state2);
+      const finishHandler2 = createDoneToolFinish(mockContext, state2);
 
       const toolCallId1 = randomUUID();
       const toolCallId2 = randomUUID();
@@ -242,7 +242,7 @@ All operations completed successfully.`;
         finalResponse: undefined,
       };
 
-      const startHandler = createDoneToolStart(state, invalidContext);
+      const startHandler = createDoneToolStart(invalidContext, state);
       const toolCallId = randomUUID();
 
       await expect(startHandler({ toolCallId, messages: [] })).resolves.not.toThrow();
@@ -261,7 +261,7 @@ All operations completed successfully.`;
         workflowStartTime: Date.now(),
       };
 
-      const deltaHandler = createDoneToolDelta(state, invalidContext);
+      const deltaHandler = createDoneToolDelta(invalidContext, state);
       const toolCallId = randomUUID();
 
       await expect(
@@ -284,7 +284,7 @@ All operations completed successfully.`;
         finalResponse: undefined,
       };
 
-      const startHandler = createDoneToolStart(state, mockContext);
+      const startHandler = createDoneToolStart(mockContext, state);
       const toolCallId = randomUUID();
 
       await startHandler({ toolCallId, messages: [] });
@@ -328,7 +328,7 @@ All operations completed successfully.`;
         ],
       });
 
-      const deltaHandler = createDoneToolDelta(state, mockContext);
+      const deltaHandler = createDoneToolDelta(mockContext, state);
       const toolCallId = randomUUID();
 
       await deltaHandler({

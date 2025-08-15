@@ -12,7 +12,7 @@ import {
 } from './helpers/done-tool-transform-helper';
 
 // Factory function that creates a type-safe callback for the specific agent context
-export function createDoneToolStart(doneToolState: DoneToolState, context: DoneToolContext) {
+export function createDoneToolStart(context: DoneToolContext, doneToolState: DoneToolState) {
   return async function doneToolStart(options: ToolCallOptions): Promise<void> {
     doneToolState.toolCallId = options.toolCallId;
 

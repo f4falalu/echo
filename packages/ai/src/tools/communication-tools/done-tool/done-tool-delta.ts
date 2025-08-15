@@ -14,7 +14,7 @@ import {
 // Using keyof with the inferred type ensures we're using the actual schema keys
 const FINAL_RESPONSE_KEY = 'finalResponse' as const satisfies keyof DoneToolInput;
 
-export function createDoneToolDelta(doneToolState: DoneToolState, context: DoneToolContext) {
+export function createDoneToolDelta(context: DoneToolContext, doneToolState: DoneToolState) {
   return async function doneToolDelta(
     options: { inputTextDelta: string } & ToolCallOptions
   ): Promise<void> {

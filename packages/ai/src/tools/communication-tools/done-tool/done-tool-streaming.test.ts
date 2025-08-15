@@ -23,7 +23,7 @@ describe('Done Tool Streaming Tests', () => {
         finalResponse: undefined,
       };
 
-      const startHandler = createDoneToolStart(state, mockContext);
+      const startHandler = createDoneToolStart(mockContext, state);
       const options: ToolCallOptions = {
         toolCallId: 'tool-call-123',
         messages: [],
@@ -41,7 +41,7 @@ describe('Done Tool Streaming Tests', () => {
         finalResponse: undefined,
       };
 
-      const startHandler = createDoneToolStart(state, mockContext);
+      const startHandler = createDoneToolStart(mockContext, state);
 
       const messages: ModelMessage[] = [
         {
@@ -97,7 +97,7 @@ describe('Done Tool Streaming Tests', () => {
         finalResponse: undefined,
       };
 
-      const startHandler = createDoneToolStart(state, mockContext);
+      const startHandler = createDoneToolStart(mockContext, state);
       const options: ToolCallOptions = {
         toolCallId: 'tool-call-456',
         messages: [],
@@ -119,7 +119,7 @@ describe('Done Tool Streaming Tests', () => {
         finalResponse: undefined,
       };
 
-      const startHandler = createDoneToolStart(state, contextWithoutMessageId);
+      const startHandler = createDoneToolStart(contextWithoutMessageId, state);
       const options: ToolCallOptions = {
         toolCallId: 'tool-call-789',
         messages: [],
@@ -138,7 +138,7 @@ describe('Done Tool Streaming Tests', () => {
         finalResponse: undefined,
       };
 
-      const deltaHandler = createDoneToolDelta(state, mockContext);
+      const deltaHandler = createDoneToolDelta(mockContext, state);
 
       await deltaHandler({
         inputTextDelta: '{"final_',
@@ -164,7 +164,7 @@ describe('Done Tool Streaming Tests', () => {
         finalResponse: undefined,
       };
 
-      const deltaHandler = createDoneToolDelta(state, mockContext);
+      const deltaHandler = createDoneToolDelta(mockContext, state);
 
       await deltaHandler({
         inputTextDelta: '{"final_response": "This is a partial response that is still being',
@@ -183,7 +183,7 @@ describe('Done Tool Streaming Tests', () => {
         finalResponse: undefined,
       };
 
-      const deltaHandler = createDoneToolDelta(state, mockContext);
+      const deltaHandler = createDoneToolDelta(mockContext, state);
 
       await deltaHandler({
         inputTextDelta: '{"final_response": "Complete response message"}',
@@ -202,7 +202,7 @@ describe('Done Tool Streaming Tests', () => {
         finalResponse: undefined,
       };
 
-      const deltaHandler = createDoneToolDelta(state, mockContext);
+      const deltaHandler = createDoneToolDelta(mockContext, state);
 
       const markdownContent = `## Summary
 
@@ -227,7 +227,7 @@ describe('Done Tool Streaming Tests', () => {
         finalResponse: undefined,
       };
 
-      const deltaHandler = createDoneToolDelta(state, mockContext);
+      const deltaHandler = createDoneToolDelta(mockContext, state);
 
       await deltaHandler({
         inputTextDelta: '{"final_response": "Line 1\\nLine 2\\n\\"Quoted text\\""}',
@@ -245,7 +245,7 @@ describe('Done Tool Streaming Tests', () => {
         finalResponse: undefined,
       };
 
-      const deltaHandler = createDoneToolDelta(state, mockContext);
+      const deltaHandler = createDoneToolDelta(mockContext, state);
 
       await deltaHandler({
         inputTextDelta: '{"other_field": "value"}',
@@ -264,7 +264,7 @@ describe('Done Tool Streaming Tests', () => {
         finalResponse: undefined,
       };
 
-      const deltaHandler = createDoneToolDelta(state, mockContext);
+      const deltaHandler = createDoneToolDelta(mockContext, state);
 
       await deltaHandler({
         inputTextDelta: '{"final_response": ""}',
@@ -285,7 +285,7 @@ describe('Done Tool Streaming Tests', () => {
         finalResponse: 'Final message',
       };
 
-      const finishHandler = createDoneToolFinish(state, mockContext);
+      const finishHandler = createDoneToolFinish(mockContext, state);
 
       const input: DoneToolInput = {
         finalResponse: 'This is the final response message',
@@ -307,7 +307,7 @@ describe('Done Tool Streaming Tests', () => {
         finalResponse: undefined,
       };
 
-      const finishHandler = createDoneToolFinish(state, mockContext);
+      const finishHandler = createDoneToolFinish(mockContext, state);
 
       const input: DoneToolInput = {
         finalResponse: 'Response without prior start',
@@ -329,7 +329,7 @@ describe('Done Tool Streaming Tests', () => {
         finalResponse: undefined,
       };
 
-      const finishHandler = createDoneToolFinish(state, mockContext);
+      const finishHandler = createDoneToolFinish(mockContext, state);
 
       const markdownResponse = `
 ## Analysis Complete
@@ -378,8 +378,8 @@ The following items were processed:
         finalResponse: undefined,
       };
 
-      const handler1 = createDoneToolStart(state, validContext);
-      const handler2 = createDoneToolStart(state, extendedContext);
+      const handler1 = createDoneToolStart(validContext, state);
+      const handler2 = createDoneToolStart(extendedContext, state);
 
       expect(handler1).toBeDefined();
       expect(handler2).toBeDefined();
@@ -392,9 +392,9 @@ The following items were processed:
         finalResponse: undefined,
       };
 
-      const startHandler = createDoneToolStart(state, mockContext);
-      const deltaHandler = createDoneToolDelta(state, mockContext);
-      const finishHandler = createDoneToolFinish(state, mockContext);
+      const startHandler = createDoneToolStart(mockContext, state);
+      const deltaHandler = createDoneToolDelta(mockContext, state);
+      const finishHandler = createDoneToolFinish(mockContext, state);
 
       await startHandler({ toolCallId: 'test-123', messages: [] });
       expect(state.toolCallId).toBeTypeOf('string');
@@ -423,9 +423,9 @@ The following items were processed:
         finalResponse: undefined,
       };
 
-      const startHandler = createDoneToolStart(state, mockContext);
-      const deltaHandler = createDoneToolDelta(state, mockContext);
-      const finishHandler = createDoneToolFinish(state, mockContext);
+      const startHandler = createDoneToolStart(mockContext, state);
+      const deltaHandler = createDoneToolDelta(mockContext, state);
+      const finishHandler = createDoneToolFinish(mockContext, state);
 
       const toolCallId = 'streaming-test-123';
 
@@ -471,7 +471,7 @@ The following items were processed:
         finalResponse: undefined,
       };
 
-      const deltaHandler = createDoneToolDelta(state, mockContext);
+      const deltaHandler = createDoneToolDelta(mockContext, state);
 
       const chunks = [
         '{"final_response": "',

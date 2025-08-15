@@ -30,7 +30,7 @@ async function processDone(toolCallId: string, messageId: string): Promise<DoneT
 }
 
 // Factory function that creates the execute function with proper context typing
-export function createDoneToolExecute(state: DoneToolState, context: DoneToolContext) {
+export function createDoneToolExecute(context: DoneToolContext, state: DoneToolState) {
   return wrapTraced(
     async (_input: DoneToolInput): Promise<DoneToolOutput> => {
       if (!state.toolCallId) {
