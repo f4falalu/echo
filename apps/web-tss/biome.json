@@ -10,11 +10,11 @@
       "vitest.config.ts",
       "vitest.setup.ts",
       "!src/routeTree.gen.ts",
-      "!**/node_modules/**",
-      "!**/dist/**",
-      "!**/build/**",
-      "!**/coverage/**",
-      "!**/.next/**",
+      "!**/node_modules",
+      "!**/dist",
+      "!**/build",
+      "!**/coverage",
+      "!**/.next",
       "!**/*.css"
     ]
   },
@@ -26,7 +26,8 @@
         "noUnusedVariables": "off",
         "noUnusedImports": "off",
         "useExhaustiveDependencies": "off",
-        "noChildrenProp": "off"
+        "noChildrenProp": "off",
+        "useUniqueElementIds": "off"
       },
       "style": {
         "noNonNullAssertion": "error",

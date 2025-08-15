@@ -16,7 +16,7 @@ export const Sidebar: React.FC<SidebarProps> = React.memo(
 
     const onCollapseClickPreflight = useMemoizedFn(() => {
       const sizes = getSizesInPixels();
-      const parsedCollapsedWidth = parseInt(COLLAPSED_SIDEBAR_WIDTH) + 6; //6 for a little buffer
+      const parsedCollapsedWidth = parseInt(COLLAPSED_SIDEBAR_WIDTH, 10) + 6; //6 for a little buffer
       const parsedCurrentSize = sizes[0];
       const isCollapsed = parsedCurrentSize <= parsedCollapsedWidth;
       onCollapseClick?.(isCollapsed);

@@ -13,7 +13,7 @@ export const useRadixDropdownSearch = ({
     // Only prevent default for digit shortcuts when showIndex is true
     if (showIndex && isFirstCharacter && /^Digit[0-9]$/.test(e.code)) {
       e.preventDefault();
-      const index = Number.parseInt(e.key);
+      const index = Number.parseInt(e.key, 10);
       onSelectItem?.(index);
     } else if (e.key === 'ArrowDown') {
       // Find the first dropdown item and focus it
