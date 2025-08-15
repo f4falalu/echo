@@ -145,6 +145,8 @@ const AppSplitterBase = forwardRef<
       leftChildren,
       rightChildren,
       defaultLayout,
+      leftPanelElement = 'div',
+      rightPanelElement = 'div',
       leftPanelMinSize = 0,
       rightPanelMinSize = 0,
       leftPanelMaxSize,
@@ -646,6 +648,7 @@ const AppSplitterBase = forwardRef<
           width={isVertical ? leftSize : 'auto'}
           height={!isVertical ? leftSize : 'auto'}
           hidden={leftHidden}
+          as={leftPanelElement}
         >
           {leftChildren}
         </Panel>
@@ -664,6 +667,7 @@ const AppSplitterBase = forwardRef<
           width={isVertical ? rightSize : 'auto'}
           height={!isVertical ? rightSize : 'auto'}
           hidden={rightHidden}
+          as={rightPanelElement}
         >
           {rightChildren}
         </Panel>

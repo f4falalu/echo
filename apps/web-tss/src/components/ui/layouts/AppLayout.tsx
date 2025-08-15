@@ -54,6 +54,8 @@ export const AppLayout: React.FC<
       leftChildren={sidebar}
       rightChildren={PageContent}
       initialLayout={initialLayout}
+      leftPanelElement="aside"
+      rightPanelElement="main"
     />
   );
 };

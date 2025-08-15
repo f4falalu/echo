@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { cn } from '@/lib/classMerge';
+import type { PanelElement } from './AppSplitter.types';
 
 interface IPanelProps {
   children: React.ReactNode;
@@ -12,10 +13,11 @@ interface IPanelProps {
   className?: string;
   hidden?: boolean;
   style?: React.CSSProperties;
+  as?: PanelElement;
 }
 
 export const Panel: React.FC<IPanelProps> = React.memo(
-  ({ children, width, height, minSize, maxSize, className, hidden, style }) => {
+  ({ children, width, height, minSize, maxSize, className, hidden, style, as = 'div' }) => {
     if (hidden) return null;
 
     const panelStyle: React.CSSProperties = {
@@ -26,18 +28,19 @@ export const Panel: React.FC<IPanelProps> = React.memo(
       ...(maxSize !== undefined && { maxWidth: `${maxSize}px`, maxHeight: `${maxSize}px` }),
     };
 
+    const Component = as;
+
     return (
-      <div
+      <Component
         className={cn(
           'panel overflow-hidden',
-          // When we have a specific width or height, we should not grow/shrink
           width !== 'auto' || height !== 'auto' ? 'flex-shrink-0 flex-grow-0' : 'flex-1',
           className
         )}
         style={panelStyle}
       >
         {children}
-      </div>
+      </Component>
     );
   }
 );

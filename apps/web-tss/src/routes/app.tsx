@@ -32,6 +32,7 @@ export const Route = createFileRoute('/app')({
   },
   component: () => {
     const { initialLayout } = Route.useLoaderData();
+
     return (
       <AppProviders>
         <PrimaryAppLayout initialLayout={initialLayout}>

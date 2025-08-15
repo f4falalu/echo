@@ -1,6 +1,7 @@
 export type PanelSize = `${number}px` | `${number}%` | 'auto' | number;
 type PanelSizeWithAuto = Exclude<PanelSize, 'auto'>;
 export type LayoutSize = ['auto', PanelSizeWithAuto] | [PanelSizeWithAuto, 'auto'];
+export type PanelElement = 'aside' | 'div' | 'main';
 
 export interface IAppSplitterProps {
   /** Content to display in the left panel */
@@ -102,6 +103,12 @@ export interface IAppSplitterProps {
 
   /** Additional CSS classes for the right panel */
   rightPanelClassName?: string;
+
+  /** HTML element type for the left panel. Defaults to 'div' */
+  leftPanelElement?: PanelElement;
+
+  /** HTML element type for the right panel. Defaults to 'div' */
+  rightPanelElement?: PanelElement;
 }
 
 /**

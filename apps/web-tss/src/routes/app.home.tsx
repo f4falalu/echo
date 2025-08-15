@@ -23,7 +23,7 @@ function RouteComponent() {
       <AppSplitter
         preserveSide="right"
         defaultLayout={['50%', 'auto']}
-        autoSaveId="test0"
+        autoSaveId={layoutId}
         leftChildren={<div>Left</div>}
         rightChildren={<RightPanel />}
         initialLayout={initialLayout}
