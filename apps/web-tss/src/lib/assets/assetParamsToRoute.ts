@@ -1,6 +1,6 @@
 import type { AssetType } from '@buster/server-shared/assets';
 import type { FileRouteTypes } from '@/routeTree.gen';
-import type { BusterNavigateOptions } from '../tss-routes';
+import type { OptionsTo } from '@/types/routes';
 
 type RouteFilePaths = FileRouteTypes['to'];
 
@@ -76,10 +76,10 @@ const ROUTE_MAP: Record<string, RouteFilePaths> = {
   collection: '/app/collections/$collectionId',
 
   // Chat combination routes
-  'chat+dashboard': '/app/chats/$chatId/dashboard/$dashboardId',
+  'chat+dashboard': '/app/chats/$chatId/dashboards/$dashboardId',
   'chat+metric': '/app/chats/$chatId/metrics/$metricId',
   'chat+report': '/app/chats/$chatId/report/$reportId',
-  'chat+dashboard+metric': '/app/chats/$chatId/dashboard/$dashboardId/metrics/$metricId',
+  'chat+dashboard+metric': '/app/chats/$chatId/dashboards/$dashboardId/metrics/$metricId',
   'chat+report+metric': '/app/chats/$chatId/report/$reportId/metrics/$metricId',
 
   // Collection combination routes
@@ -208,7 +208,7 @@ class RouteBuilder<T extends RouteBuilderState = NonNullable<unknown>> {
   /**
    * Build navigation options with route and params
    */
-  buildNavigationOptions(): BusterNavigateOptions {
+  buildNavigationOptions(): OptionsTo {
     const route = this.build();
     const params = this.getParams();
 
@@ -257,7 +257,7 @@ class RouteBuilder<T extends RouteBuilderState = NonNullable<unknown>> {
  * Main function to convert asset params to route navigation options
  * Returns type-safe navigation options that can be passed to Link or navigate
  */
-export const assetParamsToRoute = (params: AssetParamsToRoute): BusterNavigateOptions => {
+export const assetParamsToRoute = (params: AssetParamsToRoute): OptionsTo => {
   const builder = new RouteBuilder();
 
   const typedAssetTypes: AssetType = params.assetType;

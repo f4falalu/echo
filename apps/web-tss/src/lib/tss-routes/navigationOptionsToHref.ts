@@ -23,7 +23,7 @@ import type { OptionsTo } from '@/types/routes';
  * // Returns: '/app/chats/123/dashboard/456'
  */
 function navigationOptionsToHref<
-  TFrom extends FileRouteTypes['id'] = '/',
+  TFrom extends FileRouteTypes['to'] = '/',
   TTo extends string | undefined = undefined,
 >(options: OptionsTo<TFrom, TTo>): string {
   let href = options.to as string;

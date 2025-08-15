@@ -26,9 +26,9 @@ import type { OptionsTo } from '@/types/routes';
  * };
  */
 export function createRoute<
-  TFrom extends FileRouteTypes['id'] = '/',
+  TFrom extends FileRouteTypes['to'] = '/',
   TTo extends string | undefined = undefined,
-  TMaskFrom extends FileRouteTypes['id'] = TFrom,
+  TMaskFrom extends FileRouteTypes['to'] = TFrom,
   TMaskTo extends string = '',
 >(options: OptionsTo<TFrom, TTo, TMaskFrom, TMaskTo>): OptionsTo<TFrom, TTo, TMaskFrom, TMaskTo> {
   return options;
@@ -43,8 +43,8 @@ export function createRoute<
  * const route = createChatRoute({ chatId: '123' });
  */
 export function createRouteFactory<
-  TTo extends FileRouteTypes['id'],
-  TFrom extends FileRouteTypes['id'] = '/',
+  TTo extends FileRouteTypes['to'],
+  TFrom extends FileRouteTypes['to'] = '/',
 >(to: TTo) {
   return (
     params: OptionsTo<TFrom, TTo> extends { params: infer P } ? P : never,

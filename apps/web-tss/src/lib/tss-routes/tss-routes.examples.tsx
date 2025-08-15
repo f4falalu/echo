@@ -35,9 +35,9 @@ acceptsTypeSafeNavigateOptions(typedRoute);
 function createDashboardRoute(
   chatId: string,
   dashboardId: string
-): OptionsTo<'/', '/app/chats/$chatId/dashboard/$dashboardId'> {
+): OptionsTo<'/', '/app/chats/$chatId/dashboards/$dashboardId'> {
   return {
-    to: '/app/chats/$chatId/dashboard/$dashboardId',
+    to: '/app/chats/$chatId/dashboards/$dashboardId',
     params: {
       chatId,
       dashboardId,

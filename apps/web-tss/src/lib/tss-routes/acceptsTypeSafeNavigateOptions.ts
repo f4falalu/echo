@@ -7,9 +7,9 @@ import type { OptionsTo } from '@/types/routes';
  * by leveraging the RegisteredRouter type which contains all route definitions
  */
 export function acceptsTypeSafeNavigateOptions<
-  TFrom extends FileRouteTypes['id'] = '/',
+  TFrom extends FileRouteTypes['to'] = '/',
   TTo extends string | undefined = undefined,
-  TMaskFrom extends FileRouteTypes['id'] = TFrom,
+  TMaskFrom extends FileRouteTypes['to'] = TFrom,
   TMaskTo extends string = '',
 >(options: OptionsTo<TFrom, TTo, TMaskFrom, TMaskTo>): void {
   // In a test environment, you might want to just log or store the navigation

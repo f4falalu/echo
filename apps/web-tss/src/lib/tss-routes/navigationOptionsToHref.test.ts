@@ -17,7 +17,7 @@ describe('navigationOptionsToHref', () => {
 
   it('should convert route with multiple params', () => {
     const options: OptionsTo = {
-      to: '/app/chats/$chatId/dashboard/$dashboardId',
+      to: '/app/chats/$chatId/dashboards/$dashboardId',
       params: {
         chatId: 'chat-123',
         dashboardId: 'dash-456',
@@ -30,7 +30,7 @@ describe('navigationOptionsToHref', () => {
 
   it('should convert complex nested route', () => {
     const options: OptionsTo = {
-      to: '/app/chats/$chatId/dashboard/$dashboardId/metrics/$metricId',
+      to: '/app/chats/$chatId/dashboards/$dashboardId/metrics/$metricId',
       params: {
         chatId: 'chat-123',
         dashboardId: 'dash-456',

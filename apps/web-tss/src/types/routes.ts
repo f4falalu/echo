@@ -13,9 +13,9 @@ import type { FileRouteTypes } from '@/routeTree.gen';
  * Without type parameters, TypeScript won't enforce required params!
  */
 export type OptionsTo<
-  TFrom extends FileRouteTypes['id'] = '/',
+  TFrom extends FileRouteTypes['to'] = '/',
   TTo extends string | undefined = undefined,
-  TMaskFrom extends FileRouteTypes['id'] = TFrom,
+  TMaskFrom extends FileRouteTypes['to'] = TFrom,
   TMaskTo extends string = '',
 > = NavigateOptions<RegisteredRouter, TFrom, TTo, TMaskFrom, TMaskTo>;
 
@@ -27,6 +27,6 @@ export type OptionsTo<
  * // This will give you the type with proper params like { chatId: string }
  */
 export type SimpleOptionsTo<
-  TTo extends FileRouteTypes['id'],
-  TFrom extends FileRouteTypes['id'] = '/',
+  TTo extends FileRouteTypes['to'],
+  TFrom extends FileRouteTypes['to'] = '/',
 > = OptionsTo<TFrom, TTo>;
