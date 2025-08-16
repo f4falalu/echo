@@ -6,7 +6,14 @@ const searchParamsSchema = z.object({
 });
 
 export const Route = createFileRoute('/app/_app/metrics/$metricId')({
-  validateSearch: searchParamsSchema,
+  head: () => ({
+    meta: [
+      { title: 'Metric' },
+      { name: 'description', content: 'View detailed metric analysis and insights' },
+      { name: 'og:title', content: 'Metric' },
+      { name: 'og:description', content: 'View detailed metric analysis and insights' },
+    ],
+  }),
   component: RouteComponent,
 });
 
