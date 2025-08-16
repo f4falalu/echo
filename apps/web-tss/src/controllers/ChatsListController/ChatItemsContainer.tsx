@@ -10,10 +10,35 @@ import { BusterList, ListEmptyStateWithButton } from '@/components/ui/list';
 import { useCreateListByDate } from '@/components/ui/list/useCreateListByDate';
 import { Text } from '@/components/ui/typography';
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
+import { assetParamsToRoute } from '@/lib/assets/assetParamsToRoute';
 import { formatDate } from '@/lib/date';
 import { makeHumanReadble } from '@/lib/text';
 import type { OptionsTo } from '@/types/routes';
 import { ChatSelectedOptionPopup } from './ChatItemsSelectedPopup';
+
+const getLink = (chat: ChatListItem): OptionsTo => {
+  try {
+    const link = assetParamsToRoute({
+      chatId: chat.id,
+      assetId: chat.latest_file_id || '',
+      assetType: chat.latest_file_type,
+      versionNumber: chat.latest_version_number,
+    });
+    return link;
+  } catch (error) {
+    if (chat.id) {
+      return {
+        to: '/app/chats/$chatId',
+        params: {
+          chatId: chat.id,
+        },
+      };
+    }
+    return {
+      to: '/app/home',
+    };
+  }
+};
 
 export const ChatItemsContainer: React.FC<{
   chats: ChatListItem[];
@@ -32,25 +57,13 @@ export const ChatItemsContainer: React.FC<{
 
   const logsRecord = useCreateListByDate({ data: chats });
 
-  const getLink = useMemoizedFn((chat: ChatListItem): OptionsTo => {
-    // return assetParamsToRoute({
-    //   chatId: chat.id,
-    //   assetId: chat.latest_file_id || '',
-    //   type: chat.latest_file_type,
-    //   versionNumber: chat.latest_version_number,
-    // });
-
-    return {
-      to: '/app/home',
-    };
-  });
-
   const chatsByDate: BusterListRowItem<ChatListItem>[] = useMemo(() => {
     return Object.entries(logsRecord).flatMap<BusterListRowItem<ChatListItem>>(([key, chats]) => {
       const records = chats.map<BusterListRowItem<ChatListItem>>((chat) => ({
         id: chat.id,
         data: chat,
         link: getLink(chat),
+        preload: false,
       }));
       const hasRecords = records.length > 0;
 
@@ -117,6 +130,7 @@ export const ChatItemsContainer: React.FC<{
   return (
     <>
       <BusterList<ChatListItem>
+        className={className}
         rows={chatsByDate}
         columns={columns}
         onSelectChange={onSelectChange}

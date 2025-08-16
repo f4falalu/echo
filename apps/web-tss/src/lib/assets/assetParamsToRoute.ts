@@ -21,6 +21,7 @@ type MetricParamsToRoute = {
   dashboardId?: string;
   reportId?: string;
   chatId?: string;
+  versionNumber?: number;
 };
 
 type DashboardParamsToRoute = {
@@ -29,6 +30,7 @@ type DashboardParamsToRoute = {
   metricId?: string;
   reportId?: string;
   chatId?: string;
+  versionNumber?: number;
 };
 
 type ReportParamsToRoute = {
@@ -36,6 +38,7 @@ type ReportParamsToRoute = {
   assetId: string;
   metricId?: string;
   chatId?: string;
+  versionNumber?: number;
 };
 
 type CollectionParamsToRoute = {
@@ -44,6 +47,7 @@ type CollectionParamsToRoute = {
   chatId?: string;
   metricId?: string;
   dashboardId?: string;
+  versionNumber?: number;
 };
 
 export type AssetParamsToRoute =
@@ -260,8 +264,6 @@ class RouteBuilder<T extends RouteBuilderState = NonNullable<unknown>> {
 export const assetParamsToRoute = (params: AssetParamsToRoute): OptionsTo => {
   const builder = new RouteBuilder();
 
-  const typedAssetTypes: AssetType = params.assetType;
-
   // Build route based on asset type and additional params
   switch (params.assetType) {
     case 'chat': {
@@ -309,7 +311,8 @@ export const assetParamsToRoute = (params: AssetParamsToRoute): OptionsTo => {
     }
 
     default:
-      throw new Error(`Unknown asset type: ${(params as AssetParamsToRoute).assetType}`);
+      console.warn(`Unknown asset type: ${(params as AssetParamsToRoute).assetType}`, params);
+      throw new Error(`Unknown asset type: ${(params as AssetParamsToRoute).assetType}`, params);
   }
 };
 

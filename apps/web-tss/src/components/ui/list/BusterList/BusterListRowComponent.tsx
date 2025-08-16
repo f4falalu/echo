@@ -1,4 +1,4 @@
-import { Link } from '@tanstack/react-router';
+import { Link, type LinkProps } from '@tanstack/react-router';
 import get from 'lodash/get';
 import React, { useMemo } from 'react';
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
@@ -47,12 +47,12 @@ const BusterListRowComponentInner = React.forwardRef(
       onSelectChange?.(newChecked, row.id, e);
     });
 
-    const onContainerClick = useMemoizedFn((e: React.MouseEvent) => {
+    const onContainerClick = (e: React.MouseEvent) => {
       if (useRowClickSelectChange) {
         onChange(!checked, e);
       }
       row.onClick?.();
-    });
+    };
 
     const rowStyles = {
       height: `${HEIGHT_OF_ROW}px`,
@@ -60,8 +60,15 @@ const BusterListRowComponentInner = React.forwardRef(
       ...style,
     };
 
+    const linkProps = row.link
+      ? {
+          preloadDelay: row.preloadDelay,
+          preload: row.preload,
+        }
+      : undefined;
+
     return (
-      <LinkWrapper link={link}>
+      <LinkWrapper link={link} {...linkProps}>
         <div
           onClick={onContainerClick}
           style={rowStyles}
@@ -151,13 +158,20 @@ const BusterListCellComponent = <T,>({
   );
 };
 
-const LinkWrapper: React.FC<{
-  link?: OptionsTo;
-  children: React.ReactNode;
-}> = ({ link, children }) => {
+const LinkWrapper: React.FC<
+  {
+    link?: OptionsTo;
+    children: React.ReactNode;
+  } & LinkProps
+> = ({ link, children, preload, preloadDelay, activeOptions }) => {
   if (!link) return <>{children}</>;
   return (
-    <Link {...link} preload={'intent'}>
+    <Link
+      {...link}
+      preload={preload ?? false}
+      preloadDelay={preloadDelay}
+      activeOptions={activeOptions}
+    >
       {children}
     </Link>
   );

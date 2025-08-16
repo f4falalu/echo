@@ -1,3 +1,4 @@
+import type { LinkProps } from '@tanstack/react-router';
 import type React from 'react';
 import type { OptionsTo } from '@/types/routes';
 import type { ContextMenuProps } from '../../context-menu/ContextMenu';
@@ -14,6 +15,7 @@ export interface BusterListProps<T = unknown> {
   showSelectAll?: boolean;
   useRowClickSelectChange?: boolean;
   rowClassName?: string;
+  className?: string;
 }
 
 export type BusterListColumn<T = unknown> = {
@@ -29,16 +31,25 @@ export type BusterListColumn<T = unknown> = {
   };
 }[keyof T];
 
+type BusterListRowLink = {
+  link: OptionsTo;
+  preloadDelay?: LinkProps['preloadDelay'];
+  preload?: LinkProps['preload'];
+};
+
+type BusterListRowNotLink = {
+  link?: never;
+};
+
 export type BusterListRowItem<T = unknown> = {
   id: string;
   data: T | null;
   onClick?: () => void;
-  link?: OptionsTo;
   onSelect?: () => void;
   rowSection?: BusterListSectionRow;
   hidden?: boolean;
   dataTestId?: string;
-};
+} & (BusterListRowLink | BusterListRowNotLink);
 
 export interface BusterListSectionRow {
   title: string;
