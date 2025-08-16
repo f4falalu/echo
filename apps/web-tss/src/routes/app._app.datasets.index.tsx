@@ -1,4 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router';
+import { DatasetsListController } from '@/controllers/DatasetsListController';
 
 export const Route = createFileRoute('/app/_app/datasets/')({
   head: () => ({
@@ -9,9 +10,5 @@ export const Route = createFileRoute('/app/_app/datasets/')({
       { name: 'og:description', content: 'Explore and manage your datasets' },
     ],
   }),
-  component: RouteComponent,
+  component: DatasetsListController,
 });
-
-function RouteComponent() {
-  return <div>Hello "/app/datasets"!</div>;
-}

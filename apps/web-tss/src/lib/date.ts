@@ -322,36 +322,37 @@ export enum DEFAULT_TIME_ENCODE_FORMATS {
   MINUTES = 'minute',
 }
 
-let loadedLocales: string[] = [];
-export const setNewDateLocale = async (locale: SupportedLanguages) => {
-  if (!locale) return;
-  let _locale: string = locale;
+//const loadedLocales: string[] = [];
 
-  const loadAndSet = async (_dlocale: string) => {
-    try {
-      await import(`dayjs/locale/${_locale}.js`);
-      loadedLocales = [...loadedLocales, _locale as SupportedLanguages];
-    } catch (error) {
-      //
-    }
-  };
+// export const setNewDateLocale = async (locale: SupportedLanguages) => {
+//   if (!locale) return;
+//   let _locale: string = locale;
 
-  try {
-    if (!loadedLocales.includes(_locale as SupportedLanguages)) {
-      if (_locale === SupportedLanguages.EN) _locale = getBrowserLanguage(true).toLocaleLowerCase();
-      loadAndSet(_locale);
-    }
-  } catch {
-    try {
-      _locale = locale;
-      loadAndSet(_locale);
-    } catch (error) {
-      console.error(`Error loading locale ${_locale}:`, error);
-    }
-  }
+//   const loadAndSet = async (_dlocale: string) => {
+//     try {
+//       await import(`dayjs/locale/${_locale}.js`);
+//       loadedLocales = [...loadedLocales, _locale as SupportedLanguages];
+//     } catch (error) {
+//       //
+//     }
+//   };
 
-  dayjs.locale(_locale);
-};
+//   try {
+//     if (!loadedLocales.includes(_locale as SupportedLanguages)) {
+//       if (_locale === SupportedLanguages.EN) _locale = getBrowserLanguage(true).toLocaleLowerCase();
+//       loadAndSet(_locale);
+//     }
+//   } catch {
+//     try {
+//       _locale = locale;
+//       loadAndSet(_locale);
+//     } catch (error) {
+//       console.error(`Error loading locale ${_locale}:`, error);
+//     }
+//   }
+
+//   dayjs.locale(_locale);
+// };
 
 export const getBestDateFormat = (minDate: dayjs.Dayjs, maxDate: dayjs.Dayjs) => {
   const diffInDays = maxDate.diff(minDate, 'days');

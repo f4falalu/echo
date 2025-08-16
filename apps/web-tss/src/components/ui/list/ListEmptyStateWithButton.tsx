@@ -14,7 +14,7 @@ export const ListEmptyStateWithButton: React.FC<{
   buttonPrefix?: React.ReactNode;
   buttonSuffix?: React.ReactNode;
   loading?: boolean;
-  link?: OptionsTo;
+  link?: OptionsTo | string;
   linkButtonTarget?: '_blank' | '_self';
 }> = React.memo(
   ({
@@ -66,10 +66,18 @@ export const ListEmptyStateWithButton: React.FC<{
 
 const ButtonWrapper: React.FC<{
   children: React.ReactNode;
-  link?: OptionsTo;
+  link?: OptionsTo | string;
   target?: '_blank' | '_self';
 }> = ({ children, link, target }) => {
   if (!link) return <>{children}</>;
+
+  if (typeof link === 'string') {
+    return (
+      <a href={link} target={target || '_self'}>
+        {children}
+      </a>
+    );
+  }
   return (
     <Link {...link} target={target || '_self'}>
       {children}

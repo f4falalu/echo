@@ -4,9 +4,9 @@ import { useInviteUser } from '@/api/buster_rest/users';
 import { InputTagInput } from '@/components/ui/inputs/InputTagInput';
 import { AppModal } from '@/components/ui/modal';
 import { useBusterNotifications } from '@/context/BusterNotifications';
-import { useMemoizedFn } from '@/hooks';
-import { timeout } from '@/lib';
+import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import { isValidEmail } from '@/lib/email';
+import { timeout } from '@/lib/timeout';
 
 export const InvitePeopleModal: React.FC<{
   open: boolean;
@@ -37,7 +37,7 @@ export const InvitePeopleModal: React.FC<{
     return {
       title: 'Invite others to join your workspace',
       description:
-        'You can share the link below with others you’d like to join your workspace. You can also input their email to send them an invite.'
+        'You can share the link below with others you’d like to join your workspace. You can also input their email to send them an invite.',
     };
   }, []);
 
@@ -51,8 +51,8 @@ export const InvitePeopleModal: React.FC<{
         text: 'Send invites',
         onClick: handleInvite,
         loading: inviting,
-        disabled: inputText.length ? !isInputTextValidEmail : emails.length === 0
-      }
+        disabled: inputText.length ? !isInputTextValidEmail : emails.length === 0,
+      },
     };
   }, [inviting, isInputTextValidEmail, emails.length, inputText.length]);
 

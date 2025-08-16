@@ -39,9 +39,12 @@ import { Route as AppSettingsSettingsApiKeysRouteImport } from './routes/app._se
 import { Route as AppAppMetricsMetricIdRouteImport } from './routes/app._app.metrics.$metricId'
 import { Route as AppAppDatasetsDatasetIdRouteImport } from './routes/app._app.datasets.$datasetId'
 import { Route as AppAppDashboardsDashboardIdRouteImport } from './routes/app._app.dashboards.$dashboardId'
+import { Route as AppSettingsSettingsDatasourcesIndexRouteImport } from './routes/app._settings.settings.datasources.index'
 import { Route as AppAppReportsReportIdIndexRouteImport } from './routes/app._app.reports.$reportId.index'
 import { Route as AppAppCollectionsCollectionIdIndexRouteImport } from './routes/app._app.collections.$collectionId.index'
 import { Route as AppAppChatsChatIdIndexRouteImport } from './routes/app._app.chats.$chatId.index'
+import { Route as AppSettingsSettingsDatasourcesAddRouteImport } from './routes/app._settings.settings.datasources.add'
+import { Route as AppAppDatasetsDatasetIdOverviewRouteImport } from './routes/app._app.datasets.$datasetId.overview'
 import { Route as AppAppCollectionsCollectionIdMetricsMetricIdRouteImport } from './routes/app._app.collections.$collectionId.metrics.$metricId'
 import { Route as AppAppCollectionsCollectionIdDashboardDashboardIdRouteImport } from './routes/app._app.collections.$collectionId.dashboard.$dashboardId'
 import { Route as AppAppChatsChatIdReportReportIdRouteImport } from './routes/app._app.chats.$chatId.report.$reportId'
@@ -206,6 +209,12 @@ const AppAppDashboardsDashboardIdRoute =
     path: '/dashboards/$dashboardId',
     getParentRoute: () => AppAppRoute,
   } as any)
+const AppSettingsSettingsDatasourcesIndexRoute =
+  AppSettingsSettingsDatasourcesIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AppSettingsSettingsDatasourcesRoute,
+  } as any)
 const AppAppReportsReportIdIndexRoute =
   AppAppReportsReportIdIndexRouteImport.update({
     id: '/reports/$reportId/',
@@ -223,6 +232,18 @@ const AppAppChatsChatIdIndexRoute = AppAppChatsChatIdIndexRouteImport.update({
   path: '/chats/$chatId/',
   getParentRoute: () => AppAppRoute,
 } as any)
+const AppSettingsSettingsDatasourcesAddRoute =
+  AppSettingsSettingsDatasourcesAddRouteImport.update({
+    id: '/add',
+    path: '/add',
+    getParentRoute: () => AppSettingsSettingsDatasourcesRoute,
+  } as any)
+const AppAppDatasetsDatasetIdOverviewRoute =
+  AppAppDatasetsDatasetIdOverviewRouteImport.update({
+    id: '/overview',
+    path: '/overview',
+    getParentRoute: () => AppAppDatasetsDatasetIdRoute,
+  } as any)
 const AppAppCollectionsCollectionIdMetricsMetricIdRoute =
   AppAppCollectionsCollectionIdMetricsMetricIdRouteImport.update({
     id: '/collections/$collectionId/metrics/$metricId',
@@ -318,11 +339,11 @@ export interface FileRoutesByFullPath {
   '/auth/reset-password': typeof AuthResetPasswordRoute
   '/app/home': typeof AppAppHomeRoute
   '/app/dashboards/$dashboardId': typeof AppAppDashboardsDashboardIdRoute
-  '/app/datasets/$datasetId': typeof AppAppDatasetsDatasetIdRoute
+  '/app/datasets/$datasetId': typeof AppAppDatasetsDatasetIdRouteWithChildren
   '/app/metrics/$metricId': typeof AppAppMetricsMetricIdRoute
   '/app/settings/api-keys': typeof AppSettingsSettingsApiKeysRoute
   '/app/settings/dataset-groups': typeof AppSettingsSettingsDatasetGroupsRoute
-  '/app/settings/datasources': typeof AppSettingsSettingsDatasourcesRoute
+  '/app/settings/datasources': typeof AppSettingsSettingsDatasourcesRouteWithChildren
   '/app/settings/integrations': typeof AppSettingsSettingsIntegrationsRoute
   '/app/settings/permission-groups': typeof AppSettingsSettingsPermissionGroupsRoute
   '/app/settings/profile': typeof AppSettingsSettingsProfileRoute
@@ -336,9 +357,12 @@ export interface FileRoutesByFullPath {
   '/app/logs': typeof AppAppLogsIndexRoute
   '/app/metrics': typeof AppAppMetricsIndexRoute
   '/app/reports': typeof AppAppReportsIndexRoute
+  '/app/datasets/$datasetId/overview': typeof AppAppDatasetsDatasetIdOverviewRoute
+  '/app/settings/datasources/add': typeof AppSettingsSettingsDatasourcesAddRoute
   '/app/chats/$chatId': typeof AppAppChatsChatIdIndexRoute
   '/app/collections/$collectionId': typeof AppAppCollectionsCollectionIdIndexRoute
   '/app/reports/$reportId': typeof AppAppReportsReportIdIndexRoute
+  '/app/settings/datasources/': typeof AppSettingsSettingsDatasourcesIndexRoute
   '/app/chats/$chatId/dashboards/$dashboardId': typeof AppAppChatsChatIdDashboardsDashboardIdRouteWithChildren
   '/app/chats/$chatId/metrics/$metricId': typeof AppAppChatsChatIdMetricsMetricIdRoute
   '/app/chats/$chatId/report/$reportId': typeof AppAppChatsChatIdReportReportIdRouteWithChildren
@@ -361,11 +385,10 @@ export interface FileRoutesByTo {
   '/auth/reset-password': typeof AuthResetPasswordRoute
   '/app/home': typeof AppAppHomeRoute
   '/app/dashboards/$dashboardId': typeof AppAppDashboardsDashboardIdRoute
-  '/app/datasets/$datasetId': typeof AppAppDatasetsDatasetIdRoute
+  '/app/datasets/$datasetId': typeof AppAppDatasetsDatasetIdRouteWithChildren
   '/app/metrics/$metricId': typeof AppAppMetricsMetricIdRoute
   '/app/settings/api-keys': typeof AppSettingsSettingsApiKeysRoute
   '/app/settings/dataset-groups': typeof AppSettingsSettingsDatasetGroupsRoute
-  '/app/settings/datasources': typeof AppSettingsSettingsDatasourcesRoute
   '/app/settings/integrations': typeof AppSettingsSettingsIntegrationsRoute
   '/app/settings/permission-groups': typeof AppSettingsSettingsPermissionGroupsRoute
   '/app/settings/profile': typeof AppSettingsSettingsProfileRoute
@@ -379,9 +402,12 @@ export interface FileRoutesByTo {
   '/app/logs': typeof AppAppLogsIndexRoute
   '/app/metrics': typeof AppAppMetricsIndexRoute
   '/app/reports': typeof AppAppReportsIndexRoute
+  '/app/datasets/$datasetId/overview': typeof AppAppDatasetsDatasetIdOverviewRoute
+  '/app/settings/datasources/add': typeof AppSettingsSettingsDatasourcesAddRoute
   '/app/chats/$chatId': typeof AppAppChatsChatIdIndexRoute
   '/app/collections/$collectionId': typeof AppAppCollectionsCollectionIdIndexRoute
   '/app/reports/$reportId': typeof AppAppReportsReportIdIndexRoute
+  '/app/settings/datasources': typeof AppSettingsSettingsDatasourcesIndexRoute
   '/app/chats/$chatId/dashboards/$dashboardId': typeof AppAppChatsChatIdDashboardsDashboardIdRouteWithChildren
   '/app/chats/$chatId/metrics/$metricId': typeof AppAppChatsChatIdMetricsMetricIdRoute
   '/app/chats/$chatId/report/$reportId': typeof AppAppChatsChatIdReportReportIdRouteWithChildren
@@ -407,11 +433,11 @@ export interface FileRoutesById {
   '/auth/reset-password': typeof AuthResetPasswordRoute
   '/app/_app/home': typeof AppAppHomeRoute
   '/app/_app/dashboards/$dashboardId': typeof AppAppDashboardsDashboardIdRoute
-  '/app/_app/datasets/$datasetId': typeof AppAppDatasetsDatasetIdRoute
+  '/app/_app/datasets/$datasetId': typeof AppAppDatasetsDatasetIdRouteWithChildren
   '/app/_app/metrics/$metricId': typeof AppAppMetricsMetricIdRoute
   '/app/_settings/settings/api-keys': typeof AppSettingsSettingsApiKeysRoute
   '/app/_settings/settings/dataset-groups': typeof AppSettingsSettingsDatasetGroupsRoute
-  '/app/_settings/settings/datasources': typeof AppSettingsSettingsDatasourcesRoute
+  '/app/_settings/settings/datasources': typeof AppSettingsSettingsDatasourcesRouteWithChildren
   '/app/_settings/settings/integrations': typeof AppSettingsSettingsIntegrationsRoute
   '/app/_settings/settings/permission-groups': typeof AppSettingsSettingsPermissionGroupsRoute
   '/app/_settings/settings/profile': typeof AppSettingsSettingsProfileRoute
@@ -425,9 +451,12 @@ export interface FileRoutesById {
   '/app/_app/logs/': typeof AppAppLogsIndexRoute
   '/app/_app/metrics/': typeof AppAppMetricsIndexRoute
   '/app/_app/reports/': typeof AppAppReportsIndexRoute
+  '/app/_app/datasets/$datasetId/overview': typeof AppAppDatasetsDatasetIdOverviewRoute
+  '/app/_settings/settings/datasources/add': typeof AppSettingsSettingsDatasourcesAddRoute
   '/app/_app/chats/$chatId/': typeof AppAppChatsChatIdIndexRoute
   '/app/_app/collections/$collectionId/': typeof AppAppCollectionsCollectionIdIndexRoute
   '/app/_app/reports/$reportId/': typeof AppAppReportsReportIdIndexRoute
+  '/app/_settings/settings/datasources/': typeof AppSettingsSettingsDatasourcesIndexRoute
   '/app/_app/chats/$chatId/dashboards/$dashboardId': typeof AppAppChatsChatIdDashboardsDashboardIdRouteWithChildren
   '/app/_app/chats/$chatId/metrics/$metricId': typeof AppAppChatsChatIdMetricsMetricIdRoute
   '/app/_app/chats/$chatId/report/$reportId': typeof AppAppChatsChatIdReportReportIdRouteWithChildren
@@ -470,9 +499,12 @@ export interface FileRouteTypes {
     | '/app/logs'
     | '/app/metrics'
     | '/app/reports'
+    | '/app/datasets/$datasetId/overview'
+    | '/app/settings/datasources/add'
     | '/app/chats/$chatId'
     | '/app/collections/$collectionId'
     | '/app/reports/$reportId'
+    | '/app/settings/datasources/'
     | '/app/chats/$chatId/dashboards/$dashboardId'
     | '/app/chats/$chatId/metrics/$metricId'
     | '/app/chats/$chatId/report/$reportId'
@@ -499,7 +531,6 @@ export interface FileRouteTypes {
     | '/app/metrics/$metricId'
     | '/app/settings/api-keys'
     | '/app/settings/dataset-groups'
-    | '/app/settings/datasources'
     | '/app/settings/integrations'
     | '/app/settings/permission-groups'
     | '/app/settings/profile'
@@ -513,9 +544,12 @@ export interface FileRouteTypes {
     | '/app/logs'
     | '/app/metrics'
     | '/app/reports'
+    | '/app/datasets/$datasetId/overview'
+    | '/app/settings/datasources/add'
     | '/app/chats/$chatId'
     | '/app/collections/$collectionId'
     | '/app/reports/$reportId'
+    | '/app/settings/datasources'
     | '/app/chats/$chatId/dashboards/$dashboardId'
     | '/app/chats/$chatId/metrics/$metricId'
     | '/app/chats/$chatId/report/$reportId'
@@ -558,9 +592,12 @@ export interface FileRouteTypes {
     | '/app/_app/logs/'
     | '/app/_app/metrics/'
     | '/app/_app/reports/'
+    | '/app/_app/datasets/$datasetId/overview'
+    | '/app/_settings/settings/datasources/add'
     | '/app/_app/chats/$chatId/'
     | '/app/_app/collections/$collectionId/'
     | '/app/_app/reports/$reportId/'
+    | '/app/_settings/settings/datasources/'
     | '/app/_app/chats/$chatId/dashboards/$dashboardId'
     | '/app/_app/chats/$chatId/metrics/$metricId'
     | '/app/_app/chats/$chatId/report/$reportId'
@@ -800,6 +837,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAppDashboardsDashboardIdRouteImport
       parentRoute: typeof AppAppRoute
     }
+    '/app/_settings/settings/datasources/': {
+      id: '/app/_settings/settings/datasources/'
+      path: '/'
+      fullPath: '/app/settings/datasources/'
+      preLoaderRoute: typeof AppSettingsSettingsDatasourcesIndexRouteImport
+      parentRoute: typeof AppSettingsSettingsDatasourcesRoute
+    }
     '/app/_app/reports/$reportId/': {
       id: '/app/_app/reports/$reportId/'
       path: '/reports/$reportId'
@@ -820,6 +864,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/app/chats/$chatId'
       preLoaderRoute: typeof AppAppChatsChatIdIndexRouteImport
       parentRoute: typeof AppAppRoute
+    }
+    '/app/_settings/settings/datasources/add': {
+      id: '/app/_settings/settings/datasources/add'
+      path: '/add'
+      fullPath: '/app/settings/datasources/add'
+      preLoaderRoute: typeof AppSettingsSettingsDatasourcesAddRouteImport
+      parentRoute: typeof AppSettingsSettingsDatasourcesRoute
+    }
+    '/app/_app/datasets/$datasetId/overview': {
+      id: '/app/_app/datasets/$datasetId/overview'
+      path: '/overview'
+      fullPath: '/app/datasets/$datasetId/overview'
+      preLoaderRoute: typeof AppAppDatasetsDatasetIdOverviewRouteImport
+      parentRoute: typeof AppAppDatasetsDatasetIdRoute
     }
     '/app/_app/collections/$collectionId/metrics/$metricId': {
       id: '/app/_app/collections/$collectionId/metrics/$metricId'
@@ -919,6 +977,20 @@ declare module '@tanstack/react-start/server' {
   }
 }
 
+interface AppAppDatasetsDatasetIdRouteChildren {
+  AppAppDatasetsDatasetIdOverviewRoute: typeof AppAppDatasetsDatasetIdOverviewRoute
+}
+
+const AppAppDatasetsDatasetIdRouteChildren: AppAppDatasetsDatasetIdRouteChildren =
+  {
+    AppAppDatasetsDatasetIdOverviewRoute: AppAppDatasetsDatasetIdOverviewRoute,
+  }
+
+const AppAppDatasetsDatasetIdRouteWithChildren =
+  AppAppDatasetsDatasetIdRoute._addFileChildren(
+    AppAppDatasetsDatasetIdRouteChildren,
+  )
+
 interface AppAppChatsChatIdDashboardsDashboardIdRouteChildren {
   AppAppChatsChatIdDashboardsDashboardIdMetricsMetricIdRoute: typeof AppAppChatsChatIdDashboardsDashboardIdMetricsMetricIdRoute
 }
@@ -982,7 +1054,7 @@ const AppAppCollectionsCollectionIdChatsChatIdDashboardsDashboardIdRouteWithChil
 interface AppAppRouteChildren {
   AppAppHomeRoute: typeof AppAppHomeRoute
   AppAppDashboardsDashboardIdRoute: typeof AppAppDashboardsDashboardIdRoute
-  AppAppDatasetsDatasetIdRoute: typeof AppAppDatasetsDatasetIdRoute
+  AppAppDatasetsDatasetIdRoute: typeof AppAppDatasetsDatasetIdRouteWithChildren
   AppAppMetricsMetricIdRoute: typeof AppAppMetricsMetricIdRoute
   AppAppChatsIndexRoute: typeof AppAppChatsIndexRoute
   AppAppCollectionsIndexRoute: typeof AppAppCollectionsIndexRoute
@@ -1007,7 +1079,7 @@ interface AppAppRouteChildren {
 const AppAppRouteChildren: AppAppRouteChildren = {
   AppAppHomeRoute: AppAppHomeRoute,
   AppAppDashboardsDashboardIdRoute: AppAppDashboardsDashboardIdRoute,
-  AppAppDatasetsDatasetIdRoute: AppAppDatasetsDatasetIdRoute,
+  AppAppDatasetsDatasetIdRoute: AppAppDatasetsDatasetIdRouteWithChildren,
   AppAppMetricsMetricIdRoute: AppAppMetricsMetricIdRoute,
   AppAppChatsIndexRoute: AppAppChatsIndexRoute,
   AppAppCollectionsIndexRoute: AppAppCollectionsIndexRoute,
@@ -1040,10 +1112,28 @@ const AppAppRouteChildren: AppAppRouteChildren = {
 const AppAppRouteWithChildren =
   AppAppRoute._addFileChildren(AppAppRouteChildren)
 
+interface AppSettingsSettingsDatasourcesRouteChildren {
+  AppSettingsSettingsDatasourcesAddRoute: typeof AppSettingsSettingsDatasourcesAddRoute
+  AppSettingsSettingsDatasourcesIndexRoute: typeof AppSettingsSettingsDatasourcesIndexRoute
+}
+
+const AppSettingsSettingsDatasourcesRouteChildren: AppSettingsSettingsDatasourcesRouteChildren =
+  {
+    AppSettingsSettingsDatasourcesAddRoute:
+      AppSettingsSettingsDatasourcesAddRoute,
+    AppSettingsSettingsDatasourcesIndexRoute:
+      AppSettingsSettingsDatasourcesIndexRoute,
+  }
+
+const AppSettingsSettingsDatasourcesRouteWithChildren =
+  AppSettingsSettingsDatasourcesRoute._addFileChildren(
+    AppSettingsSettingsDatasourcesRouteChildren,
+  )
+
 interface AppSettingsRouteChildren {
   AppSettingsSettingsApiKeysRoute: typeof AppSettingsSettingsApiKeysRoute
   AppSettingsSettingsDatasetGroupsRoute: typeof AppSettingsSettingsDatasetGroupsRoute
-  AppSettingsSettingsDatasourcesRoute: typeof AppSettingsSettingsDatasourcesRoute
+  AppSettingsSettingsDatasourcesRoute: typeof AppSettingsSettingsDatasourcesRouteWithChildren
   AppSettingsSettingsIntegrationsRoute: typeof AppSettingsSettingsIntegrationsRoute
   AppSettingsSettingsPermissionGroupsRoute: typeof AppSettingsSettingsPermissionGroupsRoute
   AppSettingsSettingsProfileRoute: typeof AppSettingsSettingsProfileRoute
@@ -1055,7 +1145,8 @@ interface AppSettingsRouteChildren {
 const AppSettingsRouteChildren: AppSettingsRouteChildren = {
   AppSettingsSettingsApiKeysRoute: AppSettingsSettingsApiKeysRoute,
   AppSettingsSettingsDatasetGroupsRoute: AppSettingsSettingsDatasetGroupsRoute,
-  AppSettingsSettingsDatasourcesRoute: AppSettingsSettingsDatasourcesRoute,
+  AppSettingsSettingsDatasourcesRoute:
+    AppSettingsSettingsDatasourcesRouteWithChildren,
   AppSettingsSettingsIntegrationsRoute: AppSettingsSettingsIntegrationsRoute,
   AppSettingsSettingsPermissionGroupsRoute:
     AppSettingsSettingsPermissionGroupsRoute,
