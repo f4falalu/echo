@@ -30,7 +30,7 @@ export const Breadcrumb = React.memo(
     const lastItemIndex = items.length - 1;
 
     return (
-      <BreadcrumbBase className={className}>
+      <BreadcrumbBase className={className} ref={ref}>
         <BreadcrumbList>
           {items.map((item, index) => (
             <BreadcrumbItemSelector

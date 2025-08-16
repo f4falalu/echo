@@ -173,13 +173,15 @@ export const AppSegmented: AppSegmentedComponent = React.memo(
             initial={{
               width: gliderStyle.width,
               x: Number.parseInt(
-                gliderStyle.transform.replace('translateX(', '').replace('px)', '')
+                gliderStyle.transform.replace('translateX(', '').replace('px)', ''),
+                10
               ),
             }}
             animate={{
               width: gliderStyle.width,
               x: Number.parseInt(
-                gliderStyle.transform.replace('translateX(', '').replace('px)', '')
+                gliderStyle.transform.replace('translateX(', '').replace('px)', ''),
+                10
               ),
             }}
             transition={{
