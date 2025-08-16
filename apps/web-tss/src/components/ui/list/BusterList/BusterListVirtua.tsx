@@ -1,5 +1,6 @@
 'use client';
 
+import { ClientOnly } from '@tanstack/react-router';
 import React, { useMemo, useRef } from 'react';
 import { VList } from 'virtua';
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
@@ -120,39 +121,41 @@ function BusterListVirtuaComponent<T = unknown>({
   }, [contextMenu]);
 
   return (
-    <WrapperNode {...wrapperNodeProps}>
-      <div className="list-container relative flex h-full w-full flex-col overflow-hidden">
-        {showHeader && !showEmptyState && (
-          <BusterListHeader<T>
-            columns={columns}
-            onGlobalSelectChange={onSelectChange ? onGlobalSelectChange : undefined}
-            globalCheckStatus={globalCheckStatus}
-            rowsLength={rows.length}
-            showSelectAll={showSelectAll}
-            rowClassName={rowClassName}
-          />
-        )}
+    <ClientOnly>
+      <WrapperNode {...wrapperNodeProps}>
+        <div className="list-container relative flex h-full w-full flex-col overflow-hidden">
+          {showHeader && !showEmptyState && (
+            <BusterListHeader<T>
+              columns={columns}
+              onGlobalSelectChange={onSelectChange ? onGlobalSelectChange : undefined}
+              globalCheckStatus={globalCheckStatus}
+              rowsLength={rows.length}
+              showSelectAll={showSelectAll}
+              rowClassName={rowClassName}
+            />
+          )}
 
-        {!showEmptyState && (
-          <VList overscan={10}>
-            {rows.map((row, index) => (
-              <div key={row.id + index.toString()} style={{ height: itemSize(index) }}>
-                <BusterListRowComponentSelector<T>
-                  row={row}
-                  id={row.id}
-                  isLastChild={index === lastChildIndex}
-                  {...itemData}
-                />
-              </div>
-            ))}
-          </VList>
-        )}
+          {!showEmptyState && (
+            <VList overscan={10}>
+              {rows.map((row, index) => (
+                <div key={row.id + index.toString()} style={{ height: itemSize(index) }}>
+                  <BusterListRowComponentSelector<T>
+                    row={row}
+                    id={row.id}
+                    isLastChild={index === lastChildIndex}
+                    {...itemData}
+                  />
+                </div>
+              ))}
+            </VList>
+          )}
 
-        {showEmptyState && (
-          <div className="flex h-full items-center justify-center">{emptyState}</div>
-        )}
-      </div>
-    </WrapperNode>
+          {showEmptyState && (
+            <div className="flex h-full items-center justify-center">{emptyState}</div>
+          )}
+        </div>
+      </WrapperNode>
+    </ClientOnly>
   );
 }
 

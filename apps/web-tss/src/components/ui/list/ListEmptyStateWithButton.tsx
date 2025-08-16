@@ -3,6 +3,7 @@ import React from 'react';
 import { Button } from '@/components/ui/buttons';
 import { Plus } from '@/components/ui/icons';
 import { Paragraph, Title } from '@/components/ui/typography';
+import type { OptionsTo } from '@/types/routes';
 
 export const ListEmptyStateWithButton: React.FC<{
   isAdmin?: boolean;
@@ -13,14 +14,14 @@ export const ListEmptyStateWithButton: React.FC<{
   buttonPrefix?: React.ReactNode;
   buttonSuffix?: React.ReactNode;
   loading?: boolean;
-  linkButton?: string;
+  link?: OptionsTo;
   linkButtonTarget?: '_blank' | '_self';
 }> = React.memo(
   ({
     isAdmin = true,
     buttonPrefix,
     buttonSuffix,
-    linkButton,
+    link,
     title,
     buttonText,
     description,
@@ -45,7 +46,7 @@ export const ListEmptyStateWithButton: React.FC<{
           </div>
 
           {isAdmin && (
-            <ButtonWrapper href={linkButton} target={linkButtonTarget}>
+            <ButtonWrapper link={link} target={linkButtonTarget}>
               <Button
                 variant="default"
                 prefix={buttonPrefix || <Plus />}
@@ -65,12 +66,12 @@ export const ListEmptyStateWithButton: React.FC<{
 
 const ButtonWrapper: React.FC<{
   children: React.ReactNode;
-  href?: string;
+  link?: OptionsTo;
   target?: '_blank' | '_self';
-}> = ({ children, href, target }) => {
-  if (!href) return <>{children}</>;
+}> = ({ children, link, target }) => {
+  if (!link) return <>{children}</>;
   return (
-    <Link to={href} target={target || '_self'}>
+    <Link {...link} target={target || '_self'}>
       {children}
     </Link>
   );

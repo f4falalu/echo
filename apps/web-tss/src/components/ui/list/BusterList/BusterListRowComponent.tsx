@@ -3,6 +3,7 @@ import get from 'lodash/get';
 import React, { useMemo } from 'react';
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import { cn } from '@/lib/classMerge';
+import type { OptionsTo } from '@/types/routes';
 import { CheckboxColumn } from './CheckboxColumn';
 import { HEIGHT_OF_ROW } from './config';
 import type { BusterListColumn, BusterListProps, BusterListRowItem } from './interfaces';
@@ -60,7 +61,7 @@ const BusterListRowComponentInner = React.forwardRef(
     };
 
     return (
-      <LinkWrapper href={link}>
+      <LinkWrapper link={link}>
         <div
           onClick={onContainerClick}
           style={rowStyles}
@@ -151,12 +152,12 @@ const BusterListCellComponent = <T,>({
 };
 
 const LinkWrapper: React.FC<{
-  href?: string;
+  link?: OptionsTo;
   children: React.ReactNode;
-}> = ({ href, children }) => {
-  if (!href) return <>{children}</>;
+}> = ({ link, children }) => {
+  if (!link) return <>{children}</>;
   return (
-    <Link to={href} preload={'intent'}>
+    <Link {...link} preload={'intent'}>
       {children}
     </Link>
   );

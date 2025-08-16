@@ -19,6 +19,7 @@ export { default as CircleXmark } from './circle-xmark';
 export { default as Copy } from './copy';
 export { default as Copy2 } from './copy-2'; // Alternate copy icon
 export { default as Database } from './database'; // Database icon
+export { default as Dots } from './dots';
 export { default as Download } from './download';
 export { default as Eye } from './eye'; // Eye (show) icon
 export { default as EyeSlash } from './eye-slash'; // Eye with slash (hide) icon
@@ -46,6 +47,7 @@ export { default as SquareChart } from './square-chart'; // Square chart icon
 export { default as Star } from './star';
 export { default as Storage } from './storage';
 export { default as Table } from './table'; // Table icon
+export { default as Trash } from './trash';
 export { default as UnorderedList2 } from './unordered-list-2'; // Unordered list variant 2 icon
 export { default as User } from './user';
 export { default as UserGroup } from './user-group'; // User group icon

@@ -1,5 +1,7 @@
 import type React from 'react';
+import type { OptionsTo } from '@/types/routes';
 import type { ContextMenuProps } from '../../context-menu/ContextMenu';
+
 export interface BusterListProps<T = unknown> {
   columns: BusterListColumn<T>[];
   hideLastRowBorder?: boolean;
@@ -31,7 +33,7 @@ export type BusterListRowItem<T = unknown> = {
   id: string;
   data: T | null;
   onClick?: () => void;
-  link?: string;
+  link?: OptionsTo;
   onSelect?: () => void;
   rowSection?: BusterListSectionRow;
   hidden?: boolean;

@@ -1,6 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { z } from 'zod';
-import { getTitle } from '@/api/buster_rest/title';
 
 const searchParamsSchema = z.object({
   metric_version_number: z.coerce.number().optional(),
