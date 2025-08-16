@@ -12,5 +12,9 @@ export const Route = createFileRoute('/auth')({
       { name: 'og:description', content: 'Buster authentication pages' },
     ],
   }),
-  component: () => <AuthLayout><Outlet /></AuthLayout>,
+  component: () => (
+    <AuthLayout>
+      <Outlet />
+    </AuthLayout>
+  ),
 });

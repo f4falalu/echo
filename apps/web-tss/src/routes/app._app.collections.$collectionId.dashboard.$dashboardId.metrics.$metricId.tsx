@@ -5,7 +5,9 @@ const searchParamsSchema = z.object({
   metric_version_number: z.coerce.number().optional(),
 });
 
-export const Route = createFileRoute('/app/_app/collections/$collectionId/dashboard/$dashboardId/metrics/$metricId')({
+export const Route = createFileRoute(
+  '/app/_app/collections/$collectionId/dashboard/$dashboardId/metrics/$metricId'
+)({
   head: () => ({
     meta: [
       { title: 'Collection Dashboard Metric' },
@@ -19,5 +21,7 @@ export const Route = createFileRoute('/app/_app/collections/$collectionId/dashbo
 });
 
 function RouteComponent() {
-  return <div>Hello "/app/collections/$collectionId/dashboard/$dashboardId/metrics/$metricId"!</div>;
+  return (
+    <div>Hello "/app/collections/$collectionId/dashboard/$dashboardId/metrics/$metricId"!</div>
+  );
 }

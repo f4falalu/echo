@@ -6,7 +6,9 @@ const searchParamsSchema = z.object({
   metric_version_number: z.coerce.number().optional(),
 });
 
-export const Route = createFileRoute('/app/_app/chats/$chatId/dashboards/$dashboardId/metrics/$metricId')({
+export const Route = createFileRoute(
+  '/app/_app/chats/$chatId/dashboards/$dashboardId/metrics/$metricId'
+)({
   head: () => ({
     meta: [
       { title: 'Chat Dashboard Metric' },
