@@ -513,6 +513,13 @@ export function createCreateDashboardsExecute(
 
               const reasoningEntry = createCreateDashboardsReasoningEntry(state, toolCallId);
               const rawLlmMessage = createCreateDashboardsRawLlmMessageEntry(state, toolCallId);
+              const rawLlmResultEntry = createRawToolResultEntry(
+                toolCallId,
+                CREATE_DASHBOARDS_TOOL_NAME,
+                {
+                  files: state.files,
+                }
+              );
 
               const updates: Parameters<typeof updateMessageEntries>[0] = {
                 messageId: context.messageId,
@@ -523,7 +530,7 @@ export function createCreateDashboardsExecute(
               }
 
               if (rawLlmMessage) {
-                updates.rawLlmMessages = [rawLlmMessage];
+                updates.rawLlmMessages = [rawLlmMessage, rawLlmResultEntry];
               }
 
               if (reasoningEntry || rawLlmMessage) {
