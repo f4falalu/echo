@@ -71,6 +71,10 @@
     "./access-controls": {
       "types": "./dist/access-controls/index.d.ts",
       "default": "./dist/access-controls/index.js"
+    },
+    "./github": {
+      "types": "./dist/github/index.d.ts",
+      "default": "./dist/github/index.js"
     }
   },
   "module": "src/index.ts",
