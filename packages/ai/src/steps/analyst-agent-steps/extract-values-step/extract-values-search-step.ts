@@ -185,7 +185,7 @@ export async function runExtractValuesAndSearchStep(
     return {
       values: extractedValues,
       valuesMessage:
-        extractedValues.length > 0
+        extractedValues.length > 0 && storedValuesResult.searchResults
           ? {
               role: 'user',
               content: storedValuesResult.searchResults,

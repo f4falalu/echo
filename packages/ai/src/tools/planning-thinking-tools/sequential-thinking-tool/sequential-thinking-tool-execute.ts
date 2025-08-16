@@ -1,4 +1,4 @@
-import { updateMessageEntries } from '@buster/database';
+import { type UpdateMessageEntriesParams, updateMessageEntries } from '@buster/database';
 import { wrapTraced } from 'braintrust';
 import { normalizeEscapedText } from '../../../utils/streaming/escape-normalizer';
 import { createRawToolResultEntry } from '../../shared/create-raw-llm-tool-result-entry';
@@ -16,24 +16,42 @@ import {
 
 // Process sequential thinking execution
 async function processSequentialThinking(
-  toolCallId: string,
-  messageId: string
+  state: SequentialThinkingState,
+  context: SequentialThinkingContext
 ): Promise<SequentialThinkingOutput> {
   const output: SequentialThinkingOutput = {
     success: true,
   };
 
+  const entries: UpdateMessageEntriesParams = {
+    messageId: context.messageId,
+    reasoningMessages: [],
+    rawLlmMessages: [],
+  };
+
+  const reasoningEntry = createSequentialThinkingReasoningMessage(
+    state,
+    context.messageId,
+    'completed'
+  );
+  const rawLlmMessage = createSequentialThinkingRawLlmMessageEntry(state, context.messageId);
+
   const rawToolResultEntry = createRawToolResultEntry(
-    toolCallId,
+    context.messageId,
     SEQUENTIAL_THINKING_TOOL_NAME,
     output
   );
 
+  if (reasoningEntry) {
+    entries.reasoningMessages = [reasoningEntry];
+  }
+
+  if (rawLlmMessage) {
+    entries.rawLlmMessages = [rawLlmMessage, rawToolResultEntry];
+  }
+
   try {
-    await updateMessageEntries({
-      messageId,
-      rawLlmMessages: [rawToolResultEntry],
-    });
+    await updateMessageEntries(entries);
   } catch (error) {
     console.error('[sequential-thinking] Error updating message entries:', error);
   }
@@ -54,7 +72,7 @@ export function createSequentialThinkingExecute(
         throw new Error('Tool call ID is required');
       }
 
-      return await processSequentialThinking(state.toolCallId, context.messageId);
+      return await processSequentialThinking(state, context);
     },
     { name: SEQUENTIAL_THINKING_TOOL_NAME }
   );

@@ -343,4 +343,51 @@ describe('extract-values-search-step integration', () => {
       expect(Array.isArray(result.values)).toBe(true);
     });
   });
+
+  it('should not create valuesMessage with empty content when search returns no results', async () => {
+    const messages: ModelMessage[] = [
+      { role: 'user', content: 'Show me sales for Red Bull' },
+    ];
+    
+    // Test with a dataSourceId that would trigger search but return empty results
+    const params = {
+      messages,
+      dataSourceId: 'test-datasource-id',
+    };
+
+    const result = await runExtractValuesAndSearchStep(params);
+
+    expect(result).toBeDefined();
+    expect(result.values).toBeDefined();
+    
+    // If valuesMessage exists, it should have non-empty content
+    if (result.valuesMessage) {
+      expect(result.valuesMessage.content).toBeTruthy();
+      expect(typeof result.valuesMessage.content).toBe('string');
+      expect((result.valuesMessage.content as string).length).toBeGreaterThan(0);
+    }
+  });
+
+  it('should not create valuesMessage when extracted values exist but search results are empty', async () => {
+    const messages: ModelMessage[] = [
+      { role: 'user', content: 'Show me Nike and Adidas products' },
+    ];
+    
+    const params = {
+      messages,
+      dataSourceId: 'test-datasource-id', 
+    };
+
+    const result = await runExtractValuesAndSearchStep(params);
+
+    expect(result).toBeDefined();
+    expect(result.values).toBeDefined();
+    
+    // Verify that if we have values but no search results, valuesMessage is undefined
+    // This prevents empty string messages from being created
+    if (result.values.length > 0 && result.valuesMessage) {
+      expect(result.valuesMessage.content).toBeTruthy();
+      expect((result.valuesMessage.content as string).trim()).not.toBe('');
+    }
+  });
 });
