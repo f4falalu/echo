@@ -8,9 +8,18 @@ const searchParamsSchema = z.object({
 export const Route = createFileRoute(
   '/app/_app/collections/$collectionId/chats/$chatId/dashboards/$dashboardId'
 )({
-  head: () => ({
+  loader: async ({ params, context }) => {
+    const title = await context.getAssetTitle({
+      assetId: params.dashboardId,
+      assetType: 'dashboard',
+    });
+    return {
+      title,
+    };
+  },
+  head: ({ loaderData }) => ({
     meta: [
-      { title: 'Collection Chat Dashboard' },
+      { title: loaderData?.title || 'Collection Chat Dashboard' },
       { name: 'description', content: 'View dashboard within collection chat context' },
       { name: 'og:title', content: 'Collection Chat Dashboard' },
       { name: 'og:description', content: 'View dashboard within collection chat context' },

@@ -36,8 +36,11 @@ export const prefetchGetDatasets = async (
     ...datasetQueryKeys.datasetsListQueryOptions(params),
     queryFn: () => getDatasets(params),
   });
+  const datasets = queryClient.getQueryData(
+    datasetQueryKeys.datasetsListQueryOptions(params).queryKey
+  );
 
-  return queryClient;
+  return { datasets, queryClient };
 };
 
 export const useGetDatasetData = (datasetId: string | undefined) => {
@@ -68,7 +71,8 @@ export const prefetchGetDatasetMetadata = async (
     ...datasetQueryKeys.datasetMetadata(datasetId),
     queryFn: () => getDatasetMetadata(datasetId),
   });
-  return queryClient;
+  const dataset = queryClient.getQueryData(datasetQueryKeys.datasetMetadata(datasetId).queryKey);
+  return { dataset, queryClient };
 };
 
 export const useCreateDataset = () => {
@@ -131,4 +135,17 @@ export const useIndividualDataset = ({ datasetId }: { datasetId: string | undefi
   const dataset = useGetDatasetMetadata(datasetId);
   const datasetData = useGetDatasetData(datasetId);
   return { dataset, datasetData };
+};
+
+export const prefetchIndividualDataset = async (
+  datasetId: string,
+  queryClientProp?: QueryClient
+) => {
+  const queryClient = queryClientProp || new QueryClient();
+  await queryClient.prefetchQuery({
+    ...datasetQueryKeys.datasetMetadata(datasetId),
+    queryFn: () => getDatasetMetadata(datasetId),
+  });
+  const dataset = queryClient.getQueryData(datasetQueryKeys.datasetMetadata(datasetId).queryKey);
+  return { dataset, queryClient };
 };

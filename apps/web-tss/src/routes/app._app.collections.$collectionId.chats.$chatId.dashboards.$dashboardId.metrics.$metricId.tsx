@@ -8,6 +8,15 @@ const searchParamsSchema = z.object({
 export const Route = createFileRoute(
   '/app/_app/collections/$collectionId/chats/$chatId/dashboards/$dashboardId/metrics/$metricId'
 )({
+  loader: async ({ params, context }) => {
+    const title = await context.getAssetTitle({
+      assetId: params.metricId,
+      assetType: 'metric',
+    });
+    return {
+      title,
+    };
+  },
   head: () => ({
     meta: [
       { title: 'Collection Chat Dashboard Metric' },

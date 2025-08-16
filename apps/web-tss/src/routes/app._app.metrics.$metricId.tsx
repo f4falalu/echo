@@ -6,9 +6,19 @@ const searchParamsSchema = z.object({
 });
 
 export const Route = createFileRoute('/app/_app/metrics/$metricId')({
-  head: () => ({
+  loader: async ({ params, context }) => {
+    const title = await context.getAssetTitle({
+      assetId: params.metricId,
+      assetType: 'metric',
+    });
+    return {
+      title,
+    };
+  },
+  validateSearch: searchParamsSchema,
+  head: ({ loaderData }) => ({
     meta: [
-      { title: 'Metric' },
+      { title: loaderData?.title || 'Metric' },
       { name: 'description', content: 'View detailed metric analysis and insights' },
       { name: 'og:title', content: 'Metric' },
       { name: 'og:description', content: 'View detailed metric analysis and insights' },

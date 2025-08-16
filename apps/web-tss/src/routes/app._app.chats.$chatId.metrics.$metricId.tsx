@@ -6,9 +6,18 @@ const searchParamsSchema = z.object({
 });
 
 export const Route = createFileRoute('/app/_app/chats/$chatId/metrics/$metricId')({
-  head: () => ({
+  loader: async ({ params, context }) => {
+    const title = await context.getAssetTitle({
+      assetId: params.metricId,
+      assetType: 'metric',
+    });
+    return {
+      title,
+    };
+  },
+  head: ({ loaderData }) => ({
     meta: [
-      { title: 'Chat Metric' },
+      { title: loaderData?.title || 'Chat Metric' },
       { name: 'description', content: 'View metric within chat context' },
       { name: 'og:title', content: 'Chat Metric' },
       { name: 'og:description', content: 'View metric within chat context' },

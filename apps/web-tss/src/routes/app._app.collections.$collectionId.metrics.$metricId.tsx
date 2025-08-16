@@ -6,14 +6,25 @@ const searchParamsSchema = z.object({
 });
 
 export const Route = createFileRoute('/app/_app/collections/$collectionId/metrics/$metricId')({
-  head: () => ({
-    meta: [
-      { title: 'Collection Metric' },
-      { name: 'description', content: 'View metric within collection context' },
-      { name: 'og:title', content: 'Collection Metric' },
-      { name: 'og:description', content: 'View metric within collection context' },
-    ],
-  }),
+  loader: async ({ params, context }) => {
+    const title = await context.getAssetTitle({
+      assetId: params.metricId,
+      assetType: 'metric',
+    });
+    return {
+      title,
+    };
+  },
+  head: ({ loaderData }) => {
+    return {
+      meta: [
+        { title: loaderData?.title || 'Collection Metric' },
+        { name: 'description', content: 'View metric within collection context' },
+        { name: 'og:title', content: 'Collection Metric' },
+        { name: 'og:description', content: 'View metric within collection context' },
+      ],
+    };
+  },
   validateSearch: searchParamsSchema,
   component: RouteComponent,
 });

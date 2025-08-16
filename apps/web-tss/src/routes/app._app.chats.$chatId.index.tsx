@@ -1,9 +1,18 @@
 import { createFileRoute } from '@tanstack/react-router';
 
 export const Route = createFileRoute('/app/_app/chats/$chatId/')({
-  head: () => ({
+  loader: async ({ params, context }) => {
+    const title = await context.getAssetTitle({
+      assetId: params.chatId,
+      assetType: 'chat',
+    });
+    return {
+      title,
+    };
+  },
+  head: ({ loaderData }) => ({
     meta: [
-      { title: 'Chat' },
+      { title: loaderData?.title || 'Chat' },
       { name: 'description', content: 'View and interact with your chat conversation' },
       { name: 'og:title', content: 'Chat' },
       { name: 'og:description', content: 'View and interact with your chat conversation' },

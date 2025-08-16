@@ -8,9 +8,18 @@ const searchParamsSchema = z.object({
 export const Route = createFileRoute(
   '/app/_app/collections/$collectionId/dashboard/$dashboardId/metrics/$metricId'
 )({
-  head: () => ({
+  loader: async ({ params, context }) => {
+    const title = await context.getAssetTitle({
+      assetId: params.metricId,
+      assetType: 'metric',
+    });
+    return {
+      title,
+    };
+  },
+  head: ({ loaderData }) => ({
     meta: [
-      { title: 'Collection Dashboard Metric' },
+      { title: loaderData?.title || 'Collection Dashboard Metric' },
       { name: 'description', content: 'View metric within collection dashboard context' },
       { name: 'og:title', content: 'Collection Dashboard Metric' },
       { name: 'og:description', content: 'View metric within collection dashboard context' },
