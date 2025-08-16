@@ -1,3 +1,4 @@
+import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { esbuildPlugin } from '@trigger.dev/build/extensions';
 import { defineConfig } from '@trigger.dev/sdk';
@@ -39,17 +40,21 @@ export default defineConfig({
 
             let resolvedPath: string;
             if (subPath) {
-              // Handle sub-paths like @buster/ai/workflows/analyst-workflow
+              // Handle sub-paths like @buster/server-shared/metrics
               // Check if subPath already starts with 'src', if so, don't add it again
               const cleanSubPath = subPath.startsWith('src/') ? subPath.slice(4) : subPath;
-              resolvedPath = path.resolve(
-                process.cwd(),
-                '../..',
-                'packages',
-                packageName,
-                'src',
-                `${cleanSubPath}.ts`
-              );
+              const basePath = path.resolve(process.cwd(), '../..', 'packages', packageName, 'src');
+
+              // Try to resolve as a directory with index.ts first, then as a .ts file
+              const indexPath = path.join(basePath, cleanSubPath, 'index.ts');
+              const directPath = path.join(basePath, `${cleanSubPath}.ts`);
+
+              // Check if it's a directory with index.ts
+              if (fs.existsSync(indexPath)) {
+                resolvedPath = indexPath;
+              } else {
+                resolvedPath = directPath;
+              }
             } else {
               // Handle direct package imports like @buster/ai
               resolvedPath = path.resolve(

@@ -234,7 +234,9 @@ export const useUpdateCollectionShare = () => {
         return create(previousData, (draft) => {
           draft.individual_permissions = (
             draft.individual_permissions?.map((t) => {
-              const found = params.users?.find((v) => v.email === t.email);
+              const found = params.users?.find(
+                (v: { email: string; role: string }) => v.email === t.email
+              );
               if (found) return { ...t, ...found };
               return t;
             }) || []

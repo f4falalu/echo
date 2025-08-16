@@ -537,7 +537,7 @@ async fn route_to_query(
 
             
 
-            match snowflake_query(snowflake_client, sql.to_owned()).await {
+            match snowflake_query(snowflake_client, sql.to_owned(), limit).await {
                 Ok(processing_result) => {
                     match processing_result {
                         ProcessingResult::Processed(results) => results,

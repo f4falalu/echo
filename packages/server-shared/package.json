@@ -71,6 +71,10 @@
     "./lib/report": {
       "types": "./dist/lib/report/index.d.ts",
       "default": "./dist/lib/report/index.js"
+    },
+    "./access-controls": {
+      "types": "./dist/access-controls/index.d.ts",
+      "default": "./dist/access-controls/index.js"
     }
   },
   "module": "src/index.ts",

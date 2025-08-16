@@ -53,21 +53,6 @@ export const BulkUpdateMetricVerificationStatusRequestSchema = z.array(
   })
 );
 
-export const ShareUpdateRequestSchema = z.object({
-  users: z
-    .array(
-      z.object({
-        email: z.string(),
-        role: ShareRoleSchema,
-      })
-    )
-    .optional(),
-  publicly_accessible: z.boolean().optional(),
-  public_password: z.string().nullable().optional(),
-  public_expiry_date: z.string().nullable().optional(),
-  workspace_sharing: WorkspaceShareRoleSchema.nullable().optional(),
-});
-
 export type GetMetricDataRequest = z.infer<typeof GetMetricDataRequestSchema>;
 export type GetMetricRequest = z.infer<typeof GetMetricRequestSchema>;
 export type GetMetricListRequest = z.infer<typeof GetMetricListRequestSchema>;
