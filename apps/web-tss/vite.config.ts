@@ -48,13 +48,9 @@ const config = defineConfig(({ command, mode }) => {
               return 'vendor-supabase';
             }
 
-            if (id.includes('components/ui/icons')) {
-              return 'vendor-icons';
-            }
-
-            if (id.includes('components/ui')) {
-              return 'vendor-ui';
-            }
+            // if (id.includes('components/ui/icons')) {
+            //   return 'vendor-icons';
+            // }
 
             if (id.includes('zod')) {
               return 'vendor-zod';
