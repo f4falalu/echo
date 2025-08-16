@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { normalizeEscapedText } from './escape-normalizer';
+import { normalizeEscapedText, unescapeJsonString } from './escape-normalizer';
 
 describe('escape-normalizer', () => {
   describe('normalizeEscapedText', () => {
@@ -53,6 +53,72 @@ describe('escape-normalizer', () => {
 
     it('should handle empty strings', () => {
       expect(normalizeEscapedText('')).toBe('');
+    });
+  });
+
+  describe('unescapeJsonString', () => {
+    it('should unescape single-escaped newlines', () => {
+      expect(unescapeJsonString('Line 1\\nLine 2')).toBe('Line 1\nLine 2');
+      expect(unescapeJsonString('Multi\\nLine\\nText')).toBe('Multi\nLine\nText');
+    });
+
+    it('should unescape single-escaped tabs', () => {
+      expect(unescapeJsonString('Col1\\tCol2')).toBe('Col1\tCol2');
+      expect(unescapeJsonString('A\\tB\\tC')).toBe('A\tB\tC');
+    });
+
+    it('should unescape single-escaped quotes', () => {
+      expect(unescapeJsonString('Say \\"Hello\\"')).toBe('Say "Hello"');
+      expect(unescapeJsonString('\\"quoted\\"')).toBe('"quoted"');
+    });
+
+    it('should unescape single-escaped backslashes', () => {
+      expect(unescapeJsonString('Path\\\\to\\\\file')).toBe('Path\\to\\file');
+      expect(unescapeJsonString('C:\\\\Windows\\\\System32')).toBe('C:\\Windows\\System32');
+    });
+
+    it('should unescape carriage returns', () => {
+      expect(unescapeJsonString('Line 1\\rLine 2')).toBe('Line 1\rLine 2');
+    });
+
+    it('should handle mixed escape sequences', () => {
+      const input = 'Line 1\\n\\tIndented\\n\\"Quoted\\"\\nPath\\\\file';
+      const expected = 'Line 1\n\tIndented\n"Quoted"\nPath\\file';
+      expect(unescapeJsonString(input)).toBe(expected);
+    });
+
+    it('should handle text without escape sequences', () => {
+      const input = 'Normal text without escaping';
+      expect(unescapeJsonString(input)).toBe(input);
+    });
+
+    it('should handle empty strings', () => {
+      expect(unescapeJsonString('')).toBe('');
+    });
+
+    it('should handle the streaming JSON extraction case', () => {
+      // This simulates what the optimistic parser extracts from raw JSON
+      const input = 'First thought\\nSecond thought';
+      const expected = 'First thought\nSecond thought';
+      expect(unescapeJsonString(input)).toBe(expected);
+    });
+  });
+
+  describe('combined usage for streaming', () => {
+    it('should handle text from optimistic JSON parser', () => {
+      // Simulating what comes from the optimistic parser
+      const input = 'Thinking step 1\\nThinking step 2';
+      const unescaped = unescapeJsonString(input);
+      const normalized = normalizeEscapedText(unescaped);
+      expect(normalized).toBe('Thinking step 1\nThinking step 2');
+    });
+
+    it('should handle double-escaped content after unescaping', () => {
+      // If content was double-escaped in JSON
+      const input = 'Content with \\\\\\\\n double escape';
+      const unescaped = unescapeJsonString(input);
+      const normalized = normalizeEscapedText(unescaped);
+      expect(normalized).toBe('Content with \n double escape');
     });
   });
 });

@@ -32,3 +32,30 @@ export function normalizeEscapedText(text: string): string {
 
   return result;
 }
+
+/**
+ * Unescapes JSON string escape sequences to their actual characters
+ * This is needed when extracting raw values from incomplete JSON during streaming
+ */
+export function unescapeJsonString(text: string): string {
+  // Replace JSON escape sequences with their actual characters
+  // Process in specific order to handle escape sequences correctly
+  let result = text;
+
+  // Use a unique placeholder for escaped backslashes
+  const BACKSLASH_PLACEHOLDER = '__ESCAPED_BACKSLASH__';
+
+  // First replace escaped backslashes to avoid interfering with other sequences
+  result = result.replace(/\\\\/g, BACKSLASH_PLACEHOLDER);
+
+  // Then replace other escape sequences
+  result = result.replace(/\\n/g, '\n'); // \n -> newline
+  result = result.replace(/\\r/g, '\r'); // \r -> carriage return
+  result = result.replace(/\\t/g, '\t'); // \t -> tab
+  result = result.replace(/\\"/g, '"'); // \" -> "
+
+  // Finally replace the placeholder with actual backslash
+  result = result.replace(new RegExp(BACKSLASH_PLACEHOLDER, 'g'), '\\');
+
+  return result;
+}

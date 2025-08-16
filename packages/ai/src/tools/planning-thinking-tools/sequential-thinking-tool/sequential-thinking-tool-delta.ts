@@ -1,6 +1,9 @@
 import { updateMessageEntries } from '@buster/database';
 import type { ToolCallOptions } from 'ai';
-import { normalizeEscapedText } from '../../../utils/streaming/escape-normalizer';
+import {
+  normalizeEscapedText,
+  unescapeJsonString,
+} from '../../../utils/streaming/escape-normalizer';
 import {
   OptimisticJsonParser,
   getOptimisticValue,
@@ -49,8 +52,9 @@ export function createSequentialThinkingDelta(
     let stateChanged = false;
 
     if (thought !== undefined && thought !== '') {
-      // Normalize any double-escaped characters
-      const normalizedThought = normalizeEscapedText(thought);
+      // First unescape JSON string sequences, then normalize any double-escaped characters
+      const unescapedThought = unescapeJsonString(thought);
+      const normalizedThought = normalizeEscapedText(unescapedThought);
       if (sequentialThinkingState.thought !== normalizedThought) {
         sequentialThinkingState.thought = normalizedThought;
         stateChanged = true;

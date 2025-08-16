@@ -11,8 +11,6 @@ import { inArray } from 'drizzle-orm';
 import * as yaml from 'yaml';
 import { z } from 'zod';
 import {
-  type DashboardConfig,
-  DashboardConfigSchema,
   type DashboardYml,
   DashboardYmlSchema,
 } from '../../../../../../server-shared/src/dashboards/dashboard.types';
@@ -42,7 +40,8 @@ interface FileWithId {
   created_at: string;
   updated_at: string;
   version_number: number;
-  content?: DashboardConfig;
+  content?: DashboardYml;
+  metric_ids?: string[]; // IDs of metrics included in this dashboard
 }
 
 interface FailedFileCreation {
@@ -59,7 +58,7 @@ function createInitialDashboardVersionHistory(
 ): VersionHistory {
   return {
     '1': {
-      content: JSON.stringify(dashboard),
+      content: dashboard as Record<string, unknown>,
       updated_at: createdAt,
       version_number: 1,
     },
@@ -144,8 +143,7 @@ async function processDashboardFile(
   if (!yamlValidation.success) {
     return {
       success: false,
-      error:
-        'The dashboard configuration format is incorrect. Please check the YAML syntax and structure.',
+      error: yamlValidation.error || 'The dashboard configuration format is incorrect.',
     };
   }
 
@@ -190,7 +188,7 @@ async function processDashboardFile(
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
     version_number: 1,
-    content: { rows: dashboard.rows }, // Extract the config properties
+    content: dashboard, // Store the full dashboard object
   };
 
   return {
@@ -317,7 +315,7 @@ const createDashboardFiles = wrapTraced(
                 id: sp.dashboardFile.id,
                 name: sp.dashboardFile.name,
                 fileName: sp.dashboardFile.name,
-                content: sp.dashboardFile.content, // This already contains the DashboardConfig
+                content: sp.dashboardFile.content, // This now contains the full DashboardYml
                 filter: null,
                 organizationId,
                 createdBy: userId,
@@ -338,7 +336,7 @@ const createDashboardFiles = wrapTraced(
               id: sp.dashboardFile.id,
               name: sp.dashboardFile.name,
               fileName: originalFile.name,
-              content: sp.dashboardFile.content, // This already contains the DashboardConfig
+              content: sp.dashboardFile.content, // This now contains the full DashboardYml
               filter: null,
               organizationId,
               createdBy: userId,
@@ -403,6 +401,11 @@ const createDashboardFiles = wrapTraced(
 
         // Add successful files to output
         for (const sp of successfulProcessing) {
+          // Extract metric IDs from the dashboard
+          const metricIds: string[] = sp.dashboard.rows
+            ? sp.dashboard.rows.flatMap((row) => row.items).map((item) => item.id)
+            : [];
+
           files.push({
             id: sp.dashboardFile.id,
             name: sp.dashboardFile.name,
@@ -412,6 +415,7 @@ const createDashboardFiles = wrapTraced(
             created_at: sp.dashboardFile.created_at,
             updated_at: sp.dashboardFile.updated_at,
             version_number: sp.dashboardFile.version_number,
+            metric_ids: metricIds, // Include metric IDs in the output
           });
         }
       } catch (error) {

@@ -8,7 +8,7 @@ export const DashboardConfigSchema = z.object({
       z.object({
         columnSizes: z.array(z.number().min(1).max(12)).optional(), // columns sizes 1 - 12. MUST add up to 12
         rowHeight: z.number().optional(), // pixel based!
-        id: z.string(),
+        id: z.number(),
         items: z.array(
           z.object({
             id: z.string(),

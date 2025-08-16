@@ -22,7 +22,7 @@ export type UpdateMessageEntriesParams = z.infer<typeof UpdateMessageEntriesSche
  * - responseMessages: upsert by 'id' field
  * - reasoningMessages: upsert by 'id' field
  * - rawLlmMessages: upsert by combination of 'role' and 'toolCallId' in content array
- * 
+ *
  * Optimizations applied:
  * 1. Single jsonb_array_elements call per field using LATERAL joins
  * 2. More efficient key generation for rawLlmMessages using MD5 hash

@@ -5,8 +5,6 @@ import { and, eq, inArray, isNull } from 'drizzle-orm';
 import * as yaml from 'yaml';
 import { z } from 'zod';
 import {
-  type DashboardConfig,
-  DashboardConfigSchema,
   type DashboardYml,
   DashboardYmlSchema,
 } from '../../../../../../server-shared/src/dashboards/dashboard.types';
@@ -36,7 +34,8 @@ interface FileWithId {
   created_at: string;
   updated_at: string;
   version_number: number;
-  content?: DashboardConfig;
+  content?: DashboardYml;
+  metric_ids?: string[]; // IDs of metrics included in this dashboard
 }
 
 interface FailedFileModification {
@@ -66,7 +65,7 @@ function addDashboardVersionToHistory(
 
   // Create new version entry matching the schema
   const newVersionEntry = {
-    content: JSON.stringify(dashboard), // Store dashboard as JSON string
+    content: dashboard as Record<string, unknown>,
     updated_at: createdAt,
     version_number: newVersionNumber,
   };
@@ -179,8 +178,7 @@ async function processDashboardFile(file: { id: string; yml_content: string }): 
   if (!yamlValidation.success) {
     return {
       success: false,
-      error:
-        'The dashboard configuration format is incorrect. Please check the YAML syntax and structure.',
+      error: yamlValidation.error || 'The dashboard configuration format is incorrect.',
     };
   }
 
@@ -226,7 +224,7 @@ async function processDashboardFile(file: { id: string; yml_content: string }): 
     created_at: existingFile.createdAt,
     updated_at: new Date().toISOString(),
     version_number: latestVersion,
-    content: { rows: dashboard.rows }, // Extract the config properties
+    content: dashboard, // Store the full dashboard object
   };
 
   return {
@@ -346,7 +344,7 @@ const modifyDashboardFiles = wrapTraced(
             await tx
               .update(dashboardFiles)
               .set({
-                content: { rows: sp.dashboard.rows } as DashboardConfig,
+                content: sp.dashboard as Record<string, unknown>,
                 updatedAt: sp.dashboardFile.updated_at,
                 versionHistory: updatedVersionHistory,
                 name: sp.dashboard.name,
@@ -425,6 +423,11 @@ const modifyDashboardFiles = wrapTraced(
 
         // Add successful files to output
         for (const sp of successfulProcessing) {
+          // Extract metric IDs from the dashboard
+          const metricIds: string[] = sp.dashboard.rows
+            ? sp.dashboard.rows.flatMap((row) => row.items).map((item) => item.id)
+            : [];
+
           files.push({
             id: sp.dashboardFile.id,
             name: sp.dashboardFile.name,
@@ -434,6 +437,7 @@ const modifyDashboardFiles = wrapTraced(
             created_at: sp.dashboardFile.created_at,
             updated_at: sp.dashboardFile.updated_at,
             version_number: sp.dashboardFile.version_number,
+            metric_ids: metricIds, // Include metric IDs in the output
           });
         }
       } catch (error) {
