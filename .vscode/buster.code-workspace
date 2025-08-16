@@ -1,6 +1,5 @@
 {
   "folders": [
-    { "path": "../apps/api" },
     { "path": "../apps/server" },
     { "path": "../apps/web" },
     { "path": "../apps/web-tss" },
