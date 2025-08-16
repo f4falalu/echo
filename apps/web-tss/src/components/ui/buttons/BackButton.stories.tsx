@@ -47,7 +47,9 @@ export const CustomText: Story = {
 export const WithLink: Story = {
   args: {
     text: 'Back to Home',
-    linkUrl: '/',
+    linkUrl: {
+      to: '/',
+    },
   },
 };
 

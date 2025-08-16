@@ -1,5 +1,5 @@
 import type React from 'react';
-import { SidebarPrimary } from '@/components/features/sidebars/SidebarPrimary';
+import { SidebarSettings } from '@/components/features/sidebars/SidebarSettings';
 import { AppLayout, type LayoutSize } from '@/components/ui/layouts/AppLayout';
 
 interface IPrimaryAppLayoutProps {
@@ -9,7 +9,7 @@ interface IPrimaryAppLayoutProps {
   defaultLayout: LayoutSize;
 }
 
-export const PrimaryAppLayout: React.FC<IPrimaryAppLayoutProps> = ({
+export const SettingsAppLayout: React.FC<IPrimaryAppLayoutProps> = ({
   layoutId,
   children,
   initialLayout,
@@ -20,7 +20,7 @@ export const PrimaryAppLayout: React.FC<IPrimaryAppLayoutProps> = ({
       autoSaveId={layoutId}
       defaultLayout={defaultLayout}
       initialLayout={initialLayout}
-      sidebar={<SidebarPrimary />}
+      sidebar={<SidebarSettings />}
     >
       {children}
     </AppLayout>

@@ -17,6 +17,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthResetPasswordRouteImport } from './routes/auth.reset-password'
 import { Route as AuthLogoutRouteImport } from './routes/auth.logout'
 import { Route as AuthLoginRouteImport } from './routes/auth.login'
+import { Route as AppSettingsRouteImport } from './routes/app._settings'
 import { Route as AppAppRouteImport } from './routes/app._app'
 import { Route as AppAppHomeRouteImport } from './routes/app._app.home'
 import { Route as AppAppReportsIndexRouteImport } from './routes/app._app.reports.index'
@@ -26,9 +27,15 @@ import { Route as AppAppDatasetsIndexRouteImport } from './routes/app._app.datas
 import { Route as AppAppDashboardsIndexRouteImport } from './routes/app._app.dashboards.index'
 import { Route as AppAppCollectionsIndexRouteImport } from './routes/app._app.collections.index'
 import { Route as AppAppChatsIndexRouteImport } from './routes/app._app.chats.index'
+import { Route as AppSettingsSettingsWorkspaceRouteImport } from './routes/app._settings.settings.workspace'
 import { Route as AppSettingsSettingsUsersRouteImport } from './routes/app._settings.settings.users'
+import { Route as AppSettingsSettingsSecurityRouteImport } from './routes/app._settings.settings.security'
 import { Route as AppSettingsSettingsProfileRouteImport } from './routes/app._settings.settings.profile'
+import { Route as AppSettingsSettingsPermissionGroupsRouteImport } from './routes/app._settings.settings.permission-groups'
+import { Route as AppSettingsSettingsIntegrationsRouteImport } from './routes/app._settings.settings.integrations'
 import { Route as AppSettingsSettingsDatasourcesRouteImport } from './routes/app._settings.settings.datasources'
+import { Route as AppSettingsSettingsDatasetGroupsRouteImport } from './routes/app._settings.settings.dataset-groups'
+import { Route as AppSettingsSettingsApiKeysRouteImport } from './routes/app._settings.settings.api-keys'
 import { Route as AppAppReportsReportIdRouteImport } from './routes/app._app.reports.$reportId'
 import { Route as AppAppMetricsMetricIdRouteImport } from './routes/app._app.metrics.$metricId'
 import { Route as AppAppDatasetsDatasetIdRouteImport } from './routes/app._app.datasets.$datasetId'
@@ -81,6 +88,10 @@ const AuthLoginRoute = AuthLoginRouteImport.update({
   path: '/login',
   getParentRoute: () => AuthRoute,
 } as any)
+const AppSettingsRoute = AppSettingsRouteImport.update({
+  id: '/_settings',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppAppRoute = AppAppRouteImport.update({
   id: '/_app',
   getParentRoute: () => AppRoute,
@@ -125,23 +136,59 @@ const AppAppChatsIndexRoute = AppAppChatsIndexRouteImport.update({
   path: '/chats/',
   getParentRoute: () => AppAppRoute,
 } as any)
+const AppSettingsSettingsWorkspaceRoute =
+  AppSettingsSettingsWorkspaceRouteImport.update({
+    id: '/settings/workspace',
+    path: '/settings/workspace',
+    getParentRoute: () => AppSettingsRoute,
+  } as any)
 const AppSettingsSettingsUsersRoute =
   AppSettingsSettingsUsersRouteImport.update({
-    id: '/_settings/settings/users',
+    id: '/settings/users',
     path: '/settings/users',
-    getParentRoute: () => AppRoute,
+    getParentRoute: () => AppSettingsRoute,
+  } as any)
+const AppSettingsSettingsSecurityRoute =
+  AppSettingsSettingsSecurityRouteImport.update({
+    id: '/settings/security',
+    path: '/settings/security',
+    getParentRoute: () => AppSettingsRoute,
   } as any)
 const AppSettingsSettingsProfileRoute =
   AppSettingsSettingsProfileRouteImport.update({
-    id: '/_settings/settings/profile',
+    id: '/settings/profile',
     path: '/settings/profile',
-    getParentRoute: () => AppRoute,
+    getParentRoute: () => AppSettingsRoute,
+  } as any)
+const AppSettingsSettingsPermissionGroupsRoute =
+  AppSettingsSettingsPermissionGroupsRouteImport.update({
+    id: '/settings/permission-groups',
+    path: '/settings/permission-groups',
+    getParentRoute: () => AppSettingsRoute,
+  } as any)
+const AppSettingsSettingsIntegrationsRoute =
+  AppSettingsSettingsIntegrationsRouteImport.update({
+    id: '/settings/integrations',
+    path: '/settings/integrations',
+    getParentRoute: () => AppSettingsRoute,
   } as any)
 const AppSettingsSettingsDatasourcesRoute =
   AppSettingsSettingsDatasourcesRouteImport.update({
-    id: '/_settings/settings/datasources',
+    id: '/settings/datasources',
     path: '/settings/datasources',
-    getParentRoute: () => AppRoute,
+    getParentRoute: () => AppSettingsRoute,
+  } as any)
+const AppSettingsSettingsDatasetGroupsRoute =
+  AppSettingsSettingsDatasetGroupsRouteImport.update({
+    id: '/settings/dataset-groups',
+    path: '/settings/dataset-groups',
+    getParentRoute: () => AppSettingsRoute,
+  } as any)
+const AppSettingsSettingsApiKeysRoute =
+  AppSettingsSettingsApiKeysRouteImport.update({
+    id: '/settings/api-keys',
+    path: '/settings/api-keys',
+    getParentRoute: () => AppSettingsRoute,
   } as any)
 const AppAppReportsReportIdRoute = AppAppReportsReportIdRouteImport.update({
   id: '/reports/$reportId',
@@ -263,7 +310,7 @@ const AuthCallbackServerRoute = AuthCallbackServerRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/app': typeof AppAppRouteWithChildren
+  '/app': typeof AppSettingsRouteWithChildren
   '/auth': typeof AuthRouteWithChildren
   '/auth/login': typeof AuthLoginRoute
   '/auth/logout': typeof AuthLogoutRoute
@@ -274,9 +321,15 @@ export interface FileRoutesByFullPath {
   '/app/datasets/$datasetId': typeof AppAppDatasetsDatasetIdRoute
   '/app/metrics/$metricId': typeof AppAppMetricsMetricIdRoute
   '/app/reports/$reportId': typeof AppAppReportsReportIdRoute
+  '/app/settings/api-keys': typeof AppSettingsSettingsApiKeysRoute
+  '/app/settings/dataset-groups': typeof AppSettingsSettingsDatasetGroupsRoute
   '/app/settings/datasources': typeof AppSettingsSettingsDatasourcesRoute
+  '/app/settings/integrations': typeof AppSettingsSettingsIntegrationsRoute
+  '/app/settings/permission-groups': typeof AppSettingsSettingsPermissionGroupsRoute
   '/app/settings/profile': typeof AppSettingsSettingsProfileRoute
+  '/app/settings/security': typeof AppSettingsSettingsSecurityRoute
   '/app/settings/users': typeof AppSettingsSettingsUsersRoute
+  '/app/settings/workspace': typeof AppSettingsSettingsWorkspaceRoute
   '/app/chats': typeof AppAppChatsIndexRoute
   '/app/collections': typeof AppAppCollectionsIndexRoute
   '/app/dashboards': typeof AppAppDashboardsIndexRoute
@@ -300,7 +353,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/app': typeof AppAppRouteWithChildren
+  '/app': typeof AppSettingsRouteWithChildren
   '/auth': typeof AuthRouteWithChildren
   '/auth/login': typeof AuthLoginRoute
   '/auth/logout': typeof AuthLogoutRoute
@@ -311,9 +364,15 @@ export interface FileRoutesByTo {
   '/app/datasets/$datasetId': typeof AppAppDatasetsDatasetIdRoute
   '/app/metrics/$metricId': typeof AppAppMetricsMetricIdRoute
   '/app/reports/$reportId': typeof AppAppReportsReportIdRoute
+  '/app/settings/api-keys': typeof AppSettingsSettingsApiKeysRoute
+  '/app/settings/dataset-groups': typeof AppSettingsSettingsDatasetGroupsRoute
   '/app/settings/datasources': typeof AppSettingsSettingsDatasourcesRoute
+  '/app/settings/integrations': typeof AppSettingsSettingsIntegrationsRoute
+  '/app/settings/permission-groups': typeof AppSettingsSettingsPermissionGroupsRoute
   '/app/settings/profile': typeof AppSettingsSettingsProfileRoute
+  '/app/settings/security': typeof AppSettingsSettingsSecurityRoute
   '/app/settings/users': typeof AppSettingsSettingsUsersRoute
+  '/app/settings/workspace': typeof AppSettingsSettingsWorkspaceRoute
   '/app/chats': typeof AppAppChatsIndexRoute
   '/app/collections': typeof AppAppCollectionsIndexRoute
   '/app/dashboards': typeof AppAppDashboardsIndexRoute
@@ -341,6 +400,7 @@ export interface FileRoutesById {
   '/app': typeof AppRouteWithChildren
   '/auth': typeof AuthRouteWithChildren
   '/app/_app': typeof AppAppRouteWithChildren
+  '/app/_settings': typeof AppSettingsRouteWithChildren
   '/auth/login': typeof AuthLoginRoute
   '/auth/logout': typeof AuthLogoutRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
@@ -350,9 +410,15 @@ export interface FileRoutesById {
   '/app/_app/datasets/$datasetId': typeof AppAppDatasetsDatasetIdRoute
   '/app/_app/metrics/$metricId': typeof AppAppMetricsMetricIdRoute
   '/app/_app/reports/$reportId': typeof AppAppReportsReportIdRoute
+  '/app/_settings/settings/api-keys': typeof AppSettingsSettingsApiKeysRoute
+  '/app/_settings/settings/dataset-groups': typeof AppSettingsSettingsDatasetGroupsRoute
   '/app/_settings/settings/datasources': typeof AppSettingsSettingsDatasourcesRoute
+  '/app/_settings/settings/integrations': typeof AppSettingsSettingsIntegrationsRoute
+  '/app/_settings/settings/permission-groups': typeof AppSettingsSettingsPermissionGroupsRoute
   '/app/_settings/settings/profile': typeof AppSettingsSettingsProfileRoute
+  '/app/_settings/settings/security': typeof AppSettingsSettingsSecurityRoute
   '/app/_settings/settings/users': typeof AppSettingsSettingsUsersRoute
+  '/app/_settings/settings/workspace': typeof AppSettingsSettingsWorkspaceRoute
   '/app/_app/chats/': typeof AppAppChatsIndexRoute
   '/app/_app/collections/': typeof AppAppCollectionsIndexRoute
   '/app/_app/dashboards/': typeof AppAppDashboardsIndexRoute
@@ -389,9 +455,15 @@ export interface FileRouteTypes {
     | '/app/datasets/$datasetId'
     | '/app/metrics/$metricId'
     | '/app/reports/$reportId'
+    | '/app/settings/api-keys'
+    | '/app/settings/dataset-groups'
     | '/app/settings/datasources'
+    | '/app/settings/integrations'
+    | '/app/settings/permission-groups'
     | '/app/settings/profile'
+    | '/app/settings/security'
     | '/app/settings/users'
+    | '/app/settings/workspace'
     | '/app/chats'
     | '/app/collections'
     | '/app/dashboards'
@@ -426,9 +498,15 @@ export interface FileRouteTypes {
     | '/app/datasets/$datasetId'
     | '/app/metrics/$metricId'
     | '/app/reports/$reportId'
+    | '/app/settings/api-keys'
+    | '/app/settings/dataset-groups'
     | '/app/settings/datasources'
+    | '/app/settings/integrations'
+    | '/app/settings/permission-groups'
     | '/app/settings/profile'
+    | '/app/settings/security'
     | '/app/settings/users'
+    | '/app/settings/workspace'
     | '/app/chats'
     | '/app/collections'
     | '/app/dashboards'
@@ -455,6 +533,7 @@ export interface FileRouteTypes {
     | '/app'
     | '/auth'
     | '/app/_app'
+    | '/app/_settings'
     | '/auth/login'
     | '/auth/logout'
     | '/auth/reset-password'
@@ -464,9 +543,15 @@ export interface FileRouteTypes {
     | '/app/_app/datasets/$datasetId'
     | '/app/_app/metrics/$metricId'
     | '/app/_app/reports/$reportId'
+    | '/app/_settings/settings/api-keys'
+    | '/app/_settings/settings/dataset-groups'
     | '/app/_settings/settings/datasources'
+    | '/app/_settings/settings/integrations'
+    | '/app/_settings/settings/permission-groups'
     | '/app/_settings/settings/profile'
+    | '/app/_settings/settings/security'
     | '/app/_settings/settings/users'
+    | '/app/_settings/settings/workspace'
     | '/app/_app/chats/'
     | '/app/_app/collections/'
     | '/app/_app/dashboards/'
@@ -560,6 +645,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthLoginRouteImport
       parentRoute: typeof AuthRoute
     }
+    '/app/_settings': {
+      id: '/app/_settings'
+      path: ''
+      fullPath: '/app'
+      preLoaderRoute: typeof AppSettingsRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/app/_app': {
       id: '/app/_app'
       path: ''
@@ -623,26 +715,68 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAppChatsIndexRouteImport
       parentRoute: typeof AppAppRoute
     }
+    '/app/_settings/settings/workspace': {
+      id: '/app/_settings/settings/workspace'
+      path: '/settings/workspace'
+      fullPath: '/app/settings/workspace'
+      preLoaderRoute: typeof AppSettingsSettingsWorkspaceRouteImport
+      parentRoute: typeof AppSettingsRoute
+    }
     '/app/_settings/settings/users': {
       id: '/app/_settings/settings/users'
       path: '/settings/users'
       fullPath: '/app/settings/users'
       preLoaderRoute: typeof AppSettingsSettingsUsersRouteImport
-      parentRoute: typeof AppRoute
+      parentRoute: typeof AppSettingsRoute
+    }
+    '/app/_settings/settings/security': {
+      id: '/app/_settings/settings/security'
+      path: '/settings/security'
+      fullPath: '/app/settings/security'
+      preLoaderRoute: typeof AppSettingsSettingsSecurityRouteImport
+      parentRoute: typeof AppSettingsRoute
     }
     '/app/_settings/settings/profile': {
       id: '/app/_settings/settings/profile'
       path: '/settings/profile'
       fullPath: '/app/settings/profile'
       preLoaderRoute: typeof AppSettingsSettingsProfileRouteImport
-      parentRoute: typeof AppRoute
+      parentRoute: typeof AppSettingsRoute
+    }
+    '/app/_settings/settings/permission-groups': {
+      id: '/app/_settings/settings/permission-groups'
+      path: '/settings/permission-groups'
+      fullPath: '/app/settings/permission-groups'
+      preLoaderRoute: typeof AppSettingsSettingsPermissionGroupsRouteImport
+      parentRoute: typeof AppSettingsRoute
+    }
+    '/app/_settings/settings/integrations': {
+      id: '/app/_settings/settings/integrations'
+      path: '/settings/integrations'
+      fullPath: '/app/settings/integrations'
+      preLoaderRoute: typeof AppSettingsSettingsIntegrationsRouteImport
+      parentRoute: typeof AppSettingsRoute
     }
     '/app/_settings/settings/datasources': {
       id: '/app/_settings/settings/datasources'
       path: '/settings/datasources'
       fullPath: '/app/settings/datasources'
       preLoaderRoute: typeof AppSettingsSettingsDatasourcesRouteImport
-      parentRoute: typeof AppRoute
+      parentRoute: typeof AppSettingsRoute
+    }
+    '/app/_settings/settings/dataset-groups': {
+      id: '/app/_settings/settings/dataset-groups'
+      path: '/settings/dataset-groups'
+      fullPath: '/app/settings/dataset-groups'
+      preLoaderRoute: typeof AppSettingsSettingsDatasetGroupsRouteImport
+      parentRoute: typeof AppSettingsRoute
+    }
+    '/app/_settings/settings/api-keys': {
+      id: '/app/_settings/settings/api-keys'
+      path: '/settings/api-keys'
+      fullPath: '/app/settings/api-keys'
+      preLoaderRoute: typeof AppSettingsSettingsApiKeysRouteImport
+      parentRoute: typeof AppSettingsRoute
     }
     '/app/_app/reports/$reportId': {
       id: '/app/_app/reports/$reportId'
@@ -929,18 +1063,43 @@ const AppAppRouteChildren: AppAppRouteChildren = {
 const AppAppRouteWithChildren =
   AppAppRoute._addFileChildren(AppAppRouteChildren)
 
+interface AppSettingsRouteChildren {
+  AppSettingsSettingsApiKeysRoute: typeof AppSettingsSettingsApiKeysRoute
+  AppSettingsSettingsDatasetGroupsRoute: typeof AppSettingsSettingsDatasetGroupsRoute
+  AppSettingsSettingsDatasourcesRoute: typeof AppSettingsSettingsDatasourcesRoute
+  AppSettingsSettingsIntegrationsRoute: typeof AppSettingsSettingsIntegrationsRoute
+  AppSettingsSettingsPermissionGroupsRoute: typeof AppSettingsSettingsPermissionGroupsRoute
+  AppSettingsSettingsProfileRoute: typeof AppSettingsSettingsProfileRoute
+  AppSettingsSettingsSecurityRoute: typeof AppSettingsSettingsSecurityRoute
+  AppSettingsSettingsUsersRoute: typeof AppSettingsSettingsUsersRoute
+  AppSettingsSettingsWorkspaceRoute: typeof AppSettingsSettingsWorkspaceRoute
+}
+
+const AppSettingsRouteChildren: AppSettingsRouteChildren = {
+  AppSettingsSettingsApiKeysRoute: AppSettingsSettingsApiKeysRoute,
+  AppSettingsSettingsDatasetGroupsRoute: AppSettingsSettingsDatasetGroupsRoute,
+  AppSettingsSettingsDatasourcesRoute: AppSettingsSettingsDatasourcesRoute,
+  AppSettingsSettingsIntegrationsRoute: AppSettingsSettingsIntegrationsRoute,
+  AppSettingsSettingsPermissionGroupsRoute:
+    AppSettingsSettingsPermissionGroupsRoute,
+  AppSettingsSettingsProfileRoute: AppSettingsSettingsProfileRoute,
+  AppSettingsSettingsSecurityRoute: AppSettingsSettingsSecurityRoute,
+  AppSettingsSettingsUsersRoute: AppSettingsSettingsUsersRoute,
+  AppSettingsSettingsWorkspaceRoute: AppSettingsSettingsWorkspaceRoute,
+}
+
+const AppSettingsRouteWithChildren = AppSettingsRoute._addFileChildren(
+  AppSettingsRouteChildren,
+)
+
 interface AppRouteChildren {
   AppAppRoute: typeof AppAppRouteWithChildren
-  AppSettingsSettingsDatasourcesRoute: typeof AppSettingsSettingsDatasourcesRoute
-  AppSettingsSettingsProfileRoute: typeof AppSettingsSettingsProfileRoute
-  AppSettingsSettingsUsersRoute: typeof AppSettingsSettingsUsersRoute
+  AppSettingsRoute: typeof AppSettingsRouteWithChildren
 }
 
 const AppRouteChildren: AppRouteChildren = {
   AppAppRoute: AppAppRouteWithChildren,
-  AppSettingsSettingsDatasourcesRoute: AppSettingsSettingsDatasourcesRoute,
-  AppSettingsSettingsProfileRoute: AppSettingsSettingsProfileRoute,
-  AppSettingsSettingsUsersRoute: AppSettingsSettingsUsersRoute,
+  AppSettingsRoute: AppSettingsRouteWithChildren,
 }
 
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)

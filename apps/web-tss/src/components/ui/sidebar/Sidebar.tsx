@@ -1,8 +1,11 @@
 'use client';
 
 import React from 'react';
+import {
+  useAppSplitterAnimateWidth,
+  useAppSplitterSizesInPixels,
+} from '@/components/ui/layouts/AppSplitter/AppSplitterProvider';
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
-import { useAppSplitterContext } from '../layouts/AppSplitter';
 import { COLLAPSED_SIDEBAR_WIDTH, DEFAULT_SIDEBAR_WIDTH } from './config';
 import type { ISidebarGroup, ISidebarList, SidebarProps } from './interfaces';
 import { SidebarCollapsible } from './SidebarCollapsible';
@@ -11,8 +14,8 @@ import { SidebarItem } from './SidebarItem';
 
 export const Sidebar: React.FC<SidebarProps> = React.memo(
   ({ header, content, footer, useCollapsible = true, onCollapseClick }) => {
-    const animateWidth = useAppSplitterContext((x) => x.animateWidth);
-    const getSizesInPixels = useAppSplitterContext((x) => x.getSizesInPixels);
+    const animateWidth = useAppSplitterAnimateWidth();
+    const getSizesInPixels = useAppSplitterSizesInPixels();
 
     const onCollapseClickPreflight = useMemoizedFn(() => {
       const sizes = getSizesInPixels();

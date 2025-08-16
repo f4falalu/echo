@@ -1,5 +1,7 @@
+import { Link, type LinkProps } from '@tanstack/react-router';
 import * as React from 'react';
 import { cn } from '@/lib/classMerge';
+import type { OptionsTo } from '@/types/routes';
 import { ChevronLeft } from '../icons';
 import { Button } from './Button';
 
@@ -9,13 +11,15 @@ interface BackButtonProps {
   size?: 'medium' | 'large';
   className?: string;
   style?: React.CSSProperties;
-  linkUrl?: string;
+  linkUrl?: OptionsTo;
+  activeProps?: LinkProps['activeProps'];
+  activeOptions?: LinkProps['activeOptions'];
 }
 
 export const BackButton: React.FC<BackButtonProps> = React.memo(
-  ({ onClick, text = 'Back', className = '', style, linkUrl }) => {
+  ({ onClick, text = 'Back', className = '', style, ...rest }) => {
     return (
-      <LinkWrapper linkUrl={linkUrl}>
+      <LinkWrapper {...rest}>
         <Button
           prefix={
             <div className="group-hover:text-foreground flex text-xs">
@@ -36,12 +40,15 @@ export const BackButton: React.FC<BackButtonProps> = React.memo(
 
 BackButton.displayName = 'BackButton';
 
-const LinkWrapper: React.FC<{ children: React.ReactNode; linkUrl?: string }> = ({
-  children,
-  linkUrl,
-}) => {
+const LinkWrapper: React.FC<
+  { children: React.ReactNode } & Pick<BackButtonProps, 'linkUrl' | 'activeProps' | 'activeOptions'>
+> = ({ children, linkUrl, ...rest }) => {
   if (linkUrl) {
-    return <a href={linkUrl}>{children}</a>;
+    return (
+      <Link {...linkUrl} {...rest}>
+        {children}
+      </Link>
+    );
   }
   return <>{children}</>;
 };

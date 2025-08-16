@@ -3,7 +3,10 @@ import { prefetchGetUserFavorites } from '@/api/buster_rest/users/favorites/quer
 import { prefetchGetMyUserInfo } from '@/api/buster_rest/users/queryRequests';
 import { getAppLayout } from '@/api/server-functions/getAppLayout';
 import { AppProviders } from '@/context/Providers';
-import { PRIMARY_APP_LAYOUT_ID } from '@/layouts/PrimaryAppLayout';
+import type { LayoutSize } from '../components/ui/layouts/AppLayout';
+
+const PRIMARY_APP_LAYOUT_ID = 'primary-sidebar';
+const DEFAULT_LAYOUT: LayoutSize = ['230px', 'auto'];
 
 export const Route = createFileRoute('/app')({
   beforeLoad: async ({ context, location }) => {
@@ -28,6 +31,8 @@ export const Route = createFileRoute('/app')({
     ]);
     return {
       initialLayout,
+      layoutId: PRIMARY_APP_LAYOUT_ID,
+      defaultLayout: DEFAULT_LAYOUT,
     };
   },
   component: () => {

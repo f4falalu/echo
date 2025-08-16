@@ -1,9 +1,10 @@
 import type { User } from '@supabase/supabase-js';
 import type { QueryClient } from '@tanstack/react-query';
-import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
 import { createRouter as createTanstackRouter } from '@tanstack/react-router';
-import { setupRouterSsrQueryIntegration } from '@tanstack/react-router-ssr-query';
 import { routerWithQueryClient } from '@tanstack/react-router-with-query';
+import { LazyGlobalErrorCard } from '@/components/features/global/LazyGlobalErrorCard';
+import { NotFoundCard } from '@/components/features/global/NotFoundCard';
+import { FileIndeterminateLoader } from '@/components/features/loaders/FileIndeterminateLoader';
 import * as TanstackQuery from './integrations/tanstack-query/query-client';
 import { routeTree } from './routeTree.gen';
 
@@ -22,7 +23,9 @@ export const createRouter = () => {
       context: { queryClient, user: null }, //context is defined in the root route
       scrollRestoration: true,
       defaultPreload: 'intent',
-      defaultPendingComponent: () => <div>Loading...</div>,
+      defaultPendingComponent: FileIndeterminateLoader,
+      defaultErrorComponent: LazyGlobalErrorCard,
+      defaultNotFoundComponent: NotFoundCard,
       Wrap: (props) => {
         return (
           <TanstackQuery.Provider queryClient={queryClient}>
@@ -33,13 +36,6 @@ export const createRouter = () => {
     }),
     queryClient
   );
-
-  // setupRouterSsrQueryIntegration({
-  //   router,
-  //   queryClient,
-  //   // Disable auto-wrapping since we'll handle it ourselves
-  //   wrapQueryClient: false,
-  // });
 
   return router;
 };

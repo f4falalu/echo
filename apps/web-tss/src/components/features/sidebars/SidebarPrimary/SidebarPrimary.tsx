@@ -1,19 +1,8 @@
 'use client';
 
-import type { ShareAssetType } from '@buster/server-shared/share';
-import {
-  Link,
-  MatchRoute,
-  matchByPath,
-  matchPathname,
-  type RouteMatch,
-  useLinkProps,
-  useMatch,
-  useMatches,
-  useMatchRoute,
-  useNavigate,
-} from '@tanstack/react-router';
-import React, { useMemo } from 'react';
+import { Link, useNavigate } from '@tanstack/react-router';
+import type React from 'react';
+import { useMemo } from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
 import {
   useIsAnonymousUser,
@@ -23,6 +12,7 @@ import {
 } from '@/api/buster_rest/users/useGetUserInfo';
 import { BusterLogo } from '@/assets/svg/BusterLogo';
 import { BusterLogoWithText } from '@/assets/svg/BusterLogoWithText';
+import { ASSET_ICONS } from '@/components/features/icons/assetIcons';
 import { Button } from '@/components/ui/buttons';
 import { Flag, Gear, House4, Plus, Table, UnorderedList2 } from '@/components/ui/icons';
 import { PencilSquareIcon } from '@/components/ui/icons/customIcons/Pencil_Square';
@@ -41,10 +31,9 @@ import { useContactSupportModalStore, useInviteModalStore } from '@/context/Bust
 import { toggleContactSupportModal } from '@/context/BusterAppLayout/useContactSupportModalStore';
 import { toggleInviteModal } from '@/context/BusterAppLayout/useInviteModalStore';
 import { cn } from '@/lib/classMerge';
-import { ASSET_ICONS } from '../icons/assetIcons';
 // import { InvitePeopleModal } from '../modal/InvitePeopleModal';
 // import { SupportModal } from '../modal/SupportModal';
-import { SidebarUserFooter } from './SidebarUserFooter';
+import { SidebarUserFooter } from '../SidebarUserFooter';
 import { useFavoriteSidebarPanel } from './useFavoritesSidebarPanel';
 
 const topItems: ISidebarList = {
@@ -156,7 +145,7 @@ const tryGroup = (showInvitePeople: boolean): ISidebarGroup => ({
   }, [] as ISidebarItem[]),
 });
 
-export const SidebarPrimary = React.memo(() => {
+export const SidebarPrimary = () => {
   const isAdmin = useIsUserAdmin();
   const restrictNewUserInvitations = useRestrictNewUserInvitations();
   const isUserRegistered = useIsUserRegistered();
@@ -186,21 +175,24 @@ export const SidebarPrimary = React.memo(() => {
     items.push(tryGroupMemoized);
 
     return items;
-  }, [isUserRegistered, restrictNewUserInvitations, favoritesDropdownItems, isAdmin, topItems]);
+  }, [isUserRegistered, restrictNewUserInvitations, favoritesDropdownItems, isAdmin]);
 
   return (
     <>
       <Sidebar
         content={sidebarItems}
-        header={<SidebarPrimaryHeader hideActions={!isUserRegistered} />}
-        footer={<SidebarUserFooter />}
+        header={useMemo(
+          () => <SidebarPrimaryHeader hideActions={!isUserRegistered} />,
+          [isUserRegistered]
+        )}
+        footer={useMemo(() => <SidebarUserFooter />, [])}
         useCollapsible={isUserRegistered}
       />
 
       <GlobalModals />
     </>
   );
-});
+};
 
 SidebarPrimary.displayName = 'SidebarPrimary';
 

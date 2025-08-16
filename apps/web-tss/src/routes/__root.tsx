@@ -1,6 +1,4 @@
 import { createRootRouteWithContext, HeadContent, Link, Scripts } from '@tanstack/react-router';
-import { LazyGlobalErrorCard } from '@/components/features/global/LazyGlobalErrorCard';
-import { NotFoundCard } from '@/components/features/global/NotFoundCard';
 import { RootProviders } from '@/context/Providers';
 import { getSupabaseUser } from '../integrations/supabase/getSupabaseUserServer';
 import { TanstackDevtools } from '../integrations/tanstack-dev-tools/tanstack-devtools';
@@ -16,9 +14,7 @@ export const Route = createRootRouteWithContext<AppRouterContext>()({
     ],
     links: [{ rel: 'stylesheet', href: appCss }],
   }),
-  notFoundComponent: NotFoundCard,
   shellComponent: RootDocument,
-  errorComponent: LazyGlobalErrorCard,
   beforeLoad: async () => {
     const supabaseConfig = await getSupabaseUser();
     return supabaseConfig;

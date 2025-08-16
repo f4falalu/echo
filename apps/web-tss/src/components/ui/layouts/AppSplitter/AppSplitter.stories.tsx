@@ -6,7 +6,11 @@ import { Text } from '@/components/ui/typography/Text';
 import { Title } from '@/components/ui/typography/Title';
 import { AppSplitter } from './AppSplitter';
 import type { AppSplitterRef, LayoutSize } from './AppSplitter.types';
-import { useAppSplitterContext } from './AppSplitterProvider';
+import {
+  useAppSplitterAnimateWidth,
+  useAppSplitterSizes,
+  useAppSplitterSizesInPixels,
+} from './AppSplitterProvider';
 import { createAutoSaveId } from './create-auto-save-id';
 
 const meta: Meta<typeof AppSplitter> = {
@@ -398,9 +402,9 @@ export const AnimationViaRef: Story = {
 
 // Story with animation controls via context
 const ContextControlPanel = () => {
-  const animateWidth = useAppSplitterContext((ctx) => ctx.animateWidth);
-  const sizes = useAppSplitterContext((ctx) => ctx.sizes);
-  const getSizesInPixels = useAppSplitterContext((ctx) => ctx.getSizesInPixels);
+  const animateWidth = useAppSplitterAnimateWidth();
+  const sizes = useAppSplitterSizes();
+  const getSizesInPixels = useAppSplitterSizesInPixels();
 
   const handleGetSizes = () => {
     const [leftPx, rightPx] = getSizesInPixels();

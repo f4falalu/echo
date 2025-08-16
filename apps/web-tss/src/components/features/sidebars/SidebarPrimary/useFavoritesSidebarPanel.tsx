@@ -5,11 +5,11 @@ import {
   useGetUserFavorites,
   useUpdateUserFavorites,
 } from '@/api/buster_rest/users';
+import { assetTypeToIcon } from '@/components/features/icons/assetIcons';
 import type { ISidebarGroup, ISidebarItem } from '@/components/ui/sidebar';
+import { useMount } from '@/hooks/useMount';
 import { usePathname } from '@/hooks/useRouterHooks';
 import { assetParamsToRoute } from '@/lib/assets/assetParamsToRoute';
-import { useMount } from '../../../hooks/useMount';
-import { assetTypeToIcon } from '../icons/assetIcons';
 import { getFavoriteRoute } from './getFavoriteRoute';
 
 export const useFavoriteSidebarPanel = (): ISidebarGroup | null => {

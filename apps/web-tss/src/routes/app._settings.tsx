@@ -1,19 +1,19 @@
 import { createFileRoute, getRouteApi, Outlet } from '@tanstack/react-router';
-import { PrimaryAppLayout } from '@/layouts/PrimaryAppLayout';
+import { SettingsAppLayout } from '../layouts/SettingsAppLayout';
 
 const routeApi = getRouteApi('/app');
 
-export const Route = createFileRoute('/app/_app')({
+export const Route = createFileRoute('/app/_settings')({
   component: () => {
-    const { initialLayout, defaultLayout, layoutId } = routeApi.useLoaderData();
+    const { initialLayout, layoutId, defaultLayout } = routeApi.useLoaderData();
     return (
-      <PrimaryAppLayout
+      <SettingsAppLayout
         initialLayout={initialLayout}
         layoutId={layoutId}
         defaultLayout={defaultLayout}
       >
         <Outlet />
-      </PrimaryAppLayout>
+      </SettingsAppLayout>
     );
   },
 });

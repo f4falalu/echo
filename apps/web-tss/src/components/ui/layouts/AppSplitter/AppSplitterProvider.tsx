@@ -23,5 +23,20 @@ export const AppSplitterProvider: React.FC<
   return <AppSplitterContext.Provider value={props}>{children}</AppSplitterContext.Provider>;
 };
 
-export const useAppSplitterContext = <T,>(selector: (value: AppSplitterProviderProps) => T) =>
+const useAppSplitterContext = <T,>(selector: (value: AppSplitterProviderProps) => T) =>
   useContextSelector(AppSplitterContext, selector);
+
+const stableAnimateWidth = (p: AppSplitterProviderProps) => p.animateWidth;
+export const useAppSplitterAnimateWidth = () => {
+  return useAppSplitterContext(stableAnimateWidth);
+};
+
+const stableGetSizesInPixels = (p: AppSplitterProviderProps) => p.getSizesInPixels;
+export const useAppSplitterSizesInPixels = () => {
+  return useAppSplitterContext(stableGetSizesInPixels);
+};
+
+const stableSizes = (p: AppSplitterProviderProps) => p.sizes;
+export const useAppSplitterSizes = () => {
+  return useAppSplitterContext(stableSizes);
+};
