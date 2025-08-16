@@ -7,7 +7,6 @@ import { useLayoutEffect, useState } from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
 import mainApi, { mainApiV2 } from '@/api/buster_rest/instances';
 import { defaultAxiosRequestHandler } from '@/api/createAxiosInstance';
-import nextApi from '@/api/next/instances';
 import { isDev } from '@/config';
 import { useSupabaseContext } from '../Supabase/SupabaseContextProvider';
 import { persistOptions } from './createPersister';
@@ -48,10 +47,8 @@ export const BusterReactQueryProvider = ({ children }: { children: React.ReactNo
   useLayoutEffect(() => {
     //reset all request interceptors
     mainApi.interceptors.request.eject(0);
-    nextApi.interceptors.request.eject(0);
     mainApiV2.interceptors.request.eject(0);
     mainApi.interceptors.request.use((v) => defaultAxiosRequestHandler(v, { checkTokenValidity }));
-    nextApi.interceptors.request.use((v) => defaultAxiosRequestHandler(v, { checkTokenValidity }));
     mainApiV2.interceptors.request.use((v) =>
       defaultAxiosRequestHandler(v, { checkTokenValidity })
     );

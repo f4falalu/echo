@@ -7,7 +7,6 @@ packages:
   - "apps/server"
   - "apps/electric-server"
   - "apps/trigger"
-  - "apps/api"
   - "apps/web-tss"
 
 catalog:
