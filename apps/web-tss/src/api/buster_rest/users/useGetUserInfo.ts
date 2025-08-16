@@ -74,3 +74,9 @@ export const useIsUserRegistered = () => {
   const isUserRegistered = !!userOrganization?.id && !!userBasicInfo?.name && !isAnonymousUser;
   return isUserRegistered;
 };
+
+export const useGetUserRole = () => {
+  const userOrganization = useGetUserOrganization();
+  const userRole = userOrganization?.role;
+  return userRole;
+};

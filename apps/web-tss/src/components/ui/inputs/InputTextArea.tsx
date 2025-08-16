@@ -1,7 +1,7 @@
 import { cva, type VariantProps } from 'class-variance-authority';
 import React, { useEffect, useRef } from 'react';
-import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import { cn } from '@/lib/classMerge';
+import { useMounted } from '../../../hooks/useMount';
 import { inputVariants } from './Input';
 
 const inputTextAreaVariants = inputVariants;
@@ -38,6 +38,8 @@ export interface InputTextAreaProps
   onPressEnter?: (e: React.KeyboardEvent<HTMLTextAreaElement>) => void;
 }
 
+const isServer = typeof window === 'undefined';
+
 export const InputTextArea = React.forwardRef<HTMLTextAreaElement, InputTextAreaProps>(
   (
     {
@@ -57,17 +59,18 @@ export const InputTextArea = React.forwardRef<HTMLTextAreaElement, InputTextArea
     const paddingRef = useRef<PaddingValues | null>(null);
     const lastWidthRef = useRef<number | null>(null);
     const resizeObserverRef = useRef<ResizeObserver | null>(null);
+    const mounted = useMounted();
 
-    const combinedRef = useMemoizedFn((node: HTMLTextAreaElement) => {
+    const combinedRef = (node: HTMLTextAreaElement) => {
       textareaRef.current = node;
       if (typeof ref === 'function') {
         ref(node);
       } else if (ref) {
         ref.current = node;
       }
-    });
+    };
 
-    const getPaddingValues = useMemoizedFn(() => {
+    const getPaddingValues = () => {
       if (paddingRef.current) return paddingRef.current;
 
       const textarea = textareaRef.current;
@@ -79,11 +82,22 @@ export const InputTextArea = React.forwardRef<HTMLTextAreaElement, InputTextArea
         bottom: Number.parseFloat(computedStyle.paddingBottom),
       };
       return paddingRef.current;
-    });
+    };
 
-    const calculateMinHeight = useMemoizedFn(() => {
+    const calculateMinHeight = () => {
       const textarea = textareaRef.current;
-      if (!textarea || !autoResize) return null;
+
+      if (!mounted && autoResize) {
+        const lineHeight = 16.9;
+        const top = 16;
+        const bottom = 10;
+        const value = (autoResize.minRows || rows) * lineHeight + top + bottom;
+        return value;
+      }
+
+      if (!textarea || !autoResize) {
+        return;
+      }
 
       const computedStyle = window.getComputedStyle(textarea);
       const lineHeight =
@@ -91,10 +105,12 @@ export const InputTextArea = React.forwardRef<HTMLTextAreaElement, InputTextArea
         Number.parseFloat(computedStyle.fontSize) * 1.2;
       const { top, bottom } = getPaddingValues();
 
-      return (autoResize.minRows || rows) * lineHeight + top + bottom;
-    });
+      const value = (autoResize.minRows || rows) * lineHeight + top + bottom;
 
-    const adjustHeight = useMemoizedFn(() => {
+      return value;
+    };
+
+    const adjustHeight = () => {
       const textarea = textareaRef.current;
       if (!textarea || !autoResize) return;
 
@@ -137,11 +153,11 @@ export const InputTextArea = React.forwardRef<HTMLTextAreaElement, InputTextArea
 
       // Restore scroll position
       textarea.scrollTop = scrollTop;
-    });
+    };
 
-    const handleInput = useMemoizedFn(() => {
+    const handleInput = () => {
       requestAnimationFrame(adjustHeight);
-    });
+    };
 
     const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
       if (e.key === 'Enter') {
@@ -157,7 +173,7 @@ export const InputTextArea = React.forwardRef<HTMLTextAreaElement, InputTextArea
     };
 
     // Handle width changes that affect text wrapping
-    const handleResize = useMemoizedFn((entries: ResizeObserverEntry[]) => {
+    const handleResize = (entries: ResizeObserverEntry[]) => {
       const entry = entries[0];
       if (!entry) return;
 
@@ -174,11 +190,11 @@ export const InputTextArea = React.forwardRef<HTMLTextAreaElement, InputTextArea
       }
 
       lastWidthRef.current = newWidth;
-    });
+    };
 
     useEffect(() => {
       const textarea = textareaRef.current;
-      if (!textarea || !autoResize) return;
+      if (!textarea || !autoResize || !mounted) return;
 
       const minHeight = calculateMinHeight();
       if (minHeight) {
@@ -210,7 +226,7 @@ export const InputTextArea = React.forwardRef<HTMLTextAreaElement, InputTextArea
           resizeObserverRef.current.disconnect();
         }
       };
-    }, [autoResize]);
+    }, [autoResize, mounted]);
 
     useEffect(() => {
       if (!props.value) {
@@ -233,6 +249,10 @@ export const InputTextArea = React.forwardRef<HTMLTextAreaElement, InputTextArea
         )}
         rows={autoResize ? 1 : rows}
         onKeyDown={handleKeyDown}
+        style={{
+          ...style,
+          minHeight: autoResize ? calculateMinHeight() : undefined,
+        }}
         {...props}
       />
     );

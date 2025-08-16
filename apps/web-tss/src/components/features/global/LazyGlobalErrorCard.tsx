@@ -32,3 +32,11 @@ export const LazyGlobalErrorCard: ErrorRouteComponent = (props) => {
     </Suspense>
   );
 };
+
+export const LazyCatchErrorCard = (error: Error) => {
+  return (
+    <Suspense fallback={<ErrorLoadingFallback />}>
+      <GlobalErrorCard error={error} reset={() => {}} />
+    </Suspense>
+  );
+};

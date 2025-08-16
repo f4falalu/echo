@@ -21,7 +21,6 @@ export const Route = createFileRoute('/app')({
       throw redirect({ to: '/app/home' });
     }
   },
-
   loader: async ({ context }) => {
     const { queryClient } = context;
     const [initialLayout] = await Promise.all([

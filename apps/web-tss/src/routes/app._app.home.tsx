@@ -1,7 +1,19 @@
 import { createFileRoute } from '@tanstack/react-router';
-import { getAppLayout } from '@/api/server-functions/getAppLayout';
+import { z } from 'zod';
+import { AppPageLayout } from '@/components/ui/layouts/AppPageLayout';
+import { HomePageController, HomePageHeader } from '@/controllers/HomePage';
 
-const layoutId = 'primary-layout';
+const searchParamsSchema = z.object({
+  q: z.string().optional(),
+  submit: z
+    .preprocess((val) => {
+      if (typeof val === 'string') {
+        return val === 'true';
+      }
+      return val;
+    }, z.boolean())
+    .optional(),
+});
 
 export const Route = createFileRoute('/app/_app/home')({
   head: () => ({
@@ -12,17 +24,16 @@ export const Route = createFileRoute('/app/_app/home')({
       { name: 'og:description', content: 'Buster home dashboard' },
     ],
   }),
+  validateSearch: searchParamsSchema,
   component: RouteComponent,
-  loader: async () => {
-    const initialLayout = await getAppLayout({ data: { id: layoutId, preservedSide: 'right' } });
-    return {
-      initialLayout,
-    };
-  },
 });
 
 function RouteComponent() {
-  const { initialLayout } = Route.useLoaderData();
+  const { q, submit } = Route.useSearch();
 
-  return <div className=" h-full">asdf</div>;
+  return (
+    <AppPageLayout headerSizeVariant="list" header={<HomePageHeader />}>
+      <HomePageController initialValue={q} autoSubmit={submit} />
+    </AppPageLayout>
+  );
 }

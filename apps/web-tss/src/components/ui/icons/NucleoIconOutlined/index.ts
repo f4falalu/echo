@@ -1,3 +1,4 @@
+export { default as AlertWarning } from './alert-warning';
 export { default as ArrowRight } from './arrow-right'; // Arrow pointing right icon
 export { default as ArrowRightFromLine } from './arrow-right-from-line'; // Arrow right from line icon
 export { default as ArrowUp } from './arrow-up';

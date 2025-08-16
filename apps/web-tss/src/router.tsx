@@ -2,7 +2,10 @@ import type { User } from '@supabase/supabase-js';
 import type { QueryClient } from '@tanstack/react-query';
 import { createRouter as createTanstackRouter } from '@tanstack/react-router';
 import { routerWithQueryClient } from '@tanstack/react-router-with-query';
-import { LazyGlobalErrorCard } from '@/components/features/global/LazyGlobalErrorCard';
+import {
+  LazyCatchErrorCard,
+  LazyGlobalErrorCard,
+} from '@/components/features/global/LazyGlobalErrorCard';
 import { NotFoundCard } from '@/components/features/global/NotFoundCard';
 import { FileIndeterminateLoader } from '@/components/features/loaders/FileIndeterminateLoader';
 import * as TanstackQuery from './integrations/tanstack-query/query-client';
@@ -26,6 +29,7 @@ export const createRouter = () => {
       defaultPendingComponent: FileIndeterminateLoader,
       defaultErrorComponent: LazyGlobalErrorCard,
       defaultNotFoundComponent: NotFoundCard,
+      defaultOnCatch: LazyCatchErrorCard,
       Wrap: (props) => {
         return (
           <TanstackQuery.Provider queryClient={queryClient}>

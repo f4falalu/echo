@@ -2,6 +2,7 @@ import { createRootRouteWithContext, HeadContent, Link, Scripts } from '@tanstac
 import { RootProviders } from '@/context/Providers';
 import shareImage from '../assets/png/default_preview.png';
 import favicon from '../assets/png/favicon.ico';
+import { LazyGlobalErrorCard } from '../components/features/global/LazyGlobalErrorCard';
 import { getSupabaseUser } from '../integrations/supabase/getSupabaseUserServer';
 import { TanstackDevtools } from '../integrations/tanstack-dev-tools/tanstack-devtools';
 import type { AppRouterContext } from '../router';
