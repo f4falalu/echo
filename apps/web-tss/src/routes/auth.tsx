@@ -5,18 +5,7 @@ import { AuthLayout } from '@/components/features/auth/AuthLayout';
 // Wraps auth pages in a centered container with room for branding and future UI
 export const Route = createFileRoute('/auth')({
   head: () => ({
-    meta: [
-      {
-        charSet: 'utf-8',
-      },
-      {
-        name: 'viewport',
-        content: 'width=device-width, initial-scale=1',
-      },
-      {
-        title: 'Buster — Auth',
-      },
-    ],
+    meta: [{ title: 'Buster — Auth' }],
   }),
   component: () => <AuthLayout>{<Outlet />}</AuthLayout>,
 });

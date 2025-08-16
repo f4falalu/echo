@@ -1,5 +1,7 @@
 import { createRootRouteWithContext, HeadContent, Link, Scripts } from '@tanstack/react-router';
 import { RootProviders } from '@/context/Providers';
+import shareImage from '../assets/png/default_preview.png';
+import favicon from '../assets/png/favicon.ico';
 import { getSupabaseUser } from '../integrations/supabase/getSupabaseUserServer';
 import { TanstackDevtools } from '../integrations/tanstack-dev-tools/tanstack-devtools';
 import type { AppRouterContext } from '../router';
@@ -9,10 +11,23 @@ export const Route = createRootRouteWithContext<AppRouterContext>()({
   head: () => ({
     meta: [
       { charSet: 'utf-8' },
-      { name: 'viewport', content: 'width=device-width, initial-scale=1' },
       { title: 'Buster' },
+      { name: 'viewport', content: 'width=1024, initial-scale=1, user-scalable=no' },
+      { name: 'description', content: 'Buster.so is the open source, AI-native data platform.' },
+      { name: 'og:image', content: shareImage },
+      { name: 'og:title', content: 'Buster' },
+      { name: 'og:description', content: 'Buster.so is the open source, AI-native data platform.' },
+      { name: 'og:url', content: 'https://buster.so' },
+      { name: 'og:type', content: 'website' },
+      { name: 'og:locale', content: 'en_US' },
+      { name: 'og:site_name', content: 'Buster' },
     ],
-    links: [{ rel: 'stylesheet', href: appCss }],
+    links: [
+      { rel: 'stylesheet', href: appCss },
+      { rel: 'icon', href: favicon },
+      { rel: 'apple-touch-icon', href: favicon },
+      { rel: 'manifest', href: '/manifest.json' },
+    ],
   }),
   shellComponent: RootDocument,
   beforeLoad: async () => {

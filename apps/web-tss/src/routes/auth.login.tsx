@@ -7,7 +7,13 @@ const searchParamsSchema = z.object({
 });
 
 export const Route = createFileRoute('/auth/login')({
-  // Validate and type the `next` search param if present
+  head: () => ({
+    meta: [
+      { title: 'Login' },
+      { name: 'og:title', content: 'Login' },
+      { name: 'og:description', content: 'Login to your Buster account' },
+    ],
+  }),
   validateSearch: searchParamsSchema,
   component: LoginComp,
 });
