@@ -6,7 +6,14 @@ const searchParamsSchema = z.object({
 });
 
 export const Route = createFileRoute('/app/_app/reports/$reportId')({
-  validateSearch: searchParamsSchema,
+  head: () => ({
+    meta: [
+      { title: 'Report' },
+      { name: 'description', content: 'View detailed report data and analysis' },
+      { name: 'og:title', content: 'Report' },
+      { name: 'og:description', content: 'View detailed report data and analysis' },
+    ],
+  }),
   component: RouteComponent,
 });
 

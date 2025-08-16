@@ -10,6 +10,7 @@ export const Route = createFileRoute('/auth/login')({
   head: () => ({
     meta: [
       { title: 'Login' },
+      { name: 'description', content: 'Login to your Buster account' },
       { name: 'og:title', content: 'Login' },
       { name: 'og:description', content: 'Login to your Buster account' },
     ],

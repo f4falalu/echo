@@ -9,10 +9,17 @@ const searchParamsSchema = z.object({
 export const Route = createFileRoute(
   '/app/_app/chats/$chatId/dashboards/$dashboardId/metrics/$metricId'
 )({
-  validateSearch: searchParamsSchema,
+  head: () => ({
+    meta: [
+      { title: 'Chat Dashboard Metric' },
+      { name: 'description', content: 'View metric within chat dashboard context' },
+      { name: 'og:title', content: 'Chat Dashboard Metric' },
+      { name: 'og:description', content: 'View metric within chat dashboard context' },
+    ],
+  }),
   component: RouteComponent,
 });
 
 function RouteComponent() {
-  return <div>Hello "/app/chats/$chatId/dashboard/$dashboardId/metrics/$metricId"!</div>;
+  return <div>Hello "/app/chats/$chatId/dashboards/$dashboardId/metrics/$metricId"!</div>;
 }

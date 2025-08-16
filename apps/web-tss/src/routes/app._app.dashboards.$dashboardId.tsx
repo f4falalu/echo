@@ -6,6 +6,14 @@ const searchParamsSchema = z.object({
 });
 
 export const Route = createFileRoute('/app/_app/dashboards/$dashboardId')({
+  head: () => ({
+    meta: [
+      { title: 'Dashboard' },
+      { name: 'description', content: 'View and interact with your dashboard' },
+      { name: 'og:title', content: 'Dashboard' },
+      { name: 'og:description', content: 'View and interact with your dashboard' },
+    ],
+  }),
   validateSearch: searchParamsSchema,
   component: RouteComponent,
 });

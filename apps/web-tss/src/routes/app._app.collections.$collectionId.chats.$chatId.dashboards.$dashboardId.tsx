@@ -8,6 +8,14 @@ const searchParamsSchema = z.object({
 export const Route = createFileRoute(
   '/app/_app/collections/$collectionId/chats/$chatId/dashboards/$dashboardId'
 )({
+  head: () => ({
+    meta: [
+      { title: 'Collection Chat Dashboard' },
+      { name: 'description', content: 'View dashboard within collection chat context' },
+      { name: 'og:title', content: 'Collection Chat Dashboard' },
+      { name: 'og:description', content: 'View dashboard within collection chat context' },
+    ],
+  }),
   validateSearch: searchParamsSchema,
   component: RouteComponent,
 });
