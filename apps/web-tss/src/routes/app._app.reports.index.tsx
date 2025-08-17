@@ -1,4 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router';
+import { Text } from '@/components/ui/typography/Text';
+import { ReportsListController } from '@/controllers/ReportsListController';
+import { AppPageLayout } from '../components/ui/layouts/AppPageLayout';
 
 export const Route = createFileRoute('/app/_app/reports/')({
   head: () => ({
@@ -9,9 +12,9 @@ export const Route = createFileRoute('/app/_app/reports/')({
       { name: 'og:description', content: 'Generate and view your reports' },
     ],
   }),
-  component: RouteComponent,
+  component: () => (
+    <AppPageLayout headerSizeVariant="list" header={<Text>Reports</Text>}>
+      <ReportsListController />
+    </AppPageLayout>
+  ),
 });
-
-function RouteComponent() {
-  return <div>Hello "/app/reports"!</div>;
-}

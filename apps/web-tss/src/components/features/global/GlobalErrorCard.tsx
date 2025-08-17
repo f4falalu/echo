@@ -7,7 +7,7 @@ import { Card, CardContent, CardFooter } from '@/components/ui/card/CardBase';
 export const ErrorCard = () => {
   return (
     <div
-      className=" flex h-full w-full flex-col items-center justify-center bg-linear-to-br bg-background p-8 backdrop-blur-xs backdrop-brightness-95 backdrop-filter"
+      className=" flex h-full w-full flex-col items-center absolute inset-0 justify-center bg-linear-to-br bg-background p-8 backdrop-blur-xs backdrop-filter"
       role="alert"
     >
       <Card className="-mt-10 max-w-100">

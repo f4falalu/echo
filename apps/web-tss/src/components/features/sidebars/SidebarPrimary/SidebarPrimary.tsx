@@ -27,12 +27,19 @@ import {
 } from '@/components/ui/sidebar';
 import { Sidebar } from '@/components/ui/sidebar/Sidebar';
 import { Tooltip } from '@/components/ui/tooltip/Tooltip';
-import { useContactSupportModalStore, useInviteModalStore } from '@/context/BusterAppLayout';
-import { toggleContactSupportModal } from '@/context/BusterAppLayout/useContactSupportModalStore';
-import { toggleInviteModal } from '@/context/BusterAppLayout/useInviteModalStore';
+import {
+  closeContactSupportModal,
+  toggleContactSupportModal,
+  useContactSupportModalStore,
+} from '@/context/BusterAppLayout/useContactSupportModalStore';
+import {
+  closeInviteModal,
+  toggleInviteModal,
+  useInviteModalStore,
+} from '@/context/BusterAppLayout/useInviteModalStore';
 import { cn } from '@/lib/classMerge';
-// import { InvitePeopleModal } from '../modal/InvitePeopleModal';
-// import { SupportModal } from '../modal/SupportModal';
+import { InvitePeopleModal } from '../../modals/InvitePeopleModal';
+import { SupportModal } from '../../modals/SupportModal';
 import { SidebarUserFooter } from '../SidebarUserFooter';
 import { useFavoriteSidebarPanel } from './useFavoritesSidebarPanel';
 
@@ -228,7 +235,7 @@ const SidebarPrimaryHeader: React.FC<{ hideActions?: boolean }> = ({ hideActions
 };
 
 const GlobalModals = () => {
-  const { toggleInviteModal, closeInviteModal, openInviteModal } = useInviteModalStore();
+  const { openInviteModal } = useInviteModalStore();
   const isAnonymousUser = useIsAnonymousUser();
   const { formType } = useContactSupportModalStore();
 
@@ -236,8 +243,8 @@ const GlobalModals = () => {
 
   return (
     <>
-      {/* <InvitePeopleModal open={openInviteModal} onClose={onCloseInviteModal} />
-      <SupportModal formType={formType} onClose={onCloseSupportModal} /> */}
+      <InvitePeopleModal open={openInviteModal} onClose={closeInviteModal} />
+      <SupportModal formType={formType} onClose={closeContactSupportModal} />
     </>
   );
 };

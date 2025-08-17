@@ -1,4 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router';
+import { DashboardListController } from '@/controllers/DashboardListController';
 
 export const Route = createFileRoute('/app/_app/dashboards/')({
   head: () => ({
@@ -9,9 +10,5 @@ export const Route = createFileRoute('/app/_app/dashboards/')({
       { name: 'og:description', content: 'View and manage your data dashboards' },
     ],
   }),
-  component: RouteComponent,
+  component: DashboardListController,
 });
-
-function RouteComponent() {
-  return <div>Hello "/app/dashboads"!</div>;
-}

@@ -1,4 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router';
+import { CollectionListController } from '@/controllers/CollectionListController';
 
 export const Route = createFileRoute('/app/_app/collections/')({
   head: () => ({
@@ -9,9 +10,5 @@ export const Route = createFileRoute('/app/_app/collections/')({
       { name: 'og:description', content: 'Browse and organize your collections' },
     ],
   }),
-  component: RouteComponent,
+  component: CollectionListController,
 });
-
-function RouteComponent() {
-  return <div>Hello "/app/collections"!</div>;
-}

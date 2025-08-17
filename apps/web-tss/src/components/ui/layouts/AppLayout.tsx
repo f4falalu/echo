@@ -44,7 +44,7 @@ export const AppLayout: React.FC<
   return (
     <AppSplitter
       defaultLayout={defaultLayout}
-      className="max-h-screen min-h-screen overflow-hidden"
+      className="max-h-screen min-h-screen overflow-hidden "
       autoSaveId={autoSaveId}
       preserveSide="left"
       splitterClassName={''}
@@ -70,8 +70,7 @@ const PageLayout: React.FC<
   return (
     <div
       className={cn(
-        'h-screen w-full overflow-hidden',
-        'py-2',
+        'h-screen w-full overflow-hidden relative py-2',
         floating && hasSidebar ? 'pr-2' : 'pr-2 pl-2',
         className
       )}

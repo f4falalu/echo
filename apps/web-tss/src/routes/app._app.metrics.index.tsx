@@ -1,4 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router';
+import { MetricListContainer } from '@/controllers/MetricListContainer';
 
 export const Route = createFileRoute('/app/_app/metrics/')({
   head: () => ({
@@ -9,9 +10,5 @@ export const Route = createFileRoute('/app/_app/metrics/')({
       { name: 'og:description', content: 'View and analyze your metrics' },
     ],
   }),
-  component: RouteComponent,
+  component: MetricListContainer,
 });
-
-function RouteComponent() {
-  return <div>Hello "/app/metrics"!</div>;
-}
