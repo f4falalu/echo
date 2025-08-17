@@ -605,6 +605,232 @@ describe('assetParamsToRoute', () => {
     });
   });
 
+  describe('Additional version number tests', () => {
+    it('should handle RouteBuilder fluent API with version methods', () => {
+      const routeWithVersions = createRouteBuilder()
+        .withDashboard('dashboard-abc')
+        .withMetric('metric-def')
+        .withDashboardVersion(3)
+        .withMetricVersion(7)
+        .buildNavigationOptions();
+
+      expect(routeWithVersions).toEqual({
+        to: '/app/dashboards/$dashboardId/metrics/$metricId',
+        params: {
+          dashboardId: 'dashboard-abc',
+          metricId: 'metric-def',
+        },
+        search: {
+          dashboard_version_number: 3,
+          metric_version_number: 7,
+        },
+      });
+
+      // Test single metric with version
+      const metricWithVersion = createRouteBuilder()
+        .withMetric('metric-xyz')
+        .withVersion(5)
+        .buildNavigationOptions();
+
+      expect(metricWithVersion).toEqual({
+        to: '/app/metrics/$metricId',
+        params: {
+          metricId: 'metric-xyz',
+        },
+        search: {
+          metric_version_number: 5,
+        },
+      });
+    });
+
+    it('should handle chat with report and version numbers', () => {
+      const chatWithReportAndVersions = assetParamsToRoute({
+        assetType: 'chat',
+        assetId: 'chat-123',
+        reportId: 'report-456',
+        metricId: 'metric-789',
+        reportVersionNumber: 4,
+        metricVersionNumber: 2,
+      });
+
+      expect(chatWithReportAndVersions).toEqual({
+        to: '/app/chats/$chatId/report/$reportId/metrics/$metricId',
+        params: {
+          chatId: 'chat-123',
+          reportId: 'report-456',
+          metricId: 'metric-789',
+        },
+        search: {
+          report_version_number: 4,
+          metric_version_number: 2,
+        },
+      });
+    });
+
+    it('should handle metric with chat and dashboard context plus versions', () => {
+      const metricInChatDashboard = assetParamsToRoute({
+        assetType: 'metric',
+        assetId: 'metric-primary',
+        chatId: 'chat-context',
+        dashboardId: 'dashboard-context',
+        versionNumber: 6,
+      });
+
+      expect(metricInChatDashboard).toEqual({
+        to: '/app/chats/$chatId/dashboards/$dashboardId/metrics/$metricId',
+        params: {
+          chatId: 'chat-context',
+          dashboardId: 'dashboard-context',
+          metricId: 'metric-primary',
+        },
+        search: {
+          metric_version_number: 6,
+        },
+      });
+    });
+
+    it('should handle complex collection scenarios with selective version numbers', () => {
+      // Collection with dashboard only - version number maps to dashboard
+      const collectionDashboardWithVersion = assetParamsToRoute({
+        assetType: 'collection',
+        assetId: 'collection-main',
+        dashboardId: 'dashboard-solo',
+        dashboardVersionNumber: 8,
+      });
+
+      expect(collectionDashboardWithVersion).toEqual({
+        to: '/app/collections/$collectionId/dashboard/$dashboardId',
+        params: {
+          collectionId: 'collection-main',
+          dashboardId: 'dashboard-solo',
+        },
+        search: {
+          dashboard_version_number: 8,
+        },
+      });
+
+      // Collection with metric only - version number maps to metric
+      const collectionMetricWithVersion = assetParamsToRoute({
+        assetType: 'collection',
+        assetId: 'collection-main',
+        metricId: 'metric-solo',
+        metricVersionNumber: 3,
+      });
+
+      expect(collectionMetricWithVersion).toEqual({
+        to: '/app/collections/$collectionId/metrics/$metricId',
+        params: {
+          collectionId: 'collection-main',
+          metricId: 'metric-solo',
+        },
+        search: {
+          metric_version_number: 3,
+        },
+      });
+
+      // Collection with no versions - should not include search
+      const collectionNoVersions = assetParamsToRoute({
+        assetType: 'collection',
+        assetId: 'collection-clean',
+        chatId: 'chat-clean',
+      });
+
+      expect(collectionNoVersions).toEqual({
+        to: '/app/collections/$collectionId/chats/$chatId',
+        params: {
+          collectionId: 'collection-clean',
+          chatId: 'chat-clean',
+        },
+      });
+    });
+  });
+
+  describe('Edge case version number tests', () => {
+    it('should handle zero version numbers correctly', () => {
+      // Version number 0 should be treated as valid (not falsy)
+      const metricWithZeroVersion = assetParamsToRoute({
+        assetType: 'metric',
+        assetId: 'metric-zero',
+        versionNumber: 0,
+      });
+
+      expect(metricWithZeroVersion).toEqual({
+        to: '/app/metrics/$metricId',
+        params: {
+          metricId: 'metric-zero',
+        },
+        search: {
+          metric_version_number: 0,
+        },
+      });
+
+      // Multiple zero versions
+      const chatWithZeroVersions = assetParamsToRoute({
+        assetType: 'chat',
+        assetId: 'chat-zero',
+        dashboardId: 'dashboard-zero',
+        metricId: 'metric-zero',
+        dashboardVersionNumber: 0,
+        metricVersionNumber: 0,
+      });
+
+      expect(chatWithZeroVersions).toEqual({
+        to: '/app/chats/$chatId/dashboards/$dashboardId/metrics/$metricId',
+        params: {
+          chatId: 'chat-zero',
+          dashboardId: 'dashboard-zero',
+          metricId: 'metric-zero',
+        },
+        search: {
+          dashboard_version_number: 0,
+          metric_version_number: 0,
+        },
+      });
+    });
+
+    it('should maintain version numbers in RouteBuilder state', () => {
+      // Test that RouteBuilder properly tracks all version numbers in state
+      const builder = createRouteBuilder()
+        .withCollection('collection-state')
+        .withChat('chat-state')
+        .withDashboard('dashboard-state')
+        .withMetric('metric-state')
+        .withVersion(10)
+        .withDashboardVersion(20)
+        .withMetricVersion(30)
+        .withReportVersion(40);
+
+      const params = builder.getParams();
+      expect(params).toEqual({
+        collectionId: 'collection-state',
+        chatId: 'chat-state',
+        dashboardId: 'dashboard-state',
+        metricId: 'metric-state',
+        versionNumber: 10,
+        dashboardVersionNumber: 20,
+        metricVersionNumber: 30,
+        reportVersionNumber: 40,
+      });
+
+      // Test navigation options generation
+      const navOptions = builder.buildNavigationOptions();
+      expect(navOptions).toEqual({
+        to: '/app/collections/$collectionId/chats/$chatId/dashboards/$dashboardId/metrics/$metricId',
+        params: {
+          collectionId: 'collection-state',
+          chatId: 'chat-state',
+          dashboardId: 'dashboard-state',
+          metricId: 'metric-state',
+        },
+        search: {
+          metric_version_number: 30, // Specific metric version takes precedence
+          dashboard_version_number: 20,
+          report_version_number: 40,
+        },
+      });
+    });
+  });
+
   describe('Type safety tests', () => {
     it('should enforce type safety on routes', () => {
       // This is a compile-time test - these should all be valid RouteFilePaths

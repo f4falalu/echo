@@ -317,22 +317,28 @@ class RouteBuilder<T extends RouteBuilderState = NonNullable<unknown>> {
 
     // Map internal version numbers to TanStack Router search parameter names
     if (versionNumber !== undefined) {
-      // For primary asset version, determine the correct search param name based on route priority
-      // The primary asset is determined by route hierarchy (dashboard+metric = dashboard is primary)
+      // For primary asset version, determine the correct search param name based on route structure
       const { metricId, dashboardId, reportId, chatId, collectionId } = this.state;
-      
+
       if (dashboardId && !chatId && !collectionId) {
         // Direct dashboard route or dashboard+metric route
         search.dashboard_version_number = versionNumber;
       } else if (reportId && !chatId && !collectionId) {
-        // Direct report route or report+metric route  
+        // Direct report route or report+metric route
         search.report_version_number = versionNumber;
       } else if (metricId && !dashboardId && !reportId) {
         // Pure metric route
         search.metric_version_number = versionNumber;
+      } else if (metricId) {
+        // Complex route with metric - metric is the most specific asset
+        search.metric_version_number = versionNumber;
+      } else if (dashboardId) {
+        // Complex route with dashboard (but no metric)
+        search.dashboard_version_number = versionNumber;
+      } else if (reportId) {
+        // Complex route with report (but no metric/dashboard)
+        search.report_version_number = versionNumber;
       }
-      // For complex routes with chat/collection context, don't map versionNumber
-      // as it's ambiguous which asset it belongs to
     }
 
     if (metricVersionNumber !== undefined) {
