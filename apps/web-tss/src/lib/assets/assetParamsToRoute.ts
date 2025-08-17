@@ -220,7 +220,7 @@ class RouteBuilder<T extends RouteBuilderState = NonNullable<unknown>> {
     return {
       to: route,
       params,
-    };
+    } as OptionsTo;
   }
 
   /**

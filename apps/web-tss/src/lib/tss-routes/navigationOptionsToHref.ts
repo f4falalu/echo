@@ -1,5 +1,5 @@
 import type { FileRouteTypes } from '@/routeTree.gen';
-import type { OptionsTo } from '@/types/routes';
+import type { OptionsTo, OptionsToBase } from '@/types/routes';
 
 /**
  * Converts navigation options to a URL string (href)
@@ -25,7 +25,7 @@ import type { OptionsTo } from '@/types/routes';
 function navigationOptionsToHref<
   TFrom extends FileRouteTypes['to'] = '/',
   TTo extends string | undefined = undefined,
->(options: OptionsTo<TFrom, TTo>): string {
+>(options: OptionsToBase<TFrom, TTo>): string {
   let href = options.to as string;
 
   // Replace all $param placeholders with actual values from params

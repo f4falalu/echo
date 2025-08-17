@@ -1,5 +1,5 @@
 import type { FileRouteTypes } from '@/routeTree.gen';
-import type { OptionsTo } from '@/types/routes';
+import type { OptionsTo, OptionsToBase } from '@/types/routes';
 
 /**
  * Creates a type-safe route object that can be passed to testNavigate
@@ -25,12 +25,7 @@ import type { OptionsTo } from '@/types/routes';
  *   });
  * };
  */
-export function createRoute<
-  TFrom extends FileRouteTypes['to'] = '/',
-  TTo extends string | undefined = undefined,
-  TMaskFrom extends FileRouteTypes['to'] = TFrom,
-  TMaskTo extends string = '',
->(options: OptionsTo<TFrom, TTo, TMaskFrom, TMaskTo>): OptionsTo<TFrom, TTo, TMaskFrom, TMaskTo> {
+export function createRoute(options: OptionsTo): OptionsTo {
   return options;
 }
 
@@ -47,8 +42,8 @@ export function createRouteFactory<
   TFrom extends FileRouteTypes['to'] = '/',
 >(to: TTo) {
   return (
-    params: OptionsTo<TFrom, TTo> extends { params: infer P } ? P : never,
-    options?: Omit<OptionsTo<TFrom, TTo>, 'to' | 'params'>
+    params: OptionsToBase<TFrom, TTo> extends { params: infer P } ? P : never,
+    options?: Omit<OptionsToBase<TFrom, TTo>, 'to' | 'params'>
   ): OptionsTo<TFrom, TTo> => {
     return {
       to,

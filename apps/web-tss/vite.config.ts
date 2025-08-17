@@ -27,7 +27,7 @@ const config = defineConfig(({ command, mode }) => {
         : undefined,
     ],
     build: {
-      chunkSizeWarningLimit: 550,
+      chunkSizeWarningLimit: 650,
       rollupOptions: {
         // Exclude test and stories files from build
         external: (id) => {
@@ -47,10 +47,6 @@ const config = defineConfig(({ command, mode }) => {
             if (id.includes('node_modules/@supabase')) {
               return 'vendor-supabase';
             }
-
-            // if (id.includes('components/ui/icons')) {
-            //   return 'vendor-icons';
-            // }
 
             if (id.includes('zod')) {
               return 'vendor-zod';

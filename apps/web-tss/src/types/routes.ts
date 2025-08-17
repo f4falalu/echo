@@ -12,7 +12,7 @@ import type { FileRouteTypes } from '@/routeTree.gen';
  *
  * Without type parameters, TypeScript won't enforce required params!
  */
-export type OptionsTo<
+export type OptionsToBase<
   TFrom extends FileRouteTypes['to'] = '/',
   TTo extends string | undefined = undefined,
   TMaskFrom extends FileRouteTypes['to'] = TFrom,
@@ -20,13 +20,24 @@ export type OptionsTo<
 > = NavigateOptions<RegisteredRouter, TFrom, TTo, TMaskFrom, TMaskTo>;
 
 /**
- * Type helper to extract the route options type for a specific route
+ * Smart navigation options that automatically infer required params from the 'to' property
+ * Just specify the route in 'to' and TypeScript will automatically require the correct params!
  *
- * @example
- * type ChatRouteOptions = RouteOptions<'/app/chats/$chatId'>;
- * // This will give you the type with proper params like { chatId: string }
+ * ✅ This automatically knows you need { metricId: string }:
+ * const route: SmartOptionsTo = {
+ *   to: '/app/metrics/$metricId',
+ *   params: { metricId: '123' } // <- Required automatically!
+ * }
  */
-export type SimpleOptionsTo<
-  TTo extends FileRouteTypes['to'],
+export type OptionsTo<
   TFrom extends FileRouteTypes['to'] = '/',
-> = OptionsTo<TFrom, TTo>;
+  TMaskFrom extends FileRouteTypes['to'] = TFrom,
+  TMaskTo extends string = '',
+> = {
+  [K in FileRouteTypes['to']]: {
+    to: K;
+  } & (OptionsToBase<TFrom, K, TMaskFrom, TMaskTo> extends { params: infer P }
+    ? { params: P }
+    : { params?: never }) &
+    Omit<OptionsToBase<TFrom, K, TMaskFrom, TMaskTo>, 'to' | 'params'>;
+}[FileRouteTypes['to']];

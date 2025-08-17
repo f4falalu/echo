@@ -45,7 +45,7 @@ export const CustomActiveIndex: Story = {
     items: [
       { label: 'Home', route: { to: '/app/home' } },
       { label: 'Datasets', route: { to: '/app/datasets' } },
-      { label: 'Settings', route: { to: '/app/chats/$chatId' } },
+      { label: 'Settings', route: { to: '/app/chats/$chatId', params: { chatId: '123' } } },
       { label: 'Profile' },
     ],
     activeIndex: 2,

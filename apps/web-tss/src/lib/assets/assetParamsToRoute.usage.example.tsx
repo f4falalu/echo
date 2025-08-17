@@ -76,11 +76,6 @@ export function AssetNavigationExample() {
       {/* Link component with spread operator */}
       <Link {...dashboardNavOptions}>Go to Dashboard</Link>
 
-      {/* Link component with explicit props */}
-      <Link to={dashboardNavOptions.to} params={dashboardNavOptions.params}>
-        Go to Dashboard (explicit)
-      </Link>
-
       {/* Native anchor tag with href */}
       <a href={dashboardHref}>Go to Dashboard (native anchor)</a>
 
