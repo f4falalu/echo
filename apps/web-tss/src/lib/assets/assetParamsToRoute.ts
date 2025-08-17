@@ -90,6 +90,10 @@ const ROUTE_MAP: Record<string, RouteFilePaths> = {
   report: '/app/reports/$reportId',
   collection: '/app/collections/$collectionId',
 
+  // Direct asset combination routes
+  'dashboard+metric': '/app/dashboards/$dashboardId/metrics/$metricId',
+  'report+metric': '/app/reports/$reportId/metrics/$metricId',
+
   // Chat combination routes
   'chat+dashboard': '/app/chats/$chatId/dashboards/$dashboardId',
   'chat+metric': '/app/chats/$chatId/metrics/$metricId',
@@ -148,14 +152,19 @@ type GetRouteKey<T extends RouteBuilderState> =
                             ? 'chat+metric'
                             : T extends { chatId: string }
                               ? 'chat'
-                              : // Single asset routes
-                                T extends { dashboardId: string }
-                                ? 'dashboard'
-                                : T extends { metricId: string }
-                                  ? 'metric'
-                                  : T extends { reportId: string }
-                                    ? 'report'
-                                    : never;
+                              : // Direct asset combination routes
+                                T extends { dashboardId: string; metricId: string }
+                                ? 'dashboard+metric'
+                                : T extends { reportId: string; metricId: string }
+                                  ? 'report+metric'
+                                  : // Single asset routes
+                                    T extends { dashboardId: string }
+                                    ? 'dashboard'
+                                    : T extends { metricId: string }
+                                      ? 'metric'
+                                      : T extends { reportId: string }
+                                        ? 'report'
+                                        : never;
 
 /**
  * Type-safe route builder with fluent API
@@ -266,12 +275,36 @@ class RouteBuilder<T extends RouteBuilderState = NonNullable<unknown>> {
     const params = this.getParams();
     const search = this.getSearchParams();
 
+    // Build navigation options object, only including non-empty params and search
+    const navOptions: Record<string, unknown> = { to: route };
+
+    // Only include params if they contain actual route parameters (excluding version numbers)
+    const routeParams = this.getRouteOnlyParams();
+    if (Object.keys(routeParams).length > 0) {
+      navOptions.params = routeParams;
+    }
+
+    // Only include search if it contains version numbers
+    if (Object.keys(search).length > 0) {
+      navOptions.search = search;
+    }
+
     // Type assertion through unknown for complex generic type
-    return {
-      to: route,
-      params,
-      search,
-    } as OptionsTo;
+    return navOptions as OptionsTo;
+  }
+
+  /**
+   * Get only the route parameters (excluding version numbers)
+   */
+  private getRouteOnlyParams(): Record<string, unknown> {
+    const {
+      versionNumber,
+      metricVersionNumber,
+      dashboardVersionNumber,
+      reportVersionNumber,
+      ...routeParams
+    } = this.state;
+    return routeParams as Record<string, unknown>;
   }
 
   /**
@@ -284,11 +317,22 @@ class RouteBuilder<T extends RouteBuilderState = NonNullable<unknown>> {
 
     // Map internal version numbers to TanStack Router search parameter names
     if (versionNumber !== undefined) {
-      // For primary asset version, determine the correct search param name based on asset type
-      const { metricId, dashboardId, reportId } = this.state;
-      if (metricId) search.metric_version_number = versionNumber;
-      else if (dashboardId) search.dashboard_version_number = versionNumber;
-      else if (reportId) search.report_version_number = versionNumber;
+      // For primary asset version, determine the correct search param name based on route priority
+      // The primary asset is determined by route hierarchy (dashboard+metric = dashboard is primary)
+      const { metricId, dashboardId, reportId, chatId, collectionId } = this.state;
+      
+      if (dashboardId && !chatId && !collectionId) {
+        // Direct dashboard route or dashboard+metric route
+        search.dashboard_version_number = versionNumber;
+      } else if (reportId && !chatId && !collectionId) {
+        // Direct report route or report+metric route  
+        search.report_version_number = versionNumber;
+      } else if (metricId && !dashboardId && !reportId) {
+        // Pure metric route
+        search.metric_version_number = versionNumber;
+      }
+      // For complex routes with chat/collection context, don't map versionNumber
+      // as it's ambiguous which asset it belongs to
     }
 
     if (metricVersionNumber !== undefined) {
@@ -329,6 +373,10 @@ class RouteBuilder<T extends RouteBuilderState = NonNullable<unknown>> {
     if (chatId && reportId) return 'chat+report';
     if (chatId && metricId) return 'chat+metric';
 
+    // Direct asset combination routes
+    if (dashboardId && metricId) return 'dashboard+metric';
+    if (reportId && metricId) return 'report+metric';
+
     // Single asset routes
     if (collectionId) return 'collection';
     if (chatId) return 'chat';
@@ -354,6 +402,14 @@ class RouteBuilder<T extends RouteBuilderState = NonNullable<unknown>> {
  * // Result: { to: '/app/metrics/metric-123', params: { metricId: 'metric-123' }, search: { metric_version_number: 5 } }
  *
  * @example
+ * // Navigate to standalone asset (no params or search when empty)
+ * const options = assetParamsToRoute({
+ *   assetType: 'dashboard',
+ *   assetId: 'dashboard-456'
+ * });
+ * // Result: { to: '/app/dashboards/dashboard-456', params: { dashboardId: 'dashboard-456' } }
+ *
+ * @example
  * // Navigate to dashboard with metric and both versions
  * const options = assetParamsToRoute({
  *   assetType: 'dashboard',
@@ -374,6 +430,15 @@ export const assetParamsToRoute = (params: AssetParamsToRoute): OptionsTo => {
       if (params.dashboardId) route = route.withDashboard(params.dashboardId);
       if (params.reportId) route = route.withReport(params.reportId);
       if (params.metricId) route = route.withMetric(params.metricId);
+
+      // Add version numbers
+      if (params.dashboardVersionNumber !== undefined)
+        route = route.withDashboardVersion(params.dashboardVersionNumber);
+      if (params.metricVersionNumber !== undefined)
+        route = route.withMetricVersion(params.metricVersionNumber);
+      if (params.reportVersionNumber !== undefined)
+        route = route.withReportVersion(params.reportVersionNumber);
+
       return route.buildNavigationOptions();
     }
 
@@ -396,6 +461,9 @@ export const assetParamsToRoute = (params: AssetParamsToRoute): OptionsTo => {
       if (params.chatId) {
         route = route.withChat(params.chatId);
         if (params.metricId) route = route.withMetric(params.metricId);
+      } else if (params.metricId) {
+        // Direct dashboard+metric route (without chat context)
+        route = route.withMetric(params.metricId);
       }
 
       // Add version numbers
@@ -411,6 +479,9 @@ export const assetParamsToRoute = (params: AssetParamsToRoute): OptionsTo => {
       if (params.chatId) {
         route = route.withChat(params.chatId);
         if (params.metricId) route = route.withMetric(params.metricId);
+      } else if (params.metricId) {
+        // Direct report+metric route (without chat context)
+        route = route.withMetric(params.metricId);
       }
 
       // Add version numbers
