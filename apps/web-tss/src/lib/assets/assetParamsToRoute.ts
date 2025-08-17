@@ -13,6 +13,9 @@ type ChatParamsToRoute = {
   metricId?: string;
   dashboardId?: string;
   reportId?: string;
+  dashboardVersionNumber?: number;
+  metricVersionNumber?: number;
+  reportVersionNumber?: number;
 };
 
 type MetricParamsToRoute = {
@@ -31,6 +34,7 @@ type DashboardParamsToRoute = {
   reportId?: string;
   chatId?: string;
   versionNumber?: number;
+  metricVersionNumber?: number;
 };
 
 type ReportParamsToRoute = {
@@ -39,6 +43,7 @@ type ReportParamsToRoute = {
   metricId?: string;
   chatId?: string;
   versionNumber?: number;
+  metricVersionNumber?: number;
 };
 
 type CollectionParamsToRoute = {
@@ -47,7 +52,8 @@ type CollectionParamsToRoute = {
   chatId?: string;
   metricId?: string;
   dashboardId?: string;
-  versionNumber?: number;
+  metricVersionNumber?: number;
+  dashboardVersionNumber?: number;
 };
 
 export type AssetParamsToRoute =
@@ -66,6 +72,11 @@ type RouteBuilderState = {
   metricId?: string;
   dashboardId?: string;
   reportId?: string;
+  // Version numbers for search parameters
+  versionNumber?: number;
+  metricVersionNumber?: number;
+  dashboardVersionNumber?: number;
+  reportVersionNumber?: number;
 };
 
 /**
@@ -192,6 +203,44 @@ class RouteBuilder<T extends RouteBuilderState = NonNullable<unknown>> {
   }
 
   /**
+   * Add version number to the route (for the primary asset)
+   * The search parameter name will be determined based on the primary asset type:
+   * - metric_version_number for metrics
+   * - dashboard_version_number for dashboards
+   * - report_version_number for reports
+   */
+  withVersion<U extends number>(versionNumber: U): RouteBuilder<T & { versionNumber: U }> {
+    return new RouteBuilder({ ...this.state, versionNumber });
+  }
+
+  /**
+   * Add metric version number to the route
+   */
+  withMetricVersion<U extends number>(
+    metricVersionNumber: U
+  ): RouteBuilder<T & { metricVersionNumber: U }> {
+    return new RouteBuilder({ ...this.state, metricVersionNumber });
+  }
+
+  /**
+   * Add dashboard version number to the route
+   */
+  withDashboardVersion<U extends number>(
+    dashboardVersionNumber: U
+  ): RouteBuilder<T & { dashboardVersionNumber: U }> {
+    return new RouteBuilder({ ...this.state, dashboardVersionNumber });
+  }
+
+  /**
+   * Add report version number to the route
+   */
+  withReportVersion<U extends number>(
+    reportVersionNumber: U
+  ): RouteBuilder<T & { reportVersionNumber: U }> {
+    return new RouteBuilder({ ...this.state, reportVersionNumber });
+  }
+
+  /**
    * Build the route path with type safety
    */
   build(): GetRouteKey<T> extends keyof RouteMap ? RouteMap[GetRouteKey<T>] : never {
@@ -215,12 +264,46 @@ class RouteBuilder<T extends RouteBuilderState = NonNullable<unknown>> {
   buildNavigationOptions(): OptionsTo {
     const route = this.build();
     const params = this.getParams();
+    const search = this.getSearchParams();
 
     // Type assertion through unknown for complex generic type
     return {
       to: route,
       params,
+      search,
     } as OptionsTo;
+  }
+
+  /**
+   * Get search parameters for version numbers
+   */
+  private getSearchParams(): Record<string, number> {
+    const search: Record<string, number> = {};
+    const { versionNumber, metricVersionNumber, dashboardVersionNumber, reportVersionNumber } =
+      this.state;
+
+    // Map internal version numbers to TanStack Router search parameter names
+    if (versionNumber !== undefined) {
+      // For primary asset version, determine the correct search param name based on asset type
+      const { metricId, dashboardId, reportId } = this.state;
+      if (metricId) search.metric_version_number = versionNumber;
+      else if (dashboardId) search.dashboard_version_number = versionNumber;
+      else if (reportId) search.report_version_number = versionNumber;
+    }
+
+    if (metricVersionNumber !== undefined) {
+      search.metric_version_number = metricVersionNumber;
+    }
+
+    if (dashboardVersionNumber !== undefined) {
+      search.dashboard_version_number = dashboardVersionNumber;
+    }
+
+    if (reportVersionNumber !== undefined) {
+      search.report_version_number = reportVersionNumber;
+    }
+
+    return search;
   }
 
   /**
@@ -260,6 +343,26 @@ class RouteBuilder<T extends RouteBuilderState = NonNullable<unknown>> {
 /**
  * Main function to convert asset params to route navigation options
  * Returns type-safe navigation options that can be passed to Link or navigate
+ *
+ * @example
+ * // Navigate to a metric with version
+ * const options = assetParamsToRoute({
+ *   assetType: 'metric',
+ *   assetId: 'metric-123',
+ *   versionNumber: 5
+ * });
+ * // Result: { to: '/app/metrics/metric-123', params: { metricId: 'metric-123' }, search: { metric_version_number: 5 } }
+ *
+ * @example
+ * // Navigate to dashboard with metric and both versions
+ * const options = assetParamsToRoute({
+ *   assetType: 'dashboard',
+ *   assetId: 'dashboard-456',
+ *   metricId: 'metric-789',
+ *   versionNumber: 3,
+ *   metricVersionNumber: 2
+ * });
+ * // Result: { to: '/app/dashboards/dashboard-456', params: { dashboardId: 'dashboard-456', metricId: 'metric-789' }, search: { dashboard_version_number: 3, metric_version_number: 2 } }
  */
 export const assetParamsToRoute = (params: AssetParamsToRoute): OptionsTo => {
   const builder = new RouteBuilder();
@@ -281,6 +384,10 @@ export const assetParamsToRoute = (params: AssetParamsToRoute): OptionsTo => {
         if (params.dashboardId) route = route.withDashboard(params.dashboardId);
         if (params.reportId) route = route.withReport(params.reportId);
       }
+
+      // Add version number for the metric
+      if (params.versionNumber !== undefined) route = route.withVersion(params.versionNumber);
+
       return route.buildNavigationOptions();
     }
 
@@ -290,6 +397,12 @@ export const assetParamsToRoute = (params: AssetParamsToRoute): OptionsTo => {
         route = route.withChat(params.chatId);
         if (params.metricId) route = route.withMetric(params.metricId);
       }
+
+      // Add version numbers
+      if (params.versionNumber !== undefined) route = route.withVersion(params.versionNumber);
+      if (params.metricVersionNumber !== undefined)
+        route = route.withMetricVersion(params.metricVersionNumber);
+
       return route.buildNavigationOptions();
     }
 
@@ -299,6 +412,12 @@ export const assetParamsToRoute = (params: AssetParamsToRoute): OptionsTo => {
         route = route.withChat(params.chatId);
         if (params.metricId) route = route.withMetric(params.metricId);
       }
+
+      // Add version numbers
+      if (params.versionNumber !== undefined) route = route.withVersion(params.versionNumber);
+      if (params.metricVersionNumber !== undefined)
+        route = route.withMetricVersion(params.metricVersionNumber);
+
       return route.buildNavigationOptions();
     }
 
@@ -307,6 +426,13 @@ export const assetParamsToRoute = (params: AssetParamsToRoute): OptionsTo => {
       if (params.chatId) route = route.withChat(params.chatId);
       if (params.dashboardId) route = route.withDashboard(params.dashboardId);
       if (params.metricId) route = route.withMetric(params.metricId);
+
+      // Add version numbers
+      if (params.metricVersionNumber !== undefined)
+        route = route.withMetricVersion(params.metricVersionNumber);
+      if (params.dashboardVersionNumber !== undefined)
+        route = route.withDashboardVersion(params.dashboardVersionNumber);
+
       return route.buildNavigationOptions();
     }
 
