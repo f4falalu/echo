@@ -430,5 +430,139 @@ describe('done-tool-file-selection', () => {
       const extractedFiles = extractFilesFromToolCalls(mockMessages);
       expect(extractedFiles).toEqual([]);
     });
+
+    test('should filter out reports from final selection', () => {
+      const reportId = randomUUID();
+      const metricId = randomUUID();
+      const mockMessages: ModelMessage[] = [
+        {
+          role: 'tool',
+          content: [
+            {
+              type: 'tool-result',
+              output: {
+                type: 'json',
+                value: JSON.stringify({
+                  files: [
+                    {
+                      id: reportId,
+                      name: 'Strategic Report',
+                      version_number: 1,
+                    },
+                  ],
+                }),
+              },
+              toolName: CREATE_REPORTS_TOOL_NAME,
+              toolCallId: 'tool-report',
+            },
+          ],
+        },
+        {
+          role: 'tool',
+          content: [
+            {
+              type: 'tool-result',
+              output: {
+                type: 'json',
+                value: JSON.stringify({
+                  files: [
+                    {
+                      id: metricId,
+                      name: 'Standalone Metric',
+                      version_number: 1,
+                    },
+                  ],
+                }),
+              },
+              toolName: CREATE_METRICS_TOOL_NAME,
+              toolCallId: 'tool-metric',
+            },
+          ],
+        },
+      ];
+
+      const extractedFiles = extractFilesFromToolCalls(mockMessages);
+
+      // Reports should be filtered out
+      expect(extractedFiles.find((f) => f.fileType === 'report')).toBeUndefined();
+      // Standalone metrics should remain
+      expect(extractedFiles).toHaveLength(1);
+      expect(extractedFiles[0]).toMatchObject({
+        id: metricId,
+        fileType: 'metric',
+        fileName: 'Standalone Metric',
+      });
+    });
+
+    test('should filter out metrics that are referenced in reports', () => {
+      const reportId = randomUUID();
+      const metricInReportId = randomUUID();
+      const standaloneMetricId = randomUUID();
+
+      const mockMessages: ModelMessage[] = [
+        {
+          role: 'tool',
+          content: [
+            {
+              type: 'tool-result',
+              output: {
+                type: 'json',
+                value: JSON.stringify({
+                  files: [
+                    {
+                      id: metricInReportId,
+                      name: 'Metric in Report',
+                      version_number: 1,
+                    },
+                    {
+                      id: standaloneMetricId,
+                      name: 'Standalone Metric',
+                      version_number: 1,
+                    },
+                  ],
+                }),
+              },
+              toolName: CREATE_METRICS_TOOL_NAME,
+              toolCallId: 'tool-metrics',
+            },
+          ],
+        },
+        {
+          role: 'tool',
+          content: [
+            {
+              type: 'tool-result',
+              output: {
+                type: 'json',
+                value: JSON.stringify({
+                  file: {
+                    id: reportId,
+                    name: 'Report with Metrics',
+                    version_number: 1,
+                    content: `This report includes <metric metricId="${metricInReportId}" />`,
+                  },
+                }),
+              },
+              toolName: MODIFY_REPORTS_TOOL_NAME,
+              toolCallId: 'tool-report',
+            },
+          ],
+        },
+      ];
+
+      const extractedFiles = extractFilesFromToolCalls(mockMessages);
+
+      // Reports should be filtered out
+      expect(extractedFiles.find((f) => f.id === reportId)).toBeUndefined();
+      // Metrics referenced in reports should be filtered out
+      expect(extractedFiles.find((f) => f.id === metricInReportId)).toBeUndefined();
+      // Standalone metrics should remain
+      expect(extractedFiles).toHaveLength(1);
+      expect(extractedFiles[0]).toMatchObject({
+        id: standaloneMetricId,
+        fileType: 'metric',
+        fileName: 'Standalone Metric',
+      });
+    });
   });
 });

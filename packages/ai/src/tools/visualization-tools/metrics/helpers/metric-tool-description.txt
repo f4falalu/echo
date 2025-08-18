@@ -51,10 +51,10 @@ Only utilize the required/default fields unless the user specifically requests t
 # This section defines how each column should be formatted and displayed.
 #
 # REQUIRED fields for each column:
-#   - columnType: Must be one of: number, string, date
+#   - columnType: Must be one of: number, text, date
 #   - style: Must match columnType:
 #     - For number: currency, percent, number
-#     - For string: string
+#     - For text: string
 #     - For date: date
 #   - replaceMissingDataWith: Value when data is missing (0 for numbers, null for others)
 #   - numberSeparatorStyle: Either ',' or null (not "null" in quotes)
@@ -76,8 +76,9 @@ Only utilize the required/default fields unless the user specifically requests t
 #     - month: 'MMM YYYY' (e.g., Jan 2025)
 #     - week/day: 'MMM D, YYYY' (e.g., Jan 25, 2025)
 #   - useRelativeTime: Show dates as "2 days ago" (boolean)
-#   - isUtc: Interpret dates as UTC (boolean)
+#   - isUTC: Interpret dates as UTC (boolean)
 #   - convertNumberTo: Convert numbers to time units (day_of_week, month_of_year, quarter)
+#   - makeLabelHumanReadable: Whether to make labels human readable (boolean, default: true)
 #
 # Example columnLabelFormats:
 #   columnLabelFormats:
@@ -95,7 +96,7 @@ Only utilize the required/default fields unless the user specifically requests t
 #       numberSeparatorStyle: null
 #       dateFormat: MMM D, YYYY
 #     product_name:
-#       columnType: string
+#       columnType: text
 #       style: string
 #       replaceMissingDataWith: null
 #       numberSeparatorStyle: null
@@ -221,7 +222,10 @@ definitions:
       showLegendHeadline:
         oneOf:
           - type: boolean
+            enum: [false]
           - type: string
+            enum: [current, average, total, median, min, max]
+        description: Show headline in legend. Default: false
       goalLines:
         type: array
         items:
@@ -272,7 +276,7 @@ definitions:
         description: X-axis title. Default: null (auto-generates from column names).
       xAxisLabelRotation:
         type: string # Representing numbers or 'auto'
-        enum: ["0", "45", "90", auto]
+        enum: [0, 45, 90, auto]
         description: Label rotation. Default: auto.
       xAxisDataZoom:
         type: boolean
@@ -339,8 +343,8 @@ definitions:
     properties:
       columnType:
         type: string
-        description: number, string, date
-        enum: [number, string, date]
+        description: number, text, date
+        enum: [number, text, date]
       style:
         type: string
         enum:
@@ -391,7 +395,7 @@ definitions:
       useRelativeTime:
         type: boolean
         description: Whether to display dates as relative time (e.g., 2 days ago)
-      isUtc:
+      isUTC:
         type: boolean
         description: Whether to interpret dates as UTC
       convertNumberTo:
@@ -401,6 +405,9 @@ definitions:
           - day_of_week
           - month_of_year
           - quarter
+      makeLabelHumanReadable:
+        type: boolean
+        description: Whether to make labels human readable. Default: true
 
     required:
       - columnType
@@ -415,25 +422,42 @@ definitions:
     properties:
       showDataLabels:
         type: boolean
+        description: Whether to show data labels on the chart. Default: false
+      showDataLabelsAsPercentage:
+        type: boolean
+        description: Whether to show data labels as percentages. Default: false
       columnVisualization:
         type: string
         enum:
           - bar
           - line
           - dot
+        description: Visualization type for the column. Default: bar
       lineWidth:
         type: number
+        description: Width of lines (1-20). Default: 2. Only applies to line visualization
       lineStyle:
         type: string
         enum:
           - area
           - line
+        description: Style of line (area fills below). Default: line. Only applies to line visualization
       lineType:
         type: string
         enum:
           - normal
           - smooth
           - step
+        description: Type of line interpolation. Default: normal. Only applies to line visualization
+      lineSymbolSize:
+        type: number
+        description: |
+          Size of symbols on lines or dots.
+          - For 'line': Size of dots on line (0-10). Default: 0
+          - For 'dot': Size of dots (1-50). Default: 10
+      barRoundness:
+        type: number
+        description: Roundness of bar corners (0-50, where 0 is square, 50 is circular). Default: 8. Only applies to bar visualization
 
   # CHART-SPECIFIC CONFIGURATIONS
   bar_line_chart_config:
@@ -462,6 +486,11 @@ definitions:
                 items:
                   type: string
                 description: LOWERCASE column name from SQL for category grouping.
+              tooltip:
+                type: [array, 'null']
+                items:
+                  type: string
+                description: Column names for tooltip. If null, y axis is used. Default: null
             required:
               - x
               - y
@@ -470,12 +499,26 @@ definitions:
             enum:
               - horizontal
               - vertical
+            description: Layout direction. Default: vertical (column chart)
           barGroupType:
             type: string
             enum:
               - stack
               - group
               - percentage-stack
+            description: How bars are grouped. Default: group
+          barSortBy:
+            type: array
+            items:
+              type: string
+              enum:
+                - asc
+                - desc
+                - none
+            description: Sort order for bars (primary, secondary). Default: []
+          barShowTotalAtTop:
+            type: boolean
+            description: Show total at top of stacked bars. Default: false
         required:
           - selectedChartType
           - barAndLineAxis
@@ -507,6 +550,12 @@ definitions:
                 type: array
                 items:
                   type: string
+                description: Column for size (single element array or empty)
+              tooltip:
+                type: [array, 'null']
+                items:
+                  type: string
+                description: Column names for tooltip. If null, y axis is used. Default: null
             required:
               - x
               - y
@@ -533,6 +582,11 @@ definitions:
                 type: array
                 items:
                   type: string
+              tooltip:
+                type: [array, 'null']
+                items:
+                  type: string
+                description: Column names for tooltip. If null, y axis is used. Default: null
             required:
               - x
               - y
@@ -563,6 +617,16 @@ definitions:
                 type: array
                 items:
                   type: string
+              category:
+                type: array
+                items:
+                  type: string
+                description: LOWERCASE column name from SQL for category grouping.
+              tooltip:
+                type: [array, 'null']
+                items:
+                  type: string
+                description: Column names for tooltip. If null, y axis is used. Default: null
             required:
               - x
               - y
@@ -647,6 +711,9 @@ definitions:
                   - columnId
                   - useValue
                 description: Configuration for a derived metric sub-header
+          metricValueLabel:
+            type: [string, 'null']
+            description: Custom label for metric value. If null, uses metricColumnId with metricValueAggregate. Default: null
         required:
           - selectedChartType
           - metricColumnId
@@ -673,27 +740,80 @@ definitions:
     properties:
       show:
         type: boolean
+        description: Whether to show the goal line. Default: false
       value:
-        type: number
+        type: [number, 'null']
+        description: The value for the goal line. Default: null
+      showGoalLineLabel:
+        type: boolean
+        description: Whether to show the goal line label. Default: true
       goalLineLabel:
-        type: string
+        type: [string, 'null']
+        description: Label text for the goal line. Default: "Goal"
+      goalLineColor:
+        type: [string, 'null']
+        description: Color of the goal line in hex format. Default: "#000000"
 
   trendline:
     type: object
     properties:
+      show:
+        type: boolean
+        description: Whether to show the trendline. Default: true
+      showTrendlineLabel:
+        type: boolean
+        description: Whether to show the trendline label. Default: true
+      trendlineLabel:
+        type: [string, 'null']
+        description: Label text for the trendline. Default: null
       type:
         type: string
         enum:
           - average
           - linear_regression
+          - logarithmic_regression
+          - exponential_regression
+          - polynomial_regression
           - min
           - max
           - median
+        description: Type of trendline. Default: linear_regression
+      trendLineColor:
+        type: [string, 'inherit']
+        description: Color of trendline in hex format or 'inherit' to match series. Default: "#000000"
       columnId:
         type: string
+        description: Column ID to apply trendline to
+      trendlineLabelPositionOffset:
+        type: number
+        description: Position of label along trendline (0-100). Default: 85
+      projection:
+        type: boolean
+        description: Whether to project trendline to end of chart. Default: false
+      lineStyle:
+        type: string
+        enum:
+          - solid
+          - dotted
+          - dashed
+          - dashdot
+        description: Style of trendline. Default: solid
+      offset:
+        type: number
+        description: Vertical offset of the trendline. Default: 0
+      polynomialOrder:
+        type: number
+        description: Order for polynomial regression. Default: 2
+      aggregateAllCategories:
+        type: boolean
+        description: Whether to calculate trendline for all categories. Default: true
+      id:
+        type: string
+        description: Unique identifier for the trendline
     required:
       - type
       - columnId
+      - id
 ```
 
 **CRITICAL:** This is the complete schema specification. Follow it exactly - every property, enum value, and requirement listed above must be respected. Pay special attention to:

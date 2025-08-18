@@ -58,26 +58,71 @@ interface ExtractedFile {
   content?: string | undefined; // Content of reports for checking absorbed files
 }
 
+// Report info tracking
+interface ReportInfo {
+  id: string;
+  content: string;
+  versionNumber: number;
+  operation: 'created' | 'modified';
+}
+
 /**
  * Extract files from tool call responses in the conversation messages
  * Focuses on tool result messages that contain file information
  */
 export function extractFilesFromToolCalls(messages: ModelMessage[]): ExtractedFile[] {
   const files: ExtractedFile[] = [];
+  let lastReportInfo: ReportInfo | undefined;
 
   console.info('[done-tool-file-selection] Starting file extraction from messages', {
     messageCount: messages.length,
   });
 
-  // Process each message looking for tool results
+  // First pass: extract create report content from assistant messages
+  const createReportContents: Map<string, string> = new Map();
+
+  for (const message of messages) {
+    if (message.role === 'assistant' && Array.isArray(message.content)) {
+      for (const content of message.content) {
+        if (
+          content &&
+          typeof content === 'object' &&
+          'type' in content &&
+          content.type === 'tool-call' &&
+          'toolName' in content &&
+          content.toolName === CREATE_REPORTS_TOOL_NAME
+        ) {
+          console.info('[done-tool-file-selection] Found create reports tool call');
+
+          // Extract report content from input and store with toolCallId as key
+          const contentObj = content as { toolCallId?: string; input?: unknown };
+          const toolCallId = contentObj.toolCallId;
+          const input = contentObj.input as { files?: Array<{ yml_content?: string }> };
+          if (toolCallId && input && input.files && Array.isArray(input.files)) {
+            for (const file of input.files) {
+              if (file.yml_content) {
+                createReportContents.set(toolCallId, file.yml_content);
+                console.info('[done-tool-file-selection] Stored report content for toolCallId', {
+                  toolCallId,
+                  contentLength: file.yml_content.length,
+                });
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  // Second pass: process tool results and match create report content
   for (const message of messages) {
     console.info('[done-tool-file-selection] Processing message', {
       role: message.role,
       contentType: Array.isArray(message.content) ? 'array' : typeof message.content,
     });
 
+    // Check tool messages for results
     if (message.role === 'tool') {
-      // Tool messages contain the actual results
       const toolContent = message.content;
 
       if (Array.isArray(toolContent)) {
@@ -106,6 +151,9 @@ export function extractFilesFromToolCalls(messages: ModelMessage[]): ExtractedFi
               });
 
               const outputObj = output as Record<string, unknown>;
+              const contentWithCallId = content as { toolCallId?: string };
+              const toolCallId = contentWithCallId.toolCallId;
+
               if (outputObj && outputObj.type === 'json' && outputObj.value) {
                 try {
                   // Check if output.value is already an object or needs parsing
@@ -113,7 +161,20 @@ export function extractFilesFromToolCalls(messages: ModelMessage[]): ExtractedFi
                     typeof outputObj.value === 'string'
                       ? JSON.parse(outputObj.value)
                       : outputObj.value;
-                  processToolOutput(toolName as string, parsedOutput, files);
+
+                  // Process the output and check for report updates
+                  const reportUpdate = processToolOutput(
+                    toolName as string,
+                    parsedOutput,
+                    files,
+                    toolCallId,
+                    createReportContents
+                  );
+
+                  // Update last report info if we found a report
+                  if (reportUpdate) {
+                    lastReportInfo = reportUpdate;
+                  }
                 } catch (error) {
                   console.warn('[done-tool-file-selection] Failed to parse JSON output', {
                     toolName,
@@ -140,6 +201,7 @@ export function extractFilesFromToolCalls(messages: ModelMessage[]): ExtractedFi
     metrics: files.filter((f) => f.fileType === 'metric').length,
     dashboards: files.filter((f) => f.fileType === 'dashboard').length,
     reports: files.filter((f) => f.fileType === 'report').length,
+    lastReportContent: lastReportInfo ? `${lastReportInfo.content.substring(0, 100)}...` : 'none',
   });
 
   // Deduplicate files by ID, keeping highest version
@@ -148,8 +210,11 @@ export function extractFilesFromToolCalls(messages: ModelMessage[]): ExtractedFi
   // Filter out metrics that belong to dashboards
   let filteredFiles = filterOutDashboardMetrics(deduplicatedFiles);
 
-  // Filter out metrics and dashboards that are absorbed by reports
-  filteredFiles = filterOutReportContainedFiles(filteredFiles);
+  // Filter out metrics and dashboards that are absorbed by the last report
+  filteredFiles = filterOutReportContainedFiles(filteredFiles, lastReportInfo);
+
+  // Filter out reports themselves (they shouldn't be selected in done tool)
+  filteredFiles = filteredFiles.filter((file) => file.fileType !== 'report');
 
   console.info('[done-tool-file-selection] Final selected files', {
     totalSelected: filteredFiles.length,
@@ -162,10 +227,19 @@ export function extractFilesFromToolCalls(messages: ModelMessage[]): ExtractedFi
 /**
  * Process tool output based on tool name
  */
-function processToolOutput(toolName: string, output: unknown, files: ExtractedFile[]): void {
+function processToolOutput(
+  toolName: string,
+  output: unknown,
+  files: ExtractedFile[],
+  toolCallId?: string,
+  createReportContents?: Map<string, string>
+): ReportInfo | undefined {
   const toolOutput = output as ToolOutput;
+  let reportInfo: ReportInfo | undefined;
+
   console.info('[done-tool-file-selection] Processing tool output', {
     toolName,
+    toolCallId,
     hasFiles: toolOutput && 'files' in toolOutput,
     hasFile: toolOutput && 'file' in toolOutput,
     outputKeys: toolOutput ? Object.keys(toolOutput) : [],
@@ -192,12 +266,11 @@ function processToolOutput(toolName: string, output: unknown, files: ExtractedFi
       break;
 
     case CREATE_REPORTS_TOOL_NAME:
+      reportInfo = processCreateReportsOutput(output, files, toolCallId, createReportContents);
+      break;
+
     case MODIFY_REPORTS_TOOL_NAME:
-      processReportsOutput(
-        output,
-        files,
-        toolName === MODIFY_REPORTS_TOOL_NAME ? 'modified' : 'created'
-      );
+      reportInfo = processModifyReportsOutput(output, files);
       break;
 
     default:
@@ -205,6 +278,8 @@ function processToolOutput(toolName: string, output: unknown, files: ExtractedFi
         toolName,
       });
   }
+
+  return reportInfo;
 }
 
 /**
@@ -285,49 +360,77 @@ function processDashboardsOutput(
 }
 
 /**
- * Process reports output
+ * Process create reports output (content was in the input, match by toolCallId)
  */
-function processReportsOutput(
+function processCreateReportsOutput(
   output: unknown,
   files: ExtractedFile[],
-  operation: 'created' | 'modified'
-): void {
-  const reportsOutput = output as CreateReportsOutput | ModifyReportsOutput;
-  // Reports can have either files array or single file property
+  toolCallId?: string,
+  createReportContents?: Map<string, string>
+): ReportInfo | undefined {
+  const reportsOutput = output as CreateReportsOutput;
+  let reportInfo: ReportInfo | undefined;
+
   if ('files' in reportsOutput && reportsOutput.files && Array.isArray(reportsOutput.files)) {
-    console.info('[done-tool-file-selection] Processing report files array', {
+    console.info('[done-tool-file-selection] Processing create report files array', {
       count: reportsOutput.files.length,
-      operation,
+      toolCallId,
+      hasContent: toolCallId && createReportContents ? createReportContents.has(toolCallId) : false,
     });
 
     for (const file of reportsOutput.files) {
       const fileName = file.name;
 
       if (file.id && fileName) {
+        // Get the content from the create report input using toolCallId
+        const content =
+          toolCallId && createReportContents ? createReportContents.get(toolCallId) : undefined;
+
         files.push({
           id: file.id,
           fileType: 'report',
           fileName: fileName,
           status: 'completed',
-          operation,
+          operation: 'created',
           versionNumber: file.version_number || 1,
-          // Note: content is not available in files array output
+          content: content, // Store the content from the input
         });
+
+        // Track this as the last report if we have content
+        if (content) {
+          reportInfo = {
+            id: file.id,
+            content: content,
+            versionNumber: file.version_number || 1,
+            operation: 'created',
+          };
+        }
       }
     }
-  } else if (
-    'file' in reportsOutput &&
-    reportsOutput.file &&
-    typeof reportsOutput.file === 'object'
-  ) {
-    // Handle single file for modify reports
+  }
+
+  return reportInfo;
+}
+
+/**
+ * Process modify reports output (content is in the output)
+ */
+function processModifyReportsOutput(
+  output: unknown,
+  files: ExtractedFile[]
+): ReportInfo | undefined {
+  const reportsOutput = output as ModifyReportsOutput;
+  let reportInfo: ReportInfo | undefined;
+
+  if ('file' in reportsOutput && reportsOutput.file && typeof reportsOutput.file === 'object') {
     const file = reportsOutput.file;
     const fileName = file.name;
 
-    console.info('[done-tool-file-selection] Processing single report file', {
+    console.info('[done-tool-file-selection] Processing modify report file', {
       id: file.id,
       fileName,
-      operation,
+      hasContent: !!file.content,
+      contentLength: file.content?.length || 0,
     });
 
     if (file.id && fileName) {
@@ -336,12 +439,24 @@ function processReportsOutput(
         fileType: 'report',
         fileName: fileName,
         status: 'completed',
-        operation,
+        operation: 'modified',
         versionNumber: file.version_number || 1,
-        content: file.content, // Capture content from modify reports output
+        content: file.content, // Content is in the output for modify
       });
+
+      // Track this as the last report
+      if (file.content) {
+        reportInfo = {
+          id: file.id,
+          content: file.content,
+          versionNumber: file.version_number || 1,
+          operation: 'modified',
+        };
+      }
     }
   }
+
+  return reportInfo;
 }
 
 /**
@@ -432,49 +547,81 @@ function filterOutDashboardMetrics(files: ExtractedFile[]): ExtractedFile[] {
 
 /**
  * Filter out metrics and dashboards that are absorbed by reports
- * Reports always get selected, but metrics/dashboards mentioned in report content are hidden
+ * Metrics/dashboards mentioned in report content are hidden
  */
-function filterOutReportContainedFiles(files: ExtractedFile[]): ExtractedFile[] {
-  // Collect all report contents
-  const reportContents: string[] = [];
-  for (const file of files) {
-    if (file.fileType === 'report' && file.content) {
-      reportContents.push(file.content);
-    }
-  }
-
-  if (reportContents.length === 0) {
+function filterOutReportContainedFiles(
+  files: ExtractedFile[],
+  lastReportInfo?: ReportInfo
+): ExtractedFile[] {
+  if (!lastReportInfo || !lastReportInfo.content) {
     // No report content to check against
+    console.info('[done-tool-file-selection] No report content to filter against');
     return files;
   }
 
-  // Combine all report contents for searching
-  const combinedReportContent = reportContents.join('\n');
+  const reportContent = lastReportInfo.content;
 
-  console.info('[done-tool-file-selection] Checking for files absorbed by reports', {
-    reportCount: reportContents.length,
-    hasContent: combinedReportContent.length > 0,
+  // Extract metric IDs from the last report content
+  const metricsInReports = new Set<string>();
+  const dashboardsInReports = new Set<string>();
+
+  // Extract metric IDs from report content using regex pattern
+  // Looking for patterns like: metricId="UUID" or metric_id="UUID"
+  const metricIdPattern = /metricId[="']+([a-f0-9-]+)["']/gi;
+  const matches = reportContent.matchAll(metricIdPattern);
+
+  for (const match of matches) {
+    if (match[1]) {
+      metricsInReports.add(match[1]);
+    }
+  }
+
+  // Also check for dashboard IDs in reports
+  const dashboardIdPattern = /dashboardId[="']+([a-f0-9-]+)["']/gi;
+  const dashboardMatches = reportContent.matchAll(dashboardIdPattern);
+
+  for (const match of dashboardMatches) {
+    if (match[1]) {
+      dashboardsInReports.add(match[1]);
+    }
+  }
+
+  console.info('[done-tool-file-selection] Checking for files absorbed by last report', {
+    reportId: lastReportInfo.id,
+    reportOperation: lastReportInfo.operation,
+    contentLength: reportContent.length,
+    metricsInReports: metricsInReports.size,
+    dashboardsInReports: dashboardsInReports.size,
+    metricIds: Array.from(metricsInReports),
+    dashboardIds: Array.from(dashboardsInReports),
   });
+
+  if (metricsInReports.size === 0 && dashboardsInReports.size === 0) {
+    // No metrics or dashboards referenced in reports
+    return files;
+  }
 
   // Filter out metrics and dashboards that appear in report content
   const filtered = files.filter((file) => {
-    // Always keep reports
-    if (file.fileType === 'report') {
-      return true;
-    }
-
-    // Check if this file's ID appears in any report content
-    const isAbsorbed = combinedReportContent.includes(file.id);
-
-    if (isAbsorbed) {
-      console.info('[done-tool-file-selection] Excluding file absorbed by report', {
-        fileId: file.id,
-        fileName: file.fileName,
-        fileType: file.fileType,
+    // Check if this metric is referenced in a report
+    if (file.fileType === 'metric' && metricsInReports.has(file.id)) {
+      console.info('[done-tool-file-selection] Excluding metric absorbed by report', {
+        metricId: file.id,
+        metricName: file.fileName,
       });
+      return false;
     }
 
-    return !isAbsorbed;
+    // Check if this dashboard is referenced in a report
+    if (file.fileType === 'dashboard' && dashboardsInReports.has(file.id)) {
+      console.info('[done-tool-file-selection] Excluding dashboard absorbed by report', {
+        dashboardId: file.id,
+        dashboardName: file.fileName,
+      });
+      return false;
+    }
+
+    return true;
   });
 
   return filtered;

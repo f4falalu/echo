@@ -231,11 +231,23 @@ export function createCreateReportsDelta(context: CreateReportsContext, state: C
                 reportId: update.reportId,
                 content: update.content,
               });
+
+              // Mark the file as completed in state
+              const stateFile = state.files?.find((f) => f.id === update.reportId);
+              if (stateFile) {
+                stateFile.status = 'completed';
+              }
             } catch (error) {
               console.error('[create-reports] Error updating report content:', {
                 reportId: update.reportId,
                 error,
               });
+
+              // Mark the file as failed in state
+              const stateFile = state.files?.find((f) => f.id === update.reportId);
+              if (stateFile) {
+                stateFile.status = 'failed';
+              }
             }
           }
         }

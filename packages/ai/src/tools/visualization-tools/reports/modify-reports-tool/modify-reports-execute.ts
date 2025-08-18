@@ -1,7 +1,9 @@
-import { appendReportContent, replaceReportContent, updateMessageEntries } from '@buster/database';
+import { batchUpdateReport, db, reportFiles, updateMessageEntries } from '@buster/database';
 import { wrapTraced } from 'braintrust';
+import { and, eq, isNull } from 'drizzle-orm';
 import { createRawToolResultEntry } from '../../../shared/create-raw-llm-tool-result-entry';
 import { trackFileAssociations } from '../../file-tracking-helper';
+import { shouldIncrementVersion, updateVersionHistory } from '../helpers/report-version-helper';
 import {
   createModifyReportsRawLlmMessageEntry,
   createModifyReportsReasoningEntry,
@@ -14,37 +16,34 @@ import type {
 } from './modify-reports-tool';
 import { MODIFY_REPORTS_TOOL_NAME } from './modify-reports-tool';
 
-// Process a single edit operation
-async function processEditOperation(
-  reportId: string,
-  edit: { code_to_replace: string; code: string },
-  _currentContent: string
-): Promise<{
+// Apply a single edit operation to content in memory
+function applyEditToContent(
+  content: string,
+  edit: { code_to_replace: string; code: string }
+): {
   success: boolean;
   content?: string;
   error?: string;
-}> {
+} {
   try {
     if (edit.code_to_replace === '') {
       // Append mode
-      const result = await appendReportContent({
-        reportId,
-        content: edit.code,
-      });
       return {
         success: true,
-        content: result.content,
+        content: content + edit.code,
       };
     }
     // Replace mode
-    const result = await replaceReportContent({
-      reportId,
-      findString: edit.code_to_replace,
-      replaceString: edit.code,
-    });
+    if (!content.includes(edit.code_to_replace)) {
+      return {
+        success: false,
+        error: `Text not found: "${edit.code_to_replace.substring(0, 50)}${edit.code_to_replace.length > 50 ? '...' : ''}"`,
+      };
+    }
+    const newContent = content.replace(edit.code_to_replace, edit.code);
     return {
       success: true,
-      content: result.content,
+      content: newContent,
     };
   } catch (error) {
     return {
@@ -54,22 +53,59 @@ async function processEditOperation(
   }
 }
 
-// Process all edit operations sequentially
+type VersionHistoryEntry = {
+  content: string;
+  updated_at: string;
+  version_number: number;
+};
+
+type VersionHistory = Record<string, VersionHistoryEntry>;
+
+// Process all edit operations sequentially in memory
 async function processEditOperations(
   reportId: string,
+  reportName: string,
   edits: Array<{ code_to_replace: string; code: string }>,
+  messageId?: string,
   state?: ModifyReportsState
 ): Promise<{
   success: boolean;
   finalContent?: string;
   errors: string[];
   version?: number;
+  versionHistory?: VersionHistory;
+  incrementVersion?: boolean;
 }> {
-  let currentContent = '';
+  // Get current report content and version history
+  const existingReport = await db
+    .select({
+      content: reportFiles.content,
+      versionHistory: reportFiles.versionHistory,
+    })
+    .from(reportFiles)
+    .where(and(eq(reportFiles.id, reportId), isNull(reportFiles.deletedAt)))
+    .limit(1);
+
+  if (!existingReport.length) {
+    return {
+      success: false,
+      errors: ['Report not found'],
+    };
+  }
+
+  const report = existingReport[0];
+  if (!report) {
+    return {
+      success: false,
+      errors: ['Report not found'],
+    };
+  }
+
+  let currentContent = report.content;
   const errors: string[] = [];
   let allSuccess = true;
-  let currentVersion = 1;
 
+  // Apply all edits in memory
   for (const [index, edit] of edits.entries()) {
     // Update state edit status to processing
     const editState = state?.edits?.[index];
@@ -77,11 +113,10 @@ async function processEditOperations(
       editState.status = 'loading';
     }
 
-    const result = await processEditOperation(reportId, edit, currentContent);
+    const result = applyEditToContent(currentContent, edit);
 
     if (result.success && result.content) {
       currentContent = result.content;
-      currentVersion++;
 
       // Update state edit status to completed
       const completedEditState = state?.edits?.[index];
@@ -92,7 +127,6 @@ async function processEditOperations(
       // Update state current content
       if (state) {
         state.currentContent = currentContent;
-        state.version_number = currentVersion;
       }
     } else {
       allSuccess = false;
@@ -106,29 +140,57 @@ async function processEditOperations(
         failedEditState.status = 'failed';
         failedEditState.error = result.error || 'Unknown error';
       }
-      // Continue processing remaining edits even if one fails
+      // Stop processing on first failure for consistency
+      break;
     }
   }
 
-  const returnValue: {
-    success: boolean;
-    finalContent?: string;
-    errors: string[];
-    version?: number;
-  } = {
-    success: allSuccess,
-    errors,
-    version: currentVersion,
-  };
+  if (!allSuccess || currentContent === report.content) {
+    return {
+      success: allSuccess,
+      finalContent: currentContent,
+      errors,
+    };
+  }
 
-  if (currentContent !== '') {
-    returnValue.finalContent = currentContent;
+  // Determine if we should increment version
+  const incrementVersion = await shouldIncrementVersion(reportId, messageId);
+  const { versionHistory, newVersionNumber } = updateVersionHistory(
+    report.versionHistory as VersionHistory | null,
+    currentContent,
+    incrementVersion
+  );
+
+  // Write all changes to database in one operation
+  try {
+    await batchUpdateReport({
+      reportId,
+      content: currentContent,
+      name: reportName,
+      versionHistory,
+    });
+
     if (state) {
       state.finalContent = currentContent;
+      state.version_number = newVersionNumber;
     }
-  }
 
-  return returnValue;
+    return {
+      success: true,
+      finalContent: currentContent,
+      errors: [],
+      version: newVersionNumber,
+      versionHistory,
+      incrementVersion, // Include this so we know if version was incremented
+    };
+  } catch (error) {
+    console.error('[modify-reports] Error updating report:', error);
+    return {
+      success: false,
+      finalContent: currentContent,
+      errors: [error instanceof Error ? error.message : 'Failed to save changes'],
+    };
+  }
 }
 
 // Main modify reports function
@@ -190,10 +252,16 @@ const modifyReportsFile = wrapTraced(
     }
 
     // Process all edit operations
-    const editResult = await processEditOperations(params.id, params.edits, state);
+    const editResult = await processEditOperations(
+      params.id,
+      params.name,
+      params.edits,
+      messageId,
+      state
+    );
 
-    // Track file associations if messageId is available
-    if (messageId && editResult.success && editResult.finalContent) {
+    // Track file associations if this is a new version (not part of same turn)
+    if (messageId && editResult.success && editResult.finalContent && editResult.incrementVersion) {
       await trackFileAssociations({
         messageId,
         files: [

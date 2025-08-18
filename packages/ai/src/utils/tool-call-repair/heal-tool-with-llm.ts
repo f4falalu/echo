@@ -1,7 +1,7 @@
 import type { LanguageModelV2ToolCall } from '@ai-sdk/provider';
 import { generateObject } from 'ai';
 import { type InvalidToolInputError, NoSuchToolError, type ToolSet } from 'ai';
-import { Haiku35 } from '../../llm/haiku-3-5';
+import { Sonnet4 } from '../../llm';
 
 interface ToolCallWithArgs extends LanguageModelV2ToolCall {
   args?: unknown;
@@ -35,7 +35,7 @@ export async function healToolWithLlm({
     const toolCallWithArgs = toolCall as ToolCallWithArgs;
 
     const { object: repairedArgs } = await generateObject({
-      model: Haiku35,
+      model: Sonnet4,
       schema: tool.inputSchema,
       prompt: [
         `The model tried to call the tool "${toolCall.toolName}"`,

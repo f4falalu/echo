@@ -1,7 +1,6 @@
 import { updateMessageEntries } from '@buster/database';
 import { wrapTraced } from 'braintrust';
 import { createRawToolResultEntry } from '../../../shared/create-raw-llm-tool-result-entry';
-import { trackFileAssociations } from '../../file-tracking-helper';
 import type {
   CreateReportsContext,
   CreateReportsInput,
@@ -14,8 +13,8 @@ import {
   createCreateReportsReasoningEntry,
 } from './helpers/create-reports-tool-transform-helper';
 
-// Main create report files function - now just handles finalization
-const finalizeReportFiles = wrapTraced(
+// Main create report files function - returns success status
+const getReportCreationResults = wrapTraced(
   async (
     params: CreateReportsInput,
     context: CreateReportsContext,
@@ -24,7 +23,6 @@ const finalizeReportFiles = wrapTraced(
     // Get context values
     const userId = context.userId;
     const organizationId = context.organizationId;
-    const messageId = context.messageId;
 
     if (!userId) {
       return {
@@ -41,16 +39,16 @@ const finalizeReportFiles = wrapTraced(
       };
     }
 
-    // Reports have already been created in the delta function
-    // Here we just need to finalize and return the results
+    // Reports have already been created and updated in the delta function
+    // Here we just return the final status
     const files = state?.files || [];
-    const successfulFiles = files.filter((f) => f.id && f.file_name);
+    const successfulFiles = files.filter((f) => f.id && f.file_name && f.status === 'completed');
     const failedFiles: Array<{ name: string; error: string }> = [];
 
     // Check for any files that weren't successfully created
     params.files.forEach((inputFile, index) => {
       const stateFile = state?.files?.[index];
-      if (!stateFile || !stateFile.id) {
+      if (!stateFile || !stateFile.id || stateFile.status === 'failed') {
         failedFiles.push({
           name: inputFile.name,
           error: 'Failed to create report',
@@ -58,25 +56,14 @@ const finalizeReportFiles = wrapTraced(
       }
     });
 
-    // Track file associations if messageId is available
-    if (messageId && successfulFiles.length > 0) {
-      await trackFileAssociations({
-        messageId,
-        files: successfulFiles.map((file) => ({
-          id: file.id,
-          version: file.version_number,
-        })),
-      });
-    }
-
     // Generate result message
     let message: string;
     if (failedFiles.length === 0) {
-      message = `Successfully created ${successfulFiles.length} report files.`;
+      message = `Successfully created ${successfulFiles.length} report file${successfulFiles.length !== 1 ? 's' : ''}.`;
     } else if (successfulFiles.length === 0) {
       message = `Failed to create all report files.`;
     } else {
-      message = `Successfully created ${successfulFiles.length} report files. Failed to create ${failedFiles.length} files.`;
+      message = `Successfully created ${successfulFiles.length} report file${successfulFiles.length !== 1 ? 's' : ''}. Failed to create ${failedFiles.length} file${failedFiles.length !== 1 ? 's' : ''}.`;
     }
 
     return {
@@ -89,7 +76,7 @@ const finalizeReportFiles = wrapTraced(
       failed_files: failedFiles,
     };
   },
-  { name: 'Finalize Report Files' }
+  { name: 'Get Report Creation Results' }
 );
 
 export function createCreateReportsExecute(
@@ -101,8 +88,8 @@ export function createCreateReportsExecute(
       const startTime = Date.now();
 
       try {
-        // Call the finalization function
-        const result = await finalizeReportFiles(input, context, state);
+        // Get the results (reports were already created in delta)
+        const result = await getReportCreationResults(input, context, state);
 
         // Update state files with final results
         if (result && typeof result === 'object') {
@@ -110,22 +97,13 @@ export function createCreateReportsExecute(
           // Ensure state.files is initialized for safe mutations below
           state.files = state.files ?? [];
 
-          // Update successful files
-          if (typedResult.files && Array.isArray(typedResult.files)) {
-            typedResult.files.forEach((file) => {
-              const stateFile = (state.files ?? []).find((f) => f.file_name === file.name);
-              if (stateFile) {
-                stateFile.status = 'completed';
-              }
-            });
-          }
-
-          // Update failed files
-          if (typedResult.failed_files && Array.isArray(typedResult.failed_files)) {
-            typedResult.failed_files.forEach((failedFile) => {
-              const stateFile = (state.files ?? []).find((f) => f.file_name === failedFile.name);
-              if (stateFile) {
-                stateFile.status = 'failed';
+          // Mark any remaining files as completed/failed based on result
+          if (state.files) {
+            state.files.forEach((stateFile) => {
+              if (stateFile.status === 'loading') {
+                // Check if this file is in the success list
+                const isSuccess = typedResult.files?.some((f) => f.id === stateFile.id);
+                stateFile.status = isSuccess ? 'completed' : 'failed';
               }
             });
           }
