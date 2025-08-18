@@ -4,8 +4,10 @@ import type { PermissionedDataset } from '@buster/access-controls';
 import type { ModelMessage } from 'ai';
 import { z } from 'zod';
 import {
+  type AnalysisTypeRouterResult,
   type CreateTodosResult,
   type ExtractValuesSearchResult,
+  runAnalysisTypeRouterStep,
   runAnalystAgentStep,
   runCreateTodosStep,
   runExtractValuesAndSearchStep,
@@ -31,7 +33,7 @@ export async function runAnalystWorkflow(input: AnalystWorkflowInput) {
 
   const { messages } = input;
 
-  const { todos, values } = await runAnalystPrepSteps(input);
+  const { todos, values, analysisType } = await runAnalystPrepSteps(input);
 
   // Add all messages from extract-values step (tool call, result, and optional user message)
   messages.push(...values.messages);
@@ -50,6 +52,7 @@ export async function runAnalystWorkflow(input: AnalystWorkflowInput) {
       sql_dialect_guidance: input.dataSourceSyntax,
       datasets: input.datasets,
       workflowStartTime,
+      analysisMode: analysisType,
     },
     streamOptions: {
       messages,
@@ -92,8 +95,9 @@ async function runAnalystPrepSteps({
 }: AnalystPrepStepInput): Promise<{
   todos: CreateTodosResult;
   values: ExtractValuesSearchResult;
+  analysisType: AnalysisTypeRouterResult['analysisType'];
 }> {
-  const [todos, values] = await Promise.all([
+  const [todos, values, , analysisType] = await Promise.all([
     runCreateTodosStep({
       messages,
       messageId,
@@ -107,7 +111,10 @@ async function runAnalystPrepSteps({
       chatId,
       messageId,
     }),
+    runAnalysisTypeRouterStep({
+      messages,
+    }),
   ]);
 
-  return { todos, values };
+  return { todos, values, analysisType: analysisType.analysisType };
 }
