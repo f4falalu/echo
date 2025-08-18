@@ -108,7 +108,7 @@ export const MetricViewChart: React.FC<{
             />
           </MetricViewChartCard>
 
-          {!!metricData?.has_more_records && <MetricDataTruncatedWarning />}
+          {!!metricData?.has_more_records && <MetricDataTruncatedWarning metricId={metricId} />}
         </div>
 
         <AnimatePresenceWrapper show={showEvaluation}>

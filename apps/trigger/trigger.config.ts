@@ -40,11 +40,12 @@ export default defineConfig({
 
             let resolvedPath: string;
             if (subPath) {
-              // Handle sub-paths like @buster/ai/workflows/analyst-workflow
+              // Handle sub-paths like @buster/server-shared/metrics
               // Check if subPath already starts with 'src', if so, don't add it again
               const cleanSubPath = subPath.startsWith('src/') ? subPath.slice(4) : subPath;
               const srcRoot = path.resolve(process.cwd(), '../..', 'packages', packageName, 'src');
 
+              // Try multiple possible paths (combining both approaches)
               const candidatePaths = [
                 path.join(srcRoot, `${cleanSubPath}.ts`),
                 path.join(srcRoot, cleanSubPath, 'index.ts'),
