@@ -2,6 +2,7 @@
 
 import * as SliderPrimitive from '@radix-ui/react-slider';
 import * as React from 'react';
+import { ErrorBoundary } from 'react-error-boundary';
 import {
   TooltipBase,
   TooltipContent,
@@ -9,7 +10,6 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip/TooltipBase';
 import { cn } from '@/lib/utils';
-import { ErrorBoundary } from '../error';
 
 export interface SliderProps extends React.ComponentPropsWithoutRef<typeof SliderPrimitive.Root> {
   min?: number;
@@ -51,7 +51,7 @@ const Slider = React.forwardRef<React.ElementRef<typeof SliderPrimitive.Root>, S
     };
 
     return (
-      <ErrorBoundary errorComponent={<div>Error</div>}>
+      <ErrorBoundary fallback={<div>Error rendering slider</div>}>
         <SliderPrimitive.Root
           ref={ref}
           className={cn('relative flex w-full touch-none items-center select-none', className)}

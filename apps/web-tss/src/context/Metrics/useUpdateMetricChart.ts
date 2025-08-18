@@ -7,6 +7,7 @@ import {
   DEFAULT_CHART_CONFIG,
   DEFAULT_COLUMN_LABEL_FORMAT,
 } from '@buster/server-shared/metrics';
+import { useParams } from '@tanstack/react-router';
 import { useState } from 'react';
 import { useUpdateMetric } from '@/api/buster_rest/metrics';
 import { useGetMetricMemoized } from '@/api/buster_rest/metrics/metricQueryHelpers';
@@ -14,9 +15,13 @@ import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import { timeout } from '@/lib/timeout';
 import { getOriginalMetric, setOriginalMetric } from './useOriginalMetricStore';
 
-export const useUpdateMetricChart = (props: { metricId: string; chatId?: string }) => {
-  const metricId = props.metricId;
-  const chatId = props.chatId || '';
+export const useUpdateMetricChart = (props?: { metricId: string; chatId?: string }) => {
+  const { chatId: chatIdParam, metricId: metricIdParam } = useParams({ strict: false }) as {
+    chatId: string | undefined;
+    metricId: string | undefined;
+  };
+  const metricId = props?.metricId || metricIdParam || '';
+  const chatId = props?.chatId || chatIdParam || '';
   const [isSaving, setIsSaving] = useState(false);
   const { mutate: onUpdateMetric } = useUpdateMetric({
     updateVersion: false,

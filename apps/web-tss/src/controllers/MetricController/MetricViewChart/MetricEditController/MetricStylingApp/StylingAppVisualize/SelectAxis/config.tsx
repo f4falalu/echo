@@ -67,11 +67,11 @@ export const chartTypeToAxis: Record<
   ChartType,
   'barAndLineAxis' | 'scatterAxis' | 'pieChartAxis' | 'comboChartAxis' | ''
 > = {
-  ['bar']: 'barAndLineAxis',
-  ['line']: 'barAndLineAxis',
-  ['scatter']: 'scatterAxis',
-  ['pie']: 'pieChartAxis',
-  ['combo']: 'comboChartAxis',
-  ['metric']: '',
-  ['table']: '',
+  bar: 'barAndLineAxis',
+  line: 'barAndLineAxis',
+  scatter: 'scatterAxis',
+  pie: 'pieChartAxis',
+  combo: 'comboChartAxis',
+  metric: '',
+  table: '',
 };

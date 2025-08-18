@@ -4,8 +4,8 @@ import type {
   ColumnSettings,
 } from '@buster/server-shared/metrics';
 import React, { useMemo } from 'react';
+import { ErrorBoundary } from 'react-error-boundary';
 import { prefetchGetCurrencies } from '@/api/buster_rest/dictionaries';
-import { ErrorBoundary } from '@/components/ui/error';
 import { Text } from '@/components/ui/typography';
 import { useUpdateMetricChart } from '@/context/Metrics/useUpdateMetricChart';
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
@@ -429,7 +429,7 @@ const LabelSettings: React.FC<{
   if (ComponentsLoop.length === 0) return null;
 
   return (
-    <ErrorBoundary>
+    <ErrorBoundary fallback={<div className="text-red-500">Error rendering label settings</div>}>
       <div className={`${className} flex w-full flex-col space-y-3 overflow-hidden p-3`}>
         {ComponentsLoop.map(({ key, Component }) => {
           return <React.Fragment key={key}>{Component}</React.Fragment>;

@@ -7,7 +7,7 @@ import { ErrorClosableContainer } from '@/components/ui/error/ErrorClosableConta
 import { Command, ReturnKey } from '@/components/ui/icons';
 import { AppCodeEditor } from '@/components/ui/inputs/AppCodeEditor';
 import { useBusterNotifications } from '@/context/BusterNotifications';
-import { useMemoizedFn } from '@/hooks';
+import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import type { AppVerticalCodeSplitterProps } from './AppVerticalCodeSplitter';
 
 export const SQLContainer: React.FC<{
@@ -28,16 +28,16 @@ export const SQLContainer: React.FC<{
     setDatasetSQL,
     onRunQuery,
     onSaveSQL,
-    error
+    error,
   }) => {
     const [isRunning, setIsRunning] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
     const { openInfoMessage } = useBusterNotifications();
 
-    const onCopySQL = useMemoizedFn(() => {
+    const onCopySQL = () => {
       navigator.clipboard.writeText(sql || '');
       openInfoMessage('SQL copied to clipboard');
-    });
+    };
 
     const onRunQueryPreflight = useMemoizedFn(async () => {
       setIsRunning(true);
@@ -74,7 +74,8 @@ export const SQLContainer: React.FC<{
                 disabled={disabledSave || !sql || isRunning}
                 variant="black"
                 loading={isSaving}
-                onClick={onSaveSQLPreflight}>
+                onClick={onSaveSQLPreflight}
+              >
                 Save
               </Button>
             )}
@@ -91,29 +92,22 @@ export const SQLContainer: React.FC<{
                     <Command />
                     <ReturnKey />
                   </div>
-                }>
+                }
+              >
                 Run
               </Button>
             )}
           </div>
         </>
       );
-    }, [
-      disabledSave,
-      isRunning,
-      onCopySQL,
-      onRunQueryPreflight,
-      onSaveSQL,
-      sql,
-      isSaving,
-      onSaveSQLPreflight
-    ]);
+    }, [disabledSave, isRunning, sql, isSaving]);
 
     return (
       <FileCard
         className={className}
         footerClassName="flex justify-between file-card space-x-4"
-        footer={memoizedFooter}>
+        footer={memoizedFooter}
+      >
         <AppCodeEditor
           className="overflow-hidden border-x-0 border-t-0"
           value={sql}

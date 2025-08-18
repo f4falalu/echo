@@ -1,6 +1,7 @@
 import type React from 'react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { createContext, useContextSelector } from 'use-context-selector';
+import { isServer } from '@/lib/window';
 import { useLocalStorageState } from '../../hooks/useLocalStorageState';
 
 // Define theme types
@@ -39,7 +40,7 @@ export function BusterThemeProvider({
 
   // Track system preference
   const [systemTheme, setSystemTheme] = useState<'dark' | 'light'>(() => {
-    if (typeof window !== 'undefined') {
+    if (!isServer) {
       return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
     }
     return 'light';

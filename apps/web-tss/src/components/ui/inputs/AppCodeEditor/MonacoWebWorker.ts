@@ -1,6 +1,8 @@
 'use client';
 
-if (typeof window !== 'undefined') {
+import { isServer } from '@/lib/window';
+
+if (!isServer) {
   window.MonacoEnvironment = {
     getWorker(_moduleId, label) {
       switch (label) {

@@ -38,8 +38,6 @@ export interface InputTextAreaProps
   onPressEnter?: (e: React.KeyboardEvent<HTMLTextAreaElement>) => void;
 }
 
-const isServer = typeof window === 'undefined';
-
 export const InputTextArea = React.forwardRef<HTMLTextAreaElement, InputTextAreaProps>(
   (
     {

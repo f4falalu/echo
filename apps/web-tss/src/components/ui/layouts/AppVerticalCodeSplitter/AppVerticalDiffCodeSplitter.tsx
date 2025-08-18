@@ -1,10 +1,14 @@
-import { forwardRef } from 'react';
 import type { DataResult } from '@buster/server-shared/metrics';
-import { AppSplitter, type AppSplitterRef } from '@/components/ui/layouts/AppSplitter';
+import { forwardRef } from 'react';
+import {
+  AppSplitter,
+  type AppSplitterRef,
+  type LayoutSize,
+} from '@/components/ui/layouts/AppSplitter';
 import { DataContainer } from './DataContainer';
 import { DiffSQLContainer } from './DiffSQLContainer';
 
-const DEFAULT_LAYOUT = ['auto', '300px'];
+const DEFAULT_LAYOUT: LayoutSize = ['auto', '300px'];
 
 export interface AppVerticalDiffCodeSplitterProps {
   originalValue: string;
@@ -15,7 +19,8 @@ export interface AppVerticalDiffCodeSplitterProps {
   onRunQuery: () => Promise<void>;
   data: DataResult;
   fetchingData: boolean;
-  defaultLayout?: [string, string];
+  defaultLayout?: LayoutSize;
+  initialLayout?: LayoutSize | null;
   autoSaveId: string;
   topHidden?: boolean;
   onSaveSQL?: () => Promise<void>;
@@ -40,6 +45,7 @@ export const AppVerticalDiffCodeSplitter = forwardRef<
       onRunQuery,
       onSaveSQL,
       data,
+      initialLayout = null,
       fetchingData,
       defaultLayout = DEFAULT_LAYOUT,
       autoSaveId,
@@ -48,7 +54,7 @@ export const AppVerticalDiffCodeSplitter = forwardRef<
       disabledSave = false,
       topHidden = false,
       gapAmount = 3,
-      className
+      className,
     },
     ref
   ) => {
@@ -83,6 +89,7 @@ export const AppVerticalDiffCodeSplitter = forwardRef<
         }
         split="horizontal"
         defaultLayout={defaultLayout}
+        initialLayout={initialLayout}
         autoSaveId={autoSaveId}
         preserveSide="left"
         rightPanelMinSize={'80px'}

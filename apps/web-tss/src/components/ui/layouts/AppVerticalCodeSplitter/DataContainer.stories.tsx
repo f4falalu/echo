@@ -1,7 +1,7 @@
-import type { Meta, StoryObj } from '@storybook/nextjs';
-import { faker } from '@faker-js/faker';
-import { DataContainer } from './DataContainer';
 import type { DataResult } from '@buster/server-shared/metrics';
+import { faker } from '@faker-js/faker';
+import type { Meta, StoryObj } from '@storybook/react-vite';
+import { DataContainer } from './DataContainer';
 
 // Generate mock data that would be compatible with AppDataGrid
 const generateMockData = (): DataResult => {
@@ -12,7 +12,7 @@ const generateMockData = (): DataResult => {
     email: index % 3 === 2 ? null : faker.internet.email(),
     department: faker.commerce.department(),
     salary: faker.number.int({ min: 40000, max: 150000 }),
-    join_date: faker.date.past({ years: 5 }).toISOString().split('T')[0]
+    join_date: faker.date.past({ years: 5 }).toISOString().split('T')[0],
   }));
 
   return rows as DataResult;
@@ -22,15 +22,15 @@ const meta = {
   title: 'Features/Layouts/DataContainer',
   component: DataContainer,
   parameters: {
-    layout: 'fullscreen'
+    layout: 'fullscreen',
   },
   decorators: [
     (Story) => (
       <div style={{ height: '600px', padding: '20px' }}>
         <Story />
       </div>
-    )
-  ]
+    ),
+  ],
 } satisfies Meta<typeof DataContainer>;
 
 export default meta;
@@ -39,27 +39,27 @@ type Story = StoryObj<typeof meta>;
 export const WithData: Story = {
   args: {
     data: generateMockData(),
-    fetchingData: false
-  }
+    fetchingData: false,
+  },
 };
 
 export const Loading: Story = {
   args: {
     data: null,
-    fetchingData: true
-  }
+    fetchingData: true,
+  },
 };
 
 export const LoadingWithData: Story = {
   args: {
     data: generateMockData(),
-    fetchingData: true
-  }
+    fetchingData: true,
+  },
 };
 
 export const NoData: Story = {
   args: {
     data: null,
-    fetchingData: false
-  }
+    fetchingData: false,
+  },
 };

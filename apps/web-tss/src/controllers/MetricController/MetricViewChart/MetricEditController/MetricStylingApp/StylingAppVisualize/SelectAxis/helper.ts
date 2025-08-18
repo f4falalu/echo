@@ -62,7 +62,7 @@ export const chartTypeToDropZones: Record<
   ChartConfigProps['selectedChartType'],
   (selectedAxis: Parameters<typeof getChartTypeDropZones>[0]['selectedAxis']) => DropZone[]
 > = {
-  ['bar']: (selectedAxis) => {
+  bar: (selectedAxis) => {
     const _selectedAxis = selectedAxis as ChartConfigProps['barAndLineAxis'];
     return [
       makeXAxisDropZone(_selectedAxis.x),
@@ -71,7 +71,7 @@ export const chartTypeToDropZones: Record<
       makeTooltipDropZone(_selectedAxis.tooltip),
     ];
   },
-  ['line']: (selectedAxis) => {
+  line: (selectedAxis) => {
     const _selectedAxis = selectedAxis as ChartConfigProps['barAndLineAxis'];
     return [
       makeXAxisDropZone(_selectedAxis.x),
@@ -80,7 +80,7 @@ export const chartTypeToDropZones: Record<
       makeTooltipDropZone(_selectedAxis.tooltip),
     ];
   },
-  ['scatter']: (selectedAxis) => {
+  scatter: (selectedAxis) => {
     const _selectedAxis = selectedAxis as ChartConfigProps['scatterAxis'];
     return [
       makeXAxisDropZone(_selectedAxis.x),
@@ -90,7 +90,7 @@ export const chartTypeToDropZones: Record<
       makeTooltipDropZone(_selectedAxis.tooltip),
     ];
   },
-  ['pie']: (selectedAxis) => {
+  pie: (selectedAxis) => {
     const _selectedAxis = selectedAxis as ChartConfigProps['pieChartAxis'];
     return [
       makeXAxisDropZone(_selectedAxis.x),
@@ -98,7 +98,7 @@ export const chartTypeToDropZones: Record<
       makeTooltipDropZone(_selectedAxis.tooltip),
     ];
   },
-  ['combo']: (selectedAxis) => {
+  combo: (selectedAxis) => {
     const _selectedAxis = selectedAxis as ChartConfigProps['comboChartAxis'];
     return [
       makeXAxisDropZone(_selectedAxis.x),
@@ -109,10 +109,10 @@ export const chartTypeToDropZones: Record<
     ];
   },
   //NOT ACUTALLY USED
-  ['metric']: () => {
+  metric: () => {
     return EMPTY_DROP_ZONE;
   },
-  ['table']: () => {
+  table: () => {
     return EMPTY_DROP_ZONE;
   },
 };

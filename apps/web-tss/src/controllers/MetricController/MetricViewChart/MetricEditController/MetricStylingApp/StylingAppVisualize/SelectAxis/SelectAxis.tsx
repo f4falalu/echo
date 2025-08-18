@@ -8,7 +8,7 @@ import type {
 } from '@buster/server-shared/metrics';
 import isEmpty from 'lodash/isEmpty';
 import React, { useMemo } from 'react';
-import { ErrorBoundary } from '@/components/ui/error';
+import { ErrorBoundary } from 'react-error-boundary';
 import { useUpdateMetricChart } from '@/context/Metrics/useUpdateMetricChart';
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import { chartTypeToAxis, zoneIdToAxis } from './config';
@@ -71,7 +71,7 @@ export const SelectAxis: React.FC<
   }
 
   return (
-    <ErrorBoundary errorComponent={memoizedErrorComponent}>
+    <ErrorBoundary fallback={memoizedErrorComponent}>
       <SelectAxisProvider
         {...props}
         selectedAxis={selectedAxis}

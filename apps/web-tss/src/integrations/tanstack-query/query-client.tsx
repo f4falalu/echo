@@ -1,4 +1,5 @@
 import {
+  isServer,
   type QueryClient,
   QueryClientProvider,
   type QueryClientProviderProps,
@@ -7,7 +8,6 @@ import { openErrorNotification as openErrorNotificationMethod } from '@/context/
 import { makeQueryClient } from './make-query-client';
 
 let browserQueryClient: QueryClient | undefined;
-const isServer = typeof window === 'undefined';
 
 export function getQueryClient() {
   if (isServer) {

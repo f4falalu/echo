@@ -2,7 +2,7 @@ import type { ChartEncodes, ColumnLabelFormat } from '@buster/server-shared/metr
 import type { DraggableAttributes } from '@dnd-kit/core';
 import type { SyntheticListenerMap } from '@dnd-kit/core/dist/hooks/utilities';
 import React, { useMemo } from 'react';
-import { ErrorBoundary } from '@/components/ui/error';
+import { ErrorBoundary } from 'react-error-boundary';
 import { useUpdateMetricChart } from '@/context/Metrics/useUpdateMetricChart';
 import { CollapseDelete } from '../../Common/CollapseDelete';
 import { chartTypeToAxis, type SelectAxisContainerId, zoneIdToAxis } from './config';
@@ -11,9 +11,7 @@ import { SelectAxisItemLabel } from './SelectAxisItemLabel';
 import {
   useAxisContextBarGroupType,
   useAxisContextColumnLabelFormat,
-  useAxisContextColumnLabelFormats,
   useAxisContextColumnSetting,
-  useAxisContextColumnSettings,
   useAxisContextLineGroupType,
   useAxisContextMetricId,
   useAxisContextRowCount,
@@ -104,7 +102,7 @@ const DropdownContent: React.FC<{ id: string; zoneId: SelectAxisContainerId }> =
   }, []);
 
   return (
-    <ErrorBoundary errorComponent={memoizedErrorComponent}>
+    <ErrorBoundary fallback={memoizedErrorComponent}>
       <SelectAxisDropdownContent
         hideTitle
         id={id}

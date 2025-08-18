@@ -1,6 +1,6 @@
 // Learn more: https://github.com/testing-library/jest-dom
-//import '@testing-library/jest-dom';
 import { vi } from 'vitest';
+import '@testing-library/jest-dom';
 
 // Mock react-hotkeys-hook
 vi.mock('react-hotkeys-hook', () => ({
