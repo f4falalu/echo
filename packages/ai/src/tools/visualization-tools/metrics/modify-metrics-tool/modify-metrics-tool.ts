@@ -1,7 +1,7 @@
 import { StatusSchema } from '@buster/server-shared/chats';
 import { tool } from 'ai';
 import { z } from 'zod';
-import METRIC_TOOL_DESCRIPTION from './metric-tool-description.txt';
+import METRIC_TOOL_DESCRIPTION from '../helpers/metric-tool-description.txt';
 import { createModifyMetricsDelta } from './modify-metrics-delta';
 import { createModifyMetricsExecute } from './modify-metrics-execute';
 import { createModifyMetricsFinish } from './modify-metrics-finish';
