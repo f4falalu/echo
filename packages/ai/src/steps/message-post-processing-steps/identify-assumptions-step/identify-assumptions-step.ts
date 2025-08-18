@@ -13,11 +13,11 @@ export const identifyAssumptionsStepInputSchema = z.object({
   datasets: z.string().describe('Dataset context for analysis'),
 });
 
-// Schema for what the LLM returns
-const identifyAssumptionsLLMOutputSchema = z.discriminatedUnion('type', [
-  z.object({
-    type: z.literal('listAssumptions'),
-    assumptions: z.array(
+// Schema for what the LLM returns - using simple object instead of discriminated union
+const identifyAssumptionsLLMOutputSchema = z.object({
+  type: z.enum(['listAssumptions', 'noAssumptions']).describe('Type of result'),
+  assumptions: z
+    .array(
       z.object({
         descriptive_title: z.string().describe('A clear, descriptive title for the assumption'),
         classification: z
@@ -58,13 +58,11 @@ const identifyAssumptionsLLMOutputSchema = z.discriminatedUnion('type', [
           .enum(['timeRelated', 'vagueRequest', 'major', 'minor'])
           .describe('Label indicating the nature and severity of the assumption'),
       })
-    ),
-  }),
-  z.object({
-    type: z.literal('noAssumptions'),
-    message: z.string().describe('Explanation that no assumptions were identified'),
-  }),
-]);
+    )
+    .optional()
+    .describe('List of assumptions (only if listAssumptions)'),
+  message: z.string().optional().describe('Explanation message (only if noAssumptions)'),
+});
 
 // Result schema that includes the structured result
 export const identifyAssumptionsResultSchema = z.object({
@@ -188,11 +186,6 @@ No conversation history available for analysis.`,
           messages,
           temperature: 0,
           maxOutputTokens: 10000,
-          providerOptions: {
-            anthropic: {
-              thinking: { type: 'enabled', budgetTokens: 16000 },
-            },
-          },
         });
         return object;
       },
@@ -204,7 +197,7 @@ No conversation history available for analysis.`,
     const llmResult = await tracedAssumptionsGeneration();
 
     // Convert LLM result to output format
-    if (llmResult.type === 'listAssumptions') {
+    if (llmResult.type === 'listAssumptions' && llmResult.assumptions) {
       // Convert snake_case from LLM to camelCase for result
       const assumptions = llmResult.assumptions.map((assumption) => ({
         descriptiveTitle: assumption.descriptive_title,
