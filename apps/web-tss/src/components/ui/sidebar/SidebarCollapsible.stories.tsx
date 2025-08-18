@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { fn } from 'storybook/test';
-import { MapSettings, User } from '../icons/NucleoIconOutlined';
+import { Star, User } from '../icons/NucleoIconOutlined';
 import { SidebarCollapsible } from './SidebarCollapsible';
 
 const meta: Meta<typeof SidebarCollapsible> = {
@@ -34,13 +34,13 @@ export const Default: Story = {
       {
         id: '2',
         label: 'Account',
-        icon: <MapSettings />,
+        icon: <Star />,
         route: { to: '/app/chats' },
       },
       {
         id: '3',
         label: 'Dashboard',
-        icon: <MapSettings />,
+        icon: <Star />,
         route: { to: '/app/metrics' },
       },
     ],

@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { Mailbox, MapSettings, User } from '../icons';
+import { Star, Storage, User } from '../icons';
 import { SearchDropdown } from './SearchDropdown';
 
 const meta: Meta<typeof SearchDropdown> = {
@@ -34,12 +34,12 @@ const items = [
   {
     label: 'Settings',
     value: 'settings',
-    icon: <MapSettings />,
+    icon: <Storage />,
   },
   {
     label: 'Messages',
     value: 'messages',
-    icon: <Mailbox />,
+    icon: <Star />,
     disabled: false,
   },
 ];

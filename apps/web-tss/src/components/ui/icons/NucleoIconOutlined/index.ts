@@ -14,12 +14,14 @@ export { default as ChevronRight } from './chevron-right';
 export { default as ChevronUp } from './chevron-up';
 export { default as CircleCheck } from './circle-check';
 export { default as CircleCopy } from './circle-copy';
+export { default as CircleInfo } from './circle-info';
 export { default as CircleWarning } from './circle-warning';
 export { default as CircleXmark } from './circle-xmark';
 export { default as Copy } from './copy';
 export { default as Copy2 } from './copy-2'; // Alternate copy icon
 export { default as Database } from './database'; // Database icon
 export { default as Dots } from './dots';
+export { default as DotsVertical } from './dots-vertical';
 export { default as Download } from './download';
 export { default as Eye } from './eye'; // Eye (show) icon
 export { default as EyeSlash } from './eye-slash'; // Eye with slash (hide) icon
@@ -31,10 +33,9 @@ export { default as FolderPlus } from './folder-plus'; // Folder with plus icon
 export { default as Gear } from './gear'; // Gear/settings icon
 export { default as Grid } from './grid'; // Grid icon
 export { default as GridPlus } from './grid-plus'; // Grid with plus icon
+export { default as GripDotsVertical } from './grip-dots-vertical';
 export { default as House4 } from './house-4'; // House variant 4 icon
 export { default as Magnifier } from './magnifier';
-export { default as Mailbox } from './mailbox';
-export { default as MapSettings } from './map-settings';
 export { default as Message } from './message'; // Message icon
 export { default as Messages } from './messages'; // Messages icon
 export { default as Minus } from './minus';
@@ -43,11 +44,13 @@ export { default as Plus } from './plus'; // Plus/add icon
 export { default as ShapeCircle } from './shape-circle';
 export { default as ShapeSquare } from './shape-square';
 export { default as SidebarLeft } from './sidebar-left';
+export { default as Sliders3 } from './sliders-3';
 export { default as SquareChart } from './square-chart'; // Square chart icon
 export { default as Star } from './star';
 export { default as Storage } from './storage';
 export { default as Table } from './table'; // Table icon
 export { default as Trash } from './trash';
+export { default as TriangleWarning } from './triangle-warning';
 export { default as UnorderedList2 } from './unordered-list-2'; // Unordered list variant 2 icon
 export { default as User } from './user';
 export { default as UserGroup } from './user-group'; // User group icon

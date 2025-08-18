@@ -102,115 +102,113 @@ type AppSegmentedComponent = (<T extends string = string>(
 };
 
 // Update the component definition to properly handle generics
-export const AppSegmented: AppSegmentedComponent = React.memo(
-  <T extends string | number = string>({
-    options,
-    type = 'track',
-    value,
-    onChange,
-    className,
-    size = 'default',
-    block = false,
-  }: AppSegmentedProps<T>) => {
-    const rootRef = React.useRef<HTMLDivElement>(null);
-    const elementSize = useSize(rootRef, 25);
-    const tabRefs = React.useRef<Map<string, HTMLButtonElement>>(new Map());
-    const [selectedValue, setSelectedValue] = useState(value || options[0]?.value);
-    const [gliderStyle, setGliderStyle] = useState({
-      width: 0,
-      transform: 'translateX(0)',
-    });
-    const [isMeasured, setIsMeasured] = useState(false);
-    const [isPending, startTransition] = useTransition();
+export const AppSegmented: AppSegmentedComponent = (<T extends string | number = string>({
+  options,
+  type = 'track',
+  value,
+  onChange,
+  className,
+  size = 'default',
+  block = false,
+}: AppSegmentedProps<T>) => {
+  const rootRef = React.useRef<HTMLDivElement>(null);
+  const elementSize = useSize(rootRef, 25);
+  const tabRefs = React.useRef<Map<string, HTMLButtonElement>>(new Map());
+  const [selectedValue, setSelectedValue] = useState(value || options[0]?.value);
+  const [gliderStyle, setGliderStyle] = useState({
+    width: 0,
+    transform: 'translateX(0)',
+  });
+  const [isMeasured, setIsMeasured] = useState(false);
+  const [isPending, startTransition] = useTransition();
 
-    const handleTabClick = (value: string) => {
-      const item = options.find((item) => item.value === value);
-      if (item && !item.disabled && value !== selectedValue) {
-        setSelectedValue(item.value);
+  const handleTabClick = (value: string) => {
+    const item = options.find((item) => item.value === value);
+    if (item && !item.disabled && value !== selectedValue) {
+      setSelectedValue(item.value);
+      startTransition(() => {
+        onChange?.(item);
+      });
+    }
+  };
+
+  const updateGliderStyle = () => {
+    const selectedTab = tabRefs.current.get(selectedValue as string);
+    if (selectedTab) {
+      const { offsetWidth, offsetLeft } = selectedTab;
+      if (offsetWidth > 0) {
         startTransition(() => {
-          onChange?.(item);
+          setGliderStyle({
+            width: offsetWidth,
+            transform: `translateX(${offsetLeft}px)`,
+          });
+          setIsMeasured(true);
         });
       }
-    };
+    }
+  };
 
-    const updateGliderStyle = () => {
-      const selectedTab = tabRefs.current.get(selectedValue as string);
-      if (selectedTab) {
-        const { offsetWidth, offsetLeft } = selectedTab;
-        if (offsetWidth > 0) {
-          startTransition(() => {
-            setGliderStyle({
-              width: offsetWidth,
-              transform: `translateX(${offsetLeft}px)`,
-            });
-            setIsMeasured(true);
-          });
-        }
-      }
-    };
+  // Use useLayoutEffect to measure before paint
+  useLayoutEffect(() => {
+    updateGliderStyle();
+  }, [selectedValue, elementSize?.width]);
 
-    // Use useLayoutEffect to measure before paint
-    useLayoutEffect(() => {
-      updateGliderStyle();
-    }, [selectedValue, elementSize?.width]);
+  useEffect(() => {
+    if (value !== undefined && value !== selectedValue) {
+      setSelectedValue(value);
+    }
+  }, [value]);
 
-    useEffect(() => {
-      if (value !== undefined && value !== selectedValue) {
-        setSelectedValue(value);
-      }
-    }, [value]);
-
-    return (
-      <Tabs.Root
-        ref={rootRef}
-        value={selectedValue as string}
-        // onValueChange={handleTabClick}
-        className={cn(segmentedVariants({ block, type }), heightVariants({ size }), className)}
+  return (
+    <Tabs.Root
+      ref={rootRef}
+      value={selectedValue as string}
+      // onValueChange={handleTabClick}
+      className={cn(segmentedVariants({ block, type }), heightVariants({ size }), className)}
+    >
+      {isMeasured && (
+        <motion.div
+          className={cn(gliderVariants({ type }), heightVariants({ size }))}
+          initial={{
+            width: gliderStyle.width,
+            x: Number.parseInt(
+              gliderStyle.transform.replace('translateX(', '').replace('px)', ''),
+              10
+            ),
+          }}
+          animate={{
+            width: gliderStyle.width,
+            x: Number.parseInt(
+              gliderStyle.transform.replace('translateX(', '').replace('px)', ''),
+              10
+            ),
+          }}
+          transition={{
+            type: 'spring',
+            stiffness: 400,
+            damping: 35,
+          }}
+        />
+      )}
+      <Tabs.List
+        className="relative z-10 flex w-full items-center gap-0.5"
+        aria-label="Segmented Control"
       >
-        {isMeasured && (
-          <motion.div
-            className={cn(gliderVariants({ type }), heightVariants({ size }))}
-            initial={{
-              width: gliderStyle.width,
-              x: Number.parseInt(
-                gliderStyle.transform.replace('translateX(', '').replace('px)', ''),
-                10
-              ),
-            }}
-            animate={{
-              width: gliderStyle.width,
-              x: Number.parseInt(
-                gliderStyle.transform.replace('translateX(', '').replace('px)', ''),
-                10
-              ),
-            }}
-            transition={{
-              type: 'spring',
-              stiffness: 400,
-              damping: 35,
-            }}
+        {options.map((item) => (
+          <SegmentedTrigger
+            key={item.value}
+            item={item as SegmentedItem<string>}
+            selectedValue={selectedValue as string}
+            size={size}
+            block={block}
+            tabRefs={tabRefs}
+            handleTabClick={handleTabClick}
           />
-        )}
-        <Tabs.List
-          className="relative z-10 flex w-full items-center gap-0.5"
-          aria-label="Segmented Control"
-        >
-          {options.map((item) => (
-            <SegmentedTrigger
-              key={item.value}
-              item={item as SegmentedItem<string>}
-              selectedValue={selectedValue as string}
-              size={size}
-              block={block}
-              tabRefs={tabRefs}
-              handleTabClick={handleTabClick}
-            />
-          ))}
-        </Tabs.List>
-      </Tabs.Root>
-    );
-  }
-) as AppSegmentedComponent;
+        ))}
+      </Tabs.List>
+    </Tabs.Root>
+  );
+}) as AppSegmentedComponent;
 
 AppSegmented.displayName = 'AppSegmented';
 

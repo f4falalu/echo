@@ -14,4 +14,5 @@ export interface SelectChartTypeProps {
   columnMetadata: ColumnMetaData[];
   columnSettings: ChartConfigProps['columnSettings'];
   selectedAxis: ChartEncodes;
+  metricId: string;
 }

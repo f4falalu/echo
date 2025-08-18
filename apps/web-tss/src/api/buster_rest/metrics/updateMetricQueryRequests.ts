@@ -4,18 +4,11 @@ import type { BusterCollection } from '@/api/asset_interfaces/collection';
 import type { BusterMetric } from '@/api/asset_interfaces/metric';
 import { collectionQueryKeys } from '@/api/query_keys/collection';
 import { metricsQueryKeys } from '@/api/query_keys/metric';
-import {
-  getOriginalMetric,
-  setOriginalMetric,
-  useOriginalMetricStore,
-} from '@/context/Metrics/useOriginalMetricStore';
+import { getOriginalMetric, setOriginalMetric } from '@/context/Metrics/useOriginalMetricStore';
 import { prepareMetricUpdateMetric, upgradeMetricToIMetric } from '@/lib/metrics';
 import { useAddAssetToCollection, useRemoveAssetFromCollection } from '../collections';
 import { useGetUserFavorites } from '../users';
-import {
-  useGetLatestMetricVersionMemoized,
-  useGetMetricVersionNumber,
-} from './metricVersionNumber';
+import { useGetLatestMetricVersionMemoized } from './metricVersionNumber';
 import {
   bulkUpdateMetricVerificationStatus,
   deleteMetrics,

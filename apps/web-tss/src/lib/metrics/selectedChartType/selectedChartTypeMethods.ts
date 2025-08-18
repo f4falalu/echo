@@ -10,7 +10,10 @@ export const getSelectedChartTypeIcon = ({
   barGroupType,
   barLayout,
   hasAreaStyle,
-}: Omit<SelectChartTypeProps, 'colors' | 'columnMetadata' | 'columnSettings' | 'selectedAxis'> & {
+}: Omit<
+  SelectChartTypeProps,
+  'colors' | 'columnMetadata' | 'columnSettings' | 'selectedAxis' | 'metricId'
+> & {
   hasAreaStyle: boolean;
 }) => {
   return (

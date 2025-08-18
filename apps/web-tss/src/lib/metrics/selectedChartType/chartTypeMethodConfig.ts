@@ -1,4 +1,3 @@
-import type { ChartType } from '@buster/server-shared/metrics';
 import type { SelectChartTypeProps } from './chartIcon.types';
 import { ChartIconType } from './config';
 
@@ -7,7 +6,7 @@ export const DetermineSelectedChartTypeRecord: Record<
   (
     props: Omit<
       SelectChartTypeProps,
-      'colors' | 'columnMetadata' | 'columnSettings' | 'selectedAxis'
+      'colors' | 'columnMetadata' | 'columnSettings' | 'selectedAxis' | 'metricId'
     > & {
       hasAreaStyle: boolean;
     }
