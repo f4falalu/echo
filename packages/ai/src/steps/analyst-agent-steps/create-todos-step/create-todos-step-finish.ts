@@ -17,14 +17,14 @@ export function createTodosStepFinish(todosState: CreateTodosState, context: Cre
 
     // Create final reasoning message with completed status
     const todosReasoningEntry = createTodosReasoningMessage(todosState);
-    const todosRawMessage = createTodosRawLlmMessageEntry(todosState);
+    const todosRawMessages = createTodosRawLlmMessageEntry(todosState);
 
     try {
-      if (todosReasoningEntry && todosRawMessage) {
+      if (todosReasoningEntry && todosRawMessages) {
         await updateMessageEntries({
           messageId: context.messageId,
           reasoningMessages: [todosReasoningEntry],
-          rawLlmMessages: [todosRawMessage],
+          rawLlmMessages: todosRawMessages,
         });
       }
     } catch (error) {

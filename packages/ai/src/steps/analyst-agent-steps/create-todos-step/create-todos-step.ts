@@ -171,14 +171,6 @@ export async function runCreateTodosStep(params: CreateTodosParams): Promise<Cre
       ],
     });
 
-    // Add the todos as a user message (for backward compatibility)
-    if (todos) {
-      resultMessages.push({
-        role: 'user',
-        content: `<todo_list>\n- Below are the items on your TODO list:\n${todos}\n</todo_list>`,
-      });
-    }
-
     return {
       todos,
       messages: resultMessages,

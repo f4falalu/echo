@@ -18,14 +18,14 @@ export function createTodosStepStart(todosState: CreateTodosState, context: Crea
 
     // Create initial reasoning message with loading status
     const todosReasoningEntry = createTodosReasoningMessage(todosState, toolCallId);
-    const todosRawMessage = createTodosRawLlmMessageEntry(todosState, toolCallId);
+    const todosRawMessages = createTodosRawLlmMessageEntry(todosState, toolCallId);
 
     try {
-      if (todosReasoningEntry && todosRawMessage) {
+      if (todosReasoningEntry && todosRawMessages) {
         await updateMessageEntries({
           messageId: context.messageId,
           reasoningMessages: [todosReasoningEntry],
-          rawLlmMessages: [todosRawMessage],
+          rawLlmMessages: todosRawMessages,
         });
       }
     } catch (error) {

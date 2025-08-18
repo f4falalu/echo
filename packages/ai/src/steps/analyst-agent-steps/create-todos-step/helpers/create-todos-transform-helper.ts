@@ -50,28 +50,51 @@ export function createTodosReasoningMessage(
 }
 
 /**
- * Creates a raw LLM message entry for TODOs
- * This is stored as a raw user message in the database
+ * Creates raw LLM message entries for TODOs as tool call and result
+ * This is stored as tool messages in the database to preserve the original user message
  */
 export function createTodosRawLlmMessageEntry(
   todosState: CreateTodosState,
   toolCallId?: string
-): ModelMessage | null {
+): ModelMessage[] | null {
   const id = todosState.entry_id || toolCallId;
 
   if (!id || !todosState.todos) {
     return null;
   }
 
-  return {
-    role: 'user',
+  const messages: ModelMessage[] = [];
+
+  // Add assistant message with tool call
+  messages.push({
+    role: 'assistant',
     content: [
       {
-        type: 'text',
-        text: `<todo_list>\n- Below are the items on your TODO list:\n${todosState.todos}\n</todo_list>`,
+        type: 'tool-call',
+        toolCallId: id,
+        toolName: 'createTodos',
+        input: {},
       },
     ],
-  };
+  });
+
+  // Add tool result message
+  messages.push({
+    role: 'tool',
+    content: [
+      {
+        type: 'tool-result',
+        toolCallId: id,
+        toolName: 'createTodos',
+        output: {
+          type: 'text',
+          value: todosState.todos,
+        },
+      },
+    ],
+  });
+
+  return messages;
 }
 
 /**
