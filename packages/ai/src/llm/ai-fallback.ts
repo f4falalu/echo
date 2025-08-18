@@ -100,16 +100,24 @@ export class FallbackModel implements LanguageModelV2 {
   }
   readonly settings: Settings;
 
-  currentModelIndex = 0;
+  private _currentModelIndex = 0;
   private lastModelReset: number = Date.now();
   private readonly modelResetInterval: number;
   retryAfterOutput: boolean;
+
+  get currentModelIndex(): number {
+    return this._currentModelIndex;
+  }
+
+  private set currentModelIndex(value: number) {
+    this._currentModelIndex = value;
+  }
   constructor(settings: Settings) {
     this.settings = settings;
     this.modelResetInterval = settings.modelResetInterval ?? 3 * 60 * 1000; // Default 3 minutes in ms
     this.retryAfterOutput = settings.retryAfterOutput ?? true;
 
-    if (!this.settings.models[this.currentModelIndex]) {
+    if (!this.settings.models[this._currentModelIndex]) {
       throw new Error('No models available in settings');
     }
   }
@@ -119,9 +127,9 @@ export class FallbackModel implements LanguageModelV2 {
   }
 
   private getCurrentModel(): LanguageModelV2 {
-    const model = this.settings.models[this.currentModelIndex];
+    const model = this.settings.models[this._currentModelIndex];
     if (!model) {
-      throw new Error(`No model available at index ${this.currentModelIndex}`);
+      throw new Error(`No model available at index ${this._currentModelIndex}`);
     }
     return model;
   }
