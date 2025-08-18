@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router';
 
-export const Route = createFileRoute('/app/_settings/app/settings/integrations')({
+export const Route = createFileRoute('/app/_settings/settings/integrations')({
   head: () => ({
     meta: [
       { title: 'Integrations' },

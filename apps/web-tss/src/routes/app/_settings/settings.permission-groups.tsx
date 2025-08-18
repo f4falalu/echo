@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router';
 
-export const Route = createFileRoute('/app/_settings/app/settings/permission-groups')({
+export const Route = createFileRoute('/app/_settings/settings/permission-groups')({
   head: () => ({
     meta: [
       { title: 'Permission Groups' },

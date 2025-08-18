@@ -1,9 +1,9 @@
 import { createFileRoute, getRouteApi, Outlet } from '@tanstack/react-router';
-import { SettingsAppLayout } from '../../../layouts/SettingsAppLayout';
+import { SettingsAppLayout } from '../../layouts/SettingsAppLayout';
 
 const routeApi = getRouteApi('/app');
 
-export const Route = createFileRoute('/app/_settings/app')({
+export const Route = createFileRoute('/app/_settings')({
   component: () => {
     const { initialLayout, layoutId, defaultLayout } = routeApi.useLoaderData();
     return (

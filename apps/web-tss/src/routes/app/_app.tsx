@@ -1,5 +1,5 @@
 import { createFileRoute, getRouteApi, Outlet } from '@tanstack/react-router';
-import { PrimaryAppLayout } from '@/layouts/PrimaryAppLayout';
+import { PrimaryAppLayout } from '../../layouts/PrimaryAppLayout';
 
 const routeApi = getRouteApi('/app');
 

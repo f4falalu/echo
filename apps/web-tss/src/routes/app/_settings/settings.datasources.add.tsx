@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router';
 
-export const Route = createFileRoute('/app/_settings/app/settings/datasources/add')({
+export const Route = createFileRoute('/app/_settings/settings/datasources/add')({
   component: RouteComponent,
 });
 

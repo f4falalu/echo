@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router';
 
-export const Route = createFileRoute('/app/_settings/app/settings/workspace')({
+export const Route = createFileRoute('/app/_settings/settings/workspace')({
   head: () => ({
     meta: [
       { title: 'Workspace Settings' },

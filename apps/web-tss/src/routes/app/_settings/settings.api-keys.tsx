@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router';
 
-export const Route = createFileRoute('/app/_settings/app/settings/api-keys')({
+export const Route = createFileRoute('/app/_settings/settings/api-keys')({
   head: () => ({
     meta: [
       { title: 'API Keys' },

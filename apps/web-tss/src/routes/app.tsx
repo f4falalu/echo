@@ -9,15 +9,16 @@ const PRIMARY_APP_LAYOUT_ID = 'primary-sidebar';
 const DEFAULT_LAYOUT: LayoutSize = ['230px', 'auto'];
 
 export const Route = createFileRoute('/app')({
-  beforeLoad: async ({ context, location }) => {
+  beforeLoad: async ({ context, matches }) => {
     const hasUser = context.user;
     const isAnonymous = context.user?.is_anonymous;
+
     if (!hasUser || isAnonymous) {
       throw redirect({ to: '/auth/login' });
     }
 
     // Only redirect if landing directly on /app (not on nested routes)
-    if (location.pathname === '/app') {
+    if (matches.length === 2 && matches[1].fullPath === '/app') {
       throw redirect({ to: '/app/home' });
     }
   },

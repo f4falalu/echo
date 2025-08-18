@@ -1,3 +1,4 @@
+import type { AssetType } from '@buster/server-shared/assets';
 import { createFileRoute } from '@tanstack/react-router';
 
 export const Route = createFileRoute('/app/_app/_asset/chats/$chatId/')({
@@ -19,6 +20,9 @@ export const Route = createFileRoute('/app/_app/_asset/chats/$chatId/')({
     ],
   }),
   component: RouteComponent,
+  staticData: {
+    assetType: 'chat' as Extract<AssetType, 'chat'>,
+  },
 });
 
 function RouteComponent() {

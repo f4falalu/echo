@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router';
 
-export const Route = createFileRoute('/app/_settings/app/settings/profile')({
+export const Route = createFileRoute('/app/_settings/settings/profile')({
   head: () => ({
     meta: [
       { title: 'Profile Settings' },
