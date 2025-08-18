@@ -19,7 +19,8 @@ export const useGetReportVersionNumber = (
   });
 
   const paramVersionNumber = useSearch({
-    from: '/app/_app/reports/$reportId/',
+    from: '/app/_app/_asset/reports/$reportId/',
+    shouldThrow: false,
     select: stableVersionSearchSelector,
   });
 

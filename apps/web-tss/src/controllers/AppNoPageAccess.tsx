@@ -17,6 +17,7 @@ export const AppNoPageAccess: React.FC = React.memo(() => {
     buttonText: string;
     link: OptionsTo;
   } => {
+    console.warn('fix pathname');
     const isEmbedPage =
       typeof window !== 'undefined' && window.location.pathname.startsWith('/embed');
 

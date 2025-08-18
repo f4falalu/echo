@@ -1,26 +1,22 @@
 'use client';
 
 import type { AssetType } from '@buster/server-shared/assets';
-import { useMemo } from 'react';
+import type { GetDashboardResponse } from '@buster/server-shared/dashboards';
+import type { Metric } from '@buster/server-shared/metrics';
+import type { ReportIndividualResponse } from '@buster/server-shared/reports';
+import { useCallback, useMemo } from 'react';
+import type { BusterCollection } from '@/api/asset_interfaces/collection';
 import { useGetCollection } from '@/api/buster_rest/collections';
 import { useGetDashboard } from '@/api/buster_rest/dashboards';
 import { useGetMetric, useGetMetricData } from '@/api/buster_rest/metrics';
 import { useGetReport } from '@/api/buster_rest/reports';
 import type { RustApiError } from '@/api/errors';
 
-type AssetProps = {
+export type UseGetAssetProps = {
   assetId: string;
-  type: Exclude<AssetType, 'chat' | 'collection'>;
-  versionNumber?: number;
+  type: AssetType;
+  versionNumber: undefined | number;
 };
-
-type ParentAssetProps = {
-  assetId: string;
-  type: Extract<AssetType, 'chat' | 'collection'>;
-  versionNumber: never;
-};
-
-export type UseGetAssetProps = AssetProps | ParentAssetProps;
 
 interface AssetAccess {
   hasAccess: boolean;
@@ -84,13 +80,10 @@ export const useGetAsset = (
     isFetched: metricIsFetched,
     data: metricTitle,
   } = useGetMetric(
-    {
-      id: isMetric ? props.assetId : undefined,
-      versionNumber,
-    },
+    { id: isMetric ? props.assetId : undefined, versionNumber },
     {
       enabled: isMetric && hasAssetId,
-      select: (x) => x?.name,
+      select: useCallback((x: Metric) => x?.name, []),
       staleTime: Infinity,
     }
   );
@@ -110,7 +103,11 @@ export const useGetAsset = (
       id: isDashboard ? props.assetId : undefined,
       versionNumber,
     },
-    { enabled: isDashboard && hasAssetId, select: (x) => x?.dashboard?.name, staleTime: Infinity }
+    {
+      enabled: isDashboard && hasAssetId,
+      select: useCallback((x: GetDashboardResponse) => x?.dashboard?.name, []),
+      staleTime: Infinity,
+    }
   );
 
   const {
@@ -120,7 +117,10 @@ export const useGetAsset = (
     data: reportTitle,
   } = useGetReport(
     { reportId: isReport ? props.assetId : undefined, versionNumber },
-    { select: (x) => x?.name, enabled: isReport && hasAssetId }
+    {
+      select: useCallback((x: ReportIndividualResponse) => x?.name, []),
+      enabled: isReport && hasAssetId,
+    }
   );
 
   const {
@@ -129,7 +129,7 @@ export const useGetAsset = (
     isError: collectionIsError,
     data: collectionTitle,
   } = useGetCollection(isCollection ? props.assetId : undefined, {
-    select: (x) => x?.name,
+    select: useCallback((x: BusterCollection) => x?.name, []),
     enabled: isCollection && hasAssetId,
   });
 
@@ -168,7 +168,7 @@ export const useGetAsset = (
         // Chat type is not supported in this hook
         return { isFetched: true, error: null, isError: false, showLoader: false };
       default: {
-        const exhaustiveCheck: never = props;
+        const exhaustiveCheck: never = props.type;
         return { isFetched: false, error: null, isError: false, showLoader: false };
       }
     }

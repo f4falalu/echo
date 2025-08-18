@@ -8,7 +8,6 @@ import {
 import { assetTypeToIcon } from '@/components/features/icons/assetIcons';
 import type { ISidebarGroup, ISidebarItem } from '@/components/ui/sidebar';
 import { useMount } from '@/hooks/useMount';
-import { usePathname } from '@/hooks/useRouterHooks';
 import { assetParamsToRoute } from '@/lib/assets/assetParamsToRoute';
 import { getFavoriteRoute } from './getFavoriteRoute';
 
@@ -17,7 +16,6 @@ export const useFavoriteSidebarPanel = (): ISidebarGroup | null => {
   const { mutateAsync: updateUserFavorites } = useUpdateUserFavorites();
   const { mutateAsync: deleteUserFavorite } = useDeleteUserFavorite();
   const matcher = useMatchRoute();
-  const pathname = usePathname();
 
   useMount(() => {
     assetParamsToRoute({ assetType: 'chat', assetId: '123' });
