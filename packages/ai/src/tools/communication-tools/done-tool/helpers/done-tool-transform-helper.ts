@@ -38,12 +38,8 @@ export function createDoneToolRawLlmMessageEntry(
         type: 'tool-call',
         toolCallId: id,
         toolName: 'doneTool',
-        input: {},
+        input: { finalResponse: doneToolState.finalResponse || '' },
       },
-      // Optionally include any accumulated text content
-      ...(doneToolState.finalResponse
-        ? [{ type: 'text' as const, text: doneToolState.finalResponse }]
-        : []),
     ],
   };
 }

@@ -39,7 +39,10 @@ export function createDoneToolDelta(context: DoneToolContext, doneToolState: Don
         doneToolState,
         options.toolCallId
       );
-      const doneToolMessage = createDoneToolRawLlmMessageEntry(doneToolState, options.toolCallId);
+      const doneToolMessage = createDoneToolRawLlmMessageEntry(
+        doneToolState,
+        options.toolCallId || ''
+      );
 
       const entries: UpdateMessageEntriesParams = {
         messageId: context.messageId,
