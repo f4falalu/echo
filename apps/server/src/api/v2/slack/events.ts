@@ -141,12 +141,21 @@ export async function handleSlackEventsEndpoint(c: Context) {
   const payload = c.get('slackPayload');
   if (!payload) {
     // This shouldn't happen if middleware works correctly
-    return c.json({ success: false });
+    return c.json({ error: 'Unauthorized' }, 401);
   }
 
-  // Process the event
-  const response = await eventsHandler(payload);
-  return c.json(response);
+  try {
+    // Process the event
+    const response = await eventsHandler(payload);
+    return c.json(response);
+  } catch (error) {
+    // Handle authentication errors
+    if (error instanceof Error && error.message.includes('Unauthorized')) {
+      return c.json({ error: 'Unauthorized' }, 401);
+    }
+    // Re-throw other errors
+    throw error;
+  }
 }
 
 /**
@@ -179,8 +188,8 @@ export async function eventsHandler(payload: SlackWebhookPayload): Promise<Slack
           teamId: payload.team_id,
           reason: authResult.type === 'unauthorized' ? authResult.reason : 'Unknown',
         });
-        // Return success to prevent Slack retries
-        return { success: true };
+        // Throw unauthorized error
+        throw new Error('Unauthorized: Slack user authentication failed');
       }
 
       const organizationId = authResult.type === 'unauthorized' ? '' : authResult.organization.id;

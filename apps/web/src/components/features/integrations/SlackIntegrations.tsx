@@ -39,7 +39,7 @@ export const SlackIntegrations = React.memo(() => {
   }, [isConnected]);
 
   if (slackIntegrationError) {
-    return <StatusCard message="Error fetching slack integration." variant={'danger'} />;
+    return <StatusCard message="Error fetching Slack integration." variant={'danger'} />;
   }
 
   if (!isFetchedSlackIntegration) {
@@ -67,7 +67,7 @@ const ConnectSlackCard = React.memo(() => {
         <div className="flex flex-col space-y-0.5">
           <Text>Slack account</Text>
           <Text variant="secondary" size={'xs'}>
-            Link your slack account to use Buster from Slack
+            Link your Slack account to use Buster from Slack
           </Text>
         </div>
       </div>
@@ -166,7 +166,7 @@ const ConnectedSlackChannels = React.memo(() => {
       <div className="flex flex-col space-y-0.5">
         <Text>Alerts channel</Text>
         <Text variant="secondary" size={'xs'}>
-          Select which slack channel Buster should send alerts to
+          Select which Slack channel Buster should send alerts to
         </Text>
       </div>
       <div className="flex min-w-0 flex-1 items-center justify-end space-x-2">
@@ -262,7 +262,7 @@ const SlackSharingPermissions = React.memo(() => {
       <div className="flex flex-col space-y-0.5">
         <Text>Auto-share chats with other users</Text>
         <Text variant="secondary" size={'xs'}>
-          Specify how chats are auto-shared when created from slack channels
+          Specify how chats are auto-shared when created from Slack channels
         </Text>
       </div>
       <Dropdown
