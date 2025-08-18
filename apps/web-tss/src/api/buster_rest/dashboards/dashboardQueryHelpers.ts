@@ -9,7 +9,7 @@ import { setOriginalDashboard } from '@/context/Dashboards/useOriginalDashboardS
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import { upgradeMetricToIMetric } from '@/lib/metrics/upgradeToIMetric';
 import { prefetchGetMetricDataClient } from '../metrics/queryRequests';
-import { dashboardsGetDashboard } from './requests';
+import { getDashboardById } from './requests';
 
 export const useEnsureDashboardConfig = (params?: { prefetchData?: boolean }) => {
   const { prefetchData = true } = params || {};
@@ -42,7 +42,7 @@ export const useEnsureDashboardConfig = (params?: { prefetchData?: boolean }) =>
   return method;
 };
 
-const initializeMetrics = (
+export const initializeMetrics = (
   metrics: BusterDashboardResponse['metrics'],
   queryClient: QueryClient,
   prefetchData: boolean
@@ -73,36 +73,62 @@ export const useGetDashboardAndInitializeMetrics = (params?: { prefetchData?: bo
   return useMemoizedFn(
     async (id: string, version_number: number | 'LATEST', shouldInitializeMetrics = true) => {
       const password = getProtectedAssetPassword?.(id);
-
-      const chosenVersionNumber: number | undefined =
-        version_number === 'LATEST' ? undefined : version_number;
-
-      return dashboardsGetDashboard({
-        id: id || '',
+      return getDashboardAndInitializeMetrics({
+        id,
+        version_number,
         password,
-        version_number: chosenVersionNumber,
-      }).then((data) => {
-        const latestVersion = last(data.versions)?.version_number || 1;
-        const isLatestVersion = data.dashboard.version_number === latestVersion;
-
-        if (isLatestVersion) {
-          setOriginalDashboard(data.dashboard);
-        }
-
-        if (data.dashboard.version_number) {
-          queryClient.setQueryData(
-            dashboardQueryKeys.dashboardGetDashboard(
-              data.dashboard.id,
-              data.dashboard.version_number
-            ).queryKey,
-            data
-          );
-        }
-
-        if (shouldInitializeMetrics) initializeMetrics(data.metrics, queryClient, prefetchData);
-
-        return data;
+        queryClient,
+        shouldInitializeMetrics,
+        prefetchMetricsData: prefetchData,
+        setOriginalDashboardFn: setOriginalDashboard,
       });
     }
   );
+};
+
+//Can use this in server side
+export const getDashboardAndInitializeMetrics = async ({
+  id,
+  version_number,
+  password,
+  queryClient,
+  shouldInitializeMetrics = true,
+  prefetchMetricsData = false,
+  setOriginalDashboardFn,
+}: {
+  id: string;
+  version_number: number | 'LATEST';
+  password?: string;
+  queryClient: QueryClient;
+  setOriginalDashboardFn?: (dashboard: BusterDashboardResponse['dashboard']) => void;
+  shouldInitializeMetrics?: boolean;
+  prefetchMetricsData?: boolean;
+}) => {
+  const chosenVersionNumber = version_number === 'LATEST' ? undefined : version_number;
+  return getDashboardById({
+    id: id || '',
+    password,
+    version_number: chosenVersionNumber,
+  }).then((data) => {
+    const latestVersion = last(data.versions)?.version_number || 1;
+    const isLatestVersion = data.dashboard.version_number === latestVersion;
+
+    if (isLatestVersion) {
+      setOriginalDashboardFn?.(data.dashboard);
+    }
+
+    if (data.dashboard.version_number) {
+      queryClient.setQueryData(
+        dashboardQueryKeys.dashboardGetDashboard(data.dashboard.id, data.dashboard.version_number)
+          .queryKey,
+        data
+      );
+    }
+
+    if (shouldInitializeMetrics || prefetchMetricsData) {
+      initializeMetrics(data.metrics, queryClient, !!prefetchMetricsData);
+    }
+
+    return data;
+  });
 };

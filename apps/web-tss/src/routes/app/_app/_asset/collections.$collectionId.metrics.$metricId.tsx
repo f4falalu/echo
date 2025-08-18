@@ -8,6 +8,9 @@ const searchParamsSchema = z.object({
 export const Route = createFileRoute(
   '/app/_app/_asset/collections/$collectionId/metrics/$metricId'
 )({
+  staticData: {
+    assetType: 'metric',
+  },
   loader: async ({ params, context }) => {
     const title = await context.getAssetTitle({
       assetId: params.metricId,

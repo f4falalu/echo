@@ -11,4 +11,16 @@ export const Route = createFileRoute('/app/_app/metrics/')({
     ],
   }),
   component: MetricListContainer,
+  loader: async ({ context }) => {
+    console.log('metrics index loader');
+    return {
+      swag: true,
+    };
+  },
+  beforeLoad: ({ context }) => {
+    console.log('metrics index beforeLoad');
+    return {
+      swagger: true,
+    };
+  },
 });

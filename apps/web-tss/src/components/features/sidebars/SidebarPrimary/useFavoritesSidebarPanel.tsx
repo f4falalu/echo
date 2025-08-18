@@ -38,7 +38,7 @@ export const useFavoriteSidebarPanel = (): ISidebarGroup | null => {
           icon: <Icon />,
           route,
           id: favorite.id,
-          //   active: isActive,
+          preload: 'intent',
           onRemove: () => deleteUserFavorite([favorite.id]),
         };
       }),

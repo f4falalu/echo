@@ -3,6 +3,9 @@ import { createFileRoute } from '@tanstack/react-router';
 export const Route = createFileRoute(
   '/app/_app/_asset/collections/$collectionId/reports/$reportId'
 )({
+  staticData: {
+    assetType: 'report',
+  },
   component: RouteComponent,
   loader: async ({ params, context }) => {
     const title = await context.getAssetTitle({

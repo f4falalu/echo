@@ -6,6 +6,9 @@ const searchParamsSchema = z.object({
 });
 
 export const Route = createFileRoute('/app/_app/_asset/reports/$reportId/')({
+  staticData: {
+    assetType: 'report',
+  },
   loader: async ({ params, context }) => {
     const title = await context.getAssetTitle({
       assetId: params.reportId,

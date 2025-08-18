@@ -25,11 +25,15 @@ import type {
 import { mainApi, mainApiV2 } from '../instances';
 
 export const getMetric = async (params: GetMetricRequest): Promise<GetMetricResponse> => {
+  console.log('getMetric1!!!!');
   return mainApi
     .get<GetMetricResponse>(`/metric_files/${params.id}`, {
       params,
     })
-    .then((res) => res.data);
+    .then((res) => {
+      console.log('getMetric res');
+      return res.data;
+    });
 };
 
 export const getMetricData = async ({

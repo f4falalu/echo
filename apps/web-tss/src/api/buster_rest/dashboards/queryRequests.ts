@@ -19,6 +19,7 @@ export {
 export { useUpdateDashboard } from './mutations/useUpdateDashboard';
 export { useUpdateDashboardConfig } from './mutations/useUpdateDashboardConfig';
 export {
+  prefetchGetDashboard,
   prefetchGetDashboardsList,
   useGetDashboard,
   useGetDashboardsList,

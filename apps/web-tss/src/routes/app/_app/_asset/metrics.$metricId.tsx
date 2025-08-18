@@ -1,6 +1,7 @@
 import type { AssetType } from '@buster/server-shared/assets';
-import { createFileRoute } from '@tanstack/react-router';
+import { createFileRoute, Link } from '@tanstack/react-router';
 import { z } from 'zod';
+import { prefetchGetMetric } from '@/api/buster_rest/metrics/getMetricQueryRequests';
 
 const searchParamsSchema = z.object({
   metric_version_number: z.coerce.number().optional(),
@@ -12,6 +13,7 @@ export const Route = createFileRoute('/app/_app/_asset/metrics/$metricId')({
       assetId: params.metricId,
       assetType: 'metric',
     });
+    await prefetchGetMetric({ id: params.metricId, version_number: 1 }, context.queryClient);
     return {
       title,
     };
@@ -32,5 +34,9 @@ export const Route = createFileRoute('/app/_app/_asset/metrics/$metricId')({
 });
 
 function RouteComponent() {
-  return <div>Hello "/app/metrics/$metricId"! wow</div>;
+  return (
+    <div className="flex flex-col gap-4">
+      <div>Hello "/app/metrics/$metricId"! wow</div>
+    </div>
+  );
 }

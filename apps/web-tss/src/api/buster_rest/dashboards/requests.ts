@@ -23,7 +23,7 @@ export const dashboardsGetList = async (params: {
   return mainApi.get<BusterDashboardListItem[]>('/dashboards', { params }).then((res) => res.data);
 };
 
-export const dashboardsGetDashboard = async ({
+export const getDashboardById = async ({
   id,
   password,
   version_number,

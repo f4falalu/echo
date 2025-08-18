@@ -11,7 +11,10 @@ import { dashboardQueryKeys } from '@/api/query_keys/dashboard';
 import { setProtectedAssetPasswordError } from '@/context/BusterAssets/useProtectedAssetStore';
 import { isQueryStale } from '@/lib/query';
 import { hasOrganizationId } from '../../users/userQueryHelpers';
-import { useGetDashboardAndInitializeMetrics } from '../dashboardQueryHelpers';
+import {
+  getDashboardAndInitializeMetrics,
+  useGetDashboardAndInitializeMetrics,
+} from '../dashboardQueryHelpers';
 import { useGetDashboardVersionNumber } from '../dashboardVersionNumber';
 
 /**
@@ -138,4 +141,25 @@ export const prefetchGetDashboardsList = async (
   });
 
   return queryClient;
+};
+
+export const prefetchGetDashboard = async (
+  id: string,
+  version_number: number | undefined,
+  queryClient: QueryClient
+) => {
+  const chosenVersionNumber = version_number || 'LATEST';
+  const queryFn = async () => {
+    return getDashboardAndInitializeMetrics({
+      id,
+      version_number: chosenVersionNumber,
+      queryClient,
+      prefetchMetricsData: false,
+      shouldInitializeMetrics: true,
+    });
+  };
+  await queryClient.prefetchQuery({
+    ...dashboardQueryKeys.dashboardGetDashboard(id, chosenVersionNumber),
+    queryFn,
+  });
 };
