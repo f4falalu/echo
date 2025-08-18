@@ -12,14 +12,14 @@ import type { SequentialThinkingState } from '../sequential-thinking-tool';
  */
 export function createSequentialThinkingReasoningMessage(
   sequentialThinkingState: SequentialThinkingState,
-  toolCallId: string,
+  toolCallId?: string,
   status: ChatMessageReasoning_status = 'loading'
-): ChatMessageReasoningMessage_Text {
+): ChatMessageReasoningMessage_Text | null {
   // Use entry_id from state or fallback to provided toolCallId
-  const id = toolCallId;
+  const id = sequentialThinkingState.toolCallId || toolCallId;
 
   if (!id) {
-    throw new Error('Tool call ID is required');
+    return null;
   }
 
   // Determine title based on status
@@ -49,11 +49,11 @@ export function createSequentialThinkingReasoningMessage(
 export function createSequentialThinkingRawLlmMessageEntry(
   sequentialThinkingState: SequentialThinkingState,
   toolCallId?: string
-): ModelMessage {
-  const id = toolCallId;
+): ModelMessage | null {
+  const id = sequentialThinkingState.toolCallId || toolCallId;
 
   if (!id) {
-    throw new Error('Tool call ID is required');
+    return null;
   }
 
   // Build the input object with available state

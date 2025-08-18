@@ -38,7 +38,7 @@ async function processSequentialThinking(
     const rawLlmMessage = createSequentialThinkingRawLlmMessageEntry(state, state.toolCallId);
 
     const rawToolResultEntry = createRawToolResultEntry(
-      context.messageId,
+      state.toolCallId,
       SEQUENTIAL_THINKING_TOOL_NAME,
       output
     );

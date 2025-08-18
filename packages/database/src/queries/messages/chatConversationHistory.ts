@@ -1,4 +1,4 @@
-import type { CoreMessage } from 'ai';
+import type { CoreMessage, ModelMessage } from 'ai';
 import { and, eq, isNull } from 'drizzle-orm';
 import { z } from 'zod';
 import { db } from '../../connection';
@@ -64,52 +64,12 @@ async function getAllMessagesForChat(chatId: string): Promise<
   return chatMessages;
 }
 
-// Helper function to get the most recent raw LLM messages
-function getMostRecentRawLlmMessages(
-  chatMessages: Array<{ rawLlmMessages: unknown; isCompleted: boolean }>
-): CoreMessage[] {
-  try {
-    // Find the most recent completed message with valid rawLlmMessages
-    // We iterate backwards to find the most recent valid message
-    for (let i = chatMessages.length - 1; i >= 0; i--) {
-      const message = chatMessages[i];
-
-      // Skip if message is not completed
-      if (!message?.isCompleted) {
-        continue;
-      }
-
-      // Skip if rawLlmMessages is empty, null, or default empty object
-      const rawMessages = message.rawLlmMessages;
-      if (
-        !rawMessages ||
-        (typeof rawMessages === 'object' && Object.keys(rawMessages).length === 0) ||
-        rawMessages === '{}'
-      ) {
-        continue;
-      }
-
-      // Check if it's a valid array
-      if (Array.isArray(rawMessages) && rawMessages.length > 0) {
-        return rawMessages as CoreMessage[];
-      }
-    }
-
-    // No valid messages found
-    return [];
-  } catch (processingError) {
-    throw new Error(
-      `Failed to process conversation history: ${processingError instanceof Error ? processingError.message : 'Unknown processing error'}`
-    );
-  }
-}
-
 // Zod schemas for validation
 export const ChatConversationHistoryInputSchema = z.object({
   messageId: z.string().uuid('Message ID must be a valid UUID'),
 });
 
-export const ChatConversationHistoryOutputSchema = z.array(z.any()); // CoreMessage[] but allowing any for flexibility
+export const ChatConversationHistoryOutputSchema = z.array(z.custom<ModelMessage>());
 
 export type ChatConversationHistoryInput = z.infer<typeof ChatConversationHistoryInputSchema>;
 export type ChatConversationHistoryOutput = z.infer<typeof ChatConversationHistoryOutputSchema>;
@@ -132,12 +92,9 @@ export async function getChatConversationHistory(
     // Get all messages for this chat
     const chatMessages = await getAllMessagesForChat(chatId);
 
-    // Get the most recent rawLlmMessages which contains the complete conversation history
-    const conversationHistory = getMostRecentRawLlmMessages(chatMessages);
-
     // Validate output
     try {
-      return ChatConversationHistoryOutputSchema.parse(conversationHistory);
+      return ChatConversationHistoryOutputSchema.parse(chatMessages);
     } catch (validationError) {
       throw new Error(
         `Output validation failed: ${validationError instanceof Error ? validationError.message : 'Invalid output format'}`
