@@ -2,7 +2,6 @@ import type { DataSource } from '@buster/data-source';
 import { db, metricFiles, updateMessageEntries } from '@buster/database';
 import {
   type ChartConfigProps,
-  type ColumnMetaData,
   type DataMetadata,
   type MetricYml,
   MetricYmlSchema,
@@ -19,6 +18,7 @@ import {
 import { createRawToolResultEntry } from '../../../shared/create-raw-llm-tool-result-entry';
 import { trackFileAssociations } from '../../file-tracking-helper';
 import { validateAndAdjustBarLineAxes } from '../helpers/bar-line-axis-validator';
+import { createMetadataFromResults } from '../helpers/metadata-from-results';
 import { ensureTimeFrameQuoted } from '../helpers/time-frame-helper';
 import {
   createModifyMetricsRawLlmMessageEntry,
@@ -117,126 +117,6 @@ const resultMetadataSchema = z.object({
   limited: z.boolean().optional(),
   maxRows: z.number().optional(),
 });
-
-/**
- * Analyzes query results to create DataMetadata structure
- */
-function createDataMetadata(results: Record<string, unknown>[]): DataMetadata {
-  if (!results.length) {
-    return {
-      column_count: 0,
-      row_count: 0,
-      column_metadata: [],
-    };
-  }
-
-  const columnNames = Object.keys(results[0] || {});
-  const columnMetadata: ColumnMetaData[] = [];
-
-  for (const columnName of columnNames) {
-    const values = results
-      .map((row) => row[columnName])
-      .filter((v) => v !== null && v !== undefined);
-
-    // Determine column type based on the first non-null value
-    let columnType: ColumnMetaData['type'] = 'text';
-    let simpleType: ColumnMetaData['simple_type'] = 'text';
-
-    if (values.length > 0) {
-      const firstValue = values[0];
-
-      if (typeof firstValue === 'number') {
-        columnType = Number.isInteger(firstValue) ? 'int4' : 'float8';
-        simpleType = 'number';
-      } else if (typeof firstValue === 'boolean') {
-        columnType = 'bool';
-        simpleType = 'text'; // boolean is not in the simple_type enum, so use text
-      } else if (firstValue instanceof Date) {
-        columnType = 'timestamp';
-        simpleType = 'date';
-      } else if (typeof firstValue === 'string') {
-        // Check if it's a numeric string first
-        if (!Number.isNaN(Number(firstValue))) {
-          columnType = Number.isInteger(Number(firstValue)) ? 'int4' : 'float8';
-          simpleType = 'number';
-        } else if (
-          !Number.isNaN(Date.parse(firstValue)) &&
-          // Additional check to avoid parsing simple numbers as dates
-          (firstValue.includes('-') || firstValue.includes('/') || firstValue.includes(':'))
-        ) {
-          columnType = 'timestamp';
-          simpleType = 'date';
-        } else {
-          columnType = 'text';
-          simpleType = 'text';
-        }
-      }
-    }
-
-    // Calculate min/max values
-    let minValue: string | number = '';
-    let maxValue: string | number = '';
-
-    if (values.length > 0) {
-      if (simpleType === 'number') {
-        const numValues = values
-          .map((v) => {
-            if (typeof v === 'number') return v;
-            if (typeof v === 'string' && !Number.isNaN(Number(v))) return Number(v);
-            return null;
-          })
-          .filter((v) => v !== null) as number[];
-        if (numValues.length > 0) {
-          minValue = Math.min(...numValues);
-          maxValue = Math.max(...numValues);
-        }
-      } else if (simpleType === 'date') {
-        const dateValues = values
-          .map((v) => {
-            if (v instanceof Date) return v;
-            if (typeof v === 'string') {
-              const parsed = new Date(v);
-              return Number.isNaN(parsed.getTime()) ? null : parsed;
-            }
-            return null;
-          })
-          .filter((d) => d !== null) as Date[];
-
-        if (dateValues.length > 0) {
-          const minDate = new Date(Math.min(...dateValues.map((d) => d.getTime())));
-          const maxDate = new Date(Math.max(...dateValues.map((d) => d.getTime())));
-          minValue = minDate.toISOString();
-          maxValue = maxDate.toISOString();
-        }
-      } else if (simpleType === 'text') {
-        const strValues = values.filter((v) => typeof v === 'string') as string[];
-        if (strValues.length > 0) {
-          const sortedValues = [...strValues].sort();
-          minValue = sortedValues[0] || '';
-          maxValue = sortedValues[sortedValues.length - 1] || '';
-        }
-      }
-    }
-
-    // Calculate unique values count
-    const uniqueValues = new Set(values).size;
-
-    columnMetadata.push({
-      name: columnName,
-      min_value: minValue,
-      max_value: maxValue,
-      unique_values: uniqueValues,
-      simple_type: simpleType,
-      type: columnType,
-    });
-  }
-
-  return {
-    column_count: columnNames.length,
-    row_count: results.length,
-    column_metadata: columnMetadata,
-  };
-}
 
 async function validateSql(
   sqlQuery: string,
@@ -699,7 +579,7 @@ const modifyMetricFiles = wrapTraced(
                 content: sp.metricYml,
                 updatedAt: sp.metricFile.updated_at,
                 dataMetadata: sp.results
-                  ? createDataMetadata(sp.results)
+                  ? createMetadataFromResults(sp.results)
                   : sp.existingFile.dataMetadata,
                 versionHistory: updatedVersionHistory,
               })

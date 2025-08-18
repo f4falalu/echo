@@ -3,7 +3,6 @@ import type { DataSource } from '@buster/data-source';
 import { assetPermissions, db, metricFiles, updateMessageEntries } from '@buster/database';
 import {
   type ChartConfigProps,
-  type ColumnMetaData,
   type DataMetadata,
   type MetricYml,
   MetricYmlSchema,
@@ -19,6 +18,7 @@ import {
 import { createRawToolResultEntry } from '../../../shared/create-raw-llm-tool-result-entry';
 import { trackFileAssociations } from '../../file-tracking-helper';
 import { validateAndAdjustBarLineAxes } from '../helpers/bar-line-axis-validator';
+import { createMetadataFromResults } from '../helpers/metadata-from-results';
 import { ensureTimeFrameQuoted } from '../helpers/time-frame-helper';
 import type {
   CreateMetricsContext,
@@ -97,111 +97,6 @@ const resultMetadataSchema = z.object({
   limited: z.boolean().optional(),
   maxRows: z.number().optional(),
 });
-
-/**
- * Analyzes query results to create DataMetadata structure
- */
-function createDataMetadata(results: Record<string, unknown>[]): DataMetadata {
-  if (!results.length) {
-    return {
-      column_count: 0,
-      row_count: 0,
-      column_metadata: [],
-    };
-  }
-
-  const columnNames = Object.keys(results[0] || {});
-  const columnMetadata: ColumnMetaData[] = [];
-
-  for (const columnName of columnNames) {
-    const values = results
-      .map((row) => row[columnName])
-      .filter((v) => v !== null && v !== undefined);
-
-    // Determine column type based on the first non-null value
-    let columnType: ColumnMetaData['type'] = 'text';
-    let simpleType: ColumnMetaData['simple_type'] = 'text';
-
-    if (values.length > 0) {
-      const firstValue = values[0];
-
-      if (typeof firstValue === 'number') {
-        columnType = Number.isInteger(firstValue) ? 'int4' : 'float8';
-        simpleType = 'number';
-      } else if (typeof firstValue === 'boolean') {
-        columnType = 'bool';
-        simpleType = 'text'; // boolean is not in the simple_type enum, so use text
-      } else if (firstValue instanceof Date) {
-        columnType = 'timestamp';
-        simpleType = 'date';
-      } else if (typeof firstValue === 'string') {
-        // Check if it's a numeric string first
-        if (!Number.isNaN(Number(firstValue))) {
-          columnType = Number.isInteger(Number(firstValue)) ? 'int4' : 'float8';
-          simpleType = 'number';
-        } else if (
-          !Number.isNaN(Date.parse(firstValue)) &&
-          // Additional check to avoid parsing simple numbers as dates
-          (firstValue.includes('-') || firstValue.includes('/') || firstValue.includes(':'))
-        ) {
-          columnType = 'date';
-          simpleType = 'date';
-        } else {
-          columnType = 'text';
-          simpleType = 'text';
-        }
-      }
-    }
-
-    // Calculate min, max, and unique values
-    let minValue: string | number = '';
-    let maxValue: string | number = '';
-    const uniqueValues = new Set(values);
-
-    if (simpleType === 'number' && values.length > 0) {
-      const numericValues = values.filter((v): v is number => typeof v === 'number');
-      if (numericValues.length > 0) {
-        minValue = Math.min(...numericValues);
-        maxValue = Math.max(...numericValues);
-      }
-    } else if (simpleType === 'date' && values.length > 0) {
-      const dateValues = values
-        .map((v) => {
-          if (v instanceof Date) return v.getTime();
-          if (typeof v === 'string') return Date.parse(v);
-          return null;
-        })
-        .filter((v): v is number => v !== null && !Number.isNaN(v));
-
-      if (dateValues.length > 0) {
-        const minTime = Math.min(...dateValues);
-        const maxTime = Math.max(...dateValues);
-        minValue = new Date(minTime).toISOString();
-        maxValue = new Date(maxTime).toISOString();
-      }
-    } else if (values.length > 0) {
-      // For strings and other types, just take first and last in sorted order
-      const sortedValues = [...values].sort();
-      minValue = String(sortedValues[0]);
-      maxValue = String(sortedValues[sortedValues.length - 1]);
-    }
-
-    columnMetadata.push({
-      name: columnName,
-      min_value: minValue,
-      max_value: maxValue,
-      unique_values: uniqueValues.size,
-      simple_type: simpleType,
-      type: columnType,
-    });
-  }
-
-  return {
-    column_count: columnNames.length,
-    row_count: results.length,
-    column_metadata: columnMetadata,
-  };
-}
 
 async function processMetricFile(
   file: { name: string; yml_content: string },
@@ -619,7 +514,7 @@ const createMetricFiles = wrapTraced(
               sp.metricYml,
               sp.metricFile.created_at
             ),
-            dataMetadata: sp.results ? createDataMetadata(sp.results) : null,
+            dataMetadata: sp.results ? createMetadataFromResults(sp.results) : null,
             publicPassword: null,
             dataSourceId,
           }));
