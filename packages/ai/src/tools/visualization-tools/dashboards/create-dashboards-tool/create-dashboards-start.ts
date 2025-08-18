@@ -11,8 +11,10 @@ export function createDashboardsStart(
   state: CreateDashboardsState
 ) {
   return async (options: ToolCallOptions) => {
+    // Reset state for new tool call to prevent contamination from previous calls
     state.toolCallId = options.toolCallId;
-    state.startTime = Date.now();
+    state.argsText = undefined;
+    state.files = [];
     state.startTime = Date.now();
 
     if (context.messageId) {

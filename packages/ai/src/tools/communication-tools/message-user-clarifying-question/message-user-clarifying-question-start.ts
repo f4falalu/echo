@@ -17,8 +17,10 @@ export function createMessageUserClarifyingQuestionStart(
   return async (options: ToolCallOptions) => {
     const messageId = context.messageId;
 
-    // Initialize state
+    // Reset state for new tool call to prevent contamination from previous calls
     state.toolCallId = options.toolCallId;
+    state.args = '';
+    state.clarifyingQuestion = undefined;
 
     // If we have a messageId, create initial database entries
     if (messageId) {

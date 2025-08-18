@@ -14,7 +14,10 @@ import {
 // Factory function that creates a type-safe callback for the specific agent context
 export function createDoneToolStart(context: DoneToolContext, doneToolState: DoneToolState) {
   return async function doneToolStart(options: ToolCallOptions): Promise<void> {
+    // Reset state for new tool call to prevent contamination from previous calls
     doneToolState.toolCallId = options.toolCallId;
+    doneToolState.args = undefined;
+    doneToolState.finalResponse = undefined;
 
     // Extract files from the tool call responses in messages
     if (options.messages) {

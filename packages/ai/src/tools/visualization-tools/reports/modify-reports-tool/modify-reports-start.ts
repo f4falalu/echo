@@ -8,7 +8,15 @@ import type { ModifyReportsContext, ModifyReportsState } from './modify-reports-
 
 export function modifyReportsStart(context: ModifyReportsContext, state: ModifyReportsState) {
   return async (options: ToolCallOptions) => {
+    // Reset state for new tool call to prevent contamination from previous calls
     state.toolCallId = options.toolCallId;
+    state.argsText = undefined;
+    state.reportId = undefined;
+    state.reportName = undefined;
+    state.edits = [];
+    state.currentContent = undefined;
+    state.finalContent = undefined;
+    state.version_number = undefined;
     state.startTime = Date.now();
 
     if (context.messageId) {

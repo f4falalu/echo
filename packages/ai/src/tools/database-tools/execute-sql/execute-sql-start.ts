@@ -8,12 +8,14 @@ import {
 
 export function createExecuteSqlStart(state: ExecuteSqlState, context: ExecuteSqlContext) {
   return async function executeSqlStart(options: ToolCallOptions): Promise<void> {
-    // Initialize state
+    // Reset state for new tool call to prevent contamination from previous calls
     state.toolCallId = options.toolCallId;
     state.args = '';
     state.statements = [];
     state.isComplete = false;
     state.startTime = Date.now();
+    state.executionTime = undefined;
+    state.executionResults = undefined;
 
     // Create initial reasoning entry for SQL execution
     const reasoningEntry = createExecuteSqlReasoningEntry(state, options.toolCallId);

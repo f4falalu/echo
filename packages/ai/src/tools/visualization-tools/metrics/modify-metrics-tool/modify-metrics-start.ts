@@ -8,7 +8,10 @@ import type { ModifyMetricsContext, ModifyMetricsState } from './modify-metrics-
 
 export function createModifyMetricsStart(context: ModifyMetricsContext, state: ModifyMetricsState) {
   return async (options: ToolCallOptions) => {
+    // Reset state for new tool call to prevent contamination from previous calls
     state.toolCallId = options.toolCallId;
+    state.argsText = undefined;
+    state.files = [];
     state.startTime = Date.now();
 
     if (context.messageId) {

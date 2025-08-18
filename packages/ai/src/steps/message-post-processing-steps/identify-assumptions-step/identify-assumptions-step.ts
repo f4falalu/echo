@@ -190,7 +190,6 @@ No conversation history available for analysis.`,
           maxOutputTokens: 10000,
           providerOptions: {
             anthropic: {
-              disableParallelToolCalls: true,
               thinking: { type: 'enabled', budgetTokens: 16000 },
             },
           },

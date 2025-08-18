@@ -9,6 +9,9 @@ import {
 export function createCreateMetricsStart(context: CreateMetricsContext, state: CreateMetricsState) {
   return async (options: ToolCallOptions) => {
     state.toolCallId = options.toolCallId;
+    // Reset state for new tool call to prevent contamination from previous calls
+    state.argsText = undefined;
+    state.files = [];
     state.startTime = Date.now();
 
     if (context.messageId) {

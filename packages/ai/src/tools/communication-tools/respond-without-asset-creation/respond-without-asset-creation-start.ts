@@ -17,7 +17,10 @@ export function createRespondWithoutAssetCreationStart(
   return async function respondWithoutAssetCreationStart(
     options: Pick<ToolCallOptions, 'toolCallId'>
   ): Promise<void> {
+    // Reset state for new tool call to prevent contamination from previous calls
     state.toolCallId = options.toolCallId;
+    state.args = undefined;
+    state.final_response = undefined;
 
     const responseEntry = createRespondWithoutAssetCreationResponseMessage(
       state,
