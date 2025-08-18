@@ -29,35 +29,41 @@ async function processSequentialThinking(
     rawLlmMessages: [],
   };
 
-  const reasoningEntry = createSequentialThinkingReasoningMessage(
-    state,
-    context.messageId,
-    'completed'
-  );
-  const rawLlmMessage = createSequentialThinkingRawLlmMessageEntry(state, context.messageId);
+  if (state.toolCallId) {
+    const reasoningEntry = createSequentialThinkingReasoningMessage(
+      state,
+      state.toolCallId,
+      'completed'
+    );
+    const rawLlmMessage = createSequentialThinkingRawLlmMessageEntry(state, state.toolCallId);
 
-  const rawToolResultEntry = createRawToolResultEntry(
-    context.messageId,
-    SEQUENTIAL_THINKING_TOOL_NAME,
-    output
-  );
+    const rawToolResultEntry = createRawToolResultEntry(
+      context.messageId,
+      SEQUENTIAL_THINKING_TOOL_NAME,
+      output
+    );
 
-  if (reasoningEntry) {
-    entries.reasoningMessages = [reasoningEntry];
-  }
+    if (reasoningEntry) {
+      entries.reasoningMessages = [reasoningEntry];
+    }
 
-  if (rawLlmMessage) {
-    entries.rawLlmMessages = [rawLlmMessage, rawToolResultEntry];
-  }
+    if (rawLlmMessage) {
+      entries.rawLlmMessages = [rawLlmMessage, rawToolResultEntry];
+    }
 
-  try {
-    await updateMessageEntries(entries);
-  } catch (error) {
-    console.error('[sequential-thinking] Error updating message entries:', error);
+    try {
+      await updateMessageEntries(entries);
+    } catch (error) {
+      console.error('[sequential-thinking] Error updating message entries:', error);
+    }
+
+    return {
+      success: true,
+    };
   }
 
   return {
-    success: true,
+    success: false,
   };
 }
 
