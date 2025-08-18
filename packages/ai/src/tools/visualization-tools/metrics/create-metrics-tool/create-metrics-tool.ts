@@ -1,11 +1,11 @@
 import { StatusSchema } from '@buster/server-shared/chats';
 import { tool } from 'ai';
 import { z } from 'zod';
-import { getMetricToolDescription } from '../helpers/get-metric-tool-description';
 import { createCreateMetricsDelta } from './create-metrics-delta';
 import { createCreateMetricsExecute } from './create-metrics-execute';
 import { createCreateMetricsFinish } from './create-metrics-finish';
 import { createCreateMetricsStart } from './create-metrics-start';
+import METRIC_TOOL_DESCRIPTION from './metric-tool-description.txt';
 
 export const CREATE_METRICS_TOOL_NAME = 'createMetrics';
 
@@ -102,7 +102,7 @@ export function createCreateMetricsTool(context: CreateMetricsContext) {
   const onInputAvailable = createCreateMetricsFinish(context, state);
 
   return tool({
-    description: getMetricToolDescription(),
+    description: METRIC_TOOL_DESCRIPTION,
     inputSchema: CreateMetricsInputSchema,
     outputSchema: CreateMetricsOutputSchema,
     execute,

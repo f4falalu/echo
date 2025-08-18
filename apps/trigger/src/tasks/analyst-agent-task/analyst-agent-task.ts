@@ -293,8 +293,12 @@ export const analystAgentTask: ReturnType<
       const datasetsPromise = messageContextPromise.then(async (context) => {
         try {
           // Using the existing access control function
-          const datasets = await getPermissionedDatasets(context.userId, 0, 1000);
-          return datasets;
+          const datasets = await getPermissionedDatasets({
+            userId: context.userId,
+            page: 0,
+            pageSize: 1000,
+          });
+          return datasets.datasets;
         } catch (error) {
           logger.error('Failed to fetch datasets for user', {
             userId: context.userId,

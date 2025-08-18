@@ -83,8 +83,8 @@ export function createThinkAndPrepAgent(thinkAndPrepAgentSchema: ThinkAndPrepAge
 
   // Create second system message with datasets information
   const datasetsContent = datasets
-    .filter((d) => d.ymlFile)
-    .map((d) => d.ymlFile)
+    .filter((d) => d.ymlContent)
+    .map((d) => d.ymlContent)
     .join('\n\n');
 
   const datasetsSystemMessage = {

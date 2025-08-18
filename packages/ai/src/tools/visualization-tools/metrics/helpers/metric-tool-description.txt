@@ -46,6 +46,69 @@ Only utilize the required/default fields unless the user specifically requests t
 # 3. Metric name, timeframe, or description CANNOT contain `:`
 # -------------------------------------
 
+# --- COLUMN LABEL FORMATS ---
+# columnLabelFormats is REQUIRED for ALL columns in your SQL result.
+# This section defines how each column should be formatted and displayed.
+#
+# REQUIRED fields for each column:
+#   - columnType: Must be one of: number, string, date
+#   - style: Must match columnType:
+#     - For number: currency, percent, number
+#     - For string: string
+#     - For date: date
+#   - replaceMissingDataWith: Value when data is missing (0 for numbers, null for others)
+#   - numberSeparatorStyle: Either ',' or null (not "null" in quotes)
+#
+# OPTIONAL fields:
+#   - displayName: Custom display name for the column
+#   - multiplier: Value to multiply numbers by (default: 1)
+#     - For percentages from database columns: use 1
+#     - For calculated percentages not already multiplied by 100: use 100
+#   - minimumFractionDigits: Min decimal places to show
+#   - maximumFractionDigits: Max decimal places to show
+#   - prefix: Text to show before the value
+#   - suffix: Text to show after the value
+#   - compactNumbers: Show as 1K, 1M, etc. (boolean)
+#   - currency: Currency code for currency style (e.g., USD, EUR)
+#   - dateFormat: Format string for dates (Day.js compatible)
+#     - year: 'YYYY' (e.g., 2025)
+#     - quarter: '[Q]Q YYYY' (e.g., Q1 2025)
+#     - month: 'MMM YYYY' (e.g., Jan 2025)
+#     - week/day: 'MMM D, YYYY' (e.g., Jan 25, 2025)
+#   - useRelativeTime: Show dates as "2 days ago" (boolean)
+#   - isUtc: Interpret dates as UTC (boolean)
+#   - convertNumberTo: Convert numbers to time units (day_of_week, month_of_year, quarter)
+#
+# Example columnLabelFormats:
+#   columnLabelFormats:
+#     total_sales:
+#       columnType: number
+#       style: currency
+#       replaceMissingDataWith: 0
+#       numberSeparatorStyle: ','
+#       currency: USD
+#       displayName: Total Sales
+#     order_date:
+#       columnType: date
+#       style: date
+#       replaceMissingDataWith: null
+#       numberSeparatorStyle: null
+#       dateFormat: MMM D, YYYY
+#     product_name:
+#       columnType: string
+#       style: string
+#       replaceMissingDataWith: null
+#       numberSeparatorStyle: null
+#     profit_margin:
+#       columnType: number
+#       style: percent
+#       replaceMissingDataWith: 0
+#       numberSeparatorStyle: ','
+#       multiplier: 100  # if calculated and not already multiplied
+#       minimumFractionDigits: 1
+#       maximumFractionDigits: 2
+# -------------------------------------
+
 # --- FORMAL SCHEMA --- (Used for validation, reflects rules above)
 type: object
 name: Metric Configuration Schema

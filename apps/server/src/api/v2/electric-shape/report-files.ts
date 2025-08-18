@@ -1,3 +1,5 @@
+import { type WorkspaceSharing, hasAssetPermission } from '@buster/access-controls';
+import { and, db, eq, isNull, reportFiles } from '@buster/database';
 import { markdownToPlatejs } from '@buster/server-utils/report';
 import type { Context } from 'hono';
 import { errorResponse } from '../../../utils/response';
@@ -102,27 +104,33 @@ export const reportFilesProxyRouter = async (url: URL, _userId: string, c: Conte
     throw errorResponse('Report ID (id) is required', 403);
   }
 
-  // TODO: Implement proper access control for reports
-  // Should check:
-  // 1. If user created the report (createdBy === userId)
-  // 2. If user is in the same organization as the report
-  // 3. If workspace sharing is enabled ('can_view' or 'can_edit')
-  // 4. If report has individual permissions for the user
-  // 5. If report is publicly accessible
-  //
-  // const userHasAccess = await canUserAccessReport({
-  //   userId: c.get('supabaseUser').id,
-  //   reportId,
-  // });
-  //
-  // if (!userHasAccess) {
-  //   throw errorResponse('You do not have access to this report', 403);
-  // }
+  // Get report metadata for access control
+  const reportData = await db
+    .select({
+      organizationId: reportFiles.organizationId,
+      workspaceSharing: reportFiles.workspaceSharing,
+    })
+    .from(reportFiles)
+    .where(and(eq(reportFiles.id, reportId), isNull(reportFiles.deletedAt)))
+    .limit(1);
 
-  // For now, allow access with a warning
-  console.warn(
-    `TODO: Implement access control for report ${reportId} for user ${c.get('supabaseUser').id}`
-  );
+  if (!reportData[0]) {
+    throw errorResponse('Report not found', 404);
+  }
+
+  // Check access using existing asset permission system
+  const hasAccess = await hasAssetPermission({
+    userId: c.get('supabaseUser').id,
+    assetId: reportId,
+    assetType: 'report_file',
+    requiredRole: 'can_view',
+    organizationId: reportData[0].organizationId,
+    workspaceSharing: reportData[0].workspaceSharing as WorkspaceSharing,
+  });
+
+  if (!hasAccess) {
+    throw errorResponse('You do not have access to this report', 403);
+  }
 
   // Fetch the response and transform it
   const response = await createProxiedResponse(url);

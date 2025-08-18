@@ -1,7 +1,7 @@
 import { StatusSchema } from '@buster/server-shared/chats';
 import { tool } from 'ai';
 import { z } from 'zod';
-import { getMetricToolDescription } from '../helpers/get-metric-tool-description';
+import METRIC_TOOL_DESCRIPTION from './metric-tool-description.txt';
 import { createModifyMetricsDelta } from './modify-metrics-delta';
 import { createModifyMetricsExecute } from './modify-metrics-execute';
 import { createModifyMetricsFinish } from './modify-metrics-finish';
@@ -101,7 +101,7 @@ export function createModifyMetricsTool(context: ModifyMetricsContext) {
   // Build the description with the metric schema
   const description = `Updates existing metric configuration files with new YAML content. Provide the complete YAML content for each metric, replacing the entire existing file. This tool is ideal for bulk modifications when you need to update multiple metrics simultaneously. The system will preserve version history and perform all necessary validations on the new content. For each metric, you need its UUID and the complete updated YAML content. **Prefer modifying metrics in bulk using this tool rather than one by one.**
 
-${getMetricToolDescription()}`;
+${METRIC_TOOL_DESCRIPTION}`;
 
   return tool({
     description,
