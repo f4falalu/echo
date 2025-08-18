@@ -11,6 +11,7 @@ import type {
   GetMetricResponse,
   ListMetricsResponse,
   MetricDataResponse,
+  MetricDownloadResponse,
   ShareDeleteResponse,
   ShareUpdateResponse,
   UpdateMetricRequest,
@@ -21,7 +22,7 @@ import type {
   SharePostRequest,
   ShareUpdateRequest,
 } from '@buster/server-shared/share';
-import { mainApi } from '../instances';
+import { mainApi, mainApiV2 } from '../instances';
 
 export const getMetric = async (params: GetMetricRequest): Promise<GetMetricResponse> => {
   return mainApi
@@ -94,5 +95,12 @@ export const updateMetricShare = async ({
 }) => {
   return mainApi
     .put<ShareUpdateResponse>(`/metric_files/${id}/sharing`, params)
+    .then((res) => res.data);
+};
+
+// Download metric file
+export const downloadMetricFile = async (id: string): Promise<MetricDownloadResponse> => {
+  return mainApiV2
+    .get<MetricDownloadResponse>(`/metric_files/${id}/download`)
     .then((res) => res.data);
 };

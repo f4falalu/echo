@@ -3,13 +3,17 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useRef } from 'react';
 import type { BusterMetricData } from '@/api/asset_interfaces/metric';
 import type { RunSQLResponse } from '@/api/asset_interfaces/sql';
-import { useGetLatestMetricVersionMemoized, useUpdateMetric } from '@/api/buster_rest/metrics';
+import {
+  useGetMetricDataMemoized,
+  useGetMetricMemoized,
+} from '@/api/buster_rest/metrics/metricQueryHelpers';
+import { useGetLatestMetricVersionMemoized } from '@/api/buster_rest/metrics/metricVersionNumber';
+import { useUpdateMetric } from '@/api/buster_rest/metrics/queryRequests';
 import { useRunSQL as useRunSQLQuery } from '@/api/buster_rest/sql';
-import { queryKeys } from '@/api/query_keys';
+import { metricsQueryKeys } from '@/api/query_keys/metric';
 import { useBusterNotifications } from '@/context/BusterNotifications';
-import { useGetMetricDataMemoized, useGetMetricMemoized } from '@/context/Metrics';
-import { useMemoizedFn } from '@/hooks';
-import { timeout } from '@/lib';
+import { useMemoizedFn } from '@/hooks/useMemoizedFn';
+import { timeout } from '@/lib/timeout';
 import { didColumnDataChange, simplifyChatConfigForSQLChange } from './helpers';
 
 export const useMetricRunSQL = () => {
@@ -57,7 +61,7 @@ export const useMetricRunSQL = () => {
     isDataFromRerun: boolean;
   }) => {
     const latestVersionNumber = getLatestMetricVersion(metricId);
-    const options = queryKeys.metricsGetData(metricId, latestVersionNumber as number);
+    const options = metricsQueryKeys.metricsGetData(metricId, latestVersionNumber as number);
     const currentData = getMetricDataMemoized(metricId, latestVersionNumber as number);
     if (!currentData) return;
     const setter = isDataFromRerun ? 'dataFromRerun' : 'data';
@@ -71,7 +75,7 @@ export const useMetricRunSQL = () => {
   };
 
   const onResponseRunSQL = useMemoizedFn(
-    (d: RunSQLResponse, sql: string, { metricId }: { metricId?: string }) => {
+    (d: RunSQLResponse, _sql: string, { metricId }: { metricId?: string }) => {
       if (metricId) {
         const { data, data_metadata } = d;
         const metricMessage = getMetricMemoized(metricId);

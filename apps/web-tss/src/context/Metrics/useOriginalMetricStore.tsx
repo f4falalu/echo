@@ -19,14 +19,15 @@ export const removeOriginalMetric = (metricId: string) => {
   });
 };
 
-export const useOriginalMetricStore = () => {
+const useOriginalMetricStore = () => {
   return useStore(originalMetricStore);
 };
 
-const stableSelectOriginalMetric = (metricId: string) => {
+const stableSelectOriginalMetric = (metricId: string | undefined) => {
+  if (!metricId) return undefined;
   return (state: Map<string, BusterMetric>) => state.get(metricId);
 };
 
-export const useGetOriginalMetric = (metricId: string) => {
+export const useGetOriginalMetric = (metricId: string | undefined) => {
   return useStore(originalMetricStore, stableSelectOriginalMetric(metricId));
 };

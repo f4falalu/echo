@@ -17,12 +17,14 @@ export { default as CircleCopy } from './circle-copy';
 export { default as CircleInfo } from './circle-info';
 export { default as CircleWarning } from './circle-warning';
 export { default as CircleXmark } from './circle-xmark';
+export { default as Command } from './command';
 export { default as Copy } from './copy';
 export { default as Copy2 } from './copy-2'; // Alternate copy icon
 export { default as Database } from './database'; // Database icon
 export { default as Dots } from './dots';
 export { default as DotsVertical } from './dots-vertical';
 export { default as Download } from './download';
+export { default as Download4 } from './download-4';
 export { default as Eye } from './eye'; // Eye (show) icon
 export { default as EyeSlash } from './eye-slash'; // Eye with slash (hide) icon
 export { default as File } from './file';
@@ -41,6 +43,7 @@ export { default as Messages } from './messages'; // Messages icon
 export { default as Minus } from './minus';
 export { default as PaintRoller } from './paint-roller';
 export { default as Plus } from './plus'; // Plus/add icon
+export { default as ReturnKey } from './return-key';
 export { default as ShapeCircle } from './shape-circle';
 export { default as ShapeSquare } from './shape-square';
 export { default as SidebarLeft } from './sidebar-left';

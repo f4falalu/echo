@@ -3,22 +3,23 @@
 import type { DataResult } from '@buster/server-shared/metrics';
 import React, { useEffect, useMemo, useState } from 'react';
 import { useGetMetric, useGetMetricData } from '@/api/buster_rest/metrics';
-import { AppVerticalCodeSplitter } from '@/components/features/layouts/AppVerticalCodeSplitter';
-import type { AppSplitterRef } from '@/components/ui/layouts/AppSplitter';
-import { useMemoizedFn } from '@/hooks';
-import { useChatLayoutContextSelector } from '@/layouts/ChatLayout';
+import type { AppSplitterRef, LayoutSize } from '@/components/ui/layouts/AppSplitter';
+import { AppVerticalCodeSplitter } from '@/components/ui/layouts/AppVerticalCodeSplitter';
+import { useMemoizedFn } from '@/hooks/useMemoizedFn';
+import { useChatIsVersionHistoryMode } from '@/layouts/ChatLayout/ChatContext/useChatContextSelectors';
 import { useMetricResultsLayout } from './useMetricResultsLayout';
 import { useMetricRunSQL } from './useMetricRunSQL';
 
 export const MetricViewSQLController: React.FC<{
   metricId: string;
-}> = React.memo(({ metricId }) => {
+  initialLayout: LayoutSize | null;
+}> = React.memo(({ metricId, initialLayout }) => {
   const appSplitterRef = React.useRef<AppSplitterRef>(null);
   const containerRef = React.useRef<HTMLDivElement>(null);
 
   const autoSaveId = `view-sql-${metricId}`;
 
-  const isVersionHistoryMode = useChatLayoutContextSelector((x) => x.isVersionHistoryMode);
+  const isVersionHistoryMode = useChatIsVersionHistoryMode();
 
   const {
     runSQL,
@@ -111,6 +112,7 @@ export const MetricViewSQLController: React.FC<{
         fetchingData={isRunningSQL || isSavingMetric || !isFetchedInitialData}
         defaultLayout={defaultLayout}
         topHidden={false}
+        initialLayout={initialLayout}
       />
     </div>
   );

@@ -1,6 +1,7 @@
 import {
   type QueryClient,
   type UseQueryOptions,
+  useMutation,
   useQuery,
   useQueryClient,
 } from '@tanstack/react-query';
@@ -23,7 +24,7 @@ import {
   useGetLatestMetricVersionMemoized,
   useGetMetricVersionNumber,
 } from './metricVersionNumber';
-import { getMetric, getMetricData } from './requests';
+import { downloadMetricFile, getMetric, getMetricData } from './requests';
 
 export const useGetMetric = <TData = BusterMetric>(
   {
@@ -189,4 +190,10 @@ export const usePrefetchGetMetricDataClient = () => {
   return useMemoizedFn(({ id, versionNumber }: { id: string; versionNumber: number }) =>
     prefetchGetMetricDataClient({ id, version_number: versionNumber }, queryClient)
   );
+};
+
+export const useDownloadMetricFile = () => {
+  return useMutation({
+    mutationFn: downloadMetricFile,
+  });
 };

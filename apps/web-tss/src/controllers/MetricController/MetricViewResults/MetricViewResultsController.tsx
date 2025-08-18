@@ -2,8 +2,9 @@
 
 import React, { useMemo } from 'react';
 import { useGetMetric, useGetMetricData } from '@/api/buster_rest/metrics';
-import { DataContainer } from '@/components/features/layouts/AppVerticalCodeSplitter';
-import { useLocalStorageState, useMemoizedFn } from '@/hooks';
+import { DataContainer } from '@/components/ui/layouts/AppVerticalCodeSplitter/DataContainer';
+import { useLocalStorageState } from '@/hooks/useLocalStorageState';
+import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 
 export const MetricViewResultsController = React.memo(({ metricId }: { metricId: string }) => {
   const { isFetched: isFetchedMetric } = useGetMetric(

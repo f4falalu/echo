@@ -29,10 +29,11 @@ export const useOriginalDashboardStore = () => {
   return useStore(originalDashboardStore);
 };
 
-const stableSelectOriginalDashboard = (dashboardId: string) => {
+const stableSelectOriginalDashboard = (dashboardId: string | undefined) => {
+  if (!dashboardId) return undefined;
   return (state: Map<string, BusterDashboard>) => state.get(dashboardId);
 };
 
-export const useGetOriginalDashboard = (dashboardId: string) => {
+export const useGetOriginalDashboard = (dashboardId: string | undefined) => {
   return useStore(originalDashboardStore, stableSelectOriginalDashboard(dashboardId));
 };

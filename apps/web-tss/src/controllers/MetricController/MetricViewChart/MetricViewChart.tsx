@@ -3,11 +3,12 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import isEmpty from 'lodash/isEmpty';
 import React, { useMemo } from 'react';
+import type { BusterMetric } from '@/api/asset_interfaces/metric';
 import { useGetMetric, useGetMetricData } from '@/api/buster_rest/metrics';
-import { useUpdateMetricChart } from '@/context/Metrics';
 import { useIsMetricReadOnly } from '@/context/Metrics/useIsMetricReadOnly';
-import { useSelectedColorPalette } from '@/context-hooks/usePalettes';
-import { useMemoizedFn } from '@/hooks';
+import { useUpdateMetricChart } from '@/context/Metrics/useUpdateMetricChart';
+import { useSelectedColorPalette } from '@/context/Themes/usePalettes';
+import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import { cn } from '@/lib/classMerge';
 import { inputHasText } from '@/lib/text';
 import { MetricChartEvaluation } from './MetricChartEvaluation';
@@ -16,6 +17,30 @@ import { MetricSaveFilePopup } from './MetricSaveFilePopup';
 import { MetricViewChartContent } from './MetricViewChartContent';
 import { MetricViewChartHeader } from './MetricViewChartHeader';
 
+const stableMetricSelect = ({
+  chart_config,
+  name,
+  description,
+  time_frame,
+  permission,
+  evaluation_score,
+  evaluation_summary,
+  version_number,
+  versions,
+}: BusterMetric) => {
+  return {
+    name,
+    description,
+    time_frame,
+    permission,
+    evaluation_score,
+    evaluation_summary,
+    chart_config,
+    version_number,
+    versions,
+  };
+};
+
 export const MetricViewChart: React.FC<{
   metricId: string;
   readOnly?: boolean;
@@ -23,32 +48,7 @@ export const MetricViewChart: React.FC<{
   cardClassName?: string;
 }> = React.memo(
   ({ metricId, readOnly: readOnlyProp = false, className = '', cardClassName = '' }) => {
-    const { data: metric } = useGetMetric(
-      { id: metricId },
-      {
-        select: ({
-          chart_config,
-          name,
-          description,
-          time_frame,
-          permission,
-          evaluation_score,
-          evaluation_summary,
-          version_number,
-          versions,
-        }) => ({
-          name,
-          description,
-          time_frame,
-          permission,
-          evaluation_score,
-          evaluation_summary,
-          chart_config,
-          version_number,
-          versions,
-        }),
-      }
-    );
+    const { data: metric } = useGetMetric({ id: metricId }, { select: stableMetricSelect });
     const {
       data: metricData,
       isFetched: isFetchedMetricData,
@@ -71,9 +71,7 @@ export const MetricViewChart: React.FC<{
 
     const onSetTitle = useMemoizedFn((title: string) => {
       if (inputHasText(title)) {
-        onUpdateMetricName({
-          name: title,
-        });
+        onUpdateMetricName({ name: title });
       }
     });
 

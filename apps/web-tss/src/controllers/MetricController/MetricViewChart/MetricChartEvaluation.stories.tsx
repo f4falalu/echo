@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/nextjs';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { MetricChartEvaluation } from './MetricChartEvaluation';
 
 const meta: Meta<typeof MetricChartEvaluation> = {

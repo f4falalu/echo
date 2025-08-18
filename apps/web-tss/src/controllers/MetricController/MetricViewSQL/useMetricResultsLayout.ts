@@ -1,10 +1,14 @@
 import Cookies from 'js-cookie';
 import type React from 'react';
 import { useMemo } from 'react';
-import { type AppSplitterRef, createAutoSaveId } from '@/components/ui/layouts/AppSplitter';
-import { useMemoizedFn, useUpdateLayoutEffect } from '@/hooks';
+import {
+  type AppSplitterRef,
+  createAutoSaveId,
+  type LayoutSize,
+} from '@/components/ui/layouts/AppSplitter';
+import { useUpdateLayoutEffect } from '@/hooks/useUpdateLayoutEffect';
 
-const defaultSqlOpenLayout = ['80%', 'auto'];
+const defaultSqlOpenLayout: LayoutSize = ['80%', 'auto'];
 
 export const useMetricResultsLayout = ({
   appSplitterRef,
@@ -15,27 +19,23 @@ export const useMetricResultsLayout = ({
 }) => {
   const defaultOpenLayout = defaultSqlOpenLayout;
 
-  const secondaryLayoutDimensions: [string, string] = useMemo(() => {
+  const defaultLayout: LayoutSize = useMemo(() => {
     const cookieKey = createAutoSaveId(autoSaveId);
     const cookieValue = Cookies.get(cookieKey);
     if (cookieValue) {
       try {
         const parsedValue = JSON.parse(cookieValue) as string[];
         if (!parsedValue?.some((item) => item === 'auto')) {
-          return parsedValue as [string, string];
+          return parsedValue as LayoutSize;
         }
       } catch (error) {
         //
       }
     }
-    return defaultOpenLayout as [string, string];
+    return defaultOpenLayout;
   }, []);
 
-  const defaultLayout: [string, string] = useMemo(() => {
-    return secondaryLayoutDimensions;
-  }, []);
-
-  const animateOpenSplitter = useMemoizedFn((side: 'metric' | 'both') => {
+  const animateOpenSplitter = (side: 'metric' | 'both') => {
     if (!appSplitterRef.current) return;
 
     if (side === 'metric') {
@@ -43,7 +43,7 @@ export const useMetricResultsLayout = ({
     } else if (side === 'both') {
       appSplitterRef.current.animateWidth('40%', 'left');
     }
-  });
+  };
 
   useUpdateLayoutEffect(() => {
     animateOpenSplitter('both');

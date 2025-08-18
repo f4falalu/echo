@@ -13,7 +13,6 @@ export const SelectAxisItem = React.forwardRef<
     zoneId: SelectAxisContainerId;
     className?: string;
     isPlaceholder?: boolean;
-    metricId: string;
     //DRAGGING PROPERTIES
     isDragging?: boolean;
     style?: React.CSSProperties;
