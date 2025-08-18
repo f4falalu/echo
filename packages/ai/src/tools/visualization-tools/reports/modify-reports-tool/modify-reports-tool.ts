@@ -5,6 +5,7 @@ import { createModifyReportsDelta } from './modify-reports-delta';
 import { createModifyReportsExecute } from './modify-reports-execute';
 import { createModifyReportsFinish } from './modify-reports-finish';
 import { modifyReportsStart } from './modify-reports-start';
+import MODIFY_REPORT_TOOL_DESCRIPTION from './modify-reports-tool-description.txt';
 
 export const MODIFY_REPORTS_TOOL_NAME = 'modifyReports';
 
@@ -79,48 +80,6 @@ export type ModifyReportsOutput = z.infer<typeof ModifyReportsOutputSchema>;
 export type ModifyReportsContext = z.infer<typeof ModifyReportsContextSchema>;
 export type ModifyReportsState = z.infer<typeof ModifyReportsStateSchema>;
 export type ModifyReportsEditState = z.infer<typeof ModifyReportsEditStateSchema>;
-
-// Report tool description
-const MODIFY_REPORT_TOOL_DESCRIPTION = `Edit an existing report with find/replace operations or appends. 
-  
-## How Edits Work
-
-This tool applies a series of edit operations to a report sequentially:
-
-1. **Replace Mode** (when code_to_replace is provided):
-   - Finds the exact text specified in code_to_replace
-   - Replaces it with the text in code
-   - The operation will fail if the text to replace is not found
-
-2. **Append Mode** (when code_to_replace is empty):
-   - Appends the text in code to the end of the report
-   - Useful for adding new sections or content
-
-## Best Practices
-
-- Edits are applied in order, so later edits see the results of earlier ones
-- Use specific, unique text for code_to_replace to avoid unintended replacements
-- For large changes, consider using multiple smaller, targeted edits
-- Always verify the report ID before attempting edits
-
-## Example Usage
-
-\`\`\`json
-{
-  "id": "550e8400-e29b-41d4-a716-446655440000",
-  "name": "Q4 2024 Sales Report",
-  "edits": [
-    {
-      "code_to_replace": "## Preliminary Results",
-      "code": "## Final Results"
-    },
-    {
-      "code_to_replace": "",
-      "code": "\\n\\n## Addendum\\nAdditional analysis completed on..."
-    }
-  ]
-}
-\`\`\``;
 
 // Factory function that accepts agent context and maps to tool context
 export function createModifyReportsTool(context: ModifyReportsContext) {

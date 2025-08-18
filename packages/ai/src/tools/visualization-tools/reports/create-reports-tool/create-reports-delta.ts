@@ -121,7 +121,6 @@ export function createCreateReportsDelta(context: CreateReportsContext, state: C
               const existingFile = state.files?.[index];
 
               let reportId: string;
-              let needsCreation = false;
 
               if (existingFile?.id) {
                 // Report already exists, use its ID
@@ -129,7 +128,6 @@ export function createCreateReportsDelta(context: CreateReportsContext, state: C
               } else {
                 // New report, generate ID and mark for creation
                 reportId = randomUUID();
-                needsCreation = true;
                 reportsToCreate.push({ id: reportId, name, index });
               }
 
@@ -167,8 +165,8 @@ export function createCreateReportsDelta(context: CreateReportsContext, state: C
                   id: report.id,
                   name: report.name,
                   content: '', // Start with empty content, will be updated via streaming
-                  organizationId: context.organizationId!,
-                  createdBy: context.userId!,
+                  organizationId: context.organizationId,
+                  createdBy: context.userId,
                   createdAt: now,
                   updatedAt: now,
                   deletedAt: null,
@@ -186,7 +184,7 @@ export function createCreateReportsDelta(context: CreateReportsContext, state: C
 
               // Insert asset permissions
               const assetPermissionRecords = reportRecords.map((record) => ({
-                identityId: context.userId!,
+                identityId: context.userId,
                 identityType: 'user' as const,
                 assetId: record.id,
                 assetType: 'report_file' as const,
@@ -194,8 +192,8 @@ export function createCreateReportsDelta(context: CreateReportsContext, state: C
                 createdAt: new Date().toISOString(),
                 updatedAt: new Date().toISOString(),
                 deletedAt: null,
-                createdBy: context.userId!,
-                updatedBy: context.userId!,
+                createdBy: context.userId,
+                updatedBy: context.userId,
               }));
               await tx.insert(assetPermissions).values(assetPermissionRecords);
             });

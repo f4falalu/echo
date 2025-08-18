@@ -1,46 +1,10 @@
-import { randomUUID } from 'node:crypto';
-import { assetPermissions, db, reportFiles, updateMessageEntries } from '@buster/database';
-import type { ChatMessageResponseMessage } from '@buster/server-shared/chats';
+import { updateMessageEntries } from '@buster/database';
 import type { ToolCallOptions } from 'ai';
 import type { CreateReportsContext, CreateReportsState } from './create-reports-tool';
 import {
   createCreateReportsRawLlmMessageEntry,
   createCreateReportsReasoningEntry,
 } from './helpers/create-reports-tool-transform-helper';
-
-type VersionHistory = (typeof reportFiles.$inferSelect)['versionHistory'];
-
-// Helper function to create initial version history
-function createInitialReportVersionHistory(content: string, createdAt: string): VersionHistory {
-  return {
-    '1': {
-      content,
-      updated_at: createdAt,
-      version_number: 1,
-    },
-  };
-}
-
-// Helper function to create file response messages for reports
-function createReportFileResponseMessages(
-  reports: Array<{ id: string; name: string }>
-): ChatMessageResponseMessage[] {
-  return reports.map((report) => ({
-    id: report.id,
-    type: 'file' as const,
-    file_type: 'report' as const,
-    file_name: report.name,
-    version_number: 1,
-    filter_version_id: null,
-    metadata: [
-      {
-        status: 'loading' as const,
-        message: 'Report is being generated...',
-        timestamp: Date.now(),
-      },
-    ],
-  }));
-}
 
 export function createReportsStart(context: CreateReportsContext, state: CreateReportsState) {
   return async (options: ToolCallOptions) => {
@@ -49,15 +13,6 @@ export function createReportsStart(context: CreateReportsContext, state: CreateR
     state.argsText = undefined;
     state.files = [];
     state.startTime = Date.now();
-
-    // Pre-generate report IDs and create placeholder reports immediately
-    // We don't have the file names yet, so we'll generate temporary names
-    const reportIds: string[] = [];
-    const temporaryReports: Array<{ id: string; name: string }> = [];
-
-    // We'll need to parse the initial arguments to get the file count
-    // For now, let's prepare to handle multiple reports
-    // We'll create these once we get the first delta with file names
 
     if (context.messageId) {
       try {

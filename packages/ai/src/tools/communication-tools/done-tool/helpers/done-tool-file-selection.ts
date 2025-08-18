@@ -55,6 +55,7 @@ interface ExtractedFile {
   operation?: 'created' | 'modified' | undefined;
   versionNumber?: number | undefined;
   metricIds?: string[] | undefined; // IDs of metrics that belong to this dashboard
+  content?: string | undefined; // Content of reports for checking absorbed files
 }
 
 /**
@@ -145,7 +146,10 @@ export function extractFilesFromToolCalls(messages: ModelMessage[]): ExtractedFi
   const deduplicatedFiles = deduplicateFilesByVersion(files);
 
   // Filter out metrics that belong to dashboards
-  const filteredFiles = filterOutDashboardMetrics(deduplicatedFiles);
+  let filteredFiles = filterOutDashboardMetrics(deduplicatedFiles);
+
+  // Filter out metrics and dashboards that are absorbed by reports
+  filteredFiles = filterOutReportContainedFiles(filteredFiles);
 
   console.info('[done-tool-file-selection] Final selected files', {
     totalSelected: filteredFiles.length,
@@ -307,6 +311,7 @@ function processReportsOutput(
           status: 'completed',
           operation,
           versionNumber: file.version_number || 1,
+          // Note: content is not available in files array output
         });
       }
     }
@@ -333,6 +338,7 @@ function processReportsOutput(
         status: 'completed',
         operation,
         versionNumber: file.version_number || 1,
+        content: file.content, // Capture content from modify reports output
       });
     }
   }
@@ -419,6 +425,56 @@ function filterOutDashboardMetrics(files: ExtractedFile[]): ExtractedFile[] {
     }
 
     return !shouldExclude;
+  });
+
+  return filtered;
+}
+
+/**
+ * Filter out metrics and dashboards that are absorbed by reports
+ * Reports always get selected, but metrics/dashboards mentioned in report content are hidden
+ */
+function filterOutReportContainedFiles(files: ExtractedFile[]): ExtractedFile[] {
+  // Collect all report contents
+  const reportContents: string[] = [];
+  for (const file of files) {
+    if (file.fileType === 'report' && file.content) {
+      reportContents.push(file.content);
+    }
+  }
+
+  if (reportContents.length === 0) {
+    // No report content to check against
+    return files;
+  }
+
+  // Combine all report contents for searching
+  const combinedReportContent = reportContents.join('\n');
+
+  console.info('[done-tool-file-selection] Checking for files absorbed by reports', {
+    reportCount: reportContents.length,
+    hasContent: combinedReportContent.length > 0,
+  });
+
+  // Filter out metrics and dashboards that appear in report content
+  const filtered = files.filter((file) => {
+    // Always keep reports
+    if (file.fileType === 'report') {
+      return true;
+    }
+
+    // Check if this file's ID appears in any report content
+    const isAbsorbed = combinedReportContent.includes(file.id);
+
+    if (isAbsorbed) {
+      console.info('[done-tool-file-selection] Excluding file absorbed by report', {
+        fileId: file.id,
+        fileName: file.fileName,
+        fileType: file.fileType,
+      });
+    }
+
+    return !isAbsorbed;
   });
 
   return filtered;

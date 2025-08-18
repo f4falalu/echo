@@ -412,7 +412,7 @@ export function validateWildcardUsage(
     if (blockedTables.length > 0) {
       return {
         isValid: false,
-        error: `You're not allowed to use a wildcard on physical tables, please be specific about which columns you'd like to work with`,
+        error: `SELECT * is not allowed on physical tables. Please specify the columns you need.`,
         blockedTables,
       };
     }

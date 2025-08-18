@@ -15,9 +15,7 @@ type UpdateReportContentInput = z.infer<typeof UpdateReportContentInputSchema>;
  * Updates a report's content field directly
  * Used for streaming updates as content is generated
  */
-export const updateReportContent = async (
-  params: UpdateReportContentInput
-): Promise<void> => {
+export const updateReportContent = async (params: UpdateReportContentInput): Promise<void> => {
   const { reportId, content } = UpdateReportContentInputSchema.parse(params);
 
   try {
