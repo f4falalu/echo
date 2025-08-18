@@ -366,7 +366,7 @@ test('model reset interval resets to first model', async () => {
   vi.useFakeTimers();
 
   let model1CallCount = 0;
-  const model1 = new MockLanguageModelV2({ 
+  const model1 = new MockLanguageModelV2({
     modelId: 'primary-model',
     doGenerate: async () => {
       model1CallCount++;
@@ -394,7 +394,7 @@ test('model reset interval resets to first model', async () => {
   try {
     await fallback.doGenerate({ prompt: [] });
   } catch {}
-  
+
   expect(fallback.modelId).toBe('fallback-model');
 
   // Advance time past reset interval

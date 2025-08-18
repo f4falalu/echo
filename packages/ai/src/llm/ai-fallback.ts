@@ -255,6 +255,20 @@ export class FallbackModel implements LanguageModelV2 {
             }
             controller.close();
           } catch (error) {
+            // Check if this is a normal stream termination
+            const errorMessage = error instanceof Error ? error.message : String(error);
+            const isNormalTermination = 
+              errorMessage === 'terminated' || 
+              errorMessage.includes('terminated') ||
+              errorMessage === 'aborted' ||
+              errorMessage.includes('aborted');
+            
+            // If it's a normal termination and we've already streamed content, just close normally
+            if (isNormalTermination && hasStreamedAny) {
+              controller.close();
+              return;
+            }
+            
             if (self.settings.onError) {
               try {
                 await self.settings.onError(error as RetryableError, self.modelId);

@@ -19,14 +19,11 @@ describe('create-todos-step integration', () => {
     expect(result).toBeDefined();
     expect(result.todos).toBeDefined();
     expect(typeof result.todos).toBe('string');
-    expect(result.todosMessage).toBeDefined();
-    expect(result.todosMessage.role).toBe('user');
+    expect(result.messages).toBeDefined();
+    expect(result.messages.length).toBeGreaterThan(0);
+    expect(result.messages[result.messages.length - 1]!.role).toBe('user');
     expect(result.todos).toContain('[ ]');
-    expect(result.todosMessage).toBeDefined();
-    expect(result.todosMessage.role).toBe('user'); // Should contain checkbox format
-    expect(result.todosMessage).toBeDefined();
-    expect(result.todosMessage.role).toBe('user');
-    expect(result.todosMessage.content).toBe(result.todos);
+    expect(result.messages[result.messages.length - 1]!.content).toContain(result.todos);
   });
 
   it('should create todos for complex multi-part request', async () => {
@@ -42,11 +39,13 @@ describe('create-todos-step integration', () => {
     expect(result).toBeDefined();
     expect(result.todos).toBeDefined();
     expect(typeof result.todos).toBe('string');
-    expect(result.todosMessage).toBeDefined();
-    expect(result.todosMessage.role).toBe('user');
+    expect(result.messages).toBeDefined();
+    expect(result.messages.length).toBeGreaterThan(0);
+    expect(result.messages[result.messages.length - 1]!.role).toBe('user');
     expect(result.todos).toContain('[ ]');
-    expect(result.todosMessage).toBeDefined();
-    expect(result.todosMessage.role).toBe('user');
+    expect(result.messages).toBeDefined();
+    expect(result.messages.length).toBeGreaterThan(0);
+    expect(result.messages[result.messages.length - 1]!.role).toBe('user');
   });
 
   it('should create todos for specific entity queries', async () => {
@@ -62,8 +61,9 @@ describe('create-todos-step integration', () => {
     expect(result).toBeDefined();
     expect(result.todos).toBeDefined();
     expect(typeof result.todos).toBe('string');
-    expect(result.todosMessage).toBeDefined();
-    expect(result.todosMessage.role).toBe('user');
+    expect(result.messages).toBeDefined();
+    expect(result.messages.length).toBeGreaterThan(0);
+    expect(result.messages[result.messages.length - 1]!.role).toBe('user');
     // Should contain todos about identifying Baltic Born, return rate, and time period
   });
 
@@ -80,11 +80,13 @@ describe('create-todos-step integration', () => {
     expect(result).toBeDefined();
     expect(result.todos).toBeDefined();
     expect(typeof result.todos).toBe('string');
-    expect(result.todosMessage).toBeDefined();
-    expect(result.todosMessage.role).toBe('user');
+    expect(result.messages).toBeDefined();
+    expect(result.messages.length).toBeGreaterThan(0);
+    expect(result.messages[result.messages.length - 1]!.role).toBe('user');
     expect(result.todos).toContain('[ ]');
-    expect(result.todosMessage).toBeDefined();
-    expect(result.todosMessage.role).toBe('user');
+    expect(result.messages).toBeDefined();
+    expect(result.messages.length).toBeGreaterThan(0);
+    expect(result.messages[result.messages.length - 1]!.role).toBe('user');
   });
 
   it('should create todos for merchant ranking queries', async () => {
@@ -101,8 +103,9 @@ describe('create-todos-step integration', () => {
     expect(result).toBeDefined();
     expect(result.todos).toBeDefined();
     expect(typeof result.todos).toBe('string');
-    expect(result.todosMessage).toBeDefined();
-    expect(result.todosMessage.role).toBe('user');
+    expect(result.messages).toBeDefined();
+    expect(result.messages.length).toBeGreaterThan(0);
+    expect(result.messages[result.messages.length - 1]!.role).toBe('user');
     // Should include todos about identifying merchants, metrics, filtering, and sorting
   });
 
@@ -119,8 +122,9 @@ describe('create-todos-step integration', () => {
     expect(result).toBeDefined();
     expect(result.todos).toBeDefined();
     expect(typeof result.todos).toBe('string');
-    expect(result.todosMessage).toBeDefined();
-    expect(result.todosMessage.role).toBe('user');
+    expect(result.messages).toBeDefined();
+    expect(result.messages.length).toBeGreaterThan(0);
+    expect(result.messages[result.messages.length - 1]!.role).toBe('user');
   });
 
   it('should handle vague requests appropriately', async () => {
@@ -136,8 +140,9 @@ describe('create-todos-step integration', () => {
     expect(result).toBeDefined();
     expect(result.todos).toBeDefined();
     expect(typeof result.todos).toBe('string');
-    expect(result.todosMessage).toBeDefined();
-    expect(result.todosMessage.role).toBe('user');
+    expect(result.messages).toBeDefined();
+    expect(result.messages.length).toBeGreaterThan(0);
+    expect(result.messages[result.messages.length - 1]!.role).toBe('user');
     // Should create todos about determining what "important stuff" means
   });
 
@@ -155,8 +160,9 @@ describe('create-todos-step integration', () => {
     expect(result).toBeDefined();
     expect(result.todos).toBeDefined();
     expect(typeof result.todos).toBe('string');
-    expect(result.todosMessage).toBeDefined();
-    expect(result.todosMessage.role).toBe('user');
+    expect(result.messages).toBeDefined();
+    expect(result.messages.length).toBeGreaterThan(0);
+    expect(result.messages[result.messages.length - 1]!.role).toBe('user');
     // Should include todos about charts and groupings
   });
 
@@ -174,8 +180,9 @@ describe('create-todos-step integration', () => {
     expect(result).toBeDefined();
     expect(result.todos).toBeDefined();
     expect(typeof result.todos).toBe('string');
-    expect(result.todosMessage).toBeDefined();
-    expect(result.todosMessage.role).toBe('user');
+    expect(result.messages).toBeDefined();
+    expect(result.messages.length).toBeGreaterThan(0);
+    expect(result.messages[result.messages.length - 1]!.role).toBe('user');
     // Should include todo about inability to do forecasts
   });
 
@@ -192,8 +199,9 @@ describe('create-todos-step integration', () => {
     expect(result).toBeDefined();
     expect(result.todos).toBeDefined();
     expect(typeof result.todos).toBe('string');
-    expect(result.todosMessage).toBeDefined();
-    expect(result.todosMessage.role).toBe('user');
+    expect(result.messages).toBeDefined();
+    expect(result.messages.length).toBeGreaterThan(0);
+    expect(result.messages[result.messages.length - 1]!.role).toBe('user');
     // Should create todos about identifying both elements
   });
 
@@ -219,8 +227,9 @@ describe('create-todos-step integration', () => {
     expect(result).toBeDefined();
     expect(result.todos).toBeDefined();
     expect(typeof result.todos).toBe('string');
-    expect(result.todosMessage).toBeDefined();
-    expect(result.todosMessage.role).toBe('user');
+    expect(result.messages).toBeDefined();
+    expect(result.messages.length).toBeGreaterThan(0);
+    expect(result.messages[result.messages.length - 1]!.role).toBe('user');
   });
 
   it('should handle follow-up questions with context', async () => {
@@ -244,8 +253,9 @@ describe('create-todos-step integration', () => {
     expect(result).toBeDefined();
     expect(result.todos).toBeDefined();
     expect(typeof result.todos).toBe('string');
-    expect(result.todosMessage).toBeDefined();
-    expect(result.todosMessage.role).toBe('user');
+    expect(result.messages).toBeDefined();
+    expect(result.messages.length).toBeGreaterThan(0);
+    expect(result.messages[result.messages.length - 1]!.role).toBe('user');
     // Should leverage context from previous messages
   });
 
@@ -263,8 +273,9 @@ describe('create-todos-step integration', () => {
     expect(result).toBeDefined();
     expect(result.todos).toBeDefined();
     expect(typeof result.todos).toBe('string');
-    expect(result.todosMessage).toBeDefined();
-    expect(result.todosMessage.role).toBe('user');
+    expect(result.messages).toBeDefined();
+    expect(result.messages.length).toBeGreaterThan(0);
+    expect(result.messages[result.messages.length - 1]!.role).toBe('user');
     // Should create todos about data availability
   });
 
@@ -281,8 +292,9 @@ describe('create-todos-step integration', () => {
     expect(result).toBeDefined();
     expect(result.todos).toBeDefined();
     expect(typeof result.todos).toBe('string');
-    expect(result.todosMessage).toBeDefined();
-    expect(result.todosMessage.role).toBe('user');
+    expect(result.messages).toBeDefined();
+    expect(result.messages.length).toBeGreaterThan(0);
+    expect(result.messages[result.messages.length - 1]!.role).toBe('user');
     // Should break down "sports car" and "best selling"
   });
 
@@ -299,8 +311,9 @@ describe('create-todos-step integration', () => {
     expect(result).toBeDefined();
     expect(result.todos).toBeDefined();
     expect(typeof result.todos).toBe('string');
-    expect(result.todosMessage).toBeDefined();
-    expect(result.todosMessage.role).toBe('user');
+    expect(result.messages).toBeDefined();
+    expect(result.messages.length).toBeGreaterThan(0);
+    expect(result.messages[result.messages.length - 1]!.role).toBe('user');
     // Should include todos about smart TVs and online channel
   });
 
@@ -317,9 +330,10 @@ describe('create-todos-step integration', () => {
     expect(result).toBeDefined();
     expect(result.todos).toBeDefined();
     expect(result.todos).toBe(''); // Empty TODO list for empty prompt
-    expect(result.todosMessage).toBeDefined();
-    expect(result.todosMessage.role).toBe('user');
-    expect(result.todosMessage.content).toBe('');
+    expect(result.messages).toBeDefined();
+    expect(result.messages.length).toBeGreaterThan(0);
+    expect(result.messages[result.messages.length - 1]!.role).toBe('user');
+    expect(result.messages[result.messages.length - 1]!.content).toContain(result.todos);
   });
 
   it('should handle very long complex prompts', async () => {
@@ -349,8 +363,9 @@ describe('create-todos-step integration', () => {
     expect(result).toBeDefined();
     expect(result.todos).toBeDefined();
     expect(typeof result.todos).toBe('string');
-    expect(result.todosMessage).toBeDefined();
-    expect(result.todosMessage.role).toBe('user');
+    expect(result.messages).toBeDefined();
+    expect(result.messages.length).toBeGreaterThan(0);
+    expect(result.messages[result.messages.length - 1]!.role).toBe('user');
     expect(result.todos.length).toBeGreaterThan(0);
   });
 
@@ -367,8 +382,9 @@ describe('create-todos-step integration', () => {
     expect(result).toBeDefined();
     expect(result.todos).toBeDefined();
     expect(typeof result.todos).toBe('string');
-    expect(result.todosMessage).toBeDefined();
-    expect(result.todosMessage.role).toBe('user');
+    expect(result.messages).toBeDefined();
+    expect(result.messages.length).toBeGreaterThan(0);
+    expect(result.messages[result.messages.length - 1]!.role).toBe('user');
     // Should include todos about CLV calculation and segmentation
   });
 
@@ -386,8 +402,9 @@ describe('create-todos-step integration', () => {
     expect(result).toBeDefined();
     expect(result.todos).toBeDefined();
     expect(typeof result.todos).toBe('string');
-    expect(result.todosMessage).toBeDefined();
-    expect(result.todosMessage.role).toBe('user');
+    expect(result.messages).toBeDefined();
+    expect(result.messages.length).toBeGreaterThan(0);
+    expect(result.messages[result.messages.length - 1]!.role).toBe('user');
   });
 
   it('should process concurrent todo creation requests', async () => {

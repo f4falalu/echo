@@ -136,8 +136,11 @@ export function createThinkAndPrepAgent(thinkAndPrepAgentSchema: ThinkAndPrepAge
               maxOutputTokens: 10000,
               temperature: 0,
               experimental_repairToolCall: healToolWithLlm,
-              onFinish: () => {
-                console.info('Think and Prep Agent finished');
+              onStepFinish: async (event) => {
+                console.info('Think and Prep Agent step finished', {
+                  toolCalls: event.toolCalls?.length || 0,
+                  hasToolResults: !!event.toolResults,
+                });
               },
             }),
           {

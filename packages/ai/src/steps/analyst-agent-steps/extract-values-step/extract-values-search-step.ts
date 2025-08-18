@@ -12,7 +12,9 @@ export const extractValuesSearchParamsSchema = z.object({
 
 export const extractValuesSearchResultSchema = z.object({
   values: z.array(z.string()).describe('The values that were extracted from the prompt'),
-  valuesMessage: z.custom<ModelMessage>().optional().describe('The values message'),
+  messages: z
+    .array(z.custom<ModelMessage>())
+    .describe('Tool call and result messages for the extraction'),
 });
 
 // Export types from schemas
@@ -182,15 +184,55 @@ export async function runExtractValuesAndSearchStep(
     // Perform stored values search if we have extracted values and a dataSourceId
     const storedValuesResult = await searchStoredValues(extractedValues, dataSourceId || '');
 
+    // Generate a unique ID for this tool call
+    const toolCallId = `extract_values_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+
+    // Create tool call and result messages
+    const resultMessages: ModelMessage[] = [];
+
+    // Add assistant message with tool call
+    resultMessages.push({
+      role: 'assistant',
+      content: [
+        {
+          type: 'tool-call',
+          toolCallId,
+          toolName: 'extractValues',
+          input: { prompt },
+        },
+      ],
+    });
+
+    // Add tool result message
+    resultMessages.push({
+      role: 'tool',
+      content: [
+        {
+          type: 'tool-result',
+          toolCallId,
+          toolName: 'extractValues',
+          output: {
+            type: 'text',
+            value: JSON.stringify({
+              values: extractedValues,
+              searchResults: storedValuesResult.searchResults || '',
+            }),
+          },
+        },
+      ],
+    });
+
+    // If we have search results, add them as a user message (for backward compatibility)
+    if (extractedValues.length > 0 && storedValuesResult.searchResults) {
+      resultMessages.push({
+        role: 'user',
+        content: storedValuesResult.searchResults,
+      });
+    }
+
     return {
       values: extractedValues,
-      valuesMessage:
-        extractedValues.length > 0 && storedValuesResult.searchResults
-          ? {
-              role: 'user',
-              content: storedValuesResult.searchResults,
-            }
-          : undefined,
+      messages: resultMessages,
     };
   } catch (error) {
     // Handle AbortError gracefully
@@ -199,6 +241,7 @@ export async function runExtractValuesAndSearchStep(
       // Return empty object when aborted
       return {
         values: [],
+        messages: [],
       };
     }
 
@@ -206,6 +249,7 @@ export async function runExtractValuesAndSearchStep(
     // Return empty object instead of crashing
     return {
       values: [],
+      messages: [],
     };
   }
 }

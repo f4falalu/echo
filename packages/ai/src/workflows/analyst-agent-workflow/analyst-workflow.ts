@@ -33,11 +33,11 @@ export async function runAnalystWorkflow(input: AnalystWorkflowInput) {
 
   const { todos, values } = await runAnalystPrepSteps(input);
 
-  if (values.valuesMessage) {
-    messages.push(values.valuesMessage);
-  }
+  // Add all messages from extract-values step (tool call, result, and optional user message)
+  messages.push(...values.messages);
 
-  messages.push(todos.todosMessage);
+  // Add all messages from create-todos step (tool call, result, and user message)
+  messages.push(...todos.messages);
 
   const thinkAndPrepAgentStepResults = await runThinkAndPrepAgentStep({
     options: {

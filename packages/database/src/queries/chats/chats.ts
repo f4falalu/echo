@@ -136,6 +136,13 @@ export async function createMessage(input: CreateMessageInput): Promise<Message>
           requestMessage: validated.content,
           title: validated.content.substring(0, 255), // Ensure title fits in database
           isCompleted: false,
+          // Add the user message as the first raw LLM entry
+          rawLlmMessages: [
+            {
+              role: 'user',
+              content: validated.content,
+            },
+          ],
         })
         .returning();
 

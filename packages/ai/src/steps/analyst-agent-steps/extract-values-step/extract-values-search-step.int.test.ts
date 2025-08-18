@@ -16,7 +16,7 @@ describe('extract-values-search-step integration', () => {
     expect(result).toBeDefined();
     expect(result.values).toBeDefined();
     expect(Array.isArray(result.values)).toBe(true);
-    expect(result.valuesMessage).toBeUndefined();
+    expect(result.messages?.[result.messages.length - 1]).toBeUndefined();
   });
 
   it('should extract multiple values from complex query', async () => {
@@ -53,7 +53,7 @@ describe('extract-values-search-step integration', () => {
     expect(result.values).toBeDefined();
     expect(Array.isArray(result.values)).toBe(true);
     expect(result.values.length).toBe(0); // No specific values to extract
-    expect(result.valuesMessage).toBeUndefined();
+    expect(result.messages?.[result.messages.length - 1]).toBeUndefined();
   });
 
   it('should use conversation history for context', async () => {
@@ -204,7 +204,7 @@ describe('extract-values-search-step integration', () => {
 
     expect(result).toBeDefined();
     expect(result.values).toEqual([]);
-    expect(result.valuesMessage).toBeUndefined();
+    expect(result.messages?.[result.messages.length - 1]).toBeUndefined();
   });
 
   it('should handle very long prompts with multiple values', async () => {
@@ -277,7 +277,7 @@ describe('extract-values-search-step integration', () => {
     expect(result).toBeDefined();
     expect(result.values).toBeDefined();
     expect(Array.isArray(result.values)).toBe(true);
-    expect(result.valuesMessage).toBeUndefined();
+    expect(result.messages?.[result.messages.length - 1]).toBeUndefined();
   });
 
   it('should handle special characters in values', async () => {
@@ -345,10 +345,8 @@ describe('extract-values-search-step integration', () => {
   });
 
   it('should not create valuesMessage with empty content when search returns no results', async () => {
-    const messages: ModelMessage[] = [
-      { role: 'user', content: 'Show me sales for Red Bull' },
-    ];
-    
+    const messages: ModelMessage[] = [{ role: 'user', content: 'Show me sales for Red Bull' }];
+
     // Test with a dataSourceId that would trigger search but return empty results
     const params = {
       messages,
@@ -359,12 +357,13 @@ describe('extract-values-search-step integration', () => {
 
     expect(result).toBeDefined();
     expect(result.values).toBeDefined();
-    
+
     // If valuesMessage exists, it should have non-empty content
-    if (result.valuesMessage) {
-      expect(result.valuesMessage.content).toBeTruthy();
-      expect(typeof result.valuesMessage.content).toBe('string');
-      expect((result.valuesMessage.content as string).length).toBeGreaterThan(0);
+    const lastMessage = result.messages?.[result.messages.length - 1];
+    if (lastMessage) {
+      expect(lastMessage.content).toBeTruthy();
+      expect(typeof lastMessage.content).toBe('string');
+      expect((lastMessage.content as string).length).toBeGreaterThan(0);
     }
   });
 
@@ -372,22 +371,23 @@ describe('extract-values-search-step integration', () => {
     const messages: ModelMessage[] = [
       { role: 'user', content: 'Show me Nike and Adidas products' },
     ];
-    
+
     const params = {
       messages,
-      dataSourceId: 'test-datasource-id', 
+      dataSourceId: 'test-datasource-id',
     };
 
     const result = await runExtractValuesAndSearchStep(params);
 
     expect(result).toBeDefined();
     expect(result.values).toBeDefined();
-    
+
     // Verify that if we have values but no search results, valuesMessage is undefined
     // This prevents empty string messages from being created
-    if (result.values.length > 0 && result.valuesMessage) {
-      expect(result.valuesMessage.content).toBeTruthy();
-      expect((result.valuesMessage.content as string).trim()).not.toBe('');
+    const lastMsg = result.messages?.[result.messages.length - 1];
+    if (result.values.length > 0 && lastMsg) {
+      expect(lastMsg.content).toBeTruthy();
+      expect((lastMsg.content as string).trim()).not.toBe('');
     }
   });
 });

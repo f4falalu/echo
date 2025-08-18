@@ -13,7 +13,9 @@ export const createTodosParamsSchema = z.object({
 
 export const createTodosResultSchema = z.object({
   todos: z.string().describe('The TODO list in markdown format with checkboxes'),
-  todosMessage: z.custom<ModelMessage>().describe('The TODO list message'),
+  messages: z
+    .array(z.custom<ModelMessage>())
+    .describe('Tool call and result messages for the TODO creation'),
 });
 
 // Context schema for passing to streaming handlers
@@ -49,7 +51,6 @@ export type CreateTodosInput = z.infer<typeof llmOutputSchema>;
 import { createTodosStepDelta } from './create-todos-step-delta';
 import { createTodosStepFinish } from './create-todos-step-finish';
 import { createTodosStepStart } from './create-todos-step-start';
-import { createTodosUserMessage } from './helpers/create-todos-transform-helper';
 
 /**
  * Generates a TODO list using the LLM with structured output and streaming
@@ -135,12 +136,52 @@ export async function runCreateTodosStep(params: CreateTodosParams): Promise<Cre
 
     const todos = await generateTodosWithLLM(params.messages, context);
 
-    // Create user message for conversation history (backward compatibility)
-    const todosMessage = createTodosUserMessage(todos);
+    // Generate a unique ID for this tool call
+    const toolCallId = `create_todos_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+
+    // Create tool call and result messages
+    const resultMessages: ModelMessage[] = [];
+
+    // Add assistant message with tool call
+    resultMessages.push({
+      role: 'assistant',
+      content: [
+        {
+          type: 'tool-call',
+          toolCallId,
+          toolName: 'createTodos',
+          input: {},
+        },
+      ],
+    });
+
+    // Add tool result message
+    resultMessages.push({
+      role: 'tool',
+      content: [
+        {
+          type: 'tool-result',
+          toolCallId,
+          toolName: 'createTodos',
+          output: {
+            type: 'text',
+            value: todos,
+          },
+        },
+      ],
+    });
+
+    // Add the todos as a user message (for backward compatibility)
+    if (todos) {
+      resultMessages.push({
+        role: 'user',
+        content: `<todo_list>\n- Below are the items on your TODO list:\n${todos}\n</todo_list>`,
+      });
+    }
 
     return {
       todos,
-      todosMessage,
+      messages: resultMessages,
     };
   } catch (error) {
     console.error('[create-todos-step] Unexpected error:', error);

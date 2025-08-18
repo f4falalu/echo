@@ -40,12 +40,12 @@ describe('Sequential Thinking Tool', () => {
 
       expect(tool.execute).toBeDefined();
       expect(tool.onInputStart).toBeDefined();
-      
+
       // First call onInputStart to set up the state (simulating streaming)
       if (tool.onInputStart) {
         await tool.onInputStart({ toolCallId: 'test-tool-call-123', messages: [] });
       }
-      
+
       const execute = tool.execute;
       if (!execute) throw new Error('execute is undefined');
 

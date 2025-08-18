@@ -79,11 +79,13 @@ export async function extractValuesWithLLM(
       messages.push(...conversationHistory);
     }
 
-    // Add the current user prompt
-    messages.push({
+    const userMessage: ModelMessage = {
       role: 'user',
       content: prompt,
-    });
+    };
+
+    // Add the current user prompt
+    messages.push(userMessage);
 
     const tracedValuesExtraction = wrapTraced(
       async () => {

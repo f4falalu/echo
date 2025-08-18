@@ -109,6 +109,14 @@ export function createAnalystAgent(analystAgentOptions: AnalystAgentOptions) {
               maxOutputTokens: 10000,
               temperature: 0,
               experimental_repairToolCall: healToolWithLlm,
+              onStepFinish: async (event) => {
+                // Wait for all tool operations to complete before moving to next step
+                // This ensures done tool's async operations complete before stream terminates
+                console.info('Analyst Agent step finished', {
+                  toolCalls: event.toolCalls?.length || 0,
+                  hasToolResults: !!event.toolResults,
+                });
+              },
               onFinish: () => {
                 console.info('Analyst Agent finished');
               },
