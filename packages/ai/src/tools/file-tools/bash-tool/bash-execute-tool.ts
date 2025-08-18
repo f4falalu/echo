@@ -48,7 +48,12 @@ const executeBashCommands = wrapTraced(
       if (sandbox) {
         const { generateBashExecuteCode } = await import('./bash-execute-functions');
         const code = generateBashExecuteCode(commands);
-        const result = await runTypescript(sandbox, code);
+
+        // Check for GitHub token in runtime context and pass it to sandbox
+        const githubToken = runtimeContext.get(DocsAgentContextKey.GitHubToken);
+        const result = githubToken
+          ? await runTypescript(sandbox, code, { env: { GITHUB_TOKEN: githubToken } })
+          : await runTypescript(sandbox, code);
 
         if (result.exitCode !== 0) {
           console.error('Sandbox execution failed. Exit code:', result.exitCode);

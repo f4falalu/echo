@@ -5,6 +5,7 @@ export enum DocsAgentContextKey {
   Sandbox = 'sandbox',
   TodoListFile = 'todoListFile',
   ClarificationFile = 'clarificationFile',
+  GitHubToken = 'githubToken',
 }
 
 export const ClarifyingQuestionSchema = z.object({
@@ -19,4 +20,5 @@ export type DocsAgentContext = {
   sandbox: Sandbox;
   todoList: string;
   clarificationQuestion: MessageUserClarifyingQuestion;
+  githubToken?: string;
 };

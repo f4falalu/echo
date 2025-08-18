@@ -34,3 +34,12 @@ export {
   getRawLlmMessages,
   getRawLlmMessagesByMessageId,
 } from './steps/get-chat-history';
+
+// Export sandbox utilities
+export {
+  createSandboxWithGitHubToken,
+  setGitHubTokenInContext,
+} from './utils/sandbox-with-github-token';
+
+// Export context types
+export { DocsAgentContextKey, type DocsAgentContext } from './context/docs-agent-context';

@@ -4,6 +4,7 @@ import healthcheckRoutes from '../healthcheck';
 import chatsRoutes from './chats';
 import dictionariesRoutes from './dictionaries';
 import electricShapeRoutes from './electric-shape';
+import githubRoutes from './github';
 import metricFilesRoutes from './metric_files';
 import organizationRoutes from './organization';
 import reportsRoutes from './reports';
@@ -20,6 +21,7 @@ const app = new Hono()
   .route('/healthcheck', healthcheckRoutes)
   .route('/chats', chatsRoutes)
   .route('/metric_files', metricFilesRoutes)
+  .route('/github', githubRoutes)
   .route('/slack', slackRoutes)
   .route('/support', supportRoutes)
   .route('/security', securityRoutes)
