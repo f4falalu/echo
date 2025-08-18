@@ -24,3 +24,4 @@ export const createProxiedResponse = async (url: URL): Promise<Response> => {
     headers,
   });
 };
+
