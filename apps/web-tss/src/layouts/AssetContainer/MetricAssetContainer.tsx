@@ -5,9 +5,5 @@ export const MetricAssetContainer: React.FC<{
   metricId: string;
   metric_version_number: number | undefined;
 }> = ({ children, metricId, metric_version_number }) => {
-  return (
-    <AssetContainer>
-      METRIC {children} {metricId} {metric_version_number}
-    </AssetContainer>
-  );
+  return <AssetContainer header={<div>Metric ID: {metricId}</div>}>{children}</AssetContainer>;
 };

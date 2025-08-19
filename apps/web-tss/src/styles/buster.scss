@@ -10,21 +10,12 @@
   scroll-timeline-name: --scrollShadowContainer;
 
   .scroll-header {
-    @apply pointer-events-none absolute top-[0px] right-0 left-0 h-[0.5px] w-full border-b border-transparent;
-    animation: shadowAnimation linear;
-    animation-range: 0px 120px;
+    @apply pointer-events-none top-[0px] z-10 right-0 left-0 h-[0.5px] w-full sticky;
+    animation-name: scrollShowAnimation;
+    animation-duration: 1ms; /* Firefox requires this to apply the animation */
     animation-timeline: --scrollShadowContainer;
+    animation-range: 0px 140px;
     animation-fill-mode: forwards;
-    z-index: 1;
-  }
-
-  @keyframes shadowAnimation {
-    from {
-      border-color: transparent;
-    }
-    to {
-      border-color: var(--color-border);
-    }
   }
 }
 
@@ -48,4 +39,15 @@
   scrollbar-width: thin;
   scrollbar-color: color-mix(in srgb, var(--color-border) 50%, transparent)
     transparent;
+}
+
+@keyframes scrollShowAnimation {
+  from {
+    background-color: transparent;
+    min-height: 0px;
+  }
+  to {
+    background-color: var(--color-border);
+    min-height: 0.5px;
+  }
 }

@@ -50,7 +50,6 @@ export const AppPageLayout: React.FC<
         <AppPageLayoutHeader
           className={cn(headerBorderVariant === 'ghost' && '-mt-[0.5px]', headerClassName)}
           sizeVariant={headerSizeVariant}
-          borderVariant={headerBorderVariant}
         >
           {header}
         </AppPageLayoutHeader>
@@ -60,7 +59,6 @@ export const AppPageLayout: React.FC<
         <AppPageLayoutHeader
           className={cn(headerBorderVariant === 'ghost' && '-mt-[0.5px]', headerClassName)}
           sizeVariant={headerSizeVariant}
-          borderVariant={headerBorderVariant}
         >
           {secondaryHeader}
         </AppPageLayoutHeader>
@@ -71,9 +69,12 @@ export const AppPageLayout: React.FC<
         scrollable={scrollable}
         id={contentContainerId}
       >
-        {header && scrollable && headerBorderVariant === 'ghost' && (
-          <div className="scroll-header" />
-        )}
+        <div
+          className={cn(
+            'pointer-events-none top-[0px] z-10 right-0 left-0 h-[0.5px] w-full sticky bg-border',
+            headerBorderVariant === 'ghost' && 'scroll-header'
+          )}
+        />
 
         {children}
       </AppPageLayoutContent>
