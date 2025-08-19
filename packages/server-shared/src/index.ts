@@ -8,6 +8,7 @@ export * from './assets';
 export * from './chats';
 export * from './dashboards';
 export * from './dictionary';
+export * from './github';
 export * from './message';
 export * from './metrics';
 export * from './organization';

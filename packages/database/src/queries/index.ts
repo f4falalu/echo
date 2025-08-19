@@ -13,3 +13,4 @@ export * from './collections';
 export * from './reports';
 export * from './vault';
 export * from './cascading-permissions';
+export * from './github-integrations';
