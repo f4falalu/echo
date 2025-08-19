@@ -1,3 +1,4 @@
+import type { ModelMessage } from '@buster/ai';
 import {
   chats,
   db,
@@ -34,11 +35,14 @@ export async function createMessageForChat({
         chatId: chatId,
         createdBy: userId,
         requestMessage: content,
-        responseMessages: {},
-        reasoning: {},
         title: content.substring(0, 255), // Ensure title fits in database
-        rawLlmMessages: {},
         isCompleted: false,
+        rawLlmMessages: [
+          {
+            role: 'user',
+            content,
+          } as ModelMessage,
+        ],
       })
       .returning();
 

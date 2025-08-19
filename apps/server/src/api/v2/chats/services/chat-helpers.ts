@@ -329,6 +329,8 @@ export async function handleNewChat({
           requestMessage: prompt,
           title: prompt,
           isCompleted: false,
+          responseMessages: [],
+          reasoning: [],
           // Add the user message as the first raw LLM entry
           rawLlmMessages: [
             {
