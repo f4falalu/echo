@@ -1,36 +1,27 @@
 import type { githubIntegrations } from '@buster/database';
+import { GitHubErrorCode, type InstallationCallbackRequest } from '@buster/github';
 import type { InferSelectModel } from 'drizzle-orm';
-
-type GitHubIntegration = InferSelectModel<typeof githubIntegrations>;
-import type { InstallationCallbackRequest } from '@buster/server-shared/github';
-import { GitHubErrorCode } from '@buster/server-shared/github';
 import { HTTPException } from 'hono/http-exception';
 import { handleInstallationCallback } from '../services/handle-installation-callback';
+
+type GitHubIntegration = InferSelectModel<typeof githubIntegrations>;
 
 /**
  * Handle GitHub App installation webhook callback
  * This is called by GitHub when the app is installed, uninstalled, or suspended
  */
-export async function installationCallbackHandler(
+export async function webhookHandler(
   payload: InstallationCallbackRequest,
   organizationId?: string,
   userId?: string
 ): Promise<{ success: boolean; integration?: GitHubIntegration; message: string }> {
   console.info(`Processing GitHub installation callback: action=${payload.action}`);
 
-  // For webhook events, we need to determine the org/user context
-  // This is a challenge since webhooks don't have auth context
-  // Options:
-  // 1. Store a mapping of GitHub org ID to our org ID
-  // 2. Include org ID in the webhook URL
-  // 3. Look up by installation ID if it already exists
-
   // For deleted/suspended/unsuspended actions, we can look up existing integration
   if (payload.action !== 'created') {
     try {
       const result = await handleInstallationCallback({
         payload,
-        // These will be empty for non-created actions, but the service handles that
         organizationId: organizationId || '',
         userId: userId || '',
       });
@@ -52,7 +43,6 @@ export async function installationCallbackHandler(
           [GitHubErrorCode.DATABASE_ERROR]: 500,
           [GitHubErrorCode.TOKEN_GENERATION_FAILED]: 500,
           [GitHubErrorCode.WEBHOOK_PROCESSING_FAILED]: 400,
-          // Add other mappings as needed
         } as Record<GitHubErrorCode, number>;
 
         const status = statusMap[githubError.code] || 500;
@@ -68,16 +58,13 @@ export async function installationCallbackHandler(
     }
   }
 
-  // For 'created' action, we need org and user context
+  // For 'created' action, we should have org and user context from OAuth flow
   if (!organizationId || !userId) {
-    // In a real implementation, you might:
-    // 1. Store installation in a pending state
-    // 2. Require user to complete OAuth flow to claim it
-    // 3. Or extract from a state parameter in the installation URL
-
-    console.warn('Installation created without organization context');
+    // This should only happen if someone installs directly from GitHub
+    // without going through our OAuth flow
     throw new HTTPException(400, {
-      message: 'Organization context required for new installations',
+      message:
+        'Installation must be initiated from within the application. Please use the GitHub integration page to install the app.',
     });
   }
 

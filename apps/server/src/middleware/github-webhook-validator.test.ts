@@ -1,22 +1,24 @@
-import { InstallationCallbackSchema } from '@buster/server-shared/github';
 import { Hono } from 'hono';
 import { HTTPException } from 'hono/http-exception';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { githubWebhookValidator } from './github-webhook-validator';
 
-// Mock the verify webhook signature service
-vi.mock('../api/v2/github/services/verify-webhook-signature', () => ({
+// Mock the verify webhook signature from github package
+vi.mock('@buster/github', () => ({
   verifyGitHubWebhookSignature: vi.fn(),
+  InstallationCallbackSchema: {
+    parse: vi.fn((value) => value), // Pass through for testing
+  },
 }));
 
-import { verifyGitHubWebhookSignature } from '../api/v2/github/services/verify-webhook-signature';
+import { InstallationCallbackSchema, verifyGitHubWebhookSignature } from '@buster/github';
 
 describe('githubWebhookValidator', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
   const mockPayload = {
-    action: 'created',
+    action: 'created' as const,
     installation: {
       id: 123456,
       account: {
@@ -54,6 +56,9 @@ describe('githubWebhookValidator', () => {
 
     // Mock signature verification to return true
     vi.mocked(verifyGitHubWebhookSignature).mockReturnValue(true);
+
+    // Mock InstallationCallbackSchema to return the parsed payload
+    vi.mocked(InstallationCallbackSchema.parse).mockReturnValue(mockPayload);
 
     const res = await app.request('/', {
       method: 'POST',
@@ -145,6 +150,11 @@ describe('githubWebhookValidator', () => {
 
     process.env.GITHUB_WEBHOOK_SECRET = 'test-secret';
     vi.mocked(verifyGitHubWebhookSignature).mockReturnValue(true);
+
+    // Mock schema to throw an error for invalid payload
+    vi.mocked(InstallationCallbackSchema.parse).mockImplementation(() => {
+      throw new Error('Invalid payload');
+    });
 
     const res = await app.request('/', {
       method: 'POST',

@@ -6,11 +6,14 @@ import {
   softDeleteGithubIntegration,
   updateGithubIntegration,
 } from '@buster/database';
-import type { InstallationCallbackRequest } from '@buster/server-shared/github';
-import { GitHubErrorCode } from '@buster/server-shared/github';
+import {
+  GitHubErrorCode,
+  type InstallationCallbackRequest,
+  createGitHubApp,
+  deleteInstallationToken,
+  storeInstallationToken,
+} from '@buster/github';
 import type { InferSelectModel } from 'drizzle-orm';
-import { createGitHubApp } from './github-app';
-import { deleteInstallationToken, storeInstallationToken } from './token-storage';
 
 type GitHubIntegration = InferSelectModel<typeof githubIntegrations>;
 

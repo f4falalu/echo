@@ -27,6 +27,7 @@
     "@buster/ai": "workspace:*",
     "@buster/database": "workspace:*",
     "@buster/env-utils": "workspace:*",
+    "@buster/github": "workspace:*",
     "@buster/server-shared": "workspace:*",
     "@buster/server-utils": "workspace:*",
     "@buster/slack": "workspace:*",

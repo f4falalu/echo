@@ -4,7 +4,7 @@ import { GitHubErrorCode } from '@buster/server-shared/github';
 import type { InferSelectModel } from 'drizzle-orm';
 import { HTTPException } from 'hono/http-exception';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { installationCallbackHandler } from './installation-callback';
+import { webhookHandler } from './webhook';
 
 type GitHubIntegration = InferSelectModel<typeof githubIntegrations>;
 
@@ -15,7 +15,7 @@ vi.mock('../services/handle-installation-callback', () => ({
 
 import { handleInstallationCallback } from '../services/handle-installation-callback';
 
-describe('installationCallbackHandler', () => {
+describe('webhookHandler', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
@@ -52,7 +52,7 @@ describe('installationCallbackHandler', () => {
   it('should handle installation created with org context', async () => {
     vi.mocked(handleInstallationCallback).mockResolvedValue(mockIntegration);
 
-    const result = await installationCallbackHandler(mockPayload, 'org-456', 'user-789');
+    const result = await webhookHandler(mockPayload, 'org-456', 'user-789');
 
     expect(result).toEqual({
       success: true,
@@ -79,7 +79,7 @@ describe('installationCallbackHandler', () => {
       deletedAt: new Date().toISOString(),
     });
 
-    const result = await installationCallbackHandler(deletedPayload);
+    const result = await webhookHandler(deletedPayload);
 
     expect(result.success).toBe(true);
     expect(result.message).toBe('Installation deleted successfully');
@@ -96,7 +96,7 @@ describe('installationCallbackHandler', () => {
       status: 'suspended',
     });
 
-    const result = await installationCallbackHandler(suspendedPayload);
+    const result = await webhookHandler(suspendedPayload);
 
     expect(result.success).toBe(true);
     expect(result.message).toBe('Installation suspend successfully');
@@ -113,21 +113,25 @@ describe('installationCallbackHandler', () => {
       status: 'active',
     });
 
-    const result = await installationCallbackHandler(unsuspendedPayload);
+    const result = await webhookHandler(unsuspendedPayload);
 
     expect(result.success).toBe(true);
     expect(result.message).toBe('Installation unsuspend successfully');
   });
 
   it('should throw 400 for created action without org context', async () => {
-    await expect(installationCallbackHandler(mockPayload)).rejects.toThrow(HTTPException);
+    // The handler now requires org context from OAuth flow
+    await expect(webhookHandler(mockPayload)).rejects.toThrow(HTTPException);
 
     try {
-      await installationCallbackHandler(mockPayload);
+      await webhookHandler(mockPayload);
     } catch (error) {
       expect(error).toBeInstanceOf(HTTPException);
       if (error instanceof HTTPException) {
         expect(error.status).toBe(400);
+        const response = error.getResponse();
+        const body = await response.text();
+        expect(body).toContain('Installation must be initiated from within the application');
       }
     }
   });
@@ -142,10 +146,10 @@ describe('installationCallbackHandler', () => {
     error.code = GitHubErrorCode.INSTALLATION_NOT_FOUND;
     vi.mocked(handleInstallationCallback).mockRejectedValue(error);
 
-    await expect(installationCallbackHandler(deletedPayload)).rejects.toThrow(HTTPException);
+    await expect(webhookHandler(deletedPayload)).rejects.toThrow(HTTPException);
 
     try {
-      await installationCallbackHandler(deletedPayload);
+      await webhookHandler(deletedPayload);
     } catch (err) {
       expect(err).toBeInstanceOf(HTTPException);
       if (err instanceof HTTPException) {
@@ -159,12 +163,10 @@ describe('installationCallbackHandler', () => {
     error.code = GitHubErrorCode.DATABASE_ERROR;
     vi.mocked(handleInstallationCallback).mockRejectedValue(error);
 
-    await expect(installationCallbackHandler(mockPayload, 'org-456', 'user-789')).rejects.toThrow(
-      HTTPException
-    );
+    await expect(webhookHandler(mockPayload, 'org-456', 'user-789')).rejects.toThrow(HTTPException);
 
     try {
-      await installationCallbackHandler(mockPayload, 'org-456', 'user-789');
+      await webhookHandler(mockPayload, 'org-456', 'user-789');
     } catch (err) {
       expect(err).toBeInstanceOf(HTTPException);
       if (err instanceof HTTPException) {
@@ -176,12 +178,10 @@ describe('installationCallbackHandler', () => {
   it('should handle unexpected errors', async () => {
     vi.mocked(handleInstallationCallback).mockRejectedValue(new Error('Unexpected error'));
 
-    await expect(installationCallbackHandler(mockPayload, 'org-456', 'user-789')).rejects.toThrow(
-      HTTPException
-    );
+    await expect(webhookHandler(mockPayload, 'org-456', 'user-789')).rejects.toThrow(HTTPException);
 
     try {
-      await installationCallbackHandler(mockPayload, 'org-456', 'user-789');
+      await webhookHandler(mockPayload, 'org-456', 'user-789');
     } catch (err) {
       expect(err).toBeInstanceOf(HTTPException);
       if (err instanceof HTTPException) {

@@ -1,7 +1,6 @@
-import { InstallationCallbackSchema } from '@buster/server-shared/github';
+import { InstallationCallbackSchema, verifyGitHubWebhookSignature } from '@buster/github';
 import type { Context, MiddlewareHandler } from 'hono';
 import { HTTPException } from 'hono/http-exception';
-import { verifyGitHubWebhookSignature } from '../api/v2/github/services/verify-webhook-signature';
 
 /**
  * Middleware to validate GitHub webhook requests

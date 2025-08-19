@@ -1,15 +1,53 @@
+import { zValidator } from '@hono/zod-validator';
 import { Hono } from 'hono';
 import { HTTPException } from 'hono/http-exception';
+import { z } from 'zod';
 import { requireAuth } from '../../../middleware/auth';
 import { githubWebhookValidator } from '../../../middleware/github-webhook-validator';
 import '../../../types/hono.types';
-import { getInstallationTokenHandler } from './handlers/get-installation-token';
-import { installationCallbackHandler } from './handlers/installation-callback';
-import { refreshInstallationTokenHandler } from './handlers/refresh-installation-token';
+import { authCallbackHandler } from './handlers/auth-callback';
+import { authInitHandler } from './handlers/auth-init';
+import { getIntegrationHandler } from './handlers/get-integration';
+import { webhookHandler } from './handlers/webhook';
+
+// Define request schemas
+const AuthCallbackSchema = z.object({
+  state: z.string().optional(),
+  installation_id: z.string().optional(),
+  setup_action: z.enum(['install', 'update']).optional(),
+  error: z.string().optional(), // GitHub sends this when user cancels
+  error_description: z.string().optional(),
+});
 
 const app = new Hono()
+  // Get integration info - returns non-sensitive data
+  .get('/', requireAuth, async (c) => {
+    const user = c.get('busterUser');
+    const response = await getIntegrationHandler(user);
+    return c.json(response);
+  })
+
+  // OAuth flow endpoints
+  .get('/auth/init', requireAuth, async (c) => {
+    const user = c.get('busterUser');
+    const response = await authInitHandler(user);
+    return c.json(response);
+  })
+
+  .get('/auth/callback', zValidator('query', AuthCallbackSchema), async (c) => {
+    const query = c.req.valid('query');
+    const result = await authCallbackHandler({
+      state: query.state,
+      installation_id: query.installation_id,
+      setup_action: query.setup_action,
+      error: query.error,
+      error_description: query.error_description,
+    });
+    return c.redirect(result.redirectUrl);
+  })
+
   // Webhook endpoint - no auth required, verified by signature
-  .post('/installation/callback', githubWebhookValidator(), async (c) => {
+  .post('/webhook', githubWebhookValidator(), async (c) => {
     const payload = c.get('githubPayload');
 
     if (!payload) {
@@ -18,32 +56,8 @@ const app = new Hono()
       });
     }
 
-    // For webhooks, we don't have user context
-    // In production, you might extract org/user from:
-    // 1. A state parameter in the installation URL
-    // 2. A mapping table of GitHub org ID to your org ID
-    // 3. Require a separate OAuth flow to claim the installation
-
-    // For now, we'll handle the webhook without user context for non-created actions
-    const response = await installationCallbackHandler(payload);
-
+    const response = await webhookHandler(payload);
     return c.json(response, 200);
-  })
-
-  // Protected endpoints - require authentication
-  .get('/installations/:installationId/token', requireAuth, async (c) => {
-    const user = c.get('busterUser');
-    const { installationId } = c.req.param();
-
-    const response = await getInstallationTokenHandler(installationId, user);
-    return c.json(response);
-  })
-
-  .get('/installations/refresh', requireAuth, async (c) => {
-    const user = c.get('busterUser');
-
-    const response = await refreshInstallationTokenHandler(user);
-    return c.json(response);
   })
 
   // Error handling
