@@ -12,7 +12,7 @@ export const reportShape = ({
 }): ElectricShapeOptions<BusterReportShape> => {
   return {
     params: {
-      table: 'reports',
+      table: 'report_files',
       where: `id='${reportId}'`,
       columns: REPORT_DEFAULT_COLUMNS,
       replica: 'default'

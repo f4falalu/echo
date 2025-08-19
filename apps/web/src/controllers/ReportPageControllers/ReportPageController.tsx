@@ -11,6 +11,7 @@ import DynamicReportEditor from '@/components/ui/report/DynamicReportEditor';
 import { type IReportEditor } from '@/components/ui/report/ReportEditor';
 import { ReportEditorSkeleton } from '@/components/ui/report/ReportEditorSkeleton';
 import { useChatIndividualContextSelector } from '@/layouts/ChatLayout/ChatContext';
+import { useTrackAndUpdateReportChanges } from '@/api/buster-electric/reports/hooks';
 
 export const ReportPageController: React.FC<{
   reportId: string;
@@ -46,6 +47,8 @@ export const ReportPageController: React.FC<{
     });
 
     const commonClassName = 'sm:px-[max(64px,calc(50%-350px))]';
+
+    useTrackAndUpdateReportChanges({ reportId });
 
     return (
       <div className={cn('h-full space-y-1.5 overflow-y-auto pt-9', className)}>
