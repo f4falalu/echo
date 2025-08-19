@@ -147,12 +147,12 @@ export async function handleSlackEventsEndpoint(c: Context) {
   try {
     // Process the event
     const response = await eventsHandler(payload);
-    
+
     // Ensure we never return success: false without throwing
     if (!response.success) {
       throw new Error('Event processing failed');
     }
-    
+
     return c.json(response);
   } catch (error) {
     // Handle authentication errors

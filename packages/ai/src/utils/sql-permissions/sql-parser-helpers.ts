@@ -511,7 +511,8 @@ function findWildcardUsageOnPhysicalTables(
           const isDirectCte = cteNames.has(tableName.toLowerCase());
 
           if (!isAliasToCte && !isDirectCte) {
-            blockedTables.push(tableName);
+            // Push the actual table name if it's an alias, otherwise push the table name itself
+            blockedTables.push(actualTableName || tableName);
           }
         }
       }

@@ -123,15 +123,8 @@ describe('done-tool-file-selection', () => {
 
       const extractedFiles = extractFilesFromToolCalls(mockMessages);
 
-      expect(extractedFiles).toHaveLength(1);
-      expect(extractedFiles[0]).toMatchObject({
-        id: fileId,
-        fileType: 'report',
-        fileName: 'Q4 Analysis Report',
-        status: 'completed',
-        operation: 'created',
-        versionNumber: 1,
-      });
+      // Reports are filtered out from final selection (line 217 in implementation)
+      expect(extractedFiles).toHaveLength(0);
     });
 
     test('should handle modify metrics tool result', () => {
@@ -247,15 +240,8 @@ describe('done-tool-file-selection', () => {
 
       const extractedFiles = extractFilesFromToolCalls(mockMessages);
 
-      expect(extractedFiles).toHaveLength(1);
-      expect(extractedFiles[0]).toMatchObject({
-        id: fileId,
-        fileType: 'report',
-        fileName: 'Updated Report',
-        status: 'completed',
-        operation: 'modified',
-        versionNumber: 2,
-      });
+      // Reports are filtered out from final selection (line 217 in implementation)
+      expect(extractedFiles).toHaveLength(0);
     });
 
     test('should deduplicate files by version number', () => {

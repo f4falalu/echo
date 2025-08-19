@@ -7,6 +7,7 @@ import { createDoneToolStart } from './done-tool-start';
 
 vi.mock('@buster/database', () => ({
   updateMessageEntries: vi.fn().mockResolvedValue({ success: true }),
+  updateMessage: vi.fn().mockResolvedValue({ success: true }),
 }));
 
 describe('Done Tool Streaming Tests', () => {
@@ -141,23 +142,23 @@ describe('Done Tool Streaming Tests', () => {
       const deltaHandler = createDoneToolDelta(mockContext, state);
 
       await deltaHandler({
-        inputTextDelta: '{"final_',
+        inputTextDelta: '{"finalR',
         toolCallId: 'tool-call-123',
         messages: [],
       });
 
-      expect(state.args).toBe('{"final_');
+      expect(state.args).toBe('{"finalR');
 
       await deltaHandler({
-        inputTextDelta: 'response": "Hello',
+        inputTextDelta: 'esponse": "Hello',
         toolCallId: 'tool-call-123',
         messages: [],
       });
 
-      expect(state.args).toBe('{"final_response": "Hello');
+      expect(state.args).toBe('{"finalResponse": "Hello');
     });
 
-    test('should extract partial final_response from incomplete JSON', async () => {
+    test('should extract partial finalResponse from incomplete JSON', async () => {
       const state: DoneToolState = {
         toolCallId: 'test-entry',
         args: '',
@@ -167,12 +168,12 @@ describe('Done Tool Streaming Tests', () => {
       const deltaHandler = createDoneToolDelta(mockContext, state);
 
       await deltaHandler({
-        inputTextDelta: '{"final_response": "This is a partial response that is still being',
+        inputTextDelta: '{"finalResponse": "This is a partial response that is still being',
         toolCallId: 'tool-call-123',
         messages: [],
       });
 
-      expect(state.args).toBe('{"final_response": "This is a partial response that is still being');
+      expect(state.args).toBe('{"finalResponse": "This is a partial response that is still being');
       expect(state.finalResponse).toBe('This is a partial response that is still being');
     });
 
@@ -186,16 +187,16 @@ describe('Done Tool Streaming Tests', () => {
       const deltaHandler = createDoneToolDelta(mockContext, state);
 
       await deltaHandler({
-        inputTextDelta: '{"final_response": "Complete response message"}',
+        inputTextDelta: '{"finalResponse": "Complete response message"}',
         toolCallId: 'tool-call-123',
         messages: [],
       });
 
-      expect(state.args).toBe('{"final_response": "Complete response message"}');
+      expect(state.args).toBe('{"finalResponse": "Complete response message"}');
       expect(state.finalResponse).toBe('Complete response message');
     });
 
-    test('should handle markdown content in final_response', async () => {
+    test('should handle markdown content in finalResponse', async () => {
       const state: DoneToolState = {
         toolCallId: 'test-entry',
         args: '',
@@ -210,7 +211,7 @@ describe('Done Tool Streaming Tests', () => {
 - Point 2
 
 **Bold text**`;
-      const jsonInput = JSON.stringify({ final_response: markdownContent });
+      const jsonInput = JSON.stringify({ finalResponse: markdownContent });
       await deltaHandler({
         inputTextDelta: jsonInput,
         toolCallId: 'tool-call-123',
@@ -230,7 +231,7 @@ describe('Done Tool Streaming Tests', () => {
       const deltaHandler = createDoneToolDelta(mockContext, state);
 
       await deltaHandler({
-        inputTextDelta: '{"final_response": "Line 1\\nLine 2\\n\\"Quoted text\\""}',
+        inputTextDelta: '{"finalResponse": "Line 1\\nLine 2\\n\\"Quoted text\\""}',
         toolCallId: 'tool-call-123',
         messages: [],
       });
@@ -238,7 +239,7 @@ describe('Done Tool Streaming Tests', () => {
       expect(state.finalResponse).toBe('Line 1\nLine 2\n"Quoted text"');
     });
 
-    test('should not update state when no final_response is extracted', async () => {
+    test('should not update state when no finalResponse is extracted', async () => {
       const state: DoneToolState = {
         toolCallId: 'test-entry',
         args: '',
@@ -257,7 +258,7 @@ describe('Done Tool Streaming Tests', () => {
       expect(state.finalResponse).toBeUndefined();
     });
 
-    test('should handle empty final_response gracefully', async () => {
+    test('should handle empty finalResponse gracefully', async () => {
       const state: DoneToolState = {
         toolCallId: 'test-entry',
         args: '',
@@ -267,12 +268,12 @@ describe('Done Tool Streaming Tests', () => {
       const deltaHandler = createDoneToolDelta(mockContext, state);
 
       await deltaHandler({
-        inputTextDelta: '{"final_response": ""}',
+        inputTextDelta: '{"finalResponse": ""}',
         toolCallId: 'tool-call-123',
         messages: [],
       });
 
-      expect(state.args).toBe('{"final_response": ""}');
+      expect(state.args).toBe('{"finalResponse": ""}');
       expect(state.finalResponse).toBeUndefined();
     });
   });
@@ -281,7 +282,7 @@ describe('Done Tool Streaming Tests', () => {
     test('should update state with final input on finish', async () => {
       const state: DoneToolState = {
         toolCallId: undefined,
-        args: '{"final_response": "Final message"}',
+        args: '{"finalResponse": "Final message"}',
         finalResponse: 'Final message',
       };
 
@@ -400,7 +401,7 @@ The following items were processed:
       expect(state.toolCallId).toBeTypeOf('string');
 
       await deltaHandler({
-        inputTextDelta: '{"final_response": "Testing"}',
+        inputTextDelta: '{"finalResponse": "Testing"}',
         toolCallId: 'test-123',
         messages: [],
       });
@@ -433,8 +434,8 @@ The following items were processed:
       expect(state.toolCallId).toBe(toolCallId);
 
       const chunks = [
-        '{"final_',
-        'response": "This ',
+        '{"finalR',
+        'esponse": "This ',
         'is a streaming ',
         'response that comes ',
         'in multiple chunks',
@@ -450,7 +451,7 @@ The following items were processed:
       }
 
       expect(state.args).toBe(
-        '{"final_response": "This is a streaming response that comes in multiple chunks"}'
+        '{"finalResponse": "This is a streaming response that comes in multiple chunks"}'
       );
       expect(state.finalResponse).toBe(
         'This is a streaming response that comes in multiple chunks'
@@ -474,7 +475,7 @@ The following items were processed:
       const deltaHandler = createDoneToolDelta(mockContext, state);
 
       const chunks = [
-        '{"final_response": "',
+        '{"finalResponse": "',
         '## Results\\n\\n',
         '- Success: 90%\\n',
         '- Failed: 10%\\n\\n',

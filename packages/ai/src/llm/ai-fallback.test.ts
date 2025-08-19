@@ -1,9 +1,27 @@
 import type { LanguageModelV2StreamPart } from '@ai-sdk/provider';
-import { expect, test, vi } from 'vitest';
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { createFallback } from './ai-fallback.js';
 import { MockLanguageModelV2 } from './test-utils/mock-model.js';
 
+// Use fake timers by default to speed up tests
+beforeEach(() => {
+  vi.useFakeTimers();
+});
+
+afterEach(() => {
+  vi.clearAllTimers();
+  vi.useRealTimers();
+});
+
+// Helper to run async code with timer advancement
+async function runWithTimers<T>(fn: () => Promise<T>): Promise<T> {
+  const promise = fn();
+  await vi.runAllTimersAsync();
+  return promise;
+}
+
 test('doStream switches models on error', async () => {
+  vi.useRealTimers(); // Stream reading needs real timers
   const onError = vi.fn();
 
   const model1 = new MockLanguageModelV2({
@@ -64,6 +82,7 @@ test('doStream switches models on error', async () => {
 });
 
 test('doStream handles error during streaming', async () => {
+  vi.useRealTimers(); // Stream reading needs real timers
   const onError = vi.fn();
 
   const model1 = new MockLanguageModelV2({
@@ -121,6 +140,7 @@ test('doStream handles error during streaming', async () => {
 });
 
 test('doStream with partial output and retryAfterOutput=true', async () => {
+  vi.useRealTimers(); // Stream reading needs real timers
   const onError = vi.fn();
 
   const model1 = new MockLanguageModelV2({
@@ -191,6 +211,7 @@ test('doStream with partial output and retryAfterOutput=true', async () => {
 });
 
 test('doStream handles error in stream part', async () => {
+  vi.useRealTimers(); // Stream reading needs real timers
   const encounteredErrors: any[] = [];
 
   const model1 = new MockLanguageModelV2({
@@ -282,9 +303,13 @@ test('doGenerate switches models on error', async () => {
   expect(fallback.currentModelIndex).toBe(0);
   expect(fallback.modelId).toBe('failing-model');
 
-  const result = await fallback.doGenerate({
-    prompt: [],
-  });
+  const result = await runWithTimers(() =>
+    Promise.resolve(
+      fallback.doGenerate({
+        prompt: [],
+      })
+    )
+  );
 
   expect(result.content[0]).toEqual({ type: 'text', text: 'Response from fallback model' });
   expect(fallback.currentModelIndex).toBe(1);
@@ -324,9 +349,13 @@ test('cycles through all models until one works', async () => {
     models: [model1, model2, model3],
   });
 
-  const result = await fallback.doGenerate({
-    prompt: [],
-  });
+  const result = await runWithTimers(() =>
+    Promise.resolve(
+      fallback.doGenerate({
+        prompt: [],
+      })
+    )
+  );
 
   expect(result.content[0]).toEqual({ type: 'text', text: 'Success from model 3' });
   expect(fallback.currentModelIndex).toBe(2);
@@ -334,6 +363,9 @@ test('cycles through all models until one works', async () => {
 });
 
 test('throws error when all models fail', async () => {
+  // Use real timers for this test to avoid promise timing issues
+  vi.useRealTimers();
+
   const model1 = new MockLanguageModelV2({
     modelId: 'model-1',
     doGenerate: async () => {
@@ -350,8 +382,10 @@ test('throws error when all models fail', async () => {
 
   const fallback = createFallback({
     models: [model1, model2],
+    maxRetriesPerModel: 1, // Reduce retries to make test faster
   });
 
+  // Test the rejection directly
   await expect(
     fallback.doGenerate({
       prompt: [],
@@ -360,18 +394,22 @@ test('throws error when all models fail', async () => {
 
   // Should cycle back to initial model after trying all
   expect(fallback.currentModelIndex).toBe(0);
+
+  // Switch back to fake timers for other tests
+  vi.useFakeTimers();
 });
 
 test('model reset interval resets to first model', async () => {
-  vi.useFakeTimers();
-
   let model1CallCount = 0;
   const model1 = new MockLanguageModelV2({
     modelId: 'primary-model',
     doGenerate: async () => {
       model1CallCount++;
-      if (model1CallCount === 1) {
-        throw new Error('Test error');
+      if (model1CallCount <= 2) {
+        // Fail the first 2 attempts
+        const error = new Error('Test error');
+        (error as any).statusCode = 503; // Make it retryable
+        throw error;
       }
       return {
         content: [{ type: 'text', text: 'Primary response' }],
@@ -383,32 +421,44 @@ test('model reset interval resets to first model', async () => {
       };
     },
   });
-  const model2 = new MockLanguageModelV2({ modelId: 'fallback-model' });
+  const model2 = new MockLanguageModelV2({
+    modelId: 'fallback-model',
+    doGenerate: async () => ({
+      content: [{ type: 'text', text: 'Fallback response' }],
+      finishReason: 'stop' as const,
+      usage: { inputTokens: 10, outputTokens: 5, totalTokens: 15 },
+      warnings: [],
+    }),
+  });
 
   const fallback = createFallback({
     models: [model1, model2],
     modelResetInterval: 60000, // 1 minute
+    maxRetriesPerModel: 2, // Retry twice per model
   });
 
-  // Force switch to model 2 by making model1 fail
-  try {
-    await fallback.doGenerate({ prompt: [] });
-  } catch {}
+  // Force switch to model 2 by making model1 fail twice
+  const promise1 = fallback.doGenerate({ prompt: [] });
+  await vi.runAllTimersAsync();
+  const result1 = await promise1;
 
+  // Should have switched to model 2 after model1 failed twice
   expect(fallback.modelId).toBe('fallback-model');
+  expect(result1.content[0]).toEqual({ type: 'text', text: 'Fallback response' });
 
   // Advance time past reset interval
   vi.advanceTimersByTime(61000);
 
-  // Trigger reset check
-  await fallback.doGenerate({
+  // Trigger reset check - should reset to model 1
+  const promise2 = fallback.doGenerate({
     prompt: [],
   });
+  await vi.runAllTimersAsync();
+  const result2 = await promise2;
 
   expect(fallback.currentModelIndex).toBe(0);
   expect(fallback.modelId).toBe('primary-model');
-
-  vi.useRealTimers();
+  expect(result2.content[0]).toEqual({ type: 'text', text: 'Primary response' });
 });
 
 test('shouldRetryThisError callback controls retry behavior', async () => {
@@ -483,9 +533,13 @@ test('handles non-existent model error', async () => {
     onError,
   });
 
-  const result = await fallback.doGenerate({
-    prompt: [],
-  });
+  const result = await runWithTimers(() =>
+    Promise.resolve(
+      fallback.doGenerate({
+        prompt: [],
+      })
+    )
+  );
 
   expect(result.content[0]).toEqual({ type: 'text', text: 'Fallback response' });
   expect(fallback.currentModelIndex).toBe(1);
@@ -519,9 +573,13 @@ test('handles API key errors', async () => {
     models: [model1, model2],
   });
 
-  const result = await fallback.doGenerate({
-    prompt: [],
-  });
+  const result = await runWithTimers(() =>
+    Promise.resolve(
+      fallback.doGenerate({
+        prompt: [],
+      })
+    )
+  );
 
   expect(result.content[0]).toEqual({ type: 'text', text: 'Success with correct key' });
   expect(fallback.currentModelIndex).toBe(1);
@@ -554,9 +612,13 @@ test('handles rate limit errors', async () => {
     models: [model1, model2],
   });
 
-  const result = await fallback.doGenerate({
-    prompt: [],
-  });
+  const result = await runWithTimers(() =>
+    Promise.resolve(
+      fallback.doGenerate({
+        prompt: [],
+      })
+    )
+  );
 
   // With retry-before-switch, model1 will be tried twice (default maxRetriesPerModel is 2)
   expect(attempts).toBe(2);
@@ -632,9 +694,13 @@ test('retries same model before switching on network error', async () => {
     maxRetriesPerModel: 3,
   });
 
-  const result = await fallback.doGenerate({
-    prompt: [],
-  });
+  const result = await runWithTimers(() =>
+    Promise.resolve(
+      fallback.doGenerate({
+        prompt: [],
+      })
+    )
+  );
 
   // Should retry model 1 three times, then succeed on the third attempt
   expect(model1Attempts).toBe(3);
@@ -673,9 +739,13 @@ test('switches to next model after exhausting retries', async () => {
     onError,
   });
 
-  const result = await fallback.doGenerate({
-    prompt: [],
-  });
+  const result = await runWithTimers(() =>
+    Promise.resolve(
+      fallback.doGenerate({
+        prompt: [],
+      })
+    )
+  );
 
   // Should try model 1 twice, then switch to model 2
   expect(model1Attempts).toBe(2);
@@ -685,6 +755,8 @@ test('switches to next model after exhausting retries', async () => {
 });
 
 test('applies exponential backoff between retries', async () => {
+  vi.useRealTimers(); // Need real timers to measure actual delays
+
   let model1Attempts = 0;
   const timestamps: number[] = [];
 
@@ -756,9 +828,13 @@ test('respects maxRetriesPerModel setting', async () => {
     maxRetriesPerModel: 5,
   });
 
-  const result = await fallback.doGenerate({
-    prompt: [],
-  });
+  const result = await runWithTimers(() =>
+    Promise.resolve(
+      fallback.doGenerate({
+        prompt: [],
+      })
+    )
+  );
 
   expect(model1Attempts).toBe(5); // Should retry exactly 5 times
   expect(result.content[0]).toEqual({ type: 'text', text: 'Model 2 response' });
@@ -807,6 +883,8 @@ test('does not retry non-retryable errors', async () => {
 });
 
 test('prevents infinite recursion when all models fail in doStream', async () => {
+  vi.useRealTimers(); // Stream reading needs real timers
+
   const model1 = new MockLanguageModelV2({
     modelId: 'stream-fail-1',
     doStream: async () => ({
@@ -894,9 +972,13 @@ test('onError callback failure does not break retry logic', async () => {
     },
   });
 
-  const result = await fallback.doGenerate({
-    prompt: [],
-  });
+  const result = await runWithTimers(() =>
+    Promise.resolve(
+      fallback.doGenerate({
+        prompt: [],
+      })
+    )
+  );
 
   // Should still retry and switch models despite onError throwing
   expect(model1Attempts).toBe(2);
@@ -906,6 +988,8 @@ test('onError callback failure does not break retry logic', async () => {
 });
 
 test('retries network errors in doStream', async () => {
+  vi.useRealTimers(); // Stream reading needs real timers
+
   let model1Attempts = 0;
 
   const model1 = new MockLanguageModelV2({

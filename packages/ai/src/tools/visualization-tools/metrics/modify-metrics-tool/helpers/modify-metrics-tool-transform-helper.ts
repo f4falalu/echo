@@ -61,7 +61,9 @@ export function createModifyMetricsReasoningEntry(
       title = `Failed to modify ${failedFiles} ${failedFiles === 1 ? 'metric' : 'metrics'}`;
       status = 'failed';
     } else {
-      title = `Modified ${completedFiles} of ${totalFiles} metrics`;
+      const completedText = `${completedFiles} ${completedFiles === 1 ? 'metric' : 'metrics'}`;
+      const failedText = failedFiles === 1 ? '1 failed' : `${failedFiles} failed`;
+      title = `Modified ${completedText}, ${failedText}`;
       status = 'failed'; // Partial success is considered failed
     }
   }

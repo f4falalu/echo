@@ -88,7 +88,7 @@ describe('createModifyMetricsFinish', () => {
 
     expect(updateMessageEntries).toHaveBeenCalledWith({
       messageId: 'msg-123',
-      responseMessages: [
+      reasoningMessages: [
         expect.objectContaining({
           id: 'tool-123',
           type: 'files',

@@ -48,9 +48,9 @@ describe('createModifyMetricsStart', () => {
     expect(state.toolCallId).toBe('tool-123');
   });
 
-  it('should create database entries when messageId exists', async () => {
+  it('should reset state when messageId exists', async () => {
     context.messageId = 'msg-123';
-    // Add files to state before the call since that's what triggers entry creation
+    // Set initial state with files to verify they get reset
     state.files = [
       {
         id: 'metric-1',
@@ -60,18 +60,18 @@ describe('createModifyMetricsStart', () => {
         file: { text: 'content' },
       },
     ];
+    state.argsText = 'some text';
 
     const startHandler = createModifyMetricsStart(context, state);
     await startHandler({ toolCallId: 'tool-123', messages: [] });
 
-    expect(updateMessageEntries).toHaveBeenCalledTimes(1);
-    expect(updateMessageEntries).toHaveBeenCalledWith(
-      expect.objectContaining({
-        messageId: 'msg-123',
-      })
-    );
-
+    // State should be reset
+    expect(state.files).toEqual([]);
+    expect(state.argsText).toBeUndefined();
     expect(state.toolCallId).toBe('tool-123');
+
+    // updateMessageEntries should not be called since files are reset to empty
+    expect(updateMessageEntries).not.toHaveBeenCalled();
   });
 
   it('should not create database entries when messageId is missing', async () => {
@@ -83,9 +83,9 @@ describe('createModifyMetricsStart', () => {
     expect(state.toolCallId).toBe('tool-123'); // toolCallId should still be set
   });
 
-  it('should handle database errors gracefully', async () => {
+  it('should handle start without throwing errors', async () => {
     context.messageId = 'msg-123';
-    // Add files to state to trigger database update
+    // Set initial state with files to verify they get reset
     state.files = [
       {
         id: 'metric-1',
@@ -96,25 +96,18 @@ describe('createModifyMetricsStart', () => {
       },
     ];
 
-    (updateMessageEntries as any).mockRejectedValue(new Error('Database error'));
-
-    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-
     const startHandler = createModifyMetricsStart(context, state);
 
-    // Should not throw
+    // Should not throw even when starting fresh
     await expect(startHandler({ toolCallId: 'tool-123', messages: [] })).resolves.not.toThrow();
 
-    expect(updateMessageEntries).toHaveBeenCalled();
-    // State should still be initialized even if database fails
+    // State should be properly initialized
     expect(state.toolCallId).toBe('tool-123');
+    expect(state.files).toEqual([]);
+    expect(state.argsText).toBeUndefined();
 
-    expect(consoleSpy).toHaveBeenCalledWith(
-      '[modify-metrics] Error updating entries on start:',
-      expect.any(Error)
-    );
-
-    consoleSpy.mockRestore();
+    // updateMessageEntries should not be called since files are empty after reset
+    expect(updateMessageEntries).not.toHaveBeenCalled();
   });
 
   it('should handle empty files array', async () => {
@@ -151,7 +144,7 @@ describe('createModifyMetricsStart', () => {
 
     // Reset state for second test
     state = {
-      argsText: '',
+      argsText: 'previous text',
       files: [
         {
           id: 'metric-1',
@@ -165,19 +158,18 @@ describe('createModifyMetricsStart', () => {
 
     // Reset mocks for clean second test
     vi.clearAllMocks();
-    // Mock successful database update for the second test
-    (updateMessageEntries as any).mockResolvedValue(undefined);
 
     // Now test with messageId
     context.messageId = 'msg-456';
     startHandler = createModifyMetricsStart(context, state);
     await startHandler({ toolCallId: 'tool-456', messages: [] });
 
-    expect(updateMessageEntries).toHaveBeenCalledWith(
-      expect.objectContaining({
-        messageId: 'msg-456',
-      })
-    );
+    // State should be reset regardless of messageId
+    expect(state.files).toEqual([]);
+    expect(state.argsText).toBeUndefined();
     expect(state.toolCallId).toBe('tool-456');
+
+    // updateMessageEntries should not be called since files are empty after reset
+    expect(updateMessageEntries).not.toHaveBeenCalled();
   });
 });

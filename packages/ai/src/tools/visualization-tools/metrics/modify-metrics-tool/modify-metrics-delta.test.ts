@@ -183,7 +183,7 @@ describe('createModifyMetricsDelta', () => {
 
       expect(updateMessageEntries).toHaveBeenCalledWith({
         messageId: 'msg-123',
-        responseMessages: [expect.any(Object)],
+        reasoningMessages: [expect.any(Object)],
         rawLlmMessages: [expect.any(Object)],
       });
     });
@@ -241,7 +241,7 @@ describe('createModifyMetricsDelta', () => {
       // The database update should be called with valid files
       expect(updateMessageEntries).toHaveBeenCalledWith({
         messageId: 'msg-123',
-        responseMessages: [expect.any(Object)],
+        reasoningMessages: [expect.any(Object)],
         rawLlmMessages: [expect.any(Object)],
       });
     });
