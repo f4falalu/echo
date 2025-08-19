@@ -4,39 +4,46 @@ on:
   push:
     branches: [main, staging]
 
+# Only one deployment per environment at a time
+concurrency:
+  group: trigger-deploy-${{ github.ref }}
+  cancel-in-progress: false  # Never cancel deployments
+
 jobs:
   deploy:
-    runs-on: blacksmith-8vcpu-ubuntu-2204
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     environment: ${{ github.ref_name }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '22.x'
-          
       - name: Install pnpm
         uses: pnpm/action-setup@v2
         with:
           version: 9.15.0
           
-      - name: Get pnpm store directory
-        shell: bash
-        run: |
-          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
-      
-      - name: Setup pnpm cache
-        uses: actions/cache@v3
+      - name: Setup Node.js
+        uses: useblacksmith/setup-node@v5
         with:
-          path: ${{ env.STORE_PATH }}
-          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-pnpm-store-
+          node-version: 22
+          cache: 'pnpm'
+      
+      - name: Fix pnpm store permissions
+        run: |
+          STORE_PATH=$(pnpm store path --silent)
+          if [ -d "$STORE_PATH" ]; then
+            sudo chown -R $(whoami):$(whoami) "$STORE_PATH" || true
+            chmod -R u+rw "$STORE_PATH" || true
+          fi
+      
+      - name: Mount Turbo cache sticky disk
+        uses: useblacksmith/stickydisk@v1
+        with:
+          key: ${{ github.repository }}-turbo-cache
+          path: ./.turbo
           
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm install --frozen-lockfile --prefer-offline
         
       - name: 🚀 Deploy to ${{ github.ref_name == 'main' && 'Production' || 'Staging' }}
         env:
