@@ -40,32 +40,24 @@ jobs:
         uses: useblacksmith/setup-node@v5
         with:
           node-version: 22
+          cache: 'pnpm'
+      
+      - name: Fix pnpm store permissions
+        run: |
+          STORE_PATH=$(pnpm store path --silent)
+          if [ -d "$STORE_PATH" ]; then
+            sudo chown -R $(whoami):$(whoami) "$STORE_PATH" || true
+            chmod -R u+rw "$STORE_PATH" || true
+          fi
       
       - name: Install bun
         run: npm install -g bun@1.2.15
-      
-      - name: Get pnpm store directory
-        shell: bash
-        run: |
-          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
-      
-      - name: Mount pnpm store sticky disk
-        uses: useblacksmith/stickydisk@v1
-        with:
-          key: ${{ github.repository }}-pnpm-store
-          path: ${{ env.STORE_PATH }}
       
       - name: Mount Turbo cache sticky disk
         uses: useblacksmith/stickydisk@v1
         with:
           key: ${{ github.repository }}-turbo-cache
           path: ./.turbo
-      
-      - name: Mount npm cache sticky disk
-        uses: useblacksmith/stickydisk@v1
-        with:
-          key: ${{ github.repository }}-npm-cache
-          path: ~/.npm
       
       - name: Mount Docker buildkit sticky disk
         uses: useblacksmith/stickydisk@v1
