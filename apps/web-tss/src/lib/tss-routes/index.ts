@@ -1,2 +1,2 @@
-export { createRoute, createRouteFactory } from './createRoute';
+export { createRoute } from './createRoute';
 export { routeToHref } from './navigationOptionsToHref';

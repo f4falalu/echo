@@ -4,7 +4,6 @@ import * as metricServerContext from '@/context/BusterAssets/metric-server/metri
 export const Route = createFileRoute(
   '/app/_app/_asset/chats/$chatId/dashboards/$dashboardId/metrics/$metricId'
 )({
-  component: RouteComponent,
   ...metricServerContext,
 });
 
