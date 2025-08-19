@@ -99,9 +99,14 @@ async function handleInstallationCreated(params: {
     }
 
     // Generate and store new token
-    await generateAndStoreToken(installation.id.toString());
+    const tokenVaultKey = await generateAndStoreToken(installation.id.toString());
 
-    return updated;
+    // Update the integration with the new vault key
+    const fullyUpdated = await updateGithubIntegration(existing.id, {
+      tokenVaultKey,
+    });
+
+    return fullyUpdated || updated;
   }
 
   // Create new integration

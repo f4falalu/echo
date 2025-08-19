@@ -17,7 +17,7 @@ import { RuntimeContext } from '@mastra/core/runtime-context';
 
 // Option 1: Create sandbox with GitHub token
 const runtimeContext = new RuntimeContext();
-const githubToken = await fetchGitHubToken(organizationId);
+const githubToken = await getInstallationTokenByOrgId(organizationId);
 const sandbox = await createSandboxWithGitHubToken(runtimeContext, githubToken);
 
 // Option 2: Add token to existing context

@@ -26,10 +26,17 @@ export async function webhookHandler(
         userId: userId || '',
       });
 
+      const actionMessages: Record<string, string> = {
+        deleted: 'Installation deleted successfully',
+        suspend: 'Installation suspended successfully',
+        unsuspend: 'Installation unsuspended successfully',
+        new_permissions_accepted: 'Installation permissions updated successfully',
+      };
+
       return {
         success: true,
         integration: result,
-        message: `Installation ${payload.action} successfully`,
+        message: actionMessages[payload.action] || `Installation ${payload.action} successfully`,
       };
     } catch (error) {
       console.error('Failed to handle installation callback:', error);

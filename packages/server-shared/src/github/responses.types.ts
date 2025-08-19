@@ -22,7 +22,7 @@ export type InstallationCallbackResponse = z.infer<typeof InstallationCallbackRe
 // Response containing installation access token
 export const InstallationTokenResponseSchema = z.object({
   token: z.string(),
-  expires_at: z.string(), // ISO 8601 date string
+  expires_at: z.string().datetime(), // ISO 8601 date string
   permissions: z.record(z.string()).optional(), // e.g., { "contents": "read", "issues": "write" }
   repository_selection: z.enum(['all', 'selected']).optional(),
   repositories: z
@@ -49,8 +49,8 @@ export const GetGitHubIntegrationResponseSchema = z.object({
       github_org_name: z.string(),
       github_org_id: z.string(),
       installation_id: z.string(),
-      installed_at: z.string(),
-      last_used_at: z.string().optional(),
+      installed_at: z.string().datetime(),
+      last_used_at: z.string().datetime().optional(),
       repository_count: z.number().optional(),
     })
     .optional(),

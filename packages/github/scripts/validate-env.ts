@@ -10,8 +10,10 @@ loadRootEnv();
 // Note: These are only required at runtime when using the GitHub integration
 // Making them optional for build time to allow packages to be built without GitHub setup
 const requiredEnv = {
-  // NODE_ENV is optional - will default to 'development' if not set
-  // GitHub variables are optional at build time but required at runtime
+  // GitHub App configuration (required for runtime)
+  GITHUB_APP_ID: process.env.GITHUB_APP_ID,
+  GITHUB_APP_PRIVATE_KEY_BASE64: process.env.GITHUB_APP_PRIVATE_KEY_BASE64,
+  GITHUB_WEBHOOK_SECRET: process.env.GITHUB_WEBHOOK_SECRET,
 };
 
 // Validate environment variables

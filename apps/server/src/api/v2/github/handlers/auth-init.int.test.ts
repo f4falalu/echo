@@ -277,12 +277,12 @@ describe('Auth Init Handler Integration Tests', () => {
         const metadata = JSON.parse(storedState.description);
         expect(metadata.expiresAt).toBeTruthy();
 
-        // Should expire in 15 minutes
+        // Should expire in 10 minutes
         const expiresAt = new Date(metadata.expiresAt);
         const now = new Date();
         const diffMinutes = (expiresAt.getTime() - now.getTime()) / (1000 * 60);
-        expect(diffMinutes).toBeGreaterThan(14);
-        expect(diffMinutes).toBeLessThan(16);
+        expect(diffMinutes).toBeGreaterThan(9);
+        expect(diffMinutes).toBeLessThan(11);
       }
     });
   });

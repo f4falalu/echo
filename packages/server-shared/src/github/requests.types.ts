@@ -3,7 +3,7 @@ import { z } from 'zod';
 // GitHub App Installation Webhook Payload
 // Received when a GitHub App is installed, deleted, suspended, or unsuspended
 export const InstallationCallbackSchema = z.object({
-  action: z.enum(['created', 'deleted', 'suspend', 'unsuspend']),
+  action: z.enum(['created', 'deleted', 'suspend', 'unsuspend', 'new_permissions_accepted']),
   installation: z.object({
     id: z.number(), // GitHub installation ID
     account: z.object({

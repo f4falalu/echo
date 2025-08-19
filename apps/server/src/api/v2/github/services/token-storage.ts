@@ -91,13 +91,13 @@ export async function retrieveInstallationToken(
         ? (JSON.parse(secret.description) as TokenMetadata)
         : {
             installationId,
-            expiresAt: new Date().toISOString(), // Default to expired if no metadata
+            expiresAt: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(), // Default to expired (24 hours ago) if no metadata
           };
     } catch {
       // If description is not valid JSON, create minimal metadata
       metadata = {
         installationId,
-        expiresAt: new Date().toISOString(),
+        expiresAt: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(), // Default to expired (24 hours ago)
       };
     }
 

@@ -1,4 +1,2 @@
-// Export your library functions here
-export const howdy = () => {
-  return 'Hello from @buster/github!';
-};
+// GitHub library utilities
+// Additional utility functions can be added here as needed

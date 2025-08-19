@@ -1,4 +1,3 @@
-import { GitHubErrorCode } from '@buster/server-shared/github';
 import { App } from 'octokit';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createGitHubApp, getGitHubAppCredentials } from './github-app';
@@ -86,7 +85,7 @@ describe('github-app', () => {
 
       // Act & Assert
       expect(() => getGitHubAppCredentials()).toThrow(
-        'Failed to decode GITHUB_APP_PRIVATE_KEY_BASE64'
+        'Failed to decode GITHUB_APP_PRIVATE_KEY_BASE64: Invalid base64 encoding'
       );
     });
 
@@ -98,7 +97,9 @@ describe('github-app', () => {
       process.env.GITHUB_WEBHOOK_SECRET = 'test';
 
       // Act & Assert
-      expect(() => getGitHubAppCredentials()).toThrow('Invalid GitHub App private key format');
+      expect(() => getGitHubAppCredentials()).toThrow(
+        'Invalid GitHub App private key format. Expected PEM-encoded RSA private key or PKCS#8 private key'
+      );
     });
   });
 

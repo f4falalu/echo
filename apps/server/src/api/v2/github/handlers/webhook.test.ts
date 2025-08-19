@@ -99,7 +99,7 @@ describe('webhookHandler', () => {
     const result = await webhookHandler(suspendedPayload);
 
     expect(result.success).toBe(true);
-    expect(result.message).toBe('Installation suspend successfully');
+    expect(result.message).toBe('Installation suspended successfully');
   });
 
   it('should handle installation unsuspended', async () => {
@@ -116,7 +116,7 @@ describe('webhookHandler', () => {
     const result = await webhookHandler(unsuspendedPayload);
 
     expect(result.success).toBe(true);
-    expect(result.message).toBe('Installation unsuspend successfully');
+    expect(result.message).toBe('Installation unsuspended successfully');
   });
 
   it('should throw 400 for created action without org context', async () => {

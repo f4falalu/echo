@@ -80,7 +80,9 @@ export async function authCallbackHandler(
   const callbackPayload = {
     action: 'created' as const,
     installation: {
-      id: Number.parseInt(request.installation_id, 10),
+      id: Number.isNaN(Number(request.installation_id))
+        ? 0
+        : Number.parseInt(request.installation_id, 10),
       account: {
         // These will be updated when the webhook arrives with full details
         id: 0,

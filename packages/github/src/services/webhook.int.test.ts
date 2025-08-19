@@ -1,7 +1,7 @@
 import { createHmac } from 'node:crypto';
 import { describe, expect, it } from 'vitest';
 import { skipIfNoGitHubCredentials } from '../../../../apps/server/src/api/v2/github/test-helpers/github-test-setup';
-import { verifyWebhookSignature } from './webhook';
+import { verifyGitHubWebhookSignature } from './webhook';
 
 describe('GitHub Webhook Service Integration Tests', () => {
   describe('Webhook Signature Verification', () => {
@@ -30,7 +30,7 @@ describe('GitHub Webhook Service Integration Tests', () => {
       const signature = `sha256=${createHmac('sha256', webhookSecret).update(payloadString).digest('hex')}`;
 
       // Should verify successfully
-      const isValid = verifyWebhookSignature(payloadString, signature, webhookSecret);
+      const isValid = verifyGitHubWebhookSignature(payloadString, signature);
       expect(isValid).toBe(true);
     });
 
@@ -77,7 +77,7 @@ describe('GitHub Webhook Service Integration Tests', () => {
       ];
 
       for (const signature of wrongFormats) {
-        const isValid = verifyWebhookSignature(payloadString, signature, webhookSecret);
+        const isValid = verifyGitHubWebhookSignature(payloadString, signature);
         expect(isValid).toBe(false);
       }
     });
@@ -114,7 +114,7 @@ describe('GitHub Webhook Service Integration Tests', () => {
         const payloadString = JSON.stringify(payload);
         const signature = `sha256=${createHmac('sha256', webhookSecret).update(payloadString).digest('hex')}`;
 
-        const isValid = verifyWebhookSignature(payloadString, signature, webhookSecret);
+        const isValid = verifyGitHubWebhookSignature(payloadString, signature);
         expect(isValid).toBe(true);
       }
     });
@@ -132,7 +132,7 @@ describe('GitHub Webhook Service Integration Tests', () => {
 
       // Verify multiple times - should always return same result
       for (let i = 0; i < 5; i++) {
-        const isValid = verifyWebhookSignature(payloadString, signature, webhookSecret);
+        const isValid = verifyGitHubWebhookSignature(payloadString, signature);
         expect(isValid).toBe(true);
       }
     });
@@ -241,7 +241,7 @@ describe('GitHub Webhook Service Integration Tests', () => {
       const payloadString = JSON.stringify(largePayload);
       const signature = `sha256=${createHmac('sha256', webhookSecret).update(payloadString).digest('hex')}`;
 
-      const isValid = verifyWebhookSignature(payloadString, signature, webhookSecret);
+      const isValid = verifyGitHubWebhookSignature(payloadString, signature);
       expect(isValid).toBe(true);
     });
   });

@@ -22,6 +22,8 @@ export async function storeInstallationState(
   data: InstallationState
 ): Promise<void> {
   const key = generateStateVaultKey(state);
+  const expirationTime = new Date(Date.now() + 10 * 60 * 1000).toISOString();
+  const description = `GitHub OAuth state expires at ${expirationTime}`;
 
   try {
     // Check if state already exists (shouldn't happen with random generation)
@@ -32,13 +34,13 @@ export async function storeInstallationState(
         id: existing.id,
         secret: JSON.stringify(data),
         name: key,
-        description: `GitHub OAuth state expires at ${new Date(Date.now() + 10 * 60 * 1000).toISOString()}`,
+        description,
       });
     } else {
       await createSecret({
         secret: JSON.stringify(data),
         name: key,
-        description: `GitHub OAuth state expires at ${new Date(Date.now() + 10 * 60 * 1000).toISOString()}`,
+        description,
       });
     }
 
@@ -65,7 +67,14 @@ export async function retrieveInstallationState(state: string): Promise<Installa
     }
 
     // Check if state is expired (10 minutes)
-    const data = JSON.parse(secret.secret) as InstallationState;
+    let data: InstallationState;
+    try {
+      data = JSON.parse(secret.secret) as InstallationState;
+    } catch (error) {
+      console.error('Failed to parse OAuth state data:', error);
+      await deleteSecret(secret.id);
+      return null;
+    }
     const createdAt = new Date(data.createdAt);
     const now = new Date();
     const tenMinutes = 10 * 60 * 1000;

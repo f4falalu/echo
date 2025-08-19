@@ -38,11 +38,12 @@ export function getGitHubAppCredentials(): {
   // Decode the private key from base64
   let privateKey: string;
   try {
-    // Check if it's valid base64 first
-    if (!/^[A-Za-z0-9+/]*={0,2}$/.test(privateKeyBase64)) {
+    // Check if it's valid base64 first (allow whitespace which will be trimmed)
+    const trimmedBase64 = privateKeyBase64.trim();
+    if (!/^[A-Za-z0-9+/]*={0,2}$/.test(trimmedBase64)) {
       throw new Error('Invalid base64 format');
     }
-    privateKey = Buffer.from(privateKeyBase64, 'base64').toString('utf-8');
+    privateKey = Buffer.from(trimmedBase64, 'base64').toString('utf-8');
   } catch (_error) {
     throw createGitHubError(
       GitHubErrorCode.APP_CONFIGURATION_ERROR,
@@ -50,11 +51,11 @@ export function getGitHubAppCredentials(): {
     );
   }
 
-  // Validate the private key format
-  if (!privateKey.includes('BEGIN RSA PRIVATE KEY')) {
+  // Validate the private key format (support both RSA and PKCS#8 formats)
+  if (!privateKey.includes('BEGIN RSA PRIVATE KEY') && !privateKey.includes('BEGIN PRIVATE KEY')) {
     throw createGitHubError(
       GitHubErrorCode.APP_CONFIGURATION_ERROR,
-      'Invalid GitHub App private key format. Expected PEM-encoded RSA private key'
+      'Invalid GitHub App private key format. Expected PEM-encoded private key'
     );
   }
 

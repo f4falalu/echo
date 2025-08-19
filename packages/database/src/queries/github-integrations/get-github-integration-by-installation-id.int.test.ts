@@ -95,7 +95,7 @@ describe('getGithubIntegrationByInstallationId', () => {
   });
 
   afterEach(async () => {
-    // Clean up test GitHub integrations
+    // Clean up test GitHub integrations first (due to foreign key constraints)
     await db.delete(githubIntegrations).where(eq(githubIntegrations.organizationId, testOrgId));
 
     // Clean up test user
@@ -103,7 +103,7 @@ describe('getGithubIntegrationByInstallationId', () => {
       await db.delete(users).where(eq(users.id, testUserId));
     }
 
-    // Clean up test organization
+    // Clean up test organization last
     if (testOrgId) {
       await db.delete(organizations).where(eq(organizations.id, testOrgId));
     }

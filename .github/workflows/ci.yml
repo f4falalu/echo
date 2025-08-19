@@ -161,24 +161,3 @@ jobs:
             **/coverage/**
             !**/coverage/tmp/**
           retention-days: 7
-
-  # Final status check - ensures all parallel jobs pass
-  ci-status:
-    name: CI Status
-    needs: [build, lint, test]
-    runs-on: blacksmith-2vcpu-ubuntu-2404
-    if: always()
-    timeout-minutes: 1
-    steps:
-      - name: Check CI Status
-        run: |
-          if [[ "${{ needs.build.result }}" != "success" || 
-                "${{ needs.lint.result }}" != "success" || 
-                "${{ needs.test.result }}" != "success" ]]; then
-            echo "❌ CI failed"
-            echo "Build: ${{ needs.build.result }}"
-            echo "Lint: ${{ needs.lint.result }}"
-            echo "Test: ${{ needs.test.result }}"
-            exit 1
-          fi
-          echo "✅ All CI checks passed!"
