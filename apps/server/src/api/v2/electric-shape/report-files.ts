@@ -1,79 +1,25 @@
 import { hasAssetPermission } from '@buster/access-controls';
-import { getReportMetadata } from '@buster/database';
+import { getReportMetadata, type reportFiles } from '@buster/database';
+import type { ReportIndividualResponse } from '@buster/server-shared/reports';
 import { markdownToPlatejs } from '@buster/server-utils/report';
+import type { ChangeMessage } from '@electric-sql/client';
 import type { Context } from 'hono';
 import { errorResponse } from '../../../utils/response';
 import { createProxiedResponse, extractParamFromWhere } from './_helpers';
+import {
+  type TransformCallback,
+  createElectricHandledResponse,
+} from './_helpers/transform-request';
 
-// Types for Electric SQL response format
-interface ElectricDataRow<T> {
-  value: T;
-  key: string;
-  headers: {
-    last?: boolean;
-    relation: string[];
-    operation: string;
-    lsn: string;
-    op_position: number;
-    txids: number[];
-  };
-}
+type StreamableReportProperties = Pick<typeof reportFiles.$inferSelect, 'name' | 'id' | 'content'>;
+type ReportFile = Partial<ReportIndividualResponse>;
+type ReportMetadata = Awaited<ReturnType<typeof getReportMetadata>>;
 
-interface ElectricControlMessage {
-  headers: {
-    control: string;
-    global_last_seen_lsn?: string;
-  };
-}
-
-type ElectricResponse<T> = Array<ElectricDataRow<T> | ElectricControlMessage>;
-
-/**
- * Transform the content field from markdown to PlateJS format
- */
-async function transformReportFilesResponse(response: Response): Promise<Response> {
-  const data = (await response.json()) as ElectricResponse<{
-    content: string;
-    [key: string]: unknown;
-  }>;
-
-  // Transform content field for data rows
-  const transformedData = await Promise.all(
-    data.map(async (item) => {
-      // Type guard to check if this is a data row (not a control message)
-      if ('value' in item && item.value.content) {
-        const { elements, error } = await markdownToPlatejs(item.value.content);
-
-        if (error) {
-          console.error('Error transforming report content:', error);
-          // Keep original content if transformation fails
-          return item;
-        }
-
-        // Replace content with PlateJS elements
-        return {
-          ...item,
-          value: {
-            ...item.value,
-            content: JSON.stringify(elements),
-          },
-        };
-      }
-
-      // Return control messages and other data unchanged
-      return item;
-    })
-  );
-
-  // Return new response with same headers
-  return new Response(JSON.stringify(transformedData), {
-    headers: response.headers,
-    status: response.status,
-    statusText: response.statusText,
-  });
-}
-
-export const reportFilesProxyRouter = async (url: URL, _userId: string, c: Context) => {
+export const reportFilesProxyRouter = async (
+  url: URL,
+  _userId: string,
+  c: Context
+): Promise<Response> => {
   const reportId = extractParamFromWhere(url, 'id');
 
   if (!reportId) {
@@ -81,7 +27,13 @@ export const reportFilesProxyRouter = async (url: URL, _userId: string, c: Conte
   }
 
   // Get report metadata for access control
-  const reportData = await getReportMetadata({ reportId });
+  let reportData: ReportMetadata;
+  try {
+    reportData = await getReportMetadata({ reportId });
+  } catch (error) {
+    console.error('Error getting report metadata:', error);
+    throw errorResponse('Report not found', 404);
+  }
 
   if (!reportData) {
     throw errorResponse('Report not found', 404);
@@ -103,5 +55,22 @@ export const reportFilesProxyRouter = async (url: URL, _userId: string, c: Conte
 
   // Fetch the response and transform it
   const response = await createProxiedResponse(url);
-  return await transformReportFilesResponse(response);
+
+  return createElectricHandledResponse<StreamableReportProperties, ReportFile>(response, {
+    transformCallback,
+  });
+};
+
+const transformCallback: TransformCallback<StreamableReportProperties, ReportFile> = async ({
+  value: { content, ...values },
+}) => {
+  const returnValue: ReportFile = values;
+
+  if (content) {
+    const { elements, error } = await markdownToPlatejs(content);
+    if (error) console.error('Error transforming report content:', error);
+    else returnValue.content = elements;
+  }
+
+  return returnValue;
 };
