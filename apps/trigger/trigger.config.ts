@@ -9,12 +9,12 @@ loadRootEnv();
 
 export default defineConfig({
   project: 'proj_lyyhkqmzhwiskfnavddk',
-  runtime: 'node',
+  runtime: 'bun',
   logLevel: 'log',
   // The max compute seconds a task is allowed to run. If the task run exceeds this duration, it will be stopped.
   // You can override this on an individual task.
   // See https://trigger.dev/docs/runs/max-duration
-  maxDuration: 3600,
+  maxDuration: 1200,
   retries: {
     enabledInDev: true,
     default: {
@@ -43,18 +43,18 @@ export default defineConfig({
               // Handle sub-paths like @buster/server-shared/metrics
               // Check if subPath already starts with 'src', if so, don't add it again
               const cleanSubPath = subPath.startsWith('src/') ? subPath.slice(4) : subPath;
-              const basePath = path.resolve(process.cwd(), '../..', 'packages', packageName, 'src');
+              const srcRoot = path.resolve(process.cwd(), '../..', 'packages', packageName, 'src');
 
-              // Try to resolve as a directory with index.ts first, then as a .ts file
-              const indexPath = path.join(basePath, cleanSubPath, 'index.ts');
-              const directPath = path.join(basePath, `${cleanSubPath}.ts`);
+              // Try multiple possible paths (combining both approaches)
+              const candidatePaths = [
+                path.join(srcRoot, `${cleanSubPath}.ts`),
+                path.join(srcRoot, cleanSubPath, 'index.ts'),
+                path.join(srcRoot, `${cleanSubPath}.tsx`),
+                path.join(srcRoot, cleanSubPath, 'index.tsx'),
+              ];
 
-              // Check if it's a directory with index.ts
-              if (fs.existsSync(indexPath)) {
-                resolvedPath = indexPath;
-              } else {
-                resolvedPath = directPath;
-              }
+              const found = candidatePaths.find((p) => fs.existsSync(p));
+              resolvedPath = found ?? path.join(srcRoot, cleanSubPath);
             } else {
               // Handle direct package imports like @buster/ai
               resolvedPath = path.resolve(

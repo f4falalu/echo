@@ -6,7 +6,7 @@ import {
   ChatErrorCode,
   type ChatWithMessages,
 } from '@buster/server-shared/chats';
-import { tasks } from '@trigger.dev/sdk/v3';
+import { tasks } from '@trigger.dev/sdk';
 import { handleAssetChat, handleAssetChatWithPrompt } from './services/chat-helpers';
 import { initializeChat } from './services/chat-service';
 

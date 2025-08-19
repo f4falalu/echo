@@ -860,10 +860,10 @@ export const messages = pgTable(
   {
     id: uuid().defaultRandom().primaryKey().notNull(),
     requestMessage: text('request_message'),
-    responseMessages: jsonb('response_messages').notNull(),
-    reasoning: jsonb().notNull(),
+    responseMessages: jsonb('response_messages').default([]).notNull(),
+    reasoning: jsonb().default([]).notNull(),
     title: text().notNull(),
-    rawLlmMessages: jsonb('raw_llm_messages').notNull(),
+    rawLlmMessages: jsonb('raw_llm_messages').default([]).notNull(),
     finalReasoningMessage: text('final_reasoning_message'),
     chatId: uuid('chat_id').notNull(),
     createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' })
@@ -888,6 +888,29 @@ export const messages = pgTable(
     index('messages_created_by_idx').using(
       'btree',
       table.createdBy.asc().nullsLast().op('uuid_ops')
+    ),
+    index('messages_deleted_at_idx').using(
+      'btree',
+      table.deletedAt.asc().nullsLast().op('timestamptz_ops')
+    ),
+    // GIN indexes for JSONB columns
+    index('messages_raw_llm_messages_gin_idx').using(
+      'gin',
+      table.rawLlmMessages.asc().nullsLast().op('jsonb_ops')
+    ),
+    index('messages_response_messages_gin_idx').using(
+      'gin',
+      table.responseMessages.asc().nullsLast().op('jsonb_ops')
+    ),
+    index('messages_reasoning_gin_idx').using(
+      'gin',
+      table.reasoning.asc().nullsLast().op('jsonb_ops')
+    ),
+    // Composite index for WHERE clause
+    index('messages_id_deleted_at_idx').using(
+      'btree',
+      table.id.asc().nullsLast().op('uuid_ops'),
+      table.deletedAt.asc().nullsLast().op('timestamptz_ops')
     ),
     foreignKey({
       columns: [table.chatId],
@@ -959,7 +982,19 @@ export const dashboardFiles = pgTable(
       withTimezone: true,
       mode: 'string',
     }),
-    versionHistory: jsonb('version_history').default({}).notNull(),
+    versionHistory: jsonb('version_history')
+      .$type<
+        Record<
+          string, //version number as a string
+          {
+            content: Record<string, unknown>;
+            updated_at: string;
+            version_number: number;
+          }
+        >
+      >()
+      .default({})
+      .notNull(),
     publicPassword: text('public_password'),
     workspaceSharing: workspaceSharingEnum('workspace_sharing').default('none').notNull(),
     workspaceSharingEnabledBy: uuid('workspace_sharing_enabled_by'),
@@ -1253,7 +1288,19 @@ export const metricFiles = pgTable(
       withTimezone: true,
       mode: 'string',
     }),
-    versionHistory: jsonb('version_history').default({}).notNull(),
+    versionHistory: jsonb('version_history')
+      .$type<
+        Record<
+          string, //version number as a string
+          {
+            content: Record<string, unknown>;
+            updated_at: string;
+            version_number: number;
+          }
+        >
+      >()
+      .default({})
+      .notNull(),
     dataMetadata: jsonb('data_metadata'),
     publicPassword: text('public_password'),
     dataSourceId: uuid('data_source_id').notNull(),

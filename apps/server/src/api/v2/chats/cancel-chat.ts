@@ -1,10 +1,4 @@
 import { canUserAccessChatCached } from '@buster/access-controls';
-import {
-  type ToolCallContent,
-  type ToolResultContent,
-  isToolCallContent,
-  isToolResultContent,
-} from '@buster/ai/utils/database/types';
 import type { User } from '@buster/database';
 import { and, eq, isNotNull, updateMessageFields } from '@buster/database';
 import { db, messages } from '@buster/database';
@@ -13,7 +7,7 @@ import type {
   ChatMessageResponseMessage,
 } from '@buster/server-shared/chats';
 import { runs } from '@trigger.dev/sdk';
-import type { CoreMessage } from 'ai';
+import type { ModelMessage, ToolCallPart, ToolResultPart } from 'ai';
 import { errorResponse } from '../../../utils/response';
 
 /**
@@ -96,23 +90,47 @@ export async function cancelChatHandler(chatId: string, user: User): Promise<voi
   await Promise.allSettled(cleanupPromises);
 }
 /**
+ * Type guard for ToolCallPart
+ */
+function isToolCallPart(content: unknown): content is ToolCallPart {
+  return (
+    content !== null &&
+    typeof content === 'object' &&
+    'type' in content &&
+    content.type === 'tool-call'
+  );
+}
+
+/**
+ * Type guard for ToolResultPart
+ */
+function isToolResultPart(content: unknown): content is ToolResultPart {
+  return (
+    content !== null &&
+    typeof content === 'object' &&
+    'type' in content &&
+    content.type === 'tool-result'
+  );
+}
+
+/**
  * Find tool calls without corresponding tool results
  */
-function findIncompleteToolCalls(messages: CoreMessage[]): ToolCallContent[] {
-  const toolCalls = new Map<string, ToolCallContent>();
+function findIncompleteToolCalls(messages: ModelMessage[]): ToolCallPart[] {
+  const toolCalls = new Map<string, ToolCallPart>();
   const toolResults = new Set<string>();
 
   // First pass: collect all tool calls and tool results
   for (const message of messages) {
     if (message.role === 'assistant' && Array.isArray(message.content)) {
       for (const content of message.content) {
-        if (isToolCallContent(content)) {
+        if (isToolCallPart(content)) {
           toolCalls.set(content.toolCallId, content);
         }
       }
     } else if (message.role === 'tool' && Array.isArray(message.content)) {
       for (const content of message.content) {
-        if (isToolResultContent(content)) {
+        if (isToolResultPart(content)) {
           toolResults.add(content.toolCallId);
         }
       }
@@ -120,7 +138,7 @@ function findIncompleteToolCalls(messages: CoreMessage[]): ToolCallContent[] {
   }
 
   // Second pass: find tool calls without results
-  const incompleteToolCalls: ToolCallContent[] = [];
+  const incompleteToolCalls: ToolCallPart[] = [];
   for (const [toolCallId, toolCall] of toolCalls) {
     if (!toolResults.has(toolCallId)) {
       incompleteToolCalls.push(toolCall);
@@ -133,21 +151,23 @@ function findIncompleteToolCalls(messages: CoreMessage[]): ToolCallContent[] {
 /**
  * Create tool result messages for incomplete tool calls
  */
-function createCancellationToolResults(incompleteToolCalls: ToolCallContent[]): CoreMessage[] {
+function createCancellationToolResults(incompleteToolCalls: ToolCallPart[]): ModelMessage[] {
   if (incompleteToolCalls.length === 0) {
     return [];
   }
 
-  const toolResultMessages: CoreMessage[] = [];
+  const toolResultMessages: ModelMessage[] = [];
 
   for (const toolCall of incompleteToolCalls) {
-    const toolResult: ToolResultContent = {
+    const toolResult: ToolResultPart = {
       type: 'tool-result',
       toolCallId: toolCall.toolCallId,
       toolName: toolCall.toolName,
-      result: {
-        error: true,
-        message: 'The user ended the chat',
+      output: {
+        type: 'json',
+        value: {
+          message: 'The user ended the chat',
+        },
       },
     };
 
@@ -163,7 +183,7 @@ function createCancellationToolResults(incompleteToolCalls: ToolCallContent[]): 
 /**
  * Clean up messages by adding tool results for incomplete tool calls
  */
-function cleanUpRawLlmMessages(messages: CoreMessage[]): CoreMessage[] {
+function cleanUpRawLlmMessages(messages: ModelMessage[]): ModelMessage[] {
   const incompleteToolCalls = findIncompleteToolCalls(messages);
 
   if (incompleteToolCalls.length === 0) {
@@ -217,13 +237,13 @@ function ensureReasoningMessagesCompleted(
  * In all cases, the message is marked as complete with an appropriate final reasoning message.
  */
 interface CleanedMessageFields {
-  rawLlmMessages: CoreMessage[];
+  rawLlmMessages: ModelMessage[];
   reasoning: ChatMessageReasoningMessage[];
   responseMessages: ChatMessageResponseMessage[];
 }
 
 function cleanUpMessageFields(
-  rawLlmMessages: CoreMessage[],
+  rawLlmMessages: ModelMessage[],
   reasoning: ChatMessageReasoningMessage[],
   responseMessages: ChatMessageResponseMessage[]
 ): CleanedMessageFields {
@@ -249,7 +269,7 @@ async function cleanUpMessage(
   try {
     // Parse and validate the message fields
     const currentRawMessages = Array.isArray(rawLlmMessages)
-      ? (rawLlmMessages as CoreMessage[])
+      ? (rawLlmMessages as ModelMessage[])
       : [];
     const currentReasoning = Array.isArray(reasoning)
       ? (reasoning as ChatMessageReasoningMessage[])

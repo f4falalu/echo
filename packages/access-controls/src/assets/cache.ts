@@ -8,14 +8,14 @@ type CacheKey = string;
 // Permission cache - stores the full permission result
 const permissionCache = new LRUCache<CacheKey, AssetPermissionResult>({
   max: 10000, // Maximum 10k entries
-  ttl: 30 * 1000, // 30 seconds
+  ttl: 10 * 1000, // 10 seconds
   updateAgeOnGet: true, // Refresh TTL on access
 });
 
 // Cascading permission cache - stores boolean results for cascading checks
 const cascadingCache = new LRUCache<string, boolean>({
   max: 5000, // Maximum 5k entries
-  ttl: 30 * 1000, // 30 seconds
+  ttl: 10 * 1000, // 10 seconds
   updateAgeOnGet: true,
 });
 

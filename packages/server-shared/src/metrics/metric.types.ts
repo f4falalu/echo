@@ -50,6 +50,16 @@ export const MetricSchema = z.object({
   ...ShareConfigSchema.shape,
 });
 
+export const MetricYmlSchema = z.object({
+  name: z.string(),
+  description: z.string(),
+  timeFrame: z.string(),
+  sql: z.string(),
+  chartConfig: ChartConfigPropsSchema,
+});
+
+export type MetricYml = z.infer<typeof MetricYmlSchema>;
+
 export type Metric = z.infer<typeof MetricSchema>;
 
 export const DEFAULT_METRIC: Required<Metric> = getDefaults(MetricSchema);

@@ -2,149 +2,280 @@ import { describe, expect, it } from 'vitest';
 import { OptimisticJsonParser, getOptimisticValue } from './optimistic-json-parser';
 
 describe('OptimisticJsonParser', () => {
-  describe('parse', () => {
-    it('should parse complete JSON normally', () => {
-      const json = '{"message": "Hello world", "status": "active"}';
+  describe('Basic Parsing', () => {
+    it('should parse complete simple JSON', () => {
+      const json = '{"key": "value", "number": 42}';
+      const result = OptimisticJsonParser.parse(json);
+
+      expect(result.isComplete).toBe(true);
+      expect(result.parsed).toEqual({ key: 'value', number: 42 });
+    });
+
+    it('should extract values from incomplete JSON', () => {
+      const json = '{"key": "value", "number": 42, "incomplete": "val';
+      const result = OptimisticJsonParser.parse(json);
+
+      expect(result.isComplete).toBe(false);
+      expect(result.extractedValues.get('key')).toBe('value');
+      expect(result.extractedValues.get('number')).toBe(42);
+      expect(result.extractedValues.get('incomplete')).toBe('val');
+    });
+
+    it('should handle nested objects', () => {
+      const json = '{"user": {"name": "John", "age": 30}, "active": true}';
       const result = OptimisticJsonParser.parse(json);
 
       expect(result.isComplete).toBe(true);
       expect(result.parsed).toEqual({
-        message: 'Hello world',
+        user: { name: 'John', age: 30 },
+        active: true,
+      });
+    });
+
+    it('should handle arrays', () => {
+      const json = '{"items": [1, 2, 3], "tags": ["a", "b"]}';
+      const result = OptimisticJsonParser.parse(json);
+
+      expect(result.isComplete).toBe(true);
+      expect(result.parsed).toEqual({
+        items: [1, 2, 3],
+        tags: ['a', 'b'],
+      });
+    });
+  });
+
+  describe('Incomplete JSON Handling', () => {
+    it('should extract values from incomplete nested objects', () => {
+      const json = '{"user": {"name": "John", "age": 30, "city": "New';
+      const result = OptimisticJsonParser.parse(json);
+
+      expect(result.isComplete).toBe(false);
+      const userValue = result.extractedValues.get('user');
+      expect(userValue).toEqual({
+        name: 'John',
+        age: 30,
+        city: 'New',
+      });
+    });
+
+    it('should handle incomplete arrays', () => {
+      const json = '{"items": [1, 2, 3, 4';
+      const result = OptimisticJsonParser.parse(json);
+
+      expect(result.isComplete).toBe(false);
+      expect(result.extractedValues.get('items')).toEqual([1, 2, 3, 4]);
+    });
+
+    it('should handle missing closing braces', () => {
+      const json = '{"key1": "value1", "key2": "value2"';
+      const result = OptimisticJsonParser.parse(json);
+
+      expect(result.isComplete).toBe(false);
+      expect(result.extractedValues.get('key1')).toBe('value1');
+      expect(result.extractedValues.get('key2')).toBe('value2');
+    });
+  });
+
+  describe('Special Characters and Escape Sequences', () => {
+    it('should handle newlines and tabs in strings', () => {
+      const json = '{"message": "Line 1\\nLine 2\\tTabbed", "status": "active"}';
+      const result = OptimisticJsonParser.parse(json);
+
+      expect(result.isComplete).toBe(true);
+      expect(result.parsed).toEqual({
+        message: 'Line 1\nLine 2\tTabbed',
         status: 'active',
       });
-      expect(result.extractedValues.get('message')).toBe('Hello world');
-      expect(result.extractedValues.get('status')).toBe('active');
     });
 
-    it('should optimistically parse incomplete string values', () => {
-      const json = '{"final_response": "Hello wor';
+    it('should handle escape sequences in incomplete strings', () => {
+      const json = '{"message": "Say \\"Hello\\" to\\neveryone who';
       const result = OptimisticJsonParser.parse(json);
 
       expect(result.isComplete).toBe(false);
+      expect(result.extractedValues.get('message')).toBe('Say "Hello" to\neveryone who');
+    });
+
+    it('should handle backslashes in paths', () => {
+      const json = '{"path": "C:\\\\Users\\\\John\\\\Documents"}';
+      const result = OptimisticJsonParser.parse(json);
+
+      expect(result.isComplete).toBe(true);
       expect(result.parsed).toEqual({
-        final_response: 'Hello wor',
-      });
-      expect(result.extractedValues.get('final_response')).toBe('Hello wor');
-    });
-
-    it('should handle multiple incomplete fields', () => {
-      const json = '{"thought": "I am thinking about", "nextThoughtNeeded": tru';
-      const result = OptimisticJsonParser.parse(json);
-
-      expect(result.isComplete).toBe(false);
-      expect(result.extractedValues.get('thought')).toBe('I am thinking about');
-      // Raw extraction should still find the boolean
-      expect(result.extractedValues.get('nextThoughtNeeded')).toBe(true);
-    });
-
-    it('should handle nested incomplete JSON', () => {
-      const json = '{"user": {"name": "John", "email": "john@ex';
-      const result = OptimisticJsonParser.parse(json);
-
-      expect(result.isComplete).toBe(false);
-      expect(result.parsed).toEqual({
-        user: {
-          name: 'John',
-          email: 'john@ex',
-        },
-      });
-      expect(result.extractedValues.get('user.name')).toBe('John');
-      expect(result.extractedValues.get('user.email')).toBe('john@ex');
-    });
-
-    it('should handle arrays in progress', () => {
-      const json = '{"items": ["one", "two", "thr';
-      const result = OptimisticJsonParser.parse(json);
-
-      expect(result.isComplete).toBe(false);
-      expect(result.parsed).toEqual({
-        items: ['one', 'two', 'thr'],
+        path: 'C:\\Users\\John\\Documents',
       });
     });
 
-    it('should extract raw values when optimistic parsing fails', () => {
-      const json = '{"message": "Hello", "count": 42, "active": true, "nested": {"bad';
+    it('should handle unicode characters', () => {
+      const json = '{"emoji": "😀", "chinese": "你好", "special": "café"}';
       const result = OptimisticJsonParser.parse(json);
 
-      // Even if full parse fails, raw values should be extracted
-      expect(result.extractedValues.get('message')).toBe('Hello');
-      expect(result.extractedValues.get('count')).toBe(42);
-      expect(result.extractedValues.get('active')).toBe(true);
+      expect(result.isComplete).toBe(true);
+      expect(result.parsed).toEqual({
+        emoji: '😀',
+        chinese: '你好',
+        special: 'café',
+      });
+    });
+  });
+
+  describe('Edge Cases', () => {
+    it('should handle empty objects and arrays', () => {
+      const json = '{"empty_obj": {}, "empty_arr": [], "null_val": null}';
+      const result = OptimisticJsonParser.parse(json);
+
+      expect(result.isComplete).toBe(true);
+      expect(result.parsed).toEqual({
+        empty_obj: {},
+        empty_arr: [],
+        null_val: null,
+      });
     });
 
-    it('should handle escaped quotes', () => {
-      const json = '{"message": "Say \\"Hello\\" to';
+    it('should handle boolean values', () => {
+      const json = '{"is_active": true, "is_deleted": false}';
+      const result = OptimisticJsonParser.parse(json);
+
+      expect(result.isComplete).toBe(true);
+      expect(result.parsed).toEqual({
+        is_active: true,
+        is_deleted: false,
+      });
+    });
+
+    it('should handle numeric edge cases', () => {
+      const json = '{"zero": 0, "negative": -42, "float": 3.14, "scientific": 1.23e-4}';
+      const result = OptimisticJsonParser.parse(json);
+
+      expect(result.isComplete).toBe(true);
+      expect(result.parsed).toEqual({
+        zero: 0,
+        negative: -42,
+        float: 3.14,
+        scientific: 1.23e-4,
+      });
+    });
+
+    it('should handle deeply nested structures', () => {
+      const json = '{"a": {"b": {"c": {"d": {"e": "deep"}}}}}';
+      const result = OptimisticJsonParser.parse(json);
+
+      expect(result.isComplete).toBe(true);
+      expect(result.parsed).toEqual({
+        a: { b: { c: { d: { e: 'deep' } } } },
+      });
+    });
+
+    it('should handle mixed arrays', () => {
+      const json = '{"mixed": [1, "two", true, null, {"nested": "obj"}, [1, 2]]}';
+      const result = OptimisticJsonParser.parse(json);
+
+      expect(result.isComplete).toBe(true);
+      expect(result.parsed).toEqual({
+        mixed: [1, 'two', true, null, { nested: 'obj' }, [1, 2]],
+      });
+    });
+  });
+
+  describe('Large and Complex JSON', () => {
+    it('should handle large objects with many fields', () => {
+      const fields = Array.from({ length: 100 }, (_, i) => `"field${i}": "value${i}"`);
+      const json = `{${fields.join(', ')}}`;
+      const result = OptimisticJsonParser.parse(json);
+
+      expect(result.isComplete).toBe(true);
+      expect(Object.keys(result.parsed || {}).length).toBe(100);
+    });
+
+    it('should handle large arrays', () => {
+      const items = Array.from({ length: 1000 }, (_, i) => i);
+      const json = `{"large_array": [${items.join(', ')}]}`;
+      const result = OptimisticJsonParser.parse(json);
+
+      expect(result.isComplete).toBe(true);
+      expect((result.parsed as any).large_array.length).toBe(1000);
+    });
+
+    it('should handle complex nested structure with partial data', () => {
+      const json = `{
+        "user": {
+          "id": 123,
+          "profile": {
+            "name": "John Doe",
+            "email": "john@example.com",
+            "preferences": {
+              "theme": "dark",
+              "notifications": {
+                "email": true,
+                "push": false,
+                "sms": "pendi`;
+
       const result = OptimisticJsonParser.parse(json);
 
       expect(result.isComplete).toBe(false);
-      expect(result.parsed).toEqual({
-        message: 'Say "Hello" to',
-      });
+      const user = result.extractedValues.get('user');
+      expect(user).toBeDefined();
+      expect((user as any).profile.name).toBe('John Doe');
+      expect((user as any).profile.preferences.notifications.sms).toBe('pendi');
+    });
+  });
+
+  describe('getOptimisticValue Helper', () => {
+    it('should extract simple values', () => {
+      const result = OptimisticJsonParser.parse('{"key": "value"}');
+      expect(getOptimisticValue(result.extractedValues, 'key')).toBe('value');
+    });
+
+    it('should extract nested values', () => {
+      const json = '{"user": {"name": "John", "age": 30}}';
+      const result = OptimisticJsonParser.parse(json);
+      const user = result.extractedValues.get('user');
+      expect(user).toEqual({ name: 'John', age: 30 });
+    });
+
+    it('should return undefined for non-existent keys', () => {
+      const result = OptimisticJsonParser.parse('{"key": "value"}');
+      expect(getOptimisticValue(result.extractedValues, 'nonexistent')).toBeUndefined();
+    });
+
+    it('should extract values from incomplete JSON', () => {
+      const result = OptimisticJsonParser.parse('{"key": "val');
+      expect(getOptimisticValue(result.extractedValues, 'key')).toBe('val');
+    });
+  });
+
+  describe('Error Handling', () => {
+    it('should handle malformed JSON gracefully', () => {
+      const json = '{"key": "value", invalid}';
+      const result = OptimisticJsonParser.parse(json);
+
+      expect(result.isComplete).toBe(false);
+      // Should still extract valid values before the error
+      expect(result.extractedValues.get('key')).toBe('value');
     });
 
     it('should handle empty input', () => {
       const result = OptimisticJsonParser.parse('');
-
       expect(result.isComplete).toBe(false);
-      expect(result.parsed).toBe(null);
-      expect(result.extractedValues.size).toBe(0);
+      expect(result.parsed).toBeNull();
     });
 
-    it('should progressively build final_response for done tool', () => {
-      const stages = [
-        '{"final_response": "H',
-        '{"final_response": "Hello',
-        '{"final_response": "Hello, I can',
-        '{"final_response": "Hello, I can help',
-        '{"final_response": "Hello, I can help you with that."}',
-      ];
-
-      const results = stages.map((json) => {
-        const result = OptimisticJsonParser.parse(json);
-        return getOptimisticValue<string>(result.extractedValues, 'final_response', '');
-      });
-
-      expect(results).toEqual([
-        'H',
-        'Hello',
-        'Hello, I can',
-        'Hello, I can help',
-        'Hello, I can help you with that.',
-      ]);
-
-      // Last one should be complete
-      const lastResult = OptimisticJsonParser.parse(stages[stages.length - 1]!);
-      expect(lastResult.isComplete).toBe(true);
-    });
-  });
-
-  describe('getOptimisticValue', () => {
-    it('should retrieve values with type safety', () => {
-      const map = new Map<string, unknown>([
-        ['message', 'Hello'],
-        ['count', 42],
-        ['active', true],
-        ['user.name', 'John'],
-      ]);
-
-      expect(getOptimisticValue<string>(map, 'message')).toBe('Hello');
-      expect(getOptimisticValue<number>(map, 'count')).toBe(42);
-      expect(getOptimisticValue<boolean>(map, 'active')).toBe(true);
-      expect(getOptimisticValue<string>(map, 'user.name')).toBe('John');
+    it('should handle whitespace-only input', () => {
+      const result = OptimisticJsonParser.parse('   \n\t  ');
+      expect(result.isComplete).toBe(false);
+      expect(result.parsed).toBeNull();
     });
 
-    it('should return default value when key not found', () => {
-      const map = new Map<string, unknown>();
+    it('should handle non-object JSON at root', () => {
+      const arrayJson = '[1, 2, 3]';
+      const result = OptimisticJsonParser.parse(arrayJson);
+      expect(result.isComplete).toBe(true);
+      expect(result.parsed).toEqual([1, 2, 3]);
 
-      expect(getOptimisticValue<string>(map, 'missing', 'default')).toBe('default');
-      expect(getOptimisticValue<number>(map, 'missing', 0)).toBe(0);
-      expect(getOptimisticValue<boolean>(map, 'missing', false)).toBe(false);
-    });
-
-    it('should return undefined when no default provided', () => {
-      const map = new Map<string, unknown>();
-
-      expect(getOptimisticValue<string>(map, 'missing')).toBeUndefined();
+      const stringJson = '"just a string"';
+      const stringResult = OptimisticJsonParser.parse(stringJson);
+      expect(stringResult.isComplete).toBe(true);
+      expect(stringResult.parsed).toBe('just a string');
     });
   });
 });

@@ -1,4 +1,4 @@
-import postProcessingWorkflow from '@buster/ai/workflows/post-processing-workflow';
+import postProcessingWorkflow from '@buster/ai/workflows/message-post-processing-workflow/message-post-processing-workflow';
 import * as database from '@buster/database';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import * as helpers from './helpers';
@@ -42,11 +42,12 @@ vi.mock('@buster/database', () => ({
   ),
 }));
 
-vi.mock('@buster/ai/workflows/post-processing-workflow', () => ({
-  default: {
-    createRun: vi.fn(),
-  },
-}));
+vi.mock(
+  '@buster/ai/workflows/message-post-processing-workflow/message-post-processing-workflow',
+  () => ({
+    default: vi.fn(),
+  })
+);
 
 // Mock Trigger.dev logger
 vi.mock('@trigger.dev/sdk/v3', () => ({
@@ -73,7 +74,6 @@ vi.mock('braintrust', () => ({
 
 describe('messagePostProcessingTask', () => {
   let mockDb: any;
-  let mockWorkflowRun: any;
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -95,12 +95,6 @@ describe('messagePostProcessingTask', () => {
     mockDb.orderBy.mockResolvedValue([]);
 
     vi.mocked(database.getDb).mockReturnValue(mockDb);
-
-    // Setup workflow mock
-    mockWorkflowRun = {
-      start: vi.fn(),
-    };
-    vi.mocked(postProcessingWorkflow.createRun).mockReturnValue(mockWorkflowRun);
   });
 
   it('should process message successfully for initial message', async () => {
@@ -124,20 +118,24 @@ describe('messagePostProcessingTask', () => {
     ];
 
     const workflowOutput = {
-      'format-initial-message': {
+      assumptionsResult: {
         assumptions: [
           {
             descriptiveTitle: 'Test assumption',
             classification: 'business_rules',
             explanation: 'Test explanation',
-            label: 'important',
+            label: 'major' as const,
           },
         ],
-        flagChatMessage: false,
-        toolCalled: false,
+        toolCalled: 'analyze',
+      },
+      flagChatResult: {
+        type: 'flagChat' as const,
         summaryTitle: 'Test Summary',
         summaryMessage: 'Test summary message',
+        message: 'Test message',
       },
+      formattedMessage: 'Test summary message',
     };
 
     // Setup mocks
@@ -150,21 +148,20 @@ describe('messagePostProcessingTask', () => {
       pageSize: 1000,
     });
     vi.mocked(helpers.getExistingSlackMessageForChat).mockResolvedValue({ exists: false });
+    vi.mocked(helpers.sendSlackNotification).mockResolvedValue({
+      sent: true,
+      messageTs: '1234567890.123456',
+      integrationId: 'slack-integration-123',
+      channelId: 'C123456',
+    });
     vi.mocked(helpers.buildWorkflowInput).mockReturnValue({
       conversationHistory: [{ role: 'user', content: 'Hello' }],
       userName: 'John Doe',
-      messageId,
-      userId: 'user-123',
-      chatId: 'chat-123',
       isFollowUp: false,
       isSlackFollowUp: false,
-      previousMessages: [],
       datasets: '',
     });
-    mockWorkflowRun.start.mockResolvedValue({
-      status: 'success',
-      result: workflowOutput,
-    });
+    vi.mocked(postProcessingWorkflow).mockResolvedValue(workflowOutput);
 
     // Execute task
     const result = await runTask({ messageId });
@@ -186,23 +183,22 @@ describe('messagePostProcessingTask', () => {
       messageContext.createdAt
     );
     expect(helpers.fetchUserDatasets).toHaveBeenCalledWith('user-123');
-    expect(postProcessingWorkflow.createRun).toHaveBeenCalled();
-    expect(mockWorkflowRun.start).toHaveBeenCalled();
+    expect(postProcessingWorkflow).toHaveBeenCalled();
     expect(mockDb.update).toHaveBeenCalledWith(database.messages);
     expect(mockDb.set).toHaveBeenCalledWith({
       postProcessingMessage: {
         summary_message: 'Test summary message',
         summary_title: 'Test Summary',
-        confidence_score: 'high',
+        confidence_score: 'low',
         assumptions: [
           {
             descriptive_title: 'Test assumption',
             classification: 'business_rules',
             explanation: 'Test explanation',
-            label: 'important',
+            label: 'major' as const,
           },
         ],
-        tool_called: 'unknown',
+        tool_called: 'analyze',
         user_name: 'John Doe',
       },
       updatedAt: expect.any(String),
@@ -219,14 +215,17 @@ describe('messagePostProcessingTask', () => {
     ];
 
     const workflowOutput = {
-      'format-follow-up-message': {
+      assumptionsResult: {
         assumptions: [],
-        flagChatMessage: false,
-        toolCalled: false,
+        toolCalled: 'analyze',
+      },
+      flagChatResult: {
+        type: 'noIssuesFound' as const,
         summaryTitle: 'Follow-up Analysis',
         summaryMessage: 'Based on previous conversation...',
-        followUpSuggestions: ['Ask about X'],
+        message: 'Follow-up message',
       },
+      formattedMessage: 'Based on previous conversation...',
     };
 
     // Setup mocks for follow-up scenario
@@ -263,18 +262,11 @@ describe('messagePostProcessingTask', () => {
     vi.mocked(helpers.buildWorkflowInput).mockReturnValue({
       conversationHistory: undefined,
       userName: 'John Doe',
-      messageId,
-      userId: 'user-123',
-      chatId: 'chat-123',
       isFollowUp: true,
       isSlackFollowUp: true,
-      previousMessages: ['{"assumptions":["Previous assumption"]}'],
       datasets: '',
     });
-    mockWorkflowRun.start.mockResolvedValue({
-      status: 'success',
-      result: workflowOutput,
-    });
+    vi.mocked(postProcessingWorkflow).mockResolvedValue(workflowOutput);
 
     const result = await runTask({ messageId });
 
@@ -296,7 +288,7 @@ describe('messagePostProcessingTask', () => {
     );
   });
 
-  it('should return error result when workflow returns no output', async () => {
+  it('should handle workflow with minimal output', async () => {
     const messageId = '123e4567-e89b-12d3-a456-426614174000';
 
     vi.mocked(helpers.fetchMessageWithContext).mockResolvedValue({
@@ -326,31 +318,29 @@ describe('messagePostProcessingTask', () => {
     vi.mocked(helpers.buildWorkflowInput).mockReturnValue({
       conversationHistory: undefined,
       userName: 'John Doe',
-      messageId,
-      userId: 'user-123',
-      chatId: 'chat-123',
       isFollowUp: false,
       isSlackFollowUp: false,
-      previousMessages: [],
       datasets: '',
     });
-    mockWorkflowRun.start.mockResolvedValue({
-      status: 'failed',
-      result: null,
+    vi.mocked(postProcessingWorkflow).mockResolvedValue({
+      flagChatResult: {
+        type: 'noIssuesFound' as const,
+      },
+      assumptionsResult: {
+        toolCalled: 'none',
+      },
     });
 
     const result = await runTask({ messageId });
 
     expect(result).toEqual({
-      success: false,
+      success: true,
       messageId,
-      error: {
-        code: 'WORKFLOW_EXECUTION_ERROR',
-        message: 'Post-processing workflow returned no output',
-        details: {
-          operation: 'message_post_processing_task_execution',
-          messageId,
-        },
+      result: {
+        success: true,
+        messageId,
+        executionTimeMs: expect.any(Number),
+        workflowCompleted: true,
       },
     });
   });
@@ -408,25 +398,22 @@ describe('messagePostProcessingTask', () => {
     vi.mocked(helpers.buildWorkflowInput).mockReturnValue({
       conversationHistory: undefined,
       userName: 'John Doe',
-      messageId,
-      userId: 'user-123',
-      chatId: 'chat-123',
       isFollowUp: false,
       isSlackFollowUp: false,
-      previousMessages: [],
       datasets: '',
     });
-    mockWorkflowRun.start.mockResolvedValue({
-      status: 'success',
-      result: {
-        'format-initial-message': {
-          assumptions: [],
-          flagChatMessage: false,
-          toolCalled: false,
-          summaryTitle: 'Summary',
-          summaryMessage: 'Summary message',
-        },
+    vi.mocked(postProcessingWorkflow).mockResolvedValue({
+      assumptionsResult: {
+        assumptions: [],
+        toolCalled: 'analyze',
       },
+      flagChatResult: {
+        type: 'flagChat' as const,
+        summaryTitle: 'Summary',
+        summaryMessage: 'Summary message',
+        message: 'Summary message',
+      },
+      formattedMessage: 'Summary message',
     });
     mockDb.where.mockRejectedValue(dbError);
 

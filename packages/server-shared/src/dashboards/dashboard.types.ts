@@ -1,26 +1,49 @@
-import type { VerificationStatus } from '../share';
+import { z } from 'zod';
+import { VerificationStatusSchema } from '../share';
 
-export interface Dashboard {
-  config: DashboardConfig;
-  created_at: string;
-  created_by: string;
-  deleted_at: string | null;
-  description: string | null;
-  id: string;
-  name: string;
-  updated_at: string | null;
-  updated_by: string;
-  status: VerificationStatus;
-  version_number: number;
-  file: string; //yaml file
-  file_name: string;
-}
+// Dashboard Config Schema
+export const DashboardConfigSchema = z.object({
+  rows: z
+    .array(
+      z.object({
+        columnSizes: z.array(z.number().min(1).max(12)).optional(), // columns sizes 1 - 12. MUST add up to 12
+        rowHeight: z.number().optional(), // pixel based!
+        id: z.number(),
+        items: z.array(
+          z.object({
+            id: z.string(),
+          })
+        ),
+      })
+    )
+    .optional(),
+});
 
-export interface DashboardConfig {
-  rows?: {
-    columnSizes?: number[]; //columns sizes 1 - 12. MUST add up to 12
-    rowHeight?: number; //pixel based!
-    id: string;
-    items: { id: string }[];
-  }[];
-}
+// Dashboard Schema
+export const DashboardSchema = z.object({
+  config: DashboardConfigSchema,
+  created_at: z.string(),
+  created_by: z.string(),
+  deleted_at: z.string().nullable(),
+  description: z.string().nullable(),
+  id: z.string(),
+  name: z.string(),
+  updated_at: z.string().nullable(),
+  updated_by: z.string(),
+  status: VerificationStatusSchema,
+  version_number: z.number(),
+  file: z.string(), // yaml file
+  file_name: z.string(),
+});
+
+export const DashboardYmlSchema = z
+  .object({
+    name: z.string(),
+    description: z.string(),
+  })
+  .merge(DashboardConfigSchema);
+
+// Export inferred types
+export type DashboardConfig = z.infer<typeof DashboardConfigSchema>;
+export type Dashboard = z.infer<typeof DashboardSchema>;
+export type DashboardYml = z.infer<typeof DashboardYmlSchema>;
