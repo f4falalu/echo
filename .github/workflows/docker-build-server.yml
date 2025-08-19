@@ -9,13 +9,18 @@ on:
       - 'pnpm-lock.yaml'
       - '.github/workflows/docker-build-server.yml'
 
+# Only one build per branch at a time, queue others
+concurrency:
+  group: docker-build-${{ github.ref }}
+  cancel-in-progress: false  # Don't cancel, queue instead for deployments
+
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: buster-so/buster-server
 
 jobs:
   build-and-push:
-    runs-on: blacksmith-8vcpu-ubuntu-2204
+    runs-on: blacksmith-8vcpu-ubuntu-2404
     permissions:
       contents: read
       packages: write
@@ -56,6 +61,18 @@ jobs:
           key: ${{ github.repository }}-turbo-cache
           path: ./.turbo
       
+      - name: Mount npm cache sticky disk
+        uses: useblacksmith/stickydisk@v1
+        with:
+          key: ${{ github.repository }}-npm-cache
+          path: ~/.npm
+      
+      - name: Mount Docker buildkit sticky disk
+        uses: useblacksmith/stickydisk@v1
+        with:
+          key: ${{ github.repository }}-buildkit-cache
+          path: /tmp/.buildkit-cache
+      
       - name: Install dependencies
         run: |
           echo "📦 Installing dependencies with pnpm..."
@@ -79,18 +96,34 @@ jobs:
           ls -la dist/
           cd ../..
       
+      - name: Mount production deps sticky disk
+        uses: useblacksmith/stickydisk@v1
+        with:
+          key: ${{ github.repository }}-prod-deps-${{ github.ref_name }}
+          path: /tmp/prod-deps-cache
+      
       - name: Prepare production dependencies
         run: |
           echo "🧹 Preparing production-only dependencies..."
-          # Create a temporary directory for production deps
-          mkdir -p /tmp/prod-deps/apps/server
-          cp package.json pnpm-lock.yaml pnpm-workspace.yaml /tmp/prod-deps/
-          cp -r packages /tmp/prod-deps/
-          cp apps/server/package.json /tmp/prod-deps/apps/server/
+          # Use cached directory if it exists, otherwise create new
+          if [ -d "/tmp/prod-deps-cache/node_modules" ]; then
+            echo "Using cached production dependencies"
+            mkdir -p /tmp/prod-deps
+            cp -r /tmp/prod-deps-cache/* /tmp/prod-deps/ 2>/dev/null || true
+          else
+            echo "Building fresh production dependencies"
+            mkdir -p /tmp/prod-deps/apps/server
+            cp package.json pnpm-lock.yaml pnpm-workspace.yaml /tmp/prod-deps/
+            cp -r packages /tmp/prod-deps/
+            cp apps/server/package.json /tmp/prod-deps/apps/server/
+          fi
           
-          # Install production dependencies only
+          # Install/update production dependencies
           cd /tmp/prod-deps
           pnpm install --frozen-lockfile --prod --ignore-scripts --no-optional
+          
+          # Update cache
+          cp -r node_modules /tmp/prod-deps-cache/
           
           # Copy back to workspace
           cd -

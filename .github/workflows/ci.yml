@@ -3,18 +3,20 @@ name: CI
 on:
   pull_request:
 
+# Cancel in-progress runs when a new commit is pushed to the same PR
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 env:
   CI: true
-  TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
-  TURBO_TEAM: ${{ vars.TURBO_TEAM }}
-  TURBO_REMOTE_ONLY: true
 
 jobs:
-  ci:
-    name: Build, Lint & Test
-    runs-on: blacksmith-4vcpu-ubuntu-2404
-    timeout-minutes: 30
-
+  # First, install dependencies once and cache them
+  install:
+    name: Install Dependencies
+    runs-on: blacksmith-2vcpu-ubuntu-2404
+    timeout-minutes: 5
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -30,7 +32,6 @@ jobs:
         uses: useblacksmith/setup-node@v5
         with:
           node-version: 22
-          # Remove cache here since we're using stickydisk for pnpm store
           
       - name: Get pnpm store directory
         shell: bash
@@ -43,11 +44,11 @@ jobs:
           key: ${{ github.repository }}-pnpm-store
           path: ${{ env.STORE_PATH }}
 
-      - name: Mount Turbo cache sticky disk
+      - name: Mount node_modules sticky disk
         uses: useblacksmith/stickydisk@v1
         with:
-          key: ${{ github.repository }}-turbo-cache
-          path: ./.turbo
+          key: ${{ github.repository }}-pr-${{ github.event.pull_request.number }}-node-modules
+          path: ./node_modules
 
       - name: Check if lockfile changed
         id: lockfile-check
@@ -65,13 +66,151 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile --prefer-offline
 
+  # Build job - runs in parallel
+  build:
+    name: Build
+    needs: install
+    runs-on: blacksmith-4vcpu-ubuntu-2404
+    timeout-minutes: 10
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 9.15.0
+
+      - name: Setup Node.js
+        uses: useblacksmith/setup-node@v5
+        with:
+          node-version: 22
+
+      - name: Get pnpm store directory
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+
+      - name: Mount pnpm store sticky disk
+        uses: useblacksmith/stickydisk@v1
+        with:
+          key: ${{ github.repository }}-pnpm-store
+          path: ${{ env.STORE_PATH }}
+
+      - name: Mount node_modules sticky disk
+        uses: useblacksmith/stickydisk@v1
+        with:
+          key: ${{ github.repository }}-pr-${{ github.event.pull_request.number }}-node-modules
+          path: ./node_modules
+
+      - name: Mount Turbo cache sticky disk
+        uses: useblacksmith/stickydisk@v1
+        with:
+          key: ${{ github.repository }}-turbo-cache
+          path: ./.turbo
+
+      - name: Install dependencies (from sticky disk)
+        run: pnpm install --frozen-lockfile --prefer-offline
+
       - name: Build all packages (excluding web)
         run: pnpm build --filter='!@buster-app/web'
         env:
           NODE_ENV: production
 
+  # Lint job - runs in parallel
+  lint:
+    name: Lint
+    needs: install
+    runs-on: blacksmith-2vcpu-ubuntu-2404
+    timeout-minutes: 5
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 9.15.0
+
+      - name: Setup Node.js
+        uses: useblacksmith/setup-node@v5
+        with:
+          node-version: 22
+
+      - name: Get pnpm store directory
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+
+      - name: Mount pnpm store sticky disk
+        uses: useblacksmith/stickydisk@v1
+        with:
+          key: ${{ github.repository }}-pnpm-store
+          path: ${{ env.STORE_PATH }}
+
+      - name: Mount node_modules sticky disk
+        uses: useblacksmith/stickydisk@v1
+        with:
+          key: ${{ github.repository }}-pr-${{ github.event.pull_request.number }}-node-modules
+          path: ./node_modules
+
+      - name: Mount Turbo cache sticky disk
+        uses: useblacksmith/stickydisk@v1
+        with:
+          key: ${{ github.repository }}-turbo-cache
+          path: ./.turbo
+
+      - name: Install dependencies (from sticky disk)
+        run: pnpm install --frozen-lockfile --prefer-offline
+
       - name: Lint all packages (excluding web)
         run: pnpm lint --filter='!@buster-app/web'
+
+  # Test job - runs in parallel
+  test:
+    name: Test
+    needs: install
+    runs-on: blacksmith-4vcpu-ubuntu-2404
+    timeout-minutes: 15
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 9.15.0
+
+      - name: Setup Node.js
+        uses: useblacksmith/setup-node@v5
+        with:
+          node-version: 22
+
+      - name: Get pnpm store directory
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+
+      - name: Mount pnpm store sticky disk
+        uses: useblacksmith/stickydisk@v1
+        with:
+          key: ${{ github.repository }}-pnpm-store
+          path: ${{ env.STORE_PATH }}
+
+      - name: Mount node_modules sticky disk
+        uses: useblacksmith/stickydisk@v1
+        with:
+          key: ${{ github.repository }}-pr-${{ github.event.pull_request.number }}-node-modules
+          path: ./node_modules
+
+      - name: Mount Turbo cache sticky disk
+        uses: useblacksmith/stickydisk@v1
+        with:
+          key: ${{ github.repository }}-turbo-cache
+          path: ./.turbo
+
+      - name: Install dependencies (from sticky disk)
+        run: pnpm install --frozen-lockfile --prefer-offline
 
       - name: Run all unit tests (excluding web)
         run: pnpm test:unit --filter='!@buster-app/web'
@@ -85,3 +224,24 @@ jobs:
             **/coverage/**
             !**/coverage/tmp/**
           retention-days: 7
+
+  # Final status check - ensures all parallel jobs pass
+  ci-status:
+    name: CI Status
+    needs: [build, lint, test]
+    runs-on: blacksmith-2vcpu-ubuntu-2404
+    if: always()
+    timeout-minutes: 1
+    steps:
+      - name: Check CI Status
+        run: |
+          if [[ "${{ needs.build.result }}" != "success" || 
+                "${{ needs.lint.result }}" != "success" || 
+                "${{ needs.test.result }}" != "success" ]]; then
+            echo "❌ CI failed"
+            echo "Build: ${{ needs.build.result }}"
+            echo "Lint: ${{ needs.lint.result }}"
+            echo "Test: ${{ needs.test.result }}"
+            exit 1
+          fi
+          echo "✅ All CI checks passed!"
