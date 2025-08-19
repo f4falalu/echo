@@ -12,9 +12,6 @@ on:
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: buster-so/buster-server
-  TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
-  TURBO_TEAM: ${{ vars.TURBO_TEAM }}
-  TURBO_REMOTE_ONLY: true
 
 jobs:
   build-and-push:
@@ -49,12 +46,6 @@ jobs:
         with:
           key: ${{ github.repository }}-docker-pnpm-store
           path: ${{ env.STORE_PATH }}
-      
-      - name: Mount Turbo cache sticky disk
-        uses: useblacksmith/stickydisk@v1
-        with:
-          key: ${{ github.repository }}-docker-turbo-cache
-          path: ./.turbo
       
       - name: Set up Docker Builder with Blacksmith cache
         uses: useblacksmith/setup-docker-builder@v1
@@ -96,8 +87,6 @@ jobs:
             org.opencontainers.image.created=${{ steps.meta.outputs.timestamp }}
             org.opencontainers.image.ref.name=${{ github.ref_name }}
           build-args: |
-            TURBO_TOKEN=${{ secrets.TURBO_TOKEN }}
-            TURBO_TEAM=${{ vars.TURBO_TEAM }}
             COMMIT_SHA=${{ steps.meta.outputs.sha_short }}
             BUILD_DATE=${{ steps.meta.outputs.timestamp }}
       

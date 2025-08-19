@@ -33,8 +33,6 @@ RUN npm install -g bun@1.2.15
 # Set build environment
 ENV DOCKER_BUILD=true
 ENV CI=true
-ARG TURBO_TOKEN
-ARG TURBO_TEAM
 ARG COMMIT_SHA
 ARG BUILD_DATE
 
@@ -46,14 +44,9 @@ COPY --from=deps /app/apps/server/node_modules ./apps/server/node_modules
 # Copy all source files
 COPY . .
 
-# Build with Turbo (uses remote cache if available)
-RUN if [ -n "$TURBO_TOKEN" ] && [ -n "$TURBO_TEAM" ]; then \
-      echo "Building with Turbo remote cache" && \
-      turbo run build --filter=@buster-app/server; \
-    else \
-      echo "Building without Turbo remote cache" && \
-      turbo run build --filter=@buster-app/server --force; \
-    fi
+# Build with Turbo (Docker layer caching will cache this step)
+RUN echo "Building with Turbo..." && \
+    turbo run build --filter=@buster-app/server
 
 # Build the final server bundle
 WORKDIR /app/apps/server
