@@ -30,7 +30,6 @@ export const getMetric = async (params: GetMetricRequest): Promise<GetMetricResp
       params,
     })
     .then((res) => {
-      console.log('getMetric res', typeof window !== 'undefined');
       return res.data;
     });
 };

@@ -6,22 +6,19 @@ import {
   useParams,
   useSearch,
 } from '@tanstack/react-router';
-import { z } from 'zod';
 import { getTitle as getAssetTitle } from '@/api/buster_rest/title';
+import { getAssetIdAndVersionNumber } from '@/context/BusterAssets/getAssetIdAndVersionNumberServer';
+import { useGetAssetPasswordConfig } from '@/context/BusterAssets/useGetAssetPasswordConfig';
 import { AppAssetCheckLayout, type AppAssetCheckLayoutProps } from '@/layouts/AppAssetCheckLayout';
-import { getAssetIdAndVersionNumber } from '@/layouts/AppAssetCheckLayout/preloadAsset';
 
 export const Route = createFileRoute('/app/_app/_asset')({
   component: RouteComponent,
-  loaderDeps: ({ search }) => {
-    return search;
-  },
-  context: () => ({
-    getAssetTitle,
-  }),
+  loaderDeps: ({ search }) => ({ search }),
+  context: () => ({ getAssetTitle }),
   beforeLoad: async ({ matches }) => {
     const assetType = [...matches].reverse().find(({ staticData }) => staticData?.assetType)
       ?.staticData?.assetType as AssetType;
+    console.log('assetType', assetType);
     return {
       assetType,
     };
@@ -34,11 +31,15 @@ function RouteComponent() {
   const params = useParams({ strict: false });
   const search = useSearch({ strict: false });
   const { assetId, versionNumber } = getAssetIdAndVersionNumber(assetType, params, search);
+  const passwordConfig = useGetAssetPasswordConfig(assetId, assetType, versionNumber);
+  console.log('assetType', assetType);
+  console.log('assetId', assetId);
 
   const containerParams: AppAssetCheckLayoutProps = {
     assetId,
     type: assetType,
     versionNumber,
+    ...passwordConfig,
   };
 
   return (

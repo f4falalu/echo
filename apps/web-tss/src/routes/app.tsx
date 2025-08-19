@@ -3,6 +3,7 @@ import { prefetchGetUserFavorites } from '@/api/buster_rest/users/favorites/quer
 import { prefetchGetMyUserInfo } from '@/api/buster_rest/users/queryRequests';
 import { getAppLayout } from '@/api/server-functions/getAppLayout';
 import { AppProviders } from '@/context/Providers';
+import { embedAssetToRegularAsset } from '@/context/Routes/embedAssetToRegularAsset';
 import type { LayoutSize } from '../components/ui/layouts/AppLayout';
 
 const PRIMARY_APP_LAYOUT_ID = 'primary-sidebar';
@@ -14,6 +15,13 @@ export const Route = createFileRoute('/app')({
     const isAnonymous = context.user?.is_anonymous;
 
     if (!hasUser || isAnonymous) {
+      const isAssetRoute = matches.some((match) => match.routeId === '/app/_app/_asset');
+      if (isAssetRoute) {
+        const route = embedAssetToRegularAsset(matches);
+        if (route) {
+          throw redirect(route);
+        }
+      }
       throw redirect({ to: '/auth/login' });
     }
 

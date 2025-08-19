@@ -1,35 +1,11 @@
 import { createFileRoute } from '@tanstack/react-router';
-import { z } from 'zod';
-
-const searchParamsSchema = z.object({
-  metric_version_number: z.coerce.number().optional(),
-});
+import * as metricServerContext from '@/context/BusterAssets/metric-server/metricIndexServerAssetContext';
 
 export const Route = createFileRoute(
   '/app/_app/_asset/collections/$collectionId/chats/$chatId/metrics/$metricId'
 )({
-  staticData: {
-    assetType: 'metric',
-  },
-  loader: async ({ params, context }) => {
-    const title = await context.getAssetTitle({
-      assetId: params.metricId,
-      assetType: 'metric',
-    });
-    return {
-      title,
-    };
-  },
-  head: ({ loaderData }) => ({
-    meta: [
-      { title: loaderData?.title || 'Collection Chat Metric' },
-      { name: 'description', content: 'View metric within collection chat context' },
-      { name: 'og:title', content: 'Collection Chat Metric' },
-      { name: 'og:description', content: 'View metric within collection chat context' },
-    ],
-  }),
-  validateSearch: searchParamsSchema,
   component: RouteComponent,
+  ...metricServerContext,
 });
 
 function RouteComponent() {

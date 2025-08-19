@@ -1,27 +1,11 @@
 import { createFileRoute } from '@tanstack/react-router';
+import * as reportServerContext from '@/context/BusterAssets/reportServerAssetContext';
 
 export const Route = createFileRoute(
   '/app/_app/_asset/collections/$collectionId/reports/$reportId'
 )({
-  staticData: {
-    assetType: 'report',
-  },
+  ...reportServerContext,
   component: RouteComponent,
-  loader: async ({ params, context }) => {
-    const title = await context.getAssetTitle({
-      assetId: params.reportId,
-      assetType: 'report',
-    });
-    return { title };
-  },
-  head: ({ loaderData }) => ({
-    meta: [
-      { title: loaderData?.title || 'Collection Report' },
-      { name: 'description', content: 'View report within collection context' },
-      { name: 'og:title', content: 'Collection Report' },
-      { name: 'og:description', content: 'View report within collection context' },
-    ],
-  }),
 });
 
 function RouteComponent() {

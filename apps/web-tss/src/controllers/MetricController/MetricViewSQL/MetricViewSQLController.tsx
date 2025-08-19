@@ -12,8 +12,9 @@ import { useMetricRunSQL } from './useMetricRunSQL';
 
 export const MetricViewSQLController: React.FC<{
   metricId: string;
+  versionNumber: number | undefined;
   initialLayout: LayoutSize | null;
-}> = React.memo(({ metricId, initialLayout }) => {
+}> = React.memo(({ metricId, versionNumber, initialLayout }) => {
   const appSplitterRef = React.useRef<AppSplitterRef>(null);
   const containerRef = React.useRef<HTMLDivElement>(null);
 
@@ -32,7 +33,7 @@ export const MetricViewSQLController: React.FC<{
   } = useMetricRunSQL();
 
   const { data: metric } = useGetMetric(
-    { id: metricId },
+    { id: metricId, versionNumber },
     {
       select: ({ sql, data_source_id }) => ({
         sql,
@@ -41,7 +42,7 @@ export const MetricViewSQLController: React.FC<{
     }
   );
   const { data: metricData, isFetched: isFetchedInitialData } = useGetMetricData(
-    { id: metricId },
+    { id: metricId, versionNumber },
     { enabled: false }
   );
 

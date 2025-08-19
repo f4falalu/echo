@@ -1,5 +1,6 @@
 'use client';
 
+import type { AssetType } from '@buster/server-shared/assets';
 import { Link } from '@tanstack/react-router';
 import React, { useMemo } from 'react';
 import { BusterLogo } from '@/assets/svg/BusterLogo';
@@ -7,11 +8,12 @@ import { Button } from '@/components/ui/buttons';
 import { Title } from '@/components/ui/typography';
 import { useSupabaseContext } from '@/context/Supabase';
 import type { OptionsTo } from '@/types/routes';
-import { useGetEmbedAssetToRegularAsset } from '../context/Routes/useGetEmbedAssetToRegularAsset';
 
-export const AppNoPageAccess: React.FC = React.memo(() => {
+export const AppNoPageAccess: React.FC<{
+  assetId: string;
+  type: AssetType;
+}> = React.memo(({ type }) => {
   const isAnonymousUser = useSupabaseContext((x) => x.isAnonymousUser);
-  const getEmbedAssetToRegularAsset = useGetEmbedAssetToRegularAsset();
 
   const { buttonText, link } = useMemo((): {
     buttonText: string;
@@ -50,9 +52,9 @@ export const AppNoPageAccess: React.FC = React.memo(() => {
     <div className="flex h-[85vh] w-full flex-col items-center justify-center space-y-6">
       <BusterLogo className="h-16 w-16" />
 
-      <div className="max-w-[440px] text-center">
+      <div className="max-w-[550px] text-center">
         <Title as="h2" className="text-center">
-          {"It looks like you don't have access to this file..."}
+          {`It looks like you don't have access to this ${type}...`}
         </Title>
       </div>
 

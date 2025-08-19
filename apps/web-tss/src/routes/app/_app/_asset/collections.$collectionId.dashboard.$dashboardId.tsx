@@ -1,5 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { z } from 'zod';
+import * as dashboardServerContext from '@/context/BusterAssets/dashboardServerAssetContext';
 
 const searchParamsSchema = z.object({
   dashboard_version_number: z.coerce.number().optional(),
@@ -8,27 +9,7 @@ const searchParamsSchema = z.object({
 export const Route = createFileRoute(
   '/app/_app/_asset/collections/$collectionId/dashboard/$dashboardId'
 )({
-  staticData: {
-    assetType: 'dashboard',
-  },
-  loader: async ({ params, context }) => {
-    const title = await context.getAssetTitle({
-      assetId: params.dashboardId,
-      assetType: 'dashboard',
-    });
-    return {
-      title,
-    };
-  },
-  head: ({ loaderData }) => ({
-    meta: [
-      { title: loaderData?.title || 'Collection Dashboard' },
-      { name: 'description', content: 'View dashboard within collection context' },
-      { name: 'og:title', content: 'Collection Dashboard' },
-      { name: 'og:description', content: 'View dashboard within collection context' },
-    ],
-  }),
-  validateSearch: searchParamsSchema,
+  ...dashboardServerContext,
   component: RouteComponent,
 });
 

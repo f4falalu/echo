@@ -27,33 +27,41 @@ const stableMetricSelect = ({
   evaluation_summary,
   version_number,
   versions,
-}: BusterMetric) => {
-  return {
-    name,
-    description,
-    time_frame,
-    permission,
-    evaluation_score,
-    evaluation_summary,
-    chart_config,
-    version_number,
-    versions,
-  };
-};
+}: BusterMetric) => ({
+  name,
+  description,
+  time_frame,
+  permission,
+  evaluation_score,
+  evaluation_summary,
+  chart_config,
+  version_number,
+  versions,
+});
 
 export const MetricViewChart: React.FC<{
   metricId: string;
+  versionNumber?: number;
   readOnly?: boolean;
   className?: string;
   cardClassName?: string;
 }> = React.memo(
-  ({ metricId, readOnly: readOnlyProp = false, className = '', cardClassName = '' }) => {
-    const { data: metric } = useGetMetric({ id: metricId }, { select: stableMetricSelect });
+  ({
+    metricId,
+    versionNumber,
+    readOnly: readOnlyProp = false,
+    className = '',
+    cardClassName = '',
+  }) => {
+    const { data: metric } = useGetMetric(
+      { id: metricId, versionNumber },
+      { select: stableMetricSelect }
+    );
     const {
       data: metricData,
       isFetched: isFetchedMetricData,
       error: metricDataError,
-    } = useGetMetricData({ id: metricId }, { enabled: false });
+    } = useGetMetricData({ id: metricId, versionNumber }, { enabled: false });
 
     const { onUpdateMetricName } = useUpdateMetricChart({ metricId });
     const { name, description, time_frame, evaluation_score, evaluation_summary } = metric || {};

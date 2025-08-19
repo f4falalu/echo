@@ -1,13 +1,12 @@
 import { createFileRoute } from '@tanstack/react-router';
-import { z } from 'zod';
+import omit from 'lodash/omit';
+import * as metricServerContext from '@/context/BusterAssets/metric-server/metricIndexServerAssetContext';
 
-const searchParamsSchema = z.object({
-  metric_version_number: z.coerce.number().optional(),
-});
+const metricEmbedContext = omit(metricServerContext, ['beforeLoad']);
 
 export const Route = createFileRoute('/embed/metric/$metricId')({
+  ...metricEmbedContext,
   component: RouteComponent,
-  validateSearch: searchParamsSchema,
 });
 
 function RouteComponent() {

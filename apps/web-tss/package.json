@@ -104,7 +104,7 @@
     "monaco-editor": "^0.52.2",
     "monaco-sql-languages": "^0.15.1",
     "monaco-yaml": "^5.4.0",
-    "msw": "^2.10.4",
+    "msw": "^2.10.5",
     "mutative": "^1.2.0",
     "pluralize": "^8.0.0",
     "posthog-js": "^1.260.1",
