@@ -125,7 +125,11 @@
     "R2_BUCKET",
 
     "PLAYWRIGHT_START_COMMAND",
-    "DAYTONA_API_KEY"
+    "DAYTONA_API_KEY",
+
+    "SLACK_CLIENT_ID",
+    "SLACK_CLIENT_SECRET",
+    "SLACK_SIGNING_SECRET"
   ],
   "envMode": "strict"
 }
