@@ -3,6 +3,7 @@
 
 import './MonacoWebWorker';
 
+import { Editor } from '@monaco-editor/react';
 import type { editor } from 'monaco-editor/esm/vs/editor/editor.api';
 import type React from 'react';
 import { forwardRef, useCallback, useMemo } from 'react';
@@ -13,10 +14,6 @@ import { configureMonacoToUseYaml } from './yamlHelper';
 //import GithubLightTheme from 'monaco-themes/themes/Github Light.json';
 //import NightOwnTheme from 'monaco-themes/themes/Night Owl.json';
 //https://github.com/brijeshb42/monaco-ace-tokenizer
-
-import { lazy, Suspense } from 'react';
-
-const Editor = lazy(() => import('@monaco-editor/react').then((m) => ({ default: m.Editor })));
 
 interface AppCodeEditorProps {
   className?: string;
@@ -156,20 +153,18 @@ export const AppCodeEditor = forwardRef<AppCodeEditorHandle, AppCodeEditorProps>
         )}
         style={style}
       >
-        <Suspense fallback={<LoadingContainer />}>
-          <Editor
-            key={useDarkMode ? 'dark' : 'light'}
-            height={height}
-            language={language}
-            className={className}
-            defaultValue={defaultValue}
-            value={value}
-            theme={useDarkMode ? 'night-owl' : 'github-light'}
-            onMount={onMountCodeEditor}
-            onChange={onChangeCodeEditor}
-            options={memoizedMonacoEditorOptions}
-          />
-        </Suspense>
+        <Editor
+          key={useDarkMode ? 'dark' : 'light'}
+          height={height}
+          language={language}
+          className={className}
+          defaultValue={defaultValue}
+          value={value}
+          theme={useDarkMode ? 'night-owl' : 'github-light'}
+          onMount={onMountCodeEditor}
+          onChange={onChangeCodeEditor}
+          options={memoizedMonacoEditorOptions}
+        />
       </div>
     );
   }

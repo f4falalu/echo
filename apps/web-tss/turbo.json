@@ -14,7 +14,7 @@
           "tsconfig.json",
           "package.json"
         ],
-        "outputs": [".next/**", "!.next/cache/**"]
+        "outputs": [".output/**"]
       },
       "test": {
         "inputs": [

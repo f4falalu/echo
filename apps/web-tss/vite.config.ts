@@ -37,12 +37,12 @@ const config = defineConfig(({ command, mode }) => {
         output: {
           // Force lodash and lodash-es into a dedicated vendor chunk
           manualChunks(id) {
-            // if (id.includes('node_modules/lodash')) {
-            //   return 'vendor-lodash';
-            // }
-            // if (id.includes('node_modules/lodash-es')) {
-            //   return 'vendor-lodash';
-            // }
+            if (id.includes('node_modules/lodash')) {
+              return 'vendor-lodash';
+            }
+            if (id.includes('node_modules/lodash-es')) {
+              return 'vendor-lodash';
+            }
             // // Move supabase modules to their own chunk
             if (id.includes('node_modules/@supabase')) {
               return 'vendor-supabase';
@@ -50,9 +50,12 @@ const config = defineConfig(({ command, mode }) => {
             if (id.includes('zod')) {
               return 'vendor-zod';
             }
-            // if (id.includes('@tanstack')) {
-            //   return 'vendor-tanstack';
-            // }
+            if (id.includes('monaco-editor')) {
+              return 'vendor-monaco-editor';
+            }
+            if (id.includes('@tanstack')) {
+              return 'vendor-tanstack';
+            }
           },
         },
       },
