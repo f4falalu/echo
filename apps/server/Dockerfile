@@ -1,52 +1,56 @@
-# Ultra-fast Dockerfile using published base image
+# Fresh build Dockerfile without caching layers
 # ================================================================
-# Prerequisites: Pull the published base image:
-# docker pull ghcr.io/buster-so/server-base:latest
-# 
 # This Dockerfile handles:
-# - Incremental dependency updates (new versions since base was built)
-# - Source code building
+# - Fresh dependency installation (no cached base image)
+# - Source code building  
 # - Production runtime
 
-FROM ghcr.io/buster-so/server-base:latest AS builder
-# Note: Base image already has tools (node, pnpm, bun) + most dependencies
+FROM node:22-alpine AS builder
+WORKDIR /app
+
+# Install pnpm and bun
+RUN corepack enable && corepack prepare pnpm@latest --activate
+RUN npm install -g bun@1.2.15
 
 # Set build environment to skip runtime validation
 ENV DOCKER_BUILD=true
 ENV CI=true
 
-RUN echo "=== ULTRA-FAST BUILD START ==="
+RUN echo "=== FRESH BUILD START ==="
 
-# Update package files (in case they changed since base was built)
+# Copy all package files for fresh install
 COPY package.json pnpm-lock.yaml* turbo.json* pnpm-workspace.yaml* ./
 COPY packages/ ./packages/
 COPY apps/server/ ./apps/server/
 
-# Incremental install - only installs NEW/UPDATED packages since base
-# Force reinstall to ensure all dependencies are properly linked
+# Fresh install - no caching, clean install every time
 RUN START=$(date +%s) && \
-    echo "=== Starting incremental dependency update ===" && \
+    echo "=== Starting fresh dependency installation ===" && \
     rm -rf node_modules && \
-    time pnpm install --frozen-lockfile --ignore-scripts && \
+    rm -rf ~/.pnpm-store && \
+    time pnpm install --frozen-lockfile --ignore-scripts --no-optional && \
     END=$(date +%s) && \
-    echo "Finished dependency update in $((END - START)) seconds"
+    echo "Finished fresh dependency installation in $((END - START)) seconds"
 
+# Force fresh turbo build without cache
 RUN START=$(date +%s) && \
-    echo "=== Starting turbo build ===" && \
-    time turbo run build --filter=@buster-app/server && \
+    echo "=== Starting fresh turbo build ===" && \
+    rm -rf .turbo && \
+    time turbo run build --filter=@buster-app/server --force && \
     END=$(date +%s) && \
-    echo "Finished turbo build in $((END - START)) seconds"
+    echo "Finished fresh turbo build in $((END - START)) seconds"
 
 
-# Build the application (fast with bun)
+# Build the application (fresh bun build)
 RUN START=$(date +%s) && \
-    echo "=== Starting application build ===" && \
+    echo "=== Starting fresh application build ===" && \
     cd apps/server && \
+    rm -rf dist && \
     time bun build src/index.ts --outdir ./dist --target bun --external pino-pretty && \
     echo "Build complete - output:" && \
     ls -la dist/ && \
     END=$(date +%s) && \
-    echo "Finished application build in $((END - START)) seconds"
+    echo "Finished fresh application build in $((END - START)) seconds"
 
 # Production runtime (minimal bun image)
 FROM oven/bun:1.2.15-alpine AS runtime
@@ -65,9 +69,9 @@ COPY --from=builder --chown=bunuser:bunuser /app/apps/server/package.json ./
 COPY --from=builder --chown=bunuser:bunuser /app/node_modules ./node_modules
 
 # Show final stats
-RUN echo "=== Final production image prepared ===" && \
+RUN echo "=== Fresh production image prepared ===" && \
     du -sh /app && \
-    echo "Ready to run!"
+    echo "Ready to run with no cached artifacts!"
 
 USER bunuser
 EXPOSE 3002
