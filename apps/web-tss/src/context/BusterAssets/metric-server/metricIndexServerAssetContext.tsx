@@ -1,9 +1,8 @@
 import type { AssetType } from '@buster/server-shared/assets';
 import type { QueryClient } from '@tanstack/react-query';
-import { MatchRoute, redirect } from '@tanstack/react-router';
+import { Outlet, redirect } from '@tanstack/react-router';
 import { z } from 'zod';
 import { prefetchGetMetric } from '@/api/buster_rest/metrics';
-import type { AppRouterContext } from '@/router';
 import type { FileRouteTypes } from '@/routeTree.gen';
 
 export const validateSearch = z.object({
@@ -68,3 +67,7 @@ export const head = ({ loaderData }: { loaderData?: { title: string | undefined 
     { name: 'og:description', content: 'View detailed metric analysis and insights' },
   ],
 });
+
+export const component = () => {
+  return <Outlet />;
+};

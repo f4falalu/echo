@@ -18,7 +18,6 @@ export const Route = createFileRoute('/app/_app/_asset')({
   beforeLoad: async ({ matches }) => {
     const assetType = [...matches].reverse().find(({ staticData }) => staticData?.assetType)
       ?.staticData?.assetType as AssetType;
-    console.log('assetType', assetType);
     return {
       assetType,
     };
@@ -32,8 +31,6 @@ function RouteComponent() {
   const search = useSearch({ strict: false });
   const { assetId, versionNumber } = getAssetIdAndVersionNumber(assetType, params, search);
   const passwordConfig = useGetAssetPasswordConfig(assetId, assetType, versionNumber);
-  console.log('assetType', assetType);
-  console.log('assetId', assetId);
 
   const containerParams: AppAssetCheckLayoutProps = {
     assetId,
