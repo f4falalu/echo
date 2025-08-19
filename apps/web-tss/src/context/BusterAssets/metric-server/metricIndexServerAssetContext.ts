@@ -1,12 +1,6 @@
 import type { AssetType } from '@buster/server-shared/assets';
 import type { QueryClient } from '@tanstack/react-query';
-import {
-  type AnyRoute,
-  type BeforeLoadContextOptions,
-  type BeforeLoadContextParameter,
-  type BeforeLoadFn,
-  redirect,
-} from '@tanstack/react-router';
+import { MatchRoute, redirect } from '@tanstack/react-router';
 import { z } from 'zod';
 import { prefetchGetMetric } from '@/api/buster_rest/metrics';
 import type { AppRouterContext } from '@/router';
@@ -26,7 +20,7 @@ export const beforeLoad: any = async ({
   params,
   search,
 }: {
-  matches: { routeId: FileRouteTypes['id'] }[];
+  matches: { routeId: FileRouteTypes['id']; fullPath: FileRouteTypes['fullPaths'] }[];
   params: {
     metricId: string;
   };
@@ -40,7 +34,8 @@ export const beforeLoad: any = async ({
   if (isIndexRoute) {
     throw redirect({
       //relative path required the use of as...
-      to: './chart' as '/app/metrics/$metricId/chart',
+      from: lastMatch.fullPath,
+      to: './chart',
       params,
       search,
     });

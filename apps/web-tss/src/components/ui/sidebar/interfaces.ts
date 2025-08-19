@@ -1,9 +1,4 @@
-import type {
-  ActiveOptions,
-  LinkProps,
-  RegisteredRouter,
-  ValidateLinkOptions,
-} from '@tanstack/react-router';
+import type { LinkProps, RegisteredRouter } from '@tanstack/react-router';
 import type React from 'react';
 import type { LinkOptionsTo, OptionsTo } from '@/types/routes';
 

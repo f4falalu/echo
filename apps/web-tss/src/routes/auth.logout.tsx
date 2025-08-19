@@ -13,6 +13,6 @@ export const Route = createFileRoute('/auth/logout')({
   preload: false,
   loader: async () => {
     await signOut();
-    redirect({ to: '/auth/login' });
+    throw redirect({ to: '/auth/login' });
   },
 });
