@@ -88,34 +88,18 @@ jobs:
           ls -la dist/
           cd ../..
       
-      - name: Mount production deps sticky disk
-        uses: useblacksmith/stickydisk@v1
-        with:
-          key: ${{ github.repository }}-prod-deps-${{ github.ref_name }}
-          path: /tmp/prod-deps-cache
-      
       - name: Prepare production dependencies
         run: |
           echo "🧹 Preparing production-only dependencies..."
-          # Use cached directory if it exists, otherwise create new
-          if [ -d "/tmp/prod-deps-cache/node_modules" ]; then
-            echo "Using cached production dependencies"
-            mkdir -p /tmp/prod-deps
-            cp -r /tmp/prod-deps-cache/* /tmp/prod-deps/ 2>/dev/null || true
-          else
-            echo "Building fresh production dependencies"
-            mkdir -p /tmp/prod-deps/apps/server
-            cp package.json pnpm-lock.yaml pnpm-workspace.yaml /tmp/prod-deps/
-            cp -r packages /tmp/prod-deps/
-            cp apps/server/package.json /tmp/prod-deps/apps/server/
-          fi
+          # Create a temporary directory for production deps
+          mkdir -p /tmp/prod-deps/apps/server
+          cp package.json pnpm-lock.yaml pnpm-workspace.yaml /tmp/prod-deps/
+          cp -r packages /tmp/prod-deps/
+          cp apps/server/package.json /tmp/prod-deps/apps/server/
           
-          # Install/update production dependencies
+          # Install production dependencies only
           cd /tmp/prod-deps
           pnpm install --frozen-lockfile --prod --ignore-scripts --no-optional
-          
-          # Update cache
-          cp -r node_modules /tmp/prod-deps-cache/
           
           # Copy back to workspace
           cd -
