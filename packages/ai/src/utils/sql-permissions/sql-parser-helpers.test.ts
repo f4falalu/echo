@@ -426,7 +426,7 @@ models:
       const sql = 'SELECT * FROM users';
       const result = validateWildcardUsage(sql);
       expect(result.isValid).toBe(false);
-      expect(result.error).toContain("You're not allowed to use a wildcard on physical tables");
+      expect(result.error).toContain('SELECT * is not allowed on physical tables');
       expect(result.blockedTables).toContain('users');
     });
 
@@ -434,8 +434,8 @@ models:
       const sql = 'SELECT u.* FROM users u';
       const result = validateWildcardUsage(sql);
       expect(result.isValid).toBe(false);
-      expect(result.error).toContain("You're not allowed to use a wildcard on physical tables");
-      expect(result.blockedTables).toContain('u');
+      expect(result.error).toContain('SELECT * is not allowed on physical tables');
+      expect(result.blockedTables).toContain('users');
     });
 
     it('should allow wildcard on CTE', () => {
@@ -470,7 +470,7 @@ models:
       `;
       const result = validateWildcardUsage(sql);
       expect(result.isValid).toBe(false);
-      expect(result.error).toContain("You're not allowed to use a wildcard on physical tables");
+      expect(result.error).toContain('SELECT * is not allowed on physical tables');
       expect(result.blockedTables).toContain('users');
     });
 
@@ -494,7 +494,7 @@ models:
       `;
       const result = validateWildcardUsage(sql);
       expect(result.isValid).toBe(false);
-      expect(result.blockedTables).toContain('u');
+      expect(result.blockedTables).toContain('users');
     });
 
     it('should allow explicit column selection', () => {
@@ -507,14 +507,14 @@ models:
       const sql = 'SELECT u.*, o.* FROM users u JOIN orders o ON u.id = o.user_id';
       const result = validateWildcardUsage(sql);
       expect(result.isValid).toBe(false);
-      expect(result.blockedTables).toEqual(expect.arrayContaining(['u', 'o']));
+      expect(result.blockedTables).toEqual(expect.arrayContaining(['users', 'orders']));
     });
 
     it('should handle schema-qualified tables', () => {
       const sql = 'SELECT * FROM public.users';
       const result = validateWildcardUsage(sql);
       expect(result.isValid).toBe(false);
-      expect(result.error).toContain("You're not allowed to use a wildcard on physical tables");
+      expect(result.error).toContain('SELECT * is not allowed on physical tables');
     });
 
     it('should handle invalid SQL gracefully', () => {

@@ -8,9 +8,14 @@ export {
   urlVerificationSchema,
   slackRequestHeadersSchema,
   appMentionEventSchema,
+  messageImEventSchema,
   eventCallbackSchema,
   slackEventEnvelopeSchema,
   slackWebhookPayloadSchema,
+  isUrlVerification,
+  isEventCallback,
+  isAppMentionEvent,
+  isMessageImEvent,
 } from './types/webhooks';
 
 // Services

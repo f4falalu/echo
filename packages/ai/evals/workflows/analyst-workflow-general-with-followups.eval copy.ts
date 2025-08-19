@@ -1,6 +1,8 @@
 import { RuntimeContext } from '@mastra/core/runtime-context';
 import { Eval, initDataset, initLogger } from 'braintrust';
-import analystWorkflow, { type AnalystRuntimeContext } from '../../src/workflows/analyst-workflow';
+import analystWorkflow, {
+  type AnalystRuntimeContext,
+} from '../../src/workflows/analyst-agent-workflow/analyst-workflow';
 
 initLogger({
   apiKey: process.env.BRAINTRUST_KEY,

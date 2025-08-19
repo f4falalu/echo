@@ -8,17 +8,22 @@ on:
       - 'packages/database/drizzle.config.ts'
       - '.github/workflows/database-migrations.yml'
 
+# Only one migration per environment at a time
+concurrency:
+  group: db-migrate-${{ github.ref }}
+  cancel-in-progress: false  # Never cancel migrations
+
 jobs:
   migrate:
-    runs-on: blacksmith-8vcpu-ubuntu-2204
+    runs-on: blacksmith-2vcpu-ubuntu-2404
     environment: ${{ github.ref_name }}
     steps:
       - uses: actions/checkout@v4
       
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: useblacksmith/setup-node@v5
         with:
-          node-version: '22.x'
+          node-version: 22
           
       - name: Install pnpm
         uses: pnpm/action-setup@v2
@@ -30,16 +35,26 @@ jobs:
         run: |
           echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
       
-      - name: Setup pnpm cache
-        uses: actions/cache@v3
+      - name: Mount pnpm store sticky disk
+        uses: useblacksmith/stickydisk@v1
         with:
+          key: ${{ github.repository }}-pnpm-store
           path: ${{ env.STORE_PATH }}
-          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-pnpm-store-
+      
+      - name: Mount node_modules sticky disk
+        uses: useblacksmith/stickydisk@v1
+        with:
+          key: ${{ github.repository }}-${{ github.ref_name }}-db-node-modules
+          path: ./node_modules
+      
+      - name: Mount Turbo cache sticky disk
+        uses: useblacksmith/stickydisk@v1
+        with:
+          key: ${{ github.repository }}-turbo-cache
+          path: ./.turbo
           
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm install --frozen-lockfile --prefer-offline
       
       - name: Run migrations
         run: pnpm run db:migrate

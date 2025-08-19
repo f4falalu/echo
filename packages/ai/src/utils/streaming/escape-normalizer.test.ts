@@ -1,37 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import {
-  hasDoubleEscaping,
-  normalizeEscapedText,
-  normalizeStreamingChunk,
-  normalizeStreamingText,
-} from './escape-normalizer';
+import { normalizeEscapedText, unescapeJsonString } from './escape-normalizer';
 
 describe('escape-normalizer', () => {
-  describe('hasDoubleEscaping', () => {
-    it('should detect double-escaped newlines', () => {
-      expect(hasDoubleEscaping('Hello\\\\nWorld')).toBe(true);
-      expect(hasDoubleEscaping('Hello\\nWorld')).toBe(false);
-      expect(hasDoubleEscaping('Hello\nWorld')).toBe(false);
-    });
-
-    it('should detect double-escaped tabs', () => {
-      expect(hasDoubleEscaping('Hello\\\\tWorld')).toBe(true);
-      expect(hasDoubleEscaping('Hello\\tWorld')).toBe(false);
-      expect(hasDoubleEscaping('Hello\tWorld')).toBe(false);
-    });
-
-    it('should detect double-escaped quotes', () => {
-      expect(hasDoubleEscaping('Say \\\\"Hello\\\\"')).toBe(true);
-      expect(hasDoubleEscaping('Say \\"Hello\\"')).toBe(false);
-      expect(hasDoubleEscaping('Say "Hello"')).toBe(false);
-    });
-
-    it('should detect mixed double-escaping', () => {
-      expect(hasDoubleEscaping('Line 1\\\\nLine 2\\\\tTabbed')).toBe(true);
-      expect(hasDoubleEscaping('Line 1\\nLine 2\\tTabbed')).toBe(false);
-    });
-  });
-
   describe('normalizeEscapedText', () => {
     it('should normalize double-escaped newlines', () => {
       expect(normalizeEscapedText('Hello\\\\nWorld')).toBe('Hello\nWorld');
@@ -75,140 +45,80 @@ describe('escape-normalizer', () => {
 
       expect(normalizeEscapedText(input)).toBe(expected);
     });
-  });
 
-  describe('normalizeStreamingText', () => {
-    it('should handle text context normalization', () => {
-      const input = 'Hello\\\\nWorld';
-      expect(normalizeStreamingText(input, 'text')).toBe('Hello\nWorld');
+    it('should handle text that does not need normalization', () => {
+      const input = 'Regular text with no double escaping';
+      expect(normalizeEscapedText(input)).toBe(input);
     });
 
-    it('should preserve valid JSON in json context', () => {
-      const validJson = '{"message": "Hello\\nWorld"}';
-      expect(normalizeStreamingText(validJson, 'json')).toBe(validJson);
-    });
-
-    it('should normalize double-escaped JSON content', () => {
-      const doubleEscapedJson = '{"message": "Hello\\\\nWorld"}';
-      expect(normalizeStreamingText(doubleEscapedJson, 'json')).toBe('{"message": "Hello\nWorld"}');
-    });
-
-    it('should handle partial JSON with double escaping', () => {
-      const partialJson = '{"message": "Hello\\\\nWor';
-      expect(normalizeStreamingText(partialJson, 'json')).toBe('{"message": "Hello\nWor');
+    it('should handle empty strings', () => {
+      expect(normalizeEscapedText('')).toBe('');
     });
   });
 
-  describe('normalizeStreamingChunk', () => {
-    it('should detect and fix double-escaping in chunks', () => {
-      const chunk = 'Hello\\\\nWorld';
-      const result = normalizeStreamingChunk(chunk);
-      expect(result.normalized).toBe('Hello\nWorld');
-      expect(result.hasChanges).toBe(true);
+  describe('unescapeJsonString', () => {
+    it('should unescape single-escaped newlines', () => {
+      expect(unescapeJsonString('Line 1\\nLine 2')).toBe('Line 1\nLine 2');
+      expect(unescapeJsonString('Multi\\nLine\\nText')).toBe('Multi\nLine\nText');
     });
 
-    it('should not modify chunks without double-escaping', () => {
-      const chunk = 'Hello\nWorld';
-      const result = normalizeStreamingChunk(chunk);
-      expect(result.normalized).toBe(chunk);
-      expect(result.hasChanges).toBe(false);
+    it('should unescape single-escaped tabs', () => {
+      expect(unescapeJsonString('Col1\\tCol2')).toBe('Col1\tCol2');
+      expect(unescapeJsonString('A\\tB\\tC')).toBe('A\tB\tC');
     });
 
-    it('should handle boundary double-escaping', () => {
-      const previousChunk = 'Text ending with \\\\';
-      const currentChunk = 'n continuing';
-      const result = normalizeStreamingChunk(currentChunk, previousChunk);
-      // In this case, the boundary check doesn't detect double escaping because
-      // it's split across chunks - this is an edge case that might need special handling
-      // For now, we accept that this edge case won't be caught
-      expect(result.hasChanges).toBe(false);
+    it('should unescape single-escaped quotes', () => {
+      expect(unescapeJsonString('Say \\"Hello\\"')).toBe('Say "Hello"');
+      expect(unescapeJsonString('\\"quoted\\"')).toBe('"quoted"');
     });
 
-    it('should handle complex streaming scenarios', () => {
-      // Simulate streaming chunks of the bug report example
-      const chunks = [
-        '{"thought": "Let me check the customer data structure',
-        ' to understand how to get customer names for the visualization.\\\\n\\\\nLooking at',
-        ' the customer model relationships:\\\\n- `customer` references',
-        ' `person` (for individual customers) via `personid`\\\\n- `customer`',
-        ' references `store` (for business customers) via `storeid`"}',
-      ];
+    it('should unescape single-escaped backslashes', () => {
+      expect(unescapeJsonString('Path\\\\to\\\\file')).toBe('Path\\to\\file');
+      expect(unescapeJsonString('C:\\\\Windows\\\\System32')).toBe('C:\\Windows\\System32');
+    });
 
-      let accumulated = '';
-      for (const chunk of chunks) {
-        const result = normalizeStreamingChunk(chunk, accumulated);
-        accumulated += result.normalized;
-      }
+    it('should unescape carriage returns', () => {
+      expect(unescapeJsonString('Line 1\\rLine 2')).toBe('Line 1\rLine 2');
+    });
 
-      // The accumulated result should have normalized newlines
-      expect(accumulated).toContain('\n\nLooking at');
-      expect(accumulated).toContain('\n- `customer` references');
-      expect(accumulated).not.toContain('\\\\n');
+    it('should handle mixed escape sequences', () => {
+      const input = 'Line 1\\n\\tIndented\\n\\"Quoted\\"\\nPath\\\\file';
+      const expected = 'Line 1\n\tIndented\n"Quoted"\nPath\\file';
+      expect(unescapeJsonString(input)).toBe(expected);
+    });
+
+    it('should handle text without escape sequences', () => {
+      const input = 'Normal text without escaping';
+      expect(unescapeJsonString(input)).toBe(input);
+    });
+
+    it('should handle empty strings', () => {
+      expect(unescapeJsonString('')).toBe('');
+    });
+
+    it('should handle the streaming JSON extraction case', () => {
+      // This simulates what the optimistic parser extracts from raw JSON
+      const input = 'First thought\\nSecond thought';
+      const expected = 'First thought\nSecond thought';
+      expect(unescapeJsonString(input)).toBe(expected);
     });
   });
 
-  describe('Mock streaming chunks for testing', () => {
-    // These are realistic chunks that might come from the streaming API
-    const mockChunks = [
-      // Chunk 1: Start of a sequential thinking tool call
-      {
-        chunk:
-          '{"toolCallId":"call_123","toolName":"sequential-thinking","args":{"thought":"Let me analyze',
-        expectDoubleEscaping: false,
-      },
-      // Chunk 2: Middle with proper escaping
-      {
-        chunk: ' the data structure.\\nFirst, I need to',
-        expectDoubleEscaping: false,
-      },
-      // Chunk 3: Middle with double escaping (bug case)
-      {
-        chunk: ' understand the relationships.\\\\n\\\\nThe customer table',
-        expectDoubleEscaping: true,
-      },
-      // Chunk 4: List with double escaping
-      {
-        chunk: ' has:\\\\n- Foreign key to person\\\\n- Foreign key to store',
-        expectDoubleEscaping: true,
-      },
-      // Chunk 5: End of thought
-      {
-        chunk: '","nextThoughtNeeded":true,"thoughtNumber":1}}',
-        expectDoubleEscaping: false,
-      },
-    ];
+  describe('combined usage for streaming', () => {
+    it('should handle text from optimistic JSON parser', () => {
+      // Simulating what comes from the optimistic parser
+      const input = 'Thinking step 1\\nThinking step 2';
+      const unescaped = unescapeJsonString(input);
+      const normalized = normalizeEscapedText(unescaped);
+      expect(normalized).toBe('Thinking step 1\nThinking step 2');
+    });
 
-    it('should process mock chunks correctly', () => {
-      let accumulated = '';
-      const results: Array<{ chunk: string; normalized: string; hasChanges: boolean }> = [];
-
-      for (const mock of mockChunks) {
-        const result = normalizeStreamingChunk(mock.chunk, accumulated);
-        results.push({
-          chunk: mock.chunk,
-          normalized: result.normalized,
-          hasChanges: result.hasChanges,
-        });
-        accumulated += result.normalized;
-
-        // Verify double escaping detection
-        expect(hasDoubleEscaping(mock.chunk)).toBe(mock.expectDoubleEscaping);
-      }
-
-      // The final accumulated JSON should be parseable
-      // But it has unescaped newlines, so we need to check the content differently
-      expect(accumulated).toContain('"toolName":"sequential-thinking"');
-      expect(accumulated).toContain('"thought":"Let me analyze');
-
-      // Check that double escaping was normalized
-      expect(accumulated).toContain(
-        'The customer table has:\n- Foreign key to person\n- Foreign key to store'
-      );
-      expect(accumulated).not.toContain('\\\\n');
-
-      // Verify we have the expected structure even if JSON.parse fails due to unescaped newlines
-      expect(accumulated).toContain('"nextThoughtNeeded":true');
-      expect(accumulated).toContain('"thoughtNumber":1');
+    it('should handle double-escaped content after unescaping', () => {
+      // If content was double-escaped in JSON
+      const input = 'Content with \\\\\\\\n double escape';
+      const unescaped = unescapeJsonString(input);
+      const normalized = normalizeEscapedText(unescaped);
+      expect(normalized).toBe('Content with \n double escape');
     });
   });
 });

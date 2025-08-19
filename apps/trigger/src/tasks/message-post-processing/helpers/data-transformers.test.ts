@@ -190,12 +190,8 @@ describe('data-transformers', () => {
       expect(result).toEqual({
         conversationHistory: [{ role: 'user', content: 'Hello' }],
         userName: 'John Doe',
-        messageId: 'msg-123',
-        userId: 'user-123',
-        chatId: 'chat-123',
         isFollowUp: false,
         isSlackFollowUp: false,
-        previousMessages: [],
         datasets: 'yaml content',
       });
     });
@@ -212,8 +208,6 @@ describe('data-transformers', () => {
 
       expect(result.isFollowUp).toBe(true);
       expect(result.isSlackFollowUp).toBe(true);
-      expect(result.previousMessages).toHaveLength(1);
-      expect(result.previousMessages[0]).toContain('Previous assumption');
     });
 
     it('should handle null userName', () => {

@@ -1,0 +1,83 @@
+# Sticky disk directories (can't be accessed by Docker)
+.turbo
+lost+found
+
+# Dependencies (will be installed fresh in Docker)
+node_modules
+**/node_modules
+
+# Git and CI
+.git
+.github
+.gitignore
+
+# Build outputs
+dist
+**/dist
+.next
+**/.next
+build
+**/build
+out
+**/out
+
+# Test and coverage
+coverage
+**/coverage
+*.test.*
+*.spec.*
+__tests__
+test
+tests
+
+# Documentation
+*.md
+README.md
+CHANGELOG.md
+LICENSE
+docs
+
+# IDE and OS
+.vscode
+.idea
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Environment files (security)
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Temporary files
+tmp
+temp
+*.tmp
+
+# TypeScript
+*.tsbuildinfo
+
+# Package manager files (except lock files which we need)
+.npm
+.yarn
+.pnpm-store
+
+# Rust/CLI stuff (not needed for server)
+target
+Cargo.lock
+apps/api
+apps/cli
+
+# Other apps (only building server)
+apps/web
+apps/trigger
+apps/electric-server

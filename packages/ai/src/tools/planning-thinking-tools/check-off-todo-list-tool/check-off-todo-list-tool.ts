@@ -1,84 +1,49 @@
-import type { RuntimeContext } from '@mastra/core/runtime-context';
-import { createTool } from '@mastra/core/tools';
-import { wrapTraced } from 'braintrust';
+import { tool } from 'ai';
 import { z } from 'zod';
-import { type DocsAgentContext, DocsAgentContextKey } from '../../../context/docs-agent-context';
+import { createCheckOffTodoListToolExecute } from './check-off-todo-list-tool-execute';
 
-const checkOffTodoListInputSchema = z.object({
-  todoItem: z.string().describe('The exact text of the todo item to check off in the list'),
+export const CheckOffTodoListToolInputSchema = z.object({
+  todoItems: z.array(z.string()).describe('An array of todo item texts to check off in the list'),
 });
 
-const checkOffTodoListOutputSchema = z.object({
+const CheckOffTodoListToolOutputSchema = z.object({
   success: z.boolean(),
-  updatedTodoList: z.string().describe('The updated todo list with the item checked off'),
+  updatedTodoList: z.string().describe('The updated todo list with the items checked off'),
   message: z.string().optional(),
+  checkedOffItems: z.array(z.string()).describe('List of items that were successfully checked off'),
+  failedItems: z.array(z.string()).describe('List of items that could not be checked off'),
 });
 
-const checkOffTodoListExecution = wrapTraced(
-  async (
-    params: z.infer<typeof checkOffTodoListInputSchema>,
-    runtimeContext: RuntimeContext<DocsAgentContext>
-  ): Promise<z.infer<typeof checkOffTodoListOutputSchema>> => {
-    const { todoItem } = params;
-
-    try {
-      // Get the current todo list from context
-      const currentTodoList = runtimeContext.get('todoList');
-
-      if (!currentTodoList) {
-        return {
-          success: false,
-          updatedTodoList: '',
-          message: 'No todo list found in context',
-        };
-      }
-
-      // Check if the item exists in the list (not already checked off)
-      if (!currentTodoList.includes(`- [ ] ${todoItem}`)) {
-        return {
-          success: false,
-          updatedTodoList: currentTodoList,
-          message: `Todo item "${todoItem}" not found in the list or already checked off`,
-        };
-      }
-
-      // Replace the unchecked item with a checked version
-      const updatedTodoList = currentTodoList.replace(`- [ ] ${todoItem}`, `- [x] ${todoItem}`);
-
-      // Update the context with the new todo list
-      runtimeContext.set('todoList', updatedTodoList);
-
-      return {
-        success: true,
-        updatedTodoList,
-        message: `Successfully checked off: "${todoItem}"`,
-      };
-    } catch (error) {
-      return {
-        success: false,
-        updatedTodoList: '',
-        message: `Error checking off todo item: ${error instanceof Error ? error.message : 'Unknown error'}`,
-      };
-    }
-  },
-  { name: 'check-off-todo-list' }
-);
-
-export const checkOffTodoList = createTool({
-  id: 'check-off-todo-list',
-  description:
-    'Check off a todo item in the todo list by replacing "- [ ]" with "- [x]". The todo list is maintained as a string in the runtime context.',
-  inputSchema: checkOffTodoListInputSchema,
-  outputSchema: checkOffTodoListOutputSchema,
-  execute: async ({
-    context,
-    runtimeContext,
-  }: {
-    context: z.infer<typeof checkOffTodoListInputSchema>;
-    runtimeContext: RuntimeContext<DocsAgentContext>;
-  }) => {
-    return await checkOffTodoListExecution(context, runtimeContext);
-  },
+const CheckOffTodoListToolContextSchema = z.object({
+  todoList: z.string().optional().describe('The current todo list'),
+  updateTodoList: z
+    .function()
+    .args(z.string())
+    .returns(z.void())
+    .optional()
+    .describe('Function to update the todo list'),
 });
 
-export default checkOffTodoList;
+export type CheckOffTodoListToolInput = z.infer<typeof CheckOffTodoListToolInputSchema>;
+export type CheckOffTodoListToolOutput = z.infer<typeof CheckOffTodoListToolOutputSchema>;
+export type CheckOffTodoListToolContext = z.infer<typeof CheckOffTodoListToolContextSchema>;
+
+export function createCheckOffTodoListTool<
+  TAgentContext extends CheckOffTodoListToolContext = CheckOffTodoListToolContext,
+>(context: TAgentContext) {
+  const execute = createCheckOffTodoListToolExecute(context);
+
+  return tool({
+    description:
+      'Check off multiple todo items in the todo list by replacing "- [ ]" with "- [x]" for each item. The todo list is maintained as a string in the runtime context.',
+    inputSchema: CheckOffTodoListToolInputSchema,
+    outputSchema: CheckOffTodoListToolOutputSchema,
+    execute,
+  });
+}
+
+// Legacy export for backward compatibility
+export const checkOffTodoList = createCheckOffTodoListTool({
+  todoList: '',
+  updateTodoList: () => {},
+});

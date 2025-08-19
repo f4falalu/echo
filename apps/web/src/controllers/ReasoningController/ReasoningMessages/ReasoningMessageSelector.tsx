@@ -86,7 +86,7 @@ export const ReasoningMessageSelector: React.FC<ReasoningMessageSelectorProps> =
 
     if (!type || !status) return null;
 
-    const ReasoningMessage = ReasoningMessageRecord[type];
+    const ReasoningMessage = ReasoningMessageRecord[type as keyof typeof ReasoningMessageRecord];
     const animationKey = reasoningMessageId + type;
 
     return (
