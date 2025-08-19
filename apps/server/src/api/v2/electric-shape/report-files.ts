@@ -1,5 +1,5 @@
-import { type WorkspaceSharing, hasAssetPermission } from '@buster/access-controls';
-import { and, db, eq, isNull, reportFiles } from '@buster/database';
+import { hasAssetPermission } from '@buster/access-controls';
+import { getReportMetadata } from '@buster/database';
 import { markdownToPlatejs } from '@buster/server-utils/report';
 import type { Context } from 'hono';
 import { errorResponse } from '../../../utils/response';
@@ -28,38 +28,14 @@ interface ElectricControlMessage {
 
 type ElectricResponse<T> = Array<ElectricDataRow<T> | ElectricControlMessage>;
 
-// Type for report_files table row
-interface ReportFileRow {
-  id: string;
-  name: string;
-  content: string; // This is what we'll transform
-  organization_id: string;
-  created_by: string;
-  created_at: string;
-  updated_at: string;
-  deleted_at?: string | null;
-  publicly_accessible: boolean;
-  publicly_enabled_by?: string | null;
-  public_expiry_date?: string | null;
-  version_history: Record<
-    string,
-    {
-      content: string;
-      updated_at: string;
-      version_number: number;
-    }
-  >;
-  public_password?: string | null;
-  workspace_sharing: string;
-  workspace_sharing_enabled_by?: string | null;
-  workspace_sharing_enabled_at?: string | null;
-}
-
 /**
  * Transform the content field from markdown to PlateJS format
  */
-export async function transformReportFilesResponse(response: Response): Promise<Response> {
-  const data = (await response.json()) as ElectricResponse<ReportFileRow>;
+async function transformReportFilesResponse(response: Response): Promise<Response> {
+  const data = (await response.json()) as ElectricResponse<{
+    content: string;
+    [key: string]: unknown;
+  }>;
 
   // Transform content field for data rows
   const transformedData = await Promise.all(
@@ -105,16 +81,9 @@ export const reportFilesProxyRouter = async (url: URL, _userId: string, c: Conte
   }
 
   // Get report metadata for access control
-  const reportData = await db
-    .select({
-      organizationId: reportFiles.organizationId,
-      workspaceSharing: reportFiles.workspaceSharing,
-    })
-    .from(reportFiles)
-    .where(and(eq(reportFiles.id, reportId), isNull(reportFiles.deletedAt)))
-    .limit(1);
+  const reportData = await getReportMetadata({ reportId });
 
-  if (!reportData[0]) {
+  if (!reportData) {
     throw errorResponse('Report not found', 404);
   }
 
@@ -124,8 +93,8 @@ export const reportFilesProxyRouter = async (url: URL, _userId: string, c: Conte
     assetId: reportId,
     assetType: 'report_file',
     requiredRole: 'can_view',
-    organizationId: reportData[0].organizationId,
-    workspaceSharing: reportData[0].workspaceSharing as WorkspaceSharing,
+    organizationId: reportData.organizationId,
+    workspaceSharing: reportData.workspaceSharing,
   });
 
   if (!hasAccess) {
