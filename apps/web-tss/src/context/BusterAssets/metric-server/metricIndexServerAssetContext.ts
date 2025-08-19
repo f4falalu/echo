@@ -1,13 +1,15 @@
 import type { AssetType } from '@buster/server-shared/assets';
 import type { QueryClient } from '@tanstack/react-query';
 import {
-  BeforeLoadContextOptions,
+  type AnyRoute,
+  type BeforeLoadContextOptions,
   type BeforeLoadContextParameter,
   type BeforeLoadFn,
   redirect,
 } from '@tanstack/react-router';
 import { z } from 'zod';
 import { prefetchGetMetric } from '@/api/buster_rest/metrics';
+import type { AppRouterContext } from '@/router';
 import type { FileRouteTypes } from '@/routeTree.gen';
 
 export const validateSearch = z.object({

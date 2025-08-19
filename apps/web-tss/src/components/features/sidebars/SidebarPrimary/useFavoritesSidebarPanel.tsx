@@ -1,4 +1,4 @@
-import { useMatchRoute } from '@tanstack/react-router';
+import { type LinkProps, useMatchRoute } from '@tanstack/react-router';
 import { useMemo } from 'react';
 import {
   useDeleteUserFavorite,

@@ -1,6 +1,11 @@
-import type { ActiveOptions, LinkProps } from '@tanstack/react-router';
+import type {
+  ActiveOptions,
+  LinkProps,
+  RegisteredRouter,
+  ValidateLinkOptions,
+} from '@tanstack/react-router';
 import type React from 'react';
-import type { OptionsTo } from '@/types/routes';
+import type { LinkOptionsTo, OptionsTo } from '@/types/routes';
 
 // Base properties shared by all sidebar items
 type ISidebarItemBase = {
@@ -15,15 +20,13 @@ type ISidebarItemBase = {
 };
 
 // Discriminated union: either has a route (with optional activeOptions) or no route at all
-export type ISidebarItem = ISidebarItemBase &
+export type ISidebarItem<
+  TRouter extends RegisteredRouter = RegisteredRouter,
+  TOptions = unknown,
+> = ISidebarItemBase &
   (
     | {
-        route: OptionsTo;
-        preload?: LinkProps['preload'];
-        preloadDelay?: LinkProps['preloadDelay'];
-        activeProps?: LinkProps['activeProps'];
-        preloadIntentProximity?: LinkProps['preloadIntentProximity'];
-        activeOptions?: ActiveOptions; // Only allowed when route is provided
+        route: LinkOptionsTo;
       }
     | {
         route?: never;

@@ -1,4 +1,3 @@
-import type { AssetType } from '@buster/server-shared/assets';
 import type { FileRouteTypes } from '@/routeTree.gen';
 import type { OptionsTo } from '@/types/routes';
 

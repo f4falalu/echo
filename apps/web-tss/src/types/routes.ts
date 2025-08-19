@@ -1,4 +1,9 @@
-import type { NavigateOptions, RegisteredRouter } from '@tanstack/react-router';
+import type {
+  LinkOptions,
+  LinkProps,
+  NavigateOptions,
+  RegisteredRouter,
+} from '@tanstack/react-router';
 import type { FileRouteTypes } from '@/routeTree.gen';
 
 /**
@@ -41,3 +46,17 @@ export type OptionsTo<
     : { params?: never }) &
     Omit<OptionsToBase<TFrom, K, TMaskFrom, TMaskTo>, 'to' | 'params'>;
 }[FileRouteTypes['to']];
+
+export type LinkOptionsTo = OptionsTo &
+  Pick<
+    LinkOptions,
+    | 'preload'
+    | 'preloadDelay'
+    | 'activeOptions'
+    | 'preloadIntentProximity'
+    | 'unsafeRelative'
+    | 'ignoreBlocker'
+    | 'disabled'
+    | 'reloadDocument'
+    | 'target'
+  >;

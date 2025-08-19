@@ -49,22 +49,21 @@ const topItems: ISidebarList = {
     {
       label: 'Home',
       icon: <House4 />,
-      route: { to: '/app/home' },
+      route: { to: '/app/home', preload: 'viewport', preloadDelay: 1000 },
       id: '/app/home',
-      preload: 'viewport',
-      preloadDelay: 1000,
     },
     {
       label: 'Chat history',
       icon: <ASSET_ICONS.chats />,
-      route: { to: '/app/chats' },
-      id: '/app/chats/',
-      preload: 'viewport',
-      preloadDelay: 2000,
-      activeOptions: {
-        exact: true,
+      route: {
+        to: '/app/chats',
+        preload: 'viewport',
+        preloadDelay: 2000,
+        activeOptions: {
+          exact: true,
+        },
       },
-      activeProps: {},
+      id: '/app/chats/',
     },
   ],
 };
@@ -76,33 +75,26 @@ const yourStuff: ISidebarGroup = {
     {
       label: 'Metrics',
       icon: <ASSET_ICONS.metrics />,
-      route: { to: '/app/metrics' },
+      route: { to: '/app/metrics', preload: 'intent', preloadDelay: 1000 },
       id: '/app/metrics',
-      preload: 'intent',
-      preloadDelay: 1000,
     },
     {
       label: 'Dashboards',
       icon: <ASSET_ICONS.dashboards />,
-      route: { to: '/app/dashboards' },
+      route: { to: '/app/dashboards', preload: 'intent', preloadDelay: 1000 },
       id: '/app/dashboards/',
-      preload: 'intent',
-      preloadDelay: 1000,
     },
     {
       label: 'Collections',
       icon: <ASSET_ICONS.collections />,
-      route: { to: '/app/collections' },
+      route: { to: '/app/collections', preload: 'intent', preloadDelay: 1000 },
       id: '/app/collections/',
-      preload: 'intent',
-      preloadDelay: 1000,
     },
     {
       label: 'Reports',
       icon: <ASSET_ICONS.reports />,
-      route: { to: '/app/reports' },
+      route: { to: '/app/reports', preload: 'intent', preloadDelay: 1000 },
       id: '/app/reports/',
-      preload: 'intent',
     },
   ] satisfies (ISidebarItem & { show?: boolean })[],
 };
@@ -114,10 +106,9 @@ const adminTools: ISidebarGroup = {
     {
       label: 'Logs',
       icon: <UnorderedList2 />,
-      route: { to: '/app/logs' },
+      route: { to: '/app/logs', preload: 'viewport', preloadDelay: 1000 },
       id: '/app/logs/',
       collapsedTooltip: 'Logs',
-      preload: 'viewport',
     },
     {
       label: 'Datasets',

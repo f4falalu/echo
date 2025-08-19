@@ -1,5 +1,5 @@
 import type { FileRouteTypes } from '@/routeTree.gen';
-import type { OptionsTo, OptionsToBase } from '@/types/routes';
+import type { OptionsToBase } from '@/types/routes';
 
 /**
  * Converts navigation options to a URL string (href)
