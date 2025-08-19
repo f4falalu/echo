@@ -36,6 +36,9 @@ jobs:
         with:
           node-version: 22
       
+      - name: Install bun
+        run: npm install -g bun@1.2.15
+      
       - name: Get pnpm store directory
         shell: bash
         run: |
@@ -44,8 +47,57 @@ jobs:
       - name: Mount pnpm store sticky disk
         uses: useblacksmith/stickydisk@v1
         with:
-          key: ${{ github.repository }}-docker-pnpm-store
+          key: ${{ github.repository }}-pnpm-store
           path: ${{ env.STORE_PATH }}
+      
+      - name: Mount Turbo cache sticky disk
+        uses: useblacksmith/stickydisk@v1
+        with:
+          key: ${{ github.repository }}-turbo-cache
+          path: ./.turbo
+      
+      - name: Install dependencies
+        run: |
+          echo "📦 Installing dependencies with pnpm..."
+          pnpm install --frozen-lockfile --prefer-offline
+      
+      - name: Build with Turbo
+        run: |
+          echo "🔨 Building server with Turbo (using sticky disk cache)..."
+          pnpm turbo run build --filter=@buster-app/server
+          echo "✅ Build complete!"
+        env:
+          NODE_ENV: production
+          DOCKER_BUILD: true
+          CI: true
+      
+      - name: Build server bundle
+        run: |
+          echo "📦 Creating server bundle with bun..."
+          cd apps/server
+          bun build src/index.ts --outdir ./dist --target bun --external pino-pretty
+          ls -la dist/
+          cd ../..
+      
+      - name: Prepare production dependencies
+        run: |
+          echo "🧹 Preparing production-only dependencies..."
+          # Create a temporary directory for production deps
+          mkdir -p /tmp/prod-deps
+          cp package.json pnpm-lock.yaml pnpm-workspace.yaml /tmp/prod-deps/
+          cp -r packages /tmp/prod-deps/
+          cp apps/server/package.json /tmp/prod-deps/apps/server/
+          
+          # Install production dependencies only
+          cd /tmp/prod-deps
+          pnpm install --frozen-lockfile --prod --ignore-scripts --no-optional
+          
+          # Copy back to workspace
+          cd -
+          mkdir -p docker-context
+          cp -r /tmp/prod-deps/node_modules docker-context/
+          cp -r apps/server/dist docker-context/
+          cp apps/server/package.json docker-context/
       
       - name: Set up Docker Builder with Blacksmith cache
         uses: useblacksmith/setup-docker-builder@v1
@@ -77,8 +129,8 @@ jobs:
       - name: Build and push Docker image
         uses: useblacksmith/build-push-action@v2
         with:
-          context: .
-          file: ./apps/server/Dockerfile
+          context: ./docker-context
+          file: ./apps/server/Dockerfile.prebuilt
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: |

@@ -1,0 +1,46 @@
+# ================================================================
+# Optimized Dockerfile for pre-built artifacts
+# This expects the app to be already built by GitHub Actions
+# ================================================================
+
+FROM oven/bun:1.2.15-alpine AS runtime
+
+WORKDIR /app
+
+# Set production environment
+ENV NODE_ENV=production
+
+# Add build metadata as labels
+ARG COMMIT_SHA
+ARG BUILD_DATE
+LABEL org.opencontainers.image.revision="${COMMIT_SHA}"
+LABEL org.opencontainers.image.created="${BUILD_DATE}"
+
+# Create non-root user
+RUN addgroup --system --gid 1001 bunuser && \
+    adduser --system --uid 1001 bunuser
+
+# Copy pre-built application files
+# These are prepared by GitHub Actions:
+# - dist/ contains the built server bundle
+# - node_modules/ contains production dependencies only
+# - package.json for runtime metadata
+COPY --chown=bunuser:bunuser dist ./dist
+COPY --chown=bunuser:bunuser node_modules ./node_modules
+COPY --chown=bunuser:bunuser package.json ./
+
+# Show image info
+RUN echo "=== Production image ready ===" && \
+    echo "Commit: ${COMMIT_SHA:-unknown}" && \
+    echo "Built: ${BUILD_DATE:-unknown}" && \
+    echo "Size: $(du -sh /app | cut -f1)"
+
+USER bunuser
+EXPOSE 3002
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+  CMD bun -e "fetch('http://localhost:' + (process.env.SERVER_PORT || 3002) + '/healthcheck').then(r => r.ok ? process.exit(0) : process.exit(1))"
+
+# Start the application
+CMD ["bun", "run", "dist/index.js"]
