@@ -75,17 +75,21 @@ export const prefetchGetReportsListClient = async (
 
 export const prefetchGetReport = async (
   reportId: string,
-  version_number: number | undefined,
-  queryClientProp?: QueryClient
+  report_version_number: number | undefined,
+  queryClient: QueryClient
 ) => {
-  const queryClient = queryClientProp || new QueryClient();
+  const version_number = report_version_number || 'LATEST';
 
-  await queryClient.prefetchQuery({
-    ...reportsQueryKeys.reportsGetReport(reportId, version_number || 'LATEST'),
-    queryFn: () => getReportById(reportId),
-  });
+  const queryKey = reportsQueryKeys.reportsGetReport(reportId, version_number)?.queryKey;
+  const existingData = queryClient.getQueryData(queryKey);
+  if (!existingData) {
+    await queryClient.prefetchQuery({
+      ...reportsQueryKeys.reportsGetReport(reportId, version_number || 'LATEST'),
+      queryFn: () => getReportById(reportId),
+    });
+  }
 
-  return queryClient;
+  return existingData || queryClient.getQueryData(queryKey);
 };
 
 /**

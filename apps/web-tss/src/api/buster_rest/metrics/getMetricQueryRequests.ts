@@ -169,21 +169,6 @@ export const useGetMetricData = <TData = BusterMetricDataExtended>(
   });
 };
 
-export const prefetchGetMetric = async (
-  { id, version_number }: { id: string; version_number: number | undefined },
-  queryClient: QueryClient
-) => {
-  const options = metricsQueryKeys.metricsGetMetric(id, version_number || 'LATEST');
-  const existingData = queryClient.getQueryData(options.queryKey);
-  if (!existingData) {
-    await queryClient.prefetchQuery({
-      ...options,
-      queryFn: () => getMetric({ id, version_number }),
-    });
-  }
-  return existingData;
-};
-
 export const prefetchGetMetricDataClient = async (
   { id, version_number }: { id: string; version_number: number },
   queryClient: QueryClient

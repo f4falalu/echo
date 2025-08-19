@@ -158,8 +158,14 @@ export const prefetchGetDashboard = async (
       shouldInitializeMetrics: true,
     });
   };
-  await queryClient.prefetchQuery({
-    ...dashboardQueryKeys.dashboardGetDashboard(id, chosenVersionNumber),
-    queryFn,
-  });
+
+  const queryKey = dashboardQueryKeys.dashboardGetDashboard(id, chosenVersionNumber)?.queryKey;
+  const existingData = queryClient.getQueryData(queryKey);
+  if (!existingData) {
+    await queryClient.prefetchQuery({
+      ...dashboardQueryKeys.dashboardGetDashboard(id, chosenVersionNumber),
+      queryFn,
+    });
+  }
+  return existingData || queryClient.getQueryData(queryKey);
 };

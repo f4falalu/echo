@@ -25,13 +25,12 @@ import type {
 import { mainApi, mainApiV2 } from '../instances';
 
 export const getMetric = async (params: GetMetricRequest): Promise<GetMetricResponse> => {
-  console.log('getMetric1!!!!');
   return mainApi
     .get<GetMetricResponse>(`/metric_files/${params.id}`, {
       params,
     })
     .then((res) => {
-      console.log('getMetric res');
+      console.log('getMetric res', typeof window !== 'undefined');
       return res.data;
     });
 };
