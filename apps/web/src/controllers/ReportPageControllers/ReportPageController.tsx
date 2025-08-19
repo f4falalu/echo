@@ -48,10 +48,16 @@ export const ReportPageController: React.FC<{
 
     const commonClassName = 'sm:px-[max(64px,calc(50%-350px))]';
 
-    useTrackAndUpdateReportChanges({ reportId });
+    useTrackAndUpdateReportChanges({ reportId, subscribe: false });
 
     return (
       <div className={cn('h-full space-y-1.5 overflow-y-auto pt-9', className)}>
+        <div
+          className={cn(
+            'absolute right-5 bottom-5 h-15 w-15 animate-bounce rounded-full',
+            isStreamingMessage ? 'bg-purple-400' : 'bg-green-400'
+          )}
+        />
         {report ? (
           <>
             <ReportPageHeader
@@ -59,6 +65,7 @@ export const ReportPageController: React.FC<{
               updatedAt={report?.updated_at}
               onChangeName={onChangeName}
               className={commonClassName}
+              isStreaming={isStreamingMessage}
             />
 
             <DynamicReportEditor

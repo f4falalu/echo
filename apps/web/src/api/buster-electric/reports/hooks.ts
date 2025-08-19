@@ -6,12 +6,18 @@ import { useQueryClient } from '@tanstack/react-query';
 import { DEFAULT_UPDATE_OPERATIONS } from '../config';
 import { create } from 'mutative';
 
-export const useTrackAndUpdateReportChanges = ({ reportId }: { reportId: string }) => {
+export const useTrackAndUpdateReportChanges = ({
+  reportId,
+  subscribe: subscribeProp = false
+}: {
+  reportId: string;
+  subscribe?: boolean;
+}) => {
   const queryClient = useQueryClient();
 
-  const subscribe = !!reportId && reportId !== 'undefined';
-
   const shape = useMemo(() => reportShape({ reportId }), [reportId]);
+
+  const subscribe = !!reportId && reportId !== 'undefined' && subscribeProp;
 
   return useShapeStream(
     shape,

@@ -36,6 +36,7 @@ export const useReportEditor = ({
 
   useEffect(() => {
     if (editor && isStreaming) {
+      console.log('setting value', value);
       editor.tf.setValue(value);
     }
   }, [value]);
