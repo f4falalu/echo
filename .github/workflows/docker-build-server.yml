@@ -1,0 +1,115 @@
+name: Build and Push Server Docker Image
+
+on:
+  push:
+    branches: [main, staging]
+    paths:
+      - 'apps/server/**'
+      - 'packages/**'
+      - 'pnpm-lock.yaml'
+      - '.github/workflows/docker-build-server.yml'
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: buster-so/buster-server
+  TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+  TURBO_TEAM: ${{ vars.TURBO_TEAM }}
+  TURBO_REMOTE_ONLY: true
+
+jobs:
+  build-and-push:
+    runs-on: blacksmith-8vcpu-ubuntu-2204
+    permissions:
+      contents: read
+      packages: write
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 9.15.0
+      
+      - name: Setup Node.js
+        uses: useblacksmith/setup-node@v5
+        with:
+          node-version: 22
+      
+      - name: Get pnpm store directory
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+      
+      - name: Mount pnpm store sticky disk
+        uses: useblacksmith/stickydisk@v1
+        with:
+          key: ${{ github.repository }}-docker-pnpm-store
+          path: ${{ env.STORE_PATH }}
+      
+      - name: Mount Turbo cache sticky disk
+        uses: useblacksmith/stickydisk@v1
+        with:
+          key: ${{ github.repository }}-docker-turbo-cache
+          path: ./.turbo
+      
+      - name: Set up Docker Builder with Blacksmith cache
+        uses: useblacksmith/setup-docker-builder@v1
+      
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Extract metadata and determine tags
+        id: meta
+        run: |
+          SHA_SHORT=$(git rev-parse --short HEAD)
+          echo "sha_short=${SHA_SHORT}" >> $GITHUB_OUTPUT
+          
+          if [[ "${{ github.ref_name }}" == "main" ]]; then
+            # For main: use commit SHA and latest
+            echo "tags=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${SHA_SHORT},${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest" >> $GITHUB_OUTPUT
+          elif [[ "${{ github.ref_name }}" == "staging" ]]; then
+            # For staging: use staging-SHA and staging
+            echo "tags=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:staging-${SHA_SHORT},${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:staging" >> $GITHUB_OUTPUT
+          fi
+          
+          # Set build timestamp
+          echo "timestamp=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" >> $GITHUB_OUTPUT
+      
+      - name: Build and push Docker image
+        uses: useblacksmith/build-push-action@v2
+        with:
+          context: .
+          file: ./apps/server/Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: |
+            org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.created=${{ steps.meta.outputs.timestamp }}
+            org.opencontainers.image.ref.name=${{ github.ref_name }}
+          build-args: |
+            TURBO_TOKEN=${{ secrets.TURBO_TOKEN }}
+            TURBO_TEAM=${{ vars.TURBO_TEAM }}
+            COMMIT_SHA=${{ steps.meta.outputs.sha_short }}
+            BUILD_DATE=${{ steps.meta.outputs.timestamp }}
+      
+      - name: Output image details
+        run: |
+          echo "✅ Docker image built and pushed successfully!"
+          echo "📦 Image tags:"
+          echo "${{ steps.meta.outputs.tags }}" | tr ',' '\n' | sed 's/^/   - /'
+          echo ""
+          echo "🔧 To use in Porter:"
+          if [[ "${{ github.ref_name }}" == "main" ]]; then
+            echo "   Image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.meta.outputs.sha_short }}"
+          else
+            echo "   Image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:staging-${{ steps.meta.outputs.sha_short }}"
+          fi

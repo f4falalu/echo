@@ -1,10 +1,28 @@
-# Fresh build Dockerfile without caching layers
 # ================================================================
-# This Dockerfile handles:
-# - Fresh dependency installation (no cached base image)
-# - Source code building  
-# - Production runtime
+# Optimized Dockerfile with proper layer caching
+# ================================================================
 
+# Stage 1: Dependencies
+# This stage only rebuilds when package files change
+FROM node:22-alpine AS deps
+WORKDIR /app
+
+# Install pnpm and bun
+RUN corepack enable && corepack prepare pnpm@latest --activate
+RUN npm install -g bun@1.2.15
+
+# Copy only package files for dependency resolution
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml turbo.json ./
+COPY packages/*/package.json ./packages/*/
+COPY apps/server/package.json ./apps/server/
+
+# Install dependencies with frozen lockfile
+# This layer is cached and only rebuilds when dependencies change
+RUN pnpm install --frozen-lockfile --ignore-scripts --no-optional
+
+# ================================================================
+# Stage 2: Builder
+# This stage rebuilds when source code changes
 FROM node:22-alpine AS builder
 WORKDIR /app
 
@@ -12,73 +30,73 @@ WORKDIR /app
 RUN corepack enable && corepack prepare pnpm@latest --activate
 RUN npm install -g bun@1.2.15
 
-# Set build environment to skip runtime validation
+# Set build environment
 ENV DOCKER_BUILD=true
 ENV CI=true
+ARG TURBO_TOKEN
+ARG TURBO_TEAM
+ARG COMMIT_SHA
+ARG BUILD_DATE
 
-RUN echo "=== FRESH BUILD START ==="
+# Copy dependencies from deps stage
+COPY --from=deps /app/node_modules ./node_modules
+COPY --from=deps /app/packages/*/node_modules ./packages/*/node_modules
+COPY --from=deps /app/apps/server/node_modules ./apps/server/node_modules
 
-# Copy all package files for fresh install
-COPY package.json pnpm-lock.yaml* turbo.json* pnpm-workspace.yaml* ./
-COPY packages/ ./packages/
-COPY apps/server/ ./apps/server/
+# Copy all source files
+COPY . .
 
-# Fresh install - no caching, clean install every time
-RUN START=$(date +%s) && \
-    echo "=== Starting fresh dependency installation ===" && \
-    rm -rf node_modules && \
-    rm -rf ~/.pnpm-store && \
-    time pnpm install --frozen-lockfile --ignore-scripts --no-optional && \
-    END=$(date +%s) && \
-    echo "Finished fresh dependency installation in $((END - START)) seconds"
+# Build with Turbo (uses remote cache if available)
+RUN if [ -n "$TURBO_TOKEN" ] && [ -n "$TURBO_TEAM" ]; then \
+      echo "Building with Turbo remote cache" && \
+      turbo run build --filter=@buster-app/server; \
+    else \
+      echo "Building without Turbo remote cache" && \
+      turbo run build --filter=@buster-app/server --force; \
+    fi
 
-# Force fresh turbo build without cache
-RUN START=$(date +%s) && \
-    echo "=== Starting fresh turbo build ===" && \
-    rm -rf .turbo && \
-    time turbo run build --filter=@buster-app/server --force && \
-    END=$(date +%s) && \
-    echo "Finished fresh turbo build in $((END - START)) seconds"
-
-
-# Build the application (fresh bun build)
-RUN START=$(date +%s) && \
-    echo "=== Starting fresh application build ===" && \
-    cd apps/server && \
-    rm -rf dist && \
-    time bun build src/index.ts --outdir ./dist --target bun --external pino-pretty && \
+# Build the final server bundle
+WORKDIR /app/apps/server
+RUN bun build src/index.ts --outdir ./dist --target bun --external pino-pretty && \
     echo "Build complete - output:" && \
-    ls -la dist/ && \
-    END=$(date +%s) && \
-    echo "Finished fresh application build in $((END - START)) seconds"
+    ls -la dist/
 
-# Production runtime (minimal bun image)
+# ================================================================
+# Stage 3: Production Runtime
+# Minimal image with only what's needed to run
 FROM oven/bun:1.2.15-alpine AS runtime
 WORKDIR /app
 
 # Set production environment
 ENV NODE_ENV=production
 
+# Add build metadata as labels
+ARG COMMIT_SHA
+ARG BUILD_DATE
+LABEL org.opencontainers.image.revision="${COMMIT_SHA}"
+LABEL org.opencontainers.image.created="${BUILD_DATE}"
+
 # Create non-root user
 RUN addgroup --system --gid 1001 bunuser && \
     adduser --system --uid 1001 bunuser
 
-# Copy built application and dependencies
+# Copy only the necessary files from builder
 COPY --from=builder --chown=bunuser:bunuser /app/apps/server/dist ./dist
 COPY --from=builder --chown=bunuser:bunuser /app/apps/server/package.json ./
 COPY --from=builder --chown=bunuser:bunuser /app/node_modules ./node_modules
 
-# Show final stats
-RUN echo "=== Fresh production image prepared ===" && \
+# Show image size info
+RUN echo "=== Production image size ===" && \
     du -sh /app && \
-    echo "Ready to run with no cached artifacts!"
+    echo "Commit: ${COMMIT_SHA:-unknown}" && \
+    echo "Built: ${BUILD_DATE:-unknown}"
 
 USER bunuser
 EXPOSE 3002
 
-# Health check for production
+# Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
   CMD bun -e "fetch('http://localhost:' + (process.env.SERVER_PORT || 3002) + '/healthcheck').then(r => r.ok ? process.exit(0) : process.exit(1))"
 
 # Start the application
-CMD ["bun", "run", "dist/index.js"] 
+CMD ["bun", "run", "dist/index.js"]
