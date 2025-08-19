@@ -83,7 +83,7 @@ jobs:
         run: |
           echo "🧹 Preparing production-only dependencies..."
           # Create a temporary directory for production deps
-          mkdir -p /tmp/prod-deps
+          mkdir -p /tmp/prod-deps/apps/server
           cp package.json pnpm-lock.yaml pnpm-workspace.yaml /tmp/prod-deps/
           cp -r packages /tmp/prod-deps/
           cp apps/server/package.json /tmp/prod-deps/apps/server/
