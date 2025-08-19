@@ -44,12 +44,6 @@ jobs:
           key: ${{ github.repository }}-pnpm-store
           path: ${{ env.STORE_PATH }}
 
-      - name: Mount node_modules sticky disk
-        uses: useblacksmith/stickydisk@v1
-        with:
-          key: ${{ github.repository }}-pr-${{ github.event.pull_request.number }}-node-modules
-          path: ./node_modules
-
       - name: Check if lockfile changed
         id: lockfile-check
         run: |
@@ -64,7 +58,10 @@ jobs:
         run: pnpm fetch --frozen-lockfile
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile --prefer-offline
+        run: |
+          # Clean install from pnpm store (already cached in sticky disk)
+          rm -rf node_modules
+          pnpm install --frozen-lockfile --prefer-offline
 
   # Build job - runs in parallel
   build:
@@ -97,20 +94,16 @@ jobs:
           key: ${{ github.repository }}-pnpm-store
           path: ${{ env.STORE_PATH }}
 
-      - name: Mount node_modules sticky disk
-        uses: useblacksmith/stickydisk@v1
-        with:
-          key: ${{ github.repository }}-pr-${{ github.event.pull_request.number }}-node-modules
-          path: ./node_modules
-
       - name: Mount Turbo cache sticky disk
         uses: useblacksmith/stickydisk@v1
         with:
           key: ${{ github.repository }}-turbo-cache
           path: ./.turbo
 
-      - name: Install dependencies (from sticky disk)
-        run: pnpm install --frozen-lockfile --prefer-offline
+      - name: Install dependencies
+        run: |
+          rm -rf node_modules
+          pnpm install --frozen-lockfile --prefer-offline
 
       - name: Build all packages (excluding web)
         run: pnpm build --filter='!@buster-app/web'
@@ -148,20 +141,16 @@ jobs:
           key: ${{ github.repository }}-pnpm-store
           path: ${{ env.STORE_PATH }}
 
-      - name: Mount node_modules sticky disk
-        uses: useblacksmith/stickydisk@v1
-        with:
-          key: ${{ github.repository }}-pr-${{ github.event.pull_request.number }}-node-modules
-          path: ./node_modules
-
       - name: Mount Turbo cache sticky disk
         uses: useblacksmith/stickydisk@v1
         with:
           key: ${{ github.repository }}-turbo-cache
           path: ./.turbo
 
-      - name: Install dependencies (from sticky disk)
-        run: pnpm install --frozen-lockfile --prefer-offline
+      - name: Install dependencies
+        run: |
+          rm -rf node_modules
+          pnpm install --frozen-lockfile --prefer-offline
 
       - name: Lint all packages (excluding web)
         run: pnpm lint --filter='!@buster-app/web'
@@ -197,20 +186,16 @@ jobs:
           key: ${{ github.repository }}-pnpm-store
           path: ${{ env.STORE_PATH }}
 
-      - name: Mount node_modules sticky disk
-        uses: useblacksmith/stickydisk@v1
-        with:
-          key: ${{ github.repository }}-pr-${{ github.event.pull_request.number }}-node-modules
-          path: ./node_modules
-
       - name: Mount Turbo cache sticky disk
         uses: useblacksmith/stickydisk@v1
         with:
           key: ${{ github.repository }}-turbo-cache
           path: ./.turbo
 
-      - name: Install dependencies (from sticky disk)
-        run: pnpm install --frozen-lockfile --prefer-offline
+      - name: Install dependencies
+        run: |
+          rm -rf node_modules
+          pnpm install --frozen-lockfile --prefer-offline
 
       - name: Run all unit tests (excluding web)
         run: pnpm test:unit --filter='!@buster-app/web'

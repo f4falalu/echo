@@ -41,12 +41,6 @@ jobs:
           key: ${{ github.repository }}-pnpm-store
           path: ${{ env.STORE_PATH }}
       
-      - name: Mount node_modules sticky disk
-        uses: useblacksmith/stickydisk@v1
-        with:
-          key: ${{ github.repository }}-${{ github.ref_name }}-db-node-modules
-          path: ./node_modules
-      
       - name: Mount Turbo cache sticky disk
         uses: useblacksmith/stickydisk@v1
         with:
@@ -54,7 +48,10 @@ jobs:
           path: ./.turbo
           
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile --prefer-offline
+        run: |
+          # Remove any existing node_modules to avoid conflicts
+          rm -rf node_modules
+          pnpm install --frozen-lockfile --prefer-offline
       
       - name: Run migrations
         run: pnpm run db:migrate
