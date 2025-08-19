@@ -12,16 +12,14 @@ env:
   CI: true
 
 jobs:
-  # First, install dependencies once and cache them
-  install:
-    name: Install Dependencies
-    runs-on: blacksmith-2vcpu-ubuntu-2404
-    timeout-minutes: 5
+  # Build job - runs in parallel
+  build:
+    name: Build
+    runs-on: blacksmith-4vcpu-ubuntu-2404
+    timeout-minutes: 10
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 2
 
       - name: Install pnpm
         uses: pnpm/action-setup@v2
@@ -38,56 +36,13 @@ jobs:
         run: |
           STORE_PATH=$(pnpm store path --silent)
           if [ -d "$STORE_PATH" ]; then
+            # Clear corrupted cache entries
+            find "$STORE_PATH" -type f ! -perm -u+r -delete 2>/dev/null || true
+            find "$STORE_PATH" -type d ! -perm -u+rx -delete 2>/dev/null || true
+            # Fix permissions on remaining files
             sudo chown -R $(whoami):$(whoami) "$STORE_PATH" || true
             chmod -R u+rw "$STORE_PATH" || true
           fi
-
-      - name: Check if lockfile changed
-        id: lockfile-check
-        run: |
-          if git diff HEAD~1 HEAD --name-only | grep -q "pnpm-lock.yaml"; then
-            echo "changed=true" >> $GITHUB_OUTPUT
-          else
-            echo "changed=false" >> $GITHUB_OUTPUT
-          fi
-
-      - name: Fetch dependencies (if lockfile changed)
-        if: steps.lockfile-check.outputs.changed == 'true'
-        run: pnpm fetch --frozen-lockfile
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile --prefer-offline
-
-  # Build job - runs in parallel
-  build:
-    name: Build
-    needs: install
-    runs-on: blacksmith-4vcpu-ubuntu-2404
-    timeout-minutes: 10
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Install pnpm
-        uses: pnpm/action-setup@v2
-        with:
-          version: 9.15.0
-
-      - name: Setup Node.js
-        uses: useblacksmith/setup-node@v5
-        with:
-          node-version: 22
-
-      - name: Get pnpm store directory
-        shell: bash
-        run: |
-          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
-
-      - name: Mount pnpm store sticky disk
-        uses: useblacksmith/stickydisk@v1
-        with:
-          key: ${{ github.repository }}-pnpm-store
-          path: ${{ env.STORE_PATH }}
 
       - name: Mount Turbo cache sticky disk
         uses: useblacksmith/stickydisk@v1
@@ -96,9 +51,7 @@ jobs:
           path: ./.turbo
 
       - name: Install dependencies
-        run: |
-          rm -rf node_modules
-          pnpm install --frozen-lockfile --prefer-offline
+        run: pnpm install --frozen-lockfile --prefer-offline
 
       - name: Build all packages (excluding web)
         run: pnpm build --filter='!@buster-app/web'
@@ -108,7 +61,6 @@ jobs:
   # Lint job - runs in parallel
   lint:
     name: Lint
-    needs: install
     runs-on: blacksmith-2vcpu-ubuntu-2404
     timeout-minutes: 5
     steps:
@@ -124,17 +76,19 @@ jobs:
         uses: useblacksmith/setup-node@v5
         with:
           node-version: 22
-
-      - name: Get pnpm store directory
-        shell: bash
+          cache: 'pnpm'
+      
+      - name: Fix pnpm store permissions
         run: |
-          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
-
-      - name: Mount pnpm store sticky disk
-        uses: useblacksmith/stickydisk@v1
-        with:
-          key: ${{ github.repository }}-pnpm-store
-          path: ${{ env.STORE_PATH }}
+          STORE_PATH=$(pnpm store path --silent)
+          if [ -d "$STORE_PATH" ]; then
+            # Clear corrupted cache entries
+            find "$STORE_PATH" -type f ! -perm -u+r -delete 2>/dev/null || true
+            find "$STORE_PATH" -type d ! -perm -u+rx -delete 2>/dev/null || true
+            # Fix permissions on remaining files
+            sudo chown -R $(whoami):$(whoami) "$STORE_PATH" || true
+            chmod -R u+rw "$STORE_PATH" || true
+          fi
 
       - name: Mount Turbo cache sticky disk
         uses: useblacksmith/stickydisk@v1
@@ -143,9 +97,7 @@ jobs:
           path: ./.turbo
 
       - name: Install dependencies
-        run: |
-          rm -rf node_modules
-          pnpm install --frozen-lockfile --prefer-offline
+        run: pnpm install --frozen-lockfile --prefer-offline
 
       - name: Lint all packages (excluding web)
         run: pnpm lint --filter='!@buster-app/web'
@@ -153,7 +105,6 @@ jobs:
   # Test job - runs in parallel
   test:
     name: Test
-    needs: install
     runs-on: blacksmith-4vcpu-ubuntu-2404
     timeout-minutes: 15
     steps:
@@ -169,17 +120,19 @@ jobs:
         uses: useblacksmith/setup-node@v5
         with:
           node-version: 22
-
-      - name: Get pnpm store directory
-        shell: bash
+          cache: 'pnpm'
+      
+      - name: Fix pnpm store permissions
         run: |
-          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
-
-      - name: Mount pnpm store sticky disk
-        uses: useblacksmith/stickydisk@v1
-        with:
-          key: ${{ github.repository }}-pnpm-store
-          path: ${{ env.STORE_PATH }}
+          STORE_PATH=$(pnpm store path --silent)
+          if [ -d "$STORE_PATH" ]; then
+            # Clear corrupted cache entries
+            find "$STORE_PATH" -type f ! -perm -u+r -delete 2>/dev/null || true
+            find "$STORE_PATH" -type d ! -perm -u+rx -delete 2>/dev/null || true
+            # Fix permissions on remaining files
+            sudo chown -R $(whoami):$(whoami) "$STORE_PATH" || true
+            chmod -R u+rw "$STORE_PATH" || true
+          fi
 
       - name: Mount Turbo cache sticky disk
         uses: useblacksmith/stickydisk@v1
@@ -188,9 +141,7 @@ jobs:
           path: ./.turbo
 
       - name: Install dependencies
-        run: |
-          rm -rf node_modules
-          pnpm install --frozen-lockfile --prefer-offline
+        run: pnpm install --frozen-lockfile --prefer-offline
 
       - name: Run all unit tests (excluding web)
         run: pnpm test:unit --filter='!@buster-app/web'
