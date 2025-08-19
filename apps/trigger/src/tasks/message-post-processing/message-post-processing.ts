@@ -153,7 +153,7 @@ export const messagePostProcessingTask: ReturnType<
         messageId: payload.messageId,
         isFollowUp: workflowInput.isFollowUp,
         isSlackFollowUp: workflowInput.isSlackFollowUp,
-        previousMessagesCount: workflowInput.previousMessages.length,
+        previousMessagesCount: previousPostProcessingResults.length,
         hasConversationHistory: !!workflowInput.conversationHistory,
         datasetsLength: workflowInput.datasets.length,
       });

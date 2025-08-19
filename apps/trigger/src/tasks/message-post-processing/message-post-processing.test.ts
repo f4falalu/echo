@@ -124,12 +124,13 @@ describe('messagePostProcessingTask', () => {
             descriptiveTitle: 'Test assumption',
             classification: 'business_rules',
             explanation: 'Test explanation',
-            label: 'important',
+            label: 'major' as const,
           },
         ],
         toolCalled: 'analyze',
       },
       flagChatResult: {
+        type: 'flagChat' as const,
         summaryTitle: 'Test Summary',
         summaryMessage: 'Test summary message',
         message: 'Test message',
@@ -156,12 +157,8 @@ describe('messagePostProcessingTask', () => {
     vi.mocked(helpers.buildWorkflowInput).mockReturnValue({
       conversationHistory: [{ role: 'user', content: 'Hello' }],
       userName: 'John Doe',
-      messageId,
-      userId: 'user-123',
-      chatId: 'chat-123',
       isFollowUp: false,
       isSlackFollowUp: false,
-      previousMessages: [],
       datasets: '',
     });
     vi.mocked(postProcessingWorkflow).mockResolvedValue(workflowOutput);
@@ -190,15 +187,15 @@ describe('messagePostProcessingTask', () => {
     expect(mockDb.update).toHaveBeenCalledWith(database.messages);
     expect(mockDb.set).toHaveBeenCalledWith({
       postProcessingMessage: {
-        summary_message: 'Test message',
-        summary_title: 'No Major Assumptions Identified',
-        confidence_score: 'high',
+        summary_message: 'Test summary message',
+        summary_title: 'Test Summary',
+        confidence_score: 'low',
         assumptions: [
           {
             descriptive_title: 'Test assumption',
             classification: 'business_rules',
             explanation: 'Test explanation',
-            label: 'important',
+            label: 'major' as const,
           },
         ],
         tool_called: 'analyze',
@@ -223,6 +220,7 @@ describe('messagePostProcessingTask', () => {
         toolCalled: 'analyze',
       },
       flagChatResult: {
+        type: 'noIssuesFound' as const,
         summaryTitle: 'Follow-up Analysis',
         summaryMessage: 'Based on previous conversation...',
         message: 'Follow-up message',
@@ -264,12 +262,8 @@ describe('messagePostProcessingTask', () => {
     vi.mocked(helpers.buildWorkflowInput).mockReturnValue({
       conversationHistory: undefined,
       userName: 'John Doe',
-      messageId,
-      userId: 'user-123',
-      chatId: 'chat-123',
       isFollowUp: true,
       isSlackFollowUp: true,
-      previousMessages: ['{"assumptions":["Previous assumption"]}'],
       datasets: '',
     });
     vi.mocked(postProcessingWorkflow).mockResolvedValue(workflowOutput);
@@ -294,7 +288,7 @@ describe('messagePostProcessingTask', () => {
     );
   });
 
-  it('should return error result when workflow returns no output', async () => {
+  it('should handle workflow with minimal output', async () => {
     const messageId = '123e4567-e89b-12d3-a456-426614174000';
 
     vi.mocked(helpers.fetchMessageWithContext).mockResolvedValue({
@@ -324,28 +318,29 @@ describe('messagePostProcessingTask', () => {
     vi.mocked(helpers.buildWorkflowInput).mockReturnValue({
       conversationHistory: undefined,
       userName: 'John Doe',
-      messageId,
-      userId: 'user-123',
-      chatId: 'chat-123',
       isFollowUp: false,
       isSlackFollowUp: false,
-      previousMessages: [],
       datasets: '',
     });
-    vi.mocked(postProcessingWorkflow).mockResolvedValue(null);
+    vi.mocked(postProcessingWorkflow).mockResolvedValue({
+      flagChatResult: {
+        type: 'noIssuesFound' as const,
+      },
+      assumptionsResult: {
+        toolCalled: 'none',
+      },
+    });
 
     const result = await runTask({ messageId });
 
     expect(result).toEqual({
-      success: false,
+      success: true,
       messageId,
-      error: {
-        code: 'WORKFLOW_EXECUTION_ERROR',
-        message: 'Post-processing workflow returned no output',
-        details: {
-          operation: 'message_post_processing_task_execution',
-          messageId,
-        },
+      result: {
+        success: true,
+        messageId,
+        executionTimeMs: expect.any(Number),
+        workflowCompleted: true,
       },
     });
   });
@@ -403,12 +398,8 @@ describe('messagePostProcessingTask', () => {
     vi.mocked(helpers.buildWorkflowInput).mockReturnValue({
       conversationHistory: undefined,
       userName: 'John Doe',
-      messageId,
-      userId: 'user-123',
-      chatId: 'chat-123',
       isFollowUp: false,
       isSlackFollowUp: false,
-      previousMessages: [],
       datasets: '',
     });
     vi.mocked(postProcessingWorkflow).mockResolvedValue({
@@ -417,6 +408,7 @@ describe('messagePostProcessingTask', () => {
         toolCalled: 'analyze',
       },
       flagChatResult: {
+        type: 'flagChat' as const,
         summaryTitle: 'Summary',
         summaryMessage: 'Summary message',
         message: 'Summary message',
