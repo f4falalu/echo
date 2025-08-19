@@ -20,26 +20,24 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       
-      - name: Setup Node.js
-        uses: useblacksmith/setup-node@v5
-        with:
-          node-version: 22
-          
       - name: Install pnpm
         uses: pnpm/action-setup@v2
         with:
           version: 9.15.0
           
-      - name: Get pnpm store directory
-        shell: bash
-        run: |
-          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
-      
-      - name: Mount pnpm store sticky disk
-        uses: useblacksmith/stickydisk@v1
+      - name: Setup Node.js
+        uses: useblacksmith/setup-node@v5
         with:
-          key: ${{ github.repository }}-pnpm-store
-          path: ${{ env.STORE_PATH }}
+          node-version: 22
+          cache: 'pnpm'
+      
+      - name: Fix pnpm store permissions
+        run: |
+          STORE_PATH=$(pnpm store path --silent)
+          if [ -d "$STORE_PATH" ]; then
+            sudo chown -R $(whoami):$(whoami) "$STORE_PATH" || true
+            chmod -R u+rw "$STORE_PATH" || true
+          fi
       
       - name: Mount Turbo cache sticky disk
         uses: useblacksmith/stickydisk@v1
@@ -48,10 +46,7 @@ jobs:
           path: ./.turbo
           
       - name: Install dependencies
-        run: |
-          # Remove any existing node_modules to avoid conflicts
-          rm -rf node_modules
-          pnpm install --frozen-lockfile --prefer-offline
+        run: pnpm install --frozen-lockfile --prefer-offline
       
       - name: Run migrations
         run: pnpm run db:migrate

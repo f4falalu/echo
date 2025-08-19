@@ -32,17 +32,15 @@ jobs:
         uses: useblacksmith/setup-node@v5
         with:
           node-version: 22
-          
-      - name: Get pnpm store directory
-        shell: bash
+          cache: 'pnpm'
+      
+      - name: Fix pnpm store permissions
         run: |
-          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
-
-      - name: Mount pnpm store sticky disk
-        uses: useblacksmith/stickydisk@v1
-        with:
-          key: ${{ github.repository }}-pnpm-store
-          path: ${{ env.STORE_PATH }}
+          STORE_PATH=$(pnpm store path --silent)
+          if [ -d "$STORE_PATH" ]; then
+            sudo chown -R $(whoami):$(whoami) "$STORE_PATH" || true
+            chmod -R u+rw "$STORE_PATH" || true
+          fi
 
       - name: Check if lockfile changed
         id: lockfile-check
@@ -58,10 +56,7 @@ jobs:
         run: pnpm fetch --frozen-lockfile
 
       - name: Install dependencies
-        run: |
-          # Clean install from pnpm store (already cached in sticky disk)
-          rm -rf node_modules
-          pnpm install --frozen-lockfile --prefer-offline
+        run: pnpm install --frozen-lockfile --prefer-offline
 
   # Build job - runs in parallel
   build:
