@@ -6,7 +6,6 @@ import { useEffect, useMemo } from 'react';
 import { EditorKit } from './editor-kit';
 import { FIXED_TOOLBAR_KIT_KEY } from './plugins/fixed-toolbar-kit';
 import { GlobalVariablePlugin } from './plugins/global-variable-kit';
-import { useMount } from '@/hooks';
 import { StreamContentPlugin } from './plugins/stream-content-plugin';
 import type { ReportElementsWithIds } from '@buster/server-shared/reports';
 
@@ -41,6 +40,7 @@ export const useReportEditor = ({
     if (editor && isStreaming) {
       const streamContentPlugin = editor.getPlugin(StreamContentPlugin);
       streamContentPlugin.api.streamContent.start();
+      console.log('streaming', value);
       streamContentPlugin.api.streamContent.streamFull(value);
     } else {
       editor?.getPlugin(StreamContentPlugin)?.api.streamContent.stop();
@@ -49,7 +49,7 @@ export const useReportEditor = ({
 
   const editor = usePlateEditor({
     plugins,
-    value,
+    value: [],
     readOnly: disabled || isStreaming
   });
 

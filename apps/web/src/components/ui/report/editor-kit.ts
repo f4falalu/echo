@@ -36,8 +36,9 @@ import { SuggestionKit } from './plugins/suggestion-kit';
 import { TableKit } from './plugins/table-kit';
 import { TocKit } from './plugins/toc-kit';
 import { ToggleKit } from './plugins/toggle-kit';
-import { BusterStreamKit } from './plugins/buster-stream-kit';
 import { CaptionKit } from './plugins/caption-kit';
+import { StreamContentKit } from './plugins/stream-content-kit';
+import { MetricKit } from './plugins/metric-kit';
 
 export const EditorKit = [
   // Editing
@@ -82,7 +83,8 @@ export const EditorKit = [
   ...SuggestionKit,
 
   // Custom
-  ...BusterStreamKit,
+  ...StreamContentKit,
+  ...MetricKit,
 
   // Parsers
   ...DocxKit,
