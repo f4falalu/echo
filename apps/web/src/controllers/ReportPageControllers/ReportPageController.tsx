@@ -52,12 +52,6 @@ export const ReportPageController: React.FC<{
 
     return (
       <div className={cn('h-full space-y-1.5 overflow-y-auto pt-9', className)}>
-        <div
-          className={cn(
-            'absolute right-5 bottom-5 h-15 w-15 animate-bounce rounded-full',
-            isStreamingMessage ? 'bg-purple-400' : 'bg-green-400'
-          )}
-        />
         {report ? (
           <>
             <ReportPageHeader
