@@ -1,5 +1,4 @@
 import { updateMessageEntries } from '@buster/database';
-import type { ChatMessageResponseMessage } from '@buster/server-shared/chats';
 import type { ToolCallOptions } from 'ai';
 import {
   OptimisticJsonParser,
@@ -31,27 +30,7 @@ const TOOL_KEYS = {
   code: keyof ModifyReportsInput['edits'][number];
 };
 
-// Helper function to create file response message for report being modified
-function createModifyReportFileResponseMessage(
-  reportId: string,
-  reportName: string
-): ChatMessageResponseMessage {
-  return {
-    id: reportId,
-    type: 'file' as const,
-    file_type: 'report' as const,
-    file_name: reportName,
-    version_number: 1,
-    filter_version_id: null,
-    metadata: [
-      {
-        status: 'loading' as const,
-        message: 'Report is being modified...',
-        timestamp: Date.now(),
-      },
-    ],
-  };
-}
+// Removed helper function - response messages should only be created in execute phase
 
 export function createModifyReportsDelta(context: ModifyReportsContext, state: ModifyReportsState) {
   return async (options: { inputTextDelta: string } & ToolCallOptions) => {
@@ -71,47 +50,15 @@ export function createModifyReportsDelta(context: ModifyReportsContext, state: M
         []
       );
 
-      // Track if we need to send file response
-      let shouldSendFileResponse = false;
-
       // Update report metadata
       if (id && !state.reportId) {
         state.reportId = id;
-        // Check if we now have both ID and name
-        if (state.reportName || name) {
-          shouldSendFileResponse = true;
-        }
       }
       if (name && !state.reportName) {
         state.reportName = name;
-        // Check if we now have both ID and name
-        if (state.reportId || id) {
-          shouldSendFileResponse = true;
-        }
       }
 
-      // Send file response message as soon as we have both ID and name
-      if (shouldSendFileResponse && context.messageId) {
-        const finalId = state.reportId || id;
-        const finalName = state.reportName || name;
-
-        if (finalId && finalName) {
-          try {
-            const fileResponse = createModifyReportFileResponseMessage(finalId, finalName);
-            await updateMessageEntries({
-              messageId: context.messageId,
-              responseMessages: [fileResponse],
-            });
-
-            console.info('[modify-reports] Sent file response message', {
-              reportId: finalId,
-              reportName: finalName,
-            });
-          } catch (error) {
-            console.error('[modify-reports] Error sending file response:', error);
-          }
-        }
-      }
+      // Note: Response messages are only created in execute phase after checking for metrics
 
       // Process edits
       if (editsArray && Array.isArray(editsArray)) {

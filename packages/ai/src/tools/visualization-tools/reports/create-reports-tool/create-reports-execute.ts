@@ -1,6 +1,8 @@
 import { updateMessageEntries } from '@buster/database';
+import type { ChatMessageResponseMessage } from '@buster/server-shared/chats';
 import { wrapTraced } from 'braintrust';
 import { createRawToolResultEntry } from '../../../shared/create-raw-llm-tool-result-entry';
+import { reportContainsMetrics } from '../helpers/report-metric-helper';
 import type {
   CreateReportsContext,
   CreateReportsInput,
@@ -88,6 +90,33 @@ export function createCreateReportsExecute(
       const startTime = Date.now();
 
       try {
+        // Create initial database entries (moved from start.ts)
+        if (context.messageId && !state.initialEntriesCreated) {
+          try {
+            const toolCallId = state.toolCallId || `tool-${Date.now()}`;
+            const reasoningEntry = createCreateReportsReasoningEntry(state, toolCallId);
+            const rawLlmMessage = createCreateReportsRawLlmMessageEntry(state, toolCallId);
+
+            const updates: Parameters<typeof updateMessageEntries>[0] = {
+              messageId: context.messageId,
+            };
+
+            if (reasoningEntry) {
+              updates.reasoningMessages = [reasoningEntry];
+            }
+
+            if (rawLlmMessage) {
+              updates.rawLlmMessages = [rawLlmMessage];
+            }
+
+            if (reasoningEntry || rawLlmMessage) {
+              await updateMessageEntries(updates);
+              state.initialEntriesCreated = true;
+            }
+          } catch (error) {
+            console.error('[create-reports] Error creating initial database entries:', error);
+          }
+        }
         // Get the results (reports were already created in delta)
         const result = await getReportCreationResults(input, context, state);
 
@@ -123,6 +152,42 @@ export function createCreateReportsExecute(
                 });
               }
 
+              // Check which reports contain metrics to determine if they should be in responseMessages
+              const responseMessages: ChatMessageResponseMessage[] = [];
+
+              // Check each report file for metrics
+              if (state.files && typedResult.files) {
+                for (const resultFile of typedResult.files) {
+                  // Find the corresponding input file to get the content
+                  const fileIndex = state.files.findIndex((f) => f.id === resultFile.id);
+                  if (fileIndex >= 0 && input.files[fileIndex]) {
+                    const reportContent = input.files[fileIndex].content;
+
+                    // Only add to response messages if the report contains metrics
+                    if (reportContainsMetrics(reportContent)) {
+                      const stateFile = state.files[fileIndex];
+                      if (stateFile) {
+                        responseMessages.push({
+                          id: stateFile.id,
+                          type: 'file' as const,
+                          file_type: 'report' as const,
+                          file_name: stateFile.file_name || resultFile.name,
+                          version_number: stateFile.version_number || 1,
+                          filter_version_id: null,
+                          metadata: [
+                            {
+                              status: 'completed' as const,
+                              message: 'Report created successfully',
+                              timestamp: Date.now(),
+                            },
+                          ],
+                        });
+                      }
+                    }
+                  }
+                }
+              }
+
               const reasoningEntry = createCreateReportsReasoningEntry(state, toolCallId);
               const rawLlmMessage = createCreateReportsRawLlmMessageEntry(state, toolCallId);
               const rawLlmResultEntry = createRawToolResultEntry(
@@ -145,7 +210,12 @@ export function createCreateReportsExecute(
                 updates.rawLlmMessages = [rawLlmMessage, rawLlmResultEntry];
               }
 
-              if (reasoningEntry || rawLlmMessage) {
+              // Only add responseMessages if there are reports with metrics
+              if (responseMessages.length > 0) {
+                updates.responseMessages = responseMessages;
+              }
+
+              if (reasoningEntry || rawLlmMessage || responseMessages.length > 0) {
                 await updateMessageEntries(updates);
               }
 
@@ -153,6 +223,7 @@ export function createCreateReportsExecute(
                 messageId: context.messageId,
                 successCount: typedResult.files?.length || 0,
                 failedCount: typedResult.failed_files?.length || 0,
+                reportsWithMetrics: responseMessages.length,
               });
             } catch (error) {
               console.error('[create-reports] Error updating final entries:', error);

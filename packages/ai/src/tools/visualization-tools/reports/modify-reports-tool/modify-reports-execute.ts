@@ -1,8 +1,10 @@
 import { batchUpdateReport, db, reportFiles, updateMessageEntries } from '@buster/database';
+import type { ChatMessageResponseMessage } from '@buster/server-shared/chats';
 import { wrapTraced } from 'braintrust';
 import { and, eq, isNull } from 'drizzle-orm';
 import { createRawToolResultEntry } from '../../../shared/create-raw-llm-tool-result-entry';
 import { trackFileAssociations } from '../../file-tracking-helper';
+import { reportContainsMetrics } from '../helpers/report-metric-helper';
 import { shouldIncrementVersion, updateVersionHistory } from '../helpers/report-version-helper';
 import {
   createModifyReportsRawLlmMessageEntry,
@@ -351,6 +353,32 @@ export function createModifyReportsExecute(
             try {
               const toolCallId = state.toolCallId || `tool-${Date.now()}`;
 
+              // Check if the modified report contains metrics
+              const responseMessages: ChatMessageResponseMessage[] = [];
+
+              // Only add to response messages if modification was successful AND report contains metrics
+              if (
+                typedResult.success &&
+                typedResult.file &&
+                reportContainsMetrics(typedResult.file.content)
+              ) {
+                responseMessages.push({
+                  id: typedResult.file.id,
+                  type: 'file' as const,
+                  file_type: 'report' as const,
+                  file_name: typedResult.file.name,
+                  version_number: typedResult.file.version_number || 1,
+                  filter_version_id: null,
+                  metadata: [
+                    {
+                      status: 'completed' as const,
+                      message: 'Report modified successfully',
+                      timestamp: Date.now(),
+                    },
+                  ],
+                });
+              }
+
               const reasoningEntry = createModifyReportsReasoningEntry(state, toolCallId);
               const rawLlmMessage = createModifyReportsRawLlmMessageEntry(state, toolCallId);
               const rawLlmResultEntry = createRawToolResultEntry(
@@ -373,7 +401,12 @@ export function createModifyReportsExecute(
                 updates.rawLlmMessages = [rawLlmMessage, rawLlmResultEntry];
               }
 
-              if (reasoningEntry || rawLlmMessage) {
+              // Only add responseMessages if there are reports with metrics
+              if (responseMessages.length > 0) {
+                updates.responseMessages = responseMessages;
+              }
+
+              if (reasoningEntry || rawLlmMessage || responseMessages.length > 0) {
                 await updateMessageEntries(updates);
               }
 
@@ -382,6 +415,7 @@ export function createModifyReportsExecute(
                 success: typedResult.success,
                 editsApplied: state.edits?.filter((e) => e.status === 'completed').length || 0,
                 editsFailed: state.edits?.filter((e) => e.status === 'failed').length || 0,
+                reportHasMetrics: responseMessages.length > 0,
               });
             } catch (error) {
               console.error('[modify-reports] Error updating final entries:', error);
