@@ -25,6 +25,7 @@ export const ReportPageController: React.FC<{
     const isStreamingMessage = useChatIndividualContextSelector((x) => x.isStreamingMessage);
 
     const content: ReportElementsWithIds = report?.content || [];
+    const commonClassName = 'sm:px-[max(64px,calc(50%-350px))]';
 
     const { mutate: updateReport } = useUpdateReport();
 
@@ -45,8 +46,6 @@ export const ReportPageController: React.FC<{
       }
       debouncedUpdateReport({ reportId, content });
     });
-
-    const commonClassName = 'sm:px-[max(64px,calc(50%-350px))]';
 
     useTrackAndUpdateReportChanges({ reportId, subscribe: isStreamingMessage });
 
