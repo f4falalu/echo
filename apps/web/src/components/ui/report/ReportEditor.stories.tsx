@@ -1,4 +1,4 @@
-import type { ReportElement } from '@buster/server-shared/reports';
+import type { ReportElementWithId } from '@buster/server-shared/reports';
 import type { Meta, StoryObj } from '@storybook/nextjs';
 import { ReportEditor } from './ReportEditor';
 import { useEffect, useRef, useState } from 'react';
@@ -347,7 +347,10 @@ const sampleValue = [
       }
     ]
   }
-] satisfies ReportElement[];
+].map((element, index) => ({
+  ...element,
+  id: `id-${index}`
+})) as ReportElementWithId[];
 
 // Cast to Value for platejs compatibility
 const plateValue = sampleValue;
@@ -397,7 +400,10 @@ export const WithCustomKit: Story = {
         url: 'https://picsum.photos/200/200',
         caption: [{ text: 'This is a caption' }]
       }
-    ],
+    ].map((element, index) => ({
+      ...element,
+      id: `id-${index}`
+    })) as ReportElementWithId[],
     useFixedToolbarKit: true
   }
 };
@@ -407,12 +413,15 @@ export const WithStreamingContent: Story = {
     value: [
       { type: 'h1', children: [{ text: 'Hello' }] },
       { type: 'p', children: [{ text: 'This is a paragraph' }] }
-    ]
+    ].map((element, index) => ({
+      ...element,
+      id: `id-${index}`
+    })) as ReportElementWithId[]
   },
   render: (args) => {
     // This effect simulates streaming content by appending to the current line,
     // and starting a new line every 3 iterations, up to 10 total iterations.
-    const [value, setValue] = useState<ReportElement[]>(args.value);
+    const [value, setValue] = useState<ReportElementWithId[]>(args.value);
     const iterations = useRef(0);
 
     const [isRunning, setIsRunning] = useState(false);
@@ -431,11 +440,15 @@ export const WithStreamingContent: Story = {
 
           if (shouldStartNewLine) {
             // Start a new paragraph line
-            nextValue.push({ type: 'p', children: [{ text: makeChunk(iterations.current) }] });
+            nextValue.push({
+              type: 'p',
+              children: [{ text: makeChunk(iterations.current) }],
+              id: `id-${iterations.current}`
+            });
           } else {
             // Append to the current (last) paragraph line
             const lastIndex = nextValue.length - 1;
-            const lastBlock = nextValue[lastIndex] as ReportElement | undefined;
+            const lastBlock = nextValue[lastIndex] as ReportElementWithId | undefined;
 
             if (lastBlock && lastBlock.type === 'p') {
               const children = Array.isArray((lastBlock as any).children)
@@ -457,10 +470,17 @@ export const WithStreamingContent: Story = {
                 children.push({ text: makeChunk(iterations.current) });
               }
 
-              nextValue[lastIndex] = { ...(lastBlock as any), children } as ReportElement;
+              nextValue[lastIndex] = {
+                ...(lastBlock as any),
+                children
+              } as ReportElementWithId;
             } else {
               // If the last block isn't a paragraph, start one
-              nextValue.push({ type: 'p', children: [{ text: makeChunk(iterations.current) }] });
+              nextValue.push({
+                id: `id-${iterations.current}`,
+                type: 'p',
+                children: [{ text: makeChunk(iterations.current) }]
+              });
             }
           }
 

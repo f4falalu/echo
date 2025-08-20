@@ -14,8 +14,7 @@ import isEmpty from 'lodash/isEmpty';
 import { metricsQueryKeys } from '../../query_keys/metric';
 import { chatQueryKeys } from '../../query_keys/chat';
 import { reportsQueryKeys } from '@/api/query_keys/reports';
-import { usePrefetchGetDashboardClient } from '@/api/buster_rest/dashboards/queryRequests';
-import { usePrefetchGetMetricClient } from '@/api/buster_rest/metrics/queryRequests';
+import { DEFAULT_UPDATE_OPERATIONS } from '../config';
 
 export const useGetMessage = ({ chatId, messageId }: { chatId: string; messageId: string }) => {
   const shape = useMemo(() => messageShape({ chatId, messageId }), [chatId, messageId]);
@@ -27,7 +26,6 @@ export const useGetMessages = ({ chatId }: { chatId: string }) => {
   return useShape(shape);
 };
 
-const updateOperations: Array<'insert' | 'update' | 'delete'> = ['update'];
 const insertOperations: Array<'insert' | 'update' | 'delete'> = ['insert'];
 
 export const useTrackAndUpdateMessageChanges = (
@@ -56,7 +54,7 @@ export const useTrackAndUpdateMessageChanges = (
 
   return useShapeStream(
     shape,
-    updateOperations,
+    DEFAULT_UPDATE_OPERATIONS,
     useMemoizedFn((message) => {
       if (message && message.value && chatId) {
         const iChatMessage = updateMessageShapeToIChatMessage(message.value);

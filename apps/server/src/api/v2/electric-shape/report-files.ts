@@ -1,103 +1,26 @@
-import { type WorkspaceSharing, hasAssetPermission } from '@buster/access-controls';
-import { and, db, eq, isNull, reportFiles } from '@buster/database';
+import { hasAssetPermission } from '@buster/access-controls';
+import { type ReportElementsWithIds, getReportMetadata, type reportFiles } from '@buster/database';
+import type { ReportIndividualResponse } from '@buster/server-shared/reports';
 import { markdownToPlatejs } from '@buster/server-utils/report';
+import type { ChangeMessage } from '@electric-sql/client';
 import type { Context } from 'hono';
+import type { ZodError } from 'zod';
 import { errorResponse } from '../../../utils/response';
 import { createProxiedResponse, extractParamFromWhere } from './_helpers';
+import {
+  type TransformCallback,
+  createElectricHandledResponse,
+} from './_helpers/transform-request';
 
-// Types for Electric SQL response format
-interface ElectricDataRow<T> {
-  value: T;
-  key: string;
-  headers: {
-    last?: boolean;
-    relation: string[];
-    operation: string;
-    lsn: string;
-    op_position: number;
-    txids: number[];
-  };
-}
+type StreamableReportProperties = Pick<typeof reportFiles.$inferSelect, 'name' | 'id' | 'content'>;
+type ReportFile = Partial<ReportIndividualResponse>;
+type ReportMetadata = Awaited<ReturnType<typeof getReportMetadata>>;
 
-interface ElectricControlMessage {
-  headers: {
-    control: string;
-    global_last_seen_lsn?: string;
-  };
-}
-
-type ElectricResponse<T> = Array<ElectricDataRow<T> | ElectricControlMessage>;
-
-// Type for report_files table row
-interface ReportFileRow {
-  id: string;
-  name: string;
-  content: string; // This is what we'll transform
-  organization_id: string;
-  created_by: string;
-  created_at: string;
-  updated_at: string;
-  deleted_at?: string | null;
-  publicly_accessible: boolean;
-  publicly_enabled_by?: string | null;
-  public_expiry_date?: string | null;
-  version_history: Record<
-    string,
-    {
-      content: string;
-      updated_at: string;
-      version_number: number;
-    }
-  >;
-  public_password?: string | null;
-  workspace_sharing: string;
-  workspace_sharing_enabled_by?: string | null;
-  workspace_sharing_enabled_at?: string | null;
-}
-
-/**
- * Transform the content field from markdown to PlateJS format
- */
-export async function transformReportFilesResponse(response: Response): Promise<Response> {
-  const data = (await response.json()) as ElectricResponse<ReportFileRow>;
-
-  // Transform content field for data rows
-  const transformedData = await Promise.all(
-    data.map(async (item) => {
-      // Type guard to check if this is a data row (not a control message)
-      if ('value' in item && item.value.content) {
-        const { elements, error } = await markdownToPlatejs(item.value.content);
-
-        if (error) {
-          console.error('Error transforming report content:', error);
-          // Keep original content if transformation fails
-          return item;
-        }
-
-        // Replace content with PlateJS elements
-        return {
-          ...item,
-          value: {
-            ...item.value,
-            content: JSON.stringify(elements),
-          },
-        };
-      }
-
-      // Return control messages and other data unchanged
-      return item;
-    })
-  );
-
-  // Return new response with same headers
-  return new Response(JSON.stringify(transformedData), {
-    headers: response.headers,
-    status: response.status,
-    statusText: response.statusText,
-  });
-}
-
-export const reportFilesProxyRouter = async (url: URL, _userId: string, c: Context) => {
+export const reportFilesProxyRouter = async (
+  url: URL,
+  _userId: string,
+  c: Context
+): Promise<Response> => {
   const reportId = extractParamFromWhere(url, 'id');
 
   if (!reportId) {
@@ -105,16 +28,15 @@ export const reportFilesProxyRouter = async (url: URL, _userId: string, c: Conte
   }
 
   // Get report metadata for access control
-  const reportData = await db
-    .select({
-      organizationId: reportFiles.organizationId,
-      workspaceSharing: reportFiles.workspaceSharing,
-    })
-    .from(reportFiles)
-    .where(and(eq(reportFiles.id, reportId), isNull(reportFiles.deletedAt)))
-    .limit(1);
+  let reportData: ReportMetadata;
+  try {
+    reportData = await getReportMetadata({ reportId });
+  } catch (error) {
+    console.error('Error getting report metadata:', error);
+    throw errorResponse('Report not found', 404);
+  }
 
-  if (!reportData[0]) {
+  if (!reportData) {
     throw errorResponse('Report not found', 404);
   }
 
@@ -124,8 +46,8 @@ export const reportFilesProxyRouter = async (url: URL, _userId: string, c: Conte
     assetId: reportId,
     assetType: 'report_file',
     requiredRole: 'can_view',
-    organizationId: reportData[0].organizationId,
-    workspaceSharing: reportData[0].workspaceSharing as WorkspaceSharing,
+    organizationId: reportData.organizationId,
+    workspaceSharing: reportData.workspaceSharing,
   });
 
   if (!hasAccess) {
@@ -134,5 +56,22 @@ export const reportFilesProxyRouter = async (url: URL, _userId: string, c: Conte
 
   // Fetch the response and transform it
   const response = await createProxiedResponse(url);
-  return await transformReportFilesResponse(response);
+
+  return createElectricHandledResponse<StreamableReportProperties, ReportFile>(response, {
+    transformCallback,
+  });
+};
+
+const transformCallback: TransformCallback<StreamableReportProperties, ReportFile> = async ({
+  value: { content, ...values },
+}) => {
+  const returnValue: ReportFile = values;
+
+  if (content) {
+    const { elements, error } = await markdownToPlatejs(content);
+    if (error) console.error('Error transforming report content:', error);
+    else returnValue.content = elements as ReportElementsWithIds; //why do I need as here? makes no gorey damn sense
+  }
+
+  return returnValue;
 };

@@ -6,11 +6,12 @@ import React from 'react';
 import { ReportPageHeader } from './ReportPageHeader';
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import { useDebounceFn } from '@/hooks/useDebounce';
-import type { ReportElements } from '@buster/server-shared/reports';
+import type { ReportElementsWithIds } from '@buster/server-shared/reports';
 import DynamicReportEditor from '@/components/ui/report/DynamicReportEditor';
 import { type IReportEditor } from '@/components/ui/report/ReportEditor';
 import { ReportEditorSkeleton } from '@/components/ui/report/ReportEditorSkeleton';
 import { useChatIndividualContextSelector } from '@/layouts/ChatLayout/ChatContext';
+import { useTrackAndUpdateReportChanges } from '@/api/buster-electric/reports/hooks';
 
 export const ReportPageController: React.FC<{
   reportId: string;
@@ -23,7 +24,7 @@ export const ReportPageController: React.FC<{
     const { data: report } = useGetReport({ reportId, versionNumber: undefined });
     const isStreamingMessage = useChatIndividualContextSelector((x) => x.isStreamingMessage);
 
-    const content: ReportElements = report?.content || [];
+    const content: ReportElementsWithIds = report?.content || [];
 
     const { mutate: updateReport } = useUpdateReport();
 
@@ -37,7 +38,7 @@ export const ReportPageController: React.FC<{
 
     const { run: debouncedUpdateReport } = useDebounceFn(updateReport, { wait: 650 });
 
-    const onChangeContent = useMemoizedFn((content: ReportElements) => {
+    const onChangeContent = useMemoizedFn((content: ReportElementsWithIds) => {
       if (!report) {
         console.warn('Report not yet fetched');
         return;
@@ -47,8 +48,16 @@ export const ReportPageController: React.FC<{
 
     const commonClassName = 'sm:px-[max(64px,calc(50%-350px))]';
 
+    useTrackAndUpdateReportChanges({ reportId, subscribe: false });
+
     return (
       <div className={cn('h-full space-y-1.5 overflow-y-auto pt-9', className)}>
+        <div
+          className={cn(
+            'absolute right-5 bottom-5 h-15 w-15 animate-bounce rounded-full',
+            isStreamingMessage ? 'bg-purple-400' : 'bg-green-400'
+          )}
+        />
         {report ? (
           <>
             <ReportPageHeader
@@ -56,6 +65,7 @@ export const ReportPageController: React.FC<{
               updatedAt={report?.updated_at}
               onChangeName={onChangeName}
               className={commonClassName}
+              isStreaming={isStreamingMessage}
             />
 
             <DynamicReportEditor
