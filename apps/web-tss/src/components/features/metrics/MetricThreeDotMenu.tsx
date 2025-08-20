@@ -300,6 +300,21 @@ const useEditChartSelectMenu = () => {
 };
 
 const useResultsViewSelectMenu = ({ metricId }: { metricId: string }): DropdownItem => {
+  <Dropdown
+    items={[
+      {
+        label: 'Results view',
+        value: 'results-view',
+        link: {
+          to: './results',
+        },
+        icon: <Table />,
+      },
+    ]}
+  >
+    <div></div>
+  </Dropdown>;
+
   return useMemo(
     () => ({
       label: 'Results view',
