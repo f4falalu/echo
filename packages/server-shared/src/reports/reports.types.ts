@@ -14,7 +14,7 @@ export const ReportListItemSchema = z.object({
   publicly_accessible: z.boolean(),
 });
 
-export const ReportIndividualResponseSchema = z.object({
+export const ReportResponseSchema = z.object({
   id: z.string(),
   name: z.string(),
   created_at: z.string(),
@@ -30,4 +30,4 @@ export const ReportIndividualResponseSchema = z.object({
 });
 
 export type ReportListItem = z.infer<typeof ReportListItemSchema>;
-export type ReportIndividualResponse = z.infer<typeof ReportIndividualResponseSchema>;
+export type ReportResponse = z.infer<typeof ReportResponseSchema>;

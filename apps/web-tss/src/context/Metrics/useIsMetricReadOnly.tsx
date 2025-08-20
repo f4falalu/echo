@@ -21,7 +21,7 @@ export const useIsMetricReadOnly = ({
   metricId: string;
   readOnly?: boolean;
 }) => {
-  const isVersionHistoryMode = useChatIsVersionHistoryMode();
+  const isVersionHistoryMode = useChatIsVersionHistoryMode({ type: 'metric' });
   const { metricVersionNumber } = useGetMetricParams();
   const {
     data: metricData,
@@ -58,10 +58,11 @@ export const useIsMetricReadOnly = ({
 };
 
 const checkIfMetricIsViewingOldVersion = (
-  metricVersionNumber: number | undefined,
+  metricVersionNumber: number | 'LATEST',
   metricData: Pick<BusterMetric, 'versions' | 'version_number'> | undefined
 ) => {
   if (!metricVersionNumber) return false;
+  if (metricVersionNumber === 'LATEST') return false;
   if (metricVersionNumber !== last(metricData?.versions)?.version_number) return true;
   return false;
 };
