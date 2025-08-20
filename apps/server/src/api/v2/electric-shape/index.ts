@@ -45,6 +45,12 @@ const app = new Hono()
 
       return response;
     } catch (_error) {
+      // If it's already an HTTP error (like 403/404), re-throw it
+      if (_error && typeof _error === 'object' && 'getResponse' in _error) {
+        throw _error;
+      }
+
+      // Otherwise, log and throw generic error
       console.error('Error fetching data from Electric Shape', _error);
       throw errorResponse('Error fetching data from Electric Shape', 500);
     }

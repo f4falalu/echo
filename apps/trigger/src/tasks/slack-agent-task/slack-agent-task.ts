@@ -123,26 +123,57 @@ export const slackAgentTask: ReturnType<
         hasParentMessage: slackMessages.length > 0,
       });
 
+      // Check if this is a DM (channel ID starts with 'D')
+      const isDM = chatDetails.slackChannelId?.startsWith('D') || false;
+
       // Filter messages to only include non-bot messages after the most recent app mention
       if (!integration.botUserId) {
         logger.error('No bot user ID found for Slack integration');
         throw new Error('Slack integration is missing bot user ID');
       }
 
-      const { filteredMessages: relevantMessages, mentionMessageTs } =
-        filterMessagesAfterLastMention(slackMessages, integration.botUserId);
+      let relevantMessages: typeof slackMessages;
+      let mentionMessageTs: string | null;
 
-      logger.log('Filtered relevant messages', {
-        originalCount: slackMessages.length,
-        filteredCount: relevantMessages.length,
-        botUserId: integration.botUserId,
-        mentionMessageTs,
-      });
+      if (isDM) {
+        // For DMs, we don't need to look for mentions - all messages are for the bot
+        // Use the most recent message timestamp as the "mention" timestamp for reactions
+        relevantMessages = slackMessages.filter((msg) => msg.user !== integration.botUserId);
+        mentionMessageTs =
+          relevantMessages.length > 0
+            ? relevantMessages[relevantMessages.length - 1]?.ts || null
+            : null;
 
-      // If no mention was found, we can't proceed
+        logger.log('Processing DM messages', {
+          originalCount: slackMessages.length,
+          filteredCount: relevantMessages.length,
+          botUserId: integration.botUserId,
+          mentionMessageTs,
+        });
+      } else {
+        // For channel messages, look for @Buster mentions
+        const filterResult = filterMessagesAfterLastMention(slackMessages, integration.botUserId);
+        relevantMessages = filterResult.filteredMessages;
+        mentionMessageTs = filterResult.mentionMessageTs;
+
+        logger.log('Filtered channel messages', {
+          originalCount: slackMessages.length,
+          filteredCount: relevantMessages.length,
+          botUserId: integration.botUserId,
+          mentionMessageTs,
+        });
+
+        // If no mention was found in a channel, we can't proceed
+        if (!mentionMessageTs) {
+          logger.error('No @Buster mention found in channel thread');
+          throw new Error('No @Buster mention found in the channel thread');
+        }
+      }
+
+      // If no relevant timestamp found (shouldn't happen), we can't proceed
       if (!mentionMessageTs) {
-        logger.error('No @Buster mention found in thread');
-        throw new Error('No @Buster mention found in the thread');
+        logger.error('No message timestamp found for reactions');
+        throw new Error('No message timestamp found to react to');
       }
 
       // Find all bot messages in the thread to determine if this is a follow-up
@@ -154,20 +185,40 @@ export const slackAgentTask: ReturnType<
       // Get all messages for context, not just after the mention
       let messagesToInclude: typeof slackMessages;
 
-      if (isFollowUp) {
-        // Find the timestamp of the last bot message before the current mention
-        const lastBotMessageTs = Math.max(
-          ...previousBotMessages.map((msg) => Number.parseFloat(msg.ts))
-        );
-        const lastBotMessageIndex = slackMessages.findIndex(
-          (msg) => Number.parseFloat(msg.ts) === lastBotMessageTs
-        );
+      if (isDM) {
+        // For DMs, handle follow-ups differently
+        if (isFollowUp) {
+          // Find the timestamp of the last bot message
+          const lastBotMessageTs = Math.max(
+            ...previousBotMessages.map((msg) => Number.parseFloat(msg.ts))
+          );
+          const lastBotMessageIndex = slackMessages.findIndex(
+            (msg) => Number.parseFloat(msg.ts) === lastBotMessageTs
+          );
 
-        // Include messages after the last bot response
-        messagesToInclude = slackMessages.slice(lastBotMessageIndex + 1);
+          // Include messages after the last bot response
+          messagesToInclude = slackMessages.slice(lastBotMessageIndex + 1);
+        } else {
+          // Include all messages for first request
+          messagesToInclude = slackMessages;
+        }
       } else {
-        // Include all messages in the thread for first request
-        messagesToInclude = slackMessages;
+        // For channel messages, use the existing logic
+        if (isFollowUp) {
+          // Find the timestamp of the last bot message before the current mention
+          const lastBotMessageTs = Math.max(
+            ...previousBotMessages.map((msg) => Number.parseFloat(msg.ts))
+          );
+          const lastBotMessageIndex = slackMessages.findIndex(
+            (msg) => Number.parseFloat(msg.ts) === lastBotMessageTs
+          );
+
+          // Include messages after the last bot response
+          messagesToInclude = slackMessages.slice(lastBotMessageIndex + 1);
+        } else {
+          // Include all messages in the thread for first request
+          messagesToInclude = slackMessages;
+        }
       }
 
       // Filter out bot messages and format the conversation
@@ -175,7 +226,7 @@ export const slackAgentTask: ReturnType<
         .filter((msg) => msg.user !== integration.botUserId) // Exclude bot messages
         .map((msg) => {
           let text = msg.text || '';
-          // Replace bot user ID mentions with @Buster
+          // Replace bot user ID mentions with @Buster for consistency
           if (integration.botUserId) {
             text = text.replace(new RegExp(`<@${integration.botUserId}>`, 'g'), '@Buster');
           }

@@ -412,7 +412,7 @@ export function validateWildcardUsage(
     if (blockedTables.length > 0) {
       return {
         isValid: false,
-        error: `You're not allowed to use a wildcard on physical tables, please be specific about which columns you'd like to work with`,
+        error: `SELECT * is not allowed on physical tables. Please specify the columns you need.`,
         blockedTables,
       };
     }
@@ -511,7 +511,8 @@ function findWildcardUsageOnPhysicalTables(
           const isDirectCte = cteNames.has(tableName.toLowerCase());
 
           if (!isAliasToCte && !isDirectCte) {
-            blockedTables.push(tableName);
+            // Push the actual table name if it's an alias, otherwise push the table name itself
+            blockedTables.push(actualTableName || tableName);
           }
         }
       }

@@ -19,6 +19,9 @@ export * from './vault';
 // Export schema types
 export * from './schema-types';
 
+// Export message schemas
+export * from './schemas/message-schemas';
+
 // Export common Drizzle utilities
 export {
   eq,

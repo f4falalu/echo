@@ -91,7 +91,7 @@ const yourStuff = (
         id: BusterRoutes.APP_COLLECTIONS,
         active: isActiveCheck('collection', BusterRoutes.APP_COLLECTIONS)
       },
-      process.env.NEXT_PUBLIC_ENABLE_REPORTS === 'true' && {
+      {
         label: 'Reports',
         icon: <ASSET_ICONS.reports />,
         route: createBusterRoute({ route: BusterRoutes.APP_REPORTS }),

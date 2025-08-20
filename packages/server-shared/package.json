@@ -32,6 +32,10 @@
       "types": "./dist/dashboards/index.d.ts",
       "default": "./dist/dashboards/index.js"
     },
+    "./github": {
+      "types": "./dist/github/index.d.ts",
+      "default": "./dist/github/index.js"
+    },
     "./slack": {
       "types": "./dist/slack/index.d.ts",
       "default": "./dist/slack/index.js"

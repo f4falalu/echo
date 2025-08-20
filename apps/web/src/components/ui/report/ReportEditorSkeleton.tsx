@@ -52,7 +52,8 @@ export function ReportEditorSkeleton({
   elements = DEFAULT_ELEMENTS
 }: ReportEditorSkeletonProps) {
   return (
-    <div className={cn('mx-auto w-full space-y-6 sm:px-[max(64px,calc(50%-350px))]', className)}>
+    <div
+      className={cn('mx-auto mt-8 w-full space-y-6 sm:px-[max(64px,calc(50%-350px))]', className)}>
       {/* Toolbar skeleton */}
       {elements.includes('toolbar') && (
         <div className="border-border flex h-11 w-full animate-pulse items-center justify-between border-b bg-transparent px-3">
@@ -73,7 +74,7 @@ export function ReportEditorSkeleton({
       )}
 
       {/* Content area */}
-      <div className="px-8 pb-12">
+      <div className="px-0 pb-12">
         <div className="border-border animate-pulse space-y-6 rounded-lg bg-transparent">
           {/* Header skeleton */}
           {elements.includes('header') && (

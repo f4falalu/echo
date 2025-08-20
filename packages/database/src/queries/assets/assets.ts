@@ -318,12 +318,24 @@ export async function getAssetDetailsById(
     if (!metric) return null;
 
     // Extract version number from version history
-    const versionNumber =
-      typeof metric.versionHistory === 'object' &&
-      metric.versionHistory &&
-      'version_number' in metric.versionHistory
-        ? (metric.versionHistory as { version_number: number }).version_number
-        : 1;
+    // versionHistory is a Record<string, {content, updated_at, version_number}>
+    // Get the highest version number from the keys
+    const versionNumber = (() => {
+      if (!metric.versionHistory || typeof metric.versionHistory !== 'object') {
+        return 1;
+      }
+
+      const versionKeys = Object.keys(metric.versionHistory);
+      if (versionKeys.length === 0) {
+        return 1;
+      }
+
+      // Parse version keys and find the highest
+      const versions = versionKeys
+        .map((key) => Number.parseInt(key, 10))
+        .filter((v) => !Number.isNaN(v));
+      return versions.length > 0 ? Math.max(...versions) : 1;
+    })();
 
     return {
       id: metric.id,
@@ -350,12 +362,24 @@ export async function getAssetDetailsById(
     if (!dashboard) return null;
 
     // Extract version number from version history
-    const versionNumber =
-      typeof dashboard.versionHistory === 'object' &&
-      dashboard.versionHistory &&
-      'version_number' in dashboard.versionHistory
-        ? (dashboard.versionHistory as { version_number: number }).version_number
-        : 1;
+    // versionHistory is a Record<string, {content, updated_at, version_number}>
+    // Get the highest version number from the keys
+    const versionNumber = (() => {
+      if (!dashboard.versionHistory || typeof dashboard.versionHistory !== 'object') {
+        return 1;
+      }
+
+      const versionKeys = Object.keys(dashboard.versionHistory);
+      if (versionKeys.length === 0) {
+        return 1;
+      }
+
+      // Parse version keys and find the highest
+      const versions = versionKeys
+        .map((key) => Number.parseInt(key, 10))
+        .filter((v) => !Number.isNaN(v));
+      return versions.length > 0 ? Math.max(...versions) : 1;
+    })();
 
     return {
       id: dashboard.id,

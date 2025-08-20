@@ -1,6 +1,12 @@
 import { chats, db, getSecretByName, slackIntegrations } from '@buster/database';
 import type { SlackEventsResponse } from '@buster/server-shared/slack';
-import { type SlackWebhookPayload, addReaction, isEventCallback } from '@buster/slack';
+import {
+  type SlackWebhookPayload,
+  addReaction,
+  isAppMentionEvent,
+  isEventCallback,
+  isMessageImEvent,
+} from '@buster/slack';
 import { tasks } from '@trigger.dev/sdk';
 import { and, eq } from 'drizzle-orm';
 import type { Context } from 'hono';
@@ -38,6 +44,7 @@ export async function findOrCreateSlackChat({
   userId,
   slackChatAuthorization,
   teamId,
+  isDM = false,
 }: {
   threadTs: string;
   channelId: string;
@@ -45,6 +52,7 @@ export async function findOrCreateSlackChat({
   userId: string;
   slackChatAuthorization: 'unauthorized' | 'authorized' | 'auto_added';
   teamId: string;
+  isDM?: boolean;
 }): Promise<string> {
   // Run both queries concurrently for better performance
   const [existingChat, slackIntegration] = await Promise.all([
@@ -101,11 +109,22 @@ export async function findOrCreateSlackChat({
       slackChatAuthorization,
       slackThreadTs: threadTs,
       slackChannelId: channelId,
-      // Set workspace sharing based on Slack integration settings
-      workspaceSharing: defaultSharingPermissions === 'shareWithWorkspace' ? 'can_view' : 'none',
-      workspaceSharingEnabledBy: defaultSharingPermissions === 'shareWithWorkspace' ? userId : null,
-      workspaceSharingEnabledAt:
-        defaultSharingPermissions === 'shareWithWorkspace' ? new Date().toISOString() : null,
+      // DM chats are NEVER shared with workspace, regardless of settings
+      workspaceSharing: isDM
+        ? 'none'
+        : defaultSharingPermissions === 'shareWithWorkspace'
+          ? 'can_view'
+          : 'none',
+      workspaceSharingEnabledBy: isDM
+        ? null
+        : defaultSharingPermissions === 'shareWithWorkspace'
+          ? userId
+          : null,
+      workspaceSharingEnabledAt: isDM
+        ? null
+        : defaultSharingPermissions === 'shareWithWorkspace'
+          ? new Date().toISOString()
+          : null,
     })
     .returning();
 
@@ -141,12 +160,27 @@ export async function handleSlackEventsEndpoint(c: Context) {
   const payload = c.get('slackPayload');
   if (!payload) {
     // This shouldn't happen if middleware works correctly
-    return c.json({ success: false });
+    return c.json({ error: 'Unauthorized' }, 401);
   }
 
-  // Process the event
-  const response = await eventsHandler(payload);
-  return c.json(response);
+  try {
+    // Process the event
+    const response = await eventsHandler(payload);
+
+    // Ensure we never return success: false without throwing
+    if (!response.success) {
+      throw new Error('Event processing failed');
+    }
+
+    return c.json(response);
+  } catch (error) {
+    // Handle authentication errors
+    if (error instanceof Error && error.message.includes('Unauthorized')) {
+      return c.json({ error: 'Unauthorized' }, 401);
+    }
+    // Re-throw other errors
+    throw error;
+  }
 }
 
 /**
@@ -156,97 +190,104 @@ export async function handleSlackEventsEndpoint(c: Context) {
 export async function eventsHandler(payload: SlackWebhookPayload): Promise<SlackEventsResponse> {
   try {
     // Handle the event based on type
-    if (isEventCallback(payload) && payload.event.type === 'app_mention') {
-      // Handle app_mention event
+    if (isEventCallback(payload)) {
       const event = payload.event;
 
-      console.info('App mentioned:', {
-        team_id: payload.team_id,
-        channel: event.channel,
-        user: event.user,
-        text: event.text,
-        event_id: payload.event_id,
-      });
+      // Check if this is an app_mention or DM event
+      const isAppMention = isAppMentionEvent(event);
+      const isDM = isMessageImEvent(event);
 
-      // Authenticate the Slack user
-      const authResult = await authenticateSlackUser(event.user, payload.team_id);
-
-      // Check if authentication was successful
-      const userId = getUserIdFromAuthResult(authResult);
-      if (!userId) {
-        console.warn('Slack user authentication failed:', {
-          slackUserId: event.user,
-          teamId: payload.team_id,
-          reason: authResult.type === 'unauthorized' ? authResult.reason : 'Unknown',
+      if (isAppMention || isDM) {
+        console.info(isDM ? 'DM received:' : 'App mentioned:', {
+          team_id: payload.team_id,
+          channel: event.channel,
+          user: event.user,
+          text: event.text,
+          event_id: payload.event_id,
+          is_dm: isDM,
         });
-        // Return success to prevent Slack retries
-        return { success: true };
-      }
 
-      const organizationId = authResult.type === 'unauthorized' ? '' : authResult.organization.id;
+        // Authenticate the Slack user
+        const authResult = await authenticateSlackUser(event.user, payload.team_id);
 
-      // Extract thread timestamp - if no thread_ts, this is a new thread so use ts
-      const threadTs = event.thread_ts || event.ts;
-
-      // Add hourglass reaction immediately after authentication
-      if (organizationId) {
-        try {
-          // Fetch Slack integration to get token vault key
-          const slackIntegration = await db
-            .select({
-              tokenVaultKey: slackIntegrations.tokenVaultKey,
-            })
-            .from(slackIntegrations)
-            .where(
-              and(
-                eq(slackIntegrations.organizationId, organizationId),
-                eq(slackIntegrations.teamId, payload.team_id),
-                eq(slackIntegrations.status, 'active')
-              )
-            )
-            .limit(1);
-
-          if (slackIntegration.length > 0 && slackIntegration[0]?.tokenVaultKey) {
-            // Get the access token from vault
-            const vaultSecret = await getSecretByName(slackIntegration[0].tokenVaultKey);
-
-            if (vaultSecret?.secret) {
-              // Add the hourglass reaction
-              await addReaction({
-                accessToken: vaultSecret.secret,
-                channelId: event.channel,
-                messageTs: event.ts,
-                emoji: 'hourglass_flowing_sand',
-              });
-
-              console.info('Added hourglass reaction to app mention', {
-                channel: event.channel,
-                messageTs: event.ts,
-              });
-            }
-          }
-        } catch (error) {
-          // Log but don't fail the entire process if reaction fails
-          console.warn('Failed to add hourglass reaction', {
-            error: error instanceof Error ? error.message : 'Unknown error',
-            channel: event.channel,
-            messageTs: event.ts,
+        // Check if authentication was successful
+        const userId = getUserIdFromAuthResult(authResult);
+        if (!userId) {
+          console.warn('Slack user authentication failed:', {
+            slackUserId: event.user,
+            teamId: payload.team_id,
+            reason: authResult.type === 'unauthorized' ? authResult.reason : 'Unknown',
           });
+          // Throw unauthorized error
+          throw new Error('Unauthorized: Slack user authentication failed');
         }
+
+        const organizationId = authResult.type === 'unauthorized' ? '' : authResult.organization.id;
+
+        // Extract thread timestamp - if no thread_ts, this is a new thread so use ts
+        const threadTs = event.thread_ts || event.ts;
+
+        // Add hourglass reaction immediately after authentication
+        if (organizationId) {
+          try {
+            // Fetch Slack integration to get token vault key
+            const slackIntegration = await db
+              .select({
+                tokenVaultKey: slackIntegrations.tokenVaultKey,
+              })
+              .from(slackIntegrations)
+              .where(
+                and(
+                  eq(slackIntegrations.organizationId, organizationId),
+                  eq(slackIntegrations.teamId, payload.team_id),
+                  eq(slackIntegrations.status, 'active')
+                )
+              )
+              .limit(1);
+
+            if (slackIntegration.length > 0 && slackIntegration[0]?.tokenVaultKey) {
+              // Get the access token from vault
+              const vaultSecret = await getSecretByName(slackIntegration[0].tokenVaultKey);
+
+              if (vaultSecret?.secret) {
+                // Add the hourglass reaction
+                await addReaction({
+                  accessToken: vaultSecret.secret,
+                  channelId: event.channel,
+                  messageTs: event.ts,
+                  emoji: 'hourglass_flowing_sand',
+                });
+
+                console.info('Added hourglass reaction to app mention', {
+                  channel: event.channel,
+                  messageTs: event.ts,
+                });
+              }
+            }
+          } catch (error) {
+            // Log but don't fail the entire process if reaction fails
+            console.warn('Failed to add hourglass reaction', {
+              error: error instanceof Error ? error.message : 'Unknown error',
+              channel: event.channel,
+              messageTs: event.ts,
+            });
+          }
+        }
+
+        // Find or create chat
+        const chatId = await findOrCreateSlackChat({
+          threadTs,
+          channelId: event.channel,
+          organizationId,
+          userId,
+          slackChatAuthorization: mapAuthResultToDbEnum(authResult.type),
+          teamId: payload.team_id,
+          isDM,
+        });
+
+        // Queue the task
+        await queueSlackAgentTask(chatId, userId);
       }
-
-      // Find or create chat
-      const chatId = await findOrCreateSlackChat({
-        threadTs,
-        channelId: event.channel,
-        organizationId,
-        userId,
-        slackChatAuthorization: mapAuthResultToDbEnum(authResult.type),
-        teamId: payload.team_id,
-      });
-
-      // Queue the task
-      await queueSlackAgentTask(chatId, userId);
     }
 
     return { success: true };

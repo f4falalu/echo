@@ -1,0 +1,36 @@
+name: Deploy to Porter
+
+on:
+  workflow_run:
+    workflows: ["Build and Push Server Docker Image"]
+    types:
+      - completed
+    branches: [main, staging]
+
+jobs:
+  deploy:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: blacksmith-2vcpu-ubuntu-2404
+    environment: ${{ github.event.workflow_run.head_branch == 'main' && 'production' || 'staging' }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_branch }}
+      
+      - name: Setup porter
+        uses: porter-dev/setup-porter@v0.1.0
+      
+      - name: Update Porter app tag
+        run: |
+          if [[ "${{ github.event.workflow_run.head_branch }}" == "main" ]]; then
+            porter app update-tag ${{ vars.PORTER_APP_NAME }} --tag main
+          else
+            porter app update-tag ${{ vars.PORTER_APP_NAME }} --tag staging
+          fi
+        env:
+          PORTER_TOKEN: ${{ secrets.PORTER_TOKEN }}
+          PORTER_HOST: https://dashboard.porter.run
+          PORTER_PROJECT: ${{ vars.PORTER_PROJECT }}
+          PORTER_CLUSTER: ${{ vars.PORTER_CLUSTER }}

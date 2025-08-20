@@ -1,6 +1,6 @@
 import type { PermissionedDataset } from '@buster/access-controls';
 import type { MessageHistory } from '@buster/ai/utils/memory/types';
-import type { PostProcessingWorkflowInput } from '@buster/ai/workflows/post-processing-workflow';
+import type { PostProcessingWorkflowInput } from '@buster/ai/workflows/message-post-processing-workflow/message-post-processing-workflow';
 import type { MessageContext, PostProcessingResult } from '../types';
 
 /**
@@ -56,21 +56,14 @@ export function buildWorkflowInput(
   // Determine if this is a Slack follow-up (both follow-up AND Slack message exists)
   const isSlackFollowUp = isFollowUp && slackMessageExists;
 
-  // Format previous messages
-  const previousMessages = formatPreviousMessages(previousPostProcessingResults);
-
   // Concatenate datasets
   const datasetsYaml = concatenateDatasets(datasets);
 
   return {
     conversationHistory,
     userName: messageContext.userName || 'Unknown User',
-    messageId: messageContext.id,
-    userId: messageContext.createdBy,
-    chatId: messageContext.chatId,
     isFollowUp,
     isSlackFollowUp,
-    previousMessages,
     datasets: datasetsYaml,
   };
 }

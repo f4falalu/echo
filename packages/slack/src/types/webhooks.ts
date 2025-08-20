@@ -40,6 +40,23 @@ export const appMentionEventSchema = z.object({
 export type AppMentionEvent = z.infer<typeof appMentionEventSchema>;
 
 /**
+ * Message IM Event
+ * Sent when a user sends a direct message to the bot
+ */
+export const messageImEventSchema = z.object({
+  type: z.literal('message'),
+  channel_type: z.literal('im'),
+  user: z.string(),
+  text: z.string(),
+  ts: z.string(),
+  channel: z.string(),
+  event_ts: z.string(),
+  thread_ts: z.string().optional(),
+});
+
+export type MessageImEvent = z.infer<typeof messageImEventSchema>;
+
+/**
  * Event Callback Envelope
  * The wrapper for all event_callback type events
  */
@@ -47,7 +64,7 @@ export const eventCallbackSchema = z.object({
   token: z.string(),
   team_id: z.string(),
   api_app_id: z.string(),
-  event: appMentionEventSchema,
+  event: z.union([appMentionEventSchema, messageImEventSchema]),
   type: z.literal('event_callback'),
   event_id: z.string(),
   event_time: z.number(),
@@ -87,4 +104,12 @@ export function isUrlVerification(payload: SlackWebhookPayload): payload is UrlV
 
 export function isEventCallback(payload: SlackWebhookPayload): payload is EventCallback {
   return payload.type === 'event_callback';
+}
+
+export function isAppMentionEvent(event: EventCallback['event']): event is AppMentionEvent {
+  return event.type === 'app_mention';
+}
+
+export function isMessageImEvent(event: EventCallback['event']): event is MessageImEvent {
+  return event.type === 'message' && 'channel_type' in event && event.channel_type === 'im';
 }

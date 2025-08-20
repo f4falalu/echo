@@ -1,4 +1,4 @@
-import { getReport } from '@buster/database';
+import { type ReportElementsWithIds, getReport } from '@buster/database';
 import type { GetReportIndividualResponse, ReportElements } from '@buster/server-shared/reports';
 import { markdownToPlatejs } from '@buster/server-utils/report';
 import { Hono } from 'hono';
@@ -17,7 +17,7 @@ export async function getReportHandler(
     console.error('Error converting markdown to PlateJS:', platejsResult.error);
   }
 
-  const content: ReportElements = platejsResult.elements as unknown as ReportElements; //why do I have to do this?
+  const content: ReportElementsWithIds = platejsResult.elements as ReportElementsWithIds;
 
   const response: GetReportIndividualResponse = {
     ...report,

@@ -1,7 +1,7 @@
-import type { ReportElements } from '@buster/database';
+import type { ReportElementsWithIds } from '@buster/database';
 import { z } from 'zod';
 import { AssetCollectionsSchema } from '../collections/shared-asset-collections';
-import { IndividualPermissionsSchema, ShareConfigSchema } from '../share';
+import { ShareConfigSchema } from '../share';
 import { VersionsSchema } from '../version-shared';
 
 export const ReportListItemSchema = z.object({
@@ -25,7 +25,7 @@ export const ReportIndividualResponseSchema = z.object({
   version_number: z.number(),
   versions: VersionsSchema,
   collections: AssetCollectionsSchema,
-  content: z.any() as z.ZodType<ReportElements>, //we use any here because we don't know the type of the content, will be validated in the database
+  content: z.any() as z.ZodType<ReportElementsWithIds>, //we use any here because we don't want to import the schema here :(
   ...ShareConfigSchema.shape,
 });
 

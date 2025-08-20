@@ -32,7 +32,8 @@ pub struct ColumnMetaData {
 pub enum SimpleType {
     #[serde(rename = "number")]
     Number,
-    #[serde(rename = "string")]
+    #[serde(alias = "string")]
+    #[serde(rename = "text")]
     String,
     #[serde(rename = "date")]
     Date,
@@ -85,4 +86,4 @@ impl ToSql<Jsonb, Pg> for DataMetadata {
         out.write_all(&serde_json::to_vec(self)?)?;
         Ok(IsNull::No)
     }
-} 
+}

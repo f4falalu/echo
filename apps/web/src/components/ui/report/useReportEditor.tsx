@@ -6,6 +6,8 @@ import { useEffect, useMemo } from 'react';
 import { EditorKit } from './editor-kit';
 import { FIXED_TOOLBAR_KIT_KEY } from './plugins/fixed-toolbar-kit';
 import { GlobalVariablePlugin } from './plugins/global-variable-kit';
+import { StreamContentPlugin } from './plugins/stream-content-plugin';
+import type { ReportElementsWithIds } from '@buster/server-shared/reports';
 
 export const useReportEditor = ({
   value,
@@ -14,7 +16,7 @@ export const useReportEditor = ({
   mode = 'default',
   useFixedToolbarKit = false
 }: {
-  value: Value;
+  value: ReportElementsWithIds;
   disabled: boolean;
   useFixedToolbarKit?: boolean;
   isStreaming: boolean;
@@ -36,9 +38,13 @@ export const useReportEditor = ({
 
   useEffect(() => {
     if (editor && isStreaming) {
-      editor.tf.setValue(value);
+      const streamContentPlugin = editor.getPlugin(StreamContentPlugin);
+      streamContentPlugin.api.streamContent.start();
+      streamContentPlugin.api.streamContent.streamFull(value);
+    } else {
+      editor?.getPlugin(StreamContentPlugin)?.api.streamContent.stop();
     }
-  }, [value]);
+  }, [value, isStreaming]);
 
   const editor = usePlateEditor({
     plugins,
