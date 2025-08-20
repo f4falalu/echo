@@ -6,7 +6,6 @@ import {
   updateMessageEntries,
   updateReportContent,
 } from '@buster/database';
-import type { ChatMessageResponseMessage } from '@buster/server-shared/chats';
 import type { ToolCallOptions } from 'ai';
 import {
   OptimisticJsonParser,
@@ -47,26 +46,7 @@ function createInitialReportVersionHistory(content: string, createdAt: string): 
   };
 }
 
-// Helper function to create file response messages for reports
-function createReportFileResponseMessages(
-  reports: Array<{ id: string; name: string }>
-): ChatMessageResponseMessage[] {
-  return reports.map((report) => ({
-    id: report.id,
-    type: 'file' as const,
-    file_type: 'report' as const,
-    file_name: report.name,
-    version_number: 1,
-    filter_version_id: null,
-    metadata: [
-      {
-        status: 'completed' as const,
-        message: 'Report created successfully',
-        timestamp: Date.now(),
-      },
-    ],
-  }));
-}
+// Removed helper function - response messages should only be created in execute phase
 
 export function createCreateReportsDelta(context: CreateReportsContext, state: CreateReportsState) {
   return async (options: { inputTextDelta: string } & ToolCallOptions) => {
@@ -203,21 +183,7 @@ export function createCreateReportsDelta(context: CreateReportsContext, state: C
               reportIds: reportsToCreate.map((r) => r.id),
             });
 
-            // Send file response messages for newly created reports
-            if (context.messageId) {
-              const fileResponses = createReportFileResponseMessages(
-                reportsToCreate.map((r) => ({ id: r.id, name: r.name }))
-              );
-
-              await updateMessageEntries({
-                messageId: context.messageId,
-                responseMessages: fileResponses,
-              });
-
-              console.info('[create-reports] Sent file response messages', {
-                count: fileResponses.length,
-              });
-            }
+            // Note: Response messages are only created in execute phase after checking for metrics
           } catch (error) {
             console.error('[create-reports] Error creating reports in database:', error);
           }
