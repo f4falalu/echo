@@ -1,46 +1,54 @@
 import { InvalidToolInputError, NoSuchToolError } from 'ai';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { ANALYST_AGENT_NAME } from '../../agents';
+import { repairToolCall } from './repair-tool-call';
 import type { RepairContext } from './types';
 
 vi.mock('braintrust', () => ({
   wrapTraced: (fn: any) => fn,
 }));
 
+// Mock the strategy functions
+vi.mock('./strategies/structured-output-strategy', () => ({
+  canHandleInvalidInput: vi.fn(),
+  repairInvalidInput: vi.fn(),
+}));
+
+vi.mock('./strategies/re-ask-strategy', () => ({
+  canHandleNoSuchTool: vi.fn(),
+  repairWrongToolName: vi.fn(),
+}));
+
 describe('repairToolCall', () => {
   beforeEach(() => {
-    vi.resetModules();
+    vi.clearAllMocks();
   });
 
   afterEach(() => {
     vi.clearAllMocks();
   });
 
-  it('should use StructuredOutputStrategy for InvalidToolInputError', async () => {
-    // Mock the strategies for this test
-    vi.doMock('./strategies', () => ({
-      StructuredOutputStrategy: vi.fn().mockImplementation(() => ({
-        canHandle: (error: Error) => error instanceof InvalidToolInputError,
-        repair: vi.fn().mockResolvedValue({
-          toolCallType: 'function',
-          toolCallId: 'call123',
-          toolName: 'testTool',
-          args: { fixed: true },
-        }),
-      })),
-      ReAskStrategy: vi.fn().mockImplementation(() => ({
-        canHandle: () => false,
-        repair: vi.fn(),
-      })),
-    }));
+  it('should use repairInvalidInput for InvalidToolInputError', async () => {
+    const { canHandleInvalidInput, repairInvalidInput } = await import(
+      './strategies/structured-output-strategy'
+    );
+    const { canHandleNoSuchTool } = await import('./strategies/re-ask-strategy');
 
-    const { repairToolCall } = await import('./repair-tool-call');
+    vi.mocked(canHandleInvalidInput).mockReturnValue(true);
+    vi.mocked(canHandleNoSuchTool).mockReturnValue(false);
+    vi.mocked(repairInvalidInput).mockResolvedValue({
+      toolCallType: 'function',
+      toolCallId: 'call123',
+      toolName: 'testTool',
+      input: JSON.stringify({ fixed: true }),
+    } as any);
+
     const context: RepairContext = {
       toolCall: {
         toolCallType: 'function',
         toolCallId: 'call123',
         toolName: 'testTool',
-        args: { invalid: true },
+        input: JSON.stringify({ invalid: true }),
       } as any,
       tools: {
         testTool: { inputSchema: {} },
@@ -60,29 +68,28 @@ describe('repairToolCall', () => {
       toolCallType: 'function',
       toolCallId: 'call123',
       toolName: 'testTool',
-      args: { fixed: true },
+      input: JSON.stringify({ fixed: true }),
     });
+
+    expect(canHandleInvalidInput).toHaveBeenCalledWith(context.error);
+    expect(repairInvalidInput).toHaveBeenCalledWith(context);
   });
 
-  it('should use ReAskStrategy for NoSuchToolError', async () => {
-    // Mock the strategies for this test
-    vi.doMock('./strategies', () => ({
-      StructuredOutputStrategy: vi.fn().mockImplementation(() => ({
-        canHandle: () => false,
-        repair: vi.fn(),
-      })),
-      ReAskStrategy: vi.fn().mockImplementation(() => ({
-        canHandle: (error: Error) => NoSuchToolError.isInstance(error),
-        repair: vi.fn().mockResolvedValue({
-          toolCallType: 'function',
-          toolCallId: 'call456',
-          toolName: 'correctTool',
-          input: '{}',
-        }),
-      })),
-    }));
+  it('should use repairWrongToolName for NoSuchToolError', async () => {
+    const { canHandleInvalidInput } = await import('./strategies/structured-output-strategy');
+    const { canHandleNoSuchTool, repairWrongToolName } = await import(
+      './strategies/re-ask-strategy'
+    );
 
-    const { repairToolCall } = await import('./repair-tool-call');
+    vi.mocked(canHandleInvalidInput).mockReturnValue(false);
+    vi.mocked(canHandleNoSuchTool).mockReturnValue(true);
+    vi.mocked(repairWrongToolName).mockResolvedValue({
+      toolCallType: 'function',
+      toolCallId: 'call456',
+      toolName: 'correctTool',
+      input: '{}',
+    } as any);
+
     const context: RepairContext = {
       toolCall: {
         toolCallType: 'function',
@@ -109,99 +116,59 @@ describe('repairToolCall', () => {
       toolName: 'correctTool',
       input: '{}',
     });
+
+    expect(canHandleNoSuchTool).toHaveBeenCalledWith(context.error);
+    expect(repairWrongToolName).toHaveBeenCalledWith(context);
   });
 
-  it('should return null for unknown error types', async () => {
-    vi.doMock('./strategies', () => ({
-      StructuredOutputStrategy: vi.fn().mockImplementation(() => ({
-        canHandle: () => false,
-        repair: vi.fn(),
-      })),
-      ReAskStrategy: vi.fn().mockImplementation(() => ({
-        canHandle: () => false,
-        repair: vi.fn(),
-      })),
-    }));
+  it('should return null if no strategy can handle the error', async () => {
+    const { canHandleInvalidInput } = await import('./strategies/structured-output-strategy');
+    const { canHandleNoSuchTool } = await import('./strategies/re-ask-strategy');
 
-    const { repairToolCall } = await import('./repair-tool-call');
+    vi.mocked(canHandleInvalidInput).mockReturnValue(false);
+    vi.mocked(canHandleNoSuchTool).mockReturnValue(false);
+
     const context: RepairContext = {
       toolCall: {
         toolCallType: 'function',
         toolCallId: 'call789',
         toolName: 'someTool',
+        input: '{}',
       } as any,
       tools: {} as any,
-      error: new Error('Unknown error type') as any,
+      error: new Error('Unknown error') as any,
       messages: [],
       system: '',
     };
 
     const result = await repairToolCall(context);
-    expect(result).toBeNull();
-  });
 
-  it('should handle strategy repair failures gracefully', async () => {
-    // Mock a failing strategy
-    vi.doMock('./strategies', () => ({
-      StructuredOutputStrategy: vi.fn().mockImplementation(() => ({
-        canHandle: (error: Error) => error instanceof InvalidToolInputError,
-        repair: vi.fn().mockRejectedValue(new Error('Repair failed')),
-      })),
-      ReAskStrategy: vi.fn().mockImplementation(() => ({
-        canHandle: () => false,
-        repair: vi.fn(),
-      })),
-    }));
-
-    const { repairToolCall } = await import('./repair-tool-call');
-
-    const context: RepairContext = {
-      toolCall: {
-        toolCallType: 'function',
-        toolCallId: 'call999',
-        toolName: 'testTool',
-      } as any,
-      tools: {} as any,
-      error: new InvalidToolInputError({
-        toolName: 'testTool',
-        toolInput: 'invalid',
-        cause: new Error('validation failed'),
-      }),
-      messages: [],
-      system: '',
-    };
-
-    const result = await repairToolCall(context);
     expect(result).toBeNull();
   });
 
   it('should log appropriate messages with agent context', async () => {
-    const consoleInfoSpy = vi.spyOn(console, 'info').mockImplementation(() => {});
+    const { canHandleInvalidInput, repairInvalidInput } = await import(
+      './strategies/structured-output-strategy'
+    );
+    const { canHandleNoSuchTool } = await import('./strategies/re-ask-strategy');
 
-    // Mock successful repair
-    vi.doMock('./strategies', () => ({
-      StructuredOutputStrategy: vi.fn().mockImplementation(() => ({
-        canHandle: (error: Error) => error instanceof InvalidToolInputError,
-        repair: vi.fn().mockResolvedValue({
-          toolCallType: 'function',
-          toolCallId: 'call123',
-          toolName: 'testTool',
-          args: { fixed: true },
-        }),
-      })),
-      ReAskStrategy: vi.fn().mockImplementation(() => ({
-        canHandle: () => false,
-        repair: vi.fn(),
-      })),
-    }));
+    vi.mocked(canHandleInvalidInput).mockReturnValue(true);
+    vi.mocked(canHandleNoSuchTool).mockReturnValue(false);
+    vi.mocked(repairInvalidInput).mockResolvedValue({
+      toolCallType: 'function',
+      toolCallId: 'call123',
+      toolName: 'testTool',
+      input: JSON.stringify({ fixed: true }),
+    } as any);
 
-    const { repairToolCall } = await import('./repair-tool-call');
+    const consoleInfoSpy = vi.spyOn(console, 'info');
 
     const context: RepairContext = {
       toolCall: {
         toolCallType: 'function',
         toolCallId: 'call123',
         toolName: 'testTool',
+        input: JSON.stringify({ invalid: true }),
       } as any,
       tools: {
         testTool: { inputSchema: {} },
@@ -215,30 +182,56 @@ describe('repairToolCall', () => {
       system: '',
       agentContext: {
         agentName: ANALYST_AGENT_NAME,
-        availableTools: ['createMetrics', 'modifyMetrics'],
+        availableTools: ['testTool'],
       },
     };
 
     await repairToolCall(context);
 
-    // Check that "Attempting to repair" was called first
-    expect(consoleInfoSpy).toHaveBeenNthCalledWith(
-      1,
-      'Attempting to repair tool call',
+    // Check that "Repairing invalid tool input" was called
+    expect(consoleInfoSpy).toHaveBeenCalledWith(
+      'Repairing invalid tool input',
       expect.objectContaining({
-        agentName: 'analystAgent',
-      })
-    );
-
-    // Check that "Tool call repaired successfully" was called second
-    expect(consoleInfoSpy).toHaveBeenNthCalledWith(
-      2,
-      'Tool call repaired successfully',
-      expect.objectContaining({
-        agentName: 'analystAgent',
+        agentName: ANALYST_AGENT_NAME,
       })
     );
 
     consoleInfoSpy.mockRestore();
+  });
+
+  it('should log warning for unknown error types', async () => {
+    const { canHandleInvalidInput } = await import('./strategies/structured-output-strategy');
+    const { canHandleNoSuchTool } = await import('./strategies/re-ask-strategy');
+
+    vi.mocked(canHandleInvalidInput).mockReturnValue(false);
+    vi.mocked(canHandleNoSuchTool).mockReturnValue(false);
+
+    const consoleWarnSpy = vi.spyOn(console, 'warn');
+
+    const context: RepairContext = {
+      toolCall: {
+        toolCallType: 'function',
+        toolCallId: 'call789',
+        toolName: 'someTool',
+        input: '{}',
+      } as any,
+      tools: {} as any,
+      error: new Error('Unknown error') as any,
+      messages: [],
+      system: '',
+    };
+
+    await repairToolCall(context);
+
+    expect(consoleWarnSpy).toHaveBeenCalledWith(
+      'No repair strategy for error type',
+      expect.objectContaining({
+        errorType: 'Error',
+        errorMessage: 'Unknown error',
+        toolName: 'someTool',
+      })
+    );
+
+    consoleWarnSpy.mockRestore();
   });
 });

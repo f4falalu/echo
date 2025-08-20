@@ -158,6 +158,11 @@ export function createCreateReportsExecute(
               // Check each report file for metrics
               if (state.files && typedResult.files) {
                 for (const resultFile of typedResult.files) {
+                  // Skip if response message was already created during delta
+                  if (state.responseMessagesCreated?.has(resultFile.id)) {
+                    continue;
+                  }
+
                   // Find the corresponding input file to get the content
                   const fileIndex = state.files.findIndex((f) => f.id === resultFile.id);
                   if (fileIndex >= 0 && input.files[fileIndex]) {
@@ -182,6 +187,12 @@ export function createCreateReportsExecute(
                             },
                           ],
                         });
+
+                        // Track that we've created a response message for this report
+                        if (!state.responseMessagesCreated) {
+                          state.responseMessagesCreated = new Set<string>();
+                        }
+                        state.responseMessagesCreated.add(resultFile.id);
                       }
                     }
                   }

@@ -1,7 +1,7 @@
 import { InvalidToolInputError } from 'ai';
 import { describe, expect, it, vi } from 'vitest';
 import type { RepairContext } from '../types';
-import { StructuredOutputStrategy } from './structured-output-strategy';
+import { canHandleInvalidInput, repairInvalidInput } from './structured-output-strategy';
 
 // Mock the dependencies
 vi.mock('ai', async () => {
@@ -20,26 +20,24 @@ vi.mock('../../../llm', () => ({
   Sonnet4: 'mock-model',
 }));
 
-describe('StructuredOutputStrategy', () => {
-  const strategy = new StructuredOutputStrategy();
-
-  describe('canHandle', () => {
+describe('structured-output-strategy', () => {
+  describe('canHandleInvalidInput', () => {
     it('should return true for InvalidToolInputError', () => {
       const error = new InvalidToolInputError({
         toolName: 'testTool',
         toolInput: 'invalid input',
         cause: new Error('validation failed'),
       });
-      expect(strategy.canHandle(error)).toBe(true);
+      expect(canHandleInvalidInput(error)).toBe(true);
     });
 
     it('should return false for other errors', () => {
       const error = new Error('Some other error');
-      expect(strategy.canHandle(error)).toBe(false);
+      expect(canHandleInvalidInput(error)).toBe(false);
     });
   });
 
-  describe('repair', () => {
+  describe('repairInvalidInput', () => {
     it('should repair tool arguments using structured output', async () => {
       const { generateObject } = await import('ai');
       const mockGenerateObject = vi.mocked(generateObject);
@@ -78,20 +76,20 @@ describe('StructuredOutputStrategy', () => {
         system: '',
       };
 
-      const result = await strategy.repair(context);
+      const result = await repairInvalidInput(context);
 
       expect(result).toEqual({
         toolCallType: 'function',
         toolCallId: 'call123',
         toolName: 'testTool',
-        input: repairedInput,
+        input: JSON.stringify(repairedInput), // FIXED: Now returns stringified input
       });
 
       const tool = context.tools.testTool as any;
       expect(mockGenerateObject).toHaveBeenCalledWith({
         model: 'mock-model',
         schema: tool?.inputSchema,
-        prompt: expect.stringContaining('Please fix the arguments'),
+        prompt: expect.stringContaining('Fix these tool arguments'),
       });
     });
 
@@ -113,7 +111,7 @@ describe('StructuredOutputStrategy', () => {
         system: '',
       };
 
-      const result = await strategy.repair(context);
+      const result = await repairInvalidInput(context);
       expect(result).toBeNull();
     });
 
@@ -137,7 +135,7 @@ describe('StructuredOutputStrategy', () => {
         system: '',
       };
 
-      const result = await strategy.repair(context);
+      const result = await repairInvalidInput(context);
       expect(result).toBeNull();
     });
 
@@ -168,9 +166,8 @@ describe('StructuredOutputStrategy', () => {
         system: '',
       };
 
-      await expect(strategy.repair(context)).rejects.toThrow(
-        'Failed to repair tool call "testTool": Generation failed'
-      );
+      const result = await repairInvalidInput(context);
+      expect(result).toBeNull(); // Now returns null on error instead of throwing
     });
 
     it('should handle string input that is valid JSON', async () => {
@@ -211,13 +208,13 @@ describe('StructuredOutputStrategy', () => {
         system: '',
       };
 
-      const result = await strategy.repair(context);
+      const result = await repairInvalidInput(context);
 
       expect(result).toEqual({
         toolCallType: 'function',
         toolCallId: 'call123',
         toolName: 'testTool',
-        input: repairedInput,
+        input: JSON.stringify(repairedInput), // FIXED: Now returns stringified input
       });
     });
 
@@ -258,19 +255,19 @@ describe('StructuredOutputStrategy', () => {
         system: '',
       };
 
-      const result = await strategy.repair(context);
+      const result = await repairInvalidInput(context);
 
       expect(result).toEqual({
         toolCallType: 'function',
         toolCallId: 'call123',
         toolName: 'testTool',
-        input: repairedInput,
+        input: JSON.stringify(repairedInput), // FIXED: Now returns stringified input
       });
 
-      // Verify the prompt contains the wrapped input
+      // Verify the prompt contains the plain text input
       expect(mockGenerateObject).toHaveBeenCalledWith(
         expect.objectContaining({
-          prompt: expect.stringContaining('{"value":"plain text input"}'),
+          prompt: expect.stringContaining('plain text input'),
         })
       );
     });
