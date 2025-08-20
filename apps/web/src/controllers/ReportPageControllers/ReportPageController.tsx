@@ -48,7 +48,7 @@ export const ReportPageController: React.FC<{
 
     const commonClassName = 'sm:px-[max(64px,calc(50%-350px))]';
 
-    useTrackAndUpdateReportChanges({ reportId, subscribe: false });
+    useTrackAndUpdateReportChanges({ reportId, subscribe: isStreamingMessage });
 
     return (
       <div className={cn('h-full space-y-1.5 overflow-y-auto pt-9', className)}>
