@@ -1,0 +1,44 @@
+{
+  "name": "@buster/github",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./*": {
+      "types": "./dist/*.d.ts",
+      "default": "./dist/*.js"
+    }
+  },
+  "scripts": {
+    "prebuild": "[ \"$SKIP_ENV_CHECK\" = \"true\" ] || tsx scripts/validate-env.ts",
+    "build": "tsc",
+    "build:dry-run": "tsc",
+    "typecheck": "tsc --noEmit",
+    "dev": "tsc --watch",
+    "lint": "biome check --write",
+    "test": "vitest run",
+    "test:unit": "vitest run --exclude '**/*.int.test.ts' --exclude '**/*.integration.test.ts' --passWithNoTests",
+    "test:integration": "vitest run **/*.int.test.ts **/*.integration.test.ts",
+    "test:watch": "vitest watch",
+    "test:coverage": "vitest run --coverage"
+  },
+  "dependencies": {
+    "@buster/typescript-config": "workspace:*",
+    "@buster/vitest-config": "workspace:*",
+    "@buster/env-utils": "workspace:*",
+    "@buster/database": "workspace:*",
+    "@buster/server-shared": "workspace:*",
+    "octokit": "^5.0.3",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^1.9.4",
+    "tsx": "^4.19.2",
+    "typescript": "^5.6.3"
+  }
+}
