@@ -17,22 +17,22 @@ export class ReAskStrategy implements RepairStrategy {
         const errorMessage = this.buildErrorMessage(context);
 
         // Create the tool-result message with the error
-        // Ensure input is properly formatted
-        let toolInput = context.toolCall.input;
-        if (typeof toolInput === 'string') {
+        // Ensure input is properly formatted as an object
+        let toolInput: unknown;
+        if (typeof context.toolCall.input === 'string') {
           try {
             // Try to parse it if it's a JSON string
-            JSON.parse(toolInput);
+            toolInput = JSON.parse(context.toolCall.input);
           } catch {
             // If it's not valid JSON, wrap it in an object
-            toolInput = JSON.stringify({ value: toolInput });
+            toolInput = { value: context.toolCall.input };
           }
-        } else if (toolInput && typeof toolInput === 'object') {
-          // If it's already an object, stringify it
-          toolInput = JSON.stringify(toolInput);
+        } else if (context.toolCall.input && typeof context.toolCall.input === 'object') {
+          // If it's already an object, use it as-is
+          toolInput = context.toolCall.input;
         } else {
           // Default to empty object
-          toolInput = '{}';
+          toolInput = {};
         }
 
         const healingMessages: ModelMessage[] = [
@@ -96,8 +96,8 @@ export class ReAskStrategy implements RepairStrategy {
               toolCallType: 'function' as const,
               toolCallId: context.toolCall.toolCallId,
               toolName: newToolCall.toolName,
-              input: JSON.stringify(newToolCall.input),
-            } as unknown as LanguageModelV2ToolCall;
+              input: newToolCall.input,
+            } as LanguageModelV2ToolCall;
           }
 
           console.warn('Re-ask strategy did not produce a valid tool call', {

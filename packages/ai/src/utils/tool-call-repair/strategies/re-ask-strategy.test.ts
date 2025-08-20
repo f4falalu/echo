@@ -88,16 +88,16 @@ describe('ReAskStrategy', () => {
         toolCallType: 'function',
         toolCallId: 'call123',
         toolName: 'correctTool',
-        input: JSON.stringify(correctedToolCall.input),
+        input: correctedToolCall.input,
       });
 
-      // Verify the tool input is properly formatted as JSON in the messages
+      // Verify the tool input is properly formatted as an object in the messages
       const calls = mockGenerateText.mock.calls[0];
       const messages = calls?.[0]?.messages;
       const assistantMessage = messages?.find((m: any) => m.role === 'assistant');
       const content = assistantMessage?.content?.[0];
       if (content && typeof content === 'object' && 'input' in content) {
-        expect(content.input).toBe('{"param":"value"}');
+        expect(content.input).toEqual({ param: 'value' });
       }
 
       expect(mockGenerateText).toHaveBeenCalledWith(
@@ -303,7 +303,7 @@ describe('ReAskStrategy', () => {
       const assistantMessage = messages?.find((m: any) => m.role === 'assistant');
       const content = assistantMessage?.content?.[0];
       if (content && typeof content === 'object' && 'input' in content) {
-        expect(content.input).toBe('{"value":"plain text input"}');
+        expect(content.input).toEqual({ value: 'plain text input' });
       }
     });
 
@@ -335,13 +335,13 @@ describe('ReAskStrategy', () => {
 
       await strategy.repair(context);
 
-      // Verify the valid JSON string was left as-is
+      // Verify the valid JSON string was parsed to an object
       const calls = mockGenerateText.mock.calls[0];
       const messages = calls?.[0]?.messages;
       const assistantMessage = messages?.find((m: any) => m.role === 'assistant');
       const content = assistantMessage?.content?.[0];
       if (content && typeof content === 'object' && 'input' in content) {
-        expect(content.input).toBe('{"already":"valid"}');
+        expect(content.input).toEqual({ already: 'valid' });
       }
     });
   });

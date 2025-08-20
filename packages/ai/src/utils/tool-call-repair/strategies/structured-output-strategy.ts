@@ -4,10 +4,6 @@ import { wrapTraced } from 'braintrust';
 import { Sonnet4 } from '../../../llm';
 import type { RepairContext, RepairStrategy } from '../types';
 
-interface ToolCallWithArgs extends LanguageModelV2ToolCall {
-  args?: unknown;
-}
-
 export class StructuredOutputStrategy implements RepairStrategy {
   canHandle(error: Error): boolean {
     return error instanceof InvalidToolInputError;
@@ -28,17 +24,29 @@ export class StructuredOutputStrategy implements RepairStrategy {
           return null;
         }
 
-        // Type assertion to access args property
-        const toolCallWithArgs = context.toolCall as ToolCallWithArgs;
+        // Parse input if it's a string, otherwise use as-is
+        const toolCallInput = context.toolCall.input;
+        let parsedInput: unknown;
+
+        if (typeof toolCallInput === 'string') {
+          try {
+            parsedInput = JSON.parse(toolCallInput);
+          } catch {
+            // If it's not valid JSON, wrap it in an object
+            parsedInput = { value: toolCallInput };
+          }
+        } else {
+          parsedInput = toolCallInput || {};
+        }
 
         try {
-          const { object: repairedArgs } = await generateObject({
+          const { object: repairedInput } = await generateObject({
             model: Sonnet4,
             schema: tool.inputSchema,
             prompt: [
               `The model tried to call the tool "${context.toolCall.toolName}"`,
               `with the following arguments:`,
-              JSON.stringify(toolCallWithArgs.args),
+              JSON.stringify(parsedInput),
               `The tool accepts the following schema:`,
               JSON.stringify(tool.inputSchema),
               'Please fix the arguments.',
@@ -47,11 +55,11 @@ export class StructuredOutputStrategy implements RepairStrategy {
 
           console.info('Successfully repaired tool arguments', {
             toolName: context.toolCall.toolName,
-            originalArgs: toolCallWithArgs.args,
-            repairedArgs,
+            originalInput: parsedInput,
+            repairedInput,
           });
 
-          return { ...context.toolCall, args: repairedArgs } as LanguageModelV2ToolCall;
+          return { ...context.toolCall, input: repairedInput } as LanguageModelV2ToolCall;
         } catch (error) {
           console.error('Failed to repair tool arguments with structured output:', error);
           console.error('Tool call that failed:', context.toolCall);
