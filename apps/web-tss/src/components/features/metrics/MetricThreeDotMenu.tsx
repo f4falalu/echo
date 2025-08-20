@@ -1,0 +1,396 @@
+import type { VerificationStatus } from '@buster/server-shared/share';
+import { type LinkProps, type RegisteredRouter, useNavigate } from '@tanstack/react-router';
+import React, { useMemo } from 'react';
+import {
+  useAddMetricsToDashboard,
+  useRemoveMetricsFromDashboard,
+} from '@/api/buster_rest/dashboards';
+import {
+  useBulkUpdateMetricVerificationStatus,
+  useDeleteMetric,
+  useGetMetric,
+  useRemoveMetricFromCollection,
+  useSaveMetricToCollections,
+} from '@/api/buster_rest/metrics';
+import { useIsUserAdmin } from '@/api/buster_rest/users/useGetUserInfo';
+import { useSaveToCollectionsDropdownContent } from '@/components/features/dropdowns/SaveToCollectionsDropdown';
+import { useSaveToDashboardDropdownContent } from '@/components/features/dropdowns/SaveToDashboardDropdown';
+import { StatusBadgeIndicator } from '@/components/features/metrics/StatusBadgeIndicator';
+import { useStatusDropdownContent } from '@/components/features/metrics/StatusBadgeIndicator/useStatusDropdownContent';
+import { getShareAssetConfig } from '@/components/features/ShareMenu/helpers';
+import { ShareMenuContent } from '@/components/features/ShareMenu/ShareMenuContent';
+import { Button } from '@/components/ui/buttons';
+import {
+  Dropdown,
+  DropdownContent,
+  type DropdownItem,
+  type DropdownItems,
+} from '@/components/ui/dropdown';
+import {
+  ArrowUpRight,
+  Dots,
+  ShareRight,
+  SquareChartPen,
+  SquareCode,
+  Table,
+  Trash,
+} from '@/components/ui/icons';
+import { useBusterNotifications } from '@/context/BusterNotifications';
+import { useIsChatMode } from '@/context/Chats/useIsChatMode';
+import { useDownloadMetricDataCSV } from '@/context/Metrics/useDownloadMetricDataCSV';
+import { useDownloadPNGSelectMenu } from '@/context/Metrics/useDownloadMetricDataPNG';
+import { useRenameMetricOnPage } from '@/context/Metrics/useRenameMetricOnPage';
+import { canEdit, getIsEffectiveOwner, getIsOwner } from '@/lib/share';
+import { ASSET_ICONS } from '../icons/assetIcons';
+import {
+  useFavoriteMetricSelectMenu,
+  useMetricDrilldownItem,
+  useVersionHistorySelectMenu,
+} from './ThreeDotMenu';
+
+export const ThreeDotMenuButton = React.memo(
+  ({
+    metricId,
+    isViewingOldVersion,
+    versionNumber,
+  }: {
+    metricId: string;
+    isViewingOldVersion: boolean;
+    versionNumber: number | undefined;
+  }) => {
+    const isChatMode = useIsChatMode();
+    const { data: permission } = useGetMetric({ id: metricId }, { select: (x) => x.permission });
+    const openFullScreenMetric = useOpenFullScreenMetric({ metricId, versionNumber });
+    const dashboardSelectMenu = useDashboardSelectMenu({ metricId });
+    const versionHistoryItems = useVersionHistorySelectMenu({ metricId });
+    const collectionSelectMenu = useCollectionSelectMenu({ metricId });
+    const statusSelectMenu = useStatusSelectMenu({ metricId });
+    const favoriteMetric = useFavoriteMetricSelectMenu({ metricId });
+    const editChartMenu = useEditChartSelectMenu();
+    const resultsViewMenu = useResultsViewSelectMenu({ metricId });
+    const sqlEditorMenu = useSQLEditorSelectMenu({ metricId });
+    const downloadCSVMenu = useDownloadMetricDataCSV({
+      metricId,
+      metricVersionNumber: versionNumber,
+    });
+    const downloadPNGMenu = useDownloadPNGSelectMenu({
+      metricId,
+      metricVersionNumber: versionNumber,
+    });
+    const deleteMetricMenu = useDeleteMetricSelectMenu({ metricId });
+    const renameMetricMenu = useRenameMetricOnPage({
+      metricId,
+      metricVersionNumber: versionNumber,
+    });
+    const shareMenu = useShareMenuSelectMenu({ metricId });
+    const drilldownItem = useMetricDrilldownItem({ metricId });
+
+    const isEditor = canEdit(permission);
+    const isOwnerEffective = getIsEffectiveOwner(permission);
+    const isOwner = getIsOwner(permission);
+
+    const items: DropdownItems = useMemo(
+      () =>
+        [
+          !isChatMode && openFullScreenMetric,
+          // drilldownItem,
+          isOwnerEffective && !isViewingOldVersion && shareMenu,
+          isEditor && !isViewingOldVersion && statusSelectMenu,
+          { type: 'divider' },
+          !isViewingOldVersion && dashboardSelectMenu,
+          !isViewingOldVersion && collectionSelectMenu,
+          !isViewingOldVersion && favoriteMetric,
+          { type: 'divider' },
+          isEditor && !isViewingOldVersion && editChartMenu,
+          !isViewingOldVersion && resultsViewMenu,
+          !isViewingOldVersion && sqlEditorMenu,
+          isEditor && versionHistoryItems,
+          { type: 'divider' },
+          downloadCSVMenu,
+          downloadPNGMenu,
+          { type: 'divider' },
+          isEditor && !isViewingOldVersion && renameMetricMenu,
+          isOwner && !isViewingOldVersion && deleteMetricMenu,
+        ].filter(Boolean) as DropdownItems,
+      [
+        isChatMode,
+        openFullScreenMetric,
+        drilldownItem,
+        isEditor,
+        isOwner,
+        isOwnerEffective,
+        renameMetricMenu,
+        dashboardSelectMenu,
+        deleteMetricMenu,
+        downloadCSVMenu,
+        downloadPNGMenu,
+        isViewingOldVersion,
+        versionHistoryItems,
+        favoriteMetric,
+        statusSelectMenu,
+        collectionSelectMenu,
+        editChartMenu,
+        resultsViewMenu,
+        sqlEditorMenu,
+        shareMenu,
+      ]
+    );
+
+    return (
+      <Dropdown items={items} side="left" align="end" contentClassName="max-h-fit" modal>
+        <Button prefix={<Dots />} variant="ghost" data-testid="three-dot-menu-button" />
+      </Dropdown>
+    );
+  }
+);
+ThreeDotMenuButton.displayName = 'ThreeDotMenuButton';
+
+const useDashboardSelectMenu = ({ metricId }: { metricId: string }) => {
+  const { mutateAsync: saveMetricsToDashboard } = useAddMetricsToDashboard();
+  const { mutateAsync: removeMetricsFromDashboard } = useRemoveMetricsFromDashboard();
+  const { data: dashboards } = useGetMetric({ id: metricId }, { select: (x) => x.dashboards });
+  const { openInfoMessage } = useBusterNotifications();
+
+  const onSaveToDashboard = async (dashboardIds: string[]) => {
+    await Promise.all(
+      dashboardIds.map((dashboardId) =>
+        saveMetricsToDashboard({ metricIds: [metricId], dashboardId })
+      )
+    );
+    openInfoMessage('Metric added to dashboard');
+  };
+
+  const onRemoveFromDashboard = async (dashboardIds: string[]) => {
+    await Promise.all(
+      dashboardIds.map((dashboardId) =>
+        removeMetricsFromDashboard({ metricIds: [metricId], dashboardId, useConfirmModal: false })
+      )
+    );
+    openInfoMessage('Metric removed from dashboard');
+  };
+
+  const { items, footerContent, selectType, menuHeader } = useSaveToDashboardDropdownContent({
+    onSaveToDashboard,
+    onRemoveFromDashboard,
+    selectedDashboards: dashboards?.map((x) => x.id) || [],
+  });
+
+  const dashboardSubMenu = useMemo(() => {
+    return (
+      <DropdownContent
+        menuHeader={menuHeader}
+        selectType={selectType}
+        items={items}
+        footerContent={footerContent}
+      />
+    );
+  }, [items, footerContent, menuHeader, selectType]);
+
+  const dashboardDropdownItem: DropdownItem = useMemo(
+    () => ({
+      label: 'Add to dashboard',
+      value: 'add-to-dashboard',
+      closeOnSelect: false,
+      icon: <ASSET_ICONS.dashboardAdd />,
+      items: [<React.Fragment key="dashboard-sub-menu">{dashboardSubMenu}</React.Fragment>],
+    }),
+    [dashboardSubMenu]
+  );
+
+  return dashboardDropdownItem;
+};
+
+const useCollectionSelectMenu = ({ metricId }: { metricId: string }) => {
+  const { mutateAsync: saveMetricToCollection } = useSaveMetricToCollections();
+  const { mutateAsync: removeMetricFromCollection } = useRemoveMetricFromCollection();
+  const { data: selectedCollections } = useGetMetric(
+    { id: metricId },
+    { select: (x) => x.collections?.map((x) => x.id) }
+  );
+  const { openInfoMessage } = useBusterNotifications();
+
+  const onSaveToCollection = async (collectionIds: string[]) => {
+    await saveMetricToCollection({
+      metricIds: [metricId],
+      collectionIds,
+    });
+    openInfoMessage('Metrics saved to collections');
+  };
+
+  const onRemoveFromCollection = async (collectionId: string) => {
+    await removeMetricFromCollection({
+      metricIds: [metricId],
+      collectionIds: [collectionId],
+    });
+    openInfoMessage('Metrics removed from collections');
+  };
+
+  const { ModalComponent, ...dropdownProps } = useSaveToCollectionsDropdownContent({
+    onSaveToCollection,
+    onRemoveFromCollection,
+    selectedCollections: selectedCollections || [],
+  });
+
+  const CollectionSubMenu = useMemo(() => {
+    return <DropdownContent {...dropdownProps} />;
+  }, [dropdownProps]);
+
+  const collectionDropdownItem: DropdownItem = useMemo(
+    () => ({
+      label: 'Add to collection',
+      value: 'add-to-collection',
+      icon: <ASSET_ICONS.collectionAdd />,
+      items: [
+        <React.Fragment key="collection-sub-menu">
+          {CollectionSubMenu} {ModalComponent}
+        </React.Fragment>,
+      ],
+    }),
+    [CollectionSubMenu, ModalComponent]
+  );
+
+  return collectionDropdownItem;
+};
+
+const useStatusSelectMenu = ({ metricId }: { metricId: string }) => {
+  const { data: metricStatus } = useGetMetric({ id: metricId }, { select: (x) => x.status });
+  const { mutate: updateStatus } = useBulkUpdateMetricVerificationStatus();
+  const isAdmin = useIsUserAdmin();
+
+  const onChangeStatus = async (status: VerificationStatus) => {
+    return updateStatus([{ id: metricId, status }]);
+  };
+
+  const dropdownProps = useStatusDropdownContent({
+    isAdmin,
+    selectedStatus: metricStatus || 'notRequested',
+    onChangeStatus,
+  });
+
+  const statusSubMenu = useMemo(() => {
+    return <DropdownContent {...dropdownProps} />;
+  }, [dropdownProps]);
+
+  const statusDropdownItem: DropdownItem = useMemo(
+    () => ({
+      label: 'Status',
+      value: 'status',
+      icon: <StatusBadgeIndicator status={metricStatus || 'notRequested'} />,
+      items: [<React.Fragment key="status-sub-menu">{statusSubMenu}</React.Fragment>],
+    }),
+    [statusSubMenu, metricStatus]
+  );
+
+  return statusDropdownItem;
+};
+
+const useEditChartSelectMenu = () => {
+  const onClickButton = () => {
+    alert('TODO: edit chart');
+  };
+  return useMemo(
+    () => ({
+      label: 'Edit chart',
+      value: 'edit-chart',
+      onClick: onClickButton,
+      icon: <SquareChartPen />,
+    }),
+    []
+  );
+};
+
+const useResultsViewSelectMenu = ({ metricId }: { metricId: string }): DropdownItem => {
+  return useMemo(
+    () => ({
+      label: 'Results view',
+      value: 'results-view',
+      link: {
+        to: './results',
+        from: '/app/metrics/$metricId',
+      },
+      icon: <Table />,
+    }),
+    []
+  );
+};
+
+const useSQLEditorSelectMenu = ({ metricId }: { metricId: string }) => {
+  const link = useMemo(() => {
+    return undefined;
+  }, [metricId]);
+
+  return useMemo(
+    () => ({
+      label: 'SQL Editor',
+      value: 'sql-editor',
+      icon: <SquareCode />,
+      link,
+    }),
+    [link]
+  );
+};
+
+const useDeleteMetricSelectMenu = ({ metricId }: { metricId: string }) => {
+  const navigate = useNavigate();
+  const { mutateAsync: deleteMetric } = useDeleteMetric();
+
+  return useMemo(
+    () => ({
+      label: 'Delete metric',
+      value: 'delete-metric',
+      icon: <Trash />,
+      onClick: async () => {
+        await deleteMetric({ ids: [metricId] });
+        navigate({ to: '/app/metrics' });
+      },
+    }),
+    [metricId, deleteMetric]
+  );
+};
+
+export const useShareMenuSelectMenu = ({ metricId }: { metricId: string }) => {
+  const { data: shareAssetConfig } = useGetMetric(
+    { id: metricId },
+    { select: getShareAssetConfig }
+  );
+  const isEffectiveOwner = getIsEffectiveOwner(shareAssetConfig?.permission);
+
+  return useMemo(
+    () => ({
+      label: 'Share metric',
+      value: 'share-metric',
+      icon: <ShareRight />,
+      disabled: !isEffectiveOwner,
+      items:
+        isEffectiveOwner && shareAssetConfig
+          ? [
+              <ShareMenuContent
+                key={metricId}
+                shareAssetConfig={shareAssetConfig}
+                assetId={metricId}
+                assetType={'metric'}
+              />,
+            ]
+          : undefined,
+    }),
+    [metricId, shareAssetConfig, isEffectiveOwner]
+  );
+};
+
+const useOpenFullScreenMetric = ({
+  metricId,
+  versionNumber,
+}: {
+  metricId: string;
+  versionNumber: number | undefined;
+}) => {
+  return useMemo(
+    () => ({
+      label: 'Open in metric page',
+      value: 'open-in-full-screen',
+      icon: <ArrowUpRight />,
+      link: undefined,
+    }),
+    [metricId, versionNumber]
+  );
+};

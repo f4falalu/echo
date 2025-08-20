@@ -1,7 +1,7 @@
 import type { AssetType } from '@buster/server-shared/assets';
 import { createFileRoute } from '@tanstack/react-router';
 
-export const Route = createFileRoute('/app/_app/_asset/chats/$chatId/')({
+export const Route = createFileRoute('/app/_app/_asset/chats/$chatId')({
   loader: async ({ params, context }) => {
     const title = await context.getAssetTitle({
       assetId: params.chatId,

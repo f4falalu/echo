@@ -1,5 +1,11 @@
 import type { DropdownMenuProps } from '@radix-ui/react-dropdown-menu';
-import { Link } from '@tanstack/react-router';
+import {
+  Link,
+  type LinkProps,
+  type RegisteredRouter,
+  type ValidateFromPath,
+  type ValidateLinkOptions,
+} from '@tanstack/react-router';
 import React, { useEffect, useMemo } from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
 import { useDebounceSearch } from '@/hooks/useDebounceSearch';
@@ -24,7 +30,12 @@ import {
 } from './DropdownBase';
 import { DropdownMenuHeaderSearch } from './DropdownMenuHeaderSearch';
 
-export interface DropdownItem<T = string> {
+export interface DropdownItem<
+  T = string,
+  TRouter extends RegisteredRouter = RegisteredRouter,
+  TOptions = unknown,
+  TFrom extends string = string,
+> {
   label: React.ReactNode | string;
   truncate?: boolean;
   searchLabel?: string; // Used for filtering
@@ -38,7 +49,7 @@ export interface DropdownItem<T = string> {
   loading?: boolean;
   selected?: boolean;
   items?: DropdownItems<T>;
-  link?: string | OptionsTo;
+  link?: string | ValidateLinkOptions<TRouter, TOptions, TFrom>;
   linkTarget?: '_blank' | '_self';
   linkIcon?: 'arrow-right' | 'arrow-external' | 'caret-right';
 }
@@ -47,10 +58,20 @@ export interface DropdownDivider {
   type: 'divider';
 }
 
-export type DropdownItems<T = string> = (DropdownItem<T> | DropdownDivider | React.ReactNode)[];
+export type DropdownItems<
+  T = string,
+  TRouter extends RegisteredRouter = RegisteredRouter,
+  TOptions = unknown,
+  TFrom extends string = string,
+> = (DropdownItem<T, TRouter, TOptions, TFrom> | DropdownDivider | React.ReactNode)[];
 
-export interface DropdownProps<T = string> extends DropdownMenuProps {
-  items: DropdownItems<T>;
+export interface DropdownProps<
+  T = string,
+  TRouter extends RegisteredRouter = RegisteredRouter,
+  TOptions = unknown,
+  TFrom extends string = string,
+> extends DropdownMenuProps {
+  items: DropdownItems<T, TRouter, TOptions, TFrom>;
   selectType?: 'single' | 'multiple' | 'none';
   menuHeader?: string | React.ReactNode; //if string it will render a search box
   onSelect?: (value: T) => void;
@@ -299,49 +320,62 @@ export const DropdownContent = <T,>({
   );
 };
 
-const DropdownItemSelector = React.memo(
-  <T,>({
-    item,
-    index,
-    onSelect,
-    onSelectItem,
-    closeOnSelect,
-    selectType,
-    showIndex,
-  }: {
-    item: DropdownItems<T>[number];
-    index: number;
-    // biome-ignore lint/suspicious/noExplicitAny: I had a devil of a time trying to type this... This is a hack to get the type to work
-    onSelect?: (value: any) => void; // Using any here to resolve the type mismatch
-    onSelectItem: (index: number) => void;
-    closeOnSelect: boolean;
-    showIndex: boolean;
-    selectType: DropdownProps<T>['selectType'];
-  }) => {
-    if ((item as DropdownDivider).type === 'divider') {
-      return <DropdownMenuSeparator />;
-    }
-
-    if (typeof item === 'object' && React.isValidElement(item)) {
-      return item;
-    }
-
-    return (
-      <DropdownItem
-        {...(item as DropdownItem<T>)}
-        closeOnSelect={closeOnSelect}
-        onSelect={onSelect}
-        onSelectItem={onSelectItem}
-        selectType={selectType}
-        index={index}
-        showIndex={showIndex}
-      />
-    );
+const DropdownItemSelector = <
+  T,
+  TRouter extends RegisteredRouter = RegisteredRouter,
+  TOptions = unknown,
+  TFrom extends string = string,
+>({
+  item,
+  index,
+  onSelect,
+  onSelectItem,
+  closeOnSelect,
+  selectType,
+  showIndex,
+}: {
+  item: DropdownItems<T, TRouter, TOptions, TFrom>[number];
+  index: number;
+  // biome-ignore lint/suspicious/noExplicitAny: I had a devil of a time trying to type this... This is a hack to get the type to work
+  onSelect?: (value: any) => void; // Using any here to resolve the type mismatch
+  onSelectItem: (index: number) => void;
+  closeOnSelect: boolean;
+  showIndex: boolean;
+  selectType: DropdownProps<T>['selectType'];
+}) => {
+  if ((item as DropdownDivider).type === 'divider') {
+    return <DropdownMenuSeparator />;
   }
-);
+
+  if (typeof item === 'object' && React.isValidElement(item)) {
+    return item;
+  }
+
+  // Type guard to ensure item is a DropdownItem
+  if (!item || typeof item !== 'object' || !('value' in item)) {
+    return null;
+  }
+
+  return (
+    <DropdownItem<T, TRouter, TOptions, TFrom>
+      {...item}
+      closeOnSelect={closeOnSelect}
+      onSelect={onSelect}
+      onSelectItem={onSelectItem}
+      selectType={selectType}
+      index={index}
+      showIndex={showIndex}
+    />
+  );
+};
 DropdownItemSelector.displayName = 'DropdownItemSelector';
 
-const DropdownItem = <T,>({
+const DropdownItem = <
+  T,
+  TRouter extends RegisteredRouter = RegisteredRouter,
+  TOptions = unknown,
+  TFrom extends string = string,
+>({
   label,
   value,
   showIndex,
@@ -361,7 +395,7 @@ const DropdownItem = <T,>({
   truncate,
   link,
   linkIcon,
-}: DropdownItem<T> & {
+}: DropdownItem<T, TRouter, TOptions, TFrom> & {
   onSelect?: (value: T) => void;
   onSelectItem: (index: number) => void;
   closeOnSelect: boolean;

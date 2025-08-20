@@ -31,7 +31,6 @@ export function AssetNavigationExample() {
     });
 
     // navOptions is type-safe with:
-    // { to: '/app/chats/$chatId/metrics/$metricId', params: { chatId: 'chat-123', metricId: 'metric-456' } }
     navigate(navOptions);
   };
 

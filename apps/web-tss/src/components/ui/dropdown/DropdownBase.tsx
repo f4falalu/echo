@@ -1,5 +1,10 @@
 import * as DropdownMenuPrimitive from '@radix-ui/react-dropdown-menu';
-import { Link } from '@tanstack/react-router';
+import {
+  Link,
+  type LinkProps,
+  type RegisteredRouter,
+  type ValidateLinkOptions,
+} from '@tanstack/react-router';
 import * as React from 'react';
 import { cn } from '@/lib/classMerge';
 import type { OptionsTo } from '@/types/routes';
@@ -248,12 +253,21 @@ const DropdownMenuShortcut = ({ className, ...props }: React.HTMLAttributes<HTML
 };
 DropdownMenuShortcut.displayName = 'DropdownMenuShortcut';
 
-const DropdownMenuLink: React.FC<{
+const DropdownMenuLink = <
+  TRouter extends RegisteredRouter = RegisteredRouter,
+  TOptions = unknown,
+  TFrom extends string = string,
+>({
+  className,
+  link,
+  linkTarget,
+  linkIcon = 'arrow-right',
+}: {
   className?: string;
-  link: OptionsTo | string | null;
+  link: ValidateLinkOptions<TRouter, TOptions, TFrom> | string | null;
   linkIcon?: 'arrow-right' | 'arrow-external' | 'caret-right';
   linkTarget?: '_blank' | '_self';
-}> = ({ className, link, linkTarget, linkIcon = 'arrow-right' }) => {
+}) => {
   const icon = React.useMemo(() => {
     if (linkIcon === 'arrow-right') return <ArrowRight />;
     if (linkIcon === 'arrow-external') return <ArrowUpRight />;
@@ -290,7 +304,7 @@ const DropdownMenuLink: React.FC<{
         {content}
       </a>
     ) : (
-      <Link {...link} target={target} preload="intent" className={className}>
+      <Link {...(link as LinkProps)} target={target} preload="intent" className={className}>
         {content}
       </Link>
     );

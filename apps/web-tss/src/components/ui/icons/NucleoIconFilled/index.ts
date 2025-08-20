@@ -1,6 +1,9 @@
 export { default as CaretDown } from './caret-down';
 export { default as CaretRight } from './caret-right';
+export { default as ChevronDown } from './chevron-down';
 export { default as CircleCheck } from './circle-check';
 export { default as CircleWarning } from './circle-warning';
 export { default as CircleXmark } from './circle-xmark';
+export { default as StarFilled, default as Star } from './star';
 export { default as TriangleWarning } from './triangle-warning';
+export { default as WandSparkle } from './wand-sparkle';
