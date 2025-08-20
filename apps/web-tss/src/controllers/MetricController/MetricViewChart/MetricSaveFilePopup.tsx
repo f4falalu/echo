@@ -1,14 +1,10 @@
 import React from 'react';
-import { SaveResetFilePopup } from '@/components/features/popups/SaveResetFilePopup';
+import { SaveResetFilePopup } from '@/components/features/popups/SaveResetFilePopupBase';
+import { useIsMetricFileChanged } from '@/context/Metrics/useIsMetricFileChanged';
 import { useUpdateMetricChart } from '@/context/Metrics/useUpdateMetricChart';
-import {
-  useChatIsFileChanged,
-  useChatOnResetToOriginal,
-} from '@/layouts/ChatLayout/ChatContext/useChatContextSelectors';
 
 export const MetricSaveFilePopup: React.FC<{ metricId: string }> = React.memo(({ metricId }) => {
-  const onResetToOriginal = useChatOnResetToOriginal();
-  const isFileChanged = useChatIsFileChanged();
+  const { isFileChanged, onResetToOriginal } = useIsMetricFileChanged({ metricId });
   const { onSaveMetricToServer, isSaving } = useUpdateMetricChart({ metricId });
 
   return (

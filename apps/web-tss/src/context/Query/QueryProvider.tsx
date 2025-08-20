@@ -6,22 +6,12 @@ import { userQueryKeys } from '../../api/query_keys/users';
 
 export const QueryPersister = ({
   children,
-  queryClient,
 }: {
   children: React.ReactNode;
   queryClient: QueryClient;
 }) => {
-  return (
-    <TanstackPersistQueryClientProvider
-      client={queryClient}
-      persistOptions={persistOptions}
-      onSuccess={() => {
-        queryClient.resumePausedMutations();
-        console.log('onSuccess', queryClient.getQueryData(userQueryKeys.favoritesGetList.queryKey));
-      }}
-    >
-      {/* {mounted ? children : null} */}
-      {children}
-    </TanstackPersistQueryClientProvider>
-  );
+  return children;
+
+  // </TanstackPersistQueryClientProvider>
+  //  );
 };

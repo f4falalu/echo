@@ -27,7 +27,7 @@ interface QueuedModal<T = unknown> extends Omit<ConfirmProps<T>, 'onOk' | 'onCan
   onCancel?: () => Promise<void>;
 }
 
-export const useOpenConfirmModal = () => {
+export const useConfirmModalContext = () => {
   const [modalQueue, setModalQueue] = useState<QueuedModal[]>([]);
   const currentModal = modalQueue[0]; // Get the first modal in the queue
 

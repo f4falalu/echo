@@ -17,7 +17,7 @@ const config = defineConfig(({ command, mode }) => {
       // this is the plugin that enables path aliases
       viteTsConfigPaths({ projects: ['./tsconfig.json'] }),
       tailwindcss(),
-      tanstackStart({ customViteReactPlugin: true }),
+      tanstackStart({ customViteReactPlugin: true, target: 'bun' }),
       viteReact(),
       useChecker
         ? checker({

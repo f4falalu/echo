@@ -5,8 +5,8 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useGetMetric, useGetMetricData } from '@/api/buster_rest/metrics';
 import type { AppSplitterRef, LayoutSize } from '@/components/ui/layouts/AppSplitter';
 import { AppVerticalCodeSplitter } from '@/components/ui/layouts/AppVerticalCodeSplitter';
+import { useChatIsVersionHistoryMode } from '@/context/Chats/useIsVersionHistoryMode';
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
-import { useChatIsVersionHistoryMode } from '@/layouts/ChatLayout/ChatContext/useChatContextSelectors';
 import { useMetricResultsLayout } from './useMetricResultsLayout';
 import { useMetricRunSQL } from './useMetricRunSQL';
 

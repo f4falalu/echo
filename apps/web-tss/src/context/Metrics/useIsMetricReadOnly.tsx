@@ -1,12 +1,10 @@
 import last from 'lodash/last';
-import { useCallback, useMemo } from 'react';
+import { useMemo } from 'react';
 import { useGetMetric } from '@/api/buster_rest/metrics';
-import {
-  useChatGetMetricParams,
-  useChatIsVersionHistoryMode,
-} from '@/layouts/ChatLayout/ChatContext/useChatContextSelectors';
 import { canEdit } from '@/lib/share';
 import type { BusterMetric } from '../../api/asset_interfaces/metric';
+import { useChatIsVersionHistoryMode } from '../Chats/useIsVersionHistoryMode';
+import { useGetMetricParams } from './useGetMetricParams';
 
 const stableMetricSelect = (x: BusterMetric) => {
   return {
@@ -24,7 +22,7 @@ export const useIsMetricReadOnly = ({
   readOnly?: boolean;
 }) => {
   const isVersionHistoryMode = useChatIsVersionHistoryMode();
-  const { metricVersionNumber } = useChatGetMetricParams();
+  const { metricVersionNumber } = useGetMetricParams();
   const {
     data: metricData,
     isFetched,

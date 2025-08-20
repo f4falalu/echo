@@ -32,7 +32,7 @@ export const useIsMetricChanged = ({ metricId }: { metricId: string | undefined 
     return currentMetric?.version_number === last(currentMetric?.versions)?.version_number;
   }, [currentMetric]);
 
-  const onResetMetricToOriginal = useMemoizedFn(() => {
+  const onResetToOriginal = useMemoizedFn(() => {
     const options = metricsQueryKeys.metricsGetMetric(
       metricId || '',
       originalMetric?.version_number || 'LATEST'
@@ -45,7 +45,7 @@ export const useIsMetricChanged = ({ metricId }: { metricId: string | undefined 
 
   const isEditor = canEdit(currentMetric?.permission);
 
-  const isMetricChanged = useMemo(() => {
+  const isFileChanged = useMemo(() => {
     if (!isEditor || !originalMetric || !isLatestVersion || !currentMetric) return false;
 
     return (
@@ -61,7 +61,7 @@ export const useIsMetricChanged = ({ metricId }: { metricId: string | undefined 
   }, [originalMetric, currentMetric, isLatestVersion, isEditor]);
 
   return {
-    onResetMetricToOriginal,
-    isMetricChanged,
+    onResetToOriginal,
+    isFileChanged,
   };
 };

@@ -1,5 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router';
-import * as reportServerContext from '@/context/BusterAssets/reportServerAssetContext';
+import * as reportServerContext from '@/context/BusterAssets/report-server/reportServerAssetContext';
 
 export const Route = createFileRoute(
   '/app/_app/_asset/collections/$collectionId/reports/$reportId'

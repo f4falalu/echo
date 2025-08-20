@@ -2,13 +2,17 @@
 
 import type React from 'react';
 import type { PropsWithChildren } from 'react';
+import { lazy, Suspense, useCallback } from 'react';
 import { type ExternalToast, toast } from 'sonner';
 import { createContext, useContextSelector } from 'use-context-selector';
-import { ConfirmModal } from '@/components/ui/modal/ConfirmModal';
 import { Toaster } from '@/components/ui/toaster/Toaster';
-import { useOpenConfirmModal } from './useConfirmModal';
+import { useConfirmModalContext } from './useConfirmModal';
 
 export type NotificationType = 'success' | 'info' | 'warning' | 'error';
+
+const ConfirmModal = lazy(() =>
+  import('@/components/ui/modal/ConfirmModal').then((mod) => ({ default: mod.ConfirmModal }))
+);
 
 export interface NotificationProps {
   type?: NotificationType;
@@ -119,7 +123,7 @@ const useBusterNotificationsInternal = () => {
 };
 
 type BusterNotificationsContext = ReturnType<typeof useBusterNotificationsInternal> & {
-  openConfirmModal: ReturnType<typeof useOpenConfirmModal>['openConfirmModal'];
+  openConfirmModal: ReturnType<typeof useConfirmModalContext>['openConfirmModal'];
 };
 
 const BusterNotifications = createContext<BusterNotificationsContext>(
@@ -127,14 +131,16 @@ const BusterNotifications = createContext<BusterNotificationsContext>(
 );
 
 export const BusterNotificationsProvider: React.FC<PropsWithChildren> = ({ children }) => {
-  const { openConfirmModal, confirmModalProps } = useOpenConfirmModal();
+  const { openConfirmModal, confirmModalProps } = useConfirmModalContext();
   const value = useBusterNotificationsInternal();
 
   return (
     <BusterNotifications.Provider value={{ ...value, openConfirmModal }}>
       {children}
       <Toaster />
-      <ConfirmModal {...confirmModalProps} />
+      <Suspense fallback={null}>
+        <ConfirmModal {...confirmModalProps} />
+      </Suspense>
     </BusterNotifications.Provider>
   );
 };
@@ -144,7 +150,15 @@ const useBusterNotificationsSelector = <T,>(selector: (state: BusterNotification
 };
 
 export const useBusterNotifications = () => {
-  return useBusterNotificationsSelector((state) => state);
+  return useBusterNotificationsSelector(useCallback((state) => state, []));
 };
 
 export { openErrorNotification };
+
+export const useOpenConfirmModal = () => {
+  return useBusterNotificationsSelector(
+    useCallback(({ openConfirmModal }) => {
+      return openConfirmModal;
+    }, [])
+  );
+};
