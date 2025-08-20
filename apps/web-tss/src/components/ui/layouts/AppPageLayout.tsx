@@ -37,7 +37,6 @@ export const AppPageLayout: React.FC<
   mainClassName = '',
   contentContainerId,
 }) => {
-  console.log(scrollable, headerBorderVariant);
   return (
     <div
       id={id}
