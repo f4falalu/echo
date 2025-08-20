@@ -124,6 +124,7 @@ Updated content with metrics.`;
         name: 'Modified Sales Report',
         edits: [
           {
+            operation: 'replace' as const,
             code_to_replace: '# Original Report\nSome content here.',
             code: modifiedContent,
           },
@@ -180,6 +181,7 @@ Updated content with metrics.`;
         name: 'Modified Report',
         edits: [
           {
+            operation: 'replace' as const,
             code_to_replace: '# Original Report\nSome content here.',
             code: modifiedContent,
           },
@@ -243,14 +245,17 @@ Updated content with metrics.`;
         name: 'Multi-Edit Report',
         edits: [
           {
+            operation: 'replace' as const,
             code_to_replace: 'Section 1',
             code: 'Updated Section 1',
           },
           {
+            operation: 'replace' as const,
             code_to_replace: 'Section 2',
             code: 'Section 2 with <metric metricId="uuid-123" />',
           },
           {
+            operation: 'replace' as const,
             code_to_replace: 'Section 3',
             code: 'Updated Section 3',
           },
@@ -301,6 +306,7 @@ Updated content with metrics.`;
         name: 'Failed Edit Report',
         edits: [
           {
+            operation: 'replace' as const,
             code_to_replace: 'Non-existent text',
             code: '<metric metricId="uuid-123" />',
           },
@@ -337,6 +343,7 @@ Updated content with metrics.`;
         name: 'No Message ID Report',
         edits: [
           {
+            operation: 'replace' as const,
             code_to_replace: 'Original',
             code: 'Modified with <metric metricId="uuid-123" />',
           },
@@ -364,6 +371,7 @@ Updated content with metrics.`;
         name: 'Ghost Report',
         edits: [
           {
+            operation: 'replace' as const,
             code_to_replace: 'something',
             code: 'something else',
           },
@@ -399,6 +407,7 @@ Updated content with metrics.`;
         name: 'Success Report',
         edits: [
           {
+            operation: 'replace' as const,
             code_to_replace: 'Original Content',
             code: 'Modified with <metric metricId="uuid-1" />',
           },
@@ -425,6 +434,7 @@ Updated content with metrics.`;
         name: 'Missing Report',
         edits: [
           {
+            operation: 'replace' as const,
             code_to_replace: 'anything',
             code: 'anything with <metric metricId="uuid-2" />',
           },

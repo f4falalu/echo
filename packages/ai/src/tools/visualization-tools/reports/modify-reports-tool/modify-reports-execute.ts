@@ -21,14 +21,16 @@ import { MODIFY_REPORTS_TOOL_NAME } from './modify-reports-tool';
 // Apply a single edit operation to content in memory
 function applyEditToContent(
   content: string,
-  edit: { code_to_replace: string; code: string }
+  edit: { operation?: 'replace' | 'append'; code_to_replace: string; code: string }
 ): {
   success: boolean;
   content?: string;
   error?: string;
 } {
   try {
-    if (edit.code_to_replace === '') {
+    const operation = edit.operation || (edit.code_to_replace === '' ? 'append' : 'replace');
+
+    if (operation === 'append') {
       // Append mode
       return {
         success: true,
@@ -67,9 +69,8 @@ type VersionHistory = Record<string, VersionHistoryEntry>;
 async function processEditOperations(
   reportId: string,
   reportName: string,
-  edits: Array<{ code_to_replace: string; code: string }>,
-  messageId?: string,
-  state?: ModifyReportsState
+  edits: Array<{ operation?: 'replace' | 'append'; code_to_replace: string; code: string }>,
+  messageId?: string
 ): Promise<{
   success: boolean;
   finalContent?: string;
@@ -109,39 +110,15 @@ async function processEditOperations(
 
   // Apply all edits in memory
   for (const [index, edit] of edits.entries()) {
-    // Update state edit status to processing
-    const editState = state?.edits?.[index];
-    if (editState) {
-      editState.status = 'loading';
-    }
-
     const result = applyEditToContent(currentContent, edit);
 
     if (result.success && result.content) {
       currentContent = result.content;
-
-      // Update state edit status to completed
-      const completedEditState = state?.edits?.[index];
-      if (completedEditState) {
-        completedEditState.status = 'completed';
-      }
-
-      // Update state current content
-      if (state) {
-        state.currentContent = currentContent;
-      }
     } else {
       allSuccess = false;
-      const operation = edit.code_to_replace === '' ? 'append' : 'replace';
+      const operation = edit.operation || (edit.code_to_replace === '' ? 'append' : 'replace');
       const errorMsg = `Edit ${index + 1} (${operation}): ${result.error || 'Unknown error'}`;
       errors.push(errorMsg);
-
-      // Update state edit status to failed
-      const failedEditState = state?.edits?.[index];
-      if (failedEditState) {
-        failedEditState.status = 'failed';
-        failedEditState.error = result.error || 'Unknown error';
-      }
       // Stop processing on first failure for consistency
       break;
     }
@@ -172,11 +149,6 @@ async function processEditOperations(
       versionHistory,
     });
 
-    if (state) {
-      state.finalContent = currentContent;
-      state.version_number = newVersionNumber;
-    }
-
     return {
       success: true,
       finalContent: currentContent,
@@ -199,8 +171,7 @@ async function processEditOperations(
 const modifyReportsFile = wrapTraced(
   async (
     params: ModifyReportsInput,
-    context: ModifyReportsContext,
-    state?: ModifyReportsState
+    context: ModifyReportsContext
   ): Promise<ModifyReportsOutput> => {
     // Get context values
     const userId = context.userId;
@@ -254,13 +225,7 @@ const modifyReportsFile = wrapTraced(
     }
 
     // Process all edit operations
-    const editResult = await processEditOperations(
-      params.id,
-      params.name,
-      params.edits,
-      messageId,
-      state
-    );
+    const editResult = await processEditOperations(params.id, params.name, params.edits, messageId);
 
     // Track file associations if this is a new version (not part of same turn)
     if (messageId && editResult.success && editResult.finalContent && editResult.incrementVersion) {
@@ -331,125 +296,62 @@ export function createModifyReportsExecute(
       const startTime = Date.now();
 
       try {
-        // Call the main function directly, passing state
-        const result = await modifyReportsFile(input, context, state);
+        // Always process the full input from the agent
+        console.info('[modify-reports] Processing full input in execute phase');
+        const result = await modifyReportsFile(input, context);
 
-        // Update state with final results
-        if (result && typeof result === 'object') {
-          const typedResult = result as ModifyReportsOutput;
-
-          // Update final status in state
-          if (state.edits) {
-            const finalStatus = typedResult.success ? 'completed' : 'failed';
-            state.edits.forEach((edit) => {
-              if (edit.status === 'loading') {
-                edit.status = finalStatus;
-              }
-            });
-          }
-
-          // Update last entries if we have a messageId
-          if (context.messageId) {
-            try {
-              const toolCallId = state.toolCallId || `tool-${Date.now()}`;
-
-              // Check if the modified report contains metrics
-              const responseMessages: ChatMessageResponseMessage[] = [];
-
-              // Only add to response messages if modification was successful AND report contains metrics
-              if (
-                typedResult.success &&
-                typedResult.file &&
-                reportContainsMetrics(typedResult.file.content)
-              ) {
-                responseMessages.push({
-                  id: typedResult.file.id,
-                  type: 'file' as const,
-                  file_type: 'report' as const,
-                  file_name: typedResult.file.name,
-                  version_number: typedResult.file.version_number || 1,
-                  filter_version_id: null,
-                  metadata: [
-                    {
-                      status: 'completed' as const,
-                      message: 'Report modified successfully',
-                      timestamp: Date.now(),
-                    },
-                  ],
-                });
-              }
-
-              const reasoningEntry = createModifyReportsReasoningEntry(state, toolCallId);
-              const rawLlmMessage = createModifyReportsRawLlmMessageEntry(state, toolCallId);
-              const rawLlmResultEntry = createRawToolResultEntry(
-                toolCallId,
-                MODIFY_REPORTS_TOOL_NAME,
-                {
-                  edits: state.edits,
-                }
-              );
-
-              const updates: Parameters<typeof updateMessageEntries>[0] = {
-                messageId: context.messageId,
-              };
-
-              if (reasoningEntry) {
-                updates.reasoningMessages = [reasoningEntry];
-              }
-
-              if (rawLlmMessage) {
-                updates.rawLlmMessages = [rawLlmMessage, rawLlmResultEntry];
-              }
-
-              // Only add responseMessages if there are reports with metrics
-              if (responseMessages.length > 0) {
-                updates.responseMessages = responseMessages;
-              }
-
-              if (reasoningEntry || rawLlmMessage || responseMessages.length > 0) {
-                await updateMessageEntries(updates);
-              }
-
-              console.info('[modify-reports] Updated last entries with final results', {
-                messageId: context.messageId,
-                success: typedResult.success,
-                editsApplied: state.edits?.filter((e) => e.status === 'completed').length || 0,
-                editsFailed: state.edits?.filter((e) => e.status === 'failed').length || 0,
-                reportHasMetrics: responseMessages.length > 0,
-              });
-            } catch (error) {
-              console.error('[modify-reports] Error updating final entries:', error);
-              // Don't throw - return the result anyway
-            }
-          }
+        if (!result) {
+          throw new Error('Failed to process report modifications');
         }
 
-        const executionTime = Date.now() - startTime;
-        console.info('[modify-reports] Execution completed', {
-          executionTime: `${executionTime}ms`,
-          success: result?.success,
-        });
+        // Extract results
+        const { success, file } = result;
+        const { content: finalContent, version_number: versionNumber } = file;
 
-        return result as ModifyReportsOutput;
-      } catch (error) {
-        const executionTime = Date.now() - startTime;
-        console.error('[modify-reports] Execution failed', {
-          error,
-          executionTime: `${executionTime}ms`,
-        });
+        // Update state with final content
+        state.finalContent = finalContent;
+        state.version_number = versionNumber;
 
-        // Update last entries with failure status if possible
+        // Update final status in state edits
+        if (state.edits) {
+          const finalStatus = success ? 'completed' : 'failed';
+          state.edits.forEach((edit) => {
+            edit.status = finalStatus;
+          });
+        }
+
+        // Update message entries
         if (context.messageId) {
           try {
             const toolCallId = state.toolCallId || `tool-${Date.now()}`;
 
-            // Update state edits to failed status
-            if (state.edits) {
-              state.edits.forEach((edit) => {
-                if (edit.status === 'loading') {
-                  edit.status = 'failed';
-                }
+            // Check if the modified report contains metrics
+            const responseMessages: ChatMessageResponseMessage[] = [];
+
+            // Only add to response messages if modification was successful AND report contains metrics
+            // AND we haven't already created a response message during delta streaming
+            if (
+              success &&
+              finalContent &&
+              reportContainsMetrics(finalContent) &&
+              !state.responseMessageCreated
+            ) {
+              responseMessages.push({
+                id: input.id,
+                type: 'file' as const,
+                file_type: 'report' as const,
+                file_name: input.name,
+                version_number: versionNumber,
+                filter_version_id: null,
+                metadata: [
+                  {
+                    status: 'completed' as const,
+                    message: 'Report modified successfully',
+                    timestamp: Date.now(),
+                  },
+                ],
               });
+              state.responseMessageCreated = true;
             }
 
             const reasoningEntry = createModifyReportsReasoningEntry(state, toolCallId);
@@ -457,9 +359,104 @@ export function createModifyReportsExecute(
             const rawLlmResultEntry = createRawToolResultEntry(
               toolCallId,
               MODIFY_REPORTS_TOOL_NAME,
-              {
-                edits: state.edits,
-              }
+              result
+            );
+
+            const updates: Parameters<typeof updateMessageEntries>[0] = {
+              messageId: context.messageId,
+            };
+
+            if (reasoningEntry) {
+              updates.reasoningMessages = [reasoningEntry];
+            }
+
+            if (rawLlmMessage) {
+              updates.rawLlmMessages = [rawLlmMessage, rawLlmResultEntry];
+            }
+
+            // Only add responseMessages if there are reports with metrics
+            if (responseMessages.length > 0) {
+              updates.responseMessages = responseMessages;
+            }
+
+            if (reasoningEntry || rawLlmMessage || responseMessages.length > 0) {
+              await updateMessageEntries(updates);
+            }
+
+            console.info('[modify-reports] Updated message entries with final results', {
+              messageId: context.messageId,
+              success,
+              reportHasMetrics: responseMessages.length > 0,
+            });
+          } catch (error) {
+            console.error('[modify-reports] Error updating message entries:', error);
+            // Don't throw - return the result anyway
+          }
+        }
+
+        // Track file associations if this is a new version (not part of same turn)
+        if (context.messageId && success && state.version_number && state.version_number > 1) {
+          try {
+            await trackFileAssociations({
+              messageId: context.messageId,
+              files: [
+                {
+                  id: input.id,
+                  version: versionNumber,
+                },
+              ],
+            });
+          } catch (error) {
+            console.error('[modify-reports] Error tracking file associations:', error);
+          }
+        }
+
+        const executionTime = Date.now() - startTime;
+        console.info('[modify-reports] Execution completed', {
+          executionTime: `${executionTime}ms`,
+          success,
+        });
+
+        // Return the result directly
+        return result;
+      } catch (error) {
+        const executionTime = Date.now() - startTime;
+        console.error('[modify-reports] Execution failed', {
+          error,
+          executionTime: `${executionTime}ms`,
+        });
+
+        // Update message entries with failure status
+        if (context.messageId) {
+          try {
+            const toolCallId = state.toolCallId || `tool-${Date.now()}`;
+
+            // Mark all edits as failed
+            if (state.edits) {
+              state.edits.forEach((edit) => {
+                edit.status = 'failed';
+              });
+            }
+
+            const reasoningEntry = createModifyReportsReasoningEntry(state, toolCallId);
+            const rawLlmMessage = createModifyReportsRawLlmMessageEntry(state, toolCallId);
+            const failureOutput: ModifyReportsOutput = {
+              success: false,
+              message: 'Execution failed',
+              file: {
+                id: state.reportId || input.id || '',
+                name: state.reportName || input.name || 'Untitled Report',
+                content: state.finalContent || state.currentContent || '',
+                version_number: state.version_number || 0,
+                updated_at: new Date().toISOString(),
+              },
+              error: error instanceof Error ? error.message : 'Unknown error',
+            };
+
+            const rawLlmResultEntry = createRawToolResultEntry(
+              toolCallId,
+              MODIFY_REPORTS_TOOL_NAME,
+              failureOutput
             );
 
             const updates: Parameters<typeof updateMessageEntries>[0] = {

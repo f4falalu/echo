@@ -10,15 +10,21 @@ import MODIFY_REPORT_TOOL_DESCRIPTION from './modify-reports-tool-description.tx
 export const MODIFY_REPORTS_TOOL_NAME = 'modifyReports';
 
 const ModifyReportsEditSchema = z.object({
+  operation: z.enum(['replace', 'append']).describe(
+    `You should perform an append when you just want to add new content to the end of the report. 
+      You should perform a replace when you want to replace existing content with new content.
+      Appending is preferred over replacing because it is more efficient and less likely to cause issues.
+      If you are replacing content, you should provide the content you want to replace and the new content you want to insert.`
+  ),
   code_to_replace: z
     .string()
     .describe(
-      'Markdown content to find and replace. If empty string, the code will be appended to the report.'
+      'The string content that should be replaced in the current report content. This is required for the replace operation. Will just be an empty string for the append operation.'
     ),
   code: z
     .string()
     .describe(
-      'The new markdown content to insert. Either replaces code_to_replace or appends to the end.'
+      'The new markdown content to insert. Either replaces code_to_replace or appends to the end. This is required for both the replace and append operations.'
     ),
 });
 
@@ -62,6 +68,14 @@ const ModifyReportsEditStateSchema = z.object({
   error: z.string().optional(),
 });
 
+const ModifyReportsStreamingEditSchema = z.object({
+  operation: z.enum(['replace', 'append']),
+  codeToReplaceComplete: z.boolean(),
+  streamingCode: z.string(),
+  lastUpdateIndex: z.number(),
+  fullyApplied: z.boolean().optional(), // Track if this edit was fully applied during streaming
+});
+
 const ModifyReportsStateSchema = z.object({
   toolCallId: z.string().optional(),
   argsText: z.string().optional(),
@@ -72,6 +86,10 @@ const ModifyReportsStateSchema = z.object({
   finalContent: z.string().optional(),
   version_number: z.number().optional(),
   startTime: z.number().optional(),
+  responseMessageCreated: z.boolean().optional(),
+  snapshotContent: z.string().optional(),
+  workingContent: z.string().optional(),
+  streamingEdits: z.array(ModifyReportsStreamingEditSchema).optional(),
 });
 
 // Export types
@@ -80,6 +98,7 @@ export type ModifyReportsOutput = z.infer<typeof ModifyReportsOutputSchema>;
 export type ModifyReportsContext = z.infer<typeof ModifyReportsContextSchema>;
 export type ModifyReportsState = z.infer<typeof ModifyReportsStateSchema>;
 export type ModifyReportsEditState = z.infer<typeof ModifyReportsEditStateSchema>;
+export type ModifyReportsStreamingEdit = z.infer<typeof ModifyReportsStreamingEditSchema>;
 
 // Factory function that accepts agent context and maps to tool context
 export function createModifyReportsTool(context: ModifyReportsContext) {
@@ -93,6 +112,9 @@ export function createModifyReportsTool(context: ModifyReportsContext) {
     finalContent: undefined,
     version_number: undefined,
     toolCallId: undefined,
+    responseMessageCreated: false,
+    snapshotContent: undefined,
+    streamingEdits: [],
   };
 
   // Create all functions with the context and state passed

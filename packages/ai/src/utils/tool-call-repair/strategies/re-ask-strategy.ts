@@ -1,5 +1,5 @@
 import type { LanguageModelV2ToolCall } from '@ai-sdk/provider';
-import { type ModelMessage, NoSuchToolError, generateText } from 'ai';
+import { type ModelMessage, NoSuchToolError, generateText, streamText } from 'ai';
 import { wrapTraced } from 'braintrust';
 import { ANALYST_AGENT_NAME, DOCS_AGENT_NAME, THINK_AND_PREP_AGENT_NAME } from '../../../agents';
 import { Sonnet4 } from '../../../llm';
@@ -56,7 +56,7 @@ export async function repairWrongToolName(
       ];
 
       try {
-        const result = await generateText({
+        const result = streamText({
           model: Sonnet4,
           messages: healingMessages,
           tools: context.tools,
@@ -64,8 +64,13 @@ export async function repairWrongToolName(
           temperature: 0,
         });
 
+        for await (const _ of result.textStream) {
+          // We don't need to do anything with the text chunks,
+          // just consume them to keep the stream flowing
+        }
+
         // Find the first valid tool call
-        const newToolCall = result.toolCalls.find((tc) => tc.toolName in context.tools);
+        const newToolCall = (await result.toolCalls).find((tc) => tc.toolName in context.tools);
 
         if (!newToolCall) {
           console.warn('Re-ask did not produce a valid tool call', {

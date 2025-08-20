@@ -90,6 +90,7 @@ describe('structured-output-strategy', () => {
         model: 'mock-model',
         schema: tool?.inputSchema,
         prompt: expect.stringContaining('Fix these tool arguments'),
+        mode: 'json',
       });
     });
 
