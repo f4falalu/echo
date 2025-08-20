@@ -2,7 +2,6 @@ import React from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
 import { Button } from '@/components/ui/buttons';
 import { Command, ReturnKey, TriangleWarning } from '@/components/ui/icons';
-import { PreventNavigation } from '@/components/ui/layouts/PreventNavigation';
 import { PopupContainer, PopupSplitter } from '@/components/ui/popup';
 import { Text } from '@/components/ui/typography';
 

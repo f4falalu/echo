@@ -9,10 +9,7 @@ import { create } from 'mutative';
 import { useMemoizedFn } from '@/hooks';
 import { queryKeys } from '@/api/query_keys';
 import type { RustApiError } from '../errors';
-import type {
-  GetReportIndividualResponse,
-  UpdateReportResponse
-} from '@buster/server-shared/reports';
+import type { GetReportResponse, UpdateReportResponse } from '@buster/server-shared/reports';
 import {
   getReportsList,
   getReportsList_server,
@@ -86,12 +83,9 @@ export const prefetchGetReportsListClient = async (
 /**
  * Hook to get an individual report by ID
  */
-export const useGetReport = <T = GetReportIndividualResponse>(
+export const useGetReport = <T = GetReportResponse>(
   { reportId, versionNumber }: { reportId: string | undefined; versionNumber?: number },
-  options?: Omit<
-    UseQueryOptions<GetReportIndividualResponse, RustApiError, T>,
-    'queryKey' | 'queryFn'
-  >
+  options?: Omit<UseQueryOptions<GetReportResponse, RustApiError, T>, 'queryKey' | 'queryFn'>
 ) => {
   const queryFn = useMemoizedFn(() => {
     return getReportById(reportId!);
@@ -127,7 +121,7 @@ export const useUpdateReport = () => {
     UpdateReportResponse,
     RustApiError,
     Parameters<typeof updateReport>[0],
-    { previousReport?: GetReportIndividualResponse }
+    { previousReport?: GetReportResponse }
   >({
     mutationFn: updateReport,
     onMutate: async ({ reportId, ...data }) => {
@@ -137,7 +131,7 @@ export const useUpdateReport = () => {
       });
 
       // Snapshot the previous value
-      const previousReport = queryClient.getQueryData<GetReportIndividualResponse>(
+      const previousReport = queryClient.getQueryData<GetReportResponse>(
         queryKeys.reportsGetReport(reportId).queryKey
       );
 

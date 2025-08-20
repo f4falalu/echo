@@ -1,5 +1,5 @@
 import type {
-  GetReportIndividualResponse,
+  GetReportResponse,
   GetReportsListRequest,
   GetReportsListResponse,
 } from '@buster/server-shared/reports';
@@ -14,7 +14,7 @@ const reportsGetList = (filters?: GetReportsListRequest) =>
   });
 
 const reportsGetReport = (reportId: string, versionNumber: number | 'LATEST') =>
-  queryOptions<GetReportIndividualResponse>({
+  queryOptions<GetReportResponse>({
     queryKey: ['reports', 'get', reportId, versionNumber || 'LATEST'] as const,
     staleTime: 60 * 1000, // 60 seconds
   });

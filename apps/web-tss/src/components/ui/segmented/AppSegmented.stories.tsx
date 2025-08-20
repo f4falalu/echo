@@ -2,7 +2,6 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { useState } from 'react';
 import { Checkbox } from '../checkbox';
 import { Grid, PaintRoller, Star, Storage } from '../icons';
-import { PreventNavigation } from '../layouts/PreventNavigation';
 import { AppSegmented } from './AppSegmented';
 
 const meta: Meta<typeof AppSegmented> = {
@@ -128,70 +127,5 @@ export const WithOnlyIcons: Story = {
       { value: 'tab2', icon: <Grid />, tooltip: 'Tooltip 2' },
       { value: 'tab3', icon: <Storage />, tooltip: 'Tooltip 3' },
     ],
-  },
-};
-
-export const WithPreventDefault: Story = {
-  args: {
-    options: [
-      {
-        value: 'tab1',
-        icon: <Star />,
-        link: {
-          to: '/app/datasets',
-        },
-        label: 'Tab 1',
-        tooltip: 'Tooltip 1',
-      },
-      {
-        value: 'tab2',
-        icon: <Grid />,
-        link: {
-          to: '/app/datasets',
-        },
-        label: 'Tab 2',
-        tooltip: 'Tooltip 2',
-      },
-      {
-        value: 'tab3',
-        icon: <Storage />,
-        link: {
-          to: '/app/datasets',
-        },
-        label: 'Tab 3',
-        tooltip: 'Tooltip 3',
-      },
-    ],
-  },
-  render: (args) => {
-    const [isDirty, setIsDirty] = useState(true);
-
-    return (
-      <div className="flex w-full min-w-[500px] flex-col items-center justify-center gap-4">
-        <AppSegmented {...args} />
-
-        <div className="flex items-center gap-2">
-          <Checkbox
-            checked={isDirty}
-            onCheckedChange={(checked) => setIsDirty(checked === 'indeterminate' ? true : checked)}
-          />
-          <p>{isDirty ? 'Dirty' : 'Clean'}</p>
-        </div>
-
-        <PreventNavigation
-          isDirty={isDirty}
-          title="Title"
-          description="Description"
-          onOk={() => {
-            alert('ok');
-            return Promise.resolve();
-          }}
-          onCancel={() => {
-            alert('cancel');
-            return Promise.resolve();
-          }}
-        />
-      </div>
-    );
   },
 };
