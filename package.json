@@ -48,12 +48,12 @@
   "dependencies": {
     "dotenv": "catalog:",
     "dotenv-cli": "^8.0.0",
-    "typescript": "^5.8.3"
+    "typescript": "^5.9.2"
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
     "@types/node": "^20.19.4",
-    "turbo": "^2.5.5",
+    "turbo": "^2.5.6",
     "tsx": "catalog:",
     "vitest": "catalog:"
   },
@@ -64,7 +64,9 @@
   "packageManager": "pnpm@9.15.0",
   "pnpm": {
     "peerDependencyRules": {
-      "ignoreMissing": ["shiki"],
+      "ignoreMissing": [
+        "shiki"
+      ],
       "allowedVersions": {
         "shiki": "3"
       }
