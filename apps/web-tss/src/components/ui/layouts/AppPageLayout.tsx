@@ -37,6 +37,7 @@ export const AppPageLayout: React.FC<
   mainClassName = '',
   contentContainerId,
 }) => {
+  console.log(scrollable, headerBorderVariant);
   return (
     <div
       id={id}
@@ -71,8 +72,8 @@ export const AppPageLayout: React.FC<
       >
         <div
           className={cn(
-            'pointer-events-none top-[0px] z-10 right-0 left-0 h-[0.5px] w-full sticky bg-border',
-            headerBorderVariant === 'ghost' && 'scroll-header'
+            'pointer-events-none top-[0px] scroll-header z-10 right-0 left-0 h-[0.5px] w-full sticky bg-border',
+            !scrollable && headerBorderVariant === 'ghost' && '!bg-transparent'
           )}
         />
 
