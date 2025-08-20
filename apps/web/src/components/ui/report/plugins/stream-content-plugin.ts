@@ -48,110 +48,126 @@ export const StreamContentPlugin = createPlatePlugin({
       editor.tf.withScrolling(() => {
         editor.tf.withoutSaving(() => {
           editor.tf.withoutNormalizing(() => {
-            // Get all current nodes in the editor
-            const currentNodes = editor.children;
-            const currentLength = currentNodes.length;
-            const incomingLength = chunks.length;
-
-            // Batch operations for better performance
-            const operations: Array<() => void> = [];
-
-            // First, identify all operations we need to perform
-            for (let i = 0; i < incomingLength; i++) {
-              const chunk = chunks[i];
-
-              if (i < currentLength) {
-                const existingNode = currentNodes[i];
-
-                // Quick ID check first (fast)
-                if (existingNode.id !== chunk.id) {
-                  // Different ID, needs replacement
-                  operations.push(() => {
-                    // Remove the old node and insert the new one
-                    editor.tf.removeNodes({ at: [i] });
-                    // Insert the chunk as a properly formatted node
-                    const nodeToInsert = {
-                      ...chunk,
-                      id: chunk.id // Ensure ID is preserved
-                    };
-                    editor.tf.insertNodes(nodeToInsert, { at: [i], select: false });
-                  });
-                } else {
-                  // Same ID, check if content changed (only if necessary)
-                  const existingText = extractTextFromNode(existingNode);
-                  const incomingText = extractTextFromChildren(chunk.children);
-
-                  if (existingText !== incomingText) {
-                    operations.push(() => {
-                      // Remove the old node and insert the new one
-                      editor.tf.removeNodes({ at: [i] });
-                      // Insert the chunk as a properly formatted node
-                      const nodeToInsert = {
-                        ...chunk,
-                        id: chunk.id // Ensure ID is preserved
-                      };
-                      editor.tf.insertNodes(nodeToInsert, { at: [i], select: false });
-                    });
-                  }
-                }
-              } else {
-                // New node to append
-                operations.push(() => {
-                  // Insert the chunk as a properly formatted node
-                  const nodeToInsert = {
-                    ...chunk,
-                    id: chunk.id // Ensure ID is preserved
-                  };
-                  editor.tf.insertNodes(nodeToInsert, {
-                    at: [editor.children.length],
-                    select: false
-                  });
-                });
-              }
-            }
-
-            // Handle removals if incoming is shorter
-            if (currentLength > incomingLength) {
-              operations.push(() => {
-                // Remove extra nodes one by one (Slate doesn't support batch removal with array of paths)
-                for (let i = currentLength - 1; i >= incomingLength; i--) {
-                  editor.tf.removeNodes({ at: [i] });
-                }
-              });
-            }
-
-            // Execute all operations
-            operations.forEach((op) => op());
+            const operations = buildUpdateOperations(editor, chunks);
+            executeOperations(operations);
           });
         });
       });
-    },
-
-    /**
-     * Find a node with a specific ID
-     */
-    findNodeWithId: (id: string) => {
-      const editor = ctx.editor as PlateEditor;
-      return findNodeWithId(editor, id);
     }
   }
 }));
 
 /**
- * Find a node with a specific ID in the editor (only checks the last node)
+ * Build operations needed to update the editor with new chunks
  */
-const findNodeWithId = (editor: PlateEditor, id: string): number[] | null => {
-  // Only check the last node since we always append to the end
-  const lastIndex = editor.children.length - 1;
-  if (lastIndex >= 0) {
-    const lastNode = editor.children[lastIndex];
+const buildUpdateOperations = (
+  editor: PlateEditor,
+  chunks: ReportElementWithId[]
+): Array<() => void> => {
+  const currentNodes = editor.children;
+  const currentLength = currentNodes.length;
+  const incomingLength = chunks.length;
+  const operations: Array<() => void> = [];
 
-    if (lastNode.id === id) {
-      return [lastIndex];
+  // Process existing nodes and new nodes
+  for (let i = 0; i < incomingLength; i++) {
+    const chunk = chunks[i];
+
+    if (i < currentLength) {
+      // Handle existing node at this position
+      const operation = buildNodeUpdateOperation(
+        editor,
+        i,
+        currentNodes[i] as ReportElementWithId,
+        chunk
+      );
+      if (operation) {
+        operations.push(operation);
+      }
+    } else {
+      // Handle new node to append
+      operations.push(() => appendNewNode(editor, chunk));
     }
   }
 
-  return null;
+  // Handle removal of extra nodes
+  if (currentLength > incomingLength) {
+    operations.push(() => removeExtraNodes(editor, incomingLength, currentLength));
+  }
+
+  return operations;
+};
+
+/**
+ * Build operation for updating an existing node
+ */
+const buildNodeUpdateOperation = (
+  editor: PlateEditor,
+  index: number,
+  existingNode: ReportElementWithId,
+  chunk: ReportElementWithId
+): (() => void) | null => {
+  // Quick ID check first (fast)
+  if (existingNode.id !== chunk.id) {
+    return () => replaceNode(editor, index, chunk);
+  }
+
+  // Same ID, check if content changed
+  const existingText = extractTextFromNode(existingNode);
+  const incomingText = extractTextFromChildren(chunk.children);
+
+  if (existingText !== incomingText) {
+    return () => replaceNode(editor, index, chunk);
+  }
+
+  return null; // No update needed
+};
+
+/**
+ * Replace a node at the specified index
+ */
+const replaceNode = (editor: PlateEditor, index: number, chunk: ReportElementWithId) => {
+  editor.tf.removeNodes({ at: [index] });
+  const nodeToInsert = {
+    ...chunk,
+    id: chunk.id // Ensure ID is preserved
+  };
+  editor.tf.insertNodes(nodeToInsert, { at: [index], select: false });
+  editor.tf.addMark('streamContent', { at: [index] });
+};
+
+/**
+ * Append a new node to the end of the editor
+ */
+const appendNewNode = (editor: PlateEditor, chunk: ReportElementWithId) => {
+  const nodeToInsert = {
+    ...chunk,
+
+    id: chunk.id // Ensure ID is preserved
+  };
+  const insertIndex = editor.children.length;
+  editor.tf.insertNodes(nodeToInsert, {
+    at: [insertIndex],
+    select: false
+  });
+  editor.tf.addMark('streamContent', { at: [insertIndex] });
+};
+
+/**
+ * Remove extra nodes from the end of the editor
+ */
+const removeExtraNodes = (editor: PlateEditor, startIndex: number, endIndex: number) => {
+  // Remove extra nodes one by one (Slate doesn't support batch removal with array of paths)
+  for (let i = endIndex - 1; i >= startIndex; i--) {
+    editor.tf.removeNodes({ at: [i] });
+  }
+};
+
+/**
+ * Execute all operations in sequence
+ */
+const executeOperations = (operations: Array<() => void>) => {
+  operations.forEach((op) => op());
 };
 
 /**
