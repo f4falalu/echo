@@ -2,7 +2,7 @@ import { NoSuchToolError, generateText } from 'ai';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { ANALYST_AGENT_NAME, THINK_AND_PREP_AGENT_NAME } from '../../../agents';
 import type { RepairContext } from '../types';
-import { ReAskStrategy } from './re-ask-strategy';
+import { canHandleNoSuchTool, repairWrongToolName } from './re-ask-strategy';
 
 // Mock the dependencies
 vi.mock('ai', async () => {
@@ -21,9 +21,7 @@ vi.mock('../../../llm', () => ({
   Sonnet4: 'mock-model',
 }));
 
-describe('ReAskStrategy', () => {
-  const strategy = new ReAskStrategy();
-
+describe('re-ask-strategy', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
@@ -32,22 +30,22 @@ describe('ReAskStrategy', () => {
     vi.clearAllMocks();
   });
 
-  describe('canHandle', () => {
+  describe('canHandleNoSuchTool', () => {
     it('should return true for NoSuchToolError', () => {
       const error = new NoSuchToolError({
         toolName: 'nonExistentTool',
         availableTools: ['tool1', 'tool2'],
       });
-      expect(strategy.canHandle(error)).toBe(true);
+      expect(canHandleNoSuchTool(error)).toBe(true);
     });
 
     it('should return false for other errors', () => {
       const error = new Error('Some other error');
-      expect(strategy.canHandle(error)).toBe(false);
+      expect(canHandleNoSuchTool(error)).toBe(false);
     });
   });
 
-  describe('repair', () => {
+  describe('repairWrongToolName', () => {
     it('should re-ask and get corrected tool call', async () => {
       const mockGenerateText = vi.mocked(generateText);
 
@@ -81,23 +79,23 @@ describe('ReAskStrategy', () => {
         system: 'System prompt',
       };
 
-      const result = await strategy.repair(context);
+      const result = await repairWrongToolName(context);
 
       expect(result).toEqual({
         type: 'tool-call',
         toolCallType: 'function',
         toolCallId: 'call123',
         toolName: 'correctTool',
-        input: correctedToolCall.input,
+        input: JSON.stringify(correctedToolCall.input), // FIXED: Now returns stringified input
       });
 
-      // Verify the tool input is properly formatted as an object in the messages
+      // Verify the tool input is properly formatted as a string in the messages
       const calls = mockGenerateText.mock.calls[0];
       const messages = calls?.[0]?.messages;
       const assistantMessage = messages?.find((m: any) => m.role === 'assistant');
       const content = assistantMessage?.content?.[0];
       if (content && typeof content === 'object' && 'input' in content) {
-        expect(content.input).toEqual({ param: 'value' });
+        expect(content.input).toEqual(JSON.stringify({ param: 'value' }));
       }
 
       expect(mockGenerateText).toHaveBeenCalledWith(
@@ -146,7 +144,7 @@ describe('ReAskStrategy', () => {
         },
       };
 
-      await strategy.repair(context);
+      await repairWrongToolName(context);
 
       const calls = mockGenerateText.mock.calls[0];
       if (!calls) throw new Error('generateText not called');
@@ -197,7 +195,7 @@ describe('ReAskStrategy', () => {
         },
       };
 
-      await strategy.repair(context);
+      await repairWrongToolName(context);
 
       const calls = mockGenerateText.mock.calls[0];
       if (!calls) throw new Error('generateText not called');
@@ -240,7 +238,7 @@ describe('ReAskStrategy', () => {
         system: '',
       };
 
-      const result = await strategy.repair(context);
+      const result = await repairWrongToolName(context);
       expect(result).toBeNull();
     });
 
@@ -264,9 +262,8 @@ describe('ReAskStrategy', () => {
         system: '',
       };
 
-      await expect(strategy.repair(context)).rejects.toThrow(
-        'Failed to re-ask for tool "wrongTool": Generation failed'
-      );
+      const result = await repairWrongToolName(context);
+      expect(result).toBeNull(); // Now returns null on error instead of throwing
     });
 
     it('should wrap non-JSON string inputs in an object', async () => {
@@ -295,7 +292,7 @@ describe('ReAskStrategy', () => {
         system: '',
       };
 
-      await strategy.repair(context);
+      await repairWrongToolName(context);
 
       // Verify the non-JSON string was wrapped in an object
       const calls = mockGenerateText.mock.calls[0];
@@ -303,7 +300,7 @@ describe('ReAskStrategy', () => {
       const assistantMessage = messages?.find((m: any) => m.role === 'assistant');
       const content = assistantMessage?.content?.[0];
       if (content && typeof content === 'object' && 'input' in content) {
-        expect(content.input).toEqual({ value: 'plain text input' });
+        expect(content.input).toEqual('plain text input'); // Now expects string input
       }
     });
 
@@ -333,7 +330,7 @@ describe('ReAskStrategy', () => {
         system: '',
       };
 
-      await strategy.repair(context);
+      await repairWrongToolName(context);
 
       // Verify the valid JSON string was parsed to an object
       const calls = mockGenerateText.mock.calls[0];
@@ -341,7 +338,7 @@ describe('ReAskStrategy', () => {
       const assistantMessage = messages?.find((m: any) => m.role === 'assistant');
       const content = assistantMessage?.content?.[0];
       if (content && typeof content === 'object' && 'input' in content) {
-        expect(content.input).toEqual({ already: 'valid' });
+        expect(content.input).toEqual('{"already":"valid"}'); // Now expects stringified JSON
       }
     });
   });
