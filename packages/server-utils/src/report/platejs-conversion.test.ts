@@ -217,6 +217,7 @@ Here's an unordered list:
     });
     expect(platejs.elements).toEqual([
       {
+        id: 'id-0',
         children: [
           {
             text: 'Top performers balance volume and value across purchase contexts:',
@@ -225,6 +226,7 @@ Here's an unordered list:
         type: 'p',
       },
       {
+        id: 'id-1',
         children: [
           {
             bold: true,
@@ -239,6 +241,7 @@ Here's an unordered list:
         listStyleType: 'disc',
       },
       {
+        id: 'id-2',
         children: [
           {
             bold: true,
@@ -1297,7 +1300,6 @@ describe('platejsToMarkdown', () => {
     expect(markdownFromPlatejs).toContain(
       '![This is a caption...](https://picsum.photos/200/200 "This is a caption...")'
     );
-    console.log(markdownFromPlatejs);
   });
 
   it('basic metric caption', async () => {
@@ -1333,7 +1335,9 @@ describe('platejs to markdown and back to platejs', () => {
     ) as ReportElements;
 
   it('should convert a simple list', async () => {
-    const elements: ReportElements = [{ type: 'h1', children: [{ text: 'Hello World' }] }];
+    const elements: ReportElements = [
+      { id: 'id-0', type: 'h1', children: [{ text: 'Hello World' }] },
+    ];
     const markdown = await platejsToMarkdown(elements);
     const platejs = await markdownToPlatejs(markdown);
     expect(platejs.elements).toEqual(elements);

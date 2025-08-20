@@ -1,19 +1,27 @@
-import { type ReportElements, ReportElementsSchema } from '@buster/database';
+import {
+  type ReportElements,
+  type ReportElementsWithIds,
+  ReportElementsWithIdsSchema,
+} from '@buster/database';
 import type { Descendant } from 'platejs';
 import type { ZodError } from 'zod';
 import { SERVER_EDITOR } from './server-editor';
 
 export const markdownToPlatejs = async (
   markdown: string
-): Promise<{ error: ZodError | Error | null; elements: ReportElements }> => {
+): Promise<{ error: ZodError | Error | null; elements: ReportElementsWithIds }> => {
   try {
     const descendants: ReportElements = SERVER_EDITOR.api.markdown.deserialize(markdown);
+    const descendantsWithIds: ReportElementsWithIds = descendants.map((element, index) => ({
+      ...element,
+      id: `id-${index}`,
+    }));
 
-    const safeParsedElements = ReportElementsSchema.safeParse(descendants);
+    const safeParsedElements = ReportElementsWithIdsSchema.safeParse(descendantsWithIds);
 
     return {
       error: safeParsedElements.error as ZodError,
-      elements: descendants,
+      elements: descendantsWithIds,
     };
   } catch (error) {
     console.error('Error converting markdown to PlateJS:', error);

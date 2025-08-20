@@ -7,6 +7,8 @@ import { EditorKit } from './editor-kit';
 import { FIXED_TOOLBAR_KIT_KEY } from './plugins/fixed-toolbar-kit';
 import { GlobalVariablePlugin } from './plugins/global-variable-kit';
 import { useMount } from '@/hooks';
+import { StreamContentPlugin } from './plugins/stream-content-plugin';
+import type { ReportElementsWithIds } from '@buster/server-shared/reports';
 
 export const useReportEditor = ({
   value,
@@ -15,7 +17,7 @@ export const useReportEditor = ({
   mode = 'default',
   useFixedToolbarKit = false
 }: {
-  value: Value;
+  value: ReportElementsWithIds;
   disabled: boolean;
   useFixedToolbarKit?: boolean;
   isStreaming: boolean;
@@ -37,39 +39,13 @@ export const useReportEditor = ({
 
   useEffect(() => {
     if (editor && isStreaming) {
-      console.log('setting value', value);
-      editor.tf.setValue(value);
+      const streamContentPlugin = editor.getPlugin(StreamContentPlugin);
+      streamContentPlugin.api.streamContent.start();
+      streamContentPlugin.api.streamContent.streamFull(value);
+    } else {
+      editor?.getPlugin(StreamContentPlugin)?.api.streamContent.stop();
     }
-  }, [value]);
-
-  useMount(() => {
-    setTimeout(() => {
-      const lastPath = editor.api.end([]);
-      console.log(lastPath, editor);
-
-      editor.tf.insertNodes([{ type: 'p', children: [{ text: 'test' }] }], { at: lastPath });
-
-      // Wait 500ms and then append additional text to the same node
-      setTimeout(() => {
-        const lastPath = editor.api.end([]);
-
-        // Find the last block (paragraph) at that location
-        const lastBlock = editor.api.block({ at: lastPath });
-
-        if (lastBlock && lastBlock[0].type === 'p') {
-          const [blockNode, blockPath] = lastBlock;
-
-          // Get the end point of the block
-          const endPoint = editor.api.end(blockPath);
-
-          // Insert "WOW!" at the end
-          editor.tf.insertText('WOW!', {
-            at: endPoint
-          });
-        }
-      }, 500);
-    }, 3000);
-  });
+  }, [value, isStreaming]);
 
   const editor = usePlateEditor({
     plugins,

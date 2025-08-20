@@ -6,7 +6,7 @@ import React from 'react';
 import { ReportPageHeader } from './ReportPageHeader';
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import { useDebounceFn } from '@/hooks/useDebounce';
-import type { ReportElements } from '@buster/server-shared/reports';
+import type { ReportElementsWithIds } from '@buster/server-shared/reports';
 import DynamicReportEditor from '@/components/ui/report/DynamicReportEditor';
 import { type IReportEditor } from '@/components/ui/report/ReportEditor';
 import { ReportEditorSkeleton } from '@/components/ui/report/ReportEditorSkeleton';
@@ -24,7 +24,7 @@ export const ReportPageController: React.FC<{
     const { data: report } = useGetReport({ reportId, versionNumber: undefined });
     const isStreamingMessage = useChatIndividualContextSelector((x) => x.isStreamingMessage);
 
-    const content: ReportElements = report?.content || [];
+    const content: ReportElementsWithIds = report?.content || [];
 
     const { mutate: updateReport } = useUpdateReport();
 
@@ -38,7 +38,7 @@ export const ReportPageController: React.FC<{
 
     const { run: debouncedUpdateReport } = useDebounceFn(updateReport, { wait: 650 });
 
-    const onChangeContent = useMemoizedFn((content: ReportElements) => {
+    const onChangeContent = useMemoizedFn((content: ReportElementsWithIds) => {
       if (!report) {
         console.warn('Report not yet fetched');
         return;

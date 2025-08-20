@@ -416,7 +416,9 @@ export const ReportElementSchema = z.discriminatedUnion('type', [
 ]);
 
 // Array of report elements for complete documents
+export const ReportElementWithIdSchema = ReportElementSchema.and(z.object({ id: z.string() }));
 export const ReportElementsSchema = z.array(ReportElementSchema);
+export const ReportElementsWithIdsSchema = z.array(ReportElementWithIdSchema);
 
 export type TextElement = z.infer<typeof TextSchema>;
 export type SimpleTextElement = z.infer<typeof SimpleTextSchema>;
@@ -444,3 +446,5 @@ export type ListItemElement = z.infer<typeof ListItemElementSchema>;
 export type ReportElement = z.infer<typeof ReportElementSchema>;
 export type ReportElements = z.infer<typeof ReportElementsSchema>;
 export type MetricElement = z.infer<typeof MetricElementSchema>;
+export type ReportElementsWithIds = z.infer<typeof ReportElementsWithIdsSchema>;
+export type ReportElementWithId = z.infer<typeof ReportElementWithIdSchema>;

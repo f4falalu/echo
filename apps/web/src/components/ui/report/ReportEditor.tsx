@@ -1,6 +1,6 @@
 'use client';
 
-import type { ReportElement, ReportElements } from '@buster/server-shared/reports';
+import type { ReportElementsWithIds, ReportElementWithId } from '@buster/server-shared/reports';
 import type { Value, AnyPluginConfig } from 'platejs';
 import { Plate, type TPlateEditor } from 'platejs/react';
 import React, { useImperativeHandle, useRef } from 'react';
@@ -13,7 +13,7 @@ import { useReportEditor } from './useReportEditor';
 
 interface ReportEditorProps {
   // We accept the generic Value type but recommend using ReportTypes.Value for type safety
-  value: ReportElements;
+  value: ReportElementsWithIds;
   placeholder?: string;
   readOnly?: boolean;
   isStreaming?: boolean; //if true, the editor will be updated with the value prop when it is changed, everything will be readonly
@@ -22,7 +22,7 @@ interface ReportEditorProps {
   containerClassName?: string;
   disabled?: boolean;
   style?: React.CSSProperties;
-  onValueChange?: (value: ReportElements) => void;
+  onValueChange?: (value: ReportElementsWithIds) => void;
   useFixedToolbarKit?: boolean;
   onReady?: (editor: IReportEditor) => void;
   id?: string;
@@ -118,10 +118,10 @@ export const ReportEditor = React.memo(
 
 ReportEditor.displayName = 'ReportEditor';
 
-const cleanValueToReportElements = (value: Value): ReportElements => {
-  const filteredElements: ReportElements = value
+const cleanValueToReportElements = (value: Value): ReportElementsWithIds => {
+  const filteredElements: ReportElementsWithIds = value
     .filter((element) => element.type !== 'slash_input')
-    .map<ReportElement>((element) => {
+    .map<ReportElementWithId>((element) => {
       // If the element has a children array, filter its children as well
       if (Array.isArray(element.children)) {
         return {
@@ -129,9 +129,9 @@ const cleanValueToReportElements = (value: Value): ReportElements => {
           children: element.children.filter((child) => {
             return child.type !== 'slash_input';
           })
-        } as ReportElement;
+        } as ReportElementWithId;
       }
-      return element as ReportElement;
+      return element as ReportElementWithId;
     });
 
   return filteredElements;

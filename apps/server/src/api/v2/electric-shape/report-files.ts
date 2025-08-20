@@ -1,9 +1,10 @@
 import { hasAssetPermission } from '@buster/access-controls';
-import { getReportMetadata, type reportFiles } from '@buster/database';
+import { type ReportElementsWithIds, getReportMetadata, type reportFiles } from '@buster/database';
 import type { ReportIndividualResponse } from '@buster/server-shared/reports';
 import { markdownToPlatejs } from '@buster/server-utils/report';
 import type { ChangeMessage } from '@electric-sql/client';
 import type { Context } from 'hono';
+import type { ZodError } from 'zod';
 import { errorResponse } from '../../../utils/response';
 import { createProxiedResponse, extractParamFromWhere } from './_helpers';
 import {
@@ -69,7 +70,7 @@ const transformCallback: TransformCallback<StreamableReportProperties, ReportFil
   if (content) {
     const { elements, error } = await markdownToPlatejs(content);
     if (error) console.error('Error transforming report content:', error);
-    else returnValue.content = elements;
+    else returnValue.content = elements as ReportElementsWithIds; //why do I need as here? makes no gorey damn sense
   }
 
   return returnValue;

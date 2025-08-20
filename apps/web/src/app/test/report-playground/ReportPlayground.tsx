@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { InputTextArea } from '@/components/ui/inputs/InputTextArea';
-import type { ReportElements } from '@buster/server-shared/reports';
+import type { ReportElementsWithIds } from '@buster/server-shared/reports';
 import { useQuery } from '@tanstack/react-query';
 import { mainApiV2 } from '@/api/buster_rest/instances';
 import { useDebounceEffect } from '@/hooks';
@@ -19,7 +19,7 @@ export const ReportPlayground: React.FC = () => {
     queryKey: ['report-playground', markdown],
     queryFn: () => {
       return mainApiV2
-        .post<{ elements: ReportElements }>('/temp/validate-markdown', { markdown })
+        .post<{ elements: ReportElementsWithIds }>('/temp/validate-markdown', { markdown })
         .then((res) => {
           setHasBeenSuccessFullAtLeastOnce(true);
           return res.data;
@@ -38,9 +38,11 @@ export const ReportPlayground: React.FC = () => {
     { wait: 150 }
   );
 
-  const logValueChanges = (value: ReportElements) => {};
+  const logValueChanges = (value: ReportElementsWithIds) => {};
 
-  const usedValue: ReportElements = hasBeenSuccessFullAtLeastOnce ? data?.elements || [] : value;
+  const usedValue: ReportElementsWithIds = hasBeenSuccessFullAtLeastOnce
+    ? data?.elements || []
+    : value;
 
   return (
     <div className="grid max-h-screen min-h-screen grid-cols-[270px_1fr] gap-5 rounded border p-7">
@@ -81,7 +83,7 @@ interface ValidationStatusProps {
   isLoading: boolean;
   error: unknown;
   isFetched: boolean;
-  data: { elements: ReportElements } | undefined;
+  data: { elements: ReportElementsWithIds } | undefined;
 }
 
 const ValidationStatus: React.FC<ValidationStatusProps> = ({
@@ -155,7 +157,7 @@ const ValidationStatus: React.FC<ValidationStatusProps> = ({
   );
 };
 
-const value: ReportElements = [
+const value = [
   {
     children: [
       {
@@ -1736,4 +1738,7 @@ const value: ReportElements = [
     type: 'p',
     id: '_y8HfJpLPb'
   }
-];
+].map((element, index) => ({
+  ...element,
+  id: `id-${index}`
+})) as ReportElementsWithIds;

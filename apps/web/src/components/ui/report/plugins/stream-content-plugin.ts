@@ -1,21 +1,7 @@
 import type { PlateEditor } from 'platejs/react';
 import type { Value, Element, Text } from 'platejs';
-
-import { type PluginConfig, KEYS } from 'platejs';
 import { createPlatePlugin } from 'platejs/react';
-
-export interface StreamChunkOptions {
-  // No options needed - always uses simple logic
-}
-
-export interface StreamChunk {
-  /** Unique identifier for the content chunk */
-  id: string;
-  /** The content to stream */
-  content: Value;
-  /** Type of content (e.g., 'paragraph', 'heading', 'code') */
-  type?: string;
-}
+import type { ReportElementWithId } from '@buster/server-shared/reports';
 
 export const StreamContentPlugin = createPlatePlugin({
   key: 'streamContent',
@@ -51,17 +37,21 @@ export const StreamContentPlugin = createPlatePlugin({
     /**
      * Stream a single chunk with intelligent replacement logic
      */
-    streamChunk: (chunk: StreamChunk) => {
+    streamChunk: (chunk: ReportElementWithId, options?: { moveCursor?: boolean }) => {
       const editor = ctx.editor as PlateEditor;
       const previousChunkId = ctx.getOption('previousChunkId') as string | null;
+      const moveCursor = options?.moveCursor ?? false;
 
-      if (previousChunkId === chunk.id) {
-        // Replace the last node with new content
-        replaceLastNode(editor, chunk.content);
-      } else {
-        // Append new chunk to the end
-        insertContentAtEndWithId(editor, chunk.content, chunk.id);
-      }
+      // Prevent undo/redo for streaming operations
+      editor.tf.withoutSaving(() => {
+        if (previousChunkId === chunk.id) {
+          // Replace the last node with new content
+          replaceLastNode(editor, chunk.children);
+        } else {
+          // Append new chunk to the end
+          insertContentAtEnd(editor, chunk, moveCursor);
+        }
+      });
 
       // Update the previous chunk ID
       ctx.setOption('previousChunkId', chunk.id);
@@ -70,69 +60,79 @@ export const StreamContentPlugin = createPlatePlugin({
     /**
      * Stream complete array of chunks with efficient length-based updates
      */
-    streamFull: (chunks: StreamChunk[]) => {
+    streamFull: (chunks: ReportElementWithId[], options?: { debug?: boolean }) => {
       const editor = ctx.editor as PlateEditor;
+      const debug = options?.debug ?? false;
 
       if (!chunks || chunks.length === 0) {
-        console.warn('streamFull: No chunks provided');
+        if (debug) console.warn('streamFull: No chunks provided');
         return;
       }
 
-      const currentLength = editor.children.length;
-      const incomingLength = chunks.length;
+      // Prevent undo/redo and defer normalization for performance
+      editor.tf.withoutSaving(() => {
+        editor.tf.withoutNormalizing(() => {
+          // Get all current nodes in the editor
+          const currentNodes = editor.children;
+          const currentLength = currentNodes.length;
+          const incomingLength = chunks.length;
 
-      console.log('=== STREAM FULL DEBUG ===');
-      console.log('Current editor length:', currentLength);
-      console.log('Incoming chunks length:', incomingLength);
-      console.log('Incoming chunks:', chunks);
+          // Batch operations for better performance
+          const operations: Array<() => void> = [];
 
-      if (currentLength === incomingLength) {
-        // Same length: update the last node only
-        console.log('🔄 Same length - updating last node');
-        const lastChunk = chunks[chunks.length - 1];
-        replaceLastNode(editor, lastChunk.content);
-      } else if (incomingLength > currentLength) {
-        // Incoming longer: update last node + append new nodes
-        console.log('➕ Incoming longer - updating last + appending new');
+          // First, identify all operations we need to perform
+          for (let i = 0; i < incomingLength; i++) {
+            const chunk = chunks[i];
 
-        // First, update the last existing node
-        if (currentLength > 0) {
-          const lastChunk = chunks[currentLength - 1];
-          replaceLastNode(editor, lastChunk.content);
-        }
+            if (i < currentLength) {
+              const existingNode = currentNodes[i];
 
-        // Then append any additional chunks
-        const additionalChunks = chunks.slice(currentLength);
-        for (const chunk of additionalChunks) {
-          insertContentAtEndWithId(editor, chunk.content, chunk.id);
-        }
-      } else {
-        // Incoming shorter: truncate and update
-        console.log('➖ Incoming shorter - truncating and updating');
+              // Quick ID check first (fast)
+              if (existingNode.id !== chunk.id) {
+                // Different ID, needs replacement
+                operations.push(() => {
+                  // Remove the old node and insert the new one
+                  editor.tf.removeNodes({ at: [i] });
+                  editor.tf.insertNodes(chunk, { at: [i], select: false });
+                });
+              } else {
+                // Same ID, check if content changed (only if necessary)
+                const existingText = extractTextFromNode(existingNode);
+                const incomingText = extractTextFromValue(chunk.children);
 
-        // Remove excess nodes
-        const nodesToRemove = currentLength - incomingLength;
-        for (let i = 0; i < nodesToRemove; i++) {
-          const lastPoint = editor.api.end([]);
-          const lastPath = lastPoint?.path;
-          if (lastPath && Array.isArray(lastPath) && lastPath.length > 0) {
-            const pathToRemove = [...lastPath];
-            pathToRemove[pathToRemove.length - 1] -= 1;
-            if (pathToRemove[pathToRemove.length - 1] >= 0) {
-              editor.tf.removeNodes({ at: pathToRemove });
+                if (existingText !== incomingText) {
+                  operations.push(() => {
+                    // Remove the old node and insert the new one
+                    editor.tf.removeNodes({ at: [i] });
+                    editor.tf.insertNodes(chunk, { at: [i], select: false });
+                  });
+                }
+              }
+            } else {
+              // New node to append
+              operations.push(() => {
+                editor.tf.insertNodes(chunks, {
+                  at: [editor.children.length],
+                  select: false
+                });
+              });
             }
           }
-        }
 
-        // Update the last remaining node
-        if (incomingLength > 0) {
-          const lastChunk = chunks[incomingLength - 1];
-          replaceLastNode(editor, lastChunk.content);
-        }
-      }
+          // Handle removals if incoming is shorter
+          if (currentLength > incomingLength) {
+            operations.push(() => {
+              // Remove extra nodes one by one (Slate doesn't support batch removal with array of paths)
+              for (let i = currentLength - 1; i >= incomingLength; i--) {
+                editor.tf.removeNodes({ at: [i] });
+              }
+            });
+          }
 
-      console.log('Editor children after streamFull:', JSON.stringify(editor.children, null, 2));
-      console.log('=== END STREAM FULL DEBUG ===');
+          // Execute all operations
+          operations.forEach((op) => op());
+        });
+      });
     },
 
     /**
@@ -165,41 +165,36 @@ const findNodeWithId = (editor: PlateEditor, id: string): number[] | null => {
 /**
  * Insert content at the end of the document with ID
  */
-const insertContentAtEndWithId = (editor: PlateEditor, content: Value, id: string) => {
-  if (!content || content.length === 0) return;
+const insertContentAtEnd = (
+  editor: PlateEditor,
+  content: ReportElementWithId,
+  moveCursor = true
+) => {
+  const children = content.children;
+  if (!content || children.length === 0) return;
 
   // Add ID to the content nodes
-  const contentWithId = addIdToContent(content, id);
 
   // Get the last path in the document
   const lastPath = editor.api.end([]);
 
   // Insert content at the end
-  editor.tf.insertNodes(contentWithId, {
+  editor.tf.insertNodes(content, {
     at: lastPath,
     select: false
   });
 
-  // Move cursor to the end of the inserted content
-  const newEndPath = editor.api.end([]);
-  editor.tf.select(newEndPath);
-};
-
-/**
- * Add ID to content nodes
- */
-const addIdToContent = (content: Value, id: string): Value => {
-  const result = content.map((node) => ({
-    ...node,
-    id: id
-  }));
-  return result;
+  // Only move cursor if requested (for performance during streaming)
+  if (moveCursor) {
+    const newEndPath = editor.api.end([]);
+    editor.tf.select(newEndPath);
+  }
 };
 
 /**
  * Replace the last node in the document with new content
  */
-const replaceLastNode = (editor: PlateEditor, newContent: Value) => {
+const replaceLastNode = (editor: PlateEditor, newContent: ReportElementWithId['children']) => {
   if (!newContent || newContent.length === 0) {
     return;
   }
@@ -220,47 +215,43 @@ const replaceLastNode = (editor: PlateEditor, newContent: Value) => {
     }
   }
 
-  // Insert the new content at the end
-  if (lastPath && Array.isArray(lastPath)) {
-    editor.tf.insertNodes(newContent, {
-      at: lastPath,
+  // Insert the new content at the end (not at the last path, but at the end)
+  const endPoint = editor.api.end([]);
+  const endPath = endPoint?.path;
+  if (endPath && Array.isArray(endPath)) {
+    editor.tf.insertNodes(newContent as Value, {
+      at: endPath,
       select: false
     });
   }
 };
 
 /**
- * Generate a unique chunk ID
+ * Extract text content from a node (optimized for performance)
  */
-const generateChunkId = (): string => {
-  return `chunk_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+const extractTextFromNode = (node: Element | Text): string => {
+  if ('text' in node) {
+    return typeof node.text === 'string' ? node.text : '';
+  }
+  if ('children' in node && Array.isArray(node.children)) {
+    // Use string concatenation instead of join for better performance
+    let result = '';
+    for (const child of node.children) {
+      result += extractTextFromNode(child as Element | Text);
+    }
+    return result;
+  }
+  return '';
 };
 
 /**
- * Utility function to create a stream chunk with ID
+ * Extract text content from a Value (optimized for performance)
  */
-export const createStreamChunk = (
-  id: string,
-  content: Value,
-  type: string = 'paragraph'
-): StreamChunk => {
-  return {
-    id,
-    content,
-    type
-  };
-};
-
-/**
- * Utility function to create a paragraph chunk
- */
-export const createParagraphChunk = (id: string, text: string): StreamChunk => {
-  return createStreamChunk(id, [{ type: 'p', children: [{ text }] }], 'paragraph');
-};
-
-/**
- * Utility function to create a heading chunk
- */
-export const createHeadingChunk = (id: string, text: string, level: 1 | 2 | 3 = 1): StreamChunk => {
-  return createStreamChunk(id, [{ type: `h${level}`, children: [{ text }] }], 'heading');
+const extractTextFromValue = (value: ReportElementWithId['children']): string => {
+  // Use string concatenation instead of map/join for better performance
+  let result = '';
+  for (const node of value) {
+    result += extractTextFromNode(node as Element | Text);
+  }
+  return result;
 };
