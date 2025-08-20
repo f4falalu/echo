@@ -40,7 +40,6 @@ export const useReportEditor = ({
     if (editor && isStreaming) {
       const streamContentPlugin = editor.getPlugin(StreamContentPlugin);
       streamContentPlugin.api.streamContent.start();
-      console.log('streaming', value);
       streamContentPlugin.api.streamContent.streamFull(value);
     } else {
       editor?.getPlugin(StreamContentPlugin)?.api.streamContent.stop();

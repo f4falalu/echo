@@ -167,7 +167,7 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {
   args: {
     isStreaming: false,
-    streamingDelay: 1000,
+    streamingDelay: 400,
     showStreamingButton: true
   }
 };
@@ -294,7 +294,7 @@ export const LongContentScrolling: Story = {
 export const AppendToExisting: Story = {
   args: {
     isStreaming: false,
-    streamingDelay: 500,
+    streamingDelay: 100,
     showStreamingButton: true,
     batchSize: 1
   },
@@ -309,8 +309,7 @@ export const AppendToExisting: Story = {
     const [isStreamingActive, setIsStreamingActive] = useState(false);
     const [iterationCount, setIterationCount] = useState(0);
 
-    // Text chunks to append
-    // A paragraph about the author of Red Rising, split into small chunks (4-8 words each)
+    // Text chunks to append - Much longer content about Red Rising series
     const textChunks = [
       'Pierce Brown is the author',
       'of the Red Rising series.',
@@ -320,10 +319,76 @@ export const AppendToExisting: Story = {
       'before turning to writing full-time.',
       'Red Rising debuted in 2014, ',
       'earning praise for its storytelling.',
-      'Brown’s books explore rebellion and identity,',
+      "Brown's books explore rebellion and identity,",
       'with vivid prose and complex characters.',
       'He continues to expand the universe,',
-      'captivating readers with each new book.'
+      'captivating readers with each new book.',
+      'The Red Rising series follows Darrow,',
+      'a Red miner from the lowest caste.',
+      "After his wife's execution, he joins",
+      'a revolutionary group called the Sons of Ares.',
+      'They transform him into a Gold,',
+      'the highest caste in their society.',
+      'Darrow infiltrates the Gold Academy,',
+      'where he learns their ways and secrets.',
+      'The series spans multiple planets and moons,',
+      'with epic space battles and political intrigue.',
+      'Each book builds upon the previous one,',
+      'expanding the scope and complexity.',
+      "Golden Son continues Darrow's journey,",
+      'as he rises through Gold society.',
+      'Morning Star brings the original trilogy',
+      'to a climactic conclusion.',
+      'Iron Gold introduces new perspectives,',
+      "showing the consequences of Darrow's actions.",
+      'Dark Age delves deeper into the conflict,',
+      'with multiple viewpoint characters.',
+      'Light Bringer continues the saga,',
+      'as Darrow faces his greatest challenges yet.',
+      'Red God will conclude the series,',
+      'bringing all storylines to resolution.',
+      'The books are known for their fast pace,',
+      'complex world-building, and emotional depth.',
+      "Brown's writing style is often compared",
+      'to authors like George R.R. Martin.',
+      'He creates morally ambiguous characters,',
+      'who must make difficult choices.',
+      'The series explores themes of justice,',
+      'power, loyalty, and the cost of revolution.',
+      'Fans appreciate the detailed world-building,',
+      'with its unique caste system and technology.',
+      'The audiobooks are narrated by Tim Gerard Reynolds,',
+      'who brings the characters to life.',
+      'The series has won multiple awards,',
+      'including the Goodreads Choice Award.',
+      'It has been optioned for television,',
+      'though no adaptation has been produced yet.',
+      'Brown continues to write in the universe,',
+      'with plans for more stories and characters.',
+      'The Red Rising series has inspired',
+      'countless fan theories and discussions.',
+      'Readers often debate the morality',
+      "of Darrow's actions throughout the series.",
+      'The books tackle complex political themes,',
+      'reflecting real-world issues and conflicts.',
+      "Brown's background in political science",
+      'influences his writing and world-building.',
+      'The series has been translated into',
+      'multiple languages worldwide.',
+      'Each book is carefully crafted,',
+      'with intricate plotting and character development.',
+      'The Red Rising universe continues to grow,',
+      'with spin-offs and companion stories planned.',
+      'Fans eagerly await each new release,',
+      'discussing theories and predictions online.',
+      'The series has created a passionate community,',
+      'of readers and fans worldwide.',
+      "Brown's success has inspired other authors,",
+      'to explore similar themes and styles.',
+      'The Red Rising series stands as',
+      'a modern classic of science fiction.',
+      'Its influence on the genre will',
+      'be felt for years to come.'
     ];
 
     useEffect(() => {

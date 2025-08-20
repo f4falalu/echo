@@ -1,10 +1,17 @@
 import type { PlateEditor } from 'platejs/react';
-import type { Element, Text } from 'platejs';
+import type { Element, Text, Value } from 'platejs';
 import { createPlatePlugin } from 'platejs/react';
 import type { ReportElementWithId } from '@buster/server-shared/reports';
 
+type StreamContentNode = ReportElementWithId & {
+  children: (ReportElementWithId['children'] & {
+    streamContent?: boolean;
+  })[];
+};
+
 export const StreamContentPlugin = createPlatePlugin({
   key: 'streamContent',
+  node: { isLeaf: true, isDecoration: false },
   options: {
     isStreaming: false,
     previousChunkId: null as string | null
@@ -23,6 +30,14 @@ export const StreamContentPlugin = createPlatePlugin({
      * Stop streaming mode
      */
     stop: () => {
+      const editor = ctx.editor as PlateEditor;
+
+      // Remove all streamContent marks from the editor
+      editor.tf.withoutNormalizing(() => {
+        // Remove streamContent marks from all text nodes
+        removeStreamContentMarksFromEditor(editor);
+      });
+
       ctx.setOption('isStreaming', false);
       ctx.setOption('previousChunkId', null);
     },
@@ -132,17 +147,17 @@ const replaceNode = (editor: PlateEditor, index: number, chunk: ReportElementWit
     ...chunk,
     id: chunk.id // Ensure ID is preserved
   };
+  addStreamContentMark(nodeToInsert);
   editor.tf.insertNodes(nodeToInsert, { at: [index], select: false });
-  editor.tf.addMark('streamContent', { at: [index] });
 };
 
 /**
  * Append a new node to the end of the editor
  */
 const appendNewNode = (editor: PlateEditor, chunk: ReportElementWithId) => {
+  addStreamContentMark(chunk);
   const nodeToInsert = {
     ...chunk,
-
     id: chunk.id // Ensure ID is preserved
   };
   const insertIndex = editor.children.length;
@@ -150,7 +165,14 @@ const appendNewNode = (editor: PlateEditor, chunk: ReportElementWithId) => {
     at: [insertIndex],
     select: false
   });
-  editor.tf.addMark('streamContent', { at: [insertIndex] });
+  editor.tf.addMark('streamContent', true);
+  editor.tf.addMarks({ streamContent: true });
+};
+
+const addStreamContentMark = (chunk: ReportElementWithId) => {
+  (chunk.children as Value).forEach((child) => {
+    child.streamContent = true;
+  });
 };
 
 /**
@@ -198,4 +220,19 @@ const extractTextFromChildren = (children: ReportElementWithId['children']): str
     result += extractTextFromNode(node as Element | Text);
   }
   return result;
+};
+
+/**
+ * Remove all streamContent marks from the editor
+ */
+const removeStreamContentMarksFromEditor = (editor: PlateEditor) => {
+  editor.tf.withoutNormalizing(() => {
+    editor.tf.setNodes(
+      { streamContent: undefined },
+      {
+        at: [],
+        match: (node) => node.text !== undefined && node.streamContent
+      }
+    );
+  });
 };
