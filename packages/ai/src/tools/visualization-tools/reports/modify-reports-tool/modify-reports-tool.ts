@@ -68,14 +68,6 @@ const ModifyReportsEditStateSchema = z.object({
   error: z.string().optional(),
 });
 
-const ModifyReportsStreamingEditSchema = z.object({
-  operation: z.enum(['replace', 'append']),
-  codeToReplaceComplete: z.boolean(),
-  streamingCode: z.string(),
-  lastUpdateIndex: z.number(),
-  fullyApplied: z.boolean().optional(), // Track if this edit was fully applied during streaming
-});
-
 const ModifyReportsStateSchema = z.object({
   toolCallId: z.string().optional(),
   argsText: z.string().optional(),
@@ -89,7 +81,6 @@ const ModifyReportsStateSchema = z.object({
   responseMessageCreated: z.boolean().optional(),
   snapshotContent: z.string().optional(),
   workingContent: z.string().optional(),
-  streamingEdits: z.array(ModifyReportsStreamingEditSchema).optional(),
 });
 
 // Export types
@@ -98,7 +89,6 @@ export type ModifyReportsOutput = z.infer<typeof ModifyReportsOutputSchema>;
 export type ModifyReportsContext = z.infer<typeof ModifyReportsContextSchema>;
 export type ModifyReportsState = z.infer<typeof ModifyReportsStateSchema>;
 export type ModifyReportsEditState = z.infer<typeof ModifyReportsEditStateSchema>;
-export type ModifyReportsStreamingEdit = z.infer<typeof ModifyReportsStreamingEditSchema>;
 
 // Factory function that accepts agent context and maps to tool context
 export function createModifyReportsTool(context: ModifyReportsContext) {
@@ -114,7 +104,6 @@ export function createModifyReportsTool(context: ModifyReportsContext) {
     toolCallId: undefined,
     responseMessageCreated: false,
     snapshotContent: undefined,
-    streamingEdits: [],
   };
 
   // Create all functions with the context and state passed
