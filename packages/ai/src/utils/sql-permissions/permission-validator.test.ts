@@ -255,7 +255,8 @@ describe('Permission Validator', () => {
       expect(result).toEqual({
         isAuthorized: false,
         unauthorizedTables: [],
-        error: 'Permission validation failed: Database connection failed',
+        error:
+          'Permission validation failed: Database connection failed. Please verify your SQL query syntax and ensure you have access to the requested resources.',
       });
     });
 
@@ -270,7 +271,7 @@ describe('Permission Validator', () => {
       const result = await validateSqlPermissions('INVALID SQL SYNTAX HERE', 'user123');
 
       expect(result.isAuthorized).toBe(false);
-      expect(result.error).toContain('Failed to parse SQL');
+      expect(result.error).toContain('Failed to parse SQL query');
     });
 
     it('should reject INSERT statements', async () => {
@@ -295,7 +296,8 @@ describe('Permission Validator', () => {
       );
 
       expect(result.isAuthorized).toBe(false);
-      expect(result.error).toContain("Query type 'insert' is not allowed");
+      expect(result.error).toContain("Query type 'INSERT' is not allowed");
+      expect(result.error).toContain('To read data, use SELECT statements instead of INSERT');
       expect(result.unauthorizedTables).toHaveLength(0);
     });
 
@@ -321,7 +323,8 @@ describe('Permission Validator', () => {
       );
 
       expect(result.isAuthorized).toBe(false);
-      expect(result.error).toContain("Query type 'update' is not allowed");
+      expect(result.error).toContain("Query type 'UPDATE' is not allowed");
+      expect(result.error).toContain('To read data, use SELECT statements instead of UPDATE');
     });
 
     it('should reject DELETE statements', async () => {
@@ -346,21 +349,24 @@ describe('Permission Validator', () => {
       );
 
       expect(result.isAuthorized).toBe(false);
-      expect(result.error).toContain("Query type 'delete' is not allowed");
+      expect(result.error).toContain("Query type 'DELETE' is not allowed");
+      expect(result.error).toContain('To read data, use SELECT statements instead of DELETE');
     });
 
     it('should reject CREATE TABLE statements', async () => {
       const result = await validateSqlPermissions('CREATE TABLE new_table (id INT)', 'user123');
 
       expect(result.isAuthorized).toBe(false);
-      expect(result.error).toContain("Query type 'create' is not allowed");
+      expect(result.error).toContain("Query type 'CREATE' is not allowed");
+      expect(result.error).toContain('DDL operations like CREATE are not permitted');
     });
 
     it('should reject DROP TABLE statements', async () => {
       const result = await validateSqlPermissions('DROP TABLE users', 'user123');
 
       expect(result.isAuthorized).toBe(false);
-      expect(result.error).toContain("Query type 'drop' is not allowed");
+      expect(result.error).toContain("Query type 'DROP' is not allowed");
+      expect(result.error).toContain('DDL operations like DROP are not permitted');
     });
 
     it('should handle multiple datasets with overlapping tables', async () => {
@@ -1219,13 +1225,13 @@ describe('Permission Validator', () => {
 
     it('should handle single table', () => {
       expect(createPermissionErrorMessage(['public.users'])).toBe(
-        'Insufficient permissions: You do not have access to table: public.users'
+        'Insufficient permissions: You do not have access to table: public.users. Please request access to this table or use a different table that you have permissions for.'
       );
     });
 
     it('should handle multiple tables', () => {
       expect(createPermissionErrorMessage(['public.users', 'sales.orders'])).toBe(
-        'Insufficient permissions: You do not have access to the following tables: public.users, sales.orders'
+        'Insufficient permissions: You do not have access to the following tables: public.users, sales.orders. Please request access to these tables or modify your query to use only authorized tables.'
       );
     });
 
@@ -1247,7 +1253,9 @@ describe('Permission Validator', () => {
         ['private.secrets'],
         [{ table: 'users', column: 'password' }]
       );
-      expect(message).toContain('You do not have access to table: private.secrets');
+      expect(message).toContain(
+        'You do not have access to table: private.secrets. Please request access'
+      );
       expect(message).toContain('Unauthorized column access');
       expect(message).toContain('password');
     });

@@ -428,7 +428,7 @@ models:
       const sql = 'SELECT * FROM users';
       const result = validateWildcardUsage(sql);
       expect(result.isValid).toBe(false);
-      expect(result.error).toContain('SELECT * is not allowed on physical tables');
+      expect(result.error).toContain('SELECT * is not allowed on physical table: users');
       expect(result.blockedTables).toContain('users');
     });
 
@@ -436,7 +436,7 @@ models:
       const sql = 'SELECT u.* FROM users u';
       const result = validateWildcardUsage(sql);
       expect(result.isValid).toBe(false);
-      expect(result.error).toContain('SELECT * is not allowed on physical tables');
+      expect(result.error).toContain('SELECT * is not allowed on physical table: users');
       expect(result.blockedTables).toContain('users');
     });
 
@@ -472,7 +472,7 @@ models:
       `;
       const result = validateWildcardUsage(sql);
       expect(result.isValid).toBe(false);
-      expect(result.error).toContain('SELECT * is not allowed on physical tables');
+      expect(result.error).toContain('SELECT * is not allowed on physical table: users');
       expect(result.blockedTables).toContain('users');
     });
 
@@ -509,6 +509,7 @@ models:
       const sql = 'SELECT u.*, o.* FROM users u JOIN orders o ON u.id = o.user_id';
       const result = validateWildcardUsage(sql);
       expect(result.isValid).toBe(false);
+      expect(result.error).toContain('SELECT * is not allowed on physical tables: users, orders');
       expect(result.blockedTables).toEqual(expect.arrayContaining(['users', 'orders']));
     });
 
@@ -516,14 +517,14 @@ models:
       const sql = 'SELECT * FROM public.users';
       const result = validateWildcardUsage(sql);
       expect(result.isValid).toBe(false);
-      expect(result.error).toContain('SELECT * is not allowed on physical tables');
+      expect(result.error).toContain('SELECT * is not allowed on physical table: users');
     });
 
     it('should handle invalid SQL gracefully', () => {
       const sql = 'NOT VALID SQL';
       const result = validateWildcardUsage(sql);
       expect(result.isValid).toBe(false);
-      expect(result.error).toContain('Failed to validate wildcard usage');
+      expect(result.error).toContain('Failed to validate wildcard usage in SQL query');
     });
   });
 
@@ -1195,42 +1196,48 @@ models:
       );
       expect(result.isReadOnly).toBe(false);
       expect(result.queryType).toBe('insert');
-      expect(result.error).toContain("Query type 'insert' is not allowed");
+      expect(result.error).toContain("Query type 'INSERT' is not allowed");
+      expect(result.error).toContain('To read data, use SELECT statements instead of INSERT');
     });
 
     it('should reject UPDATE statements', () => {
       const result = checkQueryIsReadOnly('UPDATE users SET name = "Jane" WHERE id = 1');
       expect(result.isReadOnly).toBe(false);
       expect(result.queryType).toBe('update');
-      expect(result.error).toContain("Query type 'update' is not allowed");
+      expect(result.error).toContain("Query type 'UPDATE' is not allowed");
+      expect(result.error).toContain('To read data, use SELECT statements instead of UPDATE');
     });
 
     it('should reject DELETE statements', () => {
       const result = checkQueryIsReadOnly('DELETE FROM users WHERE id = 1');
       expect(result.isReadOnly).toBe(false);
       expect(result.queryType).toBe('delete');
-      expect(result.error).toContain("Query type 'delete' is not allowed");
+      expect(result.error).toContain("Query type 'DELETE' is not allowed");
+      expect(result.error).toContain('To read data, use SELECT statements instead of DELETE');
     });
 
     it('should reject CREATE statements', () => {
       const result = checkQueryIsReadOnly('CREATE TABLE new_users (id INT, name VARCHAR(100))');
       expect(result.isReadOnly).toBe(false);
       expect(result.queryType).toBe('create');
-      expect(result.error).toContain("Query type 'create' is not allowed");
+      expect(result.error).toContain("Query type 'CREATE' is not allowed");
+      expect(result.error).toContain('DDL operations like CREATE are not permitted');
     });
 
     it('should reject DROP statements', () => {
       const result = checkQueryIsReadOnly('DROP TABLE users');
       expect(result.isReadOnly).toBe(false);
       expect(result.queryType).toBe('drop');
-      expect(result.error).toContain("Query type 'drop' is not allowed");
+      expect(result.error).toContain("Query type 'DROP' is not allowed");
+      expect(result.error).toContain('DDL operations like DROP are not permitted');
     });
 
     it('should reject ALTER statements', () => {
       const result = checkQueryIsReadOnly('ALTER TABLE users ADD COLUMN age INT');
       expect(result.isReadOnly).toBe(false);
       expect(result.queryType).toBe('alter');
-      expect(result.error).toContain("Query type 'alter' is not allowed");
+      expect(result.error).toContain("Query type 'ALTER' is not allowed");
+      expect(result.error).toContain('DDL operations like ALTER are not permitted');
     });
 
     it('should handle PostgreSQL dialect', () => {
@@ -1241,7 +1248,7 @@ models:
     it('should handle invalid SQL gracefully', () => {
       const result = checkQueryIsReadOnly('NOT VALID SQL');
       expect(result.isReadOnly).toBe(false);
-      expect(result.error).toContain('Failed to parse SQL');
+      expect(result.error).toContain('Failed to parse SQL query for validation');
     });
   });
 });

@@ -39,7 +39,9 @@ export async function validateSqlPermissions(
       return {
         isAuthorized: false,
         unauthorizedTables: [],
-        error: readOnlyCheck.error || 'Only read-only queries are allowed',
+        error:
+          readOnlyCheck.error ||
+          'Only SELECT statements are allowed for read-only access. Please modify your query to use SELECT instead of write operations like INSERT, UPDATE, DELETE, or DDL statements.',
       };
     }
 
@@ -47,7 +49,9 @@ export async function validateSqlPermissions(
     // Store the wildcard error but continue to validate columns to provide comprehensive feedback
     let wildcardError: string | undefined;
     if (!wildcardCheck.isValid) {
-      wildcardError = wildcardCheck.error || 'Wildcard usage on physical tables is not allowed';
+      wildcardError =
+        wildcardCheck.error ||
+        'SELECT * is not allowed on physical tables. Please explicitly list the column names you need (e.g., SELECT id, name, email FROM users). This helps prevent unintended data exposure and improves query performance.';
     }
 
     // Extract physical tables from SQL
@@ -180,10 +184,29 @@ export async function validateSqlPermissions(
 
     return result;
   } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+
+    // Provide more specific guidance based on the error
+    if (errorMessage.includes('parse')) {
+      return {
+        isAuthorized: false,
+        unauthorizedTables: [],
+        error: `Failed to validate SQL permissions due to parsing error: ${errorMessage}. Please check your SQL syntax and ensure it's valid.`,
+      };
+    }
+
+    if (errorMessage.includes('permission')) {
+      return {
+        isAuthorized: false,
+        unauthorizedTables: [],
+        error: `Permission check failed: ${errorMessage}. Please ensure you have the necessary access rights for the requested tables and columns.`,
+      };
+    }
+
     return {
       isAuthorized: false,
       unauthorizedTables: [],
-      error: `Permission validation failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      error: `Permission validation failed: ${errorMessage}. Please verify your SQL query syntax and ensure you have access to the requested resources.`,
     };
   }
 }
@@ -197,13 +220,17 @@ export function createPermissionErrorMessage(
 ): string {
   const messages: string[] = [];
 
-  // Handle unauthorized tables
+  // Handle unauthorized tables with actionable guidance
   if (unauthorizedTables.length > 0) {
     const tableList = unauthorizedTables.join(', ');
     if (unauthorizedTables.length === 1) {
-      messages.push(`You do not have access to table: ${tableList}`);
+      messages.push(
+        `You do not have access to table: ${tableList}. Please request access to this table or use a different table that you have permissions for.`
+      );
     } else {
-      messages.push(`You do not have access to the following tables: ${tableList}`);
+      messages.push(
+        `You do not have access to the following tables: ${tableList}. Please request access to these tables or modify your query to use only authorized tables.`
+      );
     }
   }
 
@@ -225,14 +252,18 @@ export function createPermissionErrorMessage(
     const columnMessages: string[] = [];
     for (const [table, columns] of columnsByTable) {
       const columnList = columns.join(', ');
-      columnMessages.push(`Table '${table}': columns [${columnList}] are not available`);
+      columnMessages.push(
+        `Table '${table}': columns [${columnList}] are not available in your permitted dataset`
+      );
     }
 
     if (columnMessages.length === 1) {
-      messages.push(`Unauthorized column access - ${columnMessages[0]}`);
+      messages.push(
+        `Unauthorized column access - ${columnMessages[0]}. Please use only the columns that are available in your permitted datasets, or request access to additional columns.`
+      );
     } else {
       messages.push(
-        `Unauthorized column access:\n${columnMessages.map((m) => `  - ${m}`).join('\n')}`
+        `Unauthorized column access:\n${columnMessages.map((m) => `  - ${m}`).join('\n')}\n\nPlease modify your query to use only the columns available in your permitted datasets, or request access to the additional columns you need.`
       );
     }
   }
