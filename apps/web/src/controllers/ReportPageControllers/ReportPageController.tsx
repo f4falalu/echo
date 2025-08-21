@@ -27,20 +27,23 @@ export const ReportPageController: React.FC<{
 
     const { mutate: updateReport } = useUpdateReport();
 
+    const canUpdate = () => {
+      if (isStreamingMessage || !report || readOnly) {
+        console.warn('Cannot update report');
+        return false;
+      }
+      return true;
+    };
+
     const onChangeName = useMemoizedFn((name: string) => {
-      if (!report) {
-        console.warn('Report not yet fetched');
+      if (!canUpdate()) {
         return;
       }
       updateReport({ reportId, name });
     });
 
     const onChangeContent = useMemoizedFn((content: string) => {
-      if (!report) {
-        console.warn('Report not yet fetched');
-        return;
-      }
-      if (isStreamingMessage) {
+      if (!canUpdate()) {
         return;
       }
       updateReport({ reportId, content });
