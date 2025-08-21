@@ -17,14 +17,3 @@ export interface RepairContext {
   inputSchema?: (toolCall: LanguageModelV2ToolCall) => unknown;
   agentContext?: AgentContext;
 }
-
-export interface RepairStrategy {
-  canHandle(error: Error): boolean;
-  repair(context: RepairContext): Promise<LanguageModelV2ToolCall | null>;
-}
-
-export interface RepairResult {
-  toolCall: LanguageModelV2ToolCall | null;
-  attemptedRepair: boolean;
-  strategy: string;
-}

@@ -8,5 +8,6 @@ export function createReportsStart(_context: CreateReportsContext, state: Create
     state.argsText = undefined;
     state.files = [];
     state.startTime = Date.now();
+    state.responseMessagesCreated = new Set<string>();
   };
 }

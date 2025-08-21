@@ -77,6 +77,7 @@ const CreateReportsStateSchema = z.object({
   files: z.array(CreateReportStateFileSchema).optional(),
   startTime: z.number().optional(),
   initialEntriesCreated: z.boolean().optional(),
+  responseMessagesCreated: z.set(z.string()).optional(),
 });
 
 // Export types

@@ -6,11 +6,13 @@ import {
   updateMessageEntries,
   updateReportContent,
 } from '@buster/database';
+import type { ChatMessageResponseMessage } from '@buster/server-shared/chats';
 import type { ToolCallOptions } from 'ai';
 import {
   OptimisticJsonParser,
   getOptimisticValue,
 } from '../../../../utils/streaming/optimistic-json-parser';
+import { reportContainsMetrics } from '../helpers/report-metric-helper';
 import type {
   CreateReportStateFile,
   CreateReportsContext,
@@ -191,6 +193,9 @@ export function createCreateReportsDelta(context: CreateReportsContext, state: C
 
         // Update report content for all reports that have content
         if (contentUpdates.length > 0) {
+          // Track response messages to create in batch
+          const responseMessagesToCreate: ChatMessageResponseMessage[] = [];
+
           for (const update of contentUpdates) {
             try {
               await updateReportContent({
@@ -202,6 +207,35 @@ export function createCreateReportsDelta(context: CreateReportsContext, state: C
               const stateFile = state.files?.find((f) => f.id === update.reportId);
               if (stateFile) {
                 stateFile.status = 'completed';
+
+                // Check if this report contains metrics and hasn't already had a response message created
+                if (
+                  reportContainsMetrics(update.content) &&
+                  !state.responseMessagesCreated?.has(update.reportId)
+                ) {
+                  // Create response message for this report
+                  responseMessagesToCreate.push({
+                    id: update.reportId,
+                    type: 'file' as const,
+                    file_type: 'report' as const,
+                    file_name: stateFile.file_name || '',
+                    version_number: stateFile.version_number || 1,
+                    filter_version_id: null,
+                    metadata: [
+                      {
+                        status: 'completed' as const,
+                        message: 'Report created successfully',
+                        timestamp: Date.now(),
+                      },
+                    ],
+                  });
+
+                  // Track that we've created a response message for this report
+                  if (!state.responseMessagesCreated) {
+                    state.responseMessagesCreated = new Set<string>();
+                  }
+                  state.responseMessagesCreated.add(update.reportId);
+                }
               }
             } catch (error) {
               console.error('[create-reports] Error updating report content:', {
@@ -214,6 +248,27 @@ export function createCreateReportsDelta(context: CreateReportsContext, state: C
               if (stateFile) {
                 stateFile.status = 'failed';
               }
+            }
+          }
+
+          // Update database with response messages if we have any
+          if (responseMessagesToCreate.length > 0 && context.messageId) {
+            try {
+              await updateMessageEntries({
+                messageId: context.messageId,
+                responseMessages: responseMessagesToCreate,
+              });
+
+              console.info('[create-reports] Created response messages during delta', {
+                count: responseMessagesToCreate.length,
+                reportIds: responseMessagesToCreate.map((m) => m.id),
+              });
+            } catch (error) {
+              console.error(
+                '[create-reports] Error creating response messages during delta:',
+                error
+              );
+              // Don't throw - continue processing
             }
           }
         }
