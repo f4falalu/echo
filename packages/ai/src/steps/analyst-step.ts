@@ -60,6 +60,7 @@ const outputSchema = z.object({
 
 const DEFAULT_CACHE_OPTIONS = {
   anthropic: { cacheControl: { type: 'ephemeral', ttl: '1h' } },
+  openai: { parallelToolCalls: false, reasoningEffort: 'minimal' },
 };
 
 /**
