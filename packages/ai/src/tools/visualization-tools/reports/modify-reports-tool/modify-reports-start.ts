@@ -1,9 +1,6 @@
 import { updateMessageEntries } from '@buster/database';
 import type { ToolCallOptions } from 'ai';
-import {
-  createModifyReportsRawLlmMessageEntry,
-  createModifyReportsReasoningEntry,
-} from './helpers/modify-reports-transform-helper';
+import { createModifyReportsReasoningEntry } from './helpers/modify-reports-transform-helper';
 import type { ModifyReportsContext, ModifyReportsState } from './modify-reports-tool';
 
 export function modifyReportsStart(context: ModifyReportsContext, state: ModifyReportsState) {
@@ -24,12 +21,12 @@ export function modifyReportsStart(context: ModifyReportsContext, state: ModifyR
     if (context.messageId) {
       try {
         if (context.messageId && state.toolCallId) {
-          // Update database with both reasoning and raw LLM entries
+          // Update database with reasoning entry only - raw LLM message will be created with result later
           try {
             const reasoningEntry = createModifyReportsReasoningEntry(state, options.toolCallId);
-            const rawLlmMessage = createModifyReportsRawLlmMessageEntry(state, options.toolCallId);
+            // Skip creating rawLlmMessage here to avoid duplicates - it will be created with the result later
 
-            // Update both entries together if they exist
+            // Update reasoning entry if it exists
             const updates: Parameters<typeof updateMessageEntries>[0] = {
               messageId: context.messageId,
             };
@@ -38,11 +35,7 @@ export function modifyReportsStart(context: ModifyReportsContext, state: ModifyR
               updates.reasoningMessages = [reasoningEntry];
             }
 
-            if (rawLlmMessage) {
-              updates.rawLlmMessages = [rawLlmMessage];
-            }
-
-            if (reasoningEntry || rawLlmMessage) {
+            if (reasoningEntry) {
               await updateMessageEntries(updates);
             }
           } catch (error) {
