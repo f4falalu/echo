@@ -1,6 +1,7 @@
 import type { LanguageModelV1 } from '@ai-sdk/provider';
 import { createFallback } from './ai-fallback';
 import { anthropicModel } from './providers/anthropic';
+import { openaiModel } from './providers/openai';
 import { vertexModel } from './providers/vertex';
 
 // Lazy initialization to allow mocking in tests
@@ -24,13 +25,13 @@ function initializeSonnet4() {
     }
   }
 
-  // Only include Vertex if credentials are available
-  if (process.env.VERTEX_CLIENT_EMAIL && process.env.VERTEX_PRIVATE_KEY) {
+  if (process.env.OPENAI_API_KEY) {
     try {
-      models.push(vertexModel('claude-sonnet-4@20250514'));
-      console.info('Sonnet4: Vertex AI model added to fallback chain');
+      models.push(openaiModel('gpt-5'));
+
+      console.info('Sonnet4: OpenAI model added to fallback chain');
     } catch (error) {
-      console.warn('Sonnet4: Failed to initialize Vertex AI model:', error);
+      console.warn('Sonnet4: Failed to initialize OpenAI model:', error);
     }
   }
 

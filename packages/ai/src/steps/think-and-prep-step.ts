@@ -82,6 +82,7 @@ const outputSchema = ThinkAndPrepOutputSchema;
 
 const DEFAULT_CACHE_OPTIONS = {
   anthropic: { cacheControl: { type: 'ephemeral', ttl: '1h' } },
+  openai: { parallelToolCalls: false, reasoningEffort: 'minimal' },
 };
 
 // Helper function to create the result object
