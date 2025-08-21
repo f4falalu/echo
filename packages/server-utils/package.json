@@ -5,12 +5,7 @@
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "exports": {
-    "./report": {
-      "types": "./dist/report/index.d.ts",
-      "default": "./dist/report/index.js"
-    }
-  },
+  "exports": {},
   "scripts": {
     "prebuild": "[ \"$SKIP_ENV_CHECK\" = \"true\" ] || tsx scripts/validate-env.ts",
     "build": "tsc",

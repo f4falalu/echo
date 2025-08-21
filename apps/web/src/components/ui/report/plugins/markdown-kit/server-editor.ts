@@ -19,13 +19,13 @@ import {
   BaseStrikethroughPlugin,
   BaseSubscriptPlugin,
   BaseSuperscriptPlugin,
-  BaseUnderlinePlugin,
+  BaseUnderlinePlugin
 } from '@platejs/basic-nodes';
 import {
   BaseFontBackgroundColorPlugin,
   BaseFontColorPlugin,
   BaseFontFamilyPlugin,
-  BaseFontSizePlugin,
+  BaseFontSizePlugin
 } from '@platejs/basic-styles';
 import { BaseTextAlignPlugin } from '@platejs/basic-styles';
 import { BaseLineHeightPlugin } from '@platejs/basic-styles';
@@ -41,24 +41,25 @@ import {
   BaseImagePlugin,
   BaseMediaEmbedPlugin,
   BasePlaceholderPlugin,
-  BaseVideoPlugin,
+  BaseVideoPlugin
 } from '@platejs/media';
 import {
   BaseTableCellHeaderPlugin,
   BaseTableCellPlugin,
   BaseTablePlugin,
-  BaseTableRowPlugin,
+  BaseTableRowPlugin
 } from '@platejs/table';
 import { BaseTocPlugin } from '@platejs/toc';
 import { BaseTogglePlugin } from '@platejs/toggle';
 import { KEYS, createSlateEditor } from 'platejs';
-import { MarkdownPlugin } from './MarkdownPlugin';
+import { MarkdownKit } from './markdown-kit';
+import { createPlateEditor } from 'platejs/react';
 
 export const BaseTableKit = [
   BaseTablePlugin,
   BaseTableRowPlugin,
   BaseTableCellPlugin,
-  BaseTableCellHeaderPlugin,
+  BaseTableCellHeaderPlugin
 ];
 
 const serverNode = [
@@ -83,7 +84,7 @@ const serverNode = [
   BaseSuperscriptPlugin,
   BaseUnderlinePlugin,
   AutoformatPlugin,
-  MarkdownPlugin,
+  ...MarkdownKit,
   ...BaseTableKit,
   BaseTogglePlugin,
   BaseTocPlugin,
@@ -107,16 +108,16 @@ const serverNode = [
   BaseLineHeightPlugin,
   BaseListPlugin.configure({
     inject: {
-      targetPlugins: [...KEYS.heading, KEYS.p, KEYS.blockquote, KEYS.codeBlock, KEYS.toggle],
-    },
+      targetPlugins: [...KEYS.heading, KEYS.p, KEYS.blockquote, KEYS.codeBlock, KEYS.toggle]
+    }
   }),
   BaseIndentPlugin.configure({
     inject: {
-      targetPlugins: [...KEYS.heading, KEYS.p, KEYS.blockquote, KEYS.codeBlock, KEYS.toggle],
-    },
-  }),
+      targetPlugins: [...KEYS.heading, KEYS.p, KEYS.blockquote, KEYS.codeBlock, KEYS.toggle]
+    }
+  })
 ];
 
-export const SERVER_EDITOR = createSlateEditor({
-  plugins: serverNode,
+export const SERVER_EDITOR = createPlateEditor({
+  plugins: serverNode
 });
