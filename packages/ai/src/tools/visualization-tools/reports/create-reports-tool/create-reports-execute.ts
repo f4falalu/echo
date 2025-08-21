@@ -2,7 +2,6 @@ import { updateMessageEntries } from '@buster/database';
 import type { ChatMessageResponseMessage } from '@buster/server-shared/chats';
 import { wrapTraced } from 'braintrust';
 import { createRawToolResultEntry } from '../../../shared/create-raw-llm-tool-result-entry';
-import { reportContainsMetrics } from '../helpers/report-metric-helper';
 import type {
   CreateReportsContext,
   CreateReportsInput,
@@ -163,38 +162,30 @@ export function createCreateReportsExecute(
                     continue;
                   }
 
-                  // Find the corresponding input file to get the content
-                  const fileIndex = state.files.findIndex((f) => f.id === resultFile.id);
-                  if (fileIndex >= 0 && input.files[fileIndex]) {
-                    const reportContent = input.files[fileIndex].content;
+                  // Find the corresponding state file
+                  const stateFile = state.files.find((f) => f.id === resultFile.id);
+                  if (stateFile) {
+                    responseMessages.push({
+                      id: stateFile.id,
+                      type: 'file' as const,
+                      file_type: 'report' as const,
+                      file_name: stateFile.file_name || resultFile.name,
+                      version_number: stateFile.version_number || 1,
+                      filter_version_id: null,
+                      metadata: [
+                        {
+                          status: 'completed' as const,
+                          message: 'Report created successfully',
+                          timestamp: Date.now(),
+                        },
+                      ],
+                    });
 
-                    // Only add to response messages if the report contains metrics
-                    if (reportContainsMetrics(reportContent)) {
-                      const stateFile = state.files[fileIndex];
-                      if (stateFile) {
-                        responseMessages.push({
-                          id: stateFile.id,
-                          type: 'file' as const,
-                          file_type: 'report' as const,
-                          file_name: stateFile.file_name || resultFile.name,
-                          version_number: stateFile.version_number || 1,
-                          filter_version_id: null,
-                          metadata: [
-                            {
-                              status: 'completed' as const,
-                              message: 'Report created successfully',
-                              timestamp: Date.now(),
-                            },
-                          ],
-                        });
-
-                        // Track that we've created a response message for this report
-                        if (!state.responseMessagesCreated) {
-                          state.responseMessagesCreated = new Set<string>();
-                        }
-                        state.responseMessagesCreated.add(resultFile.id);
-                      }
+                    // Track that we've created a response message for this report
+                    if (!state.responseMessagesCreated) {
+                      state.responseMessagesCreated = new Set<string>();
                     }
+                    state.responseMessagesCreated.add(resultFile.id);
                   }
                 }
               }

@@ -12,7 +12,6 @@ import {
   OptimisticJsonParser,
   getOptimisticValue,
 } from '../../../../utils/streaming/optimistic-json-parser';
-import { reportContainsMetrics } from '../helpers/report-metric-helper';
 import type {
   CreateReportStateFile,
   CreateReportsContext,
@@ -208,11 +207,8 @@ export function createCreateReportsDelta(context: CreateReportsContext, state: C
               if (stateFile) {
                 stateFile.status = 'completed';
 
-                // Check if this report contains metrics and hasn't already had a response message created
-                if (
-                  reportContainsMetrics(update.content) &&
-                  !state.responseMessagesCreated?.has(update.reportId)
-                ) {
+                // Create response message for this report if not already created
+                if (!state.responseMessagesCreated?.has(update.reportId)) {
                   // Create response message for this report
                   responseMessagesToCreate.push({
                     id: update.reportId,

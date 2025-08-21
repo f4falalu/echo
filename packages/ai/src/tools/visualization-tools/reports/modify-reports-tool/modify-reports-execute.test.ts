@@ -27,10 +27,6 @@ vi.mock('@buster/database', () => ({
   reportFiles: {},
 }));
 
-vi.mock('../helpers/report-metric-helper', () => ({
-  reportContainsMetrics: vi.fn(),
-}));
-
 vi.mock('../helpers/report-version-helper', () => ({
   shouldIncrementVersion: vi.fn().mockResolvedValue(true),
   updateVersionHistory: vi.fn().mockReturnValue({
@@ -65,20 +61,17 @@ vi.mock('../../../shared/create-raw-llm-tool-result-entry', () => ({
 }));
 
 import { db, updateMessageEntries } from '@buster/database';
-import { reportContainsMetrics } from '../helpers/report-metric-helper';
 
 describe('modify-reports-execute', () => {
   let context: ModifyReportsContext;
   let state: ModifyReportsState;
   let mockUpdateMessageEntries: ReturnType<typeof vi.fn>;
-  let mockReportContainsMetrics: ReturnType<typeof vi.fn>;
 
   beforeEach(() => {
     vi.clearAllMocks();
 
     mockDbLimit.mockClear();
     mockUpdateMessageEntries = updateMessageEntries as ReturnType<typeof vi.fn>;
-    mockReportContainsMetrics = reportContainsMetrics as ReturnType<typeof vi.fn>;
 
     context = {
       userId: 'user-123',
@@ -132,7 +125,6 @@ Updated content with metrics.`;
       };
 
       // Mock that the modified report contains metrics
-      mockReportContainsMetrics.mockReturnValue(true);
 
       const execute = createModifyReportsExecute(context, state);
       const result = await execute(input);
@@ -155,7 +147,7 @@ Updated content with metrics.`;
       });
     });
 
-    it('should NOT add report to responseMessages when modified report does NOT contain metrics', async () => {
+    it('should add all successfully modified reports to responseMessages', async () => {
       // Mock existing report in database
       const existingReportContent = '# Original Report\nSome content here.';
       const modifiedContent = '# Modified Report\nUpdated content without any metrics.';
@@ -188,23 +180,25 @@ Updated content with metrics.`;
         ],
       };
 
-      // Mock that the modified report does NOT contain metrics
-      mockReportContainsMetrics.mockReturnValue(false);
-
       const execute = createModifyReportsExecute(context, state);
       const result = await execute(input);
 
       // Check result
       expect(result.success).toBe(true);
 
-      // Check that updateMessageEntries was called WITHOUT responseMessages
+      // Check that updateMessageEntries was called WITH responseMessages
       expect(mockUpdateMessageEntries).toHaveBeenCalled();
       const updateCall = mockUpdateMessageEntries.mock.calls[0]?.[0];
 
-      expect(updateCall.responseMessages).toBeUndefined();
-      // But reasoning and raw messages should still be there
-      expect(updateCall.reasoningMessages).toBeDefined();
-      expect(updateCall.rawLlmMessages).toBeDefined();
+      expect(updateCall.responseMessages).toBeDefined();
+      expect(updateCall.responseMessages).toHaveLength(1);
+      expect(updateCall.responseMessages?.[0]).toMatchObject({
+        id: 'report-123',
+        type: 'file',
+        file_type: 'report',
+        file_name: 'Modified Report',
+        version_number: 2,
+      });
     });
 
     it('should check metrics on final content after all edits are applied', async () => {
@@ -262,20 +256,12 @@ Updated content with metrics.`;
         ],
       };
 
-      // Only check metrics on the final content
-      mockReportContainsMetrics.mockImplementation((content: string) => {
-        return content.includes('<metric metricId="uuid-123" />');
-      });
-
       const execute = createModifyReportsExecute(context, state);
       const result = await execute(input);
 
       expect(result.success).toBe(true);
 
-      // Should have called reportContainsMetrics with the final content
-      expect(mockReportContainsMetrics).toHaveBeenCalledWith(
-        expect.stringContaining('<metric metricId="uuid-123" />')
-      );
+      // Response messages should be created for all successfully modified reports
 
       // Should add to responseMessages since final content has metrics
       const updateCall = mockUpdateMessageEntries.mock.calls[0]?.[0];
@@ -313,8 +299,6 @@ Updated content with metrics.`;
         ],
       };
 
-      mockReportContainsMetrics.mockReturnValue(true);
-
       const execute = createModifyReportsExecute(context, state);
       const result = await execute(input);
 
@@ -349,8 +333,6 @@ Updated content with metrics.`;
           },
         ],
       };
-
-      mockReportContainsMetrics.mockReturnValue(true);
 
       const execute = createModifyReportsExecute(context, state);
       const result = await execute(input);
@@ -414,19 +396,14 @@ Updated content with metrics.`;
         ],
       };
 
-      mockReportContainsMetrics.mockReturnValue(true);
-
       const execute1 = createModifyReportsExecute(context, { ...state });
       const result1 = await execute1(input1);
 
       expect(result1.success).toBe(true);
-      expect(mockReportContainsMetrics).toHaveBeenCalledWith(
-        'Modified with <metric metricId="uuid-1" />'
-      );
+      // Response message should be created for successful modification
 
       // Reset mocks for second execution
       vi.clearAllMocks();
-      mockReportContainsMetrics = reportContainsMetrics as ReturnType<typeof vi.fn>;
 
       // Second execution - failure (report not found)
       const input2: ModifyReportsInput = {
@@ -445,8 +422,7 @@ Updated content with metrics.`;
       const result2 = await execute2(input2);
 
       expect(result2.success).toBe(false);
-      // Should NOT check metrics for failed modifications
-      expect(mockReportContainsMetrics).not.toHaveBeenCalled();
+      // No response messages should be created when modification fails
     });
   });
 });

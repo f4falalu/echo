@@ -42,7 +42,7 @@ export async function repairInvalidInput(
         const { object: repairedInput } = await generateObject({
           model: Sonnet4,
           schema: tool.inputSchema,
-          prompt: `Fix these tool arguments to match the schema:\n${currentInput}`,
+          prompt: `Fix these tool arguments to match the schema:\n${JSON.stringify(currentInput, null, 2)}`,
           mode: 'json',
         });
 

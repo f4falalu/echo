@@ -1,5 +1,7 @@
-import { updateMessageEntries } from '@buster/database';
+import { batchUpdateReport, db, reportFiles, updateMessageEntries } from '@buster/database';
+import type { ChatMessageResponseMessage } from '@buster/server-shared/chats';
 import type { ToolCallOptions } from 'ai';
+import { and, eq, isNull } from 'drizzle-orm';
 import {
   OptimisticJsonParser,
   getOptimisticValue,
@@ -43,12 +45,52 @@ export function createModifyReportsDelta(context: ModifyReportsContext, state: M
         []
       );
 
-      // Update report metadata
+      // Update report metadata and fetch snapshot when ID is first received
       if (id && !state.reportId) {
         state.reportId = id;
+
+        // Fetch the report snapshot immediately when we get the ID
+        try {
+          const existingReport = await db
+            .select({
+              content: reportFiles.content,
+            })
+            .from(reportFiles)
+            .where(and(eq(reportFiles.id, id), isNull(reportFiles.deletedAt)))
+            .limit(1);
+
+          if (existingReport.length > 0 && existingReport[0]) {
+            state.snapshotContent = existingReport[0].content;
+            console.info('[modify-reports-delta] Fetched report snapshot', { reportId: id });
+          } else {
+            console.error('[modify-reports-delta] Report not found', { reportId: id });
+          }
+        } catch (error) {
+          console.error('[modify-reports-delta] Error fetching report snapshot:', error);
+        }
       }
-      if (name && !state.reportName) {
+
+      // Update report name immediately when available
+      if (name && state.reportName !== name) {
         state.reportName = name;
+
+        // If we have a snapshot and report ID, update the name in the database
+        if (state.snapshotContent !== undefined && state.reportId) {
+          try {
+            // We need to provide content for batchUpdateReport, so use the snapshot
+            await batchUpdateReport({
+              reportId: state.reportId,
+              content: state.snapshotContent,
+              name: name,
+            });
+            console.info('[modify-reports-delta] Updated report name', {
+              reportId: state.reportId,
+              name,
+            });
+          } catch (error) {
+            console.error('[modify-reports-delta] Error updating report name:', error);
+          }
+        }
       }
 
       // Validate that we have a complete UUID before processing edits
@@ -58,19 +100,20 @@ export function createModifyReportsDelta(context: ModifyReportsContext, state: M
         return uuidRegex.test(uuid);
       };
 
-      // Process edits with streaming - only if we have a valid UUID
+      // Process edits with streaming - only if we have a valid UUID and snapshot
       if (
         editsArray &&
         Array.isArray(editsArray) &&
         state.reportId &&
-        isValidUUID(state.reportId)
+        isValidUUID(state.reportId) &&
+        state.snapshotContent !== undefined
       ) {
         // Initialize state edits if needed
         if (!state.edits) {
           state.edits = [];
         }
 
-        // Process each edit and update state only (no database updates)
+        // Process each edit and apply to database in real-time
         for (let index = 0; index < editsArray.length; index++) {
           const edit = editsArray[index];
           if (edit && typeof edit === 'object') {
@@ -94,7 +137,7 @@ export function createModifyReportsDelta(context: ModifyReportsContext, state: M
                     ? 'append'
                     : 'replace';
 
-              // Update state edit - just track the edits, don't apply them
+              // Update state edit
               if (!state.edits[index]) {
                 state.edits[index] = {
                   operation,
@@ -109,6 +152,74 @@ export function createModifyReportsDelta(context: ModifyReportsContext, state: M
                   existingEdit.operation = operation;
                   existingEdit.code_to_replace = codeToReplace || '';
                   existingEdit.code = code;
+                }
+              }
+
+              // Apply the edit to the snapshot and update database in real-time
+              // Only process the first edit for now (multiple edits would need careful handling)
+              if (index === 0) {
+                let newContent = state.snapshotContent;
+
+                if (operation === 'append') {
+                  // For append, add the streaming code to the end of the snapshot
+                  newContent = state.snapshotContent + code;
+                } else if (operation === 'replace' && codeToReplace) {
+                  // For replace, substitute in the snapshot
+                  if (state.snapshotContent.includes(codeToReplace)) {
+                    newContent = state.snapshotContent.replace(codeToReplace, code);
+                  }
+                }
+
+                // Update the database with the new content
+                try {
+                  await batchUpdateReport({
+                    reportId: state.reportId,
+                    content: newContent,
+                    name: state.reportName || undefined,
+                  });
+
+                  // Update state with the final content
+                  state.finalContent = newContent;
+
+                  // Create response message if not already created
+                  if (!state.responseMessageCreated && context.messageId) {
+                    const responseMessages: ChatMessageResponseMessage[] = [
+                      {
+                        id: state.reportId,
+                        type: 'file' as const,
+                        file_type: 'report' as const,
+                        file_name: state.reportName || 'Untitled Report',
+                        version_number: 2, // This would need proper version tracking
+                        filter_version_id: null,
+                        metadata: [
+                          {
+                            status: 'completed' as const,
+                            message: 'Report modified successfully',
+                            timestamp: Date.now(),
+                          },
+                        ],
+                      },
+                    ];
+
+                    await updateMessageEntries({
+                      messageId: context.messageId,
+                      responseMessages,
+                    });
+
+                    state.responseMessageCreated = true;
+                    console.info(
+                      '[modify-reports-delta] Created response message during streaming'
+                    );
+                  }
+                } catch (error) {
+                  console.error('[modify-reports-delta] Error updating report content:', error);
+                  if (state.edits) {
+                    const edit = state.edits[index];
+                    if (edit) {
+                      edit.status = 'failed';
+                      edit.error = error instanceof Error ? error.message : 'Update failed';
+                    }
+                  }
                 }
               }
             }

@@ -4,7 +4,6 @@ import { wrapTraced } from 'braintrust';
 import { and, eq, isNull } from 'drizzle-orm';
 import { createRawToolResultEntry } from '../../../shared/create-raw-llm-tool-result-entry';
 import { trackFileAssociations } from '../../file-tracking-helper';
-import { reportContainsMetrics } from '../helpers/report-metric-helper';
 import { shouldIncrementVersion, updateVersionHistory } from '../helpers/report-version-helper';
 import {
   createModifyReportsRawLlmMessageEntry,
@@ -296,8 +295,76 @@ export function createModifyReportsExecute(
       const startTime = Date.now();
 
       try {
-        // Always process the full input from the agent
-        console.info('[modify-reports] Processing full input in execute phase');
+        // If streaming already updated the content, we can return success directly
+        if (state.finalContent !== undefined && state.snapshotContent !== undefined) {
+          console.info('[modify-reports] Using streaming results from delta phase');
+
+          const now = new Date().toISOString();
+          const result: ModifyReportsOutput = {
+            success: true,
+            message: `Successfully applied ${input.edits.length} edit(s) to report: ${input.name}`,
+            file: {
+              id: input.id,
+              name: input.name,
+              content: state.finalContent,
+              version_number: state.version_number || 2,
+              updated_at: now,
+            },
+          };
+
+          // Update final status in state edits
+          if (state.edits) {
+            state.edits.forEach((edit) => {
+              if (edit.status === 'loading') {
+                edit.status = 'completed';
+              }
+            });
+          }
+
+          // Create final entries for tracking
+          if (context.messageId) {
+            try {
+              const toolCallId = state.toolCallId || `tool-${Date.now()}`;
+
+              const reasoningEntry = createModifyReportsReasoningEntry(state, toolCallId);
+              const rawLlmMessage = createModifyReportsRawLlmMessageEntry(state, toolCallId);
+              const rawLlmResultEntry = createRawToolResultEntry(
+                toolCallId,
+                MODIFY_REPORTS_TOOL_NAME,
+                result
+              );
+
+              const updates: Parameters<typeof updateMessageEntries>[0] = {
+                messageId: context.messageId,
+              };
+
+              if (reasoningEntry) {
+                updates.reasoningMessages = [reasoningEntry];
+              }
+
+              if (rawLlmMessage) {
+                updates.rawLlmMessages = [rawLlmMessage, rawLlmResultEntry];
+              }
+
+              if (reasoningEntry || rawLlmMessage) {
+                await updateMessageEntries(updates);
+              }
+            } catch (error) {
+              console.error('[modify-reports] Error updating final entries:', error);
+            }
+          }
+
+          const executionTime = Date.now() - startTime;
+          console.info('[modify-reports] Execution completed using streaming', {
+            executionTime: `${executionTime}ms`,
+            success: true,
+          });
+
+          return result;
+        }
+
+        // Fallback to original processing if streaming didn't complete
+        console.info('[modify-reports] Falling back to non-streaming processing');
         const result = await modifyReportsFile(input, context);
 
         if (!result) {
@@ -325,17 +392,12 @@ export function createModifyReportsExecute(
           try {
             const toolCallId = state.toolCallId || `tool-${Date.now()}`;
 
-            // Check if the modified report contains metrics
+            // Create response message for modified report
             const responseMessages: ChatMessageResponseMessage[] = [];
 
-            // Only add to response messages if modification was successful AND report contains metrics
+            // Add to response messages if modification was successful
             // AND we haven't already created a response message during delta streaming
-            if (
-              success &&
-              finalContent &&
-              reportContainsMetrics(finalContent) &&
-              !state.responseMessageCreated
-            ) {
+            if (success && finalContent && !state.responseMessageCreated) {
               responseMessages.push({
                 id: input.id,
                 type: 'file' as const,
@@ -374,7 +436,7 @@ export function createModifyReportsExecute(
               updates.rawLlmMessages = [rawLlmMessage, rawLlmResultEntry];
             }
 
-            // Only add responseMessages if there are reports with metrics
+            // Only add responseMessages if there are any
             if (responseMessages.length > 0) {
               updates.responseMessages = responseMessages;
             }
@@ -386,7 +448,7 @@ export function createModifyReportsExecute(
             console.info('[modify-reports] Updated message entries with final results', {
               messageId: context.messageId,
               success,
-              reportHasMetrics: responseMessages.length > 0,
+              responseMessageCreated: responseMessages.length > 0,
             });
           } catch (error) {
             console.error('[modify-reports] Error updating message entries:', error);

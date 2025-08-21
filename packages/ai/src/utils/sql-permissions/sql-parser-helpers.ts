@@ -863,16 +863,30 @@ function extractColumnsFromStatement(
     }
   }
 
+  // Track column aliases defined in SELECT clause
+  // These should NOT be treated as physical columns when referenced in ORDER BY, GROUP BY, etc.
+  const columnAliases = new Set<string>();
+
   // Extract columns from SELECT clause
+  // Important: We only extract from the expression (column.expr), not from the alias (column.as)
+  // This ensures column aliases like "AS total_count" are not treated as physical columns
   if (statement.columns && Array.isArray(statement.columns)) {
     for (const column of statement.columns) {
+      // Track the alias if it exists
+      if (column.as) {
+        columnAliases.add(String(column.as).toLowerCase());
+      }
+
+      // Only process the expression part, which contains the actual column references
+      // The 'as' property contains the alias which should not be treated as a column
       if (column.expr && typeof column.expr === 'object') {
         extractColumnFromExpression(
           column.expr,
           aliasToTableMap,
           tableColumnMap,
           cteNames,
-          physicalTables
+          physicalTables,
+          columnAliases
         );
       }
     }
@@ -885,19 +899,29 @@ function extractColumnsFromStatement(
       aliasToTableMap,
       tableColumnMap,
       cteNames,
-      physicalTables
+      physicalTables,
+      columnAliases
     );
   }
 
   // Extract columns from GROUP BY clause
   if (statement.groupby && Array.isArray(statement.groupby)) {
     for (const groupItem of statement.groupby) {
+      // Skip if this is a reference to a column alias
+      if (groupItem.type === 'column_ref' && groupItem.column && !groupItem.table) {
+        const columnName =
+          typeof groupItem.column === 'string' ? groupItem.column : String(groupItem.column);
+        if (columnAliases.has(columnName.toLowerCase())) {
+          continue; // Skip column aliases
+        }
+      }
       extractColumnFromExpression(
         groupItem,
         aliasToTableMap,
         tableColumnMap,
         cteNames,
-        physicalTables
+        physicalTables,
+        columnAliases
       );
     }
   }
@@ -909,7 +933,8 @@ function extractColumnsFromStatement(
       aliasToTableMap,
       tableColumnMap,
       cteNames,
-      physicalTables
+      physicalTables,
+      columnAliases
     );
   }
 
@@ -917,12 +942,27 @@ function extractColumnsFromStatement(
   if (statement.orderby && Array.isArray(statement.orderby)) {
     for (const orderItem of statement.orderby) {
       if (orderItem.expr) {
+        // Check if this is a reference to a column alias
+        if (
+          orderItem.expr.type === 'column_ref' &&
+          orderItem.expr.column &&
+          !orderItem.expr.table
+        ) {
+          const columnName =
+            typeof orderItem.expr.column === 'string'
+              ? orderItem.expr.column
+              : String(orderItem.expr.column);
+          if (columnAliases.has(columnName.toLowerCase())) {
+            continue; // Skip column aliases
+          }
+        }
         extractColumnFromExpression(
           orderItem.expr,
           aliasToTableMap,
           tableColumnMap,
           cteNames,
-          physicalTables
+          physicalTables,
+          columnAliases
         );
       }
     }
@@ -969,7 +1009,8 @@ function extractColumnsFromStatement(
           aliasToTableMap,
           tableColumnMap,
           cteNames,
-          physicalTables
+          physicalTables,
+          columnAliases
         );
       }
 
@@ -1062,7 +1103,8 @@ function extractColumnFromExpression(
   aliasToTableMap: Map<string, string>,
   tableColumnMap: Map<string, Set<string>>,
   cteNames: Set<string>,
-  physicalTables?: string[]
+  physicalTables?: string[],
+  columnAliases?: Set<string>
 ): void {
   if (!expr || typeof expr !== 'object') return;
 
@@ -1134,6 +1176,12 @@ function extractColumnFromExpression(
         return;
       }
 
+      // Skip if this column is actually a column alias (not a physical column)
+      // This handles cases where aliases are referenced in ORDER BY, GROUP BY, etc.
+      if (!tableRef && columnAliases && columnAliases.has(actualColumn)) {
+        return; // Skip column aliases
+      }
+
       if (tableRef) {
         // Get table name from reference
         const tableName = extractTableName(tableRef).toLowerCase();
@@ -1172,7 +1220,14 @@ function extractColumnFromExpression(
   if (expression.type === 'aggr_func' && expression.args) {
     if (Array.isArray(expression.args)) {
       for (const arg of expression.args) {
-        extractColumnFromExpression(arg, aliasToTableMap, tableColumnMap, cteNames, physicalTables);
+        extractColumnFromExpression(
+          arg,
+          aliasToTableMap,
+          tableColumnMap,
+          cteNames,
+          physicalTables,
+          columnAliases
+        );
       }
     } else if (typeof expression.args === 'object') {
       const argsObj = expression.args as Record<string, unknown>;
@@ -1183,7 +1238,8 @@ function extractColumnFromExpression(
           aliasToTableMap,
           tableColumnMap,
           cteNames,
-          physicalTables
+          physicalTables,
+          columnAliases
         );
       } else {
         extractColumnFromExpression(
@@ -1191,7 +1247,8 @@ function extractColumnFromExpression(
           aliasToTableMap,
           tableColumnMap,
           cteNames,
-          physicalTables
+          physicalTables,
+          columnAliases
         );
       }
     } else {
@@ -1200,7 +1257,8 @@ function extractColumnFromExpression(
         aliasToTableMap,
         tableColumnMap,
         cteNames,
-        physicalTables
+        physicalTables,
+        columnAliases
       );
     }
   }
@@ -1213,7 +1271,8 @@ function extractColumnFromExpression(
         aliasToTableMap,
         tableColumnMap,
         cteNames,
-        physicalTables
+        physicalTables,
+        columnAliases
       );
     }
     if (expression.right) {
@@ -1222,7 +1281,8 @@ function extractColumnFromExpression(
         aliasToTableMap,
         tableColumnMap,
         cteNames,
-        physicalTables
+        physicalTables,
+        columnAliases
       );
     }
   }
@@ -1244,7 +1304,8 @@ function extractColumnFromExpression(
           aliasToTableMap,
           tableColumnMap,
           cteNames,
-          physicalTables
+          physicalTables,
+          columnAliases
         );
       }
     }
@@ -1280,7 +1341,8 @@ function extractColumnFromExpression(
               aliasToTableMap,
               tableColumnMap,
               cteNames,
-              physicalTables
+              physicalTables,
+              columnAliases
             );
           } else {
             extractColumnFromExpression(
@@ -1302,7 +1364,8 @@ function extractColumnFromExpression(
               aliasToTableMap,
               tableColumnMap,
               cteNames,
-              physicalTables
+              physicalTables,
+              columnAliases
             );
           }
         } else {
@@ -1329,7 +1392,8 @@ function extractColumnFromExpression(
             aliasToTableMap,
             tableColumnMap,
             cteNames,
-            physicalTables
+            physicalTables,
+            columnAliases
           );
         }
       }
@@ -1345,7 +1409,8 @@ function extractColumnFromExpression(
                 aliasToTableMap,
                 tableColumnMap,
                 cteNames,
-                physicalTables
+                physicalTables,
+                columnAliases
               );
             } else {
               extractColumnFromExpression(
@@ -1353,7 +1418,8 @@ function extractColumnFromExpression(
                 aliasToTableMap,
                 tableColumnMap,
                 cteNames,
-                physicalTables
+                physicalTables,
+                columnAliases
               );
             }
           }
@@ -1372,7 +1438,8 @@ function extractColumnFromExpression(
             aliasToTableMap,
             tableColumnMap,
             cteNames,
-            physicalTables
+            physicalTables,
+            columnAliases
           );
         } else {
           extractColumnFromExpression(
@@ -1403,7 +1470,8 @@ function extractColumnFromExpression(
               aliasToTableMap,
               tableColumnMap,
               cteNames,
-              physicalTables
+              physicalTables,
+              columnAliases
             );
           }
         }
@@ -1478,7 +1546,8 @@ function extractColumnFromExpression(
         aliasToTableMap,
         tableColumnMap,
         cteNames,
-        physicalTables
+        physicalTables,
+        columnAliases
       );
     }
     if (expression.args && Array.isArray(expression.args)) {
@@ -1490,7 +1559,8 @@ function extractColumnFromExpression(
             aliasToTableMap,
             tableColumnMap,
             cteNames,
-            physicalTables
+            physicalTables,
+            columnAliases
           );
         }
         // Also handle older format
@@ -1500,7 +1570,8 @@ function extractColumnFromExpression(
             aliasToTableMap,
             tableColumnMap,
             cteNames,
-            physicalTables
+            physicalTables,
+            columnAliases
           );
         }
         // Handle THEN results (may contain columns)
@@ -1510,7 +1581,8 @@ function extractColumnFromExpression(
             aliasToTableMap,
             tableColumnMap,
             cteNames,
-            physicalTables
+            physicalTables,
+            columnAliases
           );
         }
         if (arg.then) {
@@ -1519,7 +1591,8 @@ function extractColumnFromExpression(
             aliasToTableMap,
             tableColumnMap,
             cteNames,
-            physicalTables
+            physicalTables,
+            columnAliases
           );
         }
       }
@@ -1530,7 +1603,8 @@ function extractColumnFromExpression(
         aliasToTableMap,
         tableColumnMap,
         cteNames,
-        physicalTables
+        physicalTables,
+        columnAliases
       );
     }
   }

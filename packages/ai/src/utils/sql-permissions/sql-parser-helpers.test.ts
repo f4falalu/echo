@@ -1017,6 +1017,104 @@ models:
       expect(columns.get('customers')).toEqual(new Set(['id', 'country']));
     });
 
+    it('should exclude column aliases from permission checks', () => {
+      const sql = `
+        SELECT 
+          COUNT(*) AS total_count,
+          SUM(amount) AS total_amount,
+          AVG(price) AS avg_price
+        FROM sales
+      `;
+      const columns = extractColumnReferences(sql);
+
+      expect(columns.has('sales')).toBe(true);
+      // Should only have columns from aggregate functions, not the aliases
+      expect(columns.get('sales')).toEqual(new Set(['amount', 'price']));
+      // Should NOT include 'total_count', 'total_amount', or 'avg_price' as they are aliases
+    });
+
+    it('should exclude aliases when referenced in ORDER BY', () => {
+      const sql = `
+        SELECT 
+          DATE_TRUNC('month', orderdate) AS order_month,
+          SUM(subtotal) AS monthly_revenue
+        FROM sales_order_header
+        WHERE orderdate >= '2024-01-01'
+        GROUP BY DATE_TRUNC('month', orderdate)
+        ORDER BY order_month DESC
+      `;
+      const columns = extractColumnReferences(sql);
+
+      expect(columns.has('sales_order_header')).toBe(true);
+      // Should only extract actual columns, not aliases
+      expect(columns.get('sales_order_header')).toEqual(new Set(['orderdate', 'subtotal']));
+      // Should NOT include 'order_month' or 'monthly_revenue' as they are aliases
+    });
+
+    it('should exclude aliases in complex queries with JOINs', () => {
+      const sql = `
+        SELECT 
+          p.name AS product_name,
+          SUM(sod.linetotal) AS product_revenue
+        FROM sales_order_detail sod
+        JOIN product p ON sod.productid = p.productid
+        WHERE sod.orderdate >= '2024-01-01'
+        GROUP BY p.productid, p.name
+        ORDER BY product_revenue DESC
+      `;
+      const columns = extractColumnReferences(sql);
+
+      expect(columns.has('sales_order_detail')).toBe(true);
+      expect(columns.has('product')).toBe(true);
+
+      // Should only extract physical columns
+      expect(columns.get('sales_order_detail')).toEqual(
+        new Set(['linetotal', 'productid', 'orderdate'])
+      );
+      expect(columns.get('product')).toEqual(new Set(['name', 'productid']));
+      // Should NOT include 'product_name' or 'product_revenue' as they are aliases
+    });
+
+    it('should handle aliases referenced in GROUP BY and HAVING', () => {
+      const sql = `
+        SELECT 
+          customer_id,
+          COUNT(*) AS order_count,
+          SUM(total) AS total_spent
+        FROM orders
+        GROUP BY customer_id
+        HAVING COUNT(*) > 5
+        ORDER BY total_spent DESC
+      `;
+      const columns = extractColumnReferences(sql);
+
+      expect(columns.has('orders')).toBe(true);
+      // Should only extract physical columns
+      expect(columns.get('orders')).toEqual(new Set(['customer_id', 'total']));
+      // Should NOT include 'order_count' or 'total_spent' as they are aliases
+    });
+
+    it('should handle aliases with table prefixes correctly', () => {
+      const sql = `
+        SELECT 
+          u.id AS user_id,
+          u.name AS user_name,
+          COUNT(o.id) AS order_count
+        FROM users u
+        LEFT JOIN orders o ON u.id = o.user_id
+        GROUP BY u.id, u.name
+        ORDER BY order_count DESC
+      `;
+      const columns = extractColumnReferences(sql);
+
+      expect(columns.has('users')).toBe(true);
+      expect(columns.has('orders')).toBe(true);
+
+      expect(columns.get('users')).toEqual(new Set(['id', 'name']));
+      expect(columns.get('orders')).toEqual(new Set(['id', 'user_id']));
+      // Should NOT include 'user_id', 'user_name', or 'order_count' as they are aliases
+    });
+
     it('should handle recursive CTEs', () => {
       const sql = `
         WITH RECURSIVE category_tree AS (
