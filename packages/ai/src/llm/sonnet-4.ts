@@ -1,12 +1,12 @@
 import type { LanguageModelV2 } from '@ai-sdk/provider';
 import { createFallback } from './ai-fallback';
 import { anthropicModel } from './providers/anthropic';
-import { vertexModel } from './providers/vertex';
+import { openaiModel } from './providers/openai';
 
 // Lazy initialization to allow mocking in tests
 let _sonnet4Instance: ReturnType<typeof createFallback> | null = null;
 
-function initializeSonnet4() {
+function initializeSonnet4(): ReturnType<typeof createFallback> {
   if (_sonnet4Instance) {
     return _sonnet4Instance;
   }
@@ -26,42 +26,20 @@ function initializeSonnet4() {
     console.info('Sonnet4: No ANTHROPIC_API_KEY found, skipping Anthropic model');
   }
 
-  // Only include Vertex if all required credentials are available
-  if (
-    process.env.VERTEX_CLIENT_EMAIL &&
-    process.env.VERTEX_PRIVATE_KEY &&
-    process.env.VERTEX_PROJECT
-  ) {
-    try {
-      models.push(vertexModel('claude-sonnet-4@20250514'));
-      console.info('Sonnet4: Vertex AI model added to fallback chain (fallback)');
-    } catch (error) {
-      console.warn('Sonnet4: Failed to initialize Vertex AI model:', error);
-    }
-  } else {
-    const missing = [];
-    if (!process.env.VERTEX_CLIENT_EMAIL) missing.push('VERTEX_CLIENT_EMAIL');
-    if (!process.env.VERTEX_PRIVATE_KEY) missing.push('VERTEX_PRIVATE_KEY');
-    if (!process.env.VERTEX_PROJECT) missing.push('VERTEX_PROJECT');
-    console.info(
-      `Sonnet4: Missing Vertex credentials (${missing.join(', ')}), skipping Vertex model`
-    );
-  }
-
-  if (process.env.ANTHROPIC_API_KEY) {
-    try {
-      models.push(anthropicModel('claude-opus-4-1-20250805'));
-      console.info('Opus41: Anthropic model added to fallback chain');
-    } catch (error) {
-      console.warn('Opus41: Failed to initialize Anthropic model:', error);
-    }
-  }
-
   // Ensure we have at least one model
   if (models.length === 0) {
     throw new Error(
       'No AI models available. Please set either Vertex AI (VERTEX_CLIENT_EMAIL and VERTEX_PRIVATE_KEY) or Anthropic (ANTHROPIC_API_KEY) credentials.'
     );
+  }
+
+  if (process.env.OPENAI_API_KEY) {
+    try {
+      models.push(openaiModel('gpt-5'));
+      console.info('Sonnet4: OpenAI model added to fallback chain');
+    } catch (error) {
+      console.warn('Sonnet4: Failed to initialize OpenAI model:', error);
+    }
   }
 
   console.info(`Sonnet4: Initialized with ${models.length} model(s) in fallback chain`);
