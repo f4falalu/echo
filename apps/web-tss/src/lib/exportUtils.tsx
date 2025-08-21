@@ -59,7 +59,7 @@ type DomToImageModule = {
 export async function exportElementToImage(element: HTMLElement) {
   const imageData = await import('html2canvas-pro').then((m) => m.default);
   const canvas = await imageData(element, {
-    backgroundColor: '#ffffff'
+    backgroundColor: '#ffffff',
   });
   const dataUrl = canvas.toDataURL();
   return dataUrl;
@@ -124,7 +124,7 @@ export const capturePageScreenshot = async (
       'background',
       'color',
       'font-family',
-      'font-size'
+      'font-size',
     ];
 
     for (const property of stylesToCopy) {

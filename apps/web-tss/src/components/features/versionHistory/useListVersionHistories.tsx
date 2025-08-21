@@ -6,13 +6,13 @@ import { useMemo, useState } from 'react';
 import {
   useGetDashboard,
   usePrefetchGetDashboardClient,
-  useSaveDashboard
+  useSaveDashboard,
 } from '@/api/buster_rest/dashboards';
 import {
   useGetMetric,
   usePrefetchGetMetricClient,
   usePrefetchGetMetricDataClient,
-  useSaveMetric
+  useSaveMetric,
 } from '@/api/buster_rest/metrics';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 import { useMemoizedFn } from '@/hooks';
@@ -23,7 +23,7 @@ import { BusterRoutes, createBusterRoute } from '@/routes';
 
 export const useListVersionHistories = ({
   assetId,
-  type
+  type,
 }: {
   assetId: string;
   type: 'metric' | 'dashboard';
@@ -38,10 +38,10 @@ export const useListVersionHistories = ({
     currentVersionNumber: dashboardCurrentVersionNumber,
     onRestoreVersion: onRestoreDashboardVersion,
     isSaving: isSavingDashboard,
-    onPrefetchAsset: onPrefetchDashboardAsset
+    onPrefetchAsset: onPrefetchDashboardAsset,
   } = useListDashboardVersions({
     assetId,
-    type
+    type,
   });
   const {
     versions: metricVersions,
@@ -49,10 +49,10 @@ export const useListVersionHistories = ({
     currentVersionNumber: metricCurrentVersionNumber,
     onRestoreVersion: onRestoreMetricVersion,
     isSaving: isSavingMetric,
-    onPrefetchAsset: onPrefetchMetricAsset
+    onPrefetchAsset: onPrefetchMetricAsset,
   } = useListMetricVersions({
     assetId,
-    type
+    type,
   });
 
   const listItems = useMemo(() => {
@@ -78,7 +78,7 @@ export const useListVersionHistories = ({
           await onChangePage(
             createBusterRoute({
               route: BusterRoutes.APP_METRIC_ID_CHART,
-              metricId: assetId
+              metricId: assetId,
             })
           );
         }
@@ -89,7 +89,7 @@ export const useListVersionHistories = ({
           await onChangePage(
             createBusterRoute({
               route: BusterRoutes.APP_DASHBOARD_ID,
-              dashboardId: assetId
+              dashboardId: assetId,
             })
           );
         }
@@ -121,7 +121,7 @@ export const useListVersionHistories = ({
     onClickRestoreVersion,
     isRestoringVersion,
     restoringVersion,
-    onPrefetchAsset
+    onPrefetchAsset,
   };
 };
 
@@ -141,7 +141,7 @@ type UseListVersionReturn = {
 
 const useListDashboardVersions = ({
   assetId,
-  type
+  type,
 }: {
   assetId: string;
   type: 'metric' | 'dashboard';
@@ -149,19 +149,19 @@ const useListDashboardVersions = ({
   const prefetchGetDashboard = usePrefetchGetDashboardClient();
   const dashboardVersionNumber = useChatLayoutContextSelector((x) => x.dashboardVersionNumber);
   const { mutateAsync: updateDashboard, isPending: isSaving } = useSaveDashboard({
-    updateOnSave: true
+    updateOnSave: true,
   });
   const { data: dashboardData } = useGetDashboard(
     {
       id: type === 'dashboard' ? assetId : undefined,
-      versionNumber: null
+      versionNumber: null,
     },
     {
       enabled: !!assetId && type === 'dashboard', //we used version null so that we can get the latest version and all versions
       select: (x) => ({
         versions: x.versions,
-        version_number: x.dashboard.version_number
-      })
+        version_number: x.dashboard.version_number,
+      }),
     }
   );
 
@@ -176,7 +176,7 @@ const useListDashboardVersions = ({
   const onRestoreVersion = useMemoizedFn(async (versionNumber: number) => {
     await updateDashboard({
       id: assetId,
-      restore_to_version: versionNumber
+      restore_to_version: versionNumber,
     });
   });
 
@@ -191,7 +191,7 @@ const useListDashboardVersions = ({
       onRestoreVersion,
       currentVersionNumber,
       isSaving,
-      onPrefetchAsset
+      onPrefetchAsset,
     };
   }, [
     versions,
@@ -199,19 +199,19 @@ const useListDashboardVersions = ({
     onRestoreVersion,
     selectedQueryVersion,
     isSaving,
-    onPrefetchAsset
+    onPrefetchAsset,
   ]);
 };
 
 const useListMetricVersions = ({
   assetId,
-  type
+  type,
 }: {
   assetId: string;
   type: 'metric' | 'dashboard';
 }): UseListVersionReturn => {
   const { mutateAsync: updateMetric, isPending: isSaving } = useSaveMetric({
-    updateOnSave: true
+    updateOnSave: true,
   });
   const prefetchGetMetric = usePrefetchGetMetricClient();
   const prefetchGetMetricData = usePrefetchGetMetricDataClient();
@@ -220,14 +220,14 @@ const useListMetricVersions = ({
   const { data: metric } = useGetMetric(
     {
       id: type === 'metric' ? assetId : undefined,
-      versionNumber: null
+      versionNumber: null,
     },
     {
       enabled: !!assetId && type === 'metric', //we do not want to have undefined versions when
       select: (x) => ({
         versions: x.versions,
-        version_number: x.version_number
-      })
+        version_number: x.version_number,
+      }),
     }
   );
   const versions = metric?.versions;
@@ -241,14 +241,14 @@ const useListMetricVersions = ({
   const onRestoreVersion = useMemoizedFn(async (versionNumber: number) => {
     await updateMetric({
       id: assetId,
-      restore_to_version: versionNumber
+      restore_to_version: versionNumber,
     });
   });
 
   const onPrefetchAsset = useMemoizedFn(async (versionNumber: number) => {
     await Promise.all([
       prefetchGetMetric({ id: assetId, versionNumber }),
-      prefetchGetMetricData({ id: assetId, versionNumber })
+      prefetchGetMetricData({ id: assetId, versionNumber }),
     ]);
   });
 
@@ -259,7 +259,7 @@ const useListMetricVersions = ({
       onRestoreVersion,
       currentVersionNumber,
       isSaving,
-      onPrefetchAsset
+      onPrefetchAsset,
     };
   }, [
     versions,
@@ -267,6 +267,6 @@ const useListMetricVersions = ({
     onRestoreVersion,
     selectedQueryVersion,
     isSaving,
-    onPrefetchAsset
+    onPrefetchAsset,
   ]);
 };

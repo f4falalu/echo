@@ -1,10 +1,8 @@
 import { hasAssetPermission } from '@buster/access-controls';
 import { type ReportElementsWithIds, getReportMetadata, type reportFiles } from '@buster/database';
-import type { ReportIndividualResponse } from '@buster/server-shared/reports';
+import type { GetReportResponse } from '@buster/server-shared/reports';
 import { markdownToPlatejs } from '@buster/server-utils/report';
-import type { ChangeMessage } from '@electric-sql/client';
 import type { Context } from 'hono';
-import type { ZodError } from 'zod';
 import { errorResponse } from '../../../utils/response';
 import { createProxiedResponse, extractParamFromWhere } from './_helpers';
 import {
@@ -13,7 +11,7 @@ import {
 } from './_helpers/transform-request';
 
 type StreamableReportProperties = Pick<typeof reportFiles.$inferSelect, 'name' | 'id' | 'content'>;
-type ReportFile = Partial<ReportIndividualResponse>;
+type ReportFile = Partial<GetReportResponse>;
 type ReportMetadata = Awaited<ReturnType<typeof getReportMetadata>>;
 
 export const reportFilesProxyRouter = async (

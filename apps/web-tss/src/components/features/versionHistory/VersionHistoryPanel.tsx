@@ -24,10 +24,10 @@ export const VersionHistoryPanel = React.memo(
       restoringVersion,
       currentVersionNumber,
       selectedQueryVersion,
-      onClickRestoreVersion
+      onClickRestoreVersion,
     } = useListVersionHistories({
       assetId,
-      type
+      type,
     });
     const { getFileLink } = useGetFileLink();
 
@@ -46,14 +46,10 @@ export const VersionHistoryPanel = React.memo(
     return (
       <AppPageLayout
         className="min-w-[245px]"
-        header={useMemo(
-          () => (
-            <PanelHeader />
-          ),
-          []
-        )}
+        header={useMemo(() => <PanelHeader />, [])}
         scrollable
-        headerBorderVariant="ghost">
+        headerBorderVariant="ghost"
+      >
         <div ref={bodyRef} className="mx-2 mb-1.5 flex flex-col">
           {listItems?.map((item) => (
             <ListItem
@@ -70,7 +66,7 @@ export const VersionHistoryPanel = React.memo(
                   fileType: type,
                   chatId,
                   versionNumber: item.version_number,
-                  useVersionHistoryMode: true
+                  useVersionHistoryMode: true,
                 }) || ''
               }
             />
@@ -90,7 +86,7 @@ const ListItem = React.memo(
     link,
     restoringVersion,
     onClickRestoreVersion,
-    onPrefetchAsset
+    onPrefetchAsset,
   }: {
     version_number: number;
     updated_at: string;
@@ -124,7 +120,8 @@ const ListItem = React.memo(
           className={cn(
             'group hover:bg-item-hover flex cursor-pointer items-center justify-between space-x-2 rounded px-2.5 py-1.5',
             selected && 'bg-item-select hover:bg-item-select selected-version'
-          )}>
+          )}
+        >
           <div className="flex flex-col justify-center space-y-0.5">
             <Text>{`Version ${version_number}`}</Text>
             <Text size={'xs'} variant={'secondary'}>
@@ -147,7 +144,8 @@ const ListItem = React.memo(
                   className={cn(
                     'hover:bg-gray-light/20 hover:text-foreground -mr-1 cursor-pointer rounded p-1 opacity-0 group-hover:block group-hover:opacity-100',
                     isRestoringVersion && 'cursor-not-allowed opacity-100!'
-                  )}>
+                  )}
+                >
                   {isRestoringVersion ? <CircleSpinnerLoader size={12} /> : <History />}
                 </button>
               </AppTooltip>
