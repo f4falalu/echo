@@ -52,9 +52,23 @@ export const ReportPageController: React.FC<{
     useTrackAndUpdateReportChanges({ reportId, subscribe: isStreamingMessage });
 
     return (
-      <div className={cn('h-full space-y-1.5 overflow-y-auto pt-9', className)}>
+      <div
+        id="report-page-controller"
+        className={cn('relative h-full space-y-1.5 overflow-hidden', className)}>
         {report ? (
-          <>
+          <DynamicReportEditor
+            value={content}
+            placeholder="Start typing..."
+            disabled={false}
+            className={commonClassName}
+            containerClassName="pt-9"
+            variant="default"
+            useFixedToolbarKit={false}
+            onValueChange={onChangeContent}
+            readOnly={readOnly || !report}
+            mode={mode}
+            onReady={onReadyProp}
+            isStreaming={isStreamingMessage}>
             <ReportPageHeader
               name={report?.name}
               updatedAt={report?.updated_at}
@@ -62,21 +76,7 @@ export const ReportPageController: React.FC<{
               className={commonClassName}
               isStreaming={isStreamingMessage}
             />
-
-            <DynamicReportEditor
-              value={content}
-              placeholder="Start typing..."
-              disabled={false}
-              className={commonClassName}
-              variant="default"
-              useFixedToolbarKit={false}
-              onValueChange={onChangeContent}
-              readOnly={readOnly || !report}
-              mode={mode}
-              onReady={onReadyProp}
-              isStreaming={isStreamingMessage}
-            />
-          </>
+          </DynamicReportEditor>
         ) : (
           <ReportEditorSkeleton />
         )}
