@@ -10,7 +10,7 @@ import {
   COLLAPSED_HIDDEN_FLEX_GROUP,
   COLLAPSED_JUSTIFY_CENTER,
 } from './config';
-import type { ISidebarItem, ISidebarItemWithRoute } from './interfaces';
+import type { ISidebarItem } from './interfaces';
 
 const itemVariants = cva(
   cn(
@@ -48,7 +48,7 @@ export const SidebarItem: React.FC<
 > = ({
   label,
   icon,
-  route,
+  link,
   id,
   disabled = false,
   active = false,
@@ -59,8 +59,6 @@ export const SidebarItem: React.FC<
   collapsedTooltip,
   ...rest
 }) => {
-  const ItemNode = disabled || !route ? 'div' : Link;
-
   const wrapperProps = {
     className: cn(itemVariants({ disabled, variant }), className),
     onClick,
@@ -101,6 +99,15 @@ export const SidebarItem: React.FC<
     </>
   );
 
+  const wrapperSwitch =
+    disabled || !link ? (
+      <div {...wrapperProps}>{content}</div>
+    ) : (
+      <Link {...wrapperProps} {...link}>
+        {content}
+      </Link>
+    );
+
   return (
     <AppTooltip
       title={<span className="block max-w-[260px] truncate">{collapsedTooltip || label}</span>}
@@ -108,17 +115,9 @@ export const SidebarItem: React.FC<
       sideOffset={8}
       delayDuration={1000}
     >
-      <ItemNode {...wrapperProps} {...route}>
-        {content}
-      </ItemNode>
+      {wrapperSwitch}
     </AppTooltip>
   );
 };
 
 SidebarItem.displayName = 'SidebarItem';
-
-// Type-safe wrapper that only accepts route-related props from ISidebarItemWithRoute
-const LinkWrapper: React.FC<
-  Pick<ISidebarItemWithRoute, 'route' | 'preload' | 'preloadDelay'> &
-    React.ComponentProps<typeof Link>
-> = Link;

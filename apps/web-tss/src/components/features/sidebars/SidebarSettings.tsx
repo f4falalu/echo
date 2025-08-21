@@ -2,12 +2,13 @@ import React, { useMemo } from 'react';
 import { useIsUserAdmin, useIsUserRegistered } from '@/api/buster_rest/users/useGetUserInfo';
 import { BackButton } from '@/components/ui/buttons/BackButton';
 import CircleUser from '@/components/ui/icons/NucleoIconOutlined/circle-user';
+import { createSidebarGroup } from '@/components/ui/sidebar/create-sidebar-item';
 import ApartmentBuilding from '../../ui/icons/NucleoIconOutlined/apartment-building';
 import LockCircle from '../../ui/icons/NucleoIconOutlined/lock-circle';
 import { type ISidebarGroup, type ISidebarItem, Sidebar } from '../../ui/sidebar';
 import { SidebarUserFooter } from './SidebarUserFooter';
 
-const accountItems: ISidebarGroup = {
+const accountItems: ISidebarGroup = createSidebarGroup({
   label: 'Account',
   variant: 'icon',
   id: 'account',
@@ -15,15 +16,15 @@ const accountItems: ISidebarGroup = {
   items: [
     {
       label: 'Profile',
-      route: {
+      link: {
         to: '/app/settings/profile',
       },
       id: '/settings/profile',
     },
   ],
-};
+});
 
-const workspaceItems: ISidebarGroup = {
+const workspaceItems: ISidebarGroup = createSidebarGroup({
   label: 'Administration',
   variant: 'icon',
   id: 'administration',
@@ -31,36 +32,39 @@ const workspaceItems: ISidebarGroup = {
   items: [
     {
       label: 'Workspace',
-      route: {
+      link: {
         to: '/app/settings/workspace',
+        preload: false,
       },
       id: '/app/settings/workspace',
     },
     {
       label: 'API Keys',
-      route: {
+      link: {
         to: '/app/settings/api-keys',
+        preload: false,
       },
       id: '/app/settings/api-keys',
     },
     {
       label: 'Data Sources',
-      route: {
+      link: {
         to: '/app/settings/datasources',
+        preload: false,
       },
       id: '/app/settings/datasources',
     },
     {
       label: 'Integrations',
-      route: {
+      link: {
         to: '/app/settings/integrations',
       },
       id: '/app/settings/integrations',
     },
-  ] satisfies ISidebarItem[],
-};
+  ],
+});
 
-const permissionAndSecurityItems: ISidebarGroup = {
+const permissionAndSecurityItems: ISidebarGroup = createSidebarGroup({
   label: 'Permission & Security',
   variant: 'icon',
   id: 'permission-and-security',
@@ -68,26 +72,26 @@ const permissionAndSecurityItems: ISidebarGroup = {
   items: [
     {
       label: 'Security',
-      route: { to: '/app/settings/security' },
+      link: { to: '/app/settings/security', preload: false },
       id: '/app/settings/security',
     },
     {
       label: 'Users',
-      route: { to: '/app/settings/users' },
+      link: { to: '/app/settings/users', preload: false },
       id: '/app/settings/users',
     },
     {
       label: 'Dataset groups',
-      route: { to: '/app/settings/dataset-groups' },
+      link: { to: '/app/settings/dataset-groups', preload: false },
       id: '/app/settings/dataset-groups',
     },
     {
       label: 'Permission groups',
-      route: { to: '/app/settings/permission-groups' },
+      link: { to: '/app/settings/permission-groups', preload: false },
       id: '/app/settings/permission-groups',
     },
-  ] satisfies ISidebarItem[],
-};
+  ],
+});
 
 export const SidebarSettings = () => {
   const isAdmin = useIsUserAdmin();

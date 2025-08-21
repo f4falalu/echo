@@ -6,7 +6,8 @@ import { useShareMetric } from '@/api/buster_rest/metrics';
 import { Button } from '@/components/ui/buttons';
 import { InputSearchDropdown } from '@/components/ui/inputs/InputSearchDropdown';
 import { useBusterNotifications } from '@/context/BusterNotifications';
-import { useDebounce, useMemoizedFn } from '@/hooks';
+import { useDebounce } from '@/hooks/useDebounce';
+import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import { isValidEmail } from '@/lib/email';
 import { inputHasText } from '@/lib/text';
 import { useGetUserToOrganization } from '../../../api/buster_rest/users';
@@ -66,7 +67,7 @@ export const ShareMenuInvite: React.FC<ShareMenuInviteProps> = React.memo(
       if (level) setDefaultPermissionLevel(level);
     });
 
-    const onSubmitNewEmail = useMemoizedFn(async () => {
+    const onSubmitNewEmail = async () => {
       const emailIsValid = isValidEmail(inputValue);
       if (!emailIsValid) {
         openErrorMessage('Invalid email address');
@@ -105,9 +106,9 @@ export const ShareMenuInvite: React.FC<ShareMenuInviteProps> = React.memo(
       }
 
       setInputValue('');
-    });
+    };
 
-    const onPressEnter = useMemoizedFn((value: string) => {
+    const onPressEnter = useMemoizedFn(() => {
       onSubmitNewEmail();
     });
 

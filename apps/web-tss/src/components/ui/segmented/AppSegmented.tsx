@@ -6,7 +6,6 @@ import {
   type LinkProps,
   type RegisteredRouter,
   type ValidateFromPath,
-  type ValidateLinkOptions,
 } from '@tanstack/react-router';
 import { cva } from 'class-variance-authority';
 import { motion } from 'framer-motion';
@@ -14,6 +13,7 @@ import * as React from 'react';
 import { useEffect, useLayoutEffect, useState, useTransition } from 'react';
 import { useSize } from '@/hooks/useSize';
 import { cn } from '@/lib/classMerge';
+import type { ILinkProps } from '@/types/routes';
 import { Tooltip } from '../tooltip/Tooltip';
 
 export interface SegmentedItem<
@@ -27,7 +27,7 @@ export interface SegmentedItem<
   icon?: React.ReactNode;
   disabled?: boolean;
   tooltip?: string;
-  link?: ValidateLinkOptions<TRouter, TOptions, TFrom>;
+  link?: ILinkProps<TRouter, TOptions, TFrom>;
 }
 
 export interface AppSegmentedProps<

@@ -1,13 +1,8 @@
 import * as DropdownMenuPrimitive from '@radix-ui/react-dropdown-menu';
-import {
-  Link,
-  type LinkProps,
-  type RegisteredRouter,
-  type ValidateLinkOptions,
-} from '@tanstack/react-router';
+import { Link, type LinkProps, type RegisteredRouter } from '@tanstack/react-router';
 import * as React from 'react';
 import { cn } from '@/lib/classMerge';
-import type { OptionsTo } from '@/types/routes';
+import type { ILinkProps } from '@/types/routes';
 import { Button } from '../buttons/Button';
 import { Checkbox } from '../checkbox/Checkbox';
 import { CaretRight } from '../icons/NucleoIconFilled';
@@ -24,7 +19,7 @@ const DropdownMenuPortal = DropdownMenuPrimitive.Portal;
 const DropdownMenuSub = DropdownMenuPrimitive.Sub;
 
 const DropdownMenuSubTrigger = React.forwardRef<
-  React.ElementRef<typeof DropdownMenuPrimitive.SubTrigger>,
+  React.ComponentRef<typeof DropdownMenuPrimitive.SubTrigger>,
   React.ComponentPropsWithoutRef<typeof DropdownMenuPrimitive.SubTrigger> & {
     inset?: boolean;
   }
@@ -54,7 +49,7 @@ const baseContentClass = cn(
 );
 
 const DropdownMenuSubContent = React.forwardRef<
-  React.ElementRef<typeof DropdownMenuPrimitive.SubContent>,
+  React.ComponentRef<typeof DropdownMenuPrimitive.SubContent>,
   React.ComponentPropsWithoutRef<typeof DropdownMenuPrimitive.SubContent>
 >(({ className, ...props }, ref) => (
   <DropdownMenuPrimitive.SubContent
@@ -66,7 +61,7 @@ const DropdownMenuSubContent = React.forwardRef<
 DropdownMenuSubContent.displayName = DropdownMenuPrimitive.SubContent.displayName;
 
 const DropdownMenuContent = React.forwardRef<
-  React.ElementRef<typeof DropdownMenuPrimitive.Content>,
+  React.ComponentRef<typeof DropdownMenuPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof DropdownMenuPrimitive.Content>
 >(({ className, children, sideOffset = 4, ...props }, ref) => {
   return (
@@ -85,7 +80,7 @@ const DropdownMenuContent = React.forwardRef<
 DropdownMenuContent.displayName = DropdownMenuPrimitive.Content.displayName;
 
 const DropdownMenuItem = React.forwardRef<
-  React.ElementRef<typeof DropdownMenuPrimitive.Item>,
+  React.ComponentRef<typeof DropdownMenuPrimitive.Item>,
   React.ComponentPropsWithoutRef<typeof DropdownMenuPrimitive.Item> & {
     inset?: boolean;
     closeOnSelect?: boolean;
@@ -125,7 +120,7 @@ const itemClass = cn(
 );
 
 const DropdownMenuCheckboxItemSingle = React.forwardRef<
-  React.ElementRef<typeof DropdownMenuPrimitive.CheckboxItem>,
+  React.ComponentRef<typeof DropdownMenuPrimitive.CheckboxItem>,
   React.ComponentPropsWithoutRef<typeof DropdownMenuPrimitive.CheckboxItem> & {
     closeOnSelect?: boolean;
     selectType?: boolean;
@@ -166,7 +161,7 @@ const DropdownMenuCheckboxItemSingle = React.forwardRef<
 DropdownMenuCheckboxItemSingle.displayName = DropdownMenuPrimitive.CheckboxItem.displayName;
 
 const DropdownMenuCheckboxItemMultiple = React.forwardRef<
-  React.ElementRef<typeof DropdownMenuPrimitive.CheckboxItem>,
+  React.ComponentRef<typeof DropdownMenuPrimitive.CheckboxItem>,
   React.ComponentPropsWithoutRef<typeof DropdownMenuPrimitive.CheckboxItem> & {
     closeOnSelect?: boolean;
     selectType?: boolean;
@@ -217,7 +212,7 @@ const DropdownMenuCheckboxItemMultiple = React.forwardRef<
 DropdownMenuCheckboxItemMultiple.displayName = 'DropdownMenuCheckboxItemMultiple';
 
 const DropdownMenuLabel = React.forwardRef<
-  React.ElementRef<typeof DropdownMenuPrimitive.Label>,
+  React.ComponentRef<typeof DropdownMenuPrimitive.Label>,
   React.ComponentPropsWithoutRef<typeof DropdownMenuPrimitive.Label> & {
     inset?: boolean;
   }
@@ -231,7 +226,7 @@ const DropdownMenuLabel = React.forwardRef<
 DropdownMenuLabel.displayName = DropdownMenuPrimitive.Label.displayName;
 
 const DropdownMenuSeparator = React.forwardRef<
-  React.ElementRef<typeof DropdownMenuPrimitive.Separator>,
+  React.ComponentRef<typeof DropdownMenuPrimitive.Separator>,
   React.ComponentPropsWithoutRef<typeof DropdownMenuPrimitive.Separator>
 >(({ className, ...props }, ref) => (
   <DropdownMenuPrimitive.Separator
@@ -264,7 +259,7 @@ const DropdownMenuLink = <
   linkIcon = 'arrow-right',
 }: {
   className?: string;
-  link: ValidateLinkOptions<TRouter, TOptions, TFrom> | string | null;
+  link: ILinkProps<TRouter, TOptions, TFrom> | string | null;
   linkIcon?: 'arrow-right' | 'arrow-external' | 'caret-right';
   linkTarget?: '_blank' | '_self';
 }) => {

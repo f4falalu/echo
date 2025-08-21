@@ -1,6 +1,6 @@
-import type { LinkProps, RegisteredRouter } from '@tanstack/react-router';
+import type { RegisteredRouter, ValidateLinkOptions } from '@tanstack/react-router';
 import type React from 'react';
-import type { LinkOptionsTo, OptionsTo } from '@/types/routes';
+import type { ILinkOptions } from '@/types/routes';
 
 // Base properties shared by all sidebar items
 type ISidebarItemBase = {
@@ -18,29 +18,26 @@ type ISidebarItemBase = {
 export type ISidebarItem<
   TRouter extends RegisteredRouter = RegisteredRouter,
   TOptions = unknown,
+  TFrom extends string = string,
 > = ISidebarItemBase &
   (
     | {
-        route: LinkOptionsTo;
+        link: ValidateLinkOptions<TRouter, TOptions, TFrom> & ILinkOptions;
       }
     | {
-        route?: never;
+        link?: never;
       }
   );
 
-// Extract only the route variant of ISidebarItem (useful for components that require a route)
-export type ISidebarItemWithRoute = ISidebarItemBase & {
-  route: OptionsTo;
-  preload?: LinkProps['preload'];
-  preloadDelay?: LinkProps['preloadDelay'];
-  activeOptions?: LinkProps['activeOptions'];
-};
-
-export interface ISidebarGroup {
+export interface ISidebarGroup<
+  TRouter extends RegisteredRouter = RegisteredRouter,
+  TOptions = unknown,
+  TFrom extends string = string,
+> {
   label: string;
   icon?: React.ReactNode;
   id: string;
-  items: ISidebarItem[];
+  items: ISidebarItem<TRouter, TOptions, TFrom>[];
   variant?: 'collapsible' | 'icon'; //default is collapsible
   defaultOpen?: boolean; //will default to true
   isSortable?: boolean;
@@ -49,16 +46,22 @@ export interface ISidebarGroup {
   className?: string;
 }
 
-export interface ISidebarList {
-  items: ISidebarItem[];
+export interface ISidebarList<
+  TRouter extends RegisteredRouter = RegisteredRouter,
+  TOptions = unknown,
+  TFrom extends string = string,
+> {
+  items: ISidebarItem<TRouter, TOptions, TFrom>[];
   id: string;
 }
 
-type SidebarContent = ISidebarGroup | ISidebarList;
-
-export interface SidebarProps {
+export interface SidebarProps<
+  TRouter extends RegisteredRouter = RegisteredRouter,
+  TOptions = unknown,
+  TFrom extends string = string,
+> {
   header: React.ReactNode;
-  content: SidebarContent[];
+  content: ISidebarGroup<TRouter, TOptions, TFrom>[] | ISidebarList<TRouter, TOptions, TFrom>[];
   footer?: React.ReactNode;
   isSortable?: boolean;
   useCollapsible?: boolean;

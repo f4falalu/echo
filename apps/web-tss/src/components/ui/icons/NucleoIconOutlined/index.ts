@@ -4,6 +4,7 @@ export { default as ArrowRightFromLine } from './arrow-right-from-line'; // Arro
 export { default as ArrowUp } from './arrow-up';
 export { default as ArrowUpRight } from './arrow-up-right';
 export { default as Book2 } from './book-2'; // Book variant 2 icon
+export { default as Calendar } from './calendar';
 export { default as Check } from './check';
 export { default as Check3 } from './check-3';
 export { default as ChevronDown } from './chevron-down';

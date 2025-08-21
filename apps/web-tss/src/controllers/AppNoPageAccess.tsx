@@ -1,13 +1,12 @@
 'use client';
 
 import type { AssetType } from '@buster/server-shared/assets';
-import { Link } from '@tanstack/react-router';
+import { Link, type LinkProps } from '@tanstack/react-router';
 import React, { useMemo } from 'react';
 import { BusterLogo } from '@/assets/svg/BusterLogo';
 import { Button } from '@/components/ui/buttons';
 import { Title } from '@/components/ui/typography';
 import { useSupabaseContext } from '@/context/Supabase';
-import type { OptionsTo } from '@/types/routes';
 
 export const AppNoPageAccess: React.FC<{
   assetId: string;
@@ -15,10 +14,7 @@ export const AppNoPageAccess: React.FC<{
 }> = React.memo(({ type }) => {
   const isAnonymousUser = useSupabaseContext((x) => x.isAnonymousUser);
 
-  const { buttonText, link } = useMemo((): {
-    buttonText: string;
-    link: OptionsTo;
-  } => {
+  const { buttonText, link } = useMemo(() => {
     console.warn('fix pathname');
     const isEmbedPage =
       typeof window !== 'undefined' && window.location.pathname.startsWith('/embed');
@@ -36,7 +32,7 @@ export const AppNoPageAccess: React.FC<{
           search: {
             next: currentUrl,
           },
-        },
+        } as const satisfies LinkProps,
       };
     }
 
@@ -44,7 +40,7 @@ export const AppNoPageAccess: React.FC<{
       buttonText: 'Go home',
       link: {
         to: '/app/home',
-      },
+      } as const satisfies LinkProps,
     };
   }, [isAnonymousUser]);
 

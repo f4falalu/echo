@@ -4,7 +4,12 @@ import { useMemo, useState } from 'react';
 import type { BusterCollectionListItem } from '@/api/asset_interfaces/collection';
 import { useGetCollectionsList } from '@/api/buster_rest/collections';
 import { Button } from '@/components/ui/buttons';
-import { Dropdown, type DropdownItem, type DropdownProps } from '@/components/ui/dropdown';
+import {
+  createDropdownItem,
+  Dropdown,
+  type DropdownProps,
+  type IDropdownItem,
+} from '@/components/ui/dropdown';
 import { Plus } from '@/components/ui/icons';
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import { NewCollectionModal } from '../modals/NewCollectionModal';
@@ -63,8 +68,8 @@ export const useSaveToCollectionsDropdownContent = ({
   const { data: collectionsList, isPending: isCreatingCollection } = useGetCollectionsList({});
 
   const items: DropdownProps['items'] = useMemo(() => {
-    const collectionsItems = (collectionsList || []).map<DropdownItem>((collection) => {
-      return {
+    const collectionsItems = (collectionsList || []).map<IDropdownItem>((collection) => {
+      return createDropdownItem({
         value: collection.id,
         label: collection.name,
         selected: selectedCollections.some((id) => id === collection.id),
@@ -75,7 +80,7 @@ export const useSaveToCollectionsDropdownContent = ({
             collectionId: collection.id,
           },
         },
-      };
+      });
     });
     return collectionsItems;
   }, [collectionsList, selectedCollections]);

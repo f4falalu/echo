@@ -27,7 +27,8 @@
         "noUnusedImports": "off",
         "useExhaustiveDependencies": "off",
         "noChildrenProp": "off",
-        "useUniqueElementIds": "off"
+        "useUniqueElementIds": "off",
+        "useParseIntRadix": "off"
       },
       "style": {
         "noNonNullAssertion": "error",

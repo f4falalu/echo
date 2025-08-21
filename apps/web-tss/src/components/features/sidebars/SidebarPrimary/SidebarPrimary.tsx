@@ -25,6 +25,11 @@ import {
   type ISidebarList,
   type SidebarProps,
 } from '@/components/ui/sidebar';
+import {
+  createSidebarGroup,
+  createSidebarItem,
+  createSidebarList,
+} from '@/components/ui/sidebar/create-sidebar-item';
 import { Sidebar } from '@/components/ui/sidebar/Sidebar';
 import { Tooltip } from '@/components/ui/tooltip/Tooltip';
 import {
@@ -43,19 +48,19 @@ import { SupportModal } from '../../modals/SupportModal';
 import { SidebarUserFooter } from '../SidebarUserFooter';
 import { useFavoriteSidebarPanel } from './useFavoritesSidebarPanel';
 
-const topItems: ISidebarList = {
+const topItems: ISidebarList = createSidebarList({
   id: 'top-items',
   items: [
     {
       label: 'Home',
       icon: <House4 />,
-      route: { to: '/app/home', preload: 'viewport', preloadDelay: 1000 },
+      link: { to: '/app/home', preload: 'viewport', preloadDelay: 1000 },
       id: '/app/home',
     },
     {
       label: 'Chat history',
       icon: <ASSET_ICONS.chats />,
-      route: {
+      link: {
         to: '/app/chats',
         preload: 'viewport',
         preloadDelay: 2000,
@@ -66,77 +71,77 @@ const topItems: ISidebarList = {
       id: '/app/chats/',
     },
   ],
-};
+});
 
-const yourStuff: ISidebarGroup = {
+const yourStuff: ISidebarGroup = createSidebarGroup({
   label: 'Your stuff',
   id: 'your-stuff',
   items: [
     {
       label: 'Metrics',
       icon: <ASSET_ICONS.metrics />,
-      route: { to: '/app/metrics', preload: 'intent', preloadDelay: 1000 },
+      link: { to: '/app/metrics', preload: 'intent', preloadDelay: 500 },
       id: '/app/metrics',
     },
     {
       label: 'Dashboards',
       icon: <ASSET_ICONS.dashboards />,
-      route: { to: '/app/dashboards', preload: 'intent', preloadDelay: 1000 },
+      link: { to: '/app/dashboards', preload: 'intent', preloadDelay: 500 },
       id: '/app/dashboards/',
     },
     {
       label: 'Collections',
       icon: <ASSET_ICONS.collections />,
-      route: { to: '/app/collections', preload: 'intent', preloadDelay: 1000 },
+      link: { to: '/app/collections', preload: 'intent', preloadDelay: 500 },
       id: '/app/collections/',
     },
     {
       label: 'Reports',
       icon: <ASSET_ICONS.reports />,
-      route: { to: '/app/reports', preload: 'intent', preloadDelay: 1000 },
+      link: { to: '/app/reports', preload: 'intent', preloadDelay: 500 },
       id: '/app/reports/',
     },
-  ] satisfies (ISidebarItem & { show?: boolean })[],
-};
+  ],
+});
 
-const adminTools: ISidebarGroup = {
+const adminTools: ISidebarGroup = createSidebarGroup({
   label: 'Admin tools',
   id: 'admin-tools',
   items: [
     {
       label: 'Logs',
       icon: <UnorderedList2 />,
-      route: { to: '/app/logs', preload: 'viewport', preloadDelay: 1000 },
+      link: { to: '/app/logs', preload: 'viewport', preloadDelay: 1000 },
       id: '/app/logs/',
       collapsedTooltip: 'Logs',
     },
     {
       label: 'Datasets',
       icon: <Table />,
-      route: { to: '/app/datasets' },
+      link: { to: '/app/datasets' },
       id: '/app/datasets/',
       collapsedTooltip: 'Datasets',
     },
-  ] satisfies ISidebarItem[],
-};
+  ],
+});
 
 const tryGroup = (showInvitePeople: boolean): ISidebarGroup => ({
   label: 'Try',
   id: 'try',
   items: [
-    {
+    createSidebarItem({
       label: 'Invite people',
       icon: <Plus />,
       id: 'invite-people',
       onClick: () => toggleInviteModal(),
       show: showInvitePeople,
-    },
-    {
+    }),
+    createSidebarItem({
       label: 'Leave feedback',
       icon: <Flag />,
       id: 'leave-feedback',
       onClick: () => toggleContactSupportModal('feedback'),
-    },
+    }),
   ].reduce((acc, { show, ...item }) => {
     if (show !== false) acc.push(item);
     return acc;

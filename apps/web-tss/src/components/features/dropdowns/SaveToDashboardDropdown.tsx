@@ -3,11 +3,12 @@ import type React from 'react';
 import { useMemo, useState } from 'react';
 import type { BusterDashboardListItem } from '@/api/asset_interfaces';
 import { useGetDashboardsList } from '@/api/buster_rest/dashboards';
+import { NewDashboardModal } from '@/components/features/modals/NewDashboardModal';
 import { Button } from '@/components/ui/buttons';
+import { createDropdownItem } from '@/components/ui/dropdown';
 import { Dropdown, type DropdownProps } from '@/components/ui/dropdown/Dropdown';
 import { Plus } from '@/components/ui/icons';
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
-import { NewDashboardModal } from '../modals/NewDashboardModal';
 
 export const SaveToDashboardDropdown: React.FC<{
   children: React.ReactNode;
@@ -86,7 +87,7 @@ export const useSaveToDashboardDropdownContent = ({
   const items: DropdownProps['items'] = useMemo(
     () =>
       (dashboardsList || [])?.map((dashboard) => {
-        return {
+        return createDropdownItem({
           value: dashboard.id,
           label: dashboard.name || 'New dashboard',
           selected: selectedDashboards.some((d) => d === dashboard.id),
@@ -102,7 +103,7 @@ export const useSaveToDashboardDropdownContent = ({
               dashboardId: dashboard.id,
             },
           },
-        };
+        });
       }),
     [dashboardsList, selectedDashboards]
   );

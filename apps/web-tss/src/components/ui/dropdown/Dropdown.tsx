@@ -1,17 +1,10 @@
 import type { DropdownMenuProps } from '@radix-ui/react-dropdown-menu';
-import {
-  Link,
-  type LinkProps,
-  type RegisteredRouter,
-  type ValidateFromPath,
-  type ValidateLinkOptions,
-} from '@tanstack/react-router';
+import { Link, type RegisteredRouter } from '@tanstack/react-router';
 import React, { useEffect, useMemo } from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
 import { useDebounceSearch } from '@/hooks/useDebounceSearch';
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import { cn } from '@/lib/classMerge';
-import type { OptionsTo } from '@/types/routes';
 import { CircleSpinnerLoader } from '../loaders/CircleSpinnerLoader';
 import {
   DropdownMenu,
@@ -29,41 +22,7 @@ import {
   DropdownMenuTrigger,
 } from './DropdownBase';
 import { DropdownMenuHeaderSearch } from './DropdownMenuHeaderSearch';
-
-export interface DropdownItem<
-  T = string,
-  TRouter extends RegisteredRouter = RegisteredRouter,
-  TOptions = unknown,
-  TFrom extends string = string,
-> {
-  label: React.ReactNode | string;
-  truncate?: boolean;
-  searchLabel?: string; // Used for filtering
-  secondaryLabel?: string;
-  value: T;
-  shortcut?: string;
-  onClick?: (e: React.MouseEvent<HTMLDivElement>) => void;
-  closeOnSelect?: boolean; //default is true
-  icon?: React.ReactNode;
-  disabled?: boolean;
-  loading?: boolean;
-  selected?: boolean;
-  items?: DropdownItems<T>;
-  link?: string | ValidateLinkOptions<TRouter, TOptions, TFrom>;
-  linkTarget?: '_blank' | '_self';
-  linkIcon?: 'arrow-right' | 'arrow-external' | 'caret-right';
-}
-
-export interface DropdownDivider {
-  type: 'divider';
-}
-
-export type DropdownItems<
-  T = string,
-  TRouter extends RegisteredRouter = RegisteredRouter,
-  TOptions = unknown,
-  TFrom extends string = string,
-> = (DropdownItem<T, TRouter, TOptions, TFrom> | DropdownDivider | React.ReactNode)[];
+import type { DropdownDivider, IDropdownItem, IDropdownItems } from './dropdown-items.types';
 
 export interface DropdownProps<
   T = string,
@@ -71,7 +30,7 @@ export interface DropdownProps<
   TOptions = unknown,
   TFrom extends string = string,
 > extends DropdownMenuProps {
-  items: DropdownItems<T, TRouter, TOptions, TFrom>;
+  items: IDropdownItems<T, TRouter, TOptions, TFrom>;
   selectType?: 'single' | 'multiple' | 'none';
   menuHeader?: string | React.ReactNode; //if string it will render a search box
   onSelect?: (value: T) => void;
@@ -91,9 +50,9 @@ export interface DropdownProps<
 
 export type DropdownContentProps<T = string> = Omit<DropdownProps<T>, 'align' | 'side'>;
 
-const dropdownItemKey = <T,>(item: DropdownItems<T>[number], index: number): string => {
+const dropdownItemKey = <T,>(item: IDropdownItems<T>[number], index: number): string => {
   if ((item as DropdownDivider).type === 'divider') return `divider-${index}`;
-  if ((item as DropdownItem<T>).value) return String((item as DropdownItem<T>).value);
+  if ((item as IDropdownItem<T>).value) return String((item as IDropdownItem<T>).value);
   return `item-${index}`;
 };
 
@@ -173,8 +132,8 @@ export const DropdownContent = <T,>({
   const { filteredItems, searchText, handleSearchChange } = useDebounceSearch({
     items,
     searchPredicate: (item, searchText) => {
-      if ((item as DropdownItem).value) {
-        const _item = item as DropdownItem;
+      if ((item as IDropdownItem<T>).value) {
+        const _item = item as IDropdownItem<T>;
         const searchContent =
           _item.searchLabel || (typeof _item.label === 'string' ? _item.label : '');
         return searchContent?.toLowerCase().includes(searchText.toLowerCase());
@@ -185,14 +144,16 @@ export const DropdownContent = <T,>({
   });
 
   const hasShownItem = useMemo(() => {
-    return filteredItems.length > 0 && filteredItems.some((item) => (item as DropdownItem).value);
+    return (
+      filteredItems.length > 0 && filteredItems.some((item) => (item as IDropdownItem<T>).value)
+    );
   }, [filteredItems]);
 
   const { selectedItems, unselectedItems } = useMemo(() => {
     if (selectType === 'multiple') {
       const [selectedItems, unselectedItems] = filteredItems.reduce(
         (acc, item) => {
-          if ((item as DropdownItem).selected) {
+          if ((item as IDropdownItem<T>).selected) {
             acc[0].push(item);
           } else {
             acc[1].push(item);
@@ -215,11 +176,11 @@ export const DropdownContent = <T,>({
   const dropdownItems = selectType === 'multiple' ? unselectedItems : filteredItems;
 
   const onSelectItem = useMemoizedFn((index: number) => {
-    const correctIndex = dropdownItems.filter((item) => (item as DropdownItem).value);
-    const item = correctIndex[index] as DropdownItem<T>;
+    const correctIndex = dropdownItems.filter((item) => (item as IDropdownItem<T>).value);
+    const item = correctIndex[index] as IDropdownItem<T>;
 
     if (item) {
-      const disabled = (item as DropdownItem).disabled;
+      const disabled = (item as IDropdownItem<T>).disabled;
       if (!disabled && onSelect) {
         onSelect(item.value);
         // Close the dropdown if closeOnSelect is true
@@ -262,7 +223,7 @@ export const DropdownContent = <T,>({
           <>
             {selectedItems.map((item, index) => {
               // Only increment index for selectable items
-              if ((item as DropdownItem).value && !(item as DropdownItem).items) {
+              if ((item as IDropdownItem<T>).value && !(item as IDropdownItem<T>).items) {
                 hotkeyIndex++;
               }
 
@@ -274,7 +235,7 @@ export const DropdownContent = <T,>({
                   selectType={selectType}
                   onSelect={onSelect}
                   onSelectItem={onSelectItem}
-                  closeOnSelect={(item as DropdownItem).closeOnSelect !== false}
+                  closeOnSelect={(item as IDropdownItem<T>).closeOnSelect !== false}
                   showIndex={showIndex}
                 />
               );
@@ -284,7 +245,7 @@ export const DropdownContent = <T,>({
 
             {dropdownItems.map((item, index) => {
               // Only increment index for selectable items
-              if ((item as DropdownItem).value && !(item as DropdownItem).items) {
+              if ((item as IDropdownItem<T>).value && !(item as IDropdownItem<T>).items) {
                 hotkeyIndex++;
               }
 
@@ -296,7 +257,7 @@ export const DropdownContent = <T,>({
                   selectType={selectType}
                   onSelect={onSelect}
                   onSelectItem={onSelectItem}
-                  closeOnSelect={(item as DropdownItem).closeOnSelect !== false}
+                  closeOnSelect={(item as IDropdownItem<T>).closeOnSelect !== false}
                   showIndex={showIndex}
                 />
               );
@@ -334,7 +295,7 @@ const DropdownItemSelector = <
   selectType,
   showIndex,
 }: {
-  item: DropdownItems<T, TRouter, TOptions, TFrom>[number];
+  item: IDropdownItems<T, TRouter, TOptions, TFrom>[number];
   index: number;
   // biome-ignore lint/suspicious/noExplicitAny: I had a devil of a time trying to type this... This is a hack to get the type to work
   onSelect?: (value: any) => void; // Using any here to resolve the type mismatch
@@ -395,7 +356,7 @@ const DropdownItem = <
   truncate,
   link,
   linkIcon,
-}: DropdownItem<T, TRouter, TOptions, TFrom> & {
+}: IDropdownItem<T, TRouter, TOptions, TFrom> & {
   onSelect?: (value: T) => void;
   onSelectItem: (index: number) => void;
   closeOnSelect: boolean;
@@ -517,7 +478,7 @@ const DropdownItem = <
 };
 
 interface DropdownSubMenuWrapperProps<T> {
-  items: DropdownItems<T> | undefined;
+  items: IDropdownItems<T> | undefined;
   children: React.ReactNode;
   closeOnSelect: boolean;
   showIndex: boolean;
@@ -541,7 +502,7 @@ const DropdownSubMenuWrapper = <T,>({
   const scrollToSelectedItem = React.useCallback(() => {
     if (!subContentRef.current) return;
 
-    const selectedIndex = items?.findIndex((item) => (item as DropdownItem).selected);
+    const selectedIndex = items?.findIndex((item) => (item as IDropdownItem<T>).selected);
     if (selectedIndex === undefined || selectedIndex === -1) return;
 
     const menuItems = subContentRef.current.querySelectorAll('[role="menuitem"]');

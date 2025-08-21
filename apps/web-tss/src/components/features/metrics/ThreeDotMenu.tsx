@@ -1,13 +1,13 @@
 import React, { useMemo } from 'react';
 import { useGetMetric } from '@/api/buster_rest/metrics';
-import { DropdownContent, type DropdownItem, type DropdownItems } from '@/components/ui/dropdown';
+import { DropdownContent, type IDropdownItem } from '@/components/ui/dropdown';
 import { History, Star, WandSparkle } from '@/components/ui/icons';
 import { Star as StarFilled } from '@/components/ui/icons/NucleoIconFilled';
 import { FollowUpWithAssetContent } from '../assets/FollowUpWithAsset';
 import { useFavoriteStar } from '../favorites';
 import { useListVersionDropdownItems } from '../versionHistory/useListVersionDropdownItems';
 
-export const useVersionHistorySelectMenu = ({ metricId }: { metricId: string }): DropdownItem => {
+export const useVersionHistorySelectMenu = ({ metricId }: { metricId: string }): IDropdownItem => {
   const { data } = useGetMetric(
     { id: metricId },
     {
@@ -19,7 +19,7 @@ export const useVersionHistorySelectMenu = ({ metricId }: { metricId: string }):
   );
   const { versions = [], version_number } = data || {};
 
-  const versionHistoryItems: DropdownItems = useListVersionDropdownItems({
+  const versionHistoryItems: IDropdownItems = useListVersionDropdownItems({
     versions,
     selectedVersion: version_number,
   });

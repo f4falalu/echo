@@ -1,7 +1,6 @@
-import type { MakeRouteMatchUnion } from '@tanstack/react-router';
-import type { OptionsTo } from '@/types/routes';
+import type { LinkProps, MakeRouteMatchUnion } from '@tanstack/react-router';
 
-export const embedAssetToRegularAsset = (matches: MakeRouteMatchUnion[]): OptionsTo | null => {
+export const embedAssetToRegularAsset = (matches: MakeRouteMatchUnion[]) => {
   const lastMatch = matches[matches.length - 1];
   const staticData = lastMatch.staticData;
   const assetType = staticData?.assetType;
@@ -17,7 +16,7 @@ export const embedAssetToRegularAsset = (matches: MakeRouteMatchUnion[]): Option
       search: {
         metric_version_number: search.metric_version_number,
       },
-    };
+    } as const satisfies LinkProps;
   }
 
   if (assetType === 'dashboard') {
@@ -27,7 +26,7 @@ export const embedAssetToRegularAsset = (matches: MakeRouteMatchUnion[]): Option
       params: {
         dashboardId: params.dashboardId,
       },
-    };
+    } as const satisfies LinkProps;
   }
 
   if (assetType === 'report') {
@@ -37,8 +36,10 @@ export const embedAssetToRegularAsset = (matches: MakeRouteMatchUnion[]): Option
       params: {
         reportId: params.reportId,
       },
-    };
+    } as const satisfies LinkProps;
   }
 
-  return null;
+  return {
+    to: '/auth/login',
+  } as const satisfies LinkProps;
 };

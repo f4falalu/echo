@@ -1,5 +1,5 @@
 import type { VerificationStatus } from '@buster/server-shared/share';
-import { type LinkProps, type RegisteredRouter, useNavigate } from '@tanstack/react-router';
+import { useNavigate } from '@tanstack/react-router';
 import React, { useMemo } from 'react';
 import {
   useAddMetricsToDashboard,
@@ -21,10 +21,11 @@ import { getShareAssetConfig } from '@/components/features/ShareMenu/helpers';
 import { ShareMenuContent } from '@/components/features/ShareMenu/ShareMenuContent';
 import { Button } from '@/components/ui/buttons';
 import {
+  createDropdownItem,
   Dropdown,
   DropdownContent,
-  type DropdownItem,
-  type DropdownItems,
+  type IDropdownItem,
+  type IDropdownItems,
 } from '@/components/ui/dropdown';
 import {
   ArrowUpRight,
@@ -67,7 +68,7 @@ export const ThreeDotMenuButton = React.memo(
     const statusSelectMenu = useStatusSelectMenu({ metricId });
     const favoriteMetric = useFavoriteMetricSelectMenu({ metricId });
     const editChartMenu = useEditChartSelectMenu();
-    const resultsViewMenu = useResultsViewSelectMenu({ metricId });
+    const resultsViewMenu = useResultsViewSelectMenu();
     const sqlEditorMenu = useSQLEditorSelectMenu({ metricId });
     const downloadCSVMenu = useDownloadMetricDataCSV({
       metricId,
@@ -89,7 +90,7 @@ export const ThreeDotMenuButton = React.memo(
     const isOwnerEffective = getIsEffectiveOwner(permission);
     const isOwner = getIsOwner(permission);
 
-    const items: DropdownItems = useMemo(
+    const items: IDropdownItems = useMemo(
       () =>
         [
           !isChatMode && openFullScreenMetric,
@@ -111,7 +112,7 @@ export const ThreeDotMenuButton = React.memo(
           { type: 'divider' },
           isEditor && !isViewingOldVersion && renameMetricMenu,
           isOwner && !isViewingOldVersion && deleteMetricMenu,
-        ].filter(Boolean) as DropdownItems,
+        ].filter(Boolean) as IDropdownItems,
       [
         isChatMode,
         openFullScreenMetric,
@@ -186,7 +187,7 @@ const useDashboardSelectMenu = ({ metricId }: { metricId: string }) => {
     );
   }, [items, footerContent, menuHeader, selectType]);
 
-  const dashboardDropdownItem: DropdownItem = useMemo(
+  const dashboardDropdownItem: IDropdownItem = useMemo(
     () => ({
       label: 'Add to dashboard',
       value: 'add-to-dashboard',
@@ -235,7 +236,7 @@ const useCollectionSelectMenu = ({ metricId }: { metricId: string }) => {
     return <DropdownContent {...dropdownProps} />;
   }, [dropdownProps]);
 
-  const collectionDropdownItem: DropdownItem = useMemo(
+  const collectionDropdownItem: IDropdownItem = useMemo(
     () => ({
       label: 'Add to collection',
       value: 'add-to-collection',
@@ -271,7 +272,7 @@ const useStatusSelectMenu = ({ metricId }: { metricId: string }) => {
     return <DropdownContent {...dropdownProps} />;
   }, [dropdownProps]);
 
-  const statusDropdownItem: DropdownItem = useMemo(
+  const statusDropdownItem: IDropdownItem = useMemo(
     () => ({
       label: 'Status',
       value: 'status',
@@ -299,32 +300,18 @@ const useEditChartSelectMenu = () => {
   );
 };
 
-const useResultsViewSelectMenu = ({ metricId }: { metricId: string }): DropdownItem => {
-  <Dropdown
-    items={[
-      {
+const useResultsViewSelectMenu = () => {
+  return useMemo(
+    () =>
+      createDropdownItem({
         label: 'Results view',
         value: 'results-view',
         link: {
           to: './results',
+          from: '.' as '/app/metrics/$metricId',
         },
         icon: <Table />,
-      },
-    ]}
-  >
-    <div></div>
-  </Dropdown>;
-
-  return useMemo(
-    () => ({
-      label: 'Results view',
-      value: 'results-view',
-      link: {
-        to: './results',
-        from: '/app/metrics/$metricId',
-      },
-      icon: <Table />,
-    }),
+      }),
     []
   );
 };
@@ -400,12 +387,21 @@ const useOpenFullScreenMetric = ({
   versionNumber: number | undefined;
 }) => {
   return useMemo(
-    () => ({
-      label: 'Open in metric page',
-      value: 'open-in-full-screen',
-      icon: <ArrowUpRight />,
-      link: undefined,
-    }),
+    () =>
+      createDropdownItem({
+        label: 'Open in metric page',
+        value: 'open-in-full-screen',
+        icon: <ArrowUpRight />,
+        link: {
+          to: '/app/metrics/$metricId',
+          params: {
+            metricId,
+          },
+          search: {
+            metric_version_number: versionNumber,
+          },
+        },
+      }),
     [metricId, versionNumber]
   );
 };

@@ -8,7 +8,7 @@ import {
   useDeleteUserFavorite,
   useGetUserFavorites,
 } from '@/api/buster_rest/users';
-import type { DropdownItems } from '@/components/ui/dropdown';
+import { createDropdownItems, type IDropdownItems } from '@/components/ui/dropdown';
 import { Star, Xmark } from '@/components/ui/icons';
 
 export const useThreeDotFavoritesOptions = ({
@@ -58,33 +58,34 @@ export const useThreeDotFavoritesOptions = ({
     return [];
   }, [assetType, metricList, dashboardList, collectionList]);
 
-  const dropdownOptions: DropdownItems = useMemo(
-    () => [
-      {
-        label: 'Add to favorites',
-        icon: <Star />,
-        value: 'add-to-favorites',
-        onClick: async () => {
-          await addUserFavorite([
-            ...itemIds.map((id) => ({
-              id,
-              asset_type: assetType,
-              name: nameSearchArray.find((n) => n.id === id)?.name || '',
-            })),
-          ]);
-          onFinish(itemIds);
+  const dropdownOptions: IDropdownItems = useMemo(
+    () =>
+      createDropdownItems([
+        {
+          label: 'Add to favorites',
+          icon: <Star />,
+          value: 'add-to-favorites',
+          onClick: async () => {
+            await addUserFavorite([
+              ...itemIds.map((id) => ({
+                id,
+                asset_type: assetType,
+                name: nameSearchArray.find((n) => n.id === id)?.name || '',
+              })),
+            ]);
+            onFinish(itemIds);
+          },
         },
-      },
-      {
-        label: 'Remove from favorites',
-        icon: <Xmark />,
-        value: 'remove-from-favorites',
-        onClick: async () => {
-          await removeUserFavorite(itemIds);
-          onFinish(itemIds);
+        {
+          label: 'Remove from favorites',
+          icon: <Xmark />,
+          value: 'remove-from-favorites',
+          onClick: async () => {
+            await removeUserFavorite(itemIds);
+            onFinish(itemIds);
+          },
         },
-      },
-    ],
+      ]),
     [addUserFavorite, removeUserFavorite, itemIds, assetType, userFavorites]
   );
 
