@@ -163,6 +163,9 @@ importers:
       '@buster/ai':
         specifier: workspace:*
         version: link:../../packages/ai
+      '@buster/data-source':
+        specifier: workspace:*
+        version: link:../../packages/data-source
       '@buster/database':
         specifier: workspace:*
         version: link:../../packages/database
