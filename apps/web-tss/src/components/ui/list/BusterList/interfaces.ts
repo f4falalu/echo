@@ -1,6 +1,6 @@
-import type { LinkProps } from '@tanstack/react-router';
+import type { LinkProps, RegisteredRouter } from '@tanstack/react-router';
 import type React from 'react';
-import type { OptionsTo } from '@/types/routes';
+import type { ILinkProps } from '@/types/routes';
 import type { ContextMenuProps } from '../../context-menu/ContextMenu';
 
 export interface BusterListProps<T = unknown> {
@@ -31,8 +31,12 @@ export type BusterListColumn<T = unknown> = {
   };
 }[keyof T];
 
-type BusterListRowLink = {
-  link: OptionsTo;
+type BusterListRowLink<
+  TRouter extends RegisteredRouter = RegisteredRouter,
+  TOptions = Record<string, unknown>,
+  TFrom extends string = string,
+> = {
+  link: ILinkProps<TRouter, TOptions, TFrom>;
   preloadDelay?: LinkProps['preloadDelay'];
   preload?: LinkProps['preload'];
 };
@@ -41,7 +45,12 @@ type BusterListRowNotLink = {
   link?: never;
 };
 
-export type BusterListRowItem<T = unknown> = {
+export type BusterListRowItem<
+  T = unknown,
+  TRouter extends RegisteredRouter = RegisteredRouter,
+  TOptions = Record<string, unknown>,
+  TFrom extends string = string,
+> = {
   id: string;
   data: T | null;
   onClick?: () => void;
@@ -49,7 +58,7 @@ export type BusterListRowItem<T = unknown> = {
   rowSection?: BusterListSectionRow;
   hidden?: boolean;
   dataTestId?: string;
-} & (BusterListRowLink | BusterListRowNotLink);
+} & (BusterListRowLink<TRouter, TOptions, TFrom> | BusterListRowNotLink);
 
 export interface BusterListSectionRow {
   title: string;

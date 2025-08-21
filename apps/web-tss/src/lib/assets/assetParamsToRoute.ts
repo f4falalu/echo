@@ -1,5 +1,5 @@
 import type { FileRouteTypes } from '@/routeTree.gen';
-import type { OptionsTo } from '@/types/routes';
+import type { ILinkProps } from '@/types/routes';
 
 type RouteFilePaths = FileRouteTypes['to'];
 
@@ -269,7 +269,7 @@ class RouteBuilder<T extends RouteBuilderState = NonNullable<unknown>> {
   /**
    * Build navigation options with route and params
    */
-  buildNavigationOptions(): OptionsTo {
+  buildNavigationOptions(): ILinkProps {
     const route = this.build();
     const params = this.getParams();
     const search = this.getSearchParams();
@@ -289,7 +289,7 @@ class RouteBuilder<T extends RouteBuilderState = NonNullable<unknown>> {
     }
 
     // Type assertion through unknown for complex generic type
-    return navOptions as OptionsTo;
+    return navOptions as unknown as ILinkProps;
   }
 
   /**
@@ -425,7 +425,7 @@ class RouteBuilder<T extends RouteBuilderState = NonNullable<unknown>> {
  * });
  * // Result: { to: '/app/dashboards/dashboard-456', params: { dashboardId: 'dashboard-456', metricId: 'metric-789' }, search: { dashboard_version_number: 3, metric_version_number: 2 } }
  */
-export const assetParamsToRoute = (params: AssetParamsToRoute): OptionsTo => {
+export const assetParamsToRoute = (params: AssetParamsToRoute): ILinkProps => {
   const builder = new RouteBuilder();
 
   // Build route based on asset type and additional params

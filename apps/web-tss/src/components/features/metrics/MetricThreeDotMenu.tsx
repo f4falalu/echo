@@ -37,7 +37,7 @@ import {
   Trash,
 } from '@/components/ui/icons';
 import { useBusterNotifications } from '@/context/BusterNotifications';
-import { useIsChatMode } from '@/context/Chats/useIsChatMode';
+import { useIsChatMode } from '@/context/Chats/useMode';
 import { useDownloadMetricDataCSV } from '@/context/Metrics/useDownloadMetricDataCSV';
 import { useDownloadPNGSelectMenu } from '@/context/Metrics/useDownloadMetricDataPNG';
 import { useRenameMetricOnPage } from '@/context/Metrics/useRenameMetricOnPage';

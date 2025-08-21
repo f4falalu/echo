@@ -1,5 +1,5 @@
 import { Link } from '@tanstack/react-router';
-import React, { useMemo } from 'react';
+import React from 'react';
 import { useGetMetric } from '@/api/buster_rest/metrics';
 import { CreateChatButton } from '@/components/features/AssetLayout/CreateChatButton';
 import { SaveMetricToCollectionButton } from '@/components/features/buttons/SaveMetricToCollectionButton';
@@ -7,8 +7,8 @@ import { SaveMetricToDashboardButton } from '@/components/features/buttons/SaveM
 import { ShareMetricButton } from '@/components/features/buttons/ShareMetricButton';
 import { ThreeDotMenuButton } from '@/components/features/metrics/MetricThreeDotMenu';
 import { SquareChartPen } from '@/components/ui/icons';
+import { useIsFileMode } from '@/context/Chats/useMode';
 import { useIsMetricReadOnly } from '@/context/Metrics/useIsMetricReadOnly';
-import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import { canEdit, getIsEffectiveOwner } from '@/lib/share';
 import { FileButtonContainer } from '../FileButtonContainer';
 import { HideButtonContainer } from '../HideButtonContainer';
@@ -18,6 +18,7 @@ export const MetricContainerHeaderButtons: React.FC<{
   metricId: string;
   metricVersionNumber: number;
 }> = React.memo(({ metricId, metricVersionNumber }) => {
+  const isFileMode = useIsFileMode();
   const { isViewingOldVersion } = useIsMetricReadOnly({
     metricId: metricId || '',
   });
@@ -43,7 +44,7 @@ export const MetricContainerHeaderButtons: React.FC<{
         isViewingOldVersion={isViewingOldVersion}
         versionNumber={metricVersionNumber}
       />
-      <HideButtonContainer show={selectedLayout === 'file-only'}>
+      <HideButtonContainer show={isFileMode}>
         <CreateChatButton assetId={metricId} assetType="metric" />
       </HideButtonContainer>
     </FileButtonContainer>
@@ -53,62 +54,49 @@ export const MetricContainerHeaderButtons: React.FC<{
 MetricContainerHeaderButtons.displayName = 'MetricContainerHeaderButtons';
 
 const EditChartButton = React.memo(({ metricId }: { metricId: string }) => {
-  const onChangePage = useAppLayoutContextSelector((x) => x.onChangePage);
-  const selectedFileViewSecondary = useChatLayoutContextSelector(
-    (x) => x.selectedFileViewSecondary
-  );
-  const chatId = useChatIndividualContextSelector((x) => x.chatId);
-  const metricVersionNumber = useChatLayoutContextSelector((x) => x.metricVersionNumber);
-  const editableSecondaryView: MetricFileViewSecondary = 'chart-edit';
-  const isSelectedView = selectedFileViewSecondary === editableSecondaryView;
+  const isEditorOpen = true;
+  //  const metricVersionNumber = useChatLayoutContextSelector((x) => x.metricVersionNumber);
+  // const editableSecondaryView: MetricFileViewSecondary = 'chart-edit';
+  // const isSelectedView = selectedFileViewSecondary === editableSecondaryView;
 
-  const href = useMemo(() => {
-    if (isSelectedView) {
-      return assetParamsToRoute({
-        chatId,
-        assetId: metricId,
-        type: 'metric',
-        secondaryView: undefined,
-        versionNumber: metricVersionNumber,
-        page: 'chart',
-      });
-    }
+  // const href = useMemo(() => {
+  //   if (isSelectedView) {
+  //     return assetParamsToRoute({
+  //       chatId,
+  //       assetId: metricId,
+  //       type: 'metric',
+  //       secondaryView: undefined,
+  //       versionNumber: metricVersionNumber,
+  //       page: 'chart',
+  //     });
+  //   }
 
-    return assetParamsToRoute({
-      chatId,
-      assetId: metricId,
-      type: 'metric',
-      secondaryView: 'chart-edit',
-      versionNumber: metricVersionNumber,
-      page: 'chart',
-    });
-  }, [chatId, metricId, isSelectedView, metricVersionNumber]);
-
-  //I HAVE NO IDEA WHY... but onClickButton is called twice if wrapped in a link
-  const onClickButton = useMemoizedFn(() => {
-    onChangePage(href, { shallow: true });
-  });
+  //   return assetParamsToRoute({
+  //     chatId,
+  //     assetId: metricId,
+  //     type: 'metric',
+  //     secondaryView: 'chart-edit',
+  //     versionNumber: metricVersionNumber,
+  //     page: 'chart',
+  //   });
+  // }, [chatId, metricId, isSelectedView, metricVersionNumber]);
 
   return (
     <Link
-      href={href}
-      prefetch={true}
-      passHref
+      to="/app/metrics/$metricId/chart"
+      params={{
+        metricId,
+      }}
       data-testid="edit-chart-button"
       onClick={(e) => {
         e.preventDefault();
         e.stopPropagation();
       }}
-      onMouseDown={(e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        onClickButton();
-      }}
     >
       <SelectableButton
         tooltipText="Edit chart"
         icon={<SquareChartPen />}
-        selected={isSelectedView}
+        selected={isEditorOpen}
       />
     </Link>
   );

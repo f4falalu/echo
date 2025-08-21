@@ -14,7 +14,7 @@ export type ILinkOptions = Partial<
 >;
 
 export type ILinkProps<
-  TRouter extends RegisteredRouter,
-  TOptions,
+  TRouter extends RegisteredRouter = RegisteredRouter,
+  TOptions = Record<string, unknown>,
   TFrom extends string = string,
 > = ValidateLinkOptions<TRouter, TOptions, TFrom> & ILinkOptions;

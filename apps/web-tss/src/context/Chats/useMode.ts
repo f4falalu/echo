@@ -8,3 +8,11 @@ export const useIsChatMode = () => {
   });
   return chatId !== undefined;
 };
+
+export const useIsFileMode = () => {
+  const chatId = useParams({
+    select: stableSelect,
+    strict: false,
+  });
+  return chatId === undefined;
+};

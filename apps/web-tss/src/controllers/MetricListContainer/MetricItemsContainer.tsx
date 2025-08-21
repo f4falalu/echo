@@ -8,13 +8,12 @@ import {
 } from '@/components/features/metrics/StatusBadgeIndicator';
 import { Avatar } from '@/components/ui/avatar';
 import type { BusterListColumn, BusterListRowItem } from '@/components/ui/list';
-import { BusterList, ListEmptyStateWithButton } from '@/components/ui/list';
+import { BusterList, createLinkItem, ListEmptyStateWithButton } from '@/components/ui/list';
 import { useCreateListByDate } from '@/components/ui/list/useCreateListByDate';
 import { Text } from '@/components/ui/typography';
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import { formatDate } from '@/lib/date';
 import { makeHumanReadble } from '@/lib/text';
-import type { OptionsTo } from '@/types/routes';
 import { MetricSelectedOptionPopup } from './MetricItemsSelectedPopup';
 
 export const MetricItemsContainer: React.FC<{
@@ -36,16 +35,18 @@ export const MetricItemsContainer: React.FC<{
   const metricsByDate: BusterListRowItem<BusterMetricListItem>[] = useMemo(() => {
     return Object.entries(logsRecord).flatMap<BusterListRowItem<BusterMetricListItem>>(
       ([key, metrics]) => {
-        const records = metrics.map((metric) => ({
-          id: metric.id,
-          data: metric,
-          link: {
-            to: '/app/metrics/$metricId',
-            params: {
-              metricId: metric.id,
+        const records = metrics.map((metric) =>
+          createLinkItem({
+            id: metric.id,
+            data: metric,
+            link: {
+              to: '/app/metrics/$metricId',
+              params: {
+                metricId: metric.id,
+              },
             },
-          } satisfies OptionsTo,
-        }));
+          })
+        );
         const hasRecords = records.length > 0;
         if (!hasRecords) {
           return [];
