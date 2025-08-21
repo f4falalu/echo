@@ -1,6 +1,6 @@
 'use client';
 
-import { MarkdownPlugin as PlateMarkdownPlugin } from '@platejs/markdown'; //use this an not the one from server-utils
+import { MarkdownPlugin as PlateMarkdownPlugin } from '@platejs/markdown';
 import { remarkMdx, remarkMention } from '@platejs/markdown';
 import remarkGfm from 'remark-gfm';
 import { calloutSerializer } from './callout-serializer';
