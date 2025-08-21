@@ -34,7 +34,11 @@ jobs:
           SHA="${{ steps.commit.outputs.sha_short }}"
           
           echo "🚀 Deploying to ${BRANCH} environment..."
-          echo "📦 Using image tag: ${BRANCH == 'main' && SHA || 'staging-'$SHA}"
+          if [[ "$BRANCH" == "main" ]]; then
+            echo "📦 Using image tag: ${SHA}"
+          else
+            echo "📦 Using image tag: staging-${SHA}"
+          fi
           
           # Update the Porter app with the new image tag
           if [[ "$BRANCH" == "main" ]]; then
