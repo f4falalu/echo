@@ -338,7 +338,7 @@ describe('re-ask-strategy', () => {
       const assistantMessage = messages?.find((m: any) => m.role === 'assistant');
       const content = assistantMessage?.content?.[0];
       if (content && typeof content === 'object' && 'input' in content) {
-        expect(content.input).toEqual({ already: 'valid' }); // Now expects parsed object
+        expect(content.input).toEqual({ already: 'valid' }); // Expects parsed object
       }
     });
   });

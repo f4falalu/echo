@@ -2,6 +2,7 @@ import type { LanguageModelV2 } from '@ai-sdk/provider';
 import { createFallback } from './ai-fallback';
 import { anthropicModel } from './providers/anthropic';
 import { openaiModel } from './providers/openai';
+import { vertexModel } from './providers/vertex';
 
 // Lazy initialization to allow mocking in tests
 let _sonnet4Instance: ReturnType<typeof createFallback> | null = null;
@@ -24,6 +25,25 @@ function initializeSonnet4(): ReturnType<typeof createFallback> {
     }
   } else {
     console.info('Sonnet4: No ANTHROPIC_API_KEY found, skipping Anthropic model');
+  }
+
+  if (process.env.OPENAI_API_KEY) {
+    try {
+      models.push(openaiModel('gpt-5'));
+
+      console.info('Sonnet4: OpenAI model added to fallback chain');
+    } catch (error) {
+      console.warn('Sonnet4: Failed to initialize OpenAI model:', error);
+    }
+  }
+
+  if (process.env.ANTHROPIC_API_KEY) {
+    try {
+      models.push(anthropicModel('claude-opus-4-1-20250805'));
+      console.info('Opus41: Anthropic model added to fallback chain');
+    } catch (error) {
+      console.warn('Opus41: Failed to initialize Anthropic model:', error);
+    }
   }
 
   // Ensure we have at least one model
