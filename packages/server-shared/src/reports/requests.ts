@@ -8,7 +8,7 @@ export const UpdateReportRequestSchema = z
   .object({
     name: z.string().optional(),
     update_version: z.boolean().optional(),
-    content: z.string().optional(), //we use any here because we don't know the type of the content, will be validated in the database
+    content: z.string().optional(), //content will be validated as string in the database
   })
   .partial();
 
