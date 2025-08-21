@@ -89,13 +89,13 @@ describe('re-ask-strategy', () => {
         input: JSON.stringify(correctedToolCall.input), // FIXED: Now returns stringified input
       });
 
-      // Verify the tool input is properly formatted as a string in the messages
+      // Verify the tool input is properly formatted as an object in the messages
       const calls = mockGenerateText.mock.calls[0];
       const messages = calls?.[0]?.messages;
       const assistantMessage = messages?.find((m: any) => m.role === 'assistant');
       const content = assistantMessage?.content?.[0];
       if (content && typeof content === 'object' && 'input' in content) {
-        expect(content.input).toEqual(JSON.stringify({ param: 'value' }));
+        expect(content.input).toEqual({ param: 'value' });
       }
 
       expect(mockGenerateText).toHaveBeenCalledWith(
@@ -338,7 +338,7 @@ describe('re-ask-strategy', () => {
       const assistantMessage = messages?.find((m: any) => m.role === 'assistant');
       const content = assistantMessage?.content?.[0];
       if (content && typeof content === 'object' && 'input' in content) {
-        expect(content.input).toEqual('{"already":"valid"}'); // Now expects stringified JSON
+        expect(content.input).toEqual({ already: 'valid' }); // Expects parsed object
       }
     });
   });
