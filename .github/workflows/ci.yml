@@ -40,6 +40,7 @@ jobs:
         run: pnpm build --filter='!@buster-app/web'
         env:
           NODE_ENV: production
+          SKIP_ENV_CHECK: true
           TURBO_CACHE_DIR: .turbo
           TURBO_TELEMETRY_DISABLED: 1
 
@@ -102,6 +103,7 @@ jobs:
         run: pnpm build --filter='!@buster-app/web'
         env:
           NODE_ENV: production
+          SKIP_ENV_CHECK: true
           TURBO_CACHE_DIR: .turbo
           TURBO_TELEMETRY_DISABLED: 1
 
