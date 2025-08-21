@@ -81,6 +81,17 @@ const ModifyReportsStateSchema = z.object({
   responseMessageCreated: z.boolean().optional(),
   snapshotContent: z.string().optional(),
   workingContent: z.string().optional(),
+  reportsModifiedInMessage: z.set(z.string()).optional(),
+  snapshotVersion: z.number().optional(),
+  versionHistory: z
+    .record(
+      z.object({
+        content: z.string(),
+        updated_at: z.string(),
+        version_number: z.number(),
+      })
+    )
+    .optional(),
 });
 
 // Export types
@@ -104,6 +115,7 @@ export function createModifyReportsTool(context: ModifyReportsContext) {
     toolCallId: undefined,
     responseMessageCreated: false,
     snapshotContent: undefined,
+    reportsModifiedInMessage: new Set(),
   };
 
   // Create all functions with the context and state passed

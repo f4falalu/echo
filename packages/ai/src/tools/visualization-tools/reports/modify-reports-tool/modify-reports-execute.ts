@@ -69,7 +69,9 @@ async function processEditOperations(
   reportId: string,
   reportName: string,
   edits: Array<{ operation?: 'replace' | 'append'; code_to_replace: string; code: string }>,
-  messageId?: string
+  messageId?: string,
+  snapshotContent?: string,
+  versionHistory?: VersionHistory
 ): Promise<{
   success: boolean;
   finalContent?: string;
@@ -78,32 +80,46 @@ async function processEditOperations(
   versionHistory?: VersionHistory;
   incrementVersion?: boolean;
 }> {
-  // Get current report content and version history
-  const existingReport = await db
-    .select({
-      content: reportFiles.content,
-      versionHistory: reportFiles.versionHistory,
-    })
-    .from(reportFiles)
-    .where(and(eq(reportFiles.id, reportId), isNull(reportFiles.deletedAt)))
-    .limit(1);
+  // If we have snapshot content from state, use it as source of truth
+  // Otherwise fetch from database (for cases where delta didn't run)
+  let baseContent: string;
+  let baseVersionHistory: VersionHistory | null;
+  
+  if (snapshotContent !== undefined) {
+    // Use the immutable snapshot from state
+    baseContent = snapshotContent;
+    baseVersionHistory = versionHistory || null;
+  } else {
+    // Fallback: Get current report content and version history from DB
+    const existingReport = await db
+      .select({
+        content: reportFiles.content,
+        versionHistory: reportFiles.versionHistory,
+      })
+      .from(reportFiles)
+      .where(and(eq(reportFiles.id, reportId), isNull(reportFiles.deletedAt)))
+      .limit(1);
 
-  if (!existingReport.length) {
-    return {
-      success: false,
-      errors: ['Report not found'],
-    };
+    if (!existingReport.length) {
+      return {
+        success: false,
+        errors: ['Report not found'],
+      };
+    }
+
+    const report = existingReport[0];
+    if (!report) {
+      return {
+        success: false,
+        errors: ['Report not found'],
+      };
+    }
+    
+    baseContent = report.content;
+    baseVersionHistory = report.versionHistory as VersionHistory | null;
   }
 
-  const report = existingReport[0];
-  if (!report) {
-    return {
-      success: false,
-      errors: ['Report not found'],
-    };
-  }
-
-  let currentContent = report.content;
+  let currentContent = baseContent;
   const errors: string[] = [];
   let allSuccess = true;
 
@@ -123,7 +139,7 @@ async function processEditOperations(
     }
   }
 
-  if (!allSuccess || currentContent === report.content) {
+  if (!allSuccess || currentContent === baseContent) {
     return {
       success: allSuccess,
       finalContent: currentContent,
@@ -133,8 +149,8 @@ async function processEditOperations(
 
   // Determine if we should increment version
   const incrementVersion = await shouldIncrementVersion(reportId, messageId);
-  const { versionHistory, newVersionNumber } = updateVersionHistory(
-    report.versionHistory as VersionHistory | null,
+  const { versionHistory: newVersionHistory, newVersionNumber } = updateVersionHistory(
+    baseVersionHistory,
     currentContent,
     incrementVersion
   );
@@ -145,7 +161,7 @@ async function processEditOperations(
       reportId,
       content: currentContent,
       name: reportName,
-      versionHistory,
+      versionHistory: newVersionHistory,
     });
 
     return {
@@ -153,15 +169,20 @@ async function processEditOperations(
       finalContent: currentContent,
       errors: [],
       version: newVersionNumber,
-      versionHistory,
+      versionHistory: newVersionHistory,
       incrementVersion, // Include this so we know if version was incremented
     };
   } catch (error) {
-    console.error('[modify-reports] Error updating report:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Failed to save changes';
+    console.error('[modify-reports] Error updating report:', {
+      reportId,
+      error: errorMessage,
+      stack: error instanceof Error ? error.stack : undefined,
+    });
     return {
       success: false,
       finalContent: currentContent,
-      errors: [error instanceof Error ? error.message : 'Failed to save changes'],
+      errors: [`Database update failed: ${errorMessage}`],
     };
   }
 }
@@ -170,7 +191,9 @@ async function processEditOperations(
 const modifyReportsFile = wrapTraced(
   async (
     params: ModifyReportsInput,
-    context: ModifyReportsContext
+    context: ModifyReportsContext,
+    snapshotContent?: string,
+    versionHistory?: VersionHistory
   ): Promise<ModifyReportsOutput> => {
     // Get context values
     const userId = context.userId;
@@ -223,8 +246,15 @@ const modifyReportsFile = wrapTraced(
       };
     }
 
-    // Process all edit operations
-    const editResult = await processEditOperations(params.id, params.name, params.edits, messageId);
+    // Process all edit operations using snapshot as source of truth
+    const editResult = await processEditOperations(
+      params.id, 
+      params.name, 
+      params.edits, 
+      messageId,
+      snapshotContent,  // Pass immutable snapshot
+      versionHistory    // Pass snapshot version history
+    );
 
     // Track file associations if this is a new version (not part of same turn)
     if (messageId && editResult.success && editResult.finalContent && editResult.incrementVersion) {
@@ -295,77 +325,14 @@ export function createModifyReportsExecute(
       const startTime = Date.now();
 
       try {
-        // If streaming already updated the content, we can return success directly
-        if (state.finalContent !== undefined && state.snapshotContent !== undefined) {
-          console.info('[modify-reports] Using streaming results from delta phase');
-
-          const now = new Date().toISOString();
-          const result: ModifyReportsOutput = {
-            success: true,
-            message: `Successfully applied ${input.edits.length} edit(s) to report: ${input.name}`,
-            file: {
-              id: input.id,
-              name: input.name,
-              content: state.finalContent,
-              version_number: state.version_number || 2,
-              updated_at: now,
-            },
-          };
-
-          // Update final status in state edits
-          if (state.edits) {
-            state.edits.forEach((edit) => {
-              if (edit.status === 'loading') {
-                edit.status = 'completed';
-              }
-            });
-          }
-
-          // Create final entries for tracking
-          if (context.messageId) {
-            try {
-              const toolCallId = state.toolCallId || `tool-${Date.now()}`;
-
-              const reasoningEntry = createModifyReportsReasoningEntry(state, toolCallId);
-              const rawLlmMessage = createModifyReportsRawLlmMessageEntry(state, toolCallId);
-              const rawLlmResultEntry = createRawToolResultEntry(
-                toolCallId,
-                MODIFY_REPORTS_TOOL_NAME,
-                result
-              );
-
-              const updates: Parameters<typeof updateMessageEntries>[0] = {
-                messageId: context.messageId,
-              };
-
-              if (reasoningEntry) {
-                updates.reasoningMessages = [reasoningEntry];
-              }
-
-              if (rawLlmMessage) {
-                updates.rawLlmMessages = [rawLlmMessage, rawLlmResultEntry];
-              }
-
-              if (reasoningEntry || rawLlmMessage) {
-                await updateMessageEntries(updates);
-              }
-            } catch (error) {
-              console.error('[modify-reports] Error updating final entries:', error);
-            }
-          }
-
-          const executionTime = Date.now() - startTime;
-          console.info('[modify-reports] Execution completed using streaming', {
-            executionTime: `${executionTime}ms`,
-            success: true,
-          });
-
-          return result;
-        }
-
-        // Fallback to original processing if streaming didn't complete
-        console.info('[modify-reports] Falling back to non-streaming processing');
-        const result = await modifyReportsFile(input, context);
+        // Always process using the complete input as source of truth
+        console.info('[modify-reports] Processing modifications from complete input');
+        const result = await modifyReportsFile(
+          input, 
+          context,
+          state.snapshotContent,  // Pass immutable snapshot from state
+          state.versionHistory    // Pass snapshot version history from state
+        );
 
         if (!result) {
           throw new Error('Failed to process report modifications');
@@ -483,9 +450,19 @@ export function createModifyReportsExecute(
         return result;
       } catch (error) {
         const executionTime = Date.now() - startTime;
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+        const isAuthError =
+          errorMessage.toLowerCase().includes('auth') ||
+          errorMessage.toLowerCase().includes('permission');
+        const isDatabaseError =
+          errorMessage.toLowerCase().includes('database') ||
+          errorMessage.toLowerCase().includes('connection');
+
         console.error('[modify-reports] Execution failed', {
-          error,
+          error: errorMessage,
+          errorType: isAuthError ? 'auth' : isDatabaseError ? 'database' : 'general',
           executionTime: `${executionTime}ms`,
+          stack: error instanceof Error ? error.stack : undefined,
         });
 
         // Update message entries with failure status
@@ -493,10 +470,11 @@ export function createModifyReportsExecute(
           try {
             const toolCallId = state.toolCallId || `tool-${Date.now()}`;
 
-            // Mark all edits as failed
+            // Mark all edits as failed with error message
             if (state.edits) {
               state.edits.forEach((edit) => {
                 edit.status = 'failed';
+                edit.error = edit.error || errorMessage;
               });
             }
 
@@ -541,7 +519,25 @@ export function createModifyReportsExecute(
           }
         }
 
-        throw error;
+        // Only throw for critical errors (auth, database connection)
+        // For other errors, return them in the response
+        if (isAuthError || isDatabaseError) {
+          throw error;
+        }
+
+        // Return error information to the agent
+        return {
+          success: false,
+          message: `Failed to modify report: ${errorMessage}`,
+          file: {
+            id: input.id || '',
+            name: input.name || 'Unknown',
+            content: state.finalContent || state.currentContent || '',
+            version_number: state.version_number || 0,
+            updated_at: new Date().toISOString(),
+          },
+          error: errorMessage,
+        } as ModifyReportsOutput;
       }
     },
     { name: 'modify-reports-execute' }

@@ -3,6 +3,10 @@ import type { ChatMessageResponseMessage } from '@buster/server-shared/chats';
 import type { ToolCallOptions } from 'ai';
 import { and, eq, isNull } from 'drizzle-orm';
 import {
+  normalizeEscapedText,
+  unescapeJsonString,
+} from '../../../../utils/streaming/escape-normalizer';
+import {
   OptimisticJsonParser,
   getOptimisticValue,
 } from '../../../../utils/streaming/optimistic-json-parser';
@@ -49,11 +53,12 @@ export function createModifyReportsDelta(context: ModifyReportsContext, state: M
       if (id && !state.reportId) {
         state.reportId = id;
 
-        // Fetch the report snapshot immediately when we get the ID
+        // Fetch the report snapshot and version history immediately when we get the ID
         try {
           const existingReport = await db
             .select({
               content: reportFiles.content,
+              versionHistory: reportFiles.versionHistory,
             })
             .from(reportFiles)
             .where(and(eq(reportFiles.id, id), isNull(reportFiles.deletedAt)))
@@ -61,7 +66,33 @@ export function createModifyReportsDelta(context: ModifyReportsContext, state: M
 
           if (existingReport.length > 0 && existingReport[0]) {
             state.snapshotContent = existingReport[0].content;
-            console.info('[modify-reports-delta] Fetched report snapshot', { reportId: id });
+
+            type VersionHistoryEntry = {
+              content: string;
+              updated_at: string;
+              version_number: number;
+            };
+
+            const versionHistory = existingReport[0].versionHistory as Record<
+              string,
+              VersionHistoryEntry
+            > | null;
+            state.versionHistory = versionHistory || undefined;
+
+            // Extract current version number from version history
+            if (state.versionHistory) {
+              const versionNumbers = Object.values(state.versionHistory).map(
+                (v) => v.version_number
+              );
+              state.snapshotVersion = versionNumbers.length > 0 ? Math.max(...versionNumbers) : 1;
+            } else {
+              state.snapshotVersion = 1;
+            }
+
+            console.info('[modify-reports-delta] Fetched report snapshot', {
+              reportId: id,
+              version: state.snapshotVersion,
+            });
           } else {
             console.error('[modify-reports-delta] Report not found', { reportId: id });
           }
@@ -126,7 +157,9 @@ export function createModifyReportsDelta(context: ModifyReportsContext, state: M
               TOOL_KEYS.code_to_replace,
               ''
             );
-            const code = getOptimisticValue<string>(editMap, TOOL_KEYS.code, '');
+            const rawCode = getOptimisticValue<string>(editMap, TOOL_KEYS.code, '');
+            // Unescape JSON string sequences, then normalize any double-escaped characters
+            const code = rawCode ? normalizeEscapedText(unescapeJsonString(rawCode)) : '';
 
             if (code !== undefined) {
               // Use explicit operation if provided, otherwise infer from code_to_replace
@@ -155,31 +188,88 @@ export function createModifyReportsDelta(context: ModifyReportsContext, state: M
                 }
               }
 
-              // Apply the edit to the snapshot and update database in real-time
+              // Apply the edit to a COPY of the snapshot and update database in real-time
               // Only process the first edit for now (multiple edits would need careful handling)
               if (index === 0) {
+                // IMPORTANT: Work with a copy, never mutate the original snapshot
                 let newContent = state.snapshotContent;
 
                 if (operation === 'append') {
-                  // For append, add the streaming code to the end of the snapshot
+                  // For append, add the streaming code to the end of the snapshot copy
                   newContent = state.snapshotContent + code;
                 } else if (operation === 'replace' && codeToReplace) {
-                  // For replace, substitute in the snapshot
-                  if (state.snapshotContent.includes(codeToReplace)) {
-                    newContent = state.snapshotContent.replace(codeToReplace, code);
+                  // First, count occurrences of code_to_replace in the original snapshot
+                  const matches = state.snapshotContent.split(codeToReplace).length - 1;
+
+                  if (matches === 0) {
+                    // Pattern not found, skip update
+                    console.warn('[modify-reports-delta] Pattern not found in snapshot', {
+                      codeToReplace: codeToReplace.substring(0, 50),
+                      reportId: state.reportId,
+                    });
+                    continue;
                   }
+                  if (matches > 1) {
+                    // Multiple matches found, skip update to avoid ambiguity
+                    console.warn(
+                      '[modify-reports-delta] Multiple matches found, skipping replace',
+                      {
+                        codeToReplace: codeToReplace.substring(0, 50),
+                        matchCount: matches,
+                        reportId: state.reportId,
+                      }
+                    );
+                    continue;
+                  }
+                  // Exactly one match found, now check if code has changed
+                  if (code === codeToReplace) {
+                    // Code hasn't changed yet, skip the database update
+                    continue;
+                  }
+                  // Code has diverged, perform the replacement on a copy
+                  newContent = state.snapshotContent.replace(codeToReplace, code);
                 }
 
-                // Update the database with the new content
+                // Check if we should increment version (not if already modified in this message)
+                const alreadyModifiedInMessage =
+                  state.reportsModifiedInMessage?.has(state.reportId) ?? false;
+                const incrementVersion = !alreadyModifiedInMessage;
+
+                // Calculate new version
+                const currentVersion = state.snapshotVersion || 1;
+                const newVersion = incrementVersion ? currentVersion + 1 : currentVersion;
+                state.version_number = newVersion;
+
+                // Track this modification
+                if (!state.reportsModifiedInMessage) {
+                  state.reportsModifiedInMessage = new Set();
+                }
+                state.reportsModifiedInMessage.add(state.reportId);
+
+                // Update version history
+                const now = new Date().toISOString();
+                const versionHistory = {
+                  ...(state.versionHistory || {}),
+                  [newVersion.toString()]: {
+                    content: newContent,
+                    updated_at: now,
+                    version_number: newVersion,
+                  },
+                };
+
+                // Update the database with the new content and version
                 try {
                   await batchUpdateReport({
                     reportId: state.reportId,
                     content: newContent,
                     name: state.reportName || undefined,
+                    versionHistory,
                   });
 
-                  // Update state with the final content
+                  // Update state with the final content (but keep snapshot immutable)
                   state.finalContent = newContent;
+                  state.versionHistory = versionHistory;
+                  // DO NOT update state.snapshotContent - it must remain immutable
 
                   // Create response message if not already created
                   if (!state.responseMessageCreated && context.messageId) {
@@ -189,7 +279,7 @@ export function createModifyReportsDelta(context: ModifyReportsContext, state: M
                         type: 'file' as const,
                         file_type: 'report' as const,
                         file_name: state.reportName || 'Untitled Report',
-                        version_number: 2, // This would need proper version tracking
+                        version_number: newVersion,
                         filter_version_id: null,
                         metadata: [
                           {

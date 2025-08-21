@@ -84,6 +84,8 @@ describe('modify-reports-execute', () => {
       toolCallId: 'tool-call-123',
       edits: [],
       startTime: Date.now(),
+      snapshotContent: undefined,  // Will be set per test
+      versionHistory: undefined,   // Will be set per test
     };
   });
 
@@ -102,7 +104,8 @@ Updated content with metrics.`;
         },
       ]);
 
-      // Setup state
+      // Setup state with snapshot
+      state.snapshotContent = existingReportContent;
       state.edits = [
         {
           code_to_replace: '# Original Report\nSome content here.',
@@ -213,6 +216,7 @@ Updated content with metrics.`;
       ]);
 
       // Multiple edits that eventually add a metric
+      state.snapshotContent = originalContent;
       state.edits = [
         {
           code_to_replace: 'Section 1',
@@ -315,6 +319,9 @@ Updated content with metrics.`;
       // Remove messageId from context
       context.messageId = undefined;
 
+      // Setup state with snapshot
+      state.snapshotContent = 'Original';
+
       mockDbLimit.mockResolvedValue([
         {
           content: 'Original',
@@ -345,7 +352,9 @@ Updated content with metrics.`;
     });
 
     it('should handle report not found in database', async () => {
-      // Mock no report found
+      // Mock no report found - snapshot will be undefined since report doesn't exist
+      // This should trigger the fallback to fetch from DB
+      state.snapshotContent = undefined;
       mockDbLimit.mockResolvedValue([]);
 
       const input: ModifyReportsInput = {
@@ -396,7 +405,9 @@ Updated content with metrics.`;
         ],
       };
 
-      const execute1 = createModifyReportsExecute(context, { ...state });
+      // Set snapshot for first execution
+      const state1 = { ...state, snapshotContent: 'Original Content' };
+      const execute1 = createModifyReportsExecute(context, state1);
       const result1 = await execute1(input1);
 
       expect(result1.success).toBe(true);
@@ -418,7 +429,9 @@ Updated content with metrics.`;
         ],
       };
 
-      const execute2 = createModifyReportsExecute(context, { ...state });
+      // No snapshot for missing report - should trigger fallback
+      const state2 = { ...state, snapshotContent: undefined };
+      const execute2 = createModifyReportsExecute(context, state2);
       const result2 = await execute2(input2);
 
       expect(result2.success).toBe(false);

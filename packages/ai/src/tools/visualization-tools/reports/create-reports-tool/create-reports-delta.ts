@@ -9,6 +9,10 @@ import {
 import type { ChatMessageResponseMessage } from '@buster/server-shared/chats';
 import type { ToolCallOptions } from 'ai';
 import {
+  normalizeEscapedText,
+  unescapeJsonString,
+} from '../../../../utils/streaming/escape-normalizer';
+import {
   OptimisticJsonParser,
   getOptimisticValue,
 } from '../../../../utils/streaming/optimistic-json-parser';
@@ -90,11 +94,13 @@ export function createCreateReportsDelta(context: CreateReportsContext, state: C
               TOOL_KEYS.name,
               ''
             );
-            const content = getOptimisticValue<string>(
+            const rawContent = getOptimisticValue<string>(
               new Map(Object.entries(fileObj)),
               TOOL_KEYS.content,
               ''
             );
+            // Unescape JSON string sequences, then normalize any double-escaped characters
+            const content = rawContent ? normalizeEscapedText(unescapeJsonString(rawContent)) : '';
 
             // Only add files that have at least a name
             if (name) {
@@ -124,6 +130,12 @@ export function createCreateReportsDelta(context: CreateReportsContext, state: C
                   : undefined,
                 status: 'loading',
               });
+
+              // Track that we created/modified this report in this message
+              if (!state.reportsModifiedInMessage) {
+                state.reportsModifiedInMessage = new Set();
+              }
+              state.reportsModifiedInMessage.add(reportId);
 
               // If we have content and a report ID, update the content
               if (content && reportId) {
@@ -186,7 +198,22 @@ export function createCreateReportsDelta(context: CreateReportsContext, state: C
 
             // Note: Response messages are only created in execute phase after checking for metrics
           } catch (error) {
-            console.error('[create-reports] Error creating reports in database:', error);
+            const errorMessage =
+              error instanceof Error ? error.message : 'Database creation failed';
+            console.error('[create-reports] Error creating reports in database:', {
+              error: errorMessage,
+              reportCount: reportsToCreate.length,
+              stack: error instanceof Error ? error.stack : undefined,
+            });
+
+            // Mark all reports as failed with error message
+            reportsToCreate.forEach(({ id }) => {
+              const stateFile = state.files?.find((f) => f.id === id);
+              if (stateFile) {
+                stateFile.status = 'failed';
+                stateFile.error = `Failed to create report in database: ${errorMessage}`;
+              }
+            });
           }
         }
 
@@ -234,15 +261,18 @@ export function createCreateReportsDelta(context: CreateReportsContext, state: C
                 }
               }
             } catch (error) {
+              const errorMessage = error instanceof Error ? error.message : 'Content update failed';
               console.error('[create-reports] Error updating report content:', {
                 reportId: update.reportId,
-                error,
+                error: errorMessage,
+                stack: error instanceof Error ? error.stack : undefined,
               });
 
-              // Mark the file as failed in state
+              // Mark the file as failed in state with error message
               const stateFile = state.files?.find((f) => f.id === update.reportId);
               if (stateFile) {
                 stateFile.status = 'failed';
+                stateFile.error = `Failed to update report content: ${errorMessage}`;
               }
             }
           }

@@ -9,6 +9,7 @@ import type {
 // Mock dependencies
 vi.mock('@buster/database', () => ({
   updateMessageEntries: vi.fn().mockResolvedValue({ success: true }),
+  batchUpdateReport: vi.fn().mockResolvedValue({ success: true }),
 }));
 
 vi.mock('./helpers/create-reports-tool-transform-helper', () => ({
@@ -269,6 +270,8 @@ describe('create-reports-execute', () => {
     });
 
     it('should handle reports with failed status', async () => {
+      // Simulate a scenario where one report was created during delta but another failed
+      // Report 1 has an ID (was created), Report 2 has no ID (creation failed)
       state.files = [
         {
           id: 'report-1',
@@ -278,11 +281,12 @@ describe('create-reports-execute', () => {
           status: 'completed',
         },
         {
-          id: 'report-2',
+          id: '', // No ID means report creation failed during delta
           file_name: 'Failed Report',
           file_type: 'report',
           version_number: 1,
           status: 'failed',
+          error: 'Report creation failed during streaming',
         },
       ];
 
@@ -303,6 +307,7 @@ describe('create-reports-execute', () => {
       const result = await execute(input);
 
       // Result should show one success and one failure
+      // Report 1 succeeds because it has an ID, Report 2 fails because it has no ID
       expect(result.files).toHaveLength(1);
       expect(result.failed_files).toHaveLength(1);
 
