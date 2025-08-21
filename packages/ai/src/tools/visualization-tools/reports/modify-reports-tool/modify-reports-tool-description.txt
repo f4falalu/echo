@@ -45,6 +45,9 @@ Modify an existing report by applying one or more edits in order. Each edit is e
 - Break large changes into multiple focused edits
 - Always verify the UUID you are editing
 
+##IMPORTANT
+- Please always use the arguments in this order: operation, code_to_replace, code.
+
 ## Examples
 
 Append to the end of the report:
