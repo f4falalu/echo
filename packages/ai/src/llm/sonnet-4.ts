@@ -48,6 +48,15 @@ function initializeSonnet4() {
     );
   }
 
+  if (process.env.ANTHROPIC_API_KEY) {
+    try {
+      models.push(anthropicModel('claude-opus-4-1-20250805'));
+      console.info('Opus41: Anthropic model added to fallback chain');
+    } catch (error) {
+      console.warn('Opus41: Failed to initialize Anthropic model:', error);
+    }
+  }
+
   // Ensure we have at least one model
   if (models.length === 0) {
     throw new Error(
