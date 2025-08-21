@@ -307,19 +307,14 @@ export const analystAgentTask: ReturnType<
       const braintrustMetadataPromise = getBraintrustMetadata({ messageId: payload.message_id });
 
       // Wait for all operations to complete
-      const [
-        messageContext,
-        conversationHistory,
-        dataSource,
-        datasets,
-        braintrustMetadata,
-      ] = await Promise.all([
-        messageContextPromise,
-        conversationHistoryPromise,
-        dataSourcePromise,
-        datasetsPromise,
-        braintrustMetadataPromise,
-      ]);
+      const [messageContext, conversationHistory, dataSource, datasets, braintrustMetadata] =
+        await Promise.all([
+          messageContextPromise,
+          conversationHistoryPromise,
+          dataSourcePromise,
+          datasetsPromise,
+          braintrustMetadataPromise,
+        ]);
 
       const dataLoadEnd = Date.now();
       const dataLoadTime = dataLoadEnd - dataLoadStart;

@@ -1,6 +1,10 @@
-import type { ParagraphElement, ReportElements } from '@buster/database';
+import { type ReportElements } from '@buster/server-shared/reports';
 import { describe, expect, it } from 'vitest';
 import { markdownToPlatejs, platejsToMarkdown } from './platejs-conversions';
+import type { Value } from 'platejs';
+import { SERVER_EDITOR } from './server-editor';
+
+const editor = SERVER_EDITOR;
 
 describe('markdownToPlatejs', () => {
   it('should convert elaborate markdown to platejs', async () => {
@@ -68,7 +72,7 @@ Here's an unordered list:
 * Third item with _italic text_
 * Nested item 1
 * Nested item 2`;
-    const platejs = await markdownToPlatejs(markdown);
+    const platejs = await markdownToPlatejs(editor, markdown);
     expect(platejs).toBeDefined();
   });
 
@@ -100,8 +104,8 @@ Here's an unordered list:
   - Using the riding discipline filter (e.g., Mountain) was considered, but I used the explicit Mountain Bikes subcategory to exclude components.
 `;
 
-    const platejs = await markdownToPlatejs(markdown);
-    expect(platejs.elements).toBeDefined();
+    const elements = await markdownToPlatejs(editor, markdown);
+    expect(elements).toBeDefined();
   });
 
   it('real world example 2', async () => {
@@ -169,10 +173,9 @@ Here's an unordered list:
           - Where behavior fields were missing at line level, I computed order-level summaries then averaged per rep.
           - Product mix details are available but were not required for core conclusions; can be added if needed.`;
 
-    const platejs = await markdownToPlatejs(markdown);
-    expect(platejs.error).toBeUndefined();
-    expect(platejs.elements).toBeDefined();
-    const firstMetric = platejs.elements.find((element) => element.type === 'metric');
+    const elements = await markdownToPlatejs(editor, markdown);
+    expect(elements).toBeDefined();
+    const firstMetric = elements.find((element) => element.type === 'metric');
     expect(firstMetric).toBeDefined();
     expect(firstMetric?.metricId).toBe('TBD-QUINTILE-SUMMARY');
   });
@@ -186,19 +189,19 @@ Here's an unordered list:
     - Bullet list item 3
     `;
 
-    const platejs = await markdownToPlatejs(markdownWithBulletList);
+    const elements = await markdownToPlatejs(editor, markdownWithBulletList);
 
-    const firstElement = platejs.elements[0];
+    const firstElement = elements[0];
     expect(firstElement.type).toBe('h1');
     expect(firstElement.children[0]).toEqual({ text: 'Bullet List Example' });
 
-    const secondElement = platejs.elements[1];
+    const secondElement = elements[1];
     expect(secondElement.type).toBe('p');
     expect(secondElement.children[0]).toEqual({ text: 'Bullet list item 1' });
 
-    const thirdElement = platejs.elements[2];
+    const thirdElement = elements[2];
     expect(thirdElement.type).toBe('p');
-    expect((thirdElement as ParagraphElement).listStyleType).toBe('disc');
+    expect((thirdElement as any).listStyleType).toBe('disc');
     expect(thirdElement.children[0]).toEqual({ text: 'Bullet list item 2' });
   });
 
@@ -207,54 +210,53 @@ Here's an unordered list:
 - **High-volume replacement parts** (1,088 orders, $16M revenue)
 - **High-value maintenance & upgrade** (535 orders, $21.4M revenue)`;
 
-    const platejs = await markdownToPlatejs(markdown);
-    expect(platejs.error).toBeUndefined();
-    expect(platejs.elements).toBeDefined();
-    const firstElement = platejs.elements[0];
+    const elements = await markdownToPlatejs(editor, markdown);
+    expect(elements).toBeDefined();
+    const firstElement = elements[0];
     expect(firstElement.type).toBe('p');
     expect(firstElement.children[0]).toEqual({
-      text: 'Top performers balance volume and value across purchase contexts:',
+      text: 'Top performers balance volume and value across purchase contexts:'
     });
-    expect(platejs.elements).toEqual([
+    expect(elements).toEqual([
       {
         id: 'id-0',
         children: [
           {
-            text: 'Top performers balance volume and value across purchase contexts:',
-          },
+            text: 'Top performers balance volume and value across purchase contexts:'
+          }
         ],
-        type: 'p',
+        type: 'p'
       },
       {
         id: 'id-1',
         children: [
           {
             bold: true,
-            text: 'High-volume replacement parts',
+            text: 'High-volume replacement parts'
           },
           {
-            text: ' (1,088 orders, $16M revenue)',
-          },
+            text: ' (1,088 orders, $16M revenue)'
+          }
         ],
         type: 'p',
         indent: 1,
-        listStyleType: 'disc',
+        listStyleType: 'disc'
       },
       {
         id: 'id-2',
         children: [
           {
             bold: true,
-            text: 'High-value maintenance & upgrade',
+            text: 'High-value maintenance & upgrade'
           },
           {
-            text: ' (535 orders, $21.4M revenue)',
-          },
+            text: ' (535 orders, $21.4M revenue)'
+          }
         ],
         type: 'p',
         indent: 1,
-        listStyleType: 'disc',
-      },
+        listStyleType: 'disc'
+      }
     ]);
   });
 });
@@ -267,12 +269,12 @@ describe('platejsToMarkdown', () => {
         type: 'p',
         children: [
           {
-            text: 'This is a simple paragraph.',
-          },
-        ],
-      },
+            text: 'This is a simple paragraph.'
+          }
+        ]
+      }
     ];
-    const markdown2 = await platejsToMarkdown(elements);
+    const markdown2 = await platejsToMarkdown(editor, elements);
     expect(markdown2).toBe(markdown);
   });
 
@@ -282,27 +284,27 @@ describe('platejsToMarkdown', () => {
         type: 'h1',
         children: [
           {
-            text: 'Main Title',
-          },
-        ],
+            text: 'Main Title'
+          }
+        ]
       },
       {
         type: 'p',
         children: [
           {
-            text: 'This paragraph has ',
+            text: 'This paragraph has '
           },
           {
             text: 'bold text',
-            bold: true,
+            bold: true
           },
           {
-            text: ' in it.',
-          },
-        ],
-      },
+            text: ' in it.'
+          }
+        ]
+      }
     ];
-    const markdown2 = await platejsToMarkdown(elements);
+    const markdown2 = await platejsToMarkdown(editor, elements);
     const markdown = `# Main Title\n\nThis paragraph has **bold text** in it.\n`;
     expect(markdown2).toBe(markdown);
   });
@@ -318,14 +320,14 @@ describe('platejsToMarkdown', () => {
             type: 'p' as const,
             children: [
               {
-                text: 'This is a simple paragraph.',
-              },
-            ],
-          },
-        ],
-      },
+                text: 'This is a simple paragraph.'
+              }
+            ]
+          }
+        ]
+      }
     ];
-    const markdownFromPlatejs = await platejsToMarkdown(elements);
+    const markdownFromPlatejs = await platejsToMarkdown(editor, elements);
 
     const expectedMarkdown = `<callout icon="⚠️">This is a simple paragraph.\n</callout>\n`;
     expect(markdownFromPlatejs).toBe(expectedMarkdown);
@@ -336,18 +338,18 @@ describe('platejsToMarkdown', () => {
       {
         children: [
           {
-            text: 'Our most popular mountain bike over the last 12 months is Mountain-200 Black, 38 with 825 units sold.',
-          },
+            text: 'Our most popular mountain bike over the last 12 months is Mountain-200 Black, 38 with 825 units sold.'
+          }
         ],
-        type: 'p',
+        type: 'p'
       },
       {
         children: [
           {
-            text: 'Key Findings',
-          },
+            text: 'Key Findings'
+          }
         ],
-        type: 'h2',
+        type: 'h2'
       },
       {
         children: [
@@ -356,73 +358,73 @@ describe('platejsToMarkdown', () => {
               {
                 children: [
                   {
-                    text: 'The top-selling mountain bike model is ',
+                    text: 'The top-selling mountain bike model is '
                   },
                   {
                     bold: true,
-                    text: 'Mountain-200 Black, 38',
+                    text: 'Mountain-200 Black, 38'
                   },
                   {
-                    text: '.',
-                  },
+                    text: '.'
+                  }
                 ],
-                type: 'lic',
-              },
+                type: 'lic'
+              }
             ],
-            type: 'li',
+            type: 'li'
           },
           {
             children: [
               {
                 children: [
                   {
-                    text: 'It sold ',
+                    text: 'It sold '
                   },
                   {
                     bold: true,
-                    text: '825 units',
+                    text: '825 units'
                   },
                   {
-                    text: ' in the last 12 months.',
-                  },
+                    text: ' in the last 12 months.'
+                  }
                 ],
-                type: 'lic',
-              },
+                type: 'lic'
+              }
             ],
-            type: 'li',
-          },
+            type: 'li'
+          }
         ],
-        type: 'ul',
+        type: 'ul'
       },
       {
         children: [
           {
-            text: 'Metric',
-          },
+            text: 'Metric'
+          }
         ],
-        type: 'h2',
+        type: 'h2'
       },
       {
         children: [
           {
-            text: '<metric>\n',
+            text: '<metric>\n'
           },
           {
-            text: '',
+            text: ''
           },
           {
-            text: '\n</metric>',
-          },
+            text: '\n</metric>'
+          }
         ],
-        type: 'p',
+        type: 'p'
       },
       {
         children: [
           {
-            text: 'Context',
-          },
+            text: 'Context'
+          }
         ],
-        type: 'h2',
+        type: 'h2'
       },
       {
         children: [
@@ -431,78 +433,78 @@ describe('platejsToMarkdown', () => {
               {
                 children: [
                   {
-                    text: 'I focused specifically on complete bicycle products in the ',
+                    text: 'I focused specifically on complete bicycle products in the '
                   },
                   {
                     bold: true,
-                    text: 'Mountain Bikes',
+                    text: 'Mountain Bikes'
                   },
                   {
-                    text: ' subcategory within the broader ',
+                    text: ' subcategory within the broader '
                   },
                   {
                     bold: true,
-                    text: 'Bikes',
+                    text: 'Bikes'
                   },
                   {
-                    text: ' category to avoid counting components or frames.',
-                  },
+                    text: ' category to avoid counting components or frames.'
+                  }
                 ],
-                type: 'lic',
-              },
+                type: 'lic'
+              }
             ],
-            type: 'li',
+            type: 'li'
           },
           {
             children: [
               {
                 children: [
                   {
-                    text: 'I measured popularity by ',
+                    text: 'I measured popularity by '
                   },
                   {
                     bold: true,
-                    text: 'units sold',
+                    text: 'units sold'
                   },
                   {
-                    text: ', which reflects the number of bikes customers purchased.',
-                  },
+                    text: ', which reflects the number of bikes customers purchased.'
+                  }
                 ],
-                type: 'lic',
-              },
+                type: 'lic'
+              }
             ],
-            type: 'li',
+            type: 'li'
           },
           {
             children: [
               {
                 children: [
                   {
-                    text: 'Timeframe defaults to the ',
+                    text: 'Timeframe defaults to the '
                   },
                   {
                     bold: true,
-                    text: 'last 12 months',
+                    text: 'last 12 months'
                   },
                   {
-                    text: ' to show a current view.',
-                  },
+                    text: ' to show a current view.'
+                  }
                 ],
-                type: 'lic',
-              },
+                type: 'lic'
+              }
             ],
-            type: 'li',
-          },
+            type: 'li'
+          }
         ],
-        type: 'ul',
+        type: 'ul'
       },
       {
         children: [
           {
-            text: 'Methodology',
-          },
+            text: 'Methodology'
+          }
         ],
-        type: 'h2',
+        type: 'h2'
       },
       {
         children: [
@@ -511,23 +513,23 @@ describe('platejsToMarkdown', () => {
               {
                 children: [
                   {
-                    text: 'Data sources: Sales order lines and headers, and product catalog tables in the operational analytics database.',
-                  },
+                    text: 'Data sources: Sales order lines and headers, and product catalog tables in the operational analytics database.'
+                  }
                 ],
-                type: 'lic',
-              },
+                type: 'lic'
+              }
             ],
-            type: 'li',
+            type: 'li'
           },
           {
             children: [
               {
                 children: [
                   {
-                    text: 'Filters:',
-                  },
+                    text: 'Filters:'
+                  }
                 ],
-                type: 'lic',
+                type: 'lic'
               },
               {
                 children: [
@@ -536,55 +538,55 @@ describe('platejsToMarkdown', () => {
                       {
                         children: [
                           {
-                            text: 'Product Category = "Bikes"',
-                          },
+                            text: 'Product Category = "Bikes"'
+                          }
                         ],
-                        type: 'lic',
-                      },
+                        type: 'lic'
+                      }
                     ],
-                    type: 'li',
+                    type: 'li'
                   },
                   {
                     children: [
                       {
                         children: [
                           {
-                            text: 'Product Subcategory = "Mountain Bikes"',
-                          },
+                            text: 'Product Subcategory = "Mountain Bikes"'
+                          }
                         ],
-                        type: 'lic',
-                      },
+                        type: 'lic'
+                      }
                     ],
-                    type: 'li',
+                    type: 'li'
                   },
                   {
                     children: [
                       {
                         children: [
                           {
-                            text: 'Order Date between CURRENT_DATE - 12 months and CURRENT_DATE',
-                          },
+                            text: 'Order Date between CURRENT_DATE - 12 months and CURRENT_DATE'
+                          }
                         ],
-                        type: 'lic',
-                      },
+                        type: 'lic'
+                      }
                     ],
-                    type: 'li',
-                  },
+                    type: 'li'
+                  }
                 ],
-                type: 'ul',
-              },
+                type: 'ul'
+              }
             ],
-            type: 'li',
+            type: 'li'
           },
           {
             children: [
               {
                 children: [
                   {
-                    text: 'Calculation:',
-                  },
+                    text: 'Calculation:'
+                  }
                 ],
-                type: 'lic',
+                type: 'lic'
               },
               {
                 children: [
@@ -593,42 +595,42 @@ describe('platejsToMarkdown', () => {
                       {
                         children: [
                           {
-                            text: 'For each mountain bike product, sum of sales order quantities from sales order details.',
-                          },
+                            text: 'For each mountain bike product, sum of sales order quantities from sales order details.'
+                          }
                         ],
-                        type: 'lic',
-                      },
+                        type: 'lic'
+                      }
                     ],
-                    type: 'li',
+                    type: 'li'
                   },
                   {
                     children: [
                       {
                         children: [
                           {
-                            text: 'Select the product with the highest total units sold.',
-                          },
+                            text: 'Select the product with the highest total units sold.'
+                          }
                         ],
-                        type: 'lic',
-                      },
+                        type: 'lic'
+                      }
                     ],
-                    type: 'li',
-                  },
+                    type: 'li'
+                  }
                 ],
-                type: 'ul',
-              },
+                type: 'ul'
+              }
             ],
-            type: 'li',
+            type: 'li'
           },
           {
             children: [
               {
                 children: [
                   {
-                    text: 'Notes on definitions:',
-                  },
+                    text: 'Notes on definitions:'
+                  }
                 ],
-                type: 'lic',
+                type: 'lic'
               },
               {
                 children: [
@@ -637,49 +639,49 @@ describe('platejsToMarkdown', () => {
                       {
                         children: [
                           {
-                            text: '"Most popular" defined as highest ',
+                            text: '"Most popular" defined as highest '
                           },
                           {
                             bold: true,
-                            text: 'units sold',
+                            text: 'units sold'
                           },
                           {
-                            text: '; alternative definitions could use revenue or number of distinct orders, but units sold most directly represents product popularity by volume.',
-                          },
+                            text: '; alternative definitions could use revenue or number of distinct orders, but units sold most directly represents product popularity by volume.'
+                          }
                         ],
-                        type: 'lic',
-                      },
+                        type: 'lic'
+                      }
                     ],
-                    type: 'li',
+                    type: 'li'
                   },
                   {
                     children: [
                       {
                         children: [
                           {
-                            text: 'Product names are used as the display label to identify the specific model.',
-                          },
+                            text: 'Product names are used as the display label to identify the specific model.'
+                          }
                         ],
-                        type: 'lic',
-                      },
+                        type: 'lic'
+                      }
                     ],
-                    type: 'li',
-                  },
+                    type: 'li'
+                  }
                 ],
-                type: 'ul',
-              },
+                type: 'ul'
+              }
             ],
-            type: 'li',
+            type: 'li'
           },
           {
             children: [
               {
                 children: [
                   {
-                    text: 'Alternatives considered:',
-                  },
+                    text: 'Alternatives considered:'
+                  }
                 ],
-                type: 'lic',
+                type: 'lic'
               },
               {
                 children: [
@@ -688,39 +690,39 @@ describe('platejsToMarkdown', () => {
                       {
                         children: [
                           {
-                            text: 'Using revenue-based popularity could favor higher-priced bikes; I chose units to avoid price bias.',
-                          },
+                            text: 'Using revenue-based popularity could favor higher-priced bikes; I chose units to avoid price bias.'
+                          }
                         ],
-                        type: 'lic',
-                      },
+                        type: 'lic'
+                      }
                     ],
-                    type: 'li',
+                    type: 'li'
                   },
                   {
                     children: [
                       {
                         children: [
                           {
-                            text: 'Using the riding discipline filter (e.g., Mountain) was considered, but I used the explicit Mountain Bikes subcategory to exclude components.',
-                          },
+                            text: 'Using the riding discipline filter (e.g., Mountain) was considered, but I used the explicit Mountain Bikes subcategory to exclude components.'
+                          }
                         ],
-                        type: 'lic',
-                      },
+                        type: 'lic'
+                      }
                     ],
-                    type: 'li',
-                  },
+                    type: 'li'
+                  }
                 ],
-                type: 'ul',
-              },
+                type: 'ul'
+              }
             ],
-            type: 'li',
-          },
+            type: 'li'
+          }
         ],
-        type: 'ul',
-      },
+        type: 'ul'
+      }
     ];
 
-    const markdownFromPlatejs = await platejsToMarkdown(elements);
+    const markdownFromPlatejs = await platejsToMarkdown(editor, elements);
 
     expect(markdownFromPlatejs).toBeDefined();
   });
@@ -730,10 +732,10 @@ describe('platejsToMarkdown', () => {
       {
         children: [
           {
-            text: 'Our top sales reps differentiate themselves by building larger, more customized orders with more line items per deal. Bottom reps tend to have small, simple orders with minimal customization. Discounting does not appear to be a differentiator.',
-          },
+            text: 'Our top sales reps differentiate themselves by building larger, more customized orders with more line items per deal. Bottom reps tend to have small, simple orders with minimal customization. Discounting does not appear to be a differentiator.'
+          }
         ],
-        type: 'p',
+        type: 'p'
       },
       { children: [{ text: 'Executive Summary' }], type: 'h2' },
       {
@@ -743,23 +745,23 @@ describe('platejsToMarkdown', () => {
               {
                 children: [
                   {
-                    text: 'I analyzed sales rep performance and behaviors over the last 12 months.',
-                  },
+                    text: 'I analyzed sales rep performance and behaviors over the last 12 months.'
+                  }
                 ],
-                type: 'lic',
-              },
+                type: 'lic'
+              }
             ],
-            type: 'li',
+            type: 'li'
           },
           {
             children: [
               {
                 children: [
                   {
-                    text: 'Top performers (top 20% by revenue handled) consistently:',
-                  },
+                    text: 'Top performers (top 20% by revenue handled) consistently:'
+                  }
                 ],
-                type: 'lic',
+                type: 'lic'
               },
               {
                 children: [
@@ -767,44 +769,44 @@ describe('platejsToMarkdown', () => {
                     children: [
                       {
                         children: [{ text: 'Handle more orders and revenue overall' }],
-                        type: 'lic',
-                      },
+                        type: 'lic'
+                      }
                     ],
-                    type: 'li',
+                    type: 'li'
                   },
                   {
                     children: [
                       {
                         children: [
                           {
-                            text: 'Build bigger baskets: more line items per order',
-                          },
+                            text: 'Build bigger baskets: more line items per order'
+                          }
                         ],
-                        type: 'lic',
-                      },
+                        type: 'lic'
+                      }
                     ],
-                    type: 'li',
+                    type: 'li'
                   },
                   {
                     children: [
                       {
                         children: [{ text: 'Drive more customized solutions' }],
-                        type: 'lic',
-                      },
+                        type: 'lic'
+                      }
                     ],
-                    type: 'li',
-                  },
+                    type: 'li'
+                  }
                 ],
-                type: 'ul',
-              },
+                type: 'ul'
+              }
             ],
-            type: 'li',
+            type: 'li'
           },
           {
             children: [
               {
                 children: [{ text: 'Bottom performers (bottom 20%) typically:' }],
-                type: 'lic',
+                type: 'lic'
               },
               {
                 children: [
@@ -812,50 +814,50 @@ describe('platejsToMarkdown', () => {
                     children: [
                       {
                         children: [{ text: 'Have very low order counts and revenue' }],
-                        type: 'lic',
-                      },
+                        type: 'lic'
+                      }
                     ],
-                    type: 'li',
+                    type: 'li'
                   },
                   {
                     children: [
                       {
                         children: [{ text: 'Submit orders with few line items' }],
-                        type: 'lic',
-                      },
+                        type: 'lic'
+                      }
                     ],
-                    type: 'li',
+                    type: 'li'
                   },
                   {
                     children: [
                       {
                         children: [{ text: 'Have far fewer customized orders' }],
-                        type: 'lic',
-                      },
+                        type: 'lic'
+                      }
                     ],
-                    type: 'li',
-                  },
+                    type: 'li'
+                  }
                 ],
-                type: 'ul',
-              },
+                type: 'ul'
+              }
             ],
-            type: 'li',
+            type: 'li'
           },
           {
             children: [
               {
                 children: [
                   {
-                    text: 'Pricing/discount behavior is not a strong differentiator: realized price vs list is ~99–100% across groups.',
-                  },
+                    text: 'Pricing/discount behavior is not a strong differentiator: realized price vs list is ~99–100% across groups.'
+                  }
                 ],
-                type: 'lic',
-              },
+                type: 'lic'
+              }
             ],
-            type: 'li',
-          },
+            type: 'li'
+          }
         ],
-        type: 'ul',
+        type: 'ul'
       },
       { children: [{ text: 'Key Findings' }], type: 'h2' },
       {
@@ -865,68 +867,68 @@ describe('platejsToMarkdown', () => {
               {
                 children: [
                   {
-                    text: 'Larger baskets and customization correlate with top performance.',
-                  },
+                    text: 'Larger baskets and customization correlate with top performance.'
+                  }
                 ],
-                type: 'lic',
-              },
+                type: 'lic'
+              }
             ],
-            type: 'li',
+            type: 'li'
           },
           {
             children: [
               {
                 children: [
                   {
-                    text: 'Price-driven decision context is common across all reps; it does not separate top from bottom.',
-                  },
+                    text: 'Price-driven decision context is common across all reps; it does not separate top from bottom.'
+                  }
                 ],
-                type: 'lic',
-              },
+                type: 'lic'
+              }
             ],
-            type: 'li',
+            type: 'li'
           },
           {
             children: [
               {
                 children: [
                   {
-                    text: 'Consultation flag appears on all rep-led orders; it does not differentiate performance.',
-                  },
+                    text: 'Consultation flag appears on all rep-led orders; it does not differentiate performance.'
+                  }
                 ],
-                type: 'lic',
-              },
+                type: 'lic'
+              }
             ],
-            type: 'li',
-          },
+            type: 'li'
+          }
         ],
-        type: 'ul',
+        type: 'ul'
       },
       { children: [{ text: 'Metrics' }], type: 'h2' },
       {
         children: [{ text: 'These visuals show how behaviors differ by rep segment.' }],
-        type: 'p',
+        type: 'p'
       },
       {
         children: [{ text: 'Segment overview: top-to-bottom quintiles' }],
-        type: 'h3',
+        type: 'h3'
       },
       {
         type: 'metric',
         metricId: 'TBD-QUINTILE-SUMMARY',
-        children: [{ text: '' }],
+        children: [{ text: '' }]
       },
       { children: [{ text: 'Rep list: names and segments' }], type: 'h3' },
       {
         type: 'metric',
         metricId: 'TBD-REP-SEGMENT-LIST',
-        children: [{ text: '' }],
+        children: [{ text: '' }]
       },
       { children: [{ text: 'Behavior detail by rep' }], type: 'h3' },
       {
         type: 'metric',
         metricId: 'TBD-REP-BEHAVIOR-DETAIL',
-        children: [{ text: '' }],
+        children: [{ text: '' }]
       },
       { children: [{ text: 'What top reps do differently' }], type: 'h2' },
       {
@@ -936,42 +938,42 @@ describe('platejsToMarkdown', () => {
               {
                 children: [
                   {
-                    text: 'Build larger orders: significantly higher average lines per order.',
-                  },
+                    text: 'Build larger orders: significantly higher average lines per order.'
+                  }
                 ],
-                type: 'lic',
-              },
+                type: 'lic'
+              }
             ],
-            type: 'li',
+            type: 'li'
           },
           {
             children: [
               {
                 children: [
                   {
-                    text: 'Sell more customized solutions: higher share of orders with customization (Standard Options/Minor Adjustments/Significant Customization/Custom Build).',
-                  },
+                    text: 'Sell more customized solutions: higher share of orders with customization (Standard Options/Minor Adjustments/Significant Customization/Custom Build).'
+                  }
                 ],
-                type: 'lic',
-              },
+                type: 'lic'
+              }
             ],
-            type: 'li',
+            type: 'li'
           },
           {
             children: [
               {
                 children: [
                   {
-                    text: 'Maintain price integrity similar to peers (no evidence of heavier discounting).',
-                  },
+                    text: 'Maintain price integrity similar to peers (no evidence of heavier discounting).'
+                  }
                 ],
-                type: 'lic',
-              },
+                type: 'lic'
+              }
             ],
-            type: 'li',
-          },
+            type: 'li'
+          }
         ],
-        type: 'ul',
+        type: 'ul'
       },
       { children: [{ text: 'What hurts bottom reps' }], type: 'h2' },
       {
@@ -980,35 +982,35 @@ describe('platejsToMarkdown', () => {
             children: [
               {
                 children: [{ text: 'Very low activity: few orders and small baskets.' }],
-                type: 'lic',
-              },
+                type: 'lic'
+              }
             ],
-            type: 'li',
+            type: 'li'
           },
           {
             children: [
               {
                 children: [{ text: 'Minimal customization: many stock-only orders.' }],
-                type: 'lic',
-              },
+                type: 'lic'
+              }
             ],
-            type: 'li',
+            type: 'li'
           },
           {
             children: [
               {
                 children: [
                   {
-                    text: 'No evidence of offsetting with price tactics; realized price ratios remain similar to others.',
-                  },
+                    text: 'No evidence of offsetting with price tactics; realized price ratios remain similar to others.'
+                  }
                 ],
-                type: 'lic',
-              },
+                type: 'lic'
+              }
             ],
-            type: 'li',
-          },
+            type: 'li'
+          }
         ],
-        type: 'ul',
+        type: 'ul'
       },
       { children: [{ text: 'Recommendations' }], type: 'h2' },
       {
@@ -1018,55 +1020,55 @@ describe('platejsToMarkdown', () => {
               {
                 children: [
                   {
-                    text: 'Train for solution-building: bundle complementary items to increase lines per order.',
-                  },
+                    text: 'Train for solution-building: bundle complementary items to increase lines per order.'
+                  }
                 ],
-                type: 'lic',
-              },
+                type: 'lic'
+              }
             ],
-            type: 'li',
+            type: 'li'
           },
           {
             children: [
               {
                 children: [
                   {
-                    text: 'Promote customization playbooks: encourage offering configurable options where applicable.',
-                  },
+                    text: 'Promote customization playbooks: encourage offering configurable options where applicable.'
+                  }
                 ],
-                type: 'lic',
-              },
+                type: 'lic'
+              }
             ],
-            type: 'li',
+            type: 'li'
           },
           {
             children: [
               {
                 children: [
                   {
-                    text: 'Activity focus for bottom reps: targeted pipelines to increase order count.',
-                  },
+                    text: 'Activity focus for bottom reps: targeted pipelines to increase order count.'
+                  }
                 ],
-                type: 'lic',
-              },
+                type: 'lic'
+              }
             ],
-            type: 'li',
+            type: 'li'
           },
           {
             children: [
               {
                 children: [
                   {
-                    text: 'Monitor product mix: emphasize categories that lend to multi-line, customizable deals.',
-                  },
+                    text: 'Monitor product mix: emphasize categories that lend to multi-line, customizable deals.'
+                  }
                 ],
-                type: 'lic',
-              },
+                type: 'lic'
+              }
             ],
-            type: 'li',
-          },
+            type: 'li'
+          }
         ],
-        type: 'ol',
+        type: 'ol'
       },
       { children: [{ text: 'Methodology' }], type: 'h2' },
       {
@@ -1076,45 +1078,45 @@ describe('platejsToMarkdown', () => {
               {
                 children: [
                   {
-                    text: 'Data sources: ont_ont.sales_order_header, ont_ont.sales_order_detail, ont_ont.sales_person, ont_ont.person, ont_ont.product.',
-                  },
+                    text: 'Data sources: ont_ont.sales_order_header, ont_ont.sales_order_detail, ont_ont.sales_person, ont_ont.person, ont_ont.product.'
+                  }
                 ],
-                type: 'lic',
-              },
+                type: 'lic'
+              }
             ],
-            type: 'li',
+            type: 'li'
           },
           {
             children: [
               {
                 children: [
                   {
-                    text: 'Scope: Last 12 months from today; only orders attributed to a salesperson (salespersonid not null).',
-                  },
+                    text: 'Scope: Last 12 months from today; only orders attributed to a salesperson (salespersonid not null).'
+                  }
                 ],
-                type: 'lic',
-              },
+                type: 'lic'
+              }
             ],
-            type: 'li',
+            type: 'li'
           },
           {
             children: [
               {
                 children: [
                   {
-                    text: 'Ranking: Reps ranked by total revenue handled over the last 12 months and split into quintiles; "Top performers" are top 20%; "Bottom performers" are bottom 20%.',
-                  },
+                    text: 'Ranking: Reps ranked by total revenue handled over the last 12 months and split into quintiles; "Top performers" are top 20%; "Bottom performers" are bottom 20%.'
+                  }
                 ],
-                type: 'lic',
-              },
+                type: 'lic'
+              }
             ],
-            type: 'li',
+            type: 'li'
           },
           {
             children: [
               {
                 children: [{ text: 'Behavior metrics per rep:' }],
-                type: 'lic',
+                type: 'lic'
               },
               {
                 children: [
@@ -1123,77 +1125,77 @@ describe('platejsToMarkdown', () => {
                       {
                         children: [
                           {
-                            text: 'Orders count, total revenue, average order value',
-                          },
+                            text: 'Orders count, total revenue, average order value'
+                          }
                         ],
-                        type: 'lic',
-                      },
+                        type: 'lic'
+                      }
                     ],
-                    type: 'li',
+                    type: 'li'
                   },
                   {
                     children: [
                       {
                         children: [
                           {
-                            text: 'Average lines per order (proxy for cross-sell/basket size)',
-                          },
+                            text: 'Average lines per order (proxy for cross-sell/basket size)'
+                          }
                         ],
-                        type: 'lic',
-                      },
+                        type: 'lic'
+                      }
                     ],
-                    type: 'li',
+                    type: 'li'
                   },
                   {
                     children: [
                       {
                         children: [
                           {
-                            text: 'Customization presence: share of orders tagged as customized (Standard Options, Minor Adjustments, Significant Customization, Custom Build) vs Stock',
-                          },
+                            text: 'Customization presence: share of orders tagged as customized (Standard Options, Minor Adjustments, Significant Customization, Custom Build) vs Stock'
+                          }
                         ],
-                        type: 'lic',
-                      },
+                        type: 'lic'
+                      }
                     ],
-                    type: 'li',
+                    type: 'li'
                   },
                   {
                     children: [
                       {
                         children: [
                           {
-                            text: 'Realized price ratio: linetotal / (unitprice*qty) at order level averaged per rep',
-                          },
+                            text: 'Realized price ratio: linetotal / (unitprice*qty) at order level averaged per rep'
+                          }
                         ],
-                        type: 'lic',
-                      },
+                        type: 'lic'
+                      }
                     ],
-                    type: 'li',
+                    type: 'li'
                   },
                   {
                     children: [
                       {
                         children: [
                           {
-                            text: 'Decision context: share of orders marked Price-driven vs Value-driven',
-                          },
+                            text: 'Decision context: share of orders marked Price-driven vs Value-driven'
+                          }
                         ],
-                        type: 'lic',
-                      },
+                        type: 'lic'
+                      }
                     ],
-                    type: 'li',
-                  },
+                    type: 'li'
+                  }
                 ],
-                type: 'ul',
-              },
+                type: 'ul'
+              }
             ],
-            type: 'li',
+            type: 'li'
           },
           {
             children: [
               {
                 children: [{ text: 'Not differentiating factors:' }],
-                type: 'lic',
+                type: 'lic'
               },
               {
                 children: [
@@ -1202,32 +1204,32 @@ describe('platejsToMarkdown', () => {
                       {
                         children: [
                           {
-                            text: 'Consultation-level flag was present on all rep-led orders in this period',
-                          },
+                            text: 'Consultation-level flag was present on all rep-led orders in this period'
+                          }
                         ],
-                        type: 'lic',
-                      },
+                        type: 'lic'
+                      }
                     ],
-                    type: 'li',
+                    type: 'li'
                   },
                   {
                     children: [
                       {
                         children: [
                           {
-                            text: 'Realized price ratio averaged ~0.996–0.999 across groups (minimal discounting)',
-                          },
+                            text: 'Realized price ratio averaged ~0.996–0.999 across groups (minimal discounting)'
+                          }
                         ],
-                        type: 'lic',
-                      },
+                        type: 'lic'
+                      }
                     ],
-                    type: 'li',
-                  },
+                    type: 'li'
+                  }
                 ],
-                type: 'ul',
-              },
+                type: 'ul'
+              }
             ],
-            type: 'li',
+            type: 'li'
           },
           {
             children: [
@@ -1239,38 +1241,38 @@ describe('platejsToMarkdown', () => {
                       {
                         children: [
                           {
-                            text: 'Where behavior fields were missing at line level, I computed order-level summaries then averaged per rep.',
-                          },
+                            text: 'Where behavior fields were missing at line level, I computed order-level summaries then averaged per rep.'
+                          }
                         ],
-                        type: 'lic',
-                      },
+                        type: 'lic'
+                      }
                     ],
-                    type: 'li',
+                    type: 'li'
                   },
                   {
                     children: [
                       {
                         children: [
                           {
-                            text: 'Product mix details are available but were not required for core conclusions; can be added if needed.',
-                          },
+                            text: 'Product mix details are available but were not required for core conclusions; can be added if needed.'
+                          }
                         ],
-                        type: 'lic',
-                      },
+                        type: 'lic'
+                      }
                     ],
-                    type: 'li',
-                  },
+                    type: 'li'
+                  }
                 ],
-                type: 'ul',
-              },
+                type: 'ul'
+              }
             ],
-            type: 'li',
-          },
+            type: 'li'
+          }
         ],
-        type: 'ul',
-      },
+        type: 'ul'
+      }
     ];
-    const markdownFromPlatejs = await platejsToMarkdown(elements);
+    const markdownFromPlatejs = await platejsToMarkdown(editor, elements);
     expect(markdownFromPlatejs).toBeDefined();
     expect(markdownFromPlatejs).toContain(
       '<metric metricId="TBD-REP-SEGMENT-LIST" width="100%" caption=""></metric>'
@@ -1283,19 +1285,19 @@ describe('platejsToMarkdown', () => {
         type: 'img',
         children: [
           {
-            text: '',
-          },
+            text: ''
+          }
         ],
         url: 'https://picsum.photos/200/200',
         caption: [
           {
-            text: 'This is a caption...',
-          },
+            text: 'This is a caption...'
+          }
         ],
-        id: 'eIIq6-rQ1X',
-      },
+        id: 'eIIq6-rQ1X'
+      }
     ];
-    const markdownFromPlatejs = await platejsToMarkdown(elements);
+    const markdownFromPlatejs = await platejsToMarkdown(editor, elements);
     expect(markdownFromPlatejs).toBeDefined();
     expect(markdownFromPlatejs).toContain(
       '![This is a caption...](https://picsum.photos/200/200 "This is a caption...")'
@@ -1308,19 +1310,19 @@ describe('platejsToMarkdown', () => {
         type: 'metric',
         children: [
           {
-            text: '',
-          },
+            text: ''
+          }
         ],
         metricId: '1234',
         caption: [
           {
-            text: 'This is a caption.. AND IT REALLY WORKS!',
-          },
+            text: 'This is a caption.. AND IT REALLY WORKS!'
+          }
         ],
-        id: 'YGbwsH2r0l',
-      },
+        id: 'YGbwsH2r0l'
+      }
     ];
-    const markdownFromPlatejs = await platejsToMarkdown(elements);
+    const markdownFromPlatejs = await platejsToMarkdown(editor, elements);
     expect(markdownFromPlatejs).toBeDefined();
     expect(markdownFromPlatejs).toContain(
       '<metric metricId="1234" width="100%" caption="This is a caption.. AND IT REALLY WORKS!"></metric>'
@@ -1329,18 +1331,18 @@ describe('platejsToMarkdown', () => {
 });
 
 describe('platejs to markdown and back to platejs', () => {
-  const stripIds = (els: ReportElements): ReportElements =>
+  const stripIds = (els: ReportElements | Value): ReportElements =>
     JSON.parse(
       JSON.stringify(els, (key, value) => (key === 'id' ? undefined : value))
     ) as ReportElements;
 
   it('should convert a simple list', async () => {
     const elements: ReportElements = [
-      { id: 'id-0', type: 'h1', children: [{ text: 'Hello World' }] },
+      { id: 'id-0', type: 'h1', children: [{ text: 'Hello World' }] }
     ];
-    const markdown = await platejsToMarkdown(elements);
-    const platejs = await markdownToPlatejs(markdown);
-    expect(platejs.elements).toEqual(elements);
+    const markdown = await platejsToMarkdown(editor, elements);
+    const elementsFromMarkdown = await markdownToPlatejs(editor, markdown);
+    expect(elementsFromMarkdown).toEqual(elements);
   });
 
   it('should convert a simply report', async () => {
@@ -1349,54 +1351,54 @@ describe('platejs to markdown and back to platejs', () => {
         type: 'h1',
         children: [
           {
-            text: 'Welcome to the Report Editor',
-          },
+            text: 'Welcome to the Report Editor'
+          }
         ],
-        id: 'Vz_fc9l3OV',
+        id: 'Vz_fc9l3OV'
       },
       {
         type: 'p',
         children: [
           {
-            text: 'This is a sample paragraph with ',
+            text: 'This is a sample paragraph with '
           },
           {
             text: 'bold text',
-            bold: true,
+            bold: true
           },
           {
-            text: ' and ',
+            text: ' and '
           },
           {
             text: 'italic text',
-            italic: true,
+            italic: true
           },
           {
-            text: '.',
+            text: '.'
           },
           {
             text: 'hilight',
-            highlight: true,
-          },
+            highlight: true
+          }
         ],
-        id: 'ClqektybwP',
+        id: 'ClqektybwP'
       },
       {
         type: 'p',
         children: [
           {
-            text: 'The end',
-          },
-        ],
-      },
+            text: 'The end'
+          }
+        ]
+      }
     ];
-    const markdown = await platejsToMarkdown(elements);
-    const platejs = await markdownToPlatejs(markdown);
+    const markdown = await platejsToMarkdown(editor, elements);
+    const elementsFromMarkdown = await markdownToPlatejs(editor, markdown);
 
     // recursively remove all ids from both expected and actual elements before comparing
 
     const expectedWithoutIds = stripIds(elements);
-    const actualWithoutIds = stripIds(platejs.elements);
+    const actualWithoutIds = stripIds(elementsFromMarkdown);
 
     expect(actualWithoutIds).toEqual(expectedWithoutIds);
   });
@@ -1408,30 +1410,30 @@ describe('platejs to markdown and back to platejs', () => {
         children: [
           {
             text: '',
-            highlight: true,
-          },
+            highlight: true
+          }
         ],
-        id: 'ClqektybwP',
+        id: 'ClqektybwP'
       },
       {
         type: 'h2',
         children: [
           {
-            text: 'Features',
-          },
+            text: 'Features'
+          }
         ],
-        id: 'eVbnpcBwkp',
+        id: 'eVbnpcBwkp'
       },
       {
         type: 'p',
         id: 'FbIatZBASm',
         children: [
           {
-            text: 'Feature rich',
-          },
+            text: 'Feature rich'
+          }
         ],
         indent: 1,
-        listStyleType: 'disc',
+        listStyleType: 'disc'
       },
       {
         type: 'p',
@@ -1440,9 +1442,9 @@ describe('platejs to markdown and back to platejs', () => {
         listStyleType: 'disc',
         children: [
           {
-            text: 'Very cool',
-          },
-        ],
+            text: 'Very cool'
+          }
+        ]
       },
       {
         type: 'p',
@@ -1451,24 +1453,24 @@ describe('platejs to markdown and back to platejs', () => {
         listStyleType: 'disc',
         children: [
           {
-            text: 'Nice test',
-          },
-        ],
+            text: 'Nice test'
+          }
+        ]
       },
       {
         children: [
           {
-            text: '',
-          },
+            text: ''
+          }
         ],
         type: 'p',
-        id: 'hjDTOHWM9j',
-      },
+        id: 'hjDTOHWM9j'
+      }
     ];
-    const markdown = await platejsToMarkdown(elements);
-    const platejs = await markdownToPlatejs(markdown);
+    const markdown = await platejsToMarkdown(editor, elements);
+    const platejs = await markdownToPlatejs(editor, markdown);
     const expectedWithoutIds = stripIds(elements);
-    const actualWithoutIds = stripIds(platejs.elements);
+    const actualWithoutIds = stripIds(platejs);
     expect(actualWithoutIds).toEqual(expectedWithoutIds);
   });
 });

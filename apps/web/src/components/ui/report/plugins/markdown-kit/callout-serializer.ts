@@ -2,7 +2,7 @@ import {
   type MdNodeParser,
   convertChildrenDeserialize,
   parseAttributes,
-  serializeMd,
+  serializeMd
 } from '@platejs/markdown';
 
 export const calloutSerializer: MdNodeParser<'callout'> = {
@@ -16,12 +16,12 @@ export const calloutSerializer: MdNodeParser<'callout'> = {
 
     const content = serializeMd(options.editor, {
       ...options,
-      value: node.children,
+      value: node.children
     });
 
     return {
       type: 'html',
-      value: `<callout icon="${icon}">${content}</callout>`,
+      value: `<callout icon="${icon}">${content}</callout>`
     };
   },
   deserialize: (node, deco, options) => {
@@ -34,7 +34,7 @@ export const calloutSerializer: MdNodeParser<'callout'> = {
     return {
       type: 'callout',
       icon: typedAttributes.icon,
-      children: convertChildrenDeserialize(node.children, deco, options),
+      children: convertChildrenDeserialize(node.children, deco, options)
     };
-  },
+  }
 };
