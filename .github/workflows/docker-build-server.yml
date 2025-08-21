@@ -45,10 +45,16 @@ jobs:
       - name: Install bun
         run: npm install -g bun@1.2.15
       
+      - name: Mount Turbo cache sticky disk
+        uses: useblacksmith/stickydisk@v1
+        with:
+          key: ${{ github.repository }}-turbo-cache-${{ github.ref_name }}
+          path: ./.turbo
+      
       - name: Mount Docker buildkit sticky disk
         uses: useblacksmith/stickydisk@v1
         with:
-          key: ${{ github.repository }}-buildkit-cache
+          key: ${{ github.repository }}-buildkit-cache-${{ github.ref_name }}
           path: /tmp/.buildkit-cache
       
       - name: Install dependencies
@@ -88,7 +94,7 @@ jobs:
           
           # Install production dependencies only
           cd /tmp/prod-deps
-          pnpm install --frozen-lockfile --prod --ignore-scripts --no-optional
+          pnpm install --frozen-lockfile --prod --no-optional
           
           # Copy back to workspace
           cd -
@@ -97,7 +103,7 @@ jobs:
           cp -r apps/server/dist docker-context/
           cp apps/server/package.json docker-context/
       
-      - name: Set up Docker Builder with Blacksmith cache
+      - name: Set up Docker Builder
         uses: useblacksmith/setup-docker-builder@v1
       
       - name: Log in to GitHub Container Registry
@@ -139,6 +145,9 @@ jobs:
           build-args: |
             COMMIT_SHA=${{ steps.meta.outputs.sha_short }}
             BUILD_DATE=${{ steps.meta.outputs.timestamp }}
+          platforms: linux/amd64
+          cache-from: type=local,src=/tmp/.buildkit-cache
+          cache-to: type=local,dest=/tmp/.buildkit-cache,mode=max
       
       - name: Output image details
         run: |
