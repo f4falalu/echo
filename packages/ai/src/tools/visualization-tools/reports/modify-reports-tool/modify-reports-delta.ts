@@ -51,8 +51,15 @@ export function createModifyReportsDelta(context: ModifyReportsContext, state: M
         []
       );
 
-      // Update report metadata and fetch snapshot when ID is first received
-      if (id && !state.reportId) {
+      // Validate that we have a complete UUID before processing
+      // UUID format: 8-4-4-4-12 characters (36 total with hyphens)
+      const isValidUUID = (uuid: string): boolean => {
+        const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+        return uuidRegex.test(uuid);
+      };
+
+      // Update report metadata and fetch snapshot when COMPLETE ID is first received
+      if (id && !state.reportId && isValidUUID(id)) {
         state.reportId = id;
 
         // Check cache first, then fetch from DB if needed
@@ -164,13 +171,6 @@ export function createModifyReportsDelta(context: ModifyReportsContext, state: M
           }
         }
       }
-
-      // Validate that we have a complete UUID before processing edits
-      // UUID format: 8-4-4-4-12 characters (36 total with hyphens)
-      const isValidUUID = (uuid: string): boolean => {
-        const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-        return uuidRegex.test(uuid);
-      };
 
       // Process edits with streaming - only if we have a valid UUID and snapshot
       if (
