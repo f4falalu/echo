@@ -10,7 +10,7 @@ jobs:
   deploy:
     if: ${{ github.event.workflow_run.conclusion == 'success' && (github.event.workflow_run.head_branch == 'main' || github.event.workflow_run.head_branch == 'staging') }}
     runs-on: blacksmith-2vcpu-ubuntu-2404
-    environment: ${{ github.event.workflow_run.head_branch == 'main' && 'production' || 'staging' }}
+    environment: ${{ github.event.workflow_run.head_branch }}
     
     steps:
       - name: Checkout code
@@ -32,18 +32,13 @@ jobs:
         run: |
           BRANCH="${{ github.event.workflow_run.head_branch }}"
           SHA="${{ steps.commit.outputs.sha_short }}"
+          TAG="${BRANCH}-${SHA}"
           
           echo "🚀 Deploying to ${BRANCH} environment..."
-          echo "📦 Using image tag: ${BRANCH == 'main' && SHA || 'staging-'$SHA}"
+          echo "📦 Using image tag: ${TAG}"
           
-          # Update the Porter app with the new image tag
-          if [[ "$BRANCH" == "main" ]]; then
-            porter app update-tag ${{ vars.PORTER_APP_NAME }} --tag "${SHA}"
-            echo "deployment_env=production" >> $GITHUB_OUTPUT
-          else
-            porter app update-tag ${{ vars.PORTER_APP_NAME }} --tag "staging-${SHA}"
-            echo "deployment_env=staging" >> $GITHUB_OUTPUT
-          fi
+          porter app update-tag ${{ vars.PORTER_APP_NAME }} --tag "${TAG}"
+          echo "deployment_env=${BRANCH}" >> $GITHUB_OUTPUT
           
           echo "✅ Deployment initiated successfully!"
         env:
