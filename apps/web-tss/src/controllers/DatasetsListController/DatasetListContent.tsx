@@ -8,6 +8,7 @@ import {
   BusterList,
   type BusterListColumn,
   type BusterListRowItem,
+  createListItem,
   ListEmptyStateWithButton,
 } from '@/components/ui/list';
 import { BUSTER_DOCS_QUICKSTART } from '@/config/externalRoutes';
@@ -64,9 +65,11 @@ export const DatasetListContent: React.FC<{
 }> = React.memo(({ datasetsList, isFetchedDatasets, isAdmin, setOpenNewDatasetModal }) => {
   const [selectedRowKeys, setSelectedRowKeys] = useState<string[]>([]);
 
-  const rows: BusterListRowItem<BusterDatasetListItem>[] = useMemo(() => {
+  const createDatasetLinkItem = createListItem<BusterDatasetListItem>();
+
+  const rows = useMemo(() => {
     return datasetsList.map((dataset) => {
-      return {
+      return createDatasetLinkItem({
         id: dataset.id,
         data: dataset,
         link: {
@@ -75,7 +78,7 @@ export const DatasetListContent: React.FC<{
             datasetId: dataset.id,
           },
         },
-      };
+      });
     });
   }, [datasetsList]);
 

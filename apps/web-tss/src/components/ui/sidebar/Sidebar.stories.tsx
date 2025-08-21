@@ -1,8 +1,9 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { fn } from 'storybook/test';
 import { Check3, Window, WindowSettings, WindowUser } from '../icons/NucleoIconOutlined';
+import { createSidebarGroup } from './create-sidebar-item';
 import type { ISidebarGroup, ISidebarItem } from './interfaces';
-import { Sidebar } from './Sidebar';
+import { Sidebar } from './SidebarComponent';
 
 const meta: Meta<typeof Sidebar> = {
   title: 'UI/Sidebar/Sidebar',
@@ -24,7 +25,7 @@ const mockItems: ISidebarItem[] = [
     id: '1',
     label: 'Home',
     icon: <Window />,
-    route: {
+    link: {
       to: '/app/home',
     },
   },
@@ -32,7 +33,7 @@ const mockItems: ISidebarItem[] = [
     id: '2',
     label: 'Profile',
     icon: <WindowUser />,
-    route: {
+    link: {
       to: '/app/settings/profile',
     },
   },
@@ -40,7 +41,7 @@ const mockItems: ISidebarItem[] = [
     id: '3',
     label: 'Settings',
     icon: <WindowSettings />,
-    route: {
+    link: {
       to: '/app/settings/profile',
     },
   },
@@ -55,7 +56,7 @@ const mockGroupedContent: ISidebarGroup[] = [
         id: '4',
         label: 'Notifications',
         icon: <Check3 width="1.25em" height="1.25em" />,
-        route: {
+        link: {
           to: '/app/settings/profile',
         },
       },
@@ -63,7 +64,7 @@ const mockGroupedContent: ISidebarGroup[] = [
         id: '5',
         label: 'Notifications',
         icon: <Check3 width="1.25em" height="1.25em" />,
-        route: {
+        link: {
           to: '/app',
         },
       },
@@ -97,7 +98,7 @@ export const WithLongContent: Story = {
           id: `item-${i}`,
           label: `Menu Item ${i + 1}`,
           icon: <Window width="1.25em" height="1.25em" />,
-          route: {
+          link: {
             to: '/app/home',
             activeOptions: {
               exact: true,
@@ -126,19 +127,19 @@ export const ScrollAndTruncationTest: Story = {
         id: 'default-items',
         items: mockItems,
       },
-      {
+      createSidebarGroup({
         id: 'short-items',
         label: 'Short Items',
         items: [...Array(20)].map((_, i) => ({
           id: `short-${i}`,
           label: `Item ${i + 1}`,
           icon: <Window width="1.25em" height="1.25em" />,
-          route: {
+          link: {
             to: '/app/home',
           },
           active: i === 4,
         })),
-      },
+      } as ISidebarGroup),
       {
         id: 'long-items',
         label: 'Long Items',
@@ -148,7 +149,7 @@ export const ScrollAndTruncationTest: Story = {
             label:
               'This is an extremely long menu item that should definitely get truncated in the UI because it is way too long to fit',
             icon: <WindowSettings width="1.25em" height="1.25em" />,
-            route: {
+            link: {
               to: '/app/settings/profile',
             },
           },
@@ -157,7 +158,7 @@ export const ScrollAndTruncationTest: Story = {
             label:
               'Another very long label that contains some technical terms like Implementation Documentation Requirements',
             icon: <WindowUser width="1.25em" height="1.25em" />,
-            route: {
+            link: {
               to: '/app/settings/profile',
             },
           },
@@ -169,13 +170,13 @@ export const ScrollAndTruncationTest: Story = {
                   id: `long-${i + 3}`,
                   label: `Somewhat Long Menu Item ${i + 1} with Additional Description Text`,
                   icon: <Check3 width="1.25em" height="1.25em" />,
-                  route: {
+                  link: {
                     to: '/app/settings/profile',
                   },
                 }) satisfies ISidebarItem
             ),
         ],
-      },
+      } as ISidebarGroup,
     ],
     footer: <div className="text-sm text-gray-500">Footer for Scroll Test</div>,
   },

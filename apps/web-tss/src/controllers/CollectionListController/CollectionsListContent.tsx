@@ -9,6 +9,7 @@ import {
   BusterList,
   type BusterListColumn,
   type BusterListRowItem,
+  createListItem,
   ListEmptyStateWithButton,
 } from '@/components/ui/list';
 import { Text } from '@/components/ui/typography';
@@ -100,9 +101,11 @@ const CollectionList: React.FC<{
 }> = React.memo(({ collectionsList, setOpenNewCollectionModal, loadedCollections }) => {
   const [selectedRowKeys, setSelectedRowKeys] = useState<string[]>([]);
 
+  const createCollectionLinkItem = createListItem<BusterCollectionListItem>();
+
   const collections: BusterListRowItem<BusterCollectionListItem>[] = useMemo(() => {
     return collectionsList.map((collection) => {
-      return {
+      return createCollectionLinkItem({
         id: collection.id,
         link: {
           to: '/app/collections/$collectionId',
@@ -111,7 +114,7 @@ const CollectionList: React.FC<{
           },
         },
         data: collection,
-      };
+      });
     });
   }, [collectionsList]);
 

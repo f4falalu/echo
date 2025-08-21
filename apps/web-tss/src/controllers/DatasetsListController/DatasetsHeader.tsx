@@ -3,9 +3,11 @@
 import React, { useMemo } from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
 import { useIndividualDataset } from '@/api/buster_rest/datasets';
-import { Breadcrumb, type BreadcrumbItemType } from '@/components/ui/breadcrumb';
-import { AppSegmented, type SegmentedItem } from '@/components/ui/segmented';
-import type { OptionsTo } from '@/types/routes';
+import {
+  Breadcrumb,
+  type BreadcrumbItemType,
+  createBreadcrumbItems,
+} from '@/components/ui/breadcrumb';
 
 export const DatasetHeader: React.FC<{
   datasetFilter: 'all' | 'published' | 'drafts';
@@ -18,23 +20,20 @@ export const DatasetHeader: React.FC<{
   const datasetTitle = dataset?.data?.name || 'Datasets';
 
   const breadcrumbItems: BreadcrumbItemType[] = useMemo(
-    () => [
-      {
-        label: datasetTitle,
-        route: datasetId
-          ? ({
-              to: '/app/datasets/$datasetId/overview',
-              params: { datasetId },
-            } satisfies OptionsTo)
-          : { to: '/app/datasets' },
-      },
-    ],
+    () =>
+      createBreadcrumbItems([
+        {
+          label: datasetTitle,
+          link: datasetId
+            ? {
+                to: '/app/datasets/$datasetId/overview',
+                params: { datasetId },
+              }
+            : { to: '/app/datasets' },
+        },
+      ]),
     [datasetId, datasetTitle]
   );
-
-  const onCloseNewDatasetModal = () => {
-    setOpenNewDatasetModal(false);
-  };
 
   const onOpenNewDatasetModal = () => {
     setOpenNewDatasetModal(true);

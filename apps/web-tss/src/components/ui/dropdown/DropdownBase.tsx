@@ -259,7 +259,7 @@ const DropdownMenuLink = <
   linkIcon = 'arrow-right',
 }: {
   className?: string;
-  link: ILinkProps<TRouter, TOptions, TFrom> | string | null;
+  link: string | ILinkProps<TRouter, TOptions, TFrom> | null;
   linkIcon?: 'arrow-right' | 'arrow-external' | 'caret-right';
   linkTarget?: '_blank' | '_self';
 }) => {

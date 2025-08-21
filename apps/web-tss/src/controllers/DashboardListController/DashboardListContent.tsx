@@ -10,6 +10,7 @@ import {
   BusterList,
   type BusterListColumn,
   type BusterListRowItem,
+  createListItem,
   ListEmptyStateWithButton,
 } from '@/components/ui/list';
 import { Text } from '@/components/ui/typography';
@@ -81,9 +82,11 @@ export const DashboardListContent: React.FC<{
   }) => {
     const [selectedDashboardIds, setSelectedDashboardIds] = useState<string[]>([]);
 
+    const createDashboardListItem = createListItem<BusterDashboardListItem>();
+
     const rows: BusterListRowItem<BusterDashboardListItem>[] = useMemo(() => {
       return dashboardsList.map((dashboard) => {
-        return {
+        return createDashboardListItem({
           id: dashboard.id,
           data: dashboard,
           link: {
@@ -92,7 +95,7 @@ export const DashboardListContent: React.FC<{
               dashboardId: dashboard.id,
             },
           },
-        };
+        });
       });
     }, [dashboardsList]);
 

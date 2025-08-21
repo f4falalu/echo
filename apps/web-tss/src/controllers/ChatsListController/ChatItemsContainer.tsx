@@ -1,22 +1,23 @@
 'use client';
 
 import type { ChatListItem } from '@buster/server-shared/chats';
+import type { LinkProps } from '@tanstack/react-router';
 import React, { memo, useMemo, useRef, useState } from 'react';
 import { FavoriteStar } from '@/components/features/favorites/FavoriteStar';
 import { getShareStatus } from '@/components/features/metrics/StatusBadgeIndicator';
 import { Avatar } from '@/components/ui/avatar';
 import type { BusterListColumn, BusterListRowItem } from '@/components/ui/list';
-import { BusterList, ListEmptyStateWithButton } from '@/components/ui/list';
+import { BusterList, createListItem, ListEmptyStateWithButton } from '@/components/ui/list';
 import { useCreateListByDate } from '@/components/ui/list/useCreateListByDate';
 import { Text } from '@/components/ui/typography';
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import { assetParamsToRoute } from '@/lib/assets/assetParamsToRoute';
 import { formatDate } from '@/lib/date';
 import { makeHumanReadble } from '@/lib/text';
-import type { OptionsTo } from '@/types/routes';
+import { defineLink } from '../../lib/routes';
 import { ChatSelectedOptionPopup } from './ChatItemsSelectedPopup';
 
-const getLink = (chat: ChatListItem): OptionsTo => {
+const getLink = (chat: ChatListItem) => {
   try {
     const link = assetParamsToRoute({
       chatId: chat.id,
@@ -27,16 +28,16 @@ const getLink = (chat: ChatListItem): OptionsTo => {
     return link;
   } catch (error) {
     if (chat.id) {
-      return {
+      return defineLink({
         to: '/app/chats/$chatId',
         params: {
           chatId: chat.id,
         },
-      };
+      });
     }
-    return {
+    return defineLink({
       to: '/app/home',
-    };
+    });
   }
 };
 
@@ -58,13 +59,16 @@ export const ChatItemsContainer: React.FC<{
   const logsRecord = useCreateListByDate({ data: chats });
 
   const chatsByDate: BusterListRowItem<ChatListItem>[] = useMemo(() => {
+    const createChatLinkItem = createListItem<ChatListItem>();
     return Object.entries(logsRecord).flatMap<BusterListRowItem<ChatListItem>>(([key, chats]) => {
-      const records = chats.map<BusterListRowItem<ChatListItem>>((chat) => ({
-        id: chat.id,
-        data: chat,
-        link: getLink(chat),
-        preload: false,
-      }));
+      const records = chats.map<BusterListRowItem<ChatListItem>>((chat) =>
+        createChatLinkItem({
+          id: chat.id,
+          data: chat,
+          link: getLink(chat),
+          preload: false,
+        })
+      );
       const hasRecords = records.length > 0;
 
       if (!hasRecords) return [];

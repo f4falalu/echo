@@ -31,7 +31,7 @@ export type BusterListColumn<T = unknown> = {
   };
 }[keyof T];
 
-type BusterListRowLink<
+export type BusterListRowLink<
   TRouter extends RegisteredRouter = RegisteredRouter,
   TOptions = Record<string, unknown>,
   TFrom extends string = string,
@@ -41,7 +41,7 @@ type BusterListRowLink<
   preload?: LinkProps['preload'];
 };
 
-type BusterListRowNotLink = {
+export type BusterListRowNotLink = {
   link?: never;
 };
 
@@ -59,6 +59,13 @@ export type BusterListRowItem<
   hidden?: boolean;
   dataTestId?: string;
 } & (BusterListRowLink<TRouter, TOptions, TFrom> | BusterListRowNotLink);
+
+export type BusterListRowItems<T = unknown> = BusterListRowItem<
+  T,
+  RegisteredRouter,
+  Record<string, unknown>,
+  string
+>[];
 
 export interface BusterListSectionRow {
   title: string;

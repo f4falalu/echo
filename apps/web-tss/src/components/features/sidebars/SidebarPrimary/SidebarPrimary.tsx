@@ -30,7 +30,7 @@ import {
   createSidebarItem,
   createSidebarList,
 } from '@/components/ui/sidebar/create-sidebar-item';
-import { Sidebar } from '@/components/ui/sidebar/Sidebar';
+import { Sidebar } from '@/components/ui/sidebar/SidebarComponent';
 import { Tooltip } from '@/components/ui/tooltip/Tooltip';
 import {
   closeContactSupportModal,

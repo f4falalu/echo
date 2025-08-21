@@ -390,7 +390,7 @@ const DropdownItem = <
         {loading && <CircleSpinnerLoader size={9} />}
         {shortcut && <DropdownMenuShortcut>{shortcut}</DropdownMenuShortcut>}
         {link && (
-          <DropdownMenuLink
+          <DropdownMenuLink<TRouter, TOptions, TFrom>
             className="-mr-1 ml-auto opacity-0 group-hover:opacity-50 hover:opacity-100"
             link={isSelectable ? link : null}
             linkIcon={linkIcon}

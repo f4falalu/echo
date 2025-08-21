@@ -3,7 +3,7 @@
 import type { VariantProps } from 'class-variance-authority';
 import React, { useMemo } from 'react';
 import { cn } from '@/lib/classMerge';
-import { Dropdown, type DropdownItem, type DropdownProps } from '../dropdown/Dropdown';
+import { Dropdown, type DropdownProps, type IDropdownItem } from '../dropdown';
 import { InputTag } from '../inputs/InputTag';
 import { CircleSpinnerLoader } from '../loaders';
 import type { SelectItem } from './Select';
@@ -72,7 +72,7 @@ export const SelectMultiple: React.FC<SelectMultipleProps> = React.memo(
       }));
     }, [itemsProp, selectedRecord]);
 
-    const selectedItems: DropdownItem[] = useMemo(() => {
+    const selectedItems: IDropdownItem[] = useMemo(() => {
       return items.filter((item) => item.selected);
     }, [items]);
 
