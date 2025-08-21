@@ -10,6 +10,7 @@ import {
   OptimisticJsonParser,
   getOptimisticValue,
 } from '../../../../utils/streaming/optimistic-json-parser';
+import { shouldIncrementVersion } from '../helpers/report-version-helper';
 import { getCachedSnapshot, updateCachedSnapshot } from '../report-snapshot-cache';
 import {
   createModifyReportsRawLlmMessageEntry,
@@ -270,17 +271,18 @@ export function createModifyReportsDelta(context: ModifyReportsContext, state: M
                   newContent = state.snapshotContent.replace(codeToReplace, code);
                 }
 
-                // Check if we should increment version (not if already modified in this message)
-                const alreadyModifiedInMessage =
-                  state.reportsModifiedInMessage?.has(state.reportId) ?? false;
-                const incrementVersion = !alreadyModifiedInMessage;
+                // Check if we should increment version (not if report was created in current turn)
+                const incrementVersion = await shouldIncrementVersion(
+                  state.reportId,
+                  context.messageId
+                );
 
                 // Calculate new version
                 const currentVersion = state.snapshotVersion || 1;
                 const newVersion = incrementVersion ? currentVersion + 1 : currentVersion;
                 state.version_number = newVersion;
 
-                // Track this modification
+                // Track this modification for this tool invocation
                 if (!state.reportsModifiedInMessage) {
                   state.reportsModifiedInMessage = new Set();
                 }
