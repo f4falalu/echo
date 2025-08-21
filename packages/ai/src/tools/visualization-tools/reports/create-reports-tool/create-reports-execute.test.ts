@@ -235,7 +235,7 @@ describe('create-reports-execute', () => {
       const firstCall = mockUpdateMessageEntries.mock.calls[0]?.[0];
       expect(firstCall.messageId).toBe('msg-001');
       expect(firstCall.reasoningMessages).toBeDefined();
-      expect(firstCall.rawLlmMessages).toBeDefined();
+      // rawLlmMessages are intentionally not created in initial entries to avoid duplicates
 
       // State should be updated
       expect(state.initialEntriesCreated).toBe(true);

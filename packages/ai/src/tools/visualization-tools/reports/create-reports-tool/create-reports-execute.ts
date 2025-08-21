@@ -95,7 +95,7 @@ export function createCreateReportsExecute(
           try {
             const toolCallId = state.toolCallId || `tool-${Date.now()}`;
             const reasoningEntry = createCreateReportsReasoningEntry(state, toolCallId);
-            const rawLlmMessage = createCreateReportsRawLlmMessageEntry(state, toolCallId);
+            // Skip creating rawLlmMessage here to avoid duplicates - it will be created with the result later
 
             const updates: Parameters<typeof updateMessageEntries>[0] = {
               messageId: context.messageId,
@@ -105,11 +105,7 @@ export function createCreateReportsExecute(
               updates.reasoningMessages = [reasoningEntry];
             }
 
-            if (rawLlmMessage) {
-              updates.rawLlmMessages = [rawLlmMessage];
-            }
-
-            if (reasoningEntry || rawLlmMessage) {
+            if (reasoningEntry) {
               await updateMessageEntries(updates);
               state.initialEntriesCreated = true;
             }
