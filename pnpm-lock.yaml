@@ -257,9 +257,6 @@ importers:
       '@buster/database':
         specifier: workspace:*
         version: link:../../packages/database
-      '@buster/env-utils':
-        specifier: workspace:*
-        version: link:../../packages/env-utils
       '@buster/server-shared':
         specifier: workspace:*
         version: link:../../packages/server-shared
