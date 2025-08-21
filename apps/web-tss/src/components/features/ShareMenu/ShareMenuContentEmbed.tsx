@@ -8,40 +8,61 @@ import { Link } from '@/components/ui/icons';
 import { Input } from '@/components/ui/inputs';
 import { Text } from '@/components/ui/typography';
 import { useBusterNotifications } from '@/context/BusterNotifications';
-import { useMemoizedFn } from '@/hooks';
 import { cn } from '@/lib/classMerge';
-import { BusterRoutes, createBusterRoute } from '@/routes';
+import { useBuildLocation } from '../../../context/Routes/useRouteBuilder';
 import type { ShareMenuContentBodyProps } from './ShareMenuContentBody';
 
 export const ShareMenuContentEmbed: React.FC<ShareMenuContentBodyProps> = React.memo(
   ({ className, assetType, assetId }) => {
+    const buildLocation = useBuildLocation();
     const { openSuccessMessage } = useBusterNotifications();
 
     const embedURL = useMemo(() => {
-      let url = '';
-
       if (assetType === 'metric') {
-        url = createBusterRoute({
-          route: BusterRoutes.EMBED_METRIC_ID,
-          metricId: assetId,
-        });
+        return buildLocation({
+          to: '/embed/metric/$metricId',
+          params: {
+            metricId: assetId,
+          },
+        }).href;
       }
 
       if (assetType === 'dashboard') {
-        url = createBusterRoute({
-          route: BusterRoutes.EMBED_DASHBOARD_ID,
-          dashboardId: assetId,
-        });
+        return buildLocation({
+          to: '/embed/dashboard/$dashboardId',
+          params: {
+            dashboardId: assetId,
+          },
+        }).href;
       }
 
-      return url;
-    }, [assetType, assetId]);
+      if (assetType === 'report') {
+        return buildLocation({
+          to: '/embed/report/$reportId',
+          params: {
+            reportId: assetId,
+          },
+        }).href;
+      }
 
-    const onCopyLink = useMemoizedFn(() => {
+      if (assetType === 'chat') {
+        return '';
+      }
+
+      if (assetType === 'collection') {
+        return '';
+      }
+
+      const _exhaustiveCheck: never = assetType;
+
+      return '';
+    }, [assetType, assetId, buildLocation]);
+
+    const onCopyLink = () => {
       const url = window.location.origin + embedURL;
       navigator.clipboard.writeText(url);
       openSuccessMessage('Link copied to clipboard');
-    });
+    };
 
     return (
       <div className={cn('flex flex-col', className)}>
@@ -73,7 +94,7 @@ export const ShareMenuContentEmbedFooter = ({
   const { mutateAsync: onShareCollection } = useUpdateCollectionShare();
   const { openSuccessMessage } = useBusterNotifications();
 
-  const onPublish = useMemoizedFn(async () => {
+  const onPublish = async () => {
     const payload: Parameters<typeof onShareMetric>[0] = {
       id: assetId,
       params: {
@@ -88,7 +109,7 @@ export const ShareMenuContentEmbedFooter = ({
       await onShareCollection(payload);
     }
     openSuccessMessage('Succuessfully published');
-  });
+  };
 
   return (
     <div className="bg-item-hover flex justify-start overflow-hidden rounded-b px-3 py-2.5">

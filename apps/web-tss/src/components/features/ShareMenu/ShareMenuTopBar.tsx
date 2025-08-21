@@ -2,7 +2,6 @@ import type { ShareAssetType } from '@buster/server-shared/share';
 import React, { useMemo } from 'react';
 import type { SegmentedItem } from '@/components/ui/segmented';
 import { AppSegmented } from '@/components/ui/segmented';
-import { useMemoizedFn } from '@/hooks';
 import { CopyLinkButton } from './CopyLinkButton';
 
 export enum ShareMenuTopBarOptions {
@@ -41,9 +40,9 @@ export const ShareMenuTopBar: React.FC<{
         .map((o) => ({ ...o, show: undefined }));
     }, [assetType, canEditPermissions]);
 
-    const onChange = useMemoizedFn((v: SegmentedItem<ShareMenuTopBarOptions>) => {
+    const onChange = (v: SegmentedItem<ShareMenuTopBarOptions>) => {
       onChangeSelectedOption(v.value);
-    });
+    };
 
     return (
       <div className="flex items-center justify-between">

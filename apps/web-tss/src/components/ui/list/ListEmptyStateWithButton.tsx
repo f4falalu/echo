@@ -3,7 +3,7 @@ import React from 'react';
 import { Button } from '@/components/ui/buttons';
 import { Plus } from '@/components/ui/icons';
 import { Paragraph, Title } from '@/components/ui/typography';
-import type { OptionsTo } from '@/types/routes';
+import type { ILinkProps } from '@/types/routes';
 
 export const ListEmptyStateWithButton: React.FC<{
   isAdmin?: boolean;
@@ -14,7 +14,7 @@ export const ListEmptyStateWithButton: React.FC<{
   buttonPrefix?: React.ReactNode;
   buttonSuffix?: React.ReactNode;
   loading?: boolean;
-  link?: OptionsTo | string;
+  link?: ILinkProps | string;
   linkButtonTarget?: '_blank' | '_self';
 }> = React.memo(
   ({
@@ -66,7 +66,7 @@ export const ListEmptyStateWithButton: React.FC<{
 
 const ButtonWrapper: React.FC<{
   children: React.ReactNode;
-  link?: OptionsTo | string;
+  link?: ILinkProps | string;
   target?: '_blank' | '_self';
 }> = ({ children, link, target }) => {
   if (!link) return <>{children}</>;

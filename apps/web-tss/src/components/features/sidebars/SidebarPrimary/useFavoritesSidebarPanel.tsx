@@ -1,4 +1,4 @@
-import { type LinkProps, useMatchRoute } from '@tanstack/react-router';
+import { useMatchRoute } from '@tanstack/react-router';
 import { useMemo } from 'react';
 import {
   useDeleteUserFavorite,
@@ -6,9 +6,11 @@ import {
   useUpdateUserFavorites,
 } from '@/api/buster_rest/users';
 import { assetTypeToIcon } from '@/components/features/icons/assetIcons';
-import type { ISidebarGroup, ISidebarItem } from '@/components/ui/sidebar';
+import type { ISidebarGroup } from '@/components/ui/sidebar';
 import { useMount } from '@/hooks/useMount';
 import { assetParamsToRoute } from '@/lib/assets/assetParamsToRoute';
+
+import { createSidebarItem } from '../../../ui/sidebar/create-sidebar-item';
 import { getFavoriteRoute } from './getFavoriteRoute';
 
 export const useFavoriteSidebarPanel = (): ISidebarGroup | null => {
@@ -29,18 +31,17 @@ export const useFavoriteSidebarPanel = (): ISidebarGroup | null => {
       id: 'favorites',
       isSortable: true,
       onItemsReorder: updateUserFavorites,
-      items: favorites.map<ISidebarItem>((favorite) => {
+      items: favorites.map((favorite) => {
         const Icon = assetTypeToIcon(favorite.asset_type);
-        const route = getFavoriteRoute(favorite);
-        //  const isActive = !!matcher({ ...route, fuzzy: true } as Parameters<typeof matcher>[0]);
-        return {
+        const link = getFavoriteRoute(favorite);
+
+        return createSidebarItem({
           label: favorite.name,
           icon: <Icon />,
-          route,
+          link,
           id: favorite.id,
-          preload: 'intent',
           onRemove: () => deleteUserFavorite([favorite.id]),
-        };
+        });
       }),
     } satisfies ISidebarGroup;
   }, [favorites, matcher, deleteUserFavorite]);

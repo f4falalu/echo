@@ -6,7 +6,8 @@ import React from 'react';
 import { fn } from 'storybook/test';
 import { Button } from '../buttons/Button';
 import { PaintRoller, Star, Storage } from '../icons';
-import { Dropdown, type DropdownItems } from './Dropdown';
+import { Dropdown } from './Dropdown';
+import type { IDropdownItems } from './dropdown-items.types';
 
 const meta: Meta<typeof Dropdown> = {
   title: 'UI/Dropdowns/Dropdown',
@@ -249,7 +250,7 @@ export const WithSelectionMultiple: Story = {
   render: () => {
     const [selectedIds, setSelectedIds] = React.useState<Set<string>>(new Set(['3']));
 
-    const items: DropdownItems = [
+    const items: IDropdownItems = [
       {
         value: '1',
         label: 'Option 1',
@@ -464,7 +465,7 @@ export const WithLinksAndMultipleSelection: Story = {
   render: () => {
     const [selectedIds, setSelectedIds] = React.useState<Set<string>>(new Set(['2']));
 
-    const items: DropdownItems = [
+    const items: IDropdownItems = [
       {
         value: '1',
         label: 'Documentation Home',

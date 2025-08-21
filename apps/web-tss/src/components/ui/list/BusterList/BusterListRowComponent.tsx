@@ -3,7 +3,7 @@ import get from 'lodash/get';
 import React, { useMemo } from 'react';
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import { cn } from '@/lib/classMerge';
-import type { OptionsTo } from '@/types/routes';
+import type { ILinkProps } from '@/types/routes';
 import { CheckboxColumn } from './CheckboxColumn';
 import { HEIGHT_OF_ROW } from './config';
 import type { BusterListColumn, BusterListProps, BusterListRowItem } from './interfaces';
@@ -160,7 +160,7 @@ const BusterListCellComponent = <T,>({
 
 const LinkWrapper: React.FC<
   {
-    link?: OptionsTo;
+    link?: ILinkProps;
     children: React.ReactNode;
   } & LinkProps
 > = ({ link, children, preload, preloadDelay, activeOptions }) => {

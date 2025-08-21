@@ -1,45 +1,53 @@
 import type { UserFavorite } from '@buster/server-shared/user';
-import type { OptionsTo } from '@/types/routes';
+import type { RegisteredRouter } from '@tanstack/react-router';
+import { defineLink } from '@/lib/routes';
 
-export const getFavoriteRoute = (favorite: Pick<UserFavorite, 'asset_type' | 'id'>): OptionsTo => {
+export const getFavoriteRoute = <
+  TRouter extends RegisteredRouter = RegisteredRouter,
+  TOptions = unknown,
+  TFrom extends string = string,
+>(
+  favorite: Pick<UserFavorite, 'asset_type' | 'id'>
+) => {
   if (favorite.asset_type === 'chat') {
-    return {
+    return defineLink({
       to: '/app/chats/$chatId',
-      params: { chatId: favorite.id },
-    } as const satisfies OptionsTo;
+      params: { chatId: '123' },
+    });
   }
 
   if (favorite.asset_type === 'metric') {
-    return {
+    return defineLink({
       to: '/app/metrics/$metricId',
       params: { metricId: favorite.id },
-    } as const satisfies OptionsTo;
+    });
   }
 
   if (favorite.asset_type === 'dashboard') {
-    return {
+    return defineLink({
       to: '/app/dashboards/$dashboardId',
       params: { dashboardId: favorite.id },
-    } as const satisfies OptionsTo;
+    });
   }
 
   if (favorite.asset_type === 'collection') {
-    return {
+    return defineLink({
       to: '/app/collections/$collectionId',
       params: { collectionId: favorite.id },
-    } as const satisfies OptionsTo;
+    });
   }
 
   if (favorite.asset_type === 'report') {
-    return {
+    return defineLink({
       to: '/app/reports/$reportId',
       params: { reportId: favorite.id },
-    } as const satisfies OptionsTo;
+    });
   }
 
   const _exhaustiveCheck: never = favorite.asset_type;
-  return {
+
+  return defineLink({
     to: '/app/chats/$chatId',
     params: { chatId: favorite.id },
-  } as const satisfies OptionsTo;
+  });
 };

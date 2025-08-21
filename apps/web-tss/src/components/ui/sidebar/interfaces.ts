@@ -1,6 +1,6 @@
-import type { RegisteredRouter, ValidateLinkOptions } from '@tanstack/react-router';
+import type { RegisteredRouter } from '@tanstack/react-router';
 import type React from 'react';
-import type { ILinkOptions } from '@/types/routes';
+import type { ILinkProps } from '@/types/routes';
 
 // Base properties shared by all sidebar items
 type ISidebarItemBase = {
@@ -22,7 +22,7 @@ export type ISidebarItem<
 > = ISidebarItemBase &
   (
     | {
-        link: ValidateLinkOptions<TRouter, TOptions, TFrom> & ILinkOptions;
+        link: ILinkProps<TRouter, TOptions, TFrom>;
       }
     | {
         link?: never;

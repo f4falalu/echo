@@ -1,7 +1,7 @@
 import type { ShareAssetType, ShareRole, WorkspaceShareRole } from '@buster/server-shared/share';
 import last from 'lodash/last';
 import React, { useMemo } from 'react';
-import type { DropdownItem } from '@/components/ui/dropdown';
+import type { IDropdownItem } from '@/components/ui/dropdown';
 import { Dropdown } from '@/components/ui/dropdown';
 import { ChevronDown } from '@/components/ui/icons/NucleoIconFilled';
 import { Paragraph, Text } from '@/components/ui/typography';
@@ -39,7 +39,7 @@ export const AccessDropdown: React.FC<AccessDropdownProps> = React.memo(
     const items = useMemo(() => {
       const isWorkspace = props.type === 'workspace';
 
-      const baseItems: DropdownItem<DropdownValue>[] = [
+      const baseItems: IDropdownItem<DropdownValue>[] = [
         ...(isWorkspace ? workspaceItems : itemsRecord[assetType] || []),
       ];
 
@@ -133,7 +133,7 @@ export const AccessDropdown: React.FC<AccessDropdownProps> = React.memo(
 
 AccessDropdown.displayName = 'AccessDropdown';
 
-const metricItems: DropdownItem<ShareRole>[] = [
+const metricItems: IDropdownItem<ShareRole>[] = [
   {
     value: 'full_access',
     label: 'Full access',
@@ -151,7 +151,7 @@ const metricItems: DropdownItem<ShareRole>[] = [
   },
 ];
 
-const dashboardItems: DropdownItem<ShareRole>[] = [
+const dashboardItems: IDropdownItem<ShareRole>[] = [
   {
     value: 'full_access',
     label: 'Full access',
@@ -169,7 +169,7 @@ const dashboardItems: DropdownItem<ShareRole>[] = [
   },
 ];
 
-const collectionItems: DropdownItem<ShareRole>[] = [
+const collectionItems: IDropdownItem<ShareRole>[] = [
   {
     value: 'full_access',
     label: 'Full access',
@@ -187,7 +187,7 @@ const collectionItems: DropdownItem<ShareRole>[] = [
   },
 ];
 
-const reportItems: DropdownItem<ShareRole>[] = [
+const reportItems: IDropdownItem<ShareRole>[] = [
   {
     value: 'full_access',
     label: 'Full access',
@@ -205,7 +205,7 @@ const reportItems: DropdownItem<ShareRole>[] = [
   },
 ];
 
-const workspaceItems: DropdownItem<WorkspaceShareRole>[] = [
+const workspaceItems: IDropdownItem<WorkspaceShareRole>[] = [
   {
     value: 'full_access',
     label: 'Full access',
@@ -228,7 +228,7 @@ const workspaceItems: DropdownItem<WorkspaceShareRole>[] = [
   },
 ];
 
-const itemsRecord: Record<ShareAssetType, DropdownItem<ShareRole>[]> = {
+const itemsRecord: Record<ShareAssetType, IDropdownItem<ShareRole>[]> = {
   dashboard: dashboardItems,
   metric: metricItems,
   collection: collectionItems,
@@ -236,15 +236,15 @@ const itemsRecord: Record<ShareAssetType, DropdownItem<ShareRole>[]> = {
   report: reportItems,
 };
 
-const OWNER_ITEM: DropdownItem<DropdownValue> = {
+const OWNER_ITEM: IDropdownItem<DropdownValue> = {
   value: 'owner',
   label: 'Owner',
   secondaryLabel: 'Owner of the asset.',
 };
 
-const WORKSPACE_NOT_SHARED_ITEM: DropdownItem<DropdownValue> = last(
+const WORKSPACE_NOT_SHARED_ITEM: IDropdownItem<DropdownValue> = last(
   workspaceItems
-) as DropdownItem<DropdownValue>;
+) as IDropdownItem<DropdownValue>;
 
 const FooterContent = React.memo(() => {
   return (

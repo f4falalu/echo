@@ -1,7 +1,7 @@
 import { Link, type LinkProps } from '@tanstack/react-router';
 import * as React from 'react';
 import { cn } from '@/lib/classMerge';
-import type { OptionsTo } from '@/types/routes';
+import type { ILinkProps } from '@/types/routes';
 import { ChevronLeft } from '../icons';
 import { Button } from './Button';
 
@@ -11,7 +11,7 @@ interface BackButtonProps {
   size?: 'medium' | 'large';
   className?: string;
   style?: React.CSSProperties;
-  linkUrl?: OptionsTo;
+  linkUrl?: ILinkProps;
   activeProps?: LinkProps['activeProps'];
   activeOptions?: LinkProps['activeOptions'];
 }

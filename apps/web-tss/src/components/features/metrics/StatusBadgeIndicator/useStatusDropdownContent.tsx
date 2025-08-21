@@ -1,6 +1,6 @@
 import type { VerificationStatus } from '@buster/server-shared/share';
 import { useMemo } from 'react';
-import type { DropdownItem, DropdownProps } from '@/components/ui/dropdown';
+import type { DropdownProps, IDropdownItem } from '@/components/ui/dropdown';
 import { getTooltipText } from './helpers';
 import { StatusBadgeIndicator } from './StatusBadgeIndicator';
 
@@ -27,7 +27,7 @@ export const useStatusDropdownContent = ({
   'showIndex' | 'items' | 'emptyStateText' | 'menuHeader' | 'selectType'
 > => {
   const items = useMemo(() => {
-    return statuses.map<DropdownItem<VerificationStatus>>((status) => {
+    return statuses.map<IDropdownItem<VerificationStatus>>((status) => {
       const requiresAdmin = requiresAdminItems.includes(status);
       return {
         label: getTooltipText(status),

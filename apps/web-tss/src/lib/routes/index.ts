@@ -1,12 +1,11 @@
 import type { RegisteredRouter, ValidateLinkOptions } from '@tanstack/react-router';
+import type { ILinkProps } from '@/types/routes';
 
 export function defineLink<
   TRouter extends RegisteredRouter,
   TOptions,
   TFrom extends string = string,
->(
-  link: ValidateLinkOptions<TRouter, TOptions, TFrom>
-): ValidateLinkOptions<TRouter, TOptions, TFrom> {
+>(link: ILinkProps<TRouter, TOptions, TFrom>): ILinkProps<TRouter, TOptions, TFrom> {
   return link;
 }
 

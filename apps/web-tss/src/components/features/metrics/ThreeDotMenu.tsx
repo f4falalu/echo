@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { useGetMetric } from '@/api/buster_rest/metrics';
-import { DropdownContent, type IDropdownItem } from '@/components/ui/dropdown';
+import { DropdownContent, type IDropdownItem, type IDropdownItems } from '@/components/ui/dropdown';
 import { History, Star, WandSparkle } from '@/components/ui/icons';
 import { Star as StarFilled } from '@/components/ui/icons/NucleoIconFilled';
 import { FollowUpWithAssetContent } from '../assets/FollowUpWithAsset';
@@ -51,7 +51,7 @@ export const useFavoriteMetricSelectMenu = ({ metricId }: { metricId: string }) 
     name: name || '',
   });
 
-  const item: DropdownItem = useMemo(
+  const item: IDropdownItem = useMemo(
     () => ({
       label: isFavorited ? 'Remove from favorites' : 'Add to favorites',
       value: 'add-to-favorites',
@@ -65,7 +65,7 @@ export const useFavoriteMetricSelectMenu = ({ metricId }: { metricId: string }) 
   return item;
 };
 
-export const useMetricDrilldownItem = ({ metricId }: { metricId: string }): DropdownItem => {
+export const useMetricDrilldownItem = ({ metricId }: { metricId: string }): IDropdownItem => {
   return useMemo(
     () => ({
       value: 'drilldown',
