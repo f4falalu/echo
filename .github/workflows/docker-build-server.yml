@@ -42,22 +42,8 @@ jobs:
           node-version: 22
           cache: 'pnpm'
       
-      - name: Fix pnpm store permissions
-        run: |
-          STORE_PATH=$(pnpm store path --silent)
-          if [ -d "$STORE_PATH" ]; then
-            sudo chown -R $(whoami):$(whoami) "$STORE_PATH" || true
-            chmod -R u+rw "$STORE_PATH" || true
-          fi
-      
       - name: Install bun
         run: npm install -g bun@1.2.15
-      
-      - name: Mount Turbo cache sticky disk
-        uses: useblacksmith/stickydisk@v1
-        with:
-          key: ${{ github.repository }}-turbo-cache
-          path: ./.turbo
       
       - name: Mount Docker buildkit sticky disk
         uses: useblacksmith/stickydisk@v1
@@ -68,17 +54,20 @@ jobs:
       - name: Install dependencies
         run: |
           echo "📦 Installing dependencies with pnpm..."
-          pnpm install --frozen-lockfile --prefer-offline
+          pnpm install --frozen-lockfile
       
       - name: Build with Turbo
         run: |
-          echo "🔨 Building server with Turbo (using sticky disk cache)..."
-          pnpm turbo run build --filter=@buster-app/server
+          echo "🔨 Building server with Turbo..."
+          # Build with optimized settings for Docker
+          pnpm turbo run build --filter=@buster-app/server...
           echo "✅ Build complete!"
         env:
           NODE_ENV: production
           DOCKER_BUILD: true
           CI: true
+          TURBO_CACHE_DIR: .turbo
+          TURBO_TELEMETRY_DISABLED: 1
       
       - name: Build server bundle
         run: |

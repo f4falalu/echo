@@ -32,31 +32,16 @@ jobs:
           node-version: 22
           cache: 'pnpm'
       
-      - name: Fix pnpm store permissions
-        run: |
-          STORE_PATH=$(pnpm store path --silent)
-          if [ -d "$STORE_PATH" ]; then
-            # Clear corrupted cache entries
-            find "$STORE_PATH" -type f ! -perm -u+r -delete 2>/dev/null || true
-            find "$STORE_PATH" -type d ! -perm -u+rx -delete 2>/dev/null || true
-            # Fix permissions on remaining files
-            sudo chown -R $(whoami):$(whoami) "$STORE_PATH" || true
-            chmod -R u+rw "$STORE_PATH" || true
-          fi
-
-      - name: Mount Turbo cache sticky disk
-        uses: useblacksmith/stickydisk@v1
-        with:
-          key: ${{ github.repository }}-turbo-cache
-          path: ./.turbo
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile --prefer-offline
+        run: pnpm install --frozen-lockfile
 
       - name: Build all packages (excluding web)
         run: pnpm build --filter='!@buster-app/web'
         env:
           NODE_ENV: production
+          TURBO_CACHE_DIR: .turbo
+          TURBO_TELEMETRY_DISABLED: 1
 
   # Lint job - runs in parallel
   lint:
@@ -78,29 +63,15 @@ jobs:
           node-version: 22
           cache: 'pnpm'
       
-      - name: Fix pnpm store permissions
-        run: |
-          STORE_PATH=$(pnpm store path --silent)
-          if [ -d "$STORE_PATH" ]; then
-            # Clear corrupted cache entries
-            find "$STORE_PATH" -type f ! -perm -u+r -delete 2>/dev/null || true
-            find "$STORE_PATH" -type d ! -perm -u+rx -delete 2>/dev/null || true
-            # Fix permissions on remaining files
-            sudo chown -R $(whoami):$(whoami) "$STORE_PATH" || true
-            chmod -R u+rw "$STORE_PATH" || true
-          fi
-
-      - name: Mount Turbo cache sticky disk
-        uses: useblacksmith/stickydisk@v1
-        with:
-          key: ${{ github.repository }}-turbo-cache
-          path: ./.turbo
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile --prefer-offline
+        run: pnpm install --frozen-lockfile
 
       - name: Lint all packages (excluding web)
         run: pnpm lint --filter='!@buster-app/web'
+        env:
+          TURBO_CACHE_DIR: .turbo
+          TURBO_TELEMETRY_DISABLED: 1
 
   # Test job - runs after build completes
   test:
@@ -123,34 +94,22 @@ jobs:
           node-version: 22
           cache: 'pnpm'
       
-      - name: Fix pnpm store permissions
-        run: |
-          STORE_PATH=$(pnpm store path --silent)
-          if [ -d "$STORE_PATH" ]; then
-            # Clear corrupted cache entries
-            find "$STORE_PATH" -type f ! -perm -u+r -delete 2>/dev/null || true
-            find "$STORE_PATH" -type d ! -perm -u+rx -delete 2>/dev/null || true
-            # Fix permissions on remaining files
-            sudo chown -R $(whoami):$(whoami) "$STORE_PATH" || true
-            chmod -R u+rw "$STORE_PATH" || true
-          fi
-
-      - name: Mount Turbo cache sticky disk
-        uses: useblacksmith/stickydisk@v1
-        with:
-          key: ${{ github.repository }}-turbo-cache
-          path: ./.turbo
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile --prefer-offline
+        run: pnpm install --frozen-lockfile
 
       - name: Build required packages
         run: pnpm build --filter='!@buster-app/web'
         env:
           NODE_ENV: production
+          TURBO_CACHE_DIR: .turbo
+          TURBO_TELEMETRY_DISABLED: 1
 
       - name: Run all unit tests (excluding web)
         run: pnpm test:unit --filter='!@buster-app/web'
+        env:
+          TURBO_CACHE_DIR: .turbo
+          TURBO_TELEMETRY_DISABLED: 1
 
       - name: Upload test coverage
         uses: actions/upload-artifact@v4
