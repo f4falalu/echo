@@ -27,10 +27,6 @@ vi.mock('@buster/database', () => ({
   reportFiles: {},
 }));
 
-vi.mock('../helpers/report-metric-helper', () => ({
-  reportContainsMetrics: vi.fn(),
-}));
-
 vi.mock('../helpers/report-version-helper', () => ({
   shouldIncrementVersion: vi.fn().mockResolvedValue(true),
   updateVersionHistory: vi.fn().mockReturnValue({
@@ -65,20 +61,17 @@ vi.mock('../../../shared/create-raw-llm-tool-result-entry', () => ({
 }));
 
 import { db, updateMessageEntries } from '@buster/database';
-import { reportContainsMetrics } from '../helpers/report-metric-helper';
 
 describe('modify-reports-execute', () => {
   let context: ModifyReportsContext;
   let state: ModifyReportsState;
   let mockUpdateMessageEntries: ReturnType<typeof vi.fn>;
-  let mockReportContainsMetrics: ReturnType<typeof vi.fn>;
 
   beforeEach(() => {
     vi.clearAllMocks();
 
     mockDbLimit.mockClear();
     mockUpdateMessageEntries = updateMessageEntries as ReturnType<typeof vi.fn>;
-    mockReportContainsMetrics = reportContainsMetrics as ReturnType<typeof vi.fn>;
 
     context = {
       userId: 'user-123',
@@ -91,6 +84,8 @@ describe('modify-reports-execute', () => {
       toolCallId: 'tool-call-123',
       edits: [],
       startTime: Date.now(),
+      snapshotContent: undefined, // Will be set per test
+      versionHistory: undefined, // Will be set per test
     };
   });
 
@@ -109,7 +104,8 @@ Updated content with metrics.`;
         },
       ]);
 
-      // Setup state
+      // Setup state with snapshot
+      state.snapshotContent = existingReportContent;
       state.edits = [
         {
           code_to_replace: '# Original Report\nSome content here.',
@@ -124,6 +120,7 @@ Updated content with metrics.`;
         name: 'Modified Sales Report',
         edits: [
           {
+            operation: 'replace' as const,
             code_to_replace: '# Original Report\nSome content here.',
             code: modifiedContent,
           },
@@ -131,7 +128,6 @@ Updated content with metrics.`;
       };
 
       // Mock that the modified report contains metrics
-      mockReportContainsMetrics.mockReturnValue(true);
 
       const execute = createModifyReportsExecute(context, state);
       const result = await execute(input);
@@ -154,7 +150,7 @@ Updated content with metrics.`;
       });
     });
 
-    it('should NOT add report to responseMessages when modified report does NOT contain metrics', async () => {
+    it('should add all successfully modified reports to responseMessages', async () => {
       // Mock existing report in database
       const existingReportContent = '# Original Report\nSome content here.';
       const modifiedContent = '# Modified Report\nUpdated content without any metrics.';
@@ -180,14 +176,12 @@ Updated content with metrics.`;
         name: 'Modified Report',
         edits: [
           {
+            operation: 'replace' as const,
             code_to_replace: '# Original Report\nSome content here.',
             code: modifiedContent,
           },
         ],
       };
-
-      // Mock that the modified report does NOT contain metrics
-      mockReportContainsMetrics.mockReturnValue(false);
 
       const execute = createModifyReportsExecute(context, state);
       const result = await execute(input);
@@ -195,14 +189,19 @@ Updated content with metrics.`;
       // Check result
       expect(result.success).toBe(true);
 
-      // Check that updateMessageEntries was called WITHOUT responseMessages
+      // Check that updateMessageEntries was called WITH responseMessages
       expect(mockUpdateMessageEntries).toHaveBeenCalled();
       const updateCall = mockUpdateMessageEntries.mock.calls[0]?.[0];
 
-      expect(updateCall.responseMessages).toBeUndefined();
-      // But reasoning and raw messages should still be there
-      expect(updateCall.reasoningMessages).toBeDefined();
-      expect(updateCall.rawLlmMessages).toBeDefined();
+      expect(updateCall.responseMessages).toBeDefined();
+      expect(updateCall.responseMessages).toHaveLength(1);
+      expect(updateCall.responseMessages?.[0]).toMatchObject({
+        id: 'report-123',
+        type: 'file',
+        file_type: 'report',
+        file_name: 'Modified Report',
+        version_number: 2,
+      });
     });
 
     it('should check metrics on final content after all edits are applied', async () => {
@@ -217,6 +216,7 @@ Updated content with metrics.`;
       ]);
 
       // Multiple edits that eventually add a metric
+      state.snapshotContent = originalContent;
       state.edits = [
         {
           code_to_replace: 'Section 1',
@@ -243,34 +243,29 @@ Updated content with metrics.`;
         name: 'Multi-Edit Report',
         edits: [
           {
+            operation: 'replace' as const,
             code_to_replace: 'Section 1',
             code: 'Updated Section 1',
           },
           {
+            operation: 'replace' as const,
             code_to_replace: 'Section 2',
             code: 'Section 2 with <metric metricId="uuid-123" />',
           },
           {
+            operation: 'replace' as const,
             code_to_replace: 'Section 3',
             code: 'Updated Section 3',
           },
         ],
       };
 
-      // Only check metrics on the final content
-      mockReportContainsMetrics.mockImplementation((content: string) => {
-        return content.includes('<metric metricId="uuid-123" />');
-      });
-
       const execute = createModifyReportsExecute(context, state);
       const result = await execute(input);
 
       expect(result.success).toBe(true);
 
-      // Should have called reportContainsMetrics with the final content
-      expect(mockReportContainsMetrics).toHaveBeenCalledWith(
-        expect.stringContaining('<metric metricId="uuid-123" />')
-      );
+      // Response messages should be created for all successfully modified reports
 
       // Should add to responseMessages since final content has metrics
       const updateCall = mockUpdateMessageEntries.mock.calls[0]?.[0];
@@ -301,13 +296,12 @@ Updated content with metrics.`;
         name: 'Failed Edit Report',
         edits: [
           {
+            operation: 'replace' as const,
             code_to_replace: 'Non-existent text',
             code: '<metric metricId="uuid-123" />',
           },
         ],
       };
-
-      mockReportContainsMetrics.mockReturnValue(true);
 
       const execute = createModifyReportsExecute(context, state);
       const result = await execute(input);
@@ -325,6 +319,9 @@ Updated content with metrics.`;
       // Remove messageId from context
       context.messageId = undefined;
 
+      // Setup state with snapshot
+      state.snapshotContent = 'Original';
+
       mockDbLimit.mockResolvedValue([
         {
           content: 'Original',
@@ -337,13 +334,12 @@ Updated content with metrics.`;
         name: 'No Message ID Report',
         edits: [
           {
+            operation: 'replace' as const,
             code_to_replace: 'Original',
             code: 'Modified with <metric metricId="uuid-123" />',
           },
         ],
       };
-
-      mockReportContainsMetrics.mockReturnValue(true);
 
       const execute = createModifyReportsExecute(context, state);
       const result = await execute(input);
@@ -356,7 +352,9 @@ Updated content with metrics.`;
     });
 
     it('should handle report not found in database', async () => {
-      // Mock no report found
+      // Mock no report found - snapshot will be undefined since report doesn't exist
+      // This should trigger the fallback to fetch from DB
+      state.snapshotContent = undefined;
       mockDbLimit.mockResolvedValue([]);
 
       const input: ModifyReportsInput = {
@@ -364,6 +362,7 @@ Updated content with metrics.`;
         name: 'Ghost Report',
         edits: [
           {
+            operation: 'replace' as const,
             code_to_replace: 'something',
             code: 'something else',
           },
@@ -399,25 +398,23 @@ Updated content with metrics.`;
         name: 'Success Report',
         edits: [
           {
+            operation: 'replace' as const,
             code_to_replace: 'Original Content',
             code: 'Modified with <metric metricId="uuid-1" />',
           },
         ],
       };
 
-      mockReportContainsMetrics.mockReturnValue(true);
-
-      const execute1 = createModifyReportsExecute(context, { ...state });
+      // Set snapshot for first execution
+      const state1 = { ...state, snapshotContent: 'Original Content' };
+      const execute1 = createModifyReportsExecute(context, state1);
       const result1 = await execute1(input1);
 
       expect(result1.success).toBe(true);
-      expect(mockReportContainsMetrics).toHaveBeenCalledWith(
-        'Modified with <metric metricId="uuid-1" />'
-      );
+      // Response message should be created for successful modification
 
       // Reset mocks for second execution
       vi.clearAllMocks();
-      mockReportContainsMetrics = reportContainsMetrics as ReturnType<typeof vi.fn>;
 
       // Second execution - failure (report not found)
       const input2: ModifyReportsInput = {
@@ -425,18 +422,20 @@ Updated content with metrics.`;
         name: 'Missing Report',
         edits: [
           {
+            operation: 'replace' as const,
             code_to_replace: 'anything',
             code: 'anything with <metric metricId="uuid-2" />',
           },
         ],
       };
 
-      const execute2 = createModifyReportsExecute(context, { ...state });
+      // No snapshot for missing report - should trigger fallback
+      const state2 = { ...state, snapshotContent: undefined };
+      const execute2 = createModifyReportsExecute(context, state2);
       const result2 = await execute2(input2);
 
       expect(result2.success).toBe(false);
-      // Should NOT check metrics for failed modifications
-      expect(mockReportContainsMetrics).not.toHaveBeenCalled();
+      // No response messages should be created when modification fails
     });
   });
 });

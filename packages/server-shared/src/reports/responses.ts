@@ -8,5 +8,5 @@ export const ShareUpdateResponseSchema = ReportIndividualResponseSchema;
 
 export type GetReportsListResponse = z.infer<typeof GetReportsListResponseSchema>;
 export type UpdateReportResponse = z.infer<typeof UpdateReportResponseSchema>;
-export type GetReportIndividualResponse = z.infer<typeof ReportIndividualResponseSchema>;
+export type GetReportResponse = z.infer<typeof ReportIndividualResponseSchema>;
 export type ShareUpdateResponse = z.infer<typeof ShareUpdateResponseSchema>;

@@ -5,8 +5,6 @@ import { cn } from '@/lib/utils';
 import React from 'react';
 import { ReportPageHeader } from './ReportPageHeader';
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
-import { useDebounceFn } from '@/hooks/useDebounce';
-import type { ReportElementsWithIds } from '@buster/server-shared/reports';
 import DynamicReportEditor from '@/components/ui/report/DynamicReportEditor';
 import { type IReportEditor } from '@/components/ui/report/ReportEditor';
 import { ReportEditorSkeleton } from '@/components/ui/report/ReportEditorSkeleton';
@@ -24,27 +22,31 @@ export const ReportPageController: React.FC<{
     const { data: report } = useGetReport({ reportId, versionNumber: undefined });
     const isStreamingMessage = useChatIndividualContextSelector((x) => x.isStreamingMessage);
 
-    const content: ReportElementsWithIds = report?.content || [];
+    const content = report?.content || '';
     const commonClassName = 'sm:px-[max(64px,calc(50%-350px))]';
 
     const { mutate: updateReport } = useUpdateReport();
 
+    const canUpdate = () => {
+      if (isStreamingMessage || !report || readOnly) {
+        console.warn('Cannot update report');
+        return false;
+      }
+      return true;
+    };
+
     const onChangeName = useMemoizedFn((name: string) => {
-      if (!report) {
-        console.warn('Report not yet fetched');
+      if (!canUpdate()) {
         return;
       }
       updateReport({ reportId, name });
     });
 
-    const { run: debouncedUpdateReport } = useDebounceFn(updateReport, { wait: 650 });
-
-    const onChangeContent = useMemoizedFn((content: ReportElementsWithIds) => {
-      if (!report) {
-        console.warn('Report not yet fetched');
+    const onChangeContent = useMemoizedFn((content: string) => {
+      if (!canUpdate()) {
         return;
       }
-      debouncedUpdateReport({ reportId, content });
+      updateReport({ reportId, content });
     });
 
     useTrackAndUpdateReportChanges({ reportId, subscribe: isStreamingMessage });

@@ -18,6 +18,8 @@ export function modifyReportsStart(context: ModifyReportsContext, state: ModifyR
     state.finalContent = undefined;
     state.version_number = undefined;
     state.startTime = Date.now();
+    state.responseMessageCreated = false;
+    state.snapshotContent = undefined;
 
     if (context.messageId) {
       try {

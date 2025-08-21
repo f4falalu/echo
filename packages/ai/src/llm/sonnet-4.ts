@@ -7,7 +7,7 @@ import { vertexModel } from './providers/vertex';
 // Lazy initialization to allow mocking in tests
 let _sonnet4Instance: ReturnType<typeof createFallback> | null = null;
 
-function initializeSonnet4() {
+function initializeSonnet4(): ReturnType<typeof createFallback> {
   if (_sonnet4Instance) {
     return _sonnet4Instance;
   }
@@ -19,10 +19,12 @@ function initializeSonnet4() {
   if (process.env.ANTHROPIC_API_KEY) {
     try {
       models.push(anthropicModel('claude-4-sonnet-20250514'));
-      console.info('Sonnet4: Anthropic model added to fallback chain');
+      console.info('Sonnet4: Anthropic model added to fallback chain (primary)');
     } catch (error) {
       console.warn('Sonnet4: Failed to initialize Anthropic model:', error);
     }
+  } else {
+    console.info('Sonnet4: No ANTHROPIC_API_KEY found, skipping Anthropic model');
   }
 
   if (process.env.OPENAI_API_KEY) {
@@ -51,13 +53,43 @@ function initializeSonnet4() {
     );
   }
 
+  if (process.env.OPENAI_API_KEY) {
+    try {
+      models.push(openaiModel('gpt-5'));
+      console.info('Sonnet4: OpenAI model added to fallback chain');
+    } catch (error) {
+      console.warn('Sonnet4: Failed to initialize OpenAI model:', error);
+    }
+  }
+
   console.info(`Sonnet4: Initialized with ${models.length} model(s) in fallback chain`);
 
   _sonnet4Instance = createFallback({
     models,
     modelResetInterval: 60000,
     retryAfterOutput: true,
-    onError: (err) => console.error(`FALLBACK.  Here is the error: ${err}`),
+    onError: (err, modelId) => {
+      // Handle various error formats
+      let errorMessage = 'Unknown error';
+      if (err instanceof Error) {
+        errorMessage = err.message;
+      } else if (err && typeof err === 'object') {
+        const errObj = err as Record<string, unknown>;
+        if ('message' in errObj) {
+          errorMessage = String(errObj.message);
+        }
+        if ('type' in errObj) {
+          errorMessage = `${errObj.type}: ${errObj.message || 'No message'}`;
+        }
+      } else {
+        errorMessage = String(err);
+      }
+
+      const errorDetails =
+        err instanceof Error && err.stack ? err.stack : JSON.stringify(err, null, 2);
+      console.error(`FALLBACK from model ${modelId}. Error: ${errorMessage}`);
+      console.error('Error details:', errorDetails);
+    },
   });
 
   return _sonnet4Instance;

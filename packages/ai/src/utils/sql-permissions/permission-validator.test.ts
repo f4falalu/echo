@@ -1108,6 +1108,108 @@ describe('Permission Validator', () => {
       expect(unauthorizedCols).toContainEqual({ table: 'sales.orders', column: 'priority' });
       expect(unauthorizedCols).toContainEqual({ table: 'sales.customers', column: 'credit_score' });
     });
+
+    it('should not treat column aliases as physical columns requiring permissions', async () => {
+      vi.mocked(accessControls.getPermissionedDatasets).mockResolvedValueOnce({
+        datasets: [
+          {
+            ymlContent: `
+            name: sales_order_header
+            database: postgres
+            schema: ont_ont
+            dimensions:
+              - name: orderdate
+              - name: subtotal
+              - name: salesorderid
+          `,
+          } as accessControls.PermissionedDataset,
+        ],
+        total: 1,
+        page: 0,
+        pageSize: 1000,
+      });
+
+      // This is the exact query from the user's example
+      const sql = `
+        SELECT 
+          DATE_TRUNC('month', soh.orderdate) as order_month,
+          SUM(soh.subtotal) as monthly_revenue
+        FROM postgres.ont_ont.sales_order_header soh
+        WHERE soh.orderdate >= CURRENT_DATE - INTERVAL '12 months'
+        GROUP BY DATE_TRUNC('month', soh.orderdate)
+        ORDER BY order_month DESC
+        LIMIT 12
+      `;
+
+      const result = await validateSqlPermissions(sql, 'user123');
+
+      // Should be authorized - order_month is just an alias, not a physical column
+      expect(result.isAuthorized).toBe(true);
+      expect(result.unauthorizedColumns).toBeUndefined();
+      expect(result.error).toBeUndefined();
+    });
+
+    it('should not treat aliases in complex JOIN queries as physical columns', async () => {
+      vi.mocked(accessControls.getPermissionedDatasets).mockResolvedValueOnce({
+        datasets: [
+          {
+            ymlContent: `
+            name: sales_order_detail
+            database: postgres
+            schema: ont_ont
+            dimensions:
+              - name: linetotal
+              - name: productid
+              - name: salesorderid
+          `,
+          } as accessControls.PermissionedDataset,
+          {
+            ymlContent: `
+            name: product
+            database: postgres
+            schema: ont_ont
+            dimensions:
+              - name: productid
+              - name: name
+          `,
+          } as accessControls.PermissionedDataset,
+          {
+            ymlContent: `
+            name: sales_order_header
+            database: postgres
+            schema: ont_ont
+            dimensions:
+              - name: salesorderid
+              - name: orderdate
+          `,
+          } as accessControls.PermissionedDataset,
+        ],
+        total: 3,
+        page: 0,
+        pageSize: 1000,
+      });
+
+      // This is the second query from the user's example
+      const sql = `
+        SELECT 
+          p.name as product_name,
+          SUM(sod.linetotal) as product_revenue
+        FROM postgres.ont_ont.sales_order_detail sod
+        JOIN postgres.ont_ont.product p ON sod.productid = p.productid
+        JOIN postgres.ont_ont.sales_order_header soh ON sod.salesorderid = soh.salesorderid
+        WHERE soh.orderdate >= CURRENT_DATE - INTERVAL '12 months'
+        GROUP BY p.productid, p.name
+        ORDER BY product_revenue DESC
+        LIMIT 15
+      `;
+
+      const result = await validateSqlPermissions(sql, 'user123');
+
+      // Should be authorized - product_name and product_revenue are just aliases
+      expect(result.isAuthorized).toBe(true);
+      expect(result.unauthorizedColumns).toBeUndefined();
+      expect(result.error).toBeUndefined();
+    });
   });
 
   describe('createPermissionErrorMessage', () => {

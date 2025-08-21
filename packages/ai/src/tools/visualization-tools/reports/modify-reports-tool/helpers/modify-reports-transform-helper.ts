@@ -104,6 +104,7 @@ export function createModifyReportsRawLlmMessageEntry(
           edits: state.edits
             .filter((edit) => edit != null) // Filter out null/undefined entries first
             .map((edit) => ({
+              operation: edit.operation,
               code_to_replace: edit.code_to_replace || '',
               code: edit.code || '',
             }))
