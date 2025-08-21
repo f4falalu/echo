@@ -101,7 +101,7 @@ export const ReportEditor = React.memo(
               onValueChange(markdown);
             })
             .catch((error) => {
-              console.error('Error cleaning value to report elements', error);
+              console.error('Error converting platejs to markdown', error);
             });
         }
 
