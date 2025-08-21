@@ -29,6 +29,7 @@ interface ReportEditorProps {
   onReady?: (editor: IReportEditor) => void;
   id?: string;
   mode?: 'export' | 'default';
+  children?: React.ReactNode;
 }
 
 export type IReportEditor = TPlateEditor<Value, AnyPluginConfig>;
@@ -57,7 +58,8 @@ export const ReportEditor = React.memo(
         useFixedToolbarKit = false,
         readOnly = false,
         disabled = false,
-        isStreaming = false
+        isStreaming = false,
+        children
       },
       ref
     ) => {
@@ -121,26 +123,27 @@ export const ReportEditor = React.memo(
       if (!editor) return null;
 
       return (
-        <ThemeWrapper id={id}>
-          <Plate
-            editor={editor}
-            readOnly={readOnly || isStreaming}
-            onValueChange={onValueChangeDebounced}>
-            <EditorContainer
-              variant={variant}
-              readonly={readOnly}
-              disabled={disabled}
-              className={cn('pb-[20vh]', containerClassName)}>
+        <Plate
+          editor={editor}
+          readOnly={readOnly || isStreaming}
+          onValueChange={onValueChangeDebounced}>
+          <EditorContainer
+            variant={variant}
+            readonly={readOnly}
+            disabled={disabled}
+            className={cn('editor-container overflow-auto', containerClassName)}>
+            {children}
+            <ThemeWrapper id={id}>
               <Editor
                 style={style}
                 placeholder={placeholder}
                 disabled={disabled}
-                className={className}
+                className={cn('editor', className)}
                 autoFocus
               />
-            </EditorContainer>
-          </Plate>
-        </ThemeWrapper>
+            </ThemeWrapper>
+          </EditorContainer>
+        </Plate>
       );
     }
   )
