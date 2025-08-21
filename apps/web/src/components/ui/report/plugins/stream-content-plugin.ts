@@ -53,14 +53,19 @@ export const StreamContentPlugin = createPlatePlugin({
       }
 
       // Prevent undo/redo and defer normalization for performance
-      editor.tf.withScrolling(() => {
-        editor.tf.withoutSaving(() => {
-          editor.tf.withoutNormalizing(() => {
-            const operations = buildUpdateOperations(editor, chunks);
-            executeOperations(operations);
+      editor.tf.withScrolling(
+        () => {
+          editor.tf.withoutSaving(() => {
+            editor.tf.withoutNormalizing(() => {
+              const operations = buildUpdateOperations(editor, chunks);
+              executeOperations(operations);
+            });
           });
-        });
-      });
+        },
+        {
+          scrollOptions: { behavior: 'smooth' }
+        }
+      );
     }
   }
 }));

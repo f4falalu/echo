@@ -64,6 +64,9 @@ export const ReportEditor = React.memo(
       // Initialize the editor instance using the custom useEditor hook
       const isReady = useRef(false);
 
+      // readOnly = true;
+      // isStreaming = true;
+
       const editor = useReportEditor({
         isStreaming,
         mode,
@@ -127,12 +130,12 @@ export const ReportEditor = React.memo(
               variant={variant}
               readonly={readOnly}
               disabled={disabled}
-              className={containerClassName}>
+              className={cn('pb-[20vh]', containerClassName)}>
               <Editor
                 style={style}
                 placeholder={placeholder}
                 disabled={disabled}
-                className={cn('pb-[20vh]', className)}
+                className={className}
                 autoFocus
               />
             </EditorContainer>
