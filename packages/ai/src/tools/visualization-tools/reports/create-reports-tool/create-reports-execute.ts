@@ -2,6 +2,7 @@ import { batchUpdateReport, updateMessageEntries } from '@buster/database';
 import type { ChatMessageResponseMessage } from '@buster/server-shared/chats';
 import { wrapTraced } from 'braintrust';
 import { createRawToolResultEntry } from '../../../shared/create-raw-llm-tool-result-entry';
+import { updateCachedSnapshot } from '../report-snapshot-cache';
 import type {
   CreateReportsContext,
   CreateReportsInput,
@@ -167,6 +168,9 @@ export function createCreateReportsExecute(
               name,
               versionHistory,
             });
+
+            // Update cache with the newly created report content
+            updateCachedSnapshot(reportId, content, versionHistory);
 
             // Update state to reflect successful update
             if (!state.files) {

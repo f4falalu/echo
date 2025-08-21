@@ -84,8 +84,8 @@ describe('modify-reports-execute', () => {
       toolCallId: 'tool-call-123',
       edits: [],
       startTime: Date.now(),
-      snapshotContent: undefined,  // Will be set per test
-      versionHistory: undefined,   // Will be set per test
+      snapshotContent: undefined, // Will be set per test
+      versionHistory: undefined, // Will be set per test
     };
   });
 

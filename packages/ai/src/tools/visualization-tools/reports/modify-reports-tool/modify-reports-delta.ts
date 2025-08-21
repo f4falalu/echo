@@ -10,6 +10,7 @@ import {
   OptimisticJsonParser,
   getOptimisticValue,
 } from '../../../../utils/streaming/optimistic-json-parser';
+import { getCachedSnapshot, updateCachedSnapshot } from '../report-snapshot-cache';
 import {
   createModifyReportsRawLlmMessageEntry,
   createModifyReportsReasoningEntry,
@@ -53,19 +54,14 @@ export function createModifyReportsDelta(context: ModifyReportsContext, state: M
       if (id && !state.reportId) {
         state.reportId = id;
 
-        // Fetch the report snapshot and version history immediately when we get the ID
+        // Check cache first, then fetch from DB if needed
         try {
-          const existingReport = await db
-            .select({
-              content: reportFiles.content,
-              versionHistory: reportFiles.versionHistory,
-            })
-            .from(reportFiles)
-            .where(and(eq(reportFiles.id, id), isNull(reportFiles.deletedAt)))
-            .limit(1);
+          // Try to get from cache first
+          const cached = getCachedSnapshot(id);
 
-          if (existingReport.length > 0 && existingReport[0]) {
-            state.snapshotContent = existingReport[0].content;
+          if (cached) {
+            // Use cached snapshot
+            state.snapshotContent = cached.content;
 
             type VersionHistoryEntry = {
               content: string;
@@ -73,7 +69,7 @@ export function createModifyReportsDelta(context: ModifyReportsContext, state: M
               version_number: number;
             };
 
-            const versionHistory = existingReport[0].versionHistory as Record<
+            const versionHistory = cached.versionHistory as Record<
               string,
               VersionHistoryEntry
             > | null;
@@ -89,12 +85,56 @@ export function createModifyReportsDelta(context: ModifyReportsContext, state: M
               state.snapshotVersion = 1;
             }
 
-            console.info('[modify-reports-delta] Fetched report snapshot', {
+            console.info('[modify-reports-delta] Using cached snapshot', {
               reportId: id,
               version: state.snapshotVersion,
             });
           } else {
-            console.error('[modify-reports-delta] Report not found', { reportId: id });
+            // Cache miss - fetch from database
+            const existingReport = await db
+              .select({
+                content: reportFiles.content,
+                versionHistory: reportFiles.versionHistory,
+              })
+              .from(reportFiles)
+              .where(and(eq(reportFiles.id, id), isNull(reportFiles.deletedAt)))
+              .limit(1);
+
+            if (existingReport.length > 0 && existingReport[0]) {
+              state.snapshotContent = existingReport[0].content;
+
+              type VersionHistoryEntry = {
+                content: string;
+                updated_at: string;
+                version_number: number;
+              };
+
+              const versionHistory = existingReport[0].versionHistory as Record<
+                string,
+                VersionHistoryEntry
+              > | null;
+              state.versionHistory = versionHistory || undefined;
+
+              // Extract current version number from version history
+              if (state.versionHistory) {
+                const versionNumbers = Object.values(state.versionHistory).map(
+                  (v) => v.version_number
+                );
+                state.snapshotVersion = versionNumbers.length > 0 ? Math.max(...versionNumbers) : 1;
+              } else {
+                state.snapshotVersion = 1;
+              }
+
+              // Update cache for next time
+              updateCachedSnapshot(id, existingReport[0].content, versionHistory);
+
+              console.info('[modify-reports-delta] Fetched report snapshot from DB', {
+                reportId: id,
+                version: state.snapshotVersion,
+              });
+            } else {
+              console.error('[modify-reports-delta] Report not found', { reportId: id });
+            }
           }
         } catch (error) {
           console.error('[modify-reports-delta] Error fetching report snapshot:', error);
@@ -265,6 +305,9 @@ export function createModifyReportsDelta(context: ModifyReportsContext, state: M
                     name: state.reportName || undefined,
                     versionHistory,
                   });
+
+                  // Update cache with the new content for subsequent modifications
+                  updateCachedSnapshot(state.reportId, newContent, versionHistory);
 
                   // Update state with the final content (but keep snapshot immutable)
                   state.finalContent = newContent;

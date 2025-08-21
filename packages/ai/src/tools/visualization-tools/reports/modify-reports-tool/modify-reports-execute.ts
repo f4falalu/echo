@@ -5,6 +5,7 @@ import { and, eq, isNull } from 'drizzle-orm';
 import { createRawToolResultEntry } from '../../../shared/create-raw-llm-tool-result-entry';
 import { trackFileAssociations } from '../../file-tracking-helper';
 import { shouldIncrementVersion, updateVersionHistory } from '../helpers/report-version-helper';
+import { updateCachedSnapshot } from '../report-snapshot-cache';
 import {
   createModifyReportsRawLlmMessageEntry,
   createModifyReportsReasoningEntry,
@@ -84,7 +85,7 @@ async function processEditOperations(
   // Otherwise fetch from database (for cases where delta didn't run)
   let baseContent: string;
   let baseVersionHistory: VersionHistory | null;
-  
+
   if (snapshotContent !== undefined) {
     // Use the immutable snapshot from state
     baseContent = snapshotContent;
@@ -114,7 +115,7 @@ async function processEditOperations(
         errors: ['Report not found'],
       };
     }
-    
+
     baseContent = report.content;
     baseVersionHistory = report.versionHistory as VersionHistory | null;
   }
@@ -163,6 +164,9 @@ async function processEditOperations(
       name: reportName,
       versionHistory: newVersionHistory,
     });
+
+    // Update cache with the modified content for future operations
+    updateCachedSnapshot(reportId, currentContent, newVersionHistory);
 
     return {
       success: true,
@@ -248,12 +252,12 @@ const modifyReportsFile = wrapTraced(
 
     // Process all edit operations using snapshot as source of truth
     const editResult = await processEditOperations(
-      params.id, 
-      params.name, 
-      params.edits, 
+      params.id,
+      params.name,
+      params.edits,
       messageId,
-      snapshotContent,  // Pass immutable snapshot
-      versionHistory    // Pass snapshot version history
+      snapshotContent, // Pass immutable snapshot
+      versionHistory // Pass snapshot version history
     );
 
     // Track file associations if this is a new version (not part of same turn)
@@ -328,10 +332,10 @@ export function createModifyReportsExecute(
         // Always process using the complete input as source of truth
         console.info('[modify-reports] Processing modifications from complete input');
         const result = await modifyReportsFile(
-          input, 
+          input,
           context,
-          state.snapshotContent,  // Pass immutable snapshot from state
-          state.versionHistory    // Pass snapshot version history from state
+          state.snapshotContent, // Pass immutable snapshot from state
+          state.versionHistory // Pass snapshot version history from state
         );
 
         if (!result) {
