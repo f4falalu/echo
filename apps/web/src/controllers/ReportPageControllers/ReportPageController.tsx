@@ -12,6 +12,7 @@ import { useChatIndividualContextSelector } from '@/layouts/ChatLayout/ChatConte
 import { useTrackAndUpdateReportChanges } from '@/api/buster-electric/reports/hooks';
 import { ShimmerText } from '@/components/ui/typography/ShimmerText';
 import { GeneratingContent } from './GeneratingContent';
+import { useHotkeys } from 'react-hotkeys-hook';
 
 export const ReportPageController: React.FC<{
   reportId: string;
@@ -63,7 +64,6 @@ export const ReportPageController: React.FC<{
           <DynamicReportEditor
             value={content}
             placeholder="Start typing..."
-            disabled={false}
             className={commonClassName}
             containerClassName="pt-9"
             variant="default"
