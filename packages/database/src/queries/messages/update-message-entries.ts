@@ -127,6 +127,7 @@ export async function updateMessageEntries({
             WITH new_messages AS (
               SELECT 
                 value,
+                ordinality as input_order,
                 value->>'role' AS role,
                 COALESCE(
                   CASE 
@@ -138,7 +139,7 @@ export async function updateMessageEntries({
                   END,
                   ''
                 ) AS tool_calls
-              FROM jsonb_array_elements(${newData}::jsonb) AS value
+              FROM jsonb_array_elements(${newData}::jsonb) WITH ORDINALITY AS t(value, ordinality)
             ),
             existing_messages AS (
               SELECT 
@@ -170,8 +171,8 @@ export async function updateMessageEntries({
                 WHERE n.role = e.role AND n.tool_calls = e.tool_calls
               )
               UNION ALL
-              -- Add all new messages
-              SELECT n.value, 1000000 + row_number() OVER () AS ord
+              -- Add all new messages, preserving their input order
+              SELECT n.value, 1000000 + n.input_order AS ord
               FROM new_messages n
             ) combined
           )
