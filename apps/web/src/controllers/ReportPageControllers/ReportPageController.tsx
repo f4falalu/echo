@@ -10,6 +10,7 @@ import { type IReportEditor } from '@/components/ui/report/ReportEditor';
 import { ReportEditorSkeleton } from '@/components/ui/report/ReportEditorSkeleton';
 import { useChatIndividualContextSelector } from '@/layouts/ChatLayout/ChatContext';
 import { useTrackAndUpdateReportChanges } from '@/api/buster-electric/reports/hooks';
+import { useHotkeys } from 'react-hotkeys-hook';
 
 export const ReportPageController: React.FC<{
   reportId: string;
@@ -20,10 +21,27 @@ export const ReportPageController: React.FC<{
 }> = React.memo(
   ({ reportId, readOnly = false, className = '', onReady: onReadyProp, mode = 'default' }) => {
     const { data: report } = useGetReport({ reportId, versionNumber: undefined });
-    const isStreamingMessage = useChatIndividualContextSelector((x) => x.isStreamingMessage);
+    let isStreamingMessage = useChatIndividualContextSelector((x) => x.isStreamingMessage);
 
     const content = report?.content || '';
     const commonClassName = 'sm:px-[max(64px,calc(50%-350px))]';
+
+    const [useOverride, setUseOverride] = React.useState(false);
+
+    useHotkeys('x', () => {
+      setUseOverride((v) => {
+        console.log('x', !v);
+        return !v;
+      });
+    });
+
+    if (useOverride) {
+      isStreamingMessage = true;
+      readOnly = true;
+    } else {
+      isStreamingMessage = false;
+      readOnly = false;
+    }
 
     const { mutate: updateReport } = useUpdateReport();
 
@@ -59,7 +77,6 @@ export const ReportPageController: React.FC<{
           <DynamicReportEditor
             value={content}
             placeholder="Start typing..."
-            disabled={false}
             className={commonClassName}
             containerClassName="pt-9"
             variant="default"

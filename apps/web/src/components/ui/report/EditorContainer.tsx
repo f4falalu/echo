@@ -5,8 +5,7 @@ import { cva, type VariantProps } from 'class-variance-authority';
 interface EditorContainerProps {
   className?: string;
   variant?: 'default' | 'comment';
-  readonly?: boolean;
-  disabled?: boolean;
+  readOnly?: boolean;
 }
 
 const editorContainerVariants = cva(
@@ -27,13 +26,13 @@ const editorContainerVariants = cva(
           'has-data-readonly:w-fit has-data-readonly:cursor-default has-data-readonly:border-transparent has-data-readonly:focus-within:[box-shadow:none]'
         )
       },
-      readonly: {
+      readOnly: {
         true: 'cursor-text'
       }
     },
     defaultVariants: {
       variant: 'default',
-      readonly: false
+      readOnly: false
     }
   }
 );
@@ -41,8 +40,7 @@ const editorContainerVariants = cva(
 export function EditorContainer({
   className,
   variant,
-  disabled,
-  readonly,
+  readOnly,
   ...props
 }: React.ComponentProps<'div'> &
   VariantProps<typeof editorContainerVariants> &
@@ -51,7 +49,7 @@ export function EditorContainer({
     <PlateContainer
       className={cn(
         'ignore-click-outside/toolbar',
-        editorContainerVariants({ variant, readonly }),
+        editorContainerVariants({ variant, readOnly }),
         className
       )}
       {...props}
