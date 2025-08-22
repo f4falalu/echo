@@ -42,8 +42,7 @@ export const useReportEditor = ({
 
   const editor = usePlateEditor({
     plugins,
-    value: initialElements,
-    readOnly: disabled || isStreaming
+    value: initialElements
   });
 
   useEditorServerUpdates({ editor, value, isStreaming });

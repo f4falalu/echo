@@ -125,7 +125,6 @@ export const ReportEditor = React.memo(
       return (
         <Plate
           editor={editor}
-          readOnly={readOnly || isStreaming}
           onValueChange={onValueChangeDebounced}>
           <EditorContainer
             variant={variant}

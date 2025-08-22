@@ -28,7 +28,7 @@ const editorContainerVariants = cva(
         )
       },
       readonly: {
-        true: 'cursor-text'
+        true: 'cursor-default pointer-events-none user-select-none'
       }
     },
     defaultVariants: {
