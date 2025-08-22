@@ -219,9 +219,6 @@ export function createCreateReportsDelta(context: CreateReportsContext, state: C
 
         // Update report content for all reports that have content
         if (contentUpdates.length > 0) {
-          // Track response messages to create in batch
-          const responseMessagesToCreate: ChatMessageResponseMessage[] = [];
-
           for (const update of contentUpdates) {
             try {
               await updateReportContent({
@@ -229,37 +226,16 @@ export function createCreateReportsDelta(context: CreateReportsContext, state: C
                 content: update.content,
               });
 
-              // Mark the file as completed in state
+              // Keep the file status as 'loading' during streaming
+              // Status will be updated to 'completed' in the execute phase
               const stateFile = state.files?.find((f) => f.id === update.reportId);
               if (stateFile) {
-                stateFile.status = 'completed';
-
-                // Create response message for this report if not already created
-                if (!state.responseMessagesCreated?.has(update.reportId)) {
-                  // Create response message for this report
-                  responseMessagesToCreate.push({
-                    id: update.reportId,
-                    type: 'file' as const,
-                    file_type: 'report' as const,
-                    file_name: stateFile.file_name || '',
-                    version_number: stateFile.version_number || 1,
-                    filter_version_id: null,
-                    metadata: [
-                      {
-                        status: 'completed' as const,
-                        message: 'Report created successfully',
-                        timestamp: Date.now(),
-                      },
-                    ],
-                  });
-
-                  // Track that we've created a response message for this report
-                  if (!state.responseMessagesCreated) {
-                    state.responseMessagesCreated = new Set<string>();
-                  }
-                  state.responseMessagesCreated.add(update.reportId);
-                }
+                // Ensure status remains 'loading' during delta phase
+                stateFile.status = 'loading';
               }
+
+              // Note: Response messages should only be created in execute phase
+              // after all processing is complete
             } catch (error) {
               const errorMessage = error instanceof Error ? error.message : 'Content update failed';
               console.error('[create-reports] Error updating report content:', {
@@ -268,33 +244,13 @@ export function createCreateReportsDelta(context: CreateReportsContext, state: C
                 stack: error instanceof Error ? error.stack : undefined,
               });
 
-              // Mark the file as failed in state with error message
+              // Keep file as loading during delta phase even on error
+              // The execute phase will handle final status
               const stateFile = state.files?.find((f) => f.id === update.reportId);
               if (stateFile) {
-                stateFile.status = 'failed';
+                stateFile.status = 'loading';
                 stateFile.error = `Failed to update report content: ${errorMessage}`;
               }
-            }
-          }
-
-          // Update database with response messages if we have any
-          if (responseMessagesToCreate.length > 0 && context.messageId) {
-            try {
-              await updateMessageEntries({
-                messageId: context.messageId,
-                responseMessages: responseMessagesToCreate,
-              });
-
-              console.info('[create-reports] Created response messages during delta', {
-                count: responseMessagesToCreate.length,
-                reportIds: responseMessagesToCreate.map((m) => m.id),
-              });
-            } catch (error) {
-              console.error(
-                '[create-reports] Error creating response messages during delta:',
-                error
-              );
-              // Don't throw - continue processing
             }
           }
         }

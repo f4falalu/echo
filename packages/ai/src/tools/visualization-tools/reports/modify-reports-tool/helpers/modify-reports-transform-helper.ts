@@ -46,15 +46,28 @@ export function createModifyReportsReasoningEntry(
   let status: 'loading' | 'completed' | 'failed' = 'loading';
   let secondaryTitle: string | undefined;
 
-  // Check if modification is complete based on state
-  if (state.finalContent !== undefined) {
+  // Check if all edits have a final status (completed or failed), not just 'loading'
+  const allEditsComplete =
+    state.edits && state.edits.length > 0
+      ? state.edits.every((edit) => edit.status === 'completed' || edit.status === 'failed')
+      : false;
+
+  // Only mark as complete when all edits are actually done, not during streaming
+  if (allEditsComplete) {
     // Check if any edits failed
     const hasFailedEdits = state.edits?.some((edit) => edit.status === 'failed') ?? false;
 
     if (hasFailedEdits) {
       title = 'Failed to modify report';
       status = 'failed';
-    } else if (state.finalContent) {
+      // Update the file status in filesRecord
+      if (state.reportId) {
+        const file = filesRecord[state.reportId];
+        if (file) {
+          file.status = 'failed';
+        }
+      }
+    } else {
       title = 'Modified 1 report';
       status = 'completed';
       // Update the file status in filesRecord
@@ -66,14 +79,15 @@ export function createModifyReportsReasoningEntry(
       }
     }
 
-    // Only show elapsed time when all edits are complete (not during streaming)
-    // Check if all edits have a final status (completed or failed), not just 'loading'
-    const allEditsComplete =
-      state.edits?.every((edit) => edit.status === 'completed' || edit.status === 'failed') ??
-      false;
-
-    if (allEditsComplete) {
-      secondaryTitle = formatElapsedTime(state.startTime);
+    // Show elapsed time when complete
+    secondaryTitle = formatElapsedTime(state.startTime);
+  } else {
+    // Keep file status as loading during streaming
+    if (state.reportId) {
+      const file = filesRecord[state.reportId];
+      if (file) {
+        file.status = 'loading';
+      }
     }
   }
 

@@ -11,6 +11,9 @@ import { ReportEditorSkeleton } from '@/components/ui/report/ReportEditorSkeleto
 import { useChatIndividualContextSelector } from '@/layouts/ChatLayout/ChatContext';
 import { useTrackAndUpdateReportChanges } from '@/api/buster-electric/reports/hooks';
 import { GeneratingContent } from './GeneratingContent';
+import { useQuery } from '@tanstack/react-query';
+import { queryKeys } from '@/api/query_keys';
+import type { BusterChatMessage } from '@/api/asset_interfaces/chat';
 
 export const ReportPageController: React.FC<{
   reportId: string;
@@ -24,8 +27,25 @@ export const ReportPageController: React.FC<{
     const isStreamingMessage = useChatIndividualContextSelector((x) => x.isStreamingMessage);
     const messageId = useChatIndividualContextSelector((x) => x.currentMessageId);
 
+    // Fetch the current message to check which files are being generated
+    const { data: currentMessage } = useQuery<BusterChatMessage>({
+      ...queryKeys.chatsMessages(messageId || ''),
+      enabled: !!messageId && isStreamingMessage
+    });
+
+    // Check if this specific report is being generated in the current message
+    const isThisReportBeingGenerated = React.useMemo(() => {
+      if (!currentMessage || !isStreamingMessage || !messageId) return false;
+
+      // Check if the current report ID matches any file being generated
+      const responseMessages = Object.values(currentMessage.response_messages || {});
+      return responseMessages.some(
+        (msg) => msg.type === 'file' && msg.file_type === 'report' && msg.id === reportId
+      );
+    }, [currentMessage, isStreamingMessage, messageId, reportId]);
+
     const content = report?.content || '';
-    const showGeneratingContent = messageId && isStreamingMessage;
+    const showGeneratingContent = isThisReportBeingGenerated;
     const commonClassName = 'sm:px-[max(64px,calc(50%-350px))]';
 
     const { mutate: updateReport } = useUpdateReport();
