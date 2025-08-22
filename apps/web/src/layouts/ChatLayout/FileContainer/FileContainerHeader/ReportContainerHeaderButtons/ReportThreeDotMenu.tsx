@@ -47,7 +47,7 @@ export const ReportThreeDotMenu = React.memo(
     const saveToLibrary = useSaveToLibrary({ reportId });
     const favoriteItem = useFavoriteReportSelectMenu({ reportId });
     const versionHistory = useVersionHistorySelectMenu({ reportId });
-    const verificationItem = useReportVerificationSelectMenu();
+    // const verificationItem = useReportVerificationSelectMenu(); // Hidden - not supported yet
     const refreshReportItem = useRefreshReportSelectMenu({ reportId });
     const duplicateReportItem = useDuplicateReportSelectMenu();
     const { dropdownItem: downloadPdfItem, exportPdfContainer } = useDownloadPdfSelectMenu({
@@ -63,7 +63,7 @@ export const ReportThreeDotMenu = React.memo(
         favoriteItem,
         { type: 'divider' },
         versionHistory,
-        verificationItem,
+        // verificationItem, // Hidden - not supported yet
         { type: 'divider' },
         refreshReportItem,
         duplicateReportItem,
@@ -76,7 +76,7 @@ export const ReportThreeDotMenu = React.memo(
       shareMenu,
       favoriteItem,
       versionHistory,
-      verificationItem,
+      // verificationItem,
       refreshReportItem,
       duplicateReportItem,
       downloadPdfItem,
