@@ -1,6 +1,7 @@
 import { cn } from '@/lib/utils';
 import { PlateContainer } from 'platejs/react';
 import { cva, type VariantProps } from 'class-variance-authority';
+import React from 'react';
 
 interface EditorContainerProps {
   className?: string;
@@ -37,22 +38,24 @@ const editorContainerVariants = cva(
   }
 );
 
-export function EditorContainer({
-  className,
-  variant,
-  readOnly,
-  ...props
-}: React.ComponentProps<'div'> &
-  VariantProps<typeof editorContainerVariants> &
-  EditorContainerProps) {
+export const EditorContainer = React.forwardRef<
+  HTMLDivElement,
+  React.HTMLAttributes<HTMLDivElement> &
+    VariantProps<typeof editorContainerVariants> &
+    EditorContainerProps
+>(({ className, variant, readOnly, children, ...htmlProps }, ref) => {
   return (
-    <PlateContainer
+    <div
+      ref={ref}
       className={cn(
         'ignore-click-outside/toolbar',
         editorContainerVariants({ variant, readOnly }),
         className
       )}
-      {...props}
-    />
+      {...htmlProps}>
+      <PlateContainer>{children}</PlateContainer>
+    </div>
   );
-}
+});
+
+EditorContainer.displayName = 'EditorContainer';
