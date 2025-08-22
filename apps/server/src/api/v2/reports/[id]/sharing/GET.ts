@@ -2,7 +2,6 @@ import { checkAssetPermission, getReport, listAssetPermissions } from '@buster/d
 import type { User } from '@buster/database';
 import { Hono } from 'hono';
 import { HTTPException } from 'hono/http-exception';
-import { requireAuth } from '../../../../../middleware/auth';
 
 interface SharePermission {
   userId: string;
@@ -14,7 +13,7 @@ interface SharePermission {
   updatedAt: string;
 }
 
-async function getReportSharingHandler(
+export async function getReportSharingHandler(
   reportId: string,
   user: User
 ): Promise<{ permissions: SharePermission[] }> {
@@ -59,7 +58,7 @@ async function getReportSharingHandler(
   };
 }
 
-const app = new Hono().use('*', requireAuth).get('/', async (c) => {
+const app = new Hono().get('/', async (c) => {
   const reportId = c.req.param('id');
   const user = c.get('busterUser');
 

@@ -10,9 +10,8 @@ import { SharePostRequestSchema } from '@buster/server-shared/share';
 import { zValidator } from '@hono/zod-validator';
 import { Hono } from 'hono';
 import { HTTPException } from 'hono/http-exception';
-import { requireAuth } from '../../../../../middleware/auth';
 
-async function createReportSharingHandler(
+export async function createReportSharingHandler(
   reportId: string,
   shareRequests: SharePostRequest,
   user: User
@@ -92,20 +91,18 @@ async function createReportSharingHandler(
   };
 }
 
-const app = new Hono()
-  .use('*', requireAuth)
-  .post('/', zValidator('json', SharePostRequestSchema), async (c) => {
-    const reportId = c.req.param('id');
-    const shareRequests = c.req.valid('json');
-    const user = c.get('busterUser');
+const app = new Hono().post('/', zValidator('json', SharePostRequestSchema), async (c) => {
+  const reportId = c.req.param('id');
+  const shareRequests = c.req.valid('json');
+  const user = c.get('busterUser');
 
-    if (!reportId) {
-      throw new HTTPException(400, { message: 'Report ID is required' });
-    }
+  if (!reportId) {
+    throw new HTTPException(400, { message: 'Report ID is required' });
+  }
 
-    const result = await createReportSharingHandler(reportId, shareRequests, user);
+  const result = await createReportSharingHandler(reportId, shareRequests, user);
 
-    return c.json(result);
-  });
+  return c.json(result);
+});
 
 export default app;

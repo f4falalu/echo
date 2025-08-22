@@ -12,10 +12,9 @@ import { type ShareUpdateRequest, ShareUpdateRequestSchema } from '@buster/serve
 import { zValidator } from '@hono/zod-validator';
 import { Hono } from 'hono';
 import { HTTPException } from 'hono/http-exception';
-import { requireAuth } from '../../../../../middleware/auth';
 import { getReportHandler } from '../GET';
 
-async function updateReportShareHandler(
+export async function updateReportShareHandler(
   reportId: string,
   request: ShareUpdateRequest,
   user: User & { organizationId: string }
@@ -108,29 +107,27 @@ async function updateReportShareHandler(
   return updatedReport;
 }
 
-const app = new Hono()
-  .use('*', requireAuth)
-  .put('/', zValidator('json', ShareUpdateRequestSchema), async (c) => {
-    const reportId = c.req.param('id');
-    const request = c.req.valid('json');
-    const user = c.get('busterUser');
+const app = new Hono().put('/', zValidator('json', ShareUpdateRequestSchema), async (c) => {
+  const reportId = c.req.param('id');
+  const request = c.req.valid('json');
+  const user = c.get('busterUser');
 
-    if (!reportId) {
-      throw new HTTPException(404, { message: 'Report not found' });
-    }
+  if (!reportId) {
+    throw new HTTPException(404, { message: 'Report not found' });
+  }
 
-    const userOrg = await getUserOrganizationId(user.id);
+  const userOrg = await getUserOrganizationId(user.id);
 
-    if (!userOrg) {
-      throw new HTTPException(403, { message: 'User is not associated with an organization' });
-    }
+  if (!userOrg) {
+    throw new HTTPException(403, { message: 'User is not associated with an organization' });
+  }
 
-    const updatedReport: ShareUpdateResponse = await updateReportShareHandler(reportId, request, {
-      ...user,
-      organizationId: userOrg.organizationId,
-    });
-
-    return c.json(updatedReport);
+  const updatedReport: ShareUpdateResponse = await updateReportShareHandler(reportId, request, {
+    ...user,
+    organizationId: userOrg.organizationId,
   });
+
+  return c.json(updatedReport);
+});
 
 export default app;

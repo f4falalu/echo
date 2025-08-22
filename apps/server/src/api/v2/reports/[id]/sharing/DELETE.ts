@@ -10,9 +10,8 @@ import { ShareDeleteRequestSchema } from '@buster/server-shared/share';
 import { zValidator } from '@hono/zod-validator';
 import { Hono } from 'hono';
 import { HTTPException } from 'hono/http-exception';
-import { requireAuth } from '../../../../../middleware/auth';
 
-async function deleteReportSharingHandler(
+export async function deleteReportSharingHandler(
   reportId: string,
   emails: ShareDeleteRequest,
   user: User
@@ -78,20 +77,18 @@ async function deleteReportSharingHandler(
   };
 }
 
-const app = new Hono()
-  .use('*', requireAuth)
-  .delete('/', zValidator('json', ShareDeleteRequestSchema), async (c) => {
-    const reportId = c.req.param('id');
-    const emails = c.req.valid('json');
-    const user = c.get('busterUser');
+const app = new Hono().delete('/', zValidator('json', ShareDeleteRequestSchema), async (c) => {
+  const reportId = c.req.param('id');
+  const emails = c.req.valid('json');
+  const user = c.get('busterUser');
 
-    if (!reportId) {
-      throw new HTTPException(400, { message: 'Report ID is required' });
-    }
+  if (!reportId) {
+    throw new HTTPException(400, { message: 'Report ID is required' });
+  }
 
-    const result = await deleteReportSharingHandler(reportId, emails, user);
+  const result = await deleteReportSharingHandler(reportId, emails, user);
 
-    return c.json(result);
-  });
+  return c.json(result);
+});
 
 export default app;
