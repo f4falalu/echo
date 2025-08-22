@@ -11,7 +11,7 @@ import {
   type DropdownItems
 } from '@/components/ui/dropdown';
 import { Dots, ShareRight, WandSparkle, History, Star } from '@/components/ui/icons';
-import { Refresh3, FileText, DuplicatePlus } from '@/components/ui/icons/NucleoIconOutlined';
+import { Refresh3, FileText } from '@/components/ui/icons/NucleoIconOutlined';
 import { Star as StarFilled } from '@/components/ui/icons/NucleoIconFilled';
 import { Button } from '@/components/ui/buttons';
 import {
@@ -49,7 +49,7 @@ export const ReportThreeDotMenu = React.memo(
     const versionHistory = useVersionHistorySelectMenu({ reportId });
     // const verificationItem = useReportVerificationSelectMenu(); // Hidden - not supported yet
     const refreshReportItem = useRefreshReportSelectMenu({ reportId });
-    const duplicateReportItem = useDuplicateReportSelectMenu();
+    // const duplicateReportItem = useDuplicateReportSelectMenu();
     const { dropdownItem: downloadPdfItem, exportPdfContainer } = useDownloadPdfSelectMenu({
       reportId
     });
@@ -66,7 +66,7 @@ export const ReportThreeDotMenu = React.memo(
         // verificationItem, // Hidden - not supported yet
         { type: 'divider' },
         refreshReportItem,
-        duplicateReportItem,
+        // duplicateReportItem,
         downloadPdfItem
       ];
     }, [
@@ -78,7 +78,7 @@ export const ReportThreeDotMenu = React.memo(
       versionHistory,
       // verificationItem,
       refreshReportItem,
-      duplicateReportItem,
+      // duplicateReportItem,
       downloadPdfItem,
       saveToLibrary
     ]);
@@ -325,23 +325,23 @@ const useRefreshReportSelectMenu = ({ reportId }: { reportId: string }): Dropdow
   );
 };
 
-// Duplicate report (stubbed)
-const useDuplicateReportSelectMenu = (): DropdownItem => {
-  const onClick = useMemoizedFn(async () => {
-    alert('TODO: Duplicate report');
-    return;
-  });
+// // Duplicate report (stubbed)
+// const useDuplicateReportSelectMenu = (): DropdownItem => {
+//   const onClick = useMemoizedFn(async () => {
+//     alert('TODO: Duplicate report');
+//     return;
+//   });
 
-  return useMemo(
-    () => ({
-      label: 'Duplicate',
-      value: 'duplicate-report',
-      icon: <DuplicatePlus />,
-      onClick
-    }),
-    [onClick]
-  );
-};
+//   return useMemo(
+//     () => ({
+//       label: 'Duplicate',
+//       value: 'duplicate-report',
+//       icon: <DuplicatePlus />,
+//       onClick
+//     }),
+//     [onClick]
+//   );
+// };
 
 // Download as PDF
 const useDownloadPdfSelectMenu = ({
