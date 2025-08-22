@@ -12,6 +12,7 @@ import { ThemeWrapper } from './ThemeWrapper/ThemeWrapper';
 import { useReportEditor } from './useReportEditor';
 import type { ReportElementsWithIds, ReportElementWithId } from '@buster/server-shared/reports';
 import { platejsToMarkdown } from './plugins/markdown-kit/platejs-conversions';
+import { ShimmerText } from '@/components/ui/typography/ShimmerText';
 
 interface ReportEditorProps {
   // We accept the generic Value type but recommend using ReportTypes.Value for type safety
@@ -23,7 +24,6 @@ interface ReportEditorProps {
   variant?: 'default';
   className?: string;
   containerClassName?: string;
-  disabled?: boolean;
   style?: React.CSSProperties;
   onValueChange?: (value: string) => void; //markdown
   useFixedToolbarKit?: boolean;
@@ -31,6 +31,7 @@ interface ReportEditorProps {
   id?: string;
   mode?: 'export' | 'default';
   children?: React.ReactNode;
+  postEditorChildren?: React.ReactNode;
 }
 
 export type IReportEditor = TPlateEditor<Value, AnyPluginConfig>;
@@ -58,9 +59,9 @@ export const ReportEditor = React.memo(
         mode = 'default',
         useFixedToolbarKit = false,
         readOnly = false,
-        disabled = false,
         isStreaming = false,
-        children
+        children,
+        postEditorChildren
       },
       ref
     ) => {
@@ -74,15 +75,12 @@ export const ReportEditor = React.memo(
         observeSubTree: true
       });
 
-      // readOnly = true;
-      // isStreaming = true;
-
       const editor = useReportEditor({
         isStreaming,
         mode,
+        readOnly,
         value,
         initialElements,
-        disabled,
         useFixedToolbarKit
       });
 
@@ -131,26 +129,23 @@ export const ReportEditor = React.memo(
       if (!editor) return null;
 
       return (
-        <Plate
-          editor={editor}
-          readOnly={readOnly || isStreaming}
-          onValueChange={onValueChangeDebounced}>
+        <Plate editor={editor} onValueChange={onValueChangeDebounced}>
           <EditorContainer
             ref={editorContainerRef}
             variant={variant}
-            readonly={readOnly}
-            disabled={disabled}
-            className={cn('editor-container overflow-auto', containerClassName)}>
+            readOnly={readOnly}
+            className={cn('editor-container relative overflow-auto', containerClassName)}>
             {children}
             <ThemeWrapper id={id}>
               <Editor
                 style={style}
                 placeholder={placeholder}
-                disabled={disabled}
                 className={cn('editor', className)}
+                readOnly={readOnly || isStreaming}
                 autoFocus
               />
             </ThemeWrapper>
+            {postEditorChildren}
           </EditorContainer>
         </Plate>
       );

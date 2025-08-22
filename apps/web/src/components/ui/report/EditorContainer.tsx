@@ -6,8 +6,7 @@ import React from 'react';
 interface EditorContainerProps {
   className?: string;
   variant?: 'default' | 'comment';
-  readonly?: boolean;
-  disabled?: boolean;
+  readOnly?: boolean;
 }
 
 const editorContainerVariants = cva(
@@ -28,13 +27,13 @@ const editorContainerVariants = cva(
           'has-data-readonly:w-fit has-data-readonly:cursor-default has-data-readonly:border-transparent has-data-readonly:focus-within:[box-shadow:none]'
         )
       },
-      readonly: {
-        true: 'cursor-text'
+      readOnly: {
+        true: 'cursor-default user-select-none '
       }
     },
     defaultVariants: {
       variant: 'default',
-      readonly: false
+      readOnly: false
     }
   }
 );
@@ -44,20 +43,17 @@ export const EditorContainer = React.forwardRef<
   React.HTMLAttributes<HTMLDivElement> &
     VariantProps<typeof editorContainerVariants> &
     EditorContainerProps
->(({ className, variant, disabled, readonly, children, ...htmlProps }, ref) => {
+>(({ className, variant, readOnly, children, ...htmlProps }, ref) => {
   return (
     <div
       ref={ref}
       className={cn(
         'ignore-click-outside/toolbar',
-        editorContainerVariants({ variant, readonly }),
+        editorContainerVariants({ variant, readOnly }),
         className
       )}
-      {...htmlProps}
-    >
-      <PlateContainer>
-        {children}
-      </PlateContainer>
+      {...htmlProps}>
+      <PlateContainer>{children}</PlateContainer>
     </div>
   );
 });
