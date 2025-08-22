@@ -67,7 +67,7 @@ export function mergeReasoningMessages(
 
   // Create a map of new messages by ID
   const updateMap = new Map<string, ChatMessageReasoningMessage>();
-  const updateIds = new Set<string>();
+  const updateMap = new Map<string, ChatMessageReasoningMessage>();
 
   for (const msg of updates) {
     updateMap.set(msg.id, msg);
