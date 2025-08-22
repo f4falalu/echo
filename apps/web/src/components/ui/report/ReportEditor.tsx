@@ -12,7 +12,6 @@ import { ThemeWrapper } from './ThemeWrapper/ThemeWrapper';
 import { useReportEditor } from './useReportEditor';
 import type { ReportElementsWithIds, ReportElementWithId } from '@buster/server-shared/reports';
 import { platejsToMarkdown } from './plugins/markdown-kit/platejs-conversions';
-import { ShimmerText } from '@/components/ui/typography/ShimmerText';
 import { ScrollToBottomButton } from '../buttons/ScrollToBottomButton';
 
 interface ReportEditorProps {

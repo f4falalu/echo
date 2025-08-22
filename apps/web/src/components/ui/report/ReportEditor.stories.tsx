@@ -56,7 +56,6 @@ const meta = {
   args: {
     placeholder: 'Start typing...',
     readOnly: false,
-    disabled: false,
     variant: 'default'
   }
 } satisfies Meta<typeof ReportEditor>;

@@ -68,10 +68,10 @@ export function createModifyReportsReasoningEntry(
 
     // Only show elapsed time when all edits are complete (not during streaming)
     // Check if all edits have a final status (completed or failed), not just 'loading'
-    const allEditsComplete = state.edits?.every(
-      (edit) => edit.status === 'completed' || edit.status === 'failed'
-    ) ?? false;
-    
+    const allEditsComplete =
+      state.edits?.every((edit) => edit.status === 'completed' || edit.status === 'failed') ??
+      false;
+
     if (allEditsComplete) {
       secondaryTitle = formatElapsedTime(state.startTime);
     }
