@@ -138,7 +138,13 @@ export async function updateMessageEntries({
                     ELSE NULL
                   END,
                   ''
-                ) AS tool_calls
+                ) AS tool_calls,
+                -- Extract toolCallId for tool result messages to find their corresponding call
+                CASE 
+                  WHEN value->>'role' = 'tool' AND jsonb_typeof(value->'content') = 'array' THEN
+                    value->'content'->0->>'toolCallId'
+                  ELSE NULL
+                END AS result_tool_call_id
               FROM jsonb_array_elements(${newData}::jsonb) WITH ORDINALITY AS t(value, ordinality)
             ),
             existing_messages AS (
@@ -157,6 +163,16 @@ export async function updateMessageEntries({
                   ''
                 ) AS tool_calls
               FROM jsonb_array_elements(${messages.rawLlmMessages}) WITH ORDINALITY AS t(value, ordinality)
+            ),
+            -- Find positions of tool calls that are being updated
+            tool_call_positions AS (
+              SELECT 
+                n.tool_calls,
+                MAX(e.ordinality) as call_position
+              FROM new_messages n
+              JOIN existing_messages e ON n.role = e.role AND n.tool_calls = e.tool_calls
+              WHERE n.role = 'assistant' AND n.tool_calls != ''
+              GROUP BY n.tool_calls
             )
             SELECT COALESCE(
               jsonb_agg(value ORDER BY ord),
@@ -171,8 +187,24 @@ export async function updateMessageEntries({
                 WHERE n.role = e.role AND n.tool_calls = e.tool_calls
               )
               UNION ALL
-              -- Add all new messages, preserving their input order
-              SELECT n.value, 1000000 + n.input_order AS ord
+              -- Add new messages with smart ordering
+              SELECT 
+                n.value, 
+                CASE 
+                  -- Tool result: place immediately after its corresponding tool call
+                  WHEN n.role = 'tool' AND n.result_tool_call_id IS NOT NULL THEN
+                    COALESCE(
+                      -- If the tool call was just updated, place result right after it
+                      (SELECT tcp.call_position + 0.5 
+                       FROM tool_call_positions tcp 
+                       WHERE tcp.tool_calls LIKE '%' || n.result_tool_call_id || '%'
+                       LIMIT 1),
+                      -- Otherwise append at the end
+                      1000000 + n.input_order
+                    )
+                  -- Regular messages and tool calls: append at end
+                  ELSE 1000000 + n.input_order
+                END AS ord
               FROM new_messages n
             ) combined
           )
