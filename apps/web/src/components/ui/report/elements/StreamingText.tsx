@@ -15,7 +15,7 @@ export function StreamingText(props: PlateTextProps) {
     <PlateText
       className={cn(
         'streaming-node',
-        isStreaming && ['animate-highlight-fade'],
+        isStreaming && 'animate-highlight-fade',
         // Only show the animated dot on the last streaming text node
         isLastStreamingText && [
           'after:ml-1.5 after:inline-block after:h-3 after:w-3 after:animate-pulse after:rounded-full after:bg-purple-500 after:align-middle after:content-[""]'

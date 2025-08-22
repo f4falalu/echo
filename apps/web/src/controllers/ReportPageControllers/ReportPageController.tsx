@@ -10,9 +10,7 @@ import { type IReportEditor } from '@/components/ui/report/ReportEditor';
 import { ReportEditorSkeleton } from '@/components/ui/report/ReportEditorSkeleton';
 import { useChatIndividualContextSelector } from '@/layouts/ChatLayout/ChatContext';
 import { useTrackAndUpdateReportChanges } from '@/api/buster-electric/reports/hooks';
-import { ShimmerText } from '@/components/ui/typography/ShimmerText';
 import { GeneratingContent } from './GeneratingContent';
-import { useHotkeys } from 'react-hotkeys-hook';
 
 export const ReportPageController: React.FC<{
   reportId: string;
@@ -73,19 +71,20 @@ export const ReportPageController: React.FC<{
             mode={mode}
             onReady={onReadyProp}
             isStreaming={isStreamingMessage}
+            preEditorChildren={
+              <ReportPageHeader
+                name={report?.name}
+                updatedAt={report?.updated_at}
+                onChangeName={onChangeName}
+                className={commonClassName}
+                isStreaming={isStreamingMessage}
+              />
+            }
             postEditorChildren={
               showGeneratingContent ? (
                 <GeneratingContent messageId={messageId} className={commonClassName} />
               ) : null
-            }>
-            <ReportPageHeader
-              name={report?.name}
-              updatedAt={report?.updated_at}
-              onChangeName={onChangeName}
-              className={commonClassName}
-              isStreaming={isStreamingMessage}
-            />
-          </DynamicReportEditor>
+            }></DynamicReportEditor>
         ) : (
           <ReportEditorSkeleton />
         )}

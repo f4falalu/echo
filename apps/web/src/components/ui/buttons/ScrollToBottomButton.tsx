@@ -3,18 +3,20 @@ import { ChevronDown } from '@/components/ui/icons';
 import { AppTooltip } from '@/components/ui/tooltip';
 import { cn } from '@/lib/classMerge';
 
-export const ReasoningScrollToBottom: React.FC<{
+export const ScrollToBottomButton: React.FC<{
   isAutoScrollEnabled: boolean;
   scrollToBottom: () => void;
-}> = React.memo(({ isAutoScrollEnabled, scrollToBottom }) => {
+  className?: string;
+}> = React.memo(({ isAutoScrollEnabled, scrollToBottom, className }) => {
   return (
     <div
-      data-testid="reasoning-scroll-to-bottom"
+      data-testid="scroll-to-bottom-button"
       className={cn(
         'absolute right-4 bottom-4 z-10 duration-300',
         isAutoScrollEnabled
           ? 'pointer-events-none scale-90 opacity-0'
-          : 'pointer-events-auto scale-100 cursor-pointer opacity-100'
+          : 'pointer-events-auto scale-100 cursor-pointer opacity-100',
+        className
       )}>
       <AppTooltip title="Stick to bottom" sideOffset={12} delayDuration={500}>
         <button
@@ -30,4 +32,4 @@ export const ReasoningScrollToBottom: React.FC<{
   );
 });
 
-ReasoningScrollToBottom.displayName = 'ReasoningScrollToBottom';
+ScrollToBottomButton.displayName = 'ScrollToBottomButton';

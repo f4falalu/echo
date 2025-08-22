@@ -259,6 +259,30 @@ Here's an unordered list:
       }
     ]);
   });
+
+  it('callout', async () => {
+    const markdown = `<callout icon="💡" content="Testing123"></callout>`;
+    const elements = await markdownToPlatejs(editor, markdown);
+    const firstElement = elements[0];
+    expect(firstElement.type).toBe('callout');
+    expect(firstElement.icon).toBe('💡');
+    expect(firstElement.children[0]).toEqual({ type: 'p', children: [{ text: 'Testing123' }] });
+  });
+
+  it('callout and a metric', async () => {
+    const markdown = `<metric metricId="33af38a8-c40f-437d-98ed-1ec78ce35232" width="100%" caption=""></metric>
+
+<callout icon="💡">Testing123
+</callout>`;
+    const elements = await markdownToPlatejs(editor, markdown);
+    expect(elements).toBeDefined();
+    const firstElement = elements[0];
+    expect(firstElement.type).toBe('metric');
+    expect(firstElement.metricId).toBe('33af38a8-c40f-437d-98ed-1ec78ce35232');
+    const secondElement = elements[1];
+
+    console.log(JSON.stringify(elements, null, 2));
+  });
 });
 
 describe('platejsToMarkdown', () => {
@@ -329,8 +353,9 @@ describe('platejsToMarkdown', () => {
     ];
     const markdownFromPlatejs = await platejsToMarkdown(editor, elements);
 
-    const expectedMarkdown = `<callout icon="⚠️">This is a simple paragraph.\n</callout>\n`;
-    expect(markdownFromPlatejs).toBe(expectedMarkdown);
+    const expectedMarkdown = `<callout icon="⚠️" content="This is a simple paragraph.
+"></callout>`;
+    expect(markdownFromPlatejs.trim()).toBe(expectedMarkdown.trim());
   });
 
   it('should convert callout platejs element to markdown', async () => {

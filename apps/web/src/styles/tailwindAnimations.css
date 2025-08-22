@@ -60,21 +60,16 @@
   }
 }
 
-/* 
-  highlightFade animation: 
-  - Animates a highlight background and a bottom border only (no outline).
-  - The border is only on the bottom, not using outline.
-*/
 @keyframes highlightFade {
   0% {
     /* Use highlight background, fallback to brand, then yellow */
     background-color: var(--color-highlight-background, var(--color-purple-100, yellow));
-    /* Only bottom border is visible at start */
-    border-bottom: 1px solid var(--color-highlight-border, var(--color-purple-200, yellow));
+    /* Use box-shadow instead of border - doesn't take up space */
+    box-shadow: 0 1.5px 0 0 var(--color-highlight-border, var(--color-purple-300, yellow));
   }
   100% {
     background-color: var(--color-highlight-to-background, transparent);
-    border-bottom: 0px solid var(--color-highlight-to-border, transparent);
+    box-shadow: 0 0 0 0 var(--color-highlight-to-border, transparent);
   }
 }
 
