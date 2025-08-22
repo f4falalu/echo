@@ -2,8 +2,9 @@
 
 import type { Value, AnyPluginConfig } from 'platejs';
 import { Plate, type TPlateEditor } from 'platejs/react';
-import React, { useImperativeHandle, useRef } from 'react';
+import React, { useEffect, useImperativeHandle, useRef } from 'react';
 import { useDebounceFn, useMemoizedFn } from '@/hooks';
+import { useAutoScroll } from '@/hooks/useAutoScroll';
 import { cn } from '@/lib/utils';
 import { Editor } from './Editor';
 import { EditorContainer } from './EditorContainer';
@@ -11,6 +12,7 @@ import { ThemeWrapper } from './ThemeWrapper/ThemeWrapper';
 import { useReportEditor } from './useReportEditor';
 import type { ReportElementsWithIds, ReportElementWithId } from '@buster/server-shared/reports';
 import { platejsToMarkdown } from './plugins/markdown-kit/platejs-conversions';
+import { ScrollToBottomButton } from '../buttons/ScrollToBottomButton';
 
 interface ReportEditorProps {
   // We accept the generic Value type but recommend using ReportTypes.Value for type safety
@@ -28,7 +30,8 @@ interface ReportEditorProps {
   onReady?: (editor: IReportEditor) => void;
   id?: string;
   mode?: 'export' | 'default';
-  children?: React.ReactNode;
+  preEditorChildren?: React.ReactNode;
+  postEditorChildren?: React.ReactNode;
 }
 
 export type IReportEditor = TPlateEditor<Value, AnyPluginConfig>;
@@ -57,12 +60,21 @@ export const ReportEditor = React.memo(
         useFixedToolbarKit = false,
         readOnly = false,
         isStreaming = false,
-        children
+        preEditorChildren,
+        postEditorChildren
       },
       ref
     ) => {
       // Initialize the editor instance using the custom useEditor hook
       const isReady = useRef(false);
+      const editorContainerRef = useRef<HTMLDivElement>(null);
+
+      const { isAutoScrollEnabled, enableAutoScroll, disableAutoScroll, scrollToBottom } =
+        useAutoScroll(editorContainerRef, {
+          enabled: isStreaming,
+          bottomThreshold: 50,
+          observeSubTree: true
+        });
 
       const editor = useReportEditor({
         isStreaming,
@@ -115,15 +127,24 @@ export const ReportEditor = React.memo(
         wait: 1500
       });
 
+      useEffect(() => {
+        if (isStreaming) {
+          enableAutoScroll();
+        } else {
+          disableAutoScroll();
+        }
+      }, [isStreaming]);
+
       if (!editor) return null;
 
       return (
         <Plate editor={editor} onValueChange={onValueChangeDebounced}>
           <EditorContainer
+            ref={editorContainerRef}
             variant={variant}
             readOnly={readOnly}
             className={cn('editor-container relative overflow-auto', containerClassName)}>
-            {children}
+            {preEditorChildren}
             <ThemeWrapper id={id}>
               <Editor
                 style={style}
@@ -133,6 +154,14 @@ export const ReportEditor = React.memo(
                 autoFocus
               />
             </ThemeWrapper>
+            {postEditorChildren}
+            {isStreaming && (
+              <ScrollToBottomButton
+                isAutoScrollEnabled={isAutoScrollEnabled}
+                scrollToBottom={scrollToBottom}
+                className="fixed right-8 bottom-8 z-10"
+              />
+            )}
           </EditorContainer>
         </Plate>
       );

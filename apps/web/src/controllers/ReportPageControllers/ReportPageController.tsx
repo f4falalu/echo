@@ -10,7 +10,7 @@ import { type IReportEditor } from '@/components/ui/report/ReportEditor';
 import { ReportEditorSkeleton } from '@/components/ui/report/ReportEditorSkeleton';
 import { useChatIndividualContextSelector } from '@/layouts/ChatLayout/ChatContext';
 import { useTrackAndUpdateReportChanges } from '@/api/buster-electric/reports/hooks';
-import { useHotkeys } from 'react-hotkeys-hook';
+import { GeneratingContent } from './GeneratingContent';
 
 export const ReportPageController: React.FC<{
   reportId: string;
@@ -21,27 +21,12 @@ export const ReportPageController: React.FC<{
 }> = React.memo(
   ({ reportId, readOnly = false, className = '', onReady: onReadyProp, mode = 'default' }) => {
     const { data: report } = useGetReport({ reportId, versionNumber: undefined });
-    let isStreamingMessage = useChatIndividualContextSelector((x) => x.isStreamingMessage);
+    const isStreamingMessage = useChatIndividualContextSelector((x) => x.isStreamingMessage);
+    const messageId = useChatIndividualContextSelector((x) => x.currentMessageId);
 
     const content = report?.content || '';
+    const showGeneratingContent = messageId && isStreamingMessage;
     const commonClassName = 'sm:px-[max(64px,calc(50%-350px))]';
-
-    const [useOverride, setUseOverride] = React.useState(false);
-
-    useHotkeys('x', () => {
-      setUseOverride((v) => {
-        console.log('x', !v);
-        return !v;
-      });
-    });
-
-    if (useOverride) {
-      isStreamingMessage = true;
-      readOnly = true;
-    } else {
-      isStreamingMessage = false;
-      readOnly = false;
-    }
 
     const { mutate: updateReport } = useUpdateReport();
 
@@ -85,15 +70,21 @@ export const ReportPageController: React.FC<{
             readOnly={readOnly || !report}
             mode={mode}
             onReady={onReadyProp}
-            isStreaming={isStreamingMessage}>
-            <ReportPageHeader
-              name={report?.name}
-              updatedAt={report?.updated_at}
-              onChangeName={onChangeName}
-              className={commonClassName}
-              isStreaming={isStreamingMessage}
-            />
-          </DynamicReportEditor>
+            isStreaming={isStreamingMessage}
+            preEditorChildren={
+              <ReportPageHeader
+                name={report?.name}
+                updatedAt={report?.updated_at}
+                onChangeName={onChangeName}
+                className={commonClassName}
+                isStreaming={isStreamingMessage}
+              />
+            }
+            postEditorChildren={
+              showGeneratingContent ? (
+                <GeneratingContent messageId={messageId} className={commonClassName} />
+              ) : null
+            }></DynamicReportEditor>
         ) : (
           <ReportEditorSkeleton />
         )}
