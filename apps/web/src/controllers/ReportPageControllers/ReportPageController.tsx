@@ -10,9 +10,7 @@ import { type IReportEditor } from '@/components/ui/report/ReportEditor';
 import { ReportEditorSkeleton } from '@/components/ui/report/ReportEditorSkeleton';
 import { useChatIndividualContextSelector } from '@/layouts/ChatLayout/ChatContext';
 import { useTrackAndUpdateReportChanges } from '@/api/buster-electric/reports/hooks';
-import { ShimmerText } from '@/components/ui/typography/ShimmerText';
 import { GeneratingContent } from './GeneratingContent';
-import { useHotkeys } from 'react-hotkeys-hook';
 
 export const ReportPageController: React.FC<{
   reportId: string;

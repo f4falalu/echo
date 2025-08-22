@@ -2,7 +2,7 @@
 
 import type { Value, AnyPluginConfig } from 'platejs';
 import { Plate, type TPlateEditor } from 'platejs/react';
-import React, { useImperativeHandle, useRef } from 'react';
+import React, { useEffect, useImperativeHandle, useRef } from 'react';
 import { useDebounceFn, useMemoizedFn } from '@/hooks';
 import { useAutoScroll } from '@/hooks/useAutoScroll';
 import { cn } from '@/lib/utils';
@@ -13,6 +13,7 @@ import { useReportEditor } from './useReportEditor';
 import type { ReportElementsWithIds, ReportElementWithId } from '@buster/server-shared/reports';
 import { platejsToMarkdown } from './plugins/markdown-kit/platejs-conversions';
 import { ShimmerText } from '@/components/ui/typography/ShimmerText';
+import { ScrollToBottomButton } from '../buttons/ScrollToBottomButton';
 
 interface ReportEditorProps {
   // We accept the generic Value type but recommend using ReportTypes.Value for type safety
@@ -69,11 +70,12 @@ export const ReportEditor = React.memo(
       const isReady = useRef(false);
       const editorContainerRef = useRef<HTMLDivElement>(null);
 
-      const { isAutoScrollEnabled } = useAutoScroll(editorContainerRef, {
-        enabled: isStreaming,
-        bottomThreshold: 50,
-        observeSubTree: true
-      });
+      const { isAutoScrollEnabled, enableAutoScroll, disableAutoScroll, scrollToBottom } =
+        useAutoScroll(editorContainerRef, {
+          enabled: isStreaming,
+          bottomThreshold: 50,
+          observeSubTree: true
+        });
 
       const editor = useReportEditor({
         isStreaming,
@@ -126,6 +128,14 @@ export const ReportEditor = React.memo(
         wait: 1500
       });
 
+      useEffect(() => {
+        if (isStreaming) {
+          enableAutoScroll();
+        } else {
+          disableAutoScroll();
+        }
+      }, [isStreaming]);
+
       if (!editor) return null;
 
       return (
@@ -146,6 +156,13 @@ export const ReportEditor = React.memo(
               />
             </ThemeWrapper>
             {postEditorChildren}
+            {isStreaming && (
+              <ScrollToBottomButton
+                isAutoScrollEnabled={isAutoScrollEnabled}
+                scrollToBottom={scrollToBottom}
+                className="fixed right-8 bottom-8 z-10"
+              />
+            )}
           </EditorContainer>
         </Plate>
       );
