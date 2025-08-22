@@ -22,10 +22,10 @@ const app = new Hono()
     zValidator('query', MetricDataQuerySchema),
     async (c) => {
       const { id } = c.req.valid('param');
-      const { limit, version_number } = c.req.valid('query');
+      const { limit, version_number, report_file_id } = c.req.valid('query');
       const user = c.get('busterUser');
 
-      const response = await getMetricDataHandler(id, user, limit, version_number);
+      const response = await getMetricDataHandler(id, user, limit, version_number, report_file_id);
 
       return c.json(response);
     }

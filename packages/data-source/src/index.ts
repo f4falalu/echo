@@ -90,3 +90,12 @@ export { createMetadataFromResults } from './utils/create-metadata-from-results'
 // SQL validation utilities
 export { checkQueryIsReadOnly } from './utils/sql-validation';
 export type { QueryTypeCheckResult } from './utils/sql-validation';
+
+// R2 cache utilities for metric data
+export {
+  checkCacheExists,
+  getCachedMetricData,
+  setCachedMetricData,
+  batchCheckCacheExists,
+  generateCacheKey,
+} from './cache';
