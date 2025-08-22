@@ -34,7 +34,7 @@ export default function ReportPlayground() {
       <DynamicReportEditor
         value={content}
         placeholder="Start typing..."
-        disabled={false}
+        // disabled={false}
         className={commonClassName}
         variant="default"
         useFixedToolbarKit={false}
