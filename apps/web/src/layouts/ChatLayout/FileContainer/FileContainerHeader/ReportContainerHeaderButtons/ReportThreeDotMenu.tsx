@@ -1,5 +1,9 @@
 import React, { useMemo } from 'react';
 import { useStartChatFromReport } from './useStartChatFromAsset';
+import { useStartChatFromAsset } from '@/api/buster_rest/chats';
+import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
+import { BusterRoutes } from '@/routes/busterRoutes';
+import { timeout } from '@/lib/timeout';
 import {
   Dropdown,
   DropdownContent,
@@ -44,7 +48,7 @@ export const ReportThreeDotMenu = React.memo(
     const favoriteItem = useFavoriteReportSelectMenu({ reportId });
     const versionHistory = useVersionHistorySelectMenu({ reportId });
     const verificationItem = useReportVerificationSelectMenu();
-    const refreshReportItem = useRefreshReportSelectMenu();
+    const refreshReportItem = useRefreshReportSelectMenu({ reportId });
     const duplicateReportItem = useDuplicateReportSelectMenu();
     const { dropdownItem: downloadPdfItem, exportPdfContainer } = useDownloadPdfSelectMenu({
       reportId
@@ -277,12 +281,36 @@ const useReportVerificationSelectMenu = (): DropdownItem => {
   );
 };
 
-// Refresh report (stubbed)
-const useRefreshReportSelectMenu = (): DropdownItem => {
-  const onClick = useMemoizedFn(async () => {
-    alert('TODO: Refresh report');
+// Refresh report with latest data
+const useRefreshReportSelectMenu = ({ reportId }: { reportId: string }): DropdownItem => {
+  const { mutateAsync: startChatFromAsset, isPending } = useStartChatFromAsset();
+  const onChangePage = useAppLayoutContextSelector((x) => x.onChangePage);
+  const onSetFileView = useChatLayoutContextSelector((x) => x.onSetFileView);
 
-    return;
+  const onClick = useMemoizedFn(async () => {
+    try {
+      const result = await startChatFromAsset({
+        asset_id: reportId,
+        asset_type: 'report',
+        prompt: 'Please refresh this report with the most up-to-date data.'
+      });
+
+      // Navigate to the new chat with the report
+      await onChangePage({
+        route: BusterRoutes.APP_CHAT_ID_REPORT_ID,
+        reportId: reportId,
+        chatId: result.id
+      });
+
+      // Wait for the chat to load and set the file view
+      await timeout(250);
+      onSetFileView({
+        fileId: reportId,
+        fileView: 'chart'
+      });
+    } catch (error) {
+      console.error('Failed to refresh report:', error);
+    }
   });
 
   return useMemo(
@@ -290,9 +318,10 @@ const useRefreshReportSelectMenu = (): DropdownItem => {
       label: 'Refresh report',
       value: 'refresh-report',
       icon: <Refresh3 />,
-      onClick
+      onClick,
+      loading: isPending
     }),
-    [onClick]
+    [onClick, isPending]
   );
 };
 
