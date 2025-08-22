@@ -79,7 +79,12 @@ export async function updateMessageEntries({
       .set(updateData)
       .where(and(eq(messages.id, messageId), isNull(messages.deletedAt)));
 
-    // Write-through: update cache with merged entries
+    await db
+      .update(messages)
+      .set(updateData)
+      .where(and(eq(messages.id, messageId), isNull(messages.deletedAt)));
+
+    // Write-through: update cache with merged entries only after successful DB update
     messageEntriesCache.set(messageId, mergedEntries);
 
     return { success: true };
