@@ -2,6 +2,7 @@ import { batchUpdateReport, updateMessageEntries } from '@buster/database';
 import type { ChatMessageResponseMessage } from '@buster/server-shared/chats';
 import { wrapTraced } from 'braintrust';
 import { createRawToolResultEntry } from '../../../shared/create-raw-llm-tool-result-entry';
+import { extractAndCacheMetricsWithUserContext } from '../helpers/metric-extraction';
 import { updateCachedSnapshot } from '../report-snapshot-cache';
 import type {
   CreateReportsContext,
@@ -167,6 +168,18 @@ export function createCreateReportsExecute(
 
             // Update cache with the newly created report content
             updateCachedSnapshot(reportId, content, versionHistory);
+
+            // Cache any metrics in the report content
+            if (context.userId) {
+              extractAndCacheMetricsWithUserContext(content, reportId, context.userId).catch(
+                (error) => {
+                  console.error('[create-reports] Failed to cache metrics for report', {
+                    reportId,
+                    error: error instanceof Error ? error.message : 'Unknown error',
+                  });
+                }
+              );
+            }
 
             // Update state to reflect successful update
             if (!state.files) {

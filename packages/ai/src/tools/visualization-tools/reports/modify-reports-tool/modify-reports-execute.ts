@@ -4,6 +4,7 @@ import { wrapTraced } from 'braintrust';
 import { and, eq, isNull } from 'drizzle-orm';
 import { createRawToolResultEntry } from '../../../shared/create-raw-llm-tool-result-entry';
 import { trackFileAssociations } from '../../file-tracking-helper';
+import { extractAndCacheMetricsWithUserContext } from '../helpers/metric-extraction';
 import { shouldIncrementVersion, updateVersionHistory } from '../helpers/report-version-helper';
 import { updateCachedSnapshot } from '../report-snapshot-cache';
 import {
@@ -271,6 +272,18 @@ const modifyReportsFile = wrapTraced(
           },
         ],
       });
+    }
+
+    // Cache any metrics in the modified report content
+    if (editResult.success && editResult.finalContent && userId) {
+      extractAndCacheMetricsWithUserContext(editResult.finalContent, params.id, userId).catch(
+        (error) => {
+          console.error('[modify-reports] Failed to cache metrics for report', {
+            reportId: params.id,
+            error: error instanceof Error ? error.message : 'Unknown error',
+          });
+        }
+      );
     }
 
     const now = new Date().toISOString();

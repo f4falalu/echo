@@ -52,7 +52,8 @@ export const MetricContent = React.memo(
       error: metricDataError
     } = useGetMetricData({
       id: metricId,
-      versionNumber: metricVersionNumber
+      versionNumber: metricVersionNumber,
+      reportFileId: reportId || undefined
     });
 
     const link = useMemo(() => {
