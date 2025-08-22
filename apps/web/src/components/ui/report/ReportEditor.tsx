@@ -11,6 +11,7 @@ import { ThemeWrapper } from './ThemeWrapper/ThemeWrapper';
 import { useReportEditor } from './useReportEditor';
 import type { ReportElementsWithIds, ReportElementWithId } from '@buster/server-shared/reports';
 import { platejsToMarkdown } from './plugins/markdown-kit/platejs-conversions';
+import { ShimmerText } from '@/components/ui/typography/ShimmerText';
 
 interface ReportEditorProps {
   // We accept the generic Value type but recommend using ReportTypes.Value for type safety
@@ -141,6 +142,11 @@ export const ReportEditor = React.memo(
                 className={cn('editor', className)}
                 autoFocus
               />
+              {isStreaming && (
+                <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex items-center gap-1.5 bg-background/80 backdrop-blur-sm px-3 py-2 rounded-md border border-border/50 shadow-sm">
+                  <ShimmerText text="Generating content..." className="text-sm" />
+                </div>
+              )}
             </ThemeWrapper>
           </EditorContainer>
         </Plate>
