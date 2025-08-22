@@ -19,7 +19,7 @@ export function mergeResponseMessages(
 
   // Create a map of new messages by ID
   const updateMap = new Map<string, ChatMessageResponseMessage>();
-  const updateIds = new Set<string>();
+  const updateMap = new Map<string, ChatMessageResponseMessage>();
 
   for (const msg of updates) {
     updateMap.set(msg.id, msg);
