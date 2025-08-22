@@ -163,6 +163,9 @@ importers:
       '@buster/ai':
         specifier: workspace:*
         version: link:../../packages/ai
+      '@buster/data-source':
+        specifier: workspace:*
+        version: link:../../packages/data-source
       '@buster/database':
         specifier: workspace:*
         version: link:../../packages/database
@@ -946,6 +949,9 @@ importers:
       '@buster/env-utils':
         specifier: workspace:*
         version: link:../env-utils
+      '@buster/server-shared':
+        specifier: workspace:*
+        version: link:../server-shared
       '@buster/typescript-config':
         specifier: workspace:*
         version: link:../typescript-config
@@ -964,6 +970,9 @@ importers:
       mysql2:
         specifier: ^3.14.1
         version: 3.14.1
+      node-sql-parser:
+        specifier: ^5.3.11
+        version: 5.3.11
       pg:
         specifier: 'catalog:'
         version: 8.16.3
@@ -973,6 +982,9 @@ importers:
       snowflake-sdk:
         specifier: ^2.1.1
         version: 2.1.1(asn1.js@5.4.1)
+      zod:
+        specifier: ^3.23.8
+        version: 3.25.76
     devDependencies:
       '@types/mssql':
         specifier: ^9.1.7
@@ -9595,6 +9607,10 @@ packages:
 
   node-sql-parser@5.3.10:
     resolution: {integrity: sha512-cf+iXXJ9Foz4hBIu+eNNeg207ac6XruA9I9DXEs+jCxeS9t/k9T0GZK8NZngPwkv+P26i3zNFj9jxJU2v3pJnw==}
+    engines: {node: '>=8'}
+
+  node-sql-parser@5.3.11:
+    resolution: {integrity: sha512-1ZcXu2qEFZlMkkaYPpMoTkypTunYTvtnInzVjWDhjc1+FS5h/WqT1rbgP2pP42/nXBWfPVN66mEfidWSpYVs1Q==}
     engines: {node: '>=8'}
 
   normalize-path@3.0.0:
@@ -22879,6 +22895,11 @@ snapshots:
   node-releases@2.0.19: {}
 
   node-sql-parser@5.3.10:
+    dependencies:
+      '@types/pegjs': 0.10.6
+      big-integer: 1.6.52
+
+  node-sql-parser@5.3.11:
     dependencies:
       '@types/pegjs': 0.10.6
       big-integer: 1.6.52
