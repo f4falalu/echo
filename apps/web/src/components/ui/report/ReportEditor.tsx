@@ -118,9 +118,7 @@ export const ReportEditor = React.memo(
       if (!editor) return null;
 
       return (
-        <Plate
-          editor={editor}
-          onValueChange={onValueChangeDebounced}>
+        <Plate editor={editor} onValueChange={onValueChangeDebounced}>
           <EditorContainer
             variant={variant}
             readOnly={readOnly}
@@ -131,6 +129,7 @@ export const ReportEditor = React.memo(
                 style={style}
                 placeholder={placeholder}
                 className={cn('editor', className)}
+                readOnly={readOnly || isStreaming}
                 autoFocus
               />
             </ThemeWrapper>

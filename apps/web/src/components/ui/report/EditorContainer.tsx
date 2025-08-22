@@ -26,8 +26,8 @@ const editorContainerVariants = cva(
           'has-data-readonly:w-fit has-data-readonly:cursor-default has-data-readonly:border-transparent has-data-readonly:focus-within:[box-shadow:none]'
         )
       },
-      readonly: {
-        true: 'cursor-default pointer-events-none user-select-none'
+      readOnly: {
+        true: 'cursor-default user-select-none '
       }
     },
     defaultVariants: {
