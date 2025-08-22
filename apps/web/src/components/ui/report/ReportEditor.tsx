@@ -22,7 +22,6 @@ interface ReportEditorProps {
   variant?: 'default';
   className?: string;
   containerClassName?: string;
-  disabled?: boolean;
   style?: React.CSSProperties;
   onValueChange?: (value: string) => void; //markdown
   useFixedToolbarKit?: boolean;
@@ -57,7 +56,6 @@ export const ReportEditor = React.memo(
         mode = 'default',
         useFixedToolbarKit = false,
         readOnly = false,
-        disabled = false,
         isStreaming = false,
         children
       },
@@ -66,15 +64,12 @@ export const ReportEditor = React.memo(
       // Initialize the editor instance using the custom useEditor hook
       const isReady = useRef(false);
 
-      // readOnly = true;
-      // isStreaming = true;
-
       const editor = useReportEditor({
         isStreaming,
         mode,
+        readOnly,
         value,
         initialElements,
-        disabled,
         useFixedToolbarKit
       });
 
@@ -123,22 +118,18 @@ export const ReportEditor = React.memo(
       if (!editor) return null;
 
       return (
-        <Plate
-          editor={editor}
-          readOnly={readOnly || isStreaming}
-          onValueChange={onValueChangeDebounced}>
+        <Plate editor={editor} onValueChange={onValueChangeDebounced}>
           <EditorContainer
             variant={variant}
-            readonly={readOnly}
-            disabled={disabled}
-            className={cn('editor-container overflow-auto', containerClassName)}>
+            readOnly={readOnly}
+            className={cn('editor-container relative overflow-auto', containerClassName)}>
             {children}
             <ThemeWrapper id={id}>
               <Editor
                 style={style}
                 placeholder={placeholder}
-                disabled={disabled}
                 className={cn('editor', className)}
+                readOnly={readOnly || isStreaming}
                 autoFocus
               />
             </ThemeWrapper>
