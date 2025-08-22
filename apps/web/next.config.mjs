@@ -45,7 +45,8 @@ const createCspHeader = (isEmbed = false) => {
         ? `frame-ancestors 'self' *`
         : "frame-ancestors 'none'",
     // Frame sources - allow embeds from accepted domains
-    "frame-src 'self' https://vercel.live https://*.twitter.com https://twitter.com https://*.x.com https://x.com https://*.youtube.com https://youtube.com https://*.youtube-nocookie.com https://youtube-nocookie.com https://*.youtu.be https://youtu.be https://*.vimeo.com https://vimeo.com ${publicUrlOrigin}",
+    // Escape publicUrlOrigin to ensure it is a valid CSP source value
+    `frame-src 'self' https://vercel.live https://*.twitter.com https://twitter.com https://*.x.com https://x.com https://*.youtube.com https://youtube.com https://*.youtube-nocookie.com https://youtube-nocookie.com https://*.youtu.be https://youtu.be https://*.vimeo.com https://vimeo.com ${publicUrlOrigin}`,
     // Connect sources for API calls
     (() => {
       const connectSources = [
