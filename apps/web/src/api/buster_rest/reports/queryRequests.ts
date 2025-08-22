@@ -15,7 +15,10 @@ import {
   getReportsList_server,
   getReportById,
   getReportById_server,
-  updateReport
+  updateReport,
+  shareReport,
+  unshareReport,
+  updateReportShare
 } from './requests';
 import {
   useAddAssetToCollection,
@@ -259,6 +262,88 @@ export const useRemoveReportFromCollection = () => {
           queryKey: reportsQueryKeys.reportsGetReport(id).queryKey
         });
       });
+    }
+  });
+};
+
+/**
+ * Hook to share a report with users
+ */
+export const useShareReport = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: shareReport,
+    onSuccess: (_, { id }) => {
+      // Invalidate the report cache to get updated sharing info
+      queryClient.invalidateQueries({
+        queryKey: reportsQueryKeys.reportsGetReport(id).queryKey
+      });
+    }
+  });
+};
+
+/**
+ * Hook to remove sharing permissions from a report
+ */
+export const useUnshareReport = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: unshareReport,
+    onMutate: (variables) => {
+      const queryKey = reportsQueryKeys.reportsGetReport(variables.id).queryKey;
+      queryClient.setQueryData(queryKey, (previousData: GetReportResponse | undefined) => {
+        if (!previousData) return previousData;
+        return create(previousData, (draft) => {
+          if (draft.individual_permissions) {
+            draft.individual_permissions = draft.individual_permissions.filter(
+              (p) => !variables.data.includes(p.email)
+            );
+          }
+        });
+      });
+    },
+    onSuccess: (_, { id }) => {
+      // Invalidate the report cache to ensure consistency
+      queryClient.invalidateQueries({
+        queryKey: reportsQueryKeys.reportsGetReport(id).queryKey
+      });
+    }
+  });
+};
+
+/**
+ * Hook to update report sharing settings
+ */
+export const useUpdateReportShare = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: updateReportShare,
+    onMutate: (variables) => {
+      const queryKey = reportsQueryKeys.reportsGetReport(variables.id).queryKey;
+      queryClient.setQueryData(queryKey, (previousData: GetReportResponse | undefined) => {
+        if (!previousData) return previousData;
+        return create(previousData, (draft) => {
+          if (variables.params.publicly_accessible !== undefined) {
+            draft.publicly_accessible = variables.params.publicly_accessible;
+          }
+          if (variables.params.public_expiry_date !== undefined) {
+            draft.public_expiry_date = variables.params.public_expiry_date;
+          }
+          if (variables.params.public_password !== undefined) {
+            draft.public_password = variables.params.public_password;
+          }
+          if (variables.params.workspace_sharing !== undefined) {
+            draft.workspace_sharing = variables.params.workspace_sharing;
+          }
+        });
+      });
+    },
+    onSuccess: (data, { id }) => {
+      // Update the cache with the server response
+      queryClient.setQueryData(reportsQueryKeys.reportsGetReport(id).queryKey, data);
     }
   });
 };

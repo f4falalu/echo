@@ -8,6 +8,11 @@ import type {
   UpdateReportRequest,
   UpdateReportResponse
 } from '@buster/server-shared/reports';
+import type {
+  SharePostRequest,
+  ShareDeleteRequest,
+  ShareUpdateRequest
+} from '@buster/server-shared/share';
 
 /**
  * Get a list of reports with optional filters
@@ -55,4 +60,33 @@ export const updateReport = async ({
   ...data
 }: UpdateReportRequest & { reportId: string }) => {
   return mainApiV2.put<UpdateReportResponse>(`/reports/${reportId}`, data).then((res) => res.data);
+};
+
+/**
+ * Share a report with users
+ */
+export const shareReport = async ({ id, params }: { id: string; params: SharePostRequest }) => {
+  return mainApiV2.post<string>(`/reports/${id}/sharing`, params).then((res) => res.data);
+};
+
+/**
+ * Remove sharing permissions from a report
+ */
+export const unshareReport = async ({ id, data }: { id: string; data: ShareDeleteRequest }) => {
+  return mainApiV2.delete<string>(`/reports/${id}/sharing`, { data }).then((res) => res.data);
+};
+
+/**
+ * Update report sharing settings
+ */
+export const updateReportShare = async ({
+  params,
+  id
+}: {
+  id: string;
+  params: ShareUpdateRequest;
+}) => {
+  return mainApiV2
+    .put<UpdateReportResponse>(`/reports/${id}/sharing`, params)
+    .then((res) => res.data);
 };
