@@ -10,6 +10,8 @@ import { type IReportEditor } from '@/components/ui/report/ReportEditor';
 import { ReportEditorSkeleton } from '@/components/ui/report/ReportEditorSkeleton';
 import { useChatIndividualContextSelector } from '@/layouts/ChatLayout/ChatContext';
 import { useTrackAndUpdateReportChanges } from '@/api/buster-electric/reports/hooks';
+import { ShimmerText } from '@/components/ui/typography/ShimmerText';
+import { GeneratingContent } from './GeneratingContent';
 
 export const ReportPageController: React.FC<{
   reportId: string;
@@ -21,8 +23,10 @@ export const ReportPageController: React.FC<{
   ({ reportId, readOnly = false, className = '', onReady: onReadyProp, mode = 'default' }) => {
     const { data: report } = useGetReport({ reportId, versionNumber: undefined });
     const isStreamingMessage = useChatIndividualContextSelector((x) => x.isStreamingMessage);
+    const messageId = useChatIndividualContextSelector((x) => x.currentMessageId);
 
     const content = report?.content || '';
+    const showGeneratingContent = messageId && isStreamingMessage;
     const commonClassName = 'sm:px-[max(64px,calc(50%-350px))]';
 
     const { mutate: updateReport } = useUpdateReport();
@@ -68,7 +72,12 @@ export const ReportPageController: React.FC<{
             readOnly={readOnly || !report}
             mode={mode}
             onReady={onReadyProp}
-            isStreaming={isStreamingMessage}>
+            isStreaming={isStreamingMessage}
+            postEditorChildren={
+              showGeneratingContent ? (
+                <GeneratingContent messageId={messageId} className={commonClassName} />
+              ) : null
+            }>
             <ReportPageHeader
               name={report?.name}
               updatedAt={report?.updated_at}

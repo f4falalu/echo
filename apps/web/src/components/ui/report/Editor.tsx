@@ -28,7 +28,6 @@ const editorVariants = cva(
         true: 'ring-2 ring-ring ring-offset-2'
       },
       variant: {
-        ai: 'w-full px-0 text-base md:text-sm',
         comment: cn('rounded-none border-none bg-transparent text-sm'),
         default: 'size-full px-16 pt-4 pb-72 text-base sm:px-[max(64px,calc(50%-350px))]',
         fullWidth: 'size-full px-16 pt-4 pb-72 text-base sm:px-24',
@@ -41,7 +40,7 @@ const editorVariants = cva(
 export type EditorProps = PlateContentProps & VariantProps<typeof editorVariants>;
 
 export const Editor = React.forwardRef<HTMLDivElement, EditorProps>(
-  ({ className, disabled, focused, variant, ...props }, ref) => {
+  ({ className, disabled, focused, variant, children, ...props }, ref) => {
     return (
       <PlateContent
         ref={ref}

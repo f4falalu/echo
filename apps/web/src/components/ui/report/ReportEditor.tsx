@@ -31,6 +31,7 @@ interface ReportEditorProps {
   id?: string;
   mode?: 'export' | 'default';
   children?: React.ReactNode;
+  postEditorChildren?: React.ReactNode;
 }
 
 export type IReportEditor = TPlateEditor<Value, AnyPluginConfig>;
@@ -60,15 +61,13 @@ export const ReportEditor = React.memo(
         readOnly = false,
         disabled = false,
         isStreaming = false,
-        children
+        children,
+        postEditorChildren
       },
       ref
     ) => {
       // Initialize the editor instance using the custom useEditor hook
       const isReady = useRef(false);
-
-      // readOnly = true;
-      // isStreaming = true;
 
       const editor = useReportEditor({
         isStreaming,
@@ -132,7 +131,7 @@ export const ReportEditor = React.memo(
             variant={variant}
             readonly={readOnly}
             disabled={disabled}
-            className={cn('editor-container overflow-auto', containerClassName)}>
+            className={cn('editor-container relative overflow-auto', containerClassName)}>
             {children}
             <ThemeWrapper id={id}>
               <Editor
@@ -142,12 +141,8 @@ export const ReportEditor = React.memo(
                 className={cn('editor', className)}
                 autoFocus
               />
-              {isStreaming && (
-                <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex items-center gap-1.5 bg-background/80 backdrop-blur-sm px-3 py-2 rounded-md border border-border/50 shadow-sm">
-                  <ShimmerText text="Generating content..." className="text-sm" />
-                </div>
-              )}
             </ThemeWrapper>
+            {postEditorChildren}
           </EditorContainer>
         </Plate>
       );
