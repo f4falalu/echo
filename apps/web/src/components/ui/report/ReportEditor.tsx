@@ -4,6 +4,7 @@ import type { Value, AnyPluginConfig } from 'platejs';
 import { Plate, type TPlateEditor } from 'platejs/react';
 import React, { useImperativeHandle, useRef } from 'react';
 import { useDebounceFn, useMemoizedFn } from '@/hooks';
+import { useAutoScroll } from '@/hooks/useAutoScroll';
 import { cn } from '@/lib/utils';
 import { Editor } from './Editor';
 import { EditorContainer } from './EditorContainer';
@@ -65,6 +66,13 @@ export const ReportEditor = React.memo(
     ) => {
       // Initialize the editor instance using the custom useEditor hook
       const isReady = useRef(false);
+      const editorContainerRef = useRef<HTMLDivElement>(null);
+
+      const { isAutoScrollEnabled } = useAutoScroll(editorContainerRef, {
+        enabled: isStreaming,
+        bottomThreshold: 50,
+        observeSubTree: true
+      });
 
       // readOnly = true;
       // isStreaming = true;
@@ -128,6 +136,7 @@ export const ReportEditor = React.memo(
           readOnly={readOnly || isStreaming}
           onValueChange={onValueChangeDebounced}>
           <EditorContainer
+            ref={editorContainerRef}
             variant={variant}
             readonly={readOnly}
             disabled={disabled}
