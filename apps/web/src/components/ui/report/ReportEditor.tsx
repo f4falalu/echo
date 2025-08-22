@@ -30,7 +30,7 @@ interface ReportEditorProps {
   onReady?: (editor: IReportEditor) => void;
   id?: string;
   mode?: 'export' | 'default';
-  children?: React.ReactNode;
+  preEditorChildren?: React.ReactNode;
   postEditorChildren?: React.ReactNode;
 }
 
@@ -60,7 +60,7 @@ export const ReportEditor = React.memo(
         useFixedToolbarKit = false,
         readOnly = false,
         isStreaming = false,
-        children,
+        preEditorChildren,
         postEditorChildren
       },
       ref
@@ -135,7 +135,7 @@ export const ReportEditor = React.memo(
             variant={variant}
             readOnly={readOnly}
             className={cn('editor-container relative overflow-auto', containerClassName)}>
-            {children}
+            {preEditorChildren}
             <ThemeWrapper id={id}>
               <Editor
                 style={style}

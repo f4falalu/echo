@@ -73,19 +73,20 @@ export const ReportPageController: React.FC<{
             mode={mode}
             onReady={onReadyProp}
             isStreaming={isStreamingMessage}
+            preEditorChildren={
+              <ReportPageHeader
+                name={report?.name}
+                updatedAt={report?.updated_at}
+                onChangeName={onChangeName}
+                className={commonClassName}
+                isStreaming={isStreamingMessage}
+              />
+            }
             postEditorChildren={
               showGeneratingContent ? (
                 <GeneratingContent messageId={messageId} className={commonClassName} />
               ) : null
-            }>
-            <ReportPageHeader
-              name={report?.name}
-              updatedAt={report?.updated_at}
-              onChangeName={onChangeName}
-              className={commonClassName}
-              isStreaming={isStreamingMessage}
-            />
-          </DynamicReportEditor>
+            }></DynamicReportEditor>
         ) : (
           <ReportEditorSkeleton />
         )}
