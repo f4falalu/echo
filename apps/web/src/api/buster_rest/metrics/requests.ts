@@ -41,7 +41,7 @@ export const getMetricData = async ({
   version_number,
   password
 }: GetMetricDataRequest): Promise<MetricDataResponse> => {
-  return mainApi
+  return mainApiV2
     .get<MetricDataResponse>(`/metric_files/${id}/data`, { params: { password, version_number } })
     .then((res) => res.data);
 };

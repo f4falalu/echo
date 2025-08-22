@@ -122,16 +122,105 @@ export async function getMetricDataHandler(
     const hasMoreRecords = queryResult.rows.length > queryLimit;
 
     // Trim results to requested limit if we have more
-    const data = hasMoreRecords ? queryResult.rows.slice(0, queryLimit) : queryResult.rows;
+    const rawData = hasMoreRecords ? queryResult.rows.slice(0, queryLimit) : queryResult.rows;
 
-    // Build metadata from query result
+    // Convert data to match expected type (string | number | null)
+    const data = rawData.map((row) => {
+      const typedRow: Record<string, string | number | null> = {};
+      for (const [key, value] of Object.entries(row)) {
+        if (value === null || typeof value === 'string' || typeof value === 'number') {
+          typedRow[key] = value;
+        } else if (typeof value === 'boolean') {
+          typedRow[key] = value.toString();
+        } else if (value instanceof Date) {
+          typedRow[key] = value.toISOString();
+        } else {
+          // Convert other types to string (JSON objects, arrays, etc)
+          typedRow[key] = JSON.stringify(value);
+        }
+      }
+      return typedRow;
+    });
+
+    // Build metadata from query result with required fields
+    const columnMetadata = queryResult.fields.map((field) => {
+      // Determine simple type based on field type
+      const simpleType =
+        field.type.includes('int') ||
+        field.type.includes('float') ||
+        field.type.includes('decimal') ||
+        field.type.includes('numeric') ||
+        field.type === 'number'
+          ? 'number'
+          : field.type.includes('date') || field.type.includes('time')
+            ? 'date'
+            : 'text';
+
+      return {
+        name: field.name,
+        // Map common database types to supported types
+        type: (field.type.toLowerCase().includes('varchar')
+          ? 'varchar'
+          : field.type.toLowerCase().includes('char')
+            ? 'char'
+            : field.type.toLowerCase().includes('text')
+              ? 'text'
+              : field.type.toLowerCase().includes('int')
+                ? 'integer'
+                : field.type.toLowerCase().includes('float')
+                  ? 'float'
+                  : field.type.toLowerCase().includes('decimal')
+                    ? 'decimal'
+                    : field.type.toLowerCase().includes('numeric')
+                      ? 'numeric'
+                      : field.type.toLowerCase().includes('bool')
+                        ? 'bool'
+                        : field.type.toLowerCase().includes('date')
+                          ? 'date'
+                          : field.type.toLowerCase().includes('time')
+                            ? 'timestamp'
+                            : field.type.toLowerCase().includes('json')
+                              ? 'json'
+                              : 'text') as
+          | 'text'
+          | 'float'
+          | 'integer'
+          | 'date'
+          | 'float8'
+          | 'timestamp'
+          | 'timestamptz'
+          | 'bool'
+          | 'time'
+          | 'boolean'
+          | 'json'
+          | 'jsonb'
+          | 'int8'
+          | 'int4'
+          | 'int2'
+          | 'decimal'
+          | 'char'
+          | 'character varying'
+          | 'character'
+          | 'varchar'
+          | 'number'
+          | 'numeric'
+          | 'tinytext'
+          | 'mediumtext'
+          | 'longtext'
+          | 'nchar'
+          | 'nvarchat'
+          | 'ntext'
+          | 'float4',
+        min_value: '', // These would need to be calculated from actual data
+        max_value: '',
+        unique_values: 0,
+        simple_type: simpleType as 'text' | 'number' | 'date',
+      };
+    });
+
     const dataMetadata = {
       column_count: queryResult.fields.length,
-      column_metadata: queryResult.fields.map((field) => ({
-        name: field.name,
-        type: field.type,
-        nullable: field.nullable,
-      })),
+      column_metadata: columnMetadata,
       row_count: data.length,
     };
 
