@@ -300,7 +300,6 @@ export const useShareReport = () => {
                 draft.individual_permissions = [
                   ...(draft.individual_permissions || []),
                   {
-                    id: `temp-${shareRequest.email}`,
                     email: shareRequest.email,
                     name: shareRequest.name || shareRequest.email,
                     role: shareRequest.role,
