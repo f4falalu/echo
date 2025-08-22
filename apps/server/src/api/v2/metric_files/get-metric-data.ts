@@ -1,5 +1,5 @@
 import { type AssetPermissionCheck, checkPermission } from '@buster/access-controls';
-import { createAdapter } from '@buster/data-source';
+import { executeMetricQuery } from '@buster/data-source';
 import type { Credentials } from '@buster/data-source';
 import type { User } from '@buster/database';
 import {
@@ -19,7 +19,7 @@ import { HTTPException } from 'hono/http-exception';
  * 2. Checks user has permission to view the metric file
  * 3. Retrieves the metric definition
  * 4. Parses the metric content to extract SQL
- * 5. Executes the query against the data source
+ * 5. Executes the query against the data source using the shared utility
  * 6. Returns the data with metadata and pagination info
  *
  * @param metricId - The ID of the metric to retrieve data for
@@ -103,132 +103,19 @@ export async function getMetricDataHandler(
     });
   }
 
-  // Create adapter and execute query
-  const adapter = await createAdapter(credentials);
-
+  // Execute query using the shared utility
   try {
-    // Add 1 to limit to check if there are more records
-    const queryLimitWithCheck = queryLimit + 1;
-
-    // Execute query with timeout (60 seconds)
-    const queryResult = await adapter.query(
-      sql,
-      [], // No parameters for metric queries
-      queryLimitWithCheck,
-      60000 // 60 second timeout
-    );
-
-    // Check if we have more records than the requested limit
-    const hasMoreRecords = queryResult.rows.length > queryLimit;
-
-    // Trim results to requested limit if we have more
-    const rawData = hasMoreRecords ? queryResult.rows.slice(0, queryLimit) : queryResult.rows;
-
-    // Convert data to match expected type (string | number | null)
-    const data = rawData.map((row) => {
-      const typedRow: Record<string, string | number | null> = {};
-      for (const [key, value] of Object.entries(row)) {
-        if (value === null || typeof value === 'string' || typeof value === 'number') {
-          typedRow[key] = value;
-        } else if (typeof value === 'boolean') {
-          typedRow[key] = value.toString();
-        } else if (value instanceof Date) {
-          typedRow[key] = value.toISOString();
-        } else {
-          // Convert other types to string (JSON objects, arrays, etc)
-          typedRow[key] = JSON.stringify(value);
-        }
-      }
-      return typedRow;
+    const result = await executeMetricQuery(metric.dataSourceId, sql, credentials, {
+      maxRows: queryLimit,
+      timeout: 60000, // 60 seconds
+      retryDelays: [1000, 3000, 6000], // 1s, 3s, 6s
     });
-
-    // Build metadata from query result with required fields
-    const columnMetadata = queryResult.fields.map((field) => {
-      // Determine simple type based on field type
-      const simpleType =
-        field.type.includes('int') ||
-        field.type.includes('float') ||
-        field.type.includes('decimal') ||
-        field.type.includes('numeric') ||
-        field.type === 'number'
-          ? 'number'
-          : field.type.includes('date') || field.type.includes('time')
-            ? 'date'
-            : 'text';
-
-      return {
-        name: field.name,
-        // Map common database types to supported types
-        type: (field.type.toLowerCase().includes('varchar')
-          ? 'varchar'
-          : field.type.toLowerCase().includes('char')
-            ? 'char'
-            : field.type.toLowerCase().includes('text')
-              ? 'text'
-              : field.type.toLowerCase().includes('int')
-                ? 'integer'
-                : field.type.toLowerCase().includes('float')
-                  ? 'float'
-                  : field.type.toLowerCase().includes('decimal')
-                    ? 'decimal'
-                    : field.type.toLowerCase().includes('numeric')
-                      ? 'numeric'
-                      : field.type.toLowerCase().includes('bool')
-                        ? 'bool'
-                        : field.type.toLowerCase().includes('date')
-                          ? 'date'
-                          : field.type.toLowerCase().includes('time')
-                            ? 'timestamp'
-                            : field.type.toLowerCase().includes('json')
-                              ? 'json'
-                              : 'text') as
-          | 'text'
-          | 'float'
-          | 'integer'
-          | 'date'
-          | 'float8'
-          | 'timestamp'
-          | 'timestamptz'
-          | 'bool'
-          | 'time'
-          | 'boolean'
-          | 'json'
-          | 'jsonb'
-          | 'int8'
-          | 'int4'
-          | 'int2'
-          | 'decimal'
-          | 'char'
-          | 'character varying'
-          | 'character'
-          | 'varchar'
-          | 'number'
-          | 'numeric'
-          | 'tinytext'
-          | 'mediumtext'
-          | 'longtext'
-          | 'nchar'
-          | 'nvarchat'
-          | 'ntext'
-          | 'float4',
-        min_value: '', // These would need to be calculated from actual data
-        max_value: '',
-        unique_values: 0,
-        simple_type: simpleType as 'text' | 'number' | 'date',
-      };
-    });
-
-    const dataMetadata = {
-      column_count: queryResult.fields.length,
-      column_metadata: columnMetadata,
-      row_count: data.length,
-    };
 
     return {
-      data,
-      data_metadata: dataMetadata,
+      data: result.data,
+      data_metadata: result.dataMetadata,
       metricId,
-      has_more_records: hasMoreRecords,
+      has_more_records: result.hasMoreRecords,
     };
   } catch (error) {
     console.error('Query execution failed:', error);
@@ -241,11 +128,6 @@ export async function getMetricDataHandler(
 
     throw new HTTPException(500, {
       message: 'Query execution failed',
-    });
-  } finally {
-    // Always close the adapter connection
-    await adapter.close().catch((err) => {
-      console.error('Failed to close adapter connection:', err);
     });
   }
 }

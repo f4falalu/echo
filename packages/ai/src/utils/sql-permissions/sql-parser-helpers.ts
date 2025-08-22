@@ -2,6 +2,9 @@ import pkg from 'node-sql-parser';
 const { Parser } = pkg;
 import type { BaseFrom, ColumnRefItem, Join, Select } from 'node-sql-parser';
 import * as yaml from 'yaml';
+// Import checkQueryIsReadOnly from data-source package
+export { checkQueryIsReadOnly } from '@buster/data-source';
+export type { QueryTypeCheckResult } from '@buster/data-source';
 
 export interface ParsedTable {
   database?: string;
@@ -23,12 +26,6 @@ export interface ParsedDataset {
 interface StatementWithNext extends Record<string, unknown> {
   _next?: StatementWithNext;
   type?: string;
-}
-
-export interface QueryTypeCheckResult {
-  isReadOnly: boolean;
-  queryType?: string;
-  error?: string;
 }
 
 export interface WildcardValidationResult {
@@ -1636,78 +1633,5 @@ function extractColumnFromExpression(
         columnAliases
       );
     }
-  }
-}
-
-/**
- * Checks if a SQL query is read-only (SELECT statements only)
- * Returns error if query contains write operations
- */
-export function checkQueryIsReadOnly(sql: string, dataSourceSyntax?: string): QueryTypeCheckResult {
-  const dialect = getParserDialect(dataSourceSyntax);
-  const parser = new Parser();
-
-  try {
-    // Parse SQL into AST with the appropriate dialect
-    const ast = parser.astify(sql, { database: dialect });
-
-    // Handle single statement or array of statements
-    const statements = Array.isArray(ast) ? ast : [ast];
-
-    // Check each statement
-    for (const statement of statements) {
-      // Check if statement has a type property
-      if ('type' in statement && statement.type) {
-        const queryType = statement.type.toLowerCase();
-
-        // Only allow SELECT statements
-        if (queryType !== 'select') {
-          // Provide specific guidance based on the query type
-          let guidance = '';
-          switch (queryType) {
-            case 'insert':
-              guidance = ' To read data, use SELECT statements instead of INSERT.';
-              break;
-            case 'update':
-              guidance = ' To read data, use SELECT statements instead of UPDATE.';
-              break;
-            case 'delete':
-              guidance = ' To read data, use SELECT statements instead of DELETE.';
-              break;
-            case 'create':
-              guidance =
-                ' DDL operations like CREATE are not permitted. Use SELECT to query existing data.';
-              break;
-            case 'drop':
-              guidance =
-                ' DDL operations like DROP are not permitted. Use SELECT to query existing data.';
-              break;
-            case 'alter':
-              guidance =
-                ' DDL operations like ALTER are not permitted. Use SELECT to query existing data.';
-              break;
-            default:
-              guidance = ' Please use SELECT statements to query data.';
-          }
-
-          return {
-            isReadOnly: false,
-            queryType: statement.type,
-            error: `Query type '${statement.type.toUpperCase()}' is not allowed. Only SELECT statements are permitted for read-only access.${guidance}`,
-          };
-        }
-      }
-    }
-
-    return {
-      isReadOnly: true,
-      queryType: 'select',
-    };
-  } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    return {
-      isReadOnly: false,
-      error: `Failed to parse SQL query for validation: ${errorMessage}. Please ensure your SQL syntax is valid. Only SELECT statements are allowed for read-only access.`,
-    };
   }
 }

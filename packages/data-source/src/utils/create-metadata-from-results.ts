@@ -1,5 +1,5 @@
-import type { FieldMetadata } from '@buster/data-source';
 import type { ColumnMetaData, DataMetadata } from '@buster/server-shared/metrics';
+import type { FieldMetadata } from '../adapters/base';
 
 /**
  * Creates DataMetadata from query results and optional column metadata from adapters
