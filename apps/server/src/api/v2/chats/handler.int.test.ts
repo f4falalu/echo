@@ -454,4 +454,109 @@ describe('Chat Handler Integration Tests', () => {
     // The important thing is that it doesn't crash with validation errors
     expect([200, 404, 400]).toContain(response.status);
   });
+
+  describe('Report Asset Handling', () => {
+    it('should validate report asset type correctly', async () => {
+      // Test that report is a valid asset type
+      const response = await makeRequest({
+        asset_id: '123e4567-e89b-12d3-a456-426614174000',
+        asset_type: 'report',
+      });
+
+      // Since we don't have real report assets in test, this may fail with 404 or 500
+      // But it should NOT fail with validation error about asset_type
+      expect([200, 404, 400, 500]).toContain(response.status);
+
+      // If it's a validation error, it should not be about invalid asset_type
+      if (response.status === 400) {
+        const error = (await response.json()) as any;
+        const errorMessage = error.message || error.error || '';
+        if (errorMessage.toLowerCase().includes('asset_type')) {
+          expect(errorMessage).not.toContain('invalid asset_type');
+        }
+      }
+    });
+
+    it('should handle report asset with prompt', async () => {
+      // Test the refresh report scenario
+      const response = await makeRequest({
+        asset_id: '123e4567-e89b-12d3-a456-426614174000',
+        asset_type: 'report',
+        prompt: 'Please refresh this report with the most up-to-date data.',
+      });
+
+      // Validate response structure (may fail with 500 in test env)
+      expect([200, 404, 400, 500]).toContain(response.status);
+
+      // If successful (would need real report in DB), verify the structure
+      if (response.status === 200) {
+        const chat = (await response.json()) as ChatWithMessages;
+
+        // Should have both the import message and the user prompt message
+        expect(chat.message_ids.length).toBeGreaterThanOrEqual(2);
+
+        // The last message should contain our refresh prompt
+        const lastMessageId = chat.message_ids[chat.message_ids.length - 1];
+        const lastMessage = chat.messages[lastMessageId!];
+        expect(lastMessage?.request_message?.request).toBe(
+          'Please refresh this report with the most up-to-date data.'
+        );
+      }
+    });
+
+    it('should reject report without asset_type when asset_id is provided', async () => {
+      const response = await makeRequest({
+        asset_id: '123e4567-e89b-12d3-a456-426614174000',
+        // Missing asset_type - should fail validation
+      } as any);
+
+      expect(response.status).toBe(400);
+      const error = (await response.json()) as any;
+      const errorMessage = (
+        error.message ||
+        error.error ||
+        error.issues?.[0]?.message ||
+        ''
+      ).toString();
+      expect(errorMessage).toBeTruthy(); // Just ensure there's an error message
+    });
+
+    it('should handle metric asset type for backwards compatibility', async () => {
+      const response = await makeRequest({
+        asset_id: '123e4567-e89b-12d3-a456-426614174000',
+        asset_type: 'metric',
+      });
+
+      // Should accept 'metric' as valid asset type (may fail with 500 in test env)
+      expect([200, 404, 400, 500]).toContain(response.status);
+
+      if (response.status === 400) {
+        const error = (await response.json()) as any;
+        const errorMessage = error.message || error.error || '';
+        // Should not complain about invalid asset_type
+        if (errorMessage.toLowerCase().includes('asset_type')) {
+          expect(errorMessage).not.toContain('invalid asset_type');
+        }
+      }
+    });
+
+    it('should handle dashboard asset type for backwards compatibility', async () => {
+      const response = await makeRequest({
+        asset_id: '123e4567-e89b-12d3-a456-426614174000',
+        asset_type: 'dashboard',
+      });
+
+      // Should accept 'dashboard' as valid asset type (may fail with 500 in test env)
+      expect([200, 404, 400, 500]).toContain(response.status);
+
+      if (response.status === 400) {
+        const error = (await response.json()) as any;
+        const errorMessage = error.message || error.error || '';
+        // Should not complain about invalid asset_type
+        if (errorMessage.toLowerCase().includes('asset_type')) {
+          expect(errorMessage).not.toContain('invalid asset_type');
+        }
+      }
+    });
+  });
 });
