@@ -13,15 +13,15 @@ import type { ReportElementWithId } from '@buster/server-shared/reports';
 
 export const useReportEditor = ({
   value,
-  disabled,
   isStreaming,
   mode = 'default',
+  readOnly,
   useFixedToolbarKit = false,
   initialElements
 }: {
   value: string | undefined; //markdown
   initialElements?: Value | ReportElementWithId[];
-  disabled: boolean;
+  readOnly: boolean | undefined;
   useFixedToolbarKit?: boolean;
   isStreaming: boolean;
   mode?: 'export' | 'default';
@@ -43,7 +43,7 @@ export const useReportEditor = ({
   const editor = usePlateEditor({
     plugins,
     value: initialElements,
-    readOnly: disabled || isStreaming
+    readOnly: readOnly //this is for the initial value
   });
 
   useEditorServerUpdates({ editor, value, isStreaming });
