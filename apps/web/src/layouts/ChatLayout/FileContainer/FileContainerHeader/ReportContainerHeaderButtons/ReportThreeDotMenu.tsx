@@ -120,8 +120,8 @@ const useShareMenuSelectMenu = ({ reportId }: { reportId: string }) => {
 
   return useMemo(
     () => ({
-      label: 'Share metric',
-      value: 'share-metric',
+      label: 'Share report',
+      value: 'share-report',
       icon: <ShareRight />,
       disabled: !isEffectiveOwner,
       items:

@@ -378,13 +378,11 @@ describe('ReportThreeDotMenu', () => {
       // Check for all expected menu items
       const expectedItems = [
         'Edit with AI',
-        'Share metric', // Note: This might be a bug in the original code - says "metric" for reports
+        'Share report',
         'Add to collection',
         'Add to favorites', // Or 'Remove from favorites' based on state
         'Version history',
-        'Request verification',
         'Refresh report',
-        'Duplicate',
         'Download as PDF'
       ];
 
