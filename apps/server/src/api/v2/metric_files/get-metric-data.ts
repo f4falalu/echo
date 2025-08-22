@@ -88,7 +88,7 @@ export async function getMetricDataHandler(
   let credentials: Credentials;
   try {
     const rawCredentials = await getDataSourceCredentials({
-      dataSourceId: metric.secretId,
+      dataSourceId: metric.dataSourceId,
     });
 
     // Ensure credentials have the correct type
