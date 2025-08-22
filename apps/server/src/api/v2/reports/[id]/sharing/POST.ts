@@ -5,6 +5,7 @@ import {
   getReport,
 } from '@buster/database';
 import type { User } from '@buster/database';
+import type { SharePostResponse } from '@buster/server-shared/reports';
 import type { SharePostRequest } from '@buster/server-shared/share';
 import { SharePostRequestSchema } from '@buster/server-shared/share';
 import { zValidator } from '@hono/zod-validator';
@@ -15,13 +16,7 @@ export async function createReportSharingHandler(
   reportId: string,
   shareRequests: SharePostRequest,
   user: User
-): Promise<{ success: boolean; shared: string[]; notFound: string[] }> {
-  // Check if report exists
-  const report = await getReport({ reportId, userId: user.id });
-  if (!report) {
-    throw new HTTPException(404, { message: 'Report not found' });
-  }
-
+): Promise<SharePostResponse> {
   // Check if user has permission to share the report
   const permissionCheck = await checkAssetPermission({
     assetId: reportId,
@@ -37,6 +32,12 @@ export async function createReportSharingHandler(
     throw new HTTPException(403, {
       message: 'You do not have permission to share this report',
     });
+  }
+
+  // Get the report to verify it exists
+  const report = await getReport({ reportId, userId: user.id });
+  if (!report) {
+    throw new HTTPException(404, { message: 'Report not found' });
   }
 
   // Extract emails from the share requests
@@ -69,12 +70,19 @@ export async function createReportSharingHandler(
       viewer: 'can_view', // Map viewer to can_view
     } as const;
 
+    const mappedRole = roleMapping[shareRequest.role];
+    if (!mappedRole) {
+      throw new HTTPException(400, {
+        message: `Invalid role: ${shareRequest.role} for user ${shareRequest.email}`,
+      });
+    }
+
     permissions.push({
       identityId: targetUser.id,
       identityType: 'user' as const,
       assetId: reportId,
       assetType: 'report_file' as const,
-      role: roleMapping[shareRequest.role] || 'can_view',
+      role: mappedRole,
       createdBy: user.id,
     });
   }

@@ -5,6 +5,7 @@ import {
   removeAssetPermission,
 } from '@buster/database';
 import type { User } from '@buster/database';
+import type { ShareDeleteResponse } from '@buster/server-shared/reports';
 import type { ShareDeleteRequest } from '@buster/server-shared/share';
 import { ShareDeleteRequestSchema } from '@buster/server-shared/share';
 import { zValidator } from '@hono/zod-validator';
@@ -15,13 +16,7 @@ export async function deleteReportSharingHandler(
   reportId: string,
   emails: ShareDeleteRequest,
   user: User
-): Promise<{ success: boolean; removed: string[]; notFound: string[] }> {
-  // Check if report exists
-  const report = await getReport({ reportId, userId: user.id });
-  if (!report) {
-    throw new HTTPException(404, { message: 'Report not found' });
-  }
-
+): Promise<ShareDeleteResponse> {
   // Check if user has permission to modify sharing for the report
   const permissionCheck = await checkAssetPermission({
     assetId: reportId,
@@ -37,6 +32,12 @@ export async function deleteReportSharingHandler(
     throw new HTTPException(403, {
       message: 'You do not have permission to modify sharing for this report',
     });
+  }
+
+  // Get the report to verify it exists and get owner info
+  const report = await getReport({ reportId, userId: user.id });
+  if (!report) {
+    throw new HTTPException(404, { message: 'Report not found' });
   }
 
   // Find users by emails

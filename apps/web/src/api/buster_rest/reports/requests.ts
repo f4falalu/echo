@@ -5,6 +5,8 @@ import type {
   GetReportsListRequest,
   GetReportsListResponse,
   GetReportResponse,
+  ShareDeleteResponse,
+  SharePostResponse,
   UpdateReportRequest,
   UpdateReportResponse
 } from '@buster/server-shared/reports';
@@ -66,14 +68,18 @@ export const updateReport = async ({
  * Share a report with users
  */
 export const shareReport = async ({ id, params }: { id: string; params: SharePostRequest }) => {
-  return mainApiV2.post<string>(`/reports/${id}/sharing`, params).then((res) => res.data);
+  return mainApiV2
+    .post<SharePostResponse>(`/reports/${id}/sharing`, params)
+    .then((res) => res.data);
 };
 
 /**
  * Remove sharing permissions from a report
  */
 export const unshareReport = async ({ id, data }: { id: string; data: ShareDeleteRequest }) => {
-  return mainApiV2.delete<string>(`/reports/${id}/sharing`, { data }).then((res) => res.data);
+  return mainApiV2
+    .delete<ShareDeleteResponse>(`/reports/${id}/sharing`, { data })
+    .then((res) => res.data);
 };
 
 /**

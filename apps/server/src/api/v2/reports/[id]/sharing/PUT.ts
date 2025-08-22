@@ -19,12 +19,6 @@ export async function updateReportShareHandler(
   request: ShareUpdateRequest,
   user: User & { organizationId: string }
 ) {
-  // Check if report exists
-  const report = await getReport({ reportId, userId: user.id });
-  if (!report) {
-    throw new HTTPException(404, { message: 'Report not found' });
-  }
-
   // Check if user has permission to edit asset permissions
   const permissionCheck = await checkAssetPermission({
     assetId: reportId,
@@ -40,6 +34,12 @@ export async function updateReportShareHandler(
     throw new HTTPException(403, {
       message: 'User does not have permission to edit asset permissions',
     });
+  }
+
+  // Check if report exists
+  const report = await getReport({ reportId, userId: user.id });
+  if (!report) {
+    throw new HTTPException(404, { message: 'Report not found' });
   }
 
   const { publicly_accessible, public_expiry_date, public_password, workspace_sharing, users } =
@@ -73,12 +73,19 @@ export async function updateReportShareHandler(
         viewer: 'can_view', // Map viewer to can_view
       } as const;
 
+      const mappedRole = roleMapping[userPermission.role];
+      if (!mappedRole) {
+        throw new HTTPException(400, {
+          message: `Invalid role: ${userPermission.role} for user ${userPermission.email}`,
+        });
+      }
+
       permissions.push({
         identityId: targetUser.id,
         identityType: 'user' as const,
         assetId: reportId,
         assetType: 'report_file' as const,
-        role: roleMapping[userPermission.role] || 'can_view',
+        role: mappedRole,
         createdBy: user.id,
       });
     }

@@ -98,7 +98,7 @@ export const ShareMenuContentEmbedFooter = ({
     } else if (assetType === 'report') {
       await onShareReport(payload);
     }
-    openSuccessMessage('Succuessfully published');
+    openSuccessMessage('Successfully published');
   });
 
   return (

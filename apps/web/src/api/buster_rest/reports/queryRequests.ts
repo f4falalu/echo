@@ -274,6 +274,57 @@ export const useShareReport = () => {
 
   return useMutation({
     mutationFn: shareReport,
+    onMutate: async (variables) => {
+      // Cancel any outgoing refetches
+      await queryClient.cancelQueries({
+        queryKey: reportsQueryKeys.reportsGetReport(variables.id).queryKey
+      });
+
+      // Snapshot the previous value
+      const previousReport = queryClient.getQueryData<GetReportResponse>(
+        reportsQueryKeys.reportsGetReport(variables.id).queryKey
+      );
+
+      // Optimistically update the report with new permissions
+      queryClient.setQueryData(
+        reportsQueryKeys.reportsGetReport(variables.id).queryKey,
+        (old: GetReportResponse | undefined) => {
+          if (!old) return old;
+          return create(old, (draft) => {
+            // Add new permissions optimistically
+            variables.params.forEach((shareRequest) => {
+              const exists = draft.individual_permissions?.some(
+                (p) => p.email === shareRequest.email
+              );
+              if (!exists) {
+                draft.individual_permissions = [
+                  ...(draft.individual_permissions || []),
+                  {
+                    id: `temp-${shareRequest.email}`,
+                    email: shareRequest.email,
+                    name: shareRequest.name || shareRequest.email,
+                    role: shareRequest.role,
+                    avatar_url: shareRequest.avatar_url || null
+                  }
+                ];
+              }
+            });
+          });
+        }
+      );
+
+      // Return a context object with the snapshotted value
+      return { previousReport };
+    },
+    onError: (err, variables, context) => {
+      // If the mutation fails, use the context returned from onMutate to roll back
+      if (context?.previousReport) {
+        queryClient.setQueryData(
+          reportsQueryKeys.reportsGetReport(variables.id).queryKey,
+          context.previousReport
+        );
+      }
+    },
     onSuccess: (_, { id }) => {
       // Invalidate the report cache to get updated sharing info
       queryClient.invalidateQueries({

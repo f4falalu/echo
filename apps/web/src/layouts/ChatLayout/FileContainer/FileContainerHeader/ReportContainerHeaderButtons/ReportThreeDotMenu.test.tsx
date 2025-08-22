@@ -382,9 +382,7 @@ describe('ReportThreeDotMenu', () => {
         'Add to collection',
         'Add to favorites', // Or 'Remove from favorites' based on state
         'Version history',
-        'Request verification',
         'Refresh report',
-        'Duplicate',
         'Download as PDF'
       ];
 

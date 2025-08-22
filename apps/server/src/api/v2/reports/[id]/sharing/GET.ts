@@ -1,22 +1,13 @@
 import { checkAssetPermission, getReport, listAssetPermissions } from '@buster/database';
 import type { User } from '@buster/database';
+import type { ShareGetResponse } from '@buster/server-shared/reports';
 import { Hono } from 'hono';
 import { HTTPException } from 'hono/http-exception';
-
-interface SharePermission {
-  userId: string;
-  email: string;
-  name: string | null;
-  avatarUrl: string | null;
-  role: string;
-  createdAt: string;
-  updatedAt: string;
-}
 
 export async function getReportSharingHandler(
   reportId: string,
   user: User
-): Promise<{ permissions: SharePermission[] }> {
+): Promise<ShareGetResponse> {
   // Check if report exists
   const report = await getReport({ reportId, userId: user.id });
   if (!report) {
@@ -42,19 +33,8 @@ export async function getReportSharingHandler(
     assetType: 'report_file',
   });
 
-  // Format the permissions for the response
-  const formattedPermissions: SharePermission[] = permissions.map((perm) => ({
-    userId: perm.user?.id || '',
-    email: perm.user?.email || '',
-    name: perm.user?.name || null,
-    avatarUrl: perm.user?.avatarUrl || null,
-    role: perm.permission.role,
-    createdAt: perm.permission.createdAt,
-    updatedAt: perm.permission.updatedAt,
-  }));
-
   return {
-    permissions: formattedPermissions,
+    permissions,
   };
 }
 
