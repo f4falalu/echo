@@ -8,7 +8,7 @@ on:
 
 jobs:
   deploy:
-    if: ${{ github.event.workflow_run.conclusion == 'success' && (github.event.workflow_run.head_branch == 'main' || github.event.workflow_run.head_branch == 'staging') }}
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: blacksmith-2vcpu-ubuntu-2404
     environment: ${{ github.event.workflow_run.head_branch }}
     
@@ -32,7 +32,13 @@ jobs:
         run: |
           BRANCH="${{ github.event.workflow_run.head_branch }}"
           SHA="${{ steps.commit.outputs.sha_short }}"
-          TAG="${BRANCH}-${SHA}"
+          
+          # Determine the image tag based on branch
+          if [[ "${BRANCH}" == "main" ]]; then
+            TAG="${SHA}"
+          else
+            TAG="${BRANCH}-${SHA}"
+          fi
           
           echo "🚀 Deploying to ${BRANCH} environment..."
           echo "📦 Using image tag: ${TAG}"
