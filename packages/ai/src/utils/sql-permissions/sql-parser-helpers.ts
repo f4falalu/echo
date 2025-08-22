@@ -129,8 +129,20 @@ export function extractPhysicalTables(sql: string, dataSourceSyntax?: string): P
 
     return physicalTables;
   } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    // Provide more specific guidance based on common parsing errors
+    if (errorMessage.includes('Expected')) {
+      throw new Error(
+        `SQL syntax error: ${errorMessage}. Please check your SQL syntax and ensure it's valid for the ${dialect} dialect.`
+      );
+    }
+    if (errorMessage.includes('Unexpected token')) {
+      throw new Error(
+        `SQL parsing error: ${errorMessage}. This may be due to unsupported SQL features or incorrect syntax.`
+      );
+    }
     throw new Error(
-      `Failed to parse SQL: ${error instanceof Error ? error.message : 'Unknown error'}`
+      `Failed to parse SQL query: ${errorMessage}. Please ensure your SQL is valid and uses standard ${dialect} syntax.`
     );
   }
 }
@@ -353,8 +365,11 @@ export function extractTablesFromYml(ymlContent: string): ParsedTable[] {
         }
       }
     }
-  } catch (_error) {
-    // If YML parsing fails, return empty array
+  } catch (error) {
+    // Log the error for debugging but don't throw - return empty array
+    // This is expected behavior when YML content is invalid or not a dataset
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    console.warn(`Failed to parse YML content for table extraction: ${errorMessage}`);
   }
 
   return tables;
@@ -473,8 +488,11 @@ export function extractDatasetsFromYml(ymlContent: string): ParsedDataset[] {
         }
       }
     }
-  } catch (_error) {
-    // If YML parsing fails, return empty array
+  } catch (error) {
+    // Log the error for debugging but don't throw - return empty array
+    // This is expected behavior when YML content is invalid or not a dataset
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    console.warn(`Failed to parse YML content for dataset extraction: ${errorMessage}`);
   }
 
   return datasets;
@@ -546,18 +564,25 @@ export function validateWildcardUsage(
     }
 
     if (blockedTables.length > 0) {
+      // Create a more helpful error message with specific tables and guidance
+      const tableList =
+        blockedTables.length > 1
+          ? `tables: ${blockedTables.join(', ')}`
+          : `table: ${blockedTables[0]}`;
+
       return {
         isValid: false,
-        error: `SELECT * is not allowed on physical tables. Please specify the columns you need.`,
+        error: `SELECT * is not allowed on physical ${tableList}. Please explicitly specify the column names you need instead of using wildcards. For example, use 'SELECT column1, column2 FROM table' instead of 'SELECT * FROM table'. This restriction helps ensure data security and prevents unintended data exposure.`,
         blockedTables,
       };
     }
 
     return { isValid: true };
   } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
     return {
       isValid: false,
-      error: `Failed to validate wildcard usage: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      error: `Failed to validate wildcard usage in SQL query: ${errorMessage}. Please ensure your SQL syntax is correct and try specifying explicit column names instead of using SELECT *.`,
     };
   }
 }
@@ -836,8 +861,12 @@ export function extractColumnReferences(
     }
 
     return tableColumnMap;
-  } catch (_error) {
-    // Return empty map if parsing fails
+  } catch (error) {
+    // Log the error for debugging but return empty map to allow validation to continue
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    console.warn(
+      `Failed to extract column references from SQL: ${errorMessage}. Column-level permissions cannot be validated.`
+    );
     return new Map();
   }
 }
@@ -1633,10 +1662,38 @@ export function checkQueryIsReadOnly(sql: string, dataSourceSyntax?: string): Qu
 
         // Only allow SELECT statements
         if (queryType !== 'select') {
+          // Provide specific guidance based on the query type
+          let guidance = '';
+          switch (queryType) {
+            case 'insert':
+              guidance = ' To read data, use SELECT statements instead of INSERT.';
+              break;
+            case 'update':
+              guidance = ' To read data, use SELECT statements instead of UPDATE.';
+              break;
+            case 'delete':
+              guidance = ' To read data, use SELECT statements instead of DELETE.';
+              break;
+            case 'create':
+              guidance =
+                ' DDL operations like CREATE are not permitted. Use SELECT to query existing data.';
+              break;
+            case 'drop':
+              guidance =
+                ' DDL operations like DROP are not permitted. Use SELECT to query existing data.';
+              break;
+            case 'alter':
+              guidance =
+                ' DDL operations like ALTER are not permitted. Use SELECT to query existing data.';
+              break;
+            default:
+              guidance = ' Please use SELECT statements to query data.';
+          }
+
           return {
             isReadOnly: false,
             queryType: statement.type,
-            error: `Query type '${statement.type}' is not allowed. Only SELECT statements are permitted for read-only access.`,
+            error: `Query type '${statement.type.toUpperCase()}' is not allowed. Only SELECT statements are permitted for read-only access.${guidance}`,
           };
         }
       }
@@ -1647,9 +1704,10 @@ export function checkQueryIsReadOnly(sql: string, dataSourceSyntax?: string): Qu
       queryType: 'select',
     };
   } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
     return {
       isReadOnly: false,
-      error: `Failed to parse SQL for query type check: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      error: `Failed to parse SQL query for validation: ${errorMessage}. Please ensure your SQL syntax is valid. Only SELECT statements are allowed for read-only access.`,
     };
   }
 }
