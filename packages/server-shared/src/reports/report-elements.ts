@@ -1,3 +1,17 @@
-import type { ReportElement, ReportElements } from '@buster/database';
+import type {
+  MetricElement,
+  ReportElement,
+  ReportElementWithId,
+  ReportElements,
+  ReportElementsWithIds,
+  TextElement,
+} from '@buster/database';
 
-export type { ReportElement, ReportElements };
+export type {
+  ReportElement,
+  ReportElements,
+  ReportElementsWithIds,
+  ReportElementWithId,
+  MetricElement,
+  TextElement,
+};

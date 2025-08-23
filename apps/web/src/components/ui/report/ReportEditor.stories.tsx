@@ -1,9 +1,10 @@
-import type { ReportElement } from '@buster/server-shared/reports';
+import type { ReportElementWithId } from '@buster/server-shared/reports';
 import type { Meta, StoryObj } from '@storybook/nextjs';
 import { ReportEditor } from './ReportEditor';
 import { useEffect, useRef, useState } from 'react';
 import { useMount } from '@/hooks';
 import { cn } from '@/lib/classMerge';
+import type { Value } from 'platejs';
 
 const meta = {
   title: 'UI/report/ReportEditor',
@@ -55,7 +56,6 @@ const meta = {
   args: {
     placeholder: 'Start typing...',
     readOnly: false,
-    disabled: false,
     variant: 'default'
   }
 } satisfies Meta<typeof ReportEditor>;
@@ -347,27 +347,30 @@ const sampleValue = [
       }
     ]
   }
-] satisfies ReportElement[];
+].map((element, index) => ({
+  ...element,
+  id: `id-${index}`
+})) as Value;
 
 // Cast to Value for platejs compatibility
 const plateValue = sampleValue;
 
 export const Default: Story = {
   args: {
-    value: plateValue
+    initialElements: plateValue
   }
 };
 
 export const ReadOnly: Story = {
   args: {
-    value: plateValue,
+    initialElements: plateValue,
     readOnly: true
   }
 };
 
 export const WithCustomKit: Story = {
   args: {
-    value: [
+    initialElements: [
       {
         type: 'h1',
         children: [{ text: 'Hello' }]
@@ -397,93 +400,10 @@ export const WithCustomKit: Story = {
         url: 'https://picsum.photos/200/200',
         caption: [{ text: 'This is a caption' }]
       }
-    ],
+    ].map((element, index) => ({
+      ...element,
+      id: `id-${index}`
+    })) as ReportElementWithId[],
     useFixedToolbarKit: true
-  }
-};
-
-export const WithStreamingContent: Story = {
-  args: {
-    value: [
-      { type: 'h1', children: [{ text: 'Hello' }] },
-      { type: 'p', children: [{ text: 'This is a paragraph' }] }
-    ]
-  },
-  render: (args) => {
-    // This effect simulates streaming content by appending to the current line,
-    // and starting a new line every 3 iterations, up to 10 total iterations.
-    const [value, setValue] = useState<ReportElement[]>(args.value);
-    const iterations = useRef(0);
-
-    const [isRunning, setIsRunning] = useState(false);
-
-    useMount(() => {
-      if (iterations.current >= 10 || isRunning) return; // Cancel after 10 iterations
-
-      setIsRunning(true);
-
-      const interval = setInterval(() => {
-        setValue((prevValue) => {
-          const nextValue = [...prevValue];
-
-          const makeChunk = (i: number) => `chunk ${i}`;
-          const shouldStartNewLine = iterations.current % 3 === 0;
-
-          if (shouldStartNewLine) {
-            // Start a new paragraph line
-            nextValue.push({ type: 'p', children: [{ text: makeChunk(iterations.current) }] });
-          } else {
-            // Append to the current (last) paragraph line
-            const lastIndex = nextValue.length - 1;
-            const lastBlock = nextValue[lastIndex] as ReportElement | undefined;
-
-            if (lastBlock && lastBlock.type === 'p') {
-              const children = Array.isArray((lastBlock as any).children)
-                ? [...(lastBlock as any).children]
-                : [];
-
-              const lastChildIndex = children.length - 1;
-              if (
-                lastChildIndex >= 0 &&
-                children[lastChildIndex] &&
-                typeof children[lastChildIndex].text === 'string'
-              ) {
-                const existingText = children[lastChildIndex].text as string;
-                children[lastChildIndex] = {
-                  ...children[lastChildIndex],
-                  text: `${existingText} ${makeChunk(iterations.current)}`
-                };
-              } else {
-                children.push({ text: makeChunk(iterations.current) });
-              }
-
-              nextValue[lastIndex] = { ...(lastBlock as any), children } as ReportElement;
-            } else {
-              // If the last block isn't a paragraph, start one
-              nextValue.push({ type: 'p', children: [{ text: makeChunk(iterations.current) }] });
-            }
-          }
-
-          return nextValue;
-        });
-
-        iterations.current++;
-        if (iterations.current >= 30) {
-          clearInterval(interval);
-          setIsRunning(false);
-        }
-      }, 150);
-
-      return () => clearInterval(interval);
-    });
-
-    return (
-      <div className="flex space-x-4 border">
-        <ReportEditor {...args} value={value} readOnly={isRunning} />
-        <div className={cn('m-3 border', !isRunning ? 'bg-green-100' : '')}>
-          <pre>{JSON.stringify(value, null, 2)}</pre>
-        </div>
-      </div>
-    );
   }
 };

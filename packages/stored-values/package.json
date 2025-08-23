@@ -33,7 +33,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@ai-sdk/openai": "^1.3.23",
+    "@ai-sdk/openai": "beta",
     "@buster/database": "workspace:*",
     "@buster/env-utils": "workspace:*",
     "@buster/typescript-config": "workspace:*",

@@ -1,4 +1,5 @@
 import { canUserAccessChatCached } from '@buster/access-controls';
+import type { ModelMessage } from '@buster/ai';
 import {
   type User,
   chats,
@@ -326,11 +327,17 @@ export async function handleNewChat({
           chatId: newChat.id,
           createdBy: user.id,
           requestMessage: prompt,
-          responseMessages: {},
-          reasoning: {},
           title: prompt,
-          rawLlmMessages: {},
           isCompleted: false,
+          responseMessages: [],
+          reasoning: [],
+          // Add the user message as the first raw LLM entry
+          rawLlmMessages: [
+            {
+              role: 'user',
+              content: prompt,
+            } as ModelMessage,
+          ],
         })
         .returning();
 

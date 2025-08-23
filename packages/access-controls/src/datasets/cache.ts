@@ -10,7 +10,7 @@ const datasetCache = new LRUCache<
   }
 >({
   max: 1000, // Maximum 1k entries
-  ttl: 30 * 1000, // 30 seconds
+  ttl: 10 * 1000, // 10 seconds
   updateAgeOnGet: true,
 });
 
@@ -23,7 +23,7 @@ interface CachedDatasetAccess {
 
 const accessCache = new LRUCache<string, CachedDatasetAccess>({
   max: 5000, // Maximum 5k entries
-  ttl: 30 * 1000, // 30 seconds
+  ttl: 10 * 1000, // 10 seconds
   updateAgeOnGet: true,
 });
 

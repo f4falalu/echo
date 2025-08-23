@@ -4,6 +4,9 @@
   "private": false,
   "license": "MIT",
   "type": "module",
+  "main": "./dist/configs/index.js",
+  "module": "./dist/configs/index.js",
+  "types": "./dist/configs/index.d.ts",
   "exports": {
     ".": {
       "types": "./dist/configs/index.d.ts",

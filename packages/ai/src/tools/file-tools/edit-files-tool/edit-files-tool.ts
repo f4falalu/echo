@@ -1,19 +1,17 @@
-import { runTypescript } from '@buster/sandbox';
-import type { RuntimeContext } from '@mastra/core/runtime-context';
-import { createTool } from '@mastra/core/tools';
-import { wrapTraced } from 'braintrust';
+import type { Sandbox } from '@buster/sandbox';
+import { tool } from 'ai';
 import { z } from 'zod';
-import { type DocsAgentContext, DocsAgentContextKey } from '../../../context/docs-agent-context';
+import { createEditFilesToolExecute } from './edit-files-tool-execute';
 
-const editFileParamsSchema = z.object({
+const EditFileParamsSchema = z.object({
   filePath: z.string().describe('Relative or absolute path to the file'),
   findString: z.string().describe('Text to find (must appear exactly once)'),
   replaceString: z.string().describe('Text to replace the found text with'),
 });
 
-const editFilesInputSchema = z.object({
+export const EditFilesToolInputSchema = z.object({
   edits: z
-    .array(editFileParamsSchema)
+    .array(EditFileParamsSchema)
     .min(1, 'At least one edit must be provided')
     .max(100, 'Maximum 100 edits allowed per request')
     .describe(
@@ -21,7 +19,7 @@ const editFilesInputSchema = z.object({
     ),
 });
 
-const editFilesOutputSchema = z.object({
+export const EditFilesToolOutputSchema = z.object({
   results: z.array(
     z.discriminatedUnion('status', [
       z.object({
@@ -43,123 +41,30 @@ const editFilesOutputSchema = z.object({
   }),
 });
 
-const editFilesExecution = wrapTraced(
-  async (
-    params: z.infer<typeof editFilesInputSchema>,
-    runtimeContext: RuntimeContext<DocsAgentContext>
-  ): Promise<z.infer<typeof editFilesOutputSchema>> => {
-    const { edits } = params;
+export const EditFilesToolContextSchema = z.object({
+  messageId: z.string().describe('The message ID for database updates'),
+  sandbox: z
+    .custom<Sandbox>(
+      (val) => {
+        return val && typeof val === 'object' && 'id' in val && 'fs' in val;
+      },
+      { message: 'Invalid Sandbox instance' }
+    )
+    .describe('Sandbox instance for file operations'),
+});
 
-    if (!edits || edits.length === 0) {
-      return {
-        results: [],
-        summary: { total: 0, successful: 0, failed: 0 },
-      };
-    }
+export type EditFilesToolInput = z.infer<typeof EditFilesToolInputSchema>;
+export type EditFilesToolOutput = z.infer<typeof EditFilesToolOutputSchema>;
+export type EditFilesToolContext = z.infer<typeof EditFilesToolContextSchema>;
 
-    try {
-      const sandbox = runtimeContext.get(DocsAgentContextKey.Sandbox);
+// Factory function to create the edit-files tool
+export function createEditFilesTool<
+  TAgentContext extends EditFilesToolContext = EditFilesToolContext,
+>(context: TAgentContext) {
+  const execute = createEditFilesToolExecute(context);
 
-      if (sandbox) {
-        const { generateFileEditCode } = await import('./edit-files');
-        const code = generateFileEditCode(edits);
-        const result = await runTypescript(sandbox, code);
-
-        if (result.exitCode !== 0) {
-          console.error('Sandbox execution failed:', result.stderr);
-          throw new Error(`Sandbox execution failed: ${result.stderr || 'Unknown error'}`);
-        }
-
-        let fileResults: Array<{
-          success: boolean;
-          filePath: string;
-          message?: string;
-          error?: string;
-        }>;
-
-        try {
-          fileResults = JSON.parse(result.result.trim());
-        } catch (parseError) {
-          console.error('Failed to parse sandbox output:', result.result);
-          throw new Error(
-            `Failed to parse sandbox output: ${parseError instanceof Error ? parseError.message : 'Unknown parse error'}`
-          );
-        }
-
-        const successful = fileResults.filter((r) => r.success).length;
-        const failed = fileResults.length - successful;
-
-        return {
-          results: fileResults.map((fileResult) => {
-            if (fileResult.success) {
-              return {
-                status: 'success' as const,
-                file_path: fileResult.filePath,
-                message: fileResult.message || 'File edited successfully',
-              };
-            }
-            return {
-              status: 'error' as const,
-              file_path: fileResult.filePath,
-              error_message: fileResult.error || 'Unknown error',
-            };
-          }),
-          summary: {
-            total: fileResults.length,
-            successful,
-            failed,
-          },
-        };
-      }
-
-      const { editFilesSafely } = await import('./edit-files');
-      const fileResults = await editFilesSafely(edits);
-
-      const successful = fileResults.filter((r) => r.success).length;
-      const failed = fileResults.length - successful;
-
-      return {
-        results: fileResults.map((fileResult) => {
-          if (fileResult.success) {
-            return {
-              status: 'success' as const,
-              file_path: fileResult.filePath,
-              message: fileResult.message || 'File edited successfully',
-            };
-          }
-          return {
-            status: 'error' as const,
-            file_path: fileResult.filePath,
-            error_message: fileResult.error || 'Unknown error',
-          };
-        }),
-        summary: {
-          total: fileResults.length,
-          successful,
-          failed,
-        },
-      };
-    } catch (error) {
-      return {
-        results: edits.map((edit) => ({
-          status: 'error' as const,
-          file_path: edit.filePath,
-          error_message: `Execution error: ${error instanceof Error ? error.message : 'Unknown error'}`,
-        })),
-        summary: {
-          total: edits.length,
-          successful: 0,
-          failed: edits.length,
-        },
-      };
-    }
-  },
-  { name: 'edit-files' }
-);
-
-export const editFiles = createTool({
-  id: 'edit-files',
-  description: `Performs find-and-replace operations on files with validation and bulk editing support. Replaces specified text content with new content, but only if the find string appears exactly once in the file. Supports both relative and absolute file paths and can handle bulk operations through an array of edit objects.
+  return tool({
+    description: `Performs find-and-replace operations on files with validation and bulk editing support. Replaces specified text content with new content, but only if the find string appears exactly once in the file. Supports both relative and absolute file paths and can handle bulk operations through an array of edit objects.
 
 Key features:
 - Validates that the find string appears exactly once (returns error if 0 or multiple occurrences)
@@ -175,17 +80,8 @@ Error conditions:
 - Permission/IO errors: Returns appropriate error messages
 
 For bulk operations, each edit is processed independently and the tool returns both successful and failed operations with detailed results.`,
-  inputSchema: editFilesInputSchema,
-  outputSchema: editFilesOutputSchema,
-  execute: async ({
-    context,
-    runtimeContext,
-  }: {
-    context: z.infer<typeof editFilesInputSchema>;
-    runtimeContext: RuntimeContext<DocsAgentContext>;
-  }) => {
-    return await editFilesExecution(context, runtimeContext);
-  },
-});
-
-export default editFiles;
+    inputSchema: EditFilesToolInputSchema,
+    outputSchema: EditFilesToolOutputSchema,
+    execute,
+  });
+}

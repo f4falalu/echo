@@ -1,6 +1,8 @@
 import { RuntimeContext } from '@mastra/core/runtime-context';
 import { Eval, initDataset } from 'braintrust';
-import analystWorkflow, { type AnalystRuntimeContext } from '../../src/workflows/analyst-workflow';
+import analystWorkflow, {
+  type AnalystRuntimeContext,
+} from '../../src/workflows/analyst-agent-workflow/analyst-workflow';
 import {
   MetricCreatedSuccessfully,
   NoFailureToCreateMetrics,

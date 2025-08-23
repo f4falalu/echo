@@ -105,7 +105,8 @@
       "packages/**/node_modules/**",
       "packages/**/dist/**",
       "packages/**/build/**",
-      "apps/web/**"
+      "apps/web/**",
+      "**/supabase/**"
     ]
   },
   "overrides": [

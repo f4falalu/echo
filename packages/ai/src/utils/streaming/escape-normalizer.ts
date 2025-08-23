@@ -5,8 +5,9 @@
 
 /**
  * Detects if a string contains double-escaped characters
+ * (Internal helper function)
  */
-export function hasDoubleEscaping(text: string): boolean {
+function hasDoubleEscaping(text: string): boolean {
   // Check for common double-escaped patterns including backslashes
   return /\\\\[ntr"]|\\\\\\\\/.test(text);
 }
@@ -33,55 +34,28 @@ export function normalizeEscapedText(text: string): string {
 }
 
 /**
- * Safely normalizes text that may contain JSON or regular text
- * Preserves proper JSON escaping while fixing double-escaping in text content
+ * Unescapes JSON string escape sequences to their actual characters
+ * This is needed when extracting raw values from incomplete JSON during streaming
  */
-export function normalizeStreamingText(text: string, context: 'json' | 'text' = 'text'): string {
-  if (context === 'json') {
-    // For JSON context, we need to be more careful
-    // Only normalize if we're sure it's double-escaped
-    try {
-      // Try to parse as JSON first
-      const parsed = JSON.parse(text);
-      // If it parses successfully, check if the content has double escaping
-      const stringified = JSON.stringify(parsed);
-      if (stringified !== text && hasDoubleEscaping(text)) {
-        // The original text has double escaping, normalize it
-        return normalizeEscapedText(text);
-      }
-      // Otherwise it's properly escaped JSON
-      return text;
-    } catch {
-      // If it fails to parse, it might be partial JSON or double-escaped
-      // Check if it looks like double-escaped JSON string content
-      if (hasDoubleEscaping(text)) {
-        return normalizeEscapedText(text);
-      }
-      return text;
-    }
-  }
+export function unescapeJsonString(text: string): string {
+  // Replace JSON escape sequences with their actual characters
+  // Process in specific order to handle escape sequences correctly
+  let result = text;
 
-  // For text context, normalize if needed
-  return normalizeEscapedText(text);
-}
+  // Use a unique placeholder for escaped backslashes
+  const BACKSLASH_PLACEHOLDER = '__ESCAPED_BACKSLASH__';
 
-/**
- * Process streaming chunks and normalize escaping
- * Used during tool argument accumulation
- */
-export function normalizeStreamingChunk(
-  chunk: string,
-  previousChunk = ''
-): { normalized: string; hasChanges: boolean } {
-  // Check if we have double-escaping at the boundary
-  const boundaryCheck = previousChunk.slice(-10) + chunk.slice(0, 10);
-  const hasBoundaryIssue = hasDoubleEscaping(boundaryCheck);
+  // First replace escaped backslashes to avoid interfering with other sequences
+  result = result.replace(/\\\\/g, BACKSLASH_PLACEHOLDER);
 
-  if (hasBoundaryIssue || hasDoubleEscaping(chunk)) {
-    // Normalize the chunk
-    const normalized = normalizeEscapedText(chunk);
-    return { normalized, hasChanges: normalized !== chunk };
-  }
+  // Then replace other escape sequences
+  result = result.replace(/\\n/g, '\n'); // \n -> newline
+  result = result.replace(/\\r/g, '\r'); // \r -> carriage return
+  result = result.replace(/\\t/g, '\t'); // \t -> tab
+  result = result.replace(/\\"/g, '"'); // \" -> "
 
-  return { normalized: chunk, hasChanges: false };
+  // Finally replace the placeholder with actual backslash
+  result = result.replace(new RegExp(BACKSLASH_PLACEHOLDER, 'g'), '\\');
+
+  return result;
 }

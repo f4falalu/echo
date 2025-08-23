@@ -1,21 +1,14 @@
+import type { ChatMessageReasoningMessage, ChatMessageResponseMessage } from '@buster/database';
 import { z } from 'zod';
 import { PostProcessingMessageSchema } from '../message';
 
-// Message role for chat messages
-const MessageRoleSchema = z.enum(['user', 'assistant']);
+// Re-create the schemas locally to avoid ESM/CommonJS issues
+// These match the schemas defined in @buster/database/src/schemas/message-schemas.ts
 
-// Chat user message schema
-const ChatUserMessageSchema = z
-  .object({
-    request: z.string().nullable(),
-    sender_id: z.string(),
-    sender_name: z.string(),
-    sender_avatar: z.string().nullable().optional(),
-  })
-  .or(z.null());
-
+// Status schema for messages
 const StatusSchema = z.enum(['loading', 'completed', 'failed']);
 
+// Response message schemas
 const ResponseMessage_TextSchema = z.object({
   id: z.string(),
   type: z.literal('text'),
@@ -41,11 +34,12 @@ const ResponseMessage_FileSchema = z.object({
   metadata: z.array(ResponseMessage_FileMetadataSchema).optional(),
 });
 
-export const ResponseMessageSchema = z.discriminatedUnion('type', [
+const ResponseMessageSchema = z.discriminatedUnion('type', [
   ResponseMessage_TextSchema,
   ResponseMessage_FileSchema,
 ]);
 
+// Reasoning message schemas
 const ReasoningMessage_TextSchema = z.object({
   id: z.string(),
   type: z.literal('text'),
@@ -118,7 +112,7 @@ const ReasoningMessage_PillsSchema = z.object({
   status: StatusSchema,
 });
 
-export const ReasoningMessageSchema = z
+const ReasoningMessageSchema = z
   .discriminatedUnion('type', [
     ReasoningMessage_TextSchema,
     ReasoningMessage_FilesSchema,
@@ -129,6 +123,19 @@ export const ReasoningMessageSchema = z
       finished_reasoning: z.boolean().optional(),
     })
   );
+
+// Message role for chat messages
+const MessageRoleSchema = z.enum(['user', 'assistant']);
+
+// Chat user message schema
+const ChatUserMessageSchema = z
+  .object({
+    request: z.string().nullable(),
+    sender_id: z.string(),
+    sender_name: z.string(),
+    sender_avatar: z.string().nullable().optional(),
+  })
+  .or(z.null());
 
 // Chat message schema
 export const ChatMessageSchema = z.object({
@@ -149,22 +156,3 @@ export const ChatMessageSchema = z.object({
 export type MessageRole = z.infer<typeof MessageRoleSchema>;
 export type ChatUserMessage = z.infer<typeof ChatUserMessageSchema>;
 export type ChatMessage = z.infer<typeof ChatMessageSchema>;
-export type ChatMessageReasoning_status = z.infer<typeof StatusSchema>;
-export type ChatMessageResponseMessage = z.infer<typeof ResponseMessageSchema>;
-export type ChatMessageReasoningMessage = z.infer<typeof ReasoningMessageSchema>;
-export type ChatMessageReasoningMessage_Text = z.infer<typeof ReasoningMessage_TextSchema>;
-export type ChatMessageReasoningMessage_Files = z.infer<typeof ReasoningMessage_FilesSchema>;
-export type ChatMessageReasoningMessage_Pills = z.infer<typeof ReasoningMessage_PillsSchema>;
-export type ChatMessageReasoningMessage_File = z.infer<typeof ReasoningFileSchema>;
-export type ChatMessageReasoningMessage_Pill = z.infer<typeof ReasoningMessage_PillSchema>;
-export type ChatMessageReasoningMessage_PillContainer = z.infer<
-  typeof ReasoningMessage_PillContainerSchema
->;
-export type ChatMessageResponseMessage_FileMetadata = z.infer<
-  typeof ResponseMessage_FileMetadataSchema
->;
-export type ChatMessageResponseMessage_Text = z.infer<typeof ResponseMessage_TextSchema>;
-export type ChatMessageResponseMessage_File = z.infer<typeof ResponseMessage_FileSchema>;
-export type ReasoningFileType = z.infer<typeof ReasoningFileTypeSchema>;
-export type ResponseMessageFileType = z.infer<typeof ResponseMessageFileTypeSchema>;
-export type ReasoingMessage_ThoughtFileType = z.infer<typeof ReasoingMessage_ThoughtFileTypeSchema>;

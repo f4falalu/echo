@@ -1,5 +1,3 @@
-import type { RuntimeContext } from '@mastra/core/runtime-context';
-import type { AnalystRuntimeContext } from '../../workflows/analyst-workflow';
 import { createPermissionErrorMessage, validateSqlPermissions } from './permission-validator';
 
 export interface ExecuteWithPermissionResult<T = unknown> {
@@ -14,11 +12,10 @@ export interface ExecuteWithPermissionResult<T = unknown> {
  */
 export async function executeWithPermissionCheck<T>(
   sql: string,
-  runtimeContext: RuntimeContext<AnalystRuntimeContext>,
-  executeFn: () => Promise<T>
+  userId: string,
+  executeFn: () => Promise<T>,
+  dataSourceSyntax?: string
 ): Promise<ExecuteWithPermissionResult<T>> {
-  const userId = runtimeContext.get('userId');
-
   if (!userId) {
     return {
       success: false,
@@ -27,12 +24,15 @@ export async function executeWithPermissionCheck<T>(
   }
 
   // Validate permissions
-  const permissionResult = await validateSqlPermissions(sql, userId);
+  const permissionResult = await validateSqlPermissions(sql, userId, dataSourceSyntax);
 
   if (!permissionResult.isAuthorized) {
     return {
       success: false,
-      error: createPermissionErrorMessage(permissionResult.unauthorizedTables),
+      error: createPermissionErrorMessage(
+        permissionResult.unauthorizedTables,
+        permissionResult.unauthorizedColumns
+      ),
     };
   }
 

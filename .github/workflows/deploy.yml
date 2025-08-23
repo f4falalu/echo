@@ -5,26 +5,12 @@ on:
     workflows: ["Build and Push Server Docker Image"]
     types:
       - completed
-  workflow_dispatch:
-    inputs:
-      environment:
-        description: 'Environment to deploy to'
-        required: true
-        type: choice
-        options:
-          - staging
-          - main
-        default: staging
-      image_tag:
-        description: 'Docker image tag to deploy (e.g., staging-abc123 or main-def456)'
-        required: true
-        type: string
 
 jobs:
   deploy:
     if: ${{ (github.event_name == 'workflow_dispatch') || (github.event.workflow_run.conclusion == 'success' && (github.event.workflow_run.head_branch == 'main' || github.event.workflow_run.head_branch == 'staging')) }}
     runs-on: blacksmith-2vcpu-ubuntu-2404
-    environment: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.environment || github.event.workflow_run.head_branch }}
+    environment: ${{ github.event.workflow_run.head_branch }}
     
     steps:
       - name: Checkout code
@@ -38,22 +24,26 @@ jobs:
           echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
           echo "sha_full=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
       
+      - name: Get commit SHA
+        id: commit
+        run: |
+          echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+          echo "sha_full=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
+      
       - name: Setup porter
         uses: porter-dev/setup-porter@v0.1.0
       
       - name: Update Porter app with new image
         id: deploy
         run: |
-          # Determine deployment parameters based on trigger type
-          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
-            BRANCH="${{ github.event.inputs.environment }}"
-            TAG="${{ github.event.inputs.image_tag }}"
-            echo "🔧 Manual deployment triggered"
+          BRANCH="${{ github.event.workflow_run.head_branch }}"
+          SHA="${{ steps.commit.outputs.sha_short }}"
+          
+          # Determine the image tag based on branch
+          if [[ "${BRANCH}" == "main" ]]; then
+            TAG="${SHA}"
           else
-            BRANCH="${{ github.event.workflow_run.head_branch }}"
-            SHA="${{ steps.commit.outputs.sha_short }}"
             TAG="${BRANCH}-${SHA}"
-            echo "🔄 Automatic deployment triggered"
           fi
           
           echo "🚀 Deploying to ${BRANCH} environment..."
@@ -80,43 +70,26 @@ jobs:
       - name: Create deployment summary
         if: success()
         run: |
-          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
-            BRANCH="${{ github.event.inputs.environment }}"
-            TAG="${{ github.event.inputs.image_tag }}"
-            TRIGGER_TYPE="Manual"
-          else
-            BRANCH="${{ github.event.workflow_run.head_branch }}"
-            SHA="${{ steps.commit.outputs.sha_short }}"
-            TAG="${BRANCH}-${SHA}"
-            TRIGGER_TYPE="Automatic"
-          fi
+          BRANCH="${{ github.event.workflow_run.head_branch }}"
+          SHA="${{ steps.commit.outputs.sha_short }}"
           ENV="${{ steps.deploy.outputs.deployment_env }}"
           
           echo "## 🎉 Deployment Successful!" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "- **Environment:** \`${ENV}\`" >> $GITHUB_STEP_SUMMARY
           echo "- **Branch:** \`${BRANCH}\`" >> $GITHUB_STEP_SUMMARY
-          echo "- **Image Tag:** \`${TAG}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Commit:** \`${SHA}\`" >> $GITHUB_STEP_SUMMARY
           echo "- **Full SHA:** \`${{ steps.commit.outputs.sha_full }}\`" >> $GITHUB_STEP_SUMMARY
-          echo "- **Trigger Type:** ${TRIGGER_TYPE}" >> $GITHUB_STEP_SUMMARY
           echo "- **Triggered by:** ${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Time:** $(date -u +'%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_STEP_SUMMARY
       
       - name: Handle deployment failure
         if: failure()
         run: |
-          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
-            ENV="${{ github.event.inputs.environment }}"
-            TAG="${{ github.event.inputs.image_tag }}"
-          else
-            ENV="${{ github.event.workflow_run.head_branch }}"
-            TAG="(automatic)"
-          fi
-          
+
           echo "## ❌ Deployment Failed!" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "- **Environment:** ${ENV}" >> $GITHUB_STEP_SUMMARY
-          echo "- **Image Tag:** ${TAG}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Environment:** ${{ github.event.workflow_run.head_branch }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Error:** Check the logs above for details" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### Next Steps:" >> $GITHUB_STEP_SUMMARY

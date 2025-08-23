@@ -4,7 +4,7 @@ import { canUserAccessChat } from './chats';
 // Cache configuration
 const cache = new LRUCache<string, boolean>({
   max: 10000, // Maximum 10k entries
-  ttl: 30 * 1000, // 30 seconds
+  ttl: 10 * 1000, // 10 seconds
   updateAgeOnGet: true, // Refresh TTL on access
 });
 
@@ -14,7 +14,7 @@ let cacheMisses = 0;
 
 /**
  * Cached version of canUserAccessChat
- * Caches the boolean result for userId:chatId for 30 seconds
+ * Caches the boolean result for userId:chatId for 10 seconds
  * TTL is refreshed on each access
  */
 export async function canUserAccessChatCached({
