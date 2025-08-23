@@ -22,8 +22,8 @@ const UpdateMessageEntriesSchema = z.object({
 export type UpdateMessageEntriesParams = z.infer<typeof UpdateMessageEntriesSchema>;
 
 /**
- * Updates message entries using TypeScript-based merge logic with write-through caching.
- * Fetches existing entries from cache/database, merges with updates, and saves back.
+ * Updates message entries with cache-first approach for streaming.
+ * Cache is the source of truth during streaming, DB is updated for persistence.
  *
  * Merge logic:
  * - responseMessages: upsert by 'id' field, maintaining order
@@ -57,7 +57,11 @@ export async function updateMessageEntries({
         : existingEntries.rawLlmMessages,
     };
 
-    // Update database with merged entries
+    // Update cache immediately (cache is source of truth during streaming)
+    messageEntriesCache.set(messageId, mergedEntries);
+
+    // Update database asynchronously for persistence (fire-and-forget)
+    // If this fails, cache still has the latest state for next update
     const updateData: Record<string, unknown> = {
       updatedAt: new Date().toISOString(),
     };
@@ -74,18 +78,14 @@ export async function updateMessageEntries({
       updateData.rawLlmMessages = mergedEntries.rawLlmMessages;
     }
 
-    await db
-      .update(messages)
+    // Non-blocking DB update - don't await
+    db.update(messages)
       .set(updateData)
-      .where(and(eq(messages.id, messageId), isNull(messages.deletedAt)));
-
-    await db
-      .update(messages)
-      .set(updateData)
-      .where(and(eq(messages.id, messageId), isNull(messages.deletedAt)));
-
-    // Write-through: update cache with merged entries only after successful DB update
-    messageEntriesCache.set(messageId, mergedEntries);
+      .where(and(eq(messages.id, messageId), isNull(messages.deletedAt)))
+      .catch((error) => {
+        // Log but don't fail - cache has the truth
+        console.error('Background DB update failed (cache still valid):', error);
+      });
 
     return { success: true };
   } catch (error) {

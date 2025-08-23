@@ -19,11 +19,9 @@ export function mergeResponseMessages(
 
   // Create a map of new messages by ID
   const updateMap = new Map<string, ChatMessageResponseMessage>();
-  const updateMap = new Map<string, ChatMessageResponseMessage>();
 
   for (const msg of updates) {
     updateMap.set(msg.id, msg);
-    updateIds.add(msg.id);
   }
 
   // Keep track of which IDs we've already processed
@@ -67,11 +65,9 @@ export function mergeReasoningMessages(
 
   // Create a map of new messages by ID
   const updateMap = new Map<string, ChatMessageReasoningMessage>();
-  const updateMap = new Map<string, ChatMessageReasoningMessage>();
 
   for (const msg of updates) {
     updateMap.set(msg.id, msg);
-    updateIds.add(msg.id);
   }
 
   // Keep track of which IDs we've already processed
