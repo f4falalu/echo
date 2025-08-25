@@ -43,7 +43,7 @@ describe('PostgreSQLAdapter', () => {
         database: 'testdb',
         user: 'testuser',
         password: 'testpass',
-        ssl: true,
+        ssl: { rejectUnauthorized: false },
       });
       expect(mockClient.connect).toHaveBeenCalled();
     });
@@ -130,7 +130,7 @@ describe('PostgreSQLAdapter', () => {
 
       expect(Client).toHaveBeenCalledWith(
         expect.objectContaining({
-          ssl: true,
+          ssl: { rejectUnauthorized: false },
         })
       );
     });
