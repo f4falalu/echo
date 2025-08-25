@@ -21,7 +21,7 @@ jobs:
       - name: Get commit SHA
         id: commit
         run: |
-          echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+          echo "sha_short=$(git rev-parse --short=7 HEAD)" >> $GITHUB_OUTPUT
           echo "sha_full=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
       
       - name: Setup porter

@@ -116,7 +116,7 @@ jobs:
       - name: Extract metadata and determine tags
         id: meta
         run: |
-          SHA_SHORT=$(git rev-parse --short HEAD)
+          SHA_SHORT=$(git rev-parse --short=7 HEAD)
           echo "sha_short=${SHA_SHORT}" >> $GITHUB_OUTPUT
           
           if [[ "${{ github.ref_name }}" == "main" ]]; then
