@@ -28,6 +28,7 @@ describe('Done Tool Integration Tests', () => {
 
     mockContext = {
       messageId: testMessageId,
+      chatId: testChatId,
       workflowStartTime: Date.now(),
     };
   });
@@ -233,6 +234,7 @@ All operations completed successfully.`;
     test('should handle database errors gracefully', async () => {
       const invalidContext: DoneToolContext = {
         messageId: 'non-existent-message-id',
+        chatId: testChatId,
         workflowStartTime: Date.now(),
       };
 
@@ -258,6 +260,7 @@ All operations completed successfully.`;
 
       const invalidContext: DoneToolContext = {
         messageId: 'invalid-id',
+        chatId: testChatId,
         workflowStartTime: Date.now(),
       };
 

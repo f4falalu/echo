@@ -60,6 +60,7 @@ describe('createS3IntegrationHandler', () => {
         id: 'integration-123',
         provider: 's3',
         organizationId: 'org-123',
+        bucketName: 'test-bucket',
         createdAt: new Date('2024-01-15'),
         updatedAt: new Date('2024-01-15'),
         deletedAt: null,

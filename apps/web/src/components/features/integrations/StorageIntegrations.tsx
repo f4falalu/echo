@@ -140,7 +140,7 @@ const StorageConfiguration = React.memo(() => {
       </div>
       <div className="flex items-center space-x-2">
         <Text size="sm" className="text-icon-color">
-          {providerLabels[s3Integration.provider]}
+          {s3Integration.bucketName || providerLabels[s3Integration.provider]}
         </Text>
       </div>
     </div>

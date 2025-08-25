@@ -8,6 +8,7 @@ export const S3IntegrationResponseSchema = z.object({
   id: z.string().uuid(),
   provider: StorageProviderSchema,
   organizationId: z.string().uuid(),
+  bucketName: z.string().optional(),
   createdAt: z.string(),
   updatedAt: z.string(),
   deletedAt: z.string().nullable(),
