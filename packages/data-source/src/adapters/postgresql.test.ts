@@ -43,6 +43,7 @@ describe('PostgreSQLAdapter', () => {
         database: 'testdb',
         user: 'testuser',
         password: 'testpass',
+        ssl: true,
       });
       expect(mockClient.connect).toHaveBeenCalled();
     });

@@ -48,10 +48,8 @@ export class PostgreSQLAdapter extends BaseAdapter {
         password: pgCredentials.password,
       };
 
-      // Handle SSL configuration
-      if (pgCredentials.ssl !== undefined) {
-        config.ssl = pgCredentials.ssl;
-      }
+      // Handle SSL configuration - default to true for security
+      config.ssl = pgCredentials.ssl ?? true;
 
       // Handle connection timeout
       if (pgCredentials.connection_timeout) {
