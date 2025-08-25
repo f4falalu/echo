@@ -8,6 +8,7 @@ on:
       - 'packages/**'
       - 'pnpm-lock.yaml'
       - '.github/workflows/docker-build-server.yml'
+      - '.github/workflows/deploy.yml'
 
 # Only one build per branch at a time, queue others
 concurrency:
