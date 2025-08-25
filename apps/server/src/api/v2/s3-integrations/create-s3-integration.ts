@@ -1,20 +1,16 @@
+import { type StorageConfig, testStorageCredentials } from '@buster/data-source';
 import type { User } from '@buster/database';
-import {
-  createS3Integration,
-  getUserOrganizationId,
-  createSecret,
-} from '@buster/database';
+import { createS3Integration, createSecret, getUserOrganizationId } from '@buster/database';
 import type {
   CreateS3IntegrationRequest,
   CreateS3IntegrationResponse,
 } from '@buster/server-shared';
-import { StorageFactory, type StorageConfig } from '@buster/data-source';
 import { tasks } from '@trigger.dev/sdk/v3';
 import { HTTPException } from 'hono/http-exception';
 
 /**
  * Handler for creating S3 integrations
- * 
+ *
  * This handler:
  * 1. Validates user has access to an organization
  * 2. Checks if organization already has an active integration
@@ -62,7 +58,7 @@ export async function createS3IntegrationHandler(
         integrationId: integration.id,
         organizationId,
       });
-      
+
       console.info('Migration task triggered for storage integration', {
         integrationId: integration.id,
         organizationId,
@@ -94,13 +90,15 @@ export async function createS3IntegrationHandler(
         });
       }
 
-      if (error.message.includes('Invalid credentials') || 
-          error.message.includes('Failed to parse GCS') ||
-          error.message.includes('Failed to initialize GCS')) {
+      if (
+        error.message.includes('Invalid credentials') ||
+        error.message.includes('Failed to parse GCS') ||
+        error.message.includes('Failed to initialize GCS')
+      ) {
         throw new HTTPException(400, {
-          message: error.message.includes('parse') ? 
-            'Invalid GCS service account key format' : 
-            'Invalid storage credentials provided',
+          message: error.message.includes('parse')
+            ? 'Invalid GCS service account key format'
+            : 'Invalid storage credentials provided',
         });
       }
     }
@@ -116,9 +114,7 @@ export async function createS3IntegrationHandler(
 /**
  * Validate storage credentials by attempting to access the bucket
  */
-async function validateStorageCredentials(
-  request: CreateS3IntegrationRequest
-): Promise<void> {
+async function validateStorageCredentials(request: CreateS3IntegrationRequest): Promise<void> {
   // Build storage config from request
   let config: StorageConfig;
 
@@ -172,9 +168,9 @@ async function validateStorageCredentials(
 
   // Test the credentials
   console.info('Testing credentials for bucket:', config.bucket);
-  const isValid = await StorageFactory.testCredentials(config);
+  const isValid = await testStorageCredentials(config);
   console.info('Credential test result:', isValid);
-  
+
   if (!isValid) {
     throw new Error('Invalid credentials: Unable to access the specified bucket');
   }

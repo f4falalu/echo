@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { generateCacheKey } from './r2-metric-cache';
+import { generateCacheKey } from './metric-cache';
 
 // Mock AWS SDK
 vi.mock('@aws-sdk/client-s3', () => ({

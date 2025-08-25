@@ -1,5 +1,5 @@
 import type { MetricDataResponse } from '@buster/server-shared/metrics';
-import { StorageFactory } from '../storage';
+import { getProviderForOrganization } from '../storage';
 
 const CACHE_PREFIX = 'static-report-assets';
 
@@ -40,13 +40,13 @@ export async function checkCacheExists(
   reportId: string
 ): Promise<boolean> {
   try {
-    const storageProvider = await StorageFactory.getProviderForOrganization(organizationId);
+    const storageProvider = await getProviderForOrganization(organizationId);
     const key = generateCacheKey(organizationId, metricId, reportId);
 
     const exists = await storageProvider.exists(key);
     return exists;
   } catch (error: unknown) {
-    console.error('[r2-metric-cache] Error checking cache existence:', error);
+    console.error('[metric-cache] Error checking cache existence:', error);
     return false;
   }
 }
@@ -60,10 +60,10 @@ export async function getCachedMetricData(
   reportId: string
 ): Promise<MetricDataResponse | null> {
   try {
-    const storageProvider = await StorageFactory.getProviderForOrganization(organizationId);
+    const storageProvider = await getProviderForOrganization(organizationId);
     const key = generateCacheKey(organizationId, metricId, reportId);
 
-    console.info('[r2-metric-cache] Fetching cached data', {
+    console.info('[metric-cache] Fetching cached data', {
       organizationId,
       metricId,
       reportId,
@@ -73,7 +73,7 @@ export async function getCachedMetricData(
     const downloadResult = await storageProvider.download(key);
 
     if (!downloadResult.success || !downloadResult.data) {
-      console.info('[r2-metric-cache] Cache miss', {
+      console.info('[metric-cache] Cache miss', {
         organizationId,
         metricId,
         reportId,
@@ -85,7 +85,7 @@ export async function getCachedMetricData(
     const data = jsonToData(downloadResult.data);
     data.metricId = metricId;
 
-    console.info('[r2-metric-cache] Cache hit', {
+    console.info('[metric-cache] Cache hit', {
       organizationId,
       metricId,
       reportId,
@@ -94,7 +94,7 @@ export async function getCachedMetricData(
 
     return data;
   } catch (error: unknown) {
-    console.error('[r2-metric-cache] Error fetching cached data:', error);
+    console.error('[metric-cache] Error fetching cached data:', error);
     return null;
   }
 }
@@ -109,10 +109,10 @@ export async function setCachedMetricData(
   data: MetricDataResponse
 ): Promise<void> {
   try {
-    const storageProvider = await StorageFactory.getProviderForOrganization(organizationId);
+    const storageProvider = await getProviderForOrganization(organizationId);
     const key = generateCacheKey(organizationId, metricId, reportId);
 
-    console.info('[r2-metric-cache] Caching metric data', {
+    console.info('[metric-cache] Caching metric data', {
       organizationId,
       metricId,
       reportId,
@@ -135,17 +135,17 @@ export async function setCachedMetricData(
     });
 
     if (uploadResult.success) {
-      console.info('[r2-metric-cache] Successfully cached metric data', {
+      console.info('[metric-cache] Successfully cached metric data', {
         organizationId,
         metricId,
         reportId,
         sizeBytes: jsonBuffer.length,
       });
     } else {
-      console.error('[r2-metric-cache] Failed to cache metric data:', uploadResult.error);
+      console.error('[metric-cache] Failed to cache metric data:', uploadResult.error);
     }
   } catch (error) {
-    console.error('[r2-metric-cache] Error caching metric data:', error);
+    console.error('[metric-cache] Error caching metric data:', error);
     // Don't throw - caching failures shouldn't break the main flow
   }
 }

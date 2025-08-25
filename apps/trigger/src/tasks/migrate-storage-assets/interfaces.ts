@@ -14,12 +14,14 @@ export const MigrateStorageAssetsOutputSchema = z.object({
   totalAssets: z.number(),
   migratedAssets: z.number(),
   failedAssets: z.number(),
-  errors: z.array(
-    z.object({
-      key: z.string(),
-      error: z.string(),
-    })
-  ).optional(),
+  errors: z
+    .array(
+      z.object({
+        key: z.string(),
+        error: z.string(),
+      })
+    )
+    .optional(),
   executionTimeMs: z.number(),
 });
 

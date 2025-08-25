@@ -1,22 +1,17 @@
 import type { User } from '@buster/database';
-import {
-  getS3IntegrationByOrganizationId,
-  getUserOrganizationId,
-} from '@buster/database';
+import { getS3IntegrationByOrganizationId, getUserOrganizationId } from '@buster/database';
 import type { GetS3IntegrationResponse } from '@buster/server-shared';
 import { HTTPException } from 'hono/http-exception';
 
 /**
  * Handler for getting the current S3 integration for an organization
- * 
+ *
  * This handler:
  * 1. Validates user has access to an organization
  * 2. Retrieves the active integration for the organization
  * 3. Returns null if no active integration exists
  */
-export async function getS3IntegrationHandler(
-  user: User
-): Promise<GetS3IntegrationResponse> {
+export async function getS3IntegrationHandler(user: User): Promise<GetS3IntegrationResponse> {
   // Get user's organization
   const userOrg = await getUserOrganizationId(user.id);
 

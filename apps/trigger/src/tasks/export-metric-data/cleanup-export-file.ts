@@ -1,4 +1,4 @@
-import { StorageFactory } from '@buster/data-source';
+import { getProviderForOrganization } from '@buster/data-source';
 import { logger, task } from '@trigger.dev/sdk';
 import { CleanupExportFileInputSchema } from './interfaces';
 
@@ -19,9 +19,7 @@ export const cleanupExportFile = task({
 
     try {
       // Get storage provider (customer storage or default R2)
-      const storageProvider = await StorageFactory.getProviderForOrganization(
-        validated.organizationId
-      );
+      const storageProvider = await getProviderForOrganization(validated.organizationId);
 
       logger.log('Cleaning up export file', {
         key: validated.key,

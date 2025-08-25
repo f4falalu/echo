@@ -1,63 +1,75 @@
 import { Storage } from '@google-cloud/storage';
-import { BaseStorageProvider } from '../storage-provider';
 import type {
   ConnectionTestResult,
   DownloadResult,
   GCSConfig,
   ListOptions,
   StorageObject,
+  StorageProvider,
   UploadOptions,
   UploadResult,
 } from '../types';
+import { parseErrorMessage, sanitizeKey, toBuffer } from '../utils';
 
-export class GCSProvider extends BaseStorageProvider {
-  private storage: Storage;
-  private bucketInstance: any; // Using any to avoid complex GCS types
-
-  constructor(config: GCSConfig) {
-    super(config.bucket);
-
-    // Parse service account key
-    let credentials;
-    try {
-      credentials = JSON.parse(config.serviceAccountKey);
-    } catch (error) {
-      throw new Error(`Failed to parse GCS service account key: ${error instanceof Error ? error.message : 'Invalid JSON'}`);
-    }
-
-    try {
-      this.storage = new Storage({
-        projectId: config.projectId,
-        credentials,
-      });
-
-      this.bucketInstance = this.storage.bucket(config.bucket);
-    } catch (error) {
-      throw new Error(`Failed to initialize GCS client: ${error instanceof Error ? error.message : 'Unknown error'}`);
-    }
+/**
+ * Create a Google Cloud Storage provider
+ */
+export function createGCSProvider(config: GCSConfig): StorageProvider {
+  // Parse service account key
+  let credentials: Record<string, unknown>;
+  try {
+    credentials = JSON.parse(config.serviceAccountKey);
+  } catch (error) {
+    throw new Error(
+      `Failed to parse GCS service account key: ${
+        error instanceof Error ? error.message : 'Invalid JSON'
+      }`
+    );
   }
 
-  async upload(key: string, data: Buffer | string, options?: UploadOptions): Promise<UploadResult> {
-    try {
-      const sanitizedKey = this.sanitizeKey(key);
-      const buffer = this.toBuffer(data);
+  let storage: Storage;
+  // Using a more specific type for bucket instance
+  let bucketInstance: ReturnType<Storage['bucket']>;
 
-      const file = this.bucketInstance.file(sanitizedKey);
+  try {
+    storage = new Storage({
+      projectId: config.projectId,
+      credentials,
+    });
+
+    bucketInstance = storage.bucket(config.bucket);
+  } catch (error) {
+    throw new Error(
+      `Failed to initialize GCS client: ${error instanceof Error ? error.message : 'Unknown error'}`
+    );
+  }
+
+  async function upload(
+    key: string,
+    data: Buffer | string,
+    options?: UploadOptions
+  ): Promise<UploadResult> {
+    try {
+      const sanitizedKey = sanitizeKey(key);
+      const buffer = toBuffer(data);
+
+      const file = bucketInstance.file(sanitizedKey);
+      const metadata: Record<string, unknown> = {};
+      if (options?.contentType) metadata.contentType = options.contentType;
+      if (options?.contentDisposition) metadata.contentDisposition = options.contentDisposition;
+      if (options?.metadata) metadata.metadata = options.metadata;
+
       const stream = file.createWriteStream({
         resumable: false,
-        metadata: {
-          contentType: options?.contentType,
-          contentDisposition: options?.contentDisposition,
-          metadata: options?.metadata,
-        },
+        metadata,
       });
 
-      return new Promise((resolve, reject) => {
-        stream.on('error', (error: any) => {
+      return new Promise((resolve) => {
+        stream.on('error', (error: unknown) => {
           resolve({
             success: false,
             key,
-            error: error.message,
+            error: parseErrorMessage(error),
           });
         });
 
@@ -76,15 +88,15 @@ export class GCSProvider extends BaseStorageProvider {
       return {
         success: false,
         key,
-        error: error instanceof Error ? error.message : 'Upload failed',
+        error: parseErrorMessage(error),
       };
     }
   }
 
-  async download(key: string): Promise<DownloadResult> {
+  async function download(key: string): Promise<DownloadResult> {
     try {
-      const sanitizedKey = this.sanitizeKey(key);
-      const file = this.bucketInstance.file(sanitizedKey);
+      const sanitizedKey = sanitizeKey(key);
+      const file = bucketInstance.file(sanitizedKey);
 
       const [buffer] = await file.download();
       const [metadata] = await file.getMetadata();
@@ -98,14 +110,14 @@ export class GCSProvider extends BaseStorageProvider {
     } catch (error) {
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Download failed',
+        error: parseErrorMessage(error),
       };
     }
   }
 
-  async getSignedUrl(key: string, expiresIn: number): Promise<string> {
-    const sanitizedKey = this.sanitizeKey(key);
-    const file = this.bucketInstance.file(sanitizedKey);
+  async function getSignedUrl(key: string, expiresIn: number): Promise<string> {
+    const sanitizedKey = sanitizeKey(key);
+    const file = bucketInstance.file(sanitizedKey);
 
     // Convert seconds to milliseconds and add to current time
     const expires = Date.now() + expiresIn * 1000;
@@ -118,10 +130,10 @@ export class GCSProvider extends BaseStorageProvider {
     return url;
   }
 
-  async delete(key: string): Promise<boolean> {
+  async function deleteObject(key: string): Promise<boolean> {
     try {
-      const sanitizedKey = this.sanitizeKey(key);
-      const file = this.bucketInstance.file(sanitizedKey);
+      const sanitizedKey = sanitizeKey(key);
+      const file = bucketInstance.file(sanitizedKey);
 
       await file.delete();
       return true;
@@ -131,10 +143,10 @@ export class GCSProvider extends BaseStorageProvider {
     }
   }
 
-  async exists(key: string): Promise<boolean> {
+  async function exists(key: string): Promise<boolean> {
     try {
-      const sanitizedKey = this.sanitizeKey(key);
-      const file = this.bucketInstance.file(sanitizedKey);
+      const sanitizedKey = sanitizeKey(key);
+      const file = bucketInstance.file(sanitizedKey);
 
       const [exists] = await file.exists();
       return exists;
@@ -144,20 +156,37 @@ export class GCSProvider extends BaseStorageProvider {
     }
   }
 
-  async list(prefix: string, options?: ListOptions): Promise<StorageObject[]> {
+  async function list(prefix: string, options?: ListOptions): Promise<StorageObject[]> {
     try {
-      const sanitizedPrefix = this.sanitizeKey(prefix);
+      const sanitizedPrefix = sanitizeKey(prefix);
 
-      const [files] = await this.bucketInstance.getFiles({
+      const getFilesOptions: {
+        prefix: string;
+        maxResults?: number;
+        pageToken?: string;
+      } = {
         prefix: sanitizedPrefix,
-        maxResults: options?.maxKeys,
-        pageToken: options?.continuationToken,
-      });
+      };
+      if (options?.maxKeys !== undefined) {
+        getFilesOptions.maxResults = options.maxKeys;
+      }
+      if (options?.continuationToken !== undefined) {
+        getFilesOptions.pageToken = options.continuationToken;
+      }
 
-      return files.map((file: any) => ({
-        key: file.name,
-        size: Number.parseInt(file.metadata.size || '0', 10),
-        lastModified: new Date(file.metadata.updated || file.metadata.timeCreated),
+      const [files] = await storage.bucket(config.bucket).getFiles(getFilesOptions);
+
+      return files.map((file) => ({
+        key: file.name || '',
+        size:
+          typeof file.metadata.size === 'string'
+            ? Number.parseInt(file.metadata.size, 10)
+            : file.metadata.size || 0,
+        lastModified: file.metadata.updated
+          ? new Date(file.metadata.updated)
+          : file.metadata.timeCreated
+            ? new Date(file.metadata.timeCreated)
+            : new Date(),
         etag: file.metadata.etag || '',
       }));
     } catch (error) {
@@ -166,16 +195,16 @@ export class GCSProvider extends BaseStorageProvider {
     }
   }
 
-  async testConnection(): Promise<ConnectionTestResult> {
+  async function testConnection(): Promise<ConnectionTestResult> {
     const testKey = `_test_${Date.now()}.txt`;
     const testData = 'test';
 
     try {
       // Test bucket exists
-      console.info('GCS: Testing bucket exists for:', this.bucket);
-      let exists: boolean;
+      console.info('GCS: Testing bucket exists for:', config.bucket);
+      let bucketExists: boolean;
       try {
-        [exists] = await this.bucketInstance.exists();
+        [bucketExists] = await bucketInstance.exists();
       } catch (error) {
         console.error('GCS: Error checking bucket existence:', error);
         return {
@@ -183,11 +212,11 @@ export class GCSProvider extends BaseStorageProvider {
           canRead: false,
           canWrite: false,
           canDelete: false,
-          error: `Failed to check bucket existence: ${error instanceof Error ? error.message : 'Unknown error'}`,
+          error: `Failed to check bucket existence: ${parseErrorMessage(error)}`,
         };
       }
-      
-      if (!exists) {
+
+      if (!bucketExists) {
         return {
           success: false,
           canRead: false,
@@ -199,7 +228,7 @@ export class GCSProvider extends BaseStorageProvider {
 
       console.info('GCS: Bucket exists, testing write permission');
       // Test write
-      const uploadResult = await this.upload(testKey, testData);
+      const uploadResult = await upload(testKey, testData);
       if (!uploadResult.success) {
         return {
           success: false,
@@ -212,10 +241,10 @@ export class GCSProvider extends BaseStorageProvider {
 
       console.info('GCS: Write successful, testing read permission');
       // Test read
-      const downloadResult = await this.download(testKey);
+      const downloadResult = await download(testKey);
       if (!downloadResult.success) {
         // Clean up test file
-        await this.delete(testKey);
+        await deleteObject(testKey);
         return {
           success: false,
           canRead: false,
@@ -227,7 +256,7 @@ export class GCSProvider extends BaseStorageProvider {
 
       console.info('GCS: Read successful, testing delete permission');
       // Test delete
-      const deleteResult = await this.delete(testKey);
+      const deleteResult = await deleteObject(testKey);
       if (!deleteResult) {
         return {
           success: false,
@@ -252,8 +281,18 @@ export class GCSProvider extends BaseStorageProvider {
         canRead: false,
         canWrite: false,
         canDelete: false,
-        error: error instanceof Error ? error.message : 'Connection test failed',
+        error: parseErrorMessage(error),
       };
     }
   }
+
+  return {
+    upload,
+    download,
+    getSignedUrl,
+    delete: deleteObject,
+    exists,
+    list,
+    testConnection,
+  };
 }

@@ -1,14 +1,14 @@
-import { StorageFactory } from '@buster/data-source';
+import { getDefaultProvider, getProviderForOrganization } from '@buster/data-source';
 import { logger, schemaTask } from '@trigger.dev/sdk/v3';
 import {
-  MigrateStorageAssetsInputSchema,
   type MigrateStorageAssetsInput,
+  MigrateStorageAssetsInputSchema,
   type MigrateStorageAssetsOutput,
 } from './interfaces';
 
 /**
  * Task for migrating existing storage assets to customer's storage integration
- * 
+ *
  * This task:
  * 1. Lists all existing assets in default R2 storage for the organization
  * 2. Downloads each asset from R2
@@ -38,7 +38,7 @@ export const migrateStorageAssets: ReturnType<
   run: async (payload: MigrateStorageAssetsInput): Promise<MigrateStorageAssetsOutput> => {
     const startTime = Date.now();
     const errors: Array<{ key: string; error: string }> = [];
-    
+
     try {
       logger.log('Starting storage asset migration', {
         integrationId: payload.integrationId,
@@ -46,12 +46,10 @@ export const migrateStorageAssets: ReturnType<
       });
 
       // Get default R2 provider to read from
-      const defaultProvider = StorageFactory.getDefaultProvider();
-      
+      const defaultProvider = getDefaultProvider();
+
       // Get customer's storage provider to write to
-      const customerProvider = await StorageFactory.getProviderForOrganization(
-        payload.organizationId
-      );
+      const customerProvider = await getProviderForOrganization(payload.organizationId);
 
       // Define prefixes to migrate
       const prefixesToMigrate = [
@@ -80,13 +78,13 @@ export const migrateStorageAssets: ReturnType<
           const BATCH_SIZE = 10;
           for (let i = 0; i < objects.length; i += BATCH_SIZE) {
             const batch = objects.slice(i, i + BATCH_SIZE);
-            
+
             await Promise.all(
               batch.map(async (object) => {
                 try {
                   // Download from default storage
                   const downloadResult = await defaultProvider.download(object.key);
-                  
+
                   if (!downloadResult.success || !downloadResult.data) {
                     throw new Error(`Failed to download: ${downloadResult.error}`);
                   }
@@ -95,7 +93,9 @@ export const migrateStorageAssets: ReturnType<
                   const uploadResult = await customerProvider.upload(
                     object.key,
                     downloadResult.data,
-                    downloadResult.contentType ? { contentType: downloadResult.contentType } : undefined
+                    downloadResult.contentType
+                      ? { contentType: downloadResult.contentType }
+                      : undefined
                   );
 
                   if (!uploadResult.success) {
@@ -111,12 +111,12 @@ export const migrateStorageAssets: ReturnType<
                 } catch (error) {
                   failedAssets++;
                   const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-                  
+
                   errors.push({
                     key: object.key,
                     error: errorMessage,
                   });
-                  
+
                   logger.error('Failed to migrate asset', {
                     key: object.key,
                     error: errorMessage,
@@ -159,7 +159,7 @@ export const migrateStorageAssets: ReturnType<
       };
     } catch (error) {
       const executionTimeMs = Date.now() - startTime;
-      
+
       logger.error('Unexpected error during migration', {
         error: error instanceof Error ? error.message : 'Unknown error',
         stack: error instanceof Error ? error.stack : undefined,
@@ -170,10 +170,12 @@ export const migrateStorageAssets: ReturnType<
         totalAssets: 0,
         migratedAssets: 0,
         failedAssets: 0,
-        errors: [{
-          key: 'migration',
-          error: error instanceof Error ? error.message : 'Unknown error',
-        }],
+        errors: [
+          {
+            key: 'migration',
+            error: error instanceof Error ? error.message : 'Unknown error',
+          },
+        ],
         executionTimeMs,
       };
     }

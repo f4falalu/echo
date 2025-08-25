@@ -1,6 +1,6 @@
 import { randomBytes } from 'node:crypto';
 import { type AssetPermissionCheck, checkPermission } from '@buster/access-controls';
-import { createAdapter, StorageFactory } from '@buster/data-source';
+import { createAdapter, getProviderForOrganization } from '@buster/data-source';
 import type { Credentials } from '@buster/data-source';
 import { getDataSourceCredentials, getMetricForExport } from '@buster/database';
 import { logger, schemaTask } from '@trigger.dev/sdk';
@@ -200,9 +200,7 @@ export const exportMetricData: ReturnType<
       const key = `exports/${payload.organizationId}/${payload.metricId}/${timestamp}-${randomId}/${fileName}`;
 
       // Step 6: Get storage provider (customer storage or default R2)
-      const storageProvider = await StorageFactory.getProviderForOrganization(
-        payload.organizationId
-      );
+      const storageProvider = await getProviderForOrganization(payload.organizationId);
 
       // Step 7: Upload to storage
       logger.log('Uploading to storage', { key });

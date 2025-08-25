@@ -7,39 +7,43 @@ import {
   S3Client,
 } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
-import { BaseStorageProvider } from '../storage-provider';
 import type {
   ConnectionTestResult,
   DownloadResult,
   ListOptions,
   S3Config,
   StorageObject,
+  StorageProvider,
   UploadOptions,
   UploadResult,
 } from '../types';
+import { parseErrorMessage, sanitizeKey, toBuffer } from '../utils';
 
-export class S3Provider extends BaseStorageProvider {
-  protected client: S3Client;
+/**
+ * Create an S3 storage provider
+ */
+export function createS3Provider(config: S3Config): StorageProvider {
+  const client = new S3Client({
+    region: config.region,
+    credentials: {
+      accessKeyId: config.accessKeyId,
+      secretAccessKey: config.secretAccessKey,
+    },
+  });
 
-  constructor(config: S3Config) {
-    super(config.bucket);
+  const bucket = config.bucket;
 
-    this.client = new S3Client({
-      region: config.region,
-      credentials: {
-        accessKeyId: config.accessKeyId,
-        secretAccessKey: config.secretAccessKey,
-      },
-    });
-  }
-
-  async upload(key: string, data: Buffer | string, options?: UploadOptions): Promise<UploadResult> {
+  async function upload(
+    key: string,
+    data: Buffer | string,
+    options?: UploadOptions
+  ): Promise<UploadResult> {
     try {
-      const sanitizedKey = this.sanitizeKey(key);
-      const buffer = this.toBuffer(data);
+      const sanitizedKey = sanitizeKey(key);
+      const buffer = toBuffer(data);
 
       const command = new PutObjectCommand({
-        Bucket: this.bucket,
+        Bucket: bucket,
         Key: sanitizedKey,
         Body: buffer,
         ContentType: options?.contentType,
@@ -47,33 +51,36 @@ export class S3Provider extends BaseStorageProvider {
         Metadata: options?.metadata,
       });
 
-      const response = await this.client.send(command);
+      const response = await client.send(command);
 
-      return {
+      const result: UploadResult = {
         success: true,
         key: sanitizedKey,
-        etag: response.ETag || '',
         size: buffer.length,
       };
+      if (response.ETag) {
+        result.etag = response.ETag;
+      }
+      return result;
     } catch (error) {
       return {
         success: false,
         key,
-        error: error instanceof Error ? error.message : 'Upload failed',
+        error: parseErrorMessage(error),
       };
     }
   }
 
-  async download(key: string): Promise<DownloadResult> {
+  async function download(key: string): Promise<DownloadResult> {
     try {
-      const sanitizedKey = this.sanitizeKey(key);
+      const sanitizedKey = sanitizeKey(key);
 
       const command = new GetObjectCommand({
-        Bucket: this.bucket,
+        Bucket: bucket,
         Key: sanitizedKey,
       });
 
-      const response = await this.client.send(command);
+      const response = await client.send(command);
 
       if (!response.Body) {
         return {
@@ -82,7 +89,6 @@ export class S3Provider extends BaseStorageProvider {
         };
       }
 
-      // Convert stream to buffer
       const chunks: Uint8Array[] = [];
       const stream = response.Body as AsyncIterable<Uint8Array>;
       for await (const chunk of stream) {
@@ -90,130 +96,138 @@ export class S3Provider extends BaseStorageProvider {
       }
       const buffer = Buffer.concat(chunks);
 
-      return {
+      const result: DownloadResult = {
         success: true,
         data: buffer,
-        contentType: response.ContentType || 'application/octet-stream',
         size: buffer.length,
       };
+      if (response.ContentType) {
+        result.contentType = response.ContentType;
+      }
+      return result;
     } catch (error) {
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Download failed',
+        error: parseErrorMessage(error),
       };
     }
   }
 
-  async getSignedUrl(key: string, expiresIn: number): Promise<string> {
-    const sanitizedKey = this.sanitizeKey(key);
+  async function getSignedUrlForDownload(key: string, expiresIn: number): Promise<string> {
+    const sanitizedKey = sanitizeKey(key);
 
     const command = new GetObjectCommand({
-      Bucket: this.bucket,
+      Bucket: bucket,
       Key: sanitizedKey,
     });
 
-    return getSignedUrl(this.client, command, { expiresIn });
+    return getSignedUrl(client, command, { expiresIn });
   }
 
-  async delete(key: string): Promise<boolean> {
+  async function deleteObject(key: string): Promise<boolean> {
     try {
-      const sanitizedKey = this.sanitizeKey(key);
+      const sanitizedKey = sanitizeKey(key);
 
       const command = new DeleteObjectCommand({
-        Bucket: this.bucket,
+        Bucket: bucket,
         Key: sanitizedKey,
       });
 
-      await this.client.send(command);
+      await client.send(command);
       return true;
     } catch (error) {
-      console.error('S3 delete error:', error);
+      console.error('Error deleting from S3:', parseErrorMessage(error));
       return false;
     }
   }
 
-  async exists(key: string): Promise<boolean> {
+  async function exists(key: string): Promise<boolean> {
     try {
-      const sanitizedKey = this.sanitizeKey(key);
+      const sanitizedKey = sanitizeKey(key);
 
       const command = new HeadObjectCommand({
-        Bucket: this.bucket,
+        Bucket: bucket,
         Key: sanitizedKey,
       });
 
-      await this.client.send(command);
+      await client.send(command);
       return true;
-    } catch (error: any) {
-      if (error?.name === 'NotFound' || error?.$metadata?.httpStatusCode === 404) {
-        return false;
-      }
-      throw error;
+    } catch {
+      // Silently return false for existence check
+      return false;
     }
   }
 
-  async list(prefix: string, options?: ListOptions): Promise<StorageObject[]> {
+  async function list(prefix: string, options?: ListOptions): Promise<StorageObject[]> {
     try {
-      const sanitizedPrefix = this.sanitizeKey(prefix);
+      const sanitizedPrefix = sanitizeKey(prefix);
 
       const command = new ListObjectsV2Command({
-        Bucket: this.bucket,
+        Bucket: bucket,
         Prefix: sanitizedPrefix,
         MaxKeys: options?.maxKeys,
         ContinuationToken: options?.continuationToken,
       });
 
-      const response = await this.client.send(command);
+      const response = await client.send(command);
 
-      return (response.Contents || []).map((object) => ({
-        key: object.Key || '',
-        size: object.Size || 0,
-        lastModified: object.LastModified || new Date(),
-        etag: object.ETag || '',
-      }));
+      return (
+        response.Contents?.map((obj) => {
+          const item: StorageObject = {
+            key: obj.Key || '',
+            size: obj.Size || 0,
+            lastModified: obj.LastModified || new Date(),
+          };
+          if (obj.ETag) {
+            item.etag = obj.ETag;
+          }
+          return item;
+        }) || []
+      );
     } catch (error) {
-      console.error('S3 list error:', error);
+      console.error('Error listing S3 objects:', parseErrorMessage(error));
       return [];
     }
   }
 
-  async testConnection(): Promise<ConnectionTestResult> {
+  async function testConnection(): Promise<ConnectionTestResult> {
     const testKey = `_test_${Date.now()}.txt`;
     const testData = 'test';
 
     try {
       // Test write
-      const uploadResult = await this.upload(testKey, testData);
+      const uploadResult = await upload(testKey, testData);
       if (!uploadResult.success) {
         return {
           success: false,
           canRead: false,
           canWrite: false,
           canDelete: false,
-          error: `Cannot write to bucket: ${uploadResult.error}`,
+          error: `Upload failed: ${uploadResult.error}`,
         };
       }
 
       // Test read
-      const downloadResult = await this.download(testKey);
+      const downloadResult = await download(testKey);
       if (!downloadResult.success) {
         return {
           success: false,
           canRead: false,
           canWrite: true,
           canDelete: false,
-          error: `Cannot read from bucket: ${downloadResult.error}`,
+          error: `Download failed: ${downloadResult.error}`,
         };
       }
 
       // Test delete
-      const deleteResult = await this.delete(testKey);
+      const deleteResult = await deleteObject(testKey);
       if (!deleteResult) {
         return {
           success: false,
           canRead: true,
           canWrite: true,
           canDelete: false,
-          error: 'Cannot delete from bucket',
+          error: 'Delete failed',
         };
       }
 
@@ -229,8 +243,18 @@ export class S3Provider extends BaseStorageProvider {
         canRead: false,
         canWrite: false,
         canDelete: false,
-        error: error instanceof Error ? error.message : 'Connection test failed',
+        error: parseErrorMessage(error),
       };
     }
   }
+
+  return {
+    upload,
+    download,
+    getSignedUrl: getSignedUrlForDownload,
+    delete: deleteObject,
+    exists,
+    list,
+    testConnection,
+  };
 }

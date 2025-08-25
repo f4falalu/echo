@@ -1,8 +1,8 @@
 import { Hono } from 'hono';
 import { requireAuth } from '../../../middleware/auth';
-import { createS3IntegrationRoute } from './POST';
 import { deleteS3IntegrationRoute } from './DELETE';
 import { getS3IntegrationRoute } from './GET';
+import { createS3IntegrationRoute } from './POST';
 
 const app = new Hono();
 

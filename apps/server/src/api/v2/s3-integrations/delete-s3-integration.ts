@@ -1,16 +1,16 @@
 import type { User } from '@buster/database';
 import {
   deleteS3IntegrationById,
+  deleteSecret,
   getS3IntegrationById,
   getUserOrganizationId,
-  deleteSecret,
 } from '@buster/database';
 import type { DeleteS3IntegrationResponse } from '@buster/server-shared';
 import { HTTPException } from 'hono/http-exception';
 
 /**
  * Handler for deleting S3 integrations
- * 
+ *
  * This handler:
  * 1. Validates user has access to the organization
  * 2. Verifies the integration belongs to the user's organization

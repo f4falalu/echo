@@ -1,7 +1,7 @@
-import { Hono } from 'hono';
 import type { User } from '@buster/database';
-import { deleteS3IntegrationHandler } from './delete-s3-integration';
 import type { DeleteS3IntegrationResponse } from '@buster/server-shared';
+import { Hono } from 'hono';
+import { deleteS3IntegrationHandler } from './delete-s3-integration';
 
 const app = new Hono();
 
