@@ -1,5 +1,5 @@
 import { getS3IntegrationByOrganizationId, getSecretByName } from '@buster/database';
-import { describe, expect, it, vi, beforeEach, type Mock } from 'vitest';
+import { type Mock, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createGCSProvider } from './providers/gcs-provider';
 import { createR2Provider } from './providers/r2-provider';
 import { createS3Provider } from './providers/s3-provider';
@@ -20,7 +20,7 @@ describe('Storage Factory', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.resetModules();
-    
+
     // Mock provider creation functions
     (createS3Provider as Mock).mockReturnValue({
       upload: vi.fn(),
@@ -31,7 +31,7 @@ describe('Storage Factory', () => {
       getSignedUrl: vi.fn(),
       testConnection: vi.fn(),
     });
-    
+
     (createR2Provider as Mock).mockReturnValue({
       upload: vi.fn(),
       download: vi.fn(),
@@ -41,7 +41,7 @@ describe('Storage Factory', () => {
       getSignedUrl: vi.fn(),
       testConnection: vi.fn(),
     });
-    
+
     (createGCSProvider as Mock).mockReturnValue({
       upload: vi.fn(),
       download: vi.fn(),
@@ -197,7 +197,7 @@ describe('Storage Factory', () => {
         accessKeyId: 'org-key',
         secretAccessKey: 'org-secret',
       };
-      
+
       (getS3IntegrationByOrganizationId as Mock).mockResolvedValue(mockIntegration);
       (getSecretByName as Mock).mockResolvedValue({
         secret: JSON.stringify(mockCredentials),
@@ -226,7 +226,7 @@ describe('Storage Factory', () => {
         accessKeyId: 'org-r2-key',
         secretAccessKey: 'org-r2-secret',
       };
-      
+
       (getS3IntegrationByOrganizationId as Mock).mockResolvedValue(mockIntegration);
       (getSecretByName as Mock).mockResolvedValue({
         secret: JSON.stringify(mockCredentials),
@@ -252,7 +252,7 @@ describe('Storage Factory', () => {
         bucket: 'org-gcs-bucket',
         serviceAccountKey: '{"type":"service_account"}',
       };
-      
+
       (getS3IntegrationByOrganizationId as Mock).mockResolvedValue(mockIntegration);
       (getSecretByName as Mock).mockResolvedValue({
         secret: JSON.stringify(mockCredentials),
@@ -288,7 +288,7 @@ describe('Storage Factory', () => {
 
     it('should return default provider when secret is not found', async () => {
       const mockIntegration = { id: 'integration-missing' };
-      
+
       (getS3IntegrationByOrganizationId as Mock).mockResolvedValue(mockIntegration);
       (getSecretByName as Mock).mockResolvedValue(null);
 
@@ -321,7 +321,7 @@ describe('Storage Factory', () => {
 
     it('should handle invalid JSON in secret', async () => {
       const mockIntegration = { id: 'integration-bad-json' };
-      
+
       (getS3IntegrationByOrganizationId as Mock).mockResolvedValue(mockIntegration);
       (getSecretByName as Mock).mockResolvedValue({
         secret: 'invalid-json',
@@ -345,7 +345,7 @@ describe('Storage Factory', () => {
         provider: 'unknown',
         bucket: 'bucket',
       };
-      
+
       (getS3IntegrationByOrganizationId as Mock).mockResolvedValue(mockIntegration);
       (getSecretByName as Mock).mockResolvedValue({
         secret: JSON.stringify(mockCredentials),

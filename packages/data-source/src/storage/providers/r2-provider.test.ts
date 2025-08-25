@@ -1,8 +1,8 @@
 import { S3Client } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
-import { describe, expect, it, vi, beforeEach, type Mock } from 'vitest';
-import { createR2Provider } from './r2-provider';
+import { type Mock, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { R2Config } from '../types';
+import { createR2Provider } from './r2-provider';
 
 vi.mock('@aws-sdk/client-s3');
 vi.mock('@aws-sdk/s3-request-presigner');
@@ -152,11 +152,9 @@ describe('R2 Provider', () => {
       const url = await provider.getSignedUrl('test-key.txt', 7200);
 
       expect(url).toBe('https://r2-signed-url.com');
-      expect(getSignedUrl).toHaveBeenCalledWith(
-        mockS3Client,
-        expect.anything(),
-        { expiresIn: 7200 }
-      );
+      expect(getSignedUrl).toHaveBeenCalledWith(mockS3Client, expect.anything(), {
+        expiresIn: 7200,
+      });
     });
   });
 
@@ -271,10 +269,10 @@ describe('R2 Provider', () => {
   describe('testConnection', () => {
     it('should test all permissions successfully', async () => {
       const provider = createR2Provider(mockConfig);
-      
+
       // Mock successful upload
       mockS3Client.send.mockResolvedValueOnce({ ETag: '"test"' });
-      
+
       // Mock successful download
       const mockBody = {
         [Symbol.asyncIterator]: async function* () {
@@ -282,7 +280,7 @@ describe('R2 Provider', () => {
         },
       };
       mockS3Client.send.mockResolvedValueOnce({ Body: mockBody });
-      
+
       // Mock successful delete
       mockS3Client.send.mockResolvedValueOnce({});
 
@@ -314,10 +312,10 @@ describe('R2 Provider', () => {
 
     it('should detect read permission failure', async () => {
       const provider = createR2Provider(mockConfig);
-      
+
       // Mock successful upload
       mockS3Client.send.mockResolvedValueOnce({ ETag: '"test"' });
-      
+
       // Mock failed download
       mockS3Client.send.mockRejectedValueOnce(new Error('Read denied'));
 
@@ -334,10 +332,10 @@ describe('R2 Provider', () => {
 
     it('should detect delete permission failure', async () => {
       const provider = createR2Provider(mockConfig);
-      
+
       // Mock successful upload
       mockS3Client.send.mockResolvedValueOnce({ ETag: '"test"' });
-      
+
       // Mock successful download
       const mockBody = {
         [Symbol.asyncIterator]: async function* () {
@@ -345,7 +343,7 @@ describe('R2 Provider', () => {
         },
       };
       mockS3Client.send.mockResolvedValueOnce({ Body: mockBody });
-      
+
       // Mock failed delete
       mockS3Client.send.mockRejectedValueOnce(new Error('Delete denied'));
 

@@ -1,8 +1,8 @@
 import { S3Client } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
-import { describe, expect, it, vi, beforeEach, type Mock } from 'vitest';
-import { createS3Provider } from './s3-provider';
+import { type Mock, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { S3Config } from '../types';
+import { createS3Provider } from './s3-provider';
 
 vi.mock('@aws-sdk/client-s3');
 vi.mock('@aws-sdk/s3-request-presigner');
@@ -148,11 +148,9 @@ describe('S3 Provider', () => {
       const url = await provider.getSignedUrl('test-key.txt', 3600);
 
       expect(url).toBe('https://signed-url.com');
-      expect(getSignedUrl).toHaveBeenCalledWith(
-        mockS3Client,
-        expect.anything(),
-        { expiresIn: 3600 }
-      );
+      expect(getSignedUrl).toHaveBeenCalledWith(mockS3Client, expect.anything(), {
+        expiresIn: 3600,
+      });
     });
   });
 
@@ -267,10 +265,10 @@ describe('S3 Provider', () => {
   describe('testConnection', () => {
     it('should test connection successfully', async () => {
       const provider = createS3Provider(mockConfig);
-      
+
       // Mock successful upload
       mockS3Client.send.mockResolvedValueOnce({ ETag: '"test"' });
-      
+
       // Mock successful download
       const mockBody = {
         [Symbol.asyncIterator]: async function* () {
@@ -278,7 +276,7 @@ describe('S3 Provider', () => {
         },
       };
       mockS3Client.send.mockResolvedValueOnce({ Body: mockBody });
-      
+
       // Mock successful delete
       mockS3Client.send.mockResolvedValueOnce({});
 
@@ -310,10 +308,10 @@ describe('S3 Provider', () => {
 
     it('should handle read failure', async () => {
       const provider = createS3Provider(mockConfig);
-      
+
       // Mock successful upload
       mockS3Client.send.mockResolvedValueOnce({ ETag: '"test"' });
-      
+
       // Mock failed download
       mockS3Client.send.mockRejectedValueOnce(new Error('Read failed'));
 
@@ -330,10 +328,10 @@ describe('S3 Provider', () => {
 
     it('should handle delete failure', async () => {
       const provider = createS3Provider(mockConfig);
-      
+
       // Mock successful upload
       mockS3Client.send.mockResolvedValueOnce({ ETag: '"test"' });
-      
+
       // Mock successful download
       const mockBody = {
         [Symbol.asyncIterator]: async function* () {
@@ -341,7 +339,7 @@ describe('S3 Provider', () => {
         },
       };
       mockS3Client.send.mockResolvedValueOnce({ Body: mockBody });
-      
+
       // Mock failed delete
       mockS3Client.send.mockRejectedValueOnce(new Error('Delete failed'));
 

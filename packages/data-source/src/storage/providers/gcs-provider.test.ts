@@ -1,7 +1,7 @@
 import { Storage } from '@google-cloud/storage';
-import { describe, expect, it, vi, beforeEach, type Mock } from 'vitest';
-import { createGCSProvider } from './gcs-provider';
+import { type Mock, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { GCSConfig } from '../types';
+import { createGCSProvider } from './gcs-provider';
 
 vi.mock('@google-cloud/storage');
 
@@ -39,7 +39,7 @@ describe('GCS Provider', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    
+
     mockFile = {
       createWriteStream: vi.fn(),
       download: vi.fn(),
@@ -48,17 +48,17 @@ describe('GCS Provider', () => {
       delete: vi.fn(),
       exists: vi.fn(),
     };
-    
+
     mockBucket = {
       file: vi.fn().mockReturnValue(mockFile),
       exists: vi.fn(),
       getFiles: vi.fn(),
     };
-    
+
     mockStorage = {
       bucket: vi.fn().mockReturnValue(mockBucket),
     };
-    
+
     (Storage as unknown as Mock).mockReturnValue(mockStorage);
   });
 
@@ -442,10 +442,10 @@ describe('GCS Provider', () => {
   describe('testConnection', () => {
     it('should test all permissions successfully', async () => {
       const provider = createGCSProvider(mockConfig);
-      
+
       // Mock bucket exists
       mockBucket.exists.mockResolvedValue([true]);
-      
+
       // Mock successful upload
       const mockStream = {
         on: vi.fn((event, callback) => {
@@ -457,11 +457,11 @@ describe('GCS Provider', () => {
         end: vi.fn(),
       };
       mockFile.createWriteStream.mockReturnValue(mockStream);
-      
+
       // Mock successful download
       mockFile.download.mockResolvedValue([Buffer.from('test')]);
       mockFile.getMetadata.mockResolvedValue([{}]);
-      
+
       // Mock successful delete
       mockFile.delete.mockResolvedValue([]);
 
@@ -508,7 +508,7 @@ describe('GCS Provider', () => {
     it('should handle write failure', async () => {
       const provider = createGCSProvider(mockConfig);
       mockBucket.exists.mockResolvedValue([true]);
-      
+
       const mockStream = {
         on: vi.fn((event, callback) => {
           if (event === 'error') {
@@ -534,7 +534,7 @@ describe('GCS Provider', () => {
     it('should handle read failure', async () => {
       const provider = createGCSProvider(mockConfig);
       mockBucket.exists.mockResolvedValue([true]);
-      
+
       // Mock successful upload
       const mockStream = {
         on: vi.fn((event, callback) => {
@@ -546,10 +546,10 @@ describe('GCS Provider', () => {
         end: vi.fn(),
       };
       mockFile.createWriteStream.mockReturnValue(mockStream);
-      
+
       // Mock failed download
       mockFile.download.mockRejectedValue(new Error('Read failed'));
-      
+
       // Mock delete for cleanup
       mockFile.delete.mockResolvedValue([]);
 
@@ -568,7 +568,7 @@ describe('GCS Provider', () => {
     it('should handle delete failure', async () => {
       const provider = createGCSProvider(mockConfig);
       mockBucket.exists.mockResolvedValue([true]);
-      
+
       // Mock successful upload
       const mockStream = {
         on: vi.fn((event, callback) => {
@@ -580,11 +580,11 @@ describe('GCS Provider', () => {
         end: vi.fn(),
       };
       mockFile.createWriteStream.mockReturnValue(mockStream);
-      
+
       // Mock successful download
       mockFile.download.mockResolvedValue([Buffer.from('test')]);
       mockFile.getMetadata.mockResolvedValue([{}]);
-      
+
       // Mock failed delete
       mockFile.delete.mockRejectedValue(new Error('Delete failed'));
 

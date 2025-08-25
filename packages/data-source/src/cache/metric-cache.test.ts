@@ -1,5 +1,5 @@
 import type { MetricDataResponse } from '@buster/server-shared/metrics';
-import { describe, expect, it, vi, beforeEach, type Mock } from 'vitest';
+import { type Mock, beforeEach, describe, expect, it, vi } from 'vitest';
 import { getProviderForOrganization } from '../storage';
 import type { StorageProvider } from '../storage/types';
 import {
@@ -25,7 +25,7 @@ describe('Metric Cache', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    
+
     mockProvider = {
       upload: vi.fn(),
       download: vi.fn(),
@@ -35,8 +35,10 @@ describe('Metric Cache', () => {
       getSignedUrl: vi.fn(),
       testConnection: vi.fn(),
     };
-    
-    (getProviderForOrganization as Mock).mockResolvedValue(mockProvider as unknown as StorageProvider);
+
+    (getProviderForOrganization as Mock).mockResolvedValue(
+      mockProvider as unknown as StorageProvider
+    );
   });
 
   describe('generateCacheKey', () => {
@@ -145,7 +147,7 @@ describe('Metric Cache', () => {
       const dataWithoutMetricId = {
         data: [{ timestamp: '2024-01-15', value: 42 }],
       };
-      
+
       mockProvider.download.mockResolvedValue({
         success: true,
         data: Buffer.from(JSON.stringify(dataWithoutMetricId)),
@@ -247,7 +249,9 @@ describe('Metric Cache', () => {
       });
 
       const consoleInfoSpy = vi.spyOn(console, 'info').mockImplementation(() => {});
-      const dateSpy = vi.spyOn(Date.prototype, 'toISOString').mockReturnValue('2024-01-15T12:00:00.000Z');
+      const dateSpy = vi
+        .spyOn(Date.prototype, 'toISOString')
+        .mockReturnValue('2024-01-15T12:00:00.000Z');
 
       await setCachedMetricData('org-123', 'metric-456', 'report-789', mockMetricData);
 
@@ -417,7 +421,7 @@ describe('Metric Cache', () => {
 
       expect(results.size).toBe(25);
       expect(mockProvider.exists).toHaveBeenCalledTimes(25);
-      
+
       // Verify all results are true
       for (let i = 0; i < 25; i++) {
         expect(results.get(`metric-${i}-report-${i}`)).toBe(true);

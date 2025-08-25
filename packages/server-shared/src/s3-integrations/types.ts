@@ -1,8 +1,9 @@
 import { z } from 'zod';
+import type { StorageProvider } from './responses';
 
 // Storage configuration types for internal use
 export interface StorageConfig {
-  provider: 's3' | 'r2' | 'gcs';
+  provider: StorageProvider;
   bucket: string;
   credentials: S3Credentials | R2Credentials | GCSCredentials;
 }

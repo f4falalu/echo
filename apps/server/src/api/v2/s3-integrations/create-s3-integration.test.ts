@@ -1,14 +1,10 @@
 import { testStorageCredentials } from '@buster/data-source';
 import type { User } from '@buster/database';
-import {
-  createS3Integration,
-  createSecret,
-  getUserOrganizationId,
-} from '@buster/database';
+import { createS3Integration, createSecret, getUserOrganizationId } from '@buster/database';
 import type { CreateS3IntegrationRequest } from '@buster/server-shared';
 import { tasks } from '@trigger.dev/sdk/v3';
 import { HTTPException } from 'hono/http-exception';
-import { describe, expect, it, vi, beforeEach, type Mock } from 'vitest';
+import { type Mock, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createS3IntegrationHandler } from './create-s3-integration';
 
 vi.mock('@buster/database');
@@ -37,7 +33,7 @@ describe('createS3IntegrationHandler', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    
+
     // Default mock behaviors
     (getUserOrganizationId as Mock).mockResolvedValue({
       organizationId: 'org-123',
@@ -182,10 +178,10 @@ describe('createS3IntegrationHandler', () => {
         HTTPException
       );
 
-      const error = await createS3IntegrationHandler(mockUser, invalidRequest).catch(e => e);
+      const error = await createS3IntegrationHandler(mockUser, invalidRequest).catch((e) => e);
       expect(error).toBeInstanceOf(HTTPException);
       expect(error.status).toBe(400);
-      
+
       expect(testStorageCredentials).not.toHaveBeenCalled();
     });
 
@@ -216,11 +212,9 @@ describe('createS3IntegrationHandler', () => {
         secretAccessKey: 'secret',
       };
 
-      await expect(createS3IntegrationHandler(mockUser, request)).rejects.toThrow(
-        HTTPException
-      );
+      await expect(createS3IntegrationHandler(mockUser, request)).rejects.toThrow(HTTPException);
 
-      const error = await createS3IntegrationHandler(mockUser, request).catch(e => e);
+      const error = await createS3IntegrationHandler(mockUser, request).catch((e) => e);
       expect(error.status).toBe(403);
       expect(error.message).toContain('must be part of an organization');
     });
@@ -236,11 +230,9 @@ describe('createS3IntegrationHandler', () => {
         secretAccessKey: 'secret',
       };
 
-      await expect(createS3IntegrationHandler(mockUser, request)).rejects.toThrow(
-        HTTPException
-      );
+      await expect(createS3IntegrationHandler(mockUser, request)).rejects.toThrow(HTTPException);
 
-      const error = await createS3IntegrationHandler(mockUser, request).catch(e => e);
+      const error = await createS3IntegrationHandler(mockUser, request).catch((e) => e);
       expect(error.status).toBe(400);
       expect(error.message).toContain('Invalid storage credentials');
     });
@@ -258,11 +250,9 @@ describe('createS3IntegrationHandler', () => {
         secretAccessKey: 'secret',
       };
 
-      await expect(createS3IntegrationHandler(mockUser, request)).rejects.toThrow(
-        HTTPException
-      );
+      await expect(createS3IntegrationHandler(mockUser, request)).rejects.toThrow(HTTPException);
 
-      const error = await createS3IntegrationHandler(mockUser, request).catch(e => e);
+      const error = await createS3IntegrationHandler(mockUser, request).catch((e) => e);
       expect(error.status).toBe(409);
       expect(error.message).toContain('already has an active storage integration');
     });
@@ -279,11 +269,9 @@ describe('createS3IntegrationHandler', () => {
         serviceAccountKey: '{}',
       };
 
-      await expect(createS3IntegrationHandler(mockUser, request)).rejects.toThrow(
-        HTTPException
-      );
+      await expect(createS3IntegrationHandler(mockUser, request)).rejects.toThrow(HTTPException);
 
-      const error = await createS3IntegrationHandler(mockUser, request).catch(e => e);
+      const error = await createS3IntegrationHandler(mockUser, request).catch((e) => e);
       expect(error.status).toBe(400);
       expect(error.message).toContain('Invalid GCS service account key format');
     });
@@ -300,11 +288,9 @@ describe('createS3IntegrationHandler', () => {
         serviceAccountKey: '{}',
       };
 
-      await expect(createS3IntegrationHandler(mockUser, request)).rejects.toThrow(
-        HTTPException
-      );
+      await expect(createS3IntegrationHandler(mockUser, request)).rejects.toThrow(HTTPException);
 
-      const error = await createS3IntegrationHandler(mockUser, request).catch(e => e);
+      const error = await createS3IntegrationHandler(mockUser, request).catch((e) => e);
       expect(error.status).toBe(400);
       expect(error.message).toContain('Invalid storage credentials');
     });
@@ -320,11 +306,9 @@ describe('createS3IntegrationHandler', () => {
         secretAccessKey: 'secret',
       };
 
-      await expect(createS3IntegrationHandler(mockUser, request)).rejects.toThrow(
-        HTTPException
-      );
+      await expect(createS3IntegrationHandler(mockUser, request)).rejects.toThrow(HTTPException);
 
-      const error = await createS3IntegrationHandler(mockUser, request).catch(e => e);
+      const error = await createS3IntegrationHandler(mockUser, request).catch((e) => e);
       expect(error.status).toBe(500);
       expect(error.message).toContain('Failed to create storage integration');
     });
@@ -366,11 +350,9 @@ describe('createS3IntegrationHandler', () => {
         secretAccessKey: 'secret',
       };
 
-      await expect(createS3IntegrationHandler(mockUser, request)).rejects.toThrow(
-        HTTPException
-      );
+      await expect(createS3IntegrationHandler(mockUser, request)).rejects.toThrow(HTTPException);
 
-      const error = await createS3IntegrationHandler(mockUser, request).catch(e => e);
+      const error = await createS3IntegrationHandler(mockUser, request).catch((e) => e);
       expect(error.status).toBe(418);
       expect(error.message).toBe("I'm a teapot");
     });
@@ -394,14 +376,8 @@ describe('createS3IntegrationHandler', () => {
         'Validating storage credentials for provider:',
         's3'
       );
-      expect(consoleInfoSpy).toHaveBeenCalledWith(
-        'Testing credentials for bucket:',
-        'test-bucket'
-      );
-      expect(consoleInfoSpy).toHaveBeenCalledWith(
-        'Credential test result:',
-        true
-      );
+      expect(consoleInfoSpy).toHaveBeenCalledWith('Testing credentials for bucket:', 'test-bucket');
+      expect(consoleInfoSpy).toHaveBeenCalledWith('Credential test result:', true);
       expect(consoleInfoSpy).toHaveBeenCalledWith(
         'Migration task triggered for storage integration',
         expect.objectContaining({
