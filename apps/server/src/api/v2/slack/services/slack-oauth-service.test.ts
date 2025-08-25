@@ -41,7 +41,6 @@ vi.mock('@buster/slack', () => ({
 vi.stubEnv('SLACK_CLIENT_ID', 'test-client-id');
 vi.stubEnv('SLACK_CLIENT_SECRET', 'test-client-secret');
 vi.stubEnv('SERVER_URL', 'https://test.com');
-vi.stubEnv('SLACK_INTEGRATION_ENABLED', 'true');
 
 // Import after mocking env vars
 import { SlackOAuthService } from './slack-oauth-service';
@@ -55,40 +54,17 @@ describe('SlackOAuthService', () => {
     vi.stubEnv('SLACK_CLIENT_ID', 'test-client-id');
     vi.stubEnv('SLACK_CLIENT_SECRET', 'test-client-secret');
     vi.stubEnv('SERVER_URL', 'https://test.com');
-    vi.stubEnv('SLACK_INTEGRATION_ENABLED', 'true');
     service = new SlackOAuthService();
   });
 
   describe('isEnabled', () => {
-    it('should return true when integration is enabled', () => {
+    it('should always return true as integration is permanently enabled', () => {
       expect(service.isEnabled()).toBe(true);
-    });
-
-    it('should return false when integration is disabled', () => {
-      vi.stubEnv('SLACK_INTEGRATION_ENABLED', 'false');
-      const disabledService = new SlackOAuthService();
-      expect(disabledService.isEnabled()).toBe(false);
     });
   });
 
   describe('initiateOAuth', () => {
-    it('should throw error when integration is disabled', async () => {
-      vi.stubEnv('SLACK_INTEGRATION_ENABLED', 'false');
-      const disabledService = new SlackOAuthService();
-
-      await expect(
-        disabledService.initiateOAuth({
-          organizationId: 'org-123',
-          userId: 'user-123',
-        })
-      ).rejects.toThrow('Slack integration is not enabled');
-    });
-
     it('should throw error when active integration exists', async () => {
-      // Ensure integration is enabled for this test
-      vi.stubEnv('SLACK_INTEGRATION_ENABLED', 'true');
-      const enabledService = new SlackOAuthService();
-
       vi.mocked(slackHelpers.getActiveIntegration).mockResolvedValue({
         id: 'existing-integration',
         organizationId: 'org-123',
@@ -98,7 +74,7 @@ describe('SlackOAuthService', () => {
       } as any);
 
       await expect(
-        enabledService.initiateOAuth({
+        service.initiateOAuth({
           organizationId: 'org-123',
           userId: 'user-123',
         })
