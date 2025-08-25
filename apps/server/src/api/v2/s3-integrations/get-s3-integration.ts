@@ -1,6 +1,10 @@
 import type { User } from '@buster/database';
-import { getS3IntegrationByOrganizationId, getUserOrganizationId } from '@buster/database';
-import type { GetS3IntegrationResponse } from '@buster/server-shared';
+import {
+  getS3IntegrationByOrganizationId,
+  getSecretByName,
+  getUserOrganizationId,
+} from '@buster/database';
+import type { CreateS3IntegrationRequest, GetS3IntegrationResponse } from '@buster/server-shared';
 import { HTTPException } from 'hono/http-exception';
 
 /**
@@ -32,10 +36,26 @@ export async function getS3IntegrationHandler(user: User): Promise<GetS3Integrat
       return null;
     }
 
+    // Try to fetch the bucket name from the vault
+    let bucketName: string | undefined;
+    try {
+      const secretName = `s3-integration-${integration.id}`;
+      const secret = await getSecretByName(secretName);
+
+      if (secret) {
+        const secretData = JSON.parse(secret.secret) as CreateS3IntegrationRequest;
+        bucketName = secretData.bucket;
+      }
+    } catch (error) {
+      // Log but don't fail the request if we can't get the bucket name
+      console.warn('Failed to fetch bucket name from vault:', error);
+    }
+
     return {
       id: integration.id,
       provider: integration.provider,
       organizationId: integration.organizationId,
+      bucketName,
       createdAt: integration.createdAt,
       updatedAt: integration.updatedAt,
       deletedAt: integration.deletedAt,

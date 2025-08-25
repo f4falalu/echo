@@ -37,29 +37,11 @@ function initializeSonnet4(): ReturnType<typeof createFallback> {
     }
   }
 
-  if (process.env.ANTHROPIC_API_KEY) {
-    try {
-      models.push(anthropicModel('claude-opus-4-1-20250805'));
-      console.info('Opus41: Anthropic model added to fallback chain');
-    } catch (error) {
-      console.warn('Opus41: Failed to initialize Anthropic model:', error);
-    }
-  }
-
   // Ensure we have at least one model
   if (models.length === 0) {
     throw new Error(
       'No AI models available. Please set either Vertex AI (VERTEX_CLIENT_EMAIL and VERTEX_PRIVATE_KEY) or Anthropic (ANTHROPIC_API_KEY) credentials.'
     );
-  }
-
-  if (process.env.OPENAI_API_KEY) {
-    try {
-      models.push(openaiModel('gpt-5'));
-      console.info('Sonnet4: OpenAI model added to fallback chain');
-    } catch (error) {
-      console.warn('Sonnet4: Failed to initialize OpenAI model:', error);
-    }
   }
 
   console.info(`Sonnet4: Initialized with ${models.length} model(s) in fallback chain`);

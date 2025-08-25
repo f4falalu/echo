@@ -72,6 +72,7 @@ export async function createS3IntegrationHandler(
       id: integration.id,
       provider: integration.provider,
       organizationId: integration.organizationId,
+      bucketName: request.bucket,
       createdAt: integration.createdAt,
       updatedAt: integration.updatedAt,
       deletedAt: integration.deletedAt,
