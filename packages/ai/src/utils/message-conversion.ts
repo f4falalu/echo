@@ -167,6 +167,12 @@ function convertToolResultPart(part: unknown): unknown {
       }
     }
 
+    // Ensure toolCallId exists and is valid
+    // If it's missing or invalid, preserve the original part
+    if (!rest.toolCallId || typeof rest.toolCallId !== 'string') {
+      return part;
+    }
+
     return {
       ...rest,
       output,
