@@ -1,7 +1,8 @@
 import { updateChat, updateMessage, updateMessageEntries } from '@buster/database';
 import type { ToolCallOptions } from 'ai';
 import type { UpdateMessageEntriesParams } from '../../../../../database/src/queries/messages/update-message-entries';
-import type { DoneToolContext, DoneToolState } from './done-tool';
+import { createRawToolResultEntry } from '../../shared/create-raw-llm-tool-result-entry';
+import { DONE_TOOL_NAME, type DoneToolContext, type DoneToolState } from './done-tool';
 import {
   createFileResponseMessages,
   extractAllFilesForChatUpdate,
@@ -101,6 +102,14 @@ export function createDoneToolStart(context: DoneToolContext, doneToolState: Don
 
     const doneToolResponseEntry = createDoneToolResponseMessage(doneToolState, options.toolCallId);
     const doneToolMessage = createDoneToolRawLlmMessageEntry(doneToolState, options.toolCallId);
+    
+    // Create the tool result immediately with success: true
+    // This ensures it's always present even if the stream terminates early
+    const rawToolResultEntry = createRawToolResultEntry(
+      options.toolCallId,
+      DONE_TOOL_NAME,
+      { success: true }
+    );
 
     const entries: UpdateMessageEntriesParams = {
       messageId: context.messageId,
@@ -110,8 +119,16 @@ export function createDoneToolStart(context: DoneToolContext, doneToolState: Don
       entries.responseMessages = [doneToolResponseEntry];
     }
 
+    // Include both the tool call and tool result in raw LLM messages
+    // Since it's an upsert, sending both together ensures completeness
+    const rawLlmMessages = [];
     if (doneToolMessage) {
-      entries.rawLlmMessages = [doneToolMessage];
+      rawLlmMessages.push(doneToolMessage);
+    }
+    rawLlmMessages.push(rawToolResultEntry);
+    
+    if (rawLlmMessages.length > 0) {
+      entries.rawLlmMessages = rawLlmMessages;
     }
 
     try {
