@@ -2,20 +2,21 @@ import type { ModelMessage } from 'ai';
 
 /**
  * Converts AI SDK v4 CoreMessage to v5 ModelMessage
- * 
+ *
  * Key differences:
  * - ImagePart: mimeType → mediaType
  * - FilePart: mimeType → mediaType, added optional filename
  * - ToolResultPart: result → output (with structured type)
  * - ToolCallPart: remains the same (args field)
  */
-export function convertCoreMessageToModelMessage(message: any): ModelMessage {
+export function convertCoreMessageToModelMessage(message: unknown): ModelMessage {
   // Handle null/undefined
-  if (!message || typeof message !== 'object' || !message.role) {
+  if (!message || typeof message !== 'object' || !('role' in message)) {
     return message as ModelMessage;
   }
 
-  const { role, content } = message;
+  const msg = message as Record<string, unknown>;
+  const { role, content } = msg;
 
   switch (role) {
     case 'system':
@@ -33,14 +34,15 @@ export function convertCoreMessageToModelMessage(message: any): ModelMessage {
           content,
         };
       }
-      
+
       if (Array.isArray(content)) {
         return {
           role: 'user',
-          content: content.map(convertContentPart),
+          // biome-ignore lint/suspicious/noExplicitAny: necessary for v4 to v5 conversion
+          content: content.map(convertContentPart) as any,
         };
       }
-      
+
       return { role: 'user', content: '' };
 
     case 'assistant':
@@ -51,14 +53,15 @@ export function convertCoreMessageToModelMessage(message: any): ModelMessage {
           content,
         };
       }
-      
+
       if (Array.isArray(content)) {
         return {
           role: 'assistant',
-          content: content.map(convertContentPart),
+          // biome-ignore lint/suspicious/noExplicitAny: necessary for v4 to v5 conversion
+          content: content.map(convertContentPart) as any,
         };
       }
-      
+
       return { role: 'assistant', content: '' };
 
     case 'tool':
@@ -66,10 +69,11 @@ export function convertCoreMessageToModelMessage(message: any): ModelMessage {
       if (Array.isArray(content)) {
         return {
           role: 'tool',
-          content: content.map(convertToolResultPart),
+          // biome-ignore lint/suspicious/noExplicitAny: necessary for v4 to v5 conversion
+          content: content.map(convertToolResultPart) as any,
         };
       }
-      
+
       return { role: 'tool', content: [] };
 
     default:
@@ -81,20 +85,21 @@ export function convertCoreMessageToModelMessage(message: any): ModelMessage {
 /**
  * Convert content parts from v4 to v5 format
  */
-function convertContentPart(part: any): any {
-  if (!part || typeof part !== 'object' || !part.type) {
+function convertContentPart(part: unknown): unknown {
+  if (!part || typeof part !== 'object' || !('type' in part)) {
     return part;
   }
 
-  switch (part.type) {
+  const p = part as Record<string, unknown>;
+  switch (p.type) {
     case 'text':
       // Text parts remain the same
       return part;
 
     case 'image':
       // Convert mimeType → mediaType
-      if ('mimeType' in part) {
-        const { mimeType, ...rest } = part;
+      if ('mimeType' in p) {
+        const { mimeType, ...rest } = p;
         return {
           ...rest,
           mediaType: mimeType,
@@ -104,8 +109,8 @@ function convertContentPart(part: any): any {
 
     case 'file':
       // Convert mimeType → mediaType
-      if ('mimeType' in part) {
-        const { mimeType, ...rest } = part;
+      if ('mimeType' in p) {
+        const { mimeType, ...rest } = p;
         return {
           ...rest,
           mediaType: mimeType,
@@ -114,7 +119,11 @@ function convertContentPart(part: any): any {
       return part;
 
     case 'tool-call':
-      // Tool calls remain the same (args field stays)
+      // Tool calls: args → input (AI SDK v5 change)
+      if ('args' in p) {
+        const { args, ...rest } = p;
+        return { ...rest, input: args };
+      }
       return part;
 
     default:
@@ -125,17 +134,23 @@ function convertContentPart(part: any): any {
 /**
  * Convert tool result parts from v4 to v5 format
  */
-function convertToolResultPart(part: any): any {
-  if (!part || typeof part !== 'object' || part.type !== 'tool-result') {
+function convertToolResultPart(part: unknown): unknown {
+  if (!part || typeof part !== 'object') {
+    return part;
+  }
+
+  const p = part as Record<string, unknown>;
+
+  if (p.type !== 'tool-result') {
     return part;
   }
 
   // Convert result → output with proper structure
-  if ('result' in part && !('output' in part)) {
-    const { result, experimental_content, isError, ...rest } = part;
-    
+  if ('result' in p && !('output' in p)) {
+    const { result, experimental_content, isError, ...rest } = p;
+
     // Convert result to structured output format
-    let output;
+    let output: { type: string; value: unknown };
     if (isError) {
       // Error results
       if (typeof result === 'string') {
@@ -151,20 +166,20 @@ function convertToolResultPart(part: any): any {
         output = { type: 'json', value: result };
       }
     }
-    
+
     return {
       ...rest,
       output,
     };
   }
-  
+
   return part;
 }
 
 /**
  * Converts an array of v4 CoreMessages to v5 ModelMessages
  */
-export function convertCoreMessagesToModelMessages(messages: any[]): ModelMessage[] {
+export function convertCoreMessagesToModelMessages(messages: unknown[]): ModelMessage[] {
   if (!Array.isArray(messages)) {
     return [];
   }
@@ -175,7 +190,7 @@ export function convertCoreMessagesToModelMessages(messages: any[]): ModelMessag
  * Helper to check if content is already in v5 format
  * Useful when migrating codebases that might have mixed formats
  */
-export function isV5ContentFormat(content: any): boolean {
+export function isV5ContentFormat(content: unknown): boolean {
   // Check for tool result with v5 output field
   if (Array.isArray(content) && content.length > 0) {
     const firstItem = content[0];
@@ -190,12 +205,15 @@ export function isV5ContentFormat(content: any): boolean {
  * Smart conversion that handles both v4 and v5 formats
  * Useful during migration when you might have mixed message formats
  */
-export function ensureModelMessageFormat(message: any): ModelMessage {
+export function ensureModelMessageFormat(message: unknown): ModelMessage {
   // Already in v5 format if tool messages have 'output' field
-  if (message?.role === 'tool' && isV5ContentFormat(message.content)) {
-    return message as ModelMessage;
+  if (message && typeof message === 'object' && 'role' in message && 'content' in message) {
+    const msg = message as Record<string, unknown>;
+    if (msg.role === 'tool' && isV5ContentFormat(msg.content)) {
+      return message as ModelMessage;
+    }
   }
-  
+
   // Convert from v4 format
   return convertCoreMessageToModelMessage(message);
 }

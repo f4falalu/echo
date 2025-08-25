@@ -72,7 +72,7 @@ export function convertCoreToModel(messages: unknown): ModelMessage[] {
             content: content.map(convertToolResultPart),
           } as ModelMessage;
         }
-        return { ...msg, content: [] } as ModelMessage;
+        return { role: 'tool', content: [] } as ModelMessage;
 
       default:
         return msg as ModelMessage;
@@ -83,7 +83,7 @@ export function convertCoreToModel(messages: unknown): ModelMessage[] {
 /**
  * Convert content parts from v4 to v5 format
  */
-function convertContentPart(part: unknown): any {
+function convertContentPart(part: unknown): unknown {
   if (!part || typeof part !== 'object') {
     return part;
   }
@@ -133,13 +133,13 @@ function convertContentPart(part: unknown): any {
 /**
  * Convert tool result parts from v4 to v5 format
  */
-function convertToolResultPart(part: unknown): any {
+function convertToolResultPart(part: unknown): unknown {
   if (!part || typeof part !== 'object') {
     return part;
   }
 
   const p = part as Record<string, unknown>;
-  
+
   if (p.type !== 'tool-result') {
     return part;
   }
@@ -147,9 +147,9 @@ function convertToolResultPart(part: unknown): any {
   // Convert result → structured output
   if ('result' in p && !('output' in p)) {
     const { result, experimental_content, isError, ...rest } = p;
-    
+
     // Convert to v5's structured output format
-    let output;
+    let output: { type: string; value: unknown };
     if (isError) {
       // Error results
       if (typeof result === 'string') {
@@ -165,13 +165,13 @@ function convertToolResultPart(part: unknown): any {
         output = { type: 'json', value: result };
       }
     }
-    
+
     return {
       ...rest,
       output,
     };
   }
-  
+
   return part;
 }
 
