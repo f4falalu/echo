@@ -43,6 +43,13 @@ export const MetricWithDataSourceSchema = z.object({
   secretId: z.string(),
   dataSourceType: z.string(),
   versionNumber: z.number().optional(),
+  workspaceSharing: z.enum(['none', 'can_view', 'can_edit', 'full_access']).nullable(),
+  workspaceSharingEnabledBy: z.string().nullable(),
+  workspaceSharingEnabledAt: z.string().nullable(),
+  publiclyAccessible: z.boolean(),
+  publiclyEnabledBy: z.string().nullable(),
+  publicExpiryDate: z.string().nullable(),
+  publicPassword: z.string().nullable(),
 });
 
 export type MetricWithDataSource = z.infer<typeof MetricWithDataSourceSchema>;
@@ -68,6 +75,13 @@ export async function getMetricWithDataSource(
       versionHistory: metricFiles.versionHistory,
       secretId: dataSources.secretId,
       dataSourceType: dataSources.type,
+      workspaceSharing: metricFiles.workspaceSharing,
+      workspaceSharingEnabledBy: metricFiles.workspaceSharingEnabledBy,
+      workspaceSharingEnabledAt: metricFiles.workspaceSharingEnabledAt,
+      publiclyAccessible: metricFiles.publiclyAccessible,
+      publiclyEnabledBy: metricFiles.publiclyEnabledBy,
+      publicExpiryDate: metricFiles.publicExpiryDate,
+      publicPassword: metricFiles.publicPassword,
     })
     .from(metricFiles)
     .innerJoin(dataSources, eq(metricFiles.dataSourceId, dataSources.id))
@@ -134,6 +148,13 @@ export async function getMetricWithDataSource(
     versionHistory,
     secretId: result.secretId,
     dataSourceType: result.dataSourceType,
+    workspaceSharing: result.workspaceSharing,
+    workspaceSharingEnabledBy: result.workspaceSharingEnabledBy,
+    workspaceSharingEnabledAt: result.workspaceSharingEnabledAt,
+    publiclyAccessible: result.publiclyAccessible,
+    publiclyEnabledBy: result.publiclyEnabledBy,
+    publicExpiryDate: result.publicExpiryDate,
+    publicPassword: result.publicPassword,
     ...(versionNumber !== undefined && { versionNumber }),
   };
 

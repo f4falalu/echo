@@ -96,12 +96,17 @@ pub enum TeamToUserRole {
     PartialOrd,
 )]
 #[diesel(sql_type = sql_types::AssetPermissionRoleEnum)]
-#[serde(rename_all = "camelCase")]
+#[serde(rename_all = "snake_case")]
 pub enum AssetPermissionRole {
+    #[serde(alias = "owner")]
     Owner,
+    #[serde(alias = "fullAccess")]
     FullAccess,
+    #[serde(alias = "canEdit")]
     CanEdit,
+    #[serde(alias = "canFilter")]
     CanFilter,
+    #[serde(alias = "canView")]
     CanView,
 }
 

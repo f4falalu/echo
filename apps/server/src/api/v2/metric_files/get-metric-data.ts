@@ -1,4 +1,4 @@
-import { type AssetPermissionCheck, checkPermission } from '@buster/access-controls';
+import { hasAssetPermission } from '@buster/access-controls';
 import { executeMetricQuery, getCachedMetricData, setCachedMetricData } from '@buster/data-source';
 import type { Credentials } from '@buster/data-source';
 import type { User } from '@buster/database';
@@ -49,18 +49,38 @@ export async function getMetricDataHandler(
 
   const { organizationId } = userOrg;
 
+  // Retrieve metric definition from database with data source info
+  const metric = await getMetricWithDataSource({ metricId, versionNumber });
+
+  if (!metric) {
+    throw new HTTPException(404, {
+      message: 'Metric not found',
+    });
+  }
+
+  // Verify metric belongs to user's organization
+  if (metric.organizationId !== organizationId) {
+    throw new HTTPException(403, {
+      message: 'You do not have permission to view this metric',
+    });
+  }
+
   // Check if user has permission to view this metric file
-  const permissionCheck: AssetPermissionCheck = {
+  // This follows the same pattern as report-files.ts - hasAssetPermission handles all the logic including:
+  // - Direct permissions
+  // - Workspace sharing permissions
+  // - Cascading permissions (dashboard, chat, collection)
+  // - Admin permissions
+  const hasAccess = await hasAssetPermission({
     userId: user.id,
     assetId: metricId,
     assetType: 'metric_file',
     requiredRole: 'can_view',
     organizationId,
-  };
+    workspaceSharing: metric.workspaceSharing ?? 'none',
+  });
 
-  const permissionResult = await checkPermission(permissionCheck);
-
-  if (!permissionResult.hasAccess) {
+  if (!hasAccess) {
     throw new HTTPException(403, {
       message: 'You do not have permission to view this metric',
     });
@@ -99,22 +119,6 @@ export async function getMetricDataHandler(
 
   // Ensure limit is within bounds
   const queryLimit = Math.min(Math.max(limit, 1), 5000);
-
-  // Retrieve metric definition from database with data source info
-  const metric = await getMetricWithDataSource({ metricId, versionNumber });
-
-  if (!metric) {
-    throw new HTTPException(404, {
-      message: 'Metric not found',
-    });
-  }
-
-  // Verify metric belongs to user's organization
-  if (metric.organizationId !== organizationId) {
-    throw new HTTPException(403, {
-      message: 'You do not have permission to view this metric',
-    });
-  }
 
   // Extract SQL query from metric content
   const sql = extractSqlFromMetricContent(metric.content);

@@ -12,10 +12,14 @@ export {
   listPermissions,
   // From checks.ts
   checkPermission,
+  computeEffectivePermission,
   type AssetPermissionCheck,
   type AssetPermissionResult,
   // From cascading-permissions.ts
   checkCascadingPermissions,
+  checkMetricDashboardAccess,
+  checkMetricChatAccess,
+  checkMetricCollectionAccess,
 } from './assets';
 
 // Export dataset permissions
