@@ -102,14 +102,12 @@ export function createDoneToolStart(context: DoneToolContext, doneToolState: Don
 
     const doneToolResponseEntry = createDoneToolResponseMessage(doneToolState, options.toolCallId);
     const doneToolMessage = createDoneToolRawLlmMessageEntry(doneToolState, options.toolCallId);
-    
+
     // Create the tool result immediately with success: true
     // This ensures it's always present even if the stream terminates early
-    const rawToolResultEntry = createRawToolResultEntry(
-      options.toolCallId,
-      DONE_TOOL_NAME,
-      { success: true }
-    );
+    const rawToolResultEntry = createRawToolResultEntry(options.toolCallId, DONE_TOOL_NAME, {
+      success: true,
+    });
 
     const entries: UpdateMessageEntriesParams = {
       messageId: context.messageId,
@@ -126,7 +124,7 @@ export function createDoneToolStart(context: DoneToolContext, doneToolState: Don
       rawLlmMessages.push(doneToolMessage);
     }
     rawLlmMessages.push(rawToolResultEntry);
-    
+
     if (rawLlmMessages.length > 0) {
       entries.rawLlmMessages = rawLlmMessages;
     }

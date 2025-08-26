@@ -38,6 +38,9 @@ export interface SnowflakeCredentials {
 
   /** Default schema to use */
   default_schema?: string;
+
+  /** Optional custom host for load balancers (e.g., "ridedvp-angel.yukicomputing.com:443") */
+  custom_host?: string;
 }
 
 /**
