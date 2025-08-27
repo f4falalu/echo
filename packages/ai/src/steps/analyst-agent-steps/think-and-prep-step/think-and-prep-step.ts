@@ -1,10 +1,12 @@
-import type { ModelMessage } from 'ai';
+import type { AssistantContent, AssistantModelMessage, ModelMessage, ToolCallPart } from 'ai';
 import { z } from 'zod';
 import {
   ThinkAndPrepAgentOptionsSchema,
   ThinkAndPrepStreamOptionsSchema,
   createThinkAndPrepAgent,
 } from '../../../agents/think-and-prep-agent/think-and-prep-agent';
+import { MESSAGE_USER_CLARIFYING_QUESTION_TOOL_NAME } from '../../../tools/communication-tools/message-user-clarifying-question/message-user-clarifying-question';
+import { RESPOND_WITHOUT_ASSET_CREATION_TOOL_NAME } from '../../../tools/communication-tools/respond-without-asset-creation/respond-without-asset-creation-tool';
 
 export const RunThinkAndPrepAgentStepInputSchema = z.object({
   options: ThinkAndPrepAgentOptionsSchema,
@@ -67,31 +69,42 @@ export async function runThinkAndPrepAgentStep({
     }
 
     // Check if the agent terminated early with a clarifying question or direct response
+    console.info('[runThinkAndPrepAgentStep] DEBUG: Checking for early termination', {
+      messageId: options?.messageId,
+      totalMessages: response.messages.length,
+      MESSAGE_USER_CLARIFYING_QUESTION_TOOL_NAME,
+      RESPOND_WITHOUT_ASSET_CREATION_TOOL_NAME,
+    });
+
     let earlyTermination = false;
+
     for (const message of response.messages) {
-      if (message.role === 'assistant' && message.content) {
-        // Check if message contains tool calls
-        const messageWithTools = message as ModelMessage & {
-          toolCalls?: Array<{ toolName: string }>;
-        };
-        if (messageWithTools.toolCalls && Array.isArray(messageWithTools.toolCalls)) {
-          for (const toolCall of messageWithTools.toolCalls) {
-            if (
-              toolCall.toolName === 'messageUserClarifyingQuestion' ||
-              toolCall.toolName === 'respondWithoutAssetCreation'
-            ) {
-              earlyTermination = true;
-              console.info('[runThinkAndPrepAgentStep] Early termination detected', {
-                messageId: options?.messageId,
-                toolName: toolCall.toolName,
-              });
-              break;
+      if (message.role === 'assistant') {
+        const assistantMessage = message as AssistantModelMessage;
+        if (assistantMessage.content) {
+          const content = assistantMessage.content as AssistantContent;
+          if (Array.isArray(content)) {
+            for (const part of content) {
+              if (part.type === 'tool-call') {
+                const toolCall = part as ToolCallPart;
+                if (
+                  toolCall.toolName === MESSAGE_USER_CLARIFYING_QUESTION_TOOL_NAME ||
+                  toolCall.toolName === RESPOND_WITHOUT_ASSET_CREATION_TOOL_NAME
+                ) {
+                  earlyTermination = true;
+                  break;
+                }
+              }
             }
           }
         }
       }
-      if (earlyTermination) break;
     }
+
+    console.info('[runThinkAndPrepAgentStep] DEBUG: Early termination check complete', {
+      messageId: options?.messageId,
+      earlyTermination,
+    });
 
     return {
       messages: response.messages,

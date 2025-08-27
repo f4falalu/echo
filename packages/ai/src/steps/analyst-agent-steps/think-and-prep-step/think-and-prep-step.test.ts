@@ -136,9 +136,15 @@ describe('runThinkAndPrepAgentStep', () => {
       { role: 'user', content: 'Test prompt' },
       {
         role: 'assistant',
-        content: 'I need clarification',
-        toolCalls: [{ toolName: 'messageUserClarifyingQuestion' }],
-      } as ModelMessage & { toolCalls: Array<{ toolName: string }> },
+        content: [
+          {
+            type: 'tool-call' as const,
+            toolName: 'messageUserClarifyingQuestion',
+            toolCallId: 'test-tool-call-id',
+            args: { clarifying_question: 'Need more info' },
+          },
+        ],
+      },
     ];
 
     const mockStream = {
@@ -181,9 +187,15 @@ describe('runThinkAndPrepAgentStep', () => {
       { role: 'user', content: 'Test prompt' },
       {
         role: 'assistant',
-        content: 'Direct response',
-        toolCalls: [{ toolName: 'respondWithoutAssetCreation' }],
-      } as ModelMessage & { toolCalls: Array<{ toolName: string }> },
+        content: [
+          {
+            type: 'tool-call' as const,
+            toolName: 'respondWithoutAssetCreation',
+            toolCallId: 'test-tool-call-id',
+            args: { final_response: 'Direct response to user' },
+          },
+        ],
+      },
     ];
 
     const mockStream = {

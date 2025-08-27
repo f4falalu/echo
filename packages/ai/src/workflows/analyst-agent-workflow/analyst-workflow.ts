@@ -76,15 +76,23 @@ export async function runAnalystWorkflow(
     },
   });
 
+  console.info('[runAnalystWorkflow] DEBUG: Think-and-prep results', {
+    workflowId,
+    messageId: input.messageId,
+    earlyTermination: thinkAndPrepAgentStepResults.earlyTermination,
+    messageCount: thinkAndPrepAgentStepResults.messages.length,
+  });
+
   messages.push(...thinkAndPrepAgentStepResults.messages);
 
   // Check if think-and-prep agent terminated early (clarifying question or direct response)
   let analystAgentStepResults = { messages: [] as ModelMessage[] };
 
   if (!thinkAndPrepAgentStepResults.earlyTermination) {
-    console.info('[runAnalystWorkflow] Running analyst agent step', {
+    console.info('[runAnalystWorkflow] Running analyst agent step (early termination = false)', {
       workflowId,
       messageId: input.messageId,
+      earlyTermination: thinkAndPrepAgentStepResults.earlyTermination,
     });
 
     analystAgentStepResults = await runAnalystAgentStep({
@@ -105,9 +113,10 @@ export async function runAnalystWorkflow(
 
     messages.push(...analystAgentStepResults.messages);
   } else {
-    console.info('[runAnalystWorkflow] Skipping analyst agent due to early termination', {
+    console.info('[runAnalystWorkflow] DEBUG: SKIPPING analyst agent due to early termination', {
       workflowId,
       messageId: input.messageId,
+      earlyTermination: thinkAndPrepAgentStepResults.earlyTermination,
     });
   }
 
