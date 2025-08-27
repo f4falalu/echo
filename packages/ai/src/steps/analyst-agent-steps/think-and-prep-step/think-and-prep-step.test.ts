@@ -52,7 +52,7 @@ describe('runThinkAndPrepAgentStep', () => {
       },
     });
 
-    expect(result).toEqual({ messages: mockMessages });
+    expect(result).toEqual({ messages: mockMessages, earlyTermination: false });
     expect(mockAgent.stream).toHaveBeenCalledTimes(1);
   });
 
@@ -129,6 +129,96 @@ describe('runThinkAndPrepAgentStep', () => {
     ).rejects.toThrow(
       'Think and prep agent returned an invalid response shape (missing messages array)'
     );
+  });
+
+  it('should detect early termination with messageUserClarifyingQuestion', async () => {
+    const mockMessages: ModelMessage[] = [
+      { role: 'user', content: 'Test prompt' },
+      {
+        role: 'assistant',
+        content: 'I need clarification',
+        toolCalls: [{ toolName: 'messageUserClarifyingQuestion' }],
+      } as ModelMessage & { toolCalls: Array<{ toolName: string }> },
+    ];
+
+    const mockStream = {
+      response: Promise.resolve({
+        messages: mockMessages,
+      }),
+    };
+
+    const mockAgent = {
+      stream: vi.fn().mockResolvedValue(mockStream),
+    };
+
+    const { createThinkAndPrepAgent } = await import(
+      '../../../agents/think-and-prep-agent/think-and-prep-agent'
+    );
+    (createThinkAndPrepAgent as ReturnType<typeof vi.fn>).mockReturnValue(mockAgent);
+
+    const result = await runThinkAndPrepAgentStep({
+      options: {
+        messageId: 'test-message-id',
+        workflowStartTime: Date.now(),
+        sql_dialect_guidance: 'postgres',
+        userId: 'test-user-id',
+        chatId: 'test-chat-id',
+        organizationId: 'test-organization-id',
+        dataSourceId: 'test-data-source-id',
+        dataSourceSyntax: 'test-data-source-syntax',
+        datasets: [],
+      },
+      streamOptions: {
+        messages: [{ role: 'user', content: 'Test prompt' }],
+      },
+    });
+
+    expect(result).toEqual({ messages: mockMessages, earlyTermination: true });
+  });
+
+  it('should detect early termination with respondWithoutAssetCreation', async () => {
+    const mockMessages: ModelMessage[] = [
+      { role: 'user', content: 'Test prompt' },
+      {
+        role: 'assistant',
+        content: 'Direct response',
+        toolCalls: [{ toolName: 'respondWithoutAssetCreation' }],
+      } as ModelMessage & { toolCalls: Array<{ toolName: string }> },
+    ];
+
+    const mockStream = {
+      response: Promise.resolve({
+        messages: mockMessages,
+      }),
+    };
+
+    const mockAgent = {
+      stream: vi.fn().mockResolvedValue(mockStream),
+    };
+
+    const { createThinkAndPrepAgent } = await import(
+      '../../../agents/think-and-prep-agent/think-and-prep-agent'
+    );
+    (createThinkAndPrepAgent as ReturnType<typeof vi.fn>).mockReturnValue(mockAgent);
+
+    const result = await runThinkAndPrepAgentStep({
+      options: {
+        messageId: 'test-message-id',
+        workflowStartTime: Date.now(),
+        sql_dialect_guidance: 'postgres',
+        userId: 'test-user-id',
+        chatId: 'test-chat-id',
+        organizationId: 'test-organization-id',
+        dataSourceId: 'test-data-source-id',
+        dataSourceSyntax: 'test-data-source-syntax',
+        datasets: [],
+      },
+      streamOptions: {
+        messages: [{ role: 'user', content: 'Test prompt' }],
+      },
+    });
+
+    expect(result).toEqual({ messages: mockMessages, earlyTermination: true });
   });
 
   it('should log errors with context', async () => {

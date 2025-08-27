@@ -13,6 +13,9 @@ export const RunThinkAndPrepAgentStepInputSchema = z.object({
 
 export const RunThinkAndPrepAgentStepOutputSchema = z.object({
   messages: z.array(z.custom<ModelMessage>()),
+  earlyTermination: z
+    .boolean()
+    .describe('Whether the agent terminated early with a clarifying question or direct response'),
 });
 
 export type RunThinkAndPrepAgentStepInput = z.infer<typeof RunThinkAndPrepAgentStepInputSchema>;
@@ -63,8 +66,36 @@ export async function runThinkAndPrepAgentStep({
       );
     }
 
+    // Check if the agent terminated early with a clarifying question or direct response
+    let earlyTermination = false;
+    for (const message of response.messages) {
+      if (message.role === 'assistant' && message.content) {
+        // Check if message contains tool calls
+        const messageWithTools = message as ModelMessage & {
+          toolCalls?: Array<{ toolName: string }>;
+        };
+        if (messageWithTools.toolCalls && Array.isArray(messageWithTools.toolCalls)) {
+          for (const toolCall of messageWithTools.toolCalls) {
+            if (
+              toolCall.toolName === 'messageUserClarifyingQuestion' ||
+              toolCall.toolName === 'respondWithoutAssetCreation'
+            ) {
+              earlyTermination = true;
+              console.info('[runThinkAndPrepAgentStep] Early termination detected', {
+                messageId: options?.messageId,
+                toolName: toolCall.toolName,
+              });
+              break;
+            }
+          }
+        }
+      }
+      if (earlyTermination) break;
+    }
+
     return {
       messages: response.messages,
+      earlyTermination,
     };
   } catch (error) {
     const errorMessage =

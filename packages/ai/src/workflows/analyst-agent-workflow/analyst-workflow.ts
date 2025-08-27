@@ -78,23 +78,38 @@ export async function runAnalystWorkflow(
 
   messages.push(...thinkAndPrepAgentStepResults.messages);
 
-  const analystAgentStepResults = await runAnalystAgentStep({
-    options: {
-      messageId: input.messageId,
-      chatId: input.chatId,
-      organizationId: input.organizationId,
-      dataSourceId: input.dataSourceId,
-      dataSourceSyntax: input.dataSourceSyntax,
-      userId: input.userId,
-      datasets: input.datasets,
-      workflowStartTime,
-    },
-    streamOptions: {
-      messages,
-    },
-  });
+  // Check if think-and-prep agent terminated early (clarifying question or direct response)
+  let analystAgentStepResults = { messages: [] as ModelMessage[] };
 
-  messages.push(...analystAgentStepResults.messages);
+  if (!thinkAndPrepAgentStepResults.earlyTermination) {
+    console.info('[runAnalystWorkflow] Running analyst agent step', {
+      workflowId,
+      messageId: input.messageId,
+    });
+
+    analystAgentStepResults = await runAnalystAgentStep({
+      options: {
+        messageId: input.messageId,
+        chatId: input.chatId,
+        organizationId: input.organizationId,
+        dataSourceId: input.dataSourceId,
+        dataSourceSyntax: input.dataSourceSyntax,
+        userId: input.userId,
+        datasets: input.datasets,
+        workflowStartTime,
+      },
+      streamOptions: {
+        messages,
+      },
+    });
+
+    messages.push(...analystAgentStepResults.messages);
+  } else {
+    console.info('[runAnalystWorkflow] Skipping analyst agent due to early termination', {
+      workflowId,
+      messageId: input.messageId,
+    });
+  }
 
   // Extract all tool calls from messages
   const allToolCalls = extractToolCallsFromMessages(messages);
